@@ -20,7 +20,8 @@
           <div class="mask">
             <a-icon type="plus"/>
           </div>
-          <img :src="userInfo.avatar"/>
+          <img :src="userInfo.avatar" v-if="userInfo.avatar"/>
+          <img src="~@/assets/icons/library/default-avatar.png" v-else/>
         </div>
         <div style="width: 100%">
           <div class="user-name">
@@ -29,7 +30,7 @@
               <a-input v-model="userInfo.tempNickname" size="large" :maxLength="80"/>
             </div>
           </div>
-          <a-icon type="profile" style="margin-left: 30px" />&nbsp&nbsp{{ userInfo.email }}
+          <a-icon type="profile" style="margin-left: 30px" />&nbsp;&nbsp;{{ userInfo.email }}
         </div>
 
       </a-col>
@@ -49,6 +50,7 @@
           <div class="profile-input profile-data" v-if="editMode">
             <a-select :getPopupContainer="trigger => trigger.parentElement" v-model="userInfo.currentRole" placeholder="Please role">
               <a-select-option value="teacher">teacher</a-select-option>
+              <a-select-option value="student">student</a-select-option>
               <a-select-option value="expert">expert</a-select-option>
             </a-select>
           </div>
@@ -73,13 +75,14 @@
             <div class="profile-tag-item" v-for="(areaName,index) in userInfo.areaNameList" :key="index">
               <a-tag>{{ areaName }}</a-tag>
             </div>
-            <div
-              class="profile-tag-item"
-              v-for="(otherName,index) in userInfo.others"
-              :key="'o' + index"
-              v-if="userInfo.others && userInfo.others.length">
-              <a-tag color="#108ee9">{{ otherName }}</a-tag>
-            </div>
+            <template v-if="userInfo.others && userInfo.others.length">
+              <div
+                class="profile-tag-item"
+                v-for="(otherName,index) in userInfo.others"
+                :key="'o' + index">
+                <a-tag color="#108ee9">{{ otherName }}</a-tag>
+              </div>
+            </template>
           </div>
           <div class="profile-input profile-data" v-if="editMode">
             <a-select :getPopupContainer="trigger => trigger.parentElement" v-model="userInfo.areaIds" placeholder="Please select" mode="multiple">
@@ -120,7 +123,7 @@
         </div>
 
         <!--        subject-->
-        <div class="profile-item-line" v-if="$store.getters.currentRole === 'teacher'">
+        <div class="profile-item-line" v-hasRole="['teacher', 'student']">
           <div class="profile-label">
             <span class="label-txt">Subject(s) :</span>
           </div>
@@ -131,7 +134,24 @@
           </div>
           <div class="profile-input profile-data" v-if="editMode">
             <a-select :getPopupContainer="trigger => trigger.parentElement" v-model="userInfo.subjectIds" mode="multiple">
-              <a-select-option :value="subject.id" v-if="subject.subjectType === subjectType.Skill || subject.subjectType === subjectType.LearnAndSkill" v-for="subject in subjectOptions" :key="subject.id">{{ subject.name }}</a-select-option>
+              <a-select-option :value="subject.id" v-for="subject in subjectOptionsFilter" :key="subject.id">{{ subject.name }}</a-select-option>
+            </a-select>
+          </div>
+        </div>
+
+        <!--        age-->
+        <div class="profile-item-line" v-hasRole="['student']">
+          <div class="profile-label">
+            <span class="label-txt">Age : </span>
+          </div>
+          <div class="profile-text profile-data" v-if="!editMode">
+            {{ userInfo.age }}
+          </div>
+          <div class="profile-input profile-data" v-if="editMode">
+            <a-select :getPopupContainer="trigger => trigger.parentElement" v-model="userInfo.age" placeholder="Please select age">
+              <a-select-option :value="ageOption" v-for="ageOption in ageList" :key="'age_'+ageOption">
+                {{ ageOption }}
+              </a-select-option>
             </a-select>
           </div>
         </div>
@@ -162,7 +182,7 @@
           </div>
 
           <div class="profile-text profile-data">
-            <a slot="extra" href="#" @click="handleSetting"> <a-icon type="edit" />&nbspTags setting</a>
+            <a slot="extra" href="#" @click="handleSetting"> <a-icon type="edit" />&nbsp;Tags setting</a>
           </div>
         </div>
 
@@ -184,7 +204,7 @@
           <a-button type="primary" :loading="loadSaving" @click="saveDetail">{{ $t('account.settings.basic.update') }}</a-button>
         </div>
         <div class="submit-action-wrapper-second" v-if="editMode">
-          <a-button @click="editMode = !editMode">{{ $t('account.settings.basic.cancel') }}</a-button>
+          <a-button @click="cancelDetail">{{ $t('account.settings.basic.cancel') }}</a-button>
         </div>
       </a-col>
     </a-row>
@@ -213,10 +233,12 @@ import {
   getAllCurriculums,
   getAllSubjectsByCurriculumId,
   getCustomizedTags,
-  GetGradesByCurriculumId
+  GetGradesByCurriculumId,
+  getAllAreas
 } from '@/api/preference'
 import TagSetting from '@/components/UnitPlan/TagSetting'
-import { CurriculumType, SubjectType } from '@/const/common'
+import { SubjectStudentList } from '@/api/subject'
+import { SubjectType } from '@/const/common'
 
 export default {
   name: 'BasicSetting',
@@ -247,7 +269,8 @@ export default {
         gradeIds: [],
         areaIds: [],
         others: null,
-        tempOthers: null
+        tempOthers: null,
+        age: 5
       },
 
       currentArea: null,
@@ -265,7 +288,8 @@ export default {
       editMode: false,
       settingVisible: false,
       disableQuestion: this.$store.getters.disableQuestion,
-      subjectType: SubjectType
+      subjectType: SubjectType,
+      ageList: [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
     }
   },
   watch: {
@@ -274,12 +298,20 @@ export default {
       this.loadSubjectByCurriculumId(val)
     }
   },
+  computed: {
+    subjectOptionsFilter() {
+      if (this.$store.getters.currentRole === 'student') {
+        return this.subjectOptions
+      }
+      return this.subjectOptions ? this.subjectOptions.filter(subject => subject.subjectType === SubjectType.Skill || subject.subjectType === SubjectType.LearnAndSkill) : []
+    }
+  },
   created () {
     this.initData()
   },
   methods: {
 
-    initData () {
+    initBasic () {
       this.userInfo.subjectNameList = []
       this.userInfo.gradeNameList = []
       this.userInfo.areaNameList = []
@@ -293,6 +325,7 @@ export default {
       this.userInfo.gradeIds = this.$store.getters.userInfo.preference.gradeIds
       this.userInfo.areaIds = this.$store.getters.userInfo.preference.areaIds
       this.userInfo.others = this.$store.getters.userInfo.preference.others
+      this.userInfo.age = this.$store.getters.userInfo.age
       this.customizedTagIds = []
       this.$store.getters.userInfo.customizedTags.forEach(item => {
         this.customizedTagIds.push({
@@ -300,8 +333,14 @@ export default {
           'value': item.id
         })
       })
+      if (this.subjectOptions && this.subjectOptions.length > 0 && this.userInfo.subjectIds && this.userInfo.subjectIds.length > 0) {
+        this.userInfo.subjectNameList = this.subjectOptions.filter(item => this.userInfo.subjectIds.includes(item.id)).map(item => item.name)
+      }
       this.$logger.info('user info loaded', this.userInfo)
+    },
 
+    initData () {
+      this.initBasic()
       this.loading = true
       if (this.$store.getters.currentRole === 'teacher') {
         Promise.all([
@@ -358,23 +397,48 @@ export default {
         }).finally(() => {
         })
       } else {
-        getAllSubjectsByCurriculumId({ curriculumId: CurriculumType.Cambridge }).then(response => {
-          this.areaOptions = response.result
-          this.areaOptions.forEach(item => {
-            if (this.userInfo.areaIds.indexOf(item.id) !== -1) {
-              this.userInfo.areaNameList.push(item.name)
-              this.currentArea = item
+        Promise.all([
+          getAllAreas(),
+          SubjectStudentList()
+        ]).then(response => {
+          this.$logger.info('init data', response)
+          if (!response[0].code) {
+            logger.info('getAllAreas response', response[0])
+            this.areaOptions = response[0].result
+            this.areaOptions.forEach(item => {
+              if (this.userInfo.areaIds.indexOf(item.id) !== -1) {
+                this.userInfo.areaNameList.push(item.name)
+                this.currentArea = item
+
+                if (item.name === 'Others') {
+                  this.userInfo.tempOthers = (this.userInfo.others && this.userInfo.others.length) ? this.userInfo.others[0] : null
+                }
+              }
 
               if (item.name === 'Others') {
-                this.userInfo.tempOthers = (this.userInfo.others && this.userInfo.others.length) ? this.userInfo.others[0] : null
+                this.otherAreaId = item.id
               }
-            }
+            })
+          }
 
-            if (item.name === 'Others') {
-              this.otherAreaId = item.id
-            }
-          })
-        }).finally(() => { this.loading = false })
+          if (!response[1].code) {
+            logger.info('SubjectTree response', response[1])
+            this.subjectOptions = response[1].result
+            this.userInfo.subjectNameList = []
+            this.subjectOptions.forEach(option => {
+              if (this.userInfo.subjectIds.indexOf(option.id) !== -1) {
+                this.userInfo.subjectNameList.push(option.name)
+              } else {
+                this.$logger.info('subject id ' + option.id + ' dont exist in ', this.userInfo.subjectIds)
+              }
+            })
+          }
+
+          this.loading = false
+        }).catch(err => {
+          this.$message.error(err)
+        }).finally(() => {
+        })
       }
     },
 
@@ -450,6 +514,11 @@ export default {
             return item.value
           })
         }
+      } else if (this.$store.getters.currentRole === 'student') {
+        postData = {
+          subjectIds: this.userInfo.subjectIds,
+          age: this.userInfo.age
+        }
       }
       this.$logger.info('tempNickname ', this.userInfo.tempNickname)
       if (this.userInfo.tempNickname && this.userInfo.tempNickname.length < 80) {
@@ -473,6 +542,11 @@ export default {
       } else {
         this.$message.warn('illegal nickname')
       }
+    },
+
+    cancelDetail() {
+      this.initBasic()
+      this.editMode = false
     },
 
     onChange (value) {

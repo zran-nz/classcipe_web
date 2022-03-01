@@ -13,10 +13,10 @@
               <!--              </a-breadcrumb>-->
               <div class="skt-description">
                 <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
-                <div class="skt-chart" v-hasRole="['student']" v-if="bloomInfo(k.knowledgeId, 'knowledgeLevel').length > 0">
+                <div class="skt-chart" v-hasRole="['student']" v-if="bloomInfo(k.knowledgeId, 'isExist')">
                   <div class="skt-chart-detail">
                     <label>Bloom Taxonomy</label>
-                    <a-rate class="rate-bar-con" :tooltips="bloomLevelDesc" :count="6" :value="bloomInfo(k.knowledgeId, 'bloomLevel')" disabled>
+                    <a-rate class="rate-bar-con small" :tooltips="bloomLevelDesc" :count="6" :value="bloomInfo(k.knowledgeId, 'bloomLevel')" disabled>
                       <div slot="character">
                         <div class="rate-bar"></div>
                       </div>
@@ -43,10 +43,10 @@
               <!--              </a-breadcrumb>-->
               <div class="skt-description">
                 <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
-                <div class="skt-chart" v-hasRole="['student']" v-if="bloomInfo(k.knowledgeId, 'knowledgeLevel').length > 0">
+                <div class="skt-chart" v-hasRole="['student']" v-if="bloomInfo(k.knowledgeId, 'isExist')">
                   <div class="skt-chart-detail">
                     <label>Bloom Taxonomy</label>
-                    <a-rate class="rate-bar-con" :tooltips="bloomLevelDesc" :count="6" :value="bloomInfo(k.knowledgeId, 'bloomLevel')" disabled>
+                    <a-rate class="rate-bar-con small" :tooltips="bloomLevelDesc" :count="6" :value="bloomInfo(k.knowledgeId, 'bloomLevel')" disabled>
                       <div slot="character">
                         <div class="rate-bar"></div>
                       </div>
@@ -73,10 +73,10 @@
               <!--              </a-breadcrumb>-->
               <div class="skt-description skt-description-21">
                 <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
-                <div class="skt-chart" v-hasRole="['student']" v-if="bloomInfo(k.knowledgeId, 'knowledgeLevel').length > 0">
+                <div class="skt-chart" v-hasRole="['student']" v-if="bloomInfo(k.knowledgeId, 'isExist')">
                   <div class="skt-chart-detail">
                     <label>Bloom Taxonomy</label>
-                    <a-rate class="rate-bar-con" :tooltips="bloomLevelDesc" :count="6" :value="bloomInfo(k.knowledgeId, 'bloomLevel')" disabled>
+                    <a-rate class="rate-bar-con small" :tooltips="bloomLevelDesc" :count="6" :value="bloomInfo(k.knowledgeId, 'bloomLevel')" disabled>
                       <div slot="character">
                         <div class="rate-bar"></div>
                       </div>
@@ -196,7 +196,7 @@
       bloomInfo () {
         return (knowledgeId, key) => {
           if (!knowledgeId || this.classInfoList.length === 0) {
-            return []
+            return null
           }
           const datas = this.classInfoList.map(item => item.data ? item.data.data ? item.data.data : '' : '')
           const datasLearnOut = datas.filter(item => item && item.learnOuts && item.learnOuts.length > 0)
@@ -205,19 +205,22 @@
           // knowledge 显示多个，bloom显示最高级
           const result = {
             knowledgeLevel: [],
-            bloomLevel: 1
+            bloomLevel: 0
           }
-          result.knowledgeLevel = data.map(item => item.knowledgeLevel).filter(item => item !== '')
+          result.knowledgeLevel = Array.from(new Set(data.map(item => item.knowledgeLevel).filter(item => item !== '')))
           result.bloomLevel = data.map(item => {
             const val = this.bloomLevel.find(bloom => bloom.text === item.bloomLevel)
             return val ? parseInt(val.value) : ''
           }).filter(item => item !== '').sort().pop()
           console.log(result)
+          if (key === 'isExist') {
+            return result.knowledgeLevel.length > 0 || result.bloomLevel > 0
+          }
           return result[key]
         }
       },
       bloomLevelDesc() {
-        if (this.bloomLevel) {
+        if (this.bloomLevel && this.bloomLevel.length > 0) {
           return this.bloomLevel.map(item => item.title)
         } else {
           return []

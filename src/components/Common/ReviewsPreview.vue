@@ -2,7 +2,7 @@
   <div class="reviews-wrapper">
     <div class="reviews-title">
       <h2>Reviews</h2>
-      <a-space class="reviews-opt">
+      <a-space class="reviews-opt" v-if="myReviews">
         <a-button type="link" v-show="!isEdit" @click="() => triggerEdit(true)">Edit Review</a-button>
         <a-button type="link" v-show="isEdit" @click="() => triggerEdit(false)">Cancel</a-button>
         <a-button type="primary" v-show="isEdit" @click="handleSaveMyReview">Send</a-button>
@@ -13,7 +13,7 @@
         <div class="reviews-edit__check">
           <div>
             <label>Difficulty Level</label>
-            <a-rate class="rate-bar-con" :count="3" v-model="subForm.reviewsLabel">
+            <a-rate class="rate-bar-con" :count="3" :tooltips="reviewsText" v-model="subForm.reviewsLabel">
               <div slot="character">
                 <div class="rate-bar"></div>
               </div>
@@ -149,6 +149,7 @@ export default {
       reviewsList: [],
       reviewsNotes: '',
       reviewsScore: '',
+      reviewsText: ['Easy', 'Intermediate', 'Difficult'],
       subForm: {
         'reviewsLabel': 1,
         'reviewsNotes': '',

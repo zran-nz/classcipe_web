@@ -27,11 +27,16 @@ button.ant-btn-primary {
 // bloom rate
 .rate-bar-con {
   margin-bottom: 0;
-  .ant-rate-star:not(:last-child) {
-    margin-right: 5px;
+  &.small {
+    .ant-rate-star:not(:last-child) {
+      margin-right: 8px;
+    }
+    .rate-bar {
+      width: 8px;
+    }
   }
   .rate-bar {
-    width: 8px;
+    width: 12px;
     height: 30px;
     background: #aaa;
   }

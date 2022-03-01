@@ -423,7 +423,7 @@
           <reviews-preview :id="id"/>
         </a-col>
       </a-row>
-      <div class="associate-info" v-if="viewMode === 'Detail'" v-excludeRole="['student']">>
+      <div class="associate-info" v-if="viewMode === 'Detail'" v-excludeRole="['student']">
         <common-link :can-edit="false" ref="commonLink" :from-id="id" :from-type="type"/>
       </div>
     </template>
@@ -479,6 +479,7 @@ const { TaskQueryById } = require('@/api/task')
 const { EvaluationQueryById } = require('@/api/evaluation')
 const { FavoritesAdd } = require('@/api/favorites')
 const { ReviewsTaskStats } = require('@/api/reviewsTask')
+const { SelfStudyTaskBye } = require('@/api/selfStudy')
 
 export default {
   name: 'CommonPreview',
@@ -747,7 +748,23 @@ export default {
     },
 
     handleStartTask () {
-
+      this.$confirm({
+        title: 'Confirm start',
+        content: 'Are you sure to start ' + this.data.name + ' ?',
+        centered: true,
+        onOk: () => {
+          this.copyLoading = true
+          SelfStudyTaskBye({ taskId: this.data.id }).then((response) => {
+            if (response.success) {
+              this.$logger.info('SelfStudyTaskBye response', response)
+              this.$message.success('Start successfully')
+              this.$router.push({ path: '/student/main/my-task' })
+            }
+          }).finally(() => {
+            this.copyLoading = false
+          })
+        }
+      })
     },
 
     handleOpenLink (url) {

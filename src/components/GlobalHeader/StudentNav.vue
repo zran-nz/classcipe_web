@@ -22,11 +22,25 @@
     <div class="nav-right">
       <div class="study-mode">
         <label class="self-mode" :class="{active: studyMode === 'selfStudy'}" @click="handleChange('selfStudy')">Self-study</label>
-        <a-select :value="school" class="school-mode" :class="{active: studyMode === 'schoolStudy'}" @focus="handleChange('schoolStudy')" @change="handleChangeSchool">
+        <a-dropdown :class="{active: studyMode === 'schoolStudy', 'school-mode': true}">
+          <!-- <a-button style="margin-left: 8px"> {{ schoolName }} <a-icon type="down" /> </a-button> -->
+          <a class="ant-dropdown-link" @click="handleChange('schoolStudy')">
+            {{ schoolName }} <a-icon type="down" />
+          </a>
+          <a-menu slot="overlay" @click="handleChangeSchool">
+            <a-menu-item key="East west study">
+              <a href="javascript:;">East west study</a>
+            </a-menu-item>
+            <a-menu-item key="West east study">
+              <a href="javascript:;">West east study</a>
+            </a-menu-item>
+          </a-menu>
+        </a-dropdown>
+        <!-- <a-select :value="school" class="school-mode" :class="{active: studyMode === 'schoolStudy'}" @focus="handleChange('schoolStudy')" @change="handleChangeSchool">
           <a-select-option value="eastWest">
             East west study
           </a-select-option>
-        </a-select>
+        </a-select> -->
       </div>
     </div>
   </div>
@@ -53,7 +67,7 @@ export default {
     return {
       defaultSelectedKeys: [],
       selectedKeys: [],
-      school: 'eastWest'
+      schoolName: 'eastWest'
     }
   },
   watch: {
@@ -84,6 +98,8 @@ export default {
       }
     },
     handleChangeSchool(val) {
+      this[TOOGLE_STUDY_MODE]('schoolStudy')
+      this.schoolName = val.key
       console.log(val)
     }
   }
@@ -110,14 +126,17 @@ export default {
   }
   .school-mode {
     &.active {
-      background: #f59a23;
+      color: #f59a23;
+      /deep/ .anticon {
+        color: #f59a23;
+      }
     }
   }
-  /deep/ .ant-select-selection {
+  /deep/ .ant-btn {
     background: transparent;
     color: #fff;
   }
-  /deep/ .ant-select-arrow {
+  /deep/ .anticon {
     color: #fff;
   }
 }

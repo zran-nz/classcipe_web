@@ -3,6 +3,32 @@
     <a-layout>
       <a-layout-sider>
         <div class="nav-bar-left">
+          <a-menu
+            class="nav-bar-wrapper"
+            v-model="selectedKey"
+            :open-keys.sync="openKeys"
+            mode="inline"
+          >
+            <a-menu-item
+              :key="item.path"
+              :class="{
+                'nav-bar-item': true,
+                'nav-bar-item-split': true,
+                'selected-nav-bar': selectedKey.includes(item.path),
+              }"
+              v-for="item in currentMenu"
+            >
+              <router-link :to="item.path">
+                <component
+                  :is="item.meta.icon"
+                  v-if="item.meta.icon"
+                ></component>
+                {{ $t(item.meta.title) }}
+              </router-link>
+            </a-menu-item>
+          </a-menu>
+        </div>
+        <!-- <div class="nav-bar-left">
           <div class="nav-bar-wrapper">
             <div :class="{ 'nav-bar-item': true, 'selected-nav-bar': selectedKey === '/student/main/my-task' }">
               <router-link to="/student/main/my-task">
@@ -23,7 +49,7 @@
               </router-link>
             </div>
           </div>
-        </div>
+        </div> -->
       </a-layout-sider>
       <a-layout-content class="main-content">
         <router-view />
@@ -42,6 +68,7 @@ import PopularSvg from '@/assets/svgIcon/myContent/Popular.svg?inline'
 import SharedSvg from '@/assets/svgIcon/myContent/Shared.svg?inline'
 import SubscribesSvg from '@/assets/svgIcon/myContent/Subscribes.svg?inline'
 import AddPreference from './AddPreference.vue'
+import { mapState } from 'vuex'
 
 export default {
   name: 'Main',
@@ -56,23 +83,47 @@ export default {
   },
   data() {
     return {
-      selectedKey: '/student/main/my-task',
-      quickSessionVisible: false
+      selectedKey: ['/student/main/my-task'],
+      quickSessionVisible: false,
+      currentRouterName: 'student',
+      openKeys: []
     }
   },
   watch: {
     '$route.path'(to) {
       logger.debug('My Content route.path change ' + to)
-      this.selectedKey = to
+      this.selectedKey = [to]
     }
   },
-  computed: {},
+  computed: {
+    ...mapState({
+      // 动态主路由
+      mainMenu: state => state.permission.addRouters
+    }),
+    currentMenu() {
+      const addRouters = this.mainMenu
+      if (addRouters && addRouters.length > 0) {
+        const mainRouter = addRouters.find(item => item.name === 'index')
+        if (mainRouter && mainRouter.children && mainRouter.children.length > 0) {
+          const currentRouter = mainRouter.children.find(item => item.name === this.currentRouterName)
+          if (currentRouter && currentRouter.children && currentRouter.children.length > 0) {
+            const Main = currentRouter.children.find(item => item.name === 'Main')
+            return Main ? Main.children : []
+          }
+        }
+      }
+      return []
+    }
+  },
   created() {
-    this.selectedKey = this.$route.path
+    this.selectedKey = [this.$route.path]
     logger.info('selectedKey ', this.selectedKey)
   },
   mounted() {},
   methods: {
+    handleClick() {
+
+    }
   }
 }
 </script>
@@ -122,13 +173,15 @@ export default {
       background-image: url('~@/assets/icons/myContent/Rectangle@2x.png');
       background-repeat: repeat;
       background-size: cover;
+      margin: 0;
+      height: auto;
 
       a {
         display: flex;
         align-items: center;
         width: 100%;
         line-height: 30px;
-        padding: 10px 20px;
+        padding: 10px 0px;
         color: #000000;
 
         svg {
@@ -142,10 +195,6 @@ export default {
           color: @primary-color;
         }
       }
-    }
-
-    .nav-bar-item-split {
-      margin-bottom: 20px;
     }
 
     .selected-nav-bar {

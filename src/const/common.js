@@ -125,3 +125,18 @@ export const CustomTagType = {
     default: ['Teaching strategies', 'Differentiated instructions', 'Bloom\'s Taxonomy', 'Knowledge Dimensions']
   }
 }
+
+export const StudentStudyTaskStatus = [
+  {
+    value: 0,
+    title: 'On-going'
+  },
+  {
+    value: 1,
+    title: 'Completed'
+  },
+  {
+    value: 2,
+    title: 'Archived'
+  }
+]

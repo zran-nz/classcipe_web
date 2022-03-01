@@ -522,6 +522,9 @@ export default {
     }
   },
   created () {
+    if (this.$store.getters.currentRole === 'student') {
+      this.currentCurriculumId = CurriculumType.Cambridge + ''
+    }
     this.currentBrowserType = null
     this.getRecommended()
 
