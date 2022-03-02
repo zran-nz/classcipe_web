@@ -34,43 +34,39 @@
             <div class="skt-tag-wrapper">
               <div class="skt-tag-list">
                 <div class="search-tag-wrapper tag-wrapper">
-                  <div class="skt-tag-item" v-for="(keyword, kIndex) in tagSearchList" :key="kIndex" >
+                  <div class="skt-tag-item" v-for="(keyword, kIndex) in displayTagList" :key="kIndex" >
                     <a-tag
                       closable
                       @close='handleDeleteTag(keyword)'
+                      :class="{'active-tag-item': tagSearchList.indexOf(keyword) > -1}"
                       class="tag-item">
                       {{ keyword }}
                     </a-tag>
                   </div>
-                  <a-input
-                    v-if='createTagInputVisible'
-                    v-model="inputTag"
-                    placeholder="Create Tags"
-                    class="search-input"
-                    @keyup.enter.native="handleEnsureSearchTag"
-                    @search="searchTag"
-                    @keyup="searchTag" >
-                  </a-input>
-                </div>
-                <div class="create-tag-wrapper tag-wrapper" v-show="!tagIsExist(createTagName, tagSearchList) && createTagName && createTagName.length >= 1">
-                  <div class="skt-tag-create-line" @click="handleCreateTagByInput">
-                    <div class="create-tag-label">
-                      Create
+                  <div class='create-tag-item-btn' v-if='userTagList.length'>
+                    <a-input
+                      v-if='createTagInputVisible'
+                      v-model="inputTag"
+                      placeholder="Create Tags"
+                      class="search-input"
+                      @keyup.enter.native="handleEnsureSearchTag"
+                      @blur.native="createTagInputVisible = false">
+                      @search="searchTag"
+                      @keyup="searchTag" >
+                    </a-input>
+                    <div class='create-tag-item-wrapper'>
+                      <div class='no-tag-list' v-if='displayTagList.length === 0 && !createTagInputVisible'>
+                        <div class='no-tips'>
+                          There is no tag under the current type.
+                        </div>
+                      </div>
+                      <a-tooltip placement="top">
+                        <template slot="title">
+                          Create tag
+                        </template>
+                        <a-icon type="plus-circle" :style="{ fontSize: '18px', color: '#15c39a' }" @click='createTagInputVisible = true'/>
+                      </a-tooltip>
                     </div>
-                    <div class="create-tag">
-                      <a-tag class="created-tag-item">
-                        {{ createTagName }}
-                      </a-tag>
-                    </div>
-                  </div>
-                </div>
-                <div class='no-tag-list' v-if='userTagList.length > 0 && tagSearchList.length === 0 && !(!tagIsExist(createTagName, tagSearchList) && createTagName && createTagName.length >= 1)'>
-                  <no-more-resources tips='' />
-                  <div class='no-tips'>
-                    There is no tag under the current type, create one now ?
-                  </div>
-                  <div class='create-tag'>
-                    <a-button type='primary' shape='round' @click='createTagInputVisible = true'>Create</a-button>
                   </div>
                 </div>
               </div>
@@ -79,7 +75,7 @@
                 <div class='no-tips'>
                   No tags type have been added yet, create one now ?
                 </div>
-                <div class='create-tag'>
+                <div class='create-tag-btn'>
                   <a-button type='primary' shape='round' @click='handleInitCreateTagCategory'>Create</a-button>
                 </div>
               </div>
@@ -102,16 +98,9 @@ export default {
   components: {
     NoMoreResources
   },
-  props: {
-
-  },
-  mounted () {
-  },
-  destroyed () {
-
-  },
   data () {
     return {
+      currentActiveTagCategory: null,
       currentActiveTagCategoryName: '',
       currentEditTagCategoryName: '',
 
@@ -121,19 +110,28 @@ export default {
       inputTag: '',
       tagSearchList: [],
       currentEditTagName: '',
+      displayTagList: [],
       createTagInputVisible: false
+    }
+  },
+  watch: {
+    currentActiveTagCategory (val) {
+      if (val && val.keywords) {
+        this.displayTagList = val.keywords
+      } else {
+        this.displayTagList = []
+      }
     }
   },
   created () {
     this.handleUpdateUserTags()
-  },
-  watch: {
   },
   methods: {
 
     handleActiveTagCategory (userTagItem) {
       this.$logger.info('handleActiveTagCategory', userTagItem)
       this.currentActiveTagCategoryName = userTagItem.name
+      this.currentActiveTagCategory = userTagItem
       this.filterKeyword()
     },
 
@@ -163,8 +161,9 @@ export default {
           this.handleUpdateUserTags()
         } else {
           this.$message.error(response.message)
+          this.tagLoading = false
         }
-      }).finally(() => {
+      }).catch(() => {
         this.tagLoading = false
       })
     },
@@ -178,8 +177,9 @@ export default {
           this.handleUpdateUserTags()
         } else {
           this.$message.error(response.message)
+          this.tagLoading = false
         }
-      }).finally(() => {
+      }).catch(() => {
         this.tagLoading = false
       })
     },
@@ -218,13 +218,17 @@ export default {
           })
           this.userTagList = userTags
           this.$logger.info('userTagList', this.userTagList)
-          if (!this.currentActiveTagCategoryName && this.userTagList.length > 0) {
-            const firstTagCategory = this.userTagList.find(item => item.name)
-            if (firstTagCategory) {
-              this.currentActiveTagCategoryName = firstTagCategory.name
-            }
+          let firstTagCategory = this.userTagList.find(item => item.name && this.currentActiveTagCategoryName === item.name)
+          if (!firstTagCategory && this.userTagList.length > 0) {
+            firstTagCategory = this.userTagList.find(item => item.name)
           }
-          this.$logger.info('currentActiveTagCategoryName', this.currentActiveTagCategoryName)
+
+          if (firstTagCategory) {
+            this.currentActiveTagCategoryName = firstTagCategory.name
+            this.currentActiveTagCategory = firstTagCategory
+            this.displayTagList = firstTagCategory.keywords
+          }
+          this.$logger.info('currentActiveTagCategory', this.currentActiveTagCategory)
           this.filterKeyword()
         } else {
           this.$message.error(response.message)
@@ -242,16 +246,13 @@ export default {
           return
         }
         this.tagSearchList = Array.from(userTagItem.keywords)
-        if (this.inputTag) {
-          this.tagSearchList = this.tagSearchList.filter(item => item.toLowerCase().indexOf(this.inputTag.toLowerCase()) > -1)
-        }
+        this.tagSearchList = this.tagSearchList.filter(item => this.inputTag && this.inputTag.trim() && item.toLowerCase().indexOf(this.inputTag.toLowerCase()) > -1)
         this.$logger.info('tagSearchList', this.tagSearchList)
       }
     },
 
     handleEnsureSearchTag () {
       this.$logger.info('handleEnsureSearchTag', this.inputTag)
-      this.searchTag(this.inputTag)
       this.createTagName = this.inputTag
       this.handleCreateTagByInput()
     },
@@ -458,7 +459,7 @@ export default {
 
 .skt-tag-wrapper {
   .skt-tag-list {
-    margin-top: 5px;
+    margin-top: 15px;
     max-height: 380px;
     overflow-y: auto;
     background: rgba(255, 255, 255, 1);
@@ -487,8 +488,8 @@ export default {
         }
       }
       .tag-item {
-        background-color: rgba(21, 195, 154, 1);
-        color: #fff;
+        background-color: rgba(21, 195, 154, 0.1);
+        color: #15c39a;
         padding: 3px 6px;
         cursor: pointer;
 
@@ -505,6 +506,11 @@ export default {
           }
         }
       }
+
+      .active-tag-item {
+        background-color: rgba(21, 195, 154, 1);
+        color: #fff;
+      }
     }
 
     .create-tag-wrapper {
@@ -512,7 +518,7 @@ export default {
     }
 
     .skt-tag-item {
-      margin: 5px 10px 5px 0;
+      margin-top: 10px;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -523,8 +529,8 @@ export default {
         cursor: pointer;
         border-radius: 28px;
         padding-left: 10px;
-        padding-right: 10px;
         word-break:normal;
+        border-color: #15c39a;
         width:auto;
         display:flex;
         flex-direction: row;
@@ -545,9 +551,7 @@ export default {
       align-items: center;
       justify-content: flex-start;
       padding: 5px 0;
-      &:hover {
-        background: rgba(0, 0, 0, 5%)
-      }
+      background: rgba(0, 0, 0, 5%);
 
       .create-tag-label {
         cursor: pointer;
@@ -573,27 +577,49 @@ export default {
 }
 
 .user-tag-list-wrapper {
-  min-height: 250px;
+  min-height: 200px;
+}
+
+.create-tag-item-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
 .no-tag-list {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
   text-align: center;
-  width: 80%;
-  height: 200px;
-  margin: auto;
 }
 
 .no-tips {
-  color: #999;
+  cursor: pointer;
+  color: #aaa;
+  padding-right: 10px;
   line-height: 30px;
   text-align: center;
 }
 
-.create-tag {
+.create-tag-btn {
   margin-top: 10px;
+  text-align: center;
+}
+
+.create-tag-item-btn {
+  margin-top: 10px;
+  display: flex;
+  height: 28px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
 }
 
 .search-input {
+  width: 150px;
   border-radius: 30px;
+  margin-right: 10px;
 }
+
 </style>
