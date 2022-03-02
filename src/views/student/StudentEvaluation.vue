@@ -1418,7 +1418,7 @@ export default {
 
           &::-webkit-scrollbar-thumb {
             border-radius: 5px;
-            background: rgba(0, 0, 0, 0.12);
+            background: rgba(0, 0, 0, 0.06);
             box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.01);
           }
 
