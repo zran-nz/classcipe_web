@@ -104,7 +104,7 @@
       v-model="settingVisible"
       :footer="null"
       destroyOnClose
-      width="80%"
+      width='600px'
       :dialog-style="{ top: '20px' }">
       <div>
         <tag-setting @add-user-tag="handleAddUserTag"/>

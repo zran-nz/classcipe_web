@@ -5,7 +5,7 @@
         <a v-if="showArrow" class="header-triangle"></a>
         <a-button class="setting-button" slot="extra" href="#" @click="handleSetting">My tags <a-icon type="edit" /></a-button>
         <div class='tag-selected-label'>
-          <template v-if="tagList.length === 0">No tags added: </template>
+          <template v-if="tagList.length === 0">No tags added : </template>
           <template v-if='tagList.length !== 0'>Tags added :</template>
         </div>
         <div class='tag-content-wrapper'>
@@ -129,10 +129,9 @@
       title="My tags"
       v-model="settingVisible"
       :footer="null"
+      width='600px'
       destroyOnClose
-      :afterClose="refreshTag"
-      width="1000px"
-      :dialog-style="{ top: '20px' }">
+      :afterClose="refreshTag">
       <div>
         <tag-setting />
       </div>
@@ -147,8 +146,6 @@ import TagBrowser from '@/components/UnitPlan/TagBrowser'
 import TagSetting from '@/components/UnitPlan/TagSetting'
 import { AddUserTagNew } from '@/api/tag'
 import { UtilMixin } from '@/mixins/UtilMixin'
-
-// const { debounce } = require('lodash-es')
 
 export default {
   name: 'CustomTag',
@@ -583,6 +580,7 @@ export default {
     align-items: center;
     user-select: none;
     cursor: pointer;
+    color: #bbb;
   }
 
   .selected-tag {
