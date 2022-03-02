@@ -18,6 +18,7 @@ export default {
     'menu.managing.term': 'Academics Terms',
     'menu.my-content': 'MyContent',
     'menu.my-favorite': 'My Favorite',
+    'menu.my-orders': 'My Orders',
     'menu.my-task': 'My Task',
     'menu.subscribe': 'Subscribe',
     'menu.shared': 'Collaborations',

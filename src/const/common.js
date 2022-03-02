@@ -9,6 +9,8 @@ export const DICT_BLOOM_CATEGORY = 'bloom_categories'
 export const DICT_PROMPT_PURPOSE = 'prompt_purpose'
 export const DICT_PROMPT_TYPE = 'prompt_type'
 export const DICT_BLOOM_TAXONOMY = 'bloom_taxonomy'
+export const DICT_ORDER_TYPE = 'order_type'
+export const DICT_ORDER_STATUS = 'order_status'
 export const TAG_CATGORY_KEYWORDS = 'Key words'
 export const SESSION_CALLBACK_URL = 'classcipe_callback_url'
 
@@ -140,3 +142,9 @@ export const StudentStudyTaskStatus = [
     title: 'Archived'
   }
 ]
+
+export const OrderType = {
+  Tasks: '1',
+  AskTeacher: '2',
+  Other: '9'
+}

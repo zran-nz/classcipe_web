@@ -13,7 +13,13 @@
         <div class="reviews-edit__check">
           <div>
             <label>Difficulty Level</label>
-            <a-rate class="rate-bar-con" :count="3" :tooltips="reviewsText" v-model="subForm.reviewsLabel">
+            <a-rate
+              class="rate-bar-con"
+              :count="3"
+              :tooltips="reviewsText"
+              :allowClear="false"
+              v-model="subForm.reviewsLabel"
+            >
               <div slot="character">
                 <div class="rate-bar"></div>
               </div>
@@ -21,7 +27,7 @@
           </div>
           <div>
             <label>Overall review</label>
-            <a-rate v-model="subForm.reviewsScore"/>
+            <a-rate v-model="subForm.reviewsScore" :allowClear="false"/>
           </div>
         </div>
         <div class="reviews-edit__text">
@@ -60,7 +66,8 @@
       <a-spin :spinning="delLoading">
         <div class="reviews-content-detail reviews-me" v-if="myReviews">
           <div class="content-detail__avatar">
-            <img src="~@/assets/icons/library/default-avatar.png"/>
+            <img v-if="!myReviews.avatar" src="~@/assets/icons/library/default-avatar.png"/>
+            <img v-else :src="myReviews.avatar"/>
           </div>
           <div class="content-detail__rate">
             <a-rate :value="myReviews.reviewsScore" allow-half disabled/>
@@ -88,7 +95,7 @@
           </a-space>
         </div>
       </a-spin>
-      <a-skeleton :loading="loading" active >
+      <a-skeleton :loading="loading" active v-show="reviewsList.length > 0" >
         <a-list item-layout="vertical" :pagination="pagination" :data-source="reviewsList">
           <a-list-item
             slot="renderItem"
@@ -97,7 +104,8 @@
           >
             <div class="reviews-content-detail">
               <div class="content-detail__avatar">
-                <img src="~@/assets/icons/library/default-avatar.png"/>
+                <img v-if="!item.avatar" src="~@/assets/icons/library/default-avatar.png"/>
+                <img v-else :src="item.avatar"/>
               </div>
               <div class="content-detail__rate">
                 <a-rate :value="item.reviewsScore" allow-half disabled/>
@@ -207,7 +215,8 @@ export default {
         reviewsScore: this.reviewsScore,
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize,
-        taskId: this.id
+        taskId: this.id,
+        excludeSelf: 1
       }).then(res => {
         logger.info('loadReviewList', res)
         if (res.result && res.result.records && res.result.records.length) {
@@ -376,7 +385,7 @@ export default {
           }
           .info-time {
             height: 24px;
-            font-size: 18px;
+            font-size: 14px;
             font-family: Inter-Bold;
             line-height: 24px;
             color: #929292;

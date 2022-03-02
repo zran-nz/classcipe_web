@@ -10,6 +10,7 @@ export default {
     'menu.my-content.center': '我的内容',
     'menu.teacher.unit-plan': '添加单元计划',
     'menu.favorites': '收藏夹',
+    'menu.my-orders': '我的订单',
     'menu.my-task': '我的任务',
     'menu.my-subscribes': '我的订阅',
     'menu.dashboard': '仪表盘',
