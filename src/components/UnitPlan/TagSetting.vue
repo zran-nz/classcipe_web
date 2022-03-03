@@ -207,6 +207,7 @@ export default {
       this.currentActiveTagCategoryName = newUserTagItem.name
       this.currentEditTagCategoryName = newUserTagItem.name
       this.currentActiveTagCategory = newUserTagItem
+      this.displayTagList = []
       this.userTagList.push(newUserTagItem)
       this.$nextTick(() => {
         const dom = document.getElementById('tag-category-' + newUserTagItem.name)
