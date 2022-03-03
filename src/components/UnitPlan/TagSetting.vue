@@ -1,9 +1,9 @@
 <template>
-  <div class="tag-setting">
+  <div class="tag-setting" @click='trySaveTagCategory'>
     <a-spin :spinning='tagLoading'>
       <div class='tag-content-wrapper'>
         <div class='tag-tab' id='tag-tab'>
-          <div class='icon-left icon-nav' @click='scrollLeft' v-show='userTagList.length'>
+          <div class='icon-left icon-nav' @click.stop='scrollLeft' v-show='userTagList.length'>
             <a-icon type="left" />
           </div>
           <div class="user-tag-category-tabs" id='user-tag-category-tabs' v-if='userTagList.length'>
@@ -21,27 +21,26 @@
                   </div>
                 </div>
               </div>
-              <div class="editing-title" v-show="userTagItem.editing === true">
+              <div class="editing-title" v-show="userTagItem.editing === true" @click.stop=''>
                 <a-input
                   v-model="currentEditTagCategoryName"
                   placeholder="Name your category"
                   :id="'tag-category-' + userTagItem.name"
                   class="my-tag-category-input"
-                  @blur='handleEnsureUpdateTagCategory(userTagItem)'
                   @keyup.enter="handleEnsureUpdateTagCategory(userTagItem)">
                 </a-input>
               </div>
             </div>
           </div>
           <div class='icon-right icon-nav'>
-            <a-icon type="right" @click='scrollRight' v-show='userTagList.length'/>
+            <a-icon type="right" @click.stop='scrollRight' v-show='userTagList.length'/>
           </div>
           <div class='icon-add' v-show='userTagList.length >= 1'>
             <a-tooltip placement="top">
               <template slot="title">
                 Add tag type
               </template>
-              <a-icon type="plus-circle" :style="{ fontSize: '18px', color: '#15c39a' }" @click='handleInitCreateTagCategory' v-show='showAddCategory'/>
+              <a-icon type="plus-circle" :style="{ fontSize: '18px', color: '#15c39a' }" @click.stop='handleInitCreateTagCategory' v-show='showAddCategory'/>
             </a-tooltip>
           </div>
         </div>
@@ -214,6 +213,7 @@ export default {
         if (dom) {
           dom.focus()
         }
+        this.scrollRight()
       })
     },
 
@@ -407,6 +407,21 @@ export default {
         left: tagCategoryTabDom.scrollLeft + 400,
         behavior: 'smooth'
       })
+    },
+
+    trySaveTagCategory () {
+      this.$logger.info('trySaveTagCategory')
+      const userTagItem = this.userTagList.find(item => item.editing && item.name)
+      if (userTagItem) {
+        this.$logger.info('trySaveTagCategory userTagItem', userTagItem)
+        if (userTagItem.newTag) {
+          this.handleCreateTagCategory(userTagItem)
+        } else {
+          this.handleUpdateTagCategory(userTagItem)
+        }
+      } else {
+        this.$logger.info('no editing tag category')
+      }
     }
   }
 

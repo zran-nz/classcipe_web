@@ -6,7 +6,16 @@
 
 <script>
 export default {
-  name: 'PlanningFormat'
+  name: 'PlanningFormat',
+  data () {
+    return {
+    }
+  },
+  created() {
+  },
+  methods: {
+
+  }
 }
 </script>
 
