@@ -35,13 +35,13 @@
               <div class='field-config'>
                 <div class='field-config-left'>
                   <div class='field-display-name field-line-item'>
-                    <a-input v-model='fieldItem.showName' class='show-name-input' />
+                    <a-input v-model='fieldItem.showName' placeholder='Please enter the display name' class='show-name-input' />
                   </div>
                   <div class='field-display-hint-label'>
                     hint
                   </div>
                   <div class='field-display-hint field-line-item'>
-                    <a-input v-model='fieldItem.hint' class='hint-input'/>
+                    <a-input v-model='fieldItem.hint' placeholder='Please enter the hint' class='hint-input'/>
                   </div>
                 </div>
                 <div class='field-config-right'>
@@ -62,7 +62,68 @@
         </transition-group>
       </draggable>
     </div>
-    <div class='custom-field-list'></div>
+    <div class='format-form-header'>
+      <div class='format-form-title'>
+        <span class='title-num'>2</span>
+        <span class='title'> Custom field </span>
+      </div>
+      <div class='format-tag-settings'>
+        <a-button type='primary' @click='handleAddCustomField'><a-icon type="plus" /> Add field </a-button>
+      </div>
+    </div>
+    <div class='custom-field-list'>
+      <draggable
+        class="list-group"
+        tag="ul"
+        v-model="myCustomList"
+        v-bind="customDragOptions"
+        @start="customDrag = true"
+        @end="customDrag = false"
+      >
+        <transition-group type="transition" :name="!customDrag ? 'flip-list' : null">
+          <li
+            class="list-group-item"
+            v-for="fieldItem in myCustomList"
+            :key="fieldItem.sortNo"
+          >
+            <div class='sort-icon'>
+              <img src='~@/assets/icons/formConfig/line3_green.png' alt='' class='green'/>
+              <img src='~@/assets/icons/formConfig/line3.png' alt='' class='gray'/>
+            </div>
+            <div class='field-item-config'>
+              <div class='field-label'>
+                Field name
+              </div>
+              <div class='field-config'>
+                <div class='field-config-left'>
+                  <div class='field-display-name field-line-item'>
+                    <a-input v-model='fieldItem.name' placeholder='Please enter the display name' class='show-name-input' />
+                  </div>
+                  <div class='field-display-hint-label'>
+                    hint
+                  </div>
+                  <div class='field-display-hint field-line-item'>
+                    <a-input v-model='fieldItem.hint' placeholder='Please enter the hint' class='hint-input'/>
+                  </div>
+                </div>
+                <div class='field-config-right'>
+                  <div class='tag-setting'>
+                    <a-icon type="setting" />
+                    <div class='set-tag-label'>
+                      Set tag
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class='visible-toggle'>
+                <div class='field-visible'>Show on</div>
+                <a-switch size="small" v-model='fieldItem.visible' />
+              </div>
+            </div>
+          </li>
+        </transition-group>
+      </draggable>
+    </div>
   </div>
 </template>
 
@@ -92,11 +153,9 @@ export default {
   data () {
     return {
       commonDrag: false,
+      customDrag: false,
       myCommonList: [],
-      myCustomList: [],
-
-      fieldLabelCol: { span: 4 },
-      wrapperCol: { span: 8 }
+      myCustomList: []
     }
   },
   computed: {
@@ -123,6 +182,20 @@ export default {
     this.$logger.info('FormatForm created', this.myCommonList, this.myCustomList)
   },
   methods: {
+    handleAddCustomField () {
+      let count = 1
+      let customFieldName = `CustomField${count}`
+      while (this.myCustomList.some(item => item.name === customFieldName)) {
+        count++
+        customFieldName = `CustomField${count}`
+      }
+      this.myCustomList.push({
+        name: customFieldName,
+        hint: '',
+        visible: true,
+        sortNo: this.myCustomList.length + 1
+      })
+    }
   }
 }
 </script>
@@ -161,11 +234,12 @@ export default {
       }
     }
   }
-  .common-field-list {
+  .common-field-list, .custom-field-list {
     .list-group {
       padding: 0;
       margin: 0;
       .list-group-item {
+        min-width: 850px;
         margin-bottom: 15px;
         background: #f8f8f8;
         padding: 10px 10px 15px 10px;
