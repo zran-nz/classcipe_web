@@ -181,17 +181,19 @@ export default {
     handleUpdateTagCategory (userTagItem) {
       this.$logger.info('handleUpdateTagCategory', userTagItem)
       this.tagLoading = true
-      UpdateUserParentTag({ name: userTagItem.name, newName: this.currentEditTagCategoryName }).then((response) => {
-        this.$logger.info('UpdateUserParentTag response', response.result)
-        if (response.success) {
-          this.handleUpdateUserTags()
-        } else {
-          this.$message.error(response.message)
+      if (userTagItem.name && this.currentEditTagCategoryName && userTagItem.name !== this.currentEditTagCategoryName) {
+        UpdateUserParentTag({ name: userTagItem.name, newName: this.currentEditTagCategoryName }).then((response) => {
+          this.$logger.info('UpdateUserParentTag response', response.result)
+          if (response.success) {
+            this.handleUpdateUserTags()
+          } else {
+            this.$message.error(response.message)
+            this.tagLoading = false
+          }
+        }).catch(() => {
           this.tagLoading = false
-        }
-      }).catch(() => {
-        this.tagLoading = false
-      })
+        })
+      }
     },
 
     handleInitCreateTagCategory () {
