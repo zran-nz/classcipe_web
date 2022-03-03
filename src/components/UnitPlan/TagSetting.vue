@@ -37,7 +37,12 @@
             <a-icon type="right" @click='scrollRight' v-show='userTagList.length'/>
           </div>
           <div class='icon-add'>
-            <a-icon type="plus-circle" :style="{ fontSize: '18px', color: '#15c39a' }" @click='handleInitCreateTagCategory' v-show='showAddCategory'/>
+            <a-tooltip placement="top">
+              <template slot="title">
+                Add tag type
+              </template>
+              <a-icon type="plus-circle" :style="{ fontSize: '18px', color: '#15c39a' }" @click='handleInitCreateTagCategory' v-show='showAddCategory'/>
+            </a-tooltip>
           </div>
         </div>
         <div class='user-tag-list-wrapper'>
@@ -61,7 +66,7 @@
                       placeholder="Create Tags"
                       class="search-input"
                       @pressEnter="handleEnsureCreateTag"
-                      @blur.native="handleResetCreateTag"
+                      @blur.native="handleEnsureCreateTag"
                       @change="handleFilterSearchTag" />
                     <div class='create-tag-item-wrapper'>
                       <div class='no-tag-list' v-if='displayTagList.length === 0 && !createTagInputVisible'>
@@ -227,6 +232,9 @@ export default {
           this.userTagList = userTags
           this.$logger.info('userTagList', this.userTagList)
           let firstTagCategory = this.userTagList.find(item => item.name && this.currentActiveTagCategoryName === item.name)
+          if (!firstTagCategory) {
+            firstTagCategory = this.userTagList.find(item => item.name && this.currentEditTagCategoryName === item.name)
+          }
           if (!firstTagCategory && this.userTagList.length > 0) {
             firstTagCategory = this.userTagList.find(item => item.name)
           }
@@ -259,16 +267,11 @@ export default {
       }
     },
 
-    handleResetCreateTag () {
-      this.$logger.info('handleResetCreateTag', this.inputTag)
-      this.inputTag = ''
-      this.createTagInputVisible = false
-      this.filterKeyword()
-    },
-
     handleEnsureCreateTag () {
       this.$logger.info('handleEnsureCreateTag', this.inputTag)
       this.createTagName = this.inputTag
+      this.inputTag = ''
+      this.createTagInputVisible = false
       this.handleCreateTagByInput()
     },
 
@@ -283,7 +286,8 @@ export default {
         }
       }
       if (existTag) {
-        this.$message.warn('already exist same name tag')
+        this.$message.warn('Already exist same name tag')
+      } else if (!this.createTagName || !this.createTagName.trim()) {
       } else {
         const item = {
           name: this.createTagName,
@@ -391,7 +395,7 @@ export default {
       this.$logger.info('scrollLeft')
       const tagCategoryTabDom = document.getElementById('user-tag-category-tabs')
       tagCategoryTabDom.scrollTo({
-        left: tagCategoryTabDom.scrollLeft - 100,
+        left: tagCategoryTabDom.scrollLeft - 400,
         behavior: 'smooth'
       })
     },
@@ -399,7 +403,7 @@ export default {
       this.$logger.info('scrollRight')
       const tagCategoryTabDom = document.getElementById('user-tag-category-tabs')
       tagCategoryTabDom.scrollTo({
-        left: tagCategoryTabDom.scrollLeft + 100,
+        left: tagCategoryTabDom.scrollLeft + 400,
         behavior: 'smooth'
       })
     }
@@ -428,7 +432,7 @@ export default {
 
       .icon-right {
         position: absolute;
-        right: 0px;
+        right: 5px;
         height: 34px;
         display: flex;
         align-items: center;
