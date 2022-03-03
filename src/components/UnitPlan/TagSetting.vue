@@ -180,8 +180,8 @@ export default {
 
     handleUpdateTagCategory (userTagItem) {
       this.$logger.info('handleUpdateTagCategory', userTagItem)
-      this.tagLoading = true
       if (userTagItem.name && this.currentEditTagCategoryName && userTagItem.name !== this.currentEditTagCategoryName) {
+        this.tagLoading = true
         UpdateUserParentTag({ name: userTagItem.name, newName: this.currentEditTagCategoryName }).then((response) => {
           this.$logger.info('UpdateUserParentTag response', response.result)
           if (response.success) {
