@@ -358,8 +358,7 @@ export default {
         title: 'Delete tag type ' + category,
         content: h => <div class='my-delete-tips'>
           Are you sure you want to delete this tag type ?
-          After deletion, its sub-tags are deleted too .
-          This is permanent and cannot be undone .
+          After deleting, all tags under this type will be deleted as well.
         </div>,
         bodyStyle: { padding: '10px' },
         okText: 'Confirm',
