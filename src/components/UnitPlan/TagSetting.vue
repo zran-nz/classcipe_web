@@ -17,7 +17,7 @@
                 <div class="tag-title-item">
                   <div class="tag-title" @dblclick="handleEditTagCategory(userTagItem)">{{ userTagItem.name }}</div>
                   <div class="tag-delete-icon" @click='handleDeleteTagCategory(userTagItem.name)'>
-                    <a-icon type="delete" :style="{ fontSize: '12px', color: '#999' }"/>
+                    <a-icon type="delete" :style="{ fontSize: '12px', color: '#15c39a' }"/>
                   </div>
                 </div>
               </div>
@@ -320,7 +320,7 @@ export default {
 
     handleDeleteTag(keyword) {
       this.$confirm({
-        title: 'Delete tag',
+        title: 'Delete tag ' + keyword + '',
         content: h => <div class='my-delete-tips'>
           Are you sure you want to delete this tag ?
           This is permanent and can not be undone .
@@ -353,7 +353,7 @@ export default {
 
     handleDeleteTagCategory(category) {
       this.$confirm({
-        title: 'Delete tag type',
+        title: 'Delete tag type ' + category,
         content: h => <div class='my-delete-tips'>
           Are you sure you want to delete this tag type ?
           After deletion, its sub-tags are deleted too .
@@ -503,6 +503,7 @@ export default {
 
         .user-tag-item {
           cursor: pointer;
+          padding: 0 5px;
           font-family: Arial;
           font-weight: 400;
           line-height: 30px;
@@ -512,6 +513,10 @@ export default {
           justify-content: flex-start;
           color: #070707;
           border-bottom: 3px solid #fff;
+
+          &:hover {
+            background: rgba(21, 195, 154, 0.2);;
+          }
 
           .action-icon {
             margin-left: 8px;
