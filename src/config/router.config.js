@@ -122,6 +122,12 @@ export const asyncRouterMap = [
                 name: 'ManageTerm',
                 component: () => import('@/views/teacher/manage/Term'),
                 meta: { title: 'menu.managing.term', keepAlive: true, permission: ['teacher'] }
+              },
+              {
+                path: '/teacher/managing/planning-format',
+                name: 'PlanningFormat',
+                component: () => import('@/views/teacher/manage/PlanningFormat'),
+                meta: { title: 'menu.managing.planning-format', keepAlive: true, permission: ['teacher'] }
               }
             ]
           },

@@ -16,6 +16,7 @@ export default {
     'menu.managing.school-user': 'School User',
     'menu.managing.class': 'Classes',
     'menu.managing.term': 'Academics Terms',
+    'menu.managing.planning-format': 'Planning Format',
     'menu.my-content': 'MyContent',
     'menu.my-favorite': 'My Favorite',
     'menu.my-orders': 'My Orders',
