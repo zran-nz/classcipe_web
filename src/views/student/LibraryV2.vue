@@ -6,25 +6,16 @@
 
 <script>
 import Browser from '@/components/LibraryV2/Browser'
-import { mapState } from 'vuex'
+import { StudyModeMixin } from '@/mixins/StudyModeMixin'
 
 export default {
   name: 'LibraryV2',
+  mixins: [StudyModeMixin],
   components: {
     Browser
   },
   data () {
     return {
-    }
-  },
-  computed: {
-    ...mapState({
-      studyMode: state => state.app.studyMode
-    })
-  },
-  created () {
-    if (this.studyMode === 'schoolStudy' && this.$route.name === 'StudentLibraryV2') {
-      this.$router.push({ path: '/student/main/my-task' })
     }
   },
   mounted () {

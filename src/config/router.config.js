@@ -339,13 +339,25 @@ export const asyncRouterMap = [
                 path: '/student/main/my-task',
                 name: 'MyTask',
                 component: () => import('@/views/student/MyTask'),
-                meta: { title: 'menu.my-task', keepAlive: true, permission: ['student'], icon: 'CreatedByMeSvg' }
+                meta: { title: 'menu.my-task', keepAlive: true, permission: ['student'], svg: 'CreatedByMeSvg' }
               },
               {
                 path: '/student/main/my-favorite',
                 name: 'MyFavorite',
                 component: () => import('@/views/student/MyFavorite'),
-                meta: { title: 'menu.my-favorite', keepAlive: true, permission: ['student'], icon: 'MyFavoriteSvg' }
+                meta: { title: 'menu.my-favorite', keepAlive: true, permission: ['student'], svg: 'MyFavoriteSvg', type: 'selfStudy' }
+              },
+              {
+                path: '/student/main/my-orders',
+                name: 'MyOrders',
+                component: () => import('@/views/student/MyOrders'),
+                meta: { title: 'menu.my-orders', keepAlive: true, permission: ['student'], icon: 'account-book', type: 'selfStudy' }
+              },
+              {
+                path: '/student/main/my-schedule',
+                name: 'MySchedule',
+                component: () => import('@/views/student/MySchedule'),
+                meta: { title: 'menu.my-schedule', keepAlive: true, permission: ['student'], icon: 'schedule', type: 'schoolStudy' }
               }
             ]
           },

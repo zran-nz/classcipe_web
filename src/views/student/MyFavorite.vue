@@ -29,9 +29,6 @@
               <a-menu-item @click="toggleType('task', $t('teacher.my-content.tasks-type') )">
                 <span>{{ $t('teacher.my-content.tasks-type') }}</span>
               </a-menu-item>
-              <!--              <a-menu-item @click="toggleType('lesson', $t('teacher.my-content.lesson-type'))">
-                <span>{{ $t('teacher.my-content.lesson-type') }}</span>
-              </a-menu-item>-->
             </a-menu>
             <a-button
               class="type-filter-button"
@@ -84,34 +81,12 @@
                 <div class="action">
                   <div slot="actions">
                     <div class="action-wrapper">
-
-                      <!-- Task: 外置teacher-pace, student-pace, Edit, 折叠Delete, Duplicate, Previous session-->
-                      <!--                      <template v-if="item.type === typeMap.task">-->
-                      <!--                        <div class="start-session-wrapper action-item-wrapper">-->
-                      <!--                          <div class="session-btn content-list-action-btn" @click="handleStartSessionTags(item)">-->
-                      <!--                            <div class="session-btn-icon">-->
-                      <!--                              <teacher-presenting />-->
-                      <!--                            </div>-->
-                      <!--                            <div class="session-btn-text"> Teacher-paced</div>-->
-                      <!--                          </div>-->
-                      <!--                        </div>-->
-                      <!--                        <div class="start-session-wrapper action-item-wrapper">-->
-                      <!--                          <div class="session-btn content-list-action-btn" @click="handleStartSessionTags(item)">-->
-                      <!--                            <div class="session-btn-icon">-->
-                      <!--                              <student-pace />-->
-                      <!--                            </div>-->
-                      <!--                            <div class="session-btn-text"> Student-paced</div>-->
-                      <!--                          </div>-->
-                      <!--                        </div>-->
-                      <!--                      </template>-->
-                      <!-- Unit plan:外置Edit，折叠Delete, Duplicate-->
-
                       <div class="start-session-wrapper action-item-wrapper">
-                        <div class="session-btn content-list-action-btn" @click="handleEditItem(item)">
+                        <div class="session-btn content-list-action-btn" @click="handleStartItem(item)">
                           <div class="session-btn-icon">
-                            <bianji />
+                            <a-icon type="play-circle" />
                           </div>
-                          <div class="session-btn-text"> {{ $t('teacher.my-content.action-edit') }}</div>
+                          <div class="session-btn-text"> Start</div>
                         </div>
                       </div>
                       <div class="more-action-wrapper action-item-wrapper" >
@@ -125,19 +100,6 @@
                                 </a>
                               </a-popconfirm>
                             </a-menu-item>
-                            <a-menu-item>
-                              <a @click="handleDuplicateItem(item)">
-                                <a-icon type="copy" /> Duplicate
-                              </a>
-                            </a-menu-item>
-                            <!-- Task里面有teacher-pace, student-pace, previous session -->
-                            <!--                            <template v-if="item.type === typeMap.task">-->
-                            <!--                              <a-menu-item>-->
-                            <!--                                <a @click="handleViewPreviewSession(item)">-->
-                            <!--                                  <previous-sessions-svg /> Previous session-->
-                            <!--                                </a>-->
-                            <!--                              </a-menu-item>-->
-                            <!--                            </template>-->
 
                           </a-menu>
                         </a-dropdown>
@@ -168,42 +130,17 @@
                             </a>
                           </a-popconfirm>
                         </a-menu-item>
-                        <a-menu-item>
-                          <a @click="handleDuplicateItem(item)">
-                            <a-icon type="copy" /> Duplicate
-                          </a>
-                        </a-menu-item>
-                        <!-- Task里面有teacher-pace, student-pace, previous session -->
-                        <!--                        <template v-if="item.type === typeMap.task">-->
-                        <!--                          <a-menu-item>-->
-                        <!--                            <a @click="handleViewPreviewSession(item)">-->
-                        <!--                              <previous-sessions-svg /> Previous session-->
-                        <!--                            </a>-->
-                        <!--                          </a-menu-item>-->
-                        <!--                        </template>-->
                       </a-menu>
                     </a-dropdown>
                   </div>
                   <div class="action-item action-item-center">
-                    <!--                    <div class="session-btn session-btn-left" @click.stop="handleStartSessionTags(item)" v-if="item.type === typeMap['task']" >-->
-                    <!--                      <div class="session-btn-text">-->
-                    <!--                        <teacher-presenting />-->
-                    <!--                        Teacher-paced-->
-                    <!--                      </div>-->
-                    <!--                    </div>-->
-                    <!--                    <div class="session-btn session-btn-right" @click.stop="handleStartSessionTags(item)" v-if="item.type === typeMap['task']">-->
-                    <!--                      <div class="session-btn-text">-->
-                    <!--                        <student-pace />-->
-                    <!--                        Student-pace-->
-                    <!--                      </div>-->
-                    <!--                    </div>-->
                   </div>
                   <div class="action-item action-item-bottom" >
-                    <div class="session-btn" @click.stop="handleEditItem(item)">
+                    <div class="session-btn" @click.stop="handleStartItem(item)">
                       <div class="session-btn-icon content-list-action-btn">
-                        <bianji />
+                        <a-icon type="play-circle" theme="filled" />
                       </div>
-                      <div class="session-btn-text">Edit</div>
+                      <div class="session-btn-text">Start</div>
                     </div>
                     <div class="session-btn" @click.stop="handleViewDetail(item)">
                       <div class="session-btn-icon content-list-action-btn">
@@ -246,61 +183,17 @@
           </a-col>
         </a-row>
       </a-drawer>
-
-      <a-modal
-        v-model="viewPreviewSessionVisible"
-        :footer="null"
-        :title="null"
-        :closable="false"
-        destroyOnClose
-        width="900px">
-        <modal-header @close="viewPreviewSessionVisible = false"/>
-        <div class="preview-session-wrapper">
-          <class-list :slide-id="currentPreviewLesson.presentationId" :classData="currentPreviewLesson" v-if="currentPreviewLesson && currentPreviewLesson.presentationId"/>
-          <no-more-resources tips="Not exist previous sessions" v-else/>
-        </div>
-      </a-modal>
-
-      <a-modal
-        title="Add session tags"
-        v-model="lessonSelectTagVisible"
-        :maskClosable="false"
-        :closable="true"
-        destroyOnClose
-        width="800px">
-        <div>
-          <div>
-            <custom-tag
-              :user-tags="userTags"
-              :custom-tags-list="['class']"
-              :selected-tags-list="sessionTags"
-              ref="customTag"
-              @change-user-tags="handleSelectedSessionTags"></custom-tag>
-          </div>
-        </div>
-        <template slot="footer">
-          <a-button key="back" @click="lessonSelectTagVisible=false">
-            Cancel
-          </a-button>
-          <a-button key="submit" type="primary" :loading="startLoading" @click="handleStartSession()">
-            Start
-          </a-button>
-        </template>
-      </a-modal>
     </div>
   </div>
 </template>
 
 <script>
 import * as logger from '@/utils/logger'
-import { Duplicate, SaveSessonTags } from '@/api/teacher'
 import { typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { FavoritesGetMyFavorites, FavoritesDelete } from '@/api/favorites'
 import TvSvg from '@/assets/icons/lesson/tv.svg?inline'
-import { lessonStatus, lessonHost } from '@/const/googleSlide'
-import { StartLesson } from '@/api/lesson'
 import storage from 'store'
 import ModalHeader from '@/components/Common/ModalHeader'
 import {
@@ -308,6 +201,7 @@ import {
 } from '@/const/common'
 import CommonPreview from '@/components/Common/CommonPreview'
 import { FindCustomTags } from '@/api/tag'
+import { SelfStudyTaskBye } from '@/api/selfStudy'
 import LiebiaoSvg from '@/assets/svgIcon/myContent/liebiao.svg?inline'
 import PubuSvg from '@/assets/svgIcon/myContent/pubu.svg?inline'
 import { VIEW_MODE } from '@/store/mutation-types'
@@ -323,8 +217,11 @@ import StudentPace from '@/assets/icons/common/StudentPace.svg?inline'
 import ClassList from '@/components/Teacher/ClassList'
 import CustomTag from '@/components/UnitPlan/CustomTag'
 
+import { StudyModeMixin } from '@/mixins/StudyModeMixin'
+
 export default {
   name: 'MyFavorite',
+  mixins: [StudyModeMixin],
   components: {
     CommonPreview,
     ContentStatusIcon,
@@ -440,63 +337,25 @@ export default {
       this.currentTypeLabel = label
       this.loadMyContent()
     },
-    toggleOwner (owner, label) {
-      logger.info('toggleOwner ' + owner + ' label ' + label)
-      this.currentOwner = owner
-      this.currentOwnerLabel = label
-      this.loadMyContent()
-    },
 
-    handleEditItem (item) {
-      logger.info('handleEditItem', item)
-      if (item.type === typeMap['unit-plan']) {
-        this.$router.push({
-          path: '/teacher/unit-plan-redirect/' + item.id
-        })
-      } else if (item.type === typeMap['topic']) {
-        this.$router.push({
-          path: '/expert/topic-redirect/' + item.id
-        })
-      } else if (item.type === typeMap['material']) {
-        this.$router.push({
-          path: '/teacher/add-material/' + item.id
-        })
-      } else if (item.type === typeMap.task) {
-        this.$router.push({
-          path: '/teacher/task-redirect/' + item.id
-        })
-      } else if (item.type === typeMap.lesson) {
-        this.$router.push({
-          path: '/teacher/lesson-redirect/' + item.id
-        })
-      } else if (item.type === typeMap.evaluation) {
-        this.$router.push({
-          path: '/teacher/evaluation-redirect/' + item.id
-        })
-      }
-    },
-
-    handleDuplicateItem (item) {
-      this.$logger.info('handleDuplicateItem', item)
+    handleStartItem (item) {
+      this.$logger.info('handleStartItem', item)
       this.$confirm({
-        title: 'Confirm duplicate',
-        content: 'Are you sure to duplicate ' + item.name + ' ?',
+        title: 'Confirm Start',
+        content: 'Are you sure to Start ' + item.name + ' ?',
         centered: true,
         onOk: () => {
           this.loading = true
-          Duplicate({ id: item.id, type: item.type }).then((response) => {
-            this.$logger.info('Duplicate response', response)
-            this.loading = false
-            // this.loadMyContent()
+          SelfStudyTaskBye({ taskId: item.id }).then((response) => {
+            if (response.success) {
+              this.$logger.info('SelfStudyTaskBye response', response)
+              this.$message.success('Start successfully')
+              this.$router.push({ path: '/student/main/my-task' })
+            }
           }).finally(() => {
-            this.$router.push({ path: '/teacher/main/created-by-me' })
+            this.loading = false
           })
         }
-      })
-    },
-    handlePrevious (item) {
-      this.$router.push({
-        path: '/teacher/my-class?slideId=' + item.presentationId
       })
     },
     handleDeleteItem (item) {
@@ -523,109 +382,6 @@ export default {
       })
     },
 
-    handleStartSession () {
-      this.$logger.info('selected sessionTags', this.sessionTags)
-      if (this.sessionTags.length === 0) {
-        this.$message.warn('Please add session tags')
-        return
-      }
-      this.startLoading = true
-      const item = this.sessionItem
-      this.$logger.info('handleStartSession', item)
-      if (item.presentationId) {
-        const requestData = {
-          author: this.$store.getters.email,
-          slide_id: item.presentationId,
-          file_name: item.name ? item.name : 'Unnamed',
-          status: lessonStatus.studentPaced,
-          redirect_url: null
-        }
-
-        this.$logger.info('handleStartSession', requestData)
-        StartLesson(requestData).then(res => {
-          this.$logger.info('StartLesson res', res)
-          if (res.code === 'ok') {
-            const dataTags = []
-            this.sessionTags.forEach(tag => {
-              dataTags.push({
-                'name': tag.name,
-                'parentId': tag.parentId,
-                'isGlobal': tag.isGlobal ? 1 : 0,
-                'classId': res.data.class_id,
-                'presentationId': item.presentationId,
-                'sourceId': item.id,
-                'sourceType': item.type
-              })
-            })
-            SaveSessonTags(dataTags).then(() => {
-              this.startLoading = false
-              this.lessonSelectTagVisible = false
-              // const targetUrl = lessonHost + 'slide_id=' + item.presentationId + '&class_id=' + res.data.class_id + '&type=classroom'
-              const targetUrl = lessonHost + 'd/' + res.data.class_id
-              this.$logger.info('try open ' + targetUrl)
-              // window.open(targetUrl, '_blank')
-              // 课堂那边需要点击返回回到表单，改成location.href跳转
-              window.location.href = targetUrl
-            })
-          } else {
-            this.$message.warn('StartLesson Failed! ' + res.message)
-            this.startLoading = false
-          }
-        })
-      } else {
-        this.$message.warn('This record is not bound to PPT!')
-        this.startLoading = false
-      }
-    },
-
-    handleDashboard (item) {
-      this.$logger.info('handleDashboard', item)
-      if (item.presentationId) {
-        const requestData = {
-          author: this.$store.getters.email,
-          slide_id: item.presentationId,
-          file_name: item.name ? item.name : 'Unnamed',
-          status: lessonStatus.studentPaced,
-          redirect_url: null
-        }
-
-        this.$logger.info('handleDashboard', requestData)
-        StartLesson(requestData).then(res => {
-          this.$logger.info('StartLesson res', res)
-          if (res.code === 'ok') {
-            // const targetUrl = lessonHost + 'slide_id=' + item.presentationId + '&class_id=' + res.data.class_id + '&direct=true&currentPage=0&type=dashboard'
-            const targetUrl = lessonHost + 'd/' + res.data.class_id
-            this.$logger.info('try open ' + targetUrl)
-            // window.open(targetUrl, '_blank')
-            // 课堂那边需要点击返回回到表单，改成location.href跳转
-            window.location.href = targetUrl
-          } else {
-            this.$message.warn('StartLesson Failed! ' + res.message)
-          }
-        })
-      } else {
-        this.$message.warn('This record is not bound to PPT!')
-      }
-    },
-
-    handleViewPreviewSession (item) {
-      this.$logger.info('handleViewPreviewSession', item)
-      this.currentPreviewLesson = item
-      this.viewPreviewSessionVisible = true
-    },
-    handleSelectedSessionTags (tags) {
-      this.sessionTags = tags
-      this.$logger.info('handleSelectedSessionTags', tags)
-    },
-    handleStartSessionTags (item) {
-      this.sessionItem = item
-      this.lessonSelectTagVisible = true
-      this.sessionTags = []
-    },
-
-    handleEvaluateItem (item) {
-      this.$logger.info('handleEvaluateItem', item)
-    },
     loadUserTags () {
       // this.$refs.customTag.tagLoading = true
       FindCustomTags({}).then((response) => {
@@ -785,7 +541,7 @@ export default {
           align-items: center;
 
           .update-time {
-            width: 140px;
+            width: 150px;
             color: #11142D;
             font-size: 13px;
             overflow: hidden;

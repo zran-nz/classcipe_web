@@ -227,7 +227,7 @@
                       </a-menu>
                     </a-dropdown>
                   </div>
-                  <div class="action-item action-item-center" v-if="currentStatus !== 2">
+                  <div class="action-item action-item-center" style="margin-top: 40px" v-if="currentStatus !== 2">
                     <div class="session-btn session-btn-right">
                       <div class="session-btn-text">
                         <student-pace />
@@ -329,10 +329,13 @@ import { FindCustomTags } from '@/api/tag'
 import { SubjectTree } from '@/api/subject'
 import { GetGradesByCurriculumId } from '@/api/preference'
 
+import { StudyModeMixin } from '@/mixins/StudyModeMixin'
+
 import storage from 'store'
 
 export default {
   name: 'MyTask',
+  mixins: [StudyModeMixin],
   components: {
     FilterIcon,
     FilterActiveIcon,
@@ -760,7 +763,7 @@ export default {
           display: flex;
           justify-content: flex-start;
           align-items: center;
-          width: calc(100% - 600px);
+          width: calc(100% - 400px);
 
           .status-icon-item {
             font-size: 18px;
@@ -793,7 +796,7 @@ export default {
           }
         }
         .action {
-          width: 400px;
+          width: 200px;
         }
 
         .action-wrapper {
@@ -880,7 +883,8 @@ export default {
           line-height: 24px;
           color: #11142D;
           display: inline-block;
-          max-width: 400px;
+          max-width: 300px;
+          width: 300px;
           overflow: hidden;
           white-space: nowrap;
           text-overflow: ellipsis;
