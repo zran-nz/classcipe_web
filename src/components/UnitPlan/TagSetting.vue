@@ -36,7 +36,7 @@
           <div class='icon-right icon-nav'>
             <a-icon type="right" @click='scrollRight' v-show='userTagList.length'/>
           </div>
-          <div class='icon-add'>
+          <div class='icon-add' v-show='userTagList.length >= 1'>
             <a-tooltip placement="top">
               <template slot="title">
                 Add tag type
@@ -48,7 +48,7 @@
         <div class='user-tag-list-wrapper'>
           <div class="tab-content">
             <div class="skt-tag-wrapper">
-              <div class="skt-tag-list">
+              <div class="skt-tag-list" v-show='userTagList.length'>
                 <div class="search-tag-wrapper tag-wrapper">
                   <div class="skt-tag-item" v-for="(keyword) in displayTagList" :key="keyword" >
                     <a-tag
@@ -58,7 +58,7 @@
                       <a-icon type="close" @click='handleDeleteTag(keyword)'/>
                     </a-tag>
                   </div>
-                  <div class='create-tag-item-btn' v-if='userTagList.length'>
+                  <div class='create-tag-item-btn'>
                     <a-input
                       v-show='createTagInputVisible'
                       v-model="inputTag"
