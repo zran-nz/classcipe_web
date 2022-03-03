@@ -1,5 +1,14 @@
 <template>
   <div class='format-form'>
+    <div class='format-form-header'>
+      <div class='format-form-title'>
+        <span class='title-num'>1</span>
+        <span class='title'>{{ title }}</span>
+      </div>
+      <div class='format-tag-settings'>
+        <a-button type='primary'><a-icon type="setting" /> Set tags</a-button>
+      </div>
+    </div>
     <div class='common-field-list'>
       <draggable
         class="list-group"
@@ -74,6 +83,10 @@ export default {
     customList: {
       type: Array,
       required: true
+    },
+    title: {
+      type: String,
+      default: ''
     }
   },
   data () {
@@ -118,6 +131,36 @@ export default {
 @import "~@/components/index.less";
 
 .format-form {
+
+  .format-form-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    cursor: pointer;
+
+    .format-form-title {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      .title-num {
+        font-size: 18px;
+        line-height: 25px;
+        height: 25px;
+        width: 25px;
+        text-align: center;
+        border-radius: 25px;
+        background: #15C39A;
+        color: #fff;
+        margin-right: 8px;
+      }
+
+      .title {
+        font-size: 16px;
+        color: #333;
+      }
+    }
+  }
   .common-field-list {
     .list-group {
       padding: 0;
@@ -178,9 +221,9 @@ export default {
             font-size: 12px;
             font-weight: 600;
             font-family: Inter-Bold;
-            padding-bottom: 5px;
+            padding-bottom: 8px;
             color: #474747;
-            padding-left: 12px;
+            padding-left: 3px;
           }
           .field-config {
             width: 100%;
