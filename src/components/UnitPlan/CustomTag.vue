@@ -46,7 +46,7 @@
                               v-model="inputTag"
                               placeholder="Search or create tags"
                               class="search-input"
-                              @keyup.enter.native="handleKeyup"
+                              @keyup.enter.native="handleKeyEnter(parent)"
                               @search="searchTag"
                               @keyup="searchTag" >
                             </a-input-search>
@@ -54,7 +54,7 @@
                         </a-col>
                       </a-row>
 
-                      <div class="skt-tag-wrapper" v-show='parent.customDeep === 1 && (filterKeywordListInput(parent.keywords).length > 0 || (!tagNameIsExist(createTagName,showTagList) && !tagIsExist(createTagName,filterKeywordListInput(parent.keywords)) && createTagName && createTagName.length >= 1))'>
+                      <div class="skt-tag-wrapper">
                         <div class="triangle"></div>
                         <template v-if="parent.customDeep === 1">
                           <div class="skt-tag-list">
@@ -86,7 +86,7 @@
                           <a-tabs
                             tab-position="top"
                           >
-                            <a-tab-pane v-for="(child,childIndex) in parent.children" :key="childIndex" :tab="child.name">
+                            <a-tab-pane v-for="(child, childIndex) in parent.children" :key="childIndex" :tab="child.name">
                               <div class="skt-tag-list">
                                 <div class="search-tag-wrapper tag-wrapper" v-if="filterKeywordListInput(child.keywords).length > 0">
                                   <div class="skt-tag-item" v-for="(keyword, tagIndex) in filterKeywordListInput(child.keywords)" :key="tagIndex" >
@@ -98,7 +98,7 @@
                                   </div>
                                 </div>
                                 <div class="create-tag-wrapper tag-wrapper">
-                                  <div class="skt-tag-create-line" @click="handleCreateTagByInput(child,parent)" v-show="!tagNameIsExist(createTagName,showTagList) && !tagIsExist(createTagName, filterKeywordListInput(child.keywords)) && createTagName && createTagName.length >= 1">
+                                  <div class="skt-tag-create-line" @click="handleCreateTagByInput(child, parent)" v-show="!tagNameIsExist(createTagName,showTagList) && !tagIsExist(createTagName, filterKeywordListInput(child.keywords)) && createTagName && createTagName.length >= 1">
                                     <div class="create-tag-label">
                                       Create
                                     </div>
@@ -192,7 +192,6 @@ export default {
   },
   created () {
     this.$logger.info('customTags', this.customTags)
-    // this.debouncedSearchKnowledge = debounce(this.searchTag, 500)
   },
   computed: {
     showTagList: function () {
@@ -315,7 +314,7 @@ export default {
       console.log(item)
     },
     handleCreateTagByInput (parent, superParent) {
-      this.$logger.info('skill handleCreateTagByInput ' + this.createTagName)
+      this.$logger.info('skill handleCreateTagByInput ' + this.createTagName, 'parent', parent)
       const existTag = this.tagList.find(item => item.name.toLowerCase() === this.createTagName.toLowerCase())
       if (existTag) {
         this.$message.warn('already exist same name tag')
@@ -345,16 +344,14 @@ export default {
       }
     },
 
-    handleKeyup () {
-      this.$logger.info('tag handleKeyup ', this.inputTag)
-      this.debouncedSearchKnowledge(this.inputTag)
+    handleKeyEnter (parent) {
+      this.$logger.info('tag handleKeyEnter ', this.inputTag, parent)
       this.createTagName = this.inputTag
-      this.handleCreateTagByInput()
+      this.handleCreateTagByInput(parent)
     },
 
     searchTag (keyword) {
       logger.info('tag searchTag', keyword)
-      // this.debouncedSearchKnowledge(this.inputTag)
       this.createTagName = this.inputTag
     },
     refreshTag () {
@@ -514,8 +511,7 @@ export default {
   .tag-category {
     margin-top: 15px;
     background: #f9f9f9;
-    min-height: 350px;
-    padding: 10px;
+    padding: 10px 10px 15px 10px;
     border-radius: 6px;
     .skt-tag-list {
       max-height: 250px;

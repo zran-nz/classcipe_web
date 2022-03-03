@@ -2,31 +2,42 @@
   <div class="tag-setting">
     <a-spin :spinning='tagLoading'>
       <div class='tag-content-wrapper'>
-        <div class="user-tag-category-tabs" v-if='userTagList.length'>
-          <div
-            :class="{ 'user-tag-item': true, 'active-tab': userTagItem.name === currentActiveTagCategoryName }"
-            v-for="(userTagItem, idx) in userTagList"
-            @click="handleActiveTagCategory(userTagItem)"
-            :key="idx">
+        <div class='tag-tab' id='tag-tab'>
+          <div class='icon-left icon-nav' @click='scrollLeft' v-show='userTagList.length'>
+            <a-icon type="left" />
+          </div>
+          <div class="user-tag-category-tabs" id='user-tag-category-tabs' v-if='userTagList.length'>
+            <div
+              :class="{ 'user-tag-item': true, 'active-tab': userTagItem.name === currentActiveTagCategoryName }"
+              v-for="(userTagItem, idx) in userTagList"
+              @click="handleActiveTagCategory(userTagItem)"
+              :key="idx">
 
-            <div class="action-icon" v-show="userTagItem.editing === false">
-              <div class="tag-title-item">
-                <div class="tag-title" @dblclick="handleEditTagCategory(userTagItem)">{{ userTagItem.name }}</div>
-                <div class="tag-delete-icon" @click='handleDeleteTagCategory(userTagItem.name)'>
-                  <a-icon type="delete" :style="{ fontSize: '12px', color: '#999' }"/>
+              <div class="action-icon" v-show="userTagItem.editing === false">
+                <div class="tag-title-item">
+                  <div class="tag-title" @dblclick="handleEditTagCategory(userTagItem)">{{ userTagItem.name }}</div>
+                  <div class="tag-delete-icon" @click='handleDeleteTagCategory(userTagItem.name)'>
+                    <a-icon type="delete" :style="{ fontSize: '12px', color: '#999' }"/>
+                  </div>
                 </div>
               </div>
+              <div class="editing-title" v-show="userTagItem.editing === true">
+                <a-input
+                  v-model="currentEditTagCategoryName"
+                  placeholder="Name your category"
+                  :id="'tag-category-' + userTagItem.name"
+                  class="my-tag-category-input"
+                  @blur='handleEnsureUpdateTagCategory(userTagItem)'
+                  @keyup.enter="handleEnsureUpdateTagCategory(userTagItem)">
+                </a-input>
+              </div>
             </div>
-            <div class="editing-title" v-show="userTagItem.editing === true">
-              <a-input
-                v-model="currentEditTagCategoryName"
-                placeholder="Name your category"
-                ref='tag-category'
-                class="my-tag-category-input"
-                @blur='handleEnsureUpdateTagCategory(userTagItem)'
-                @keyup.enter="handleEnsureUpdateTagCategory(userTagItem)">
-              </a-input>
-            </div>
+          </div>
+          <div class='icon-right icon-nav'>
+            <a-icon type="right" @click='scrollRight' v-show='userTagList.length'/>
+          </div>
+          <div class='icon-add'>
+            <a-icon type="plus-circle" :style="{ fontSize: '18px', color: '#15c39a' }" @click='handleInitCreateTagCategory' v-show='showAddCategory'/>
           </div>
         </div>
         <div class='user-tag-list-wrapper'>
@@ -34,26 +45,24 @@
             <div class="skt-tag-wrapper">
               <div class="skt-tag-list">
                 <div class="search-tag-wrapper tag-wrapper">
-                  <div class="skt-tag-item" v-for="(keyword, kIndex) in displayTagList" :key="kIndex" >
+                  <div class="skt-tag-item" v-for="(keyword) in displayTagList" :key="keyword" >
                     <a-tag
-                      closable
-                      @close='handleDeleteTag(keyword)'
                       :class="{'active-tag-item': tagSearchList.indexOf(keyword) > -1}"
                       class="tag-item">
                       {{ keyword }}
+                      <a-icon type="close" @click='handleDeleteTag(keyword)'/>
                     </a-tag>
                   </div>
                   <div class='create-tag-item-btn' v-if='userTagList.length'>
                     <a-input
-                      v-if='createTagInputVisible'
+                      v-show='createTagInputVisible'
                       v-model="inputTag"
+                      ref='search-input'
                       placeholder="Create Tags"
                       class="search-input"
-                      @keyup.enter.native="handleEnsureSearchTag"
-                      @blur.native="createTagInputVisible = false">
-                      @search="searchTag"
-                      @keyup="searchTag" >
-                    </a-input>
+                      @pressEnter="handleEnsureCreateTag"
+                      @blur.native="handleResetCreateTag"
+                      @change="handleFilterSearchTag" />
                     <div class='create-tag-item-wrapper'>
                       <div class='no-tag-list' v-if='displayTagList.length === 0 && !createTagInputVisible'>
                         <div class='no-tips'>
@@ -64,7 +73,7 @@
                         <template slot="title">
                           Create tag
                         </template>
-                        <a-icon type="plus-circle" :style="{ fontSize: '18px', color: '#15c39a' }" @click='createTagInputVisible = true'/>
+                        <a-icon type="plus-circle" :style="{ fontSize: '18px', color: '#15c39a' }" @click='handleShowSearchInput' v-show='!createTagInputVisible'/>
                       </a-tooltip>
                     </div>
                   </div>
@@ -114,13 +123,9 @@ export default {
       createTagInputVisible: false
     }
   },
-  watch: {
-    currentActiveTagCategory (val) {
-      if (val && val.keywords) {
-        this.displayTagList = val.keywords
-      } else {
-        this.displayTagList = []
-      }
+  computed: {
+    showAddCategory () {
+      return this.userTagList.every(item => item.editing === false)
     }
   },
   created () {
@@ -132,6 +137,7 @@ export default {
       this.$logger.info('handleActiveTagCategory', userTagItem)
       this.currentActiveTagCategoryName = userTagItem.name
       this.currentActiveTagCategory = userTagItem
+      this.displayTagList = userTagItem.keywords
       this.filterKeyword()
     },
 
@@ -195,10 +201,12 @@ export default {
       }
       this.currentActiveTagCategoryName = newUserTagItem.name
       this.currentEditTagCategoryName = newUserTagItem.name
+      this.currentActiveTagCategory = newUserTagItem
       this.userTagList.push(newUserTagItem)
       this.$nextTick(() => {
-        if (this.$refs['tag-category'] && this.$refs['tag-category'].length > 0) {
-          this.$refs['tag-category'][0].$el.focus()
+        const dom = document.getElementById('tag-category-' + newUserTagItem.name)
+        if (dom) {
+          dom.focus()
         }
       })
     },
@@ -228,7 +236,7 @@ export default {
             this.currentActiveTagCategory = firstTagCategory
             this.displayTagList = firstTagCategory.keywords
           }
-          this.$logger.info('currentActiveTagCategory', this.currentActiveTagCategory)
+          this.$logger.info('currentActiveTagCategory', this.currentActiveTagCategory, 'displayTagList', this.displayTagList)
           this.filterKeyword()
         } else {
           this.$message.error(response.message)
@@ -251,8 +259,15 @@ export default {
       }
     },
 
-    handleEnsureSearchTag () {
-      this.$logger.info('handleEnsureSearchTag', this.inputTag)
+    handleResetCreateTag () {
+      this.$logger.info('handleResetCreateTag', this.inputTag)
+      this.inputTag = ''
+      this.createTagInputVisible = false
+      this.filterKeyword()
+    },
+
+    handleEnsureCreateTag () {
+      this.$logger.info('handleEnsureCreateTag', this.inputTag)
       this.createTagName = this.inputTag
       this.handleCreateTagByInput()
     },
@@ -292,8 +307,8 @@ export default {
       }
     },
 
-    searchTag (keyword) {
-      this.$logger.info('tag searchTag', keyword)
+    handleFilterSearchTag () {
+      this.$logger.info('tag handleFilterSearchTag', this.inputTag)
       this.createTagName = this.inputTag
       this.filterKeyword()
     },
@@ -363,6 +378,30 @@ export default {
       }).finally(() => {
         this.tagLoading = false
       })
+    },
+
+    handleShowSearchInput() {
+      this.createTagInputVisible = true
+      this.$nextTick(() => {
+        this.$refs['search-input'].focus()
+      })
+    },
+
+    scrollLeft () {
+      this.$logger.info('scrollLeft')
+      const tagCategoryTabDom = document.getElementById('user-tag-category-tabs')
+      tagCategoryTabDom.scrollTo({
+        left: tagCategoryTabDom.scrollLeft - 100,
+        behavior: 'smooth'
+      })
+    },
+    scrollRight () {
+      this.$logger.info('scrollRight')
+      const tagCategoryTabDom = document.getElementById('user-tag-category-tabs')
+      tagCategoryTabDom.scrollTo({
+        left: tagCategoryTabDom.scrollLeft + 100,
+        behavior: 'smooth'
+      })
     }
   }
 
@@ -373,73 +412,123 @@ export default {
 @import "~@/components/index.less";
 .tag-setting {
   .tag-content-wrapper {
-    .user-tag-category-tabs {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: flex-start;
-      border-bottom: 1px solid #eee;
-      margin-bottom: 10px;
-      overflow-x: overlay;
+    .tag-tab {
+      position: relative;
 
-      &::-webkit-scrollbar-thumb{
-        background: transparent;
+      .icon-left {
+        position: absolute;
+        left: -20px;
+        height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        top: 0;
+        cursor: pointer;
+      }
+
+      .icon-right {
+        position: absolute;
+        right: 0px;
+        height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        top: 0;
+        cursor: pointer;
+      }
+
+      .icon-add {
+        position: absolute;
+        right: -20px;
+        height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        top: 0;
+        cursor: pointer;
+      }
+
+      .icon-nav {
+        color: #666;
         opacity: 0;
+        transition: opacity 0.2s;
       }
 
       &:hover {
-        &::-webkit-scrollbar-thumb{
-          background: rgba(0, 0, 0, 0.1);
+        .icon-nav {
+          opacity: 0.8;
         }
       }
 
-      .user-tag-item {
-        cursor: pointer;
-        font-family: Arial;
-        font-weight: 400;
-        line-height: 30px;
+      .user-tag-category-tabs {
+        width: calc(100% - 20px);
         display: flex;
         flex-direction: row;
         align-items: center;
         justify-content: flex-start;
-        color: #070707;
-        border-bottom: 3px solid #fff;
+        border-bottom: 1px solid #eee;
+        margin-bottom: 10px;
+        overflow-x: overlay;
 
-        .action-icon {
-          margin-left: 8px;
+        &::-webkit-scrollbar-thumb{
+          background: transparent;
+          opacity: 0;
+        }
 
-          .tag-title-item {
-            line-height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: row;
+        &:hover {
+          &::-webkit-scrollbar-thumb{
+            background: rgba(0, 0, 0, 0.1);
+          }
+        }
 
-            .tag-title {
-              display: block;
-              white-space: nowrap;
-              user-select: none;
-              margin-right: 8px;
-            }
+        .user-tag-item {
+          cursor: pointer;
+          font-family: Arial;
+          font-weight: 400;
+          line-height: 30px;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: flex-start;
+          color: #070707;
+          border-bottom: 3px solid #fff;
 
-            .tag-delete-icon {
-              opacity: 0;
-            }
+          .action-icon {
+            margin-left: 8px;
 
-            &:hover {
+            .tag-title-item {
+              line-height: 30px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              flex-direction: row;
+
+              .tag-title {
+                display: block;
+                white-space: nowrap;
+                user-select: none;
+                margin-right: 8px;
+              }
+
               .tag-delete-icon {
-                opacity: 1;
+                opacity: 0;
+              }
+
+              &:hover {
+                .tag-delete-icon {
+                  opacity: 1;
+                }
               }
             }
           }
         }
-      }
 
-      .active-tab {
-        border-bottom: 3px solid #15c39a;
+        .active-tab {
+          border-bottom: 3px solid #15c39a;
 
-        .tag-title {
-          color: #07AB84;
+          .tag-title {
+            color: #07AB84;
+          }
         }
       }
     }
@@ -596,6 +685,7 @@ export default {
 
 .no-tips {
   cursor: pointer;
+  user-select: none;
   color: #aaa;
   padding-right: 10px;
   line-height: 30px;
