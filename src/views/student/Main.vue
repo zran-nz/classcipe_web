@@ -20,9 +20,10 @@
             >
               <router-link :to="item.path">
                 <component
-                  :is="item.meta.icon"
-                  v-if="item.meta.icon"
+                  :is="item.meta.svg"
+                  v-if="item.meta.svg"
                 ></component>
+                <a-icon class="nav-bar-icon" theme="filled" :type="item.meta.icon" v-if="item.meta.icon"/>
                 {{ $t(item.meta.title) }}
               </router-link>
             </a-menu-item>
@@ -98,17 +99,22 @@ export default {
   computed: {
     ...mapState({
       // 动态主路由
-      mainMenu: state => state.permission.addRouters
+      mainMenu: state => state.permission.addRouters,
+      studyMode: state => state.app.studyMode
     }),
     currentMenu() {
       const addRouters = this.mainMenu
       if (addRouters && addRouters.length > 0) {
+        // 寻找路由 index => student => main
         const mainRouter = addRouters.find(item => item.name === 'index')
         if (mainRouter && mainRouter.children && mainRouter.children.length > 0) {
           const currentRouter = mainRouter.children.find(item => item.name === this.currentRouterName)
           if (currentRouter && currentRouter.children && currentRouter.children.length > 0) {
             const Main = currentRouter.children.find(item => item.name === 'Main')
-            return Main ? Main.children : []
+            // 根据自学习模式，还是学校模式进行type过滤
+            if (Main && Main.children && Main.children.length > 0) {
+              return Main.children.filter(item => !item.meta.type || item.meta.type === this.studyMode)
+            }
           }
         }
       }
@@ -194,6 +200,12 @@ export default {
         a {
           color: @primary-color;
         }
+      }
+      .nav-bar-icon {
+        font-size: 30px;
+        width: 50px;
+        margin: 0;
+        color: #f35;
       }
     }
 

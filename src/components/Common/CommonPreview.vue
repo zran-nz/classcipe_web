@@ -61,7 +61,7 @@
                   @click="handleStartTask"
                 >
                   <div class="button-content" >
-                    Start
+                    Start <a-icon type="play-circle" style="margin-left: 6px;"/>
                   </div>
                 </a-button>
               </div>

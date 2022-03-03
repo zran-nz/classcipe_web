@@ -19,6 +19,7 @@ export default {
     'menu.my-content': 'MyContent',
     'menu.my-favorite': 'My Favorite',
     'menu.my-orders': 'My Orders',
+    'menu.my-schedule': 'Time & Table',
     'menu.my-task': 'My Task',
     'menu.subscribe': 'Subscribe',
     'menu.shared': 'Collaborations',

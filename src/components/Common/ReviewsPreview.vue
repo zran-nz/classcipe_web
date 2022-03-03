@@ -95,7 +95,7 @@
           </a-space>
         </div>
       </a-spin>
-      <a-skeleton :loading="loading" active v-show="reviewsList.length > 0" >
+      <a-skeleton :loading="loading" active v-show="!myReviews || reviewsList.length > 0" >
         <a-list item-layout="vertical" :pagination="pagination" :data-source="reviewsList">
           <a-list-item
             slot="renderItem"
