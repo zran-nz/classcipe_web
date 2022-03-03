@@ -77,6 +77,7 @@
         tag="ul"
         v-model="myCustomList"
         v-bind="customDragOptions"
+        @change='handleCustomChange'
         @start="customDrag = true"
         @end="customDrag = false"
       >
@@ -194,6 +195,13 @@ export default {
         hint: '',
         visible: true,
         sortNo: this.myCustomList.length + 1
+      })
+    },
+
+    handleCustomChange (data) {
+      this.$logger.info('handleCustomChange', this.myCustomList)
+      this.myCustomList.forEach((item, index) => {
+        item.sortNo = index
       })
     }
   }
