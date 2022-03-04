@@ -47,6 +47,7 @@
             mode="multiple"
             class="filter-item"
             allowClear
+            size="large"
             @change="handleChangeSubject"
             placeholder="Search by subject"
           >
@@ -783,12 +784,7 @@ export default {
       .filter-item {
         width: 100%;
         line-height: 40px;
-        /deep/ .ant-select-selection {
-          min-height: 40px;
-        }
-        /deep/ .ant-select-selection__rendered {
-          line-height: 40px;
-        }
+        font-size: 14px;
       }
     }
 
