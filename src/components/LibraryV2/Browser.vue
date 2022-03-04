@@ -121,6 +121,7 @@
                     'active-line': currentBrowserType === browserTypeItem.type
                   }"
                   v-for="(browserTypeItem, index) in (parseInt(currentCurriculumId) === parseInt(curriculumType.IBMYP) ? browserTypeListForIbMpy : browserTypeList)"
+                  v-show='!$store.getters.hiddenIbCurriculumId || (browserTypeItem.tagType !== TagType.idu && browserTypeItem.tagType !== TagType.skill)'
                   :key="index"
                   @click="toggleBrowserType(browserTypeItem)">
                   <dir-icon dir-type="blue" v-if="currentBrowserType !== browserTypeItem.type"/>
@@ -421,6 +422,7 @@ export default {
         { type: 'centurySkills', label: '21st Century Skills', tagType: TagType.century },
         { type: 'sdg', label: 'Big idea', tagType: TagType.bigIdea }
       ],
+      TagType: TagType,
       currentBrowserType: null,
       BrowserTypeMap: BrowserTypeMap,
       browserTypeLabelMap: BrowserTypeLabelMap,
