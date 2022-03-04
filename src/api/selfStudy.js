@@ -5,7 +5,7 @@ const API_PREFIX = 'selfStudy'
 export const selfStudyApiUrl = {
   TaskBye: `/classcipe/api/${API_PREFIX}/task/bye`,
   TaskList: `/classcipe/api/${API_PREFIX}/task/list`,
-  TaskInfo: `/classcipe/api/${API_PREFIX}/task/start`
+  TaskStart: `/classcipe/api/${API_PREFIX}/task/start`
 }
 
 /**
@@ -30,9 +30,9 @@ export function SelfStudyTaskBye (parameter) {
  * @returns {AxiosPromise}
  * @constructor
  */
-export function SelfStudyTaskInfo (parameter) {
+export function SelfStudyTaskStart (parameter) {
   return request({
-    url: selfStudyApiUrl.TaskInfo,
+    url: selfStudyApiUrl.TaskStart,
     method: 'get',
     params: parameter
   })

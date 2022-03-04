@@ -32,7 +32,7 @@
           >
           </a-input-search>
         </div>
-        <div class="filter-icon" @click="showFilter = !showFilter">
+        <!-- <div class="filter-icon" @click="showFilter = !showFilter">
           <div class="filter-item">
             <filter-icon class="filter-icon" />
             <filter-active-icon class="filter-active-icon"/>
@@ -40,6 +40,20 @@
               Filter
             </div>
           </div>
+        </div> -->
+        <div class="filter-option">
+          <a-select
+            v-model="filterParams.subject"
+            mode="multiple"
+            class="filter-item"
+            allowClear
+            @change="handleChangeSubject"
+            placeholder="Search by subject"
+          >
+            <a-select-option :value="item.value" v-for="(item, index) in filterSubjectOptions" :key="'subject_'+index">
+              {{ item.label }}
+            </a-select-option>
+          </a-select>
         </div>
         <div class="view-mode-toggle">
           <div class="view-mode">
@@ -53,7 +67,7 @@
         </div>
       </div>
     </div>
-    <div v-if="showFilter">
+    <!-- <div v-if="showFilter">
       <div class="filter-params">
         <filter-content
           @filter-config-update="handleUpdateFilterConfig"
@@ -69,7 +83,7 @@
       <div class="expand-icon" v-if="showFilter" @click="showFilter = !showFilter">
         <a-icon type="up-circle" theme="filled" title="Collapse filter" /> Close
       </div>
-    </div>
+    </div> -->
     <div class="content-wrapper">
       <a-skeleton :loading="loading" active>
         <div class="content-list">
@@ -117,7 +131,7 @@
                     <div class="action-wrapper">
                       <template v-if="currentStatus !== 2">
                         <div class="start-session-wrapper action-item-wrapper">
-                          <div class="session-btn content-list-action-btn" >
+                          <div class="session-btn content-list-action-btn" @click="handleStartSession(item)">
                             <div class="session-btn-icon">
                               <student-pace />
                             </div>
@@ -208,7 +222,7 @@
                     </a-dropdown>
                   </div>
                   <div class="action-item action-item-center" v-if="currentStatus !== 2">
-                    <div class="session-btn session-btn-right">
+                    <div class="session-btn session-btn-right" @click="handleStartSession(item)">
                       <div class="session-btn-text">
                         <student-pace />
                         Enter session
@@ -253,7 +267,7 @@
                 <div class="cover-img" :style="{backgroundImage: 'url(' + (item.task && item.task.image) + ')'}"></div>
 
                 <a-card-meta class="my-card-meta-info" :title="(item.task && item.task.name) ? item.task.name : 'Untitled'" :description="item.updateTime | dayjs">
-                  <content-type-icon :type="item.type" slot="avatar"></content-type-icon>
+                  <content-type-icon :type="typeMap.task" slot="avatar"></content-type-icon>
                 </a-card-meta>
 
                 <div class="my-card-progress" v-if="item.status === 0">
@@ -292,12 +306,24 @@
           </div>
         </a-col>
         <a-col span="22">
-          <div class="detail-wrapper" v-if="previewCurrentId && previewType">
-            <common-preview :id="previewCurrentId" :type="previewType" :isLibrary="true"/>
+          <div class="detail-wrapper" v-if="currentTaskId && previewType">
+            <common-preview :id="currentTaskId" :type="previewType" :isLibrary="true"/>
           </div>
         </a-col>
       </a-row>
     </a-drawer>
+
+    <a-modal
+      v-model="paymentVisible"
+      :footer="null"
+      destroyOnClose
+      width="800px"
+      :zIndex="6000"
+      title="Payment details"
+      @ok="paymentVisible = false"
+      @cancel="paymentVisible = false">
+      <payment-detail :taskId="currentTaskId" :taskName="currentTaskName"></payment-detail>
+    </a-modal>
   </div>
 </template>
 
@@ -305,10 +331,13 @@
 import * as logger from '@/utils/logger'
 import { CustomTagType, StudentStudyTaskStatus, CurriculumType, SESSION_VIEW_MODE } from '@/const/common'
 import { typeMap } from '@/const/teacher'
+import { lessonHost } from '@/const/googleSlide'
+import { ACCESS_TOKEN } from '@/store/mutation-types'
 
 import CommonPreview from '@/components/Common/CommonPreview'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import FilterContent from '@/components/UnitPlan/FilterContent'
+import PaymentDetail from './components/PaymentDetail'
 
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import PreviousSessionsSvg from '@/assets/icons/common/PreviousSessions.svg?inline'
@@ -322,7 +351,7 @@ import FilterIcon from '@/assets/libraryv2/filter.svg?inline'
 import FilterActiveIcon from '@/assets/libraryv2/filter_active.svg?inline'
 import CollaborateSvg from '@/assets/icons/collaborate/collaborate_group.svg?inline'
 
-import { SelfStudyTaskList } from '@/api/selfStudy'
+import { SelfStudyTaskList, SelfStudyTaskStart } from '@/api/selfStudy'
 import { FindCustomTags } from '@/api/tag'
 import { SubjectTree } from '@/api/subject'
 import { GetGradesByCurriculumId } from '@/api/preference'
@@ -348,11 +377,13 @@ export default {
     StudentPace,
     CommonPreview,
     NoMoreResources,
-    FilterContent
+    FilterContent,
+    PaymentDetail
   },
   data() {
     return {
       loading: true,
+      startLoading: false,
       statusList: StudentStudyTaskStatus,
       typeMap: typeMap,
       currentStatus: '',
@@ -387,15 +418,19 @@ export default {
       filterFaOptions: [],
       filterActivityOptions: [],
       showFilter: false,
-      filterParams: {},
+      filterParams: {
+        subject: []
+      },
       lastedRevisionId: '',
       searchText: '',
       viewMode: storage.get(SESSION_VIEW_MODE) ? storage.get(SESSION_VIEW_MODE) : 'img',
 
       previewVisible: false,
-      previewCurrentId: '',
+      currentTaskId: '',
+      currentTaskName: '',
       previewType: typeMap.task,
-      currentPreviewLesson: null
+      currentPreviewLesson: null,
+      paymentVisible: false
     }
   },
   created () {
@@ -499,6 +534,10 @@ export default {
       storage.set(SESSION_VIEW_MODE, viewMode)
       this.viewMode = viewMode
     },
+    handleChangeSubject (subjects) {
+      console.log(this.filterParams)
+      this.loadMyContent()
+    },
     handleUpdateFilterConfig (filter) {
       // TODO 根据配置更新请求参数
       this.$logger.info('handleUpdateFilterConfig', filter)
@@ -510,7 +549,8 @@ export default {
       if (!item.task || this.currentStatus === 2) {
         return
       }
-      this.previewCurrentId = item.taskId
+      this.currentTaskId = item.taskId
+      this.currentTaskName = item.task.name
       this.previewType = typeMap.task
       this.previewVisible = true
     },
@@ -518,9 +558,36 @@ export default {
       logger.info('handlePreviewClose')
       this.previewVisible = false
       this.$nextTick(() => {
-        this.previewCurrentId = null
+        this.currentTaskId = null
+        this.currentTaskName = null
         this.previewType = -1
       })
+    },
+    handleStartSession (item) {
+      this.startLoading = true
+      this.$logger.info('handleStartSession', item)
+      if (item && item.task) {
+        const requestData = {
+          taskId: item.taskId
+        }
+        this.$logger.info('handleStartSession', requestData)
+        SelfStudyTaskStart(requestData).then(res => {
+          this.$logger.info('StartOpenSession res', res)
+          if (res.success) {
+            this.startLoading = false
+            const targetUrl = lessonHost + 's/' + res.result.classId + '?token=' + storage.get(ACCESS_TOKEN)
+            this.$logger.info('try open ' + targetUrl)
+            // window.open(targetUrl, '_blank')
+            window.location.href = targetUrl
+          } else {
+            this.$message.warn('StartLesson Failed! ' + res.message)
+            this.startLoading = false
+          }
+        })
+      } else {
+        this.$message.warn('This record is not bound to PPT!')
+        this.startLoading = false
+      }
     },
     handleDeleteItem (item) {
       logger.info('handleDeleteItem', item)
@@ -542,7 +609,12 @@ export default {
 
     },
     handlePaymentItem (item) {
-
+      if (!item.task || this.currentStatus === 2) {
+        return
+      }
+      this.currentTaskId = item.taskId
+      this.currentTaskName = item.task.name
+      this.paymentVisible = true
     },
     handleReportItem (item) {
 
@@ -646,7 +718,7 @@ export default {
     }
 
     .type-owner {
-      height: 40px;
+      min-height: 40px;
       display: flex;
       flex-direction: row;
       align-items: center;
@@ -702,6 +774,20 @@ export default {
           font-family: Inter-Bold;
           line-height: 20px;
           padding-left: 8px;
+        }
+      }
+    }
+
+    .filter-option {
+      width: 250px;
+      .filter-item {
+        width: 100%;
+        line-height: 40px;
+        /deep/ .ant-select-selection {
+          min-height: 40px;
+        }
+        /deep/ .ant-select-selection__rendered {
+          line-height: 40px;
         }
       }
     }

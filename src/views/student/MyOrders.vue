@@ -46,12 +46,24 @@
       >
         <span slot="action" slot-scope="text, record">
           <template>
-            <a @click="handleDetail(record)">Refund</a>
+            <a @click="handlePaymentItem(record)">Refund</a>
             <!-- <a-divider type="vertical" /> -->
           </template>
         </span>
       </s-table>
     </div>
+
+    <a-modal
+      v-model="paymentVisible"
+      :footer="null"
+      destroyOnClose
+      width="800px"
+      :zIndex="6000"
+      title="Payment details"
+      @ok="paymentVisible = false"
+      @cancel="paymentVisible = false">
+      <payment-detail :taskId="currentTaskId" :taskName="currentTaskName"></payment-detail>
+    </a-modal>
   </div>
 </template>
 
@@ -61,6 +73,7 @@ import * as logger from '@/utils/logger'
 import { DICT_ORDER_TYPE, DICT_ORDER_STATUS, OrderType } from '@/const/common'
 
 import { STable } from '@/components'
+import PaymentDetail from './components/PaymentDetail'
 
 import { GetDictItems } from '@/api/common'
 import { orderRecordList } from '@/api/orderRecord'
@@ -70,7 +83,8 @@ export default {
   name: 'MyOrders',
   mixins: [StudyModeMixin],
   components: {
-    STable
+    STable,
+    PaymentDetail
   },
   data() {
     return {
@@ -91,7 +105,10 @@ export default {
             return res.result
           })
       },
-      scroll: {}
+      scroll: {},
+      currentTaskId: null,
+      currentTaskName: null,
+      paymentVisible: false
     }
   },
   computed: {
@@ -210,8 +227,13 @@ export default {
     triggerSearch() {
       this.$refs.table.refresh(true)
     },
-    handleDetail(record) {
-
+    handlePaymentItem (item) {
+      if (!item.taskId) {
+        return
+      }
+      this.currentTaskId = item.taskId
+      this.currentTaskName = item.taskName
+      this.paymentVisible = true
     }
   }
 }
