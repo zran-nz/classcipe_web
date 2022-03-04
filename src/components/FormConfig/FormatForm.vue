@@ -21,7 +21,7 @@
           <li
             class="list-group-item"
             v-for="fieldItem in myCommonList"
-            :key="fieldItem.id"
+            :key="'fieldId' + fieldItem.id"
           >
             <div class='sort-icon'>
               <img src='~@/assets/icons/formConfig/line3_green.png' alt='' class='green'/>
@@ -46,7 +46,7 @@
                 <div class='field-config-right'>
                   <div class='tag-selected' v-if='fieldItem.tags && fieldItem.tags.length' @click='handleSetTag(fieldItem)'>
                     <div class='tag-selected-list'>
-                      <div class='tag-selected-item' v-for='(tag, tIdx) in fieldItem.tags' :key="tIdx">
+                      <div class='tag-selected-item' v-for='(tag, tIdx) in fieldItem.tags' :key="'tid-' + tIdx">
                         <a-tag class='my-tag-selected' :class="{'my-tag-not-optional': tag.isOptional}">
                           <template v-if='tag.isOptional'>
                             <a-icon type="safety" :style="{ fontSize: '14px', 'margin-right': '3px'}"/>
@@ -97,7 +97,8 @@
           <li
             class="list-group-item"
             v-for="fieldItem in myCustomList"
-            :key="fieldItem.sortNo"
+            :key="'sort-' + fieldItem.sortNo"
+            :data-id='fieldItem.id'
           >
             <div class='sort-icon'>
               <img src='~@/assets/icons/formConfig/line3_green.png' alt='' class='green'/>
@@ -120,13 +121,26 @@
                   </div>
                 </div>
                 <div class='field-config-right'>
-                  <div class='tag-setting'>
-                    <a-icon type="setting" />
-                    <div class='set-tag-label'>
-                      Set tag
+                  <div class='tag-selected' v-if='fieldItem.tags && fieldItem.tags.length' @click='handleSetTag(fieldItem)'>
+                    <div class='tag-selected-list'>
+                      <div class='tag-selected-item' v-for='(tag, tIdx) in fieldItem.tags' :key="'tid2-' + tIdx">
+                        <a-tag class='my-tag-selected' :class="{'my-tag-not-optional': tag.isOptional}">
+                          <template v-if='tag.isOptional'>
+                            <a-icon type="safety" :style="{ fontSize: '14px', 'margin-right': '3px'}"/>
+                          </template>
+                          <span class='my-tag-selected-name'>{{ tag.tagName }}</span>
+                        </a-tag>
+                      </div>
                     </div>
                   </div>
                 </div>
+              </div>
+              <div class='tag-setting' @click='handleSetTag(fieldItem)'>
+                <div class='set-tag-label'>
+                  Set tag
+                </div>
+                <a-icon type="setting" :style="{ color: '#999999', fontSize: '12px' }" class='gray' />
+                <a-icon type="setting" :style="{ color: '#15C39A', fontSize: '12px' }" class='green'/>
               </div>
               <div class='visible-toggle'>
                 <div class='field-visible'>Show on</div>
@@ -269,7 +283,7 @@ export default {
       this.$logger.info('handleUpdateTags', data)
       let fieldItem = this.myCommonList.find(item => item.id === this.currentFieldId && item.name === this.currentFieldName)
       if (!fieldItem) {
-        fieldItem = this.myCommonList.find(item => item.id === this.currentFieldId && item.name === this.currentFieldName)
+        fieldItem = this.myCustomList.find(item => item.id === this.currentFieldId && item.name === this.currentFieldName)
       }
       if (fieldItem) {
         fieldItem.tags = data
@@ -297,17 +311,23 @@ export default {
         return false
       }
 
-      this.myCommonList.forEach((item, index) => {
+      const myCommonList = JSON.parse(JSON.stringify(this.myCommonList))
+      const myCustomList = JSON.parse(JSON.stringify(this.myCustomList))
+      myCommonList.forEach((item, index) => {
         item.sortNo = index + 1
       })
-
-      this.myCustomList.forEach((item, index) => {
+      myCustomList.forEach((item, index) => {
         item.sortNo = index + 1
+        this.$logger.info('item', item)
+        item.sortNo = index + 1
+        if (item.id.indexOf('ext_') !== -1) {
+          item.id = null
+        }
       })
-
+      this.$logger.info('getFormatConfig ' + this.title, myCommonList, myCustomList)
       return {
-        commonList: this.myCommonList,
-        customList: this.myCustomList
+        commonList: myCommonList,
+        customList: myCustomList
       }
     }
   }

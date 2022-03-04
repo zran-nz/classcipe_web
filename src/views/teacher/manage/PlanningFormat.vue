@@ -10,7 +10,7 @@
       <div class='form-config-action' slot="tabBarExtraContent">
         <a-space>
           <a-button @click='handlePreviewPlanningForm'>Preview</a-button>
-          <a-button type="primary" @click='handleSavePlanningForm' :loading='saving' :disabled='saving'>Save changes</a-button>
+          <a-button type="primary" @click='handleSavePlanningForm' :loading='saving'>Save changes</a-button>
         </a-space>
       </div>
     </a-tabs>
@@ -85,7 +85,7 @@ export default {
             type: typeMap['unit-plan']
           }).then((response) => {
             if (response.success) {
-              this.$message.success('Save success')
+              this.$message.success('Save unit format successfully')
               this.planConfig = null
               this.loadFormConfigData()
             } else {
@@ -103,7 +103,7 @@ export default {
             type: typeMap.task
           }).then((response) => {
             if (response.success) {
-              this.$message.success('Save success')
+              this.$message.success('Save task format successfully')
               this.taskConfig = null
               this.loadFormConfigData()
             } else {
