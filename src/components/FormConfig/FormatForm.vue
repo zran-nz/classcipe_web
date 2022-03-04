@@ -6,7 +6,6 @@
         <span class='title'>{{ title }}</span>
       </div>
       <div class='format-tag-settings'>
-        <a-button type='primary'><a-icon type="setting" /> Set tags</a-button>
       </div>
     </div>
     <div class='common-field-list'>
@@ -45,13 +44,23 @@
                   </div>
                 </div>
                 <div class='field-config-right'>
-                  <div class='tag-setting'>
-                    <a-icon type="setting" />
-                    <div class='set-tag-label'>
-                      Set tag
+                  <div class='tag-selected' v-if='fieldItem.tags && fieldItem.tags.length'>
+                    <div class='tag-selected-list'>
+                      <div class='tag-selected-item' v-for='tag in fieldItem.tags' :key='tag.tagId'>
+                        <a-tag color="#15C39A">
+                          {{ tag.tagName }}
+                        </a-tag>
+                      </div>
                     </div>
                   </div>
                 </div>
+              </div>
+              <div class='tag-setting' @click='handleSetTag(fieldItem)'>
+                <div class='set-tag-label'>
+                  Set tag
+                </div>
+                <a-icon type="setting" :style="{ color: '#999999', fontSize: '12px' }" class='gray' />
+                <a-icon type="setting" :style="{ color: '#15C39A', fontSize: '12px' }" class='green'/>
               </div>
               <div class='visible-toggle'>
                 <div class='field-visible'>Show on</div>
@@ -121,20 +130,45 @@
                 <a-switch size="small" v-model='fieldItem.visible' />
               </div>
             </div>
+            <div class='delete-row'>
+              <a-popconfirm
+                title="Delete it?"
+                ok-text="Yes"
+                cancel-text="No"
+                @confirm="handleDeleteCustomField(fieldItem)"
+              >
+                <a-icon type="delete" />
+              </a-popconfirm>
+            </div>
           </li>
         </transition-group>
       </draggable>
     </div>
+
+    <a-modal
+      v-model="setTagVisible"
+      :footer="null"
+      destroyOnClose
+      :title="null">
+      <modal-header :title="'Set tags for ' + (currentFieldName ? currentFieldName : 'field')" @close='handleCloseSetTags'/>
+      <div class='my-set-tag'>
+        <set-tag :selected-tags='currentFieldTags' @update='handleUpdateTags' />
+      </div>
+    </a-modal>
   </div>
 </template>
 
 <script>
 
 import draggable from 'vuedraggable'
+import SetTag from '@/components/FormConfig/SetTag'
+import ModalHeader from '@/components/Common/ModalHeader'
 
 export default {
   name: 'FormatForm',
   components: {
+    ModalHeader,
+    SetTag,
     draggable
   },
   props: {
@@ -156,7 +190,12 @@ export default {
       commonDrag: false,
       customDrag: false,
       myCommonList: [],
-      myCustomList: []
+      myCustomList: [],
+
+      setTagVisible: false,
+      currentFieldTags: [],
+      currentFieldId: null,
+      currentFieldName: null
     }
   },
   computed: {
@@ -191,6 +230,7 @@ export default {
         customFieldName = `CustomField${count}`
       }
       this.myCustomList.push({
+        id: 'ext_' + Math.random(),
         name: customFieldName,
         hint: '',
         visible: true,
@@ -203,6 +243,38 @@ export default {
       this.myCustomList.forEach((item, index) => {
         item.sortNo = index
       })
+    },
+
+    handleSetTag (fieldItem) {
+      this.$logger.info('handleSetTag', fieldItem)
+      this.currentFieldTags = fieldItem.tags.slice()
+      this.currentFieldId = fieldItem.id
+      this.currentFieldName = fieldItem.name
+    },
+
+    handleCloseSetTags () {
+      this.currentFieldTags = []
+      this.currentFieldId = null
+      this.currentFieldName = null
+    },
+
+    handleUpdateTags (data) {
+      this.$logger.info('handleUpdateTags', data)
+      let fieldItem = this.myCommonList.find(item => item.id === this.currentFieldId && item.name === this.currentFieldName)
+      if (!fieldItem) {
+        fieldItem = this.myCommonList.find(item => item.id === this.currentFieldId && item.name === this.currentFieldName)
+      }
+      if (fieldItem) {
+        fieldItem.tags = data.tags
+        this.$logger.info('update field tags', fieldItem)
+      } else {
+        this.$logger.info('no field found')
+      }
+    },
+
+    handleDeleteCustomField (fieldItem) {
+      this.$logger.info('handleDeleteCustomField', fieldItem)
+      this.myCustomList = this.myCustomList.filter(item => item.id !== fieldItem.id)
     }
   }
 }
@@ -247,8 +319,10 @@ export default {
       padding: 0;
       margin: 0;
       .list-group-item {
-        min-width: 850px;
+        position: relative;
+        min-width: 1100px;
         margin-bottom: 15px;
+        margin-right: 10px;
         background: #f8f8f8;
         padding: 10px 10px 15px 10px;
         display: flex;
@@ -271,23 +345,6 @@ export default {
 
           .gray {
             display: block;
-          }
-        }
-
-        &:hover {
-          background: rgba(21, 195, 154, 0.1);
-          color: rgba(0, 0, 0, 0.65);
-          border: 1px solid #15C39A;
-          .sort-icon {
-            .green {
-              display: block;
-            }
-            .gray {
-              display: none;
-            }
-          }
-
-          .show-name-input, .hint-input {
           }
         }
 
@@ -341,16 +398,62 @@ export default {
               flex-direction: row;
               align-items: center;
               justify-content: flex-end;
-              .tag-setting {
+
+              .tag-selected {
+                .tag-selected-list {
+                  display: flex;
+                  flex-direction: row;
+                  align-items: center;
+                  justify-content: flex-start;
+                  flex-wrap: wrap;
+
+                  .tag-selected-item {
+
+                  }
+                }
+              }
+            }
+          }
+
+          .tag-setting {
+            position: absolute;
+            right: 90px;
+            top: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            .gray {
+              height: 18px;
+              padding-top: 3px;
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              justify-content: center;
+            }
+            .green {
+              height: 18px;
+              padding-top: 3px;
+              display: none;
+            }
+            .set-tag-label {
+              padding-right: 3px;
+              font-size: 12px;
+              color: #999999;
+            }
+
+            &:hover {
+              .gray {
+                display: none;
+              }
+              .green {
                 display: flex;
                 flex-direction: row;
                 align-items: center;
                 justify-content: center;
-                .set-tag-label {
-                  padding-left: 5px;
-                  font-size: 12px;
-                  color: #15C39A;
-                }
+              }
+              .set-tag-label {
+                color: #15C39A;
               }
             }
           }
@@ -368,6 +471,42 @@ export default {
               color: #999;
               padding-right: 5px;
             }
+            &:hover {
+              .field-visible {
+                color: #15C39A;
+              }
+            }
+          }
+        }
+
+        .delete-row {
+          position: absolute;
+          right: -10px;
+          top: -10px;
+          color: red;
+          display: none;
+          width: 20px;
+          height: 20px;
+          background: #fbe0e0eb;
+          border-radius: 20px;
+          text-align: center;
+        }
+
+        &:hover {
+          background: rgba(21, 195, 154, 0.1);
+          color: rgba(0, 0, 0, 0.65);
+          border: 1px solid #15C39A;
+          .sort-icon {
+            .green {
+              display: block;
+            }
+            .gray {
+              display: none;
+            }
+          }
+
+          .delete-row {
+            display: block;
           }
         }
       }
