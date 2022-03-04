@@ -40,7 +40,8 @@ export default {
         weekends: true,
         select: this.handleDateSelect,
         eventClick: this.handleEventClick,
-        eventsSet: this.handleEvents
+        eventsSet: this.handleEvents,
+        datesSet: this.handleDatesSet
       },
       currentEvents: []
     }
@@ -70,6 +71,9 @@ export default {
     },
     handleEvents(events) {
       this.currentEvents = events
+    },
+    handleDatesSet(event) {
+      console.log(event)
     }
   }
 }
