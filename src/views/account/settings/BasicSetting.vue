@@ -44,15 +44,8 @@
           <div class="profile-label">
             <span class="label-txt">Role : </span>
           </div>
-          <div class="profile-text profile-data" v-if="!editMode">
+          <div class="profile-text profile-data">
             {{ userInfo.currentRole.substr(0, 1).toUpperCase() + userInfo.currentRole.substr(1) }}
-          </div>
-          <div class="profile-input profile-data" v-if="editMode">
-            <a-select :getPopupContainer="trigger => trigger.parentElement" v-model="userInfo.currentRole" placeholder="Please role">
-              <a-select-option value="teacher">teacher</a-select-option>
-              <a-select-option value="student">student</a-select-option>
-              <a-select-option value="expert">expert</a-select-option>
-            </a-select>
           </div>
         </div>
 
