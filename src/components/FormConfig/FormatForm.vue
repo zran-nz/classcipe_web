@@ -53,7 +53,7 @@
                             <a-icon type="safety" :style="{ fontSize: '14px', 'margin-right': '3px'}"/>
                           </template>
                           <span class='my-tag-selected-name'>
-                            <span class='tag-type' v-if="fieldItem.fieldName === 'taskType' && tag.subFieldName">{{ tag.subFieldName }}</span>
+                            <span class='tag-type' v-if="fieldItem.fieldName === 'taskType' && tag.subFieldName">{{ tag.subFieldName }} - </span>
                             {{ tag.tagName }}
                           </span>
                         </a-tag>
@@ -516,6 +516,9 @@ export default {
                       display: flex;
                       align-items: center;
                       justify-content: space-between;
+
+                      .tag-type {
+                      }
                     }
 
                     .my-tag-not-optional {
