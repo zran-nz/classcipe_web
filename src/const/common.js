@@ -50,12 +50,15 @@ export const PlanField = {
   Name: 'name',
   ProjectBased: 'projectBased',
   UnitType: 'unitType',
+  GradeId: 'gradeId',
   StartDate: 'startDate',
   Inquiry: 'inquiry',
   Sdg: 'sdg',
+  Scenarios: 'scenarios',
   Rwc: 'rwc',
   Question: 'question',
   Assessment: 'assessment',
+  LearnOuts: 'learnOuts',
   Prior: 'prior',
   Link: 'link'
 }

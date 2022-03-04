@@ -38,6 +38,11 @@ export default {
       if (this.$store.getters.userInfo) {
         this.$store.dispatch('initData')
       }
+
+      // 加载planning-format配置数据
+      if (!this.$store.getters.formConfigData) {
+        this.$store.dispatch('loadFormConfigData')
+      }
     }
   }
 </script>
