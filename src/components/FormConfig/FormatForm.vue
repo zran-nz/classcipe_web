@@ -47,7 +47,7 @@
                   <div class='tag-selected' v-if='fieldItem.tags && fieldItem.tags.length' @click='handleSetTag(fieldItem)'>
                     <div class='tag-selected-list'>
                       <div class='tag-selected-item' v-for='(tag, tIdx) in fieldItem.tags' :key="tIdx">
-                        <a-tag class='my-tag-selected'>
+                        <a-tag class='my-tag-selected' :class="{'my-tag-not-optional': tag.isOptional}">
                           <template v-if='tag.isOptional'>
                             <a-icon type="safety" :style="{ fontSize: '14px', 'margin-right': '3px'}"/>
                           </template>
@@ -435,6 +435,7 @@ export default {
 
               .tag-selected {
                 .tag-selected-list {
+                  margin-right: -19px;
                   padding: 5px 8px;
                   display: flex;
                   flex-direction: row;
@@ -453,6 +454,11 @@ export default {
                       display: flex;
                       align-items: center;
                       justify-content: space-between;
+                    }
+
+                    .my-tag-not-optional {
+                      background-color: #15C39A;
+                      color: #fff;
                     }
                   }
                 }

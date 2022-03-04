@@ -1,6 +1,6 @@
 <template>
   <a-card class='planning-format' :body-style="{'padding': 0}" :loading='loading'>
-    <a-tabs type="card" :activeKey='activeKey'>
+    <a-tabs type="card" v-model='activeKey'>
       <a-tab-pane key="plan" tab="Unit Format" class='planning-content' :forceRender='true'>
         <format-form ref='plan' title='Edit task info' :common-list='planConfig.commonList' :custom-list='planConfig.customList' v-if='planConfig' />
       </a-tab-pane>
