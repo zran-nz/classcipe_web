@@ -21,7 +21,7 @@
           <li
             class="list-group-item"
             v-for="fieldItem in myCommonList"
-            :key="fieldItem.sortNo"
+            :key="fieldItem.id"
           >
             <div class='sort-icon'>
               <img src='~@/assets/icons/formConfig/line3_green.png' alt='' class='green'/>
@@ -44,11 +44,14 @@
                   </div>
                 </div>
                 <div class='field-config-right'>
-                  <div class='tag-selected' v-if='fieldItem.tags && fieldItem.tags.length'>
+                  <div class='tag-selected' v-if='fieldItem.tags && fieldItem.tags.length' @click='handleSetTag(fieldItem)'>
                     <div class='tag-selected-list'>
-                      <div class='tag-selected-item' v-for='tag in fieldItem.tags' :key='tag.tagId'>
-                        <a-tag color="#15C39A">
-                          {{ tag.tagName }}
+                      <div class='tag-selected-item' v-for='(tag, tIdx) in fieldItem.tags' :key="tIdx">
+                        <a-tag class='my-tag-selected'>
+                          <template v-if='tag.isOptional'>
+                            <a-icon type="safety" :style="{ fontSize: '14px', 'margin-right': '3px'}"/>
+                          </template>
+                          <span class='my-tag-selected-name'>{{ tag.tagName }}</span>
                         </a-tag>
                       </div>
                     </div>
@@ -147,7 +150,9 @@
 
     <a-modal
       v-model="setTagVisible"
+      :closable="false"
       :footer="null"
+      width='700px'
       destroyOnClose
       :title="null">
       <modal-header :title="'Set tags for ' + (currentFieldName ? currentFieldName : 'field')" @close='handleCloseSetTags'/>
@@ -250,9 +255,11 @@ export default {
       this.currentFieldTags = fieldItem.tags.slice()
       this.currentFieldId = fieldItem.id
       this.currentFieldName = fieldItem.name
+      this.setTagVisible = true
     },
 
     handleCloseSetTags () {
+      this.setTagVisible = false
       this.currentFieldTags = []
       this.currentFieldId = null
       this.currentFieldName = null
@@ -265,16 +272,43 @@ export default {
         fieldItem = this.myCommonList.find(item => item.id === this.currentFieldId && item.name === this.currentFieldName)
       }
       if (fieldItem) {
-        fieldItem.tags = data.tags
+        fieldItem.tags = data
         this.$logger.info('update field tags', fieldItem)
       } else {
         this.$logger.info('no field found')
       }
+      this.setTagVisible = false
     },
 
     handleDeleteCustomField (fieldItem) {
       this.$logger.info('handleDeleteCustomField', fieldItem)
       this.myCustomList = this.myCustomList.filter(item => item.id !== fieldItem.id)
+    },
+
+    getFormatConfig () {
+      // 校验custom字段不允许重复名称
+      this.myCustomList = this.myCustomList.filter(item => item.name && item.name.trim())
+      const customNameList = this.myCustomList.map(item => item.name)
+      const filterCustomNameList = Array.from(new Set(customNameList))
+
+      if (filterCustomNameList.length !== customNameList.length) {
+        this.$message.warn('[' + this.title + '] Custom field name cannot be repeated')
+        this.$logger.info('repeated', customNameList, filterCustomNameList)
+        return false
+      }
+
+      this.myCommonList.forEach((item, index) => {
+        item.sortNo = index + 1
+      })
+
+      this.myCustomList.forEach((item, index) => {
+        item.sortNo = index + 1
+      })
+
+      return {
+        commonList: this.myCommonList,
+        customList: this.myCustomList
+      }
     }
   }
 }
@@ -401,6 +435,7 @@ export default {
 
               .tag-selected {
                 .tag-selected-list {
+                  padding: 5px 8px;
                   display: flex;
                   flex-direction: row;
                   align-items: center;
@@ -408,7 +443,17 @@ export default {
                   flex-wrap: wrap;
 
                   .tag-selected-item {
-
+                    margin: 3px 3px 3px 0;
+                    .my-tag-selected {
+                      background-color: rgba(21, 195, 154, 0.1);
+                      color: #15c39a;
+                      border: 1px solid #15c39a;
+                      border-radius: 22px;
+                      padding: 0 12px;
+                      display: flex;
+                      align-items: center;
+                      justify-content: space-between;
+                    }
                   }
                 }
               }
@@ -514,4 +559,7 @@ export default {
   }
 }
 
+.my-set-tag {
+  min-height: 350px;
+}
 </style>
