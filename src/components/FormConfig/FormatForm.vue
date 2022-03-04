@@ -21,6 +21,7 @@
           <li
             class="list-group-item"
             v-for="fieldItem in myCommonList"
+            :data-field-name='fieldItem.fieldName'
             :key="'fieldId' + fieldItem.id"
           >
             <div class='sort-icon'>
@@ -44,26 +45,52 @@
                   </div>
                 </div>
                 <div class='field-config-right'>
-                  <div class='tag-selected' v-if='fieldItem.tags && fieldItem.tags.length' @click='handleSetTag(fieldItem)'>
+                  <div class='tag-selected'>
                     <div class='tag-selected-list'>
-                      <div class='tag-selected-item' v-for='(tag, tIdx) in fieldItem.tags' :key="'tid-' + tIdx">
+                      <div class='tag-selected-item' v-for='(tag, tIdx) in fieldItem.tags' :key="'tid-' + tIdx" @click='handleSetTag(fieldItem, tag.subFieldName)'>
                         <a-tag class='my-tag-selected' :class="{'my-tag-not-optional': tag.isOptional}">
                           <template v-if='tag.isOptional'>
                             <a-icon type="safety" :style="{ fontSize: '14px', 'margin-right': '3px'}"/>
                           </template>
-                          <span class='my-tag-selected-name'>{{ tag.tagName }}</span>
+                          <span class='my-tag-selected-name'>
+                            <span class='tag-type' v-if="fieldItem.fieldName === 'taskType' && tag.subFieldName">{{ tag.subFieldName }}</span>
+                            {{ tag.tagName }}
+                          </span>
                         </a-tag>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-              <div class='tag-setting' @click='handleSetTag(fieldItem)' v-if='fieldItem.tags.length === 0'>
+              <div class='tag-setting' @click='handleSetTag(fieldItem)' v-if="fieldItem.fieldName !== 'taskType'">
                 <div class='set-tag-label'>
                   Set tag
                 </div>
                 <a-icon type="setting" :style="{ color: '#999999', fontSize: '12px' }" class='gray' />
                 <a-icon type="setting" :style="{ color: '#15C39A', fontSize: '12px' }" class='green'/>
+              </div>
+              <div class='task-type-tag-setting' v-if="fieldItem.fieldName === 'taskType'">
+                <div class='task-type-tag-setting-item' @click="handleSetTag(fieldItem, 'fa')" >
+                  <div class='set-tag-label'>
+                    Set fa tag
+                  </div>
+                  <a-icon type="setting" :style="{ color: '#999999', fontSize: '12px' }" class='gray' />
+                  <a-icon type="setting" :style="{ color: '#15C39A', fontSize: '12px' }" class='green'/>
+                </div>
+                <div class='task-type-tag-setting-item' @click="handleSetTag(fieldItem, 'sa')" >
+                  <div class='set-tag-label'>
+                    Set sa tag
+                  </div>
+                  <a-icon type="setting" :style="{ color: '#999999', fontSize: '12px' }" class='gray' />
+                  <a-icon type="setting" :style="{ color: '#15C39A', fontSize: '12px' }" class='green'/>
+                </div>
+                <div class='task-type-tag-setting-item' @click="handleSetTag(fieldItem, 'activity')" >
+                  <div class='set-tag-label'>
+                    Set activity tag
+                  </div>
+                  <a-icon type="setting" :style="{ color: '#999999', fontSize: '12px' }" class='gray' />
+                  <a-icon type="setting" :style="{ color: '#15C39A', fontSize: '12px' }" class='green'/>
+                </div>
               </div>
               <div class='visible-toggle'>
                 <div class='field-visible'>Show on</div>
@@ -169,7 +196,7 @@
       width='700px'
       destroyOnClose
       :title="null">
-      <modal-header :title="'Set tags for ' + (currentFieldName ? currentFieldName : 'field')" @close='handleCloseSetTags'/>
+      <modal-header :title="'Set tags for ' + (currentFieldName ? currentFieldName : 'field') + (currentSubFieldName ? ' (' + currentSubFieldName + ')' : '')" @close='handleCloseSetTags'/>
       <div class='my-set-tag'>
         <set-tag :selected-tags='currentFieldTags' @update='handleUpdateTags' />
       </div>
@@ -214,7 +241,8 @@ export default {
       setTagVisible: false,
       currentFieldTags: [],
       currentFieldId: null,
-      currentFieldName: null
+      currentFieldName: null,
+      currentSubFieldName: null
     }
   },
   computed: {
@@ -264,11 +292,16 @@ export default {
       })
     },
 
-    handleSetTag (fieldItem) {
+    handleSetTag (fieldItem, subFieldName) {
       this.$logger.info('handleSetTag', fieldItem)
-      this.currentFieldTags = fieldItem.tags.slice()
       this.currentFieldId = fieldItem.id
       this.currentFieldName = fieldItem.name
+      this.currentSubFieldName = subFieldName
+      if (subFieldName) {
+        this.currentFieldTags = fieldItem.tags.filter(item => item.subFieldName === subFieldName)
+      } else {
+        this.currentFieldTags = fieldItem.tags.slice()
+      }
       this.setTagVisible = true
     },
 
@@ -277,6 +310,7 @@ export default {
       this.currentFieldTags = []
       this.currentFieldId = null
       this.currentFieldName = null
+      this.currentSubFieldName = null
     },
 
     handleUpdateTags (data) {
@@ -286,7 +320,15 @@ export default {
         fieldItem = this.myCustomList.find(item => item.id === this.currentFieldId && item.name === this.currentFieldName)
       }
       if (fieldItem) {
-        fieldItem.tags = data
+        if (this.currentSubFieldName) {
+          const tags = fieldItem.tags.filter(item => item.subFieldName !== this.currentSubFieldName)
+          data.forEach(item => {
+            item.subFieldName = this.currentSubFieldName
+          })
+          fieldItem.tags = tags.concat(data)
+        } else {
+          fieldItem.tags = data
+        }
         this.$logger.info('update field tags', fieldItem)
       } else {
         this.$logger.info('no field found')
@@ -525,6 +567,56 @@ export default {
               }
               .set-tag-label {
                 color: #15C39A;
+              }
+            }
+          }
+
+          .task-type-tag-setting {
+            position: absolute;
+            right: 90px;
+            top: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            .task-type-tag-setting-item {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              margin-left: 12px;
+
+              .gray {
+                height: 18px;
+                padding-top: 3px;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: center;
+              }
+              .green {
+                height: 18px;
+                padding-top: 3px;
+                display: none;
+              }
+              .set-tag-label {
+                padding-right: 3px;
+                font-size: 12px;
+                color: #999999;
+              }
+
+              &:hover {
+                .gray {
+                  display: none;
+                }
+                .green {
+                  display: flex;
+                  flex-direction: row;
+                  align-items: center;
+                  justify-content: center;
+                }
+                .set-tag-label {
+                  color: #15C39A;
+                }
               }
             }
           }

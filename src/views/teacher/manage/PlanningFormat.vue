@@ -2,10 +2,10 @@
   <a-card class='planning-format' :body-style="{'padding': 0}" :loading='loading'>
     <a-tabs type="card" v-model='activeKey'>
       <a-tab-pane key="plan" tab="Unit Format" class='planning-content' :forceRender='true'>
-        <format-form ref='plan' title='Edit task info' :common-list='planConfig.commonList' :custom-list='planConfig.customList' v-if='planConfig' />
+        <format-form ref='plan' title='Edit unit-plan info' :common-list='planConfig.commonList' :custom-list='planConfig.customList' v-if='planConfig' />
       </a-tab-pane>
       <a-tab-pane key="task" tab="Task Format" class='planning-content' :forceRender='true'>
-        <format-form ref='task' title='Edit unit-plan info' :common-list='taskConfig.commonList' :custom-list='taskConfig.customList' v-if='taskConfig' />
+        <format-form ref='task' title='Edit task info' :common-list='taskConfig.commonList' :custom-list='taskConfig.customList' v-if='taskConfig' />
       </a-tab-pane>
       <div class='form-config-action' slot="tabBarExtraContent">
         <a-space>
