@@ -37,6 +37,22 @@ export const BaseEventMixin = {
   },
   created () {
   },
+  filters: {
+    unitLabelName: (defaultName, fieldName, formConfigData) => {
+      if (formConfigData && formConfigData.planFieldMap && formConfigData.planFieldMap[fieldName]) {
+        return formConfigData.planFieldMap[fieldName]
+      } else {
+        return defaultName
+      }
+    },
+    taskLabelName: (defaultName, fieldName, formConfigData) => {
+      if (formConfigData && formConfigData.taskFieldMap && formConfigData.taskFieldMap[fieldName]) {
+        return formConfigData.taskFieldMap[fieldName]
+      } else {
+        return defaultName
+      }
+    }
+  },
   mounted () {
     this.resetWidth()
     window.onresize = () => {

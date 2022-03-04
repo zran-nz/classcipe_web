@@ -1,6 +1,6 @@
 <template>
   <div class='unit-plan-preview'>
-    {{ $store.getters.formConfigPreviewData }}
+
   </div>
 </template>
 
