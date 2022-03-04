@@ -178,7 +178,7 @@
           </a-col>
           <a-col span="22">
             <div class="detail-wrapper" v-if="previewCurrentId && previewType">
-              <common-preview :id="previewCurrentId" :type="previewType" />
+              <common-preview :id="previewCurrentId" :type="previewType" :isLibrary="true" />
             </div>
           </a-col>
         </a-row>

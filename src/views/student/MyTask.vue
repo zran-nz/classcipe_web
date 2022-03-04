@@ -131,7 +131,7 @@
                             <a-menu slot="overlay">
                               <a-menu-item>
                                 <a @click="handleReportItem(item)">
-                                  <a-icon type="bar-chart" /> Study Report
+                                  <a-icon type="bar-chart" /> Report
                                 </a>
                               </a-menu-item>
                               <a-menu-item>
@@ -152,11 +152,11 @@
                       </template>
                       <template v-else>
                         <div class="start-session-wrapper action-item-wrapper">
-                          <div class="session-btn content-list-action-btn" @click="handleReportItem(item)">
+                          <div class="session-btn content-list-action-btn" @click="handlePermanentDeleteItem(item)">
                             <div class="session-btn-icon">
-                              <a-icon type="bar-chart" theme="filled" />
+                              <a-icon type="delete" theme="filled" />
                             </div>
-                            <div class="session-btn-text">Study Report</div>
+                            <div class="session-btn-text">Delete</div>
                           </div>
                         </div>
                         <div class="start-session-wrapper action-item-wrapper">
@@ -168,14 +168,6 @@
                               <div class="session-btn-text">Restore</div>
                             </div>
                           </a-popconfirm>
-                        </div>
-                        <div class="start-session-wrapper action-item-wrapper">
-                          <div class="session-btn content-list-action-btn" @click="handlePaymentItem(item)">
-                            <div class="session-btn-icon">
-                              <a-icon type="ordered-list" theme="filled" />
-                            </div>
-                            <div class="session-btn-text">Payment Details</div>
-                          </div>
                         </div>
                       </template>
                     </div>
@@ -195,27 +187,15 @@
               <a-card class="cover-card" >
                 <div class="mask"></div>
 
-                <div class="mask-actions">
+                <div class="mask-actions" v-if="currentStatus !== 2">
                   <div class="action-item action-item-top">
                     <a-dropdown>
                       <a-icon type="more" style="margin-right: 8px" class="more-icon" />
                       <a-menu slot="overlay">
                         <a-menu-item>
-                          <a @click="handleReportItem(item)">
-                            <a-icon type="bar-chart" /> Study Report
-                          </a>
-                        </a-menu-item>
-                        <a-menu-item v-if="currentStatus !== 2">
                           <a-popconfirm title="Archive ?" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
                             <a>
                               <a-icon type="delete" theme="filled" /> Archive
-                            </a>
-                          </a-popconfirm>
-                        </a-menu-item>
-                        <a-menu-item v-else>
-                          <a-popconfirm :title="'Confirm restore ' +(( item.task && item.task.name) ? item.task.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleRestoreItem(item)" cancel-text="No">
-                            <a>
-                              <a-icon type="undo" theme="filled" /> Restore
                             </a>
                           </a-popconfirm>
                         </a-menu-item>
@@ -227,7 +207,7 @@
                       </a-menu>
                     </a-dropdown>
                   </div>
-                  <div class="action-item action-item-center" style="margin-top: 40px" v-if="currentStatus !== 2">
+                  <div class="action-item action-item-center" v-if="currentStatus !== 2">
                     <div class="session-btn session-btn-right">
                       <div class="session-btn-text">
                         <student-pace />
@@ -236,20 +216,38 @@
                     </div>
                   </div>
                   <div class="action-item action-item-bottom" >
-                    <!-- <div class="session-btn" @click.stop="handleViewDetail(item)" v-if="currentStatus !== 2">
-                      <div class="session-btn-icon content-list-action-btn">
-                        <a-icon type="eye" theme="filled" />
-                      </div>
-                      <div class="session-btn-text">Preview</div>
-                    </div> -->
-                    <!-- <a-popconfirm v-if="currentStatus === 2" :title="'Confirm restore ' +(( item.task && item.task.name) ? item.task.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleRestoreItem(item)" cancel-text="No">
-                      <div class="session-btn">
+                    <template v-if="currentStatus !== 2">
+                      <div class="session-btn" @click.stop="handleReportItem(item)">
                         <div class="session-btn-icon content-list-action-btn">
-                          <bianji />
+                          <a-icon type="bar-chart" />
                         </div>
-                        <div class="session-btn-text">Restore</div>
+                        <div class="session-btn-text">Report</div>
                       </div>
-                    </a-popconfirm> -->
+                      <div class="session-btn" @click.stop="handleViewDetail(item)">
+                        <div class="session-btn-icon content-list-action-btn">
+                          <a-icon type="eye" theme="filled" />
+                        </div>
+                        <div class="session-btn-text">Preview</div>
+                      </div>
+                    </template>
+                    <template v-if="currentStatus === 2">
+                      <a-popconfirm :title="'Confirm restore ' +(( item.task && item.task.name) ? item.task.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleRestoreItem(item)" cancel-text="No">
+                        <div class="session-btn">
+                          <div class="session-btn-icon content-list-action-btn">
+                            <bianji />
+                          </div>
+                          <div class="session-btn-text">Restore</div>
+                        </div>
+                      </a-popconfirm>
+                      <a-popconfirm :title="'Confirm permanent delete ' +(item.name ? item.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem(item)" cancel-text="No">
+                        <div class="session-btn">
+                          <div class="session-btn-icon content-list-action-btn">
+                            <a-icon type="delete" theme="filled" />
+                          </div>
+                          <div class="session-btn-text">Delete</div>
+                        </div>
+                      </a-popconfirm>
+                    </template>
                   </div>
                 </div>
                 <div class="cover-img" :style="{backgroundImage: 'url(' + (item.task && item.task.image) + ')'}"></div>
@@ -295,7 +293,7 @@
         </a-col>
         <a-col span="22">
           <div class="detail-wrapper" v-if="previewCurrentId && previewType">
-            <common-preview :id="previewCurrentId" :type="previewType" />
+            <common-preview :id="previewCurrentId" :type="previewType" :isLibrary="true"/>
           </div>
         </a-col>
       </a-row>
@@ -396,7 +394,7 @@ export default {
 
       previewVisible: false,
       previewCurrentId: '',
-      previewType: '',
+      previewType: typeMap.task,
       currentPreviewLesson: null
     }
   },
@@ -513,7 +511,7 @@ export default {
         return
       }
       this.previewCurrentId = item.taskId
-      this.previewType = item.task.type
+      this.previewType = typeMap.task
       this.previewVisible = true
     },
     handlePreviewClose () {
@@ -539,6 +537,9 @@ export default {
       // }).finally(() => {
       //   this.loadMyContent()
       // })
+    },
+    handlePermanentDeleteItem (item) {
+
     },
     handlePaymentItem (item) {
 

@@ -27,7 +27,7 @@
       </div>
     </div>
 
-    <div class="filter-item">
+    <div class="filter-item" v-excludeRole="['student']">
       <div class="filter-label">Type</div>
       <div class="filter-option-list">
         <a-checkbox-group
