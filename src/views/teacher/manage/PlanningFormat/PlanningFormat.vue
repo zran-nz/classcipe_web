@@ -22,6 +22,7 @@
 import { typeMap } from '@/const/teacher'
 import { FormConfigData, FormConfigAddOrUpdate } from '@/api/formConfig'
 import FormatForm from '@/components/FormConfig/FormatForm'
+import { FORM_CONFIG_PREVIEW_DATA } from '@/store/mutation-types'
 
 export default {
   name: 'PlanningFormat',
@@ -70,8 +71,36 @@ export default {
     },
 
     handlePreviewPlanningForm () {
-
+      this.$logger.info('handlePreviewPlanningForm')
+      if (this.activeKey === 'plan') {
+        const planConfig = this.$refs.plan.getFormatConfig()
+        if (planConfig) {
+          this.$store.commit(FORM_CONFIG_PREVIEW_DATA, {
+            commonList: planConfig.commonList,
+            customList: planConfig.customList,
+            schoolId: this.$store.getters.userInfo.school,
+            type: typeMap['unit-plan']
+          })
+          this.$router.push({
+            path: '/teacher/managing/planning-format/unit-plan-preview'
+          })
+        }
+      } else if (this.activeKey === 'task') {
+        const taskConfig = this.$refs.task.getFormatConfig()
+        if (taskConfig) {
+          this.$store.commit(FORM_CONFIG_PREVIEW_DATA, {
+            commonList: taskConfig.commonList,
+            customList: taskConfig.customList,
+            schoolId: this.$store.getters.userInfo.school,
+            type: typeMap.task
+          })
+          this.$router.push({
+            path: '/teacher/managing/planning-format/task-preview'
+          })
+        }
+      }
     },
+
     handleSavePlanningForm () {
       this.$logger.info('handleSavePlanningForm')
       const config = this.getPlanningConfig()

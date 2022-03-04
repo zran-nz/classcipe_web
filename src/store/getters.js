@@ -41,7 +41,10 @@ const getters = {
     }
   },
 
-  evaluationSet: state => state.websocket.evaluationSet
+  evaluationSet: state => state.websocket.evaluationSet,
+
+  formConfigPreviewData: state => state.formConfig.previewData,
+  formConfigData: state => state.formConfig.formConfigData
 }
 
 export default getters

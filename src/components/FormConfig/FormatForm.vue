@@ -360,8 +360,6 @@ export default {
       })
       myCustomList.forEach((item, index) => {
         item.sortNo = index + 1
-        this.$logger.info('item', item)
-        item.sortNo = index + 1
         if (item.id.indexOf('ext_') !== -1) {
           item.id = null
         }
