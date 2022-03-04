@@ -58,7 +58,7 @@
                   </div>
                 </div>
               </div>
-              <div class='tag-setting' @click='handleSetTag(fieldItem)'>
+              <div class='tag-setting' @click='handleSetTag(fieldItem)' v-if='fieldItem.tags.length === 0'>
                 <div class='set-tag-label'>
                   Set tag
                 </div>
