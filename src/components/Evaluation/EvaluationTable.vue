@@ -2439,7 +2439,7 @@ export default {
       font-weight: 600;
       color: #070707;
       opacity: 1;
-      word-break: break-all;
+      word-break: normal;
     }
 
     margin-bottom: 15px;
