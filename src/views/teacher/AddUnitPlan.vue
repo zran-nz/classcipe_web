@@ -3492,7 +3492,6 @@ export default {
 }
 
 .form-block-rwc {
-  margin-top: -25px;
 
   /deep/ .ant-form-item-label label {
     font-weight: 500;
