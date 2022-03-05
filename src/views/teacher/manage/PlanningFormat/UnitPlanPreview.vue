@@ -4,6 +4,7 @@
       <common-form-header
         ref='commonFormHeader'
         :form='form'
+        :is-preview-mode='true'
         :last-change-saved-time='lastChangeSavedTime'
         @back='goBack'
       />
@@ -1233,6 +1234,7 @@ export default {
     },
 
     goBack() {
+      this.$logger.info('goBack', window.history.length)
       if (window.history.length <= 1) {
         this.$router.push({ path: '/teacher/managing/planning-format' })
         return false
