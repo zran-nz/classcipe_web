@@ -78,6 +78,7 @@ export const PlanFieldDisplayName = {
 
 export const TaskField = {
   Name: 'name',
+  TaskClassList: 'taskClassList',
   TaskType: 'taskType',
   StartDate: 'startDate',
   Overview: 'overview',
@@ -85,6 +86,7 @@ export const TaskField = {
   Rwc: 'rwc',
   Question: 'question',
   Assessment: 'assessment',
+  LearnOuts: 'learnOuts',
   MaterialList: 'materialList',
   Link: 'link'
 }

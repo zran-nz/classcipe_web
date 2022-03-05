@@ -22,6 +22,7 @@
             class="list-group-item"
             v-for="fieldItem in myCommonList"
             :data-field-name='fieldItem.fieldName'
+            :style="{'filter': fieldItem.visible ? 'none' : 'grayscale(100%)', 'opacity': fieldItem.visible ? '1' : '0.3'}"
             :key="'fieldId' + fieldItem.id"
           >
             <div class='sort-icon'>
@@ -125,6 +126,7 @@
             class="list-group-item"
             v-for="fieldItem in myCustomList"
             :key="'sort-' + fieldItem.sortNo"
+            :style="{'filter': fieldItem.visible ? 'none' : 'grayscale(100%)', 'opacity': fieldItem.visible ? '1' : '0.3'}"
             :data-id='fieldItem.id'
           >
             <div class='sort-icon'>

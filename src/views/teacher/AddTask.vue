@@ -35,240 +35,244 @@
                     :status="currentActiveStepIndex === 0 ? 'process':'wait'">
                     <template slot='description'>
                       <div class='step-detail' v-show='currentActiveStepIndex === 0'>
-                        <div class='form-block'>
-                          <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Name />
-                          <comment-switch
-                            v-show="this.canEdit"
-                            :field-name=taskField.Name
-                            :is-active="currentFieldName === taskField.Name"
-                            @switch='handleSwitchComment'
-                            :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Name}" />
-                          <a-form-item label='Task name'>
-                            <a-input v-model='form.name' placeholder='Enter Task Name' class='my-form-input' @change="handleCollaborateEvent(taskId,'name',form.name)" />
-                          </a-form-item>
-                        </div>
 
-                        <!--关联班级以及开课时间 -->
-                        <div class='form-block link-class'>
-                          <div class='link-class-tips' v-show='!isOwner && form.taskClassList.length'>
-                            Only the author of the current task can modify the class
-                          </div>
-                          <div class='linked-class-list' v-for='(classItem, cIdx) in form.taskClassList' :key='cIdx'>
-                            <div class='mask' v-show='!isOwner'></div>
-                            <div class='class-type-tag' v-if='classItem.classType === 1'>
-                              <a-tag color="#F4B183">
-                                Classcipe International School
-                              </a-tag>
-                            </div>
-                            <div class='class-type-tag' v-if='classItem.classType === 2'>
-                              <a-tag color="#9DC3E6">
-                                Personal
-                              </a-tag>
-                            </div>
-                            <a-popconfirm cancel-text="No" ok-text="Yes" title="Delete ?" @confirm="handleDeleteClass(classItem)" v-show='form.taskMode !== 2'>
-                              <div class='remove-class-icon'>
-                                <img class='big-delete-icon' src="~@/assets/icons/tag/delete.png" alt=''/>
-                              </div>
-                            </a-popconfirm>
-                            <a-form-item label='Choose class'>
-                              <input-with-create
-                                :option-list='classList'
-                                :index='cIdx'
-                                :default-selected-id='classItem.classId'
-                                :default-display-name='classItem.className'
-                                :tag-type-config='tagTypeConfig'
-                                @selected='handleSelectClass(classItem, $event)'
-                                @create-new='handleCreateNewClass'/>
+                        <template v-for='fieldItem in $store.getters.formConfigData.taskCommonList'>
+                          <div class='form-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Name' :key='fieldItem.fieldName'>
+                            <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Name />
+                            <comment-switch
+                              v-show="canEdit"
+                              :field-name=taskField.Name
+                              :is-active="currentFieldName === taskField.Name"
+                              @switch='handleSwitchComment'
+                              :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Name}" />
+                            <a-form-item :label="'Task name' | taskLabelName(taskField.Name, $store.getters.formConfigData)">
+                              <a-input v-model='form.name' placeholder='Enter Task Name' class='my-form-input' @change="handleCollaborateEvent(taskId,'name',form.name)" />
                             </a-form-item>
+                          </div>
 
-                            <a-form-item label='Schedule a session for this class'>
-                              <div class='class-schedule-detail'>
-                                <a-switch size='small' class='my-switch' v-model='classItem.checked' @change="handleChangeClassSessionTime(classItem)" />
-                                <div
-                                  class='range-time'
-                                  v-show='classItem.checked'>
-                                  <div class='week-time' v-show='classItem.weeks'>
-                                    <a-tag color='cyan' style='border-radius: 10px;font-size: 14px;'>
-                                      {{ classItem.weeks }}
-                                    </a-tag>
+                          <!--关联班级以及开课时间 -->
+                          <div class='form-block link-class' v-if='fieldItem.visible && fieldItem.fieldName === taskField.TaskClassList' :key='fieldItem.fieldName'>
+                            <div class='link-class-tips' v-show='!isOwner && form.taskClassList.length'>
+                              Only the author of the current task can modify the class
+                            </div>
+                            <div class='linked-class-list' v-for='(classItem, cIdx) in form.taskClassList' :key='cIdx'>
+                              <div class='mask' v-show='!isOwner'></div>
+                              <div class='class-type-tag' v-if='classItem.classType === 1'>
+                                <a-tag color="#F4B183">
+                                  Classcipe International School
+                                </a-tag>
+                              </div>
+                              <div class='class-type-tag' v-if='classItem.classType === 2'>
+                                <a-tag color="#9DC3E6">
+                                  Personal
+                                </a-tag>
+                              </div>
+                              <a-popconfirm cancel-text="No" ok-text="Yes" title="Delete ?" @confirm="handleDeleteClass(classItem)" v-show='form.taskMode !== 2'>
+                                <div class='remove-class-icon'>
+                                  <img class='big-delete-icon' src="~@/assets/icons/tag/delete.png" alt=''/>
+                                </div>
+                              </a-popconfirm>
+                              <a-form-item :label="'Choose class' | taskLabelName(taskField.TaskClassList, $store.getters.formConfigData)">
+                                <input-with-create
+                                  :option-list='classList'
+                                  :index='cIdx'
+                                  :default-selected-id='classItem.classId'
+                                  :default-display-name='classItem.className'
+                                  :tag-type-config='tagTypeConfig'
+                                  @selected='handleSelectClass(classItem, $event)'
+                                  @create-new='handleCreateNewClass'/>
+                              </a-form-item>
+
+                              <a-form-item label='Schedule a session for this class'>
+                                <div class='class-schedule-detail'>
+                                  <a-switch size='small' class='my-switch' v-model='classItem.checked' @change="handleChangeClassSessionTime(classItem)" />
+                                  <div
+                                    class='range-time'
+                                    v-show='classItem.checked'>
+                                    <div class='week-time' v-show='classItem.weeks'>
+                                      <a-tag color='cyan' style='border-radius: 10px;font-size: 14px;'>
+                                        {{ classItem.weeks }}
+                                      </a-tag>
+                                    </div>
+                                    <a-range-picker
+                                      v-model='classItem.momentRangeDate'
+                                      format='LLL'
+                                      style='width: 430px'
+                                      :show-time="{ format: 'HH:mm' }"
+                                      @openChange='handleUpdateWeeks'>
+                                      <a-icon slot='suffixIcon' type='calendar' />
+                                    </a-range-picker>
                                   </div>
-                                  <a-range-picker
-                                    v-model='classItem.momentRangeDate'
-                                    format='LLL'
-                                    style='width: 430px'
-                                    :show-time="{ format: 'HH:mm' }"
-                                    @openChange='handleUpdateWeeks'>
-                                    <a-icon slot='suffixIcon' type='calendar' />
-                                  </a-range-picker>
+                                </div>
+                              </a-form-item>
+                            </div>
+                            <div class='add-class' v-show='form.taskMode !== 2'>
+                              <a-button type='primary' @click='handleAddLinkClass'> + Add class</a-button>
+                            </div>
+                          </div>
+
+                          <div class='form-block over-form-block' id='overview' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Overview' :key='fieldItem.fieldName'>
+                            <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Overview />
+                            <comment-switch
+                              v-show="canEdit"
+                              :field-name=taskField.Overview
+                              :is-active="currentFieldName === taskField.Overview"
+                              @switch='handleSwitchComment'
+                              :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Overview}" />
+                            <a-form-model-item class='task-audio-line' :label="'Task details' | taskLabelName(taskField.Overview, $store.getters.formConfigData)" ref='overview'>
+                              <a-textarea autoSize v-model='form.overview' placeholder='Details' allow-clear @change="handleCollaborateEvent(taskId,taskField.Overview,form.overview)" />
+                            </a-form-model-item>
+                          </div>
+
+                          <div class='form-block taskType' v-if='fieldItem.visible && fieldItem.fieldName === taskField.TaskType' :key='fieldItem.fieldName'>
+                            <collaborate-tooltip :form-id="taskId" :fieldName=taskField.TaskType style="left:20px" />
+                            <comment-switch
+                              v-show="canEdit"
+                              :field-name=taskField.TaskType
+                              :is-active="currentFieldName === taskField.TaskType"
+                              @switch='handleSwitchComment'
+                              :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.TaskType}" />
+                            <a-form-model-item class='task-audio-line' ref='taskType' :colon='false'>
+                              <div slot='label'>
+                                {{ 'Choose Task Type' | taskLabelName(taskField.Overview, $store.getters.formConfigData) }} (<span style='font-size: 13px'>Formative Assessment/ Summative Assessment/ Activity</span>):
+                              </div>
+                              <div class='self-type-wrapper'>
+                                <div class='self-field-label'>
+                                  <div
+                                    :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}"
+                                    @click="handleSelectTaskType('FA')">FA
+                                  </div>
+                                  <div
+                                    :class="{'task-type-item': true, 'red-active-task-type': form.taskType === 'SA'}"
+                                    @click="handleSelectTaskType('SA')">SA
+                                  </div>
+                                  <div
+                                    :class="{'task-type-item': true, 'task-type-activity': true,'blue-active-task-type': form.taskType === 'Activity'}"
+                                    @click="handleSelectTaskType('Activity')">
+                                    <a-tooltip title='Teaching/Learning Activity' placement='top'>Activity</a-tooltip>
+                                  </div>
                                 </div>
                               </div>
+                            </a-form-model-item>
+                          </div>
+
+                          <div class='form-block form-question' v-if='associateQuestionList.length > 0 && fieldItem.visible && fieldItem.fieldName === taskField.TaskType' :key='fieldItem.fieldName'>
+                            <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Question />
+                            <comment-switch
+                              v-show="canEdit"
+                              :field-name=taskField.Question
+                              :is-active="currentFieldName === taskField.Question"
+                              @switch='handleSwitchComment'
+                              :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Question}" />
+                            <a-form-model-item :label="'Choose Key questions' | taskLabelName(taskField.Overview, $store.getters.formConfigData)">
+                              <a-select
+                                :getPopupContainer="trigger => trigger.parentElement"
+                                @change="handleCollaborateEvent(taskId,taskField.Question,form.questions)"
+                                size='large'
+                                class='my-big-select'
+                                v-model='form.questionIds'
+                                mode='multiple'
+                                placeholder='Choose Key questions'
+                                option-label-prop='label'
+                              >
+                                <a-select-option
+                                  v-for='(item,index) in associateQuestionList'
+                                  :value='item.id'
+                                  :label='item.name'
+                                  :key='index'>
+                                  <span class='question-options'>
+                                    {{ item.name }}
+                                  </span>
+                                  From Unit Plan({{ item.unitName }})
+                                </a-select-option>
+                              </a-select>
+                            </a-form-model-item>
+                          </div>
+
+                          <div class='form-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.LearnOuts' :key='fieldItem.fieldName'>
+                            <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Assessment style="left:100px" />
+                            <comment-switch
+                              v-show="canEdit"
+                              :field-name=taskField.Assessment
+                              :is-active="currentFieldName === taskField.Assessment"
+                              @switch='handleSwitchComment'
+                              :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Assessment}" />
+                            <a-form-item :label="'Set learning objectives' | taskLabelName(taskField.LearnOuts, $store.getters.formConfigData)">
+                              <a-button type='primary' @click='handleSelectDescription'>
+                                <div class='btn-text' style='line-height: 20px'>
+                                  Add Learning Objectives
+                                </div>
+                              </a-button>
                             </a-form-item>
-                          </div>
-                          <div class='add-class' v-show='form.taskMode !== 2'>
-                            <a-button type='primary' @click='handleAddLinkClass'> + Add class</a-button>
-                          </div>
-                        </div>
 
-                        <div class='form-block over-form-block' id='overview'>
-                          <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Overview />
-                          <comment-switch
-                            v-show="this.canEdit"
-                            :field-name=taskField.Overview
-                            :is-active="currentFieldName === taskField.Overview"
-                            @switch='handleSwitchComment'
-                            :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Overview}" />
-                          <a-form-model-item class='task-audio-line' label='Task details' ref='overview'>
-                            <a-textarea autoSize v-model='form.overview' placeholder='Details' allow-clear @change="handleCollaborateEvent(taskId,taskField.Overview,form.overview)" />
-                          </a-form-model-item>
-                        </div>
+                            <!--knowledge tag-select -->
+                            <ui-learn-out
+                              ref='learnOut'
+                              :learn-outs='form.learnOuts'
+                              :self-outs='form.selfOuts'
+                              @remove-learn-outs='handleRemoveLearnOuts' />
+                          </div>
 
-                        <div class='form-block taskType'>
-                          <collaborate-tooltip :form-id="taskId" :fieldName=taskField.TaskType style="left:20px" />
-                          <comment-switch
-                            v-show="this.canEdit"
-                            :field-name=taskField.TaskType
-                            :is-active="currentFieldName === taskField.TaskType"
-                            @switch='handleSwitchComment'
-                            :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.TaskType}" />
-                          <a-form-model-item class='task-audio-line' ref='taskType' :colon='false'>
-                            <div slot='label'>
-                              Choose Task Type(<span style='font-size: 13px'>Formative Assessment/ Summative Assessment/ Activity</span>):
+                          <div class='form-block' style='clear: both' v-if='fieldItem.visible && fieldItem.fieldName === taskField.MaterialList' :key='fieldItem.fieldName'>
+                            <collaborate-tooltip :form-id="taskId" :fieldName=taskField.MaterialList />
+                            <comment-switch
+                              v-show="canEdit"
+                              :field-name=taskField.MaterialList
+                              :is-active="currentFieldName === taskField.MaterialList"
+                              @switch='handleSwitchComment'
+                              :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.MaterialList}" />
+                            <div class='form-block-label'>
+                              <a-switch v-model='materialListFlag' @change='handleMaterialListFlagChange' />
+                              {{ 'Material list' | taskLabelName(taskField.MaterialList, $store.getters.formConfigData) }}
                             </div>
-                            <div class='self-type-wrapper'>
-                              <div class='self-field-label'>
-                                <div
-                                  :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}"
-                                  @click="handleSelectTaskType('FA')">FA
-                                </div>
-                                <div
-                                  :class="{'task-type-item': true, 'red-active-task-type': form.taskType === 'SA'}"
-                                  @click="handleSelectTaskType('SA')">SA
-                                </div>
-                                <div
-                                  :class="{'task-type-item': true, 'task-type-activity': true,'blue-active-task-type': form.taskType === 'Activity'}"
-                                  @click="handleSelectTaskType('Activity')">
-                                  <a-tooltip title='Teaching/Learning Activity' placement='top'>Activity</a-tooltip>
-                                </div>
-                              </div>
-                            </div>
-                          </a-form-model-item>
-                        </div>
-
-                        <div class='form-block form-question' v-if='associateQuestionList.length > 0'>
-                          <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Question />
-                          <comment-switch
-                            v-show="this.canEdit"
-                            :field-name=taskField.Question
-                            :is-active="currentFieldName === taskField.Question"
-                            @switch='handleSwitchComment'
-                            :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Question}" />
-                          <a-form-model-item label='Choose Key questions'>
-                            <a-select
-                              :getPopupContainer="trigger => trigger.parentElement"
-                              @change="handleCollaborateEvent(taskId,taskField.Question,form.questions)"
-                              size='large'
-                              class='my-big-select'
-                              v-model='form.questionIds'
-                              mode='multiple'
-                              placeholder='Choose Key questions'
-                              option-label-prop='label'
-                            >
-                              <a-select-option
-                                v-for='(item,index) in associateQuestionList'
-                                :value='item.id'
-                                :label='item.name'
-                                :key='index'>
-                                <span class='question-options'>
-                                  {{ item.name }}
-                                </span>
-                                From Unit Plan({{ item.unitName }})
-                              </a-select-option>
-                            </a-select>
-                          </a-form-model-item>
-                        </div>
-
-                        <div class='form-block'>
-                          <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Assessment style="left:100px" />
-                          <comment-switch
-                            v-show="this.canEdit"
-                            :field-name=taskField.Assessment
-                            :is-active="currentFieldName === taskField.Assessment"
-                            @switch='handleSwitchComment'
-                            :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Assessment}" />
-                          <a-form-item label='Set learning objectives'>
-                            <a-button type='primary' @click='handleSelectDescription'>
-                              <div class='btn-text' style='line-height: 20px'>
-                                Add Learning Objectives
-                              </div>
-                            </a-button>
-                          </a-form-item>
-
-                          <!--knowledge tag-select -->
-                          <ui-learn-out
-                            ref='learnOut'
-                            :learn-outs='form.learnOuts'
-                            :self-outs='form.selfOuts'
-                            @remove-learn-outs='handleRemoveLearnOuts' />
-                        </div>
-
-                        <div class='form-block' style='clear: both'>
-                          <collaborate-tooltip :form-id="taskId" :fieldName=taskField.MaterialList />
-                          <comment-switch
-                            v-show="this.canEdit"
-                            :field-name=taskField.MaterialList
-                            :is-active="currentFieldName === taskField.MaterialList"
-                            @switch='handleSwitchComment'
-                            :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.MaterialList}" />
-                          <div class='form-block-label'>
-                            <a-switch v-model='materialListFlag' @change='handleMaterialListFlagChange' />
-                            Material list
-                          </div>
-                          <div class='material-list'>
-                            <div
-                              class='material-item'
-                              v-for='(materialItem, mIndex) in form.materialList'
-                              :key='mIndex'>
-                              <a-row :gutter='[16,16]'>
-                                <a-col span='8'>
-                                  <a-input
-                                    v-model='materialItem.name'
-                                    aria-placeholder='Enter material name'
-                                    placeholder='Enter material name'
-                                    @change="handleCollaborateEvent(taskId,taskField.MaterialList,form.materialList)"/>
-                                </a-col>
-                                <a-col span='14'>
-                                  <a-tooltip placement='topLeft'>
-                                    <template slot='title'>
-                                      The link is provided to help other users or students prepare(purchase) the material
-                                      for this task
-                                    </template>
+                            <div class='material-list'>
+                              <div
+                                class='material-item'
+                                v-for='(materialItem, mIndex) in form.materialList'
+                                :key='mIndex'>
+                                <a-row :gutter='[16,16]'>
+                                  <a-col span='8'>
                                     <a-input
-                                      v-model='materialItem.link'
-                                      aria-placeholder='Enter URL'
-                                      placeholder='Enter URL'
-                                      @change="handleCollaborateEvent(taskId,taskField.MaterialList,form.materialList)" >
-                                      <a-icon slot='prefix' type='link' />
-                                    </a-input>
-                                  </a-tooltip>
-                                </a-col>
-                                <a-col span='2'>
-                                  <div class='material-icon'>
-                                    <a-icon
-                                      type='plus-circle'
-                                      :style="{ fontSize: '16px' }"
-                                      v-if='mIndex === (form.materialList.length - 1)'
-                                      @click='handleAddMaterial' />
-                                    <img
-                                      src='~@/assets/icons/evaluation/delete.png'
-                                      v-if='mIndex < (form.materialList.length - 1)'
-                                      class='delete-icon'
-                                      @click='handleRemoveMaterialItem(materialItem, mIndex)' />
-                                  </div>
-                                </a-col>
-                              </a-row>
+                                      v-model='materialItem.name'
+                                      aria-placeholder='Enter material name'
+                                      placeholder='Enter material name'
+                                      @change="handleCollaborateEvent(taskId,taskField.MaterialList,form.materialList)"/>
+                                  </a-col>
+                                  <a-col span='14'>
+                                    <a-tooltip placement='topLeft'>
+                                      <template slot='title'>
+                                        The link is provided to help other users or students prepare(purchase) the material
+                                        for this task
+                                      </template>
+                                      <a-input
+                                        v-model='materialItem.link'
+                                        aria-placeholder='Enter URL'
+                                        placeholder='Enter URL'
+                                        @change="handleCollaborateEvent(taskId,taskField.MaterialList,form.materialList)" >
+                                        <a-icon slot='prefix' type='link' />
+                                      </a-input>
+                                    </a-tooltip>
+                                  </a-col>
+                                  <a-col span='2'>
+                                    <div class='material-icon'>
+                                      <a-icon
+                                        type='plus-circle'
+                                        :style="{ fontSize: '16px' }"
+                                        v-if='mIndex === (form.materialList.length - 1)'
+                                        @click='handleAddMaterial' />
+                                      <img
+                                        src='~@/assets/icons/evaluation/delete.png'
+                                        v-if='mIndex < (form.materialList.length - 1)'
+                                        class='delete-icon'
+                                        @click='handleRemoveMaterialItem(materialItem, mIndex)' />
+                                    </div>
+                                  </a-col>
+                                </a-row>
+                              </div>
                             </div>
                           </div>
-                        </div>
+                        </template>
+
                       </div>
                     </template>
                   </a-step>
@@ -679,7 +683,7 @@
                         <div class='form-block'>
                           <collaborate-tooltip :form-id="taskId" :field-name=taskField.Link />
                           <comment-switch
-                            v-show="this.canEdit"
+                            v-show="canEdit"
                             :is-active="currentFieldName === taskField.Link"
                             @switch='handleSwitchComment'
                             :field-name=taskField.Link
