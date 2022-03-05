@@ -4706,7 +4706,6 @@ export default {
     font-size: 16px;
     font-weight: 500;
     font-family: Inter-Bold;
-    line-height: 24px;
   }
 }
 

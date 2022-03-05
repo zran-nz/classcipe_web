@@ -3316,7 +3316,6 @@ export default {
     font-size: 16px;
     font-weight: 500;
     font-family: Inter-Bold;
-    line-height: 24px;
   }
 }
 
@@ -3493,13 +3492,6 @@ export default {
 
 .form-block-rwc {
 
-  /deep/ .ant-form-item-label label {
-    font-weight: 500;
-    font-family: inherit;
-    font-size: 14px;
-    line-height: 20px;
-    color: #000000;
-  }
 }
 
 .question {
