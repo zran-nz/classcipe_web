@@ -45,9 +45,23 @@ export const BaseEventMixin = {
         return defaultName
       }
     },
+    unitLabelHint: (defaultName, fieldName, formConfigData) => {
+      if (formConfigData && formConfigData.planHintMap && formConfigData.planHintMap[fieldName]) {
+        return formConfigData.planHintMap[fieldName]
+      } else {
+        return defaultName
+      }
+    },
     taskLabelName: (defaultName, fieldName, formConfigData) => {
       if (formConfigData && formConfigData.taskFieldMap && formConfigData.taskFieldMap[fieldName]) {
         return formConfigData.taskFieldMap[fieldName]
+      } else {
+        return defaultName
+      }
+    },
+    taskLabelHint: (defaultName, fieldName, formConfigData) => {
+      if (formConfigData && formConfigData.taskHintMap && formConfigData.taskHintMap[fieldName]) {
+        return formConfigData.taskHintMap[fieldName]
       } else {
         return defaultName
       }

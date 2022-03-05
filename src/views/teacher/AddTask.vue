@@ -45,7 +45,12 @@
                               :is-active="currentFieldName === taskField.Name"
                               @switch='handleSwitchComment'
                               :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Name}" />
-                            <a-form-item :label="'Task name' | taskLabelName(taskField.Name, $store.getters.formConfigData)">
+                            <a-form-item>
+                              <template class='my-label' slot='label'>
+                                <a-tooltip :title="'Task name' | taskLabelHint(taskField.Name, $store.getters.formConfigData)" placement='top'>
+                                  {{ 'Task name' | taskLabelName(taskField.Name, $store.getters.formConfigData) }}
+                                </a-tooltip>
+                              </template>
                               <a-input v-model='form.name' placeholder='Enter Task Name' class='my-form-input' @change="handleCollaborateEvent(taskId,'name',form.name)" />
                             </a-form-item>
                           </div>
@@ -72,7 +77,12 @@
                                   <img class='big-delete-icon' src="~@/assets/icons/tag/delete.png" alt=''/>
                                 </div>
                               </a-popconfirm>
-                              <a-form-item :label="'Choose class' | taskLabelName(taskField.TaskClassList, $store.getters.formConfigData)">
+                              <a-form-item>
+                                <template class='my-label' slot='label'>
+                                  <a-tooltip :title="'Choose class' | taskLabelHint(taskField.TaskClassList, $store.getters.formConfigData)" placement='top'>
+                                    {{ 'Choose class' | taskLabelName(taskField.TaskClassList, $store.getters.formConfigData) }}
+                                  </a-tooltip>
+                                </template>
                                 <input-with-create
                                   :option-list='classList'
                                   :index='cIdx'
@@ -119,7 +129,12 @@
                               :is-active="currentFieldName === taskField.Overview"
                               @switch='handleSwitchComment'
                               :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Overview}" />
-                            <a-form-model-item class='task-audio-line' :label="'Task details' | taskLabelName(taskField.Overview, $store.getters.formConfigData)" ref='overview'>
+                            <a-form-model-item class='task-audio-line' ref='overview'>
+                              <template class='my-label' slot='label'>
+                                <a-tooltip :title="'Task details' | taskLabelHint(taskField.Overview, $store.getters.formConfigData)" placement='top'>
+                                  {{ 'Task details' | taskLabelName(taskField.Overview, $store.getters.formConfigData) }}
+                                </a-tooltip>
+                              </template>
                               <a-textarea autoSize v-model='form.overview' placeholder='Details' allow-clear @change="handleCollaborateEvent(taskId,taskField.Overview,form.overview)" />
                             </a-form-model-item>
                           </div>
@@ -134,7 +149,9 @@
                               :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.TaskType}" />
                             <a-form-model-item class='task-audio-line' ref='taskType' :colon='false'>
                               <div slot='label'>
-                                {{ 'Choose Task Type' | taskLabelName(taskField.Overview, $store.getters.formConfigData) }} (<span style='font-size: 13px'>Formative Assessment/ Summative Assessment/ Activity</span>):
+                                <a-tooltip :title="'Choose Task Type' | taskLabelHint(taskField.Overview, $store.getters.formConfigData)" placement='top'>
+                                  {{ 'Choose Task Type' | taskLabelName(taskField.Overview, $store.getters.formConfigData) }}  (<span style='font-size: 13px'>Formative Assessment/ Summative Assessment/ Activity</span>):
+                                </a-tooltip>
                               </div>
                               <div class='self-type-wrapper'>
                                 <div class='self-field-label'>
@@ -164,7 +181,12 @@
                               :is-active="currentFieldName === taskField.Question"
                               @switch='handleSwitchComment'
                               :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Question}" />
-                            <a-form-model-item :label="'Choose Key questions' | taskLabelName(taskField.Overview, $store.getters.formConfigData)">
+                            <a-form-model-item>
+                              <template class='my-label' slot='label'>
+                                <a-tooltip :title="'Choose Key questions' | taskLabelHint(taskField.Overview, $store.getters.formConfigData)" placement='top'>
+                                  {{ 'Choose Key questions' | taskLabelName(taskField.Overview, $store.getters.formConfigData) }}
+                                </a-tooltip>
+                              </template>
                               <a-select
                                 :getPopupContainer="trigger => trigger.parentElement"
                                 @change="handleCollaborateEvent(taskId,taskField.Question,form.questions)"
@@ -197,7 +219,12 @@
                               :is-active="currentFieldName === taskField.Assessment"
                               @switch='handleSwitchComment'
                               :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Assessment}" />
-                            <a-form-item :label="'Set learning objectives' | taskLabelName(taskField.LearnOuts, $store.getters.formConfigData)">
+                            <a-form-item>
+                              <template class='my-label' slot='label'>
+                                <a-tooltip :title="'Set learning objectives' | taskLabelHint(taskField.LearnOuts, $store.getters.formConfigData)" placement='top'>
+                                  {{ 'Set learning objectives' | taskLabelName(taskField.LearnOuts, $store.getters.formConfigData) }}
+                                </a-tooltip>
+                              </template>
                               <a-button type='primary' @click='handleSelectDescription'>
                                 <div class='btn-text' style='line-height: 20px'>
                                   Add Learning Objectives
@@ -223,7 +250,9 @@
                               :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.MaterialList}" />
                             <div class='form-block-label'>
                               <a-switch v-model='materialListFlag' @change='handleMaterialListFlagChange' />
-                              {{ 'Material list' | taskLabelName(taskField.MaterialList, $store.getters.formConfigData) }}
+                              <a-tooltip :title="'Material list' | taskLabelHint(taskField.MaterialList, $store.getters.formConfigData)" placement='top'>
+                                {{ 'Material list' | taskLabelName(taskField.MaterialList, $store.getters.formConfigData) }}
+                              </a-tooltip>
                             </div>
                             <div class='material-list'>
                               <div
@@ -275,7 +304,12 @@
 
                         <template v-for='custFieldItem in $store.getters.formConfigData.taskCustomList'>
                           <div class='form-block' v-if="custFieldItem.visible && form.customFieldData && form.customFieldData.hasOwnProperty(custFieldItem.id)" :key='custFieldItem.id' :data-field-name='custFieldItem.name' :data-field-id='custFieldItem.id'>
-                            <a-form-item :label="custFieldItem.name">
+                            <a-form-item>
+                              <template class='my-label' slot='label'>
+                                <a-tooltip :title="custFieldItem.hint" placement='top'>
+                                  {{ custFieldItem.name }}
+                                </a-tooltip>
+                              </template>
                               <a-input v-model='form.customFieldData[custFieldItem.id]' class='my-form-input' />
                             </a-form-item>
                           </div>

@@ -42,7 +42,12 @@
                               :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Name}"
                               :field-name=planField.Name
                               @switch='handleSwitchComment'/>
-                            <a-form-item :label="'Unit Name' | unitLabelName(planField.Name, $store.getters.formConfigData) ">
+                            <a-form-item>
+                              <template class='my-label' slot='label'>
+                                <a-tooltip :title="'Unit Name' | unitLabelHint(planField.Name, $store.getters.formConfigPreviewData)" placement='top'>
+                                  {{ 'Unit Name' | unitLabelName(planField.Name, $store.getters.formConfigPreviewData) }}
+                                </a-tooltip>
+                              </template>
                               <a-input v-model='form.name' class='my-form-input' placeholder='Enter Unit Name' @change="handleCollaborateEvent(unitPlanId,planField.Name,form.name)" />
                             </a-form-item>
                           </div>
@@ -56,7 +61,12 @@
                               @switch='handleSwitchComment'
                               :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.ProjectBased}"
                             />
-                            <a-form-item :label="'Project-based Unit' | unitLabelName(planField.ProjectBased, $store.getters.formConfigData)" style='display:flex'>
+                            <a-form-item style='display:flex'>
+                              <template class='my-label' slot='label'>
+                                <a-tooltip :title="'Project-based Unit' | unitLabelHint(planField.ProjectBased, $store.getters.formConfigPreviewData)" placement='top'>
+                                  {{ 'Project-based Unit' | unitLabelName(planField.ProjectBased, $store.getters.formConfigPreviewData) }}
+                                </a-tooltip>
+                              </template>
                               <a-radio-group name='radioGroup' v-model='form.projectBased' style='margin-left:20px;' @change="handleCollaborateEvent(unitPlanId,planField.ProjectBased,form.projectBased)" >
                                 <a-radio :value='1'>
                                   Yes
@@ -76,7 +86,12 @@
                               :is-active="currentFieldName === planField.UnitType"
                               @switch='handleSwitchComment'
                               :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.UnitType}" />
-                            <a-form-item :label="'Unit type' | unitLabelName(planField.UnitType, $store.getters.formConfigData)" style='display:flex'>
+                            <a-form-item style='display:flex'>
+                              <template class='my-label' slot='label'>
+                                <a-tooltip :title="'Unit type' | unitLabelHint(planField.UnitType, $store.getters.formConfigPreviewData)" placement='top'>
+                                  {{ 'Unit type' | unitLabelName(planField.UnitType, $store.getters.formConfigPreviewData) }}
+                                </a-tooltip>
+                              </template>
                               <a-radio-group name='unitType' v-model='form.unitType' style='margin-left:20px;' @change="handleCollaborateEvent(unitPlanId,planField.UnitType,form.unitType)" >
                                 <a-radio :value='0'>
                                   Single-subject Unit
@@ -96,7 +111,12 @@
                               :is-active="currentFieldName === planField.StartDate"
                               @switch='handleSwitchComment'
                               :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.StartDate}" />
-                            <a-form-item :label="'Grade level' | unitLabelName(planField.GradeId, $store.getters.formConfigData)" style='width:26%;margin-bottom: 0px;'>
+                            <a-form-item style='width:26%;margin-bottom: 0px;'>
+                              <template class='my-label' slot='label'>
+                                <a-tooltip :title="'Grade level' | unitLabelHint(planField.GradeId, $store.getters.formConfigPreviewData)" placement='top'>
+                                  {{ 'Grade level' | unitLabelName(planField.GradeId, $store.getters.formConfigPreviewData) }}
+                                </a-tooltip>
+                              </template>
                               <a-select
                                 :getPopupContainer="trigger => trigger.parentElement"
                                 v-model='form.gradeId'
@@ -138,7 +158,12 @@
                               :field-name=planField.Inquiry
                               @switch='handleSwitchComment' />
                             <!--                <a-divider />-->
-                            <a-form-item class='bigIdea' :label="'Big Idea/ Statement of Inquiry/ Central Idea' | unitLabelName(planField.Inquiry, $store.getters.formConfigData)">
+                            <a-form-item class='bigIdea'>
+                              <template class='my-label' slot='label'>
+                                <a-tooltip :title="'Big Idea/ Statement of Inquiry/ Central Idea' | unitLabelHint(planField.Inquiry, $store.getters.formConfigPreviewData)" placement='top'>
+                                  {{ 'Big Idea/ Statement of Inquiry/ Central Idea' | unitLabelName(planField.Inquiry, $store.getters.formConfigPreviewData) }}
+                                </a-tooltip>
+                              </template>
                               <a-textarea
                                 v-model='form.inquiry'
                                 :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')"
@@ -241,7 +266,12 @@
 
                           <div class='form-block form-block-rwc' v-if="fieldItem.visible && fieldItem.fieldName === planField.Rwc" :key='fieldItem.fieldName'>
                             <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Rwc />
-                            <a-form-model-item :label="'Real World Connection(s)' | unitLabelName(planField.Rwc, $store.getters.formConfigData)">
+                            <a-form-model-item>
+                              <template class='my-label' slot='label'>
+                                <a-tooltip :title="'Real World Connection(s)' | unitLabelHint(planField.Rwc, $store.getters.formConfigPreviewData)" placement='top'>
+                                  {{ 'Real World Connection(s)' | unitLabelName(planField.Rwc, $store.getters.formConfigPreviewData) }}
+                                </a-tooltip>
+                              </template>
                               <a-select
                                 :getPopupContainer="trigger => trigger.parentElement"
                                 size='large'
@@ -335,7 +365,12 @@
                               :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Assessment}"
                               :field-name=planField.Assessment
                               @switch='handleSwitchComment' />
-                            <a-form-item :label="'Set learning objectives' | unitLabelName(planField.LearnOuts, $store.getters.formConfigData)">
+                            <a-form-item>
+                              <template class='my-label' slot='label'>
+                                <a-tooltip :title="'Set learning objectives' | unitLabelHint(planField.LearnOuts, $store.getters.formConfigPreviewData)" placement='top'>
+                                  {{ 'Set learning objectives' | unitLabelName(planField.LearnOuts, $store.getters.formConfigPreviewData) }}
+                                </a-tooltip>
+                              </template>
                               <a-badge :dot='hasExtraRecommend'>
                                 <a-button type='primary' @click='handleSelectDescription()'>
                                   <div class='btn-text' style='line-height: 20px'>
@@ -371,7 +406,12 @@
                               :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Prior}"
                               :field-name=planField.Prior
                               @switch='handleSwitchComment' />
-                            <a-form-model-item :label="'Prior learning experience' | unitLabelName(planField.Prior, $store.getters.formConfigData)">
+                            <a-form-model-item>
+                              <template class='my-label' slot='label'>
+                                <a-tooltip :title="'Prior learning experience' | unitLabelHint(planField.Prior, $store.getters.formConfigPreviewData)" placement='top'>
+                                  {{ 'Prior learning experience' | unitLabelName(planField.Prior, $store.getters.formConfigPreviewData) }}
+                                </a-tooltip>
+                              </template>
                               <a-textarea
                                 v-model='form.prior'
                                 allow-clear
@@ -384,7 +424,12 @@
 
                         <template v-for='custFieldItem in $store.getters.formConfigData.planCustomList'>
                           <div class='form-block' v-if="custFieldItem.visible && form.customFieldData && form.customFieldData.hasOwnProperty(custFieldItem.id)" :key='custFieldItem.id' :data-field-name='custFieldItem.name' :data-field-id='custFieldItem.id'>
-                            <a-form-item :label="custFieldItem.name">
+                            <a-form-item>
+                              <template class='my-label' slot='label'>
+                                <a-tooltip :title="custFieldItem.hint" placement='top'>
+                                  {{ custFieldItem.name }}
+                                </a-tooltip>
+                              </template>
                               <a-input v-model='form.customFieldData[custFieldItem.id]' class='my-form-input' />
                             </a-form-item>
                           </div>
