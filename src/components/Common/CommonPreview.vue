@@ -61,7 +61,7 @@
                   @click="handleStartTask"
                 >
                   <div class="button-content" >
-                    Start <a-icon type="play-circle" style="margin-left: 6px;"/>
+                    Start {{ data.buyed ? 'Session' : '' }}<a-icon type="play-circle" style="margin-left: 6px;"/>
                   </div>
                 </a-button>
               </div>
@@ -473,13 +473,16 @@ import { BaseEventMixin } from '@/mixins/BaseEvent'
 import { Duplicate } from '@/api/teacher'
 import { DICT_PROMPT_TYPE } from '@/const/common'
 import { GetDictItems } from '@/api/common'
+import { lessonHost } from '@/const/googleSlide'
+import { ACCESS_TOKEN } from '@/store/mutation-types'
+import storage from 'store'
 const { formatLocalUTC } = require('@/utils/util')
 const { UnitPlanQueryById } = require('@/api/unitPlan')
 const { TaskQueryById } = require('@/api/task')
 const { EvaluationQueryById } = require('@/api/evaluation')
 const { FavoritesAdd } = require('@/api/favorites')
 const { ReviewsTaskStats } = require('@/api/reviewsTask')
-const { SelfStudyTaskBye } = require('@/api/selfStudy')
+const { SelfStudyTaskBye, SelfStudyTaskStart } = require('@/api/selfStudy')
 
 export default {
   name: 'CommonPreview',
@@ -754,15 +757,32 @@ export default {
         centered: true,
         onOk: () => {
           this.copyLoading = true
-          SelfStudyTaskBye({ taskId: this.data.id }).then((response) => {
-            if (response.success) {
-              this.$logger.info('SelfStudyTaskBye response', response)
-              this.$message.success('Start successfully')
-              this.$router.push({ path: '/student/main/my-task' })
-            }
-          }).finally(() => {
-            this.copyLoading = false
-          })
+          if (this.data.buyed) {
+            SelfStudyTaskStart({ taskId: this.data.id }).then(res => {
+              this.$logger.info('StartOpenSession res', res)
+              if (res.success) {
+                this.startLoading = false
+                const targetUrl = lessonHost + 's/' + res.result.classId + '?token=' + storage.get(ACCESS_TOKEN)
+                this.$logger.info('try open ' + targetUrl)
+                // window.open(targetUrl, '_blank')
+                window.location.href = targetUrl
+              } else {
+                this.$message.warn('StartLesson Failed! ' + res.message)
+              }
+            }).finally(() => {
+              this.copyLoading = false
+            })
+          } else {
+            SelfStudyTaskBye({ taskId: this.data.id }).then((response) => {
+              if (response.success) {
+                this.$logger.info('SelfStudyTaskBye response', response)
+                this.$message.success('Start successfully')
+                this.$router.push({ path: '/student/main/my-task' })
+              }
+            }).finally(() => {
+              this.copyLoading = false
+            })
+          }
         }
       })
     },
