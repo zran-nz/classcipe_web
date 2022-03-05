@@ -14,9 +14,9 @@
               </div>
             </div>
             <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(k)" cancel-text="No">
-                <span class="delete-action" >
-                  <img src="~@/assets/icons/tag/delete.png"/>
-                </span>
+              <span class="delete-action" >
+                <img src="~@/assets/icons/tag/delete.png"/>
+              </span>
             </a-popconfirm>
           </div>
         </template>
@@ -62,9 +62,9 @@
               <!--              </div>-->
             </div>
             <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(k)" cancel-text="No">
-                <span class="delete-action" >
-                  <img src="~@/assets/icons/tag/delete.png"/>
-                </span>
+              <span class="delete-action" >
+                <img src="~@/assets/icons/tag/delete.png"/>
+              </span>
             </a-popconfirm>
           </div>
         </template>
@@ -94,13 +94,13 @@
               <div
                 v-if="k.tagType === TagType.century"
                 class="actions">
-                  <span class="add-action" @click.stop.prevent="handleAddTag(k)">
-                    <img src="~@/assets/icons/tag/add.png"/>
-                  </span>
+                <span class="add-action" @click.stop.prevent="handleAddTag(k)">
+                  <img src="~@/assets/icons/tag/add.png"/>
+                </span>
                 <span class="up-down">
-                    <a-icon type="up" v-if="k.tagListVisible"/>
-                    <a-icon type="down" v-else />
-                  </span>
+                  <a-icon type="up" v-if="k.tagListVisible"/>
+                  <a-icon type="down" v-else />
+                </span>
               </div>
               <a-divider style="margin: 10px 0px" v-if="k.tagListVisible" />
               <div class="skt-description-tag-list" v-if="k.tagListVisible">
@@ -110,9 +110,9 @@
               </div>
             </div>
             <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(k)" cancel-text="No">
-                <span class="delete-action" >
-                  <img src="~@/assets/icons/tag/delete.png"/>
-                </span>
+              <span class="delete-action" >
+                <img src="~@/assets/icons/tag/delete.png"/>
+              </span>
             </a-popconfirm>
           </div>
         </template>
