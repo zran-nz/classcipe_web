@@ -79,28 +79,24 @@
               <div class="form-table-item" v-for="(formItem,tIdx) in forms" :key="tIdx">
                 <div class="form-table-item-content" v-show="formItem.formId === currentActiveFormId">
                   <div class="form-setting">
-                    <a-dropdown
-                      placement="bottomRight">
-                      <a-icon type="setting" />
-                      <a-menu slot="overlay">
-                        <a-menu-item key="0">
-                          <div class="menu-icon">
-                            <a-switch
-                              size="small"
-                              v-model="formItem.se" />
-                          </div>
+                    <a-space>
+                      <div class='switch-item'>
+                        <div class='switch-name'>
                           Student Eval
-                        </a-menu-item>
-                        <a-menu-item key="1">
-                          <div class="menu-icon">
-                            <a-switch
-                              size="small"
-                              v-model="formItem.pe" />
-                          </div>
+                        </div>
+                        <a-switch
+                          size="small"
+                          v-model="formItem.se" />
+                      </div>
+                      <div class='switch-item'>
+                        <div class='switch-name'>
                           Peer Eval
-                        </a-menu-item>
-                      </a-menu>
-                    </a-dropdown>
+                        </div>
+                        <a-switch
+                          size="small"
+                          v-model="formItem.pe" />
+                      </div>
+                    </a-space>
                   </div>
                   <div class="comment" v-show="formTableMode === EvaluationTableMode.TeacherEvaluate">
                     <div class="summary-input">
@@ -1259,5 +1255,16 @@ export default {
   text-align: right;
   padding-bottom: 10px;
   cursor: pointer;
+
+  .switch-item {
+    margin-left: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    .switch-name {
+      padding-right: 5px;
+    }
+  }
 }
 </style>
