@@ -18,7 +18,13 @@
             </div>
 
             <div class="form-block over-form-block" id="overview" >
-              <a-form-model-item class="task-audio-line" label="Task details" ref="overview">
+              <a-form-model-item class="task-audio-line" ref="overview">
+                <template class='my-label' slot='label'>
+                  {{ 'Task details' | taskLabelName(taskField.Overview, $store.getters.formConfigData) }}
+                  <a-tooltip :title="'Task details' | taskLabelHint(taskField.Overview, $store.getters.formConfigData)" placement='top'>
+                    <a-icon type="info-circle" />
+                  </a-tooltip>
+                </template>
                 <a-textarea autoSize v-model="form.overview" placeholder="Overview" allow-clear />
               </a-form-model-item>
             </div>
@@ -26,7 +32,10 @@
             <div class="form-block taskType" >
               <a-form-model-item class="task-audio-line" ref="taskType">
                 <div slot='label'>
-                  Choose Task Type(<span style='font-size: 13px'>Formative Assessment/ Summative Assessment/ Activity</span>)
+                  {{ 'Choose Task Type' | taskLabelName(taskField.Overview, $store.getters.formConfigData) }}
+                  <a-tooltip :title="'Choose Task Type' | taskLabelHint(taskField.Overview, $store.getters.formConfigData)" placement='top'>
+                    <a-icon type="info-circle" />
+                  </a-tooltip>
                 </div>
                 <div class='self-type-wrapper'>
                   <div class='self-field-label'>
@@ -51,7 +60,13 @@
             <a-form-model-item class="img-wrapper">
 
               <div class="form-block form-question" v-if="associateQuestionList.length > 0">
-                <a-form-model-item label="Choose Key questions">
+                <a-form-model-item>
+                  <template class='my-label' slot='label'>
+                    {{ 'Choose Key questions' | taskLabelName(taskField.Overview, $store.getters.formConfigData) }}
+                    <a-tooltip :title="'Choose Key questions' | taskLabelHint(taskField.Overview, $store.getters.formConfigData)" placement='top'>
+                      <a-icon type="info-circle" />
+                    </a-tooltip>
+                  </template>
                   <a-select
                     :getPopupContainer="trigger => trigger.parentElement"
                     size="large"
@@ -72,7 +87,13 @@
               </div>
 
               <div class="form-block" >
-                <a-form-item label="Set learning objectives" >
+                <a-form-item>
+                  <template class='my-label' slot='label'>
+                    {{ 'Set learning objectives' | taskLabelName(taskField.LearnOuts, $store.getters.formConfigData) }}
+                    <a-tooltip :title="'Set learning objectives' | taskLabelHint(taskField.LearnOuts, $store.getters.formConfigData)" placement='top'>
+                      <a-icon type="info-circle" />
+                    </a-tooltip>
+                  </template>
                   <a-button type="primary" @click="handleSelectDescription">
                     <div class="btn-text" style="line-height: 20px">
                       Add Learning Objectives
@@ -84,7 +105,10 @@
                 <ui-learn-out ref="learnOut" :learn-outs="form.learnOuts" @remove-learn-outs="handleRemoveLearnOuts" v-if="form.learnOuts.length" />
                 <div class='form-block-label'>
                   <a-switch v-model='materialListFlag' @change='handleMaterialListFlagChange' />
-                  Material list
+                  {{ 'Material list' | taskLabelName(taskField.MaterialList, $store.getters.formConfigData) }}
+                  <a-tooltip :title="'Material list' | taskLabelHint(taskField.MaterialList, $store.getters.formConfigData)" placement='top'>
+                    <a-icon type="info-circle" />
+                  </a-tooltip>
                 </div>
                 <div class='material-list'>
                   <div
