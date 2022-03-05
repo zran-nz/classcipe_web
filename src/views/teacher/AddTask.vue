@@ -313,8 +313,9 @@
                           <div class='form-block' v-if="custFieldItem.visible && form.customFieldData && form.customFieldData.hasOwnProperty(custFieldItem.id)" :key='custFieldItem.id' :data-field-name='custFieldItem.name' :data-field-id='custFieldItem.id'>
                             <a-form-item>
                               <template class='my-label' slot='label'>
+                                {{ custFieldItem.name }}
                                 <a-tooltip :title="custFieldItem.hint" placement='top'>
-                                  {{ custFieldItem.name }}
+                                  <a-icon type="info-circle" />
                                 </a-tooltip>
                               </template>
                               <a-input v-model='form.customFieldData[custFieldItem.id]' class='my-form-input' />
