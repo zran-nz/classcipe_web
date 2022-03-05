@@ -1069,6 +1069,14 @@ export default {
       }).catch((e) => {
         this.$message.error(this.$t('teacher.add-unit-plan.init-data-failed'))
       }).finally(() => {
+        // 填充自定义字段
+        const displayCustomFieldData = {}
+        this.$store.getters.formConfigData.planCustomList.forEach(customField => {
+          displayCustomFieldData[customField.id] = ''
+        })
+        this.$logger.info('displayCustomFieldData', displayCustomFieldData)
+        this.formcustomFieldData = displayCustomFieldData
+
         this.referenceLoading = false
         this.contentLoading = false
       })
