@@ -273,6 +273,13 @@
                           </div>
                         </template>
 
+                        <template v-for='custFieldItem in $store.getters.formConfigData.taskCustomList'>
+                          <div class='form-block' v-if="custFieldItem.visible && form.customFieldData && form.customFieldData.hasOwnProperty(custFieldItem.name)" :key='custFieldItem.name' :data-field='custFieldItem.name'>
+                            <a-form-item :label="custFieldItem.name">
+                              <a-input v-model='form.customFieldData[custFieldItem.name]' class='my-form-input' />
+                            </a-form-item>
+                          </div>
+                        </template>
                       </div>
                     </template>
                   </a-step>
@@ -1962,7 +1969,8 @@ export default {
         endDate: '',
         gradeId: undefined,
         materialList: [],
-        taskClassList: []
+        taskClassList: [],
+        customFieldData: null
       },
       // Grades
       gradeList: [],
@@ -2370,6 +2378,25 @@ export default {
         }
 
         this.materialListFlag = taskData.materialList.length > 0
+        // 填充自定义字段
+        const customFieldData = taskData.customFieldData ? JSON.parse(taskData.customFieldData) : null
+        const displayCustomFiedlData = {}
+        if (customFieldData) {
+          // 只显示配置中存在的字段
+          this.$store.getters.formConfigData.taskCustomList.forEach(customField => {
+            if (customFieldData.hasOwnProperty(customField.name)) {
+              displayCustomFiedlData[customField.name] = customFieldData[customField.name]
+            } else {
+              displayCustomFiedlData[customField.name] = ''
+            }
+          })
+        } else {
+          this.$store.getters.formConfigData.taskCustomList.forEach(customField => {
+            displayCustomFiedlData[customField.name] = ''
+          })
+        }
+        this.$logger.info('displayCustomFiedlData', displayCustomFiedlData)
+        taskData.customFieldData = displayCustomFiedlData
         this.form = taskData
         this.form.showSelected = taskData.showSelected ? taskData.showSelected : false
         this.form.bloomCategories = this.form.bloomCategories ? this.form.bloomCategories : undefined // 为了展示placeholder
@@ -2416,15 +2443,6 @@ export default {
       } else {
         this.handleSelectTemplateMadel(data)
       }
-
-      // const key = data.type + '-' + data.id
-      // const index = this.selectedMyContentKeyList.indexOf(key)
-      // if (index !== -1) {
-      //   this.selectedMyContentKeyList.splice(index, 1)
-      // } else {
-      //   this.selectedMyContentKeyList.push(key)
-      // }
-      // this.selectedMyContentInfoMap.set(key, data)
     },
 
     handleSaveTask() {
@@ -2472,7 +2490,12 @@ export default {
         taskData.selectedTemplateList = this.selectedTemplateList
 
         // 更新selfOuts数据
-        taskData.selfOuts = this.$refs.learnOut.getSelfOuts()
+        if (this.$refs.learnOut && this.$refs.learnOut.length > 0) {
+          taskData.selfOuts = this.$refs.learnOut[0].getSelfOuts()
+        }
+        if (taskData.customFieldData) {
+          taskData.customFieldData = JSON.stringify(taskData.customFieldData)
+        }
         logger.info('basic taskData', taskData)
         logger.info('question taskData', taskData)
         TaskAddOrUpdate(taskData).then((response) => {
@@ -4093,7 +4116,13 @@ export default {
         taskData.id = this.taskId
       }
       taskData.selectedTemplateList = this.selectedTemplateList
-      taskData.selfOuts = this.$refs.learnOut.getSelfOuts()
+      // 更新selfOuts数据
+      if (this.$refs.learnOut && this.$refs.learnOut.length > 0) {
+        taskData.selfOuts = this.$refs.learnOut[0].getSelfOuts()
+      }
+      if (taskData.customFieldData) {
+        taskData.customFieldData = JSON.stringify(taskData.customFieldData)
+      }
       logger.info('basic taskData', taskData)
       TaskAddOrUpdate(taskData).then((response) => {
         logger.info('TaskAddOrUpdate', response.result)
