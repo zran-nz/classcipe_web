@@ -352,7 +352,7 @@ import FilterIcon from '@/assets/libraryv2/filter.svg?inline'
 import FilterActiveIcon from '@/assets/libraryv2/filter_active.svg?inline'
 import CollaborateSvg from '@/assets/icons/collaborate/collaborate_group.svg?inline'
 
-import { SelfStudyTaskList, SelfStudyTaskStart } from '@/api/selfStudy'
+import { SelfStudyTaskList, SelfStudyTaskStart, SelfStudyAchive, SelfStudyRestore, SelfStudyDelete } from '@/api/selfStudy'
 import { FindCustomTags } from '@/api/tag'
 import { SubjectTree } from '@/api/subject'
 import { GetGradesByCurriculumId } from '@/api/preference'
@@ -592,22 +592,26 @@ export default {
     },
     handleDeleteItem (item) {
       logger.info('handleDeleteItem', item)
-      // deleteMyContentByType(item).then(res => {
-      //   logger.info('DeleteMyContentByType', res)
-      // }).then(() => {
-      //   this.loadMyContent()
-      // })
+      SelfStudyAchive({ id: item.taskId }).then(res => {
+        logger.info('SelfStudyAchive', res)
+      }).then(() => {
+        this.loadMyContent()
+      })
     },
     handleRestoreItem (item) {
       logger.info('handleRestoreItem', item)
-      // ContentRestore({ id: item.id, type: item.type }).then(response => {
-      //   this.$logger.info('handleRestoreItem response', response)
-      // }).finally(() => {
-      //   this.loadMyContent()
-      // })
+      SelfStudyRestore({ id: item.taskId }).then(response => {
+        this.$logger.info('handleRestoreItem response', response)
+      }).finally(() => {
+        this.loadMyContent()
+      })
     },
     handlePermanentDeleteItem (item) {
-
+      SelfStudyDelete({ id: item.taskId }).then(response => {
+        this.$logger.info('handleRestoreItem response', response)
+      }).finally(() => {
+        this.loadMyContent()
+      })
     },
     handlePaymentItem (item) {
       if (!item.task || this.currentStatus === 2) {
