@@ -201,7 +201,9 @@
                           <div class='form-block' style='clear: both' v-if='fieldItem.visible && fieldItem.fieldName === taskField.MaterialList' :key='fieldItem.fieldName'>
                             <div class='form-block-label'>
                               <a-switch v-model='materialListFlag' @change='handleMaterialListFlagChange' />
-                              {{ 'Material list' | taskLabelName(taskField.MaterialList, $store.getters.formConfigData) }}
+                              <a-tooltip :title="'Material list' | taskLabelHint(taskField.MaterialList, $store.getters.formConfigPreviewData)" placement='top'>
+                                {{ 'Material list' | taskLabelName(taskField.MaterialList, $store.getters.formConfigData) }}
+                              </a-tooltip>
                             </div>
                             <div class='material-list'>
                               <div
