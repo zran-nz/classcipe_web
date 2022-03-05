@@ -54,6 +54,7 @@
                 </a-button>
                 <a-button
                   v-hasRole="['student']"
+                  v-if="data.type === typeMap.task"
                   :loading="copyLoading"
                   class="copy-button"
                   type="primary"
