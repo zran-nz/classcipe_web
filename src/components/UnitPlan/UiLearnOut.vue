@@ -83,10 +83,10 @@
       <a-row class="objectives-wrapper-block">
         <div class="title-item title-21">
           <template v-if="$store.getters.bindCurriculum === AllCurriculums.NZ">
-            key competencies
+            Key competencies
           </template>
           <template v-else-if="$store.getters.bindCurriculum === AllCurriculums.AU">
-            general capabilities
+            General capabilities
           </template>
           <template v-else>
             21st Century Skills
