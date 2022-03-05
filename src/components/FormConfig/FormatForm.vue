@@ -22,7 +22,7 @@
             class="list-group-item"
             v-for="fieldItem in myCommonList"
             :data-field-name='fieldItem.fieldName'
-            :style="{'filter': fieldItem.visible ? 'none' : 'grayscale(100%)', 'opacity': fieldItem.visible ? '1' : '0.3'}"
+            :style="{'filter': fieldItem.visible ? 'none' : 'grayscale(100%)'}"
             :key="'fieldId' + fieldItem.id"
           >
             <div class='sort-icon'>
@@ -126,7 +126,7 @@
             class="list-group-item"
             v-for="fieldItem in myCustomList"
             :key="'sort-' + fieldItem.sortNo"
-            :style="{'filter': fieldItem.visible ? 'none' : 'grayscale(100%)', 'opacity': fieldItem.visible ? '1' : '0.3'}"
+            :style="{'filter': fieldItem.visible ? 'none' : 'grayscale(100%)'}"
             :data-id='fieldItem.id'
           >
             <div class='sort-icon'>
@@ -419,7 +419,7 @@ export default {
         min-width: 1100px;
         margin-bottom: 15px;
         margin-right: 10px;
-        background: #f8f8f8;
+        background: rgba(21, 195, 154, 0.1);
         padding: 10px 10px 15px 10px;
         display: flex;
         flex-direction: row;
@@ -659,7 +659,7 @@ export default {
         }
 
         &:hover {
-          background: rgba(21, 195, 154, 0.1);
+          background: rgba(21, 195, 154, 0.2);
           color: rgba(0, 0, 0, 0.65);
           border: 1px solid #15C39A;
           .sort-icon {
