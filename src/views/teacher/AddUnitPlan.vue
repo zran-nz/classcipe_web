@@ -381,6 +381,14 @@
                             </a-form-model-item>
                           </div>
                         </template>
+
+                        <template v-for='custFieldItem in $store.getters.formConfigData.planCustomList'>
+                          <div class='form-block' v-if="custFieldItem.visible && form.customFieldData && form.customFieldData.hasOwnProperty(custFieldItem.id)" :key='custFieldItem.id' :data-field-name='custFieldItem.name' :data-field-id='custFieldItem.id'>
+                            <a-form-item :label="custFieldItem.name">
+                              <a-input v-model='form.customFieldData[custFieldItem.id]' class='my-form-input' />
+                            </a-form-item>
+                          </div>
+                        </template>
                       </div>
                     </template>
                   </a-step>
@@ -1024,7 +1032,8 @@ export default {
         startDate: '',
         endDate: '',
         gradeId: undefined,
-        prior: ''
+        prior: '',
+        customFieldData: null
       },
       rangeDate: [],
       uploading: false,
@@ -1366,6 +1375,27 @@ export default {
           this.rangeDate.push(moment.utc(unitPlanData.startDate).local())
           this.rangeDate.push(moment.utc(unitPlanData.endDate).local())
         }
+
+        // 填充自定义字段
+        const customFieldData = unitPlanData.customFieldData ? JSON.parse(unitPlanData.customFieldData) : null
+        const displayCustomFieldData = {}
+        if (customFieldData) {
+          // 只显示配置中存在的字段,用id做key，改名后依旧可以使用老数据
+          this.$store.getters.formConfigData.planCustomList.forEach(customField => {
+            if (customFieldData.hasOwnProperty(customField.id)) {
+              displayCustomFieldData[customField.id] = customFieldData[customField.id]
+            } else {
+              displayCustomFieldData[customField.id] = ''
+            }
+          })
+        } else {
+          this.$store.getters.formConfigData.planCustomList.forEach(customField => {
+            displayCustomFieldData[customField.id] = ''
+          })
+        }
+        this.$logger.info('displayCustomFieldData', displayCustomFieldData)
+        unitPlanData.customFieldData = displayCustomFieldData
+
         this.form = unitPlanData
         if (unitPlanData.questions.length === 0) {
           this.form.questions.push({ 'name': '' })
@@ -1533,7 +1563,13 @@ export default {
       if (this.unitPlanId) {
         unitPlanData.id = this.unitPlanId
       }
-      unitPlanData.selfOuts = this.$refs.learnOut.getSelfOuts()
+      // 更新selfOuts数据
+      if (this.$refs.learnOut && this.$refs.learnOut.length > 0) {
+        unitPlanData.selfOuts = this.$refs.learnOut[0].getSelfOuts()
+      }
+      if (unitPlanData.customFieldData) {
+        unitPlanData.customFieldData = JSON.stringify(unitPlanData.customFieldData)
+      }
       logger.info('basic unitPlanData', unitPlanData)
       UnitPlanAddOrUpdate(unitPlanData).then((response) => {
         logger.info('UnitPlanAddOrUpdate', response.result)

@@ -2380,23 +2380,23 @@ export default {
         this.materialListFlag = taskData.materialList.length > 0
         // 填充自定义字段
         const customFieldData = taskData.customFieldData ? JSON.parse(taskData.customFieldData) : null
-        const displayCustomFiedlData = {}
+        const displayCustomFieldData = {}
         if (customFieldData) {
           // 只显示配置中存在的字段,用id做key，改名后依旧可以使用老数据
           this.$store.getters.formConfigData.taskCustomList.forEach(customField => {
             if (customFieldData.hasOwnProperty(customField.id)) {
-              displayCustomFiedlData[customField.id] = customFieldData[customField.id]
+              displayCustomFieldData[customField.id] = customFieldData[customField.id]
             } else {
-              displayCustomFiedlData[customField.id] = ''
+              displayCustomFieldData[customField.id] = ''
             }
           })
         } else {
           this.$store.getters.formConfigData.taskCustomList.forEach(customField => {
-            displayCustomFiedlData[customField.id] = ''
+            displayCustomFieldData[customField.id] = ''
           })
         }
-        this.$logger.info('displayCustomFiedlData', displayCustomFiedlData)
-        taskData.customFieldData = displayCustomFiedlData
+        this.$logger.info('displayCustomFieldData', displayCustomFieldData)
+        taskData.customFieldData = displayCustomFieldData
         this.form = taskData
         this.form.showSelected = taskData.showSelected ? taskData.showSelected : false
         this.form.bloomCategories = this.form.bloomCategories ? this.form.bloomCategories : undefined // 为了展示placeholder
@@ -2497,7 +2497,6 @@ export default {
           taskData.customFieldData = JSON.stringify(taskData.customFieldData)
         }
         logger.info('basic taskData', taskData)
-        logger.info('question taskData', taskData)
         TaskAddOrUpdate(taskData).then((response) => {
           logger.info('TaskAddOrUpdate', response.result)
           if (response.success) {
