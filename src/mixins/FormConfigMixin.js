@@ -1,6 +1,6 @@
 import { PlanField, TaskField } from '@/const/common'
 
-export const formConfigMixin = {
+export const FormConfigMixin = {
   data () {
     return {
       PlanField: PlanField,
