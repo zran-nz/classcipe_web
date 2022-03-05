@@ -6,6 +6,7 @@ import { VueAxios } from './axios'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 import * as logger from '@/utils/logger'
 import router from '../router'
+import qs from 'qs'
 
 // 创建 axios 实例
 const request = axios.create({
@@ -38,6 +39,12 @@ request.interceptors.request.use(config => {
     config.headers['X-Access-Token'] = token
   } else {
     logger.info(ACCESS_TOKEN + ' no set')
+  }
+  // 支持传递数组
+  if (config.method === 'get') {
+    config.paramsSerializer = function(params) {
+      return qs.stringify(params, { arrayFormat: 'repeat' })
+    }
   }
   return config
 }, errorHandler)
