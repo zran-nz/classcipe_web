@@ -149,7 +149,9 @@
                               :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.TaskType}" />
                             <a-form-model-item class='task-audio-line' ref='taskType' :colon='false'>
                               <div slot='label'>
-                                {{ 'Choose Task Type' | taskLabelName(taskField.Overview, $store.getters.formConfigData) }} (<span style='font-size: 13px'>Formative Assessment/ Summative Assessment/ Activity</span>):
+                                <a-tooltip :title="'Choose Task Type' | taskLabelHint(taskField.Overview, $store.getters.formConfigData)" placement='top'>
+                                  {{ 'Choose Task Type' | taskLabelName(taskField.Overview, $store.getters.formConfigData) }}  (<span style='font-size: 13px'>Formative Assessment/ Summative Assessment/ Activity</span>):
+                                </a-tooltip>
                               </div>
                               <div class='self-type-wrapper'>
                                 <div class='self-field-label'>
