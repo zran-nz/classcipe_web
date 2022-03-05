@@ -98,14 +98,16 @@ export default {
       FindCustomTags({}).then((response) => {
         if (response.success) {
           response.result.recommends.forEach((tag) => {
-            tag.createOwn = true
-            tag.isOptional = true
+            const selectedTagItem = this.selectedTags.find((selectedTag) => {
+              return selectedTag.tagId === tag.id
+            })
+
+            tag.createOwn = selectedTagItem ? !!selectedTagItem.createOwn : true
+            tag.isOptional = selectedTagItem ? !!selectedTagItem.isOptional : true
             tag.expand = false
             tag.tagId = tag.id
             tag.tagName = tag.name
-            tag.isSelected = this.selectedTags.some((selectedTag) => {
-              return selectedTag.tagId === tag.tagId
-            })
+            tag.isSelected = !!selectedTagItem
           })
 
           this.tagList = response.result.recommends
