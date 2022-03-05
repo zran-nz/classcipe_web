@@ -34,8 +34,9 @@
                           <div class='form-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Name' :key='fieldItem.fieldName'>
                             <a-form-item>
                               <template class='my-label' slot='label'>
+                                {{ 'Task name' | taskLabelName(taskField.Name, $store.getters.formConfigPreviewData) }}
                                 <a-tooltip :title="'Task name' | taskLabelHint(taskField.Name, $store.getters.formConfigPreviewData)" placement='top'>
-                                  {{ 'Task name' | taskLabelName(taskField.Name, $store.getters.formConfigPreviewData) }}
+                                  <a-icon type="info-circle" />
                                 </a-tooltip>
                               </template>
                               <a-input v-model='form.name' placeholder='Enter Task Name' class='my-form-input' />
@@ -66,8 +67,9 @@
                               </a-popconfirm>
                               <a-form-item>
                                 <template class='my-label' slot='label'>
+                                  {{ 'Choose class' | taskLabelName(taskField.TaskClassList, $store.getters.formConfigPreviewData) }}
                                   <a-tooltip :title="'Choose class' | taskLabelHint(taskField.TaskClassList, $store.getters.formConfigPreviewData)" placement='top'>
-                                    {{ 'Choose class' | taskLabelName(taskField.TaskClassList, $store.getters.formConfigPreviewData) }}
+                                    <a-icon type="info-circle" />
                                   </a-tooltip>
                                 </template>
                                 <input-with-create
@@ -111,8 +113,9 @@
                           <div class='form-block over-form-block' id='overview' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Overview' :key='fieldItem.fieldName'>
                             <a-form-model-item class='task-audio-line' ref='overview'>
                               <template class='my-label' slot='label'>
+                                {{ 'Task details' | taskLabelName(taskField.Overview, $store.getters.formConfigPreviewData) }}
                                 <a-tooltip :title="'Task details' | taskLabelHint(taskField.Overview, $store.getters.formConfigPreviewData)" placement='top'>
-                                  {{ 'Task details' | taskLabelName(taskField.Overview, $store.getters.formConfigPreviewData) }}
+                                  <a-icon type="info-circle" />
                                 </a-tooltip>
                               </template>
                               <a-textarea autoSize v-model='form.overview' placeholder='Details' allow-clear />
@@ -122,8 +125,9 @@
                           <div class='form-block taskType' v-if='fieldItem.visible && fieldItem.fieldName === taskField.TaskType' :key='fieldItem.fieldName'>
                             <a-form-model-item class='task-audio-line' ref='taskType' :colon='false'>
                               <div slot='label'>
+                                {{ 'Choose Task Type' | taskLabelName(taskField.TaskType, $store.getters.formConfigData) }}
                                 <a-tooltip :title="'Choose Task Type' | taskLabelHint(taskField.TaskType, $store.getters.formConfigPreviewData)" placement='top'>
-                                  {{ 'Choose Task Type' | taskLabelName(taskField.TaskType, $store.getters.formConfigData) }}  (<span style='font-size: 13px'>Formative Assessment/ Summative Assessment/ Activity</span>):
+                                  <a-icon type="info-circle" />
                                 </a-tooltip>
                               </div>
                               <div class='self-type-wrapper'>
@@ -149,8 +153,9 @@
                           <div class='form-block form-question' v-if='associateQuestionList.length > 0 && fieldItem.visible && fieldItem.fieldName === taskField.TaskType' :key='fieldItem.fieldName'>
                             <a-form-model-item>
                               <template class='my-label' slot='label'>
+                                {{ 'Choose Key questions' | taskLabelName(taskField.Overview, $store.getters.formConfigPreviewData) }}
                                 <a-tooltip :title="'Choose Key questions' | taskLabelHint(taskField.Overview, $store.getters.formConfigPreviewData)" placement='top'>
-                                  {{ 'Choose Key questions' | taskLabelName(taskField.Overview, $store.getters.formConfigPreviewData) }}
+                                  <a-icon type="info-circle" />
                                 </a-tooltip>
                               </template>
                               <a-select
@@ -179,8 +184,9 @@
                           <div class='form-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.LearnOuts' :key='fieldItem.fieldName'>
                             <a-form-item>
                               <template class='my-label' slot='label'>
+                                {{ 'Set learning objectives' | taskLabelName(taskField.LearnOuts, $store.getters.formConfigPreviewData) }}
                                 <a-tooltip :title="'Set learning objectives' | taskLabelHint(taskField.LearnOuts, $store.getters.formConfigPreviewData)" placement='top'>
-                                  {{ 'Set learning objectives' | taskLabelName(taskField.LearnOuts, $store.getters.formConfigPreviewData) }}
+                                  <a-icon type="info-circle" />
                                 </a-tooltip>
                               </template>
                               <a-button type='primary' @click='handleSelectDescription'>
@@ -255,8 +261,9 @@
                           <div class='form-block' v-if="custFieldItem.visible && form.customFieldData && form.customFieldData.hasOwnProperty(custFieldItem.id)" :key='custFieldItem.id' :data-field-name='custFieldItem.name' :data-field-id='custFieldItem.id'>
                             <a-form-item>
                               <template class='my-label' slot='label'>
+                                {{ custFieldItem.name }}
                                 <a-tooltip :title="custFieldItem.hint" placement='top'>
-                                  {{ custFieldItem.name }}
+                                  <a-icon type="info-circle" />
                                 </a-tooltip>
                               </template>
                               <a-input v-model='form.customFieldData[custFieldItem.id]' class='my-form-input' />

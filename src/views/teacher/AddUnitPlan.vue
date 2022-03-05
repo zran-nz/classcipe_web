@@ -44,8 +44,9 @@
                               @switch='handleSwitchComment'/>
                             <a-form-item>
                               <template class='my-label' slot='label'>
+                                {{ 'Unit Name' | unitLabelName(planField.Name, $store.getters.formConfigData) }}
                                 <a-tooltip :title="'Unit Name' | unitLabelHint(planField.Name, $store.getters.formConfigData)" placement='top'>
-                                  {{ 'Unit Name' | unitLabelName(planField.Name, $store.getters.formConfigData) }}
+                                  <a-icon type="info-circle" />
                                 </a-tooltip>
                               </template>
                               <a-input v-model='form.name' class='my-form-input' placeholder='Enter Unit Name' @change="handleCollaborateEvent(unitPlanId,planField.Name,form.name)" />
@@ -63,8 +64,9 @@
                             />
                             <a-form-item style='display:flex'>
                               <template class='my-label' slot='label'>
+                                {{ 'Project-based Unit' | unitLabelName(planField.ProjectBased, $store.getters.formConfigData) }}
                                 <a-tooltip :title="'Project-based Unit' | unitLabelHint(planField.ProjectBased, $store.getters.formConfigData)" placement='top'>
-                                  {{ 'Project-based Unit' | unitLabelName(planField.ProjectBased, $store.getters.formConfigData) }}
+                                  <a-icon type="info-circle" />
                                 </a-tooltip>
                               </template>
                               <a-radio-group name='radioGroup' v-model='form.projectBased' style='margin-left:20px;' @change="handleCollaborateEvent(unitPlanId,planField.ProjectBased,form.projectBased)" >
@@ -88,8 +90,9 @@
                               :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.UnitType}" />
                             <a-form-item style='display:flex'>
                               <template class='my-label' slot='label'>
+                                {{ 'Unit type' | unitLabelName(planField.UnitType, $store.getters.formConfigData) }}
                                 <a-tooltip :title="'Unit type' | unitLabelHint(planField.UnitType, $store.getters.formConfigData)" placement='top'>
-                                  {{ 'Unit type' | unitLabelName(planField.UnitType, $store.getters.formConfigData) }}
+                                  <a-icon type="info-circle" />
                                 </a-tooltip>
                               </template>
                               <a-radio-group name='unitType' v-model='form.unitType' style='margin-left:20px;' @change="handleCollaborateEvent(unitPlanId,planField.UnitType,form.unitType)" >
@@ -113,8 +116,9 @@
                               :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.StartDate}" />
                             <a-form-item style='width:26%;margin-bottom: 0px;'>
                               <template class='my-label' slot='label'>
+                                {{ 'Grade level' | unitLabelName(planField.GradeId, $store.getters.formConfigData) }}
                                 <a-tooltip :title="'Grade level' | unitLabelHint(planField.GradeId, $store.getters.formConfigData)" placement='top'>
-                                  {{ 'Grade level' | unitLabelName(planField.GradeId, $store.getters.formConfigData) }}
+                                  <a-icon type="info-circle" />
                                 </a-tooltip>
                               </template>
                               <a-select
@@ -160,8 +164,9 @@
                             <!--                <a-divider />-->
                             <a-form-item class='bigIdea'>
                               <template class='my-label' slot='label'>
+                                {{ 'Big Idea/ Statement of Inquiry/ Central Idea' | unitLabelName(planField.Inquiry, $store.getters.formConfigData) }}
                                 <a-tooltip :title="'Big Idea/ Statement of Inquiry/ Central Idea' | unitLabelHint(planField.Inquiry, $store.getters.formConfigData)" placement='top'>
-                                  {{ 'Big Idea/ Statement of Inquiry/ Central Idea' | unitLabelName(planField.Inquiry, $store.getters.formConfigData) }}
+                                  <a-icon type="info-circle" />
                                 </a-tooltip>
                               </template>
                               <a-textarea
@@ -193,6 +198,9 @@
                               <a-col span='24'>
                                 <div class='form-block-title'>
                                   {{ 'UN Sustainable Development Goal(s)' | unitLabelName(planField.Scenarios, $store.getters.formConfigData) }}
+                                  <a-tooltip :title="'UN Sustainable Development Goal(s)' | unitLabelHint(planField.Scenarios, $store.getters.formConfigData)" placement='top'>
+                                    <a-icon type="info-circle" />
+                                  </a-tooltip>
                                 </div>
                               </a-col>
                             </a-row>
@@ -268,8 +276,9 @@
                             <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Rwc />
                             <a-form-model-item>
                               <template class='my-label' slot='label'>
+                                {{ 'Real World Connection(s)' | unitLabelName(planField.Rwc, $store.getters.formConfigData) }}
                                 <a-tooltip :title="'Real World Connection(s)' | unitLabelHint(planField.Rwc, $store.getters.formConfigData)" placement='top'>
-                                  {{ 'Real World Connection(s)' | unitLabelName(planField.Rwc, $store.getters.formConfigData) }}
+                                  <a-icon type="info-circle" />
                                 </a-tooltip>
                               </template>
                               <a-select
@@ -306,6 +315,9 @@
                                     @click='questionSettingVisible=true' />
                                 </a-tooltip>
                                 {{ 'Key question(s) / Line(s) of inquiry' | unitLabelName(planField.Question, $store.getters.formConfigData) }}
+                                <a-tooltip :title="'Key question(s) / Line(s) of inquiry' | unitLabelHint(planField.Question, $store.getters.formConfigData)" placement='top'>
+                                  <a-icon type="info-circle" />
+                                </a-tooltip>
                               </span>
                               <div v-if='!$store.getters.userInfo.disableQuestion'>
                                 <div class='question-more'>
@@ -367,8 +379,9 @@
                               @switch='handleSwitchComment' />
                             <a-form-item>
                               <template class='my-label' slot='label'>
+                                {{ 'Set learning objectives' | unitLabelName(planField.LearnOuts, $store.getters.formConfigData) }}
                                 <a-tooltip :title="'Set learning objectives' | unitLabelHint(planField.LearnOuts, $store.getters.formConfigData)" placement='top'>
-                                  {{ 'Set learning objectives' | unitLabelName(planField.LearnOuts, $store.getters.formConfigData) }}
+                                  <a-icon type="info-circle" />
                                 </a-tooltip>
                               </template>
                               <a-badge :dot='hasExtraRecommend'>
@@ -408,8 +421,9 @@
                               @switch='handleSwitchComment' />
                             <a-form-model-item>
                               <template class='my-label' slot='label'>
+                                {{ 'Prior learning experience' | unitLabelName(planField.Prior, $store.getters.formConfigData) }}
                                 <a-tooltip :title="'Prior learning experience' | unitLabelHint(planField.Prior, $store.getters.formConfigData)" placement='top'>
-                                  {{ 'Prior learning experience' | unitLabelName(planField.Prior, $store.getters.formConfigData) }}
+                                  <a-icon type="info-circle" />
                                 </a-tooltip>
                               </template>
                               <a-textarea
