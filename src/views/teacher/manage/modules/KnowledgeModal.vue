@@ -76,7 +76,7 @@ export default {
   data () {
     return {
       gradeListAll: this.gradeList,
-      title: '操作',
+      title: 'Edit',
       width: 800,
       condition: {},
       visible: false,

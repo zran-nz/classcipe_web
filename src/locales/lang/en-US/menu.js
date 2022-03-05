@@ -17,6 +17,7 @@ export default {
     'menu.managing.class': 'Classes',
     'menu.managing.term': 'Academics Terms',
     'menu.managing.planning-format': 'Planning Format',
+    'menu.managing.tags-settings': 'Tags Settings',
     'menu.managing.plan-preview': 'Unit Plan Preview',
     'menu.managing.task-preview': 'Task Preview',
     'menu.my-content': 'MyContent',
