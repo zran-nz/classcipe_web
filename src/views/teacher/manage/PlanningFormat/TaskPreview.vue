@@ -30,9 +30,14 @@
                     <template slot='description'>
                       <div class='step-detail' v-show='currentActiveStepIndex === 0'>
 
-                        <template v-for='fieldItem in $store.getters.formConfigData.taskCommonList'>
+                        <template v-for='fieldItem in $store.getters.formConfigPreviewData.taskCommonList'>
                           <div class='form-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Name' :key='fieldItem.fieldName'>
-                            <a-form-item :label="'Task name' | taskLabelName(taskField.Name, $store.getters.formConfigData)">
+                            <a-form-item>
+                              <template class='my-label' slot='label'>
+                                <a-tooltip :title="'Task name' | taskLabelHint(taskField.Name, $store.getters.formConfigPreviewData)" placement='top'>
+                                  {{ 'Task name' | taskLabelName(taskField.Name, $store.getters.formConfigPreviewData) }}
+                                </a-tooltip>
+                              </template>
                               <a-input v-model='form.name' placeholder='Enter Task Name' class='my-form-input' />
                             </a-form-item>
                           </div>
@@ -59,7 +64,12 @@
                                   <img class='big-delete-icon' src="~@/assets/icons/tag/delete.png" alt=''/>
                                 </div>
                               </a-popconfirm>
-                              <a-form-item :label="'Choose class' | taskLabelName(taskField.TaskClassList, $store.getters.formConfigData)">
+                              <a-form-item>
+                                <template class='my-label' slot='label'>
+                                  <a-tooltip :title="'Choose class' | taskLabelHint(taskField.TaskClassList, $store.getters.formConfigPreviewData)" placement='top'>
+                                    {{ 'Choose class' | taskLabelName(taskField.TaskClassList, $store.getters.formConfigPreviewData) }}
+                                  </a-tooltip>
+                                </template>
                                 <input-with-create
                                   :option-list='classList'
                                   :index='cIdx'
@@ -99,7 +109,12 @@
                           </div>
 
                           <div class='form-block over-form-block' id='overview' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Overview' :key='fieldItem.fieldName'>
-                            <a-form-model-item class='task-audio-line' :label="'Task details' | taskLabelName(taskField.Overview, $store.getters.formConfigData)" ref='overview'>
+                            <a-form-model-item class='task-audio-line' ref='overview'>
+                              <template class='my-label' slot='label'>
+                                <a-tooltip :title="'Task details' | taskLabelHint(taskField.Overview, $store.getters.formConfigPreviewData)" placement='top'>
+                                  {{ 'Task details' | taskLabelName(taskField.Overview, $store.getters.formConfigPreviewData) }}
+                                </a-tooltip>
+                              </template>
                               <a-textarea autoSize v-model='form.overview' placeholder='Details' allow-clear />
                             </a-form-model-item>
                           </div>
@@ -107,7 +122,9 @@
                           <div class='form-block taskType' v-if='fieldItem.visible && fieldItem.fieldName === taskField.TaskType' :key='fieldItem.fieldName'>
                             <a-form-model-item class='task-audio-line' ref='taskType' :colon='false'>
                               <div slot='label'>
-                                {{ 'Choose Task Type' | taskLabelName(taskField.Overview, $store.getters.formConfigData) }} (<span style='font-size: 13px'>Formative Assessment/ Summative Assessment/ Activity</span>):
+                                <a-tooltip :title="'Choose Task Type' | taskLabelHint(taskField.TaskType, $store.getters.formConfigPreviewData)" placement='top'>
+                                  {{ 'Choose Task Type' | taskLabelName(taskField.TaskType, $store.getters.formConfigData) }}  (<span style='font-size: 13px'>Formative Assessment/ Summative Assessment/ Activity</span>):
+                                </a-tooltip>
                               </div>
                               <div class='self-type-wrapper'>
                                 <div class='self-field-label'>
@@ -130,7 +147,12 @@
                           </div>
 
                           <div class='form-block form-question' v-if='associateQuestionList.length > 0 && fieldItem.visible && fieldItem.fieldName === taskField.TaskType' :key='fieldItem.fieldName'>
-                            <a-form-model-item :label="'Choose Key questions' | taskLabelName(taskField.Overview, $store.getters.formConfigData)">
+                            <a-form-model-item>
+                              <template class='my-label' slot='label'>
+                                <a-tooltip :title="'Choose Key questions' | taskLabelHint(taskField.Overview, $store.getters.formConfigPreviewData)" placement='top'>
+                                  {{ 'Choose Key questions' | taskLabelName(taskField.Overview, $store.getters.formConfigPreviewData) }}
+                                </a-tooltip>
+                              </template>
                               <a-select
                                 :getPopupContainer="trigger => trigger.parentElement"
                                 size='large'
@@ -155,7 +177,12 @@
                           </div>
 
                           <div class='form-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.LearnOuts' :key='fieldItem.fieldName'>
-                            <a-form-item :label="'Set learning objectives' | taskLabelName(taskField.LearnOuts, $store.getters.formConfigData)">
+                            <a-form-item>
+                              <template class='my-label' slot='label'>
+                                <a-tooltip :title="'Set learning objectives' | taskLabelHint(taskField.LearnOuts, $store.getters.formConfigPreviewData)" placement='top'>
+                                  {{ 'Set learning objectives' | taskLabelName(taskField.LearnOuts, $store.getters.formConfigPreviewData) }}
+                                </a-tooltip>
+                              </template>
                               <a-button type='primary' @click='handleSelectDescription'>
                                 <div class='btn-text' style='line-height: 20px'>
                                   Add Learning Objectives
@@ -222,9 +249,14 @@
                           </div>
                         </template>
 
-                        <template v-for='custFieldItem in $store.getters.formConfigData.taskCustomList'>
+                        <template v-for='custFieldItem in $store.getters.formConfigPreviewData.taskCustomList'>
                           <div class='form-block' v-if="custFieldItem.visible && form.customFieldData && form.customFieldData.hasOwnProperty(custFieldItem.id)" :key='custFieldItem.id' :data-field-name='custFieldItem.name' :data-field-id='custFieldItem.id'>
-                            <a-form-item :label="custFieldItem.name">
+                            <a-form-item>
+                              <template class='my-label' slot='label'>
+                                <a-tooltip :title="custFieldItem.hint" placement='top'>
+                                  {{ custFieldItem.name }}
+                                </a-tooltip>
+                              </template>
                               <a-input v-model='form.customFieldData[custFieldItem.id]' class='my-form-input' />
                             </a-form-item>
                           </div>
@@ -1688,7 +1720,6 @@ import InputSearch from '@/components/UnitPlan/InputSearch'
 import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
 import SkillTag from '@/components/UnitPlan/SkillTag'
 import { FilterTemplates, TemplatesGetPresentation } from '@/api/template'
-import { MyContentEvent, MyContentEventBus } from '@/components/MyContent/MyContentEventBus'
 import { SelectModel } from '@/components/NewLibrary/SelectModel'
 import { formatLocalUTC } from '@/utils/util'
 import { commonAPIUrl } from '@/api/common'
@@ -1707,7 +1738,6 @@ import ModalHeader from '@/components/Common/ModalHeader'
 import CommonFormHeader from '@/components/Common/CommonFormHeader'
 import CommonLink from '@/components/Common/CommonLink'
 import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
-import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
 import NewBrowser from '@/components/NewLibrary/NewBrowser'
 import NewMyContent from '@/components/MyContent/NewMyContent'
 import { FindCustomTags, GetTagYearTips, GetTreeByKey } from '@/api/tag'
@@ -2035,19 +2065,12 @@ export default {
     }
   },
   created() {
+    this.$logger.info('task-preview created', this.$store.getters.formConfigPreviewData)
     this.initData()
     this.getAssociate()
     this.loadCustomTags()
     this.initTemplateFilter()
     this.GetTagYearTips()
-  },
-  beforeDestroy() {
-    MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
-    MyContentEventBus.$off(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
-    LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
-    LibraryEventBus.$off(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
-    // logger.debug('beforeDestroy, try save!')
-    // this.handleSaveTask()
   },
   methods: {
     initData() {
@@ -2080,9 +2103,13 @@ export default {
       }).finally(() => {
         // 填充自定义字段
         const displayCustomFieldData = {}
-        this.$store.getters.formConfigData.taskCustomList.forEach(customField => {
-          displayCustomFieldData[customField.id] = ''
-        })
+        if (this.$store.getters.formConfigPreviewData && this.$store.getters.formConfigPreviewData.taskCustomList) {
+          this.$store.getters.formConfigPreviewData.taskCustomList.forEach(customField => {
+            displayCustomFieldData[customField.id] = ''
+          })
+        } else {
+          this.goBack()
+        }
         this.$logger.info('displayCustomFieldData', displayCustomFieldData)
         this.form.customFieldData = displayCustomFieldData
 

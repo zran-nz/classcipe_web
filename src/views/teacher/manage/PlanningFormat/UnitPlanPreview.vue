@@ -27,15 +27,26 @@
                     <template slot='description'>
                       <div class='step-detail' v-show='currentActiveStepIndex === 0' >
 
-                        <template v-for='fieldItem in $store.getters.formConfigData.planCommonList'>
+                        <template v-for='fieldItem in $store.getters.formConfigPreviewData.planCommonList'>
                           <div class='form-block' v-if='fieldItem.visible && fieldItem.fieldName === planField.Name' :key='fieldItem.fieldName'>
-                            <a-form-item :label="'Unit Name' | unitLabelName(planField.Name, $store.getters.formConfigData) ">
+                            <a-form-item>
+                              <template class='my-label' slot='label'>
+                                <a-tooltip :title="'Unit Name' | unitLabelHint(planField.Name, $store.getters.formConfigPreviewData)" placement='top'>
+                                  {{ 'Unit Name' | unitLabelName(planField.Name, $store.getters.formConfigPreviewData) }}
+                                </a-tooltip>
+                              </template>
                               <a-input v-model='form.name' class='my-form-input' placeholder='Enter Unit Name' />
                             </a-form-item>
                           </div>
 
                           <div class='form-block form-radio-wrapper' v-if='fieldItem.visible && fieldItem.fieldName === planField.ProjectBased' :key='fieldItem.fieldName'>
-                            <a-form-item :label="'Project-based Unit' | unitLabelName(planField.ProjectBased, $store.getters.formConfigData)" style='display:flex'>
+                            <a-form-item style='display:flex'>
+                              <template class='my-label' slot='label'>
+                                <a-tooltip :title="'Project-based Unit' | unitLabelHint(planField.ProjectBased, $store.getters.formConfigPreviewData)" placement='top'>
+                                  {{ 'Project-based Unit' | unitLabelName(planField.ProjectBased, $store.getters.formConfigPreviewData) }}
+                                </a-tooltip>
+                              </template>
+
                               <a-radio-group name='radioGroup' v-model='form.projectBased' style='margin-left:20px;'>
                                 <a-radio :value='1'>
                                   Yes
@@ -48,7 +59,13 @@
                           </div>
 
                           <div class='form-block form-radio-wrapper' v-if='fieldItem.visible && fieldItem.fieldName === planField.UnitType' :key='fieldItem.fieldName'>
-                            <a-form-item :label="'Unit type' | unitLabelName(planField.UnitType, $store.getters.formConfigData)" style='display:flex'>
+                            <a-form-item style='display:flex'>
+                              <template class='my-label' slot='label'>
+                                <a-tooltip :title="'Unit type' | unitLabelHint(planField.UnitType, $store.getters.formConfigPreviewData)" placement='top'>
+                                  {{ 'Unit type' | unitLabelName(planField.UnitType, $store.getters.formConfigPreviewData) }}
+                                </a-tooltip>
+                              </template>
+
                               <a-radio-group name='unitType' v-model='form.unitType' style='margin-left:20px;'>
                                 <a-radio :value='0'>
                                   Single-subject Unit
@@ -61,7 +78,12 @@
                           </div>
 
                           <div class='form-block grade-time' v-if="fieldItem.visible && fieldItem.fieldName === planField.GradeId" :key='fieldItem.fieldName'>
-                            <a-form-item :label="'Grade level' | unitLabelName(planField.GradeId, $store.getters.formConfigData)" style='width:26%;margin-bottom: 0px;'>
+                            <a-form-item style='width:26%;margin-bottom: 0;'>
+                              <template class='my-label' slot='label'>
+                                <a-tooltip :title="'Grade level' | unitLabelHint(planField.GradeId, $store.getters.formConfigPreviewData)" placement='top'>
+                                  {{ 'Grade level' | unitLabelName(planField.GradeId, $store.getters.formConfigPreviewData) }}
+                                </a-tooltip>
+                              </template>
                               <a-select
                                 :getPopupContainer="trigger => trigger.parentElement"
                                 v-model='form.gradeId'
@@ -94,7 +116,12 @@
                           </div>
 
                           <div id='inquiry' class='form-block inquiry-form-block' v-if="fieldItem.visible && fieldItem.fieldName === planField.Inquiry" :key='fieldItem.fieldName'>
-                            <a-form-item class='bigIdea' :label="'Big Idea/ Statement of Inquiry/ Central Idea' | unitLabelName(planField.Inquiry, $store.getters.formConfigData)">
+                            <a-form-item class='bigIdea'>
+                              <template class='my-label' slot='label'>
+                                <a-tooltip :title="'Big Idea/ Statement of Inquiry/ Central Idea' | unitLabelHint(planField.Inquiry, $store.getters.formConfigPreviewData)" placement='top'>
+                                  {{ 'Big Idea/ Statement of Inquiry/ Central Idea' | unitLabelName(planField.Inquiry, $store.getters.formConfigPreviewData) }}
+                                </a-tooltip>
+                              </template>
                               <a-textarea
                                 v-model='form.inquiry'
                                 :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')"
@@ -114,7 +141,9 @@
                             <a-row>
                               <a-col span='24'>
                                 <div class='form-block-title'>
-                                  {{ 'UN Sustainable Development Goal(s)' | unitLabelName(planField.Scenarios, $store.getters.formConfigData) }}
+                                  <a-tooltip :title="'UN Sustainable Development Goal(s)' | unitLabelHint(planField.Scenarios, $store.getters.formConfigPreviewData)" placement='top'>
+                                    {{ 'UN Sustainable Development Goal(s)' | unitLabelName(planField.Scenarios, $store.getters.formConfigPreviewData) }}
+                                  </a-tooltip>
                                 </div>
                               </a-col>
                             </a-row>
@@ -183,7 +212,12 @@
                           </div>
 
                           <div class='form-block form-block-rwc' v-if="fieldItem.visible && fieldItem.fieldName === planField.Rwc" :key='fieldItem.fieldName'>
-                            <a-form-model-item :label="'Real World Connection(s)' | unitLabelName(planField.Rwc, $store.getters.formConfigData)">
+                            <a-form-model-item>
+                              <template class='my-label' slot='label'>
+                                <a-tooltip :title="'Real World Connection(s)' | unitLabelHint(planField.Rwc, $store.getters.formConfigPreviewData)" placement='top'>
+                                  {{ 'Real World Connection(s)' | unitLabelName(planField.Rwc, $store.getters.formConfigPreviewData) }}
+                                </a-tooltip>
+                              </template>
                               <a-select
                                 :getPopupContainer="trigger => trigger.parentElement"
                                 size='large'
@@ -202,13 +236,13 @@
                             :key='fieldItem.fieldName'>
                             <a-form-item class='unit-question'>
                               <span slot='label'>
-                                <a-tooltip title='Set key question/Line of inquiry'>
+                                <a-tooltip :title="'Set key question/Line of inquiry' | unitLabelHint(planField.Question, $store.getters.formConfigPreviewData)">
                                   <a-icon
                                     style='color: #15c39a;cursor: pointer;font-size: 18px'
                                     type='exclamation-circle'
                                     @click='questionSettingVisible=true' />
                                 </a-tooltip>
-                                {{ 'Key question(s) / Line(s) of inquiry' | unitLabelName(planField.Question, $store.getters.formConfigData) }}
+                                {{ 'Key question(s) / Line(s) of inquiry' | unitLabelName(planField.Question, $store.getters.formConfigPreviewData) }}
                               </span>
                               <div v-if='!$store.getters.userInfo.disableQuestion'>
                                 <div class='question-more'>
@@ -260,7 +294,12 @@
                           </div>
 
                           <div class='form-block' v-if="fieldItem.visible && fieldItem.fieldName === planField.LearnOuts" :key='fieldItem.fieldName'>
-                            <a-form-item :label="'Set learning objectives' | unitLabelName(planField.LearnOuts, $store.getters.formConfigData)">
+                            <a-form-item>
+                              <template class='my-label' slot='label'>
+                                <a-tooltip :title="'Set learning objectives' | unitLabelHint(planField.LearnOuts, $store.getters.formConfigPreviewData)" placement='top'>
+                                  {{ 'Set learning objectives' | unitLabelName(planField.LearnOuts, $store.getters.formConfigPreviewData) }}
+                                </a-tooltip>
+                              </template>
                               <a-badge :dot='hasExtraRecommend'>
                                 <a-button type='primary' @click='handleSelectDescription()'>
                                   <div class='btn-text' style='line-height: 20px'>
@@ -289,7 +328,12 @@
                           </div>
 
                           <div class='form-block' style='clear:both' v-if="fieldItem.visible && fieldItem.fieldName === planField.Prior" :key='fieldItem.fieldName'>
-                            <a-form-model-item :label="'Prior learning experience' | unitLabelName(planField.Prior, $store.getters.formConfigData)">
+                            <a-form-model-item>
+                              <template class='my-label' slot='label'>
+                                <a-tooltip :title="'Prior learning experience' | unitLabelHint(planField.Prior, $store.getters.formConfigPreviewData)" placement='top'>
+                                  {{ 'Prior learning experience' | unitLabelName(planField.Prior, $store.getters.formConfigPreviewData) }}
+                                </a-tooltip>
+                              </template>
                               <a-textarea
                                 v-model='form.prior'
                                 allow-clear
@@ -299,9 +343,14 @@
                           </div>
                         </template>
 
-                        <template v-for='custFieldItem in $store.getters.formConfigData.planCustomList'>
+                        <template v-for='custFieldItem in $store.getters.formConfigPreviewData.planCustomList'>
                           <div class='form-block' v-if="custFieldItem.visible && form.customFieldData && form.customFieldData.hasOwnProperty(custFieldItem.id)" :key='custFieldItem.id' :data-field-name='custFieldItem.name' :data-field-id='custFieldItem.id'>
-                            <a-form-item :label="custFieldItem.name">
+                            <a-form-item>
+                              <template class='my-label' slot='label'>
+                                <a-tooltip :title="custFieldItem.hint" placement='top'>
+                                  {{ custFieldItem.name }}
+                                </a-tooltip>
+                              </template>
                               <a-input v-model='form.customFieldData[custFieldItem.id]' class='my-form-input' />
                             </a-form-item>
                           </div>
@@ -1022,6 +1071,7 @@ export default {
   },
   created() {
     // 初始化关联事件处理
+    this.$logger.info('unit-preview created', this.$store.getters.formConfigPreviewData)
     this.initData()
     this.getAssociate()
     this.loadCustomTags()
@@ -1071,11 +1121,16 @@ export default {
       }).finally(() => {
         // 填充自定义字段
         const displayCustomFieldData = {}
-        this.$store.getters.formConfigData.planCustomList.forEach(customField => {
-          displayCustomFieldData[customField.id] = ''
-        })
+
+        if (this.$store.getters.formConfigPreviewData && this.$store.getters.formConfigPreviewData.planCustomList) {
+          this.$store.getters.formConfigPreviewData.planCustomList.forEach(customField => {
+            displayCustomFieldData[customField.id] = ''
+          })
+        } else {
+          this.goBack()
+        }
         this.$logger.info('displayCustomFieldData', displayCustomFieldData)
-        this.formcustomFieldData = displayCustomFieldData
+        this.form.customFieldData = displayCustomFieldData
 
         this.referenceLoading = false
         this.contentLoading = false
