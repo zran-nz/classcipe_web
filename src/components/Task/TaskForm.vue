@@ -6,7 +6,13 @@
           <div class="form-block-wrapper">
 
             <div class="form-block" >
-              <a-form-item label="Task name" >
+              <a-form-item>
+                <template class='my-label' slot='label'>
+                  {{ 'Task name' | taskLabelName(taskField.Name, $store.getters.formConfigData) }}
+                  <a-tooltip :title="'Task name' | taskLabelHint(taskField.Name, $store.getters.formConfigData)" placement='top'>
+                    <a-icon type="info-circle" />
+                  </a-tooltip>
+                </template>
                 <a-input v-model="form.name" placeholder="Enter Course Name" class="my-form-input"/>
               </a-form-item>
             </div>
@@ -193,6 +199,7 @@ import { NavigationType } from '@/components/NewLibrary/NavigationType'
 import NewBrowser from '@/components/NewLibrary/NewBrowser'
 import CustomTag from '@/components/UnitPlan/CustomTag'
 import { UtilMixin } from '@/mixins/UtilMixin'
+import { FormConfigMixin } from '@/mixins/FormConfigMixin'
 
 export default {
   name: 'TaskForm',
@@ -245,7 +252,7 @@ export default {
       }
     }
   },
-  mixins: [UtilMixin],
+  mixins: [UtilMixin, FormConfigMixin],
   data () {
     return {
       contentType: typeMap,

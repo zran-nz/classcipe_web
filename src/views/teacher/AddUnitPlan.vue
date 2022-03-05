@@ -991,6 +991,7 @@ import { UtilMixin } from '@/mixins/UtilMixin'
 import moment from 'moment'
 import AssessmentTaskDetails from '@/components/UnitPlan/AssessmentTaskDetails'
 import { BaseEventMixin } from '@/mixins/BaseEvent'
+import { FormConfigMixin } from '@/mixins/FormConfigMixin'
 import ShareContentSetting from '@/components/Share/ShareContentSetting'
 import { QueryContentShare } from '@/api/share'
 import CollaborateTooltip from '@/components/Collaborate/CollaborateTooltip'
@@ -1037,7 +1038,7 @@ export default {
       default: null
     }
   },
-  mixins: [UtilMixin, BaseEventMixin],
+  mixins: [UtilMixin, BaseEventMixin, FormConfigMixin],
   data() {
     return {
       showCollaborateVisible: false,

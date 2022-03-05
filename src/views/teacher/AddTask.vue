@@ -1902,6 +1902,7 @@ import MediaPreview from '@/components/Task/MediaPreview'
 import { UtilMixin } from '@/mixins/UtilMixin'
 import moment from 'moment'
 import { BaseEventMixin } from '@/mixins/BaseEvent'
+import { FormConfigMixin } from '@/mixins/FormConfigMixin'
 import ShareContentSetting from '@/components/Share/ShareContentSetting'
 import { QueryContentShare } from '@/api/share'
 import CollaborateTooltip from '@/components/Collaborate/CollaborateTooltip'
@@ -1959,7 +1960,7 @@ export default {
     CollaborateTooltip,
     CollaborateUpdateContent
   },
-  mixins: [PptPreviewMixin, UtilMixin, BaseEventMixin],
+  mixins: [PptPreviewMixin, UtilMixin, BaseEventMixin, FormConfigMixin],
   props: {
     taskId: {
       type: String,

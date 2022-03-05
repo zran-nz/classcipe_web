@@ -815,6 +815,7 @@ import QuestionBrowse from '@/components/UnitPlan/QuestionBrowse'
 import { UtilMixin } from '@/mixins/UtilMixin'
 import AssessmentTaskDetails from '@/components/UnitPlan/AssessmentTaskDetails'
 import { BaseEventMixin } from '@/mixins/BaseEvent'
+import { FormConfigMixin } from '@/mixins/FormConfigMixin'
 import ShareContentSetting from '@/components/Share/ShareContentSetting'
 
 export default {
@@ -848,7 +849,7 @@ export default {
     UiLearnOut,
     BigIdeaBrowse
   },
-  mixins: [UtilMixin, BaseEventMixin],
+  mixins: [UtilMixin, BaseEventMixin, FormConfigMixin],
   data() {
     return {
       showCollaborateVisible: false,
