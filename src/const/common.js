@@ -153,3 +153,21 @@ export const OrderType = {
   AskTeacher: '2',
   Other: '9'
 }
+
+/**
+ * 0: {id: "1", name: "AU curriculum", country: "AU", delFlag: 0, createBy: null, createTime: null,…}
+ 1: {id: "2", name: "NZ-National", country: "NZ", delFlag: 0, createBy: null, createTime: null,…}
+ 2: {id: "4", name: "IB-PYP", country: "IB", delFlag: 0, createBy: null, createTime: null,…}
+ 3: {id: "5", name: "IB-MYP", country: "IB", delFlag: 0, createBy: "", createTime: "2021-05-12 17:13:34",…}
+ 4: {id: "7", name: "IGCSE", country: "IGCSE", delFlag: 0, createBy: null, createTime: null,…}
+ 5: {id: "8", name: "Cambridge", country: "International", delFlag: 0, createBy: "admin",…}
+ * @type
+ */
+export const AllCurriculums = {
+  AU: '1',
+  NZ: '2',
+  IGCSE: '7',
+  Cambridge: '8',
+  IBPYP: '4',
+  IBMYP: '5'
+}

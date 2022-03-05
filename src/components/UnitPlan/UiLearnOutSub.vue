@@ -65,7 +65,17 @@
         </a-row>
 
         <a-row class="objectives-wrapper-block" v-if="getknowledgeListType(TagType.century).length > 0" >
-          <div class="title-item title-21">21st Century Skills</div>
+          <div class="title-item title-21">
+            <template v-if="$store.getters.bindCurriculum === AllCurriculums.NZ">
+              key competencies
+            </template>
+            <template v-else-if="$store.getters.bindCurriculum === AllCurriculums.AU">
+              general capabilities
+            </template>
+            <template v-else>
+              21st Century Skills
+            </template>
+          </div>
           <div class="objectives-list" v-for="(k,index) in getknowledgeListType(TagType.century)" :key="index">
             <div class="objectives-list-item objectives-list-item-21 objectives-list-item-top-fixed" @click="handleActiveDescription(TagType.century,k)">
               <!--              <a-breadcrumb separator=">">-->
@@ -158,10 +168,9 @@
   import * as logger from '@/utils/logger'
   import NoMoreResources from '@/components/Common/NoMoreResources'
   import LearnOutAddTag from '@/components/UnitPlan/LearnOutAddTag'
-  import { TagType, DICT_BLOOM_TAXONOMY } from '@/const/common'
+  import { TagType, DICT_BLOOM_TAXONOMY, AllCurriculums } from '@/const/common'
   import { getAll21Century } from '@/api/knowledge'
   import { GetDictItems } from '@/api/common'
-
   export default {
     name: 'UiLearnOutSub',
     components: {
@@ -236,6 +245,7 @@
         knowledge: {},
         tags: [],
         TagType: TagType,
+        AllCurriculums: AllCurriculums,
         centuryList: [],
         bloomLevel: []
       }

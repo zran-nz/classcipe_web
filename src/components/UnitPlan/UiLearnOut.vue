@@ -81,7 +81,17 @@
       </a-row>
 
       <a-row class="objectives-wrapper-block">
-        <div class="title-item title-21">21st Century Skills</div>
+        <div class="title-item title-21">
+          <template v-if="$store.getters.bindCurriculum === AllCurriculums.NZ">
+            key competencies
+          </template>
+          <template v-else-if="$store.getters.bindCurriculum === AllCurriculums.AU">
+            general capabilities
+          </template>
+          <template v-else>
+            21st Century Skills
+          </template>
+        </div>
         <template v-if="getknowledgeListType(TagType.century).length > 0" >
           <div class="objectives-list" v-for="(k,index) in getknowledgeListType(TagType.century)" :key="index">
             <div class="objectives-list-item objectives-list-item-21 objectives-list-item-top-fixed" @click="handleActiveDescription(TagType.century,k)">
@@ -179,7 +189,7 @@
   import * as logger from '@/utils/logger'
   import NoMoreResources from '@/components/Common/NoMoreResources'
   import LearnOutAddTag from '@/components/UnitPlan/LearnOutAddTag'
-  import { TagType } from '@/const/common'
+  import { TagType, AllCurriculums } from '@/const/common'
   import { getAll21Century } from '@/api/knowledge'
   import AddGreenIcon from '@/assets/svgIcon/evaluation/form/tianjia_green.svg?inline'
 
@@ -229,7 +239,8 @@
 
         skillInputList: [],
         knowledgeInputList: [],
-        centuryInputList: []
+        centuryInputList: [],
+        AllCurriculums: AllCurriculums
       }
     },
     created () {
