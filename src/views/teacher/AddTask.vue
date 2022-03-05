@@ -274,9 +274,9 @@
                         </template>
 
                         <template v-for='custFieldItem in $store.getters.formConfigData.taskCustomList'>
-                          <div class='form-block' v-if="custFieldItem.visible && form.customFieldData && form.customFieldData.hasOwnProperty(custFieldItem.name)" :key='custFieldItem.name' :data-field='custFieldItem.name'>
+                          <div class='form-block' v-if="custFieldItem.visible && form.customFieldData && form.customFieldData.hasOwnProperty(custFieldItem.id)" :key='custFieldItem.id' :data-field-name='custFieldItem.name' :data-field-id='custFieldItem.id'>
                             <a-form-item :label="custFieldItem.name">
-                              <a-input v-model='form.customFieldData[custFieldItem.name]' class='my-form-input' />
+                              <a-input v-model='form.customFieldData[custFieldItem.id]' class='my-form-input' />
                             </a-form-item>
                           </div>
                         </template>
@@ -2382,17 +2382,17 @@ export default {
         const customFieldData = taskData.customFieldData ? JSON.parse(taskData.customFieldData) : null
         const displayCustomFiedlData = {}
         if (customFieldData) {
-          // 只显示配置中存在的字段
+          // 只显示配置中存在的字段,用id做key，改名后依旧可以使用老数据
           this.$store.getters.formConfigData.taskCustomList.forEach(customField => {
-            if (customFieldData.hasOwnProperty(customField.name)) {
-              displayCustomFiedlData[customField.name] = customFieldData[customField.name]
+            if (customFieldData.hasOwnProperty(customField.id)) {
+              displayCustomFiedlData[customField.id] = customFieldData[customField.id]
             } else {
-              displayCustomFiedlData[customField.name] = ''
+              displayCustomFiedlData[customField.id] = ''
             }
           })
         } else {
           this.$store.getters.formConfigData.taskCustomList.forEach(customField => {
-            displayCustomFiedlData[customField.name] = ''
+            displayCustomFiedlData[customField.id] = ''
           })
         }
         this.$logger.info('displayCustomFiedlData', displayCustomFiedlData)
