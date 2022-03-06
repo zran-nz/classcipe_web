@@ -247,14 +247,12 @@ export default {
     justify-content: center;
     align-items: center;
     background: #FBFBFBFF;
-    border: 1px solid #eee;
     border-radius: 4px;
     transition: all 0.2s ease-in-out;
     cursor: pointer;
 
     &:hover {
       background: #15C39A1A;
-      border: 1px solid #15C39AFF;
     }
 
     &:active {
