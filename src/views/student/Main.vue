@@ -29,28 +29,6 @@
             </a-menu-item>
           </a-menu>
         </div>
-        <!-- <div class="nav-bar-left">
-          <div class="nav-bar-wrapper">
-            <div :class="{ 'nav-bar-item': true, 'selected-nav-bar': selectedKey === '/student/main/my-task' }">
-              <router-link to="/student/main/my-task">
-                <created-by-me-svg />
-                {{ $t('student.main.my-task') }}
-              </router-link>
-            </div>
-            <div
-              :class="{
-                'nav-bar-item': true,
-                'nav-bar-item-split': true,
-                'selected-nav-bar': selectedKey === '/student/main/my-favorite',
-              }"
-            >
-              <router-link to="/student/main/my-favorite">
-                <my-favorite-svg />
-                {{ $t('student.main.my-favorite') }}
-              </router-link>
-            </div>
-          </div>
-        </div> -->
       </a-layout-sider>
       <a-layout-content class="main-content">
         <router-view />
@@ -100,7 +78,8 @@ export default {
     ...mapState({
       // 动态主路由
       mainMenu: state => state.permission.addRouters,
-      studyMode: state => state.app.studyMode
+      studyMode: state => state.app.studyMode,
+      user: state => state.user
     }),
     currentMenu() {
       const addRouters = this.mainMenu
@@ -113,7 +92,20 @@ export default {
             const Main = currentRouter.children.find(item => item.name === 'Main')
             // 根据自学习模式，还是学校模式进行type过滤
             if (Main && Main.children && Main.children.length > 0) {
-              return Main.children.filter(item => !item.meta.type || item.meta.type === this.studyMode)
+              // 动态路由需要额外生成并放入children中 TODO
+              const Final = Main.children.filter(item => !item.meta.type || item.meta.type === this.studyMode)
+              const Dynamcis = Final.filter(item => item.meta.dynamicKey)
+              const FinalExclude = Final.filter(item => !item.meta.dynamicKey)
+              Dynamcis.forEach(item => {
+                const routes = this.user[item.meta.dynamicKey] || ['class1', 'class2', 'class3']
+                routes.forEach(route => {
+                  FinalExclude.push({
+                    ...item,
+                    path: item.path.replace(/([^:]+)$/, route)
+                  })
+                })
+              })
+              return FinalExclude
             }
           }
         }
