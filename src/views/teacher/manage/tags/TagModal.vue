@@ -183,7 +183,7 @@ export default {
       getExpandKeysByPid(pid, arr, all) {
         if (pid && arr && arr.length > 0) {
           for (let i = 0; i < arr.length; i++) {
-            if (arr[i].key == pid) {
+            if (arr[i].key === pid) {
               this.expandedRowKeys.push(arr[i].key)
               this.getExpandKeysByPid(arr[i]['parentId'], all, all)
             } else {
