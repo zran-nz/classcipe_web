@@ -1,5 +1,6 @@
 import { defaultExpertRouter, defaultTeacherRouter, defaultStudentRouter } from '@/config/router.config'
 import store from '@/store'
+import { AllCurriculums } from '@/const/common'
 
 const getters = {
   isMobile: state => state.app.isMobile,
