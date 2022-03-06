@@ -74,7 +74,9 @@
           <template v-if="!record.schoolId">
             <div v-if="record.createOwn">
               <a @click="handleAddChild(record)"><a-icon type="plus"/> Add child</a>
-              <a @click="handleRemove(record)"><a-icon type="delete"/> Remove</a>
+            </div>
+            <div v-if="record.isOptional">
+              <a @click="handleEdit(record)">  <a-icon type="edit"/>Edit</a>
             </div>
             <div v-else>
               <a @click="handleRemove(record)"><a-icon type="delete"/> Remove</a>
