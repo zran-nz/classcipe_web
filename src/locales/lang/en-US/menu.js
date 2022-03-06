@@ -25,6 +25,7 @@ export default {
     'menu.my-orders': 'My Orders',
     'menu.my-schedule': 'Time & Table',
     'menu.my-task': 'My Task',
+    'menu.my-classes': 'Classes',
     'menu.subscribe': 'Subscribe',
     'menu.shared': 'Collaborations',
     'menu.discover': 'Discover',

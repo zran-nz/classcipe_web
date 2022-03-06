@@ -20,6 +20,14 @@
       </div>
     </div>
     <div class="nav-right">
+      <a-input-search
+        placeholder="Enter code"
+        class="study-code"
+        enter-button="Go"
+        size="large"
+        v-model="code"
+        @search="enterCode"
+      />
       <div class="study-mode">
         <label class="self-mode" :class="{active: studyMode === 'selfStudy'}" @click="handleChange('selfStudy')">Self-study</label>
         <a-dropdown :class="{active: studyMode === 'schoolStudy', 'school-mode': true}">
@@ -52,8 +60,11 @@ import LibraryIconSvg from '@/assets/icons/header/Librar_icony.svg?inline'
 import EditIconSvg from '@/assets/icons/header/bianji.svg?inline'
 import SousuoIconSvg from '@/assets/icons/header/sousuo.svg?inline'
 import ManageIconSvg from '@/assets/icons/header/Managing_icon.svg?inline'
-import { TOOGLE_STUDY_MODE } from '@/store/mutation-types'
+import { TOOGLE_STUDY_MODE, ACCESS_TOKEN } from '@/store/mutation-types'
+import { lessonHost } from '@/const/googleSlide'
+
 import { mapState, mapMutations } from 'vuex'
+import storage from 'store'
 
 export default {
   name: 'StudentNav',
@@ -67,7 +78,8 @@ export default {
     return {
       defaultSelectedKeys: [],
       selectedKeys: [],
-      schoolName: 'eastWest'
+      schoolName: 'eastWest',
+      code: ''
     }
   },
   watch: {
@@ -101,6 +113,11 @@ export default {
       this[TOOGLE_STUDY_MODE]('schoolStudy')
       this.schoolName = val.key
       console.log(val)
+    },
+    enterCode() {
+      if (!this.code) return
+      const targetUrl = lessonHost + 's/' + this.code + '?token=' + storage.get(ACCESS_TOKEN)
+      window.location.href = targetUrl
     }
   }
 }
@@ -195,5 +212,9 @@ ant-dropdown {
     display: inline-block;
     z-index: 100;
   }
+}
+.study-code {
+  width: 200px;
+  margin-right: 10px;
 }
 </style>
