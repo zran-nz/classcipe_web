@@ -17,6 +17,7 @@
                 'selected-nav-bar': selectedKey.includes(item.path),
               }"
               v-for="item in currentMenu"
+              v-if="!item.children || item.children.length === 0"
             >
               <router-link :to="item.path">
                 <component
@@ -27,30 +28,40 @@
                 {{ $t(item.meta.title) }}
               </router-link>
             </a-menu-item>
-          </a-menu>
-        </div>
-        <!-- <div class="nav-bar-left">
-          <div class="nav-bar-wrapper">
-            <div :class="{ 'nav-bar-item': true, 'selected-nav-bar': selectedKey === '/student/main/my-task' }">
-              <router-link to="/student/main/my-task">
-                <created-by-me-svg />
-                {{ $t('student.main.my-task') }}
-              </router-link>
-            </div>
-            <div
+            <a-sub-menu
+              v-for="subItem in currentMenu"
+              :key="subItem.path"
               :class="{
                 'nav-bar-item': true,
                 'nav-bar-item-split': true,
-                'selected-nav-bar': selectedKey === '/student/main/my-favorite',
+                'selected-nav-bar': selectedKey.includes(subItem.path),
               }"
+              v-if="subItem.children && subItem.children.length > 0"
             >
-              <router-link to="/student/main/my-favorite">
-                <my-favorite-svg />
-                {{ $t('student.main.my-favorite') }}
-              </router-link>
-            </div>
-          </div>
-        </div> -->
+              <a slot="title">
+                <component
+                  :is="subItem.meta.svg"
+                  v-if="subItem.meta.svg"
+                ></component>
+                <a-icon class="nav-bar-icon" theme="filled" :type="subItem.meta.icon" v-if="subItem.meta.icon"/>
+                {{ $t(subItem.meta.title) }}
+              </a>
+              <a-menu-item
+                :key="sub.path"
+                :class="{
+                  'nav-bar-item': true,
+                  'nav-bar-item-split': true,
+                  'selected-nav-bar': selectedKey.includes(sub.path),
+                }"
+                v-for="(sub) in subItem.children"
+              >
+                <router-link :to="sub.path">
+                  {{ $t(sub.meta.title) }}
+                </router-link>
+              </a-menu-item>
+            </a-sub-menu>
+          </a-menu>
+        </div>
       </a-layout-sider>
       <a-layout-content class="main-content">
         <router-view />
@@ -100,7 +111,8 @@ export default {
     ...mapState({
       // 动态主路由
       mainMenu: state => state.permission.addRouters,
-      studyMode: state => state.app.studyMode
+      studyMode: state => state.app.studyMode,
+      user: state => state.user
     }),
     currentMenu() {
       const addRouters = this.mainMenu
@@ -113,7 +125,34 @@ export default {
             const Main = currentRouter.children.find(item => item.name === 'Main')
             // 根据自学习模式，还是学校模式进行type过滤
             if (Main && Main.children && Main.children.length > 0) {
-              return Main.children.filter(item => !item.meta.type || item.meta.type === this.studyMode)
+              // 动态路由需要额外生成并放入children中 TODO
+              const Final = Main.children.filter(item => !item.meta.type || item.meta.type === this.studyMode)
+              const Dynamcis = Final.filter(item => item.meta.dynamicKey)
+              Dynamcis.forEach(item => {
+                const routes = this.user[item.meta.dynamicKey] || [{
+                  id: '1',
+                  name: 'class1'
+                }, {
+                  id: '2',
+                  name: 'class2'
+                }, {
+                  id: '3',
+                  name: 'class3'
+                }]
+                const children = []
+                routes.forEach(route => {
+                  children.push({
+                    ...item,
+                    path: item.path.replace(/(:.*)$/, route.id),
+                    meta: {
+                      ...item.meta,
+                      title: route.name
+                    }
+                  })
+                })
+                item.children = children
+              })
+              return Final
             }
           }
         }
@@ -179,8 +218,9 @@ export default {
       background-image: url('~@/assets/icons/myContent/Rectangle@2x.png');
       background-repeat: repeat;
       background-size: cover;
-      margin: 0;
-      height: auto;
+      margin: 0!important;
+      height: 50px;
+      line-height: 50px;
 
       a {
         display: flex;
@@ -206,6 +246,11 @@ export default {
         width: 50px;
         margin: 0;
         color: #f35;
+      }
+      /deep/ .ant-menu-submenu-title {
+        margin: 0!important;
+        height: 50px;
+        line-height: 50px;
       }
     }
 

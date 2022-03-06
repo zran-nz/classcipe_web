@@ -202,8 +202,8 @@
               <a-card class="cover-card" >
                 <div class="mask"></div>
 
-                <div class="mask-actions" v-if="currentStatus !== 2">
-                  <div class="action-item action-item-top">
+                <div class="mask-actions">
+                  <div class="action-item action-item-top" v-if="currentStatus !== 2">
                     <a-dropdown>
                       <a-icon type="more" style="margin-right: 8px" class="more-icon" />
                       <a-menu slot="overlay">

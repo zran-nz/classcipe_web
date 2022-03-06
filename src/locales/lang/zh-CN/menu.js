@@ -13,6 +13,7 @@ export default {
     'menu.my-orders': '我的订单',
     'menu.my-task': '我的任务',
     'menu.my-schedule': '我的日历',
+    'menu.my-classes': '我的班级',
     'menu.my-subscribes': '我的订阅',
     'menu.dashboard': '仪表盘',
     'menu.dashboard.analysis': '分析页',
