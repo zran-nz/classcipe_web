@@ -1,7 +1,7 @@
 import storage from 'store'
 import {
   FORM_CONFIG_PREVIEW_DATA,
-  FORM_CONFIG_DATA
+  FORM_CONFIG_DATA, ACCESS_TOKEN
 } from '@/store/mutation-types'
 import { typeMap } from '@/const/teacher'
 import * as logger from '@/utils/logger'
@@ -78,9 +78,9 @@ const formConfig = {
     }
   },
   actions: {
-    loadFormConfigData ({ commit }) {
+    loadFormConfigData ({ commit }, token) {
       return new Promise((resolve, reject) => {
-        FormConfigUser().then(response => {
+        FormConfigUser({ token: token }).then(response => {
           logger.info('init formConfigData', response.result)
           commit(FORM_CONFIG_DATA, response.result)
           resolve()
