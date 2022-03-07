@@ -168,6 +168,7 @@ export default {
     },
 
     displayOptionListVisible () {
+      this.$logger.info('displayOptionListVisible show')
       this.showOptionList = true
     }
   }
