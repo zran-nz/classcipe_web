@@ -4219,14 +4219,17 @@ export default {
 
     handleSelectClass (classItem, eventData) {
       this.$logger.info('handleSelectClass', classItem, event)
-      classItem.classId = eventData.id
-      classItem.classType = eventData.classType
-      classItem.className = eventData.name
-      if (this.form.taskMode === 2) {
-        eventData.classId = eventData.id
-        eventData.className = eventData.name
-        this.quickSessionClassItem = eventData
-        this.$logger.info('handleSelectClass quickSessionClassItem', this.quickSessionClassItem)
+
+      if (eventData && eventData.classId) {
+        classItem.classId = eventData.id
+        classItem.classType = eventData.classType
+        classItem.className = eventData.name
+        if (this.form.taskMode === 2) {
+          eventData.classId = eventData.id
+          eventData.className = eventData.name
+          this.quickSessionClassItem = eventData
+          this.$logger.info('handleSelectClass quickSessionClassItem', this.quickSessionClassItem)
+        }
       }
     },
 
