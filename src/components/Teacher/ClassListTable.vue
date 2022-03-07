@@ -29,7 +29,7 @@
             </div>
           </span>
 
-          <span slot="className" slot-scope="text, record" class="flex-center">
+          <span slot="sessionName" slot-scope="text, record" class="flex-center">
             <div class="class-name">
               <a-input
                 ref="inputRef"
@@ -375,9 +375,9 @@ export default {
         },
         {
           title: 'Class',
-          dataIndex: 'taskClassName',
+          dataIndex: 'className',
           width: 200,
-          scopedSlots: { customRender: 'taskClassName' }
+          scopedSlots: { customRender: 'className' }
         },
         {
           title: 'Status',
@@ -387,9 +387,9 @@ export default {
         },
         {
           title: 'Session name',
-          dataIndex: 'className',
+          dataIndex: 'sessionName',
           width: 280,
-          scopedSlots: { customRender: 'className' }
+          scopedSlots: { customRender: 'sessionName' }
         },
         {
           title: '',
@@ -517,7 +517,7 @@ export default {
         this.createNewName = ''
         return
       }
-      this.editItem.className = this.createNewName
+      this.editItem.sessionName = this.createNewName
       AddOrUpdateClass(this.editItem).then(response => {
         this.editItem = {}
         this.createNewName = ''
