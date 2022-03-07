@@ -1,7 +1,7 @@
 <template>
-  <div class="new-tree-navigation">
+  <div class="new-tree-navigation" :data-display-menu='JSON.stringify(displayCategoryList)'>
     <new-tree-item
-      v-show="loaded"
+      v-show="loaded && displayCategoryList"
       :grade-list="gradeList"
       :tree-item-data="treeItemData"
       :tree-current-parent="null"
@@ -33,6 +33,9 @@
       :odd="index % 2 === 1"
       v-for="(treeItemData, index) in treeDataList"
       :key="index" />
+    <div class='no-display-category' v-show='loaded && displayCategoryList.length === 0'>
+      <no-more-resources tips='The data is not available, please contact your school admin to upload first.' />
+    </div>
     <div class="loading-spin">
       <a-spin v-show="!loaded" />
     </div>
@@ -48,6 +51,7 @@ import { SubjectType } from '@/const/common'
 import storage from 'store'
 import { GRADE_COMMON } from '@/store/mutation-types'
 import { GetGradesByCurriculumId } from '@/api/preference'
+import NoMoreResources from '@/components/Common/NoMoreResources'
 
 const { GetAllSdgs } = require('@/api/scenario')
 const { SubjectTree } = require('@/api/subject')
@@ -55,6 +59,7 @@ const { SubjectTree } = require('@/api/subject')
 export default {
   name: 'NewTreeNavigation',
   components: {
+    NoMoreResources,
     NewTreeItem
   },
   props: {
@@ -107,6 +112,17 @@ export default {
       this.subjectTree = []
       this.gradeList = []
       this.initData()
+    }
+  },
+  computed: {
+    displayCategoryList () {
+      const list = []
+      this.treeDataList.forEach(dataItem => {
+        if (this.showMenu.indexOf(dataItem.type) !== -1) {
+          list.push(dataItem.type)
+        }
+      })
+      return list
     }
   },
   created () {
@@ -408,6 +424,14 @@ export default {
   overflow: scroll;
   position: relative;
   min-height: 400px;
+
+  .no-display-category {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 80%;
+    margin: auto;
+  }
 }
 
 .loading-spin {
