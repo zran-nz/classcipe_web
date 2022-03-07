@@ -1,8 +1,21 @@
 <template>
   <div class='my-input-with-create' @click.stop=''>
-    <a-input class='my-input-with-create' v-model='displayValue' @focus='showOptionList = true' @click.native='showFilterOption = false' @input.native='inputChange'>
+    <a-input
+      class='my-input-with-create'
+      v-model='displayValue'
+      @focus='showOptionList = true'
+      @click.native='showFilterOption = true'
+      @change='showFilterOption = true'>
     </a-input>
     <div class='option-list' :style="{'max-height': optionListHeight + 'px'}" v-show='showOptionList && (displayOptionList.length || displayValue)' @click.stop=''>
+      <div class='create-item' v-show='!existValue && displayValue'>
+        <div class='create-item-tag' @click='createNew'>
+          Create <span class='create-text'>
+            {{ displayValue }}
+          </span>
+        </div>
+        <a-spin size='small' v-show='creating' class='creating-spin'/>
+      </div>
       <div class='option-item' v-for='(option, oIdx) in displayOptionList' :key='oIdx' @click='handleSelectItem(option)'>
         <div class='option-name'>
           {{ option.name }}
@@ -12,12 +25,6 @@
             {{ option.tagLabel }}
           </a-tag>
         </div>
-      </div>
-      <div class='create-item' v-show='displayOptionList.length === 0 && displayValue && displayValue.trim()'>
-        <div class='create-item-tag' @click='createNew'>
-          Create {{ displayValue }}
-        </div>
-        <a-spin size='small' v-show='creating' class='creating-spin'/>
       </div>
     </div>
   </div>
@@ -99,6 +106,13 @@ export default {
        } else {
          return this.myOptionList
        }
+    },
+    existValue () {
+      if (this.displayValue && this.displayValue.trim()) {
+        return this.myOptionList.find(option => option.name && option.name.trim() === this.displayValue.trim())
+      } else {
+        return false
+      }
     }
   },
   created() {
@@ -150,16 +164,6 @@ export default {
       if (!this.defaultSelectedId && !this.selectedId) {
         this.displayValue = ''
       }
-    },
-
-    inputChange () {
-      this.showFilterOption = true
-      const optionList = this.myOptionList.filter(option => option.name.indexOf(this.displayValue.trim()) !== -1)
-      if (optionList.length === 0) {
-        this.selectedId = null
-        this.$logger.info('inputChange')
-        this.$emit('selected', null)
-      }
     }
   }
 }
@@ -202,6 +206,8 @@ export default {
     font-size: 14px;
     padding: 0 10px;
     line-height: 40px;
+    width: 100%;
+    box-sizing: border-box;
     border-bottom: 1px solid #f6f6f6;
     display: flex;
     flex-direction: row;
@@ -231,7 +237,7 @@ export default {
   align-items: center;
   justify-content: flex-start;
   height: 40px;
-  padding: 0 10px;
+  border-bottom: 1px solid #f6f6f6;
   line-height: 40px;
 
   &:hover {
@@ -239,14 +245,20 @@ export default {
   }
 }
 .create-item-tag {
+  padding: 0 10px;
   user-select: none;
   line-height: 23px;
   display: inline-block;
-  padding: 0 10px;
-  border-radius: 5px;
   color: #15C39A;
-  font-size: 13px;
-  background: rgba(21, 195, 154, 0.2);
+  .create-text {
+    line-height: 23px;
+    display: inline-block;
+    padding: 0 10px;
+    border-radius: 5px;
+    color: #15C39A;
+    font-size: 13px;
+    background: rgba(21, 195, 154, 0.2);
+  }
 }
 
 .creating-spin {
