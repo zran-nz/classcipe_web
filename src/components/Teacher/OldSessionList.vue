@@ -120,7 +120,7 @@ export default {
         },
         {
           title: 'Class',
-          dataIndex: 'taskClassName',
+          dataIndex: 'className',
           width: '150px'
         },
         // {
