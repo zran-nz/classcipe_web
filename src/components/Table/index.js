@@ -161,8 +161,8 @@ export default {
           const totalCount = r.totalCount || r.total || 0
           const pageNo = r.pageNo || r.pages || 0
           this.localPagination = this.showPagination && Object.assign({}, this.localPagination, {
-            current: totalCount, // 返回结果中的当前分页数
-            total: pageNo, // 返回结果中的总记录数
+            current: pageNo, // 返回结果中的当前分页数
+            total: totalCount, // 返回结果中的总记录数
             showSizeChanger: this.showSizeChanger,
             pageSize: (pagination && pagination.pageSize) ||
               this.localPagination.pageSize

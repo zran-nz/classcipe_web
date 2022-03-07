@@ -3,7 +3,7 @@
     <div class="nav-left">
       <div class="nav-items menu-list">
         <a-menu mode="horizontal" theme="dark" :defaultSelectedKeys="defaultSelectedKeys" :selectedKeys="selectedKeys">
-          <a-menu-item key="/student/library-v2" v-show="studyMode === 'selfStudy'">
+          <a-menu-item key="/student/library-v2" v-show="studyMode === STUDY_MODE.SELF">
             <router-link to="/student/library-v2">
               <div class="nav-item">
                 <div class="nav-icon">
@@ -29,10 +29,10 @@
         @search="enterCode"
       />
       <div class="study-mode">
-        <label class="self-mode" :class="{active: studyMode === 'selfStudy'}" @click="handleChange('selfStudy')">Self-study</label>
-        <a-dropdown :class="{active: studyMode === 'schoolStudy', 'school-mode': true}">
+        <label class="self-mode" :class="{active: studyMode === STUDY_MODE.SELF}" @click="handleChange(STUDY_MODE.SELF)">Self-study</label>
+        <a-dropdown :class="{active: studyMode === STUDY_MODE.SCHOOL, 'school-mode': true}">
           <!-- <a-button style="margin-left: 8px"> {{ schoolName }} <a-icon type="down" /> </a-button> -->
-          <a class="ant-dropdown-link" @click="handleChange('schoolStudy')">
+          <a class="ant-dropdown-link" @click="handleChange(STUDY_MODE.SCHOOL)">
             {{ schoolName }} <a-icon type="down" />
           </a>
           <a-menu slot="overlay" @click="handleChangeSchool">
@@ -44,7 +44,7 @@
             </a-menu-item>
           </a-menu>
         </a-dropdown>
-        <!-- <a-select :value="school" class="school-mode" :class="{active: studyMode === 'schoolStudy'}" @focus="handleChange('schoolStudy')" @change="handleChangeSchool">
+        <!-- <a-select :value="school" class="school-mode" :class="{active: studyMode === STUDY_MODE.SCHOOL}" @focus="handleChange(STUDY_MODE.SCHOOL)" @change="handleChangeSchool">
           <a-select-option value="eastWest">
             East west study
           </a-select-option>
@@ -62,6 +62,7 @@ import SousuoIconSvg from '@/assets/icons/header/sousuo.svg?inline'
 import ManageIconSvg from '@/assets/icons/header/Managing_icon.svg?inline'
 import { TOOGLE_STUDY_MODE, ACCESS_TOKEN } from '@/store/mutation-types'
 import { lessonHost } from '@/const/googleSlide'
+import { STUDY_MODE } from '@/const/common'
 
 import { mapState, mapMutations } from 'vuex'
 import storage from 'store'
@@ -78,8 +79,9 @@ export default {
     return {
       defaultSelectedKeys: [],
       selectedKeys: [],
-      schoolName: 'eastWest',
-      code: ''
+      schoolName: 'East west study',
+      code: '',
+      STUDY_MODE: STUDY_MODE
     }
   },
   watch: {
@@ -87,7 +89,7 @@ export default {
       logger.debug('nav watch route path change ' + to)
       this.selectedKeys = [to]
       // 如果是学校模式，当前路由如果是library，则跳出到mytask
-      if (this.studyMode === 'schoolStudy' && to === '/student/library-v2') {
+      if (this.studyMode === STUDY_MODE.SCHOOL && to === '/student/library-v2') {
         this.$router.push({ path: '/student/main/my-task' })
       }
     }
@@ -105,12 +107,12 @@ export default {
     handleChange(val) {
       this[TOOGLE_STUDY_MODE](val)
       // 如果是学校模式，当前路由如果是library，则跳出到mytask
-      if (val === 'schoolStudy' && this.$route.name === 'StudentLibraryV2') {
+      if (val === STUDY_MODE.SCHOOL && this.$route.name === 'StudentLibraryV2') {
         this.$router.push({ path: '/student/main/my-task' })
       }
     },
     handleChangeSchool(val) {
-      this[TOOGLE_STUDY_MODE]('schoolStudy')
+      this[TOOGLE_STUDY_MODE](STUDY_MODE.SCHOOL)
       this.schoolName = val.key
       console.log(val)
     },

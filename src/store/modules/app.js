@@ -19,6 +19,7 @@ import {
 import { loadLanguageAsync } from '@/locales'
 import { getSysConfig } from '@/api/common'
 import * as logger from '@/utils/logger'
+import { STUDY_MODE } from '@/const/common'
 
 const app = {
   state: {
@@ -37,7 +38,7 @@ const app = {
     _antLocale: {},
     sysConfig: null,
     downloadUrl: '',
-    studyMode: 'selfStudy' // selfStudy: 自学习模式，schoolStudy：学校模式
+    studyMode: STUDY_MODE.SELF // selfStudy: 自学习模式，schoolStudy：学校模式
   },
   mutations: {
     [SIDEBAR_TYPE]: (state, type) => {

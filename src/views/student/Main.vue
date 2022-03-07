@@ -9,57 +9,57 @@
             :open-keys.sync="openKeys"
             mode="inline"
           >
-            <a-menu-item
-              :key="item.path"
-              :class="{
-                'nav-bar-item': true,
-                'nav-bar-item-split': true,
-                'selected-nav-bar': selectedKey.includes(item.path),
-              }"
-              v-for="item in currentMenu"
-              v-if="!item.children || item.children.length === 0"
-            >
-              <router-link :to="item.path">
-                <component
-                  :is="item.meta.svg"
-                  v-if="item.meta.svg"
-                ></component>
-                <a-icon class="nav-bar-icon" theme="filled" :type="item.meta.icon" v-if="item.meta.icon"/>
-                {{ $t(item.meta.title) }}
-              </router-link>
-            </a-menu-item>
-            <a-sub-menu
-              v-for="subItem in currentMenu"
-              :key="subItem.path"
-              :class="{
-                'nav-bar-item': true,
-                'nav-bar-item-split': true,
-                'selected-nav-bar': selectedKey.includes(subItem.path),
-              }"
-              v-if="subItem.children && subItem.children.length > 0"
-            >
-              <a slot="title">
-                <component
-                  :is="subItem.meta.svg"
-                  v-if="subItem.meta.svg"
-                ></component>
-                <a-icon class="nav-bar-icon" theme="filled" :type="subItem.meta.icon" v-if="subItem.meta.icon"/>
-                {{ $t(subItem.meta.title) }}
-              </a>
+            <template v-for="item in currentMenu">
               <a-menu-item
-                :key="sub.path"
+                :key="item.path"
                 :class="{
                   'nav-bar-item': true,
                   'nav-bar-item-split': true,
-                  'selected-nav-bar': selectedKey.includes(sub.path),
+                  'selected-nav-bar': selectedKey.includes(item.path),
                 }"
-                v-for="(sub) in subItem.children"
+                v-if="!item.children || item.children.length === 0"
               >
-                <router-link :to="sub.path">
-                  {{ $t(sub.meta.title) }}
+                <router-link :to="item.path">
+                  <component
+                    :is="item.meta.svg"
+                    v-if="item.meta.svg"
+                  ></component>
+                  <a-icon class="nav-bar-icon" theme="filled" :type="item.meta.icon" v-if="item.meta.icon"/>
+                  {{ $t(item.meta.title) }}
                 </router-link>
               </a-menu-item>
-            </a-sub-menu>
+              <a-sub-menu
+                :key="item.path"
+                :class="{
+                  'nav-bar-item': true,
+                  'nav-bar-item-split': true,
+                  'selected-nav-bar': selectedKey.includes(item.path),
+                }"
+                v-else
+              >
+                <a slot="title">
+                  <component
+                    :is="item.meta.svg"
+                    v-if="item.meta.svg"
+                  ></component>
+                  <a-icon class="nav-bar-icon" theme="filled" :type="item.meta.icon" v-if="item.meta.icon"/>
+                  {{ $t(item.meta.title) }}
+                </a>
+                <a-menu-item
+                  :key="sub.path"
+                  :class="{
+                    'nav-bar-item': true,
+                    'nav-bar-item-split': true,
+                    'selected-nav-bar': selectedKey.includes(sub.path),
+                  }"
+                  v-for="(sub) in item.children"
+                >
+                  <router-link :to="sub.path">
+                    {{ $t(sub.meta.title) }}
+                  </router-link>
+                </a-menu-item>
+              </a-sub-menu>
+            </template>
           </a-menu>
         </div>
       </a-layout-sider>

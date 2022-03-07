@@ -135,6 +135,10 @@ export const CustomTagType = {
 
 export const StudentStudyTaskStatus = [
   {
+    value: 3,
+    title: 'Scheduled'
+  },
+  {
     value: 0,
     title: 'On-going'
   },
@@ -170,4 +174,16 @@ export const AllCurriculums = {
   Cambridge: '8',
   IBPYP: '4',
   IBMYP: '5'
+}
+
+export const STUDY_MODE = {
+  SELF: 'selfStudy',
+  SCHOOL: 'schoolStudy'
+}
+
+export const TASK_STATUS = {
+  SCHEDULED: 3,
+  ONGOING: 0,
+  COMPLETED: 1,
+  ARCHIVED: 2
 }

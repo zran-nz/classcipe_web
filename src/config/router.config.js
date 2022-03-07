@@ -1,6 +1,7 @@
 // eslint-disable-next-line
 import { UserLayout, BasicLayout, BlankLayout } from '@/layouts'
 import { bxAnaalyse } from '@/core/icons'
+import { STUDY_MODE } from '@/const/common'
 
 const RouteView = {
   name: 'RouteView',
@@ -363,25 +364,25 @@ export const asyncRouterMap = [
                 path: '/student/main/my-favorite',
                 name: 'MyFavorite',
                 component: () => import('@/views/student/MyFavorite'),
-                meta: { title: 'menu.my-favorite', keepAlive: true, permission: ['student'], svg: 'MyFavoriteSvg', type: 'selfStudy' }
+                meta: { title: 'menu.my-favorite', keepAlive: true, permission: ['student'], svg: 'MyFavoriteSvg', type: STUDY_MODE.SELF }
               },
               {
                 path: '/student/main/my-orders',
                 name: 'MyOrders',
                 component: () => import('@/views/student/MyOrders'),
-                meta: { title: 'menu.my-orders', keepAlive: true, permission: ['student'], icon: 'account-book', type: 'selfStudy' }
+                meta: { title: 'menu.my-orders', keepAlive: true, permission: ['student'], icon: 'account-book', type: STUDY_MODE.SELF }
               },
               {
                 path: '/student/main/my-schedule',
                 name: 'MySchedule',
                 component: () => import('@/views/student/MySchedule'),
-                meta: { title: 'menu.my-schedule', keepAlive: true, permission: ['student'], icon: 'schedule', type: 'schoolStudy' }
+                meta: { title: 'menu.my-schedule', keepAlive: true, permission: ['student'], icon: 'schedule', type: STUDY_MODE.SCHOOL }
               },
               {
                 path: '/student/main/my-classes/:classId',
                 name: 'MyClasses',
                 component: () => import('@/views/student/MyClasses'),
-                meta: { title: 'menu.my-classes', keepAlive: true, permission: ['student'], icon: 'contacts', type: 'schoolStudy', dynamicKey: 'classes' }
+                meta: { title: 'menu.my-classes', keepAlive: true, permission: ['student'], icon: 'contacts', type: STUDY_MODE.SCHOOL, dynamicKey: 'classes' }
               }
             ]
           },
@@ -389,7 +390,7 @@ export const asyncRouterMap = [
             path: '/student/library-v2/:browserType?/',
             name: 'StudentLibraryV2',
             component: () => import('@/views/student/LibraryV2'),
-            meta: { title: 'menu.library', keepAlive: true, permission: ['student'], fullLayout: true }
+            meta: { title: 'menu.library', keepAlive: true, permission: ['student'], fullLayout: true, type: STUDY_MODE.SELF }
           },
           {
             path: '/student/evaluation/:classId',
