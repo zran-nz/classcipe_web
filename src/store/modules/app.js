@@ -13,11 +13,13 @@ import {
   TOGGLE_MOBILE_TYPE,
   TOGGLE_MULTI_TAB,
   TOGGLE_NAV_THEME,
-  TOGGLE_WEAK
+  TOGGLE_WEAK,
+  TOOGLE_STUDY_MODE
 } from '@/store/mutation-types'
 import { loadLanguageAsync } from '@/locales'
 import { getSysConfig } from '@/api/common'
 import * as logger from '@/utils/logger'
+import { STUDY_MODE } from '@/const/common'
 
 const app = {
   state: {
@@ -35,7 +37,8 @@ const app = {
     lang: 'en-US',
     _antLocale: {},
     sysConfig: null,
-    downloadUrl: ''
+    downloadUrl: '',
+    studyMode: STUDY_MODE.SELF // selfStudy: 自学习模式，schoolStudy：学校模式
   },
   mutations: {
     [SIDEBAR_TYPE]: (state, type) => {
@@ -91,6 +94,10 @@ const app = {
     },
     [DOWNLOAD_URL]: (state, downloadUrl) => {
       state.downloadUrl = downloadUrl
+    },
+    [TOOGLE_STUDY_MODE]: (state, studyMode) => {
+      state.studyMode = studyMode
+      storage.set(TOOGLE_STUDY_MODE, studyMode)
     }
   },
   actions: {

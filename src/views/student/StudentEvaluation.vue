@@ -1411,15 +1411,15 @@ export default {
           &::-webkit-scrollbar-track {
             border-radius: 3px;
             background: rgba(0, 0, 0, 0.01);
-            -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.01);
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.01);
           }
 
           /* 滚动条滑块 */
 
           &::-webkit-scrollbar-thumb {
             border-radius: 5px;
-            background: rgba(0, 0, 0, 0.12);
-            -webkit-box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.01);
+            background: rgba(0, 0, 0, 0.06);
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.01);
           }
 
           .group-item {
@@ -1476,8 +1476,6 @@ export default {
                 }
               }
 
-              .group-right {
-              }
             }
 
             .group-student-list {
@@ -1759,10 +1757,6 @@ export default {
       opacity: 1;
     }
   }
-}
-
-.my-title-input {
-
 }
 
 .ant-dropdown-menu-item {

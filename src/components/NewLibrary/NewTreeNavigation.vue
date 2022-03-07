@@ -256,7 +256,9 @@ export default {
             }
           })
           // skill放第一位
-          this.treeDataList.unshift(specificSkillsData)
+          if (!this.$store.getters.hiddenIbCurriculumId) {
+            this.treeDataList.unshift(specificSkillsData)
+          }
 
           // IB大纲4、5
           if (parseInt(this.defaultCurriculumId) === 4 || parseInt(this.defaultCurriculumId) === 5) {
@@ -279,7 +281,9 @@ export default {
               iduData.gradeList.push(JSON.parse(JSON.stringify(gradeItem)))
               iduData.children.push(JSON.parse(JSON.stringify(gradeItem)))
             })
-            this.treeDataList.push(iduData)
+            if (!this.$store.getters.hiddenIbCurriculumId) {
+              this.treeDataList.push(iduData)
+            }
           }
 
           // 隐藏assessmentType

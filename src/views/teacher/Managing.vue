@@ -19,6 +19,8 @@
           <a-sub-menu>
             <span slot="title"><a-icon type="schedule" /><span>Academics</span></span>
             <a-menu-item key="/teacher/managing/term"> Academics Terms </a-menu-item>
+            <a-menu-item key="/teacher/managing/planning-format">  Planning format </a-menu-item>
+            <a-menu-item key="/teacher/managing/tag-settings">  Tags </a-menu-item>
           </a-sub-menu>
           <a-menu-item key="/teacher/managing" v-if="$store.getters.bindCurriculum === curriculumType.IBMYP">
             <a-icon type="cloud-upload" />

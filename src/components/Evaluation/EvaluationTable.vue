@@ -196,8 +196,11 @@
                   <template v-else>
                     <div class='data-item criteria-data' @dblclick.stop='handleAddCriteria(header, item, $event)'>
                       <div class='criteria-name'>
-                        {{ item[headerType.Criteria].name }}
+                        {{ item[headerType.Criteria].userInputText ? item[headerType.Criteria].userInputText : item[headerType.Criteria].name }}
                       </div>
+                      <span class='edit-description' @click.stop='handleClickEnterCriteria(header, item)' v-if='mode === tableMode.Edit'>
+                        Please enter explanation for students to understand
+                      </span>
                     </div>
                   </template>
                 </template>
@@ -271,10 +274,9 @@
                         </div>
                         <div class='criteria-right-description'>
                           <div class='description-name'>
-                            {{ item[headerType.Description].userInputText ? item[headerType.Description].userInputText : item[headerType.Description].name
-                            }}
+                            {{ item[headerType.Description].userInputText ? item[headerType.Description].userInputText : item[headerType.Description].name }}
                           </div>
-                          <span class='edit-description' @click.stop='handleClickEnterCriteriaDescription(header, item)' v-if='mode === tableMode.Edit'>
+                          <span class='edit-description' @click.stop='handleClickEnterCriteriaDescription(header, item)' v-if='mode === tableMode.Edit && !($store.getters.bindCurriculum === AllCurriculums.AU || $store.getters.bindCurriculum === AllCurriculums.NZ)'>
                             Please enter explanation for students to understand
                           </span>
                         </div>
@@ -668,6 +670,9 @@
           <div class='old-description' v-if='currentEnterDescriptionLine'>
             {{ currentEnterDescriptionLine[headerType.Description].name }}
           </div>
+          <div class='old-description' v-if='currentEnterCriteriaLine'>
+            {{ currentEnterCriteriaLine[headerType.Criteria].name }}
+          </div>
         </div>
         <div class='description-input'>
           <a-textarea
@@ -702,6 +707,7 @@
 
 import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
 import { SelectModel } from '@/components/NewLibrary/SelectModel'
+import { AllCurriculums } from '@/const/common'
 import draggable from 'vuedraggable'
 import NewBrowser from '@/components/NewLibrary/NewBrowser'
 import { NavigationType } from '@/components/NewLibrary/NavigationType'
@@ -799,11 +805,14 @@ export default {
       inputDescriptionVisible: false,
       inputDescription: null,
       currentEnterDescriptionLine: null,
+      currentEnterCriteriaLine: null,
 
       disabledDraggable: false,
 
       selected21CenturyItem: null,
-      has21CenturySkillNoDescriptionItem: false // 是否有选择21世纪技能非描述的项目
+      has21CenturySkillNoDescriptionItem: false, // 是否有选择21世纪技能非描述的项目
+
+      AllCurriculums: AllCurriculums
     }
   },
   watch: {
@@ -1715,12 +1724,29 @@ export default {
       }
     },
 
+    handleClickEnterCriteria(header, item) {
+      this.$logger.info('[' + this.mode + '] handleClickEnterCriteria', header, item)
+      if (this.mode === EvaluationTableMode.Edit) {
+        this.inputDescription = item[this.headerType.Criteria].userInputText
+        this.currentEnterCriteriaLine = item
+        this.inputDescriptionVisible = true
+      }
+    },
+
     handleEnsureDescription() {
       this.$logger.info('[' + this.mode + '] handleEnsureDescription ' + this.inputDescription)
-      this.currentEnterDescriptionLine[this.headerType.Description].userInputText = this.inputDescription
+
+      if (this.currentEnterDescriptionLine) {
+        this.currentEnterDescriptionLine[this.headerType.Description].userInputText = this.inputDescription
+      }
+
+      if (this.currentEnterCriteriaLine) {
+        this.currentEnterCriteriaLine[this.headerType.Criteria].userInputText = this.inputDescription
+      }
       if (this.mode === EvaluationTableMode.Edit) {
         this.inputDescriptionVisible = false
         this.currentEnterDescriptionLine = null
+        this.currentEnterCriteriaLine = null
         this.inputDescription = null
       }
     },
@@ -1728,6 +1754,7 @@ export default {
     handleCancelDescription() {
       this.$logger.info('[' + this.mode + '] handleEnsureDescription ' + this.inputDescription)
       this.currentEnterDescriptionLine = null
+      this.currentEnterCriteriaLine = null
       this.inputDescription = null
       this.inputDescriptionVisible = false
     },
@@ -2173,6 +2200,21 @@ export default {
                 margin-top: 5px;
               }
             }
+
+            .edit-description {
+              margin: 5px 0;
+              text-align: center;
+              display: inline-block;
+              font-size: 12px;
+              background: #E7E7E7;
+              opacity: 1;
+              border-radius: 4px;
+              padding: 3px;
+              font-family: Inter-Bold;
+              line-height: 20px;
+              color: #989898;
+              opacity: 1;
+            }
           }
 
           .description-input {
@@ -2397,7 +2439,7 @@ export default {
       font-weight: 600;
       color: #070707;
       opacity: 1;
-      word-break: break-all;
+      word-break: normal;
     }
 
     margin-bottom: 15px;

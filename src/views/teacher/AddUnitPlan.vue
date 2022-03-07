@@ -33,356 +33,422 @@
                     <template slot='description'>
                       <div class='step-detail' v-show='currentActiveStepIndex === 0' >
 
-                        <div class='form-block'>
-                          <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Name />
-                          <comment-switch
-                            v-show="this.canEdit"
-                            :is-active="currentFieldName === planField.Name"
-                            :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Name}"
-                            :field-name=planField.Name
-                            @switch='handleSwitchComment'/>
-                          <a-form-item label='Unit Name'>
-                            <a-input v-model='form.name' class='my-form-input' placeholder='Enter Unit Name' @change="handleCollaborateEvent(unitPlanId,planField.Name,form.name)" />
-                          </a-form-item>
-                        </div>
+                        <template v-for='fieldItem in $store.getters.formConfigData.planCommonList'>
+                          <div class='form-block' v-if='fieldItem.visible && fieldItem.fieldName === planField.Name' :key='fieldItem.fieldName'>
+                            <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Name />
+                            <comment-switch
+                              v-show="canEdit"
+                              :is-active="currentFieldName === planField.Name"
+                              :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Name}"
+                              :field-name=planField.Name
+                              @switch='handleSwitchComment'/>
+                            <a-form-item>
+                              <template class='my-label' slot='label'>
+                                {{ 'Unit Name' | unitLabelName(planField.Name, $store.getters.formConfigData) }}
+                                <a-tooltip :title="'Unit Name' | unitLabelHint(planField.Name, $store.getters.formConfigData)" placement='top'>
+                                  <a-icon type="info-circle" />
+                                </a-tooltip>
+                              </template>
+                              <a-input v-model='form.name' class='my-form-input' placeholder='Enter Unit Name' @change="handleCollaborateEvent(unitPlanId,planField.Name,form.name)" />
+                            </a-form-item>
+                          </div>
 
-                        <div class='form-block form-radio-wrapper'>
-                          <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.ProjectBased style="top:-30px" />
-                          <comment-switch
-                            v-show="this.canEdit"
-                            :field-name='planField.ProjectBased'
-                            :is-active="currentFieldName === planField.ProjectBased"
-                            @switch='handleSwitchComment'
-                            :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.ProjectBased}"
-                          />
-                          <a-form-item label='Project-based Unit' style='display:flex'>
-                            <a-radio-group name='radioGroup' v-model='form.projectBased' style='margin-left:20px;' @change="handleCollaborateEvent(unitPlanId,planField.ProjectBased,form.projectBased)" >
-                              <a-radio :value='1'>
-                                Yes
-                              </a-radio>
-                              <a-radio :value='0'>
-                                No
-                              </a-radio>
-                            </a-radio-group>
-                          </a-form-item>
-                        </div>
-
-                        <div class='form-block form-radio-wrapper'>
-                          <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.UnitType style="top:-30px"/>
-                          <comment-switch
-                            v-show="this.canEdit"
-                            :field-name=planField.UnitType
-                            :is-active="currentFieldName === planField.UnitType"
-                            @switch='handleSwitchComment'
-                            :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.UnitType}" />
-                          <a-form-item label='Unit type' style='display:flex'>
-                            <a-radio-group name='unitType' v-model='form.unitType' style='margin-left:20px;' @change="handleCollaborateEvent(unitPlanId,planField.UnitType,form.unitType)" >
-                              <a-radio :value='0'>
-                                Single-subject Unit
-                              </a-radio>
-                              <a-radio :value='1'>
-                                Integrated Unit
-                              </a-radio>
-                            </a-radio-group>
-                          </a-form-item>
-                        </div>
-
-                        <div class='form-block grade-time'>
-                          <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.StartDate />
-                          <comment-switch
-                            v-show="this.canEdit"
-                            :field-name=planField.StartDate
-                            :is-active="currentFieldName === planField.StartDate"
-                            @switch='handleSwitchComment'
-                            :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.StartDate}" />
-                          <a-form-item label='Grade level' style='width:26%;margin-bottom: 0px;'>
-                            <a-select
-                              :getPopupContainer="trigger => trigger.parentElement"
-                              v-model='form.gradeId'
-                              class='my-big-select'
-                              placeholder='Select a grade'
-                              size='large'>
-                              <a-select-option v-for='(grade,index) in gradeList' :key='index' :value='grade.id'>
-                                {{ grade.name }}
-                              </a-select-option>
-                            </a-select>
-                          </a-form-item>
-                          <a-form-item
-                            class='range-time'
-                            label='Start Date'
-                            style='width:70%;margin-bottom: 0px;position:relative'>
-                            <div v-if='getWeek' class='week-time'>
-                              <a-tag color='cyan' style='border-radius: 10px;font-size: 14px;'>
-                                {{ getWeek }}
-                              </a-tag>
-                            </div>
-                            <a-range-picker
-                              @openChange="handleCollaborateEvent(unitPlanId,planField.StartDate,form.startDate)"
-                              v-model='rangeDate'
-                              :show-time="{ format: 'HH:mm' }"
-                              format='LLL'
-                              size='large'
-                              style='width:100%'>
-                              <a-icon slot='suffixIcon' type='calendar' />
-                            </a-range-picker>
-                          </a-form-item>
-                        </div>
-
-                        <div id='inquiry' class='form-block inquiry-form-block'>
-                          <collaborate-tooltip :form-id="unitPlanId" :field-name=planField.Inquiry />
-                          <comment-switch
-                            v-show="this.canEdit"
-                            :is-active="currentFieldName === planField.Inquiry"
-                            :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Inquiry}"
-                            :field-name=planField.Inquiry
-                            @switch='handleSwitchComment' />
-                          <!--                <a-divider />-->
-                          <a-form-item class='bigIdea' label='Big Idea/ Statement of Inquiry/ Central Idea'>
-                            <a-textarea
-                              v-model='form.inquiry'
-                              :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')"
-                              auto-size
-                              class='my-form-textarea inquiry'
-                              @change="handleCollaborateEvent(unitPlanId,planField.Inquiry,form.inquiry)"
+                          <div class='form-block form-radio-wrapper' v-if='fieldItem.visible && fieldItem.fieldName === planField.ProjectBased' :key='fieldItem.fieldName'>
+                            <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.ProjectBased style="top:-30px" />
+                            <comment-switch
+                              v-show="canEdit"
+                              :field-name='planField.ProjectBased'
+                              :is-active="currentFieldName === planField.ProjectBased"
+                              @switch='handleSwitchComment'
+                              :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.ProjectBased}"
                             />
-                          </a-form-item>
-                          <a-tooltip title='Browse' @click.stop='selectBigIdeaDataVisible=true'>
-                            <span class='browse'>
-                              <a-icon theme='twoTone' twoToneColor='rgba(21, 195, 154, 1)' type='appstore' />
-                            </span>
-                          </a-tooltip>
-                        </div>
+                            <a-form-item style='display:flex'>
+                              <template class='my-label' slot='label'>
+                                {{ 'Project-based Unit' | unitLabelName(planField.ProjectBased, $store.getters.formConfigData) }}
+                                <a-tooltip :title="'Project-based Unit' | unitLabelHint(planField.ProjectBased, $store.getters.formConfigData)" placement='top'>
+                                  <a-icon type="info-circle" />
+                                </a-tooltip>
+                              </template>
+                              <a-radio-group name='radioGroup' v-model='form.projectBased' style='margin-left:20px;' @change="handleCollaborateEvent(unitPlanId,planField.ProjectBased,form.projectBased)" >
+                                <a-radio :value='1'>
+                                  Yes
+                                </a-radio>
+                                <a-radio :value='0'>
+                                  No
+                                </a-radio>
+                              </a-radio-group>
+                            </a-form-item>
+                          </div>
 
-                        <!--            real-life-scenario-->
-                        <div class='form-block '>
-                          <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Sdg />
-                          <comment-switch
-                            v-show="this.canEdit"
-                            :is-active="currentFieldName === planField.Sdg"
-                            :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Sdg}"
-                            :field-name=planField.Sdg
-                            style='top:40px'
-                            @switch='handleSwitchComment' />
-                          <a-divider>Teaching goals</a-divider>
-                          <a-row>
-                            <a-col span='24'>
-                              <div class='form-block-title'>
-                                UN Sustainable Development Goal(s)
+                          <div class='form-block form-radio-wrapper' v-if='fieldItem.visible && fieldItem.fieldName === planField.UnitType' :key='fieldItem.fieldName'>
+                            <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.UnitType style="top:-30px"/>
+                            <comment-switch
+                              v-show="canEdit"
+                              :field-name=planField.UnitType
+                              :is-active="currentFieldName === planField.UnitType"
+                              @switch='handleSwitchComment'
+                              :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.UnitType}" />
+                            <a-form-item style='display:flex'>
+                              <template class='my-label' slot='label'>
+                                {{ 'Unit type' | unitLabelName(planField.UnitType, $store.getters.formConfigData) }}
+                                <a-tooltip :title="'Unit type' | unitLabelHint(planField.UnitType, $store.getters.formConfigData)" placement='top'>
+                                  <a-icon type="info-circle" />
+                                </a-tooltip>
+                              </template>
+                              <a-radio-group name='unitType' v-model='form.unitType' style='margin-left:20px;' @change="handleCollaborateEvent(unitPlanId,planField.UnitType,form.unitType)" >
+                                <a-radio :value='0'>
+                                  Single-subject Unit
+                                </a-radio>
+                                <a-radio :value='1'>
+                                  Integrated Unit
+                                </a-radio>
+                              </a-radio-group>
+                            </a-form-item>
+                          </div>
+
+                          <div class='form-block grade-time' v-if="fieldItem.visible && fieldItem.fieldName === planField.GradeId" :key='fieldItem.fieldName'>
+                            <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.StartDate />
+                            <comment-switch
+                              v-show="canEdit"
+                              :field-name=planField.StartDate
+                              :is-active="currentFieldName === planField.StartDate"
+                              @switch='handleSwitchComment'
+                              :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.StartDate}" />
+                            <a-form-item style='width:26%;margin-bottom: 0px;'>
+                              <template class='my-label' slot='label'>
+                                {{ 'Grade level' | unitLabelName(planField.GradeId, $store.getters.formConfigData) }}
+                                <a-tooltip :title="'Grade level' | unitLabelHint(planField.GradeId, $store.getters.formConfigData)" placement='top'>
+                                  <a-icon type="info-circle" />
+                                </a-tooltip>
+                              </template>
+                              <a-select
+                                :getPopupContainer="trigger => trigger.parentElement"
+                                v-model='form.gradeId'
+                                class='my-big-select'
+                                placeholder='Select a grade'
+                                size='large'>
+                                <a-select-option v-for='(grade,index) in gradeList' :key='index' :value='grade.id'>
+                                  {{ grade.name }}
+                                </a-select-option>
+                              </a-select>
+                            </a-form-item>
+                            <a-form-item
+                              class='range-time'
+                              label='Start Date'
+                              style='width:70%;margin-bottom: 0px;position:relative'>
+                              <div v-if='getWeek' class='week-time'>
+                                <a-tag color='cyan' style='border-radius: 10px;font-size: 14px;'>
+                                  {{ getWeek }}
+                                </a-tag>
                               </div>
-                            </a-col>
-                          </a-row>
-                          <!--sdg and KeyWords-->
+                              <a-range-picker
+                                @openChange="handleCollaborateEvent(unitPlanId,planField.StartDate,form.startDate)"
+                                v-model='rangeDate'
+                                :show-time="{ format: 'HH:mm' }"
+                                format='LLL'
+                                size='large'
+                                style='width:100%'>
+                                <a-icon slot='suffixIcon' type='calendar' />
+                              </a-range-picker>
+                            </a-form-item>
+                          </div>
+
+                          <div id='inquiry' class='form-block inquiry-form-block' v-if="fieldItem.visible && fieldItem.fieldName === planField.Inquiry" :key='fieldItem.fieldName'>
+                            <collaborate-tooltip :form-id="unitPlanId" :field-name=planField.Inquiry />
+                            <comment-switch
+                              v-show="canEdit"
+                              :is-active="currentFieldName === planField.Inquiry"
+                              :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Inquiry}"
+                              :field-name=planField.Inquiry
+                              @switch='handleSwitchComment' />
+                            <!--                <a-divider />-->
+                            <a-form-item class='bigIdea'>
+                              <template class='my-label' slot='label'>
+                                {{ 'Big Idea/ Statement of Inquiry/ Central Idea' | unitLabelName(planField.Inquiry, $store.getters.formConfigData) }}
+                                <a-tooltip :title="'Big Idea/ Statement of Inquiry/ Central Idea' | unitLabelHint(planField.Inquiry, $store.getters.formConfigData)" placement='top'>
+                                  <a-icon type="info-circle" />
+                                </a-tooltip>
+                              </template>
+                              <a-textarea
+                                v-model='form.inquiry'
+                                :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')"
+                                auto-size
+                                class='my-form-textarea inquiry'
+                                @change="handleCollaborateEvent(unitPlanId,planField.Inquiry,form.inquiry)"
+                              />
+                            </a-form-item>
+                            <a-tooltip title='Browse' @click.stop='selectBigIdeaDataVisible=true'>
+                              <span class='browse'>
+                                <a-icon theme='twoTone' twoToneColor='rgba(21, 195, 154, 1)' type='appstore' />
+                              </span>
+                            </a-tooltip>
+                          </div>
+
+                          <div class='form-block' v-if="fieldItem.visible && fieldItem.fieldName === planField.Scenarios" :key='fieldItem.fieldName'>
+                            <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Sdg />
+                            <comment-switch
+                              v-show="canEdit"
+                              :is-active="currentFieldName === planField.Sdg"
+                              :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Sdg}"
+                              :field-name=planField.Sdg
+                              style='top:40px'
+                              @switch='handleSwitchComment' />
+                            <a-divider>Teaching goals</a-divider>
+                            <a-row>
+                              <a-col span='24'>
+                                <div class='form-block-title'>
+                                  {{ 'UN Sustainable Development Goal(s)' | unitLabelName(planField.Scenarios, $store.getters.formConfigData) }}
+                                  <a-tooltip :title="'UN Sustainable Development Goal(s)' | unitLabelHint(planField.Scenarios, $store.getters.formConfigData)" placement='top'>
+                                    <a-icon type="info-circle" />
+                                  </a-tooltip>
+                                </div>
+                              </a-col>
+                            </a-row>
+                            <!--sdg and KeyWords-->
+                            <div
+                              v-for='(scenario, sdgIndex) in form.scenarios'
+                              id='sdg'
+                              :key='sdgIndex'
+                              class='sdg-content-blocks sdg-form-block'
+                            >
+                              <!--description-->
+                              <div class='scenario-description'>
+                                <div
+                                  v-show='form.scenarios.length > 1'
+                                  class='sdg-delete-wrapper'
+                                  @click='handleDeleteSdg(sdgIndex)'>
+                                  <a-tooltip placement='top'>
+                                    <template slot='title'>
+                                      <span>{{ $t('teacher.add-unit-plan.delete-goal') }}</span>
+                                    </template>
+                                    <div class='sdg-delete'>
+                                      <a-icon :style="{ fontSize: '20px' }" type='delete' />
+                                    </div>
+                                  </a-tooltip>
+                                </div>
+                                <!--sdg-->
+                                <a-form-model-item>
+                                  <a-select
+                                    :getPopupContainer="trigger => trigger.parentElement"
+                                    v-model='scenario.sdgId'
+                                    @change="handleCollaborateEvent(unitPlanId,planField.Sdg,form.sdg)"
+                                    class='my-big-select'
+                                    placeholder='Select a goal from UN'
+                                    size='large'>
+                                    <a-select-option
+                                      v-for='(sdg,index) in sdgList'
+                                      :key='index'
+                                      :disabled='selectedSdg.indexOf(sdg.id) != -1'
+                                      :value='sdg.id'>
+                                      {{ sdg.name }}
+                                    </a-select-option>
+                                  </a-select>
+                                </a-form-model-item>
+
+                                <a-form-model-item>
+                                  <input-search
+                                    ref='descriptionInputSearch'
+                                    :currend-index='currentIndex'
+                                    :default-value='scenario.description'
+                                    :key-index='sdgIndex'
+                                    :search-list='descriptionSearchList'
+                                    label='description'
+                                    @reset='descriptionSearchList = []'
+                                    @search='handleDescriptionSearch'
+                                    @select-item='handleSelectScenario'
+                                    @change="handleCollaborateEvent(unitPlanId,planField.Sdg,form.sdg)"
+                                  />
+                                </a-form-model-item>
+
+                              </div>
+
+                            </div>
+                            <a-button
+                              class='add-button'
+                              icon='plus-circle'
+                              size='large'
+                              style='top:-20px'
+                              type='link'
+                              @click='handleAddMoreSdg'></a-button>
+                          </div>
+
+                          <div class='form-block form-block-rwc' v-if="fieldItem.visible && fieldItem.fieldName === planField.Rwc" :key='fieldItem.fieldName'>
+                            <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Rwc />
+                            <a-form-model-item>
+                              <template class='my-label' slot='label'>
+                                {{ 'Real World Connection(s)' | unitLabelName(planField.Rwc, $store.getters.formConfigData) }}
+                                <a-tooltip :title="'Real World Connection(s)' | unitLabelHint(planField.Rwc, $store.getters.formConfigData)" placement='top'>
+                                  <a-icon type="info-circle" />
+                                </a-tooltip>
+                              </template>
+                              <a-select
+                                :getPopupContainer="trigger => trigger.parentElement"
+                                size='large'
+                                v-model='form.rwc'
+                                placeholder='Choose real world connection'
+                                @change="handleCollaborateEvent(unitPlanId,planField.Rwc,form.rwc)">
+                                <a-select-option :value='item.id' v-for='(item, index) in rwcList' :key='index'>
+                                  {{ item.name }}
+                                </a-select-option>
+                              </a-select>
+                            </a-form-model-item>
+                          </div>
+
                           <div
-                            v-for='(scenario, sdgIndex) in form.scenarios'
-                            id='sdg'
-                            :key='sdgIndex'
-                            class='sdg-content-blocks sdg-form-block'
-                          >
-                            <!--description-->
-                            <div class='scenario-description'>
-                              <div
-                                v-show='form.scenarios.length > 1'
-                                class='sdg-delete-wrapper'
-                                @click='handleDeleteSdg(sdgIndex)'>
-                                <a-tooltip placement='top'>
-                                  <template slot='title'>
-                                    <span>{{ $t('teacher.add-unit-plan.delete-goal') }}</span>
-                                  </template>
-                                  <div class='sdg-delete'>
+                            :class="{'form-block': true, 'form-block-disabled' : $store.getters.userInfo.disableQuestion}"
+                            v-if="fieldItem.visible && fieldItem.fieldName === planField.Question"
+                            :key='fieldItem.fieldName'>
+                            <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Question />
+                            <comment-switch
+                              v-show="canEdit"
+                              v-if='!$store.getters.userInfo.disableQuestion'
+                              :is-active="currentFieldName === planField.Question"
+                              :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Question}"
+                              :field-name=planField.Question
+                              @switch='handleSwitchComment' />
+                            <a-form-item class='unit-question'>
+                              <span slot='label'>
+                                <a-tooltip title='Set key question/Line of inquiry'>
+                                  <a-icon
+                                    style='color: #15c39a;cursor: pointer;font-size: 18px'
+                                    type='exclamation-circle'
+                                    @click='questionSettingVisible=true' />
+                                </a-tooltip>
+                                {{ 'Key question(s) / Line(s) of inquiry' | unitLabelName(planField.Question, $store.getters.formConfigData) }}
+                                <a-tooltip :title="'Key question(s) / Line(s) of inquiry' | unitLabelHint(planField.Question, $store.getters.formConfigData)" placement='top'>
+                                  <a-icon type="info-circle" />
+                                </a-tooltip>
+                              </span>
+                              <div v-if='!$store.getters.userInfo.disableQuestion'>
+                                <div class='question-more'>
+                                  <a-button type='link' @click='questionMoreVisible=true'>more</a-button>
+                                </div>
+                                <div v-if='showRecommendQuestion' class='recommend-question'>
+                                  <a-icon class='close-icon' type='close' @click.stop='hideRecommendQuestion=true' />
+                                  <div class='recommend-box'>
+                                    <a-tooltip
+                                      title='You can add the key questions relevant to the big idea you chose above'>
+                                      <span class='title'><a-icon style='width: 25px' type='question-circle' />Recommended:</span>
+                                    </a-tooltip>
+                                    <ul class='recommend-ul'>
+                                      <li
+                                        v-for='(item,rqIndex) in recommendQuestionList'
+                                        v-if='rqIndex < 3 && selectQuestion.indexOf(item.name) === -1'
+                                        :key='rqIndex'>
+                                        {{ item.name }}
+                                        <a-button class='add-question' type='link' @click.stop='handerInsertQuestion(item)'>
+                                          add
+                                        </a-button>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                </div>
+                                <div v-for='(question, index) in form.questions' :key='index' class='form-input-item'>
+                                  <a-textarea
+                                    v-model='question.name'
+                                    :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-nth-key-question') : $t('teacher.add-unit-plan.expert-nth-key-question')"
+                                    auto-size
+                                    class='my-form-textarea'
+                                    @change="handleCollaborateEvent(unitPlanId,planField.Question,form.question)"/>
+                                  <div
+                                    v-if='form.questions.length > 1'
+                                    class='delete-icon'
+                                    @click='handleRemoveQuestion(index)'>
                                     <a-icon :style="{ fontSize: '20px' }" type='delete' />
                                   </div>
-                                </a-tooltip>
-                              </div>
-                              <!--sdg-->
-                              <a-form-model-item>
-                                <a-select
-                                  :getPopupContainer="trigger => trigger.parentElement"
-                                  v-model='scenario.sdgId'
-                                  @change="handleCollaborateEvent(unitPlanId,planField.Sdg,form.sdg)"
-                                  class='my-big-select'
-                                  placeholder='Select a goal from UN'
-                                  size='large'>
-                                  <a-select-option
-                                    v-for='(sdg,index) in sdgList'
-                                    :key='index'
-                                    :disabled='selectedSdg.indexOf(sdg.id) != -1'
-                                    :value='sdg.id'>
-                                    {{ sdg.name }}
-                                  </a-select-option>
-                                </a-select>
-                              </a-form-model-item>
-
-                              <a-form-model-item>
-                                <input-search
-                                  ref='descriptionInputSearch'
-                                  :currend-index='currentIndex'
-                                  :default-value='scenario.description'
-                                  :key-index='sdgIndex'
-                                  :search-list='descriptionSearchList'
-                                  label='description'
-                                  @reset='descriptionSearchList = []'
-                                  @search='handleDescriptionSearch'
-                                  @select-item='handleSelectScenario'
-                                  @change="handleCollaborateEvent(unitPlanId,planField.Sdg,form.sdg)"
-                                />
-                              </a-form-model-item>
-
-                            </div>
-
-                            <!--keywords-->
-                            <!--    <a-form-model-item>
-                              <sdg-tag-input :selected-keywords="scenario.sdgKeyWords" :sdg-key="sdgIndex" @add-tag="handleAddSdgTag" @remove-tag="handleRemoveSdgTag"/>
-                            </a-form-model-item>-->
-                          </div>
-                          <a-button
-                            class='add-button'
-                            icon='plus-circle'
-                            size='large'
-                            style='top:-20px'
-                            type='link'
-                            @click='handleAddMoreSdg'></a-button>
-                        </div>
-
-                        <div class='form-block form-block-rwc'>
-                          <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Rwc />
-                          <a-form-model-item label='Real World Connection(s)'>
-                            <a-select
-                              :getPopupContainer="trigger => trigger.parentElement"
-                              size='large'
-                              v-model='form.rwc'
-                              placeholder='Choose real world connection'
-                              @change="handleCollaborateEvent(unitPlanId,planField.Rwc,form.rwc)">
-                              <a-select-option :value='item.id' v-for='(item, index) in rwcList' :key='index'>
-                                {{ item.name }}
-                              </a-select-option>
-                            </a-select>
-                          </a-form-model-item>
-                        </div>
-
-                        <div
-                          :class="{'form-block': true, 'form-block-disabled' : $store.getters.userInfo.disableQuestion}">
-                          <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Question />
-                          <comment-switch
-                            v-show="this.canEdit"
-                            v-if='!$store.getters.userInfo.disableQuestion'
-                            :is-active="currentFieldName === planField.Question"
-                            :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Question}"
-                            :field-name=planField.Question
-                            @switch='handleSwitchComment' />
-                          <a-form-item class='unit-question'>
-                            <span slot='label'>
-                              <a-tooltip title='Set key question/Line of inquiry'>
-                                <a-icon
-                                  style='color: #15c39a;cursor: pointer;font-size: 18px'
-                                  type='exclamation-circle'
-                                  @click='questionSettingVisible=true' />
-                              </a-tooltip>
-                              Key question(s) / Line(s) of inquiry
-                            </span>
-                            <div v-if='!$store.getters.userInfo.disableQuestion'>
-                              <div class='question-more'>
-                                <a-button type='link' @click='questionMoreVisible=true'>more</a-button>
-                              </div>
-                              <div v-if='showRecommendQuestion' class='recommend-question'>
-                                <a-icon class='close-icon' type='close' @click.stop='hideRecommendQuestion=true' />
-                                <div class='recommend-box'>
-                                  <a-tooltip
-                                    title='You can add the key questions relevant to the big idea you chose above'>
-                                    <span class='title'><a-icon style='width: 25px' type='question-circle' />Recommended:</span>
-                                  </a-tooltip>
-                                  <ul class='recommend-ul'>
-                                    <li
-                                      v-for='(item,rqIndex) in recommendQuestionList'
-                                      v-if='rqIndex < 3 && selectQuestion.indexOf(item.name) === -1'
-                                      :key='rqIndex'>
-                                      {{ item.name }}
-                                      <a-button class='add-question' type='link' @click.stop='handerInsertQuestion(item)'>
-                                        add
-                                      </a-button>
-                                    </li>
-                                  </ul>
                                 </div>
                               </div>
-                              <div v-for='(question, index) in form.questions' :key='index' class='form-input-item'>
-                                <a-textarea
-                                  v-model='question.name'
-                                  :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-nth-key-question') : $t('teacher.add-unit-plan.expert-nth-key-question')"
-                                  auto-size
-                                  class='my-form-textarea'
-                                  @change="handleCollaborateEvent(unitPlanId,planField.Question,form.question)"/>
-                                <div
-                                  v-if='form.questions.length > 1'
-                                  class='delete-icon'
-                                  @click='handleRemoveQuestion(index)'>
-                                  <a-icon :style="{ fontSize: '20px' }" type='delete' />
-                                </div>
-                              </div>
-                            </div>
-                          </a-form-item>
-                          <a-button
-                            v-if='!$store.getters.userInfo.disableQuestion'
-                            class='add-button'
-                            icon='plus-circle'
-                            size='large'
-                            style='top:-40px;'
-                            type='link'
-                            @click='handleAddMoreQuestion'></a-button>
-                        </div>
-
-                        <div class='form-block'>
-                          <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Assessment style="left:100px" />
-                          <comment-switch
-                            v-show="this.canEdit"
-                            :is-active="currentFieldName === planField.Assessment"
-                            :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Assessment}"
-                            :field-name=planField.Assessment
-                            @switch='handleSwitchComment' />
-                          <a-form-item label='Set learning objectives'>
-                            <a-badge :dot='hasExtraRecommend'>
-                              <a-button type='primary' @click='handleSelectDescription()'>
-                                <div class='btn-text' style='line-height: 20px'>
-                                  Add leaning objectives
-                                </div>
-                              </a-button>
-                            </a-badge>
-
+                            </a-form-item>
                             <a-button
-                              class='assessment-task-button'
-                              ghost
+                              v-if='!$store.getters.userInfo.disableQuestion'
+                              class='add-button'
+                              icon='plus-circle'
+                              size='large'
+                              style='top:-40px;'
                               type='link'
-                              @click='handleClickTaskDetail($event)'>
-                              Assessment task details
-                              <a-icon type='right' />
-                            </a-button>
+                              @click='handleAddMoreQuestion'></a-button>
+                          </div>
 
-                          </a-form-item>
+                          <div class='form-block' v-if="fieldItem.visible && fieldItem.fieldName === planField.LearnOuts" :key='fieldItem.fieldName'>
+                            <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Assessment style="left:100px" />
+                            <comment-switch
+                              v-show="canEdit"
+                              :is-active="currentFieldName === planField.Assessment"
+                              :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Assessment}"
+                              :field-name=planField.Assessment
+                              @switch='handleSwitchComment' />
+                            <a-form-item>
+                              <template class='my-label' slot='label'>
+                                {{ 'Set learning objectives' | unitLabelName(planField.LearnOuts, $store.getters.formConfigData) }}
+                                <a-tooltip :title="'Set learning objectives' | unitLabelHint(planField.LearnOuts, $store.getters.formConfigData)" placement='top'>
+                                  <a-icon type="info-circle" />
+                                </a-tooltip>
+                              </template>
+                              <a-badge :dot='hasExtraRecommend'>
+                                <a-button type='primary' @click='handleSelectDescription()'>
+                                  <div class='btn-text' style='line-height: 20px'>
+                                    {{ 'leaning objectives' | unitLabelName(planField.LearnOuts, $store.getters.formConfigData) }}
+                                  </div>
+                                </a-button>
+                              </a-badge>
 
-                          <!--knowledge tag-select -->
-                          <ui-learn-out
-                            ref='learnOut'
-                            :learn-outs='form.learnOuts'
-                            :self-outs='form.selfOuts'
-                            @remove-learn-outs='handleRemoveLearnOuts' />
-                        </div>
+                              <a-button
+                                class='assessment-task-button'
+                                ghost
+                                type='link'
+                                @click='handleClickTaskDetail($event)'>
+                                Assessment task details
+                                <a-icon type='right' />
+                              </a-button>
 
-                        <div class='form-block' style='clear:both'>
-                          <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Prior />
-                          <comment-switch
-                            v-show="this.canEdit"
-                            :is-active="currentFieldName === planField.Prior"
-                            :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Prior}"
-                            :field-name=planField.Prior
-                            @switch='handleSwitchComment' />
-                          <a-form-model-item label='Prior learning experience'>
-                            <a-textarea
-                              v-model='form.prior'
-                              allow-clear
-                              auto-size
-                              placeholder='What are the approaches to find out what students already knew?'
-                              @change="handleCollaborateEvent(unitPlanId,planField.Prior,form.prior)"/>
-                          </a-form-model-item>
-                        </div>
+                            </a-form-item>
 
+                            <!--knowledge tag-select -->
+                            <ui-learn-out
+                              ref='learnOut'
+                              :learn-outs='form.learnOuts'
+                              :self-outs='form.selfOuts'
+                              @remove-learn-outs='handleRemoveLearnOuts' />
+                          </div>
+
+                          <div class='form-block' style='clear:both' v-if="fieldItem.visible && fieldItem.fieldName === planField.Prior" :key='fieldItem.fieldName'>
+                            <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Prior />
+                            <comment-switch
+                              v-show="canEdit"
+                              :is-active="currentFieldName === planField.Prior"
+                              :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Prior}"
+                              :field-name=planField.Prior
+                              @switch='handleSwitchComment' />
+                            <a-form-model-item>
+                              <template class='my-label' slot='label'>
+                                {{ 'Prior learning experience' | unitLabelName(planField.Prior, $store.getters.formConfigData) }}
+                                <a-tooltip :title="'Prior learning experience' | unitLabelHint(planField.Prior, $store.getters.formConfigData)" placement='top'>
+                                  <a-icon type="info-circle" />
+                                </a-tooltip>
+                              </template>
+                              <a-textarea
+                                v-model='form.prior'
+                                allow-clear
+                                auto-size
+                                placeholder='What are the approaches to find out what students already knew?'
+                                @change="handleCollaborateEvent(unitPlanId,planField.Prior,form.prior)"/>
+                            </a-form-model-item>
+                          </div>
+                        </template>
+
+                        <template v-for='custFieldItem in $store.getters.formConfigData.planCustomList'>
+                          <div class='form-block' v-if="custFieldItem.visible && form.customFieldData && form.customFieldData.hasOwnProperty(custFieldItem.id)" :key='custFieldItem.id' :data-field-name='custFieldItem.name' :data-field-id='custFieldItem.id'>
+                            <a-form-item>
+                              <template class='my-label' slot='label'>
+                                {{ custFieldItem.name }}
+                                <a-tooltip :title="custFieldItem.hint" placement='top'>
+                                  <a-icon type="info-circle" />
+                                </a-tooltip>
+                              </template>
+                              <a-input v-model='form.customFieldData[custFieldItem.id]' class='my-form-input' />
+                            </a-form-item>
+                          </div>
+                        </template>
                       </div>
                     </template>
                   </a-step>
@@ -392,7 +458,7 @@
                         <div class='form-block'>
                           <collaborate-tooltip :form-id="unitPlanId" :field-name=planField.Link />
                           <comment-switch
-                            v-show="this.canEdit"
+                            v-show="canEdit"
                             :field-name="planField.Link"
                             :is-active="currentFieldName === planField.Link "
                             :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Link}"
@@ -926,6 +992,7 @@ import { UtilMixin } from '@/mixins/UtilMixin'
 import moment from 'moment'
 import AssessmentTaskDetails from '@/components/UnitPlan/AssessmentTaskDetails'
 import { BaseEventMixin } from '@/mixins/BaseEvent'
+import { FormConfigMixin } from '@/mixins/FormConfigMixin'
 import ShareContentSetting from '@/components/Share/ShareContentSetting'
 import { QueryContentShare } from '@/api/share'
 import CollaborateTooltip from '@/components/Collaborate/CollaborateTooltip'
@@ -972,7 +1039,7 @@ export default {
       default: null
     }
   },
-  mixins: [UtilMixin, BaseEventMixin],
+  mixins: [UtilMixin, BaseEventMixin, FormConfigMixin],
   data() {
     return {
       showCollaborateVisible: false,
@@ -1026,7 +1093,8 @@ export default {
         startDate: '',
         endDate: '',
         gradeId: undefined,
-        prior: ''
+        prior: '',
+        customFieldData: null
       },
       rangeDate: [],
       uploading: false,
@@ -1368,6 +1436,27 @@ export default {
           this.rangeDate.push(moment.utc(unitPlanData.startDate).local())
           this.rangeDate.push(moment.utc(unitPlanData.endDate).local())
         }
+
+        // 填充自定义字段
+        const customFieldData = unitPlanData.customFieldData ? JSON.parse(unitPlanData.customFieldData) : null
+        const displayCustomFieldData = {}
+        if (customFieldData) {
+          // 只显示配置中存在的字段,用id做key，改名后依旧可以使用老数据
+          this.$store.getters.formConfigData.planCustomList.forEach(customField => {
+            if (customFieldData.hasOwnProperty(customField.id)) {
+              displayCustomFieldData[customField.id] = customFieldData[customField.id]
+            } else {
+              displayCustomFieldData[customField.id] = ''
+            }
+          })
+        } else {
+          this.$store.getters.formConfigData.planCustomList.forEach(customField => {
+            displayCustomFieldData[customField.id] = ''
+          })
+        }
+        this.$logger.info('displayCustomFieldData', displayCustomFieldData)
+        unitPlanData.customFieldData = displayCustomFieldData
+
         this.form = unitPlanData
         if (unitPlanData.questions.length === 0) {
           this.form.questions.push({ 'name': '' })
@@ -1535,7 +1624,13 @@ export default {
       if (this.unitPlanId) {
         unitPlanData.id = this.unitPlanId
       }
-      unitPlanData.selfOuts = this.$refs.learnOut.getSelfOuts()
+      // 更新selfOuts数据
+      if (this.$refs.learnOut && this.$refs.learnOut.length > 0) {
+        unitPlanData.selfOuts = this.$refs.learnOut[0].getSelfOuts()
+      }
+      if (unitPlanData.customFieldData) {
+        unitPlanData.customFieldData = JSON.stringify(unitPlanData.customFieldData)
+      }
       logger.info('basic unitPlanData', unitPlanData)
       UnitPlanAddOrUpdate(unitPlanData).then((response) => {
         logger.info('UnitPlanAddOrUpdate', response.result)
@@ -3223,7 +3318,6 @@ export default {
     font-size: 16px;
     font-weight: 500;
     font-family: Inter-Bold;
-    line-height: 24px;
   }
 }
 
@@ -3399,15 +3493,7 @@ export default {
 }
 
 .form-block-rwc {
-  margin-top: -25px;
 
-  /deep/ .ant-form-item-label label {
-    font-weight: 500;
-    font-family: inherit;
-    font-size: 14px;
-    line-height: 20px;
-    color: #000000;
-  }
 }
 
 .question {

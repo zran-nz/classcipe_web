@@ -1,5 +1,6 @@
 import { defaultExpertRouter, defaultTeacherRouter, defaultStudentRouter } from '@/config/router.config'
 import store from '@/store'
+import { AllCurriculums } from '@/const/common'
 
 const getters = {
   isMobile: state => state.app.isMobile,
@@ -30,8 +31,8 @@ const getters = {
   sharedFindCount: state => state.user.sharedFindCount,
   skillCategory: state => state.user.skillCategory,
   disableQuestion: state => state.user.disableQuestion,
-  school: state => state.user.school,
-  schoolRole: state => state.user.schoolRole,
+  school: state => state.user.info.school,
+  schoolRole: state => state.user.info.schoolRole,
   vueSocket: state => {
     if (state.websocket.vueSocket) {
       return state.websocket.vueSocket
@@ -41,7 +42,13 @@ const getters = {
     }
   },
 
-  evaluationSet: state => state.websocket.evaluationSet
+  evaluationSet: state => state.websocket.evaluationSet,
+
+  formConfigPreviewData: state => state.formConfig.previewData,
+  formConfigData: state => state.formConfig.formConfigData,
+
+  // 暂时隐藏 karen: "因为IB的版权问题，现在需要把我们平台上的一部分大纲条隐藏掉，把IB-MYP的achievement objectives和integrated subject skills都隐藏了，只有我在后台把老师设置成IB Pilot school 这个学校的才能看到"
+  hiddenIbCurriculumId: state => state.user.bindCurriculum === AllCurriculums.IBMYP && state.user.school !== '1468390544921169921'
 }
 
 export default getters

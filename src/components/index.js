@@ -10,6 +10,7 @@ import Radar from '@/components/Charts/Radar'
 import RankList from '@/components/Charts/RankList'
 import TransferBar from '@/components/Charts/TransferBar'
 import TagCloud from '@/components/Charts/TagCloud'
+import Pie from '@/components/Charts/Pie'
 
 // pro components
 import AvatarList from '@/components/AvatarList'
@@ -51,6 +52,7 @@ export {
   TagSelect,
   StandardFormRow,
   ArticleListContent,
+  Pie,
 
   Dialog
 }
