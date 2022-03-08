@@ -1,61 +1,18 @@
 <template>
-  <a-card :bordered="false">
-    <!-- 查询区域 -->
-    <div class="table-page-search-wrapper">
-      <a-form layout="inline">
-        <a-row type="flex" justify="start">
-          <a-col :span="8">
-            <a-input-search placeholder="Search for tag name" v-model="queryParam.name" enter-button @search="loadData"/>
-          </a-col>
-          <a-col :span="10">
-          </a-col>
-          <a-col :span="6">
-            <a-button @click="handleAdd" type="primary" icon="plus" style="margin-right: 20px;" >Add tag</a-button>
 
-            <a-button @click="handleLibary" type="primary" icon="mail" style="margin-right: 20px;" >Tag  library</a-button>
-
-            <!--            <a-upload-->
-            <!--              name="file"-->
-            <!--              :showUploadList="false"-->
-            <!--              :multiple="false"-->
-            <!--              :headers="tokenHeader"-->
-            <!--              :action="importExcelUrl"-->
-            <!--              @change="handleMyImportExcel">-->
-            <!--              <a-button :loading="importLoading" type="primary" icon="import">{{ importLoadingText }}</a-button>-->
-            <!--              <a-dropdown>-->
-            <!--                <a-button type="link" shape="circle" icon="download" />-->
-            <!--                <a-menu slot="overlay">-->
-            <!--                  <a-menu-item key="1">-->
-            <!--                    <a-button type="link" icon="download" @click="downloadTemplate">Download template</a-button>-->
-            <!--                  </a-menu-item>-->
-            <!--                </a-menu>-->
-            <!--              </a-dropdown>-->
-            <!--            </a-upload>-->
-
-          </a-col>
-        </a-row>
-      </a-form>
-    </div>
-    <!-- 查询区域-END -->
-
-    <!-- 操作按钮区域 -->
-    <div class="table-operator">
-      <!--          &lt;!&ndash; 高级查询区域 &ndash;&gt;-->
-      <!--          &lt;!&ndash; 高级查询区域 &ndash;&gt;-->
-      <!--          <a-dropdown v-if="selectedRowKeys.length > 0">-->
-      <!--            <a-menu slot="overlay">-->
-      <!--              <a-menu-item key="1" @click="batchDel"><a-icon type="delete"/>Delete</a-menu-item>-->
-      <!--            </a-menu>-->
-      <!--            <a-button style="margin-left: 8px"> Batch operation <a-icon type="down" /></a-button>-->
-      <!--          </a-dropdown>-->
-    </div>
-
+  <j-modal
+    title="Tab library"
+    :width="width"
+    :visible="visible"
+    :confirmLoading="confirmLoading"
+    switchFullscreen
+    @ok="handleOk"
+    @cancel="handleCancel"
+    cancelText="Close">
+    <a-spin :spinning="confirmLoading">
+    </a-spin>
     <!-- table区域-begin -->
     <div>
-      <!--      <div class="ant-alert ant-alert-info" style="margin-bottom: 16px;">-->
-      <!--        <i class="anticon anticon-info-circle ant-alert-icon"></i> Choosed <a style="font-weight: 600">{{ selectedRowKeys.length }}</a> items-->
-      <!--        <a style="margin-left: 24px" @click="onClearSelected">Clear</a>-->
-      <!--      </div>-->
       <a-table
         ref="table"
         size="middle"
@@ -68,61 +25,28 @@
         :loading="loading"
         :expandedRowKeys="expandedRowKeys"
         @expand="handleExpand"
+        ,
+        v-bind="tableProps"
       >
-
-        <span slot="action" slot-scope="text, record">
-          <template v-if="!record.schoolId">
-            <div v-if="record.createOwn">
-              <a @click="handleAddChild(record)"><a-icon type="plus"/> Add child</a>
-            </div>
-            <div v-if="record.isOptional">
-              <a @click="handleEdit(record)">  <a-icon type="edit"/>Edit</a>
-            </div>
-            <div v-else>
-              <a @click="handleRemove(record)"><a-icon type="delete"/> Remove</a>
-            </div>
-          </template>
-          <template v-if="record.schoolId">
-            <a @click="handleEdit(record)">  <a-icon type="edit"/>Edit</a>
-            <a-divider type="vertical" />
-            <a-dropdown>
-              <a class="ant-dropdown-link">More <a-icon type="down" /></a>
-              <a-menu slot="overlay">
-                <a-menu-item>
-                  <a @click="handleAddChild(record)"><a-icon type="plus"/> Add child</a>
-                </a-menu-item>
-                <a-menu-item>
-                  <a-popconfirm title="Confirm Delete?" @confirm="() => handleDeleteNode(record.id)" placement="topLeft">
-                    <a> <a-icon type="delete"/>Delete</a>
-                  </a-popconfirm>
-                </a-menu-item>
-              </a-menu>
-            </a-dropdown>
-          </template>
-
-        </span>
-
       </a-table>
     </div>
-    <Tag-Modal ref="modalForm" @ok="modalFormOk"></Tag-Modal>
-    <Tag-Library ref="libraryForm" @ok="modalLibraryOk"></Tag-Library>
-  </a-card>
+
+  </j-modal>
+
 </template>
 
 <script>
 
-import { getAction, deleteAction, postAction } from '@/api/manage'
+import { getAction, postAction } from '@/api/manage'
 import { JeecgListMixin } from '@/mixins/JeecgListMixin'
-import TagModal from './TagModal'
 import { filterObj } from '@/utils/util'
-import { CurriculumType } from '@/const/common'
-import TagLibrary from '@/views/teacher/manage/tags/TagLibrary'
+import JModal from '@/components/jeecg/JModal'
 
 export default {
-  name: 'TagSettingsList',
+  name: 'TagLibrary',
   mixins: [JeecgListMixin],
   components: {
-    TagModal, TagLibrary
+    JModal
   },
   data () {
     return {
@@ -157,28 +81,10 @@ export default {
           customRender: (text, row, index) => {
             return text ? 'Yes' : 'No'
           }
-        },
-        {
-          title: 'Linked Tasks',
-          align: 'center',
-          dataIndex: 'taskCount'
-        },
-        {
-          title: 'Linked Unit',
-          align: 'center',
-          dataIndex: 'planCount'
-        },
-        {
-          title: 'Settings',
-          align: 'center',
-          fixed: 'right',
-          width: 147,
-          dataIndex: 'action',
-          scopedSlots: { customRender: 'action' }
         }
       ],
       url: {
-        list: '/classcipe/api/tag/rootSchoolCustomList',
+        list: '/classcipe/api/tag/rootList',
         childList: '/classcipe/api/tag/childList',
         getChildListBatch: '/classcipe/api/tag/getChildListBatch',
         delete: '/classcipe/api/tag/delete',
@@ -192,29 +98,28 @@ export default {
       dictOptions: {},
       loadParent: false,
       superFieldList: [],
-      curriculumType: CurriculumType,
-      baseUrl: process.env.VUE_APP_API_BASE_URL,
-      importLoadingText: 'Import'
+      confirmLoading: false,
+      width: 1000,
+      visible: false
     }
   },
   created () {
     this.loadData()
-},
+  },
   computed: {
-    // importIBSkillExcelUrl () {
-    //   return this.baseUrl + `${this.url.importIBSkillExcelUrl}`
-    // }
+    tableProps () {
+      const _this = this
+      return {
+        // 列表项是否可选择
+        rowSelection: {
+          selectedRowKeys: _this.selectedRowKeys,
+          // eslint-disable-next-line no-return-assign
+          onChange: (selectedRowKeys) => _this.selectedRowKeys = selectedRowKeys
+        }
+      }
+    }
   },
   methods: {
-    handleAdd: function () {
-      this.$refs.modalForm.add({})
-      this.$refs.modalForm.title = 'Add'
-      this.$refs.modalForm.disableSubmit = false
-    },
-    handleLibary: function () {
-      this.$refs.libraryForm.visible = true
-      this.$refs.libraryForm.disableSubmit = false
-    },
     loadData (arg) {
       if (arg === 1) {
         this.ipagination.current = 1
@@ -302,12 +207,6 @@ export default {
       param.pageSize = this.ipagination.pageSize
       return filterObj(param)
     },
-    searchReset () {
-      // 重置
-      this.expandedRowKeys = []
-      this.queryParam = {}
-      this.loadData(1)
-    },
     getDataByResult (result) {
       if (result) {
         return result.map(item => {
@@ -350,35 +249,13 @@ export default {
         }
       }
     },
-    handleAddChild (record) {
-      this.loadParent = true
-      const obj = {}
-      obj[this.pidField] = record['id']
-      obj.curriculumId = record['curriculumId']
-      this.$refs.modalForm.add(obj)
-    },
-
-    handleRemove: function (record) {
+    handleOk () {
 
     },
-
-    handleDeleteNode (id) {
-      var that = this
-      deleteAction(that.url.delete, { id: id }).then((res) => {
-        if (res.success) {
-          that.loadData(1)
-        } else {
-          that.$message.warning(res.message)
-        }
-      })
-    },
-    modalLibraryOk (selectTagIds) {
-      this.$logger.info('modalLibraryOk', selectTagIds)
-      // 新增/修改 成功时，重载列表
-      this.loadData()
-      // 清空列表选中
-      // this.onClearSelected()
+    handleCancel () {
+      this.close()
     }
+
   }
 }
 </script>

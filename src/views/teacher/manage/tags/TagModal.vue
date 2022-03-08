@@ -11,26 +11,15 @@
     <a-spin :spinning="confirmLoading">
       <a-form-model ref="form" :model="model" :rules="validatorRules">
 
-        <!--        <a-form-model-item label="Curriculum" :labelCol="labelCol" :wrapperCol="wrapperCol" prop="curriculumId">-->
-        <!--          <a-select :allowClear="true" v-model="model.curriculumId" placeholder="请选择curriculum" >-->
-        <!--            <a-select-option value="0">For All Curriculum</a-select-option>-->
-        <!--            <a-select-option :value="item.id" :key="item.id" v-for="item in curriculumList">{{ item.name }}</a-select-option>-->
-        <!--          </a-select>-->
-        <!--        </a-form-model-item>-->
-
         <a-form-model-item label="name" :labelCol="labelCol" :wrapperCol="wrapperCol" prop="name">
-          <a-input v-model="model.name" placeholder="请输入name" ></a-input>
+          <a-input v-model="model.name" placeholder="Please input name" ></a-input>
         </a-form-model-item>
 
-        <!--        <a-form-model-item label="是自定义标签" :labelCol="labelCol" :wrapperCol="wrapperCol" prop="isCustom">-->
-        <!--          <a-switch default-unchecked v-model="model.isCustom"/>-->
-        <!--        </a-form-model-item>-->
-
-        <a-form-model-item label="Set as Must/Optional" :labelCol="labelCol" :wrapperCol="wrapperCol" prop="isOptional">
-          <a-select v-model="model.isOptional" placeholder="请选择optional" >
-            <a-select-option :value="true">Must</a-select-option>
-            <a-select-option :value="false">Optional</a-select-option>
-          </a-select>
+        <a-form-model-item label="Set as Must/Optional" :labelCol="labelCol" :wrapperCol="wrapperCol" v-if="!model.parentId || model.parentId == 0 ">
+          <a-radio-group v-model="model.isOptional">
+            <a-radio :value="true">Optional</a-radio>
+            <a-radio :value="false">Must</a-radio>
+          </a-radio-group>
         </a-form-model-item>
 
         <!--        <a-form-model-item v-if="model.isTree" label="parentId" :labelCol="labelCol" :wrapperCol="wrapperCol" prop="parentId">-->
@@ -47,7 +36,7 @@
         <!--          </j-tree-select>-->
         <!--        </a-form-model-item>-->
         <a-form-model-item label="Hint" :labelCol="labelCol" :wrapperCol="wrapperCol" prop="tooltip">
-          <a-textarea rows="3" v-model="model.tooltip" placeholder="请输入Hint" ></a-textarea>
+          <a-textarea rows="3" v-model="model.tooltip" placeholder="Please input Hint" ></a-textarea>
         </a-form-model-item>
 
       </a-form-model>
@@ -57,9 +46,9 @@
 
 <script>
 
-import { httpAction } from '@/api/manage'
 import JModal from '@/components/jeecg/JModal'
 import JTreeSelect from '@/components/jeecg/JTreeSelect'
+import { SchoolAddOrUpdateTag } from '@/api/tag'
 
 export default {
     name: 'TagModal',
@@ -94,8 +83,7 @@ export default {
            ]
         },
         url: {
-          add: '/api/tag/addOrUpdate',
-          edit: '/api/tag/addOrUpdate'
+          add: '/classcipe/api/tag/addOrUpdate'
         },
         expandedRowKeys: [],
         pidField: 'parentId',
@@ -108,8 +96,10 @@ export default {
     },
     methods: {
       add (obj) {
-        this.modelDefault.parentId = ''
+        // this.modelDefault.parentId = ''
+        this.modelDefault.isOptional = true
         this.modelDefault.isTree = true
+        this.modelDefault.isCommon = false
         this.modelDefault.schoolId = this.$store.getters.userInfo.school
         this.modelDefault.isCustom = true
         this.edit(Object.assign(this.modelDefault, obj))
@@ -137,21 +127,7 @@ export default {
        this.$refs.form.validate(valid => {
           if (valid) {
             that.confirmLoading = true
-            let httpurl = ''
-            let method = ''
-            if (!this.model.id) {
-              httpurl += this.url.add
-              method = 'post'
-            } else {
-              httpurl += this.url.edit
-               method = 'post'
-            }
-             if (this.model.id && this.model.id === this.model[this.pidField]) {
-              that.$message.warning('父级节点不能选择自己')
-              that.confirmLoading = false
-              return
-            }
-            httpAction(httpurl, this.model, method).then((res) => {
+            SchoolAddOrUpdateTag(this.model).then((res) => {
               if (res.success) {
                 that.$message.success(res.message)
                 this.$emit('ok')
