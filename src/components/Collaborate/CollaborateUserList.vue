@@ -23,7 +23,7 @@
                       </a-tag>
                     </div>
 
-                    <div class="tag-input tag-dom" :style="{ width: selectedUserEmailList.length === 0 ? '150px' : '20px' }">
+                    <div class="tag-input tag-dom" :style="{ width: selectedUserEmailList.length === 0 ? '220px' : '220px' }">
                       <input
                         type="text"
                         :placeholder="selectedUserEmailList.length === 0 ? 'Invite teacher by email' : ''"
