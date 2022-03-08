@@ -1,7 +1,7 @@
 let eventGuid = 0
 const todayStr = new Date().toISOString().replace(/T.*$/, '') // YYYY-MM-DD of today
-const BG_COLORS = ['#cff7e2', '#fff1cf', '#d3d9f0', '#ef4136', '#54C7B0', '#F47920', '#194283', '#59C754']
-const FONT_COLORS = ['#4b7903', '#d9011b', '#f49a23', '#aaaaaa']
+const BG_COLORS = ['#f03132', '#0072bb', '#91191a', '#4d91f9', '#002056', '#f68e54', '#329933', '#3333cc']
+const FONT_COLORS = ['#fff', '#fff', '#fff', '#fff']
 
 export const INITIAL_EVENTS = [
   {
@@ -23,6 +23,14 @@ export const INITIAL_EVENTS = [
   {
     id: createEventId(),
     title: 'History of England',
+    start: '2022-03-12T07:00:00',
+    end: '2022-03-12T09:30:00',
+    backgroundColor: BG_COLORS[5],
+    textColor: FONT_COLORS[2]
+  },
+  {
+    id: createEventId(),
+    title: 'History of England',
     start: '2022-03-12T10:00:00',
     end: '2022-03-12T13:30:00',
     backgroundColor: BG_COLORS[2],
@@ -32,8 +40,16 @@ export const INITIAL_EVENTS = [
     id: createEventId(),
     title: 'History of England',
     start: '2022-03-12T13:00:00',
-    end: '2022-03-12T17:30:00',
+    end: '2022-03-12T14:30:00',
     backgroundColor: BG_COLORS[3],
+    textColor: FONT_COLORS[3]
+  },
+  {
+    id: createEventId(),
+    title: 'History of England',
+    start: '2022-03-12T14:30:00',
+    end: '2022-03-12T17:30:00',
+    backgroundColor: BG_COLORS[4],
     textColor: FONT_COLORS[3]
   }
 ]

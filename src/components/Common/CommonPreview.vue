@@ -702,6 +702,7 @@ export default {
         logger.info('FavoritesAdd ', response)
         item.isFavorite = !item.isFavorite
         this.data.isFavorite = item.isFavorite
+        this.$emit('favoritiesAdd', { ...this.data })
       })
     },
     handleGotoImgIndex (index) {

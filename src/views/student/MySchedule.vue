@@ -12,7 +12,18 @@
           Class1
         </a-select-option>
       </a-select>
-      <pie :height="198" :dataSource="dataSource" :labelConfig="labelConfig"/>
+      <pie :height="198" :dataSource="dataSource" :labelConfig="labelConfig" :radius="radius" :guideData="guideData"/>
+    </div>
+    <div class="tooltip">
+      <div class="tooltip-wrap" ref="tooltip">
+        <div class="tooltip-content">
+          <h4>{{ event.title }}</h4>
+          <div>test</div>
+          <div>test</div>
+          <div>tset</div>
+          <div>atsgfsdafsdf</div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -56,20 +67,35 @@ export default {
         // eventClick: this.handleEventClick,
         eventsSet: this.handleEvents,
         datesSet: this.handleDatesSet,
-        eventMouseEnter: this.handleMouseEnter
+        eventMouseEnter: this.handleMouseEnter,
+        eventMouseLeave: this.handleMouseLeave
       },
       currentEvents: [],
-      labelConfig: ['percent', {
-        offset: -20,
-        textStyle: {
-          rotate: 0,
-          textAlign: 'center',
-          shadowBlur: 2,
-          fill: 'white',
-          shadowColor: 'rgba(0, 0, 0, .45)'
-        }
+      labelConfig: [],
+      guideData: [{
+        content: '40/61',
+        style: {
+          fontSize: 16,
+          textAlign: 'center'
+        },
+        position: ['50%', '45%']
+      }, {
+        content: 'Present',
+         style: {
+          fontSize: 14,
+          textAlign: 'center'
+        },
+        position: ['50%', '60%']
       }],
-      currentClass: 1
+      radius: {
+        radius: 0.85,
+        innerRadius: 0.8
+      },
+      currentClass: 1,
+      event: {
+        title: 'teset'
+      },
+      timer: null
     }
   },
   computed: {
@@ -114,7 +140,19 @@ export default {
 
     },
     handleMouseEnter(event) {
-      console.log(event)
+      console.log(event.view.getCurrentData())
+      const $tooltip = this.$refs.tooltip.getBoundingClientRect()
+      const $el = event.el.getBoundingClientRect()
+      this.$refs.tooltip.style.top = $el.top + 'px'
+      this.$refs.tooltip.style.left = $el.left - $tooltip.width - 10 + 'px'
+      this.$refs.tooltip.style.visibility = 'visible'
+      if (this.timer) clearTimeout(this.timer)
+    },
+    handleMouseLeave(event) {
+      if (this.timer) clearTimeout(this.timer)
+      this.timer = setTimeout(() => {
+        this.$refs.tooltip.style.visibility = 'hidden'
+      }, 200)
     },
     showAttendance() {
       this.attendanceVisible = !this.attendanceVisible
@@ -144,6 +182,33 @@ export default {
   .attendance-choose {
     width: 150px;
     margin: 10px 25px;
+  }
+}
+.tooltip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  .tooltip-wrap {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    background: #fff;
+    color: rgba(0,0,0,.65);
+    font-size: 14px;
+    font-variant: tabular-nums;
+    line-height: 1.5;
+    list-style: none;
+    font-feature-settings: "tnum";
+    position: fixed;
+    z-index: 1060;
+    max-width: 250px;
+    visibility: hidden;
+    transition: all .5s;
+    border: 1px solid #dfdf;
+    .tooltip-content {
+      padding: 10px;
+    }
   }
 }
 </style>
