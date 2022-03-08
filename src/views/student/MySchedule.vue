@@ -55,7 +55,8 @@ export default {
         select: this.handleDateSelect,
         // eventClick: this.handleEventClick,
         eventsSet: this.handleEvents,
-        datesSet: this.handleDatesSet
+        datesSet: this.handleDatesSet,
+        eventMouseEnter: this.handleMouseEnter
       },
       currentEvents: [],
       labelConfig: ['percent', {
@@ -111,6 +112,9 @@ export default {
     },
     handleChangeClass() {
 
+    },
+    handleMouseEnter(event) {
+      console.log(event)
     },
     showAttendance() {
       this.attendanceVisible = !this.attendanceVisible

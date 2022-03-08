@@ -24,7 +24,6 @@
         placeholder="Enter code"
         class="study-code"
         enter-button="Go"
-        size="large"
         v-model="code"
         @search="enterCode"
       />

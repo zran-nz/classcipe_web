@@ -1,7 +1,7 @@
 <template>
   <div class="reviews-wrapper">
     <div class="reviews-title">
-      <h2>Reviews</h2>
+      <h4>Reviews</h4>
       <a-space class="reviews-opt" v-if="myReviews">
         <a-button type="link" v-show="!isEdit" @click="() => triggerEdit(true)">Edit Review</a-button>
         <a-button type="link" v-show="isEdit" @click="() => triggerEdit(false)">Cancel</a-button>
@@ -48,11 +48,10 @@
           @search="triggerSearch"
           @pressEnter="triggerSearch"
           :allowClear="true"
-          size="large"
         >
         </a-input-search>
       </div>
-      <a-select :getPopupContainer="trigger => trigger.parentElement" size="large" v-model="reviewsScore" @change="triggerChangeRate">
+      <a-select :getPopupContainer="trigger => trigger.parentElement" v-model="reviewsScore" @change="triggerChangeRate">
         <a-select-option value="">
           All rating
         </a-select-option>
@@ -170,7 +169,8 @@ export default {
         },
         showTotal: total => `Total ${total} items`,
         total: 0,
-        pageSize: 10
+        pageSize: 10,
+        size: 'small'
       },
       pageNo: 1,
       mockData: {
@@ -310,10 +310,10 @@ export default {
       margin-right: 10px;
       border-radius:6px;
       flex: 1;
-      /deep/ .ant-input{
-        border-radius:6px;
-        height: 40px;
-      }
+      // /deep/ .ant-input{
+      //   border-radius:6px;
+      //   height: 40px;
+      // }
     }
     /deep/ .ant-select-dropdown {
       z-index: 1001;

@@ -735,7 +735,7 @@ export default {
     handleDuplicateItem () {
       this.$logger.info('handleDuplicateItem', this.data)
       this.$confirm({
-        title: 'Confirm copy',
+        title: 'Confirm to copy',
         content: 'Are you sure to copy ' + this.data.name + ' ?',
         centered: true,
         onOk: () => {
@@ -753,32 +753,20 @@ export default {
 
     handleStartTask () {
       this.$confirm({
-        title: 'Confirm start',
+        title: 'Confirm to start',
         content: 'Are you sure to start ' + this.data.name + ' ?',
         centered: true,
         onOk: () => {
           this.copyLoading = true
           if (this.data.buyed) {
-            SelfStudyTaskStart({ taskId: this.data.id }).then(res => {
-              this.$logger.info('StartOpenSession res', res)
-              if (res.success) {
-                this.startLoading = false
-                const targetUrl = lessonHost + 's/' + res.result.classId + '?token=' + storage.get(ACCESS_TOKEN)
-                this.$logger.info('try open ' + targetUrl)
-                // window.open(targetUrl, '_blank')
-                window.location.href = targetUrl
-              } else {
-                this.$message.warn('StartLesson Failed! ' + res.message)
-              }
-            }).finally(() => {
-              this.copyLoading = false
-            })
+            this.handleStartSession(this.data.id)
           } else {
             SelfStudyTaskBye({ taskId: this.data.id }).then((response) => {
               if (response.success) {
-                this.$logger.info('SelfStudyTaskBye response', response)
-                this.$message.success('Start successfully')
-                this.$router.push({ path: '/student/main/my-task' })
+                // this.$logger.info('SelfStudyTaskBye response', response)
+                // this.$message.success('Start successfully')
+                // this.$router.push({ path: '/student/main/my-task' })
+                this.handleStartSession(this.data.id)
               }
             }).finally(() => {
               this.copyLoading = false
@@ -790,6 +778,23 @@ export default {
 
     handleOpenLink (url) {
       window.open(url, '_blank')
+    },
+    handleStartSession(taskId) {
+      this.copyLoading = true
+      SelfStudyTaskStart({ taskId: taskId }).then(res => {
+        this.$logger.info('StartOpenSession res', res)
+        if (res.success) {
+          this.copyLoading = false
+          const targetUrl = lessonHost + 's/' + res.result.classId + '?token=' + storage.get(ACCESS_TOKEN)
+          this.$logger.info('try open ' + targetUrl)
+          // window.open(targetUrl, '_blank')
+          window.location.href = targetUrl
+        } else {
+          this.$message.warn('StartLesson Failed! ' + res.message)
+        }
+      }).finally(() => {
+        this.copyLoading = false
+      })
     }
   }
 }
