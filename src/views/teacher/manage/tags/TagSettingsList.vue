@@ -105,7 +105,7 @@
       </a-table>
     </div>
     <Tag-Modal ref="modalForm" @ok="modalFormOk"></Tag-Modal>
-    <Tag-Library ref="libraryForm" @ok="modalLibraryOk"></Tag-Library>
+    <Tag-Library ref="libraryForm" :selectCommonTagIds="selectCommonTagIds" @ok="modalLibraryOk"></Tag-Library>
   </a-card>
 </template>
 
@@ -117,6 +117,7 @@ import TagModal from './TagModal'
 import { filterObj } from '@/utils/util'
 import { CurriculumType } from '@/const/common'
 import TagLibrary from '@/views/teacher/manage/tags/TagLibrary'
+import { SchoolCommonTagList, SchoolSelectLibrary } from '@/api/tag'
 
 export default {
   name: 'TagSettingsList',
@@ -194,12 +195,14 @@ export default {
       superFieldList: [],
       curriculumType: CurriculumType,
       baseUrl: process.env.VUE_APP_API_BASE_URL,
-      importLoadingText: 'Import'
+      importLoadingText: 'Import',
+      selectCommonTagIds: []
     }
   },
   created () {
-    this.loadData()
-},
+    // this.loadData()
+    this.getCommonSelectTags()
+  },
   computed: {
     // importIBSkillExcelUrl () {
     //   return this.baseUrl + `${this.url.importIBSkillExcelUrl}`
@@ -374,10 +377,24 @@ export default {
     },
     modalLibraryOk (selectTagIds) {
       this.$logger.info('modalLibraryOk', selectTagIds)
-      // 新增/修改 成功时，重载列表
-      this.loadData()
-      // 清空列表选中
-      // this.onClearSelected()
+      this.selectCommonTagIds = []
+      selectTagIds.forEach(id => {
+          if (id.indexOf('loadChild') === -1) {
+            this.selectCommonTagIds.push(id)
+          }
+      })
+      this.loading = true
+      SchoolSelectLibrary({ tagIds: this.selectCommonTagIds, schoolId: this.$store.getters.userInfo.school }).then(res => {
+        this.loadData()
+      })
+    },
+    getCommonSelectTags() {
+      SchoolCommonTagList({ schoolId: this.$store.getters.userInfo.school }).then(response => {
+        this.$logger.info('SchoolCommonTagList', response)
+        if (response.success) {
+          this.selectCommonTagIds = response.result.map(tag => { return tag.id })
+        }
+      })
     }
   }
 }

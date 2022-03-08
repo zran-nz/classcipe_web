@@ -22,7 +22,8 @@ export const tagAPIUrl = {
   SchoolAddOrUpdateTag: '/classcipe/api/tag/addOrUpdate',
   SchoolTagSet: '/classcipe/api/tag/schoolTagSet',
   SchoolSelectLibrary: '/classcipe/api/tag/schoolSelectLibrary',
-  SchoolTagDelete: '/classcipe/api/tag/schoolTagDelete'
+  SchoolTagDelete: '/classcipe/api/tag/schoolTagDelete',
+  SchoolCommonTagList: '/classcipe/api/tag/schoolCommonTagList'
 }
 
 export function QuerySourceTagByCategory (parameter) {
@@ -238,5 +239,13 @@ export function SchoolTagSet (parameter) {
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
+  })
+}
+
+export function SchoolCommonTagList (parameter) {
+  return request({
+    url: tagAPIUrl.SchoolCommonTagList,
+    method: 'get',
+    params: parameter
   })
 }

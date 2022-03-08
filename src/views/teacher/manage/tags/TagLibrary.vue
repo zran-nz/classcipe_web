@@ -13,6 +13,12 @@
     </a-spin>
     <!-- table区域-begin -->
     <div>
+
+      <!--      <div class="ant-alert ant-alert-info" style="margin-bottom: 16px;">-->
+      <!--        <i class="anticon anticon-info-circle ant-alert-icon"></i> Choosed <a style="font-weight: 600">{{ selectedRowKeys.length }}</a> items-->
+      <!--        &lt;!&ndash;        <a style="margin-left: 24px" @click="onClearSelected">Clear</a>&ndash;&gt;-->
+      <!--      </div>-->
+
       <a-table
         ref="table"
         size="middle"
@@ -25,7 +31,6 @@
         :loading="loading"
         :expandedRowKeys="expandedRowKeys"
         @expand="handleExpand"
-        ,
         v-bind="tableProps"
       >
       </a-table>
@@ -47,6 +52,12 @@ export default {
   mixins: [JeecgListMixin],
   components: {
     JModal
+  },
+  props: {
+    selectCommonTagIds: {
+      type: Array,
+      default: () => []
+    }
   },
   data () {
     return {
@@ -84,13 +95,9 @@ export default {
         }
       ],
       url: {
-        list: '/classcipe/api/tag/rootList',
+        list: '/classcipe/api/tag/rootSchoolLibraryList',
         childList: '/classcipe/api/tag/childList',
-        getChildListBatch: '/classcipe/api/tag/getChildListBatch',
-        delete: '/classcipe/api/tag/delete',
-        deleteBatch: '/classcipe/api/tag/deleteBatch',
-        exportXlsUrl: '/classcipe/api/tag/exportXls',
-        importExcelUrl: '/classcipe/api/tag/importExcel'
+        getChildListBatch: '/classcipe/api/tag/getChildListBatch'
       },
       expandedRowKeys: [],
       hasChildrenField: 'hasChild',
@@ -100,11 +107,18 @@ export default {
       superFieldList: [],
       confirmLoading: false,
       width: 1000,
-      visible: false
+      visible: false,
+      selectedRowKeys: []
     }
   },
   created () {
-    this.loadData()
+    // this.loadData()
+     this.selectedRowKeys = this.selectCommonTagIds
+  },
+  watch: {
+    selectCommonTagIds(val) {
+      this.selectedRowKeys = val
+    }
   },
   computed: {
     tableProps () {
@@ -112,9 +126,17 @@ export default {
       return {
         // 列表项是否可选择
         rowSelection: {
+          selections: false,
           selectedRowKeys: _this.selectedRowKeys,
           // eslint-disable-next-line no-return-assign
-          onChange: (selectedRowKeys) => _this.selectedRowKeys = selectedRowKeys
+          onChange: (selectedRowKeys) => _this.selectedRowKeys = selectedRowKeys,
+          hideDefaultSelections: true,
+          getCheckboxProps: record => ({
+            props: {
+              disabled: (record.isCommon && !record.isOptional) || (record.parentId !== '0' && record.hasChild === '0'),
+              name: record.name
+            }
+          })
         }
       }
     }
@@ -128,7 +150,7 @@ export default {
       const params = this.getQueryParams()
       params.hasQuery = 'true'
       params.isCustom = true
-      params.schoolId = this.$store.getters.userInfo.school
+      // params.schoolId = this.$store.getters.userInfo.school
       postAction(this.url.list, params).then(res => {
         if (res.success) {
           const result = res.result
@@ -250,10 +272,11 @@ export default {
       }
     },
     handleOk () {
-
+      this.$emit('ok', this.selectedRowKeys)
+      this.visible = false
     },
     handleCancel () {
-      this.close()
+      this.visible = false
     }
 
   }
