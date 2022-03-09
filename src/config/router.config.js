@@ -381,6 +381,7 @@ export const asyncRouterMap = [
               {
                 path: '/student/main/my-classes/:classId',
                 name: 'MyClasses',
+                props: true,
                 component: () => import('@/views/student/MyClasses'),
                 meta: { title: 'menu.my-classes', keepAlive: true, permission: ['student'], icon: 'contacts', type: STUDY_MODE.SCHOOL, dynamicKey: 'classes' }
               }

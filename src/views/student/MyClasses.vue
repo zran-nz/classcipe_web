@@ -17,11 +17,22 @@
         </div>
       </div>
 
-      <div class="type-owner" v-show="currentType === 'task'">
+      <div class="type-owner">
         <div class="my-search">
           <a-input-search
             placeholder="Search"
+            v-show="currentType === 'task'"
             v-model="searchText"
+            @search="triggerSearch"
+            @pressEnter="triggerSearch"
+            :allowClear="true"
+            size="large"
+          >
+          </a-input-search>
+          <a-input-search
+            placeholder="Search"
+            v-show="currentType === 'attendance'"
+            v-model="queryAttendance.searchKey"
             @search="triggerSearch"
             @pressEnter="triggerSearch"
             :allowClear="true"
@@ -96,7 +107,7 @@
             {{ item.title }}
           </a-radio-button>
         </a-radio-group>
-        <label>Class: 1</label>
+        <label>Class: {{ classId }}</label>
       </div>
       <my-task-list
         :loadData="loadData"
@@ -139,7 +150,7 @@
       </div>
       <div class="">
         <s-table
-          ref="table"
+          ref="attendance"
           size="default"
           :rowKey="row => row.id"
           :columns="columns"
@@ -190,6 +201,12 @@ export default {
     MyTaskList,
     STable
   },
+  props: {
+    classId: {
+      type: String,
+      required: true
+    }
+  },
   data() {
     return {
       loading: true,
@@ -233,6 +250,9 @@ export default {
       filterParams: {
         subject: []
       },
+      queryAttendance: {
+        searchKey: ''
+      },
       lastedRevisionId: '',
       searchText: '',
       viewMode: storage.get(SESSION_VIEW_MODE) ? storage.get(SESSION_VIEW_MODE) : 'img',
@@ -240,6 +260,7 @@ export default {
       loadData: (pageParams) => {
         let params = {
           status: this.currentStatus,
+          classId: this.classId,
           searchKey: this.searchText ? this.searchText : '',
           ...pageParams
         }
@@ -249,8 +270,13 @@ export default {
         return SelfStudyTaskList(params)
       },
       loadAttendance: parameter => {
-        logger.info('loadData.parameter', parameter)
-        return orderRecordList(Object.assign(parameter, this.queryParam))
+        logger.info('loadAttendance.parameter', parameter)
+        const params = {
+          ...parameter,
+          ...this.queryAttendance,
+          classId: this.classId
+        }
+        return orderRecordList(params)
           .then(res => {
             return res.result
           })
@@ -280,17 +306,17 @@ export default {
         },
         {
           title: 'Class',
-          dataIndex: 'teacherName',
+          dataIndex: 'class',
           width: '250px'
         },
         {
           title: 'Status',
-          dataIndex: 'teacherName',
+          dataIndex: 'status',
           width: '200px'
         },
         {
           title: 'Session name',
-          dataIndex: 'teacherName',
+          dataIndex: 'sessionName',
           width: '250px'
         }
       ]
@@ -300,6 +326,14 @@ export default {
   created () {
     logger.info('student my content')
     this.initFilterOption()
+  },
+  watch: {
+    classId: {
+      handler(newVal) {
+        this.$refs.myTaskList.loadMyContent()
+        this.$refs.attendance.refresh(true)
+      }
+    }
   },
   methods: {
     handleModeChange(studyMode) {
@@ -383,7 +417,16 @@ export default {
       this.$refs.myTaskList.loadMyContent()
     },
     triggerSearch() {
-      this.$refs.myTaskList.loadMyContent()
+      switch (this.currentType) {
+        case 'task':
+          this.$refs.myTaskList.loadMyContent()
+          break
+        case 'attendance':
+          this.$refs.attendance.refresh(true)
+          break
+        default:
+          break
+      }
     }
   }
 }

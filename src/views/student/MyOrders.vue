@@ -73,7 +73,7 @@ import * as logger from '@/utils/logger'
 import { DICT_ORDER_TYPE, DICT_ORDER_STATUS, OrderType } from '@/const/common'
 
 import { STable } from '@/components'
-import PaymentDetail from './components/PaymentDetail'
+import PaymentDetail from '@/components/Student/PaymentDetail'
 
 import { GetDictItems } from '@/api/common'
 import { orderRecordList } from '@/api/orderRecord'
