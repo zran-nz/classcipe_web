@@ -18,10 +18,7 @@
       <div class="tooltip-wrap" ref="tooltip">
         <div class="tooltip-content">
           <h4>{{ event.title }}</h4>
-          <div>test</div>
-          <div>test</div>
-          <div>tset</div>
-          <div>atsgfsdafsdf</div>
+          <div>Class: {{ event.classId }}</div>
         </div>
       </div>
     </div>
@@ -29,6 +26,8 @@
 </template>
 
 <script>
+import { tippy } from 'vue-tippy'
+
 import { StudyModeMixin } from '@/mixins/StudyModeMixin'
 
 import '@fullcalendar/core/vdom' // solves problem with Vite
@@ -38,6 +37,8 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import { INITIAL_EVENTS, createEventId } from './components/event-utils'
 import Pie from '@/components/Charts/Pie'
+
+import moment from 'moment'
 
 export default {
   name: 'MySchedule',
@@ -68,7 +69,12 @@ export default {
         eventsSet: this.handleEvents,
         datesSet: this.handleDatesSet,
         eventMouseEnter: this.handleMouseEnter,
-        eventMouseLeave: this.handleMouseLeave
+        eventMouseLeave: this.handleMouseLeave,
+        eventTimeFormat: {
+          hour: 'numeric',
+          minute: '2-digit',
+          meridiem: 'short'
+        }
       },
       currentEvents: [],
       labelConfig: [],
@@ -95,7 +101,8 @@ export default {
       event: {
         title: 'teset'
       },
-      timer: null
+      timer: null,
+      FORMATTER: 'h:mm:ss a'
     }
   },
   computed: {
@@ -139,27 +146,57 @@ export default {
     handleChangeClass() {
 
     },
-    handleMouseEnter(event) {
-      console.log(event.view.getCurrentData())
-      const $tooltip = this.$refs.tooltip.getBoundingClientRect()
-      const $el = event.el.getBoundingClientRect()
-      this.$refs.tooltip.style.top = $el.top + 'px'
-      this.$refs.tooltip.style.left = $el.left - $tooltip.width - 10 + 'px'
-      this.$refs.tooltip.style.visibility = 'visible'
-      if (this.timer) clearTimeout(this.timer)
+    handleMouseEnter(info) {
+      this.event = {
+        ...info.event._def.extendedProps,
+        title: info.event.title,
+        backgroundColor: info.event.backgroundColor
+      }
+      // const $tooltip = this.$refs.tooltip.getBoundingClientRect()
+      // const $el = info.el.getBoundingClientRect()
+      // this.$refs.tooltip.style.top = $el.top + 'px'
+      // this.$refs.tooltip.style.left = $el.left - $tooltip.width - 10 + 'px'
+      // this.$refs.tooltip.style.visibility = 'visible'
+      // if (this.timer) clearTimeout(this.timer)
+      const _html = `<div sytle="width: 200px;">
+                      <div style="border-bottom: 1px solid #ccc;line-height: 30px;">
+                        ${this.event.title}
+                      </div>
+                      <div class="tippy-self-content">
+                        <p>Class: ${this.event.classId}</p>
+                        <p>Start: ${moment(info.event.start).format(this.FORMATTER)}</p>
+                        <p>End: ${moment(info.event.end).format(this.FORMATTER)}</p>
+                      </div>
+                    </div>`
+      tippy(info.el, {
+        content: _html,
+        animation: 'scale',
+        theme: 'light',
+        arrow: true,
+        allowHTML: true
+      })
     },
-    handleMouseLeave(event) {
-      if (this.timer) clearTimeout(this.timer)
-      this.timer = setTimeout(() => {
-        this.$refs.tooltip.style.visibility = 'hidden'
-      }, 200)
-    },
+    // handleMouseLeave(event) {
+    //   if (this.timer) clearTimeout(this.timer)
+    //   this.timer = setTimeout(() => {
+    //     this.$refs.tooltip.style.visibility = 'hidden'
+    //   }, 200)
+    // },
     showAttendance() {
       this.attendanceVisible = !this.attendanceVisible
     }
   }
 }
 </script>
+<style lang='less'>
+.tippy-self-content {
+  margin-top: 10px;
+  text-align: left;
+  p {
+    margin-bottom: 10px;
+  }
+}
+</style>
 
 <style lang='less' scoped>
 .opt {

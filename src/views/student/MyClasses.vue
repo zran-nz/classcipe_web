@@ -82,14 +82,75 @@
         <a-icon type="up-circle" theme="filled" title="Collapse filter" /> Close
       </div>
     </div> -->
-    <my-task-list
-      :loadData="loadData"
-      :viewMode="viewMode"
-      :status="currentStatus"
-      ref="myTaskList"
-      v-show="currentType === 'task'"
-    >
-    </my-task-list>
+    <!--  myTask & Unit -->
+    <div v-show="currentType === 'task'">
+      <div class="status-filter">
+        <a-radio-group v-model="currentStatus" button-style="solid">
+          <a-radio-button value="">
+            All Status
+          </a-radio-button>
+          <a-radio-button
+            v-for="(item,index) in statusList"
+            :value="item.value"
+            :key="'status'+index">
+            {{ item.title }}
+          </a-radio-button>
+        </a-radio-group>
+        <label>Class: 1</label>
+      </div>
+      <my-task-list
+        :loadData="loadData"
+        :viewMode="viewMode"
+        :status="currentStatus"
+        ref="myTaskList"
+      >
+      </my-task-list>
+    </div>
+    <!--  Evalutions -->
+    <!--  Attendance -->
+    <div v-show="currentType === 'attendance'">
+      <div class="attendance-summary">
+        <a-row :gutter="16">
+          <a-col :span="6">
+            <a-card class="attendance-card">
+              <h4>Total Sessions</h4>
+              <p>10</p>
+            </a-card>
+          </a-col>
+          <a-col :span="6">
+            <a-card class="attendance-card">
+              <h4>Attandence Sessions</h4>
+              <p>10</p>
+            </a-card>
+          </a-col>
+          <a-col :span="6">
+            <a-card class="attendance-card">
+              <h4>Absent Sessions</h4>
+              <p>10</p>
+            </a-card>
+          </a-col>
+          <a-col :span="6">
+            <a-card class="attendance-card">
+              <h4>Attandence Rate</h4>
+              <p>10%</p>
+            </a-card>
+          </a-col>
+        </a-row>
+      </div>
+      <div class="">
+        <s-table
+          ref="table"
+          size="default"
+          :rowKey="row => row.id"
+          :columns="columns"
+          :data="loadAttendance"
+          :scroll="scroll"
+          class="content-list"
+        >
+        </s-table>
+      </div>
+    </div>
+    <!--  Activites -->
   </div>
 </template>
 
@@ -98,6 +159,7 @@ import * as logger from '@/utils/logger'
 import { CustomTagType, StudentStudyTaskStatus, CurriculumType, SESSION_VIEW_MODE, STUDY_MODE, TASK_STATUS } from '@/const/common'
 
 import MyTaskList from '@/components/Student/MyTaskList'
+import { STable } from '@/components'
 
 import LiebiaoSvg from '@/assets/svgIcon/myContent/liebiao.svg?inline'
 import PubuSvg from '@/assets/svgIcon/myContent/pubu.svg?inline'
@@ -109,6 +171,7 @@ import { SelfStudyTaskList } from '@/api/selfStudy'
 import { FindCustomTags } from '@/api/tag'
 import { SubjectTree } from '@/api/subject'
 import { GetGradesByCurriculumId } from '@/api/preference'
+import { orderRecordList } from '@/api/orderRecord'
 
 import { StudyModeMixin } from '@/mixins/StudyModeMixin'
 
@@ -124,7 +187,8 @@ export default {
     LiebiaoSvg,
     PubuSvg,
     CollaborateSvg,
-    MyTaskList
+    MyTaskList,
+    STable
   },
   data() {
     return {
@@ -183,7 +247,15 @@ export default {
           params = Object.assign(this.filterParams, params)
         }
         return SelfStudyTaskList(params)
-      }
+      },
+      loadAttendance: parameter => {
+        logger.info('loadData.parameter', parameter)
+        return orderRecordList(Object.assign(parameter, this.queryParam))
+          .then(res => {
+            return res.result
+          })
+      },
+      scroll: {}
     }
   },
   computed: {
@@ -196,6 +268,33 @@ export default {
         if (this.studyMode === STUDY_MODE.SELF && item.value === TASK_STATUS.SCHEDULED) return false
         return true
       })
+    },
+    columns() {
+      const results = [
+         {
+          title: 'Date',
+          dataIndex: 'createTime'
+          // width: '150px'
+          // sorter: true,
+          // customRender: (text) => this.$options.filters['dayjs1'](text)
+        },
+        {
+          title: 'Class',
+          dataIndex: 'teacherName',
+          width: '250px'
+        },
+        {
+          title: 'Status',
+          dataIndex: 'teacherName',
+          width: '200px'
+        },
+        {
+          title: 'Session name',
+          dataIndex: 'teacherName',
+          width: '250px'
+        }
+      ]
+      return results
     }
   },
   created () {
@@ -546,6 +645,19 @@ a.delete-action {
         fill: @primary-color;
       }
     }
+  }
+}
+.status-filter {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.attendance-summary {
+  margin-bottom: 20px;
+  .attendance-card {
+    text-align: center;
+    background: #ececec;
   }
 }
 </style>
