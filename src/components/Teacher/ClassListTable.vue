@@ -23,6 +23,8 @@
             {{ date * 1000 | dayjs1 }}
           </span>
 
+          <span slot="startTime" slot-scope="text">{{ text | dayjs1 }} </span>
+
           <span slot="className" slot-scope="className" class="flex-center">
             <div class="class-name">
               <div class="class-name-text">{{ className }}</div>
@@ -368,10 +370,18 @@ export default {
       colorList: [ 'pink', 'red', 'orange', 'green', 'purple', 'cyan', 'blue' ],
       columns: [
         {
-          title: 'Date',
+          title: 'Starting time',
           dataIndex: 'date',
-          width: 250,
-          scopedSlots: { customRender: 'date' }
+          key: 'dateTime',
+          scopedSlots: { customRender: 'date' },
+          width: 200
+        },
+        {
+          title: 'Scheduled',
+          dataIndex: 'sessionStartTime',
+          key: 'sessionStartTime',
+          scopedSlots: { customRender: 'startTime' },
+          width: 150
         },
         {
           title: 'Class',
@@ -388,7 +398,7 @@ export default {
         {
           title: 'Session name',
           dataIndex: 'sessionName',
-          width: 280,
+          width: 250,
           scopedSlots: { customRender: 'sessionName' }
         },
         {
@@ -427,7 +437,7 @@ export default {
         logger.info('FindMyClasses', response.result.data)
         if (response.success) {
           if (this.pageSize) {
-            this.data = response.result.classList
+            this.data = response.result.classList.filter(item => item.date !== 0)
           }
         }
         this.total = response.result.classList.length
