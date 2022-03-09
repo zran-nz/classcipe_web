@@ -542,7 +542,7 @@
                     @update-comment='handleUpdateCommentList' />
                 </div>
               </template>
-              <template v-if='showRightModule(rightModule.imageUpload)'>
+              <template v-if='showRightModule(rightModule.imageUpload) && currentActiveStepIndex === 0'>
                 <div :style="{'width':rightWidth + 'px'}" class='form-block-right'>
                   <!-- image-->
                   <a-form-model-item class='img-wrapper'>

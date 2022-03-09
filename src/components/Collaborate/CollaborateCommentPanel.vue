@@ -11,7 +11,7 @@
         </div>
       </div>
       <div class="comment-input-wrapper">
-        <div class="input">
+        <div class="comment-input">
           <input-with-button :collaborate-user-list="collaborateUserList" :comment-item="newComment" @cancelComment="cancelComment" @comment="handleComment" :sending="newComment.sendLoading" />
         </div>
       </div>
@@ -75,7 +75,7 @@
                 </div>
               </div>
               <div class="comment-input-wrapper" v-if="rootComment.editing">
-                <div class="input">
+                <div class="comment-input">
                   <input-reply-button :collaborate-user-list="collaborateUserList" @send="handleSend" :comment-item="rootComment" @cancel="handleCancel" :sending="rootComment.sendLoading" />
                 </div>
               </div>
@@ -134,7 +134,7 @@
                 </div>
               </div>
               <div class="comment-input-wrapper" v-if="commentItem.editing">
-                <div class="input">
+                <div class="comment-input">
                   <input-reply-button :collaborate-user-list="collaborateUserList" @send="handleSend" :comment-item="commentItem" @cancel="handleCancel" :sending="commentItem.sendLoading" />
                 </div>
               </div>
@@ -142,7 +142,7 @@
           </div>
         </div>
         <div class="comment-input-wrapper" style="margin-top:10px">
-          <div class="input">
+          <div class="comment-input">
             <input-reply-button
               :collaborate-user-list="collaborateUserList"
               @send="handleSend"
@@ -371,7 +371,7 @@ export default {
       .comment-input-wrapper {
         margin-top: 10px;
         padding-left: 25px;
-        .input {
+        .comment-input {
           padding-left: 20px;
         }
       }

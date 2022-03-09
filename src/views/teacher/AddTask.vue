@@ -810,7 +810,7 @@
                       @update-comment='handleUpdateCommentList' />
                   </div>
                 </template>
-                <template v-if='showRightModule(rightModule.imageUpload) && currentActiveStepIndex !== 1'>
+                <template v-if='showRightModule(rightModule.imageUpload) && currentActiveStepIndex === 0'>
                   <div class='form-block-right'>
                     <!-- image-->
                     <a-form-model-item class='img-wrapper'>
@@ -3726,7 +3726,7 @@ export default {
         })
         this.showCustomTag = false
         this.customTagTop = 20
-        // this.setRightModuleVisible()
+        this.setRightModuleVisible()
       }
     },
     handleChangeCustomTags(tags) {
