@@ -9,8 +9,8 @@
         :options="calendarOptions"
         class="schedule-calendar"
       />
-      <div class="schedule-tip">
-        <div class="attendance" :style="{visibility: attendanceVisible ? 'visible' : 'hidden'}">
+      <div class="schedule-tip" v-show="attendanceVisible">
+        <div class="attendance"><!-- :style="{visibility: attendanceVisible ? 'visible' : 'hidden'}"> -->
           <a-select class="attendance-choose" v-model="currentClass" @change="handleChangeClass">
             <a-select-option :value="item.id" v-for="(item, index) in classList" :key="'class'+index">
               {{ item.name }}
@@ -336,6 +336,10 @@ export default {
     // },
     showAttendance() {
       this.attendanceVisible = !this.attendanceVisible
+      this.$nextTick(() => {
+        const calendarApi = this.$refs.fullCalendar.getApi()
+        calendarApi.render()
+      })
     }
   }
 }
