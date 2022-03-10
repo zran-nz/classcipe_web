@@ -118,6 +118,9 @@
       </my-task-list>
     </div>
     <!--  Evalutions -->
+    <div v-show="currentType === 'evaluations'">
+      <a-empty />
+    </div>
     <!--  Attendance -->
     <div v-show="currentType === 'attendance'">
       <div class="attendance-summary">
@@ -162,6 +165,21 @@
       </div>
     </div>
     <!--  Activites -->
+    <div v-show="currentType === 'activities'">
+      <div class="status-filter">
+        <a-radio-group v-model="currentActivity" button-style="solid">
+          <a-radio-button
+            v-for="(item,index) in activityList"
+            :value="item.value"
+            :key="'activity'+index">
+            {{ item.title }}
+          </a-radio-button>
+        </a-radio-group>
+        <label>Class: {{ classId }}</label>
+      </div>
+      <chat-list v-show="currentActivity === 'messages'" :classId="classId"/>
+      <to-do-list v-show="currentActivity === 'todos'" :classId="classId"/>
+    </div>
   </div>
 </template>
 
@@ -170,6 +188,8 @@ import * as logger from '@/utils/logger'
 import { CustomTagType, StudentStudyTaskStatus, CurriculumType, SESSION_VIEW_MODE, STUDY_MODE, TASK_STATUS } from '@/const/common'
 
 import MyTaskList from '@/components/Student/MyTaskList'
+import ToDoList from '@/components/ToDoList'
+import ChatList from '@/components/ChatList'
 import { STable } from '@/components'
 
 import LiebiaoSvg from '@/assets/svgIcon/myContent/liebiao.svg?inline'
@@ -199,7 +219,9 @@ export default {
     PubuSvg,
     CollaborateSvg,
     MyTaskList,
-    STable
+    STable,
+    ToDoList,
+    ChatList
   },
   props: {
     classId: {
@@ -213,6 +235,7 @@ export default {
       startLoading: false,
       currentStatus: '',
       currentType: 'task',
+      currentActivity: 'messages',
       STUDY_MODE: STUDY_MODE,
       TASK_STATUS: TASK_STATUS,
       tabsList: [{
@@ -227,6 +250,13 @@ export default {
       }, {
           value: 'activities',
           title: 'Activities'
+      }],
+      activityList: [{
+          value: 'messages',
+          title: 'Messages'
+      }, {
+          value: 'todos',
+          title: 'To dos'
       }],
       // 当前选中的配置项
       filterConfig: {

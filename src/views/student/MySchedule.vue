@@ -75,6 +75,17 @@ export default {
           minute: '2-digit',
           meridiem: 'short'
         }
+        // eventContent: (arg, createElement) => {
+        //   var innerText
+
+        //   if (arg.event.extendedProps.isUrgent) {
+        //     innerText = 'urgent event'
+        //   } else {
+        //     innerText = 'normal event'
+        //   }
+
+        //   return createElement('i', {}, innerText)
+        // }
       },
       currentEvents: [],
       labelConfig: [],
