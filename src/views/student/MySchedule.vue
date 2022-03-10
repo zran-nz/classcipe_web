@@ -3,16 +3,64 @@
     <div class="opt">
       <a-button type="primary" @click="showAttendance">{{ attendanceVisible ? 'Close' : 'Show' }} Attendance</a-button>
     </div>
-    <FullCalendar
-      :options="calendarOptions"
-    />
-    <div class="attendance" :style="{visibility: attendanceVisible ? 'visible' : 'hidden'}">
-      <a-select class="attendance-choose" :value="currentClass" @change="handleChangeClass">
-        <a-select-option :value="1">
-          Class1
-        </a-select-option>
-      </a-select>
-      <pie :height="198" :dataSource="dataSource" :labelConfig="labelConfig" :radius="radius" :guideData="guideData"/>
+    <div class="schedule-content">
+      <FullCalendar
+        ref="fullCalendar"
+        :options="calendarOptions"
+        class="schedule-calendar"
+      />
+      <div class="schedule-tip">
+        <div class="attendance" :style="{visibility: attendanceVisible ? 'visible' : 'hidden'}">
+          <a-select class="attendance-choose" v-model="currentClass" @change="handleChangeClass">
+            <a-select-option :value="item.id" v-for="(item, index) in classList" :key="'class'+index">
+              {{ item.name }}
+            </a-select-option>
+          </a-select>
+          <pie
+            :color="ABSENT_COLORS"
+            :height="198"
+            :dataSource="dataSource"
+            :labelConfig="labelConfig"
+            :radius="radius"
+            :guideData="guideData"/>
+        </div>
+        <div class="class-tip">
+          <div class="tip-title">My Class Legend</div>
+          <a-checkbox-group
+            :options="showClassOptions"
+            v-model="showClass"
+            @change="handleChangeEvents"
+            class="tip-check"
+          >
+            <div slot="label" class="tip-content" slot-scope="item">
+              <span class="tip-dot" :style="{backgroundColor: BG_COLORS[item.index]}"></span>
+              <span>{{ item.name }}</span>
+            </div>
+          </a-checkbox-group>
+          <!-- <div class="tip-content" v-for="(item, index) in classList" :key="'classtip'+item.id">
+              <span class="tip-dot" :style="{backgroundColor: BG_COLORS[index]}"></span>
+              <label>{{ item.name }}</label>
+          </div> -->
+        </div>
+        <div class="class-tip">
+          <div class="tip-title">Attendance Status Legend</div>
+          <a-checkbox-group
+            :options="showStatusOptions"
+            v-model="showStatus"
+            @change="handleChangeEvents"
+            class="tip-check"
+          >
+            <div slot="label" class="tip-content" slot-scope="item">
+              <span class="tip-dot dot-status" :style="{backgroundColor: ABSENT_COLORS[item.index]}"></span>
+              <span>{{ item.name }}</span>
+            </div>
+          </a-checkbox-group>
+          <!-- <div class="tip-content" v-for="(item, index) in statusList" :key="'statusTip'+item.id">
+            <span class="tip-dot dot-status" :style="{backgroundColor: ABSENT_COLORS[index]}"></span>
+            <label>{{ item.name }}</label>
+          </div> -->
+        </div>
+      </div>
     </div>
     <div class="tooltip">
       <div class="tooltip-wrap" ref="tooltip">
@@ -38,6 +86,8 @@ import interactionPlugin from '@fullcalendar/interaction'
 import { INITIAL_EVENTS, createEventId } from './components/event-utils'
 import Pie from '@/components/Charts/Pie'
 
+import { ABSENT_COLORS, BG_COLORS } from '@/const/common'
+
 import moment from 'moment'
 
 export default {
@@ -49,10 +99,42 @@ export default {
   },
   data() {
     return {
+      // mock
+      classList: [
+        {
+          id: 1,
+          name: 'Class 1'
+        },
+        {
+          id: 2,
+          name: 'Class 2'
+        },
+        {
+          id: 3,
+          name: 'Class 3'
+        },
+        {
+          id: 4,
+          name: 'Class 4'
+        }
+      ],
+      statusList: [
+        {
+          id: 0,
+          name: 'Absent'
+        },
+        {
+          id: 1,
+          name: 'Present'
+        }
+      ],
+      ABSENT_COLORS: ABSENT_COLORS,
+      BG_COLORS: BG_COLORS,
       attendanceVisible: true,
+      // fullcalendar
       calendarOptions: {
         plugins: [ dayGridPlugin, interactionPlugin, timeGridPlugin ],
-        initialView: 'timeGridWeek',
+        initialView: 'dayGridMonth',
         headerToolbar: {
           left: 'prev,next,today',
           center: 'title',
@@ -74,20 +156,39 @@ export default {
           hour: 'numeric',
           minute: '2-digit',
           meridiem: 'short'
+        },
+        eventContent: (info, h) => {
+          const props = info.event._def.extendedProps
+          let hTime = null
+
+          if (info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay') {
+            hTime = h('div', {}, [moment(info.event.start).format(this.FORMATTER_SIM), ' - ', moment(info.event.end).format(this.FORMATTER_SIM)])
+          } else if (info.view.type === 'dayGridMonth') {
+            hTime = h('span', { style: {
+              marginRight: 5
+            } }, [moment(info.event.start).format(this.FORMATTER_SIM)])
+          }
+
+          return h('div', {
+              class: 'schedule-event-content',
+              style: {
+                backgroundColor: info.event.backgroundColor,
+                color: '#fff'
+              }
+            }, [
+              hTime,
+              h('span', {
+                class: 'event-content-dot',
+                style: {
+                  backgroundColor: ABSENT_COLORS[props.status]
+                }
+              }),
+              h('label', {}, [info.event.title])
+          ])
         }
-        // eventContent: (arg, createElement) => {
-        //   var innerText
-
-        //   if (arg.event.extendedProps.isUrgent) {
-        //     innerText = 'urgent event'
-        //   } else {
-        //     innerText = 'normal event'
-        //   }
-
-        //   return createElement('i', {}, innerText)
-        // }
       },
       currentEvents: [],
+      // pie chart
       labelConfig: [],
       guideData: [{
         content: '40/61',
@@ -97,7 +198,7 @@ export default {
         },
         position: ['50%', '45%']
       }, {
-        content: 'Present',
+        content: 'Absent',
          style: {
           fontSize: 14,
           textAlign: 'center'
@@ -110,19 +211,43 @@ export default {
       },
       currentClass: 1,
       event: {
-        title: 'teset'
+        title: 'My Event'
       },
       timer: null,
-      FORMATTER: 'h:mm:ss a'
+      FORMATTER: 'h:mm a',
+      FORMATTER_SIM: 'h:mma',
+
+      showClass: [],
+      showStatus: [],
+      showClassOptions: [],
+      showStatusOptions: []
     }
   },
   computed: {
     dataSource() {
       return [
-          { item: 'Present', count: 40 },
-          { item: 'Absent', count: 21 }
-        ]
+        { item: 'Absent', count: 21, color: ABSENT_COLORS[0] },
+        { item: 'Present', count: 40, color: ABSENT_COLORS[1] }
+      ]
     }
+  },
+  created() {
+    this.showClass = this.classList.map(item => item.id)
+    this.showStatus = this.statusList.map(item => item.id)
+    this.showClassOptions = this.classList.map((item, index) => {
+      return {
+        value: item.id,
+        name: item.name,
+        index: index
+      }
+    })
+    this.showStatusOptions = this.statusList.map((item, index) => {
+      return {
+        value: item.id,
+        name: item.name,
+        index: index
+      }
+    })
   },
   methods: {
     handleWeekendsToggle() {
@@ -155,7 +280,23 @@ export default {
       console.log(event)
     },
     handleChangeClass() {
-
+      // this.handleChangeEvents()
+    },
+    handleChangeEvents() {
+      if (this.showClass.length === this.showClassOptions.length && this.showStatus === this.showStatusOptions.length) return
+      const calendarApi = this.$refs.fullCalendar.getApi()
+      const events = calendarApi.getEvents()
+      if (events.length > 0) {
+        events.forEach(event => {
+          event.remove()
+        })
+      }
+      INITIAL_EVENTS.forEach(item => {
+        const props = item.extendedProps
+        if (this.showClass.includes(props.classId) && this.showStatus.includes(props.status)) {
+          calendarApi.addEvent(item)
+        }
+      })
     },
     handleMouseEnter(info) {
       this.event = {
@@ -204,7 +345,23 @@ export default {
   margin-top: 10px;
   text-align: left;
   p {
-    margin-bottom: 10px;
+    margin-bottom: 5px;
+  }
+}
+.schedule-event-content {
+  padding: 2px;
+  border-radius: 5px;
+  width:100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  overflow-y: auto;
+  height: 100%;
+  .event-content-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 8px;
+    display: inline-block;
+    margin-right: 5px;
   }
 }
 </style>
@@ -217,10 +374,10 @@ export default {
   justify-content: flex-end;
 }
 .attendance {
-  position: fixed;
-  left: 58px;
-  bottom: 20px;
-  z-index: 101;
+  // position: fixed;
+  // left: 58px;
+  // bottom: 20px;
+  // z-index: 101;
   width: 200px;
   border: 1px solid #dfdfdf;
   box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
@@ -256,6 +413,44 @@ export default {
     border: 1px solid #dfdf;
     .tooltip-content {
       padding: 10px;
+    }
+  }
+}
+.schedule-content {
+  position: relative;
+  display: flex;
+  .schedule-calendar {
+    flex: 1;
+  }
+  .schedule-tip {
+    width: 200px;
+    margin-left: 10px;
+    display: flex;
+    flex-direction: column;
+    .class-tip {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      .tip-check {
+        width: 100%;
+      }
+      .tip-content {
+        height: 30px;
+        line-height: 30px;
+        display: inline-block;
+        align-items: center;
+        .tip-dot {
+          display: inline-block;
+          margin-right: 5px;
+          width: 20px;
+          height: 10px;
+          // border-radius: 10px;
+          &.dot-status {
+            width: 10px;
+            border-radius: 10px;
+          }
+        }
+      }
     }
   }
 }
