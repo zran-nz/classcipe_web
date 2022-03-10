@@ -252,31 +252,26 @@
                       </a-button>
                     </div>
                     <div class="form-setting">
-                      <a-dropdown
-                        placement="bottomRight"
-                        v-if="isTeacher">
-                        <a-icon type="setting" />
-                        <a-menu slot="overlay">
-                          <a-menu-item key="0">
-                            <div class="menu-icon">
-                              <a-switch
-                                size="small"
-                                v-model="formItem.se"
-                                @click="handleToggleStudentEvaluation(formItem)" />
-                            </div>
+                      <a-space v-if="isTeacher">
+                        <div class='switch-item'>
+                          <div class='switch-name'>
                             Student Eval
-                          </a-menu-item>
-                          <a-menu-item key="1">
-                            <div class="menu-icon">
-                              <a-switch
-                                size="small"
-                                v-model="formItem.pe"
-                                @click="handleTogglePeerEvaluation(formItem)" />
-                            </div>
+                          </div>
+                          <a-switch
+                            size="small"
+                            v-model="formItem.se"
+                            @click="handleToggleStudentEvaluation(formItem)"/>
+                        </div>
+                        <div class='switch-item'>
+                          <div class='switch-name'>
                             Peer Eval
-                          </a-menu-item>
-                        </a-menu>
-                      </a-dropdown>
+                          </div>
+                          <a-switch
+                            size="small"
+                            v-model="formItem.pe"
+                            @click="handleTogglePeerEvaluation(formItem)"/>
+                        </div>
+                      </a-space>
                     </div>
                   </div>
                   <div class="comment" v-show="mode === EvaluationTableMode.TeacherEvaluate">
@@ -2736,6 +2731,23 @@ export default {
           height: 15px;
         }
       }
+    }
+  }
+}
+
+.form-setting {
+  text-align: right;
+  padding-bottom: 10px;
+  cursor: pointer;
+
+  .switch-item {
+    margin-left: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    .switch-name {
+      padding-right: 5px;
     }
   }
 }
