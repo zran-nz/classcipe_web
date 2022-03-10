@@ -169,6 +169,11 @@ export default {
             } }, [moment(info.event.start).format(this.FORMATTER_SIM)])
           }
 
+          // 过滤
+          // if (!this.showClass.includes(props.classId) || !this.showStatus.includes(props.status)) {
+          //   return null
+          // }
+
           return h('div', {
               class: 'schedule-event-content',
               style: {
@@ -297,10 +302,12 @@ export default {
           calendarApi.addEvent(item)
         }
       })
+      // this.reRender()
     },
     handleMouseEnter(info) {
+      const props = info.event._def.extendedProps
       this.event = {
-        ...info.event._def.extendedProps,
+        ...props,
         title: info.event.title,
         backgroundColor: info.event.backgroundColor
       }
@@ -324,6 +331,7 @@ export default {
         content: _html,
         animation: 'scale',
         theme: 'light',
+        interactive: true,
         arrow: true,
         allowHTML: true
       })
@@ -336,6 +344,9 @@ export default {
     // },
     showAttendance() {
       this.attendanceVisible = !this.attendanceVisible
+      this.reRender()
+    },
+    reRender() {
       this.$nextTick(() => {
         const calendarApi = this.$refs.fullCalendar.getApi()
         calendarApi.render()
