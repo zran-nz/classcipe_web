@@ -426,7 +426,7 @@ export default {
     },
     handleDeleteItem (item) {
       logger.info('handleDeleteItem', item)
-      SelfStudyAchive({ id: item.taskId }).then(res => {
+      SelfStudyAchive({ id: item.id }).then(res => {
         logger.info('SelfStudyAchive', res)
       }).then(() => {
         this.loadMyContent()
@@ -434,14 +434,14 @@ export default {
     },
     handleRestoreItem (item) {
       logger.info('handleRestoreItem', item)
-      SelfStudyRestore({ id: item.taskId }).then(response => {
+      SelfStudyRestore({ id: item.id }).then(response => {
         this.$logger.info('handleRestoreItem response', response)
       }).finally(() => {
         this.loadMyContent()
       })
     },
     handlePermanentDeleteItem (item) {
-      SelfStudyDelete({ id: item.taskId }).then(response => {
+      SelfStudyDelete({ id: item.id }).then(response => {
         this.$logger.info('handleRestoreItem response', response)
       }).finally(() => {
         this.loadMyContent()
