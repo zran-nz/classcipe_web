@@ -174,60 +174,61 @@
             </div>
           </div>
           <div class="form-table-content" :data-mode="mode">
-            <div
-              class="table-content"
-              v-show="(currentActiveStudentId || mode === EvaluationTableMode.Edit) && !loading">
-              <div class="form-table-item" v-for="(formItem,tIdx) in forms" :key="tIdx">
-                <div class="form-table-item-content" v-show="formItem.formId === currentActiveFormId">
-                  <div class="form-header-line">
-                    <div class="form-setting">
-                      <a-space v-if="isTeacher">
-                        <div class='switch-item'>
-                          <div class='switch-name'>
-                            Student Eval
+            <template v-if='!loading'>
+              <div
+                class="table-content"
+                v-show="(currentActiveStudentId || mode === EvaluationTableMode.Edit)">
+                <div class="form-table-item" v-for="(formItem,tIdx) in forms" :key="tIdx">
+                  <div class="form-table-item-content" v-show="formItem.formId === currentActiveFormId">
+                    <div class="form-header-line">
+                      <div class="form-setting">
+                        <a-space v-if="isTeacher">
+                          <div class='switch-item'>
+                            <div class='switch-name'>
+                              Student Eval
+                            </div>
+                            <a-switch
+                              size="small"
+                              v-model="formItem.se"
+                              @click="handleToggleStudentEvaluation(formItem)"/>
                           </div>
-                          <a-switch
-                            size="small"
-                            v-model="formItem.se"
-                            @click="handleToggleStudentEvaluation(formItem)"/>
-                        </div>
-                        <div class='switch-item'>
-                          <div class='switch-name'>
-                            Peer Eval
+                          <div class='switch-item'>
+                            <div class='switch-name'>
+                              Peer Eval
+                            </div>
+                            <a-switch
+                              size="small"
+                              v-model="formItem.pe"
+                              @click="handleTogglePeerEvaluation(formItem)"/>
                           </div>
-                          <a-switch
-                            size="small"
-                            v-model="formItem.pe"
-                            @click="handleTogglePeerEvaluation(formItem)"/>
-                        </div>
-                      </a-space>
-                    </div>
-                    <div class="right-icon">
-                      <div class="icon-type-item">
-                        <div class="icon-item">
-                          <teacher-icon />
-                        </div>
-                        <div class="label">Teacher</div>
+                        </a-space>
                       </div>
-                      <div class="icon-type-item">
-                        <div class="icon-item">
-                          <student-icon />
+                      <div class="right-icon">
+                        <div class="icon-type-item">
+                          <div class="icon-item">
+                            <teacher-icon />
+                          </div>
+                          <div class="label">Teacher</div>
                         </div>
-                        <div class="label">Student</div>
-                      </div>
-                      <div class="icon-type-item">
-                        <div class="icon-item">
-                          <peer-icon />
+                        <div class="icon-type-item">
+                          <div class="icon-item">
+                            <student-icon />
+                          </div>
+                          <div class="label">Student</div>
                         </div>
-                        <div class="label">Peer</div>
+                        <div class="icon-type-item">
+                          <div class="icon-item">
+                            <peer-icon />
+                          </div>
+                          <div class="label">Peer</div>
+                        </div>
                       </div>
-                    </div>
-                    <div class="form-action">
-                      <a-button
-                        v-if="isTeacher && (mode === EvaluationTableMode.Edit || mode === EvaluationTableMode.TeacherEvaluate)"
-                        @click="handleToggleMode"
-                        class="my-form-header-btn"
-                        style="{
+                      <div class="form-action">
+                        <a-button
+                          v-if="isTeacher && (mode === EvaluationTableMode.Edit || mode === EvaluationTableMode.TeacherEvaluate)"
+                          @click="handleToggleMode"
+                          class="my-form-header-btn"
+                          style="{
                               width: 120px;
                               display: flex;
                               flex-direction: row;
@@ -238,22 +239,22 @@
                               border-radius: 20px;
                               padding: 15px 20px;
                             }">
-                        <div class="btn-icon">
-                          <img src="~@/assets/icons/common/form/baocun@2x.png" />
-                        </div>
-                        <div class="btn-text">
-                          <template v-if="mode=== EvaluationTableMode.Edit">
-                            Evaluating
-                          </template>
-                          <template v-if="mode !== EvaluationTableMode.Edit">
-                            Editing
-                          </template>
-                        </div>
-                      </a-button>
-                      <a-button
-                        v-if='mode === EvaluationTableMode.TeacherEvaluate'
-                        class="my-form-header-btn"
-                        style="{
+                          <div class="btn-icon">
+                            <img src="~@/assets/icons/common/form/baocun@2x.png" />
+                          </div>
+                          <div class="btn-text">
+                            <template v-if="mode=== EvaluationTableMode.Edit">
+                              Evaluating
+                            </template>
+                            <template v-if="mode !== EvaluationTableMode.Edit">
+                              Editing
+                            </template>
+                          </div>
+                        </a-button>
+                        <a-button
+                          v-if='mode === EvaluationTableMode.TeacherEvaluate'
+                          class="my-form-header-btn"
+                          style="{
                             width: 120px;
                             display: flex;
                             flex-direction: row;
@@ -264,53 +265,59 @@
                             border-radius: 20px;
                             padding: 15px 20px;
                           }"
-                        @click="handleSaveEvaluation">
-                        <div class="btn-icon">
-                          <img src="~@/assets/icons/common/form/fabu@2x.png" />
-                        </div>
-                        <div class="btn-text">
-                          Submit
-                        </div>
-                      </a-button>
+                          @click="handleSaveEvaluation">
+                          <div class="btn-icon">
+                            <img src="~@/assets/icons/common/form/fabu@2x.png" />
+                          </div>
+                          <div class="btn-text">
+                            Submit
+                          </div>
+                        </a-button>
+                      </div>
                     </div>
-                  </div>
-                  <div class="comment" v-show="mode === EvaluationTableMode.TeacherEvaluate">
-                    <div class="summary-input" v-if="currentActiveFormId && currentActiveStudentId">
-                      <a-textarea
-                        v-model="studentEvaluateData[currentActiveStudentId][currentActiveFormId].comment"
-                        placeholder="Write a comment"
-                        aria-placeholder="Write a comment"
-                        @keyup="handleUpdateComment(studentEvaluateData[currentActiveStudentId][currentActiveFormId].comment)"
-                        class="my-textarea" />
+                    <div class="comment" v-show="mode === EvaluationTableMode.TeacherEvaluate">
+                      <div class="summary-input" v-if="currentActiveFormId && currentActiveStudentId">
+                        <a-textarea
+                          v-model="studentEvaluateData[currentActiveStudentId][currentActiveFormId].comment"
+                          placeholder="Write a comment"
+                          aria-placeholder="Write a comment"
+                          @keyup="handleUpdateComment(studentEvaluateData[currentActiveStudentId][currentActiveFormId].comment)"
+                          class="my-textarea" />
+                      </div>
                     </div>
-                  </div>
-                  <div class="form-table-detail">
-                    <evaluation-table
-                      ref="evaluationTable"
-                      :form-id="formItem.formId"
-                      :init-raw-headers="formItem.initRawHeaders"
-                      :init-raw-data="formItem.initRawData"
-                      :form-type="formItem.formType"
-                      :mode="mode"
-                      :form-body-data="formBodyData"
-                      @update-evaluation="handleUpdateEvaluate"
-                      @add-evidence="handleAddEvidence"
-                      @error-mode='handleErrorMode'
-                    />
+                    <div class="form-table-detail">
+                      <evaluation-table
+                        ref="evaluationTable"
+                        :form-id="formItem.formId"
+                        :init-raw-headers="formItem.initRawHeaders"
+                        :init-raw-data="formItem.initRawData"
+                        :form-type="formItem.formType"
+                        :mode="mode"
+                        :form-body-data="formBodyData"
+                        @update-evaluation="handleUpdateEvaluate"
+                        @add-evidence="handleAddEvidence"
+                        @error-mode='handleErrorMode'
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <template v-if="forms.length === 0 && !loading">
-              <div class="no-form-tips">
-                <no-more-resources tips="The evaluation form has not been created!" />
-              </div>
-            </template>
-            <template
-              v-else-if="mode !== EvaluationTableMode.Edit && !currentActiveStudentId && !loading">
-              <div class="no-form-tips">
-                <no-more-resources tips="Please select a student first!" />
-              </div>
+              <template v-if="attendanceList.length === 0">
+                <div class="no-form-tips">
+                  <no-more-resources tips="There are no students currently in attendance in the classroom!" />
+                </div>
+              </template>
+              <template v-else-if="forms.length === 0">
+                <div class="no-form-tips">
+                  <no-more-resources tips="The evaluation form has not been created!" />
+                </div>
+              </template>
+              <template
+                v-else-if="mode !== EvaluationTableMode.Edit && !currentActiveStudentId">
+                <div class="no-form-tips">
+                  <no-more-resources tips="Please select a student first!" />
+                </div>
+              </template>
             </template>
           </div>
         </div>
@@ -563,8 +570,8 @@ import EvaluationTableMode from '@/components/Evaluation/EvaluationTableMode'
 import TeacherEvaluationStatus from '@/components/Evaluation/TeacherEvaluationStatus'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import PptSlideView from '@/components/Evaluation/PptSlideView'
-import { GetAssociate } from '@/api/teacher'
 import { typeMap } from '@/const/teacher'
+import { SchoolClassListClassAttendance } from '@/api/schoolClass'
 
 export default {
   name: 'ClassSessionEvaluation',
@@ -589,6 +596,10 @@ export default {
       required: true
     },
     classId: {
+      type: String,
+      required: true
+    },
+    sessionId: {
       type: String,
       required: true
     },
@@ -706,7 +717,6 @@ export default {
       currentUserGroupUserIdList: [],
 
       typeMap: typeMap,
-      taskForms: [],
 
       isEmptyStudentEvaluateData: false,
 
@@ -715,8 +725,10 @@ export default {
       allNoGroupStudentUserList: [], // 所有未分组的学生列表
       initCompleted: false,
 
-      isInitForm: false,
-      evaluationId: null // 保存后才有
+      evaluationId: null, // 保存后才有
+
+      attendanceEmailList: [],
+      attendanceList: []
     }
   },
   beforeRouteLeave(to, from, next) {
@@ -744,9 +756,9 @@ export default {
     }
   },
   created () {
-    this.$logger.info('[' + this.mode + '] created ClassSessionEvaluation classId' + this.classId + ' taskId ' + this.taskId)
+    this.$logger.info('[' + this.mode + '] created ClassSessionEvaluation taskId ' + this.taskId + ' classId ' + this.classId + ' sessionId ' + this.sessionId)
 
-    this.initData()
+    this.initClassSessionEvaluation()
 
     this.updateMode()
 
@@ -754,74 +766,45 @@ export default {
     window.sessionStorage.removeItem('multiConfirmVisible')
   },
   methods: {
-    initData () {
-      this.$logger.info('initData')
-      this.loading = true
 
-      // 加载task关联的evaluation表单数据
-      this.$logger.info('ClassSessionEvaluation GetAssociate taskId ' + this.taskId)
-      const associateEvaluationIdList = []
-      GetAssociate({
-        id: this.taskId,
-        type: this.typeMap.task
+    initClassSessionEvaluation () {
+      this.$logger.info('initClassSessionEvaluation classId ' + this.classId + ' sessonId ' + this.sessionId)
+      SchoolClassListClassAttendance({
+        classId: this.classId,
+        sessonId: this.sessionId
       }).then(response => {
-        this.$logger.info('ClassSessionEvaluation GetAssociate response', response)
-        response.result.owner.forEach(item => {
-          item.contents.forEach(content => {
-            if (content.type === typeMap.evaluation) {
-              associateEvaluationIdList.push(content.id)
-            }
-          })
-        })
+        this.$logger.info('SchoolClassListClassAttendance', response)
 
-        response.result.others.forEach(item => {
-          item.contents.forEach(content => {
-            if (content.type === typeMap.evaluation) {
-              associateEvaluationIdList.push(content.id)
-            }
-          })
-        })
-      }).finally(() => {
-        this.$logger.info('associateEvaluationIdList ', associateEvaluationIdList)
-
-        if (associateEvaluationIdList.length) {
-          const forms = []
-          EvaluationQueryByIds({ ids: associateEvaluationIdList }).then((response) => {
-            this.$logger.info('associateEvaluationIdList EvaluationQueryByIds ', response)
-            response.result.forEach(evaluationItem => {
-              evaluationItem.forms.forEach(formItem => {
-                forms.push({
-                  title: formItem.title,
-                  titleEditing: false,
-                  comment: null,
-                  formType: formItem.formType,
-                  se: formItem.se,
-                  pe: formItem.pe,
-                  menuVisible: false,
-                  mode: formItem.mode, // 0-editing 1-evaluating
-                  id: null,
-                  formId: formItem.formId,
-                  initRawHeaders: JSON.parse(formItem.initRawHeaders),
-                  initRawData: JSON.parse(formItem.initRawData)
-                })
-              })
+        if (response.success) {
+          if (response.result.length > 0) {
+            const attendanceEmailSet = new Set()
+            response.result.forEach(item => {
+              if (!attendanceEmailSet.has(item.email)) {
+                this.attendanceList.push(item)
+                this.attendanceEmailList.push(item.email)
+                attendanceEmailSet.add(item.email)
+              }
             })
-          }).then(() => {
-            this.taskForms = forms
-            this.$logger.info('taskForms', this.taskForms)
+            this.$logger.info('attendanceList', this.attendanceList)
             this.loadClassSessionEvaluationData()
-          })
+          } else {
+            this.loading = false
+          }
         } else {
-          this.loadClassSessionEvaluationData()
+          this.$message.error(response.message)
+          this.loading = false
         }
-
-        this.initCompleted = true
+      }).catch(error => {
+        this.loading = false
+        this.$logger.error('SchoolClassListClassAttendance', error)
+        this.$message.error('SchoolClassListClassAttendance ' + error)
       })
     },
 
+    // 更新当前评估模式
     updateMode () {
       SaveEvaluationMode({
-        sessionId: this.classId,
+        sessionId: this.sessionId,
         mode: this.mode === EvaluationTableMode.Edit ? TeacherEvaluationStatus.Editing : TeacherEvaluationStatus.Evaluating
       }).then((response) => {
         this.$logger.info('updateMode success', response)
@@ -829,10 +812,8 @@ export default {
     },
 
     loadClassSessionEvaluationData () {
-      GetSessionEvaluationByClassId({ classId: this.classId }).then(response => {
-        this.$logger.info('init data response', response)
-        // 加载班级信息数据
-        this.$logger.info('GetSessionEvaluationByClassId response', response.result)
+      GetSessionEvaluationByClassId({ classId: this.sessionId }).then(response => {
+        this.$logger.info('GetSessionEvaluationByClassId response', response)
         // 所有的学生id用于遍历构造学生评价数据 "对象"
         if (response.result && response.result.evaluation && response.result.evaluation.id) {
           this.id = response.result.evaluation.id
@@ -908,15 +889,6 @@ export default {
             data.evaluation.studentEvaluateData = null
           }
         }
-
-        if (!this.forms || this.forms.length === 0) {
-          this.forms = this.taskForms
-          this.isInitForm = true // 当前是初始化逻辑，需要自动保存一下关联的评估表，保证服务端已存在对应的评估表数据。
-          this.$logger.info('forms empty, use task forms as forms', this.forms)
-        } else {
-          this.isInitForm = false
-        }
-
         if (this.forms.length) {
           this.currentActiveFormId = this.forms[0].formId
         }
@@ -1001,53 +973,9 @@ export default {
         this.form.email = this.$store.getters.email
       }).finally(() => {
         if ((!this.forms || this.forms.length === 0) && this.mode !== EvaluationTableMode.Edit) {
-          window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/edit'
+          window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/' + this.sessionId + '/edit'
         }
-        if (this.isInitForm && this.forms.length) {
-          // 如果是初始化，且有关联的表格数据，先自动保存一下。
-          this.initSaveEvaluation()
-        } else {
-          this.loading = false
-        }
-      })
-    },
-
-    initSaveEvaluation () {
-      this.$logger.info('initSaveEvaluation onOk')
-      // 获取所有的表格结构（表头+表内容）
-      const formData = JSON.parse(JSON.stringify(this.form))
-      const formDataList = JSON.parse(JSON.stringify(this.forms))
-      this.$logger.info('formDataList', formDataList, 'this.form', this.form, 'this.classId', this.classId)
-      formData.classId = this.classId
-      // 获取评估数据
-      this.$logger.info('!!!!!!!!!!!!!!!!!! studentEvaluateData !!!!!!!!!!!', this.studentEvaluateData)
-      formDataList.forEach(formItem => {
-        formItem.initRawHeaders = JSON.stringify(formItem.initRawHeaders)
-        formItem.initRawData = JSON.stringify(formItem.initRawData)
-      })
-      formData.forms = formDataList
-      formData.studentEvaluateData = '{}'
-
-      if (this.id) {
-        this.form.id = this.id
-      }
-      SaveSessionEvaluation(formData).then((response) => {
-        this.$logger.info('SaveSessionEvaluation', response)
-        if (response.result && response.result.id) {
-          this.id = response.result.id
-        }
-        if (response.success) {
-          this.forms = []
-          this.form.forms = []
-          this.taskForms = []
-          this.initData()
-        } else {
-          this.$confirm({
-            content: response.message,
-            onOk: this.handleErrorMode,
-            onCancel: this.handleErrorMode
-          })
-        }
+        this.loading = false
       })
     },
 
@@ -1438,8 +1366,8 @@ export default {
                 }
               })
             })
-            this.$logger.info('formDataList', formDataList, 'this.form', this.form, 'this.classId', this.classId)
-            this.form.classId = this.classId
+            this.$logger.info('formDataList', formDataList, 'this.form', this.form, 'this.sessionId', this.sessionId)
+            this.form.classId = this.sessionId
             this.form.forms = formDataList
             // 获取评估数据
             this.$logger.info('!!!!!!!!!!!!!!!!!! studentEvaluateData !!!!!!!!!!!', this.studentEvaluateData)
@@ -1469,7 +1397,7 @@ export default {
                   currentForm = null
                 }
                 if (this.mode === EvaluationTableMode.TeacherEvaluate && currentForm && (currentForm.pe || currentForm.se)) {
-                  GetSessionEvaluationByClassId({ classId: this.classId }).then(response => {
+                  GetSessionEvaluationByClassId({ classId: this.sessionId }).then(response => {
                     this.$logger.info('after SaveSessionEvaluation GetSessionEvaluationByClassId', response)
                     if (response.result && response.result.evaluation && response.result.evaluation.id) {
                       this.id = response.result.evaluation.id
@@ -1547,8 +1475,8 @@ export default {
             }
           })
         })
-        this.$logger.info('formDataList', formDataList, 'this.form', this.form, 'this.classId', this.classId)
-        this.form.classId = this.classId
+        this.$logger.info('formDataList', formDataList, 'this.form', this.form, 'this.sessionId', this.sessionId)
+        this.form.classId = this.sessionId
         this.form.forms = formDataList
         // 获取评估数据
         this.$logger.info('!!!!!!!!!!!!!!!!!! studentEvaluateData !!!!!!!!!!!', this.studentEvaluateData)
@@ -1581,7 +1509,7 @@ export default {
               currentForm = null
             }
             if (this.mode === EvaluationTableMode.TeacherEvaluate && currentForm && (currentForm.pe || currentForm.se)) {
-              GetSessionEvaluationByClassId({ classId: this.classId }).then(response => {
+              GetSessionEvaluationByClassId({ classId: this.sessionId }).then(response => {
                 this.$logger.info('after SaveSessionEvaluation GetSessionEvaluationByClassId', response)
                 if (response.result && response.result.evaluation && response.result.evaluation.id) {
                   this.id = response.result.evaluation.id
@@ -1636,7 +1564,7 @@ export default {
     },
 
     goEvaluatePage () {
-      window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId
+      window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/' + this.sessionId
     },
     handleSaveAndBackEvaluation () {
       this.$logger.info('handleSaveAndBackEvaluation', this.forms)
@@ -1671,8 +1599,8 @@ export default {
                 }
               })
             })
-            this.$logger.info('formDataList', formDataList, 'this.form', this.form, 'this.classId', this.classId)
-            this.form.classId = this.classId
+            this.$logger.info('formDataList', formDataList, 'this.form', this.form, 'this.sessionId', this.sessionId)
+            this.form.classId = this.sessionId
             this.form.forms = formDataList
             // 获取评估数据
             this.$logger.info('!!!!!!!!!!!!!!!!!! studentEvaluateData !!!!!!!!!!!', this.studentEvaluateData)
@@ -1727,8 +1655,8 @@ export default {
             }
           })
         })
-        this.$logger.info('formDataList', formDataList, 'this.form', this.form, 'this.classId', this.classId)
-        this.form.classId = this.classId
+        this.$logger.info('formDataList', formDataList, 'this.form', this.form, 'this.sessionId', this.sessionId)
+        this.form.classId = this.sessionId
         this.form.forms = formDataList
         // 获取评估数据
         this.$logger.info('!!!!!!!!!!!!!!!!!! studentEvaluateData !!!!!!!!!!!', this.studentEvaluateData)
@@ -1958,7 +1886,7 @@ export default {
           this.$confirm({
             content: 'Are you sure to switch to edit mode ?',
             onOk: () => {
-              window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/edit'
+              window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/' + this.sessionId + '/edit'
             }
           })
         } else {

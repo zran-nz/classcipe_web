@@ -397,7 +397,7 @@
         :dialog-style="{ top: '50px' }"
         width="950px">
         <div>
-          <old-session-list :session-list="sessionList" @start-new-session="handleStartSession" @cancel="oldSelectSessionVisible=false" :mode="sessionMode" />
+          <old-session-list :task-id='oldSelectSessionTaskId' :session-list="sessionList" @start-new-session="handleStartSession" @cancel="oldSelectSessionVisible=false" :mode="sessionMode" />
         </div>
       </a-modal>
 
@@ -558,6 +558,7 @@ export default {
       // 之前报错了，提示没这个字段，加一下。
       customTagList: [],
       oldSelectSessionVisible: false,
+      oldSelectSessionTaskId: null,
       sessionList: [],
       sessionMode: 1,
       // 当前选中的配置项
@@ -832,6 +833,7 @@ export default {
         this.loading = false
       }).finally(() => {
         this.oldSelectSessionVisible = true
+        this.oldSelectSessionTaskId = item.id
       })
       // this.sessionTags = []
     },

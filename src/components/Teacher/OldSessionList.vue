@@ -56,11 +56,6 @@
       </div>
 
     </div>
-
-    <!--    <div class="modal-ensure-action-line">-->
-    <!--      <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectData">Cancel</a-button>-->
-    <!--      <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">Resume</a-button>-->
-    <!--    </div>-->
   </div>
 </template>
 
@@ -76,6 +71,7 @@ import storage from 'store'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 import { AddOrUpdateClass } from '@/api/classroom'
 import moment from 'moment'
+import { EvaluationMixin } from '@/mixins/EvaluationMixin'
 
 export default {
   name: 'OldSessionList',
@@ -91,11 +87,16 @@ export default {
         return []
       }
     },
+    taskId: {
+      type: String,
+      required: true
+    },
     mode: {
       type: Number,
       default: 1
     }
   },
+  mixins: [EvaluationMixin],
   data () {
     return {
       loading: false,
@@ -123,11 +124,6 @@ export default {
           dataIndex: 'className',
           width: '150px'
         },
-        // {
-        //   title: 'Session name',
-        //   width: 150,
-        //   dataIndex: 'className'
-        // },
         {
           title: 'Status',
           dataIndex: 'status',
@@ -214,6 +210,7 @@ export default {
     },
 
     handleStartOrJoin (item) {
+      this.$logger.info('handleStartOrJoin item :', item)
       item.startLoading = true
       const status = this.mode === 1 ? this.classStatus.teacherPaced : this.classStatus.studentPaced
       if (item.status !== status) {
@@ -224,9 +221,17 @@ export default {
         if (!data.date) {
           data.date = parseInt(moment.utc(new Date()).toDate().getTime() / 1000)
         }
-        AddOrUpdateClass(data).then(response => {
-          item.startLoading = false
-          this.goToClassPage(item.classId)
+
+        // 首次开课初始化评估表数据，然后再创建进入课堂
+        this.evaluationForm.className = item.className
+        this.evaluationForm.name = item.sessionName
+        this.evaluationForm.email = this.$store.getters.userInfo.email
+        this.CheckAndCreateTaskSessionEvaluationData(item.classId, this.taskId, () => {
+          this.$logger.info('AddOrUpdateClass data :', data)
+          AddOrUpdateClass(data).then(response => {
+            item.startLoading = false
+            this.goToClassPage(item.classId)
+          })
         })
       } else {
         this.goToClassPage(item.classId)
