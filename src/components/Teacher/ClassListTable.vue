@@ -226,7 +226,7 @@
                           <group-icon />
                         </div>
                         <div class="group-name">
-                          {{ group.name }} ({{ group.members.length }})
+                          {{ group.name }}
                         </div>
                       </div>
                       <div class="group-right" @click="handleToggleGroupExpand(group, $event)">

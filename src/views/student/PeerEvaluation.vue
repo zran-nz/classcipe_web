@@ -102,7 +102,7 @@
                         <group-icon />
                       </div>
                       <div class="group-name">
-                        {{ group.name }} ({{ group.members.length }})
+                        {{ group.name }} ({{ group.attendanceList.length }})
                       </div>
                       <div class="group-select-status">
                         <template v-if="selectedGroupIdList.indexOf(group.id) !== -1">
@@ -621,8 +621,12 @@ export default {
         this.classInfo = data.classInfo
         data.groups.forEach(group => {
           group.expand = true // 默认分组展开显示
+          group.attendanceList = []
           group.members.forEach(member => {
             allGroupStudentUserIdList.push(member.userId)
+            if (this.attendanceEmailList.includes(member.userId)) {
+              group.attendanceList.push(member.userId)
+            }
             if (member.userId === this.$store.getters.userInfo.email) {
               this.currentUserGroupId = group.id
               this.currentUserGroupUserIdList = group.members.map(member => member.userId)
@@ -1723,7 +1727,7 @@ export default {
 
         .form-table-detail {
           margin-right: -30px;
-          overflow-x: scroll;
+          overflow-x: overlay;
         }
       }
     }

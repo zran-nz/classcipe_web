@@ -102,7 +102,7 @@
                         <group-icon />
                       </div>
                       <div class="group-name">
-                        {{ group.name }} ({{ group.members.length }})
+                        {{ group.name }} ({{ group.attendanceList.length }})
                       </div>
                       <div class="group-select-status">
                         <template v-if="selectedGroupIdList.indexOf(group.id) !== -1">
@@ -1470,7 +1470,7 @@ export default {
 
         .form-table-detail {
           margin-right: -30px;
-          overflow-x: scroll;
+          overflow-x: overlay;
         }
       }
     }

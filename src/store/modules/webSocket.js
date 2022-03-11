@@ -1,6 +1,6 @@
 import { RECEIVE_MSG, WEBSOCKET_TYPE_INIT } from '@/store/mutation-types'
 import VueWebSocket from '@/websocket'
-import { COLLABORATE, SAVE_CONTENT, EVALUATION_SET_CHANGE } from '@/websocket/cmd'
+import { COLLABORATE, SAVE_CONTENT } from '@/websocket/cmd'
 
 const websocket = {
   state: {

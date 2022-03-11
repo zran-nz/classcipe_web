@@ -22,6 +22,7 @@ export const EvaluationMixin = {
       evaluationId: null,
       taskEvaluationForms: [],
       forms: [], // 评估表格数据
+      groups: [],
       evaluationForm: {
         classId: '',
         className: null,
@@ -282,6 +283,18 @@ export const EvaluationMixin = {
 
                 this.$set(this.studentEvaluateData, studentItem.email, studentEvaluateDataItem)
                 this.$logger.info('add student ' + studentItem.email, this.studentEvaluateData)
+              })
+            }
+
+            if (this.attendanceList) {
+              this.groups.forEach(group => {
+                const attendanceList = []
+                group.members.forEach(member => {
+                  if (this.attendanceEmailList.includes(member.userId)) {
+                    attendanceList.push(member.userId)
+                  }
+                })
+                group.attendanceList = attendanceList
               })
             }
           }

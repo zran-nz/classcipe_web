@@ -110,7 +110,7 @@
                         <group-icon />
                       </div>
                       <div class="group-name">
-                        {{ group.name }} ({{ group.members.length }})
+                        {{ group.name }} ({{ group.attendanceList.length }})
                       </div>
                       <div class="group-select-status">
                         <template v-if="selectedGroupIdList.indexOf(group.id) !== -1">
@@ -171,6 +171,7 @@
                 </div>
                 <div class="no-group-tips">
                   <a-empty v-if="allStudentUserList.length === 0 && !loading" description="No student exist" />
+                  <a-empty v-if="attendanceEmailList.length === 0 && !loading" description="No attendance student exist" />
                 </div>
               </div>
             </div>
@@ -304,12 +305,7 @@
                   </div>
                 </div>
               </div>
-              <template v-if="attendanceList.length === 0">
-                <div class="no-form-tips">
-                  <no-more-resources tips="There are no students currently in attendance in the classroom!" />
-                </div>
-              </template>
-              <template v-else-if="forms.length === 0">
+              <template v-if="forms.length === 0">
                 <div class="no-form-tips">
                   <no-more-resources tips="The evaluation form has not been created!" />
                 </div>
@@ -770,30 +766,25 @@ export default {
         sessonId: this.sessionId
       }).then(response => {
         this.$logger.info('SchoolClassListClassAttendance', response)
-
-        if (response.success) {
-          if (response.result.length > 0) {
-            const attendanceEmailSet = new Set()
-            response.result.forEach(item => {
-              if (!attendanceEmailSet.has(item.email)) {
-                this.attendanceList.push(item)
-                this.attendanceEmailList.push(item.email)
-                attendanceEmailSet.add(item.email)
-              }
-            })
-            this.$logger.info('attendanceList', this.attendanceList)
-            this.loadClassSessionEvaluationData()
-          } else {
-            this.loading = false
-          }
-        } else {
-          this.$message.error(response.message)
-          this.loading = false
+        if (response.success && response.result.length > 0) {
+          this.attendanceList = []
+          this.attendanceEmailList = []
+          const attendanceEmailSet = new Set()
+          response.result.forEach(item => {
+            if (!attendanceEmailSet.has(item.email)) {
+              this.attendanceList.push(item)
+              this.attendanceEmailList.push(item.email)
+              attendanceEmailSet.add(item.email)
+            }
+          })
+          this.$logger.info('attendanceList', this.attendanceList)
         }
       }).catch(error => {
         this.loading = false
         this.$logger.error('SchoolClassListClassAttendance', error)
         this.$message.error('SchoolClassListClassAttendance ' + error)
+      }).finally(() => {
+        this.loadClassSessionEvaluationData()
       })
     },
 
@@ -811,17 +802,18 @@ export default {
       GetSessionEvaluationByClassId({ classId: this.sessionId }).then(response => {
         this.$logger.info('GetSessionEvaluationByClassId response', response)
         // 所有的学生id用于遍历构造学生评价数据 "对象"
-        if (response.result && response.result.evaluation && response.result.evaluation.id) {
-          this.id = response.result.evaluation.id
-        }
         const allGroupStudentUserIdList = []
 
         const data = response.result
         this.classInfo = data.classInfo
         data.groups.forEach(group => {
           group.expand = true // 默认分组展开显示
+          group.attendanceList = []
           group.members.forEach(member => {
             allGroupStudentUserIdList.push(member.userId)
+            if (this.attendanceEmailList.includes(member.userId)) {
+              group.attendanceList.push(member.userId)
+            }
           })
         })
 
@@ -1072,7 +1064,7 @@ export default {
               this.showMultiSelectedConfirm = true
             }
           }
-          this.currentActiveStudentId = this.selectedMemberNameList[0]
+          this.currentActiveStudentId = this.selectedMemberIdList[0]
           this.currentActiveGroupId = group.id
         } else {
           // 取消小组选择时，把已选择人员清空
@@ -1081,7 +1073,7 @@ export default {
           this.currentActiveStudentId = null
           this.currentActiveGroupId = null
         }
-        this.$logger.info('handleSelectGroup selectedMemberIdList', this.selectedMemberIdList)
+        this.$logger.info('handleSelectGroup selectedMemberIdList', this.selectedMemberIdList, this.currentActiveStudentId)
       } else {
         this.$logger.info('current mode ' + this.mode + ' ignore it!')
       }
@@ -1136,8 +1128,8 @@ export default {
           title: selfTitle,
           titleEditing: false,
           formType: this.newFormType,
-          se: 0,
-          pe: 0,
+          se: false,
+          pe: false,
           menuVisible: false,
           comment: null,
           mode: TeacherEvaluationStatus.Editing, // 0-editing 1-evaluating
@@ -1374,13 +1366,13 @@ export default {
               this.formSaving = false
               return false
             } else {
-              if (this.id) {
-                this.form.id = this.id
+              if (this.evaluationId) {
+                this.form.id = this.evaluationId
               }
               SaveSessionEvaluation(this.form).then((response) => {
                 this.$logger.info('SaveSessionEvaluation', response)
                 if (response.result && response.result.id) {
-                  this.id = response.result.id
+                  this.evaluationId = response.result.id
                 }
                 this.$message.success('Save successfully!')
                 this.formSaving = false
@@ -1396,7 +1388,7 @@ export default {
                   GetSessionEvaluationByClassId({ classId: this.sessionId }).then(response => {
                     this.$logger.info('after SaveSessionEvaluation GetSessionEvaluationByClassId', response)
                     if (response.result && response.result.evaluation && response.result.evaluation.id) {
-                      this.id = response.result.evaluation.id
+                      this.evaluationId = response.result.evaluation.id
                     }
 
                     const data = response.result
@@ -1486,13 +1478,13 @@ export default {
           }
           return false
         } else {
-          if (this.id) {
-            this.form.id = this.id
+          if (this.evaluationId) {
+            this.form.id = this.evaluationId
           }
           SaveSessionEvaluation(this.form).then((response) => {
             this.$logger.info('SaveSessionEvaluation', response)
             if (response.result && response.result.id) {
-              this.id = response.result.id
+              this.evaluationId = response.result.id
             }
             this.$message.success('Save successfully!')
             this.formSaving = false
@@ -1508,7 +1500,7 @@ export default {
               GetSessionEvaluationByClassId({ classId: this.sessionId }).then(response => {
                 this.$logger.info('after SaveSessionEvaluation GetSessionEvaluationByClassId', response)
                 if (response.result && response.result.evaluation && response.result.evaluation.id) {
-                  this.id = response.result.evaluation.id
+                  this.evaluationId = response.result.evaluation.id
                 }
 
                 const data = response.result
@@ -1607,13 +1599,13 @@ export default {
               this.formSaving = false
               return false
             } else {
-              if (this.id) {
-                this.form.id = this.id
+              if (this.evaluationId) {
+                this.form.id = this.evaluationId
               }
               SaveSessionEvaluation(this.form).then((response) => {
                 this.$logger.info('SaveSessionEvaluation', response)
                 if (response.result && response.result.id) {
-                  this.id = response.result.id
+                  this.evaluationId = response.result.id
                 }
                 if (response.success) {
                   this.$message.success('Save successfully!')
@@ -1663,13 +1655,13 @@ export default {
           this.formSaving = false
           return false
         } else {
-          if (this.id) {
-            this.form.id = this.id
+          if (this.evaluationId) {
+            this.form.id = this.evaluationId
           }
           SaveSessionEvaluation(this.form).then((response) => {
             this.$logger.info('SaveSessionEvaluation', response)
             if (response.result && response.result.id) {
-              this.id = response.result.id
+              this.evaluationId = response.result.id
             }
             if (response.success) {
               this.$message.success('Save successfully!')
@@ -2185,7 +2177,7 @@ export default {
 
         .form-table-detail {
           margin-right: -30px;
-          overflow-x: scroll;
+          overflow-x: overlay;
         }
       }
     }
