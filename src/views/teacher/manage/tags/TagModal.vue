@@ -48,7 +48,7 @@
 
 import JModal from '@/components/jeecg/JModal'
 import JTreeSelect from '@/components/jeecg/JTreeSelect'
-import { SchoolAddOrUpdateTag } from '@/api/tag'
+import { SchoolTagSet } from '@/api/tag'
 
 export default {
     name: 'TagModal',
@@ -83,7 +83,7 @@ export default {
            ]
         },
         url: {
-          add: '/classcipe/api/tag/addOrUpdate'
+          add: '/classcipe/api/tag/schoolTagSet'
         },
         expandedRowKeys: [],
         pidField: 'parentId',
@@ -127,12 +127,12 @@ export default {
        this.$refs.form.validate(valid => {
           if (valid) {
             that.confirmLoading = true
-            SchoolAddOrUpdateTag(this.model).then((res) => {
+            SchoolTagSet(this.model).then((res) => {
               if (res.success) {
                 that.$message.success(res.message)
                 this.$emit('ok')
               } else {
-                that.$message.warning(res.message)
+                that.$message.warning(res.message, 5)
               }
             }).finally(() => {
               that.confirmLoading = false

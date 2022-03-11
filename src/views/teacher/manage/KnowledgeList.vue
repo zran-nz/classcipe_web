@@ -287,7 +287,7 @@ export default {
       params.hasQuery = 'true'
       params.curriculumId = this.$store.getters.bindCurriculum
       params.tagType = TagType.ibSkill
-      postAction(this.url.list, params).then(res => {
+      getAction(this.url.list, params).then(res => {
         if (res.success) {
           const result = res.result
           if (Number(result.total) > 0) {
