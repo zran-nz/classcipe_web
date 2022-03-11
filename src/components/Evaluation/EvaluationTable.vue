@@ -169,7 +169,7 @@
       </thead>
 
       <tbody class='table-body'>
-        <tr v-for='(item, lIndex) in list' class='body-line' :key='lIndex' :data-row-id='item.rowId'>
+        <tr v-for='(item, lIndex) in list' class='body-line' :key='lIndex' :data-row-id='item.rowId' v-show='!item.hiddenIBLine' >
           <td
             v-for='(header, hIndex) in headers'
             :class="{'body-item': true, 'big-body-item': formType === tableType.CenturySkills && header.type === headerType.Description}"
@@ -789,6 +789,16 @@ export default {
     formBodyData: {
       type: Object,
       default: () => null
+    },
+    // 关联的taskId用于获取对应的大纲条数据使用
+    linkedTaskId: {
+      type: String,
+      default: null
+    },
+    // 是否自动把大纲条插入到新建的表格中
+    autoComplete: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -1315,6 +1325,8 @@ export default {
           rowId
         }
       } else if (this.formType === this.tableType.Rubric) {
+        newLineItem.hiddenIBLine = false // 是否隐藏ib大纲数据行
+        newLineItem.isSelfInputLine = false // 是否用户自定义输入行
         newLineItem[this.headerType.Criteria] = {
           rowId,
           name: null,
@@ -1472,6 +1484,8 @@ export default {
       this.currentSelectHeader = header
       this.currentSelectLine = item
 
+      this.currentSelectLine.hiddenIBLine = false
+      this.currentSelectLine.isSelfInputLine = true
       this.currentSelectLine[this.headerType.Criteria] = {
         name: '',
         rowId: this.currentSelectLine.rowId,
@@ -1656,6 +1670,8 @@ export default {
       } else if (this.formType === this.tableType.Rubric) {
         if (selectedList.length >= 1) {
           // 如果只选择了一个，使用第一个填充当前行数据
+          this.currentSelectLine.hiddenIBLine = false
+          this.currentSelectLine.isSelfInputLine = false
           this.currentSelectLine[this.headerType.Criteria] = {
             name: selectedList[0].name,
             rowId: this.currentSelectLine.rowId,
@@ -1689,6 +1705,10 @@ export default {
               if (index > 0) {
                 const newLineItem = {}
                 const rowId = this.generateRowId()
+                newLineItem.rowId = rowId
+                newLineItem.hiddenIBLine = false
+                newLineItem.isSelfInputLine = false
+
                 this.headers.forEach(header => {
                   newLineItem[header.type] = {
                     name: null,
@@ -1726,7 +1746,6 @@ export default {
                   selectedStudentList: [],
                   rowId
                 }
-                newLineItem.rowId = rowId
 
                 this.$logger.info('[' + this.mode + '] Rubric add new line with criteria data ', newLineItem)
                 this.list.push(newLineItem)

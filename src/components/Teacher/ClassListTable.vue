@@ -317,6 +317,9 @@ import { ACCESS_TOKEN } from '@/store/mutation-types'
 import PptSlideView from '@/components/Evaluation/PptSlideView'
 import TeacherEvaluationStatus from '@/components/Evaluation/TeacherEvaluationStatus'
 import { ClassType } from '@/const/common'
+import GroupIcon from '@/assets/svgIcon/evaluation/qunzu.svg?inline'
+import ArrowDown from '@/assets/svgIcon/evaluation/arrow_down.svg?inline'
+import ArrowTop from '@/assets/svgIcon/evaluation/arrow_top.svg?inline'
 
 export default {
   name: 'ClassTableList',
@@ -329,7 +332,10 @@ export default {
     ArchiveSessionIcon,
     EvaluateIcon,
     Bianji,
-    TakeAwayIcon
+    ArrowTop,
+    ArrowDown,
+    TakeAwayIcon,
+    GroupIcon
   },
   props: {
     slideId: {

@@ -341,7 +341,6 @@ import { getTaskBySessionId } from '@/api/task'
 import { GetAssociate } from '@/api/teacher'
 import TeacherEvaluationStatus from '@/components/Evaluation/TeacherEvaluationStatus'
 import { EvaluationMixin } from '@/mixins/EvaluationMixin'
-import { ChangeClassStatus } from '@/api/classroom'
 
 export default {
   name: 'StudentEvaluation',
