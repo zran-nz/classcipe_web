@@ -14609,7 +14609,7 @@ walker@^1.0.7, walker@~1.0.5:
 
 wangeditor@^3.1.1:
   version "3.1.1"
-  resolved "https://registry.nlark.com/wangeditor/download/wangeditor-3.1.1.tgz#fbd3c1d4976923c9edebb85b29d30b35512ad039"
+  resolved "https://registry.yarnpkg.com/wangeditor/-/wangeditor-3.1.1.tgz#fbd3c1d4976923c9edebb85b29d30b35512ad039"
   integrity sha1-+9PB1JdpI8nt67hbKdMLNVEq0Dk=
 
 warning@^4.0.0:
