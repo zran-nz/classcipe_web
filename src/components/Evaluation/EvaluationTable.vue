@@ -1326,6 +1326,7 @@ export default {
         }
       } else if (this.formType === this.tableType.Rubric) {
         newLineItem.hiddenIBLine = false // 是否隐藏ib大纲数据行
+        newLineItem.isSelfInputLine = false // 是否用户自定义输入行
         newLineItem[this.headerType.Criteria] = {
           rowId,
           name: null,
@@ -1484,6 +1485,7 @@ export default {
       this.currentSelectLine = item
 
       this.currentSelectLine.hiddenIBLine = false
+      this.currentSelectLine.isSelfInputLine = true
       this.currentSelectLine[this.headerType.Criteria] = {
         name: '',
         rowId: this.currentSelectLine.rowId,
@@ -1669,6 +1671,7 @@ export default {
         if (selectedList.length >= 1) {
           // 如果只选择了一个，使用第一个填充当前行数据
           this.currentSelectLine.hiddenIBLine = false
+          this.currentSelectLine.isSelfInputLine = false
           this.currentSelectLine[this.headerType.Criteria] = {
             name: selectedList[0].name,
             rowId: this.currentSelectLine.rowId,
@@ -1704,6 +1707,7 @@ export default {
                 const rowId = this.generateRowId()
                 newLineItem.rowId = rowId
                 newLineItem.hiddenIBLine = false
+                newLineItem.isSelfInputLine = false
 
                 this.headers.forEach(header => {
                   newLineItem[header.type] = {

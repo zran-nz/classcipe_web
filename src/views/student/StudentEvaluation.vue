@@ -589,8 +589,6 @@ export default {
         this.$logger.info('GetSessionEvaluationByClassId response', response.result)
         // 所有的学生id用于遍历构造学生评价数据 "对象"
         const allGroupStudentUserIdList = []
-
-
         const data = response.result
         this.classInfo = data.classInfo
         data.groups.forEach(group => {

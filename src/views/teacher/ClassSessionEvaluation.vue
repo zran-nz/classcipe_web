@@ -1189,6 +1189,22 @@ export default {
       this.$logger.info('handleEnsureSelectEvaluation', data)
       const evaluationIdList = data.evaluationIdList
       const refFormList = data.selectedFormList
+      refFormList.forEach(formItem => {
+        if (formItem.formType === EvaluationTableType.Rubric) {
+          const initRawData = typeof formItem.initRawData === 'string' ? JSON.parse(formItem.initRawData) : formItem.initRawData
+          if (initRawData) {
+            initRawData.forEach(lineItem => {
+              lineItem.hiddenIBLine = this.$store.getters.hiddenIbCurriculumId && !lineItem.isSelfInputLine
+              if (lineItem.hiddenIBLine) {
+                this.$logger.info('hiddenIBLine', lineItem)
+              }
+            })
+            formItem.initRawData = JSON.stringify(initRawData)
+          } else {
+            this.$logger.info('skip empty form ', formItem)
+          }
+        }
+      })
 
       if (evaluationIdList && evaluationIdList.length) {
         EvaluationQueryByIds({ ids: evaluationIdList }).then((response) => {
@@ -1200,7 +1216,16 @@ export default {
               if (index === -1) {
                 if (formItem.initRawHeaders && typeof formItem.initRawHeaders === 'string') {
                   formItem.initRawHeaders = JSON.parse(formItem.initRawHeaders)
-                  formItem.initRawData = JSON.parse(formItem.initRawData)
+
+                  if (formItem.formType === EvaluationTableType.Rubric) {
+                    const initRawData = JSON.parse(formItem.initRawData)
+                    initRawData.forEach(lineItem => {
+                      lineItem.hiddenIBLine = this.$store.getters.hiddenIbCurriculumId && !lineItem.isSelfInputLine
+                    })
+                    formItem.initRawData = initRawData
+                  } else {
+                    formItem.initRawData = JSON.parse(formItem.initRawData)
+                  }
                 }
                 refFormList.push(formItem)
               }
