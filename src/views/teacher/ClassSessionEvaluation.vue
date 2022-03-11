@@ -180,6 +180,28 @@
               <div class="form-table-item" v-for="(formItem,tIdx) in forms" :key="tIdx">
                 <div class="form-table-item-content" v-show="formItem.formId === currentActiveFormId">
                   <div class="form-header-line">
+                    <div class="form-setting">
+                      <a-space v-if="isTeacher">
+                        <div class='switch-item'>
+                          <div class='switch-name'>
+                            Student Eval
+                          </div>
+                          <a-switch
+                            size="small"
+                            v-model="formItem.se"
+                            @click="handleToggleStudentEvaluation(formItem)"/>
+                        </div>
+                        <div class='switch-item'>
+                          <div class='switch-name'>
+                            Peer Eval
+                          </div>
+                          <a-switch
+                            size="small"
+                            v-model="formItem.pe"
+                            @click="handleTogglePeerEvaluation(formItem)"/>
+                        </div>
+                      </a-space>
+                    </div>
                     <div class="right-icon">
                       <div class="icon-type-item">
                         <div class="icon-item">
@@ -250,28 +272,6 @@
                           Submit
                         </div>
                       </a-button>
-                    </div>
-                    <div class="form-setting">
-                      <a-space v-if="isTeacher">
-                        <div class='switch-item'>
-                          <div class='switch-name'>
-                            Student Eval
-                          </div>
-                          <a-switch
-                            size="small"
-                            v-model="formItem.se"
-                            @click="handleToggleStudentEvaluation(formItem)"/>
-                        </div>
-                        <div class='switch-item'>
-                          <div class='switch-name'>
-                            Peer Eval
-                          </div>
-                          <a-switch
-                            size="small"
-                            v-model="formItem.pe"
-                            @click="handleTogglePeerEvaluation(formItem)"/>
-                        </div>
-                      </a-space>
                     </div>
                   </div>
                   <div class="comment" v-show="mode === EvaluationTableMode.TeacherEvaluate">
@@ -2737,7 +2737,6 @@ export default {
 
 .form-setting {
   text-align: right;
-  padding-bottom: 10px;
   cursor: pointer;
 
   .switch-item {
