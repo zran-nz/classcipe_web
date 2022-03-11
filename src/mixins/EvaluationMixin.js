@@ -57,18 +57,27 @@ export const EvaluationMixin = {
     } else if (this.mode === EvaluationTableMode.PeerEvaluate) {
       EvaluationEventBus.$on(EVALUATION_ATTENDANCE_CHANGE, this.handleEvaluationAttendance)
       EvaluationEventBus.$on(EVALUATION_TEACHER_SUBMMIT, this.handleEvaluationTeacherSubmit)
-      EvaluationEventBus.$on(EVALUATION_STUDENT_SUBMMIT, this.handleEvaluationStudentSubmit)
-      EvaluationEventBus.$on(EVALUATION_PEER_SUBMMIT, this.handleEvaluationPeerSubmit)
       EvaluationEventBus.$on(EVALUATION_SET_CHANGE, this.handleEvaluationSetChange)
     } else if (this.mode === EvaluationTableMode.StudentEvaluate) {
       EvaluationEventBus.$on(EVALUATION_ATTENDANCE_CHANGE, this.handleEvaluationAttendance)
       EvaluationEventBus.$on(EVALUATION_TEACHER_SUBMMIT, this.handleEvaluationTeacherSubmit)
-      EvaluationEventBus.$on(EVALUATION_STUDENT_SUBMMIT, this.handleEvaluationStudentSubmit)
-      EvaluationEventBus.$on(EVALUATION_PEER_SUBMMIT, this.handleEvaluationPeerSubmit)
       EvaluationEventBus.$on(EVALUATION_SET_CHANGE, this.handleEvaluationSetChange)
     }
   },
   destroyed() {
+    if (this.mode === EvaluationTableMode.TeacherEvaluate) {
+      EvaluationEventBus.$off(EVALUATION_ATTENDANCE_CHANGE, this.handleEvaluationAttendance)
+      EvaluationEventBus.$off(EVALUATION_STUDENT_SUBMMIT, this.handleEvaluationStudentSubmit)
+      EvaluationEventBus.$off(EVALUATION_PEER_SUBMMIT, this.handleEvaluationPeerSubmit)
+    } else if (this.mode === EvaluationTableMode.PeerEvaluate) {
+      EvaluationEventBus.$off(EVALUATION_ATTENDANCE_CHANGE, this.handleEvaluationAttendance)
+      EvaluationEventBus.$off(EVALUATION_TEACHER_SUBMMIT, this.handleEvaluationTeacherSubmit)
+      EvaluationEventBus.$off(EVALUATION_SET_CHANGE, this.handleEvaluationSetChange)
+    } else if (this.mode === EvaluationTableMode.StudentEvaluate) {
+      EvaluationEventBus.$off(EVALUATION_ATTENDANCE_CHANGE, this.handleEvaluationAttendance)
+      EvaluationEventBus.$off(EVALUATION_TEACHER_SUBMMIT, this.handleEvaluationTeacherSubmit)
+      EvaluationEventBus.$off(EVALUATION_SET_CHANGE, this.handleEvaluationSetChange)
+    }
   },
   computed: {
   },
@@ -360,10 +369,9 @@ export const EvaluationMixin = {
       }
     },
 
-
     handleRefreshEvaluationData () {
       this.$logger.info('handleRefreshEvaluationData')
       window.location.reload()
-    },
+    }
   }
 }

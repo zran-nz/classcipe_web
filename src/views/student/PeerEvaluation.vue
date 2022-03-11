@@ -891,12 +891,14 @@ export default {
           this.$confirm({
             title: 'Please notice',
             content: 'Your evaluation will replace the current result.',
-            centered: true
+            centered: true,
+            onOk: () => {
+              this.$logger.info('currentActiveStudentId', member)
+              this.selectedMemberIdList = [member.userId]
+              this.currentActiveStudentId = member.userId
+              this.selectedGroupIdList = []
+            }
           })
-          this.$logger.info('currentActiveStudentId', member)
-          this.selectedMemberIdList = [member.userId]
-          this.currentActiveStudentId = member.userId
-          this.selectedGroupIdList = []
         }
       }
     },
