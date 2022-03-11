@@ -16,11 +16,11 @@
         <div class="contact-content">
           <div
             class="contact-item"
-            @click="toogleTeacher(item.id)"
-            :class="{active: item.id === currentTeacher}"
-            v-for="(item, index) in teacherListFilter"
+            @click="toogleContact(item.id)"
+            :class="{active: item.id === currentContact}"
+            v-for="(item, index) in contactListFilter"
             :key="'teacher_'+index">
-            <a-badge count="5">
+            <a-badge :count="item.noRead">
               <img class="contact-item-avatar" :src="item.avatar" />
             </a-badge>
             <div class="contact-item-detail">
@@ -33,23 +33,15 @@
     </div>
     <div class="chat-wrap">
       <div class="chat-content" ref="chatList">
-        <div class="chat-item">
-          <img class="chat-avatar" src="~@/assets/icons/common/preview/star_gray.png" />
-          <div class="chat-message">
-            interface IImageGuide {
-            type?: 'image';
-            top?: boolean;  // 指定 giude 是否绘制在 canvas 最上层，默认为 false, 即绘制在最下层
-            zIndex?: number;
+        <template v-for="(item, index) in dataSource">
+          <div :key="'item_msg_' + item.id" class="chat-item" :class="{self: item.ownerId === user.info.id}">
+            <img class="chat-avatar" :src="item.avatar" />
+            <div class="chat-message" v-html="item.message">
+              {{ item.message }}
+            </div>
           </div>
-        </div>
-        <div class="chat-item self">
-          <img class="chat-avatar" src="~@/assets/icons/common/preview/star_yellow.png" />
-          <div class="chat-message">
-            You can subscribe to any of your calendars (i.e. iCal, Google Calendar, Outlook etc.)
-            by clicking My Full Calendar from your "Dashboard". From there you can click on Subscribe to Calendar. jf
-          </div>
-        </div>
-        <div class="chat-time">Yesterday 8:30PM</div>
+          <div v-show="!isSameNext(item.date, index)" :key="'item_date_' + item.id" class="chat-time">{{ item.date }}</div>
+        </template>
       </div>
       <div class="chat-line"></div>
       <div class="chat-send">
@@ -58,12 +50,14 @@
             placeholder="Enter your message......"
             ref="chatSend"
             v-model="subForm.content"
+            @change="e => changeContent(e.target.value)"
             :rows="5"
             allowClear
           />
         </div>
+        <!-- <text-editor :value="subForm.content" @change="changeContent"/> -->
         <div class="chat-send__opt">
-          <a-button type="primary">Send</a-button>
+          <a-button type="primary" @click="handleSend" :disabled="!subForm.content">Send</a-button>
         </div>
       </div>
     </div>
@@ -71,56 +65,142 @@
 </template>
 
 <script>
+  import moment from 'moment'
+
+  import TextEditor from '@/components/Editor/WangEditor'
+
+  import { mapState } from 'vuex'
   export default {
     name: 'ChatList',
+    components: {
+      TextEditor
+    },
     data() {
       return {
-        dataSource: [],
-        teacherList: [{
+        dataSource: [{
+          id: 1,
+          owner: 'Teacher A',
+          ownerId: 1,
+          avatar: 'https://lh3.googleusercontent.com/a/AATXAJz5xyNabdkLEyV9BXw74tgHPSu9zPMpek2eSUsU=s96-c',
+          message: 'interface IImageGuide] nterface IImageGuide] nterface IImageGuide] nterface IImageGuide]',
+          date: '2022-03-08 12:00:00'
+        }, {
+          id: 3,
+          owner: 'Teacher A',
+          ownerId: 2,
+          avatar: 'https://lh3.googleusercontent.com/a/AATXAJz5xyNabdkLEyV9BXw74tgHPSu9zPMpek2eSUsU=s96-c',
+          message: 'interface IImageGuide] nterface IImageGuide] nterface IImageGuide] nterface IImageGuide]',
+          date: '2022-03-08 14:00:00'
+        }, {
+          id: 2,
+          owner: 'jacob',
+          ownerId: '1496403869212160002',
+          avatar: 'https://lh3.googleusercontent.com/a/AATXAJz5xyNabdkLEyV9BXw74tgHPSu9zPMpek2eSUsU=s96-c',
+          message: 'You can subscribe to any of your calendars (i.e. iCal, Google Calendar, Outlook etc.) by clicking My Full Calendar from your "Dashboard". From there you can click on Subscribe to Calendar. jf',
+          date: moment().format('YYYY-MM-DD hh:mm:ss')
+        }],
+        contactList: [{
           id: 1,
           name: 'Teacher A',
           avatar: 'https://lh3.googleusercontent.com/a/AATXAJz5xyNabdkLEyV9BXw74tgHPSu9zPMpek2eSUsU=s96-c',
           messages: [{
             content: 'You can subscribe to any of your calendars (i.e. iCal, Google Calendar, Outlook etc.)'
-          }]
+          }],
+          noRead: 0
         }, {
           id: 2,
           name: 'Teacher B',
           avatar: 'https://lh3.googleusercontent.com/a/AATXAJz5xyNabdkLEyV9BXw74tgHPSu9zPMpek2eSUsU=s96-c',
           messages: [{
             content: 'You can subscribe to any of your calendars (i.e. iCal, Google Calendar, Outlook etc.)'
-          }]
+          }],
+          noRead: 3
         }, {
           id: 3,
           name: 'Teacher C',
           avatar: 'https://lh3.googleusercontent.com/a/AATXAJz5xyNabdkLEyV9BXw74tgHPSu9zPMpek2eSUsU=s96-c',
           messages: [{
             content: 'You can subscribe to any of your calendars (i.e. iCal, Google Calendar, Outlook etc.)'
-          }]
+          }],
+          noRead: 5
         }],
-        currentTeacher: 1,
+        currentContact: 1,
         subForm: {
           content: ''
         },
         queryForm: {
           keyword: ''
-        }
+        },
+        contactSendBack: []
       }
     },
     computed: {
-      teacherListFilter() {
-        return this.teacherList.filter(item => item.name.toLowerCase().indexOf(this.queryForm.keyword) > -1)
-      }
+      contactListFilter() {
+        return this.contactList.filter(item => item.name.toLowerCase().indexOf(this.queryForm.keyword) > -1)
+      },
+      ...mapState({
+        user: state => state.user
+      })
+    },
+    created() {
+      this.initData()
     },
     mounted() {
-      this.$refs.chatList.scrollTop = this.$refs.chatList.scrollHeight
+      this.$nextTick(() => {
+        this.$refs.chatList.scrollTop = this.$refs.chatList.scrollHeight
+      })
     },
     methods: {
+      initData() {
+        this.contactSendBack = this.contactList.map(item => {
+          return {
+            id: item.id,
+            content: ''
+          }
+        })
+      },
       triggerSearch() {
 
       },
-      toogleTeacher(id) {
-        this.currentTeacher = id
+      toogleContact(id) {
+        this.currentContact = id
+        this.subForm.content = this.contactSendBack.find(item => item.id === id).content
+        this.$refs.chatList.scrollTop = this.$refs.chatList.scrollHeight
+      },
+      changeContent(val) {
+        // this.subForm.content = val
+        this.contactSendBack.find(item => item.id === this.currentContact).content = val
+      },
+      isSameNext(val, index) {
+        let next = moment()
+        const nextData = this.dataSource[index + 1]
+        if (nextData) {
+          next = moment(nextData.date)
+        }
+        if (moment(val).isSame(next, 'day') || moment(val).isSame(moment())) {
+          return true
+        } else {
+          return false
+        }
+      },
+      handleSend() {
+        const message = this.contactSendBack.find(item => item.id === this.currentContact).content
+        this.dataSource.push({
+          id: Math.random(),
+          owner: 'jacob',
+          ownerId: '1496403869212160002',
+          avatar: 'https://lh3.googleusercontent.com/a/AATXAJz5xyNabdkLEyV9BXw74tgHPSu9zPMpek2eSUsU=s96-c',
+          message: message,
+          date: moment().format('YYYY-MM-DD hh:mm:ss')
+        })
+        this.initSend()
+      },
+      initSend() {
+        this.subForm.content = ''
+        this.changeContent('')
+        this.$nextTick(() => {
+          this.$refs.chatList.scrollTop = this.$refs.chatList.scrollHeight
+        })
       }
     }
   }
@@ -213,6 +293,8 @@
           .chat-message {
             background: #9eea6a;
             margin-right: 15px;
+            white-space: pre-wrap;
+            word-break: break-word;
             &::before {
               left: unset;
               right: -20px;
@@ -282,6 +364,7 @@
         position: absolute;
         bottom: 20px;
         right: 20px;
+        z-index: 999;
       }
     }
   }
