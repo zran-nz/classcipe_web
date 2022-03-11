@@ -346,7 +346,7 @@ export default {
 
             .mode-item {
               padding: 0 8px;
-              font-size: 12px;
+              font-size: 13px;
               height: 40px;
               color: rgba(17, 20, 45, 1);
               border-radius: 40px;
@@ -379,6 +379,7 @@ export default {
       /deep/ .ant-input{
         border-radius:6px;
         height: 40px;
+        font-size: 14px;
       }
     }
 

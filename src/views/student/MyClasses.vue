@@ -126,19 +126,19 @@
       <div class="attendance-summary">
         <a-row :gutter="16">
           <a-col :span="6">
-            <a-card class="attendance-card" :class="{active: sessionType === ''}" @click="toggleSessionType('')">
+            <a-card class="attendance-card" :class="{active: queryAttendance.sessionType === ''}" @click="toggleSessionType('')">
               <h4>Total Sessions</h4>
               <p>10</p>
             </a-card>
           </a-col>
           <a-col :span="6">
-            <a-card class="attendance-card" :class="{active: sessionType === 'attendance'}" @click="toggleSessionType('attendance')">
+            <a-card class="attendance-card" :class="{active: queryAttendance.sessionType === 'attendance'}" @click="toggleSessionType('attendance')">
               <h4>Attandence Sessions</h4>
               <p>10</p>
             </a-card>
           </a-col>
           <a-col :span="6">
-            <a-card class="attendance-card" :class="{active: sessionType === 'absent'}" @click="toggleSessionType('absent')">
+            <a-card class="attendance-card" :class="{active: queryAttendance.sessionType === 'absent'}" @click="toggleSessionType('absent')">
               <h4>Absent Sessions</h4>
               <p>10</p>
             </a-card>
@@ -236,7 +236,6 @@ export default {
       currentStatus: '',
       currentType: 'task',
       currentActivity: 'messages',
-      sessionType: '',
       STUDY_MODE: STUDY_MODE,
       TASK_STATUS: TASK_STATUS,
       tabsList: [{
@@ -282,7 +281,8 @@ export default {
         subject: []
       },
       queryAttendance: {
-        searchKey: ''
+        searchKey: '',
+        sessionType: ''
       },
       lastedRevisionId: '',
       searchText: '',
@@ -330,15 +330,10 @@ export default {
       const results = [
          {
           title: 'Date',
-          dataIndex: 'createTime'
-          // width: '150px'
+          dataIndex: 'createTime',
+          width: '200px'
           // sorter: true,
           // customRender: (text) => this.$options.filters['dayjs1'](text)
-        },
-        {
-          title: 'Class',
-          dataIndex: 'class',
-          width: '250px'
         },
         {
           title: 'Status',
@@ -347,8 +342,8 @@ export default {
         },
         {
           title: 'Session name',
-          dataIndex: 'sessionName',
-          width: '250px'
+          dataIndex: 'sessionName'
+          // width: '300px'
         }
       ]
       return results
@@ -367,11 +362,6 @@ export default {
     }
   },
   methods: {
-    handleModeChange(studyMode) {
-      if (studyMode === STUDY_MODE.SELF && this.currentStatus === TASK_STATUS.SCHEDULED) {
-        this.currentStatus = ''
-      }
-    },
     initFilterOption() {
       SubjectTree({ curriculumId: CurriculumType.Cambridge }).then(response => {
         this.$logger.info('getSubjectTree response', response.result)
@@ -438,7 +428,8 @@ export default {
       this.viewMode = viewMode
     },
     toggleSessionType(sessionType) {
-      this.sessionType = sessionType
+      this.queryAttendance.sessionType = sessionType
+      this.$refs.attendance.refresh()
     },
     handleChangeSubject (subjects) {
       console.log(this.filterParams)
@@ -536,8 +527,8 @@ export default {
             //}
 
             .mode-item {
-              padding: 0 8px;
-              font-size: 12px;
+              padding: 0 10px;
+              font-size: 14px;
               height: 40px;
               color: rgba(17, 20, 45, 1);
               border-radius: 40px;
@@ -545,7 +536,7 @@ export default {
               display: flex;
               align-items: center;
               justify-content: center;
-              width: 90px;
+              white-space: nowrap;
             }
 
             .active-mode {
@@ -570,6 +561,7 @@ export default {
       /deep/ .ant-input{
         border-radius:6px;
         height: 40px;
+        font-size: 14px;
       }
     }
 
@@ -729,6 +721,9 @@ a.delete-action {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  /deep/ span {
+    font-size: 13px;
+  }
 }
 .attendance-summary {
   margin-bottom: 20px;

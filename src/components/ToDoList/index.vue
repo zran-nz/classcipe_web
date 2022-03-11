@@ -83,6 +83,9 @@
 </script>
 
 <style scoped lang="less">
+/deep/ .ant-btn-sm{
+  font-size: 12px;
+}
 .todo-list {
   position: relative;
   display: flex;
