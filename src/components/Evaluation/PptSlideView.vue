@@ -1,5 +1,8 @@
 <template>
   <div class="ppt-slide-view">
+    <div class='score-number-item'>
+      <score-number :score='studentScore' />
+    </div>
     <div class="go-session-detail" v-show='mode'>
       <a-space>
         <a-button shape="round" type="primary" @click="handleEnsureEvidence" :disabled='loading'>Confirm</a-button>
@@ -10,10 +13,6 @@
       <div class="student-info">
         <div class="student-name">Student :</div>
         {{ studentName }}
-      </div>
-      <div class="student-info">
-        <div class="student-score">Score :</div>
-        {{ studentScore }}/{{ totalScore }}
       </div>
     </div>
     <div class="tips" v-if="!loading">
@@ -372,10 +371,12 @@ import PdfTypeSvg from '@/assets/icons/material/pdf.svg?inline'
 import UrlTypeSvg from '@/assets/icons/material/url.svg?inline'
 import InputWithButton from '@/components/Collaborate/InputWithButton'
 import SlidePreview from '@/components/Evaluation/SlidePreview'
+import ScoreNumber from '@/components/Common/ScoreNumber'
 
 export default {
   name: 'PptSlideView',
   components: {
+    ScoreNumber,
     SlidePreview,
     InputWithButton,
     StudentIcon,
@@ -720,6 +721,12 @@ export default {
 @import "~@/components/index.less";
 
 .ppt-slide-view {
+  position: relative;
+  .score-number-item {
+    position: absolute;
+    right: 40px;
+    top: -5px;
+  }
   .slide-header {
     display: flex;
     flex-direction: row;
