@@ -126,19 +126,19 @@
       <div class="attendance-summary">
         <a-row :gutter="16">
           <a-col :span="6">
-            <a-card class="attendance-card">
+            <a-card class="attendance-card" :class="{active: sessionType === ''}" @click="toggleSessionType('')">
               <h4>Total Sessions</h4>
               <p>10</p>
             </a-card>
           </a-col>
           <a-col :span="6">
-            <a-card class="attendance-card">
+            <a-card class="attendance-card" :class="{active: sessionType === 'attendance'}" @click="toggleSessionType('attendance')">
               <h4>Attandence Sessions</h4>
               <p>10</p>
             </a-card>
           </a-col>
           <a-col :span="6">
-            <a-card class="attendance-card">
+            <a-card class="attendance-card" :class="{active: sessionType === 'absent'}" @click="toggleSessionType('absent')">
               <h4>Absent Sessions</h4>
               <p>10</p>
             </a-card>
@@ -236,6 +236,7 @@ export default {
       currentStatus: '',
       currentType: 'task',
       currentActivity: 'messages',
+      sessionType: '',
       STUDY_MODE: STUDY_MODE,
       TASK_STATUS: TASK_STATUS,
       tabsList: [{
@@ -435,6 +436,9 @@ export default {
     toggleViewMode (viewMode) {
       storage.set(SESSION_VIEW_MODE, viewMode)
       this.viewMode = viewMode
+    },
+    toggleSessionType(sessionType) {
+      this.sessionType = sessionType
     },
     handleChangeSubject (subjects) {
       console.log(this.filterParams)
@@ -731,6 +735,11 @@ a.delete-action {
   .attendance-card {
     text-align: center;
     background: #ececec;
+    border: 1px solid transparent;
+    cursor: pointer;
+    &.active {
+        border: 1px solid blueviolet;
+    }
   }
 }
 </style>

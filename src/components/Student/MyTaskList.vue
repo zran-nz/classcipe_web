@@ -81,7 +81,7 @@
                         </div>
                       </template>
                       <template v-else>
-                        <div class="start-session-wrapper action-item-wrapper">
+                        <!-- <div class="start-session-wrapper action-item-wrapper">
                           <a-popconfirm :title="'Confirm permanent delete ' +((item.task && item.task.name) ? item.task.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem(item)" cancel-text="No">
                             <div class="session-btn content-list-action-btn">
                               <div class="session-btn-icon">
@@ -90,7 +90,7 @@
                               <div class="session-btn-text">Delete</div>
                             </div>
                           </a-popconfirm>
-                        </div>
+                        </div> -->
                         <div class="start-session-wrapper action-item-wrapper">
                           <a-popconfirm :title="'Confirm restore ' +((item.task && item.task.name) ? item.task.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleRestoreItem(item)" cancel-text="No">
                             <div class="session-btn content-list-action-btn" >
@@ -171,14 +171,14 @@
                           <div class="session-btn-text">Restore</div>
                         </div>
                       </a-popconfirm>
-                      <a-popconfirm :title="'Confirm permanent delete ' +(item.name ? item.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem(item)" cancel-text="No">
+                      <!-- <a-popconfirm :title="'Confirm permanent delete ' +(item.name ? item.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem(item)" cancel-text="No">
                         <div class="session-btn">
                           <div class="session-btn-icon content-list-action-btn">
                             <a-icon type="delete" theme="filled" />
                           </div>
                           <div class="session-btn-text">Delete</div>
                         </div>
-                      </a-popconfirm>
+                      </a-popconfirm> -->
                     </template>
                   </div>
                 </div>
