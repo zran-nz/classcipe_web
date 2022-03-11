@@ -75,6 +75,7 @@
                       v-for="(member, sIndex) in allNoGroupStudentUserList"
                       :key="sIndex"
                       :data-member-id="member.userId"
+                      v-show='attendanceEmailList.indexOf(member.email) !== -1'
                       @click="handleClickMember(null, member)">
                       <div class="student-avatar">
                         <img :src="member.studentAvatar" alt="" v-if="member.studentAvatar" />
@@ -138,6 +139,7 @@
                         :class="{'list-item': true, 'selected-student': currentActiveStudentId === member.userId, 'heartbeat': ((studentEvaluateIdList.length || peerEvaluateIdList.length) && studentEvaluateIdList.indexOf(member.userId) === -1 && peerEvaluateIdList.indexOf(member.userId) === -1)}"
                         v-for="(member, sIndex) in group.members"
                         :key="sIndex"
+                        v-show='attendanceEmailList.indexOf(member.email) !== -1'
                         :data-member-id="member.userId"
                         @click="handleClickMember(group, member)">
                         <div class="student-avatar">
@@ -168,7 +170,7 @@
                   </div>
                 </div>
                 <div class="no-group-tips">
-                  <no-more-resources v-if="allStudentUserList.length === 0 && !loading" tips="No student exist" />
+                  <a-empty v-if="allStudentUserList.length === 0 && !loading" description="No student exist" />
                 </div>
               </div>
             </div>
@@ -723,9 +725,7 @@ export default {
 
       allStudentUserList: [],
       allNoGroupStudentUserIdList: [], // 所有未分组的学生邮箱列表
-      allNoGroupStudentUserList: [], // 所有未分组的学生列表
-
-      evaluationId: null // 保存后才有
+      allNoGroupStudentUserList: [] // 所有未分组的学生列表
     }
   },
   mixins: [ EvaluationMixin ],

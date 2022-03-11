@@ -161,7 +161,7 @@
                   </div>
                 </div>
                 <div class="no-group-tips">
-                  <no-more-resources v-if="allStudentUserList.length === 0 && !loading" tips="No student exist" />
+                  <a-empty v-if="allStudentUserList.length === 0 && !loading" description="No student exist" />
                 </div>
               </div>
             </div>
