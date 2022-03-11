@@ -322,6 +322,7 @@ import { defaultStudentRouter } from '@/config/router.config'
 import { getTaskBySessionId } from '@/api/task'
 import { GetAssociate } from '@/api/teacher'
 import TeacherEvaluationStatus from '@/components/Evaluation/TeacherEvaluationStatus'
+import { EvaluationMixin } from '@/mixins/EvaluationMixin'
 
 export default {
   name: 'StudentEvaluation',
@@ -496,14 +497,10 @@ export default {
 
       allStudentUserList: [],
       allNoGroupStudentUserIdList: [], // 所有未分组的学生邮箱列表
-      allNoGroupStudentUserList: [], // 所有未分组的学生列表
-      initCompleted: false,
-
-      isInitForm: false,
-      evaluationId: null, // 保存后才有
-      showWaitingMask: false
+      allNoGroupStudentUserList: [] // 所有未分组的学生列表
     }
   },
+  mixins: [ EvaluationMixin ],
   beforeRouteLeave(to, from, next) {
     this.$logger.info('beforeRouteLeave', to, from, next)
     this.$logger.info('forms', this.forms, 'oldFormsJson', this.oldFormsJson)
@@ -696,15 +693,6 @@ export default {
             data.evaluation.studentEvaluateData = null
           }
         }
-
-        if (!this.forms || this.forms.length === 0) {
-          this.forms = this.taskForms
-          this.isInitForm = true // 当前是初始化逻辑，需要自动保存一下关联的评估表，保证服务端已存在对应的评估表数据。
-          this.$logger.info('forms empty, use task forms as forms', this.forms)
-        } else {
-          this.isInitForm = false
-        }
-
         if (this.forms.length) {
           this.currentActiveFormId = this.forms[0].formId
         }
@@ -819,13 +807,7 @@ export default {
         this.form.evaluationMode = this.mode
         this.form.email = this.$store.getters.email
       }).finally(() => {
-        if (this.isInitForm) {
-          // 如果是初始化，且有关联的表格数据，先自动保存一下。
-          this.initSaveEvaluation()
-        } else {
-          this.loading = false
-        }
-
+        this.loading = false
         // 检查是否以及评估过了，有过评估数据不允许再评估。查找PeerEmail字段中是否有在currentUserGroupUserIdList中存在，有代表有过评估
         if (this.mode === EvaluationTableMode.PeerEvaluate) {
           if (this.currentActiveFormId) {
@@ -865,45 +847,6 @@ export default {
             this.initCompleted = false
             window.location.reload()
           }
-        }
-      })
-    },
-
-    initSaveEvaluation () {
-      this.$logger.info('initSaveEvaluation onOk')
-      // 获取所有的表格结构（表头+表内容）
-      const formData = JSON.parse(JSON.stringify(this.form))
-      const formDataList = JSON.parse(JSON.stringify(this.taskForms))
-      this.$logger.info('formDataList', formDataList, 'this.form', this.form, 'this.classId', this.classId)
-      formData.classId = this.classId
-      // 获取评估数据
-      this.$logger.info('!!!!!!!!!!!!!!!!!! studentEvaluateData !!!!!!!!!!!', this.studentEvaluateData)
-      formDataList.forEach(formItem => {
-        formItem.initRawHeaders = JSON.stringify(formItem.initRawHeaders)
-        formItem.initRawData = JSON.stringify(formItem.initRawData)
-      })
-      formData.forms = formDataList
-      formData.studentEvaluateData = '{}'
-
-      if (this.id) {
-        this.form.id = this.id
-      }
-      SaveSessionEvaluation(formData).then((response) => {
-        this.$logger.info('SaveSessionEvaluation', response)
-        if (response.result && response.result.id) {
-          this.id = response.result.id
-        }
-        if (response.success) {
-          this.forms = []
-          this.form.forms = []
-          this.taskForms = []
-          this.initData()
-        } else {
-          this.$confirm({
-            content: response.message,
-            onOk: this.handleErrorMode,
-            onCancel: this.handleErrorMode
-          })
         }
       })
     },

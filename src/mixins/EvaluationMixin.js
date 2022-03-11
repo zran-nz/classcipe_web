@@ -2,6 +2,16 @@ import { EvaluationQueryByIds, GetSessionEvaluationByClassId, SaveSessionEvaluat
 import { GetAssociate } from '@/api/teacher'
 import { typeMap } from '@/const/teacher'
 import EvaluationTableMode from '@/components/Evaluation/EvaluationTableMode'
+import { SchoolClassListClassAttendance } from '@/api/schoolClass'
+import { EvaluationEventBus } from '@/components/Evaluation/EvaluationEventBus'
+import {
+  EVALUATION_SET_CHANGE,
+  EVALUATION_ATTENDANCE_CHANGE,
+  EVALUATION_TEACHER_SUBMMIT,
+  EVALUATION_STUDENT_SUBMMIT,
+  EVALUATION_PEER_SUBMMIT
+} from '@/websocket/cmd'
+import TeacherEvaluationStatus from '@/components/Evaluation/TeacherEvaluationStatus'
 
 export const EvaluationMixin = {
   components: {
@@ -22,10 +32,35 @@ export const EvaluationMixin = {
         name: null,
         studentEvaluateData: null,
         type: typeMap.classSessionEvaluation
-      }
+      },
+
+      // 出勤学生数据
+      attendanceEmailList: [],
+      attendanceList: [],
+      initCompleted: false,
+      showWaitingMask: false
     }
   },
   created () {
+    if (this.mode === EvaluationTableMode.TeacherEvaluate) {
+      EvaluationEventBus.$on(EVALUATION_ATTENDANCE_CHANGE, this.handleEvaluationAttendance)
+      EvaluationEventBus.$on(EVALUATION_STUDENT_SUBMMIT, this.handleEvaluationStudentSubmit)
+      EvaluationEventBus.$on(EVALUATION_PEER_SUBMMIT, this.handleEvaluationPeerSubmit)
+    } else if (this.mode === EvaluationTableMode.PeerEvaluate) {
+      EvaluationEventBus.$on(EVALUATION_ATTENDANCE_CHANGE, this.handleEvaluationAttendance)
+      EvaluationEventBus.$on(EVALUATION_TEACHER_SUBMMIT, this.handleEvaluationTeacherSubmit)
+      EvaluationEventBus.$on(EVALUATION_STUDENT_SUBMMIT, this.handleEvaluationStudentSubmit)
+      EvaluationEventBus.$on(EVALUATION_PEER_SUBMMIT, this.handleEvaluationPeerSubmit)
+      EvaluationEventBus.$on(EVALUATION_SET_CHANGE, this.handleEvaluationSetChange)
+    } else if (this.mode === EvaluationTableMode.StudentEvaluate) {
+      EvaluationEventBus.$on(EVALUATION_ATTENDANCE_CHANGE, this.handleEvaluationAttendance)
+      EvaluationEventBus.$on(EVALUATION_TEACHER_SUBMMIT, this.handleEvaluationTeacherSubmit)
+      EvaluationEventBus.$on(EVALUATION_STUDENT_SUBMMIT, this.handleEvaluationStudentSubmit)
+      EvaluationEventBus.$on(EVALUATION_PEER_SUBMMIT, this.handleEvaluationPeerSubmit)
+      EvaluationEventBus.$on(EVALUATION_SET_CHANGE, this.handleEvaluationSetChange)
+    }
+  },
+  destroyed() {
   },
   computed: {
   },
@@ -178,6 +213,61 @@ export const EvaluationMixin = {
           this.$message.error(response.message)
         }
       })
+    },
+
+    refreshAttendance() {
+      SchoolClassListClassAttendance({
+        classId: this.classId,
+        sessonId: this.sessionId
+      }).then(response => {
+        this.$logger.info('refreshAttendance response', response)
+
+        this.attendanceList = []
+        this.attendanceEmailList = []
+        if (response.success) {
+          if (response.result.length > 0) {
+            const attendanceEmailSet = new Set()
+            response.result.forEach(item => {
+              if (!attendanceEmailSet.has(item.email)) {
+                this.attendanceList.push(item)
+                this.attendanceEmailList.push(item.email)
+                attendanceEmailSet.add(item.email)
+              }
+            })
+            this.$logger.info('attendanceList', this.attendanceList)
+          }
+        } else {
+          this.$message.error(response.message)
+        }
+      }).catch(error => {
+        this.$logger.error('refreshAttendance', error)
+        this.$message.error('refreshAttendance ' + error)
+      })
+    },
+
+    handleEvaluationAttendance(data) {
+      this.$logger.info('handleEvaluationAttendance', data)
+    },
+    handleEvaluationTeacherSubmit(data) {
+      this.$logger.info('handleEvaluationTeacherSubmit', data)
+    },
+    handleEvaluationStudentSubmit(data) {
+      this.$logger.info('handleEvaluationStudentSubmit', data)
+    },
+    handleEvaluationPeerSubmit(data) {
+      this.$logger.info('handleEvaluationPeerSubmit', data)
+    },
+    handleEvaluationSetChange(data) {
+      this.$logger.info('handleEvaluationSetChange', data)
+      const evaluationSet = data.content
+      if (evaluationSet && evaluationSet.sessionId === this.classId) {
+        const oldMode = this.showWaitingMask
+        this.showWaitingMask = evaluationSet.mode === TeacherEvaluationStatus.Editing
+        if (oldMode && !this.showWaitingMask) {
+          this.initCompleted = false
+          window.location.reload()
+        }
+      }
     }
   }
 }

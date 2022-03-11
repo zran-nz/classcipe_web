@@ -572,6 +572,7 @@ import NoMoreResources from '@/components/Common/NoMoreResources'
 import PptSlideView from '@/components/Evaluation/PptSlideView'
 import { typeMap } from '@/const/teacher'
 import { SchoolClassListClassAttendance } from '@/api/schoolClass'
+import { EvaluationMixin } from '@/mixins/EvaluationMixin'
 
 export default {
   name: 'ClassSessionEvaluation',
@@ -723,14 +724,11 @@ export default {
       allStudentUserList: [],
       allNoGroupStudentUserIdList: [], // 所有未分组的学生邮箱列表
       allNoGroupStudentUserList: [], // 所有未分组的学生列表
-      initCompleted: false,
 
-      evaluationId: null, // 保存后才有
-
-      attendanceEmailList: [],
-      attendanceList: []
+      evaluationId: null // 保存后才有
     }
   },
+  mixins: [ EvaluationMixin ],
   beforeRouteLeave(to, from, next) {
     this.$logger.info('beforeRouteLeave', to, from, next)
     this.$logger.info('forms', this.forms, 'oldFormsJson', this.oldFormsJson)
