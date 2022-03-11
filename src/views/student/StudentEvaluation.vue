@@ -485,7 +485,7 @@ export default {
     '$store.getters.evaluationSet': {
       handler(evaluationSet) {
         this.$logger.info('evaluationSet change', evaluationSet)
-        if (evaluationSet.sessionId === this.classId) {
+        if (evaluationSet && evaluationSet.sessionId === this.classId) {
           const oldMode = this.showWaitingMask
           this.showWaitingMask = evaluationSet.mode === TeacherEvaluationStatus.Editing
           // 老师编辑完页面，重新刷新加载！

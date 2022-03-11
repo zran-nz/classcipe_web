@@ -153,7 +153,7 @@
                               <a-menu-item @click="handleChange(user,'Viewer',index)">
                                 <span>Viewer</span>
                               </a-menu-item>
-                              <a-divider style="margin: 10px 0px;" />
+                              <a-divider style="margin: 10px 0;" />
                               <a-menu-item @click="handleRemove(user,index)">
                                 <span>Remove</span>
                               </a-menu-item>

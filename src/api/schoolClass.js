@@ -11,7 +11,8 @@ export const schoolClassAPIUrl = {
   SchoolClassListClassMembers: '/classcipe/api/school/class/listClassMembers',
   SchoolClassDelete: '/classcipe/api/school/class/delete',
   SchoolClassRemoveClassMember: '/classcipe/api/school/class/removeClassMember',
-  SchoolClassImport: '/classcipe/api/school/class/importClassExcel'
+  SchoolClassImport: '/classcipe/api/school/class/importClassExcel',
+  SchoolClassListClassAttendance: '/classcipe/api/school/class/listClassAttendance'
 }
 
 export function SchoolClassAddClassMember (parameter) {
@@ -97,5 +98,13 @@ export function SchoolClassDelete (parameter) {
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
+  })
+}
+
+export function SchoolClassListClassAttendance (parameter) {
+  return request({
+    url: schoolClassAPIUrl.SchoolClassListClassAttendance,
+    method: 'get',
+    data: parameter
   })
 }

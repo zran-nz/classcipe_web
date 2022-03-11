@@ -391,7 +391,7 @@ export default {
     '$store.getters.evaluationSet': {
       handler(evaluationSet) {
         this.$logger.info('evaluationSet change', evaluationSet)
-        if (evaluationSet.sessionId === this.classId) {
+        if (evaluationSet && evaluationSet.sessionId === this.classId) {
           const oldMode = this.showWaitingMask
           this.showWaitingMask = evaluationSet.mode === TeacherEvaluationStatus.Editing
           // 老师编辑完页面，重新刷新加载！
@@ -670,7 +670,7 @@ export default {
         this.groups = data.groups
         if (data.evaluation) {
           this.evaluationId = data.evaluation.id
-          this.startUpdateTeacherEvaluationStatus() // 轮询更新老师的评估模式状态
+          this.updateTeacherEvaluationStatus()
           this.form = Object.assign(this.form, data.evaluation)
 
           data.evaluation.forms.forEach(formItem => {
