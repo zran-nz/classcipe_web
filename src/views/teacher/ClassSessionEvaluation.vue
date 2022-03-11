@@ -670,7 +670,6 @@ export default {
         copyFrom: null // null
       },
       id: null,
-      forms: [], // 评估表格数据
       oldFormsJson: null, // 保存旧的评估表格数据
       oldStudentEvaluationJson: null, // 保存旧的评估数据
       groups: [], // 班级分组信息
@@ -695,7 +694,6 @@ export default {
       currentEditingTitle: null,
       currentFormItem: null,
 
-      studentEvaluateData: {}, // 所有学生的评价数据对象，通过vue.$set设置属性，方便遍历对应的学生及表单数据
       currentActiveStudentId: null,
 
       allStudentUserIdList: [],

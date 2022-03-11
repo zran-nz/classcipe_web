@@ -21,6 +21,7 @@ export const EvaluationMixin = {
       typeMap: typeMap,
       evaluationId: null,
       taskEvaluationForms: [],
+      forms: [], // 评估表格数据
       evaluationForm: {
         classId: '',
         className: null,
@@ -38,7 +39,10 @@ export const EvaluationMixin = {
       attendanceEmailList: [],
       attendanceList: [],
       initCompleted: false,
-      showWaitingMask: false
+      showWaitingMask: false,
+
+      // 评估数据对象
+      studentEvaluateData: {} // 所有学生的评价数据对象，通过vue.$set设置属性，方便遍历对应的学生及表单数据
     }
   },
   created () {
@@ -215,26 +219,71 @@ export const EvaluationMixin = {
       })
     },
 
-    refreshAttendance() {
+    handleEvaluationAttendance(data) {
+      this.$logger.info('handleEvaluationAttendance', data)
       SchoolClassListClassAttendance({
         classId: this.classId,
         sessonId: this.sessionId
       }).then(response => {
         this.$logger.info('refreshAttendance response', response)
 
-        this.attendanceList = []
-        this.attendanceEmailList = []
+        const attendanceList = []
+        const attendanceEmailList = []
         if (response.success) {
           if (response.result.length > 0) {
             const attendanceEmailSet = new Set()
+            const newStudentList = []
+            const oldUserEmailList = this.studentEvaluateData ? Object.keys(this.studentEvaluateData) : []
+
             response.result.forEach(item => {
               if (!attendanceEmailSet.has(item.email)) {
-                this.attendanceList.push(item)
-                this.attendanceEmailList.push(item.email)
+                attendanceList.push(item)
+                attendanceEmailList.push(item.email)
                 attendanceEmailSet.add(item.email)
+                if (oldUserEmailList.indexOf(item.email) !== -1) {
+                  newStudentList.push(item)
+                }
               }
             })
+            this.attendanceList = attendanceList
+            this.attendanceEmailList = attendanceEmailList
             this.$logger.info('attendanceList', this.attendanceList)
+            this.$logger.info('newStudentList', newStudentList)
+
+            if (newStudentList.length) {
+              newStudentList.forEach(studentItem => {
+                const studentEvaluateDataItem = {}
+
+                this.forms.forEach(formItem => {
+                  studentEvaluateDataItem[formItem.formId] = {
+                    comment: null
+                  }
+                  formItem.initRawData.forEach(rowItem => {
+                    studentEvaluateDataItem[formItem.formId][rowItem.rowId] = {
+                      teacherEvaluation: null, // 老师评价
+                      teacherName: null, // 老师评价
+                      teacherEmail: null, // 老师评价
+
+                      peerEvaluation: null, // 他人评价
+                      peerName: null, // 他人评价
+                      peerEmail: null, // 他人评价
+
+                      studentEvaluation: null, // 学生自评
+                      studentName: null, // 学生自评
+                      studentEmail: null, // 学生自评
+
+                      data: null, // subLevel数据
+
+                      evidenceIdList: [], // ppt证据pageId列表
+                      evidenceIdStudentList: [] // ppt证据pageId列表-学生选择
+                    }
+                  })
+                })
+
+                this.$set(this.studentEvaluateData, studentItem.email, studentEvaluateDataItem)
+                this.$logger.info('add student ' + studentItem.email, this.studentEvaluateData)
+              })
+            }
           }
         } else {
           this.$message.error(response.message)
@@ -245,9 +294,6 @@ export const EvaluationMixin = {
       })
     },
 
-    handleEvaluationAttendance(data) {
-      this.$logger.info('handleEvaluationAttendance', data)
-    },
     handleEvaluationTeacherSubmit(data) {
       this.$logger.info('handleEvaluationTeacherSubmit', data)
     },

@@ -400,7 +400,6 @@ export default {
         responseLimitTime: null, // 1638201600,
         copyFrom: null // null
       },
-      forms: [], // 评估表格数据
       oldFormsJson: null, // 保存旧的评估表格数据
       oldStudentEvaluationJson: null, // 保存旧的评估数据
       groups: [], // 班级分组信息
