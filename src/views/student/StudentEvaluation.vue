@@ -68,8 +68,9 @@
                       v-for="(member, sIndex) in allNoGroupStudentUserList"
                       :key="sIndex"
                       :data-member-id="member.userId"
+                      :style="{ 'filter': selectedMemberIdList.indexOf(member.userId) === -1 ? 'grayscale(100%)': 'none'}"
                       @click="handleClickMember(null, member)">
-                      <div class="student-avatar">
+                      <div class="student-avatar" >
                         <img :src="member.studentAvatar" alt="" v-if="member.studentAvatar" />
                         <img
                           slot="prefix"
@@ -132,6 +133,7 @@
                         v-for="(member, sIndex) in group.members"
                         :key="sIndex"
                         :data-member-id="member.userId"
+                        :style="{ 'filter': selectedMemberIdList.indexOf(member.userId) === -1 ? 'grayscale(100%)': 'none'}"
                         @click="handleClickMember(group, member)">
                         <div class="student-avatar">
                           <img :src="member.studentAvatar" alt="" v-if="member.studentAvatar" />
@@ -184,7 +186,7 @@
                         <div class="icon-item">
                           <student-icon />
                         </div>
-                        <div class="label">Student</div>
+                        <div class="label">My Self</div>
                       </div>
                       <div class="icon-type-item">
                         <div class="icon-item">
@@ -194,6 +196,24 @@
                       </div>
                     </div>
                     <div class="form-action">
+                      <a-button
+                        v-if="mode === EvaluationTableMode.StudentEvaluate && hasNewEvaluationDataReceived"
+                        @click="handleRefreshEvaluationData"
+                        class="my-form-header-btn"
+                        icon='reload'
+                        style="{
+                            width: 120px;
+                            display: flex;
+                            flex-direction: row;
+                            align-items: center;
+                            justify-content: center;
+                            background: rgba(21, 195, 154, 0.08);
+                            border: 1px solid #15C39A;
+                            border-radius: 20px;
+                            padding: 15px 20px;
+                          }">
+                        Refresh to see
+                      </a-button>
                       <a-button
                         class="my-form-header-btn"
                         style="{
@@ -570,16 +590,22 @@ export default {
         // 所有的学生id用于遍历构造学生评价数据 "对象"
         const allGroupStudentUserIdList = []
 
+
         const data = response.result
         this.classInfo = data.classInfo
         data.groups.forEach(group => {
           group.expand = true // 默认分组展开显示
+          group.attendanceList = [] // 默认分组展开显示
           group.members.forEach(member => {
             allGroupStudentUserIdList.push(member.userId)
             if (member.userId === this.$store.getters.email) {
               this.currentUserGroupId = group.id
               this.currentUserGroupUserIdList = group.members.map(member => member.userId)
               this.$logger.info('currentUserGroupId' + this.currentUserGroupId, 'currentUserGroupUserIdList', this.currentUserGroupUserIdList)
+            }
+
+            if (this.attendanceEmailList.includes(member.userId)) {
+              group.attendanceList.push(member.userId)
             }
           })
         })

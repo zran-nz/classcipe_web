@@ -43,7 +43,10 @@ export const EvaluationMixin = {
       showWaitingMask: false,
 
       // 评估数据对象
-      studentEvaluateData: {} // 所有学生的评价数据对象，通过vue.$set设置属性，方便遍历对应的学生及表单数据
+      studentEvaluateData: {}, // 所有学生的评价数据对象，通过vue.$set设置属性，方便遍历对应的学生及表单数据
+
+      // 是否有新的评估数据
+      hasNewEvaluationDataReceived: false
     }
   },
   created () {
@@ -284,6 +287,13 @@ export const EvaluationMixin = {
                 this.$set(this.studentEvaluateData, studentItem.email, studentEvaluateDataItem)
                 this.$logger.info('add student ' + studentItem.email, this.studentEvaluateData)
               })
+
+              this.$notification.open({
+                message: 'Notification',
+                description:
+                  'New student(s) just joined.',
+                icon: <a-icon type="usergroup-add" style="color: #108ee9" />
+              })
             }
 
             if (this.attendanceList) {
@@ -309,12 +319,33 @@ export const EvaluationMixin = {
 
     handleEvaluationTeacherSubmit(data) {
       this.$logger.info('handleEvaluationTeacherSubmit', data)
+      this.hasNewEvaluationDataReceived = true
+      this.$notification.open({
+        message: 'Notification',
+        description:
+          'New teacher review(s) just received. Refresh to see',
+        icon: <a-icon type="mail" style="color: #108ee9" />
+      })
     },
     handleEvaluationStudentSubmit(data) {
       this.$logger.info('handleEvaluationStudentSubmit', data)
+      this.hasNewEvaluationDataReceived = true
+      this.$notification.open({
+        message: 'Notification',
+        description:
+          'New self review(s) just received. Refresh to see',
+        icon: <a-icon type="mail" style="color: #108ee9" />
+      })
     },
     handleEvaluationPeerSubmit(data) {
       this.$logger.info('handleEvaluationPeerSubmit', data)
+      this.hasNewEvaluationDataReceived = true
+      this.$notification.open({
+        message: 'Notification',
+        description:
+          'New peer review(s) just received. Refresh to see',
+        icon: <a-icon type="mail" style="color: #108ee9" />
+      })
     },
     handleEvaluationSetChange(data) {
       this.$logger.info('handleEvaluationSetChange', data)
@@ -327,6 +358,12 @@ export const EvaluationMixin = {
           window.location.reload()
         }
       }
-    }
+    },
+
+
+    handleRefreshEvaluationData () {
+      this.$logger.info('handleRefreshEvaluationData')
+      window.location.reload()
+    },
   }
 }

@@ -184,7 +184,7 @@
                         <div class="icon-item">
                           <student-icon />
                         </div>
-                        <div class="label">Student</div>
+                        <div class="label">My Self</div>
                       </div>
                       <div class="icon-type-item">
                         <div class="icon-item">
@@ -194,6 +194,24 @@
                       </div>
                     </div>
                     <div class="form-action">
+                      <a-button
+                        v-if="mode === EvaluationTableMode.PeerEvaluate && hasNewEvaluationDataReceived"
+                        @click="handleRefreshEvaluationData"
+                        class="my-form-header-btn"
+                        icon='reload'
+                        style="{
+                            width: 120px;
+                            display: flex;
+                            flex-direction: row;
+                            align-items: center;
+                            justify-content: center;
+                            background: rgba(21, 195, 154, 0.08);
+                            border: 1px solid #15C39A;
+                            border-radius: 20px;
+                            padding: 15px 20px;
+                          }">
+                        Refresh to see
+                      </a-button>
                       <a-button
                         v-if='mode === EvaluationTableMode.PeerEvaluate'
                         class="my-form-header-btn"
@@ -323,6 +341,7 @@ import { getTaskBySessionId } from '@/api/task'
 import { GetAssociate } from '@/api/teacher'
 import TeacherEvaluationStatus from '@/components/Evaluation/TeacherEvaluationStatus'
 import { EvaluationMixin } from '@/mixins/EvaluationMixin'
+import { ChangeClassStatus } from '@/api/classroom'
 
 export default {
   name: 'StudentEvaluation',
@@ -869,6 +888,11 @@ export default {
         } else if (!group || this.currentUserGroupUserIdList.indexOf(member.userId) !== -1) {
           this.$message.warn('Not allowed to evaluate for this student!')
         } else {
+          this.$confirm({
+            title: 'Please notice',
+            content: 'Your evaluation will replace the current result.',
+            centered: true
+          })
           this.$logger.info('currentActiveStudentId', member)
           this.selectedMemberIdList = [member.userId]
           this.currentActiveStudentId = member.userId
