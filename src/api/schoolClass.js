@@ -49,7 +49,7 @@ export function FindClassBySessonId (parameter) {
   return request({
     url: schoolClassAPIUrl.FindClassBySessonId,
     method: 'get',
-    data: parameter
+    params: parameter
   })
 }
 
@@ -57,7 +57,7 @@ export function SchoolClassGetById (parameter) {
   return request({
     url: schoolClassAPIUrl.SchoolClassGetById,
     method: 'get',
-    data: parameter
+    params: parameter
   })
 }
 
@@ -105,6 +105,6 @@ export function SchoolClassListClassAttendance (parameter) {
   return request({
     url: schoolClassAPIUrl.SchoolClassListClassAttendance,
     method: 'get',
-    data: parameter
+    params: parameter
   })
 }

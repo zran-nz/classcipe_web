@@ -240,7 +240,7 @@ export const asyncRouterMap = [
             meta: { title: 'menu.teacher.unit-plan', keepAlive: true, permission: ['teacher'] }
           },
           {
-            path: '/teacher/class-evaluation/:taskId/:classId/:mode?',
+            path: '/teacher/class-evaluation/:taskId/:classId/:sessionId/:mode?',
             name: 'ClassEvaluation',
             props: true,
             component: () => import('@/views/teacher/ClassSessionEvaluation'),

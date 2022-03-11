@@ -192,7 +192,7 @@ export default {
     handleReviewEditEvaluation (item) {
       this.$logger.info('handleReviewEditEvaluation', item, this.classData)
       this.$router.push({
-        path: `/teacher/class-evaluation/${this.classData.id}/${item.classId}`
+        path: `/teacher/class-evaluation/${this.classData.id}/${item.taskClassId}/${item.classId}`
       })
     },
     handleArchiveSession (item) {

@@ -226,7 +226,7 @@
                           <group-icon />
                         </div>
                         <div class="group-name">
-                          {{ group.name }} ({{ group.members.length }})
+                          {{ group.name }}
                         </div>
                       </div>
                       <div class="group-right" @click="handleToggleGroupExpand(group, $event)">
@@ -486,11 +486,11 @@ export default {
           if (response.success) {
             if (response.result.mode === TeacherEvaluationStatus.Editing) {
               this.$router.push({
-                path: `/teacher/class-evaluation/${this.classData.id}/${item.classId}/edit`
+                path: `/teacher/class-evaluation/${this.classData.id}/${item.taskClassId}/${item.classId}/edit`
               })
             } else {
               this.$router.push({
-                path: `/teacher/class-evaluation/${this.classData.id}/${item.classId}`
+                path: `/teacher/class-evaluation/${this.classData.id}/${item.taskClassId}/${item.classId}`
               })
             }
           } else {
