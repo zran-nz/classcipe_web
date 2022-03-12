@@ -71,7 +71,7 @@
         @expand="handleExpand"
       >
 
-        <span slot="action" slot-scope="text, record">
+        <span slot="action" slot-scope="text">
           {{ text }}
         </span>
 
@@ -116,7 +116,7 @@
 
 <script>
 
-import { getAction, deleteAction, postAction } from '@/api/manage'
+import { getAction, deleteAction } from '@/api/manage'
 import { JeecgListMixin } from '@/mixins/JeecgListMixin'
 import TagModal from './TagModal'
 import { filterObj } from '@/utils/util'
