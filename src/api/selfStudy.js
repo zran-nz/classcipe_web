@@ -10,7 +10,8 @@ export const selfStudyApiUrl = {
   TaskDelete: `/classcipe/api/${API_PREFIX}/delete`,
   TaskResotre: `/classcipe/api/${API_PREFIX}/restore`,
   StudentClasses: `/classcipe/api/${API_PREFIX}/getStudentClasses`,
-  getClassSchedule: `/classcipe/api/${API_PREFIX}/getClassSchedule`
+  getClassSchedule: `/classcipe/api/${API_PREFIX}/getClassSchedule`,
+  queryMySessions: `/classcipe/api/${API_PREFIX}/queryMySessions`
 }
 
 /**
@@ -130,5 +131,22 @@ export function SelfStudyTaskList (parameter) {
     url: selfStudyApiUrl.getClassSchedule,
     method: 'get',
     params: parameter
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+ export function queryMySessions (parameter) {
+  return request({
+    url: selfStudyApiUrl.queryMySessions,
+    method: 'post',
+    data: parameter,
+    params: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
   })
 }

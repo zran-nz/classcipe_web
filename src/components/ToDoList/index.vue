@@ -3,19 +3,19 @@
     <div class="todo-opt">
       <a-button type="primary" icon="plus" @click="addItem">Add Item</a-button>
     </div>
-    <!-- <a-list :data-source="todos" class="todo-content" ref="todoList">
+    <a-list :data-source="todos" class="todo-content" ref="todoList">
       <a-list-item slot="renderItem" slot-scope="item, index">
         <div class="todo-item">
-          <a-checkbox v-model="item.done">
-            <span :class="{'todo-done': item.done}">{{ !item.isWriting ? item.content : '' }}</span>
+          <a-checkbox :disabled="item.isWriting" v-model="item.done" @change="e => changeItem(e, index)">
+            <span :class="{'todo-done': item.status === TODO_STATUS.DONE}">{{ !item.isWriting ? item.items : '' }}</span>
           </a-checkbox>
-          <a-input v-if="item.isWriting" v-model="item.content" @keyup.enter="commitItem(index)"/>
+          <a-input v-if="item.isWriting" v-model="item.items" @keyup.esc="delItem(index)" @keyup.enter="commitItem(index)"/>
           <a-button size="small" v-if="item.isWriting" icon="check" @click="commitItem(index)"/>
           <a-button size="small" icon="close" @click="delItem(index)"/>
         </div>
       </a-list-item>
-    </a-list> -->
-    <div class="todo-content">
+    </a-list>
+    <!-- <div class="todo-content">
       <draggable
         ref="todoList"
         tag="ul"
@@ -26,30 +26,64 @@
       >
         <transition-group type="transition" :name="!customDrag ? 'flip-list' : null">
           <li class="todo-item" v-for="(item, index) in todos" :key="'todo_'+ index">
-            <a-checkbox v-model="item.done">
-              <span :class="{'todo-done': item.done}">{{ !item.isWriting ? item.content : '' }}</span>
+            <a-checkbox :disabled="item.isWriting" v-model="item.status" @change="e => changeItem(e, index)">
+              <span :class="{'todo-done': item.status === TODO_STATUS.DONE}">{{ !item.isWriting ? item.items : '' }}</span>
             </a-checkbox>
-            <a-input placeholder="Please enter something" v-if="item.isWriting" v-model="item.content" @keyup.esc="delItem(index)" @keyup.enter="commitItem(index)"/>
+            <a-input placeholder="Please enter something" v-if="item.isWriting" v-model="item.items" @keyup.esc="delItem(index)" @keyup.enter="commitItem(index)"/>
             <a-button size="small" v-if="item.isWriting" icon="check" @click="commitItem(index)"/>
             <a-button size="small" icon="close" @click="delItem(index)"/>
           </li>
         </transition-group>
       </draggable>
       <a-empty v-show="todos.length === 0"/>
-    </div>
+    </div> -->
   </div>
 </template>
 
 <script>
   import draggable from 'vuedraggable'
+  import { TODO_STATUS } from '@/const/common'
   export default {
     name: 'ToDoList',
     components: {
       draggable
     },
+    props: {
+      list: {
+        type: Function,
+        required: true
+      },
+      save: {
+        type: Function,
+        default: () => {}
+      },
+      todoDelete: {
+        type: Function,
+        default: () => {}
+      },
+      todo: {
+        type: Function,
+        default: () => {}
+      },
+      done: {
+        type: Function,
+        default: () => {}
+      },
+      classId: {
+        type: [String, Number],
+        default: null
+      }
+    },
     data() {
       return {
+        TODO_STATUS: TODO_STATUS,
         todos: [],
+        query: {
+          keyword: '',
+          classId: this.classId,
+          pageNo: 1,
+          pageSize: 1000
+        },
         customDrag: false,
         customDragOptions: {
           animation: 200,
@@ -59,11 +93,33 @@
         }
       }
     },
+    created() {
+      this.init()
+    },
     methods: {
+      justifyPromise(promise) {
+        return (typeof promise === 'object' || typeof promise === 'function') && typeof promise.then === 'function'
+      },
+      init() {
+        const promise = this.list(this.query)
+        if (this.justifyPromise(promise)) {
+          promise.then(res => {
+            if (res.success) {
+              this.todos = res.result.map(item => {
+                return {
+                  ...item,
+                  done: item.status === TODO_STATUS.DONE
+                }
+              })
+            }
+          })
+        }
+      },
       addItem() {
         if (this.todos.length > 0 && this.todos[0].isWriting) return
         this.todos.unshift({
-          content: '',
+          items: '',
+          status: TODO_STATUS.TODO,
           done: false,
           isWriting: true
         })
@@ -72,11 +128,63 @@
         })
       },
       delItem(index) {
-        this.todos.splice(index, 1)
+        const delItem = this.todos[index]
+        if (delItem.id) {
+          const promise = this.todoDelete({
+            id: this.todos[index].id
+          })
+          if (this.justifyPromise(promise)) {
+            promise.then(res => {
+              if (res.success) {
+                this.todos.splice(index, 1)
+              }
+            })
+          } else {
+            this.todos.splice(index, 1)
+          }
+        } else {
+          this.todos.splice(index, 1)
+        }
       },
       commitItem(index) {
-        if (!this.todos[index].content) return
-        this.todos[index].isWriting = false
+        if (!this.todos[index].items) return
+        const promise = this.save({
+          items: this.todos[index].items,
+          classId: this.classId
+        })
+        if (this.justifyPromise(promise)) {
+          promise.then(res => {
+            if (res.success) {
+              this.todos[index].isWriting = false
+              // 没有传id，重新加载
+              this.init()
+            }
+          })
+        } else {
+          this.todos[index].isWriting = false
+        }
+      },
+      changeItem(e, index) {
+        let promise = null
+        const id = this.todos[index].id
+        if (e.target.checked) {
+          promise = this.done({
+            id: id
+          })
+        } else {
+          promise = this.todo({
+            id: id
+          })
+        }
+        if (promise && this.justifyPromise(promise)) {
+          promise.then(res => {
+            if (res.success) {
+              this.todos[index].status = e.target.checked ? TODO_STATUS.DONE : TODO_STATUS.TODO
+            }
+          })
+        } else {
+          this.todos[index].status = e.target.checked ? TODO_STATUS.DONE : TODO_STATUS.TODO
+        }
       }
     }
   }
@@ -102,10 +210,10 @@
       flex-direction: row;
       width: 100%;
       align-items: center;
-      height: 50px;
-      line-height: 50px;
-      border-bottom: 1px solid #dfdfdf;
-      padding: 5px 0;
+      height: 30px;
+      line-height: 30px;
+      // border-bottom: 1px solid #dfdfdf;
+      // padding: 5px 0;
       .todo-done {
         text-decoration: line-through;
         color: #999;
