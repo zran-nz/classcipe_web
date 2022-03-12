@@ -401,7 +401,7 @@ export default {
           this.$router.push({ path: '/student/main/my-task' })
         } else {
           this.$refs.myTaskList.loadMyContent()
-          // this.$refs.attendance.refresh(true)
+          this.loadAttendance()
         }
       }
     }

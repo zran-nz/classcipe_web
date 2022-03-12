@@ -74,6 +74,12 @@
         default: null
       }
     },
+    watch: {
+      classId(val) {
+        this.query.classId = val
+        this.init()
+      }
+    },
     data() {
       return {
         TODO_STATUS: TODO_STATUS,
