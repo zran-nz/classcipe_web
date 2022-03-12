@@ -6,13 +6,36 @@ import { FormConfigUser } from '@/api/formConfig'
 
 const formConfig = {
   state: {
-    previewData: null,
-    formConfigData: null
+    previewData: {
+      loaded: false,
+      taskFieldMap: {},
+      taskHintMap: {},
+      taskCommonList: [],
+      taskCustomList: [],
+      planFieldMap: {},
+      planHintMap: {},
+      planCommonList: [],
+      planCustomList: []
+    },
+    formConfigData: {
+      loaded: false,
+      taskFieldMap: {},
+      taskHintMap: {},
+      taskCommonList: [],
+      taskCustomList: [],
+      taskFieldTagMap: {},
+      planFieldMap: {},
+      planHintMap: {},
+      planCommonList: [],
+      planCustomList: [],
+      planFieldTagMap: {}
+    }
   },
   mutations: {
     [FORM_CONFIG_PREVIEW_DATA]: (state, previewData) => {
       logger.info('previewData', previewData)
       const configData = {
+        loaded: true,
         taskFieldMap: {},
         taskHintMap: {},
         taskCommonList: [],
@@ -46,6 +69,7 @@ const formConfig = {
     [FORM_CONFIG_DATA]: (state, formConfigData) => {
       logger.info('formConfigData', formConfigData)
       const configData = {
+        loaded: true,
         taskFieldMap: {},
         taskHintMap: {},
         taskCommonList: [],
