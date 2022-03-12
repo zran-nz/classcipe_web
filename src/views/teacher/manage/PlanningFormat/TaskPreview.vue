@@ -2444,7 +2444,7 @@ export default {
       this.currentTaskFormData.customTags = []
       this.itemsList.forEach(e => {
         if (this.selectedPageIdList.indexOf(e.pageId) !== -1) {
-          const json = JSON.parse(e.data)
+          const json = typeof (e.data) === 'object' ? e.data : JSON.parse(e.data)
           if (json.data && json.data.bloomLevel) {
             if (this.currentTaskFormData.customTags.findIndex(tag => tag.name === json.data.bloomLevel) === -1) {
               this.currentTaskFormData.customTags.push({

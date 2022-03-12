@@ -162,6 +162,7 @@ import { getGradeListBySchoolId } from '@/api/grade'
 import store from '@/store'
 import { schoolUserStatusList } from '@/const/schoolUser'
 import * as logger from '@/utils/logger'
+import { SchoolUserRole } from '@/const/role'
 
 const columns = [
   {
@@ -280,7 +281,7 @@ export default {
       const searchParams = this.form.getFieldsValue()
       const res = await getSchoolUsers({
         school: store.getters.userInfo.school,
-        currentRole: 'student',
+        currentRole: SchoolUserRole.student,
         pageSize: this.pagination.pageSize,
         pageNo: this.pagination.current,
         userStatus: this.activeStatus,

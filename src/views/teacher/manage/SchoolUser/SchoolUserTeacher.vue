@@ -195,6 +195,7 @@ import store from '@/store'
 import { schoolUserStatusList } from '@/const/schoolUser'
 import Moment from 'moment'
 import * as logger from '@/utils/logger'
+import { SchoolUserRole } from '@/const/role'
 
 const columns = [
   {
@@ -335,7 +336,7 @@ export default {
       const searchParams = this.form.getFieldsValue()
       const res = await getSchoolUsers({
         school: store.getters.userInfo.school,
-        currentRole: 'teacher',
+        currentRole: SchoolUserRole.teacher,
         pageSize: this.pagination.pageSize,
         pageNo: this.pagination.current,
         userStatus: this.activeStatus,
