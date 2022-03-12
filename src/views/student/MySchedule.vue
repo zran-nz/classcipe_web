@@ -146,19 +146,34 @@ export default {
           right: 'dayGridMonth,timeGridWeek,timeGridDay'
         },
         // initialEvents: INITIAL_EVENTS, // alternatively, use the `events` setting to fetch from a feed
-        events: (start, end, timezone, callback) => {
-          console.log(start)
-          console.log(end)
+        events: (date, successCb, failCb) => {
           getClassSchedule({
-
+            dateStart: moment(date.start).format('YYYY-MM-DD'),
+            dateEnd: moment(date.end).format('YYYY-MM-DD')
           }).then(res => {
-            if (res.success) {
-              callback(INITIAL_EVENTS)
+            if (res.success && res.result) {
+              const events = res.result.map(item => {
+                // 根据classId获取颜色 TODO
+                // const index = this.currentStudentClass.findIndex(clasz => clasz.id === item.classId)
+                const color = BG_COLORS[0]
+                return {
+                  id: item.id,
+                  title: item.overview,
+                  start: item.startDate,
+                  end: item.endDate,
+                  backgroundColor: color,
+                  extendedProps: {
+                    classId: 1, // TODO
+                    status: 0
+                  }
+                }
+              })
+              successCb(events)
             } else {
-              callback()
+              failCb()
             }
           }).catch(() => {
-            callback()
+            failCb()
           })
         },
         editable: false,
