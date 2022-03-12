@@ -1,6 +1,6 @@
 <template>
   <div class="ppt-slide-view">
-    <div class='score-number-item'>
+    <div class='score-number-item' v-show='!loading'>
       <score-number :score='studentScore' />
     </div>
     <div class="go-session-detail" v-show='mode'>
@@ -412,6 +412,10 @@ export default {
       type: String,
       default: null
     },
+    sessionId: {
+      type: String,
+      default: null
+    },
     selectedIdList: {
       type: Array,
       default: () => []
@@ -445,7 +449,7 @@ export default {
       viewSlideItemVisible: false,
       previewItemUrl: null,
       previewItemVisible: false,
-      previewLoading: false
+      previewLoading: false,
     }
   },
   watch: {
@@ -498,7 +502,7 @@ export default {
         TemplatesGetPresentation({ presentationId: this.slideId }),
         QueryByClassInfoSlideId({ slideId: this.slideId }),
         QuerySessionEvidence({
-          classId: this.classId,
+          sessionId: this.sessionId,
           user: this.studentName
         }),
         QueryResponseByClassId({ classId: this.classId })
@@ -539,7 +543,7 @@ export default {
 
     loadStudentData () {
       this.$logger.info('loadStudentData', this.rawSlideDataMap)
-      GetStudentResponse({ class_id: this.classId }).then(response => {
+      GetStudentResponse({ class_id: this.sessionId }).then(response => {
         this.$logger.info('GetStudentResponse response', response)
         const rawCommentDataList = response.data.presentation_comments
         rawCommentDataList.forEach((item) => {
@@ -673,7 +677,7 @@ export default {
       }
       this.$logger.info('保存evaluation数据', data)
       SaveSessionEvidence({
-        classId: this.classId,
+        sessionId: this.sessionId,
         user: this.studentName,
         result: JSON.stringify(data)
       }).then(() => {
@@ -723,9 +727,9 @@ export default {
 .ppt-slide-view {
   position: relative;
   .score-number-item {
+    right: 200px;
+    top: 10px;
     position: absolute;
-    right: 40px;
-    top: -5px;
   }
   .slide-header {
     display: flex;
