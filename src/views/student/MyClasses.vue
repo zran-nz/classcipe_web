@@ -213,7 +213,7 @@ import FilterIcon from '@/assets/libraryv2/filter.svg?inline'
 import FilterActiveIcon from '@/assets/libraryv2/filter_active.svg?inline'
 import CollaborateSvg from '@/assets/icons/collaborate/collaborate_group.svg?inline'
 
-import { SelfStudyTaskList, queryMySessions } from '@/api/selfStudy'
+import { SchoolTaskList, queryMySessions } from '@/api/selfStudy'
 import { FindCustomTags } from '@/api/tag'
 import { SubjectTree } from '@/api/subject'
 import { GetGradesByCurriculumId } from '@/api/preference'
@@ -325,7 +325,7 @@ export default {
         if (this.filterParams) {
           params = Object.assign(this.filterParams, params)
         }
-        return SelfStudyTaskList(params)
+        return SchoolTaskList(params)
       },
       scroll: {}
     }
@@ -340,6 +340,8 @@ export default {
     ...mapGetters(['currentStudentClass']),
     statusList() {
       return StudentStudyTaskStatus.filter(item => {
+        // archived 只有自学模式有
+        if (this.studyMode === STUDY_MODE.SCHOOL && item.value === TASK_STATUS.ARCHIVED) return false
         // scheduled 只有学校模式有
         if (this.studyMode === STUDY_MODE.SELF && item.value === TASK_STATUS.SCHEDULED) return false
         return true

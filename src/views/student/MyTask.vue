@@ -185,6 +185,8 @@ export default {
       return StudentStudyTaskStatus.filter(item => {
         // scheduled 只有学校模式有
         if (this.studyMode === STUDY_MODE.SELF && item.value === TASK_STATUS.SCHEDULED) return false
+        // archived 只有自学模式有
+        if (this.studyMode === STUDY_MODE.SCHOOL && item.value === TASK_STATUS.ARCHIVED) return false
         return true
       })
     }
@@ -196,6 +198,9 @@ export default {
   methods: {
     handleModeChange(studyMode) {
       if (studyMode === STUDY_MODE.SELF && this.currentStatus === TASK_STATUS.SCHEDULED) {
+        this.currentStatus = ''
+      }
+      if (studyMode === STUDY_MODE.SCHOOL && this.currentStatus === TASK_STATUS.ARCHIVED) {
         this.currentStatus = ''
       }
       this.triggerSearch()
