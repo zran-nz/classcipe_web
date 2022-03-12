@@ -87,11 +87,11 @@ import interactionPlugin from '@fullcalendar/interaction'
 import { INITIAL_EVENTS, createEventId } from './components/event-utils'
 import Pie from '@/components/Charts/Pie'
 
-// import { getClassSchedule } from '@/api/selfStudy'
+import { getClassSchedule } from '@/api/selfStudy'
 
 import { ABSENT_COLORS, BG_COLORS } from '@/const/common'
 
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 
 import moment from 'moment'
 
@@ -105,24 +105,24 @@ export default {
   data() {
     return {
       // mock
-      currentStudentClass: [
-        {
-          id: 1,
-          name: 'Class 1'
-        },
-        {
-          id: 2,
-          name: 'Class 2'
-        },
-        {
-          id: 3,
-          name: 'Class 3'
-        },
-        {
-          id: 4,
-          name: 'Class 4'
-        }
-      ],
+      // currentStudentClass: [
+      //   {
+      //     id: 1,
+      //     name: 'Class 1'
+      //   },
+      //   {
+      //     id: 2,
+      //     name: 'Class 2'
+      //   },
+      //   {
+      //     id: 3,
+      //     name: 'Class 3'
+      //   },
+      //   {
+      //     id: 4,
+      //     name: 'Class 4'
+      //   }
+      // ],
       statusList: [
         {
           id: 0,
@@ -145,7 +145,37 @@ export default {
           center: 'title',
           right: 'dayGridMonth,timeGridWeek,timeGridDay'
         },
-        initialEvents: INITIAL_EVENTS, // alternatively, use the `events` setting to fetch from a feed
+        // initialEvents: INITIAL_EVENTS, // alternatively, use the `events` setting to fetch from a feed
+        events: (date, successCb, failCb) => {
+          getClassSchedule({
+            dateStart: moment(date.start).format('YYYY-MM-DD'),
+            dateEnd: moment(date.end).format('YYYY-MM-DD')
+          }).then(res => {
+            if (res.success && res.result) {
+              const events = res.result.map(item => {
+                // 根据classId获取颜色 TODO
+                // const index = this.currentStudentClass.findIndex(clasz => clasz.id === item.classId)
+                const color = BG_COLORS[0]
+                return {
+                  id: item.id,
+                  title: item.overview,
+                  start: item.startDate,
+                  end: item.endDate,
+                  backgroundColor: color,
+                  extendedProps: {
+                    classId: 1, // TODO
+                    status: 0
+                  }
+                }
+              })
+              successCb(events)
+            } else {
+              failCb()
+            }
+          }).catch(() => {
+            failCb()
+          })
+        },
         editable: false,
         selectable: false,
         selectMirror: false,
@@ -236,7 +266,7 @@ export default {
     ...mapState({
       studentCurrentSchool: state => state.user.studentCurrentSchool
     }),
-    // ...mapGetters(['currentStudentClass']),
+    ...mapGetters(['currentStudentClass']),
     dataSource() {
       return [
         { item: 'Absent', count: 21, color: ABSENT_COLORS[0] },

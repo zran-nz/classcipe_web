@@ -55,7 +55,7 @@
                           </div>
                         </div>
 
-                        <div class="more-action-wrapper action-item-wrapper" v-if="actionType === 'myTask'">
+                        <div class="more-action-wrapper action-item-wrapper" v-if="actionType === 'myTask' && STUDY_MODE.SELF === studyMode">
                           <a-dropdown>
                             <a-icon type="more" style="margin-right: 8px" />
                             <a-menu slot="overlay">
@@ -98,7 +98,7 @@
                           </a-dropdown>
                         </div>
                       </template>
-                      <template v-if="currentStatus === TASK_STATUS.ARCHIVED">
+                      <template v-if="currentStatus === TASK_STATUS.ARCHIVED && STUDY_MODE.SELF === studyMode">
                         <!-- <div class="start-session-wrapper action-item-wrapper">
                           <a-popconfirm :title="'Confirm permanent delete ' +((item.task && item.task.name) ? item.task.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem(item)" cancel-text="No">
                             <div class="session-btn content-list-action-btn">
@@ -139,7 +139,7 @@
 
                 <div class="mask-actions">
                   <div class="action-item action-item-top" v-if="currentStatus !== TASK_STATUS.ARCHIVED && currentStatus !== TASK_STATUS.SCHEDULED">
-                    <a-dropdown v-if="actionType === 'myTask'">
+                    <a-dropdown v-if="actionType === 'myTask' && STUDY_MODE.SELF === studyMode">
                       <a-icon type="more" style="margin-right: 8px" class="more-icon" />
                       <a-menu slot="overlay">
                         <a-menu-item>
@@ -190,7 +190,7 @@
                   </div>
                   <div class="action-item action-item-bottom" >
                     <template v-if="currentStatus !== TASK_STATUS.ARCHIVED && currentStatus !== TASK_STATUS.SCHEDULED">
-                      <div class="session-btn" @click.stop="handleReportItem(item)" v-show="actionType === 'myTask'">
+                      <div class="session-btn" @click.stop="handleReportItem(item)" v-show="actionType === 'myTask' && STUDY_MODE.SELF === studyMode">
                         <div class="session-btn-icon content-list-action-btn">
                           <a-icon type="bar-chart" />
                         </div>

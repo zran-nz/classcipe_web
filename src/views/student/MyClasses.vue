@@ -127,33 +127,40 @@
       <div class="attendance-summary">
         <a-row :gutter="16">
           <a-col :span="6">
-            <a-card class="attendance-card" :class="{active: queryAttendance.sessionType === ''}" @click="toggleSessionType('')">
+            <a-card class="attendance-card" :class="{active: queryAttendance.sessionType === 'mySessionList'}" @click="toggleSessionType('mySessionList')">
               <h4>Total Sessions</h4>
-              <p>10</p>
+              <p>{{ attendanceData.mySessionSize }}</p>
             </a-card>
           </a-col>
           <a-col :span="6">
-            <a-card class="attendance-card" :class="{active: queryAttendance.sessionType === 'attendance'}" @click="toggleSessionType('attendance')">
+            <a-card class="attendance-card" :class="{active: queryAttendance.sessionType === 'attendanceSessionList'}" @click="toggleSessionType('attendanceSessionList')">
               <h4>Attandence Sessions</h4>
-              <p>10</p>
+              <p>{{ attendanceData.attendanceSessionSize }}</p>
             </a-card>
           </a-col>
           <a-col :span="6">
-            <a-card class="attendance-card" :class="{active: queryAttendance.sessionType === 'absent'}" @click="toggleSessionType('absent')">
+            <a-card class="attendance-card" :class="{active: queryAttendance.sessionType === 'absentSessionList'}" @click="toggleSessionType('absentSessionList')">
               <h4>Absent Sessions</h4>
-              <p>10</p>
+              <p>{{ attendanceData.absentSessionSize }}</p>
             </a-card>
           </a-col>
           <a-col :span="6">
             <a-card class="attendance-card">
               <h4>Attandence Rate</h4>
-              <p>10%</p>
+              <p>{{ attendanceRate }} %</p>
             </a-card>
           </a-col>
         </a-row>
       </div>
       <div class="">
-        <s-table
+        <a-table
+          :columns="columns"
+          :data-source="attendanceList"
+          :pagination="false"
+          class="content-list"
+          :rowKey="row => row.id">
+        </a-table>
+        <!-- <s-table
           ref="attendance"
           size="default"
           :rowKey="row => row.id"
@@ -162,7 +169,7 @@
           :scroll="scroll"
           class="content-list"
         >
-        </s-table>
+        </s-table> -->
       </div>
     </div>
     <!--  Activites -->
@@ -179,7 +186,14 @@
         <label>Class: {{ currentClass.name }}</label>
       </div>
       <chat-list v-show="currentActivity === 'messages'" :classId="classId"/>
-      <to-do-list v-show="currentActivity === 'todos'" :classId="classId"/>
+      <to-do-list
+        v-show="currentActivity === 'todos'"
+        :list="classStudentTodos.listByClassId"
+        :save="classStudentTodos.save"
+        :todo="classStudentTodos.todo"
+        :done="classStudentTodos.done"
+        :todoDelete="classStudentTodos.todoDelete"
+        :classId="classId"/>
     </div>
   </div>
 </template>
@@ -199,11 +213,11 @@ import FilterIcon from '@/assets/libraryv2/filter.svg?inline'
 import FilterActiveIcon from '@/assets/libraryv2/filter_active.svg?inline'
 import CollaborateSvg from '@/assets/icons/collaborate/collaborate_group.svg?inline'
 
-import { SelfStudyTaskList } from '@/api/selfStudy'
+import { SchoolTaskList, queryMySessions } from '@/api/selfStudy'
 import { FindCustomTags } from '@/api/tag'
 import { SubjectTree } from '@/api/subject'
 import { GetGradesByCurriculumId } from '@/api/preference'
-import { orderRecordList } from '@/api/orderRecord'
+import * as classStudentTodos from '@/api/classStudentTodos'
 
 import { StudyModeMixin } from '@/mixins/StudyModeMixin'
 import { StudentSchoolMixin } from '@/mixins/StudentSchoolMixin'
@@ -235,6 +249,8 @@ export default {
     return {
       loading: true,
       startLoading: false,
+      attendanceLoading: false,
+      classStudentTodos: classStudentTodos,
       currentStatus: '',
       currentType: 'task',
       currentActivity: 'messages',
@@ -284,11 +300,19 @@ export default {
       },
       queryAttendance: {
         searchKey: '',
-        sessionType: ''
+        sessionType: 'mySessionList'
       },
       lastedRevisionId: '',
       searchText: '',
       viewMode: storage.get(SESSION_VIEW_MODE) ? storage.get(SESSION_VIEW_MODE) : 'img',
+      attendanceData: {
+        absentSessionSize: 0,
+        attendanceSessionSize: 0,
+        mySessionSize: 0,
+        absentSessionList: [],
+        attendanceSessionList: [],
+        mySessionList: []
+      },
 
       loadData: (pageParams) => {
         let params = {
@@ -301,19 +325,7 @@ export default {
         if (this.filterParams) {
           params = Object.assign(this.filterParams, params)
         }
-        return SelfStudyTaskList(params)
-      },
-      loadAttendance: parameter => {
-        logger.info('loadAttendance.parameter', parameter)
-        const params = {
-          ...parameter,
-          ...this.queryAttendance,
-          classId: this.classId
-        }
-        return orderRecordList(params)
-          .then(res => {
-            return res.result
-          })
+        return SchoolTaskList(params)
       },
       scroll: {}
     }
@@ -328,6 +340,8 @@ export default {
     ...mapGetters(['currentStudentClass']),
     statusList() {
       return StudentStudyTaskStatus.filter(item => {
+        // archived 只有自学模式有
+        if (this.studyMode === STUDY_MODE.SCHOOL && item.value === TASK_STATUS.ARCHIVED) return false
         // scheduled 只有学校模式有
         if (this.studyMode === STUDY_MODE.SELF && item.value === TASK_STATUS.SCHEDULED) return false
         return true
@@ -357,6 +371,17 @@ export default {
     },
     currentClass() {
       return this.currentStudentClass.find(item => item.id === this.classId) || {}
+    },
+    attendanceRate() {
+      if (this.attendanceData.mySessionSize > 0) {
+        return (this.attendanceData.attendanceSessionSize / this.attendanceData.mySessionSize * 100).toFixed(2)
+      } else {
+        return '0.00'
+      }
+    },
+    attendanceList() {
+      const list = this.attendanceData[this.queryAttendance.sessionType] || []
+      return list.filter(item => item.sessionName.toLowerCase().indexOf(this.queryAttendance.searchKey.toLowerCase()) > -1)
     }
   },
   created () {
@@ -366,6 +391,7 @@ export default {
       this.$router.push({ path: '/student/main/my-task' })
     }
     this.initFilterOption()
+    this.loadAttendance()
   },
   watch: {
     classId: {
@@ -375,7 +401,7 @@ export default {
           this.$router.push({ path: '/student/main/my-task' })
         } else {
           this.$refs.myTaskList.loadMyContent()
-          this.$refs.attendance.refresh(true)
+          this.loadAttendance()
         }
       }
     }
@@ -392,6 +418,25 @@ export default {
           this.$router.push(`/student/main/my-classes/${classId}`)
         }
       }
+    },
+    loadAttendance() {
+      const params = {
+        ...this.queryAttendance,
+        classId: this.classId
+      }
+      this.attendanceLoading = true
+      queryMySessions(params)
+        .then(res => {
+          if (res.success) {
+            this.attendanceData = {
+              ...this.attendanceData,
+              ...res.result
+            }
+          }
+        })
+        .finally(() => {
+          this.attendanceLoading = false
+        })
     },
     initFilterOption() {
       SubjectTree({ curriculumId: CurriculumType.Cambridge }).then(response => {
@@ -460,7 +505,7 @@ export default {
     },
     toggleSessionType(sessionType) {
       this.queryAttendance.sessionType = sessionType
-      this.$refs.attendance.refresh()
+      // this.$refs.attendance.refresh()
     },
     handleChangeSubject (subjects) {
       console.log(this.filterParams)
@@ -478,7 +523,7 @@ export default {
           this.$refs.myTaskList.loadMyContent()
           break
         case 'attendance':
-          this.$refs.attendance.refresh(true)
+          // this.$refs.attendance.refresh(true)
           break
         default:
           break
