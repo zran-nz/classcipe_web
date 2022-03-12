@@ -116,7 +116,7 @@
 
 <script>
 
-import { getAction, deleteAction, postAction } from '@/api/manage'
+import { deleteAction, getAction } from '@/api/manage'
 import { JeecgListMixin } from '@/mixins/JeecgListMixin'
 import TagModal from './TagModal'
 import { filterObj } from '@/utils/util'

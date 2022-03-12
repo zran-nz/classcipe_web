@@ -425,7 +425,7 @@
         </a-col>
       </a-row>
       <div class="associate-info" v-if="viewMode === 'Detail'" v-excludeRole="['student']">
-        <common-link :can-edit="false" ref="commonLink" :from-id="id" :from-type="type"/>
+        <common-link :isLibrary="isLibrary" :can-edit="false" ref="commonLink" :from-id="id" :from-type="type"/>
       </div>
     </template>
 
