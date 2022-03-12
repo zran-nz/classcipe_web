@@ -29,17 +29,13 @@
       />
       <div class="study-mode">
         <label class="self-mode" :class="{active: studyMode === STUDY_MODE.SELF}" @click="handleChange(STUDY_MODE.SELF)">Self-study</label>
-        <a-dropdown :class="{active: studyMode === STUDY_MODE.SCHOOL, 'school-mode': true}">
-          <!-- <a-button style="margin-left: 8px"> {{ schoolName }} <a-icon type="down" /> </a-button> -->
+        <a-dropdown :class="{active: studyMode === STUDY_MODE.SCHOOL, 'school-mode': true}" v-show="info.schoolList && info.schoolList.length > 0">
           <a class="ant-dropdown-link" @click="handleChange(STUDY_MODE.SCHOOL)">
-            {{ schoolName }} <a-icon type="down" />
+            {{ studentCurrentSchool.name }} <a-icon type="down" />
           </a>
           <a-menu slot="overlay" @click="handleChangeSchool">
-            <a-menu-item key="East west study">
-              <a href="javascript:;">East west study</a>
-            </a-menu-item>
-            <a-menu-item key="West east study">
-              <a href="javascript:;">West east study</a>
+            <a-menu-item :key="item.id" v-for="item in info.schoolList">
+              <a href="javascript:;">{{ item.name }}</a>
             </a-menu-item>
           </a-menu>
         </a-dropdown>
@@ -63,7 +59,7 @@ import { TOOGLE_STUDY_MODE, ACCESS_TOKEN } from '@/store/mutation-types'
 import { lessonHost } from '@/const/googleSlide'
 import { STUDY_MODE } from '@/const/common'
 
-import { mapState, mapMutations } from 'vuex'
+import { mapState, mapMutations, mapActions } from 'vuex'
 import storage from 'store'
 
 export default {
@@ -78,7 +74,6 @@ export default {
     return {
       defaultSelectedKeys: [],
       selectedKeys: [],
-      schoolName: 'East west study',
       code: '',
       STUDY_MODE: STUDY_MODE
     }
@@ -98,11 +93,22 @@ export default {
   },
   computed: {
     ...mapState({
-      studyMode: state => state.app.studyMode
+      studyMode: state => state.app.studyMode,
+      info: state => state.user.info,
+      studentCurrentSchool: state => state.user.studentCurrentSchool
     })
   },
+  created() {
+    this.init()
+  },
   methods: {
-    ...mapMutations([TOOGLE_STUDY_MODE]),
+    ...mapMutations([TOOGLE_STUDY_MODE, 'SET_STUDENT_CURRENT_SCHOOL']),
+    ...mapActions(['GetClassList']),
+    init() {
+      const current = this.studentCurrentSchool.id ? this.studentCurrentSchool : (this.info.schoolList && this.info.schoolList.length > 0) ? { ...this.info.schoolList[0] } : {}
+      this.SET_STUDENT_CURRENT_SCHOOL(current)
+      this.GetClassList()
+    },
     handleChange(val) {
       this[TOOGLE_STUDY_MODE](val)
       // 如果是学校模式，当前路由如果是library，则跳出到mytask
@@ -112,8 +118,8 @@ export default {
     },
     handleChangeSchool(val) {
       this[TOOGLE_STUDY_MODE](STUDY_MODE.SCHOOL)
-      this.schoolName = val.key
-      console.log(val)
+      const item = this.info.schoolList.find(item => item.id === val.key)
+      this.SET_STUDENT_CURRENT_SCHOOL(item)
     },
     enterCode() {
       if (!this.code) return

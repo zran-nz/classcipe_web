@@ -113,13 +113,14 @@ import { SubjectTree } from '@/api/subject'
 import { GetGradesByCurriculumId } from '@/api/preference'
 
 import { StudyModeMixin } from '@/mixins/StudyModeMixin'
+import { StudentSchoolMixin } from '@/mixins/StudentSchoolMixin'
 
 import storage from 'store'
 import { mapState } from 'vuex'
 
 export default {
   name: 'MyTask',
-  mixins: [StudyModeMixin],
+  mixins: [StudyModeMixin, StudentSchoolMixin],
   components: {
     FilterIcon,
     FilterActiveIcon,
@@ -164,6 +165,7 @@ export default {
       loadData: (pageParams) => {
         let params = {
           status: this.currentStatus,
+          schoolId: this.studyMode === STUDY_MODE.SELF ? '' : this.studentCurrentSchool.id,
           searchKey: this.searchText ? this.searchText : '',
           ...pageParams
         }
@@ -176,7 +178,8 @@ export default {
   },
   computed: {
     ...mapState({
-      studyMode: state => state.app.studyMode
+      studyMode: state => state.app.studyMode,
+      studentCurrentSchool: state => state.user.studentCurrentSchool
     }),
     statusList() {
       return StudentStudyTaskStatus.filter(item => {
@@ -195,6 +198,10 @@ export default {
       if (studyMode === STUDY_MODE.SELF && this.currentStatus === TASK_STATUS.SCHEDULED) {
         this.currentStatus = ''
       }
+      this.triggerSearch()
+    },
+    handleSchoolChange(school) {
+      this.triggerSearch()
     },
     initFilterOption() {
       SubjectTree({ curriculumId: CurriculumType.Cambridge }).then(response => {
@@ -269,7 +276,7 @@ export default {
       this.$refs.myTaskList.loadMyContent()
     },
     triggerSearch() {
-      this.$refs.myTaskList.loadMyContent()
+      this.$refs.myTaskList && this.$refs.myTaskList.loadMyContent()
     }
   }
 }

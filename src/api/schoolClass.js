@@ -68,10 +68,11 @@ export function SchoolClassGetMyClasses () {
   })
 }
 
-export function SchoolClassClassList () {
+export function SchoolClassClassList (params) {
   return request({
     url: schoolClassAPIUrl.SchoolClassClassList,
-    method: 'get'
+    method: 'get',
+    params: params
   })
 }
 

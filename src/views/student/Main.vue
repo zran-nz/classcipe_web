@@ -80,7 +80,7 @@ import PopularSvg from '@/assets/svgIcon/myContent/Popular.svg?inline'
 import SharedSvg from '@/assets/svgIcon/myContent/Shared.svg?inline'
 import SubscribesSvg from '@/assets/svgIcon/myContent/Subscribes.svg?inline'
 import AddPreference from './AddPreference.vue'
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 
 export default {
   name: 'Main',
@@ -114,6 +114,7 @@ export default {
       studyMode: state => state.app.studyMode,
       user: state => state.user
     }),
+    ...mapGetters(['currentStudentClass']),
     currentMenu() {
       const addRouters = this.mainMenu
       if (addRouters && addRouters.length > 0) {
@@ -125,20 +126,12 @@ export default {
             const Main = currentRouter.children.find(item => item.name === 'Main')
             // 根据自学习模式，还是学校模式进行type过滤
             if (Main && Main.children && Main.children.length > 0) {
-              // 动态路由需要额外生成并放入children中 TODO
+              // 动态路由需要额外生成并放入children中
               const Final = Main.children.filter(item => !item.meta.type || item.meta.type === this.studyMode)
               const Dynamcis = Final.filter(item => item.meta.dynamicKey)
+              const noDynamic = []
               Dynamcis.forEach(item => {
-                const routes = this.user[item.meta.dynamicKey] || [{
-                  id: '1',
-                  name: 'class1'
-                }, {
-                  id: '2',
-                  name: 'class2'
-                }, {
-                  id: '3',
-                  name: 'class3'
-                }]
+                const routes = this[item.meta.dynamicKey] || []
                 const children = []
                 routes.forEach(route => {
                   children.push({
@@ -150,9 +143,14 @@ export default {
                     }
                   })
                 })
-                item.children = children
+                if (routes.length === 0) {
+                  noDynamic.push(item.path)
+                } else {
+                  item.children = children
+                }
               })
-              return Final
+
+              return Final.filter(item => !noDynamic.includes(item.path))
             }
           }
         }

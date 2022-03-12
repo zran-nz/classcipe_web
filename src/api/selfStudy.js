@@ -8,7 +8,9 @@ export const selfStudyApiUrl = {
   TaskStart: `/classcipe/api/${API_PREFIX}/task/start`,
   TaskAchive: `/classcipe/api/${API_PREFIX}/archive`,
   TaskDelete: `/classcipe/api/${API_PREFIX}/delete`,
-  TaskResotre: `/classcipe/api/${API_PREFIX}/restore`
+  TaskResotre: `/classcipe/api/${API_PREFIX}/restore`,
+  StudentClasses: `/classcipe/api/${API_PREFIX}/getStudentClasses`,
+  getClassSchedule: `/classcipe/api/${API_PREFIX}/getClassSchedule`
 }
 
 /**
@@ -102,5 +104,31 @@ export function SelfStudyTaskList (parameter) {
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+ export function StudentClasses (parameter) {
+  return request({
+    url: selfStudyApiUrl.StudentClasses,
+    method: 'get',
+    params: parameter
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+ export function getClassSchedule (parameter) {
+  return request({
+    url: selfStudyApiUrl.getClassSchedule,
+    method: 'get',
+    params: parameter
   })
 }
