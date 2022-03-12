@@ -116,11 +116,7 @@
 
 <script>
 
-<<<<<<< HEAD
 import { deleteAction, getAction } from '@/api/manage'
-=======
-import { getAction, deleteAction } from '@/api/manage'
->>>>>>> 838234f0f51e84aec5e614b5276c27f4e6aecb68
 import { JeecgListMixin } from '@/mixins/JeecgListMixin'
 import TagModal from './TagModal'
 import { filterObj } from '@/utils/util'
