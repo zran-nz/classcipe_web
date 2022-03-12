@@ -130,8 +130,12 @@ export function SelfStudyTaskList (parameter) {
  export function getClassSchedule (parameter) {
   return request({
     url: selfStudyApiUrl.getClassSchedule,
-    method: 'get',
-    params: parameter
+    method: 'post',
+    data: parameter,
+    params: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
   })
 }
 
