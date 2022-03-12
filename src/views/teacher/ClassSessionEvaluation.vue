@@ -315,6 +315,8 @@
                         :form-type="formItem.formType"
                         :mode="mode"
                         :form-body-data="formBodyData"
+                        :task-learn-outs='formItem.taskLearnOuts'
+                        :task-self-outs='formItem.taskSelfOuts'
                         @update-evaluation="handleUpdateEvaluate"
                         @add-evidence="handleAddEvidence"
                         @error-mode='handleErrorMode'
@@ -589,6 +591,8 @@ import PptSlideView from '@/components/Evaluation/PptSlideView'
 import { typeMap } from '@/const/teacher'
 import { SchoolClassListClassAttendance } from '@/api/schoolClass'
 import { EvaluationMixin } from '@/mixins/EvaluationMixin'
+import { TaskQueryById } from '@/api/task'
+import * as logger from '@/utils/logger'
 
 export default {
   name: 'ClassSessionEvaluation',
@@ -737,7 +741,10 @@ export default {
 
       allStudentUserList: [],
       allNoGroupStudentUserIdList: [], // 所有未分组的学生邮箱列表
-      allNoGroupStudentUserList: [] // 所有未分组的学生列表
+      allNoGroupStudentUserList: [], // 所有未分组的学生列表
+
+      taskLearnOuts: [],
+      taskSelfOuts: []
     }
   },
   mixins: [ EvaluationMixin ],
@@ -771,6 +778,8 @@ export default {
     this.initClassSessionEvaluation()
 
     this.updateMode()
+
+    this.loadLinkedTaskData()
 
     // 每次打开第一次提示多选模式
     window.sessionStorage.removeItem('multiConfirmVisible')
@@ -985,6 +994,33 @@ export default {
       })
     },
 
+    loadLinkedTaskData () {
+      this.$logger.info('loadLinkedTaskData ' + this.taskId)
+      TaskQueryById({
+        id: this.taskId
+      }).then(response => {
+        logger.info('TaskQueryById ' + this.taskId, response.result)
+        if (response.success) {
+          const taskData = response.result
+          taskData.learnOuts.forEach(item => {
+            if (item.path && item.path.length > 0) {
+              const parentNameList = item.path.split('>')
+              item.parentNameList = parentNameList.slice(-2)
+            } else {
+              item.parentNameList = []
+            }
+          })
+
+          taskData.selfOuts.forEach(item => {
+            item.parentNameList = []
+          })
+
+          this.taskLearnOuts = taskData.learnOuts
+          this.taskSelfOuts = taskData.selfOuts
+        }
+      })
+    },
+
     handleActiveForm (idx, formItem) {
       this.$logger.info('handleActiveForm ' + idx, formItem)
       if (this.currentActiveFormId !== formItem.formId) {
@@ -1156,7 +1192,9 @@ export default {
           tableData: {
             initRawHeaders: [],
             initRawData: []
-          }
+          },
+          taskSelfOuts: this.taskSelfOuts,
+          taskLearnOuts: this.taskLearnOuts
         }
         this.$logger.info('newFormTable', newFormTable)
         this.forms.push(newFormTable)

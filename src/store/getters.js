@@ -46,7 +46,8 @@ const getters = {
   formConfigData: state => state.formConfig.formConfigData,
 
   // 暂时隐藏 karen: "因为IB的版权问题，现在需要把我们平台上的一部分大纲条隐藏掉，把IB-MYP的achievement objectives和integrated subject skills都隐藏了，只有我在后台把老师设置成IB Pilot school 这个学校的才能看到"
-  hiddenIbCurriculumId: state => state.user.bindCurriculum === AllCurriculums.IBMYP && state.user.school !== '1468390544921169921'
+  hiddenIbCurriculumId: state => state.user.bindCurriculum === AllCurriculums.IBMYP && state.user.school !== '1468390544921169921',
+  isIBTeacher: state => state.user.currentRole === 'teacher' && (state.user.bindCurriculum === AllCurriculums.IBMYP || state.user.bindCurriculum === AllCurriculums.IBPYP)
 }
 
 export default getters
