@@ -131,7 +131,7 @@
 
 <script>
 
-import { deleteAction, getAction } from '@/api/manage'
+import { getAction, deleteAction } from '@/api/manage'
 import { JeecgListMixin } from '@/mixins/JeecgListMixin'
 import KnowledgeModal from './modules/KnowledgeModal'
 import KnowledgeTagList from './KnowledgeTagList'

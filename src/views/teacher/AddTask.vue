@@ -3662,10 +3662,6 @@ export default {
     },
     focusInput(event) {
       this.$logger.info('focusInput ', event.target)
-      // let isEditBase = false
-      // if (typeof event.target.className === 'string' && event.target.className.indexOf('ant-input') > -1) {
-      //   isEditBase= true
-      // }
 
       // 设置一个父级定位专用的dom，设置class名称【root-locate-form】，
       // 然后通过事件获取到当前元素，依次往上层查询父元素，累加偏离值，直到定位元素。
@@ -3674,7 +3670,6 @@ export default {
       let currentDom = eventDom.offsetParent
       let currentFocus = ''
       this.customTagList = []
-      console.log(currentDom)
       while (currentDom !== null) {
         formTop += (currentDom ? currentDom.offsetTop : 0)
         currentDom = currentDom ? currentDom.offsetParent : undefined
@@ -3710,15 +3705,10 @@ export default {
         this.showCustomTag = true
         this.setRightModuleVisible(this.rightModule.customTag)
       } else {
-        // if(isEditBase){
-        //   CustomTagType.task.base.forEach(name => {
-        //     this.customTagList.push(name)
-        //   })
-        // }
         CustomTagType.task.default.forEach(name => {
           this.customTagList.push(name)
         })
-        // // 再拼接自己添加的
+        // 再拼接自己添加的
         this.customTags.userTags.forEach(tag => {
           if (this.customTagList.indexOf(tag.name === -1)) {
             this.customTagList.push(tag.name)

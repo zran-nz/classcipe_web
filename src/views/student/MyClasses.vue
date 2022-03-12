@@ -107,12 +107,13 @@
             {{ item.title }}
           </a-radio-button>
         </a-radio-group>
-        <label>Class: {{ classId }}</label>
+        <label>Class: {{ currentClass.name }}</label>
       </div>
       <my-task-list
         :loadData="loadData"
         :viewMode="viewMode"
         :status="currentStatus"
+        actionType="myClass"
         ref="myTaskList"
       >
       </my-task-list>
@@ -175,7 +176,7 @@
             {{ item.title }}
           </a-radio-button>
         </a-radio-group>
-        <label>Class: {{ classId }}</label>
+        <label>Class: {{ currentClass.name }}</label>
       </div>
       <chat-list v-show="currentActivity === 'messages'" :classId="classId"/>
       <to-do-list v-show="currentActivity === 'todos'" :classId="classId"/>
@@ -205,13 +206,14 @@ import { GetGradesByCurriculumId } from '@/api/preference'
 import { orderRecordList } from '@/api/orderRecord'
 
 import { StudyModeMixin } from '@/mixins/StudyModeMixin'
+import { StudentSchoolMixin } from '@/mixins/StudentSchoolMixin'
 
 import storage from 'store'
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 
 export default {
   name: 'MyClasses',
-  mixins: [StudyModeMixin],
+  mixins: [StudyModeMixin, StudentSchoolMixin],
   components: {
     FilterIcon,
     FilterActiveIcon,
@@ -292,6 +294,7 @@ export default {
         let params = {
           status: this.currentStatus,
           classId: this.classId,
+          schoolId: this.studentCurrentSchool.id,
           searchKey: this.searchText ? this.searchText : '',
           ...pageParams
         }
@@ -317,8 +320,12 @@ export default {
   },
   computed: {
     ...mapState({
-      studyMode: state => state.app.studyMode
+      studyMode: state => state.app.studyMode,
+      studentClassList: state => state.user.studentClassList,
+      studentCurrentSchool: state => state.user.studentCurrentSchool
+
     }),
+    ...mapGetters(['currentStudentClass']),
     statusList() {
       return StudentStudyTaskStatus.filter(item => {
         // scheduled 只有学校模式有
@@ -347,21 +354,45 @@ export default {
         }
       ]
       return results
+    },
+    currentClass() {
+      return this.currentStudentClass.find(item => item.id === this.classId) || {}
     }
   },
   created () {
     logger.info('student my content')
+    const currentStudentClass = this.currentStudentClass.find(item => item.id === this.classId)
+    if (!currentStudentClass) {
+      this.$router.push({ path: '/student/main/my-task' })
+    }
     this.initFilterOption()
   },
   watch: {
     classId: {
       handler(newVal) {
-        this.$refs.myTaskList.loadMyContent()
-        this.$refs.attendance.refresh(true)
+        const currentStudentClass = this.currentStudentClass.find(item => item.id === newVal)
+        if (!currentStudentClass) {
+          this.$router.push({ path: '/student/main/my-task' })
+        } else {
+          this.$refs.myTaskList.loadMyContent()
+          this.$refs.attendance.refresh(true)
+        }
       }
     }
   },
   methods: {
+    handleSchoolChange(school) {
+      if (this.studentClassList && this.studentClassList.length > 0) {
+        const currentStudentClass = this.studentClassList.filter(item => item.schoolId === school.id)
+        if (currentStudentClass.length === 0) {
+          this.$router.push({ path: '/student/main/my-task' })
+        }
+        if (!currentStudentClass.find(item => item.id === this.classId)) {
+          const classId = this.currentStudentClass[0].id
+          this.$router.push(`/student/main/my-classes/${classId}`)
+        }
+      }
+    },
     initFilterOption() {
       SubjectTree({ curriculumId: CurriculumType.Cambridge }).then(response => {
         this.$logger.info('getSubjectTree response', response.result)

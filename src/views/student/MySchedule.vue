@@ -12,7 +12,7 @@
       <div class="schedule-tip" v-show="attendanceVisible">
         <div class="attendance"><!-- :style="{visibility: attendanceVisible ? 'visible' : 'hidden'}"> -->
           <a-select class="attendance-choose" v-model="currentClass" @change="handleChangeClass">
-            <a-select-option :value="item.id" v-for="(item, index) in classList" :key="'class'+index">
+            <a-select-option :value="item.id" v-for="(item, index) in currentStudentClass" :key="'class'+index">
               {{ item.name }}
             </a-select-option>
           </a-select>
@@ -37,7 +37,7 @@
               <span>{{ item.name }}</span>
             </div>
           </a-checkbox-group>
-          <!-- <div class="tip-content" v-for="(item, index) in classList" :key="'classtip'+item.id">
+          <!-- <div class="tip-content" v-for="(item, index) in currentStudentClass" :key="'classtip'+item.id">
               <span class="tip-dot" :style="{backgroundColor: BG_COLORS[index]}"></span>
               <label>{{ item.name }}</label>
           </div> -->
@@ -77,6 +77,7 @@
 import { tippy } from 'vue-tippy'
 
 import { StudyModeMixin } from '@/mixins/StudyModeMixin'
+import { StudentSchoolMixin } from '@/mixins/StudentSchoolMixin'
 
 import '@fullcalendar/core/vdom' // solves problem with Vite
 import FullCalendar from '@fullcalendar/vue'
@@ -86,13 +87,17 @@ import interactionPlugin from '@fullcalendar/interaction'
 import { INITIAL_EVENTS, createEventId } from './components/event-utils'
 import Pie from '@/components/Charts/Pie'
 
+// import { getClassSchedule } from '@/api/selfStudy'
+
 import { ABSENT_COLORS, BG_COLORS } from '@/const/common'
+
+import { mapState } from 'vuex'
 
 import moment from 'moment'
 
 export default {
   name: 'MySchedule',
-  mixins: [StudyModeMixin],
+  mixins: [StudyModeMixin, StudentSchoolMixin],
   components: {
     FullCalendar,
     Pie
@@ -100,7 +105,7 @@ export default {
   data() {
     return {
       // mock
-      classList: [
+      currentStudentClass: [
         {
           id: 1,
           name: 'Class 1'
@@ -224,28 +229,34 @@ export default {
 
       showClass: [],
       showStatus: [],
-      showClassOptions: [],
       showStatusOptions: []
     }
   },
   computed: {
+    ...mapState({
+      studentCurrentSchool: state => state.user.studentCurrentSchool
+    }),
+    // ...mapGetters(['currentStudentClass']),
     dataSource() {
       return [
         { item: 'Absent', count: 21, color: ABSENT_COLORS[0] },
         { item: 'Present', count: 40, color: ABSENT_COLORS[1] }
       ]
+    },
+    showClassOptions() {
+      return this.currentStudentClass.map((item, index) => {
+        return {
+          value: item.id,
+          name: item.name,
+          index: index
+        }
+      })
     }
   },
   created() {
-    this.showClass = this.classList.map(item => item.id)
+    this.currentClass = this.currentStudentClass.length > 0 ? this.currentStudentClass[0].id : ''
+    this.showClass = this.currentStudentClass.map(item => item.id)
     this.showStatus = this.statusList.map(item => item.id)
-    this.showClassOptions = this.classList.map((item, index) => {
-      return {
-        value: item.id,
-        name: item.name,
-        index: index
-      }
-    })
     this.showStatusOptions = this.statusList.map((item, index) => {
       return {
         value: item.id,
@@ -254,7 +265,15 @@ export default {
       }
     })
   },
+  mounted() {
+    setTimeout(() => {
+      this.reRender()
+    }, 100)
+  },
   methods: {
+    handleSchoolChange(school) {
+      // this.triggerSearch()
+    },
     handleWeekendsToggle() {
       this.calendarOptions.weekends = !this.calendarOptions.weekends // update a property
     },

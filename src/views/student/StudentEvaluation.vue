@@ -293,6 +293,7 @@
             :row-id="currentEvidenceItem.rowId"
             :form-id="currentActiveFormId"
             :class-id="classId"
+            :session-id="sessionId"
             :slide-id="classInfo.slideId"
             :student-name="selectedMemberIdList.length ? selectedMemberIdList[0] : null"
             :mode="mode"

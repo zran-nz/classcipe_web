@@ -2964,11 +2964,6 @@ export default {
         this.showCustomTag = true
         this.setRightModuleVisible(this.rightModule.customTag)
       } else {
-        // if(isEditBase){
-        //   CustomTagType.task.base.forEach(name => {
-        //     this.customTagList.push(name)
-        //   })
-        // }
         CustomTagType.task.default.forEach(name => {
           this.customTagList.push(name)
         })
