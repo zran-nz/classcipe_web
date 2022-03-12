@@ -38,7 +38,7 @@
               </div>
             </a-col>
             <a-col span='6'>
-              <a-radio-group v-model="tag.isOptional" @change="handleOptionalChange(tag)" class='tag-body-item'>
+              <a-radio-group v-model="tag.isOptional" @change="handleOptionalChange(tag)" class='tag-body-item' v-if='!tag.schoolId'>
                 <a-radio :value="true">
                   Yes
                 </a-radio>
@@ -46,9 +46,10 @@
                   No
                 </a-radio>
               </a-radio-group>
+              <div class='school-setting' v-if='tag.schoolId'>{{ tag.isOptional ? 'Yes' : 'No' }}</div>
             </a-col>
             <a-col span='6'>
-              <a-radio-group class='tag-body-item' v-model="tag.createOwn" @change="handleCreateOwnChange(tag)">
+              <a-radio-group class='tag-body-item' v-model="tag.createOwn" @change="handleCreateOwnChange(tag)" v-if='!tag.schoolId'>
                 <a-radio :value="true">
                   Yes
                 </a-radio>
@@ -56,6 +57,7 @@
                   No
                 </a-radio>
               </a-radio-group>
+              <div class='school-setting' v-if='tag.schoolId'>{{ tag.createOwn ? 'Yes' : 'No' }}</div>
             </a-col>
           </a-row>
         </div>
@@ -97,7 +99,11 @@ export default {
       this.loading = true
       FindCustomTags({}).then((response) => {
         if (response.success) {
+          const mustTagNameList = []
           response.result.recommends.forEach((tag) => {
+            if (tag.schoolId) {
+              mustTagNameList.push(tag.name)
+            }
             const selectedTagItem = this.selectedTags.find((selectedTag) => {
               return selectedTag.tagId === tag.id
             })
@@ -112,6 +118,15 @@ export default {
 
           this.tagList = response.result.recommends
           this.$logger.info('FindCustomTags tagList', this.tagList)
+
+          if (mustTagNameList.length) {
+            this.$confirm({
+              title: 'Notice',
+              content: `${mustTagNameList.join(',')} are compulsory, please make sure you set them visible in enabled sections.`,
+              okText: 'Ok',
+              cancelButtonProps: null
+            })
+          }
         }
       }).finally(() => {
         this.loading = false

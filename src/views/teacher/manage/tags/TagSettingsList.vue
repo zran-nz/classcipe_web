@@ -7,9 +7,9 @@
           <a-col :span="8">
             <a-input-search placeholder="Search for tag name" v-model="queryParam.name" enter-button @search="loadData"/>
           </a-col>
-          <a-col :span="10">
+          <a-col :span="8">
           </a-col>
-          <a-col :span="6">
+          <a-col :span="8">
             <a-button @click="handleAdd" type="primary" icon="plus" style="margin-right: 20px;" >Add tag</a-button>
 
             <a-button @click="handleLibary" type="primary" icon="mail" style="margin-right: 20px;" >Tag  library</a-button>
@@ -67,28 +67,33 @@
         :pagination="ipagination"
         :loading="loading"
         :expandedRowKeys="expandedRowKeys"
+        @change="handleTableChange"
         @expand="handleExpand"
       >
 
         <span slot="action" slot-scope="text, record">
-          <template v-if="!record.schoolId">
-            <div v-if="record.createOwn">
+          {{ text }}
+        </span>
+
+        <span slot="action" slot-scope="text, record">
+          <template v-if="record.isCommon">
+            <div v-if="record.createOwn && record.hasChild == '1'">
               <a @click="handleAddChild(record)"><a-icon type="plus"/> Add child</a>
             </div>
-            <div v-if="record.isOptional">
-              <a @click="handleEdit(record)">  <a-icon type="edit"/>Edit</a>
-            </div>
-            <div v-else>
-              <a @click="handleRemove(record)"><a-icon type="delete"/> Remove</a>
+            <div v-if="record.isOptional && record.parentId == '0'">
+              <a @click="handleSchoolTagRemove(record)"><a-icon type="delete"/> Remove</a>
             </div>
           </template>
-          <template v-if="record.schoolId">
+          <template v-if="!record.isCommon">
             <a @click="handleEdit(record)">  <a-icon type="edit"/>Edit</a>
             <a-divider type="vertical" />
-            <a-dropdown>
+            <a-popconfirm v-if="record.parentId !== '0'" title="Confirm Delete?" @confirm="() => handleDeleteNode(record.id)" placement="topLeft">
+              <a> <a-icon type="delete"/>Delete</a>
+            </a-popconfirm>
+            <a-dropdown v-if="record.parentId == '0'">
               <a class="ant-dropdown-link">More <a-icon type="down" /></a>
               <a-menu slot="overlay">
-                <a-menu-item>
+                <a-menu-item >
                   <a @click="handleAddChild(record)"><a-icon type="plus"/> Add child</a>
                 </a-menu-item>
                 <a-menu-item>
@@ -117,7 +122,7 @@ import TagModal from './TagModal'
 import { filterObj } from '@/utils/util'
 import { CurriculumType } from '@/const/common'
 import TagLibrary from '@/views/teacher/manage/tags/TagLibrary'
-import { SchoolCommonTagList, SchoolSelectLibrary } from '@/api/tag'
+import { SchoolCommonTagList, SchoolSelectLibrary, SchoolTagDelete } from '@/api/tag'
 
 export default {
   name: 'TagSettingsList',
@@ -136,7 +141,8 @@ export default {
         {
           title: 'Tag Category',
           align: 'left',
-          dataIndex: 'name'
+          dataIndex: 'name',
+          scopedSlots: { customRender: 'name' }
         },
         {
           title: 'Hint',
@@ -200,7 +206,7 @@ export default {
     }
   },
   created () {
-    // this.loadData()
+    this.loadData()
     this.getCommonSelectTags()
   },
   computed: {
@@ -227,7 +233,7 @@ export default {
       params.hasQuery = 'true'
       params.isCustom = true
       params.schoolId = this.$store.getters.userInfo.school
-      postAction(this.url.list, params).then(res => {
+      getAction(this.url.list, params).then(res => {
         if (res.success) {
           const result = res.result
           if (Number(result.total) > 0) {
@@ -361,15 +367,24 @@ export default {
       this.$refs.modalForm.add(obj)
     },
 
-    handleRemove: function (record) {
-
+    handleSchoolTagRemove: function (record) {
+      this.$logger.info('SchoolTagDelete', record)
+      this.loading = true
+      SchoolTagDelete({ id: record.id }).then((res) => {
+        if (res.success) {
+          this.loadData()
+          this.getCommonSelectTags()
+        } else {
+          this.$message.warning(res.message)
+        }
+      })
     },
 
     handleDeleteNode (id) {
       var that = this
       deleteAction(that.url.delete, { id: id }).then((res) => {
         if (res.success) {
-          that.loadData(1)
+          that.loadData()
         } else {
           that.$message.warning(res.message)
         }

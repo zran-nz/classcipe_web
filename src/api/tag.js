@@ -222,7 +222,7 @@ export function SchoolAddOrUpdateTag (parameter) {
 
 export function SchoolTagDelete (parameter) {
   return request({
-    url: tagAPIUrl.SchoolTagDelete,
+    url: tagAPIUrl.SchoolTagDelete + '?id=' + parameter.id,
     method: 'post',
     data: parameter,
     headers: {

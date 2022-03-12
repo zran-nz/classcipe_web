@@ -621,8 +621,7 @@
                     <add-icon v-show='!formBodyData[item.rowId].evidenceIdList.length' />
                     <add-small-green-icon v-show='formBodyData[item.rowId].evidenceIdList.length' />
                     <div class='evidence-num'>(
-                      {{ formBodyData[item.rowId].evidenceIdList.length ? formBodyData[item.rowId].evidenceIdList.length : 0
-                      }} )
+                      {{ formBodyData[item.rowId].evidenceIdList.length ? formBodyData[item.rowId].evidenceIdList.length : 0 }} )
                     </div>
                   </div>
                 </template>
@@ -790,15 +789,13 @@ export default {
       type: Object,
       default: () => null
     },
-    // 关联的taskId用于获取对应的大纲条数据使用
-    linkedTaskId: {
-      type: String,
-      default: null
+    taskLearnOuts: {
+      type: Array,
+      default: () => []
     },
-    // 是否自动把大纲条插入到新建的表格中
-    autoComplete: {
-      type: Boolean,
-      default: false
+    taskSelfOuts: {
+      type: Array,
+      default: () => []
     }
   },
   data() {
@@ -1186,6 +1183,8 @@ export default {
 
     if (this.initRawData.length) {
       this.list = this.initRawData
+    } else if (!this.$store.getters.isIBTeacher && (this.taskLearnOuts.length || this.taskSelfOuts.length)) {
+      this.handleAddNewLineWithTaskOuts()
     } else {
       this.handleAddNewLine()
     }
@@ -1363,6 +1362,74 @@ export default {
       this.list.push(newLineItem)
     },
 
+    handleAddNewLineWithTaskOuts () {
+      this.$logger.info('[' + this.mode + '] handleAddNewLineWithTaskOuts ', this.taskLearnOuts, this.taskSelfOuts)
+      const totalOuts = this.taskLearnOuts.concat(this.taskSelfOuts)
+      totalOuts.forEach(outItem => {
+        const newLineItem = {}
+        const rowId = this.generateRowId()
+        newLineItem.rowId = rowId
+        this.headers.forEach(header => {
+          newLineItem[header.type] = {
+            name: null,
+            rowId
+          }
+        })
+
+        if (this.formType === this.tableType.CenturySkills) {
+          newLineItem[this.headerType.Description] = {
+            name: outItem.name,
+            rowId,
+            parentNameList: outItem.parentNameList,
+            isDescription: true
+          }
+
+          newLineItem[this.headerType.Evidence] = {
+            num: 0,
+            selectedList: [],
+            selectedStudentList: [],
+            rowId
+          }
+        } else if (this.formType === this.tableType.Rubric) {
+          newLineItem.hiddenIBLine = false // 是否隐藏ib大纲数据行
+          newLineItem.isSelfInputLine = false // 是否用户自定义输入行
+          newLineItem[this.headerType.Criteria] = {
+            rowId,
+            name: null,
+            isSelfInput: false
+          }
+
+          newLineItem[this.headerType.AchievementLevel] = {
+            rowId,
+            subLevelDescription: [],
+            isSelfInput: false
+          }
+
+          newLineItem[this.headerType.Indicators] = {
+            rowId,
+            subLevelIndicators: [],
+            isSelfInput: false
+          }
+
+          newLineItem[this.headerType.Evidence] = {
+            num: 0,
+            selectedList: [],
+            selectedStudentList: [],
+            rowId
+          }
+        } else if (this.formType === this.tableType.Rubric_2) {
+          newLineItem[this.headerType.Description].name = outItem.name
+          newLineItem[this.headerType.Evidence] = {
+            num: 0,
+            selectedList: [],
+            selectedStudentList: [],
+            rowId
+          }
+        }
+        this.$logger.info('[' + this.mode + '] init new line ', newLineItem)
+        this.list.push(newLineItem)
+      })
+    },
     handleDragEnd() {
       this.$logger.info('[' + this.mode + '] handleDragEnd', this.headers)
     },

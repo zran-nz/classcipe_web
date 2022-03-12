@@ -284,10 +284,12 @@
           </div>
           <div class='ppt-slide-view'>
             <div class="slide-preview" v-if="currentActiveStudentId">
-              <ppt-slide-view
+              <takeaway-ppt-slide-view
                 ref='takeaway'
                 :class-id="takeAwayClassId"
+                :session-id='takeAwaySessionId'
                 :slide-id="takeAwaySlideId"
+                mode='takeaway'
                 :student-name="currentActiveStudentId" />
             </div>
           </div>
@@ -314,14 +316,17 @@ import TakeAwayIcon from '@/assets/icons/common/take_away.svg?inline'
 import { AddOrUpdateClass, ChangeClassStatus } from '@/api/classroom'
 import storage from 'store'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
-import PptSlideView from '@/components/Evaluation/PptSlideView'
+import TakeawayPptSlideView from '@/components/Evaluation/TakeawayPptSlideView'
 import TeacherEvaluationStatus from '@/components/Evaluation/TeacherEvaluationStatus'
 import { ClassType } from '@/const/common'
+import GroupIcon from '@/assets/svgIcon/evaluation/qunzu.svg?inline'
+import ArrowDown from '@/assets/svgIcon/evaluation/arrow_down.svg?inline'
+import ArrowTop from '@/assets/svgIcon/evaluation/arrow_top.svg?inline'
 
 export default {
   name: 'ClassTableList',
   components: {
-    PptSlideView,
+    TakeawayPptSlideView,
     NoMoreResources,
     ReviewEvaluation,
     TvSvg,
@@ -329,7 +334,10 @@ export default {
     ArchiveSessionIcon,
     EvaluateIcon,
     Bianji,
-    TakeAwayIcon
+    ArrowTop,
+    ArrowDown,
+    TakeAwayIcon,
+    GroupIcon
   },
   props: {
     slideId: {
@@ -421,6 +429,7 @@ export default {
       currentActiveStudentId: null,
       takeAwaySlideId: null,
       takeAwayClassId: null,
+      takeAwaySessionId: null,
       classStatus: lessonStatus,
       classType: ClassType
     }
@@ -594,7 +603,8 @@ export default {
 
     handleTakeAway (item) {
       this.$logger.info('handleTakeAway', item)
-      this.takeAwayClassId = item.classId
+      this.takeAwayClassId = item.taskClassId
+      this.takeAwaySessionId = item.classId
       this.takeAwaySlideId = item.slideId
       this.currentActiveStudentId = null
       this.loadingStudentList = true
@@ -1076,5 +1086,9 @@ export default {
 .ppt-slide-view {
   padding-left: 10px;
   min-width: 900px;
+}
+
+.class-group {
+  margin-bottom: 40px;
 }
 </style>
