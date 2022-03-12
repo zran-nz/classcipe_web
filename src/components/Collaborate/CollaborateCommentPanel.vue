@@ -208,7 +208,7 @@ export default {
       this.formatCommentList = this.rawCommentList
       this.addRoot = this.formatCommentList.length === 0
       this.$logger.info('formatCommentList', this.formatCommentList)
-      // this.formatNewReply()
+      this.formatNewReply()
     }
   },
   computed: {
