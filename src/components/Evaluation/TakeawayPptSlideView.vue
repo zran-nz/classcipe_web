@@ -1,13 +1,9 @@
 <template>
-  <div class="ppt-slide-view">
+  <div class="takeaway ppt-slide-view">
     <div class='score-number-item' v-show='!loading'>
-      <score-number :score='studentScore' />
-    </div>
-    <div class="go-session-detail" v-show='mode'>
-      <a-space>
-        <a-button shape="round" type="primary" @click="handleEnsureEvidence" :disabled='loading'>Confirm</a-button>
-        <a-button shape="round" @click="handleCancelEvidence">Cancel</a-button>
-      </a-space>
+      <score-number :score='isSelfInputScore ? selfInputScore : studentScore' v-show='!selfInputVisible' />
+      <a-input-number min='0' v-model='selfInputScore' v-if='selfInputVisible' @keyup.enter.native='handleEnsureSelfInputScore'/>
+      <a-icon type="form" @click.native='handleEditSelfInputScore' class='edit-icon' :style="{ color: '#aaa', fontSize: '16px' }"/>
     </div>
     <div class="student-profile" v-if="!loading">
       <div class="student-info">
@@ -18,7 +14,7 @@
     <div class="tips" v-if="!loading">
       <h3>Multiple choice</h3>
     </div>
-    <div class="slide-content-list" v-if="!loading" :style="{'height': mode ? 'calc(100vh - 200px)': '400px'}">
+    <div class="slide-content-list" v-if="!loading" :style="{'height': '420px'}">
       <div
         :class="{
           'slide-comment-item': true,
@@ -323,6 +319,9 @@
         <slide-preview :slide-item="currentViewSlideItem" />
       </a-modal>
     </div>
+    <div class='save-takeaway' v-if="!loading">
+      <a-button shape="round" type="primary" @click="handleEnsureTakeaway" :disabled='loading'>Confirm</a-button>
+    </div>
     <div class="loading" v-if="loading">
       <a-spin />
     </div>
@@ -350,7 +349,7 @@
 <script>
 
 import { GetStudentResponse } from '@/api/lesson'
-import { QuerySessionEvidence, SaveSessionEvidence } from '@/api/evaluation'
+import { QuerySessionTakeaway, SaveSessionTakeaway } from '@/api/evaluation'
 import { TemplatesGetPresentation } from '@/api/template'
 import EvaluationTableMode from '@/components/Evaluation/EvaluationTableMode'
 import StudentIcon from '@/assets/svgIcon/evaluation/StudentIcon.svg?inline'
@@ -374,7 +373,7 @@ import ScoreNumber from '@/components/Common/ScoreNumber'
 import EvidenceCommentInput from '@/components/Evaluation/EvidenceCommentInput'
 
 export default {
-  name: 'PptSlideView',
+  name: 'TakeawayPptSlideView',
   components: {
     ScoreNumber,
     SlidePreview,
@@ -449,7 +448,13 @@ export default {
       viewSlideItemVisible: false,
       previewItemUrl: null,
       previewItemVisible: false,
-      previewLoading: false
+      previewLoading: false,
+      takeawayMode: 'takeaway',
+      selfInputVisible: false,
+      isSelfInputScore: false,
+      selfInputScore: 0,
+
+      teacherDataMap: new Map()
     }
   },
   watch: {
@@ -480,6 +485,7 @@ export default {
       this.rawSlideDataMap.clear()
       this.selectedSlidePageIdList = []
       this.selectedStudentSlidePageIdList = []
+      this.teacherDataMap.clear()
       this.slideDataList = []
       this.elementsList = []
       this.itemsList = []
@@ -501,43 +507,55 @@ export default {
       Promise.all([
         TemplatesGetPresentation({ presentationId: this.slideId }),
         QueryByClassInfoSlideId({ slideId: this.slideId }),
-        QuerySessionEvidence({
-          sessionId: this.sessionId,
+        QuerySessionTakeaway({
+          classId: this.classId,
           user: this.studentName
         }),
         QueryResponseByClassId({ classId: this.classId })
       ]).then(response => {
         this.$logger.info('加载PPT数据 response', response)
         if (response[2].result && response[2].result.result) {
-          this.$logger.info('使用历史评估数据', response[2].result.result)
-          const data = JSON.parse(response[2].result.result)
-          this.$logger.info('解析历史数据', data)
-          this.slideDataList = data.slideDataList
-          this.elementsList = data.elementsList
-          this.itemsList = data.itemsList
-          this.$logger.info('使用历史评估数据 this.slideDataList', this.slideDataList, ' this.elementsList', this.elementsList, ' this.itemsList', this.itemsList)
-          this.loading = false
-        } else {
-          const pageObjects = response[0].result.pageObjects
-          if (pageObjects.length) {
-            pageObjects.forEach(pItem => {
-              pItem.responseList = []
-              pItem.commentList = []
-              if (pItem.pageObjectId) {
-                this.rawSlideDataMap.set(pItem.pageObjectId, pItem)
-              }
+          this.$logger.info('老师评估数据', response[2].result.result)
+          const teacherData = JSON.parse(response[2].result.result)
+          this.isSelfInputScore = teacherData.isSelfInputScore
+          this.selfInputScore = teacherData.selfInputScore
+          teacherData.list.forEach(teacherData => {
+            this.teacherDataMap.set(teacherData.pageObjectId, {
+              teacherCommentList: teacherData.teacherCommentList,
+              score: teacherData.score
             })
-            this.loadStudentData()
-          } else {
-            this.loading = false
-            this.$logger.info('loaded data', this.imgList, this.commentData)
-          }
-
-          if (response[1].success) {
-            this.elementsList = response[1].result.relements
-            this.itemsList = response[1].result.items
-          }
+          })
         }
+
+        const pageObjects = response[0].result.pageObjects
+        if (pageObjects.length) {
+          pageObjects.forEach(pItem => {
+            pItem.responseList = []
+            pItem.commentList = []
+            if (this.teacherDataMap.has(pItem.pageObjectId)) {
+              const teacherData = this.teacherDataMap.get(pItem.pageObjectId)
+              pItem.teacherCommentList = teacherData.teacherCommentList
+              pItem.score = teacherData.score
+            } else {
+              pItem.teacherCommentList = []
+              pItem.score = 0
+            }
+            if (pItem.pageObjectId) {
+              this.rawSlideDataMap.set(pItem.pageObjectId, pItem)
+            }
+          })
+          this.loadStudentData()
+        } else {
+          this.loading = false
+          this.$logger.info('loaded data', this.imgList, this.commentData)
+        }
+
+        if (response[1].success) {
+          this.elementsList = response[1].result.relements
+          this.itemsList = response[1].result.items
+        }
+      }).finally(() => {
+        this.loading = false
       })
     },
 
@@ -593,9 +611,7 @@ export default {
           this.slideDataList.push({
             ...value,
             pageId: key,
-            material: material,
-            score: 0,
-            teacherCommentList: []
+            material: material
           })
           if (value.commentList.length) {
             this.$logger.info('commentList have data' + JSON.stringify(value))
@@ -667,19 +683,28 @@ export default {
       event.target.src = event.target.src + '#' + (new Date().getTime())
     },
 
-    handleEnsureEvidence () {
-      this.$logger.info('handleEnsureEvidence ' + this.mode, this.mode === EvaluationTableMode.TeacherEvaluate ? this.selectedSlidePageIdList : this.selectedStudentSlidePageIdList)
+    handleEnsureTakeaway () {
+      this.$logger.info('handleEnsureTakeaway ' + this.mode, this.mode === EvaluationTableMode.TeacherEvaluate ? this.selectedSlidePageIdList : this.selectedStudentSlidePageIdList)
 
-      const data = {
-        slideDataList: this.slideDataList,
-        elementsList: this.elementsList,
-        itemsList: this.itemsList
+      const takeawayData = {
+        isSelfInputScore: this.isSelfInputScore,
+        selfInputScore: this.selfInputScore,
+        list: []
       }
-      this.$logger.info('保存evaluation数据', data)
-      SaveSessionEvidence({
+      this.slideDataList.forEach(item => {
+        if (item.teacherCommentList.length) {
+          takeawayData.list.push({
+            pageObjectId: item.pageObjectId,
+            teacherCommentList: item.teacherCommentList,
+            score: item.score
+          })
+        }
+      })
+      this.$logger.info('保存Takeaway数据', takeawayData)
+      SaveSessionTakeaway({
         sessionId: this.sessionId,
         user: this.studentName,
-        result: JSON.stringify(data)
+        result: JSON.stringify(takeawayData)
       }).then(() => {
         this.$emit('ensure-evidence-finish', {
           mode: this.mode,
@@ -692,7 +717,7 @@ export default {
       })
     },
 
-    handleCancelEvidence () {
+    handleCancelTakeaway () {
       this.$emit('cancel-evidence-finish')
     },
 
@@ -716,6 +741,19 @@ export default {
       this.previewItemUrl = url
       this.previewItemVisible = true
       this.previewLoading = true
+    },
+
+    handleEditSelfInputScore () {
+      this.$logger.info('handleEditSelfInputScore')
+      if (!this.isSelfInputScore) {
+        this.selfInputScore = this.studentScore
+      }
+      this.selfInputVisible = true
+    },
+    handleEnsureSelfInputScore () {
+      this.$logger.info('handleEnsureSelfInputScore', this.selfInputScore)
+      this.isSelfInputScore = true
+      this.selfInputVisible = false
     }
   }
 }
@@ -727,9 +765,16 @@ export default {
 .ppt-slide-view {
   position: relative;
   .score-number-item {
-    right: 200px;
-    top: 10px;
+    cursor: pointer;
+    right: 40px;
+    top: -10px;
     position: absolute;
+
+    .edit-icon {
+      position: absolute;
+      right: -20px;
+      top: 0;
+    }
   }
   .slide-header {
     display: flex;
@@ -1422,4 +1467,10 @@ export default {
   }
 }
 
+.save-takeaway {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+}
 </style>
