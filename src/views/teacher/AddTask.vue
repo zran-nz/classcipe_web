@@ -37,7 +37,7 @@
                       <div class='step-detail' v-show='currentActiveStepIndex === 0'>
 
                         <template v-for='fieldItem in $store.getters.formConfigData.taskCommonList'>
-                          <div class='form-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Name' :key='fieldItem.fieldName'>
+                          <div class='form-block tag-content-block' :data-field-name='taskField.Name' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Name' :key='fieldItem.fieldName'>
                             <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Name />
                             <comment-switch
                               v-show="canEdit"
@@ -123,7 +123,7 @@
                             </div>
                           </div>
 
-                          <div class='form-block over-form-block' id='overview' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Overview' :key='fieldItem.fieldName'>
+                          <div class='form-block over-form-block tag-content-block' :data-field-name='taskField.Overview' id='overview' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Overview' :key='fieldItem.fieldName'>
                             <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Overview />
                             <comment-switch
                               v-show="canEdit"
@@ -142,7 +142,7 @@
                             </a-form-model-item>
                           </div>
 
-                          <div class='form-block taskType' v-if='fieldItem.visible && fieldItem.fieldName === taskField.TaskType' :key='fieldItem.fieldName'>
+                          <div class='form-block taskType tag-content-block' :data-field-name='taskField.TaskType' v-if='fieldItem.visible && fieldItem.fieldName === taskField.TaskType' :key='fieldItem.fieldName'>
                             <collaborate-tooltip :form-id="taskId" :fieldName=taskField.TaskType style="left:20px" />
                             <comment-switch
                               v-show="canEdit"
@@ -177,7 +177,7 @@
                             </a-form-model-item>
                           </div>
 
-                          <div class='form-block form-question' v-if='associateQuestionList.length > 0 && fieldItem.visible && fieldItem.fieldName === taskField.TaskType' :key='fieldItem.fieldName'>
+                          <div class='form-block form-question tag-content-block' :data-field-name='taskField.Question' v-if='associateQuestionList.length > 0 && fieldItem.visible && fieldItem.fieldName === taskField.TaskType' :key='fieldItem.fieldName'>
                             <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Question />
                             <comment-switch
                               v-show="canEdit"
@@ -216,7 +216,7 @@
                             </a-form-model-item>
                           </div>
 
-                          <div class='form-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.LearnOuts' :key='fieldItem.fieldName'>
+                          <div class='form-block tag-content-block' :data-field-name='taskField.LearnOuts' v-if='fieldItem.visible && fieldItem.fieldName === taskField.LearnOuts' :key='fieldItem.fieldName'>
                             <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Assessment style="left:100px" />
                             <comment-switch
                               v-show="canEdit"
@@ -246,7 +246,7 @@
                               @remove-learn-outs='handleRemoveLearnOuts' />
                           </div>
 
-                          <div class='form-block' style='clear: both' v-if='fieldItem.visible && fieldItem.fieldName === taskField.MaterialList' :key='fieldItem.fieldName'>
+                          <div class='form-block tag-content-block' :data-field-name='taskField.MaterialList' style='clear: both' v-if='fieldItem.visible && fieldItem.fieldName === taskField.MaterialList' :key='fieldItem.fieldName'>
                             <collaborate-tooltip :form-id="taskId" :fieldName=taskField.MaterialList />
                             <comment-switch
                               v-show="canEdit"
@@ -310,7 +310,7 @@
                         </template>
 
                         <template v-for='custFieldItem in $store.getters.formConfigData.taskCustomList'>
-                          <div class='form-block' v-if="custFieldItem.visible && form.customFieldData && form.customFieldData.hasOwnProperty(custFieldItem.id)" :key='custFieldItem.id' :data-field-name='custFieldItem.name' :data-field-id='custFieldItem.id'>
+                          <div class='form-block tag-content-block' v-if="custFieldItem.visible && form.customFieldData && form.customFieldData.hasOwnProperty(custFieldItem.id)" :key='custFieldItem.id' :data-field-name="'cust_' + custFieldItem.name" :data-field-id='custFieldItem.id'>
                             <a-form-item>
                               <template class='my-label' slot='label'>
                                 {{ custFieldItem.name }}
@@ -986,6 +986,7 @@
                       :custom-tags='customTags'
                       :scope-tags-list='customTagList'
                       :selected-tags-list='form.customTags'
+                      :current-field-name='currentFocusFieldName'
                       @reload-user-tags='loadCustomTags'
                       @change-add-keywords='handleChangeAddKeywords'
                       @change-user-tags='handleChangeCustomTags'></custom-tag>
@@ -1000,6 +1001,7 @@
                   :custom-tags='customTags'
                   :scope-tags-list='customTagList'
                   :selected-tags-list='currentTaskFormData.customTags'
+                  :current-field-name='currentSubTaskFocusFieldName'
                   @reload-user-tags='loadCustomTags'
                   @change-add-keywords='handleChangeAddKeywords'
                   @change-user-tags='handleChangeSubCustomTags'></custom-tag>
@@ -2169,7 +2171,10 @@ export default {
       quickTaskPreviewTemplateVisible: false,
       quickTaskPreviewTemplate: null,
 
-      quickSessionClassItem: null
+      quickSessionClassItem: null,
+
+      // sub task 当前激活的字段
+      currentSubTaskFocusFieldName: null
     }
   },
   computed: {
@@ -3668,7 +3673,7 @@ export default {
       const eventDom = event.target
       let formTop = eventDom.offsetTop ? eventDom.offsetTop : 0
       let currentDom = eventDom.offsetParent
-      let currentFocus = ''
+      this.currentFocusFieldName = null
       this.customTagList = []
       while (currentDom !== null) {
         formTop += (currentDom ? currentDom.offsetTop : 0)
@@ -3676,35 +3681,33 @@ export default {
         if (!currentDom) {
           break
         }
-        if (currentDom.classList.contains('taskType')) {
-          currentFocus = 'fa'
-          this.customTagList = []
-          if (this.form.taskType === 'FA') {
-            CustomTagType.task.fa.forEach(name => {
-              this.customTagList.push(name)
-            })
-          } else if (this.form.taskType === 'SA') {
-            CustomTagType.task.sa.forEach(name => {
-              this.customTagList.push(name)
-            })
-          } else if (this.form.taskType === 'Activity') {
-            CustomTagType.task.activity.forEach(name => {
-              this.customTagList.push(name)
-            })
+
+        if (currentDom.classList.contains('tag-content-block') && currentDom.hasAttribute('data-field-name')) {
+          const fieldName = currentDom.getAttribute('data-field-name')
+          this.$logger.info('current block fieldName', fieldName)
+          this.currentFocusFieldName = fieldName
+          if (this.$store.getters.formConfigData?.taskFieldTagMap?.[fieldName]) {
+             if (fieldName === this.taskField.TaskType) {
+               this.customTagList = this.$store.getters.formConfigData.taskFieldTagMap[fieldName].filter(item => item.subFieldName && item.subFieldName.toLowerCase() === this.form.taskType.toLowerCase()).map(item => item.tagName)
+               this.$logger.info(fieldName + ' customTagList taskType ' + this.form.taskType, this.customTagList)
+             } else {
+               this.customTagList = this.$store.getters.formConfigData.taskFieldTagMap[fieldName].map(item => item.tagName)
+               this.$logger.info(fieldName + ' customTagList', this.customTagList)
+             }
           }
-          this.showCustomTag = true
         }
         if (currentDom.classList && currentDom.classList.contains('root-locate-form')) {
-          logger.info('classlist: ', currentDom.classList.toString())
           break
         }
       }
       // custom tag 自带了margin-top: 20px,这里减掉不然不对齐。
-      if (currentFocus) {
+      if (this.currentFocusFieldName) {
+        this.$logger.info('show currentFocusFieldName tag ', this.currentFocusFieldName)
         this.customTagTop = formTop - 20
         this.showCustomTag = true
         this.setRightModuleVisible(this.rightModule.customTag)
       } else {
+        this.$logger.info('show global tag')
         CustomTagType.task.default.forEach(name => {
           this.customTagList.push(name)
         })

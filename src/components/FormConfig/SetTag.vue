@@ -1,5 +1,8 @@
 <template>
   <a-card :loading='loading' :body-style="{'padding': '10px 0', 'border': 'none' }" :bordered="false">
+    <div class='tag-tips' v-if='mustTagNameList.length'>
+      <a-alert :message="mustTagNameList.join(',') + ` are compulsory, please make sure you set them visible in enabled sections.`" type="warning" show-icon />
+    </div>
     <div class='set-tag'>
       <div class='tag-list-table'>
         <div class='tag-header'>
@@ -87,7 +90,8 @@ export default {
   data () {
     return {
       loading: true,
-      tagList: []
+      tagList: [],
+      mustTagNameList: []
     }
   },
   created() {
@@ -99,10 +103,10 @@ export default {
       this.loading = true
       FindCustomTags({}).then((response) => {
         if (response.success) {
-          const mustTagNameList = []
+          this.mustTagNameList = []
           response.result.recommends.forEach((tag) => {
             if (tag.schoolId) {
-              mustTagNameList.push(tag.name)
+              this.mustTagNameList.push(tag.name)
             }
             const selectedTagItem = this.selectedTags.find((selectedTag) => {
               return selectedTag.tagId === tag.id
@@ -118,15 +122,6 @@ export default {
 
           this.tagList = response.result.recommends
           this.$logger.info('FindCustomTags tagList', this.tagList)
-
-          if (mustTagNameList.length) {
-            this.$confirm({
-              title: 'Notice',
-              content: `${mustTagNameList.join(',')} are compulsory, please make sure you set them visible in enabled sections.`,
-              okText: 'Ok',
-              cancelButtonProps: null
-            })
-          }
         }
       }).finally(() => {
         this.loading = false
@@ -162,6 +157,10 @@ export default {
 
 <style lang='less' scoped>
 @import "~@/components/index.less";
+
+.set-tag {
+  margin-top: 10px;
+}
 
 .tag-header {
   padding: 8px 0;
@@ -250,4 +249,5 @@ export default {
     padding-left: 3px;
   }
 }
+
 </style>
