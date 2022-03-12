@@ -508,7 +508,7 @@ export default {
         TemplatesGetPresentation({ presentationId: this.slideId }),
         QueryByClassInfoSlideId({ slideId: this.slideId }),
         QuerySessionTakeaway({
-          classId: this.classId,
+          sessionId: this.sessionId,
           user: this.studentName
         }),
         QueryResponseByClassId({ classId: this.classId })
@@ -525,6 +525,9 @@ export default {
               score: teacherData.score
             })
           })
+        } else {
+          this.isSelfInputScore = false
+          this.selfInputScore = 0
         }
 
         const pageObjects = response[0].result.pageObjects
@@ -692,7 +695,8 @@ export default {
         list: []
       }
       this.slideDataList.forEach(item => {
-        if (item.teacherCommentList.length) {
+        this.$logger.info('handleEnsureTakeaway item', item.score, item)
+        if (item.teacherCommentList.length || item.score) {
           takeawayData.list.push({
             pageObjectId: item.pageObjectId,
             teacherCommentList: item.teacherCommentList,
@@ -705,15 +709,12 @@ export default {
         sessionId: this.sessionId,
         user: this.studentName,
         result: JSON.stringify(takeawayData)
-      }).then(() => {
-        this.$emit('ensure-evidence-finish', {
-          mode: this.mode,
-          data: this.mode === EvaluationTableMode.TeacherEvaluate ? this.selectedSlidePageIdList : this.selectedStudentSlidePageIdList,
-          row: this.rowId,
-          user: this.studentName,
-          formId: this.formId,
-          slideDataList: JSON.stringify(this.slideDataList)
-        })
+      }).then((response) => {
+        if (response.success) {
+          this.$message.success('Save successfully')
+        } else {
+          this.$message.warn('SaveSessionTakeaway ' + response.message)
+        }
       })
     },
 

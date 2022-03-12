@@ -616,7 +616,7 @@ export default {
     handleClickMember (member) {
       this.$logger.info('handleClickMember', member)
       if (this.$refs.takeaway) {
-        this.$refs.takeaway.handleEnsureEvidence()
+        this.$refs.takeaway.handleEnsureTakeaway()
       }
       this.currentActiveStudentId = member.userId
     },
