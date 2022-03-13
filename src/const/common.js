@@ -8,6 +8,9 @@ export const DICT_TEMPLATE = 'ppt_template'
 export const DICT_BLOOM_CATEGORY = 'bloom_categories'
 export const DICT_PROMPT_PURPOSE = 'prompt_purpose'
 export const DICT_PROMPT_TYPE = 'prompt_type'
+export const DICT_BLOOM_TAXONOMY = 'bloom_taxonomy'
+export const DICT_ORDER_TYPE = 'order_type'
+export const DICT_ORDER_STATUS = 'order_status'
 export const TAG_CATGORY_KEYWORDS = 'Key words'
 export const SESSION_CALLBACK_URL = 'classcipe_callback_url'
 
@@ -47,12 +50,15 @@ export const PlanField = {
   Name: 'name',
   ProjectBased: 'projectBased',
   UnitType: 'unitType',
+  GradeId: 'gradeId',
   StartDate: 'startDate',
   Inquiry: 'inquiry',
   Sdg: 'sdg',
+  Scenarios: 'scenarios',
   Rwc: 'rwc',
   Question: 'question',
   Assessment: 'assessment',
+  LearnOuts: 'learnOuts',
   Prior: 'prior',
   Link: 'link'
 }
@@ -72,6 +78,7 @@ export const PlanFieldDisplayName = {
 
 export const TaskField = {
   Name: 'name',
+  TaskClassList: 'taskClassList',
   TaskType: 'taskType',
   StartDate: 'startDate',
   Overview: 'overview',
@@ -79,6 +86,7 @@ export const TaskField = {
   Rwc: 'rwc',
   Question: 'question',
   Assessment: 'assessment',
+  LearnOuts: 'learnOuts',
   MaterialList: 'materialList',
   Link: 'link'
 }
@@ -123,4 +131,73 @@ export const CustomTagType = {
     base: ['Assessment purpose'],
     default: ['Teaching strategies', 'Differentiated instructions', 'Bloom\'s Taxonomy', 'Knowledge Dimensions']
   }
+}
+
+export const StudentStudyTaskStatus = [
+  {
+    value: 3,
+    title: 'Scheduled'
+  },
+  {
+    value: 0,
+    title: 'On-going'
+  },
+  {
+    value: 1,
+    title: 'Completed'
+  },
+  {
+    value: 2,
+    title: 'Archived'
+  }
+]
+
+export const OrderType = {
+  Tasks: '1',
+  AskTeacher: '2',
+  Other: '9'
+}
+
+/**
+ * 0: {id: "1", name: "AU curriculum", country: "AU", delFlag: 0, createBy: null, createTime: null,…}
+ 1: {id: "2", name: "NZ-National", country: "NZ", delFlag: 0, createBy: null, createTime: null,…}
+ 2: {id: "4", name: "IB-PYP", country: "IB", delFlag: 0, createBy: null, createTime: null,…}
+ 3: {id: "5", name: "IB-MYP", country: "IB", delFlag: 0, createBy: "", createTime: "2021-05-12 17:13:34",…}
+ 4: {id: "7", name: "IGCSE", country: "IGCSE", delFlag: 0, createBy: null, createTime: null,…}
+ 5: {id: "8", name: "Cambridge", country: "International", delFlag: 0, createBy: "admin",…}
+ * @type
+ */
+export const AllCurriculums = {
+  AU: '1',
+  NZ: '2',
+  IGCSE: '7',
+  Cambridge: '8',
+  IBPYP: '4',
+  IBMYP: '5'
+}
+
+export const STUDY_MODE = {
+  SELF: 'selfStudy',
+  SCHOOL: 'schoolStudy'
+}
+
+export const TASK_STATUS = {
+  SCHEDULED: 3,
+  ONGOING: 0,
+  COMPLETED: 1,
+  ARCHIVED: 2
+}
+
+export const BG_COLORS = ['#f03132', '#0072bb', '#91191a', '#4d91f9', '#002056', '#f68e54', '#329933', '#3333cc']
+
+export const ABSENT_COLORS = ['#faad3c', '#1aaf5c', '#849bbb']
+
+export const TODO_STATUS = {
+  TODO: 1,
+  DONE: 2
+}
+
+export const TASK_ATTENDANCE = {
+  PRESENT: 'present',
+  ABSENT: 'absent'
 }

@@ -79,28 +79,24 @@
               <div class="form-table-item" v-for="(formItem,tIdx) in forms" :key="tIdx">
                 <div class="form-table-item-content" v-show="formItem.formId === currentActiveFormId">
                   <div class="form-setting">
-                    <a-dropdown
-                      placement="bottomRight">
-                      <a-icon type="setting" />
-                      <a-menu slot="overlay">
-                        <a-menu-item key="0">
-                          <div class="menu-icon">
-                            <a-switch
-                              size="small"
-                              v-model="formItem.se" />
-                          </div>
+                    <a-space>
+                      <div class='switch-item'>
+                        <div class='switch-name'>
                           Student Eval
-                        </a-menu-item>
-                        <a-menu-item key="1">
-                          <div class="menu-icon">
-                            <a-switch
-                              size="small"
-                              v-model="formItem.pe" />
-                          </div>
+                        </div>
+                        <a-switch
+                          size="small"
+                          v-model="formItem.se" />
+                      </div>
+                      <div class='switch-item'>
+                        <div class='switch-name'>
                           Peer Eval
-                        </a-menu-item>
-                      </a-menu>
-                    </a-dropdown>
+                        </div>
+                        <a-switch
+                          size="small"
+                          v-model="formItem.pe" />
+                      </div>
+                    </a-space>
                   </div>
                   <div class="comment" v-show="formTableMode === EvaluationTableMode.TeacherEvaluate">
                     <div class="summary-input">
@@ -120,7 +116,7 @@
                 </div>
               </div>
             </div>
-            <div class="no-form-tips" v-show="forms.length === 0">
+            <div class="no-form-tips" v-show="forms.length === 0 && !loading">
               <no-more-resources tips="The evaluation form has not been created!"/>
             </div>
           </div>
@@ -370,7 +366,7 @@ export default {
   methods: {
     initData () {
       this.$logger.info('initData')
-      this.loading = false
+      this.loading = true
       EvaluationQueryById({ id: this.evaluationId }).then(response => {
         this.$logger.info('init data response', response)
         // 加载班级信息数据
@@ -393,12 +389,12 @@ export default {
         })
         this.$logger.info('forms', this.forms)
       }).finally(() => {
+        this.loading = false
         if ((this.forms.length === 0) && this.mode === EvaluationTableMode.Edit) {
           this.selectRubricVisible = true
         } else {
           this.currentActiveFormId = this.forms[0].formId
         }
-        this.loading = false
         this.oldFormsJson = JSON.stringify(this.forms)
         this.initCompleted = true
       })
@@ -981,7 +977,7 @@ export default {
 
         .form-table-detail {
           margin-right: -30px;
-          overflow-x: scroll;
+          overflow-x: overlay;
         }
       }
     }
@@ -1259,5 +1255,16 @@ export default {
   text-align: right;
   padding-bottom: 10px;
   cursor: pointer;
+
+  .switch-item {
+    margin-left: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    .switch-name {
+      padding-right: 5px;
+    }
+  }
 }
 </style>

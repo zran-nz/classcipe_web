@@ -38,27 +38,6 @@ router.beforeEach((to, from, next) => {
     const accessToken = getToken()
     logger.info('accessToken check', accessToken)
     if (accessToken) {
-      // 检查角色信息是否完善
-      // if (to.path === selectRoleRouter) {
-      //   logger.info(' allow user select a role')
-      //   next()
-      //   NProgress.done()
-      // } else if (!storage.get(CURRENT_ROLE)) {
-      //   logger.info('user must select a role first', storage.get(CURRENT_ROLE))
-      //   next({ path: selectRoleRouter })
-      //   NProgress.done()
-      //   // eslint-disable-next-line brace-style
-      // }
-      // 检查个人信息是否完善
-      // else if (!storage.get(IS_ADD_PREFERENCE) && to.path === addPreferenceRouter) {
-      //   logger.info('allow user add preference')
-      //   next()
-      //   NProgress.done()
-      // } else if (!storage.get(IS_ADD_PREFERENCE)) {
-      //   logger.info('user must add preference')
-      //   next({ path: addPreferenceRouter })
-      //   NProgress.done()
-      // } else
       if (to.path === loginRoutePath) {
         const defaultRoutePath = storage.get(CURRENT_ROLE) === 'expert' ? defaultExpertRouter : defaultTeacherRouter
         next({ path: defaultRoutePath })
@@ -82,6 +61,7 @@ router.beforeEach((to, from, next) => {
                 logger.info('redirect ' + redirect)
                 if (to.path === redirect) {
                   // set the replace: true so the navigation will not leave a history record
+                  logger.info('redirect to next ', { ...to, replace: true })
                   next({ ...to, replace: true })
                 } else {
                   // 跳转到目的路由

@@ -35,240 +35,293 @@
                     :status="currentActiveStepIndex === 0 ? 'process':'wait'">
                     <template slot='description'>
                       <div class='step-detail' v-show='currentActiveStepIndex === 0'>
-                        <div class='form-block'>
-                          <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Name />
-                          <comment-switch
-                            v-show="this.canEdit"
-                            :field-name=taskField.Name
-                            :is-active="currentFieldName === taskField.Name"
-                            @switch='handleSwitchComment'
-                            :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Name}" />
-                          <a-form-item label='Task name'>
-                            <a-input v-model='form.name' placeholder='Enter Task Name' class='my-form-input' @change="handleCollaborateEvent(taskId,'name',form.name)" />
-                          </a-form-item>
-                        </div>
 
-                        <!--关联班级以及开课时间 -->
-                        <div class='form-block link-class'>
-                          <div class='link-class-tips' v-show='!isOwner && form.taskClassList.length'>
-                            Only the author of the current task can modify the class
-                          </div>
-                          <div class='linked-class-list' v-for='(classItem, cIdx) in form.taskClassList' :key='cIdx'>
-                            <div class='mask' v-show='!isOwner'></div>
-                            <div class='class-type-tag' v-if='classItem.classType === 1'>
-                              <a-tag color="#F4B183">
-                                Classcipe International School
-                              </a-tag>
-                            </div>
-                            <div class='class-type-tag' v-if='classItem.classType === 2'>
-                              <a-tag color="#9DC3E6">
-                                Personal
-                              </a-tag>
-                            </div>
-                            <a-popconfirm cancel-text="No" ok-text="Yes" title="Delete ?" @confirm="handleDeleteClass(classItem)" v-show='form.taskMode !== 2'>
-                              <div class='remove-class-icon'>
-                                <img class='big-delete-icon' src="~@/assets/icons/tag/delete.png" alt=''/>
-                              </div>
-                            </a-popconfirm>
-                            <a-form-item label='Choose class'>
-                              <input-with-create
-                                :option-list='classList'
-                                :index='cIdx'
-                                :default-selected-id='classItem.classId'
-                                :default-display-name='classItem.className'
-                                :tag-type-config='tagTypeConfig'
-                                @selected='handleSelectClass(classItem, $event)'
-                                @create-new='handleCreateNewClass'/>
-                            </a-form-item>
-
-                            <a-form-item label='Schedule a session for this class'>
-                              <div class='class-schedule-detail'>
-                                <a-switch size='small' class='my-switch' v-model='classItem.checked' @change="handleChangeClassSessionTime(classItem)" />
-                                <div
-                                  class='range-time'
-                                  v-show='classItem.checked'>
-                                  <div class='week-time' v-show='classItem.weeks'>
-                                    <a-tag color='cyan' style='border-radius: 10px;font-size: 14px;'>
-                                      {{ classItem.weeks }}
-                                    </a-tag>
-                                  </div>
-                                  <a-range-picker
-                                    v-model='classItem.momentRangeDate'
-                                    format='LLL'
-                                    style='width: 430px'
-                                    :show-time="{ format: 'HH:mm' }"
-                                    @openChange='handleUpdateWeeks'>
-                                    <a-icon slot='suffixIcon' type='calendar' />
-                                  </a-range-picker>
-                                </div>
-                              </div>
+                        <template v-for='fieldItem in $store.getters.formConfigData.taskCommonList'>
+                          <div class='form-block tag-content-block' :data-field-name='taskField.Name' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Name' :key='fieldItem.fieldName'>
+                            <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Name />
+                            <comment-switch
+                              v-show="canEdit"
+                              :field-name=taskField.Name
+                              :is-active="currentFieldName === taskField.Name"
+                              @switch='handleSwitchComment'
+                              :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Name}" />
+                            <a-form-item>
+                              <template class='my-label' slot='label'>
+                                {{ 'Task name' | taskLabelName(taskField.Name, $store.getters.formConfigData) }}
+                                <a-tooltip :title="'Task name' | taskLabelHint(taskField.Name, $store.getters.formConfigData)" placement='top'>
+                                  <a-icon type="info-circle" />
+                                </a-tooltip>
+                              </template>
+                              <a-input v-model='form.name' placeholder='Enter Task Name' class='my-form-input' @change="handleCollaborateEvent(taskId,'name',form.name)" />
                             </a-form-item>
                           </div>
-                          <div class='add-class' v-show='form.taskMode !== 2'>
-                            <a-button type='primary' @click='handleAddLinkClass'> + Add class</a-button>
-                          </div>
-                        </div>
 
-                        <div class='form-block over-form-block' id='overview'>
-                          <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Overview />
-                          <comment-switch
-                            v-show="this.canEdit"
-                            :field-name=taskField.Overview
-                            :is-active="currentFieldName === taskField.Overview"
-                            @switch='handleSwitchComment'
-                            :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Overview}" />
-                          <a-form-model-item class='task-audio-line' label='Task details' ref='overview'>
-                            <a-textarea autoSize v-model='form.overview' placeholder='Details' allow-clear @change="handleCollaborateEvent(taskId,taskField.Overview,form.overview)" />
-                          </a-form-model-item>
-                        </div>
-
-                        <div class='form-block taskType'>
-                          <collaborate-tooltip :form-id="taskId" :fieldName=taskField.TaskType style="left:20px" />
-                          <comment-switch
-                            v-show="this.canEdit"
-                            :field-name=taskField.TaskType
-                            :is-active="currentFieldName === taskField.TaskType"
-                            @switch='handleSwitchComment'
-                            :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.TaskType}" />
-                          <a-form-model-item class='task-audio-line' ref='taskType' :colon='false'>
-                            <div slot='label'>
-                              Choose Task Type(<span style='font-size: 13px'>Formative Assessment/ Summative Assessment/ Activity</span>):
+                          <!--关联班级以及开课时间 -->
+                          <div class='form-block link-class' v-if='fieldItem.visible && fieldItem.fieldName === taskField.TaskClassList' :key='fieldItem.fieldName'>
+                            <div class='link-class-tips' v-show='!isOwner && form.taskClassList.length'>
+                              Only the author of the current task can modify the class
                             </div>
-                            <div class='self-type-wrapper'>
-                              <div class='self-field-label'>
-                                <div
-                                  :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}"
-                                  @click="handleSelectTaskType('FA')">FA
-                                </div>
-                                <div
-                                  :class="{'task-type-item': true, 'red-active-task-type': form.taskType === 'SA'}"
-                                  @click="handleSelectTaskType('SA')">SA
-                                </div>
-                                <div
-                                  :class="{'task-type-item': true, 'task-type-activity': true,'blue-active-task-type': form.taskType === 'Activity'}"
-                                  @click="handleSelectTaskType('Activity')">
-                                  <a-tooltip title='Teaching/Learning Activity' placement='top'>Activity</a-tooltip>
-                                </div>
+                            <div class='linked-class-list' v-for='(classItem, cIdx) in form.taskClassList' :key='cIdx'>
+                              <div class='mask' v-show='!isOwner'></div>
+                              <div class='class-type-tag' v-if='classItem.classType === 1'>
+                                <a-tag color="#F4B183">
+                                  Classcipe International School
+                                </a-tag>
                               </div>
-                            </div>
-                          </a-form-model-item>
-                        </div>
-
-                        <div class='form-block form-question' v-if='associateQuestionList.length > 0'>
-                          <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Question />
-                          <comment-switch
-                            v-show="this.canEdit"
-                            :field-name=taskField.Question
-                            :is-active="currentFieldName === taskField.Question"
-                            @switch='handleSwitchComment'
-                            :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Question}" />
-                          <a-form-model-item label='Choose Key questions'>
-                            <a-select
-                              :getPopupContainer="trigger => trigger.parentElement"
-                              @change="handleCollaborateEvent(taskId,taskField.Question,form.questions)"
-                              size='large'
-                              class='my-big-select'
-                              v-model='form.questionIds'
-                              mode='multiple'
-                              placeholder='Choose Key questions'
-                              option-label-prop='label'
-                            >
-                              <a-select-option
-                                v-for='(item,index) in associateQuestionList'
-                                :value='item.id'
-                                :label='item.name'
-                                :key='index'>
-                                <span class='question-options'>
-                                  {{ item.name }}
-                                </span>
-                                From Unit Plan({{ item.unitName }})
-                              </a-select-option>
-                            </a-select>
-                          </a-form-model-item>
-                        </div>
-
-                        <div class='form-block'>
-                          <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Assessment style="left:100px" />
-                          <comment-switch
-                            v-show="this.canEdit"
-                            :field-name=taskField.Assessment
-                            :is-active="currentFieldName === taskField.Assessment"
-                            @switch='handleSwitchComment'
-                            :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Assessment}" />
-                          <a-form-item label='Set learning objectives'>
-                            <a-button type='primary' @click='handleSelectDescription'>
-                              <div class='btn-text' style='line-height: 20px'>
-                                Add Learning Objectives
+                              <div class='class-type-tag' v-if='classItem.classType === 2'>
+                                <a-tag color="#9DC3E6">
+                                  Personal
+                                </a-tag>
                               </div>
-                            </a-button>
-                          </a-form-item>
-
-                          <!--knowledge tag-select -->
-                          <ui-learn-out
-                            ref='learnOut'
-                            :learn-outs='form.learnOuts'
-                            :self-outs='form.selfOuts'
-                            @remove-learn-outs='handleRemoveLearnOuts' />
-                        </div>
-
-                        <div class='form-block' style='clear: both'>
-                          <collaborate-tooltip :form-id="taskId" :fieldName=taskField.MaterialList />
-                          <comment-switch
-                            v-show="this.canEdit"
-                            :field-name=taskField.MaterialList
-                            :is-active="currentFieldName === taskField.MaterialList"
-                            @switch='handleSwitchComment'
-                            :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.MaterialList}" />
-                          <div class='form-block-label'>
-                            <a-switch v-model='materialListFlag' @change='handleMaterialListFlagChange' />
-                            Material list
-                          </div>
-                          <div class='material-list'>
-                            <div
-                              class='material-item'
-                              v-for='(materialItem, mIndex) in form.materialList'
-                              :key='mIndex'>
-                              <a-row :gutter='[16,16]'>
-                                <a-col span='8'>
-                                  <a-input
-                                    v-model='materialItem.name'
-                                    aria-placeholder='Enter material name'
-                                    placeholder='Enter material name'
-                                    @change="handleCollaborateEvent(taskId,taskField.MaterialList,form.materialList)"/>
-                                </a-col>
-                                <a-col span='14'>
-                                  <a-tooltip placement='topLeft'>
-                                    <template slot='title'>
-                                      The link is provided to help other users or students prepare(purchase) the material
-                                      for this task
-                                    </template>
-                                    <a-input
-                                      v-model='materialItem.link'
-                                      aria-placeholder='Enter URL'
-                                      placeholder='Enter URL'
-                                      @change="handleCollaborateEvent(taskId,taskField.MaterialList,form.materialList)" >
-                                      <a-icon slot='prefix' type='link' />
-                                    </a-input>
+                              <a-popconfirm cancel-text="No" ok-text="Yes" title="Delete ?" @confirm="handleDeleteClass(classItem)" v-show='form.taskMode !== 2'>
+                                <div class='remove-class-icon'>
+                                  <img class='big-delete-icon' src="~@/assets/icons/tag/delete.png" alt=''/>
+                                </div>
+                              </a-popconfirm>
+                              <a-form-item>
+                                <template class='my-label' slot='label'>
+                                  {{ 'Choose class' | taskLabelName(taskField.TaskClassList, $store.getters.formConfigData) }}
+                                  <a-tooltip :title="'Choose class' | taskLabelHint(taskField.TaskClassList, $store.getters.formConfigData)" placement='top'>
+                                    <a-icon type="info-circle" />
                                   </a-tooltip>
-                                </a-col>
-                                <a-col span='2'>
-                                  <div class='material-icon'>
-                                    <a-icon
-                                      type='plus-circle'
-                                      :style="{ fontSize: '16px' }"
-                                      v-if='mIndex === (form.materialList.length - 1)'
-                                      @click='handleAddMaterial' />
-                                    <img
-                                      src='~@/assets/icons/evaluation/delete.png'
-                                      v-if='mIndex < (form.materialList.length - 1)'
-                                      class='delete-icon'
-                                      @click='handleRemoveMaterialItem(materialItem, mIndex)' />
+                                </template>
+                                <input-with-create
+                                  :option-list='classList'
+                                  :index='cIdx'
+                                  :default-selected-id='classItem.classId'
+                                  :default-display-name='classItem.className'
+                                  :tag-type-config='tagTypeConfig'
+                                  @selected='handleSelectClass(classItem, $event)'
+                                  @create-new='handleCreateNewClass'/>
+                              </a-form-item>
+
+                              <a-form-item label='Schedule a session for this class'>
+                                <div class='class-schedule-detail'>
+                                  <a-switch size='small' class='my-switch' v-model='classItem.checked' @change="handleChangeClassSessionTime(classItem)" />
+                                  <div
+                                    class='range-time'
+                                    v-show='classItem.checked'>
+                                    <div class='week-time' v-show='classItem.weeks'>
+                                      <a-tag color='cyan' style='border-radius: 10px;font-size: 14px;'>
+                                        {{ classItem.weeks }}
+                                      </a-tag>
+                                    </div>
+                                    <a-range-picker
+                                      v-model='classItem.momentRangeDate'
+                                      format='LLL'
+                                      style='width: 430px'
+                                      :show-time="{ format: 'HH:mm' }"
+                                      @openChange='handleUpdateWeeks'>
+                                      <a-icon slot='suffixIcon' type='calendar' />
+                                    </a-range-picker>
                                   </div>
-                                </a-col>
-                              </a-row>
+                                </div>
+                              </a-form-item>
+                            </div>
+                            <div class='add-class' v-show='form.taskMode !== 2'>
+                              <a-button type='primary' @click='handleAddLinkClass'> + Add class</a-button>
                             </div>
                           </div>
-                        </div>
+
+                          <div class='form-block over-form-block tag-content-block' :data-field-name='taskField.Overview' id='overview' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Overview' :key='fieldItem.fieldName'>
+                            <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Overview />
+                            <comment-switch
+                              v-show="canEdit"
+                              :field-name=taskField.Overview
+                              :is-active="currentFieldName === taskField.Overview"
+                              @switch='handleSwitchComment'
+                              :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Overview}" />
+                            <a-form-model-item class='task-audio-line' ref='overview'>
+                              <template class='my-label' slot='label'>
+                                {{ 'Task details' | taskLabelName(taskField.Overview, $store.getters.formConfigData) }}
+                                <a-tooltip :title="'Task details' | taskLabelHint(taskField.Overview, $store.getters.formConfigData)" placement='top'>
+                                  <a-icon type="info-circle" />
+                                </a-tooltip>
+                              </template>
+                              <a-textarea autoSize v-model='form.overview' placeholder='Details' allow-clear @change="handleCollaborateEvent(taskId,taskField.Overview,form.overview)" />
+                            </a-form-model-item>
+                          </div>
+
+                          <div class='form-block taskType tag-content-block' :data-field-name='taskField.TaskType' v-if='fieldItem.visible && fieldItem.fieldName === taskField.TaskType' :key='fieldItem.fieldName'>
+                            <collaborate-tooltip :form-id="taskId" :fieldName=taskField.TaskType style="left:20px" />
+                            <comment-switch
+                              v-show="canEdit"
+                              :field-name=taskField.TaskType
+                              :is-active="currentFieldName === taskField.TaskType"
+                              @switch='handleSwitchComment'
+                              :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.TaskType}" />
+                            <a-form-model-item class='task-audio-line' ref='taskType' :colon='false'>
+                              <div slot='label'>
+                                {{ 'Choose Task Type' | taskLabelName(taskField.Overview, $store.getters.formConfigData) }}
+                                <a-tooltip :title="'Choose Task Type' | taskLabelHint(taskField.Overview, $store.getters.formConfigData)" placement='top'>
+                                  <a-icon type="info-circle" />
+                                </a-tooltip>
+                              </div>
+                              <div class='self-type-wrapper'>
+                                <div class='self-field-label'>
+                                  <div
+                                    :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}"
+                                    @click="handleSelectTaskType('FA')">FA
+                                  </div>
+                                  <div
+                                    :class="{'task-type-item': true, 'red-active-task-type': form.taskType === 'SA'}"
+                                    @click="handleSelectTaskType('SA')">SA
+                                  </div>
+                                  <div
+                                    :class="{'task-type-item': true, 'task-type-activity': true,'blue-active-task-type': form.taskType === 'Activity'}"
+                                    @click="handleSelectTaskType('Activity')">
+                                    <a-tooltip title='Teaching/Learning Activity' placement='top'>Activity</a-tooltip>
+                                  </div>
+                                </div>
+                              </div>
+                            </a-form-model-item>
+                          </div>
+
+                          <div class='form-block form-question tag-content-block' :data-field-name='taskField.Question' v-if='associateQuestionList.length > 0 && fieldItem.visible && fieldItem.fieldName === taskField.Question' :key='fieldItem.fieldName'>
+                            <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Question />
+                            <comment-switch
+                              v-show="canEdit"
+                              :field-name=taskField.Question
+                              :is-active="currentFieldName === taskField.Question"
+                              @switch='handleSwitchComment'
+                              :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Question}" />
+                            <a-form-model-item>
+                              <template class='my-label' slot='label'>
+                                {{ 'Choose Key questions' | taskLabelName(taskField.Overview, $store.getters.formConfigData) }}
+                                <a-tooltip :title="'Choose Key questions' | taskLabelHint(taskField.Overview, $store.getters.formConfigData)" placement='top'>
+                                  <a-icon type="info-circle" />
+                                </a-tooltip>
+                              </template>
+                              <a-select
+                                :getPopupContainer="trigger => trigger.parentElement"
+                                @change="handleCollaborateEvent(taskId,taskField.Question,form.questions)"
+                                size='large'
+                                class='my-big-select'
+                                v-model='form.questionIds'
+                                mode='multiple'
+                                placeholder='Choose Key questions'
+                                option-label-prop='label'
+                              >
+                                <a-select-option
+                                  v-for='(item,index) in associateQuestionList'
+                                  :value='item.id'
+                                  :label='item.name'
+                                  :key='index'>
+                                  <span class='question-options'>
+                                    {{ item.name }}
+                                  </span>
+                                  From Unit Plan({{ item.unitName }})
+                                </a-select-option>
+                              </a-select>
+                            </a-form-model-item>
+                          </div>
+
+                          <div class='form-block tag-content-block' :data-field-name='taskField.LearnOuts' v-if='fieldItem.visible && fieldItem.fieldName === taskField.LearnOuts' :key='fieldItem.fieldName'>
+                            <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Assessment style="left:100px" />
+                            <comment-switch
+                              v-show="canEdit"
+                              :field-name=taskField.Assessment
+                              :is-active="currentFieldName === taskField.Assessment"
+                              @switch='handleSwitchComment'
+                              :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Assessment}" />
+                            <a-form-item>
+                              <template class='my-label' slot='label'>
+                                {{ 'Set learning objectives' | taskLabelName(taskField.LearnOuts, $store.getters.formConfigData) }}
+                                <a-tooltip :title="'Set learning objectives' | taskLabelHint(taskField.LearnOuts, $store.getters.formConfigData)" placement='top'>
+                                  <a-icon type="info-circle" />
+                                </a-tooltip>
+                              </template>
+                              <a-button type='primary' @click='handleSelectDescription'>
+                                <div class='btn-text' style='line-height: 20px'>
+                                  Add Learning Objectives
+                                </div>
+                              </a-button>
+                            </a-form-item>
+
+                            <!--knowledge tag-select -->
+                            <ui-learn-out
+                              ref='learnOut'
+                              :learn-outs='form.learnOuts'
+                              :self-outs='form.selfOuts'
+                              @remove-learn-outs='handleRemoveLearnOuts' />
+                          </div>
+
+                          <div class='form-block tag-content-block' :data-field-name='taskField.MaterialList' style='clear: both' v-if='fieldItem.visible && fieldItem.fieldName === taskField.MaterialList' :key='fieldItem.fieldName'>
+                            <collaborate-tooltip :form-id="taskId" :fieldName=taskField.MaterialList />
+                            <comment-switch
+                              v-show="canEdit"
+                              :field-name=taskField.MaterialList
+                              :is-active="currentFieldName === taskField.MaterialList"
+                              @switch='handleSwitchComment'
+                              :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.MaterialList}" />
+                            <div class='form-block-label'>
+                              <a-switch v-model='materialListFlag' @change='handleMaterialListFlagChange' />
+                              {{ 'Material list' | taskLabelName(taskField.MaterialList, $store.getters.formConfigData) }}
+                              <a-tooltip :title="'Material list' | taskLabelHint(taskField.MaterialList, $store.getters.formConfigData)" placement='top'>
+                                <a-icon type="info-circle" />
+                              </a-tooltip>
+                            </div>
+                            <div class='material-list'>
+                              <div
+                                class='material-item'
+                                v-for='(materialItem, mIndex) in form.materialList'
+                                :key='mIndex'>
+                                <a-row :gutter='[16,16]'>
+                                  <a-col span='8'>
+                                    <a-input
+                                      v-model='materialItem.name'
+                                      aria-placeholder='Enter material name'
+                                      placeholder='Enter material name'
+                                      @change="handleCollaborateEvent(taskId,taskField.MaterialList,form.materialList)"/>
+                                  </a-col>
+                                  <a-col span='14'>
+                                    <a-tooltip placement='topLeft'>
+                                      <template slot='title'>
+                                        The link is provided to help other users or students prepare(purchase) the material
+                                        for this task
+                                      </template>
+                                      <a-input
+                                        v-model='materialItem.link'
+                                        aria-placeholder='Enter URL'
+                                        placeholder='Enter URL'
+                                        @change="handleCollaborateEvent(taskId,taskField.MaterialList,form.materialList)" >
+                                        <a-icon slot='prefix' type='link' />
+                                      </a-input>
+                                    </a-tooltip>
+                                  </a-col>
+                                  <a-col span='2'>
+                                    <div class='material-icon'>
+                                      <a-icon
+                                        type='plus-circle'
+                                        :style="{ fontSize: '16px' }"
+                                        v-if='mIndex === (form.materialList.length - 1)'
+                                        @click='handleAddMaterial' />
+                                      <img
+                                        src='~@/assets/icons/evaluation/delete.png'
+                                        v-if='mIndex < (form.materialList.length - 1)'
+                                        class='delete-icon'
+                                        @click='handleRemoveMaterialItem(materialItem, mIndex)' />
+                                    </div>
+                                  </a-col>
+                                </a-row>
+                              </div>
+                            </div>
+                          </div>
+                        </template>
+
+                        <template v-for='custFieldItem in $store.getters.formConfigData.taskCustomList'>
+                          <div class='form-block tag-content-block' v-if="custFieldItem.visible && form.customFieldData && form.customFieldData.hasOwnProperty(custFieldItem.id)" :key='custFieldItem.id' :data-field-name="'cust_' + custFieldItem.name" :data-field-id='custFieldItem.id'>
+                            <a-form-item>
+                              <template class='my-label' slot='label'>
+                                {{ custFieldItem.name }}
+                                <a-tooltip :title="custFieldItem.hint" placement='top'>
+                                  <a-icon type="info-circle" />
+                                </a-tooltip>
+                              </template>
+                              <a-input v-model='form.customFieldData[custFieldItem.id]' class='my-form-input' />
+                            </a-form-item>
+                          </div>
+                        </template>
                       </div>
                     </template>
                   </a-step>
@@ -679,7 +732,7 @@
                         <div class='form-block'>
                           <collaborate-tooltip :form-id="taskId" :field-name=taskField.Link />
                           <comment-switch
-                            v-show="this.canEdit"
+                            v-show="canEdit"
                             :is-active="currentFieldName === taskField.Link"
                             @switch='handleSwitchComment'
                             :field-name=taskField.Link
@@ -757,7 +810,7 @@
                       @update-comment='handleUpdateCommentList' />
                   </div>
                 </template>
-                <template v-if='showRightModule(rightModule.imageUpload) && currentActiveStepIndex !== 1'>
+                <template v-if='showRightModule(rightModule.imageUpload) && currentActiveStepIndex === 0'>
                   <div class='form-block-right'>
                     <!-- image-->
                     <a-form-model-item class='img-wrapper'>
@@ -933,6 +986,7 @@
                       :custom-tags='customTags'
                       :scope-tags-list='customTagList'
                       :selected-tags-list='form.customTags'
+                      :current-field-name='currentFocusFieldName'
                       @reload-user-tags='loadCustomTags'
                       @change-add-keywords='handleChangeAddKeywords'
                       @change-user-tags='handleChangeCustomTags'></custom-tag>
@@ -947,6 +1001,7 @@
                   :custom-tags='customTags'
                   :scope-tags-list='customTagList'
                   :selected-tags-list='currentTaskFormData.customTags'
+                  :current-field-name='currentSubTaskFocusFieldName'
                   @reload-user-tags='loadCustomTags'
                   @change-add-keywords='handleChangeAddKeywords'
                   @change-user-tags='handleChangeSubCustomTags'></custom-tag>
@@ -1668,6 +1723,7 @@
             :select-mode='selectModel.syncData'
             question-index='_questionIndex_1'
             :sync-data='syncData'
+            :show-curriculum='true'
             :show-menu='[NavigationType.specificSkills,
                          NavigationType.centurySkills,
                          NavigationType.learningOutcomes,
@@ -1823,8 +1879,6 @@ import CustomTag from '@/components/UnitPlan/CustomTag'
 import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
 import CollaborateUserList from '@/components/Collaborate/CollaborateUserList'
 import { CustomTagType, TaskField, TemplateType } from '@/const/common'
-// import { SubjectTree } from '@/api/subject'
-// import { formatSubjectTree } from '@/utils/bizUtil'
 import ModalHeader from '@/components/Common/ModalHeader'
 import CommonFormHeader from '@/components/Common/CommonFormHeader'
 import { EvaluationAddOrUpdate } from '@/api/evaluation'
@@ -1850,6 +1904,7 @@ import MediaPreview from '@/components/Task/MediaPreview'
 import { UtilMixin } from '@/mixins/UtilMixin'
 import moment from 'moment'
 import { BaseEventMixin } from '@/mixins/BaseEvent'
+import { FormConfigMixin } from '@/mixins/FormConfigMixin'
 import ShareContentSetting from '@/components/Share/ShareContentSetting'
 import { QueryContentShare } from '@/api/share'
 import CollaborateTooltip from '@/components/Collaborate/CollaborateTooltip'
@@ -1907,7 +1962,7 @@ export default {
     CollaborateTooltip,
     CollaborateUpdateContent
   },
-  mixins: [PptPreviewMixin, UtilMixin, BaseEventMixin],
+  mixins: [PptPreviewMixin, UtilMixin, BaseEventMixin, FormConfigMixin],
   props: {
     taskId: {
       type: String,
@@ -1958,7 +2013,8 @@ export default {
         endDate: '',
         gradeId: undefined,
         materialList: [],
-        taskClassList: []
+        taskClassList: [],
+        customFieldData: null
       },
       // Grades
       gradeList: [],
@@ -2116,7 +2172,10 @@ export default {
       quickTaskPreviewTemplateVisible: false,
       quickTaskPreviewTemplate: null,
 
-      quickSessionClassItem: null
+      quickSessionClassItem: null,
+
+      // sub task 当前激活的字段
+      currentSubTaskFocusFieldName: null
     }
   },
   computed: {
@@ -2366,6 +2425,25 @@ export default {
         }
 
         this.materialListFlag = taskData.materialList.length > 0
+        // 填充自定义字段
+        const customFieldData = taskData.customFieldData ? JSON.parse(taskData.customFieldData) : null
+        const displayCustomFieldData = {}
+        if (customFieldData) {
+          // 只显示配置中存在的字段,用id做key，改名后依旧可以使用老数据
+          this.$store.getters.formConfigData.taskCustomList.forEach(customField => {
+            if (customFieldData.hasOwnProperty(customField.id)) {
+              displayCustomFieldData[customField.id] = customFieldData[customField.id]
+            } else {
+              displayCustomFieldData[customField.id] = ''
+            }
+          })
+        } else {
+          this.$store.getters.formConfigData.taskCustomList.forEach(customField => {
+            displayCustomFieldData[customField.id] = ''
+          })
+        }
+        this.$logger.info('displayCustomFieldData', displayCustomFieldData)
+        taskData.customFieldData = displayCustomFieldData
         this.form = taskData
         this.form.showSelected = taskData.showSelected ? taskData.showSelected : false
         this.form.bloomCategories = this.form.bloomCategories ? this.form.bloomCategories : undefined // 为了展示placeholder
@@ -2412,15 +2490,6 @@ export default {
       } else {
         this.handleSelectTemplateMadel(data)
       }
-
-      // const key = data.type + '-' + data.id
-      // const index = this.selectedMyContentKeyList.indexOf(key)
-      // if (index !== -1) {
-      //   this.selectedMyContentKeyList.splice(index, 1)
-      // } else {
-      //   this.selectedMyContentKeyList.push(key)
-      // }
-      // this.selectedMyContentInfoMap.set(key, data)
     },
 
     handleSaveTask() {
@@ -2468,9 +2537,13 @@ export default {
         taskData.selectedTemplateList = this.selectedTemplateList
 
         // 更新selfOuts数据
-        taskData.selfOuts = this.$refs.learnOut.getSelfOuts()
+        if (this.$refs.learnOut && this.$refs.learnOut.length > 0) {
+          taskData.selfOuts = this.$refs.learnOut[0].getSelfOuts()
+        }
+        if (taskData.customFieldData) {
+          taskData.customFieldData = JSON.stringify(taskData.customFieldData)
+        }
         logger.info('basic taskData', taskData)
-        logger.info('question taskData', taskData)
         TaskAddOrUpdate(taskData).then((response) => {
           logger.info('TaskAddOrUpdate', response.result)
           if (response.success) {
@@ -2899,7 +2972,7 @@ export default {
       this.currentTaskFormData.customTags = []
       this.itemsList.forEach(e => {
         if (this.selectedPageIdList.indexOf(e.pageId) !== -1) {
-          const json = JSON.parse(e.data)
+          const json = typeof (e.data) === 'object' ? e.data : JSON.parse(e.data)
           if (json.data && json.data.bloomLevel) {
             if (this.currentTaskFormData.customTags.findIndex(tag => tag.name === json.data.bloomLevel) === -1) {
               this.currentTaskFormData.customTags.push({
@@ -3595,63 +3668,51 @@ export default {
     },
     focusInput(event) {
       this.$logger.info('focusInput ', event.target)
-      // let isEditBase = false
-      // if (typeof event.target.className === 'string' && event.target.className.indexOf('ant-input') > -1) {
-      //   isEditBase= true
-      // }
 
       // 设置一个父级定位专用的dom，设置class名称【root-locate-form】，
       // 然后通过事件获取到当前元素，依次往上层查询父元素，累加偏离值，直到定位元素。
       const eventDom = event.target
       let formTop = eventDom.offsetTop ? eventDom.offsetTop : 0
       let currentDom = eventDom.offsetParent
-      let currentFocus = ''
+      this.currentFocusFieldName = null
       this.customTagList = []
-      console.log(currentDom)
       while (currentDom !== null) {
         formTop += (currentDom ? currentDom.offsetTop : 0)
         currentDom = currentDom ? currentDom.offsetParent : undefined
         if (!currentDom) {
           break
         }
-        if (currentDom.classList.contains('taskType')) {
-          currentFocus = 'fa'
-          this.customTagList = []
-          if (this.form.taskType === 'FA') {
-            CustomTagType.task.fa.forEach(name => {
-              this.customTagList.push(name)
-            })
-          } else if (this.form.taskType === 'SA') {
-            CustomTagType.task.sa.forEach(name => {
-              this.customTagList.push(name)
-            })
-          } else if (this.form.taskType === 'Activity') {
-            CustomTagType.task.activity.forEach(name => {
-              this.customTagList.push(name)
-            })
+
+        if (currentDom.classList.contains('tag-content-block') && currentDom.hasAttribute('data-field-name')) {
+          const fieldName = currentDom.getAttribute('data-field-name')
+          this.$logger.info('current block fieldName', fieldName)
+          this.currentFocusFieldName = fieldName
+          if (this.$store.getters.formConfigData?.taskFieldTagMap?.[fieldName]) {
+             if (fieldName === this.taskField.TaskType) {
+               this.customTagList = this.$store.getters.formConfigData.taskFieldTagMap[fieldName].filter(item => item.subFieldName && item.subFieldName.toLowerCase() === this.form.taskType.toLowerCase()).map(item => item.tagName)
+               this.$logger.info(fieldName + ' customTagList taskType ' + this.form.taskType, this.customTagList)
+             } else {
+               this.customTagList = this.$store.getters.formConfigData.taskFieldTagMap[fieldName].map(item => item.tagName)
+               this.$logger.info(fieldName + ' customTagList', this.customTagList)
+             }
           }
-          this.showCustomTag = true
         }
         if (currentDom.classList && currentDom.classList.contains('root-locate-form')) {
-          logger.info('classlist: ', currentDom.classList.toString())
           break
         }
       }
       // custom tag 自带了margin-top: 20px,这里减掉不然不对齐。
-      if (currentFocus) {
+      if (this.currentFocusFieldName) {
+        this.$logger.info('show currentFocusFieldName tag ', this.currentFocusFieldName)
         this.customTagTop = formTop - 20
         this.showCustomTag = true
         this.setRightModuleVisible(this.rightModule.customTag)
       } else {
-        // if(isEditBase){
-        //   CustomTagType.task.base.forEach(name => {
-        //     this.customTagList.push(name)
-        //   })
-        // }
+        this.$logger.info('show global tag')
         CustomTagType.task.default.forEach(name => {
           this.customTagList.push(name)
         })
-        // // 再拼接自己添加的
+        // 再拼接自己添加的
         this.customTags.userTags.forEach(tag => {
           if (this.customTagList.indexOf(tag.name === -1)) {
             this.customTagList.push(tag.name)
@@ -3659,7 +3720,7 @@ export default {
         })
         this.showCustomTag = false
         this.customTagTop = 20
-        // this.setRightModuleVisible()
+        this.setRightModuleVisible()
       }
     },
     handleChangeCustomTags(tags) {
@@ -4089,7 +4150,13 @@ export default {
         taskData.id = this.taskId
       }
       taskData.selectedTemplateList = this.selectedTemplateList
-      taskData.selfOuts = this.$refs.learnOut.getSelfOuts()
+      // 更新selfOuts数据
+      if (this.$refs.learnOut && this.$refs.learnOut.length > 0) {
+        taskData.selfOuts = this.$refs.learnOut[0].getSelfOuts()
+      }
+      if (taskData.customFieldData) {
+        taskData.customFieldData = JSON.stringify(taskData.customFieldData)
+      }
       logger.info('basic taskData', taskData)
       TaskAddOrUpdate(taskData).then((response) => {
         logger.info('TaskAddOrUpdate', response.result)
@@ -5499,7 +5566,6 @@ export default {
     font-size: 16px;
     font-weight: 500;
     font-family: Inter-Bold;
-    line-height: 24px;
   }
 }
 
@@ -5716,8 +5782,8 @@ export default {
   flex-direction: row;
   align-items: center;
   justify-content: flex-end;
-  margin-bottom: 20px;
-  margin-top: 20px;
+  padding-bottom: 10px;
+  padding-top: 10px;
 
   .slide-switch {
     margin-left: 10px;
@@ -5752,7 +5818,7 @@ export default {
   color: rgba(0, 0, 0, 0.65);
   background: #fff;
   height: 70px;
-  margin-top: -15px;
+  margin-top: 5px;
   padding: 0 25px;
 
   .icon-group {
@@ -6186,7 +6252,7 @@ export default {
 
   &::-webkit-scrollbar-thumb {
     border-radius: 5px;
-    background: rgba(0, 0, 0, 0.12);
+    background: rgba(0, 0, 0, 0.06);
     -webkit-box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.04);
   }
 

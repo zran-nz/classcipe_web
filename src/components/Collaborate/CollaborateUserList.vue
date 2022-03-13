@@ -16,20 +16,19 @@
                 @click.stop="handleFocusInput">
                 <div class="tag-input-list tag-dom">
                   <div class="tag-list tag-dom">
-                    <div class="tag-item tag-dom" v-for="(user,index) in selectedUserList" :key="index">
+                    <div class="tag-item tag-dom" v-for="(user) in selectedUserList" :key="user.email">
                       <a-tag closable @close="handleCloseTag(user.email)" class="tag-dom input-tag-item">
                         <a-avatar size="small" :src="user.avatar"/>
                         {{ user.email }}
                       </a-tag>
                     </div>
 
-                    <div class="tag-input tag-dom" :style="{ width: selectedUserEmailList.length === 0 ? '150px' : '20px' }">
+                    <div class="tag-input tag-dom" :style="{ width: selectedUserEmailList.length === 0 ? '220px' : '220px' }">
                       <input
                         type="text"
                         :placeholder="selectedUserEmailList.length === 0 ? 'Invite teacher by email' : ''"
                         @keyup.enter="debounceSearchUser"
                         @focus="debounceSearchUser"
-                        @blur="active = false"
                         @search="debounceSearchUser"
                         @keyup="debounceSearchUser"
                         v-model="userNameOrEmail"
@@ -40,7 +39,7 @@
                 </div>
               </div>
               <div class='search-user-list' @click.stop='' v-if='showUser'>
-                <div class="user-list" :style="{ width: selectedUserEmailList.length === 0 ? '590px' : '500px' }" v-if="displaySelectUserList.length">
+                <div class="user-list" :style="{ width: selectedUserEmailList.length === 0 ? '590px' : '500px' }" v-if="displaySelectUserList.length && active">
                   <a-skeleton :loading="loading" active>
                     <div class="user-item" v-for="user in displaySelectUserList" :key="user.email" @click="handleAddToSelect(user)">
                       <div class="user-avatar-email">
@@ -153,7 +152,7 @@
                               <a-menu-item @click="handleChange(user,'Viewer',index)">
                                 <span>Viewer</span>
                               </a-menu-item>
-                              <a-divider style="margin: 10px 0px;" />
+                              <a-divider style="margin: 10px 0;" />
                               <a-menu-item @click="handleRemove(user,index)">
                                 <span>Remove</span>
                               </a-menu-item>
@@ -273,11 +272,6 @@ export default {
         return user.email
       })
     },
-    collaborateUserEmailList () {
-      return this.collaborateUserList.map(user => {
-        return user.email
-      })
-    },
     linkUrl () {
       let linkUrl = this.collaborate.link ? (process.env.VUE_APP_API_BASE_URL + '/collaborate/' + this.collaborate.link.linkCode) : ''
       if (linkUrl.indexOf('https://api') > -1) {
@@ -352,10 +346,14 @@ export default {
     },
     handleCloseTag (email) {
       logger.info('handleCloseTag ' + email)
-      const index = this.selectedUserList.findIndex(item => item.email === email)
-      if (index !== -1) {
-        this.selectedUserList.splice(index, 1)
-      }
+      const list = []
+      this.selectedUserList.forEach(user => {
+        if (user.email !== email) {
+          list.push(user)
+        }
+      })
+      this.selectedUserList = list
+      this.$logger.info('after handleCloseTag', this.selectedUserList)
     },
     handleEnsureSelect () {
       this.$logger.info('handleEnsureSelect', this.selectedUserList)
@@ -394,7 +392,6 @@ export default {
           item.nickname.toLowerCase().indexOf(this.userNameOrEmail.toLowerCase()) !== -1)
         return
       }
-      this.loading = true
       CollaboratesSearchUser({ name: this.userNameOrEmail }).then(response => {
         this.$logger.info('SearchUser response', response)
         this.userList = response.result
@@ -421,6 +418,7 @@ export default {
         user.permission = this.permission
         this.selectedUserList.push(user)
       }
+      this.active = false
       this.userNameOrEmail = ''
       this.$logger.info('selectedUserList ', this.selectedUserList)
     },

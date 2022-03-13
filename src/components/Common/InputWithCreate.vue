@@ -3,12 +3,13 @@
     <a-input
       class='my-input-with-create'
       v-model='displayValue'
-      @focus='showOptionList = true'
-      @click.native='showFilterOption = true'
-      @change='showFilterOption = true'>
+      @focus.native='displayOptionListVisible'
+      @click.native='displayOptionListVisible'
+      @input.native='displayOptionListVisible'
+      @change='displayOptionListVisible'>
     </a-input>
-    <div class='option-list' :style="{'max-height': optionListHeight + 'px'}" v-show='showOptionList && (displayOptionList.length || displayValue)' @click.stop=''>
-      <div class='create-item' v-show='!existValue && displayValue'>
+    <div class='option-list' :style="{'max-height': optionListHeight + 'px'}" v-show='(!existValue && displayValue) || (showOptionList && displayOptionList.length)' @click.stop=''>
+      <div class='create-item' v-show='(!existValue && displayValue)'>
         <div class='create-item-tag' @click='createNew'>
           Create <span class='create-text'>
             {{ displayValue }}
@@ -16,7 +17,7 @@
         </div>
         <a-spin size='small' v-show='creating' class='creating-spin'/>
       </div>
-      <div class='option-item' v-for='(option, oIdx) in displayOptionList' :key='oIdx' @click='handleSelectItem(option)'>
+      <div class='option-item' v-for='(option, oIdx) in displayOptionList' :key='oIdx' @click='handleSelectItem(option)' v-if='showOptionList && displayOptionList.length'>
         <div class='option-name'>
           {{ option.name }}
         </div>
@@ -95,21 +96,20 @@ export default {
       displayValue: '',
       myOptionList: [],
       showOptionList: false,
-      creating: false,
-      showFilterOption: false
+      creating: false
     }
   },
   computed: {
     displayOptionList () {
-       if (this.displayValue && this.showFilterOption) {
-         return this.myOptionList.filter(option => option.name.indexOf(this.displayValue.trim()) !== -1)
-       } else {
-         return this.myOptionList
-       }
+      if (this.displayValue && this.displayValue.trim()) {
+        return this.myOptionList.filter(option => option.name.indexOf(this.displayValue.trim()) !== -1)
+      } else {
+        return this.myOptionList
+      }
     },
     existValue () {
       if (this.displayValue && this.displayValue.trim()) {
-        return this.myOptionList.find(option => option.name && option.name.trim() === this.displayValue.trim())
+        return this.myOptionList.some(option => option.name && option.name.trim() === this.displayValue.trim())
       } else {
         return false
       }
@@ -164,6 +164,10 @@ export default {
       if (!this.defaultSelectedId && !this.selectedId) {
         this.displayValue = ''
       }
+    },
+
+    displayOptionListVisible () {
+      this.showOptionList = true
     }
   }
 }

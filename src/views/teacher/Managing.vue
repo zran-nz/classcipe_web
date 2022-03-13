@@ -2,6 +2,7 @@
   <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%' }" :style="{ height: '100%' }">
     <a-layout>
       <a-layout-sider>
+        <div class="school-name">{{ $store.getters.userInfo.schoolName }}</div>
         <a-menu
           :default-selected-keys="[selectedKey]"
           @select="handleMenuSelect"
@@ -18,12 +19,13 @@
           </a-menu-item>
           <a-sub-menu>
             <span slot="title"><a-icon type="schedule" /><span>Academics</span></span>
-            <a-menu-item key="/teacher/managing/term"> Academics Terms </a-menu-item>
+            <!--            <a-menu-item key="/teacher/managing/term"> Academics Terms </a-menu-item>-->
+            <a-menu-item key="/teacher/managing/planning-format">  Planning format </a-menu-item>
+            <a-menu-item key="/teacher/managing/tag-settings">  Tags </a-menu-item>
+            <a-menu-item key="/teacher/managing/skill" v-if="$store.getters.bindCurriculum == curriculumType.IBMYP">
+              <a-tooltip title="Upload achievement objectives">Upload achievement objectives</a-tooltip>
+            </a-menu-item>
           </a-sub-menu>
-          <a-menu-item key="/teacher/managing" v-if="$store.getters.bindCurriculum === curriculumType.IBMYP">
-            <a-icon type="cloud-upload" />
-            <span>IB skills</span>
-          </a-menu-item>
         </a-menu>
       </a-layout-sider>
       <a-layout-content class="main-content">
@@ -164,5 +166,12 @@ export default {
       }
     }
   }
+}
+.school-name{
+  color: rgba(0,0,0,.85);
+  font-size: 16px;
+  margin: 5px;
+  line-height: 25px;
+  font-weight: 500;
 }
 </style>

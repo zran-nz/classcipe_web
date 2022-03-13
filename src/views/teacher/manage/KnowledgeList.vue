@@ -131,7 +131,7 @@
 
 <script>
 
-import { getAction, deleteAction, postAction } from '@/api/manage'
+import { getAction, deleteAction } from '@/api/manage'
 import { JeecgListMixin } from '@/mixins/JeecgListMixin'
 import KnowledgeModal from './modules/KnowledgeModal'
 import KnowledgeTagList from './KnowledgeTagList'
@@ -287,7 +287,7 @@ export default {
       params.hasQuery = 'true'
       params.curriculumId = this.$store.getters.bindCurriculum
       params.tagType = TagType.ibSkill
-      postAction(this.url.list, params).then(res => {
+      getAction(this.url.list, params).then(res => {
         if (res.success) {
           const result = res.result
           if (Number(result.total) > 0) {

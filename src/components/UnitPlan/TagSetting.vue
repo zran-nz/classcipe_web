@@ -1,422 +1,427 @@
 <template>
-  <div class="custom-tag" @click="handleEnsureInput($event)">
-    <div>
+  <div class="tag-setting" @click='trySaveTagCategory'>
+    <a-spin :spinning='tagLoading'>
+      <div class='tag-content-wrapper'>
+        <div class='tag-tab' id='tag-tab'>
+          <div class='icon-left icon-nav' @click.stop='scrollLeft' v-show='userTagList.length'>
+            <a-icon type="left" />
+          </div>
+          <div class="user-tag-category-tabs" id='user-tag-category-tabs' v-if='userTagList.length'>
+            <div
+              :class="{ 'user-tag-item': true, 'active-tab': userTagItem.name === currentActiveTagCategoryName }"
+              v-for="(userTagItem, idx) in userTagList"
+              @click="handleActiveTagCategory(userTagItem)"
+              :key="idx">
 
-      <a-spin v-show="tagLoading" class="spin-loading"/>
-
-      <div class="tag-category" v-show="!userTagsMap.length">
-        <a-row>
-          <a-col offset="0" span="24">
-            <div>
-              <a-tabs
-                :activeKey="selectLabel"
-                tab-position="top"
-                type="editable-card"
-                @edit="onEdit"
-                @change="changeTab"
-                hide-add
-              >
-                <a-tab-pane v-for="(tag,index) in userTagsMap" :key="tag[0]" >
-                  <span slot="tab">
-                    <div v-if="editTabIndex === index">
-                      <input
-                        class="ant-input my-tag-input"
-                        v-model="editTabName"
-                        placeholder="Name your category"
-                        id="input"
-                        @blur="handleTabInputConfirm(editTabName)"
-                        @keyup.enter="handleTabInputConfirm(editTabName,'enter')"
-                      ></input>
-                    </div>
-                    <div v-if="editTabIndex !== index" @dblclick="handleEditTabName(tag, index)">
-                      {{ tag[0] }}
-                      <a-icon v-show="canDeleteTab" @click.stop="deleteTab(tag[0])" type="close-circle" />
-                    </div>
-                  </span>
-                  <div class="tab-content">
-                    <a-col offset="0" :span="24">
-                      <div class="tag-search-input">
-                        <a-input-search
-                          v-model="inputTag"
-                          size="large"
-                          placeholder="Create Tags"
-                          class="search-input"
-                          @keyup.enter.native="handleKeyup"
-                          @search="searchTag"
-                          @keyup="searchTag" >
-                          <a-icon slot="prefix" type="plus-circle" :style="{ fontSize: '16px', color: '#15c39a','margin-right':'5px' }" />
-                        </a-input-search>
-                      </div>
-                    </a-col>
-                    <div class="skt-tag-wrapper" v-show="tagSearchList.length || createTagName">
-                      <!--      skt-tag-list-->
-                      <div class="skt-tag-list">
-
-                        <div class="search-tag-wrapper tag-wrapper">
-                          <div class="skt-tag-item" v-for="(keyword,kIndex) in tagSearchList" :key="kIndex" >
-                            <a-tag
-                              :closable="true"
-                              @close="closeTag(tag[0],keyword,$event)"
-                              class="tag-item">
-                              {{ keyword }}
-                            </a-tag>
-                          </div>
-                        </div>
-                        <div class="create-tag-wrapper tag-wrapper">
-                          <div class="skt-tag-create-line" @click="handleCreateTagByInput" v-show="!tagIsExist(createTagName,tagSearchList) && createTagName && createTagName.length >= 1">
-                            <div class="create-tag-label">
-                              Create
-                            </div>
-                            <div class="create-tag">
-                              <a-tag class="created-tag-item">
-                                {{ createTagName }}
-                              </a-tag>
-                            <!--                    <a-icon type="plus-circle" @click="handleCreateTagByInput"/>-->
-                            </div>
-                          </div>
+              <div class="action-icon" v-show="userTagItem.editing === false">
+                <div class="tag-title-item">
+                  <div class="tag-title" @dblclick="handleEditTagCategory(userTagItem)">{{ userTagItem.name }}</div>
+                  <div class="tag-delete-icon" @click='handleDeleteTagCategory(userTagItem.name)'>
+                    <a-icon type="delete" :style="{ fontSize: '12px', color: '#15c39a' }"/>
+                  </div>
+                </div>
+              </div>
+              <div class="editing-title" v-show="userTagItem.editing === true" @click.stop=''>
+                <a-input
+                  v-model="currentEditTagCategoryName"
+                  placeholder="Name your category"
+                  :id="'tag-category-' + userTagItem.name"
+                  class="my-tag-category-input"
+                  @keyup.enter="handleEnsureUpdateTagCategory(userTagItem)">
+                </a-input>
+              </div>
+            </div>
+          </div>
+          <div class='icon-right icon-nav'>
+            <a-icon type="right" @click.stop='scrollRight' v-show='userTagList.length'/>
+          </div>
+          <div class='icon-add' v-show='userTagList.length >= 1'>
+            <a-tooltip placement="top">
+              <template slot="title">
+                Add tag type
+              </template>
+              <a-icon type="plus-circle" :style="{ fontSize: '18px', color: '#15c39a' }" @click.stop='handleInitCreateTagCategory' v-show='showAddCategory'/>
+            </a-tooltip>
+          </div>
+        </div>
+        <div class='user-tag-list-wrapper'>
+          <div class="tab-content">
+            <div class="skt-tag-wrapper">
+              <div class="skt-tag-list" v-show='userTagList.length'>
+                <div class="search-tag-wrapper tag-wrapper">
+                  <div class="skt-tag-item" v-for="(keyword) in displayTagList" :key="keyword" >
+                    <a-tag
+                      :class="{'active-tag-item': tagSearchList.indexOf(keyword) > -1}"
+                      class="tag-item">
+                      {{ keyword }}
+                      <a-icon type="close" @click='handleDeleteTag(keyword)'/>
+                    </a-tag>
+                  </div>
+                  <div class='create-tag-item-btn'>
+                    <a-input
+                      v-show='createTagInputVisible'
+                      v-model="inputTag"
+                      ref='search-input'
+                      placeholder="Create Tags"
+                      class="search-input"
+                      @pressEnter="handleEnsureCreateTag"
+                      @blur.native="handleEnsureCreateTag"
+                      @change="handleFilterSearchTag" />
+                    <div class='create-tag-item-wrapper'>
+                      <div class='no-tag-list' v-if='displayTagList.length === 0 && !createTagInputVisible'>
+                        <div class='no-tips'>
+                          There is no tag under the current type.
                         </div>
                       </div>
+                      <a-tooltip placement="top">
+                        <template slot="title">
+                          Create tag
+                        </template>
+                        <a-icon type="plus-circle" :style="{ fontSize: '18px', color: '#15c39a' }" @click='handleShowSearchInput' v-show='!createTagInputVisible'/>
+                      </a-tooltip>
                     </div>
                   </div>
-                </a-tab-pane>
-                <div slot="tabBarExtraContent">
-                  <a-tooltip placement="top" title="Create Category">
-                    <a-icon type="plus" style="cursor: pointer" @click="add"/>
-                  </a-tooltip>
                 </div>
-              </a-tabs>
-            </div>
-          </a-col>
-        </a-row>
-      </div>
-
-      <div>
-        <a-button type="link" @click="canDeleteTab=!canDeleteTab">
-          Delete Category
-        </a-button>
-      </div>
-
-      <br />
-    </div>
-    <a-modal
-      v-model="confirmVisible"
-      :footer="null"
-      destroyOnClose
-      width="600px"
-      :title="null"
-      @ok="confirmVisible = false"
-      @cancel="confirmVisible = false">
-      <div class="confirm-content-wrapper">
-        <div>
-          <a-result
-            status="error"
-            :title="deleteTagName ? 'Delete this tag':'Delete tag type'"
-          >
-            <p v-if="deleteTagName">
-              Are you sure you want to delete this tag?
-              This is permanent and can not be undone?
-            </p>
-            <p v-if="!deleteTagName">
-              Are you sure you want to delete this tag type?
-              After deletion, its sub-tags are deleted too.
-              This is permanent and cannot be undone.
-            </p>
-            <div class="desc">
-              <a-alert v-if="deleteTabName && !deleteTagName" :message="deleteTabName" type="info" />
-              <div class="confirm-tag-wrapper tag-wrapper">
-                <div v-if="deleteTabName && !deleteTagName" class="skt-tag-item" v-for="(keyword,index) in tagSearchList" :key="index" >
-                  <a-tag
-                    class="tag-item">
-                    {{ keyword }}
-                  </a-tag>
+              </div>
+              <div class='no-tag-tips' v-show='userTagList.length === 0 && !tagLoading'>
+                <no-more-resources tips='' />
+                <div class='no-tips'>
+                  No tags type have been added yet, create one now ?
                 </div>
-                <div v-if="deleteTabName && deleteTagName" class="skt-tag-item" style="margin: 10px auto">
-                  <a-tag
-                    class="tag-item">
-                    {{ deleteTagName }}
-                  </a-tag>
+                <div class='create-tag-btn'>
+                  <a-button type='primary' shape='round' @click='handleInitCreateTagCategory'>Create</a-button>
                 </div>
               </div>
             </div>
-          </a-result>
-        </div>
-
-        <div class="modal-ensure-action-line-center">
-          <a-button class="action-item action-cancel" shape="round" @click="confirmVisible = false">Cancel</a-button>
-          <a-button class="action-ensure action-item" :loading="tagDeleteLoading" type="primary" shape="round" @click="handleEnsureDelete">Confirm</a-button>
+          </div>
         </div>
       </div>
-    </a-modal>
-
+    </a-spin>
   </div>
 </template>
 
 <script>
-import * as logger from '@/utils/logger'
 import { AddUserParentTag, AddUserTagNew, FindCustomTags, UpdateUserParentTag, UserTagDeleteNew } from '@/api/tag'
 import { UtilMixin } from '@/mixins/UtilMixin'
-
-const { debounce } = require('lodash-es')
+import NoMoreResources from '@/components/Common/NoMoreResources'
 
 export default {
   name: 'TagSetting',
   mixins: [UtilMixin],
   components: {
-  },
-  props: {
-
-  },
-  mounted () {
-  },
-  destroyed () {
-
+    NoMoreResources
   },
   data () {
     return {
-      canDeleteTab: false,
+      currentActiveTagCategory: null,
+      currentActiveTagCategoryName: '',
+      currentEditTagCategoryName: '',
+
+      userTagList: [],
+      createTagName: '',
       tagLoading: false,
       inputTag: '',
-      tagName: '',
-      createTagName: '',
       tagSearchList: [],
-      userTagsMap: new Map(),
-      selectLabel: '',
-      confirmVisible: false,
-      editTabIndex: -1,
-      editTabName: '',
-      deleteTabName: '',
-      deleteTagName: '',
-      tagDeleteLoading: false,
-
-      // 允许通过点击空白处确认输入
-      allowClickEnsureInput: false,
-      isEditTagName: false,
-      currentEditTag: ''
+      currentEditTagName: '',
+      displayTagList: [],
+      createTagInputVisible: false
+    }
+  },
+  computed: {
+    showAddCategory () {
+      return this.userTagList.every(item => item.editing === false)
     }
   },
   created () {
-    this.debouncedSearchKnowledge = debounce(this.searchTag, 500)
-    this.handleUserTagsMap()
-  },
-  watch: {
+    this.handleUpdateUserTags()
   },
   methods: {
-    onEdit (targetKey, action) {
-      logger.info('action ', targetKey, action)
-      this[action](targetKey)
-    },
-    add () {
-      if (this.editTabIndex !== -1) {
-        return
-      }
-      let activeKey = `Name your category`
-      if (this.userTagsMap.has(activeKey)) {
-        activeKey = activeKey + '-' + this.userTagsMap.size
-        if (this.userTagsMap.has(activeKey)) {
-          // 存在重复的情况
-          activeKey = activeKey + '-' + parseInt(Math.random() * 100)
-        }
-      }
-      this.editTabIndex = this.userTagsMap.size
-      this.editTabName = activeKey
-      this.userTagsMap.set(activeKey, [])
-      this.changeTab(activeKey)
-      setTimeout(function () {
-        document.getElementById('input').focus()
-      }, 500)
 
-      setTimeout(() => {
-        this.allowClickEnsureInput = true
-      }, 1000)
-    },
-    remove (targetKey) {
-      // this.selectLabel = activeKey
-      this.confirmVisible = true
-    },
-    changeTab (tabName) {
-      this.selectLabel = tabName
+    handleActiveTagCategory (userTagItem) {
+      this.$logger.info('handleActiveTagCategory', userTagItem)
+      this.currentActiveTagCategoryName = userTagItem.name
+      this.currentActiveTagCategory = userTagItem
+      this.displayTagList = userTagItem.keywords
       this.filterKeyword()
     },
-    handleOk () {
+
+    handleEditTagCategory (userTagItem) {
+      this.$logger.info('handleEditTagCategory', userTagItem)
+      this.currentEditTagCategoryName = userTagItem.name
+      this.userTagList.forEach(item => { item.editing = false })
+      userTagItem.editing = true
     },
-    handleCancel () {
-      this.visible = false
-    },
-    closeTag (parent, tag, event) {
-      event.preventDefault()
-      this.deleteTabName = parent
-      this.deleteTagName = tag
-      this.confirmVisible = true
-    },
-    selectTag (tag) {
-      console.log(tag)
-      if (this.tagName === tag.name) {
-        this.tagName = ''
+
+    handleEnsureUpdateTagCategory (userTagItem) {
+      this.$logger.info('handleEnsureUpdateTagCategory ' + this.currentEditTagCategoryName, userTagItem)
+      this.currentEditTagCategoryName = (this.currentEditTagCategoryName && this.currentEditTagCategoryName.trim()) ? this.currentEditTagCategoryName.trim() : 'Untitled category ' + (this.userTagList.length + 1)
+      if (userTagItem.newTag) {
+        this.handleCreateTagCategory(userTagItem)
       } else {
-        this.tagName = tag.name
+        this.handleUpdateTagCategory(userTagItem)
       }
     },
-    handleUserTagsMap () {
-      this.userTagsMap = new Map()
+
+    handleCreateTagCategory (userTagItem) {
+      this.$logger.info('handleCreateTagCategory', userTagItem)
+      this.tagLoading = true
+      AddUserParentTag({ parentName: this.currentEditTagCategoryName }).then((response) => {
+        this.$logger.info('add AddUserParentTag ', response.result)
+        if (response.success) {
+          this.handleUpdateUserTags()
+        } else {
+          this.$message.error(response.message)
+          this.tagLoading = false
+        }
+      }).catch(() => {
+        this.tagLoading = false
+      })
+    },
+
+    handleUpdateTagCategory (userTagItem) {
+      this.$logger.info('handleUpdateTagCategory', userTagItem)
+      if (userTagItem.name && this.currentEditTagCategoryName && userTagItem.name !== this.currentEditTagCategoryName) {
+        this.tagLoading = true
+        UpdateUserParentTag({ name: userTagItem.name, newName: this.currentEditTagCategoryName }).then((response) => {
+          this.$logger.info('UpdateUserParentTag response', response.result)
+          if (response.success) {
+            this.handleUpdateUserTags()
+          } else {
+            this.$message.error(response.message)
+            this.tagLoading = false
+          }
+        }).catch(() => {
+          this.tagLoading = false
+        })
+      }
+    },
+
+    handleInitCreateTagCategory () {
+      this.$logger.info('handleInitCreateTagCategory')
+      this.currentEditTagName = 'Untitled category ' + (this.userTagList.length + 1)
+      const newUserTagItem = {
+        name: this.currentEditTagName,
+        editing: true,
+        newTag: true,
+        keywords: []
+      }
+      this.currentActiveTagCategoryName = newUserTagItem.name
+      this.currentEditTagCategoryName = newUserTagItem.name
+      this.currentActiveTagCategory = newUserTagItem
+      this.displayTagList = []
+      this.userTagList.push(newUserTagItem)
+      this.$nextTick(() => {
+        const dom = document.getElementById('tag-category-' + newUserTagItem.name)
+        if (dom) {
+          dom.focus()
+        }
+        this.scrollRight()
+      })
+    },
+
+    handleUpdateUserTags () {
+      this.tagLoading = true
       FindCustomTags({}).then((response) => {
         this.$logger.info('FindCustomTags response', response.result)
         if (response.success) {
-          response.result.userTags.forEach(tag => {
-            this.userTagsMap.set(tag.name, tag.keywords)
-          })
-          this.$logger.info('userTagsMap', this.userTagsMap)
-          this.userTagsMap.forEach((value, key) => {
-            if (!this.selectLabel) {
-              this.selectLabel = key
+          const userTags = []
+          response.result.userTags.forEach((userTag) => {
+            if (userTag.name) {
+              userTag.editing = false
+              userTag.newTag = false
+              userTags.push(userTag)
             }
           })
-          // this.changeTab(this.selectLabel)
+          this.userTagList = userTags
+          this.$logger.info('userTagList', this.userTagList)
+          let firstTagCategory = this.userTagList.find(item => item.name && this.currentActiveTagCategoryName === item.name)
+          if (!firstTagCategory) {
+            firstTagCategory = this.userTagList.find(item => item.name && this.currentEditTagCategoryName === item.name)
+          }
+          if (!firstTagCategory && this.userTagList.length > 0) {
+            firstTagCategory = this.userTagList.find(item => item.name)
+          }
+
+          if (firstTagCategory) {
+            this.currentActiveTagCategoryName = firstTagCategory.name
+            this.currentActiveTagCategory = firstTagCategory
+            this.displayTagList = firstTagCategory.keywords
+          }
+          this.$logger.info('currentActiveTagCategory', this.currentActiveTagCategory, 'displayTagList', this.displayTagList)
           this.filterKeyword()
         } else {
           this.$message.error(response.message)
         }
+      }).finally(() => {
+        this.tagLoading = false
       })
     },
     filterKeyword () {
-      this.tagSearchList = []
-      const keywords = this.userTagsMap.get(this.selectLabel)
-      if (!keywords) {
-        return
-      }
-      this.tagSearchList = Array.from(keywords)
-      if (this.inputTag) {
-        this.tagSearchList = this.tagSearchList.filter(item => item.toLowerCase().indexOf(this.inputTag.toLowerCase()) > -1)
+      if (this.currentActiveTagCategoryName) {
+        this.tagSearchList = []
+        const userTagItem = this.userTagList.find(item => item.name === this.currentActiveTagCategoryName)
+        this.$logger.info('userTagItem', userTagItem)
+        if (!userTagItem || (userTagItem.keywords && userTagItem.keywords.length === 0)) {
+          return
+        }
+        this.tagSearchList = Array.from(userTagItem.keywords)
+        this.tagSearchList = this.tagSearchList.filter(item => this.inputTag && this.inputTag.trim() && item.toLowerCase().indexOf(this.inputTag.toLowerCase()) > -1)
+        this.$logger.info('tagSearchList', this.tagSearchList)
       }
     },
+
+    handleEnsureCreateTag () {
+      this.$logger.info('handleEnsureCreateTag', this.inputTag)
+      this.createTagName = this.inputTag
+      this.inputTag = ''
+      this.createTagInputVisible = false
+      this.handleCreateTagByInput()
+    },
+
     handleCreateTagByInput () {
-      this.$logger.info('skill handleCreateTagByInput ' + this.createTagName)
-      const userTypeTags = this.userTagsMap.get(this.selectLabel)
-      if (userTypeTags.indexOf(this.createTagName) > -1) {
-        this.$message.warn('already exist same name tag')
+      this.$logger.info('handleCreateTagByInput ' + this.createTagName)
+      let existTag = false
+      const userTagItem = this.userTagList.find(item => item.name === this.currentActiveTagCategoryName)
+      if (userTagItem && userTagItem.keywords) {
+        const tagKeyword = userTagItem.keywords.find(item => item.toLowerCase() === this.createTagName.toLowerCase())
+        if (tagKeyword) {
+          existTag = true
+        }
+      }
+      if (existTag) {
+        this.$message.warn('Already exist same name tag')
+      } else if (!this.createTagName || !this.createTagName.trim()) {
       } else {
-        var item = {
+        const item = {
           name: this.createTagName,
-          parentName: this.selectLabel
+          parentName: this.currentActiveTagCategoryName
         }
         this.tagLoading = true
         AddUserTagNew(item).then((response) => {
           this.$logger.info('add AddUserTagNew ', response.result)
           if (response.success) {
-            item.id = response.result.id
-            this.createTagName = ''
-            this.inputTag = ''
-            this.handleUserTagsMap()
+            this.handleUpdateUserTags()
             this.$message.success('Add tag successfully')
+            this.inputTag = ''
+            this.createTagName = ''
             this.$emit('change-add-keywords', item)
           } else {
             this.$message.error(response.message)
           }
+        }).finally(() => {
           this.tagLoading = false
         })
       }
     },
 
-    handleKeyup () {
-      this.$logger.info('tag handleKeyup ', this.inputTag)
-      this.debouncedSearchKnowledge(this.inputTag)
-      this.createTagName = this.inputTag
-      this.handleCreateTagByInput()
-    },
-
-    searchTag (keyword) {
-      logger.info('tag searchTag', keyword)
-      // this.debouncedSearchKnowledge(this.inputTag)
+    handleFilterSearchTag () {
+      this.$logger.info('tag handleFilterSearchTag', this.inputTag)
       this.createTagName = this.inputTag
       this.filterKeyword()
     },
 
-    handleEnsureDelete () {
-      this.tagDeleteLoading = true
-      UserTagDeleteNew({ parentName: this.deleteTabName, name: this.deleteTagName }).then((response) => {
+    handleDeleteTag(keyword) {
+      this.$confirm({
+        title: 'Delete tag ' + keyword + '',
+        content: h => <div class='my-delete-tips'>
+          Are you sure you want to delete this tag ?
+          This is permanent and can not be undone .
+        </div>,
+        bodyStyle: { padding: '10px' },
+        okText: 'Confirm',
+        centered: true,
+        onOk: () => {
+          this.handleEnsureDeleteTag(keyword)
+        }
+      })
+    },
+
+    handleEnsureDeleteTag (keyword) {
+      this.$logger.info('handleEnsureDeleteTag ' + this.currentActiveTagCategoryName + ' ' + keyword)
+      this.tagLoading = true
+      // UserTagDeleteNew 传了parentName就删大类,传了name 就删下面的小类
+      UserTagDeleteNew({ parentName: this.currentActiveTagCategoryName, name: keyword }).then((response) => {
         this.$logger.info('add UserTagDeleteNew ', response.result)
         if (response.success) {
-          this.editTabIndex = -1
-          if (!this.deleteTagName) {
-            this.selectLabel = ''
-          }
-          this.handleUserTagsMap()
+          this.handleUpdateUserTags()
           this.$message.success('Delete successfully')
         } else {
           this.$message.error(response.message)
         }
-        this.tagDeleteLoading = false
-        this.confirmVisible = false
+      }).finally(() => {
+        this.tagLoading = false
       })
     },
-    deleteTab (tab) {
-        this.deleteTabName = tab
-        this.deleteTagName = ''
-        this.confirmVisible = true
-    },
 
-    handleEditTabName (tag, index) {
-      this.$logger.info('handleEditTabName', tag, index)
-      this.isEditTagName = true
-      this.currentEditTag = tag[0]
-      this.editTabIndex = index
-      this.editTabName = tag[0]
-      this.allowClickEnsureInput = true
-    },
-
-    // 如果正在编辑中，那么点击其他空白地方，自动保存当前编辑内容。和键盘按下Enter效果一样
-    handleEnsureInput (event) {
-      this.$logger.info('handleEnsureInput ' + this.editTabName)
-      this.$logger.info('classList ', event.target.classList, this.editTabIndex, this.allowClickEnsureInput)
-      console.log(event)
-      if (!event.target.classList.contains('my-tag-input') && this.editTabIndex !== -1 && this.allowClickEnsureInput) {
-       this.handleTabInputConfirm(this.editTabName)
-      }
-    },
-    handleTabInputConfirm (tag, enter) {
-      this.allowClickEnsureInput = false
-      if (!tag || !tag.trim()) {
-        this.$message.warn('Please input tag type name')
-        return
-      }
-      this.$logger.info('tag', this.currentEditTag, this.editTabName)
-      if (this.isEditTagName) {
-        if (this.currentEditTag === this.editTabName) {
-          this.editTabIndex = -1
-          this.currentEditTag = ''
-          this.selectLabel = tag
-          return
+    handleDeleteTagCategory(category) {
+      this.$confirm({
+        title: 'Delete tag type ' + category,
+        content: h => <div class='my-delete-tips'>
+          Are you sure you want to delete this tag type ?
+          After deleting, all tags under this type will be deleted as well.
+        </div>,
+        bodyStyle: { padding: '10px' },
+        okText: 'Confirm',
+        centered: true,
+        onOk: () => {
+          this.handleEnsureDeleteTagCategory(category)
         }
-        this.tagLoading = true
-        UpdateUserParentTag({ name: this.currentEditTag, newName: this.editTabName }).then((response) => {
-          this.$logger.info('add UpdateUserParentTag ', response.result)
-          if (response.success) {
-            this.editTabIndex = -1
-            this.currentEditTag = ''
-            this.selectLabel = tag
-            // this.userTagsMap = new Map()
-            this.handleUserTagsMap()
-            if (!enter) this.$message.success('Update tag type successfully')
-          } else {
-            this.$message.error(response.message)
-          }
-          this.tagLoading = false
-        })
+      })
+    },
+
+    handleEnsureDeleteTagCategory (category) {
+      this.$logger.info('handleEnsureDeleteTagCategory ' + category)
+      this.tagLoading = true
+      // UserTagDeleteNew 传了parentName就删大类,传了name 就删下面的小类
+      UserTagDeleteNew({ parentName: category }).then((response) => {
+        this.$logger.info('add UserTagDeleteNew ', response.result)
+        if (response.success) {
+          this.handleUpdateUserTags()
+          this.$message.success('Delete successfully')
+        } else {
+          this.$message.error(response.message)
+        }
+      }).finally(() => {
+        this.tagLoading = false
+      })
+    },
+
+    handleShowSearchInput() {
+      this.createTagInputVisible = true
+      this.$nextTick(() => {
+        this.$refs['search-input'].focus()
+      })
+    },
+
+    scrollLeft () {
+      this.$logger.info('scrollLeft')
+      const tagCategoryTabDom = document.getElementById('user-tag-category-tabs')
+      tagCategoryTabDom.scrollTo({
+        left: tagCategoryTabDom.scrollLeft - 400,
+        behavior: 'smooth'
+      })
+    },
+    scrollRight () {
+      this.$logger.info('scrollRight')
+      const tagCategoryTabDom = document.getElementById('user-tag-category-tabs')
+      tagCategoryTabDom.scrollTo({
+        left: tagCategoryTabDom.scrollLeft + 400,
+        behavior: 'smooth'
+      })
+    },
+
+    trySaveTagCategory () {
+      this.$logger.info('trySaveTagCategory')
+      const userTagItem = this.userTagList.find(item => item.editing && item.name)
+      if (userTagItem) {
+        this.$logger.info('trySaveTagCategory userTagItem', userTagItem)
+        if (userTagItem.newTag) {
+          this.handleCreateTagCategory(userTagItem)
+        } else {
+          this.handleUpdateTagCategory(userTagItem)
+        }
       } else {
-        this.tagLoading = true
-        AddUserParentTag({ parentName: tag }).then((response) => {
-          this.$logger.info('add AddUserParentTag ', response.result)
-          if (response.success) {
-            this.editTabIndex = -1
-            this.currentEditTag = ''
-            this.selectLabel = tag
-            // this.userTagsMap = new Map()
-            this.handleUserTagsMap()
-            if (!enter) { this.$message.success('Add tag type successfully') }
-          } else {
-            this.$message.error(response.message)
-          }
-          this.tagLoading = false
-        })
+        this.$logger.info('no editing tag category')
       }
     }
   }
@@ -425,259 +430,312 @@ export default {
 </script>
 
 <style lang="less" scoped>
-
 @import "~@/components/index.less";
-.custom-tag {
-  //border: 1px solid #e8e8e8;
-  box-sizing: border-box;
-  margin-top: 20px;
-
-  .tag-category {
-    min-height: 480px;
-    border-radius: 6px;
-    .ant-radio-button-wrapper{
-      margin-bottom: 10px;
-    }
-  }
-
-  .skt-tag-wrapper {
-    margin-top: 10px;
-    height: 400px;
-    .skt-tag-list {
-      top:10px;
-      max-height: 380px;
-      overflow-y: auto;
-      padding: 20px 10px 5px 10px;
-      background: rgba(255, 255, 255, 1);
-      border: 1px solid #D8D8D8;
-      display: flex;
-      flex-direction: row;
-      flex-wrap: wrap;
-      box-shadow: 0px 6px 10px rgba(91, 91, 91, 0.16);
+.tag-setting {
+  .tag-content-wrapper {
+    .tag-tab {
       position: relative;
 
-      .tag-wrapper {
-        width: 100%;
-        margin-bottom: 10px;
+      .icon-left {
+        position: absolute;
+        left: -20px;
+        height: 34px;
         display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        padding: 10px;
-        background: rgba(21, 195, 154, 0.1);
-        .create-tag {
-          margin-right: 5px;
-          .created-tag-item {
-            cursor: pointer;
-            margin: 0 3px;
-            padding: 3px 6px;
-            border-radius: 18px;
-            font-family: Inter-Bold;
-            background-color: rgba(21, 195, 154, 0.1);
-            color: rgba(21, 195, 154, 1);
-            border: 1px solid rgba(21, 195, 154, 1);
-          }
-        }
-        .tag-item {
-          background-color: rgba(21, 195, 154, 1);
-          color: #fff;
-          padding: 3px 6px;
-          cursor: pointer;
-
-          .tag-icon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            img {
-              padding-right: 3px;
-              height: 12px;
-            }
-            img.search-icon {
-              height: 10px;
-            }
-          }
-        }
-      }
-
-      .create-tag-wrapper {
-        //background-color: rgba(250, 250, 250, 1);
-        padding: 0 10px;
-        width: 100%;
-      }
-
-      .skt-tag-item {
-        margin: 5px 10px 5px 0;
-        display: flex;
-        justify-content: center;
         align-items: center;
-        vertical-align: middle;
+        justify-content: center;
+        top: 0;
         cursor: pointer;
-        .tag-item {
-          cursor: pointer;
-          border-radius: 28px;
-          padding-left: 10px;
-          padding-right: 10px;
-          word-break:normal;
-          width:auto;
-          display:block;
-          white-space:pre-wrap;
-          word-wrap : break-word ;
-          overflow: hidden ;
-          padding-bottom: 3px;
+      }
+
+      .icon-right {
+        position: absolute;
+        right: 5px;
+        height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        top: 0;
+        cursor: pointer;
+      }
+
+      .icon-add {
+        position: absolute;
+        right: -20px;
+        height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        top: 0;
+        cursor: pointer;
+      }
+
+      .icon-nav {
+        color: #666;
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+
+      &:hover {
+        .icon-nav {
+          opacity: 0.8;
         }
       }
 
-      .skt-tag-create-line {
-        cursor: pointer;
-        width: 100%;
+      .user-tag-category-tabs {
+        width: calc(100% - 20px);
         display: flex;
         flex-direction: row;
         align-items: center;
         justify-content: flex-start;
-        padding: 5px 0;
+        border-bottom: 1px solid #eee;
+        margin-bottom: 10px;
+        overflow-x: overlay;
+
+        &::-webkit-scrollbar-thumb{
+          background: transparent;
+          opacity: 0;
+        }
+
         &:hover {
-          background: rgba(0, 0, 0, 5%)
+          &::-webkit-scrollbar-thumb{
+            background: rgba(0, 0, 0, 0.1);
+          }
         }
 
-        .create-tag-label {
+        .user-tag-item {
           cursor: pointer;
-          font-size: 14px;
-          padding-right: 5px;
-          padding-left: 5px;
-          color: #000;
-        }
-
-        .create-tag {
-          cursor:pointer;
+          padding: 0 5px;
+          font-family: Arial;
+          font-weight: 400;
+          line-height: 30px;
           display: flex;
           flex-direction: row;
           align-items: center;
+          justify-content: flex-start;
+          color: #070707;
+          border-bottom: 3px solid #fff;
+
+          &:hover {
+            background: rgba(21, 195, 154, 0.2);;
+          }
+
+          .action-icon {
+            margin-left: 8px;
+
+            .tag-title-item {
+              line-height: 30px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              flex-direction: row;
+
+              .tag-title {
+                display: block;
+                white-space: nowrap;
+                user-select: none;
+                margin-right: 8px;
+              }
+
+              .tag-delete-icon {
+                opacity: 0;
+              }
+
+              &:hover {
+                .tag-delete-icon {
+                  opacity: 1;
+                }
+              }
+            }
+          }
+        }
+
+        .active-tab {
+          border-bottom: 3px solid #15c39a;
+
+          .tag-title {
+            color: #07AB84;
+          }
         }
       }
     }
-  }
 
-  .tag-search-input {
-    margin-top: 20px;
-    .browse{
-      padding: 10px 5px;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: flex-start;
-      border-radius: 6px;
-    }
-    .btn-icon {
-      height: 18px;
-      width: 18px;
-    }
-    .btn-text {
-      padding: 0 5px;
-    }
-    /deep/ .ant-input-search .ant-input-lg{
-      padding-left: 35px;
+    .no-tag-tips {
+      min-height: 190px;
+      .create-tag {
+        padding: 20px 0;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+      }
     }
   }
-  .spin-loading{
-    top: 300px;
-    margin-left: 40%;
-    position: absolute;
-    z-index: 9999;
-  }
-
-  position: relative;
-  //border: 1px dotted #fff;
-  //&:hover {
-  //  border: 1px dotted @link-hover-color;
-  //  box-sizing: border-box;
-  //}
 }
 
-.category-tag {
-  cursor: pointer;
-  padding: 3px 10px;
-  border-radius: 18px;
-  font-family: Inter-Bold;
-  background-color: #FFBB00;
-  color: #fff;
-  margin: 0 10px 10px 0;
-  border: 1px solid rgba(255, 187, 0, 1);
-  &.active{
-    background-color: #15c39a;
-    border: 1px solid #15c39a;
-  }
-}
-/deep/ .ant-tabs-nav .ant-tabs-tab {
-  margin: 0 10px 0 0;
-  padding: 12px 10px;
-
-}
-/deep/ .tag-category .anticon-close {
-  font-size: 14px;
-  color: red;
-  vertical-align: top;
-}
-.tab-content{
-  margin: 0 5%;
-  width: 90%;
-}
-.modal-ensure-action-line-center{
-  display: flex;
-  justify-content: space-between;
-  width: 40%;
-  margin: 20px auto;
-}
-
-.confirm-tag-wrapper{
-    width: 100%;
+.skt-tag-wrapper {
+  .skt-tag-list {
+    margin-top: 15px;
+    max-height: 380px;
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 1);
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    margin-top: 10px;
-    .tag-item {
-      background-color: rgba(21, 195, 154, 1);
-      color: #fff;
-      padding: 3px 6px;
-      cursor: pointer;
+    position: relative;
 
-      .tag-icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        img {
-          padding-right: 3px;
-          height: 12px;
-        }
-        img.search-icon {
-          height: 10px;
+    .tag-wrapper {
+      width: 100%;
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      .create-tag {
+        margin-right: 5px;
+        .created-tag-item {
+          cursor: pointer;
+          margin: 0 3px;
+          padding: 3px 6px;
+          border-radius: 18px;
+          font-family: Inter-Bold;
+          background-color: rgba(21, 195, 154, 0.1);
+          color: rgba(21, 195, 154, 1);
+          border: 1px solid rgba(21, 195, 154, 1);
         }
       }
+      .tag-item {
+        background-color: rgba(21, 195, 154, 0.1);
+        color: #15c39a;
+        padding: 3px 6px;
+        cursor: pointer;
+
+        .tag-icon {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          img {
+            padding-right: 3px;
+            height: 12px;
+          }
+          img.search-icon {
+            height: 10px;
+          }
+        }
+      }
+
+      .active-tag-item {
+        background-color: rgba(21, 195, 154, 1);
+        color: #fff;
+      }
     }
+
+    .create-tag-wrapper {
+      width: 100%;
+    }
+
     .skt-tag-item {
-      margin: 5px 10px 5px 0;
+      margin-top: 10px;
       display: flex;
       justify-content: center;
       align-items: center;
       vertical-align: middle;
       cursor: pointer;
+      flex-direction: row;
       .tag-item {
         cursor: pointer;
         border-radius: 28px;
         padding-left: 10px;
-        padding-right: 10px;
         word-break:normal;
+        border-color: #15c39a;
         width:auto;
-        display:block;
+        display:flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
         white-space:pre-wrap;
         word-wrap : break-word ;
         overflow: hidden ;
         padding-bottom: 3px;
       }
     }
+
+    .skt-tag-create-line {
+      cursor: pointer;
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 5px 0;
+      background: rgba(0, 0, 0, 5%);
+
+      .create-tag-label {
+        cursor: pointer;
+        font-size: 14px;
+        padding-right: 5px;
+        padding-left: 5px;
+        color: #15c39a;
+      }
+
+      .create-tag {
+        cursor:pointer;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+      }
+    }
+  }
 }
-/deep/ .ant-tabs-nav .ant-tabs-tab .anticon {
-  padding-left: 10px;
-  vertical-align: text-top;
-  color: red;
+
+.my-tag-category-input {
+  min-width: 150px;
+  width: 100%;
+}
+
+.user-tag-list-wrapper {
+  min-height: 200px;
+}
+
+.create-tag-item-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.no-tag-list {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.no-tips {
+  cursor: pointer;
+  user-select: none;
+  color: #aaa;
+  padding-right: 10px;
+  line-height: 30px;
+  text-align: center;
+}
+
+.create-tag-btn {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.create-tag-item-btn {
+  margin-top: 10px;
+  display: flex;
+  height: 28px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-input {
+  width: 150px;
+  border-radius: 30px;
+  margin-right: 10px;
 }
 
 </style>

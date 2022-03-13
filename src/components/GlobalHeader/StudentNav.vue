@@ -3,7 +3,7 @@
     <div class="nav-left">
       <div class="nav-items menu-list">
         <a-menu mode="horizontal" theme="dark" :defaultSelectedKeys="defaultSelectedKeys" :selectedKeys="selectedKeys">
-          <a-menu-item key="/student/library-v2">
+          <a-menu-item key="/student/library-v2" v-show="studyMode === STUDY_MODE.SELF">
             <router-link to="/student/library-v2">
               <div class="nav-item">
                 <div class="nav-icon">
@@ -20,6 +20,31 @@
       </div>
     </div>
     <div class="nav-right">
+      <a-input-search
+        placeholder="Enter code"
+        class="study-code"
+        enter-button="Go"
+        v-model="code"
+        @search="enterCode"
+      />
+      <div class="study-mode">
+        <label class="self-mode" :class="{active: studyMode === STUDY_MODE.SELF}" @click="handleChange(STUDY_MODE.SELF)">Self-study</label>
+        <a-dropdown :class="{active: studyMode === STUDY_MODE.SCHOOL, 'school-mode': true}" v-show="info.schoolList && info.schoolList.length > 0">
+          <a class="ant-dropdown-link" @click="handleChange(STUDY_MODE.SCHOOL)">
+            {{ studentCurrentSchool.name }} <a-icon type="down" />
+          </a>
+          <a-menu slot="overlay" @click="handleChangeSchool">
+            <a-menu-item :key="item.id" v-for="item in info.schoolList">
+              <a href="javascript:;">{{ item.name }}</a>
+            </a-menu-item>
+          </a-menu>
+        </a-dropdown>
+        <!-- <a-select :value="school" class="school-mode" :class="{active: studyMode === STUDY_MODE.SCHOOL}" @focus="handleChange(STUDY_MODE.SCHOOL)" @change="handleChangeSchool">
+          <a-select-option value="eastWest">
+            East west study
+          </a-select-option>
+        </a-select> -->
+      </div>
     </div>
   </div>
 </template>
@@ -30,6 +55,12 @@ import LibraryIconSvg from '@/assets/icons/header/Librar_icony.svg?inline'
 import EditIconSvg from '@/assets/icons/header/bianji.svg?inline'
 import SousuoIconSvg from '@/assets/icons/header/sousuo.svg?inline'
 import ManageIconSvg from '@/assets/icons/header/Managing_icon.svg?inline'
+import { TOOGLE_STUDY_MODE, ACCESS_TOKEN } from '@/store/mutation-types'
+import { lessonHost } from '@/const/googleSlide'
+import { STUDY_MODE } from '@/const/common'
+
+import { mapState, mapMutations, mapActions } from 'vuex'
+import storage from 'store'
 
 export default {
   name: 'StudentNav',
@@ -42,25 +73,97 @@ export default {
   data () {
     return {
       defaultSelectedKeys: [],
-      selectedKeys: []
+      selectedKeys: [],
+      code: '',
+      STUDY_MODE: STUDY_MODE
     }
   },
   watch: {
     '$route.path' (to) {
       logger.debug('nav watch route path change ' + to)
       this.selectedKeys = [to]
+      // 如果是学校模式，当前路由如果是library，则跳出到mytask
+      if (this.studyMode === STUDY_MODE.SCHOOL && to === '/student/library-v2') {
+        this.$router.push({ path: '/student/main/my-task' })
+      }
     }
   },
   mounted () {
     this.defaultSelectedKeys.push(this.$route.path)
   },
+  computed: {
+    ...mapState({
+      studyMode: state => state.app.studyMode,
+      info: state => state.user.info,
+      studentCurrentSchool: state => state.user.studentCurrentSchool
+    })
+  },
+  created() {
+    this.init()
+  },
   methods: {
+    ...mapMutations([TOOGLE_STUDY_MODE, 'SET_STUDENT_CURRENT_SCHOOL']),
+    ...mapActions(['GetClassList']),
+    init() {
+      const current = this.studentCurrentSchool.id ? this.studentCurrentSchool : (this.info.schoolList && this.info.schoolList.length > 0) ? { ...this.info.schoolList[0] } : {}
+      this.SET_STUDENT_CURRENT_SCHOOL(current)
+      this.GetClassList()
+    },
+    handleChange(val) {
+      this[TOOGLE_STUDY_MODE](val)
+      // 如果是学校模式，当前路由如果是library，则跳出到mytask
+      if (val === STUDY_MODE.SCHOOL && this.$route.name === 'StudentLibraryV2') {
+        this.$router.push({ path: '/student/main/my-task' })
+      }
+    },
+    handleChangeSchool(val) {
+      this[TOOGLE_STUDY_MODE](STUDY_MODE.SCHOOL)
+      const item = this.info.schoolList.find(item => item.id === val.key)
+      this.SET_STUDENT_CURRENT_SCHOOL(item)
+    },
+    enterCode() {
+      if (!this.code) return
+      const targetUrl = lessonHost + 's/' + this.code + '?token=' + storage.get(ACCESS_TOKEN)
+      window.location.href = targetUrl
+    }
   }
 }
 </script>
 
 <style lang='less' scoped>
 @import "~@/components/index.less";
+
+.nav-right {
+  align-items: center;
+}
+
+.study-mode {
+  display: flex;
+  align-items: center;
+  .self-mode {
+    margin-right: 20px;
+    color: #fff;
+    cursor: pointer;
+    &.active {
+      color: #f59a23;
+    }
+  }
+  .school-mode {
+    &.active {
+      color: #f59a23;
+      /deep/ .anticon {
+        color: #f59a23;
+      }
+    }
+  }
+  /deep/ .ant-btn {
+    background: transparent;
+    color: #fff;
+  }
+  /deep/ .anticon {
+    color: #fff;
+  }
+}
 
 .my-nav-search {
   width: 150px;
@@ -116,5 +219,9 @@ ant-dropdown {
     display: inline-block;
     z-index: 100;
   }
+}
+.study-code {
+  width: 200px;
+  margin-right: 10px;
 }
 </style>

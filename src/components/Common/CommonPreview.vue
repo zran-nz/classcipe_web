@@ -54,22 +54,23 @@
                 </a-button>
                 <a-button
                   v-hasRole="['student']"
+                  v-if="data.type === typeMap.task"
                   :loading="copyLoading"
                   class="copy-button"
                   type="primary"
                   shape="round"
-                  @click="handleDuplicateItem"
+                  @click="handleStartTask"
                 >
                   <div class="button-content" >
-                    Buy now
+                    Start {{ data.buyed ? 'Session' : '' }}<a-icon type="play-circle" style="margin-left: 6px;"/>
                   </div>
                 </a-button>
               </div>
             </div>
           </div>
-          <div class="price-line" v-hasRole="['student']">
+          <!-- <div class="price-line" v-hasRole="['student']">
             <label for="">$ 15.00</label>
-          </div>
+          </div> -->
         </a-col>
       </a-row>
       <a-row class="author-info" v-excludeRole="['student']">
@@ -98,7 +99,7 @@
         </a-col>
       </a-row>
       <a-space class="author-info" v-hasRole="['student']" v-if="viewMode !== 'Reviews'">
-        <div class="avatar-icon" :class="{'avatar-small': viewMode === 'Detail'}">
+        <div class="avatar-icon">
           <img :src="collaborate.owner && collaborate.owner.avatar" />
         </div>
         <div>
@@ -112,12 +113,13 @@
               </template>
             </div>
           </div>
-          <div class="star-info" v-if="viewMode === 'Preview'">
+          <div class="star-info" @click="() => this.viewMode = 'Reviews'">
             <a-tooltip placement="right">
               <template slot="title">
-                10 people gave a score of 5 stars
+                {{ reviewsStats.reviewsScoreStatDetail && reviewsStats.reviewsScoreStatDetail[4] && reviewsStats.reviewsScoreStatDetail[4].reviewsScoreCount }}
+                people gave a score of 5 stars
               </template>
-              <a-rate :default-value="5" allow-half disabled/>
+              <a-rate :value="reviewsStats.avgReviewsScore" allow-half disabled/>
             </a-tooltip>
           </div>
         </div>
@@ -170,10 +172,10 @@
               </div>
               <div class="overview-block" v-hasRole="['student']">
                 <div class="custom-tags">
-                  <div class="tag-item" v-for="(tag,tagIndex) in data.customTags" :key="'interActiveIndex' + tagIndex">
-                    <a-tooltip :title="tag.parentName">
-                      <a-tag class="tag">
-                        {{ tag.name }}
+                  <div class="tag-item" v-for="(tag,tagIndex) in inActiveTypes" :key="'interActiveIndex' + tagIndex">
+                    <a-tooltip :title="tag">
+                      <a-tag class="tag" :color="tagColorList[tagIndex]">
+                        {{ tag }}
                       </a-tag>
                     </a-tooltip>
                   </div>
@@ -185,7 +187,7 @@
               <div class="overview-block">
                 <div class="learn-question-tag">
                   <div class="learn-out" style="margin: 10px;">
-                    <ui-learn-out-sub :learn-outs="data.learnOuts" />
+                    <ui-learn-out-sub :learn-outs="data.learnOuts" :class-info-list="itemsList" />
                   </div>
                 </div>
               </div>
@@ -418,66 +420,18 @@
       </a-row>
       <a-row class="reviews-info" v-if="viewMode === 'Reviews'">
         <a-col class="slide-reviews" span="24">
-          <rate-by-percent />
-          <div class="reviews-wrapper">
-            <div class="reviews-title">
-              <h2>Reviews</h2>
-            </div>
-            <div class="reviews-search">
-              <div class="my-search">
-                <a-input-search
-                  placeholder="Search"
-                  v-model="searchText"
-                  @search="triggerSearch"
-                  @pressEnter="triggerSearch"
-                  :allowClear="true"
-                  size="large"
-                >
-                </a-input-search>
-              </div>
-              <a-select :getPopupContainer="trigger => trigger.parentElement" size="large" default-value="1" @change="triggerChangeRate">
-                <a-select-option value="1">
-                  All ratings
-                </a-select-option>
-                <a-select-option value="5">
-                  5 rating
-                </a-select-option>
-              </a-select>
-            </div>
-            <a-skeleton :loading="reviewsLoading" active >
-              <div class="reviews-content">
-                <div class="reviews-content-detail" v-for="(item, index) in [0, 1]" :key="'review_'+index">
-                  <div class="content-detail__avatar">
-                    <img :src="collaborate.owner && collaborate.owner.avatar"/>
-                  </div>
-                  <div class="content-detail__rate">
-                    <a-rate :default-value="5" allow-half disabled/>
-                  </div>
-                  <div>
-                    <div class="content-detail__title">
-                      <div class="title-info">
-                        <div class="info-author">
-                          Author name
-                        </div>
-                        <div class="info-time">
-                          6 days ago
-                        </div>
-                      </div>
-                    </div>
-                    <div class="content-detail__review">
-                      <label>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet.
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </a-skeleton>
-          </div>
+          <rate-by-percent :rates="reviewsStats"/>
+          <reviews-preview :id="id"/>
         </a-col>
       </a-row>
-      <div class="associate-info" v-if="viewMode === 'Detail'" v-excludeRole="['student']">>
-        <common-link :can-edit="false" ref="commonLink" :from-id="id" :from-type="type"/>
+      <div class="associate-info" v-if="viewMode === 'Detail'" v-excludeRole="['student']">
+        <common-link
+          :show-drag-tips='false'
+          :isLibrary="isLibrary"
+          :can-edit="false"
+          ref="commonLink"
+          :from-id="id"
+          :from-type="type"/>
       </div>
     </template>
 
@@ -521,13 +475,21 @@ import MediaPreview from '@/components/Task/MediaPreview'
 import TaskMaterialPreview from '@/components/Task/TaskMaterialPreview'
 import UiLearnOutSub from '@/components/UnitPlan/UiLearnOutSub'
 import RateByPercent from '@/components/RateByPercent'
+import ReviewsPreview from '@/components/Common/ReviewsPreview'
 import { BaseEventMixin } from '@/mixins/BaseEvent'
 import { Duplicate } from '@/api/teacher'
+import { DICT_PROMPT_TYPE } from '@/const/common'
+import { GetDictItems } from '@/api/common'
+import { lessonHost } from '@/const/googleSlide'
+import { ACCESS_TOKEN } from '@/store/mutation-types'
+import storage from 'store'
 const { formatLocalUTC } = require('@/utils/util')
 const { UnitPlanQueryById } = require('@/api/unitPlan')
 const { TaskQueryById } = require('@/api/task')
 const { EvaluationQueryById } = require('@/api/evaluation')
 const { FavoritesAdd } = require('@/api/favorites')
+const { ReviewsTaskStats } = require('@/api/reviewsTask')
+const { SelfStudyTaskBye, SelfStudyTaskStart } = require('@/api/selfStudy')
 
 export default {
   name: 'CommonPreview',
@@ -539,7 +501,8 @@ export default {
     CommonLink,
     MediaPreview,
     TaskMaterialPreview,
-    RateByPercent
+    RateByPercent,
+    ReviewsPreview
   },
   props: {
     id: {
@@ -566,6 +529,13 @@ export default {
         }
       }
       return ''
+    },
+    inActiveTypes () {
+      let activeTypes = []
+      if (this.itemsList) {
+        activeTypes = this.itemsList.map(item => item.type)
+      }
+      return Array.from(new Set(activeTypes))
     }
   },
   mounted () {
@@ -576,7 +546,6 @@ export default {
       loading: true,
       slideLoading: false,
       copyLoading: false,
-      reviewsLoading: false,
       data: null,
       imgList: [],
       viewMode: 'Detail',
@@ -595,7 +564,11 @@ export default {
 
       subPreviewVisible: false,
       currentImgIndex: 0,
-      searchText: ''
+      initPrompts: [],
+      reviewsStats: {
+        avgReviewsScore: 0,
+        reviewsScoreStat: []
+      }
     }
   },
   created () {
@@ -649,6 +622,13 @@ export default {
           this.queryContentCollaborates(this.id, this.type)
         })
       }
+      GetDictItems(DICT_PROMPT_TYPE).then(response => {
+        if (response.success) {
+          logger.info('DICT_PROMPT_TYPE', response.result)
+          this.initPrompts = response.result
+        }
+      })
+      this.loadReviewStats()
     },
 
     loadThumbnail () {
@@ -696,6 +676,16 @@ export default {
       }
     },
 
+    loadReviewStats () {
+      ReviewsTaskStats({
+        taskId: this.id
+      }).then(res => {
+        if (res.success) {
+          this.reviewsStats = res.result
+        }
+      })
+    },
+
     handleSelectContentType (contentType) {
       logger.info('handleSelectContentType ' + contentType)
       this.activeContentType = contentType
@@ -718,6 +708,7 @@ export default {
         logger.info('FavoritesAdd ', response)
         item.isFavorite = !item.isFavorite
         this.data.isFavorite = item.isFavorite
+        this.$emit('favoritiesAdd', { ...this.data })
       })
     },
     handleGotoImgIndex (index) {
@@ -751,7 +742,7 @@ export default {
     handleDuplicateItem () {
       this.$logger.info('handleDuplicateItem', this.data)
       this.$confirm({
-        title: 'Confirm copy',
+        title: 'Confirm to copy',
         content: 'Are you sure to copy ' + this.data.name + ' ?',
         centered: true,
         onOk: () => {
@@ -767,14 +758,50 @@ export default {
       })
     },
 
+    handleStartTask () {
+      this.$confirm({
+        title: 'Confirm to start',
+        content: 'Are you sure to start ' + this.data.name + ' ?',
+        centered: true,
+        onOk: () => {
+          this.copyLoading = true
+          if (this.data.buyed) {
+            this.handleStartSession(this.data.id)
+          } else {
+            SelfStudyTaskBye({ taskId: this.data.id }).then((response) => {
+              if (response.success) {
+                // this.$logger.info('SelfStudyTaskBye response', response)
+                // this.$message.success('Start successfully')
+                // this.$router.push({ path: '/student/main/my-task' })
+                this.handleStartSession(this.data.id)
+              }
+            }).finally(() => {
+              this.copyLoading = false
+            })
+          }
+        }
+      })
+    },
+
     handleOpenLink (url) {
       window.open(url, '_blank')
     },
-    triggerSearch() {
-
-    },
-    triggerChangeRate(value) {
-
+    handleStartSession(taskId) {
+      this.copyLoading = true
+      SelfStudyTaskStart({ taskId: taskId }).then(res => {
+        this.$logger.info('StartOpenSession res', res)
+        if (res.success) {
+          this.copyLoading = false
+          const targetUrl = lessonHost + 's/' + res.result.classId + '?token=' + storage.get(ACCESS_TOKEN)
+          this.$logger.info('try open ' + targetUrl)
+          // window.open(targetUrl, '_blank')
+          window.location.href = targetUrl
+        } else {
+          this.$message.warn('StartLesson Failed! ' + res.message)
+        }
+      }).finally(() => {
+        this.copyLoading = false
+      })
     }
   }
 }
@@ -1162,90 +1189,7 @@ export default {
     .slide-reviews {
       padding: 20px 0;
       .reviews-wrapper {
-        position: relative;
         margin-top: 20px;
-        .reviews-title {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-        .reviews-search {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          .my-search{
-            margin-right: 10px;
-            border-radius:6px;
-            flex: 1;
-            /deep/ .ant-input{
-              border-radius:6px;
-              height: 40px;
-            }
-          }
-          /deep/ .ant-select-dropdown {
-            z-index: 1001;
-          }
-        }
-        .reviews-content {
-          margin-top: 20px;
-          .reviews-content-detail {
-            position: relative;
-            padding: 15px 20px;
-            background: #F7F8FF;
-            display: flex;
-            & ~ .reviews-content-detail {
-              margin-top: 20px;
-            }
-            .content-detail__avatar {
-              margin-right: 10px;
-              img {
-                width: 30px;
-                height: 30px;
-                border-radius: 30px;
-              }
-            }
-            .content-detail__rate {
-              position: absolute;
-              top: 10px;
-              right: 20px;
-            }
-            .content-detail__title {
-              display: flex;
-              align-items: flex-start;
-              .title-info {
-                display: flex;
-                flex-direction: column;
-                .info-author{
-                  height: 19px;
-                  font-size: 14px;
-                  font-family: Segoe UI;
-                  font-weight: bold;
-                  line-height: 24px;
-                  color: #182552;
-                  opacity: 1;
-                }
-                .info-time {
-                  height: 24px;
-                  font-size: 18px;
-                  font-family: Inter-Bold;
-                  line-height: 24px;
-                  color: #929292;
-                  opacity: 1;
-                  margin-top: 5px;
-                }
-              }
-            }
-            .content-detail__review {
-              height: 48px;
-              font-size: 18px;
-              font-family: Inter-Bold;
-              line-height: 24px;
-              color: #000000;
-              opacity: 1;
-              margin-top: 10px;
-            }
-          }
-        }
       }
     }
   }

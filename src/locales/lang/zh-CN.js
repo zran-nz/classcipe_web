@@ -11,6 +11,9 @@ import result from './zh-CN/result'
 import account from './zh-CN/account'
 import role from './en-US/role'
 
+import teacher from './en-US/teacher'
+import student from './en-US/student'
+
 const components = {
   antLocale: antd,
   momentName: 'zh-cn',
@@ -32,5 +35,7 @@ export default {
   ...form,
   ...result,
   ...account,
-  ...role
+  ...role,
+  ...teacher,
+  ...student
 }

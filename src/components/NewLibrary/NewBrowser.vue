@@ -5,28 +5,6 @@
         <div class="select-curriculum" v-show="showCurriculum">
           <div class="my-curriculum-select">
             <a-select
-              :getPopupContainer="trigger => trigger.parentElement"
-              v-if="curriculumOptions.length"
-              @change="handleCurriculumChange"
-              v-model="currentCurriculumId"
-              :default-value="$store.getters.bindCurriculum"
-              class="select-curriculum">
-              <a-select-option v-for="(curriculum,index) in curriculumOptions" :value="curriculum.id" :key="index">
-                {{ curriculum.name }}
-              </a-select-option>
-              <div class="arrow-self" slot="suffixIcon">
-                <img src="~@/assets/icons/library/arrow.png" />
-              </div>
-            </a-select>
-          </div>
-        </div>
-        <new-navigation />
-      </div>
-      <div class="navigation-item" v-show="expandedListFlag" :style="{'left': (790) + 'px', 'width': (370) + 'px',}">
-        <div class="select-curriculum" v-show="showCurriculum">
-          <div class="my-curriculum-select">
-            <a-select
-              :getPopupContainer="trigger => trigger.parentElement"
               v-if="curriculumOptions.length"
               @change="handleCurriculumChange"
               v-model="currentCurriculumId"
@@ -480,6 +458,10 @@ export default {
     defaultGradeId: {
       type: String,
       default: null
+    },
+    showCurriculum: {
+      type: Boolean,
+      default: false
     }
   },
   mixins: [UtilMixin],
@@ -505,7 +487,6 @@ export default {
       mySelectedList: [],
 
       isEmptyRecommend: true,
-      showCurriculum: false,
 
       selected21CenturyItem: null,
       selectedGradeIdSet: new Set(),
@@ -1120,7 +1101,7 @@ export default {
 
   *::-webkit-scrollbar-thumb {
     border-radius: 3px;
-    background: rgba(0, 0, 0, 0.12);
+    background: rgba(0, 0, 0, 0.06);
     -webkit-box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
   }
 }

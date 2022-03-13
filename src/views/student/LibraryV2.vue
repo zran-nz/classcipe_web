@@ -6,20 +6,17 @@
 
 <script>
 import Browser from '@/components/LibraryV2/Browser'
+import { StudyModeMixin } from '@/mixins/StudyModeMixin'
 
 export default {
   name: 'LibraryV2',
+  mixins: [StudyModeMixin],
   components: {
     Browser
   },
   data () {
     return {
     }
-  },
-  computed: {
-  },
-  created () {
-
   },
   mounted () {
   },

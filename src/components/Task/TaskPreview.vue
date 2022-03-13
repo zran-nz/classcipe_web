@@ -111,7 +111,7 @@ export default {
       const dimensions = []
       this.classItemsList.forEach(e => {
         if (pageIds.indexOf(e.pageId) !== -1) {
-          const json = JSON.parse(e.data)
+          const json = typeof (e.data) === 'object' ? e.data : JSON.parse(e.data)
           if (json.data && json.data.bloomLevel) {
             if (blooms.indexOf(json.data.bloomLevel) === -1) {
               blooms.push(json.data.bloomLevel)

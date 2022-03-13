@@ -1,6 +1,7 @@
 // eslint-disable-next-line
 import { UserLayout, BasicLayout, BlankLayout } from '@/layouts'
 import { bxAnaalyse } from '@/core/icons'
+import { STUDY_MODE } from '@/const/common'
 
 const RouteView = {
   name: 'RouteView',
@@ -122,8 +123,32 @@ export const asyncRouterMap = [
                 name: 'ManageTerm',
                 component: () => import('@/views/teacher/manage/Term'),
                 meta: { title: 'menu.managing.term', keepAlive: true, permission: ['teacher'] }
+              },
+              {
+                path: '/teacher/managing/planning-format',
+                name: 'PlanningFormat',
+                component: () => import('@/views/teacher/manage/PlanningFormat/PlanningFormat'),
+                meta: { title: 'menu.managing.planning-format', keepAlive: true, permission: ['teacher'] }
+              },
+              {
+                path: '/teacher/managing/tag-settings',
+                name: 'PlanningFormat',
+                component: () => import('@/views/teacher/manage/tags/TagSettingsList'),
+                meta: { title: 'menu.managing.tags-settings', keepAlive: true, permission: ['teacher'] }
               }
             ]
+          },
+          {
+            path: '/teacher/managing/planning-format/task-preview',
+            name: 'PlanningFormatTaskPreview',
+            component: () => import('@/views/teacher/manage/PlanningFormat/TaskPreview'),
+            meta: { title: 'menu.managing.task-preview', keepAlive: true, permission: ['teacher'] }
+          },
+          {
+            path: '/teacher/managing/planning-format/unit-plan-preview',
+            name: 'PlanningFormatUnitPreview',
+            component: () => import('@/views/teacher/manage/PlanningFormat/UnitPlanPreview'),
+            meta: { title: 'menu.managing.plan-preview', keepAlive: true, permission: ['teacher'] }
           },
           {
             path: '/teacher/my-class',
@@ -157,13 +182,6 @@ export const asyncRouterMap = [
             name: 'AddEvaluation',
             props: true,
             component: () => import('@/views/teacher/AddEvaluation'),
-            meta: { title: 'menu.evaluation', keepAlive: true, permission: ['teacher'] }
-          },
-          {
-            path: '/teacher/start-evaluation/:evaluationId/:classId',
-            name: 'StartEvaluation',
-            props: true,
-            component: () => import('@/views/teacher/StartEvaluation'),
             meta: { title: 'menu.evaluation', keepAlive: true, permission: ['teacher'] }
           },
           {
@@ -215,7 +233,7 @@ export const asyncRouterMap = [
             meta: { title: 'menu.teacher.unit-plan', keepAlive: true, permission: ['teacher'] }
           },
           {
-            path: '/teacher/class-evaluation/:taskId/:classId/:mode?',
+            path: '/teacher/class-evaluation/:taskId/:classId/:sessionId/:mode?',
             name: 'ClassEvaluation',
             props: true,
             component: () => import('@/views/teacher/ClassSessionEvaluation'),
@@ -325,24 +343,58 @@ export const asyncRouterMap = [
           {
             path: '/student/main',
             name: 'Main',
+            redirect: '/student/main/my-task',
             component: () => import('@/views/student/Main'),
-            meta: { title: 'menu.main', keepAlive: true, permission: ['student'] }
+            meta: { title: 'menu.main', keepAlive: true, permission: ['student'] },
+            children: [
+              {
+                path: '/student/main/my-task',
+                name: 'MyTask',
+                component: () => import('@/views/student/MyTask'),
+                meta: { title: 'menu.my-task', keepAlive: true, permission: ['student'], svg: 'CreatedByMeSvg' }
+              },
+              {
+                path: '/student/main/my-favorite',
+                name: 'MyFavorite',
+                component: () => import('@/views/student/MyFavorite'),
+                meta: { title: 'menu.my-favorite', keepAlive: true, permission: ['student'], svg: 'MyFavoriteSvg', type: STUDY_MODE.SELF }
+              },
+              {
+                path: '/student/main/my-orders',
+                name: 'MyOrders',
+                component: () => import('@/views/student/MyOrders'),
+                meta: { title: 'menu.my-orders', keepAlive: true, permission: ['student'], icon: 'account-book', type: STUDY_MODE.SELF }
+              },
+              {
+                path: '/student/main/my-schedule',
+                name: 'MySchedule',
+                component: () => import('@/views/student/MySchedule'),
+                meta: { title: 'menu.my-schedule', keepAlive: true, permission: ['student'], icon: 'schedule', type: STUDY_MODE.SCHOOL }
+              },
+              {
+                path: '/student/main/my-classes/:classId',
+                name: 'MyClasses',
+                props: true,
+                component: () => import('@/views/student/MyClasses'),
+                meta: { title: 'menu.my-classes', keepAlive: true, permission: ['student'], icon: 'contacts', type: STUDY_MODE.SCHOOL, dynamicKey: 'currentStudentClass' }
+              }
+            ]
           },
           {
             path: '/student/library-v2/:browserType?/',
             name: 'StudentLibraryV2',
             component: () => import('@/views/student/LibraryV2'),
-            meta: { title: 'menu.library', keepAlive: true, permission: ['student'], fullLayout: true }
+            meta: { title: 'menu.library', keepAlive: true, permission: ['student'], fullLayout: true, type: STUDY_MODE.SELF }
           },
           {
-            path: '/student/evaluation/:classId',
+            path: '/student/evaluation/:sessionId',
             props: true,
             name: 'StudentEvaluation',
             component: () => import('@/views/student/StudentEvaluation'),
             meta: { title: 'Student Evaluation', keepAlive: true, permission: ['student'] }
           },
           {
-            path: '/student/peer-evaluation/:classId',
+            path: '/student/peer-evaluation/:sessionId',
             props: true,
             name: 'PeerEvaluation',
             component: () => import('@/views/student/PeerEvaluation'),

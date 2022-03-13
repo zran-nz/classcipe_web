@@ -84,7 +84,7 @@
       :style="{top: currentBrowserType === BrowserTypeMap.sdg ? '100px' : '100px',
                height: currentBrowserType === BrowserTypeMap.sdg ? 'calc(100vh - 164px)': 'calc(100vh - 164px)'}">
       <div class="curriculum-filter-line">
-        <div class="curriculum-select">
+        <div class="curriculum-select" v-excludeRole="['student']">
           <a-select
             :getPopupContainer="trigger => trigger.parentElement"
             v-show="currentBrowserType !== BrowserTypeMap.sdg && curriculumOptions.length"
@@ -99,6 +99,9 @@
               <img src="~@/assets/icons/library/arrow.png" />
             </div>
           </a-select>
+        </div>
+        <div class="curriculum-select" v-hasRole="['student']">
+          <a-input disabled value="Cambridge">Cambridge</a-input>
         </div>
       </div>
       <div class="library-detail-nav-wrapper" :style="{width: leftBrowserWidth}" @click="libraryMode = LibraryMode.browserMode">
@@ -118,6 +121,7 @@
                     'active-line': currentBrowserType === browserTypeItem.type
                   }"
                   v-for="(browserTypeItem, index) in (parseInt(currentCurriculumId) === parseInt(curriculumType.IBMYP) ? browserTypeListForIbMpy : browserTypeList)"
+                  v-show='!$store.getters.hiddenIbCurriculumId || (browserTypeItem.tagType !== TagType.idu && browserTypeItem.tagType !== TagType.skill)'
                   :key="index"
                   @click="toggleBrowserType(browserTypeItem)">
                   <dir-icon dir-type="blue" v-if="currentBrowserType !== browserTypeItem.type"/>
@@ -188,7 +192,7 @@
         </div>
         <div
           class="browser-block-item-wrapper">
-          <a-card v-if="!searching && showRecommend" :bordered="false"></a-card>
+          <a-card v-if="!searching && showRecommend" :bordered="false" title="Recommended:" ></a-card>
           <div
             class="browser-block-item-last"
             :style="{'flex-direction': dataListMode === 'list' ? 'column' : 'row'}">
@@ -418,6 +422,7 @@ export default {
         { type: 'centurySkills', label: '21st Century Skills', tagType: TagType.century },
         { type: 'sdg', label: 'Big idea', tagType: TagType.bigIdea }
       ],
+      TagType: TagType,
       currentBrowserType: null,
       BrowserTypeMap: BrowserTypeMap,
       browserTypeLabelMap: BrowserTypeLabelMap,
@@ -522,6 +527,9 @@ export default {
     }
   },
   created () {
+    if (this.$store.getters.currentRole === 'student') {
+      this.currentCurriculumId = CurriculumType.Cambridge + ''
+    }
     this.currentBrowserType = null
     this.getRecommended()
 
@@ -854,6 +862,10 @@ export default {
       // TODO 根据配置更新请求参数
       this.$logger.info('handleUpdateFilterConfig', filter)
       this.libraryMode = LibraryMode.searchMode
+      // 学生只显示task
+      if (this.$store.getters.currentRole === 'student') {
+        filter.type = [typeMap.task]
+      }
       this.searchByFilter(filter)
     },
     getfilterOptions () {

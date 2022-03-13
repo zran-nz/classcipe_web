@@ -12,6 +12,8 @@
 import { domTitle, setDocumentTitle } from '@/utils/domUtil'
 import { i18nRender } from '@/locales'
 import Feedback from '@/components/Feedback/Feedback'
+import storage from 'store'
+import { ACCESS_TOKEN } from '@/store/mutation-types'
 
 export default {
   components: { Feedback },
@@ -37,6 +39,15 @@ export default {
     created () {
       if (this.$store.getters.userInfo) {
         this.$store.dispatch('initData')
+      }
+
+      // 加载planning-format配置数据
+      if (!this.$store.getters.formConfigData.loaded) {
+        let token = this.$route.query.token
+        if (!token) {
+          token = storage.get(ACCESS_TOKEN)
+        }
+        this.$store.dispatch('loadFormConfigData', token)
       }
     }
   }
