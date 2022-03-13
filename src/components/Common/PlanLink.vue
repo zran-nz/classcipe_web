@@ -2,156 +2,145 @@
   <div class="common-link">
     <div class="link-group-wrapper">
       <template v-if="groups.length && !linkGroupLoading">
-        <draggable
-          v-model="groupNameList"
-          :disabled="!canEdit"
-          animation="300"
-          group="site"
-          style="width: 100%; min-height: 50px"
-          @end="handleDragEnd">
-          <div v-for="(group, lIndex) in groups" :key="lIndex" class="link-group">
-            <div class="group-item">
-              <div class="group-header" v-show='group.groupName'>
-                <div class="group-left-info">
-                  <!-- unit plan下才有term概念,task不显示对应的操作和term名称-->
-                  <div class="group-name">
-                    <div v-if="!group.editing" class="group-name-text">
-                      {{ group.groupName ? group.groupName : 'Untitled' }}
-                    </div>
-                    <div v-if="group.editing" class="group-name-input">
-                      <a-input
+        <div v-for="(group, lIndex) in groups" :key="lIndex" class="link-group">
+          <div class="group-item">
+            <div class="group-header" v-show='group.groupName'>
+              <div class="group-left-info">
+                <!-- unit plan下才有term概念,task不显示对应的操作和term名称-->
+                <div class="group-name">
+                  <div v-if="!group.editing" class="group-name-text">
+                    {{ group.groupName ? group.groupName : 'Untitled' }}
+                  </div>
+                  <div v-if="group.editing" class="group-name-input">
+                    <a-input
                         v-model="newGroupName"
                         class="group-name-input"
                         @pressEnter="handleToggleEditGroupName(group,lIndex)" />
-                    </div>
                   </div>
-                  <div v-if="canEdit" class="group-edit-icon" @click="handleToggleEditGroupName(group,lIndex)">
-                    <a-tooltip>
-                      <template slot="title">
-                        Rename
-                      </template>
-                      <a-icon v-if="!group.editing" :style="{ fontSize: '20px', color: '#15C39A' }" type="edit" />
-                    </a-tooltip>
-                    <a-icon v-if="group.editing" :style="{ fontSize: '20px', color: '#15C39A' }" type="check" />
-                  </div>
-
                 </div>
-                <div v-if="canEdit" class="group-right-info">
-                  <div class="group-action">
-                    <a-button
+                <div v-if="canEdit" class="group-edit-icon" @click="handleToggleEditGroupName(group,lIndex)">
+                  <a-tooltip>
+                    <template slot="title">
+                      Rename
+                    </template>
+                    <a-icon v-if="!group.editing" :style="{ fontSize: '20px', color: '#15C39A' }" type="edit" />
+                  </a-tooltip>
+                  <a-icon v-if="group.editing" :style="{ fontSize: '20px', color: '#15C39A' }" type="check" />
+                </div>
+
+              </div>
+              <div v-if="canEdit" class="group-right-info">
+                <div class="group-action">
+                  <a-button
                       :style="{'background-color': '#fff', 'color': '#000', 'border': 'none'}"
                       type="primary"
                       @click="handleLinkGroup(group)">
-                      <div class="btn-text">
-                        + Link
-                      </div>
-                    </a-button>
-                  </div>
-                  <a-popconfirm cancel-text="No" ok-text="Yes" title="Delete group?" @confirm="handleDeleteGroup(group)">
-                    <span class="delete-action">
-                      <img src="~@/assets/icons/tag/delete.png" />
-                    </span>
-                  </a-popconfirm>
+                    <div class="btn-text">
+                      + Link
+                    </div>
+                  </a-button>
                 </div>
+                <a-popconfirm cancel-text="No" ok-text="Yes" title="Delete group?" @confirm="handleDeleteGroup(group)">
+                  <span class="delete-action">
+                    <img src="~@/assets/icons/tag/delete.png" />
+                  </span>
+                </a-popconfirm>
               </div>
-              <draggable
+            </div>
+            <draggable
                 v-model="group.contents"
                 :disabled="!canEdit"
                 animation="300"
                 group="site"
                 style="width: 100%; min-height: 50px"
                 @end="handleDragEnd">
-                <div v-for="item in group.contents" :key="item.id" class="group-link-item">
-                  <div class="left-info" @click="handleViewDetail(item)">
-                    <div class="icon">
-                      <content-type-icon :type="item.type" />
-                    </div>
-                    <div class="name">
-                      <a-tooltip placement="top" v-if='showDragTips'>
-                        <template slot="title">
-                          Click and drag content to change the order
-                        </template>
-                        {{ item.name ? item.name : 'untitled' }}
-                      </a-tooltip>
-                      <template v-if='!showDragTips'>
-                        {{ item.name ? item.name : 'untitled' }}
-                      </template>
-                    </div>
+              <div v-for="item in group.contents" :key="item.id" class="group-link-item">
+                <div class="left-info">
+                  <div class="icon">
+                    <content-type-icon :type="item.type" />
                   </div>
-                  <div class="right-info">
-                    <div class="date" @click="handleViewDetail(item)">{{ item.createTime | dayjs }}</div>
-                    <div class="status" @click="handleViewDetail(item)">
-                      <template v-if="item.status === 0">Draft</template>
-                      <template v-if="item.status === 1">Published</template>
-                    </div>
-                    <div v-if="canEdit" class="more-action-wrapper action-item-wrapper">
-                      <a-dropdown>
-                        <a-icon style="margin-right: 8px" type="more" />
-                        <a-menu slot="overlay">
-                          <a-menu-item>
-                            <a-popconfirm
+                  <div class="name" @click="handleViewDetail(item)">
+                    <a-tooltip placement="top">
+                      <template slot="title">
+                        Click and drag tasks to move between categorys
+                      </template>
+                      {{ item.name ? item.name : 'untitled' }}
+                    </a-tooltip>
+                  </div>
+                </div>
+                <div class="right-info">
+                  <div class="date">{{ item.createTime | dayjs }}</div>
+                  <div class="status">
+                    <template v-if="item.status === 0">Draft</template>
+                    <template v-if="item.status === 1">Published</template>
+                  </div>
+                  <div v-if="canEdit" class="more-action-wrapper action-item-wrapper">
+                    <a-dropdown>
+                      <a-icon style="margin-right: 8px" type="more" />
+                      <a-menu slot="overlay">
+                        <a-menu-item>
+                          <a-popconfirm
                               :title="$t('teacher.my-content.action-delete') + '?'"
                               cancel-text="No"
                               ok-text="Yes"
                               @confirm="handleDeleteLinkItem(item)">
-                              <a class="delete-action" href="#">
-                                <a-icon type="delete" />
-                                {{ $t('teacher.my-content.action-delete') }}
-                              </a>
-                            </a-popconfirm>
-                          </a-menu-item>
-                          <a-menu-item>
-                            <a @click="handleEditLinkItem(item)">
-                              <a-icon type="form" />
-                              {{ $t('teacher.my-content.action-edit') }}
+                            <a class="delete-action" href="#">
+                              <a-icon type="delete" />
+                              {{ $t('teacher.my-content.action-delete') }}
                             </a>
-                          </a-menu-item>
-                        </a-menu>
-                      </a-dropdown>
-                    </div>
+                          </a-popconfirm>
+                        </a-menu-item>
+                        <a-menu-item>
+                          <a @click="handleEditLinkItem(item)">
+                            <a-icon type="form" />
+                            {{ $t('teacher.my-content.action-edit') }}
+                          </a>
+                        </a-menu-item>
+                      </a-menu>
+                    </a-dropdown>
                   </div>
                 </div>
-              </draggable>
-            </div>
-
+              </div>
+            </draggable>
           </div>
-        </draggable>
+
+        </div>
       </template>
     </div>
 
     <a-modal
-      v-model="selectLinkContentVisible"
-      :dialog-style="{ top: '0px'}"
-      :footer="null"
-      destroyOnClose
-      width="900px">
+        v-model="selectLinkContentVisible"
+        :dialog-style="{ top: '0px'}"
+        :footer="null"
+        destroyOnClose
+        width="900px">
       <div slot="title" class="my-modal-title">
         {{ linkTitle }}
       </div>
 
       <div class="link-content-wrapper">
         <new-my-content
-          :default-group-name="subDefaultGroupName"
-          :filter-type-list="subFilterTypeList"
-          :from-id="fromId"
-          :from-type="fromType"
-          :group-name-list="groupNameList"
-          :mode="'common-link'"
-          :selected-list="selectedList"
-          :show-create="showCreate"
-          :show-tabs="showTabs"
-          @cancel="selectLinkContentVisible = false"
-          @ensure="handleEnsureSelectedLink" />
+            :default-group-name="subDefaultGroupName"
+            :filter-type-list="subFilterTypeList"
+            :from-id="fromId"
+            :from-type="fromType"
+            :group-name-list="groupNameList"
+            :mode="'common-link'"
+            :selected-list="selectedList"
+            :show-create="showCreate"
+            :show-tabs="showTabs"
+            @cancel="selectLinkContentVisible = false"
+            @ensure="handleEnsureSelectedLink" />
       </div>
     </a-modal>
 
     <a-drawer
-      :closable="false"
-      :visible="previewVisible"
-      destroyOnClose
-      placement="right"
-      width="800px"
-      @close="previewVisible = false"
+        :closable="false"
+        :visible="previewVisible"
+        destroyOnClose
+        placement="right"
+        width="800px"
+        @close="previewVisible = false"
     >
       <a-row class="preview-wrapper-row">
         <a-col span="2">
@@ -200,10 +189,6 @@ export default {
       default: 0
     },
     canEdit: {
-      type: Boolean,
-      default: true
-    },
-    showDragTips: {
       type: Boolean,
       default: true
     }
@@ -540,7 +525,6 @@ export default {
             display: flex;
             flex-direction: row;
             align-items: center;
-            width: calc(100% - 280px);
 
             .icon {
               width: 40px;
@@ -564,7 +548,6 @@ export default {
           .right-info {
             z-index: 100;
             background-color: #fff;
-            width: 280px;
             position: absolute;
             right: 0;
             padding-left: 15px;
