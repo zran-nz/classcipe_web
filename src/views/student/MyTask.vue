@@ -107,7 +107,7 @@ import FilterIcon from '@/assets/libraryv2/filter.svg?inline'
 import FilterActiveIcon from '@/assets/libraryv2/filter_active.svg?inline'
 import CollaborateSvg from '@/assets/icons/collaborate/collaborate_group.svg?inline'
 
-import { SelfStudyTaskList } from '@/api/selfStudy'
+import { SelfStudyTaskList, SchoolTaskList } from '@/api/selfStudy'
 import { FindCustomTags } from '@/api/tag'
 import { SubjectTree } from '@/api/subject'
 import { GetGradesByCurriculumId } from '@/api/preference'
@@ -172,7 +172,7 @@ export default {
         if (this.filterParams) {
           params = Object.assign(this.filterParams, params)
         }
-        return SelfStudyTaskList(params)
+        return STUDY_MODE.SELF === this.studyMode ? SelfStudyTaskList(params) : SchoolTaskList(params)
       }
     }
   },

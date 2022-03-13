@@ -185,7 +185,7 @@
         </a-radio-group>
         <label>Class: {{ currentClass.name }}</label>
       </div>
-      <chat-list v-show="currentActivity === 'messages'" :classId="classId"/>
+      <chat-list ref='chatList' v-show="currentActivity === 'messages'" :classId="classId"/>
       <to-do-list
         v-show="currentActivity === 'todos'"
         :list="classStudentTodos.listByClassId"
@@ -498,6 +498,9 @@ export default {
     },
     toggleType (val) {
       this.currentType = val
+      if (val === 'activities') {
+        this.$refs.chatList.goBottom()
+      }
     },
     toggleViewMode (viewMode) {
       storage.set(SESSION_VIEW_MODE, viewMode)
