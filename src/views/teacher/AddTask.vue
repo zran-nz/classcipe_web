@@ -5781,8 +5781,8 @@ export default {
   flex-direction: row;
   align-items: center;
   justify-content: flex-end;
-  margin-bottom: 20px;
-  margin-top: 20px;
+  padding-bottom: 10px;
+  padding-top: 10px;
 
   .slide-switch {
     margin-left: 10px;
@@ -5817,7 +5817,7 @@ export default {
   color: rgba(0, 0, 0, 0.65);
   background: #fff;
   height: 70px;
-  margin-top: -15px;
+  margin-top: 5px;
   padding: 0 25px;
 
   .icon-group {
