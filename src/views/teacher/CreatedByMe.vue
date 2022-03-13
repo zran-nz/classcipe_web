@@ -398,7 +398,13 @@
         :dialog-style="{ top: '50px' }"
         width="950px">
         <div>
-          <old-session-list :task-id='oldSelectSessionTaskId' :session-list="sessionList" @start-new-session="handleStartSession" @cancel="oldSelectSessionVisible=false" @show-preview-session-list='viewPreviewSessionVisible = true' :mode="sessionMode" />
+          <old-session-list
+            :task-id='oldSelectSessionTaskId'
+            :session-list="sessionList"
+            @start-new-session="handleStartSession"
+            @cancel="oldSelectSessionVisible=false"
+            @show-preview-session-list='viewPreviewSessionVisible = true'
+            :mode="sessionMode" />
         </div>
       </a-modal>
 
