@@ -177,7 +177,7 @@
                             </a-form-model-item>
                           </div>
 
-                          <div class='form-block form-question tag-content-block' :data-field-name='taskField.Question' v-if='associateQuestionList.length > 0 && fieldItem.visible && fieldItem.fieldName === taskField.TaskType' :key='fieldItem.fieldName'>
+                          <div class='form-block form-question tag-content-block' :data-field-name='taskField.Question' v-if='associateQuestionList.length > 0 && fieldItem.visible && fieldItem.fieldName === taskField.Question' :key='fieldItem.fieldName'>
                             <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Question />
                             <comment-switch
                               v-show="canEdit"

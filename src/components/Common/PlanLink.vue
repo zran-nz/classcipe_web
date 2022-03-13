@@ -67,12 +67,15 @@
                       <content-type-icon :type="item.type" />
                     </div>
                     <div class="name" @click="handleViewDetail(item)">
-                      <a-tooltip placement="top">
+                      <a-tooltip placement="top" v-if='showDragTips'>
                         <template slot="title">
-                          Click and drag tasks to move between categorys
+                          Click and drag content to change the order
                         </template>
                         {{ item.name ? item.name : 'untitled' }}
                       </a-tooltip>
+                      <template v-if='!showDragTips'>
+                        {{ item.name ? item.name : 'untitled' }}
+                      </template>
                     </div>
                   </div>
                   <div class="right-info">
@@ -197,6 +200,10 @@ export default {
       default: 0
     },
     canEdit: {
+      type: Boolean,
+      default: true
+    },
+    showDragTips: {
       type: Boolean,
       default: true
     }

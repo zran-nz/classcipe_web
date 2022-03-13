@@ -150,7 +150,7 @@
                             </a-form-model-item>
                           </div>
 
-                          <div class='form-block form-question' v-if='associateQuestionList.length > 0 && fieldItem.visible && fieldItem.fieldName === taskField.TaskType' :key='fieldItem.fieldName'>
+                          <div class='form-block form-question' v-if='associateQuestionList.length > 0 && fieldItem.visible && fieldItem.fieldName === taskField.Question' :key='fieldItem.fieldName'>
                             <a-form-model-item>
                               <template class='my-label' slot='label'>
                                 {{ 'Choose Key questions' | taskLabelName(taskField.Overview, $store.getters.formConfigPreviewData) }}
