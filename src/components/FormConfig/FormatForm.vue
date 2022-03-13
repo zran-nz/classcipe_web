@@ -94,7 +94,7 @@
                 </div>
               </div>
               <div class='visible-toggle'>
-                <div class='field-visible'>Show on</div>
+                <div class='field-visible'>Enable</div>
                 <a-switch size="small" v-model='fieldItem.visible' />
               </div>
             </div>
@@ -172,7 +172,7 @@
                 <a-icon type="setting" :style="{ color: '#15C39A', fontSize: '12px' }" class='green'/>
               </div>
               <div class='visible-toggle'>
-                <div class='field-visible'>Show on</div>
+                <div class='field-visible'>Enable</div>
                 <a-switch size="small" v-model='fieldItem.visible' />
               </div>
             </div>

@@ -414,7 +414,7 @@
         :dialog-style="{ top: '50px' }"
         width="750px">
         <div>
-          <old-session-list :session-list="sessionList" @start-new-session="handleStartSession" @cancel="oldSelectSessionVisible=false" :mode="sessionMode" />
+          <old-session-list :task-id='oldSelectSessionTaskId' :session-list="sessionList" @start-new-session="handleStartSession" @cancel="oldSelectSessionVisible=false" :mode="sessionMode" />
         </div>
       </a-modal>
 
@@ -562,6 +562,7 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
         // 之前报错了，提示没这个字段，加一下。
         customTagList: [],
         oldSelectSessionVisible: false,
+        oldSelectSessionTaskId: null,
         sessionList: [],
         sessionMode: 1,
         searchText: '',
@@ -924,6 +925,7 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
         }).finally(() => {
           if (this.sessionList.length > 0) {
             this.oldSelectSessionVisible = true
+            this.oldSelectSessionTaskId = item.id
           } else {
             this.handleStartSession()
           }

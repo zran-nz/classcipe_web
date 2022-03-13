@@ -1,7 +1,6 @@
 let eventGuid = 0
 const todayStr = new Date().toISOString().replace(/T.*$/, '') // YYYY-MM-DD of today
-const BG_COLORS = ['#cff7e2', '#fff1cf', '#d3d9f0', '#ef4136', '#54C7B0', '#F47920', '#194283', '#59C754']
-const FONT_COLORS = ['#4b7903', '#d9011b', '#f49a23', '#aaaaaa']
+const BG_COLORS = ['#f03132', '#0072bb', '#91191a', '#4d91f9', '#002056', '#f68e54', '#329933', '#3333cc']
 
 export const INITIAL_EVENTS = [
   {
@@ -10,7 +9,10 @@ export const INITIAL_EVENTS = [
     start: todayStr + 'T09:00:00',
     end: todayStr + 'T12:00:00',
     backgroundColor: BG_COLORS[0],
-    textColor: FONT_COLORS[0]
+    extendedProps: {
+      classId: 1,
+      status: 0
+    }
   },
   {
     id: createEventId(),
@@ -18,7 +20,21 @@ export const INITIAL_EVENTS = [
     start: todayStr + 'T13:00:00',
     end: todayStr + 'T14:00:00',
     backgroundColor: BG_COLORS[1],
-    textColor: FONT_COLORS[1]
+    extendedProps: {
+      classId: 2,
+      status: 1
+    }
+  },
+  {
+    id: createEventId(),
+    title: 'History of England',
+    start: '2022-03-12T07:00:00',
+    end: '2022-03-12T09:30:00',
+    backgroundColor: BG_COLORS[2],
+    extendedProps: {
+      classId: 3,
+      status: 1
+    }
   },
   {
     id: createEventId(),
@@ -26,15 +42,32 @@ export const INITIAL_EVENTS = [
     start: '2022-03-12T10:00:00',
     end: '2022-03-12T13:30:00',
     backgroundColor: BG_COLORS[2],
-    textColor: FONT_COLORS[2]
+    extendedProps: {
+      classId: 3,
+      status: 1
+    }
   },
   {
     id: createEventId(),
     title: 'History of England',
     start: '2022-03-12T13:00:00',
-    end: '2022-03-12T17:30:00',
+    end: '2022-03-12T14:30:00',
     backgroundColor: BG_COLORS[3],
-    textColor: FONT_COLORS[3]
+    extendedProps: {
+      classId: 4,
+      status: 0
+    }
+  },
+  {
+    id: createEventId(),
+    title: 'History of England',
+    start: '2022-03-12T14:30:00',
+    end: '2022-03-12T17:30:00',
+    backgroundColor: BG_COLORS[0],
+    extendedProps: {
+      classId: 1,
+      status: 0
+    }
   }
 ]
 

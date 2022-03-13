@@ -187,3 +187,17 @@ export const TASK_STATUS = {
   COMPLETED: 1,
   ARCHIVED: 2
 }
+
+export const BG_COLORS = ['#f03132', '#0072bb', '#91191a', '#4d91f9', '#002056', '#f68e54', '#329933', '#3333cc']
+
+export const ABSENT_COLORS = ['#faad3c', '#1aaf5c', '#849bbb']
+
+export const TODO_STATUS = {
+  TODO: 1,
+  DONE: 2
+}
+
+export const TASK_ATTENDANCE = {
+  PRESENT: 'present',
+  ABSENT: 'absent'
+}

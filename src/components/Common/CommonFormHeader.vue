@@ -107,7 +107,7 @@
             class='btn-text'
             :data-isOwner="isOwner + ''"
             :data-isEditCollaborater="isEditCollaborater + ''">
-            Save & Exit
+            Save
           </div>
           <!--          <div class="btn-text" v-else>-->
           <!--            Copy & Exit-->
@@ -125,7 +125,7 @@
             class='btn-text'
             :data-isOwner="isOwner + ''"
             :data-form-status="form.status + ''">
-            Save & Publish
+            Publish
           </div>
         </a-button>
         <a-button

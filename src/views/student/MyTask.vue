@@ -107,19 +107,20 @@ import FilterIcon from '@/assets/libraryv2/filter.svg?inline'
 import FilterActiveIcon from '@/assets/libraryv2/filter_active.svg?inline'
 import CollaborateSvg from '@/assets/icons/collaborate/collaborate_group.svg?inline'
 
-import { SelfStudyTaskList } from '@/api/selfStudy'
+import { SelfStudyTaskList, SchoolTaskList } from '@/api/selfStudy'
 import { FindCustomTags } from '@/api/tag'
 import { SubjectTree } from '@/api/subject'
 import { GetGradesByCurriculumId } from '@/api/preference'
 
 import { StudyModeMixin } from '@/mixins/StudyModeMixin'
+import { StudentSchoolMixin } from '@/mixins/StudentSchoolMixin'
 
 import storage from 'store'
 import { mapState } from 'vuex'
 
 export default {
   name: 'MyTask',
-  mixins: [StudyModeMixin],
+  mixins: [StudyModeMixin, StudentSchoolMixin],
   components: {
     FilterIcon,
     FilterActiveIcon,
@@ -164,24 +165,28 @@ export default {
       loadData: (pageParams) => {
         let params = {
           status: this.currentStatus,
+          schoolId: this.studyMode === STUDY_MODE.SELF ? '' : this.studentCurrentSchool.id,
           searchKey: this.searchText ? this.searchText : '',
           ...pageParams
         }
         if (this.filterParams) {
           params = Object.assign(this.filterParams, params)
         }
-        return SelfStudyTaskList(params)
+        return STUDY_MODE.SELF === this.studyMode ? SelfStudyTaskList(params) : SchoolTaskList(params)
       }
     }
   },
   computed: {
     ...mapState({
-      studyMode: state => state.app.studyMode
+      studyMode: state => state.app.studyMode,
+      studentCurrentSchool: state => state.user.studentCurrentSchool
     }),
     statusList() {
       return StudentStudyTaskStatus.filter(item => {
         // scheduled 只有学校模式有
         if (this.studyMode === STUDY_MODE.SELF && item.value === TASK_STATUS.SCHEDULED) return false
+        // archived 只有自学模式有
+        if (this.studyMode === STUDY_MODE.SCHOOL && item.value === TASK_STATUS.ARCHIVED) return false
         return true
       })
     }
@@ -195,6 +200,13 @@ export default {
       if (studyMode === STUDY_MODE.SELF && this.currentStatus === TASK_STATUS.SCHEDULED) {
         this.currentStatus = ''
       }
+      if (studyMode === STUDY_MODE.SCHOOL && this.currentStatus === TASK_STATUS.ARCHIVED) {
+        this.currentStatus = ''
+      }
+      this.triggerSearch()
+    },
+    handleSchoolChange(school) {
+      this.triggerSearch()
     },
     initFilterOption() {
       SubjectTree({ curriculumId: CurriculumType.Cambridge }).then(response => {
@@ -269,7 +281,7 @@ export default {
       this.$refs.myTaskList.loadMyContent()
     },
     triggerSearch() {
-      this.$refs.myTaskList.loadMyContent()
+      this.$refs.myTaskList && this.$refs.myTaskList.loadMyContent()
     }
   }
 }
@@ -346,7 +358,7 @@ export default {
 
             .mode-item {
               padding: 0 8px;
-              font-size: 12px;
+              font-size: 13px;
               height: 40px;
               color: rgba(17, 20, 45, 1);
               border-radius: 40px;
@@ -379,6 +391,7 @@ export default {
       /deep/ .ant-input{
         border-radius:6px;
         height: 40px;
+        font-size: 14px;
       }
     }
 

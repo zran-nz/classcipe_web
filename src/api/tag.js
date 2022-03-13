@@ -17,7 +17,13 @@ export const tagAPIUrl = {
   TagDeleteBatch: '/classcipe/api/tag/deleteBatch',
   FindCustomTags: '/classcipe/api/tag/findCustomTags',
   GetTagYearTips: '/classcipe/api/tag/getTagYearTips',
-  QuerySourceTagByCategory: '/classcipe/api/tag/querySourceTagByParent'
+  QuerySourceTagByCategory: '/classcipe/api/tag/querySourceTagByParent',
+  SchoolRootCustomList: '/classcipe/api/tag/rootSchoolCustomList',
+  SchoolAddOrUpdateTag: '/classcipe/api/tag/addOrUpdate',
+  SchoolTagSet: '/classcipe/api/tag/schoolTagSet',
+  SchoolSelectLibrary: '/classcipe/api/tag/schoolSelectLibrary',
+  SchoolTagDelete: '/classcipe/api/tag/schoolTagDelete',
+  SchoolCommonTagList: '/classcipe/api/tag/schoolCommonTagList'
 }
 
 export function QuerySourceTagByCategory (parameter) {
@@ -178,5 +184,68 @@ export function FindCustomTags (parameter) {
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
+  })
+}
+
+export function SchoolRootCustomList (parameter) {
+  return request({
+    url: tagAPIUrl.SchoolRootCustomList,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+export function SchoolSelectLibrary (parameter) {
+  return request({
+    url: tagAPIUrl.SchoolSelectLibrary,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+export function SchoolAddOrUpdateTag (parameter) {
+  return request({
+    url: tagAPIUrl.SchoolAddOrUpdateTag,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+export function SchoolTagDelete (parameter) {
+  return request({
+    url: tagAPIUrl.SchoolTagDelete + '?id=' + parameter.id,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+export function SchoolTagSet (parameter) {
+  return request({
+    url: tagAPIUrl.SchoolTagSet,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+export function SchoolCommonTagList (parameter) {
+  return request({
+    url: tagAPIUrl.SchoolCommonTagList,
+    method: 'get',
+    params: parameter
   })
 }

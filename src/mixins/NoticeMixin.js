@@ -37,9 +37,10 @@ export const NoticeMixin = {
           this.$store.dispatch('refreshCollaborate', record.busId)
         }, 1000)
       } else if (record.busType === NotificationTypeMap.collaborateAccepted ||
-        record.busType === NotificationTypeMap.collaborateInvite ||
-        record.busType === NotificationTypeMap.collaborateRejected) {
+        record.busType === NotificationTypeMap.collaborateInvite) {
         this.gotoContent(record)
+      } else if (record.busType === NotificationTypeMap.collaborateRejected) {
+        this.$router.push({ path: '/teacher/main/shared' })
       } else if (record.openType === 'url') {
         // 链接跳转
         this.$router.push({ path: record.openPage })

@@ -4,7 +4,8 @@ export const FormConfigMixin = {
   data () {
     return {
       PlanField: PlanField,
-      taskField: TaskField
+      taskField: TaskField,
+      currentFocusFieldName: null
     }
   },
   filters: {

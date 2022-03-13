@@ -61,6 +61,7 @@ router.beforeEach((to, from, next) => {
                 logger.info('redirect ' + redirect)
                 if (to.path === redirect) {
                   // set the replace: true so the navigation will not leave a history record
+                  logger.info('redirect to next ', { ...to, replace: true })
                   next({ ...to, replace: true })
                 } else {
                   // 跳转到目的路由

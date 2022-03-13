@@ -116,7 +116,7 @@
                 </div>
               </div>
             </div>
-            <div class="no-form-tips" v-show="forms.length === 0">
+            <div class="no-form-tips" v-show="forms.length === 0 && !loading">
               <no-more-resources tips="The evaluation form has not been created!"/>
             </div>
           </div>
@@ -366,7 +366,7 @@ export default {
   methods: {
     initData () {
       this.$logger.info('initData')
-      this.loading = false
+      this.loading = true
       EvaluationQueryById({ id: this.evaluationId }).then(response => {
         this.$logger.info('init data response', response)
         // 加载班级信息数据
@@ -389,12 +389,12 @@ export default {
         })
         this.$logger.info('forms', this.forms)
       }).finally(() => {
+        this.loading = false
         if ((this.forms.length === 0) && this.mode === EvaluationTableMode.Edit) {
           this.selectRubricVisible = true
         } else {
           this.currentActiveFormId = this.forms[0].formId
         }
-        this.loading = false
         this.oldFormsJson = JSON.stringify(this.forms)
         this.initCompleted = true
       })
@@ -977,7 +977,7 @@ export default {
 
         .form-table-detail {
           margin-right: -30px;
-          overflow-x: scroll;
+          overflow-x: overlay;
         }
       }
     }

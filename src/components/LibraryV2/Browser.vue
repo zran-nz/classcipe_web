@@ -192,7 +192,7 @@
         </div>
         <div
           class="browser-block-item-wrapper">
-          <a-card v-if="!searching && showRecommend" :bordered="false"></a-card>
+          <a-card v-if="!searching && showRecommend" :bordered="false" title="Recommended:" ></a-card>
           <div
             class="browser-block-item-last"
             :style="{'flex-direction': dataListMode === 'list' ? 'column' : 'row'}">

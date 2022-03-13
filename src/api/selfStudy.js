@@ -8,7 +8,11 @@ export const selfStudyApiUrl = {
   TaskStart: `/classcipe/api/${API_PREFIX}/task/start`,
   TaskAchive: `/classcipe/api/${API_PREFIX}/archive`,
   TaskDelete: `/classcipe/api/${API_PREFIX}/delete`,
-  TaskResotre: `/classcipe/api/${API_PREFIX}/restore`
+  TaskResotre: `/classcipe/api/${API_PREFIX}/restore`,
+  StudentClasses: `/classcipe/api/${API_PREFIX}/getStudentClasses`,
+  getClassSchedule: `/classcipe/api/${API_PREFIX}/getClassSchedule`,
+  queryMySessions: `/classcipe/api/${API_PREFIX}/queryMySessions`,
+  SchoolTaskList: `/classcipe/api/${API_PREFIX}/schoolTask/list`
 }
 
 /**
@@ -96,6 +100,70 @@ export function SelfStudyTaskList (parameter) {
  export function SelfStudyDelete (parameter) {
   return request({
     url: selfStudyApiUrl.TaskDelete,
+    method: 'post',
+    data: parameter,
+    params: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+ export function StudentClasses (parameter) {
+  return request({
+    url: selfStudyApiUrl.StudentClasses,
+    method: 'get',
+    params: parameter
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+ export function getClassSchedule (parameter) {
+  return request({
+    url: selfStudyApiUrl.getClassSchedule,
+    method: 'post',
+    data: parameter,
+    params: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+ export function queryMySessions (parameter) {
+  return request({
+    url: selfStudyApiUrl.queryMySessions,
+    method: 'post',
+    data: parameter,
+    params: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+ export function SchoolTaskList (parameter) {
+  return request({
+    url: selfStudyApiUrl.SchoolTaskList,
     method: 'post',
     data: parameter,
     params: parameter,

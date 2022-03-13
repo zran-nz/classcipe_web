@@ -1,5 +1,8 @@
 <template>
   <div class="ppt-slide-view">
+    <div class='score-number-item' v-show='!loading'>
+      <score-number :score='studentScore' />
+    </div>
     <div class="go-session-detail" v-show='mode'>
       <a-space>
         <a-button shape="round" type="primary" @click="handleEnsureEvidence" :disabled='loading'>Confirm</a-button>
@@ -10,10 +13,6 @@
       <div class="student-info">
         <div class="student-name">Student :</div>
         {{ studentName }}
-      </div>
-      <div class="student-info">
-        <div class="student-score">Score :</div>
-        {{ studentScore }}/{{ totalScore }}
       </div>
     </div>
     <div class="tips" v-if="!loading">
@@ -228,7 +227,7 @@
                   <div class="add-comment-wrapper">
                     <div class="comment-input-wrapper">
                       <div class="input">
-                        <input-with-button :extra="slideItem" @send="handleAddComment" />
+                        <evidence-comment-input :extra="slideItem" @send="handleAddComment" />
                       </div>
                     </div>
                   </div>
@@ -370,14 +369,16 @@ import AudioTypeSvg from '@/assets/icons/material/audio.svg?inline'
 import YoutubeTypeSvg from '@/assets/icons/material/youtube.svg?inline'
 import PdfTypeSvg from '@/assets/icons/material/pdf.svg?inline'
 import UrlTypeSvg from '@/assets/icons/material/url.svg?inline'
-import InputWithButton from '@/components/Collaborate/InputWithButton'
 import SlidePreview from '@/components/Evaluation/SlidePreview'
+import ScoreNumber from '@/components/Common/ScoreNumber'
+import EvidenceCommentInput from '@/components/Evaluation/EvidenceCommentInput'
 
 export default {
   name: 'PptSlideView',
   components: {
+    ScoreNumber,
     SlidePreview,
-    InputWithButton,
+    EvidenceCommentInput,
     StudentIcon,
     TeacherIcon,
     MediaPreview,
@@ -408,6 +409,10 @@ export default {
       default: null
     },
     classId: {
+      type: String,
+      default: null
+    },
+    sessionId: {
       type: String,
       default: null
     },
@@ -497,10 +502,10 @@ export default {
         TemplatesGetPresentation({ presentationId: this.slideId }),
         QueryByClassInfoSlideId({ slideId: this.slideId }),
         QuerySessionEvidence({
-          classId: this.classId,
+          sessionId: this.sessionId,
           user: this.studentName
         }),
-        QueryResponseByClassId({ classId: this.classId })
+        QueryResponseByClassId({ classId: this.sessionId })
       ]).then(response => {
         this.$logger.info('加载PPT数据 response', response)
         if (response[2].result && response[2].result.result) {
@@ -538,7 +543,7 @@ export default {
 
     loadStudentData () {
       this.$logger.info('loadStudentData', this.rawSlideDataMap)
-      GetStudentResponse({ class_id: this.classId }).then(response => {
+      GetStudentResponse({ class_id: this.sessionId }).then(response => {
         this.$logger.info('GetStudentResponse response', response)
         const rawCommentDataList = response.data.presentation_comments
         rawCommentDataList.forEach((item) => {
@@ -672,7 +677,7 @@ export default {
       }
       this.$logger.info('保存evaluation数据', data)
       SaveSessionEvidence({
-        classId: this.classId,
+        sessionId: this.sessionId,
         user: this.studentName,
         result: JSON.stringify(data)
       }).then(() => {
@@ -720,6 +725,12 @@ export default {
 @import "~@/components/index.less";
 
 .ppt-slide-view {
+  position: relative;
+  .score-number-item {
+    right: 200px;
+    top: 10px;
+    position: absolute;
+  }
   .slide-header {
     display: flex;
     flex-direction: row;

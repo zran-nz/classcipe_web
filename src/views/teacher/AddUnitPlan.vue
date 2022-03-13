@@ -34,7 +34,7 @@
                       <div class='step-detail' v-show='currentActiveStepIndex === 0' >
 
                         <template v-for='fieldItem in $store.getters.formConfigData.planCommonList'>
-                          <div class='form-block' v-if='fieldItem.visible && fieldItem.fieldName === planField.Name' :key='fieldItem.fieldName'>
+                          <div class='form-block tag-content-block' :data-field-name='planField.Name' v-if='fieldItem.visible && fieldItem.fieldName === planField.Name' :key='fieldItem.fieldName'>
                             <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Name />
                             <comment-switch
                               v-show="canEdit"
@@ -53,7 +53,7 @@
                             </a-form-item>
                           </div>
 
-                          <div class='form-block form-radio-wrapper' v-if='fieldItem.visible && fieldItem.fieldName === planField.ProjectBased' :key='fieldItem.fieldName'>
+                          <div class='form-block form-radio-wrapper tag-content-block' :data-field-name='planField.ProjectBased' v-if='fieldItem.visible && fieldItem.fieldName === planField.ProjectBased' :key='fieldItem.fieldName'>
                             <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.ProjectBased style="top:-30px" />
                             <comment-switch
                               v-show="canEdit"
@@ -80,7 +80,7 @@
                             </a-form-item>
                           </div>
 
-                          <div class='form-block form-radio-wrapper' v-if='fieldItem.visible && fieldItem.fieldName === planField.UnitType' :key='fieldItem.fieldName'>
+                          <div class='form-block form-radio-wrapper tag-content-block' :data-field-name='planField.UnitType' v-if='fieldItem.visible && fieldItem.fieldName === planField.UnitType' :key='fieldItem.fieldName'>
                             <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.UnitType style="top:-30px"/>
                             <comment-switch
                               v-show="canEdit"
@@ -106,7 +106,7 @@
                             </a-form-item>
                           </div>
 
-                          <div class='form-block grade-time' v-if="fieldItem.visible && fieldItem.fieldName === planField.GradeId" :key='fieldItem.fieldName'>
+                          <div class='form-block grade-time tag-content-block' :data-field-name='planField.GradeId' v-if="fieldItem.visible && fieldItem.fieldName === planField.GradeId" :key='fieldItem.fieldName'>
                             <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.StartDate />
                             <comment-switch
                               v-show="canEdit"
@@ -153,7 +153,7 @@
                             </a-form-item>
                           </div>
 
-                          <div id='inquiry' class='form-block inquiry-form-block' v-if="fieldItem.visible && fieldItem.fieldName === planField.Inquiry" :key='fieldItem.fieldName'>
+                          <div id='inquiry' class='form-block inquiry-form-block tag-content-block' :data-field-name='planField.Inquiry' v-if="fieldItem.visible && fieldItem.fieldName === planField.Inquiry" :key='fieldItem.fieldName'>
                             <collaborate-tooltip :form-id="unitPlanId" :field-name=planField.Inquiry />
                             <comment-switch
                               v-show="canEdit"
@@ -184,7 +184,7 @@
                             </a-tooltip>
                           </div>
 
-                          <div class='form-block' v-if="fieldItem.visible && fieldItem.fieldName === planField.Scenarios" :key='fieldItem.fieldName'>
+                          <div class='form-block tag-content-block' :data-field-name='planField.Scenarios' v-if="fieldItem.visible && fieldItem.fieldName === planField.Scenarios" :key='fieldItem.fieldName'>
                             <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Sdg />
                             <comment-switch
                               v-show="canEdit"
@@ -209,7 +209,7 @@
                               v-for='(scenario, sdgIndex) in form.scenarios'
                               id='sdg'
                               :key='sdgIndex'
-                              class='sdg-content-blocks sdg-form-block'
+                              class='sdg-form-block'
                             >
                               <!--description-->
                               <div class='scenario-description'>
@@ -272,7 +272,7 @@
                               @click='handleAddMoreSdg'></a-button>
                           </div>
 
-                          <div class='form-block form-block-rwc' v-if="fieldItem.visible && fieldItem.fieldName === planField.Rwc" :key='fieldItem.fieldName'>
+                          <div class='form-block form-block-rwc tag-content-block' :data-field-name='planField.Rwc' v-if="fieldItem.visible && fieldItem.fieldName === planField.Rwc" :key='fieldItem.fieldName'>
                             <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Rwc />
                             <a-form-model-item>
                               <template class='my-label' slot='label'>
@@ -295,7 +295,8 @@
                           </div>
 
                           <div
-                            :class="{'form-block': true, 'form-block-disabled' : $store.getters.userInfo.disableQuestion}"
+                            :class="{'form-block': true, 'form-block-disabled' : $store.getters.userInfo.disableQuestion, 'tag-content-block': true}"
+                            :data-field-name='planField.Question'
                             v-if="fieldItem.visible && fieldItem.fieldName === planField.Question"
                             :key='fieldItem.fieldName'>
                             <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Question />
@@ -369,7 +370,7 @@
                               @click='handleAddMoreQuestion'></a-button>
                           </div>
 
-                          <div class='form-block' v-if="fieldItem.visible && fieldItem.fieldName === planField.LearnOuts" :key='fieldItem.fieldName'>
+                          <div class='form-block tag-content-block' :data-field-name='planField.LearnOuts' v-if="fieldItem.visible && fieldItem.fieldName === planField.LearnOuts" :key='fieldItem.fieldName'>
                             <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Assessment style="left:100px" />
                             <comment-switch
                               v-show="canEdit"
@@ -411,7 +412,7 @@
                               @remove-learn-outs='handleRemoveLearnOuts' />
                           </div>
 
-                          <div class='form-block' style='clear:both' v-if="fieldItem.visible && fieldItem.fieldName === planField.Prior" :key='fieldItem.fieldName'>
+                          <div class='form-block tag-content-block' :data-field-name='planField.Prior' style='clear:both' v-if="fieldItem.visible && fieldItem.fieldName === planField.Prior" :key='fieldItem.fieldName'>
                             <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Prior />
                             <comment-switch
                               v-show="canEdit"
@@ -437,7 +438,7 @@
                         </template>
 
                         <template v-for='custFieldItem in $store.getters.formConfigData.planCustomList'>
-                          <div class='form-block' v-if="custFieldItem.visible && form.customFieldData && form.customFieldData.hasOwnProperty(custFieldItem.id)" :key='custFieldItem.id' :data-field-name='custFieldItem.name' :data-field-id='custFieldItem.id'>
+                          <div class='form-block tag-content-block' v-if="custFieldItem.visible && form.customFieldData && form.customFieldData.hasOwnProperty(custFieldItem.id)" :key='custFieldItem.id' :data-field-name="'cust_' + custFieldItem.name" :data-field-id='custFieldItem.id'>
                             <a-form-item>
                               <template class='my-label' slot='label'>
                                 {{ custFieldItem.name }}
@@ -542,7 +543,7 @@
                     @update-comment='handleUpdateCommentList' />
                 </div>
               </template>
-              <template v-if='showRightModule(rightModule.imageUpload)'>
+              <template v-if='showRightModule(rightModule.imageUpload) && currentActiveStepIndex === 0'>
                 <div :style="{'width':rightWidth + 'px'}" class='form-block-right'>
                   <!-- image-->
                   <a-form-model-item class='img-wrapper'>
@@ -595,6 +596,7 @@
                     :selected-tags-list='form.customTags'
                     :show-arrow='showCustomTag'
                     :custom-tags='customTags'
+                    :current-field-name='currentFocusFieldName'
                     @reload-user-tags='loadCustomTags'
                     @change-add-keywords='handleChangeAddKeywords'
                     @change-user-tags='handleChangeCustomTags'></custom-tag>
@@ -794,6 +796,7 @@
             :selected-list='selectedList'
             :show-menu='showMenuList'
             :sync-data='syncData'
+            :show-curriculum='true'
             :default-grade-id='form.gradeId'
             question-index='_questionIndex_1'
             @select-assessmentType='handleSelectAssessmentType'
@@ -2403,61 +2406,48 @@ export default {
         // this.$refs.customTag.tagLoading = false
       })
     },
+    // 通过class为tag-content-block的定位到附带字段数据的dom，然后取出data-field-name字段值
     focusInput(event) {
-      this.$logger.info('focusInput ', event.target)
       // 设置一个父级定位专用的dom，设置class名称【root-locate-form】，
       // 然后通过事件获取到当前元素，依次往上层查询父元素，累加偏离值，直到定位元素。
       const eventDom = event.target
       let formTop = eventDom.offsetTop ? eventDom.offsetTop : 0
       let currentDom = eventDom.offsetParent
-      let currentFocus = ''
+      this.currentFocusFieldName = null
       this.customTagList = []
-      console.log(currentDom)
       while (currentDom !== null) {
         formTop += (currentDom ? currentDom.offsetTop : 0)
         currentDom = currentDom ? currentDom.offsetParent : undefined
         if (!currentDom) {
           break
         }
-        if (currentDom.classList.contains('sdg-content-blocks')) {
-          currentFocus = 'sdg'
-          CustomTagType.plan.sdg.forEach(name => {
-            this.customTagList.push(name)
-          })
-        } else if (currentDom && currentDom.classList.contains('form-block-rwc')) {
-          currentFocus = 'rwc'
-          CustomTagType.plan.rwc.forEach(name => {
-            this.customTagList.push(name)
-          })
-        } else if (currentDom && currentDom.classList.contains('bigIdea')) {
-          currentFocus = 'inquiry'
-          CustomTagType.plan.bigIdea.forEach(name => {
-            this.customTagList.push(name)
-          })
-        } else if (currentDom && currentDom.classList.contains('unit-question')) {
-          currentFocus = 'question'
-          CustomTagType.plan.question.forEach(name => {
-            this.customTagList.push(name)
-          })
+        if (currentDom.classList.contains('tag-content-block') && currentDom.hasAttribute('data-field-name')) {
+          const fieldName = currentDom.getAttribute('data-field-name')
+          this.$logger.info('current block fieldName', fieldName)
+          this.currentFocusFieldName = fieldName
+          if (this.$store.getters.formConfigData?.planFieldTagMap?.[fieldName]) {
+            this.customTagList = this.$store.getters.formConfigData.planFieldTagMap[fieldName].map(item => item.tagName)
+            this.$logger.info(fieldName + ' customTagList', this.customTagList)
+          }
         }
         if (currentDom && currentDom.classList.contains('root-locate-form')) {
-          console.log(currentDom.classList)
           break
         }
       }
-      console.log(currentFocus)
       // custom tag 自带了margin-top: 20px,这里减掉不然不对齐。
-      if (currentFocus) {
+      if (this.currentFocusFieldName) {
+        this.$logger.info('show currentFocusFieldName tag ', this.currentFocusFieldName)
         this.customTagTop = formTop - 20
         this.showCustomTag = true
         this.setRightModuleVisible(this.rightModule.customTag)
       } else {
+        this.$logger.info('show global tag')
         CustomTagType.plan.default.forEach(name => {
           this.customTagList.push(name)
         })
         // // 再拼接自己添加的
         this.customTags.userTags.forEach(tag => {
-          if (this.customTagList.indexOf(tag.name === -1)) {
+          if (this.customTagList.indexOf(tag.name) === -1) {
             this.customTagList.push(tag.name)
           }
         })

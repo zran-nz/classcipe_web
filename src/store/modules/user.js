@@ -1,6 +1,8 @@
 import storage from 'store'
 import { login, getInfo, logout, changeRole, signUp } from '@/api/login'
-import { ACCESS_TOKEN, CURRENT_ROLE, IS_ADD_PREFERENCE, USER_INFO, ADD_PREFERENCE_SKIP_TIME } from '@/store/mutation-types'
+// import { SchoolClassClassList } from '@/api/schoolClass'
+import { StudentClasses } from '@/api/selfStudy'
+import { ACCESS_TOKEN, CURRENT_ROLE, IS_ADD_PREFERENCE, USER_INFO, ADD_PREFERENCE_SKIP_TIME, SET_STUDENT_CLASS_LIST, SET_STUDENT_CURRENT_SCHOOL } from '@/store/mutation-types'
 import { welcome, setCookie, delCookie } from '@/utils/util'
 import * as logger from '@/utils/logger'
 import { SESSION_ACTIVE_KEY } from '@/const/common'
@@ -24,7 +26,9 @@ const user = {
     skillCategory: [],
     disableQuestion: false,
     school: '',
-    schoolRole: ''
+    schoolRole: '',
+    studentClassList: [],
+    studentCurrentSchool: {}
   },
 
   mutations: {
@@ -70,6 +74,13 @@ const user = {
     },
     SET_DISABLED_QUESTION: (state, disableQuestion) => {
       state.disableQuestion = disableQuestion
+    },
+    SET_STUDENT_CLASS_LIST: (state, studentClassList) => {
+      state.studentClassList = studentClassList
+    },
+    SET_STUDENT_CURRENT_SCHOOL: (state, studentCurrentSchool) => {
+      state.studentCurrentSchool = studentCurrentSchool
+      storage.set(SET_STUDENT_CURRENT_SCHOOL, studentCurrentSchool)
     }
   },
 
@@ -218,6 +229,8 @@ const user = {
           storage.remove(IS_ADD_PREFERENCE)
           storage.remove(USER_INFO)
           storage.remove(ADD_PREFERENCE_SKIP_TIME)
+          storage.remove(SET_STUDENT_CLASS_LIST)
+          storage.remove(SET_STUDENT_CURRENT_SCHOOL)
           window.sessionStorage.removeItem(SESSION_ACTIVE_KEY)
           delCookie(ACCESS_TOKEN)
           resolve()
@@ -248,6 +261,50 @@ const user = {
         window.sessionStorage.removeItem(SESSION_ACTIVE_KEY)
         delCookie(ACCESS_TOKEN)
         resolve()
+      })
+    },
+
+    // get school class list for student
+    // GetSchoolClassList({ commit }, schoolId) {
+    //   return new Promise((resolve, reject) => {
+    //     SchoolClassClassList({
+    //       schoolId: schoolId,
+    //       pageNo: 1,
+    //       pageSize: 100
+    //     }).then((response) => {
+    //       if (response.success) {
+    //         const result = response.result
+    //         commit('SET_STUDENT_CLASS_LIST', result.records)
+    //         storage.set(SET_STUDENT_CLASS_LIST, result.records)
+
+    //         resolve(result)
+    //       } else {
+    //         reject(response.message)
+    //       }
+    //     }).catch(() => {
+    //       resolve()
+    //     }).finally(() => {
+    //     })
+    //   })
+    // },
+
+    // get student all class list
+    GetClassList({ commit, state }) {
+      return new Promise((resolve, reject) => {
+        StudentClasses().then((response) => {
+          if (response.success) {
+            const result = response.result
+            commit('SET_STUDENT_CLASS_LIST', result)
+            storage.set(SET_STUDENT_CLASS_LIST, result)
+
+            resolve(result)
+          } else {
+            reject(response.message)
+          }
+        }).catch(() => {
+          resolve()
+        }).finally(() => {
+        })
       })
     }
   }

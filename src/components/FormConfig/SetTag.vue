@@ -1,5 +1,8 @@
 <template>
   <a-card :loading='loading' :body-style="{'padding': '10px 0', 'border': 'none' }" :bordered="false">
+    <div class='tag-tips' v-if='mustTagNameList.length'>
+      <a-alert :message="mustTagNameList.join(',') + ` are compulsory, please make sure you set them visible in enabled sections.`" type="warning" show-icon />
+    </div>
     <div class='set-tag'>
       <div class='tag-list-table'>
         <div class='tag-header'>
@@ -38,7 +41,7 @@
               </div>
             </a-col>
             <a-col span='6'>
-              <a-radio-group v-model="tag.isOptional" @change="handleOptionalChange(tag)" class='tag-body-item'>
+              <a-radio-group v-model="tag.isOptional" @change="handleOptionalChange(tag)" class='tag-body-item' v-if='!tag.schoolId'>
                 <a-radio :value="true">
                   Yes
                 </a-radio>
@@ -46,9 +49,10 @@
                   No
                 </a-radio>
               </a-radio-group>
+              <div class='school-setting' v-if='tag.schoolId'>{{ tag.isOptional ? 'Yes' : 'No' }}</div>
             </a-col>
             <a-col span='6'>
-              <a-radio-group class='tag-body-item' v-model="tag.createOwn" @change="handleCreateOwnChange(tag)">
+              <a-radio-group class='tag-body-item' v-model="tag.createOwn" @change="handleCreateOwnChange(tag)" v-if='!tag.schoolId'>
                 <a-radio :value="true">
                   Yes
                 </a-radio>
@@ -56,6 +60,7 @@
                   No
                 </a-radio>
               </a-radio-group>
+              <div class='school-setting' v-if='tag.schoolId'>{{ tag.createOwn ? 'Yes' : 'No' }}</div>
             </a-col>
           </a-row>
         </div>
@@ -85,7 +90,8 @@ export default {
   data () {
     return {
       loading: true,
-      tagList: []
+      tagList: [],
+      mustTagNameList: []
     }
   },
   created() {
@@ -97,7 +103,11 @@ export default {
       this.loading = true
       FindCustomTags({}).then((response) => {
         if (response.success) {
+          this.mustTagNameList = []
           response.result.recommends.forEach((tag) => {
+            if (tag.schoolId) {
+              this.mustTagNameList.push(tag.name)
+            }
             const selectedTagItem = this.selectedTags.find((selectedTag) => {
               return selectedTag.tagId === tag.id
             })
@@ -147,6 +157,10 @@ export default {
 
 <style lang='less' scoped>
 @import "~@/components/index.less";
+
+.set-tag {
+  margin-top: 10px;
+}
 
 .tag-header {
   padding: 8px 0;
@@ -235,4 +249,5 @@ export default {
     padding-left: 3px;
   }
 }
+
 </style>

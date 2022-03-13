@@ -23,13 +23,15 @@
             {{ date * 1000 | dayjs1 }}
           </span>
 
+          <span slot="startTime" slot-scope="text">{{ text | dayjs1 }} </span>
+
           <span slot="className" slot-scope="className" class="flex-center">
             <div class="class-name">
               <div class="class-name-text">{{ className }}</div>
             </div>
           </span>
 
-          <span slot="className" slot-scope="text, record" class="flex-center">
+          <span slot="sessionName" slot-scope="text, record" class="flex-center">
             <div class="class-name">
               <a-input
                 ref="inputRef"
@@ -224,7 +226,7 @@
                           <group-icon />
                         </div>
                         <div class="group-name">
-                          {{ group.name }} ({{ group.members.length }})
+                          {{ group.name }}
                         </div>
                       </div>
                       <div class="group-right" @click="handleToggleGroupExpand(group, $event)">
@@ -282,10 +284,12 @@
           </div>
           <div class='ppt-slide-view'>
             <div class="slide-preview" v-if="currentActiveStudentId">
-              <ppt-slide-view
+              <takeaway-ppt-slide-view
                 ref='takeaway'
                 :class-id="takeAwayClassId"
+                :session-id='takeAwaySessionId'
                 :slide-id="takeAwaySlideId"
+                mode='takeaway'
                 :student-name="currentActiveStudentId" />
             </div>
           </div>
@@ -312,14 +316,17 @@ import TakeAwayIcon from '@/assets/icons/common/take_away.svg?inline'
 import { AddOrUpdateClass, ChangeClassStatus } from '@/api/classroom'
 import storage from 'store'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
-import PptSlideView from '@/components/Evaluation/PptSlideView'
+import TakeawayPptSlideView from '@/components/Evaluation/TakeawayPptSlideView'
 import TeacherEvaluationStatus from '@/components/Evaluation/TeacherEvaluationStatus'
 import { ClassType } from '@/const/common'
+import GroupIcon from '@/assets/svgIcon/evaluation/qunzu.svg?inline'
+import ArrowDown from '@/assets/svgIcon/evaluation/arrow_down.svg?inline'
+import ArrowTop from '@/assets/svgIcon/evaluation/arrow_top.svg?inline'
 
 export default {
   name: 'ClassTableList',
   components: {
-    PptSlideView,
+    TakeawayPptSlideView,
     NoMoreResources,
     ReviewEvaluation,
     TvSvg,
@@ -327,7 +334,10 @@ export default {
     ArchiveSessionIcon,
     EvaluateIcon,
     Bianji,
-    TakeAwayIcon
+    ArrowTop,
+    ArrowDown,
+    TakeAwayIcon,
+    GroupIcon
   },
   props: {
     slideId: {
@@ -368,16 +378,24 @@ export default {
       colorList: [ 'pink', 'red', 'orange', 'green', 'purple', 'cyan', 'blue' ],
       columns: [
         {
-          title: 'Date',
+          title: 'Starting time',
           dataIndex: 'date',
-          width: 250,
-          scopedSlots: { customRender: 'date' }
+          key: 'dateTime',
+          scopedSlots: { customRender: 'date' },
+          width: 200
+        },
+        {
+          title: 'Scheduled',
+          dataIndex: 'sessionStartTime',
+          key: 'sessionStartTime',
+          scopedSlots: { customRender: 'startTime' },
+          width: 150
         },
         {
           title: 'Class',
-          dataIndex: 'taskClassName',
+          dataIndex: 'className',
           width: 200,
-          scopedSlots: { customRender: 'taskClassName' }
+          scopedSlots: { customRender: 'className' }
         },
         {
           title: 'Status',
@@ -387,9 +405,9 @@ export default {
         },
         {
           title: 'Session name',
-          dataIndex: 'className',
-          width: 280,
-          scopedSlots: { customRender: 'className' }
+          dataIndex: 'sessionName',
+          width: 250,
+          scopedSlots: { customRender: 'sessionName' }
         },
         {
           title: '',
@@ -411,6 +429,7 @@ export default {
       currentActiveStudentId: null,
       takeAwaySlideId: null,
       takeAwayClassId: null,
+      takeAwaySessionId: null,
       classStatus: lessonStatus,
       classType: ClassType
     }
@@ -427,7 +446,7 @@ export default {
         logger.info('FindMyClasses', response.result.data)
         if (response.success) {
           if (this.pageSize) {
-            this.data = response.result.classList
+            this.data = response.result.classList.filter(item => item.date !== 0)
           }
         }
         this.total = response.result.classList.length
@@ -476,11 +495,11 @@ export default {
           if (response.success) {
             if (response.result.mode === TeacherEvaluationStatus.Editing) {
               this.$router.push({
-                path: `/teacher/class-evaluation/${this.classData.id}/${item.classId}/edit`
+                path: `/teacher/class-evaluation/${this.classData.id}/${item.taskClassId}/${item.classId}/edit`
               })
             } else {
               this.$router.push({
-                path: `/teacher/class-evaluation/${this.classData.id}/${item.classId}`
+                path: `/teacher/class-evaluation/${this.classData.id}/${item.taskClassId}/${item.classId}`
               })
             }
           } else {
@@ -517,7 +536,7 @@ export default {
         this.createNewName = ''
         return
       }
-      this.editItem.className = this.createNewName
+      this.editItem.sessionName = this.createNewName
       AddOrUpdateClass(this.editItem).then(response => {
         this.editItem = {}
         this.createNewName = ''
@@ -584,7 +603,8 @@ export default {
 
     handleTakeAway (item) {
       this.$logger.info('handleTakeAway', item)
-      this.takeAwayClassId = item.classId
+      this.takeAwayClassId = item.taskClassId
+      this.takeAwaySessionId = item.classId
       this.takeAwaySlideId = item.slideId
       this.currentActiveStudentId = null
       this.loadingStudentList = true
@@ -596,7 +616,7 @@ export default {
     handleClickMember (member) {
       this.$logger.info('handleClickMember', member)
       if (this.$refs.takeaway) {
-        this.$refs.takeaway.handleEnsureEvidence()
+        this.$refs.takeaway.handleEnsureTakeaway()
       }
       this.currentActiveStudentId = member.userId
     },
@@ -1066,5 +1086,9 @@ export default {
 .ppt-slide-view {
   padding-left: 10px;
   min-width: 900px;
+}
+
+.class-group {
+  margin-bottom: 40px;
 }
 </style>

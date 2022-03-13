@@ -150,7 +150,7 @@
                             </a-form-model-item>
                           </div>
 
-                          <div class='form-block form-question' v-if='associateQuestionList.length > 0 && fieldItem.visible && fieldItem.fieldName === taskField.TaskType' :key='fieldItem.fieldName'>
+                          <div class='form-block form-question' v-if='associateQuestionList.length > 0 && fieldItem.visible && fieldItem.fieldName === taskField.Question' :key='fieldItem.fieldName'>
                             <a-form-model-item>
                               <template class='my-label' slot='label'>
                                 {{ 'Choose Key questions' | taskLabelName(taskField.Overview, $store.getters.formConfigPreviewData) }}
@@ -2444,7 +2444,7 @@ export default {
       this.currentTaskFormData.customTags = []
       this.itemsList.forEach(e => {
         if (this.selectedPageIdList.indexOf(e.pageId) !== -1) {
-          const json = JSON.parse(e.data)
+          const json = typeof (e.data) === 'object' ? e.data : JSON.parse(e.data)
           if (json.data && json.data.bloomLevel) {
             if (this.currentTaskFormData.customTags.findIndex(tag => tag.name === json.data.bloomLevel) === -1) {
               this.currentTaskFormData.customTags.push({
@@ -2964,11 +2964,6 @@ export default {
         this.showCustomTag = true
         this.setRightModuleVisible(this.rightModule.customTag)
       } else {
-        // if(isEditBase){
-        //   CustomTagType.task.base.forEach(name => {
-        //     this.customTagList.push(name)
-        //   })
-        // }
         CustomTagType.task.default.forEach(name => {
           this.customTagList.push(name)
         })
@@ -4923,8 +4918,8 @@ export default {
   flex-direction: row;
   align-items: center;
   justify-content: flex-end;
-  margin-bottom: 20px;
-  margin-top: 20px;
+  padding-bottom: 10px;
+  padding-top: 10px;
 
   .slide-switch {
     margin-left: 10px;
@@ -4959,7 +4954,7 @@ export default {
   color: rgba(0, 0, 0, 0.65);
   background: #fff;
   height: 70px;
-  margin-top: -15px;
+  margin-top: 5px;
   padding: 0 25px;
 
   .icon-group {

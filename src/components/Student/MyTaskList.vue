@@ -22,7 +22,7 @@
                   <collaborate-svg />
                 </span> -->
 
-                <div class="my-list-progress" v-if="item.status === 0">
+                <div class="my-list-progress" v-if="item.status === TASK_STATUS.ONGOING && STUDY_MODE.SELF === studyMode">
                   <a-progress
                     :stroke-color="{
                       '0%': '#108ee9',
@@ -45,7 +45,7 @@
                 <div class="action">
                   <div slot="actions">
                     <div class="action-wrapper">
-                      <template v-if="currentStatus !== 2">
+                      <template v-if="currentStatus !== TASK_STATUS.ARCHIVED && currentStatus !== TASK_STATUS.SCHEDULED">
                         <div class="start-session-wrapper action-item-wrapper">
                           <div class="session-btn content-list-action-btn" @click="handleStartSession(item)">
                             <div class="session-btn-icon">
@@ -55,7 +55,7 @@
                           </div>
                         </div>
 
-                        <div class="more-action-wrapper action-item-wrapper" >
+                        <div class="more-action-wrapper action-item-wrapper" v-if="actionType === 'myTask' && STUDY_MODE.SELF === studyMode">
                           <a-dropdown>
                             <a-icon type="more" style="margin-right: 8px" />
                             <a-menu slot="overlay">
@@ -79,9 +79,27 @@
                             </a-menu>
                           </a-dropdown>
                         </div>
+
+                        <div class="more-action-wrapper action-item-wrapper" v-if="actionType === 'myClass'">
+                          <a-dropdown>
+                            <a-icon type="more" style="margin-right: 8px" />
+                            <a-menu slot="overlay">
+                              <a-menu-item>
+                                <a @click="handleReviewItem(item)">
+                                  <a-icon type="rollback" /> Self-review
+                                </a>
+                              </a-menu-item>
+                              <a-menu-item>
+                                <a @click="handleTakeAwayItem(item)">
+                                  <a-icon type="file" /> Takeaway
+                                </a>
+                              </a-menu-item>
+                            </a-menu>
+                          </a-dropdown>
+                        </div>
                       </template>
-                      <template v-else>
-                        <div class="start-session-wrapper action-item-wrapper">
+                      <template v-if="currentStatus === TASK_STATUS.ARCHIVED && STUDY_MODE.SELF === studyMode">
+                        <!-- <div class="start-session-wrapper action-item-wrapper">
                           <a-popconfirm :title="'Confirm permanent delete ' +((item.task && item.task.name) ? item.task.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem(item)" cancel-text="No">
                             <div class="session-btn content-list-action-btn">
                               <div class="session-btn-icon">
@@ -90,7 +108,7 @@
                               <div class="session-btn-text">Delete</div>
                             </div>
                           </a-popconfirm>
-                        </div>
+                        </div> -->
                         <div class="start-session-wrapper action-item-wrapper">
                           <a-popconfirm :title="'Confirm restore ' +((item.task && item.task.name) ? item.task.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleRestoreItem(item)" cancel-text="No">
                             <div class="session-btn content-list-action-btn" >
@@ -120,8 +138,8 @@
                 <div class="mask"></div>
 
                 <div class="mask-actions">
-                  <div class="action-item action-item-top" v-if="currentStatus !== 2">
-                    <a-dropdown>
+                  <div class="action-item action-item-top" v-if="currentStatus !== TASK_STATUS.ARCHIVED && currentStatus !== TASK_STATUS.SCHEDULED">
+                    <a-dropdown v-if="actionType === 'myTask' && STUDY_MODE.SELF === studyMode">
                       <a-icon type="more" style="margin-right: 8px" class="more-icon" />
                       <a-menu slot="overlay">
                         <a-menu-item>
@@ -138,8 +156,23 @@
                         </a-menu-item>
                       </a-menu>
                     </a-dropdown>
+                    <a-dropdown v-if="actionType === 'myClass'">
+                      <a-icon type="more" style="margin-right: 8px" class="more-icon" />
+                      <a-menu slot="overlay">
+                        <a-menu-item>
+                          <a @click="handleReviewItem(item)">
+                            <a-icon type="rollback" /> Self-review
+                          </a>
+                        </a-menu-item>
+                        <a-menu-item>
+                          <a @click="handleTakeAwayItem(item)">
+                            <a-icon type="file" /> Takeaway
+                          </a>
+                        </a-menu-item>
+                      </a-menu>
+                    </a-dropdown>
                   </div>
-                  <div class="action-item action-item-center" v-if="currentStatus !== 2">
+                  <div class="action-item action-item-center" v-if="currentStatus !== TASK_STATUS.ARCHIVED && currentStatus !== TASK_STATUS.SCHEDULED">
                     <div class="session-btn session-btn-right" @click="handleStartSession(item)">
                       <div class="session-btn-text">
                         <student-pace />
@@ -147,9 +180,17 @@
                       </div>
                     </div>
                   </div>
+                  <div class="action-item action-item-center" v-if="currentStatus === TASK_STATUS.SCHEDULED && actionType === 'myClass'">
+                    <div class="session-btn session-btn-right" @click="handleViewDetail(item)">
+                      <div class="session-btn-text">
+                        <student-pace />
+                        Preview
+                      </div>
+                    </div>
+                  </div>
                   <div class="action-item action-item-bottom" >
-                    <template v-if="currentStatus !== 2">
-                      <div class="session-btn" @click.stop="handleReportItem(item)">
+                    <template v-if="currentStatus !== TASK_STATUS.ARCHIVED && currentStatus !== TASK_STATUS.SCHEDULED">
+                      <div class="session-btn" @click.stop="handleReportItem(item)" v-show="actionType === 'myTask' && STUDY_MODE.SELF === studyMode">
                         <div class="session-btn-icon content-list-action-btn">
                           <a-icon type="bar-chart" />
                         </div>
@@ -162,7 +203,7 @@
                         <div class="session-btn-text">Preview</div>
                       </div>
                     </template>
-                    <template v-if="currentStatus === 2">
+                    <template v-if="currentStatus === TASK_STATUS.ARCHIVED">
                       <a-popconfirm :title="'Confirm restore ' +(( item.task && item.task.name) ? item.task.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleRestoreItem(item)" cancel-text="No">
                         <div class="session-btn">
                           <div class="session-btn-icon content-list-action-btn">
@@ -171,24 +212,24 @@
                           <div class="session-btn-text">Restore</div>
                         </div>
                       </a-popconfirm>
-                      <a-popconfirm :title="'Confirm permanent delete ' +(item.name ? item.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem(item)" cancel-text="No">
+                      <!-- <a-popconfirm :title="'Confirm permanent delete ' +(item.name ? item.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem(item)" cancel-text="No">
                         <div class="session-btn">
                           <div class="session-btn-icon content-list-action-btn">
                             <a-icon type="delete" theme="filled" />
                           </div>
                           <div class="session-btn-text">Delete</div>
                         </div>
-                      </a-popconfirm>
+                      </a-popconfirm> -->
                     </template>
                   </div>
                 </div>
                 <div class="cover-img" :style="{backgroundImage: 'url(' + (item.task && item.task.image) + ')'}"></div>
 
-                <a-card-meta class="my-card-meta-info" :title="(item.task && item.task.name) ? item.task.name : 'Untitled'" :description="item.updateTime | dayjs">
+                <a-card-meta class="my-card-meta-info" :title="(item.task && item.task.name) ? item.task.name : 'Untitled'" :description="(item.updateTime || item.createTime) | dayjs">
                   <content-type-icon :type="typeMap.task" slot="avatar"></content-type-icon>
                 </a-card-meta>
 
-                <div class="my-card-progress" v-if="item.status === 0">
+                <div class="my-card-progress" v-if="STUDY_MODE.SELF === studyMode" :style="{visibility: item.status === TASK_STATUS.ONGOING ? 'visiible' : 'hidden'}">
                   <a-progress
                     :stroke-color="{
                       '0%': '#108ee9',
@@ -264,6 +305,7 @@ import Bianji from '@/assets/icons/common/Bianji.svg?inline'
 import StartSessionSvg from '@/assets/icons/common/StartSession.svg?inline'
 import StudentPace from '@/assets/icons/common/StudentPace.svg?inline'
 import CollaborateSvg from '@/assets/icons/collaborate/collaborate_group.svg?inline'
+import TakeAwayIcon from '@/assets/icons/common/take_away.svg?inline'
 
 import { SelfStudyTaskStart, SelfStudyAchive, SelfStudyRestore, SelfStudyDelete } from '@/api/selfStudy'
 
@@ -279,6 +321,7 @@ export default {
     Bianji,
     StartSessionSvg,
     CollaborateSvg,
+    TakeAwayIcon,
     StudentPace,
     CommonPreview,
     NoMoreResources,
@@ -297,6 +340,10 @@ export default {
     status: {
       type: [String, Number],
       default: ''
+    },
+    actionType: {
+      type: String,
+      default: 'myTask'
     }
   },
   watch: {
@@ -315,6 +362,8 @@ export default {
       startLoading: false,
       typeMap: typeMap,
       currentStatus: this.status,
+      TASK_STATUS: TASK_STATUS,
+      STUDY_MODE: STUDY_MODE,
       myContentList: [],
       pagination: {
         onChange: page => {
@@ -364,7 +413,19 @@ export default {
       this.loadData(params).then(res => {
         logger.info('SelfStudyTaskList', res)
         if (res.success) {
-          this.myContentList = res.result.records
+          this.myContentList = res.result.records.map(item => {
+            // 学校模式和自学习模式数据结构不一样统一下
+            if (!item.task) {
+              return {
+                ...item,
+                task: {
+                  ...item
+                }
+              }
+            } else {
+              return item
+            }
+          })
           this.pagination.total = res.result.total
         } else {
           this.myContentList = []
@@ -384,7 +445,7 @@ export default {
       if (!item.task || this.currentStatus === 2) {
         return
       }
-      this.currentTaskId = item.taskId
+      this.currentTaskId = item.task.id
       this.currentTaskName = item.task.name
       this.previewType = typeMap.task
       this.previewVisible = true
@@ -403,7 +464,7 @@ export default {
       this.$logger.info('handleStartSession', item)
       if (item && item.task) {
         const requestData = {
-          taskId: item.taskId
+          taskId: item.task.id
         }
         this.$logger.info('handleStartSession', requestData)
         SelfStudyTaskStart(requestData).then(res => {
@@ -426,7 +487,7 @@ export default {
     },
     handleDeleteItem (item) {
       logger.info('handleDeleteItem', item)
-      SelfStudyAchive({ id: item.taskId }).then(res => {
+      SelfStudyAchive({ id: item.id }).then(res => {
         logger.info('SelfStudyAchive', res)
       }).then(() => {
         this.loadMyContent()
@@ -434,14 +495,14 @@ export default {
     },
     handleRestoreItem (item) {
       logger.info('handleRestoreItem', item)
-      SelfStudyRestore({ id: item.taskId }).then(response => {
+      SelfStudyRestore({ id: item.id }).then(response => {
         this.$logger.info('handleRestoreItem response', response)
       }).finally(() => {
         this.loadMyContent()
       })
     },
     handlePermanentDeleteItem (item) {
-      SelfStudyDelete({ id: item.taskId }).then(response => {
+      SelfStudyDelete({ id: item.id }).then(response => {
         this.$logger.info('handleRestoreItem response', response)
       }).finally(() => {
         this.loadMyContent()
@@ -451,11 +512,17 @@ export default {
       if (!item.task || this.currentStatus === 2) {
         return
       }
-      this.currentTaskId = item.taskId
+      this.currentTaskId = item.task.id
       this.currentTaskName = item.task.name
       this.paymentVisible = true
     },
     handleReportItem (item) {
+
+    },
+    handleReviewItem(item) {
+
+    },
+    handleTakeAwayItem(item) {
 
     },
     triggerSearch() {

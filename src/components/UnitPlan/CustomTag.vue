@@ -11,7 +11,7 @@
         <div class='tag-content-wrapper'>
           <div class='selected-tag' v-show="tagList.length">
             <div class="skt-tag-list">
-              <div class="skt-tag-item " v-for="tag in showTagList" :key="tag.name" >
+              <div class="skt-tag-item " v-for="tag in showTagList" :key="tag.name" v-if='tag.fieldName === currentFieldName' >
                 <a-tooltip :title="tag.parentName">
                   <a-tag
                     :closable="canCloseTag(tag)"
@@ -169,6 +169,10 @@ export default {
     showArrow: {
       type: Boolean,
       default: false
+    },
+    currentFieldName: {
+      type: String,
+      default: null
     }
   },
   mounted () {
@@ -280,7 +284,7 @@ export default {
   },
   watch: {
     selectedTagsList () {
-      this.$logger.info('selectedTagsList', this.selectedTagsList)
+      this.$logger.info('selectedTagsList change', this.selectedTagsList)
        this.tagList = this.selectedTagsList
     }
   },
@@ -304,10 +308,12 @@ export default {
       this.$emit('change-user-tags', this.tagList)
     },
     selectChooseTag (parent, tag, superParent) {
+      this.$logger.info('choose tag ', parent, tag, superParent)
         this.tagList.unshift({
           'parentName': superParent ? (superParent.name + '-' + parent.name) : parent.name,
           'name': tag,
-          'id': this.tagList.length
+          'fieldName': this.currentFieldName,
+          'id': 'unique_id_' + Math.random()
         })
     },
     handleTagItemDrop (item, event) {

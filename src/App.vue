@@ -42,7 +42,7 @@ export default {
       }
 
       // 加载planning-format配置数据
-      if (!this.$store.getters.formConfigData) {
+      if (!this.$store.getters.formConfigData.loaded) {
         let token = this.$route.query.token
         if (!token) {
           token = storage.get(ACCESS_TOKEN)

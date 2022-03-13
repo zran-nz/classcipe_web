@@ -9,8 +9,19 @@
     <v-tooltip :showTitle="false" dataKey="item*percent"/>
     <v-axis/>
     <v-legend dataKey="item"/>
-    <v-pie position="percent" color="item" :v-style="pieStyle" :label="labelConfig"/>
-    <v-coord type="theta"/>
+    <v-pie position="percent" :color="['item', color]" :v-style="pieStyle" :label="labelConfig"/>
+    <v-coord type="theta" :radius="radius.radius" :innerRadius="radius.innerRadius"/>
+    <template v-if="guideData && guideData.length > 0">
+      <v-guide
+        v-for="(row, index) in guideData"
+        :key="index"
+        type="text"
+        :top="true"
+        :position="row.position"
+        :content="row.content"
+        :v-style="row.style"
+      />
+    </template>
   </v-chart>
 </template>
 
@@ -47,6 +58,23 @@
             return item.point.item + ': ' + val
           }
         }]
+      },
+      radius: {
+        type: Object,
+        default: () => {
+          return {
+            radius: 1,
+            innerRadius: 0
+          }
+        }
+      },
+      guideData: {
+        type: Array,
+        default: () => []
+      },
+      color: {
+        type: Array,
+        default: () => ['#f03132', '#0072bb', '#91191a', '#4d91f9', '#002056', '#f68e54', '#329933', '#3333cc']
       }
     },
     data() {

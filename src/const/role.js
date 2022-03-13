@@ -4,7 +4,8 @@ export const teacher = 'teacher'
 
 export const SchoolUserRole = {
   teacher: 'teacher',
-  student: 'student'
+  student: 'student',
+  admin: 'admin'
 }
 export const SchoolTeacherRole = {
     admin: 'admin',

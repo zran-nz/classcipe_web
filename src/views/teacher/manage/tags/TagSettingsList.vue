@@ -7,12 +7,12 @@
           <a-col :span="8">
             <a-input-search placeholder="Search for tag name" v-model="queryParam.name" enter-button @search="loadData"/>
           </a-col>
-          <a-col :span="10">
+          <a-col :span="8">
           </a-col>
-          <a-col :span="6">
+          <a-col :span="8">
             <a-button @click="handleAdd" type="primary" icon="plus" style="margin-right: 20px;" >Add tag</a-button>
 
-            <a-button @click="handleAdd" type="primary" icon="mail" style="margin-right: 20px;" >Tag  library</a-button>
+            <a-button @click="handleLibary" type="primary" icon="mail" style="margin-right: 20px;" >Tag  library</a-button>
 
             <!--            <a-upload-->
             <!--              name="file"-->
@@ -67,28 +67,33 @@
         :pagination="ipagination"
         :loading="loading"
         :expandedRowKeys="expandedRowKeys"
+        @change="handleTableChange"
         @expand="handleExpand"
       >
 
+        <span slot="action" slot-scope="text">
+          {{ text }}
+        </span>
+
         <span slot="action" slot-scope="text, record">
-          <template v-if="!record.schoolId">
-            <div v-if="record.createOwn">
+          <template v-if="record.isCommon">
+            <div v-if="record.createOwn && record.hasChild == '1'">
               <a @click="handleAddChild(record)"><a-icon type="plus"/> Add child</a>
             </div>
-            <div v-if="record.isOptional">
-              <a @click="handleEdit(record)">  <a-icon type="edit"/>Edit</a>
-            </div>
-            <div v-else>
-              <a @click="handleRemove(record)"><a-icon type="delete"/> Remove</a>
+            <div v-if="record.isOptional && record.parentId == '0'">
+              <a @click="handleSchoolTagRemove(record)"><a-icon type="delete"/> Remove</a>
             </div>
           </template>
-          <template v-if="record.schoolId">
+          <template v-if="!record.isCommon">
             <a @click="handleEdit(record)">  <a-icon type="edit"/>Edit</a>
             <a-divider type="vertical" />
-            <a-dropdown>
+            <a-popconfirm v-if="record.parentId !== '0'" title="Confirm Delete?" @confirm="() => handleDeleteNode(record.id)" placement="topLeft">
+              <a> <a-icon type="delete"/>Delete</a>
+            </a-popconfirm>
+            <a-dropdown v-if="record.parentId == '0'">
               <a class="ant-dropdown-link">More <a-icon type="down" /></a>
               <a-menu slot="overlay">
-                <a-menu-item>
+                <a-menu-item >
                   <a @click="handleAddChild(record)"><a-icon type="plus"/> Add child</a>
                 </a-menu-item>
                 <a-menu-item>
@@ -105,22 +110,25 @@
       </a-table>
     </div>
     <Tag-Modal ref="modalForm" @ok="modalFormOk"></Tag-Modal>
+    <Tag-Library ref="libraryForm" :selectCommonTagIds="selectCommonTagIds" @ok="modalLibraryOk"></Tag-Library>
   </a-card>
 </template>
 
 <script>
 
-import { getAction, deleteAction, postAction } from '@/api/manage'
+import { deleteAction, getAction } from '@/api/manage'
 import { JeecgListMixin } from '@/mixins/JeecgListMixin'
 import TagModal from './TagModal'
 import { filterObj } from '@/utils/util'
 import { CurriculumType } from '@/const/common'
+import TagLibrary from '@/views/teacher/manage/tags/TagLibrary'
+import { SchoolCommonTagList, SchoolSelectLibrary, SchoolTagDelete } from '@/api/tag'
 
 export default {
   name: 'TagSettingsList',
   mixins: [JeecgListMixin],
   components: {
-    TagModal
+    TagModal, TagLibrary
   },
   data () {
     return {
@@ -133,7 +141,8 @@ export default {
         {
           title: 'Tag Category',
           align: 'left',
-          dataIndex: 'name'
+          dataIndex: 'name',
+          scopedSlots: { customRender: 'name' }
         },
         {
           title: 'Hint',
@@ -192,12 +201,14 @@ export default {
       superFieldList: [],
       curriculumType: CurriculumType,
       baseUrl: process.env.VUE_APP_API_BASE_URL,
-      importLoadingText: 'Import'
+      importLoadingText: 'Import',
+      selectCommonTagIds: []
     }
   },
   created () {
     this.loadData()
-},
+    this.getCommonSelectTags()
+  },
   computed: {
     // importIBSkillExcelUrl () {
     //   return this.baseUrl + `${this.url.importIBSkillExcelUrl}`
@@ -209,6 +220,10 @@ export default {
       this.$refs.modalForm.title = 'Add'
       this.$refs.modalForm.disableSubmit = false
     },
+    handleLibary: function () {
+      this.$refs.libraryForm.visible = true
+      this.$refs.libraryForm.disableSubmit = false
+    },
     loadData (arg) {
       if (arg === 1) {
         this.ipagination.current = 1
@@ -217,7 +232,8 @@ export default {
       const params = this.getQueryParams()
       params.hasQuery = 'true'
       params.isCustom = true
-      postAction(this.url.list, params).then(res => {
+      params.schoolId = this.$store.getters.userInfo.school
+      getAction(this.url.list, params).then(res => {
         if (res.success) {
           const result = res.result
           if (Number(result.total) > 0) {
@@ -347,47 +363,54 @@ export default {
       this.loadParent = true
       const obj = {}
       obj[this.pidField] = record['id']
-      obj.gradeIds = record['gradeIds']
-      obj.subjectId = record['subjectId']
       obj.curriculumId = record['curriculumId']
       this.$refs.modalForm.add(obj)
     },
 
-    handleRemove: function (record) {
-
+    handleSchoolTagRemove: function (record) {
+      this.$logger.info('SchoolTagDelete', record)
+      this.loading = true
+      SchoolTagDelete({ id: record.id }).then((res) => {
+        if (res.success) {
+          this.loadData()
+          this.getCommonSelectTags()
+        } else {
+          this.$message.warning(res.message)
+        }
+      })
     },
 
     handleDeleteNode (id) {
       var that = this
       deleteAction(that.url.delete, { id: id }).then((res) => {
         if (res.success) {
-          that.loadData(1)
+          that.loadData()
         } else {
           that.$message.warning(res.message)
         }
       })
+    },
+    modalLibraryOk (selectTagIds) {
+      this.$logger.info('modalLibraryOk', selectTagIds)
+      this.selectCommonTagIds = []
+      selectTagIds.forEach(id => {
+          if (id.indexOf('loadChild') === -1) {
+            this.selectCommonTagIds.push(id)
+          }
+      })
+      this.loading = true
+      SchoolSelectLibrary({ tagIds: this.selectCommonTagIds, schoolId: this.$store.getters.userInfo.school }).then(res => {
+        this.loadData()
+      })
+    },
+    getCommonSelectTags() {
+      SchoolCommonTagList({ schoolId: this.$store.getters.userInfo.school }).then(response => {
+        this.$logger.info('SchoolCommonTagList', response)
+        if (response.success) {
+          this.selectCommonTagIds = response.result.map(tag => { return tag.id })
+        }
+      })
     }
-    // handleMyImportExcel(info) {
-    //   if (info.file.status === 'uploading') {
-    //     this.importLoading = true
-    //     this.importLoadingText = 'Uploading...'
-    //   }
-    //   if (info.file.status === 'done') {
-    //     this.importLoading = false
-    //     this.importLoadingText = 'Import'
-    //   }
-    //   this.handleImportExcel(info)
-    // },
-    // downloadTemplate () {
-    //   const link = document.createElement('a')
-    //   link.style.display = 'none'
-    //   const url = 'https://dev.classcipe.com/classcipe/excel/class.xlsx'
-    //   link.href = url
-    //   document.body.appendChild(link)
-    //   link.click()
-    //   document.body.removeChild(link) // 下载完成移除元素
-    //   window.URL.revokeObjectURL(url) // 释放掉blob对象
-    // }
   }
 }
 </script>

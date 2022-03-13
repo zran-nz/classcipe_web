@@ -169,7 +169,7 @@
       </thead>
 
       <tbody class='table-body'>
-        <tr v-for='(item, lIndex) in list' class='body-line' :key='lIndex' :data-row-id='item.rowId'>
+        <tr v-for='(item, lIndex) in list' class='body-line' :key='lIndex' :data-row-id='item.rowId' v-show="!(item.hasOwnProperty('isSelectedIBLine') && item.isSelectedIBLine && $store.getters.hiddenIbCurriculumId)" >
           <td
             v-for='(header, hIndex) in headers'
             :class="{'body-item': true, 'big-body-item': formType === tableType.CenturySkills && header.type === headerType.Description}"
@@ -205,13 +205,29 @@
                   </template>
                 </template>
                 <template v-if='formType === tableType.Rubric'>
-                  <template v-if='!item[headerType.Criteria] || !item[headerType.Criteria].name'>
+                  <template v-if='!item[headerType.Criteria].isSelfInput && !item[headerType.Criteria].name'>
                     <div
-                      class='data-item add-criteria'
-                      @click='handleAddCriteria(header, item, $event)'
+                      @click.stop=''
+                      class='data-item add-criteria-option'
+                      :data-is-self-input='item[headerType.Criteria].isSelfInput'
                       v-show='mode === tableMode.Edit'>
-                      <add-opacity-icon />
-                      <div class='add-text'>Click to choose the objectives</div>
+                      <div class='create-option-select' @click='handleAddCriteria(header, item, $event)'>
+                        <add-opacity-icon />
+                        <div class='add-text'>Click to choose the objectives</div>
+                      </div>
+                      <div class='create-option-input' @click='handleInputIBCriteria(header, item, $event)'>
+                        <a-icon type="edit" :style="{ fontSize: '18px'}" />
+                        <div class='add-text'>Enter customized content</div>
+                      </div>
+                    </div>
+                  </template>
+                  <template v-else-if='item[headerType.Criteria].isSelfInput && mode === tableMode.Edit'>
+                    <div class='add-criteria-input' @click.stop=''>
+                      <a-textarea
+                        style='height: 100%'
+                        placeholder='Enter'
+                        class='my-text-input'
+                        v-model='item[headerType.Criteria].name' />
                     </div>
                   </template>
                   <template v-else>
@@ -357,7 +373,7 @@
               <div
                 class='sub-level-data'
                 :data='JSON.stringify(formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId])'>
-                <div class='sub-level-list'>
+                <div class='sub-level-list' :data-mode='mode'>
                   <div
                     class='sub-level-item'
                     v-for='(subLevel, sIndex) in item[headerType.AchievementLevel].subLevelDescription'
@@ -432,17 +448,27 @@
             <template v-if='header.type === headerType.LevelDescriptor'>
               <div class='sub-level-data' @click.stop=''>
                 <div class='sub-level-desc'>
-                  <div
-                    class='sub-level-desc-item'
-                    v-for='(subLevel, sIndex) in item[headerType.AchievementLevel].subLevelDescription'
-                    :key='sIndex'>
-                    <a-tooltip placement='topLeft'>
-                      <template slot='title'>
+                  <template v-if='!item[headerType.AchievementLevel].isSelfInput || mode !== tableMode.Edit'>
+                    <div
+                      class='sub-level-desc-item'
+                      v-for='(subLevel, sIndex) in item[headerType.AchievementLevel].subLevelDescription'
+                      :key='sIndex'>
+                      <a-tooltip placement='topLeft'>
+                        <template slot='title'>
+                          {{ subLevel.description }}
+                        </template>
                         {{ subLevel.description }}
-                      </template>
-                      {{ subLevel.description }}
-                    </a-tooltip>
-                  </div>
+                      </a-tooltip>
+                    </div>
+                  </template>
+                  <template v-if='item[headerType.AchievementLevel].isSelfInput && mode === tableMode.Edit'>
+                    <div
+                      class='sub-level-desc-input-item'
+                      v-for='(subLevel, sIndex) in item[headerType.AchievementLevel].subLevelDescription'
+                      :key='sIndex'>
+                      <a-input v-model='subLevel.description' class='my-desc-input'/>
+                    </div>
+                  </template>
                 </div>
               </div>
               <div class='selected-icon'>
@@ -595,8 +621,7 @@
                     <add-icon v-show='!formBodyData[item.rowId].evidenceIdList.length' />
                     <add-small-green-icon v-show='formBodyData[item.rowId].evidenceIdList.length' />
                     <div class='evidence-num'>(
-                      {{ formBodyData[item.rowId].evidenceIdList.length ? formBodyData[item.rowId].evidenceIdList.length : 0
-                      }} )
+                      {{ formBodyData[item.rowId].evidenceIdList.length ? formBodyData[item.rowId].evidenceIdList.length : 0 }} )
                     </div>
                   </div>
                 </template>
@@ -763,6 +788,14 @@ export default {
     formBodyData: {
       type: Object,
       default: () => null
+    },
+    taskLearnOuts: {
+      type: Array,
+      default: () => []
+    },
+    taskSelfOuts: {
+      type: Array,
+      default: () => []
     }
   },
   data() {
@@ -1150,6 +1183,8 @@ export default {
 
     if (this.initRawData.length) {
       this.list = this.initRawData
+    } else if (!this.$store.getters.isIBTeacher && (this.taskLearnOuts.length || this.taskSelfOuts.length)) {
+      this.handleAddNewLineWithTaskOuts()
     } else {
       this.handleAddNewLine()
     }
@@ -1289,14 +1324,24 @@ export default {
           rowId
         }
       } else if (this.formType === this.tableType.Rubric) {
+        newLineItem.isSelectedIBLine = false // 是否是ib大纲数据行
+        newLineItem.isSelfInputLine = false // 是否用户自定义输入行
+        newLineItem[this.headerType.Criteria] = {
+          rowId,
+          name: null,
+          isSelfInput: false
+        }
+
         newLineItem[this.headerType.AchievementLevel] = {
           rowId,
-          subLevelDescription: []
+          subLevelDescription: [],
+          isSelfInput: false
         }
 
         newLineItem[this.headerType.Indicators] = {
           rowId,
-          subLevelIndicators: []
+          subLevelIndicators: [],
+          isSelfInput: false
         }
 
         newLineItem[this.headerType.Evidence] = {
@@ -1317,6 +1362,49 @@ export default {
       this.list.push(newLineItem)
     },
 
+    handleAddNewLineWithTaskOuts () {
+      this.$logger.info('[' + this.mode + '] handleAddNewLineWithTaskOuts ', this.taskLearnOuts, this.taskSelfOuts)
+      const totalOuts = this.taskLearnOuts.concat(this.taskSelfOuts)
+      totalOuts.forEach(outItem => {
+        const newLineItem = {}
+        const rowId = this.generateRowId()
+        newLineItem.rowId = rowId
+        this.headers.forEach(header => {
+          newLineItem[header.type] = {
+            name: null,
+            rowId
+          }
+        })
+
+        if (this.formType === this.tableType.CenturySkills) {
+          newLineItem[this.headerType.Description] = {
+            name: outItem.name,
+            rowId,
+            parentNameList: outItem.parentNameList,
+            isDescription: true
+          }
+
+          newLineItem[this.headerType.Evidence] = {
+            num: 0,
+            selectedList: [],
+            selectedStudentList: [],
+            rowId
+          }
+          this.$logger.info('[' + this.mode + '] init new line ', newLineItem)
+          this.list.push(newLineItem)
+        } else if (this.formType === this.tableType.Rubric_2) {
+          newLineItem[this.headerType.Description].name = outItem.name
+          newLineItem[this.headerType.Evidence] = {
+            num: 0,
+            selectedList: [],
+            selectedStudentList: [],
+            rowId
+          }
+          this.$logger.info('[' + this.mode + '] init new line ', newLineItem)
+          this.list.push(newLineItem)
+        }
+      })
+    },
     handleDragEnd() {
       this.$logger.info('[' + this.mode + '] handleDragEnd', this.headers)
     },
@@ -1429,6 +1517,53 @@ export default {
         this.currentSelectHeader = header
         this.currentSelectLine = item
       }
+    },
+
+    handleInputIBCriteria (header, item, event) {
+      event.preventDefault()
+      event.stopPropagation()
+      this.$logger.info('handleInputIBCriteria ')
+      this.currentSelectHeader = header
+      this.currentSelectLine = item
+
+      this.currentSelectLine.isSelectedIBLine = false
+      this.currentSelectLine.isSelfInputLine = true
+      this.currentSelectLine[this.headerType.Criteria] = {
+        name: '',
+        rowId: this.currentSelectLine.rowId,
+        isSelfInput: true
+      }
+
+      const subLevelDescription = []
+      for (let i = 0; i < 8; i++) {
+        if (i === 0 || i % 2 === 1) {
+          subLevelDescription.push({
+            startIndex: i,
+            endIndex: i === 0 ? null : i + 1,
+            description: ''
+          })
+        }
+      }
+      this.currentSelectLine[this.headerType.AchievementLevel] = {
+        name: '',
+        rowId: this.currentSelectLine.rowId,
+        subLevelDescription,
+        isSelfInput: true
+      }
+
+      const subLevelIndicators = []
+      for (let i = 0; i < 5; i++) {
+        subLevelIndicators.push({
+          indicator: ''
+        })
+      }
+      this.currentSelectLine[this.headerType.Indicators] = {
+        rowId: this.currentSelectLine.rowId,
+        subLevelIndicators,
+        isSelfInput: true
+      }
+
+      this.$logger.info('self input currentSelectLine with criteria data ', this.currentSelectLine)
     },
 
     handleEnsureSelectCriteria() {
@@ -1577,15 +1712,19 @@ export default {
       } else if (this.formType === this.tableType.Rubric) {
         if (selectedList.length >= 1) {
           // 如果只选择了一个，使用第一个填充当前行数据
+          this.currentSelectLine.isSelectedIBLine = true
+          this.currentSelectLine.isSelfInputLine = false
           this.currentSelectLine[this.headerType.Criteria] = {
             name: selectedList[0].name,
-            rowId: this.currentSelectLine.rowId
+            rowId: this.currentSelectLine.rowId,
+            isSelfInput: false
           }
 
           this.currentSelectLine[this.headerType.AchievementLevel] = {
             name: selectedList[0].name,
             rowId: this.currentSelectLine.rowId,
-            subLevelDescription: selectedList[0].subLevelDescription
+            subLevelDescription: selectedList[0].subLevelDescription,
+            isSelfInput: false
           }
 
           const subLevelIndicators = []
@@ -1596,7 +1735,8 @@ export default {
           })
           this.currentSelectLine[this.headerType.Indicators] = {
             rowId: this.currentSelectLine.rowId,
-            subLevelIndicators
+            subLevelIndicators,
+            isSelfInput: false
           }
 
           this.$logger.info('[' + this.mode + '] update currentSelectLine with criteria data ', this.currentSelectLine)
@@ -1607,6 +1747,10 @@ export default {
               if (index > 0) {
                 const newLineItem = {}
                 const rowId = this.generateRowId()
+                newLineItem.rowId = rowId
+                newLineItem.isSelectedIBLine = true
+                newLineItem.isSelfInputLine = false
+
                 this.headers.forEach(header => {
                   newLineItem[header.type] = {
                     name: null,
@@ -1615,13 +1759,15 @@ export default {
                 })
                 newLineItem[this.headerType.Criteria] = {
                   name: descriptionItem.name,
-                  rowId
+                  rowId,
+                  isSelfInput: false
                 }
 
                 newLineItem[this.headerType.AchievementLevel] = {
                   name: descriptionItem.name,
                   rowId,
-                  subLevelDescription: descriptionItem.subLevelDescription
+                  subLevelDescription: descriptionItem.subLevelDescription,
+                  isSelfInput: false
                 }
 
                 const subLevelIndicators = []
@@ -1630,9 +1776,10 @@ export default {
                     indicator: ''
                   })
                 })
-                this.currentSelectLine[this.headerType.Indicators] = {
-                  rowId,
-                  subLevelIndicators
+                newLineItem[this.headerType.Indicators] = {
+                  rowId: this.currentSelectLine.rowId,
+                  subLevelIndicators,
+                  isSelfInput: false
                 }
 
                 newLineItem[this.headerType.Evidence] = {
@@ -1641,7 +1788,6 @@ export default {
                   selectedStudentList: [],
                   rowId
                 }
-                newLineItem.rowId = rowId
 
                 this.$logger.info('[' + this.mode + '] Rubric add new line with criteria data ', newLineItem)
                 this.list.push(newLineItem)
@@ -2185,6 +2331,40 @@ export default {
             }
           }
 
+          .add-criteria-option {
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+
+            .create-option-select, .create-option-input {
+              cursor: pointer;
+              user-select: none;
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              justify-content: flex-start;
+
+              svg {
+                width: 18px;
+                height: 18px;
+              }
+
+              .add-text {
+                padding: 8px 10px;
+                font-size: 13px;
+                font-family: Inter-Bold;
+                color: #888996;
+              }
+            }
+          }
+
+          .add-criteria-input {
+            height: 100%;
+          }
+
           .criteria-data {
             .criteria-parent {
               display: block;
@@ -2531,6 +2711,10 @@ export default {
       }
     }
   }
+
+  :last-child {
+    border-bottom: none;
+  }
 }
 
 .sub-level-desc {
@@ -2558,6 +2742,28 @@ export default {
       white-space: nowrap;
       text-overflow: ellipsis;
       vertical-align: middle;
+    }
+  }
+
+  .sub-level-desc-input-item {
+    height: 40px;
+    width: 100%;
+
+    .my-desc-input {
+      height: 100%;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+    }
+  }
+
+  .sub-level-desc-item:last-child {
+    border-bottom: none;
+  }
+
+  .sub-level-desc-input-item:last-child {
+    .my-desc-input {
+      border-bottom: none;
     }
   }
 }
@@ -2607,6 +2813,17 @@ export default {
       line-height: 20px;
       color: #989898;
       opacity: 1;
+    }
+  }
+}
+
+.sub-level-indicator {
+  .sub-level-indicator-item:last-child {
+    .my-indicator-input {
+      border-bottom: none;
+    }
+    .my-indicator-text {
+      border-bottom: none;
     }
   }
 }

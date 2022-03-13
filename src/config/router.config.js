@@ -185,13 +185,6 @@ export const asyncRouterMap = [
             meta: { title: 'menu.evaluation', keepAlive: true, permission: ['teacher'] }
           },
           {
-            path: '/teacher/start-evaluation/:evaluationId/:classId',
-            name: 'StartEvaluation',
-            props: true,
-            component: () => import('@/views/teacher/StartEvaluation'),
-            meta: { title: 'menu.evaluation', keepAlive: true, permission: ['teacher'] }
-          },
-          {
             path: '/teacher/evaluation-redirect/:evaluationId?',
             name: 'EvaluationRedirect',
             props: true,
@@ -240,7 +233,7 @@ export const asyncRouterMap = [
             meta: { title: 'menu.teacher.unit-plan', keepAlive: true, permission: ['teacher'] }
           },
           {
-            path: '/teacher/class-evaluation/:taskId/:classId/:mode?',
+            path: '/teacher/class-evaluation/:taskId/:classId/:sessionId/:mode?',
             name: 'ClassEvaluation',
             props: true,
             component: () => import('@/views/teacher/ClassSessionEvaluation'),
@@ -381,8 +374,9 @@ export const asyncRouterMap = [
               {
                 path: '/student/main/my-classes/:classId',
                 name: 'MyClasses',
+                props: true,
                 component: () => import('@/views/student/MyClasses'),
-                meta: { title: 'menu.my-classes', keepAlive: true, permission: ['student'], icon: 'contacts', type: STUDY_MODE.SCHOOL, dynamicKey: 'classes' }
+                meta: { title: 'menu.my-classes', keepAlive: true, permission: ['student'], icon: 'contacts', type: STUDY_MODE.SCHOOL, dynamicKey: 'currentStudentClass' }
               }
             ]
           },
@@ -393,14 +387,14 @@ export const asyncRouterMap = [
             meta: { title: 'menu.library', keepAlive: true, permission: ['student'], fullLayout: true, type: STUDY_MODE.SELF }
           },
           {
-            path: '/student/evaluation/:classId',
+            path: '/student/evaluation/:sessionId',
             props: true,
             name: 'StudentEvaluation',
             component: () => import('@/views/student/StudentEvaluation'),
             meta: { title: 'Student Evaluation', keepAlive: true, permission: ['student'] }
           },
           {
-            path: '/student/peer-evaluation/:classId',
+            path: '/student/peer-evaluation/:sessionId',
             props: true,
             name: 'PeerEvaluation',
             component: () => import('@/views/student/PeerEvaluation'),
