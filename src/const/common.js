@@ -196,3 +196,8 @@ export const TODO_STATUS = {
   TODO: 1,
   DONE: 2
 }
+
+export const TASK_ATTENDANCE = {
+  PRESENT: 'present',
+  ABSENT: 'absent'
+}

@@ -146,9 +146,7 @@
       this.initData()
     },
     mounted() {
-      this.$nextTick(() => {
-        this.$refs.chatList.scrollTop = this.$refs.chatList.scrollHeight
-      })
+      this.goBottom()
     },
     methods: {
       initData() {
@@ -165,7 +163,7 @@
       toogleContact(id) {
         this.currentContact = id
         this.subForm.content = this.contactSendBack.find(item => item.id === id).content
-        this.$refs.chatList.scrollTop = this.$refs.chatList.scrollHeight
+        this.goBottom()
       },
       changeContent(val) {
         // this.subForm.content = val
@@ -198,8 +196,13 @@
       initSend() {
         this.subForm.content = ''
         this.changeContent('')
+        this.goBottom()
+      },
+      goBottom() {
         this.$nextTick(() => {
-          this.$refs.chatList.scrollTop = this.$refs.chatList.scrollHeight
+          if (this.$refs.chatList) {
+            this.$refs.chatList.scrollTop = this.$refs.chatList.scrollHeight
+          }
         })
       }
     }
