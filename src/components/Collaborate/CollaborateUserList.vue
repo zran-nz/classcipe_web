@@ -25,6 +25,7 @@
 
                     <div class="tag-input tag-dom" :style="{ width: selectedUserEmailList.length === 0 ? '220px' : '220px' }">
                       <input
+                        v-if='debounceSearchUser'
                         type="text"
                         :placeholder="selectedUserEmailList.length === 0 ? 'Invite teacher by email' : ''"
                         @keyup.enter="debounceSearchUser"
@@ -381,6 +382,7 @@ export default {
       })
     },
     searchUser () {
+      this.$logger.info('searchUser ' + this.userNameOrEmail)
       this.showUser = true
       if (!this.userNameOrEmail) {
         this.userList = this.collaborateHistoryUsers
@@ -392,6 +394,7 @@ export default {
           item.nickname.toLowerCase().indexOf(this.userNameOrEmail.toLowerCase()) !== -1)
         return
       }
+      this.$logger.info('CollaboratesSearchUser ' + this.userNameOrEmail)
       CollaboratesSearchUser({ name: this.userNameOrEmail }).then(response => {
         this.$logger.info('SearchUser response', response)
         this.userList = response.result
