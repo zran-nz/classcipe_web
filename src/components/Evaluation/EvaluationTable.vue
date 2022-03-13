@@ -169,7 +169,7 @@
       </thead>
 
       <tbody class='table-body'>
-        <tr v-for='(item, lIndex) in list' class='body-line' :key='lIndex' :data-row-id='item.rowId' v-show='!item.hiddenIBLine' >
+        <tr v-for='(item, lIndex) in list' class='body-line' :key='lIndex' :data-row-id='item.rowId' v-show="!(item.hasOwnProperty('isSelectedIBLine') && item.isSelectedIBLine && $store.getters.hiddenIbCurriculumId)" >
           <td
             v-for='(header, hIndex) in headers'
             :class="{'body-item': true, 'big-body-item': formType === tableType.CenturySkills && header.type === headerType.Description}"
@@ -1324,7 +1324,7 @@ export default {
           rowId
         }
       } else if (this.formType === this.tableType.Rubric) {
-        newLineItem.hiddenIBLine = false // 是否隐藏ib大纲数据行
+        newLineItem.isSelectedIBLine = false // 是否是ib大纲数据行
         newLineItem.isSelfInputLine = false // 是否用户自定义输入行
         newLineItem[this.headerType.Criteria] = {
           rowId,
@@ -1390,33 +1390,8 @@ export default {
             selectedStudentList: [],
             rowId
           }
-        } else if (this.formType === this.tableType.Rubric) {
-          newLineItem.hiddenIBLine = false // 是否隐藏ib大纲数据行
-          newLineItem.isSelfInputLine = false // 是否用户自定义输入行
-          newLineItem[this.headerType.Criteria] = {
-            rowId,
-            name: null,
-            isSelfInput: false
-          }
-
-          newLineItem[this.headerType.AchievementLevel] = {
-            rowId,
-            subLevelDescription: [],
-            isSelfInput: false
-          }
-
-          newLineItem[this.headerType.Indicators] = {
-            rowId,
-            subLevelIndicators: [],
-            isSelfInput: false
-          }
-
-          newLineItem[this.headerType.Evidence] = {
-            num: 0,
-            selectedList: [],
-            selectedStudentList: [],
-            rowId
-          }
+          this.$logger.info('[' + this.mode + '] init new line ', newLineItem)
+          this.list.push(newLineItem)
         } else if (this.formType === this.tableType.Rubric_2) {
           newLineItem[this.headerType.Description].name = outItem.name
           newLineItem[this.headerType.Evidence] = {
@@ -1425,9 +1400,9 @@ export default {
             selectedStudentList: [],
             rowId
           }
+          this.$logger.info('[' + this.mode + '] init new line ', newLineItem)
+          this.list.push(newLineItem)
         }
-        this.$logger.info('[' + this.mode + '] init new line ', newLineItem)
-        this.list.push(newLineItem)
       })
     },
     handleDragEnd() {
@@ -1551,7 +1526,7 @@ export default {
       this.currentSelectHeader = header
       this.currentSelectLine = item
 
-      this.currentSelectLine.hiddenIBLine = false
+      this.currentSelectLine.isSelectedIBLine = false
       this.currentSelectLine.isSelfInputLine = true
       this.currentSelectLine[this.headerType.Criteria] = {
         name: '',
@@ -1737,7 +1712,7 @@ export default {
       } else if (this.formType === this.tableType.Rubric) {
         if (selectedList.length >= 1) {
           // 如果只选择了一个，使用第一个填充当前行数据
-          this.currentSelectLine.hiddenIBLine = false
+          this.currentSelectLine.isSelectedIBLine = true
           this.currentSelectLine.isSelfInputLine = false
           this.currentSelectLine[this.headerType.Criteria] = {
             name: selectedList[0].name,
@@ -1773,7 +1748,7 @@ export default {
                 const newLineItem = {}
                 const rowId = this.generateRowId()
                 newLineItem.rowId = rowId
-                newLineItem.hiddenIBLine = false
+                newLineItem.isSelectedIBLine = true
                 newLineItem.isSelfInputLine = false
 
                 this.headers.forEach(header => {

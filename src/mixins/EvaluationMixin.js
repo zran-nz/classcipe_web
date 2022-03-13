@@ -234,132 +234,145 @@ export const EvaluationMixin = {
 
     handleEvaluationAttendance(data) {
       this.$logger.info('handleEvaluationAttendance', data)
-      SchoolClassListClassAttendance({
-        classId: this.classId,
-        sessonId: this.sessionId
-      }).then(response => {
-        this.$logger.info('refreshAttendance response', response)
 
-        const attendanceList = []
-        const attendanceEmailList = []
-        if (response.success) {
-          if (response.result.length > 0) {
-            const attendanceEmailSet = new Set()
-            const newStudentList = []
-            const oldUserEmailList = this.studentEvaluateData ? Object.keys(this.studentEvaluateData) : []
+      const content = data.content
+      if (content.sessionId === this.sessionId) {
+        SchoolClassListClassAttendance({
+          sessionId: this.sessionId
+        }).then(response => {
+          this.$logger.info('refreshAttendance response', response)
 
-            response.result.forEach(item => {
-              if (!attendanceEmailSet.has(item.email)) {
-                attendanceList.push(item)
-                attendanceEmailList.push(item.email)
-                attendanceEmailSet.add(item.email)
-                if (oldUserEmailList.indexOf(item.email) !== -1) {
-                  newStudentList.push(item)
-                }
-              }
-            })
-            this.attendanceList = attendanceList
-            this.attendanceEmailList = attendanceEmailList
-            this.$logger.info('attendanceList', this.attendanceList)
-            this.$logger.info('newStudentList', newStudentList)
+          const attendanceList = []
+          const attendanceEmailList = []
+          if (response.success) {
+            if (response.result.length > 0) {
+              const attendanceEmailSet = new Set()
+              const newStudentList = []
+              const oldUserEmailList = this.studentEvaluateData ? Object.keys(this.studentEvaluateData) : []
 
-            if (newStudentList.length) {
-              newStudentList.forEach(studentItem => {
-                const studentEvaluateDataItem = {}
-
-                this.forms.forEach(formItem => {
-                  studentEvaluateDataItem[formItem.formId] = {
-                    comment: null
+              response.result.forEach(item => {
+                if (!attendanceEmailSet.has(item.email)) {
+                  attendanceList.push(item)
+                  attendanceEmailList.push(item.email)
+                  attendanceEmailSet.add(item.email)
+                  if (oldUserEmailList.indexOf(item.email) !== -1) {
+                    newStudentList.push(item)
                   }
-                  formItem.initRawData.forEach(rowItem => {
-                    studentEvaluateDataItem[formItem.formId][rowItem.rowId] = {
-                      teacherEvaluation: null, // 老师评价
-                      teacherName: null, // 老师评价
-                      teacherEmail: null, // 老师评价
+                }
+              })
+              this.attendanceList = attendanceList
+              this.attendanceEmailList = attendanceEmailList
+              this.$logger.info('attendanceList', this.attendanceList)
+              this.$logger.info('newStudentList', newStudentList)
 
-                      peerEvaluation: null, // 他人评价
-                      peerName: null, // 他人评价
-                      peerEmail: null, // 他人评价
+              if (newStudentList.length) {
+                newStudentList.forEach(studentItem => {
+                  const studentEvaluateDataItem = {}
 
-                      studentEvaluation: null, // 学生自评
-                      studentName: null, // 学生自评
-                      studentEmail: null, // 学生自评
+                  this.forms.forEach(formItem => {
+                    studentEvaluateDataItem[formItem.formId] = {
+                      comment: null
+                    }
+                    formItem.initRawData.forEach(rowItem => {
+                      studentEvaluateDataItem[formItem.formId][rowItem.rowId] = {
+                        teacherEvaluation: null, // 老师评价
+                        teacherName: null, // 老师评价
+                        teacherEmail: null, // 老师评价
 
-                      data: null, // subLevel数据
+                        peerEvaluation: null, // 他人评价
+                        peerName: null, // 他人评价
+                        peerEmail: null, // 他人评价
 
-                      evidenceIdList: [], // ppt证据pageId列表
-                      evidenceIdStudentList: [] // ppt证据pageId列表-学生选择
+                        studentEvaluation: null, // 学生自评
+                        studentName: null, // 学生自评
+                        studentEmail: null, // 学生自评
+
+                        data: null, // subLevel数据
+
+                        evidenceIdList: [], // ppt证据pageId列表
+                        evidenceIdStudentList: [] // ppt证据pageId列表-学生选择
+                      }
+                    })
+                  })
+
+                  this.$set(this.studentEvaluateData, studentItem.email, studentEvaluateDataItem)
+                  this.$logger.info('add student ' + studentItem.email, this.studentEvaluateData)
+                })
+
+                this.$notification.open({
+                  message: 'Notification',
+                  description:
+                    'The student attendance list has been updated, please refresh to view.',
+                  icon: <a-icon type="usergroup-add" style="color: #108ee9" />
+                })
+              }
+
+              if (this.attendanceList) {
+                this.groups.forEach(group => {
+                  const attendanceList = []
+                  group.members.forEach(member => {
+                    if (this.attendanceEmailList.includes(member.userId)) {
+                      attendanceList.push(member.userId)
                     }
                   })
+                  group.attendanceList = attendanceList
                 })
-
-                this.$set(this.studentEvaluateData, studentItem.email, studentEvaluateDataItem)
-                this.$logger.info('add student ' + studentItem.email, this.studentEvaluateData)
-              })
-
-              this.$notification.open({
-                message: 'Notification',
-                description:
-                  'New student(s) just joined.',
-                icon: <a-icon type="usergroup-add" style="color: #108ee9" />
-              })
+              }
             }
-
-            if (this.attendanceList) {
-              this.groups.forEach(group => {
-                const attendanceList = []
-                group.members.forEach(member => {
-                  if (this.attendanceEmailList.includes(member.userId)) {
-                    attendanceList.push(member.userId)
-                  }
-                })
-                group.attendanceList = attendanceList
-              })
-            }
+          } else {
+            this.$message.error(response.message)
           }
-        } else {
-          this.$message.error(response.message)
-        }
-      }).catch(error => {
-        this.$logger.error('refreshAttendance', error)
-        this.$message.error('refreshAttendance ' + error)
-      })
+        }).catch(error => {
+          this.$logger.error('refreshAttendance', error)
+          this.$message.error('refreshAttendance ' + error)
+        })
+      }
     },
 
     handleEvaluationTeacherSubmit(data) {
       this.$logger.info('handleEvaluationTeacherSubmit', data)
-      this.hasNewEvaluationDataReceived = true
-      this.$notification.open({
-        message: 'Notification',
-        description:
-          'New teacher review(s) just received. Refresh to see',
-        icon: <a-icon type="mail" style="color: #108ee9" />
-      })
+      const content = data.content
+      if (content.sessionId === this.sessionId) {
+        this.hasNewEvaluationDataReceived = true
+        this.$notification.open({
+          message: 'Notification',
+          description:
+            'New teacher review(s) just received. Refresh to see',
+          icon: <a-icon type="mail" style="color: #108ee9" />
+        })
+      }
     },
     handleEvaluationStudentSubmit(data) {
       this.$logger.info('handleEvaluationStudentSubmit', data)
-      this.hasNewEvaluationDataReceived = true
-      this.$notification.open({
-        message: 'Notification',
-        description:
-          'New self review(s) just received. Refresh to see',
-        icon: <a-icon type="mail" style="color: #108ee9" />
-      })
+
+      const content = data.content
+      if (content.sessionId === this.sessionId) {
+        this.hasNewEvaluationDataReceived = true
+        this.$notification.open({
+          message: 'Notification',
+          description:
+            'New self review(s) just received. Refresh to see',
+          icon: <a-icon type="mail" style="color: #108ee9" />
+        })
+      }
     },
     handleEvaluationPeerSubmit(data) {
       this.$logger.info('handleEvaluationPeerSubmit', data)
-      this.hasNewEvaluationDataReceived = true
-      this.$notification.open({
-        message: 'Notification',
-        description:
-          'New peer review(s) just received. Refresh to see',
-        icon: <a-icon type="mail" style="color: #108ee9" />
-      })
+      const content = data.content
+      if (content.sessionId === this.sessionId) {
+        this.hasNewEvaluationDataReceived = true
+        this.$notification.open({
+          message: 'Notification',
+          description:
+            'New peer review(s) just received. Refresh to see',
+          icon: <a-icon type="mail" style="color: #108ee9" />
+        })
+      }
     },
     handleEvaluationSetChange(data) {
-      this.$logger.info('handleEvaluationSetChange', data)
+      this.$logger.info('handleEvaluationSetChange', data, 'this.sessionId', this.sessionId)
       const evaluationSet = data.content
-      if (evaluationSet && evaluationSet.sessionId === this.classId) {
+      if (evaluationSet && evaluationSet.sessionId === this.sessionId) {
         const oldMode = this.showWaitingMask
         this.showWaitingMask = evaluationSet.mode === TeacherEvaluationStatus.Editing
         if (oldMode && !this.showWaitingMask) {
