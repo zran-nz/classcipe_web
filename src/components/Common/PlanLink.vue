@@ -62,11 +62,11 @@
                 style="width: 100%; min-height: 50px"
                 @end="handleDragEnd">
                 <div v-for="item in group.contents" :key="item.id" class="group-link-item">
-                  <div class="left-info">
+                  <div class="left-info" @click="handleViewDetail(item)">
                     <div class="icon">
                       <content-type-icon :type="item.type" />
                     </div>
-                    <div class="name" @click="handleViewDetail(item)">
+                    <div class="name">
                       <a-tooltip placement="top" v-if='showDragTips'>
                         <template slot="title">
                           Click and drag content to change the order
@@ -79,8 +79,8 @@
                     </div>
                   </div>
                   <div class="right-info">
-                    <div class="date">{{ item.createTime | dayjs }}</div>
-                    <div class="status">
+                    <div class="date" @click="handleViewDetail(item)">{{ item.createTime | dayjs }}</div>
+                    <div class="status" @click="handleViewDetail(item)">
                       <template v-if="item.status === 0">Draft</template>
                       <template v-if="item.status === 1">Published</template>
                     </div>
@@ -540,6 +540,7 @@ export default {
             display: flex;
             flex-direction: row;
             align-items: center;
+            width: calc(100% - 280px);
 
             .icon {
               width: 40px;
@@ -563,6 +564,7 @@ export default {
           .right-info {
             z-index: 100;
             background-color: #fff;
+            width: 280px;
             position: absolute;
             right: 0;
             padding-left: 15px;
