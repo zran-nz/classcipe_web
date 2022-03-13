@@ -277,8 +277,7 @@
                                   <a-col span='14'>
                                     <a-tooltip placement='topLeft'>
                                       <template slot='title'>
-                                        The link is provided to help other users or students prepare(purchase) the material
-                                        for this task
+                                        Resources required for hands-on activities
                                       </template>
                                       <a-input
                                         v-model='materialItem.link'
