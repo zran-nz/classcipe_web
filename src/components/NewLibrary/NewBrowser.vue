@@ -480,6 +480,10 @@ export default {
     defaultGradeId: {
       type: String,
       default: null
+    },
+    showCurriculum: {
+      type: Boolean,
+      default: false
     }
   },
   mixins: [UtilMixin],
@@ -505,7 +509,6 @@ export default {
       mySelectedList: [],
 
       isEmptyRecommend: true,
-      showCurriculum: false,
 
       selected21CenturyItem: null,
       selectedGradeIdSet: new Set(),
