@@ -68,9 +68,7 @@
         :loading="loading"
         :expandedRowKeys="expandedRowKeys"
         @change="handleTableChange"
-        @expand="handleExpand"
-      >
-
+        @expand="handleExpand">
         <span slot="action" slot-scope="text">
           {{ text }}
         </span>
