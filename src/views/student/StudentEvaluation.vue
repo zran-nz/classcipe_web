@@ -292,7 +292,6 @@
             :selected-id-student-list="currentEvidenceItem.evidence.selectedStudentList"
             :row-id="currentEvidenceItem.rowId"
             :form-id="currentActiveFormId"
-            :class-id="classId"
             :session-id="sessionId"
             :slide-id="classInfo.slideId"
             :student-name="selectedMemberIdList.length ? selectedMemberIdList[0] : null"
@@ -323,7 +322,6 @@ import ArrowTop from '@/assets/svgIcon/evaluation/arrow_top.svg?inline'
 import ModalHeader from '@/components/Common/ModalHeader'
 import {
   SaveSessionEvaluation,
-  EvaluationQueryByIds,
   GetSessionEvaluationByClassId,
   GetEvaluationMode
 } from '@/api/evaluation'
@@ -333,11 +331,10 @@ import EvaluationTableMode from '@/components/Evaluation/EvaluationTableMode'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import PptSlideView from '@/components/Evaluation/PptSlideView'
 import { typeMap } from '@/const/teacher'
-import { GetAssociate } from '@/api/teacher'
-import { getTaskBySessionId } from '@/api/task'
 import TeacherEvaluationStatus from '@/components/Evaluation/TeacherEvaluationStatus'
 import { defaultStudentRouter } from '@/config/router.config'
 import { EvaluationMixin } from '@/mixins/EvaluationMixin'
+import { SchoolClassListClassAttendance } from '@/api/schoolClass'
 
 export default {
   name: 'StudentEvaluation',
@@ -357,7 +354,7 @@ export default {
     ModalHeader
   },
   props: {
-    classId: {
+    sessionId: {
       type: String,
       required: true
     }
@@ -470,7 +467,10 @@ export default {
 
       allStudentUserList: [],
       allNoGroupStudentUserIdList: [], // 所有未分组的学生邮箱列表
-      allNoGroupStudentUserList: [] // 所有未分组的学生列表
+      allNoGroupStudentUserList: [], // 所有未分组的学生列表
+
+      attendanceList: [],
+      attendanceEmailList: []
     }
   },
   mixins: [ EvaluationMixin ],
@@ -499,92 +499,44 @@ export default {
     }
   },
   created () {
-    this.$logger.info('[' + this.mode + '] created ClassSessionEvaluation classId' + this.classId)
-    this.initData()
+    this.$logger.info('[' + this.mode + '] created ClassSessionEvaluation sessionId' + this.sessionId)
+    this.initClassSessionEvaluation()
     // 每次打开第一次提示多选模式
     window.sessionStorage.removeItem('multiConfirmVisible')
   },
   methods: {
 
-    initData () {
-      this.$logger.info('initData')
-      this.loading = true
-      getTaskBySessionId({
-        sessonId: this.classId
-      }).then((taskRes) => {
-          this.$logger.info('getTaskBySessionId', taskRes)
-          if (taskRes.success) {
-            this.taskId = taskRes.result.id
-            // 加载task关联的evaluation表单数据
-            this.$logger.info('ClassSessionEvaluation GetAssociate taskId ' + this.taskId)
-            const associateEvaluationIdList = []
-            GetAssociate({
-              id: this.taskId,
-              type: this.typeMap.task
-            }).then(response => {
-              this.$logger.info('ClassSessionEvaluation GetAssociate response', response)
-              response.result.owner.forEach(item => {
-                item.contents.forEach(content => {
-                  if (content.type === typeMap.evaluation) {
-                    associateEvaluationIdList.push(content.id)
-                  }
-                })
-              })
-
-              response.result.others.forEach(item => {
-                item.contents.forEach(content => {
-                  if (content.type === typeMap.evaluation) {
-                    associateEvaluationIdList.push(content.id)
-                  }
-                })
-              })
-            }).finally(() => {
-              this.$logger.info('associateEvaluationIdList ', associateEvaluationIdList)
-
-              if (associateEvaluationIdList.length) {
-                const forms = []
-                EvaluationQueryByIds({ ids: associateEvaluationIdList }).then((response) => {
-                  this.$logger.info('associateEvaluationIdList EvaluationQueryByIds ', response)
-                  response.result.forEach(evaluationItem => {
-                    evaluationItem.forms.forEach(formItem => {
-                      forms.push({
-                        title: formItem.title,
-                        titleEditing: false,
-                        comment: null,
-                        formType: formItem.formType,
-                        se: formItem.se,
-                        pe: formItem.pe,
-                        mode: formItem.mode, // 0-editing 1-evaluating
-                        id: null,
-                        formId: formItem.formId,
-                        initRawHeaders: JSON.parse(formItem.initRawHeaders),
-                        initRawData: JSON.parse(formItem.initRawData)
-                      })
-                    })
-                  })
-                }).then(() => {
-                  this.taskForms = forms
-                  this.$logger.info('taskForms', this.taskForms)
-                  this.loadClassSessionEvaluationData()
-                })
-              } else {
-                this.loadClassSessionEvaluationData()
-              }
-
-              this.initCompleted = true
-            })
-          } else {
-            this.$message.error(taskRes.message)
-          }
-      }).catch(err => {
-        this.$logger.error('getTaskBySessionId', err)
-        this.$message.error('getTaskBySessionId error')
+    initClassSessionEvaluation () {
+      this.$logger.info('initClassSessionEvaluation sessionId ' + this.sessionId)
+      SchoolClassListClassAttendance({
+        sessionId: this.sessionId
+      }).then(response => {
+        this.$logger.info('SchoolClassListClassAttendance', response)
+        if (response.success && response.result.length > 0) {
+          this.attendanceList = []
+          this.attendanceEmailList = []
+          const attendanceEmailSet = new Set()
+          response.result.forEach(item => {
+            if (!attendanceEmailSet.has(item.email)) {
+              this.attendanceList.push(item)
+              this.attendanceEmailList.push(item.email)
+              attendanceEmailSet.add(item.email)
+            }
+          })
+          this.$logger.info('attendanceList', this.attendanceList)
+        }
+      }).catch(error => {
+        this.loading = false
+        this.$logger.error('SchoolClassListClassAttendance', error)
+        this.$message.error('SchoolClassListClassAttendance ' + error)
+      }).finally(() => {
+        this.loadClassSessionEvaluationData()
       })
     },
 
     loadClassSessionEvaluationData () {
       this.loading = true
-      GetSessionEvaluationByClassId({ classId: this.classId }).then(response => {
+      GetSessionEvaluationByClassId({ classId: this.sessionId }).then(response => {
         this.$logger.info('init data response', response)
         // 加载班级信息数据
         this.$logger.info('GetSessionEvaluationByClassId response', response.result)
@@ -819,7 +771,7 @@ export default {
 
     updateTeacherEvaluationStatus () {
       GetEvaluationMode({
-        sessionId: this.classId
+        sessionId: this.sessionId
       }).then(response => {
         if (response.success) {
           const oldMode = this.showWaitingMask
@@ -915,8 +867,8 @@ export default {
           }
         })
       })
-      this.$logger.info('formDataList', formDataList, 'this.form', this.form, 'this.classId', this.classId)
-      this.form.classId = this.classId
+      this.$logger.info('formDataList', formDataList, 'this.form', this.form, 'this.sessionId', this.sessionId)
+      this.form.classId = this.sessionId
       this.form.forms = formDataList
       // 获取评估数据
       this.$logger.info('!!!!!!!!!!!!!!!!!! studentEvaluateData !!!!!!!!!!!', this.studentEvaluateData)
@@ -943,7 +895,7 @@ export default {
             currentForm = null
           }
           if (this.mode === EvaluationTableMode.TeacherEvaluate && currentForm && (currentForm.pe || currentForm.se)) {
-            GetSessionEvaluationByClassId({ classId: this.classId }).then(response => {
+            GetSessionEvaluationByClassId({ classId: this.sessionId }).then(response => {
               this.$logger.info('after SaveSessionEvaluation GetSessionEvaluationByClassId', response)
 
               const data = response.result
@@ -1032,8 +984,8 @@ export default {
                 }
               })
             })
-            this.$logger.info('formDataList', formDataList, 'this.form', this.form, 'this.classId', this.classId)
-            this.form.classId = this.classId
+            this.$logger.info('formDataList', formDataList, 'this.form', this.form, 'this.sessionId', this.sessionId)
+            this.form.classId = this.sessionId
             this.form.forms = formDataList
             // 获取评估数据
             this.$logger.info('!!!!!!!!!!!!!!!!!! studentEvaluateData !!!!!!!!!!!', this.studentEvaluateData)
@@ -1082,8 +1034,8 @@ export default {
             }
           })
         })
-        this.$logger.info('formDataList', formDataList, 'this.form', this.form, 'this.classId', this.classId)
-        this.form.classId = this.classId
+        this.$logger.info('formDataList', formDataList, 'this.form', this.form, 'this.sessionId', this.sessionId)
+        this.form.classId = this.sessionId
         this.form.forms = formDataList
         // 获取评估数据
         this.$logger.info('!!!!!!!!!!!!!!!!!! studentEvaluateData !!!!!!!!!!!', this.studentEvaluateData)

@@ -790,7 +790,6 @@ export default {
     initClassSessionEvaluation () {
       this.$logger.info('initClassSessionEvaluation classId ' + this.classId + ' sessonId ' + this.sessionId)
       SchoolClassListClassAttendance({
-        classId: this.classId,
         sessonId: this.sessionId
       }).then(response => {
         this.$logger.info('SchoolClassListClassAttendance', response)

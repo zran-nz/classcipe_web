@@ -387,14 +387,14 @@ export const asyncRouterMap = [
             meta: { title: 'menu.library', keepAlive: true, permission: ['student'], fullLayout: true, type: STUDY_MODE.SELF }
           },
           {
-            path: '/student/evaluation/:classId',
+            path: '/student/evaluation/:sessionId',
             props: true,
             name: 'StudentEvaluation',
             component: () => import('@/views/student/StudentEvaluation'),
             meta: { title: 'Student Evaluation', keepAlive: true, permission: ['student'] }
           },
           {
-            path: '/student/peer-evaluation/:classId',
+            path: '/student/peer-evaluation/:sessionId',
             props: true,
             name: 'PeerEvaluation',
             component: () => import('@/views/student/PeerEvaluation'),

@@ -505,7 +505,7 @@ export default {
           sessionId: this.sessionId,
           user: this.studentName
         }),
-        QueryResponseByClassId({ classId: this.classId })
+        QueryResponseByClassId({ classId: this.sessionId })
       ]).then(response => {
         this.$logger.info('加载PPT数据 response', response)
         if (response[2].result && response[2].result.result) {
