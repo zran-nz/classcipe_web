@@ -351,10 +351,10 @@ export default {
       const results = [
          {
           title: 'Date',
-          dataIndex: 'createTime',
-          width: '200px'
+          dataIndex: 'date',
+          width: '200px',
           // sorter: true,
-          // customRender: (text) => this.$options.filters['dayjs1'](text)
+          customRender: (text) => this.$options.filters['dayjs1'](text * 1000)
         },
         {
           title: 'Status',
