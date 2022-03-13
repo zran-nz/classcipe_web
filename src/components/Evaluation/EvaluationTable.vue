@@ -217,7 +217,7 @@
                       </div>
                       <div class='create-option-input' @click='handleInputIBCriteria(header, item, $event)'>
                         <a-icon type="edit" :style="{ fontSize: '18px'}" />
-                        <div class='add-text'>Enter custom content</div>
+                        <div class='add-text'>Enter customized content</div>
                       </div>
                     </div>
                   </template>
