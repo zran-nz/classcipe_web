@@ -796,6 +796,7 @@
             :selected-list='selectedList'
             :show-menu='showMenuList'
             :sync-data='syncData'
+            :show-curriculum='true'
             :default-grade-id='form.gradeId'
             question-index='_questionIndex_1'
             @select-assessmentType='handleSelectAssessmentType'

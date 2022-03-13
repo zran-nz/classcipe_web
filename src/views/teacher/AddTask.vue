@@ -1723,6 +1723,7 @@
             :select-mode='selectModel.syncData'
             question-index='_questionIndex_1'
             :sync-data='syncData'
+            :show-curriculum='true'
             :show-menu='[NavigationType.specificSkills,
                          NavigationType.centurySkills,
                          NavigationType.learningOutcomes,
