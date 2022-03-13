@@ -13,9 +13,9 @@
                   </div>
                   <div v-if="group.editing" class="group-name-input">
                     <a-input
-                        v-model="newGroupName"
-                        class="group-name-input"
-                        @pressEnter="handleToggleEditGroupName(group,lIndex)" />
+                      v-model="newGroupName"
+                      class="group-name-input"
+                      @pressEnter="handleToggleEditGroupName(group,lIndex)" />
                   </div>
                 </div>
                 <div v-if="canEdit" class="group-edit-icon" @click="handleToggleEditGroupName(group,lIndex)">
@@ -32,9 +32,9 @@
               <div v-if="canEdit" class="group-right-info">
                 <div class="group-action">
                   <a-button
-                      :style="{'background-color': '#fff', 'color': '#000', 'border': 'none'}"
-                      type="primary"
-                      @click="handleLinkGroup(group)">
+                    :style="{'background-color': '#fff', 'color': '#000', 'border': 'none'}"
+                    type="primary"
+                    @click="handleLinkGroup(group)">
                     <div class="btn-text">
                       + Link
                     </div>
@@ -48,12 +48,12 @@
               </div>
             </div>
             <draggable
-                v-model="group.contents"
-                :disabled="!canEdit"
-                animation="300"
-                group="site"
-                style="width: 100%; min-height: 50px"
-                @end="handleDragEnd">
+              v-model="group.contents"
+              :disabled="!canEdit"
+              animation="300"
+              group="site"
+              style="width: 100%; min-height: 50px"
+              @end="handleDragEnd">
               <div v-for="item in group.contents" :key="item.id" class="group-link-item">
                 <div class="left-info">
                   <div class="icon">
@@ -80,10 +80,10 @@
                       <a-menu slot="overlay">
                         <a-menu-item>
                           <a-popconfirm
-                              :title="$t('teacher.my-content.action-delete') + '?'"
-                              cancel-text="No"
-                              ok-text="Yes"
-                              @confirm="handleDeleteLinkItem(item)">
+                            :title="$t('teacher.my-content.action-delete') + '?'"
+                            cancel-text="No"
+                            ok-text="Yes"
+                            @confirm="handleDeleteLinkItem(item)">
                             <a class="delete-action" href="#">
                               <a-icon type="delete" />
                               {{ $t('teacher.my-content.action-delete') }}
@@ -109,38 +109,38 @@
     </div>
 
     <a-modal
-        v-model="selectLinkContentVisible"
-        :dialog-style="{ top: '0px'}"
-        :footer="null"
-        destroyOnClose
-        width="900px">
+      v-model="selectLinkContentVisible"
+      :dialog-style="{ top: '0px'}"
+      :footer="null"
+      destroyOnClose
+      width="900px">
       <div slot="title" class="my-modal-title">
         {{ linkTitle }}
       </div>
 
       <div class="link-content-wrapper">
         <new-my-content
-            :default-group-name="subDefaultGroupName"
-            :filter-type-list="subFilterTypeList"
-            :from-id="fromId"
-            :from-type="fromType"
-            :group-name-list="groupNameList"
-            :mode="'common-link'"
-            :selected-list="selectedList"
-            :show-create="showCreate"
-            :show-tabs="showTabs"
-            @cancel="selectLinkContentVisible = false"
-            @ensure="handleEnsureSelectedLink" />
+          :default-group-name="subDefaultGroupName"
+          :filter-type-list="subFilterTypeList"
+          :from-id="fromId"
+          :from-type="fromType"
+          :group-name-list="groupNameList"
+          :mode="'common-link'"
+          :selected-list="selectedList"
+          :show-create="showCreate"
+          :show-tabs="showTabs"
+          @cancel="selectLinkContentVisible = false"
+          @ensure="handleEnsureSelectedLink" />
       </div>
     </a-modal>
 
     <a-drawer
-        :closable="false"
-        :visible="previewVisible"
-        destroyOnClose
-        placement="right"
-        width="800px"
-        @close="previewVisible = false"
+      :closable="false"
+      :visible="previewVisible"
+      destroyOnClose
+      placement="right"
+      width="800px"
+      @close="previewVisible = false"
     >
       <a-row class="preview-wrapper-row">
         <a-col span="2">

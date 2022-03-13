@@ -61,7 +61,7 @@
           <new-tree-item
             :grade-list='gradeList'
             :tree-current-parent='subTreeParent'
-            :tree-item-data='treeItem'
+            :tree-item-data.sync='treeItem'
             :default-grade-id='defaultGradeId'
             :default-background-color='defaultBackgroundColor'
             :current-item-type='subItemType'
@@ -81,7 +81,7 @@
           <new-tree-item
             :grade-list='gradeList'
             :tree-current-parent='subTreeParent'
-            :tree-item-data='treeItem'
+            :tree-item-data.sync='treeItem'
             :current-item-type='subItemType'
             :select-mode='selectMode'
             :question-index='questionIndex'
@@ -101,7 +101,7 @@
           <new-tree-item
             :grade-list='gradeList'
             :tree-current-parent='subTreeParent'
-            :tree-item-data='treeItem'
+            :tree-item-data.sync='treeItem'
             :current-item-type='subItemType'
             :select-mode='selectMode'
             :question-index='questionIndex'
@@ -122,7 +122,7 @@
           <new-tree-item
             :grade-list='gradeList'
             :tree-current-parent='subTreeParent'
-            :tree-item-data='treeItem'
+            :tree-item-data.sync='treeItem'
             :current-item-type='subItemType'
             :select-mode='selectMode'
             :question-index='questionIndex'
@@ -142,7 +142,7 @@
           <new-tree-item
             :grade-list='gradeList'
             :tree-current-parent='subTreeParent'
-            :tree-item-data='treeItem'
+            :tree-item-data.sync='treeItem'
             :current-item-type='subItemType'
             :select-mode='selectMode'
             :question-index='questionIndex'
@@ -161,7 +161,7 @@
           <new-tree-item
             :grade-list='gradeList'
             :tree-current-parent='subTreeParent'
-            :tree-item-data='treeItem'
+            :tree-item-data.sync='treeItem'
             :current-item-type='subItemType'
             :select-mode='selectMode'
             :question-index='questionIndex'
@@ -180,7 +180,7 @@
           <new-tree-item
             :grade-list='gradeList'
             :tree-current-parent='subTreeParent'
-            :tree-item-data='treeItem'
+            :tree-item-data.sync='treeItem'
             :current-item-type='subItemType'
             :select-mode='selectMode'
             :question-index='questionIndex'
@@ -1372,7 +1372,7 @@ export default {
         data.item.id === this.treeItemData.id &&
         data.item.name === this.treeItemData.name &&
         // 通过id和name无法唯一定位到指定的条目，因为多个subject下面的grade的id和name都相同，所以加一层父级的条目的名称一致性判断
-        (!data.parent || (this.treeItemData.originParent && this.treeItemData.originParent.name === data.parent.name))) {
+        (!data.parent || (this.treeCurrentParent && this.treeCurrentParent.name === data.parent.name))) {
         // 同步导航栏和内容列表
         this.$logger.info('handleContentListItemClick start ', data, this.treeItemData, this.treeCurrentParent)
         this.handleExpandTreeItem(this.treeItemData)
