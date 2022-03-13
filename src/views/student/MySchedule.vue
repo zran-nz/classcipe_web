@@ -84,12 +84,12 @@ import FullCalendar from '@fullcalendar/vue'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
-import { INITIAL_EVENTS, createEventId } from './components/event-utils'
+import { createEventId } from './components/event-utils'
 import Pie from '@/components/Charts/Pie'
 
 import { getClassSchedule } from '@/api/selfStudy'
 
-import { ABSENT_COLORS, BG_COLORS } from '@/const/common'
+import { ABSENT_COLORS, BG_COLORS, TASK_ATTENDANCE } from '@/const/common'
 
 import { mapState, mapGetters } from 'vuex'
 
@@ -104,38 +104,14 @@ export default {
   },
   data() {
     return {
-      // mock
-      // currentStudentClass: [
-      //   {
-      //     id: 1,
-      //     name: 'Class 1'
-      //   },
-      //   {
-      //     id: 2,
-      //     name: 'Class 2'
-      //   },
-      //   {
-      //     id: 3,
-      //     name: 'Class 3'
-      //   },
-      //   {
-      //     id: 4,
-      //     name: 'Class 4'
-      //   }
-      // ],
-      statusList: [
-        {
-          id: 0,
-          name: 'Absent'
-        },
-        {
-          id: 1,
-          name: 'Present'
-        }
-      ],
       ABSENT_COLORS: ABSENT_COLORS,
       BG_COLORS: BG_COLORS,
       attendanceVisible: true,
+      startDate: '',
+      endDate: '',
+      viewType: 'dayGridMonth',
+      classSchedules: [],
+      allEvents: [],
       // fullcalendar
       calendarOptions: {
         plugins: [ dayGridPlugin, interactionPlugin, timeGridPlugin ],
@@ -147,27 +123,32 @@ export default {
         },
         // initialEvents: INITIAL_EVENTS, // alternatively, use the `events` setting to fetch from a feed
         events: (date, successCb, failCb) => {
+          const start = moment(date.start).format('YYYY-MM-DD')
+          const end = moment(date.end).format('YYYY-MM-DD')
           getClassSchedule({
-            dateStart: moment(date.start).format('YYYY-MM-DD'),
-            dateEnd: moment(date.end).format('YYYY-MM-DD')
+            dateStart: start,
+            dateEnd: end
           }).then(res => {
             if (res.success && res.result) {
               const events = res.result.map(item => {
-                // 根据classId获取颜色 TODO
-                // const index = this.currentStudentClass.findIndex(clasz => clasz.id === item.classId)
-                const color = BG_COLORS[0]
+                // 根据classId获取颜色
+                const index = this.currentStudentClass.findIndex(clasz => clasz.id === item.classId)
+                const color = BG_COLORS[index]
+
                 return {
                   id: item.id,
-                  title: item.overview,
+                  title: item.name,
                   start: item.startDate,
                   end: item.endDate,
                   backgroundColor: color,
                   extendedProps: {
-                    classId: 1, // TODO
-                    status: 0
+                    classId: item.classId,
+                    status: item.attendance || 'absent'
                   }
                 }
               })
+              this.classSchedules = res.result
+              this.allEvents = events
               successCb(events)
             } else {
               failCb()
@@ -208,6 +189,7 @@ export default {
           // if (!this.showClass.includes(props.classId) || !this.showStatus.includes(props.status)) {
           //   return null
           // }
+          const colorIndex = Object.values(TASK_ATTENDANCE).findIndex(item => item === props.status)
 
           return h('div', {
               class: 'schedule-event-content',
@@ -220,7 +202,7 @@ export default {
               h('span', {
                 class: 'event-content-dot',
                 style: {
-                  backgroundColor: ABSENT_COLORS[props.status]
+                  backgroundColor: ABSENT_COLORS[colorIndex]
                 }
               }),
               h('label', {}, [info.event.title])
@@ -230,21 +212,6 @@ export default {
       currentEvents: [],
       // pie chart
       labelConfig: [],
-      guideData: [{
-        content: '40/61',
-        style: {
-          fontSize: 16,
-          textAlign: 'center'
-        },
-        position: ['50%', '45%']
-      }, {
-        content: 'Absent',
-         style: {
-          fontSize: 14,
-          textAlign: 'center'
-        },
-        position: ['50%', '60%']
-      }],
       radius: {
         radius: 0.85,
         innerRadius: 0.8
@@ -256,6 +223,7 @@ export default {
       timer: null,
       FORMATTER: 'h:mm a',
       FORMATTER_SIM: 'h:mma',
+      FORMATTER_FULL: 'YYYY-MM-DD h:mm a',
 
       showClass: [],
       showStatus: [],
@@ -268,10 +236,49 @@ export default {
     }),
     ...mapGetters(['currentStudentClass']),
     dataSource() {
+      const dateStart = this.startDate
+      let dateEnd = this.endDate
+      if (this.viewType === 'timeGridDay') {
+        dateEnd = dateStart
+      }
+      const currentEvents = this.classSchedules.filter(item => {
+        return item.classId === this.currentClass && moment(dateEnd).diff(moment(item.startDate), 'days') >= 0
+      })
+
+      console.log(currentEvents)
+      const presentCount = currentEvents.filter(item => item.attendance === 'present').length
       return [
-        { item: 'Absent', count: 21, color: ABSENT_COLORS[0] },
-        { item: 'Present', count: 40, color: ABSENT_COLORS[1] }
+        { item: 'Absent', count: currentEvents.length - presentCount, color: ABSENT_COLORS[0] },
+        { item: 'Present', count: presentCount, color: ABSENT_COLORS[1] }
       ]
+    },
+    guideData() {
+      const dateStart = this.startDate
+      let dateEnd = this.endDate
+      if (this.viewType === 'timeGridDay') {
+        dateEnd = dateStart
+      }
+      const currentEvents = this.classSchedules.filter(item => {
+        return item.classId === this.currentClass && moment(dateEnd).diff(moment(item.startDate), 'days') >= 0
+      })
+
+      console.log(currentEvents)
+      const presentCount = currentEvents.filter(item => item.attendance === 'present').length
+      return [{
+        content: currentEvents.length - presentCount + '/' + currentEvents.length,
+        style: {
+          fontSize: 16,
+          textAlign: 'center'
+        },
+        position: ['50%', '45%']
+      }, {
+        content: 'Absent',
+         style: {
+          fontSize: 14,
+          textAlign: 'center'
+        },
+        position: ['50%', '60%']
+      }]
     },
     showClassOptions() {
       return this.currentStudentClass.map((item, index) => {
@@ -286,11 +293,11 @@ export default {
   created() {
     this.currentClass = this.currentStudentClass.length > 0 ? this.currentStudentClass[0].id : ''
     this.showClass = this.currentStudentClass.map(item => item.id)
-    this.showStatus = this.statusList.map(item => item.id)
-    this.showStatusOptions = this.statusList.map((item, index) => {
+    this.showStatus = Object.values(TASK_ATTENDANCE)
+    this.showStatusOptions = Object.keys(TASK_ATTENDANCE).map((key, index) => {
       return {
-        value: item.id,
-        name: item.name,
+        value: TASK_ATTENDANCE[key],
+        name: key.slice(0, 1).toUpperCase() + key.slice(1).toLowerCase(),
         index: index
       }
     })
@@ -332,6 +339,9 @@ export default {
     },
     handleDatesSet(event) {
       console.log(event)
+      this.startDate = moment(event.start).format('YYYY-MM-DD')
+      this.endDate = moment(event.end).format('YYYY-MM-DD')
+      this.viewType = event.view.type
     },
     handleChangeClass() {
       // this.handleChangeEvents()
@@ -340,12 +350,13 @@ export default {
       if (this.showClass.length === this.showClassOptions.length && this.showStatus === this.showStatusOptions.length) return
       const calendarApi = this.$refs.fullCalendar.getApi()
       const events = calendarApi.getEvents()
+      console.log(this.showStatus)
       if (events.length > 0) {
         events.forEach(event => {
           event.remove()
         })
       }
-      INITIAL_EVENTS.forEach(item => {
+      this.allEvents.forEach(item => {
         const props = item.extendedProps
         if (this.showClass.includes(props.classId) && this.showStatus.includes(props.status)) {
           calendarApi.addEvent(item)
@@ -360,6 +371,7 @@ export default {
         title: info.event.title,
         backgroundColor: info.event.backgroundColor
       }
+      const curClass = this.currentStudentClass.find(item => item.id === this.event.classId)
       // const $tooltip = this.$refs.tooltip.getBoundingClientRect()
       // const $el = info.el.getBoundingClientRect()
       // this.$refs.tooltip.style.top = $el.top + 'px'
@@ -371,9 +383,9 @@ export default {
                         ${this.event.title}
                       </div>
                       <div class="tippy-self-content">
-                        <p>Class: ${this.event.classId}</p>
-                        <p>Start: ${moment(info.event.start).format(this.FORMATTER)}</p>
-                        <p>End: ${moment(info.event.end).format(this.FORMATTER)}</p>
+                        <p>Class: ${curClass.name}</p>
+                        <p>Start: ${moment(info.event.start).format(this.FORMATTER_FULL)}</p>
+                        <p>End: ${moment(info.event.end).format(this.FORMATTER_FULL)}</p>
                       </div>
                     </div>`
       tippy(info.el, {

@@ -53,22 +53,25 @@
               <draggable v-model="ownerLinkGroupList[lIndex].contents" group="site" animation="300" @end="handleDragEnd" :disabled="!canEdit || fromType === typeMap.task">
                 <transition-group>
                   <div class="group-link-item" v-for="item in linkGroup.contents" :key="item.id">
-                    <div class="left-info">
+                    <div class="left-info" @click="handleViewDetail(item)">
                       <div class="icon">
                         <content-type-icon :type="item.type"/>
                       </div>
-                      <div class="name" @click="handleViewDetail(item)">
-                        <a-tooltip placement="top">
+                      <div class="name">
+                        <a-tooltip placement="top" v-if='showDragTips'>
                           <template slot="title">
-                            Click and drag tasks to move between categorys
+                            Click and drag content to change the order
                           </template>
                           {{ item.name ? item.name : 'untitled' }}
                         </a-tooltip>
+                        <template v-if='!showDragTips'>
+                          {{ item.name ? item.name : 'untitled' }}
+                        </template>
                       </div>
                     </div>
                     <div class="right-info">
-                      <div class="date">{{ item.createTime | dayjs }}</div>
-                      <div class="status">
+                      <div class="date" @click="handleViewDetail(item)">{{ item.createTime | dayjs }}</div>
+                      <div class="status" @click="handleViewDetail(item)">
                         <template v-if="item.status === 0">Draft</template>
                         <template v-if="item.status === 1">Published</template>
                       </div>
@@ -244,6 +247,10 @@ export default {
     isLibrary: {
       type: Boolean,
       default: false
+    },
+    showDragTips: {
+      type: Boolean,
+      default: true
     }
   },
   data () {
@@ -534,6 +541,7 @@ export default {
               display: flex;
               flex-direction: row;
               align-items: center;
+              width: calc(100% - 280px);
               .icon {
                 width: 40px;
               }
@@ -557,6 +565,7 @@ export default {
               background-color: #fff;
               position: absolute;
               right: 0;
+              width: 280px;
               padding-left: 15px;
               display: flex;
               flex-direction: row;

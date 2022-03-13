@@ -22,7 +22,7 @@
                   <collaborate-svg />
                 </span> -->
 
-                <div class="my-list-progress" v-if="item.status === TASK_STATUS.ONGOING">
+                <div class="my-list-progress" v-if="item.status === TASK_STATUS.ONGOING && STUDY_MODE.SELF === studyMode">
                   <a-progress
                     :stroke-color="{
                       '0%': '#108ee9',
@@ -225,11 +225,11 @@
                 </div>
                 <div class="cover-img" :style="{backgroundImage: 'url(' + (item.task && item.task.image) + ')'}"></div>
 
-                <a-card-meta class="my-card-meta-info" :title="(item.task && item.task.name) ? item.task.name : 'Untitled'" :description="item.updateTime | dayjs">
+                <a-card-meta class="my-card-meta-info" :title="(item.task && item.task.name) ? item.task.name : 'Untitled'" :description="(item.updateTime || item.createTime) | dayjs">
                   <content-type-icon :type="typeMap.task" slot="avatar"></content-type-icon>
                 </a-card-meta>
 
-                <div class="my-card-progress" v-if="item.status === TASK_STATUS.ONGOING">
+                <div class="my-card-progress" v-if="STUDY_MODE.SELF === studyMode" :style="{visibility: item.status === TASK_STATUS.ONGOING ? 'visiible' : 'hidden'}">
                   <a-progress
                     :stroke-color="{
                       '0%': '#108ee9',
@@ -413,7 +413,19 @@ export default {
       this.loadData(params).then(res => {
         logger.info('SelfStudyTaskList', res)
         if (res.success) {
-          this.myContentList = res.result.records
+          this.myContentList = res.result.records.map(item => {
+            // 学校模式和自学习模式数据结构不一样统一下
+            if (!item.task) {
+              return {
+                ...item,
+                task: {
+                  ...item
+                }
+              }
+            } else {
+              return item
+            }
+          })
           this.pagination.total = res.result.total
         } else {
           this.myContentList = []
@@ -433,7 +445,7 @@ export default {
       if (!item.task || this.currentStatus === 2) {
         return
       }
-      this.currentTaskId = item.taskId
+      this.currentTaskId = item.task.id
       this.currentTaskName = item.task.name
       this.previewType = typeMap.task
       this.previewVisible = true
@@ -452,7 +464,7 @@ export default {
       this.$logger.info('handleStartSession', item)
       if (item && item.task) {
         const requestData = {
-          taskId: item.taskId
+          taskId: item.task.id
         }
         this.$logger.info('handleStartSession', requestData)
         SelfStudyTaskStart(requestData).then(res => {
@@ -500,7 +512,7 @@ export default {
       if (!item.task || this.currentStatus === 2) {
         return
       }
-      this.currentTaskId = item.taskId
+      this.currentTaskId = item.task.id
       this.currentTaskName = item.task.name
       this.paymentVisible = true
     },

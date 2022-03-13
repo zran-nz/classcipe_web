@@ -22,6 +22,11 @@
 
     <a-divider>Or</a-divider>
 
+    <div class='tips'>
+      <div class='tips-text'>
+        <a-icon type="info-circle" /> The slides have been updated, start with new slides or join the old one in the <a href='#' @click='showPreviewSessionList'>previous session</a> list.
+      </div>
+    </div>
     <div class="my-class-list">
       <div class="class-list-wrapper">
         <a-table
@@ -245,6 +250,11 @@ export default {
     handleStartSession () {
       this.startLoading = true
       this.$emit('start-new-session')
+    },
+
+    showPreviewSessionList () {
+      this.$logger.info('showPreviewSessionList')
+      this.$emit('show-preview-session-list')
     },
 
     handleTeacherProjecting (item) {

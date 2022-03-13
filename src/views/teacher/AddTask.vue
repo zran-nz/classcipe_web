@@ -177,7 +177,7 @@
                             </a-form-model-item>
                           </div>
 
-                          <div class='form-block form-question tag-content-block' :data-field-name='taskField.Question' v-if='associateQuestionList.length > 0 && fieldItem.visible && fieldItem.fieldName === taskField.TaskType' :key='fieldItem.fieldName'>
+                          <div class='form-block form-question tag-content-block' :data-field-name='taskField.Question' v-if='associateQuestionList.length > 0 && fieldItem.visible && fieldItem.fieldName === taskField.Question' :key='fieldItem.fieldName'>
                             <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Question />
                             <comment-switch
                               v-show="canEdit"
@@ -1723,6 +1723,7 @@
             :select-mode='selectModel.syncData'
             question-index='_questionIndex_1'
             :sync-data='syncData'
+            :show-curriculum='true'
             :show-menu='[NavigationType.specificSkills,
                          NavigationType.centurySkills,
                          NavigationType.learningOutcomes,
@@ -5781,8 +5782,8 @@ export default {
   flex-direction: row;
   align-items: center;
   justify-content: flex-end;
-  margin-bottom: 20px;
-  margin-top: 20px;
+  padding-bottom: 10px;
+  padding-top: 10px;
 
   .slide-switch {
     margin-left: 10px;
@@ -5817,7 +5818,7 @@ export default {
   color: rgba(0, 0, 0, 0.65);
   background: #fff;
   height: 70px;
-  margin-top: -15px;
+  margin-top: 5px;
   padding: 0 25px;
 
   .icon-group {
