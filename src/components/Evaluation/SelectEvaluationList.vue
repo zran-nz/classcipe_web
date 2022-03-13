@@ -95,7 +95,6 @@ import ArrowDown from '@/assets/svgIcon/evaluation/select/jiantouxia.svg?inline'
 import { EvaluationQueryByIds } from '@/api/evaluation'
 import EvaluationTableMode from '@/components/Evaluation/EvaluationTableMode'
 import EvaluationTable from '@/components/Evaluation/EvaluationTable'
-import EvaluationTableType from '@/components/Evaluation/EvaluationTableType'
 
 export default {
   name: 'SelectEvaluationList',
@@ -209,15 +208,6 @@ export default {
           const forms = []
           response.result.forEach(evaluationItem => {
             evaluationItem.forms.forEach(formItem => {
-              const initRawData = typeof formItem.initRawData === 'string' ? JSON.parse(formItem.initRawData) : formItem.initRawData
-              if (formItem.formType === EvaluationTableType.Rubric && initRawData) {
-                initRawData.forEach(lineItem => {
-                  lineItem.hiddenIBLine = this.$store.getters.hiddenIbCurriculumId && !lineItem.isSelfInputLine
-                  if (lineItem.hiddenIBLine) {
-                    this.$logger.info('hiddenIBLine', lineItem)
-                  }
-                })
-              }
               forms.push({
                 title: formItem.title,
                 titleEditing: false,
@@ -228,7 +218,7 @@ export default {
                 id: formItem.id,
                 formId: formItem.formId,
                 initRawHeaders: JSON.parse(formItem.initRawHeaders),
-                initRawData: initRawData
+                initRawData: JSON.parse(formItem.initRawData)
               })
             })
           })

@@ -11,7 +11,11 @@ import * as logger from '@/utils/logger'
 
 export default class ReceiveEvaluationEventHandler extends AbstractMessageHandler {
   match(proto) {
-    return proto.cmd === EVALUATION_SET_CHANGE
+    return proto.cmd === EVALUATION_SET_CHANGE ||
+      proto.cmd === EVALUATION_ATTENDANCE_CHANGE ||
+      proto.cmd === EVALUATION_TEACHER_SUBMMIT ||
+      proto.cmd === EVALUATION_STUDENT_SUBMMIT ||
+      proto.cmd === EVALUATION_PEER_SUBMMIT
   }
 
   processMessage(proto) {
