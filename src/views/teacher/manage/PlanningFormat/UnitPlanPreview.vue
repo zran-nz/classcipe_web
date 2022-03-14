@@ -6,10 +6,12 @@
         :form='form'
         :is-preview-mode='true'
         :last-change-saved-time='lastChangeSavedTime'
-        @back='goBack'
+        @back='closeWindow'
       />
     </div>
-    <a-card :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '1200px' }" :bordered='false'>
+    <div class='preview-header-mask' @click='handleClickPreviewMask'></div>
+    <a-card :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '1200px', 'position': 'relative' }" :bordered='false'>
+      <div class='preview-mask' @click='handleClickPreviewMask'></div>
       <a-row v-if='!contentLoading' class='unit-content'>
         <a-col class='main-content' span='24'>
           <a-card
@@ -884,16 +886,7 @@ export default {
             name: ''
           }
         ],
-        scenarios: {
-          description: '',
-          sdgId: '1',
-          sdgKeyWords: [
-            {
-              id: '',
-              name: ''
-            }
-          ]
-        },
+        scenarios: [],
         createTime: '',
         updateTime: '',
         materials: [],
@@ -1016,27 +1009,6 @@ export default {
       linkLoading: false
     }
   },
-  watch: {
-    referDetailVisible(value) {
-      this.$logger.info('watch referDetailVisible ' + value)
-      this.$logger.info('screen width: ', document.body.clientWidth)
-      if (value && document.body.clientWidth < 1700) {
-        this.showSidebar = false
-      } else {
-        this.showSidebar = true
-      }
-    },
-    'form.inquiry': function(value, newValue) {
-      this.$logger.info('watch form.inquiry change ' + value, newValue)
-      if (this.hideRecommendQuestion) {
-        return
-      }
-      this.$logger.info('get recommend question ' + value)
-      this.findQuestionsByBigIdea(value)
-      // 重新load recommend
-      this.loadBigIdeaLearnOuts()
-    }
-  },
   computed: {
     lastChangeSavedTime() {
       return formatLocalUTC(new Date())
@@ -1087,12 +1059,8 @@ export default {
   created() {
     // 初始化关联事件处理
     this.formConfigPreviewData = storage.get(FORM_CONFIG_PREVIEW_DATA)
-    this.previewDataLoading = false
     this.$logger.info('unit-preview created', this.formConfigPreviewData)
     this.initData()
-    this.getAssociate()
-    this.loadCustomTags()
-    this.findQuestionsByBigIdea = debounce(this.findQuestionsByBigIdea, 800)
   },
   methods: {
     initData() {
@@ -1209,24 +1177,6 @@ export default {
       }
     },
 
-    handleAddSdgTag(data) {
-      const tag = {
-        name: data.tagName
-      }
-      const sdgKey = data.sdgKey
-      logger.info('handleAddSdgTag ', tag.name, sdgKey)
-      this.form.scenarios[sdgKey].sdgKeyWords.push(tag)
-      logger.info('after handleAddSdgTag ', this.form.scenarios[sdgKey].sdgKeyWords)
-    },
-
-    handleRemoveSdgTag(data) {
-      const tagName = data.tagName
-      const sdgKey = data.sdgKey
-      logger.info('handleRemoveSdgTag ', tagName, sdgKey)
-      this.form.scenarios[sdgKey].sdgKeyWords.splice(this.form.scenarios[sdgKey].sdgKeyWords.indexOf(tagName), 1)
-      logger.info('after handleRemoveSdgTag ', this.form.scenarios[sdgKey].sdgKeyWords)
-    },
-
     handleSelectSubject(subjects) {
       logger.info('handleSelectSubject', subjects)
       this.form.subjects = subjects
@@ -1280,14 +1230,20 @@ export default {
     handleAddUnitPlanEvaluation() {
     },
 
-    goBack() {
-      this.$logger.info('goBack', window.history.length)
-      if (window.history.length <= 1) {
-        this.$router.push({ path: '/teacher/managing/planning-format' })
-        return false
-      } else {
-        this.$router.go(-1)
-      }
+    closeWindow() {
+      window.close()
+    },
+
+    handleClickPreviewMask () {
+      this.$confirm({
+        title: 'Alert',
+        okText: 'Exit',
+        cancelText: 'Cancel',
+        content: 'Currently in preview mode, whether to exit',
+        onOk: () => {
+          this.closeWindow()
+        }
+      })
     },
     handleChangeCustomTags(tags) {
     },
@@ -2742,5 +2698,29 @@ code {
 .addCategory /deep/ .anticon {
   position: absolute;
   left: 20px;
+}
+
+.preview-header-mask {
+  z-index: 999;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 200px;
+  right: 0;
+  background: transparent;
+  opacity: 0;
+}
+
+.preview-mask {
+  z-index: 999;
+  position: absolute;
+  background: transparent;
+  opacity: 0;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  width: 100%;
 }
 </style>

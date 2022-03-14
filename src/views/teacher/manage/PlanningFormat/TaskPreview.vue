@@ -6,10 +6,12 @@
         :form='form'
         :is-preview-mode='true'
         :last-change-saved-time='lastChangeSavedTime'
-        @back='goBack'
+        @back='closeWindow'
       />
     </div>
+    <div class='preview-header-mask' @click='handleClickPreviewMask'></div>
     <a-card :bordered='false' :bodyStyle="{ padding: '16px 24px 40px 24px', height: '100%', minHeight: '1000px' }">
+      <div class='preview-mask' @click='handleClickPreviewMask'></div>
       <a-row class='unit-content' v-if='!contentLoading'>
         <a-col span='24' class='main-content'>
           <a-card
@@ -1563,7 +1565,7 @@
         <div class='slide-action row-flex-center'>
           <div class='slide-btn-wrapper'>
             <a-button
-              @click='goBack'
+              @click='closeWindow'
               style='background: #D7D9D9;border: 1px solid #D7D9D9;border-radius: 25px;color: #000;'
               class='slide-btn-item slide-btn-item-no '
               type='primary'>
@@ -2081,10 +2083,6 @@ export default {
     this.formConfigPreviewData = storage.get(FORM_CONFIG_PREVIEW_DATA)
     this.$logger.info('task-preview created', this.formConfigPreviewData)
     this.initData()
-    this.getAssociate()
-    this.loadCustomTags()
-    this.initTemplateFilter()
-    this.GetTagYearTips()
   },
   methods: {
     initData() {
@@ -2198,14 +2196,20 @@ export default {
       }
     },
 
-    goBack() {
-      this.$logger.info('goBack', window.history.length)
-      if (window.history.length <= 1) {
-        this.$router.push({ path: '/teacher/managing/planning-format' })
-        return false
-      } else {
-        this.$router.go(-1)
-      }
+    closeWindow() {
+      window.close()
+    },
+
+    handleClickPreviewMask () {
+      this.$confirm({
+        title: 'Alert',
+        okText: 'Exit',
+        cancelText: 'Cancel',
+        content: 'Currently in preview mode, whether to exit',
+        onOk: () => {
+          this.closeWindow()
+        }
+      })
     },
 
     handleShowSelectMyContent() {
@@ -5997,5 +6001,30 @@ export default {
   display: flex;
   justify-content: flex-start;
   align-items: center;
+}
+
+
+.preview-header-mask {
+  z-index: 999;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 200px;
+  right: 0;
+  background: transparent;
+  opacity: 0;
+}
+
+.preview-mask {
+  z-index: 999;
+  position: absolute;
+  background: transparent;
+  opacity: 0;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  width: 100%;
 }
 </style>
