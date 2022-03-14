@@ -30,12 +30,12 @@
                     <template slot='description'>
                       <div class='step-detail' v-show='currentActiveStepIndex === 0'>
 
-                        <template v-for='fieldItem in $store.getters.formConfigPreviewData.taskCommonList'>
+                        <template v-for='fieldItem in formConfigPreviewData.taskCommonList'>
                           <div class='form-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Name' :key='fieldItem.fieldName'>
                             <a-form-item>
                               <template class='my-label' slot='label'>
-                                {{ 'Task name' | taskLabelName(taskField.Name, $store.getters.formConfigPreviewData) }}
-                                <a-tooltip :title="'Task name' | taskLabelHint(taskField.Name, $store.getters.formConfigPreviewData)" placement='top'>
+                                {{ 'Task name' | taskLabelName(taskField.Name, formConfigPreviewData) }}
+                                <a-tooltip :title="'Task name' | taskLabelHint(taskField.Name, formConfigPreviewData)" placement='top'>
                                   <a-icon type="info-circle" />
                                 </a-tooltip>
                               </template>
@@ -67,8 +67,8 @@
                               </a-popconfirm>
                               <a-form-item>
                                 <template class='my-label' slot='label'>
-                                  {{ 'Choose class' | taskLabelName(taskField.TaskClassList, $store.getters.formConfigPreviewData) }}
-                                  <a-tooltip :title="'Choose class' | taskLabelHint(taskField.TaskClassList, $store.getters.formConfigPreviewData)" placement='top'>
+                                  {{ 'Choose class' | taskLabelName(taskField.TaskClassList, formConfigPreviewData) }}
+                                  <a-tooltip :title="'Choose class' | taskLabelHint(taskField.TaskClassList, formConfigPreviewData)" placement='top'>
                                     <a-icon type="info-circle" />
                                   </a-tooltip>
                                 </template>
@@ -113,8 +113,8 @@
                           <div class='form-block over-form-block' id='overview' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Overview' :key='fieldItem.fieldName'>
                             <a-form-model-item class='task-audio-line' ref='overview'>
                               <template class='my-label' slot='label'>
-                                {{ 'Task details' | taskLabelName(taskField.Overview, $store.getters.formConfigPreviewData) }}
-                                <a-tooltip :title="'Task details' | taskLabelHint(taskField.Overview, $store.getters.formConfigPreviewData)" placement='top'>
+                                {{ 'Task details' | taskLabelName(taskField.Overview, formConfigPreviewData) }}
+                                <a-tooltip :title="'Task details' | taskLabelHint(taskField.Overview, formConfigPreviewData)" placement='top'>
                                   <a-icon type="info-circle" />
                                 </a-tooltip>
                               </template>
@@ -126,7 +126,7 @@
                             <a-form-model-item class='task-audio-line' ref='taskType' :colon='false'>
                               <div slot='label'>
                                 {{ 'Choose Task Type' | taskLabelName(taskField.TaskType, $store.getters.formConfigData) }}
-                                <a-tooltip :title="'Choose Task Type' | taskLabelHint(taskField.TaskType, $store.getters.formConfigPreviewData)" placement='top'>
+                                <a-tooltip :title="'Choose Task Type' | taskLabelHint(taskField.TaskType, formConfigPreviewData)" placement='top'>
                                   <a-icon type="info-circle" />
                                 </a-tooltip>
                               </div>
@@ -153,8 +153,8 @@
                           <div class='form-block form-question' v-if='associateQuestionList.length > 0 && fieldItem.visible && fieldItem.fieldName === taskField.Question' :key='fieldItem.fieldName'>
                             <a-form-model-item>
                               <template class='my-label' slot='label'>
-                                {{ 'Choose Key questions' | taskLabelName(taskField.Overview, $store.getters.formConfigPreviewData) }}
-                                <a-tooltip :title="'Choose Key questions' | taskLabelHint(taskField.Overview, $store.getters.formConfigPreviewData)" placement='top'>
+                                {{ 'Choose Key questions' | taskLabelName(taskField.Overview, formConfigPreviewData) }}
+                                <a-tooltip :title="'Choose Key questions' | taskLabelHint(taskField.Overview, formConfigPreviewData)" placement='top'>
                                   <a-icon type="info-circle" />
                                 </a-tooltip>
                               </template>
@@ -184,8 +184,8 @@
                           <div class='form-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.LearnOuts' :key='fieldItem.fieldName'>
                             <a-form-item>
                               <template class='my-label' slot='label'>
-                                {{ 'Set learning objectives' | taskLabelName(taskField.LearnOuts, $store.getters.formConfigPreviewData) }}
-                                <a-tooltip :title="'Set learning objectives' | taskLabelHint(taskField.LearnOuts, $store.getters.formConfigPreviewData)" placement='top'>
+                                {{ 'Set learning objectives' | taskLabelName(taskField.LearnOuts, formConfigPreviewData) }}
+                                <a-tooltip :title="'Set learning objectives' | taskLabelHint(taskField.LearnOuts, formConfigPreviewData)" placement='top'>
                                   <a-icon type="info-circle" />
                                 </a-tooltip>
                               </template>
@@ -207,7 +207,7 @@
                           <div class='form-block' style='clear: both' v-if='fieldItem.visible && fieldItem.fieldName === taskField.MaterialList' :key='fieldItem.fieldName'>
                             <div class='form-block-label'>
                               <a-switch v-model='materialListFlag' @change='handleMaterialListFlagChange' />
-                              <a-tooltip :title="'Material list' | taskLabelHint(taskField.MaterialList, $store.getters.formConfigPreviewData)" placement='top'>
+                              <a-tooltip :title="'Material list' | taskLabelHint(taskField.MaterialList, formConfigPreviewData)" placement='top'>
                                 {{ 'Material list' | taskLabelName(taskField.MaterialList, $store.getters.formConfigData) }}
                               </a-tooltip>
                             </div>
@@ -256,7 +256,7 @@
                           </div>
                         </template>
 
-                        <template v-for='custFieldItem in $store.getters.formConfigPreviewData.taskCustomList'>
+                        <template v-for='custFieldItem in formConfigPreviewData.taskCustomList'>
                           <div class='form-block' v-if="custFieldItem.visible && form.customFieldData && form.customFieldData.hasOwnProperty(custFieldItem.id)" :key='custFieldItem.id' :data-field-name='custFieldItem.name' :data-field-id='custFieldItem.id'>
                             <a-form-item>
                               <template class='my-label' slot='label'>
@@ -927,6 +927,7 @@
         destroyOnClose
         width='640px'>
       </a-modal>
+
       <a-modal
         v-model='selectAddContentTypeVisible'
         :footer='null'
@@ -946,6 +947,7 @@
           </div>
         </div>
       </a-modal>
+
       <a-modal
         v-model='selectLinkUnitPlanContentVisible'
         :footer='null'
@@ -1777,6 +1779,8 @@ import QuickSession from '@/components/QuickSession/QuickSession'
 import QuickTaskTemplatePreview from '@/components/Task/QuickTaskTemplatePreview'
 import UploadEnter from '@/components/AddMaterial/UploadEnter'
 import { addBatchElements } from '@/api/addMaterial'
+import storage from 'store'
+import { FORM_CONFIG_PREVIEW_DATA } from '@/store/mutation-types'
 
 export default {
   name: 'AddTask',
@@ -2074,7 +2078,8 @@ export default {
     }
   },
   created() {
-    this.$logger.info('task-preview created', this.$store.getters.formConfigPreviewData)
+    this.formConfigPreviewData = storage.get(FORM_CONFIG_PREVIEW_DATA)
+    this.$logger.info('task-preview created', this.formConfigPreviewData)
     this.initData()
     this.getAssociate()
     this.loadCustomTags()
@@ -2112,12 +2117,16 @@ export default {
       }).finally(() => {
         // 填充自定义字段
         const displayCustomFieldData = {}
-        if (this.$store.getters.formConfigPreviewData && this.$store.getters.formConfigPreviewData.taskCustomList) {
-          this.$store.getters.formConfigPreviewData.taskCustomList.forEach(customField => {
+        if (this.formConfigPreviewData && this.formConfigPreviewData.taskCustomList) {
+          this.formConfigPreviewData.taskCustomList.forEach(customField => {
             displayCustomFieldData[customField.id] = ''
           })
         } else {
-          this.goBack()
+          this.$confirm({
+            title: 'Alert',
+            okText: 'Ok',
+            content: 'Failed to get the preview data!'
+          })
         }
         this.$logger.info('displayCustomFieldData', displayCustomFieldData)
         this.form.customFieldData = displayCustomFieldData

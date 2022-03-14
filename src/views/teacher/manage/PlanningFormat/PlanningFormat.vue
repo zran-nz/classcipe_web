@@ -81,9 +81,7 @@ export default {
             schoolId: this.$store.getters.userInfo.school,
             type: typeMap['unit-plan']
           })
-          this.$router.push({
-            path: '/teacher/managing/planning-format/unit-plan-preview'
-          })
+          window.open('/teacher/managing/planning-format/unit-plan-preview', '_blank')
         }
       } else if (this.activeKey === 'task') {
         const taskConfig = this.$refs.task.getFormatConfig()
@@ -94,9 +92,7 @@ export default {
             schoolId: this.$store.getters.userInfo.school,
             type: typeMap.task
           })
-          this.$router.push({
-            path: '/teacher/managing/planning-format/task-preview'
-          })
+          window.open('/teacher/managing/planning-format/task-preview', '_blank')
         }
       }
     },

@@ -6,17 +6,6 @@ import { FormConfigUser } from '@/api/formConfig'
 
 const formConfig = {
   state: {
-    previewData: {
-      loaded: false,
-      taskFieldMap: {},
-      taskHintMap: {},
-      taskCommonList: [],
-      taskCustomList: [],
-      planFieldMap: {},
-      planHintMap: {},
-      planCommonList: [],
-      planCustomList: []
-    },
     formConfigData: {
       loaded: false,
       taskFieldMap: {},
@@ -62,9 +51,7 @@ const formConfig = {
         configData.planCommonList = previewData.commonList
         configData.planCustomList = previewData.customList
       }
-
-      state.previewData = configData
-      storage.set(FORM_CONFIG_PREVIEW_DATA, previewData)
+      storage.set(FORM_CONFIG_PREVIEW_DATA, configData)
     },
     [FORM_CONFIG_DATA]: (state, formConfigData) => {
       logger.info('formConfigData', formConfigData)
