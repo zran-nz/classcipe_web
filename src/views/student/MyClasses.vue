@@ -813,6 +813,7 @@ a.delete-action {
     cursor: pointer;
     &.active {
         border: 1px solid blueviolet;
+        background: #E7F9F5;
     }
   }
 }
