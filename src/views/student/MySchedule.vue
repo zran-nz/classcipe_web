@@ -3,65 +3,67 @@
     <div class="opt">
       <a-button type="primary" @click="showAttendance">{{ attendanceVisible ? 'Close' : 'Show' }} Attendance</a-button>
     </div>
-    <div class="schedule-content">
-      <FullCalendar
-        ref="fullCalendar"
-        :options="calendarOptions"
-        class="schedule-calendar"
-      />
-      <div class="schedule-tip" v-show="attendanceVisible">
-        <div class="attendance"><!-- :style="{visibility: attendanceVisible ? 'visible' : 'hidden'}"> -->
-          <a-select class="attendance-choose" v-model="currentClass" @change="handleChangeClass">
-            <a-select-option :value="item.id" v-for="(item, index) in currentStudentClass" :key="'class'+index">
-              {{ item.name }}
-            </a-select-option>
-          </a-select>
-          <pie
-            :color="ABSENT_COLORS"
-            :height="198"
-            :dataSource="dataSource"
-            :labelConfig="labelConfig"
-            :radius="radius"
-            :guideData="guideData"/>
-        </div>
-        <div class="class-tip">
-          <div class="tip-title">My Class Legend</div>
-          <a-checkbox-group
-            :options="showClassOptions"
-            v-model="showClass"
-            @change="handleChangeEvents"
-            class="tip-check"
-          >
-            <div slot="label" class="tip-content" slot-scope="item">
-              <span class="tip-dot" :style="{backgroundColor: BG_COLORS[item.index]}"></span>
-              <span>{{ item.name }}</span>
-            </div>
-          </a-checkbox-group>
+    <a-spin :spinning="loading">
+      <div class="schedule-content">
+        <FullCalendar
+          ref="fullCalendar"
+          :options="calendarOptions"
+          class="schedule-calendar"
+        />
+        <div class="schedule-tip" v-show="attendanceVisible">
+          <div class="attendance"><!-- :style="{visibility: attendanceVisible ? 'visible' : 'hidden'}"> -->
+            <a-select class="attendance-choose" v-model="currentClass" @change="handleChangeClass">
+              <a-select-option :value="item.id" v-for="(item, index) in currentStudentClass" :key="'class'+index">
+                {{ item.name }}
+              </a-select-option>
+            </a-select>
+            <pie
+              :color="ABSENT_COLORS"
+              :height="198"
+              :dataSource="dataSource"
+              :labelConfig="labelConfig"
+              :radius="radius"
+              :guideData="guideData"/>
+          </div>
+          <div class="class-tip">
+            <div class="tip-title">My Class Legend</div>
+            <a-checkbox-group
+              :options="showClassOptions"
+              v-model="showClass"
+              @change="handleChangeEvents"
+              class="tip-check"
+            >
+              <div slot="label" class="tip-content" slot-scope="item">
+                <span class="tip-dot" :style="{backgroundColor: BG_COLORS[item.index]}"></span>
+                <span>{{ item.name }}</span>
+              </div>
+            </a-checkbox-group>
           <!-- <div class="tip-content" v-for="(item, index) in currentStudentClass" :key="'classtip'+item.id">
               <span class="tip-dot" :style="{backgroundColor: BG_COLORS[index]}"></span>
               <label>{{ item.name }}</label>
           </div> -->
-        </div>
-        <div class="class-tip">
-          <div class="tip-title">Attendance Status Legend</div>
-          <a-checkbox-group
-            :options="showStatusOptions"
-            v-model="showStatus"
-            @change="handleChangeEvents"
-            class="tip-check"
-          >
-            <div slot="label" class="tip-content" slot-scope="item">
-              <span class="tip-dot dot-status" :style="{backgroundColor: ABSENT_COLORS[item.index]}"></span>
-              <span>{{ item.name }}</span>
-            </div>
-          </a-checkbox-group>
+          </div>
+          <div class="class-tip">
+            <div class="tip-title">Attendance Status Legend</div>
+            <a-checkbox-group
+              :options="showStatusOptions"
+              v-model="showStatus"
+              @change="handleChangeEvents"
+              class="tip-check"
+            >
+              <div slot="label" class="tip-content" slot-scope="item">
+                <span class="tip-dot dot-status" :style="{backgroundColor: ABSENT_COLORS[item.index]}"></span>
+                <span>{{ item.name }}</span>
+              </div>
+            </a-checkbox-group>
           <!-- <div class="tip-content" v-for="(item, index) in statusList" :key="'statusTip'+item.id">
             <span class="tip-dot dot-status" :style="{backgroundColor: ABSENT_COLORS[index]}"></span>
             <label>{{ item.name }}</label>
           </div> -->
+          </div>
         </div>
       </div>
-    </div>
+    </a-spin>
     <div class="tooltip">
       <div class="tooltip-wrap" ref="tooltip">
         <div class="tooltip-content">
@@ -107,6 +109,7 @@ export default {
       ABSENT_COLORS: ABSENT_COLORS,
       BG_COLORS: BG_COLORS,
       attendanceVisible: true,
+      loading: false,
       startDate: '',
       endDate: '',
       viewType: 'dayGridMonth',
@@ -125,6 +128,11 @@ export default {
         events: (date, successCb, failCb) => {
           const start = moment(date.start).format('YYYY-MM-DD')
           const end = moment(date.end).format('YYYY-MM-DD')
+          this.loading = true
+          if (this.$refs.fullCalendar) {
+            const calendarApi = this.$refs.fullCalendar.getApi()
+            calendarApi && calendarApi.removeAllEvents()
+          }
           getClassSchedule({
             dateStart: start,
             dateEnd: end
@@ -140,21 +148,29 @@ export default {
                   title: item.name,
                   start: item.startDate,
                   end: item.endDate,
-                  backgroundColor: color,
+                  backgroundColor: 'transparent',
+                  borderColor: 'transparent',
                   extendedProps: {
                     classId: item.classId,
-                    status: item.attendance || 'absent'
+                    status: item.attendance || 'absent',
+                    backgroundColor: color
                   }
                 }
               })
               this.classSchedules = res.result
               this.allEvents = events
-              successCb(events)
+              const filterEvents = events.filter(event => {
+                const props = event.extendedProps
+                return this.showClass.includes(props.classId) && this.showStatus.includes(props.status)
+              })
+              successCb(filterEvents)
             } else {
               failCb()
             }
           }).catch(() => {
             failCb()
+          }).finally(() => {
+            this.loading = false
           })
         },
         editable: false,
@@ -187,14 +203,14 @@ export default {
 
           // 过滤
           // if (!this.showClass.includes(props.classId) || !this.showStatus.includes(props.status)) {
-          //   return null
+          //   return h('div')
           // }
           const colorIndex = Object.values(TASK_ATTENDANCE).findIndex(item => item === props.status)
 
           return h('div', {
               class: 'schedule-event-content',
               style: {
-                backgroundColor: info.event.backgroundColor,
+                backgroundColor: props.backgroundColor,
                 color: '#fff'
               }
             }, [
@@ -338,7 +354,6 @@ export default {
       console.log(events)
     },
     handleDatesSet(event) {
-      console.log(event)
       this.startDate = moment(event.start).format('YYYY-MM-DD')
       this.endDate = moment(event.end).format('YYYY-MM-DD')
       this.viewType = event.view.type
@@ -349,13 +364,7 @@ export default {
     handleChangeEvents() {
       if (this.showClass.length === this.showClassOptions.length && this.showStatus === this.showStatusOptions.length) return
       const calendarApi = this.$refs.fullCalendar.getApi()
-      const events = calendarApi.getEvents()
-      console.log(this.showStatus)
-      if (events.length > 0) {
-        events.forEach(event => {
-          event.remove()
-        })
-      }
+      calendarApi.removeAllEvents()
       this.allEvents.forEach(item => {
         const props = item.extendedProps
         if (this.showClass.includes(props.classId) && this.showStatus.includes(props.status)) {
@@ -371,6 +380,7 @@ export default {
         title: info.event.title,
         backgroundColor: info.event.backgroundColor
       }
+      const $el = info.el.querySelector('.schedule-event-content')
       const curClass = this.currentStudentClass.find(item => item.id === this.event.classId)
       // const $tooltip = this.$refs.tooltip.getBoundingClientRect()
       // const $el = info.el.getBoundingClientRect()
@@ -388,7 +398,7 @@ export default {
                         <p>End: ${moment(info.event.end).format(this.FORMATTER_FULL)}</p>
                       </div>
                     </div>`
-      tippy(info.el, {
+      tippy($el, {
         content: _html,
         animation: 'scale',
         theme: 'light',
@@ -409,8 +419,10 @@ export default {
     },
     reRender() {
       this.$nextTick(() => {
-        const calendarApi = this.$refs.fullCalendar.getApi()
-        calendarApi.render()
+        if (this.$refs.fullCalendar) {
+          const calendarApi = this.$refs.fullCalendar.getApi()
+          calendarApi && calendarApi.render()
+        }
       })
     }
   }

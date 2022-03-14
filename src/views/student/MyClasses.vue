@@ -156,7 +156,7 @@
         <a-table
           :columns="columns"
           :data-source="attendanceList"
-          :pagination="false"
+          :pagination="true"
           class="content-list"
           :rowKey="row => row.id">
         </a-table>

@@ -89,6 +89,7 @@
       :loadData="loadData"
       :viewMode="viewMode"
       :status="currentStatus"
+      :actionType="STUDY_MODE.SELF === this.studyMode ? 'myTask' : 'myClass'"
       ref="myTaskList"
     >
     </my-task-list>

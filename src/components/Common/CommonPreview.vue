@@ -478,11 +478,13 @@ import RateByPercent from '@/components/RateByPercent'
 import ReviewsPreview from '@/components/Common/ReviewsPreview'
 import { BaseEventMixin } from '@/mixins/BaseEvent'
 import { Duplicate } from '@/api/teacher'
-import { DICT_PROMPT_TYPE } from '@/const/common'
+import { DICT_PROMPT_TYPE, STUDY_MODE } from '@/const/common'
 import { GetDictItems } from '@/api/common'
 import { lessonHost } from '@/const/googleSlide'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 import storage from 'store'
+
+import { mapState } from 'vuex'
 const { formatLocalUTC } = require('@/utils/util')
 const { UnitPlanQueryById } = require('@/api/unitPlan')
 const { TaskQueryById } = require('@/api/task')
@@ -520,6 +522,9 @@ export default {
   },
   mixins: [PptPreviewMixin, BaseEventMixin],
   computed: {
+    ...mapState({
+      studyMode: state => state.app.studyMode
+    }),
     lastChangeSavedTime () {
       if (this.data) {
         logger.info('lastChangeSavedTime data', this.data)
@@ -765,7 +770,7 @@ export default {
         centered: true,
         onOk: () => {
           this.copyLoading = true
-          if (this.data.buyed) {
+          if (this.data.buyed || STUDY_MODE.SCHOOL === this.studyMode) {
             this.handleStartSession(this.data.id)
           } else {
             SelfStudyTaskBye({ taskId: this.data.id }).then((response) => {

@@ -84,7 +84,7 @@
                           <a-dropdown>
                             <a-icon type="more" style="margin-right: 8px" />
                             <a-menu slot="overlay">
-                              <a-menu-item>
+                              <a-menu-item v-show="item.task.selfReview">
                                 <a @click="handleReviewItem(item)">
                                   <a-icon type="rollback" /> Self-review
                                 </a>
@@ -138,7 +138,7 @@
                 <div class="mask"></div>
 
                 <div class="mask-actions">
-                  <div class="action-item action-item-top" v-if="currentStatus !== TASK_STATUS.ARCHIVED && currentStatus !== TASK_STATUS.SCHEDULED">
+                  <div class="action-item action-item-top" v-show="currentStatus !== TASK_STATUS.ARCHIVED && currentStatus !== TASK_STATUS.SCHEDULED">
                     <a-dropdown v-if="actionType === 'myTask' && STUDY_MODE.SELF === studyMode">
                       <a-icon type="more" style="margin-right: 8px" class="more-icon" />
                       <a-menu slot="overlay">
@@ -159,7 +159,7 @@
                     <a-dropdown v-if="actionType === 'myClass'">
                       <a-icon type="more" style="margin-right: 8px" class="more-icon" />
                       <a-menu slot="overlay">
-                        <a-menu-item>
+                        <a-menu-item v-show="item.task.selfReview">
                           <a @click="handleReviewItem(item)">
                             <a-icon type="rollback" /> Self-review
                           </a>
@@ -172,7 +172,7 @@
                       </a-menu>
                     </a-dropdown>
                   </div>
-                  <div class="action-item action-item-center" v-if="currentStatus !== TASK_STATUS.ARCHIVED && currentStatus !== TASK_STATUS.SCHEDULED">
+                  <div class="action-item action-item-center" :style="{ visibility: currentStatus !== TASK_STATUS.ARCHIVED && currentStatus !== TASK_STATUS.SCHEDULED ? 'visible': 'hidden'}">
                     <div class="session-btn session-btn-right" @click="handleStartSession(item)">
                       <div class="session-btn-text">
                         <student-pace />
@@ -180,16 +180,8 @@
                       </div>
                     </div>
                   </div>
-                  <div class="action-item action-item-center" v-if="currentStatus === TASK_STATUS.SCHEDULED && actionType === 'myClass'">
-                    <div class="session-btn session-btn-right" @click="handleViewDetail(item)">
-                      <div class="session-btn-text">
-                        <student-pace />
-                        Preview
-                      </div>
-                    </div>
-                  </div>
                   <div class="action-item action-item-bottom" >
-                    <template v-if="currentStatus !== TASK_STATUS.ARCHIVED && currentStatus !== TASK_STATUS.SCHEDULED">
+                    <template v-if="currentStatus !== TASK_STATUS.ARCHIVED">
                       <div class="session-btn" @click.stop="handleReportItem(item)" v-show="actionType === 'myTask' && STUDY_MODE.SELF === studyMode">
                         <div class="session-btn-icon content-list-action-btn">
                           <a-icon type="bar-chart" />
@@ -283,6 +275,31 @@
       @cancel="paymentVisible = false">
       <payment-detail :taskId="currentTaskId" :taskName="currentTaskName"></payment-detail>
     </a-modal>
+
+    <a-modal
+      v-model="takeAwayPreviewVisible"
+      :footer="null"
+      destroyOnClose
+      :dialog-style="{ top: '30px' }"
+      width="920px"
+      title="Takeaways"
+      @ok="takeAwayPreviewVisible = false"
+      @cancel="takeAwayPreviewVisible = false">
+      <div class="view-take-away">
+
+        <div class='ppt-slide-view'>
+          <div class="slide-preview" v-if="currentActiveStudentId">
+            <takeaway-ppt-slide-view
+              ref='takeaway'
+              :class-id="takeAwayClassId"
+              :session-id='takeAwaySessionId'
+              :slide-id="takeAwaySlideId"
+              mode='takeaway'
+              :student-name="currentActiveStudentId" />
+          </div>
+        </div>
+      </div>
+    </a-modal>
   </div>
 </template>
 
@@ -296,7 +313,8 @@ import { StudentStudyTaskStatus, STUDY_MODE, TASK_STATUS } from '@/const/common'
 import CommonPreview from '@/components/Common/CommonPreview'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import FilterContent from '@/components/UnitPlan/FilterContent'
-import PaymentDetail from './PaymentDetail'
+import PaymentDetail from '@/components/Student/PaymentDetail'
+import TakeawayPptSlideView from '@/components/Evaluation/TakeawayPptSlideView'
 
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import PreviousSessionsSvg from '@/assets/icons/common/PreviousSessions.svg?inline'
@@ -326,7 +344,8 @@ export default {
     CommonPreview,
     NoMoreResources,
     FilterContent,
-    PaymentDetail
+    PaymentDetail,
+    TakeawayPptSlideView
   },
   props: {
     loadData: {
@@ -383,7 +402,13 @@ export default {
       currentTaskName: '',
       previewType: typeMap.task,
       currentPreviewLesson: null,
-      paymentVisible: false
+      paymentVisible: false,
+
+      takeAwayPreviewVisible: false,
+      currentActiveStudentId: null,
+      takeAwaySlideId: null,
+      takeAwayClassId: null,
+      takeAwaySessionId: null
     }
   },
   created () {
@@ -392,7 +417,8 @@ export default {
   },
   computed: {
     ...mapState({
-      studyMode: state => state.app.studyMode
+      studyMode: state => state.app.studyMode,
+      user: state => state.user
     }),
     statusList() {
       return StudentStudyTaskStatus.filter(item => {
@@ -520,10 +546,16 @@ export default {
 
     },
     handleReviewItem(item) {
-
+      if (item.task.sessionId) {
+        this.$router.push(`/student/evaluation/${item.task.sessionId}`)
+      }
     },
     handleTakeAwayItem(item) {
-
+      this.takeAwayClassId = item.task.classId
+      this.takeAwaySessionId = item.task.sessionId
+      this.takeAwaySlideId = item.task.presentationId
+      this.currentActiveStudentId = this.user.name
+      this.takeAwayPreviewVisible = true
     },
     triggerSearch() {
       this.loadMyContent()
