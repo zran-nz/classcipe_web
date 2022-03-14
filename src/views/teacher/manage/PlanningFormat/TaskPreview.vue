@@ -2203,9 +2203,9 @@ export default {
     handleClickPreviewMask () {
       this.$confirm({
         title: 'Alert',
-        okText: 'Exit',
+        okText: 'Confirm',
         cancelText: 'Cancel',
-        content: 'Currently in preview mode, whether to exit',
+        content: 'Current in preview mode, do you confirm to exit?',
         onOk: () => {
           this.closeWindow()
         }
