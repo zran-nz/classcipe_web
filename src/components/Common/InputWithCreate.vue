@@ -101,11 +101,11 @@ export default {
   },
   computed: {
     displayOptionList () {
-       if (this.displayValue && this.displayValue.trim()) {
-         return this.myOptionList.filter(option => option.name.indexOf(this.displayValue.trim()) !== -1)
-       } else {
-         return this.myOptionList
-       }
+      if (this.displayValue && this.displayValue.trim()) {
+        return this.myOptionList.filter(option => option.name.indexOf(this.displayValue.trim()) !== -1)
+      } else {
+        return this.myOptionList
+      }
     },
     existValue () {
       if (this.displayValue && this.displayValue.trim()) {

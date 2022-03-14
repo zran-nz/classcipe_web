@@ -68,8 +68,9 @@
         :loading="loading"
         :expandedRowKeys="expandedRowKeys"
         @change="handleTableChange"
-        @expand="handleExpand">
-        <span slot="action" slot-scope="text">
+        @expand="handleExpand"
+      >
+        <span slot="hint" placement='top' slot-scope="text" class="hint-text" :title='text' >
           {{ text }}
         </span>
 
@@ -145,7 +146,8 @@ export default {
         {
           title: 'Hint',
           align: 'left',
-          dataIndex: 'tooltip'
+          dataIndex: 'tooltip',
+          scopedSlots: { customRender: 'hint' }
         },
         {
           title: 'Optional',
@@ -413,5 +415,15 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+
+.hint-text{
+  display: block;
+  width: 300px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  word-break: break-all;
+}
 
 </style>

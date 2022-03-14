@@ -30,9 +30,14 @@
         :pagination="ipagination"
         :loading="loading"
         :expandedRowKeys="expandedRowKeys"
+        @change="handleTableChange"
         @expand="handleExpand"
         v-bind="tableProps"
       >
+
+        <span slot="hint" placement='top' slot-scope="text" class="hint-text" :title='text' >
+          {{ text }}
+        </span>
       </a-table>
     </div>
 
@@ -42,7 +47,7 @@
 
 <script>
 
-import { getAction, postAction } from '@/api/manage'
+import { getAction } from '@/api/manage'
 import { JeecgListMixin } from '@/mixins/JeecgListMixin'
 import { filterObj } from '@/utils/util'
 import JModal from '@/components/jeecg/JModal'
@@ -75,7 +80,8 @@ export default {
         {
           title: 'Hint',
           align: 'left',
-          dataIndex: 'tooltip'
+          dataIndex: 'tooltip',
+          scopedSlots: { customRender: 'hint' }
         },
         {
           title: 'Optional',
@@ -151,7 +157,7 @@ export default {
       params.hasQuery = 'true'
       params.isCustom = true
       // params.schoolId = this.$store.getters.userInfo.school
-      postAction(this.url.list, params).then(res => {
+      getAction(this.url.list, params).then(res => {
         if (res.success) {
           const result = res.result
           if (Number(result.total) > 0) {
@@ -283,5 +289,15 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+
+.hint-text{
+  display: block;
+  width: 300px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  word-break: break-all;
+}
 
 </style>
