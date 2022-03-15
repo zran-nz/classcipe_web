@@ -200,6 +200,8 @@ const user = {
           commit('SET_BIND_CURRICULUM', result.bindCurriculum)
           commit('SET_CURRENT_ROLE', result.currentRole)
           commit('SET_IS_ADD_PREFERENCE', result.isAddPreference)
+          // 不同角色菜单不一样需要重新生成
+          commit('SET_ROUTERS', [])
           storage.set(CURRENT_ROLE, result.currentRole)
           storage.set(IS_ADD_PREFERENCE, result.isAddPreference)
           storage.set(USER_INFO, result)
@@ -224,6 +226,8 @@ const user = {
           commit('SET_CURRENT_ROLE', '')
           commit('SET_PERMISSIONS', [])
           commit('SET_IS_ADD_PREFERENCE', false)
+          // 不同角色菜单不一样需要重新生成
+          commit('SET_ROUTERS', [])
           storage.remove(CURRENT_ROLE)
           storage.remove(ACCESS_TOKEN)
           storage.remove(IS_ADD_PREFERENCE)
@@ -254,6 +258,8 @@ const user = {
         commit('SET_CURRENT_ROLE', '')
         commit('SET_PERMISSIONS', [])
         commit('SET_IS_ADD_PREFERENCE', false)
+        // 不同角色菜单不一样需要重新生成
+        commit('SET_ROUTERS', [])
         storage.remove(CURRENT_ROLE)
         storage.remove(ACCESS_TOKEN)
         storage.remove(IS_ADD_PREFERENCE)

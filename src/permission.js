@@ -6,7 +6,7 @@ import '@/components/NProgress/nprogress.less' // progress bar custom style
 import { domTitle, setDocumentTitle } from '@/utils/domUtil'
 import { ACCESS_TOKEN, CURRENT_ROLE } from '@/store/mutation-types'
 import { i18nRender } from '@/locales'
-import { defaultExpertRouter, defaultTeacherRouter } from '@/config/router.config'
+import { defaultExpertRouter, defaultStudentRouter, defaultTeacherRouter } from '@/config/router.config'
 import * as logger from '@/utils/logger'
 import { SESSION_ACTIVE_KEY } from '@/const/common'
 import { getToken } from './utils/util'
@@ -39,7 +39,8 @@ router.beforeEach((to, from, next) => {
     logger.info('accessToken check', accessToken)
     if (accessToken) {
       if (to.path === loginRoutePath) {
-        const defaultRoutePath = storage.get(CURRENT_ROLE) === 'expert' ? defaultExpertRouter : defaultTeacherRouter
+        const defaultRoutePath = storage.get(CURRENT_ROLE) === 'expert' ? defaultExpertRouter
+         : storage.get(CURRENT_ROLE) === 'teacher' ? defaultTeacherRouter : defaultStudentRouter
         next({ path: defaultRoutePath })
         NProgress.done()
       } else {
