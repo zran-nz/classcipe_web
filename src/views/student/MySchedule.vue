@@ -292,8 +292,8 @@ export default {
       const currentEvents = this.getCurrentEvents()
       const presentCount = currentEvents.filter(item => item.attendance === TASK_ATTENDANCE.PRESENT).length
       return {
-          text: 'Absent',
-          subtext: currentEvents.length - presentCount + '/' + currentEvents.length,
+          text: (currentEvents.length - presentCount) + '/' + currentEvents.length + '\nAbsent',
+          // subtext: currentEvents.length - presentCount + '/' + currentEvents.length,
           show: true,
           left: 'center',
           top: '40%'
