@@ -778,7 +778,6 @@ import { typeMap } from '@/const/teacher'
 import { CustomTagType, PlanField } from '@/const/common'
 import { commonAPIUrl } from '@/api/common'
 import { GetAllSdgs } from '@/api/scenario'
-import { debounce } from 'lodash-es'
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
 import {

@@ -179,15 +179,16 @@
           </div>
         </div>
 
-        <!--        <div class="profile-item-line" v-if="$store.getters.currentRole === 'teacher'">-->
-        <!--          <div class="profile-label">-->
-        <!--            <span class="label-txt">Key question/<br>line of inquiry :</span>-->
-        <!--          </div>-->
+        <div class="profile-item-line">
+          <div class="profile-label">
+            <span class="label-txt">Linked School(s):</span>
+          </div>
 
-        <!--          <div class="profile-text profile-data">-->
-        <!--            <a-switch :checked="!disableQuestion" @change="onChangeSwitch"/>-->
-        <!--          </div>-->
-        <!--        </div>-->
+          <div class="profile-text profile-data">
+            <div class='linked-school-name' v-if="$store.getters.schoolName">{{ $store.getters.schoolName }}</div>
+            <div class='no-linked-school-name' v-if="!$store.getters.schoolName">You have not linked to any school</div>
+          </div>
+        </div>
 
       </a-col></a-row>
 
@@ -753,5 +754,23 @@ export default {
 
 .area-input {
   margin-top: 10px;
+}
+
+.linked-school-name {
+  border-radius: 6px;
+  padding: 0 10px;
+  line-height: 23px;
+  border: 1px solid #ffc001;
+  background: #ffc001;
+  color: #fff;
+}
+
+.no-linked-school-name {
+  border-radius: 3px;
+  padding: 0 10px;
+  line-height: 23px;
+  border: 1px solid #15c39a;
+  background: #fff;
+  color: #15c39a;
 }
 </style>

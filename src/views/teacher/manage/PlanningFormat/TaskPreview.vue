@@ -6003,7 +6003,6 @@ export default {
   align-items: center;
 }
 
-
 .preview-header-mask {
   z-index: 999;
   position: fixed;

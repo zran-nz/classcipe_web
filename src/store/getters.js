@@ -32,6 +32,7 @@ const getters = {
   skillCategory: state => state.user.skillCategory,
   disableQuestion: state => state.user.disableQuestion,
   school: state => state.user.info.school,
+  schoolName: state => state.user.info.schoolName,
   schoolRole: state => state.user.info.schoolRole,
   vueSocket: state => {
     if (state.websocket.vueSocket) {
