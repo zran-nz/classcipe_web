@@ -350,7 +350,7 @@ export default {
     columns() {
       const results = [
          {
-          title: 'Date',
+          title: 'Starting time',
           dataIndex: 'date',
           width: '200px',
           // sorter: true,

@@ -3,7 +3,7 @@
     <div class='score-number-item' v-show='!loading'>
       <score-number :score='isSelfInputScore ? selfInputScore : studentScore' v-show='!selfInputVisible' />
       <a-input-number min='0' v-model='selfInputScore' v-if='selfInputVisible' @keyup.enter.native='handleEnsureSelfInputScore'/>
-      <a-icon type="form" @click.native='handleEditSelfInputScore' class='edit-icon' :style="{ color: '#aaa', fontSize: '16px' }"/>
+      <a-icon type="form" v-show="canEdit" @click.native='handleEditSelfInputScore' class='edit-icon' :style="{ color: '#aaa', fontSize: '16px' }"/>
     </div>
     <div class="student-profile" v-if="!loading">
       <div class="student-info">
@@ -202,6 +202,7 @@
                       min="0"
                       max="10"
                       v-model="slideItem.score"
+                      :disabled="!canEdit"
                       @keyup.native.stop="slideItem.score = slideItem.score > 10 ? 10 : slideItem.score" />
                   </a-col>
                 </a-row>
@@ -219,7 +220,7 @@
                     <div class="comment-detail">{{ commentItem.comment }}</div>
                   </div>
                 </div>
-                <div class="comment-add">
+                <div class="comment-add" v-if="canEdit">
                   <div class="add-comment-wrapper">
                     <div class="comment-input-wrapper">
                       <div class="input">
@@ -319,7 +320,7 @@
         <slide-preview :slide-item="currentViewSlideItem" />
       </a-modal>
     </div>
-    <div class='save-takeaway' v-if="!loading">
+    <div class='save-takeaway' v-if="!loading && canEdit">
       <a-button shape="round" type="primary" @click="handleEnsureTakeaway" :disabled='loading'>Confirm</a-button>
     </div>
     <div class="loading" v-if="loading">
@@ -426,6 +427,10 @@ export default {
     studentName: {
       type: String,
       default: null
+    },
+    canEdit: {
+      type: Boolean,
+      default: true
     }
   },
   data () {

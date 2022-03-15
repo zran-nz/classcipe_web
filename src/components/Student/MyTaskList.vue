@@ -295,6 +295,7 @@
               :session-id='takeAwaySessionId'
               :slide-id="takeAwaySlideId"
               mode='takeaway'
+              :canEdit="false"
               :student-name="currentActiveStudentId" />
           </div>
         </div>
