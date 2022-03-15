@@ -27,6 +27,17 @@
               </div>
             </router-link>
           </a-menu-item>
+          <a-menu-item key="/teacher/order" v-show="$store.getters.userInfo.username === 'luorixin1@gmail.com'">
+            <router-link to="/teacher/order">
+              <div class="nav-item">
+                <div class="nav-icon">
+                  <manage-icon-svg />
+                </div>
+                <div class="nav-label">{{ $t('menu.order') }}</div>
+                <div class="nav-button-border"></div>
+              </div>
+            </router-link>
+          </a-menu-item>
         </a-menu>
       </div>
     </div>

@@ -238,7 +238,7 @@ export const asyncRouterMap = [
             props: true,
             component: () => import('@/views/teacher/ClassSessionEvaluation'),
             meta: { title: 'Session evaluate', keepAlive: true, permission: ['teacher'] }
-          }
+          },
           // {
           //   path: '/teacher/unit-plan-material-redirect/:unitPlanId/:materialId',
           //   name: 'MaterialRedirect',
@@ -252,7 +252,28 @@ export const asyncRouterMap = [
           //   name: 'UnitPlanMaterial',
           //   component: () => import('@/views/teacher/AddUnitPlanMaterial'),
           //   meta: { title: 'menu.teacher.unit-plan-material', keepAlive: true, permission: ['teacher'] }
-          // }
+          // },
+          {
+            path: '/teacher/order',
+            name: 'OrderMain',
+            redirect: '/teacher/order/sell',
+            component: () => import('@/views/teacher/OrderMain'),
+            meta: { title: 'menu.order', keepAlive: true, permission: ['teacher'], fullLayout: true },
+            children: [
+              {
+                path: '/teacher/order/sell',
+                name: 'OrderSell',
+                component: () => import('@/views/teacher/order/Sell'),
+                meta: { title: 'menu.order-sell', keepAlive: true, icon: 'money-collect', permission: ['teacher'] }
+              },
+              {
+                path: '/teacher/order/buy',
+                name: 'OrderBuy',
+                component: () => import('@/views/teacher/order/Buy'),
+                meta: { title: 'menu.order-buy', keepAlive: true, icon: 'pay-circle', permission: ['teacher'] }
+              }
+            ]
+          }
         ]
       },
 

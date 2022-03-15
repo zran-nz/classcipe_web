@@ -17,13 +17,20 @@
                 {{ item.name }}
               </a-select-option>
             </a-select>
-            <pie
+            <!-- <pie
               :color="ABSENT_COLORS"
               :height="198"
               :dataSource="dataSource"
               :labelConfig="labelConfig"
               :radius="radius"
-              :guideData="guideData"/>
+              :guideData="guideData"/> -->
+            <e-pie
+              :datas="dataSource"
+              height="198px"
+              :radius="radius"
+              :title="chartTitle"
+              :color="ABSENT_COLORS"
+            />
           </div>
           <div class="class-tip">
             <div class="tip-title">My Class Legend</div>
@@ -87,7 +94,7 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import { createEventId } from './components/event-utils'
-import Pie from '@/components/Charts/Pie'
+import EPie from '@/components/ECharts/Pie'
 
 import { getClassSchedule } from '@/api/selfStudy'
 
@@ -102,7 +109,7 @@ export default {
   mixins: [StudyModeMixin, StudentSchoolMixin],
   components: {
     FullCalendar,
-    Pie
+    EPie
   },
   data() {
     return {
@@ -228,10 +235,11 @@ export default {
       currentEvents: [],
       // pie chart
       labelConfig: [],
-      radius: {
-        radius: 0.85,
-        innerRadius: 0.8
-      },
+      // radius: {
+      //   radius: 0.85,
+      //   innerRadius: 0.8
+      // },
+      radius: ['60%', '80%'],
       currentClass: 1,
       event: {
         title: 'My Event'
@@ -252,34 +260,18 @@ export default {
     }),
     ...mapGetters(['currentStudentClass']),
     dataSource() {
-      const dateStart = this.startDate
-      let dateEnd = this.endDate
-      if (this.viewType === 'timeGridDay') {
-        dateEnd = dateStart
-      }
-      const currentEvents = this.classSchedules.filter(item => {
-        return item.classId === this.currentClass && moment(dateEnd).diff(moment(item.startDate), 'days') >= 0
-      })
-
-      console.log(currentEvents)
-      const presentCount = currentEvents.filter(item => item.attendance === 'present').length
+      const currentEvents = this.getCurrentEvents()
+      const presentCount = currentEvents.filter(item => item.attendance === TASK_ATTENDANCE.PRESENT).length
       return [
-        { item: 'Absent', count: currentEvents.length - presentCount, color: ABSENT_COLORS[0] },
-        { item: 'Present', count: presentCount, color: ABSENT_COLORS[1] }
+        // { item: 'Absent', count: currentEvents.length - presentCount, color: ABSENT_COLORS[0] },
+        // { item: 'Present', count: presentCount, color: ABSENT_COLORS[1] }
+        { name: 'Absent', value: currentEvents.length - presentCount, color: ABSENT_COLORS[0] },
+        { name: 'Present', value: presentCount, color: ABSENT_COLORS[1] }
       ]
     },
     guideData() {
-      const dateStart = this.startDate
-      let dateEnd = this.endDate
-      if (this.viewType === 'timeGridDay') {
-        dateEnd = dateStart
-      }
-      const currentEvents = this.classSchedules.filter(item => {
-        return item.classId === this.currentClass && moment(dateEnd).diff(moment(item.startDate), 'days') >= 0
-      })
-
-      console.log(currentEvents)
-      const presentCount = currentEvents.filter(item => item.attendance === 'present').length
+      const currentEvents = this.getCurrentEvents()
+      const presentCount = currentEvents.filter(item => item.attendance === TASK_ATTENDANCE.PRESENT).length
       return [{
         content: currentEvents.length - presentCount + '/' + currentEvents.length,
         style: {
@@ -295,6 +287,17 @@ export default {
         },
         position: ['50%', '60%']
       }]
+    },
+    chartTitle() {
+      const currentEvents = this.getCurrentEvents()
+      const presentCount = currentEvents.filter(item => item.attendance === TASK_ATTENDANCE.PRESENT).length
+      return {
+          text: 'Absent',
+          subtext: currentEvents.length - presentCount + '/' + currentEvents.length,
+          show: true,
+          left: 'center',
+          top: '40%'
+        }
     },
     showClassOptions() {
       return this.currentStudentClass.map((item, index) => {
@@ -424,6 +427,18 @@ export default {
           calendarApi && calendarApi.render()
         }
       })
+    },
+    getCurrentEvents() {
+      const dateStart = this.startDate
+      let dateEnd = this.endDate
+      if (this.viewType === 'timeGridDay') {
+        dateEnd = dateStart
+      }
+      const currentEvents = this.classSchedules.filter(item => {
+        return item.classId === this.currentClass && moment(dateEnd).diff(moment(item.startDate), 'days') >= 0
+      })
+
+      return currentEvents
     }
   }
 }
