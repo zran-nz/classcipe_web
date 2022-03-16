@@ -19,7 +19,7 @@
             </a-select>
           </div>
         </div>
-        <new-navigation />
+        <new-navigation :show-curriculum='!showCurriculum'/>
       </div>
     </div>
     <div class="main">
