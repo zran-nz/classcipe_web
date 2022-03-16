@@ -251,8 +251,18 @@ export default {
           }
           // 从大纲数据中复制一份数据，只用mainSubject既第一层 且subjectType=2
           this.subjectTree.forEach(subjectItem => {
-            if (subjectItem.subjectType === SubjectType.Skill || subjectItem.subjectType === SubjectType.LearnAndSkill) {
-              specificSkillsData.children.push(JSON.parse(JSON.stringify(subjectItem)))
+            const localSubjectItem = JSON.parse(JSON.stringify(subjectItem))
+            if (localSubjectItem.subjectType === SubjectType.Skill || localSubjectItem.subjectType === SubjectType.LearnAndSkill) {
+              // 因为只显示第一层大纲，故删除员有的children列表,填充grade列表数据
+              localSubjectItem.children = []
+              localSubjectItem.gradeList = []
+              this.gradeList.forEach(item => {
+                item.children = []
+                item.isGrade = true
+                localSubjectItem.children.push(JSON.parse(JSON.stringify(item)))
+                localSubjectItem.gradeList.push(JSON.parse(JSON.stringify(item)))
+              })
+              specificSkillsData.children.push(localSubjectItem)
             }
           })
           // skill放第一位

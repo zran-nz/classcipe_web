@@ -660,7 +660,8 @@
       @ok='handleEnsureSelectCriteria'
       destroyOnClose
       width='1200px'
-      :dialog-style="{ top: '20px' }">
+      :dialog-style="{ top: '20px' }"
+      :footer='null'>
       <div class='associate-library'>
         <new-browser
           :select-mode='selectModel.evaluationMode'
