@@ -164,6 +164,7 @@ export default {
   mounted () {
     LibraryEventBus.$on(LibraryEvent.ContentListUpdate, this.handleContentListUpdate)
     LibraryEventBus.$on(LibraryEvent.ContentListSelectedListUpdate, this.handleContentSelectedListUpdate)
+    LibraryEventBus.$on(LibraryEvent.ChangeCurriculum, this.handleChangeCurriculum)
     this.nameWidth = document.getElementById('new-library').getBoundingClientRect().width - 400
     this.$logger.info('nameWidth ' + this.nameWidth)
     this.$logger.info('NewContentList selectedList', this.selectedList)
@@ -171,6 +172,12 @@ export default {
     this.assignSelectedList()
   },
   methods: {
+    handleChangeCurriculum () {
+      this.$logger.info('NewContentList handleChangeCurriculum')
+      this.contentDataList = []
+      this.parent = null
+      this.currentDataType = null
+    },
     assignSelectedList () {
       this.$logger.info('assignSelectedList', this.selectedList)
       this.selectedIdList = []
@@ -660,6 +667,7 @@ export default {
     LibraryEventBus.$off(LibraryEvent.ContentListUpdate, this.handleContentListUpdate)
     this.$logger.info('off NewContentList ContentListUpdate handler')
     LibraryEventBus.$off(LibraryEvent.ContentListSelectedListUpdate, this.handleContentSelectedListUpdate)
+    LibraryEventBus.$off(LibraryEvent.ChangeCurriculum, this.handleChangeCurriculum)
     this.$logger.info('off NewContentList ContentListSelectedListUpdate handler')
   }
 }

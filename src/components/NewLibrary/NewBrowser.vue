@@ -1,7 +1,7 @@
 <template>
   <div class="new-library" id="new-library">
     <div class="navigation">
-      <div class="navigation-item" v-show="!expandedListFlag" :style="{'left': (25) + 'px', 'width': (1000) + 'px',}">
+      <div class="navigation-item" v-show="!expandedListFlag" :style="{'left': (127) + 'px', 'width': (1000) + 'px',}">
         <div class="select-curriculum" v-show="showCurriculum">
           <div class="my-curriculum-select">
             <a-select
@@ -590,6 +590,7 @@ export default {
     handleCurriculumChange (value) {
       this.$logger.info('handleCurriculumChange ' + value)
       this.currentCurriculumId = value
+      LibraryEventBus.$emit(LibraryEvent.ChangeCurriculum, value)
     },
 
     handleSelectListData (data) {
@@ -1325,4 +1326,8 @@ div[tag-type="3"] {
   padding-bottom: 5px;
 }
 
+.select-curriculum {
+  min-width: 140px;
+  margin-right: 5px;
+}
 </style>

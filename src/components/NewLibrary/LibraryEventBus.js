@@ -3,6 +3,7 @@ import Vue from 'vue'
 export const LibraryEventBus = new Vue()
 
 export const LibraryEvent = {
+  ChangeCurriculum: 'ChangeCurriculum',
   ContentListUpdate: 'ContentListUpdate',
   ContentListItemClick: 'ContentListItemClick',
   ContentListSelectClick: 'ContentListSelectClick',
