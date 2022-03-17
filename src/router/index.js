@@ -9,6 +9,13 @@ Router.prototype.push = function push (location, onResolve, onReject) {
   return originalPush.call(this, location).catch(err => err)
 }
 
+const originalReplace = Router.prototype.replace
+// replace
+Router.prototype.replace = function push(location, onResolve, onReject) {
+  if (onResolve || onReject) { return originalReplace.call(this, location, onResolve, onReject) }
+  return originalReplace.call(this, location).catch(err => err)
+}
+
 Vue.use(Router)
 
 export default new Router({
