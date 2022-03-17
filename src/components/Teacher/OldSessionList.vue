@@ -24,7 +24,7 @@
 
     <div class='tips'>
       <div class='tips-text'>
-        <a-icon type="info-circle" /> The slides have been updated, start with new slides or join the old one in the <a href='#' @click='showPreviewSessionList'>previous session</a> list.
+        <a-icon type="info-circle" /> If you have updated the slides of any task below, you might start the session with the latest slides or join the old session in the <a href='#' @click='showPreviewSessionList'>Previous Session page</a>.
       </div>
     </div>
     <div class="my-class-list">
