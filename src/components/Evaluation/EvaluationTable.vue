@@ -2843,6 +2843,10 @@ export default {
     line-height: 40px;
     border-bottom: 1px solid #D8D8D8;
     padding: 0 5px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    vertical-align: middle;
   }
 }
 </style>
