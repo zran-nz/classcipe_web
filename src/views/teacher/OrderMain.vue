@@ -108,7 +108,8 @@ export default {
   computed: {
     ...mapState({
       // 动态主路由
-      mainMenu: state => state.permission.addRouters
+      mainMenu: state => state.permission.addRouters,
+      currentRole: state => state.user.currentRole
     }),
     currentMenu() {
       const addRouters = this.mainMenu
@@ -116,7 +117,7 @@ export default {
         // 寻找路由 index => teacher => OrderMain
         const mainRouter = addRouters.find(item => item.name === 'index')
         if (mainRouter && mainRouter.children && mainRouter.children.length > 0) {
-          const currentRouter = mainRouter.children.find(item => item.name === this.currentRouterName)
+          const currentRouter = mainRouter.children.find(item => item.name === this.currentRole)
           if (currentRouter && currentRouter.children && currentRouter.children.length > 0) {
             const Main = currentRouter.children.find(item => item.name === this.mainRouter)
             if (Main && Main.children && Main.children.length > 0) {

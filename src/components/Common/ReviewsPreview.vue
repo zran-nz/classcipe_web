@@ -321,7 +321,7 @@ export default {
   }
   .reviews-edit {
     position: relative;
-    margin-bottom: 20px;
+    margin: 20px 0;
     .reviews-edit__check {
       display: flex;
       align-items: center;

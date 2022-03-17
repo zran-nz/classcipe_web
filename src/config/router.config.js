@@ -254,23 +254,56 @@ export const asyncRouterMap = [
           //   meta: { title: 'menu.teacher.unit-plan-material', keepAlive: true, permission: ['teacher'] }
           // },
           {
-            path: '/teacher/order',
-            name: 'OrderMain',
-            redirect: '/teacher/order/sell',
-            component: () => import('@/views/teacher/OrderMain'),
-            meta: { title: 'menu.order', keepAlive: true, permission: ['teacher'], fullLayout: true },
+            path: '/teacher/buy',
+            name: 'TeacherBuyMain',
+            redirect: '/teacher/buy/purchases',
+            component: RouteView, // () => import('@/views/teacher/OrderMain'),
+            meta: { title: 'menu.buy', keepAlive: true, permission: ['teacher'], fullLayout: true },
             children: [
               {
-                path: '/teacher/order/sell',
-                name: 'OrderSell',
-                component: () => import('@/views/teacher/order/Sell'),
-                meta: { title: 'menu.order-sell', keepAlive: true, icon: 'money-collect', permission: ['teacher'] }
+                path: '/teacher/buy/purchases',
+                name: 'TeacherBuyPurchases',
+                component: () => import('@/views/teacher/buy/Purchases'),
+                meta: { title: 'menu.buy.purchase', keepAlive: true, icon: 'money-collect', permission: ['teacher'] }
+              }
+            ]
+          },
+          {
+            path: '/teacher/sell',
+            name: 'TeacherSellMain',
+            redirect: '/teacher/sell/dashboard',
+            component: RouteView, // () => import('@/views/teacher/OrderMain'),
+            meta: { title: 'menu.sell', keepAlive: true, permission: ['teacher'], fullLayout: true },
+            children: [
+              {
+                path: '/teacher/sell/dashboard',
+                name: 'TeacherSellDashboard',
+                component: () => import('@/views/teacher/sell/Dashboard'),
+                meta: { title: 'menu.sell.dashboard', keepAlive: true, icon: 'money-collect', permission: ['teacher'] }
               },
               {
-                path: '/teacher/order/buy',
-                name: 'OrderBuy',
-                component: () => import('@/views/teacher/order/Buy'),
-                meta: { title: 'menu.order-buy', keepAlive: true, icon: 'pay-circle', permission: ['teacher'] }
+                path: '/teacher/sell/inspiration-teacher',
+                name: 'TeacherSellInspirationTeacher',
+                component: () => import('@/views/teacher/sell/InspirationTeacher'),
+                meta: { title: 'menu.sell.inspiration-teacher', keepAlive: true, icon: 'pay-circle', permission: ['teacher'] }
+              },
+              {
+                path: '/teacher/sell/inspiration-student',
+                name: 'TeacherSellInspirationStudent',
+                component: () => import('@/views/teacher/sell/InspirationStudent'),
+                meta: { title: 'menu.sell.inspiration-student', keepAlive: true, icon: 'pay-circle', permission: ['teacher'] }
+              },
+              {
+                path: '/teacher/sell/statistics',
+                name: 'TeacherSellStatistics',
+                component: () => import('@/views/teacher/sell/Statistics'),
+                meta: { title: 'menu.sell.statistics', keepAlive: true, icon: 'pay-circle', permission: ['teacher'] }
+              },
+              {
+                path: '/teacher/sell/followers',
+                name: 'TeacherSellFollowers',
+                component: () => import('@/views/teacher/sell/Followers'),
+                meta: { title: 'menu.sell.followers', keepAlive: true, icon: 'pay-circle', permission: ['teacher'] }
               }
             ]
           }
