@@ -40,7 +40,7 @@
                               v-show="canEdit"
                               :is-active="currentFieldName === planField.Name"
                               :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Name}"
-                              :field-name=planField.Name
+                              :field-name='planField.Name'
                               @switch='handleSwitchComment'/>
                             <a-form-item>
                               <template class='my-label' slot='label'>
@@ -84,7 +84,7 @@
                             <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.UnitType style="top:-30px"/>
                             <comment-switch
                               v-show="canEdit"
-                              :field-name=planField.UnitType
+                              :field-name='planField.UnitType'
                               :is-active="currentFieldName === planField.UnitType"
                               @switch='handleSwitchComment'
                               :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.UnitType}" />
@@ -110,7 +110,7 @@
                             <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.StartDate />
                             <comment-switch
                               v-show="canEdit"
-                              :field-name=planField.StartDate
+                              :field-name='planField.StartDate'
                               :is-active="currentFieldName === planField.StartDate"
                               @switch='handleSwitchComment'
                               :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.StartDate}" />
@@ -154,12 +154,12 @@
                           </div>
 
                           <div id='inquiry' class='form-block inquiry-form-block tag-content-block' :data-field-name='planField.Inquiry' v-if="fieldItem.visible && fieldItem.fieldName === planField.Inquiry" :key='fieldItem.fieldName'>
-                            <collaborate-tooltip :form-id="unitPlanId" :field-name=planField.Inquiry />
+                            <collaborate-tooltip :form-id="unitPlanId" :field-name='planField.Inquiry'/>
                             <comment-switch
                               v-show="canEdit"
                               :is-active="currentFieldName === planField.Inquiry"
                               :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Inquiry}"
-                              :field-name=planField.Inquiry
+                              :field-name='planField.Inquiry'
                               @switch='handleSwitchComment' />
                             <!--                <a-divider />-->
                             <a-form-item class='bigIdea'>
@@ -190,8 +190,7 @@
                               v-show="canEdit"
                               :is-active="currentFieldName === planField.Sdg"
                               :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Sdg}"
-                              :field-name=planField.Sdg
-                              style='top:40px'
+                              :field-name='planField.Sdg'
                               @switch='handleSwitchComment' />
                             <a-divider>Teaching goals</a-divider>
                             <a-row>
@@ -305,7 +304,7 @@
                               v-if='!$store.getters.userInfo.disableQuestion'
                               :is-active="currentFieldName === planField.Question"
                               :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Question}"
-                              :field-name=planField.Question
+                              :field-name='planField.Question'
                               @switch='handleSwitchComment' />
                             <a-form-item class='unit-question'>
                               <span slot='label'>
@@ -376,7 +375,7 @@
                               v-show="canEdit"
                               :is-active="currentFieldName === planField.Assessment"
                               :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Assessment}"
-                              :field-name=planField.Assessment
+                              :field-name='planField.Assessment'
                               @switch='handleSwitchComment' />
                             <a-form-item>
                               <template class='my-label' slot='label'>
@@ -418,7 +417,7 @@
                               v-show="canEdit"
                               :is-active="currentFieldName === planField.Prior"
                               :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Prior}"
-                              :field-name=planField.Prior
+                              :field-name='planField.Prior'
                               @switch='handleSwitchComment' />
                             <a-form-model-item>
                               <template class='my-label' slot='label'>
@@ -457,7 +456,7 @@
                     <template slot='description'>
                       <div class='step-detail' v-show='currentActiveStepIndex === 1'>
                         <div class='form-block'>
-                          <collaborate-tooltip :form-id="unitPlanId" :field-name=planField.Link />
+                          <collaborate-tooltip :form-id="unitPlanId" :field-name='planField.Link'/>
                           <comment-switch
                             v-show="canEdit"
                             :field-name="planField.Link"

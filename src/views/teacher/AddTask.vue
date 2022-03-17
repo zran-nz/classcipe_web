@@ -41,7 +41,7 @@
                             <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Name />
                             <comment-switch
                               v-show="canEdit"
-                              :field-name=taskField.Name
+                              :field-name='taskField.Name'
                               :is-active="currentFieldName === taskField.Name"
                               @switch='handleSwitchComment'
                               :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Name}" />
@@ -127,7 +127,7 @@
                             <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Overview />
                             <comment-switch
                               v-show="canEdit"
-                              :field-name=taskField.Overview
+                              :field-name='taskField.Overview'
                               :is-active="currentFieldName === taskField.Overview"
                               @switch='handleSwitchComment'
                               :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Overview}" />
@@ -146,7 +146,7 @@
                             <collaborate-tooltip :form-id="taskId" :fieldName=taskField.TaskType style="left:20px" />
                             <comment-switch
                               v-show="canEdit"
-                              :field-name=taskField.TaskType
+                              :field-name='taskField.TaskType'
                               :is-active="currentFieldName === taskField.TaskType"
                               @switch='handleSwitchComment'
                               :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.TaskType}" />
@@ -181,7 +181,7 @@
                             <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Question />
                             <comment-switch
                               v-show="canEdit"
-                              :field-name=taskField.Question
+                              :field-name='taskField.Question'
                               :is-active="currentFieldName === taskField.Question"
                               @switch='handleSwitchComment'
                               :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Question}" />
@@ -220,7 +220,7 @@
                             <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Assessment style="left:100px" />
                             <comment-switch
                               v-show="canEdit"
-                              :field-name=taskField.Assessment
+                              :field-name='taskField.Assessment'
                               :is-active="currentFieldName === taskField.Assessment"
                               @switch='handleSwitchComment'
                               :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Assessment}" />
@@ -250,7 +250,7 @@
                             <collaborate-tooltip :form-id="taskId" :fieldName=taskField.MaterialList />
                             <comment-switch
                               v-show="canEdit"
-                              :field-name=taskField.MaterialList
+                              :field-name='taskField.MaterialList'
                               :is-active="currentFieldName === taskField.MaterialList"
                               @switch='handleSwitchComment'
                               :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.MaterialList}" />
@@ -730,12 +730,12 @@
                     <template slot='description'>
                       <div class='step-detail' v-show='currentActiveStepIndex === 3'>
                         <div class='form-block'>
-                          <collaborate-tooltip :form-id="taskId" :field-name=taskField.Link />
+                          <collaborate-tooltip :form-id="taskId" :field-name='taskField.Link' />
                           <comment-switch
                             v-show="canEdit"
                             :is-active="currentFieldName === taskField.Link"
                             @switch='handleSwitchComment'
-                            :field-name=taskField.Link
+                            :field-name='taskField.Link'
                             :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Link}" />
                           <a-form-item class='link-plan-title' >
                             <a-space v-show="canEdit">
