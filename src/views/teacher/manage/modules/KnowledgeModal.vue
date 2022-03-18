@@ -29,19 +29,19 @@
           </a-select>
         </a-form-model-item>
 
-        <a-form-model-item label="parent" :labelCol="labelCol" :wrapperCol="wrapperCol" prop="parent">
-          <j-tree-select
-            ref="treeSelect"
-            placeholder="Please select parent"
-            v-model="model.parentId"
-            dict="cc_knowledge,name,id"
-            pidField="parent_id"
-            pidValue="0"
-            hasChildField="has_child"
-            :condition="condition"
-          >
-          </j-tree-select>
-        </a-form-model-item>
+        <!--        <a-form-model-item label="parent" :labelCol="labelCol" :wrapperCol="wrapperCol" prop="parent">-->
+        <!--          <j-tree-select-->
+        <!--            ref="treeSelect"-->
+        <!--            placeholder="Please select parent"-->
+        <!--            v-model="model.parentId"-->
+        <!--            dict="cc_knowledge,name,id"-->
+        <!--            pidField="parent_id"-->
+        <!--            pidValue="0"-->
+        <!--            hasChildField="has_child"-->
+        <!--            :condition="condition"-->
+        <!--          >-->
+        <!--          </j-tree-select>-->
+        <!--        </a-form-model-item>-->
 
         <a-form-model-item label="branch or Description" :labelCol="labelCol" :wrapperCol="wrapperCol" prop="name">
           <a-textarea rows="3" v-model="model.name" placeholder="Please input description" ></a-textarea>
@@ -58,6 +58,7 @@ import { httpAction } from '@/api/manage'
 import JModal from '@/components/jeecg/JModal'
 import JTreeSelect from '@/components/jeecg/JTreeSelect'
 import { SubjectType, TagType } from '@/const/common'
+
 export default {
   name: 'KnowledgeModal',
   components: {
