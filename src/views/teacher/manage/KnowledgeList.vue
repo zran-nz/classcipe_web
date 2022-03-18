@@ -84,24 +84,6 @@
         @change="handleTableChange"
         @expand="handleExpand"
         v-bind="tableProps">
-
-        <template slot="imgSlot" slot-scope="text">
-          <span v-if="!text" style="font-size: 12px;font-style: italic;">无图片</span>
-          <img v-else :src="getImgView(text)" height="25px" alt="" style="max-width:80px;font-size: 12px;font-style: italic;"/>
-        </template>
-        <template slot="fileSlot" slot-scope="text">
-          <span v-if="!text" style="font-size: 12px;font-style: italic;">无文件</span>
-          <a-button
-            v-else
-            :ghost="true"
-            type="primary"
-            icon="download"
-            size="small"
-            @click="downloadFile(text)">
-            下载
-          </a-button>
-        </template>
-
         <span slot="action" slot-scope="text, record">
           <a @click="handleEdit(record)">  <a-icon type="edit"/>Edit</a>
           <!--          <a-divider type="vertical"/>-->
@@ -121,6 +103,21 @@
             </a-menu>
           </a-dropdown>
         </span>
+
+        <p slot="expandedRowRender" slot-scope="record" style="margin: 0">
+          <a-table
+            rowKey="id"
+            :columns="childColumns"
+            :data-source="record.knowledgeExtends"
+            :pagination="false"
+            class='my-mini-table'>
+            <span slot="childAction" class="flex-right" slot-scope="text, childRecord">
+              <a @click="handleEdit(childRecord)">  <a-icon type="edit"/>Edit</a>
+              <a-divider type="vertical" />
+              <a @click="handleEdit(childRecord)">  <a-icon type="edit"/>Delete</a>
+            </span>
+          </a-table>
+        </p>
 
       </a-table>
     </div>
@@ -197,9 +194,33 @@ export default {
           title: 'Operate',
           dataIndex: 'action',
           align: 'center',
-          fixed: 'right',
           width: 200,
           scopedSlots: { customRender: 'action' }
+        }
+      ],
+      childColumns: [
+        {
+          title: 'Level',
+          align: 'center',
+          dataIndex: 'level',
+          width: '10%'
+        },
+        {
+          title: 'Description',
+          align: 'left',
+          dataIndex: 'description',
+          width: '50%'
+        },
+        {
+          title: 'Phase',
+          align: 'left',
+          dataIndex: 'hhase'
+        },
+        {
+          title: '',
+          dataIndex: 'action',
+          align: 'center',
+          scopedSlots: { customRender: 'childAction' }
         }
       ],
       url: {
@@ -286,6 +307,7 @@ export default {
       const params = this.getQueryParams()
       params.hasQuery = 'true'
       params.curriculumId = this.$store.getters.bindCurriculum
+      params.school = this.$store.getters.userInfo.school
       params.tagType = TagType.ibSkill
       getAction(this.url.list, params).then(res => {
         if (res.success) {
@@ -387,25 +409,6 @@ export default {
       // 判断是否是展开状态
       if (expanded) {
         this.expandedRowKeys.push(record.id)
-        if (record.children.length > 0 && record.children[0].isLoading === true) {
-          const params = this.getQueryParams(1)// 查询条件
-          params[this.pidField] = record.id
-          params.hasQuery = 'false'
-          params.superQueryParams = ''
-          getAction(this.url.childList, params).then((res) => {
-            if (res.success) {
-              if (res.result.records) {
-                record.children = this.getDataByResult(res.result.records)
-                this.dataSource = [...this.dataSource]
-              } else {
-                record.children = ''
-                record.hasChildrenField = '0'
-              }
-            } else {
-              this.$message.warning(res.message)
-            }
-          })
-        }
       } else {
         const keyIndex = this.expandedRowKeys.indexOf(record.id)
         if (keyIndex >= 0) {
