@@ -7,28 +7,28 @@
           <a-col :span="8">
             <a-input-search placeholder="Search for Name、Email..." v-model="searchKey" enter-button @search="searchClass"/>
           </a-col>
-          <a-col :span="10">
+          <a-col :span="12">
           </a-col>
-          <a-col :span="6">
+          <a-col :span="4">
             <a-button @click="handleAdd" type="primary" icon="plus" style="margin-right: 20px;" >Add</a-button>
 
-            <a-upload
-              name="file"
-              :showUploadList="false"
-              :multiple="false"
-              :headers="tokenHeader"
-              :action="importExcelUrl"
-              @change="handleMyImportExcel">
-              <a-button :loading="importLoading" type="primary" icon="import">{{ importLoadingText }}</a-button>
-              <a-dropdown>
-                <a-button type="link" shape="circle" icon="download" />
-                <a-menu slot="overlay">
-                  <a-menu-item key="1">
-                    <a-button type="link" icon="download" @click="downloadTemplate">Download template</a-button>
-                  </a-menu-item>
-                </a-menu>
-              </a-dropdown>
-            </a-upload>
+            <!--            <a-upload-->
+            <!--              name="file"-->
+            <!--              :showUploadList="false"-->
+            <!--              :multiple="false"-->
+            <!--              :headers="tokenHeader"-->
+            <!--              :action="importExcelUrl"-->
+            <!--              @change="handleMyImportExcel">-->
+            <!--              <a-button :loading="importLoading" type="primary" icon="import">{{ importLoadingText }}</a-button>-->
+            <!--              <a-dropdown>-->
+            <!--                <a-button type="link" shape="circle" icon="download" />-->
+            <!--                <a-menu slot="overlay">-->
+            <!--                  <a-menu-item key="1">-->
+            <!--                    <a-button type="link" icon="download" @click="downloadTemplate">Download template</a-button>-->
+            <!--                  </a-menu-item>-->
+            <!--                </a-menu>-->
+            <!--              </a-dropdown>-->
+            <!--            </a-upload>-->
 
           </a-col>
         </a-row>

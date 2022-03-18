@@ -63,16 +63,16 @@
                 </a-form-model-item>
               </a-col>
 
-              <a-col :span="24">
-                <a-form-model-item label="Class Roster">
-                  <div style="display: flex;align-items: baseline;">
-                    <a-upload :file-list="fileList" :remove="handleRemove" :before-upload="beforeUpload" style="margin-right: 20px">
-                      <a-button> <a-icon type="upload" /> Upload </a-button>
-                    </a-upload>
-                    <a-button type="primary" icon="download" @click="downloadTemplate">Download template</a-button>
-                  </div>
-                </a-form-model-item>
-              </a-col>
+              <!--              <a-col :span="24">-->
+              <!--                <a-form-model-item label="Class Roster">-->
+              <!--                  <div style="display: flex;align-items: baseline;">-->
+              <!--                    <a-upload :file-list="fileList" :remove="handleRemove" :before-upload="beforeUpload" style="margin-right: 20px">-->
+              <!--                      <a-button> <a-icon type="upload" /> Upload </a-button>-->
+              <!--                    </a-upload>-->
+              <!--                    <a-button type="primary" icon="download" @click="downloadTemplate">Download template</a-button>-->
+              <!--                  </div>-->
+              <!--                </a-form-model-item>-->
+              <!--              </a-col>-->
 
               <a-col :span="24">
                 <a-form-model-item label="Subject" prop="subject">
