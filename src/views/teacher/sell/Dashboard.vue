@@ -33,12 +33,26 @@
               </div>
               <div class="filter-options">
                 <label>DURING</label>
-                <a-range-picker
-                  size="large"
-                  v-model="filterParams.during"
-                  :ranges="DATERANGE_FOR_CHARTS"
-                  @change="onChangeDate"
-                />
+                <div>
+                  <a-select
+                    v-model="filterParams.duringType"
+                    class="filter-item"
+                    size="large"
+                    @change="triggerSearch"
+                    placeholder="Select a during"
+                  >
+                    <a-select-option :value="item.value" v-for="(item, index) in duringOptions" :key="'type_'+index">
+                      {{ item.label }}
+                    </a-select-option>
+                  </a-select>
+                  <a-range-picker
+                    size="large"
+                    style="margin-left: 10px;"
+                    v-show="filterParams.duringType === 7"
+                    v-model="filterParams.during"
+                    @change="onChangeDate"
+                  />
+                </div>
               </div>
             </div>
             <div class="filter-summary">
@@ -74,7 +88,7 @@ export default {
         },
         {
           value: 3,
-          label: 'Views'
+          label: 'Previews'
         },
         {
           value: 4,
@@ -89,8 +103,28 @@ export default {
           label: 'Assessement sold'
         }
       ],
+      duringOptions: [{
+        value: 1,
+        label: 'Today'
+      }, {
+        value: 2,
+        label: 'This week'
+      }, {
+        value: 3,
+        label: 'This month'
+      }, {
+        value: 4,
+        label: 'This quarter'
+      }, {
+        value: 5,
+        label: 'This year'
+      }, {
+        value: 6,
+        label: 'Custom Range'
+      }],
       filterParams: {
         type: 1,
+        duringType: 1,
         during: [moment().startOf('month').startOf('day'), moment().endOf('day')]
       }
     }
@@ -100,11 +134,17 @@ export default {
   },
   computed: {
     title() {
-      console.log(this.filterParams.during)
-      if (this.filterParams.during.length === 2) {
-        const [start, end] = this.filterParams.during
-        const typeObj = this.typeOptions.find(item => item.value === this.filterParams.type)
-        return start.format('MM/DD/YY') + ' - ' + end.format('MM/DD/YY') + ' ' + (typeObj ? typeObj.label.toUpperCase() : '')
+      const typeObj = this.typeOptions.find(item => item.value === this.filterParams.type)
+      if (this.filterParams.duringType !== 7) {
+        const key = this.duringOptions.find(item => item.value === this.filterParams.duringType).label
+        // during = DATERANGE_FOR_CHARTS[key]
+        return key.toUpperCase() + ' ' + (typeObj ? typeObj.label.toUpperCase() : '')
+      } else {
+        const during = this.filterParams.during
+        if (during.length === 2) {
+          const [start, end] = during
+          return start.format('MM/DD/YY') + ' - ' + end.format('MM/DD/YY') + ' ' + (typeObj ? typeObj.label.toUpperCase() : '')
+        }
       }
       return ' - '
     }
@@ -171,7 +211,7 @@ export default {
             margin-bottom: 5px;
           }
           .filter-item {
-            width: 220px;
+            width: 180px;
             line-height: 40px;
             font-size: 14px;
           }

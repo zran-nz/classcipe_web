@@ -22,7 +22,11 @@
                   <collaborate-svg />
                 </span> -->
 
-                <div class="my-list-progress" v-if="item.status === TASK_STATUS.ONGOING && STUDY_MODE.SELF === studyMode">
+                <div
+                  class="my-list-progress"
+                  v-if="optOptionsObj.progress &&
+                    optOptionsObj.progress[0].show.includes(currentStatus) &&
+                    optOptionsObj.progress[0].studyMode === studyMode">
                   <a-progress
                     :stroke-color="{
                       '0%': '#108ee9',
@@ -45,81 +49,60 @@
                 <div class="action">
                   <div slot="actions">
                     <div class="action-wrapper">
-                      <template v-if="currentStatus !== TASK_STATUS.ARCHIVED && currentStatus !== TASK_STATUS.SCHEDULED">
-                        <div class="start-session-wrapper action-item-wrapper">
-                          <div class="session-btn content-list-action-btn" @click="handleStartSession(item)">
+                      <template v-for="opt in optOptionsObj.start">
+                        <div
+                          class="start-session-wrapper action-item-wrapper"
+                          v-if="(opt.show.includes(item.status)) && (!opt.currentStatus || opt.currentStatus.includes(currentStatus))"
+                          :key="'start_' + opt.label"
+                        >
+                          <div v-if="!opt.confirmText" class="session-btn content-list-action-btn" @click="handleAction(opt.fn, item)">
                             <div class="session-btn-icon">
-                              <student-pace />
+                              <component
+                                :is="opt.svg"
+                                v-if="opt.svg"
+                              ></component>
+                              <a-icon theme="filled" :type="opt.icon" v-if="opt.icon"/>
                             </div>
-                            <div class="session-btn-text"> Enter session</div>
+                            <div class="session-btn-text">{{ opt.label }}</div>
                           </div>
+                          <a-popconfirm v-else :title="'Confirm ' + opt.confirmText +' ' +((item.task && item.task.name) ? item.task.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleAction(opt.fn, item)" cancel-text="No">
+                            <div class="session-btn content-list-action-btn" >
+                              <div class="session-btn-icon">
+                                <a-icon :type="opt.icon" theme="filled" />
+                              </div>
+                              <div class="session-btn-text">{{ opt.confirmText }}</div>
+                            </div>
+                          </a-popconfirm>
                         </div>
-
-                        <div class="more-action-wrapper action-item-wrapper" v-if="actionType === 'myTask' && STUDY_MODE.SELF === studyMode">
-                          <a-dropdown>
-                            <a-icon type="more" style="margin-right: 8px" />
-                            <a-menu slot="overlay">
-                              <a-menu-item>
-                                <a @click="handleReportItem(item)">
-                                  <a-icon type="bar-chart" /> Report
+                      </template>
+                      <div
+                        class="more-action-wrapper action-item-wrapper"
+                        v-if="currentStatus !== TASK_STATUS.ARCHIVED"
+                      >
+                        <a-dropdown>
+                          <a-icon type="more" style="margin-right: 8px" />
+                          <a-menu slot="overlay">
+                            <template v-for="opt in optOptionsObj.more">
+                              <a-menu-item
+                                :key="'more_' + opt.label"
+                                v-if="(!opt.actionType || opt.actionType === actionType) &&
+                                  (!opt.studyMode || opt.studyMode === studyMode)
+                                  && !opt.dependency || item.task[opt.dependency]
+                                  && (opt.show.includes(item.status)) && (!opt.currentStatus || opt.currentStatus.includes(currentStatus))"
+                              >
+                                <a @click="handleAction(opt.fn,item)" v-if="!opt.confirmText">
+                                  <a-icon :type="opt.icon" /> {{ opt.label }}
                                 </a>
-                              </a-menu-item>
-                              <a-menu-item>
-                                <a-popconfirm title="Archive ?" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
+                                <a-popconfirm v-else :title="'Confirm '+ opt.confirmText +' ' +((item.task && item.task.name) ? item.task.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleAction(opt.fn, item)" cancel-text="No">
                                   <a>
-                                    <a-icon type="delete" theme="filled" /> Archive
+                                    <a-icon :type="opt.icon" theme="filled" /> {{ opt.label }}
                                   </a>
                                 </a-popconfirm>
                               </a-menu-item>
-                              <a-menu-item>
-                                <a @click="handlePaymentItem(item)">
-                                  <a-icon type="ordered-list" /> Payment Details
-                                </a>
-                              </a-menu-item>
-                            </a-menu>
-                          </a-dropdown>
-                        </div>
-
-                        <div class="more-action-wrapper action-item-wrapper" v-if="actionType === 'myClass'">
-                          <a-dropdown>
-                            <a-icon type="more" style="margin-right: 8px" />
-                            <a-menu slot="overlay">
-                              <a-menu-item v-show="item.task.selfReview">
-                                <a @click="handleReviewItem(item)">
-                                  <a-icon type="rollback" /> Self-review
-                                </a>
-                              </a-menu-item>
-                              <a-menu-item>
-                                <a @click="handleTakeAwayItem(item)">
-                                  <a-icon type="file" /> Takeaway
-                                </a>
-                              </a-menu-item>
-                            </a-menu>
-                          </a-dropdown>
-                        </div>
-                      </template>
-                      <template v-if="currentStatus === TASK_STATUS.ARCHIVED && STUDY_MODE.SELF === studyMode">
-                        <!-- <div class="start-session-wrapper action-item-wrapper">
-                          <a-popconfirm :title="'Confirm permanent delete ' +((item.task && item.task.name) ? item.task.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem(item)" cancel-text="No">
-                            <div class="session-btn content-list-action-btn">
-                              <div class="session-btn-icon">
-                                <a-icon type="delete" theme="filled" />
-                              </div>
-                              <div class="session-btn-text">Delete</div>
-                            </div>
-                          </a-popconfirm>
-                        </div> -->
-                        <div class="start-session-wrapper action-item-wrapper">
-                          <a-popconfirm :title="'Confirm restore ' +((item.task && item.task.name) ? item.task.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleRestoreItem(item)" cancel-text="No">
-                            <div class="session-btn content-list-action-btn" >
-                              <div class="session-btn-icon">
-                                <a-icon type="undo" theme="filled" />
-                              </div>
-                              <div class="session-btn-text">Restore</div>
-                            </div>
-                          </a-popconfirm>
-                        </div>
-                      </template>
+                            </template>
+                          </a-menu>
+                        </a-dropdown>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -139,79 +122,90 @@
 
                 <div class="mask-actions">
                   <div class="action-item action-item-top" v-show="currentStatus !== TASK_STATUS.ARCHIVED && currentStatus !== TASK_STATUS.SCHEDULED">
-                    <a-dropdown v-if="actionType === 'myTask' && STUDY_MODE.SELF === studyMode">
+                    <a-dropdown>
                       <a-icon type="more" style="margin-right: 8px" class="more-icon" />
                       <a-menu slot="overlay">
-                        <a-menu-item>
-                          <a-popconfirm title="Archive ?" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
-                            <a>
-                              <a-icon type="delete" theme="filled" /> Archive
+                        <template v-for="opt in optOptionsObj.top">
+                          <a-menu-item
+                            :key="'more_' + opt.label"
+                            v-if="(!opt.actionType || opt.actionType === actionType) &&
+                              (!opt.studyMode || opt.studyMode === studyMode)
+                              && !opt.dependency || item.task[opt.dependency]
+                              && (opt.show.includes(item.status)) && (!opt.currentStatus || opt.currentStatus.includes(currentStatus))"
+                          >
+                            <a @click="handleAction(opt.fn,item)" v-if="!opt.confirmText">
+                              <a-icon :type="opt.icon" /> {{ opt.label }}
                             </a>
-                          </a-popconfirm>
-                        </a-menu-item>
-                        <a-menu-item>
-                          <a @click="handlePaymentItem(item)">
-                            <a-icon type="ordered-list" /> Payment Details
-                          </a>
-                        </a-menu-item>
-                      </a-menu>
-                    </a-dropdown>
-                    <a-dropdown v-if="actionType === 'myClass'">
-                      <a-icon type="more" style="margin-right: 8px" class="more-icon" />
-                      <a-menu slot="overlay">
-                        <a-menu-item v-show="item.task.selfReview">
-                          <a @click="handleReviewItem(item)">
-                            <a-icon type="rollback" /> Self-review
-                          </a>
-                        </a-menu-item>
-                        <a-menu-item>
-                          <a @click="handleTakeAwayItem(item)">
-                            <a-icon type="file" /> Takeaway
-                          </a>
-                        </a-menu-item>
+                            <a-popconfirm v-else :title="'Confirm '+ opt.confirmText +' ' +((item.task && item.task.name) ? item.task.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleAction(opt.fn, item)" cancel-text="No">
+                              <a>
+                                <a-icon :type="opt.icon" theme="filled" /> {{ opt.label }}
+                              </a>
+                            </a-popconfirm>
+                          </a-menu-item>
+                        </template>
                       </a-menu>
                     </a-dropdown>
                   </div>
                   <div class="action-item action-item-center" :style="{ visibility: currentStatus !== TASK_STATUS.ARCHIVED && currentStatus !== TASK_STATUS.SCHEDULED ? 'visible': 'hidden'}">
-                    <div class="session-btn session-btn-right" @click="handleStartSession(item)">
-                      <div class="session-btn-text">
-                        <student-pace />
-                        Enter session
-                      </div>
-                    </div>
-                  </div>
-                  <div class="action-item action-item-bottom" >
-                    <template v-if="currentStatus !== TASK_STATUS.ARCHIVED">
-                      <div class="session-btn" @click.stop="handleReportItem(item)" v-show="actionType === 'myTask' && STUDY_MODE.SELF === studyMode">
-                        <div class="session-btn-icon content-list-action-btn">
-                          <a-icon type="bar-chart" />
+                    <template v-for="opt in optOptionsObj.start">
+                      <div
+                        class="session-btn session-btn-right"
+                        :key="'center-' + opt.label"
+                        v-if="(opt.show.includes(item.status)) && (!opt.currentStatus || opt.currentStatus.includes(currentStatus))"
+                        @click="handleAction(opt.fn, item)"
+                      >
+                        <div class="session-btn-text">
+                          <component
+                            :is="opt.svg"
+                            v-if="opt.svg"
+                          ></component>
+                          <a-icon theme="filled" :type="opt.icon" v-if="opt.icon"/>
+                          {{ opt.label }}
                         </div>
-                        <div class="session-btn-text">Report</div>
-                      </div>
-                      <div class="session-btn" @click.stop="handleViewDetail(item)">
-                        <div class="session-btn-icon content-list-action-btn">
-                          <a-icon type="eye" theme="filled" />
-                        </div>
-                        <div class="session-btn-text">Preview</div>
                       </div>
                     </template>
-                    <template v-if="currentStatus === TASK_STATUS.ARCHIVED">
-                      <a-popconfirm :title="'Confirm restore ' +(( item.task && item.task.name) ? item.task.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleRestoreItem(item)" cancel-text="No">
+                  </div>
+                  <div class="action-item action-item-bottom" >
+                    <template v-for="opt in optOptionsObj.bottom">
+                      <div
+                        class="session-btn"
+                        :key="'bottom_'+opt.label"
+                        @click.stop="handleAction(opt.fn, item)"
+                        v-if="!opt.confirmText && (!opt.actionType || actionType === opt.actionType)
+                          && (!opt.studyMode || opt.studyMode === studyMode)
+                          &&
+                          (opt.show.includes(item.status) && (!opt.currentStatus || opt.currentStatus.includes(currentStatus)))"
+                      >
+                        <div class="session-btn-icon content-list-action-btn">
+                          <component
+                            :is="opt.svg"
+                            v-if="opt.svg"
+                          ></component>
+                          <a-icon :type="opt.icon" v-if="opt.icon"/>
+                        </div>
+                        <div class="session-btn-text">{{ opt.label }}</div>
+                      </div>
+                      <a-popconfirm
+                        v-if="opt.confirmText && (!opt.actionType || actionType === opt.actionType)
+                          && (!opt.studyMode || opt.studyMode === studyMode)
+                          &&
+                          (opt.show.includes(item.status) && (!opt.currentStatus || opt.currentStatus.includes(currentStatus)))"
+                        :key="'bottom_'+opt.label"
+                        :title="'Confirm ' + opt.confirmText + ' ' +(( item.task && item.task.name) ? item.task.name : 'Untitled')+ ' ?'"
+                        ok-text="Yes"
+                        @confirm="handleAction(opt.fn, item)"
+                        cancel-text="No">
                         <div class="session-btn">
                           <div class="session-btn-icon content-list-action-btn">
-                            <bianji />
+                            <component
+                              :is="opt.svg"
+                              v-if="opt.svg"
+                            ></component>
+                            <a-icon :type="opt.icon" v-if="opt.icon"/>
                           </div>
-                          <div class="session-btn-text">Restore</div>
+                          <div class="session-btn-text">{{ opt.label }}</div>
                         </div>
                       </a-popconfirm>
-                      <!-- <a-popconfirm :title="'Confirm permanent delete ' +(item.name ? item.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem(item)" cancel-text="No">
-                        <div class="session-btn">
-                          <div class="session-btn-icon content-list-action-btn">
-                            <a-icon type="delete" theme="filled" />
-                          </div>
-                          <div class="session-btn-text">Delete</div>
-                        </div>
-                      </a-popconfirm> -->
                     </template>
                   </div>
                 </div>
@@ -364,6 +358,10 @@ export default {
     actionType: {
       type: String,
       default: 'myTask'
+    },
+    optArray: {
+      type: Array,
+      default: () => []
     }
   },
   watch: {
@@ -374,6 +372,9 @@ export default {
       this.currentStatus = val
       this.pageNo = 1
       this.loadMyContent()
+    },
+    optArray(val) {
+      this.optChoose = val.concat()
     }
   },
   data() {
@@ -409,7 +410,94 @@ export default {
       currentActiveStudentId: null,
       takeAwaySlideId: null,
       takeAwayClassId: null,
-      takeAwaySessionId: null
+      takeAwaySessionId: null,
+
+      optChoose: this.optArray.concat(),
+      optOptions: [
+        {
+          type: ['progress'],
+          label: 'progress',
+          show: [TASK_STATUS.ONGOING],
+          studyMode: STUDY_MODE.SELF
+        },
+        {
+          type: ['start', 'center'],
+          show: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED],
+          currentStatus: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED, ''],
+          label: 'Enter session',
+          svg: 'student-pace',
+          fn: 'handleStartSession'
+        },
+        {
+          type: ['more', 'bottom'],
+          show: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED],
+          studyMode: STUDY_MODE.SELF,
+          currentStatus: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED, ''],
+          actionType: 'myTask',
+          label: 'Report',
+          icon: 'bar-chart',
+          fn: 'handleReportItem'
+        },
+        {
+          type: ['more', 'top'],
+          show: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED],
+          studyMode: STUDY_MODE.SELF,
+          currentStatus: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED],
+          actionType: 'myTask',
+          label: 'Archive',
+          icon: 'delete',
+          fn: 'handleDeleteItem',
+          confirmText: 'archive'
+        },
+        {
+          type: ['more', 'top'],
+          show: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED],
+          studyMode: STUDY_MODE.SELF,
+          currentStatus: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED],
+          actionType: 'myTask',
+          label: 'Payment Details',
+          icon: 'ordered-list',
+          fn: 'handlePaymentItem'
+        },
+        {
+          type: ['more', 'top'],
+          show: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED],
+          studyMode: STUDY_MODE.SCHOOL,
+          dependency: 'selfReview',
+          actionType: 'myClass',
+          label: 'Self-review',
+          icon: 'rollback',
+          fn: 'handleReviewItem'
+        },
+        {
+          type: ['more', 'top'],
+          show: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED],
+          studyMode: STUDY_MODE.SCHOOL,
+          actionType: 'myClass',
+          label: 'Takeaway',
+          icon: 'file',
+          fn: 'handleTakeAwayItem'
+        },
+        {
+          type: ['start', 'bottom'],
+          // archive里面也有其他状态？
+          show: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED, TASK_STATUS.ARCHIVED],
+          studyMode: STUDY_MODE.SELF,
+          currentStatus: [TASK_STATUS.ARCHIVED],
+          actionType: 'myTask',
+          label: 'Restore',
+          icon: 'undo',
+          fn: 'handleRestoreItem',
+          confirmText: 'restore'
+        },
+        {
+          type: ['bottom'],
+          show: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED, TASK_STATUS.SCHEDULED],
+          label: 'Preview',
+          icon: 'eye',
+          fn: 'handleViewDetail'
+        }
+      ]
     }
   },
   created () {
@@ -427,6 +515,27 @@ export default {
         if (this.studyMode === STUDY_MODE.SELF && item.value === TASK_STATUS.SCHEDULED) return false
         return true
       })
+    },
+    optOptionsObj() {
+      const optObj = {}
+      let optOptionsSel = [...this.optOptions]
+      if (this.optChoose && this.optChoose.length > 0) {
+        optOptionsSel = this.optOptions.filter(item => {
+          return this.optChoose.includes(item.label)
+        })
+      }
+      if (optOptionsSel.length > 0) {
+        optOptionsSel.forEach(item => {
+          item.type.forEach(type => {
+            if (optObj[type]) {
+              optObj[type].push({ ...item })
+            } else {
+              optObj[type] = [{ ...item }]
+            }
+          })
+        })
+      }
+      return optObj
     }
   },
   methods: {
@@ -560,6 +669,9 @@ export default {
     },
     triggerSearch() {
       this.loadMyContent()
+    },
+    handleAction(actionName, item) {
+      this[actionName](item)
     }
   }
 }

@@ -123,6 +123,10 @@ export default {
         {
           label: 'Assessment',
           value: '3'
+        },
+        {
+          label: 'Video',
+          value: '4'
         }
       ],
       priceOptions: [
@@ -145,7 +149,7 @@ export default {
           value: ''
         },
         {
-          label: 'Recently Opened',
+          label: 'Recently Updated',
           value: '1'
         },
         {
