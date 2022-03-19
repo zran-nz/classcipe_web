@@ -34,9 +34,8 @@
                     title='Edit Task Info'
                     :status="currentActiveStepIndex === 0 ? 'process':'wait'">
                     <template slot='description'>
-                      <div class='mask' v-show='!canEdit'></div>
                       <div class='step-detail' v-show='currentActiveStepIndex === 0'>
-
+                        <div class='mask' v-show='!canEdit'></div>
                         <template v-for='fieldItem in $store.getters.formConfigData.taskCommonList'>
                           <div class='form-block tag-content-block' :data-field-name='taskField.Name' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Name' :key='fieldItem.fieldName'>
                             <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Name />
@@ -360,7 +359,7 @@
                             v-show='form.taskMode === 1'>
                             <a-switch
                               class='slide-switch'
-                              :disabled='selectedTemplateIdList.length === 0'
+                              :disabled='selectedTemplateIdList.length === 0 || !canEdit'
                               checked-children='On'
                               un-checked-children='Off'
                               v-model='form.showSelected'
@@ -448,7 +447,7 @@
                               :class="{'template-item': true }"
                               v-for='(template,index) in selectedTemplateList'
                               :key='index'>
-                              <div class='template-hover-action-mask'>
+                              <div class='template-hover-action-mask' v-show="canEdit">
                                 <div class='template-hover-action'>
                                   <div class='modal-ensure-action-line'>
                                     <a-button
@@ -461,7 +460,6 @@
                                       </div>
                                     </a-button>
                                     <a-button
-                                      v-show="canEdit"
                                       class='action-ensure action-item'
                                       shape='round'
                                       @click='removeSelectTemplate(template)'>

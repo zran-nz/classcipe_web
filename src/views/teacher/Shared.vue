@@ -332,14 +332,14 @@
 
                   </template>
 
-                  <div class="action-item action-item-bottom" style="margin-top: 20px;">
-                    <div class="session-btn" @click.stop="handleViewDetail(item.content)">
-                      <div class="session-btn-icon content-list-action-btn">
-                        <a-icon type="eye" theme="filled" />
-                      </div>
-                      <div class="session-btn-text">Preview</div>
-                    </div>
-                  </div>
+                  <!--                  <div class="action-item action-item-bottom" style="margin-top: 20px;">-->
+                  <!--                    <div class="session-btn" @click.stop="handleViewDetail(item.content)">-->
+                  <!--                      <div class="session-btn-icon content-list-action-btn">-->
+                  <!--                        <a-icon type="eye" theme="filled" />-->
+                  <!--                      </div>-->
+                  <!--                      <div class="session-btn-text">Preview</div>-->
+                  <!--                    </div>-->
+                  <!--                  </div>-->
                 </div>
 
                 <div class="cover-img" :style="{backgroundImage: 'url(' + item.content.image + ')'}"></div>

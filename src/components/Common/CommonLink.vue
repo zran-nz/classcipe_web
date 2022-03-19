@@ -225,7 +225,7 @@
 
 <script>
 
-import { GetAssociate, AddOrSaveGroupName, AssociateCancel } from '@/api/teacher'
+import { AddOrSaveGroupName, AssociateCancel, GetAssociate } from '@/api/teacher'
 import MyContentSelector from '@/components/MyContent/MyContentSelector'
 import NewMyContent from '@/components/MyContent/NewMyContent'
 import { typeMap } from '@/const/teacher'
@@ -601,7 +601,6 @@ export default {
 .my-modal-title {
   text-align: center;
 }
-
 
 .green-active-task-type {
   background: rgba(21, 195, 154, 0.1);

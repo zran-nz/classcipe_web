@@ -29,10 +29,10 @@
               @click='focusInput($event)'>
               <a-form-model :model='form' class='my-form-wrapper'>
                 <a-steps :current='currentActiveStepIndex' direction='vertical' @change='onChangeStep'>
-                  <a-step :status="currentActiveStepIndex === 0 ? 'process':'wait'" title='Edit Unit plan'>
+                  <a-step :status="currentActiveStepIndex === 0 ? 'process':'wait'" title='Edit Unit plan' class="step">
                     <template slot='description'>
                       <div class='step-detail' v-show='currentActiveStepIndex === 0' >
-
+                        <div class='mask' v-show='!canEdit'></div>
                         <template v-for='fieldItem in $store.getters.formConfigData.planCommonList'>
                           <div class='form-block tag-content-block' :data-field-name='planField.Name' v-if='fieldItem.visible && fieldItem.fieldName === planField.Name' :key='fieldItem.fieldName'>
                             <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Name />
@@ -502,7 +502,8 @@
               </a-form-model>
             </div>
 
-            <div :style="{'width':rightWidth + 'px'}" class='unit-plan-form-right'>
+            <div :style="{'width':rightWidth + 'px'}" class='unit-plan-form-right step'>
+              <div class='mask' v-show='!canEdit'></div>
               <!--              优先级 所有comment预览 > 字段comment > tag选择-->
               <template v-if='showRightModule(rightModule.collaborate)'>
                 <a-skeleton :loading='showHistoryLoading' active>
@@ -3767,5 +3768,18 @@ code {
 .addCategory /deep/ .anticon {
   position: absolute;
   left: 20px;
+}
+
+.step{
+  position: relative;
+  .mask {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 200;
+    background: rgba(0, 0, 0, 0.07);
+  }
 }
 </style>
