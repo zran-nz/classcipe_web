@@ -25,7 +25,8 @@
           'active-slide-item': selectedSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1 || selectedStudentSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1}"
         v-for="(slideItem, sIndex) in slideDataList"
         :key="sIndex"
-        :data-pageId="slideItem.pageId"
+        :data-pageObjectId="slideItem.pageObjectId"
+        :data-selectedSlidePageIdList="JSON.stringify(selectedSlidePageIdList)"
         @click="handleAddSlideItem(slideItem)">
         <div class="slide-header-label">
           <h3>Slide {{ sIndex + 1 }}</h3>
@@ -478,8 +479,6 @@ export default {
   methods: {
     resetData () {
       this.rawSlideDataMap.clear()
-      this.selectedSlidePageIdList = []
-      this.selectedStudentSlidePageIdList = []
       this.slideDataList = []
       this.elementsList = []
       this.itemsList = []

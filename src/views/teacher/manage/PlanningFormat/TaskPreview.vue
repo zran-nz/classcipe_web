@@ -381,7 +381,7 @@
                                 </div>
                               </a-badge>
                               <a-badge>
-                                <div class='my-add-material' v-if='form.presentationId && (isOwner || isCollaborater)'>
+                                <div class='my-add-material' v-if='form.presentationId && canEdit'>
                                   <upload-enter />
                                 </div>
                               </a-badge>
