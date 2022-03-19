@@ -21,18 +21,6 @@
               <div class='task-icon'>
                 <content-type-icon :type="task.type" />
               </div>
-              <div class='task-name' v-if='task.taskType'>
-                {{ task.name ? task.name : 'untitled' }}
-                <a-tag class='task-type-tag green-active-task-type' v-if="task.taskType.toLowerCase() === 'fa'">
-                  {{ task.taskType }}
-                </a-tag>
-                <a-tag class='task-type-tag red-active-task-type' v-if="task.taskType.toLowerCase() === 'sa'">
-                  {{ task.taskType }}
-                </a-tag>
-                <a-tag class='task-type-tag blue-active-task-type' v-if="task.taskType.toLowerCase() === 'activity'">
-                  {{ task.taskType }}
-                </a-tag>
-              </div>
             </div>
           </a-col>
           <a-col :span='6'>
@@ -149,40 +137,5 @@ export default {
   flex-direction: row;
   justify-content: center;
   align-items: center;
-}
-
-.task-type-tag {
-  right: 5px;
-  margin-left: 5px;
-  border-radius: 20px;
-  border-width: 2px;
-  font-weight: bold;
-}
-
-.green-active-task-type {
-  background: rgba(21, 195, 154, 0.1);
-  border: 2px solid #15C39A;
-  border-radius: 50%;
-  font-weight: bold;
-  color: #15C39A;
-}
-
-.red-active-task-type {
-  background: rgba(255, 51, 85, 0.1);
-  border: 2px solid #FF3355;
-  border-radius: 50%;
-  opacity: 1;
-  font-weight: bold;
-  color: #FF3355;
-  opacity: 1;
-}
-
-.blue-active-task-type {
-  background: rgb(230, 247, 255);
-  border: 2px solid rgb(145, 213, 255);
-  border-radius: 50px;
-  opacity: 1;
-  font-weight: bold;
-  color: rgb(24, 144, 255);
 }
 </style>
