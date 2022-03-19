@@ -83,11 +83,11 @@
             <a-popconfirm title="Delete?" ok-text="Yes" @confirm='handleDeleteKnowledge(knowledgeInput)' cancel-text="No">
               <img class='self-out-delete-icon' src="~@/assets/icons/tag/delete.png" v-if='sIdx !== knowledgeInputList.length - 1' />
             </a-popconfirm>
-            <div class='customize-objectives-list-add-btn'>
-              <a-tooltip placement="top" title="Add custom content">
-                <add-green-icon class='add-input input-icon' v-if='sIdx === knowledgeInputList.length - 1' @click='handleAddNew(TagType.knowledge, knowledgeInputList)'/>
-              </a-tooltip>
-            </div>
+          </div>
+          <div class='customize-objectives-list-add-btn'>
+            <a-tooltip placement="top" title="Add custom content">
+              <add-green-icon class='add-input input-icon' v-if='sIdx === knowledgeInputList.length - 1' @click='handleAddNew(TagType.knowledge, knowledgeInputList)'/>
+            </a-tooltip>
           </div>
         </div>
       </a-row>
@@ -147,11 +147,11 @@
             <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteCentury(centuryInput)" cancel-text="No">
               <img class='self-out-delete-icon' src="~@/assets/icons/tag/delete.png" v-if='sIdx !== centuryInputList.length - 1' />
             </a-popconfirm>
-            <div class='customize-objectives-list-add-btn'>
-              <a-tooltip placement="top" title="Add custom content">
-                <add-green-icon class='add-input input-icon' v-if='sIdx === centuryInputList.length - 1' @click='handleAddNew(TagType.century, centuryInputList)'/>
-              </a-tooltip>
-            </div>
+          </div>
+          <div class='customize-objectives-list-add-btn'>
+            <a-tooltip placement="top" title="Add custom content">
+              <add-green-icon class='add-input input-icon' v-if='sIdx === centuryInputList.length - 1' @click='handleAddNew(TagType.century, centuryInputList)'/>
+            </a-tooltip>
           </div>
         </div>
       </a-row>
