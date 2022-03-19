@@ -93,8 +93,15 @@ export const BaseEventMixin = {
       const index = this.collaborate.users.findIndex(item => item.email === this.$store.getters.userInfo.email)
       return index > -1
     },
+    isEditCollaborater() {
+      const index = this.collaborate.users.findIndex(item => item.email === this.$store.getters.userInfo.email)
+      if (index > -1) {
+        return this.collaborate.users[index].permissions === 'Edit'
+      }
+      return false
+    },
     canEdit() {
-      return this.isOwner || this.isCollaborater
+      return this.isOwner || this.isEditCollaborater
     },
     showRightModule () {
       return function (module) {
