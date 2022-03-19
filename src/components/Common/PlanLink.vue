@@ -634,4 +634,13 @@ export default {
   font-weight: bold;
   color: rgb(24, 144, 255);
 }
+
+.task-type-tag {
+  margin-left: 5px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 </style>
