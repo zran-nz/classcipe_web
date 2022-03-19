@@ -544,8 +544,8 @@
       <div class="add-evaluation-evidence-wrapper">
         <div class="slide-preview" v-if="currentEvidenceItem">
           <ppt-slide-view
-            :selected-id-list="currentEvidenceItem.evidence.selectedList"
-            :selected-id-student-list="currentEvidenceItem.evidence.selectedStudentList"
+            :selected-id-list="currentEvidenceItem.evidenceIdList"
+            :selected-id-student-list="currentEvidenceItem.evidenceIdStudentList"
             :row-id="currentEvidenceItem.rowId"
             :form-id="currentActiveFormId"
             :class-id="classId"
@@ -1866,6 +1866,7 @@ export default {
       if (this.selectedMemberIdList.length === 1) {
         this.evidenceSelectVisible = true
         this.currentEvidenceItem = data.data
+        this.currentEvidenceItem.rowId = data.rowId
       } else {
         this.$message.warn('You can only add evidence for one student at a time, and now you\'ve selected ' + this.selectedMemberIdList.length + ' students')
       }

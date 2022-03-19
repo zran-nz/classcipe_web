@@ -1893,7 +1893,7 @@ export default {
       event.preventDefault()
       this.$logger.info('[' + this.mode + '] handleAddEvidenceLine', lIndex, item)
       this.$emit('add-evidence', {
-        index: lIndex, data: item
+        index: lIndex, data: this.formBodyData[item.rowId], rowId: item.rowId
       })
     },
     handleSelectAll21CenturyListData(data) {
