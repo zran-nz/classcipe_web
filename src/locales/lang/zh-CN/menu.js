@@ -57,5 +57,13 @@ export default {
     'menu.account.switchToTeacher': '切换为老师',
     'menu.account.switchToExpert': '切换为博士',
     'menu.account.trigger': '触发报错',
-    'menu.account.logout': '退出登录'
+    'menu.account.logout': '退出登录',
+    'menu.buy': 'Buy',
+    'menu.buy.purchase': 'My Purchases',
+    'menu.sell': 'Sell',
+    'menu.sell.dashboard': 'Dashboard',
+    'menu.sell.inspiration-teacher': 'Inspiration for teachers',
+    'menu.sell.inspiration-student': 'Inspiration for students',
+    'menu.sell.statistics': 'My statistics',
+    'menu.sell.followers': 'My followers'
 }

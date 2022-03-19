@@ -13,7 +13,7 @@
             <a-radio-button value="Preview" class="right-button">
               Detail
             </a-radio-button>
-            <a-radio-button value="Reviews" class="right-button" v-hasRole="['student']">
+            <a-radio-button value="Reviews" class="right-button" v-hasRole="['student', 'teacher']">
               Reviews
             </a-radio-button>
           </a-radio-group>
@@ -98,7 +98,7 @@
           </div>
         </a-col>
       </a-row>
-      <a-space class="author-info" v-hasRole="['student']" v-if="viewMode !== 'Reviews'">
+      <a-space class="author-info" v-hasRole="['student']" v-show="viewMode !== 'Reviews'">
         <div class="avatar-icon">
           <img :src="collaborate.owner && collaborate.owner.avatar" />
         </div>
@@ -124,7 +124,7 @@
           </div>
         </div>
       </a-space>
-      <a-row class="data-info" v-if="viewMode === 'Detail'">
+      <a-row class="data-info" v-show="viewMode === 'Detail'">
         <a-col class="right-detail" span="24" >
           <div class="sub-detail">
             <div class="detail-block">
@@ -222,7 +222,7 @@
           </div>
         </a-col>
       </a-row>
-      <a-row class="preview-data-info" v-if="viewMode === 'Preview'">
+      <a-row class="preview-data-info" v-show="viewMode === 'Preview'">
         <a-col class="slide-preview" span="24">
           <div class="data-detail-wrapper" v-if="data.scenarios || data.inquiry || (data.questions && data.questions.length)">
 
@@ -418,13 +418,13 @@
           </template>
         </a-col>
       </a-row>
-      <a-row class="reviews-info" v-if="viewMode === 'Reviews'">
+      <a-row class="reviews-info" v-show="viewMode === 'Reviews'">
         <a-col class="slide-reviews" span="24">
           <rate-by-percent :rates="reviewsStats"/>
           <reviews-preview :id="id"/>
         </a-col>
       </a-row>
-      <div class="associate-info" v-if="viewMode === 'Detail'" v-excludeRole="['student']">
+      <div class="associate-info" v-show="viewMode === 'Detail'" v-excludeRole="['student']">
         <common-link
           :show-drag-tips='false'
           :isLibrary="isLibrary"
@@ -572,7 +572,7 @@ export default {
       initPrompts: [],
       reviewsStats: {
         avgReviewsScore: 0,
-        reviewsScoreStat: []
+        reviewsScoreStatDetail: []
       }
     }
   },

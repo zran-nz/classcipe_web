@@ -21,6 +21,16 @@
         <!--            {{ $t('menu.account.switchToExpert') }}-->
         <!--          </template>-->
         <!--        </a-menu-item>-->
+        <!-- <template v-if="navMenu && navMenu.length > 0">
+          <a-menu-item-group :key="'g1'+index" v-for="(item, index) in navMenu">
+            <template slot="title"><span>{{ $t(item.meta.title) }}</span> </template>
+            <a-menu-item :key="'g1_child_'+childIndex" v-for="(child, childIndex) in item.children">
+              <router-link :to="child.path">
+                {{ $t(child.meta.title) }}
+              </router-link>
+            </a-menu-item>
+          </a-menu-item-group>
+        </template> -->
         <a-menu-divider v-if="menu" />
         <a-menu-item key="logout" @click="handleLogout">
           <a-icon type="logout" />
@@ -37,6 +47,7 @@
 <script>
 import { Modal } from 'ant-design-vue'
 import { SESSION_CURRENT_PAGE, SESSION_CURRENT_TYPE, SESSION_CURRENT_TYPE_LABEL } from '@/const/common'
+import { mapState } from 'vuex'
 
 export default {
   name: 'AvatarDropdown',
@@ -48,6 +59,33 @@ export default {
     menu: {
       type: Boolean,
       default: true
+    }
+  },
+  data() {
+    return {
+      mainRouter: ['TeacherBuyMain', 'TeacherSellMain']
+    }
+  },
+  computed: {
+    ...mapState({
+      // 动态主路由
+      mainMenu: state => state.permission.addRouters,
+      currentRole: state => state.user.currentRole
+    }),
+    navMenu() {
+      const addRouters = this.mainMenu
+      if (addRouters && addRouters.length > 0) {
+        // 寻找路由 index => teacher => OrderMain
+        const mainRouter = addRouters.find(item => item.name === 'index')
+        if (mainRouter && mainRouter.children && mainRouter.children.length > 0) {
+          const currentRouter = mainRouter.children.find(item => item.name === this.currentRole)
+          if (currentRouter && currentRouter.children && currentRouter.children.length > 0) {
+            const Mains = currentRouter.children.filter(item => this.mainRouter.includes(item.name))
+            return Mains
+          }
+        }
+      }
+      return []
     }
   },
   methods: {
@@ -91,6 +129,9 @@ export default {
   }
   /deep/ .ant-dropdown-menu-item {
     min-width: 160px;
+  }
+  /deep/ .ant-dropdown-menu-item-group-title {
+    line-height: 20px;
   }
 }
 

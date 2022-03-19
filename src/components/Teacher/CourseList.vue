@@ -22,21 +22,6 @@
                   <collaborate-svg />
                 </span> -->
 
-                <div
-                  class="my-list-progress"
-                  v-if="optOptionsObj.progress &&
-                    optOptionsObj.progress[0].show.includes(currentStatus) &&
-                    optOptionsObj.progress[0].studyMode === studyMode">
-                  <a-progress
-                    :stroke-color="{
-                      '0%': '#108ee9',
-                      '100%': '#87d068',
-                    }"
-                    :strokeWidth="15"
-                    :percent="item.percentage"
-                  />
-                </div>
-
               </span>
 
               <span class="content-info-right">
@@ -77,9 +62,7 @@
                       </template>
                       <div
                         class="more-action-wrapper action-item-wrapper"
-                        v-if="(currentStatus !== TASK_STATUS.ARCHIVED)
-                          && (studyMode !== STUDY_MODE.SCHOOL ||
-                          (item.task.classId && item.task.sessionId && item.task.presentationId))"
+                        v-if="currentStatus !== TASK_STATUS.ARCHIVED"
                       >
                         <a-dropdown>
                           <a-icon type="more" style="margin-right: 8px" />
@@ -123,12 +106,7 @@
                 <div class="mask"></div>
 
                 <div class="mask-actions">
-                  <div
-                    class="action-item action-item-top"
-                    v-show="(currentStatus !== TASK_STATUS.ARCHIVED && currentStatus !== TASK_STATUS.SCHEDULED)
-                      && (studyMode !== STUDY_MODE.SCHOOL ||
-                      (item.task.classId && item.task.sessionId && item.task.presentationId))"
-                  >
+                  <div class="action-item action-item-top" v-show="currentStatus !== TASK_STATUS.ARCHIVED && currentStatus !== TASK_STATUS.SCHEDULED">
                     <a-dropdown>
                       <a-icon type="more" style="margin-right: 8px" class="more-icon" />
                       <a-menu slot="overlay">
@@ -136,8 +114,7 @@
                           <a-menu-item
                             :key="'more_' + opt.label"
                             v-if="(!opt.actionType || opt.actionType === actionType) &&
-                              (!opt.studyMode || opt.studyMode === studyMode)
-                              && !opt.dependency || item.task[opt.dependency]
+                              !opt.dependency || item.task[opt.dependency]
                               && (opt.show.includes(item.status)) && (!opt.currentStatus || opt.currentStatus.includes(currentStatus))"
                           >
                             <a @click="handleAction(opt.fn,item)" v-if="!opt.confirmText">
@@ -222,18 +199,6 @@
                   <content-type-icon :type="typeMap.task" slot="avatar"></content-type-icon>
                 </a-card-meta>
 
-                <div class="my-card-progress" v-if="STUDY_MODE.SELF === studyMode" :style="{visibility: item.status === TASK_STATUS.ONGOING ? 'visiible' : 'hidden'}">
-                  <a-progress
-                    :stroke-color="{
-                      '0%': '#108ee9',
-                      '100%': '#87d068',
-                    }"
-                    :strokeWidth="15"
-                    :percent="item.percentage"
-                    :show-info="false" />
-                  <label>{{ item.percentage }}%</label>
-                </div>
-
                 <!-- <collaborate-svg class="card-collaborate-icon-item" v-if="item.collaborates > 0"/> -->
               </a-card>
             </a-list-item>
@@ -265,43 +230,6 @@
       </a-row>
     </a-drawer>
 
-    <a-modal
-      v-model="paymentVisible"
-      :footer="null"
-      destroyOnClose
-      width="800px"
-      :zIndex="6000"
-      title="Payment details"
-      @ok="paymentVisible = false"
-      @cancel="paymentVisible = false">
-      <payment-detail :taskId="currentTaskId" :taskName="currentTaskName"></payment-detail>
-    </a-modal>
-
-    <a-modal
-      v-model="takeAwayPreviewVisible"
-      :footer="null"
-      destroyOnClose
-      :dialog-style="{ top: '30px' }"
-      width="920px"
-      title="Takeaways"
-      @ok="takeAwayPreviewVisible = false"
-      @cancel="takeAwayPreviewVisible = false">
-      <div class="view-take-away">
-
-        <div class='ppt-slide-view'>
-          <div class="slide-preview" v-if="currentActiveStudentId">
-            <takeaway-ppt-slide-view
-              ref='takeaway'
-              :class-id="takeAwayClassId"
-              :session-id='takeAwaySessionId'
-              :slide-id="takeAwaySlideId"
-              mode='takeaway'
-              :canEdit="false"
-              :student-name="currentActiveStudentId" />
-          </div>
-        </div>
-      </div>
-    </a-modal>
   </div>
 </template>
 
@@ -310,7 +238,7 @@ import * as logger from '@/utils/logger'
 import { typeMap } from '@/const/teacher'
 import { lessonHost } from '@/const/googleSlide'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
-import { StudentStudyTaskStatus, STUDY_MODE, TASK_STATUS } from '@/const/common'
+import { StudentStudyTaskStatus, TASK_STATUS } from '@/const/common'
 
 import CommonPreview from '@/components/Common/CommonPreview'
 import NoMoreResources from '@/components/Common/NoMoreResources'
@@ -333,7 +261,7 @@ import storage from 'store'
 import { mapState } from 'vuex'
 
 export default {
-  name: 'MyTaskList',
+  name: 'CourseList',
   components: {
     ContentTypeIcon,
     PreviousSessionsSvg,
@@ -391,7 +319,6 @@ export default {
       typeMap: typeMap,
       currentStatus: this.status,
       TASK_STATUS: TASK_STATUS,
-      STUDY_MODE: STUDY_MODE,
       myContentList: [],
       pagination: {
         onChange: page => {
@@ -418,19 +345,11 @@ export default {
       takeAwaySlideId: null,
       takeAwayClassId: null,
       takeAwaySessionId: null,
-
       optChoose: this.optArray.concat(),
       optOptions: [
         {
-          type: ['progress'],
-          label: 'progress',
-          show: [TASK_STATUS.ONGOING],
-          studyMode: STUDY_MODE.SELF
-        },
-        {
           type: ['start', 'center'],
           show: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED],
-          currentStatus: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED, ''],
           label: 'Enter session',
           svg: 'student-pace',
           fn: 'handleStartSession'
@@ -438,9 +357,6 @@ export default {
         {
           type: ['more', 'bottom'],
           show: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED],
-          studyMode: STUDY_MODE.SELF,
-          currentStatus: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED, ''],
-          actionType: 'myTask',
           label: 'Report',
           icon: 'bar-chart',
           fn: 'handleReportItem'
@@ -448,67 +364,24 @@ export default {
         {
           type: ['more', 'top'],
           show: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED],
-          studyMode: STUDY_MODE.SELF,
-          currentStatus: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED],
-          actionType: 'myTask',
           label: 'Archive',
           icon: 'delete',
           fn: 'handleDeleteItem',
           confirmText: 'archive'
         },
         {
-          type: ['more', 'top'],
-          show: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED],
-          studyMode: STUDY_MODE.SELF,
-          currentStatus: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED],
-          actionType: 'myTask',
-          label: 'Payment Details',
-          icon: 'ordered-list',
-          fn: 'handlePaymentItem'
-        },
-        {
-          type: ['more', 'top'],
-          show: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED],
-          studyMode: STUDY_MODE.SCHOOL,
-          dependency: 'selfReview',
-          actionType: 'myClass',
-          label: 'Self-review',
-          icon: 'rollback',
-          fn: 'handleReviewItem'
-        },
-        {
-          type: ['more', 'top'],
-          show: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED],
-          studyMode: STUDY_MODE.SCHOOL,
-          actionType: 'myClass',
-          label: 'Takeaway',
-          icon: 'file',
-          fn: 'handleTakeAwayItem'
-        },
-        {
           type: ['start', 'bottom'],
-          // archive里面也有其他状态？
-          show: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED, TASK_STATUS.ARCHIVED],
-          studyMode: STUDY_MODE.SELF,
-          currentStatus: [TASK_STATUS.ARCHIVED],
-          actionType: 'myTask',
+          show: [TASK_STATUS.ARCHIVED],
           label: 'Restore',
-          icon: 'undo',
+          svg: 'bianji',
           fn: 'handleRestoreItem',
           confirmText: 'restore'
-        },
-        {
-          type: ['bottom'],
-          show: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED, TASK_STATUS.SCHEDULED],
-          label: 'Preview',
-          icon: 'eye',
-          fn: 'handleViewDetail'
         }
       ]
     }
   },
   created () {
-    logger.info('student my content')
+    logger.info('teacher my content')
     this.loadMyContent()
   },
   computed: {
@@ -518,8 +391,6 @@ export default {
     }),
     statusList() {
       return StudentStudyTaskStatus.filter(item => {
-        // scheduled 只有学校模式有
-        if (this.studyMode === STUDY_MODE.SELF && item.value === TASK_STATUS.SCHEDULED) return false
         return true
       })
     },
@@ -585,12 +456,12 @@ export default {
     },
     handleViewDetail (item) {
       logger.info('handleViewDetail', item)
-      if (!item.task || this.currentStatus === 2) {
+      if (!item.task || this.currentStatus === TASK_STATUS.ARCHIVED) {
         return
       }
       this.currentTaskId = item.task.id
       this.currentTaskName = item.task.name
-      this.previewType = typeMap.task
+      this.previewType = item.task.type
       this.previewVisible = true
     },
     handlePreviewClose () {
@@ -668,10 +539,6 @@ export default {
       }
     },
     handleTakeAwayItem(item) {
-      if (!item.task.classId || !item.task.sessionId || !item.task.presentationId) {
-        this.$message.error('The task hasnt started yet')
-        return
-      }
       this.takeAwayClassId = item.task.classId
       this.takeAwaySessionId = item.task.sessionId
       this.takeAwaySlideId = item.task.presentationId

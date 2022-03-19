@@ -34,7 +34,7 @@
           >
           </a-input-search>
         </div>
-        <div class="filter-icon" @click="showFilter = !showFilter">
+        <div class="filter-icon" @click.stop="showFilter = !showFilter">
           <div class="filter-item">
             <filter-icon class="filter-icon" />
             <filter-active-icon class="filter-active-icon"/>
@@ -97,7 +97,7 @@
         </div>
       </div>
     </div>
-    <div v-if="showFilter">
+    <div v-if="showFilter" @click.stop=''>
       <div class="filter-params">
         <filter-content
           @filter-config-update="handleUpdateFilterConfig"
@@ -109,9 +109,6 @@
           :filter-sa-options="filterSaOptions"
           :filter-activity-options="filterActivityOptions"
         />
-      </div>
-      <div class="expand-icon" v-if="showFilter" @click="showFilter = !showFilter">
-        <a-icon type="up-circle" theme="filled" title="Collapse filter" /> Close
       </div>
     </div>
     <div class="content-wrapper">
@@ -594,7 +591,8 @@ export default {
   },
   locomputed: {
   },
-  watch: {
+  mounted() {
+    this.globalClick(this.handleClick)
   },
   created () {
     logger.info('teacher my content')
@@ -602,6 +600,9 @@ export default {
     this.initFilterOption()
   },
   methods: {
+    handleClick () {
+      this.showFilter = false
+    },
     toggleViewMode (viewMode) {
       this.$logger.info('viewMode', viewMode)
       storage.set(SESSION_VIEW_MODE, viewMode)

@@ -39,6 +39,11 @@
         }
       }
     },
+    watch: {
+      rates(val) {
+        this.percents = { ...val }
+      }
+    },
     data() {
       return {
         percents: this.rates,
@@ -46,9 +51,11 @@
       }
     },
     mounted() {
-      const conWidth = this.$refs.ratePercentCon.getBoundingClientRect().width
-      const sumWidth = this.$refs.ratePercentSum.getBoundingClientRect().width
-      this.progressWidth = (conWidth - 40 - sumWidth - 45 - 200) + 'px'
+      if (this.$refs.ratePercentCon && this.$refs.ratePercentSum) {
+        const conWidth = this.$refs.ratePercentCon.getBoundingClientRect().width
+        const sumWidth = this.$refs.ratePercentSum.getBoundingClientRect().width
+        this.progressWidth = (conWidth - 40 - sumWidth - 45 - 200) + 'px'
+      }
     }
   }
 </script>

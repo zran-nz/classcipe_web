@@ -26,8 +26,14 @@
             v-for='(skillInput, sIdx) in skillInputList'
             :key='sIdx'>
             <a-input v-model='skillInput.name' class='skill-input' />
-            <img class='delete-input input-icon' src='~@/assets/icons/evaluation/big_delete.png' alt='' v-if='sIdx !== skillInputList.length - 1' @click='handleDeleteSkill(skillInput)'/>
-            <add-green-icon class='add-input input-icon' v-if='sIdx === skillInputList.length - 1' @click='handleAddNew(TagType.skill, skillInputList)'/>
+            <a-popconfirm title="Delete?" ok-text="Yes" @confirm='handleDeleteSkill(skillInput)' cancel-text="No">
+              <img class='self-out-delete-icon' src="~@/assets/icons/tag/delete.png" alt=''/>
+            </a-popconfirm>
+          </div>
+          <div class='customize-objectives-list-add-btn'>
+            <a-tooltip placement="top" title="Add custom content">
+              <add-green-icon class='add-input input-icon' @click='handleAddNew(TagType.skill, skillInputList)'/>
+            </a-tooltip>
           </div>
         </div>
       </a-row>
@@ -74,8 +80,14 @@
             v-for='(knowledgeInput, sIdx) in knowledgeInputList'
             :key='sIdx'>
             <a-input v-model='knowledgeInput.name' class='knowledge-input' />
-            <img class='delete-input input-icon' src='~@/assets/icons/evaluation/big_delete.png' alt='' v-if='sIdx !== knowledgeInputList.length - 1' @click='handleDeleteKnowledge(knowledgeInput)'/>
-            <add-green-icon class='add-input input-icon' v-if='sIdx === knowledgeInputList.length - 1' @click='handleAddNew(TagType.knowledge, knowledgeInputList)'/>
+            <a-popconfirm title="Delete?" ok-text="Yes" @confirm='handleDeleteKnowledge(knowledgeInput)' cancel-text="No">
+              <img class='self-out-delete-icon' src="~@/assets/icons/tag/delete.png" v-if='sIdx !== knowledgeInputList.length - 1' />
+            </a-popconfirm>
+            <div class='customize-objectives-list-add-btn'>
+              <a-tooltip placement="top" title="Add custom content">
+                <add-green-icon class='add-input input-icon' v-if='sIdx === knowledgeInputList.length - 1' @click='handleAddNew(TagType.knowledge, knowledgeInputList)'/>
+              </a-tooltip>
+            </div>
           </div>
         </div>
       </a-row>
@@ -132,8 +144,14 @@
             v-for='(centuryInput, sIdx) in centuryInputList'
             :key='sIdx'>
             <a-input v-model='centuryInput.name' class='century-input' />
-            <img class='delete-input input-icon' src='~@/assets/icons/evaluation/big_delete.png' alt='' v-if='sIdx !== centuryInputList.length - 1' @click='handleDeleteCentury(centuryInput)'/>
-            <add-green-icon class='add-input input-icon' v-if='sIdx === centuryInputList.length - 1' @click='handleAddNew(TagType.century, centuryInputList)'/>
+            <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteCentury(centuryInput)" cancel-text="No">
+              <img class='self-out-delete-icon' src="~@/assets/icons/tag/delete.png" v-if='sIdx !== centuryInputList.length - 1' />
+            </a-popconfirm>
+            <div class='customize-objectives-list-add-btn'>
+              <a-tooltip placement="top" title="Add custom content">
+                <add-green-icon class='add-input input-icon' v-if='sIdx === centuryInputList.length - 1' @click='handleAddNew(TagType.century, centuryInputList)'/>
+              </a-tooltip>
+            </div>
           </div>
         </div>
       </a-row>
@@ -749,6 +767,21 @@
         width: 17px;
       }
 
+      img.self-out-delete-icon {
+        position: absolute;
+        top: 0;
+        right: -35px;
+        cursor: pointer;
+        width: 35px;
+        display: none;
+      }
+
+      &:hover {
+        img.self-out-delete-icon {
+          display: block;
+        }
+      }
+
       svg.input-icon {
         position: absolute;
         top: 3px;
@@ -758,6 +791,19 @@
       }
     }
 
+    .customize-objectives-list-add-btn {
+      svg {
+        width: 20px;
+        height: 20px;
+        user-select: none;
+        border: none;
+        cursor: pointer;
+        &:focus {
+          border: none;
+          outline: none;
+        }
+      }
+    }
     .skill-input {
       border: 1px solid #FF978E;
       box-shadow: 0 0 0 2px rgba(255, 151, 142, 0.2);

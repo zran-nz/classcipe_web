@@ -1320,8 +1320,6 @@ export default {
 
         newLineItem[this.headerType.Evidence] = {
           num: 0,
-          selectedList: [],
-          selectedStudentList: [],
           rowId
         }
       } else if (this.formType === this.tableType.Rubric) {
@@ -1347,15 +1345,11 @@ export default {
 
         newLineItem[this.headerType.Evidence] = {
           num: 0,
-          selectedList: [],
-          selectedStudentList: [],
           rowId
         }
       } else if (this.formType === this.tableType.Rubric_2) {
         newLineItem[this.headerType.Evidence] = {
           num: 0,
-          selectedList: [],
-          selectedStudentList: [],
           rowId
         }
       }
@@ -1387,8 +1381,6 @@ export default {
 
           newLineItem[this.headerType.Evidence] = {
             num: 0,
-            selectedList: [],
-            selectedStudentList: [],
             rowId
           }
           this.$logger.info('[' + this.mode + '] init new line ', newLineItem)
@@ -1397,8 +1389,6 @@ export default {
           newLineItem[this.headerType.Description].name = outItem.name
           newLineItem[this.headerType.Evidence] = {
             num: 0,
-            selectedList: [],
-            selectedStudentList: [],
             rowId
           }
           this.$logger.info('[' + this.mode + '] init new line ', newLineItem)
@@ -1651,8 +1641,6 @@ export default {
 
                   newLineItem[this.headerType.Evidence] = {
                     num: 0,
-                    selectedList: [],
-                    selectedStudentList: [],
                     rowId
                   }
                   newLineItem.rowId = rowId
@@ -1695,8 +1683,6 @@ export default {
 
                   newLineItem[this.headerType.Evidence] = {
                     num: 0,
-                    selectedList: [],
-                    selectedStudentList: [],
                     rowId
                   }
                   newLineItem.rowId = rowId
@@ -1785,8 +1771,6 @@ export default {
 
                 newLineItem[this.headerType.Evidence] = {
                   num: 0,
-                  selectedList: [],
-                  selectedStudentList: [],
                   rowId
                 }
 
@@ -1828,8 +1812,6 @@ export default {
 
                 newLineItem[this.headerType.Evidence] = {
                   num: 0,
-                  selectedList: [],
-                  selectedStudentList: [],
                   rowId
                 }
                 newLineItem.rowId = rowId
@@ -1911,7 +1893,7 @@ export default {
       event.preventDefault()
       this.$logger.info('[' + this.mode + '] handleAddEvidenceLine', lIndex, item)
       this.$emit('add-evidence', {
-        index: lIndex, data: item
+        index: lIndex, data: this.formBodyData[item.rowId], rowId: item.rowId
       })
     },
     handleSelectAll21CenturyListData(data) {

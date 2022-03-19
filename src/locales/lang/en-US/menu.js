@@ -81,5 +81,13 @@ export default {
     'menu.account.settings': 'Account Settings',
     'menu.account.profile': 'Profile',
     'menu.account.trigger': 'Trigger Error',
-    'menu.account.logout': 'Logout'
+    'menu.account.logout': 'Logout',
+    'menu.buy': 'Buy',
+    'menu.buy.purchase': 'My Purchases',
+    'menu.sell': 'Sell',
+    'menu.sell.dashboard': 'Dashboard',
+    'menu.sell.inspiration-teacher': 'Inspiration for teachers',
+    'menu.sell.inspiration-student': 'Inspiration for students',
+    'menu.sell.statistics': 'My statistics',
+    'menu.sell.followers': 'My followers'
 }

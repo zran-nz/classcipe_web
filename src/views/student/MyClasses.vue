@@ -259,10 +259,12 @@ export default {
       tabsList: [{
           value: 'task',
           title: 'Tasks&Units'
-      }, {
-          value: 'evaluations',
-          title: 'Evaluations'
-      }, {
+      },
+      // {
+      //     value: 'evaluations',
+      //     title: 'Evaluations'
+      // },
+      {
           value: 'attendance',
           title: 'Attendance'
       }, {
