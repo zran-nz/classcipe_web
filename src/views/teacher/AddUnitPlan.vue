@@ -927,6 +927,15 @@
         />
       </a-modal>
 
+      <publish-list
+        :parent-id='unitPlanId'
+        :parent-type="contentType['unit-plan']"
+        :task-list='associateTaskList'
+        v-if='publishListVisible'
+        :visible.sync='publishListVisible'
+        @publish='handleMultiPublish'
+        @close='publishListVisible = false' />
+
       <a-skeleton :loading='contentLoading' active>
       </a-skeleton>
     </a-card>
@@ -944,6 +953,7 @@ import { debounce } from 'lodash-es'
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
 import {
+  UpdateContentStatus,
   AddOrSaveGroupName,
   Associate,
   FindBigIdeaSourceOutcomes,
@@ -1000,10 +1010,12 @@ import { QueryContentShare } from '@/api/share'
 import CollaborateTooltip from '@/components/Collaborate/CollaborateTooltip'
 import LocalStore from '@/websocket/localstore'
 import CollaborateUpdateContent from '@/components/Collaborate/CollaborateUpdateContent'
+import PublishList from '@/components/UnitPlan/PublishList'
 
 export default {
   name: 'AddUnitPlan',
   components: {
+    PublishList,
     ShareContentSetting,
     AssessmentTaskDetails,
     QuestionBrowse,
@@ -1203,7 +1215,9 @@ export default {
       shareStatus: 0,
       planField: PlanField,
 
-      linkLoading: false
+      linkLoading: false,
+
+      publishListVisible: false
     }
   },
   watch: {
@@ -1651,18 +1665,86 @@ export default {
       })
     },
     handlePublishUnitPlan(status) {
-      logger.info('handlePublishUnitPlan', {
+      this.$logger.info('handlePublishUnitPlan', {
         id: this.unitPlanId,
         status: status
+      }, 'associateTaskList', this.associateTaskList)
+
+      const isNeedPublishAssociate = this.associateTaskList.some(item => item.status === 0)
+      this.$logger.info('handlePublishUnitPlan isNeedPublishAssociate', isNeedPublishAssociate)
+      if (status) {
+        if (!isNeedPublishAssociate) {
+          this.form.status = status
+          this.handlePublishFormItem(status)
+        } else {
+          this.$confirm({
+            title: 'Alert',
+            content: 'Would you like to publish the linked tasks as well?',
+            centered: true,
+            okText: 'Yes',
+            cancelText: 'No, publish this Unit plan only.',
+            onOk: () => {
+              this.$logger.info('handlePublishUnitPlan onOk')
+              this.publishListVisible = true
+            },
+            onCancel: () => {
+              this.handlePublishFormItem(status)
+              this.$refs.commonFormHeader.publishing = false
+            }
+          })
+        }
+      } else {
+        this.$confirm({
+          title: 'Alert',
+          content: 'If you wish to unpublish the linked tasks, please go to individual task page to unpublish.',
+          onOk: () => {
+            this.form.status = status
+            this.handlePublishFormItem(status)
+          },
+          onCancel: () => {
+            this.$refs.commonFormHeader.publishing = false
+          }
+        })
+      }
+    },
+
+    handleMultiPublish(associateIdList) {
+      this.$logger.info('handleMultiPublish', associateIdList)
+      const associates = associateIdList.map(id => { return { id: id, type: this.contentType.task } })
+      this.$logger.info('handleMultiPublish associates', associates)
+      const data = {
+        id: this.unitPlanId,
+        status: 1,
+        type: this.contentType['unit-plan'],
+        associates: associates
+      }
+      UpdateContentStatus(data).then((response) => {
+        if (response.success) {
+          this.$message.success(this.$t('teacher.add-unit-plan.save-success'))
+          this.publishListVisible = false
+        } else {
+          this.$message.error(response.message)
+        }
+      }).finally(() => {
+        this.$refs.commonFormHeader.publishing = false
+        this.$refs.planLink.getAssociate()
       })
-      this.form.status = status
-      UnitPlanAddOrUpdate(this.form).then(() => {
+    },
+
+    handlePublishFormItem (status) {
+      const data = {
+        id: this.unitPlanId,
+        status: status,
+        type: this.contentType['unit-plan']
+      }
+      UpdateContentStatus(data).then(() => {
         if (status === 1) {
           this.$message.success(this.$t('teacher.add-unit-plan.publish-success'))
         } else {
           this.$message.success('Unpublish successfully')
         }
         this.form.status = status
+      }).finally(() => {
         this.$refs.commonFormHeader.publishing = false
       })
     },
