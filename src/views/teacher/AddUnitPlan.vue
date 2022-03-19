@@ -1726,6 +1726,7 @@ export default {
         } else {
           this.$message.error(response.message)
         }
+        this.form.status = status
       }).finally(() => {
         this.$refs.commonFormHeader.publishing = false
         this.$refs.planLink.getAssociate()
