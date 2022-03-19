@@ -21,7 +21,7 @@
         <!--            {{ $t('menu.account.switchToExpert') }}-->
         <!--          </template>-->
         <!--        </a-menu-item>-->
-        <template v-if="navMenu && navMenu.length > 0">
+        <!-- <template v-if="navMenu && navMenu.length > 0">
           <a-menu-item-group :key="'g1'+index" v-for="(item, index) in navMenu">
             <template slot="title"><span>{{ $t(item.meta.title) }}</span> </template>
             <a-menu-item :key="'g1_child_'+childIndex" v-for="(child, childIndex) in item.children">
@@ -30,7 +30,7 @@
               </router-link>
             </a-menu-item>
           </a-menu-item-group>
-        </template>
+        </template> -->
         <a-menu-divider v-if="menu" />
         <a-menu-item key="logout" @click="handleLogout">
           <a-icon type="logout" />

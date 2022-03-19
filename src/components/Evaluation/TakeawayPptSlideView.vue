@@ -351,7 +351,7 @@
 
 import { GetStudentResponse } from '@/api/lesson'
 import { QuerySessionTakeaway, SaveSessionTakeaway } from '@/api/evaluation'
-import { TemplatesGetPresentation } from '@/api/template'
+import { TemplatesGetPresentation, TemplatesGetPublishedPresentation } from '@/api/template'
 import EvaluationTableMode from '@/components/Evaluation/EvaluationTableMode'
 import StudentIcon from '@/assets/svgIcon/evaluation/StudentIcon.svg?inline'
 import TeacherIcon from '@/assets/svgIcon/evaluation/TeacherIcon.svg?inline'
@@ -372,6 +372,8 @@ import UrlTypeSvg from '@/assets/icons/material/url.svg?inline'
 import SlidePreview from '@/components/Evaluation/SlidePreview'
 import ScoreNumber from '@/components/Common/ScoreNumber'
 import EvidenceCommentInput from '@/components/Evaluation/EvidenceCommentInput'
+
+import { mapState } from 'vuex'
 
 export default {
   name: 'TakeawayPptSlideView',
@@ -468,6 +470,9 @@ export default {
     }
   },
   computed: {
+    ...mapState({
+      currentRole: state => state.user.currentRole
+    }),
     studentScore () {
       let score = 0
       this.slideDataList.forEach(slideData => {
@@ -509,8 +514,13 @@ export default {
       this.loading = true
       this.resetData()
       this.$logger.info('加载PPT数据 ' + this.classId + ' slideId ' + this.slideId + ' formId' + this.formId + ' rowId ' + this.rowId)
+      // 学生和老师调用接口不一样
+      let presentationPromise = TemplatesGetPresentation
+      if (this.currentRole === 'student') {
+        presentationPromise = TemplatesGetPublishedPresentation
+      }
       Promise.all([
-        TemplatesGetPresentation({ presentationId: this.slideId }),
+        presentationPromise({ presentationId: this.slideId }),
         QueryByClassInfoSlideId({ slideId: this.slideId }),
         QuerySessionTakeaway({
           sessionId: this.sessionId,

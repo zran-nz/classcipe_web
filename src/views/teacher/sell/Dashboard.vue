@@ -48,7 +48,7 @@
                   <a-range-picker
                     size="large"
                     style="margin-left: 10px;"
-                    v-show="filterParams.duringType === 7"
+                    v-show="filterParams.duringType === 6"
                     v-model="filterParams.during"
                     @change="onChangeDate"
                   />
@@ -135,7 +135,7 @@ export default {
   computed: {
     title() {
       const typeObj = this.typeOptions.find(item => item.value === this.filterParams.type)
-      if (this.filterParams.duringType !== 7) {
+      if (this.filterParams.duringType !== 6) {
         const key = this.duringOptions.find(item => item.value === this.filterParams.duringType).label
         // during = DATERANGE_FOR_CHARTS[key]
         return key.toUpperCase() + ' ' + (typeObj ? typeObj.label.toUpperCase() : '')

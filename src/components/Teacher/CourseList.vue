@@ -22,21 +22,6 @@
                   <collaborate-svg />
                 </span> -->
 
-                <div
-                  class="my-list-progress"
-                  v-if="optOptionsObj.progress &&
-                    optOptionsObj.progress[0].show.includes(currentStatus) &&
-                    optOptionsObj.progress[0].studyMode === studyMode">
-                  <a-progress
-                    :stroke-color="{
-                      '0%': '#108ee9',
-                      '100%': '#87d068',
-                    }"
-                    :strokeWidth="15"
-                    :percent="item.percentage"
-                  />
-                </div>
-
               </span>
 
               <span class="content-info-right">
@@ -213,18 +198,6 @@
                 <a-card-meta class="my-card-meta-info" :title="(item.task && item.task.name) ? item.task.name : 'Untitled'" :description="(item.updateTime || item.createTime) | dayjs">
                   <content-type-icon :type="typeMap.task" slot="avatar"></content-type-icon>
                 </a-card-meta>
-
-                <div class="my-card-progress" v-if="STUDY_MODE.SELF === studyMode" :style="{visibility: item.status === TASK_STATUS.ONGOING ? 'visiible' : 'hidden'}">
-                  <a-progress
-                    :stroke-color="{
-                      '0%': '#108ee9',
-                      '100%': '#87d068',
-                    }"
-                    :strokeWidth="15"
-                    :percent="item.percentage"
-                    :show-info="false" />
-                  <label>{{ item.percentage }}%</label>
-                </div>
 
                 <!-- <collaborate-svg class="card-collaborate-icon-item" v-if="item.collaborates > 0"/> -->
               </a-card>
@@ -483,12 +456,12 @@ export default {
     },
     handleViewDetail (item) {
       logger.info('handleViewDetail', item)
-      if (!item.task || this.currentStatus === 2) {
+      if (!item.task || this.currentStatus === TASK_STATUS.ARCHIVED) {
         return
       }
       this.currentTaskId = item.task.id
       this.currentTaskName = item.task.name
-      this.previewType = typeMap.task
+      this.previewType = item.task.type
       this.previewVisible = true
     },
     handlePreviewClose () {
