@@ -110,9 +110,6 @@
           :filter-activity-options="filterActivityOptions"
         />
       </div>
-      <div class="expand-icon" v-if="showFilter" @click="showFilter = !showFilter">
-        <a-icon type="up-circle" theme="filled" title="Collapse filter" /> Close
-      </div>
     </div>
     <div class="content-wrapper">
       <a-skeleton :loading="skeletonLoading" active>
