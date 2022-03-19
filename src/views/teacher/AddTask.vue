@@ -3130,9 +3130,10 @@ export default {
       this.form.hasUploadImage = false
     },
 
-    handleEditGoogleSlide() {
+    async handleEditGoogleSlide() {
       this.$logger.info('handleEditGoogleSlide', this.form.presentationId)
       if (this.form.presentationId) {
+        await this.autoSave()
         window.open(this.presentationLink, '_blank')
       } else {
         this.handleCreateTask()
@@ -4158,10 +4159,8 @@ export default {
         taskData.customFieldData = JSON.stringify(taskData.customFieldData)
       }
       logger.info('basic taskData', taskData)
-      TaskAddOrUpdate(taskData).then((response) => {
+      await TaskAddOrUpdate(taskData).then((response) => {
         logger.info('TaskAddOrUpdate', response.result)
-      }).finally(() => {
-
       })
     },
     setCustomTagByPPT(nameList, parent) {
