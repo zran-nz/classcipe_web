@@ -71,11 +71,7 @@
       </div>
 
       <a-table
-        ref="table"
-        size="middle"
         rowKey="id"
-        :indentSize="30"
-        :scroll="{x:true}"
         :columns="columns"
         :dataSource="dataSource"
         :pagination="ipagination"
@@ -109,18 +105,26 @@
             rowKey="id"
             :columns="childColumns"
             :data-source="record.knowledgeExtends"
-            :pagination="false"
-            class='my-mini-table'>
+            :pagination="false">
             <span slot="childAction" class="flex-right" slot-scope="text, childRecord">
-              <a @click="handleEdit(childRecord)">  <a-icon type="edit"/>Edit</a>
+              <a @click="handleEditExtend(childRecord)">  <a-icon type="edit"/>Edit</a>
               <a-divider type="vertical" />
-              <a @click="handleEdit(childRecord)">  <a-icon type="edit"/>Delete</a>
+              <a-popconfirm title="Confirm Delete?" @confirm="() => handleDeleteExtend(childRecord.id)" placement="topLeft">
+                <a>Delete</a>
+              </a-popconfirm>
             </span>
+
+            <!--            <span slot="description" slot-scope="text, record" class="table-description">-->
+            <!--              <a-tooltip :title="text" placement='top'>{{ text }}</a-tooltip>-->
+            <!--            </span>-->
+
           </a-table>
         </p>
 
       </a-table>
     </div>
+
+    <knowledgeExtend-modal ref="modalExtendForm" @ok="modalFormOk"></knowledgeExtend-modal>
     <!--    <knowledge-tag-list ref="knowledgeTagList"></knowledge-tag-list>-->
     <knowledge-modal :subject-list="subjectList" :grade-list="gradeAllList" ref="modalForm" @ok="modalFormOk"></knowledge-modal>
   </a-card>
@@ -137,12 +141,13 @@ import { GetGradesByCurriculumId } from '@/api/preference'
 import { CurriculumType, SubjectType, TagType } from '@/const/common'
 import JTreeSelect from '@/components/jeecg/JTreeSelect'
 import { SubjectTree } from '@/api/subject'
+import KnowledgeExtendModal from '@/views/teacher/manage/tags/KnowledgeExtendModal'
 
 export default {
   name: 'KnowledgeList',
   mixins: [JeecgListMixin],
   components: {
-    KnowledgeModal, KnowledgeTagList, JTreeSelect
+    KnowledgeModal, KnowledgeTagList, JTreeSelect, KnowledgeExtendModal
   },
   data () {
     return {
@@ -207,13 +212,13 @@ export default {
         },
         {
           title: 'Description',
-          align: 'left',
+          align: 'center',
           dataIndex: 'description',
           width: '50%'
         },
         {
           title: 'Phase',
-          align: 'left',
+          align: 'center',
           dataIndex: 'hhase'
         },
         {
@@ -228,6 +233,7 @@ export default {
         childList: '/classcipe/api/knowledge/childList',
         getChildListBatch: '/classcipe/api/knowledge/getChildListBatch',
         delete: '/classcipe/api/knowledge/delete',
+        deleteExtend: '/classcipe/api/knowledgeExtend/delete',
         deleteBatch: '/classcipe/api/knowledge/deleteBatch',
         exportXlsUrl: '/classcipe/api/knowledge/exportXls',
         importExcelUrl: '/classcipe/api/knowledge/importExcel',
@@ -419,11 +425,10 @@ export default {
     handleAddChild (record) {
       this.loadParent = true
       const obj = {}
-      obj[this.pidField] = record['id']
-      obj.gradeIds = record['gradeIds']
-      obj.subjectId = record['subjectId']
-      obj.curriculumId = record['curriculumId']
-      this.$refs.modalForm.add(obj)
+      obj.knowledgeId = record.id
+      obj.tagType = record.tagType
+      obj.curriculumId = this.$store.getters.bindCurriculum
+      this.$refs.modalExtendForm.add(obj)
     },
     handleDeleteNode (id) {
       var that = this
@@ -456,10 +461,35 @@ export default {
       link.click()
       document.body.removeChild(link) // 下载完成移除元素
       window.URL.revokeObjectURL(url) // 释放掉blob对象
+    },
+    handleEditExtend: function (record) {
+      this.$refs.modalExtendForm.edit(record)
+      this.$refs.modalExtendForm.title = 'Edit'
+      this.$refs.modalExtendForm.disableSubmit = false
+    },
+    handleDeleteExtend: function (id) {
+      var that = this
+      deleteAction(that.url.deleteExtend, { id: id }).then((res) => {
+        if (res.success) {
+          that.loadData(1)
+        } else {
+          that.$message.warning(res.message)
+        }
+      })
     }
   }
 }
 </script>
 <style lang="less" scoped>
+
+.table-description{
+  display: block;
+  width: 400px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  word-break: break-all;
+}
 
 </style>

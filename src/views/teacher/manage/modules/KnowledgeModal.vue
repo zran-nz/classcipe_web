@@ -120,7 +120,8 @@ export default {
       console.log(obj)
       this.modelDefault.parentId = ''
       this.modelDefault.curriculumId = this.$store.getters.bindCurriculum
-      this.modelDefault.tagType = TagType.skill
+      this.modelDefault.tagType = TagType.ibSkill
+      this.modelDefault.school = this.$store.getters.userInfo.school
       this.edit(Object.assign(this.modelDefault, obj))
     },
     edit (record) {
@@ -141,15 +142,8 @@ export default {
       this.$refs.form.validate(valid => {
         if (valid) {
           that.confirmLoading = true
-          let httpurl = ''
-          let method = ''
-          if (!this.model.id) {
-            httpurl += this.url.add
-            method = 'post'
-          } else {
-            httpurl += this.url.edit
-            method = 'post'
-          }
+          const httpurl = this.url.edit
+          const method = 'post'
           if (this.model.id && this.model.id === this.model[this.pidField]) {
             that.$message.warning('The parent node cannot choose itself')
             that.confirmLoading = false
