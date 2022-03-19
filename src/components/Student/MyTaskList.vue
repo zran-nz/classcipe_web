@@ -77,7 +77,9 @@
                       </template>
                       <div
                         class="more-action-wrapper action-item-wrapper"
-                        v-if="currentStatus !== TASK_STATUS.ARCHIVED"
+                        v-if="(currentStatus !== TASK_STATUS.ARCHIVED)
+                          && (studyMode !== STUDY_MODE.SCHOOL ||
+                          (item.task.classId && item.task.sessionId && item.task.presentationId))"
                       >
                         <a-dropdown>
                           <a-icon type="more" style="margin-right: 8px" />
@@ -121,7 +123,12 @@
                 <div class="mask"></div>
 
                 <div class="mask-actions">
-                  <div class="action-item action-item-top" v-show="currentStatus !== TASK_STATUS.ARCHIVED && currentStatus !== TASK_STATUS.SCHEDULED">
+                  <div
+                    class="action-item action-item-top"
+                    v-show="(currentStatus !== TASK_STATUS.ARCHIVED && currentStatus !== TASK_STATUS.SCHEDULED)
+                      && (studyMode !== STUDY_MODE.SCHOOL ||
+                      (item.task.classId && item.task.sessionId && item.task.presentationId))"
+                  >
                     <a-dropdown>
                       <a-icon type="more" style="margin-right: 8px" class="more-icon" />
                       <a-menu slot="overlay">
@@ -661,6 +668,10 @@ export default {
       }
     },
     handleTakeAwayItem(item) {
+      if (!item.task.classId || !item.task.sessionId || !item.task.presentationId) {
+        this.$message.error('The task hasnt started yet')
+        return
+      }
       this.takeAwayClassId = item.task.classId
       this.takeAwaySessionId = item.task.sessionId
       this.takeAwaySlideId = item.task.presentationId
