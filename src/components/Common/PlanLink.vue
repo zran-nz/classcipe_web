@@ -73,6 +73,17 @@
                         {{ item.name ? item.name : 'untitled' }}
                       </a-tooltip>
                     </div>
+                    <template v-if='item.type === typeMap.task'>
+                      <a-tag class='task-type-tag green-active-task-type' v-if="item.taskType.toLowerCase() === 'fa'">
+                        {{ item.taskType }}
+                      </a-tag>
+                      <a-tag class='task-type-tag red-active-task-type' v-if="item.taskType.toLowerCase() === 'sa'">
+                        {{ item.taskType }}
+                      </a-tag>
+                      <a-tag class='task-type-tag blue-active-task-type' v-if="item.taskType.toLowerCase() === 'activity'">
+                        {{ item.taskType }}
+                      </a-tag>
+                    </template>
                   </div>
                   <div class="right-info">
                     <div class="date">{{ item.createTime | dayjs }}</div>
@@ -532,6 +543,8 @@ export default {
             display: flex;
             flex-direction: row;
             align-items: center;
+            position: relative;
+            width: calc(100% - 250px);
 
             .icon {
               width: 40px;
@@ -550,6 +563,13 @@ export default {
               word-break: break-all;
             }
 
+            .task-type-tag {
+              right: 5px;
+              margin-left: 5px;
+              border-radius: 20px;
+              border-width: 2px;
+              font-weight: bold;
+            }
           }
 
           .right-info {
@@ -588,4 +608,30 @@ export default {
   overflow-y: auto;
 }
 
+.green-active-task-type {
+  background: rgba(21, 195, 154, 0.1);
+  border: 2px solid #15C39A;
+  border-radius: 50%;
+  font-weight: bold;
+  color: #15C39A;
+}
+
+.red-active-task-type {
+  background: rgba(255, 51, 85, 0.1);
+  border: 2px solid #FF3355;
+  border-radius: 50%;
+  opacity: 1;
+  font-weight: bold;
+  color: #FF3355;
+  opacity: 1;
+}
+
+.blue-active-task-type {
+  background: rgb(230, 247, 255);
+  border: 2px solid rgb(145, 213, 255);
+  border-radius: 50px;
+  opacity: 1;
+  font-weight: bold;
+  color: rgb(24, 144, 255);
+}
 </style>
