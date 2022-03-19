@@ -201,3 +201,7 @@ export const TASK_ATTENDANCE = {
   PRESENT: 'present',
   ABSENT: 'absent'
 }
+
+export const RATE_TOOLTIPS = {
+
+}

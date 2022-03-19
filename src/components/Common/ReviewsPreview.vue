@@ -197,8 +197,8 @@ export default {
         taskId: this.id
       }).then(res => {
         if (res.success) {
-          this.myReviews = res.result
-          // this.myReviews = this.mockData
+          // this.myReviews = res.result
+          this.myReviews = this.mockData
           if (this.myReviews) {
             this.subForm.reviewsLabel = this.myReviews.reviewsLabel
             this.subForm.reviewsNotes = this.myReviews.reviewsNotes
@@ -223,8 +223,8 @@ export default {
           this.reviewsList = res.result.records
           this.pagination.total = res.result.total
         } else {
-          this.reviewsList = []
-          this.pagination.total = 0
+          this.reviewsList = [this.mockData]
+          this.pagination.total = 1
         }
         logger.info('reviewsList', this.reviewsList)
       }).finally(() => {
