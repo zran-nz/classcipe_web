@@ -34,6 +34,7 @@
                     title='Edit Task Info'
                     :status="currentActiveStepIndex === 0 ? 'process':'wait'">
                     <template slot='description'>
+                      <div class='mask' v-show='!canEdit'></div>
                       <div class='step-detail' v-show='currentActiveStepIndex === 0'>
 
                         <template v-for='fieldItem in $store.getters.formConfigData.taskCommonList'>
@@ -86,6 +87,7 @@
                                   </a-tooltip>
                                 </template>
                                 <input-with-create
+                                  v-if="canEdit"
                                   :option-list='classList'
                                   :index='cIdx'
                                   :default-selected-id='classItem.classId'
@@ -345,6 +347,7 @@
                           <a-button
                             class="action-ensure action-item edit-slide"
                             :loading="creating"
+                            :disabled="!canEdit"
                             type="primary"
                             shape="round"
                             @click="handleEditGoogleSlide()"
@@ -432,7 +435,7 @@
                                 </div>
                               </a-badge>
                               <a-badge>
-                                <div class='my-add-material' v-if='form.presentationId && (isOwner || isCollaborater)'>
+                                <div class='my-add-material' v-if='form.presentationId && canEdit'>
                                   <upload-enter />
                                 </div>
                               </a-badge>
@@ -771,6 +774,7 @@
             </div>
 
             <div class='task-form-right' :style="{'width':rightWidth + 'px'}">
+              <div class='mask' v-show='!canEdit'></div>
               <template v-if='currentActiveStepIndex !== 2'>
                 <template v-if='showRightModule(rightModule.collaborate)'>
                   <a-skeleton :loading='showHistoryLoading' active>
@@ -4452,6 +4456,16 @@ export default {
 
       .task-form-right {
         overflow: visible;
+        position: relative;
+        .mask {
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 0;
+          bottom: 0;
+          z-index: 999;
+          background: rgba(0, 0, 0, 0.07);
+        }
 
         .form-block-right {
           .img-wrapper {
@@ -6852,5 +6866,18 @@ export default {
   display: flex;
   justify-content: flex-start;
   align-items: center;
+}
+.step-1 {
+  position: relative;
+
+  .mask {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 999;
+    background: rgba(0, 0, 0, 0.07);
+  }
 }
 </style>

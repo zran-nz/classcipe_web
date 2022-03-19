@@ -455,7 +455,7 @@ export default {
     downloadTemplate () {
       const link = document.createElement('a')
       link.style.display = 'none'
-      const url = this.baseUrl + '/classcipe/excel/knowledge_template_example.xlsx'
+      const url = this.baseUrl + '/classcipe/excel/IB-MYP_school_upload_template.xlsx'
       link.href = url
       document.body.appendChild(link)
       link.click()

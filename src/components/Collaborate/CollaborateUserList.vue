@@ -462,13 +462,15 @@ export default {
     changeApprove () {
       this.approveFlag = !this.approveFlag
       this.collaborate.link.approveFlag = this.approveFlag
+      if (this.approveFlag) {
+        this.collaborate.link.needUpdateCode = true
+      }
       CollaboratesUpdateLink(this.collaborate.link).then(response => {
         this.$logger.info('CollaboratesUpdateLink response:', response)
         if (response.success) {
           this.collaborate.link = response.result
         }
       }).finally(() => {
-
       })
     },
     queryContentCollaborates () {
