@@ -94,6 +94,9 @@ export const BaseEventMixin = {
       return index > -1
     },
     isEditCollaborater() {
+      if (!this.collaborate.users) {
+        return false
+      }
       const index = this.collaborate.users.findIndex(item => item.email === this.$store.getters.userInfo.email)
       if (index > -1) {
         return this.collaborate.users[index].permissions === 'Edit'

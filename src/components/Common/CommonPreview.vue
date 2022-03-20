@@ -32,7 +32,7 @@
                   <img src="~@/assets/icons/common/preview/star_yellow.png" @click="handleFavorite(data)" v-if="data.isFavorite"/>
                 </template>
               </div>
-              <div class="edit" v-if="canEdit">
+              <div class="edit" v-if="this.isOwner || this.isCollaborater">
                 <a-button type="primary" shape="round" @click="handleEditItem(data)">
                   <div class="button-content" >
                     Edit <img class="edit-icon" src="~@/assets/icons/common/preview/edit_white.png" />

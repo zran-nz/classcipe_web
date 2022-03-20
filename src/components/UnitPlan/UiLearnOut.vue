@@ -43,29 +43,9 @@
         <template v-if="getknowledgeListType(TagType.knowledge).length > 0" >
           <div class="objectives-list" v-for="(k,index) in getknowledgeListType(TagType.knowledge)" :key="index">
             <div class="objectives-list-item objectives-list-item-learn objectives-list-item-top-fixed">
-              <!--              <a-breadcrumb separator=">">-->
-              <!--                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>-->
-              <!--              </a-breadcrumb>-->
               <div class="skt-description" @dblclick="handleAddTag(k)">
                 <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
               </div>
-              <!--              <div-->
-              <!--                v-if="k.tagType == TagType.knowledge || k.tagType == TagType.century"-->
-              <!--                class="actions">-->
-              <!--                <span class="add-action" @click.stop.prevent="handleAddTag(k)">-->
-              <!--                  <img src="~@/assets/icons/tag/add.png"/>-->
-              <!--                </span>-->
-              <!--                <span class="up-down">-->
-              <!--                  <a-icon type="up" v-if="k.tagListVisible"/>-->
-              <!--                  <a-icon type="down" v-else />-->
-              <!--                </span>-->
-              <!--              </div>-->
-              <!--              <a-divider style="margin: 10px 0px" v-if="k.tagListVisible" />-->
-              <!--              <div class="skt-description-tag-list" v-if="k.tagListVisible">-->
-              <!--                <div :class="{'tag-list-item': true,'skill-mode': true}" v-for="name in k.tags" :key="name">-->
-              <!--                  <a-tag class="tag-item" :closable="true" @close="handleDeleteTag(index,name)">{{ name }}</a-tag>-->
-              <!--                </div>-->
-              <!--              </div>-->
             </div>
             <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(k)" cancel-text="No">
               <span class="delete-action" >
@@ -81,13 +61,13 @@
             :key='sIdx'>
             <a-input v-model='knowledgeInput.name' class='knowledge-input' />
             <a-popconfirm title="Delete?" ok-text="Yes" @confirm='handleDeleteKnowledge(knowledgeInput)' cancel-text="No">
-              <img class='self-out-delete-icon' src="~@/assets/icons/tag/delete.png" v-if='sIdx !== knowledgeInputList.length - 1' />
+              <img class='self-out-delete-icon' src="~@/assets/icons/tag/delete.png" />
             </a-popconfirm>
-            <div class='customize-objectives-list-add-btn'>
-              <a-tooltip placement="top" title="Add custom content">
-                <add-green-icon class='add-input input-icon' v-if='sIdx === knowledgeInputList.length - 1' @click='handleAddNew(TagType.knowledge, knowledgeInputList)'/>
-              </a-tooltip>
-            </div>
+          </div>
+          <div class='customize-objectives-list-add-btn'>
+            <a-tooltip placement="top" title="Add custom content">
+              <add-green-icon class='add-input input-icon' @click='handleAddNew(TagType.knowledge, knowledgeInputList)'/>
+            </a-tooltip>
           </div>
         </div>
       </a-row>
@@ -145,13 +125,13 @@
             :key='sIdx'>
             <a-input v-model='centuryInput.name' class='century-input' />
             <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteCentury(centuryInput)" cancel-text="No">
-              <img class='self-out-delete-icon' src="~@/assets/icons/tag/delete.png" v-if='sIdx !== centuryInputList.length - 1' />
+              <img class='self-out-delete-icon' src="~@/assets/icons/tag/delete.png" />
             </a-popconfirm>
-            <div class='customize-objectives-list-add-btn'>
-              <a-tooltip placement="top" title="Add custom content">
-                <add-green-icon class='add-input input-icon' v-if='sIdx === centuryInputList.length - 1' @click='handleAddNew(TagType.century, centuryInputList)'/>
-              </a-tooltip>
-            </div>
+          </div>
+          <div class='customize-objectives-list-add-btn'>
+            <a-tooltip placement="top" title="Add custom content">
+              <add-green-icon class='add-input input-icon' @click='handleAddNew(TagType.century, centuryInputList)'/>
+            </a-tooltip>
           </div>
         </div>
       </a-row>
