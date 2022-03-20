@@ -459,9 +459,25 @@
         </a-col>
       </a-row>
       <a-row class="reviews-info" v-show="viewMode === 'Reviews'">
-        <a-col class="slide-reviews" span="24">
-          <rate-by-percent v-hasRole="['student']" :rates="reviewsStats"/>
-          <reviews-preview :id="id"/>
+        <a-col class="slide-reviews" span="24" v-if="currentRole === 'student'">
+          <rate-by-percent :rates="reviewsStats"/>
+          <reviews-preview
+            :id="id"
+            role="student"
+            :list="ReviewsTask.ReviewsTaskList"
+            :save="ReviewsTask.ReviewsTaskSave"
+            :del="ReviewsTask.ReviewsTaskDelete"
+            :myReview="ReviewsTask.ReviewsTaskMyReview"
+          />
+        </a-col>
+        <a-col class="slide-reviews" span="24" v-else>
+          <reviews-preview
+            :id="id"
+            role="teacher"
+            :list="ReviewsTeacher.ReviewsTeacherList"
+            :save="ReviewsTeacher.ReviewsTeacherSave"
+            :del="ReviewsTeacher.ReviewsTeacherDelete"
+          />
         </a-col>
       </a-row>
       <div class="associate-info" v-show="viewMode === 'Detail'" v-excludeRole="['student']">
@@ -525,12 +541,13 @@ import { ACCESS_TOKEN } from '@/store/mutation-types'
 import storage from 'store'
 
 import { mapState } from 'vuex'
+import * as ReviewsTask from '@/api/reviewsTask'
+import * as ReviewsTeacher from '@/api/reviewsTeacher'
 const { formatLocalUTC } = require('@/utils/util')
 const { UnitPlanQueryById } = require('@/api/unitPlan')
 const { TaskQueryById } = require('@/api/task')
 const { EvaluationQueryById } = require('@/api/evaluation')
 const { FavoritesAdd } = require('@/api/favorites')
-const { ReviewsTaskStats } = require('@/api/reviewsTask')
 const { SelfStudyTaskBye, SelfStudyTaskStart } = require('@/api/selfStudy')
 
 export default {
@@ -563,7 +580,8 @@ export default {
   mixins: [PptPreviewMixin, BaseEventMixin],
   computed: {
     ...mapState({
-      studyMode: state => state.app.studyMode
+      studyMode: state => state.app.studyMode,
+      currentRole: state => state.user.currentRole
     }),
     lastChangeSavedTime () {
       if (this.data) {
@@ -595,6 +613,8 @@ export default {
       imgList: [],
       viewMode: 'Detail',
       RATE_TOOLTIPS: RATE_TOOLTIPS,
+      ReviewsTask: ReviewsTask,
+      ReviewsTeacher: ReviewsTeacher,
 
       tagColorList: [
         'pink',
@@ -674,7 +694,9 @@ export default {
           this.initPrompts = response.result
         }
       })
-      this.loadReviewStats()
+      if (this.currentRole === 'student') {
+        this.loadReviewStats()
+      }
     },
 
     loadThumbnail () {
@@ -723,7 +745,7 @@ export default {
     },
 
     loadReviewStats () {
-      ReviewsTaskStats({
+      ReviewsTask.ReviewsTaskStats({
         taskId: this.id
       }).then(res => {
         if (res.success) {

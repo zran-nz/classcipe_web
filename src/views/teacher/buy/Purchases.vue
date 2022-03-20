@@ -17,7 +17,9 @@
         <div class="filter-option">
           <label>Type: </label>
           <a-select
-            v-model="filterParams.type"
+            v-model="filterParams.types"
+            mode="multiple"
+            allowClear
             class="filter-item"
             size="large"
             @change="triggerSearch"
@@ -45,7 +47,7 @@
         <div class="filter-option">
           <label>Sort: </label>
           <a-select
-            v-model="filterParams.sort"
+            v-model="filterParams.sortTypes"
             class="filter-item"
             size="large"
             @change="triggerSearch"
@@ -81,6 +83,7 @@
 <script>
 
 import { SESSION_VIEW_MODE } from '@/const/common'
+import { typeMap } from '@/const/teacher'
 
 import CourseList from '@/components/Teacher/CourseList'
 
@@ -90,7 +93,7 @@ import FilterIcon from '@/assets/libraryv2/filter.svg?inline'
 import FilterActiveIcon from '@/assets/libraryv2/filter_active.svg?inline'
 import CollaborateSvg from '@/assets/icons/collaborate/collaborate_group.svg?inline'
 
-import { SelfStudyTaskList } from '@/api/selfStudy'
+import { FindPurchases } from '@/api/teacher'
 
 import storage from 'store'
 
@@ -108,25 +111,25 @@ export default {
     return {
       loading: true,
       typeOptions: [
-        {
-          label: 'All',
-          value: ''
-        },
+        // {
+        //   label: 'All',
+        //   value: ''
+        // },
         {
           label: 'Unit Plan',
-          value: '1'
+          value: typeMap['unit-plan']
         },
         {
           label: 'Task',
-          value: '2'
+          value: typeMap.task
         },
         {
           label: 'Assessment',
-          value: '3'
+          value: typeMap.evaluation
         },
         {
           label: 'Video',
-          value: '4'
+          value: 8
         }
       ],
       priceOptions: [
@@ -136,32 +139,33 @@ export default {
         },
         {
           label: 'Paid',
-          value: '1'
+          value: 1
         },
         {
           label: 'Free',
-          value: '2'
+          value: 2
         }
       ],
       sortOptions: [
         {
           label: 'Recently Purchased',
-          value: ''
+          value: 1
         },
         {
           label: 'Recently Updated',
-          value: '1'
+          value: 2
         },
         {
           label: 'Alphabetical',
-          value: '2'
+          value: 3
         }
       ],
       viewMode: storage.get(SESSION_VIEW_MODE) ? storage.get(SESSION_VIEW_MODE) : 'img',
       filterParams: {
         searchKey: '',
-        type: '',
-        price: ''
+        types: [],
+        price: '',
+        sortTypes: 1
       },
 
       loadData: (pageParams) => {
@@ -169,7 +173,7 @@ export default {
           ...this.filterParams,
           ...pageParams
         }
-        return SelfStudyTaskList(params)
+        return FindPurchases(params)
       }
     }
   },

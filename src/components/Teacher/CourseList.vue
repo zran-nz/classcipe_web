@@ -37,7 +37,7 @@
                       <template v-for="opt in optOptionsObj.start">
                         <div
                           class="start-session-wrapper action-item-wrapper"
-                          v-if="(opt.show.includes(item.status)) && (!opt.currentStatus || opt.currentStatus.includes(currentStatus))"
+                          v-if="(!opt.show || opt.show.includes(item.status)) && (!opt.currentStatus || opt.currentStatus.includes(currentStatus))"
                           :key="'start_' + opt.label"
                         >
                           <div v-if="!opt.confirmText" class="session-btn content-list-action-btn" @click="handleAction(opt.fn, item)">
@@ -62,7 +62,7 @@
                       </template>
                       <div
                         class="more-action-wrapper action-item-wrapper"
-                        v-if="currentStatus !== TASK_STATUS.ARCHIVED"
+                        v-show="false"
                       >
                         <a-dropdown>
                           <a-icon type="more" style="margin-right: 8px" />
@@ -73,7 +73,7 @@
                                 v-if="(!opt.actionType || opt.actionType === actionType) &&
                                   (!opt.studyMode || opt.studyMode === studyMode)
                                   && !opt.dependency || item.task[opt.dependency]
-                                  && (opt.show.includes(item.status)) && (!opt.currentStatus || opt.currentStatus.includes(currentStatus))"
+                                  && (!opt.show || opt.show.includes(item.status)) && (!opt.currentStatus || opt.currentStatus.includes(currentStatus))"
                               >
                                 <a @click="handleAction(opt.fn,item)" v-if="!opt.confirmText">
                                   <a-icon :type="opt.icon" /> {{ opt.label }}
@@ -106,7 +106,7 @@
                 <div class="mask"></div>
 
                 <div class="mask-actions">
-                  <div class="action-item action-item-top" v-show="currentStatus !== TASK_STATUS.ARCHIVED && currentStatus !== TASK_STATUS.SCHEDULED">
+                  <div class="action-item action-item-top" v-show="false">
                     <a-dropdown>
                       <a-icon type="more" style="margin-right: 8px" class="more-icon" />
                       <a-menu slot="overlay">
@@ -115,7 +115,7 @@
                             :key="'more_' + opt.label"
                             v-if="(!opt.actionType || opt.actionType === actionType) &&
                               !opt.dependency || item.task[opt.dependency]
-                              && (opt.show.includes(item.status)) && (!opt.currentStatus || opt.currentStatus.includes(currentStatus))"
+                              && (!opt.show || opt.show.includes(item.status)) && (!opt.currentStatus || opt.currentStatus.includes(currentStatus))"
                           >
                             <a @click="handleAction(opt.fn,item)" v-if="!opt.confirmText">
                               <a-icon :type="opt.icon" /> {{ opt.label }}
@@ -135,7 +135,7 @@
                       <div
                         class="session-btn session-btn-right"
                         :key="'center-' + opt.label"
-                        v-if="(opt.show.includes(item.status)) && (!opt.currentStatus || opt.currentStatus.includes(currentStatus))"
+                        v-if="(!opt.show || opt.show.includes(item.status)) && (!opt.currentStatus || opt.currentStatus.includes(currentStatus))"
                         @click="handleAction(opt.fn, item)"
                       >
                         <div class="session-btn-text">
@@ -158,7 +158,7 @@
                         v-if="!opt.confirmText && (!opt.actionType || actionType === opt.actionType)
                           && (!opt.studyMode || opt.studyMode === studyMode)
                           &&
-                          (opt.show.includes(item.status) && (!opt.currentStatus || opt.currentStatus.includes(currentStatus)))"
+                          (!opt.show || opt.show.includes(item.status) && (!opt.currentStatus || opt.currentStatus.includes(currentStatus)))"
                       >
                         <div class="session-btn-icon content-list-action-btn">
                           <component
@@ -173,7 +173,7 @@
                         v-if="opt.confirmText && (!opt.actionType || actionType === opt.actionType)
                           && (!opt.studyMode || opt.studyMode === studyMode)
                           &&
-                          (opt.show.includes(item.status) && (!opt.currentStatus || opt.currentStatus.includes(currentStatus)))"
+                          (!opt.show || opt.show.includes(item.status) && (!opt.currentStatus || opt.currentStatus.includes(currentStatus)))"
                         :key="'bottom_'+opt.label"
                         :title="'Confirm ' + opt.confirmText + ' ' +(( item.task && item.task.name) ? item.task.name : 'Untitled')+ ' ?'"
                         ok-text="Yes"
@@ -196,7 +196,7 @@
                 <div class="cover-img" :style="{backgroundImage: 'url(' + (item.task && item.task.image) + ')'}"></div>
 
                 <a-card-meta class="my-card-meta-info" :title="(item.task && item.task.name) ? item.task.name : 'Untitled'" :description="(item.updateTime || item.createTime) | dayjs">
-                  <content-type-icon :type="typeMap.task" slot="avatar"></content-type-icon>
+                  <content-type-icon :type="item.type" slot="avatar"></content-type-icon>
                 </a-card-meta>
 
                 <!-- <collaborate-svg class="card-collaborate-icon-item" v-if="item.collaborates > 0"/> -->
@@ -230,6 +230,25 @@
       </a-row>
     </a-drawer>
 
+    <!-- my reviews -->
+    <a-modal
+      title="My Reviews"
+      @cancel="myReviewsVisible = false"
+      :visible.sync="myReviewsVisible"
+      :footer="null"
+      :append-to-body="true"
+      :destroy-on-close="false"
+      width="50%"
+    >
+      <review-edit
+        ref="myReview"
+        :footerBottom="true"
+        :role="currentRole"
+        :review="myReviews"
+        @cancel="myReviewsVisible = false"
+        @submit="handleSaveMyReview"
+      />
+    </a-modal>
   </div>
 </template>
 
@@ -245,6 +264,7 @@ import NoMoreResources from '@/components/Common/NoMoreResources'
 import FilterContent from '@/components/UnitPlan/FilterContent'
 import PaymentDetail from '@/components/Student/PaymentDetail'
 import TakeawayPptSlideView from '@/components/Evaluation/TakeawayPptSlideView'
+import ReviewEdit from '@/components/Common/ReviewEdit'
 
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import PreviousSessionsSvg from '@/assets/icons/common/PreviousSessions.svg?inline'
@@ -256,6 +276,7 @@ import CollaborateSvg from '@/assets/icons/collaborate/collaborate_group.svg?inl
 import TakeAwayIcon from '@/assets/icons/common/take_away.svg?inline'
 
 import { SelfStudyTaskStart, SelfStudyAchive, SelfStudyRestore, SelfStudyDelete } from '@/api/selfStudy'
+import { ReviewsTeacherSave } from '@/api/reviewsTeacher'
 
 import storage from 'store'
 import { mapState } from 'vuex'
@@ -275,7 +296,8 @@ export default {
     NoMoreResources,
     FilterContent,
     PaymentDetail,
-    TakeawayPptSlideView
+    TakeawayPptSlideView,
+    ReviewEdit
   },
   props: {
     loadData: {
@@ -349,35 +371,23 @@ export default {
       optOptions: [
         {
           type: ['start', 'center'],
-          show: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED],
-          label: 'Enter session',
-          svg: 'student-pace',
-          fn: 'handleStartSession'
+          label: 'Leave a review',
+          icon: 'edit',
+          fn: 'handleEditReview'
         },
         {
-          type: ['more', 'bottom'],
-          show: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED],
-          label: 'Report',
-          icon: 'bar-chart',
-          fn: 'handleReportItem'
-        },
-        {
-          type: ['more', 'top'],
-          show: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED],
-          label: 'Archive',
-          icon: 'delete',
-          fn: 'handleDeleteItem',
-          confirmText: 'archive'
-        },
-        {
-          type: ['start', 'bottom'],
-          show: [TASK_STATUS.ARCHIVED],
-          label: 'Restore',
-          svg: 'bianji',
-          fn: 'handleRestoreItem',
-          confirmText: 'restore'
+          type: ['bottom'],
+          label: 'Preview',
+          icon: 'eye',
+          fn: 'handleViewDetail'
         }
-      ]
+      ],
+
+      myReviewsVisible: false,
+      myReviews: {
+        id: null
+      },
+      currentId: ''
     }
   },
   created () {
@@ -387,7 +397,8 @@ export default {
   computed: {
     ...mapState({
       studyMode: state => state.app.studyMode,
-      user: state => state.user
+      user: state => state.user,
+      currentRole: state => state.user.currentRole
     }),
     statusList() {
       return StudentStudyTaskStatus.filter(item => {
@@ -545,11 +556,43 @@ export default {
       this.currentActiveStudentId = this.user.name
       this.takeAwayPreviewVisible = true
     },
+    handleEditReview(item) {
+      this.currentId = item.id
+      // 获取评论详情
+      this.myReviewsVisible = true
+    },
     triggerSearch() {
       this.loadMyContent()
     },
     handleAction(actionName, item) {
       this[actionName](item)
+    },
+    handleSaveMyReview (subForm) {
+      if (this.currentRole === 'student' && !this.myReviews) return
+
+      this.$refs.myReview && this.$refs.myReview.triggerLoading(true)
+      ReviewsTeacherSave({
+        taskId: this.currentId,
+        purchasesId: this.currentId,
+        id: this.myReviews ? this.myReviews.id ? this.myReviews.id : null : null,
+        ...subForm
+      }).then((res) => {
+        if (res.success) {
+          this.$message.success('Save successfully')
+          this.myReviews = { ...this.myReviews, ...res.result }
+          // 当前页如果有自己的评价，需要更新
+          if (this.myReviews && this.myReviews.id) {
+            let meFromPage = this.reviewsList.find(item => item.id === this.myReviews.id)
+            if (meFromPage) {
+              meFromPage = { ...meFromPage, ...res.result }
+            }
+          }
+          this.$refs.myReview && this.$refs.myReview.triggerIsEdit(false)
+        }
+      }).finally(() => {
+        this.$refs.myReview && this.$refs.myReview.triggerLoading(false)
+        this.myReviewsVisible = false
+      })
     }
   }
 }

@@ -2,44 +2,13 @@
   <div class="reviews-wrapper">
     <div class="reviews-title">
       <h4>Reviews</h4>
-      <a-space class="reviews-opt" v-if="myReviews">
-        <a-button type="link" v-show="!isEdit" @click="() => triggerEdit(true)">Edit Review</a-button>
-        <a-button type="link" v-show="isEdit" @click="() => triggerEdit(false)">Cancel</a-button>
-        <a-button type="primary" v-show="isEdit" @click="handleSaveMyReview">Send</a-button>
-      </a-space>
     </div>
-    <a-spin :spinning="subLoading">
-      <div class="reviews-edit" v-show="isEdit">
-        <div class="reviews-edit__check">
-          <div>
-            <label>Difficulty Level</label>
-            <a-rate
-              class="rate-bar-con"
-              :count="3"
-              :tooltips="reviewsText"
-              :allowClear="false"
-              v-model="subForm.reviewsLabel"
-            >
-              <div slot="character">
-                <div class="rate-bar"></div>
-              </div>
-            </a-rate>
-          </div>
-          <div>
-            <label>Overall review</label>
-            <a-rate v-model="subForm.reviewsScore" :allowClear="false"/>
-          </div>
-        </div>
-        <div class="reviews-edit__text">
-          <a-textarea
-            placeholder="Enter your reviews......"
-            ref="reviewsNotes"
-            v-model="subForm.reviewsNotes"
-            :auto-size="{ minRows: 4, maxRows: 6 }"
-          />
-        </div>
-      </div>
-    </a-spin>
+    <review-edit
+      ref="myReview"
+      :role="role"
+      :review="myReviews"
+      @submit="handleSaveMyReview"
+    />
     <div class="reviews-search">
       <div class="my-search">
         <a-input-search
@@ -69,7 +38,27 @@
             <img v-else :src="myReviews.avatar"/>
           </div>
           <div class="content-detail__rate">
-            <a-rate :value="myReviews.reviewsScore" allow-half disabled/>
+            <a-rate v-if="role === 'student'" :value="myReviews.reviewsScore" allow-half disabled/>
+            <a-popover v-if="role === 'teacher' ">
+              <template slot="content">
+                <a-space direction="vertical">
+                  <a-space align="center">
+                    <label>Students engagement</label>
+                    <a-rate :tooltips="RATE_TOOLTIPS.ENGAGEMENT" style="margin:0" :value="myReviews.studentsEngagement" allow-half disabled/>
+                  </a-space>
+                  <a-space align="center">
+                    <label>Effectiveness of teaching & learning</label>
+                    <a-rate :tooltips="RATE_TOOLTIPS.EFFETIVENESS" style="margin:0" :value="myReviews.effectiveness" allow-half disabled/>
+                  </a-space>
+                  <a-space align="center">
+                    <label>Quality of the content</label>
+                    <a-rate :tooltips="RATE_TOOLTIPS.QUALITY" style="margin:0" :value="myReviews.quality" allow-half disabled/>
+                  </a-space>
+                </a-space>
+              </template>
+              <a-rate :tooltips="RATE_TOOLTIPS.OVERALL" :value="myReviews.overall" allow-half disabled/>
+              <a-icon style="margin-left: 5px;" type="down" />
+            </a-popover>
           </div>
           <div>
             <div class="content-detail__title">
@@ -107,7 +96,27 @@
                 <img v-else :src="item.avatar"/>
               </div>
               <div class="content-detail__rate">
-                <a-rate :value="item.reviewsScore" allow-half disabled/>
+                <a-rate v-if="role === 'student'" :value="item.reviewsScore" allow-half disabled/>
+                <a-popover v-if="role === 'teacher' ">
+                  <template slot="content">
+                    <a-space direction="vertical">
+                      <a-space align="center">
+                        <label>Students engagement</label>
+                        <a-rate :tooltips="RATE_TOOLTIPS.ENGAGEMENT" style="margin:0" :value="item.studentsEngagement" allow-half disabled/>
+                      </a-space>
+                      <a-space align="center">
+                        <label>Effectiveness of teaching & learning</label>
+                        <a-rate :tooltips="RATE_TOOLTIPS.EFFETIVENESS" style="margin:0" :value="item.effectiveness" allow-half disabled/>
+                      </a-space>
+                      <a-space align="center">
+                        <label>Quality of the content</label>
+                        <a-rate :tooltips="RATE_TOOLTIPS.QUALITY" style="margin:0" :value="item.quality" allow-half disabled/>
+                      </a-space>
+                    </a-space>
+                  </template>
+                  <a-rate :tooltips="RATE_TOOLTIPS.OVERALL" :value="item.overall" allow-half disabled/>
+                  <a-icon style="margin-left: 5px;" type="down" />
+                </a-popover>
               </div>
               <div>
                 <div class="content-detail__title">
@@ -138,17 +147,19 @@
 <script>
 import * as logger from '@/utils/logger'
 import { RATE_TOOLTIPS } from '@/const/common'
-
-const { ReviewsTaskSave, this.list, ReviewsTaskMyReview, ReviewsTaskDelete } = require('@/api/reviewsTask')
-
+// const { ReviewsTaskStats, ReviewsTaskSave, ReviewsTaskList, ReviewsTaskMyReview, ReviewsTaskDelete } = require('@/api/reviewsTask')
+import ReviewEdit from '@/components/Common/ReviewEdit'
 export default {
   name: 'ReviewsPreview',
+  components: {
+    ReviewEdit
+  },
   props: {
     id: {
       type: [String, Number],
       required: true
     },
-    mode: {
+    role: {
       type: String,
       default: 'student'
     },
@@ -180,12 +191,6 @@ export default {
       reviewsList: [],
       reviewsNotes: '',
       reviewsScore: '',
-      reviewsText: ['Easy', 'Intermediate', 'Difficult'],
-      subForm: {
-        'reviewsLabel': 1,
-        'reviewsNotes': '',
-        'reviewsScore': 1
-      },
       pagination: {
         onChange: page => {
           this.pageNo = page
@@ -207,7 +212,7 @@ export default {
       }
     }
   },
-  created () {
+  mounted () {
     this.loadData()
   },
   methods: {
@@ -220,18 +225,16 @@ export default {
     },
 
     loadMyReview() {
-      const promise = this.myReview({taskId: this.id})
+      const promise = this.myReview({ taskId: this.id })
       if (this.justifyPromise(promise)) {
+        this.$refs.myReview && this.$refs.myReview.triggerLoading(true)
         promise.then(res => {
           if (res.success) {
-            // this.myReviews = res.result
-            this.myReviews = this.mockData
-            if (this.myReviews) {
-              this.subForm.reviewsLabel = this.myReviews.reviewsLabel
-              this.subForm.reviewsNotes = this.myReviews.reviewsNotes
-              this.subForm.reviewsScore = this.myReviews.reviewsScore
-            }
+            this.myReviews = res.result
+            // this.myReviews = this.mockData
           }
+        }).finally(() => {
+          this.$refs.myReview && this.$refs.myReview.triggerLoading(false)
         })
       }
     },
@@ -253,7 +256,7 @@ export default {
             this.reviewsList = res.result.records
             this.pagination.total = res.result.total
           } else {
-            this.reviewsList = [this.mockData]
+            this.reviewsList = []
             this.pagination.total = 1
           }
           logger.info('reviewsList', this.reviewsList)
@@ -287,37 +290,37 @@ export default {
       })
     },
 
-    handleSaveMyReview () {
-      if (!this.myReviews) return
+    handleSaveMyReview (subForm) {
+      if (this.role === 'student' && !this.myReviews) return
       const promise = this.save({
         taskId: this.id,
-        id: this.myReviews.id,
-        ...this.subForm
+        purchasesId: this.id,
+        id: this.myReviews ? this.myReviews.id ? this.myReviews.id : null : null,
+        ...subForm
       })
       if (this.justifyPromise(promise)) {
-        this.subLoading = true
+        this.$refs.myReview && this.$refs.myReview.triggerLoading(true)
         promise.then((res) => {
           if (res.success) {
             this.$message.success('Save successfully')
-            this.myReviews = { ...this.myReviews, ...this.subForm }
-            this.isEdit = false
+            this.myReviews = { ...this.myReviews, ...res.result }
             // 当前页如果有自己的评价，需要更新
-            let meFromPage = this.reviewsList.find(item => item.id === this.myReviews.id)
-            if (meFromPage) {
-              meFromPage = { ...meFromPage, ...this.subForm }
+            if (this.myReviews && this.myReviews.id) {
+              let meFromPage = this.reviewsList.find(item => item.id === this.myReviews.id)
+              if (meFromPage) {
+                meFromPage = { ...meFromPage, ...res.result }
+              }
             }
+            this.$refs.myReview && this.$refs.myReview.triggerIsEdit(false)
           }
         }).finally(() => {
-          this.subLoading = false
+          this.$refs.myReview && this.$refs.myReview.triggerLoading(false)
         })
       }
     },
 
     triggerEdit(val) {
-      this.isEdit = val
-      this.$nextTick(() => {
-        val && this.$refs.reviewsNotes && this.$refs.reviewsNotes.focus()
-      })
+      this.$refs.myReview && this.$refs.myReview.triggerEdit(val)
     },
 
     triggerSearch() {
@@ -355,29 +358,6 @@ export default {
     /deep/ .ant-select-dropdown {
       z-index: 1001;
     }
-  }
-  .reviews-edit {
-    position: relative;
-    margin: 20px 0;
-    .reviews-edit__check {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 40px;
-      padding: 10px;
-      border: 1px solid #d9d9d9;
-      border-bottom: none;
-      div {
-        label {
-          margin-right: 5px;
-        }
-      }
-    }
-    // .reviews-edit__text {
-    //   textarea {
-    //     border: none;
-    //   }
-    // }
   }
   .reviews-content {
     margin-top: 20px;
