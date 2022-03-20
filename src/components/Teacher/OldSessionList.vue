@@ -61,6 +61,14 @@
       </div>
 
     </div>
+
+    <a-modal
+      :footer="null"
+      v-model="visible">
+      <div style="margin:20px;font-size: 20px;">
+        This session has ended, reopen it in the <a href="#" @click=showMoalPreviewSessionList >previous session page</a> if you would like to have students join this session.
+      </div>
+    </a-modal>
   </div>
 </template>
 
@@ -156,7 +164,8 @@ export default {
       ],
       data: [],
       classStatus: lessonStatus,
-      startLoading: false
+      startLoading: false,
+      visible: false
     }
   },
   created () {
@@ -216,6 +225,10 @@ export default {
 
     handleStartOrJoin (item) {
       this.$logger.info('handleStartOrJoin item :', item)
+      if (item.status === this.classStatus.close) {
+        this.visible = true
+        return
+      }
       item.startLoading = true
       const status = this.mode === 1 ? this.classStatus.teacherPaced : this.classStatus.studentPaced
       if (item.status !== status) {
@@ -255,6 +268,11 @@ export default {
     showPreviewSessionList () {
       this.$logger.info('showPreviewSessionList')
       this.$emit('show-preview-session-list')
+    },
+
+    showMoalPreviewSessionList () {
+      this.showPreviewSessionList()
+      this.$emit('cancel')
     },
 
     handleTeacherProjecting (item) {

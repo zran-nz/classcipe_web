@@ -147,11 +147,11 @@
                                 </a>
                               </a-popconfirm>
                             </a-menu-item>
-                            <!--                            <a-menu-item>-->
-                            <!--                              <a @click="handleDuplicateItem(item)">-->
-                            <!--                                <a-icon type="copy" /> Duplicate-->
-                            <!--                              </a>-->
-                            <!--                            </a-menu-item>-->
+                            <a-menu-item>
+                              <a @click="handleDuplicateItem(item)">
+                                <a-icon type="copy" /> Duplicate
+                              </a>
+                            </a-menu-item>
                             <!-- Task里面有teacher-pace, student-pace, previous session -->
                             <!--                            <template v-if="item.content.type === typeMap.task">-->
                             <!--                              <a-menu-item>-->
@@ -238,11 +238,11 @@
                             </a>
                           </a-popconfirm>
                         </a-menu-item>
-                        <!--                        <a-menu-item>-->
-                        <!--                          <a @click="handleDuplicateItem(item)">-->
-                        <!--                            <a-icon type="copy" /> Duplicate-->
-                        <!--                          </a>-->
-                        <!--                        </a-menu-item>-->
+                        <a-menu-item>
+                          <a @click="handleDuplicateItem(item)">
+                            <a-icon type="copy" /> Duplicate
+                          </a>
+                        </a-menu-item>
                         <!-- Task里面有teacher-pace, student-pace, previous session -->
                         <!--                        <template v-if="item.content.type === typeMap.task">-->
                         <!--                          <a-menu-item>-->

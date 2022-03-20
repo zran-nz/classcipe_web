@@ -25,9 +25,9 @@
 
           <span slot="startTime" slot-scope="text">{{ text | dayjs1 }} </span>
 
-          <span slot="className" slot-scope="className" class="flex-center">
+          <span slot="className" slot-scope="test,record" class="flex-center">
             <div class="class-name">
-              <div class="class-name-text">{{ className }}</div>
+              <div class="class-name-text">{{ record.className }}</div>
             </div>
           </span>
 
@@ -54,7 +54,7 @@
 
           <span slot="action" class="flex-right" slot-scope="text, record, index">
             <div class="class-action" v-if="active">
-              <div class="icon-action" v-if="record.status === classStatus.teacherPaced">
+              <div class="icon-action" v-if="record.status === classStatus.teacherPaced || record.status === classStatus.close">
                 <a-tooltip>
                   <template slot="title" >
                     teacher-projecting
