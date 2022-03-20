@@ -137,13 +137,36 @@
 
 <script>
 import * as logger from '@/utils/logger'
-const { ReviewsTaskSave, ReviewsTaskList, ReviewsTaskMyReview, ReviewsTaskDelete } = require('@/api/reviewsTask')
+import { RATE_TOOLTIPS } from '@/const/common'
+
+const { ReviewsTaskSave, this.list, ReviewsTaskMyReview, ReviewsTaskDelete } = require('@/api/reviewsTask')
+
 export default {
   name: 'ReviewsPreview',
   props: {
     id: {
       type: [String, Number],
       required: true
+    },
+    mode: {
+      type: String,
+      default: 'student'
+    },
+    save: {
+      type: Function,
+      default: () => {}
+    },
+    list: {
+      type: Function,
+      required: true
+    },
+    del: {
+      type: Function,
+      default: () => {}
+    },
+    myReview: {
+      type: Function,
+      default: () => {}
     }
   },
   data() {
@@ -151,6 +174,7 @@ export default {
       loading: false,
       delLoading: false,
       subLoading: false,
+      RATE_TOOLTIPS: RATE_TOOLTIPS,
       isEdit: false,
       myReviews: null,
       reviewsList: [],
@@ -187,49 +211,56 @@ export default {
     this.loadData()
   },
   methods: {
+    justifyPromise(promise) {
+      return (typeof promise === 'object' || typeof promise === 'function') && typeof promise.then === 'function'
+    },
     loadData() {
       this.loadMyReview()
       this.loadReviewList()
     },
 
     loadMyReview() {
-      ReviewsTaskMyReview({
-        taskId: this.id
-      }).then(res => {
-        if (res.success) {
-          // this.myReviews = res.result
-          this.myReviews = this.mockData
-          if (this.myReviews) {
-            this.subForm.reviewsLabel = this.myReviews.reviewsLabel
-            this.subForm.reviewsNotes = this.myReviews.reviewsNotes
-            this.subForm.reviewsScore = this.myReviews.reviewsScore
+      const promise = this.myReview({taskId: this.id})
+      if (this.justifyPromise(promise)) {
+        promise.then(res => {
+          if (res.success) {
+            // this.myReviews = res.result
+            this.myReviews = this.mockData
+            if (this.myReviews) {
+              this.subForm.reviewsLabel = this.myReviews.reviewsLabel
+              this.subForm.reviewsNotes = this.myReviews.reviewsNotes
+              this.subForm.reviewsScore = this.myReviews.reviewsScore
+            }
           }
-        }
-      })
+        })
+      }
     },
 
     loadReviewList() {
-      this.loading = true
-      ReviewsTaskList({
+      const promise = this.list({
         reviewsNotes: this.reviewsNotes,
         reviewsScore: this.reviewsScore,
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize,
         taskId: this.id,
         excludeSelf: 1
-      }).then(res => {
-        logger.info('loadReviewList', res)
-        if (res.result && res.result.records && res.result.records.length) {
-          this.reviewsList = res.result.records
-          this.pagination.total = res.result.total
-        } else {
-          this.reviewsList = [this.mockData]
-          this.pagination.total = 1
-        }
-        logger.info('reviewsList', this.reviewsList)
-      }).finally(() => {
-        this.loading = false
       })
+      if (this.justifyPromise(promise)) {
+        this.loading = true
+        promise.then(res => {
+          logger.info('loadReviewList', res)
+          if (res.result && res.result.records && res.result.records.length) {
+            this.reviewsList = res.result.records
+            this.pagination.total = res.result.total
+          } else {
+            this.reviewsList = [this.mockData]
+            this.pagination.total = 1
+          }
+          logger.info('reviewsList', this.reviewsList)
+        }).finally(() => {
+          this.loading = false
+        })
+      }
     },
 
     handleDelMyReview () {
@@ -239,41 +270,47 @@ export default {
         content: 'Are you sure to delete your review ?',
         centered: true,
         onOk: () => {
-          this.delLoading = true
-          ReviewsTaskDelete({ id: this.myReviews.id }).then((response) => {
-            this.$logger.info('del response', response)
-            if (response.success) {
-              this.$message.success('Del successfully')
-              this.myReviews = null
-            }
-          }).finally(() => {
-            this.delLoading = false
-          })
+          const promise = this.del({ id: this.myReviews.id })
+          if (this.justifyPromise(promise)) {
+            this.delLoading = true
+            promise.then((response) => {
+              this.$logger.info('del response', response)
+              if (response.success) {
+                this.$message.success('Del successfully')
+                this.myReviews = null
+              }
+            }).finally(() => {
+              this.delLoading = false
+            })
+          }
         }
       })
     },
 
     handleSaveMyReview () {
       if (!this.myReviews) return
-      this.subLoading = true
-      ReviewsTaskSave({
+      const promise = this.save({
         taskId: this.id,
         id: this.myReviews.id,
         ...this.subForm
-      }).then((res) => {
-        if (res.success) {
-          this.$message.success('Save successfully')
-          this.myReviews = { ...this.myReviews, ...this.subForm }
-          this.isEdit = false
-          // 当前页如果有自己的评价，需要更新
-          let meFromPage = this.reviewsList.find(item => item.id === this.myReviews.id)
-          if (meFromPage) {
-            meFromPage = { ...meFromPage, ...this.subForm }
-          }
-        }
-      }).finally(() => {
-        this.subLoading = false
       })
+      if (this.justifyPromise(promise)) {
+        this.subLoading = true
+        promise.then((res) => {
+          if (res.success) {
+            this.$message.success('Save successfully')
+            this.myReviews = { ...this.myReviews, ...this.subForm }
+            this.isEdit = false
+            // 当前页如果有自己的评价，需要更新
+            let meFromPage = this.reviewsList.find(item => item.id === this.myReviews.id)
+            if (meFromPage) {
+              meFromPage = { ...meFromPage, ...this.subForm }
+            }
+          }
+        }).finally(() => {
+          this.subLoading = false
+        })
+      }
     },
 
     triggerEdit(val) {

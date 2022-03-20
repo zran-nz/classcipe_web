@@ -119,19 +119,19 @@
                 <a-space direction="vertical">
                   <a-space align="center">
                     <label>Students engagement</label>
-                    <a-rate style="margin:0" :default-value="5" allow-half disabled/>
+                    <a-rate :tooltips="RATE_TOOLTIPS.ENGAGEMENT" style="margin:0" :default-value="5" allow-half disabled/>
                   </a-space>
                   <a-space align="center">
                     <label>Effectiveness of teaching & learning</label>
-                    <a-rate style="margin:0" :default-value="5" allow-half disabled/>
+                    <a-rate :tooltips="RATE_TOOLTIPS.EFFETIVENESS" style="margin:0" :default-value="5" allow-half disabled/>
                   </a-space>
                   <a-space align="center">
                     <label>Quality of the content</label>
-                    <a-rate style="margin:0" :default-value="5" allow-half disabled/>
+                    <a-rate :tooltips="RATE_TOOLTIPS.QUALITY" style="margin:0" :default-value="5" allow-half disabled/>
                   </a-space>
                 </a-space>
               </template>
-              <a-rate :default-value="5" allow-half disabled/>
+              <a-rate :tooltips="RATE_TOOLTIPS.OVERALL" :default-value="5" allow-half disabled/>
               <a-icon style="margin-left: 5px;" type="down" />
               <a-button type='link'>5.0(3 reviews)</a-button>
             </a-popover>
@@ -518,7 +518,7 @@ import RateByPercent from '@/components/RateByPercent'
 import ReviewsPreview from '@/components/Common/ReviewsPreview'
 import { BaseEventMixin } from '@/mixins/BaseEvent'
 import { Duplicate } from '@/api/teacher'
-import { DICT_PROMPT_TYPE, STUDY_MODE } from '@/const/common'
+import { DICT_PROMPT_TYPE, STUDY_MODE, RATE_TOOLTIPS } from '@/const/common'
 import { GetDictItems } from '@/api/common'
 import { lessonHost } from '@/const/googleSlide'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
@@ -594,6 +594,7 @@ export default {
       data: null,
       imgList: [],
       viewMode: 'Detail',
+      RATE_TOOLTIPS: RATE_TOOLTIPS,
 
       tagColorList: [
         'pink',
