@@ -58,14 +58,14 @@
             </a-select-option>
           </a-select>
         </div>
-        <div class="view-mode-toggle">
-          <div class="view-mode">
-            <div :class="{'view-mode-item': true, 'active-view': viewMode === 'img'}" @click="toggleViewMode('img')">
-              <pubu-svg />
-            </div>
-            <div :class="{'view-mode-item': true, 'active-view': viewMode === 'list'}" @click="toggleViewMode('list')">
-              <liebiao-svg />
-            </div>
+      </div>
+      <div class="view-mode-toggle">
+        <div class="view-mode">
+          <div :class="{'view-mode-item': true, 'active-view': viewMode === 'img'}" @click="toggleViewMode('img')">
+            <pubu-svg />
+          </div>
+          <div :class="{'view-mode-item': true, 'active-view': viewMode === 'list'}" @click="toggleViewMode('list')">
+            <liebiao-svg />
           </div>
         </div>
       </div>
