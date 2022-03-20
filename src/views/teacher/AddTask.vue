@@ -2844,35 +2844,31 @@ export default {
       this.autoSave()
     },
 
-    handleCreateTask() {
+    async handleCreateTask() {
       this.$logger.info('handleCreateTask')
       const hideLoading = this.$message.loading('Creating ppt in Google side...', 0)
       if (!this.creating) {
         this.creating = true
-        TaskCreateNewTaskPPT({
+        const response = await TaskCreateNewTaskPPT({
           taskId: this.taskId ? this.taskId : '',
           taskIds: this.selectedTaskIdList,
           name: this.form.name ? this.form.name : 'Unnamed Task',
           overview: this.form.overview
-        }).then(response => {
-          this.$logger.info('handleCreateTask', response.result)
-          this.showChoseSelectTemplateVisible = false
-          this.selectedMyContentVisible = false
-          this.form.id = response.result.id
-          this.form.presentationId = response.result.presentationId
-          this.selectTemplateVisible = false
-          // this.viewInGoogleSlideVisible = true
-          this.$router.replace({
-            path: '/teacher/task-redirect/' + response.result.id
-          })
-          this.$message.success('Created Successfully in Google Slides')
-          window.open('https://docs.google.com/presentation/d/' + this.form.presentationId)
-        }).finally(() => {
-          this.creating = false
-          this.selectedMyContentVisible = false
-          this.loadThumbnail()
-          hideLoading()
         })
+
+        this.$logger.info('handleCreateTask', response.result)
+        this.showChoseSelectTemplateVisible = false
+        this.selectedMyContentVisible = false
+        this.form.id = response.result.id
+        this.form.presentationId = response.result.presentationId
+        this.selectTemplateVisible = false
+        await this.autoSave()
+        this.$message.success('Created Successfully in Google Slides')
+        window.open('https://docs.google.com/presentation/d/' + this.form.presentationId, '_blank')
+        this.creating = false
+        this.selectedMyContentVisible = false
+        this.loadThumbnail()
+        hideLoading()
       }
     },
 
@@ -3138,7 +3134,7 @@ export default {
         await this.autoSave()
         window.open(this.presentationLink, '_blank')
       } else {
-        this.handleCreateTask()
+        await this.handleCreateTask()
       }
     },
 
@@ -3583,12 +3579,6 @@ export default {
           this.chooseAnotherVisible = true
         }
       }
-    },
-
-    handleCreateInGoogle() {
-      this.$logger.info('handleCreateInGoogle')
-      this.handleCreateTask()
-      // window.open('https://docs.google.com/presentation', '_blank')
     },
     filterSearch(inputValue, path) {
       return path.some(option => option.name.toLowerCase().indexOf(inputValue.toLowerCase()) > -1)
