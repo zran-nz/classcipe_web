@@ -201,3 +201,10 @@ export const TASK_ATTENDANCE = {
   PRESENT: 'present',
   ABSENT: 'absent'
 }
+
+export const RATE_TOOLTIPS = {
+  OVERALL: ['Not recommended', 'Poor', 'Average', 'Good', 'Excellent'],
+  ENGAGEMENT: ['Retreatism', 'Ritual Compliance', 'Strategic Compliance', 'Authentic Engagement'],
+  EFFETIVENESS: ['Very Ineffective', 'Ineffective', 'Effective Enough', 'Effective', 'Very Effective'],
+  QUALITY: ['Inadequate', 'Capable', 'Satisfactory', 'Excellent', 'Super']
+}

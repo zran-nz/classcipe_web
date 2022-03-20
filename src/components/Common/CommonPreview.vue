@@ -13,7 +13,7 @@
             <a-radio-button value="Preview" class="right-button">
               Detail
             </a-radio-button>
-            <a-radio-button value="Reviews" class="right-button" v-hasRole="['student', 'teacher']">
+            <a-radio-button value="Reviews" class="right-button" v-hasRole="['student']">
               Reviews
             </a-radio-button>
           </a-radio-group>
@@ -73,7 +73,7 @@
           </div> -->
         </a-col>
       </a-row>
-      <a-row class="author-info" v-excludeRole="['student']">
+      <a-row class="author-info" v-excludeRole="['student']" v-show="viewMode !== 'Reviews'">
         <a-col span="3" class="avatar-icon">
           <img src="~@/assets/icons/library/default-avatar.png" />
         </a-col>
@@ -95,6 +95,46 @@
               </template>
               <a-rate :default-value="5" allow-half disabled/>
             </a-tooltip>
+          </div>
+        </a-col>
+      </a-row>
+      <a-row class="author-info" v-hasRole="['teacher']" v-show="viewMode === 'Reviews'">
+        <a-col span="3" class="avatar-icon">
+          <img src="~@/assets/icons/library/default-avatar.png" />
+        </a-col>
+        <a-col span="21">
+          <div class="sub-info">
+            <div class="created-by">
+              {{ data.createBy }}
+            </div>
+            <div class="created-time">
+              <template v-if="lastChangeSavedTime">
+                {{ lastChangeSavedTime }}
+              </template>
+            </div>
+          </div>
+          <div class="star-info">
+            <a-popover placement="bottom">
+              <template slot="content">
+                <a-space direction="vertical">
+                  <a-space align="center">
+                    <label>Students engagement</label>
+                    <a-rate :tooltips="RATE_TOOLTIPS.ENGAGEMENT" style="margin:0" :default-value="5" allow-half disabled/>
+                  </a-space>
+                  <a-space align="center">
+                    <label>Effectiveness of teaching & learning</label>
+                    <a-rate :tooltips="RATE_TOOLTIPS.EFFETIVENESS" style="margin:0" :default-value="5" allow-half disabled/>
+                  </a-space>
+                  <a-space align="center">
+                    <label>Quality of the content</label>
+                    <a-rate :tooltips="RATE_TOOLTIPS.QUALITY" style="margin:0" :default-value="5" allow-half disabled/>
+                  </a-space>
+                </a-space>
+              </template>
+              <a-rate :tooltips="RATE_TOOLTIPS.OVERALL" :default-value="5" allow-half disabled/>
+              <a-icon style="margin-left: 5px;" type="down" />
+              <a-button type='link'>5.0(3 reviews)</a-button>
+            </a-popover>
           </div>
         </a-col>
       </a-row>
@@ -419,9 +459,25 @@
         </a-col>
       </a-row>
       <a-row class="reviews-info" v-show="viewMode === 'Reviews'">
-        <a-col class="slide-reviews" span="24">
+        <a-col class="slide-reviews" span="24" v-if="currentRole === 'student'">
           <rate-by-percent :rates="reviewsStats"/>
-          <reviews-preview :id="id"/>
+          <reviews-preview
+            :id="id"
+            role="student"
+            :list="ReviewsTask.ReviewsTaskList"
+            :save="ReviewsTask.ReviewsTaskSave"
+            :del="ReviewsTask.ReviewsTaskDelete"
+            :myReview="ReviewsTask.ReviewsTaskMyReview"
+          />
+        </a-col>
+        <a-col class="slide-reviews" span="24" v-else>
+          <reviews-preview
+            :id="id"
+            role="teacher"
+            :list="ReviewsTeacher.ReviewsTeacherList"
+            :save="ReviewsTeacher.ReviewsTeacherSave"
+            :del="ReviewsTeacher.ReviewsTeacherDelete"
+          />
         </a-col>
       </a-row>
       <div class="associate-info" v-show="viewMode === 'Detail'" v-excludeRole="['student']">
@@ -478,19 +534,20 @@ import RateByPercent from '@/components/RateByPercent'
 import ReviewsPreview from '@/components/Common/ReviewsPreview'
 import { BaseEventMixin } from '@/mixins/BaseEvent'
 import { Duplicate } from '@/api/teacher'
-import { DICT_PROMPT_TYPE, STUDY_MODE } from '@/const/common'
+import { DICT_PROMPT_TYPE, STUDY_MODE, RATE_TOOLTIPS } from '@/const/common'
 import { GetDictItems } from '@/api/common'
 import { lessonHost } from '@/const/googleSlide'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 import storage from 'store'
 
 import { mapState } from 'vuex'
+import * as ReviewsTask from '@/api/reviewsTask'
+import * as ReviewsTeacher from '@/api/reviewsTeacher'
 const { formatLocalUTC } = require('@/utils/util')
 const { UnitPlanQueryById } = require('@/api/unitPlan')
 const { TaskQueryById } = require('@/api/task')
 const { EvaluationQueryById } = require('@/api/evaluation')
 const { FavoritesAdd } = require('@/api/favorites')
-const { ReviewsTaskStats } = require('@/api/reviewsTask')
 const { SelfStudyTaskBye, SelfStudyTaskStart } = require('@/api/selfStudy')
 
 export default {
@@ -523,7 +580,8 @@ export default {
   mixins: [PptPreviewMixin, BaseEventMixin],
   computed: {
     ...mapState({
-      studyMode: state => state.app.studyMode
+      studyMode: state => state.app.studyMode,
+      currentRole: state => state.user.currentRole
     }),
     lastChangeSavedTime () {
       if (this.data) {
@@ -554,6 +612,9 @@ export default {
       data: null,
       imgList: [],
       viewMode: 'Detail',
+      RATE_TOOLTIPS: RATE_TOOLTIPS,
+      ReviewsTask: ReviewsTask,
+      ReviewsTeacher: ReviewsTeacher,
 
       tagColorList: [
         'pink',
@@ -633,7 +694,9 @@ export default {
           this.initPrompts = response.result
         }
       })
-      this.loadReviewStats()
+      if (this.currentRole === 'student') {
+        this.loadReviewStats()
+      }
     },
 
     loadThumbnail () {
@@ -682,7 +745,7 @@ export default {
     },
 
     loadReviewStats () {
-      ReviewsTaskStats({
+      ReviewsTask.ReviewsTaskStats({
         taskId: this.id
       }).then(res => {
         if (res.success) {
@@ -1192,7 +1255,7 @@ export default {
 
   .reviews-info {
     .slide-reviews {
-      padding: 20px 0;
+      padding: 0px 0;
       .reviews-wrapper {
         margin-top: 20px;
       }
