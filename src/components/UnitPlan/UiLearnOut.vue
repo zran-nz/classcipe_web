@@ -25,15 +25,14 @@
             class="objectives-input-item objectives-input-item-skill"
             v-for='(skillInput, sIdx) in skillInputList'
             :key='sIdx'>
-            <a-input v-model='skillInput.name' class='skill-input' />
+            <a-input v-model='skillInput.name' class='skill-input' placeholder='Type in your learning objective'/>
             <a-popconfirm title="Delete?" ok-text="Yes" @confirm='handleDeleteSkill(skillInput)' cancel-text="No">
               <img class='self-out-delete-icon' src="~@/assets/icons/tag/delete.png" alt=''/>
             </a-popconfirm>
           </div>
           <div class='customize-objectives-list-add-btn'>
-            <a-tooltip placement="top" title="Add custom content">
-              <add-green-icon class='add-input input-icon' @click='handleAddNew(TagType.skill, skillInputList)'/>
-            </a-tooltip>
+            <add-green-icon class='add-input input-icon' @click='handleAddNew(TagType.skill, skillInputList)'/>
+            <div class='tips' @click='handleAddNew(TagType.skill, skillInputList)'>Type in your learning objective</div>
           </div>
         </div>
       </a-row>
@@ -59,15 +58,14 @@
             class="objectives-input-item objectives-input-item-skill"
             v-for='(knowledgeInput, sIdx) in knowledgeInputList'
             :key='sIdx'>
-            <a-input v-model='knowledgeInput.name' class='knowledge-input' />
+            <a-input v-model='knowledgeInput.name' class='knowledge-input' placeholder='Type in your learning objective'/>
             <a-popconfirm title="Delete?" ok-text="Yes" @confirm='handleDeleteKnowledge(knowledgeInput)' cancel-text="No">
               <img class='self-out-delete-icon' src="~@/assets/icons/tag/delete.png" />
             </a-popconfirm>
           </div>
           <div class='customize-objectives-list-add-btn'>
-            <a-tooltip placement="top" title="Add custom content">
-              <add-green-icon class='add-input input-icon' @click='handleAddNew(TagType.knowledge, knowledgeInputList)'/>
-            </a-tooltip>
+            <add-green-icon class='add-input input-icon' @click='handleAddNew(TagType.knowledge, knowledgeInputList)'/>
+            <div class='tips' @click='handleAddNew(TagType.knowledge, knowledgeInputList)'>Type in your learning objective</div>
           </div>
         </div>
       </a-row>
@@ -87,9 +85,6 @@
         <template v-if="getknowledgeListType(TagType.century).length > 0" >
           <div class="objectives-list" v-for="(k,index) in getknowledgeListType(TagType.century)" :key="index">
             <div class="objectives-list-item objectives-list-item-21 objectives-list-item-top-fixed" @click="handleActiveDescription(TagType.century,k)">
-              <!--              <a-breadcrumb separator=">">-->
-              <!--                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>-->
-              <!--              </a-breadcrumb>-->
               <div class="skt-description skt-description-21" @dblclick="handleAddTag(k)">
                 <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
               </div>
@@ -123,15 +118,14 @@
             class="objectives-input-item objectives-input-item-skill"
             v-for='(centuryInput, sIdx) in centuryInputList'
             :key='sIdx'>
-            <a-input v-model='centuryInput.name' class='century-input' />
+            <a-input v-model='centuryInput.name' class='century-input' placeholder='Type in your learning objective'/>
             <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteCentury(centuryInput)" cancel-text="No">
               <img class='self-out-delete-icon' src="~@/assets/icons/tag/delete.png" />
             </a-popconfirm>
           </div>
           <div class='customize-objectives-list-add-btn'>
-            <a-tooltip placement="top" title="Add custom content">
-              <add-green-icon class='add-input input-icon' @click='handleAddNew(TagType.century, centuryInputList)'/>
-            </a-tooltip>
+            <add-green-icon class='add-input input-icon' @click='handleAddNew(TagType.century, centuryInputList)'/>
+            <div class='tips' @click='handleAddNew(TagType.century, centuryInputList)'>Type in your learning objective</div>
           </div>
         </div>
       </a-row>
@@ -292,33 +286,21 @@
         if (skillInputList.length) {
           this.skillInputList = skillInputList
         } else {
-          this.skillInputList.push({
-            name: '',
-            tagType: TagType.skill,
-            key: Math.random() + ''
-          })
+          this.skillInputList = []
         }
         this.$logger.info('skillInputList', this.skillInputList)
 
         if (knowledgeInputList.length) {
           this.knowledgeInputList = knowledgeInputList
         } else {
-          this.knowledgeInputList.push({
-            name: '',
-            tagType: TagType.knowledge,
-            key: Math.random() + ''
-          })
+          this.knowledgeInputList = []
         }
         this.$logger.info('knowledgeInputList', this.skillInputList)
 
         if (centuryInputList.length) {
           this.centuryInputList = centuryInputList
         } else {
-          this.centuryInputList.push({
-            name: '',
-            tagType: TagType.century,
-            key: Math.random() + ''
-          })
+          this.centuryInputList = []
         }
         this.$logger.info('centuryInputList', this.skillInputList)
       },
@@ -772,6 +754,11 @@
     }
 
     .customize-objectives-list-add-btn {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      line-height: 20px;
       svg {
         width: 20px;
         height: 20px;
@@ -782,6 +769,12 @@
           border: none;
           outline: none;
         }
+      }
+
+      .tips {
+        margin-left: 5px;
+        color: #999;
+        cursor: pointer;
       }
     }
     .skill-input {
