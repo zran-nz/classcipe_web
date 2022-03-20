@@ -13,7 +13,7 @@
             <a-radio-button value="Preview" class="right-button">
               Detail
             </a-radio-button>
-            <a-radio-button value="Reviews" class="right-button" v-hasRole="['student', 'teacher']">
+            <a-radio-button value="Reviews" class="right-button" v-hasRole="['student']">
               Reviews
             </a-radio-button>
           </a-radio-group>
