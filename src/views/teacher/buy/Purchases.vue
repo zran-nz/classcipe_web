@@ -74,6 +74,7 @@
     <course-list
       :loadData="loadData"
       :viewMode="viewMode"
+      :optArray="['Edit review', 'Preview']"
       ref="myCourseList"
     >
     </course-list>

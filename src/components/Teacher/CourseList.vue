@@ -46,7 +46,7 @@
                                 :is="opt.svg"
                                 v-if="opt.svg"
                               ></component>
-                              <a-icon theme="filled" :type="opt.icon" v-if="opt.icon"/>
+                              <a-icon :type="opt.icon" v-if="opt.icon"/>
                             </div>
                             <div class="session-btn-text" v-if="!opt.against || item[opt.against]">{{ opt.label }}</div>
                             <div class="session-btn-text" v-else>{{ opt.labelAgainst }}</div>
@@ -54,7 +54,7 @@
                           <a-popconfirm v-else :title="'Confirm ' + opt.confirmText +' ' +((item.task && item.task.name) ? item.task.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleAction(opt.fn, item)" cancel-text="No">
                             <div class="session-btn content-list-action-btn" >
                               <div class="session-btn-icon">
-                                <a-icon :type="opt.icon" theme="filled" />
+                                <a-icon :type="opt.icon" />
                               </div>
                               <div class="session-btn-text">{{ opt.confirmText }}</div>
                             </div>
@@ -63,7 +63,7 @@
                       </template>
                       <div
                         class="more-action-wrapper action-item-wrapper"
-                        v-show="false"
+                        v-show="optOptionsObj.more && optOptionsObj.more.length > 0"
                       >
                         <a-dropdown>
                           <a-icon type="more" style="margin-right: 8px" />
@@ -81,7 +81,7 @@
                                 </a>
                                 <a-popconfirm v-else :title="'Confirm '+ opt.confirmText +' ' +((item.task && item.task.name) ? item.task.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleAction(opt.fn, item)" cancel-text="No">
                                   <a>
-                                    <a-icon :type="opt.icon" theme="filled" /> {{ opt.label }}
+                                    <a-icon :type="opt.icon" /> {{ opt.label }}
                                   </a>
                                 </a-popconfirm>
                               </a-menu-item>
@@ -123,7 +123,7 @@
                             </a>
                             <a-popconfirm v-else :title="'Confirm '+ opt.confirmText +' ' +((item.task && item.task.name) ? item.task.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleAction(opt.fn, item)" cancel-text="No">
                               <a>
-                                <a-icon :type="opt.icon" theme="filled" /> {{ opt.label }}
+                                <a-icon :type="opt.icon" /> {{ opt.label }}
                               </a>
                             </a-popconfirm>
                           </a-menu-item>
@@ -144,9 +144,9 @@
                             :is="opt.svg"
                             v-if="opt.svg"
                           ></component>
-                          <a-icon theme="filled" :type="opt.icon" v-if="opt.icon"/>
-                          <template v-if="!opt.against || item[opt.against]">{{ opt.label }}</template>
-                          <template v-else>{{ opt.labelAgainst }}</template>
+                          <a-icon :type="opt.icon" v-if="opt.icon"/>
+                          <template v-if="!opt.against || item[opt.against]">&nbsp;{{ opt.label }}</template>
+                          <template v-else>&nbsp;{{ opt.labelAgainst }}</template>
                         </div>
                       </div>
                     </template>
@@ -251,14 +251,33 @@
         @submit="handleSaveMyReview"
       />
     </a-modal>
+
+    <!-- reviews list -->
+    <a-modal
+      title="Reviews History"
+      @cancel="reviewsVisible = false"
+      :visible.sync="reviewsVisible"
+      :footer="null"
+      :append-to-body="true"
+      :destroy-on-close="false"
+      width="50%"
+    >
+      <reviews-preview
+        :id="currentId"
+        role="teacher"
+        :list="ReviewsTeacher.ReviewsTeacherList"
+        :save="ReviewsTeacher.ReviewsTeacherSave"
+        :del="ReviewsTeacher.ReviewsTeacherDelete"
+        :myReview="ReviewsTeacher.ReviewsTeacherMyReview"
+        :canEdit="false"
+      />
+    </a-modal>
   </div>
 </template>
 
 <script>
 import * as logger from '@/utils/logger'
 import { typeMap } from '@/const/teacher'
-import { lessonHost } from '@/const/googleSlide'
-import { ACCESS_TOKEN } from '@/store/mutation-types'
 import { StudentStudyTaskStatus, TASK_STATUS } from '@/const/common'
 
 import CommonPreview from '@/components/Common/CommonPreview'
@@ -267,6 +286,7 @@ import FilterContent from '@/components/UnitPlan/FilterContent'
 import PaymentDetail from '@/components/Student/PaymentDetail'
 import TakeawayPptSlideView from '@/components/Evaluation/TakeawayPptSlideView'
 import ReviewEdit from '@/components/Reviews/ReviewEdit'
+import ReviewsPreview from '@/components/Reviews/ReviewsPreview'
 
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import PreviousSessionsSvg from '@/assets/icons/common/PreviousSessions.svg?inline'
@@ -277,10 +297,8 @@ import StudentPace from '@/assets/icons/common/StudentPace.svg?inline'
 import CollaborateSvg from '@/assets/icons/collaborate/collaborate_group.svg?inline'
 import TakeAwayIcon from '@/assets/icons/common/take_away.svg?inline'
 
-import { SelfStudyTaskStart, SelfStudyAchive, SelfStudyRestore, SelfStudyDelete } from '@/api/selfStudy'
-import { ReviewsTeacherSave, ReviewsTeacherMyReview } from '@/api/reviewsTeacher'
+import * as ReviewsTeacher from '@/api/reviewsTeacher'
 
-import storage from 'store'
 import { mapState } from 'vuex'
 
 export default {
@@ -299,7 +317,8 @@ export default {
     FilterContent,
     PaymentDetail,
     TakeawayPptSlideView,
-    ReviewEdit
+    ReviewEdit,
+    ReviewsPreview
   },
   props: {
     loadData: {
@@ -344,6 +363,7 @@ export default {
       currentStatus: this.status,
       TASK_STATUS: TASK_STATUS,
       myContentList: [],
+      ReviewsTeacher: ReviewsTeacher,
       pagination: {
         onChange: page => {
           logger.info('pagination onChange', page)
@@ -380,6 +400,18 @@ export default {
           fn: 'handleEditReview'
         },
         {
+          type: ['start', 'center'],
+          label: 'Check reviews',
+          icon: 'history',
+          fn: 'handleReviewList'
+        },
+        {
+          type: ['bottom', 'more'],
+          label: 'Edit',
+          icon: 'edit',
+          fn: 'handleEditItem'
+        },
+        {
           type: ['bottom'],
           label: 'Preview',
           icon: 'eye',
@@ -391,7 +423,9 @@ export default {
       myReviews: {
         id: null
       },
-      currentId: ''
+      currentId: '',
+
+      reviewsVisible: false
     }
   },
   created () {
@@ -488,84 +522,17 @@ export default {
         this.previewType = -1
       })
     },
-    handleStartSession (item) {
-      this.startLoading = true
-      this.$logger.info('handleStartSession', item)
-      if (item && item.task) {
-        const requestData = {
-          taskId: item.task.id
-        }
-        this.$logger.info('handleStartSession', requestData)
-        SelfStudyTaskStart(requestData).then(res => {
-          this.$logger.info('StartOpenSession res', res)
-          if (res.success) {
-            this.startLoading = false
-            const targetUrl = lessonHost + 's/' + res.result.classId + '?token=' + storage.get(ACCESS_TOKEN)
-            this.$logger.info('try open ' + targetUrl)
-            // window.open(targetUrl, '_blank')
-            window.location.href = targetUrl
-          } else {
-            this.$message.warn('StartLesson Failed! ' + res.message)
-            this.startLoading = false
-          }
-        })
-      } else {
-        this.$message.warn('This record is not bound to PPT!')
-        this.startLoading = false
-      }
-    },
-    handleDeleteItem (item) {
-      logger.info('handleDeleteItem', item)
-      SelfStudyAchive({ id: item.id }).then(res => {
-        logger.info('SelfStudyAchive', res)
-      }).then(() => {
-        this.loadMyContent()
-      })
-    },
-    handleRestoreItem (item) {
-      logger.info('handleRestoreItem', item)
-      SelfStudyRestore({ id: item.id }).then(response => {
-        this.$logger.info('handleRestoreItem response', response)
-      }).finally(() => {
-        this.loadMyContent()
-      })
-    },
-    handlePermanentDeleteItem (item) {
-      SelfStudyDelete({ id: item.id }).then(response => {
-        this.$logger.info('handleRestoreItem response', response)
-      }).finally(() => {
-        this.loadMyContent()
-      })
-    },
-    handlePaymentItem (item) {
-      if (!item.task || this.currentStatus === 2) {
-        return
-      }
-      this.currentTaskId = item.task.id
-      this.currentTaskName = item.task.name
-      this.paymentVisible = true
-    },
-    handleReportItem (item) {
-
-    },
     handleReviewItem(item) {
       if (item.task.sessionId) {
         this.$router.push(`/student/evaluation/${item.task.sessionId}`)
       }
-    },
-    handleTakeAwayItem(item) {
-      this.takeAwayClassId = item.task.classId
-      this.takeAwaySessionId = item.task.sessionId
-      this.takeAwaySlideId = item.task.presentationId
-      this.currentActiveStudentId = this.user.name
-      this.takeAwayPreviewVisible = true
     },
     handleEditReview(item) {
       this.currentId = item.id
       // 获取评论详情
       if (item.hasReview) {
         this.$refs.myReview && this.$refs.myReview.triggerLoading(true)
-        ReviewsTeacherMyReview({
+        ReviewsTeacher.ReviewsTeacherMyReview({
           purchasesId: item.id
         }).then(res => {
           if (res.success) {
@@ -586,17 +553,15 @@ export default {
         this.myReviewsVisible = true
       }
     },
-    triggerSearch() {
-      this.loadMyContent()
-    },
-    handleAction(actionName, item) {
-      this[actionName](item)
+    handleReviewList (item) {
+      this.currentId = item.id
+      this.reviewsVisible = true
     },
     handleSaveMyReview (subForm) {
       if (this.currentRole === 'student' && !this.myReviews) return
 
       this.$refs.myReview && this.$refs.myReview.triggerLoading(true)
-      ReviewsTeacherSave({
+      ReviewsTeacher.ReviewsTeacherSave({
         taskId: this.currentId,
         purchasesId: this.currentId,
         id: this.myReviews ? this.myReviews.id ? this.myReviews.id : null : null,
@@ -623,6 +588,40 @@ export default {
         this.$refs.myReview && this.$refs.myReview.triggerLoading(false)
         this.myReviewsVisible = false
       })
+    },
+    handleEditItem (item) {
+      logger.info('handleEditItem', item)
+      if (item.type === typeMap['unit-plan']) {
+        this.$router.push({
+          path: '/teacher/unit-plan-redirect/' + item.id
+        })
+      } else if (item.type === typeMap['topic']) {
+        this.$router.push({
+          path: '/expert/topic-redirect/' + item.id
+        })
+      } else if (item.type === typeMap['material']) {
+        this.$router.push({
+          path: '/teacher/add-material/' + item.id
+        })
+      } else if (item.type === typeMap.task) {
+        this.$router.push({
+          path: '/teacher/task-redirect/' + item.id
+        })
+      } else if (item.type === typeMap.lesson) {
+        this.$router.push({
+          path: '/teacher/lesson-redirect/' + item.id
+        })
+      } else if (item.type === typeMap.evaluation) {
+        this.$router.push({
+          path: '/teacher/evaluation-redirect/' + item.id
+        })
+      }
+    },
+    triggerSearch() {
+      this.loadMyContent()
+    },
+    handleAction(actionName, item) {
+      this[actionName](item)
     }
   }
 }

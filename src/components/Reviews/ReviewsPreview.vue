@@ -169,6 +169,15 @@ export default {
       default: true
     }
   },
+  watch: {
+    id: {
+      handler(val) {
+        this.currentId = val
+        this.loadData()
+      },
+      immediate: true
+    }
+  },
   data() {
     return {
       loading: false,
@@ -180,6 +189,7 @@ export default {
       reviewsList: [],
       reviewsNotes: '',
       reviewsScore: '',
+      currentId: this.id,
       pagination: {
         onChange: page => {
           this.pageNo = page
@@ -218,11 +228,12 @@ export default {
     },
 
     loadMyReview() {
-      const promise = this.myReview({ taskId: this.id, purchasesId: this.id })
+      const promise = this.myReview({ taskId: this.currentId, purchasesId: this.currentId })
       if (this.justifyPromise(promise)) {
         this.$refs.myReview && this.$refs.myReview.triggerLoading(true)
+        this.delLoading = true
         promise.then(res => {
-          if (res.success) {
+          if (res.success && res.result) {
             this.myReviews = {
               ...res.result,
               learningClass: Boolean(res.result.learningClass),
@@ -231,9 +242,12 @@ export default {
               updatedMsg: Boolean(res.result.updatedMsg)
             }
             // this.myReviews = this.mockData
+          } else {
+            this.myReviews = null
           }
         }).finally(() => {
           this.$refs.myReview && this.$refs.myReview.triggerLoading(false)
+          this.delLoading = false
         })
       }
     },
@@ -245,12 +259,12 @@ export default {
         reviewsScore: this.reviewsScore,
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize,
-        taskId: this.id,
+        taskId: this.currentId,
         excludeSelf: 1,
         // teacher
         overall: this.reviewsScore,
         searchKey: this.reviewsNotes,
-        purchasesId: this.id
+        purchasesId: this.currentId
       })
       if (this.justifyPromise(promise)) {
         this.loading = true
@@ -298,8 +312,8 @@ export default {
     handleSaveMyReview (subForm) {
       if (this.role === 'student' && !this.myReviews) return
       const promise = this.save({
-        taskId: this.id, // student
-        purchasesId: this.id, // teacher
+        taskId: this.currentId, // student
+        purchasesId: this.currentId, // teacher
         id: this.myReviews ? this.myReviews.id ? this.myReviews.id : null : null,
         ...subForm
       })
