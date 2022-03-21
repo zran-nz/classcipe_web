@@ -257,8 +257,8 @@
                               :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.MaterialList}" />
                             <div class='form-block-label'>
                               <a-switch v-model='materialListFlag' @change='handleMaterialListFlagChange' />
-                              {{ 'Material list' | taskLabelName(taskField.MaterialList, $store.getters.formConfigData) }}
-                              <a-tooltip :title="'Material list' | taskLabelHint(taskField.MaterialList, $store.getters.formConfigData)" placement='top'>
+                              {{ 'Resources required for hands-on activities' | taskLabelName(taskField.MaterialList, $store.getters.formConfigData) }}
+                              <a-tooltip :title="'Resources required for hands-on activities' | taskLabelHint(taskField.MaterialList, $store.getters.formConfigData)" placement='top'>
                                 <a-icon type="info-circle" />
                               </a-tooltip>
                             </div>

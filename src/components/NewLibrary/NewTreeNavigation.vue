@@ -31,6 +31,7 @@
       :data-item-type="treeItemData.type"
       :data-default-grade-id="defaultGradeId"
       :odd="index % 2 === 1"
+      :default-curriculum-id='defaultCurriculumId'
       v-for="(treeItemData, index) in treeDataList"
       :key="index" />
     <div class='no-display-category' v-show='loaded && displayCategoryList.length === 0'>

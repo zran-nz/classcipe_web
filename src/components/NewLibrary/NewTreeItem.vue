@@ -75,6 +75,7 @@
             :default-expand-status='treeItem.expandStatus'
             v-for='(treeItem, index) in treeItemData.children'
             :odd='odd ? index % 2 === 1 : index % 2 === 0 '
+            :default-curriculum-id='currentCurriculumId'
             :key='index' />
         </template>
         <template v-if="subItemType === 'grade'">
@@ -95,6 +96,7 @@
             :class="{'auto-selected-grade': defaultGradeId === treeItem.id }"
             v-for='(treeItem, index) in treeItemData.gradeList'
             :odd='odd ? index % 2 === 1 : index % 2 === 0 '
+            :default-curriculum-id='currentCurriculumId'
             :key='index' />
         </template>
         <template v-if="subItemType === 'assessmentType'">
@@ -114,6 +116,7 @@
             :default-expand-status='treeItem.expandStatus'
             v-for='(treeItem, index) in treeItemData.children'
             :odd='odd ? index % 2 === 1 : index % 2 === 0 '
+            :default-curriculum-id='currentCurriculumId'
             :key='index' />
         </template>
         <!-- knowledge 下级列表不展示最后一级-->
@@ -135,6 +138,7 @@
             :default-expand-status='treeItem.expandStatus'
             v-for='(treeItem, index) in treeItemData.children'
             :odd='odd ? index % 2 === 1 : index % 2 === 0 '
+            :default-curriculum-id='currentCurriculumId'
             :key='index' />
         </template>
         <!--sdg列表-->
@@ -155,6 +159,7 @@
             :default-expand-status='treeItem.expandStatus'
             v-for='(treeItem, index) in treeItemData.children'
             :odd='odd ? index % 2 === 1 : index % 2 === 0 '
+            :default-curriculum-id='currentCurriculumId'
             :key='index' />
         </template>
         <template v-if="subItemType === 'sdgKeyword'">
@@ -174,6 +179,7 @@
             :default-expand-status='treeItem.expandStatus'
             v-for='(treeItem, index) in treeItemData.children'
             :odd='odd ? index % 2 === 1 : index % 2 === 0 '
+            :default-curriculum-id='currentCurriculumId'
             :key='index' />
         </template>
         <template v-if="subItemType === 'all21Century'">
@@ -193,6 +199,7 @@
             :default-expand-status='treeItem.expandStatus'
             v-for='(treeItem, index) in treeItemData.children'
             :odd='odd ? index % 2 === 1 : index % 2 === 0 '
+            :default-curriculum-id='currentCurriculumId'
             :key='index' />
         </template>
       </div>
@@ -278,6 +285,10 @@ export default {
     defaultBackgroundColor: { // 默认的背景色
       type: String,
       default: null
+    },
+    defaultCurriculumId: {
+      type: String,
+      default: null
     }
   },
   data() {
@@ -289,6 +300,7 @@ export default {
       subItemType: null,
       NavigationType: NavigationType,
 
+      currentCurriculumId: null,
       SelectModel: SelectModel,
       selected21CenturyItem: null // 当前选中的21世纪层级项
     }
@@ -314,10 +326,17 @@ export default {
       } else {
         this.hasSubTree = false
       }
+    },
+    watch: {
+      defaultCurriculumId (val) {
+        this.$logger.info('NewTreeItem defaultCurriculumId change currentCurriculumId ' + val)
+        this.currentCurriculumId = val
+      }
     }
   },
   created() {
     this.subTreeExpandStatus = this.treeItemData.expandStatus
+    this.currentCurriculumId = this.defaultCurriculumId ? this.defaultCurriculumId : this.$store.getters.bindCurriculum
     if (this.treeItemData && this.treeItemData.children) {
       this.hasSubTree = true
     }
@@ -1141,7 +1160,7 @@ export default {
 
             Get21Century({
               gradeId,
-              curriculumId: this.$store.getters.bindCurriculum
+              curriculumId: this.currentCurriculumId
             }).then((response) => {
               this.$logger.info('Get21Century response', response)
               if (response.result) {
