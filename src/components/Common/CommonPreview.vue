@@ -13,7 +13,7 @@
             <a-radio-button value="Preview" class="right-button">
               Detail
             </a-radio-button>
-            <a-radio-button value="Reviews" class="right-button" v-hasRole="['student']">
+            <a-radio-button value="Reviews" class="right-button" v-hasRole="['student', 'teacher']">
               Reviews
             </a-radio-button>
           </a-radio-group>
@@ -114,27 +114,8 @@
             </div>
           </div>
           <div class="star-info">
-            <a-popover placement="bottom">
-              <template slot="content">
-                <a-space direction="vertical">
-                  <a-space align="center">
-                    <label>Students engagement</label>
-                    <a-rate :tooltips="RATE_TOOLTIPS.ENGAGEMENT" style="margin:0" :default-value="5" allow-half disabled/>
-                  </a-space>
-                  <a-space align="center">
-                    <label>Effectiveness of teaching & learning</label>
-                    <a-rate :tooltips="RATE_TOOLTIPS.EFFETIVENESS" style="margin:0" :default-value="5" allow-half disabled/>
-                  </a-space>
-                  <a-space align="center">
-                    <label>Quality of the content</label>
-                    <a-rate :tooltips="RATE_TOOLTIPS.QUALITY" style="margin:0" :default-value="5" allow-half disabled/>
-                  </a-space>
-                </a-space>
-              </template>
-              <a-rate :tooltips="RATE_TOOLTIPS.OVERALL" :default-value="5" allow-half disabled/>
-              <a-icon style="margin-left: 5px;" type="down" />
-              <a-button type='link'>5.0(3 reviews)</a-button>
-            </a-popover>
+            <review-score :review="reviewsStats" placement="bottom"/>
+            <a-button type='link'>{{ reviewsStats.overall | percentFormat }} ({{ reviewsStats.reviewsCount }} reviews)</a-button>
           </div>
         </a-col>
       </a-row>
@@ -477,6 +458,8 @@
             :list="ReviewsTeacher.ReviewsTeacherList"
             :save="ReviewsTeacher.ReviewsTeacherSave"
             :del="ReviewsTeacher.ReviewsTeacherDelete"
+            :myReview="ReviewsTeacher.ReviewsTeacherMyReview"
+            @update="loadReviewStats"
           />
         </a-col>
       </a-row>
@@ -531,7 +514,8 @@ import MediaPreview from '@/components/Task/MediaPreview'
 import TaskMaterialPreview from '@/components/Task/TaskMaterialPreview'
 import UiLearnOutSub from '@/components/UnitPlan/UiLearnOutSub'
 import RateByPercent from '@/components/RateByPercent'
-import ReviewsPreview from '@/components/Common/ReviewsPreview'
+import ReviewsPreview from '@/components/Reviews/ReviewsPreview'
+import ReviewScore from '@/components/Reviews/ReviewScore'
 import { BaseEventMixin } from '@/mixins/BaseEvent'
 import { Duplicate } from '@/api/teacher'
 import { DICT_PROMPT_TYPE, STUDY_MODE, RATE_TOOLTIPS } from '@/const/common'
@@ -561,7 +545,8 @@ export default {
     MediaPreview,
     TaskMaterialPreview,
     RateByPercent,
-    ReviewsPreview
+    ReviewsPreview,
+    ReviewScore
   },
   props: {
     id: {
@@ -633,7 +618,13 @@ export default {
       initPrompts: [],
       reviewsStats: {
         avgReviewsScore: 0,
-        reviewsScoreStatDetail: []
+        reviewsScoreStatDetail: [],
+
+        reviewsCount: 0,
+        effectiveness: 0,
+        overall: 0,
+        quality: 0,
+        studentsEngagement: 0
       }
     }
   },
@@ -694,7 +685,7 @@ export default {
           this.initPrompts = response.result
         }
       })
-      if (this.currentRole === 'student') {
+      if (['student', 'teacher'].includes(this.currentRole)) {
         this.loadReviewStats()
       }
     },
@@ -745,8 +736,15 @@ export default {
     },
 
     loadReviewStats () {
-      ReviewsTask.ReviewsTaskStats({
-        taskId: this.id
+      let promise = null
+      if (this.currentRole === 'student') {
+        promise = ReviewsTask.ReviewsTaskStats
+      } else {
+        promise = ReviewsTeacher.ReviewsTeacherStats
+      }
+      promise({
+        taskId: this.id, // 学生需要
+        purchasesId: this.id // 老师需要
       }).then(res => {
         if (res.success) {
           this.reviewsStats = res.result
@@ -1009,6 +1007,7 @@ export default {
       }
     }
     .star-info {
+      display: flex;
       ul {
         margin-bottom: 0;
       }

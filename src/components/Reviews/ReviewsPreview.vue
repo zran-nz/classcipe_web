@@ -6,7 +6,7 @@
     <review-edit
       ref="myReview"
       :role="role"
-      :review="myReviews"
+      :myReviews="myReviews"
       @submit="handleSaveMyReview"
     />
     <div class="reviews-search">
@@ -38,27 +38,18 @@
             <img v-else :src="myReviews.avatar"/>
           </div>
           <div class="content-detail__rate">
-            <a-rate v-if="role === 'student'" :value="myReviews.reviewsScore" allow-half disabled/>
-            <a-popover v-if="role === 'teacher' ">
-              <template slot="content">
-                <a-space direction="vertical">
-                  <a-space align="center">
-                    <label>Students engagement</label>
-                    <a-rate :tooltips="RATE_TOOLTIPS.ENGAGEMENT" style="margin:0" :value="myReviews.studentsEngagement" allow-half disabled/>
-                  </a-space>
-                  <a-space align="center">
-                    <label>Effectiveness of teaching & learning</label>
-                    <a-rate :tooltips="RATE_TOOLTIPS.EFFETIVENESS" style="margin:0" :value="myReviews.effectiveness" allow-half disabled/>
-                  </a-space>
-                  <a-space align="center">
-                    <label>Quality of the content</label>
-                    <a-rate :tooltips="RATE_TOOLTIPS.QUALITY" style="margin:0" :value="myReviews.quality" allow-half disabled/>
-                  </a-space>
-                </a-space>
-              </template>
-              <a-rate :tooltips="RATE_TOOLTIPS.OVERALL" :value="myReviews.overall" allow-half disabled/>
-              <a-icon style="margin-left: 5px;" type="down" />
-            </a-popover>
+            <review-score :review="myReviews" />
+            <div class="content-detail__tag">
+              <a-tag color="#f50" v-show="myReviews.learningDistance">
+                Distance
+              </a-tag>
+              <a-tag color="#2db7f5" v-show="myReviews.learningHome">
+                At home
+              </a-tag>
+              <a-tag color="#87d068" v-show="myReviews.learningClass">
+                In-class
+              </a-tag>
+            </div>
           </div>
           <div>
             <div class="content-detail__title">
@@ -96,27 +87,18 @@
                 <img v-else :src="item.avatar"/>
               </div>
               <div class="content-detail__rate">
-                <a-rate v-if="role === 'student'" :value="item.reviewsScore" allow-half disabled/>
-                <a-popover v-if="role === 'teacher' ">
-                  <template slot="content">
-                    <a-space direction="vertical">
-                      <a-space align="center">
-                        <label>Students engagement</label>
-                        <a-rate :tooltips="RATE_TOOLTIPS.ENGAGEMENT" style="margin:0" :value="item.studentsEngagement" allow-half disabled/>
-                      </a-space>
-                      <a-space align="center">
-                        <label>Effectiveness of teaching & learning</label>
-                        <a-rate :tooltips="RATE_TOOLTIPS.EFFETIVENESS" style="margin:0" :value="item.effectiveness" allow-half disabled/>
-                      </a-space>
-                      <a-space align="center">
-                        <label>Quality of the content</label>
-                        <a-rate :tooltips="RATE_TOOLTIPS.QUALITY" style="margin:0" :value="item.quality" allow-half disabled/>
-                      </a-space>
-                    </a-space>
-                  </template>
-                  <a-rate :tooltips="RATE_TOOLTIPS.OVERALL" :value="item.overall" allow-half disabled/>
-                  <a-icon style="margin-left: 5px;" type="down" />
-                </a-popover>
+                <review-score :review="item" />
+                <div class="content-detail__tag">
+                  <a-tag color="#f50" v-show="item.learningDistance">
+                    Distance
+                  </a-tag>
+                  <a-tag color="#2db7f5" v-show="item.learningHome">
+                    At home
+                  </a-tag>
+                  <a-tag color="#87d068" v-show="item.learningClass">
+                    In-class
+                  </a-tag>
+                </div>
               </div>
               <div>
                 <div class="content-detail__title">
@@ -148,11 +130,13 @@
 import * as logger from '@/utils/logger'
 import { RATE_TOOLTIPS } from '@/const/common'
 // const { ReviewsTaskStats, ReviewsTaskSave, ReviewsTaskList, ReviewsTaskMyReview, ReviewsTaskDelete } = require('@/api/reviewsTask')
-import ReviewEdit from '@/components/Common/ReviewEdit'
+import ReviewEdit from '@/components/Reviews/ReviewEdit'
+import ReviewScore from '@/components/Reviews/ReviewScore'
 export default {
   name: 'ReviewsPreview',
   components: {
-    ReviewEdit
+    ReviewEdit,
+    ReviewScore
   },
   props: {
     id: {
@@ -206,6 +190,10 @@ export default {
         reviewsLabel: 1,
         reviewsNotes: '123213123',
         reviewsScore: 1,
+        overall: 1,
+        effectiveness: 5,
+        quality: 4,
+        studentsEngagement: 1,
         createBy: 'jacob',
         id: 123213213,
         createTime: '123123'
@@ -225,12 +213,18 @@ export default {
     },
 
     loadMyReview() {
-      const promise = this.myReview({ taskId: this.id })
+      const promise = this.myReview({ taskId: this.id, purchasesId: this.id })
       if (this.justifyPromise(promise)) {
         this.$refs.myReview && this.$refs.myReview.triggerLoading(true)
         promise.then(res => {
           if (res.success) {
-            this.myReviews = res.result
+            this.myReviews = {
+              ...res.result,
+              learningClass: Boolean(res.result.learningClass),
+              learningDistance: Boolean(res.result.learningDistance),
+              learningHome: Boolean(res.result.learningHome),
+              updatedMsg: Boolean(res.result.updatedMsg)
+            }
             // this.myReviews = this.mockData
           }
         }).finally(() => {
@@ -241,12 +235,17 @@ export default {
 
     loadReviewList() {
       const promise = this.list({
+        // student
         reviewsNotes: this.reviewsNotes,
         reviewsScore: this.reviewsScore,
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize,
         taskId: this.id,
-        excludeSelf: 1
+        excludeSelf: 1,
+        // teacher
+        overall: this.reviewsScore,
+        searchKey: this.reviewsNotes,
+        purchasesId: this.id
       })
       if (this.justifyPromise(promise)) {
         this.loading = true
@@ -257,7 +256,7 @@ export default {
             this.pagination.total = res.result.total
           } else {
             this.reviewsList = []
-            this.pagination.total = 1
+            this.pagination.total = 0
           }
           logger.info('reviewsList', this.reviewsList)
         }).finally(() => {
@@ -281,6 +280,7 @@ export default {
               if (response.success) {
                 this.$message.success('Del successfully')
                 this.myReviews = null
+                this.$emit('update')
               }
             }).finally(() => {
               this.delLoading = false
@@ -293,8 +293,8 @@ export default {
     handleSaveMyReview (subForm) {
       if (this.role === 'student' && !this.myReviews) return
       const promise = this.save({
-        taskId: this.id,
-        purchasesId: this.id,
+        taskId: this.id, // student
+        purchasesId: this.id, // teacher
         id: this.myReviews ? this.myReviews.id ? this.myReviews.id : null : null,
         ...subForm
       })
@@ -303,7 +303,14 @@ export default {
         promise.then((res) => {
           if (res.success) {
             this.$message.success('Save successfully')
-            this.myReviews = { ...this.myReviews, ...res.result }
+            this.myReviews = {
+              ...this.myReviews,
+              ...res.result,
+              learningClass: Boolean(res.result.learningClass),
+              learningDistance: Boolean(res.result.learningDistance),
+              learningHome: Boolean(res.result.learningHome),
+              updatedMsg: Boolean(res.result.updatedMsg)
+            }
             // 当前页如果有自己的评价，需要更新
             if (this.myReviews && this.myReviews.id) {
               let meFromPage = this.reviewsList.find(item => item.id === this.myReviews.id)
@@ -312,6 +319,7 @@ export default {
               }
             }
             this.$refs.myReview && this.$refs.myReview.triggerIsEdit(false)
+            this.$emit('update')
           }
         }).finally(() => {
           this.$refs.myReview && this.$refs.myReview.triggerLoading(false)
@@ -384,6 +392,10 @@ export default {
         position: absolute;
         top: 10px;
         right: 20px;
+        text-align: right;
+      }
+      .content-detail__tag {
+        margin-top: 5px;
       }
       .content-detail__title {
         display: flex;
@@ -413,7 +425,7 @@ export default {
       }
       .content-detail__review {
         min-height: 48px;
-        font-size: 18px;
+        font-size: 16px;
         font-family: Inter-Bold;
         line-height: 24px;
         color: #000000;

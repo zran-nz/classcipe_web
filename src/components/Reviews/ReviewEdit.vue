@@ -127,8 +127,17 @@ export default {
     }
   },
   watch: {
-    myReviews(val) {
-      this.subForm = val ? { ...val } : null
+    myReviews: {
+      handler(val) {
+        console.log(val)
+        this.subForm = val ? { ...val } : { ...this.init }
+        if (this.footerBottom || (this.role === 'teacher' && (!val || !val.id))) {
+          this.isEdit = true
+        } else {
+          this.isEdit = false
+        }
+      },
+      immediate: true
     }
   },
   data() {
@@ -137,7 +146,8 @@ export default {
       RATE_TOOLTIPS: RATE_TOOLTIPS,
       isEdit: false,
       reviewsText: ['Easy', 'Intermediate', 'Difficult'],
-      subForm: {
+      subForm: this.myReviews,
+      init: {
         reviewsLabel: 1,
         reviewsNotes: '',
         reviewsScore: 1,
@@ -153,7 +163,7 @@ export default {
     }
   },
   mounted() {
-    if (this.role === 'teacher' && (!this.myReviews || !this.myReviews.id)) {
+    if (this.footerBottom || (this.role === 'teacher' && (!this.myReviews || !this.myReviews.id))) {
       this.isEdit = true
     }
   },
@@ -163,10 +173,10 @@ export default {
       this.subLoading = true
       const params = {
         ...this.subForm,
-        learningClass: parseInt(this.subForm.learningClass),
-        learningDistance: parseInt(this.subForm.learningDistance),
-        learningHome: parseInt(this.subForm.learningHome),
-        updatedMsg: parseInt(this.subForm.updatedMsg)
+        learningClass: Number(this.subForm.learningClass),
+        learningDistance: Number(this.subForm.learningDistance),
+        learningHome: Number(this.subForm.learningHome),
+        updatedMsg: Number(this.subForm.updatedMsg)
       }
       this.$emit('submit', params)
      },

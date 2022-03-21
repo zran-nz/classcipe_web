@@ -48,7 +48,8 @@
                               ></component>
                               <a-icon theme="filled" :type="opt.icon" v-if="opt.icon"/>
                             </div>
-                            <div class="session-btn-text">{{ opt.label }}</div>
+                            <div class="session-btn-text" v-if="!opt.against || item[opt.against]">{{ opt.label }}</div>
+                            <div class="session-btn-text" v-else>{{ opt.labelAgainst }}</div>
                           </div>
                           <a-popconfirm v-else :title="'Confirm ' + opt.confirmText +' ' +((item.task && item.task.name) ? item.task.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleAction(opt.fn, item)" cancel-text="No">
                             <div class="session-btn content-list-action-btn" >
@@ -144,7 +145,8 @@
                             v-if="opt.svg"
                           ></component>
                           <a-icon theme="filled" :type="opt.icon" v-if="opt.icon"/>
-                          {{ opt.label }}
+                          <template v-if="!opt.against || item[opt.against]">{{ opt.label }}</template>
+                          <template v-else>{{ opt.labelAgainst }}</template>
                         </div>
                       </div>
                     </template>
@@ -244,7 +246,7 @@
         ref="myReview"
         :footerBottom="true"
         :role="currentRole"
-        :review="myReviews"
+        :myReviews="myReviews"
         @cancel="myReviewsVisible = false"
         @submit="handleSaveMyReview"
       />
@@ -264,7 +266,7 @@ import NoMoreResources from '@/components/Common/NoMoreResources'
 import FilterContent from '@/components/UnitPlan/FilterContent'
 import PaymentDetail from '@/components/Student/PaymentDetail'
 import TakeawayPptSlideView from '@/components/Evaluation/TakeawayPptSlideView'
-import ReviewEdit from '@/components/Common/ReviewEdit'
+import ReviewEdit from '@/components/Reviews/ReviewEdit'
 
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import PreviousSessionsSvg from '@/assets/icons/common/PreviousSessions.svg?inline'
@@ -276,7 +278,7 @@ import CollaborateSvg from '@/assets/icons/collaborate/collaborate_group.svg?inl
 import TakeAwayIcon from '@/assets/icons/common/take_away.svg?inline'
 
 import { SelfStudyTaskStart, SelfStudyAchive, SelfStudyRestore, SelfStudyDelete } from '@/api/selfStudy'
-import { ReviewsTeacherSave } from '@/api/reviewsTeacher'
+import { ReviewsTeacherSave, ReviewsTeacherMyReview } from '@/api/reviewsTeacher'
 
 import storage from 'store'
 import { mapState } from 'vuex'
@@ -371,7 +373,9 @@ export default {
       optOptions: [
         {
           type: ['start', 'center'],
-          label: 'Leave a review',
+          label: 'Edit review',
+          against: 'hasReview',
+          labelAgainst: 'Leave a review',
           icon: 'edit',
           fn: 'handleEditReview'
         },
@@ -559,7 +563,28 @@ export default {
     handleEditReview(item) {
       this.currentId = item.id
       // 获取评论详情
-      this.myReviewsVisible = true
+      if (item.hasReview) {
+        this.$refs.myReview && this.$refs.myReview.triggerLoading(true)
+        ReviewsTeacherMyReview({
+          purchasesId: item.id
+        }).then(res => {
+          if (res.success) {
+            this.myReviews = {
+              ...res.result,
+              learningClass: Boolean(res.result.learningClass),
+              learningDistance: Boolean(res.result.learningDistance),
+              learningHome: Boolean(res.result.learningHome),
+              updatedMsg: Boolean(res.result.updatedMsg)
+            }
+          }
+        }).finally(() => {
+          this.$refs.myReview && this.$refs.myReview.triggerLoading(false)
+          this.myReviewsVisible = true
+        })
+      } else {
+        this.myReviews = null
+        this.myReviewsVisible = true
+      }
     },
     triggerSearch() {
       this.loadMyContent()
@@ -579,13 +604,18 @@ export default {
       }).then((res) => {
         if (res.success) {
           this.$message.success('Save successfully')
-          this.myReviews = { ...this.myReviews, ...res.result }
-          // 当前页如果有自己的评价，需要更新
-          if (this.myReviews && this.myReviews.id) {
-            let meFromPage = this.reviewsList.find(item => item.id === this.myReviews.id)
-            if (meFromPage) {
-              meFromPage = { ...meFromPage, ...res.result }
-            }
+          this.myReviews = {
+            ...this.myReviews,
+            ...res.result,
+            learningClass: Boolean(res.result.learningClass),
+            learningDistance: Boolean(res.result.learningDistance),
+            learningHome: Boolean(res.result.learningHome),
+            updatedMsg: Boolean(res.result.updatedMsg)
+          }
+          // 更新当前的label
+          const meFromPage = this.myContentList.find(item => item.id === this.currentId)
+          if (meFromPage) {
+            meFromPage.hasReview = true
           }
           this.$refs.myReview && this.$refs.myReview.triggerIsEdit(false)
         }
