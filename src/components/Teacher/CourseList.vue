@@ -579,8 +579,8 @@ export default {
           }
         }).finally(() => {
           this.$refs.myReview && this.$refs.myReview.triggerLoading(false)
-          this.myReviewsVisible = true
         })
+        this.myReviewsVisible = true
       } else {
         this.myReviews = null
         this.myReviewsVisible = true

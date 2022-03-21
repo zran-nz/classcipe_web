@@ -39,6 +39,7 @@
                   </div>
                 </a-button>
               </div>
+              <!-- TODO 后续会有课件付费功能，只有付费过的才能COPY -->
               <div class="edit" v-else>
                 <a-button
                   v-excludeRole="['student']"
@@ -73,7 +74,7 @@
           </div> -->
         </a-col>
       </a-row>
-      <a-row class="author-info" v-excludeRole="['student']" v-show="viewMode !== 'Reviews'">
+      <!-- <a-row class="author-info" v-excludeRole="['student']" v-show="viewMode !== 'Reviews'">
         <a-col span="3" class="avatar-icon">
           <img src="~@/assets/icons/library/default-avatar.png" />
         </a-col>
@@ -97,10 +98,11 @@
             </a-tooltip>
           </div>
         </a-col>
-      </a-row>
-      <a-row class="author-info" v-hasRole="['teacher']" v-show="viewMode === 'Reviews'">
+      </a-row> -->
+      <a-row class="author-info" v-excludeRole="['student']">
         <a-col span="3" class="avatar-icon">
-          <img src="~@/assets/icons/library/default-avatar.png" />
+          <!-- <img src="~@/assets/icons/library/default-avatar.png" /> -->
+          <img :src="collaborate.owner && collaborate.owner.avatar" />
         </a-col>
         <a-col span="21">
           <div class="sub-info">
@@ -452,6 +454,7 @@
           />
         </a-col>
         <a-col class="slide-reviews" span="24" v-else>
+          <!-- TODO 后续会有课件付费功能，只有付费过的才能评论 -->
           <reviews-preview
             :id="id"
             role="teacher"
@@ -459,6 +462,7 @@
             :save="ReviewsTeacher.ReviewsTeacherSave"
             :del="ReviewsTeacher.ReviewsTeacherDelete"
             :myReview="ReviewsTeacher.ReviewsTeacherMyReview"
+            :canEdit="true"
             @update="loadReviewStats"
           />
         </a-col>
@@ -685,9 +689,9 @@ export default {
           this.initPrompts = response.result
         }
       })
-      if (['student', 'teacher'].includes(this.currentRole)) {
+      // if (['student', 'teacher'].includes(this.currentRole)) {
         this.loadReviewStats()
-      }
+      // }
     },
 
     loadThumbnail () {
@@ -742,7 +746,7 @@ export default {
       } else {
         promise = ReviewsTeacher.ReviewsTeacherStats
       }
-      promise({
+      promise && promise({
         taskId: this.id, // 学生需要
         purchasesId: this.id // 老师需要
       }).then(res => {

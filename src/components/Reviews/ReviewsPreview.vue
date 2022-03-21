@@ -6,6 +6,7 @@
     <review-edit
       ref="myReview"
       :role="role"
+      v-show="canEdit"
       :myReviews="myReviews"
       @submit="handleSaveMyReview"
     />
@@ -68,7 +69,7 @@
               </label>
             </div>
           </div>
-          <a-space class="content-detail__edit">
+          <a-space class="content-detail__edit" v-show="canEdit">
             <a-button type="link" @click="() => triggerEdit(true)">Edit</a-button>
             <a-button type="link" @click="handleDelMyReview">Delete</a-button>
           </a-space>
@@ -162,6 +163,10 @@ export default {
     myReview: {
       type: Function,
       default: () => {}
+    },
+    canEdit: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
