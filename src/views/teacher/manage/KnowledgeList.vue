@@ -219,7 +219,8 @@ export default {
         {
           title: 'Phase',
           align: 'center',
-          dataIndex: 'hhase'
+          dataIndex: 'phase',
+          width: '10%'
         },
         {
           title: '',
