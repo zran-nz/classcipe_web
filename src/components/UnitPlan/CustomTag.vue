@@ -1,5 +1,5 @@
 <template>
-  <div class="custom-tag">
+  <div class="custom-tag" v-show='mergeTagList.length || tagList.length'>
     <div>
       <a-card class="cover-card" :head-style="{ background:'#15c39a',color:'#fff'}" :body-style="{'padding': '10px'}" title="Tag your content" :bordered="false">
         <a v-if="showArrow" class="header-triangle"></a>
