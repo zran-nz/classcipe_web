@@ -61,6 +61,9 @@ import './directives/exCludeRole'
 import * as logger from '@/utils/logger'
 import CollapsePanel from 'ant-design-vue/lib/collapse/CollapsePanel'
 
+//
+import * as classcipe from '@/utils/classcipe'
+
 Vue.use(Rate)
 Vue.use(Collapse)
 Vue.use(CollapsePanel)
@@ -122,6 +125,9 @@ Vue.prototype.$warning = Modal.warning
 
 // logger
 Vue.prototype.$logger = logger
+
+// classcipe 公用工具方法
+Vue.prototype.$classcipe = classcipe
 
 Vue.use(Viser)
 Vue.use(Dialog) // this.$dialog func
