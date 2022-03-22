@@ -378,7 +378,7 @@ export default {
   margin-top: 20px;
   .header-triangle{
     display: block;
-    left: -30px;
+    left: -20px;
     top: 6px;
     border-style: solid;
     position: absolute;
