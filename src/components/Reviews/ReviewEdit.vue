@@ -1,9 +1,10 @@
 <template>
   <div class="my-reviews">
     <a-space class="reviews-opt" v-if="(myReviews || role === 'teacher') && !footerBottom">
-      <a-button type="link" v-if="!isEdit" @click="() => triggerEdit(true)">Edit Review</a-button>
+      <a-button type="link" v-if="role === 'student' && !isEdit" @click="() => triggerEdit(true)">Edit Review</a-button>
+      <a-button type="link" v-if="role === 'teacher' && !myReviews && !isEdit" @click="() => triggerEdit(true)">Leave a Review</a-button>
       <a-button type="link" v-if="isEdit" @click="() => triggerEdit(false)">Cancel</a-button>
-      <a-button type="primary" v-if="isEdit" @click="handleSaveMyReview">Send</a-button>
+      <a-button type="primary" v-if="isEdit" @click="handleSaveMyReview">{{ myReviews ? 'Update' : 'Send' }}</a-button>
     </a-space>
     <!-- student review -->
     <a-spin :spinning="subLoading" v-if="role === 'student'">
@@ -86,11 +87,6 @@
             </a-checkbox>
           </div>
         </div>
-        <div class="reviews-edit__check">
-          <a-checkbox v-model="subForm.updatedMsg">
-            Let me know if this resource is updated or a new alternative version is created
-          </a-checkbox>
-        </div>
         <div class="reviews-edit__text">
           <a-textarea
             placeholder="Enter your reviews......"
@@ -98,6 +94,11 @@
             v-model="subForm.reviewsNotes"
             :auto-size="{ minRows: 4, maxRows: 6 }"
           />
+        </div>
+        <div class="reviews-edit__check" style="border-top: 0;border-bottom: 1px solid #d9d9d9;">
+          <a-checkbox v-model="subForm.updatedMsg">
+            Let me know if this resource is updated or a new alternative version is created
+          </a-checkbox>
         </div>
       </div>
     </a-spin>
