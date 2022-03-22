@@ -320,7 +320,7 @@ export default {
             id: '5',
             expandStatus: false,
             type: NavigationType.centurySkills,
-            name: skillCategory[2],
+            name: this.$classcipe.get21stCenturyDisplayNameByCurriculum(this.defaultCurriculumId),
             children: [],
             gradeList: [],
             defaultGradeId: this.defaultGradeId,

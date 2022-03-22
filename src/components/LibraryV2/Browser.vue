@@ -108,7 +108,7 @@
         <div class="library-content">
           <div class="browser-action" v-if="hasLeftBlock && !expandedListFlag">
             <div class="action-item" @click="handleViewLeft">
-              <back-svg style="width: 8vw"/>
+              <back-svg style="width: 70px"/>
             </div>
           </div>
           <div class="browser-table-wrapper" :style="{left: -browserMarginLeft + 'px'}">
@@ -412,14 +412,14 @@ export default {
         { type: 'curriculum', label: 'Learning outcomes', tagType: TagType.knowledge },
         { type: 'assessmentType', label: 'Assessment type', tagType: TagType.assessment },
         { type: 'idu', label: 'Integrated Subject Skill', tagType: TagType.idu },
-        { type: 'centurySkills', label: '21st Century Skills', tagType: TagType.century },
+        { type: 'centurySkills', label: this.$classcipe.get21stCenturyDisplayNameByCurriculum(this.currentCurriculumId), tagType: TagType.century },
         { type: 'sdg', label: 'Big idea', tagType: TagType.bigIdea }
       ],
       browserTypeList: [
         { type: 'specificSkills', label: 'Achievement objectives', tagType: TagType.skill },
         { type: 'curriculum', label: 'Learning outcomes', tagType: TagType.knowledge },
         { type: 'assessmentType', label: 'Assessment type', tagType: TagType.assessment },
-        { type: 'centurySkills', label: '21st Century Skills', tagType: TagType.century },
+        { type: 'centurySkills', label: this.$classcipe.get21stCenturyDisplayNameByCurriculum(this.currentCurriculumId), tagType: TagType.century },
         { type: 'sdg', label: 'Big idea', tagType: TagType.bigIdea }
       ],
       TagType: TagType,
@@ -678,6 +678,23 @@ export default {
         this.handleSearchKey()
       }
       this.getRecommended()
+
+      // 修改21st世纪大纲显示名称
+      this.browserTypeListForIbMpy = [
+        { type: 'specificSkills', label: 'Achievement objectives', tagType: TagType.skill },
+        { type: 'curriculum', label: 'Learning outcomes', tagType: TagType.knowledge },
+        { type: 'assessmentType', label: 'Assessment type', tagType: TagType.assessment },
+        { type: 'idu', label: 'Integrated Subject Skill', tagType: TagType.idu },
+        { type: 'centurySkills', label: this.$classcipe.get21stCenturyDisplayNameByCurriculum(this.currentCurriculumId), tagType: TagType.century },
+        { type: 'sdg', label: 'Big idea', tagType: TagType.bigIdea }
+      ]
+      this.browserTypeList = [
+        { type: 'specificSkills', label: 'Achievement objectives', tagType: TagType.skill },
+        { type: 'curriculum', label: 'Learning outcomes', tagType: TagType.knowledge },
+        { type: 'assessmentType', label: 'Assessment type', tagType: TagType.assessment },
+        { type: 'centurySkills', label: this.$classcipe.get21stCenturyDisplayNameByCurriculum(this.currentCurriculumId), tagType: TagType.century },
+        { type: 'sdg', label: 'Big idea', tagType: TagType.bigIdea }
+      ]
     },
 
     handleSearchKey () {
