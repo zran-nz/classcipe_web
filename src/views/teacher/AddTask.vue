@@ -256,8 +256,8 @@
                               @switch='handleSwitchComment'
                               :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.MaterialList}" />
                             <div class='form-block-label'>
-                              <a-switch v-model='materialListFlag' @change='handleMaterialListFlagChange' />
-                              {{ 'Resources required for hands-on activities' | taskLabelName(taskField.MaterialList, $store.getters.formConfigData) }}
+                              <a-switch size="small" v-model='materialListFlag' @change='handleMaterialListFlagChange' />
+                              <div class='label-text'>{{ 'Resources required for hands-on activities' | taskLabelName(taskField.MaterialList, $store.getters.formConfigData) }}</div>
                               <a-tooltip :title="'Resources required for hands-on activities' | taskLabelHint(taskField.MaterialList, $store.getters.formConfigData)" placement='top'>
                                 <a-icon type="info-circle" />
                               </a-tooltip>
@@ -6682,7 +6682,12 @@ export default {
 .form-block-label {
   font-family: Inter-Bold;
   line-height: 24px;
-  color: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  .label-text {
+    padding: 0 5px;
+  }
 }
 
 .material-list {
