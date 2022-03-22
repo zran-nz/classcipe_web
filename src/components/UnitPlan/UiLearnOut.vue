@@ -31,8 +31,9 @@
             </a-popconfirm>
           </div>
           <div class='customize-objectives-list-add-btn'>
-            <add-green-icon class='add-input input-icon' @click='handleAddNew(TagType.skill, skillInputList)'/>
-            <div class='tips' @click='handleAddNew(TagType.skill, skillInputList)'>Type in your learning objective</div>
+            <a-tooltip title="Type in your learning objective" placement="right">
+              <add-green-icon class='add-input input-icon' @click='handleAddNew(TagType.skill, skillInputList)'/>
+            </a-tooltip>
           </div>
         </div>
       </a-row>
@@ -64,23 +65,16 @@
             </a-popconfirm>
           </div>
           <div class='customize-objectives-list-add-btn'>
-            <add-green-icon class='add-input input-icon' @click='handleAddNew(TagType.knowledge, knowledgeInputList)'/>
-            <div class='tips' @click='handleAddNew(TagType.knowledge, knowledgeInputList)'>Type in your learning objective</div>
+            <a-tooltip title="Type in your learning objective" placement="right">
+              <add-green-icon class='add-input input-icon' @click='handleAddNew(TagType.knowledge, knowledgeInputList)'/>
+            </a-tooltip>
           </div>
         </div>
       </a-row>
 
       <a-row class="objectives-wrapper-block">
         <div class="title-item title-21">
-          <template v-if="$store.getters.bindCurriculum === AllCurriculums.NZ">
-            Key competencies
-          </template>
-          <template v-else-if="$store.getters.bindCurriculum === AllCurriculums.AU">
-            General capabilities
-          </template>
-          <template v-else>
-            21st Century Skills
-          </template>
+          {{ $store.getters.twentyFirstCenturyDisplayName }}
         </div>
         <template v-if="getknowledgeListType(TagType.century).length > 0" >
           <div class="objectives-list" v-for="(k,index) in getknowledgeListType(TagType.century)" :key="index">
@@ -124,8 +118,9 @@
             </a-popconfirm>
           </div>
           <div class='customize-objectives-list-add-btn'>
-            <add-green-icon class='add-input input-icon' @click='handleAddNew(TagType.century, centuryInputList)'/>
-            <div class='tips' @click='handleAddNew(TagType.century, centuryInputList)'>Type in your learning objective</div>
+            <a-tooltip title="Type in your learning objective" placement="right">
+              <add-green-icon class='add-input input-icon' @click='handleAddNew(TagType.century, centuryInputList)'/>
+            </a-tooltip>
           </div>
         </div>
       </a-row>
