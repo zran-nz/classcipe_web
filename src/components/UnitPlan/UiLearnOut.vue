@@ -3,8 +3,8 @@
     <div class="objectives-wrapper">
       <a-row class="objectives-wrapper-block">
         <div class="title-item title-skill">Achievement objectives</div>
-        <template v-if="getknowledgeListType(TagType.skill).length > 0" >
-          <div class="objectives-list" v-for="(k,index) in getknowledgeListType(TagType.skill)" :key="index">
+        <template v-if="getKnowledgeListType(TagType.skill).length > 0" >
+          <div class="objectives-list" v-for="(k,index) in getKnowledgeListType(TagType.skill)" :key="index">
             <div class="objectives-list-item objectives-list-item-skill objectives-list-item-top-fixed">
               <!--              <a-breadcrumb separator=">">-->
               <!--                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>-->
@@ -40,8 +40,8 @@
 
       <a-row class="objectives-wrapper-block">
         <div class="title-item title-learnout">Learning outcomes</div>
-        <template v-if="getknowledgeListType(TagType.knowledge).length > 0" >
-          <div class="objectives-list" v-for="(k,index) in getknowledgeListType(TagType.knowledge)" :key="index">
+        <template v-if="getKnowledgeListType(TagType.knowledge).length > 0" >
+          <div class="objectives-list" v-for="(k,index) in getKnowledgeListType(TagType.knowledge)" :key="index">
             <div class="objectives-list-item objectives-list-item-learn objectives-list-item-top-fixed">
               <div class="skt-description" @dblclick="handleAddTag(k)">
                 <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
@@ -74,10 +74,10 @@
 
       <a-row class="objectives-wrapper-block">
         <div class="title-item title-21">
-          {{ $store.getters.twentyFirstCenturyDisplayName }}
+          {{ $classcipe.get21stCenturyDisplayNameByCurriculum($store.getters.bindCurriculum) }}
         </div>
-        <template v-if="getknowledgeListType(TagType.century).length > 0" >
-          <div class="objectives-list" v-for="(k,index) in getknowledgeListType(TagType.century)" :key="index">
+        <template v-if="getKnowledgeListType(TagType.century).length > 0" >
+          <div class="objectives-list" v-for="(k,index) in getKnowledgeListType(TagType.century)" :key="index">
             <div class="objectives-list-item objectives-list-item-21 objectives-list-item-top-fixed" @click="handleActiveDescription(TagType.century,k)">
               <div class="skt-description skt-description-21" @dblclick="handleAddTag(k)">
                 <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
@@ -401,7 +401,7 @@
           this.subTreeLoading = false
         })
       },
-      getknowledgeListType (type) {
+      getKnowledgeListType (type) {
         if (type === TagType.skill) {
           return this.knowledgeList.filter(item => item.tagType === TagType.skill || item.tagType === TagType.ibSkill || item.tagType === TagType.idu)
         } else if (type === TagType.century) {
