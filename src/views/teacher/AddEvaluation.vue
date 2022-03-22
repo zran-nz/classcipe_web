@@ -233,7 +233,7 @@
         <template v-if="rubricType === 'select'">
           <div class="select-rubric-wrapper">
             <div class="evaluation-list">
-              <select-evaluation-list @cancel="selectRubricVisible = false" @selected="handleEnsureSelectEvaluation"/>
+              <select-evaluation-list :hidden-evaluation-id='evaluationId' @cancel="selectRubricVisible = false" @selected="handleEnsureSelectEvaluation"/>
             </div>
           </div>
         </template>
@@ -604,7 +604,7 @@ export default {
       }, 500)
     },
     handleSaveEvaluation () {
-      this.$logger.info('handleSaveEvaluation', this.forms)
+      this.$logger.info('handleSaveEvaluation', this.form)
       if (this.$refs.commonFormHeader) {
         this.$refs.commonFormHeader.saving = true
       }
@@ -654,6 +654,19 @@ export default {
           })
         }
       } else {
+        EvaluationAddOrUpdate(this.form).then((response) => {
+          this.$logger.info('EvaluationAddOrUpdate', response)
+          if (this.$refs.commonFormHeader) {
+            this.$refs.commonFormHeader.saving = false
+          }
+          if (response.success) {
+            this.$message.success('Save successfully!')
+            this.initCompleted = false
+            this.goBack()
+          } else {
+            this.$message.error(response.message)
+          }
+        })
         if (this.$refs.commonFormHeader) {
           this.$refs.commonFormHeader.saving = false
         }
@@ -713,6 +726,16 @@ export default {
     handleUpdateForm (data) {
       this.$logger.info('handleUpdateForm', data)
       this.form.name = data.name
+
+      EvaluationAddOrUpdate(this.form).then((response) => {
+        this.$logger.info('EvaluationAddOrUpdate', response)
+        if (this.$refs.commonFormHeader) {
+          this.$refs.commonFormHeader.saving = false
+        }
+        if (!response.success) {
+          this.$message.error(response.message)
+        }
+      })
     },
 
     handleSelectRubric (newFormType) {
@@ -757,7 +780,7 @@ export default {
       }
       this.$logger.info('newTableName', this.newTableName)
     },
-    handleUpdateHeader (header) {
+    handleUpdateHeader () {
       this.$logger.info('AddEvaluation handleUpdateHeader')
       if (this.$refs.evaluationTable) {
         this.$refs.evaluationTable.forEach(tableItem => { tableItem.handleUpdateHeader() })
