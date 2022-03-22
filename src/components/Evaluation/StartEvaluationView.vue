@@ -959,9 +959,9 @@ export default {
 }
 
 .my-form-input {
-  border-radius: 4px;
+  border-radius: 2px;
   padding: 10px;
-  height: 42px;
+  height: 35px;
   width: 600px;
   font-size: 14px;
   font-family: Inter-Bold;

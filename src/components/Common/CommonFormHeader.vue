@@ -354,6 +354,7 @@ export default {
   }
 
   .unit-nav-title {
+    padding-right: 5px;
     font-size: 15px;
     font-family: Inter-Bold;
     line-height: 24px;

@@ -5496,7 +5496,6 @@ export default {
   }
 
   /deep/ .ant-form-item label {
-    font-size: 16px;
     font-weight: 500;
     font-family: Inter-Bold;
   }
