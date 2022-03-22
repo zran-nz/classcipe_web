@@ -192,7 +192,6 @@ export default {
 
       linkGroupLoading: true,
       ownerLinkGroupList: [],
-      groupNameList: ['Untitled category'],
       subDefaultGroupName: ['Untitled category'],
       noSelectedTips: '',
       // 当前点击的groupId
@@ -228,22 +227,18 @@ export default {
         this.$logger.info('TaskLink GetAssociate response', response)
         if (response.success) {
           const associateData = response.result
-          this.groupNameList = []
+          this.ownerLinkGroupList = []
           associateData.groups.forEach(item => {
-            this.groupNameList.push(item.groupName)
+            this.ownerLinkGroupList.push({
+              group: item.groupName,
+              contents: []
+            })
             item.editing = false
           })
-          if (associateData.owner.length === 0) {
-            this.ownerLinkGroupList = []
-            associateData.groups.forEach(item => {
-              this.ownerLinkGroupList.push({
-                group: item.groupName,
-                contents: []
-              })
-            })
-          } else {
-            this.ownerLinkGroupList = associateData.owner
-          }
+          associateData.owner.forEach(item => {
+            const groupItem = this.ownerLinkGroupList.find(group => group.group === item.group)
+            groupItem.contents = item.contents
+          })
           this.ownerLinkGroupList = this.ownerLinkGroupList.sort((a, b) => a.group.indexOf('Unit Plan') !== -1 ? -1 : 1)
           this.selectedList = []
           this.ownerLinkGroupList.forEach(group => {
