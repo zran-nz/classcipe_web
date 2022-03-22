@@ -468,7 +468,7 @@
         </a-col>
       </a-row>
       <div class="associate-info" v-show="viewMode === 'Detail'" v-excludeRole="['student']">
-        <common-link
+        <task-link
           :show-drag-tips='false'
           :isLibrary="isLibrary"
           :can-edit="false"
@@ -512,7 +512,7 @@ import NoMoreResources from '@/components/Common/NoMoreResources'
 import CommonAssociatePreview from '@/components/Common/CommonAssociatePreview'
 import { TemplatesGetPresentation, TemplatesGetPublishedPresentation } from '@/api/template'
 import EvaluationTablePreview from '@/components/Evaluation/EvaluationTablePreview'
-import CommonLink from '@/components/Common/CommonLink'
+import TaskLink from '@/components/Task/TaskLink'
 import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
 import MediaPreview from '@/components/Task/MediaPreview'
 import TaskMaterialPreview from '@/components/Task/TaskMaterialPreview'
@@ -545,7 +545,7 @@ export default {
     EvaluationTablePreview,
     CommonAssociatePreview,
     NoMoreResources,
-    CommonLink,
+    TaskLink,
     MediaPreview,
     TaskMaterialPreview,
     RateByPercent,

@@ -2,42 +2,15 @@
   <div class="common-link">
     <div class="link-group-wrapper">
       <template v-if="ownerLinkGroupList.length && !linkGroupLoading">
-        <div class="link-group" v-for="(linkGroup, lIndex) in ownerLinkGroupList" :key="lIndex" :data-group="JSON.stringify(ownerLinkGroupList)">
+        <div class="link-group" v-for="(linkGroup, lIndex) in ownerLinkGroupList" :key="lIndex">
           <div class="group-item">
             <div class="group-header">
               <div class="group-left-info">
-                <!-- unit plan下才有term概念,task不显示对应的操作和term名称-->
-                <template v-if="fromType === typeMap['unit-plan']">
-                  <div class="group-name">
-                    <div class="group-name-text" v-if="!linkGroup.editing">
-                      {{ linkGroup.group ? linkGroup.group : 'Untitled category ' }}
-                    </div>
-                    <div class="group-name-input" v-if="linkGroup.editing">
-                      <a-input
-                        v-model="linkGroup.group"
-                        class="group-name-input"
-                        @blur="handleToggleEditGroupName(linkGroup)"
-                        @pressEnter="handleToggleEditGroupName(linkGroup)"/>
-                    </div>
+                <div class="group-name">
+                  <div class="group-name-text">
+                    {{ linkGroup.group }}
                   </div>
-                  <div class="group-edit-icon" @click="handleToggleEditGroupName(linkGroup)" v-if="canEdit">
-                    <a-tooltip>
-                      <template slot="title">
-                        Rename
-                      </template>
-                      <a-icon type="edit" :style="{ fontSize: '20px', color: '#15C39A', fontWeight: 'bold' }" v-if="!linkGroup.editing"/>
-                    </a-tooltip>
-
-                    <a-icon type="check" :style="{ fontSize: '20px', color: '#15C39A', fontWeight: 'bold' }" v-if="linkGroup.editing"/>
-                  </div>
-                </template>
-                <template v-else>
-                  <div class="group-name">
-                    <div class="group-name-text">
-                      {{ linkGroup.group }}
-                    </div>
-                  </div>
-                </template>
+                </div>
               </div>
               <div class="group-right-info" >
                 <div class="group-action">
@@ -50,7 +23,7 @@
               </div>
             </div>
             <div class="group-body">
-              <draggable v-model="ownerLinkGroupList[lIndex].contents" group="site" animation="300" @end="handleDragEnd" :disabled="!canEdit || fromType === typeMap.task">
+              <draggable v-model="linkGroup.contents" group="site" animation="300" @end="handleDragEnd" :disabled="!canEdit">
                 <transition-group>
                   <div class="group-link-item" v-for="item in linkGroup.contents" :key="item.id">
                     <div class="left-info" @click="handleViewDetail(item)">
@@ -106,69 +79,17 @@
                         </a-dropdown>
                       </div>
                     </div>
-
                   </div>
                 </transition-group>
               </draggable>
+              <div class='no-link-group-contents' v-if='linkGroup.contents.length === 0'>
+                <no-more-resources />
+              </div>
             </div>
           </div>
 
         </div>
       </template>
-      <!--      <template v-if="othersLinkGroupList.length && !linkGroupLoading">-->
-      <!--        <div class="link-group" data-group="othersLinkGroupList">-->
-      <!--          <div class="group-item">-->
-      <!--            <div class="group-header">-->
-      <!--              <div class="group-left-info">-->
-      <!--                <div class="group-name">-->
-      <!--                  <div class="group-name-text">Linked by others</div>-->
-      <!--                  &lt;!&ndash;                  <div class="group-name-text" v-if="fromType === typeMap.task" >Relevant Unit plan(s)</div>&ndash;&gt;-->
-      <!--                  &lt;!&ndash;                  <div class="group-name-input" v-if="linkGroup.editing">&ndash;&gt;-->
-      <!--                  &lt;!&ndash;                    <input v-model="linkGroup.group" class="group-name-input"/>&ndash;&gt;-->
-      <!--                  &lt;!&ndash;                  </div>&ndash;&gt;-->
-      <!--                </div>-->
-      <!--                &lt;!&ndash;                <div class="group-edit-icon" @click="handleToggleEditGroupName(linkGroup)">&ndash;&gt;-->
-      <!--                &lt;!&ndash;                  <a-icon type="edit" v-if="!linkGroup.editing"/>&ndash;&gt;-->
-      <!--                &lt;!&ndash;                  <a-icon type="check" v-if="linkGroup.editing"/>&ndash;&gt;-->
-      <!--                &lt;!&ndash;                </div>&ndash;&gt;-->
-      <!--              </div>-->
-      <!--              &lt;!&ndash;              <div class="group-right-info">&ndash;&gt;-->
-      <!--              &lt;!&ndash;                <div class="group-action">&ndash;&gt;-->
-      <!--              &lt;!&ndash;                  <a-button type="primary" @click="handleLinkGroup(linkGroup)">&ndash;&gt;-->
-      <!--              &lt;!&ndash;                    <div class="btn-text" style="line-height: 20px">&ndash;&gt;-->
-      <!--              &lt;!&ndash;                      + Link&ndash;&gt;-->
-      <!--              &lt;!&ndash;                    </div>&ndash;&gt;-->
-      <!--              &lt;!&ndash;                  </a-button>&ndash;&gt;-->
-      <!--              &lt;!&ndash;                </div>&ndash;&gt;-->
-      <!--              &lt;!&ndash;              </div>&ndash;&gt;-->
-      <!--            </div>-->
-      <!--            <div class="group-body">-->
-      <!--              <div class="group-link-item" v-for="(item,index) in othersLinkGroupList" :key="index">-->
-      <!--                <div class="left-info">-->
-      <!--                  <div class="icon">-->
-      <!--                    <content-type-icon :type="item.type"/>-->
-      <!--                  </div>-->
-      <!--                  <div class="name" @click="handleViewDetail(item)">-->
-      <!--                    <a-tooltip placement="top">-->
-      <!--                      <template slot="title">-->
-      <!--                        {{ item.name ? item.name : 'untitled' }}-->
-      <!--                      </template>-->
-      <!--                      {{ item.name ? item.name : 'untitled' }}-->
-      <!--                    </a-tooltip>-->
-      <!--                  </div>-->
-      <!--                </div>-->
-      <!--                <div class="right-info">-->
-      <!--                  <div class="date">{{ item.createTime | dayjs }}</div>-->
-      <!--                  <div class="status">-->
-      <!--                    <template v-if="item.status === 0">Draft</template>-->
-      <!--                    <template v-if="item.status === 1">Published</template>-->
-      <!--                  </div>-->
-      <!--                </div>-->
-      <!--              </div>-->
-      <!--            </div>-->
-      <!--          </div>-->
-      <!--        </div>-->
-      <!--      </template>-->
     </div>
 
     <a-modal
@@ -182,16 +103,13 @@
       </div>
 
       <div class="link-content-wrapper">
-        <new-my-content
-          :from-type="fromType"
+        <task-new-my-content
           :from-id="fromId"
-          :filter-type-list="subFilterTypeList"
-          :show-create="showCreate"
-          :show-tabs="showTabs"
-          :group-name-list="groupNameList"
-          :default-group-name="subDefaultGroupName"
+          :from-type="fromType"
+          :filter-type="subFilterType"
+          :no-selected-tips='noSelectedTips'
           :selected-list="selectedList"
-          :mode="'common-link'"
+          :group-name='groupName'
           @cancel="selectLinkContentVisible = false"
           @ensure="handleEnsureSelectedLink"/>
       </div>
@@ -227,17 +145,18 @@
 
 import { AddOrSaveGroupName, AssociateCancel, GetAssociate } from '@/api/teacher'
 import MyContentSelector from '@/components/MyContent/MyContentSelector'
-import NewMyContent from '@/components/MyContent/NewMyContent'
+import TaskNewMyContent from '@/components/Task/TaskNewMyContent'
 import { typeMap } from '@/const/teacher'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import * as logger from '@/utils/logger'
 import CommonPreviewNoLink from '@/components/Common/CommonPreviewNoLink'
 
 import draggable from 'vuedraggable'
+import NoMoreResources from '@/components/Common/NoMoreResources'
 
 export default {
-  name: 'CommonLink',
-  components: { ContentTypeIcon, NewMyContent, MyContentSelector, CommonPreviewNoLink, draggable },
+  name: 'TaskLink',
+  components: { NoMoreResources, ContentTypeIcon, TaskNewMyContent, MyContentSelector, CommonPreviewNoLink, draggable },
   props: {
     fromType: {
       type: Number,
@@ -273,9 +192,9 @@ export default {
 
       linkGroupLoading: true,
       ownerLinkGroupList: [],
-      othersLinkGroupList: [],
       groupNameList: ['Untitled category'],
       subDefaultGroupName: ['Untitled category'],
+      noSelectedTips: '',
       // 当前点击的groupId
       currentGroupId: null,
 
@@ -284,21 +203,17 @@ export default {
       previewVisible: false,
       previewCurrentId: '',
       previewType: '',
-      subFilterTypeList: [typeMap.evaluation],
+      subFilterType: null,
       selectedList: [],
 
       showCreate: true,
       showTabs: true,
-      linkTitle: 'Link Content'
+      linkTitle: null,
+      groupName: null
     }
   },
   created () {
-    this.$logger.info('load CommonLink with id[' + this.fromId + '] fromType[' + this.fromType + ']')
-    if (this.fromType === typeMap['unit-plan']) {
-      this.subFilterTypeList = [typeMap.task, typeMap.evaluation]
-    } else if (this.filterType === typeMap.task) {
-      this.subFilterTypeList = [typeMap.evaluation, typeMap['unit-plan']]
-    }
+    this.$logger.info('load TaskLink with id[' + this.fromId + '] fromType[' + this.fromType + ']')
     this.getAssociate()
   },
   methods: {
@@ -310,54 +225,39 @@ export default {
         type: this.fromType,
         published: this.isLibrary ? 1 : 0
       }).then(response => {
-        this.$logger.info('CommonLink GetAssociate response', response)
-        const groupNameList = []
-        response.result.owner.forEach(item => {
-          if (groupNameList.indexOf(item.group) === -1) {
-            groupNameList.push(item.group)
+        this.$logger.info('TaskLink GetAssociate response', response)
+        if (response.success) {
+          const associateData = response.result
+          this.groupNameList = []
+          associateData.groups.forEach(item => {
+            this.groupNameList.push(item.groupName)
+            item.editing = false
+          })
+          if (associateData.owner.length === 0) {
+            this.ownerLinkGroupList = []
+            associateData.groups.forEach(item => {
+              this.ownerLinkGroupList.push({
+                group: item.groupName,
+                contents: []
+              })
+            })
+          } else {
+            this.ownerLinkGroupList = associateData.owner
           }
-          item.editing = false
-        })
-        // response.result.others.forEach(item => {
-        //   if (groupNameList.indexOf(item.group) === -1) {
-        //     groupNameList.push(item.group)
-        //   }
-        //   item.editing = false
-        // })
-        this.$logger.info('formatted owner', response.result.owner)
-        this.$logger.info('formatted others', response.result.others)
-        this.$logger.info('formatted groupNameList', groupNameList)
-        this.ownerLinkGroupList = response.result.owner.sort((a, b) => a.group.indexOf('Unit Plan') !== -1 ? -1 : 1)
-        this.othersLinkGroupList = []
-        this.selectedList = []
-        this.ownerLinkGroupList.forEach(group => {
-           group.contents.forEach(content => {
-             this.selectedList.push(content.type + '-' + content.id)
-           })
-        })
-        this.$logger.info('ownerLinkGroupList', this.ownerLinkGroupList)
-        response.result.others.forEach(item => {
-          this.othersLinkGroupList.unshift(...item.contents)
-        })
-        this.$logger.info('othersLinkGroupList', this.othersLinkGroupList)
-        if (groupNameList.length) {
-          this.groupNameList = groupNameList
+          this.ownerLinkGroupList = this.ownerLinkGroupList.sort((a, b) => a.group.indexOf('Unit Plan') !== -1 ? -1 : 1)
+          this.selectedList = []
+          this.ownerLinkGroupList.forEach(group => {
+            group.contents.forEach(content => {
+              this.selectedList.push(content.type + '-' + content.id)
+            })
+          })
+          this.$logger.info('ownerLinkGroupList', this.ownerLinkGroupList)
+        } else {
+          this.$message.error(response.message)
         }
-        this.$emit('group-name-list-update')
       }).finally(() => {
         this.linkGroupLoading = false
       })
-    },
-
-    handleToggleEditDefaultGroupName () {
-      this.$logger.info('handleToggleEditDefaultGroupName ' + this.defaultGroupNameEditMode)
-      this.defaultGroupNameEditMode = this.defaultGroupNameEditMode === 'view' ? 'edit' : 'view'
-    },
-
-    handleDefaultGroupLink () {
-      this.$logger.info('handleDefaultGroupLink')
-      this.$logger.info('groupNameList', this.groupNameList)
-      this.selectLinkContentVisible = true
     },
 
     handleEnsureSelectedLink (data) {
@@ -369,23 +269,21 @@ export default {
     handleLinkGroup (group) {
       this.$logger.info('handleLinkGroup', group)
       this.subDefaultGroupName = group.group
-      this.selectLinkContentVisible = true
-      if (group.group.trim() === 'Linked assessment tool(s)' || group.group.trim() === 'Linked evaluation(s)') {
-        this.subFilterTypeList = [typeMap.evaluation]
-        this.showCreate = false
-        this.showTabs = false
-        this.linkTitle = 'Link Assessment rubric(s)'
+      if (group.group.trim() === 'Linked assessment tool(s)') {
+        this.subFilterType = typeMap.evaluation
+        this.linkTitle = 'Link Assessment tool(s)'
+        this.groupName = 'Linked assessment tool(s)'
+        this.noSelectedTips = 'No assessment rubric(s) selected'
+        this.selectLinkContentVisible = true
       } else if (group.group.trim() === 'Relevant Unit Plan(s)') {
-        this.subFilterTypeList = [typeMap['unit-plan']]
-        this.showCreate = true
-        this.showTabs = false
+        this.subFilterType = typeMap['unit-plan']
         this.linkTitle = 'Link Unit Plan'
+        this.groupName = 'Relevant Unit Plan(s)'
+        this.noSelectedTips = 'No new Unit plan selected'
+        this.selectLinkContentVisible = true
       } else {
-        if (this.fromType === typeMap['unit-plan']) {
-          this.subFilterTypeList = [typeMap.task, typeMap.evaluation]
-        } else if (this.filterType === typeMap.task) {
-          this.subFilterTypeList = [typeMap.evaluation, typeMap['unit-plan']]
-        }
+        this.$logger.warn('handleLinkGroup unknown group', group)
+        this.$message.warn('handleLinkGroup unknown group ' + group)
       }
     },
 
@@ -404,7 +302,6 @@ export default {
           ids: ids
         }).then(response => {
           this.$logger.info('AddOrSaveGroupName', response)
-          // this.getAssociate()
           linkGroup.editing = false
         })
       } else {
@@ -422,16 +319,8 @@ export default {
     },
     handleEditLinkItem (item) {
       logger.info('handleEditLinkItem', item)
-      if (item.type === typeMap['unit-plan']) {
-        window.open('/teacher/unit-plan-redirect/' + item.id, '_blank')
-      } else if (item.type === typeMap['topic']) {
-        window.open('/expert/topic-redirect/' + item.id, '_blank')
-      } else if (item.type === typeMap['material']) {
-        window.open('/teacher/add-material/' + item.id, '_blank')
-      } else if (item.type === typeMap.task) {
+      if (item.type === typeMap.task) {
         window.open('/teacher/task-redirect/' + item.id, '_blank')
-      } else if (item.type === typeMap.lesson) {
-        window.open('/teacher/lesson-redirect/' + item.id, '_blank')
       } else if (item.type === typeMap.evaluation) {
         window.open('/teacher/evaluation-redirect/' + item.id, '_blank')
       }
@@ -636,5 +525,13 @@ export default {
   align-items: center;
   font-weight: bold;
   justify-content: center;
+}
+
+.no-link-group-contents {
+  padding: 10px;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

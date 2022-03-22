@@ -135,7 +135,7 @@
                           </a-button>
                         </a-form-item>
                         <div class="common-link-wrapper">
-                          <common-link ref="commonLink" :from-id="this.taskId" :from-type="this.contentType.task"/>
+                          <task-link ref="commonLink" :from-id="this.taskId" :from-type="this.contentType.task"/>
                         </div>
                       </div>
                     </template>
@@ -670,7 +670,7 @@
   import ModalHeader from '@/components/Common/ModalHeader'
   import CommonFormHeader from '@/components/Common/CommonFormHeader'
   import { EvaluationAddOrUpdate } from '@/api/evaluation'
-  import CommonLink from '@/components/Common/CommonLink'
+  import TaskLink from '@/components/Task/TaskLink'
   import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
   import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
   import NewBrowser from '@/components/NewLibrary/NewBrowser'
@@ -683,7 +683,7 @@
       NewBrowser,
       NewMyContent,
       UiLearnOut,
-      CommonLink,
+      TaskLink,
       ModalHeader,
       TaskPreview,
       TaskForm,

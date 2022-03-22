@@ -738,30 +738,8 @@
                             @switch='handleSwitchComment'
                             :field-name='taskField.Link'
                             :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Link}" />
-                          <a-form-item class='link-plan-title' >
-                            <a-space v-show="canEdit">
-                              <a-button
-                                type='primary'
-                                :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8', 'display': 'flex', 'align-items': 'center'}"
-                                :loading='linkUnitPlanLoading'
-                                @click='handleAddUnitPlanTerm'>
-                                <div class='btn-text' style='line-height: 20px; padding-left: 5px'>
-                                  + Link Unit plan
-                                </div>
-                              </a-button>
-                              <a-button
-                                type='primary'
-                                :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8', 'display': 'flex', 'align-items': 'center'}"
-                                :loading='linkRubricLoading'
-                                @click='handleAddTerm'>
-                                <div class='btn-text' style='line-height: 20px'>
-                                  + Add assessment tool
-                                </div>
-                              </a-button>
-                            </a-space>
-                          </a-form-item>
                           <div class='common-link-wrapper'>
-                            <common-link :can-edit="canEdit" ref='commonLink' :from-id='this.taskId' :from-type='this.contentType.task' />
+                            <task-link :can-edit="canEdit" ref='commonLink' :from-id='this.taskId' :from-type='this.contentType.task' />
                           </div>
                         </div>
                       </div>
@@ -1883,7 +1861,7 @@ import { CustomTagType, TaskField, TemplateType } from '@/const/common'
 import ModalHeader from '@/components/Common/ModalHeader'
 import CommonFormHeader from '@/components/Common/CommonFormHeader'
 import { EvaluationAddOrUpdate } from '@/api/evaluation'
-import CommonLink from '@/components/Common/CommonLink'
+import TaskLink from '@/components/Task/TaskLink'
 import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
 import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
 import NewBrowser from '@/components/NewLibrary/NewBrowser'
@@ -1941,7 +1919,7 @@ export default {
     NewBrowser,
     NewMyContent,
     UiLearnOut,
-    CommonLink,
+    TaskLink,
     ModalHeader,
     TaskPreview,
     TaskForm,
@@ -3194,51 +3172,6 @@ export default {
       } else {
         this.$logger.info('add loading')
       }
-    },
-    handleAddUnitPlanTerm() {
-      this.$logger.info('handleAddUnitPlanTerm', this.groupNameList)
-      this.linkUnitPlanLoading = true
-      // 如果第一部分有内容，点击link激活step 到第二部分，否则提示先输入第一部分表单内容
-      if (this.form.name ||
-        this.form.overview ||
-        (this.form.questions && this.form.questions.length)) {
-        this.groupNameMode = 'input'
-        this.selectLinkUnitPlanContentVisible = true
-        this.setSessionStep(1)
-      } else {
-        this.$message.warn('Task Info is empty, please fill the form first!')
-      }
-
-      // #协同编辑event事件
-      this.handleCollaborateEvent(this.taskId, this.taskField.Link, this.associateUnitPlanIdList)
-
-      this.$nextTick(() => {
-        setTimeout(() => {
-          this.linkUnitPlanLoading = false
-        }, 500)
-      })
-    },
-    handleAddTerm() {
-      this.$logger.info('handleAddTerm', this.groupNameList)
-      this.linkRubricLoading = true
-      // 如果第一部分有内容，点击link激活step 到第二部分，否则提示先输入第一部分表单内容
-      if (this.form.name ||
-        this.form.overview ||
-        (this.form.questions && this.form.questions.length)) {
-        this.groupNameMode = 'input'
-        this.selectLinkContentVisible = true
-        this.setSessionStep(1)
-      } else {
-        this.$message.warn('Task Info is empty, please fill the form first!')
-      }
-      // #协同编辑event事件
-      this.handleCollaborateEvent(this.taskId, this.taskField.Link, this.associateUnitPlanIdList)
-
-      this.$nextTick(() => {
-        setTimeout(() => {
-          this.linkRubricLoading = false
-        }, 500)
-      })
     },
     handleEnsureSelectedLink(data) {
       this.$logger.info('handleEnsureSelectedLink', data)
@@ -6871,5 +6804,9 @@ export default {
     z-index: 999;
     background: rgba(0, 0, 0, 0.07);
   }
+}
+
+.common-link-wrapper {
+  padding-top: 40px;
 }
 </style>

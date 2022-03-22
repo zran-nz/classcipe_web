@@ -1748,7 +1748,7 @@ import CollaborateUserList from '@/components/Collaborate/CollaborateUserList'
 import { CustomTagType, TaskField, TemplateType } from '@/const/common'
 import ModalHeader from '@/components/Common/ModalHeader'
 import CommonFormHeader from '@/components/Common/CommonFormHeader'
-import CommonLink from '@/components/Common/CommonLink'
+import TaskLink from '@/components/Task/TaskLink'
 import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
 import NewBrowser from '@/components/NewLibrary/NewBrowser'
 import NewMyContent from '@/components/MyContent/NewMyContent'
@@ -1803,7 +1803,7 @@ export default {
     NewBrowser,
     NewMyContent,
     UiLearnOut,
-    CommonLink,
+    TaskLink,
     ModalHeader,
     TaskPreview,
     TaskForm,

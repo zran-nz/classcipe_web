@@ -230,7 +230,7 @@
                           </a-button>
                         </a-form-item>
                         <div class="common-link-wrapper">
-                          <common-link ref="commonLink" :from-id="this.topicId" :from-type="this.contentType.topic" @group-name-list-update="handleUpdateGroupNameList"/>
+                          <task-link ref="commonLink" :from-id="this.topicId" :from-type="this.contentType.topic" @group-name-list-update="handleUpdateGroupNameList"/>
                         </div>
                       </div>
                     </template>
@@ -602,7 +602,7 @@ import DisplayMode from '@/components/MyContent/DisplayMode'
 import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
 import ReferPreview from '@/components/UnitPlanRefer/ReferPreview'
 import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
-import CommonLink from '@/components/Common/CommonLink'
+import TaskLink from '@/components/Task/TaskLink'
 import NewMyContent from '@/components/MyContent/NewMyContent'
 import { FindCustomTags } from '@/api/tag'
 import { GetCollaborateComment, GetCollaborateModifiedHistory } from '@/api/collaborate'
@@ -626,7 +626,7 @@ export default {
     CommentSwitch,
     CollaborateCommentPanel,
     NewMyContent,
-    CommonLink,
+    TaskLink,
     ReferPreview,
     CollaborateContent,
     CommonFormHeader,

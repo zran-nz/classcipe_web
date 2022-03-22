@@ -1,36 +1,6 @@
 <template>
   <div class="my-content">
-    <div class="display-type-toggle" v-if="showTabs">
-      <div
-        :class="{'display-type-item': true,
-                 'active-display-type': currentType === typeMap.topic}"
-        v-if="filterTypeList.indexOf(typeMap.topic) !== -1"
-        @click="handleToggleDisplayType(typeMap.topic)">
-        {{ $t('teacher.my-content.topics-type') }}
-      </div>
-      <div
-        :class="{'display-type-item': true,
-                 'active-display-type': currentType === typeMap['unit-plan']}"
-        v-if="filterTypeList.indexOf(typeMap['unit-plan']) !== -1"
-        @click="handleToggleDisplayType(typeMap['unit-plan'])">
-        {{ $t('teacher.my-content.unit-plan-type') }}
-      </div>
-      <div
-        :class="{'display-type-item': true,
-                 'active-display-type': currentType === typeMap.task}"
-        v-if="filterTypeList.indexOf(typeMap.task) !== -1"
-        @click="handleToggleDisplayType(typeMap.task)">
-        {{ $t('teacher.my-content.tasks-type') }}
-      </div>
-      <div
-        :class="{'display-type-item': true,
-                 'active-display-type': currentType === typeMap.evaluation}"
-        v-if="filterTypeList.indexOf(typeMap.evaluation) !== -1"
-        @click="handleToggleDisplayType(typeMap.evaluation)">
-        {{ $t('teacher.my-content.evaluation-type') }}
-      </div>
-    </div>
-    <div class="create-new-action" v-if="showCreate">
+    <div class="create-new-action">
       <div class="create-action" >
         <a-button type="primary" shape="round" icon="plus" :loading="createLoading" @click="handleEnsureCreate">
           Create New {{ currentTypeLabel }}
@@ -67,7 +37,6 @@
               </div>
               <span class="content-info-left">
                 <content-type-icon :type="item.type"/>
-
                 <span class="name-content" >
                   <a-input
                     ref="inputRef"
@@ -101,52 +70,6 @@
                     </div>
                     <div class="action-item" @click="handleEditItem(item)">
                       <span class="btn-text">Edit</span>
-                    </div>
-                  </div>
-                  <div slot="actions" v-if="mode === displayMode.Link">
-                    <div class="action-wrapper">
-                      <div class="action-item">
-                        <a-popconfirm
-                          :title="'Link this content to my Unit' + '?'"
-                          ok-text="Yes"
-                          @confirm="handleLinkItem(item, $event)"
-                          cancel-text="No">
-                          <span>
-                            <a-icon type="form"/> Link
-                          </span>
-                        </a-popconfirm>
-                      </div>
-                    </div>
-                  </div>
-                  <div slot="actions" v-if="mode === displayMode.Refer">
-                    <div class="action-wrapper">
-                      <div class="action-item refer-item">
-                        <a-button class="refer-btn" type="primary" @click="handleReferItem(item, $event)">
-                          <img src="~@/assets/icons/myContent/refer_white.png" class="btn-icon btn-icon-white"/>
-                          <img src="~@/assets/icons/myContent/refer_color.png" class="btn-icon btn-icon-color"/>
-                          <div class="btn-text">
-                            Refer
-                          </div>
-                        </a-button>
-                      </div>
-                    </div>
-                  </div>
-                  <div slot="actions" v-show="mode === displayMode.Evaluation">
-                    <div class="action-wrapper">
-                      <div class="action-item">
-                        <a-popconfirm
-                          :title="'Link ?'"
-                          ok-text="Yes"
-                          @confirm="handleLinkItem(item, $event)"
-                          cancel-text="No">
-                          <div class="link-item">
-                            <img src="~@/assets/icons/myContent/link-icon.png" class="link-icon"/>
-                            {{
-                              'Link this evaluation to this ' + (item.type === typeMap.task ? 'task' : (item.type === typeMap.task ? 'lesson' : ''))
-                            }}
-                          </div>
-                        </a-popconfirm>
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -185,56 +108,6 @@
                   {{ item.createTime | dayjs }}
                 </div>
               </div>
-              <div class="item-action-wrapper">
-                <div v-show="mode === displayMode.Link">
-                  <div class="action-wrapper">
-                    <div class="action-item">
-                      <a-popconfirm
-                        :title="'Link this content to my Unit' + '?'"
-                        ok-text="Yes"
-                        @confirm="handleLinkItem(item, $event)"
-                        cancel-text="No">
-                        <span>
-                          <a-icon type="form"/> Link
-                        </span>
-                      </a-popconfirm>
-                    </div>
-                  </div>
-                </div>
-                <!-- refer mode -->
-                <div v-show="mode === displayMode.Refer">
-                  <div class="action-wrapper">
-                    <div class="action-item refer-item">
-                      <a-button class="refer-btn" type="primary" @click="handleReferItem(item, $event)">
-                        <img src="~@/assets/icons/myContent/refer_white.png" class="btn-icon btn-icon-white"/>
-                        <img src="~@/assets/icons/myContent/refer_color.png" class="btn-icon btn-icon-color"/>
-                        <div class="btn-text">
-                          Refer
-                        </div>
-                      </a-button>
-                    </div>
-                  </div>
-                </div>
-                <!-- refer mode -->
-                <div v-show="mode === displayMode.Evaluation">
-                  <div class="action-wrapper">
-                    <div class="action-item">
-                      <a-popconfirm
-                        :title="'Link ?'"
-                        ok-text="Yes"
-                        @confirm="handleLinkItem(item, $event)"
-                        cancel-text="No">
-                        <div class="link-item">
-                          <img src="~@/assets/icons/myContent/link-icon.png" class="link-icon"/>
-                          {{
-                            'Link this evaluation to this ' + (item.type === typeMap.task ? 'task' : (item.type === typeMap.task ? 'lesson' : ''))
-                          }}
-                        </div>
-                      </a-popconfirm>
-                    </div>
-                  </div>
-                </div>
-              </div>
               <div class="card-action-icon">
                 <img
                   src="~@/assets/icons/lesson/selected.png"
@@ -242,23 +115,6 @@
               </div>
             </div>
           </a-list>
-          <div class="group-label">
-            <!-- unit plan下才有term概念,task不显示对应的操作和term名称-->
-            <template v-if="fromType === typeMap['unit-plan']">
-              <template v-if="groupNameMode === 'select'">
-                <div class="choose-label">Choose category</div>
-                <a-select :getPopupContainer="trigger => trigger.parentElement" :default-value="defaultGroupName" style="width: 100%" v-model="selectedGroup">
-                  <a-select-option :value="groupNameItem" v-for="(groupNameItem, gIndex) in groupNameList" :key="gIndex">
-                    {{ groupNameItem }}
-                  </a-select-option>
-                </a-select>
-              </template>
-              <template v-if="groupNameMode === 'input'">
-                <div class="choose-label">Category name</div>
-                <a-input v-model="groupName" />
-              </template>
-            </template>
-          </div>
           <div class="modal-ensure-action-line">
             <a-button class="action-item action-cancel" shape="round" @click="handleCancel">Cancel</a-button>
             <a-button
@@ -309,20 +165,16 @@
 import * as logger from '@/utils/logger'
 import UnitPlanPreview from '@/components/UnitPlan/UnitPlanPreview'
 import MaterialPreview from '@/components/Material/MaterialPreview'
-import { Associate, FindMyContent, Rename } from '@/api/teacher'
-import { FavoritesGetMyFavorites } from '@/api/favorites'
+import { Associate, AssociateCancel, FindMyContent, Rename } from '@/api/teacher'
 import { getLabelNameType, ownerMap, typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { MyContentEvent, MyContentEventBus } from '@/components/MyContent/MyContentEventBus'
-import DisplayMode from '@/components/MyContent/DisplayMode'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import PuBuIcon from '@/assets/icons/library/pubu.svg?inline'
 import ListModeIcon from '@/assets/icons/library/liebiao .svg?inline'
 import { EvaluationAddOrUpdate } from '@/api/evaluation'
 import { TaskAddOrUpdate } from '@/api/task'
-import { UnitPlanAddOrUpdate } from '@/api/unitPlan'
-import { TopicAddOrUpdate } from '@/api/topic'
 import CommonPreviewNoLink from '@/components/Common/CommonPreviewNoLink'
 
 export default {
@@ -338,53 +190,25 @@ export default {
     ListModeIcon
   },
   props: {
-    filterTypeList: {
-      type: Array,
-      default: () => []
+    filterType: {
+      type: Number,
+      required: true
     },
     selectedList: {
       type: Array,
       default: () => []
     },
-    mode: {
+    fromId: {
       type: String,
-      default: DisplayMode.Link
-    },
-    selectedType: {
-      type: String,
-      default: 'created-by-me'
-    },
-    currentId: {
-      type: String,
-      default: ''
+      required: true
     },
     fromType: {
       type: Number,
       required: true
     },
-    fromId: {
+    groupName: {
       type: String,
       required: true
-    },
-    defaultGroupName: {
-      type: String,
-      default: null
-    },
-    groupNameList: {
-      type: Array,
-      required: true
-    },
-    groupNameMode: {
-      type: String,
-      default: 'select'
-    },
-    showTabs: {
-      type: Boolean,
-      default: true
-    },
-    showCreate: {
-      type: Boolean,
-      default: true
     },
     noSelectedTips: {
       type: String,
@@ -398,7 +222,6 @@ export default {
       createLoading: false,
       loadFailed: false,
       myContentList: [],
-      displayMode: DisplayMode,
       currentStatus: 'all-status',
       currentStatusLabel: this.$t('teacher.my-content.all-status'),
       currentType: null,
@@ -414,7 +237,7 @@ export default {
         onChange: page => {
           logger.info('pagination onChange', page)
           this.pageNo = page
-          this.loadMyContent()
+          this.getMyContent()
         },
         showTotal: total => `Total ${total} items`,
         total: 0,
@@ -432,54 +255,22 @@ export default {
       mySelectedList: [],
       mySelectedMap: new Map(),
 
-      selectedGroup: null,
-      groupName: null,
       editId: '',
-      ensureLoading: false
-    }
-  },
-  watch: {
-    selectedType (value) {
-      this.$logger.info('watch select type ' + value)
-      this.pageNo = 1
-      this.myContentList = []
-      this.pagination.total = 0
-      this.pagination.pageSize = 8
-      this.loadMyContent()
-    },
-    groupNameList (value) {
-      this.$logger.info('groupNameList', value)
+      ensureLoading: false,
+      waitAddAssociateMap: new Map(),
+      waitCancelAssociateMap: new Map()
     }
   },
   created () {
-    this.$logger.info('NewMyContent filterTypeList', this.filterTypeList)
-    this.$logger.info('NewMyContent groupNameList', this.groupNameList)
-    if (this.filterTypeList.length) {
-      this.currentType = this.filterTypeList[0]
-      this.currentTypeLabel = getLabelNameType(this.filterTypeList[0])
-    }
+    this.$logger.info('NewMyContent filterType', this.filterType)
+    this.currentType = this.filterType
+    this.currentTypeLabel = getLabelNameType(this.filterType)
     this.$logger.info('currentTypeLabel ' + this.currentTypeLabel)
     this.$logger.info('NewMyContent selectedList', this.selectedList)
-    this.mySelectedList = this.selectedList
-    this.selectedGroup = this.defaultGroupName
-    this.groupName = this.defaultGroupName // task下只有一个默认隐藏的分组,所以默认选第一个
-    this.loadMyContent()
+    this.mySelectedList = this.selectedList.slice()
+    this.getMyContent()
   },
   methods: {
-    loadMyContent () {
-      this.loading = true
-      if (this.createdType === 'Created by me') {
-        this.getMyContent()
-      } else if (this.createdType === 'My Favorite') {
-        this.getMyFavorites()
-      } else if (this.createdType === 'Shared') {
-        this.loading = false
-        this.skeletonLoading = false
-        this.$logger.info('shared coming soon!')
-      } else {
-        this.getMyContent()
-      }
-    },
 
     handleToggleDataListMode (mode) {
       this.$logger.info('handleToggleDataListMode' + mode)
@@ -487,14 +278,10 @@ export default {
     },
 
     getMyContent () {
-      const typeList = []
-      this.filterTypeList.forEach(item => {
-        typeList.push(typeMap[item])
-      })
+      this.loading = true
       FindMyContent({
         owner: ownerMap[this.currentOwner],
-        // status: statusMap[this.currentStatus],
-        types: this.currentType ? [this.currentType] : typeList,
+        types: [this.currentType],
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize,
         currentId: this.currentId
@@ -521,50 +308,6 @@ export default {
         })
       })
     },
-
-    getMyFavorites () {
-      this.$logger.info('getMyFavorites')
-      FavoritesGetMyFavorites({
-        type: this.currentType,
-        pageNo: this.pageNo,
-        pageSize: this.pagination.pageSize
-      }).then((res) => {
-        this.$logger.info('FavoritesGetMyFavorites response', res)
-        if (res.result && res.result.records && res.result.records.length) {
-          res.result.records.forEach((record, index) => {
-            record.key = index
-          })
-          this.myContentList = res.result.records
-          this.pagination.total = res.result.total
-          this.pagination.current = res.result.current
-        } else {
-          this.myContentList = []
-          this.pagination.total = 0
-        }
-      }).finally(() => {
-        this.loading = false
-        this.skeletonLoading = false
-      })
-    },
-    toggleStatus (status, label) {
-      logger.info('toggleStatus ' + status + ' label ' + label)
-      this.currentStatus = status
-      this.currentStatusLabel = label
-      this.loadMyContent()
-    },
-    toggleType (type, label) {
-      logger.info('toggleType ' + type + ' label ' + label)
-      this.currentType = type
-      this.currentTypeLabel = label
-      this.loadMyContent()
-    },
-    toggleOwner (owner, label) {
-      logger.info('toggleOwner ' + owner + ' label ' + label)
-      this.currentOwner = owner
-      this.currentOwnerLabel = label
-      this.loadMyContent()
-    },
-
     handleLinkItem (item, event) {
       logger.info('handleLinkItem', item)
       event.preventDefault()
@@ -573,10 +316,12 @@ export default {
       const index = this.mySelectedList.indexOf(itemId)
       if (index !== -1) {
         this.mySelectedList.splice(index, 1)
-        this.mySelectedMap.delete(itemId)
+        this.waitCancelAssociateMap.set(itemId, item)
+        this.waitAddAssociateMap.delete(itemId)
       } else {
         this.mySelectedList.push(itemId)
-        this.mySelectedMap.set(itemId, item)
+        this.waitAddAssociateMap.set(itemId, item)
+        this.waitCancelAssociateMap.delete(itemId)
       }
     },
     handleViewDetail (item, event) {
@@ -610,7 +355,7 @@ export default {
     handleToggleType (type) {
       this.$logger.info('handleToggleType ' + type)
       this.createdType = type
-      this.loadMyContent()
+      this.getMyContent()
     },
 
     handleToggleDisplayType (type) {
@@ -624,15 +369,7 @@ export default {
       }
 
       this.$logger.info('after handleToggleDisplayType' + this.currentType)
-      this.loadMyContent()
-    },
-
-    handleCreateNew () {
-      this.$logger.info('handleCreateNew')
-      // if (this.createNewNameMode === 'hide') {
-      //   this.createNewName = ''
-      // }
-      // this.createNewNameMode = this.createNewNameMode === 'input' ? 'hide' : 'input'
+      this.getMyContent()
     },
 
     handleEnsureCreate () {
@@ -648,8 +385,8 @@ export default {
           this.createNewNameMode = 'input'
           const itemId = this.typeMap.evaluation + '-' + this.editId
           this.mySelectedList.push(itemId)
-          this.mySelectedMap.set(itemId, { id: this.editId, type: this.typeMap.evaluation })
-          this.loadMyContent()
+          this.waitAddAssociateMap.set(itemId, { id: this.editId, type: this.typeMap.evaluation })
+          this.getMyContent()
         }).finally(() => {
           this.createLoading = false
         })
@@ -662,34 +399,14 @@ export default {
           this.createNewNameMode = 'input'
           const itemId = this.typeMap.task + '-' + this.editId
           this.mySelectedList.push(itemId)
-          this.mySelectedMap.set(itemId, { id: this.editId, type: this.typeMap.task })
-          this.loadMyContent()
+          this.waitAddAssociateMap.set(itemId, { id: this.editId, type: this.typeMap.task })
+          this.getMyContent()
         }).finally(() => {
           this.createLoading = false
         })
-      } else if (this.currentType === this.typeMap['unit-plan']) {
-        UnitPlanAddOrUpdate({
-          name: this.createNewName
-        }).then((response) => {
-          this.$logger.info('UnitPlanAddOrUpdate response', response)
-          this.editId = response.result.id
-          this.createNewNameMode = 'input'
-          const itemId = this.typeMap['unit-plan'] + '-' + this.editId
-          this.mySelectedList.push(itemId)
-          this.mySelectedMap.set(itemId, { id: this.editId, type: this.typeMap['unit-plan'] })
-          this.loadMyContent()
-        }).finally(() => {
-          this.createLoading = false
-        })
-      } else if (this.currentType === this.typeMap.topic) {
-        TopicAddOrUpdate({
-          name: this.createNewName
-        }).then((response) => {
-          this.$logger.info('TopicAddOrUpdate response', response)
-          this.loadMyContent()
-        }).finally(() => {
-          this.createLoading = false
-        })
+      } else {
+        this.$logger.info('handleEnsureCreate currentType is not supported')
+        this.$message.warn('handleEnsureCreate currentType is not supported')
       }
     },
 
@@ -697,54 +414,61 @@ export default {
       this.$emit('cancel')
     },
 
-    handleEnsure () {
-      this.$logger.info('handleEnsure add group associate' + this.selectedGroup, this.groupNameList, this.mySelectedMap, this.groupName)
-      if (!this.mySelectedMap.size) {
-        this.$message.warn(this.noSelectedTips)
-      } else if ((this.groupNameMode === 'select' && !this.selectedGroup)) {
-        this.$message.warn('No group be selected!')
-      } else {
+    async handleEnsure () {
+      this.$logger.info('handleEnsure waitCancelAssociateMap', this.waitAddAssociateMap, 'waitCancelAssociateMap', this.waitCancelAssociateMap)
+      if (this.waitCancelAssociateMap.size || this.waitAddAssociateMap.size) {
         // 开始关联数据
-        const groupName = this.groupNameMode === 'input' ? this.groupName : (this.selectedGroup.length > 0 ? this.selectedGroup : '')
-        const postData = {
+        const associateData = {
           fromId: this.fromId,
           fromType: this.fromType,
-          groupName: groupName,
+          groupName: this.groupName,
           otherContents: []
         }
 
-        for (const [id, item] of this.mySelectedMap) {
-          this.$logger.info('ensure ' + id, item)
-          postData.otherContents.push({
-            toId: item.id,
-            toType: item.type
-          })
+        for (const [id, item] of this.waitAddAssociateMap) {
+          if (this.selectedList.indexOf(id) === -1) {
+            associateData.otherContents.push({
+              toId: item.id,
+              toType: item.type
+            })
+          } else {
+            this.$logger.info('handleEnsure waitAddAssociateMap item is selected skip ' + id, item, this.selectedList)
+          }
         }
 
-        this.$logger.info('associate data', postData)
+        const cancelAssociateData = {
+          fromId: this.fromId,
+          fromType: this.fromType,
+          others: []
+        }
+
+        for (const [id, item] of this.waitCancelAssociateMap) {
+          if (this.selectedList.indexOf(id) !== -1) {
+            cancelAssociateData.others.push({
+              toId: item.id,
+              toType: item.type
+            })
+          } else {
+            this.$logger.info('handleEnsure waitCancelAssociateMap item is no selected skip ' + id, item, this.selectedList)
+          }
+        }
         this.ensureLoading = true
-        Associate(postData).then((response) => {
-          this.$message.success('Associate successfully!')
-          this.$emit('ensure', postData)
-        }).finally(() => { this.ensureLoading = false })
+        this.$logger.info('associate data', associateData)
+        if (associateData.otherContents.length) {
+          await Associate(associateData)
+        }
+        this.$logger.info('cancelAssociateData data', cancelAssociateData)
+        if (cancelAssociateData.others.length) {
+          await AssociateCancel(cancelAssociateData)
+        }
+        this.ensureLoading = false
+        this.$emit('ensure')
       }
     },
     handleEditItem (item) {
       logger.info('handleEditItem', item)
       if (item.type === typeMap['unit-plan']) {
         window.open('/teacher/unit-plan-redirect/' + item.id
-          , '_blank')
-      } else if (item.type === typeMap['topic']) {
-        window.open('/expert/topic-redirect/' + item.id
-          , '_blank')
-      } else if (item.type === typeMap['material']) {
-        window.open('/teacher/add-material/' + item.id
-          , '_blank')
-      } else if (item.type === typeMap.task) {
-        window.open('/teacher/task-redirect/' + item.id
-          , '_blank')
-      } else if (item.type === typeMap.lesson) {
-        window.open('/teacher/lesson-redirect/' + item.id
           , '_blank')
       } else if (item.type === typeMap.evaluation) {
         window.open('/teacher/evaluation-redirect/' + item.id
