@@ -6,9 +6,6 @@
         <template v-if="getKnowledgeListType(TagType.skill).length > 0" >
           <div class="objectives-list" v-for="(k,index) in getKnowledgeListType(TagType.skill)" :key="index">
             <div class="objectives-list-item objectives-list-item-skill objectives-list-item-top-fixed">
-              <!--              <a-breadcrumb separator=">">-->
-              <!--                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>-->
-              <!--              </a-breadcrumb>-->
               <div class="skt-description" @dblclick="handleAddTag(k)">
                 <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
               </div>
@@ -77,34 +74,37 @@
           {{ $classcipe.get21stCenturyDisplayNameByCurriculum($store.getters.bindCurriculum) }}
         </div>
         <template v-if="getKnowledgeListType(TagType.century).length > 0" >
-          <div class="objectives-list" v-for="(k,index) in getKnowledgeListType(TagType.century)" :key="index">
-            <div class="objectives-list-item objectives-list-item-21 objectives-list-item-top-fixed" @click="handleActiveDescription(TagType.century,k)">
-              <div class="skt-description skt-description-21" @dblclick="handleAddTag(k)">
-                <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
-              </div>
-              <div
-                v-if="k.tagType === TagType.century"
-                class="actions">
-                <span class="add-action" @click.stop.prevent="handleAddTag(k)">
-                  <img src="~@/assets/icons/tag/add.png"/>
-                </span>
-                <span class="up-down">
-                  <a-icon type="up" v-if="k.tagListVisible"/>
-                  <a-icon type="down" v-else />
-                </span>
-              </div>
-              <a-divider style="margin: 10px 0px" v-if="k.tagListVisible" />
-              <div class="skt-description-tag-list" v-if="k.tagListVisible">
-                <div :class="{'tag-list-item': true,'skill-mode': true}" v-for="name in k.tags" :key="name">
-                  <a-tag class="tag-item" :closable="true" @close="handleDeleteTag(k,name)">{{ name }}</a-tag>
+          <div class='category-item' v-for='categoryItem in getCenturyCategoryList(TagType.century)' :key='categoryItem.categoryName'>
+            <div class='category-name'><a-icon type="tag" /> {{ categoryItem.categoryName }}</div>
+            <div class="objectives-list" v-for="(k,index) in categoryItem.list" :key="index">
+              <div class="objectives-list-item objectives-list-item-21 objectives-list-item-top-fixed" @click="handleActiveDescription(TagType.century,k)">
+                <div class="skt-description skt-description-21" @dblclick="handleAddTag(k)">
+                  <a-tooltip :title="k.hasOwnProperty('displayPath') ? k.displayPath : k.path"> {{ k.name }}</a-tooltip>
+                </div>
+                <div
+                  v-if="k.tagType === TagType.century"
+                  class="actions">
+                  <span class="add-action" @click.stop.prevent="handleAddTag(k)">
+                    <img src="~@/assets/icons/tag/add.png"/>
+                  </span>
+                  <span class="up-down">
+                    <a-icon type="up" v-if="k.tagListVisible"/>
+                    <a-icon type="down" v-else />
+                  </span>
+                </div>
+                <a-divider style="margin: 10px 0px" v-if="k.tagListVisible" />
+                <div class="skt-description-tag-list" v-if="k.tagListVisible">
+                  <div :class="{'tag-list-item': true,'skill-mode': true}" v-for="name in k.tags" :key="name">
+                    <a-tag class="tag-item" :closable="true" @close="handleDeleteTag(k,name)">{{ name }}</a-tag>
+                  </div>
                 </div>
               </div>
+              <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(k)" cancel-text="No">
+                <span class="delete-action" >
+                  <img src="~@/assets/icons/tag/delete.png"/>
+                </span>
+              </a-popconfirm>
             </div>
-            <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(k)" cancel-text="No">
-              <span class="delete-action" >
-                <img src="~@/assets/icons/tag/delete.png"/>
-              </span>
-            </a-popconfirm>
           </div>
         </template>
         <div class='customize-objectives-list'>
@@ -410,6 +410,58 @@
         } else {
           return this.knowledgeList.filter(item => item.tagType === type)
         }
+      },
+
+      // 21世纪的数据需要根据学科分类显示
+      getCenturyCategoryList (type) {
+        const list = this.getKnowledgeListType(type)
+        this.$logger.info('getCenturyCategoryList list ', list)
+        const categoryDataMap = new Map()
+        categoryDataMap.set('Others', [])
+        list.forEach(item => {
+          if (item.path) {
+            if (item.path.indexOf('>') !== -1) {
+              const pathArray = item.path.split('>')
+              const categoryName = pathArray[1]
+              item.displayPath = pathArray.slice(2).join('>')
+              if (categoryDataMap.has(categoryName)) {
+                categoryDataMap.get(categoryName).push(item)
+              } else {
+                categoryDataMap.set(categoryName, [item])
+              }
+            } else {
+              const categoryName = item.path
+              item.displayPath = item.path
+              if (categoryDataMap.has(categoryName)) {
+                categoryDataMap.get(categoryName).push(item)
+              } else {
+                categoryDataMap.set(categoryName, [item])
+              }
+            }
+          } else {
+            categoryDataMap.get('Others').push(item)
+          }
+        })
+
+        const categoryDataList = []
+        for (const [key, value] of categoryDataMap) {
+          if (value && value.length > 0 && key !== 'Others') {
+            categoryDataList.push({
+              categoryName: key,
+              list: value
+            })
+          }
+        }
+
+        // others放到最后
+        if (categoryDataMap.get('Others').length > 0) {
+          categoryDataList.push({
+            categoryName: 'Others',
+            list: categoryDataMap.get('Others')
+          })
+        }
+        this.$logger.info('getCenturyCategoryList ', categoryDataList)
+        return categoryDataList
       },
 
       removeDisabled(item) {
@@ -786,5 +838,13 @@
       border: 1px solid #D7E0E9;
       box-shadow: 0 0 0 2px rgba(215, 224, 225, 0.2);
     }
+  }
+
+  .category-name {
+    line-height: 25px;
+    padding-bottom: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #999;
   }
 </style>
