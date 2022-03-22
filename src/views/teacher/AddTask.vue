@@ -153,8 +153,8 @@
                               :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.TaskType}" />
                             <a-form-model-item class='task-audio-line' ref='taskType' :colon='false'>
                               <div slot='label'>
-                                {{ 'Choose Task Type' | taskLabelName(taskField.Overview, $store.getters.formConfigData) }}
-                                <a-tooltip :title="'Choose Task Type' | taskLabelHint(taskField.Overview, $store.getters.formConfigData)" placement='top'>
+                                {{ 'Choose Task Type' | taskLabelName(taskField.TaskType, $store.getters.formConfigData) }}
+                                <a-tooltip :title="'Choose Task Type' | taskLabelHint(taskField.TaskType, $store.getters.formConfigData)" placement='top'>
                                   <a-icon type="info-circle" />
                                 </a-tooltip>
                               </div>
