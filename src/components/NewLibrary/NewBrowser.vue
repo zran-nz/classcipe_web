@@ -373,7 +373,6 @@
           <new-tree-navigation
             :select-mode="selectMode"
             :question-index="questionIndex"
-            :sync-data="syncData"
             :show-menu="showMenu"
             :default-grade-id="defaultGradeId"
             :default-active-menu="defaultActiveMenu"
@@ -430,10 +429,6 @@ export default {
     questionIndex: {
       type: String,
       default: null
-    },
-    syncData: {
-      type: Array,
-      default: () => []
     },
     showMenu: {
       type: Array,
@@ -549,7 +544,6 @@ export default {
 
       item.list.forEach(dataItem => {
         recommendIdList.push(dataItem.knowledgeId)
-
         if (dataItem.tagType === TagType.skill || dataItem.tagType === TagType.ibSkill || dataItem.tagType === TagType.idu) {
           item.skillList.push(dataItem)
         } else if (dataItem.tagType === TagType.century) {

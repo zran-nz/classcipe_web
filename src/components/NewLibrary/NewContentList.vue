@@ -30,24 +30,12 @@
           :key="index">
           <div class="name" :style="{width: nameWidth + 'px'}" @click="handleContentListItemClick(item)">
             <div class="icon">
-              <template v-if="item.type">
-                <content-type-icon :type="item.type" />
-              </template>
-              <template v-else>
-                <a-icon type="folder" theme="filled" class="file-dir-icon"/>
-              </template>
+              <a-icon type="folder" theme="filled" class="file-dir-icon"/>
             </div>
             <a-tooltip placement="top" >
-              <template slot="title" v-if="item.hasOwnProperty('froms')">{{ item.froms }}</template>
               <template slot="title" v-if="item.gradeNames && item.gradeNames.length > 0">{{ item.gradeNames | gradeFormat }}</template>
               <div class="name-text">
                 {{ item.name || item.description }}
-              </div>
-              <div class="collapse-item" v-if="item.hasOwnProperty('froms')">
-                <a-tag class="tag-item" v-for="(tag,tIndex) in item.tags" :key="tIndex">
-                  {{ tag }}
-                </a-tag>
-                <a-icon class="collapse-icon" type="down" />
               </div>
             </a-tooltip>
             <div class="action-icon">
@@ -224,30 +212,7 @@ export default {
         return
       }
 
-      if (this.currentDataType === NavigationType.sync) {
-        // 同步更新点击sync data数据，通过当前字段是否包含froms来区分sync和大纲描述
-        this.$logger.info('handle sync handleContentListItemClick', item)
-        const index = this.selectedKnowledgeIdList.indexOf(item.knowledgeId)
-        if (index !== -1) {
-          this.selectedKnowledgeIdList.splice(index, 1)
-          this.selectedKnowledgeIdNameMap.delete(item.knowledgeId)
-        } else {
-          this.selectedKnowledgeIdList.push(item.knowledgeId)
-          this.selectedKnowledgeIdNameMap.set(item.knowledgeId, item.name, item.tagType, item.tags)
-        }
-        const selectedList = []
-        this.selectedKnowledgeIdList.forEach(knowledgeId => {
-          selectedList.push({
-            dataType: this.currentDataType,
-            knowledgeId: knowledgeId,
-            name: this.selectedKnowledgeIdNameMap.get(knowledgeId),
-            tagType: item.tagType,
-            tags: item.tags
-          })
-        })
-        this.$emit('select-sync', selectedList)
-        this.$logger.info('selectedKnowledgeIdNameMap', this.selectedKnowledgeIdNameMap)
-      } else if (this.currentDataType === NavigationType.learningOutcomes) {
+      if (this.currentDataType === NavigationType.learningOutcomes) {
         // 同步更新点击大纲描述数据
         if (item.children.length || (item.gradeList && item.gradeList.length) || item.hasOwnProperty('gradeList')) {
           // 如果有子列表，表示还未到最后一层description，通知左侧导航栏更新同步层级

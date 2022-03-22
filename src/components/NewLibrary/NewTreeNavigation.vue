@@ -72,10 +72,6 @@ export default {
       type: String,
       default: null
     },
-    syncData: {
-      type: Array,
-      default: () => []
-    },
     showMenu: {
       type: Array,
       default: () => []
@@ -156,16 +152,6 @@ export default {
         sort: 2,
         backgroundColor: 'fade(@primary-color, 10%)'
       }
-      const syncData = {
-        expandStatus: false,
-        type: NavigationType.sync,
-        name: 'Sync learning objectives with linked content',
-        children: [],
-        defaultGradeId: this.defaultGradeId,
-        parent: null,
-        sort: 2,
-        backgroundColor: 'rgba(19, 194, 194, 0.2)'
-      }
       const all21CenturyData = {
         id: '1',
         expandStatus: false,
@@ -176,13 +162,6 @@ export default {
         parent: null,
         sort: 2,
         backgroundColor: '#D7E0E9'
-      }
-      if (this.syncData && this.syncData.length) {
-        syncData.children = this.syncData
-        this.treeDataList.push(syncData)
-        this.$logger.info('syncData treeDataList', this.treeDataList)
-      } else {
-        this.$logger.info('no sync data, ignore it')
       }
       Promise.all([
         SubjectTree({ curriculumId: this.defaultCurriculumId ? this.defaultCurriculumId : this.$store.getters.bindCurriculum }),
