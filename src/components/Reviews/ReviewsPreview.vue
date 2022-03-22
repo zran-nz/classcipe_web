@@ -26,7 +26,7 @@
           All rating
         </a-select-option>
         <a-select-option :value="item" v-for="item in [ 5,4,3,2,1]" :key="'rate_choose_'+ item">
-          {{ item }} rating
+          {{ item }} star
         </a-select-option>
       </a-select>
     </div>
