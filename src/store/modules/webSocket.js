@@ -34,7 +34,6 @@ const websocket = {
       state.needRefreshCollaborate = needRefreshCollaborate
     },
     SET_REMOVED_COLLABORATE: (state, removedCollaborate) => {
-      alert(removedCollaborate)
       state.removedCollaborate = removedCollaborate
     }
   },

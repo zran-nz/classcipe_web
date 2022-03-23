@@ -578,10 +578,12 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
     },
     watch: {
       needRefreshCollaborate: function (newValue) {
-        if (newValue) {
           this.$store.dispatch('refreshCollaborate', false)
           this.loadMyContent()
-        }
+      },
+      removedCollaborate: function (newValue) {
+          this.$store.dispatch('removedCollaborate', false)
+          this.loadMyContent()
       }
     },
     created () {
