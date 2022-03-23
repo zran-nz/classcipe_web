@@ -57,12 +57,8 @@
                           </div>
 
                           <!--关联班级以及开课时间 -->
-                          <div class='form-block link-class' v-if='fieldItem.visible && fieldItem.fieldName === taskField.TaskClassList' :key='fieldItem.fieldName'>
-                            <div class='link-class-tips' v-show='!isOwner && form.taskClassList.length'>
-                              Only the author of the current task can modify the class
-                            </div>
+                          <div class='form-block link-class' v-if='isOwner && fieldItem.visible && fieldItem.fieldName === taskField.TaskClassList' :key='fieldItem.fieldName'>
                             <div class='linked-class-list' v-for='(classItem, cIdx) in form.taskClassList' :key='cIdx'>
-                              <div class='mask' v-show='!isOwner'></div>
                               <div class='class-type-tag' v-if='classItem.classType === 1'>
                                 <a-tag color="#F4B183">
                                   Classcipe International School
