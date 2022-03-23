@@ -1623,6 +1623,11 @@
             </div>
           </div>
         </div>
+        <div class='dont-remind-me'>
+          <a-checkbox v-model='dontRemindMe' @change='handleDontRemindMe'>
+            Don't remind me again.
+          </a-checkbox>
+        </div>
         <div class='slide-action row-flex-center'>
           <div class='slide-btn-wrapper'>
             <a-button
@@ -2157,7 +2162,9 @@ export default {
       quickSessionClassItem: null,
 
       // sub task 当前激活的字段
-      currentSubTaskFocusFieldName: null
+      currentSubTaskFocusFieldName: null,
+
+      dontRemindMe: false
     }
   },
   computed: {
@@ -2280,6 +2287,8 @@ export default {
     AddMaterialEventBus.$on(ModalEventsNameEnum.DELETE_MEDIA_ELEMENT, data => {
       this.deleteMaterial(data)
     })
+
+    this.dontRemindMe = !!window.localStorage.getItem('dontRemindMe_' + this.$store.getters.email)
   },
   beforeDestroy() {
     MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
@@ -2542,7 +2551,7 @@ export default {
         this.form.status = status
       }).then(() => {
         if (status === 1) {
-          this.selectedSlideVisible = true
+          this.selectedSlideVisible = !this.dontRemindMe
           this.$message.success(this.$t('teacher.add-task.publish-success'))
         } else {
           this.$message.success('Unpublish successfully')
@@ -2862,10 +2871,14 @@ export default {
         this.getClassInfo(this.form.presentationId)
 
         if (this.currentActiveStepIndex === 2 && this.thumbnailList.length > 1) {
-          this.selectedSlideVisible = true
-          this.currentTaskFormData = JSON.parse(JSON.stringify(this.form))
-          // 只展示选中ppt的标签
-          this.currentTaskFormData.customTags = []
+          if (this.dontRemindMe) {
+            this.handleAddTaskWithSlide()
+          } else {
+            this.selectedSlideVisible = true
+            this.currentTaskFormData = JSON.parse(JSON.stringify(this.form))
+            // 只展示选中ppt的标签
+            this.currentTaskFormData.customTags = []
+          }
         } else {
           this.currentTaskFormData = null
         }
@@ -3488,9 +3501,13 @@ export default {
         }, 100)
 
         if (current === 2 && this.thumbnailList.length > 1) {
-          this.showSubTaskDetail = false
-          this.$logger.info('click step 2.1', current, this.thumbnailList)
-          this.selectedSlideVisible = true
+          if (this.dontRemindMe) {
+            this.handleAddTaskWithSlide()
+          } else {
+            this.showSubTaskDetail = false
+            this.$logger.info('click step 2.1', current, this.thumbnailList)
+            this.selectedSlideVisible = true
+          }
         }
 
         if (current === 1 && this.form.taskMode === 2 && !this.form.presentationId) {
@@ -4269,6 +4286,13 @@ export default {
         window.open('https://' + materialItem.link, '_blank')
       } else {
         this.$message.warn('Please enter a valid URL')
+      }
+    },
+
+    handleDontRemindMe () {
+      this.$logger.info('handleDontRemindMe', this.dontRemindMe)
+      if (this.dontRemindMe) {
+        window.localStorage.setItem('dontRemindMe_' + this.$store.getters.email, 'true')
       }
     }
   }
@@ -6830,5 +6854,14 @@ export default {
     cursor: pointer;
     width: 20px;
   }
+}
+
+.dont-remind-me {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  line-height: 30px;
 }
 </style>
