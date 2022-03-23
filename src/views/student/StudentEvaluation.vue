@@ -488,7 +488,7 @@ export default {
           this.handleSaveEvaluation()
           setTimeout(() => {
             next()
-          }, 500)
+          }, 1500)
         },
         onCancel() {
           next()

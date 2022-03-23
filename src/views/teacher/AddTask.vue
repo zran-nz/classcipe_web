@@ -9,7 +9,7 @@
         :last-change-saved-time='lastChangeSavedTime'
         @view-collaborate='handleViewCollaborate'
         @back='goBack'
-        @save='handleSaveTask'
+        @save='handleSaveTask(true)'
         @share='handleShareTask'
         @publish='handlePublishTask'
         @collaborate='handleStartCollaborate'
@@ -2240,10 +2240,8 @@ export default {
           cancelText: 'No',
           content: 'Do you want to save the changes?',
           onOk: function() {
-            that.handleSaveTask()
-            setTimeout(() => {
-              next()
-            }, 500)
+            that.handleSaveTask(false)
+            next()
           },
           onCancel() {
             next()
@@ -2288,8 +2286,6 @@ export default {
     MyContentEventBus.$off(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
     LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
     LibraryEventBus.$off(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
-    // logger.debug('beforeDestroy, try save!')
-    // this.handleSaveTask()
   },
   methods: {
     initData() {
@@ -2465,7 +2461,7 @@ export default {
       }
     },
 
-    handleSaveTask() {
+    async handleSaveTask(isBack) {
       logger.info('handleSaveTask', this.form, this.questionDataObj)
 
       if (this.subTasks.length > 0) {
@@ -2517,23 +2513,19 @@ export default {
           taskData.customFieldData = JSON.stringify(taskData.customFieldData)
         }
         logger.info('basic taskData', taskData)
-        TaskAddOrUpdate(taskData).then((response) => {
-          logger.info('TaskAddOrUpdate', response.result)
-          if (response.success) {
-            // this.restoreTask(response.result.id, false)
-            this.oldForm = JSON.parse(JSON.stringify(this.form))
-            this.$message.success(this.$t('teacher.add-task.save-success'))
+        const response = await TaskAddOrUpdate(taskData)
+        logger.info('TaskAddOrUpdate', response.result)
+        if (response.success) {
+          // this.restoreTask(response.result.id, false)
+          this.oldForm = JSON.parse(JSON.stringify(this.form))
+          this.$message.success(this.$t('teacher.add-task.save-success'))
+          if (isBack) {
             this.handleBack()
-            // this.$router.push({ path: '/teacher/main/created-by-me' })
-            // this.selectedSlideVisibleFromSave = true
-          } else {
-            this.$message.error(response.message)
           }
-        }).finally(() => {
-          // this.selectedSlideVisible = true
-          // this.$refs.commonFormHeader.saving = false
-          this.handleSaveContentEvent(this.taskId, this.contentType.task, this.oldForm)
-        })
+        } else {
+          this.$message.error(response.message)
+        }
+        this.handleSaveContentEvent(this.taskId, this.contentType.task, this.oldForm)
       }
     },
     handlePublishTask(status) {
@@ -4036,7 +4028,7 @@ export default {
         if (response.success) {
           this.$message.success('add successfully')
           this.subTasks = []
-          this.handleSaveTask()
+          this.handleSaveTask(true)
         } else {
           this.$message.error(response.message)
         }

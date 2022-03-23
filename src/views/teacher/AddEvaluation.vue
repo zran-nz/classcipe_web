@@ -9,7 +9,7 @@
         :last-change-saved-time="lastChangeSavedTime"
         @update-form="handleUpdateForm"
         @back="goBack"
-        @save="handleSaveEvaluation"
+        @save="handleSaveEvaluation(true)"
         @publish="handlePublishEvaluation"
       />
     </div>
@@ -308,10 +308,8 @@ export default {
         cancelText: 'No',
         content: 'Do you want to save the changes?',
         onOk: () => {
-          this.handleSaveEvaluation()
-          setTimeout(() => {
-            next()
-          }, 500)
+          this.handleSaveEvaluation(false)
+          next()
         },
         onCancel() {
           next()
@@ -603,7 +601,7 @@ export default {
         this.$router.push({ path: '/teacher/main/created-by-me' })
       }, 500)
     },
-    handleSaveEvaluation () {
+    async handleSaveEvaluation (isBack) {
       this.$logger.info('handleSaveEvaluation', this.form)
       if (this.$refs.commonFormHeader) {
         this.$refs.commonFormHeader.saving = true
@@ -639,22 +637,7 @@ export default {
           }
           return false
         } else {
-          EvaluationAddOrUpdate(this.form).then((response) => {
-            this.$logger.info('EvaluationAddOrUpdate', response)
-            if (this.$refs.commonFormHeader) {
-              this.$refs.commonFormHeader.saving = false
-            }
-            if (response.success) {
-              this.$message.success('Save successfully!')
-              this.initCompleted = false
-              this.goBack()
-            } else {
-              this.$message.error(response.message)
-            }
-          })
-        }
-      } else {
-        EvaluationAddOrUpdate(this.form).then((response) => {
+          const response = await EvaluationAddOrUpdate(this.form)
           this.$logger.info('EvaluationAddOrUpdate', response)
           if (this.$refs.commonFormHeader) {
             this.$refs.commonFormHeader.saving = false
@@ -662,11 +645,28 @@ export default {
           if (response.success) {
             this.$message.success('Save successfully!')
             this.initCompleted = false
-            this.goBack()
+            if (isBack) {
+              this.goBack()
+            }
           } else {
             this.$message.error(response.message)
           }
-        })
+        }
+      } else {
+        const response = await EvaluationAddOrUpdate(this.form)
+        this.$logger.info('EvaluationAddOrUpdate', response)
+        if (this.$refs.commonFormHeader) {
+          this.$refs.commonFormHeader.saving = false
+        }
+        if (response.success) {
+          this.$message.success('Save successfully!')
+          this.initCompleted = false
+          if (isBack) {
+            this.goBack()
+          }
+        } else {
+          this.$message.error(response.message)
+        }
         if (this.$refs.commonFormHeader) {
           this.$refs.commonFormHeader.saving = false
         }
