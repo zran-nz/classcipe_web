@@ -254,7 +254,7 @@ export default {
     // 根据已展开的行查询数据（用于保存后刷新时异步加载子级的数据）
     loadDataByExpandedRows (dataList) {
       if (this.expandedRowKeys.length > 0) {
-        return getAction(this.url.getChildListBatch, { parentIds: this.expandedRowKeys.join(',') }).then(res => {
+        return getAction(this.url.getChildListBatch, { parentIds: this.expandedRowKeys.join(','), schoolId: this.$store.getters.userInfo.school }).then(res => {
           if (res.success && res.result.records.length > 0) {
             // 已展开的数据批量子节点
             const records = res.result.records
@@ -338,6 +338,7 @@ export default {
           params[this.pidField] = record.id
           params.hasQuery = 'false'
           params.superQueryParams = ''
+          params.sId = this.$store.getters.userInfo.school
           getAction(this.url.childList, params).then((res) => {
             if (res.success) {
               if (res.result.records) {
