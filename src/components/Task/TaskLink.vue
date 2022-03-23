@@ -314,8 +314,8 @@ export default {
     },
     handleEditLinkItem (item) {
       logger.info('handleEditLinkItem', item)
-      if (item.type === typeMap.task) {
-        window.open('/teacher/task-redirect/' + item.id, '_blank')
+      if (item.type === typeMap['unit-plan']) {
+        window.open('/teacher/unit-plan-redirect/' + item.id, '_blank')
       } else if (item.type === typeMap.evaluation) {
         window.open('/teacher/evaluation-redirect/' + item.id, '_blank')
       }
