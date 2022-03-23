@@ -56,6 +56,8 @@ import PermissionHelper from '@/core/permission/permission'
 import './directives/action'
 import './directives/hasRole'
 import './directives/exCludeRole'
+import './directives/selectPopover'
+import './directives/clickOutside'
 
 // logger
 import * as logger from '@/utils/logger'

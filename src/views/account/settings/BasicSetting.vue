@@ -1,221 +1,282 @@
 <template>
-  <div class="account-settings-info-view">
-    <div class="loading-wrapper">
-      <a-spin size="large" v-if="loading"/>
-    </div>
-
-    <div v-show="!loading" class="edit-action-wrapper" v-if="!editMode">
-      <div class="edit-action" @click="editMode = !editMode">
-        <a-icon type="edit"/>
-        Edit
+  <a-row type="flex" style="flex-wrap: nowrap;">
+    <a-col class="account-settings-info-view" flex="auto">
+      <div class="loading-wrapper">
+        <a-spin size="large" v-if="loading"/>
       </div>
-    </div>
 
-    <avatar-modal ref="modal" @ok="setAvatar" v-show="!loading"/>
-
-    <a-row :gutter="[16, 16]" v-show="!loading">
-      <a-col span="16" :style="{ minHeight: '180px' }" class="username-line">
-        <div class="ant-upload-preview" @click="$refs.modal.edit(1)">
-          <a-icon type="cloud-upload-o" class="upload-icon"/>
-          <div class="mask">
-            <a-icon type="plus"/>
-          </div>
-          <img :src="userInfo.avatar" v-if="userInfo.avatar"/>
-          <img src="~@/assets/icons/library/default-avatar.png" v-else/>
+      <div v-show="!loading" class="edit-action-wrapper" v-if="!editMode">
+        <div class="edit-action" @click="editMode = !editMode">
+          <a-icon type="edit"/>
+          Edit
         </div>
-        <div style="width: 100%">
-          <div class="user-name">
-            <h1 v-if="!editMode">{{ userInfo.nickname }}</h1>
-            <div class="edit-user-name" v-if="editMode">
-              <a-input v-model="userInfo.tempNickname" size="large" :maxLength="80"/>
+      </div>
+
+      <avatar-modal ref="modal" @ok="setAvatar" v-show="!loading"/>
+
+      <a-row :gutter="[16, 16]" v-show="!loading">
+        <a-col span="16" :style="{ minHeight: '180px' }" class="username-line">
+          <div class="ant-upload-preview" @click="$refs.modal.edit(1)">
+            <a-icon type="cloud-upload-o" class="upload-icon"/>
+            <div class="mask">
+              <a-icon type="plus"/>
             </div>
+            <img :src="userInfo.avatar" v-if="userInfo.avatar"/>
+            <img src="~@/assets/icons/library/default-avatar.png" v-else/>
           </div>
-          <a-icon type="profile" style="margin-left: 30px" />&nbsp;&nbsp;{{ userInfo.email }}
-        </div>
-
-      </a-col>
-
-    </a-row>
-    <a-divider v-show="!loading"/>
-    <a-row :gutter="[16, 16]" v-show="!loading">
-      <a-col span="24">
-        <!--        role-->
-        <div class="profile-item-line">
-          <div class="profile-label">
-            <span class="label-txt">Role : </span>
-          </div>
-          <div class="profile-text profile-data">
-            {{ userInfo.currentRole.substr(0, 1).toUpperCase() + userInfo.currentRole.substr(1) }}
-          </div>
-        </div>
-
-        <!--        time-->
-        <div class="profile-item-line">
-          <div class="profile-label">
-            <span class="label-txt">Member since :</span>
-          </div>
-          <div class="profile-text profile-data">
-            {{ userInfo.createTime | dayjs }}
-          </div>
-        </div>
-
-        <!--        expert-->
-        <div class="profile-item-line" v-if="$store.getters.currentRole === 'expert'">
-          <div class="profile-label">
-            <span class="label-txt">Area(s) :</span>
-          </div>
-          <div class="profile-text profile-data" v-if="!editMode">
-            <div class="profile-tag-item" v-for="(areaName,index) in userInfo.areaNameList" :key="index">
-              <a-tag>{{ areaName }}</a-tag>
-            </div>
-            <template v-if="userInfo.others && userInfo.others.length">
-              <div
-                class="profile-tag-item"
-                v-for="(otherName,index) in userInfo.others"
-                :key="'o' + index">
-                <a-tag color="#108ee9">{{ otherName }}</a-tag>
+          <div style="width: 100%">
+            <div class="user-name">
+              <h1 v-if="!editMode">{{ userInfo.nickname }}</h1>
+              <div class="edit-user-name" v-if="editMode">
+                <a-input v-model="userInfo.tempNickname" size="large" :maxLength="80"/>
               </div>
-            </template>
+            </div>
+            <a-icon type="profile" style="margin-left: 30px" />&nbsp;&nbsp;{{ userInfo.email }}
           </div>
-          <div class="profile-input profile-data" v-if="editMode">
-            <a-select :getPopupContainer="trigger => trigger.parentElement" v-model="userInfo.areaIds" placeholder="Please select" mode="multiple">
-              <a-select-option
-                :value="areaOption.id"
-                v-for="areaOption in areaOptions"
-                :key="areaOption.id"
-                @click.native="handleSelectAreaOption(areaOption)">{{ areaOption.name }}
-              </a-select-option>
-            </a-select>
-            <a-input
-              class="area-input"
-              v-if="currentArea && currentArea.name === 'Others'"
-              v-model="userInfo.tempOthers"
-              placeholder="Please input"/>
-          </div>
-        </div>
-        <!--        curriculum-->
-        <div class="profile-item-line" v-if="$store.getters.currentRole === 'teacher'">
-          <div class="profile-label">
-            <span class="label-txt">Curriculum :</span>
-          </div>
-          <div class="profile-text profile-data" v-if="!editMode">
-            {{ userInfo.curriculumName }}
-          </div>
-          <div class="profile-input profile-data" v-if="editMode">
-            <a-select :getPopupContainer="trigger => trigger.parentElement" v-model="userInfo.curriculumId" placeholder="Please select curriculum">
-              <a-select-option
-                :value="curriculumOption.id"
-                v-for="curriculumOption in curriculumOptions"
-                :key="curriculumOption.id"
-                @click.native="handleSelectCurriculumOption(curriculumOption)">{{
-                  curriculumOption.name
-                }}
-              </a-select-option>
-            </a-select>
-          </div>
-        </div>
 
-        <!--        subject-->
-        <div class="profile-item-line" v-hasRole="['teacher', 'student']">
-          <div class="profile-label">
-            <span class="label-txt">Subject(s) :</span>
-          </div>
-          <div class="profile-text profile-data" v-if="!editMode">
-            <div class="profile-tag-item" v-for="(subjectName,index) in userInfo.subjectNameList" :key="index">
-              <a-tag>{{ subjectName }}</a-tag>
+        </a-col>
+
+      </a-row>
+      <a-divider v-show="!loading"/>
+      <a-row :gutter="[16, 16]" v-show="!loading">
+        <a-col span="24">
+          <!--        role-->
+          <div class="profile-item-line">
+            <div class="profile-label">
+              <span class="label-txt">Role : </span>
+            </div>
+            <div class="profile-text profile-data">
+              {{ userInfo.currentRole.substr(0, 1).toUpperCase() + userInfo.currentRole.substr(1) }}
             </div>
           </div>
-          <div class="profile-input profile-data" v-if="editMode">
-            <a-select :getPopupContainer="trigger => trigger.parentElement" v-model="userInfo.subjectIds" mode="multiple">
-              <a-select-option :value="subject.id" v-for="subject in subjectOptionsFilter" :key="subject.id">{{ subject.name }}</a-select-option>
-            </a-select>
-          </div>
-        </div>
 
-        <!--        age-->
-        <div class="profile-item-line" v-hasRole="['student']">
-          <div class="profile-label">
-            <span class="label-txt">Age : </span>
-          </div>
-          <div class="profile-text profile-data" v-if="!editMode">
-            {{ userInfo.age }}
-          </div>
-          <div class="profile-input profile-data" v-if="editMode">
-            <a-select :getPopupContainer="trigger => trigger.parentElement" v-model="userInfo.age" placeholder="Please select age">
-              <a-select-option :value="ageOption" v-for="ageOption in ageList" :key="'age_'+ageOption">
-                {{ ageOption }}
-              </a-select-option>
-            </a-select>
-          </div>
-        </div>
-
-        <!--        grade-->
-        <div class="profile-item-line" v-if="$store.getters.currentRole === 'teacher'">
-          <div class="profile-label">
-            <span class="label-txt">Level/Grade :</span>
-          </div>
-          <div class="profile-text profile-data" v-if="!editMode">
-            <div class="profile-tag-item" v-for="(gradeName,index) in userInfo.gradeNameList" :key="index">
-              <a-tag>{{ gradeName }}</a-tag>
+          <!--        time-->
+          <div class="profile-item-line">
+            <div class="profile-label">
+              <span class="label-txt">Member since :</span>
+            </div>
+            <div class="profile-text profile-data">
+              {{ userInfo.createTime | dayjs }}
             </div>
           </div>
-          <div class="profile-input profile-data" v-if="editMode">
-            <a-select :getPopupContainer="trigger => trigger.parentElement" v-model="userInfo.gradeIds" placeholder="Please select grade" mode="multiple">
-              <a-select-option :value="gradeOption.id" v-for="gradeOption in gradeOptions" :key="gradeOption.id">
-                {{ gradeOption.name }}
-              </a-select-option>
-            </a-select>
+
+          <!--        expert-->
+          <div class="profile-item-line" v-if="$store.getters.currentRole === 'expert'">
+            <div class="profile-label">
+              <span class="label-txt">Area(s) :</span>
+            </div>
+            <div class="profile-text profile-data" v-if="!editMode">
+              <div class="profile-tag-item" v-for="(areaName,index) in userInfo.areaNameList" :key="index">
+                <a-tag>{{ areaName }}</a-tag>
+              </div>
+              <template v-if="userInfo.others && userInfo.others.length">
+                <div
+                  class="profile-tag-item"
+                  v-for="(otherName,index) in userInfo.others"
+                  :key="'o' + index">
+                  <a-tag color="#108ee9">{{ otherName }}</a-tag>
+                </div>
+              </template>
+            </div>
+            <div class="profile-input profile-data" v-if="editMode">
+              <a-select :getPopupContainer="trigger => trigger.parentElement" v-model="userInfo.areaIds" placeholder="Please select" mode="multiple">
+                <a-select-option
+                  :value="areaOption.id"
+                  v-for="areaOption in areaOptions"
+                  :key="areaOption.id"
+                  @click.native="handleSelectAreaOption(areaOption)">{{ areaOption.name }}
+                </a-select-option>
+              </a-select>
+              <a-input
+                class="area-input"
+                v-if="currentArea && currentArea.name === 'Others'"
+                v-model="userInfo.tempOthers"
+                placeholder="Please input"/>
+            </div>
           </div>
-        </div>
-
-        <!-- Customized tags -->
-        <div class="profile-item-line" v-if="$store.getters.currentRole === 'teacher'">
-          <div class="profile-label">
-            <span class="label-txt">Customized tags :</span>
+          <!--        curriculum-->
+          <div class="profile-item-line" v-if="$store.getters.currentRole === 'teacher'">
+            <div class="profile-label">
+              <span class="label-txt">Curriculum :</span>
+            </div>
+            <div class="profile-text profile-data" v-if="!editMode">
+              {{ userInfo.curriculumName }}
+            </div>
+            <div class="profile-input profile-data" v-if="editMode">
+              <a-select :getPopupContainer="trigger => trigger.parentElement" v-model="userInfo.curriculumId" placeholder="Please select curriculum">
+                <a-select-option
+                  :value="curriculumOption.id"
+                  v-for="curriculumOption in curriculumOptions"
+                  :key="curriculumOption.id"
+                  @click.native="handleSelectCurriculumOption(curriculumOption)">{{
+                    curriculumOption.name
+                  }}
+                </a-select-option>
+              </a-select>
+            </div>
           </div>
 
-          <div class="profile-text profile-data">
-            <a slot="extra" href="#" @click="handleSetting"> <a-icon type="edit" />&nbsp;Tags setting</a>
+          <!--        subject-->
+          <div class="profile-item-line" v-hasRole="['teacher', 'student']">
+            <div class="profile-label">
+              <span class="label-txt">Subject(s) :</span>
+            </div>
+            <div class="profile-text profile-data" v-if="!editMode">
+              <div class="profile-tag-item" v-for="(subjectName,index) in userInfo.subjectNameList" :key="index">
+                <a-tag>{{ subjectName }}</a-tag>
+              </div>
+            </div>
+            <div class="profile-input profile-data" v-if="editMode">
+              <a-select :getPopupContainer="trigger => trigger.parentElement" v-model="userInfo.subjectIds" mode="multiple">
+                <a-select-option :value="subject.id" v-for="subject in subjectOptionsFilter" :key="subject.id">{{ subject.name }}</a-select-option>
+              </a-select>
+            </div>
           </div>
-        </div>
 
-        <div class="profile-item-line">
-          <div class="profile-label">
-            <span class="label-txt">Linked School(s):</span>
+          <!--        age-->
+          <div class="profile-item-line" v-hasRole="['student']">
+            <div class="profile-label">
+              <span class="label-txt">Age : </span>
+            </div>
+            <div class="profile-text profile-data" v-if="!editMode">
+              {{ userInfo.age }}
+            </div>
+            <div class="profile-input profile-data" v-if="editMode">
+              <a-select :getPopupContainer="trigger => trigger.parentElement" v-model="userInfo.age" placeholder="Please select age">
+                <a-select-option :value="ageOption" v-for="ageOption in ageList" :key="'age_'+ageOption">
+                  {{ ageOption }}
+                </a-select-option>
+              </a-select>
+            </div>
           </div>
 
-          <div class="profile-text profile-data">
-            <div class='linked-school-name' v-if="$store.getters.schoolName">{{ $store.getters.schoolName }}</div>
-            <div class='no-linked-school-name' v-if="!$store.getters.schoolName">You have not linked to any school</div>
+          <!--        grade-->
+          <div class="profile-item-line" v-if="$store.getters.currentRole === 'teacher'">
+            <div class="profile-label">
+              <span class="label-txt">Level/Grade :</span>
+            </div>
+            <div class="profile-text profile-data" v-if="!editMode">
+              <div class="profile-tag-item" v-for="(gradeName,index) in userInfo.gradeNameList" :key="index">
+                <a-tag>{{ gradeName }}</a-tag>
+              </div>
+            </div>
+            <div class="profile-input profile-data" v-if="editMode">
+              <a-select :getPopupContainer="trigger => trigger.parentElement" v-model="userInfo.gradeIds" placeholder="Please select grade" mode="multiple">
+                <a-select-option :value="gradeOption.id" v-for="gradeOption in gradeOptions" :key="gradeOption.id">
+                  {{ gradeOption.name }}
+                </a-select-option>
+              </a-select>
+            </div>
           </div>
-        </div>
 
-      </a-col></a-row>
+          <!-- Customized tags -->
+          <div class="profile-item-line" v-if="$store.getters.currentRole === 'teacher'">
+            <div class="profile-label">
+              <span class="label-txt">Customized tags :</span>
+            </div>
 
-    <a-row v-show="!loading">
-      <a-col span="24" class="action-line">
-        <div class="submit-action-wrapper" v-if="editMode">
-          <a-button type="primary" :loading="loadSaving" @click="saveDetail">{{ $t('account.settings.basic.update') }}</a-button>
-        </div>
-        <div class="submit-action-wrapper-second" v-if="editMode">
-          <a-button @click="cancelDetail">{{ $t('account.settings.basic.cancel') }}</a-button>
-        </div>
-      </a-col>
-    </a-row>
+            <div class="profile-text profile-data">
+              <a slot="extra" href="#" @click="handleSetting"> <a-icon type="edit" />&nbsp;Tags setting</a>
+            </div>
+          </div>
 
-    <a-modal
-      title="Tags Setting"
-      v-model="settingVisible"
-      :footer="null"
-      destroyOnClose
-      width='600px'
-      :dialog-style="{ top: '20px' }">
-      <div>
-        <tag-setting />
+          <div class="profile-item-line">
+            <div class="profile-label">
+              <span class="label-txt">Linked School(s):</span>
+            </div>
+
+            <div class="profile-text profile-data">
+              <div class='linked-school-name' v-if="$store.getters.schoolName">{{ $store.getters.schoolName }}</div>
+              <div class='no-linked-school-name' v-if="!$store.getters.schoolName">You have not linked to any school</div>
+            </div>
+          </div>
+
+        </a-col></a-row>
+
+      <a-row v-show="!loading">
+        <a-col span="24" class="action-line">
+          <div class="submit-action-wrapper" v-if="editMode">
+            <a-button type="primary" :loading="loadSaving" @click="saveDetail">{{ $t('account.settings.basic.update') }}</a-button>
+          </div>
+          <div class="submit-action-wrapper-second" v-if="editMode">
+            <a-button @click="cancelDetail">{{ $t('account.settings.basic.cancel') }}</a-button>
+          </div>
+        </a-col>
+      </a-row>
+
+      <a-modal
+        title="Tags Setting"
+        v-model="settingVisible"
+        :footer="null"
+        destroyOnClose
+        width='600px'
+        :dialog-style="{ top: '20px' }">
+        <div>
+          <tag-setting />
+        </div>
+      </a-modal>
+
+    </a-col>
+    <!-- <a-col flex="30px">
+      <a-divider type="vertical" style="height: 100%;margin: 0 15px;"/>
+    </a-col>
+    <a-col flex="500px">
+      <div class="account-info" v-if="!$store.getters.schoolName">
+        <div class="account-info-title">
+          Complete the form below to send your principal an email about Classcipe
+        </div>
+        <div class="account-info-sub">
+          <a-button type="link">I'm an administrator ></a-button>
+        </div>
+        <a-form-model class="account-info-form" :layout="userForm.layout" :model="userForm">
+          <a-row :gutter=16>
+            <a-col :span="12">
+              <a-form-model-item label="Your Frist Name">
+                <a-input size="large" v-model="userForm.fistName" placeholder="input your first name" />
+              </a-form-model-item>
+            </a-col>
+            <a-col :span="12">
+              <a-form-model-item label="Your Last Name">
+                <a-input size="large" v-model="userForm.lastName" placeholder="input your last Name" />
+              </a-form-model-item>
+            </a-col>
+          </a-row>
+          <a-form-model-item label="Your Email Address">
+            <a-input size="large" v-model="userForm.email" placeholder="input your email address" />
+          </a-form-model-item>
+          <a-row :gutter=16>
+            <a-col :span="12">
+              <a-form-model-item label="Principal's Frist Name">
+                <a-input size="large" v-model="userForm.principalFirstName" placeholder="input principal's first name" />
+              </a-form-model-item>
+            </a-col>
+            <a-col :span="12">
+              <a-form-model-item label="Principal's Last Name">
+                <a-input size="large" v-model="userForm.principalLastName" placeholder="input principal's last Name" />
+              </a-form-model-item>
+            </a-col>
+          </a-row>
+          <a-form-model-item label="Principal's Email Address">
+            <a-input size="large" v-model="userForm.principalEmail" placeholder="input principal's email address" />
+          </a-form-model-item>
+          <a-form-model-item label="Your School Name">
+            <a-input size="large" v-model="userForm.schoolName" placeholder="input your school name" />
+          </a-form-model-item>
+          <a-form-model-item label="Your Personalized Message (Optional)">
+            <a-input size="large" v-model="userForm.personalizedMessage" placeholder="input your personalized message" />
+          </a-form-model-item>
+          <a-form-model-item style="text-align: right;">
+            <a-button type="primary" html-type="submit">
+              Send
+            </a-button>
+          </a-form-model-item>
+        </a-form-model>
       </div>
-    </a-modal>
-
-  </div>
+      <div style="text-align:center;margin-top: 300px;" v-else>
+        <a-button type="primary">You have not linked to any school</a-button>
+      </div>
+    </a-col> -->
+  </a-row>
 </template>
 
 <script>
@@ -283,7 +344,19 @@ export default {
       settingVisible: false,
       disableQuestion: this.$store.getters.disableQuestion,
       subjectType: SubjectType,
-      ageList: [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+      ageList: [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
+
+      userForm: {
+        layout: 'vertical',
+        fistName: '',
+        lastName: '',
+        email: '',
+        principalFirstName: '',
+        principalLastName: '',
+        principalEmail: '',
+        schoolName: '',
+        personalizedMessage: ''
+      }
     }
   },
   watch: {
@@ -329,6 +402,9 @@ export default {
       })
       if (this.subjectOptions && this.subjectOptions.length > 0 && this.userInfo.subjectIds && this.userInfo.subjectIds.length > 0) {
         this.userInfo.subjectNameList = this.subjectOptions.filter(item => this.userInfo.subjectIds.includes(item.id)).map(item => item.name)
+      }
+      if (this.gradeOptions && this.gradeOptions.length > 0 && this.userInfo.gradeIds && this.userInfo.gradeIds.length > 0) {
+        this.userInfo.gradeNameList = this.gradeOptions.filter(item => this.userInfo.gradeIds.includes(item.id)).map(item => item.name)
       }
       this.$logger.info('user info loaded', this.userInfo)
     },
@@ -772,5 +848,22 @@ export default {
   border: 1px solid #15c39a;
   background: #fff;
   color: #15c39a;
+}
+
+.account-info {
+  position: relative;
+  width: 100%;
+  .account-info-title {
+    font-size: 14px;
+    text-align: left;
+  }
+  .account-info-sub {
+    color: @primary-color;
+    width: 100%;
+    text-align: right;
+  }
+  .account-info-form {
+    margin-top: 20px;
+  }
 }
 </style>

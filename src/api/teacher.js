@@ -27,7 +27,9 @@ export const teacherAPIUrl = {
   FindSourceOutcomes: '/classcipe/api/teacher/findSourceOutcomes',
   FindBigIdeaSourceOutcomes: '/classcipe/api/teacher/findBigIdeaSourceOutcomes',
   ContentRestore: '/classcipe/api/teacher/content/restore',
-  FindPurchases: '/classcipe/api/teacher/findPurchases'
+  FindPurchases: '/classcipe/api/teacher/findPurchases',
+  FindInspirationStudents: '/classcipe/api/teacher/findInspirationStudents',
+  FindInspirationTeachers: '/classcipe/api/teacher/findInspirationTeachers'
 }
 
 /**
@@ -306,6 +308,38 @@ export function ContentRestore (parameter) {
  export function FindPurchases (parameter) {
   return request({
     url: teacherAPIUrl.FindPurchases,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+/**
+ * types
+ * @param parameter
+ * @returns {AxiosPromise}
+ */
+ export function FindInspirationStudents (parameter) {
+  return request({
+    url: teacherAPIUrl.FindInspirationStudents,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+/**
+ * types
+ * @param parameter
+ * @returns {AxiosPromise}
+ */
+ export function FindInspirationTeachers (parameter) {
+  return request({
+    url: teacherAPIUrl.FindInspirationTeachers,
     method: 'post',
     data: parameter,
     headers: {
