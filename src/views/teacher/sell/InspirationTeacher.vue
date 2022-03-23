@@ -94,7 +94,7 @@ import FilterIcon from '@/assets/libraryv2/filter.svg?inline'
 import FilterActiveIcon from '@/assets/libraryv2/filter_active.svg?inline'
 import CollaborateSvg from '@/assets/icons/collaborate/collaborate_group.svg?inline'
 
-import { FindPurchases } from '@/api/teacher'
+import { FindInspirationTeachers } from '@/api/teacher'
 
 import storage from 'store'
 
@@ -174,7 +174,7 @@ export default {
           ...this.filterParams,
           ...pageParams
         }
-        return FindPurchases(params)
+        return FindInspirationTeachers(params)
       }
     }
   },

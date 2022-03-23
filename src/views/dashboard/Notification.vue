@@ -1,12 +1,16 @@
 <template>
   <a-card :bordered="false">
     <div slot="title" class="notification-title">
+      <div class='back' @click='goBack'>
+        <span class='back-icon'>
+          <a-icon type='left' /> Back
+        </span>
+      </div>
       <div>Notification</div>
       <div class="ant-tabs-nav-wrap">
         <div class="ant-tabs-nav-scroll">
           <div class="ant-tabs-nav ant-tabs-nav-animated">
             <div>
-              <!--              ant-tabs-tab-active-->
               <div :class="{'ant-tabs-tab':true,'ant-tabs-tab-active':selectTab === 'all'}" @click="handleSelectTab('all')">All</div>
               <div :class="{'ant-tabs-tab':true,'ant-tabs-tab-active':selectTab === '0'}">
                 <a-badge style="width: 80px;" :count="$store.state.websocket.msgUnreadCount" :overflow-count="999" @click="handleSelectTab('0')">Unread</a-badge>
@@ -230,6 +234,14 @@ export default {
     handleSelectTab(tab) {
       this.selectTab = tab
       this.loadMessageData()
+    },
+    goBack () {
+      if (window.history.length <= 1) {
+        this.$router.push({ path: '/' })
+        return false
+      } else {
+        this.$router.go(-1)
+      }
     }
   }
 }
@@ -404,4 +416,9 @@ export default {
   }
 }
 
+.back {
+  padding-right: 20px;
+  color: #15c39a;
+  cursor: pointer;
+}
 </style>

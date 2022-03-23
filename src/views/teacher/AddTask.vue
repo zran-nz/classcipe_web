@@ -9,7 +9,7 @@
         :last-change-saved-time='lastChangeSavedTime'
         @view-collaborate='handleViewCollaborate'
         @back='goBack'
-        @save='handleSaveTask'
+        @save='handleSaveTask(true)'
         @share='handleShareTask'
         @publish='handlePublishTask'
         @collaborate='handleStartCollaborate'
@@ -57,12 +57,8 @@
                           </div>
 
                           <!--关联班级以及开课时间 -->
-                          <div class='form-block link-class' v-if='fieldItem.visible && fieldItem.fieldName === taskField.TaskClassList' :key='fieldItem.fieldName'>
-                            <div class='link-class-tips' v-show='!isOwner && form.taskClassList.length'>
-                              Only the author of the current task can modify the class
-                            </div>
+                          <div class='form-block link-class' v-if='isOwner && fieldItem.visible && fieldItem.fieldName === taskField.TaskClassList' :key='fieldItem.fieldName'>
                             <div class='linked-class-list' v-for='(classItem, cIdx) in form.taskClassList' :key='cIdx'>
-                              <div class='mask' v-show='!isOwner'></div>
                               <div class='class-type-tag' v-if='classItem.classType === 1'>
                                 <a-tag color="#F4B183">
                                   Classcipe International School
@@ -267,45 +263,50 @@
                                 class='material-item'
                                 v-for='(materialItem, mIndex) in form.materialList'
                                 :key='mIndex'>
-                                <a-row :gutter='[16,16]'>
-                                  <a-col span='8'>
+                                <a-row :gutter='[8, 16]'>
+                                  <a-col span='6'>
                                     <a-input
                                       v-model='materialItem.name'
                                       aria-placeholder='Enter material name'
                                       placeholder='Enter material name'
                                       @change="handleCollaborateEvent(taskId,taskField.MaterialList,form.materialList)"/>
                                   </a-col>
-                                  <a-col span='14'>
-                                    <a-tooltip placement='topLeft'>
+                                  <a-col span='16'>
+                                    <a-tooltip placement='topLeft' :mouseEnterDelay="1">
                                       <template slot='title'>
                                         The link is provided to help other users or students prepare(purchase) the material
                                         for this task
                                       </template>
                                       <a-input
+                                        addon-before="https://"
                                         v-model='materialItem.link'
                                         aria-placeholder='Enter URL'
                                         placeholder='Enter URL'
-                                        @change="handleCollaborateEvent(taskId,taskField.MaterialList,form.materialList)" >
-                                        <a-icon slot='prefix' type='link' />
+                                        @change="handleCollaborateEvent(taskId, taskField.MaterialList, form.materialList)" >
+                                        <a-button
+                                          @click="handleTestWebsiteLink(materialItem)"
+                                          slot='suffix'
+                                          shape='round'
+                                          type='primary'
+                                          size="small"
+                                          :disabled='!materialItem.link'>Test</a-button>
                                       </a-input>
+                                      <span class='url-error-tips' v-show='materialItem.link && !checkUrl(materialItem.link)'>Please enter a valid URL</span>
                                     </a-tooltip>
                                   </a-col>
                                   <a-col span='2'>
                                     <div class='material-icon'>
-                                      <a-icon
-                                        type='plus-circle'
-                                        :style="{ fontSize: '16px' }"
-                                        v-if='mIndex === (form.materialList.length - 1)'
-                                        @click='handleAddMaterial' />
                                       <img
                                         src='~@/assets/icons/evaluation/delete.png'
-                                        v-if='mIndex < (form.materialList.length - 1)'
                                         class='delete-icon'
                                         @click='handleRemoveMaterialItem(materialItem, mIndex)' />
                                     </div>
                                   </a-col>
                                 </a-row>
                               </div>
+                              <span class='add-material-item' v-show='materialListFlag'>
+                                <add-green-icon class='add-input' @click='handleAddMaterial' />
+                              </span>
                             </div>
                           </div>
                         </template>
@@ -1622,6 +1623,11 @@
             </div>
           </div>
         </div>
+        <div class='dont-remind-me'>
+          <a-checkbox v-model='dontRemindMe' @change='handleDontRemindMe'>
+            Don't remind me again.
+          </a-checkbox>
+        </div>
         <div class='slide-action row-flex-center'>
           <div class='slide-btn-wrapper'>
             <a-button
@@ -1897,12 +1903,14 @@ import QuickTaskTemplatePreview from '@/components/Task/QuickTaskTemplatePreview
 import { AddMaterialEventBus, ModalEventsNameEnum } from '@/components/AddMaterial/AddMaterialEventBus'
 import UploadEnter from '@/components/AddMaterial/UploadEnter'
 import { addBatchElements } from '@/api/addMaterial'
+import AddGreenIcon from '@/assets/svgIcon/evaluation/form/tianjia_green.svg?inline'
 
 const { SplitTask } = require('@/api/task')
 
 export default {
   name: 'AddTask',
   components: {
+    AddGreenIcon,
     UploadEnter,
     QuickTaskTemplatePreview,
     QuickSession,
@@ -2154,7 +2162,9 @@ export default {
       quickSessionClassItem: null,
 
       // sub task 当前激活的字段
-      currentSubTaskFocusFieldName: null
+      currentSubTaskFocusFieldName: null,
+
+      dontRemindMe: false
     }
   },
   computed: {
@@ -2209,15 +2219,6 @@ export default {
     }
   },
   watch: {
-    // 'selectedTemplateList': function(value) {
-    //   this.$logger.info('watch selectedTemplateList change ', value)
-    //   if (value.length != this.form.selectedTemplateList.length) {
-    //     if (this.canEdit) {
-    //       this.autoSave()
-    //     }
-    //   }
-    // },
-
     // 自动选择第一个班级的年级为task的默认年级
     'form.taskClassList': {
       handler: function (newVal, oldVal) {
@@ -2237,7 +2238,7 @@ export default {
   beforeRouteLeave(to, from, next) {
     this.$logger.info('beforeRouteLeave', to, from, next)
     // owner或者协同着可以save
-    var that = this
+    const that = this
     if (this.canEdit) {
       if (this.initCompleted && JSON.stringify(this.form) !== JSON.stringify(this.oldForm)) {
         this.$confirm({
@@ -2246,10 +2247,8 @@ export default {
           cancelText: 'No',
           content: 'Do you want to save the changes?',
           onOk: function() {
-            that.handleSaveTask()
-            setTimeout(() => {
-              next()
-            }, 500)
+            that.handleSaveTask(false)
+            next()
           },
           onCancel() {
             next()
@@ -2288,14 +2287,14 @@ export default {
     AddMaterialEventBus.$on(ModalEventsNameEnum.DELETE_MEDIA_ELEMENT, data => {
       this.deleteMaterial(data)
     })
+
+    this.dontRemindMe = !!window.localStorage.getItem('dontRemindMe_' + this.$store.getters.email)
   },
   beforeDestroy() {
     MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
     MyContentEventBus.$off(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
     LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
     LibraryEventBus.$off(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
-    // logger.debug('beforeDestroy, try save!')
-    // this.handleSaveTask()
   },
   methods: {
     initData() {
@@ -2471,7 +2470,7 @@ export default {
       }
     },
 
-    handleSaveTask() {
+    async handleSaveTask(isBack) {
       logger.info('handleSaveTask', this.form, this.questionDataObj)
 
       if (this.subTasks.length > 0) {
@@ -2523,23 +2522,19 @@ export default {
           taskData.customFieldData = JSON.stringify(taskData.customFieldData)
         }
         logger.info('basic taskData', taskData)
-        TaskAddOrUpdate(taskData).then((response) => {
-          logger.info('TaskAddOrUpdate', response.result)
-          if (response.success) {
-            // this.restoreTask(response.result.id, false)
-            this.oldForm = JSON.parse(JSON.stringify(this.form))
-            this.$message.success(this.$t('teacher.add-task.save-success'))
+        const response = await TaskAddOrUpdate(taskData)
+        logger.info('TaskAddOrUpdate', response.result)
+        if (response.success) {
+          // this.restoreTask(response.result.id, false)
+          this.oldForm = JSON.parse(JSON.stringify(this.form))
+          this.$message.success(this.$t('teacher.add-task.save-success'))
+          if (isBack) {
             this.handleBack()
-            // this.$router.push({ path: '/teacher/main/created-by-me' })
-            // this.selectedSlideVisibleFromSave = true
-          } else {
-            this.$message.error(response.message)
           }
-        }).finally(() => {
-          // this.selectedSlideVisible = true
-          // this.$refs.commonFormHeader.saving = false
-          this.handleSaveContentEvent(this.taskId, this.contentType.task, this.oldForm)
-        })
+        } else {
+          this.$message.error(response.message)
+        }
+        this.handleSaveContentEvent(this.taskId, this.contentType.task, this.oldForm)
       }
     },
     handlePublishTask(status) {
@@ -2556,7 +2551,7 @@ export default {
         this.form.status = status
       }).then(() => {
         if (status === 1) {
-          this.selectedSlideVisible = true
+          this.selectedSlideVisible = !this.dontRemindMe
           this.$message.success(this.$t('teacher.add-task.publish-success'))
         } else {
           this.$message.success('Unpublish successfully')
@@ -2876,10 +2871,14 @@ export default {
         this.getClassInfo(this.form.presentationId)
 
         if (this.currentActiveStepIndex === 2 && this.thumbnailList.length > 1) {
-          this.selectedSlideVisible = true
-          this.currentTaskFormData = JSON.parse(JSON.stringify(this.form))
-          // 只展示选中ppt的标签
-          this.currentTaskFormData.customTags = []
+          if (this.dontRemindMe) {
+            this.handleAddTaskWithSlide()
+          } else {
+            this.selectedSlideVisible = true
+            this.currentTaskFormData = JSON.parse(JSON.stringify(this.form))
+            // 只展示选中ppt的标签
+            this.currentTaskFormData.customTags = []
+          }
         } else {
           this.currentTaskFormData = null
         }
@@ -3502,9 +3501,13 @@ export default {
         }, 100)
 
         if (current === 2 && this.thumbnailList.length > 1) {
-          this.showSubTaskDetail = false
-          this.$logger.info('click step 2.1', current, this.thumbnailList)
-          this.selectedSlideVisible = true
+          if (this.dontRemindMe) {
+            this.handleAddTaskWithSlide()
+          } else {
+            this.showSubTaskDetail = false
+            this.$logger.info('click step 2.1', current, this.thumbnailList)
+            this.selectedSlideVisible = true
+          }
         }
 
         if (current === 1 && this.form.taskMode === 2 && !this.form.presentationId) {
@@ -4042,7 +4045,7 @@ export default {
         if (response.success) {
           this.$message.success('add successfully')
           this.subTasks = []
-          this.handleSaveTask()
+          this.handleSaveTask(true)
         } else {
           this.$message.error(response.message)
         }
@@ -4103,7 +4106,8 @@ export default {
     handleAddMaterial() {
       this.form.materialList.push({
         name: null,
-        link: null
+        link: null,
+        error: null
       })
       this.$logger.info('handleAddMaterial', this.form.materialList)
     },
@@ -4261,6 +4265,35 @@ export default {
     },
     deleteMaterial(id) {
       this.$logger.info('addMaterialList', id)
+    },
+    checkUrl(url) {
+      if (url && url.trim()) {
+        const list = url.split('.')
+        if (list.length <= 1) {
+          return false
+        }
+        for (let i = 0; i < list.length; i++) {
+          if (list[i].length < 2) {
+            return false
+          }
+        }
+      }
+      return true
+    },
+
+    handleTestWebsiteLink (materialItem) {
+      if (materialItem.link && this.checkUrl(materialItem.link)) {
+        window.open('https://' + materialItem.link, '_blank')
+      } else {
+        this.$message.warn('Please enter a valid URL')
+      }
+    },
+
+    handleDontRemindMe () {
+      this.$logger.info('handleDontRemindMe', this.dontRemindMe)
+      if (this.dontRemindMe) {
+        window.localStorage.setItem('dontRemindMe_' + this.$store.getters.email, 'true')
+      }
     }
   }
 }
@@ -6807,5 +6840,28 @@ export default {
 
 .common-link-wrapper {
   padding-top: 40px;
+}
+
+.url-error-tips {
+  color: #ff4d4f;
+  font-size: 13px;
+}
+
+.add-material-item {
+  height: 30px;
+  line-height: 30px;
+  svg {
+    cursor: pointer;
+    width: 20px;
+  }
+}
+
+.dont-remind-me {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  line-height: 30px;
 }
 </style>

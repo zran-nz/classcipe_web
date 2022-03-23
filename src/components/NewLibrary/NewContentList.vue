@@ -726,6 +726,7 @@ export default {
       border: 1px solid #fff;
       display: flex;
       flex-direction: row;
+      cursor: pointer;
       flex-wrap: wrap;
       align-items: center;
       padding: 10px;

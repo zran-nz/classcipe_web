@@ -298,13 +298,13 @@ export const asyncRouterMap = [
                 name: 'TeacherSellStatistics',
                 component: () => import('@/views/teacher/sell/Statistics'),
                 meta: { title: 'menu.sell.statistics', keepAlive: true, icon: 'pay-circle', permission: ['teacher'] }
-              },
-              {
-                path: '/teacher/sell/followers',
-                name: 'TeacherSellFollowers',
-                component: () => import('@/views/teacher/sell/Followers'),
-                meta: { title: 'menu.sell.followers', keepAlive: true, icon: 'pay-circle', permission: ['teacher'] }
               }
+              // {
+              //   path: '/teacher/sell/followers',
+              //   name: 'TeacherSellFollowers',
+              //   component: () => import('@/views/teacher/sell/Followers'),
+              //   meta: { title: 'menu.sell.followers', keepAlive: true, icon: 'pay-circle', permission: ['teacher'] }
+              // }
             ]
           }
         ]

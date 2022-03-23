@@ -10,7 +10,7 @@
         @back='goBack'
         @collaborate='handleStartCollaborate'
         @publish='handlePublishUnitPlan'
-        @save='handleSaveUnitPlan'
+        @save='handleSaveUnitPlan(true)'
         @share='handleShareUnitPlan'
         @view-collaborate='handleViewCollaborate'
       />
@@ -1252,10 +1252,8 @@ export default {
           cancelText: 'No',
           content: 'Do you want to save the changes?',
           onOk: function() {
-            that.handleSaveUnitPlan()
-            setTimeout(() => {
-              next()
-            }, 500)
+            that.handleSaveUnitPlan(false)
+            next()
           },
           onCancel() {
             next()
@@ -1346,8 +1344,6 @@ export default {
     MyContentEventBus.$off(MyContentEvent.ReferContentItem, this.handleReferItem)
     LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
     LibraryEventBus.$off(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
-    // logger.debug('beforeDestroy, try save!')
-    // this.handleSaveUnitPlan()
   },
   methods: {
     initData() {
@@ -1628,7 +1624,7 @@ export default {
       this.$logger.info('after handleAddSkillTag questionDataObj ' + data.questionIndex, this.questionDataObj[data.questionIndex])
     },
 
-    handleSaveUnitPlan() {
+    async handleSaveUnitPlan(isBack) {
       logger.info('handleSaveUnitPlan', this.form, this.sdgDataObj, this.questionDataObj)
       this.cleaPageCache()
       const unitPlanData = Object.assign({}, this.form)
@@ -1649,21 +1645,20 @@ export default {
         unitPlanData.customFieldData = JSON.stringify(unitPlanData.customFieldData)
       }
       logger.info('basic unitPlanData', unitPlanData)
-      UnitPlanAddOrUpdate(unitPlanData).then((response) => {
-        logger.info('UnitPlanAddOrUpdate', response.result)
-        if (response.success) {
-          // 为了保存提示去掉
-          this.oldForm = JSON.parse(JSON.stringify(this.form))
-          // this.restoreUnitPlan(response.result.id, false)
-          this.$message.success(this.$t('teacher.add-unit-plan.save-success'))
+      const response = await UnitPlanAddOrUpdate(unitPlanData)
+      logger.info('UnitPlanAddOrUpdate', response.result)
+      if (response.success) {
+        // 为了保存提示去掉
+        this.oldForm = JSON.parse(JSON.stringify(this.form))
+        // this.restoreUnitPlan(response.result.id, false)
+        this.$message.success(this.$t('teacher.add-unit-plan.save-success'))
+        if (isBack) {
           this.handleBack()
-        } else {
-          this.$message.error(response.message)
         }
-      }).then(() => {
-        // this.$refs.commonFormHeader.saving = false
-        this.handleSaveContentEvent(this.unitPlanId, this.contentType['unit-plan'], this.oldForm)
-      })
+      } else {
+        this.$message.error(response.message)
+      }
+      this.handleSaveContentEvent(this.unitPlanId, this.contentType['unit-plan'], this.oldForm)
     },
     handlePublishUnitPlan(status) {
       this.$logger.info('handlePublishUnitPlan', {

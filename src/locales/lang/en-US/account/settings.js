@@ -60,7 +60,7 @@ export default {
   'account.settings.notification.todo-description': 'The to-do list will be notified in the form of a letter from the station',
   'account.settings.settings.open': 'Open',
   'account.settings.settings.close': 'Close',
-  'account.settings.avatar.edit': 'Change your avatar',
+  'account.settings.avatar.edit': 'Update your profile image',
   'account.settings.avatar.select-image': 'Select image',
   'account.settings.avatar.save-image': 'Save image'
 }
