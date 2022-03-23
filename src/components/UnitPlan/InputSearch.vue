@@ -6,7 +6,8 @@
       @keyup="handleSearch"
       @focus="handleSearch"
       class="my-form-input"
-      placeholder="Describe how the Unit/Topic matches with the chosen goal by giving real life context" />
+      placeholder="Describe how the Unit/Topic matches with the chosen goal by giving real life context"
+      :disabled="!canEdit" />
     <a-spin v-if="fetching" slot="notFoundContent" size="small" />
     <div class="search-list-wrapper" v-if="showSearchListFlag">
       <ul class="search-list" >
@@ -41,6 +42,10 @@ export default {
     searchList: {
       type: Array,
       default: () => []
+    },
+    canEdit: {
+      type: Boolean,
+      default: true
     }
   },
   computed: {

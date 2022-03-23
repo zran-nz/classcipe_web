@@ -489,6 +489,7 @@ import PSSvg from '@/assets/svgIcon/myContent/previous_session.svg'
 import CollaborateSvg from '@/assets/icons/collaborate/collaborate_group.svg'
 import { FindMyClasses } from '@/api/evaluation'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
+import { mapState } from 'vuex'
 
 export const SHARED_VIEW_MODE = 'view_mode_shared'
 
@@ -569,11 +570,16 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
         lastedRevisionId: ''
       }
     },
-    computed: {},
+    computed: {
+      ...mapState({
+        needRefreshCollaborate: state => state.websocket.needRefreshCollaborate,
+        removedCollaborate: state => state.websocket.removedCollaborate
+      })
+    },
     watch: {
-      '$store.state.websocket.needRefreshCollaborate': function (newValue) {
+      needRefreshCollaborate: function (newValue) {
         if (newValue) {
-          this.$store.dispatch('refreshCollaborate', '')
+          this.$store.dispatch('refreshCollaborate', false)
           this.loadMyContent()
         }
       }

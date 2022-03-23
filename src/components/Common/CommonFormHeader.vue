@@ -155,6 +155,7 @@ import CollaborateUserIcon from '@/assets/icons/collaborate/collaborate_user.svg
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { typeMap } from '@/const/teacher'
 import EditIcon from '@/assets/svgIcon/evaluation/bianji.svg?inline'
+import { mapActions, mapState } from 'vuex'
 
 export default {
   name: 'CommonFormHeader',
@@ -225,7 +226,11 @@ export default {
         return this.collaborateUserList[index].permissions === 'Edit'
       }
       return false
-    }
+    },
+    ...mapState({
+      needRefreshCollaborate: state => state.websocket.needRefreshCollaborate,
+      removedCollaborate: state => state.websocket.removedCollaborate
+    })
   },
   watch: {
     collaborate(val) {
@@ -238,11 +243,20 @@ export default {
       console.log('update is share ' + val)
       this.isShare = val === 1
     },
-    '$store.state.websocket.needRefreshCollaborate': function (newValue) {
-      if (newValue && newValue.indexOf(this.form.id) > -1) {
-        this.$store.dispatch('refreshCollaborate', '')
+    needRefreshCollaborate: function (newValue) {
+      if (newValue && newValue.indexOf(this.form.id) > -1 && this.isOwner) {
+        this.$store.dispatch('refreshCollaborate', false)
+        // this.refreshCollaborate('false')
         this.handleStartCollaborate()
       }
+    },
+    removedCollaborate: function (newValue) {
+      alert(newValue)
+      // if (newValue && newValue.indexOf(this.form.id) > -1 && this.isOwner) {
+      //   this.$store.dispatch('refreshCollaborate', false)
+      //   // this.refreshCollaborate('false')
+      //   this.handleStartCollaborate()
+      // }
     }
   },
   created() {
@@ -255,13 +269,14 @@ export default {
     setTimeout(() => {
       // 判断是否打开协同框
       const needRefreshCollaborate = this.$store.state.websocket.needRefreshCollaborate
-      if (needRefreshCollaborate && needRefreshCollaborate.indexOf(this.form.id) > -1) {
-        this.$store.dispatch('refreshCollaborate', '')
+      if (needRefreshCollaborate && needRefreshCollaborate.indexOf(this.form.id) > -1 && this.owner) {
+        this.$store.dispatch('refreshCollaborate', false)
         this.handleStartCollaborate()
       }
     }, 3000)
   },
   methods: {
+    ...mapActions(['refreshCollaborate']),
     formatUserList(users) {
       let userList = [({ userName: this.owner.nickname, userAvatar: this.owner.avatar, email: this.owner.email })]
       userList = userList.concat(users.filter(user => this.onlineUsers.indexOf(user.email) > -1 && user.email !== this.owner.email))

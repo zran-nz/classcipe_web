@@ -10,7 +10,7 @@
                 <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
               </div>
             </div>
-            <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(k)" cancel-text="No">
+            <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(k)" cancel-text="No" v-if="canEdit">
               <span class="delete-action" >
                 <img src="~@/assets/icons/tag/delete.png"/>
               </span>
@@ -22,12 +22,12 @@
             class="objectives-input-item objectives-input-item-skill"
             v-for='(skillInput, sIdx) in skillInputList'
             :key='sIdx'>
-            <a-input v-model='skillInput.name' class='skill-input' placeholder='Type in your learning objective'/>
-            <a-popconfirm title="Delete?" ok-text="Yes" @confirm='handleDeleteSkill(skillInput)' cancel-text="No">
+            <a-input v-model='skillInput.name' class='skill-input' placeholder='Type in your learning objective' :disabled="!canEdit"/>
+            <a-popconfirm title="Delete?" ok-text="Yes" @confirm='handleDeleteSkill(skillInput)' cancel-text="No" v-if="canEdit">
               <img class='self-out-delete-icon' src="~@/assets/icons/tag/delete.png" alt=''/>
             </a-popconfirm>
           </div>
-          <div class='customize-objectives-list-add-btn'>
+          <div class='customize-objectives-list-add-btn' v-if="canEdit">
             <a-tooltip title="Type in your learning objective" placement="right">
               <add-green-icon class='add-input input-icon' @click='handleAddNew(TagType.skill, skillInputList)'/>
             </a-tooltip>
@@ -44,7 +44,7 @@
                 <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
               </div>
             </div>
-            <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(k)" cancel-text="No">
+            <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(k)" cancel-text="No" v-if="canEdit">
               <span class="delete-action" >
                 <img src="~@/assets/icons/tag/delete.png"/>
               </span>
@@ -56,13 +56,13 @@
             class="objectives-input-item objectives-input-item-skill"
             v-for='(knowledgeInput, sIdx) in knowledgeInputList'
             :key='sIdx'>
-            <a-input v-model='knowledgeInput.name' class='knowledge-input' placeholder='Type in your learning objective'/>
-            <a-popconfirm title="Delete?" ok-text="Yes" @confirm='handleDeleteKnowledge(knowledgeInput)' cancel-text="No">
+            <a-input v-model='knowledgeInput.name' class='knowledge-input' placeholder='Type in your learning objective' :disabled="!canEdit"/>
+            <a-popconfirm title="Delete?" ok-text="Yes" @confirm='handleDeleteKnowledge(knowledgeInput)' cancel-text="No" v-if="canEdit">
               <img class='self-out-delete-icon' src="~@/assets/icons/tag/delete.png" />
             </a-popconfirm>
           </div>
-          <div class='customize-objectives-list-add-btn'>
-            <a-tooltip title="Type in your learning objective" placement="right">
+          <div class='customize-objectives-list-add-btn' v-if="canEdit">
+            <a-tooltip title="Type in your learning objective" placement="right" >
               <add-green-icon class='add-input input-icon' @click='handleAddNew(TagType.knowledge, knowledgeInputList)'/>
             </a-tooltip>
           </div>
@@ -99,7 +99,7 @@
                   </div>
                 </div>
               </div>
-              <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(k)" cancel-text="No">
+              <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(k)" cancel-text="No" v-if="canEdit">
                 <span class="delete-action" >
                   <img src="~@/assets/icons/tag/delete.png"/>
                 </span>
@@ -112,12 +112,12 @@
             class="objectives-input-item objectives-input-item-skill"
             v-for='(centuryInput, sIdx) in centuryInputList'
             :key='sIdx'>
-            <a-input v-model='centuryInput.name' class='century-input' placeholder='Type in your learning objective'/>
-            <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteCentury(centuryInput)" cancel-text="No">
+            <a-input v-model='centuryInput.name' class='century-input' placeholder='Type in your learning objective' :disabled="!canEdit"/>
+            <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteCentury(centuryInput)" cancel-text="No" v-if="canEdit">
               <img class='self-out-delete-icon' src="~@/assets/icons/tag/delete.png" />
             </a-popconfirm>
           </div>
-          <div class='customize-objectives-list-add-btn'>
+          <div class='customize-objectives-list-add-btn' v-if="canEdit">
             <a-tooltip title="Type in your learning objective" placement="right">
               <add-green-icon class='add-input input-icon' @click='handleAddNew(TagType.century, centuryInputList)'/>
             </a-tooltip>
@@ -195,6 +195,10 @@
       selfOuts: {
         type: Array,
         default: () => []
+      },
+      canEdit: {
+        type: Boolean,
+        default: true
       }
     },
     mounted () {

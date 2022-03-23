@@ -304,9 +304,6 @@ export default {
       }
     },
     handleViewDetail (item) {
-      if (!this.canEdit) {
-        return
-      }
       logger.info('handleViewDetail', item)
       this.previewCurrentId = item.id
       this.previewType = item.type

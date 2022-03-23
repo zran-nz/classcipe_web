@@ -9,7 +9,8 @@ const websocket = {
     collaborateMsg: null,
     saveContentMsg: null,
     msgUnreadCount: 0,
-    needRefreshCollaborate: ''
+    needRefreshCollaborate: false,
+    removedCollaborate: false
   },
   mutations: {
     [WEBSOCKET_TYPE_INIT]: (state) => {
@@ -31,6 +32,10 @@ const websocket = {
     },
     SET_REFRESH_COLLABORATE: (state, needRefreshCollaborate) => {
       state.needRefreshCollaborate = needRefreshCollaborate
+    },
+    SET_REMOVED_COLLABORATE: (state, removedCollaborate) => {
+      alert(removedCollaborate)
+      state.removedCollaborate = removedCollaborate
     }
   },
   actions: {
@@ -38,7 +43,8 @@ const websocket = {
     receiveMsg: ({ commit }, receiveMsg) => commit(RECEIVE_MSG, receiveMsg),
     receiveCollaborate: ({ commit }, collaborateMsg) => commit(COLLABORATE, collaborateMsg),
     receiveSaveContentMsg: ({ commit }, saveContentMsg) => commit(SAVE_CONTENT, saveContentMsg),
-    refreshCollaborate: ({ commit }, needRefreshCollaborate) => commit('SET_REFRESH_COLLABORATE', needRefreshCollaborate)
+    refreshCollaborate: ({ commit }, needRefreshCollaborate) => commit('SET_REFRESH_COLLABORATE', needRefreshCollaborate),
+    removedCollaborate: ({ commit }, removedCollaborate) => commit('SET_REMOVED_COLLABORATE', removedCollaborate)
   }
 }
 

@@ -35,7 +35,6 @@
                     :status="currentActiveStepIndex === 0 ? 'process':'wait'">
                     <template slot='description'>
                       <div class='step-detail' v-show='currentActiveStepIndex === 0'>
-                        <div class='mask' v-show='!canEdit'></div>
                         <template v-for='fieldItem in $store.getters.formConfigData.taskCommonList'>
                           <div class='form-block tag-content-block' :data-field-name='taskField.Name' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Name' :key='fieldItem.fieldName'>
                             <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Name />
@@ -52,7 +51,7 @@
                                   <a-icon type="info-circle" />
                                 </a-tooltip>
                               </template>
-                              <a-input v-model='form.name' placeholder='Enter Task Name' class='my-form-input' @change="handleCollaborateEvent(taskId,'name',form.name)" />
+                              <a-input v-model='form.name' placeholder='Enter Task Name' class='my-form-input' @change="handleCollaborateEvent(taskId,'name',form.name)" :disabled="!canEdit" />
                             </a-form-item>
                           </div>
 
@@ -135,7 +134,13 @@
                                   <a-icon type="info-circle" />
                                 </a-tooltip>
                               </template>
-                              <a-textarea autoSize v-model='form.overview' placeholder='Details' allow-clear @change="handleCollaborateEvent(taskId,taskField.Overview,form.overview)" />
+                              <a-textarea
+                                autoSize
+                                v-model='form.overview'
+                                placeholder='Details'
+                                allow-clear
+                                @change="handleCollaborateEvent(taskId,taskField.Overview,form.overview)"
+                                :disabled="!canEdit"/>
                             </a-form-model-item>
                           </div>
 
@@ -198,6 +203,7 @@
                                 mode='multiple'
                                 placeholder='Choose Key questions'
                                 option-label-prop='label'
+                                :disabled="!canEdit"
                               >
                                 <a-select-option
                                   v-for='(item,index) in associateQuestionList'
@@ -228,7 +234,7 @@
                                   <a-icon type="info-circle" />
                                 </a-tooltip>
                               </template>
-                              <a-button type='primary' @click='handleSelectDescription'>
+                              <a-button type='primary' @click='handleSelectDescription' :disabled="!canEdit">
                                 <div class='btn-text' style='line-height: 20px'>
                                   Add Learning Objectives
                                 </div>
@@ -240,6 +246,7 @@
                               ref='learnOut'
                               :learn-outs='form.learnOuts'
                               :self-outs='form.selfOuts'
+                              :can-edit="canEdit"
                               @remove-learn-outs='handleRemoveLearnOuts' />
                           </div>
 
@@ -252,7 +259,7 @@
                               @switch='handleSwitchComment'
                               :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.MaterialList}" />
                             <div class='form-block-label'>
-                              <a-switch size="small" v-model='materialListFlag' @change='handleMaterialListFlagChange' />
+                              <a-switch size="small" v-model='materialListFlag' @change='handleMaterialListFlagChange' :disabled="!canEdit"/>
                               <div class='label-text'>{{ 'Resources required for hands-on activities' | taskLabelName(taskField.MaterialList, $store.getters.formConfigData) }}</div>
                               <a-tooltip :title="'Resources required for hands-on activities' | taskLabelHint(taskField.MaterialList, $store.getters.formConfigData)" placement='top'>
                                 <a-icon type="info-circle" />
@@ -269,6 +276,7 @@
                                       v-model='materialItem.name'
                                       aria-placeholder='Enter material name'
                                       placeholder='Enter material name'
+                                      :disabled="!canEdit"
                                       @change="handleCollaborateEvent(taskId,taskField.MaterialList,form.materialList)"/>
                                   </a-col>
                                   <a-col span='16'>
@@ -282,6 +290,7 @@
                                         v-model='materialItem.link'
                                         aria-placeholder='Enter URL'
                                         placeholder='Enter URL'
+                                        :disabled="!canEdit"
                                         @change="handleCollaborateEvent(taskId, taskField.MaterialList, form.materialList)" >
                                         <a-button
                                           @click="handleTestWebsiteLink(materialItem)"
@@ -320,7 +329,7 @@
                                   <a-icon type="info-circle" />
                                 </a-tooltip>
                               </template>
-                              <a-input v-model='form.customFieldData[custFieldItem.id]' class='my-form-input' />
+                              <a-input v-model='form.customFieldData[custFieldItem.id]' class='my-form-input' :disabled="!canEdit"/>
                             </a-form-item>
                           </div>
                         </template>
@@ -751,7 +760,6 @@
             </div>
 
             <div class='task-form-right' :style="{'width':rightWidth + 'px'}">
-              <div class='mask' v-show='!canEdit'></div>
               <template v-if='currentActiveStepIndex !== 2'>
                 <template v-if='showRightModule(rightModule.collaborate)'>
                   <a-skeleton :loading='showHistoryLoading' active>
@@ -800,8 +808,9 @@
                         accept='image/png, image/jpeg'
                         :showUploadList='false'
                         :customRequest='handleUploadImage'
+                        :disabled="!canEdit"
                       >
-                        <div class='delete-img' @click='handleDeleteImage($event)' v-show='form.image'>
+                        <div class='delete-img' @click='handleDeleteImage($event)' v-show='form.image' v-if="canEdit">
                           <a-icon type='close-circle' />
                         </div>
                         <template v-if='uploading'>
@@ -2450,6 +2459,10 @@ export default {
         this.$logger.info('restoreTask done', this.form)
 
         this.loadingShareContent()
+        // 非owner看到图片
+        if (this.$store.getters.userInfo.email !== this.form.createBy) {
+          this.form.showSelected = false
+        }
       })
     },
 

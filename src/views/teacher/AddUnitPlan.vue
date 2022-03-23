@@ -32,7 +32,6 @@
                   <a-step :status="currentActiveStepIndex === 0 ? 'process':'wait'" title='Edit Unit plan' class="step">
                     <template slot='description'>
                       <div class='step-detail' v-show='currentActiveStepIndex === 0' >
-                        <div class='mask' v-show='!canEdit'></div>
                         <template v-for='fieldItem in $store.getters.formConfigData.planCommonList'>
                           <div class='form-block tag-content-block' :data-field-name='planField.Name' v-if='fieldItem.visible && fieldItem.fieldName === planField.Name' :key='fieldItem.fieldName'>
                             <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Name />
@@ -49,7 +48,7 @@
                                   <a-icon type="info-circle" />
                                 </a-tooltip>
                               </template>
-                              <a-input v-model='form.name' class='my-form-input' placeholder='Enter Unit Name' @change="handleCollaborateEvent(unitPlanId,planField.Name,form.name)" />
+                              <a-input v-model='form.name' class='my-form-input' placeholder='Enter Unit Name' @change="handleCollaborateEvent(unitPlanId,planField.Name,form.name)" :disabled="!canEdit" />
                             </a-form-item>
                           </div>
 
@@ -69,7 +68,7 @@
                                   <a-icon type="info-circle" />
                                 </a-tooltip>
                               </template>
-                              <a-radio-group name='radioGroup' v-model='form.projectBased' style='margin-left:20px;' @change="handleCollaborateEvent(unitPlanId,planField.ProjectBased,form.projectBased)" >
+                              <a-radio-group name='radioGroup' v-model='form.projectBased' style='margin-left:20px;' @change="handleCollaborateEvent(unitPlanId,planField.ProjectBased,form.projectBased)" :disabled="!canEdit" >
                                 <a-radio :value='1'>
                                   Yes
                                 </a-radio>
@@ -95,7 +94,7 @@
                                   <a-icon type="info-circle" />
                                 </a-tooltip>
                               </template>
-                              <a-radio-group name='unitType' v-model='form.unitType' style='margin-left:20px;' @change="handleCollaborateEvent(unitPlanId,planField.UnitType,form.unitType)" >
+                              <a-radio-group name='unitType' v-model='form.unitType' style='margin-left:20px;' @change="handleCollaborateEvent(unitPlanId,planField.UnitType,form.unitType)" :disabled="!canEdit" >
                                 <a-radio :value='0'>
                                   Single-subject Unit
                                 </a-radio>
@@ -126,6 +125,7 @@
                                 v-model='form.gradeId'
                                 class='my-big-select'
                                 placeholder='Select a grade'
+                                :disabled="!canEdit"
                                 size='large'>
                                 <a-select-option v-for='(grade,index) in gradeList' :key='index' :value='grade.id'>
                                   {{ grade.name }}
@@ -175,9 +175,10 @@
                                 auto-size
                                 class='my-form-textarea inquiry'
                                 @change="handleCollaborateEvent(unitPlanId,planField.Inquiry,form.inquiry)"
+                                :disabled="!canEdit"
                               />
                             </a-form-item>
-                            <a-tooltip title='Browse' @click.stop='selectBigIdeaDataVisible=true'>
+                            <a-tooltip title='Browse' @click.stop='selectBigIdeaDataVisible=true' v-if="canEdit">
                               <span class='browse'>
                                 <a-icon theme='twoTone' twoToneColor='rgba(21, 195, 154, 1)' type='appstore' />
                               </span>
@@ -233,6 +234,7 @@
                                     @change="handleCollaborateEvent(unitPlanId,planField.Sdg,form.sdg)"
                                     class='my-big-select'
                                     placeholder='Select a goal from UN'
+                                    :disabled="!canEdit"
                                     size='large'>
                                     <a-select-option
                                       v-for='(sdg,index) in sdgList'
@@ -256,6 +258,7 @@
                                     @search='handleDescriptionSearch'
                                     @select-item='handleSelectScenario'
                                     @change="handleCollaborateEvent(unitPlanId,planField.Sdg,form.sdg)"
+                                    :can-edit="canEdit"
                                   />
                                 </a-form-model-item>
 
@@ -285,7 +288,8 @@
                                 size='large'
                                 v-model='form.rwc'
                                 placeholder='Choose real world connection'
-                                @change="handleCollaborateEvent(unitPlanId,planField.Rwc,form.rwc)">
+                                @change="handleCollaborateEvent(unitPlanId,planField.Rwc,form.rwc)"
+                                :disabled="!canEdit" >
                                 <a-select-option :value='item.id' v-for='(item, index) in rwcList' :key='index'>
                                   {{ item.name }}
                                 </a-select-option>
@@ -349,7 +353,8 @@
                                     :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-nth-key-question') : $t('teacher.add-unit-plan.expert-nth-key-question')"
                                     auto-size
                                     class='my-form-textarea'
-                                    @change="handleCollaborateEvent(unitPlanId,planField.Question,form.question)"/>
+                                    @change="handleCollaborateEvent(unitPlanId,planField.Question,form.question)"
+                                    :disabled="!canEdit" />
                                   <div
                                     v-if='form.questions.length > 1'
                                     class='delete-icon'
@@ -385,7 +390,7 @@
                                 </a-tooltip>
                               </template>
                               <a-badge :dot='hasExtraRecommend'>
-                                <a-button type='primary' @click='handleSelectDescription()'>
+                                <a-button type='primary' @click='handleSelectDescription()' :disabled="!canEdit">
                                   <div class='btn-text' style='line-height: 20px'>
                                     {{ 'leaning objectives' | unitLabelName(planField.LearnOuts, $store.getters.formConfigData) }}
                                   </div>
@@ -408,7 +413,8 @@
                               ref='learnOut'
                               :learn-outs='form.learnOuts'
                               :self-outs='form.selfOuts'
-                              @remove-learn-outs='handleRemoveLearnOuts' />
+                              @remove-learn-outs='handleRemoveLearnOuts'
+                              :can-edit="canEdit" />
                           </div>
 
                           <div class='form-block tag-content-block' :data-field-name='planField.Prior' style='clear:both' v-if="fieldItem.visible && fieldItem.fieldName === planField.Prior" :key='fieldItem.fieldName'>
@@ -431,7 +437,8 @@
                                 allow-clear
                                 auto-size
                                 placeholder='What are the approaches to find out what students already knew?'
-                                @change="handleCollaborateEvent(unitPlanId,planField.Prior,form.prior)"/>
+                                @change="handleCollaborateEvent(unitPlanId,planField.Prior,form.prior)"
+                                :disabled="!canEdit" />
                             </a-form-model-item>
                           </div>
                         </template>
@@ -445,7 +452,7 @@
                                   <a-icon type="info-circle" />
                                 </a-tooltip>
                               </template>
-                              <a-input v-model='form.customFieldData[custFieldItem.id]' class='my-form-input' />
+                              <a-input v-model='form.customFieldData[custFieldItem.id]' class='my-form-input' :disabled="!canEdit" />
                             </a-form-item>
                           </div>
                         </template>
@@ -503,7 +510,6 @@
             </div>
 
             <div :style="{'width':rightWidth + 'px'}" class='unit-plan-form-right step'>
-              <div class='mask' v-show='!canEdit'></div>
               <!--              优先级 所有comment预览 > 字段comment > tag选择-->
               <template v-if='showRightModule(rightModule.collaborate)'>
                 <a-skeleton :loading='showHistoryLoading' active>
@@ -552,8 +558,9 @@
                       :showUploadList='false'
                       accept='image/png, image/jpeg'
                       name='file'
+                      :disabled="!canEdit"
                     >
-                      <div v-show='form.image' class='delete-img' @click='handleDeleteImage($event)'>
+                      <div v-show='form.image' class='delete-img' @click='handleDeleteImage($event)' v-if="canEdit">
                         <a-icon type='close-circle' />
                       </div>
                       <template v-if='uploading'>
@@ -3765,16 +3772,4 @@ code {
   left: 20px;
 }
 
-.step{
-  position: relative;
-  .mask {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    z-index: 200;
-    background: rgba(0, 0, 0, 0.07);
-  }
-}
 </style>
