@@ -267,45 +267,50 @@
                                 class='material-item'
                                 v-for='(materialItem, mIndex) in form.materialList'
                                 :key='mIndex'>
-                                <a-row :gutter='[16,16]'>
-                                  <a-col span='8'>
+                                <a-row :gutter='[8, 16]'>
+                                  <a-col span='6'>
                                     <a-input
                                       v-model='materialItem.name'
                                       aria-placeholder='Enter material name'
                                       placeholder='Enter material name'
                                       @change="handleCollaborateEvent(taskId,taskField.MaterialList,form.materialList)"/>
                                   </a-col>
-                                  <a-col span='14'>
-                                    <a-tooltip placement='topLeft'>
+                                  <a-col span='16'>
+                                    <a-tooltip placement='topLeft' :mouseEnterDelay="1">
                                       <template slot='title'>
                                         The link is provided to help other users or students prepare(purchase) the material
                                         for this task
                                       </template>
                                       <a-input
+                                        addon-before="https://"
                                         v-model='materialItem.link'
                                         aria-placeholder='Enter URL'
                                         placeholder='Enter URL'
-                                        @change="handleCollaborateEvent(taskId,taskField.MaterialList,form.materialList)" >
-                                        <a-icon slot='prefix' type='link' />
+                                        @change="handleCollaborateEvent(taskId, taskField.MaterialList, form.materialList)" >
+                                        <a-button
+                                          @click="handleTestWebsiteLink(materialItem)"
+                                          slot='suffix'
+                                          shape='round'
+                                          type='primary'
+                                          size="small"
+                                          :disabled='!materialItem.link'>Test</a-button>
                                       </a-input>
+                                      <span class='url-error-tips' v-show='materialItem.link && !checkUrl(materialItem.link)'>Please enter a valid URL</span>
                                     </a-tooltip>
                                   </a-col>
                                   <a-col span='2'>
                                     <div class='material-icon'>
-                                      <a-icon
-                                        type='plus-circle'
-                                        :style="{ fontSize: '16px' }"
-                                        v-if='mIndex === (form.materialList.length - 1)'
-                                        @click='handleAddMaterial' />
                                       <img
                                         src='~@/assets/icons/evaluation/delete.png'
-                                        v-if='mIndex < (form.materialList.length - 1)'
                                         class='delete-icon'
                                         @click='handleRemoveMaterialItem(materialItem, mIndex)' />
                                     </div>
                                   </a-col>
                                 </a-row>
                               </div>
+                              <span class='add-material-item' v-show='materialListFlag'>
+                                <add-green-icon class='add-input' @click='handleAddMaterial' />
+                              </span>
                             </div>
                           </div>
                         </template>
@@ -1897,12 +1902,14 @@ import QuickTaskTemplatePreview from '@/components/Task/QuickTaskTemplatePreview
 import { AddMaterialEventBus, ModalEventsNameEnum } from '@/components/AddMaterial/AddMaterialEventBus'
 import UploadEnter from '@/components/AddMaterial/UploadEnter'
 import { addBatchElements } from '@/api/addMaterial'
+import AddGreenIcon from '@/assets/svgIcon/evaluation/form/tianjia_green.svg?inline'
 
 const { SplitTask } = require('@/api/task')
 
 export default {
   name: 'AddTask',
   components: {
+    AddGreenIcon,
     UploadEnter,
     QuickTaskTemplatePreview,
     QuickSession,
@@ -2209,15 +2216,6 @@ export default {
     }
   },
   watch: {
-    // 'selectedTemplateList': function(value) {
-    //   this.$logger.info('watch selectedTemplateList change ', value)
-    //   if (value.length != this.form.selectedTemplateList.length) {
-    //     if (this.canEdit) {
-    //       this.autoSave()
-    //     }
-    //   }
-    // },
-
     // 自动选择第一个班级的年级为task的默认年级
     'form.taskClassList': {
       handler: function (newVal, oldVal) {
@@ -2237,7 +2235,7 @@ export default {
   beforeRouteLeave(to, from, next) {
     this.$logger.info('beforeRouteLeave', to, from, next)
     // owner或者协同着可以save
-    var that = this
+    const that = this
     if (this.canEdit) {
       if (this.initCompleted && JSON.stringify(this.form) !== JSON.stringify(this.oldForm)) {
         this.$confirm({
@@ -4103,7 +4101,8 @@ export default {
     handleAddMaterial() {
       this.form.materialList.push({
         name: null,
-        link: null
+        link: null,
+        error: null
       })
       this.$logger.info('handleAddMaterial', this.form.materialList)
     },
@@ -4261,6 +4260,28 @@ export default {
     },
     deleteMaterial(id) {
       this.$logger.info('addMaterialList', id)
+    },
+    checkUrl(url) {
+      if (url && url.trim()) {
+        const list = url.split('.')
+        if (list.length <= 1) {
+          return false
+        }
+        for (let i = 0; i < list.length; i++) {
+          if (list[i].length < 2) {
+            return false
+          }
+        }
+      }
+      return true
+    },
+
+    handleTestWebsiteLink (materialItem) {
+      if (materialItem.link && this.checkUrl(materialItem.link)) {
+        window.open('https://' + materialItem.link, '_blank')
+      } else {
+        this.$message.warn('Please enter a valid URL')
+      }
     }
   }
 }
@@ -6807,5 +6828,19 @@ export default {
 
 .common-link-wrapper {
   padding-top: 40px;
+}
+
+.url-error-tips {
+  color: #ff4d4f;
+  font-size: 13px;
+}
+
+.add-material-item {
+  height: 30px;
+  line-height: 30px;
+  svg {
+    cursor: pointer;
+    width: 20px;
+  }
 }
 </style>
