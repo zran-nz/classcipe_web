@@ -14,6 +14,7 @@ import {
   SESSION_CURRENT_TYPE_LABEL
 } from '@/const/common'
 import store from '@/store'
+import { setCookie } from '@/utils/util'
 
 export default {
   name: 'PageRedirect',
@@ -31,6 +32,7 @@ export default {
     }
     if (token) {
       storage.set(ACCESS_TOKEN, token)
+      setCookie(ACCESS_TOKEN, token)
     }
     // del cache
     sessionStorage.removeItem(SESSION_CURRENT_PAGE)

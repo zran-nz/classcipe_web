@@ -172,7 +172,7 @@ export default {
         },
         series: seriesData
       }
-      this.options.toolbox = toolbox
+      // this.options.toolbox = toolbox
       if (dataZoom) {
         this.options.dataZoom = dataZoom
       }

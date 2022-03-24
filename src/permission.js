@@ -9,7 +9,7 @@ import { i18nRender } from '@/locales'
 import { defaultExpertRouter, defaultStudentRouter, defaultTeacherRouter } from '@/config/router.config'
 import * as logger from '@/utils/logger'
 import { SESSION_ACTIVE_KEY } from '@/const/common'
-import { getToken } from './utils/util'
+import { getToken, setCookie } from './utils/util'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
@@ -34,6 +34,7 @@ router.beforeEach((to, from, next) => {
     if (token) {
       storage.set(ACCESS_TOKEN, token)
       window.sessionStorage.setItem(SESSION_ACTIVE_KEY, token)
+      setCookie(ACCESS_TOKEN, token)
     }
     const accessToken = getToken()
     logger.info('accessToken check', accessToken)
