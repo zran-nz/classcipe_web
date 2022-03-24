@@ -83,6 +83,7 @@
       class="library-detail-wrapper"
       :style="{top: currentBrowserType === BrowserTypeMap.sdg ? '100px' : '100px',
                height: currentBrowserType === BrowserTypeMap.sdg ? 'calc(100vh - 164px)': 'calc(100vh - 164px)'}">
+      <div class='library-mask' v-if='searchResultVisible && (searching || searchResultList.length)'></div>
       <div class="curriculum-filter-line">
         <div class="curriculum-select" v-excludeRole="['student']">
           <a-select
@@ -509,11 +510,13 @@ export default {
   computed: {
     leftBrowserWidth () {
       let width = '30vw'
-       if (this.expandedListFlag) {
+      if (this.expandedListFlag) {
         width = '0vw'
       } else if (this.showRecommend) {
-         width = '15vw'
-       }
+        width = '15vw'
+      } else if (!this.currentBrowserType) {
+        width = '15vw'
+      }
       return width
     },
     rightBrowserWidth () {
@@ -521,6 +524,10 @@ export default {
       if (this.expandedListFlag) {
         width = '100vw'
       } else if (this.showRecommend) {
+        width = '85vw'
+      } else if (!this.currentBrowserType) {
+        width = '85vw'
+      } else if (this.currentBrowserType) {
         width = '70vw'
       }
       return width
@@ -728,6 +735,7 @@ export default {
               lastIndex = index + value.length
               index = item.name.toLowerCase().indexOf(value, index + value.length)
             }
+            tagName += item.name.substring(lastIndex)
             const tagItem = {
               fromType: item.fromType,
               name: item.name,
@@ -1014,6 +1022,16 @@ export default {
     display: flex;
     flex-direction: row;
     flex: 1;
+
+    .library-mask {
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 200;
+      background: rgba(0, 0, 0, 0.8);
+    }
     .library-detail-nav-wrapper {
       padding-top: 40px;
       transition: all 200ms ease-in-out;
