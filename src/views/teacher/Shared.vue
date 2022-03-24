@@ -578,7 +578,6 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
     },
     watch: {
       needRefreshCollaborate: function (newValue) {
-        alert(newValue)
           this.refreshCollaborateAction(false)
           this.loadMyContent()
       },
