@@ -60,7 +60,12 @@
               <div class="summary-total">$0.00</div>
             </div>
           </div>
-          <div class="dashboard-chart"></div>
+          <div class="dashboard-chart">
+            <e-line
+              :datas="dataSource"
+              height="350px"
+            />
+          </div>
         </div>
       </a-tab-pane>
     </a-tabs>
@@ -71,9 +76,15 @@
 import moment from 'moment'
 
 import { DATERANGE_FOR_CHARTS } from '@/const/dateRange'
+import { getDaysBetweenDates } from '@/utils/util'
+
+import ELine from '@/components/ECharts/Line'
 
 export default {
   name: 'TeacherSellDashboard',
+  components: {
+    ELine
+  },
   data() {
     return {
       DATERANGE_FOR_CHARTS: DATERANGE_FOR_CHARTS,
@@ -126,7 +137,14 @@ export default {
         type: 1,
         duringType: 1,
         during: [moment().startOf('month').startOf('day'), moment().endOf('day')]
-      }
+      },
+      dataSource: [{
+        name: 'line',
+        type: 'line',
+        symbol: 'none',
+        smooth: true,
+        data: []
+      }]
     }
   },
   created() {
@@ -153,14 +171,24 @@ export default {
     init() {
 
     },
+    initChart() {
+      const dateRange = getDaysBetweenDates(...this.filterParams.during)
+      this.dataSource[0].data = []
+      dateRange.forEach(date => {
+        this.dataSource[0].data.push({
+          date: date,
+          value: Math.random() * 1000
+        })
+      })
+    },
     changeTab(key) {
 
     },
     onChangeDate(dates, dateStrings) {
-      console.log(dateStrings)
+      this.triggerSearch()
     },
     triggerSearch() {
-
+      this.initChart()
     }
   }
 }
