@@ -156,6 +156,7 @@ import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { typeMap } from '@/const/teacher'
 import EditIcon from '@/assets/svgIcon/evaluation/bianji.svg?inline'
 import { mapActions, mapState } from 'vuex'
+import { Modal } from 'ant-design-vue'
 
 export default {
   name: 'CommonFormHeader',
@@ -228,7 +229,6 @@ export default {
       return false
     },
     ...mapState({
-      needRefreshCollaborate: state => state.websocket.needRefreshCollaborate,
       removedCollaborate: state => state.websocket.removedCollaborate
     })
   },
@@ -243,20 +243,23 @@ export default {
       console.log('update is share ' + val)
       this.isShare = val === 1
     },
-    needRefreshCollaborate: function (newValue) {
-      if (newValue && newValue.indexOf(this.form.id) > -1 && this.isOwner) {
-        this.$store.dispatch('refreshCollaborate', false)
-        // this.refreshCollaborate('false')
-        this.handleStartCollaborate()
-      }
-    },
     removedCollaborate: function (newValue) {
-      alert(newValue)
-      // if (newValue && newValue.indexOf(this.form.id) > -1 && this.isOwner) {
-      //   this.$store.dispatch('refreshCollaborate', false)
-      //   // this.refreshCollaborate('false')
-      //   this.handleStartCollaborate()
-      // }
+      if (newValue && newValue.indexOf(this.form.id) > -1) {
+        Modal.error({
+          title: 'Alert',
+          content: 'You have been removed from the collaborating list of ' + this.form.name,
+          okText: 'Ok',
+          mask: true,
+          onOk: () => {
+            this.$router.push({ path: '/teacher/main/shared' })
+          }
+        })
+      }
+      const index = this.collaborate.users.findIndex(item => item.email === this.$store.getters.userInfo.email)
+      if (index > -1) {
+        this.collaborate.users.splice(index, 1)
+      }
+      this.removedCollaborateAction(false)
     }
   },
   created() {
@@ -266,17 +269,12 @@ export default {
     }
   },
   mounted () {
-    setTimeout(() => {
-      // 判断是否打开协同框
-      const needRefreshCollaborate = this.$store.state.websocket.needRefreshCollaborate
-      if (needRefreshCollaborate && needRefreshCollaborate.indexOf(this.form.id) > -1 && this.owner) {
-        this.$store.dispatch('refreshCollaborate', false)
-        this.handleStartCollaborate()
-      }
-    }, 3000)
+    // setTimeout(() => {
+    //   this.refreshCollaborateAction(false)
+    // }, 3000)
   },
   methods: {
-    ...mapActions(['refreshCollaborate']),
+    ...mapActions(['removedCollaborateAction']),
     formatUserList(users) {
       let userList = [({ userName: this.owner.nickname, userAvatar: this.owner.avatar, email: this.owner.email })]
       userList = userList.concat(users.filter(user => this.onlineUsers.indexOf(user.email) > -1 && user.email !== this.owner.email))

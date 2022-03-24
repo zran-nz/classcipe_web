@@ -489,7 +489,7 @@ import PSSvg from '@/assets/svgIcon/myContent/previous_session.svg'
 import CollaborateSvg from '@/assets/icons/collaborate/collaborate_group.svg'
 import { FindMyClasses } from '@/api/evaluation'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
-import { mapState } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 
 export const SHARED_VIEW_MODE = 'view_mode_shared'
 
@@ -578,11 +578,12 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
     },
     watch: {
       needRefreshCollaborate: function (newValue) {
-          this.$store.dispatch('refreshCollaborate', false)
+        alert(newValue)
+          this.refreshCollaborateAction(false)
           this.loadMyContent()
       },
       removedCollaborate: function (newValue) {
-          this.$store.dispatch('removedCollaborate', false)
+          this.removedCollaborateAction(false)
           this.loadMyContent()
       }
     },
@@ -592,6 +593,7 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
       this.loadUserTags()
     },
     methods: {
+      ...mapActions(['refreshCollaborateAction', 'changeCollaborateAction', 'removedCollaborateAction']),
       toggleViewMode (viewMode) {
         this.$logger.info('viewMode', viewMode)
         storage.set(SHARED_VIEW_MODE, viewMode)

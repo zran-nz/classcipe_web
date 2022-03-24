@@ -4,6 +4,7 @@ import CollborateMsg from '@/websocket/model/collborateMsg'
 import SaveContentMsg from '@/websocket/model/saveContentMsg'
 import { isEqualWith } from 'lodash-es'
 import { SESSION_CURRENT_PAGE, SESSION_CURRENT_TYPE, SESSION_CURRENT_TYPE_LABEL } from '@/const/common'
+import { mapActions, mapGetters, mapState } from 'vuex'
 
 export const RightModule = {
   'collaborate': 1,
@@ -34,6 +35,19 @@ export const BaseEventMixin = {
     }
   },
   watch: {
+    needRefreshCollaborate: function (newValue) {
+      if (newValue && newValue.indexOf(this.oldForm.id) > -1 && this.isOwner) {
+        this.refreshCollaborateAction(false)
+        this.handleStartCollaborate()
+      }
+    },
+    changeCollaborate: function (newValue) {
+      if (newValue && newValue.indexOf(this.form.id) > -1) {
+        this.changeCollaborateAction(false)
+        this.$logger.info('need changeCollaborate')
+        this.queryContentCollaborates(this.form.id, this.form.type)
+      }
+    }
   },
   created () {
   },
@@ -74,7 +88,7 @@ export const BaseEventMixin = {
     }
     window.addEventListener('beforeunload', (e) => this.beforeunloadHandler(e))
     // 重置协同消息提醒数据
-    this.$store.getters.vueSocket.sendAction('receiveSaveContentMsg', '')
+    this.receiveSaveContentMsg('')
   },
   destroyed () {
     window.removeEventListener('beforeunload', (e) => this.beforeunloadHandler(e))
@@ -131,9 +145,18 @@ export const BaseEventMixin = {
       } else {
         return false
       }
-    }
+    },
+    ...mapGetters({
+      vueSocket: 'vueSocket'
+    }),
+    ...mapState({
+      needRefreshCollaborate: state => state.websocket.needRefreshCollaborate,
+      removedCollaborate: state => state.websocket.removedCollaborate,
+      changeCollaborate: state => state.websocket.changeCollaborate
+    })
   },
   methods: {
+    ...mapActions(['refreshCollaborateAction', 'changeCollaborateAction', 'removedCollaborateAction', 'receiveSaveContentMsg']),
     setRightModuleVisible (module) {
       if (module === this.rightModule.collaborate) {
         this.showModuleList = [RightModule.collaborate]
@@ -209,7 +232,7 @@ export const BaseEventMixin = {
           }
       }
       if (userIds.length > 0) {
-        this.$store.getters.vueSocket.sendMessageToUsers(COLLABORATE, userIds,
+          this.vueSocket.sendMessageToUsers(COLLABORATE, userIds,
           CollborateMsg.convert2CollborateMsg(collaborate))
       }
     },
@@ -228,7 +251,7 @@ export const BaseEventMixin = {
         }
       }
       if (userIds.length > 0) {
-        this.$store.getters.vueSocket.sendMessageToUsers(SAVE_CONTENT, userIds,
+          this.vueSocket.sendMessageToUsers(SAVE_CONTENT, userIds,
           SaveContentMsg.convert2SaveContentMsg(contentMsg))
       }
     },

@@ -3,6 +3,7 @@ export const NotificationTypeMap = {
   collaborateApply: 'collaborateApply',
   collaborateRejected: 'collaborateRejected',
   collaborateRemoved: 'collaborateRemoved',
+  changeCollaborate: 'changeCollaborate',
   collaborateAccepted: 'collaborateAccepted',
   mentioned: 'mentioned',
   replied: 'replied',

@@ -2,6 +2,7 @@ import { typeMap } from '@/const/teacher'
 import { NotificationTypeMap } from '@/views/dashboard/NotificationTypeMap'
 import { EditCementSend } from '@/api/notice'
 import { RECEIVE_MSG } from '@/store/mutation-types'
+import { mapActions } from 'vuex'
 
 export const NoticeMixin = {
   components: {
@@ -16,6 +17,7 @@ export const NoticeMixin = {
 
   },
   methods: {
+    ...mapActions(['refreshCollaborateAction']),
     gotoContent(record) {
       // 申请跳转到闲情页
       const typeIds = record.busId.split('#')
@@ -34,8 +36,8 @@ export const NoticeMixin = {
       if (record.busType === NotificationTypeMap.collaborateApply) {
         this.gotoContent(record)
         setTimeout(() => {
-          this.$store.dispatch('refreshCollaborate', record.busId)
-        }, 1000)
+          this.refreshCollaborateAction(record.busId)
+        }, 4000)
       } else if (record.busType === NotificationTypeMap.collaborateAccepted ||
         record.busType === NotificationTypeMap.collaborateInvite) {
         this.gotoContent(record)
