@@ -635,7 +635,6 @@
             ref='newBrowser'
             :default-active-menu='defaultActiveMenu'
             :recommend-data='recommendData'
-            :select-mode='selectModel.syncData'
             :selected-id='selectedIdList'
             :selected-list='selectedList'
             :show-menu='showMenuList'
