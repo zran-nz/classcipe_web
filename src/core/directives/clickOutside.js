@@ -1,9 +1,9 @@
 import Vue from 'vue'
 
 /**
- * clickOutside 权限指令
+ * clickOutside 点击组件外部指令
  * 指令用法：
- *  - 在需要选词弹出层的组件上使用 v-clickOutside:fn , 如下：
+ *  - 在需要点击组件外部的组件上使用 v-clickOutside:fn , 如下：
  *    <div v-clickOutside:fn >我是里面</div>
  *    const fn = (text) => {}
  *
