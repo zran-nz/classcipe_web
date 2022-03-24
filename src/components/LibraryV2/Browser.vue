@@ -14,6 +14,7 @@
               <template slot="content">
                 <search-filter
                   @filter-config-update="handleUpdateFilterConfig"
+                  @update-filter-context='handleUpdateFilterContext'
                   :filter-config="filterConfig"
                   :age-options="filterAgeOptions"
                   :subject-options="filterSubjectOptions"
@@ -56,7 +57,13 @@
                       v-for="(item, sIndex) in searchResultList"
                       :key="sIndex"
                       :data-from-type="item.fromType">
-                      <div v-html="item.tagName"></div>
+                      <div v-html="item.tagName">
+                      </div>
+                      <div class='from-type'>
+                        <div class='from-text-tag'>
+                          {{ item.fromType }}
+                        </div>
+                      </div>
                     </div>
                   </template>
                   <template v-else-if="searchKeyword">
@@ -83,6 +90,7 @@
       class="library-detail-wrapper"
       :style="{top: currentBrowserType === BrowserTypeMap.sdg ? '100px' : '100px',
                height: currentBrowserType === BrowserTypeMap.sdg ? 'calc(100vh - 164px)': 'calc(100vh - 164px)'}">
+      <div class='library-mask' v-if='searchResultVisible && (searching || searchResultList.length)'></div>
       <div class="curriculum-filter-line">
         <div class="curriculum-select" v-excludeRole="['student']">
           <a-select
@@ -354,7 +362,7 @@ import SearchFilter from '@/components/LibraryV2/SearchFilter'
 import { QueryContentsFilter, QueryRecommendContents } from '@/api/library'
 import { SubjectTree } from '@/api/subject'
 import { FindCustomTags } from '@/api/tag'
-const { Search, QueryContents, QueryKeyContents } = require('@/api/library')
+const { Search, QueryContents } = require('@/api/library')
 const { debounce } = require('lodash-es')
 
 const BrowserTypeMap = {
@@ -460,6 +468,7 @@ export default {
       libraryMode: LibraryMode.browserMode,
       LibraryMode: LibraryMode,
       currentFromItemName: null,
+      currentFromItemType: null,
 
       // 当前选中的配置项
       filterConfig: {
@@ -467,6 +476,7 @@ export default {
         subject: [],
         type: [],
         faSaActivityType: null,
+        searchKey: null,
 
         teachingStrategy: [],
         differenceInstructions: [],
@@ -503,17 +513,20 @@ export default {
       firstLoad: true,
       showRecommend: true,
 
-      debouncedSearchKeyFocus: null
+      debouncedSearchKeyFocus: null,
+      filterContext: null
     }
   },
   computed: {
     leftBrowserWidth () {
       let width = '30vw'
-       if (this.expandedListFlag) {
+      if (this.expandedListFlag) {
         width = '0vw'
       } else if (this.showRecommend) {
-         width = '15vw'
-       }
+        width = '15vw'
+      } else if (!this.currentBrowserType) {
+        width = '15vw'
+      }
       return width
     },
     rightBrowserWidth () {
@@ -521,6 +534,10 @@ export default {
       if (this.expandedListFlag) {
         width = '100vw'
       } else if (this.showRecommend) {
+        width = '85vw'
+      } else if (!this.currentBrowserType) {
+        width = '85vw'
+      } else if (this.currentBrowserType) {
         width = '70vw'
       }
       return width
@@ -541,7 +558,7 @@ export default {
       this.getfilterOptions()
     })
 
-    this.debouncedSearchKeyFocus = debounce(this.handleSearchKeyFocus, 600)
+    this.debouncedSearchKeyFocus = debounce(this.handleSearchKeyFocus, 400)
   },
   mounted () {
     this.blockWidth = this.$refs['wrapper'].getBoundingClientRect().width * 0.15
@@ -728,6 +745,7 @@ export default {
               lastIndex = index + value.length
               index = item.name.toLowerCase().indexOf(value, index + value.length)
             }
+            tagName += item.name.substring(lastIndex)
             const tagItem = {
               fromType: item.fromType,
               name: item.name,
@@ -746,7 +764,15 @@ export default {
     searchContentByKeyword (value) {
       if (value) {
         this.$logger.info('searchContentByKeyword ' + value)
-        this.searchByFilter({ searchKey: value.trim() })
+        // 获取filter配置
+        let filter = {
+          searchKey: value
+        }
+        if (this.filterContext) {
+          filter = this.filterContext.getFilterConfig()
+          filter.searchKey = value
+        }
+        this.searchByFilter(filter)
       } else {
         this.showRecommend = true
         this.dataList = this.dataRecommendList
@@ -755,6 +781,8 @@ export default {
 
     handleSearchKeyFocus () {
       this.$logger.info('handleSearchKeyFocus')
+      this.currentFromItemName = null
+      this.currentFromItemType = null
       this.searchResultVisible = true
       this.searchResultList = []
       this.libraryMode = LibraryMode.searchMode
@@ -838,6 +866,7 @@ export default {
       this.searching = true
       this.searchKeyword = item.name
       this.currentFromItemName = item.name
+      this.currentFromItemType = item.fromType
       this.libraryMode = LibraryMode.searchMode
       this.handleSearchByFromType(item)
     },
@@ -846,20 +875,22 @@ export default {
       this.$logger.info('handleSearchByFromType ', item)
       this.searching = true
       this.showRecommend = false
-      QueryKeyContents(item).then(response => {
-        this.$logger.info('QueryContents response', response)
-        const list = response.result ? response.result : []
-        list.sort(it => {
-          if (it.name.toLowerCase().indexOf(item.name) !== -1) {
-            return -1
-          } else {
-            return 1
-          }
-        })
-        this.dataList = list
-      }).finally(() => {
-        this.searching = false
-      })
+      let filter = {
+        searchKey: item.name,
+        keyContent: {
+          fromType: item.fromType,
+          name: item.name
+        }
+      }
+      if (this.filterContext) {
+        filter = this.filterContext.getFilterConfig()
+        filter.keyContent = {
+          fromType: item.fromType,
+          name: item.name
+        }
+        filter.searchKey = item.name
+      }
+      this.searchByFilter(filter)
     },
 
     searchByFilter (filter) {
@@ -870,20 +901,43 @@ export default {
       this.searching = true
       QueryContentsFilter(filterData).then(response => {
         this.$logger.info('QueryContentsFilter result : ', response)
+
+        // 按搜索内容排序
+        if (filter.keyContent && filter.keyContent.name) {
+          response.result.sort(it => {
+            if (it.name.toLowerCase().indexOf(filter.keyContent.name) !== -1) {
+              return -1
+            } else {
+              return 1
+            }
+          })
+        }
         this.dataList = response.result ? response.result : []
       }).finally(() => {
         this.searching = false
       })
     },
     handleUpdateFilterConfig (filter) {
-      // TODO 根据配置更新请求参数
       this.$logger.info('handleUpdateFilterConfig', filter)
       this.libraryMode = LibraryMode.searchMode
       // 学生只显示task
       if (this.$store.getters.currentRole === 'student') {
         filter.type = [typeMap.task]
       }
+      // 添加搜索词
+      filter.searchKey = this.searchKeyword
+      if (this.currentFromItemType) {
+        filter.keyContent = {
+          fromType: this.currentFromItemType,
+          name: this.currentFromItemName
+        }
+      }
       this.searchByFilter(filter)
+    },
+    handleUpdateFilterContext (filterContext) {
+      // slot无法使用ref，故将filter的this传给当前组件
+      this.$logger.info('handleUpdateFilterContext', filterContext)
+      this.filterContext = filterContext
     },
     getfilterOptions () {
       SubjectTree({ curriculumId: this.currentCurriculumId }).then(response => {
@@ -1014,6 +1068,16 @@ export default {
     display: flex;
     flex-direction: row;
     flex: 1;
+
+    .library-mask {
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 200;
+      background: rgba(0, 0, 0, 0.8);
+    }
     .library-detail-nav-wrapper {
       padding-top: 40px;
       transition: all 200ms ease-in-out;
@@ -1513,8 +1577,34 @@ export default {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    position: relative;
     &:hover {
       background-color: #e3e9ed;
+    }
+    .from-type {
+      position: absolute;
+      right: 5px;
+      top: 7px;
+      z-index: 300;
+      padding: 0 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      .from-label {
+        padding-right: 5px;
+        user-select: none;
+        color: #f6f6f6;
+      }
+      .from-text-tag {
+        cursor: pointer;
+        background: #f6f6f6;
+        color: #aaa;
+        font-size: 14px;
+        line-height: 20px;
+        padding: 0 5px;
+        border-radius: 3px;
+      }
     }
   }
 

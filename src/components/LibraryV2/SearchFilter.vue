@@ -151,9 +151,10 @@ export default {
     this.filterActivityOptions.forEach((option, index) => {
       this.activityTags.push([])
     })
+    this.$emit('update-filter-context', this)
   },
   methods: {
-    updateFilterConfig () {
+    formatFilterConfig () {
       this.filter.faTags = []
       this.faTags.forEach((option, index) => {
         option.forEach(o => {
@@ -178,6 +179,9 @@ export default {
           }
         })
       })
+    },
+    updateFilterConfig () {
+      this.formatFilterConfig()
       this.$logger.info('updateFilterConfig', this.filter)
       this.$emit('filter-config-update', this.filter)
     },
@@ -207,6 +211,11 @@ export default {
       this.saTags = []
       this.activityTags = []
       this.updateFilterConfig()
+    },
+
+    getFilterConfig () {
+      this.formatFilterConfig()
+      return JSON.parse(JSON.stringify(this.filter))
     }
   }
 }

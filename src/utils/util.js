@@ -212,7 +212,7 @@ export function setCookie(name, value) {
   var Days = 7
   var exp = new Date()
   exp.setTime(exp.getTime() + Days * 24 * 60 * 60 * 1000)
-  document.cookie = name + '=' + escape(value) + ';expires=' + exp.toGMTString() + ';domain=.classcipe.com'
+  document.cookie = name + '=' + escape(value) + ';expires=' + exp.toGMTString() + ';domain=.classcipe.com;path=/'
 }
 
 export function getCookie(name) {
@@ -246,4 +246,25 @@ export function getToken() {
  */
 export function isEmail (s) {
   return /^([a-zA-Z0-9._-])+@([a-zA-Z0-9_-])+((.[a-zA-Z0-9_-]{2,3}){1,2})$/.test(s)
+}
+
+/**
+ * 获取日期区间的所有日期
+ * @param {*} startDate
+ * @param {*} endDate
+ * @param {*} format
+ */
+export function getDaysBetweenDates(startDate, endDate, format = 'YYYY-MM-DD') {
+  const daysList = []
+  const SDate = moment(startDate)
+  const EDate = moment(endDate)
+  daysList.push(SDate.format(format))
+  if (SDate.isSame(EDate, 'day')) {
+    return daysList
+  }
+  while (SDate.add(1, 'days').isBefore(EDate, 'day')) { // 注意这里add方法处理后SDate对象已经改变。
+      daysList.push(SDate.format(format))
+  }
+  daysList.push(EDate.format(format))
+  return daysList
 }

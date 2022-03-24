@@ -1,6 +1,6 @@
 <template>
   <div class="chartGraph" :style="{height: height}">
-    <v-chart :option="options" :autoresize="true" />
+    <v-chart ref="chart" :option="options" :autoresize="true" />
   </div>
 </template>
 
@@ -11,7 +11,10 @@ import { LineChart } from 'echarts/charts'
 import {
   TitleComponent,
   TooltipComponent,
-  LegendComponent
+  LegendComponent,
+  GridComponent,
+  DataZoomComponent,
+  ToolboxComponent
 } from 'echarts/components'
 import VChart from 'vue-echarts'
 import { ChartToolMixins } from './mixins/ChartToolMixins'
@@ -21,7 +24,10 @@ use([
   LineChart,
   TitleComponent,
   TooltipComponent,
-  LegendComponent
+  LegendComponent,
+  DataZoomComponent,
+  GridComponent,
+  ToolboxComponent
 ])
 export default {
   name: 'ELine',
@@ -45,6 +51,13 @@ export default {
       type: [String, Number],
       default: '100%'
     },
+    // [
+    //   {
+    //     name: 'series',
+    //     type: 'line',
+    //     data: []
+    //   }
+    // ]
     datas: {
       type: Array,
       default: () => []
@@ -58,7 +71,8 @@ export default {
       handler(newName, oldName) {
         this.initData(newName.concat())
       },
-      immediate: true
+      immediate: true,
+      deep: true
     }
   },
   mounted() {
@@ -73,55 +87,56 @@ export default {
   },
   methods: {
     initData(datas) {
-      const xAxis = []
-      const series = []
+      const seriesData = datas
+      if (!seriesData[0] || !seriesData[0].data) {
+        return
+      }
+      const xAxis = seriesData[0].data.map(item => item.date)
       const that = this
-      for (let index = 0; index < datas.length; index++) {
-        const data = datas[index]
-        if (index === 0) {
-          for (let i = 0; i < data.length; i++) {
-            if (data[i].date) {
-              xAxis.push(data[i].date)
-            }
-          }
+      const toolbox = {
+        feature: {
+          saveAsImage: {}
         }
-        const seriesData = []
-        for (let i = 0; i < data.length; i++) {
-          if (typeof data[i].value !== 'undefined') {
-            seriesData.push(data[i].value)
-          }
+      }
+      let dataZoom = null
+      let bottom = '20'
+      if (xAxis.length > 30) {
+        toolbox.feature = {
+          dataZoom: {
+            yAxisIndex: 'none'
+          },
+          restore: {},
+          saveAsImage: {}
         }
-        series.push({
-          data: seriesData,
-          symbol: 'circle',
-          symbolSize: '6',
-          showSymbol: false,
-          smooth: true,
-          type: 'line',
-          areaStyle: {
-            normal: {
-              color: this.color[index]
-            }
+        dataZoom = [
+          // {
+          //   type: 'inside',
+          //   start: 0,
+          //   end: 10
+          // },
+          {
+            start: 0,
+            end: 10
           }
-        })
+        ]
+        bottom = '100'
       }
       this.options = {
         color: this.color,
         grid: {
-          left: '0',
-          bottom: '0',
-          top: '0',
-          right: '0'
+          left: '50',
+          bottom: bottom,
+          top: '20',
+          right: '50'
         },
         xAxis: {
           type: 'category',
           boundaryGap: false,
-          show: false,
           data: xAxis
         },
         yAxis: {
           type: 'value',
-          show: false
+          boundaryGap: [0, '100%']
         },
         tooltip: {
           trigger: 'axis',
@@ -155,8 +170,18 @@ export default {
             }
           }
         },
-        series: series
+        series: seriesData
       }
+      // this.options.toolbox = toolbox
+      if (dataZoom) {
+        this.options.dataZoom = dataZoom
+      }
+      // toolbox datazoom变了在触发 TODO
+      this.$nextTick(() => {
+        this.$refs.chart && this.$refs.chart.dispatchAction({
+            type: 'restore'
+        })
+      })
     }
   }
 }

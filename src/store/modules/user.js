@@ -172,6 +172,7 @@ const user = {
             if (result.token && result.currentRole === teacher && storage.get(ACCESS_TOKEN) !== result.token) {
               storage.set(ACCESS_TOKEN, result.token, 7 * 24 * 60 * 60 * 1000)
               commit('SET_TOKEN', result.token)
+              setCookie(ACCESS_TOKEN, result.token)
               window.sessionStorage.setItem(SESSION_ACTIVE_KEY, result.token)
             }
             resolve(response)

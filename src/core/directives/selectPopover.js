@@ -1,7 +1,7 @@
 import Vue from 'vue'
 
 /**
- * selectPopover 权限指令
+ * selectPopover 选词弹出层指令
  * 指令用法：
  *  - 在需要选词弹出层的组件上使用 v-selectPopover:[domQuery, domFn] , 如下：
  *    <div v-selectPopover="['modal', domFn]" >我是被选中的词</div>
