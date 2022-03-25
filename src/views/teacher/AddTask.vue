@@ -3387,7 +3387,9 @@ export default {
       this.$refs.newBrowser.selectedRecommendList.forEach(item => {
         if (item.hasOwnProperty('isSelfCustom') && item.isSelfCustom) {
           // 自定义大纲不用判断重复，直接插入
-          this.form.selfOuts.push(item)
+          const copyItem = JSON.parse(JSON.stringify(item))
+          copyItem.key = Math.random() + ''
+          this.form.selfOuts.push(copyItem)
         } else {
           const index = this.form.learnOuts.findIndex(dataItem => dataItem.knowledgeId === item.knowledgeId)
           if (index === -1) {

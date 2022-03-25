@@ -1938,20 +1938,6 @@ export default {
       this.$logger.info('handleAddAudioOverview')
       this.showAddAudioVisible = true
     },
-    handleUpdateSelfOuts (data) {
-      this.$logger.info('handleUpdateSelfOuts', data)
-      const tagType = data.tagType
-      const dataList = data.list
-      let selfOuts = this.form.selfOuts
-      selfOuts = selfOuts.filter(item => item.tagType !== tagType)
-      dataList.forEach(item => {
-        if (item.name && item.name.trim() !== '') {
-          selfOuts.push(item)
-        }
-      })
-      this.form.selfOutss = selfOuts
-      this.$logger.info('selfOuts', selfOuts)
-    },
     handleSelectDescription() {
       this.showMenuList = [NavigationType.specificSkills,
         NavigationType.centurySkills,
@@ -2381,7 +2367,9 @@ export default {
       this.$refs.newBrowser.selectedRecommendList.forEach(item => {
         if (item.hasOwnProperty('isSelfCustom') && item.isSelfCustom) {
           // 自定义大纲不用判断重复，直接插入
-          this.form.selfOuts.push(item)
+          const copyItem = JSON.parse(JSON.stringify(item))
+          copyItem.key = Math.random() + ''
+          this.form.selfOuts.push(copyItem)
         } else {
           const index = this.form.learnOuts.findIndex(dataItem => dataItem.knowledgeId === item.knowledgeId)
           if (index === -1) {
