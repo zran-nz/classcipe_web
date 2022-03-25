@@ -117,6 +117,7 @@ import { getThirdAuthURL, thirdAuthCallbackUrl } from '@/api/thirdAuth'
 import { NOT_REMEMBER_ME } from '@/store/mutation-types'
 import storage from 'store'
 import { SESSION_CALLBACK_URL } from '@/const/common'
+import { getUrlWithNoParams } from '@/utils/util'
 
 export default {
   components: {
@@ -165,7 +166,7 @@ export default {
       url += `&callbackUrl=`
       url += thirdAuthCallbackUrl
       if (this.callbackUrl) {
-        window.sessionStorage.setItem(SESSION_CALLBACK_URL, this.callbackUrl)
+        window.sessionStorage.setItem(SESSION_CALLBACK_URL, getUrlWithNoParams(this.callbackUrl))
       }
       console.log('full auth url ', url)
       window.location.href = url
