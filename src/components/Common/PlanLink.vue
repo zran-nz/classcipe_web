@@ -7,7 +7,8 @@
           :disabled="!canEdit"
           animation="300"
           group="root"
-          @end="handleDragEnd">
+          @end="handleDragEnd"
+          :move="onMove">
           <div v-for="(group, lIndex) in groups" :key="lIndex" class="link-group">
             <div class="group-item">
               <div class="group-header" v-show='group.groupName'>
@@ -431,6 +432,13 @@ export default {
       }).finally(() => {
         // this.getAssociate()
       })
+    },
+    onMove(e, originalEvent) {
+      // 不允许拖拽
+      if (!e.draggedContext.element.groupName) return false
+      // 不允许停靠
+      if (!e.relatedContext.element.groupName) return false
+      return true
     }
   }
 }

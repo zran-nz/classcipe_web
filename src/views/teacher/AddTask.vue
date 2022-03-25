@@ -1146,6 +1146,9 @@
                     <a-radio-button :value='3'>
                       21st Century Skills
                     </a-radio-button>
+                    <a-radio-button :value='4'>
+                      5E model
+                    </a-radio-button>
                   </a-radio-group>
                   <a-button
                     v-if='showTemplateFilter'
@@ -1346,6 +1349,27 @@
                         </a-col>
                       </a-col>
                     </a-row>
+                  </div>
+                </a-row>
+                <a-row v-if='filterType == 4 && showTemplateFilter'>
+                  <div class='filter-row'>
+                    <div class='row-select'>
+                      <div class='sub-select'>
+                        <a-row>
+                          <h4>Interactive</h4>
+                        </a-row>
+                        <div class='sub-items'>
+                          <div class='sub-item' v-for='(item,cIndex) in initPrompts' :key='cIndex'>
+                            <a-checkbox
+                              :value='item.value'
+                              @change='onChangeCheckBox($event,templateType.Prompt,item)'
+                              :checked='filterInteractive.indexOf(item.value) > -1 ? true: false'>
+                              {{ item.text }}
+                            </a-checkbox>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </a-row>
                 <div class='expand-icon' v-if='showTemplateFilter' @click='toggleUpFilter()'>
@@ -1862,7 +1886,7 @@ import { MyContentEvent, MyContentEventBus } from '@/components/MyContent/MyCont
 import { TaskAddOrUpdate, TaskCreateNewTaskPPT, TaskQueryById } from '@/api/task'
 import { SelectModel } from '@/components/NewLibrary/SelectModel'
 import { formatLocalUTC } from '@/utils/util'
-import { commonAPIUrl } from '@/api/common'
+import { commonAPIUrl, GetDictItems } from '@/api/common'
 import MyContentSelector from '@/components/MyContent/MyContentSelector'
 import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import { TemplateTypeMap } from '@/const/template'
@@ -1873,7 +1897,7 @@ import AssociateSidebar from '@/components/Associate/AssociateSidebar'
 import CustomTag from '@/components/UnitPlan/CustomTag'
 import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
 import CollaborateUserList from '@/components/Collaborate/CollaborateUserList'
-import { CustomTagType, TaskField, TemplateType } from '@/const/common'
+import { CustomTagType, DICT_PROMPT_TYPE, TaskField, TemplateType } from '@/const/common'
 import ModalHeader from '@/components/Common/ModalHeader'
 import CommonFormHeader from '@/components/Common/CommonFormHeader'
 import { EvaluationAddOrUpdate } from '@/api/evaluation'
@@ -2048,7 +2072,7 @@ export default {
       taskSaving: false,
       publishing: false,
       initTemplates: [],
-      initBlooms: [],
+      initPrompts: [],
       uploading: false,
       selectedSlideVisible: false,
       taskSelectTagVisible: false,
@@ -2084,6 +2108,7 @@ export default {
       filterAssessments: [],
       centuryList: [],
       filterCentury: [],
+      filterInteractive: [],
       filterParentMap: new Map(),
       recomendListLoading: false,
       addRecomendLoading: false,
@@ -2376,6 +2401,13 @@ export default {
           })
         } else {
           this.$message.error(response.message)
+        }
+      })
+
+      GetDictItems(DICT_PROMPT_TYPE).then((response) => {
+        if (response.success) {
+          logger.info('DICT_PROMPT_TYPE', response.result)
+          this.initPrompts = response.result
         }
       })
     },
@@ -2878,7 +2910,7 @@ export default {
         presentationId: this.form.presentationId
       }).then(response => {
         this.$logger.info('loadThumbnail response', response.result)
-        if (response.code == 0) {
+        if (response.code === 0) {
           const pageObjects = response.result.pageObjects
           this.pptTitle = response.result.title
           this.thumbnailList = []
@@ -2888,7 +2920,7 @@ export default {
           if (!this.form.fileDeleted && response.result.fileDeleted) {
             this.form.fileDeleted = true
           }
-        } else if (response.code == 403) {
+        } else if (response.code === 403) {
           this.$router.push({ path: '/teacher/main/created-by-me' })
         } else {
           this.$message.error(response.message)
@@ -3573,7 +3605,8 @@ export default {
         filterCategoryType: this.filterType,
         filterLearn: this.filterLearn,
         filterAssessments: this.getFilterAssessmentsParams(this.filterAssessments),
-        filterCentury: this.getFilterParams(this.filterCentury)
+        filterCentury: this.getFilterParams(this.filterCentury),
+        filterInteractive: this.filterInteractive
       }).then(response => {
         this.$logger.info('handleToggleTemplateType ', response)
         this.templateList = response.result
@@ -3854,9 +3887,15 @@ export default {
             }
           })
         }
+      } else if (category === TemplateType.Prompt) {
+        if (this.filterInteractive.indexOf(id) === -1) {
+          this.filterInteractive.push(id)
+        } else {
+          this.filterInteractive.splice(this.filterInteractive.indexOf(id), 1)
+        }
       }
       // 如果选中的是子类 父id要从筛选条件中去除，记录关系
-      if (parent && parent.children.length > 0) {
+      if (parent && parent.children && parent.children.length > 0) {
         this.filterParentMap.set(id, parent.id)
       }
       this.selectFilter()
@@ -3873,6 +3912,8 @@ export default {
         })
       } else if (this.filterType === 3) {
         this.filterCentury = []
+      } else if (this.filterType === 4) {
+        this.filterInteractive = []
       }
       this.selectFilter()
     },

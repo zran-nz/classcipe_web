@@ -113,7 +113,8 @@ export const TagOriginType = {
 export const TemplateType = {
   Learning: 'Learning experience',
   Assessments: 'Assessments',
-  Century: '21 century skills'
+  Century: '21 century skills',
+  Prompt: 'prompt'
 }
 
 export const CustomTagType = {
