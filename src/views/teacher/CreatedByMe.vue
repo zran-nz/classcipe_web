@@ -274,18 +274,20 @@
                     </a-dropdown>
                   </div>
                   <div class="action-item action-item-center">
-                    <div class="session-btn session-btn-left" @click.stop="handleStartSessionHistory(item,1)" v-if="item.type === typeMap['task']" >
-                      <div class="session-btn-text">
-                        <teacher-presenting />
-                        Teacher-paced
+                    <template v-if="item.type === typeMap['task'] && item.presentationId">
+                      <div class="session-btn session-btn-left" @click.stop="handleStartSessionHistory(item,1)">
+                        <div class="session-btn-text">
+                          <teacher-presenting />
+                          Teacher-paced
+                        </div>
                       </div>
-                    </div>
-                    <div class="session-btn session-btn-right" @click.stop="handleStartSessionHistory(item,2)" v-if="item.type === typeMap['task']">
-                      <div class="session-btn-text">
-                        <student-pace />
-                        Student-paced
+                      <div class="session-btn session-btn-right" @click.stop="handleStartSessionHistory(item,2)">
+                        <div class="session-btn-text">
+                          <student-pace />
+                          Student-paced
+                        </div>
                       </div>
-                    </div>
+                    </template>
                   </div>
                   <div class="action-item action-item-bottom" >
                     <div class="session-btn" @click.stop="handleEditItem(item)">
