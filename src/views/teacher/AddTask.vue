@@ -234,11 +234,13 @@
                                   <a-icon type="info-circle" />
                                 </a-tooltip>
                               </template>
-                              <a-button type='primary' @click='handleSelectDescription' :disabled="!canEdit">
-                                <div class='btn-text' style='line-height: 20px'>
-                                  Add Learning Objectives
-                                </div>
-                              </a-button>
+                              <a-badge :dot='hasExtraRecommend'>
+                                <a-button type='primary' @click='handleSelectDescription' :disabled="!canEdit">
+                                  <div class='btn-text' style='line-height: 20px'>
+                                    Add Learning Objectives
+                                  </div>
+                                </a-button>
+                              </a-badge>
                             </a-form-item>
 
                             <!--knowledge tag-select -->
@@ -2122,6 +2124,7 @@ export default {
       selectedSlideVisibleFromSave: false, // 点击保存时，是否显示选择slide的弹窗，此处不去选择slide直接goBack
 
       recommendData: [],
+      recommendDataIdList: [],
       selectedList: [],
 
       subTaskSaving: false,
@@ -2223,6 +2226,18 @@ export default {
     },
     isOwner() {
       return this.$store.getters.userInfo.email === this.form.createBy
+    },
+    hasExtraRecommend() {
+      this.$logger.info('-------------', this.form.learnOuts, this.recommendDataIdList)
+      let ret = false
+      this.form.learnOuts.forEach(item => {
+        if (this.recommendDataIdList.indexOf(item.knowledgeId) === -1) {
+          ret = true
+          this.$logger.info('------------learnOuts', item, ' not exist in ', this.recommendDataIdList)
+        }
+      })
+
+      return ret
     }
   },
   watch: {
@@ -3284,6 +3299,7 @@ export default {
           } else {
             recommendMap.set(item.fromId, [item])
           }
+          this.recommendDataIdList.push(item.knowledgeId)
         })
         this.recommendData = []
         for (const value of recommendMap.values()) {
