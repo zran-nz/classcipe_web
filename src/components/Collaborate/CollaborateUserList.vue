@@ -120,9 +120,9 @@
                         {{ user.userName }}
                       </div>
                     </div>
-                    <a-tag color="red" style="position: absolute;top: 9px;right: 0;" v-if="user.linkUser!== 0">
-                      Apply to join
-                    </a-tag>
+<!--                    <a-tag color="red" style="position: absolute;top: 9px;right: 0;" v-if="user.linkUser!== 0">-->
+<!--                      Apply to join-->
+<!--                    </a-tag>-->
                   </div>
                   <div class="user-status">
                     <span v-if="user.receiveStatus === 0">
