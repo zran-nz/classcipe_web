@@ -2878,7 +2878,7 @@ export default {
         presentationId: this.form.presentationId
       }).then(response => {
         this.$logger.info('loadThumbnail response', response.result)
-        if (response.success) {
+        if (response.code == 0) {
           const pageObjects = response.result.pageObjects
           this.pptTitle = response.result.title
           this.thumbnailList = []
@@ -2888,6 +2888,8 @@ export default {
           if (!this.form.fileDeleted && response.result.fileDeleted) {
             this.form.fileDeleted = true
           }
+        } else if (response.code == 403) {
+          this.$router.push({ path: '/teacher/main/created-by-me' })
         } else {
           this.$message.error(response.message)
         }

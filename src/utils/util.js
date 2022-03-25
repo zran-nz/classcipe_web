@@ -268,3 +268,9 @@ export function getDaysBetweenDates(startDate, endDate, format = 'YYYY-MM-DD') {
   daysList.push(EDate.format(format))
   return daysList
 }
+
+export function getUrlWithNoParams(url) {
+  if (url.indexOf('?') === -1) { return url } else {
+    return url.split('?')[0]
+  }
+}
