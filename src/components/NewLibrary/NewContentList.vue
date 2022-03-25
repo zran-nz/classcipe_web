@@ -46,7 +46,7 @@
       </template>
       <template v-else>
         <div class="content-empty" v-if="!firstLoad">
-          <a-empty />
+          <no-more-resources tips='No data under selected level, please check other levels.' />
         </div>
       </template>
     </div>
@@ -76,10 +76,12 @@ import UnitPlanPreview from '@/components/UnitPlan/UnitPlanPreview'
 import MaterialPreview from '@/components/Material/MaterialPreview'
 import { typeMap } from '@/const/teacher'
 import { NavigationType } from '@/components/NewLibrary/NavigationType'
+import NoMoreResources from '@/components/Common/NoMoreResources'
 
 export default {
   name: 'NewContentList',
   components: {
+    NoMoreResources,
     ContentTypeIcon,
     UnitPlanPreview,
     MaterialPreview
@@ -164,6 +166,7 @@ export default {
       this.$logger.info('NewContentList handleChangeCurriculum')
       this.contentDataList = []
       this.parent = null
+      this.firstLoad = true
       this.currentDataType = null
     },
     assignSelectedList () {

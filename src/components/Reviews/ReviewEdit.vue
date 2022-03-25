@@ -97,7 +97,7 @@
         </div>
         <div class="reviews-edit__check" style="border-top: 0;border-bottom: 1px solid #d9d9d9;">
           <a-checkbox v-model="subForm.updatedMsg">
-            Let me know if this resource is updated or a new alternative version is created
+            Let me know if this resource is updated
           </a-checkbox>
         </div>
       </div>

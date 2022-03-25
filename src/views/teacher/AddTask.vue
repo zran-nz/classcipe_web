@@ -1715,7 +1715,6 @@
           <!-- 此处的questionIndex用于标识区分是哪个组件调用的，返回的事件数据中会带上，方便业务数据处理，可随意写，可忽略-->
           <new-browser
             ref='newBrowser'
-            :select-mode='selectModel.syncData'
             question-index='_questionIndex_1'
             :show-curriculum='true'
             :show-menu='[NavigationType.specificSkills,
@@ -2060,7 +2059,6 @@ export default {
 
       groupNameList: [],
       groupNameListOther: [],
-      syncData: [],
       selectSyncDataVisible: false,
       selectedSyncList: [],
       // 已选择的大纲知识点描述数据
@@ -3254,9 +3252,6 @@ export default {
             }
           })
         })
-        if (this.groupNameList.length > 0 || this.groupNameListOther.length > 0) {
-          this.handleSyncData()
-        }
         this.newTermName = 'Untitled category_' + (this.groupNameList.length)
         this.$logger.info('AddTask GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
         this.$logger.info('*******************associateUnitPlanIdList', this.associateUnitPlanIdList)
@@ -3266,21 +3261,22 @@ export default {
 
         if (this.associateUnitPlanIdList.length > 0) {
           this.loadRefLearnOuts()
+          this.handleSelfOutsData()
         }
-        // else {
-        //   this.loadBigIdeaLearnOuts()
-        // }
       })
     },
 
-    loadRefLearnOuts() {
+    async loadRefLearnOuts() {
       this.recommendData = []
       this.recommendDataIdList = []
-      FindSourceOutcomes({
+      const unitPlanIdSet = new Set(this.associateUnitPlanIdList)
+      this.associateUnitPlanIdList = [...unitPlanIdSet]
+      const response = await FindSourceOutcomes({
         type: this.contentType['unit-plan'],
         ids: this.associateUnitPlanIdList
-      }).then(response => {
-        this.$logger.info('FindSourceOutcomes response', response)
+      })
+      this.$logger.info('FindSourceOutcomes response', response)
+      if (response.success) {
         const recommendMap = new Map()
         response.result.forEach(item => {
           if (recommendMap.has(item.fromId)) {
@@ -3299,16 +3295,40 @@ export default {
           })
         }
         this.$logger.info('update recommendData ', this.recommendData)
-      })
+      }
     },
 
-    // TODO 选择的assessment数据
+    // 填充自定义大纲内容
+    async handleSelfOutsData() {
+      this.$logger.info(' handleSelfOutsData')
+      const response = await GetReferOutcomes({
+        id: this.taskId,
+        type: this.contentType.task
+      })
+      this.$logger.info('getReferOutcomes response', response)
+      if (response.success && response.result.length) {
+         const list = response.result
+         list.forEach(item => {
+           if (item.hasOwnProperty('isSelfCustom') && item.isSelfCustom) {
+             item.fromId = item.fromList[0].fromId
+             item.fromName = item.fromList[0].fromName
+             item.fromTypeName = this.type2Name[item.fromList[0].fromType]
+
+             const targetItem = this.recommendData.find(rItem => rItem.fromId === item.fromId)
+             if (targetItem) {
+               this.$logger.info('targetItem ' + targetItem.fromName + ' add SelfCustom SelfOut ' + item.name, item)
+               targetItem.list.push(item)
+             }
+           }
+         })
+      }
+    },
+
     handleSelectAssessmentType(data) {
       this.$logger.info('handleSelectAssessmentType', data)
       this.selectedAssessmentList = data
     },
 
-    // TODO 自动更新选择的sync 的数据knowledgeId和name列表
     handleSelectListData(data) {
       this.$logger.info('handleSelectListData', data)
       this.selectedSyncList = data
@@ -3339,7 +3359,6 @@ export default {
       this.selectedRecommendList = data
     },
 
-    // TODO 自动更新选择的sync 的数据knowledgeId和name列表
     handleCancelSelectData() {
       this.selectedSyncList = []
       this.selectedCurriculumList = []
@@ -3351,7 +3370,6 @@ export default {
       this.selectSyncDataVisible = false
     },
 
-    // TODO 自动更新选择的sync 的数据knowledgeId和name列表
     handleEnsureSelectData() {
       this.$logger.info('handleEnsureSelectData',
         this.selectedCurriculumList,
@@ -3363,11 +3381,20 @@ export default {
         this.selectedSyncList)
       this.$logger.info('mySelectedList', this.$refs.newBrowser.mySelectedList)
       this.$logger.info('learnOuts', this.form.learnOuts)
-      this.form.learnOuts = JSON.parse(JSON.stringify(this.$refs.newBrowser.mySelectedList))
+      const filterLearnOuts = this.$refs.newBrowser.mySelectedList.filter(item => (!item.hasOwnProperty('isSelfCustom') || (item.hasOwnProperty('isSelfCustom') && !item.isSelfCustom)))
+      this.$logger.info('filterLearnOuts', filterLearnOuts)
+      this.form.learnOuts = JSON.parse(JSON.stringify(filterLearnOuts))
       this.$refs.newBrowser.selectedRecommendList.forEach(item => {
-        const index = this.form.learnOuts.findIndex(dataItem => dataItem.knowledgeId === item.knowledgeId)
-        if (index === -1) {
-          this.form.learnOuts.push(item)
+        if (item.hasOwnProperty('isSelfCustom') && item.isSelfCustom) {
+          // 自定义大纲不用判断重复，直接插入
+          const copyItem = JSON.parse(JSON.stringify(item))
+          copyItem.key = Math.random() + ''
+          this.form.selfOuts.push(copyItem)
+        } else {
+          const index = this.form.learnOuts.findIndex(dataItem => dataItem.knowledgeId === item.knowledgeId)
+          if (index === -1) {
+            this.form.learnOuts.push(item)
+          }
         }
       })
       this.selectedSyncList.forEach(data => {
@@ -3385,17 +3412,19 @@ export default {
       })
 
       this.selectedRecommendList.forEach(data => {
-        const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
-        if (filterLearnOuts.length > 0) {
-          return
+        if (!(data.hasOwnProperty('isSelfCustom') && data.isSelfCustom)) {
+          const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
+          if (filterLearnOuts.length > 0) {
+            return
+          }
+          this.form.learnOuts.push({
+            knowledgeId: data.knowledgeId,
+            name: data.name,
+            tags: data.tags,
+            tagType: data.tagType,
+            path: data.path
+          })
         }
-        this.form.learnOuts.push({
-          knowledgeId: data.knowledgeId,
-          name: data.name,
-          tags: data.tags,
-          tagType: data.tagType,
-          path: data.path
-        })
       })
 
       this.selectedIduList.forEach(data => {
@@ -3471,19 +3500,6 @@ export default {
 
       // #协同编辑event事件
       this.handleCollaborateEvent(this.taskId, this.taskField.Assessment, this.form.assessment)
-    },
-
-    handleSyncData() {
-      this.$logger.info(' handleSyncData')
-      GetReferOutcomes({
-        id: this.taskId,
-        type: this.contentType.task
-      }).then(response => {
-        this.$logger.info('getReferOutcomes response', response)
-        if (response.result.length) {
-          this.syncData = response.result
-        }
-      })
     },
 
     onChangeStep(current) {

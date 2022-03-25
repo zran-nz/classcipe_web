@@ -20,7 +20,7 @@
                   </a-tooltip>
                 </label>
                 <a-select
-                  v-model="filterParams.type"
+                  v-model="filterParams.statisticsType"
                   class="filter-item"
                   size="large"
                   @change="triggerSearch"
@@ -35,7 +35,7 @@
                 <label>DURING</label>
                 <div>
                   <a-select
-                    v-model="filterParams.duringType"
+                    v-model="filterParams.duringsType"
                     class="filter-item"
                     size="large"
                     @change="triggerSearch"
@@ -48,7 +48,7 @@
                   <a-range-picker
                     size="large"
                     style="margin-left: 10px;"
-                    v-show="filterParams.duringType === 6"
+                    v-show="filterParams.duringsType === 7"
                     v-model="filterParams.during"
                     @change="onChangeDate"
                   />
@@ -57,7 +57,7 @@
             </div>
             <div class="filter-summary">
               <div class="summary-title">{{ title }}</div>
-              <div class="summary-total">$0.00</div>
+              <div class="summary-total">${{ sum | percentFormat }}</div>
             </div>
           </div>
           <div class="dashboard-chart">
@@ -75,8 +75,11 @@
 <script>
 import moment from 'moment'
 
-import { DATERANGE_FOR_CHARTS } from '@/const/dateRange'
-import { getDaysBetweenDates } from '@/utils/util'
+import { DATERANGE_FOR_CHARTS, DURING_TYPE } from '@/const/dateRange'
+import { STATISTICS_TYPE } from '@/const/common'
+// import { getDaysBetweenDates } from '@/utils/util'
+
+import { dashboard } from '@/api/statistics'
 
 import ELine from '@/components/ECharts/Line'
 
@@ -87,55 +90,13 @@ export default {
   },
   data() {
     return {
+      loading: false,
       DATERANGE_FOR_CHARTS: DATERANGE_FOR_CHARTS,
-      typeOptions: [
-        {
-          value: 1,
-          label: 'Earnings'
-        },
-        {
-          value: 2,
-          label: 'Conversions'
-        },
-        {
-          value: 3,
-          label: 'Previews'
-        },
-        {
-          value: 4,
-          label: 'Unis sold'
-        },
-        {
-          value: 5,
-          label: 'Tasks sold'
-        },
-        {
-          value: 6,
-          label: 'Assessement sold'
-        }
-      ],
-      duringOptions: [{
-        value: 1,
-        label: 'Today'
-      }, {
-        value: 2,
-        label: 'This week'
-      }, {
-        value: 3,
-        label: 'This month'
-      }, {
-        value: 4,
-        label: 'This quarter'
-      }, {
-        value: 5,
-        label: 'This year'
-      }, {
-        value: 6,
-        label: 'Custom Range'
-      }],
+      typeOptions: Object.values(STATISTICS_TYPE),
+      duringOptions: DURING_TYPE,
       filterParams: {
-        type: 1,
-        duringType: 1,
+        statisticsType: 1,
+        duringsType: 1,
         during: [moment().startOf('month').startOf('day'), moment().endOf('day')]
       },
       dataSource: [{
@@ -144,7 +105,8 @@ export default {
         symbol: 'none',
         smooth: true,
         data: []
-      }]
+      }],
+      sum: 0
     }
   },
   created() {
@@ -152,9 +114,9 @@ export default {
   },
   computed: {
     title() {
-      const typeObj = this.typeOptions.find(item => item.value === this.filterParams.type)
-      if (this.filterParams.duringType !== 6) {
-        const key = this.duringOptions.find(item => item.value === this.filterParams.duringType).label
+      const typeObj = this.typeOptions.find(item => item.value === this.filterParams.statisticsType)
+      if (this.filterParams.duringsType !== 7) {
+        const key = this.duringOptions.find(item => item.value === this.filterParams.duringsType).label
         // during = DATERANGE_FOR_CHARTS[key]
         return key.toUpperCase() + ' ' + (typeObj ? typeObj.label.toUpperCase() : '')
       } else {
@@ -169,17 +131,63 @@ export default {
   },
   methods: {
     init() {
-
+      this.initChart()
     },
     initChart() {
-      const dateRange = getDaysBetweenDates(...this.filterParams.during)
-      this.dataSource[0].data = []
-      dateRange.forEach(date => {
-        this.dataSource[0].data.push({
-          date: date,
-          value: Math.random() * 1000
-        })
+      // const dateRange = getDaysBetweenDates(...this.filterParams.during)
+      // this.dataSource[0].data = []
+      // dateRange.forEach(date => {
+      //   this.dataSource[0].data.push({
+      //     date: date,
+      //     value: Math.random() * 1000
+      //   })
+      // })
+      const params = {
+        duringsType: this.filterParams.duringsType,
+        statisticsType: this.filterParams.statisticsType,
+        startTime: this.filterParams.during[0].startOf('day').format('YYYY-MM-DD HH:mm:ss'),
+        endTime: this.filterParams.during[1].endOf('day').format('YYYY-MM-DD HH:mm:ss')
+      }
+      console.log(params)
+      this.loading = true
+      dashboard(params).then(res => {
+        console.log(res)
+        if (res && res.success) {
+          console.log(res.result)
+          this.sum = res.result.sum
+
+          this.dataSource[0].data = this.convertAxis(res.result.data)
+        }
+      }).finally(() => {
+        this.loading = false
       })
+    },
+    convertAxis(data) {
+      const WEEK = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+      let datasource = [ ...data ]
+      if (this.filterParams.duringsType === 1) {
+        datasource = datasource.map(item => {
+          return {
+            date: item.date.split(' ')[1],
+            value: item.value
+          }
+        })
+      } else if (this.filterParams.duringsType === 2) {
+        datasource = datasource.map(item => {
+          return {
+            date: WEEK[moment(item.date).day()],
+            value: item.value
+          }
+        })
+      } else {
+        datasource = datasource.map(item => {
+          return {
+            date: item.date.split(' ')[0],
+            value: item.value
+          }
+        })
+      }
+      return datasource
     },
     changeTab(key) {
 
@@ -188,7 +196,7 @@ export default {
       this.triggerSearch()
     },
     triggerSearch() {
-      this.initChart()
+      this.init()
     }
   }
 }

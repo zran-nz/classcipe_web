@@ -1595,7 +1595,6 @@
           <!-- 此处的questionIndex用于标识区分是哪个组件调用的，返回的事件数据中会带上，方便业务数据处理，可随意写，可忽略-->
           <new-browser
             ref='newBrowser'
-            :select-mode='selectModel.syncData'
             question-index='_questionIndex_1'
             :sync-data='syncData'
             :show-menu='[NavigationType.specificSkills,

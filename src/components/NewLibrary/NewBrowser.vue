@@ -58,9 +58,9 @@
                     :data-tag-type='recommendItem.tagType'
                     :data-knowledge-id="recommendItem.knowledgeId"
                     :data-selected-id-list="mySelectedIdList">
-                    <a-tooltip class="my-tooltip">
+                    <a-tooltip class="my-tooltip" placement="topLeft">
                       <template slot="title">
-                        {{ recommendItem.path }}
+                        {{ recommendItem.path ? recommendItem.path : recommendItem.name }}
                       </template>
                       <div class="select-block">
                         <a-icon
@@ -75,6 +75,9 @@
                       </div>
 
                       <div class="right-name">
+                        <div class='custom-icon' v-if='recommendItem.isSelfCustom'>
+                          <a-icon type="user-add" />
+                        </div>
                         {{ recommendItem.name }}
                       </div>
 
@@ -95,9 +98,9 @@
                     :data-tag-type='recommendItem.tagType'
                     :data-knowledge-id="recommendItem.knowledgeId"
                     :data-selected-id-list="mySelectedIdList">
-                    <a-tooltip class="my-tooltip">
+                    <a-tooltip class="my-tooltip" placement="topLeft">
                       <template slot="title">
-                        {{ recommendItem.path }}
+                        {{ recommendItem.path ? recommendItem.path : recommendItem.name }}
                       </template>
                       <div class="select-block">
                         <a-icon
@@ -132,9 +135,9 @@
                     :data-tag-type='recommendItem.tagType'
                     :data-knowledge-id="recommendItem.knowledgeId"
                     :data-selected-id-list="mySelectedIdList">
-                    <a-tooltip class="my-tooltip">
+                    <a-tooltip class="my-tooltip" placement="topLeft">
                       <template slot="title">
-                        {{ recommendItem.path }}
+                        {{ recommendItem.path ? recommendItem.path : recommendItem.name }}
                       </template>
                       <div class="select-block">
                         <a-icon
@@ -1181,6 +1184,10 @@ export default {
             flex-direction: row;
             justify-content: flex-start;
             align-items: flex-start;
+            .custom-icon {
+              padding-right: 5px;
+              color: #999;
+            }
           }
         }
       }

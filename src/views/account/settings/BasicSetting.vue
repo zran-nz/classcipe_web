@@ -187,6 +187,9 @@
 
             <div class="profile-text profile-data">
               <div class='linked-school-name' v-if="$store.getters.schoolName">{{ $store.getters.schoolName }}</div>
+              <!-- <div v-if="!$store.getters.schoolName">
+                <a-button @click="userFormVisible = true">Refer your principal to win</a-button>
+              </div> -->
               <div class='no-linked-school-name' v-if="!$store.getters.schoolName">You have not linked to any school</div>
             </div>
           </div>
@@ -217,65 +220,157 @@
       </a-modal>
 
     </a-col>
-    <!-- <a-col flex="30px">
+    <a-col flex="30px" v-show="userFormVisible">
       <a-divider type="vertical" style="height: 100%;margin: 0 15px;"/>
     </a-col>
-    <a-col flex="500px">
-      <div class="account-info" v-if="!$store.getters.schoolName">
+    <a-col flex="500px" v-show="userFormVisible">
+      <div class="account-info">
         <div class="account-info-title">
           Complete the form below to send your principal an email about Classcipe
         </div>
         <div class="account-info-sub">
-          <a-button type="link">I'm an administrator ></a-button>
+          <a-button v-show="!adminFormVisible" @click="adminFormVisible = true" type="link">I'm an administrator ></a-button>
+          <a-button v-show="adminFormVisible" @click="adminFormVisible = false" type="link">I'm not an administrator ></a-button>
         </div>
-        <a-form-model class="account-info-form" :layout="userForm.layout" :model="userForm">
-          <a-row :gutter=16>
-            <a-col :span="12">
-              <a-form-model-item label="Your Frist Name">
-                <a-input size="large" v-model="userForm.fistName" placeholder="input your first name" />
+        <a-spin :spinning="confirmLoading">
+          <a-form-model
+            ref="userForm"
+            class="account-info-form"
+            :layout="userForm.layout"
+            :model="userForm"
+            :rules="validatorRules"
+            v-show="!adminFormVisible"
+          >
+            <a-row :gutter=16>
+              <a-col :span="12">
+                <a-form-model-item label="Your Frist Name" prop="firstname">
+                  <a-input size="large" v-model="userForm.firstname" placeholder="input your first name" />
+                </a-form-model-item>
+              </a-col>
+              <a-col :span="12">
+                <a-form-model-item label="Your Last Name" prop="lastname">
+                  <a-input size="large" v-model="userForm.lastname" placeholder="input your last Name" />
+                </a-form-model-item>
+              </a-col>
+            </a-row>
+            <a-form-model-item label="Your Email Address" prop="email">
+              <a-input size="large" v-model="userForm.email" placeholder="input your email address" />
+            </a-form-model-item>
+            <a-row :gutter=16>
+              <a-col :span="12">
+                <a-form-model-item label="Principal's Frist Name" prop="principalFirstName">
+                  <a-input size="large" v-model="userForm.principalFirstName" placeholder="input principal's first name" />
+                </a-form-model-item>
+              </a-col>
+              <a-col :span="12">
+                <a-form-model-item label="Principal's Last Name" prop="principallastname">
+                  <a-input size="large" v-model="userForm.principallastname" placeholder="input principal's last Name" />
+                </a-form-model-item>
+              </a-col>
+            </a-row>
+            <a-form-model-item label="Principal's Email Address" prop="principalEmail">
+              <a-input size="large" v-model="userForm.principalEmail" placeholder="input principal's email address" />
+            </a-form-model-item>
+            <a-form-model-item label="Your School Name" prop="schoolName">
+              <a-input size="large" v-model="userForm.schoolName" placeholder="input your school name" />
+            </a-form-model-item>
+            <a-form-model-item label="Your Personalized Message (Optional)">
+              <a-textarea :auto-size="{ minRows: 3}" size="large" v-model="userForm.personalizedMessage" placeholder="input your personalized message" />
+            </a-form-model-item>
+            <a-form-model-item style="text-align: right;">
+              <a-button type="primary" html-type="submit">
+                Send
+              </a-button>
+            </a-form-model-item>
+          </a-form-model>
+          <a-form-model
+            ref="adminForm"
+            class="account-info-form"
+            v-show="adminFormVisible"
+            layout="vertical"
+            :model="adminForm"
+            :rules="validatorRules"
+          >
+            <a-row :gutter=16>
+              <a-col :span="12">
+                <a-form-model-item label="Your Frist Name" prop="firstname">
+                  <a-input size="large" v-model="adminForm.firstname" placeholder="input your first name" />
+                </a-form-model-item>
+              </a-col>
+              <a-col :span="12">
+                <a-form-model-item label="Your Last Name" prop="lastname">
+                  <a-input size="large" v-model="adminForm.lastname" placeholder="input your last Name" />
+                </a-form-model-item>
+              </a-col>
+            </a-row>
+            <a-form-model-item label="Email" prop="email">
+              <a-input v-model="adminForm.email" placeholder="Please Input Email" />
+            </a-form-model-item>
+            <a-form-model-item label="School Name">
+              <a-input
+                v-model="adminForm.schoolName"
+                placeholder="Please Input School Name"
+              />
+            </a-form-model-item>
+            <a-form-model-item prop="position" label="Position">
+              <a-select
+                v-model="adminForm.position"
+                placeholder="Please Select a Position"
+                :getPopupContainer="target => target.parentNode"
+              >
+                <a-select-option
+                  v-for="param in positions"
+                  :value="param"
+                  :key="'position_' + param"
+                >
+                  {{ param }}
+                </a-select-option>
+              </a-select>
+              <a-form-model-item
+                v-show="adminForm.position === 'Other position'"
+                prop="positionInput"
+                label=""
+                style="margin-top: 20px"
+              >
+                <a-input
+                  v-model="adminForm.positionInput"
+                  placeholder="Please Input Position"
+                />
               </a-form-model-item>
-            </a-col>
-            <a-col :span="12">
-              <a-form-model-item label="Your Last Name">
-                <a-input size="large" v-model="userForm.lastName" placeholder="input your last Name" />
-              </a-form-model-item>
-            </a-col>
-          </a-row>
-          <a-form-model-item label="Your Email Address">
-            <a-input size="large" v-model="userForm.email" placeholder="input your email address" />
-          </a-form-model-item>
-          <a-row :gutter=16>
-            <a-col :span="12">
-              <a-form-model-item label="Principal's Frist Name">
-                <a-input size="large" v-model="userForm.principalFirstName" placeholder="input principal's first name" />
-              </a-form-model-item>
-            </a-col>
-            <a-col :span="12">
-              <a-form-model-item label="Principal's Last Name">
-                <a-input size="large" v-model="userForm.principalLastName" placeholder="input principal's last Name" />
-              </a-form-model-item>
-            </a-col>
-          </a-row>
-          <a-form-model-item label="Principal's Email Address">
-            <a-input size="large" v-model="userForm.principalEmail" placeholder="input principal's email address" />
-          </a-form-model-item>
-          <a-form-model-item label="Your School Name">
-            <a-input size="large" v-model="userForm.schoolName" placeholder="input your school name" />
-          </a-form-model-item>
-          <a-form-model-item label="Your Personalized Message (Optional)">
-            <a-input size="large" v-model="userForm.personalizedMessage" placeholder="input your personalized message" />
-          </a-form-model-item>
-          <a-form-model-item style="text-align: right;">
-            <a-button type="primary" html-type="submit">
-              Send
-            </a-button>
-          </a-form-model-item>
-        </a-form-model>
+            </a-form-model-item>
+            <a-form-model-item prop="countryId" label="Country">
+              <a-select
+                v-model="adminForm.countryId"
+                placeholder="Please Select a Country"
+                :getPopupContainer="target => target.parentNode"
+              >
+                <a-select-option
+                  v-for="param in countries"
+                  :value="param.id"
+                  :key="'country_' + param.id"
+                >
+                  {{ param.name }}
+                </a-select-option>
+              </a-select>
+            </a-form-model-item>
+            <a-form-model-item label="I Would Like a Quote For">
+              <a-radio-group v-model="adminForm.planFor">
+                <a-radio value="1"> Plan for my school </a-radio>
+                <a-radio value="2"> Plan for a group </a-radio>
+              </a-radio-group>
+            </a-form-model-item>
+            <a-form-model-item label="Notes">
+              <a-input v-model="adminForm.notes" placeholder="Please Input Notes" />
+            </a-form-model-item>
+            <a-form-model-item style="text-align: right;">
+              <a-button type="primary" html-type="submit">
+                Send
+              </a-button>
+            </a-form-model-item>
+          </a-form-model>
+        </a-spin>
       </div>
-      <div style="text-align:center;margin-top: 300px;" v-else>
-        <a-button type="primary">You have not linked to any school</a-button>
-      </div>
-    </a-col> -->
+    </a-col>
   </a-row>
 </template>
 
@@ -293,7 +388,9 @@ import {
 } from '@/api/preference'
 import TagSetting from '@/components/UnitPlan/TagSetting'
 import { SubjectStudentList } from '@/api/subject'
+import { GetAllCountrys } from '@/api/common'
 import { SubjectType } from '@/const/common'
+import { mapState } from 'vuex'
 
 export default {
   name: 'BasicSetting',
@@ -346,17 +443,36 @@ export default {
       subjectType: SubjectType,
       ageList: [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
 
+      userFormVisible: false,
+      adminFormVisible: false,
+      confirmLoading: false,
       userForm: {
         layout: 'vertical',
-        fistName: '',
-        lastName: '',
+        firstname: '',
+        lastname: '',
         email: '',
         principalFirstName: '',
-        principalLastName: '',
+        principallastname: '',
         principalEmail: '',
         schoolName: '',
         personalizedMessage: ''
-      }
+      },
+      adminForm: {
+        layout: 'vertical',
+        position: 'Teacher',
+        positionInfo: 'Teacher',
+        positionInput: '',
+        firstname: '',
+        lastname: '',
+        email: ''
+      },
+      countries: [],
+      positions: [
+        'Teacher',
+        'School administrator',
+        'Principle/Deputy principle',
+        'Other position'
+      ]
     }
   },
   watch: {
@@ -366,33 +482,99 @@ export default {
     }
   },
   computed: {
+    ...mapState({
+      userInfoStore: state => state.user.info
+    }),
     subjectOptionsFilter() {
       if (this.$store.getters.currentRole === 'student') {
         return this.subjectOptions
       }
       return this.subjectOptions ? this.subjectOptions.filter(subject => subject.subjectType === SubjectType.Skill || subject.subjectType === SubjectType.LearnAndSkill) : []
+    },
+    validatorRules: function () {
+      return {
+        firstname: [{ required: true, message: 'Please Input First Name!' }],
+        lastname: [{ required: true, message: 'Please Input Last Name!' }],
+        email: [
+          { required: true, message: 'Please Input Email!' },
+          {
+            required: false,
+            type: 'email',
+            message: 'The email is not correct!',
+            trigger: 'blur'
+          }
+        ],
+        principalFirstName: [{ required: true, message: 'Please Input First Name!' }],
+        principallastname: [{ required: true, message: 'Please Input Last Name!' }],
+        principalEmail: [
+          { required: true, message: 'Please Input Email!' },
+          {
+            required: false,
+            type: 'email',
+            message: 'The email is not correct!',
+            trigger: 'blur'
+          }
+        ],
+        schoolName: [{ required: true, message: 'Please Input School Name!' }]
+      }
+    },
+    validatorAdminRules: function () {
+      return {
+        firstname: [{ required: true, message: 'Please Input First Name!' }],
+        lastname: [{ required: true, message: 'Please Input Last Name!' }],
+        email: [
+          { required: true, message: 'Please Input Email!' },
+          {
+            required: false,
+            type: 'email',
+            message: 'The email is not correct!',
+            trigger: 'blur'
+          }
+        ],
+        position: [{ required: true, message: 'Please Select a Position!' }],
+        positionInput: [
+          {
+            required: this.adminForm.position === 'Other position',
+            message: 'Please Input Position!'
+          }
+        ],
+        countryId: [{ required: true, message: 'Please Select a Country!' }]
+      }
     }
   },
   created () {
+    this.initDict()
     this.initData()
   },
   methods: {
-
+    initDict() {
+      GetAllCountrys({}).then(res => {
+        this.countries = res.result
+      })
+    },
     initBasic () {
       this.userInfo.subjectNameList = []
       this.userInfo.gradeNameList = []
       this.userInfo.areaNameList = []
-      this.userInfo.avatar = this.$store.getters.avatar
-      this.userInfo.nickname = this.$store.getters.nickname
-      this.userInfo.tempNickname = this.$store.getters.nickname
-      this.userInfo.currentRole = this.$store.getters.currentRole
-      this.userInfo.createTime = this.$store.getters.userInfo.createTime
-      this.userInfo.curriculumId = this.$store.getters.bindCurriculum
-      this.userInfo.subjectIds = this.$store.getters.userInfo.preference.subjectIds
-      this.userInfo.gradeIds = this.$store.getters.userInfo.preference.gradeIds
-      this.userInfo.areaIds = this.$store.getters.userInfo.preference.areaIds
-      this.userInfo.others = this.$store.getters.userInfo.preference.others
-      this.userInfo.age = this.$store.getters.userInfo.age
+      this.userInfo.avatar = this.userInfoStore.avatar
+      this.userInfo.nickname = this.userInfoStore.nickname
+      this.userInfo.tempNickname = this.userInfoStore.nickname
+      this.userInfo.currentRole = this.userInfoStore.currentRole
+      this.userInfo.createTime = this.userInfoStore.createTime
+      this.userInfo.curriculumId = this.userInfoStore.bindCurriculum
+      this.userInfo.subjectIds = this.userInfoStore.preference.subjectIds
+      this.userInfo.gradeIds = this.userInfoStore.preference.gradeIds
+      this.userInfo.areaIds = this.userInfoStore.preference.areaIds
+      this.userInfo.others = this.userInfoStore.preference.others
+      this.userInfo.age = this.userInfoStore.age
+
+      this.userForm.firstname = this.userInfoStore.firstname
+      this.userForm.lastname = this.userInfoStore.lastname
+      this.userForm.email = this.userInfoStore.email
+      this.adminForm.firstname = this.userInfoStore.firstname
+      this.adminForm.lastname = this.userInfoStore.lastname
+      this.adminForm.email = this.userInfoStore.email
+
       this.customizedTagIds = []
       this.$store.getters.userInfo.customizedTags.forEach(item => {
         this.customizedTagIds.push({

@@ -213,19 +213,11 @@
                             >
                               <!--description-->
                               <div class='scenario-description'>
-                                <div
-                                  v-show='form.scenarios.length > 1'
-                                  class='sdg-delete-wrapper'
-                                  @click='handleDeleteSdg(sdgIndex)'>
-                                  <a-tooltip placement='top'>
-                                    <template slot='title'>
-                                      <span>{{ $t('teacher.add-unit-plan.delete-goal') }}</span>
-                                    </template>
-                                    <div class='sdg-delete'>
-                                      <a-icon :style="{ fontSize: '20px' }" type='delete' />
-                                    </div>
-                                  </a-tooltip>
-                                </div>
+                                <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteSdg(sdgIndex)" cancel-text="No" v-show='form.scenarios.length > 1'>
+                                  <span class="delete-action" >
+                                    <img src="~@/assets/icons/tag/delete.png" alt=''/>
+                                  </span>
+                                </a-popconfirm>
                                 <!--sdg-->
                                 <a-form-model-item>
                                   <a-select
@@ -265,13 +257,7 @@
                               </div>
 
                             </div>
-                            <a-button
-                              class='add-button'
-                              icon='plus-circle'
-                              size='large'
-                              style='top:-20px'
-                              type='link'
-                              @click='handleAddMoreSdg'></a-button>
+                            <add-green-icon class='add-input input-icon' @click='handleAddMoreSdg'/>
                           </div>
 
                           <div class='form-block form-block-rwc tag-content-block' :data-field-name='planField.Rwc' v-if="fieldItem.visible && fieldItem.fieldName === planField.Rwc" :key='fieldItem.fieldName'>
@@ -798,16 +784,13 @@
             ref='newBrowser'
             :default-active-menu='defaultActiveMenu'
             :recommend-data='recommendData'
-            :select-mode='selectModel.syncData'
             :selected-id='selectedIdList'
             :selected-list='selectedList'
             :show-menu='showMenuList'
-            :sync-data='syncData'
             :show-curriculum='true'
             :default-grade-id='form.gradeId'
             question-index='_questionIndex_1'
             @select-assessmentType='handleSelectAssessmentType'
-            @select-sync='handleSelectListData'
             @select-curriculum='handleSelectCurriculum'
             @select-subject-specific-skill='handleSelectSubjectSpecificSkillListData'
             @select-century-skill='handleSelect21CenturySkillListData'
@@ -1019,6 +1002,7 @@ import CollaborateTooltip from '@/components/Collaborate/CollaborateTooltip'
 import LocalStore from '@/websocket/localstore'
 import CollaborateUpdateContent from '@/components/Collaborate/CollaborateUpdateContent'
 import PublishList from '@/components/UnitPlan/PublishList'
+import AddGreenIcon from '@/assets/svgIcon/evaluation/form/tianjia_green.svg?inline'
 
 export default {
   name: 'AddUnitPlan',
@@ -1053,7 +1037,8 @@ export default {
     BigIdeaBrowse,
     Collapse,
     CollaborateTooltip,
-    CollaborateUpdateContent
+    CollaborateUpdateContent,
+    AddGreenIcon
   },
   props: {
     unitPlanId: {
@@ -1152,9 +1137,7 @@ export default {
 
       groupNameList: [],
       groupNameListOther: [],
-      syncData: [],
       selectSyncDataVisible: false,
-      selectedSyncList: [],
 
       // 已选择的大纲知识点描述数据
       selectedCurriculumList: [],
@@ -1295,12 +1278,6 @@ export default {
       if (!this.form.inquiry) {
         return false
       }
-      // if (this.form.questions.length > 1) {
-      //   return false
-      // }
-      // if (this.form.questions.length === 1 && !this.form.questions[0]) {
-      //   return false
-      // }
       if (this.recommendQuestionList.length === 0) {
         return false
       }
@@ -1370,12 +1347,6 @@ export default {
           this.sdgList = sdgListResponse[0].result
         }
 
-        // // GetTreeByKey
-        // if (!sdgListResponse[1].code) {
-        //   logger.info('GetTreeByKey subjectList', sdgListResponse[1].result.children)
-        //   this.subjectList = sdgListResponse[1].result.children
-        // }
-
         // GetMyGrades
         if (!sdgListResponse[1].code) {
           logger.info('GetMyGrades', sdgListResponse[1].result)
@@ -1405,17 +1376,30 @@ export default {
       })
     },
 
-    handleSyncData() {
-      this.$logger.info(' handleSyncData')
-      GetReferOutcomes({
+    // 填充自定义大纲内容
+    async handleSelfOutsData() {
+      this.$logger.info(' handleSelfOutsData')
+      const response = await GetReferOutcomes({
         id: this.unitPlanId,
         type: this.contentType['unit-plan']
-      }).then(response => {
-        this.$logger.info('getReferOutcomes response', response)
-        if (response.result.length) {
-          this.syncData = response.result
-        }
       })
+      this.$logger.info('getReferOutcomes response', response)
+      if (response.success && response.result.length) {
+        const list = response.result
+        list.forEach(item => {
+          if (item.hasOwnProperty('isSelfCustom') && item.isSelfCustom) {
+            item.fromId = item.fromList[0].fromId
+            item.fromName = item.fromList[0].fromName
+            item.fromTypeName = this.type2Name[item.fromList[0].fromType]
+
+            const targetItem = this.recommendData.find(rItem => rItem.fromId === item.fromId)
+            if (targetItem) {
+              this.$logger.info('targetItem ' + targetItem.fromName + ' add SelfCustom SelfOut ' + item.name, item)
+              targetItem.list.push(item)
+            }
+          }
+        })
+      }
     },
 
     restoreUnitPlan(unitPlanId, isFirstLoad) {
@@ -1942,20 +1926,6 @@ export default {
       this.$logger.info('handleAddAudioOverview')
       this.showAddAudioVisible = true
     },
-    handleUpdateSelfOuts (data) {
-      this.$logger.info('handleUpdateSelfOuts', data)
-      const tagType = data.tagType
-      const dataList = data.list
-      let selfOuts = this.form.selfOuts
-      selfOuts = selfOuts.filter(item => item.tagType !== tagType)
-      dataList.forEach(item => {
-        if (item.name && item.name.trim() !== '') {
-          selfOuts.push(item)
-        }
-      })
-      this.form.selfOutss = selfOuts
-      this.$logger.info('selfOuts', selfOuts)
-    },
     handleSelectDescription() {
       this.showMenuList = [NavigationType.specificSkills,
         NavigationType.centurySkills,
@@ -2206,9 +2176,6 @@ export default {
             }
           })
         })
-        if (this.groupNameListOther.length > 0) {
-          this.handleSyncData()
-        }
         this.newTermName = 'Untitled category_' + (this.groupNameList.length)
         this.$logger.info('AddTask GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
         this.$logger.info('*******************associateUnitPlanIdList', this.associateUnitPlanIdList)
@@ -2219,19 +2186,23 @@ export default {
 
         if (this.associateUnitPlanIdList.length > 0 || this.associateTaskIdList.length > 0) {
           this.loadRefLearnOuts()
+          this.handleSelfOutsData()
         }
       })
     },
 
-    loadRefLearnOuts() {
+    async loadRefLearnOuts() {
       this.recommendData = []
       this.recommendDataIdList = []
+      let response
       if (this.associateUnitPlanIdList.length) {
-        FindSourceOutcomes({
+         response = await FindSourceOutcomes({
           type: this.contentType['unit-plan'],
           ids: this.associateUnitPlanIdList
-        }).then(response => {
-          this.$logger.info('FindSourceOutcomes unit-plan response', response)
+        })
+
+        this.$logger.info('FindSourceOutcomes unit-plan response', response)
+        if (response.success) {
           const recommendMap = new Map()
           response.result.forEach(item => {
             if (recommendMap.has(item.fromId)) {
@@ -2250,16 +2221,17 @@ export default {
               list: value
             })
           }
-          this.$logger.info('update unit-plan recommendData ', this.recommendData)
-          this.$logger.info('************************update unit-plan recommendDataIdList ', this.recommendDataIdList)
-        })
+        }
+        this.$logger.info('update unit-plan recommendData ', this.recommendData)
+        this.$logger.info('************************update unit-plan recommendDataIdList ', this.recommendDataIdList)
       }
 
       if (this.associateTaskIdList.length) {
-        FindSourceOutcomes({
+        response = await FindSourceOutcomes({
           type: this.contentType.task,
           ids: this.associateTaskIdList
-        }).then(response => {
+        })
+        if (response.success) {
           this.$logger.info('FindSourceOutcomes task response', response)
           const recommendMap = new Map()
           response.result.forEach(item => {
@@ -2281,9 +2253,7 @@ export default {
           }
           this.$logger.info('update task recommendData ', this.recommendData)
           this.$logger.info('************************update unit-plan recommendDataIdList ', this.recommendDataIdList)
-        }).finally(() => {
-          // this.loadBigIdeaLearnOuts()
-        })
+        }
       }
     },
     loadBigIdeaLearnOuts() {
@@ -2334,12 +2304,6 @@ export default {
       this.selectedAssessmentList = data
     },
 
-    // TODO 自动更新选择的sync 的数据knowledgeId和name列表
-    handleSelectListData(data) {
-      this.$logger.info('handleSelectListData', data)
-      this.selectedSyncList = data
-    },
-
     handleSelectCurriculum(data) {
       this.$logger.info('handleSelectCurriculum', data)
       this.selectedCurriculumList = data
@@ -2365,9 +2329,7 @@ export default {
       this.selectedRecommendList = data
     },
 
-    // TODO 自动更新选择的sync 的数据knowledgeId和name列表
     handleCancelSelectData() {
-      this.selectedSyncList = []
       this.selectedCurriculumList = []
       this.selectedSpecificSkillList = []
       this.selectedCenturySkillList = []
@@ -2377,7 +2339,6 @@ export default {
       this.selectSyncDataVisible = false
     },
 
-    // TODO 自动更新选择的sync 的数据knowledgeId和name列表
     handleEnsureSelectData() {
       this.$logger.info('handleEnsureSelectData',
         this.selectedCurriculumList,
@@ -2385,29 +2346,24 @@ export default {
         this.selectedCenturySkillList,
         this.selectedBigIdeaList,
         this.selectedAssessmentList,
-        this.selectedIduList,
-        this.selectedSyncList)
+        this.selectedIduList)
       this.$logger.info('mySelectedList', this.$refs.newBrowser.mySelectedList)
       this.$logger.info('learnOuts', this.form.learnOuts)
-      this.form.learnOuts = this.$refs.newBrowser.mySelectedList
+      const filterLearnOuts = this.$refs.newBrowser.mySelectedList.filter(item => (!item.hasOwnProperty('isSelfCustom') || (item.hasOwnProperty('isSelfCustom') && !item.isSelfCustom)))
+      this.$logger.info('filterLearnOuts', filterLearnOuts)
+      this.form.learnOuts = JSON.parse(JSON.stringify(filterLearnOuts))
       this.$refs.newBrowser.selectedRecommendList.forEach(item => {
-        const index = this.form.learnOuts.findIndex(dataItem => dataItem.knowledgeId === item.knowledgeId)
-        if (index === -1) {
-          this.form.learnOuts.push(item)
+        if (item.hasOwnProperty('isSelfCustom') && item.isSelfCustom) {
+          // 自定义大纲不用判断重复，直接插入
+          const copyItem = JSON.parse(JSON.stringify(item))
+          copyItem.key = Math.random() + ''
+          this.form.selfOuts.push(copyItem)
+        } else {
+          const index = this.form.learnOuts.findIndex(dataItem => dataItem.knowledgeId === item.knowledgeId)
+          if (index === -1) {
+            this.form.learnOuts.push(item)
+          }
         }
-      })
-      this.selectedSyncList.forEach(data => {
-        const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
-        if (filterLearnOuts.length > 0) {
-          return
-        }
-        this.form.learnOuts.push({
-          knowledgeId: data.knowledgeId,
-          name: data.name,
-          tags: data.tags,
-          tagType: data.tagType,
-          path: data.path
-        })
       })
 
       this.selectedIduList.forEach(data => {
@@ -2888,10 +2844,9 @@ export default {
     }
 
     .form-block-title {
-      /*font-family: PingFang SC;*/
-      font-weight: 500;
+      font-family: Inter-Bold;
       line-height: 24px;
-      color: #000000;
+      color: #666666;
       margin-bottom: 10px;
     }
 
@@ -2908,195 +2863,6 @@ export default {
 
     .question-item {
       padding-bottom: 24px;
-    }
-
-    .sdg-content-blocks {
-      //width: 700px;
-      position: relative;
-      border: 1px solid #fff;
-      box-sizing: border-box;
-      //padding: 5px 50px 5px 50px;
-      border-radius: 3px;
-      margin-bottom: 5px;
-
-      .scenario-description {
-        margin-top: 10px;
-        position: relative;
-
-        .sdg-delete-wrapper {
-          transition: all 0.2s ease-in;
-          display: block;
-          position: absolute;
-          text-align: center;
-          right: -40px;
-          top: 0;
-          line-height: 40px;
-          width: 40px;
-          height: 40px;
-          cursor: pointer;
-          color: @link-hover-color;
-          z-index: 100;
-        }
-
-        .browse {
-          padding: 10px 5px;
-          position: absolute;
-          right: -100px;
-          top: 70px;
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          justify-content: flex-start;
-          border-radius: 6px;
-        }
-
-        .btn-icon {
-          height: 18px;
-          width: 18px;
-        }
-
-        .btn-text {
-          padding: 0 5px;
-        }
-
-        .my-big-select {
-          //width: 600px;
-        }
-      }
-
-      &:hover {
-        //border: 1px solid #15C39A;
-        .sdg-delete-wrapper {
-          display: block;
-        }
-      }
-
-      .knowledge-delete-wrapper {
-        transition: all 0.2s ease-in;
-        display: none;
-        position: absolute;
-        text-align: center;
-        right: 15px;
-        top: 80px;
-        line-height: 50px;
-        width: 50px;
-        height: 50px;
-        cursor: pointer;
-        color: @link-hover-color;
-        z-index: 1000;
-        display: block;
-      }
-
-      &:hover {
-        //border: 1px dotted @link-hover-color;
-        cursor: pointer;
-        box-sizing: border-box;
-
-        .knowledge-delete-wrapper {
-          display: block;
-        }
-      }
-
-      .tag-select {
-        padding-bottom: 24px;
-
-        .tag-label {
-          color: @text-color-secondary;
-          text-align: center;
-          padding-bottom: 5px;
-        }
-      }
-    }
-
-    .content-blocks {
-      //width: 600px;
-      position: relative;
-      border: 1px dotted #fff;
-
-      .scenario-description {
-        margin-top: 10px;
-        position: relative;
-
-        .browse {
-          padding: 10px 5px;
-          position: absolute;
-          right: -100px;
-          top: 70px;
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          justify-content: flex-start;
-          border-radius: 6px;
-        }
-
-        .btn-icon {
-          height: 18px;
-          width: 18px;
-        }
-
-        .btn-text {
-          padding: 0 5px;
-        }
-      }
-
-      .sdg-delete-wrapper {
-        transition: all 0.2s ease-in;
-        display: block;
-        position: absolute;
-        text-align: center;
-        right: -60px;
-        top: 5px;
-        line-height: 50px;
-        width: 50px;
-        height: 50px;
-        cursor: pointer;
-        color: @link-hover-color;
-        z-index: 1000;
-      }
-
-      &:hover {
-        //border: 1px dotted @link-hover-color;
-        //box-sizing: border-box;
-        .sdg-delete-wrapper {
-          display: block;
-        }
-      }
-
-      .knowledge-delete-wrapper {
-        transition: all 0.2s ease-in;
-        display: none;
-        position: absolute;
-        text-align: center;
-        right: 15px;
-        top: 180px;
-        line-height: 50px;
-        width: 50px;
-        height: 50px;
-        cursor: pointer;
-        color: @link-hover-color;
-        z-index: 1000;
-        display: block;
-      }
-
-      &:hover {
-        //border: 1px dotted @link-hover-color;
-        cursor: pointer;
-        box-sizing: border-box;
-
-        .knowledge-delete-wrapper {
-          display: block;
-        }
-      }
-
-      .tag-select {
-        padding-bottom: 24px;
-
-        .tag-label {
-          color: @text-color-secondary;
-          text-align: center;
-          padding-bottom: 5px;
-        }
-      }
     }
   }
 
@@ -3770,6 +3536,33 @@ code {
 .addCategory /deep/ .anticon {
   position: absolute;
   left: 20px;
+}
+
+.scenario-description {
+  position: relative;
+  .delete-action {
+    position: absolute;
+    top:5px;
+    right: -35px;
+    display: none;
+    cursor: pointer;
+    height: 35px;
+    img {
+      width: 35px;
+    }
+  }
+
+  &:hover {
+    .delete-action {
+      display: block;
+    }
+  }
+}
+
+svg.add-input {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
 }
 
 </style>
