@@ -286,7 +286,7 @@ export default {
     displaySelectUserList () {
       const displayUserList = []
       this.userList.forEach(user => {
-        if (this.selectedUserEmailList.indexOf(user.email) === -1 && user.email !== this.$store.getters.userInfo.email) {
+        if (this.selectedUserEmailList.indexOf(user.email.trim()) === -1 && user.email.trim() !== this.$store.getters.userInfo.email) {
           displayUserList.push(user)
         }
       })
@@ -393,15 +393,15 @@ export default {
       if (!this.userNameOrEmail) {
         this.userList = this.collaborateHistoryUsers
         return
-      } else if (!isEmail(this.userNameOrEmail)) {
+      } else if (!isEmail(this.userNameOrEmail.trim())) {
         // 已经邀请的用户中选择
         this.userList = this.collaborateHistoryUsers.filter(item =>
-          item.email.toLowerCase().indexOf(this.userNameOrEmail.toLowerCase()) !== -1 ||
-          item.nickname.toLowerCase().indexOf(this.userNameOrEmail.toLowerCase()) !== -1)
+          item.email.trim().toLowerCase().indexOf(this.userNameOrEmail.trim().toLowerCase()) !== -1 ||
+          item.nickname.trim().toLowerCase().indexOf(this.userNameOrEmail.trim().toLowerCase()) !== -1)
         return
       }
       this.$logger.info('CollaboratesSearchUser ' + this.userNameOrEmail)
-      CollaboratesSearchUser({ name: this.userNameOrEmail }).then(response => {
+      CollaboratesSearchUser({ name: this.userNameOrEmail.trim() }).then(response => {
         this.$logger.info('SearchUser response', response)
         this.userList = response.result
       }).finally(() => {
