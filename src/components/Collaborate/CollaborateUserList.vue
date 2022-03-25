@@ -475,7 +475,7 @@ export default {
         this.$logger.info('CollaboratesUpdateLink response:', response)
         if (response.success) {
           this.collaborate.link = response.result
-          this.$copyText(this.collaborate.link).then(() => {
+          this.$copyText(this.linkUrl).then(() => {
             this.$message.success('The link has been reset and copied in your clipboard')
           }).catch(() => {
             this.$message.error('Copy failed')
