@@ -1,7 +1,7 @@
 <template>
   <div class="user-login">
     <a-tabs type="card" :defaultActiveKey="defaultActiveKey">
-      <a-tab-pane key="teacher" tab="Teacher">
+      <a-tab-pane key="teacher" tab="Teacher" v-if="!onlyTab || onlyTab === 'teacher'">
         <div class="login">
           <div>
             <!-- <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
@@ -28,7 +28,7 @@
           </div> -->
         </div>
       </a-tab-pane>
-      <a-tab-pane key="student" tab="Student">
+      <a-tab-pane key="student" tab="Student" v-if="!onlyTab || onlyTab === 'student'">
         <div class="login">
           <div>
             <!-- <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
@@ -150,6 +150,17 @@ export default {
       this.callbackUrl = callbackUrl
     } else if (redirect) {
       this.callbackUrl = redirect
+    }
+    if (this.$route.query && this.$route.query.only) {
+      this.defaultActiveKey = this.$route.query.only
+    }
+  },
+  computed: {
+    onlyTab() {
+      if (this.$route.query && this.$route.query.only) {
+        return this.$route.query.only
+      }
+      return ''
     }
   },
   methods: {

@@ -208,3 +208,30 @@ export const RATE_TOOLTIPS = {
   EFFETIVENESS: ['Very Ineffective', 'Ineffective', 'Effective Enough', 'Effective', 'Very Effective'],
   QUALITY: ['Inadequate', 'Capable', 'Satisfactory', 'Excellent', 'Super']
 }
+
+export const STATISTICS_TYPE = {
+  EARNINGS: {
+    label: 'Earnings',
+    value: 1
+  },
+  CONVERSIONS: {
+    label: 'Conversions',
+    value: 2
+  },
+  PREVIEWS: {
+    label: 'Previews',
+    value: 3
+  },
+  UNITSSOLD: {
+    label: 'Units sold',
+    value: 4
+  },
+  TASKSOLD: {
+    label: 'Task sold',
+    value: 5
+  },
+  ASSESSMENTSOLD: {
+    label: 'Assessment sold',
+    value: 6
+  }
+}
