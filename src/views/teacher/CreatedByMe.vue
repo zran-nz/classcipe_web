@@ -149,7 +149,7 @@
                     <div class="action-wrapper">
                       <template v-if="currentStatus !== 'archived'">
                         <!-- Task: 外置teacher-pace, student-pace, Edit, 折叠Delete, Duplicate, Previous session-->
-                        <template v-if="item.type === typeMap.task">
+                        <template v-if="item.type === typeMap.task && item.presentationId">
                           <div class="start-session-wrapper action-item-wrapper">
                             <div class="session-btn content-list-action-btn" @click="handleStartSessionHistory(item,1)">
                               <div class="session-btn-icon">
