@@ -100,7 +100,7 @@ export default {
       }
       let dataZoom = null
       let bottom = '20'
-      if (xAxis.length > 30) {
+      if (xAxis.length > 27) {
         toolbox.feature = {
           dataZoom: {
             yAxisIndex: 'none'

@@ -9,3 +9,28 @@ export const DATERANGE_FOR_CHARTS = {
   'This year': [moment().startOf('year').startOf('day'), moment().endOf('day')],
   'All Time': [moment('2013-01-01').startOf('day'), moment().endOf('day')]
 }
+
+export const DURING_TYPE = [
+  {
+    value: 1,
+    label: 'Today'
+  }, {
+    value: 2,
+    label: 'This week'
+  }, {
+    value: 3,
+    label: 'This month'
+  }, {
+    value: 4,
+    label: 'This quarter'
+  }, {
+    value: 5,
+    label: 'This year'
+  }, {
+    value: 6,
+    label: 'All time'
+  }, {
+    value: 7,
+    label: 'Custom Range'
+  }
+]
