@@ -592,6 +592,7 @@ export default {
     },
 
     initData () {
+      this.$logger.info('init data')
       this.initBasic()
       this.loading = true
       if (this.$store.getters.currentRole === 'teacher') {
@@ -627,7 +628,7 @@ export default {
             logger.info('SubjectTree response', response[2])
             this.subjectOptions = response[2].result
             this.subjectOptions.forEach(option => {
-              if (this.userInfo.subjectIds.indexOf(option.id) !== -1) {
+              if (this.userInfo.subjectIds.indexOf(option.id) !== -1 && this.userInfo.subjectNameList.indexOf(option.name) === -1) {
                 this.userInfo.subjectNameList.push(option.name)
               } else {
                 this.$logger.info('subject id ' + option.id + ' dont exist in ', this.userInfo.subjectIds)
