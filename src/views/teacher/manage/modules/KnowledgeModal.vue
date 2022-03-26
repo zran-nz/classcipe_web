@@ -17,7 +17,7 @@
           </a-select>
         </a-form-model-item>
 
-        <a-form-model-item label="grade" :labelCol="labelCol" :wrapperCol="wrapperCol" prop="gradeIds">
+        <a-form-model-item label="Grade" :labelCol="labelCol" :wrapperCol="wrapperCol" prop="gradeIds">
           <a-select
             :getPopupContainer="trigger => trigger.parentElement"
             mode="multiple"
@@ -26,6 +26,17 @@
             placeholder="Please select grade"
             :readonly="true" >
             <a-select-option :value="item.id" :key="item.id" v-for="item in gradeListAll">{{ item.name }}</a-select-option>
+          </a-select>
+        </a-form-model-item>
+
+        <a-form-model-item label="Phase" :labelCol="labelCol" :wrapperCol="wrapperCol" prop="phaseList">
+          <a-select
+            :getPopupContainer="trigger => trigger.parentElement"
+            mode="multiple"
+            v-model="model.phaseList"
+            placeholder="Please select grade"
+            :readonly="true" >
+            <a-select-option :value="item.value" :key="item.value" v-for="item in phaseAllList">{{ item.text }}</a-select-option>
           </a-select>
         </a-form-model-item>
 
@@ -70,6 +81,10 @@ export default {
       default: () => []
     },
     gradeList: {
+      type: Array,
+      default: () => []
+    },
+    phaseAllList: {
       type: Array,
       default: () => []
     }

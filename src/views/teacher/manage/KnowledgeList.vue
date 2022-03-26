@@ -100,33 +100,29 @@
           </a-dropdown>
         </span>
 
-        <p slot="expandedRowRender" slot-scope="record" style="margin: 0">
-          <a-table
-            rowKey="id"
-            :columns="childColumns"
-            :data-source="record.knowledgeExtends"
-            :pagination="false">
-            <span slot="childAction" class="flex-right" slot-scope="text, childRecord">
-              <a @click="handleEditExtend(childRecord)">  <a-icon type="edit"/>Edit</a>
-              <a-divider type="vertical" />
-              <a-popconfirm title="Confirm Delete?" @confirm="() => handleDeleteExtend(childRecord.id)" placement="topLeft">
-                <a>Delete</a>
-              </a-popconfirm>
-            </span>
+        <a-table
+          slot-scope="record"
+          slot="expandedRowRender"
+          rowKey="id"
+          :columns="childColumns"
+          :data-source="record.knowledgeExtends"
+          :pagination="false">
+          <span slot="childAction" class="flex-right" slot-scope="text, childRecord">
+            <a @click="handleEditExtend(childRecord)">  <a-icon type="edit"/>Edit</a>
+            <a-divider type="vertical" />
+            <a-popconfirm title="Confirm Delete?" @confirm="() => handleDeleteExtend(childRecord.id)" placement="topLeft">
+              <a>Delete</a>
+            </a-popconfirm>
+          </span>
 
-            <!--            <span slot="description" slot-scope="text, record" class="table-description">-->
-            <!--              <a-tooltip :title="text" placement='top'>{{ text }}</a-tooltip>-->
-            <!--            </span>-->
-
-          </a-table>
-        </p>
+        </a-table>
 
       </a-table>
     </div>
 
     <knowledgeExtend-modal ref="modalExtendForm" @ok="modalFormOk"></knowledgeExtend-modal>
     <!--    <knowledge-tag-list ref="knowledgeTagList"></knowledge-tag-list>-->
-    <knowledge-modal :subject-list="subjectList" :grade-list="gradeAllList" ref="modalForm" @ok="modalFormOk"></knowledge-modal>
+    <knowledge-modal :phase-all-list="phaseAllList" :subject-list="subjectList" :grade-list="gradeAllList" ref="modalForm" @ok="modalFormOk"></knowledge-modal>
   </a-card>
 </template>
 
@@ -138,10 +134,12 @@ import KnowledgeModal from './modules/KnowledgeModal'
 import KnowledgeTagList from './KnowledgeTagList'
 import { filterObj } from '@/utils/util'
 import { GetGradesByCurriculumId } from '@/api/preference'
-import { CurriculumType, SubjectType, TagType } from '@/const/common'
+import { CurriculumType, DICT_KNOWLEDGE_PHASE, SubjectType, TagType } from '@/const/common'
 import JTreeSelect from '@/components/jeecg/JTreeSelect'
 import { SubjectTree } from '@/api/subject'
 import KnowledgeExtendModal from '@/views/teacher/manage/tags/KnowledgeExtendModal'
+import { GetDictItems } from '@/api/common'
+import * as logger from '@/utils/logger'
 
 export default {
   name: 'KnowledgeList',
@@ -160,13 +158,14 @@ export default {
       assessmentNameList: [],
       description: 'Skill Manage',
       subjectType: SubjectType,
+      phaseAllList: [],
       // 表头
       columns: [
         {
           title: 'branch or Description',
           align: 'left',
           dataIndex: 'name',
-          width: '50%'
+          width: '40%'
         },
         {
           title: 'Subject',
@@ -193,6 +192,15 @@ export default {
               }
             })
             return names ? names.join(',') : ''
+          }
+        },
+        {
+          title: 'Phase',
+          align: 'left',
+          dataIndex: 'phaseList',
+          sorter: true,
+          customRender: (value, row, index) => {
+            return value ? value.join(',') : ''
           }
         },
         {
@@ -278,6 +286,12 @@ export default {
       }
     }).finally(() => {
       this.loadData()
+      GetDictItems(DICT_KNOWLEDGE_PHASE).then((response) => {
+        if (response.success) {
+          logger.info('DICT_KNOWLEDGE_PHASE', response.result)
+          this.phaseAllList = response.result
+        }
+      })
   })
 },
   computed: {

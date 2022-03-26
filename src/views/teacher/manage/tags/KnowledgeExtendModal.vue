@@ -18,12 +18,12 @@
         <a-form-model-item :labelCol="labelCol" :wrapperCol="wrapperCol" prop="description" label="description">
           <a-textarea :rows="4" placeholder="Please input description" v-model="model.description" />
         </a-form-model-item>
-        <a-form-model-item :labelCol="labelCol" :wrapperCol="wrapperCol" prop="phase" label="phase">
-          <a-input placeholder="Please input phase" v-model="model.phase" />
-        </a-form-model-item>
-        <a-form-model-item :labelCol="labelCol" :wrapperCol="wrapperCol" prop="language" label="language">
-          <a-input placeholder="Please input language" v-model="model.language" />
-        </a-form-model-item>
+        <!--        <a-form-model-item :labelCol="labelCol" :wrapperCol="wrapperCol" prop="phase" label="phase">-->
+        <!--          <a-input placeholder="Please input phase" v-model="model.phase" />-->
+        <!--        </a-form-model-item>-->
+        <!--        <a-form-model-item :labelCol="labelCol" :wrapperCol="wrapperCol" prop="language" label="language">-->
+        <!--          <a-input placeholder="Please input language" v-model="model.language" />-->
+        <!--        </a-form-model-item>-->
 
       </a-form-model>
     </a-spin>

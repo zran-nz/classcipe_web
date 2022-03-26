@@ -11,6 +11,7 @@ export const DICT_PROMPT_TYPE = 'prompt_type'
 export const DICT_BLOOM_TAXONOMY = 'bloom_taxonomy'
 export const DICT_ORDER_TYPE = 'order_type'
 export const DICT_ORDER_STATUS = 'order_status'
+export const DICT_KNOWLEDGE_PHASE = 'knowledge_phase'
 export const TAG_CATGORY_KEYWORDS = 'Key words'
 export const SESSION_CALLBACK_URL = 'classcipe_callback_url'
 
