@@ -164,12 +164,12 @@ export default {
     },
     convertAxis(data) {
       const WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-      const MONTH = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+      // const MONTH = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
       let datasource = [ ...data ]
       if (this.filterParams.duringsType === 1) {
         datasource = datasource.map(item => {
           return {
-            date: item.date.split(' ')[1],
+            date: moment(item.date).format('HH:mm'),
             value: item.value
           }
         })
