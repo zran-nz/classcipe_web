@@ -45,4 +45,4 @@ export const FORM_CONFIG_DATA = 'form_config_data'
 
 export const SET_STUDENT_CLASS_LIST = 'set_student_class_list'
 
-export const SET_STUDENT_CURRENT_SCHOOL = 'set_student_current_school'
+export const SET_CURRENT_SCHOOL = 'SET_CURRENT_SCHOOL'

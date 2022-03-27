@@ -31,7 +31,7 @@
         <label class="self-mode" :class="{active: studyMode === STUDY_MODE.SELF}" @click="handleChange(STUDY_MODE.SELF)">Self-study</label>
         <a-dropdown :class="{active: studyMode === STUDY_MODE.SCHOOL, 'school-mode': true}" v-show="info.schoolList && info.schoolList.length > 0">
           <a class="ant-dropdown-link" @click="handleChange(STUDY_MODE.SCHOOL)">
-            {{ studentCurrentSchool.name }} <a-icon type="down" />
+            {{ currentSchool.name }} <a-icon type="down" />
           </a>
           <a-menu slot="overlay" @click="handleChangeSchool">
             <a-menu-item :key="item.id" v-for="item in info.schoolList">
@@ -95,18 +95,18 @@ export default {
     ...mapState({
       studyMode: state => state.app.studyMode,
       info: state => state.user.info,
-      studentCurrentSchool: state => state.user.studentCurrentSchool
+      currentSchool: state => state.user.currentSchool
     })
   },
   created() {
     this.init()
   },
   methods: {
-    ...mapMutations([TOOGLE_STUDY_MODE, 'SET_STUDENT_CURRENT_SCHOOL']),
+    ...mapMutations([TOOGLE_STUDY_MODE, 'SET_CURRENT_SCHOOL']),
     ...mapActions(['GetClassList']),
     init() {
-      const current = this.studentCurrentSchool.id ? this.studentCurrentSchool : (this.info.schoolList && this.info.schoolList.length > 0) ? { ...this.info.schoolList[0] } : {}
-      this.SET_STUDENT_CURRENT_SCHOOL(current)
+      const current = this.currentSchool.id ? this.currentSchool : (this.info.schoolList && this.info.schoolList.length > 0) ? { ...this.info.schoolList[0] } : {}
+      this.SET_CURRENT_SCHOOL(current)
       this.GetClassList()
     },
     handleChange(val) {
@@ -119,7 +119,7 @@ export default {
     handleChangeSchool(val) {
       this[TOOGLE_STUDY_MODE](STUDY_MODE.SCHOOL)
       const item = this.info.schoolList.find(item => item.id === val.key)
-      this.SET_STUDENT_CURRENT_SCHOOL(item)
+      this.SET_CURRENT_SCHOOL(item)
     },
     enterCode() {
       if (!this.code) return

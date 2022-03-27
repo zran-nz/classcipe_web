@@ -1,16 +1,16 @@
 export const StudentSchoolMixin = {
   created() {
     this.$store.watch(
-      state => state.user.studentCurrentSchool,
-      studentCurrentSchool => studentCurrentSchool && (this.handleSchoolChange(studentCurrentSchool)),
+      state => state.user.currentSchool,
+      currentSchool => currentSchool && (this.handleSchoolChange(currentSchool)),
       {
         immediate: true
       }
     )
   },
   methods: {
-    handleSchoolChange(studentCurrentSchool) {
-      console.log(studentCurrentSchool)
+    handleSchoolChange(currentSchool) {
+      console.log(currentSchool)
     }
   }
 }

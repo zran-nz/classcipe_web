@@ -320,7 +320,7 @@ export default {
         let params = {
           status: this.currentStatus,
           classId: this.classId,
-          schoolId: this.studentCurrentSchool.id,
+          schoolId: this.currentSchool.id,
           searchKey: this.searchText ? this.searchText : '',
           ...pageParams
         }
@@ -336,7 +336,7 @@ export default {
     ...mapState({
       studyMode: state => state.app.studyMode,
       studentClassList: state => state.user.studentClassList,
-      studentCurrentSchool: state => state.user.studentCurrentSchool
+      currentSchool: state => state.user.currentSchool
 
     }),
     ...mapGetters(['currentStudentClass']),

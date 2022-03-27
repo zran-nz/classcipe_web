@@ -166,7 +166,7 @@ export default {
       loadData: (pageParams) => {
         let params = {
           status: this.currentStatus,
-          schoolId: this.studyMode === STUDY_MODE.SELF ? '' : this.studentCurrentSchool.id,
+          schoolId: this.studyMode === STUDY_MODE.SELF ? '' : this.currentSchool.id,
           searchKey: this.searchText ? this.searchText : '',
           ...pageParams
         }
@@ -180,7 +180,7 @@ export default {
   computed: {
     ...mapState({
       studyMode: state => state.app.studyMode,
-      studentCurrentSchool: state => state.user.studentCurrentSchool
+      currentSchool: state => state.user.currentSchool
     }),
     statusList() {
       return StudentStudyTaskStatus.filter(item => {

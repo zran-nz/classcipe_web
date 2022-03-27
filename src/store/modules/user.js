@@ -2,7 +2,7 @@ import storage from 'store'
 import { login, getInfo, logout, changeRole, signUp } from '@/api/login'
 // import { SchoolClassClassList } from '@/api/schoolClass'
 import { StudentClasses } from '@/api/selfStudy'
-import { ACCESS_TOKEN, CURRENT_ROLE, IS_ADD_PREFERENCE, USER_INFO, ADD_PREFERENCE_SKIP_TIME, SET_STUDENT_CLASS_LIST, SET_STUDENT_CURRENT_SCHOOL } from '@/store/mutation-types'
+import { ACCESS_TOKEN, CURRENT_ROLE, IS_ADD_PREFERENCE, USER_INFO, ADD_PREFERENCE_SKIP_TIME, SET_STUDENT_CLASS_LIST, SET_CURRENT_SCHOOL } from '@/store/mutation-types'
 import { welcome, setCookie, delCookie } from '@/utils/util'
 import * as logger from '@/utils/logger'
 import { SESSION_ACTIVE_KEY } from '@/const/common'
@@ -28,7 +28,7 @@ const user = {
     school: '',
     schoolRole: '',
     studentClassList: [],
-    studentCurrentSchool: {}
+    currentSchool: {}
   },
 
   mutations: {
@@ -78,9 +78,9 @@ const user = {
     SET_STUDENT_CLASS_LIST: (state, studentClassList) => {
       state.studentClassList = studentClassList
     },
-    SET_STUDENT_CURRENT_SCHOOL: (state, studentCurrentSchool) => {
-      state.studentCurrentSchool = studentCurrentSchool
-      storage.set(SET_STUDENT_CURRENT_SCHOOL, studentCurrentSchool)
+    SET_CURRENT_SCHOOL: (state, currentSchool) => {
+      state.currentSchool = currentSchool
+      storage.set(SET_CURRENT_SCHOOL, currentSchool)
     }
   },
 
@@ -164,6 +164,8 @@ const user = {
             commit('SET_CURRENT_ROLE', result.currentRole)
             commit('SET_IS_ADD_PREFERENCE', result.isAddPreference)
             commit('SET_DISABLED_QUESTION', result.disableQuestion)
+            const schoolIndex = result.schoolList.findIndex(item => item.id === result.school)
+            if (schoolIndex > -1) commit('SET_CURRENT_SCHOOL', result.schoolList[schoolIndex])
             storage.set(CURRENT_ROLE, result.currentRole)
             storage.set(IS_ADD_PREFERENCE, result.isAddPreference)
             storage.set(USER_INFO, result)
@@ -235,7 +237,7 @@ const user = {
           storage.remove(USER_INFO)
           storage.remove(ADD_PREFERENCE_SKIP_TIME)
           storage.remove(SET_STUDENT_CLASS_LIST)
-          storage.remove(SET_STUDENT_CURRENT_SCHOOL)
+          storage.remove(SET_CURRENT_SCHOOL)
           window.sessionStorage.removeItem(SESSION_ACTIVE_KEY)
           delCookie(ACCESS_TOKEN)
           resolve()

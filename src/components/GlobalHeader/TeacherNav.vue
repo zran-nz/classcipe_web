@@ -16,7 +16,7 @@
               </div>
             </router-link>
           </a-menu-item>
-          <a-menu-item key="/teacher/managing" v-if="$store.getters.userInfo.schoolRole === 'admin'">
+          <a-menu-item key="/teacher/managing" v-if="currentSchool.roleNames.indexOf(schoolUserRole.admin) > -1">
             <router-link to="/teacher/managing">
               <div class="nav-item">
                 <div class="nav-icon">
@@ -75,6 +75,8 @@ import EditIconSvg from '@/assets/icons/header/bianji.svg?inline'
 import SousuoIconSvg from '@/assets/icons/header/sousuo.svg?inline'
 import ManageIconSvg from '@/assets/icons/header/Managing_icon.svg?inline'
 import TaskModeChoose from '@/components/QuickSession/TaskModeChoose'
+import { mapState } from 'vuex'
+import { SchoolUserRole } from '@/const/role'
 
 export default {
   name: 'TeacherNav',
@@ -90,7 +92,8 @@ export default {
       searchText: null,
       defaultSelectedKeys: [],
       selectedKeys: [],
-      showTaskMode: false
+      showTaskMode: false,
+      schoolUserRole: SchoolUserRole
     }
   },
   watch: {
@@ -98,6 +101,12 @@ export default {
       logger.debug('nav watch route path change ' + to)
       this.selectedKeys = [to]
     }
+  },
+  computed: {
+  ...mapState({
+    info: state => state.user.info,
+    currentSchool: state => state.user.currentSchool
+  })
   },
   mounted () {
     this.defaultSelectedKeys.push(this.$route.path)

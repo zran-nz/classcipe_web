@@ -256,7 +256,7 @@ export default {
   },
   computed: {
     ...mapState({
-      studentCurrentSchool: state => state.user.studentCurrentSchool
+      currentSchool: state => state.user.currentSchool
     }),
     ...mapGetters(['currentStudentClass']),
     dataSource() {

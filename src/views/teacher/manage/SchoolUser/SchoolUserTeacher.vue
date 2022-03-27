@@ -380,7 +380,8 @@ export default {
       const res = await updateUserStatus({
         schoolId: store.getters.userInfo.school,
         schoolUserStatus: status,
-        userId: id
+        userId: id,
+        role: SchoolUserRole.teacher
       })
       if (res.success) {
         this.$message.success(res.message)
