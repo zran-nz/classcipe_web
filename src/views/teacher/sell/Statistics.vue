@@ -1,7 +1,7 @@
 <template>
   <div class="my-content" ref="tableCon">
     <a-tabs type="card" class="my-tab" size="large" v-model="currentType">
-      <a-tab-pane :key="1" tab="Inspiration for teachers">
+      <a-tab-pane key="teacher" tab="Inspiration for teachers">
         <div class="my-filter">
           <div class="my-search">
             <a-input-search
@@ -16,7 +16,9 @@
           </div>
           <div class="filter-option">
             <a-select
-              v-model="teacherFilter.productType"
+              v-model="teacherFilter.types"
+              mode="multiple"
+              allowClear
               class="filter-item"
               size="large"
               @change="triggerSearch"
@@ -37,9 +39,12 @@
           :scroll="scroll"
           class="content-list"
         >
+          <div slot="reviews" slot-scope="text, record">
+            <review-score placement="left" :id="record.id"/>
+          </div>
         </s-table>
       </a-tab-pane>
-      <a-tab-pane :key="2" tab="Inspiration for students">
+      <a-tab-pane key="student" tab="Inspiration for students">
         <div class="my-filter">
           <div class="my-search">
             <a-input-search
@@ -54,8 +59,10 @@
           </div>
           <div class="filter-option">
             <a-select
-              v-model="studentFilter.productType"
+              v-model="studentFilter.types"
               class="filter-item"
+              mode="multiple"
+              allowClear
               size="large"
               @change="triggerSearch"
               placeholder="Search by product type"
@@ -75,6 +82,9 @@
           :scroll="scroll"
           class="content-list"
         >
+          <div slot="reviews" slot-scope="text, record">
+            <review-score placement="left" :id="record.id"/>
+          </div>
         </s-table>
       </a-tab-pane>
     </a-tabs>
@@ -83,93 +93,101 @@
 
 <script>
 import * as logger from '@/utils/logger'
-import { TASK_STATUS } from '@/const/common'
 
-import MyTaskList from '@/components/Student/MyTaskList'
+import { typeMap } from '@/const/teacher'
+
 import { STable } from '@/components'
+import ReviewScore from '@/components/Reviews/ReviewScore'
 
-import LiebiaoSvg from '@/assets/svgIcon/myContent/liebiao.svg?inline'
-import PubuSvg from '@/assets/svgIcon/myContent/pubu.svg?inline'
 import FilterIcon from '@/assets/libraryv2/filter.svg?inline'
 import FilterActiveIcon from '@/assets/libraryv2/filter_active.svg?inline'
-import CollaborateSvg from '@/assets/icons/collaborate/collaborate_group.svg?inline'
 
-import { SelfStudyTaskList } from '@/api/selfStudy'
+import { myStatisticsStudent, myStatisticsTeacher } from '@/api/statistics'
 
 export default {
   name: 'TeacherSellStatistics',
   components: {
     FilterIcon,
     FilterActiveIcon,
-    LiebiaoSvg,
-    PubuSvg,
-    CollaborateSvg,
-    MyTaskList,
-    STable
+    STable,
+    ReviewScore
   },
   data() {
     return {
       loading: true,
       startLoading: false,
-      currentType: 1,
-      TASK_STATUS: TASK_STATUS,
+      currentType: 'teacher',
       productTypeListTeacher: [
         {
-          value: '',
-          label: 'All Product Types'
-        },
-        {
-          value: '1',
+          value: typeMap['unit-plan'],
           label: 'Unit plan'
         },
         {
-          value: '2',
+          value: typeMap.task,
           label: 'Task'
         },
         {
-          value: '3',
+          value: typeMap.evaluation,
           label: 'Assessment'
         }
       ],
       productTypeListStudent: [
         {
-          value: '',
-          label: 'All Product Types'
-        },
-        {
-          value: '1',
+          value: typeMap.task,
           label: 'Task'
         },
         {
-          value: '2',
+          value: 8,
           label: 'Tips'
         }
       ],
       showFilter: false,
       teacherFilter: {
-        productType: '',
+        types: [],
         searchKey: ''
       },
       studentFilter: {
-        productType: '',
+        types: [],
         searchKey: ''
+      },
+
+      sortFields: {
+        name: 3,
+        publishedTime: 4,
+        price: 5,
+        preview: 6,
+        saved: 7,
+        sold: 8,
+        conversion: 9,
+        earnings: 10,
+        reviews: 11
+      },
+      sortOrders: {
+        ascend: 1,
+        descend: 2
       },
 
       loadTeacherData: (pageParams) => {
         const params = {
           ...this.teacherFilter,
-          ...pageParams
+          ...pageParams,
+          sortField: this.sortFields[pageParams.sortField],
+          sortType: this.sortOrders[pageParams.sortOrder]
         }
-        return SelfStudyTaskList(params).then(res => {
+        console.log(params)
+        return myStatisticsTeacher(params).then(res => {
           return res.result
         })
       },
       loadStudentData: (pageParams) => {
         const params = {
           ...this.studentFilter,
-          ...pageParams
+          ...pageParams,
+          sortField: this.sortFields[pageParams.sortField],
+          sortType: this.sortOrders[pageParams.sortOrder]
         }
-        return SelfStudyTaskList(params).then(res => {
+        console.log(params)
+        return myStatisticsStudent(params).then(res => {
           return res.result
         })
       },
@@ -181,33 +199,39 @@ export default {
       let results = [
         {
           title: 'Name',
-          dataIndex: 'name',
-          width: '200px'
+          dataIndex: 'purchasesName',
+          width: '200px',
+          sorter: true
         },
         {
           title: 'Published time',
-          dataIndex: 'publishedTime',
-          width: '150px'
+          dataIndex: 'publishTime',
+          width: '150px',
+          sorter: true
         },
         {
           title: 'Price',
           dataIndex: 'price',
-          width: '150px'
+          width: '120px',
+          sorter: true
         },
         {
-          title: 'Preview',
-          dataIndex: 'preview',
-          width: '150px'
+          title: 'Previews',
+          dataIndex: 'previews',
+          width: '120px',
+          sorter: true
         },
         {
           title: 'Saved',
           dataIndex: 'saved',
-          width: '150px'
+          width: '120px',
+          sorter: true
         },
         {
           title: 'Sold',
           dataIndex: 'sold',
-          width: '150px'
+          width: '120px',
+          sorter: true
         }
       ]
       if (this.currentType === 1) {
@@ -215,30 +239,33 @@ export default {
           {
             title: 'Conversion',
             dataIndex: 'conversion',
-            width: '150px'
+            width: '120px',
+            sorter: true
           }
         ])
       } else {
         results = results.concat([
           {
             title: 'Linked content',
-            dataIndex: 'content',
-            width: '200px'
+            dataIndex: 'linkedContent',
+            width: '150px'
           }
         ])
       }
       results = results.concat([
         {
           title: 'Earnings',
-          dataIndex: 'earning',
+          dataIndex: 'earnings',
           width: '150px',
-          // sorter: true,
+          sorter: true,
           customRender: (text) => this.$options.filters['percentFormat'](text)
         },
         {
           title: 'Reviews',
           dataIndex: 'reviews',
-          width: '150px'
+          sorter: true,
+          width: '200px',
+          scopedSlots: { customRender: 'reviews' }
         }
       ])
       return results
@@ -279,7 +306,7 @@ export default {
       this.currentType = type
     },
     triggerSearch() {
-      this.$refs.myTaskList && this.$refs.myTaskList.loadMyContent()
+      this.$refs[this.currentType + 'Table'] && this.$refs[this.currentType + 'Table'].refresh()
     }
   }
 }
@@ -382,7 +409,7 @@ export default {
 }
 
 .filter-option {
-  width: 220px;
+  width: 350px;
   .filter-item {
     width: 100%;
     line-height: 40px;
