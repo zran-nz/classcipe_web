@@ -5,7 +5,7 @@
         <img src="~@/assets/icons/collaborate/alert.png" />
       </div>
       <div class='alert-text'>
-        Mike saved this document！<br> This document contently is updated.
+        {{ this.saveContentMsg.from.nickname }} saved this document！<br> This document contently is updated.
       </div>
       <div class='alert-text-sub'>Please edit on the latest</div>
       <div class='alert-button'>
