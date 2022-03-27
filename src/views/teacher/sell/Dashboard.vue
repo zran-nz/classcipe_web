@@ -163,12 +163,13 @@ export default {
       })
     },
     convertAxis(data) {
-      const WEEK = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+      const WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+      // const MONTH = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
       let datasource = [ ...data ]
       if (this.filterParams.duringsType === 1) {
         datasource = datasource.map(item => {
           return {
-            date: item.date.split(' ')[1],
+            date: moment(item.date).format('HH:mm'),
             value: item.value
           }
         })
@@ -179,6 +180,24 @@ export default {
             value: item.value
           }
         })
+      // } else if (this.filterParams.duringsType === 5) {
+      //   const _data = datasource.map(item => {
+      //     return {
+      //       date: MONTH[moment(item.date).month()],
+      //       value: item.value
+      //     }
+      //   })
+      //   datasource = []
+      //   _data.forEach(item => {
+      //     const findItem = datasource.find(_ => _.date === item.date)
+      //     if (findItem) {
+      //       findItem.value += item.value
+      //     } else {
+      //       datasource.push({
+      //         ...item
+      //       })
+      //     }
+      //   })
       } else {
         datasource = datasource.map(item => {
           return {

@@ -99,7 +99,7 @@ export default {
         }
       }
       let dataZoom = null
-      let bottom = '20'
+      let bottom = '30'
       if (xAxis.length > 27) {
         toolbox.feature = {
           dataZoom: {
@@ -116,7 +116,7 @@ export default {
           // },
           {
             start: 0,
-            end: 10
+            end: 30
           }
         ]
         bottom = '100'
