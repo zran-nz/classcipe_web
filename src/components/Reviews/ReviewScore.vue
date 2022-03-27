@@ -1,7 +1,7 @@
 <template>
   <div>
     <a-rate v-if="currentRole === 'student'" v-model="data.reviewsScore" allow-half disabled/>
-    <a-popover v-if="currentRole === 'teacher'" :placement="placement">
+    <a-popover @visibleChange="debouncedGetData" v-if="currentRole === 'teacher'" :placement="placement">
       <template slot="content">
         <a-space direction="vertical">
           <a-space align="center">
@@ -26,7 +26,10 @@
 
 <script>
 import { RATE_TOOLTIPS } from '@/const/common'
+import { ReviewsTeacherStats } from '@/api/reviewsTeacher'
+import { ReviewsTaskStats } from '@/api/reviewsTask'
 import { mapState } from 'vuex'
+const { debounce } = require('lodash-es')
 export default {
   name: 'ReviewScore',
   props: {
@@ -37,6 +40,10 @@ export default {
     placement: {
       type: String,
       default: 'bottom'
+    },
+    id: {
+      type: String,
+      default: null
     }
   },
   watch: {
@@ -46,6 +53,14 @@ export default {
         console.log(this.data)
       },
       immediate: true
+    },
+    id: {
+      handler(val) {
+        if (val) {
+          this.reviewId = val
+        }
+      },
+      immediate: true
     }
   },
   computed: {
@@ -53,10 +68,36 @@ export default {
       currentRole: state => state.user.currentRole
     })
   },
+  created() {
+    this.debouncedGetData = debounce(this.getReview, 300)
+  },
   data() {
     return {
       RATE_TOOLTIPS: RATE_TOOLTIPS,
-      data: {}
+      data: {},
+      reviewId: this.id,
+      hasRender: false
+    }
+  },
+  methods: {
+    getReview(visible) {
+      if (this.reviewId && visible && !this.hasRender) {
+        let promise = null
+        if (this.currentRole === 'student') {
+          promise = ReviewsTaskStats
+        } else {
+          promise = ReviewsTeacherStats
+        }
+        promise && promise({
+          taskId: this.reviewId, // 学生需要
+          purchasesId: this.reviewId // 老师需要
+        }).then(res => {
+          if (res.success) {
+            this.data = res.result
+            this.hasRender = true
+          }
+        })
+      }
     }
   }
 }
