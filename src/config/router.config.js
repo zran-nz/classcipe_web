@@ -3,6 +3,9 @@ import { UserLayout, BasicLayout, BlankLayout } from '@/layouts'
 import { bxAnaalyse } from '@/core/icons'
 import { STUDY_MODE, CurriculumType } from '@/const/common'
 
+import CreatedByMeSvg from '@/assets/svgIcon/myContent/Created_by_me.svg?inline'
+import DiscoverSvg from '@/assets/svgIcon/myContent/Discover.svg?inline'
+
 const RouteView = {
   name: 'RouteView',
   render: h => h('router-view')
@@ -141,7 +144,7 @@ export const asyncRouterMap = [
                     path: '/teacher/managing/skill',
                     name: 'KnowledgeList',
                     component: () => import('@/views/teacher/manage/KnowledgeList'),
-                    meta: { title: 'menu.managing.skill', keepAlive: true, permission: ['teacher'], curriculumtype: CurriculumType.IBMYP }
+                    meta: { title: 'menu.managing.skill', keepAlive: true, permission: ['teacher'], curriculumType: CurriculumType.IBMYP }
                   }
                 ]
               }
@@ -414,13 +417,13 @@ export const asyncRouterMap = [
                 path: '/student/main/my-task',
                 name: 'MyTask',
                 component: () => import('@/views/student/MyTask'),
-                meta: { title: 'menu.my-task', keepAlive: true, permission: ['student'], svg: 'CreatedByMeSvg' }
+                meta: { title: 'menu.my-task', keepAlive: true, permission: ['student'], icon: CreatedByMeSvg }
               },
               {
                 path: '/student/main/my-favorite',
                 name: 'MyFavorite',
                 component: () => import('@/views/student/MyFavorite'),
-                meta: { title: 'menu.my-favorite', keepAlive: true, permission: ['student'], svg: 'MyFavoriteSvg', type: STUDY_MODE.SELF }
+                meta: { title: 'menu.my-favorite', keepAlive: true, permission: ['student'], icon: DiscoverSvg, type: STUDY_MODE.SELF }
               },
               {
                 path: '/student/main/my-orders',
