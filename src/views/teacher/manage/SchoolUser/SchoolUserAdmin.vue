@@ -97,6 +97,7 @@
         <!--          Edit-->
         <!--        </a-button>-->
         <a-popconfirm
+          v-if="item.id !== info.id"
           title="Remove this admin ?"
           ok-text="Yes"
           @confirm="handleDelete(item)"
@@ -115,11 +116,12 @@
 
 <script>
 
-import { addStaff, getSchoolUsers } from '@/api/schoolUser'
+import { addStaff, getSchoolUsers, removeSchoolUser } from '@/api/schoolUser'
 import store from '@/store'
 import SchoolUserStudentAdd from '@/views/teacher/manage/SchoolUser/SchoolUserStudentAdd'
 import { SchoolUserRole } from '@/const/role'
 import Moment from 'moment'
+import { mapState } from 'vuex'
 
 const columns = [
   {
@@ -178,8 +180,12 @@ export default {
       loading: false,
       isAdd: false,
       pagination: {
-        pageSize: 20,
+        pageSize: 15,
         current: 1,
+        pageSizeOptions: ['15', '30', '50'],
+        showTotal: (total, range) => {
+          return 'Total ' + total + ' items'
+        },
         total: 0
       },
       baseUrl: process.env.VUE_APP_API_BASE_URL,
@@ -196,7 +202,11 @@ export default {
       return this.adminList.map(item => {
         return item.userInfo.email
       })
-    }
+    },
+    ...mapState({
+      info: state => state.user.info,
+      currentSchool: state => state.user.currentSchool
+    })
   },
   methods: {
     onSelect(value) {
@@ -254,7 +264,19 @@ export default {
       this.$refs.modalForm.defaultData = {}
       this.$refs.modalForm.show()
     },
-    handleDelete(item) {},
+    async handleDelete(item) {
+      const res = await removeSchoolUser({
+        schoolId: this.currentSchool.id,
+        userId: item.id,
+        role: SchoolUserRole.admin
+      })
+      if (res.success) {
+        this.$message.success(res.message)
+        this.loadData()
+      } else {
+        this.$message.error(res.message)
+      }
+    },
     handleSearchTeacher(value) {
       if (!value) {
         this.optionsList = this.teacherList.filter(teacher => this.selectedEmails.indexOf(teacher.userInfo.email) === -1)
@@ -267,7 +289,7 @@ export default {
       this.confirmLoading = true
       console.log('Received values of form: ', user)
       const params = {
-        schoolId: store.getters.userInfo.school,
+        schoolId: this.currentSchool.id,
         avatar: this.avatar,
         ...user,
         roles: SchoolUserRole.admin,

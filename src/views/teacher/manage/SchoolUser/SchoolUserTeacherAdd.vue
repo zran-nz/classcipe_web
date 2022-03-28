@@ -73,7 +73,7 @@
                     },
                   ]"
                 >
-                  <a-select-option :value="item.id" :key="item.id" v-for="item in roleList">{{
+                  <a-select-option :value="item.name" :key="item.id" v-for="item in roleList">{{
                     item.name
                   }}</a-select-option>
                 </a-select>
@@ -268,7 +268,7 @@ export default {
   computed: {
     getDefaultFormData() {
       const { roles = [], groups = [], classes = [], grades = [] } = this.defaultData
-      const defaultRoles = roles.map(item => item.id)
+      const defaultRoles = roles.map(item => item.name)
       const defaultGroups = groups.map(item => item.id)
       const defaultClasses = classes.map(item => item.id)
       const defaultGrades = grades.map(item => item.id)

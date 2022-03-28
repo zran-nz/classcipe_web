@@ -2,7 +2,7 @@
   <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%' }" :style="{ height: '100%' }">
     <a-layout>
       <a-layout-sider>
-        <div class="school-name">{{ $store.getters.userInfo.schoolName }}</div>
+        <div class="school-name">{{ currentSchool.schoolName }}</div>
         <s-menu
           :mainRouter="mainRouter"
           :currentRouterName="currentRouterName"
@@ -61,7 +61,8 @@ export default {
   },
   computed: {
     ...mapState({
-      bindCurriculum: state => state.bindCurriculum
+      bindCurriculum: state => state.bindCurriculum,
+      currentSchool: state => state.user.currentSchool
     })
   },
   mounted() {},

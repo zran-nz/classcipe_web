@@ -281,7 +281,7 @@ export default {
     async getStudentList() {
       const res = await getSchoolUsers({
         school: store.getters.userInfo.school,
-        currentRole: 'student',
+        roles: 'student',
         pageSize: 1000
       })
       this.$logger.info('getSchoolUsers', res.result)

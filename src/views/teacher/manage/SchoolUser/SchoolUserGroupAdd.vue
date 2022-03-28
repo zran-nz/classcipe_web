@@ -146,7 +146,7 @@ import { schoolGroupType } from '@/const/schoolGroup'
 import { getGradeListBySchoolId } from '@/api/grade'
 import { addOrUpdateGroup } from '@/api/schoolGroup'
 import { SubjectTree } from '@/api/subject'
-import store from '@/store'
+import { mapState } from 'vuex'
 
 export default {
   name: 'SchoolUserGroupAdd',
@@ -196,7 +196,11 @@ export default {
         advisor: defaultAdvisor,
         intro: this.defaultData?.intro
       }
-    }
+    },
+    ...mapState({
+      info: state => state.user.info,
+      currentSchool: state => state.user.currentSchool
+    })
   },
   methods: {
     show() {
@@ -204,13 +208,13 @@ export default {
     },
     async loadGradeList() {
       const res = await getGradeListBySchoolId({
-        schoolId: store.getters.userInfo.school
+        schoolId: this.currentSchool.id
       })
       this.gradeList = res?.result || []
     },
     async loadSubjectList() {
       const res = await SubjectTree({
-        schoolId: store.getters.userInfo.school
+        schoolId: this.currentSchool.id
       })
       const flatSubject = arr => {
         let ret = []
@@ -232,7 +236,7 @@ export default {
           this.confirmLoading = true
           console.log('Received values of form: ', values)
           const vo = {
-            schoolId: store.getters.userInfo.school,
+            schoolId: this.currentSchool.id,
             ...values
           }
           if (this.mode === 'edit') {

@@ -157,12 +157,19 @@
 
 <script>
 import SchoolUserStudentAdd from './SchoolUserStudentAdd.vue'
-import { getSchoolClassList, getSchoolUsers, updateUserStatus, schoolUserAPIUrl } from '@/api/schoolUser'
+import {
+  getSchoolClassList,
+  getSchoolUsers,
+  updateUserStatus,
+  schoolUserAPIUrl,
+  removeSchoolUser
+} from '@/api/schoolUser'
 import { getGradeListBySchoolId } from '@/api/grade'
 import store from '@/store'
 import { schoolUserStatusList } from '@/const/schoolUser'
 import * as logger from '@/utils/logger'
 import { SchoolUserRole } from '@/const/role'
+import { mapState } from 'vuex'
 
 const columns = [
   {
@@ -228,7 +235,8 @@ const columns = [
     key: 'action',
     // dataIndex: 'id',
     scopedSlots: { customRender: 'action' },
-    width: '180px'
+    fixed: 'right',
+    width: 100
   }
 ]
 export default {
@@ -245,8 +253,12 @@ export default {
       columns,
       loading: false,
       pagination: {
-        pageSize: 20,
+        pageSize: 15,
         current: 1,
+        pageSizeOptions: ['15', '30', '50'],
+        showTotal: (total, range) => {
+          return 'Total ' + total + ' items'
+        },
         total: 0
       },
       baseUrl: process.env.VUE_APP_API_BASE_URL,
@@ -262,17 +274,22 @@ export default {
     this.loadClassList()
     this.loadGradeList()
   },
-  computed: {},
+  computed: {
+    ...mapState({
+      info: state => state.user.info,
+      currentSchool: state => state.user.currentSchool
+    })
+  },
   methods: {
     async loadClassList() {
       const res = await getSchoolClassList({
-        schoolId: store.getters.userInfo.school
+        schoolId: this.currentSchool.id
       })
       this.classList = res?.result?.records || []
     },
     async loadGradeList() {
       const res = await getGradeListBySchoolId({
-        schoolId: store.getters.userInfo.school
+        schoolId: this.currentSchool.id
       })
       this.gradeList = res?.result || []
     },
@@ -281,7 +298,7 @@ export default {
       const searchParams = this.form.getFieldsValue()
       const res = await getSchoolUsers({
         school: store.getters.userInfo.school,
-        currentRole: SchoolUserRole.student,
+        roles: SchoolUserRole.student,
         pageSize: this.pagination.pageSize,
         pageNo: this.pagination.current,
         userStatus: this.activeStatus,
@@ -326,10 +343,22 @@ export default {
       this.$refs.modalForm.defaultData = {}
       this.$refs.modalForm.show()
     },
-    handleDelete(item) {},
+    async handleDelete(item) {
+      const res = await removeSchoolUser({
+        schoolId: this.currentSchool.id,
+        userId: item.id,
+        role: SchoolUserRole.student
+      })
+      if (res.success) {
+        this.$message.success(res.message)
+        this.loadData()
+      } else {
+        this.$message.error(res.message)
+      }
+    },
     async changeUserStatus(id, status) {
       const res = await updateUserStatus({
-        schoolId: store.getters.userInfo.school,
+        schoolId: this.currentSchool.id,
         schoolUserStatus: status,
         userId: id,
         role: SchoolUserRole.student
@@ -369,7 +398,7 @@ export default {
           headers: { 'Content-Type': 'multipart/form-data' },
           timeout: 60000,
           params: {
-            schoolId: store.getters.userInfo.school
+            schoolId: this.currentSchool.id
           }
         })
         .then(res => {

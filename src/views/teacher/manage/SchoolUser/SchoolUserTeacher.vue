@@ -65,7 +65,7 @@
             <a-col :span="6">
               <a-form-item label="Role">
                 <a-select allowClear v-decorator="['roles', { rules: [] }]">
-                  <a-select-option :value="item.id" :key="item.id" v-for="item in roleList">{{
+                  <a-select-option :value="item.name" :key="item.id" v-for="item in roleList">{{
                     item.name
                   }}</a-select-option>
                 </a-select>
@@ -104,7 +104,8 @@
       :loading="loading"
       :pagination="pagination"
       @change="handleTableChange"
-      :scroll="{ x: true }"
+      :indentSize="30"
+      :scroll="{x:true}"
       rowKey="id"
     >
       <span slot="avatar" slot-scope="avatar">
@@ -150,7 +151,7 @@
           v-if="item.userInfo.schoolUserStatus !== 2 && item.userInfo.schoolUserStatus !== 3"
           class="more-action-wrapper action-item-wrapper"
         >
-          <a-dropdown>
+          <a-dropdown v-if="item.id !== info.id">
             <a-icon type="more" style="margin-right: 8px" />
             <a-menu slot="overlay">
               <a-menu-item>
@@ -187,7 +188,7 @@ import {
   getSchoolClassList,
   getSchoolUsers,
   updateUserStatus,
-  schoolUserAPIUrl
+  schoolUserAPIUrl, removeSchoolUser
 } from '@/api/schoolUser'
 import { getSchoolGroupList } from '@/api/schoolGroup'
 import { getGradeListBySchoolId } from '@/api/grade'
@@ -196,6 +197,7 @@ import { schoolUserStatusList } from '@/const/schoolUser'
 import Moment from 'moment'
 import * as logger from '@/utils/logger'
 import { SchoolUserRole } from '@/const/role'
+import { mapState } from 'vuex'
 
 const columns = [
   {
@@ -266,8 +268,8 @@ const columns = [
     key: 'action',
     // dataIndex: 'id',
     scopedSlots: { customRender: 'action' },
-    // fixed: 'right',
-    width: '180px'
+    fixed: 'right',
+    width: 100
   }
 ]
 export default {
@@ -286,8 +288,12 @@ export default {
       columns,
       loading: false,
       pagination: {
-        pageSize: 20,
+        pageSize: 15,
         current: 1,
+        pageSizeOptions: ['15', '30', '50'],
+        showTotal: (total, range) => {
+          return 'Total ' + total + ' items'
+        },
         total: 0
       },
       baseUrl: process.env.VUE_APP_API_BASE_URL,
@@ -305,38 +311,45 @@ export default {
     this.loadClassList()
     this.loadGradeList()
   },
-  computed: {},
+  computed: {
+    ...mapState({
+      info: state => state.user.info,
+      currentSchool: state => state.user.currentSchool
+    })
+  },
   methods: {
     async loadRoleList() {
       const res = await getSchoolRoleList({
-        schoolId: store.getters.userInfo.school
+        schoolId: this.currentSchool.id
       })
       this.roleList = res?.result || []
     },
     async loadGroupList() {
       const res = await getSchoolGroupList({
-        schoolId: store.getters.userInfo.school
+        schoolId: this.currentSchool.id
       })
       this.groupList = res?.result?.records || []
     },
     async loadClassList() {
       const res = await getSchoolClassList({
-        schoolId: store.getters.userInfo.school
+        schoolId: this.currentSchool.id
       })
       this.classList = res?.result?.records || []
     },
     async loadGradeList() {
       const res = await getGradeListBySchoolId({
-        schoolId: store.getters.userInfo.school
+        schoolId: this.currentSchool.id
       })
       this.gradeList = res?.result || []
     },
     async loadData() {
       this.loading = true
       const searchParams = this.form.getFieldsValue()
+      if (!searchParams.roles) {
+        searchParams.roles = SchoolUserRole.teacher
+      }
       const res = await getSchoolUsers({
         school: store.getters.userInfo.school,
-        roles: SchoolUserRole.teacher,
         pageSize: this.pagination.pageSize,
         pageNo: this.pagination.current,
         userStatus: this.activeStatus,
@@ -375,10 +388,22 @@ export default {
       this.$refs.modalForm.defaultData = {}
       this.$refs.modalForm.show()
     },
-    handleDelete(item) {},
+    async handleDelete(item) {
+      const res = await removeSchoolUser({
+        schoolId: this.currentSchool.id,
+        userId: item.id,
+        role: SchoolUserRole.teacher
+      })
+      if (res.success) {
+        this.$message.success(res.message)
+        this.loadData()
+      } else {
+        this.$message.error(res.message)
+      }
+    },
     async changeUserStatus(id, status) {
       const res = await updateUserStatus({
-        schoolId: store.getters.userInfo.school,
+        schoolId: this.currentSchool.id,
         schoolUserStatus: status,
         userId: id,
         role: SchoolUserRole.teacher
@@ -424,7 +449,7 @@ export default {
           headers: { 'Content-Type': 'multipart/form-data' },
           timeout: 60000,
           params: {
-            schoolId: store.getters.userInfo.school
+            schoolId: this.currentSchool.id
           }
         })
         .then(res => {

@@ -86,8 +86,9 @@
 </template>
 
 <script>
-import { getSchoolGroupMembers, addSchoolGroupMembers, removeSchoolGroupMembers } from '@/api/schoolGroup'
-import store from '@/store'
+import { addSchoolGroupMembers, getSchoolGroupMembers, removeSchoolGroupMembers } from '@/api/schoolGroup'
+import { mapState } from 'vuex'
+
 const columns = [
   {
     title: 'Teacher Name',
@@ -137,8 +138,12 @@ export default {
       columns,
       loading: false,
       pagination: {
-        pageSize: 20,
+        pageSize: 15,
         current: 1,
+        pageSizeOptions: ['15', '30', '50'],
+        showTotal: (total, range) => {
+          return 'Total ' + total + ' items'
+        },
         total: 0
       },
       dataSource: [],
@@ -155,7 +160,12 @@ export default {
       }
     }
   },
-  computed: {},
+  computed: {
+    ...mapState({
+      info: state => state.user.info,
+      currentSchool: state => state.user.currentSchool
+    })
+  },
   methods: {
     show() {
       this.visible = true
@@ -163,7 +173,7 @@ export default {
     async loadData() {
       this.loading = true
       const res = await getSchoolGroupMembers({
-        schoolId: store.getters.userInfo.school,
+        schoolId: this.currentSchool.id,
         groupId: this.groupId
       })
       this.memberList = res?.result || []
@@ -182,7 +192,7 @@ export default {
     },
     async handleRemove(item) {
       const res = await removeSchoolGroupMembers({
-        schoolId: store.getters.userInfo.school,
+        schoolId: this.currentSchool.id,
         groupId: this.groupId,
         userId: item.id
       })
@@ -195,7 +205,7 @@ export default {
     },
     async handleAdd(item) {
       const res = await addSchoolGroupMembers({
-        schoolId: store.getters.userInfo.school,
+        schoolId: this.currentSchool.id,
         groupId: this.groupId,
         userId: item.id
       })
