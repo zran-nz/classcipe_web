@@ -159,7 +159,7 @@ export default {
         result.then(r => {
           const records = r.data || r.records
           const totalCount = r.totalCount || r.total || 0
-          const pageNo = r.pageNo || r.pages || 0
+          const pageNo = r.pageNo || r.current || 0
           this.localPagination = this.showPagination && Object.assign({}, this.localPagination, {
             current: pageNo, // 返回结果中的当前分页数
             total: totalCount, // 返回结果中的总记录数
