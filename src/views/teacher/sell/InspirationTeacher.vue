@@ -33,7 +33,7 @@
         <div class="filter-option">
           <label>Price: </label>
           <a-select
-            v-model="filterParams.price"
+            v-model="filterParams.priceType"
             class="filter-item"
             size="large"
             @change="triggerSearch"
@@ -165,7 +165,7 @@ export default {
       filterParams: {
         searchKey: '',
         types: [],
-        price: '',
+        priceType: '',
         sortTypes: 1
       },
 
