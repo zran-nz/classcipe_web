@@ -241,6 +241,16 @@
                   </div>
                 </div>
               </template>
+              <template v-if='data.rwc'>
+                <div class="block-main-label">
+                  Real World Connection(s)
+                </div>
+                <div class="overview-block">
+                  <div class="view-text">
+                    {{ data.rwc }}
+                  </div>
+                </div>
+              </template>
             </div>
           </div>
         </a-col>
@@ -258,14 +268,16 @@
                   class="scenario-item ref-block"
                   v-for="(scenario,sIndex) in data.scenarios"
                   :key="sIndex">
-                  <!--                <div class="block-title">-->
-                  <!--                  {{ scenario.description }}-->
-                  <!--                </div>-->
                   <div class="scenario-block-content">
                     <div class="content-list">
                       <div class="content-item">
                         <div class="question">
-                          {{ scenario.sdgName }}
+                          <template v-if='scenario.description'>
+                            <a-tooltip :title="scenario.description" placement='top'>
+                              {{ scenario.sdgName }}
+                            </a-tooltip>
+                          </template>
+                          <template v-else> {{ scenario.sdgName }}</template>
                         </div>
                         <div class="tags">
                           <div class="tag-item" v-for="(keyword,tagIndex) in scenario.sdgKeyWords" :key="'tagIndex' + tagIndex">
@@ -1080,6 +1092,7 @@ export default {
               align-items: center;
               justify-content: space-around;
               .question {
+                cursor: pointer;
                 font-size: 14px;
                 font-weight: 500;
                 padding-right: 15px;

@@ -60,7 +60,8 @@
         <div class="objectives-list" v-for="(k,index) in shareContent.plan.scenarios" :key="index">
           <div class="objectives-list-item objectives-list-item-skill objectives-list-item-top-fixed">
             <div class="skt-description">
-              <a-tooltip :title="k.description"> {{ k.sdgName }}</a-tooltip>
+              <template v-if='k.description'><a-tooltip :title="k.description"> {{ k.sdgName }}</a-tooltip></template>
+              <template v-else> {{ k.sdgName }}</template>
             </div>
           </div>
         </div>
@@ -118,6 +119,15 @@
       </div>
       <div class='form-item-text'>
         {{ shareContent.plan.prior }}
+      </div>
+    </div>
+
+    <div class='form-item' v-if='shareContent.plan.rwc'>
+      <div class='form-item-label'>
+        Real World Connection(s)
+      </div>
+      <div class='form-item-text'>
+        {{ shareContent.plan.rwc }}
       </div>
     </div>
   </div>
@@ -221,10 +231,6 @@ export default {
     padding: 10px;
     position: relative;
     color: #000000;
-    &:hover {
-      color: @primary-color;
-      border: 1px solid @primary-color !important;
-    }
     .skt-description {
       cursor: pointer;
       width: 98%;
