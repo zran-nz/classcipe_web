@@ -182,7 +182,7 @@ export default {
       this.loading = true
       const res = await getSchoolUsers({
         school: store.getters.userInfo.school,
-        currentRole: 'teacher',
+        roles: 'teacher',
         classes: this.classId,
         pageSize: this.pagination.pageSize,
         pageNo: this.pagination.current

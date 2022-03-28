@@ -207,7 +207,7 @@ export default {
       const searchParams = this.form.getFieldsValue()
       const res = await getSchoolUsers({
         school: store.getters.userInfo.school,
-        schoolRole: SchoolUserRole.admin,
+        roles: SchoolUserRole.admin,
         pageSize: this.pagination.pageSize,
         pageNo: this.pagination.current,
         userStatus: this.activeStatus,
@@ -220,7 +220,7 @@ export default {
     async getTeacherList() {
       const res = await getSchoolUsers({
         school: store.getters.userInfo.school,
-        currentRole: SchoolUserRole.teacher,
+        roles: SchoolUserRole.teacher,
         pageSize: 1000
       })
       this.$logger.info('getTeacherList', res.result)
