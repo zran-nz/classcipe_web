@@ -923,7 +923,6 @@
         :parent-type="contentType['unit-plan']"
         :task-list='associateTaskList'
         v-if='publishListVisible'
-        :visible.sync='publishListVisible'
         @publish='handleMultiPublish'
         @close='publishListVisible = false' />
 
@@ -1712,7 +1711,7 @@ export default {
         } else {
           this.$message.error(response.message)
         }
-        this.form.status = status
+        this.form.status = 1
       }).finally(() => {
         this.$refs.commonFormHeader.publishing = false
         this.$refs.planLink.getAssociate()

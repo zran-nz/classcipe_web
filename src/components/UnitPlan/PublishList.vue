@@ -8,11 +8,10 @@
     width='640px'>
     <div class='publish-list-wrapper'>
       <div class='publish-list'>
-        <a-row :gutter="5" class='publish-item' v-for='(task, tIdx) in myTaskList' :key='tIdx'>
+        <a-row :gutter="5" class='publish-item' v-for='(task, tIdx) in myTaskList' :key='tIdx' @click.native='handleChangeItem(task)'>
           <a-col :span='1'>
             <a-checkbox
               :checked='task.checked'
-              @click='handleChangeItem(task)'
               v-show='publishedIdList.indexOf(task.id) === -1'>
             </a-checkbox>
           </a-col>
@@ -20,6 +19,7 @@
             <div class='task-info'>
               <div class='task-icon'>
                 <content-type-icon :type="task.type" />
+                {{ task.name ? task.name : 'Untitled' }}
               </div>
             </div>
           </a-col>
@@ -46,10 +46,6 @@ export default {
   name: 'PublishList',
   components: { ContentTypeIcon },
   props: {
-    visible: {
-      type: Boolean,
-      default: false
-    },
     taskList: {
       type: Array,
       default: () => []
@@ -67,7 +63,8 @@ export default {
     return {
       selectedIdList: [],
       publishedIdList: [],
-      myTaskList: []
+      myTaskList: [],
+      visible: true
     }
   },
   created() {
@@ -137,5 +134,12 @@ export default {
   flex-direction: row;
   justify-content: center;
   align-items: center;
+}
+
+.task-icon {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
 }
 </style>
