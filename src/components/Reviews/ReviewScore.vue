@@ -71,12 +71,16 @@ export default {
   created() {
     this.debouncedGetData = debounce(this.getReview, 300)
   },
+  beforeDestroy() {
+    this.timer && clearTimeout(this.timer)
+  },
   data() {
     return {
       RATE_TOOLTIPS: RATE_TOOLTIPS,
       data: {},
       reviewId: this.id,
-      hasRender: false
+      hasRender: false,
+      timer: null
     }
   },
   methods: {
@@ -95,6 +99,9 @@ export default {
           if (res.success) {
             this.data = res.result
             this.hasRender = true
+            this.timer = setTimeout(() => {
+              this.hasRender = false
+            }, 60000)
           }
         })
       }

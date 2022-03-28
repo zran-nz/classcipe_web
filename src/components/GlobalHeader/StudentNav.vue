@@ -31,11 +31,11 @@
         <label class="self-mode" :class="{active: studyMode === STUDY_MODE.SELF}" @click="handleChange(STUDY_MODE.SELF)">Self-study</label>
         <a-dropdown :class="{active: studyMode === STUDY_MODE.SCHOOL, 'school-mode': true}" v-show="info.schoolList && info.schoolList.length > 0">
           <a class="ant-dropdown-link" @click="handleChange(STUDY_MODE.SCHOOL)">
-            {{ currentSchool.name }} <a-icon type="down" />
+            {{ currentSchool.schoolName }} <a-icon type="down" />
           </a>
           <a-menu slot="overlay" @click="handleChangeSchool">
             <a-menu-item :key="item.id" v-for="item in info.schoolList">
-              <a href="javascript:;">{{ item.name }}</a>
+              <a href="javascript:;">{{ item.schoolName }}</a>
             </a-menu-item>
           </a-menu>
         </a-dropdown>
