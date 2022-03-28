@@ -126,16 +126,16 @@ export const asyncRouterMap = [
                 meta: { title: 'menu.managing.academics', keepAlive: true, icon: 'schedule', permission: ['teacher'] },
                 children: [
                   {
-                    path: '/teacher/managing/planning-format',
-                    name: 'PlanningFormat',
-                    component: () => import('@/views/teacher/manage/PlanningFormat/PlanningFormat'),
-                    meta: { title: 'menu.managing.planning-format', keepAlive: true, permission: ['teacher'] }
-                  },
-                  {
                     path: '/teacher/managing/tag-settings',
                     name: 'tagSettings',
                     component: () => import('@/views/teacher/manage/tags/TagSettingsList'),
                     meta: { title: 'menu.managing.tags-settings', keepAlive: true, permission: ['teacher'] }
+                  },
+                  {
+                    path: '/teacher/managing/planning-format',
+                    name: 'PlanningFormat',
+                    component: () => import('@/views/teacher/manage/PlanningFormat/PlanningFormat'),
+                    meta: { title: 'menu.managing.planning-format', keepAlive: true, permission: ['teacher'] }
                   },
                   {
                     path: '/teacher/managing/skill',
