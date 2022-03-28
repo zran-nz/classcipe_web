@@ -15,13 +15,12 @@
           <a-input v-model="model.name" placeholder="Please input name" ></a-input>
         </a-form-model-item>
 
-        <a-form-model-item label="Set as Must/Optional" :labelCol="labelCol" :wrapperCol="wrapperCol" v-if="!model.parentId || model.parentId == 0 ">
-          <a-radio-group v-model="model.isOptional">
-            <a-radio :value="true">Optional</a-radio>
-            <a-radio :value="false">Must</a-radio>
-          </a-radio-group>
-        </a-form-model-item>
-
+        <!--        <a-form-model-item label="Set as Must/Optional" :labelCol="labelCol" :wrapperCol="wrapperCol" v-if="!model.parentId || model.parentId == 0 ">-->
+        <!--          <a-radio-group v-model="model.isOptional">-->
+        <!--            <a-radio :value="true">Optional</a-radio>-->
+        <!--            <a-radio :value="false">Must</a-radio>-->
+        <!--          </a-radio-group>-->
+        <!--        </a-form-model-item>-->
         <!--        <a-form-model-item v-if="model.isTree" label="parentId" :labelCol="labelCol" :wrapperCol="wrapperCol" prop="parentId">-->
         <!--          <j-tree-select-->
         <!--            ref="treeSelect"-->
