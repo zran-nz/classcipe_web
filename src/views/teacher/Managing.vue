@@ -4,12 +4,69 @@
       <a-layout-sider>
         <div class="school-name">{{ $store.getters.userInfo.schoolName }}</div>
         <a-menu
-          :default-selected-keys="[selectedKey]"
-          @select="handleMenuSelect"
+          :v-model="selectedKey"
+          class="cc-menu"
           mode="inline"
           :inline-collapsed="false"
         >
-          <a-menu-item key="/teacher/managing/school-user">
+          <template v-for="item in currentMenu">
+            <template v-if="!item.children || item.children.length === 0">
+              <a-menu-item
+                :key="item.path"
+                :class="{
+                  'nav-bar-item': true,
+                  'nav-bar-item-split': true,
+                  'selected-nav-bar': selectedKey.includes(item.path),
+                }"
+                v-if="!item.meta.curriculumtype || item.meta.curriculumtype == bindCurriculum"
+              >
+                <router-link :to="item.path">
+                  <component
+                    :is="item.meta.svg"
+                    v-if="item.meta.svg"
+                  ></component>
+                  <a-icon class="nav-bar-icon" :type="item.meta.icon" v-if="item.meta.icon"/>
+                  {{ $t(item.meta.title) }}
+                </router-link>
+              </a-menu-item>
+            </template>
+            <template v-else>
+              <a-sub-menu
+                :key="item.path"
+                :class="{
+                  'nav-bar-item': true,
+                  'nav-bar-item-split': true,
+                  'selected-nav-bar': selectedKey.includes(item.path),
+                }"
+                v-if="!item.meta.curriculumtype || item.meta.curriculumtype == bindCurriculum"
+              >
+                <a slot="title">
+                  <component
+                    :is="item.meta.svg"
+                    v-if="item.meta.svg"
+                  ></component>
+                  <a-icon class="nav-bar-icon" :type="item.meta.icon" v-if="item.meta.icon"/>
+                  {{ $t(item.meta.title) }}
+                </a>
+                <template v-for="(sub) in item.children">
+                  <a-menu-item
+                    :key="sub.path"
+                    :class="{
+                      'nav-bar-item': true,
+                      'nav-bar-item-split': true,
+                      'selected-nav-bar': selectedKey.includes(sub.path),
+                    }"
+                    v-if="!sub.meta.curriculumtype || sub.meta.curriculumtype == bindCurriculum"
+                  >
+                    <router-link :to="sub.path">
+                      {{ $t(sub.meta.title) }}
+                    </router-link>
+                  </a-menu-item>
+                </template>
+              </a-sub-menu>
+            </template>
+          </template>
+          <!-- <a-menu-item key="/teacher/managing/school-user">
             <a-icon type="user" />
             <span>School User</span>
           </a-menu-item>
@@ -19,13 +76,13 @@
           </a-menu-item>
           <a-sub-menu>
             <span slot="title"><a-icon type="schedule" /><span>Academics</span></span>
-            <!--            <a-menu-item key="/teacher/managing/term"> Academics Terms </a-menu-item>-->
+            --            <a-menu-item key="/teacher/managing/term"> Academics Terms </a-menu-item>--
             <a-menu-item key="/teacher/managing/planning-format">  Planning format </a-menu-item>
             <a-menu-item key="/teacher/managing/tag-settings">  Tags </a-menu-item>
             <a-menu-item key="/teacher/managing/skill" v-if="$store.getters.bindCurriculum == curriculumType.IBMYP">
               <a-tooltip title="Upload achievement objectives">Upload achievement objectives</a-tooltip>
             </a-menu-item>
-          </a-sub-menu>
+          </a-sub-menu> -->
         </a-menu>
       </a-layout-sider>
       <a-layout-content class="main-content">
@@ -46,6 +103,8 @@ import SharedSvg from '@/assets/svgIcon/myContent/Shared.svg?inline'
 import SubscribesSvg from '@/assets/svgIcon/myContent/Subscribes.svg?inline'
 import { CurriculumType } from '@/const/common'
 
+import { mapState } from 'vuex'
+
 export default {
   name: 'Main',
   components: {
@@ -59,19 +118,69 @@ export default {
   },
   data() {
     return {
-      selectedKey: '/teacher/managing/skill',
+      selectedKey: ['/teacher/managing/skill'],
+      currentRouterName: 'teacher',
+      mainRouter: 'Managing',
       curriculumType: CurriculumType
     }
   },
   watch: {
     '$route.path'(to) {
       logger.debug('My Content route.path change ' + to)
-      this.selectedKey = to
+      this.selectedKey = [to]
     }
   },
-  computed: {},
+  computed: {
+    ...mapState({
+      // 动态主路由
+      mainMenu: state => state.permission.addRouters,
+      currentRole: state => state.user.currentRole,
+      bindCurriculum: state => state.bindCurriculum
+    }),
+    currentMenu() {
+      const addRouters = this.mainMenu
+      if (addRouters && addRouters.length > 0) {
+        // 寻找路由 index => teacher => mainRouter
+        const mainRouter = addRouters.find(item => item.name === 'index')
+        if (mainRouter && mainRouter.children && mainRouter.children.length > 0) {
+          const currentRouter = mainRouter.children.find(item => item.name === this.currentRole)
+          if (currentRouter && currentRouter.children && currentRouter.children.length > 0) {
+            const Main = currentRouter.children.find(item => item.name === this.mainRouter)
+            if (Main && Main.children && Main.children.length > 0) {
+              // 动态路由需要额外生成并放入children中
+              const Final = Main.children.concat()
+              const Dynamcis = Final.filter(item => item.meta.dynamicKey)
+              const noDynamic = []
+              Dynamcis.forEach(item => {
+                const routes = this[item.meta.dynamicKey] || []
+                const children = []
+                routes.forEach(route => {
+                  children.push({
+                    ...item,
+                    path: item.path.replace(/(:.*)$/, route.id),
+                    meta: {
+                      ...item.meta,
+                      title: route.name
+                    }
+                  })
+                })
+                if (routes.length === 0) {
+                  noDynamic.push(item.path)
+                } else {
+                  item.children = children
+                }
+              })
+
+              return Final.filter(item => !noDynamic.includes(item.path))
+            }
+          }
+        }
+      }
+      return []
+    }
+  },
   created() {
-    this.selectedKey = this.$route.path
+    this.selectedKey = [this.$route.path]
     logger.info('selectedKey ', this.selectedKey)
   },
   mounted() {},
@@ -173,5 +282,15 @@ export default {
   margin: 5px;
   line-height: 25px;
   font-weight: 500;
+}
+.cc-menu {
+  /deep/ .ant-menu-submenu-title, .ant-menu-item{
+    height: auto!important;
+    min-height: 40px;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+    white-space: unset!important;
+    line-height: 20px!important;
+  }
 }
 </style>

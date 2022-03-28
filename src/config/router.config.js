@@ -1,7 +1,7 @@
 // eslint-disable-next-line
 import { UserLayout, BasicLayout, BlankLayout } from '@/layouts'
 import { bxAnaalyse } from '@/core/icons'
-import { STUDY_MODE } from '@/const/common'
+import { STUDY_MODE, CurriculumType } from '@/const/common'
 
 const RouteView = {
   name: 'RouteView',
@@ -101,40 +101,49 @@ export const asyncRouterMap = [
             meta: { title: 'menu.managing', keepAlive: true, permission: ['teacher'], fullLayout: true },
             children: [
               {
-                path: '/teacher/managing/skill',
-                name: 'KnowledgeList',
-                component: () => import('@/views/teacher/manage/KnowledgeList'),
-                meta: { title: 'menu.managing.skill', keepAlive: true, permission: ['teacher'] }
-              },
-              {
                 path: '/teacher/managing/school-user',
                 name: 'SchoolUser',
                 component: () => import('@/views/teacher/manage/SchoolUser'),
-                meta: { title: 'menu.managing.school-user', keepAlive: true, permission: ['teacher'] }
+                meta: { title: 'menu.managing.school-user', keepAlive: true, icon: 'user', permission: ['teacher'] }
               },
               {
                 path: '/teacher/managing/class',
                 name: 'ManagingClass',
                 component: () => import('@/views/teacher/manage/Class'),
-                meta: { title: 'menu.managing.class', keepAlive: true, permission: ['teacher'] }
+                meta: { title: 'menu.managing.class', keepAlive: true, icon: 'desktop', permission: ['teacher'] }
               },
+              // {
+              //   path: '/teacher/managing/term',
+              //   name: 'ManageTerm',
+              //   component: () => import('@/views/teacher/manage/Term'),
+              //   meta: { title: 'menu.managing.term', keepAlive: true, permission: ['teacher'] }
+              // },
               {
-                path: '/teacher/managing/term',
-                name: 'ManageTerm',
-                component: () => import('@/views/teacher/manage/Term'),
-                meta: { title: 'menu.managing.term', keepAlive: true, permission: ['teacher'] }
-              },
-              {
-                path: '/teacher/managing/planning-format',
-                name: 'PlanningFormat',
-                component: () => import('@/views/teacher/manage/PlanningFormat/PlanningFormat'),
-                meta: { title: 'menu.managing.planning-format', keepAlive: true, permission: ['teacher'] }
-              },
-              {
-                path: '/teacher/managing/tag-settings',
-                name: 'PlanningFormat',
-                component: () => import('@/views/teacher/manage/tags/TagSettingsList'),
-                meta: { title: 'menu.managing.tags-settings', keepAlive: true, permission: ['teacher'] }
+                path: '/teacher/managing/academics',
+                name: 'Academics',
+                redirect: '/teacher/managing/planning-format',
+                component: RouteView,
+                meta: { title: 'menu.managing.academics', keepAlive: true, icon: 'schedule', permission: ['teacher'] },
+                children: [
+                  {
+                    path: '/teacher/managing/planning-format',
+                    name: 'PlanningFormat',
+                    component: () => import('@/views/teacher/manage/PlanningFormat/PlanningFormat'),
+                    meta: { title: 'menu.managing.planning-format', keepAlive: true, permission: ['teacher'] }
+                  },
+                  {
+                    path: '/teacher/managing/tag-settings',
+                    name: 'tagSettings',
+                    component: () => import('@/views/teacher/manage/tags/TagSettingsList'),
+                    meta: { title: 'menu.managing.tags-settings', keepAlive: true, permission: ['teacher'] }
+                  },
+                  {
+                    path: '/teacher/managing/skill',
+                    name: 'KnowledgeList',
+                    component: () => import('@/views/teacher/manage/KnowledgeList'),
+                    meta: { title: 'menu.managing.skill', keepAlive: true, permission: ['teacher'], curriculumtype: CurriculumType.IBMYP }
+                  }
+                ]
               }
             ]
           },

@@ -23,7 +23,6 @@
       gtag('config', 'G-94PPLVWPWK');
     </script>
 
-
 <script src="https://dev.classcipe.com/fio/errlog.js"></script>
     <!-- require cdn assets css -->
 <!--    <% for (var i in htmlWebpackPlugin.options.cdn && htmlWebpackPlugin.options.cdn.css) { %>-->
@@ -58,7 +57,7 @@
       window.onerror = async function (msg, url, num, line) {
         await fetch('https://dev.classcipe.com/fio/log', { method: 'POST',
           headers: { "Content-Type": "application/json;charset=UTF-8" },
-          body: { msg, url, num, line, stack: arguments[4].stack, lang: navigator.language, href: location.href, ua: navigator.userAgent }
+          body: { msg, url, num, line, stack: arguments[4] ? arguments[4].stack : '', lang: navigator.language, href: location.href, ua: navigator.userAgent }
         }).then(r => r.json())
       }
       window.onYouTubeIframeAPIReady = function() {
