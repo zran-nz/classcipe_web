@@ -336,7 +336,7 @@ export default {
       const searchParams = this.form.getFieldsValue()
       const res = await getSchoolUsers({
         school: store.getters.userInfo.school,
-        schoolRole: SchoolUserRole.teacher,
+        roles: SchoolUserRole.teacher,
         pageSize: this.pagination.pageSize,
         pageNo: this.pagination.current,
         userStatus: this.activeStatus,
