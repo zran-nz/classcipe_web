@@ -25,7 +25,7 @@
             @change="triggerSearch"
             placeholder="Search by type"
           >
-            <a-select-option :value="item.value" v-for="(item, index) in typeOptions" :key="'subject_'+index">
+            <a-select-option :value="item.value" v-for="(item, index) in typeOptions" :key="'type_'+index">
               {{ item.label }}
             </a-select-option>
           </a-select>
@@ -33,13 +33,13 @@
         <div class="filter-option">
           <label>Price: </label>
           <a-select
-            v-model="filterParams.price"
+            v-model="filterParams.priceType"
             class="filter-item"
             size="large"
             @change="triggerSearch"
             placeholder="Search by price"
           >
-            <a-select-option :value="item.value" v-for="(item, index) in priceOptions" :key="'subject_'+index">
+            <a-select-option :value="item.value" v-for="(item, index) in priceOptions" :key="'price_'+index">
               {{ item.label }}
             </a-select-option>
           </a-select>
@@ -53,7 +53,7 @@
             @change="triggerSearch"
             placeholder="Order by sort"
           >
-            <a-select-option :value="item.value" v-for="(item, index) in sortOptions" :key="'subject_'+index">
+            <a-select-option :value="item.value" v-for="(item, index) in sortOptions" :key="'sort_'+index">
               {{ item.label }}
             </a-select-option>
           </a-select>
@@ -165,7 +165,7 @@ export default {
       filterParams: {
         searchKey: '',
         types: [],
-        price: '',
+        priceType: '',
         sortTypes: 1
       },
 
