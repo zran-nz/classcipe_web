@@ -3,64 +3,12 @@
     <a-layout>
       <a-layout-sider>
         <div class="nav-bar-left">
-          <a-menu
-            class="nav-bar-wrapper"
-            v-model="selectedKey"
-            :open-keys.sync="openKeys"
-            mode="inline"
-          >
-            <template v-for="item in currentMenu">
-              <a-menu-item
-                :key="item.path"
-                :class="{
-                  'nav-bar-item': true,
-                  'nav-bar-item-split': true,
-                  'selected-nav-bar': selectedKey.includes(item.path),
-                }"
-                v-if="!item.children || item.children.length === 0"
-              >
-                <router-link :to="item.path">
-                  <component
-                    :is="item.meta.svg"
-                    v-if="item.meta.svg"
-                  ></component>
-                  <a-icon class="nav-bar-icon" theme="filled" :type="item.meta.icon" v-if="item.meta.icon"/>
-                  {{ $t(item.meta.title) }}
-                </router-link>
-              </a-menu-item>
-              <a-sub-menu
-                :key="item.path"
-                :class="{
-                  'nav-bar-item': true,
-                  'nav-bar-item-split': true,
-                  'selected-nav-bar': selectedKey.includes(item.path),
-                }"
-                v-else
-              >
-                <a slot="title">
-                  <component
-                    :is="item.meta.svg"
-                    v-if="item.meta.svg"
-                  ></component>
-                  <a-icon class="nav-bar-icon" theme="filled" :type="item.meta.icon" v-if="item.meta.icon"/>
-                  {{ $t(item.meta.title) }}
-                </a>
-                <a-menu-item
-                  :key="sub.path"
-                  :class="{
-                    'nav-bar-item': true,
-                    'nav-bar-item-split': true,
-                    'selected-nav-bar': selectedKey.includes(sub.path),
-                  }"
-                  v-for="(sub) in item.children"
-                >
-                  <router-link :to="sub.path">
-                    {{ $t(sub.meta.title) }}
-                  </router-link>
-                </a-menu-item>
-              </a-sub-menu>
-            </template>
-          </a-menu>
+          <s-menu
+            :mainRouter="mainRouter"
+            :currentRouterName="currentRouterName"
+            :initSelected="selectedKey"
+            :hiddenRoute="hiddenRoute"
+          />
         </div>
       </a-layout-sider>
       <a-layout-content class="main-content">
@@ -72,100 +20,36 @@
 </template>
 
 <script>
-import * as logger from '@/utils/logger'
-import CreatedByMeSvg from '@/assets/svgIcon/myContent/Created_by_me.svg?inline'
-import DiscoverSvg from '@/assets/svgIcon/myContent/Discover.svg?inline'
-import MyFavoriteSvg from '@/assets/svgIcon/myContent/My_favorite.svg?inline'
-import PopularSvg from '@/assets/svgIcon/myContent/Popular.svg?inline'
-import SharedSvg from '@/assets/svgIcon/myContent/Shared.svg?inline'
-import SubscribesSvg from '@/assets/svgIcon/myContent/Subscribes.svg?inline'
 import AddPreference from './AddPreference.vue'
-import { mapState, mapGetters } from 'vuex'
+import { mapState } from 'vuex'
+
+import SMenu from '@/components/SideBar/SMenu'
 
 export default {
   name: 'Main',
   components: {
-    CreatedByMeSvg,
-    DiscoverSvg,
-    MyFavoriteSvg,
-    PopularSvg,
-    SharedSvg,
-    SubscribesSvg,
+    SMenu,
     AddPreference
   },
   data() {
     return {
-      selectedKey: ['/student/main/my-task'],
+      selectedKey: '/student/main/my-task',
       quickSessionVisible: false,
       currentRouterName: 'student',
+      mainRouter: 'Main',
       openKeys: []
-    }
-  },
-  watch: {
-    '$route.path'(to) {
-      logger.debug('My Content route.path change ' + to)
-      this.selectedKey = [to]
     }
   },
   computed: {
     ...mapState({
-      // 动态主路由
-      mainMenu: state => state.permission.addRouters,
       studyMode: state => state.app.studyMode,
       user: state => state.user
-    }),
-    ...mapGetters(['currentStudentClass']),
-    currentMenu() {
-      const addRouters = this.mainMenu
-      if (addRouters && addRouters.length > 0) {
-        // 寻找路由 index => student => main
-        const mainRouter = addRouters.find(item => item.name === 'index')
-        if (mainRouter && mainRouter.children && mainRouter.children.length > 0) {
-          const currentRouter = mainRouter.children.find(item => item.name === this.currentRouterName)
-          if (currentRouter && currentRouter.children && currentRouter.children.length > 0) {
-            const Main = currentRouter.children.find(item => item.name === 'Main')
-            // 根据自学习模式，还是学校模式进行type过滤
-            if (Main && Main.children && Main.children.length > 0) {
-              // 动态路由需要额外生成并放入children中
-              const Final = Main.children.filter(item => !item.meta.type || item.meta.type === this.studyMode)
-              const Dynamcis = Final.filter(item => item.meta.dynamicKey)
-              const noDynamic = []
-              Dynamcis.forEach(item => {
-                const routes = this[item.meta.dynamicKey] || []
-                const children = []
-                routes.forEach(route => {
-                  children.push({
-                    ...item,
-                    path: item.path.replace(/(:.*)$/, route.id),
-                    meta: {
-                      ...item.meta,
-                      title: route.name
-                    }
-                  })
-                })
-                if (routes.length === 0) {
-                  noDynamic.push(item.path)
-                } else {
-                  item.children = children
-                }
-              })
-
-              return Final.filter(item => !noDynamic.includes(item.path))
-            }
-          }
-        }
-      }
-      return []
-    }
-  },
-  created() {
-    this.selectedKey = [this.$route.path]
-    logger.info('selectedKey ', this.selectedKey)
+    })
   },
   mounted() {},
   methods: {
-    handleClick() {
-
+    hiddenRoute(route) {
+      return route.meta.type && route.meta.type !== this.studyMode
     }
   }
 }
@@ -208,56 +92,54 @@ export default {
   height: 100%;
   box-sizing: border-box;
   padding-right: 5px;
-  .nav-bar-wrapper {
-    .nav-bar-item {
-      font-family: Inter-Bold;
-      font-size: 14px;
-      cursor: pointer;
-      background-image: url('~@/assets/icons/myContent/Rectangle@2x.png');
-      background-repeat: repeat;
-      background-size: cover;
-      margin: 0!important;
-      height: 50px;
-      line-height: 50px;
+  /deep/ .nav-bar-item {
+    font-family: Inter-Bold;
+    font-size: 14px;
+    cursor: pointer;
+    background-image: url('~@/assets/icons/myContent/Rectangle@2x.png');
+    background-repeat: repeat;
+    background-size: cover;
+    margin: 0!important;
+    height: 50px;
+    line-height: 50px;
 
-      a {
-        display: flex;
-        align-items: center;
-        width: 100%;
-        line-height: 30px;
-        padding: 10px 0px;
-        color: #000000;
+    a {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      line-height: 30px;
+      padding: 10px 0px;
+      color: #000000;
 
-        svg {
-          width: 50px;
-        }
-      }
-
-      &:hover {
-        background: #edf1f5;
-        a {
-          color: @primary-color;
-        }
-      }
-      .nav-bar-icon {
-        font-size: 30px;
+      svg {
         width: 50px;
-        margin: 0;
-        color: #f35;
-      }
-      /deep/ .ant-menu-submenu-title {
-        margin: 0!important;
-        height: 50px;
-        line-height: 50px;
       }
     }
 
-    .selected-nav-bar {
-      background: #edf1f5;
+    &:hover {
+      background: #edf1f5!important;
       a {
         color: @primary-color;
-        font-weight: bold;
       }
+    }
+    .nav-bar-icon {
+      font-size: 30px;
+      width: 50px;
+      margin: 0;
+      color: #f35;
+    }
+    .ant-menu-submenu-title {
+      margin: 0!important;
+      height: 50px;
+      line-height: 50px;
+    }
+  }
+
+  /deep/ .selected-nav-bar {
+    background: #edf1f5!important;
+    a {
+      color: @primary-color;
+      font-weight: bold;
     }
   }
 }

@@ -401,7 +401,8 @@ export default {
         },
         showTotal: total => `Total ${total} items`,
         total: 0,
-        pageSize: 16
+        pageSize: 16,
+        current: 1
       },
       pageNo: 1,
       viewModeLocal: this.viewMode,
@@ -570,9 +571,11 @@ export default {
             }
           })
           this.pagination.total = res.result.total
+          this.pagination.current = res.result.current
         } else {
           this.myContentList = []
           this.pagination.total = 0
+          this.pagination.current = 1
         }
         logger.info('myContentList', this.myContentList)
       }).finally(() => {
