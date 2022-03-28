@@ -149,22 +149,22 @@ export default {
           dataIndex: 'tooltip',
           scopedSlots: { customRender: 'hint' }
         },
-        {
-          title: 'Optional',
-          align: 'center',
-          dataIndex: 'isOptional',
-          customRender: (text, row, index) => {
-            return text ? 'Yes' : 'No'
-          }
-        },
-        {
-          title: 'Create their own',
-          align: 'center',
-          dataIndex: 'createOwn',
-          customRender: (text, row, index) => {
-            return text ? 'Yes' : 'No'
-          }
-        },
+        // {
+        //   title: 'Optional',
+        //   align: 'center',
+        //   dataIndex: 'isOptional',
+        //   customRender: (text, row, index) => {
+        //     return text ? 'Yes' : 'No'
+        //   }
+        // },
+        // {
+        //   title: 'Create their own',
+        //   align: 'center',
+        //   dataIndex: 'createOwn',
+        //   customRender: (text, row, index) => {
+        //     return text ? 'Yes' : 'No'
+        //   }
+        // },
         {
           title: 'Linked Tasks',
           align: 'center',
