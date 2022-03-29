@@ -1,6 +1,6 @@
 <template>
   <div class="my-content" ref="tableCon">
-    <a-tabs type="card" class="my-tab" size="large" v-model="currentType">
+    <a-tabs type="card" class="my-tab" size="large" v-model="currentType" @change="() => resetTableWidth()">
       <a-tab-pane key="teacher" tab="Inspiration for teachers">
         <div class="my-filter">
           <div class="my-search">
@@ -22,7 +22,7 @@
               class="filter-item"
               size="large"
               @change="triggerSearch"
-              placeholder="Search by product type"
+              placeholder="Filter by product type"
             >
               <a-select-option :value="item.value" v-for="(item, index) in productTypeListTeacher" :key="'producttype_'+index">
                 {{ item.label }}
@@ -39,6 +39,9 @@
           :scroll="scroll"
           class="content-list"
         >
+          <div slot="name" slot-scope="text, record">
+            <a-button type="link" @click="handleViewDetail(record)"> {{ text }} </a-button>
+          </div>
           <div slot="reviews" slot-scope="text, record">
             <review-score placement="left" :id="record.id"/>
           </div>
@@ -65,7 +68,7 @@
               allowClear
               size="large"
               @change="triggerSearch"
-              placeholder="Search by product type"
+              placeholder="Filter by product type"
             >
               <a-select-option :value="item.value" v-for="(item, index) in productTypeListStudent" :key="'producttypestudent_'+index">
                 {{ item.label }}
@@ -88,6 +91,29 @@
         </s-table>
       </a-tab-pane>
     </a-tabs>
+    <a-drawer
+      destroyOnClose
+      placement="right"
+      :closable="false"
+      width="800px"
+      :visible="previewVisible"
+      @close="handlePreviewClose"
+    >
+      <a-row class="preview-wrapper-row">
+        <a-col span="2">
+          <div class="view-back" @click="handlePreviewClose">
+            <div class="back-icon">
+              <img src="~@/assets/icons/common/back.png" />
+            </div>
+          </div>
+        </a-col>
+        <a-col span="22">
+          <div class="detail-wrapper" v-if="previewCurrentId && previewType">
+            <common-preview :id="previewCurrentId" :type="previewType" />
+          </div>
+        </a-col>
+      </a-row>
+    </a-drawer>
   </div>
 </template>
 
@@ -98,6 +124,7 @@ import { typeMap } from '@/const/teacher'
 
 import { STable } from '@/components'
 import ReviewScore from '@/components/Reviews/ReviewScore'
+import CommonPreview from '@/components/Common/CommonPreview'
 
 import FilterIcon from '@/assets/libraryv2/filter.svg?inline'
 import FilterActiveIcon from '@/assets/libraryv2/filter_active.svg?inline'
@@ -110,7 +137,8 @@ export default {
     FilterIcon,
     FilterActiveIcon,
     STable,
-    ReviewScore
+    ReviewScore,
+    CommonPreview
   },
   data() {
     return {
@@ -155,7 +183,7 @@ export default {
         name: 3,
         publishedTime: 4,
         price: 5,
-        preview: 6,
+        previews: 6,
         saved: 7,
         sold: 8,
         conversion: 9,
@@ -191,7 +219,11 @@ export default {
           return res.result
         })
       },
-      scroll: {}
+      scroll: {},
+
+      previewVisible: false,
+      previewCurrentId: '',
+      previewType: ''
     }
   },
   computed: {
@@ -200,8 +232,9 @@ export default {
         {
           title: 'Name',
           dataIndex: 'purchasesName',
-          width: '200px',
-          sorter: true
+          width: '180px',
+          sorter: true,
+          scopedSlots: { customRender: 'name' }
         },
         {
           title: 'Published time',
@@ -213,34 +246,40 @@ export default {
           title: 'Price',
           dataIndex: 'price',
           width: '120px',
+          align: 'center',
           sorter: true
         },
         {
           title: 'Previews',
           dataIndex: 'previews',
           width: '120px',
+          align: 'center',
           sorter: true
         },
         {
           title: 'Saved',
           dataIndex: 'saved',
           width: '120px',
+          align: 'center',
           sorter: true
         },
         {
           title: 'Sold',
           dataIndex: 'sold',
           width: '120px',
+          align: 'center',
           sorter: true
         }
       ]
-      if (this.currentType === 1) {
+      if (this.currentType === 'teacher') {
         results = results.concat([
           {
             title: 'Conversion',
             dataIndex: 'conversion',
-            width: '120px',
-            sorter: true
+            width: '130px',
+            align: 'center',
+            sorter: true,
+            customRender: (text) => this.$options.filters['percentFormat'](text) + '%'
           }
         ])
       } else {
@@ -248,6 +287,7 @@ export default {
           {
             title: 'Linked content',
             dataIndex: 'linkedContent',
+            align: 'center',
             width: '150px'
           }
         ])
@@ -282,6 +322,7 @@ export default {
     init() {
     },
     resetTableWidth() {
+      if (!this.$refs[this.currentType + 'Table']) return
       const totalWidth = this.columns.map(item => {
         if (item.width && item.width !== 'auto') {
           return parseInt(item.width)
@@ -292,9 +333,13 @@ export default {
         console.log(current)
         return prev + current
       }, 0)
-      const conWidth = this.$refs.tableCon.getBoundingClientRect().width
+      const conWidth = this.$refs[this.currentType + 'Table'].$el.getBoundingClientRect().width
+      console.log(conWidth, totalWidth)
       if (conWidth > totalWidth) {
         this.columns[0].width = 'auto'
+        this.scroll = {
+          x: conWidth
+        }
       } else {
         this.scroll = {
           x: totalWidth
@@ -307,6 +352,21 @@ export default {
     },
     triggerSearch() {
       this.$refs[this.currentType + 'Table'] && this.$refs[this.currentType + 'Table'].refresh()
+    },
+    handleViewDetail (item) {
+      logger.info('handleViewDetail', item)
+      this.previewCurrentId = item.purchasesId
+      this.previewType = item.purchasesType
+      this.previewVisible = true
+    },
+
+    handlePreviewClose () {
+      logger.info('handlePreviewClose')
+      this.previewVisible = false
+      this.$nextTick(() => {
+        this.previewCurrentId = null
+        this.previewType = -1
+      })
     }
   }
 }

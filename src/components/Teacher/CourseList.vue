@@ -10,6 +10,17 @@
             :loading="loading"
             v-if="viewModeLocal === 'list'"
           >
+            <div slot="header">
+              <div class="my-list-header">
+                <div class="content-info-left">
+                  <div class="name-content">Name</div>
+                </div>
+                <div class="content-info-right">
+                  <div class="update-time">Update Time</div>
+                  <div class="action">Action</div>
+                </div>
+              </div>
+            </div>
             <a-list-item class="my-list-item" slot="renderItem" key="item.id" slot-scope="item">
 
               <span class="content-info-left" @click="handleViewDetail(item)">
@@ -28,9 +39,9 @@
                 <span class="update-time" >
                   {{ item.updateTime | dayjs }}
                 </span>
-                <span class="status">
+                <!-- <span class="status">
                   {{ formatStatus(item.status) }}
-                </span>
+                </span> -->
                 <div class="action">
                   <div slot="actions">
                     <div class="action-wrapper">
@@ -1025,6 +1036,44 @@ a.delete-action {
   .preview-session-search{
     margin: 10px;
     width: 400px;
+  }
+}
+/deep/ .ant-list-header {
+    background: rgba(228, 228, 228, 0.2);
+    border: 1px solid #D8D8D8;
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
+    border-bottom: 0;
+    padding: 10px 15px;
+}
+/deep/ .ant-spin-nested-loading {
+    border-top-right-radius: 0;
+    border-top-left-radius: 0;
+}
+.my-list-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  .content-info-left {
+    width: calc(100% - 400px);
+    .name-content {
+      padding-left: 5px;
+      text-align: left;
+      font-family: Inter-Bold;
+      line-height: 24px;
+      color: #11142D;
+    }
+  }
+  .content-info-right {
+    display: flex;
+    justify-content: flex-end;
+    .update-time {
+      width: 170px;
+    }
+    .action {
+      width :200px;
+      text-align: right;
+    }
   }
 }
 </style>

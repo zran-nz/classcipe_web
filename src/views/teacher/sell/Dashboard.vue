@@ -57,7 +57,7 @@
             </div>
             <div class="filter-summary">
               <div class="summary-title">{{ title }}</div>
-              <div class="summary-total">${{ sum | percentFormat }}</div>
+              <div class="summary-total">{{ formatSum(sum) }}</div>
             </div>
           </div>
           <div class="dashboard-chart">
@@ -216,6 +216,15 @@ export default {
     },
     triggerSearch() {
       this.init()
+    },
+    formatSum(sum) {
+      if (this.filterParams.statisticsType === STATISTICS_TYPE.EARNINGS.value) {
+        return '$' + this.$options.filters['percentFormat'](sum)
+      } else if (this.filterParams.statisticsType === STATISTICS_TYPE.CONVERSIONS.value) {
+        return this.$options.filters['percentFormat'](sum) + '%'
+      } else {
+        return parseInt(sum)
+      }
     }
   }
 }
