@@ -373,61 +373,72 @@
               <div
                 class='sub-level-data'
                 :data='JSON.stringify(formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId])'>
-                <div class='sub-level-list' :data-mode='mode'>
-                  <div
-                    class='sub-level-item'
-                    v-for='(subLevel, sIndex) in item[headerType.AchievementLevel].subLevelDescription'
-                    :key='sIndex'>
-                    <template v-if='mode === tableMode.Edit'>
-                      <div class='start-index' @click.stop='handleSwitchModeTips'>
-                        <div class='select-block'>
-                          <a-icon
-                            class='select-block-icon'
-                            type='border' />
+                <div class='sub-level-list' :data-mode='mode' @click.stop=''>
+                  <template v-if='mode === tableMode.Edit || mode === tableMode.TeacherEvaluate'>
+                    <div
+                      class='sub-level-item'
+                      v-for='(subLevel, sIndex) in item[headerType.AchievementLevel].subLevelDescription'
+                      :key='sIndex'>
+                      <template v-if='mode === tableMode.Edit'>
+                        <div class='start-index' @click.stop='handleSwitchModeTips'>
+                          <div class='select-block'>
+                            <a-icon
+                              class='select-block-icon'
+                              type='border' />
+                          </div>
+                          {{ subLevel.startIndex }}
                         </div>
-                        {{ subLevel.startIndex }}
-                      </div>
-                      <div class='end-index' @click.stop='handleSwitchModeTips' v-show='subLevel.endIndex !== null'>
-                        <div class='select-block'>
-                          <a-icon
-                            class='select-block-icon'
-                            type='border' />
+                        <div class='end-index' @click.stop='handleSwitchModeTips' v-show='subLevel.endIndex !== null'>
+                          <div class='select-block'>
+                            <a-icon
+                              class='select-block-icon'
+                              type='border' />
+                          </div>
+                          {{ subLevel.endIndex }}
                         </div>
-                        {{ subLevel.endIndex }}
-                      </div>
-                    </template>
-                    <template v-if='mode !== tableMode.Edit'>
-                      <div class='start-index'>
+                      </template>
+                      <template v-if='mode === tableMode.TeacherEvaluate'>
+                        <div class='start-index'>
+                          <div
+                            class='select-block'
+                            @click.stop='handleClickSubLevelItem(item, header, subLevel.startIndex)'>
+                            <img
+                              src='~@/assets/icons/lesson/selected.png'
+                              v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].data === subLevel.startIndex' />
+                            <a-icon
+                              class='select-block-icon'
+                              type='border'
+                              v-else />
+                          </div>
+                          {{ subLevel.startIndex }}
+                        </div>
                         <div
-                          class='select-block'
-                          @click.stop='handleClickSubLevelItem(item, header, subLevel.startIndex)'>
-                          <img
-                            src='~@/assets/icons/lesson/selected.png'
-                            v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].data === subLevel.startIndex' />
-                          <a-icon
-                            class='select-block-icon'
-                            type='border'
-                            v-else />
+                          class='end-index'
+                          @click.stop='handleClickSubLevelItem(item, header, subLevel.endIndex)'
+                          v-show='subLevel.endIndex !== null'>
+                          <div class='select-block'>
+                            <img
+                              src='~@/assets/icons/lesson/selected.png'
+                              v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].data === subLevel.endIndex' />
+                            <a-icon
+                              class='select-block-icon'
+                              type='border'
+                              v-else />
+                          </div>
+                          {{ subLevel.endIndex }}
                         </div>
-                        {{ subLevel.startIndex }}
-                      </div>
-                      <div
-                        class='end-index'
-                        @click.stop='handleClickSubLevelItem(item, header, subLevel.endIndex)'
-                        v-show='subLevel.endIndex !== null'>
-                        <div class='select-block'>
-                          <img
-                            src='~@/assets/icons/lesson/selected.png'
-                            v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].data === subLevel.endIndex' />
-                          <a-icon
-                            class='select-block-icon'
-                            type='border'
-                            v-else />
-                        </div>
-                        {{ subLevel.endIndex }}
-                      </div>
-                    </template>
-                  </div>
+                      </template>
+                    </div>
+                  </template>
+                  <template v-if='mode === tableMode.StudentEvaluate'>
+                    <div class='no-level-data' v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].data && formBodyData[item.rowId].data === null' >
+                      The teacher has not graded you yet.
+                    </div>
+                    <div class='level-data' v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].data && formBodyData[item.rowId].data !== null' >
+                      <img src='~@/assets/icons/lesson/selected.png' />
+                      {{ formBodyData[item.rowId].data }}
+                    </div>
+                  </template>
                 </div>
               </div>
               <div
@@ -2703,6 +2714,27 @@ export default {
           width: 20px;
         }
       }
+    }
+  }
+
+  .no-level-data {
+    margin-top: 20px;
+    font-size: 12px;
+    color: #999;
+    text-align: center;
+    line-height: 40px;
+  }
+
+  .level-data {
+    margin-top: 20px;
+    line-height: 40px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    img {
+      width: 20px;
+      margin-right: 5px;
     }
   }
 
