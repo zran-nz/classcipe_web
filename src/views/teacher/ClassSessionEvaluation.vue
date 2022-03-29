@@ -171,7 +171,7 @@
                 </div>
                 <div class="no-group-tips">
                   <a-empty v-if="allStudentUserList.length === 0 && !loading" description="No student exist" />
-                  <a-empty v-if="attendanceEmailList.length === 0 && !loading" description="No attendance student exist" />
+                  <a-empty v-if="allStudentUserList.length !== 0 && attendanceEmailList.length === 0 && !loading" description="No attendance student exist" />
                 </div>
               </div>
             </div>
