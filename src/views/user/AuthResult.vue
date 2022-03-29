@@ -40,7 +40,7 @@ export default {
         const callbackUrl = window.sessionStorage.getItem(SESSION_CALLBACK_URL)
         if (callbackUrl) {
           window.sessionStorage.removeItem(SESSION_CALLBACK_URL)
-          window.location.href = callbackUrl + '?token=' + accessToken
+          window.location.href = callbackUrl + (callbackUrl.indexOf('?') > -1 ? '&' : '?') + 'token=' + accessToken
         } else if (this.$store.getters.currentRole) {
           this.$router.push(this.$store.getters.defaultRouter)
         } else {

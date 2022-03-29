@@ -224,7 +224,7 @@ const columns = [
   },
   {
     title: 'Status',
-    dataIndex: 'userInfo.schoolUserStatus',
+    dataIndex: 'studentStatus',
     customRender: (text, row, index) => {
       return schoolUserStatusList.find(item => item.id === text)?.name
     },

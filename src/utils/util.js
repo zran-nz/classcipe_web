@@ -270,7 +270,7 @@ export function getDaysBetweenDates(startDate, endDate, format = 'YYYY-MM-DD') {
 }
 
 export function getUrlWithNoParams(url) {
-  if (url.indexOf('?') === -1) { return url } else {
+  if (url.indexOf('?') === -1 || url.indexOf('token=') === -1) { return url } else {
     return url.split('?')[0]
   }
 }

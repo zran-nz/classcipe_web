@@ -245,7 +245,7 @@ const columns = [
   },
   {
     title: 'Date of join',
-    dataIndex: 'userInfo.schoolJoinDate',
+    dataIndex: 'schoolJoinDate',
     customRender: (text, row, index) => {
       if (text) {
         return Moment(text).format('YYYY-MM-DD')
@@ -257,7 +257,7 @@ const columns = [
   },
   {
     title: 'Status',
-    dataIndex: 'userInfo.schoolUserStatus',
+    dataIndex: 'teacherStatus',
     customRender: (text, row, index) => {
       return schoolUserStatusList.find(item => item.id === text)?.name
     },

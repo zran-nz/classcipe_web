@@ -145,7 +145,7 @@ const columns = [
   },
   {
     title: 'Lasted Accessed',
-    dataIndex: 'userInfo.schoolJoinDate',
+    dataIndex: 'schoolJoinDate',
     customRender: (text, row, index) => {
       if (text) {
         return Moment(text).format('YYYY-MM-DD')

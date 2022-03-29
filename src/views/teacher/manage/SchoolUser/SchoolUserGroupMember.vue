@@ -106,7 +106,7 @@ const columns = [
   },
   {
     title: 'Join at',
-    dataIndex: 'userInfo.schoolJoinDate',
+    dataIndex: 'schoolJoinDate',
     key: 'joinat'
   },
   {
