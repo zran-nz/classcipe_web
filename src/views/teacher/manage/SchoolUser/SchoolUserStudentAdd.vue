@@ -164,7 +164,6 @@
 <script>
 import JModal from '@/components/jeecg/JModal'
 import { addStudent, getOrCreateInvite, updateInvite } from '@/api/schoolUser'
-import store from '@/store'
 import { mapState } from 'vuex'
 
 export default {
