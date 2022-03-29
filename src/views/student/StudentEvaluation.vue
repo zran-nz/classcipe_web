@@ -248,6 +248,38 @@
                         class="my-textarea" />
                     </div>
                   </div>
+                  <div class="student-question">
+                    <div class="summary-input student-question-item" v-if="currentActiveFormId && currentActiveStudentId && studentEvaluateData[currentActiveStudentId][currentActiveFormId].hasOwnProperty('question1')">
+                      <div class='question-text'>What's the most important thing you learned today? Why do you think so?</div>
+                      <a-textarea
+                        v-model="studentEvaluateData[currentActiveStudentId][currentActiveFormId].question1"
+                        :disabled='mode === EvaluationTableMode.StudentEvaluate'
+                        placeholder="What’s the most important thing you learned today? Why do you think so?"
+                        aria-placeholder="What’s the most important thing you learned today? Why do you think so?"
+                        @keyup="handleUpdateComment(studentEvaluateData[currentActiveStudentId][currentActiveFormId].question1)"
+                        class="my-textarea" />
+                    </div>
+                    <div class="summary-input student-question-item" v-if="currentActiveFormId && currentActiveStudentId && studentEvaluateData[currentActiveStudentId][currentActiveFormId].hasOwnProperty('question2')">
+                      <div class='question-text'>What do you want to learn more about, and why?</div>
+                      <a-textarea
+                        v-model="studentEvaluateData[currentActiveStudentId][currentActiveFormId].question2"
+                        :disabled='mode === EvaluationTableMode.StudentEvaluate'
+                        placeholder="What do you want to learn more about, and why?"
+                        aria-placeholder="What do you want to learn more about, and why?"
+                        @keyup="handleUpdateComment(studentEvaluateData[currentActiveStudentId][currentActiveFormId].question2)"
+                        class="my-textarea" />
+                    </div>
+                    <div class="summary-input student-question-item" v-if="currentActiveFormId && currentActiveStudentId && studentEvaluateData[currentActiveStudentId][currentActiveFormId].hasOwnProperty('question3')">
+                      <div class='question-text'>What made you curious today? How does learning feel different when you’re curious?</div>
+                      <a-textarea
+                        v-model="studentEvaluateData[currentActiveStudentId][currentActiveFormId].question3"
+                        :disabled='mode === EvaluationTableMode.StudentEvaluate'
+                        placeholder="What’s the most important thing you learned today? Why do you think so?"
+                        aria-placeholder="What’s the most important thing you learned today? Why do you think so?"
+                        @keyup="handleUpdateComment(studentEvaluateData[currentActiveStudentId][currentActiveFormId].question3)"
+                        class="my-textarea" />
+                    </div>
+                  </div>
                   <div class="form-table-detail">
                     <evaluation-table
                       ref="evaluationTable"
@@ -1924,4 +1956,14 @@ export default {
   align-items: center;
 }
 
+.student-question {
+  .question-text {
+    line-height: 32px;
+    font-weight: bold;
+    font-family: Inter-Bold;
+  }
+  .student-question-item {
+    margin-bottom: 10px;
+  }
+}
 </style>

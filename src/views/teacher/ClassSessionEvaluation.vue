@@ -960,7 +960,10 @@ export default {
             studentEvaluateData[studentId] = {}
             this.forms.forEach(formItem => {
               studentEvaluateData[studentId][formItem.formId] = {
-                comment: null
+                comment: null,
+                question1: null, // 学生回答的三个问题内容
+                question2: null,
+                question3: null
               }
               formItem.initRawData.forEach(rowItem => {
                 studentEvaluateData[studentId][formItem.formId][rowItem.rowId] = {
@@ -1284,7 +1287,10 @@ export default {
             refFormList.forEach(formItem => {
               let formData = {}
               formData = {
-                comment: null
+                comment: null,
+                question1: null, // 学生回答的三个问题内容
+                question2: null,
+                question3: null
               }
               formItem.initRawData.forEach(rowItem => {
                 formData[rowItem.rowId] = {
@@ -1343,7 +1349,10 @@ export default {
           refFormList.forEach(formItem => {
             let formData = {}
             formData = {
-              comment: null
+              comment: null,
+              question1: null, // 学生回答的三个问题内容
+              question2: null,
+              question3: null
             }
             formItem.initRawData.forEach(rowItem => {
               formData[rowItem.rowId] = {
@@ -1622,7 +1631,7 @@ export default {
     },
 
     goEvaluatePage () {
-      window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/' + this.sessionId
+      // window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/' + this.sessionId
     },
     handleSaveAndBackEvaluation () {
       this.$logger.info('handleSaveAndBackEvaluation', this.forms)
