@@ -1621,7 +1621,7 @@ export default {
     },
 
     goEvaluatePage () {
-      window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/' + this.sessionId
+      // window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/' + this.sessionId
     },
     handleSaveAndBackEvaluation () {
       this.$logger.info('handleSaveAndBackEvaluation', this.forms)
