@@ -82,7 +82,7 @@
               </div>
             </template>
 
-            <template v-if='formType !== tableType.CenturySkills'>
+            <template>
               <div class='add-header-item'>
                 <a-tooltip title='Add new level'>
                   <a-icon type='plus-circle' @click='handleAddNewHeader(hIndex)' />
@@ -918,37 +918,6 @@ export default {
           }
         })
       }
-
-      // 21世纪有非描述性不显示后四列，改为显示comment
-      if (this.formType === this.tableType.CenturySkills) { // 只正对21世纪技能表
-         if (flag) {
-           this.headers.forEach(header => {
-             if (header.type === this.headerType.Comment) {
-               header.visible = true
-             } else if ([
-               this.headerType.Novice,
-               this.headerType.Learner,
-               this.headerType.Practitoner,
-               this.headerType.Expert
-             ].indexOf(header.type) !== -1) {
-               header.visible = false
-             }
-           })
-         } else {
-          this.headers.forEach(header => {
-            if (header.type === this.headerType.Comment) {
-              header.visible = false
-            } else if ([
-              this.headerType.Novice,
-              this.headerType.Learner,
-              this.headerType.Practitoner,
-              this.headerType.Expert
-            ].indexOf(header.type) !== -1) {
-              header.visible = true
-            }
-          })
-         }
-      }
     }
   },
   created() {
@@ -1099,37 +1068,37 @@ export default {
             {
               label: 'Novice',
               previewLabel: 'Novice',
-              type: EvaluationTableHeader.Novice,
-              editable: false,
+              type: EvaluationTableHeader.UserDefine + 'Novice',
+              editable: true,
               editing: false,
-              required: true,
+              required: false,
               visible: true
             },
             {
               label: 'Learner',
               previewLabel: 'Learner',
-              type: EvaluationTableHeader.Learner,
-              editable: false,
+              type: EvaluationTableHeader.UserDefine + 'Learner',
+              editable: true,
               editing: false,
-              required: true,
+              required: false,
               visible: true
             },
             {
               label: 'Practitoner',
               previewLabel: 'Practitoner',
-              type: EvaluationTableHeader.Practitoner,
-              editable: false,
+              type: EvaluationTableHeader.UserDefine + 'Practitoner',
+              editable: true,
               editing: false,
-              required: true,
+              required: false,
               visible: true
             },
             {
               label: 'Expert',
               previewLabel: 'Expert',
-              type: EvaluationTableHeader.Expert,
-              editable: false,
+              type: EvaluationTableHeader.UserDefine + 'Expert',
+              editable: true,
               editing: false,
-              required: true,
+              required: false,
               visible: true
             },
             {
@@ -1165,37 +1134,37 @@ export default {
             {
               label: 'Novice',
               previewLabel: 'Novice',
-              type: EvaluationTableHeader.Novice,
-              editable: false,
+              type: EvaluationTableHeader.UserDefine + 'Novice',
+              editable: true,
               editing: false,
-              required: true,
+              required: false,
               visible: true
             },
             {
               label: 'Learner',
               previewLabel: 'Learner',
-              type: EvaluationTableHeader.Learner,
-              editable: false,
+              type: EvaluationTableHeader.UserDefine + 'Learner',
+              editable: true,
               editing: false,
-              required: true,
+              required: false,
               visible: true
             },
             {
               label: 'Practitoner',
               previewLabel: 'Practitoner',
-              type: EvaluationTableHeader.Practitoner,
-              editable: false,
+              type: EvaluationTableHeader.UserDefine + 'Practitoner',
+              editable: true,
               editing: false,
-              required: true,
+              required: false,
               visible: true
             },
             {
               label: 'Expert',
               previewLabel: 'Expert',
-              type: EvaluationTableHeader.Expert,
-              editable: false,
+              type: EvaluationTableHeader.UserDefine + 'Expert',
+              editable: true,
               editing: false,
-              required: true,
+              required: false,
               visible: true
             },
             {
