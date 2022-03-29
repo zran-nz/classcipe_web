@@ -23,7 +23,7 @@
             class="filter-item"
             size="large"
             @change="triggerSearch"
-            placeholder="Search by type"
+            placeholder="Filter by type"
           >
             <a-select-option :value="item.value" v-for="(item, index) in typeOptions" :key="'type_'+index">
               {{ item.label }}
@@ -37,7 +37,7 @@
             class="filter-item"
             size="large"
             @change="triggerSearch"
-            placeholder="Search by price"
+            placeholder="Filter by price"
           >
             <a-select-option :value="item.value" v-for="(item, index) in priceOptions" :key="'price_'+index">
               {{ item.label }}

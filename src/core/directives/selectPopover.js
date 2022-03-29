@@ -26,10 +26,16 @@ import Vue from 'vue'
         }
         text = text.toString().replace(/\n/g, '').trim()
         const $dom = document.getElementById(domQuery)
+        $dom.style.position = 'absolute'
         if (text) {
+          // 找到最近一层relative
+          let parentNode = $dom.parentNode
+          while (getComputedStyle(parentNode).position !== 'relative') {
+            parentNode = parentNode.parentNode
+          }
           $dom.style.display = 'block'
-          $dom.style.top = e.pageY - y + 10 + 'px'
-          $dom.style.left = x + 'px'
+          $dom.style.top = e.pageY - y - parentNode.getBoundingClientRect().y + 20 + 'px'
+          $dom.style.left = x - parentNode.getBoundingClientRect().x + 'px'
           domFn && domFn(text)
         } else {
           $dom.style.display = 'none'

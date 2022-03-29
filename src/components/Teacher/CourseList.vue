@@ -16,7 +16,7 @@
                   <div class="name-content">Name</div>
                 </div>
                 <div class="content-info-right">
-                  <div class="update-time">Update Time</div>
+                  <div class="update-time">Updated Time</div>
                   <div class="action">Action</div>
                 </div>
               </div>
