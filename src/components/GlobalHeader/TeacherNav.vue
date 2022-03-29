@@ -16,7 +16,7 @@
               </div>
             </router-link>
           </a-menu-item>
-          <a-menu-item key="/teacher/managing" v-if="currentSchool.roleNames.indexOf(schoolUserRole.admin) > -1">
+          <a-menu-item key="/teacher/managing" v-if="currentSchool && currentSchool.roleNames && currentSchool.roleNames.indexOf(schoolUserRole.admin) > -1">
             <router-link to="/teacher/managing">
               <div class="nav-item">
                 <div class="nav-icon">
