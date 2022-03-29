@@ -299,6 +299,7 @@
                     <div class="comment" v-show="mode === EvaluationTableMode.TeacherEvaluate">
                       <div class="summary-input" v-if="currentActiveFormId && currentActiveStudentId">
                         <a-textarea
+                          :auto-size="{ minRows: 2, maxRows: 6 }"
                           v-model="studentEvaluateData[currentActiveStudentId][currentActiveFormId].comment"
                           placeholder="Write a comment"
                           aria-placeholder="Write a comment"
@@ -320,6 +321,7 @@
                         @update-evaluation="handleUpdateEvaluate"
                         @add-evidence="handleAddEvidence"
                         @error-mode='handleErrorMode'
+                        @use-clicked-text='handleUseClickedTextToComment'
                       />
                     </div>
                   </div>
@@ -651,6 +653,19 @@ export default {
 
     isTeacher () {
       return this.$store.getters && this.$store.getters.currentRole === 'teacher'
+    },
+
+    currentActiveStudentName () {
+      if (this.currentActiveStudentId && this.allStudentUserList) {
+        const currentStudent = this.allStudentUserList.find(item => item.email === this.currentActiveStudentId)
+        if (currentStudent) {
+          return currentStudent.realName
+        } else {
+          return ''
+        }
+      } else {
+        return ''
+      }
     }
   },
   data () {
@@ -1875,6 +1890,16 @@ export default {
     handleErrorMode () {
       this.initCompleted = false
       window.location.pathname = '/'
+    },
+
+    handleUseClickedTextToComment (data) {
+      this.$logger.info('handleUseClickedTextToComment', data, 'currentActiveStudentName', this.currentActiveStudentName)
+      const text = data ? data.replace(/The student/g, this.currentActiveStudentName) : ''
+      if (this.studentEvaluateData[this.currentActiveStudentId][this.currentActiveFormId].comment) {
+        this.studentEvaluateData[this.currentActiveStudentId][this.currentActiveFormId].comment += ('\r\n' + text)
+      } else {
+        this.studentEvaluateData[this.currentActiveStudentId][this.currentActiveFormId].comment = text
+      }
     },
 
     handleEnsureEvidenceFinish (data) {

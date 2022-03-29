@@ -453,11 +453,14 @@
                       class='sub-level-desc-item'
                       v-for='(subLevel, sIndex) in item[headerType.AchievementLevel].subLevelDescription'
                       :key='sIndex'>
-                      <a-tooltip placement='topLeft'>
+                      <a-tooltip placement='topLeft' :mouseEnterDelay="1">
                         <template slot='title'>
                           {{ subLevel.description }}
                         </template>
                         {{ subLevel.description }}
+                        <a-tooltip placement="top" title='Add to comment' v-if='subLevel.description'>
+                          <a-icon type="copy" :style="{color: '#999'}" class='my-copy-item-icon' @click='handleUseClicked(subLevel.description)'/>
+                        </a-tooltip>
                       </a-tooltip>
                     </div>
                   </template>
@@ -517,6 +520,9 @@
                       :key='sIndex'>
                       <div class='my-indicator-text'>
                         {{ subIndicator && subIndicator.indicator ? subIndicator.indicator : '' }}
+                        <a-tooltip placement="top" title='Add to comment' v-if='subIndicator && subIndicator.indicator'>
+                          <a-icon type="copy" :style="{color: '#999'}" class='my-copy-item-icon' @click='handleUseClicked(subIndicator.indicator)'/>
+                        </a-tooltip>
                       </div>
                     </div>
                   </div>
@@ -2082,6 +2088,11 @@ export default {
     handleCancelCenturySkillsSelect() {
       this.selected21CenturyItem = null
       this.selected21CenturyItemParent = null
+    },
+
+    handleUseClicked(text) {
+      this.$logger.info('handleUseClicked', text)
+      this.$emit('use-clicked-text', text)
     }
   }
 }
@@ -2707,6 +2718,7 @@ export default {
   overflow: hidden;
 
   .sub-level-desc-item {
+    position: relative;
     display: flex;
     flex-direction: row;
     overflow: hidden;
@@ -2725,6 +2737,16 @@ export default {
       white-space: nowrap;
       text-overflow: ellipsis;
       vertical-align: middle;
+    }
+
+    .my-copy-item-icon {
+      display: none;
+    }
+
+    &:hover {
+      .my-copy-item-icon {
+        display: inline-block;
+      }
     }
   }
 
@@ -2812,6 +2834,7 @@ export default {
 }
 
 .sub-level-indicator-item {
+  position: relative;
   height: 40px;
 
   .my-indicator-input {
@@ -2829,6 +2852,23 @@ export default {
     white-space: nowrap;
     text-overflow: ellipsis;
     vertical-align: middle;
+
+    .my-copy-item-icon {
+      display: none;
+    }
+
+    &:hover {
+      .my-copy-item-icon {
+        display: inline-block;
+      }
+    }
   }
+}
+
+.my-copy-item-icon {
+  position: absolute;
+  right: 5px;
+  top: 14px;
+  background: #fff;
 }
 </style>
