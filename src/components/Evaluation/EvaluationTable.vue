@@ -521,7 +521,7 @@
                       <div class='my-indicator-text'>
                         {{ subIndicator && subIndicator.indicator ? subIndicator.indicator : '' }}
                         <a-tooltip placement="top" title='Add to comment' v-if='subIndicator && subIndicator.indicator'>
-                          <a-icon type="copy" :style="{color: '#999'}" class='my-copy-item-icon' @click='handleUseClicked(subIndicator.indicator)'/>
+                          <中 :style="{color: '#999'}" class='my-copy-item-icon' @click='handleUseClicked(subIndicator.indicator)'/>
                         </a-tooltip>
                       </div>
                     </div>
