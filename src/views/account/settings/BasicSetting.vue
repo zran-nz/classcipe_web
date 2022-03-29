@@ -187,10 +187,11 @@
 
             <div class="profile-text profile-data">
               <div class='linked-school-name' v-if="$store.getters.schoolName">{{ $store.getters.schoolName }}</div>
-              <!-- <div v-if="!$store.getters.schoolName">
-                <a-button @click="userFormVisible = true">Refer your principal to win</a-button>
-              </div> -->
-              <div class='no-linked-school-name' v-if="!$store.getters.schoolName">You have not linked to any school</div>
+              <div v-if="!$store.getters.schoolName && currentRole === 'teacher'">
+                <!-- <a-button @click="userFormVisible = true">Refer your principal to win</a-button> -->
+                <div class='no-linked-school-name'>You have not linked to any school</div>
+              </div>
+              <div class='no-linked-school-name' v-if="!$store.getters.schoolName && currentRole === 'student'">You have not linked to any school</div>
             </div>
           </div>
 
@@ -483,7 +484,8 @@ export default {
   },
   computed: {
     ...mapState({
-      userInfoStore: state => state.user.info
+      userInfoStore: state => state.user.info,
+      currentRole: state => state.user.currentRole
     }),
     subjectOptionsFilter() {
       if (this.$store.getters.currentRole === 'student') {

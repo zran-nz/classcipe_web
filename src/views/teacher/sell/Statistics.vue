@@ -40,7 +40,7 @@
           class="content-list"
         >
           <div slot="name" slot-scope="text, record">
-            <a-button type="link" @click="handleViewDetail(record)"> {{ text }} </a-button>
+            <a-button class="table-text" type="link" @click="handleViewDetail(record)"> {{ text }} </a-button>
           </div>
           <div slot="reviews" slot-scope="text, record">
             <review-score placement="left" :id="record.id"/>
@@ -85,6 +85,9 @@
           :scroll="scroll"
           class="content-list"
         >
+          <div slot="name" slot-scope="text, record">
+            <a-button class="table-text" type="link" @click="handleViewDetail(record)"> {{ text }} </a-button>
+          </div>
           <div slot="reviews" slot-scope="text, record">
             <review-score placement="left" :id="record.id"/>
           </div>
@@ -474,6 +477,16 @@ export default {
     width: 100%;
     line-height: 40px;
     font-size: 14px;
+  }
+}
+.table-text {
+  width: 100%;
+  /deep/ span {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    width: 100%;
+    text-align: left;
   }
 }
 </style>
