@@ -1214,6 +1214,7 @@ export default {
         this.$logger.info('newFormTable', newFormTable)
         this.forms.push(newFormTable)
         this.currentActiveFormId = newFormTable.formId
+        this.isEmptyStudentEvaluateData = false
       } else {
         this.$message.warn('Choose rubric format!')
       }
@@ -1392,7 +1393,7 @@ export default {
     },
     // switchEvaluate标识是否跳转到评估页面，true为跳转，false为不跳转
     handleSaveEvaluation (switchEvaluate) {
-      this.$logger.info('handleSaveEvaluation', this.forms, switchEvaluate)
+      this.$logger.info('handleSaveEvaluation', this.forms, switchEvaluate, 'this.isEmptyStudentEvaluateData', this.isEmptyStudentEvaluateData, 'mode', this.mode)
 
       if (!this.isEmptyStudentEvaluateData && this.mode === EvaluationTableMode.Edit) {
         this.$info({
@@ -1621,7 +1622,7 @@ export default {
     },
 
     goEvaluatePage () {
-      // window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/' + this.sessionId
+      window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/' + this.sessionId
     },
     handleSaveAndBackEvaluation () {
       this.$logger.info('handleSaveAndBackEvaluation', this.forms)
