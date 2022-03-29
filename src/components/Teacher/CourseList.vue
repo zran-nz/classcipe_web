@@ -1047,8 +1047,8 @@ a.delete-action {
     padding: 10px 15px;
 }
 /deep/ .ant-spin-nested-loading {
-    border-top-right-radius: 0;
-    border-top-left-radius: 0;
+    border-top-right-radius: 0!important;
+    border-top-left-radius: 0!important;
 }
 .my-list-header {
   width: 100%;
