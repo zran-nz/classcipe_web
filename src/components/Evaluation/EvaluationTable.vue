@@ -492,7 +492,7 @@
                           {{ subLevel.description }}
                         </template>
                         {{ subLevel.description }}
-                        <a-tooltip placement="top" title='Add to comment' v-if='subLevel.description'>
+                        <a-tooltip placement="top" title='Add to comment' v-if='subLevel.description && mode === tableMode.TeacherEvaluate'>
                           <a-icon type="copy" :style="{color: '#999'}" class='my-copy-item-icon' @click='handleUseClicked(subLevel.description)'/>
                         </a-tooltip>
                       </a-tooltip>
@@ -554,7 +554,7 @@
                       :key='sIndex'>
                       <div class='my-indicator-text'>
                         {{ subIndicator && subIndicator.indicator ? subIndicator.indicator : '' }}
-                        <a-tooltip placement="top" title='Add to comment' v-if='subIndicator && subIndicator.indicator'>
+                        <a-tooltip placement="top" title='Add to comment' v-if='subIndicator && subIndicator.indicator && mode === tableMode.TeacherEvaluate'>
                           <中 :style="{color: '#999'}" class='my-copy-item-icon' @click='handleUseClicked(subIndicator.indicator)'/>
                         </a-tooltip>
                       </div>
