@@ -1849,6 +1849,7 @@ export default {
     },
 
     goBack() {
+      this.$logger.info('click goBack')
       this.$router.push({ path: '/teacher/main/created-by-me' })
     },
     handleChangeCustomTags(tags) {
