@@ -580,6 +580,7 @@ export default {
         onOk: () => {
           item.status = 'live'
           AddOrUpdateClass(item).then(response => {
+            location.href = lessonHost + 'd/' + item.classId + '?reopen=1&token=' + storage.get(ACCESS_TOKEN)
             this.loadTeacherClasses()
           })
         }
