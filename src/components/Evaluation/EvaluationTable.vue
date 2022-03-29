@@ -431,12 +431,35 @@
                     </div>
                   </template>
                   <template v-if='mode === tableMode.StudentEvaluate'>
+                    <div
+                      class='sub-level-item'
+                      v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].data && formBodyData[item.rowId].data !== null'
+                      v-for='(subLevel, sIndex) in item[headerType.AchievementLevel].subLevelDescription'
+                      :key='sIndex'>
+                      <div class='start-index'>
+                        <div
+                          class='select-block'>
+                          <img
+                            src='~@/assets/icons/lesson/selected.png'
+                            v-if='formBodyData[item.rowId].data === subLevel.startIndex' />
+                        </div>
+                        <template v-if='formBodyData[item.rowId].data === subLevel.startIndex'>
+                          {{ subLevel.startIndex }}
+                        </template>
+                      </div>
+                      <div
+                        class='end-index'
+                        v-show='subLevel.endIndex !== null'>
+                        <div class='select-block'>
+                          <img
+                            src='~@/assets/icons/lesson/selected.png'
+                            v-if='formBodyData[item.rowId].data === subLevel.endIndex' />
+                        </div>
+                        <template v-if='formBodyData[item.rowId].data === subLevel.endIndex'>{{ subLevel.endIndex }}</template>
+                      </div>
+                    </div>
                     <div class='no-level-data' v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].data && formBodyData[item.rowId].data === null' >
                       The teacher has not graded you yet.
-                    </div>
-                    <div class='level-data' v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].data && formBodyData[item.rowId].data !== null' >
-                      <img src='~@/assets/icons/lesson/selected.png' />
-                      {{ formBodyData[item.rowId].data }}
                     </div>
                   </template>
                 </div>
