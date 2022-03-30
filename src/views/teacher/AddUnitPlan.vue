@@ -52,6 +52,31 @@
                             </a-form-item>
                           </div>
 
+                          <div class='form-block tag-content-block' :data-field-name='planField.Overview' id='overview' v-if='fieldItem.visible && fieldItem.fieldName === planField.Overview' :key='fieldItem.fieldName'>
+                            <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Overview />
+                            <comment-switch
+                              v-show="canEdit"
+                              :field-name='planField.Overview'
+                              :is-active="currentFieldName === planField.Overview"
+                              @switch='handleSwitchComment'
+                              :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Overview}" />
+                            <a-form-model-item class='task-audio-line' ref='overview'>
+                              <template class='my-label' slot='label'>
+                                {{ 'Overview' | unitLabelName(planField.Overview, $store.getters.formConfigData) }}
+                                <a-tooltip :title="'Overview' | unitLabelHint(planField.Overview, $store.getters.formConfigData)" placement='top'>
+                                  <a-icon type="info-circle" />
+                                </a-tooltip>
+                              </template>
+                              <a-textarea
+                                autoSize
+                                v-model='form.overview'
+                                placeholder='Overview'
+                                allow-clear
+                                @change="handleCollaborateEvent(unitPlanId,planField.Overview,form.overview)"
+                                :disabled="!canEdit"/>
+                            </a-form-model-item>
+                          </div>
+
                           <div class='form-block form-radio-wrapper tag-content-block' :data-field-name='planField.ProjectBased' v-if='fieldItem.visible && fieldItem.fieldName === planField.ProjectBased' :key='fieldItem.fieldName'>
                             <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.ProjectBased style="top:-30px" />
                             <comment-switch

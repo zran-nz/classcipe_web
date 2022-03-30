@@ -49,6 +49,7 @@ export const CurriculumType = {
 
 export const PlanField = {
   Name: 'name',
+  Overview: 'overview',
   ProjectBased: 'projectBased',
   UnitType: 'unitType',
   GradeId: 'gradeId',
@@ -65,6 +66,7 @@ export const PlanField = {
 }
 export const PlanFieldDisplayName = {
   name: 'Unit plan',
+  overview: 'Overview',
   projectBased: 'Project-based Unit',
   unitType: 'Unit type',
   startDate: 'Start Date',
