@@ -1,16 +1,14 @@
 export const CurrentSchoolMixin = {
   data() {
     return {
-      unwatch: null
+      unwatch: null,
+      routeName: this.$route.name
     }
   },
   created() {
     this.unwatch = this.$store.watch(
       state => state.user.currentSchool,
-      currentSchool => currentSchool && (this.handleSchoolChange(currentSchool)),
-      {
-        immediate: true
-      }
+      currentSchool => currentSchool && this.$route.name === this.routeName && (this.handleSchoolChange(currentSchool))
     )
   },
   beforeDestroy() {

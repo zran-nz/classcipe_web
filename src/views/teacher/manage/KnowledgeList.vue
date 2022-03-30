@@ -134,12 +134,13 @@ import KnowledgeModal from './modules/KnowledgeModal'
 import KnowledgeTagList from './KnowledgeTagList'
 import { filterObj } from '@/utils/util'
 import { GetGradesByCurriculumId } from '@/api/preference'
-import { CurriculumType, DICT_KNOWLEDGE_PHASE, SubjectType, TagType } from '@/const/common'
+import { CurriculumType, DICT_KNOWLEDGE_PHASE, SubjectType, TagType, USER_MODE } from '@/const/common'
 import JTreeSelect from '@/components/jeecg/JTreeSelect'
 import { SubjectTree } from '@/api/subject'
 import KnowledgeExtendModal from '@/views/teacher/manage/tags/KnowledgeExtendModal'
 import { GetDictItems } from '@/api/common'
 import * as logger from '@/utils/logger'
+
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import { mapState } from 'vuex'
@@ -319,11 +320,15 @@ export default {
   },
   methods: {
     handleSchoolChange(currentSchool) {
-      this.initData()
+      if (this.userMode === USER_MODE.SCHOOL) {
+        this.initData()
+      }
     },
     handleModeChange(userMode) {
       // 模式切换，个人还是学校 TODO 个人接口
-      this.initData()
+      if (this.userMode === USER_MODE.SELF) {
+        this.initData()
+      }
     },
     initData() {
       this.loadData()

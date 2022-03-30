@@ -23,6 +23,7 @@ import { typeMap } from '@/const/teacher'
 import { FormConfigData, FormConfigAddOrUpdate } from '@/api/formConfig'
 import FormatForm from '@/components/FormConfig/FormatForm'
 import { FORM_CONFIG_PREVIEW_DATA } from '@/store/mutation-types'
+import { USER_MODE } from '@/const/common'
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import { mapState } from 'vuex'
@@ -52,11 +53,15 @@ export default {
   },
   methods: {
     handleSchoolChange(currentSchool) {
-      this.loadFormConfigData()
+      if (this.userMode === USER_MODE.SCHOOL) {
+        this.loadFormConfigData()
+      }
     },
     handleModeChange(userMode) {
       // 模式切换，个人还是学校 TODO 个人接口
-      this.loadFormConfigData()
+      if (this.userMode === USER_MODE.SELF) {
+        this.loadFormConfigData()
+      }
     },
     loadFormConfigData() {
       this.$logger.info('loadFormConfigData')

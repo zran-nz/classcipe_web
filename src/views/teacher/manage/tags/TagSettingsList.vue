@@ -119,7 +119,7 @@ import { deleteAction, getAction } from '@/api/manage'
 import { JeecgListMixin } from '@/mixins/JeecgListMixin'
 import TagModal from './TagModal'
 import { filterObj } from '@/utils/util'
-import { CurriculumType } from '@/const/common'
+import { CurriculumType, USER_MODE } from '@/const/common'
 import TagLibrary from '@/views/teacher/manage/tags/TagLibrary'
 import { SchoolCommonTagList, SchoolSelectLibrary, SchoolTagDelete } from '@/api/tag'
 import { UserModeMixin } from '@/mixins/UserModeMixin'
@@ -222,11 +222,15 @@ export default {
   },
   methods: {
     handleSchoolChange(currentSchool) {
-      this.initData()
+      if (this.userMode === USER_MODE.SCHOOL) {
+        this.initData()
+      }
     },
     handleModeChange(userMode) {
       // 模式切换，个人还是学校 TODO 个人接口
-      this.initData()
+      if (this.userMode === USER_MODE.SELF) {
+        this.initData()
+      }
     },
     initData() {
       this.loadData()

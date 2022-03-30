@@ -138,6 +138,7 @@ import { SubjectTree } from '@/api/subject'
 import { schoolClassAPIUrl, SchoolClassDelete } from '@/api/schoolClass'
 import ClassStudentList from '@/views/teacher/manage/ClassStudentList'
 import ClassTeacherList from '@/views/teacher/manage/ClassTeacherList'
+import { USER_MODE } from '@/const/common'
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import { mapState } from 'vuex'
@@ -234,11 +235,15 @@ export default {
   },
   methods: {
     handleSchoolChange(currentSchool) {
-      this.initData()
+      if (this.userMode === USER_MODE.SCHOOL) {
+        this.initData()
+      }
     },
     handleModeChange(userMode) {
       // 模式切换，个人还是学校 TODO 个人接口
-      this.initData()
+      if (this.userMode === USER_MODE.SELF) {
+        this.initData()
+      }
     },
     initData() {
       this.loadData()
