@@ -270,9 +270,7 @@ export default {
     }
   },
   created() {
-    this.loadData()
-    this.loadClassList()
-    this.loadGradeList()
+    this.initData()
   },
   computed: {
     ...mapState({
@@ -281,6 +279,11 @@ export default {
     })
   },
   methods: {
+    initData() {
+      this.loadData()
+      this.loadClassList()
+      this.loadGradeList()
+    },
     async loadClassList() {
       const res = await getSchoolClassList({
         schoolId: this.currentSchool.id
@@ -297,7 +300,7 @@ export default {
       this.loading = true
       const searchParams = this.form.getFieldsValue()
       const res = await getSchoolUsers({
-        school: store.getters.userInfo.school,
+        schoolId: store.getters.school,
         roles: SchoolUserRole.student,
         pageSize: this.pagination.pageSize,
         pageNo: this.pagination.current,

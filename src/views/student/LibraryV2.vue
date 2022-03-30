@@ -6,11 +6,11 @@
 
 <script>
 import Browser from '@/components/LibraryV2/Browser'
-import { StudyModeMixin } from '@/mixins/StudyModeMixin'
+import { UserModeMixin } from '@/mixins/UserModeMixin'
 
 export default {
   name: 'LibraryV2',
-  mixins: [StudyModeMixin],
+  mixins: [UserModeMixin],
   components: {
     Browser
   },

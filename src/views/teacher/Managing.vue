@@ -2,7 +2,7 @@
   <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%' }" :style="{ height: '100%' }">
     <a-layout>
       <a-layout-sider>
-        <div class="school-name">{{ currentSchool.schoolName }}</div>
+        <div class="school-name">{{ head }}</div>
         <s-menu
           :mainRouter="mainRouter"
           :currentRouterName="currentRouterName"
@@ -40,7 +40,7 @@
 
 <script>
 import { PageHeaderWrapper } from '@ant-design-vue/pro-layout'
-import { CurriculumType } from '@/const/common'
+import { CurriculumType, USER_MODE } from '@/const/common'
 import SMenu from '@/components/SideBar/SMenu'
 
 import { mapState } from 'vuex'
@@ -62,8 +62,16 @@ export default {
   computed: {
     ...mapState({
       bindCurriculum: state => state.bindCurriculum,
-      currentSchool: state => state.user.currentSchool
-    })
+      currentSchool: state => state.user.currentSchool,
+      userMode: state => state.app.userMode
+    }),
+    head() {
+      if (this.userMode === USER_MODE.SELF) {
+        return 'Personal managing'
+      } else {
+        return this.currentSchool.schoolName + ' managing'
+      }
+    }
   },
   mounted() {},
   methods: {
@@ -71,7 +79,13 @@ export default {
       this.$router.push({ path: key })
     },
     hiddenRoute(route) {
-      return route.meta.curriculumType && route.meta.curriculumType + '' !== this.bindCurriculum
+      if (route.meta.curriculumType && route.meta.curriculumType + '' !== this.bindCurriculum) {
+        return true
+      }
+      if (route.meta.mode && route.meta.mode !== this.userMode) {
+        return true
+      }
+      return false
     }
   }
 }

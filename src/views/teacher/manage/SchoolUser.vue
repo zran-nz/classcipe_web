@@ -20,10 +20,10 @@
         </div>
       </div>
     </div>
-    <SchoolUserTeacher v-if="currentStatus === 'teacher'" />
-    <SchoolUserStudent v-if="currentStatus === 'student'" />
-    <SchoolUserAdmin v-if="currentStatus === 'admin'" />
-    <SchoolUserGroup v-if="currentStatus === 'group'" />
+    <SchoolUserTeacher ref="teacherRef" v-if="currentStatus === 'teacher'" />
+    <SchoolUserStudent ref="studentRef" v-if="currentStatus === 'student'" />
+    <SchoolUserAdmin ref="adminRef" v-if="currentStatus === 'admin'" />
+    <SchoolUserGroup ref="groupRef" v-if="currentStatus === 'group'" />
   </a-card>
 </template>
 
@@ -32,10 +32,12 @@ import SchoolUserTeacher from './SchoolUser/SchoolUserTeacher.vue'
 import SchoolUserStudent from './SchoolUser/SchoolUserStudent.vue'
 import SchoolUserAdmin from './SchoolUser/SchoolUserAdmin.vue'
 import SchoolUserGroup from './SchoolUser/SchoolUserGroup.vue'
+import { UserModeMixin } from '@/mixins/UserModeMixin'
+import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 
 export default {
   name: 'SchoolUser',
-  mixins: [],
+  mixins: [UserModeMixin, CurrentSchoolMixin],
   components: {
     SchoolUserTeacher,
     SchoolUserStudent,
@@ -51,6 +53,11 @@ export default {
   },
   computed: {},
   methods: {
+    handleSchoolChange(currentSchool) {
+      if (this.$refs[this.currentStatus + 'Ref']) {
+        this.$refs[this.currentStatus + 'Ref'].initData()
+      }
+    },
     toggleStatus(status) {
       this.currentStatus = status
     }

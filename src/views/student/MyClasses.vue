@@ -200,7 +200,7 @@
 
 <script>
 import * as logger from '@/utils/logger'
-import { CustomTagType, StudentStudyTaskStatus, CurriculumType, SESSION_VIEW_MODE, STUDY_MODE, TASK_STATUS } from '@/const/common'
+import { CustomTagType, StudentStudyTaskStatus, CurriculumType, SESSION_VIEW_MODE, USER_MODE, TASK_STATUS } from '@/const/common'
 
 import MyTaskList from '@/components/Student/MyTaskList'
 import ToDoList from '@/components/ToDoList'
@@ -219,15 +219,15 @@ import { SubjectTree } from '@/api/subject'
 import { GetGradesByCurriculumId } from '@/api/preference'
 import * as classStudentTodos from '@/api/classStudentTodos'
 
-import { StudyModeMixin } from '@/mixins/StudyModeMixin'
-import { StudentSchoolMixin } from '@/mixins/StudentSchoolMixin'
+import { UserModeMixin } from '@/mixins/UserModeMixin'
+import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 
 import storage from 'store'
 import { mapState, mapGetters } from 'vuex'
 
 export default {
   name: 'MyClasses',
-  mixins: [StudyModeMixin, StudentSchoolMixin],
+  mixins: [UserModeMixin, CurrentSchoolMixin],
   components: {
     FilterIcon,
     FilterActiveIcon,
@@ -254,7 +254,7 @@ export default {
       currentStatus: '',
       currentType: 'task',
       currentActivity: 'messages',
-      STUDY_MODE: STUDY_MODE,
+      USER_MODE: USER_MODE,
       TASK_STATUS: TASK_STATUS,
       tabsList: [{
           value: 'task',
@@ -334,7 +334,7 @@ export default {
   },
   computed: {
     ...mapState({
-      studyMode: state => state.app.studyMode,
+      userMode: state => state.app.userMode,
       studentClassList: state => state.user.studentClassList,
       currentSchool: state => state.user.currentSchool
 
@@ -343,9 +343,9 @@ export default {
     statusList() {
       return StudentStudyTaskStatus.filter(item => {
         // archived 只有自学模式有
-        if (this.studyMode === STUDY_MODE.SCHOOL && item.value === TASK_STATUS.ARCHIVED) return false
+        if (this.userMode === USER_MODE.SCHOOL && item.value === TASK_STATUS.ARCHIVED) return false
         // scheduled 只有学校模式有
-        if (this.studyMode === STUDY_MODE.SELF && item.value === TASK_STATUS.SCHEDULED) return false
+        if (this.userMode === USER_MODE.SELF && item.value === TASK_STATUS.SCHEDULED) return false
         return true
       })
     },

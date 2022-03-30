@@ -89,7 +89,7 @@
       :loadData="loadData"
       :viewMode="viewMode"
       :status="currentStatus"
-      :actionType="STUDY_MODE.SELF === this.studyMode ? 'myTask' : 'myClass'"
+      :actionType="USER_MODE.SELF === this.userMode ? 'myTask' : 'myClass'"
       ref="myTaskList"
     >
     </my-task-list>
@@ -98,7 +98,7 @@
 
 <script>
 import * as logger from '@/utils/logger'
-import { CustomTagType, StudentStudyTaskStatus, CurriculumType, SESSION_VIEW_MODE, STUDY_MODE, TASK_STATUS } from '@/const/common'
+import { CustomTagType, StudentStudyTaskStatus, CurriculumType, SESSION_VIEW_MODE, USER_MODE, TASK_STATUS } from '@/const/common'
 
 import MyTaskList from '@/components/Student/MyTaskList'
 
@@ -113,15 +113,15 @@ import { FindCustomTags } from '@/api/tag'
 import { SubjectTree } from '@/api/subject'
 import { GetGradesByCurriculumId } from '@/api/preference'
 
-import { StudyModeMixin } from '@/mixins/StudyModeMixin'
-import { StudentSchoolMixin } from '@/mixins/StudentSchoolMixin'
+import { UserModeMixin } from '@/mixins/UserModeMixin'
+import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 
 import storage from 'store'
 import { mapState } from 'vuex'
 
 export default {
   name: 'MyTask',
-  mixins: [StudyModeMixin, StudentSchoolMixin],
+  mixins: [UserModeMixin, CurrentSchoolMixin],
   components: {
     FilterIcon,
     FilterActiveIcon,
@@ -135,7 +135,7 @@ export default {
       loading: true,
       startLoading: false,
       currentStatus: '',
-      STUDY_MODE: STUDY_MODE,
+      USER_MODE: USER_MODE,
       TASK_STATUS: TASK_STATUS,
       // 当前选中的配置项
       filterConfig: {
@@ -166,28 +166,28 @@ export default {
       loadData: (pageParams) => {
         let params = {
           status: this.currentStatus,
-          schoolId: this.studyMode === STUDY_MODE.SELF ? '' : this.currentSchool.id,
+          schoolId: this.userMode === USER_MODE.SELF ? '' : this.currentSchool.id,
           searchKey: this.searchText ? this.searchText : '',
           ...pageParams
         }
         if (this.filterParams) {
           params = Object.assign(this.filterParams, params)
         }
-        return STUDY_MODE.SELF === this.studyMode ? SelfStudyTaskList(params) : SchoolTaskList(params)
+        return USER_MODE.SELF === this.userMode ? SelfStudyTaskList(params) : SchoolTaskList(params)
       }
     }
   },
   computed: {
     ...mapState({
-      studyMode: state => state.app.studyMode,
+      userMode: state => state.app.userMode,
       currentSchool: state => state.user.currentSchool
     }),
     statusList() {
       return StudentStudyTaskStatus.filter(item => {
         // scheduled 只有学校模式有
-        if (this.studyMode === STUDY_MODE.SELF && item.value === TASK_STATUS.SCHEDULED) return false
+        if (this.userMode === USER_MODE.SELF && item.value === TASK_STATUS.SCHEDULED) return false
         // archived 只有自学模式有
-        if (this.studyMode === STUDY_MODE.SCHOOL && item.value === TASK_STATUS.ARCHIVED) return false
+        if (this.userMode === USER_MODE.SCHOOL && item.value === TASK_STATUS.ARCHIVED) return false
         return true
       })
     }
@@ -197,11 +197,11 @@ export default {
     this.initFilterOption()
   },
   methods: {
-    handleModeChange(studyMode) {
-      if (studyMode === STUDY_MODE.SELF && this.currentStatus === TASK_STATUS.SCHEDULED) {
+    handleModeChange(userMode) {
+      if (userMode === USER_MODE.SELF && this.currentStatus === TASK_STATUS.SCHEDULED) {
         this.currentStatus = ''
       }
-      if (studyMode === STUDY_MODE.SCHOOL && this.currentStatus === TASK_STATUS.ARCHIVED) {
+      if (userMode === USER_MODE.SCHOOL && this.currentStatus === TASK_STATUS.ARCHIVED) {
         this.currentStatus = ''
       }
       this.triggerSearch()

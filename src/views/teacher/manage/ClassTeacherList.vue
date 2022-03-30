@@ -181,7 +181,7 @@ export default {
     async loadData() {
       this.loading = true
       const res = await getSchoolUsers({
-        school: store.getters.userInfo.school,
+        schoolId: store.getters.school,
         roles: 'teacher',
         classes: this.classId,
         pageSize: this.pagination.pageSize,
@@ -193,7 +193,7 @@ export default {
     },
     async loadRoleList() {
       const res = await getSchoolRoleList({
-        schoolId: store.getters.userInfo.school
+        schoolId: store.getters.school
       })
       this.roleList = res?.result || []
       // const index = this.roleList.findIndex(item => item.name === 'Class Manager')
@@ -203,7 +203,7 @@ export default {
     },
     handleDeleteRecord: function (record) {
       const params = {
-        schoolId: store.getters.userInfo.school,
+        schoolId: store.getters.school,
         userId: record.id,
         classId: this.classId
         // roles: 'teacher'
@@ -223,7 +223,7 @@ export default {
         this.$message.error('This teacher has been added')
       }
       const params = {
-        schoolId: store.getters.userInfo.school,
+        schoolId: store.getters.school,
         userId: user.id,
         classId: this.classId
         // roles: 'teacher'
