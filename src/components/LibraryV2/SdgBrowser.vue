@@ -708,7 +708,8 @@ export default {
             .filter-icon {
               margin-right: 10px;
               svg {
-                height: 20px;
+                height: 15px;
+                width: 15px;
               }
             }
 
@@ -750,9 +751,6 @@ export default {
         }
       }
 
-      .library-select {
-
-      }
       .browser-item {
         line-height: 20px;
         padding: 10px 0 10px 10px;
@@ -944,11 +942,12 @@ export default {
     opacity: 1;
     border-radius: 4px;
     width: 100%;
-    padding: 5px 10px;
+    padding: 5px;
     .filter-icon {
       margin-right: 5px;
       svg {
-        height: 20px;
+        height: 15px;
+        width: 15px;
       }
     }
     .filter-list {
@@ -956,15 +955,21 @@ export default {
       flex-direction: row;
       align-items: center;
       flex-wrap: wrap;
-      width: 100%;
+      width: calc(100% - 20px);
       justify-content: space-between;
     }
     .filter-select{
       cursor: pointer;
-      margin: 5px;
-      min-width: 90%;
+      width: 100%;
       /deep/ .ant-select-selection--multiple{
         cursor: pointer;
+      }
+    }
+
+    .library-select {
+      width: calc(100% - 20px);
+      .filter-select {
+        width: 100%;
       }
     }
   }
@@ -975,7 +980,8 @@ export default {
 }
 
 .keyword-search {
-  margin: 5px;
+  margin-top: 5px;
+  width: 100%;
   .my-nav-search {
 
     svg {
