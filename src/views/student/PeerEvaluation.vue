@@ -68,6 +68,7 @@
                       v-for="(member, sIndex) in allNoGroupStudentUserList"
                       :key="sIndex"
                       :data-member-id="member.userId"
+                      v-show='attendanceEmailList.indexOf(member.email) !== -1'
                       @click="handleClickMember(null, member)">
                       <div class="student-avatar">
                         <img :src="member.studentAvatar" alt="" v-if="member.studentAvatar" />
@@ -132,6 +133,7 @@
                         v-for="(member, sIndex) in group.members"
                         :key="sIndex"
                         :data-member-id="member.userId"
+                        v-show='attendanceEmailList.indexOf(member.email) !== -1'
                         @click="handleClickMember(group, member)">
                         <div class="student-avatar">
                           <img :src="member.studentAvatar" alt="" v-if="member.studentAvatar" />

@@ -319,7 +319,7 @@
                   <template v-if='mode === tableMode.StudentEvaluate'>
                     <div
                       class='sub-level-item'
-                      v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].data && formBodyData[item.rowId].data !== null'
+                      v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].data !== null'
                       v-for='(subLevel, sIndex) in item[headerType.AchievementLevel].subLevelDescription'
                       :key='sIndex'>
                       <div class='start-index'>
@@ -344,7 +344,7 @@
                         <template v-if='formBodyData[item.rowId].data === subLevel.endIndex'>{{ subLevel.endIndex }}</template>
                       </div>
                     </div>
-                    <div class='no-level-data' v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].data && formBodyData[item.rowId].data === null' >
+                    <div class='no-level-data' v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].data === null' >
                       The teacher has not graded you yet.
                     </div>
                   </template>

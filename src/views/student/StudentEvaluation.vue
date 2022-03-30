@@ -68,6 +68,7 @@
                       v-for="(member, sIndex) in allNoGroupStudentUserList"
                       :key="sIndex"
                       :data-member-id="member.userId"
+                      v-show='attendanceEmailList.indexOf(member.email) !== -1'
                       :style="{ 'filter': selectedMemberIdList.indexOf(member.userId) === -1 ? 'grayscale(100%)': 'none'}"
                       @click="handleClickMember(null, member)">
                       <div class="student-avatar" >
@@ -133,6 +134,7 @@
                         v-for="(member, sIndex) in group.members"
                         :key="sIndex"
                         :data-member-id="member.userId"
+                        v-show='attendanceEmailList.indexOf(member.email) !== -1'
                         :style="{ 'filter': selectedMemberIdList.indexOf(member.userId) === -1 ? 'grayscale(100%)': 'none'}"
                         @click="handleClickMember(group, member)">
                         <div class="student-avatar">
@@ -254,8 +256,6 @@
                       <a-textarea
                         v-model="studentEvaluateData[currentActiveStudentId][currentActiveFormId].question1"
                         placeholder="What’s the most important thing you learned today? Why do you think so?"
-                        aria-placeholder="What’s the most important thing you learned today? Why do you think so?"
-                        @keyup="handleUpdateComment(studentEvaluateData[currentActiveStudentId][currentActiveFormId].question1)"
                         class="my-textarea" />
                     </div>
                     <div class="summary-input student-question-item" v-if="currentActiveFormId && currentActiveStudentId && studentEvaluateData[currentActiveStudentId][currentActiveFormId].hasOwnProperty('question2')">
@@ -263,8 +263,6 @@
                       <a-textarea
                         v-model="studentEvaluateData[currentActiveStudentId][currentActiveFormId].question2"
                         placeholder="What do you want to learn more about, and why?"
-                        aria-placeholder="What do you want to learn more about, and why?"
-                        @keyup="handleUpdateComment(studentEvaluateData[currentActiveStudentId][currentActiveFormId].question2)"
                         class="my-textarea" />
                     </div>
                     <div class="summary-input student-question-item" v-if="currentActiveFormId && currentActiveStudentId && studentEvaluateData[currentActiveStudentId][currentActiveFormId].hasOwnProperty('question3')">
@@ -272,8 +270,6 @@
                       <a-textarea
                         v-model="studentEvaluateData[currentActiveStudentId][currentActiveFormId].question3"
                         placeholder="What’s the most important thing you learned today? Why do you think so?"
-                        aria-placeholder="What’s the most important thing you learned today? Why do you think so?"
-                        @keyup="handleUpdateComment(studentEvaluateData[currentActiveStudentId][currentActiveFormId].question3)"
                         class="my-textarea" />
                     </div>
                   </div>
@@ -689,7 +685,10 @@ export default {
               studentEvaluateData[studentId] = {}
               this.forms.forEach(formItem => {
                 studentEvaluateData[studentId][formItem.formId] = {
-                  comment: null
+                  comment: null,
+                  question1: null, // 学生回答的三个问题内容
+                  question2: null,
+                  question3: null
                 }
                 formItem.initRawData.forEach(rowItem => {
                   studentEvaluateData[studentId][formItem.formId][rowItem.rowId] = {
@@ -728,7 +727,10 @@ export default {
             studentEvaluateData[studentId] = {}
             this.forms.forEach(formItem => {
               studentEvaluateData[studentId][formItem.formId] = {
-                comment: null
+                comment: null,
+                question1: null, // 学生回答的三个问题内容
+                question2: null,
+                question3: null
               }
               formItem.initRawData.forEach(rowItem => {
                 studentEvaluateData[studentId][formItem.formId][rowItem.rowId] = {
