@@ -307,6 +307,41 @@
                           class="my-textarea" />
                       </div>
                     </div>
+                    <div class="student-question" v-if='mode === EvaluationTableMode.TeacherEvaluate'>
+                      <div class="summary-input student-question-item" v-if="currentActiveFormId && currentActiveStudentId && studentEvaluateData[currentActiveStudentId][currentActiveFormId].hasOwnProperty('question1')">
+                        <div class='question-text'>What's the most important thing you learned today? Why do you think so?</div>
+                        <div class='question-answer'>
+                          <template v-if='studentEvaluateData[currentActiveStudentId][currentActiveFormId].question1'>
+                            {{ studentEvaluateData[currentActiveStudentId][currentActiveFormId].question1 }}
+                          </template>
+                          <template v-else>
+                            <span class='no-answer'>The student has not answered the question</span>
+                          </template>
+                        </div>
+                      </div>
+                      <div class="summary-input student-question-item" v-if="currentActiveFormId && currentActiveStudentId && studentEvaluateData[currentActiveStudentId][currentActiveFormId].hasOwnProperty('question2')">
+                        <div class='question-text'>What do you want to learn more about, and why?</div>
+                        <div class='question-answer'>
+                          <template v-if='studentEvaluateData[currentActiveStudentId][currentActiveFormId].question2'>
+                            {{ studentEvaluateData[currentActiveStudentId][currentActiveFormId].question2 }}
+                          </template>
+                          <template v-else>
+                            <span class='no-answer'>The student has not answered the question</span>
+                          </template>
+                        </div>
+                      </div>
+                      <div class="summary-input student-question-item" v-if="currentActiveFormId && currentActiveStudentId && studentEvaluateData[currentActiveStudentId][currentActiveFormId].hasOwnProperty('question3')">
+                        <div class='question-text'>What made you curious today? How does learning feel different when you’re curious?</div>
+                        <div class='question-answer'>
+                          <template v-if='studentEvaluateData[currentActiveStudentId][currentActiveFormId].question3'>
+                            {{ studentEvaluateData[currentActiveStudentId][currentActiveFormId].question3 }}
+                          </template>
+                          <template v-else>
+                            <span class='no-answer'>The student has not answered the question</span>
+                          </template>
+                        </div>
+                      </div>
+                    </div>
                     <div class="form-table-detail">
                       <evaluation-table
                         ref="evaluationTable"
@@ -2753,6 +2788,30 @@ export default {
     justify-content: center;
     .switch-name {
       padding-right: 5px;
+    }
+  }
+}
+
+.student-question {
+  margin-bottom: 10px;
+  .student-question-item {
+    margin-bottom: 15px;
+    .question-text {
+      color: #333;
+      font-size: 14px;
+      line-height: 24px;
+    }
+
+    .question-answer {
+      padding: 10px 5px;
+      background: #f1f1f1;
+      line-height: 20px;
+      cursor: pointer;
+
+      .no-answer {
+        color: #aaa;
+        font-size: 12px;
+      }
     }
   }
 }

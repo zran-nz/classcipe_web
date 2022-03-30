@@ -253,7 +253,6 @@
                       <div class='question-text'>What's the most important thing you learned today? Why do you think so?</div>
                       <a-textarea
                         v-model="studentEvaluateData[currentActiveStudentId][currentActiveFormId].question1"
-                        :disabled='mode === EvaluationTableMode.StudentEvaluate'
                         placeholder="What’s the most important thing you learned today? Why do you think so?"
                         aria-placeholder="What’s the most important thing you learned today? Why do you think so?"
                         @keyup="handleUpdateComment(studentEvaluateData[currentActiveStudentId][currentActiveFormId].question1)"
@@ -263,7 +262,6 @@
                       <div class='question-text'>What do you want to learn more about, and why?</div>
                       <a-textarea
                         v-model="studentEvaluateData[currentActiveStudentId][currentActiveFormId].question2"
-                        :disabled='mode === EvaluationTableMode.StudentEvaluate'
                         placeholder="What do you want to learn more about, and why?"
                         aria-placeholder="What do you want to learn more about, and why?"
                         @keyup="handleUpdateComment(studentEvaluateData[currentActiveStudentId][currentActiveFormId].question2)"
@@ -273,7 +271,6 @@
                       <div class='question-text'>What made you curious today? How does learning feel different when you’re curious?</div>
                       <a-textarea
                         v-model="studentEvaluateData[currentActiveStudentId][currentActiveFormId].question3"
-                        :disabled='mode === EvaluationTableMode.StudentEvaluate'
                         placeholder="What’s the most important thing you learned today? Why do you think so?"
                         aria-placeholder="What’s the most important thing you learned today? Why do you think so?"
                         @keyup="handleUpdateComment(studentEvaluateData[currentActiveStudentId][currentActiveFormId].question3)"
@@ -1957,13 +1954,14 @@ export default {
 }
 
 .student-question {
-  .question-text {
-    line-height: 32px;
-    font-weight: bold;
-    font-family: Inter-Bold;
-  }
+  margin-bottom: 10px;
   .student-question-item {
-    margin-bottom: 10px;
+    margin-bottom: 15px;
+    .question-text {
+      color: #333;
+      font-size: 14px;
+      line-height: 24px;
+    }
   }
 }
 </style>
