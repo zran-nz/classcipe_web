@@ -287,7 +287,7 @@ export default {
         id: this.inviteCodeId
       })
       if (res.success) {
-
+        this.inviteUrl = `${process.env.VUE_APP_BASE_URL}/user/invite?inviteCode=${res?.result?.inviteCode}`
       } else {
         this.$message.error(res.message)
       }
