@@ -147,26 +147,25 @@ export default {
         }
       })
     },
-    changeNeedPassword() {
+    async changeNeedPassword() {
       this.$logger.info('changeNeedPassword ' + !this.shareContent.needPassword)
       this.shareContent.needPassword = !this.shareContent.needPassword
       if (!this.shareContent.password) {
-        this.refreshPassword()
+        await this.refreshPassword()
       }
-      this.updateContentShare()
+      await this.updateContentShare()
     },
 
-    refreshPassword() {
+    async refreshPassword() {
       this.refreshing = true
-      ResetPassword({
+      const response = await ResetPassword({
         sourceId: this.sourceId,
         sourceType: this.sourceType
-      }).then((response) => {
-        this.$logger.info('ResetPassword response', response)
-        this.shareContent.password = response.result.password
-      }).finally(() => {
-        this.refreshing = false
       })
+
+      this.$logger.info('ResetPassword response', response)
+      this.shareContent.password = response.result.password
+      this.refreshing = false
     },
 
     handleCopyLink() {
@@ -194,11 +193,11 @@ export default {
       })
     },
 
-    updateContentShare() {
-      ShareAddOrUpdate(this.shareContent).then(response => {
-        this.$logger.info('ShareAddOrUpdate response', response)
-        this.$message.success('Set successfully')
-      })
+    async updateContentShare() {
+      this.$logger.info('updateContentShare', this.shareContent)
+      const response = await ShareAddOrUpdate(this.shareContent)
+      this.$logger.info('ShareAddOrUpdate response', response)
+      this.$message.success('Set successfully')
     }
   }
 }
