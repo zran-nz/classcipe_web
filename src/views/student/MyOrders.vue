@@ -78,10 +78,10 @@ import PaymentDetail from '@/components/Student/PaymentDetail'
 import { GetDictItems } from '@/api/common'
 import { orderRecordList } from '@/api/orderRecord'
 
-import { StudyModeMixin } from '@/mixins/StudyModeMixin'
+import { UserModeMixin } from '@/mixins/UserModeMixin'
 export default {
   name: 'MyOrders',
-  mixins: [StudyModeMixin],
+  mixins: [UserModeMixin],
   components: {
     STable,
     PaymentDetail

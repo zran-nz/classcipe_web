@@ -31,9 +31,9 @@ const getters = {
   sharedFindCount: state => state.user.sharedFindCount,
   skillCategory: state => state.user.skillCategory,
   disableQuestion: state => state.user.disableQuestion,
-  school: state => state.user.info.school,
-  schoolName: state => state.user.info.schoolName,
-  schoolRole: state => state.user.info.schoolRole,
+  school: state => state.user.currentSchool.id,
+  schoolName: state => state.user.currentSchool.schoolName,
+  schoolRole: state => state.user.currentSchool.roleNames,
   vueSocket: state => {
     if (state.websocket.vueSocket) {
       return state.websocket.vueSocket

@@ -156,7 +156,7 @@ export default {
       const params = this.getQueryParams()
       params.hasQuery = 'true'
       params.isCustom = true
-      // params.schoolId = this.$store.getters.userInfo.school
+      // params.schoolId = this.$store.getters.school
       getAction(this.url.list, params).then(res => {
         if (res.success) {
           const result = res.result

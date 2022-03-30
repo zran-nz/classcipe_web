@@ -23,9 +23,13 @@ import { typeMap } from '@/const/teacher'
 import { FormConfigData, FormConfigAddOrUpdate } from '@/api/formConfig'
 import FormatForm from '@/components/FormConfig/FormatForm'
 import { FORM_CONFIG_PREVIEW_DATA } from '@/store/mutation-types'
+import { UserModeMixin } from '@/mixins/UserModeMixin'
+import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
+import { mapState } from 'vuex'
 
 export default {
   name: 'PlanningFormat',
+  mixins: [UserModeMixin, CurrentSchoolMixin],
   components: { FormatForm },
   data () {
     return {
@@ -40,12 +44,25 @@ export default {
   created() {
     this.loadFormConfigData()
   },
+  computed: {
+    ...mapState({
+      userMode: state => state.app.userMode,
+      currentSchool: state => state.user.currentSchool
+    })
+  },
   methods: {
+    handleSchoolChange(currentSchool) {
+      this.loadFormConfigData()
+    },
+    handleModeChange(userMode) {
+      // 模式切换，个人还是学校 TODO 个人接口
+      this.loadFormConfigData()
+    },
     loadFormConfigData() {
       this.$logger.info('loadFormConfigData')
       this.loading = true
       FormConfigData({
-        schoolId: this.$store.getters.userInfo.school
+        schoolId: this.currentSchool.id
       }).then((response) => {
         this.$logger.info('loadFormConfigData response', response)
         this.planConfig = response.result.plan
@@ -78,7 +95,7 @@ export default {
           this.$store.commit(FORM_CONFIG_PREVIEW_DATA, {
             commonList: planConfig.commonList,
             customList: planConfig.customList,
-            schoolId: this.$store.getters.userInfo.school,
+            schoolId: this.currentSchool.id,
             type: typeMap['unit-plan']
           })
           window.open('/teacher/managing/planning-format/unit-plan-preview', '_blank')
@@ -89,7 +106,7 @@ export default {
           this.$store.commit(FORM_CONFIG_PREVIEW_DATA, {
             commonList: taskConfig.commonList,
             customList: taskConfig.customList,
-            schoolId: this.$store.getters.userInfo.school,
+            schoolId: this.currentSchool.id,
             type: typeMap.task
           })
           window.open('/teacher/managing/planning-format/task-preview', '_blank')
@@ -106,7 +123,7 @@ export default {
           FormConfigAddOrUpdate({
             commonList: config.planConfig.commonList,
             customList: config.planConfig.customList,
-            schoolId: this.$store.getters.userInfo.school,
+            schoolId: this.currentSchool.id,
             type: typeMap['unit-plan']
           }).then((response) => {
             if (response.success) {
@@ -124,7 +141,7 @@ export default {
           FormConfigAddOrUpdate({
             commonList: config.taskConfig.commonList,
             customList: config.taskConfig.customList,
-            schoolId: this.$store.getters.userInfo.school,
+            schoolId: this.currentSchool.id,
             type: typeMap.task
           }).then((response) => {
             if (response.success) {

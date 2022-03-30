@@ -305,11 +305,7 @@ export default {
     }
   },
   created() {
-    this.loadData()
-    this.loadRoleList()
-    this.loadGroupList()
-    this.loadClassList()
-    this.loadGradeList()
+    this.initData()
   },
   computed: {
     ...mapState({
@@ -318,6 +314,13 @@ export default {
     })
   },
   methods: {
+    initData() {
+      this.loadData()
+      this.loadRoleList()
+      this.loadGroupList()
+      this.loadClassList()
+      this.loadGradeList()
+    },
     async loadRoleList() {
       const res = await getSchoolRoleList({
         schoolId: this.currentSchool.id
@@ -349,7 +352,7 @@ export default {
         searchParams.roles = SchoolUserRole.teacher
       }
       const res = await getSchoolUsers({
-        school: store.getters.userInfo.school,
+        schoolId: store.getters.school,
         pageSize: this.pagination.pageSize,
         pageNo: this.pagination.current,
         userStatus: this.activeStatus,

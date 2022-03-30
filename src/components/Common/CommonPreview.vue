@@ -534,7 +534,7 @@ import ReviewsPreview from '@/components/Reviews/ReviewsPreview'
 import ReviewScore from '@/components/Reviews/ReviewScore'
 import { BaseEventMixin } from '@/mixins/BaseEvent'
 import { Duplicate } from '@/api/teacher'
-import { DICT_PROMPT_TYPE, STUDY_MODE, RATE_TOOLTIPS } from '@/const/common'
+import { DICT_PROMPT_TYPE, USER_MODE, RATE_TOOLTIPS } from '@/const/common'
 import { GetDictItems } from '@/api/common'
 import { lessonHost } from '@/const/googleSlide'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
@@ -581,7 +581,7 @@ export default {
   mixins: [PptPreviewMixin, BaseEventMixin],
   computed: {
     ...mapState({
-      studyMode: state => state.app.studyMode,
+      userMode: state => state.app.userMode,
       currentRole: state => state.user.currentRole
     }),
     lastChangeSavedTime () {
@@ -847,7 +847,7 @@ export default {
         centered: true,
         onOk: () => {
           this.copyLoading = true
-          if (this.data.buyed || STUDY_MODE.SCHOOL === this.studyMode) {
+          if (this.data.buyed || USER_MODE.SCHOOL === this.userMode) {
             this.handleStartSession(this.data.id)
           } else {
             SelfStudyTaskBye({ taskId: this.data.id }).then((response) => {

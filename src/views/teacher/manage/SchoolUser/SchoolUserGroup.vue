@@ -117,8 +117,7 @@ export default {
     }
   },
   created() {
-    this.loadData()
-    this.loadTeacherList()
+    this.initData()
   },
   computed: {
     ...mapState({
@@ -127,6 +126,10 @@ export default {
     })
   },
   methods: {
+    initData() {
+      this.loadData()
+      this.loadTeacherList()
+    },
     async loadData() {
       this.loading = true
       const res = await getSchoolGroupList({
@@ -137,7 +140,7 @@ export default {
     },
     async loadTeacherList() {
       const res = await getSchoolUsers({
-        school: store.getters.userInfo.school,
+        schoolId: store.getters.school,
         roles: SchoolUserRole.teacher,
         pageSize: 1000,
         userStatus: '1'

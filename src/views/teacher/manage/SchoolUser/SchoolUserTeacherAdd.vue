@@ -298,7 +298,7 @@ export default {
           this.confirmLoading = true
           console.log('Received values of form: ', values)
           const params = {
-            schoolId: store.getters.userInfo.school,
+            schoolId: store.getters.school,
             avatar: this.avatar,
             ...values
           }
@@ -340,7 +340,7 @@ export default {
     },
     async getInviteUrl(needRefresh) {
       const res = await getOrCreateInvite({
-        schoolId: store.getters.userInfo.school,
+        schoolId: store.getters.school,
         role: 2,
         need_approve: this.inviteCheckBoxChecked ? 1 : 0,
         need_refresh: needRefresh

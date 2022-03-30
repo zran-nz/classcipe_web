@@ -122,10 +122,13 @@ import { filterObj } from '@/utils/util'
 import { CurriculumType } from '@/const/common'
 import TagLibrary from '@/views/teacher/manage/tags/TagLibrary'
 import { SchoolCommonTagList, SchoolSelectLibrary, SchoolTagDelete } from '@/api/tag'
+import { UserModeMixin } from '@/mixins/UserModeMixin'
+import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
+import { mapState } from 'vuex'
 
 export default {
   name: 'TagSettingsList',
-  mixins: [JeecgListMixin],
+  mixins: [JeecgListMixin, UserModeMixin, CurrentSchoolMixin],
   components: {
     TagModal, TagLibrary
   },
@@ -206,15 +209,29 @@ export default {
     }
   },
   created () {
-    this.loadData()
-    this.getCommonSelectTags()
+    this.initData()
   },
   computed: {
     // importIBSkillExcelUrl () {
     //   return this.baseUrl + `${this.url.importIBSkillExcelUrl}`
     // }
+    ...mapState({
+      userMode: state => state.app.userMode,
+      currentSchool: state => state.user.currentSchool
+    })
   },
   methods: {
+    handleSchoolChange(currentSchool) {
+      this.initData()
+    },
+    handleModeChange(userMode) {
+      // 模式切换，个人还是学校 TODO 个人接口
+      this.initData()
+    },
+    initData() {
+      this.loadData()
+      this.getCommonSelectTags()
+    },
     handleAdd: function () {
       this.$refs.modalForm.add({})
       this.$refs.modalForm.title = 'Add'
@@ -232,7 +249,7 @@ export default {
       const params = this.getQueryParams()
       params.hasQuery = 'true'
       params.isCustom = true
-      params.schoolId = this.$store.getters.userInfo.school
+      params.schoolId = this.currentSchool.id
       getAction(this.url.list, params).then(res => {
         if (res.success) {
           const result = res.result
@@ -254,7 +271,7 @@ export default {
     // 根据已展开的行查询数据（用于保存后刷新时异步加载子级的数据）
     loadDataByExpandedRows (dataList) {
       if (this.expandedRowKeys.length > 0) {
-        return getAction(this.url.getChildListBatch, { parentIds: this.expandedRowKeys.join(','), schoolId: this.$store.getters.userInfo.school }).then(res => {
+        return getAction(this.url.getChildListBatch, { parentIds: this.expandedRowKeys.join(','), schoolId: this.currentSchool.id }).then(res => {
           if (res.success && res.result.records.length > 0) {
             // 已展开的数据批量子节点
             const records = res.result.records
@@ -338,7 +355,7 @@ export default {
           params[this.pidField] = record.id
           params.hasQuery = 'false'
           params.superQueryParams = ''
-          params.sId = this.$store.getters.userInfo.school
+          params.sId = this.currentSchool.id
           getAction(this.url.childList, params).then((res) => {
             if (res.success) {
               if (res.result.records) {
@@ -400,12 +417,12 @@ export default {
           }
       })
       this.loading = true
-      SchoolSelectLibrary({ tagIds: this.selectCommonTagIds, schoolId: this.$store.getters.userInfo.school }).then(res => {
+      SchoolSelectLibrary({ tagIds: this.selectCommonTagIds, schoolId: this.currentSchool.id }).then(res => {
         this.loadData()
       })
     },
     getCommonSelectTags() {
-      SchoolCommonTagList({ schoolId: this.$store.getters.userInfo.school }).then(response => {
+      SchoolCommonTagList({ schoolId: this.currentSchool.id }).then(response => {
         this.$logger.info('SchoolCommonTagList', response)
         if (response.success) {
           this.selectCommonTagIds = response.result.map(tag => { return tag.id })

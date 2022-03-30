@@ -83,7 +83,7 @@
                               <a-menu-item
                                 :key="'more_' + opt.label"
                                 v-if="(!opt.actionType || opt.actionType === actionType) &&
-                                  (!opt.studyMode || opt.studyMode === studyMode)
+                                  (!opt.userMode || opt.userMode === userMode)
                                   && !opt.dependency || item.task[opt.dependency]
                                   && (!opt.show || opt.show.includes(item.status)) && (!opt.currentStatus || opt.currentStatus.includes(currentStatus))"
                               >
@@ -169,7 +169,7 @@
                         :key="'bottom_'+opt.label"
                         @click.stop="handleAction(opt.fn, item)"
                         v-if="!opt.confirmText && (!opt.actionType || actionType === opt.actionType)
-                          && (!opt.studyMode || opt.studyMode === studyMode)
+                          && (!opt.userMode || opt.userMode === userMode)
                           &&
                           (!opt.show || opt.show.includes(item.status) && (!opt.currentStatus || opt.currentStatus.includes(currentStatus)))"
                       >
@@ -184,7 +184,7 @@
                       </div>
                       <a-popconfirm
                         v-if="opt.confirmText && (!opt.actionType || actionType === opt.actionType)
-                          && (!opt.studyMode || opt.studyMode === studyMode)
+                          && (!opt.userMode || opt.userMode === userMode)
                           &&
                           (!opt.show || opt.show.includes(item.status) && (!opt.currentStatus || opt.currentStatus.includes(currentStatus)))"
                         :key="'bottom_'+opt.label"
@@ -446,7 +446,7 @@ export default {
   },
   computed: {
     ...mapState({
-      studyMode: state => state.app.studyMode,
+      userMode: state => state.app.userMode,
       user: state => state.user,
       currentRole: state => state.user.currentRole
     }),

@@ -85,8 +85,8 @@
 <script>
 import { tippy } from 'vue-tippy'
 
-import { StudyModeMixin } from '@/mixins/StudyModeMixin'
-import { StudentSchoolMixin } from '@/mixins/StudentSchoolMixin'
+import { UserModeMixin } from '@/mixins/UserModeMixin'
+import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 
 import '@fullcalendar/core/vdom' // solves problem with Vite
 import FullCalendar from '@fullcalendar/vue'
@@ -106,7 +106,7 @@ import moment from 'moment'
 
 export default {
   name: 'MySchedule',
-  mixins: [StudyModeMixin, StudentSchoolMixin],
+  mixins: [UserModeMixin, CurrentSchoolMixin],
   components: {
     FullCalendar,
     EPie

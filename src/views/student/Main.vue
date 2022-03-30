@@ -42,14 +42,14 @@ export default {
   },
   computed: {
     ...mapState({
-      studyMode: state => state.app.studyMode,
+      userMode: state => state.app.userMode,
       user: state => state.user
     })
   },
   mounted() {},
   methods: {
     hiddenRoute(route) {
-      return route.meta.type && route.meta.type !== this.studyMode
+      return route.meta.mode && route.meta.mode !== this.userMode
     }
   }
 }

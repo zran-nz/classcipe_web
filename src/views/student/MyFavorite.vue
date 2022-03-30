@@ -217,11 +217,11 @@ import StudentPace from '@/assets/icons/common/StudentPace.svg?inline'
 import ClassList from '@/components/Teacher/ClassList'
 import CustomTag from '@/components/UnitPlan/CustomTag'
 
-import { StudyModeMixin } from '@/mixins/StudyModeMixin'
+import { UserModeMixin } from '@/mixins/UserModeMixin'
 
 export default {
   name: 'MyFavorite',
-  mixins: [StudyModeMixin],
+  mixins: [UserModeMixin],
   components: {
     CommonPreview,
     ContentStatusIcon,

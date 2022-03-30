@@ -164,7 +164,7 @@ export default {
     add () {
       this.mode = 'add'
       // 初始化默认值
-      this.edit({ classType: 0, schoolId: store.getters.userInfo.school })
+      this.edit({ classType: 0, schoolId: store.getters.school })
     },
     edit (record) {
       this.model = Object.assign({}, record)
