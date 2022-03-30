@@ -180,9 +180,9 @@ export const AllCurriculums = {
   IBMYP: '5'
 }
 
-export const STUDY_MODE = {
-  SELF: 'selfStudy',
-  SCHOOL: 'schoolStudy'
+export const USER_MODE = {
+  SELF: 'self',
+  SCHOOL: 'school'
 }
 
 export const TASK_STATUS = {

@@ -133,7 +133,7 @@
       </div>
       <span slot="action" slot-scope="item" class="table-action">
         <a-button
-          v-if="item.userInfo.schoolUserStatus !== 2 && item.userInfo.schoolUserStatus !== 3"
+          v-if="item.teacherStatus !== 2 && item.teacherStatus !== 3"
           type="primary"
           shape="round"
           @click="handleEdit(item)"
@@ -141,14 +141,14 @@
         >
           Edit
         </a-button>
-        <a-button v-if="item.userInfo.schoolUserStatus === 2" shape="round" @click="handleApprove(item)">
+        <a-button v-if="item.teacherStatus === 2" shape="round" @click="handleApprove(item)">
           Approve
         </a-button>
-        <a-button v-if="item.userInfo.schoolUserStatus === 2" class="reject" shape="round" @click="handleReject(item)">
+        <a-button v-if="item.teacherStatus === 2" class="reject" shape="round" @click="handleReject(item)">
           Reject
         </a-button>
         <div
-          v-if="item.userInfo.schoolUserStatus !== 2 && item.userInfo.schoolUserStatus !== 3"
+          v-if="item.teacherStatus !== 2 && item.teacherStatus !== 3"
           class="more-action-wrapper action-item-wrapper"
         >
           <a-dropdown v-if="item.id !== info.id">
@@ -305,11 +305,7 @@ export default {
     }
   },
   created() {
-    this.loadData()
-    this.loadRoleList()
-    this.loadGroupList()
-    this.loadClassList()
-    this.loadGradeList()
+    this.initData()
   },
   computed: {
     ...mapState({
@@ -318,6 +314,13 @@ export default {
     })
   },
   methods: {
+    initData() {
+      this.loadData()
+      this.loadRoleList()
+      this.loadGroupList()
+      this.loadClassList()
+      this.loadGradeList()
+    },
     async loadRoleList() {
       const res = await getSchoolRoleList({
         schoolId: this.currentSchool.id
@@ -349,7 +352,7 @@ export default {
         searchParams.roles = SchoolUserRole.teacher
       }
       const res = await getSchoolUsers({
-        school: store.getters.userInfo.school,
+        schoolId: store.getters.school,
         pageSize: this.pagination.pageSize,
         pageNo: this.pagination.current,
         userStatus: this.activeStatus,

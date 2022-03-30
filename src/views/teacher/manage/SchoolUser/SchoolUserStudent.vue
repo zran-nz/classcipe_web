@@ -113,7 +113,7 @@
       </span>
       <span slot="action" slot-scope="item" class="table-action">
         <a-button
-          v-if="item.userInfo.schoolUserStatus !== 2 && item.userInfo.schoolUserStatus !== 3"
+          v-if="item.studentStatus !== 2 && item.studentStatus !== 3"
           type="primary"
           shape="round"
           @click="handleEdit(item)"
@@ -121,14 +121,14 @@
         >
           Edit
         </a-button>
-        <a-button v-if="item.userInfo.schoolUserStatus === 2" shape="round" @click="handleApprove(item)">
+        <a-button v-if="item.studentStatus === 2" shape="round" @click="handleApprove(item)">
           Approve
         </a-button>
-        <a-button v-if="item.userInfo.schoolUserStatus === 2" class="reject" shape="round" @click="handleReject(item)">
+        <a-button v-if="item.studentStatus === 2" class="reject" shape="round" @click="handleReject(item)">
           Reject
         </a-button>
         <div
-          v-if="item.userInfo.schoolUserStatus !== 2 && item.userInfo.schoolUserStatus !== 3"
+          v-if="item.studentStatus !== 2 && item.studentStatus !== 3"
           class="more-action-wrapper action-item-wrapper"
         >
           <a-dropdown>
@@ -270,9 +270,7 @@ export default {
     }
   },
   created() {
-    this.loadData()
-    this.loadClassList()
-    this.loadGradeList()
+    this.initData()
   },
   computed: {
     ...mapState({
@@ -281,6 +279,11 @@ export default {
     })
   },
   methods: {
+    initData() {
+      this.loadData()
+      this.loadClassList()
+      this.loadGradeList()
+    },
     async loadClassList() {
       const res = await getSchoolClassList({
         schoolId: this.currentSchool.id
@@ -297,7 +300,7 @@ export default {
       this.loading = true
       const searchParams = this.form.getFieldsValue()
       const res = await getSchoolUsers({
-        school: store.getters.userInfo.school,
+        schoolId: store.getters.school,
         roles: SchoolUserRole.student,
         pageSize: this.pagination.pageSize,
         pageNo: this.pagination.current,

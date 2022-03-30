@@ -299,7 +299,7 @@ export default {
         this.$message.error('This teacher has been added')
       }
       const params = {
-        schoolId: store.getters.userInfo.school,
+        schoolId: store.getters.school,
         classFlag: 1,
         classId: this.classId,
         email: user.email,

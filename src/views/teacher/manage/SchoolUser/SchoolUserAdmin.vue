@@ -117,7 +117,6 @@
 <script>
 
 import { addStaff, getSchoolUsers, removeSchoolUser } from '@/api/schoolUser'
-import store from '@/store'
 import SchoolUserStudentAdd from '@/views/teacher/manage/SchoolUser/SchoolUserStudentAdd'
 import { SchoolUserRole } from '@/const/role'
 import Moment from 'moment'
@@ -193,9 +192,7 @@ export default {
     }
   },
   created() {
-    this.getTeacherList()
-    this.loadData()
-    this.optionsList = this.teacherList.filter(teacher => this.selectedEmails.indexOf(teacher.userInfo.email) === -1)
+    this.initData()
   },
   computed: {
     selectedEmails() {
@@ -209,6 +206,11 @@ export default {
     })
   },
   methods: {
+    initData() {
+      this.getTeacherList()
+      this.loadData()
+      this.optionsList = this.teacherList.filter(teacher => this.selectedEmails.indexOf(teacher.userInfo.email) === -1)
+    },
     onSelect(value) {
       console.log('onSelect', value)
     },
@@ -216,7 +218,7 @@ export default {
       this.loading = true
       const searchParams = this.form.getFieldsValue()
       const res = await getSchoolUsers({
-        school: store.getters.userInfo.school,
+        schoolId: this.currentSchool.id,
         roles: SchoolUserRole.admin,
         pageSize: this.pagination.pageSize,
         pageNo: this.pagination.current,
@@ -229,7 +231,7 @@ export default {
     },
     async getTeacherList() {
       const res = await getSchoolUsers({
-        school: store.getters.userInfo.school,
+        schoolId: this.currentSchool.id,
         roles: SchoolUserRole.teacher,
         pageSize: 1000
       })

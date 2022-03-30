@@ -134,16 +134,20 @@ import KnowledgeModal from './modules/KnowledgeModal'
 import KnowledgeTagList from './KnowledgeTagList'
 import { filterObj } from '@/utils/util'
 import { GetGradesByCurriculumId } from '@/api/preference'
-import { CurriculumType, DICT_KNOWLEDGE_PHASE, SubjectType, TagType } from '@/const/common'
+import { CurriculumType, DICT_KNOWLEDGE_PHASE, SubjectType, TagType, USER_MODE } from '@/const/common'
 import JTreeSelect from '@/components/jeecg/JTreeSelect'
 import { SubjectTree } from '@/api/subject'
 import KnowledgeExtendModal from '@/views/teacher/manage/tags/KnowledgeExtendModal'
 import { GetDictItems } from '@/api/common'
 import * as logger from '@/utils/logger'
 
+import { UserModeMixin } from '@/mixins/UserModeMixin'
+import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
+import { mapState } from 'vuex'
+
 export default {
   name: 'KnowledgeList',
-  mixins: [JeecgListMixin],
+  mixins: [JeecgListMixin, UserModeMixin, CurrentSchoolMixin],
   components: {
     KnowledgeModal, KnowledgeTagList, JTreeSelect, KnowledgeExtendModal
   },
@@ -295,6 +299,10 @@ export default {
   })
 },
   computed: {
+    ...mapState({
+      userMode: state => state.app.userMode,
+      currentSchool: state => state.user.currentSchool
+    }),
     importIBSkillExcelUrl () {
       return this.baseUrl + `${this.url.importIBSkillExcelUrl}`
     },
@@ -311,6 +319,20 @@ export default {
     }
   },
   methods: {
+    handleSchoolChange(currentSchool) {
+      if (this.userMode === USER_MODE.SCHOOL) {
+        this.initData()
+      }
+    },
+    handleModeChange(userMode) {
+      // 模式切换，个人还是学校 TODO 个人接口
+      if (this.userMode === USER_MODE.SELF) {
+        this.initData()
+      }
+    },
+    initData() {
+      this.loadData()
+    },
     handleAdd: function () {
       this.$refs.modalForm.add({ 'subjectId': this.queryParam.subjectId })
       this.$refs.modalForm.title = 'Add'
@@ -328,7 +350,7 @@ export default {
       const params = this.getQueryParams()
       params.hasQuery = 'true'
       params.curriculumId = this.$store.getters.bindCurriculum
-      params.school = this.$store.getters.userInfo.school
+      params.school = this.currentSchool.id
       params.tagType = TagType.ibSkill
       getAction(this.url.list, params).then(res => {
         if (res.success) {

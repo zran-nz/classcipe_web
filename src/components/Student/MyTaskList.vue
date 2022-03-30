@@ -26,7 +26,7 @@
                   class="my-list-progress"
                   v-if="optOptionsObj.progress &&
                     optOptionsObj.progress[0].show.includes(currentStatus) &&
-                    optOptionsObj.progress[0].studyMode === studyMode">
+                    optOptionsObj.progress[0].userMode === userMode">
                   <a-progress
                     :stroke-color="{
                       '0%': '#108ee9',
@@ -78,7 +78,7 @@
                       <div
                         class="more-action-wrapper action-item-wrapper"
                         v-if="(currentStatus !== TASK_STATUS.ARCHIVED)
-                          && (studyMode !== STUDY_MODE.SCHOOL ||
+                          && (userMode !== USER_MODE.SCHOOL ||
                           (item.task.classId && item.task.sessionId && item.task.presentationId))"
                       >
                         <a-dropdown>
@@ -88,7 +88,7 @@
                               <a-menu-item
                                 :key="'more_' + opt.label"
                                 v-if="(!opt.actionType || opt.actionType === actionType) &&
-                                  (!opt.studyMode || opt.studyMode === studyMode)
+                                  (!opt.userMode || opt.userMode === userMode)
                                   && !opt.dependency || item.task[opt.dependency]
                                   && (opt.show.includes(item.status)) && (!opt.currentStatus || opt.currentStatus.includes(currentStatus))"
                               >
@@ -126,7 +126,7 @@
                   <div
                     class="action-item action-item-top"
                     v-show="(currentStatus !== TASK_STATUS.ARCHIVED && currentStatus !== TASK_STATUS.SCHEDULED)
-                      && (studyMode !== STUDY_MODE.SCHOOL ||
+                      && (userMode !== USER_MODE.SCHOOL ||
                       (item.task.classId && item.task.sessionId && item.task.presentationId))"
                   >
                     <a-dropdown>
@@ -136,7 +136,7 @@
                           <a-menu-item
                             :key="'more_' + opt.label"
                             v-if="(!opt.actionType || opt.actionType === actionType) &&
-                              (!opt.studyMode || opt.studyMode === studyMode)
+                              (!opt.userMode || opt.userMode === userMode)
                               && !opt.dependency || item.task[opt.dependency]
                               && (opt.show.includes(item.status)) && (!opt.currentStatus || opt.currentStatus.includes(currentStatus))"
                           >
@@ -179,7 +179,7 @@
                         :key="'bottom_'+opt.label"
                         @click.stop="handleAction(opt.fn, item)"
                         v-if="!opt.confirmText && (!opt.actionType || actionType === opt.actionType)
-                          && (!opt.studyMode || opt.studyMode === studyMode)
+                          && (!opt.userMode || opt.userMode === userMode)
                           &&
                           (opt.show.includes(item.status) && (!opt.currentStatus || opt.currentStatus.includes(currentStatus)))"
                       >
@@ -194,7 +194,7 @@
                       </div>
                       <a-popconfirm
                         v-if="opt.confirmText && (!opt.actionType || actionType === opt.actionType)
-                          && (!opt.studyMode || opt.studyMode === studyMode)
+                          && (!opt.userMode || opt.userMode === userMode)
                           &&
                           (opt.show.includes(item.status) && (!opt.currentStatus || opt.currentStatus.includes(currentStatus)))"
                         :key="'bottom_'+opt.label"
@@ -222,7 +222,7 @@
                   <content-type-icon :type="typeMap.task" slot="avatar"></content-type-icon>
                 </a-card-meta>
 
-                <div class="my-card-progress" v-if="STUDY_MODE.SELF === studyMode" :style="{visibility: item.status === TASK_STATUS.ONGOING ? 'visiible' : 'hidden'}">
+                <div class="my-card-progress" v-if="USER_MODE.SELF === userMode" :style="{visibility: item.status === TASK_STATUS.ONGOING ? 'visiible' : 'hidden'}">
                   <a-progress
                     :stroke-color="{
                       '0%': '#108ee9',
@@ -310,7 +310,7 @@ import * as logger from '@/utils/logger'
 import { typeMap } from '@/const/teacher'
 import { lessonHost } from '@/const/googleSlide'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
-import { StudentStudyTaskStatus, STUDY_MODE, TASK_STATUS } from '@/const/common'
+import { StudentStudyTaskStatus, USER_MODE, TASK_STATUS } from '@/const/common'
 
 import CommonPreview from '@/components/Common/CommonPreview'
 import NoMoreResources from '@/components/Common/NoMoreResources'
@@ -391,7 +391,7 @@ export default {
       typeMap: typeMap,
       currentStatus: this.status,
       TASK_STATUS: TASK_STATUS,
-      STUDY_MODE: STUDY_MODE,
+      USER_MODE: USER_MODE,
       myContentList: [],
       pagination: {
         onChange: page => {
@@ -426,7 +426,7 @@ export default {
           type: ['progress'],
           label: 'progress',
           show: [TASK_STATUS.ONGOING],
-          studyMode: STUDY_MODE.SELF
+          userMode: USER_MODE.SELF
         },
         {
           type: ['start', 'center'],
@@ -439,7 +439,7 @@ export default {
         {
           type: ['more', 'bottom'],
           show: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED],
-          studyMode: STUDY_MODE.SELF,
+          userMode: USER_MODE.SELF,
           currentStatus: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED, ''],
           actionType: 'myTask',
           label: 'Report',
@@ -449,7 +449,7 @@ export default {
         {
           type: ['more', 'top'],
           show: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED],
-          studyMode: STUDY_MODE.SELF,
+          userMode: USER_MODE.SELF,
           currentStatus: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED],
           actionType: 'myTask',
           label: 'Archive',
@@ -460,7 +460,7 @@ export default {
         {
           type: ['more', 'top'],
           show: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED],
-          studyMode: STUDY_MODE.SELF,
+          userMode: USER_MODE.SELF,
           currentStatus: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED],
           actionType: 'myTask',
           label: 'Payment Details',
@@ -470,7 +470,7 @@ export default {
         {
           type: ['more', 'top'],
           show: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED],
-          studyMode: STUDY_MODE.SCHOOL,
+          userMode: USER_MODE.SCHOOL,
           dependency: 'selfReview',
           actionType: 'myClass',
           label: 'Self-review',
@@ -480,7 +480,7 @@ export default {
         {
           type: ['more', 'top'],
           show: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED],
-          studyMode: STUDY_MODE.SCHOOL,
+          userMode: USER_MODE.SCHOOL,
           actionType: 'myClass',
           label: 'Takeaway',
           icon: 'file',
@@ -490,7 +490,7 @@ export default {
           type: ['start', 'bottom'],
           // archive里面也有其他状态？
           show: [TASK_STATUS.ONGOING, TASK_STATUS.COMPLETED, TASK_STATUS.ARCHIVED],
-          studyMode: STUDY_MODE.SELF,
+          userMode: USER_MODE.SELF,
           currentStatus: [TASK_STATUS.ARCHIVED],
           actionType: 'myTask',
           label: 'Restore',
@@ -514,13 +514,13 @@ export default {
   },
   computed: {
     ...mapState({
-      studyMode: state => state.app.studyMode,
+      userMode: state => state.app.userMode,
       user: state => state.user
     }),
     statusList() {
       return StudentStudyTaskStatus.filter(item => {
         // scheduled 只有学校模式有
-        if (this.studyMode === STUDY_MODE.SELF && item.value === TASK_STATUS.SCHEDULED) return false
+        if (this.userMode === USER_MODE.SELF && item.value === TASK_STATUS.SCHEDULED) return false
         return true
       })
     },

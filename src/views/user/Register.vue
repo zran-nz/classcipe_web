@@ -307,8 +307,9 @@ export default {
       this.$store
         .dispatch('GetInfo')
         .then(response => {
-          if (this.callbackUrl) {
-            window.location.href = this.callbackUrl + '?token=' + res.result.token
+          const callbackUrl = this.callbackUrl
+          if (callbackUrl) {
+            window.location.href = callbackUrl + (callbackUrl.indexOf('?') > -1 ? '&' : '?') + 'token=' + res.result.token
           } else if (this.$store.getters.currentRole) {
             this.$router.push(this.$store.getters.defaultRouter)
           } else {

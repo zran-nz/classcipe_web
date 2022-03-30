@@ -136,7 +136,7 @@ export default {
       this.modelDefault.parentId = ''
       this.modelDefault.curriculumId = this.$store.getters.bindCurriculum
       this.modelDefault.tagType = TagType.ibSkill
-      this.modelDefault.school = this.$store.getters.userInfo.school
+      this.modelDefault.school = this.$store.getters.school
       this.edit(Object.assign(this.modelDefault, obj))
     },
     edit (record) {

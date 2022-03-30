@@ -132,13 +132,16 @@
 import ClassAdd from './ClassAdd.vue'
 
 import { getSchoolClassList, getSchoolUsers } from '@/api/schoolUser'
-import store from '@/store'
 import { GetGradesByCurriculumId } from '@/api/preference'
 import { JeecgListMixin } from '@/mixins/JeecgListMixin'
 import { SubjectTree } from '@/api/subject'
 import { schoolClassAPIUrl, SchoolClassDelete } from '@/api/schoolClass'
 import ClassStudentList from '@/views/teacher/manage/ClassStudentList'
 import ClassTeacherList from '@/views/teacher/manage/ClassTeacherList'
+import { USER_MODE } from '@/const/common'
+import { UserModeMixin } from '@/mixins/UserModeMixin'
+import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
+import { mapState } from 'vuex'
 
 const columns = [
   {
@@ -190,7 +193,7 @@ const columns = [
 ]
 export default {
   name: 'Class',
-  mixins: [JeecgListMixin],
+  mixins: [JeecgListMixin, UserModeMixin, CurrentSchoolMixin],
   components: {
     ClassAdd, ClassStudentList, ClassTeacherList
   },
@@ -219,22 +222,40 @@ export default {
     }
   },
   created() {
-    this.loadData()
-    this.getGradeList()
-    this.getSubjectList()
-    this.getTeacherList()
-    this.getStudentList()
+    this.initData()
   },
   computed: {
     importExcelUrl: function () {
       return process.env.VUE_APP_API_BASE_URL + schoolClassAPIUrl.SchoolClassImport
-    }
+    },
+    ...mapState({
+      userMode: state => state.app.userMode,
+      currentSchool: state => state.user.currentSchool
+    })
   },
   methods: {
+    handleSchoolChange(currentSchool) {
+      if (this.userMode === USER_MODE.SCHOOL) {
+        this.initData()
+      }
+    },
+    handleModeChange(userMode) {
+      // 模式切换，个人还是学校 TODO 个人接口
+      if (this.userMode === USER_MODE.SELF) {
+        this.initData()
+      }
+    },
+    initData() {
+      this.loadData()
+      this.getGradeList()
+      this.getSubjectList()
+      this.getTeacherList()
+      this.getStudentList()
+    },
     async loadData() {
       this.loading = true
       const res = await getSchoolClassList({
-        schoolId: store.getters.userInfo.school,
+        schoolId: this.currentSchool.id,
         searchKey: this.searchKey
       })
       this.classList = res?.result?.records || []
@@ -271,7 +292,7 @@ export default {
     },
     async getTeacherList() {
       const res = await getSchoolUsers({
-        school: store.getters.userInfo.school,
+        schoolId: this.currentSchool.id,
         roles: 'teacher',
         pageSize: 1000
       })
@@ -280,7 +301,7 @@ export default {
     },
     async getStudentList() {
       const res = await getSchoolUsers({
-        school: store.getters.userInfo.school,
+        schoolId: this.currentSchool.id,
         roles: 'student',
         pageSize: 1000
       })

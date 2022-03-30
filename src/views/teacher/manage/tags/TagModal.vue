@@ -99,7 +99,7 @@ export default {
         this.modelDefault.isOptional = true
         this.modelDefault.isTree = true
         this.modelDefault.isCommon = false
-        this.modelDefault.schoolId = this.$store.getters.userInfo.school
+        this.modelDefault.schoolId = this.$store.getters.school
         this.modelDefault.isCustom = true
         this.edit(Object.assign(this.modelDefault, obj))
       },

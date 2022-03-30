@@ -9,7 +9,7 @@ import {
   TOGGLE_FIXED_SIDEBAR, TOGGLE_HIDE_HEADER,
   TOGGLE_LAYOUT, TOGGLE_NAV_THEME, TOGGLE_WEAK,
   TOGGLE_COLOR, TOGGLE_MULTI_TAB, USER_INFO,
-  TOOGLE_STUDY_MODE,
+  TOOGLE_USER_MODE,
   SET_STUDENT_CLASS_LIST,
   SET_CURRENT_SCHOOL
 } from '@/store/mutation-types'
@@ -29,7 +29,7 @@ export default function Initializer () {
   store.commit('SET_TOKEN', storage.get(ACCESS_TOKEN))
   store.commit('SET_CURRENT_ROLE', storage.get(CURRENT_ROLE))
   store.commit('SET_INFO', storage.get(USER_INFO))
-  store.commit(TOOGLE_STUDY_MODE, storage.get(TOOGLE_STUDY_MODE, 'selfStudy'))
+  store.commit(TOOGLE_USER_MODE, storage.get(TOOGLE_USER_MODE, 'selfStudy'))
   store.commit('SET_CURRENT_SCHOOL', storage.get(SET_CURRENT_SCHOOL, {}))
   store.commit('SET_STUDENT_CLASS_LIST', storage.get(SET_STUDENT_CLASS_LIST, []))
 
