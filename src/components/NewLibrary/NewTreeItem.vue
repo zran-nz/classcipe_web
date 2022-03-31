@@ -33,11 +33,11 @@
           </template>
         </div>
       </div>
-      <div class='type-icon-wrapper' @click='handleExpandTreeItem(treeItemData)'>
+      <div class='type-icon-wrapper' @click='handleClickTreeItem(subTreeExpandStatus, treeItemData)'>
         <a-icon type='folder-open' theme='filled' class='opened-file-dir-icon' v-if='subTreeExpandStatus' />
         <a-icon type='folder' theme='filled' class='file-dir-icon' v-if='!subTreeExpandStatus' />
       </div>
-      <div class='display-label-wrapper' @click='handleExpandTreeItem(treeItemData)'>
+      <div class='display-label-wrapper' @click='handleClickTreeItem(subTreeExpandStatus, treeItemData)'>
         <span
           :class="{
             'display-label': true,
@@ -1431,6 +1431,15 @@ export default {
       if (this.treeItemData.isGrade === true && data.rootType === this.rootType && data.data.id !== this.treeItemData.id) {
         this.subTreeExpandStatus = false
       }
+    },
+
+    handleClickTreeItem(expandStatus, treeItemData) {
+      this.$logger.info('handleClickTreeItem start ', expandStatus, treeItemData)
+      if (expandStatus === false) {
+        this.handleExpandTreeItem(treeItemData)
+      } else {
+        this.handleCollapseTreeItem(treeItemData)
+      }
     }
   }
 }
@@ -1494,7 +1503,7 @@ export default {
     }
 
     .type-icon-wrapper {
-      padding: 0 10px 0 5px;
+      padding: 0 0 0 5px;
       display: flex;
       flex-direction: row;
       align-items: center;
