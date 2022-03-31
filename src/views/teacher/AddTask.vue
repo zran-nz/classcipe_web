@@ -1752,7 +1752,6 @@
             :recommend-data='recommendData'
             :selected-list='selectedList'
             :selected-id='selectedIdList'
-            :default-grade-id='form.gradeId'
             @select-assessmentType='handleSelectAssessmentType'
             @select-sync='handleSelectListData'
             @select-curriculum='handleSelectCurriculum'
@@ -2324,9 +2323,6 @@ export default {
     // 恢复step
     this.currentActiveStepIndex = this.getSessionStep()
 
-    // library浏览learning outcome时，修改了grade，需要更新表单中的grade
-    LibraryEventBus.$on(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
-
     // addMaterial事件处理
     AddMaterialEventBus.$on(ModalEventsNameEnum.ADD_NEW_MEDIA, url => {
       this.addMaterialList(url)
@@ -2341,7 +2337,6 @@ export default {
     MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
     MyContentEventBus.$off(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
     LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
-    LibraryEventBus.$off(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
   },
   methods: {
     initData() {
@@ -4215,11 +4210,6 @@ export default {
         this.form.materialList = []
       }
       this.materialListFlag = checked
-    },
-
-    handleGradeUpdate(data) {
-      this.$logger.info('handleGradeUpdate', data)
-      this.form.gradeId = data.data.id
     },
 
     handleShareTask() {

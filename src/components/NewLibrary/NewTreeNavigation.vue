@@ -1,17 +1,14 @@
 <template>
   <div class="new-tree-navigation" :data-display-menu='JSON.stringify(displayCategoryList)'>
     <new-tree-item
-      v-show="loaded && displayCategoryList"
+      v-if="loaded && displayCategoryList && showMenu.indexOf(treeItemData.type) !== -1"
       :grade-list="gradeList"
       :tree-item-data="treeItemData"
       :tree-current-parent="null"
       :default-grade-id="defaultGradeId"
       :default-background-color="treeItemData.backgroundColor"
       :default-deep="0"
-      :class="{
-        'browser-hide-menu': showMenu.indexOf(treeItemData.type) === -1,
-        'tree-item-type' : true
-      }"
+      class='tree-item-type'
       :current-item-type="treeItemData.type === NavigationType.learningOutcomes ? 'subject' : // 如果当前是大纲，那么第一层数据是不区分层级的subject
         (treeItemData.type === NavigationType.sync ? 'sync' : // 如果是sync第一次是外部的同步数据列表
           ((treeItemData.type === NavigationType.specificSkills || treeItemData.type === NavigationType.assessmentType) ? 'subject' : ( // 如果是specificSkills或assessmentType，那么第一层数据是subject，注意subject只有一层

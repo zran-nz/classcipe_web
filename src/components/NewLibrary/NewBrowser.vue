@@ -453,10 +453,6 @@ export default {
       type: Array,
       default: () => []
     },
-    defaultGradeId: {
-      type: String,
-      default: null
-    },
     showCurriculum: {
       type: Boolean,
       default: false
@@ -491,7 +487,8 @@ export default {
       selectModelType: SelectModel,
       tagType: TagType,
 
-      myRecommendData: []
+      myRecommendData: [],
+      defaultGradeId: null
     }
   },
   computed: {
@@ -521,7 +518,6 @@ export default {
     this.$logger.info('recommendData', this.recommendData)
     this.$logger.info('selectedIdList', this.selectedIdList)
     this.$logger.info('selectedList', this.selectedList)
-    this.$logger.info('defaultGradeId ' + this.defaultGradeId)
     this.mySelectedIdList = this.selectedIdList
     this.myRecommendData = JSON.parse(JSON.stringify(this.recommendData))
 
