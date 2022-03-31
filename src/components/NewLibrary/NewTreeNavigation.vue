@@ -26,6 +26,7 @@
       :root-type="treeItemData.type"
       :data-item-type="treeItemData.type"
       :odd="index % 2 === 1"
+      :default-grade-id='defaultGradeId'
       :default-curriculum-id='defaultCurriculumId'
       v-for="(treeItemData, index) in treeDataList"
       :key="index" />
@@ -48,6 +49,7 @@ import storage from 'store'
 import { GRADE_COMMON } from '@/store/mutation-types'
 import { GetGradesByCurriculumId } from '@/api/preference'
 import NoMoreResources from '@/components/Common/NoMoreResources'
+import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
 
 const { GetAllSdgs } = require('@/api/scenario')
 const { SubjectTree } = require('@/api/subject')
@@ -88,7 +90,8 @@ export default {
 
       sdgList: [],
       subjectTree: [],
-      gradeList: []
+      gradeList: [],
+      defaultGradeId: null
     }
   },
   watch: {
@@ -116,6 +119,8 @@ export default {
   created () {
     this.$logger.info('NewTreeNavigation selectMode', this.selectMode)
     this.initData()
+    LibraryEventBus.$on(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
+    LibraryEventBus.$on(LibraryEvent.ChangeCurriculum, this.handleChangeCurriculum)
   },
   methods: {
     initData () {
@@ -218,18 +223,13 @@ export default {
             backgroundColor: '#FF978E'
           }
           // 从大纲数据中复制一份数据，只用mainSubject既第一层 且subjectType=2
-          this.subjectTree.forEach(subjectItem => {
+          const subjectTreeData = JSON.parse(JSON.stringify(this.subjectTree))
+          subjectTreeData.forEach(subjectItem => {
             const localSubjectItem = JSON.parse(JSON.stringify(subjectItem))
             if (localSubjectItem.subjectType === SubjectType.Skill || localSubjectItem.subjectType === SubjectType.LearnAndSkill) {
-              // 因为只显示第一层大纲，故删除员有的children列表,填充grade列表数据
+              // 因为只显示第一层大纲，故删除员有的children列表
               localSubjectItem.children = []
               localSubjectItem.gradeList = []
-              this.gradeList.forEach(item => {
-                item.children = []
-                item.isGrade = true
-                localSubjectItem.children.push(JSON.parse(JSON.stringify(item)))
-                localSubjectItem.gradeList.push(JSON.parse(JSON.stringify(item)))
-              })
               specificSkillsData.children.push(localSubjectItem)
             }
           })
@@ -262,24 +262,6 @@ export default {
               this.treeDataList.push(iduData)
             }
           }
-
-          // 隐藏assessmentType
-          // assessmentTypeData 是mainSubject-year-knowledge
-          // const assessmentTypeData = {
-          //   id: '4',
-          //   expandStatus: NavigationType.assessmentType === this.defaultActiveMenu,
-          //   type: NavigationType.assessmentType,
-          //   name: 'Assessment type',
-          //   children: [],
-          //   parent: null
-          // }
-          // 从大纲数据中复制一份数据，assessmentTypeData也只用mainSubject既第一层
-          // this.subjectTree.forEach(subjectItem => {
-          //   if (subjectItem.subjectType === SubjectType.Skill || subjectItem.subjectType === SubjectType.LearnAndSkill) {
-          //     assessmentTypeData.children.push(JSON.parse(JSON.stringify(subjectItem)))
-          //   }
-          // })
-          // this.treeDataList.push(assessmentTypeData)
 
           // 21 century skills 是year-knowledge
           const centurySkillsData = {
@@ -384,7 +366,20 @@ export default {
         }
         this.addParentObjListProperty(item.children, item)
       })
+    },
+
+    handleGradeUpdate (data) {
+      this.$logger.info('handleGradeUpdate start ', data)
+      this.defaultGradeId = data
+    },
+    handleChangeCurriculum () {
+      this.$logger.info('handleChangeCurriculum')
+      this.defaultGradeId = null
     }
+  },
+  destroyed() {
+    LibraryEventBus.$off(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
+    LibraryEventBus.$off(LibraryEvent.ChangeCurriculum, this.handleChangeCurriculum)
   }
 }
 </script>

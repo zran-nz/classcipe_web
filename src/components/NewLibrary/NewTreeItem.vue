@@ -71,6 +71,7 @@
             :default-deep='(defaultDeep + 1)'
             :default-expand-status='treeItem.expandStatus'
             v-for='(treeItem, index) in treeItemData.children'
+            :default-grade-id='myDefaultGradeId'
             :odd='odd ? index % 2 === 1 : index % 2 === 0 '
             :default-curriculum-id='currentCurriculumId'
             :key='index' />
@@ -89,6 +90,7 @@
             :default-expand-status='treeItem.expandStatus'
             :default-background-color='defaultBackgroundColor'
             v-for='(treeItem, index) in treeItemData.gradeList'
+            :default-grade-id='myDefaultGradeId'
             :odd='odd ? index % 2 === 1 : index % 2 === 0 '
             :default-curriculum-id='currentCurriculumId'
             :key='index' />
@@ -107,6 +109,7 @@
             :default-background-color='defaultBackgroundColor'
             :default-expand-status='treeItem.expandStatus'
             v-for='(treeItem, index) in treeItemData.children'
+            :default-grade-id='myDefaultGradeId'
             :odd='odd ? index % 2 === 1 : index % 2 === 0 '
             :default-curriculum-id='currentCurriculumId'
             :key='index' />
@@ -127,6 +130,7 @@
             :default-background-color='defaultBackgroundColor'
             :default-expand-status='treeItem.expandStatus'
             v-for='(treeItem, index) in treeItemData.children'
+            :default-grade-id='myDefaultGradeId'
             :odd='odd ? index % 2 === 1 : index % 2 === 0 '
             :default-curriculum-id='currentCurriculumId'
             :key='index' />
@@ -146,6 +150,7 @@
             :default-background-color='defaultBackgroundColor'
             :default-expand-status='treeItem.expandStatus'
             v-for='(treeItem, index) in treeItemData.children'
+            :default-grade-id='myDefaultGradeId'
             :odd='odd ? index % 2 === 1 : index % 2 === 0 '
             :default-curriculum-id='currentCurriculumId'
             :key='index' />
@@ -164,6 +169,7 @@
             :default-background-color='defaultBackgroundColor'
             :default-expand-status='treeItem.expandStatus'
             v-for='(treeItem, index) in treeItemData.children'
+            :default-grade-id='myDefaultGradeId'
             :odd='odd ? index % 2 === 1 : index % 2 === 0 '
             :default-curriculum-id='currentCurriculumId'
             :key='index' />
@@ -182,6 +188,7 @@
             :default-background-color='defaultBackgroundColor'
             :default-expand-status='treeItem.expandStatus'
             v-for='(treeItem, index) in treeItemData.children'
+            :default-grade-id='myDefaultGradeId'
             :odd='odd ? index % 2 === 1 : index % 2 === 0 '
             :default-curriculum-id='currentCurriculumId'
             :key='index' />
@@ -269,6 +276,10 @@ export default {
     defaultCurriculumId: {
       type: String,
       default: null
+    },
+    defaultGradeId: {
+      type: String,
+      default: null
     }
   },
   data() {
@@ -282,7 +293,8 @@ export default {
 
       currentCurriculumId: null,
       SelectModel: SelectModel,
-      selected21CenturyItem: null // 当前选中的21世纪层级项
+      selected21CenturyItem: null, // 当前选中的21世纪层级项
+      myDefaultGradeId: null
     }
   },
   watch: {
@@ -307,15 +319,19 @@ export default {
         this.hasSubTree = false
       }
     },
-    watch: {
-      defaultCurriculumId (val) {
-        this.$logger.info('NewTreeItem defaultCurriculumId change currentCurriculumId ' + val)
-        this.currentCurriculumId = val
-      }
+
+    defaultCurriculumId (val) {
+      this.$logger.info('NewTreeItem defaultCurriculumId change currentCurriculumId ' + val)
+      this.currentCurriculumId = val
+    },
+
+    defaultGradeId (val) {
+      this.myDefaultGradeId = val
     }
   },
   created() {
-    this.subTreeExpandStatus = this.treeItemData.expandStatus
+    this.myDefaultGradeId = this.defaultGradeId
+    this.subTreeExpandStatus = !!this.treeItemData.expandStatus
     this.currentCurriculumId = this.defaultCurriculumId ? this.defaultCurriculumId : this.$store.getters.bindCurriculum
     if (this.treeItemData && this.treeItemData.children) {
       this.hasSubTree = true
@@ -398,16 +414,20 @@ export default {
         this.subItemType = 'knowledge'
       }
     }
+
+    // 如果层级是grade，则需要自动选择上次选中的gradeId对应的年级
+    if (this.currentItemType === 'grade' && this.myDefaultGradeId === this.treeItemData.id) {
+      this.$logger.info('find defaultGradeId', this.myDefaultGradeId, 'current grade id', this.treeItemData.id)
+      this.handleExpandTreeItem(this.treeItemData)
+    }
     LibraryEventBus.$on(LibraryEvent.ContentListItemClick, this.handleContentListItemClick)
     LibraryEventBus.$on(LibraryEvent.CenturySkillsSelect, this.handleCenturySkillsSelect)
     LibraryEventBus.$on(LibraryEvent.CancelCenturySkillsSelect, this.handleCancelCenturySkillsSelect)
-    LibraryEventBus.$on(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
   },
   destroyed() {
     LibraryEventBus.$off(LibraryEvent.ContentListItemClick, this.handleContentListItemClick)
     LibraryEventBus.$off(LibraryEvent.CenturySkillsSelect, this.handleCenturySkillsSelect)
     LibraryEventBus.$off(LibraryEvent.CancelCenturySkillsSelect, this.handleCancelCenturySkillsSelect)
-    LibraryEventBus.$off(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
   },
   methods: {
     // 点击左侧菜单栏，同步右侧的列表以及展开当前下一级菜单。
@@ -573,9 +593,6 @@ export default {
             this.subTreeLoading = false
             this.subTreeExpandStatus = true
           }
-
-          // 通知外部表单更新gradeId
-          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, { rootType: this.rootType, data: this.treeItemData })
         }
 
         // 加载知识点关联数据
@@ -720,6 +737,7 @@ export default {
             // grade下一层knowledge
             this.subItemType = 'knowledge'
           } else {
+            this.subTreeLoading = true
             LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
               backgroundColor: this.defaultBackgroundColor,
               deep: this.defaultDeep,
@@ -732,9 +750,6 @@ export default {
             this.subTreeLoading = false
             this.subTreeExpandStatus = true
           }
-
-          // 通知外部表单更新gradeId
-          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, { rootType: this.rootType, data: this.treeItemData })
         }
 
         // 加载知识点关联数据
@@ -887,9 +902,6 @@ export default {
           }
           // grade下一层assessmentType
           this.subItemType = 'assessmentType'
-
-          // 通知外部表单更新gradeId
-          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, { rootType: this.rootType, data: this.treeItemData })
         }
 
         // 加载assessmentType的列表
@@ -1027,11 +1039,6 @@ export default {
 
         if (this.defaultDeep === 1 && treeItemData.isGrade) {
           this.$logger.info('handleExpandIduTypeTreeItem defaultDeep = 1', treeItemData)
-          // 通知外部表单更新gradeId
-          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, {
-            rootType: this.rootType,
-            data: this.treeItemData
-          })
 
           treeItemData.children.forEach(item => {
             item.selectedGradeName = treeItemData.name
@@ -1172,9 +1179,6 @@ export default {
             this.subTreeLoading = false
             this.subTreeExpandStatus = true
           }
-
-          // 通知外部表单更新gradeId
-          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, { rootType: this.rootType, data: this.treeItemData })
         }
 
         // 加载知识点关联数据
@@ -1398,18 +1402,13 @@ export default {
       LibraryEventBus.$emit(LibraryEvent.CancelCenturySkillsSelect)
     },
 
-    handleGradeUpdate (data) {
-      if (this.treeItemData.isGrade === true && data.rootType === this.rootType && data.data.id !== this.treeItemData.id) {
-        this.subTreeExpandStatus = false
-      }
-    },
-
     handleClickTreeItem(expandStatus, treeItemData) {
       this.$logger.info('handleClickTreeItem start ', expandStatus, treeItemData)
       if (expandStatus === false) {
         this.handleExpandTreeItem(treeItemData)
       } else {
         this.handleCollapseTreeItem(treeItemData)
+        LibraryEventBus.$emit(LibraryEvent.ResetContentList)
       }
     }
   }
@@ -1495,8 +1494,8 @@ export default {
       overflow: hidden;
       padding-left: 2px;
       align-items: center;
-      height: 25px;
-      line-height: 25px;
+      height: 35px;
+      line-height: 35px;
       white-space: nowrap;
       text-overflow: ellipsis;
       position: relative;

@@ -155,6 +155,7 @@ export default {
     LibraryEventBus.$on(LibraryEvent.ContentListUpdate, this.handleContentListUpdate)
     LibraryEventBus.$on(LibraryEvent.ContentListSelectedListUpdate, this.handleContentSelectedListUpdate)
     LibraryEventBus.$on(LibraryEvent.ChangeCurriculum, this.handleChangeCurriculum)
+    LibraryEventBus.$on(LibraryEvent.ResetContentList, this.handleResetContentList)
     this.nameWidth = document.getElementById('new-library').getBoundingClientRect().width - 400
     this.$logger.info('nameWidth ' + this.nameWidth)
     this.$logger.info('NewContentList selectedList', this.selectedList)
@@ -164,6 +165,14 @@ export default {
   methods: {
     handleChangeCurriculum () {
       this.$logger.info('NewContentList handleChangeCurriculum')
+      this.contentDataList = []
+      this.parent = null
+      this.firstLoad = true
+      this.currentDataType = null
+    },
+
+    handleResetContentList () {
+      this.$logger.info('NewContentList handleResetContentList')
       this.contentDataList = []
       this.parent = null
       this.firstLoad = true
@@ -248,6 +257,11 @@ export default {
             })
             this.$emit('select-curriculum', selectedList)
             this.$logger.info('selectedCurriculumMap', this.selectedCurriculumMap)
+
+            if (item.hasOwnProperty('selectedGradeId')) {
+              this.$logger.info('selectedGradeId', item.selectedGradeId)
+              LibraryEventBus.$emit(LibraryEvent.GradeUpdate, item.selectedGradeId)
+            }
           } else {
             // grade下层为空
             const eventData = {
@@ -293,6 +307,11 @@ export default {
             })
             this.$emit('select-subject-specific-skill', selectedList)
             this.$logger.info('selectedSubjectSpecificSkillIdMap', this.selectedSubjectSpecificSkillIdMap)
+
+            if (item.hasOwnProperty('selectedGradeId')) {
+              this.$logger.info('selectedGradeId', item.selectedGradeId)
+              LibraryEventBus.$emit(LibraryEvent.GradeUpdate, item.selectedGradeId)
+            }
           } else {
             // grade下层为空
             const eventData = {
@@ -338,6 +357,11 @@ export default {
             })
             this.$emit('select-century-skill', selectedList)
             this.$logger.info('selected21CenturySkillIdMap', this.selected21CenturySkillIdMap)
+
+            if (item.hasOwnProperty('selectedGradeId')) {
+              this.$logger.info('selectedGradeId', item.selectedGradeId)
+              LibraryEventBus.$emit(LibraryEvent.GradeUpdate, item.selectedGradeId)
+            }
           } else {
             // grade下层为空
             const eventData = {
@@ -378,6 +402,10 @@ export default {
           })
           this.$emit('select-big-idea', selectedList)
           this.$logger.info('select-big-idea', this.selectedBigIdeaList)
+          if (item.hasOwnProperty('selectedGradeId')) {
+            this.$logger.info('selectedGradeId', item.selectedGradeId)
+            LibraryEventBus.$emit(LibraryEvent.GradeUpdate, item.selectedGradeId)
+          }
         }
       } else if (this.currentDataType === NavigationType.assessmentType) {
         // assessmentType 是mainSubject-year-assessmentType-knowledge
@@ -413,6 +441,10 @@ export default {
             })
             this.$emit('select-assessmentType', selectedList)
             this.$logger.info('selectedAssessmentMap', this.selectedAssessmentMap)
+            if (item.hasOwnProperty('selectedGradeId')) {
+              this.$logger.info('selectedGradeId', item.selectedGradeId)
+              LibraryEventBus.$emit(LibraryEvent.GradeUpdate, item.selectedGradeId)
+            }
           } else {
             // grade下层为空
             const eventData = {
@@ -455,6 +487,10 @@ export default {
           })
           this.$emit('select-all-21-century', selectedList)
           this.$logger.info('select-all-21-century', selectedList)
+          if (item.hasOwnProperty('selectedGradeId')) {
+            this.$logger.info('selectedGradeId', item.selectedGradeId)
+            LibraryEventBus.$emit(LibraryEvent.GradeUpdate, item.selectedGradeId)
+          }
         }
       } else if (this.currentDataType === NavigationType.idu) {
         if (!item.hasOwnProperty('isGrade')) {
@@ -476,6 +512,10 @@ export default {
           })
           this.$emit('select-idu', selectedList)
           this.$logger.info('selectedIDUMap', this.selectedIDUMap)
+          if (item.hasOwnProperty('selectedGradeId')) {
+            this.$logger.info('selectedGradeId', item.selectedGradeId)
+            LibraryEventBus.$emit(LibraryEvent.GradeUpdate, item.selectedGradeId)
+          }
         } else {
           // grade下层为空
           const eventData = {
@@ -636,6 +676,7 @@ export default {
     this.$logger.info('off NewContentList ContentListUpdate handler')
     LibraryEventBus.$off(LibraryEvent.ContentListSelectedListUpdate, this.handleContentSelectedListUpdate)
     LibraryEventBus.$off(LibraryEvent.ChangeCurriculum, this.handleChangeCurriculum)
+    LibraryEventBus.$off(LibraryEvent.ResetContentList, this.handleResetContentList)
     this.$logger.info('off NewContentList ContentListSelectedListUpdate handler')
   }
 }
