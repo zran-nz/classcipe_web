@@ -3,7 +3,6 @@
     class='tree-item'
     v-if='treeItemData'
     :data-deep='defaultDeep'
-    :data-default-grade-id="defaultGradeId + ''"
     :data-tree-type='treeItemType'
     :data-current-type='currentItemType'
     :data-selected-grade-id="treeItemData.selectedGradeId + ''"
@@ -62,10 +61,8 @@
             :grade-list='gradeList'
             :tree-current-parent='subTreeParent'
             :tree-item-data.sync='treeItem'
-            :default-grade-id='defaultGradeId'
             :default-background-color='defaultBackgroundColor'
             :current-item-type='subItemType'
-            :data-default-grade-id='defaultGradeId'
             :data-item-type='subItemType'
             :select-mode='selectMode'
             :question-index='questionIndex'
@@ -91,9 +88,6 @@
             :default-deep='(defaultDeep + 1)'
             :default-expand-status='treeItem.expandStatus'
             :default-background-color='defaultBackgroundColor'
-            :default-grade-id='defaultGradeId'
-            :data-default-grade-id='defaultGradeId'
-            :class="{'auto-selected-grade': defaultGradeId === treeItem.id }"
             v-for='(treeItem, index) in treeItemData.gradeList'
             :odd='odd ? index % 2 === 1 : index % 2 === 0 '
             :default-curriculum-id='currentCurriculumId'
@@ -111,8 +105,6 @@
             :root-type='rootType'
             :default-deep='(defaultDeep + 1)'
             :default-background-color='defaultBackgroundColor'
-            :default-grade-id='defaultGradeId'
-            :data-default-grade-id='defaultGradeId'
             :default-expand-status='treeItem.expandStatus'
             v-for='(treeItem, index) in treeItemData.children'
             :odd='odd ? index % 2 === 1 : index % 2 === 0 '
@@ -133,8 +125,6 @@
             :root-type='rootType'
             :default-deep='(defaultDeep + 1)'
             :default-background-color='defaultBackgroundColor'
-            :default-grade-id='defaultGradeId'
-            :data-default-grade-id='defaultGradeId'
             :default-expand-status='treeItem.expandStatus'
             v-for='(treeItem, index) in treeItemData.children'
             :odd='odd ? index % 2 === 1 : index % 2 === 0 '
@@ -154,8 +144,6 @@
             :root-type='rootType'
             :default-deep='(defaultDeep + 1)'
             :default-background-color='defaultBackgroundColor'
-            :default-grade-id='defaultGradeId'
-            :data-default-grade-id='defaultGradeId'
             :default-expand-status='treeItem.expandStatus'
             v-for='(treeItem, index) in treeItemData.children'
             :odd='odd ? index % 2 === 1 : index % 2 === 0 '
@@ -174,8 +162,6 @@
             :root-type='rootType'
             :default-deep='(defaultDeep + 1)'
             :default-background-color='defaultBackgroundColor'
-            :default-grade-id='defaultGradeId'
-            :data-default-grade-id='defaultGradeId'
             :default-expand-status='treeItem.expandStatus'
             v-for='(treeItem, index) in treeItemData.children'
             :odd='odd ? index % 2 === 1 : index % 2 === 0 '
@@ -194,8 +180,6 @@
             :root-type='rootType'
             :default-deep='(defaultDeep + 1)'
             :default-background-color='defaultBackgroundColor'
-            :default-grade-id='defaultGradeId'
-            :data-default-grade-id='defaultGradeId'
             :default-expand-status='treeItem.expandStatus'
             v-for='(treeItem, index) in treeItemData.children'
             :odd='odd ? index % 2 === 1 : index % 2 === 0 '
@@ -277,10 +261,6 @@ export default {
     currentItemType: {
       type: String,
       required: true
-    },
-    defaultGradeId: { // 默认的年级id
-      type: String,
-      default: null
     },
     defaultBackgroundColor: { // 默认的背景色
       type: String,
@@ -422,15 +402,6 @@ export default {
     LibraryEventBus.$on(LibraryEvent.CenturySkillsSelect, this.handleCenturySkillsSelect)
     LibraryEventBus.$on(LibraryEvent.CancelCenturySkillsSelect, this.handleCancelCenturySkillsSelect)
     LibraryEventBus.$on(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
-
-    // 添加learning outcome自动选中grade
-    if (this.currentItemType === 'grade') {
-      if (this.defaultGradeId === this.treeItemData.id) {
-        this.$logger.info('current', this.treeItemData, 'should be default grade')
-        this.subTreeLoading = true
-        this.handleExpandTreeItem(this.treeItemData)
-      }
-    }
   },
   destroyed() {
     LibraryEventBus.$off(LibraryEvent.ContentListItemClick, this.handleContentListItemClick)

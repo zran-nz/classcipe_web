@@ -377,7 +377,6 @@
             :select-mode="selectMode"
             :question-index="questionIndex"
             :show-menu="showMenu"
-            :default-grade-id="defaultGradeId"
             :default-active-menu="defaultActiveMenu"
             :default-curriculum-id="defaultCurriculumId"
           />
@@ -487,8 +486,7 @@ export default {
       selectModelType: SelectModel,
       tagType: TagType,
 
-      myRecommendData: [],
-      defaultGradeId: null
+      myRecommendData: []
     }
   },
   computed: {
