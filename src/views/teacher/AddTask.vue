@@ -68,7 +68,7 @@
                                   Personal
                                 </a-tag>
                               </div>
-                              <a-popconfirm cancel-text="No" ok-text="Yes" title="Delete ?" @confirm="handleDeleteClass(classItem)" v-show='form.taskMode !== 2'>
+                              <a-popconfirm cancel-text="No" ok-text="Yes" title="Delete ?" @confirm="handleDeleteClass(cIdx, classItem)" v-show='form.taskMode !== 2'>
                                 <div class='remove-class-icon'>
                                   <img class='big-delete-icon' src="~@/assets/icons/tag/delete.png" alt=''/>
                                 </div>
@@ -82,7 +82,7 @@
                                 </template>
                                 <input-with-create
                                   v-if="canEdit"
-                                  :option-list='displayClassList'
+                                  :option-list='classList'
                                   :index='cIdx'
                                   :default-selected-id='classItem.classId'
                                   :default-display-name='classItem.className'
@@ -2262,10 +2262,6 @@ export default {
       })
 
       return ret
-    },
-
-    displayClassList () {
-      return this.classList
     }
   },
   beforeRouteLeave(to, from, next) {
@@ -4255,9 +4251,16 @@ export default {
       })
     },
 
-    handleDeleteClass (classItem) {
+    handleDeleteClass (idx, classItem) {
       this.$logger.info('handleDeleteClass', classItem)
-      this.form.taskClassList = this.form.taskClassList.filter(it => it.classId !== classItem.classId)
+      const newTaskClassList = []
+      for (let i = 0; i < this.form.taskClassList.length; i++) {
+        if (this.form.taskClassList[i].classId === classItem.classId && i === idx) {
+        } else {
+          newTaskClassList.push(this.form.taskClassList[i])
+        }
+      }
+      this.form.taskClassList = newTaskClassList
     },
 
     handleCreateNewClass (data) {
