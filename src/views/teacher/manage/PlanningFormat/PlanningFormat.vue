@@ -59,9 +59,7 @@ export default {
     },
     handleModeChange(userMode) {
       // 模式切换，个人还是学校 TODO 个人接口
-      if (this.userMode === USER_MODE.SELF) {
-        this.loadFormConfigData()
-      }
+      this.loadFormConfigData()
     },
     loadFormConfigData() {
       this.$logger.info('loadFormConfigData')
