@@ -249,6 +249,7 @@
                               :learn-outs='form.learnOuts'
                               :self-outs='form.selfOuts'
                               :can-edit="canEdit"
+                              @addCustomTag="handleAddCustomTagRemote"
                               @remove-learn-outs='handleRemoveLearnOuts' />
                           </div>
 
@@ -4381,6 +4382,13 @@ export default {
       this.$logger.info('handleDontRemindMe', this.dontRemindMe)
       if (this.dontRemindMe) {
         window.localStorage.setItem('dontRemindMe_' + this.$store.getters.email, 'true')
+      }
+    },
+
+    // 选词自动填入标签功能
+    handleAddCustomTagRemote(res) {
+      if (res.parentId && this.$refs.customTag) {
+        this.$refs.customTag.remoteChooseTag(res.parentId, res.tag)
       }
     }
   }

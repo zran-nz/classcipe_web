@@ -22,6 +22,7 @@
             class="objectives-input-item objectives-input-item-skill"
             v-for='(skillInput, sIdx) in skillInputList'
             :key='sIdx'>
+            <!-- <a-input v-selectPopover="['modal', domFn]" v-model='skillInput.name' class='skill-input' placeholder='Type in your learning objective' :disabled="!canEdit"/> -->
             <a-input v-model='skillInput.name' class='skill-input' placeholder='Type in your learning objective' :disabled="!canEdit"/>
             <a-popconfirm title="Delete?" ok-text="Yes" @confirm='handleDeleteSkill(skillInput)' cancel-text="No" v-if="canEdit">
               <img class='self-out-delete-icon' src="~@/assets/icons/tag/delete.png" alt=''/>
@@ -168,6 +169,25 @@
       </div>
     </a-modal>
 
+    <div v-clickOutside id="modal">
+      <a-space class="quick-keyword-con">
+        <label>Set as </label>
+        <quick-word-button
+          type="danger"
+          text="Command term"
+          @sub="handleQuickWordSet"
+          :quickWord="quickWord"
+        />
+        <label> or </label>
+        <quick-word-button
+          type="primary"
+          text="Knowledge tag"
+          @sub="handleQuickWordSet"
+          :quickWord="quickWord"
+        />
+      </a-space>
+    </div>
+
   </div>
 
 </template>
@@ -179,13 +199,15 @@
   import { TagType, AllCurriculums } from '@/const/common'
   import { getAll21Century } from '@/api/knowledge'
   import AddGreenIcon from '@/assets/svgIcon/evaluation/form/tianjia_green.svg?inline'
+  import QuickWordButton from '@/components/Button/QuickWordButton'
 
   export default {
     name: 'UiLearnOut',
     components: {
       LearnOutAddTag,
       NoMoreResources,
-      AddGreenIcon
+      AddGreenIcon,
+      QuickWordButton
     },
     props: {
       learnOuts: {
@@ -231,7 +253,8 @@
         skillInputList: [],
         knowledgeInputList: [],
         centuryInputList: [],
-        AllCurriculums: AllCurriculums
+        AllCurriculums: AllCurriculums,
+        quickWord: ''
       }
     },
     created () {
@@ -529,6 +552,13 @@
 
         this.$logger.info('getSelfOuts ', selfOuts)
         return selfOuts
+      },
+      domFn(key) {
+        this.quickWord = key.split(' ')[0]
+      },
+      handleQuickWordSet(res) {
+        document.getElementById('modal').style.display = 'none'
+        this.$emit('addCustomTag', res)
       }
     }
   }
@@ -850,5 +880,11 @@
     cursor: pointer;
     font-weight: bold;
     color: #999;
+  }
+
+  .quick-keyword-con {
+    border: 1px solid #dfdfdf;
+    background: #fff;
+    padding: 5px 10px;
   }
 </style>

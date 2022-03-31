@@ -14,6 +14,7 @@ import {
   SET_CURRENT_SCHOOL
 } from '@/store/mutation-types'
 import defaultSettings from '@/config/defaultSettings'
+import { USER_MODE } from '@/const/common'
 
 export default function Initializer () {
   console.log('----------------------------- bootstrap -----------------------------')
@@ -29,7 +30,7 @@ export default function Initializer () {
   store.commit('SET_TOKEN', storage.get(ACCESS_TOKEN))
   store.commit('SET_CURRENT_ROLE', storage.get(CURRENT_ROLE))
   store.commit('SET_INFO', storage.get(USER_INFO))
-  store.commit(TOOGLE_USER_MODE, storage.get(TOOGLE_USER_MODE, 'selfStudy'))
+  store.commit(TOOGLE_USER_MODE, storage.get(TOOGLE_USER_MODE, USER_MODE.SELF))
   store.commit('SET_CURRENT_SCHOOL', storage.get(SET_CURRENT_SCHOOL, {}))
   store.commit('SET_STUDENT_CLASS_LIST', storage.get(SET_STUDENT_CLASS_LIST, []))
 

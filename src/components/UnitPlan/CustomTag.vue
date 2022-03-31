@@ -316,6 +316,18 @@ export default {
           'id': 'unique_id_' + Math.random()
         })
     },
+    // 选词功能，联想关键词获取关键词对应的tag，并自动填入，目前只有bloom,knowledge
+    // "1440218576252366850"
+    remoteChooseTag(parentId, tag) {
+      // customDeep?
+      const parent = this.mergeTagList.find(item => item.id === parentId)
+      if (parent) {
+        const isExist = this.tagList.find(item => item.name === tag)
+        if (!isExist) {
+          this.selectChooseTag(parent, tag)
+        }
+      }
+    },
     handleTagItemDrop (item, event) {
       console.log(item)
     },
