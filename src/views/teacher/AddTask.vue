@@ -82,7 +82,7 @@
                                 </template>
                                 <input-with-create
                                   v-if="canEdit"
-                                  :option-list='classList'
+                                  :option-list='displayClassList'
                                   :index='cIdx'
                                   :default-selected-id='classItem.classId'
                                   :default-display-name='classItem.className'
@@ -2262,23 +2262,10 @@ export default {
       })
 
       return ret
-    }
-  },
-  watch: {
-    // 自动选择第一个班级的年级为task的默认年级
-    'form.taskClassList': {
-      handler: function (newVal, oldVal) {
-        this.$logger.info('form.taskClassList changed ', newVal)
-        if (newVal && newVal.length > 0) {
-          const taskClassId = newVal[0].classId
-          const classItem = this.classList.find(item => item.id === taskClassId)
-          if (classItem) {
-            this.form.gradeId = classItem.gradeId
-            this.$logger.info('form.gradeId update ', this.form.gradeId)
-          }
-        }
-      },
-      deep: true
+    },
+
+    displayClassList () {
+      return this.classList
     }
   },
   beforeRouteLeave(to, from, next) {

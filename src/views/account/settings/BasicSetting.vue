@@ -617,7 +617,7 @@ export default {
           }
 
           if (!response[1].code) {
-            logger.info('GetGradesByCurriculumId response', response[1])
+            this.userInfo.gradeNameList = []
             this.gradeOptions = response[1].result
             this.gradeOptions.forEach(item => {
               if (this.userInfo.gradeIds.indexOf(item.id) !== -1) {
@@ -627,6 +627,7 @@ export default {
           }
 
           if (!response[2].code) {
+            this.userInfo.subjectNameList = []
             logger.info('SubjectTree response', response[2])
             this.subjectOptions = response[2].result
             this.subjectOptions.forEach(option => {
