@@ -19,17 +19,21 @@ export const UserModeMixin = {
       state => state.app.userMode,
       userMode => userMode && this.$route.name === this.routeName && (this.handleModeChange(userMode))
     )
+    this.routeInMode()
   },
   beforeDestroy() {
     this.unwatch && this.unwatch()
   },
   methods: {
-    // 默认方法，用于路由判断
-    handleModeChange(userMode) {
-      if (this.$route.meta.mode && this.$route.meta.mode !== userMode) {
+    // 判断路由是否存在
+    routeInMode() {
+      if (this.$route.meta.mode && this.$route.meta.mode !== this.$store.state.app.userMode) {
         // 返回公共页面
         this.$router.push({ path: this.redirectUrl })
       }
+    },
+    // 默认方法,可覆盖
+    handleModeChange(userMode) {
     }
   }
 }
