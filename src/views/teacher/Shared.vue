@@ -344,7 +344,7 @@
 
                 <div class="cover-img" :style="{backgroundImage: 'url(' + item.content.image + ')'}"></div>
 
-                <a-card-meta class="my-card-meta-info" :title="item.content.name ? item.content.name : 'Untitled'" :description="item.createTime | dayjs" @click="handleViewDetail(item)">
+                <a-card-meta class="my-card-meta-info" :title="item.content.name ? item.content.name : 'Untitled'" :description="item.updateTime || item.createTime | dayjs" @click="handleViewDetail(item)">
                   <content-type-icon :type="item.content.type" slot="avatar"></content-type-icon>
                 </a-card-meta>
 
