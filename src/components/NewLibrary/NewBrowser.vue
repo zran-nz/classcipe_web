@@ -1030,7 +1030,7 @@ export default {
         position: absolute;
         top: 50%;
         margin-top: -10px;
-        z-index: 200;
+        z-index: 300;
         transition: none;
       }
 
@@ -1105,7 +1105,7 @@ export default {
   top: 0;
   right: 0;
   bottom: 0;
-  opacity: 0;
+  background-color: rgba(0, 0, 0, 0.6);
 }
 
 .recommend-description {
