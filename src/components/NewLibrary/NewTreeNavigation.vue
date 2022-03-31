@@ -185,10 +185,11 @@ export default {
         this.$logger.info('SubjectTree Response ', initDataResponse[0])
         if (!initDataResponse[0].code) {
           this.subjectTree = initDataResponse[0].result
-          // subjectType=1 大纲subject
-          curriculumData.children = initDataResponse[0].result.filter(sub => sub.subjectType === SubjectType.Learn || sub.subjectType === SubjectType.LearnAndSkill)
           // 兼容新的任意层级,任意一个层级下一层都会可能是gradeList
           this.addGradeListProperty(this.subjectTree)
+          const subjectTreeData = JSON.parse(JSON.stringify(this.subjectTree))
+          // subjectType=1 大纲subject
+          curriculumData.children = subjectTreeData.filter(sub => sub.subjectType === SubjectType.Learn || sub.subjectType === SubjectType.LearnAndSkill)
         }
 
         // GetAllSdgs
@@ -379,7 +380,7 @@ export default {
           item.gradeList.forEach(gradeItem => {
             gradeItem.children = []
             gradeItem.isGrade = true
-            item.gradeList.push(Object.assign({}, gradeItem))
+            item.gradeList.push(JSON.parse(JSON.stringify(gradeItem)))
           })
         }
         this.addGradeListProperty(item.children)
