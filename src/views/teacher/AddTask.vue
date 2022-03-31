@@ -68,7 +68,7 @@
                                   Personal
                                 </a-tag>
                               </div>
-                              <a-popconfirm cancel-text="No" ok-text="Yes" title="Delete ?" @confirm="handleDeleteClass(classItem)" v-show='form.taskMode !== 2'>
+                              <a-popconfirm cancel-text="No" ok-text="Yes" title="Delete ?" @confirm="handleDeleteClass(cIdx, classItem)" v-show='form.taskMode !== 2'>
                                 <div class='remove-class-icon'>
                                   <img class='big-delete-icon' src="~@/assets/icons/tag/delete.png" alt=''/>
                                 </div>
@@ -1753,7 +1753,6 @@
             :recommend-data='recommendData'
             :selected-list='selectedList'
             :selected-id='selectedIdList'
-            :default-grade-id='form.gradeId'
             @select-assessmentType='handleSelectAssessmentType'
             @select-sync='handleSelectListData'
             @select-curriculum='handleSelectCurriculum'
@@ -2266,23 +2265,6 @@ export default {
       return ret
     }
   },
-  watch: {
-    // 自动选择第一个班级的年级为task的默认年级
-    'form.taskClassList': {
-      handler: function (newVal, oldVal) {
-        this.$logger.info('form.taskClassList changed ', newVal)
-        if (newVal && newVal.length > 0) {
-          const taskClassId = newVal[0].classId
-          const classItem = this.classList.find(item => item.id === taskClassId)
-          if (classItem) {
-            this.form.gradeId = classItem.gradeId
-            this.$logger.info('form.gradeId update ', this.form.gradeId)
-          }
-        }
-      },
-      deep: true
-    }
-  },
   beforeRouteLeave(to, from, next) {
     this.$logger.info('beforeRouteLeave', to, from, next)
     // owner或者协同着可以save
@@ -2325,9 +2307,6 @@ export default {
     // 恢复step
     this.currentActiveStepIndex = this.getSessionStep()
 
-    // library浏览learning outcome时，修改了grade，需要更新表单中的grade
-    LibraryEventBus.$on(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
-
     // addMaterial事件处理
     AddMaterialEventBus.$on(ModalEventsNameEnum.ADD_NEW_MEDIA, url => {
       this.addMaterialList(url)
@@ -2342,7 +2321,6 @@ export default {
     MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
     MyContentEventBus.$off(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
     LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
-    LibraryEventBus.$off(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
   },
   methods: {
     initData() {
@@ -4218,11 +4196,6 @@ export default {
       this.materialListFlag = checked
     },
 
-    handleGradeUpdate(data) {
-      this.$logger.info('handleGradeUpdate', data)
-      this.form.gradeId = data.data.id
-    },
-
     handleShareTask() {
       this.$logger.info('handleShareTask')
       this.shareVisible = true
@@ -4279,9 +4252,16 @@ export default {
       })
     },
 
-    handleDeleteClass (classItem) {
+    handleDeleteClass (idx, classItem) {
       this.$logger.info('handleDeleteClass', classItem)
-      this.form.taskClassList = this.form.taskClassList.filter(it => it.classId !== classItem.classId)
+      const newTaskClassList = []
+      for (let i = 0; i < this.form.taskClassList.length; i++) {
+        if (this.form.taskClassList[i].classId === classItem.classId && i === idx) {
+        } else {
+          newTaskClassList.push(this.form.taskClassList[i])
+        }
+      }
+      this.form.taskClassList = newTaskClassList
     },
 
     handleCreateNewClass (data) {

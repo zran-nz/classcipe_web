@@ -1,17 +1,13 @@
 <template>
   <div class="new-tree-navigation" :data-display-menu='JSON.stringify(displayCategoryList)'>
     <new-tree-item
-      v-show="loaded && displayCategoryList"
+      v-if="loaded && displayCategoryList && showMenu.indexOf(treeItemData.type) !== -1"
       :grade-list="gradeList"
       :tree-item-data="treeItemData"
       :tree-current-parent="null"
-      :default-grade-id="defaultGradeId"
       :default-background-color="treeItemData.backgroundColor"
       :default-deep="0"
-      :class="{
-        'browser-hide-menu': showMenu.indexOf(treeItemData.type) === -1,
-        'tree-item-type' : true
-      }"
+      class='tree-item-type'
       :current-item-type="treeItemData.type === NavigationType.learningOutcomes ? 'subject' : // 如果当前是大纲，那么第一层数据是不区分层级的subject
         (treeItemData.type === NavigationType.sync ? 'sync' : // 如果是sync第一次是外部的同步数据列表
           ((treeItemData.type === NavigationType.specificSkills || treeItemData.type === NavigationType.assessmentType) ? 'subject' : ( // 如果是specificSkills或assessmentType，那么第一层数据是subject，注意subject只有一层
@@ -29,8 +25,8 @@
       :tree-item-type="treeItemData.type"
       :root-type="treeItemData.type"
       :data-item-type="treeItemData.type"
-      :data-default-grade-id="defaultGradeId"
       :odd="index % 2 === 1"
+      :default-grade-id='defaultGradeId'
       :default-curriculum-id='defaultCurriculumId'
       v-for="(treeItemData, index) in treeDataList"
       :key="index" />
@@ -53,6 +49,7 @@ import storage from 'store'
 import { GRADE_COMMON } from '@/store/mutation-types'
 import { GetGradesByCurriculumId } from '@/api/preference'
 import NoMoreResources from '@/components/Common/NoMoreResources'
+import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
 
 const { GetAllSdgs } = require('@/api/scenario')
 const { SubjectTree } = require('@/api/subject')
@@ -83,10 +80,6 @@ export default {
     defaultCurriculumId: {
       type: String,
       default: null
-    },
-    defaultGradeId: {
-      type: String,
-      default: null
     }
   },
   data () {
@@ -97,7 +90,8 @@ export default {
 
       sdgList: [],
       subjectTree: [],
-      gradeList: []
+      gradeList: [],
+      defaultGradeId: null
     }
   },
   watch: {
@@ -125,6 +119,8 @@ export default {
   created () {
     this.$logger.info('NewTreeNavigation selectMode', this.selectMode)
     this.initData()
+    LibraryEventBus.$on(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
+    LibraryEventBus.$on(LibraryEvent.ChangeCurriculum, this.handleChangeCurriculum)
   },
   methods: {
     initData () {
@@ -137,7 +133,6 @@ export default {
         type: NavigationType.learningOutcomes,
         name: skillCategory.length === 3 ? skillCategory[0] : 'Curriculum',
         children: [],
-        defaultGradeId: this.defaultGradeId,
         parent: null,
         sort: 2,
         backgroundColor: '#B1D1CC'
@@ -147,7 +142,6 @@ export default {
         type: NavigationType.sdg,
         name: 'Big ideas',
         children: [],
-        defaultGradeId: this.defaultGradeId,
         parent: null,
         sort: 2,
         backgroundColor: 'fade(@primary-color, 10%)'
@@ -158,7 +152,6 @@ export default {
         type: NavigationType.all21Century,
         name: NavigationType.all21Century,
         children: [],
-        defaultGradeId: this.defaultGradeId,
         parent: null,
         sort: 2,
         backgroundColor: '#D7E0E9'
@@ -188,10 +181,11 @@ export default {
         this.$logger.info('SubjectTree Response ', initDataResponse[0])
         if (!initDataResponse[0].code) {
           this.subjectTree = initDataResponse[0].result
-          // subjectType=1 大纲subject
-          curriculumData.children = initDataResponse[0].result.filter(sub => sub.subjectType === SubjectType.Learn || sub.subjectType === SubjectType.LearnAndSkill)
           // 兼容新的任意层级,任意一个层级下一层都会可能是gradeList
           this.addGradeListProperty(this.subjectTree)
+          const subjectTreeData = JSON.parse(JSON.stringify(this.subjectTree))
+          // subjectType=1 大纲subject
+          curriculumData.children = subjectTreeData.filter(sub => sub.subjectType === SubjectType.Learn || sub.subjectType === SubjectType.LearnAndSkill)
         }
 
         // GetAllSdgs
@@ -224,24 +218,18 @@ export default {
             type: NavigationType.specificSkills,
             name: skillCategory[1],
             children: [],
-            defaultGradeId: this.defaultGradeId,
             parent: null,
             sort: 0,
             backgroundColor: '#FF978E'
           }
           // 从大纲数据中复制一份数据，只用mainSubject既第一层 且subjectType=2
-          this.subjectTree.forEach(subjectItem => {
+          const subjectTreeData = JSON.parse(JSON.stringify(this.subjectTree))
+          subjectTreeData.forEach(subjectItem => {
             const localSubjectItem = JSON.parse(JSON.stringify(subjectItem))
             if (localSubjectItem.subjectType === SubjectType.Skill || localSubjectItem.subjectType === SubjectType.LearnAndSkill) {
-              // 因为只显示第一层大纲，故删除员有的children列表,填充grade列表数据
+              // 因为只显示第一层大纲，故删除员有的children列表
               localSubjectItem.children = []
               localSubjectItem.gradeList = []
-              this.gradeList.forEach(item => {
-                item.children = []
-                item.isGrade = true
-                localSubjectItem.children.push(JSON.parse(JSON.stringify(item)))
-                localSubjectItem.gradeList.push(JSON.parse(JSON.stringify(item)))
-              })
               specificSkillsData.children.push(localSubjectItem)
             }
           })
@@ -259,7 +247,6 @@ export default {
               type: NavigationType.idu,
               name: 'Integrated Subject Skill',
               children: [],
-              defaultGradeId: this.defaultGradeId,
               gradeList: [],
               parent: null,
               sort: 1,
@@ -276,24 +263,6 @@ export default {
             }
           }
 
-          // 隐藏assessmentType
-          // assessmentTypeData 是mainSubject-year-knowledge
-          // const assessmentTypeData = {
-          //   id: '4',
-          //   expandStatus: NavigationType.assessmentType === this.defaultActiveMenu,
-          //   type: NavigationType.assessmentType,
-          //   name: 'Assessment type',
-          //   children: [],
-          //   parent: null
-          // }
-          // 从大纲数据中复制一份数据，assessmentTypeData也只用mainSubject既第一层
-          // this.subjectTree.forEach(subjectItem => {
-          //   if (subjectItem.subjectType === SubjectType.Skill || subjectItem.subjectType === SubjectType.LearnAndSkill) {
-          //     assessmentTypeData.children.push(JSON.parse(JSON.stringify(subjectItem)))
-          //   }
-          // })
-          // this.treeDataList.push(assessmentTypeData)
-
           // 21 century skills 是year-knowledge
           const centurySkillsData = {
             id: '5',
@@ -302,7 +271,6 @@ export default {
             name: this.$classcipe.get21stCenturyDisplayNameByCurriculum(this.defaultCurriculumId),
             children: [],
             gradeList: [],
-            defaultGradeId: this.defaultGradeId,
             parent: null,
             sort: 2,
             backgroundColor: '#D7E0E9'
@@ -327,7 +295,6 @@ export default {
               type: NavigationType.NZKeyCompetencies,
               name: 'NZ-Key competencies',
               children: [],
-              defaultGradeId: this.defaultGradeId,
               gradeList: [],
               parent: null,
               backgroundColor: 'rgba(83, 196, 28, 0.2)'
@@ -348,7 +315,6 @@ export default {
               type: NavigationType.AUGeneralCapabilities,
               name: 'AU-General capabilities',
               children: [],
-              defaultGradeId: this.defaultGradeId,
               gradeList: [],
               parent: null,
               sort: 2,
@@ -382,7 +348,7 @@ export default {
           item.gradeList.forEach(gradeItem => {
             gradeItem.children = []
             gradeItem.isGrade = true
-            item.gradeList.push(Object.assign({}, gradeItem))
+            item.gradeList.push(JSON.parse(JSON.stringify(gradeItem)))
           })
         }
         this.addGradeListProperty(item.children)
@@ -400,7 +366,20 @@ export default {
         }
         this.addParentObjListProperty(item.children, item)
       })
+    },
+
+    handleGradeUpdate (data) {
+      this.$logger.info('handleGradeUpdate start ', data)
+      this.defaultGradeId = data
+    },
+    handleChangeCurriculum () {
+      this.$logger.info('handleChangeCurriculum')
+      this.defaultGradeId = null
     }
+  },
+  destroyed() {
+    LibraryEventBus.$off(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
+    LibraryEventBus.$off(LibraryEvent.ChangeCurriculum, this.handleChangeCurriculum)
   }
 }
 </script>

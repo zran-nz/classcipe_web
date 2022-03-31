@@ -377,7 +377,6 @@
             :select-mode="selectMode"
             :question-index="questionIndex"
             :show-menu="showMenu"
-            :default-grade-id="defaultGradeId"
             :default-active-menu="defaultActiveMenu"
             :default-curriculum-id="defaultCurriculumId"
           />
@@ -453,10 +452,6 @@ export default {
       type: Array,
       default: () => []
     },
-    defaultGradeId: {
-      type: String,
-      default: null
-    },
     showCurriculum: {
       type: Boolean,
       default: false
@@ -521,7 +516,6 @@ export default {
     this.$logger.info('recommendData', this.recommendData)
     this.$logger.info('selectedIdList', this.selectedIdList)
     this.$logger.info('selectedList', this.selectedList)
-    this.$logger.info('defaultGradeId ' + this.defaultGradeId)
     this.mySelectedIdList = this.selectedIdList
     this.myRecommendData = JSON.parse(JSON.stringify(this.recommendData))
 

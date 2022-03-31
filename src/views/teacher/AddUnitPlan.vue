@@ -813,7 +813,6 @@
             :selected-list='selectedList'
             :show-menu='showMenuList'
             :show-curriculum='true'
-            :default-grade-id='form.gradeId'
             question-index='_questionIndex_1'
             @select-assessmentType='handleSelectAssessmentType'
             @select-curriculum='handleSelectCurriculum'
@@ -1344,14 +1343,10 @@ export default {
 
     // 恢复step
     this.currentActiveStepIndex = this.getSessionStep()
-
-    // library浏览learning outcome时，修改了grade，需要更新表单中的grade
-    LibraryEventBus.$on(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
   },
   beforeDestroy() {
     MyContentEventBus.$off(MyContentEvent.ReferContentItem, this.handleReferItem)
     LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
-    LibraryEventBus.$off(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
   },
   methods: {
     initData() {
@@ -2700,11 +2695,6 @@ export default {
       console.log(this.taskDetailsTop)
       e.preventDefault()
       e.stopPropagation()
-    },
-
-    handleGradeUpdate(data) {
-      this.$logger.info('handleGradeUpdate', data)
-      this.form.gradeId = data.data.id
     },
 
     handleShareUnitPlan() {

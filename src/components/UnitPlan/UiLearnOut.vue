@@ -80,7 +80,7 @@
             <div class="objectives-list" v-for="(k,index) in categoryItem.list" :key="index">
               <div class="objectives-list-item objectives-list-item-21 objectives-list-item-top-fixed" @click="handleActiveDescription(TagType.century,k)">
                 <div class="skt-description skt-description-21" @dblclick="handleAddTag(k)">
-                  <a-tooltip :title="k.hasOwnProperty('displayPath') ? k.displayPath : k.path"> {{ k.name }}</a-tooltip>
+                  <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
                 </div>
                 <div
                   v-if="k.tagType === TagType.century"
