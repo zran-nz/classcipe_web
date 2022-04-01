@@ -1357,10 +1357,10 @@
                     <div class='row-select'>
                       <div class='sub-select'>
                         <a-row>
-                          <h4>Interactive</h4>
+                          <h4></h4>
                         </a-row>
                         <div class='sub-items'>
-                          <div class='sub-item' v-for='(item,cIndex) in initPrompts' :key='cIndex'>
+                          <div class='sub-item' v-for='(item,cIndex) in initPrompts' :key='cIndex' v-if="item.text !== 'General purpose'">
                             <a-checkbox
                               :value='item.value'
                               @change='onChangeCheckBox($event,templateType.Prompt,item)'
