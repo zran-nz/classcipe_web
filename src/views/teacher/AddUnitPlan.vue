@@ -3580,4 +3580,8 @@ svg.add-input {
   cursor: pointer;
 }
 
+/deep/ .ant-steps-item-content {
+  overflow: visible;
+  margin-left: 50px;
+}
 </style>

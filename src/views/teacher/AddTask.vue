@@ -6940,4 +6940,9 @@ export default {
   color: #fff;
   line-height: 30px;
 }
+
+/deep/ .ant-steps-item-content {
+  overflow: visible;
+  margin-left: 50px;
+}
 </style>

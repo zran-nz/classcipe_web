@@ -98,6 +98,7 @@ export default {
       })
     },
     doCreate() {
+      this.visible = false
       this.$emit('sub', {
         word: this.quickWord,
         parentId: '1440218576252366850',
@@ -123,6 +124,8 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: center;
+    max-height: 150px;
+    overflow: auto;
     .quick-word-item {
       line-height: 30px;
       height: 30px;

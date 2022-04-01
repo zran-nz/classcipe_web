@@ -6,7 +6,7 @@
         <template v-if="getKnowledgeListType(TagType.skill).length > 0" >
           <div class="objectives-list" v-for="(k,index) in getKnowledgeListType(TagType.skill)" :key="index">
             <div class="objectives-list-item objectives-list-item-skill objectives-list-item-top-fixed">
-              <div class="skt-description" @dblclick="handleAddTag(k)">
+              <div v-selectPopover="['modal', domFn]" class="skt-description" @dblclick="handleAddTag(k)">
                 <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
               </div>
             </div>
@@ -22,8 +22,8 @@
             class="objectives-input-item objectives-input-item-skill"
             v-for='(skillInput, sIdx) in skillInputList'
             :key='sIdx'>
-            <!-- <a-input v-selectPopover="['modal', domFn]" v-model='skillInput.name' class='skill-input' placeholder='Type in your learning objective' :disabled="!canEdit"/> -->
-            <a-input v-model='skillInput.name' class='skill-input' placeholder='Type in your learning objective' :disabled="!canEdit"/>
+            <a-input v-selectPopover="['modal', domFn]" v-model='skillInput.name' class='skill-input' placeholder='Type in your learning objective' :disabled="!canEdit"/>
+            <!-- <a-input v-model='skillInput.name' class='skill-input' placeholder='Type in your learning objective' :disabled="!canEdit"/> -->
             <a-popconfirm title="Delete?" ok-text="Yes" @confirm='handleDeleteSkill(skillInput)' cancel-text="No" v-if="canEdit">
               <img class='self-out-delete-icon' src="~@/assets/icons/tag/delete.png" alt=''/>
             </a-popconfirm>
@@ -41,7 +41,7 @@
         <template v-if="getKnowledgeListType(TagType.knowledge).length > 0" >
           <div class="objectives-list" v-for="(k,index) in getKnowledgeListType(TagType.knowledge)" :key="index">
             <div class="objectives-list-item objectives-list-item-learn objectives-list-item-top-fixed">
-              <div class="skt-description" @dblclick="handleAddTag(k)">
+              <div v-selectPopover="['modal', domFn]" class="skt-description" @dblclick="handleAddTag(k)">
                 <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
               </div>
             </div>
@@ -57,7 +57,7 @@
             class="objectives-input-item objectives-input-item-skill"
             v-for='(knowledgeInput, sIdx) in knowledgeInputList'
             :key='sIdx'>
-            <a-input v-model='knowledgeInput.name' class='knowledge-input' placeholder='Type in your learning objective' :disabled="!canEdit"/>
+            <a-input v-selectPopover="['modal', domFn]" v-model='knowledgeInput.name' class='knowledge-input' placeholder='Type in your learning objective' :disabled="!canEdit"/>
             <a-popconfirm title="Delete?" ok-text="Yes" @confirm='handleDeleteKnowledge(knowledgeInput)' cancel-text="No" v-if="canEdit">
               <img class='self-out-delete-icon' src="~@/assets/icons/tag/delete.png" />
             </a-popconfirm>
@@ -79,7 +79,7 @@
             <div class='category-name'><a-icon type="tag" /> {{ categoryItem.categoryName }}</div>
             <div class="objectives-list" v-for="(k,index) in categoryItem.list" :key="index">
               <div class="objectives-list-item objectives-list-item-21 objectives-list-item-top-fixed" @click="handleActiveDescription(TagType.century,k)">
-                <div class="skt-description skt-description-21" @dblclick="handleAddTag(k)">
+                <div v-selectPopover="['modal', domFn]" class="skt-description skt-description-21" @dblclick="handleAddTag(k)">
                   <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
                 </div>
                 <div
@@ -113,7 +113,7 @@
             class="objectives-input-item objectives-input-item-skill"
             v-for='(centuryInput, sIdx) in centuryInputList'
             :key='sIdx'>
-            <a-input v-model='centuryInput.name' class='century-input' placeholder='Type in your learning objective' :disabled="!canEdit"/>
+            <a-input v-selectPopover="['modal', domFn]" v-model='centuryInput.name' class='century-input' placeholder='Type in your learning objective' :disabled="!canEdit"/>
             <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteCentury(centuryInput)" cancel-text="No" v-if="canEdit">
               <img class='self-out-delete-icon' src="~@/assets/icons/tag/delete.png" />
             </a-popconfirm>
@@ -169,7 +169,7 @@
       </div>
     </a-modal>
 
-    <div v-clickOutside id="modal">
+    <div v-clickOutside id="modal" ref="quickModal">
       <a-space class="quick-keyword-con">
         <label>Set as </label>
         <quick-word-button
@@ -557,7 +557,9 @@
         this.quickWord = key.split(' ')[0]
       },
       handleQuickWordSet(res) {
-        document.getElementById('modal').style.display = 'none'
+        setTimeout(() => {
+          this.$refs.quickModal.style.display = 'none'
+        }, 200)
         this.$emit('addCustomTag', res)
       }
     }
@@ -886,5 +888,6 @@
     border: 1px solid #dfdfdf;
     background: #fff;
     padding: 5px 10px;
+    width: 330px;
   }
 </style>

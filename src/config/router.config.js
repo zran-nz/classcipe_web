@@ -132,19 +132,19 @@ export const asyncRouterMap = [
                     path: '/teacher/managing/tag-settings',
                     name: 'tagSettings',
                     component: () => import('@/views/teacher/manage/tags/TagSettingsList'),
-                    meta: { title: 'menu.managing.tags-settings', keepAlive: true, permission: ['teacher'] }
+                    meta: { title: 'menu.managing.tags-settings', keepAlive: true, permission: ['teacher'], mode: USER_MODE.SCHOOL }
                   },
                   {
                     path: '/teacher/managing/planning-format',
                     name: 'PlanningFormat',
                     component: () => import('@/views/teacher/manage/PlanningFormat/PlanningFormat'),
-                    meta: { title: 'menu.managing.planning-format', keepAlive: true, permission: ['teacher'] }
+                    meta: { title: 'menu.managing.planning-format', keepAlive: true, permission: ['teacher'], mode: USER_MODE.SCHOOL }
                   },
                   {
                     path: '/teacher/managing/skill',
                     name: 'KnowledgeList',
                     component: () => import('@/views/teacher/manage/KnowledgeList'),
-                    meta: { title: 'menu.managing.skill', keepAlive: true, permission: ['teacher'], curriculumType: CurriculumType.IBMYP }
+                    meta: { title: 'menu.managing.skill', keepAlive: true, permission: ['teacher'], curriculumType: CurriculumType.IBMYP, mode: USER_MODE.SCHOOL }
                   }
                 ]
               }

@@ -19,7 +19,7 @@
                 <a-input v-model="model.name" placeholder="Please input name" ></a-input>
               </a-form-model-item>
 
-              <a-col :span="24">
+              <a-col :span="24" v-if="userMode === USER_MODE.SCHOOL">
                 <a-form-model-item label="Class Type" prop="classType">
                   <a-select :allowClear="true" v-model="model.classType" placeholder="Select classType" >
                     <a-select-option :value="0">Standard-Class</a-select-option>
@@ -28,7 +28,7 @@
                 </a-form-model-item>
               </a-col>
 
-              <a-col :span="24">
+              <a-col :span="24" v-if="userMode === USER_MODE.SCHOOL">
 
                 <a-form-model-item label="Home Teacher/Subject Coordinator" prop="headTeacherId">
                   <a-select :allowClear="true" v-model="model.headTeacherId" placeholder="Select teacher" >
@@ -96,6 +96,9 @@ import { httpAction, uploadAction } from '@/api/manage'
 import { schoolClassAPIUrl } from '@/api/schoolClass'
 import store from '@/store'
 import { schoolClassStudentAPIUrl } from '@/api/schoolClassStudent'
+import { personalClassApiUrl } from '@/api/personaClass'
+import { USER_MODE } from '@/const/common'
+import { mapState } from 'vuex'
 
 export default {
   name: 'TermAdd',
@@ -120,6 +123,7 @@ export default {
   data() {
     return {
       title: 'Add Class',
+      USER_MODE: USER_MODE,
       mode: 'add',
       width: 800,
       visible: false,
@@ -135,6 +139,10 @@ export default {
     this.modelDefault = JSON.parse(JSON.stringify(this.model))
   },
   computed: {
+    ...mapState({
+      userMode: state => state.app.userMode,
+      currentSchool: state => state.user.currentSchool
+    }),
     validatorRules() {
       var res = {
         name: [
@@ -182,7 +190,8 @@ export default {
       this.$refs.form.validate(valid => {
         if (valid) {
           that.confirmLoading = true
-          httpAction(schoolClassAPIUrl.SchoolClassAddOrUpdate, this.model, 'post').then((res) => {
+          const addOrUpdate = this.userMode === USER_MODE.SELF ? personalClassApiUrl.AddOrUpdate : schoolClassAPIUrl.SchoolClassAddOrUpdate
+          httpAction(addOrUpdate, this.model, 'post').then((res) => {
             if (res.success) {
               this.model.id = res.result.id
               if (this.fileList.length > 0) {

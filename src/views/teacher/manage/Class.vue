@@ -43,6 +43,7 @@
       </a-upload> -->
     </div>
     <a-table
+      ref="atable"
       :columns="columns"
       :data-source="classList"
       :loading="loading"
@@ -67,12 +68,15 @@
         </span>
       </span>
 
-      <span slot="action" slot-scope="item" style="display: flex;justify-content: space-between;align-items: center">
-        <a-button type="primary" shape="round" @click="handleTeacher(item)" >Teachers </a-button>
-        <a-button type="primary" shape="round" @click="handleStudent(item)" >Students </a-button>
+      <a-space slot="action" slot-scope="item" style="display: flex;justify-content: center;align-items: center">
+        <a-button v-show="userMode === USER_MODE.SCHOOL" type="primary" shape="round" @click="handleTeacher(item)" >Teachers </a-button>
+        <a-button v-show="userMode === USER_MODE.SCHOOL" type="primary" shape="round" @click="handleStudent(item)" >Students </a-button>
         <a-button type="primary" shape="round" @click="handleEdit(item)" >Edit </a-button>
+        <a-popconfirm v-show="userMode === USER_MODE.SELF" title="Delete this class ?" ok-text="Yes" @confirm="handleDelete(item)" cancel-text="No">
+          <a-button type="primary" shape="round" >Delete </a-button>
+        </a-popconfirm>
 
-        <div class="more-action-wrapper action-item-wrapper" >
+        <div class="more-action-wrapper action-item-wrapper" v-show="userMode === USER_MODE.SCHOOL">
           <a-dropdown>
             <a-icon type="more" style="margin-right: 8px" />
             <a-menu slot="overlay">
@@ -89,7 +93,7 @@
 
         <!--        <a-divider type="vertical" />-->
 
-      </span>
+      </a-space>
     </a-table>
 
     <ClassAdd
@@ -136,6 +140,7 @@ import { GetGradesByCurriculumId } from '@/api/preference'
 import { JeecgListMixin } from '@/mixins/JeecgListMixin'
 import { SubjectTree } from '@/api/subject'
 import { schoolClassAPIUrl, SchoolClassDelete } from '@/api/schoolClass'
+import { PersonalClassPagelist, PersonalClassDelete } from '@/api/personaClass'
 import ClassStudentList from '@/views/teacher/manage/ClassStudentList'
 import ClassTeacherList from '@/views/teacher/manage/ClassTeacherList'
 import { USER_MODE } from '@/const/common'
@@ -143,54 +148,6 @@ import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import { mapState } from 'vuex'
 
-const columns = [
-  {
-    title: 'Class Name',
-    dataIndex: 'name',
-    key: 'name'
-  },
-  {
-    title: 'Class Type',
-    dataIndex: 'classType',
-    key: 'type',
-    customRender: function (t, r, index) {
-      return t === 0 ? 'Standard-Class' : 'Subject-focused Class'
-    }
-  },
-  {
-    title: 'Teacher',
-    dataIndex: 'headTeacherName',
-    key: 'teacher'
-  },
-  {
-    title: 'Students No.',
-    dataIndex: '',
-    key: 'studentCount',
-    scopedSlots: { customRender: 'studentsNo' }
-  },
-  {
-    title: 'Subject',
-    dataIndex: 'subjectName',
-    key: 'subject'
-  },
-  {
-    title: 'Grade',
-    dataIndex: 'gradeName',
-    key: 'grade'
-  },
-  {
-    title: 'Creat date',
-    dataIndex: 'createTime',
-    key: 'date'
-  },
-  {
-    title: 'Action',
-    key: 'action',
-    // dataIndex: 'id',
-    scopedSlots: { customRender: 'action' },
-    width: '300px'
-  }
-]
 export default {
   name: 'Class',
   mixins: [JeecgListMixin, UserModeMixin, CurrentSchoolMixin],
@@ -200,7 +157,7 @@ export default {
   data() {
     return {
       classList: [],
-      columns,
+      USER_MODE: USER_MODE,
       loading: false,
       pagination: {
         pageSize: 20,
@@ -222,7 +179,12 @@ export default {
     }
   },
   created() {
+    this.getGradeList()
+    this.getSubjectList()
     this.initData()
+  },
+  mounted() {
+    this.resetTableWidth()
   },
   computed: {
     importExcelUrl: function () {
@@ -231,9 +193,117 @@ export default {
     ...mapState({
       userMode: state => state.app.userMode,
       currentSchool: state => state.user.currentSchool
-    })
+    }),
+    columns() {
+      const that = this
+      const col = [
+        {
+          title: 'Class Name',
+          dataIndex: 'name',
+          key: 'name',
+          width: 150
+        },
+        ...(
+          this.userMode === USER_MODE.SELF ? [] : [
+            {
+              title: 'Class Type',
+              dataIndex: 'classType',
+              key: 'type',
+              width: 150,
+              customRender: function (t, r, index) {
+                return typeof t !== 'undefined' ? t === 0 ? 'Standard-Class' : 'Subject-focused Class' : ' - '
+              }
+            },
+            {
+              title: 'Teacher',
+              dataIndex: 'headTeacherName',
+              key: 'teacher',
+              width: 120
+            },
+            {
+              title: 'Students No.',
+              dataIndex: '',
+              key: 'studentCount',
+              width: 120,
+              scopedSlots: { customRender: 'studentsNo' }
+            }
+          ]
+        ),
+        {
+          title: 'Subject',
+          dataIndex: 'subjectName',
+          width: 150,
+          key: 'subject',
+          customRender: function (t, r, index) {
+            if (typeof t !== 'undefined') return t
+            if (r.subject) {
+              const item = that.subjectList.find(item => item.id === r.subject)
+              if (item) {
+                return item.name
+              }
+            }
+            return ' - '
+          }
+        },
+        {
+          title: 'Grade',
+          dataIndex: 'gradeName',
+          width: 120,
+          key: 'grade',
+          customRender: function (t, r, index) {
+            if (typeof t !== 'undefined') return t
+            if (r.gradeId) {
+              const item = that.gradeList.find(item => item.id === r.gradeId)
+              if (item) {
+                return item.name
+              }
+            }
+            return ' - '
+          }
+        },
+        {
+          title: 'Creat date',
+          dataIndex: 'createTime',
+          key: 'date',
+          width: 150
+        },
+        {
+          title: 'Action',
+          key: 'action',
+          align: 'center',
+          // dataIndex: 'id',
+          scopedSlots: { customRender: 'action' },
+          width: this.userMode === USER_MODE.SELF ? '200px' : '250px'
+        }
+      ]
+      return col
+    }
   },
   methods: {
+    resetTableWidth() {
+      if (!this.$refs['atable']) return
+      const totalWidth = this.columns.map(item => {
+        if (item.width && item.width !== 'auto') {
+          return parseInt(item.width)
+        } else {
+          return 0
+        }
+      }).reduce((prev, current) => {
+        return prev + current
+      }, 0)
+      const conWidth = this.$refs['atable'].$el.getBoundingClientRect().width
+      if (conWidth > totalWidth) {
+        this.columns[0].width = 'auto'
+        this.scroll = {
+          x: conWidth
+        }
+      } else {
+        this.scroll = {
+          x: totalWidth
+        }
+        this.columns[this.columns.length - 1].fixed = 'right'
+      }
+    },
     handleSchoolChange(currentSchool) {
       if (this.userMode === USER_MODE.SCHOOL) {
         this.initData()
@@ -242,19 +312,25 @@ export default {
     handleModeChange(userMode) {
       // 模式切换，个人还是学校 TODO 个人接口
       this.initData()
+      this.resetTableWidth()
     },
     initData() {
       this.loadData()
-      this.getGradeList()
-      this.getSubjectList()
       this.getTeacherList()
       this.getStudentList()
     },
     async loadData() {
       this.loading = true
-      const res = await getSchoolClassList({
+      let promise = null
+      if (this.userMode === USER_MODE.SELF) {
+        promise = PersonalClassPagelist
+      } else {
+        promise = getSchoolClassList
+      }
+      const res = await promise({
         schoolId: this.currentSchool.id,
-        searchKey: this.searchKey
+        searchKey: this.searchKey,
+        className: this.searchKey
       })
       this.classList = res?.result?.records || []
       this.loading = false
@@ -277,7 +353,13 @@ export default {
     },
     handleDelete(record) {
       this.$logger.info('handleDelete ', record)
-      SchoolClassDelete(record).then(response => {
+      let promise = null
+      if (this.userMode === USER_MODE.SELF) {
+        promise = PersonalClassDelete
+      } else {
+        promise = SchoolClassDelete
+      }
+      promise(record).then(response => {
         this.$logger.info('SchoolClassDelete', response.result)
         this.loadData()
       })

@@ -27,6 +27,7 @@ import Vue from 'vue'
         text = text.toString().replace(/\n/g, '').trim()
         const $dom = document.getElementById(domQuery)
         $dom.style.position = 'absolute'
+        $dom.style.zIndex = 1002
         if (text) {
           // 找到最近一层relative
           let parentNode = $dom.parentNode
