@@ -43,7 +43,7 @@
             <a-button class="table-text" type="link" @click="handleViewDetail(record)"> {{ text }} </a-button>
           </div>
           <div slot="reviews" slot-scope="text, record">
-            <review-score placement="left" :review="{overall: record.reviewsScore}" :id="record.purchasesId"/>
+            <review-score placement="left" :review="{overall: record.reviews}" :id="record.purchasesId"/>
           </div>
         </s-table>
       </a-tab-pane>
@@ -89,7 +89,7 @@
             <a-button class="table-text" type="link" @click="handleViewDetail(record)"> {{ text }} </a-button>
           </div>
           <div slot="reviews" slot-scope="text, record">
-            <review-score placement="left" :review="{overall: record.reviewsScore}" :id="record.purchasesId"/>
+            <review-score placement="left" :review="{overall: record.reviews}" :id="record.purchasesId"/>
           </div>
         </s-table>
       </a-tab-pane>
