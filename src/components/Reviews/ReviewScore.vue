@@ -3,20 +3,22 @@
     <a-rate v-if="currentRole === 'student'" v-model="data.reviewsScore" allow-half disabled/>
     <a-popover @visibleChange="debouncedGetData" v-if="currentRole === 'teacher'" :placement="placement">
       <template slot="content">
-        <a-space direction="vertical">
-          <a-space align="center">
-            <label>Students engagement</label>
-            <a-rate :tooltips="RATE_TOOLTIPS.ENGAGEMENT" style="margin:0" v-model="data.studentsEngagement" allow-half disabled/>
+        <a-spin :spinning="loading">
+          <a-space direction="vertical">
+            <a-space align="center">
+              <label>Students engagement</label>
+              <a-rate :tooltips="RATE_TOOLTIPS.ENGAGEMENT" style="margin:0" v-model="data.studentsEngagement" allow-half disabled/>
+            </a-space>
+            <a-space align="center">
+              <label>Effectiveness of teaching & learning</label>
+              <a-rate :tooltips="RATE_TOOLTIPS.EFFETIVENESS" style="margin:0" v-model="data.effectiveness" allow-half disabled/>
+            </a-space>
+            <a-space align="center">
+              <label>Quality of the content</label>
+              <a-rate :tooltips="RATE_TOOLTIPS.QUALITY" style="margin:0" v-model="data.quality" allow-half disabled/>
+            </a-space>
           </a-space>
-          <a-space align="center">
-            <label>Effectiveness of teaching & learning</label>
-            <a-rate :tooltips="RATE_TOOLTIPS.EFFETIVENESS" style="margin:0" v-model="data.effectiveness" allow-half disabled/>
-          </a-space>
-          <a-space align="center">
-            <label>Quality of the content</label>
-            <a-rate :tooltips="RATE_TOOLTIPS.QUALITY" style="margin:0" v-model="data.quality" allow-half disabled/>
-          </a-space>
-        </a-space>
+        </a-spin>
       </template>
       <a-rate :tooltips="RATE_TOOLTIPS.OVERALL" v-model="data.overall" allow-half disabled/>
       <a-icon style="margin-left: 5px;" type="down" />
@@ -80,7 +82,8 @@ export default {
       data: {},
       reviewId: this.id,
       hasRender: false,
-      timer: null
+      timer: null,
+      loading: false
     }
   },
   methods: {
@@ -92,6 +95,7 @@ export default {
         } else {
           promise = ReviewsTeacherStats
         }
+        this.loading = true
         promise && promise({
           taskId: this.reviewId, // 学生需要
           purchasesId: this.reviewId // 老师需要
@@ -103,6 +107,8 @@ export default {
               this.hasRender = false
             }, 60000)
           }
+        }).finally(() => {
+          this.loading = false
         })
       }
     }

@@ -43,7 +43,7 @@
             <a-button class="table-text" type="link" @click="handleViewDetail(record)"> {{ text }} </a-button>
           </div>
           <div slot="reviews" slot-scope="text, record">
-            <review-score placement="left" :id="record.id"/>
+            <review-score placement="left" :review="{overall: record.reviewsScore}" :id="record.purchasesId"/>
           </div>
         </s-table>
       </a-tab-pane>
@@ -89,7 +89,7 @@
             <a-button class="table-text" type="link" @click="handleViewDetail(record)"> {{ text }} </a-button>
           </div>
           <div slot="reviews" slot-scope="text, record">
-            <review-score placement="left" :id="record.id"/>
+            <review-score placement="left" :review="{overall: record.reviewsScore}" :id="record.purchasesId"/>
           </div>
         </s-table>
       </a-tab-pane>
@@ -366,6 +366,7 @@ export default {
     handlePreviewClose () {
       logger.info('handlePreviewClose')
       this.previewVisible = false
+      this.triggerSearch()
       this.$nextTick(() => {
         this.previewCurrentId = null
         this.previewType = -1
