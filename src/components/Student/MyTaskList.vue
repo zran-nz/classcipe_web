@@ -222,7 +222,7 @@
                   <content-type-icon :type="typeMap.task" slot="avatar"></content-type-icon>
                 </a-card-meta>
 
-                <div class="my-card-progress" v-if="USER_MODE.SELF === userMode" :style="{visibility: item.status === TASK_STATUS.ONGOING ? 'visiible' : 'hidden'}">
+                <div class="my-card-progress" v-if="USER_MODE.SELF === userMode" :style="{visibility: item.status === TASK_STATUS.ONGOING ? 'visible' : 'hidden'}">
                   <a-progress
                     :stroke-color="{
                       '0%': '#108ee9',
@@ -233,6 +233,24 @@
                     :show-info="false" />
                   <label>{{ item.percentage }}%</label>
                 </div>
+
+                <template v-for="opt in optOptionsObj.topRight">
+                  <div
+                    class="session-distance"
+                    :key="'topRight_'+opt.label"
+                    v-if="(!opt.actionType || actionType === opt.actionType)
+                      && (!opt.userMode || opt.userMode === userMode)
+                      &&
+                      (opt.show.includes(item.status) && (!opt.currentStatus || opt.currentStatus.includes(currentStatus)))"
+                  >
+                    <a-tag color="#108ee9" v-show="item.status === TASK_STATUS.ONGOING">
+                      Deadline in
+                    </a-tag>
+                    <a-tag color="#ef4136" v-show="item.status === TASK_STATUS.SCHEDULED">
+                      Start in
+                    </a-tag>
+                  </div>
+                </template>
 
                 <!-- <collaborate-svg class="card-collaborate-icon-item" v-if="item.collaborates > 0"/> -->
               </a-card>
@@ -504,6 +522,14 @@ export default {
           label: 'Preview',
           icon: 'eye',
           fn: 'handleViewDetail'
+        },
+        {
+          type: ['topRight'],
+          show: [TASK_STATUS.ONGOING, TASK_STATUS.SCHEDULED],
+          actionType: 'myClass',
+          label: 'Distance',
+          icon: '',
+          fn: ''
         }
       ]
     }
@@ -1087,5 +1113,10 @@ a.delete-action {
     margin: 10px;
     width: 400px;
   }
+}
+.session-distance {
+  position: absolute;
+  top: 10px;
+  right: 3px;
 }
 </style>

@@ -231,11 +231,11 @@ export const STATISTICS_TYPE = {
     value: 4
   },
   TASKSOLD: {
-    label: 'Task sold',
+    label: 'Tasks sold',
     value: 5
   },
   ASSESSMENTSOLD: {
-    label: 'Assessments',
+    label: 'Assessments sold',
     value: 6
   }
 }

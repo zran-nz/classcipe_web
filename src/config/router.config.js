@@ -126,7 +126,7 @@ export const asyncRouterMap = [
                 name: 'Academics',
                 redirect: '/teacher/managing/planning-format',
                 component: RouteView,
-                meta: { title: 'menu.managing.academics', keepAlive: true, icon: 'schedule', permission: ['teacher'] },
+                meta: { title: 'menu.managing.academics', keepAlive: true, icon: 'schedule', permission: ['teacher'], mode: USER_MODE.SCHOOL },
                 children: [
                   {
                     path: '/teacher/managing/tag-settings',

@@ -113,6 +113,7 @@
         :loadData="loadData"
         :viewMode="viewMode"
         :status="currentStatus"
+        :optArray="['Enter session', 'Preview', 'Distance']"
         actionType="myClass"
         ref="myTaskList"
       >
