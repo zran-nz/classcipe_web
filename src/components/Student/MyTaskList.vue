@@ -127,7 +127,8 @@
                     class="action-item action-item-top"
                     v-show="(currentStatus !== TASK_STATUS.ARCHIVED && currentStatus !== TASK_STATUS.SCHEDULED)
                       && (userMode !== USER_MODE.SCHOOL ||
-                      (item.task.classId && item.task.sessionId && item.task.presentationId))"
+                      (item.task.classId && item.task.sessionId && item.task.presentationId))
+                      && optOptionsObj.top && optOptionsObj.top.length > 0"
                   >
                     <a-dropdown>
                       <a-icon type="more" style="margin-right: 8px" class="more-icon" />
@@ -241,19 +242,22 @@
                     v-if="(!opt.actionType || actionType === opt.actionType)
                       && (!opt.userMode || opt.userMode === userMode)
                       &&
-                      (opt.show.includes(item.status) && (!opt.currentStatus || opt.currentStatus.includes(currentStatus)))"
+                      (opt.show.includes(item.status) && (!opt.currentStatus || opt.currentStatus.includes(currentStatus)))
+                      &&
+                      item.startDate"
                   >
                     <a-tag color="#108ee9" v-show="item.status === TASK_STATUS.ONGOING">
-                      Deadline in
+                      Deadline in {{ item.startDate | distanceDate }}
                     </a-tag>
                     <a-tag color="#ef4136" v-show="item.status === TASK_STATUS.SCHEDULED">
-                      Start in
+                      Start in {{ item.startDate | distanceDate }}
                     </a-tag>
                   </div>
                 </template>
 
                 <!-- <collaborate-svg class="card-collaborate-icon-item" v-if="item.collaborates > 0"/> -->
               </a-card>
+
             </a-list-item>
           </a-list>
         </div>
@@ -1117,6 +1121,6 @@ a.delete-action {
 .session-distance {
   position: absolute;
   top: 10px;
-  right: 3px;
+  left: 10px;
 }
 </style>

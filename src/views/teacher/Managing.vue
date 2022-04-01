@@ -79,7 +79,6 @@ export default {
       this.$router.push({ path: key })
     },
     hiddenRoute(route) {
-      console.log(route.meta.curriculumType)
       if (route.meta.curriculumType && route.meta.curriculumType + '' !== this.bindCurriculum) {
         return true
       }

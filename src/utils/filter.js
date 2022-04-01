@@ -101,3 +101,45 @@ Vue.filter('gradeFormat', function (commonGradeList) {
       .join('') + r
   )
 })
+
+/**
+ * 计算距离指定日期之间的时间
+ */
+Vue.filter('distanceDate', function(date, diffDate = new Date()) {
+  if (date) {
+    let totalSeconds = moment(date).diff(moment(diffDate), 'seconds')
+    if (totalSeconds < 0) {
+      return date
+    }
+    let days = 0
+    let hours = 0
+    let minutes = 0
+    if (totalSeconds > 60) {
+      minutes = parseInt(totalSeconds / 60)
+      totalSeconds = parseInt(totalSeconds % 60)
+      if (minutes > 60) {
+        hours = parseInt(minutes / 60)
+        minutes = parseInt(minutes % 60)
+        if (hours > 24) {
+          days = parseInt(hours / 24)
+          hours = parseInt(hours % 24)
+        }
+      }
+    }
+    let result = ''
+    if (totalSeconds > 0) {
+      result = parseInt(totalSeconds) + '秒'
+    }
+    if (minutes > 0) {
+      result = parseInt(minutes) + '分' + result
+    }
+    if (hours > 0) {
+      result = parseInt(hours) + '小时' + result
+    }
+    if (days > 0) {
+      result = parseInt(days) + '天' + result
+    }
+    return result
+  }
+  return ' - '
+})

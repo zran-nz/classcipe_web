@@ -17,10 +17,16 @@ export const UserModeMixin = {
   created() {
     this.unwatch = this.$store.watch(
       state => state.app.userMode,
-      userMode => userMode && this.$route.name === this.routeName && (this.handleModeChange(userMode))
+      userMode => {
+        if (userMode && this.$route.name === this.routeName) {
+          this.handleModeChange(userMode)
+          this.routeInMode()
+        }
+      }
     )
     this.routeInMode()
   },
+
   beforeDestroy() {
     this.unwatch && this.unwatch()
   },
