@@ -1364,7 +1364,7 @@
                             <a-checkbox
                               :value='item.value'
                               @change='onChangeCheckBox($event,templateType.Prompt,item)'
-                              :checked='filterInteractive.indexOf(item.value) > -1 ? true: false'>
+                              :checked='filterPruposeList.indexOf(item.value) > -1 ? true: false'>
                               {{ item.text }}
                             </a-checkbox>
                           </div>
@@ -1897,7 +1897,7 @@ import AssociateSidebar from '@/components/Associate/AssociateSidebar'
 import CustomTag from '@/components/UnitPlan/CustomTag'
 import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
 import CollaborateUserList from '@/components/Collaborate/CollaborateUserList'
-import { CustomTagType, DICT_PROMPT_TYPE, TaskField, TemplateType } from '@/const/common'
+import { CustomTagType, DICT_PROMPT_PURPOSE, TaskField, TemplateType } from '@/const/common'
 import ModalHeader from '@/components/Common/ModalHeader'
 import CommonFormHeader from '@/components/Common/CommonFormHeader'
 import { EvaluationAddOrUpdate } from '@/api/evaluation'
@@ -2108,7 +2108,7 @@ export default {
       filterAssessments: [],
       centuryList: [],
       filterCentury: [],
-      filterInteractive: [],
+      filterPruposeList: [],
       filterParentMap: new Map(),
       recomendListLoading: false,
       addRecomendLoading: false,
@@ -2383,9 +2383,9 @@ export default {
         }
       })
 
-      GetDictItems(DICT_PROMPT_TYPE).then((response) => {
+      GetDictItems(DICT_PROMPT_PURPOSE).then((response) => {
         if (response.success) {
-          logger.info('DICT_PROMPT_TYPE', response.result)
+          logger.info('DICT_PROMPT_PURPOSE', response.result)
           this.initPrompts = response.result
         }
       })
@@ -3585,7 +3585,7 @@ export default {
         filterLearn: this.filterLearn,
         filterAssessments: this.getFilterAssessmentsParams(this.filterAssessments),
         filterCentury: this.getFilterParams(this.filterCentury),
-        filterInteractive: this.filterInteractive
+        filterPruposeList: this.filterPruposeList
       }).then(response => {
         this.$logger.info('handleToggleTemplateType ', response)
         this.templateList = response.result
@@ -3867,10 +3867,10 @@ export default {
           })
         }
       } else if (category === TemplateType.Prompt) {
-        if (this.filterInteractive.indexOf(id) === -1) {
-          this.filterInteractive.push(id)
+        if (this.filterPruposeList.indexOf(id) === -1) {
+          this.filterPruposeList.push(id)
         } else {
-          this.filterInteractive.splice(this.filterInteractive.indexOf(id), 1)
+          this.filterPruposeList.splice(this.filterPruposeList.indexOf(id), 1)
         }
       }
       // 如果选中的是子类 父id要从筛选条件中去除，记录关系
@@ -3892,7 +3892,7 @@ export default {
       } else if (this.filterType === 3) {
         this.filterCentury = []
       } else if (this.filterType === 4) {
-        this.filterInteractive = []
+        this.filterPruposeList = []
       }
       this.selectFilter()
     },
