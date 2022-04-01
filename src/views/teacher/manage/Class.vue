@@ -147,6 +147,7 @@ import { USER_MODE } from '@/const/common'
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import { mapState } from 'vuex'
+const { debounce } = require('lodash-es')
 
 export default {
   name: 'Class',
@@ -175,13 +176,15 @@ export default {
       classStudentListVisible: false,
       classTeacherListVisible: false,
       classId: '',
-      importLoadingText: 'Bulk import'
+      importLoadingText: 'Bulk import',
+      debounceInit: null
     }
   },
   created() {
     this.getGradeList()
     this.getSubjectList()
     this.initData()
+    this.debounceInit = debounce(this.initData, 300)
   },
   mounted() {
     this.resetTableWidth()
@@ -306,12 +309,12 @@ export default {
     },
     handleSchoolChange(currentSchool) {
       if (this.userMode === USER_MODE.SCHOOL) {
-        this.initData()
+        this.debounceInit()
       }
     },
     handleModeChange(userMode) {
-      // 模式切换，个人还是学校 TODO 个人接口
-      this.initData()
+      // 模式切换，个人还是学校 个人接口
+      this.debounceInit()
       this.resetTableWidth()
     },
     initData() {
