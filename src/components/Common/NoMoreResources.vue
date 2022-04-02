@@ -1,20 +1,20 @@
 <template>
-  <div class="no-more-resources" @click="showDialog()">
-    <a-empty :image='simpleImage' :description='tips'/>
+  <div class="no-more-resources">
+    <div class="icon">
+      <img src="~@/assets/libraryv2/empty.png" />
+    </div>
+    <div class="tips">
+      <a @click="showDialog()">
+        {{ tips }}
+      </a>
+    </div>
   </div>
 </template>
 
 <script>
-
-import { Empty } from 'ant-design-vue'
-
 export default {
   name: 'NoMoreResources',
-  data () {
-    return {
-      simpleImage: Empty.PRESENTED_IMAGE_SIMPLE
-    }
-  },
+
   methods: {
     showDialog () {
       this.$emit('show-library')
@@ -23,7 +23,7 @@ export default {
   props: {
     tips: {
       type: String,
-      default: 'No data'
+      default: 'No more resources'
     }
   }
 }

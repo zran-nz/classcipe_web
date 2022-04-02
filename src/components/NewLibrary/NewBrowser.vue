@@ -28,7 +28,7 @@
 
           <div class='no-select-content' v-if='!hasSelectedContent && selectMode !== selectModelType.evaluationMode && isEmptyRecommend'>
             <div class='no-select-img'>
-              <img src="~@/assets/newBrowser/no-selected.png" class="logo" />
+              <img src="~@/assets/libraryv2/empty.png" class="logo" />
             </div>
             <div class='no-select-text'>
               You haven't added learning objectives yet
