@@ -47,9 +47,11 @@
                             <a-form-item>
                               <template class='my-label' slot='label'>
                                 {{ 'Task name' | taskLabelName(taskField.Name, $store.getters.formConfigData) }}
-                                <a-tooltip :title="'Task name' | taskLabelHint(taskField.Name, $store.getters.formConfigData)" placement='top'>
-                                  <a-icon type="info-circle" />
-                                </a-tooltip>
+                                <template v-if='taskLabelHint(taskField.Name, $store.getters.formConfigData)'>
+                                  <a-tooltip :title="'Task name' | taskLabelHint(taskField.Name, $store.getters.formConfigData)" placement='top'>
+                                    <a-icon type="info-circle" />
+                                  </a-tooltip>
+                                </template>
                               </template>
                               <a-input v-model='form.name' placeholder='Enter Task Name' class='my-form-input' @change="handleCollaborateEvent(taskId,'name',form.name)" :disabled="!canEdit" />
                             </a-form-item>
@@ -76,9 +78,11 @@
                               <a-form-item>
                                 <template class='my-label' slot='label'>
                                   {{ 'Choose class' | taskLabelName(taskField.TaskClassList, $store.getters.formConfigData) }}
-                                  <a-tooltip :title="'Choose class' | taskLabelHint(taskField.TaskClassList, $store.getters.formConfigData)" placement='top'>
-                                    <a-icon type="info-circle" />
-                                  </a-tooltip>
+                                  <template v-if='taskLabelHint(taskField.TaskClassList, $store.getters.formConfigData)'>
+                                    <a-tooltip :title="'Choose class' | taskLabelHint(taskField.TaskClassList, $store.getters.formConfigData)" placement='top'>
+                                      <a-icon type="info-circle" />
+                                    </a-tooltip>
+                                  </template>
                                 </template>
                                 <input-with-create
                                   v-if="canEdit"
@@ -130,9 +134,11 @@
                             <a-form-model-item class='task-audio-line' ref='overview'>
                               <template class='my-label' slot='label'>
                                 {{ 'Task details' | taskLabelName(taskField.Overview, $store.getters.formConfigData) }}
-                                <a-tooltip :title="'Task details' | taskLabelHint(taskField.Overview, $store.getters.formConfigData)" placement='top'>
-                                  <a-icon type="info-circle" />
-                                </a-tooltip>
+                                <template v-if='taskLabelHint(taskField.Overview, $store.getters.formConfigData)'>
+                                  <a-tooltip :title="'Task details' | taskLabelHint(taskField.Overview, $store.getters.formConfigData)" placement='top'>
+                                    <a-icon type="info-circle" />
+                                  </a-tooltip>
+                                </template>
                               </template>
                               <a-textarea
                                 autoSize
@@ -155,9 +161,11 @@
                             <a-form-model-item class='task-audio-line' ref='taskType' :colon='false'>
                               <div slot='label'>
                                 {{ 'Choose Task Type' | taskLabelName(taskField.TaskType, $store.getters.formConfigData) }}
-                                <a-tooltip :title="'Choose Task Type' | taskLabelHint(taskField.TaskType, $store.getters.formConfigData)" placement='top'>
-                                  <a-icon type="info-circle" />
-                                </a-tooltip>
+                                <template v-if='taskLabelHint(taskField.TaskType, $store.getters.formConfigData)'>
+                                  <a-tooltip :title="'Choose Task Type' | taskLabelHint(taskField.TaskType, $store.getters.formConfigData)" placement='top'>
+                                    <a-icon type="info-circle" />
+                                  </a-tooltip>
+                                </template>
                               </div>
                               <div class='self-type-wrapper'>
                                 <div class='self-field-label'>
@@ -190,9 +198,11 @@
                             <a-form-model-item>
                               <template class='my-label' slot='label'>
                                 {{ 'Choose Key questions' | taskLabelName(taskField.Overview, $store.getters.formConfigData) }}
-                                <a-tooltip :title="'Choose Key questions' | taskLabelHint(taskField.Overview, $store.getters.formConfigData)" placement='top'>
-                                  <a-icon type="info-circle" />
-                                </a-tooltip>
+                                <template v-if='taskLabelHint(taskField.Overview, $store.getters.formConfigData)'>
+                                  <a-tooltip :title="'Choose Key questions' | taskLabelHint(taskField.Overview, $store.getters.formConfigData)" placement='top'>
+                                    <a-icon type="info-circle" />
+                                  </a-tooltip>
+                                </template>
                               </template>
                               <a-select
                                 :getPopupContainer="trigger => trigger.parentElement"
@@ -230,9 +240,11 @@
                             <a-form-item>
                               <template class='my-label' slot='label'>
                                 {{ 'Set learning objectives' | taskLabelName(taskField.LearnOuts, $store.getters.formConfigData) }}
-                                <a-tooltip :title="'Set learning objectives' | taskLabelHint(taskField.LearnOuts, $store.getters.formConfigData)" placement='top'>
-                                  <a-icon type="info-circle" />
-                                </a-tooltip>
+                                <template v-if='taskLabelHint(taskField.LearnOuts, $store.getters.formConfigData)'>
+                                  <a-tooltip :title="'Set learning objectives' | taskLabelHint(taskField.LearnOuts, $store.getters.formConfigData)" placement='top'>
+                                    <a-icon type="info-circle" />
+                                  </a-tooltip>
+                                </template>
                               </template>
                               <a-badge :dot='hasExtraRecommend'>
                                 <a-button type='primary' @click='handleSelectDescription' :disabled="!canEdit">
@@ -264,9 +276,11 @@
                             <div class='form-block-label'>
                               <a-switch size="small" v-model='materialListFlag' @change='handleMaterialListFlagChange' :disabled="!canEdit"/>
                               <div class='label-text'>{{ 'Resources required for hands-on activities' | taskLabelName(taskField.MaterialList, $store.getters.formConfigData) }}</div>
-                              <a-tooltip :title="'Resources required for hands-on activities' | taskLabelHint(taskField.MaterialList, $store.getters.formConfigData)" placement='top'>
-                                <a-icon type="info-circle" />
-                              </a-tooltip>
+                              <template v-if='taskLabelHint(taskField.MaterialList, $store.getters.formConfigData)'>
+                                <a-tooltip :title="'Resources required for hands-on activities' | taskLabelHint(taskField.MaterialList, $store.getters.formConfigData)" placement='top'>
+                                  <a-icon type="info-circle" />
+                                </a-tooltip>
+                              </template>
                             </div>
                             <div class='material-list'>
                               <div
@@ -328,9 +342,11 @@
                             <a-form-item>
                               <template class='my-label' slot='label'>
                                 {{ custFieldItem.name }}
-                                <a-tooltip :title="custFieldItem.hint" placement='top'>
-                                  <a-icon type="info-circle" />
-                                </a-tooltip>
+                                <template v-if='custFieldItem.hint'>
+                                  <a-tooltip :title="custFieldItem.hint" placement='top'>
+                                    <a-icon type="info-circle" />
+                                  </a-tooltip>
+                                </template>
                               </template>
                               <a-input v-model='form.customFieldData[custFieldItem.id]' class='my-form-input' :disabled="!canEdit"/>
                             </a-form-item>

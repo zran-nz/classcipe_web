@@ -44,9 +44,11 @@
                             <a-form-item>
                               <template class='my-label' slot='label'>
                                 {{ 'Unit Name' | unitLabelName(planField.Name, $store.getters.formConfigData) }}
-                                <a-tooltip :title="'Unit Name' | unitLabelHint(planField.Name, $store.getters.formConfigData)" placement='top'>
-                                  <a-icon type="info-circle" />
-                                </a-tooltip>
+                                <template v-if='unitLabelName(planField.Name, $store.getters.formConfigData)'>
+                                  <a-tooltip :title="'Unit Name' | unitLabelHint(planField.Name, $store.getters.formConfigData)" placement='top'>
+                                    <a-icon type="info-circle" />
+                                  </a-tooltip>
+                                </template>
                               </template>
                               <a-input v-model='form.name' class='my-form-input' placeholder='Enter Unit Name' @change="handleCollaborateEvent(unitPlanId,planField.Name,form.name)" :disabled="!canEdit" />
                             </a-form-item>
@@ -63,9 +65,11 @@
                             <a-form-model-item class='task-audio-line' ref='overview'>
                               <template class='my-label' slot='label'>
                                 {{ 'Overview' | unitLabelName(planField.Overview, $store.getters.formConfigData) }}
-                                <a-tooltip :title="'Overview' | unitLabelHint(planField.Overview, $store.getters.formConfigData)" placement='top'>
-                                  <a-icon type="info-circle" />
-                                </a-tooltip>
+                                <template v-if='unitLabelHint(planField.Overview, $store.getters.formConfigData)'>
+                                  <a-tooltip :title="'Overview' | unitLabelHint(planField.Overview, $store.getters.formConfigData)" placement='top'>
+                                    <a-icon type="info-circle" />
+                                  </a-tooltip>
+                                </template>
                               </template>
                               <a-textarea
                                 autoSize
@@ -89,9 +93,11 @@
                             <a-form-item style='display:flex'>
                               <template class='my-label' slot='label'>
                                 {{ 'Project-based Unit' | unitLabelName(planField.ProjectBased, $store.getters.formConfigData) }}
-                                <a-tooltip :title="'Project-based Unit' | unitLabelHint(planField.ProjectBased, $store.getters.formConfigData)" placement='top'>
-                                  <a-icon type="info-circle" />
-                                </a-tooltip>
+                                <template v-if='unitLabelHint(planField.ProjectBased, $store.getters.formConfigData)'>
+                                  <a-tooltip :title="'Project-based Unit' | unitLabelHint(planField.ProjectBased, $store.getters.formConfigData)" placement='top'>
+                                    <a-icon type="info-circle" />
+                                  </a-tooltip>
+                                </template>
                               </template>
                               <a-radio-group name='radioGroup' v-model='form.projectBased' style='margin-left:20px;' @change="handleCollaborateEvent(unitPlanId,planField.ProjectBased,form.projectBased)" :disabled="!canEdit" >
                                 <a-radio :value='1'>
@@ -115,9 +121,11 @@
                             <a-form-item style='display:flex'>
                               <template class='my-label' slot='label'>
                                 {{ 'Unit type' | unitLabelName(planField.UnitType, $store.getters.formConfigData) }}
-                                <a-tooltip :title="'Unit type' | unitLabelHint(planField.UnitType, $store.getters.formConfigData)" placement='top'>
-                                  <a-icon type="info-circle" />
-                                </a-tooltip>
+                                <template v-if='unitLabelName(planField.UnitType, $store.getters.formConfigData)'>
+                                  <a-tooltip :title="'Unit type' | unitLabelHint(planField.UnitType, $store.getters.formConfigData)" placement='top'>
+                                    <a-icon type="info-circle" />
+                                  </a-tooltip>
+                                </template>
                               </template>
                               <a-radio-group name='unitType' v-model='form.unitType' style='margin-left:20px;' @change="handleCollaborateEvent(unitPlanId,planField.UnitType,form.unitType)" :disabled="!canEdit" >
                                 <a-radio :value='0'>
@@ -141,9 +149,11 @@
                             <a-form-item style='width:26%;margin-bottom: 0px;'>
                               <template class='my-label' slot='label'>
                                 {{ 'Grade level' | unitLabelName(planField.GradeId, $store.getters.formConfigData) }}
-                                <a-tooltip :title="'Grade level' | unitLabelHint(planField.GradeId, $store.getters.formConfigData)" placement='top'>
-                                  <a-icon type="info-circle" />
-                                </a-tooltip>
+                                <template v-if='unitLabelHint(planField.GradeId, $store.getters.formConfigData)'>
+                                  <a-tooltip :title="'Grade level' | unitLabelHint(planField.GradeId, $store.getters.formConfigData)" placement='top'>
+                                    <a-icon type="info-circle" />
+                                  </a-tooltip>
+                                </template>
                               </template>
                               <a-select
                                 :getPopupContainer="trigger => trigger.parentElement"
@@ -190,9 +200,11 @@
                             <a-form-item class='bigIdea'>
                               <template class='my-label' slot='label'>
                                 {{ 'Big Idea/ Statement of Inquiry/ Central Idea' | unitLabelName(planField.Inquiry, $store.getters.formConfigData) }}
-                                <a-tooltip :title="'Big Idea/ Statement of Inquiry/ Central Idea' | unitLabelHint(planField.Inquiry, $store.getters.formConfigData)" placement='top'>
-                                  <a-icon type="info-circle" />
-                                </a-tooltip>
+                                <template v-if='unitLabelHint(planField.Inquiry, $store.getters.formConfigData)'>
+                                  <a-tooltip :title="'Big Idea/ Statement of Inquiry/ Central Idea' | unitLabelHint(planField.Inquiry, $store.getters.formConfigData)" placement='top'>
+                                    <a-icon type="info-circle" />
+                                  </a-tooltip>
+                                </template>
                               </template>
                               <a-textarea
                                 v-model='form.inquiry'
@@ -223,9 +235,11 @@
                               <a-col span='24'>
                                 <div class='form-block-title'>
                                   {{ 'UN Sustainable Development Goal(s)' | unitLabelName(planField.Scenarios, $store.getters.formConfigData) }}
-                                  <a-tooltip :title="'UN Sustainable Development Goal(s)' | unitLabelHint(planField.Scenarios, $store.getters.formConfigData)" placement='top'>
-                                    <a-icon type="info-circle" />
-                                  </a-tooltip>
+                                  <template v-if='unitLabelHint(planField.Scenarios, $store.getters.formConfigData)'>
+                                    <a-tooltip :title="'UN Sustainable Development Goal(s)' | unitLabelHint(planField.Scenarios, $store.getters.formConfigData)" placement='top'>
+                                      <a-icon type="info-circle" />
+                                    </a-tooltip>
+                                  </template>
                                 </div>
                               </a-col>
                             </a-row>
@@ -290,9 +304,11 @@
                             <a-form-model-item>
                               <template class='my-label' slot='label'>
                                 {{ 'Real World Connection(s)' | unitLabelName(planField.Rwc, $store.getters.formConfigData) }}
-                                <a-tooltip :title="'Real World Connection(s)' | unitLabelHint(planField.Rwc, $store.getters.formConfigData)" placement='top'>
-                                  <a-icon type="info-circle" />
-                                </a-tooltip>
+                                <template v-if='unitLabelHint(planField.Rwc, $store.getters.formConfigData)'>
+                                  <a-tooltip :title="'Real World Connection(s)' | unitLabelHint(planField.Rwc, $store.getters.formConfigData)" placement='top'>
+                                    <a-icon type="info-circle" />
+                                  </a-tooltip>
+                                </template>
                               </template>
                               <a-select
                                 :getPopupContainer="trigger => trigger.parentElement"
@@ -330,9 +346,11 @@
                                     @click='questionSettingVisible=true' />
                                 </a-tooltip>
                                 {{ 'Key question(s) / Line(s) of inquiry' | unitLabelName(planField.Question, $store.getters.formConfigData) }}
-                                <a-tooltip :title="'Key question(s) / Line(s) of inquiry' | unitLabelHint(planField.Question, $store.getters.formConfigData)" placement='top'>
+                                <template v-if='unitLabelHint(planField.Question, $store.getters.formConfigData)'>
+                                  <a-tooltip :title="'Key question(s) / Line(s) of inquiry' | unitLabelHint(planField.Question, $store.getters.formConfigData)" placement='top'>
                                   <a-icon type="info-circle" />
                                 </a-tooltip>
+                                </template>
                               </span>
                               <div v-if='!$store.getters.userInfo.disableQuestion'>
                                 <div class='question-more'>
@@ -396,9 +414,11 @@
                             <a-form-item>
                               <template class='my-label' slot='label'>
                                 {{ 'Set learning objectives' | unitLabelName(planField.LearnOuts, $store.getters.formConfigData) }}
-                                <a-tooltip :title="'Set learning objectives' | unitLabelHint(planField.LearnOuts, $store.getters.formConfigData)" placement='top'>
-                                  <a-icon type="info-circle" />
-                                </a-tooltip>
+                                <template v-if='unitLabelHint(planField.LearnOuts, $store.getters.formConfigData)'>
+                                  <a-tooltip :title="'Set learning objectives' | unitLabelHint(planField.LearnOuts, $store.getters.formConfigData)" placement='top'>
+                                    <a-icon type="info-circle" />
+                                  </a-tooltip>
+                                </template>
                               </template>
                               <a-badge :dot='hasExtraRecommend'>
                                 <a-button type='primary' @click='handleSelectDescription()' :disabled="!canEdit">
@@ -439,9 +459,11 @@
                             <a-form-model-item>
                               <template class='my-label' slot='label'>
                                 {{ 'Prior learning experience' | unitLabelName(planField.Prior, $store.getters.formConfigData) }}
-                                <a-tooltip :title="'Prior learning experience' | unitLabelHint(planField.Prior, $store.getters.formConfigData)" placement='top'>
-                                  <a-icon type="info-circle" />
-                                </a-tooltip>
+                                <template v-if='unitLabelHint(planField.Prior, $store.getters.formConfigData)'>
+                                  <a-tooltip :title="'Prior learning experience' | unitLabelHint(planField.Prior, $store.getters.formConfigData)" placement='top'>
+                                    <a-icon type="info-circle" />
+                                  </a-tooltip>
+                                </template>
                               </template>
                               <a-textarea
                                 v-model='form.prior'
@@ -459,9 +481,11 @@
                             <a-form-item>
                               <template class='my-label' slot='label'>
                                 {{ custFieldItem.name }}
-                                <a-tooltip :title="custFieldItem.hint" placement='top'>
-                                  <a-icon type="info-circle" />
-                                </a-tooltip>
+                                <template v-if='custFieldItem.hint'>
+                                  <a-tooltip :title="custFieldItem.hint" placement='top'>
+                                    <a-icon type="info-circle" />
+                                  </a-tooltip>
+                                </template>
                               </template>
                               <a-input v-model='form.customFieldData[custFieldItem.id]' class='my-form-input' :disabled="!canEdit" />
                             </a-form-item>

@@ -38,5 +38,35 @@ export const FormConfigMixin = {
         return defaultName
       }
     }
+  },
+  methods: {
+    unitLabelName: (fieldName, formConfigData) => {
+      if (formConfigData && formConfigData.planFieldMap && formConfigData.planFieldMap[fieldName]) {
+        return formConfigData.planFieldMap[fieldName]
+      } else {
+        return null
+      }
+    },
+    unitLabelHint: (fieldName, formConfigData) => {
+      if (formConfigData && formConfigData.planHintMap && formConfigData.planHintMap[fieldName]) {
+        return formConfigData.planHintMap[fieldName]
+      } else {
+        return null
+      }
+    },
+    taskLabelName: (fieldName, formConfigData) => {
+      if (formConfigData && formConfigData.taskFieldMap && formConfigData.taskFieldMap[fieldName]) {
+        return formConfigData.taskFieldMap[fieldName]
+      } else {
+        return null
+      }
+    },
+    taskLabelHint: (fieldName, formConfigData) => {
+      if (formConfigData && formConfigData.taskHintMap && formConfigData.taskHintMap[fieldName]) {
+        return formConfigData.taskHintMap[fieldName]
+      } else {
+        return null
+      }
+    }
   }
 }
