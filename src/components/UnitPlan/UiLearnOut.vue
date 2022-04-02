@@ -450,7 +450,7 @@
             if (item.path.indexOf('>') !== -1) {
               const pathArray = item.path.split('>')
               const categoryName = pathArray[1]
-              item.displayPath = pathArray.slice(2).join('>')
+              // item.displayPath = pathArray.slice(2).join('>')
               if (categoryDataMap.has(categoryName)) {
                 categoryDataMap.get(categoryName).push(item)
               } else {
@@ -458,7 +458,7 @@
               }
             } else {
               const categoryName = item.path
-              item.displayPath = item.path
+              // item.displayPath = item.path
               if (categoryDataMap.has(categoryName)) {
                 categoryDataMap.get(categoryName).push(item)
               } else {
