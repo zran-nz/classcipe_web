@@ -66,7 +66,6 @@
         </div>
         <div class='tag-action'>
           <a-space>
-            <a-button @click='handleCancel'>Cancel</a-button>
             <a-button type='primary' @click='handleEnsureSelected'>Confirm</a-button>
           </a-space>
         </div>
