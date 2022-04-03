@@ -1,5 +1,5 @@
 // eslint-disable-next-line
-import { UserLayout, BasicLayout, BlankLayout } from '@/layouts'
+import { UserLayout, BasicLayout, BlankLayout, AddOnLayout } from '@/layouts'
 import { bxAnaalyse } from '@/core/icons'
 import { USER_MODE, CurriculumType } from '@/const/common'
 
@@ -677,6 +677,21 @@ export const constantRouterMap = [
         props: true,
         component: () => import(/* webpackChunkName: "fail" */ '@/views/addon/ClassGoBack'),
         meta: { title: 'Back', keepAlive: true }
+      }
+    ]
+  },
+  // addon iframe 引用组件
+  {
+    path: '/addon-iframe',
+    name: 'addon-iframe',
+    component: AddOnLayout,
+    children: [
+      {
+        path: '/addon-iframe/task-library/:taskId',
+        name: 'TaskLibrary',
+        props: true,
+        component: () => import(/* webpackChunkName: "TaskLibrary" */ '@/views/addon/TaskLibrary'),
+        meta: { title: 'Task Library', keepAlive: true }
       }
     ]
   },

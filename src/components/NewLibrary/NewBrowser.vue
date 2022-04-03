@@ -1,7 +1,7 @@
 <template>
   <div class="new-library" id="new-library">
     <div class="navigation">
-      <div class="navigation-item" v-show="!expandedListFlag" :style="{'left': (127) + 'px', 'width': (1000) + 'px',}">
+      <div class="navigation-item" v-show="!expandedListFlag" :style="{'left': (100) + 'px', 'width': (1000) + 'px',}">
         <div class="select-curriculum" v-show="showCurriculum">
           <div class="my-curriculum-select">
             <a-select
@@ -838,14 +838,16 @@ export default {
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
-    padding-bottom: 10px;
+    padding-bottom: 5px;
+    padding-top: 5px;
     height: 45px;
+    position: relative;
 
     .navigation-item {
       display: flex;
       flex-direction: row;
       align-items: center;
-      top: 18px;
+      line-height: 35px;
       position: absolute;
       overflow: hidden;
       white-space: nowrap;
@@ -859,7 +861,8 @@ export default {
   .main {
     border: 1px solid #e9e9e9;
     overflow-y: hidden;
-    height: calc(100vh - 200px);
+    height: 100%;
+    min-height: 500px;
     display: flex;
     flex-direction: row;
     justify-content: flex-start;

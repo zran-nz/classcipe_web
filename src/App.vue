@@ -3,7 +3,7 @@
     <div id="app">
       <router-view/>
       <!--只允许登陆后才可以反馈-->
-      <feedback />
+      <feedback v-if='showFeedback' />
     </div>
   </a-config-provider>
 </template>
@@ -32,6 +32,9 @@ export default {
         title && (setDocumentTitle(`${i18nRender(title)} - ${domTitle}`))
 
         return this.$i18n.getLocaleMessage(this.$store.getters.lang).antLocale
+      },
+      showFeedback () {
+        return window.location.href.indexOf('addon-iframe') === -1
       }
     },
     mounted () {

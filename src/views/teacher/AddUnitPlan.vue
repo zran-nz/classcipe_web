@@ -348,8 +348,8 @@
                                 {{ 'Key question(s) / Line(s) of inquiry' | unitLabelName(planField.Question, $store.getters.formConfigData) }}
                                 <template v-if='unitLabelHint(planField.Question, $store.getters.formConfigData)'>
                                   <a-tooltip :title="'Key question(s) / Line(s) of inquiry' | unitLabelHint(planField.Question, $store.getters.formConfigData)" placement='top'>
-                                  <a-icon type="info-circle" />
-                                </a-tooltip>
+                                    <a-icon type="info-circle" />
+                                  </a-tooltip>
                                 </template>
                               </span>
                               <div v-if='!$store.getters.userInfo.disableQuestion'>
