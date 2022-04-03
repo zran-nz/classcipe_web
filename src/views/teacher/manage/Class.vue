@@ -276,7 +276,7 @@ export default {
           align: 'center',
           // dataIndex: 'id',
           scopedSlots: { customRender: 'action' },
-          width: this.userMode === USER_MODE.SELF ? '200px' : '250px'
+          width: this.userMode === USER_MODE.SELF ? '200px' : '350px'
         }
       ]
       return col
@@ -295,6 +295,7 @@ export default {
         return prev + current
       }, 0)
       const conWidth = this.$refs['atable'].$el.getBoundingClientRect().width
+      console.log(conWidth, totalWidth)
       if (conWidth > totalWidth) {
         this.columns[0].width = 'auto'
         this.scroll = {
