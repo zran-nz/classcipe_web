@@ -252,4 +252,7 @@ export default {
 <style lang='less' scoped>
 @import "~@/components/index.less";
 
+.task-library {
+  height: 100%;
+}
 </style>

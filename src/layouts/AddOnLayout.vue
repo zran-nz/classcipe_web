@@ -27,7 +27,7 @@ export default {
 #addon-layout.addon-layout-wrapper {
   height: 100%;
   background-color: #fff;
-  overflow: scroll;
+  overflow: hidden;
 
   &.mobile {
     .container {
