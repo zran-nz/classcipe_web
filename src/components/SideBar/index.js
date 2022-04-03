@@ -208,8 +208,9 @@ export default {
     renderSubMenu (menu) {
       const itemArr = []
       if (!menu.alwaysShow) {
-        menu.children.forEach(item => itemArr.push(this.renderItem(item)))
+        menu.children.forEach(item => !this.hiddenRoute(item) && itemArr.push(this.renderItem(item)))
       }
+      if (itemArr.length === 0) return null
       return (
         <SubMenu
         {...{ key: menu.path,

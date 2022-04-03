@@ -15,6 +15,8 @@ export default {
     'menu.managing.tags-settings': 'Tags Settings',
     'menu.managing.plan-preview': 'Unit Plan Preview',
     'menu.managing.task-preview': 'Task Preview',
+    'menu.managing.academic': 'Academic',
+    'menu.managing.circulum': 'Circulum',
     'menu.my-content': '我的内容',
     'menu.my-content.center': '我的内容',
     'menu.teacher.unit-plan': '添加单元计划',
