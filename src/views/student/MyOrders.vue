@@ -79,9 +79,10 @@ import { GetDictItems } from '@/api/common'
 import { orderRecordList } from '@/api/orderRecord'
 
 import { UserModeMixin } from '@/mixins/UserModeMixin'
+import { TableWidthMixin } from '@/mixins/TableWidthMixin'
 export default {
   name: 'MyOrders',
-  mixins: [UserModeMixin],
+  mixins: [UserModeMixin, TableWidthMixin],
   components: {
     STable,
     PaymentDetail
@@ -108,7 +109,9 @@ export default {
       scroll: {},
       currentTaskId: null,
       currentTaskName: null,
-      paymentVisible: false
+      paymentVisible: false,
+      tableRefs: ['tableCon'],
+      leftWidth: 230
     }
   },
   computed: {
@@ -182,9 +185,6 @@ export default {
   created() {
     this.initDict()
   },
-  mounted() {
-    this.resetTableWidth()
-  },
   methods: {
     initDict() {
        Promise.all([
@@ -198,27 +198,6 @@ export default {
             this.orderTypes = res[1].result
           }
         })
-    },
-    resetTableWidth() {
-      const totalWidth = this.columns.map(item => {
-        if (item.width && item.width !== 'auto') {
-          return parseInt(item.width)
-        } else {
-          return 0
-        }
-      }).reduce((prev, current) => {
-        console.log(current)
-        return prev + current
-      }, 0)
-      const conWidth = this.$refs.tableCon.getBoundingClientRect().width
-      if (conWidth > totalWidth + 200 + 30) {
-        this.columns[0].width = 'auto'
-      } else {
-        this.scroll = {
-          x: totalWidth
-        }
-        this.columns[this.columns.length - 1].fixed = 'right'
-      }
     },
     toggleType(type) {
       this.queryParam.orderType = type
