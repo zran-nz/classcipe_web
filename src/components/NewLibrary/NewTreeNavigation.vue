@@ -230,6 +230,11 @@ export default {
               // 因为只显示第一层大纲，故删除员有的children列表
               localSubjectItem.children = []
               localSubjectItem.gradeList = []
+              this.gradeList.forEach(gradeItem => {
+                gradeItem.isGrade = true
+                gradeItem.children = []
+                localSubjectItem.gradeList.push(JSON.parse(JSON.stringify(gradeItem)))
+              })
               specificSkillsData.children.push(localSubjectItem)
             }
           })
