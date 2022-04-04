@@ -862,7 +862,7 @@ export default {
   .main {
     border: 1px solid #e9e9e9;
     overflow-y: hidden;
-    height: calc(100% - 45px);
+    height: calc(100% - 65px);
     min-height: 500px;
     display: flex;
     flex-direction: row;
