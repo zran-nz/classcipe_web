@@ -11,10 +11,10 @@
         question-index='_questionIndex_1'
         :show-curriculum='true'
         :show-menu='[NavigationType.specificSkills,
-                   NavigationType.centurySkills,
-                   NavigationType.learningOutcomes,
-                   NavigationType.assessmentType,
-                   NavigationType.idu]'
+                     NavigationType.centurySkills,
+                     NavigationType.learningOutcomes,
+                     NavigationType.assessmentType,
+                     NavigationType.idu]'
         :default-active-menu='NavigationType.learningOutcomes'
         :recommend-data='recommendData'
         :selected-list='selectedList'
@@ -120,6 +120,14 @@ export default {
           taskData.materialList = []
         }
         this.form = taskData
+        this.selectedList = JSON.parse(JSON.stringify(this.form.learnOuts))
+        this.form.learnOuts.forEach(item => {
+          if (item.knowledgeId) {
+            this.selectedIdList.push(item.knowledgeId)
+          } else {
+            this.$logger.info('parentData selected id not exist ', item)
+          }
+        })
       }).finally(() => {
         this.taskLoading = false
       })
