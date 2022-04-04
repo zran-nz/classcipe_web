@@ -134,7 +134,6 @@ export default {
     },
 
     handleCancelSelectData() {
-      this.selectedSyncList = []
       this.selectedCurriculumList = []
       this.selectedSpecificSkillList = []
       this.selectedCenturySkillList = []
@@ -151,8 +150,7 @@ export default {
         this.selectedCenturySkillList,
         this.selectedAssessmentList,
         this.selectedIduList,
-        this.selectedRecommendList,
-        this.selectedSyncList)
+        this.selectedRecommendList)
       this.$logger.info('mySelectedList', this.$refs.newBrowser.mySelectedList)
       this.$logger.info('learnOuts', this.form.learnOuts)
       const filterLearnOuts = this.$refs.newBrowser.mySelectedList.filter(item => (!item.hasOwnProperty('isSelfCustom') || (item.hasOwnProperty('isSelfCustom') && !item.isSelfCustom)))
@@ -170,19 +168,6 @@ export default {
             this.form.learnOuts.push(item)
           }
         }
-      })
-      this.selectedSyncList.forEach(data => {
-        const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
-        if (filterLearnOuts.length > 0) {
-          return
-        }
-        this.form.learnOuts.push({
-          knowledgeId: data.knowledgeId,
-          name: data.name,
-          tags: data.tags,
-          tagType: data.tagType,
-          path: data.path
-        })
       })
 
       this.selectedRecommendList.forEach(data => {
@@ -251,7 +236,6 @@ export default {
 
 <style lang='less' scoped>
 @import "~@/components/index.less";
-
 .task-library {
   height: 100%;
 }

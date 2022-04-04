@@ -833,7 +833,7 @@ export default {
 @import "~@/components/index.less";
 
 .new-library {
-  height: 100%;
+  height: 600px;
   .navigation {
     display: flex;
     flex-direction: row;
@@ -862,7 +862,7 @@ export default {
   .main {
     border: 1px solid #e9e9e9;
     overflow-y: hidden;
-    height: 100%;
+    height: calc(100% - 45px);
     min-height: 500px;
     display: flex;
     flex-direction: row;
