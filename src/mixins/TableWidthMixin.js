@@ -3,12 +3,11 @@ export const TableWidthMixin = {
     return {
       tableRefs: [],
       leftWidth: 0,
-      columns: [],
       firstColumnWid: 0
     }
   },
   mounted() {
-    this.firstColumnWid = this.columns[0].width
+    this.firstColumnWid = this.columns[0] ? this.columns[0].width : 0
     this.resetTableWidth(200)
     window.addEventListener('resize', this.resetTableWidth, true)
   },
@@ -19,7 +18,7 @@ export const TableWidthMixin = {
     resetTableWidth(init) {
       if (this.tableRefs && this.tableRefs.length > 0) {
         this.tableRefs.forEach(tableRef => {
-          if (this.$refs[tableRef] && this.columns) {
+          if (this.$refs[tableRef] && this.columns && this.columns.length > 0) {
             const totalWidth = this.columns.map(item => {
               if (item.width && item.width !== 'auto') {
                 return parseInt(item.width)
