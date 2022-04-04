@@ -19,7 +19,7 @@
             </a-select>
           </div>
         </div>
-        <new-navigation :show-curriculum='!showCurriculum'/>
+        <new-navigation :current-curriculum='currentCurriculumId' ref='nav' @update-path='handleUpdateCurrentNavPath'/>
       </div>
     </div>
     <div class="main">
@@ -384,6 +384,7 @@
         <div class="content-list" v-show="!expandedListFlag">
           <new-content-list
             :selected-list="mySelectedList"
+            :current-nav-path='currentNavPath'
             ref="contentList"
             @select-big-idea="handleSelectBigIdeaData"
             @select-sync="handleSelectListData"
@@ -486,7 +487,8 @@ export default {
       selectModelType: SelectModel,
       tagType: TagType,
 
-      myRecommendData: []
+      myRecommendData: [],
+      currentNavPath: null
     }
   },
   computed: {
@@ -822,7 +824,11 @@ export default {
         this.selectedGradeIdSet.add(this.selected21CenturyItem.gradeId)
       }
       this.$logger.info('------- this.selectedGradeIdSet', this.selectedGradeIdSet)
-      this.selectedGradeIdSet = this.selectedGradeIdSet
+    },
+
+    handleUpdateCurrentNavPath (data) {
+      this.$logger.info('NewBrowser handleUpdateCurrentNavPath', data)
+      this.currentNavPath = data
     }
   }
 }

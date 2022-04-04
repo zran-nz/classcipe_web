@@ -90,6 +90,10 @@ export default {
     selectedList: {
       type: Array,
       default: () => []
+    },
+    currentNavPath: {
+      type: String,
+      default: null
     }
   },
   data () {
@@ -244,6 +248,9 @@ export default {
               this.selectedCurriculumIdList.splice(index, 1)
               this.selectedCurriculumMap.delete(item.id)
             } else {
+              if (item.hasOwnProperty('path')) {
+                item.path = this.currentNavPath
+              }
               this.selectedCurriculumIdList.push(item.id)
               this.selectedCurriculumMap.set(item.id, item)
             }
@@ -294,6 +301,9 @@ export default {
               this.selectedSubjectSpecificSkillIdList.splice(index, 1)
               this.selectedSubjectSpecificSkillIdMap.delete(item.id)
             } else {
+              if (item.hasOwnProperty('path')) {
+                item.path = this.currentNavPath
+              }
               this.selectedSubjectSpecificSkillIdList.push(item.id)
               this.selectedSubjectSpecificSkillIdMap.set(item.id, item)
             }
@@ -344,6 +354,9 @@ export default {
               this.selected21CenturySkillIdList.splice(index, 1)
               this.selected21CenturySkillIdMap.delete(item.id)
             } else {
+              if (item.hasOwnProperty('path')) {
+                item.path = this.currentNavPath
+              }
               this.selected21CenturySkillIdList.push(item.id)
               this.selected21CenturySkillIdMap.set(item.id, item)
             }
@@ -428,6 +441,9 @@ export default {
               this.selectedAssessmentIdList.splice(index, 1)
               this.selectedAssessmentMap.delete(item.id)
             } else {
+              if (item.hasOwnProperty('path')) {
+                item.path = this.currentNavPath
+              }
               this.selectedAssessmentIdList.push(item.id)
               this.selectedAssessmentMap.set(item.id, item)
             }
@@ -474,6 +490,9 @@ export default {
             this.selectedAll21CenturyIdList.splice(index, 1)
             this.selectedAll21CenturyMap.delete(item.id)
           } else {
+            if (item.hasOwnProperty('path')) {
+              item.path = this.currentNavPath
+            }
             this.selectedAll21CenturyIdList.push(item.id)
             this.selectedAll21CenturyMap.set(item.id, item)
           }
@@ -499,6 +518,9 @@ export default {
             this.selectedIDUIdList.splice(index, 1)
             this.selectedIDUMap.delete(item.id)
           } else {
+            if (item.hasOwnProperty('path')) {
+              item.path = this.currentNavPath
+            }
             this.selectedIDUIdList.push(item.id)
             this.selectedIDUMap.set(item.id, item)
           }

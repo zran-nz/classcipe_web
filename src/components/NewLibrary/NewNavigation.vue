@@ -1,9 +1,6 @@
 <template>
   <div class='nav-path-wrapper'>
     <div class='nav-path'>
-      <div class='nav-path-item' v-show='curriculumLabel && navPath.length'>
-        {{ curriculumLabel }}
-      </div>
       <div v-for='(path,index) in navPath' :key='index' class='nav-path-item' @click='handleLibraryNavClick(path)' v-if='path'>
         <template v-if='path.name && path.name.length > 20'>
           <a-tooltip :mouseEnterDelay='1'>
@@ -33,10 +30,6 @@ export default {
     currentCurriculum: {
       type: String,
       default: null
-    },
-    showCurriculum: {
-      type: Boolean,
-      default: false
     }
   },
   data() {
@@ -48,13 +41,26 @@ export default {
   created() {
     this.$logger.info('NewNavigation')
   },
+  watch: {
+    navPath(newNavPath) {
+      this.$logger.info('NewNavigation navPath changed', newNavPath)
+      let path = this.curriculumLabel + '>'
+      newNavPath.forEach((item) => {
+        if (item && item.hasOwnProperty('name')) {
+          path += item.name + '>'
+        }
+      })
+      if (path.lastIndexOf('>') === path.length - 1) {
+        path = path.substring(0, path.length - 1)
+      }
+      this.$emit('update-path', path)
+    }
+  },
   mounted() {
     LibraryEventBus.$on(LibraryEvent.ContentListUpdate, this.handleContentListUpdate)
     LibraryEventBus.$on(LibraryEvent.ChangeCurriculum, this.handleChangeCurriculum)
 
-    if (this.showCurriculum) {
-      this.getCurriculums()
-    }
+    this.getCurriculums()
   },
   destroyed() {
     LibraryEventBus.$off(LibraryEvent.ContentListUpdate, this.handleContentListUpdate)
@@ -90,7 +96,8 @@ export default {
       getAllCurriculums().then((response) => {
         this.$logger.info('getAllCurriculums', response)
         if (response.success) {
-          const curriculum = response.result.find(item => parseInt(item.id) === parseInt(this.$store.getters.bindCurriculum))
+          const currentCurriculumId = this.currentCurriculum ? this.currentCurriculum : this.$store.getters.bindCurriculum
+          const curriculum = response.result.find(item => parseInt(item.id) === parseInt(currentCurriculumId))
           this.$logger.info('bindCurriculum', curriculum)
           if (curriculum) {
             this.curriculumLabel = curriculum.name
