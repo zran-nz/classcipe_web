@@ -3,6 +3,7 @@ export const TableWidthMixin = {
     return {
       tableRefs: [],
       leftWidth: 0,
+      columns: [],
       firstColumnWid: 0
     }
   },
