@@ -7,7 +7,7 @@
           <div class="objectives-list" v-for="(k,index) in getKnowledgeListType(TagType.skill)" :key="index">
             <div class="objectives-list-item objectives-list-item-skill objectives-list-item-top-fixed">
               <div class="skt-description" @dblclick="handleAddTag(k)">
-                <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
+                <a-tooltip placement="topLeft" :title="k.path"> {{ k.name }}</a-tooltip>
               </div>
             </div>
             <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(k)" cancel-text="No" v-if="canEdit">
@@ -22,8 +22,14 @@
             class="objectives-input-item objectives-input-item-skill"
             v-for='(skillInput, sIdx) in skillInputList'
             :key='sIdx'>
-            <a-input v-model='skillInput.name' class='skill-input' placeholder='Type in your learning objective' :disabled="!canEdit"/>
-            <!-- <a-input v-model='skillInput.name' class='skill-input' placeholder='Type in your learning objective' :disabled="!canEdit"/> -->
+            <self-outs-input
+              class='skill-input'
+              :filter-types='[TagType.skill, TagType.ibSkill, TagType.idu]'
+              :grade-ids='$store.getters.userInfo.preference.gradeIds'
+              :subject-ids='$store.getters.userInfo.preference.subjectIds'
+              :default-display-name='skillInput.name'
+              :disabled="!canEdit"
+              @update-value='(newName) => skillInput.name = newName'/>
             <a-popconfirm title="Delete?" ok-text="Yes" @confirm='handleDeleteSkill(skillInput)' cancel-text="No" v-if="canEdit">
               <img class='self-out-delete-icon' src="~@/assets/icons/tag/delete.png" alt=''/>
             </a-popconfirm>
@@ -42,7 +48,7 @@
           <div class="objectives-list" v-for="(k,index) in getKnowledgeListType(TagType.knowledge)" :key="index">
             <div class="objectives-list-item objectives-list-item-learn objectives-list-item-top-fixed">
               <div class="skt-description" @dblclick="handleAddTag(k)">
-                <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
+                <a-tooltip placement="topLeft" :title="k.path"> {{ k.name }}</a-tooltip>
               </div>
             </div>
             <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(k)" cancel-text="No" v-if="canEdit">
@@ -57,7 +63,14 @@
             class="objectives-input-item objectives-input-item-skill"
             v-for='(knowledgeInput, sIdx) in knowledgeInputList'
             :key='sIdx'>
-            <a-input v-model='knowledgeInput.name' class='knowledge-input' placeholder='Type in your learning objective' :disabled="!canEdit"/>
+            <self-outs-input
+              class='knowledge-input'
+              :filter-types='[TagType.knowledge]'
+              :grade-ids='$store.getters.userInfo.preference.gradeIds'
+              :subject-ids='$store.getters.userInfo.preference.subjectIds'
+              :default-display-name='knowledgeInput.name'
+              :disabled="!canEdit"
+              @update-value='(newName) => knowledgeInput.name = newName'/>
             <a-popconfirm title="Delete?" ok-text="Yes" @confirm='handleDeleteKnowledge(knowledgeInput)' cancel-text="No" v-if="canEdit">
               <img class='self-out-delete-icon' src="~@/assets/icons/tag/delete.png" />
             </a-popconfirm>
@@ -80,7 +93,7 @@
             <div class="objectives-list" v-for="(k,index) in categoryItem.list" :key="index">
               <div class="objectives-list-item objectives-list-item-21 objectives-list-item-top-fixed" @click="handleActiveDescription(TagType.century,k)">
                 <div class="skt-description skt-description-21" @dblclick="handleAddTag(k)">
-                  <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
+                  <a-tooltip placement="topLeft" :title="k.path"> {{ k.name }}</a-tooltip>
                 </div>
                 <div
                   v-if="k.tagType === TagType.century"
@@ -113,7 +126,14 @@
             class="objectives-input-item objectives-input-item-skill"
             v-for='(centuryInput, sIdx) in centuryInputList'
             :key='sIdx'>
-            <a-input v-model='centuryInput.name' class='century-input' placeholder='Type in your learning objective' :disabled="!canEdit"/>
+            <self-outs-input
+              class='century-input'
+              :filter-types='[TagType.century, TagType.common]'
+              :grade-ids='$store.getters.userInfo.preference.gradeIds'
+              :subject-ids='$store.getters.userInfo.preference.subjectIds'
+              :default-display-name='centuryInput.name'
+              :disabled="!canEdit"
+              @update-value='(newName) => centuryInput.name = newName'/>
             <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteCentury(centuryInput)" cancel-text="No" v-if="canEdit">
               <img class='self-out-delete-icon' src="~@/assets/icons/tag/delete.png" />
             </a-popconfirm>
@@ -200,10 +220,12 @@
   import { getAll21Century } from '@/api/knowledge'
   import AddGreenIcon from '@/assets/svgIcon/evaluation/form/tianjia_green.svg?inline'
   import QuickWordButton from '@/components/Button/QuickWordButton'
+  import SelfOutsInput from '@/components/UnitPlan/SelfOutsInput'
 
   export default {
     name: 'UiLearnOut',
     components: {
+      SelfOutsInput,
       LearnOutAddTag,
       NoMoreResources,
       AddGreenIcon,
@@ -222,12 +244,6 @@
         type: Boolean,
         default: true
       }
-    },
-    mounted () {
-
-    },
-    destroyed () {
-
     },
     computed: {
       dealPath () {
