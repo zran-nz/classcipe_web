@@ -48,17 +48,6 @@ export default {
       if (this.$store.getters.userInfo) {
         this.$store.dispatch('initData')
       }
-
-      // 加载planning-format配置数据
-      if (!this.$store.getters.formConfigData.loaded) {
-        let token = this.$route.query.token
-        if (!token) {
-          token = storage.get(ACCESS_TOKEN)
-        }
-        this.$store.dispatch('loadFormConfigData', token)
-      }
-
-      this.$store.dispatch('GetAllSubjects', this.$store.getters.bindCurriculum)
     }
   }
 </script>
