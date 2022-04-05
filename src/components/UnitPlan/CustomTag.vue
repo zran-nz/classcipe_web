@@ -322,10 +322,15 @@ export default {
       // customDeep?
       const parent = this.mergeTagList.find(item => item.id === parentId)
       if (parent) {
-        const isExist = this.tagList.find(item => item.name === tag)
-        if (!isExist) {
-          this.selectChooseTag(parent, tag)
+        if (typeof tag === 'string') {
+          tag = [tag]
         }
+        tag.forEach(tagName => {
+          const isExist = this.tagList.find(item => item.name === tagName)
+          if (!isExist) {
+            this.selectChooseTag(parent, tagName)
+          }
+        })
       }
     },
     handleTagItemDrop (item, event) {

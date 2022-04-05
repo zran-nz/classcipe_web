@@ -261,6 +261,7 @@
                               :learn-outs='form.learnOuts'
                               :self-outs='form.selfOuts'
                               :can-edit="canEdit"
+                              :custom-tags='customTags'
                               @addCustomTag="handleAddCustomTagRemote"
                               @remove-learn-outs='handleRemoveLearnOuts' />
                           </div>

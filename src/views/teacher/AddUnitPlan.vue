@@ -442,6 +442,7 @@
                             <!--knowledge tag-select -->
                             <ui-learn-out
                               ref='learnOut'
+                              :custom-tags='customTags'
                               :learn-outs='form.learnOuts'
                               :self-outs='form.selfOuts'
                               @remove-learn-outs='handleRemoveLearnOuts'

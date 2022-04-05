@@ -11,16 +11,19 @@
       <div class="quick-word-title">
         Select an option or create one
       </div>
-      <div class="quick-word-content">
+      <div class="quick-word-content" v-if="result && result.length > 0">
         <div class="quick-word-item" v-for="(item) in result" :key="'quickWord_'+item.id">
           <a @click="choose(item)">{{ item.name }}</a>
         </div>
       </div>
-      <div class="quick-word-sub">
-        <label>Create: </label>
-        <a-input :size="size" v-model="selfWord"/>
-        <a-icon @click="doCreate()" type="check" />
-      </div>
+      <div v-else style="font-size: 12px;color:#999;">No data</div>
+      <slot name='create'>
+        <div class="quick-word-sub">
+          <label>Create: </label>
+          <a-input :size="size" v-model="selfWord"/>
+          <a-icon @click="doCreate()" type="check" />
+        </div>
+      </slot>
     </div>
     <a-button :loading="loading" :type="type" :size="size">
       {{ text }}
@@ -47,6 +50,14 @@ export default {
     quickWord: {
       type: String,
       default: ''
+    },
+    datas: {
+      type: Array,
+      default: () => []
+    },
+    loadApi: {
+      type: Function,
+      default: () => Promise.resolve()
     }
   },
   watch: {
@@ -54,6 +65,12 @@ export default {
       handler(val) {
         this.word = val
         this.selfWord = val
+      },
+      immediate: true
+    },
+    datas: {
+      handler(val) {
+        this.result = val
       },
       immediate: true
     }
@@ -69,40 +86,37 @@ export default {
   },
   methods: {
     visibleChange(visible) {
-      if (visible) {
+      if (visible && this.datas.length === 0) {
         this.loading = true
         this.visible = false
-        Promise.resolve().then(res => {
-          this.result = [{
-            name: 'predict',
-            id: 1
-          }, {
-            name: 'prefer',
-            id: 2
-          }, {
-            name: 'perfect',
-            id: 3
-          }]
+        this.loadApi().then(res => {
+          if (res.success) {
+            this.result = res.data
+          }
         }).finally(() => {
           this.loading = false
           this.visible = true
         })
       }
     },
+    // 1440218576252366850
     choose(item) {
       this.visible = false
       this.$emit('sub', {
-        word: this.quickWord,
-        parentId: '1440218576252366850',
-        tag: 'Apply'
+        word: item.name,
+        parentId: item.bloomTagId,
+        tag: item.bloomTag,
+        id: item.id
       })
     },
     doCreate() {
       this.visible = false
+      // 添加
       this.$emit('sub', {
         word: this.quickWord,
         parentId: '1440218576252366850',
-        tag: 'Apply'
+        tag: 'Apply',
+        id: -1
       })
     }
   }

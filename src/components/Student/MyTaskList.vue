@@ -244,13 +244,13 @@
                       &&
                       (opt.show.includes(item.status) && (!opt.currentStatus || opt.currentStatus.includes(currentStatus)))
                       &&
-                      item.startDate"
+                      (item.sessionStartTime || item.sessionDeadline)"
                   >
-                    <a-tag color="#108ee9" v-show="item.status === TASK_STATUS.ONGOING">
-                      Deadline in {{ item.startDate | distanceDate }}
+                    <a-tag color="#108ee9" v-show="item.sessionDeadline && item.status === TASK_STATUS.ONGOING">
+                      Deadline in {{ item.sessionDeadline | distanceDate }}
                     </a-tag>
-                    <a-tag color="#ef4136" v-show="item.status === TASK_STATUS.SCHEDULED">
-                      Start in {{ item.startDate | distanceDate }}
+                    <a-tag color="#ef4136" v-show="item.sessionStartTime && item.status === TASK_STATUS.SCHEDULED">
+                      Start in {{ item.sessionStartTime | distanceDate }}
                     </a-tag>
                   </div>
                 </template>

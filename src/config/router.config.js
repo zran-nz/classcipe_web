@@ -126,7 +126,7 @@ export const asyncRouterMap = [
                 name: 'Academics',
                 redirect: '/teacher/managing/planning-format',
                 component: RouteView,
-                meta: { title: 'menu.managing.academics', keepAlive: true, icon: 'schedule', permission: ['teacher'], mode: USER_MODE.SCHOOL },
+                meta: { title: 'menu.managing.academics', keepAlive: true, icon: 'schedule', permission: ['teacher'] },
                 children: [
                   {
                     path: '/teacher/managing/tag-settings',
@@ -145,6 +145,18 @@ export const asyncRouterMap = [
                     name: 'KnowledgeList',
                     component: () => import('@/views/teacher/manage/KnowledgeList'),
                     meta: { title: 'menu.managing.skill', keepAlive: true, permission: ['teacher'], curriculumType: CurriculumType.IBMYP, mode: USER_MODE.SCHOOL }
+                  // },
+                  // {
+                  //   path: '/teacher/managing/academic',
+                  //   name: 'AcademicList',
+                  //   component: () => import('@/views/teacher/manage/AcademicList'),
+                  //   meta: { title: 'menu.managing.academic', keepAlive: true, permission: ['teacher'] }
+                  // },
+                  // {
+                  //   path: '/teacher/managing/circulum',
+                  //   name: 'CirculumList',
+                  //   component: () => import('@/views/teacher/manage/CirculumList'),
+                  //   meta: { title: 'menu.managing.circulum', keepAlive: true, permission: ['teacher'] }
                   }
                 ]
               }
