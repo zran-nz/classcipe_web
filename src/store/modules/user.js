@@ -183,10 +183,6 @@ const user = {
               setCookie(ACCESS_TOKEN, result.token)
               window.sessionStorage.setItem(SESSION_ACTIVE_KEY, result.token)
             }
-
-            if (result.bindCurriculum) {
-              this.$store.dispatch('GetAllSubjects', result.bindCurriculum)
-            }
             resolve(response)
           } else {
             reject(response.message)
