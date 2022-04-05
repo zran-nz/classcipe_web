@@ -4174,9 +4174,8 @@ export default {
         taskData.customFieldData = JSON.stringify(taskData.customFieldData)
       }
       logger.info('basic taskData', taskData)
-      await TaskAddOrUpdate(taskData).then((response) => {
-        logger.info('TaskAddOrUpdate', response.result)
-      })
+      const response = await TaskAddOrUpdate(taskData)
+      logger.info('TaskAddOrUpdate', response.result)
     },
     setCustomTagByPPT(nameList, parent) {
       nameList.forEach(name => {

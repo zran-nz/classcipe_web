@@ -293,14 +293,13 @@ export default {
         taskData.customFieldData = JSON.stringify(taskData.customFieldData)
       }
       logger.info('basic taskData', taskData)
-      await TaskAddOrUpdate(taskData).then((response) => {
-        logger.info('TaskAddOrUpdate', response.result)
-        if (response.success) {
-          this.$message.success('add successfully')
-        } else {
-          this.$message.error(response.message)
-        }
-      })
+      const response = await TaskAddOrUpdate(taskData)
+      logger.info('TaskAddOrUpdate', response.result)
+      if (response.success) {
+        this.$message.success('add successfully')
+      } else {
+        this.$message.error(response.message)
+      }
     }
   }
 }
