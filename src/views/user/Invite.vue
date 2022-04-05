@@ -66,6 +66,7 @@ export default {
       if (res.success) {
         this.$message.success(res.message)
         this.$router.push(this.$store.getters.defaultRouter)
+        this.$store.dispatch('GetInfo')
       } else {
         this.$message.error(res.message)
       }
