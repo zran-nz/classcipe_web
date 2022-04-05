@@ -12,8 +12,6 @@
 import { domTitle, setDocumentTitle } from '@/utils/domUtil'
 import { i18nRender } from '@/locales'
 import Feedback from '@/components/Feedback/Feedback'
-import storage from 'store'
-import { ACCESS_TOKEN } from '@/store/mutation-types'
 
 export default {
   components: { Feedback },
