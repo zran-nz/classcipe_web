@@ -202,6 +202,7 @@ export default {
     toggleType(type) {
       this.queryParam.orderType = type
       this.$refs.table.refresh(true)
+      this.resetTableWidth()
     },
     triggerSearch() {
       this.$refs.table.refresh(true)
