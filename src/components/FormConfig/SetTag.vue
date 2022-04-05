@@ -34,9 +34,19 @@
                   </div>
                 </div>
                 <div class='tag-detail' v-show='tag.expand'>
-                  <a-tag class='tag-keyword' color="#15C39A" v-for='(keyword, kIdx) in tag.keywords' :key='kIdx'>
-                    {{ keyword }}
-                  </a-tag>
+                  <template v-if='tag.children && tag.children.length'>
+                    <div class='sub-tag' v-for='tagChild in tag.children'>
+                      <div class='sub-tag-title'>{{tagChild.name}}</div>
+                      <a-tag class='tag-keyword' color="#15C39A" v-for='(tkeyword, tkIdx) in tagChild.keywords' :key='tkIdx'>
+                        {{ tkeyword }}
+                      </a-tag>
+                    </div>
+                  </template>
+                  <template v-if='tag.keywords'>
+                    <a-tag class='tag-keyword' color="#15C39A" v-for='(keyword, kIdx) in tag.keywords' :key='kIdx'>
+                      {{ keyword }}
+                    </a-tag>
+                  </template>
                 </div>
               </div>
             </a-col>
@@ -246,6 +256,13 @@ export default {
 
   .my-tag-selected-name {
     padding-left: 3px;
+  }
+}
+
+.sub-tag {
+  margin-top: 10px;
+  .sub-tag-title {
+    font-weight: bold;
   }
 }
 
