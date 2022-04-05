@@ -27,7 +27,7 @@
               <div class='tag-body-item tag-name' @click='tag.expand = !tag.expand'>
                 <div class='tag-name-item'>
                   <div class='expand-icon'>
-                    <a-icon type="plus-square" :style="{'color': '#999'}" v-show='tag.keywords.length'/>
+                    <a-icon type="plus-square" :style="{'color': '#999'}" v-show='tag.keywords.length || tag.children.length'/>
                   </div>
                   <div class='tag-name-text'>
                     {{ tag.name }}
@@ -76,6 +76,9 @@
         </div>
         <div class='tag-action'>
           <a-space>
+            <div class='tag-tips'>
+              To change settings of tag categories, go to <a href='#' @click='handleGoToTagPage'>Tags page</a>
+            </div>
             <a-button type='primary' @click='handleEnsureSelected'>Confirm</a-button>
           </a-space>
         </div>
@@ -120,9 +123,6 @@ export default {
             const selectedTagItem = this.selectedTags.find((selectedTag) => {
               return selectedTag.tagId === tag.id
             })
-
-            tag.createOwn = selectedTagItem ? !!selectedTagItem.createOwn : true
-            tag.isOptional = selectedTagItem ? !!selectedTagItem.isOptional : true
             tag.expand = false
             tag.tagId = tag.id
             tag.tagName = tag.name
@@ -159,6 +159,10 @@ export default {
       this.$emit('update', this.tagList.filter((tag) => {
         return tag.isSelected
       }))
+    },
+
+    handleGoToTagPage () {
+      this.$emit('go-to-tag-page')
     }
   }
 }
@@ -245,6 +249,19 @@ export default {
   display: flex;
   justify-content: flex-end;
   align-items: center;
+
+  .tag-tips {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 10px;
+    font-size: 13px;
+    color: #999;
+
+    a {
+      padding: 0 5px;
+    }
+  }
 }
 
 .my-tag-selected {

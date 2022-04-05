@@ -200,7 +200,7 @@
       :title="null">
       <modal-header :title="'Set tags for ' + (currentFieldName ? currentFieldName : 'field') + (currentSubFieldName ? ' (' + currentSubFieldName + ')' : '')" @close='handleCloseSetTags'/>
       <div class='my-set-tag'>
-        <set-tag :selected-tags='currentFieldTags' @update='handleUpdateTags' />
+        <set-tag :selected-tags='currentFieldTags' @update='handleUpdateTags' @go-to-tag-page='handleGotoTagPage' />
       </div>
     </a-modal>
   </div>
@@ -336,6 +336,13 @@ export default {
         this.$logger.info('no field found')
       }
       this.setTagVisible = false
+    },
+
+    handleGotoTagPage () {
+      this.setTagVisible = false
+      this.$router.push({
+        path: '/teacher/managing/tag-settings'
+      })
     },
 
     handleDeleteCustomField (fieldItem) {
