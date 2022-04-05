@@ -90,7 +90,7 @@ export default {
         this.loading = true
         this.visible = false
         this.loadApi().then(res => {
-          if (res.success) {
+          if (res && res.success) {
             this.result = res.data
           }
         }).finally(() => {
