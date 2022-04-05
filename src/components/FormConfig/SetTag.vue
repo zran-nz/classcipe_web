@@ -35,8 +35,8 @@
                 </div>
                 <div class='tag-detail' v-show='tag.expand'>
                   <template v-if='tag.children && tag.children.length'>
-                    <div class='sub-tag' v-for='tagChild in tag.children'>
-                      <div class='sub-tag-title'>{{tagChild.name}}</div>
+                    <div class='sub-tag' v-for='(tagChild, tcId) in tag.children' :key='tcId'>
+                      <div class='sub-tag-title'>{{ tagChild.name }}</div>
                       <a-tag class='tag-keyword' color="#15C39A" v-for='(tkeyword, tkIdx) in tagChild.keywords' :key='tkIdx'>
                         {{ tkeyword }}
                       </a-tag>

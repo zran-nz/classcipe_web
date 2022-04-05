@@ -20,10 +20,12 @@
         <transition-group type="transition" :name="!commonDrag ? 'flip-list' : null">
           <li
             class="list-group-item"
+            :class="{'heart-beat-disabled-item': fieldItem.tags.some(item => !item.isOptional) && !fieldItem.visible}"
             v-for="fieldItem in myCommonList"
             :data-field-name='fieldItem.fieldName'
-            :style="{'filter': fieldItem.visible ? 'none' : 'grayscale(100%)'}"
+            :style="{'filter': fieldItem.visible ? 'none' : (fieldItem.tags.some(item => !item.isOptional) ? 'none' : 'grayscale(100%)')}"
             :key="'fieldId' + fieldItem.id"
+            :data-id='fieldItem.id'
           >
             <div class='sort-icon'>
               <img src='~@/assets/icons/formConfig/line3_green.png' alt='' class='green'/>
@@ -124,9 +126,10 @@
         <transition-group type="transition" :name="!customDrag ? 'flip-list' : null">
           <li
             class="list-group-item"
+            :class="{'heart-beat-disabled-item': fieldItem.tags.some(item => !item.isOptional) && !fieldItem.visible}"
             v-for="fieldItem in myCustomList"
             :key="'sort-' + fieldItem.sortNo"
-            :style="{'filter': fieldItem.visible ? 'none' : 'grayscale(100%)'}"
+            :style="{'filter': fieldItem.visible ? 'none' : (fieldItem.tags.some(item => !item.isOptional) ? 'none' : 'grayscale(100%)')}"
             :data-id='fieldItem.id'
           >
             <div class='sort-icon'>
@@ -689,5 +692,36 @@ export default {
 
 .my-set-tag {
   min-height: 350px;
+}
+
+.heart-beat-disabled-item {
+  animation: breathing 0.8s ease-out infinite normal;
+  background-color: #fff1f0 !important;
+  border: 1px solid #fff1f0 !important;
+}
+
+@keyframes breathing {
+  0% {
+
+    opacity: 1;
+  }
+
+  25% {
+
+    opacity: 0.8;
+  }
+
+  50% {
+
+    opacity: 0.5;
+  }
+
+  75% {
+    opacity: 0.8;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }
 </style>
