@@ -56,7 +56,10 @@ const getters = {
     }
     return state.user.studentClassList.filter(item => item.schoolId === currentSchool.id)
   },
-  isIBTeacher: state => state.user.currentRole === 'teacher' && (state.user.bindCurriculum === AllCurriculums.IBMYP || state.user.bindCurriculum === AllCurriculums.IBPYP)
+  isIBTeacher: state => state.user.currentRole === 'teacher' && (state.user.bindCurriculum === AllCurriculums.IBMYP || state.user.bindCurriculum === AllCurriculums.IBPYP),
+
+  allSubjects: state => state.user.allSubjects,
+  userSubjects: state => state.user.allSubjects.filter(item => state.user.info.preference.subjectIds.includes(item.id))
 }
 
 export default getters

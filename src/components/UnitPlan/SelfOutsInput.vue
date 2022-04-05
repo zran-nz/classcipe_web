@@ -10,6 +10,18 @@
       @input.native='updateOptionsListFunction'
       @change='updateOptionsListFunction'>
     </a-input>
+    <div class='selfout-subject' v-if='$store.getters.userSubjects.length'>
+      <a-select
+        :getPopupContainer="trigger => trigger.parentElement"
+        v-model="selfOutSubject"
+        :default-value="selfOutSubject"
+        placeholder='Select subject'
+        class="select-subject">
+        <a-select-option v-for="(subjectItem) in $store.getters.userSubjects" :value="subjectItem.id" :key="subjectItem.id">
+          {{ subjectItem.name }}
+        </a-select-option>
+      </a-select>
+    </div>
     <div class='option-list' v-show='optionList.length' @click.stop=''>
       <div class='option-item' v-for='(option, oIdx) in optionList' :key='oIdx' @click='handleSelectItem(option)'>
         <div class='option-name'>
@@ -46,6 +58,10 @@ export default {
       type: String,
       default: null
     },
+    defaultSelfOutSubject: {
+      type: String,
+      default: null
+    },
     disabled: {
       type: Boolean,
       default: false
@@ -54,11 +70,15 @@ export default {
   watch: {
     displayValue (newVal) {
       this.$emit('update-value', newVal)
+    },
+    selfOutSubject (newVal) {
+      this.$emit('update-subject', newVal)
     }
   },
   data () {
     return {
       displayValue: '',
+      selfOutSubject: null,
       optionList: [],
       creating: false,
       updateOptionsListFunction: null
@@ -70,6 +90,9 @@ export default {
 
     if (this.defaultDisplayName) {
       this.displayValue = this.defaultDisplayName
+    }
+    if (this.defaultSelfOutSubject) {
+      this.selfOutSubject = this.defaultSelfOutSubject
     }
     this.updateOptionsListFunction = debounce(this.handleUpdateOptionsList, 500)
   },
@@ -111,6 +134,10 @@ export default {
 
 <style lang='less' scoped>
 @import "~@/components/index.less";
+
+.selfouts-input-with {
+  position: relative;
+}
 
 .my-selfouts-input {
   width: 100%;
@@ -180,6 +207,13 @@ export default {
       color: #38cfa6;
     }
   }
+}
+
+.selfout-subject {
+  position: absolute;
+  right: 0;
+  top: 0;
+  min-width: 150px;
 }
 
 </style>

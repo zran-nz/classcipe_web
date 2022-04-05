@@ -43,8 +43,11 @@
               :grade-ids='$store.getters.userInfo.preference.gradeIds'
               :subject-ids='$store.getters.userInfo.preference.subjectIds'
               :default-display-name='skillInput.name'
+              :default-self-out-subject='skillInput.subjectId ? skillInput.subjectId : null'
               :disabled="!canEdit"
-              @update-value='(newName) => skillInput.name = newName'/>
+              @update-value='(newName) => skillInput.name = newName'
+              @update-subject='(newSubject) => skillInput.subjectId = newSubject'
+            />
             <a-popconfirm title="Delete?" ok-text="Yes" @confirm='handleDeleteSkill(skillInput)' cancel-text="No" v-if="canEdit">
               <img class='self-out-delete-icon' src="~@/assets/icons/tag/delete.png" alt=''/>
             </a-popconfirm>
@@ -113,8 +116,11 @@
               :grade-ids='$store.getters.userInfo.preference.gradeIds'
               :subject-ids='$store.getters.userInfo.preference.subjectIds'
               :default-display-name='knowledgeInput.name'
+              :default-self-out-subject='knowledgeInput.subjectId ? knowledgeInput.subjectId : null'
               :disabled="!canEdit"
-              @update-value='(newName) => knowledgeInput.name = newName'/>
+              @update-value='(newName) => knowledgeInput.name = newName'
+              @update-subject='(newSubject) => knowledgeInput.subjectId = newSubject'
+            />
             <a-popconfirm title="Delete?" ok-text="Yes" @confirm='handleDeleteKnowledge(knowledgeInput)' cancel-text="No" v-if="canEdit">
               <img class='self-out-delete-icon' src="~@/assets/icons/tag/delete.png" />
             </a-popconfirm>
@@ -205,8 +211,11 @@
               :grade-ids='$store.getters.userInfo.preference.gradeIds'
               :subject-ids='$store.getters.userInfo.preference.subjectIds'
               :default-display-name='centuryInput.name'
+              :default-self-out-subject='centuryInput.subjectId ? centuryInput.subjectId : null'
               :disabled="!canEdit"
-              @update-value='(newName) => centuryInput.name = newName'/>
+              @update-value='(newName) => centuryInput.name = newName'
+              @update-subject='(newSubject) => centuryInput.subjectId = newSubject'
+            />
             <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteCentury(centuryInput)" cancel-text="No" v-if="canEdit">
               <img class='self-out-delete-icon' src="~@/assets/icons/tag/delete.png" />
             </a-popconfirm>
@@ -704,6 +713,7 @@
         this.$logger.info('handleAddNew ', inputList)
         inputList.push({
           name: '',
+          subjectId: null,
           key: Math.random() + '',
           tagType: tagType,
           commandTerms: [],
@@ -1126,17 +1136,14 @@
     }
     .skill-input {
       border: 1px solid #FF978E;
-      box-shadow: 0 0 0 2px rgba(255, 151, 142, 0.2);
     }
 
     .knowledge-input {
       border: 1px solid #D4EBE7;
-      box-shadow: 0 0 0 2px rgba(212, 235, 231, 0.2);
     }
 
     .century-input {
       border: 1px solid #D7E0E9;
-      box-shadow: 0 0 0 2px rgba(215, 224, 225, 0.2);
     }
   }
 

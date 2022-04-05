@@ -228,12 +228,12 @@ export default {
           dataIndex: 'description',
           width: '50%'
         },
-        {
-          title: 'Phase',
-          align: 'center',
-          dataIndex: 'phase',
-          width: '10%'
-        },
+        // {
+        //   title: 'Phase',
+        //   align: 'center',
+        //   dataIndex: 'phase',
+        //   width: '10%'
+        // },
         {
           title: '',
           dataIndex: 'action',

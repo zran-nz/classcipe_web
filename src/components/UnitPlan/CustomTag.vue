@@ -68,7 +68,10 @@
                                 </a-tag>
                               </div>
                             </div>
-                            <div class="create-tag-wrapper tag-wrapper" v-show="!tagNameIsExist(createTagName,showTagList) && !tagIsExist(createTagName,filterKeywordListInput(parent.keywords)) && createTagName && createTagName.length >= 1">
+                            <dvi class='no-tag-content' v-if='filterKeywordListInput(parent.keywords).length === 0 && !parent.createOwn'>
+                              <div class='no-tag-text'>Tag does not exist</div>
+                            </dvi>
+                            <div class="create-tag-wrapper tag-wrapper" v-show="parent.createOwn && !tagNameIsExist(createTagName,showTagList) && !tagIsExist(createTagName,filterKeywordListInput(parent.keywords)) && createTagName && createTagName.length >= 1">
                               <div class="skt-tag-create-line" @click="handleCreateTagByInput(parent)">
                                 <div class="create-tag-label">
                                   Create
@@ -146,11 +149,14 @@ import TagBrowser from '@/components/UnitPlan/TagBrowser'
 import TagSetting from '@/components/UnitPlan/TagSetting'
 import { AddUserTagNew } from '@/api/tag'
 import { UtilMixin } from '@/mixins/UtilMixin'
+import NoMoreResources from '@/components/Common/NoMoreResources'
 
 export default {
   name: 'CustomTag',
   components: {
-    TagBrowser, TagSetting
+    NoMoreResources,
+    TagBrowser,
+    TagSetting
   },
   mixins: [UtilMixin],
   props: {
@@ -657,5 +663,17 @@ export default {
     }
 
   }
+}
+
+.no-tag-content {
+  width: 100%;
+  height: 50px;
+  display: flex;
+  background: rgba(21, 195, 154, 0.1);
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+  cursor: pointer;
+  color: #aaa;
 }
 </style>
