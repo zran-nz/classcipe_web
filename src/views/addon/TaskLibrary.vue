@@ -268,6 +268,15 @@ export default {
       this.$logger.info('this.form.learnOuts', this.form.learnOuts)
       this.selectSyncDataVisible = false
       this.autoSave()
+
+      // 通知Google addon 关闭页面
+      if (window.parent) {
+        window.parent.postMessage(JSON.stringify({
+          from: 'addon',
+          event: 'close',
+          data: null
+        }), '*')
+      }
     },
 
     async autoSave() {

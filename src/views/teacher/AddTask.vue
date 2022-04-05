@@ -1115,7 +1115,7 @@
               <a :href='presentationLink' target='_blank'>{{ presentationLink }}</a>
             </div>
             <div class='view-action'>
-              <a-button type='primary' @click='handleEditGoogleSlide()'>Edit in Google Slides</a-button>
+              <a-button type='primary' :loading='editGoogleSlideLoading' @click='handleEditGoogleSlide()'>Edit in Google Slides</a-button>
             </div>
           </div>
         </div>
@@ -2216,7 +2216,9 @@ export default {
       // sub task 当前激活的字段
       currentSubTaskFocusFieldName: null,
 
-      dontRemindMe: false
+      dontRemindMe: false,
+
+      editGoogleSlideLoading: false
     }
   },
   computed: {
@@ -3161,6 +3163,7 @@ export default {
     },
 
     async handleEditGoogleSlide() {
+      this.editGoogleSlideLoading = true
       this.$logger.info('handleEditGoogleSlide', this.form.presentationId)
       if (this.form.presentationId) {
         await this.autoSave()
@@ -3168,6 +3171,7 @@ export default {
       } else {
         await this.handleCreateTask()
       }
+      this.editGoogleSlideLoading = false
     },
 
     handleAddTaskWithSlide() {
