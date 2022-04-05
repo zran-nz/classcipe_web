@@ -43,6 +43,7 @@
               <div class="edit" v-else>
                 <a-button
                   v-excludeRole="['student']"
+                  v-if="!myContentId"
                   :loading="copyLoading"
                   class="copy-button"
                   type="primary"
@@ -51,6 +52,19 @@
                 >
                   <div class="button-content">
                     Copy <a-icon type="copy" style="margin-left: 6px;"/>
+                  </div>
+                </a-button>
+                <a-button
+                  v-excludeRole="['student']"
+                  v-else
+                  :loading="copyLoading"
+                  class="copy-button"
+                  type="primary"
+                  shape="round"
+                  @click="handleEditItem({id: myContentId})"
+                >
+                  <div class="button-content">
+                    Edit in my content <a-icon type="edit" style="margin-left: 6px;"/>
                   </div>
                 </a-button>
                 <a-button
@@ -576,6 +590,11 @@ export default {
     isLibrary: {
       type: Boolean,
       default: false
+    },
+    // copy 过的id，如果曾今copy过，前myContentId不为空，则copy变成edit
+    myContentId: {
+      type: String,
+      default: null
     }
   },
   mixins: [PptPreviewMixin, BaseEventMixin],
