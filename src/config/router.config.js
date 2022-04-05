@@ -137,7 +137,7 @@ export const asyncRouterMap = [
                   {
                     path: '/teacher/managing/planning-format',
                     name: 'PlanningFormat',
-                    component: () => import('@/views/teacher/manage/planningFormat/PlanningFormat'),
+                    component: () => import('@/views/teacher/manage/PlanningFormat/PlanningFormat'),
                     meta: { title: 'menu.managing.planning-format', keepAlive: true, permission: ['teacher'], mode: USER_MODE.SCHOOL }
                   },
                   {
@@ -165,13 +165,13 @@ export const asyncRouterMap = [
           {
             path: '/teacher/managing/planning-format/task-preview',
             name: 'PlanningFormatTaskPreview',
-            component: () => import('@/views/teacher/manage/planningFormat/TaskPreview'),
+            component: () => import('@/views/teacher/manage/PlanningFormat/TaskPreview'),
             meta: { title: 'menu.managing.task-preview', keepAlive: true, permission: ['teacher'] }
           },
           {
             path: '/teacher/managing/planning-format/unit-plan-preview',
             name: 'PlanningFormatUnitPreview',
-            component: () => import('@/views/teacher/manage/planningFormat/UnitPlanPreview'),
+            component: () => import('@/views/teacher/manage/PlanningFormat/UnitPlanPreview'),
             meta: { title: 'menu.managing.plan-preview', keepAlive: true, permission: ['teacher'] }
           },
           {
