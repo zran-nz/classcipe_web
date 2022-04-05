@@ -6,7 +6,7 @@
         <template v-if="getKnowledgeListType(TagType.skill).length > 0" >
           <div class="objectives-list" v-for="(k,index) in getKnowledgeListType(TagType.skill)" :key="index">
             <div class="objectives-list-item objectives-list-item-skill objectives-list-item-top-fixed">
-              <div v-selectPopover="['modal', domFn]" class="skt-description" @dblclick="handleAddTag(k)">
+              <div class="skt-description" @dblclick="handleAddTag(k)">
                 <a-tooltip placement="topLeft" :title="k.path"> {{ k.name }}</a-tooltip>
               </div>
             </div>
@@ -24,7 +24,7 @@
             :key='sIdx'>
             <self-outs-input
               class='skill-input'
-              v-selectPopover="['modal', domFn]"
+
               :filter-types='[TagType.skill, TagType.ibSkill, TagType.idu]'
               :grade-ids='$store.getters.userInfo.preference.gradeIds'
               :subject-ids='$store.getters.userInfo.preference.subjectIds'
@@ -48,7 +48,7 @@
         <template v-if="getKnowledgeListType(TagType.knowledge).length > 0" >
           <div class="objectives-list" v-for="(k,index) in getKnowledgeListType(TagType.knowledge)" :key="index">
             <div class="objectives-list-item objectives-list-item-learn objectives-list-item-top-fixed">
-              <div v-selectPopover="['modal', domFn]" class="skt-description" @dblclick="handleAddTag(k)">
+              <div class="skt-description" @dblclick="handleAddTag(k)">
                 <a-tooltip placement="topLeft" :title="k.path"> {{ k.name }}</a-tooltip>
               </div>
             </div>
@@ -66,7 +66,7 @@
             :key='sIdx'>
             <self-outs-input
               class='knowledge-input'
-              v-selectPopover="['modal', domFn]"
+
               :filter-types='[TagType.knowledge]'
               :grade-ids='$store.getters.userInfo.preference.gradeIds'
               :subject-ids='$store.getters.userInfo.preference.subjectIds'
@@ -94,7 +94,7 @@
             <div class='category-name'><a-icon type="tag" /> {{ categoryItem.categoryName }}</div>
             <div class="objectives-list" v-for="(k,index) in categoryItem.list" :key="index">
               <div class="objectives-list-item objectives-list-item-21 objectives-list-item-top-fixed" @click="handleActiveDescription(TagType.century,k)">
-                <div v-selectPopover="['modal', domFn]" class="skt-description skt-description-21" @dblclick="handleAddTag(k)">
+                <div class="skt-description skt-description-21" @dblclick="handleAddTag(k)">
                   <a-tooltip placement="topLeft" :title="k.path"> {{ k.name }}</a-tooltip>
                 </div>
                 <div
@@ -130,7 +130,7 @@
             :key='sIdx'>
             <self-outs-input
               class='century-input'
-              v-selectPopover="['modal', domFn]"
+
               :filter-types='[TagType.century, TagType.common]'
               :grade-ids='$store.getters.userInfo.preference.gradeIds'
               :subject-ids='$store.getters.userInfo.preference.subjectIds'
