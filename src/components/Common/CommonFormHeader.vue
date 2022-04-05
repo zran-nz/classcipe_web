@@ -83,7 +83,7 @@
           @click='handleSharing'
           class='my-form-header-btn'>
           <div class='btn-icon'>
-            <a-icon type='share-alt' :style="{ fontSize: '16px' }" />
+            <a-icon type='share-alt' :style="{ fontSize: '16px', color: '#15c39a' }" />
           </div>
           <div
             class='btn-text'>
@@ -134,7 +134,7 @@
           class='my-form-header-btn'
           @click='handlePublish(0)'>
           <div class='btn-icon'>
-            <a-icon style='font-size: 16px' theme='filled' type='down-square' />
+            <a-icon :style="{ fontSize: '16px', color: '#15c39a' }" theme='filled' type='down-square' />
           </div>
           <div
             class='btn-text'
