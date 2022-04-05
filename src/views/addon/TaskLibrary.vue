@@ -1,28 +1,35 @@
 <template>
   <div class="task-library">
-    <new-browser
-      ref='newBrowser'
-      question-index='_questionIndex_1'
-      :show-curriculum='true'
-      :show-menu='[NavigationType.specificSkills,
-                   NavigationType.centurySkills,
-                   NavigationType.learningOutcomes,
-                   NavigationType.assessmentType,
-                   NavigationType.idu]'
-      :default-active-menu='NavigationType.learningOutcomes'
-      :recommend-data='recommendData'
-      :selected-list='selectedList'
-      :selected-id='selectedIdList'
-      @select-assessmentType='handleSelectAssessmentType'
-      @select-sync='handleSelectListData'
-      @select-curriculum='handleSelectCurriculum'
-      @select-subject-specific-skill='handleSelectSubjectSpecificSkillListData'
-      @select-century-skill='handleSelect21CenturySkillListData'
-      @select-idu='handleSelectIdu'
-      @select-recommend='handleSelectRecommend'
-      @cancel-select='handleCancelSelectData'
-      @ensure-select='handleEnsureSelectData'
-    />
+    <template v-if='taskLoading'>
+      <div class='loading-task'>
+        <img src="~@/assets/newBrowser/loading.gif" />
+      </div>
+    </template>
+    <template v-if='!taskLoading'>
+      <new-browser
+        ref='newBrowser'
+        question-index='_questionIndex_1'
+        :show-curriculum='true'
+        :show-menu='[NavigationType.specificSkills,
+                     NavigationType.centurySkills,
+                     NavigationType.learningOutcomes,
+                     NavigationType.assessmentType,
+                     NavigationType.idu]'
+        :default-active-menu='NavigationType.learningOutcomes'
+        :recommend-data='recommendData'
+        :selected-list='selectedList'
+        :selected-id='selectedIdList'
+        @select-assessmentType='handleSelectAssessmentType'
+        @select-sync='handleSelectListData'
+        @select-curriculum='handleSelectCurriculum'
+        @select-subject-specific-skill='handleSelectSubjectSpecificSkillListData'
+        @select-century-skill='handleSelect21CenturySkillListData'
+        @select-idu='handleSelectIdu'
+        @select-recommend='handleSelectRecommend'
+        @cancel-select='handleCancelSelectData'
+        @ensure-select='handleEnsureSelectData'
+      />
+    </template>
   </div>
 </template>
 
@@ -31,6 +38,7 @@ import { NavigationType } from '@/components/NewLibrary/NavigationType'
 import * as logger from '@/utils/logger'
 import { TaskAddOrUpdate, TaskQueryById } from '@/api/task'
 import NewBrowser from '@/components/NewLibrary/NewBrowser'
+import { SelectModel } from '@/components/NewLibrary/SelectModel'
 
 export default {
   name: 'TaskLibrary',
@@ -45,6 +53,7 @@ export default {
   },
   data () {
     return {
+      taskLoading: true,
       recommendData: [],
       recommendDataIdList: [],
       selectedList: [],
@@ -79,8 +88,24 @@ export default {
         customFieldData: null
       },
 
+      selectedSyncList: [],
+      // 已选择的大纲知识点描述数据
+      selectedCurriculumList: [],
+      // specific skill
+      selectedSpecificSkillList: [],
+      // century skill
+      selectedCenturySkillList: [],
+      selectedAssessmentList: [],
+      selectModel: SelectModel,
+
+      selectedIduList: [],
+      selectedRecommendList: [],
+
       NavigationType: NavigationType
     }
+  },
+  created() {
+    this.loadTaskData(this.taskId)
   },
   methods: {
 
@@ -95,6 +120,16 @@ export default {
           taskData.materialList = []
         }
         this.form = taskData
+        this.selectedList = JSON.parse(JSON.stringify(this.form.learnOuts))
+        this.form.learnOuts.forEach(item => {
+          if (item.knowledgeId) {
+            this.selectedIdList.push(item.knowledgeId)
+          } else {
+            this.$logger.info('parentData selected id not exist ', item)
+          }
+        })
+      }).finally(() => {
+        this.taskLoading = false
       })
     },
 
@@ -232,7 +267,7 @@ export default {
       })
       this.$logger.info('this.form.learnOuts', this.form.learnOuts)
       this.selectSyncDataVisible = false
-      this.handleCancelSelectData()
+      this.autoSave()
     },
 
     async autoSave() {
@@ -243,6 +278,11 @@ export default {
       logger.info('basic taskData', taskData)
       await TaskAddOrUpdate(taskData).then((response) => {
         logger.info('TaskAddOrUpdate', response.result)
+        if (response.success) {
+          this.$message.success('add successfully')
+        } else {
+          this.$message.error(response.message)
+        }
       })
     }
   }
@@ -251,8 +291,18 @@ export default {
 
 <style lang='less' scoped>
 @import "~@/components/index.less";
-
 .task-library {
   height: 100%;
+  width: 100%;
+  .loading-task {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    img {
+      height: 200px;
+    }
+  }
 }
 </style>

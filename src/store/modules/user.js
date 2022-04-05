@@ -7,6 +7,7 @@ import { welcome, setCookie, delCookie } from '@/utils/util'
 import * as logger from '@/utils/logger'
 import { SESSION_ACTIVE_KEY } from '@/const/common'
 import { teacher } from '@/const/role'
+import { getAllSubjectsByCurriculumId } from '@/api/preference'
 
 const user = {
   state: {
@@ -28,7 +29,8 @@ const user = {
     school: '',
     schoolRole: '',
     studentClassList: [],
-    currentSchool: {}
+    currentSchool: {},
+    allSubjects: []
   },
 
   mutations: {
@@ -81,6 +83,9 @@ const user = {
     SET_CURRENT_SCHOOL: (state, currentSchool) => {
       state.currentSchool = currentSchool
       storage.set(SET_CURRENT_SCHOOL, currentSchool)
+    },
+    SET_SUBJECTS: (state, allSubjects) => {
+      state.allSubjects = allSubjects
     }
   },
 
@@ -273,30 +278,6 @@ const user = {
       })
     },
 
-    // get school class list for student
-    // GetSchoolClassList({ commit }, schoolId) {
-    //   return new Promise((resolve, reject) => {
-    //     SchoolClassClassList({
-    //       schoolId: schoolId,
-    //       pageNo: 1,
-    //       pageSize: 100
-    //     }).then((response) => {
-    //       if (response.success) {
-    //         const result = response.result
-    //         commit('SET_STUDENT_CLASS_LIST', result.records)
-    //         storage.set(SET_STUDENT_CLASS_LIST, result.records)
-
-    //         resolve(result)
-    //       } else {
-    //         reject(response.message)
-    //       }
-    //     }).catch(() => {
-    //       resolve()
-    //     }).finally(() => {
-    //     })
-    //   })
-    // },
-
     // get student all class list
     GetClassList({ commit, state }) {
       return new Promise((resolve, reject) => {
@@ -314,6 +295,27 @@ const user = {
           resolve()
         }).finally(() => {
         })
+      })
+    },
+
+    GetAllSubjects({ commit }, curriculumId) {
+      logger.info('GetAllSubjects curriculumId ' + curriculumId)
+      return new Promise((resolve, reject) => {
+        if (curriculumId) {
+          getAllSubjectsByCurriculumId({ curriculumId }).then(res => {
+            logger.info('GetAllSubjects res' + curriculumId, res)
+            if (res.success) {
+              commit('SET_SUBJECTS', res.result)
+            } else {
+              reject(res.message)
+            }
+          }).catch(() => {
+            resolve()
+          }).finally(() => {
+          })
+        } else {
+          resolve()
+        }
       })
     }
   }

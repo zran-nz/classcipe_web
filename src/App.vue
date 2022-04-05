@@ -37,20 +37,16 @@ export default {
         return window.location.href.indexOf('addon-iframe') === -1
       }
     },
-    mounted () {
+    watch: {
+      '$store.getters.bindCurriculum': function (newValue) {
+        if (newValue) {
+          this.$store.dispatch('GetAllSubjects', newValue)
+        }
+      }
     },
     created () {
       if (this.$store.getters.userInfo) {
         this.$store.dispatch('initData')
-      }
-
-      // 加载planning-format配置数据
-      if (!this.$store.getters.formConfigData.loaded) {
-        let token = this.$route.query.token
-        if (!token) {
-          token = storage.get(ACCESS_TOKEN)
-        }
-        this.$store.dispatch('loadFormConfigData', token)
       }
     }
   }

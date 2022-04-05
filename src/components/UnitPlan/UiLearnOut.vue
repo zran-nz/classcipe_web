@@ -7,7 +7,7 @@
           <div class="objectives-list" v-for="(k,index) in getKnowledgeListType(TagType.skill)" :key="index">
             <div class="objectives-list-item objectives-list-item-skill objectives-list-item-top-fixed">
               <div class="skt-description" @dblclick="handleAddTag(k)">
-                <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
+                <a-tooltip placement="topLeft" :title="k.path"> {{ k.name }}</a-tooltip>
               </div>
             </div>
             <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(k)" cancel-text="No" v-if="canEdit">
@@ -22,8 +22,17 @@
             class="objectives-input-item objectives-input-item-skill"
             v-for='(skillInput, sIdx) in skillInputList'
             :key='sIdx'>
-            <a-input v-model='skillInput.name' class='skill-input' placeholder='Type in your learning objective' :disabled="!canEdit"/>
-            <!-- <a-input v-model='skillInput.name' class='skill-input' placeholder='Type in your learning objective' :disabled="!canEdit"/> -->
+            <self-outs-input
+              class='skill-input'
+              :filter-types='[TagType.skill, TagType.ibSkill, TagType.idu]'
+              :grade-ids='$store.getters.userInfo.preference.gradeIds'
+              :subject-ids='$store.getters.userInfo.preference.subjectIds'
+              :default-display-name='skillInput.name'
+              :default-self-out-subject='skillInput.subjectId ? skillInput.subjectId : null'
+              :disabled="!canEdit"
+              @update-value='(newName) => skillInput.name = newName'
+              @update-subject='(newSubject) => skillInput.subjectId = newSubject'
+            />
             <a-popconfirm title="Delete?" ok-text="Yes" @confirm='handleDeleteSkill(skillInput)' cancel-text="No" v-if="canEdit">
               <img class='self-out-delete-icon' src="~@/assets/icons/tag/delete.png" alt=''/>
             </a-popconfirm>
@@ -42,7 +51,7 @@
           <div class="objectives-list" v-for="(k,index) in getKnowledgeListType(TagType.knowledge)" :key="index">
             <div class="objectives-list-item objectives-list-item-learn objectives-list-item-top-fixed">
               <div class="skt-description" @dblclick="handleAddTag(k)">
-                <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
+                <a-tooltip placement="topLeft" :title="k.path"> {{ k.name }}</a-tooltip>
               </div>
             </div>
             <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(k)" cancel-text="No" v-if="canEdit">
@@ -57,7 +66,17 @@
             class="objectives-input-item objectives-input-item-skill"
             v-for='(knowledgeInput, sIdx) in knowledgeInputList'
             :key='sIdx'>
-            <a-input v-model='knowledgeInput.name' class='knowledge-input' placeholder='Type in your learning objective' :disabled="!canEdit"/>
+            <self-outs-input
+              class='knowledge-input'
+              :filter-types='[TagType.knowledge]'
+              :grade-ids='$store.getters.userInfo.preference.gradeIds'
+              :subject-ids='$store.getters.userInfo.preference.subjectIds'
+              :default-display-name='knowledgeInput.name'
+              :default-self-out-subject='knowledgeInput.subjectId ? knowledgeInput.subjectId : null'
+              :disabled="!canEdit"
+              @update-value='(newName) => knowledgeInput.name = newName'
+              @update-subject='(newSubject) => knowledgeInput.subjectId = newSubject'
+            />
             <a-popconfirm title="Delete?" ok-text="Yes" @confirm='handleDeleteKnowledge(knowledgeInput)' cancel-text="No" v-if="canEdit">
               <img class='self-out-delete-icon' src="~@/assets/icons/tag/delete.png" />
             </a-popconfirm>
@@ -80,7 +99,7 @@
             <div class="objectives-list" v-for="(k,index) in categoryItem.list" :key="index">
               <div class="objectives-list-item objectives-list-item-21 objectives-list-item-top-fixed" @click="handleActiveDescription(TagType.century,k)">
                 <div class="skt-description skt-description-21" @dblclick="handleAddTag(k)">
-                  <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
+                  <a-tooltip placement="topLeft" :title="k.path"> {{ k.name }}</a-tooltip>
                 </div>
                 <div
                   v-if="k.tagType === TagType.century"
@@ -113,7 +132,17 @@
             class="objectives-input-item objectives-input-item-skill"
             v-for='(centuryInput, sIdx) in centuryInputList'
             :key='sIdx'>
-            <a-input v-model='centuryInput.name' class='century-input' placeholder='Type in your learning objective' :disabled="!canEdit"/>
+            <self-outs-input
+              class='century-input'
+              :filter-types='[TagType.century, TagType.common]'
+              :grade-ids='$store.getters.userInfo.preference.gradeIds'
+              :subject-ids='$store.getters.userInfo.preference.subjectIds'
+              :default-display-name='centuryInput.name'
+              :default-self-out-subject='centuryInput.subjectId ? centuryInput.subjectId : null'
+              :disabled="!canEdit"
+              @update-value='(newName) => centuryInput.name = newName'
+              @update-subject='(newSubject) => centuryInput.subjectId = newSubject'
+            />
             <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteCentury(centuryInput)" cancel-text="No" v-if="canEdit">
               <img class='self-out-delete-icon' src="~@/assets/icons/tag/delete.png" />
             </a-popconfirm>
@@ -200,10 +229,12 @@
   import { getAll21Century } from '@/api/knowledge'
   import AddGreenIcon from '@/assets/svgIcon/evaluation/form/tianjia_green.svg?inline'
   import QuickWordButton from '@/components/Button/QuickWordButton'
+  import SelfOutsInput from '@/components/UnitPlan/SelfOutsInput'
 
   export default {
     name: 'UiLearnOut',
     components: {
+      SelfOutsInput,
       LearnOutAddTag,
       NoMoreResources,
       AddGreenIcon,
@@ -222,12 +253,6 @@
         type: Boolean,
         default: true
       }
-    },
-    mounted () {
-
-    },
-    destroyed () {
-
     },
     computed: {
       dealPath () {
@@ -519,6 +544,7 @@
         this.$logger.info('handleAddNew ', inputList)
         inputList.push({
           name: '',
+          subjectId: null,
           key: Math.random() + '',
           tagType: tagType
         })
@@ -862,17 +888,14 @@
     }
     .skill-input {
       border: 1px solid #FF978E;
-      box-shadow: 0 0 0 2px rgba(255, 151, 142, 0.2);
     }
 
     .knowledge-input {
       border: 1px solid #D4EBE7;
-      box-shadow: 0 0 0 2px rgba(212, 235, 231, 0.2);
     }
 
     .century-input {
       border: 1px solid #D7E0E9;
-      box-shadow: 0 0 0 2px rgba(215, 224, 225, 0.2);
     }
   }
 

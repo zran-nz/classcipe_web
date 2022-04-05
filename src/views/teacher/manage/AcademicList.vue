@@ -83,7 +83,6 @@ export default {
     handleModeChange(userMode) {
       // 模式切换，个人还是学校 个人接口
       this.debounceInit()
-      this.resetTableWidth()
     },
     initData() {
       this.loadData()

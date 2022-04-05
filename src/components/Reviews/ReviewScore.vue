@@ -52,7 +52,6 @@ export default {
     review: {
       handler(val) {
         this.data = val ? { ...val } : {}
-        console.log(this.data)
       },
       immediate: true
     },

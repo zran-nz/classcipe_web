@@ -128,6 +128,7 @@ import { typeMap } from '@/const/teacher'
 import { STable } from '@/components'
 import ReviewScore from '@/components/Reviews/ReviewScore'
 import CommonPreview from '@/components/Common/CommonPreview'
+import { TableWidthMixin } from '@/mixins/TableWidthMixin'
 
 import FilterIcon from '@/assets/libraryv2/filter.svg?inline'
 import FilterActiveIcon from '@/assets/libraryv2/filter_active.svg?inline'
@@ -136,6 +137,7 @@ import { myStatisticsStudent, myStatisticsTeacher } from '@/api/statistics'
 
 export default {
   name: 'TeacherSellStatistics',
+  mixins: [TableWidthMixin],
   components: {
     FilterIcon,
     FilterActiveIcon,
@@ -226,7 +228,9 @@ export default {
 
       previewVisible: false,
       previewCurrentId: '',
-      previewType: ''
+      previewType: '',
+
+      tableRefs: ['teacherTable', 'studentTable']
     }
   },
   computed: {
@@ -318,37 +322,8 @@ export default {
     logger.info('statistics my content')
     this.init()
   },
-  mounted() {
-    this.resetTableWidth()
-  },
   methods: {
     init() {
-    },
-    resetTableWidth() {
-      if (!this.$refs[this.currentType + 'Table']) return
-      const totalWidth = this.columns.map(item => {
-        if (item.width && item.width !== 'auto') {
-          return parseInt(item.width)
-        } else {
-          return 0
-        }
-      }).reduce((prev, current) => {
-        console.log(current)
-        return prev + current
-      }, 0)
-      const conWidth = this.$refs[this.currentType + 'Table'].$el.getBoundingClientRect().width
-      console.log(conWidth, totalWidth)
-      if (conWidth > totalWidth) {
-        this.columns[0].width = 'auto'
-        this.scroll = {
-          x: conWidth
-        }
-      } else {
-        this.scroll = {
-          x: totalWidth
-        }
-        this.columns[this.columns.length - 1].fixed = 'right'
-      }
     },
     toggleType (type) {
       this.currentType = type
