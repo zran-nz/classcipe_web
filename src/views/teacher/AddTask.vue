@@ -5705,7 +5705,7 @@ export default {
 }
 
 .form-header {
-  z-index: 1000;
+  z-index: 997;
   position: fixed;
   top: 64px;
   left: 0;

@@ -325,7 +325,7 @@
                   </a-form-model-item>
                 </a-form-model>
                 <a-space>
-                  <a-button @click="handleSaveCommanTerm" size="small" type="primary">Save</a-button>
+                  <a-button :loading="saveCommanTermLoading" @click="handleSaveCommanTerm" size="small" type="primary">Save</a-button>
                   <a-button @click="showQuickWordCreate = false" size="small" type="">Cancel</a-button>
                 </a-space>
               </div>
@@ -816,6 +816,7 @@
       handleSaveCommanTerm() {
         this.$refs.commandTermFormRef.validate(valid => {
           if (valid) {
+            this.saveCommanTermLoading = true
             KnowledgeTermTagCustomCreate({
               name: this.commandTermForm.name,
               bloomTagId: this.bloomParentId,
@@ -827,9 +828,11 @@
                   word: this.commandTermForm.name,
                   parentId: this.bloomParentId,
                   tag: this.commandTermForm.bloom,
-                  id: res.data
+                  id: res.result.id
                 }, 'commandTerms')
               }
+            }).finally(() => {
+              this.saveCommanTermLoading = false
             })
           } else {
             return false

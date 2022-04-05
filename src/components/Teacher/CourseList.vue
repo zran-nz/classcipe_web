@@ -237,7 +237,7 @@
         </a-col>
         <a-col span="22">
           <div class="detail-wrapper" v-if="currentTaskId && previewType">
-            <common-preview :id="currentTaskId" :type="previewType" :isLibrary="true"/>
+            <common-preview :id="currentTaskId" :myContentId="myContentId" :type="previewType" :isLibrary="true"/>
           </div>
         </a-col>
       </a-row>
@@ -395,6 +395,7 @@ export default {
       previewType: typeMap.task,
       currentPreviewLesson: null,
       paymentVisible: false,
+      myContentId: null,
 
       takeAwayPreviewVisible: false,
       currentActiveStudentId: null,
@@ -525,6 +526,7 @@ export default {
       this.currentTaskId = item.task.id
       this.currentTaskName = item.task.name
       this.previewType = item.task.type
+      this.myContentId = item.task.myContentId
       this.previewVisible = true
     },
     handlePreviewClose () {
