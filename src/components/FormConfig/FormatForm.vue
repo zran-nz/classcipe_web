@@ -105,10 +105,10 @@
     <div class='format-form-header'>
       <div class='format-form-title'>
         <span class='title-num'>2</span>
-        <span class='title'> Custom field </span>
+        <span class='title'> Customized sections </span>
       </div>
       <div class='format-tag-settings'>
-        <a-button type='primary' @click='handleAddCustomField'><a-icon type="plus" /> Add field </a-button>
+        <a-button type='primary' @click='handleAddCustomField'><a-icon type="plus" /> Add section </a-button>
       </div>
     </div>
     <div class='custom-field-list'>
@@ -135,7 +135,7 @@
             </div>
             <div class='field-item-config'>
               <div class='field-label'>
-                Field name
+                Section name
               </div>
               <div class='field-config'>
                 <div class='field-config-left'>
