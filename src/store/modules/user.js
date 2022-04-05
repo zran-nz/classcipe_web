@@ -7,6 +7,7 @@ import { welcome, setCookie, delCookie } from '@/utils/util'
 import * as logger from '@/utils/logger'
 import { SESSION_ACTIVE_KEY } from '@/const/common'
 import { teacher } from '@/const/role'
+import { getAllSubjectsByCurriculumId } from '@/api/preference'
 
 const user = {
   state: {
@@ -28,7 +29,8 @@ const user = {
     school: '',
     schoolRole: '',
     studentClassList: [],
-    currentSchool: {}
+    currentSchool: {},
+    allSubjects: []
   },
 
   mutations: {
@@ -81,6 +83,10 @@ const user = {
     SET_CURRENT_SCHOOL: (state, currentSchool) => {
       state.currentSchool = currentSchool
       storage.set(SET_CURRENT_SCHOOL, currentSchool)
+    },
+    SET_SUBJECTS: (state, allSubjects) => {
+      this.$logger.info('SET_SUBJECTS', allSubjects)
+      state.allSubjects = allSubjects
     }
   },
 
@@ -176,6 +182,10 @@ const user = {
               commit('SET_TOKEN', result.token)
               setCookie(ACCESS_TOKEN, result.token)
               window.sessionStorage.setItem(SESSION_ACTIVE_KEY, result.token)
+            }
+
+            if (result.bindCurriculum) {
+              this.$store.dispatch('GetAllSubjects', result.bindCurriculum)
             }
             resolve(response)
           } else {
@@ -309,6 +319,23 @@ const user = {
             resolve(result)
           } else {
             reject(response.message)
+          }
+        }).catch(() => {
+          resolve()
+        }).finally(() => {
+        })
+      })
+    },
+
+    GetAllSubjects({ commit }, curriculumId) {
+      this.$logger.info('GetAllSubjects ' + curriculumId)
+      return new Promise((resolve, reject) => {
+        getAllSubjectsByCurriculumId({ curriculumId }).then(res => {
+          this.$logger.info('GetAllSubjects ' + curriculumId, res)
+          if (res.success) {
+            this.$store.commit('SET_SUBJECTS', res.result)
+          } else {
+            reject(res.message)
           }
         }).catch(() => {
           resolve()

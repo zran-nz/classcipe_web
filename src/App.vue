@@ -37,8 +37,6 @@ export default {
         return window.location.href.indexOf('addon-iframe') === -1
       }
     },
-    mounted () {
-    },
     created () {
       if (this.$store.getters.userInfo) {
         this.$store.dispatch('initData')
