@@ -888,17 +888,14 @@
     }
     .skill-input {
       border: 1px solid #FF978E;
-      box-shadow: 0 0 0 2px rgba(255, 151, 142, 0.2);
     }
 
     .knowledge-input {
       border: 1px solid #D4EBE7;
-      box-shadow: 0 0 0 2px rgba(212, 235, 231, 0.2);
     }
 
     .century-input {
       border: 1px solid #D7E0E9;
-      box-shadow: 0 0 0 2px rgba(215, 224, 225, 0.2);
     }
   }
 
