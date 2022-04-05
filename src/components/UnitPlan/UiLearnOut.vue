@@ -419,6 +419,7 @@
         currentObjective: null,
         bloomParentId: '',
         bloomOptions: [],
+        saveCommanTermLoading: false,
         commandTermForm: {
           name: '',
           parentId: '',
