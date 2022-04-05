@@ -10,12 +10,14 @@
       @input.native='updateOptionsListFunction'
       @change='updateOptionsListFunction'>
     </a-input>
-    <div class='selfout-subject' v-if='displaySubjectList.length'>
+    <div class='selfout-subject' v-if='$store.getters.userSubjects.length'>
       <a-select
+        :getPopupContainer="trigger => trigger.parentElement"
         v-model="selfOutSubject"
         :default-value="selfOutSubject"
+        placeholder='Select subject'
         class="select-subject">
-        <a-select-option v-for="(subjectItem) in displaySubjectList" :value="subjectItem.id" :key="subjectItem.id">
+        <a-select-option v-for="(subjectItem) in $store.getters.userSubjects" :value="subjectItem.id" :key="subjectItem.id">
           {{ subjectItem.name }}
         </a-select-option>
       </a-select>
@@ -71,19 +73,6 @@ export default {
     },
     selfOutSubject (newVal) {
       this.$emit('update-subject', newVal)
-    }
-  },
-  computed: {
-    displaySubjectList () {
-      this.$logger.info('displaySubjectList allSubjects', this.$store.getters.allSubjects, 'subjectIds', this.subjectIds)
-      const list = []
-      this.$store.getters.allSubjects.forEach(subject => {
-        if (this.subjectIds.includes(subject.id)) {
-          list.push(subject)
-        }
-      })
-      this.$logger.info('displaySubjectList list', list)
-      return list
     }
   },
   data () {
@@ -221,10 +210,10 @@ export default {
 }
 
 .selfout-subject {
-  width: 80px;
   position: absolute;
   right: 0;
   top: 0;
+  min-width: 150px;
 }
 
 </style>

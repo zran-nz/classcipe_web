@@ -37,6 +37,13 @@ export default {
         return window.location.href.indexOf('addon-iframe') === -1
       }
     },
+    watch: {
+      '$store.getters.bindCurriculum': function (newValue) {
+        if (newValue) {
+          this.$store.dispatch('GetAllSubjects', newValue)
+        }
+      }
+    },
     created () {
       if (this.$store.getters.userInfo) {
         this.$store.dispatch('initData')
@@ -50,6 +57,8 @@ export default {
         }
         this.$store.dispatch('loadFormConfigData', token)
       }
+
+      this.$store.dispatch('GetAllSubjects', this.$store.getters.bindCurriculum)
     }
   }
 </script>

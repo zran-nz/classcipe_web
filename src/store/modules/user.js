@@ -85,7 +85,6 @@ const user = {
       storage.set(SET_CURRENT_SCHOOL, currentSchool)
     },
     SET_SUBJECTS: (state, allSubjects) => {
-      this.$logger.info('SET_SUBJECTS', allSubjects)
       state.allSubjects = allSubjects
     }
   },
@@ -279,30 +278,6 @@ const user = {
       })
     },
 
-    // get school class list for student
-    // GetSchoolClassList({ commit }, schoolId) {
-    //   return new Promise((resolve, reject) => {
-    //     SchoolClassClassList({
-    //       schoolId: schoolId,
-    //       pageNo: 1,
-    //       pageSize: 100
-    //     }).then((response) => {
-    //       if (response.success) {
-    //         const result = response.result
-    //         commit('SET_STUDENT_CLASS_LIST', result.records)
-    //         storage.set(SET_STUDENT_CLASS_LIST, result.records)
-
-    //         resolve(result)
-    //       } else {
-    //         reject(response.message)
-    //       }
-    //     }).catch(() => {
-    //       resolve()
-    //     }).finally(() => {
-    //     })
-    //   })
-    // },
-
     // get student all class list
     GetClassList({ commit, state }) {
       return new Promise((resolve, reject) => {
@@ -324,19 +299,23 @@ const user = {
     },
 
     GetAllSubjects({ commit }, curriculumId) {
-      this.$logger.info('GetAllSubjects ' + curriculumId)
+      logger.info('GetAllSubjects curriculumId ' + curriculumId)
       return new Promise((resolve, reject) => {
-        getAllSubjectsByCurriculumId({ curriculumId }).then(res => {
-          this.$logger.info('GetAllSubjects ' + curriculumId, res)
-          if (res.success) {
-            this.$store.commit('SET_SUBJECTS', res.result)
-          } else {
-            reject(res.message)
-          }
-        }).catch(() => {
+        if (curriculumId) {
+          getAllSubjectsByCurriculumId({ curriculumId }).then(res => {
+            logger.info('GetAllSubjects res' + curriculumId, res)
+            if (res.success) {
+              commit('SET_SUBJECTS', res.result)
+            } else {
+              reject(res.message)
+            }
+          }).catch(() => {
+            resolve()
+          }).finally(() => {
+          })
+        } else {
           resolve()
-        }).finally(() => {
-        })
+        }
       })
     }
   }
