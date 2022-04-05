@@ -579,144 +579,151 @@ export const asyncRouterMap = [
  * @type { *[] }
  */
 export const constantRouterMap = [
-  {
-    path: '/user',
-    component: UserLayout,
-    redirect: '/user/login',
-    hidden: true,
-    children: [
-      {
-        path: 'login',
-        name: 'login',
-        component: () => import(/* webpackChunkName: "login" */ '@/views/user/Login')
-      },
-      {
-        path: 'register',
-        name: 'register',
-        component: () => import(/* webpackChunkName: "register" */ '@/views/user/Register')
-      },
-      {
-        path: 'resetPassword',
-        name: 'resetPassword',
-        component: () => import(/* webpackChunkName: "resetPassword" */ '@/views/user/ResetPassword')
-      },
-      {
-        path: 'invite',
-        name: 'invite',
-        component: () => import(/* webpackChunkName: "invite" */ '@/views/user/Invite')
-      },
-      {
-        path: 'register-result',
-        name: 'registerResult',
-        component: () => import(/* webpackChunkName: "registerResult" */ '@/views/user/RegisterResult')
-      },
-      {
-        path: 'select-role',
-        name: 'selectRole',
-        component: () => import(/* webpackChunkName: "selectRole" */ '@/views/user/SelectRole')
-      },
-      {
-        path: 'add-preference',
-        name: 'addPreference',
-        component: () => import(/* webpackChunkName: "addPreference" */ '@/views/user/AddPreference')
-      },
-      {
-        path: 'auth-check',
-        name: 'authCheck',
-        component: () => import(/* webpackChunkName: "authCheck" */ '@/views/user/AuthCheck')
-      },
-      {
-        path: 'auth-redirect',
-        name: 'authRedirect',
-        component: () => import(/* webpackChunkName: "authRedirect" */ '@/views/user/AuthRedirect')
-      }
-    ]
-  },
-  {
-    path: '/user/auth-result',
-    name: 'authResult',
-    component: () => import(/* webpackChunkName: "authResult" */ '@/views/user/AuthResult'),
-    props: true
-  },
-  {
-    path: '/collaborate/:code',
-    name: 'CollaborateJoin',
-    props: true,
-    meta: { title: 'Collaborate invite', keepAlive: true, icon: bxAnaalyse, permission: ['teacher'] },
-    component: () => import(/* webpackChunkName: "fail" */ '@/views/collaborate/Join')
-  },
-  {
-    path: '/linkValid',
-    name: 'linkValid',
-    props: true,
-    meta: { title: 'Collaborate invite', keepAlive: true, icon: bxAnaalyse, permission: ['teacher'] },
-    component: () => import(/* webpackChunkName: "fail" */ '@/views/collaborate/LinkValid')
-  },
-  // addon
-  {
-    path: '/addon',
-    name: 'addon',
-    component: BlankLayout,
-    children: [
-      {
-        path: '/addon/callback',
-        name: 'addonCallback',
-        props: true,
-        component: () => import(/* webpackChunkName: "fail" */ '@/views/addon/AddonCallback'),
-        meta: { title: 'Redirectt', keepAlive: true }
-      },
-      {
-        path: '/addon/pageRedirect/:sourceType?/:id',
-        name: 'pageRedirect',
-        props: true,
-        component: () => import(/* webpackChunkName: "fail" */ '@/views/addon/PageRedirect')
-      },
-      {
-        path: '/addon/classGoBack',
-        name: 'classGoBack',
-        props: true,
-        component: () => import(/* webpackChunkName: "fail" */ '@/views/addon/ClassGoBack'),
-        meta: { title: 'Back', keepAlive: true }
-      }
-    ]
-  },
-  // addon iframe 引用组件
-  {
-    path: '/addon-iframe',
-    name: 'addon-iframe',
-    component: AddOnLayout,
-    children: [
-      {
-        path: '/addon-iframe/task-library/:taskId',
-        name: 'TaskLibrary',
-        props: true,
-        component: () => import(/* webpackChunkName: "TaskLibrary" */ '@/views/addon/TaskLibrary'),
-        meta: { title: 'Task Library', keepAlive: true }
-      }
-    ]
-  },
-  // share
-  {
-    path: '/share',
-    name: 'share',
-    component: BlankLayout,
-    meta: { title: 'Share', keepAlive: true },
-    children: [
-      {
-        path: '/share/:code',
-        name: 'shareDetail',
-        props: true,
-        component: () => import('@/views/share/ShareDetail'),
-        meta: { title: 'Share', keepAlive: true }
-      }
-    ]
-  },
+         {
+           path: '/user',
+           component: UserLayout,
+           redirect: '/user/login',
+           hidden: true,
+           children: [
+             {
+               path: 'login',
+               name: 'login',
+               component: () => import(/* webpackChunkName: "login" */ '@/views/user/Login')
+             },
+             {
+               path: 'register',
+               name: 'register',
+               component: () => import(/* webpackChunkName: "register" */ '@/views/user/Register')
+             },
+             {
+               path: 'resetPassword',
+               name: 'resetPassword',
+               component: () => import(/* webpackChunkName: "resetPassword" */ '@/views/user/ResetPassword')
+             },
+             {
+               path: 'invite',
+               name: 'invite',
+               component: () => import(/* webpackChunkName: "invite" */ '@/views/user/Invite')
+             },
+             {
+               path: 'register-result',
+               name: 'registerResult',
+               component: () => import(/* webpackChunkName: "registerResult" */ '@/views/user/RegisterResult')
+             },
+             {
+               path: 'select-role',
+               name: 'selectRole',
+               component: () => import(/* webpackChunkName: "selectRole" */ '@/views/user/SelectRole')
+             },
+             {
+               path: 'add-preference',
+               name: 'addPreference',
+               component: () => import(/* webpackChunkName: "addPreference" */ '@/views/user/AddPreference')
+             },
+             {
+               path: 'auth-check',
+               name: 'authCheck',
+               component: () => import(/* webpackChunkName: "authCheck" */ '@/views/user/AuthCheck')
+             },
+             {
+               path: 'auth-redirect',
+               name: 'authRedirect',
+               component: () => import(/* webpackChunkName: "authRedirect" */ '@/views/user/AuthRedirect')
+             }
+           ]
+         },
+         {
+           path: '/user/auth-result',
+           name: 'authResult',
+           component: () => import(/* webpackChunkName: "authResult" */ '@/views/user/AuthResult'),
+           props: true
+         },
+         {
+           path: '/collaborate/:code',
+           name: 'CollaborateJoin',
+           props: true,
+           meta: { title: 'Collaborate invite', keepAlive: true, icon: bxAnaalyse, permission: ['teacher'] },
+           component: () => import(/* webpackChunkName: "fail" */ '@/views/collaborate/Join')
+         },
+         {
+           path: '/linkValid',
+           name: 'linkValid',
+           props: true,
+           meta: { title: 'Collaborate invite', keepAlive: true, icon: bxAnaalyse, permission: ['teacher'] },
+           component: () => import(/* webpackChunkName: "fail" */ '@/views/collaborate/LinkValid')
+         },
+         // addon
+         {
+           path: '/addon',
+           name: 'addon',
+           component: BlankLayout,
+           children: [
+             {
+               path: '/addon/callback',
+               name: 'addonCallback',
+               props: true,
+               component: () => import(/* webpackChunkName: "fail" */ '@/views/addon/AddonCallback'),
+               meta: { title: 'Redirectt', keepAlive: true }
+             },
+             {
+               path: '/addon/pageRedirect/:sourceType?/:id',
+               name: 'pageRedirect',
+               props: true,
+               component: () => import(/* webpackChunkName: "fail" */ '@/views/addon/PageRedirect')
+             },
+             {
+               path: '/addon/classGoBack',
+               name: 'classGoBack',
+               props: true,
+               component: () => import(/* webpackChunkName: "fail" */ '@/views/addon/ClassGoBack'),
+               meta: { title: 'Back', keepAlive: true }
+             }
+           ]
+         },
+         // addon iframe 引用组件
+         {
+           path: '/addon-iframe',
+           name: 'addon-iframe',
+           component: AddOnLayout,
+           children: [
+             {
+               path: '/addon-iframe/task-library/:taskId',
+               name: 'TaskLibrary',
+               props: true,
+               component: () => import(/* webpackChunkName: "TaskLibrary" */ '@/views/addon/TaskLibrary'),
+               meta: { title: 'Task Library', keepAlive: true }
+             },
+             {
+               path: '/addon-iframe/tip/:taskId',
+               name: 'Tip',
+               props: true,
+               component: () => import(/* webpackChunkName: "Tip" */ '@/views/addon/Tip'),
+               meta: { title: 'Tip', keepAlive: true }
+             }
+           ]
+         },
+         // share
+         {
+           path: '/share',
+           name: 'share',
+           component: BlankLayout,
+           meta: { title: 'Share', keepAlive: true },
+           children: [
+             {
+               path: '/share/:code',
+               name: 'shareDetail',
+               props: true,
+               component: () => import('@/views/share/ShareDetail'),
+               meta: { title: 'Share', keepAlive: true }
+             }
+           ]
+         },
 
-  {
-    path: '/404',
-    component: () => import(/* webpackChunkName: "fail" */ '@/views/exception/404')
-  }
-]
+         {
+           path: '/404',
+           component: () => import(/* webpackChunkName: "fail" */ '@/views/exception/404')
+         }
+       ]
 
 /**
  * default teacher main router

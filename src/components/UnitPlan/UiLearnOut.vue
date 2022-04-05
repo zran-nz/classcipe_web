@@ -24,6 +24,7 @@
             :key='sIdx'>
             <self-outs-input
               class='skill-input'
+
               :filter-types='[TagType.skill, TagType.ibSkill, TagType.idu]'
               :grade-ids='$store.getters.userInfo.preference.gradeIds'
               :subject-ids='$store.getters.userInfo.preference.subjectIds'
@@ -65,6 +66,7 @@
             :key='sIdx'>
             <self-outs-input
               class='knowledge-input'
+
               :filter-types='[TagType.knowledge]'
               :grade-ids='$store.getters.userInfo.preference.gradeIds'
               :subject-ids='$store.getters.userInfo.preference.subjectIds'
@@ -128,6 +130,7 @@
             :key='sIdx'>
             <self-outs-input
               class='century-input'
+
               :filter-types='[TagType.century, TagType.common]'
               :grade-ids='$store.getters.userInfo.preference.gradeIds'
               :subject-ids='$store.getters.userInfo.preference.subjectIds'

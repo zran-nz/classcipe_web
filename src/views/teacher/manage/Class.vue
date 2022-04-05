@@ -146,12 +146,13 @@ import ClassTeacherList from '@/views/teacher/manage/ClassTeacherList'
 import { USER_MODE } from '@/const/common'
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
+import { TableWidthMixin } from '@/mixins/TableWidthMixin'
 import { mapState } from 'vuex'
 const { debounce } = require('lodash-es')
 
 export default {
   name: 'Class',
-  mixins: [JeecgListMixin, UserModeMixin, CurrentSchoolMixin],
+  mixins: [JeecgListMixin, UserModeMixin, CurrentSchoolMixin, TableWidthMixin],
   components: {
     ClassAdd, ClassStudentList, ClassTeacherList
   },
@@ -177,7 +178,8 @@ export default {
       classTeacherListVisible: false,
       classId: '',
       importLoadingText: 'Bulk import',
-      debounceInit: null
+      debounceInit: null,
+      tableRefs: ['atable']
     }
   },
   created() {
@@ -185,9 +187,6 @@ export default {
     this.getSubjectList()
     this.initData()
     this.debounceInit = debounce(this.initData, 300)
-  },
-  mounted() {
-    this.resetTableWidth()
   },
   computed: {
     importExcelUrl: function () {
@@ -283,31 +282,6 @@ export default {
     }
   },
   methods: {
-    resetTableWidth() {
-      if (!this.$refs['atable']) return
-      const totalWidth = this.columns.map(item => {
-        if (item.width && item.width !== 'auto') {
-          return parseInt(item.width)
-        } else {
-          return 0
-        }
-      }).reduce((prev, current) => {
-        return prev + current
-      }, 0)
-      const conWidth = this.$refs['atable'].$el.getBoundingClientRect().width
-      console.log(conWidth, totalWidth)
-      if (conWidth > totalWidth) {
-        this.columns[0].width = 'auto'
-        this.scroll = {
-          x: conWidth
-        }
-      } else {
-        this.scroll = {
-          x: totalWidth
-        }
-        this.columns[this.columns.length - 1].fixed = 'right'
-      }
-    },
     handleSchoolChange(currentSchool) {
       if (this.userMode === USER_MODE.SCHOOL) {
         this.debounceInit()
