@@ -525,8 +525,6 @@ export default {
               gradeList: treeItemData.gradeList,
               questionIndex: this.questionIndex
             })
-            // subject的children为空，说明到底了。下一层就是grade
-            this.subItemType = 'grade'
           } else {
             LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
               backgroundColor: this.defaultBackgroundColor,
@@ -537,7 +535,12 @@ export default {
               contentList: treeItemData.children,
               questionIndex: this.questionIndex
             })
+          }
+
+          if (treeItemData.gradeList && treeItemData.gradeList.length) {
             this.subItemType = 'grade'
+          } else {
+            this.subItemType = 'subject'
           }
           this.subTreeLoading = false
           this.subTreeExpandStatus = true
