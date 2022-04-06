@@ -445,6 +445,7 @@
                               :custom-tags='customTags'
                               :learn-outs='form.learnOuts'
                               :self-outs='form.selfOuts'
+                              @addCustomTag="handleAddCustomTagRemote"
                               @remove-learn-outs='handleRemoveLearnOuts'
                               :can-edit="canEdit" />
                           </div>
@@ -2752,6 +2753,12 @@ export default {
       setTimeout(() => {
         this.restoreUnitPlan(this.form.id)
       }, 100)
+    },
+    // 选词自动填入标签功能
+    handleAddCustomTagRemote(res) {
+      if (res.parentId && this.$refs.customTag) {
+        this.$refs.customTag.remoteChooseTag(res.parentId, res.tag)
+      }
     }
   }
 }
