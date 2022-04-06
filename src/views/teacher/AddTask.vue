@@ -249,7 +249,7 @@
                               <a-badge :dot='hasExtraRecommend'>
                                 <a-button type='primary' @click='handleSelectDescription' :disabled="!canEdit">
                                   <div class='btn-text' style='line-height: 20px'>
-                                    Add Learning Objectives
+                                    {{ 'Set learning objectives' | unitLabelName(taskField.LearnOuts, $store.getters.formConfigData) }}
                                   </div>
                                 </a-button>
                               </a-badge>
