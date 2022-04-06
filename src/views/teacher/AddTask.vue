@@ -87,6 +87,7 @@
                                 <input-with-create
                                   v-if="canEdit"
                                   :option-list='classList'
+                                  :disabled-id-list='form.taskClassList.map(item => item.classId)'
                                   :index='cIdx'
                                   :default-selected-id='classItem.classId'
                                   :default-display-name='classItem.className'

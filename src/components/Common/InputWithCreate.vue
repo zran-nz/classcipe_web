@@ -17,7 +17,13 @@
         </div>
         <a-spin size='small' v-show='creating' class='creating-spin'/>
       </div>
-      <div class='option-item' v-for='(option, oIdx) in displayOptionList' :key='oIdx' @click='handleSelectItem(option)' v-if='showOptionList && displayOptionList.length'>
+      <div
+        class='option-item'
+        :class="{'disabled-item': disabledIdList.indexOf(option.id) !== -1 }"
+        v-for='(option, oIdx) in displayOptionList'
+        :key='oIdx'
+        @click='handleSelectItem(option)'
+        v-if='showOptionList && displayOptionList.length'>
         <div class='option-name'>
           {{ option.name }}
         </div>
@@ -36,6 +42,10 @@ export default {
   name: 'InputWithCreate',
   props: {
     optionList: {
+      type: Array,
+      default: () => []
+    },
+    disabledIdList: {
       type: Array,
       default: () => []
     },
@@ -153,10 +163,13 @@ export default {
     },
 
     handleSelectItem (item) {
-      this.$emit('selected', item)
-      this.displayValue = item.name
-      this.selectedId = item.id
-      this.showOptionList = false
+      this.$logger.info('handleSelectItem ' + item.id, 'disabledIdList ' + this.disabledIdList)
+      if (this.disabledIdList.indexOf(item.id) === -1) {
+        this.$emit('selected', item)
+        this.displayValue = item.name
+        this.selectedId = item.id
+        this.showOptionList = false
+      }
     },
 
     handleClick () {
@@ -232,6 +245,18 @@ export default {
     &:hover {
       background: #f5f5f5;
       color: #38cfa6;
+    }
+  }
+
+  .disabled-item {
+    opacity: 0.5;
+    color: #aaa;
+    cursor: not-allowed;
+    user-select: none;
+
+    &:hover {
+      background: #fff;
+      color: #aaa;
     }
   }
 }
