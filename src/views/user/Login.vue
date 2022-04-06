@@ -73,6 +73,10 @@
                   },
                 ]"
               ></a-input-password>
+
+              <div class='error-message'>
+                {{ studentLoginErrorMessage }}
+              </div>
             </a-form-item>
 
             <a-form-item class="form-btn">
@@ -131,7 +135,8 @@ export default {
       defaultActiveKey: 'teacher',
       form: this.$form.createForm(this),
       registerPath: '/user/register',
-      callbackUrl: ''
+      callbackUrl: '',
+      studentLoginErrorMessage: null
     }
   },
   created() {
@@ -183,6 +188,7 @@ export default {
       window.location.href = url
     },
     handleSubmit(e) {
+      this.studentLoginErrorMessage = null
       e.preventDefault()
       const {
         form: { validateFields },
@@ -238,13 +244,7 @@ export default {
       // this.$router.push({ path: '/' })
     },
     requestFailed(err) {
-      this.$message.error(err.message)
-
-      // this.$notification['error']({
-      //   message: 'error',
-      //   description: ((err.response || {}).data || {}).message || 'Error',
-      //   duration: 4
-      // })
+      this.studentLoginErrorMessage = err.message
     },
     handleForget() {
       this.$refs.modal.show()
@@ -363,5 +363,12 @@ export default {
       text-align: left;
     }
   }
+}
+
+.error-message {
+  height: 30px;
+  line-height: 30px;
+  color: #f5222d;
+  font-size: 13px;
 }
 </style>
