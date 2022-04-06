@@ -537,7 +537,7 @@ export default {
               contentList: treeItemData.children,
               questionIndex: this.questionIndex
             })
-            this.subItemType = 'subject'
+            this.subItemType = 'grade'
           }
           this.subTreeLoading = false
           this.subTreeExpandStatus = true
