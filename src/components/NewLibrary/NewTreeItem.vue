@@ -349,7 +349,7 @@ export default {
     // 根据不同的列表类型判断下一层对应的数据类型（注意sync是同步数据只有一级，故没有下级。直接列表展示，所以这里忽略sync的处理）
     if (this.treeItemType === NavigationType.learningOutcomes) {
       if (this.currentItemType === 'subject') {
-        if (this.treeItemData.children.length) {
+        if (this.treeItemData.children.length && !this.treeItemData.children[0].hasOwnProperty('isGrade')) {
           this.subItemType = 'subject'
         } else {
           this.subItemType = 'grade'
