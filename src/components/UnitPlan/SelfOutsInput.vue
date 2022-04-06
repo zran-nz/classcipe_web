@@ -17,7 +17,7 @@
         :default-value="selfOutSubject"
         placeholder='Select subject'
         class="select-subject">
-        <a-select-option v-for="(subjectItem) in $store.getters.userSubjects" :value="subjectItem.id" :key="subjectItem.id">
+        <a-select-option v-for="(subjectItem) in $store.getters.allSubjects" :value="subjectItem.id" :key="subjectItem.id">
           {{ subjectItem.name }}
         </a-select-option>
       </a-select>
