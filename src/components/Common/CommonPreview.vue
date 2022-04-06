@@ -224,7 +224,7 @@
               <div class="overview-block">
                 <div class="learn-question-tag">
                   <div class="learn-out" style="margin: 10px;">
-                    <ui-learn-out-sub :learn-outs="data.learnOuts" :class-info-list="itemsList" />
+                    <ui-learn-out-sub :learn-outs="data.learnOuts" :self-outs='data.selfOuts' :class-info-list="itemsList" />
                   </div>
                 </div>
               </div>
