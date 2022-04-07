@@ -72,7 +72,12 @@
     </div>
 
     <div class="youtube-video-con">
-      <div class="youtube-video-item" v-for="(item, index) in videos" :key="'video'+index">
+      <div
+        class="youtube-video-item"
+        :class="{active: choose.videoId === item.videoId}"
+        @click="chooseVideo(item)"
+        v-for="(item, index) in videos"
+        :key="'video'+index">
         <div class="youtube-video-img">
           <video
             width="230"
@@ -84,8 +89,13 @@
             class="video-item"></video>
         </div>
         <div class="youtube-video-detail">
-          <div class="video-detail-desc">
-            {{ item.description }}
+          <div class="video-detail-content">
+            <div class="video-detail-title">
+              {{ item.title }}
+            </div>
+            <div class="video-detail-desc">
+              {{ item.description }}
+            </div>
           </div>
           <div class="video-detail-time">
             {{ item.date }}
@@ -156,6 +166,7 @@ export default {
       delaySetTime: null,
       playerStatus: -1,
       playerStatusInterval: null,
+      choose: {},
       videos: [
           {
               'link': 'https://www.youtube.com/embed/_UR-l3QI2nE?showinfo=0&modestbranding=1&rel=0',
@@ -729,6 +740,9 @@ export default {
       this.startTime = 0
       this.endTime = 0
       this.videoUrl = ''
+    },
+    chooseVideo(item) {
+      this.choose = { ...item }
     }
   }
 }
@@ -797,6 +811,14 @@ export default {
     overflow-y: auto;
     .youtube-video-item {
       display: flex;
+      border: 2px solid transparent;
+      padding: 5px;
+      &.active {
+        border: 2px solid @primary-color;
+      }
+      &:hover {
+        border: 2px solid @primary-color;
+      }
       &.youtube-video-item {
         margin-top: 20px;
       }
@@ -812,11 +834,20 @@ export default {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        .video-detail-desc {
-          font-size: 14px;
-          font-family: Source Han Sans CN;
-          font-weight: 400;
-          color: #282828;
+        .video-detail-content {
+          .video-detail-title {
+            font-size: 14px;
+            font-family: Source Han Sans CN;
+            font-weight: bold;
+            color: #282828;
+            margin-bottom: 5px;
+          }
+          .video-detail-desc {
+            font-size: 14px;
+            font-family: Source Han Sans CN;
+            font-weight: 400;
+            color: #282828;
+          }
         }
         .video-detail-time {
           font-size: 14px;

@@ -342,15 +342,18 @@
             <a-form-model-item prop="countryId" label="Country">
               <a-select
                 v-model="adminForm.countryId"
+                show-search
                 placeholder="Please Select a Country"
+                option-filter-prop="children"
+                :filter-option="filterOptions"
                 :getPopupContainer="target => target.parentNode"
               >
                 <a-select-option
                   v-for="param in countries"
-                  :value="param.id"
-                  :key="'country_' + param.id"
+                  :value="param.en"
+                  :key="'country_' + param.en"
                 >
-                  {{ param.name }}
+                  {{ param.en }}
                 </a-select-option>
               </a-select>
             </a-form-model-item>
@@ -444,7 +447,7 @@ export default {
       subjectType: SubjectType,
       ageList: [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
 
-      userFormVisible: false,
+      userFormVisible: true,
       adminFormVisible: false,
       confirmLoading: false,
       userForm: {
@@ -551,7 +554,7 @@ export default {
   methods: {
     initDict() {
       GetAllCountrys({}).then(res => {
-        this.countries = res.result
+        this.countries = res
       })
     },
     initBasic () {
@@ -836,6 +839,11 @@ export default {
         }
       }).finally(() => {
       })
+    },
+    filterOptions(input, option) {
+      return (
+        option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
+      )
     }
   }
 }
