@@ -250,6 +250,7 @@ ant-dropdown {
     }
   }
   .school-mode {
+    color: #fff;
     &.active {
       color: #f59a23;
       /deep/ .anticon {

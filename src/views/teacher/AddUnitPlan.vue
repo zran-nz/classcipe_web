@@ -423,7 +423,7 @@
                               <a-badge :dot='hasExtraRecommend'>
                                 <a-button type='primary' @click='handleSelectDescription()' :disabled="!canEdit">
                                   <div class='btn-text' style='line-height: 20px'>
-                                    {{ 'leaning objectives' | unitLabelName(planField.LearnOuts, $store.getters.formConfigData) }}
+                                    {{ 'Set learning objectives' | unitLabelName(planField.LearnOuts, $store.getters.formConfigData) }}
                                   </div>
                                 </a-button>
                               </a-badge>
@@ -445,6 +445,7 @@
                               :custom-tags='customTags'
                               :learn-outs='form.learnOuts'
                               :self-outs='form.selfOuts'
+                              @addCustomTag="handleAddCustomTagRemote"
                               @remove-learn-outs='handleRemoveLearnOuts'
                               :can-edit="canEdit" />
                           </div>
@@ -2752,6 +2753,12 @@ export default {
       setTimeout(() => {
         this.restoreUnitPlan(this.form.id)
       }, 100)
+    },
+    // 选词自动填入标签功能
+    handleAddCustomTagRemote(res) {
+      if (res.parentId && this.$refs.customTag) {
+        this.$refs.customTag.remoteChooseTag(res.parentId, res.tag)
+      }
     }
   }
 }

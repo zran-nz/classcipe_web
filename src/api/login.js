@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+import plainRequest from '@/utils/plainRequest'
 
 const userApi = {
   Login: '/classcipe/sys/login',
@@ -27,7 +28,7 @@ const userApi = {
  * @returns {*}
  */
 export function login (parameter) {
-  return request({
+  return plainRequest({
     url: userApi.Login,
     method: 'post',
     data: parameter

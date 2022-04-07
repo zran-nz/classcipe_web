@@ -1,5 +1,5 @@
 <template>
-  <div class="new-library" id="new-library">
+  <div class="new-library" id="new-library" :style="{'height': displayMode === 'modal' ? '600px' : '100vh'}">
     <div class="navigation">
       <div class="navigation-item" v-show="!expandedListFlag" :style="{'left': (100) + 'px', 'width': (1000) + 'px',}">
         <div class="select-curriculum" v-show="showCurriculum">
@@ -429,6 +429,10 @@ export default {
       type: String,
       default: null
     },
+    displayMode: {
+      type: String,
+      default: 'modal'
+    },
     questionIndex: {
       type: String,
       default: null
@@ -839,7 +843,6 @@ export default {
 @import "~@/components/index.less";
 
 .new-library {
-  height: 600px;
   .navigation {
     display: flex;
     flex-direction: row;

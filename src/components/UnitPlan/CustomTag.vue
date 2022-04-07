@@ -665,15 +665,17 @@ export default {
   }
 }
 
-.no-tag-content {
-  width: 100%;
-  height: 50px;
-  display: flex;
-  background: rgba(21, 195, 154, 0.1);
-  justify-content: center;
-  align-items: center;
-  user-select: none;
-  cursor: pointer;
-  color: #aaa;
+.skt-tag-list {
+  .no-tag-content {
+    width: 100%;
+    height: 50px;
+    display: flex;
+    background: rgba(21, 195, 154, 0.1);
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+    cursor: pointer;
+    color: #aaa;
+  }
 }
 </style>

@@ -126,8 +126,8 @@ export default {
       if (this.$refs.subjectWrap && this.$refs.subjectSelected) {
         const subjectWrapDom = this.$refs.subjectWrap.getBoundingClientRect()
         const subjectSelDom = this.$refs.subjectSelected.getBoundingClientRect()
-        if (subjectWrapDom.top < -40) {
-          this.$refs.subjectSelected.style.cssText = `position:fixed;top:60px;background: #fff;width:${subjectWrapDom.width}px;margin-left: -20px;padding: 20px;border: 1px solid #dfdfdf;box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);`
+        if (subjectWrapDom.top < -44) {
+          this.$refs.subjectSelected.style.cssText = `position:fixed;top:60px;background: #fff;width:${subjectWrapDom.width}px;margin-left: -24px;padding: 20px;border: 1px solid #dfdfdf;box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);`
           this.$refs.copySelected.style.cssText = `display: block;height: ${subjectSelDom.height}px;`
         } else {
           this.$refs.subjectSelected.style.cssText = ''
@@ -158,13 +158,13 @@ export default {
 @import "~@/components/index.less";
 .subject-col {
   width: 100%;
-  border: 1px solid #d8d8d8;
+  border: 1px solid #e8e8e8;
   border-radius: 10px;
   background: #fff;
   .subject-result-wrap {
     background: rgba(228, 228, 228, 0.2);
     opacity: 1;
-    padding: 15px 20px;
+    padding: 24px;
     .subject-circulum {
       display: flex;
       .circulum-item {

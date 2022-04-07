@@ -19,6 +19,7 @@
         :recommend-data='recommendData'
         :selected-list='selectedList'
         :selected-id='selectedIdList'
+        display-mode='iframe'
         @select-assessmentType='handleSelectAssessmentType'
         @select-sync='handleSelectListData'
         @select-curriculum='handleSelectCurriculum'
@@ -102,6 +103,15 @@ export default {
       selectedRecommendList: [],
 
       NavigationType: NavigationType
+    }
+  },
+  mounted () {
+    if (window.parent) {
+      window.parent.postMessage(JSON.stringify({
+        from: 'addon',
+        event: 'task-library-loaded',
+        data: null
+      }), '*')
     }
   },
   created() {

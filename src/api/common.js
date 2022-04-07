@@ -26,7 +26,8 @@ export function GetDictItems (code) {
 
 export function GetAllCountrys () {
   return request({
-    url: commonAPIUrl.GetAllCountrys,
+    url: '/country.json',
+    baseURL: '/',
     method: 'get'
   })
 }

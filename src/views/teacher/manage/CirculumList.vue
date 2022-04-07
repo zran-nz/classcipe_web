@@ -17,6 +17,36 @@
     </div>
     <circulum-sel v-show="currentTab === 'Circulum'"/>
     <subject-sel v-show="currentTab === 'Subject'"/>
+    <div class="new-library" id="new-library" v-show="currentTab === 'Teaching'">
+      <div class="library-title">Please uploade the achivement objectives for your school.</div>
+      <div class="main-tree-content">
+        <div class="tree-navigation">
+          <new-tree-navigation
+            :select-mode="selectMode"
+            :question-index="questionIndex"
+            :show-menu="showMenu"
+            :default-active-menu="defaultActiveMenu"
+            :default-curriculum-id="bindCurriculum || 1"
+          />
+        </div>
+        <div class="content-list">
+          <new-content-list
+            :selected-list="mySelectedList"
+            :current-nav-path='currentNavPath'
+            ref="contentList"
+            @select-big-idea="handleSelectBigIdeaData"
+            @select-sync="handleSelectListData"
+            @select-curriculum="handleSelectCurriculumListData"
+            @select-subject-specific-skill="handleSelectSubjectSpecificSkillListData"
+            @select-century-skill="handleSelect21CenturySkillListData"
+            @select-all-21-century="handleSelectAll21CenturyListData"
+            @select-assessmentType="handleSelectAssessmentType"
+            @select-idu="handleSelectIdu"
+            @update-selected-list="handleUpdateSelectedList"
+          />
+        </div>
+      </div>
+    </div>
   </a-card>
 </template>
 
@@ -25,13 +55,19 @@ import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import CirculumSel from './circulum/CirculumSel'
 import SubjectSel from './circulum/SubjectSel'
+import { NavigationType } from '@/components/NewLibrary/NavigationType'
+import NewTreeNavigation from '@/components/NewLibrary/NewTreeNavigation'
+import NewContentList from '@/components/NewLibrary/NewContentList'
+import { mapState } from 'vuex'
 
 export default {
   name: 'CirculumList',
   mixins: [UserModeMixin, CurrentSchoolMixin],
   components: {
     CirculumSel,
-    SubjectSel
+    SubjectSel,
+    NewTreeNavigation,
+    NewContentList
   },
   data() {
     return {
@@ -46,12 +82,40 @@ export default {
       }, {
           value: 'Teaching',
           title: 'Teaching contents'
-      }]
+      }],
+
+      NavigationType: NavigationType,
+      selectMode: '',
+      questionIndex: '_circulumList_1',
+      showMenu: [NavigationType.specificSkills,
+                NavigationType.centurySkills,
+                NavigationType.learningOutcomes,
+                NavigationType.assessmentType,
+                NavigationType.idu],
+      defaultActiveMenu: NavigationType.learningOutcomes,
+      currentNavPath: null,
+      mySelectedList: [],
+      selectedCurriculumList: [],
+      selectedKnowledgeList: [],
+      selected21CenturySkillList: [],
+      selectedSubjectSpecificSkillList: [],
+      selectedAssessmentList: [],
+      selectedIduList: [],
+      selectedAll21CenturyList: [],
+      selectedBigIdeaList: [],
+      selectedRecommendList: [],
+      selectedRecommendIdList: []
     }
   },
   created() {
   },
-  computed: {},
+  computed: {
+    ...mapState({
+      bindCurriculum: state => state.user.bindCurriculum,
+      currentSchool: state => state.user.currentSchool,
+      userMode: state => state.app.userMode
+    })
+  },
   methods: {
     handleSchoolChange(currentSchool) {
       if (this.$refs[this.currentTab + 'Ref']) {
@@ -60,11 +124,123 @@ export default {
     },
     toggleTab(status) {
       this.currentTab = status
+    },
+    updateSelectedGradeSet() {
+
+    },
+    handleSelectBigIdeaData (data) {
+      this.$logger.info('NewBrowser handleSelectBigIdeaData', data)
+      this.selectedBigIdeaList = data
+      this.$emit('select-big-idea', data)
+
+      this.updateSelectedGradeSet()
+    },
+    handleSelectListData (data) {
+      this.$logger.info('NewBrowser handleSelectListData', data)
+      this.selectedKnowledgeList = data
+      this.$emit('select-sync', data)
+    },
+    handleSelectCurriculumListData (data) {
+      this.$logger.info('NewBrowser handleSelectCurriculumListData', data)
+      this.selectedCurriculumList = data
+      this.$emit('select-curriculum', data)
+
+      this.updateSelectedGradeSet()
+    },
+    handleSelectSubjectSpecificSkillListData (data) {
+      this.$logger.info('NewBrowser handleSelectSubjectSpecificSkillListData', data)
+      this.selectedSubjectSpecificSkillList = data
+      this.$emit('select-subject-specific-skill', data)
+
+      this.updateSelectedGradeSet()
+    },
+
+    // century-skill
+    handleSelect21CenturySkillListData (data) {
+      this.$logger.info('NewBrowser handleSelect21CenturySkillListData', data)
+      this.selected21CenturySkillList = data
+      this.$emit('select-century-skill', data)
+
+      this.updateSelectedGradeSet()
+    },
+
+    handleSelectAll21CenturyListData (data) {
+      this.$logger.info('NewBrowser handleSelectAll21CenturyListData', data)
+      this.selectedAll21CenturyList = data
+      this.$emit('select-all-21-century', data)
+
+      this.updateSelectedGradeSet()
+    },
+    // assessment type
+    handleSelectAssessmentType (data) {
+      this.$logger.info('NewBrowser handleSelectAssessmentType', data)
+      this.selectedAssessmentList = data
+      this.$emit('select-assessmentType', data)
+
+      this.updateSelectedGradeSet()
+    },
+
+    handleSelectIdu (data) {
+      this.$logger.info('NewBrowser handleSelectIdu', data)
+      this.selectedIduList = data
+      this.$emit('select-idu', data)
+
+      this.updateSelectedGradeSet()
+    },
+
+    handleUpdateSelectedList (data) {
+      this.$logger.info('NewBrowser handleUpdateSelectedList', data)
+      this.mySelectedList = data
+
+      this.updateSelectedGradeSet()
     }
+
   }
 }
 </script>
 <style lang="less" scoped>
+@import "~@/components/index.less";
+
+.new-library {
+  height: 600px;
+  border: 1px solid #e8e8e8;
+  border-radius: 10px;
+  background: #fff;
+  padding: 15px 20px;
+  .library-title {
+    line-height: 30px;
+    color: #666;
+    margin-bottom: 5px;
+  }
+  .main-tree-content {
+    width: calc(100% - 90px);
+    z-index: 150;
+    position: absolute;
+    transition: all 200ms ease-in;
+    box-shadow: -3px 0 5px 0 rgba(31, 33, 44, 10%);
+    overflow-y: hidden;
+    height: 530px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+  }
+
+  .tree-navigation {
+    z-index: 150;
+    width: 400px;
+    flex-shrink: 0;
+    height: 100%;
+    overflow-y: scroll;
+    background-color: #fff;
+  }
+
+  .content-list {
+    height: 100%;
+    overflow: hidden;
+    flex: 1;
+  }
+}
 .status-tab {
   cursor: pointer;
   display: flex;

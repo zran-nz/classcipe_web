@@ -62,11 +62,11 @@ export default {
       tip_text: '',
       thumbnailList: [
         { contentUrl: 'https://i.ytimg.com/vi/gya34uYDKXM/mqdefault.jpg' },
-        // { contentUrl: 'https://i.ytimg.com/vi/o3LLz5sg4oI/mqdefault.jpg' },
-        // { contentUrl: 'https://i.ytimg.com/vi/gya34uYDKXM/mqdefault.jpg' },
-        // { contentUrl: 'https://i.ytimg.com/vi/o3LLz5sg4oI/mqdefault.jpg' },
-        // { contentUrl: 'https://i.ytimg.com/vi/gya34uYDKXM/mqdefault.jpg' },
-        // { contentUrl: 'https://i.ytimg.com/vi/o3LLz5sg4oI/mqdefault.jpg' },
+        { contentUrl: 'https://i.ytimg.com/vi/o3LLz5sg4oI/mqdefault.jpg' },
+        { contentUrl: 'https://i.ytimg.com/vi/gya34uYDKXM/mqdefault.jpg' },
+        { contentUrl: 'https://i.ytimg.com/vi/o3LLz5sg4oI/mqdefault.jpg' },
+        { contentUrl: 'https://i.ytimg.com/vi/gya34uYDKXM/mqdefault.jpg' },
+        { contentUrl: 'https://i.ytimg.com/vi/o3LLz5sg4oI/mqdefault.jpg' },
         { contentUrl: 'https://i.ytimg.com/vi/o3LLz5sg4oI/mqdefault.jpg' }
       ]
     }
@@ -82,7 +82,7 @@ export default {
 @import '~@/components/index.less';
 .task-tip {
   height: 100%;
-  width: 100%;
+  width: 920px;
   margin: auto;
   display: flex;
   justify-content: center;
@@ -125,15 +125,10 @@ export default {
 }
 
 .carousel-page {
-  display: flex;
-  height: 144px;
+  height: 200px;
   width: 100%;
-  overflow-x: scroll;
-  overflow-y: hidden;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
+  overflow-x: hidden;
+  overflow-y: auto;
 
   &::-webkit-scrollbar {
     width: 5px;
@@ -155,37 +150,28 @@ export default {
   }
 
   .img-list-wrapper {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
     width: 100%;
 
     .img-list {
-      margin-right: -10px;
       cursor: pointer;
       display: flex;
       flex-direction: row;
-      justify-content: center;
-      align-items: flex-start;
+      flex-wrap: wrap;
 
       .img-item {
-        height: 120px;
-        border: 2px solid #fff;
-        box-shadow: 0 4px 8px 0 rgba(31, 33, 44, 10%);
-        margin-right: 10px;
+        height: 150px;
+        width: 270px;
+        border: 1px solid #fff;
+        padding: 10px;
 
         img {
           height: 100%;
+          width: 100%;
         }
       }
 
-      .img-item:nth-last-child(1) {
-        margin-right: 0;
-      }
-
       .active-img-item {
-        border: 2px solid #15c39a;
-        box-shadow: 0 0 3px 3px #15c39a1a;
+        border: 1px solid #15c39a;
       }
     }
   }

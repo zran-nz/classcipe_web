@@ -27,13 +27,11 @@
     </a-space>
 
     <a-modal
-      title="youtube"
       :visible.sync="showYoutube"
-      :footer='null'
-      @close="closeYoutubeDialog"
+      @cancel="closeYoutubeDialog"
       :append-to-body="true"
       :destroy-on-close="false"
-      destroyOnClose
+      :footer="null"
       width="85%"
     >
       <google-youtube-search ref="googleyoutubevideo"/>

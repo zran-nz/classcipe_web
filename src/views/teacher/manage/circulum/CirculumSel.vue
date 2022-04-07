@@ -1,5 +1,5 @@
 <template>
-  <a-card >
+  <a-card>
     <div class="opt-area">
       <a-form layout="inline">
         <a-row type="flex" justify="start">
@@ -93,6 +93,9 @@ export default {
 </script>
 
 <style scoped lang="less">
+.ant-card-bordered {
+  border-radius: 10px;
+}
 .circulum-con {
   position: relative;
   margin-top: 20px;

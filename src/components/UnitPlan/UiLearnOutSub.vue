@@ -12,7 +12,12 @@
               <!--                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>-->
               <!--              </a-breadcrumb>-->
               <div class="skt-description">
-                <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
+                <a-tooltip :title="k.path">
+                  {{ k.name }}
+                  <span class='subject-name-tag' v-if='k.subjectId && getSubjectName(k.subjectId)'>
+                    <a-tag class='my-subject-name-tag'>{{ getSubjectName(k.subjectId) }}</a-tag>
+                  </span>
+                </a-tooltip>
                 <div class="skt-chart" v-hasRole="['student']" v-if="bloomInfo(k.knowledgeId, 'isExist')">
                   <div class="skt-chart-detail">
                     <label>Bloom Taxonomy</label>
@@ -42,7 +47,12 @@
               <!--                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>-->
               <!--              </a-breadcrumb>-->
               <div class="skt-description">
-                <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
+                <a-tooltip :title="k.path">
+                  {{ k.name }}
+                  <span class='subject-name-tag' v-if='k.subjectId && getSubjectName(k.subjectId)'>
+                    <a-tag class='my-subject-name-tag'>{{ getSubjectName(k.subjectId) }}</a-tag>
+                  </span>
+                </a-tooltip>
                 <div class="skt-chart" v-hasRole="['student']" v-if="bloomInfo(k.knowledgeId, 'isExist')">
                   <div class="skt-chart-detail">
                     <label>Bloom Taxonomy</label>
@@ -82,7 +92,12 @@
               <!--                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>-->
               <!--              </a-breadcrumb>-->
               <div class="skt-description skt-description-21">
-                <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
+                <a-tooltip :title="k.path">
+                  {{ k.name }}
+                  <span class='subject-name-tag' v-if='k.subjectId && getSubjectName(k.subjectId)'>
+                    <a-tag class='my-subject-name-tag'>{{ getSubjectName(k.subjectId) }}</a-tag>
+                  </span>
+                </a-tooltip>
                 <div class="skt-chart" v-hasRole="['student']" v-if="bloomInfo(k.knowledgeId, 'isExist')">
                   <div class="skt-chart-detail">
                     <label>Bloom Taxonomy</label>
@@ -123,10 +138,6 @@
         Add tag
       </div>
       <learn-out-add-tag @handle-select-tags="handleEnsureTags" :knowledge="knowledge" />
-    <!--      <div class="modal-ensure-action-line-right" style="justify-content: center">
-        <a-button class="action-item action-cancel" shape="round" @click="addTagVisible = false">Cancel</a-button>
-        <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">Confirm</a-button>
-      </div>-->
     </a-modal>
 
     <a-modal
@@ -179,6 +190,10 @@
     },
     props: {
       learnOuts: {
+        type: Array,
+        default: () => []
+      },
+      selfOuts: {
         type: Array,
         default: () => []
       },
@@ -251,7 +266,7 @@
       }
     },
     created () {
-      this.knowledgeList = this.learnOuts
+      this.knowledgeList = this.learnOuts.concat(this.selfOuts)
       logger.info('knowledgeList ', this.knowledgeList)
       this.get21century()
       this.initData()
@@ -371,6 +386,11 @@
         } else {
           return this.knowledgeList.filter(item => item.tagType === type)
         }
+      },
+
+      getSubjectName (subjectId) {
+        const subject = this.$store.getters.allSubjects.find(item => item.id === subjectId)
+        return subject ? subject.name : null
       }
     }
   }
@@ -426,7 +446,6 @@
       }
       .objectives-list-item {
         width: 100%;
-        box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
         opacity: 1;
         border-radius: 4px;
         display: flex;
@@ -439,8 +458,7 @@
         position: relative;
         color: #000000;
         &:hover {
-          color: @primary-color;
-          border: 1px solid @primary-color !important;
+          box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
         }
         .skt-description {
           cursor: pointer;
@@ -625,6 +643,15 @@
       justify-content: space-between;
       margin: 0px auto;
       margin-top: 40px;
+    }
+  }
+
+  .subject-name-tag {
+    .my-subject-name-tag {
+      background-color: #15c39a;
+      color: #fff;
+      border: none;
+      border-radius: 20px;
     }
   }
 </style>
