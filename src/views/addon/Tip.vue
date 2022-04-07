@@ -20,15 +20,21 @@
           <div class="carousel-page">
             <div class="img-list-wrapper">
               <div class="img-list">
-                <div class="img-item" v-for="(item, index) in thumbnailList" :key="'index' + index">
-                  <img :src="item.contentUrl" />
+                <div class="img-item" v-for="(item, index) in videoUrlList" :key="'index' + index">
+                 
+                  <!-- <video class="img-item" :src="item.contentUrl" preload="auto"
+                        controls></video> -->
+                   <iframe id="item_player" width="260px" height="150px" :src="item.contentUrl" title="YouTube video player"
+                         frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;"
+                        allowfullscreen></iframe>
                 </div>
               </div>
             </div>
           </div>
         </a-col>
 
-        <a-button class="btn" type="primary">
+        <a-button class="btn" @click="confirm()" type="primary">
           Confirm
         </a-button>
       </div>
@@ -42,6 +48,7 @@ import OpenDirSvg from '@/assets/svgIcon/library/open_dir.svg?inline'
 import GoogleDriveIcon from '@/assets/svgIcon/addMaterial/google_drive.svg?inline'
 import YoutubeIcon from '@/assets/svgIcon/addMaterial/youtube.svg?inline'
 import UploadEnterForTip from '@/components/AddMaterial/UploadEnterForTip'
+import { addElement, queryElementById, updateElement } from '@/api/addMaterial'
 export default {
   name: 'Tip',
   components: {
@@ -60,21 +67,80 @@ export default {
     return {
       taskLoading: false,
       tip_text: '',
-      thumbnailList: [
-        { contentUrl: 'https://i.ytimg.com/vi/gya34uYDKXM/mqdefault.jpg' },
-        { contentUrl: 'https://i.ytimg.com/vi/o3LLz5sg4oI/mqdefault.jpg' },
-        { contentUrl: 'https://i.ytimg.com/vi/gya34uYDKXM/mqdefault.jpg' },
-        { contentUrl: 'https://i.ytimg.com/vi/o3LLz5sg4oI/mqdefault.jpg' },
-        { contentUrl: 'https://i.ytimg.com/vi/gya34uYDKXM/mqdefault.jpg' },
-        { contentUrl: 'https://i.ytimg.com/vi/o3LLz5sg4oI/mqdefault.jpg' },
-        { contentUrl: 'https://i.ytimg.com/vi/o3LLz5sg4oI/mqdefault.jpg' }
+      tip_id: 0,
+      param: {
+        slide_id: '1yDugYGGpnYpnirssemu-dUdYsx87Dt-QHHV9hRB5IWU',
+        page_id: 'g1122e959211_0_0',
+        data: {
+          type: 'tip',
+          urls: '',
+          tip: '',
+          source: 'add-on',
+          totalTime: 0
+        }
+      },
+      videoUrlList: [
+        { contentUrl: 'https://www.youtube.com/embed/fdqNKul2hAA?showinfo=0&modestbranding=1&rel=0' },
+        { contentUrl: 'https://www.youtube.com/embed/eEsVfVay64M?start=100&end=652' }
+        // { contentUrl: 'https://i.ytimg.com/vi/gya34uYDKXM/mqdefault.jpg' },
+        // { contentUrl: 'https://i.ytimg.com/vi/o3LLz5sg4oI/mqdefault.jpg' },
+        // { contentUrl: 'https://i.ytimg.com/vi/gya34uYDKXM/mqdefault.jpg' },
+        // { contentUrl: 'https://i.ytimg.com/vi/o3LLz5sg4oI/mqdefault.jpg' },
+        // { contentUrl: 'https://i.ytimg.com/vi/o3LLz5sg4oI/mqdefault.jpg' }
       ]
     }
   },
   created() {
     logger.info('created ', this.taskId)
   },
-  methods: {}
+  mounted() {
+    this.getTipInfo()
+  },
+  methods: {
+    getTipInfo() {
+      var param = new Object()
+      param.pageId = 'g1122e959211_0_0'
+      param.slideId = '1yDugYGGpnYpnirssemu-dUdYsx87Dt-QHHV9hRB5IWU'
+      queryElementById(param)
+        .then(response => {
+          logger.info('queryElementById ', response.result)
+          const eles = response.result
+          for (let j = 0; j < eles.length; j++) {
+            logger.info('eles ', eles[j])
+            if (eles[j].data.type === 'tip') {
+              this.tip_id = eles[j].id
+              this.tip_text = eles[j].data.tip
+              this.param.data = eles[j].data
+              //this.videoUrlList = eles[j].data.urls
+              break
+            }
+          }
+        })
+        .finally(() => {})
+    },
+
+    confirm() {
+      if (this.tip_text.length < 1) {
+        this.$message.warn('Insert tip for the slide!')
+        return
+      }
+      this.param.data.tip = this.tip_text
+      this.param.data.urls = this.videoUrlList
+      console.log('param', this.param, this.tip_id)
+      if (this.tip_id > 0) {
+        this.param.id = this.tip_id
+        updateElement(this.param).then(response => {
+          logger.info('updateElement ', response)
+        })
+      } else {
+        addElement(this.param)
+          .then(response => {
+            logger.info('addElement ', response)
+          })
+          .finally(() => {})
+      }
+    }
+  }
 }
 </script>
 
@@ -110,7 +176,8 @@ export default {
       margin-right: 10px;
     }
     .btn {
-      margin-top: 50px;
+      margin: 50px auto ;
+
     }
   }
   .remark-button {

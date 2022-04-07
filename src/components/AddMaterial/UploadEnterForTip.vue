@@ -37,15 +37,7 @@
       <google-youtube-video ref="googleyoutubevideo" :nextYoutube="nextYoutube" />
     </a-modal>
 
-    <a-modal
-      title="Search image by Google"
-      :visible.sync="showImageSearch"
-      @cancel="closeImageSearch"
-      width="70%"
-      :destroy-on-close="destroyOnClose"
-    >
-      <google-image-search :doneSelect="doneSelect" />
-    </a-modal>
+   
     <div class="material-recorder">
       <record-video v-if="recordType === ModalEventsTypeEnum.VIDEO" :onSend="onSendVideo" :cancel="cancelRecord" />
       <record-audio
@@ -164,7 +156,6 @@ export default {
       this.withKeyUrl = null
       this.showIframe = false
       this.showYoutube = false
-      this.$refs.googleyoutubevideo.closeYoutubeVideo()
     },
     addDrive() {
       GooglePicker.init(
