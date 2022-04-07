@@ -11,7 +11,7 @@
       <a-tooltip title="my computer" placement="right">
         <div class="upload-type-item">
           <open-dir-svg class="opened" />
-          <common-upload accept="image/*,video/*,audio/*" :onSuccess="onSuccess" />
+          <common-upload accept="video/*" :onSuccess="onSuccess" />
         </div>
       </a-tooltip>
       <a-tooltip title="google drive" placement="right">
@@ -29,23 +29,16 @@
     <a-modal
       title="youtube"
       :visible.sync="showYoutube"
+      :footer='null'
       @close="closeYoutubeDialog"
       :append-to-body="true"
       :destroy-on-close="false"
+      destroyOnClose
       width="85%"
     >
-      <google-youtube-video ref="googleyoutubevideo" :nextYoutube="nextYoutube" />
+      <google-youtube-search ref="googleyoutubevideo"/>
     </a-modal>
 
-    <a-modal
-      title="Search image by Google"
-      :visible.sync="showImageSearch"
-      @cancel="closeImageSearch"
-      width="70%"
-      :destroy-on-close="destroyOnClose"
-    >
-      <google-image-search :doneSelect="doneSelect" />
-    </a-modal>
     <div class="material-recorder">
       <record-video v-if="recordType === ModalEventsTypeEnum.VIDEO" :onSend="onSendVideo" :cancel="cancelRecord" />
       <record-audio
@@ -66,30 +59,20 @@ import YoutubeIcon from '@/assets/svgIcon/addMaterial/youtube.svg?inline'
 import OpenDirSvg from '@/assets/svgIcon/library/open_dir.svg?inline'
 import GooglePicker from './Utils/GooglePicker'
 import { uploadImageToFirebaseByUrl } from './Utils/Common'
-// import googleImageSearch from './googleImageSearch.vue'
-// import GoogleYoutubeVedio from './googleYoutubeVedio.vue'
 import { videoTypes, audioTypes } from './Utils/Constants'
-// import MetarialWebSite from './metarialWebSite.vue'
 import CommonUpload from './Common/CommonUpload'
-import RecordAudio from './Audio/RecordAudio'
-import RecordVideo from './Video/RecordVideo'
 import CommonProgress from './Common/CommonProgress'
 import GoogleImageSearch from '@/components/AddMaterial/Google/GoogleImageSearch'
-import GoogleYoutubeVideo from '@/components/AddMaterial/Google/GoogleYoutubeVideo'
+import GoogleYoutubeSearch from '@/components/AddMaterial/Google/GoogleYoutubeSearch'
 export default {
   components: {
-    GoogleYoutubeVideo,
+    GoogleYoutubeSearch,
     GoogleImageSearch,
     GoogleDriveIcon,
     GoogleImageSearchIcon,
     YoutubeIcon,
     OpenDirSvg,
-    // googleImageSearch,
-    // GoogleYoutubeVedio,
-    // MetarialWebSite,
-    CommonUpload,
-    RecordAudio,
-    RecordVideo,
+    CommonUpload, 
     CommonProgress
   },
   data() {
@@ -163,6 +146,7 @@ export default {
       this.youtubeUrl = null
       this.withKeyUrl = null
       this.showIframe = false
+      this.showYoutube = false
       this.$refs.googleyoutubevideo.closeYoutubeVideo()
     },
     addDrive() {
