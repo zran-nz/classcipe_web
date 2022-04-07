@@ -27,11 +27,11 @@
     </a-space>
 
     <a-modal
-      title="youtube"
       :visible.sync="showYoutube"
-      @close="closeYoutubeDialog"
+      @cancel="closeYoutubeDialog"
       :append-to-body="true"
       :destroy-on-close="false"
+      :footer="null"
       width="85%"
     >
       <google-youtube-video ref="googleyoutubevideo" :nextYoutube="nextYoutube" />
@@ -163,6 +163,7 @@ export default {
       this.youtubeUrl = null
       this.withKeyUrl = null
       this.showIframe = false
+      this.showYoutube = false
       this.$refs.googleyoutubevideo.closeYoutubeVideo()
     },
     addDrive() {
