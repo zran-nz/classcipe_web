@@ -104,6 +104,15 @@ export default {
       NavigationType: NavigationType
     }
   },
+  mounted () {
+    if (window.parent) {
+      window.parent.postMessage(JSON.stringify({
+        from: 'addon',
+        event: 'task-library-loaded',
+        data: null
+      }), '*')
+    }
+  },
   created() {
     this.loadTaskData(this.taskId)
   },

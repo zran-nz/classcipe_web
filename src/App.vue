@@ -35,15 +35,6 @@ export default {
         return window.location.href.indexOf('addon-iframe') === -1
       }
     },
-    mounted () {
-       if (window.parent) {
-         window.parent.postMessage(JSON.stringify({
-           from: 'addon',
-           event: 'loaded',
-           data: null
-         }), '*')
-       }
-    },
     watch: {
       '$store.getters.bindCurriculum': function (newValue) {
         if (newValue) {
