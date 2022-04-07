@@ -822,7 +822,8 @@
               name: this.commandTermForm.name,
               bloomTagId: this.bloomParentId,
               bloomTag: this.commandTermForm.bloom,
-              type: 1
+              type: 1,
+              isGlobal: 2
             }).then(res => {
               if (res.success) {
                  this.handleQuickWordSet({
