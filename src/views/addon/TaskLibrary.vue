@@ -19,6 +19,7 @@
         :recommend-data='recommendData'
         :selected-list='selectedList'
         :selected-id='selectedIdList'
+        display-mode='iframe'
         @select-assessmentType='handleSelectAssessmentType'
         @select-sync='handleSelectListData'
         @select-curriculum='handleSelectCurriculum'
