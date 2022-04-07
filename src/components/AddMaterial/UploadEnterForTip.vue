@@ -11,7 +11,7 @@
       <a-tooltip title="my computer" placement="right">
         <div class="upload-type-item">
           <open-dir-svg class="opened" />
-          <common-upload accept="video/*" :onSuccess="onSuccess" />
+          <common-upload accept="image/*,video/*,audio/*" :onSuccess="onSuccess" />
         </div>
       </a-tooltip>
       <a-tooltip title="google drive" placement="right">
@@ -34,9 +34,18 @@
       :footer="null"
       width="85%"
     >
-      <google-youtube-search ref="googleyoutubevideo"/>
+      <google-youtube-video ref="googleyoutubevideo" :nextYoutube="nextYoutube" />
     </a-modal>
 
+    <a-modal
+      title="Search image by Google"
+      :visible.sync="showImageSearch"
+      @cancel="closeImageSearch"
+      width="70%"
+      :destroy-on-close="destroyOnClose"
+    >
+      <google-image-search :doneSelect="doneSelect" />
+    </a-modal>
     <div class="material-recorder">
       <record-video v-if="recordType === ModalEventsTypeEnum.VIDEO" :onSend="onSendVideo" :cancel="cancelRecord" />
       <record-audio
@@ -57,20 +66,30 @@ import YoutubeIcon from '@/assets/svgIcon/addMaterial/youtube.svg?inline'
 import OpenDirSvg from '@/assets/svgIcon/library/open_dir.svg?inline'
 import GooglePicker from './Utils/GooglePicker'
 import { uploadImageToFirebaseByUrl } from './Utils/Common'
+// import googleImageSearch from './googleImageSearch.vue'
+// import GoogleYoutubeVedio from './googleYoutubeVedio.vue'
 import { videoTypes, audioTypes } from './Utils/Constants'
+// import MetarialWebSite from './metarialWebSite.vue'
 import CommonUpload from './Common/CommonUpload'
+import RecordAudio from './Audio/RecordAudio'
+import RecordVideo from './Video/RecordVideo'
 import CommonProgress from './Common/CommonProgress'
 import GoogleImageSearch from '@/components/AddMaterial/Google/GoogleImageSearch'
-import GoogleYoutubeSearch from '@/components/AddMaterial/Google/GoogleYoutubeSearch'
+import GoogleYoutubeVideo from '@/components/AddMaterial/Google/GoogleYoutubeVideo'
 export default {
   components: {
-    GoogleYoutubeSearch,
+    GoogleYoutubeVideo,
     GoogleImageSearch,
     GoogleDriveIcon,
     GoogleImageSearchIcon,
     YoutubeIcon,
     OpenDirSvg,
-    CommonUpload, 
+    // googleImageSearch,
+    // GoogleYoutubeVedio,
+    // MetarialWebSite,
+    CommonUpload,
+    RecordAudio,
+    RecordVideo,
     CommonProgress
   },
   data() {
