@@ -297,8 +297,13 @@
         >
           <template v-slot:create>
             <div class="quick-word-sub">
-              <a-divider style="margin: 5px 0;font-size: 14px;">Create</a-divider>
-              <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="showQuickWordCreate = true"> Do Create </a-button>
+              <a-divider style="margin: 10px 0;"/>
+              <a-space v-show="!showQuickWordCreate" >
+                <label>Create:</label>
+                <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="showQuickWordCreate = true"> {{ commandTermForm.name }} </a-button>
+              </a-space>
+              <!-- <a-divider style="margin: 5px 0;font-size: 14px;">Create</a-divider>
+              <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="showQuickWordCreate = true"> Do Create </a-button> -->
               <div v-show="showQuickWordCreate">
                 <a-form-model
                   layout="horizontal"
@@ -316,7 +321,7 @@
                     <a-select
                       :getPopupContainer="trigger => trigger.parentElement"
                       v-model="commandTermForm.bloom"
-                      placeholder="please select bloom"
+                      placeholder="Bloom's Taxonomy"
                     >
                       <a-select-option v-for="bloom in bloomOptions" :value="bloom" :key="'bloom_' + bloom">
                         {{ bloom }}
@@ -325,7 +330,7 @@
                   </a-form-model-item>
                 </a-form-model>
                 <a-space>
-                  <a-button :loading="saveCommanTermLoading" @click="handleSaveCommanTerm" size="small" type="primary">Save</a-button>
+                  <a-button :loading="saveCommanTermLoading" @click="handleSaveCommanTerm" size="small" type="primary">Create</a-button>
                   <a-button @click="showQuickWordCreate = false" size="small" type="">Cancel</a-button>
                 </a-space>
               </div>

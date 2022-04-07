@@ -8,15 +8,15 @@
     :getPopupContainer="trigger => trigger.parentElement"
     @visibleChange="visibleChange">
     <div slot="content" class="quick-word">
-      <div class="quick-word-title">
-        Select an option or create one
+      <div class="quick-word-title" v-show="result && result.length > 0">
+        Select an option
       </div>
       <div class="quick-word-content" v-if="result && result.length > 0">
         <div class="quick-word-item" v-for="(item) in result" :key="'quickWord_'+item.id">
           <a @click="choose(item)">{{ item.name }}</a>
         </div>
       </div>
-      <div v-else style="font-size: 12px;color:#999;">No data</div>
+      <div v-else style="font-size: 12px;color:#999;">No relevant tag found</div>
       <slot name='create'>
         <div class="quick-word-sub">
           <label>Create: </label>
