@@ -817,7 +817,14 @@ export default {
         border: 2px solid @primary-color;
       }
       &:hover {
-        border: 2px solid @primary-color;
+        border: 2px solid #dfdfdf;
+        .youtube-video-img {
+          width: 345px;
+          height: 180px;
+        }
+        .youtube-video-detail {
+          height: 180px;
+        }
       }
       &.youtube-video-item {
         margin-top: 20px;
@@ -825,6 +832,11 @@ export default {
       .youtube-video-img {
         width: 230px;
         height: 120px;
+        transition: .2s;
+        video {
+          width: 100%;
+          height: 100%;
+        }
       }
       .youtube-video-detail {
         flex: 1;
