@@ -497,6 +497,7 @@
         <task-link
           :show-drag-tips='false'
           :isLibrary="isLibrary"
+          :hidden-empty-group='true'
           :can-edit="false"
           ref="commonLink"
           :from-id="id"

@@ -2,7 +2,7 @@
   <div class="common-link">
     <div class="link-group-wrapper">
       <template v-if="ownerLinkGroupList.length && !linkGroupLoading">
-        <div class="link-group" v-for="(linkGroup, lIndex) in ownerLinkGroupList" :key="lIndex">
+        <div class="link-group" v-for="(linkGroup, lIndex) in ownerLinkGroupList" :key="lIndex" v-if='!(hiddenEmptyGroup && linkGroup.contents.length === 0)'>
           <div class="group-item">
             <div class="group-header">
               <div class="group-left-info">
@@ -175,6 +175,10 @@ export default {
       default: true
     },
     isLibrary: {
+      type: Boolean,
+      default: false
+    },
+    hiddenEmptyGroup: {
       type: Boolean,
       default: false
     },
