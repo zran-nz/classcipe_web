@@ -219,15 +219,6 @@ export default {
         result.push(group.groupName)
       })
       return result
-    },
-    selectedList () {
-      const list = []
-      this.ownerLinkGroupList.forEach(groupItem => {
-        groupItem.contents.forEach(content => {
-          list.push(content.type + '-' + content.id)
-        })
-      })
-      return list
     }
   },
   data () {
@@ -257,7 +248,9 @@ export default {
       linkTitle: 'Link Content',
       editingGroup: '',
       groupRransition: [],
-      newGroupName: null
+      newGroupName: null,
+
+      selectedList: []
     }
   },
   created () {
@@ -302,17 +295,6 @@ export default {
       })
     },
 
-    handleToggleEditDefaultGroupName () {
-      this.$logger.info('handleToggleEditDefaultGroupName ' + this.defaultGroupNameEditMode)
-      this.defaultGroupNameEditMode = this.defaultGroupNameEditMode === 'view' ? 'edit' : 'view'
-    },
-
-    handleDefaultGroupLink () {
-      this.$logger.info('handleDefaultGroupLink')
-      this.$logger.info('groups', this.groups)
-      this.selectLinkContentVisible = true
-    },
-
     handleEnsureSelectedLink (data) {
       this.$logger.info('handleEnsureSelectedLink', data)
       this.selectLinkContentVisible = false
@@ -323,6 +305,10 @@ export default {
       this.$logger.info('handleLinkGroup', group)
       this.subDefaultGroupName = group.groupName
       this.selectLinkContentVisible = true
+      this.selectedList = []
+      group.contents.forEach(content => {
+        this.selectedList.push(content.type + '-' + content.id)
+      })
       if (this.fromType === typeMap['unit-plan']) {
         this.subFilterTypeList = [typeMap.task]
       } else if (this.filterType === typeMap.task) {

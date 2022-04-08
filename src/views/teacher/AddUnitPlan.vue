@@ -2177,50 +2177,54 @@ export default {
         this.$logger.info('AddUnitPlan GetAssociate response', response)
         this.groupNameList = response.result.groups
         this.groupNameListOther = []
-        this.selectedTaskList = []
+        this.selectedTaskList = [] // 只添加空group name分组数据
         response.result.owner.forEach(item => {
-          item.contents.forEach(content => {
-            this.selectedTaskList.push(content.type + '-' + content.id)
-            if (content.type === this.contentType['unit-plan']) {
-              this.associateUnitPlanIdList.push(content.id)
-              this.associateId2Name.set(content.id, content.name)
-              content.questions.forEach(question => {
-                this.associateQuestionList.push({
-                  ...question,
-                  unitName: content.name
-                })
-              })
-            }
+          if (item.group.trim() === '') {
+              item.contents.forEach(content => {
+                this.selectedTaskList.push(content.type + '-' + content.id)
+                if (content.type === this.contentType['unit-plan']) {
+                  this.associateUnitPlanIdList.push(content.id)
+                  this.associateId2Name.set(content.id, content.name)
+                  content.questions.forEach(question => {
+                    this.associateQuestionList.push({
+                      ...question,
+                      unitName: content.name
+                    })
+                  })
+                }
 
-            if (content.type === this.contentType.task) {
-              this.associateTaskIdList.push(content.id)
-              this.associateId2Name.set(content.id, content.name)
-              this.associateTaskList.push(content)
-            }
-          })
+                if (content.type === this.contentType.task) {
+                  this.associateTaskIdList.push(content.id)
+                  this.associateId2Name.set(content.id, content.name)
+                  this.associateTaskList.push(content)
+                }
+              })
+          }
         })
         response.result.others.forEach(item => {
-          if (this.groupNameListOther.indexOf(item.group) === -1) {
-            this.groupNameListOther.push(item.group)
-          }
-          item.contents.forEach(content => {
-            console.log(content)
-            if (content.type === this.contentType['unit-plan']) {
-              this.associateUnitPlanIdList.push(content.id)
-              this.associateId2Name.set(content.id, content.name)
-              content.questions.forEach(question => {
-                this.associateQuestionList.push({
-                  ...question,
-                  unitName: content.name
+          if (item.group.trim() === '') {
+            if (this.groupNameListOther.indexOf(item.group) === -1) {
+              this.groupNameListOther.push(item.group)
+            }
+            item.contents.forEach(content => {
+              console.log(content)
+              if (content.type === this.contentType['unit-plan']) {
+                this.associateUnitPlanIdList.push(content.id)
+                this.associateId2Name.set(content.id, content.name)
+                content.questions.forEach(question => {
+                  this.associateQuestionList.push({
+                    ...question,
+                    unitName: content.name
+                  })
                 })
-              })
-            }
+              }
 
-            if (content.type === this.contentType.task) {
-              this.associateTaskIdList.push(content.id)
-              this.associateId2Name.set(content.id, content.name)
-            }
-          })
+              if (content.type === this.contentType.task) {
+                this.associateTaskIdList.push(content.id)
+                this.associateId2Name.set(content.id, content.name)
+              }
+            })
+          }
         })
         this.newTermName = 'Untitled category_' + (this.groupNameList.length)
         this.$logger.info('AddTask GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
