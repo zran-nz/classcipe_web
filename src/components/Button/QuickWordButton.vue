@@ -2,21 +2,25 @@
   <a-popover
     v-model="visible"
     trigger="click"
-    :title="quickWord"
     placement="bottom"
     ref="popoverRef"
     :getPopupContainer="trigger => trigger.parentElement"
     @visibleChange="visibleChange">
+    <div slot="title" class="quick-title">
+      <a-input size="small" placeholder="Input keyword" @change="handleChange" v-model="word"></a-input>
+    </div>
     <div slot="content" class="quick-word">
       <div class="quick-word-title" v-show="result && result.length > 0">
         Select an option
       </div>
-      <div class="quick-word-content" v-if="result && result.length > 0">
-        <div class="quick-word-item" v-for="(item) in result" :key="'quickWord_'+item.id">
-          <a @click="choose(item)">{{ item.name }}</a>
+      <a-spin :spinning="loading">
+        <div class="quick-word-content" v-if="result && result.length > 0">
+          <div class="quick-word-item" v-for="(item) in result" :key="'quickWord_'+item.id">
+            <a @click="choose(item)">{{ item.name }}</a>
+          </div>
         </div>
-      </div>
-      <div v-else style="font-size: 12px;color:#999;">No relevant tag found</div>
+        <div v-else style="font-size: 12px;color:#999;">No relevant tag found</div>
+      </a-spin>
       <slot name='create'>
         <div class="quick-word-sub">
           <label>Create: </label>
@@ -25,13 +29,14 @@
         </div>
       </slot>
     </div>
-    <a-button :loading="loading" :type="type" :size="size">
+    <a-button :type="type" :size="size">
       {{ text }}
     </a-button>
   </a-popover>
 </template>
 
 <script>
+const { debounce } = require('lodash-es')
 export default {
   name: 'QuickWordButton',
   props: {
@@ -58,6 +63,10 @@ export default {
     loadApi: {
       type: Function,
       default: () => Promise.resolve()
+    },
+    dataCondition: {
+      type: Object,
+      default: null
     }
   },
   watch: {
@@ -75,6 +84,9 @@ export default {
       immediate: true
     }
   },
+  created() {
+    this.debounceLoad = debounce(this.loadData, 300)
+  },
   data() {
     return {
       word: this.quickWord,
@@ -85,19 +97,40 @@ export default {
     }
   },
   methods: {
+    async loadData() {
+      this.loading = true
+      const res = await this.loadApi({
+        keywords: this.word
+      })
+      if (res.success) {
+        if (this.dataCondition) {
+          this.result = res.result.filter(item => {
+            let isTrue = true
+            for (const key in this.dataCondition) {
+              if (isTrue) {
+                isTrue = (item[key] === this.dataCondition[key])
+              }
+            }
+            return isTrue
+          })
+        } else {
+          this.result = res.data
+        }
+      }
+      this.loading = false
+      return res
+    },
     visibleChange(visible) {
       if (visible && this.datas.length === 0) {
-        this.loading = true
         this.visible = false
-        this.loadApi().then(res => {
-          if (res && res.success) {
-            this.result = res.data
-          }
-        }).finally(() => {
-          this.loading = false
-          this.visible = true
-        })
+        this.debounceLoad()
+        this.visible = true
       }
+    },
+    handleChange() {
+      this.selfWord = this.word
+      this.$emit('changeWord', this.word)
+      this.debounceLoad()
     },
     // 1440218576252366850
     choose(item) {
@@ -126,6 +159,13 @@ export default {
 <style scoped lang="less">
 /deep/ .ant-popover-inner-content {
   padding: 10px;
+}
+.quick-title {
+  .ant-input {
+    border: none;
+    box-shadow: none;
+    padding: 0;
+  }
 }
 .quick-word {
   position: relative;

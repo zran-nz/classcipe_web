@@ -6,7 +6,7 @@
         <template v-if="getKnowledgeListType(TagType.skill).length > 0" >
           <div class="objectives-list" v-for="(k,index) in getKnowledgeListType(TagType.skill)" :key="index">
             <div class="objectives-list-item objectives-list-item-skill objectives-list-item-top-fixed">
-              <div v-selectPopover="['modal', domFn, k]" class="skt-description" @dblclick="handleAddTag(k)">
+              <div v-selectPopover="['modal', domFn, k, true]" class="skt-description" @dblclick="handleAddTag(k)">
                 <a-tooltip placement="topLeft" :title="k.path"> {{ k.name }}</a-tooltip>
               </div>
               <a-space class="objectives-tag" direction="vertical">
@@ -38,7 +38,7 @@
             :key='sIdx'>
             <self-outs-input
               class='skill-input'
-              v-selectPopover="['modal', domFn, skillInput]"
+              v-selectPopover="['modal', domFn, skillInput, true]"
               :filter-types='[TagType.skill, TagType.ibSkill, TagType.idu]'
               :grade-ids='$store.getters.userInfo.preference.gradeIds'
               :subject-ids='$store.getters.userInfo.preference.subjectIds'
@@ -79,7 +79,7 @@
         <template v-if="getKnowledgeListType(TagType.knowledge).length > 0" >
           <div class="objectives-list" v-for="(k,index) in getKnowledgeListType(TagType.knowledge)" :key="index">
             <div class="objectives-list-item objectives-list-item-learn objectives-list-item-top-fixed">
-              <div v-selectPopover="['modal', domFn, k]" class="skt-description" @dblclick="handleAddTag(k)">
+              <div v-selectPopover="['modal', domFn, k, true]" class="skt-description" @dblclick="handleAddTag(k)">
                 <a-tooltip placement="topLeft" :title="k.path"> {{ k.name }}</a-tooltip>
               </div>
               <a-space class="objectives-tag" direction="vertical">
@@ -111,7 +111,7 @@
             :key='sIdx'>
             <self-outs-input
               class='knowledge-input'
-              v-selectPopover="['modal', domFn, knowledgeInput]"
+              v-selectPopover="['modal', domFn, knowledgeInput, true]"
               :filter-types='[TagType.knowledge]'
               :grade-ids='$store.getters.userInfo.preference.gradeIds'
               :subject-ids='$store.getters.userInfo.preference.subjectIds'
@@ -156,7 +156,7 @@
             <div class='category-name'><a-icon type="tag" /> {{ categoryItem.categoryName }}</div>
             <div class="objectives-list" v-for="(k,index) in categoryItem.list" :key="index">
               <div class="objectives-list-item objectives-list-item-21 objectives-list-item-top-fixed" @click="handleActiveDescription(TagType.century,k)">
-                <div v-selectPopover="['modal', domFn, k]" class="skt-description skt-description-21" @dblclick="handleAddTag(k)">
+                <div v-selectPopover="['modal', domFn, k, true]" class="skt-description skt-description-21" @dblclick="handleAddTag(k)">
                   <a-tooltip placement="topLeft" :title="k.path"> {{ k.name }}</a-tooltip>
                 </div>
                 <a-space class="objectives-tag" direction="vertical">
@@ -206,7 +206,7 @@
             :key='sIdx'>
             <self-outs-input
               class='century-input'
-              v-selectPopover="['modal', domFn, centuryInput]"
+              v-selectPopover="['modal', domFn, centuryInput, true]"
               :filter-types='[TagType.century, TagType.common]'
               :grade-ids='$store.getters.userInfo.preference.gradeIds'
               :subject-ids='$store.getters.userInfo.preference.subjectIds'
@@ -287,20 +287,22 @@
 
     <div v-clickOutside id="modal" ref="quickModal" v-show="false">
       <a-space class="quick-keyword-con">
-        <label>Set as </label>
+        <label>Set </label>
         <quick-word-button
           type="danger"
           text="Command term"
           @sub="res => handleQuickWordSet(res, 'commandTerms')"
           :quickWord="quickWord"
-          :datas="commandTerms"
+          :dataCondition="{type: 1}"
+          :loadApi="KnowledgeTermTagQueryByKeywords"
+          @changeWord="res => this.commandTermForm.name = res"
         >
           <template v-slot:create>
             <div class="quick-word-sub">
               <a-divider style="margin: 10px 0;"/>
               <a-space v-show="!showQuickWordCreate" >
                 <label>Create:</label>
-                <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="showQuickWordCreate = true"> {{ commandTermForm.name }} </a-button>
+                <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="showQuickWordCreate = true"> {{ commandTermForm.name || 'Command term' }} </a-button>
               </a-space>
               <!-- <a-divider style="margin: 5px 0;font-size: 14px;">Create</a-divider>
               <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="showQuickWordCreate = true"> Do Create </a-button> -->
@@ -343,7 +345,8 @@
           text="Knowledge tag"
           @sub="res => handleQuickWordSet(res, 'knowledgeTags')"
           :quickWord="quickWord"
-          :datas="knowledgeTags"
+          :dataCondition="{type: 2}"
+          :loadApi="KnowledgeTermTagQueryByKeywords"
         >
           <template v-slot:create><div></div></template>
         </quick-word-button>
@@ -425,6 +428,7 @@
         bloomParentId: '',
         bloomOptions: [],
         saveCommanTermLoading: false,
+        KnowledgeTermTagQueryByKeywords: KnowledgeTermTagQueryByKeywords,
         commandTermForm: {
           name: '',
           parentId: '',
@@ -762,14 +766,14 @@
         this.commandTermForm.name = this.quickWord
         this.commandTermForm.bloom = []
         this.showQuickWordCreate = false
-        KnowledgeTermTagQueryByKeywords({
-          keywords: this.quickWord
-        }).then(res => {
-          if (res.success) {
-            this.commandTerms = res.result.filter(item => item.type === 1)
-            this.knowledgeTags = res.result.filter(item => item.type === 2)
-          }
-        })
+        // KnowledgeTermTagQueryByKeywords({
+        //   keywords: this.quickWord
+        // }).then(res => {
+        //   if (res.success) {
+        //     this.commandTerms = res.result.filter(item => item.type === 1)
+        //     this.knowledgeTags = res.result.filter(item => item.type === 2)
+        //   }
+        // })
       },
       handleCloseObjectiveTag(item, key, tagIndex) {
         item[key].splice(tagIndex, 1)
@@ -1169,7 +1173,7 @@
     border: 1px solid #dfdfdf;
     background: #fff;
     padding: 5px 10px;
-    width: 330px;
+    // width: 330px;
   }
 
   .objectives-tag {

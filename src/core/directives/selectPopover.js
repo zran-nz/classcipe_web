@@ -3,15 +3,15 @@ import Vue from 'vue'
 /**
  * selectPopover 选词弹出层指令
  * 指令用法：
- *  - 在需要选词弹出层的组件上使用 v-selectPopover:[domQuery, domFn, params] , 如下：
- *    <div v-selectPopover="['modal', domFn, params]" >我是被选中的词</div>
+ *  - 在需要选词弹出层的组件上使用 v-selectPopover:[domQuery, domFn, params, showEmpty] , 如下：
+ *    <div v-selectPopover="['modal', domFn, params, showEmpty]" >我是被选中的词</div>
  *    <div v-clickOutside id="modal">我是弹出层</div>
  *    const domFn = (text) => {}
  *
  */
  const selectPopover = Vue.directive('selectPopover', {
   bind: function (el, binding, vnode) {
-    const [domQuery, domFn, params] = binding.value
+    const [domQuery, domFn, params, showEmpty] = binding.value
     if (domQuery) {
       let prevY = 0
       let prevX = 0
@@ -28,7 +28,7 @@ import Vue from 'vue'
         const $dom = document.getElementById(domQuery)
         $dom.style.position = 'absolute'
         $dom.style.zIndex = 999
-        if (text) {
+        if (showEmpty || text) {
           // 找到最近一层relative
           let parentNode = $dom.parentNode
           while (getComputedStyle(parentNode).position !== 'relative') {
