@@ -416,6 +416,7 @@ export default {
 
     async handleEnsure () {
       this.$logger.info('handleEnsure waitCancelAssociateMap', this.waitAddAssociateMap, 'waitCancelAssociateMap', this.waitCancelAssociateMap)
+      this.ensureLoading = true
       if (this.waitCancelAssociateMap.size || this.waitAddAssociateMap.size) {
         // 开始关联数据
         const associateData = {
@@ -461,9 +462,9 @@ export default {
         if (cancelAssociateData.others.length) {
           await AssociateCancel(cancelAssociateData)
         }
-        this.ensureLoading = false
-        this.$emit('ensure')
       }
+      this.ensureLoading = false
+      this.$emit('ensure')
     },
     handleEditItem (item) {
       logger.info('handleEditItem', item)

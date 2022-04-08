@@ -235,10 +235,28 @@ export default {
             })
             item.editing = false
           })
+
+          const unitContents = []
+          const evaluationContents = []
           associateData.owner.forEach(item => {
-            const groupItem = this.ownerLinkGroupList.find(group => group.group === item.group)
-            groupItem.contents = item.contents
+            item.contents.forEach(content => {
+              if (content.type === this.typeMap['unit-plan']) {
+                unitContents.push(content)
+              } else if (content.type === this.typeMap.evaluation) {
+                evaluationContents.push(content)
+              }
+            })
           })
+
+          const unitGroupItem = this.ownerLinkGroupList.find(group => group.group === 'Relevant Unit Plan(s)')
+          if (unitGroupItem) {
+            unitGroupItem.contents = unitContents
+          }
+
+          const assessmentGroupItem = this.ownerLinkGroupList.find(group => group.group === 'Linked assessment tool(s)')
+          if (assessmentGroupItem) {
+            assessmentGroupItem.contents = evaluationContents
+          }
           this.ownerLinkGroupList = this.ownerLinkGroupList.sort((a, b) => a.group.indexOf('Unit Plan') !== -1 ? -1 : 1)
           this.selectedList = []
           this.ownerLinkGroupList.forEach(group => {
