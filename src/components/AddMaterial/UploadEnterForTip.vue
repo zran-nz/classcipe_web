@@ -36,8 +36,6 @@
     >
       <google-youtube-video ref="googleyoutubevideo" :nextYoutube="nextYoutube" />
     </a-modal>
-
-   
     <div class="material-recorder">
       <record-video v-if="recordType === ModalEventsTypeEnum.VIDEO" :onSend="onSendVideo" :cancel="cancelRecord" />
       <record-audio

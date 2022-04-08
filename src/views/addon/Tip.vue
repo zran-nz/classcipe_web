@@ -21,13 +21,18 @@
             <div class="img-list-wrapper">
               <div class="img-list">
                 <div class="img-item" v-for="(item, index) in videoUrlList" :key="'index' + index">
-                 
+
                   <!-- <video class="img-item" :src="item.contentUrl" preload="auto"
                         controls></video> -->
-                   <iframe id="item_player" width="260px" height="150px" :src="item.contentUrl" title="YouTube video player"
-                         frameborder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;"
-                        allowfullscreen></iframe>
+                  <iframe
+                    id="item_player"
+                    width="260px"
+                    height="150px"
+                    :src="item.contentUrl"
+                    title="YouTube video player"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;"
+                    allowfullscreen></iframe>
                 </div>
               </div>
             </div>
@@ -98,7 +103,7 @@ export default {
   },
   methods: {
     getTipInfo() {
-      var param = new Object()
+      var param = {}
       param.pageId = 'g1122e959211_0_0'
       param.slideId = '1yDugYGGpnYpnirssemu-dUdYsx87Dt-QHHV9hRB5IWU'
       queryElementById(param)
@@ -111,7 +116,7 @@ export default {
               this.tip_id = eles[j].id
               this.tip_text = eles[j].data.tip
               this.param.data = eles[j].data
-              //this.videoUrlList = eles[j].data.urls
+              // this.videoUrlList = eles[j].data.urls
               break
             }
           }
