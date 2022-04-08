@@ -272,14 +272,44 @@
             <a-form-model-item label="Principal's Email Address" prop="principalEmail">
               <a-input size="large" v-model="userForm.principalEmail" placeholder="input principal's email address" />
             </a-form-model-item>
-            <a-form-model-item label="Your School Name" prop="schoolName">
-              <a-input size="large" v-model="userForm.schoolName" placeholder="input your school name" />
+            <a-form-model-item key="School" label="School" prop="school">
+              <a-select
+                v-model="userForm.school"
+                placeholder="Please select school"
+                show-search
+                :default-active-first-option="false"
+                :show-arrow="false"
+                :filter-option="false"
+                :not-found-content="null"
+                @search="handleSearchSchool"
+                @focus="handleSearchSchool"
+              >
+                <div slot="dropdownRender" slot-scope="menu">
+                  <v-nodes :vnodes="menu" />
+                  <div v-if="ifShowCreate">
+                    <a-divider style="margin: 4px 0;" />
+                    <div
+                      style="padding: 4px 8px; cursor: pointer;"
+                      @mousedown="e => e.preventDefault()"
+                      @click="handleCreateSchool('userForm')"
+                    >
+                      Create School: <a-tag color="#15c39a">{{ createSchoolName }}</a-tag>
+                    </div>
+                  </div>
+                </div>
+                <a-select-option
+                  :value="schoolOption.id"
+                  v-for="schoolOption in [...myCreateSchoolOptions,...schoolOptions]"
+                  :key="schoolOption.id"
+                >{{ schoolOption.name }}
+                </a-select-option>
+              </a-select>
             </a-form-model-item>
             <a-form-model-item label="Your Personalized Message (Optional)">
               <a-textarea :auto-size="{ minRows: 3}" size="large" v-model="userForm.personalizedMessage" placeholder="input your personalized message" />
             </a-form-model-item>
             <a-form-model-item style="text-align: right;">
-              <a-button type="primary" html-type="submit">
+              <a-button type="primary" html-type="submit" @click="doSaveUserForm">
                 Send
               </a-button>
             </a-form-model-item>
@@ -307,11 +337,38 @@
             <a-form-model-item label="Email" prop="email">
               <a-input v-model="adminForm.email" placeholder="Please Input Email" />
             </a-form-model-item>
-            <a-form-model-item label="School Name">
-              <a-input
-                v-model="adminForm.schoolName"
-                placeholder="Please Input School Name"
-              />
+            <a-form-model-item key="School" label="School" prop="school">
+              <a-select
+                v-model="adminForm.school"
+                placeholder="Please select school"
+                show-search
+                :default-active-first-option="false"
+                :show-arrow="false"
+                :filter-option="false"
+                :not-found-content="null"
+                @search="handleSearchSchool"
+                @focus="handleSearchSchool"
+              >
+                <div slot="dropdownRender" slot-scope="menu">
+                  <v-nodes :vnodes="menu" />
+                  <div v-if="ifShowCreate">
+                    <a-divider style="margin: 4px 0;" />
+                    <div
+                      style="padding: 4px 8px; cursor: pointer;"
+                      @mousedown="e => e.preventDefault()"
+                      @click="handleCreateSchool('adminForm')"
+                    >
+                      Create School: <a-tag color="#15c39a">{{ createSchoolName }}</a-tag>
+                    </div>
+                  </div>
+                </div>
+                <a-select-option
+                  :value="schoolOption.id"
+                  v-for="schoolOption in [...myCreateSchoolOptions,...schoolOptions]"
+                  :key="schoolOption.id"
+                >{{ schoolOption.name }}
+                </a-select-option>
+              </a-select>
             </a-form-model-item>
             <a-form-model-item prop="position" label="Position">
               <a-select
@@ -367,7 +424,7 @@
               <a-input v-model="adminForm.notes" placeholder="Please Input Notes" />
             </a-form-model-item>
             <a-form-model-item style="text-align: right;">
-              <a-button type="primary" html-type="submit">
+              <a-button type="primary" html-type="submit" @click="doSaveAdminForm">
                 Send
               </a-button>
             </a-form-model-item>
@@ -390,17 +447,24 @@ import {
   GetGradesByCurriculumId,
   getAllAreas
 } from '@/api/preference'
+import { createSchool, getSchools } from '@/api/school'
 import TagSetting from '@/components/UnitPlan/TagSetting'
 import { SubjectStudentList } from '@/api/subject'
 import { GetAllCountrys } from '@/api/common'
 import { SubjectType } from '@/const/common'
 import { mapState } from 'vuex'
 
+const { debounce } = require('lodash-es')
+
 export default {
   name: 'BasicSetting',
   components: {
     AvatarModal,
-    TagSetting
+    TagSetting,
+    VNodes: {
+      functional: true,
+      render: (h, ctx) => ctx.props.vnodes
+    }
   },
   data () {
     return {
@@ -458,7 +522,7 @@ export default {
         principalFirstName: '',
         principallastname: '',
         principalEmail: '',
-        schoolName: '',
+        school: undefined,
         personalizedMessage: ''
       },
       adminForm: {
@@ -468,7 +532,8 @@ export default {
         positionInput: '',
         firstname: '',
         lastname: '',
-        email: ''
+        email: '',
+        school: undefined
       },
       countries: [],
       positions: [
@@ -476,7 +541,10 @@ export default {
         'School administrator',
         'Principle/Deputy principle',
         'Other position'
-      ]
+      ],
+      schoolOptions: [],
+      myCreateSchoolOptions: [],
+      createSchoolName: ''
     }
   },
   watch: {
@@ -490,6 +558,11 @@ export default {
       userInfoStore: state => state.user.info,
       currentRole: state => state.user.currentRole
     }),
+    ifShowCreate() {
+      const list = [...this.myCreateSchoolOptions, ...this.schoolOptions]
+      const findOne = list.find(item => item.name === this.createSchoolName)
+      return this.createSchoolName && !findOne
+    },
     subjectOptionsFilter() {
       if (this.$store.getters.currentRole === 'student') {
         return this.subjectOptions
@@ -520,7 +593,7 @@ export default {
             trigger: 'blur'
           }
         ],
-        schoolName: [{ required: true, message: 'Please Input School Name!' }]
+        school: [{ required: true, message: 'Please Select School!' }]
       }
     },
     validatorAdminRules: function () {
@@ -548,6 +621,7 @@ export default {
     }
   },
   created () {
+    this.debouncedSearchSchool = debounce(this.searchSchool, 500)
     this.initDict()
     this.initData()
   },
@@ -844,6 +918,55 @@ export default {
       return (
         option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
       )
+    },
+    doSaveUserForm() {
+      this.$refs.userForm.validate(valid => {
+        if (valid) {
+          const school = this.myCreateSchoolOptions.find(item => item.id === this.userForm.school)
+          if (school) {
+            this.confirmLoading = true
+            createSchool({ name: school.name }).then(res => {
+              if (res.success) {
+                school.id = res.result.id
+                this.userForm.school = res.result.id
+                console.log(this.userForm)
+              }
+            }).finally(res => {
+              this.confirmLoading = false
+            })
+          }
+        }
+      })
+    },
+    doSaveAdminForm() {
+
+    },
+    handleSearchSchool(value) {
+      this.createSchoolName = value
+      this.debouncedSearchSchool(value)
+    },
+    searchSchool(value) {
+      if (!this.userInfo.curriculumId) return
+      getSchools({
+        curriculumId: this.userInfo.curriculumId,
+        name: value
+      }).then(res => {
+        logger.info('schools', res)
+        if (res.success) {
+          this.schoolOptions = res.result || []
+        } else {
+          this.schoolOptions = []
+        }
+      })
+    },
+    handleCreateSchool(formName) {
+      // 保存的时候在真正创建学校
+      const res = {
+        id: new Date().getTime(),
+        name: this.createSchoolName
+      }
+      this.myCreateSchoolOptions.push(res)
+      this[formName].school = res.id
     }
   }
 }
