@@ -23,6 +23,7 @@ export default {
     'menu.managing.task-preview': 'Task Preview',
     'menu.managing.academic': 'Academic',
     'menu.managing.circulum': 'Circulum',
+    'menu.managing.school-info': 'School Info',
     'menu.my-content': 'MyContent',
     'menu.my-favorite': 'My Favorite',
     'menu.my-orders': 'My Orders',
