@@ -5,9 +5,15 @@
       Clear all
     </a-button>
 
-    <div class="filter-item">
-      <div class="filter-label">Age</div>
-      <div class="filter-option-list">
+    <div class="filter-item" v-show='!isDisableAgeSubject'>
+      <div class="filter-label" @click="handleCollapse('age')">
+        Age
+        <span class='collapse-icon'>
+          <a-icon type="down" :style="{ fontSize: '10px', color: '#666' }" v-show="collapseList.indexOf('age') === -1"/>
+          <a-icon type="up" :style="{ fontSize: '10px', color: '#666' }" v-show="collapseList.indexOf('age') !== -1"/>
+        </span>
+      </div>
+      <div class="filter-option-list" v-show="collapseList.indexOf('age') !== -1">
         <a-select class="age-select" @change="updateFilterConfig" v-model="filter.age">
           <a-select-option :value="age.label" v-for="(age, aIndex) in ageOptions" :key="aIndex">
             {{ age.label }}
@@ -16,9 +22,15 @@
       </div>
     </div>
 
-    <div class="filter-item">
-      <div class="filter-label">Subject</div>
-      <div class="filter-option-list" >
+    <div class="filter-item" v-show='!isDisableAgeSubject'>
+      <div class="filter-label" @click="handleCollapse('subject')">
+        Subject
+        <span class='collapse-icon'>
+          <a-icon type="down" :style="{ fontSize: '10px', color: '#666' }" v-show="collapseList.indexOf('subject') === -1"/>
+          <a-icon type="up" :style="{ fontSize: '10px', color: '#666' }" v-show="collapseList.indexOf('subject') !== -1"/>
+        </span>
+      </div>
+      <div class="filter-option-list" v-show="collapseList.indexOf('subject') !== -1">
         <a-checkbox-group
           @change="updateFilterConfig"
           v-model="filter.subject"
@@ -28,8 +40,14 @@
     </div>
 
     <div class="filter-item" v-excludeRole="['student']">
-      <div class="filter-label">Type</div>
-      <div class="filter-option-list">
+      <div class="filter-label" @click="handleCollapse('type')">
+        Type
+        <span class='collapse-icon'>
+          <a-icon type="down" :style="{ fontSize: '10px', color: '#666' }" v-show="collapseList.indexOf('type') === -1"/>
+          <a-icon type="up" :style="{ fontSize: '10px', color: '#666' }" v-show="collapseList.indexOf('type') !== -1"/>
+        </span>
+      </div>
+      <div class="filter-option-list" v-show="collapseList.indexOf('type') !== -1">
         <a-checkbox-group
           @change="updateFilterConfig"
           v-model="filter.type"
@@ -38,7 +56,7 @@
       </div>
     </div>
 
-    <div class="filter-item filter-toggle">
+    <div class="filter-item" v-show="collapseList.indexOf('type') !== -1">
       <div class="filter-label"></div>
       <div class="filter-toggle-list">
         <a-radio-group name="radioGroup" :default-value="1" v-model="filter.faSaActivityType" @change="updateFilterConfig">
@@ -56,8 +74,14 @@
     </div>
 
     <div class="filter-item" v-if="filter.faSaActivityType === 1" v-for="(parent,index) in filterFaOptions" :key="index">
-      <div class="filter-label">{{ parent.name }}</div>
-      <div class="filter-option-list">
+      <div class="filter-label" @click="handleCollapse(parent.name)">
+        {{ parent.name }}
+        <span class='collapse-icon'>
+          <a-icon type="down" :style="{ fontSize: '10px', color: '#666' }" v-show="collapseList.indexOf(parent.name) === -1"/>
+          <a-icon type="up" :style="{ fontSize: '10px', color: '#666' }" v-show="collapseList.indexOf(parent.name) !== -1"/>
+        </span>
+      </div>
+      <div class="filter-option-list" v-show="collapseList.indexOf(parent.name) !== -1">
         <a-checkbox-group
           @change="updateFilterConfig"
           v-model="faTags[index]"
@@ -67,8 +91,14 @@
     </div>
 
     <div class="filter-item" v-if="filter.faSaActivityType === 2" v-for="(parent,index) in filterSaOptions" :key="index">
-      <div class="filter-label">{{ parent.name }}</div>
-      <div class="filter-option-list">
+      <div class="filter-label" @click="handleCollapse(parent.name)">
+        {{ parent.name }}
+        <span class='collapse-icon'>
+          <a-icon type="down" :style="{ fontSize: '10px', color: '#666' }" v-show="collapseList.indexOf(parent.name) === -1"/>
+          <a-icon type="up" :style="{ fontSize: '10px', color: '#666' }" v-show="collapseList.indexOf(parent.name) !== -1"/>
+        </span>
+      </div>
+      <div class="filter-option-list" v-show="collapseList.indexOf(parent.name) !== -1">
         <a-checkbox-group
           @change="updateFilterConfig"
           v-model="saTags[index]"
@@ -77,8 +107,14 @@
       </div>
     </div>
     <div class="filter-item" v-if="filter.faSaActivityType === 3" v-for="(parent,index) in filterActivityOptions" :key="index">
-      <div class="filter-label">{{ parent.name }}</div>
-      <div class="filter-option-list">
+      <div class="filter-label" @click="handleCollapse(parent.name)">
+        {{ parent.name }}
+        <span class='collapse-icon'>
+          <a-icon type="down" :style="{ fontSize: '10px', color: '#666' }" v-show="collapseList.indexOf(parent.name) === -1"/>
+          <a-icon type="up" :style="{ fontSize: '10px', color: '#666' }" v-show="collapseList.indexOf(parent.name) !== -1"/>
+        </span>
+      </div>
+      <div class="filter-option-list" v-show="collapseList.indexOf(parent.name) !== -1">
         <a-checkbox-group
           @change="updateFilterConfig"
           v-model="activityTags[index]"
@@ -125,6 +161,10 @@ export default {
     filterActivityOptions: {
       type: Array,
       default: () => []
+    },
+    isDisableAgeSubject: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -137,7 +177,8 @@ export default {
         subject: [],
         type: [],
         faSaActivityType: ''
-      }
+      },
+      collapseList: []
     }
   },
   created () {
@@ -216,6 +257,15 @@ export default {
     getFilterConfig () {
       this.formatFilterConfig()
       return JSON.parse(JSON.stringify(this.filter))
+    },
+
+    handleCollapse (field) {
+      const index = this.collapseList.indexOf(field)
+      if (index === -1) {
+        this.collapseList.push(field)
+      } else {
+        this.collapseList.splice(index, 1)
+      }
     }
   }
 }
@@ -230,8 +280,10 @@ export default {
   flex-direction: column;
 
   .filter-item {
-    margin-bottom: 10px;
+    padding-bottom: 10px;
     .filter-label {
+      cursor: pointer;
+      user-select: none;
       font-size: 14px;
       font-family: Arial;
       font-weight: bold;
@@ -245,10 +297,9 @@ export default {
       }
     }
   }
+}
 
-  .filter-toggle {
-    margin: 20px 0;
-  }
+.collapse-icon {
 }
 
 </style>

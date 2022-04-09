@@ -196,6 +196,7 @@
                     :filter-fa-options="filterFaOptions"
                     :filter-sa-options="filterSaOptions"
                     :filter-activity-options="filterActivityOptions"
+                    :is-disable-age-subject='searchType === SearchTypeMap.BrowserType || searchType === SearchTypeMap.CurriculumFilter'
                   />
                 </template>
                 <div class="filter-item">
@@ -530,6 +531,7 @@ export default {
       debouncedSearchKeyFocus: null,
       filterContext: null,
       showFilter: true,
+      SearchTypeMap: SearchTypeMap,
       searchType: SearchTypeMap.Recommend,
       searchRequestData: null
     }
@@ -830,6 +832,7 @@ export default {
 
     handleClickSearchResultItem (item) {
       this.$logger.info('handleClickSearchResultItem', item)
+      this.searchType = SearchTypeMap.Search
       this.handleActiveFilterItem(item)
       this.searchResultVisible = false
     },
