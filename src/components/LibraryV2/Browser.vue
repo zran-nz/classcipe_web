@@ -564,6 +564,12 @@ export default {
     this.blockWidth = this.$refs['wrapper'].getBoundingClientRect().width * 0.15
     this.filterHeight = document.documentElement.clientHeight - 200
     this.$logger.info('globalWidth ' + this.blockWidth)
+
+    window.onresize = debounce(() => {
+      this.blockWidth = this.$refs['wrapper'].getBoundingClientRect().width * 0.15
+      this.filterHeight = document.documentElement.clientHeight - 200
+      this.browserMarginLeft = (this.blockIndex - 1) * this.blockWidth
+    }, 300)
   },
   methods: {
     getRecommended () {
