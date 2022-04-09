@@ -13,6 +13,9 @@
               <!--              </a-breadcrumb>-->
               <div class="skt-description">
                 <a-tooltip :title="k.path">
+                  <span class='self-out-icon' v-if='k.key'>
+                    <a-icon type="user-add" />
+                  </span>
                   {{ k.name }}
                   <span class='subject-name-tag' v-if='k.subjectId && getSubjectName(k.subjectId)'>
                     <a-tag class='my-subject-name-tag'>{{ getSubjectName(k.subjectId) }}</a-tag>
@@ -48,6 +51,9 @@
               <!--              </a-breadcrumb>-->
               <div class="skt-description">
                 <a-tooltip :title="k.path">
+                  <span class='self-out-icon' v-if='k.key'>
+                    <a-icon type="user-add" />
+                  </span>
                   {{ k.name }}
                   <span class='subject-name-tag' v-if='k.subjectId && getSubjectName(k.subjectId)'>
                     <a-tag class='my-subject-name-tag'>{{ getSubjectName(k.subjectId) }}</a-tag>
@@ -93,6 +99,9 @@
               <!--              </a-breadcrumb>-->
               <div class="skt-description skt-description-21">
                 <a-tooltip :title="k.path">
+                  <span class='self-out-icon' v-if='k.key'>
+                    <a-icon type="user-add" />
+                  </span>
                   {{ k.name }}
                   <span class='subject-name-tag' v-if='k.subjectId && getSubjectName(k.subjectId)'>
                     <a-tag class='my-subject-name-tag'>{{ getSubjectName(k.subjectId) }}</a-tag>
@@ -653,5 +662,9 @@
       border: none;
       border-radius: 20px;
     }
+  }
+
+  .self-out-icon {
+    color: #333;
   }
 </style>
