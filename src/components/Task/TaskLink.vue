@@ -2,7 +2,7 @@
   <div class="common-link">
     <div class="link-group-wrapper">
       <template v-if="ownerLinkGroupList.length && !linkGroupLoading">
-        <div class="link-group" v-for="(linkGroup, lIndex) in ownerLinkGroupList" :key="lIndex" v-if='!(hiddenEmptyGroup && linkGroup.contents.length === 0)'>
+        <div class="link-group" v-for="(linkGroup, lIndex) in ownerLinkGroupList" :key="lIndex" v-show='!(hiddenEmptyGroup && linkGroup.contents.length === 0)'>
           <div class="group-item">
             <div class="group-header">
               <div class="group-left-info">
@@ -52,6 +52,11 @@
                           {{ item.taskType }}
                         </a-tag>
                       </template>
+                      <div class='downloaded-icon' v-if='item.isCreated'>
+                        <a-tooltip placement="top" title='already saved in my content'>
+                          <downloaded-svg />
+                        </a-tooltip>
+                      </div>
                     </div>
                     <div class="right-info">
                       <div class="date" @click="handleViewDetail(item)">{{ item.createTime | dayjs }}</div>
@@ -148,6 +153,7 @@ import TaskNewMyContent from '@/components/Task/TaskNewMyContent'
 import { typeMap } from '@/const/teacher'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import * as logger from '@/utils/logger'
+import DownloadedSvg from '@/assets/libraryv2/downloaded.svg?inline'
 import CommonPreviewNoLink from '@/components/Common/CommonPreviewNoLink'
 
 import draggable from 'vuedraggable'
@@ -155,7 +161,7 @@ import NoMoreResources from '@/components/Common/NoMoreResources'
 
 export default {
   name: 'TaskLink',
-  components: { NoMoreResources, ContentTypeIcon, TaskNewMyContent, MyContentSelector, CommonPreviewNoLink, draggable },
+  components: { NoMoreResources, ContentTypeIcon, TaskNewMyContent, MyContentSelector, CommonPreviewNoLink, draggable, DownloadedSvg },
   props: {
     fromType: {
       type: Number,
@@ -546,5 +552,17 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.downloaded-icon {
+  cursor: pointer;
+  padding-left: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  svg {
+    height: 15px;
+    width: 15px;
+  }
 }
 </style>

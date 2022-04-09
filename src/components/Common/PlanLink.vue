@@ -9,7 +9,7 @@
           group="root"
           @end="handleDragEnd"
           :move="onMove">
-          <div v-for="(group, lIndex) in groups" :key="lIndex" class="link-group">
+          <div v-for="(group, lIndex) in groups" :key="lIndex" class="link-group" v-show='!(hiddenEmptyGroup && group.contents.length === 0)'>
             <div class="group-item">
               <div class="group-header" v-show='group.groupName'>
                 <div class="group-left-info">
@@ -85,6 +85,11 @@
                         {{ item.taskType }}
                       </a-tag>
                     </template>
+                    <div class='downloaded-icon' v-if='item.isCreated'>
+                      <a-tooltip placement="top" title='already saved in my content'>
+                        <downloaded-svg />
+                      </a-tooltip>
+                    </div>
                   </div>
                   <div class="right-info">
                     <div class="date">{{ item.createTime | dayjs }}</div>
@@ -190,10 +195,11 @@ import * as logger from '@/utils/logger'
 import CommonPreviewNoLink from '@/components/Common/CommonPreviewNoLink'
 
 import draggable from 'vuedraggable'
+import DownloadedSvg from '@/assets/libraryv2/downloaded.svg?inline'
 
 export default {
   name: 'PlanLink',
-  components: { ContentTypeIcon, NewMyContent, MyContentSelector, CommonPreviewNoLink, draggable },
+  components: { ContentTypeIcon, NewMyContent, MyContentSelector, CommonPreviewNoLink, draggable, DownloadedSvg },
   props: {
     fromType: {
       type: Number,
@@ -207,10 +213,18 @@ export default {
       type: Number,
       default: 0
     },
+    hiddenEmptyGroup: {
+      type: Boolean,
+      default: false
+    },
     canEdit: {
       type: Boolean,
       default: true
-    }
+    },
+    isLibrary: {
+      type: Boolean,
+      default: false
+    },
   },
   computed: {
     groupNameList () {
@@ -366,9 +380,6 @@ export default {
       })
     },
     handleViewDetail (item) {
-      if (!this.canEdit) {
-        return
-      }
       logger.info('handleViewDetail', item)
       this.previewCurrentId = item.id
       this.previewType = item.type
@@ -637,4 +648,15 @@ export default {
   justify-content: center;
 }
 
+.downloaded-icon {
+  cursor: pointer;
+  padding-left: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  svg {
+    height: 15px;
+    width: 15px;
+  }
+}
 </style>

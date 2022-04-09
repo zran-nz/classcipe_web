@@ -16,7 +16,9 @@
       <a-spin :spinning="loading">
         <div class="quick-word-content" v-if="result && result.length > 0">
           <div class="quick-word-item" v-for="(item) in result" :key="'quickWord_'+item.id">
-            <a @click="choose(item)">{{ item.name }}</a>
+            <a-tooltip :title="item.hint">
+              <a @click="choose(item)">{{ item.name }}</a>
+            </a-tooltip>
           </div>
         </div>
         <div v-else style="font-size: 12px;color:#999;">No relevant tag found</div>

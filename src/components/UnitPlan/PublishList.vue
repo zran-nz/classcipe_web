@@ -5,6 +5,7 @@
     :footer='null'
     :maskClosable='false'
     destroyOnClose
+    @cancel='handleClose'
     width='640px'>
     <div class='publish-list-wrapper'>
       <div class='publish-list'>
@@ -94,6 +95,9 @@ export default {
     handleChangeItem (task) {
       this.$logger.info('PublishList handleChangeItem', task)
       task.checked = !task.checked
+    },
+    handleClose() {
+      this.$emit('close')
     }
   }
 }
