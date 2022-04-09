@@ -188,8 +188,8 @@
             <div class="profile-text profile-data">
               <div class='linked-school-name' v-if="$store.getters.schoolName">{{ $store.getters.schoolName }}</div>
               <div v-if="!$store.getters.schoolName && currentRole === 'teacher'">
-                <!-- <a-button @click="userFormVisible = true">Refer your principal to win</a-button> -->
-                <div class='no-linked-school-name'>You have not linked to any school</div>
+                <a-button @click="userFormVisible = true">Refer your principal to win</a-button>
+                <!-- <div class='no-linked-school-name'>You have not linked to any school</div> -->
               </div>
               <div class='no-linked-school-name' v-if="!$store.getters.schoolName && currentRole === 'student'">You have not linked to any school</div>
             </div>
@@ -259,22 +259,22 @@
             </a-form-model-item>
             <a-row :gutter=16>
               <a-col :span="12">
-                <a-form-model-item label="Principal's Frist Name" prop="principalFirstName">
-                  <a-input size="large" v-model="userForm.principalFirstName" placeholder="input principal's first name" />
+                <a-form-model-item label="Principal's Frist Name" prop="principleFirstname">
+                  <a-input size="large" v-model="userForm.principleFirstname" placeholder="input principal's first name" />
                 </a-form-model-item>
               </a-col>
               <a-col :span="12">
-                <a-form-model-item label="Principal's Last Name" prop="principallastname">
-                  <a-input size="large" v-model="userForm.principallastname" placeholder="input principal's last Name" />
+                <a-form-model-item label="Principal's Last Name" prop="principleLastname">
+                  <a-input size="large" v-model="userForm.principleLastname" placeholder="input principal's last Name" />
                 </a-form-model-item>
               </a-col>
             </a-row>
             <a-form-model-item label="Principal's Email Address" prop="principalEmail">
               <a-input size="large" v-model="userForm.principalEmail" placeholder="input principal's email address" />
             </a-form-model-item>
-            <a-form-model-item key="School" label="School" prop="school">
+            <a-form-model-item key="School" label="School" prop="schoolId">
               <a-select
-                v-model="userForm.school"
+                v-model="userForm.schoolId"
                 placeholder="Please select school"
                 show-search
                 :default-active-first-option="false"
@@ -302,6 +302,24 @@
                   v-for="schoolOption in [...myCreateSchoolOptions,...schoolOptions]"
                   :key="schoolOption.id"
                 >{{ schoolOption.name }}
+                </a-select-option>
+              </a-select>
+            </a-form-model-item>
+            <a-form-model-item prop="country" label="School Country">
+              <a-select
+                v-model="userForm.country"
+                show-search
+                placeholder="Please Select a Country"
+                option-filter-prop="children"
+                :filter-option="filterOptions"
+                :getPopupContainer="target => target.parentNode"
+              >
+                <a-select-option
+                  v-for="param in countries"
+                  :value="param.en"
+                  :key="'country_' + param.en"
+                >
+                  {{ param.en }}
                 </a-select-option>
               </a-select>
             </a-form-model-item>
@@ -337,9 +355,9 @@
             <a-form-model-item label="Email" prop="email">
               <a-input v-model="adminForm.email" placeholder="Please Input Email" />
             </a-form-model-item>
-            <a-form-model-item key="School" label="School" prop="school">
+            <a-form-model-item key="School" label="School" prop="schoolId">
               <a-select
-                v-model="adminForm.school"
+                v-model="adminForm.schoolId"
                 placeholder="Please select school"
                 show-search
                 :default-active-first-option="false"
@@ -370,6 +388,24 @@
                 </a-select-option>
               </a-select>
             </a-form-model-item>
+            <a-form-model-item prop="country" label="School Country">
+              <a-select
+                v-model="adminForm.country"
+                show-search
+                placeholder="Please Select a Country"
+                option-filter-prop="children"
+                :filter-option="filterOptions"
+                :getPopupContainer="target => target.parentNode"
+              >
+                <a-select-option
+                  v-for="param in countries"
+                  :value="param.en"
+                  :key="'adminCountry_' + param.en"
+                >
+                  {{ param.en }}
+                </a-select-option>
+              </a-select>
+            </a-form-model-item>
             <a-form-model-item prop="position" label="Position">
               <a-select
                 v-model="adminForm.position"
@@ -396,9 +432,9 @@
                 />
               </a-form-model-item>
             </a-form-model-item>
-            <a-form-model-item prop="countryId" label="Country">
+            <!-- <a-form-model-item prop="country" label="Country">
               <a-select
-                v-model="adminForm.countryId"
+                v-model="adminForm.country"
                 show-search
                 placeholder="Please Select a Country"
                 option-filter-prop="children"
@@ -413,7 +449,7 @@
                   {{ param.en }}
                 </a-select-option>
               </a-select>
-            </a-form-model-item>
+            </a-form-model-item> -->
             <a-form-model-item label="I Would Like a Quote For">
               <a-radio-group v-model="adminForm.planFor">
                 <a-radio value="1"> Plan for my school </a-radio>
@@ -451,6 +487,8 @@ import { createSchool, getSchools } from '@/api/school'
 import TagSetting from '@/components/UnitPlan/TagSetting'
 import { SubjectStudentList } from '@/api/subject'
 import { GetAllCountrys } from '@/api/common'
+import { SchoolPrincipleSave } from '@/api/schoolPrinciple'
+import { QuotationAddOrUpdate } from '@/api/quotation'
 import { SubjectType } from '@/const/common'
 import { mapState } from 'vuex'
 
@@ -511,7 +549,7 @@ export default {
       subjectType: SubjectType,
       ageList: [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
 
-      userFormVisible: true,
+      userFormVisible: false,
       adminFormVisible: false,
       confirmLoading: false,
       userForm: {
@@ -519,10 +557,12 @@ export default {
         firstname: '',
         lastname: '',
         email: '',
-        principalFirstName: '',
-        principallastname: '',
+        principleFirstname: '',
+        principleLastname: '',
         principalEmail: '',
-        school: undefined,
+        schoolId: undefined,
+        schoolName: undefined,
+        country: undefined,
         personalizedMessage: ''
       },
       adminForm: {
@@ -533,7 +573,9 @@ export default {
         firstname: '',
         lastname: '',
         email: '',
-        school: undefined
+        schoolId: undefined,
+        schoolName: undefined,
+        country: undefined
       },
       countries: [],
       positions: [
@@ -582,8 +624,8 @@ export default {
             trigger: 'blur'
           }
         ],
-        principalFirstName: [{ required: true, message: 'Please Input First Name!' }],
-        principallastname: [{ required: true, message: 'Please Input Last Name!' }],
+        principleFirstname: [{ required: true, message: 'Please Input First Name!' }],
+        principleLastname: [{ required: true, message: 'Please Input Last Name!' }],
         principalEmail: [
           { required: true, message: 'Please Input Email!' },
           {
@@ -593,7 +635,8 @@ export default {
             trigger: 'blur'
           }
         ],
-        school: [{ required: true, message: 'Please Select School!' }]
+        schoolId: [{ required: true, message: 'Please Select a School!' }],
+        country: [{ required: true, message: 'Please Select a Country!' }]
       }
     },
     validatorAdminRules: function () {
@@ -616,7 +659,8 @@ export default {
             message: 'Please Input Position!'
           }
         ],
-        countryId: [{ required: true, message: 'Please Select a Country!' }]
+        countryId: [{ required: true, message: 'Please Select a Country!' }],
+        country: [{ required: true, message: 'Please Select a Country!' }]
       }
     }
   },
@@ -922,14 +966,35 @@ export default {
     doSaveUserForm() {
       this.$refs.userForm.validate(valid => {
         if (valid) {
-          const school = this.myCreateSchoolOptions.find(item => item.id === this.userForm.school)
+          const school = this.myCreateSchoolOptions.find(item => item.id === this.userForm.schoolId)
           if (school) {
             this.confirmLoading = true
-            createSchool({ name: school.name }).then(res => {
+            createSchool({
+              name: school.name,
+              country: this.userForm.country,
+              principleEmail: this.userForm.principleEmail,
+              principleFirstname: this.userForm.principleFirstname,
+              principleLastname: this.userForm.principleLastname,
+              curriculumId: this.userInfo.curriculumId
+            }).then(res => {
               if (res.success) {
                 school.id = res.result.id
-                this.userForm.school = res.result.id
-                console.log(this.userForm)
+                this.userForm.schoolId = res.result.id
+                this.userForm.schoolName = school.name
+                SchoolPrincipleSave(this.userForm).then(res => {
+                  if (res.success) {
+                    this.$message.success('Send successfully')
+                  }
+                })
+              }
+            }).finally(res => {
+              this.confirmLoading = false
+            })
+          } else {
+            this.confirmLoading = true
+            SchoolPrincipleSave(this.userForm).then(res => {
+              if (res.success) {
+                this.$message.success('Send successfully')
               }
             }).finally(res => {
               this.confirmLoading = false
@@ -939,7 +1004,44 @@ export default {
       })
     },
     doSaveAdminForm() {
-
+      this.$refs.adminForm.validate(valid => {
+        if (valid) {
+          const school = this.myCreateSchoolOptions.find(item => item.id === this.adminForm.schoolId)
+          if (school) {
+            this.confirmLoading = true
+            createSchool({
+              name: school.name,
+              country: this.adminForm.country,
+              principleEmail: this.adminForm.email,
+              principleFirstname: this.adminForm.firstname,
+              principleLastname: this.adminForm.lastname,
+              curriculumId: this.userInfo.curriculumId
+            }).then(res => {
+              if (res.success) {
+                school.id = res.result.id
+                this.adminForm.schoolId = res.result.id
+                this.adminForm.schoolName = school.name
+                QuotationAddOrUpdate(this.adminForm).then(res => {
+                  if (res.success) {
+                    this.$message.success('Send successfully')
+                  }
+                })
+              }
+            }).finally(res => {
+              this.confirmLoading = false
+            })
+          } else {
+            this.confirmLoading = true
+            QuotationAddOrUpdate(this.adminForm).then(res => {
+              if (res.success) {
+                this.$message.success('Send successfully')
+              }
+            }).finally(res => {
+              this.confirmLoading = false
+            })
+          }
+        }
+      })
     },
     handleSearchSchool(value) {
       this.createSchoolName = value
@@ -948,7 +1050,7 @@ export default {
     searchSchool(value) {
       if (!this.userInfo.curriculumId) return
       getSchools({
-        curriculumId: this.userInfo.curriculumId,
+        // curriculumId: this.userInfo.curriculumId,
         name: value
       }).then(res => {
         logger.info('schools', res)
