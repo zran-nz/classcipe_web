@@ -21,18 +21,28 @@
             <div class="img-list-wrapper">
               <div class="img-list">
                 <div class="img-item" v-for="(item, index) in videoUrlList" :key="'index' + index">
-                  <!-- <video class="img-item" :src="item.contentUrl" preload="auto"
-                        controls></video> -->
-                  <iframe
-                    id="item_player"
-                    width="260px"
-                    height="150px"
-                    :src="item.url"
-                    title="YouTube video player"
-                    frameborder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;"
-                    allowfullscreen
-                  ></iframe>
+                  <div class="img-box">
+                    <!-- <video class="img-item" :src="item.contentUrl" preload="auto"
+                          controls></video> -->
+                    <iframe
+                      id="item_player"
+                      width="260px"
+                      height="150px"
+                      :src="item.url"
+                      title="YouTube video player"
+                      frameborder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;"
+                      allowfullscreen
+                    ></iframe>
+                    <div class="delete_btn">
+                      <img
+                        src="~@/assets/icons/addMaterial/morshanchu.png"
+                        class="shanchu-icon"
+                        alt=""
+                        @click="deleteVideo(index)"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -128,6 +138,9 @@ export default {
         })
         .finally(() => {})
     },
+    deleteVideo(index) {
+      this.videoUrlList.splice(index, 1)
+    },
     addMaterialList({ url, type }) {
       this.$logger.info('addMaterialList', url, type)
       this.videoUrlList.push({ tpye: type, url: url })
@@ -187,6 +200,7 @@ export default {
     }
     .tip-img-item {
       margin-right: 10px;
+      margin-top: 20px;
     }
     .btn {
       margin: 50px auto;
@@ -230,7 +244,6 @@ export default {
 
   .img-list-wrapper {
     width: 100%;
-
     .img-list {
       cursor: pointer;
       display: flex;
@@ -238,14 +251,33 @@ export default {
       flex-wrap: wrap;
 
       .img-item {
+        position: relative;;
         height: 150px;
         width: 270px;
         border: 1px solid #fff;
         padding: 10px;
-
-        img {
-          height: 100%;
-          width: 100%;
+        margin-bottom: 20px;
+        .img-box {
+          position: absolute;;
+          img {
+            height: 100%;
+            width: 100%;
+          }
+          .delete_btn {
+            position: absolute;
+            border-radius: 15px;
+            width: 30px;
+            height: 30px;
+            background: #fff;
+            z-index: 1;
+            top: 4px;
+            right: 12px;
+            padding: 3px;
+            .shanchu-icon {
+              width: 24px;
+              height: 21px;
+            }
+          }
         }
       }
 
