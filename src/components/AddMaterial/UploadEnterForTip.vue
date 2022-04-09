@@ -47,13 +47,6 @@
       <classcipe-drive :insertClasscipeFile="insertClasscipeFile" />
     </a-modal>
     <div class="material-recorder">
-      <record-video v-if="recordType === ModalEventsTypeEnum.VIDEO" :onSend="onSendVideo" :cancel="cancelRecord" />
-      <record-audio
-        v-else-if="recordType === ModalEventsTypeEnum.AUDIO"
-        :onSend="onSendAudio"
-        :cancel="cancelRecord"
-        :autoDone="true"
-      />
       <common-progress :progress="driveUpLoadProgress" :cancel="cancelUpDrive" />
     </div>
   </div>
@@ -69,7 +62,6 @@ import { uploadImageToFirebaseByUrl } from './Utils/Common'
 import { videoTypes, audioTypes } from './Utils/Constants'
 // import MetarialWebSite from './metarialWebSite.vue'
 import CommonUpload from './Common/CommonUpload'
-import RecordVideo from './Video/RecordVideo'
 import CommonProgress from './Common/CommonProgress'
 import ClasscipeDrive from '@/components/AddMaterial/ClasscipeDrive/ClasscipeDrive'
 import GoogleYoutubeVideo from '@/components/AddMaterial/Google/GoogleYoutubeVideo'
@@ -82,7 +74,6 @@ export default {
     // GoogleYoutubeVedio,
     ClasscipeDrive,
     CommonUpload,
-    RecordVideo,
     CommonProgress
   },
   data() {
@@ -121,8 +112,7 @@ export default {
       } else if (audioTypes.indexOf(name) > -1) {
         type = 'audio'
       }
-
-      AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_NEW_MEDIA, {
+      AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_MEDIA_FOR_TIP, {
         type,
         url: result
       })
@@ -144,7 +134,7 @@ export default {
         AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_MEDIA_FOR_TIP, {
           type: 'video',
           url: fileItem.baseFileUrl + fileItem.filePath
-        })  
+        })
       }
       this.showClasscipeDrive = false
     },
@@ -237,24 +227,6 @@ export default {
     },
     video() {
       this.recordType = ModalEventsTypeEnum.VIDEO
-    },
-    cancelRecord() {
-      this.recordType = null
-    },
-    onSendAudio(url) {
-      console.log(url)
-      AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_NEW_MEDIA, {
-        type: 'audio',
-        url
-      })
-      this.recordType = null
-    },
-    onSendVideo(url) {
-      AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_NEW_MEDIA, {
-        type: 'video',
-        url
-      })
-      this.recordType = null
     }
   }
 }
