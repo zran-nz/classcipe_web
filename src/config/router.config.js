@@ -712,7 +712,7 @@ export const constantRouterMap = [
                meta: { title: 'Task Library', keepAlive: true }
              },
              {
-               path: '/addon-iframe/tip/:taskId',
+               path: '/addon-iframe/tip/:slideId/:pageId',
                name: 'Tip',
                props: true,
                component: () => import(/* webpackChunkName: "Tip" */ '@/views/addon/Tip'),

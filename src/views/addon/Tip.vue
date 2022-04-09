@@ -22,18 +22,18 @@
               <div class="img-list">
                 <div class="img-item" v-for="(item, index) in videoUrlList" :key="'index' + index">
                   <div class="img-box">
-                    <video
-                      class="img-item"
-                      :src="item.contentUrl"
-                      v-if="'video'.includes(item.type) > -1"
-                      muted
-                      controls
-                    ></video>
-                    <iframe
-                      v-if="'iframe'.includes(item.type) > -1"
-                      id="item_player"
+                    <!-- <video
                       width="260px"
                       height="150px"
+                      :src="item.contentUrl"
+                      v-if="'video'.includes(item.type) > -1"
+                      controls
+                    ></video> -->
+                    <iframe
+                      v-if="'iframe'.includes(item.type) > -1"
+                      width="260px"
+                      height="150px"
+                      id="item_player"
                       :src="item.url"
                       title="YouTube video player"
                       frameborder="0"
@@ -81,7 +81,11 @@ export default {
     YoutubeIcon
   },
   props: {
-    taskId: {
+    slideId: {
+      type: String,
+      required: true
+    },
+    pageId: {
       type: String,
       required: true
     }
@@ -105,16 +109,13 @@ export default {
       videoUrlList: [
         { type: 'iframe', url: 'https://www.youtube.com/embed/fdqNKul2hAA?showinfo=0&modestbranding=1&rel=0' },
         { type: 'iframe', url: 'https://www.youtube.com/embed/eEsVfVay64M?start=100&end=652' }
-        // { contentUrl: 'https://i.ytimg.com/vi/gya34uYDKXM/mqdefault.jpg' },
-        // { contentUrl: 'https://i.ytimg.com/vi/o3LLz5sg4oI/mqdefault.jpg' },
-        // { contentUrl: 'https://i.ytimg.com/vi/gya34uYDKXM/mqdefault.jpg' },
-        // { contentUrl: 'https://i.ytimg.com/vi/o3LLz5sg4oI/mqdefault.jpg' },
-        // { contentUrl: 'https://i.ytimg.com/vi/o3LLz5sg4oI/mqdefault.jpg' }
       ]
     }
   },
   created() {
-    logger.info('created ', this.taskId)
+    logger.info('created ', this.pageId, this.slideId)
+    this.param.slide_id = this.slideId
+    this.param.page_id = this.pageId
     // addMaterial事件处理
     AddMaterialEventBus.$on(ModalEventsNameEnum.ADD_MEDIA_FOR_TIP, url => {
       this.addMaterialList(url)
@@ -142,8 +143,8 @@ export default {
   methods: {
     getTipInfo() {
       var param = {}
-      param.pageId = 'g1122e959211_0_0'
-      param.slideId = '1yDugYGGpnYpnirssemu-dUdYsx87Dt-QHHV9hRB5IWU'
+      param.pageId = this.pageId
+      param.slideId = this.slideId
       queryElementById(param)
         .then(response => {
           logger.info('queryElementById ', response.result)
@@ -187,15 +188,6 @@ export default {
             logger.info('addElement ', response)
           })
           .finally(() => {})
-      }
-      // 通知Google addon 关闭页面,如果有变更提示附带最新的task数据
-      if (window.parent) {
-        const formJson = JSON.stringify(this.form)
-        window.parent.postMessage(JSON.stringify({
-          from: 'addon',
-          event: 'close',
-          data: formJson === this.oldFormData ? null : formJson
-        }), '*')
       }
     }
   }
