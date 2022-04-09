@@ -327,7 +327,7 @@ export default {
     remoteChooseTag(parentId, tag) {
       // customDeep?
       const parent = this.mergeTagList.find(item => item.id === parentId)
-      if (parent) {
+      if (parent && tag) {
         if (typeof tag === 'string') {
           tag = [tag]
         }
