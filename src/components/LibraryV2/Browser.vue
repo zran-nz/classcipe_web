@@ -7,31 +7,6 @@
         </div>
         <div class="filter-line">
           <div class="search-bar-line">
-            <a-popover
-              trigger="click"
-              placement="bottomLeft"
-              :overlayStyle="{ 'max-height': filterHeight + 'px', 'position': 'absolute','top':'190px','overflow-y': 'auto',' background-clip':'padding-box',' border-radius':'2px','box-shadow':' 0 2px 8px rgb(0 0 0 / 15%'}">
-              <template slot="content">
-                <search-filter
-                  @filter-config-update="handleUpdateFilterConfig"
-                  @update-filter-context='handleUpdateFilterContext'
-                  :filter-config="filterConfig"
-                  :age-options="filterAgeOptions"
-                  :subject-options="filterSubjectOptions"
-                  :type-options="filterTypeOptions"
-                  :filter-fa-options="filterFaOptions"
-                  :filter-sa-options="filterSaOptions"
-                  :filter-activity-options="filterActivityOptions"
-                />
-              </template>
-              <div class="filter-item">
-                <filter-icon class="filter-icon" />
-                <filter-active-icon class="filter-active-icon"/>
-                <div class="filter-label">
-                  Filter
-                </div>
-              </div>
-            </a-popover>
             <div class="search-input" @click.stop="">
               <a-input-search
                 placeholder="input search text"
@@ -200,7 +175,39 @@
         </div>
         <div
           class="browser-block-item-wrapper">
-          <a-card v-if="!searching && showRecommend" :bordered="false" title="Recommended:" ></a-card>
+          <div class='recommend-filter-bar'>
+            <div class='recommend-item'>
+              <template v-if='!searching && showRecommend'>Recommended:</template>
+            </div>
+            <div class='filter-item'>
+              <a-popover
+                v-show='showFilter'
+                trigger="click"
+                placement="bottomLeft"
+                :overlayStyle="{ 'max-height': filterHeight + 'px', 'position': 'absolute','top':'190px','overflow-y': 'auto',' background-clip':'padding-box',' border-radius':'2px','box-shadow':' 0 2px 8px rgb(0 0 0 / 15%'}">
+                <template slot="content">
+                  <search-filter
+                    @filter-config-update="handleUpdateFilterConfig"
+                    @update-filter-context='handleUpdateFilterContext'
+                    :filter-config="filterConfig"
+                    :age-options="filterAgeOptions"
+                    :subject-options="filterSubjectOptions"
+                    :type-options="filterTypeOptions"
+                    :filter-fa-options="filterFaOptions"
+                    :filter-sa-options="filterSaOptions"
+                    :filter-activity-options="filterActivityOptions"
+                  />
+                </template>
+                <div class="filter-item">
+                  <filter-icon class="filter-icon" />
+                  <filter-active-icon class="filter-active-icon"/>
+                  <div class="filter-label">
+                    Filter
+                  </div>
+                </div>
+              </a-popover>
+            </div>
+          </div>
           <div
             class="browser-block-item-last"
             :style="{'flex-direction': dataListMode === 'list' ? 'column' : 'row'}">
@@ -386,6 +393,13 @@ const BrowserTypeLabelMap = {
   idu: 'Integrated Subject Skill'
 }
 
+const SearchTypeMap = {
+  Search: 'Search',
+  BrowserType: 'BrowserType',
+  Recommend: 'Recommend',
+  CurriculumFilter: 'CurriculumFilter'
+}
+
 export default {
   name: 'Browser',
   components: {
@@ -514,7 +528,10 @@ export default {
       showRecommend: true,
 
       debouncedSearchKeyFocus: null,
-      filterContext: null
+      filterContext: null,
+      showFilter: true,
+      searchType: SearchTypeMap.Recommend,
+      searchRequestData: null
     }
   },
   computed: {
@@ -555,25 +572,26 @@ export default {
       this.curriculumOptions = response.result
       this.$logger.info('getAllCurriculums', this.curriculumOptions)
     }).finally(() => {
-      this.getfilterOptions()
+      this.getFilterOptions()
     })
 
     this.debouncedSearchKeyFocus = debounce(this.handleSearchKeyFocus, 400)
   },
   mounted () {
     this.blockWidth = this.$refs['wrapper'].getBoundingClientRect().width * 0.15
-    this.filterHeight = document.documentElement.clientHeight - 200
+    this.filterHeight = document.documentElement.clientHeight - 350
     this.$logger.info('globalWidth ' + this.blockWidth)
 
     window.onresize = debounce(() => {
       this.blockWidth = this.$refs['wrapper'].getBoundingClientRect().width * 0.15
-      this.filterHeight = document.documentElement.clientHeight - 200
+      this.filterHeight = document.documentElement.clientHeight - 350
       this.browserMarginLeft = (this.blockIndex - 1) * this.blockWidth
     }, 300)
   },
   methods: {
     getRecommended () {
       this.dataListLoading = true
+      this.showFilter = false
       QueryRecommendContents({ curriculumId: this.currentCurriculumId ? this.currentCurriculumId : this.$store.getters.bindCurriculum }).then(response => {
         this.$logger.info('QueryRecommendContents response', response)
         this.dataList = response.result ? response.result : []
@@ -586,6 +604,9 @@ export default {
     toggleBrowserType (browserTypeItem) {
       this.$logger.info('toggleBrowserType ' + browserTypeItem.type + ' tagType:' + browserTypeItem.tagType)
       this.showRecommend = false
+      this.searchType = SearchTypeMap.BrowserType
+      this.searchRequestData = browserTypeItem
+      this.showFilter = true
       if (browserTypeItem.type !== this.currentBrowserType) {
         this.currentBrowserType = browserTypeItem.type
         this.navPath = []
@@ -596,9 +617,13 @@ export default {
 
       const postData = {
         curriculumId: this.$store.getters.bindCurriculum,
-        tagType: browserTypeItem.tagType
+        tagType: browserTypeItem.tagType,
+        filter: null
       }
       if (typeof postData.tagType === 'number') {
+        if (this.filterContext) {
+          postData.filter = this.filterContext.getFilterConfig()
+        }
         QueryContents(postData).then(response => {
           this.$logger.info('toggleBrowserType QueryContents response', response)
           this.dataList = response.result ? response.result : []
@@ -696,6 +721,8 @@ export default {
       this.blockIndex = 0
       this.browserMarginLeft = 0
       this.currentBrowserType = null
+      this.searchType = SearchTypeMap.Recommend
+      this.searchRequestData = value
 
       if (this.libraryMode === LibraryMode.searchMode) {
         this.handleSearchKey()
@@ -723,6 +750,7 @@ export default {
     handleSearchKey () {
       this.$logger.info('handleSearchKey ' + this.searchKeyword)
       this.expandedListFlag = true
+      this.showFilter = true
       if (this.searchKeyword && this.searchKeyword.trim().length > 0) {
         this.searchByKeyword(this.searchKeyword)
       } else {
@@ -790,6 +818,7 @@ export default {
       this.currentFromItemName = null
       this.currentFromItemType = null
       this.searchResultVisible = true
+      this.searchType = SearchTypeMap.Search
       this.searchResultList = []
       this.libraryMode = LibraryMode.searchMode
       this.searchContentByKeyword(this.searchKeyword)
@@ -805,13 +834,20 @@ export default {
       this.searchResultVisible = false
     },
 
-    handleClickBlock (data) {
-      this.$logger.info('handleClickBlock', data)
+    handleClickBlock (value) {
+      this.$logger.info('handleClickBlock', value)
+      const data = Object.assign({ filter: null }, value)
       this.showRecommend = false
+      this.searchType = SearchTypeMap.CurriculumFilter
+      this.searchRequestData = value
+      this.showFilter = true
       this.dataList = []
       this.dataListLoading = true
       this.previewVisible = false
       if (typeof data.tagType === 'number') {
+        if (this.filterContext) {
+          data.filter = this.filterContext.getFilterConfig()
+        }
         QueryContents(data).then(response => {
           this.$logger.info('QueryContents response', response)
           this.dataList = response.result ? response.result : []
@@ -925,27 +961,29 @@ export default {
     },
     handleUpdateFilterConfig (filter) {
       this.$logger.info('handleUpdateFilterConfig', filter)
-      this.libraryMode = LibraryMode.searchMode
-      // 学生只显示task
-      if (this.$store.getters.currentRole === 'student') {
-        filter.type = [typeMap.task]
+      switch (this.searchType) {
+        case SearchTypeMap.CurriculumFilter:
+          this.handleClickBlock(this.searchRequestData)
+          break
+        case SearchTypeMap.Search:
+          this.searchContentByKeyword(this.searchKeyword)
+          break
+        case SearchTypeMap.BrowserType:
+          this.toggleBrowserType(this.searchRequestData)
+          break
+        case SearchTypeMap.Recommend:
+          this.handleCurriculumChange(this.searchRequestData)
+          break
+        default:
+          break
       }
-      // 添加搜索词
-      filter.searchKey = this.searchKeyword
-      if (this.currentFromItemType) {
-        filter.keyContent = {
-          fromType: this.currentFromItemType,
-          name: this.currentFromItemName
-        }
-      }
-      this.searchByFilter(filter)
     },
     handleUpdateFilterContext (filterContext) {
       // slot无法使用ref，故将filter的this传给当前组件
       this.$logger.info('handleUpdateFilterContext', filterContext)
       this.filterContext = filterContext
     },
-    getfilterOptions () {
+    getFilterOptions () {
       SubjectTree({ curriculumId: this.currentCurriculumId }).then(response => {
         this.$logger.info('getSubjectTree response', response.result)
         this.filterSubjectOptions = []
@@ -1301,6 +1339,10 @@ export default {
   flex-wrap: wrap;
   justify-content: flex-start;
   box-sizing: border-box;
+  height: calc(100vh - 247px);
+  overflow-y: scroll;
+  margin-top: 10px;
+  overflow-x: hidden;
 
   .browser-item {
     line-height: 20px;
@@ -1357,7 +1399,6 @@ export default {
 
   .card-view-mode-wrapper {
     width: 100%;
-    padding: 10px 10px 25px 10px;
     .card-item-wrapper {
       cursor: pointer;
       box-sizing: border-box;
@@ -1419,10 +1460,9 @@ export default {
   align-items: center;
   border-color: #eff3f6;
   box-shadow: none;
-  background: #eff3f6;
   border-top-left-radius: 3px;
   border-bottom-left-radius: 3px;
-  padding: 0 0 0 10px;
+  padding: 0 8px;
   height: 46px;
   line-height: 46px;
   white-space:nowrap;
@@ -1451,8 +1491,6 @@ export default {
   .filter-label {
     font-family: Inter-Bold;
     line-height: 20px;
-    padding-right: 10px;
-    border-right: 1px solid #ccc;
   }
 }
 
@@ -1668,4 +1706,19 @@ export default {
   }
 }
 
+.recommend-filter-bar {
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  background: #fff;
+  border-bottom: 1px solid #e8e8e8;
+  border-radius: 2px 2px 0 0;
+  .recommend-item {
+    color: rgba(0, 0, 0, 0.85);
+    font-weight: 500;
+    font-size: 16px;
+  }
+}
 </style>
