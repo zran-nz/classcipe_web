@@ -22,17 +22,18 @@
               <div class="img-list">
                 <div class="img-item" v-for="(item, index) in videoUrlList" :key="'index' + index">
                   <div class="img-box">
-                    <!-- <video
+                    <video
                       width="260px"
                       height="150px"
-                      :src="item.contentUrl"
-                      v-if="'video'.includes(item.type) > -1"
+                      :src="item.url"
+                      v-if="isVideoTye(item, 'video')"
+                      preload="auto"
                       controls
-                    ></video> -->
+                    ></video>
                     <iframe
-                      v-if="'iframe'.includes(item.type) > -1"
                       width="260px"
                       height="150px"
+                      v-if="isVideoTye(item, 'iframe')"
                       id="item_player"
                       :src="item.url"
                       title="YouTube video player"
@@ -106,10 +107,7 @@ export default {
           totalTime: 0
         }
       },
-      videoUrlList: [
-        { type: 'iframe', url: 'https://www.youtube.com/embed/fdqNKul2hAA?showinfo=0&modestbranding=1&rel=0' },
-        { type: 'iframe', url: 'https://www.youtube.com/embed/eEsVfVay64M?start=100&end=652' }
-      ]
+      videoUrlList: []
     }
   },
   created() {
@@ -133,11 +131,14 @@ export default {
   mounted() {
     this.getTipInfo()
     if (window.parent) {
-      window.parent.postMessage(JSON.stringify({
-        from: 'addon',
-        event: 'tip-loaded',
-        data: null
-      }), '*')
+      window.parent.postMessage(
+        JSON.stringify({
+          from: 'addon',
+          event: 'tip-loaded',
+          data: null
+        }),
+        '*'
+      )
     }
   },
   methods: {
@@ -161,6 +162,13 @@ export default {
           }
         })
         .finally(() => {})
+    },
+    isVideoTye(item, type) {
+      console.log('item', item, type)
+      if (item.tpye == type) {
+        return true
+      }
+      return false
     },
     deleteVideo(index) {
       this.videoUrlList.splice(index, 1)
@@ -191,11 +199,14 @@ export default {
       }
       // 通知Google addon 关闭页面
       if (window.parent) {
-        window.parent.postMessage(JSON.stringify({
-          from: 'addon',
-          event: 'close',
-          data: null
-        }), '*')
+        window.parent.postMessage(
+          JSON.stringify({
+            from: 'addon',
+            event: 'close',
+            data: null
+          }),
+          '*'
+        )
       }
     }
   }
