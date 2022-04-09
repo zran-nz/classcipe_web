@@ -126,25 +126,11 @@ export default {
     addYoutube() {
       this.showYoutube = true
     },
-    openYoutube() {
-      window.open('https://www.youtube.com')
-    },
-    youtubePreview() {
-      if (this.youtubeUrl) {
-        this.showIframe = false
-        this.$nextTick(() => {
-          const tvid = this.youtubeUrl.split('?v=')[1].split('&')[0]
-          this.withKeyUrl = 'https://www.youtube.com/embed/' + tvid
-          this.showIframe = true
-        })
-      }
-    },
-    nextYoutube(videoUrl) {
-      console.log(this.withKeyUrl)
-      if (videoUrl) {
-        AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_NEW_MEDIA, {
+    nextYoutube(videoItem) {
+      if (videoItem) {
+        AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_MEDIA_FOR_TIP, {
           type: 'iframe',
-          url: videoUrl
+          url: videoItem.link
         })
         this.showYoutube = false
       }

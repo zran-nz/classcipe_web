@@ -16,23 +16,29 @@
     </div>
 
     <div class="youtube-video-con">
+      <div v-if="videos.length == 0" class="video-text">
+        Search vedio from Youtube
+      </div>
       <div
         class="youtube-video-item"
-        :class="{ active: choose.videoId === item.videoId }"
+        :class="{ active: chooseVideoId === item.videoId }"
         @click="chooseVideo(item)"
         v-for="(item, index) in videos"
         :key="'video' + index"
+        v-else
       >
         <div class="youtube-video-img">
-          <video
-            width="230"
-            height="120"
-            :src="item.link"
-            controlslist="nodownload"
-            controls=""
-            preload="auto"
-            class="video-item"
-          ></video>
+          <template v-if="chooseVideoId === item.videoId">
+            <iframe
+              :src="item.link"
+              frameborder="0"
+              allow="accelerometer;  clipboard-write; encrypted-media; gyroscope; picture-in-picture;"
+              class="youtube-video-img"
+            />
+          </template>
+          <template v-else>
+            <img class="youtube-video-img" :src="item.thumbnail" />
+          </template>
         </div>
         <div class="youtube-video-detail">
           <div class="video-detail-content">
@@ -49,28 +55,34 @@
         </div>
       </div>
     </div>
-
-    <div class="btn" @click="insert">next</div>
+    <div class="btn" @click="insert" v-show="chooseVideoId.length > 0">save</div>
   </div>
 </template>
 <script>
 import * as logger from '@/utils/logger'
 import { YoutubeQueryByKeywords } from '@/api/material'
 export default {
+   props: {
+    nextYoutube: {
+      type: Function,
+      required: true
+    }
+  },
   data() {
     return {
       keywords: '',
       choose: {},
+      chooseVideoId: '',
       videos: [
-        {
-          link: 'https://www.youtube.com/embed/k5Bgw6-Zj_c?showinfo=0&modestbranding=1&rel=0',
-          thumbnail: 'https://i.ytimg.com/vi/k5Bgw6-Zj_c/default.jpg',
-          title: 'ABC',
-          description:
-            'Provided to YouTube by Universal Music Group ABC · Lola Indigo Toy Story ℗ 2022 Universal Music Spain, S.L.U. Released on: ...',
-          date: '2022-04-07 22:01:35',
-          videoId: 'k5Bgw6-Zj_c'
-        }
+        // {
+        //   link: 'https://www.youtube.com/embed/k5Bgw6-Zj_c?showinfo=0&modestbranding=1&rel=0',
+        //   thumbnail: 'https://i.ytimg.com/vi/k5Bgw6-Zj_c/default.jpg',
+        //   title: 'ABC',
+        //   description:
+        //     'Provided to YouTube by Universal Music Group ABC · Lola Indigo Toy Story ℗ 2022 Universal Music Spain, S.L.U. Released on: ...',
+        //   date: '2022-04-07 22:01:35',
+        //   videoId: 'k5Bgw6-Zj_c'
+        // }
       ]
     }
   },
@@ -84,16 +96,28 @@ export default {
   },
   methods: {
     searchVideo() {
-      YoutubeQueryByKeywords({ keywords: this.keywords }).then(response => {
-        logger.info('YoutubeQueryByKeywords ', response)
-        this.videos = response.result
-      })
+      if (this.keywords.trim().length > 0) {
+        YoutubeQueryByKeywords({ keywords: this.keywords }).then(response => {
+          logger.info('YoutubeQueryByKeywords ', response)
+          this.videos = response.result
+          this.chooseVideoId = ''
+        })
+      } else {
+        this.$message.warn('Please enter keyword')
+      }
     },
     insert() {
       logger.info('insert ')
+      this.nextYoutube(this.choose)
+      this.choose = null
+      this.keywords = ''
+      this.chooseVideoId = ''
+      this.videos = []
     },
     chooseVideo(item) {
-       logger.info(item)
+      logger.info(item)
+      this.chooseVideoId = item.videoId
+      this.choose = item
     }
   }
 }
@@ -134,7 +158,7 @@ export default {
 }
 
 .youtube-page {
-  width: 900px;
+  width: 90%;
   margin: 20px auto;
   overflow: auto;
   background-color: #fff;
@@ -158,16 +182,24 @@ export default {
     padding-left: 110px;
     width: 100%;
     height: 400px;
+    align-items: center;
     overflow-y: auto;
+    .video-text {
+      margin-top: 200px;
+      font-size: 18px;
+      font-family: Source Han Sans CN;
+      font-weight: 400;
+      color: #ababab;
+      line-height: 32px;
+      text-align: center;
+      align-items: center;
+    }
     .youtube-video-item {
       display: flex;
       border: 2px solid transparent;
       padding: 5px;
       &.active {
         border: 2px solid @primary-color;
-      }
-      &:hover {
-        border: 2px solid #dfdfdf;
         .youtube-video-img {
           width: 345px;
           height: 180px;
@@ -222,41 +254,6 @@ export default {
   }
 }
 
-iframe {
-  border: 1px solid #15c39a;
-}
-
-.open_btn {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 80px;
-  width: 100%;
-  color: #15c39a;
-  font-size: 18px;
-  cursor: pointer;
-}
-
-.open-google {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 160px;
-  height: 40px;
-  color: white;
-  font-size: 14px;
-  font-family: Inter-Bold;
-  background-color: #15c39a;
-  border-radius: 6px;
-  cursor: pointer;
-  margin-left: 10px;
-}
-
-iframe {
-  margin-top: 20px;
-  margin-bottom: 20px;
-}
-
 .btn {
   margin-top: 40px;
   display: flex;
@@ -271,5 +268,11 @@ iframe {
   border-radius: 6px;
   cursor: pointer;
   align-self: flex-end;
+  :disabled {
+    cursor: not-allowed;
+    color: #eee;
+    background-color: #bbb;
+    border-color: #bbb;
+  }
 }
 </style>

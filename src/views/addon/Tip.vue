@@ -21,18 +21,18 @@
             <div class="img-list-wrapper">
               <div class="img-list">
                 <div class="img-item" v-for="(item, index) in videoUrlList" :key="'index' + index">
-
                   <!-- <video class="img-item" :src="item.contentUrl" preload="auto"
                         controls></video> -->
                   <iframe
                     id="item_player"
                     width="260px"
                     height="150px"
-                    :src="item.contentUrl"
+                    :src="item.url"
                     title="YouTube video player"
                     frameborder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;"
-                    allowfullscreen></iframe>
+                    allowfullscreen
+                  ></iframe>
                 </div>
               </div>
             </div>
@@ -53,6 +53,7 @@ import OpenDirSvg from '@/assets/svgIcon/library/open_dir.svg?inline'
 import GoogleDriveIcon from '@/assets/svgIcon/addMaterial/google_drive.svg?inline'
 import YoutubeIcon from '@/assets/svgIcon/addMaterial/youtube.svg?inline'
 import UploadEnterForTip from '@/components/AddMaterial/UploadEnterForTip'
+import { AddMaterialEventBus, ModalEventsNameEnum } from '@/components/AddMaterial/AddMaterialEventBus'
 import { addElement, queryElementById, updateElement } from '@/api/addMaterial'
 export default {
   name: 'Tip',
@@ -85,8 +86,8 @@ export default {
         }
       },
       videoUrlList: [
-        { contentUrl: 'https://www.youtube.com/embed/fdqNKul2hAA?showinfo=0&modestbranding=1&rel=0' },
-        { contentUrl: 'https://www.youtube.com/embed/eEsVfVay64M?start=100&end=652' }
+        { type: 'iframe', url: 'https://www.youtube.com/embed/fdqNKul2hAA?showinfo=0&modestbranding=1&rel=0' },
+        { type: 'iframe', url: 'https://www.youtube.com/embed/eEsVfVay64M?start=100&end=652' }
         // { contentUrl: 'https://i.ytimg.com/vi/gya34uYDKXM/mqdefault.jpg' },
         // { contentUrl: 'https://i.ytimg.com/vi/o3LLz5sg4oI/mqdefault.jpg' },
         // { contentUrl: 'https://i.ytimg.com/vi/gya34uYDKXM/mqdefault.jpg' },
@@ -97,6 +98,10 @@ export default {
   },
   created() {
     logger.info('created ', this.taskId)
+    // addMaterial事件处理
+    AddMaterialEventBus.$on(ModalEventsNameEnum.ADD_MEDIA_FOR_TIP, url => {
+      this.addMaterialList(url)
+    })
   },
   mounted() {
     this.getTipInfo()
@@ -116,14 +121,17 @@ export default {
               this.tip_id = eles[j].id
               this.tip_text = eles[j].data.tip
               this.param.data = eles[j].data
-              // this.videoUrlList = eles[j].data.urls
+              this.videoUrlList = eles[j].data.urls
               break
             }
           }
         })
         .finally(() => {})
     },
-
+    addMaterialList({ url, type }) {
+      this.$logger.info('addMaterialList', url, type)
+      this.videoUrlList.push({ tpye: type, url: url })
+    },
     confirm() {
       if (this.tip_text.length < 1) {
         this.$message.warn('Insert tip for the slide!')
@@ -181,8 +189,7 @@ export default {
       margin-right: 10px;
     }
     .btn {
-      margin: 50px auto ;
-
+      margin: 50px auto;
     }
   }
   .remark-button {
