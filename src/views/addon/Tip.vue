@@ -156,7 +156,10 @@ export default {
               this.tip_id = eles[j].id
               this.tip_text = eles[j].data.tip
               this.param.data = eles[j].data
-              this.videoUrlList = eles[j].data.urls
+              if (eles[j].data.urls) {
+                this.videoUrlList = eles[j].data.urls
+              }
+
               break
             }
           }
@@ -175,6 +178,9 @@ export default {
     },
     addMaterialList({ url, type }) {
       this.$logger.info('addMaterialList', url, type)
+      if (this.videoUrlList == null) {
+        this.videoUrlList = []
+      }
       this.videoUrlList.push({ tpye: type, url: url })
     },
     confirm() {
