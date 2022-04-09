@@ -494,14 +494,25 @@
         </a-col>
       </a-row>
       <div class="associate-info" v-show="viewMode === 'Detail'" v-excludeRole="['student']">
-        <task-link
-          :show-drag-tips='false'
-          :isLibrary="isLibrary"
-          :hidden-empty-group='true'
-          :can-edit="false"
-          ref="commonLink"
-          :from-id="id"
-          :from-type="type"/>
+        <template v-if='type === typeMap.task'>
+          <task-link
+            :show-drag-tips='false'
+            :isLibrary="isLibrary"
+            :hidden-empty-group='true'
+            :can-edit="false"
+            ref="commonLink"
+            :from-id="id"
+            :from-type="type"/>
+        </template>
+        <template v-if='type === typeMap["unit-plan"]'>
+          <plan-link
+            :isLibrary="isLibrary"
+            :hidden-empty-group='true'
+            :can-edit="false"
+            ref="commonLink"
+            :from-id="id"
+            :from-type="type" />
+        </template>
       </div>
     </template>
 
@@ -558,6 +569,7 @@ import storage from 'store'
 import { mapState } from 'vuex'
 import * as ReviewsTask from '@/api/reviewsTask'
 import * as ReviewsTeacher from '@/api/reviewsTeacher'
+import PlanLink from '@/components/Common/PlanLink'
 const { formatLocalUTC } = require('@/utils/util')
 const { UnitPlanQueryById } = require('@/api/unitPlan')
 const { TaskQueryById } = require('@/api/task')
@@ -568,6 +580,7 @@ const { SelfStudyTaskBye, SelfStudyTaskStart } = require('@/api/selfStudy')
 export default {
   name: 'CommonPreview',
   components: {
+    PlanLink,
     UiLearnOutSub,
     EvaluationTablePreview,
     CommonAssociatePreview,
