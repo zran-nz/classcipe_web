@@ -269,18 +269,20 @@
                 </a-form-model-item>
               </a-col>
             </a-row>
-            <a-form-model-item label="Principal's Email Address" prop="principalEmail">
-              <a-input size="large" v-model="userForm.principalEmail" placeholder="input principal's email address" />
+            <a-form-model-item label="Principal's Email Address" prop="principleEmail">
+              <a-input size="large" v-model="userForm.principleEmail" placeholder="input principal's email address" />
             </a-form-model-item>
             <a-form-model-item key="School" label="School" prop="schoolId">
               <a-select
                 v-model="userForm.schoolId"
+                @change="changeUserSchool"
                 placeholder="Please select school"
                 show-search
                 :default-active-first-option="false"
                 :show-arrow="false"
                 :filter-option="false"
                 :not-found-content="null"
+                option-label-prop="label"
                 @search="handleSearchSchool"
                 @focus="handleSearchSchool"
               >
@@ -299,9 +301,14 @@
                 </div>
                 <a-select-option
                   :value="schoolOption.id"
+                  :label="schoolOption.name"
                   v-for="schoolOption in [...myCreateSchoolOptions,...schoolOptions]"
                   :key="schoolOption.id"
-                >{{ schoolOption.name }}
+                >
+                  <label style="display:flex;justify-content:space-between;">
+                    <span>{{ schoolOption.name }}</span>
+                    <a-tag type="primary" v-show="schoolOption.country">{{ schoolOption.country }}</a-tag>
+                  </label>
                 </a-select-option>
               </a-select>
             </a-form-model-item>
@@ -358,12 +365,14 @@
             <a-form-model-item key="School" label="School" prop="schoolId">
               <a-select
                 v-model="adminForm.schoolId"
+                @change="changeAdminSchool"
                 placeholder="Please select school"
                 show-search
                 :default-active-first-option="false"
                 :show-arrow="false"
                 :filter-option="false"
                 :not-found-content="null"
+                option-label-prop="label"
                 @search="handleSearchSchool"
                 @focus="handleSearchSchool"
               >
@@ -382,9 +391,14 @@
                 </div>
                 <a-select-option
                   :value="schoolOption.id"
+                  :label="schoolOption.name"
                   v-for="schoolOption in [...myCreateSchoolOptions,...schoolOptions]"
                   :key="schoolOption.id"
-                >{{ schoolOption.name }}
+                >
+                  <label style="display:flex;justify-content:space-between;">
+                    <span>{{ schoolOption.name }}</span>
+                    <a-tag type="primary" v-show="schoolOption.country">{{ schoolOption.country }}</a-tag>
+                  </label>
                 </a-select-option>
               </a-select>
             </a-form-model-item>
@@ -559,7 +573,7 @@ export default {
         email: '',
         principleFirstname: '',
         principleLastname: '',
-        principalEmail: '',
+        principleEmail: '',
         schoolId: undefined,
         schoolName: undefined,
         country: undefined,
@@ -626,7 +640,7 @@ export default {
         ],
         principleFirstname: [{ required: true, message: 'Please Input First Name!' }],
         principleLastname: [{ required: true, message: 'Please Input Last Name!' }],
-        principalEmail: [
+        principleEmail: [
           { required: true, message: 'Please Input Email!' },
           {
             required: false,
@@ -963,6 +977,20 @@ export default {
         option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
       )
     },
+    changeUserSchool(schoolId) {
+      const list = [...this.myCreateSchoolOptions, ...this.schoolOptions]
+      const findOne = list.find(item => item.id === schoolId)
+      if (findOne && findOne.country) {
+        this.userForm.country = findOne.country
+      }
+    },
+    changeAdminSchool(schoolId) {
+      const list = [...this.myCreateSchoolOptions, ...this.schoolOptions]
+      const findOne = list.find(item => item.id === schoolId)
+      if (findOne && findOne.country) {
+        this.adminForm.country = findOne.country
+      }
+    },
     doSaveUserForm() {
       this.$refs.userForm.validate(valid => {
         if (valid) {
@@ -1050,7 +1078,7 @@ export default {
     searchSchool(value) {
       if (!this.userInfo.curriculumId) return
       getSchools({
-        // curriculumId: this.userInfo.curriculumId,
+        curriculumId: this.userInfo.curriculumId,
         name: value
       }).then(res => {
         logger.info('schools', res)
