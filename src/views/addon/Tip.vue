@@ -9,7 +9,7 @@
       <div class="tip-content">
         <a-textarea
           placeholder="Insert tip for the slide"
-          :autosize="{ minRows: 4, maxRows: 8 }"
+          :autosize="{ minRows: 4, maxRows: 5 }"
           allow-clear
           v-model="tip_text"
         />
@@ -22,9 +22,15 @@
               <div class="img-list">
                 <div class="img-item" v-for="(item, index) in videoUrlList" :key="'index' + index">
                   <div class="img-box">
-                    <!-- <video class="img-item" :src="item.contentUrl" preload="auto"
-                          controls></video> -->
+                    <video
+                      class="img-item"
+                      :src="item.contentUrl"
+                      v-if="'video'.includes(item.type) > -1"
+                      muted
+                      controls
+                    ></video>
                     <iframe
+                      v-if="'iframe'.includes(item.type) > -1"
                       id="item_player"
                       width="260px"
                       height="150px"
@@ -48,10 +54,11 @@
             </div>
           </div>
         </a-col>
-
-        <a-button class="btn" @click="confirm()" type="primary">
-          Confirm
-        </a-button>
+        <a-col class="tip-button">
+          <a-button class="btn" @click="confirm()" type="primary">
+            Confirm to add
+          </a-button>
+        </a-col>
       </div>
     </template>
   </div>
@@ -112,9 +119,25 @@ export default {
     AddMaterialEventBus.$on(ModalEventsNameEnum.ADD_MEDIA_FOR_TIP, url => {
       this.addMaterialList(url)
     })
+    window.addEventListener(
+      'message',
+      function(e) {
+        console.log('window.addEventListener', e)
+        console.log('e.data.scrollTop', e.data.scrollTop)
+        console.log('e.data.windowHeight', e.data.windowHeight)
+      },
+      false
+    )
   },
   mounted() {
     this.getTipInfo()
+    if (window.parent) {
+      window.parent.postMessage(JSON.stringify({
+        from: 'addon',
+        event: 'tip-loaded',
+        data: null
+      }), '*')
+    }
   },
   methods: {
     getTipInfo() {
@@ -165,6 +188,15 @@ export default {
           })
           .finally(() => {})
       }
+      // 通知Google addon 关闭页面,如果有变更提示附带最新的task数据
+      if (window.parent) {
+        const formJson = JSON.stringify(this.form)
+        window.parent.postMessage(JSON.stringify({
+          from: 'addon',
+          event: 'close',
+          data: formJson === this.oldFormData ? null : formJson
+        }), '*')
+      }
     }
   }
 }
@@ -195,6 +227,7 @@ export default {
     padding: 50px;
     justify-content: center;
     align-items: center;
+
     .tip-row {
       margin-top: 20px;
     }
@@ -202,8 +235,13 @@ export default {
       margin-right: 10px;
       margin-top: 20px;
     }
-    .btn {
-      margin: 50px auto;
+    .tip-button {
+      text-align: center;
+      .btn {
+        margin: 50px auto;
+        background: #15c39a;
+        border-radius: 28px;
+      }
     }
   }
   .remark-button {
@@ -251,14 +289,14 @@ export default {
       flex-wrap: wrap;
 
       .img-item {
-        position: relative;;
+        position: relative;
         height: 150px;
         width: 270px;
         border: 1px solid #fff;
         padding: 10px;
         margin-bottom: 20px;
         .img-box {
-          position: absolute;;
+          position: absolute;
           img {
             height: 100%;
             width: 100%;

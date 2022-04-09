@@ -16,44 +16,46 @@
     </div>
 
     <div class="youtube-video-con">
-      <div v-if="videos.length == 0" class="video-text">
-        Search vedio from Youtube
-      </div>
-      <div
-        class="youtube-video-item"
-        :class="{ active: chooseVideoId === item.videoId }"
-        @click="chooseVideo(item)"
-        v-for="(item, index) in videos"
-        :key="'video' + index"
-        v-else
-      >
-        <div class="youtube-video-img">
-          <template v-if="chooseVideoId === item.videoId">
-            <iframe
-              :src="item.link"
-              frameborder="0"
-              allow="accelerometer;  clipboard-write; encrypted-media; gyroscope; picture-in-picture;"
-              class="youtube-video-img"
-            />
-          </template>
-          <template v-else>
-            <img class="youtube-video-img" :src="item.thumbnail" />
-          </template>
+      <a-spin tip="Loading..." :spinning="loading">
+        <div v-if="videos.length == 0" class="video-text">
+          Search vedio from Youtube
         </div>
-        <div class="youtube-video-detail">
-          <div class="video-detail-content">
-            <div class="video-detail-title">
-              {{ item.title }}
+        <div
+          class="youtube-video-item"
+          :class="{ active: chooseVideoId === item.videoId }"
+          @click="chooseVideo(item)"
+          v-for="(item, index) in videos"
+          :key="'video' + index"
+          v-else
+        >
+          <div class="youtube-video-img">
+            <template v-if="chooseVideoId === item.videoId">
+              <iframe
+                :src="item.link"
+                frameborder="0"
+                allow="accelerometer;  clipboard-write; encrypted-media; gyroscope; picture-in-picture;"
+                class="youtube-video-img"
+              />
+            </template>
+            <template v-else>
+              <img class="youtube-video-img" :src="item.thumbnail" />
+            </template>
+          </div>
+          <div class="youtube-video-detail">
+            <div class="video-detail-content">
+              <div class="video-detail-title">
+                {{ item.title }}
+              </div>
+              <div class="video-detail-desc">
+                {{ item.description }}
+              </div>
             </div>
-            <div class="video-detail-desc">
-              {{ item.description }}
+            <div class="video-detail-time">
+              {{ item.date }}
             </div>
           </div>
-          <div class="video-detail-time">
-            {{ item.date }}
-          </div>
         </div>
-      </div>
+      </a-spin>
     </div>
     <div class="btn" @click="insert" v-show="chooseVideoId.length > 0">save</div>
   </div>
@@ -62,7 +64,7 @@
 import * as logger from '@/utils/logger'
 import { YoutubeQueryByKeywords } from '@/api/material'
 export default {
-   props: {
+  props: {
     nextYoutube: {
       type: Function,
       required: true
@@ -70,6 +72,7 @@ export default {
   },
   data() {
     return {
+      loading: false,
       keywords: '',
       choose: {},
       chooseVideoId: '',
@@ -97,10 +100,13 @@ export default {
   methods: {
     searchVideo() {
       if (this.keywords.trim().length > 0) {
+        this.loading = true
+        this.chooseVideoId = ''
+        this.videos = []
         YoutubeQueryByKeywords({ keywords: this.keywords }).then(response => {
           logger.info('YoutubeQueryByKeywords ', response)
           this.videos = response.result
-          this.chooseVideoId = ''
+          this.loading = false
         })
       } else {
         this.$message.warn('Please enter keyword')
@@ -165,6 +171,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
+  text-align: center;
   .youtube-input-class {
     display: flex;
     align-items: center;
@@ -179,7 +186,6 @@ export default {
     }
   }
   .youtube-video-con {
-    padding-left: 110px;
     width: 100%;
     height: 400px;
     align-items: center;

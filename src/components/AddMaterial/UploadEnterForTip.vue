@@ -1,25 +1,25 @@
 <template>
   <div class="media-enter">
     <a-space>
-      <a-tooltip title="Record Video" placement="right">
+      <a-tooltip title="Classcipe drive" placement="top">
         <div class="upload-type-item">
           <div class="remark-button-outer">
-            <img @click="video" src="~@/assets/icons/addMaterial/video.png" class="remark-button" alt="" />
+            <img @click="openClasscipeDrive" src="~@/assets/icons/addMaterial/video.png" class="remark-button" alt="" />
           </div>
         </div>
       </a-tooltip>
-      <a-tooltip title="my computer" placement="right">
+      <a-tooltip title="my computer" placement="top">
         <div class="upload-type-item">
           <open-dir-svg class="opened" />
-          <common-upload accept="image/*,video/*,audio/*" :onSuccess="onSuccess" />
+          <common-upload accept="video/*" :onSuccess="onSuccess" />
         </div>
       </a-tooltip>
-      <a-tooltip title="google drive" placement="right">
+      <a-tooltip title="google drive" placement="top">
         <div class="upload-type-item">
           <google-drive-icon @click="addDrive" class="svg-icon" />
         </div>
       </a-tooltip>
-      <a-tooltip title="youtube" placement="right">
+      <a-tooltip title="youtube" placement="top">
         <div class="upload-type-item">
           <youtube-icon @click="addYoutube" class="svg-icon" />
         </div>
@@ -32,9 +32,19 @@
       :append-to-body="true"
       :destroy-on-close="false"
       :footer="null"
-      width="85%"
+      width="90%"
     >
       <google-youtube-video ref="googleyoutubevideo" :nextYoutube="nextYoutube" />
+    </a-modal>
+    <a-modal
+      :visible.sync="showClasscipeDrive"
+      @cancel="closeClasscipeDriveDialog"
+      :append-to-body="true"
+      :destroy-on-close="false"
+      :footer="null"
+      width="90%"
+    >
+      <classcipe-drive :insertClasscipeFile="insertClasscipeFile" />
     </a-modal>
     <div class="material-recorder">
       <record-video v-if="recordType === ModalEventsTypeEnum.VIDEO" :onSend="onSendVideo" :cancel="cancelRecord" />
@@ -51,34 +61,27 @@
 <script>
 import { ModalEventsNameEnum, ModalEventsTypeEnum, AddMaterialEventBus } from './AddMaterialEventBus'
 import GoogleDriveIcon from '@/assets/svgIcon/addMaterial/google_drive.svg?inline'
-import GoogleImageSearchIcon from '@/assets/svgIcon/addMaterial/google_image_search.svg?inline'
 import YoutubeIcon from '@/assets/svgIcon/addMaterial/youtube.svg?inline'
 import OpenDirSvg from '@/assets/svgIcon/library/open_dir.svg?inline'
 import GooglePicker from './Utils/GooglePicker'
 import { uploadImageToFirebaseByUrl } from './Utils/Common'
-// import googleImageSearch from './googleImageSearch.vue'
 // import GoogleYoutubeVedio from './googleYoutubeVedio.vue'
 import { videoTypes, audioTypes } from './Utils/Constants'
 // import MetarialWebSite from './metarialWebSite.vue'
 import CommonUpload from './Common/CommonUpload'
-import RecordAudio from './Audio/RecordAudio'
 import RecordVideo from './Video/RecordVideo'
 import CommonProgress from './Common/CommonProgress'
-import GoogleImageSearch from '@/components/AddMaterial/Google/GoogleImageSearch'
+import ClasscipeDrive from '@/components/AddMaterial/ClasscipeDrive/ClasscipeDrive'
 import GoogleYoutubeVideo from '@/components/AddMaterial/Google/GoogleYoutubeVideo'
 export default {
   components: {
     GoogleYoutubeVideo,
-    GoogleImageSearch,
     GoogleDriveIcon,
-    GoogleImageSearchIcon,
     YoutubeIcon,
     OpenDirSvg,
-    // googleImageSearch,
     // GoogleYoutubeVedio,
-    // MetarialWebSite,
+    ClasscipeDrive,
     CommonUpload,
-    RecordAudio,
     RecordVideo,
     CommonProgress
   },
@@ -86,6 +89,7 @@ export default {
     return {
       fileList: [],
       showYoutube: false,
+      showClasscipeDrive: false,
       youtubeUrl: '',
       withKeyUrl: '',
       showIframe: false,
@@ -134,6 +138,21 @@ export default {
         })
         this.showYoutube = false
       }
+    },
+    insertClasscipeFile(fileItem) {
+      if (fileItem) {
+        AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_MEDIA_FOR_TIP, {
+          type: 'video',
+          url: fileItem.baseFileUrl + fileItem.filePath
+        })  
+      }
+      this.showClasscipeDrive = false
+    },
+    openClasscipeDrive() {
+      this.showClasscipeDrive = true
+    },
+    closeClasscipeDriveDialog() {
+      this.showClasscipeDrive = false
     },
     closeYoutubeDialog() {
       this.youtubeUrl = null
@@ -215,9 +234,6 @@ export default {
     },
     addGoogleImage() {
       this.showImageSearch = true
-    },
-    audio() {
-      this.recordType = ModalEventsTypeEnum.AUDIO
     },
     video() {
       this.recordType = ModalEventsTypeEnum.VIDEO

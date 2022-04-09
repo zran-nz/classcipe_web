@@ -6,7 +6,8 @@ export const materialAPIUrl = {
   MaterialDelete: '/classcipe/api/material/delete',
   MaterialDeleteBatch: '/classcipe/api/material/deleteBatch',
   MaterialList: '/classcipe/api/material/list',
-  YoutubeQueryByKeywords: '/classcipe/api/youtube/queryByKeywords'
+  YoutubeQueryByKeywords: '/classcipe/api/youtube/queryByKeywords',
+  FileRecord: '/classcipe/api/fileUploadRecord/list'
 }
 
 /**
@@ -91,6 +92,14 @@ export function MaterialList(parameter) {
 export function YoutubeQueryByKeywords(parameter) {
   return request({
     url: materialAPIUrl.YoutubeQueryByKeywords,
+    method: 'get',
+    params: parameter
+  })
+}
+
+export function FileRecord(parameter) {
+  return request({
+    url: materialAPIUrl.FileRecord,
     method: 'get',
     params: parameter
   })
