@@ -60,6 +60,7 @@ export default {
       selectedList: [],
       selectedIdList: [],
 
+      oldFormData: null,
       form: {
         id: null,
         image: '',
@@ -130,6 +131,7 @@ export default {
           taskData.materialList = []
         }
         this.form = taskData
+        this.oldFormData = JSON.stringify(this.form)
         this.selectedList = JSON.parse(JSON.stringify(this.form.learnOuts))
         this.form.learnOuts.forEach(item => {
           if (item.knowledgeId) {
@@ -302,12 +304,13 @@ export default {
         this.$message.error(response.message)
       }
 
-      // 通知Google addon 关闭页面
+      // 通知Google addon 关闭页面,如果有变更提示附带最新的task数据
       if (window.parent) {
+        const formJson = JSON.stringify(this.form)
         window.parent.postMessage(JSON.stringify({
           from: 'addon',
           event: 'close',
-          data: null
+          data: formJson === this.oldFormData ? null : formJson
         }), '*')
       }
     }
