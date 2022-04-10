@@ -133,6 +133,11 @@
                 <span class="collaborate-icon-item" v-if="item.collaborates > 0">
                   <collaborate-svg />
                 </span>
+                <span class="collaborate-icon-item" v-if="item.isCollaborater && item.collaborate">
+                  <a-tooltip :title="'from  ' + item.collaborate.fromerUser">
+                    <a-avatar size="small" :src='item.collaborate.fromerAvator' />
+                  </a-tooltip>
+                </span>
 
               </span>
 
@@ -147,86 +152,93 @@
                 <div class="action">
                   <div slot="actions">
                     <div class="action-wrapper">
-                      <template v-if="currentStatus !== 'archived'">
-                        <!-- Task: 外置teacher-pace, student-pace, Edit, 折叠Delete, Duplicate, Previous session-->
-                        <template v-if="item.type === typeMap.task && item.presentationId">
-                          <div class="start-session-wrapper action-item-wrapper">
-                            <div class="session-btn content-list-action-btn" @click="handleStartSessionHistory(item,1)">
-                              <div class="session-btn-icon">
-                                <teacher-presenting />
-                              </div>
-                              <div class="session-btn-text"> Teacher-paced</div>
-                            </div>
-                          </div>
-                          <div class="start-session-wrapper action-item-wrapper">
-                            <div class="session-btn content-list-action-btn" @click="handleStartSessionHistory(item,2)">
-                              <div class="session-btn-icon">
-                                <student-pace />
-                              </div>
-                              <div class="session-btn-text"> Student-paced</div>
-                            </div>
-                          </div>
-                        </template>
-                        <!-- Unit plan:外置Edit，折叠Delete, Duplicate-->
-
-                        <div class="start-session-wrapper action-item-wrapper">
-                          <div class="session-btn content-list-action-btn" @click="handleEditItem(item)">
-                            <div class="session-btn-icon">
-                              <bianji />
-                            </div>
-                            <div class="session-btn-text"> {{ $t('teacher.my-content.action-edit') }}</div>
-                          </div>
-                        </div>
-                        <div class="more-action-wrapper action-item-wrapper" >
-                          <a-dropdown>
-                            <a-icon type="more" style="margin-right: 8px" />
-                            <a-menu slot="overlay">
-                              <a-menu-item>
-                                <a-popconfirm title="Archive ?" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
-                                  <a>
-                                    <a-icon type="delete" theme="filled" /> Archive
-                                  </a>
-                                </a-popconfirm>
-                              </a-menu-item>
-                              <a-menu-item>
-                                <a @click="handleDuplicateItem(item)">
-                                  <a-icon type="copy" /> Duplicate
-                                </a>
-                              </a-menu-item>
-                              <!-- Task里面有teacher-pace, student-pace, previous session -->
-                              <template v-if="item.type === typeMap.task">
-                                <a-menu-item>
-                                  <a @click="handleViewPreviewSession(item)">
-                                    <previous-sessions-svg /> Previous session
-                                  </a>
-                                </a-menu-item>
-                              </template>
-
-                            </a-menu>
-                          </a-dropdown>
-                        </div>
+                      <template v-if="item.isCollaborater && item.collaborate && item.collaborate.agreeFlag === collaborateStatus.apply">
+                        <span>
+                          <a-tag color="red">Wait for approval</a-tag>
+                        </span>
                       </template>
                       <template v-else>
-                        <div class="start-session-wrapper action-item-wrapper">
-                          <a-popconfirm :title="'Confirm restore ' +(item.name ? item.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleRestoreItem(item)" cancel-text="No">
-                            <div class="session-btn content-list-action-btn" >
+                        <template v-if="currentStatus !== 'archived'">
+                          <!-- Task: 外置teacher-pace, student-pace, Edit, 折叠Delete, Duplicate, Previous session-->
+                          <template v-if="item.type === typeMap.task && item.presentationId">
+                            <div class="start-session-wrapper action-item-wrapper">
+                              <div class="session-btn content-list-action-btn" @click="handleStartSessionHistory(item,1)">
+                                <div class="session-btn-icon">
+                                  <teacher-presenting />
+                                </div>
+                                <div class="session-btn-text"> Teacher-paced</div>
+                              </div>
+                            </div>
+                            <div class="start-session-wrapper action-item-wrapper">
+                              <div class="session-btn content-list-action-btn" @click="handleStartSessionHistory(item,2)">
+                                <div class="session-btn-icon">
+                                  <student-pace />
+                                </div>
+                                <div class="session-btn-text"> Student-paced</div>
+                              </div>
+                            </div>
+                          </template>
+                          <!-- Unit plan:外置Edit，折叠Delete, Duplicate-->
+
+                          <div class="start-session-wrapper action-item-wrapper">
+                            <div class="session-btn content-list-action-btn" @click="handleEditItem(item)">
                               <div class="session-btn-icon">
                                 <bianji />
                               </div>
-                              <div class="session-btn-text">Restore</div>
+                              <div class="session-btn-text"> {{ $t('teacher.my-content.action-edit') }}</div>
                             </div>
-                          </a-popconfirm>
-                        </div>
-                        <div class="start-session-wrapper action-item-wrapper">
-                          <a-popconfirm :title="'Confirm permanent delete ' +(item.name ? item.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem(item)" cancel-text="No">
-                            <div class="session-btn content-list-action-btn" >
-                              <div class="session-btn-icon">
-                                <a-icon type="delete" theme="filled" />
+                          </div>
+                          <div class="more-action-wrapper action-item-wrapper" >
+                            <a-dropdown>
+                              <a-icon type="more" style="margin-right: 8px" />
+                              <a-menu slot="overlay">
+                                <a-menu-item>
+                                  <a-popconfirm title="Archive ?" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
+                                    <a>
+                                      <a-icon type="delete" theme="filled" /> Archive
+                                    </a>
+                                  </a-popconfirm>
+                                </a-menu-item>
+                                <a-menu-item>
+                                  <a @click="handleDuplicateItem(item)">
+                                    <a-icon type="copy" /> Duplicate
+                                  </a>
+                                </a-menu-item>
+                                <!-- Task里面有teacher-pace, student-pace, previous session -->
+                                <template v-if="item.type === typeMap.task">
+                                  <a-menu-item>
+                                    <a @click="handleViewPreviewSession(item)">
+                                      <previous-sessions-svg /> Previous session
+                                    </a>
+                                  </a-menu-item>
+                                </template>
+
+                              </a-menu>
+                            </a-dropdown>
+                          </div>
+                        </template>
+                        <template v-else>
+                          <div class="start-session-wrapper action-item-wrapper">
+                            <a-popconfirm :title="'Confirm restore ' +(item.name ? item.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleRestoreItem(item)" cancel-text="No">
+                              <div class="session-btn content-list-action-btn" >
+                                <div class="session-btn-icon">
+                                  <bianji />
+                                </div>
+                                <div class="session-btn-text">Restore</div>
                               </div>
-                              <div class="session-btn-text">Delete</div>
-                            </div>
-                          </a-popconfirm>
-                        </div>
+                            </a-popconfirm>
+                          </div>
+                          <div class="start-session-wrapper action-item-wrapper">
+                            <a-popconfirm :title="'Confirm permanent delete ' +(item.name ? item.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem(item)" cancel-text="No">
+                              <div class="session-btn content-list-action-btn" >
+                                <div class="session-btn-icon">
+                                  <a-icon type="delete" theme="filled" />
+                                </div>
+                                <div class="session-btn-text">Delete</div>
+                              </div>
+                            </a-popconfirm>
+                          </div>
+                        </template>
                       </template>
                     </div>
                   </div>
@@ -344,7 +356,10 @@
                   <content-type-icon :type="item.type" slot="avatar"></content-type-icon>
                 </a-card-meta>
 
-                <collaborate-svg class="card-collaborate-icon-item" v-if="item.collaborates > 0"/>
+                <div class="card-collaborate">
+                  <collaborate-svg class="card-collaborate-icon-item" v-if="item.collaborates > 0"/>
+                  <a-avatar v-if="item.isCollaborater && item.collaborate" class="card-collaborate-icon-item" :src='item.collaborate.fromerAvator' />
+                </div>
               </a-card>
             </a-list-item>
           </a-list>
@@ -610,7 +625,8 @@ export default {
   computed: {
     ...mapState({
       needRefreshCollaborate: state => state.websocket.needRefreshCollaborate,
-      removedCollaborate: state => state.websocket.removedCollaborate
+      removedCollaborate: state => state.websocket.removedCollaborate,
+      currentUser: state => state.user
     })
   },
   watch: {
@@ -1410,13 +1426,18 @@ a.delete-action {
   border-radius: 6px;
   border: none;
   position:relative;
-  .card-collaborate-icon-item{
-    width: 30px;
+  .card-collaborate{
     padding-top: 17px;
     padding-right: 5px;
     position: absolute;
+    display: flex;
     right: 0;
     bottom: 5px;
+  }
+  .card-collaborate-icon-item{
+    width: 25px;
+    height: 25px;
+    margin-left:5px;
   }
 
   .cover-img {
