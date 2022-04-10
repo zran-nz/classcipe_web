@@ -29,6 +29,7 @@ export function createSchool (parameter) {
   return request({
     url: schoolAPIUrl.createSchool,
     method: 'post',
-    params: parameter
+    params: parameter,
+    data: parameter
   })
 }

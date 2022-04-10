@@ -217,13 +217,7 @@ export const BaseEventMixin = {
     },
     handleBack () {
       this.$logger.info('handleBack')
-      if (this.isOwner) {
-        this.$router.push({ path: '/teacher/main/created-by-me' })
-      } else if (this.isCollaborater) {
-        this.$router.push({ path: '/teacher/main/shared' })
-      } else {
-        this.$router.push({ path: '/teacher/main/created-by-me' })
-      }
+      this.$router.push({ path: '/teacher/main/created-by-me' })
     },
     handleCollaborateEvent(formId, fieldName, inputValue) {
       const collaborate = new CollborateMsg()

@@ -42,7 +42,7 @@ export const NoticeMixin = {
         record.busType === NotificationTypeMap.collaborateInvite) {
         this.gotoContent(record)
       } else if (record.busType === NotificationTypeMap.collaborateRejected) {
-        this.$router.push({ path: '/teacher/main/shared' })
+        this.$router.push({ path: '/teacher/main/created-by-me' })
       } else if (record.openType === 'url') {
         // 链接跳转
         this.$router.push({ path: record.openPage })
