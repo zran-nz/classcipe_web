@@ -34,20 +34,20 @@
                 {{ $t('teacher.main.created-by-me') }}
               </router-link>
             </div>
-            <div
-              :class="{
-                'nav-bar-item': true,
-                'selected-nav-bar': true,
-                'selected-nav-bar': selectedKey === '/teacher/main/shared',
-              }"
-            >
-              <router-link to="/teacher/main/shared">
-                <!--                <a-badge :count="$store.getters.sharedCount">-->
-                <shared-svg />
-                <!--                </a-badge>-->
-                {{ $t('teacher.main.shared') }}
-              </router-link>
-            </div>
+            <!--            <div-->
+            <!--              :class="{-->
+            <!--                'nav-bar-item': true,-->
+            <!--                'selected-nav-bar': true,-->
+            <!--                'selected-nav-bar': selectedKey === '/teacher/main/shared',-->
+            <!--              }"-->
+            <!--            >-->
+            <!--            <router-link to="/teacher/main/shared">-->
+            <!--              &lt;!&ndash;                <a-badge :count="$store.getters.sharedCount">&ndash;&gt;-->
+            <!--              <shared-svg />-->
+            <!--              &lt;!&ndash;                </a-badge>&ndash;&gt;-->
+            <!--              {{ $t('teacher.main.shared') }}-->
+            <!--            </router-link>-->
+            <!--            </div>-->
             <div
               :class="{
                 'nav-bar-item': true,

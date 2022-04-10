@@ -251,7 +251,7 @@ export default {
           okText: 'Ok',
           mask: true,
           onOk: () => {
-            this.$router.push({ path: '/teacher/main/shared' })
+            this.$router.push({ path: '/teacher/main/created-by-me' })
           }
         })
       }
@@ -288,8 +288,6 @@ export default {
       } else {
         if (this.isOwner) {
           this.$router.push({ path: '/teacher/main/created-by-me' })
-        } else if (this.isCollaborater) {
-          this.$router.push({ path: '/teacher/main/shared' })
         } else {
           this.$router.push({ path: '/teacher/main/created-by-me' })
         }

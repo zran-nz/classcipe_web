@@ -224,7 +224,7 @@ export default {
     isLibrary: {
       type: Boolean,
       default: false
-    },
+    }
   },
   computed: {
     groupNameList () {

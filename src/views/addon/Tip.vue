@@ -168,7 +168,7 @@ export default {
     },
     isVideoTye(item, type) {
       console.log('item', item, type)
-      if (item.tpye == type) {
+      if (item.tpye === type) {
         return true
       }
       return false
