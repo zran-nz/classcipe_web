@@ -14,7 +14,7 @@
               :key="'index' + index"
             >
               <div class="img-box" @click="choiceItem(item)">
-                <video height="150" width="270" :src="baseFileUrl + item.filePath" preload="auto" controls></video>
+                <video height="150" width="270" :src="item.filePath" preload="auto" controls></video>
                 <div>{{ item.fileName }}</div>
               </div>
             </div>
@@ -48,10 +48,7 @@ export default {
       chooseItem: null,
       baseFileUrl: 'https://dcdkqlzgpl5ba.cloudfront.net/',
       fileList: [],
-      videoUrlList: [
-        { type: 'iframe', url: 'https://www.youtube.com/embed/fdqNKul2hAA?showinfo=0&modestbranding=1&rel=0' },
-        { type: 'iframe', url: 'https://www.youtube.com/embed/eEsVfVay64M?start=100&end=652' }
-      ]
+      videoUrlList: []
     }
   },
 
@@ -68,6 +65,11 @@ export default {
         if (response.result && response.result.records) {
           this.fileList = response.result.records
           this.fileList = this.fileList.filter(item => videoTypes.indexOf(item.suffix) > -1)
+          for (let i = 0; i < this.fileList.length; i++) {
+            if (this.fileList[i].filePath.indexOf('https://') === -1) {
+              this.fileList[i].filePath = this.baseFileUrl + this.fileList[i].filePath
+            }
+          }
         }
       })
     },
@@ -79,7 +81,6 @@ export default {
     confirm() {
       this.$logger.info('confirm')
       if (this.chooseItem != null) {
-        this.chooseItem.baseFileUrl = this.baseFileUrl
         this.insertClasscipeFile(this.chooseItem)
       }
     },
@@ -95,7 +96,7 @@ export default {
 .tip-row {
   margin-top: 20px;
 }
-.drive-title{
+.drive-title {
   text-align: center;
   color: #36425a;
   font-weight: bold;

@@ -168,7 +168,7 @@ export default {
     },
     isVideoTye(item, type) {
       console.log('item', item, type)
-      if (item.tpye == type) {
+      if (item.tpye === type) {
         return true
       }
       return false
@@ -178,7 +178,7 @@ export default {
     },
     addMaterialList({ url, type }) {
       this.$logger.info('addMaterialList', url, type)
-      if (this.videoUrlList == null) {
+      if (this.videoUrlList === null) {
         this.videoUrlList = []
       }
       this.videoUrlList.push({ tpye: type, url: url })
@@ -222,7 +222,7 @@ export default {
 <style lang="less" scoped>
 @import '~@/components/index.less';
 .task-tip {
-  height: 100%;
+  height: 600px;
   width: 920px;
   margin: auto;
   display: flex;

@@ -133,7 +133,7 @@ export default {
       if (fileItem) {
         AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_MEDIA_FOR_TIP, {
           type: 'video',
-          url: fileItem.baseFileUrl + fileItem.filePath
+          url: fileItem.filePath
         })
       }
       this.showClasscipeDrive = false
