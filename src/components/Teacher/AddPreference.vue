@@ -44,6 +44,7 @@
               :show-arrow="false"
               :filter-option="false"
               :not-found-content="null"
+              option-label-prop="label"
               @search="handleSearchSchool"
               @focus="handleSearchSchool"
               @change="handleChange"
@@ -63,22 +64,47 @@
               </div>
               <a-select-option
                 :value="schoolOption.id"
+                :label="schoolOption.name"
                 v-for="schoolOption in [...myCreateSchoolOptions,...schoolOptions]"
                 :key="schoolOption.id"
-              >{{ schoolOption.name }}
+              >
+                <label style="display:flex;justify-content:space-between;">
+                  <span>{{ schoolOption.name }}</span>
+                  <a-tag type="primary" v-show="schoolOption.country">{{ schoolOption.country }}</a-tag>
+                </label>
+              </a-select-option>
+            </a-select>
+          </a-form-model-item>
+
+          <a-form-model-item label="Country">
+            <a-select
+              v-model="teacherForm.country"
+              show-search
+              placeholder="Please Select a Country"
+              option-filter-prop="children"
+              :filter-option="filterOptions"
+              :getPopupContainer="target => target.parentNode"
+            >
+              <a-select-option
+                v-for="param in countries"
+                :value="param.en"
+                :key="'adminCountry_' + param.en"
+              >
+                {{ param.en }}
               </a-select-option>
             </a-select>
           </a-form-model-item>
 
           <a-form-model-item key="Subject" label="Subject" prop="subjectIds">
             <a-select v-model="teacherForm.subjectIds" mode="multiple" :filter-option='false' class='my-only-select'>
-              <a-select-option
-                :value="subject.id"
-                v-if="subject.subjectType === subjectType.Skill || subject.subjectType === subjectType.LearnAndSkill"
-                v-for="subject in subjectOptions"
-                :key="subject.id"
-              >{{ subject.name }}
-              </a-select-option>
+              <template v-for="subject in subjectOptions" >
+                <a-select-option
+                  :value="subject.id"
+                  v-if="subject.subjectType === subjectType.Skill || subject.subjectType === subjectType.LearnAndSkill"
+                  :key="subject.id"
+                >{{ subject.name }}
+                </a-select-option>
+              </template>
             </a-select>
           </a-form-model-item>
 
@@ -111,6 +137,7 @@ import {
   GetGradesByCurriculumId
 } from '@/api/preference'
 import { createSchool, getSchools } from '@/api/school'
+import { GetAllCountrys } from '@/api/common'
 import * as logger from '@/utils/logger'
 import { SubjectType } from '@/const/common'
 import storage from 'store'
@@ -137,13 +164,15 @@ export default {
         curriculumId: null,
         school: null,
         subjectIds: [],
-        gradeIds: []
+        gradeIds: [],
+        country: undefined
       },
       teacherRules: {
         curriculumId: [{ required: true, message: 'Please select curriculum', trigger: 'blur' }],
         school: [{ required: false, message: 'Please select school', trigger: 'blur' }],
         subjectIds: [{ required: true, message: 'Please select subject', trigger: 'blur' }],
-        gradeIds: [{ required: true, message: 'Please select grade', trigger: 'blur' }]
+        gradeIds: [{ required: true, message: 'Please select grade', trigger: 'blur' }],
+        country: [{ required: false, message: 'Please select country', trigger: 'blur' }]
       },
 
       currentCurriculum: null,
@@ -155,7 +184,9 @@ export default {
       subjectType: SubjectType,
 
       searchText: '',
-      myCreateSchoolOptions: []
+      myCreateSchoolOptions: [],
+
+      countries: []
     }
   },
   computed: {
@@ -186,11 +217,19 @@ export default {
       this.visible = false
     },
     initOptions() {
+      GetAllCountrys({}).then(res => {
+        this.countries = res
+      })
       getAllCurriculums().then(response => {
         logger.info('getAllCurriculums', response)
         this.curriculumOptions = response.result
         logger.info('getAllCurriculums', this.curriculumOptions)
       })
+    },
+    filterOptions(input, option) {
+      return (
+        option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
+      )
     },
     handleSelectCurriculumOption(curriculum) {
       logger.info('handleSelectCurriculumOption', curriculum)
@@ -224,8 +263,12 @@ export default {
       this.searchText = value
       this.debouncedSearchSchool(value)
     },
-    handleChange(value) {
-      logger.info('handleChange', value)
+    handleChange(schoolId) {
+      const list = [...this.myCreateSchoolOptions, ...this.schoolOptions]
+      const findOne = list.find(item => item.id === schoolId)
+      if (findOne && findOne.country) {
+        this.teacherForm.country = findOne.country
+      }
     },
     searchSchool(value) {
       if (!this.currentCurriculum) return
@@ -242,33 +285,63 @@ export default {
       })
     },
     createSchool() {
-      createSchool({ name: this.searchText }).then(res => {
-        if (res.success) {
-          this.myCreateSchoolOptions.push(res.result)
-          this.teacherForm.school = res.result.id
-        } else {
-          this.$message.error(res.message)
-        }
-      })
+       // 保存的时候在真正创建学校
+      const res = {
+        id: new Date().getTime(),
+        name: this.searchText
+      }
+      this.myCreateSchoolOptions.push(res)
+      this.teacherForm.school = res.id
     },
     save() {
       this.$refs.teacherForm.validate(valid => {
         if (valid) {
           logger.info('save teacher', this.teacherForm)
-          const param = {
-            curriculumId: this.teacherForm.curriculumId,
-            subjectIds: this.teacherForm.subjectIds,
-            gradeIds: this.teacherForm.gradeIds,
-            school: this.teacherForm.school
-          }
-          addPreference(param).then(res => {
-            if (res.success) {
-              this.$store.dispatch('GetInfo')
-              this.hideModal()
-            } else {
-              this.$message.error(res.message)
+          const school = this.myCreateSchoolOptions.find(item => item.id === this.teacherForm.school)
+          if (school) {
+            this.confirmLoading = true
+            createSchool({
+              name: this.searchText,
+              country: this.teacherForm.country,
+              curriculumId: this.teacherForm.curriculumId
+            }).then(res => {
+              if (res.success) {
+                school.id = res.result.id
+                this.teacherForm.school = res.result.id
+                const param = {
+                  curriculumId: this.teacherForm.curriculumId,
+                  subjectIds: this.teacherForm.subjectIds,
+                  gradeIds: this.teacherForm.gradeIds,
+                  school: this.teacherForm.school
+                }
+                addPreference(param).then(res => {
+                  if (res.success) {
+                    this.$store.dispatch('GetInfo')
+                    this.hideModal()
+                  } else {
+                    this.$message.error(res.message)
+                  }
+                })
+              }
+            }).finally(res => {
+              this.confirmLoading = false
+            })
+          } else {
+            const param = {
+              curriculumId: this.teacherForm.curriculumId,
+              subjectIds: this.teacherForm.subjectIds,
+              gradeIds: this.teacherForm.gradeIds,
+              school: this.teacherForm.school
             }
-          })
+            addPreference(param).then(res => {
+              if (res.success) {
+                this.$store.dispatch('GetInfo')
+                this.hideModal()
+              } else {
+                this.$message.error(res.message)
+              }
+            })
+          }
         } else {
           console.log('error submit!!')
           return false
@@ -313,6 +386,9 @@ export default {
     margin-bottom: 20px;
   }
   .skip-btn {
+    text-align: left;
+  }
+  .form-items {
     text-align: left;
   }
 }
