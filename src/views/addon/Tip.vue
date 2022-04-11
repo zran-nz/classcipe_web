@@ -195,14 +195,17 @@ export default {
         this.param.id = this.tip_id
         updateElement(this.param).then(response => {
           logger.info('updateElement ', response)
+          this.closeAddonWindow()
         })
       } else {
         addElement(this.param)
           .then(response => {
             logger.info('addElement ', response)
+            this.closeAddonWindow()
           })
-          .finally(() => {})
       }
+    },
+    closeAddonWindow() {
       // 通知Google addon 关闭页面
       if (window.parent) {
         window.parent.postMessage(
