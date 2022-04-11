@@ -15,7 +15,7 @@
             >
               <div class="img-box" @click="choiceItem(item)">
                 <video height="150" width="270" :src="item.filePath" preload="auto" controls></video>
-                <div>{{ item.fileName }}</div>
+                <div>{{ decodeURIComponent(item.fileName) }}</div>
               </div>
             </div>
           </div>

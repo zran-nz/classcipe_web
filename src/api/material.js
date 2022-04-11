@@ -7,7 +7,8 @@ export const materialAPIUrl = {
   MaterialDeleteBatch: '/classcipe/api/material/deleteBatch',
   MaterialList: '/classcipe/api/material/list',
   YoutubeQueryByKeywords: '/classcipe/api/youtube/queryByKeywords',
-  FileRecord: '/classcipe/api/fileUploadRecord/list'
+  FileRecord: '/classcipe/api/fileUploadRecord/list',
+  addFileUploadRecord: '/classcipe/api/fileUploadRecord/add'
 }
 
 /**
@@ -101,6 +102,14 @@ export function FileRecord(parameter) {
   return request({
     url: materialAPIUrl.FileRecord,
     method: 'get',
+    params: parameter
+  })
+}
+
+export function addFileUploadRecord(parameter) {
+  return request({
+    url: materialAPIUrl.addFileUploadRecord,
+    method: 'post',
     params: parameter
   })
 }

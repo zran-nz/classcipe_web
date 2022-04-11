@@ -56,9 +56,7 @@ import { ModalEventsNameEnum, ModalEventsTypeEnum, AddMaterialEventBus } from '.
 import GoogleDriveIcon from '@/assets/svgIcon/addMaterial/google_drive.svg?inline'
 import YoutubeIcon from '@/assets/svgIcon/addMaterial/youtube.svg?inline'
 import OpenDirSvg from '@/assets/svgIcon/library/open_dir.svg?inline'
-import GooglePicker from './Utils/GooglePicker'
-import { uploadImageToFirebaseByUrl } from './Utils/Common'
-// import GoogleYoutubeVedio from './googleYoutubeVedio.vue'
+import GooglePickerForTip from './Utils/GooglePickerForTip'
 import { videoTypes, audioTypes } from './Utils/Constants'
 // import MetarialWebSite from './metarialWebSite.vue'
 import CommonUpload from './Common/CommonUpload'
@@ -84,10 +82,6 @@ export default {
       youtubeUrl: '',
       withKeyUrl: '',
       showIframe: false,
-      showImageSearch: false,
-      imagesList: [],
-      imageName: '',
-      imageSelectedIndex: -1,
       destroyOnClose: true,
       recordType: null,
       ModalEventsTypeEnum,
@@ -151,14 +145,14 @@ export default {
       this.showYoutube = false
     },
     addDrive() {
-      GooglePicker.init(
+      GooglePickerForTip.init(
         driveUpLoadProgress => {
           this.driveUpLoadProgress = driveUpLoadProgress
         },
         (type, url, mediaType) => {
           if (url) {
             this.$logger.info('addDrive done', url, mediaType)
-            AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_NEW_MEDIA, {
+            AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_MEDIA_FOR_TIP, {
               type: mediaType.indexOf('image') > -1 ? 'image' : 'video',
               url: url
             })
@@ -170,61 +164,6 @@ export default {
       )
     },
     cancelUpDrive() {},
-    searchImage() {
-      if (this.imageName) {
-        this.load()
-      }
-    },
-    load() {
-      fetch(
-        `https://www.googleapis.com/customsearch/v1?key=AIzaSyBwZ7igOKSCZ8nitWRvR_oZIO198pBs7jQ&cx=f0726c917433f216e&q=${this.imageName}&fileType=png,jpg&searchType=image&alt=json`,
-        {
-          headers: {
-            'Content-Type': 'application/json;charset=UTF-8'
-          }
-        }
-      )
-        .then(response => {
-          // // console.log(d)
-          return response.json()
-        })
-        .then(d => {
-          // console.log(d.items)
-          if (d.items.length > 0) {
-            this.imagesList = d.items
-          }
-        })
-        .catch(() => {})
-    },
-    selectImage(index) {
-      this.imageSelectedIndex = index
-    },
-    doneSelect(imageUrl) {
-      uploadImageToFirebaseByUrl(imageUrl)
-        .then(url => {
-          this.$logger.info('uploadImageToFirebaseByUrl', url)
-          AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_NEW_MEDIA, {
-            type: 'image',
-            url
-          })
-          this.closeImageSearch()
-        })
-        .catch(e => {
-          console.log(e)
-          this.$logger.warn('uploadImageToFirebaseByUrl', e)
-          this.closeImageSearch()
-          this.$message.error('The image you selected is not available')
-        })
-    },
-    closeImageSearch() {
-      this.imageSelectedIndex = -1
-      this.showImageSearch = false
-      this.imagesList = []
-      this.imageName = ''
-    },
-    addGoogleImage() {
-      this.showImageSearch = true
-    },
     video() {
       this.recordType = ModalEventsTypeEnum.VIDEO
     }
