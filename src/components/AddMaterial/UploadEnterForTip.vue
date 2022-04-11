@@ -63,6 +63,7 @@ import CommonUpload from './Common/CommonUpload'
 import CommonProgress from './Common/CommonProgress'
 import ClasscipeDrive from '@/components/AddMaterial/ClasscipeDrive/ClasscipeDrive'
 import GoogleYoutubeVideo from '@/components/AddMaterial/Google/GoogleYoutubeVideo'
+import { addFileUploadRecord } from '@/api/material'
 export default {
   components: {
     GoogleYoutubeVideo,
@@ -92,6 +93,7 @@ export default {
   mounted() {},
   methods: {
     onSuccess(file, result) {
+      console.log('file', file)
       console.log(file.name)
       const nameList = file.type.split('/')
       const fileNameList = file.name.split('.')
@@ -106,10 +108,19 @@ export default {
       } else if (audioTypes.indexOf(name) > -1) {
         type = 'audio'
       }
+      if (type === 'video') {
+        this.upFileToDrive(file.size, result)
+      }
       AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_MEDIA_FOR_TIP, {
         type,
         url: result
       })
+    },
+    upFileToDrive(fileLength, filePath) {
+      const param = {}
+      param.fileLength = fileLength
+      param.filePath = filePath
+      addFileUploadRecord(param).then(response => {})
     },
     addYoutube() {
       this.showYoutube = true

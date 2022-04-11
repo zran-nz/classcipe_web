@@ -136,10 +136,10 @@ export default {
       flex-wrap: wrap;
       .video-item {
         height: 200px;
-        width: 300px;
+        width: 280px;
         border: 1px solid #fff;
         padding: 10px;
-        margin: 20px;
+        margin: 15px;
         &.active {
           border: 2px solid @primary-color;
         }
