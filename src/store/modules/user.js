@@ -1,11 +1,11 @@
 import storage from 'store'
 import { login, getInfo, logout, changeRole, signUp } from '@/api/login'
-// import { SchoolClassClassList } from '@/api/schoolClass'
+import { SchoolClassGetMyClasses } from '@/api/schoolClass'
 import { StudentClasses } from '@/api/selfStudy'
-import { ACCESS_TOKEN, CURRENT_ROLE, IS_ADD_PREFERENCE, USER_INFO, ADD_PREFERENCE_SKIP_TIME, SET_STUDENT_CLASS_LIST, SET_CURRENT_SCHOOL } from '@/store/mutation-types'
+import { ACCESS_TOKEN, CURRENT_ROLE, IS_ADD_PREFERENCE, USER_INFO, ADD_PREFERENCE_SKIP_TIME, SET_CLASS_LIST, SET_CURRENT_SCHOOL } from '@/store/mutation-types'
 import { welcome, setCookie, delCookie } from '@/utils/util'
 import * as logger from '@/utils/logger'
-import { SESSION_ACTIVE_KEY } from '@/const/common'
+import { SESSION_ACTIVE_KEY, USER_MODE } from '@/const/common'
 import { teacher } from '@/const/role'
 import { getAllSubjectsByCurriculumId } from '@/api/preference'
 
@@ -28,7 +28,7 @@ const user = {
     disableQuestion: false,
     school: '',
     schoolRole: '',
-    studentClassList: [],
+    classList: [],
     currentSchool: {},
     allSubjects: []
   },
@@ -77,8 +77,8 @@ const user = {
     SET_DISABLED_QUESTION: (state, disableQuestion) => {
       state.disableQuestion = disableQuestion
     },
-    SET_STUDENT_CLASS_LIST: (state, studentClassList) => {
-      state.studentClassList = studentClassList
+    SET_CLASS_LIST: (state, classList) => {
+      state.classList = classList
     },
     SET_CURRENT_SCHOOL: (state, currentSchool) => {
       state.currentSchool = currentSchool
@@ -241,7 +241,7 @@ const user = {
           storage.remove(IS_ADD_PREFERENCE)
           storage.remove(USER_INFO)
           storage.remove(ADD_PREFERENCE_SKIP_TIME)
-          storage.remove(SET_STUDENT_CLASS_LIST)
+          storage.remove(SET_CLASS_LIST)
           storage.remove(SET_CURRENT_SCHOOL)
           window.sessionStorage.removeItem(SESSION_ACTIVE_KEY)
           delCookie(ACCESS_TOKEN)
@@ -278,22 +278,22 @@ const user = {
       })
     },
 
-    // get student all class list
-    GetClassList({ commit, state }) {
+    // get all class list
+    GetClassList({ commit, state }, userMode = USER_MODE.SELF) {
+      const remotePromise = state.currentRole === 'student' ? StudentClasses : SchoolClassGetMyClasses
       return new Promise((resolve, reject) => {
-        StudentClasses().then((response) => {
+        remotePromise().then((response) => {
           if (response.success) {
             const result = response.result
-            commit('SET_STUDENT_CLASS_LIST', result)
-            storage.set(SET_STUDENT_CLASS_LIST, result)
+            commit('SET_CLASS_LIST', result)
+            storage.set(SET_CLASS_LIST, result)
 
             resolve(result)
           } else {
             reject(response.message)
           }
-        }).catch(() => {
-          resolve()
         }).finally(() => {
+          resolve()
         })
       })
     },

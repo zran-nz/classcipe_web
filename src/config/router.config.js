@@ -50,37 +50,44 @@ export const asyncRouterMap = [
                 path: '/teacher/main/created-by-me',
                 name: 'CreatedByMe',
                 component: () => import('@/views/teacher/CreatedByMe'),
-                meta: { title: 'menu.my-content', keepAlive: true, permission: ['teacher'] }
+                meta: { title: 'menu.my-content', keepAlive: true, permission: ['teacher'], icon: CreatedByMeSvg }
               },
               {
                 path: '/teacher/main/my-favorite',
                 name: 'MyFavorite',
                 component: () => import('@/views/teacher/MyFavorite'),
-                meta: { title: 'menu.my-favorite', keepAlive: true, permission: ['teacher'] }
+                meta: { title: 'menu.my-favorite', keepAlive: true, permission: ['teacher'], icon: DiscoverSvg }
               },
+              // {
+              //   path: '/teacher/main/my-classes/:classId',
+              //   name: 'MyClassesTeacher',
+              //   props: true,
+              //   component: () => import('@/views/teacher/MyClasses'),
+              //   meta: { title: 'menu.my-classes', keepAlive: true, permission: ['teacher'], icon: 'contacts', dynamicKey: 'currentClassList' }
+              // },
               {
                 path: '/teacher/main/shared',
                 name: 'Shared',
                 component: () => import('@/views/teacher/Shared'),
-                meta: { title: 'menu.shared', keepAlive: true, permission: ['teacher'] }
+                meta: { title: 'menu.shared', keepAlive: true, permission: ['teacher'], hidden: true }
               },
               {
                 path: '/teacher/main/discover',
                 name: 'Discover',
                 component: () => import('@/views/teacher/Discover'),
-                meta: { title: 'menu.discover', keepAlive: true, permission: ['teacher'] }
+                meta: { title: 'menu.discover', keepAlive: true, permission: ['teacher'], hidden: true }
               },
               {
                 path: '/teacher/main/subscribes',
                 name: 'Subscribes',
                 component: () => import('@/views/teacher/Subscribes'),
-                meta: { title: 'menu.subscribes', keepAlive: true, permission: ['teacher'] }
+                meta: { title: 'menu.subscribes', keepAlive: true, permission: ['teacher'], hidden: true }
               },
               {
                 path: '/teacher/main/popular',
                 name: 'Popular',
                 component: () => import('@/views/teacher/Popular'),
-                meta: { title: 'menu.popular', keepAlive: true, permission: ['teacher'] }
+                meta: { title: 'menu.popular', keepAlive: true, permission: ['teacher'], hidden: true }
               }
             ]
           },
@@ -460,7 +467,7 @@ export const asyncRouterMap = [
                 name: 'MyClasses',
                 props: true,
                 component: () => import('@/views/student/MyClasses'),
-                meta: { title: 'menu.my-classes', keepAlive: true, permission: ['student'], icon: 'contacts', mode: USER_MODE.SCHOOL, dynamicKey: 'currentStudentClass' }
+                meta: { title: 'menu.my-classes', keepAlive: true, permission: ['student'], icon: 'contacts', mode: USER_MODE.SCHOOL, dynamicKey: 'currentClassList' }
               }
             ]
           },

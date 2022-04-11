@@ -88,7 +88,7 @@ import EditIconSvg from '@/assets/icons/header/bianji.svg?inline'
 import SousuoIconSvg from '@/assets/icons/header/sousuo.svg?inline'
 import ManageIconSvg from '@/assets/icons/header/Managing_icon.svg?inline'
 import TaskModeChoose from '@/components/QuickSession/TaskModeChoose'
-import { mapState, mapMutations } from 'vuex'
+import { mapState, mapMutations, mapActions } from 'vuex'
 import { TOOGLE_USER_MODE } from '@/store/mutation-types'
 import { SchoolUserRole } from '@/const/role'
 import { USER_MODE } from '@/const/common'
@@ -134,9 +134,11 @@ export default {
   },
   methods: {
     ...mapMutations([TOOGLE_USER_MODE, 'SET_CURRENT_SCHOOL']),
+    ...mapActions(['GetClassList']),
     init() {
       const current = this.currentSchool.id ? this.currentSchool : (this.info.schoolList && this.info.schoolList.length > 0) ? { ...this.info.schoolList[0] } : {}
       this.SET_CURRENT_SCHOOL(current)
+      this.GetClassList(this.userMode)
     },
     handleChange(val) {
       this[TOOGLE_USER_MODE](val)
@@ -148,6 +150,9 @@ export default {
       this.SET_CURRENT_SCHOOL(item)
       SwitchSchool({
           schoolId: val.key
+      }).then(res => {
+        // 获取对应学校班级
+        this.GetClassList(this.userMode)
       })
       this.justifyCurrentRoute()
     },

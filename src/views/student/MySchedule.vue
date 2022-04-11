@@ -13,7 +13,7 @@
         <div class="schedule-tip" v-show="attendanceVisible">
           <div class="attendance"><!-- :style="{visibility: attendanceVisible ? 'visible' : 'hidden'}"> -->
             <a-select class="attendance-choose" v-model="currentClass" @change="handleChangeClass">
-              <a-select-option :value="item.id" v-for="(item, index) in currentStudentClass" :key="'class'+index">
+              <a-select-option :value="item.id" v-for="(item, index) in currentClassList" :key="'class'+index">
                 {{ item.name }}
               </a-select-option>
             </a-select>
@@ -45,7 +45,7 @@
                 <span>{{ item.name }}</span>
               </div>
             </a-checkbox-group>
-          <!-- <div class="tip-content" v-for="(item, index) in currentStudentClass" :key="'classtip'+item.id">
+          <!-- <div class="tip-content" v-for="(item, index) in currentClassList" :key="'classtip'+item.id">
               <span class="tip-dot" :style="{backgroundColor: BG_COLORS[index]}"></span>
               <label>{{ item.name }}</label>
           </div> -->
@@ -147,7 +147,7 @@ export default {
             if (res.success && res.result) {
               const events = res.result.map(item => {
                 // 根据classId获取颜色
-                const index = this.currentStudentClass.findIndex(clasz => clasz.id === item.classId)
+                const index = this.currentClassList.findIndex(clasz => clasz.id === item.classId)
                 const color = BG_COLORS[index]
 
                 return {
@@ -258,7 +258,7 @@ export default {
     ...mapState({
       currentSchool: state => state.user.currentSchool
     }),
-    ...mapGetters(['currentStudentClass']),
+    ...mapGetters(['currentClassList']),
     dataSource() {
       const currentEvents = this.getCurrentEvents()
       const presentCount = currentEvents.filter(item => item.attendance === TASK_ATTENDANCE.PRESENT).length
@@ -300,7 +300,7 @@ export default {
         }
     },
     showClassOptions() {
-      return this.currentStudentClass.map((item, index) => {
+      return this.currentClassList.map((item, index) => {
         return {
           value: item.id,
           name: item.name,
@@ -310,16 +310,7 @@ export default {
     }
   },
   created() {
-    this.currentClass = this.currentStudentClass.length > 0 ? this.currentStudentClass[0].id : ''
-    this.showClass = this.currentStudentClass.map(item => item.id)
-    this.showStatus = Object.values(TASK_ATTENDANCE)
-    this.showStatusOptions = Object.keys(TASK_ATTENDANCE).map((key, index) => {
-      return {
-        value: TASK_ATTENDANCE[key],
-        name: key.slice(0, 1).toUpperCase() + key.slice(1).toLowerCase(),
-        index: index
-      }
-    })
+    this.initData()
   },
   mounted() {
     setTimeout(() => {
@@ -327,8 +318,24 @@ export default {
     }, 100)
   },
   methods: {
+    initData() {
+      this.currentClass = this.currentClassList.length > 0 ? this.currentClassList[0].id : ''
+      this.showClass = this.currentClassList.map(item => item.id)
+      this.showStatus = Object.values(TASK_ATTENDANCE)
+      this.showStatusOptions = Object.keys(TASK_ATTENDANCE).map((key, index) => {
+        return {
+          value: TASK_ATTENDANCE[key],
+          name: key.slice(0, 1).toUpperCase() + key.slice(1).toLowerCase(),
+          index: index
+        }
+      })
+    },
     handleSchoolChange(school) {
       // this.triggerSearch()
+      this.initData()
+      setTimeout(() => {
+        this.reFetch()
+      }, 100)
     },
     handleWeekendsToggle() {
       this.calendarOptions.weekends = !this.calendarOptions.weekends // update a property
@@ -384,7 +391,7 @@ export default {
         backgroundColor: info.event.backgroundColor
       }
       const $el = info.el.querySelector('.schedule-event-content')
-      const curClass = this.currentStudentClass.find(item => item.id === this.event.classId)
+      const curClass = this.currentClassList.find(item => item.id === this.event.classId)
       // const $tooltip = this.$refs.tooltip.getBoundingClientRect()
       // const $el = info.el.getBoundingClientRect()
       // this.$refs.tooltip.style.top = $el.top + 'px'
@@ -425,6 +432,14 @@ export default {
         if (this.$refs.fullCalendar) {
           const calendarApi = this.$refs.fullCalendar.getApi()
           calendarApi && calendarApi.render()
+        }
+      })
+    },
+    reFetch() {
+      this.$nextTick(() => {
+        if (this.$refs.fullCalendar) {
+          const calendarApi = this.$refs.fullCalendar.getApi()
+          calendarApi && calendarApi.refetchEvents()
         }
       })
     },

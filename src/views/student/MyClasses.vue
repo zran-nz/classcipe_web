@@ -107,7 +107,7 @@
             {{ item.title }}
           </a-radio-button>
         </a-radio-group>
-        <label>Class: {{ currentClass.name }}</label>
+        <label>Class: {{ currentClassName }}</label>
       </div>
       <my-task-list
         :loadData="loadData"
@@ -184,7 +184,7 @@
             {{ item.title }}
           </a-radio-button>
         </a-radio-group>
-        <label>Class: {{ currentClass.name }}</label>
+        <label>Class: {{ currentClassName }}</label>
       </div>
       <chat-list ref='chatList' v-show="currentActivity === 'messages'" :classId="classId"/>
       <to-do-list
@@ -336,11 +336,11 @@ export default {
   computed: {
     ...mapState({
       userMode: state => state.app.userMode,
-      studentClassList: state => state.user.studentClassList,
+      classList: state => state.user.classList,
       currentSchool: state => state.user.currentSchool
 
     }),
-    ...mapGetters(['currentStudentClass']),
+    ...mapGetters(['currentClassList']),
     statusList() {
       return StudentStudyTaskStatus.filter(item => {
         // archived 只有自学模式有
@@ -372,8 +372,8 @@ export default {
       ]
       return results
     },
-    currentClass() {
-      return this.currentStudentClass.find(item => item.id === this.classId) || {}
+    currentClassName() {
+      return (this.currentClassList.find(item => item.id === this.classId) || { name: '' }).name
     },
     attendanceRate() {
       if (this.attendanceData.mySessionSize > 0) {
@@ -389,8 +389,8 @@ export default {
   },
   created () {
     logger.info('student my content')
-    const currentStudentClass = this.currentStudentClass.find(item => item.id === this.classId)
-    if (!currentStudentClass) {
+    const currentClass = this.currentClassList.find(item => item.id === this.classId)
+    if (!currentClass) {
       this.$router.push({ path: '/student/main/my-task' })
     }
     this.initFilterOption()
@@ -399,8 +399,8 @@ export default {
   watch: {
     classId: {
       handler(newVal) {
-        const currentStudentClass = this.currentStudentClass.find(item => item.id === newVal)
-        if (!currentStudentClass) {
+        const currentClass = this.currentClassList.find(item => item.id === newVal)
+        if (!currentClass) {
           this.$router.push({ path: '/student/main/my-task' })
         } else {
           this.$refs.myTaskList.loadMyContent()
@@ -411,13 +411,13 @@ export default {
   },
   methods: {
     handleSchoolChange(school) {
-      if (this.studentClassList && this.studentClassList.length > 0) {
-        const currentStudentClass = this.studentClassList.filter(item => item.schoolId === school.id)
-        if (currentStudentClass.length === 0) {
+      if (this.classList && this.classList.length > 0) {
+        const currentClass = this.classList.filter(item => item.schoolId === school.id)
+        if (currentClass.length === 0) {
           this.$router.push({ path: '/student/main/my-task' })
         }
-        if (!currentStudentClass.find(item => item.id === this.classId)) {
-          const classId = this.currentStudentClass[0].id
+        if (!currentClass.find(item => item.id === this.classId)) {
+          const classId = this.currentClassList[0].id
           this.$router.push(`/student/main/my-classes/${classId}`)
         }
       }

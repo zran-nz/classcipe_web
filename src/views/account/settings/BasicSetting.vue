@@ -312,7 +312,7 @@
                 </a-select-option>
               </a-select>
             </a-form-model-item>
-            <a-form-model-item prop="country" label="School Country">
+            <a-form-model-item prop="country" label="Country/Region">
               <a-select
                 v-model="userForm.country"
                 show-search

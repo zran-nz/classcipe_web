@@ -1,6 +1,6 @@
 import { defaultExpertRouter, defaultTeacherRouter, defaultStudentRouter } from '@/config/router.config'
 import store from '@/store'
-import { AllCurriculums } from '@/const/common'
+import { AllCurriculums, USER_MODE } from '@/const/common'
 
 const getters = {
   isMobile: state => state.app.isMobile,
@@ -48,13 +48,18 @@ const getters = {
   // hiddenIbCurriculumId: state => state.user.info.bindCurriculum === AllCurriculums.IBMYP && state.user.info.school !== '1468390544921169921',
   hiddenIbCurriculumId: state => false,
 
-  currentStudentClass: state => {
-    // return state.user.studentClassList.filter(item => item.schoolId === state.user.school)
+  currentClassList: state => {
+    // return state.user.classList.filter(item => item.schoolId === state.user.school)
     let currentSchool = state.user.currentSchool
     if (!currentSchool.id) {
       currentSchool = (state.user.info.schoolList && state.user.info.schoolList.length > 0) ? state.user.info.schoolList[0] : { id: -1 }
     }
-    return state.user.studentClassList.filter(item => item.schoolId === currentSchool.id)
+    let currentSchoolId = null
+    // 老师端的个人模式，学校id强制为空
+    if (state.user.currentRole === 'student' || state.app.userMode === USER_MODE.SCHOOL) {
+      currentSchoolId = currentSchool.id
+    }
+    return state.user.classList.filter(item => item.schoolId === currentSchoolId)
   },
   isIBTeacher: state => state.user.currentRole === 'teacher' && (state.user.bindCurriculum === AllCurriculums.IBMYP || state.user.bindCurriculum === AllCurriculums.IBPYP),
 

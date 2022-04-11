@@ -10,7 +10,7 @@ import {
   TOGGLE_LAYOUT, TOGGLE_NAV_THEME, TOGGLE_WEAK,
   TOGGLE_COLOR, TOGGLE_MULTI_TAB, USER_INFO,
   TOOGLE_USER_MODE,
-  SET_STUDENT_CLASS_LIST,
+  SET_CLASS_LIST,
   SET_CURRENT_SCHOOL
 } from '@/store/mutation-types'
 import defaultSettings from '@/config/defaultSettings'
@@ -32,7 +32,7 @@ export default function Initializer () {
   store.commit('SET_INFO', storage.get(USER_INFO))
   store.commit(TOOGLE_USER_MODE, storage.get(TOOGLE_USER_MODE, USER_MODE.SELF))
   store.commit('SET_CURRENT_SCHOOL', storage.get(SET_CURRENT_SCHOOL, {}))
-  store.commit('SET_STUDENT_CLASS_LIST', storage.get(SET_STUDENT_CLASS_LIST, []))
+  store.commit('SET_CLASS_LIST', storage.get(SET_CLASS_LIST, []))
 
   store.dispatch('setLang', storage.get(APP_LANGUAGE, 'en-US'))
   store.dispatch('getSysConfig')
