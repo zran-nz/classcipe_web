@@ -27,27 +27,33 @@
               </a-col>
             </a-row>
           </div>
-          <div class="nav-bar-wrapper">
+          <s-menu
+            :mainRouter="mainRouter"
+            :currentRouterName="currentRouterName"
+            :initSelected="selectedKey"
+            :hiddenRoute="hiddenRoute"
+          />
+          <!-- <div class="nav-bar-wrapper">
             <div :class="{ 'nav-bar-item': true, 'selected-nav-bar': selectedKey === '/teacher/main/created-by-me' }">
               <router-link to="/teacher/main/created-by-me">
                 <created-by-me-svg />
                 {{ $t('teacher.main.created-by-me') }}
               </router-link>
             </div>
-            <!--            <div-->
-            <!--              :class="{-->
-            <!--                'nav-bar-item': true,-->
-            <!--                'selected-nav-bar': true,-->
-            <!--                'selected-nav-bar': selectedKey === '/teacher/main/shared',-->
-            <!--              }"-->
-            <!--            >-->
-            <!--            <router-link to="/teacher/main/shared">-->
-            <!--              &lt;!&ndash;                <a-badge :count="$store.getters.sharedCount">&ndash;&gt;-->
-            <!--              <shared-svg />-->
-            <!--              &lt;!&ndash;                </a-badge>&ndash;&gt;-->
-            <!--              {{ $t('teacher.main.shared') }}-->
-            <!--            </router-link>-->
-            <!--            </div>-->
+             <!-            <div
+            <!-              :class="{
+            <!-                'nav-bar-item': true,
+            <!-                'selected-nav-bar': true,
+            <!-                'selected-nav-bar': selectedKey === '/teacher/main/shared',
+            <!-              }"
+            <!-            >
+            <!-            <router-link to="/teacher/main/shared">
+            <!-              &lt;!&ndash;                <a-badge :count="$store.getters.sharedCount">&ndash;&gt;
+            <!-              <shared-svg />
+            <!-              &lt;!&ndash;                </a-badge>&ndash;&gt;
+            <!-              {{ $t('teacher.main.shared') }}
+            <!-            </router-link>
+            <!-            </div>
             <div
               :class="{
                 'nav-bar-item': true,
@@ -60,27 +66,27 @@
                 {{ $t('teacher.main.my-favorite') }}
               </router-link>
             </div>
-            <!--            <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/teacher/main/discover'}">-->
-            <!--              <router-link to="/teacher/main/discover">-->
-            <!--                <a-badge :count="$store.getters.sharedFindCount">-->
-            <!--                  <discover-svg />-->
-            <!--                </a-badge>-->
-            <!--                {{ $t('teacher.main.discover') }}-->
-            <!--              </router-link>-->
-            <!--            </div>-->
-            <!--            <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/teacher/main/subscribes'}">-->
-            <!--              <router-link to="/teacher/main/subscribes">-->
-            <!--                <subscribes-svg />-->
-            <!--                {{ $t('teacher.main.subscribes') }}-->
-            <!--              </router-link>-->
-            <!--            </div>-->
-            <!--            <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/teacher/main/popular'}">-->
-            <!--              <router-link to="/teacher/main/popular">-->
-            <!--                <popular-svg />-->
-            <!--                {{ $t('teacher.main.popular') }}-->
-            <!--              </router-link>-->
-            <!--            </div>-->
-          </div>
+          </div> -->
+          <!--            <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/teacher/main/discover'}">-->
+          <!--              <router-link to="/teacher/main/discover">-->
+          <!--                <a-badge :count="$store.getters.sharedFindCount">-->
+          <!--                  <discover-svg />-->
+          <!--                </a-badge>-->
+          <!--                {{ $t('teacher.main.discover') }}-->
+          <!--              </router-link>-->
+          <!--            </div>-->
+          <!--            <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/teacher/main/subscribes'}">-->
+          <!--              <router-link to="/teacher/main/subscribes">-->
+          <!--                <subscribes-svg />-->
+          <!--                {{ $t('teacher.main.subscribes') }}-->
+          <!--              </router-link>-->
+          <!--            </div>-->
+          <!--            <div :class="{'nav-bar-item': true, 'selected-nav-bar' : selectedKey === '/teacher/main/popular'}">-->
+          <!--              <router-link to="/teacher/main/popular">-->
+          <!--                <popular-svg />-->
+          <!--                {{ $t('teacher.main.popular') }}-->
+          <!--              </router-link>-->
+          <!--            </div>-->
         </div>
       </a-layout-sider>
       <a-layout-content class="main-content">
@@ -106,6 +112,9 @@ import QuickSessionSvg from '@/assets/icons/quickSession/Quick session.svg?inlin
 import GoogleSlideSvg from '@/assets/icons/quickSession/Google slide.svg?inline'
 import QuickSession from '@/components/QuickSession/QuickSession'
 
+import { mapState } from 'vuex'
+import SMenu from '@/components/SideBar/SMenu'
+
 export default {
   name: 'Main',
   components: {
@@ -119,12 +128,16 @@ export default {
     SubscribesSvg,
     AddPreference,
     QuickSessionSvg,
-    GoogleSlideSvg
+    GoogleSlideSvg,
+    SMenu
   },
   data() {
     return {
       selectedKey: '/teacher/main/created-by-me',
-      quickSessionVisible: false
+      quickSessionVisible: false,
+      currentRouterName: 'teacher',
+      mainRouter: 'Main',
+      openKeys: []
     }
   },
   watch: {
@@ -133,7 +146,12 @@ export default {
       this.selectedKey = to
     }
   },
-  computed: {},
+  computed: {
+    ...mapState({
+      userMode: state => state.app.userMode,
+      user: state => state.user
+    })
+  },
   created() {
     this.selectedKey = this.$route.path
     logger.info('selectedKey ', this.selectedKey)
@@ -150,6 +168,10 @@ export default {
 
     handleOpenGoogleSlide () {
       window.open('https://docs.google.com/presentation', '_blank')
+    },
+
+    hiddenRoute(route) {
+      return (route.meta.mode && route.meta.mode !== this.userMode) || route.meta.hidden
     }
   }
 }
@@ -192,46 +214,54 @@ export default {
   height: 100%;
   box-sizing: border-box;
   padding-right: 5px;
-  .nav-bar-wrapper {
-    .nav-bar-item {
-      font-family: Inter-Bold;
-      font-size: 14px;
-      cursor: pointer;
-      background-image: url('~@/assets/icons/myContent/Rectangle@2x.png');
-      background-repeat: repeat;
-      background-size: cover;
+  /deep/ .nav-bar-item {
+    font-family: Inter-Bold;
+    font-size: 14px;
+    cursor: pointer;
+    background-image: url('~@/assets/icons/myContent/Rectangle@2x.png');
+    background-repeat: repeat;
+    background-size: cover;
+    margin: 0!important;
+    height: 50px;
+    line-height: 50px;
 
-      a {
-        display: flex;
-        align-items: center;
-        width: 100%;
-        line-height: 30px;
-        padding: 10px 20px;
-        color: #000000;
+    a {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      line-height: 30px;
+      padding: 10px 0px;
+      color: #000000;
 
-        svg {
-          width: 50px;
-        }
-      }
-
-      &:hover {
-        background: #edf1f5;
-        a {
-          color: @primary-color;
-        }
+      svg {
+        width: 50px;
       }
     }
 
-    .nav-bar-item-split {
-      margin-bottom: 20px;
-    }
-
-    .selected-nav-bar {
-      background: #edf1f5;
+    &:hover {
+      background: #edf1f5!important;
       a {
         color: @primary-color;
-        font-weight: bold;
       }
+    }
+    .nav-bar-icon {
+      font-size: 30px;
+      width: 50px;
+      margin: 0;
+      color: #f35;
+    }
+    .ant-menu-submenu-title {
+      margin: 0!important;
+      height: 50px;
+      line-height: 50px;
+    }
+  }
+
+  /deep/ .selected-nav-bar {
+    background: #edf1f5!important;
+    a {
+      color: @primary-color;
+      font-weight: bold;
     }
   }
 }

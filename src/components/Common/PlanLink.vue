@@ -278,7 +278,8 @@ export default {
       this.linkGroupLoading = true
       GetAssociate({
         id: this.fromId,
-        type: this.fromType
+        type: this.fromType,
+        published: this.isLibrary ? 1 : 0
       }).then(response => {
         this.$logger.info('CommonLink GetAssociate response', response)
         this.groups = response.result.groups

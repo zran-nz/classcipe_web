@@ -23,6 +23,9 @@
         <a-form-item label="School Name">
           <a-input disabled v-model="model.schoolName" placeholder="input school name" />
         </a-form-item>
+        <a-form-item label="Country/Region">
+          <a-input disabled v-model="model.country" placeholder="input school country" />
+        </a-form-item>
       </a-form>
     </a-card>
   </a-card>
@@ -44,7 +47,8 @@ export default {
           title: 'Basic Info'
       }],
       model: {
-        schoolName: ''
+        schoolName: '',
+        country: ''
       }
     }
   },

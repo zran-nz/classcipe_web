@@ -79,7 +79,7 @@
         mainMenu: state => state.permission.addRouters,
         currentRole: state => state.user.currentRole
       }),
-      ...mapGetters(['currentStudentClass']), // dynamicKey
+      ...mapGetters(['currentClassList']), // dynamicKey
       menus() {
         const addRouters = this.mainMenu
         if (addRouters && addRouters.length > 0) {
