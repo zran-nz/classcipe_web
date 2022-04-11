@@ -45,9 +45,9 @@
             <div class="profile-label">
               <span class="label-txt">Role : </span>
             </div>
-            <div class="profile-text profile-data">
-              {{ userInfo.currentRole.substr(0, 1).toUpperCase() + userInfo.currentRole.substr(1) }}
-            </div>
+            <a-space class="profile-text profile-data">
+              <a-tag v-for="roleName in rolesName" :key="'roleName_'+roleName"> {{ roleName }} </a-tag>
+            </a-space>
           </div>
 
           <!--        time-->
@@ -56,7 +56,12 @@
               <span class="label-txt">Member since :</span>
             </div>
             <div class="profile-text profile-data">
-              {{ userInfo.createTime | dayjs }}
+              <template v-if="userMode === USER_MODE.SELF">
+                {{ userInfo.createTime | dayjs }}
+              </template>
+              <template v-else>
+                {{ currentSchool.schoolJoinDate | dayjs }}
+              </template>
             </div>
           </div>
 
@@ -65,7 +70,7 @@
             <div class="profile-label">
               <span class="label-txt">Area(s) :</span>
             </div>
-            <div class="profile-text profile-data" v-if="!editMode">
+            <div class="profile-text profile-data" v-if="!editMode || !canEdit">
               <div class="profile-tag-item" v-for="(areaName,index) in userInfo.areaNameList" :key="index">
                 <a-tag>{{ areaName }}</a-tag>
               </div>
@@ -78,7 +83,7 @@
                 </div>
               </template>
             </div>
-            <div class="profile-input profile-data" v-if="editMode">
+            <div class="profile-input profile-data" v-else>
               <a-select :getPopupContainer="trigger => trigger.parentElement" v-model="userInfo.areaIds" placeholder="Please select" mode="multiple">
                 <a-select-option
                   :value="areaOption.id"
@@ -99,10 +104,10 @@
             <div class="profile-label">
               <span class="label-txt">Curriculum :</span>
             </div>
-            <div class="profile-text profile-data" v-if="!editMode">
+            <div class="profile-text profile-data" v-if="!editMode || !canEdit">
               {{ userInfo.curriculumName }}
             </div>
-            <div class="profile-input profile-data" v-if="editMode">
+            <div class="profile-input profile-data" v-else>
               <a-select :getPopupContainer="trigger => trigger.parentElement" v-model="userInfo.curriculumId" placeholder="Please select curriculum">
                 <a-select-option
                   :value="curriculumOption.id"
@@ -121,12 +126,12 @@
             <div class="profile-label">
               <span class="label-txt">Subject(s) :</span>
             </div>
-            <div class="profile-text profile-data" v-if="!editMode">
+            <div class="profile-text profile-data" v-if="!editMode || !canEdit">
               <div class="profile-tag-item" v-for="(subjectName,index) in userInfo.subjectNameList" :key="index">
                 <a-tag>{{ subjectName }}</a-tag>
               </div>
             </div>
-            <div class="profile-input profile-data" v-if="editMode">
+            <div class="profile-input profile-data" v-else>
               <a-select :getPopupContainer="trigger => trigger.parentElement" v-model="userInfo.subjectIds" mode="multiple">
                 <a-select-option :value="subject.id" v-for="subject in subjectOptionsFilter" :key="subject.id">{{ subject.name }}</a-select-option>
               </a-select>
@@ -138,10 +143,10 @@
             <div class="profile-label">
               <span class="label-txt">Age : </span>
             </div>
-            <div class="profile-text profile-data" v-if="!editMode">
+            <div class="profile-text profile-data" v-if="!editMode || !canEdit">
               {{ userInfo.age }}
             </div>
-            <div class="profile-input profile-data" v-if="editMode">
+            <div class="profile-input profile-data" v-else>
               <a-select :getPopupContainer="trigger => trigger.parentElement" v-model="userInfo.age" placeholder="Please select age">
                 <a-select-option :value="ageOption" v-for="ageOption in ageList" :key="'age_'+ageOption">
                   {{ ageOption }}
@@ -155,12 +160,12 @@
             <div class="profile-label">
               <span class="label-txt">Level/Grade :</span>
             </div>
-            <div class="profile-text profile-data" v-if="!editMode">
+            <div class="profile-text profile-data" v-if="!editMode || !canEdit">
               <div class="profile-tag-item" v-for="(gradeName,index) in userInfo.gradeNameList" :key="index">
                 <a-tag>{{ gradeName }}</a-tag>
               </div>
             </div>
-            <div class="profile-input profile-data" v-if="editMode">
+            <div class="profile-input profile-data" v-else>
               <a-select :getPopupContainer="trigger => trigger.parentElement" v-model="userInfo.gradeIds" placeholder="Please select grade" mode="multiple">
                 <a-select-option :value="gradeOption.id" v-for="gradeOption in gradeOptions" :key="gradeOption.id">
                   {{ gradeOption.name }}
@@ -186,12 +191,14 @@
             </div>
 
             <div class="profile-text profile-data">
-              <div class='linked-school-name' v-if="$store.getters.schoolName">{{ $store.getters.schoolName }}</div>
-              <div v-if="!$store.getters.schoolName && currentRole === 'teacher'">
+              <a-space v-if="linkedSchool.length > 0">
+                <a-tag color="#ffc001" v-for="item in linkedSchool" :key="'linkedSchool_'+item"> {{ item }} </a-tag>
+              </a-space>
+              <div v-if="linkedSchool.length===0 && currentRole === 'teacher'">
                 <a-button @click="userFormVisible = true">Refer your principal to win</a-button>
                 <!-- <div class='no-linked-school-name'>You have not linked to any school</div> -->
               </div>
-              <div class='no-linked-school-name' v-if="!$store.getters.schoolName && currentRole === 'student'">You have not linked to any school</div>
+              <div class='no-linked-school-name' v-if="linkedSchool.length===0 && currentRole === 'student'">You have not linked to any school</div>
             </div>
           </div>
 
@@ -503,7 +510,7 @@ import { SubjectStudentList } from '@/api/subject'
 import { GetAllCountrys } from '@/api/common'
 import { SchoolPrincipleSave } from '@/api/schoolPrinciple'
 import { QuotationAddOrUpdate } from '@/api/quotation'
-import { SubjectType } from '@/const/common'
+import { SubjectType, USER_MODE } from '@/const/common'
 import { mapState } from 'vuex'
 
 const { debounce } = require('lodash-es')
@@ -520,6 +527,7 @@ export default {
   },
   data () {
     return {
+      USER_MODE: USER_MODE,
       loadSaving: false,
       curriculumList: [],
       subjectList: [],
@@ -612,8 +620,31 @@ export default {
   computed: {
     ...mapState({
       userInfoStore: state => state.user.info,
-      currentRole: state => state.user.currentRole
+      currentRole: state => state.user.currentRole,
+      userMode: state => state.app.userMode,
+      currentSchool: state => state.user.currentSchool
     }),
+    canEdit() {
+      if (this.userMode === USER_MODE.SELF) {
+        return true
+      } else {
+        return false
+      }
+    },
+    rolesName() {
+      if (this.userMode === USER_MODE.SCHOOL) {
+        return this.currentSchool.roleNames.map(item => this.upperCaseName(item))
+      } else {
+        return [this.upperCaseName(this.userInfoStore.currentRole)]
+      }
+    },
+    linkedSchool() {
+      if (this.userMode === USER_MODE.SELF) {
+        return this.userInfoStore.schoolList.map(item => item.schoolName)
+      } else {
+        return this.currentSchool.schoolName ? [this.currentSchool.schoolName] : []
+      }
+    },
     ifShowCreate() {
       const list = [...this.myCreateSchoolOptions, ...this.schoolOptions]
       const findOne = list.find(item => item.name === this.createSchoolName)
@@ -698,6 +729,7 @@ export default {
       this.userInfo.tempNickname = this.userInfoStore.nickname
       this.userInfo.currentRole = this.userInfoStore.currentRole
       this.userInfo.createTime = this.userInfoStore.createTime
+      // 区分个人和学校
       this.userInfo.curriculumId = this.userInfoStore.bindCurriculum
       this.userInfo.subjectIds = this.userInfoStore.preference.subjectIds
       this.userInfo.gradeIds = this.userInfoStore.preference.gradeIds
@@ -921,7 +953,12 @@ export default {
         }
 
         this.$logger.info('update preference and edit user post data', postData, userData)
-        Promise.all([addPreference(postData), editUser(userData)]).then(response => {
+        const promises = [editUser(userData)]
+        // 学校模式下不能修改
+        if (this.canEdit) {
+          promises.push(addPreference(postData))
+        }
+        Promise.all(promises).then(response => {
           this.$logger.info('update preference and edit user response', response)
         }).finally(() => {
           this.$store.dispatch('GetInfo').then(() => {
@@ -1097,6 +1134,9 @@ export default {
       }
       this.myCreateSchoolOptions.push(res)
       this[formName].school = res.id
+    },
+    upperCaseName(name) {
+      return name.substr(0, 1).toUpperCase() + name.substr(1)
     }
   }
 }

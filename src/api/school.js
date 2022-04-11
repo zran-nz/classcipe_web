@@ -3,7 +3,8 @@ import request from '@/utils/request'
 export const schoolAPIUrl = {
   getSchools: '/classcipe/api/school/getSchools',
   getSchoolList: '/classcipe/api/school/list',
-  createSchool: '/classcipe/api/school/create'
+  createSchool: '/classcipe/api/school/create',
+  queryById: '/classcipe/api/school/queryById'
 }
 
 /**
@@ -31,5 +32,12 @@ export function createSchool (parameter) {
     method: 'post',
     params: parameter,
     data: parameter
+  })
+}
+export function queryById (parameter) {
+  return request({
+    url: schoolAPIUrl.queryById,
+    method: 'get',
+    params: parameter
   })
 }
