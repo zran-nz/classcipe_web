@@ -96,7 +96,7 @@ class LoadPicker {
       const picker = new window.google.picker.PickerBuilder()
         .setTitle('My Drive')
         .enableFeature(window.google.picker.Feature.NAV_HIDDEN)
-        .setOrigin(undefined)
+        .setOrigin('https://docs.google.com/')
         .setAppId(this.appId)
         .setOAuthToken(this.oauthToken)
         .addView(window.google.picker.ViewId.DOCS_VIDEOS)
