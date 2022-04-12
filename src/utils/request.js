@@ -79,7 +79,12 @@ request.interceptors.response.use((response) => {
       var iLeft = (window.screen.availWidth - 10 - width) / 2
       var strWindowFeatures = 'width=' + width + ',height=' + height + ',menubar=yes,location=yes,resizable=yes,scrollbars=true,status=true,top=' + iTop + ',left=' + iLeft
       windowObjectReference = window.open('about:blank', '_blank', strWindowFeatures)
-      windowObjectReference.location = googleAuthUrl
+      if (windowObjectReference) {
+        windowObjectReference.location = googleAuthUrl
+      } else {
+        // 弹出框被拦截
+        alert('The authorization window is blocked by the browser, please allow the authorization window to pop up.')
+      }
     } else {
       if (process.env.NODE_ENV !== 'production') {
         notification.error({
