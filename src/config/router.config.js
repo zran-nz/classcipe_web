@@ -657,12 +657,18 @@ export const constantRouterMap = [
              }
            ]
          },
-         {
-           path: '/user/auth-result',
-           name: 'authResult',
-           component: () => import(/* webpackChunkName: "authResult" */ '@/views/user/AuthResult'),
-           props: true
-         },
+        {
+          path: '/user/auth-result',
+          name: 'authResult',
+          component: () => import(/* webpackChunkName: "authResult" */ '@/views/user/AuthResult'),
+          props: true
+        },
+        {
+          path: '/user/auth-success',
+          name: 'authSuccess',
+          component: () => import(/* webpackChunkName: "authSuccess" */ '@/views/user/AuthSuccess'),
+          props: true
+        },
          {
            path: '/collaborate/:code',
            name: 'CollaborateJoin',
