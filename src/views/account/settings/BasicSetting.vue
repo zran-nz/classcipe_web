@@ -1052,8 +1052,9 @@ export default {
     changeUserSchool(schoolId) {
       const list = [...this.myCreateSchoolOptions, ...this.schoolOptions]
       const findOne = list.find(item => item.id === schoolId)
-      if (findOne && findOne.country) {
+      if (findOne) {
         this.userForm.country = findOne.country
+        this.userForm.schoolName = findOne.name
       }
     },
     changeAdminSchool(schoolId) {
@@ -1061,6 +1062,7 @@ export default {
       const findOne = list.find(item => item.id === schoolId)
       if (findOne && findOne.country) {
         this.adminForm.country = findOne.country
+        this.adminForm.schoolName = findOne.name
       }
     },
     doSaveUserForm() {
