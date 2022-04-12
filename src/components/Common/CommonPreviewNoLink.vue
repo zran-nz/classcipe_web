@@ -718,7 +718,11 @@ export default {
 
     handleAuthCallback () {
       this.$logger.info('Preview handleAuthCallback')
-      this.loadThumbnail()
+      if (this.currentMethodName === 'loadThumbnail') {
+        this.loadThumbnail()
+      } else if (this.currentMethodName === 'handleDuplicateItem') {
+        this.handleDuplicateItem()
+      }
     },
 
     loadThumbnail () {
@@ -742,6 +746,9 @@ export default {
                 this.imgList = []
                 this.slideLoading = false
               }
+            } else {
+              this.$logger.info('等待授权事件通知')
+              this.currentMethodName = 'loadThumbnail'
             }
           })
         } else {
@@ -764,6 +771,7 @@ export default {
               }
             } else {
               this.$logger.info('等待授权事件通知')
+              this.currentMethodName = 'loadThumbnail'
             }
           })
         }
@@ -851,8 +859,12 @@ export default {
         onOk: () => {
           this.copyLoading = true
           Duplicate({ id: this.data.id, type: this.data.type }).then((response) => {
-            this.$logger.info('Duplicate response', response)
-            this.$message.success('Copy successfully')
+            if (response.code !== this.ErrorCode.ppt_google_token_expires) {
+              this.$logger.info('Duplicate response', response)
+              this.$message.success('Copy successfully')
+            } else {
+              this.currentMethodName = 'handleDuplicateItem'
+            }
           }).finally(() => {
             this.copyLoading = false
             this.$router.push({ path: '/teacher/main/created-by-me' })

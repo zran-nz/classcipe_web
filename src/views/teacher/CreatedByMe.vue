@@ -519,6 +519,7 @@ import { SubjectTree } from '@/api/subject'
 import { GetGradesByCurriculumId } from '@/api/preference'
 import { StartOpenSession, FindNewClasses } from '@/api/classroom'
 import { mapActions, mapState } from 'vuex'
+import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 
 export default {
   name: 'CreatedByMe',
@@ -549,6 +550,7 @@ export default {
     FilterActiveIcon,
     FilterContent
   },
+  mixins: [ GoogleAuthCallBackMixin ],
   data () {
     return {
       skeletonLoading: true,
@@ -759,12 +761,25 @@ export default {
         onOk: () => {
           this.loading = true
           Duplicate({ id: item.id, type: item.type }).then((response) => {
-            this.$logger.info('Duplicate response', response)
-            this.loadMyContent()
+            if (response.code !== this.ErrorCode.ppt_google_token_expires) {
+              this.$logger.info('Duplicate response', response)
+              this.loadMyContent()
+            } else {
+              this.currentMethodName = 'handleDuplicateItem'
+              this.currentMethodParam = item
+            }
           })
         }
       })
     },
+
+    handleAuthCallback () {
+      this.$logger.info('Preview handleAuthCallback')
+       if (this.currentMethodName === 'handleDuplicateItem') {
+        this.handleDuplicateItem(this.currentMethodParam)
+      }
+    },
+
     handlePrevious (item) {
       this.$router.push({
         path: '/teacher/my-class?slideId=' + item.presentationId

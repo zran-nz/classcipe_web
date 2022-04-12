@@ -490,6 +490,7 @@ import CollaborateSvg from '@/assets/icons/collaborate/collaborate_group.svg'
 import { FindMyClasses } from '@/api/evaluation'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 import { mapActions, mapState } from 'vuex'
+import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 
 export const SHARED_VIEW_MODE = 'view_mode_shared'
 
@@ -519,6 +520,7 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
       PSSvg,
       CollaborateSvg
     },
+    mixins: [ GoogleAuthCallBackMixin ],
     data () {
       return {
         skeletonLoading: true,
@@ -744,15 +746,27 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
           onOk: () => {
             this.loading = true
             Duplicate({ id: item.sourceId, type: item.sourceType }).then((response) => {
-              this.$logger.info('Duplicate response', response)
-              this.loading = false
-              // this.loadMyContent()
+              if (response.code !== this.ErrorCode.ppt_google_token_expires) {
+                this.$logger.info('Duplicate response', response)
+                this.loading = false
+              } else {
+                this.currentMethodName = 'handleDuplicateItem'
+                this.currentMethodParam = item
+              }
             }).finally(() => {
               this.$router.push({ path: '/teacher/main/created-by-me' })
             })
           }
         })
       },
+
+      handleAuthCallback () {
+        this.$logger.info('Shared handleAuthCallback')
+        if (this.currentMethodName === 'handleDuplicateItem') {
+          this.handleDuplicateItem(this.currentMethodParam)
+        }
+      },
+
       handlePrevious (item) {
         this.$router.push({
           path: '/teacher/my-class?slideId=' + item.presentationId

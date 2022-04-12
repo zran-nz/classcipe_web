@@ -4,7 +4,9 @@ import { ClasscipeEventBus, ClasscipeEvent } from '@/classcipeEventBus'
 export const GoogleAuthCallBackMixin = {
   data() {
     return {
-      ErrorCode: ErrorCode
+      ErrorCode: ErrorCode,
+      currentMethodName: null, // 当前操作方法名，用于授权回调判断后续操作。
+      currentMethodParam: null // 当前操作方法参数
     }
   },
   created () {
