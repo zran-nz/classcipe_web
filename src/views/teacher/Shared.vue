@@ -754,7 +754,7 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
                 this.currentMethodParam = item
               }
             }).finally(() => {
-              this.$router.push({ path: '/teacher/main/created-by-me' })
+              // this.$router.push({ path: '/teacher/main/created-by-me' })
             })
           }
         })

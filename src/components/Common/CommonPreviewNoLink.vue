@@ -866,7 +866,7 @@ export default {
             }
           }).finally(() => {
             this.copyLoading = false
-            this.$router.push({ path: '/teacher/main/created-by-me' })
+            // this.$router.push({ path: '/teacher/main/created-by-me' })
           })
         }
       })

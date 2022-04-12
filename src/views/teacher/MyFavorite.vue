@@ -495,7 +495,7 @@ export default {
               this.currentMethodParam = item
             }
           }).finally(() => {
-            this.$router.push({ path: '/teacher/main/created-by-me' })
+            // this.$router.push({ path: '/teacher/main/created-by-me' })
           })
         }
       })
