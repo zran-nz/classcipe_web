@@ -24,14 +24,15 @@ import { ClasscipeEvent } from '@/classcipeEventBus'
       storage.set(ACCESS_TOKEN, token)
     }
     if (window.opener) {
+      this.$logger.info('发送消息给父窗口，通知授权更新')
       window.opener.postMessage({
-        eventType: ClasscipeEvent.GOOGLE_AUTH_REFRESH
+        event: ClasscipeEvent.GOOGLE_AUTH_REFRESH
       }, '*')
     }
-    setTimeout(() => {
-      window.location.href = 'about:blank'
-      window.close()
-    }, 1000)
+    // setTimeout(() => {
+    //   window.location.href = 'about:blank'
+    //   window.close()
+    // }, 1000)
   },
   props: {
 

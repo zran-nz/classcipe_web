@@ -2318,7 +2318,7 @@ export default {
     MyContentEventBus.$on(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
     MyContentEventBus.$on(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
     LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
-    ClasscipeEventBus.$on(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleDescriptionSelectClick)
+    ClasscipeEventBus.$on(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleAuthCallback)
     this.initData()
     this.getAssociate()
     this.loadCustomTags()

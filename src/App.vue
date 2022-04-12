@@ -12,6 +12,7 @@
 import { domTitle, setDocumentTitle } from '@/utils/domUtil'
 import { i18nRender } from '@/locales'
 import Feedback from '@/components/Feedback/Feedback'
+import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
 
 export default {
   components: { Feedback },
@@ -45,6 +46,22 @@ export default {
     created () {
       if (this.$store.getters.userInfo) {
         this.$store.dispatch('initData')
+      }
+
+      window.addEventListener('message', this.handlePostMessage, false)
+    },
+    methods: {
+      handlePostMessage(e) {
+        this.$logger.info('handlePostMessage', e.data)
+        const eventData = e.data
+        switch (eventData.event) {
+          case ClasscipeEvent.GOOGLE_AUTH_REFRESH:
+            ClasscipeEventBus.$emit(ClasscipeEvent.GOOGLE_AUTH_REFRESH)
+            break;
+          default:
+            this.$logger.warn('handlePostMessage', 'unknown event', eventData)
+            break;
+        }
       }
     }
   }
