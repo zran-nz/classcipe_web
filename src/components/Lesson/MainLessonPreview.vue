@@ -144,6 +144,7 @@
 <script>
 import * as logger from '@/utils/logger'
 import { TemplatesGetPresentation } from '@/api/template'
+import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 const { LessonQueryById } = require('@/api/myLesson')
 
 export default {
@@ -158,6 +159,7 @@ export default {
       default: null
     }
   },
+  mixins: [ GoogleAuthCallBackMixin ],
   data () {
     return {
       loading: true,
@@ -204,20 +206,27 @@ export default {
       }
     },
 
+    handleAuthCallback () {
+      this.$logger.info('handleAuthCallback')
+      this.loadThumbnail()
+    },
+
     loadThumbnail () {
       this.$logger.info('LessonPreview loadThumbnail ' + this.lesson.presentationId, this.lesson.selectPageObjectIds)
       if (this.lesson.presentationId) {
         TemplatesGetPresentation({
           presentationId: this.lesson.presentationId
         }).then(response => {
-          this.imgList = []
-          this.$logger.info('lesson loadThumbnail response', response.result)
-          const pageObjects = response.result.pageObjects
-          pageObjects.forEach(page => {
-            this.imgList.push(page.contentUrl)
-            this.slideLoading = false
-          })
-          this.$logger.info('current imgList ', this.imgList)
+          if (response.code !== this.ErrorCode.ppt_google_token_expires) {
+            this.imgList = []
+            this.$logger.info('lesson loadThumbnail response', response.result)
+            const pageObjects = response.result.pageObjects
+            pageObjects.forEach(page => {
+              this.imgList.push(page.contentUrl)
+              this.slideLoading = false
+            })
+            this.$logger.info('current imgList ', this.imgList)
+          }
         })
       } else {
         this.slideLoading = false

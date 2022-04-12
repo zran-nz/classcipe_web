@@ -57,6 +57,7 @@
 
 import { GetStudentResponse } from '@/api/lesson'
 import { TemplatesGetPresentation, TemplatesGetPageThumbnail } from '@/api/template'
+import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 
 export default {
   name: 'PptCommentPreview',
@@ -70,6 +71,7 @@ export default {
       default: null
     }
   },
+  mixins: [ GoogleAuthCallBackMixin ],
   data () {
     return {
       loading: true,
@@ -99,29 +101,63 @@ export default {
           })
         })
 
-        const pageObjectIds = response[1].result.pageObjectIds
-        if (pageObjectIds.length) {
-          pageObjectIds.forEach(id => {
-            TemplatesGetPageThumbnail({
-              pageObjectId: id,
-              presentationId: this.slideId,
-              mimeType: 'SMALL'
-            }).then(response => {
-              this.imgList.push({
-                pageId: id,
-                imgUrl: response.result.contentUrl
+        if (response[1].code !== this.ErrorCode.ppt_google_token_expires) {
+          const pageObjectIds = response[1].result.pageObjectIds
+          if (pageObjectIds.length) {
+            pageObjectIds.forEach(id => {
+              TemplatesGetPageThumbnail({
+                pageObjectId: id,
+                presentationId: this.slideId,
+                mimeType: 'SMALL'
+              }).then(response => {
+                this.imgList.push({
+                  pageId: id,
+                  imgUrl: response.result.contentUrl
+                })
+              }).finally(() => {
+                this.$logger.info('current imgList.length ' + (this.imgList.length) + ' total:' + pageObjectIds.length)
+                if (this.imgList.length === pageObjectIds.length) {
+                  this.currentPageId = this.imgList[this.currentImgIndex].pageId
+                  this.loading = false
+                }
               })
-            }).finally(() => {
-              this.$logger.info('current imgList.length ' + (this.imgList.length) + ' total:' + pageObjectIds.length)
-              if (this.imgList.length === pageObjectIds.length) {
-                this.currentPageId = this.imgList[this.currentImgIndex].pageId
-                this.loading = false
-              }
             })
-          })
-        } else {
-          this.loading = false
-          this.$logger.info('loaded data', this.imgList, this.commentData)
+          } else {
+            this.loading = false
+            this.$logger.info('loaded data', this.imgList, this.commentData)
+          }
+        }
+      })
+    },
+
+    handleAuthCallback () {
+      this.$logger.info('TaskPreview handleAuthCallback')
+      TemplatesGetPresentation({ presentationId: this.slideId }).then(response => {
+        if (response.code !== this.ErrorCode.ppt_google_token_expires) {
+          const pageObjectIds = response.result.pageObjectIds
+          if (pageObjectIds.length) {
+            pageObjectIds.forEach(id => {
+              TemplatesGetPageThumbnail({
+                pageObjectId: id,
+                presentationId: this.slideId,
+                mimeType: 'SMALL'
+              }).then(response => {
+                this.imgList.push({
+                  pageId: id,
+                  imgUrl: response.result.contentUrl
+                })
+              }).finally(() => {
+                this.$logger.info('current imgList.length ' + (this.imgList.length) + ' total:' + pageObjectIds.length)
+                if (this.imgList.length === pageObjectIds.length) {
+                  this.currentPageId = this.imgList[this.currentImgIndex].pageId
+                  this.loading = false
+                }
+              })
+            })
+          } else {
+            this.loading = false
+            this.$logger.info('loaded data', this.imgList, this.commentData)
+          }
         }
       })
     },

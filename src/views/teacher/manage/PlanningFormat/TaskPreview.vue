@@ -2363,9 +2363,6 @@ export default {
       this.autoSave()
     },
 
-    handleCreateTask() {
-    },
-
     loadThumbnail() {
       this.thumbnailListLoading = true
       this.skeletonLoading = true

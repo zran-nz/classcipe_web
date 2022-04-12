@@ -570,6 +570,7 @@ import { mapState } from 'vuex'
 import * as ReviewsTask from '@/api/reviewsTask'
 import * as ReviewsTeacher from '@/api/reviewsTeacher'
 import PlanLink from '@/components/Common/PlanLink'
+import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 const { formatLocalUTC } = require('@/utils/util')
 const { UnitPlanQueryById } = require('@/api/unitPlan')
 const { TaskQueryById } = require('@/api/task')
@@ -611,7 +612,7 @@ export default {
       default: null
     }
   },
-  mixins: [PptPreviewMixin, BaseEventMixin],
+  mixins: [PptPreviewMixin, BaseEventMixin, GoogleAuthCallBackMixin ],
   computed: {
     ...mapState({
       userMode: state => state.app.userMode,
@@ -634,9 +635,6 @@ export default {
       }
       return Array.from(new Set(activeTypes))
     }
-  },
-  mounted () {
-
   },
   data () {
     return {
@@ -739,6 +737,11 @@ export default {
       // }
     },
 
+    handleAuthCallback () {
+      this.$logger.info('Preview handleAuthCallback')
+      this.loadThumbnail()
+    },
+
     loadThumbnail () {
       this.$logger.info('Preview loadThumbnail ', this.data)
       if (this.data.presentationId) {
@@ -746,36 +749,42 @@ export default {
           TemplatesGetPublishedPresentation({
             presentationId: this.data.presentationId
           }).then(response => {
-            const pageObjects = response.result.pageObjects
-            this.thumbnailList = []
-            if (pageObjects.length) {
-              pageObjects.forEach(page => {
-                this.imgList.push(page.contentUrl)
-                this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
+            if (response.code !== this.ErrorCode.ppt_google_token_expires) {
+              const pageObjects = response.result.pageObjects
+              this.thumbnailList = []
+              if (pageObjects.length) {
+                pageObjects.forEach(page => {
+                  this.imgList.push(page.contentUrl)
+                  this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
+                  this.slideLoading = false
+                  this.$logger.info('current imgList ', this.imgList)
+                })
+              } else {
+                this.imgList = []
                 this.slideLoading = false
-                this.$logger.info('current imgList ', this.imgList)
-              })
-            } else {
-              this.imgList = []
-              this.slideLoading = false
+              }
             }
           })
         } else {
           TemplatesGetPresentation({
             presentationId: this.data.presentationId
           }).then(response => {
-            const pageObjects = response.result.pageObjects
-            this.thumbnailList = []
-            if (pageObjects.length) {
-              pageObjects.forEach(page => {
-                this.imgList.push(page.contentUrl)
-                this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
+            if (response.code !== this.ErrorCode.ppt_google_token_expires) {
+              const pageObjects = response.result.pageObjects
+              this.thumbnailList = []
+              if (pageObjects.length) {
+                pageObjects.forEach(page => {
+                  this.imgList.push(page.contentUrl)
+                  this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
+                  this.slideLoading = false
+                  this.$logger.info('current imgList ', this.imgList)
+                })
+              } else {
+                this.imgList = []
                 this.slideLoading = false
-                this.$logger.info('current imgList ', this.imgList)
-              })
+              }
             } else {
-              this.imgList = []
-              this.slideLoading = false
+              this.$logger.info('等待授权事件通知')
             }
           })
         }

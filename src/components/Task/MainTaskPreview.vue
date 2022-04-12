@@ -143,8 +143,9 @@
 
 <script>
 import * as logger from '@/utils/logger'
-import { TemplatesGetPageThumbnail, TemplatesGetPresentation } from '@/api/template'
+import { TemplatesGetPresentation } from '@/api/template'
 const { TaskQueryById } = require('@/api/task')
+import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 
 export default {
   name: 'MainTaskPreview',
@@ -162,6 +163,7 @@ export default {
       default: null
     }
   },
+  mixins: [ GoogleAuthCallBackMixin ],
   data () {
     return {
       loading: true,
@@ -184,7 +186,11 @@ export default {
   },
   created () {
     logger.info('TaskPreview taskId ' + this.taskId)
+    ClasscipeEventBus.$on(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleAuthCallback)
     this.loadTaskData()
+  },
+  beforeDestroy() {
+    ClasscipeEventBus.$off(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleAuthCallback)
   },
   methods: {
     loadTaskData () {
@@ -208,6 +214,11 @@ export default {
       }
     },
 
+    handleAuthCallback () {
+      this.$logger.info('TaskPreview handleAuthCallback')
+      this.loadThumbnail()
+    },
+
     loadThumbnail () {
       this.$logger.info('TaskPreview loadThumbnail ' + this.task.presentationId, this.task.selectPageObjectIds)
       if (this.task.presentationId) {
@@ -215,13 +226,17 @@ export default {
           presentationId: this.task.presentationId
         }).then(response => {
           this.$logger.info('task loadThumbnail response', response.result)
-          const pageObjects = response.result.pageObjects
-          this.imgList = []
-          pageObjects.forEach(page => {
-            this.imgList.push(page.contentUrl)
-            this.slideLoading = false
-            this.$logger.info('current imgList ', this.imgList)
-          })
+          if (response.code !== this.ErrorCode.ppt_google_token_expires) {
+            const pageObjects = response.result.pageObjects
+            this.imgList = []
+            pageObjects.forEach(page => {
+              this.imgList.push(page.contentUrl)
+              this.slideLoading = false
+              this.$logger.info('current imgList ', this.imgList)
+            })
+          } else {
+            this.$logger.info('等待授权事件通知')
+          }
         })
       } else {
         this.slideLoading = false

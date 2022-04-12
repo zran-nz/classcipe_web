@@ -1956,9 +1956,9 @@ import { AddMaterialEventBus, ModalEventsNameEnum } from '@/components/AddMateri
 import UploadEnter from '@/components/AddMaterial/UploadEnter'
 import { addBatchElements } from '@/api/addMaterial'
 import AddGreenIcon from '@/assets/svgIcon/evaluation/form/tianjia_green.svg?inline'
+import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 
 const { SplitTask } = require('@/api/task')
-import { ClasscipeEventBus, ClasscipeEvent } from '@/classcipeEventBus'
 
 export default {
   name: 'AddTask',
@@ -2002,7 +2002,7 @@ export default {
     CollaborateTooltip,
     CollaborateUpdateContent
   },
-  mixins: [PptPreviewMixin, UtilMixin, BaseEventMixin, FormConfigMixin],
+  mixins: [PptPreviewMixin, UtilMixin, BaseEventMixin, FormConfigMixin, GoogleAuthCallBackMixin ],
   props: {
     taskId: {
       type: String,
@@ -2318,7 +2318,6 @@ export default {
     MyContentEventBus.$on(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
     MyContentEventBus.$on(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
     LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
-    ClasscipeEventBus.$on(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleAuthCallback)
     this.initData()
     this.getAssociate()
     this.loadCustomTags()
@@ -2928,7 +2927,7 @@ export default {
           }
         } else if (response.code === 403) {
           this.$router.push({ path: '/teacher/main/created-by-me' })
-        } else if (response.code === 520) {
+        } else if (response.code === this.ErrorCode.ppt_google_token_expires) {
           this.$logger.info('等待授权事件通知')
         }
       }).finally(() => {

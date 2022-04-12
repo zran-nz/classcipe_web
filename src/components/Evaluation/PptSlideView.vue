@@ -373,6 +373,7 @@ import UrlTypeSvg from '@/assets/icons/material/url.svg?inline'
 import SlidePreview from '@/components/Evaluation/SlidePreview'
 import ScoreNumber from '@/components/Common/ScoreNumber'
 import EvidenceCommentInput from '@/components/Evaluation/EvidenceCommentInput'
+import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 
 export default {
   name: 'PptSlideView',
@@ -392,6 +393,7 @@ export default {
     PdfTypeSvg,
     UrlTypeSvg
   },
+  mixins: [ GoogleAuthCallBackMixin ],
   props: {
     mode: {
       type: String,
@@ -517,19 +519,21 @@ export default {
           this.$logger.info('使用历史评估数据 this.slideDataList', this.slideDataList, ' this.elementsList', this.elementsList, ' this.itemsList', this.itemsList)
           this.loading = false
         } else {
-          const pageObjects = response[0].result.pageObjects
-          if (pageObjects.length) {
-            pageObjects.forEach(pItem => {
-              pItem.responseList = []
-              pItem.commentList = []
-              if (pItem.pageObjectId) {
-                this.rawSlideDataMap.set(pItem.pageObjectId, pItem)
-              }
-            })
-            this.loadStudentData()
-          } else {
-            this.loading = false
-            this.$logger.info('loaded data', this.imgList, this.commentData)
+          if (response[0].code !== this.ErrorCode.ppt_google_token_expires) {
+            const pageObjects = response[0].result.pageObjects
+            if (pageObjects.length) {
+              pageObjects.forEach(pItem => {
+                pItem.responseList = []
+                pItem.commentList = []
+                if (pItem.pageObjectId) {
+                  this.rawSlideDataMap.set(pItem.pageObjectId, pItem)
+                }
+              })
+              this.loadStudentData()
+            } else {
+              this.loading = false
+              this.$logger.info('loaded data', this.imgList, this.commentData)
+            }
           }
 
           if (response[1].success) {
@@ -538,6 +542,11 @@ export default {
           }
         }
       })
+    },
+
+    handleAuthCallback() {
+      this.$logger.info('handleAuthCallback')
+      this.loadData()
     },
 
     loadStudentData () {

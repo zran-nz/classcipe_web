@@ -693,9 +693,6 @@ export default {
       }).finally(() => {
         this.loading = false
         this.skeletonLoading = false
-        // if (this.currentStatus !== 'archived') {
-        //   this.checkGoogleTokenExpired()
-        // }
       })
     },
     toggleStatus (status, label) {
@@ -939,21 +936,6 @@ export default {
         this.$refs.classList1.loadTeacherClasses()
       } else {
         this.$refs.classList2.loadTeacherClasses()
-      }
-    },
-    checkGoogleTokenExpired () {
-      this.$logger.info('checkGoogleTokenExpired response')
-      var index = this.myContentList.findIndex(item => item.type === typeMap.task && item.presentationId && !item.fileDeleted)
-      if (index > -1) {
-        TemplatesGetPresentation({
-          presentationId: this.myContentList[index].presentationId
-        }).then(response => {
-          this.$logger.info('TemplatesGetPresentation response', response)
-          if (response.message.indexOf('Google access_token Forbidden') > -1) {
-            // 更新task?
-            this.$router.push({ path: '/user/login' })
-          }
-        })
       }
     },
     handleUpdateFilterConfig (filter) {
