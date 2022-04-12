@@ -883,6 +883,7 @@ export default {
               if (response.code !== this.ErrorCode.ppt_google_token_expires) {
                 this.$logger.info('Duplicate response', response)
                 this.$message.success('Copy successfully')
+                this.$router.push({ path: '/teacher/main/created-by-me' })
               } else {
                 this.currentMethodName = 'handleDuplicateItem'
               }
