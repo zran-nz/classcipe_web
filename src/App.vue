@@ -57,10 +57,9 @@ export default {
         switch (eventData.event) {
           case ClasscipeEvent.GOOGLE_AUTH_REFRESH:
             ClasscipeEventBus.$emit(ClasscipeEvent.GOOGLE_AUTH_REFRESH)
-            break;
+            break
           default:
-            this.$logger.warn('handlePostMessage', 'unknown event', eventData)
-            break;
+            break
         }
       }
     }

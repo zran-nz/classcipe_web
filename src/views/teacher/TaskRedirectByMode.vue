@@ -6,6 +6,7 @@
 
 <script>
 import { TaskAddOrUpdate } from '@/api/task'
+import { ClasscipeEventBus, ClasscipeEvent } from '@/classcipeEventBus'
 export default {
   name: 'TaskRedirectByMode',
   props: {
@@ -16,25 +17,40 @@ export default {
   },
   created () {
     this.$logger.info('TaskRedirectByMode ' + this.taskMode)
-    if (parseInt(this.taskMode) === 1 || parseInt(this.taskMode) === 2) {
-      const data = {
-        name: null,
-        taskMode: parseInt(this.taskMode),
-        status: 0
-      }
-      this.startCreating = true
-      this.$logger.info('create task ', data)
-      TaskAddOrUpdate(data).then((response) => {
-        this.$logger.info('TaskAddOrUpdate response', response.result)
-        if (response.success) {
-          this.$router.replace('/teacher/add-task/' + response.result.id)
-          this.$emit('close')
-        } else {
-          this.$message.error(response.message)
+    ClasscipeEventBus.$on(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleTaskRedirect)
+    this.handleTaskRedirect()
+  },
+  beforeDestroy() {
+    ClasscipeEventBus.$off(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleTaskRedirect)
+  },
+  methods: {
+    handleTaskRedirect() {
+      if (parseInt(this.taskMode) === 1 || parseInt(this.taskMode) === 2) {
+        const data = {
+          name: null,
+          taskMode: parseInt(this.taskMode),
+          status: 0
         }
-      }).finally(() => {
-        this.startCreating = false
-      })
+        this.startCreating = true
+        this.$logger.info('create task ', data)
+        TaskAddOrUpdate(data).then((response) => {
+          this.$logger.info('TaskAddOrUpdate response', response.result)
+          if (response.success) {
+            if (response.code !== 520) {
+              this.$router.replace('/teacher/add-task/' + response.result.id)
+              this.$emit('close')
+            } else {
+              this.$logger.info('等待授权回调')
+            }
+          } else {
+            this.$message.error(response.message)
+          }
+        }).finally(() => {
+          this.startCreating = false
+        })
+      } else {
+        this.$message.error('Task mode is not supported')
+      }
     }
   }
 }
