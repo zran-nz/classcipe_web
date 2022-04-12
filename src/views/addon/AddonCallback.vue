@@ -7,8 +7,8 @@
 </template>
 
 <script>
-  // import storage from 'store'
-  // import { ACCESS_TOKEN } from '../../store/mutation-types'
+
+import { ClasscipeEvent } from '@/classcipeEventBus'
 
   import { ACCESS_TOKEN } from '@/store/mutation-types'
   import storage from 'store'
@@ -22,6 +22,11 @@
     const token = this.$route.query.token
     if (token) {
       storage.set(ACCESS_TOKEN, token)
+    }
+    if (window.opener) {
+      window.opener.postMessage({
+        eventType: ClasscipeEvent.GOOGLE_AUTH_REFRESH
+      }, '*')
     }
     setTimeout(() => {
       window.location.href = 'about:blank'

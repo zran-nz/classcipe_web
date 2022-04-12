@@ -1958,6 +1958,7 @@ import { addBatchElements } from '@/api/addMaterial'
 import AddGreenIcon from '@/assets/svgIcon/evaluation/form/tianjia_green.svg?inline'
 
 const { SplitTask } = require('@/api/task')
+import { ClasscipeEventBus, ClasscipeEvent } from '@/classcipeEventBus'
 
 export default {
   name: 'AddTask',
@@ -2317,6 +2318,7 @@ export default {
     MyContentEventBus.$on(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
     MyContentEventBus.$on(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
     LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
+    ClasscipeEventBus.$on(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleDescriptionSelectClick)
     this.initData()
     this.getAssociate()
     this.loadCustomTags()
@@ -2409,6 +2411,12 @@ export default {
           this.initPrompts = response.result
         }
       })
+    },
+
+    handleAuthCallback() {
+      this.$logger.info('handleAuthCallback')
+      this.loadThumbnail()
+      this.loadRecommendThumbnail()
     },
 
     restoreTask(taskId, isFirstLoad) {

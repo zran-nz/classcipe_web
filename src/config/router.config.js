@@ -663,12 +663,6 @@ export const constantRouterMap = [
           component: () => import(/* webpackChunkName: "authResult" */ '@/views/user/AuthResult'),
           props: true
         },
-        {
-          path: '/user/refresh-google-auth',
-          name: 'refreshGoogleAuth',
-          component: () => import(/* webpackChunkName: "authSuccess" */ '@/views/user/RefreshGoogleAuth'),
-          props: true
-        },
          {
            path: '/collaborate/:code',
            name: 'CollaborateJoin',

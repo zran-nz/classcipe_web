@@ -13,7 +13,7 @@ import { getToken, setCookie } from './utils/util'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
-const allowList = ['login', 'register', 'resetPassword', 'registerResult', 'authResult', 'authCheck', 'pageRedirect', 'addonCallback', 'classGoBack', 'authRedirect', 'shareDetail', 'refreshGoogleAuth'] // no redirect allowList
+const allowList = ['login', 'register', 'resetPassword', 'registerResult', 'authResult', 'authCheck', 'pageRedirect', 'addonCallback', 'classGoBack', 'authRedirect', 'shareDetail'] // no redirect allowList
 const loginRoutePath = '/user/login'
 
 router.beforeEach((to, from, next) => {
