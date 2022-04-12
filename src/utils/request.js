@@ -49,11 +49,16 @@ request.interceptors.request.use(config => {
   return config
 }, errorHandler)
 
+export const ErrorCode = {
+  token_expires: 510,
+  ppt_google_token_expires: 520
+}
+
 // response interceptor
 request.interceptors.response.use((response) => {
   if (response && response.data && response.data.code && response.data.code !== 0) {
     // if code is 510 token invalid
-    if (response.data.code === 510) {
+    if (response.data.code === ErrorCode.token_expires) {
       const token = storage.get(ACCESS_TOKEN)
       if (token) {
         store.dispatch('ClearAuth').then(() => {
@@ -63,6 +68,18 @@ request.interceptors.response.use((response) => {
           }, 1500)
         })
       }
+    } else if (response.data.code === ErrorCode.ppt_google_token_expires) {
+      const googleAuthUrl = response.data.result.googleAuthUrl
+      var windowObjectReference
+      var height = 600
+      var width = 800
+      // 获得窗口的垂直位置
+      var iTop = (window.screen.availHeight - 30 - height) / 2
+      // 获得窗口的水平位置
+      var iLeft = (window.screen.availWidth - 10 - width) / 2
+      var strWindowFeatures = 'width=' + width + ',height=' + height + ',menubar=yes,location=yes,resizable=yes,scrollbars=true,status=true,top=' + iTop + ',left=' + iLeft
+      windowObjectReference = window.open('about:blank', '_blank', strWindowFeatures)
+      windowObjectReference.location = googleAuthUrl
     } else {
       if (process.env.NODE_ENV !== 'production') {
         notification.error({
