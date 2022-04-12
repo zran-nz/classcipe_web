@@ -1,24 +1,17 @@
 <template>
-  <div style="width: 600px">
-    <div class="preview-wrapper">
-
-    </div>
+  <div style='width: 600px'>
   </div>
 </template>
 
 <script>
 
 import { ClasscipeEvent } from '@/classcipeEventBus'
+import { ACCESS_TOKEN } from '@/store/mutation-types'
+import storage from 'store'
 
-  import { ACCESS_TOKEN } from '@/store/mutation-types'
-  import storage from 'store'
-  export default {
+export default {
   name: 'AddonCallback',
-  components: {
-  },
-  data () {
-  },
-  created () {
+  created() {
     const token = this.$route.query.token
     if (token) {
       storage.set(ACCESS_TOKEN, token)
@@ -29,21 +22,13 @@ import { ClasscipeEvent } from '@/classcipeEventBus'
         event: ClasscipeEvent.GOOGLE_AUTH_REFRESH
       }, '*')
     }
-    // setTimeout(() => {
-    //   window.location.href = 'about:blank'
-    //   window.close()
-    // }, 1000)
-  },
-  props: {
-
-  },
-  methods: {
+    setTimeout(() => {
+      window.location.href = 'about:blank'
+      window.close()
+    }, 500)
   }
 }
 </script>
 
-<style lang="less" scoped>
-  .preview-detail{
-    /*margin: 0 auto;*/
-  }
+<style lang='less' scoped>
 </style>
