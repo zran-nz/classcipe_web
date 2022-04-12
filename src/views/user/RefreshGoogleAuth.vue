@@ -17,7 +17,7 @@
 <script>
 
 export default {
-  name: 'AuthSuccess',
+  name: 'RefreshGoogleAuth',
   data() {
     return {
       authLoading: true,

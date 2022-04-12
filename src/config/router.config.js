@@ -664,9 +664,9 @@ export const constantRouterMap = [
           props: true
         },
         {
-          path: '/user/auth-success',
-          name: 'authSuccess',
-          component: () => import(/* webpackChunkName: "authSuccess" */ '@/views/user/AuthSuccess'),
+          path: '/user/refresh-google-auth',
+          name: 'refreshGoogleAuth',
+          component: () => import(/* webpackChunkName: "authSuccess" */ '@/views/user/RefreshGoogleAuth'),
           props: true
         },
          {
