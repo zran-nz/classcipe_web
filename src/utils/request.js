@@ -83,7 +83,7 @@ request.interceptors.response.use((response) => {
         windowObjectReference.location = googleAuthUrl
       } else {
         // 弹出框被拦截
-        alert('The authorization window is blocked by the browser, please allow the authorization window to pop up.')
+        alert('The authorization window is blocked by the browser, please allow the authorization window to pop up and then refresh the page.')
       }
     } else {
       if (process.env.NODE_ENV !== 'production') {

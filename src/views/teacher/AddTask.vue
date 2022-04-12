@@ -2416,7 +2416,6 @@ export default {
     handleAuthCallback() {
       this.$logger.info('handleAuthCallback')
       this.loadThumbnail()
-      this.loadRecommendThumbnail()
     },
 
     restoreTask(taskId, isFirstLoad) {
@@ -2929,8 +2928,8 @@ export default {
           }
         } else if (response.code === 403) {
           this.$router.push({ path: '/teacher/main/created-by-me' })
-        } else {
-          this.$message.error(response.message)
+        } else if (response.code === 520) {
+          this.$logger.info('等待授权事件通知')
         }
       }).finally(() => {
         this.thumbnailListLoading = false
