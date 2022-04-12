@@ -544,18 +544,17 @@ import { GetDictItems } from '@/api/common'
 import { lessonHost } from '@/const/googleSlide'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 import storage from 'store'
+import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 
 import { mapState } from 'vuex'
 import * as ReviewsTask from '@/api/reviewsTask'
 import * as ReviewsTeacher from '@/api/reviewsTeacher'
-import { ErrorCode } from '@/utils/request'
 const { formatLocalUTC } = require('@/utils/util')
 const { UnitPlanQueryById } = require('@/api/unitPlan')
 const { TaskQueryById } = require('@/api/task')
 const { EvaluationQueryById } = require('@/api/evaluation')
 const { FavoritesAdd } = require('@/api/favorites')
 const { SelfStudyTaskBye, SelfStudyTaskStart } = require('@/api/selfStudy')
-import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 
 export default {
   name: 'CommonPreview',
@@ -590,7 +589,7 @@ export default {
       default: null
     }
   },
-  mixins: [PptPreviewMixin, BaseEventMixin],
+  mixins: [ PptPreviewMixin, BaseEventMixin, GoogleAuthCallBackMixin ],
   computed: {
     ...mapState({
       userMode: state => state.app.userMode,

@@ -238,7 +238,7 @@ export default {
       subPreviewVisible: false
     }
   },
-  mixins: [PptPreviewMixin, GoogleAuthCallBackMixin ],
+  mixins: [ PptPreviewMixin, GoogleAuthCallBackMixin ],
   created () {
     this.loadData()
   },

@@ -254,7 +254,7 @@ export default {
 
     handleAuthCallback() {
       this.$logger.info('handleAuthCallback')
-      this.loadData();
+      this.loadData()
     },
 
     handleAddAndGotoImgIndex (index) {
