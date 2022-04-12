@@ -2,20 +2,23 @@
   <a-card>
     <div class="opt-area">
       <a-form layout="inline">
-        <a-row type="flex" justify="start">
+        <a-row type="flex" justify="space-between">
           <a-col :span="8">
             <a-input-search placeholder="Search for Name" v-model="queryParam.searchKey" enter-button @search="triggerSearch"/>
+          </a-col>
+          <a-col>
+            <a-button type="primary">Save</a-button>
           </a-col>
         </a-row>
       </a-form>
     </div>
-    <div class="circulum-con">
-      <div class="circulum-title">International Bacalaureate</div>
+    <div class="circulum-con" v-for="(circulumKey, key) in curriculumTree" :key="'circulum_key_' + key">
+      <div class="circulum-title">{{ key }}</div>
       <div class="circulum-content">
         <div class="circulum-detail">
-          <div class="detail-item">
+          <div class="detail-item" v-for="circulum in circulumKey" :key="'circulum+' + circulum.id">
             <div class="item-check">
-              <a-checkbox @change="onChange">
+              <a-checkbox v-model="circulum.checked" @change="onChange">
 
               </a-checkbox>
             </div>
@@ -26,40 +29,14 @@
                   :size="50"
                   :style="{ backgroundColor: '#3377FF', verticalAlign: 'middle' }"
                 >
-                  ED INT
+                  {{ circulum.name }}
                 </a-avatar>
               </div>
               <div class="item-content-detail">
-                <div class="content-detail-title">IB Diploma</div>
+                <div class="content-detail-title">{{ circulum.name }}</div>
                 <div class="content-detail-sub">16-19 Years</div>
-                <a-space class="content-detail-opt">
-                  <a-button size="small" type='danger'>L3</a-button>
-                  <a-button size="small" type='primary'>Enable</a-button>
-                </a-space>
-              </div>
-            </div>
-          </div>
-          <div class="detail-item">
-            <div class="item-check">
-              <a-checkbox @change="onChange">
-
-              </a-checkbox>
-            </div>
-            <div class="item-content">
-              <div class="item-content-avatar">
-                <a-avatar
-                  shape="square"
-                  :size="50"
-                  :style="{ backgroundColor: '#3377FF', verticalAlign: 'middle' }"
-                >
-                  ED INT
-                </a-avatar>
-              </div>
-              <div class="item-content-detail">
-                <div class="content-detail-title">IB Diploma</div>
-                <div class="content-detail-sub">16-19 Years</div>
-                <a-space class="content-detail-opt">
-                  <a-button size="small" type='danger'>L3</a-button>
+                <a-space class="content-detail-opt" v-show="circulum.checked">
+                  <!-- <a-button size="small" type='danger'>L3</a-button> -->
                   <a-button size="small" type='primary'>Enable</a-button>
                 </a-space>
               </div>
@@ -72,18 +49,62 @@
 </template>
 
 <script>
+import { getAllCurriculums } from '@/api/preference'
+const { groupBy } = require('lodash-es')
 export default {
   name: 'CirculumSel',
+  props: {
+    schoolId: {
+      type: String,
+      default: ''
+    }
+  },
+  watch: {
+    schoolId: {
+      handler(val) {
+        this.currentSchoolId = val
+        this.initData()
+      },
+      immediate: true
+    }
+  },
   data() {
     return {
+      currentSchoolId: this.schoolId,
+      curriculumOptions: [],
+      allOptions: [],
       queryParam: {
         searchKey: ''
       }
     }
   },
-  methods: {
-    triggerSearch() {
+  computed: {
+    curriculumTree() {
+      return groupBy(this.curriculumOptions, 'country')
+    }
+  },
+  created() {
 
+  },
+  methods: {
+    initData() {
+      getAllCurriculums().then((response) => {
+        if (response.success) {
+          this.allOptions = response.result.map(item => {
+            return {
+              ...item,
+              checked: false
+            }
+          })
+          this.curriculumOptions = this.allOptions.concat()
+        }
+      })
+    },
+    triggerSearch() {
+      if (!this.queryParam.searchKey) this.curriculumOptions = this.allOptions.concat()
+      this.curriculumOptions = this.allOptions.filter(item => {
+        return item.name.toLowerCase().indexOf(this.queryParam.searchKey.toLowerCase()) > -1
+      })
     },
     onChange() {
 
@@ -125,7 +146,7 @@ export default {
       padding: 10px 20px;
       .detail-item {
         display: flex;
-        width: 25%;
+        min-width: 220px;
         margin: 10px 0;
         .item-check {
           width:20px;

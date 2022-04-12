@@ -195,7 +195,7 @@
                   <a-tag color="#ffc001" v-for="item in linkedSchool" :key="'linkedSchool_'+item"> {{ item }} </a-tag>
                 </a-space>
                 <div v-if="linkedSchool.length===0 && currentRole === 'teacher'">
-                  <a-button @click="userFormVisible = true">Refer your principal to win</a-button>
+                  <a-button @click="userFormVisible = true">Refer your principal</a-button>
                   <!-- <div class='no-linked-school-name'>You have not linked to any school</div> -->
                 </div>
                 <div class='no-linked-school-name' v-if="linkedSchool.length===0 && currentRole === 'student'">You have not linked to any school</div>

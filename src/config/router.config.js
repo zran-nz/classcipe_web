@@ -152,7 +152,7 @@ export const asyncRouterMap = [
                     name: 'KnowledgeList',
                     component: () => import('@/views/teacher/manage/KnowledgeList'),
                     meta: { title: 'menu.managing.skill', keepAlive: true, permission: ['teacher'], curriculumType: CurriculumType.IBMYP, mode: USER_MODE.SCHOOL }
-                  // },
+                  }
                   // {
                   //   path: '/teacher/managing/academic',
                   //   name: 'AcademicList',
@@ -160,11 +160,11 @@ export const asyncRouterMap = [
                   //   meta: { title: 'menu.managing.academic', keepAlive: true, permission: ['teacher'] }
                   // },
                   // {
-                  //   path: '/teacher/managing/circulum',
+                  //   path: '/teacher/managing/curriculum',
                   //   name: 'CirculumList',
                   //   component: () => import('@/views/teacher/manage/CirculumList'),
-                  //   meta: { title: 'menu.managing.circulum', keepAlive: true, permission: ['teacher'] }
-                  }
+                  //   meta: { title: 'menu.managing.curriculum', keepAlive: true, permission: ['teacher'] }
+                  // }
                 ]
               },
               {

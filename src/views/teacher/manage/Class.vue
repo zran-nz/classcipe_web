@@ -183,8 +183,6 @@ export default {
     }
   },
   created() {
-    this.getGradeList()
-    this.getSubjectList()
     this.initData()
     this.debounceInit = debounce(this.initData, 300)
   },
@@ -294,6 +292,8 @@ export default {
     },
     initData() {
       this.loadData()
+      this.getGradeList()
+      this.getSubjectList()
       this.getTeacherList()
       this.getStudentList()
     },
@@ -343,7 +343,9 @@ export default {
       })
     },
     getGradeList() {
-      GetGradesByCurriculumId({ curriculumId: this.$store.getters.bindCurriculum }).then(response => {
+      const curriculumId = this.userMode === USER_MODE.SELF
+          ? this.$store.getters.bindCurriculum : (this.currentSchool.curriculumId || this.$store.getters.bindCurriculum)
+      GetGradesByCurriculumId({ curriculumId: curriculumId }).then(response => {
         this.$logger.info('GetGradesByCurriculumId', response.result)
         this.gradeList = response.result
       })
@@ -367,7 +369,9 @@ export default {
       this.studentList = res.result ? res.result.records : []
     },
     async getSubjectList() {
-      const response = await SubjectTree({ curriculumId: this.$store.getters.bindCurriculum })
+      const curriculumId = this.userMode === USER_MODE.SELF
+          ? this.$store.getters.bindCurriculum : (this.currentSchool.curriculumId || this.$store.getters.bindCurriculum)
+      const response = await SubjectTree({ curriculumId: curriculumId })
       this.$logger.info('getSubjectTree response', response.result)
       this.subjectList = response.result ? response.result : []
     },

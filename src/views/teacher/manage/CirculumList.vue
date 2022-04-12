@@ -15,7 +15,7 @@
         </div>
       </div>
     </div>
-    <circulum-sel v-show="currentTab === 'Circulum'"/>
+    <circulum-sel v-show="currentTab === 'Curriculum'"/>
     <subject-sel v-show="currentTab === 'Subject'"/>
     <div class="new-library" id="new-library" v-show="currentTab === 'Teaching'">
       <div class="library-title">Please uploade the achivement objectives for your school.</div>
@@ -71,10 +71,10 @@ export default {
   },
   data() {
     return {
-      currentTab: 'Circulum',
+      currentTab: 'Curriculum',
       tabsList: [{
-          value: 'Circulum',
-          title: 'Circulum'
+          value: 'Curriculum',
+          title: 'Curriculum'
       },
       {
           value: 'Subject',

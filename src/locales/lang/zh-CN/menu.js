@@ -16,7 +16,7 @@ export default {
     'menu.managing.plan-preview': 'Unit Plan Preview',
     'menu.managing.task-preview': 'Task Preview',
     'menu.managing.academic': 'Academic',
-    'menu.managing.circulum': 'Circulum',
+    'menu.managing.curriculum': 'Curriculum',
     'menu.managing.school-info': 'School Info',
     'menu.my-content': '我的内容',
     'menu.my-content.center': '我的内容',
