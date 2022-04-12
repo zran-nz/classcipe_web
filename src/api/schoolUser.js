@@ -17,7 +17,8 @@ export const schoolUserAPIUrl = {
   importStudent: '/classcipe/api/school/user/importStudentByExcel',
   exportInvalidStaff: '/classcipe/api/school/user/exportInvalidStaff',
   exportInvalidStudent: '/classcipe/api/school/user/exportInvalidStudent',
-  removeSchoolUser: '/classcipe/api/school/user/removeSchoolUser'
+  removeSchoolUser: '/classcipe/api/school/user/removeSchoolUser',
+  getUserInfo: '/classcipe/api/school/user/getUserInfo'
 }
 
 /**
@@ -107,6 +108,13 @@ export function removeSchoolUser (parameter) {
   return request({
     url: schoolUserAPIUrl.removeSchoolUser,
     method: 'post',
+    params: parameter
+  })
+}
+export function getUserInfo (parameter) {
+  return request({
+    url: schoolUserAPIUrl.getUserInfo,
+    method: 'get',
     params: parameter
   })
 }
