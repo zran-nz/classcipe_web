@@ -87,7 +87,7 @@ export default {
       recordType: null,
       ModalEventsTypeEnum,
       ModalEventsNameEnum,
-      driveUpLoadProgress: 10
+      driveUpLoadProgress: 0
     }
   },
   mounted() {},
