@@ -544,18 +544,17 @@ import { GetDictItems } from '@/api/common'
 import { lessonHost } from '@/const/googleSlide'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 import storage from 'store'
+import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 
 import { mapState } from 'vuex'
 import * as ReviewsTask from '@/api/reviewsTask'
 import * as ReviewsTeacher from '@/api/reviewsTeacher'
-import { ErrorCode } from '@/utils/request'
 const { formatLocalUTC } = require('@/utils/util')
 const { UnitPlanQueryById } = require('@/api/unitPlan')
 const { TaskQueryById } = require('@/api/task')
 const { EvaluationQueryById } = require('@/api/evaluation')
 const { FavoritesAdd } = require('@/api/favorites')
 const { SelfStudyTaskBye, SelfStudyTaskStart } = require('@/api/selfStudy')
-import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 
 export default {
   name: 'CommonPreview',
@@ -590,7 +589,7 @@ export default {
       default: null
     }
   },
-  mixins: [PptPreviewMixin, BaseEventMixin],
+  mixins: [ PptPreviewMixin, BaseEventMixin, GoogleAuthCallBackMixin ],
   computed: {
     ...mapState({
       userMode: state => state.app.userMode,
@@ -718,7 +717,11 @@ export default {
 
     handleAuthCallback () {
       this.$logger.info('Preview handleAuthCallback')
-      this.loadThumbnail()
+      if (this.currentMethodName === 'loadThumbnail') {
+        this.loadThumbnail()
+      } else if (this.currentMethodName === 'handleDuplicateItem') {
+        this.handleDuplicateItem()
+      }
     },
 
     loadThumbnail () {
@@ -742,6 +745,9 @@ export default {
                 this.imgList = []
                 this.slideLoading = false
               }
+            } else {
+              this.$logger.info('等待授权事件通知')
+              this.currentMethodName = 'loadThumbnail'
             }
           })
         } else {
@@ -764,6 +770,7 @@ export default {
               }
             } else {
               this.$logger.info('等待授权事件通知')
+              this.currentMethodName = 'loadThumbnail'
             }
           })
         }
@@ -851,11 +858,15 @@ export default {
         onOk: () => {
           this.copyLoading = true
           Duplicate({ id: this.data.id, type: this.data.type }).then((response) => {
-            this.$logger.info('Duplicate response', response)
-            this.$message.success('Copy successfully')
+            if (response.code !== this.ErrorCode.ppt_google_token_expires) {
+              this.$logger.info('Duplicate response', response)
+              this.$message.success('Copy successfully')
+            } else {
+              this.currentMethodName = 'handleDuplicateItem'
+            }
           }).finally(() => {
             this.copyLoading = false
-            this.$router.push({ path: '/teacher/main/created-by-me' })
+            // this.$router.push({ path: '/teacher/main/created-by-me' })
           })
         }
       })

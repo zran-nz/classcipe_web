@@ -2002,7 +2002,7 @@ export default {
     CollaborateTooltip,
     CollaborateUpdateContent
   },
-  mixins: [PptPreviewMixin, UtilMixin, BaseEventMixin, FormConfigMixin, GoogleAuthCallBackMixin ],
+  mixins: [ PptPreviewMixin, UtilMixin, BaseEventMixin, FormConfigMixin, GoogleAuthCallBackMixin ],
   props: {
     taskId: {
       type: String,

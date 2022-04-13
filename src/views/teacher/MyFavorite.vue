@@ -322,6 +322,7 @@ import TeacherPresenting from '@/assets/icons/common/TeacherPresenting.svg?inlin
 import StudentPace from '@/assets/icons/common/StudentPace.svg?inline'
 import ClassList from '@/components/Teacher/ClassList'
 import CustomTag from '@/components/UnitPlan/CustomTag'
+import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 
 export default {
   name: 'MyFavorite',
@@ -345,6 +346,7 @@ export default {
     LiebiaoSvg,
     PubuSvg
   },
+  mixins: [ GoogleAuthCallBackMixin ],
   data () {
     return {
       skeletonLoading: true,
@@ -485,15 +487,27 @@ export default {
         onOk: () => {
           this.loading = true
           Duplicate({ id: item.id, type: item.type }).then((response) => {
-            this.$logger.info('Duplicate response', response)
-            this.loading = false
-            // this.loadMyContent()
+            if (response.code !== this.ErrorCode.ppt_google_token_expires) {
+              this.$logger.info('Duplicate response', response)
+              this.loading = false
+            } else {
+              this.currentMethodName = 'handleDuplicateItem'
+              this.currentMethodParam = item
+            }
           }).finally(() => {
-            this.$router.push({ path: '/teacher/main/created-by-me' })
+            // this.$router.push({ path: '/teacher/main/created-by-me' })
           })
         }
       })
     },
+
+    handleAuthCallback () {
+      this.$logger.info('Shared handleAuthCallback')
+      if (this.currentMethodName === 'handleDuplicateItem') {
+        this.handleDuplicateItem(this.currentMethodParam)
+      }
+    },
+
     handlePrevious (item) {
       this.$router.push({
         path: '/teacher/my-class?slideId=' + item.presentationId

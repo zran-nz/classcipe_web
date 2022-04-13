@@ -110,12 +110,12 @@ export const asyncRouterMap = [
             component: () => import('@/views/teacher/Managing'),
             meta: { title: 'menu.managing', keepAlive: true, permission: ['teacher'], fullLayout: true },
             children: [
-              // {
-              //   path: '/teacher/managing/school-info',
-              //   name: 'SchoolInfo',
-              //   component: () => import('@/views/teacher/manage/SchoolInfo'),
-              //   meta: { title: 'menu.managing.school-info', keepAlive: true, icon: 'home', permission: ['teacher'], mode: USER_MODE.SCHOOL }
-              // },
+              {
+                path: '/teacher/managing/school-info',
+                name: 'SchoolInfo',
+                component: () => import('@/views/teacher/manage/SchoolInfo'),
+                meta: { title: 'menu.managing.school-info', keepAlive: true, icon: 'home', permission: ['teacher'], mode: USER_MODE.SCHOOL }
+              },
               {
                 path: '/teacher/managing/school-user',
                 name: 'SchoolUser',
