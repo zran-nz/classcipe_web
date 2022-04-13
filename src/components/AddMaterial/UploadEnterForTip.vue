@@ -4,7 +4,7 @@
       <a-tooltip title="Classcipe drive" placement="top">
         <div class="upload-type-item">
           <div class="remark-button-outer">
-            <img @click="openClasscipeDrive" src="~@/assets/icons/addMaterial/video.png" class="remark-button" alt="" />
+            <img @click="openClasscipeDrive" src="~@/assets/icons/addMaterial/classcipe_logo.png" class="remark-button" alt="" />
           </div>
         </div>
       </a-tooltip>
@@ -87,7 +87,7 @@ export default {
       recordType: null,
       ModalEventsTypeEnum,
       ModalEventsNameEnum,
-      driveUpLoadProgress: 0
+      driveUpLoadProgress: 10
     }
   },
   mounted() {},
@@ -220,7 +220,7 @@ export default {
 }
 .material-recorder {
   position: absolute;
-  right: -250px;
+  right: 50px;
   top: 0;
 }
 </style>

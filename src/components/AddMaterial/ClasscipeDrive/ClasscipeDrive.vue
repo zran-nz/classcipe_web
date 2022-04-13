@@ -14,7 +14,7 @@
               :key="'index' + index"
             >
               <div class="img-box" @click="choiceItem(item)">
-                <video height="150" width="270" :src="item.filePath" preload="auto" controls></video>
+                <video height="150" width="260" :src="item.filePath" preload="auto" controls></video>
                 <div>{{ decodeURIComponent(item.fileName) }}</div>
               </div>
             </div>
