@@ -6,9 +6,9 @@
           <a-col :span="8">
             <a-input-search placeholder="Search for Name" v-model="queryParam.searchKey" enter-button @search="triggerSearch"/>
           </a-col>
-          <a-col>
+          <!-- <a-col>
             <a-button type="primary">Save</a-button>
-          </a-col>
+          </a-col> -->
         </a-row>
       </a-form>
     </div>
@@ -18,7 +18,7 @@
         <div class="circulum-detail">
           <div class="detail-item" v-for="circulum in circulumKey" :key="'circulum+' + circulum.id">
             <div class="item-check">
-              <a-checkbox v-model="circulum.checked" @change="onChange">
+              <a-checkbox v-model="circulum.checked" @change="val => onChange(val, circulum)">
 
               </a-checkbox>
             </div>
@@ -34,7 +34,7 @@
               </div>
               <div class="item-content-detail">
                 <div class="content-detail-title">{{ circulum.name }}</div>
-                <div class="content-detail-sub">16-19 Years</div>
+                <div class="content-detail-sub">{{ formatGrade(circulum.id) }}</div>
                 <a-space class="content-detail-opt" v-show="circulum.checked">
                   <!-- <a-button size="small" type='danger'>L3</a-button> -->
                   <a-button size="small" type='primary'>Enable</a-button>
@@ -54,60 +54,84 @@ const { groupBy } = require('lodash-es')
 export default {
   name: 'CirculumSel',
   props: {
-    schoolId: {
-      type: String,
-      default: ''
+    school: {
+      type: Object,
+      default: () => {}
+    },
+    gradeOptions: {
+      type: Array,
+      default: () => []
     }
   },
   watch: {
-    schoolId: {
+    school: {
       handler(val) {
-        this.currentSchoolId = val
+        this.currentSchool = { ...val }
         this.initData()
       },
+      deep: true,
       immediate: true
     }
   },
   data() {
     return {
-      currentSchoolId: this.schoolId,
+      currentSchool: this.school,
       curriculumOptions: [],
       allOptions: [],
       queryParam: {
         searchKey: ''
-      }
-    }
-  },
-  computed: {
-    curriculumTree() {
-      return groupBy(this.curriculumOptions, 'country')
+      },
+      curriculumTree: {}
     }
   },
   created() {
-
   },
   methods: {
     initData() {
       getAllCurriculums().then((response) => {
         if (response.success) {
           this.allOptions = response.result.map(item => {
+            let checked = false
+            if (this.currentSchool.curriculumId && this.currentSchool.curriculumId === item.id) {
+              checked = true
+              this.$emit('change', item)
+            }
             return {
               ...item,
-              checked: false
+              checked: checked
             }
           })
           this.curriculumOptions = this.allOptions.concat()
+          this.curriculumTree = groupBy(this.curriculumOptions, 'country')
         }
       })
+    },
+    reset() {
+      this.initData()
+    },
+    formatGrade(id) {
+      const current = this.gradeOptions.filter(item => item.curriculumId === id)
+      const ages = current.map(item => item.age ? Number(item.age) : 0)
+      return Math.min(...ages) + '-' + Math.max(...ages) + ' Years'
     },
     triggerSearch() {
       if (!this.queryParam.searchKey) this.curriculumOptions = this.allOptions.concat()
       this.curriculumOptions = this.allOptions.filter(item => {
         return item.name.toLowerCase().indexOf(this.queryParam.searchKey.toLowerCase()) > -1
       })
+      this.curriculumTree = groupBy(this.curriculumOptions, 'country')
     },
-    onChange() {
-
+    onChange(val, curriculum) {
+      this.curriculumOptions.forEach(item => {
+        // val.target.checked
+        if (item.id === curriculum.id) {
+          item.checked = true
+        } else {
+          item.checked = false
+        }
+      })
+      this.curriculumTree = groupBy(this.curriculumOptions, 'country')
+      this.$emit('change', curriculum)
     }
   }
 }
