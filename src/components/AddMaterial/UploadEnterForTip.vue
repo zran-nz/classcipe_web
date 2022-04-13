@@ -184,10 +184,10 @@ export default {
       this.showYoutube = false
     },
     addDrive() {
-      if (!this.canUpload) {
-        this.$message.warn('Video loading in process, please wait a few minutes to upload new videos!')
-        return null
-      }
+      // if (!this.canUpload) {
+      //   this.$message.warn('Video loading in process, please wait a few minutes to upload new videos!')
+      //   return null
+      // }
       GooglePickerForTip.init(
         driveUpLoadProgress => {
           this.driveUpLoadProgress = driveUpLoadProgress
