@@ -1,5 +1,5 @@
 import storage from 'store'
-import { upFireBaseFile } from './FirebaseUploadFile'
+import { upAwsS3File } from '@/components/AddMaterial/Utils/AwsS3'
 
 const googleDriveConfig = {
   dev: {
@@ -18,10 +18,7 @@ class LoadPicker {
   LoadPickerConfig = process.env.NODE_ENV === 'development' ? googleDriveConfig.dev : googleDriveConfig.release
   clientId = this.LoadPickerConfig.clientId
   appId = this.LoadPickerConfig.appId
-  scope = [
-    'https://www.googleapis.com/auth/drive',
-    'https://www.googleapis.com/auth/drive.file'
-  ]
+  scope = ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/drive.file']
 
   developerKey = this.LoadPickerConfig.developerKey
   oauthToken = ''
@@ -40,32 +37,35 @@ class LoadPicker {
     // eslint-disable-next-line prefer-promise-reject-errors
     if (!this.oauthToken || this.oauthToken === '') return Promise.reject()
     return new Promise((resolve, reject) => {
-      window.gapi.client.init({
-        'apiKey': this.developerKey,
-        'clientId': this.clientId,
-        'scope': this.scope.join(' ')
-      }).then(() => {
-        const GoogleAuth = window.gapi.auth2.getAuthInstance()
+      window.gapi.client
+        .init({
+          apiKey: this.developerKey,
+          clientId: this.clientId,
+          scope: this.scope.join(' ')
+        })
+        .then(() => {
+          const GoogleAuth = window.gapi.auth2.getAuthInstance()
 
-        // Listen for sign-in state changes.
-        const status = GoogleAuth.isSignedIn.get()
-        if (status) {
-          resolve(true)
-        } else {
-          reject(new Error('GoogleAuth Not login'))
-        }
-      })
+          // Listen for sign-in state changes.
+          const status = GoogleAuth.isSignedIn.get()
+          if (status) {
+            resolve(true)
+          } else {
+            reject(new Error('GoogleAuth Not login'))
+          }
+        })
     })
   }
 
   loadPicker() {
     this.checkLogin()
       .then(() => {
-        window.gapi.load('picker', { 'callback': this.onPickerApiLoad })
-      }).catch(() => {
-      window.gapi.load('client:auth2', { 'callback': this.onAuthApiLoad })
-      window.gapi.load('picker', { 'callback': this.onPickerApiLoad })
-    })
+        window.gapi.load('picker', { callback: this.onPickerApiLoad })
+      })
+      .catch(() => {
+        window.gapi.load('client:auth2', { callback: this.onAuthApiLoad })
+        window.gapi.load('picker', { callback: this.onPickerApiLoad })
+      })
   }
 
   onPickerApiLoad = () => {
@@ -76,14 +76,15 @@ class LoadPicker {
   onAuthApiLoad = () => {
     window.gapi.auth.authorize(
       {
-        'client_id': this.clientId,
-        'scope': this.scope,
-        'immediate': false
-      }, this.handleAuthResult
+        client_id: this.clientId,
+        scope: this.scope,
+        immediate: false
+      },
+      this.handleAuthResult
     )
   }
 
-  handleAuthResult = (authResult) => {
+  handleAuthResult = authResult => {
     if (authResult && !authResult.error) {
       this.oauthToken = authResult.access_token
       storage.set('google_picker_auth_token', this.oauthToken)
@@ -111,7 +112,7 @@ class LoadPicker {
     }
   }
 
-  pickerCallback = (data) => {
+  pickerCallback = data => {
     console.log(data)
     if (data.action === window.google.picker.Action.PICKED) {
       const { id } = data.docs[0]
@@ -119,15 +120,17 @@ class LoadPicker {
     }
   }
 
-  getDownloadUrl = (id) => {
+  getDownloadUrl = id => {
     const xhr = new XMLHttpRequest()
-    xhr.open('GET',
-      `https://www.googleapis.com/drive/v2/files/${id}?supportsTeamDrives=true&access_token=${this.oauthToken}`)
+    xhr.open(
+      'GET',
+      `https://www.googleapis.com/drive/v2/files/${id}?supportsTeamDrives=true&access_token=${this.oauthToken}`
+    )
     xhr.setRequestHeader('Authorization', `Bearer ${this.oauthToken}`)
     xhr.onreadystatechange = () => {
       if (xhr.readyState === 4 && xhr.status === 200) {
         const data = JSON.parse(xhr.response)
-        console.log(data)
+        console.log('getDownloadUrl-----', data)
         const { downloadUrl, mimeType } = data
         this.downloadFile(downloadUrl, mimeType)
       }
@@ -170,15 +173,11 @@ class LoadPicker {
   }
 
   upDriveFire(file, mimeType) {
-    this.uploadDriveInstance = upFireBaseFile(
-      file,
-      this.onloadingCallBack,
-      (result) => {
-        console.log(result, mimeType)
-        this.classCallback('upload-ended', result, mimeType)
-        this.uploadDriveInstance = null
-      }
-    )
+    this.uploadDriveInstance = upAwsS3File(file, this.onloadingCallBack, result => {
+      console.log(result, mimeType)
+      this.classCallback('upload-ended', result, mimeType)
+      this.uploadDriveInstance = null
+    })
   }
 
   cancelUpDrive() {
@@ -209,7 +208,7 @@ class LoadPicker {
       callback('Upload started...')
     }
 
-    request.upload.onprogress = (event) => {
+    request.upload.onprogress = event => {
       // callback('Upload Progress ' + Math.round(event.loaded / event.total * 100) + "%");
     }
 
@@ -224,14 +223,14 @@ class LoadPicker {
     }
 
     // eslint-disable-next-line handle-callback-err
-    request.upload.onerror = (error) => {
+    request.upload.onerror = error => {
       // eslint-disable-next-line standard/no-callback-literal
       callback('onerror')
       // console.error('XMLHttpRequest failed', error);
     }
 
     // eslint-disable-next-line handle-callback-err
-    request.upload.onabort = (error) => {
+    request.upload.onabort = error => {
       // eslint-disable-next-line standard/no-callback-literal
       callback('Upload aborted.')
       // console.error('XMLHttpRequest aborted', error);

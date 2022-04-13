@@ -4,14 +4,19 @@
       <a-tooltip title="Classcipe drive" placement="top">
         <div class="upload-type-item">
           <div class="remark-button-outer">
-            <img @click="openClasscipeDrive" src="~@/assets/icons/addMaterial/classcipe_logo.png" class="remark-button" alt="" />
+            <img
+              @click="openClasscipeDrive"
+              src="~@/assets/icons/addMaterial/classcipe_logo.png"
+              class="remark-button"
+              alt=""
+            />
           </div>
         </div>
       </a-tooltip>
       <a-tooltip title="my computer" placement="top">
         <div class="upload-type-item">
           <open-dir-svg class="opened" />
-          <common-upload accept="video/*" :onSuccess="onSuccess" />
+          <common-upload accept="video/*" :onSuccess="onSuccess" :getProgressUpLoad="getProgressUpLoad" />
         </div>
       </a-tooltip>
       <a-tooltip title="google drive" placement="top">
@@ -87,11 +92,34 @@ export default {
       recordType: null,
       ModalEventsTypeEnum,
       ModalEventsNameEnum,
-      driveUpLoadProgress: 0
+      driveUpLoadProgress: 0,
+      canUpLoad: true
     }
   },
+  watch: {
+    driveUpLoadProgress() {
+      if (this.driveUpLoadProgress > 0) {
+        this.canUpLoad = false
+      }
+      if (this.driveUpLoadProgress === 0) {
+        this.canUpLoad = true
+      }
+    },
+    canUpLoad() {
+      if (this.canUpLoad === false) {
+        AddMaterialEventBus.$emit(ModalEventsNameEnum.IS_UPLOAD, false)
+      } else {
+        AddMaterialEventBus.$emit(ModalEventsNameEnum.IS_UPLOAD, true)
+      }
+    }
+  },
+
   mounted() {},
   methods: {
+    getProgressUpLoad(progress) {
+      console.log('progress', progress)
+      this.driveUpLoadProgress = progress
+    },
     onSuccess(file, result) {
       console.log('file', file)
       console.log(file.name)
@@ -156,6 +184,10 @@ export default {
       this.showYoutube = false
     },
     addDrive() {
+      if (!this.canUpload) {
+        this.$message.warn('Video loading in process, please wait a few minutes to upload new videos!')
+        return null
+      }
       GooglePickerForTip.init(
         driveUpLoadProgress => {
           this.driveUpLoadProgress = driveUpLoadProgress

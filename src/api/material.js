@@ -110,6 +110,6 @@ export function addFileUploadRecord(parameter) {
   return request({
     url: materialAPIUrl.addFileUploadRecord,
     method: 'post',
-    params: parameter
+    data: parameter
   })
 }

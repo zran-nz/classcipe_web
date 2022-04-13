@@ -1,5 +1,5 @@
 import storage from 'store'
-import { upFireBaseFile } from './FirebaseUploadFile'
+import { upAwsS3File } from '@/components/AddMaterial/Utils/AwsS3'
 
 const googleDriveConfig = {
   dev: {
@@ -96,7 +96,7 @@ class LoadPicker {
       const picker = new window.google.picker.PickerBuilder()
         .setTitle('My Drive')
         .enableFeature(window.google.picker.Feature.NAV_HIDDEN)
-        .setOrigin('https://docs.google.com/')
+       // .setOrigin('https://docs.google.com/')
         .setAppId(this.appId)
         .setOAuthToken(this.oauthToken)
         .addView(window.google.picker.ViewId.DOCS_VIDEOS)
@@ -123,7 +123,8 @@ class LoadPicker {
     xhr.onreadystatechange = () => {
       if (xhr.readyState === 4 && xhr.status === 200) {
         const data = JSON.parse(xhr.response)
-        console.log(data)
+        console.log('getDownloadUrl-----', data)
+        this.onloadingCallBack(1)
         const { downloadUrl, mimeType } = data
         this.downloadFile(downloadUrl, mimeType)
       }
@@ -166,15 +167,11 @@ class LoadPicker {
   }
 
   upDriveFire(file, mimeType) {
-    this.uploadDriveInstance = upFireBaseFile(
-      file,
-      this.onloadingCallBack,
-      (result) => {
-        console.log(result, mimeType)
-        this.classCallback('upload-ended', result, mimeType)
-        this.uploadDriveInstance = null
-      }
-    )
+    this.uploadDriveInstance = upAwsS3File(file, this.onloadingCallBack, result => {
+      console.log(result, mimeType)
+      this.classCallback('upload-ended', result, mimeType)
+      this.uploadDriveInstance = null
+    })
   }
 
   cancelUpDrive() {

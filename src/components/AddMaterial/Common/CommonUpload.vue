@@ -1,16 +1,10 @@
 <template>
-  <div class="upload-file" >
-    <input
-      class="upload-file"
-      type="file"
-      :accept="accept"
-      ref="uploadFile"
-      @change="onUpload"/>
+  <div class="upload-file">
+    <input class="upload-file" type="file" :accept="accept" ref="uploadFile" @change="onUpload" />
   </div>
 </template>
 <script>
-
-import { upFireBaseFile } from '@/components/AddMaterial/Utils/FirebaseUploadFile'
+import { upAwsS3File } from '@/components/AddMaterial/Utils/AwsS3'
 import CommonProgress from './CommonProgress'
 
 export default {
@@ -24,6 +18,10 @@ export default {
   },
   props: {
     onSuccess: {
+      type: Function,
+      default: () => null
+    },
+    getProgressUpLoad: {
       type: Function,
       default: () => null
     },
@@ -44,20 +42,13 @@ export default {
         this.end()
         return
       }
-      this.uploader = upFireBaseFile(
-        file,
-        this.onProgressUpLoad,
-        (result) => {
-          this.onSuccess(file, result)
-          setTimeout(() => {
-            this.progress = 0
-          }, 50)
-        }
-      )
-    },
-    onProgressUpLoad(progress) {
-      console.log(progress)
-      this.progress = progress
+      this.uploader = upAwsS3File(file, this.getProgressUpLoad, result => {
+        this.onSuccess(file, result)
+        setTimeout(() => {
+          this.progress = 0
+          this.getProgressUpLoad(0)
+        }, 50)
+      })
     },
     cancel() {
       if (this.uploader) {
@@ -73,7 +64,7 @@ export default {
 }
 </script>
 <style scoped>
-.upload-file{
+.upload-file {
   position: absolute;
   width: 100%;
   height: 100%;

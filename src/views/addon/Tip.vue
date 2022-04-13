@@ -41,13 +41,8 @@
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;"
                       allowfullscreen
                     ></iframe>
-                    <div class="delete_btn">
-                      <img
-                        src="~@/assets/icons/addMaterial/morshanchu.png"
-                        class="shanchu-icon"
-                        alt=""
-                        @click="deleteVideo(index)"
-                      />
+                    <div class="delete_btn" @click="deleteVideo(index)">
+                      <delete-btn class="del-icon" />
                     </div>
                   </div>
                 </div>
@@ -56,7 +51,12 @@
           </div>
         </a-col>
         <a-col class="tip-button">
-          <a-button class="btn" @click="confirm()" type="primary">
+          <a-button
+            class="btn"
+            @click="confirm()"
+            type="primary"
+            :disabled="tip_text.length == 0 && videoUrlList.length == 0 && canUpload"
+          >
             Confirm to add
           </a-button>
         </a-col>
@@ -67,9 +67,7 @@
 
 <script>
 import * as logger from '@/utils/logger'
-import OpenDirSvg from '@/assets/svgIcon/library/open_dir.svg?inline'
-import GoogleDriveIcon from '@/assets/svgIcon/addMaterial/google_drive.svg?inline'
-import YoutubeIcon from '@/assets/svgIcon/addMaterial/youtube.svg?inline'
+import DeleteBtn from '@/assets/svgIcon/tip/delete_btn.svg?inline'
 import UploadEnterForTip from '@/components/AddMaterial/UploadEnterForTip'
 import { AddMaterialEventBus, ModalEventsNameEnum } from '@/components/AddMaterial/AddMaterialEventBus'
 import { addElement, queryElementById, updateElement } from '@/api/addMaterial'
@@ -77,9 +75,7 @@ export default {
   name: 'Tip',
   components: {
     UploadEnterForTip,
-    GoogleDriveIcon,
-    OpenDirSvg,
-    YoutubeIcon
+    DeleteBtn
   },
   props: {
     slideId: {
@@ -107,7 +103,8 @@ export default {
           totalTime: 0
         }
       },
-      videoUrlList: []
+      videoUrlList: [],
+      canUpload: true
     }
   },
   created() {
@@ -117,6 +114,10 @@ export default {
     // addMaterial事件处理
     AddMaterialEventBus.$on(ModalEventsNameEnum.ADD_MEDIA_FOR_TIP, url => {
       this.addMaterialList(url)
+    })
+    AddMaterialEventBus.$on(ModalEventsNameEnum.IS_UPLOAD, flag => {
+      console.log('ModalEventsNameEnum.IS_UPLOAD', flag)
+      this.canUpload = flag
     })
     window.addEventListener(
       'message',
@@ -184,7 +185,7 @@ export default {
       this.videoUrlList.push({ tpye: type, url: url })
     },
     confirm() {
-      if (this.tip_text.length < 1) {
+      if (this.tip_text.length < 1 && this.videoUrlList.length < 1) {
         this.$message.warn('Insert tip for the slide!')
         return
       }
@@ -198,11 +199,10 @@ export default {
           this.closeAddonWindow()
         })
       } else {
-        addElement(this.param)
-          .then(response => {
-            logger.info('addElement ', response)
-            this.closeAddonWindow()
-          })
+        addElement(this.param).then(response => {
+          logger.info('addElement ', response)
+          this.closeAddonWindow()
+        })
       }
     },
     closeAddonWindow() {
@@ -260,7 +260,18 @@ export default {
       .btn {
         margin: 50px auto;
         background: #15c39a;
+        border-color: #15c39a;
+        width: 245px;
+        height: 56px;
         border-radius: 28px;
+        font-family: Arial;
+        font-weight: bold;
+        color: #ffffff;
+        line-height: 40px;
+        &:disabled {
+          background: #aaaaaa;
+          border-color: #aaaaaa;
+        }
       }
     }
   }
@@ -268,10 +279,15 @@ export default {
     width: 32px;
     height: 32px;
   }
-  .svg-icon {
+  .del-icon {
     width: 32px;
     height: 32px;
-    color: #15c39a;
+    padding-top: 4px;
+    padding-left: 4px;
+    color: rgb(24, 37, 82);
+    &:hover {
+      color: red;
+    }
   }
 }
 
@@ -323,10 +339,11 @@ export default {
           }
           .delete_btn {
             position: absolute;
-            border-radius: 15px;
-            width: 30px;
-            height: 30px;
-            background: #fff;
+            width: 31px;
+            height: 31px;
+            background: #ffffff;
+            box-shadow: 0px 2px 3px 0px rgba(0, 0, 0, 0.21);
+            border-radius: 50%;
             z-index: 1;
             top: 4px;
             right: 12px;
