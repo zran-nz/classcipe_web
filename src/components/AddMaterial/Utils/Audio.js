@@ -1,5 +1,5 @@
 import RecordRTC from 'recordrtc'
-import { upFireBaseFile } from './FirebaseUploadFile'
+import { upAwsS3File } from './AwsS3'
 import notification from 'ant-design-vue/es/notification'
 
 let microphone = null
@@ -81,7 +81,7 @@ export const endRecordAudio = () => {
 
 export const cancelUpAudio = () => {
   if (upFileInstance) {
-    upFileInstance.cancel()
+    upFileInstance.abort()
     upFileInstance = null
   }
 }
@@ -95,7 +95,7 @@ export const saveRecordAudio = async (onProgressUpLoad = () => null) => {
         type: 'audio/mp3',
         lastModified: now
       })
-      upFileInstance = upFireBaseFile(
+      upFileInstance = upAwsS3File(
         file,
         onProgressUpLoad,
         (result) => {
@@ -104,8 +104,8 @@ export const saveRecordAudio = async (onProgressUpLoad = () => null) => {
             onProgressUpLoad(0)
             upFileInstance = null
           }, 50)
-        }
-      )
+        },
+        true)
 
       microphone.stop()
       microphone = null

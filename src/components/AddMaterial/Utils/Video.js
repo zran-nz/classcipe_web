@@ -1,5 +1,5 @@
 import RecordRTC from 'recordrtc'
-import { upFireBaseFile } from './FirebaseUploadFile'
+import { upAwsS3File } from './AwsS3'
 import notification from 'ant-design-vue/es/notification'
 
 function onMediaError(e) {
@@ -96,7 +96,7 @@ export const endRecord = () => {
 
 export const cancelUpVideo = () => {
   if (upFileInstance) {
-    upFileInstance.cancel()
+    upFileInstance.abort()
     upFileInstance = null
   }
 }
@@ -118,7 +118,7 @@ export const saveRecordVideo = async(onProgressUpLoad = () => null) => {
       const file = new window.File([blobData], `${now.toString()}.webm`, { type: 'video/webm', lastModified: Date.now() })
       console.log(file)
 
-      upFileInstance = upFireBaseFile(
+      upFileInstance = upAwsS3File(
         file,
         onProgressUpLoad,
         (result) => {
@@ -127,7 +127,8 @@ export const saveRecordVideo = async(onProgressUpLoad = () => null) => {
             onProgressUpLoad(0)
             upFileInstance = null
           }, 50)
-        }
+        },
+        true
       )
 
       mediaRecorder.camera.stop()

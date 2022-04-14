@@ -48,7 +48,7 @@ export default {
           this.progress = 0
           this.getProgressUpLoad(0)
         }, 50)
-      })
+      }, true)
     },
     cancel() {
       if (this.uploader) {

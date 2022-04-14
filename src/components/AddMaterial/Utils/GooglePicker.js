@@ -177,12 +177,12 @@ class LoadPicker {
       console.log(result, mimeType)
       this.classCallback('upload-ended', result, mimeType)
       this.uploadDriveInstance = null
-    })
+    }, true)
   }
 
   cancelUpDrive() {
     if (this.uploadDriveInstance) {
-      this.uploadDriveInstance.cancel()
+      this.uploadDriveInstance.abort()
       this.uploadDriveInstance = null
     }
   }

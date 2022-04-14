@@ -103,7 +103,7 @@ import GoogleImageSearchIcon from '@/assets/svgIcon/addMaterial/google_image_sea
 import YoutubeIcon from '@/assets/svgIcon/addMaterial/youtube.svg?inline'
 import OpenDirSvg from '@/assets/svgIcon/library/open_dir.svg?inline'
 import GooglePicker from './Utils/GooglePicker'
-import { uploadImageToFirebaseByUrl } from './Utils/Common'
+import { uploadImageToAwsByUrl } from './Utils/Common'
 // import googleImageSearch from './googleImageSearch.vue'
 // import GoogleYoutubeVedio from './googleYoutubeVedio.vue'
 import { videoTypes, audioTypes } from './Utils/Constants'
@@ -254,8 +254,8 @@ export default {
       this.imageSelectedIndex = index
     },
     doneSelect(imageUrl) {
-      uploadImageToFirebaseByUrl(imageUrl).then((url) => {
-        this.$logger.info('uploadImageToFirebaseByUrl', url)
+      uploadImageToAwsByUrl(imageUrl).then((url) => {
+        this.$logger.info('uploadImageToAwsByUrl', url)
         AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_NEW_MEDIA, {
           type: 'image',
           url
@@ -263,7 +263,7 @@ export default {
         this.closeImageSearch()
       }).catch((e) => {
         console.log(e)
-        this.$logger.warn('uploadImageToFirebaseByUrl', e)
+        this.$logger.warn('uploadImageToAwsByUrl', e)
         this.closeImageSearch()
         this.$message.error('The image you selected is not available')
       })

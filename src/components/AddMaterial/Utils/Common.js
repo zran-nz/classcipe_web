@@ -1,10 +1,10 @@
 import axios from 'axios'
 import storage from 'store'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
-import { upFireBaseFile } from '@/components/AddMaterial/Utils/FirebaseUploadFile'
+import { upAwsS3File } from '@/components/AddMaterial/Utils/AwsS3'
 
 // 下载服务器图片
-export const uploadImageToFirebaseByUrl = async (url) => {
+export const uploadImageToAwsByUrl = async (url) => {
   return new Promise((resolve, reject) => {
     downloadImageBlob(url).then(({ data }) => {
       console.log('downloadImageBlob', data)
@@ -54,12 +54,13 @@ const tryDownloadByClient = async (url, resolve, reject) => {
       })
       const formData = new FormData()
       formData.append('file', file)
-      upFireBaseFile(
+      upAwsS3File(
         file,
         () => null,
         (result) => {
           resolve(result)
-        }
+        },
+        true
       )
     }
     xhr.onerror = () => {
