@@ -6,6 +6,7 @@
       </div>
     </template>
     <template v-if="!taskLoading">
+      <a-spin tip="Uploading..." :spinning="!canUpload">
       <div class="tip-content">
         <a-textarea
           placeholder="Insert tip for the slide"
@@ -61,6 +62,7 @@
           </a-button>
         </a-col>
       </div>
+      </a-spin>
     </template>
   </div>
 </template>
