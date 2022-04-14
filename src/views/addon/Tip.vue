@@ -245,7 +245,7 @@ export default {
   }
   .tip-content {
     height: 100%;
-    width: 100%;
+    width: 920px;
     padding: 50px;
     justify-content: center;
     align-items: center;

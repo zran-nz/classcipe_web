@@ -1,7 +1,7 @@
 <template>
   <div class="media-enter">
     <a-space>
-      <a-tooltip title="Classcipe drive" placement="top">
+      <a-tooltip title="classcipe drive" placement="top">
         <div class="upload-type-item">
           <div class="remark-button-outer">
             <img
