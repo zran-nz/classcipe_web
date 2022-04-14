@@ -1,5 +1,6 @@
 import storage from 'store'
 import { upAwsS3File } from '@/components/AddMaterial/Utils/AwsS3'
+import * as logger from '@/utils/logger'
 
 const googleDriveConfig = {
   dev: {
@@ -147,6 +148,7 @@ class LoadPicker {
   }
 
   downloadFile(downloadUrl, mimeType) {
+    logger.info('downloadFile', downloadUrl, mimeType)
     if (downloadUrl) {
       // var accessToken = gapi.auth.getToken().access_token;
       const xhr = new XMLHttpRequest()
@@ -154,8 +156,9 @@ class LoadPicker {
       xhr.setRequestHeader('Authorization', `Bearer ${this.oauthToken}`)
       xhr.responseType = 'arraybuffer'
       xhr.onload = () => {
+        const fileSuffix = mimeType.split('/')[1]
         const blob = this.getBlob(xhr)
-        const file = new File([blob], `drivefile_${Date.now()}`, {
+        const file = new File([blob], `drivefile_${Date.now()}_${Math.random()}.${fileSuffix}`, {
           type: mimeType
         })
         this.upLoadFile(file, mimeType)

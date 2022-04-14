@@ -121,7 +121,7 @@ export default {
       this.videos = []
     },
     chooseVideo(item) {
-      logger.info(item)
+      logger.info('chooseVideo', item)
       this.chooseVideoId = item.videoId
       this.choose = item
     }

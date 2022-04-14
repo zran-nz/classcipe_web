@@ -2,6 +2,7 @@ import axios from 'axios'
 import storage from 'store'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 import { upAwsS3File } from '@/components/AddMaterial/Utils/AwsS3'
+import * as logger from '@/utils/logger'
 
 // 下载服务器图片
 export const uploadImageToAwsByUrl = async (url) => {

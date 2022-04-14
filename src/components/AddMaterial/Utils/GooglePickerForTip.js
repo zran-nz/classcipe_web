@@ -1,5 +1,6 @@
 import storage from 'store'
 import { upAwsS3File } from '@/components/AddMaterial/Utils/AwsS3'
+import * as logger from '@/utils/logger'
 
 const googleDriveConfig = {
   dev: {
@@ -108,7 +109,7 @@ class LoadPicker {
   }
 
   pickerCallback = (data) => {
-    console.log(data)
+    logger.info(data)
     if (data.action === window.google.picker.Action.PICKED) {
       const { id } = data.docs[0]
       this.getDownloadUrl(id)
@@ -123,7 +124,7 @@ class LoadPicker {
     xhr.onreadystatechange = () => {
       if (xhr.readyState === 4 && xhr.status === 200) {
         const data = JSON.parse(xhr.response)
-        console.log('getDownloadUrl-----', data)
+        logger.info('getDownloadUrl-----', data)
         this.onloadingCallBack(1)
         const { downloadUrl, mimeType } = data
         this.downloadFile(downloadUrl, mimeType)
@@ -136,7 +137,7 @@ class LoadPicker {
     const imageType = xhr.getResponseHeader('Content-Type')
     const blob = new Blob([xhr.response], { type: imageType })
     const imageUrl = (window.URL || window.webkitURL).createObjectURL(blob)
-    console.log(imageUrl)
+    logger.info(imageUrl)
     return blob
   }
 
@@ -149,14 +150,14 @@ class LoadPicker {
       xhr.responseType = 'arraybuffer'
       xhr.onload = () => {
         const blob = this.getBlob(xhr)
-        const file = new File([blob], `drivefile_${Date.now()}`, {
+        const file = new File([blob], `drivefile_${Date.now()}_${Math.random()}`, {
           type: mimeType
         })
         this.upLoadFile(file, mimeType)
       }
       xhr.send()
     } else {
-      console.log(null)
+      logger.info(null)
     }
   }
 
@@ -168,7 +169,7 @@ class LoadPicker {
 
   upDriveFire(file, mimeType) {
     this.uploadDriveInstance = upAwsS3File(file, this.onloadingCallBack, result => {
-      console.log(result, mimeType)
+      logger.info(result, mimeType)
       this.classCallback('upload-ended', result, mimeType)
       this.uploadDriveInstance = null
     }, false)

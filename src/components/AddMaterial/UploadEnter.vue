@@ -153,7 +153,7 @@ export default {
   },
   methods: {
     onSuccess(file, result) {
-      console.log(file.name)
+      this.$logger.info('onSuccess', file, result)
       const nameList = file.type.split('/')
       const fileNameList = file.name.split('.')
       let name = ''
@@ -170,6 +170,7 @@ export default {
 
       AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_NEW_MEDIA, {
         type,
+        size: file.size,
         url: result
       })
     },
