@@ -7,61 +7,61 @@
     </template>
     <template v-if="!taskLoading">
       <a-spin tip="Uploading..." :spinning="!canUpload">
-      <div class="tip-content">
-        <a-textarea
-          placeholder="Insert tip for the slide"
-          :autosize="{ minRows: 4, maxRows: 5 }"
-          allow-clear
-          v-model="tip_text"
-        />
-        <a-col class="tip-row">
-          <upload-enter-for-tip />
-        </a-col>
-        <a-col class="tip-row">
-          <div class="carousel-page">
-            <div class="img-list-wrapper">
-              <div class="img-list">
-                <div class="img-item" v-for="(item, index) in videoUrlList" :key="'index' + index">
-                  <div class="img-box">
-                    <video
-                      width="260px"
-                      height="150px"
-                      :src="item.url"
-                      v-if="isVideoTye(item, 'video')"
-                      preload="auto"
-                      controls
-                    ></video>
-                    <iframe
-                      width="260px"
-                      height="150px"
-                      v-if="isVideoTye(item, 'iframe')"
-                      id="item_player"
-                      :src="item.url"
-                      title="YouTube video player"
-                      frameborder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;"
-                      allowfullscreen
-                    ></iframe>
-                    <div class="delete_btn" @click="deleteVideo(index)">
-                      <delete-btn class="del-icon" />
+        <div class="tip-content">
+          <a-textarea
+            placeholder="Insert tip for the slide"
+            :autosize="{ minRows: 4, maxRows: 5 }"
+            allow-clear
+            v-model="tip_text"
+          />
+          <a-col class="tip-row">
+            <upload-enter-for-tip />
+          </a-col>
+          <a-col class="tip-row">
+            <div class="carousel-page">
+              <div class="img-list-wrapper">
+                <div class="img-list">
+                  <div class="img-item" v-for="(item, index) in videoUrlList" :key="'index' + index">
+                    <div class="img-box">
+                      <video
+                        width="260px"
+                        height="150px"
+                        :src="item.url"
+                        v-if="isVideoTye(item, 'video')"
+                        preload="auto"
+                        controls
+                      ></video>
+                      <iframe
+                        width="260px"
+                        height="150px"
+                        v-if="isVideoTye(item, 'iframe')"
+                        id="item_player"
+                        :src="item.url"
+                        title="YouTube video player"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;"
+                        allowfullscreen
+                      ></iframe>
+                      <div class="delete_btn" @click="deleteVideo(index)">
+                        <delete-btn class="del-icon" />
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </a-col>
-        <a-col class="tip-button">
-          <a-button
-            class="btn"
-            @click="confirm()"
-            type="primary"
-            :disabled="tip_text.length == 0 && videoUrlList.length == 0 && canUpload"
-          >
-            Confirm to add
-          </a-button>
-        </a-col>
-      </div>
+          </a-col>
+          <a-col class="tip-button">
+            <a-button
+              class="btn"
+              @click="confirm()"
+              type="primary"
+              :disabled="tip_text.length == 0 && videoUrlList.length == 0 && canUpload"
+            >
+              Confirm to add
+            </a-button>
+          </a-col>
+        </div>
       </a-spin>
     </template>
   </div>
