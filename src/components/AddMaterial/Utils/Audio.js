@@ -91,7 +91,7 @@ export const saveRecordAudio = async (onProgressUpLoad = () => null) => {
     recorder.stopRecording(() => {
       const blobData = recorder.getBlob()
       const now = Date.now()
-      const file = new File([blobData], now.toString() + '_' + (Math.random()) + '.mp3', {
+      const file = new File([blobData], 'Record_' + now.toString() + '.mp3', {
         type: 'audio/mp3',
         lastModified: now
       })

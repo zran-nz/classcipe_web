@@ -16,6 +16,10 @@ function get21stCenturyDisplayNameByCurriculum(curriculum) {
  * 替换当前域名为classcipe CDN域名
  */
 function replaceToClasscipeCDN(rawUrl) {
+  // 如果已经是cdn域名，则直接返回
+  if (rawUrl.indexOf('cloudfront.net') > -1) {
+    return rawUrl
+  }
   // 域名带有http://或https://
   if (rawUrl.indexOf('https://') === 0 || rawUrl.indexOf('http://') === 0) {
     return classcipeCDN + (rawUrl.split('/').slice(3).join('/'))

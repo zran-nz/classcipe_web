@@ -171,7 +171,7 @@ export default {
       AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_NEW_MEDIA, {
         type,
         size: file.size,
-        url: result
+        url: this.$classcipe.replaceToClasscipeCDN(result)
       })
     },
     addYoutube() {
@@ -214,7 +214,7 @@ export default {
           this.$logger.info('addDrive done', url, mediaType)
           AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_NEW_MEDIA, {
             type: mediaType.indexOf('image') > -1 ? 'image' : 'video',
-            url: url
+            url: this.$classcipe.replaceToClasscipeCDN(url)
           })
         }
         this.$nextTick(() => {
@@ -259,7 +259,7 @@ export default {
         this.$logger.info('uploadImageToAwsByUrl', url)
         AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_NEW_MEDIA, {
           type: 'image',
-          url
+          url: this.$classcipe.replaceToClasscipeCDN(url)
         })
         this.closeImageSearch()
       }).catch((e) => {
@@ -291,14 +291,14 @@ export default {
       console.log(url)
       AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_NEW_MEDIA, {
         type: 'audio',
-        url
+        url: this.$classcipe.replaceToClasscipeCDN(url)
       })
       this.recordType = null
     },
     onSendVideo(url) {
       AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_NEW_MEDIA, {
         type: 'video',
-        url
+        url: this.$classcipe.replaceToClasscipeCDN(url)
       })
       this.recordType = null
     }

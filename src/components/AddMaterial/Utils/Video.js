@@ -116,7 +116,7 @@ export const saveRecordVideo = async(onProgressUpLoad = () => null) => {
       domVideoElement.src = URL.createObjectURL(blobData)
       domVideoElement.play()
       const now = Date.now()
-      const file = new window.File([blobData], `${now.toString()}_${Math.random()}.webm`, { type: 'video/webm', lastModified: Date.now() })
+      const file = new window.File([blobData], `${now.toString()}.webm`, { type: 'video/webm', lastModified: Date.now() })
       logger.info('saveRecordVideo', file)
 
       upFileInstance = upAwsS3File(

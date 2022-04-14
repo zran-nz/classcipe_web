@@ -14,7 +14,7 @@ export const upAwsS3File = (file, onProgress, onSuccess, isAutoAddFileUploadReco
   const now = Date.now()
   const params = {
     Bucket: 'classcipe-resource',
-    Key: file.name,
+    Key: now.toString() + '_' + Math.random() + '_' + file.name,
     Body: file,
     ACL: 'public-read'
   }

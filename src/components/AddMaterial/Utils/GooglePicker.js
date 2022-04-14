@@ -158,7 +158,7 @@ class LoadPicker {
       xhr.onload = () => {
         const fileSuffix = mimeType.split('/')[1]
         const blob = this.getBlob(xhr)
-        const file = new File([blob], `drivefile_${Date.now()}_${Math.random()}.${fileSuffix}`, {
+        const file = new File([blob], `drivefile_${Date.now()}.${fileSuffix}`, {
           type: mimeType
         })
         this.upLoadFile(file, mimeType)
