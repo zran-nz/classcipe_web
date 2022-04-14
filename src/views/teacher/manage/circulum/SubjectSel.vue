@@ -1,82 +1,111 @@
 <template>
   <div class="subject-col">
-    <div class="subject-result-wrap" ref="subjectWrap">
-      <div class="subject-circulum">
-        <div class="circulum-item active">
-          <div class="circulum-item-avatar">
-            <a-avatar
-              shape="square"
-              :size="50"
-              :style="{ backgroundColor: '#3377FF', verticalAlign: 'middle' }"
-            >
-              ED INT
-            </a-avatar>
-          </div>
-          <div class="circulum-item-detail">
-            <div>IB Diploma</div>
-            <div>16-19 Years</div>
-          </div>
-        </div>
-        <div class="circulum-item">
-          <div class="circulum-item-avatar">
-            <a-avatar
-              shape="square"
-              :size="50"
-              :style="{ backgroundColor: '#3377FF', verticalAlign: 'middle' }"
-            >
-              ED INT
-            </a-avatar>
-          </div>
-          <div class="circulum-item-detail">
-            <div>IB Diploma</div>
-            <div>16-19 Years</div>
-          </div>
-        </div>
-      </div>
-      <div class="subject-selected" ref="subjectSelected">
-        <div class="selected-title">Selected</div>
-        <div class="subject-selected-wrap" v-show="!noChecked">
-          <div class="selected-content" v-for="(item, index) in result" :key="'seletedArea_'+index">
-            <div class="selected-content-title" v-show="item.checkedList.length > 0">
-              {{ item.keyword }}
+    <div v-show="currentCurriculum">
+      <div class="subject-result-wrap" ref="subjectWrap">
+        <div class="subject-circulum">
+          <div class="circulum-item active">
+            <div class="circulum-item-avatar">
+              <a-avatar
+                shape="square"
+                :size="50"
+                :style="{ backgroundColor: '#3377FF', verticalAlign: 'middle' }"
+              >
+                {{ currentCurriculum.name }}
+              </a-avatar>
             </div>
-            <a-space class="selected-content-detail" v-show="item.checkedList.length > 0">
-              <a-tag class="tag-item" :key="'tagCat'+index + 'tag' + tagIndex" v-for="(tag, tagIndex) in item.checkedList" :closable="true" @close="e => closeTag(e, index, tagIndex)">
-                {{ tag }}
-              </a-tag>
-            </a-space>
+            <div class="circulum-item-detail">
+              <div>{{ currentCurriculum.name }}</div>
+              <div>{{ formatGrade(currentCurriculum.id) }} </div>
+            </div>
           </div>
         </div>
-        <div v-show="noChecked">No results</div>
+        <div class="subject-selected" ref="subjectSelected">
+          <div class="selected-title">Selected</div>
+          <div class="subject-selected-wrap" v-show="!noChecked">
+            <div class="selected-content" v-for="(item, index) in result" :key="'seletedArea_'+index">
+              <div class="selected-content-title" v-show="item.checkedList.length > 0">
+                {{ item.name }}
+              </div>
+              <a-space class="selected-content-detail" v-show="item.checkedList.length > 0">
+                <a-tag class="tag-item" :key="'tagCat'+index + 'tag' + tagIndex" v-for="(tag, tagIndex) in item.checkedList" :closable="true" @close="e => closeTag(e, index, tagIndex)">
+                  {{ formatTag(item, tag) }}
+                </a-tag>
+              </a-space>
+            </div>
+          </div>
+          <div v-show="noChecked">No results</div>
+        </div>
+        <div ref="copySelected"></div>
       </div>
-      <div ref="copySelected"></div>
+      <div class="subject-area">
+        <div
+          class="subject-area-item"
+          v-for="(item, index) in result"
+          :key="'subectArr_' + index"
+        >
+          <div class="area-item-title">Studies in {{ item.name }}</div>
+          <div class="area-item-check">
+            <div>
+              <a-checkbox :indeterminate="item.indeterminate" :checked="item.checkAll" @change="e => onCheckAllChange(e, index)">
+                Check all
+              </a-checkbox>
+            </div>
+            <a-checkbox-group v-model="item.checkedList" :options="item.data" @change="check => onCheckChange(check, index)">
+              <span slot="label" slot-scope="{ label }">{{ label }}</span>
+            </a-checkbox-group>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="subject-area">
-      <div
-        class="subject-area-item"
-        v-for="(item, index) in result"
-        :key="'subectArr_' + index"
-      >
-        <div class="area-item-title">{{ item.name }}</div>
-        <div class="area-item-check">
-          <div>
-            <a-checkbox :indeterminate="item.indeterminate" :checked="item.checkAll" @change="e => onCheckAllChange(e, index)">
-              Check all
-            </a-checkbox>
-          </div>
-          <a-checkbox-group v-model="item.checkedList" :options="item.data" @change="check => onCheckChange(check, index)" />
-        </div>
-      </div>
+    <div v-show="!currentCurriculum" class="no-subject">
+      <img src='~@/assets/newBrowser/no-subject.png'/>
+      <p>None Subject because you dont choose the Circulum</p>
     </div>
   </div>
 </template>
 
 <script>
+import { SubjectTree } from '@/api/subject'
 export default {
   name: 'SubjectSel',
+  props: {
+    curriculum: {
+      type: Object,
+      default: () => {}
+    },
+    gradeOptions: {
+      type: Array,
+      default: () => []
+    },
+    subjectIds: {
+      type: Array,
+      default: () => []
+    }
+  },
+  watch: {
+    curriculum: {
+      handler(val, valPrev) {
+        this.currentCurriculum = val ? { ...val } : {}
+        if (val && val.id && (!valPrev || val.id !== valPrev.id)) {
+          this.initData()
+        }
+      },
+      immediate: true,
+      deep: true
+    },
+    subjectIds: {
+      handler(val, valPrev) {
+        this.selected = val ? [ ...val ] : []
+        this.prevSelected = val ? [ ...val ] : []
+      },
+      immediate: true
+    }
+  },
   data() {
     return {
       loading: false,
+      selected: this.subjectIds,
+      prevSelected: this.subjectIds,
       result: [
         {
           indeterminate: false,
@@ -93,34 +122,77 @@ export default {
   },
   mounted () {
     window.addEventListener('scroll', this.fixSelected, true)
-    this.init()
+    // this.init()
   },
   destroyed() {
     window.removeEventListener('scroll', this.fixSelected)
   },
   methods: {
-    init() {
-      this.loading =
-      Promise.resolve().then((res) => {
-        this.result = [
-          {
-            name: 'Studies in language and literature',
-            keyword: 'Sience',
-            indeterminate: false,
-            checkAll: false,
-            checkedList: [],
-            data: new Array(20).fill('subject').map((_, index) => _ + index)
-          },
-          {
-            name: 'Studies in maths',
-            keyword: 'Math',
-            indeterminate: false,
-            checkAll: false,
-            checkedList: [],
-            data: new Array(20).fill('math').map((_, index) => _ + index)
-          }
-        ]
+    initData() {
+      this.loading = true
+      SubjectTree({
+        curriculumId: this.currentCurriculum.id
+      }).then((res) => {
+        if (res.success) {
+          this.result = res.result.map(item => {
+            return {
+              ...item,
+              indeterminate: false,
+              checkAll: false,
+              checkedList: [],
+              data: item.children.map(child => {
+                return {
+                  label: child.name,
+                  value: child.id
+                }
+              })
+            }
+          })
+          this.setSelected()
+        }
       })
+    },
+    reset() {
+      this.selected = [ ...this.prevSelected ]
+      this.setSelected()
+      this.$emit('change', this.selected)
+    },
+    setSelected() {
+      this.result = this.result.map(item => {
+        let checkedList = []
+        let indeterminate = false
+        let checkAll = false
+        if (item.children && item.children.length > 0) {
+          checkedList = item.children.filter(child => {
+            return this.selected.includes(child.id)
+          }).map(_ => _.id)
+          if (checkedList.length === item.children.length) {
+            checkAll = true
+          } else {
+            if (checkedList.length > 0) {
+              indeterminate = true
+            }
+          }
+        }
+        return {
+          ...item,
+          indeterminate: indeterminate,
+          checkAll: checkAll,
+          checkedList: checkedList
+        }
+      })
+    },
+    formatGrade(id) {
+      const current = this.gradeOptions.filter(item => item.curriculumId === id)
+      const ages = current.map(item => item.age ? Number(item.age) : 0)
+      return Math.min(...ages) + '-' + Math.max(...ages) + ' Years'
+    },
+    formatTag(item, tag) {
+      if (item.children && tag) {
+        const findItem = item.children.find(child => child.id === tag)
+        return findItem ? findItem.name : null
+      }
+      return null
     },
     fixSelected() {
       if (this.$refs.subjectWrap && this.$refs.subjectSelected) {
@@ -135,16 +207,25 @@ export default {
         }
       }
     },
+    sendChecked() {
+      let checkedList = []
+      this.result.forEach(item => {
+        checkedList = checkedList.concat(item.checkedList)
+      })
+      this.$emit('change', checkedList)
+    },
     onCheckAllChange(e, index) {
       Object.assign(this.result[index], {
-        checkedList: e.target.checked ? this.result[index].data.concat() : [],
+        checkedList: e.target.checked ? this.result[index].data.concat().map(item => item.value) : [],
         indeterminate: false,
         checkAll: e.target.checked
       })
+      this.sendChecked()
     },
     onCheckChange(checkedList, index) {
       this.result[index].indeterminate = !!checkedList.length && checkedList.length < this.result[index].data.length
       this.result[index].checkAll = checkedList.length === this.result[index].data.length
+      this.sendChecked()
     },
     closeTag(e, index, tagIndex) {
       this.result[index].checkedList.splice(tagIndex, 1)
@@ -218,15 +299,15 @@ export default {
         overflow: auto;
         .selected-content {
           display: flex;
-          & ~ .selected-content {
-            margin-top: 10px;
-          }
+          align-items: center;
+          // & ~ .selected-content {
+          //   margin-top: 10px;
+          // }
           .selected-content-title {
             width: 150px;
-            height: 30px;
             font-size: 16px;
             font-family: Inter-Bold;
-            line-height: 30px;
+            line-height: 25px;
             color: #000000;
             opacity: 0.5;
           }
@@ -279,10 +360,29 @@ export default {
         position: relative;
         /deep/ .ant-checkbox-group-item {
           margin-right: 0;
-          width: 20%;
+          min-width: 100px;
           margin-top: 10px;
         }
       }
+    }
+  }
+  .no-subject {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: auto;
+    width: 400px;
+    img {
+      width: 400px;
+      height: 400px;
+    }
+    p {
+      font-size: 14px;
+      font-family: Leelawadee UI;
+      font-weight: bold;
+      color: #070707;
+      opacity: 1;
+      text-align: center;
     }
   }
 }

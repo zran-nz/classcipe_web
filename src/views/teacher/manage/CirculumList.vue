@@ -14,9 +14,25 @@
           </div>
         </div>
       </div>
+      <a-space class="opt">
+        <a-button @click="handleReset">Reset</a-button>
+        <a-button type="primary" @click="handleSave">Save</a-button>
+      </a-space>
     </div>
-    <circulum-sel v-show="currentTab === 'Curriculum'"/>
-    <subject-sel v-show="currentTab === 'Subject'"/>
+    <circulum-sel
+      ref="CurriculumRef"
+      v-show="currentTab === 'Curriculum'"
+      :gradeOptions="gradeOptions"
+      :school="currentSchool"
+      @change="changeCurriculum"
+    />
+    <subject-sel
+      v-show="currentTab === 'Subject'"
+      :gradeOptions="gradeOptions"
+      :curriculum="currentCurriculum"
+      :subjectIds="selectedSubjects"
+      @change="changeSubjects"
+    />
     <div class="new-library" id="new-library" v-show="currentTab === 'Teaching'">
       <div class="library-title">Please uploade the achivement objectives for your school.</div>
       <div class="main-tree-content">
@@ -26,7 +42,7 @@
             :question-index="questionIndex"
             :show-menu="showMenu"
             :default-active-menu="defaultActiveMenu"
-            :default-curriculum-id="bindCurriculum || 1"
+            :default-curriculum-id="defaultCurriculumId"
           />
         </div>
         <div class="content-list">
@@ -58,6 +74,8 @@ import SubjectSel from './circulum/SubjectSel'
 import { NavigationType } from '@/components/NewLibrary/NavigationType'
 import NewTreeNavigation from '@/components/NewLibrary/NewTreeNavigation'
 import NewContentList from '@/components/NewLibrary/NewContentList'
+import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
+import { GradeGetAllGrades } from '@/api/grade'
 import { mapState } from 'vuex'
 
 export default {
@@ -104,10 +122,24 @@ export default {
       selectedAll21CenturyList: [],
       selectedBigIdeaList: [],
       selectedRecommendList: [],
-      selectedRecommendIdList: []
+      selectedRecommendIdList: [],
+      currentCurriculum: null,
+      defaultCurriculumId: null,
+      gradeOptions: [],
+
+      selectedSubjects: ['1441190898836762626', '1441190957791899649', '1509357909961666562', '1461153004264173570', '1509357913677819906']
     }
   },
   created() {
+    GradeGetAllGrades().then(res => {
+      if (res.success) {
+        this.gradeOptions = res.result
+      }
+    })
+    this.currentCurriculum = {
+      curriculumId: this.currentSchool.curriculumId || this.bindCurriculum
+    }
+    this.defaultCurriculumId = this.currentSchool.curriculumId || this.bindCurriculum
   },
   computed: {
     ...mapState({
@@ -118,15 +150,42 @@ export default {
   },
   methods: {
     handleSchoolChange(currentSchool) {
-      if (this.$refs[this.currentTab + 'Ref']) {
-        this.$refs[this.currentTab + 'Ref'].initData()
+      if (this.$refs['CurriculumRef']) {
+        this.$refs['CurriculumRef'].initData()
       }
     },
     toggleTab(status) {
       this.currentTab = status
     },
+    changeCurriculum(val) {
+      this.currentCurriculum = { ...val }
+      if (this.currentCurriculum.id) {
+        LibraryEventBus.$emit(LibraryEvent.ChangeCurriculum, this.currentCurriculum.id)
+        this.defaultCurriculumId = this.currentCurriculum.id
+      }
+    },
+    changeSubjects(val) {
+      console.log(val)
+    },
     updateSelectedGradeSet() {
 
+    },
+    handleReset() {
+      this.tabsList.forEach(item => {
+        if (this.$refs[item.value + 'Ref']) {
+          this.$refs[item.value + 'Ref'].reset()
+        }
+      })
+    },
+    handleSave() {
+      this.$confirm({
+        title: 'Confirm save changes',
+        content: 'Are you confirm save changes ?',
+        centered: true,
+        onOk: () => {
+
+        }
+      })
     },
     handleSelectBigIdeaData (data) {
       this.$logger.info('NewBrowser handleSelectBigIdeaData', data)
@@ -246,6 +305,7 @@ export default {
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: space-between;
   margin-bottom: 16px;
   .toggle-mode-type-wrapper {
     width: 280px;
