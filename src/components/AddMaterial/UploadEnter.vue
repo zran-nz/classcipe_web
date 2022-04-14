@@ -220,7 +220,7 @@ export default {
         this.$nextTick(() => {
           this.driveUpLoadProgress = 0
         })
-      })
+      }, this.$store.getters.userInfo.id)
     },
     cancelUpDrive() {
     },
@@ -255,7 +255,7 @@ export default {
       this.imageSelectedIndex = index
     },
     doneSelect(imageUrl) {
-      uploadImageToAwsByUrl(imageUrl).then((url) => {
+      uploadImageToAwsByUrl(this.$store.getters.userInfo.id, imageUrl).then((url) => {
         this.$logger.info('uploadImageToAwsByUrl', url)
         AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_NEW_MEDIA, {
           type: 'image',

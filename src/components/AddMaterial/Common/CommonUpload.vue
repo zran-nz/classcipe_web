@@ -42,7 +42,7 @@ export default {
         this.end()
         return
       }
-      this.uploader = upAwsS3File(file, this.getProgressUpLoad, result => {
+      this.uploader = upAwsS3File(this.$store.getters.userInfo.id, file, this.getProgressUpLoad, result => {
         this.onSuccess(file, result)
         setTimeout(() => {
           this.progress = 0

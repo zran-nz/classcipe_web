@@ -19,6 +19,7 @@ class LoadPicker {
   LoadPickerConfig = process.env.NODE_ENV === 'development' ? googleDriveConfig.dev : googleDriveConfig.release
   clientId = this.LoadPickerConfig.clientId
   appId = this.LoadPickerConfig.appId
+  classcipeUserId = null // 上传用户id
   scope = [
     'https://www.googleapis.com/auth/drive',
     'https://www.googleapis.com/auth/drive.file'
@@ -31,10 +32,12 @@ class LoadPicker {
   onloadingCallBack = null
   uploadDriveInstance = null
 
-  init(onLoadingCallBack, onSuccessCallback) {
+  init(onLoadingCallBack, onSuccessCallback, classcipeUserId) {
+    logger.info('google drive init ' + classcipeUserId)
     this.loadPicker()
     this.classCallback = onSuccessCallback
     this.onloadingCallBack = onLoadingCallBack
+    this.classcipeUserId = classcipeUserId
   }
 
   async checkLogin() {
@@ -169,7 +172,8 @@ class LoadPicker {
   }
 
   upDriveFire(file, mimeType) {
-    this.uploadDriveInstance = upAwsS3File(file, this.onloadingCallBack, result => {
+    logger.info('upDriveFire', this.classcipeUserId, file, mimeType)
+    this.uploadDriveInstance = upAwsS3File(this.classcipeUserId, file, this.onloadingCallBack, result => {
       logger.info(result, mimeType)
       this.classCallback('upload-ended', result, mimeType)
       this.uploadDriveInstance = null

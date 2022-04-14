@@ -5,10 +5,10 @@ import { upAwsS3File } from '@/components/AddMaterial/Utils/AwsS3'
 import * as logger from '@/utils/logger'
 
 // 下载服务器图片
-export const uploadImageToAwsByUrl = async (url) => {
+export const uploadImageToAwsByUrl = async (userId, url) => {
   return new Promise((resolve, reject) => {
     downloadImageBlob(url).then(({ data }) => {
-      console.log('downloadImageBlob', data)
+      logger.info('downloadImageBlob', data)
       const {
         result,
         success
@@ -16,10 +16,10 @@ export const uploadImageToAwsByUrl = async (url) => {
       if (success && result) {
         resolve(result)
       } else {
-        tryDownloadByClient(url, resolve, reject)
+        tryDownloadByClient(userId, url, resolve, reject)
       }
     }).catch(() => {
-      tryDownloadByClient(url, resolve, reject)
+      tryDownloadByClient(userId, url, resolve, reject)
     })
   })
 }
@@ -34,8 +34,8 @@ export const downloadImageBlob = async (imageUrl) => {
   })
 }
 
-const tryDownloadByClient = async (url, resolve, reject) => {
-  console.log('tryDownloadByClient')
+const tryDownloadByClient = async (userId, url, resolve, reject) => {
+  logger.info('tryDownloadByClient', userId, url)
   if (url.indexOf('https') > -1) {
     // 本地下载 只处理https
     const image = new Image()
@@ -56,6 +56,7 @@ const tryDownloadByClient = async (url, resolve, reject) => {
       const formData = new FormData()
       formData.append('file', file)
       upAwsS3File(
+        userId,
         file,
         () => null,
         (result) => {
@@ -65,15 +66,15 @@ const tryDownloadByClient = async (url, resolve, reject) => {
       )
     }
     xhr.onerror = () => {
-      console.log('下载图片失败')
+      logger.info('下载图片失败')
       reject()
     }
     xhr.ontimeout = () => {
-      console.log('下载图片超时')
+      logger.info('下载图片超时')
       reject()
     }
     xhr.onabort = () => {
-      console.log('下载图片取消')
+      logger.info('下载图片取消')
       reject()
     }
     xhr.send()

@@ -1,6 +1,7 @@
 import RecordRTC from 'recordrtc'
 import { upAwsS3File } from './AwsS3'
 import notification from 'ant-design-vue/es/notification'
+import * as logger from '@/utils/logger'
 
 let microphone = null
 let upFileInstance = null
@@ -86,7 +87,8 @@ export const cancelUpAudio = () => {
   }
 }
 
-export const saveRecordAudio = async (onProgressUpLoad = () => null) => {
+export const saveRecordAudio = async (userId, onProgressUpLoad = () => null) => {
+  logger.info('saveRecordAudio', userId)
   return new Promise((resolve) => {
     recorder.stopRecording(() => {
       const blobData = recorder.getBlob()
@@ -96,6 +98,7 @@ export const saveRecordAudio = async (onProgressUpLoad = () => null) => {
         lastModified: now
       })
       upFileInstance = upAwsS3File(
+        userId,
         file,
         onProgressUpLoad,
         (result) => {

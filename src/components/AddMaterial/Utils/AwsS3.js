@@ -9,12 +9,12 @@ const AwsConfig = {
 AWS.config.update(AwsConfig)
 AWS.config.region = 'ap-southeast-2'
 const s3 = new AWS.S3()
-export const upAwsS3File = (file, onProgress, onSuccess, isAutoAddFileUploadRecord) => {
+export const upAwsS3File = (userId, file, onProgress, onSuccess, isAutoAddFileUploadRecord) => {
   console.log('upAwsS3File', file)
   const now = Date.now()
   const params = {
     Bucket: 'classcipe-resource',
-    Key: now.toString() + '_' + Math.random() + '_' + file.name,
+    Key: userId + '/' + now.toString() + '_' + Math.random() + '_' + file.name,
     Body: file,
     ACL: 'public-read'
   }

@@ -102,7 +102,8 @@ export const cancelUpVideo = () => {
   }
 }
 
-export const saveRecordVideo = async(onProgressUpLoad = () => null) => {
+export const saveRecordVideo = async(userId, onProgressUpLoad = () => null) => {
+  logger.info('saveRecordVideo', userId)
   return new Promise((resolve, reject) => {
     try {
       closePictureInPicture()
@@ -120,6 +121,7 @@ export const saveRecordVideo = async(onProgressUpLoad = () => null) => {
       logger.info('saveRecordVideo', file)
 
       upFileInstance = upAwsS3File(
+        userId,
         file,
         onProgressUpLoad,
         (result) => {

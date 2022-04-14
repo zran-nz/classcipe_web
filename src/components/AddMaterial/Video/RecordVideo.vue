@@ -95,7 +95,7 @@ export default {
       if (!this.endRecording) {
         this.endRecording = true
         this.isRecording = false
-        saveRecordVideo(this.onProgressUpLoad).then((url) => {
+        saveRecordVideo(this.$store.getters.userInfo.id, this.onProgressUpLoad).then((url) => {
           if (url) {
             // 发送url信息
             this.onSend(url, 'video')
