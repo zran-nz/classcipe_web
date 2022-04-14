@@ -149,8 +149,9 @@ class LoadPicker {
       xhr.setRequestHeader('Authorization', `Bearer ${this.oauthToken}`)
       xhr.responseType = 'arraybuffer'
       xhr.onload = () => {
+        const fileSuffix = mimeType.split('/')[1]
         const blob = this.getBlob(xhr)
-        const file = new File([blob], `drivefile_${Date.now()}_${Math.random()}`, {
+        const file = new File([blob], `drivefile_${Date.now()}_${Math.random()}.${fileSuffix}`, {
           type: mimeType
         })
         this.upLoadFile(file, mimeType)
