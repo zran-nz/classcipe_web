@@ -147,7 +147,7 @@ export default {
     upFileToDrive(fileLength, filePath) {
       const param = {}
       param.fileLength = fileLength
-      param.filePath = filePath
+      param.filePath = this.$classcipe.replaceToClasscipeCDN(filePath)
       addFileUploadRecord(param).then(response => {})
     },
     addYoutube() {

@@ -1,6 +1,7 @@
 import AWS from 'aws-sdk'
 import * as logger from '@/utils/logger'
 import { addFileUploadRecord } from '@/api/material'
+import { replaceToClasscipeCDN } from '@/utils/classcipe'
 const AwsConfig = {
   accessKeyId: 'AKIASDU2BIWHCVQB6Z7S',
   secretAccessKey: 'JyUaM5+Me09ngpc/X0qNsdQBh9HwaPiYakZiLgi0'
@@ -30,7 +31,7 @@ export const upAwsS3File = (file, onProgress, onSuccess, isAutoAddFileUploadReco
       if (isAutoAddFileUploadRecord) {
         addFileUploadRecord({
           fileLength: file.size,
-          filePath: data['Location']
+          filePath: replaceToClasscipeCDN(data['Location'])
         }).then((res) => {
           logger.info('addFileUploadRecord res', res)
         })
