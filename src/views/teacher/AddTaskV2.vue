@@ -592,6 +592,54 @@
                     <task-link :can-edit="canEdit" ref='commonLink' :from-id='taskId' :from-type='contentType.task' />
                   </div>
                 </div>
+
+                <div class='form-block' :data-field-name='taskField.Image' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Image' :key='fieldItem.fieldName'>
+                  <!-- image-->
+                  <a-form-model-item class='img-wrapper'>
+                    <a-upload-dragger
+                      name='file'
+                      accept='image/png, image/jpeg'
+                      :showUploadList='false'
+                      :customRequest='handleUploadImage'
+                      :disabled="!canEdit"
+                    >
+                      <div class='delete-img' @click='handleDeleteImage($event)' v-show='form.image' v-if="canEdit">
+                        <a-icon type='close-circle' />
+                      </div>
+                      <template v-if='uploading'>
+                        <div class='upload-container'>
+                          <p class='ant-upload-drag-icon'>
+                            <a-icon type='cloud-upload' />
+                          </p>
+                          <p class='ant-upload-text'>
+                            <a-spin />
+                            <span class='uploading-tips'>{{ $t('teacher.add-unit-plan.uploading') }}</span>
+                          </p>
+                        </div>
+                      </template>
+                      <template v-if='!uploading && form && form.image'>
+                        <div class='image-preview'>
+                          <img :src='form.image' alt=''>
+                          <div class='upload-text-mask'>
+                            <div class='upload-text'>
+                              <a-button shape='round' type='primary'>Upload a cover image</a-button>
+                            </div>
+                          </div>
+                        </div>
+                      </template>
+                      <template v-if='!uploading && form && !form.image'>
+                        <div class='upload-container'>
+                          <p class='ant-upload-drag-icon'>
+                            <img src='~@/assets/icons/lesson/upload_icon.png' class='upload-icon' />
+                          </p>
+                          <p class='ant-upload-text'>
+                            Upload a cover image
+                          </p>
+                        </div>
+                      </template>
+                    </a-upload-dragger>
+                  </a-form-model-item>
+                </div>
               </template>
             </div>
             <div class='form-field-item custom-field' v-for='custFieldItem in $store.getters.formConfigData.taskCustomList' :key='custFieldItem.id'>
@@ -614,241 +662,178 @@
           </div>
         </div>
         <div class='tag-body'>
-          <template v-if='currentActiveStepIndex !== 2'>
-            <template v-if='showRightModule(rightModule.collaborate)'>
-              <a-skeleton :loading='showHistoryLoading' active>
-                <div
-                  class='collaborate-panel'
-                  :style="{'width':rightWidth + 'px', 'margin-top': '0px', 'z-index': 100, 'padding': '10px'}">
-                  <div class='icon'>
-                    <comment-icon />
-                  </div>
-                  <a-tabs :default-active-key='defaultHistoryKey'>
-                    <a-tab-pane key='1' tab='Comment'>
-                      <collaborate-comment-view
-                        :source-id='taskId'
-                        :source-type='contentType.task'
-                        :comment-list='collaborateCommentList'
-                        :collaborate-user-list="collaborate.users"
-                        @update-comment='handleUpdateCommentList' />
-                    </a-tab-pane>
-                    <a-tab-pane key='2' tab='History' force-render>
-                      <collaborate-history :history-list='historyList' @restore='handleRestoreField' />
-                    </a-tab-pane>
-                  </a-tabs>
-                </div>
-              </a-skeleton>
-            </template>
-            <template v-if='showRightModule(rightModule.collaborateComment)'>
+          <template v-if='showRightModule(rightModule.collaborate)'>
+            <a-skeleton :loading='showHistoryLoading' active>
               <div
                 class='collaborate-panel'
-                :style="{'width':rightWidth + 'px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
-                <collaborate-comment-panel
-                  :source-id='taskId'
-                  :source-type='contentType.task'
-                  :field-name='currentFieldName'
-                  :comment-list='currentCollaborateCommentList'
-                  :collaborate-user-list="collaborate.users"
-                  @cancel-comment="handleCancelComment"
-                  @update-comment='handleUpdateCommentList' />
-              </div>
-            </template>
-            <template v-if='showRightModule(rightModule.imageUpload) && currentActiveStepIndex === 0'>
-              <div class='form-block-right'>
-                <!-- image-->
-                <a-form-model-item class='img-wrapper'>
-                  <a-upload-dragger
-                    name='file'
-                    accept='image/png, image/jpeg'
-                    :showUploadList='false'
-                    :customRequest='handleUploadImage'
-                    :disabled="!canEdit"
-                  >
-                    <div class='delete-img' @click='handleDeleteImage($event)' v-show='form.image' v-if="canEdit">
-                      <a-icon type='close-circle' />
-                    </div>
-                    <template v-if='uploading'>
-                      <div class='upload-container'>
-                        <p class='ant-upload-drag-icon'>
-                          <a-icon type='cloud-upload' />
-                        </p>
-                        <p class='ant-upload-text'>
-                          <a-spin />
-                          <span class='uploading-tips'>{{ $t('teacher.add-unit-plan.uploading') }}</span>
-                        </p>
-                      </div>
-                    </template>
-                    <template v-if='!uploading && form && form.image'>
-                      <div class='image-preview'>
-                        <img :src='form.image' alt=''>
-                        <div class='upload-text-mask'>
-                          <div class='upload-text'>
-                            <a-button shape='round' type='primary'>Upload a cover image</a-button>
-                          </div>
-                        </div>
-                      </div>
-                    </template>
-                    <template v-if='!uploading && form && !form.image'>
-                      <div class='upload-container'>
-                        <p class='ant-upload-drag-icon'>
-                          <img src='~@/assets/icons/lesson/upload_icon.png' class='upload-icon' />
-                        </p>
-                        <p class='ant-upload-text'>
-                          Upload a cover image
-                        </p>
-                      </div>
-                    </template>
-                  </a-upload-dragger>
-                </a-form-model-item>
-              </div>
-            </template>
-            <template v-if='showRightModule(rightModule.recommend) && currentActiveStepIndex === 1'>
-              <!--购物车效果截图 -->
-              <div class='slide-animate-cover' id='slide-animate' v-show='currentSlideCoverImgSrc'>
-                <img
-                  id='slide-animate-img'
-                  :src='currentSlideCoverImgSrc'
-                  class='slide-animate-item' />
-              </div>
-              <div class='recommend-loading' v-if='recomendListLoading'>
-                <a-spin size='large' />
-              </div>
-              <div class='form-block-right' v-if='!recomendListLoading && canEdit && !form.fileDeleted'>
-                <div class='right-title'>Recommended</div>
-                <div class='slide-preview-list'>
-                  <div
-                    class='slide-preview-item'
-                    v-for='(template, rIndex) in filterRecommendTemplateList'
-                    :key='rIndex'>
-                    <div class='template-hover-action-mask'>
-                      <div class='template-hover-action'>
-                        <div class='modal-ensure-action-line'>
-                          <a-button
-                            class='action-ensure action-item'
-                            shape='round'
-                            @click='handlePreviewTemplate(template)'
-                          >
-                            <a-icon type='eye' theme='filled' />
-                            <div class='btn-text'>
-                              Preview
-                            </div>
-                          </a-button>
-                          <a-button
-                            v-if='selectedTemplateIdList.indexOf(template.id) === -1'
-                            class='action-ensure action-item'
-                            shape='round'
-                            @click='selectRecommendTemplate(template, rIndex, $event)'>
-                            <a-icon type='plus-circle' theme='filled' />
-                            <div class='btn-text'>
-                              Add
-                            </div>
-                          </a-button>
-                          <a-button
-                            v-else
-                            class='action-ensure action-item'
-                            shape='round'
-                            @click='handleRemoveTemplate(template)'
-                          >
-                            <a-icon type='minus-circle' theme='filled' />
-                            <div class='btn-text'>
-                              Remove
-                            </div>
-                          </a-button>
-                        </div>
-                      </div>
-                    </div>
-                    <a-carousel arrows>
-                      <div slot='prevArrow' class='custom-slick-arrow' style='left: 10px;zIndex: 100'>
-                        <a-icon type='left-circle' />
-                      </div>
-                      <div slot='nextArrow' class='custom-slick-arrow' style='right: 10px;zIndex: 100'>
-                        <a-icon type='right-circle' />
-                      </div>
-                      <div v-for='(item,index) in template.images' :key='index'>
-                        <img :src='item' />
-                      </div>
-                    </a-carousel>
-                    <a-row v-if='template.introduce' class='slide-desc' :title='template.introduce'>
-                      {{ template.introduce }}
-                    </a-row>
-                    <div class='recommend-slide-name'>
-                      {{ template.name }}
-                    </div>
-                  </div>
+                :style="{'width':rightWidth + 'px', 'margin-top': '0px', 'z-index': 100, 'padding': '10px'}">
+                <div class='icon'>
+                  <comment-icon />
                 </div>
+                <a-tabs :default-active-key='defaultHistoryKey'>
+                  <a-tab-pane key='1' tab='Comment'>
+                    <collaborate-comment-view
+                      :source-id='taskId'
+                      :source-type='contentType.task'
+                      :comment-list='collaborateCommentList'
+                      :collaborate-user-list="collaborate.users"
+                      @update-comment='handleUpdateCommentList' />
+                  </a-tab-pane>
+                  <a-tab-pane key='2' tab='History' force-render>
+                    <collaborate-history :history-list='historyList' @restore='handleRestoreField' />
+                  </a-tab-pane>
+                </a-tabs>
               </div>
-              <!--quick-task recommend -->
-              <div class='form-block-right' v-if='!recomendListLoading && canEdit && form.taskMode === 2'>
-                <div class='right-title'>Recommended</div>
-                <div class='slide-preview-list'>
-                  <div
-                    class='slide-preview-item'
-                    v-for='(template, rIndex) in filterRecommendTemplateList'
-                    :key='rIndex'>
-                    <div class='template-hover-action-mask'>
-                      <div class='template-hover-action'>
-                        <div class='modal-ensure-action-line'>
-                          <a-button
-                            class='action-ensure action-item'
-                            shape='round'
-                            @click='handlePreviewQuickTaskTemplate(template)'
-                          >
-                            <a-icon type='eye' theme='filled' />
-                            <div class='btn-text'>
-                              Preview
-                            </div>
-                          </a-button>
-                        </div>
-                      </div>
-                    </div>
-                    <a-carousel arrows>
-                      <div slot='prevArrow' class='custom-slick-arrow' style='left: 10px;zIndex: 100'>
-                        <a-icon type='left-circle' />
-                      </div>
-                      <div slot='nextArrow' class='custom-slick-arrow' style='right: 10px;zIndex: 100'>
-                        <a-icon type='right-circle' />
-                      </div>
-                      <div v-for='(item,index) in template.images' :key='index'>
-                        <img :src='item' />
-                      </div>
-                    </a-carousel>
-                    <a-row v-if='template.introduce' class='slide-desc' :title='template.introduce'>
-                      {{ template.introduce }}
-                    </a-row>
-                    <div class='recommend-slide-name'>
-                      {{ template.name }}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </template>
-            <template v-if='showRightModule(rightModule.customTag) && this.currentActiveStepIndex !== 1'>
-              <div v-if='!this.contentLoading' :style="{'width':rightWidth+'px', 'margin-top':customTagTop+'px'}">
-                <custom-tag
-                  ref='customTag'
-                  :show-arrow='showCustomTag'
-                  :custom-tags='customTags'
-                  :scope-tags-list='customTagList'
-                  :selected-tags-list='form.customTags'
-                  :current-field-name='currentFocusFieldName'
-                  @reload-user-tags='loadCustomTags'
-                  @change-add-keywords='handleChangeAddKeywords'
-                  @change-user-tags='handleChangeCustomTags'></custom-tag>
-              </div>
-            </template>
+            </a-skeleton>
           </template>
-          <div class='sub-task-tag-wrapper' v-if='currentActiveStepIndex === 2 && currentTaskFormData'>
-            <custom-tag
-              ref='customTag'
-              :show-arrow='showCustomTag'
-              :custom-tags='customTags'
-              :scope-tags-list='customTagList'
-              :selected-tags-list='currentTaskFormData.customTags'
-              :current-field-name='currentSubTaskFocusFieldName'
-              @reload-user-tags='loadCustomTags'
-              @change-add-keywords='handleChangeAddKeywords'
-              @change-user-tags='handleChangeSubCustomTags'></custom-tag>
-          </div>
+          <template v-if='showRightModule(rightModule.collaborateComment)'>
+            <div
+              class='collaborate-panel'
+              :style="{'width':rightWidth + 'px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
+              <collaborate-comment-panel
+                :source-id='taskId'
+                :source-type='contentType.task'
+                :field-name='currentFieldName'
+                :comment-list='currentCollaborateCommentList'
+                :collaborate-user-list="collaborate.users"
+                @cancel-comment="handleCancelComment"
+                @update-comment='handleUpdateCommentList' />
+            </div>
+          </template>
+          <template v-if='showRightModule(rightModule.recommend) && currentActiveStepIndex === 1'>
+            <!--购物车效果截图 -->
+            <div class='slide-animate-cover' id='slide-animate' v-show='currentSlideCoverImgSrc'>
+              <img
+                id='slide-animate-img'
+                :src='currentSlideCoverImgSrc'
+                class='slide-animate-item' />
+            </div>
+            <div class='recommend-loading' v-if='recomendListLoading'>
+              <a-spin size='large' />
+            </div>
+            <div class='form-block-right' v-if='!recomendListLoading && canEdit && !form.fileDeleted'>
+              <div class='right-title'>Recommended</div>
+              <div class='slide-preview-list'>
+                <div
+                  class='slide-preview-item'
+                  v-for='(template, rIndex) in filterRecommendTemplateList'
+                  :key='rIndex'>
+                  <div class='template-hover-action-mask'>
+                    <div class='template-hover-action'>
+                      <div class='modal-ensure-action-line'>
+                        <a-button
+                          class='action-ensure action-item'
+                          shape='round'
+                          @click='handlePreviewTemplate(template)'
+                        >
+                          <a-icon type='eye' theme='filled' />
+                          <div class='btn-text'>
+                            Preview
+                          </div>
+                        </a-button>
+                        <a-button
+                          v-if='selectedTemplateIdList.indexOf(template.id) === -1'
+                          class='action-ensure action-item'
+                          shape='round'
+                          @click='selectRecommendTemplate(template, rIndex, $event)'>
+                          <a-icon type='plus-circle' theme='filled' />
+                          <div class='btn-text'>
+                            Add
+                          </div>
+                        </a-button>
+                        <a-button
+                          v-else
+                          class='action-ensure action-item'
+                          shape='round'
+                          @click='handleRemoveTemplate(template)'
+                        >
+                          <a-icon type='minus-circle' theme='filled' />
+                          <div class='btn-text'>
+                            Remove
+                          </div>
+                        </a-button>
+                      </div>
+                    </div>
+                  </div>
+                  <a-carousel arrows>
+                    <div slot='prevArrow' class='custom-slick-arrow' style='left: 10px;zIndex: 100'>
+                      <a-icon type='left-circle' />
+                    </div>
+                    <div slot='nextArrow' class='custom-slick-arrow' style='right: 10px;zIndex: 100'>
+                      <a-icon type='right-circle' />
+                    </div>
+                    <div v-for='(item,index) in template.images' :key='index'>
+                      <img :src='item' />
+                    </div>
+                  </a-carousel>
+                  <a-row v-if='template.introduce' class='slide-desc' :title='template.introduce'>
+                    {{ template.introduce }}
+                  </a-row>
+                  <div class='recommend-slide-name'>
+                    {{ template.name }}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!--quick-task recommend -->
+            <div class='form-block-right' v-if='!recomendListLoading && canEdit && form.taskMode === 2'>
+              <div class='right-title'>Recommended</div>
+              <div class='slide-preview-list'>
+                <div
+                  class='slide-preview-item'
+                  v-for='(template, rIndex) in filterRecommendTemplateList'
+                  :key='rIndex'>
+                  <div class='template-hover-action-mask'>
+                    <div class='template-hover-action'>
+                      <div class='modal-ensure-action-line'>
+                        <a-button
+                          class='action-ensure action-item'
+                          shape='round'
+                          @click='handlePreviewQuickTaskTemplate(template)'
+                        >
+                          <a-icon type='eye' theme='filled' />
+                          <div class='btn-text'>
+                            Preview
+                          </div>
+                        </a-button>
+                      </div>
+                    </div>
+                  </div>
+                  <a-carousel arrows>
+                    <div slot='prevArrow' class='custom-slick-arrow' style='left: 10px;zIndex: 100'>
+                      <a-icon type='left-circle' />
+                    </div>
+                    <div slot='nextArrow' class='custom-slick-arrow' style='right: 10px;zIndex: 100'>
+                      <a-icon type='right-circle' />
+                    </div>
+                    <div v-for='(item,index) in template.images' :key='index'>
+                      <img :src='item' />
+                    </div>
+                  </a-carousel>
+                  <a-row v-if='template.introduce' class='slide-desc' :title='template.introduce'>
+                    {{ template.introduce }}
+                  </a-row>
+                  <div class='recommend-slide-name'>
+                    {{ template.name }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
+          <template v-if='showRightModule(rightModule.customTag)'>
+            <div v-if='!this.contentLoading' :style="{'width':rightWidth+'px', 'margin-top':customTagTop+'px'}">
+              <custom-tag
+                ref='customTag'
+                :show-arrow='showCustomTag'
+                :custom-tags='customTags'
+                :scope-tags-list='customTagList'
+                :selected-tags-list='form.customTags'
+                :current-field-name='currentFocusFieldName'
+                @reload-user-tags='loadCustomTags'
+                @change-add-keywords='handleChangeAddKeywords'
+                @change-user-tags='handleChangeCustomTags'></custom-tag>
+            </div>
+          </template>
         </div>
       </div>
     </a-card>
