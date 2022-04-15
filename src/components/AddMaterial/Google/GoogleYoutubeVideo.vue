@@ -187,7 +187,7 @@ export default {
   }
   .youtube-video-con {
     width: 100%;
-    height: 350px;
+    height: 320px;
     align-items: center;
     overflow-y: auto;
     .video-text {

@@ -5,11 +5,9 @@
 </template>
 <script>
 import { upAwsS3File } from '@/components/AddMaterial/Utils/AwsS3'
-import CommonProgress from './CommonProgress'
 
 export default {
   name: 'CommonUpload',
-  components: { CommonProgress },
   data() {
     return {
       progress: 0,

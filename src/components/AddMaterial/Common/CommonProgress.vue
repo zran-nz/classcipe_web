@@ -3,7 +3,7 @@
     <div class="progress">
       <span :style="`width: ${progress}%;`"><span>{{ progress }}%</span></span>
     </div>
-    <div class="cancel" @click="cancel" v-if="showCancel">cancel</div>
+    <!-- <div class="cancel" @click="cancel" v-if="showCancel">cancel</div> -->
   </div>
 </template>
 <script>

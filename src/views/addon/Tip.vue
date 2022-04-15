@@ -6,16 +6,16 @@
       </div>
     </template>
     <template v-if="!taskLoading">
-      <a-spin tip="Uploading..." :spinning="!canUpload">
+      <a-spin :tip="uploadText" :spinning="!canUpload">
         <div class="tip-content">
           <a-textarea
             placeholder="Insert tip for the slide"
-            :autosize="{ minRows: 4, maxRows: 5 }"
+            :autoSize="{ minRows: 4, maxRows: 5 }"
             allow-clear
             v-model="tip_text"
           />
           <a-col class="tip-row">
-            <upload-enter-for-tip />
+            <upload-enter-for-tip :uploadProgress="uploadProgress" />
           </a-col>
           <a-col class="tip-row">
             <div class="carousel-page">
@@ -93,6 +93,8 @@ export default {
     return {
       taskLoading: false,
       tip_text: '',
+      uploadText: 'Uploading...',
+      fileProgress: 0,
       tip_id: 0,
       param: {
         slide_id: '1yDugYGGpnYpnirssemu-dUdYsx87Dt-QHHV9hRB5IWU',
@@ -107,6 +109,11 @@ export default {
       },
       videoUrlList: [],
       canUpload: true
+    }
+  },
+  watch: {
+    fileProgress() {
+      this.uploadText = 'Uploading...' + Math.floor(this.fileProgress)
     }
   },
   created() {
@@ -145,6 +152,10 @@ export default {
     }
   },
   methods: {
+    uploadProgress(fileProgress) {
+      console.log('uploadProgress', fileProgress)
+      this.fileProgress = fileProgress
+    },
     getTipInfo() {
       var param = {}
       param.pageId = this.pageId

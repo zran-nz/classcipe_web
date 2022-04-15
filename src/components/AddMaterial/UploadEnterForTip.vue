@@ -14,7 +14,7 @@
         </div>
       </a-tooltip>
       <a-tooltip title="my computer" placement="top">
-        <div class="upload-type-item">
+        <div class="upload-type-item" >
           <open-dir-svg class="opened" />
           <common-upload accept="video/*" :onSuccess="onSuccess" :getProgressUpLoad="getProgressUpLoad" />
         </div>
@@ -51,9 +51,9 @@
     >
       <classcipe-drive :insertClasscipeFile="insertClasscipeFile" />
     </a-modal>
-    <div class="material-recorder">
+    <!-- <div class="material-recorder">
       <common-progress :progress="driveUpLoadProgress" :cancel="cancelUpDrive" />
-    </div>
+    </div> -->
   </div>
 </template>
 <script>
@@ -80,6 +80,12 @@ export default {
     CommonUpload,
     CommonProgress
   },
+  props: {
+    uploadProgress: {
+      type: Function,
+      default: () => null
+    }
+  },
   data() {
     return {
       fileList: [],
@@ -98,6 +104,7 @@ export default {
   },
   watch: {
     driveUpLoadProgress() {
+      this.uploadProgress(this.driveUpLoadProgress)
       if (this.driveUpLoadProgress > 0) {
         this.canUpLoad = false
       }
@@ -249,6 +256,7 @@ export default {
   justify-content: center;
   align-items: center;
   width: 32px;
+  cursor:pointer;
 }
 .material-recorder {
   position: absolute;
