@@ -62,7 +62,8 @@ export const PlanField = {
   Assessment: 'assessment',
   LearnOuts: 'learnOuts',
   Prior: 'prior',
-  Link: 'link'
+  Link: 'link',
+  Associate: 'associate'
 }
 export const PlanFieldDisplayName = {
   name: 'Unit plan',
@@ -91,7 +92,9 @@ export const TaskField = {
   Assessment: 'assessment',
   LearnOuts: 'learnOuts',
   MaterialList: 'materialList',
-  Link: 'link'
+  Link: 'link',
+  Slides: 'taskSlides',
+  Associate: 'associate'
 }
 
 export const TaskFieldDisplayName = {

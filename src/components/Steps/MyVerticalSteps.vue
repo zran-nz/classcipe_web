@@ -7,7 +7,7 @@
       :step-index='sIdx'
       v-for='(step, sIdx) in steps'
       :key='step.id'
-      @select-step='handleSelectStep'/>
+      @click.native='handleSelectStep(step, sIdx)'/>
   </div>
 </template>
 
@@ -32,10 +32,14 @@ export default {
     }
   },
   methods: {
-    handleSelectStep (index) {
+    handleSelectStep (step, index) {
+      this.$logger.info('handleSelectStep', step, index)
       if (this.currentStepIndex !== index) {
         this.currentStepIndex = index
-        this.$emit('step-change', index)
+        this.$emit('step-change', {
+          index,
+          step
+        })
       }
     }
   }

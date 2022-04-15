@@ -5,8 +5,6 @@ import SaveContentMsg from '@/websocket/model/saveContentMsg'
 import { isEqualWith } from 'lodash-es'
 import { SESSION_CURRENT_PAGE, SESSION_CURRENT_TYPE, SESSION_CURRENT_TYPE_LABEL } from '@/const/common'
 import { mapActions, mapGetters, mapState } from 'vuex'
-import storage from 'store'
-import { ACCESS_TOKEN } from '@/store/mutation-types'
 
 export const RightModule = {
   'collaborate': 1,
@@ -50,13 +48,6 @@ export const BaseEventMixin = {
         this.queryContentCollaborates(this.form.id, this.form.type)
       }
     }
-  },
-  created () {
-    let token = this.$route.query.token
-    if (!token) {
-      token = storage.get(ACCESS_TOKEN)
-    }
-    this.$store.dispatch('loadFormConfigData', token)
   },
   filters: {
     unitLabelName: (defaultName, fieldName, formConfigData) => {

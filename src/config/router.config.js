@@ -197,6 +197,13 @@ export const asyncRouterMap = [
             path: '/teacher/add-task/:taskId?/:mode?', // mode:edit 编辑模式 pick-task-slide:选择slide创建task模式
             name: 'AddTask',
             props: true,
+            component: () => import('@/views/teacher/AddTaskV2'),
+            meta: { title: 'menu.task', keepAlive: true, permission: ['teacher'] }
+          },
+          {
+            path: '/teacher/add-task-old/:taskId?/:mode?', // mode:edit 编辑模式 pick-task-slide:选择slide创建task模式
+            name: 'AddTask',
+            props: true,
             component: () => import('@/views/teacher/AddTask'),
             meta: { title: 'menu.task', keepAlive: true, permission: ['teacher'] }
           },

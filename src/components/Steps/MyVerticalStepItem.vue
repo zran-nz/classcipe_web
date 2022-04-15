@@ -1,5 +1,5 @@
 <template>
-  <div class='my-vertical-step-item' :class="{'my-vertical-step-item-active': stepIndex === currentStepIndex}" @click.stop='handleSelectStep'>
+  <div class='my-vertical-step-item' :class="{'my-vertical-step-item-active': stepIndex === currentStepIndex}">
     <div class='step-index' v-show='showIndex'>
       <span class='step-index-number'>{{ (stepIndex + 1) }}</span>
     </div>
@@ -33,12 +33,6 @@ export default {
     showIndex: {
       type: Boolean,
       default: true
-    }
-  },
-  methods: {
-    handleSelectStep() {
-      this.$logger.info('handleSelectStep', this.stepIndex)
-      this.$emit('select-step', this.stepIndex)
     }
   }
 }

@@ -62,11 +62,13 @@ const formConfig = {
         taskCommonList: [],
         taskCustomList: [],
         taskFieldTagMap: {},
+        taskSteps: [],
         planFieldMap: {},
         planHintMap: {},
         planCommonList: [],
         planCustomList: [],
-        planFieldTagMap: {}
+        planFieldTagMap: {},
+        planSteps: []
       }
       if (formConfigData) {
         formConfigData.task.commonList.forEach(item => {
@@ -79,6 +81,9 @@ const formConfig = {
         formConfigData.task.customList.forEach(item => {
           configData.taskFieldTagMap['cust_' + item.name] = item.tags
         })
+        configData.taskSteps = formConfigData.task.steps.sort((a, b) => {
+          return a.step - b.step
+        })
 
         formConfigData.plan.commonList.forEach(item => {
           configData.planFieldMap[item.fieldName] = item.showName
@@ -89,6 +94,9 @@ const formConfig = {
         configData.planCustomList = formConfigData.plan.customList
         formConfigData.plan.customList.forEach(item => {
           configData.planFieldTagMap['cust_' + item.name] = item.tags
+        })
+        configData.planSteps = formConfigData.plan.steps.sort((a, b) => {
+          return a.step - b.step
         })
       }
       state.formConfigData = configData
@@ -102,7 +110,7 @@ const formConfig = {
         FormConfigUser({ token: token }).then(response => {
           logger.info('init formConfigData', response.result)
           commit(FORM_CONFIG_DATA, response.result)
-          resolve()
+          resolve(response.result)
         }).catch(err => {
           reject(err)
         })
