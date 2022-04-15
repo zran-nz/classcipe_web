@@ -40,6 +40,11 @@
         <a-divider/>
         <a-row :gutter="[16, 16]">
           <a-col span="24">
+            <div class="profile-title">
+              {{ userMode === USER_MODE.SELF ? 'Personal account' : `School account: ${currentSchool.schoolName}` }}
+            </div>
+          </a-col>
+          <a-col span="24">
             <!--        role-->
             <div class="profile-item-line">
               <div class="profile-label">
@@ -1152,7 +1157,7 @@ export default {
     searchSchool(value) {
       if (!this.userInfo.curriculumId) return
       getSchools({
-        curriculumId: this.userInfo.curriculumId,
+        // curriculumId: this.userInfo.curriculumId,
         name: value
       }).then(res => {
         logger.info('schools', res)
@@ -1181,6 +1186,11 @@ export default {
 
 <style lang="less" scoped>
 @import "~@/components/index.less";
+.profile-title {
+  font-size: 24px;
+  color: @primary-color;
+  margin-left: 20px;
+}
 
 .account-settings-info-view {
   position: relative;

@@ -273,7 +273,7 @@ export default {
     searchSchool(value) {
       if (!this.currentCurriculum) return
       getSchools({
-        curriculumId: this.currentCurriculum.id,
+        // curriculumId: this.currentCurriculum.id,
         name: value
       }).then(res => {
         logger.info('schools', res)

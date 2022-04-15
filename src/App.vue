@@ -52,7 +52,6 @@ export default {
     },
     methods: {
       handlePostMessage(e) {
-        this.$logger.info('handlePostMessage', e.data)
         const eventData = e.data
         switch (eventData.event) {
           case ClasscipeEvent.GOOGLE_AUTH_REFRESH:

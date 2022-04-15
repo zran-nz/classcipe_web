@@ -163,6 +163,10 @@ export default {
         this.currentSchool.roleNames.includes(this.schoolUserRole.admin))) {
           this.$router.push({ path: '/teacher/main/created-by-me' })
       }
+      // 非管理员页面直接刷新当前页
+      if (this.$route.path.indexOf('/teacher/managing') === -1) {
+        window.location.reload()
+      }
     },
     triggerSearch () {
       logger.info('teacher triggerSearch ' + this.searchText)

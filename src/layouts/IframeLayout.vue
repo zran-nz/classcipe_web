@@ -1,5 +1,5 @@
 <template>
-  <div id="addon-layout" :class="['addon-layout-wrapper', isMobile && 'mobile']">
+  <div id="iframe-layout" :class="['iframe-layout-wrapper', isMobile && 'mobile']">
     <router-view />
   </div>
 </template>
@@ -9,22 +9,22 @@ import { deviceMixin } from '@/store/device-mixin'
 import SelectLang from '@/components/SelectLang'
 
 export default {
-  name: 'AddOnLayout',
+  name: 'IframeLayout',
   components: {
     SelectLang
   },
   mixins: [deviceMixin],
   mounted() {
-    document.body.classList.add('addon-layout')
+    document.body.classList.add('iframe-layout')
   },
   beforeDestroy() {
-    document.body.classList.remove('addon-layout')
+    document.body.classList.remove('iframe-layout')
   }
 }
 </script>
 
 <style lang="less" scoped>
-#addon-layout.addon-layout-wrapper {
+#iframe-layout.iframe-layout-wrapper {
   height: 100%;
   background-color: #fff;
   overflow: hidden;
