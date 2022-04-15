@@ -1,7 +1,7 @@
 // eslint-disable-next-line
-import { UserLayout, BasicLayout, BlankLayout, AddOnLayout } from '@/layouts'
+import { BasicLayout, BlankLayout, IframeLayout, UserLayout } from '@/layouts'
 import { bxAnaalyse } from '@/core/icons'
-import { USER_MODE, CurriculumType } from '@/const/common'
+import { CurriculumType, USER_MODE } from '@/const/common'
 
 import CreatedByMeSvg from '@/assets/svgIcon/myContent/Created_by_me.svg?inline'
 import DiscoverSvg from '@/assets/svgIcon/myContent/Discover.svg?inline'
@@ -114,13 +114,25 @@ export const asyncRouterMap = [
                 path: '/teacher/managing/school-info',
                 name: 'SchoolInfo',
                 component: () => import('@/views/teacher/manage/SchoolInfo'),
-                meta: { title: 'menu.managing.school-info', keepAlive: true, icon: 'home', permission: ['teacher'], mode: USER_MODE.SCHOOL }
+                meta: {
+                  title: 'menu.managing.school-info',
+                  keepAlive: true,
+                  icon: 'home',
+                  permission: ['teacher'],
+                  mode: USER_MODE.SCHOOL
+                }
               },
               {
                 path: '/teacher/managing/school-user',
                 name: 'SchoolUser',
                 component: () => import('@/views/teacher/manage/SchoolUser'),
-                meta: { title: 'menu.managing.school-user', keepAlive: true, icon: 'user', permission: ['teacher'], mode: USER_MODE.SCHOOL }
+                meta: {
+                  title: 'menu.managing.school-user',
+                  keepAlive: true,
+                  icon: 'user',
+                  permission: ['teacher'],
+                  mode: USER_MODE.SCHOOL
+                }
               },
               // {
               //   path: '/teacher/managing/term',
@@ -139,19 +151,35 @@ export const asyncRouterMap = [
                     path: '/teacher/managing/tag-settings',
                     name: 'tagSettings',
                     component: () => import('@/views/teacher/manage/tags/TagSettingsList'),
-                    meta: { title: 'menu.managing.tags-settings', keepAlive: true, permission: ['teacher'], mode: USER_MODE.SCHOOL }
+                    meta: {
+                      title: 'menu.managing.tags-settings',
+                      keepAlive: true,
+                      permission: ['teacher'],
+                      mode: USER_MODE.SCHOOL
+                    }
                   },
                   {
                     path: '/teacher/managing/planning-format',
                     name: 'PlanningFormat',
                     component: () => import('@/views/teacher/manage/PlanningFormat/PlanningFormat'),
-                    meta: { title: 'menu.managing.planning-format', keepAlive: true, permission: ['teacher'], mode: USER_MODE.SCHOOL }
+                    meta: {
+                      title: 'menu.managing.planning-format',
+                      keepAlive: true,
+                      permission: ['teacher'],
+                      mode: USER_MODE.SCHOOL
+                    }
                   },
                   {
                     path: '/teacher/managing/skill',
                     name: 'KnowledgeList',
                     component: () => import('@/views/teacher/manage/KnowledgeList'),
-                    meta: { title: 'menu.managing.skill', keepAlive: true, permission: ['teacher'], curriculumType: CurriculumType.IBMYP, mode: USER_MODE.SCHOOL }
+                    meta: {
+                      title: 'menu.managing.skill',
+                      keepAlive: true,
+                      permission: ['teacher'],
+                      curriculumType: CurriculumType.IBMYP,
+                      mode: USER_MODE.SCHOOL
+                    }
                   }
                   // {
                   //   path: '/teacher/managing/academic',
@@ -329,13 +357,23 @@ export const asyncRouterMap = [
                 path: '/teacher/sell/inspiration-teacher',
                 name: 'TeacherSellInspirationTeacher',
                 component: () => import('@/views/teacher/sell/InspirationTeacher'),
-                meta: { title: 'menu.sell.inspiration-teacher', keepAlive: true, icon: 'pay-circle', permission: ['teacher'] }
+                meta: {
+                  title: 'menu.sell.inspiration-teacher',
+                  keepAlive: true,
+                  icon: 'pay-circle',
+                  permission: ['teacher']
+                }
               },
               {
                 path: '/teacher/sell/inspiration-student',
                 name: 'TeacherSellInspirationStudent',
                 component: () => import('@/views/teacher/sell/InspirationStudent'),
-                meta: { title: 'menu.sell.inspiration-student', keepAlive: true, icon: 'pay-circle', permission: ['teacher'] }
+                meta: {
+                  title: 'menu.sell.inspiration-student',
+                  keepAlive: true,
+                  icon: 'pay-circle',
+                  permission: ['teacher']
+                }
               },
               {
                 path: '/teacher/sell/statistics',
@@ -455,26 +493,51 @@ export const asyncRouterMap = [
                 path: '/student/main/my-favorite',
                 name: 'MyFavorite',
                 component: () => import('@/views/student/MyFavorite'),
-                meta: { title: 'menu.my-favorite', keepAlive: true, permission: ['student'], icon: DiscoverSvg, mode: USER_MODE.SELF }
+                meta: {
+                  title: 'menu.my-favorite',
+                  keepAlive: true,
+                  permission: ['student'],
+                  icon: DiscoverSvg,
+                  mode: USER_MODE.SELF
+                }
               },
               {
                 path: '/student/main/my-orders',
                 name: 'MyOrders',
                 component: () => import('@/views/student/MyOrders'),
-                meta: { title: 'menu.my-orders', keepAlive: true, permission: ['student'], icon: 'account-book', mode: USER_MODE.SELF }
+                meta: {
+                  title: 'menu.my-orders',
+                  keepAlive: true,
+                  permission: ['student'],
+                  icon: 'account-book',
+                  mode: USER_MODE.SELF
+                }
               },
               {
                 path: '/student/main/my-schedule',
                 name: 'MySchedule',
                 component: () => import('@/views/student/MySchedule'),
-                meta: { title: 'menu.my-schedule', keepAlive: true, permission: ['student'], icon: 'schedule', mode: USER_MODE.SCHOOL }
+                meta: {
+                  title: 'menu.my-schedule',
+                  keepAlive: true,
+                  permission: ['student'],
+                  icon: 'schedule',
+                  mode: USER_MODE.SCHOOL
+                }
               },
               {
                 path: '/student/main/my-classes/:classId',
                 name: 'MyClasses',
                 props: true,
                 component: () => import('@/views/student/MyClasses'),
-                meta: { title: 'menu.my-classes', keepAlive: true, permission: ['student'], icon: 'contacts', mode: USER_MODE.SCHOOL, dynamicKey: 'currentClassList' }
+                meta: {
+                  title: 'menu.my-classes',
+                  keepAlive: true,
+                  permission: ['student'],
+                  icon: 'contacts',
+                  mode: USER_MODE.SCHOOL,
+                  dynamicKey: 'currentClassList'
+                }
               }
             ]
           },
@@ -482,7 +545,13 @@ export const asyncRouterMap = [
             path: '/student/library-v2/:browserType?/',
             name: 'StudentLibraryV2',
             component: () => import('@/views/student/LibraryV2'),
-            meta: { title: 'menu.library', keepAlive: true, permission: ['student'], fullLayout: true, mode: USER_MODE.SELF }
+            meta: {
+              title: 'menu.library',
+              keepAlive: true,
+              permission: ['student'],
+              fullLayout: true,
+              mode: USER_MODE.SELF
+            }
           },
           {
             path: '/student/evaluation/:sessionId',
@@ -544,13 +613,23 @@ export const asyncRouterMap = [
                 path: '/account/settings/custom',
                 name: 'CustomSettings',
                 component: () => import('@/views/account/settings/Custom'),
-                meta: { title: 'account.settings.menuMap.custom', hidden: true, keepAlive: true, permission: ['teacher', 'student'] }
+                meta: {
+                  title: 'account.settings.menuMap.custom',
+                  hidden: true,
+                  keepAlive: true,
+                  permission: ['teacher', 'student']
+                }
               },
               {
                 path: '/account/settings/binding',
                 name: 'BindingSettings',
                 component: () => import('@/views/account/settings/Binding'),
-                meta: { title: 'account.settings.menuMap.binding', hidden: true, keepAlive: true, permission: ['teacher', 'student'] }
+                meta: {
+                  title: 'account.settings.menuMap.binding',
+                  hidden: true,
+                  keepAlive: true,
+                  permission: ['teacher', 'student']
+                }
               },
               {
                 path: '/account/settings/notification',
@@ -611,151 +690,166 @@ export const asyncRouterMap = [
  * @type { *[] }
  */
 export const constantRouterMap = [
-         {
-           path: '/user',
-           component: UserLayout,
-           redirect: '/user/login',
-           hidden: true,
-           children: [
-             {
-               path: 'login',
-               name: 'login',
-               component: () => import(/* webpackChunkName: "login" */ '@/views/user/Login')
-             },
-             {
-               path: 'register',
-               name: 'register',
-               component: () => import(/* webpackChunkName: "register" */ '@/views/user/Register')
-             },
-             {
-               path: 'resetPassword',
-               name: 'resetPassword',
-               component: () => import(/* webpackChunkName: "resetPassword" */ '@/views/user/ResetPassword')
-             },
-             {
-               path: 'invite',
-               name: 'invite',
-               component: () => import(/* webpackChunkName: "invite" */ '@/views/user/Invite')
-             },
-             {
-               path: 'register-result',
-               name: 'registerResult',
-               component: () => import(/* webpackChunkName: "registerResult" */ '@/views/user/RegisterResult')
-             },
-             {
-               path: 'select-role',
-               name: 'selectRole',
-               component: () => import(/* webpackChunkName: "selectRole" */ '@/views/user/SelectRole')
-             },
-             {
-               path: 'add-preference',
-               name: 'addPreference',
-               component: () => import(/* webpackChunkName: "addPreference" */ '@/views/user/AddPreference')
-             },
-             {
-               path: 'auth-check',
-               name: 'authCheck',
-               component: () => import(/* webpackChunkName: "authCheck" */ '@/views/user/AuthCheck')
-             },
-             {
-               path: 'auth-redirect',
-               name: 'authRedirect',
-               component: () => import(/* webpackChunkName: "authRedirect" */ '@/views/user/AuthRedirect')
-             }
-           ]
-         },
-        {
-          path: '/user/auth-result',
-          name: 'authResult',
-          component: () => import(/* webpackChunkName: "authResult" */ '@/views/user/AuthResult'),
-          props: true
-        },
-         {
-           path: '/collaborate/:code',
-           name: 'CollaborateJoin',
-           props: true,
-           meta: { title: 'Collaborate invite', keepAlive: true, icon: bxAnaalyse, permission: ['teacher'] },
-           component: () => import(/* webpackChunkName: "fail" */ '@/views/collaborate/Join')
-         },
-         {
-           path: '/linkValid',
-           name: 'linkValid',
-           props: true,
-           meta: { title: 'Collaborate invite', keepAlive: true, icon: bxAnaalyse, permission: ['teacher'] },
-           component: () => import(/* webpackChunkName: "fail" */ '@/views/collaborate/LinkValid')
-         },
-         // addon
-         {
-           path: '/addon',
-           name: 'addon',
-           component: BlankLayout,
-           children: [
-             {
-               path: '/addon/callback',
-               name: 'addonCallback',
-               props: true,
-               component: () => import(/* webpackChunkName: "fail" */ '@/views/addon/AddonCallback'),
-               meta: { title: 'Redirectt', keepAlive: true }
-             },
-             {
-               path: '/addon/pageRedirect/:sourceType?/:id',
-               name: 'pageRedirect',
-               props: true,
-               component: () => import(/* webpackChunkName: "fail" */ '@/views/addon/PageRedirect')
-             },
-             {
-               path: '/addon/classGoBack',
-               name: 'classGoBack',
-               props: true,
-               component: () => import(/* webpackChunkName: "fail" */ '@/views/addon/ClassGoBack'),
-               meta: { title: 'Back', keepAlive: true }
-             }
-           ]
-         },
-         // addon iframe 引用组件
-         {
-           path: '/addon-iframe',
-           name: 'addon-iframe',
-           component: AddOnLayout,
-           children: [
-             {
-               path: '/addon-iframe/task-library/:taskId',
-               name: 'TaskLibrary',
-               props: true,
-               component: () => import(/* webpackChunkName: "TaskLibrary" */ '@/views/addon/TaskLibrary'),
-               meta: { title: 'Task Library', keepAlive: true }
-             },
-             {
-               path: '/addon-iframe/tip/:slideId/:pageId',
-               name: 'Tip',
-               props: true,
-               component: () => import(/* webpackChunkName: "Tip" */ '@/views/addon/Tip'),
-               meta: { title: 'Tip', keepAlive: true }
-             }
-           ]
-         },
-         // share
-         {
-           path: '/share',
-           name: 'share',
-           component: BlankLayout,
-           meta: { title: 'Share', keepAlive: true },
-           children: [
-             {
-               path: '/share/:code',
-               name: 'shareDetail',
-               props: true,
-               component: () => import('@/views/share/ShareDetail'),
-               meta: { title: 'Share', keepAlive: true }
-             }
-           ]
-         },
+  {
+    path: '/user',
+    component: UserLayout,
+    redirect: '/user/login',
+    hidden: true,
+    children: [
+      {
+        path: 'login',
+        name: 'login',
+        component: () => import(/* webpackChunkName: "login" */ '@/views/user/Login')
+      },
+      {
+        path: 'register',
+        name: 'register',
+        component: () => import(/* webpackChunkName: "register" */ '@/views/user/Register')
+      },
+      {
+        path: 'resetPassword',
+        name: 'resetPassword',
+        component: () => import(/* webpackChunkName: "resetPassword" */ '@/views/user/ResetPassword')
+      },
+      {
+        path: 'invite',
+        name: 'invite',
+        component: () => import(/* webpackChunkName: "invite" */ '@/views/user/Invite')
+      },
+      {
+        path: 'register-result',
+        name: 'registerResult',
+        component: () => import(/* webpackChunkName: "registerResult" */ '@/views/user/RegisterResult')
+      },
+      {
+        path: 'select-role',
+        name: 'selectRole',
+        component: () => import(/* webpackChunkName: "selectRole" */ '@/views/user/SelectRole')
+      },
+      {
+        path: 'add-preference',
+        name: 'addPreference',
+        component: () => import(/* webpackChunkName: "addPreference" */ '@/views/user/AddPreference')
+      },
+      {
+        path: 'auth-check',
+        name: 'authCheck',
+        component: () => import(/* webpackChunkName: "authCheck" */ '@/views/user/AuthCheck')
+      },
+      {
+        path: 'auth-redirect',
+        name: 'authRedirect',
+        component: () => import(/* webpackChunkName: "authRedirect" */ '@/views/user/AuthRedirect')
+      }
+    ]
+  },
+  {
+    path: '/user/auth-result',
+    name: 'authResult',
+    component: () => import(/* webpackChunkName: "authResult" */ '@/views/user/AuthResult'),
+    props: true
+  },
+  {
+    path: '/collaborate/:code',
+    name: 'CollaborateJoin',
+    props: true,
+    meta: { title: 'Collaborate invite', keepAlive: true, icon: bxAnaalyse, permission: ['teacher'] },
+    component: () => import(/* webpackChunkName: "fail" */ '@/views/collaborate/Join')
+  },
+  {
+    path: '/linkValid',
+    name: 'linkValid',
+    props: true,
+    meta: { title: 'Collaborate invite', keepAlive: true, icon: bxAnaalyse, permission: ['teacher'] },
+    component: () => import(/* webpackChunkName: "fail" */ '@/views/collaborate/LinkValid')
+  },
+  // addon
+  {
+    path: '/addon',
+    name: 'addon',
+    component: BlankLayout,
+    children: [
+      {
+        path: '/addon/callback',
+        name: 'addonCallback',
+        props: true,
+        component: () => import(/* webpackChunkName: "fail" */ '@/views/addon/AddonCallback'),
+        meta: { title: 'Redirectt', keepAlive: true }
+      },
+      {
+        path: '/addon/pageRedirect/:sourceType?/:id',
+        name: 'pageRedirect',
+        props: true,
+        component: () => import(/* webpackChunkName: "fail" */ '@/views/addon/PageRedirect')
+      },
+      {
+        path: '/addon/classGoBack',
+        name: 'classGoBack',
+        props: true,
+        component: () => import(/* webpackChunkName: "fail" */ '@/views/addon/ClassGoBack'),
+        meta: { title: 'Back', keepAlive: true }
+      }
+    ]
+  },
+  // addon iframe 引用组件
+  {
+    path: '/addon-iframe',
+    name: 'addon-iframe',
+    component: IframeLayout,
+    children: [
+      {
+        path: '/addon-iframe/task-library/:taskId',
+        name: 'TaskLibrary',
+        props: true,
+        component: () => import(/* webpackChunkName: "TaskLibrary" */ '@/views/addon/TaskLibrary'),
+        meta: { title: 'Task Library', keepAlive: true }
+      },
+      {
+        path: '/addon-iframe/tip/:slideId/:pageId',
+        name: 'Tip',
+        props: true,
+        component: () => import(/* webpackChunkName: "Tip" */ '@/views/addon/Tip'),
+        meta: { title: 'Tip', keepAlive: true }
+      }
+    ]
+  },
+  // 课堂 iframe 引用组件
+  {
+    path: '/classroom-iframe',
+    name: 'classroom-iframe',
+    component: IframeLayout,
+    children: [
+      {
+        path: '/classroom-iframe/class-evaluation/:taskId/:classId/:sessionId/:mode?',
+        name: 'ClassroomClassEvaluation',
+        props: true,
+        component: () => import(/* webpackChunkName: "ClassSessionEvaluation" */ '@/views/classroom/ClassSessionEvaluation'),
+        meta: { title: 'Classroom Evaluation', keepAlive: true }
+      }
+    ]
+  },
+  // share
+  {
+    path: '/share',
+    name: 'share',
+    component: BlankLayout,
+    meta: { title: 'Share', keepAlive: true },
+    children: [
+      {
+        path: '/share/:code',
+        name: 'shareDetail',
+        props: true,
+        component: () => import('@/views/share/ShareDetail'),
+        meta: { title: 'Share', keepAlive: true }
+      }
+    ]
+  },
 
-         {
-           path: '/404',
-           component: () => import(/* webpackChunkName: "fail" */ '@/views/exception/404')
-         }
-       ]
+  {
+    path: '/404',
+    component: () => import(/* webpackChunkName: "fail" */ '@/views/exception/404')
+  }
+]
 
 /**
  * default teacher main router
