@@ -94,7 +94,8 @@ export const TaskField = {
   MaterialList: 'materialList',
   Link: 'link',
   Slides: 'taskSlides',
-  Associate: 'associate'
+  Associate: 'associate',
+  Image: 'image'
 }
 
 export const TaskFieldDisplayName = {

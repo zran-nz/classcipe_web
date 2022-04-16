@@ -2,13 +2,25 @@
   <a-card class='planning-format' :body-style="{'padding': 0}" :loading='loading'>
     <a-tabs type="card" v-model='activeKey'>
       <a-tab-pane key="plan" tab="Unit Format" class='planning-content' :forceRender='true'>
-        <format-form ref='plan' title='Edit unit-plan info' :common-list='planConfig.commonList' :custom-list='planConfig.customList' v-if='planConfig' />
+        <format-form-with-step
+          ref='plan'
+          :common-list='planConfig.commonList'
+          :custom-list='planConfig.customList'
+          :step-list='planConfig.steps'
+          v-if='planConfig' />
       </a-tab-pane>
       <a-tab-pane key="task" tab="Task Format" class='planning-content' :forceRender='true'>
-        <format-form ref='task' title='Edit task info' :common-list='taskConfig.commonList' :custom-list='taskConfig.customList' v-if='taskConfig' />
+        <format-form-with-step
+          ref='task'
+          :common-list='taskConfig.commonList'
+          :custom-list='taskConfig.customList'
+          :step-list='taskConfig.steps'
+          v-if='taskConfig' />
       </a-tab-pane>
       <div class='form-config-action' slot="tabBarExtraContent">
         <a-space>
+          <a-button @click='handleAddStep' type="primary"><a-icon type="plus" /> Add step</a-button>
+          <a-divider type="vertical" />
           <a-button @click='handlePreviewPlanningForm'>Preview</a-button>
           <a-button type="primary" @click='handleSavePlanningForm' :loading='saving'>Save changes</a-button>
         </a-space>
@@ -21,17 +33,17 @@
 
 import { typeMap } from '@/const/teacher'
 import { FormConfigData, FormConfigAddOrUpdate } from '@/api/formConfig'
-import FormatForm from '@/components/FormConfig/FormatForm'
 import { FORM_CONFIG_PREVIEW_DATA } from '@/store/mutation-types'
 import { USER_MODE } from '@/const/common'
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import { mapState } from 'vuex'
+import FormatFormWithStep from '@/components/FormConfig/FormatFormWithStep'
 
 export default {
   name: 'PlanningFormat',
   mixins: [UserModeMixin, CurrentSchoolMixin],
-  components: { FormatForm },
+  components: { FormatFormWithStep },
   data () {
     return {
       loading: false,
@@ -73,6 +85,13 @@ export default {
       }).finally(() => {
         this.loading = false
       })
+    },
+    handleAddStep () {
+      if (this.activeKey === 'plan') {
+        this.$refs.plan.handleAddStep()
+      } else {
+        this.$refs.task.handleAddStep()
+      }
     },
 
     getPlanningConfig () {
