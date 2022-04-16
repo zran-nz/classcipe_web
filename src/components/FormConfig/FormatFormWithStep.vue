@@ -287,15 +287,16 @@ export default {
     }
   },
   created() {
+    this.$logger.info('FormatForm start', this.commonList, this.customList, this.stepList)
     const myCommonList = JSON.parse(JSON.stringify(this.commonList))
     const myCustomList = JSON.parse(JSON.stringify(this.customList))
+    const steps = JSON.parse(JSON.stringify(this.stepList))
     myCommonList.forEach(item => {
       item.isCustomField = false
     })
     myCustomList.forEach(item => {
       item.isCustomField = true
     })
-    const steps = JSON.parse(JSON.stringify(this.stepList))
     steps.forEach(step => {
       step.nameEditing = false
       step.key = step.id
@@ -310,8 +311,8 @@ export default {
       })
 
       step.customFieldItems = []
-      step.customFieldItems.forEach(customFieldName => {
-        const targetItem = myCustomList.find(item => item.fieldName === customFieldName)
+      step.customFields.forEach(customFieldName => {
+        const targetItem = myCustomList.find(item => item.name === customFieldName)
         if (targetItem) {
           step.customFieldItems.push(JSON.parse(JSON.stringify(targetItem)))
         } else {
@@ -345,7 +346,7 @@ export default {
       this.$logger.info('handleAddCustomField', step.customFieldItems)
       let count = 1
       let customFieldName = `CustomField${count}`
-      while (this.myCustomList.some(item => item.fieldName === customFieldName)) {
+      while (this.myCustomList.some(item => item.name === customFieldName)) {
         count++
         customFieldName = `CustomField${count}`
       }
@@ -451,25 +452,32 @@ export default {
           item.id = null
         }
       })
+      this.$logger.info('myCommonList', myCommonList, 'myCustomList', myCustomList)
 
       const mySteps = JSON.parse(JSON.stringify(this.steps))
       mySteps.forEach((step, index) => {
         delete step.nameEditing
         delete step.key
         step.commonFields = step.commonFieldItems.map(item => item.fieldName)
-        step.customFields = step.customFieldItems.map(item => item.fieldName)
+        step.customFields = step.customFieldItems.map(item => item.name)
 
         // 设置字段排序
-        step.commonFields.forEach((item, index) => {
-          const fieldItem = myCommonList.find(field => field.fieldName === item.fieldName)
-          if (fieldItem) {
+        step.commonFields.forEach((name, index) => {
+          const stepFieldItem = step.commonFieldItems.find(field => field.fieldName === name)
+          const fieldItem = myCommonList.find(field => field.fieldName === name)
+          if (fieldItem && stepFieldItem) {
+            fieldItem.name = stepFieldItem.name
+            fieldItem.hint = stepFieldItem.hint
             fieldItem.sort = index
           }
         })
 
-        step.customFields.forEach((item, index) => {
-          const fieldItem = myCustomList.find(field => field.fieldName === item.fieldName)
-          if (fieldItem) {
+        step.customFields.forEach((name, index) => {
+          const stepFieldItem = step.customFieldItems.find(field => field.name === name)
+          const fieldItem = myCustomList.find(field => field.name === name)
+          if (fieldItem && stepFieldItem) {
+            fieldItem.name = stepFieldItem.name
+            fieldItem.hint = stepFieldItem.hint
             fieldItem.sort = index
           }
         })
