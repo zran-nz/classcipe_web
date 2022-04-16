@@ -18,6 +18,11 @@
               :label="$t('user.login.loginWithGoogle')"
               @click.native="thirdSignIn('google', 'teacher')"
             />
+            <third-login-button
+              icon="googleIcon"
+              :label="'Sign in with zoom'"
+              @click.native="zoomLogin('zoom', 'student')"
+            />
           </div>
 
           <!-- <div class="info">
@@ -186,6 +191,10 @@ export default {
       }
       console.log('full auth url ', url)
       window.location.href = url
+    },
+
+    zoomLogin() {
+      window.location.href = 'https://dev.classcipe.com/classcipe/thirdLogin/render/zoom'
     },
     handleSubmit(e) {
       this.studentLoginErrorMessage = null
