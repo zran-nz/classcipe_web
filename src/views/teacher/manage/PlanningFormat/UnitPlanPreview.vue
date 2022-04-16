@@ -1541,7 +1541,6 @@ export default {
         })
         this.showCustomTag = false
         this.customTagTop = 0
-        // this.showModuleList.push(RightModule.imageUpload)
         this.setRightModuleVisible()
       }
     },

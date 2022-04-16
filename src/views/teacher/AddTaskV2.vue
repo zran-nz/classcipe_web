@@ -15,7 +15,7 @@
         @collaborate='handleStartCollaborate'
       />
     </div>
-    <a-card :bordered='false' :loading='contentLoading' :bodyStyle="{ padding: '10px 20px', height: '100%', minHeight: '1000px' }">
+    <a-card :bordered='false' :loading='contentLoading' :bodyStyle="{ padding: '10px 20px' }">
       <div class='step-nav'>
         <my-vertical-steps
           :steps='$store.getters.formConfigData.taskSteps'
@@ -23,7 +23,7 @@
           @step-change='handleStepChange' />
       </div>
       <div class='step-content'>
-        <div class='form-body' id='form-body'>
+        <div class='form-body root-locate-form' id='form-body'>
           <div
             class='form-page-item'
             v-show='currentActiveStepIndex === stepIndex'
@@ -662,7 +662,7 @@
           </div>
         </div>
         <div class='tag-body'>
-          <template v-if='showRightModule(rightModule.collaborate)'>
+          <template v-if='currentRightModule === rightModule.collaborate'>
             <a-skeleton :loading='showHistoryLoading' active>
               <div
                 class='collaborate-panel'
@@ -686,7 +686,7 @@
               </div>
             </a-skeleton>
           </template>
-          <template v-if='showRightModule(rightModule.collaborateComment)'>
+          <template v-if='currentRightModule === rightModule.collaborateComment'>
             <div
               class='collaborate-panel'
               :style="{'width':rightWidth + 'px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
@@ -700,7 +700,7 @@
                 @update-comment='handleUpdateCommentList' />
             </div>
           </template>
-          <template v-if='showRightModule(rightModule.recommend) && currentActiveStepIndex === 1'>
+          <template v-if='currentRightModule === rightModule.recommend'>
             <!--购物车效果截图 -->
             <div class='slide-animate-cover' id='slide-animate' v-show='currentSlideCoverImgSrc'>
               <img
@@ -820,7 +820,7 @@
               </div>
             </div>
           </template>
-          <template v-if='showRightModule(rightModule.customTag)'>
+          <template v-if='currentRightModule === rightModule.customTag'>
             <div v-if='!this.contentLoading' :style="{'width':rightWidth+'px', 'margin-top':customTagTop+'px'}">
               <custom-tag
                 ref='customTag'
@@ -1737,7 +1737,7 @@ import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
 import MediaPreview from '@/components/Task/MediaPreview'
 import { UtilMixin } from '@/mixins/UtilMixin'
 import moment from 'moment'
-import { BaseEventMixin } from '@/mixins/BaseEvent'
+import { BaseEventMixin, RightModule } from '@/mixins/BaseEvent'
 import { FormConfigMixin } from '@/mixins/FormConfigMixin'
 import ShareContentSetting from '@/components/Share/ShareContentSetting'
 import { QueryContentShare } from '@/api/share'
@@ -2117,6 +2117,14 @@ export default {
       next()
     }
   },
+  watch: {
+    currentStep: {
+      handler(val) {
+        this.handleDisplayRightModule()
+      },
+      deep: true
+    }
+  },
   async created() {
     logger.info('add task created ' + this.taskId + ' ' + this.$route.path + ' mode: ' + this.mode)
     // 初始化关联事件处理
@@ -2131,6 +2139,7 @@ export default {
     await this.$store.dispatch('loadFormConfigData', token)
     this.currentActiveStepIndex = this.getSessionStep()
     this.currentStep = this.$store.getters.formConfigData.taskSteps[this.currentActiveStepIndex]
+    this.handleDisplayRightModule()
     this.$logger.info('恢复step', this.currentActiveStepIndex, this.currentStep)
     this.initData()
     this.getAssociate()
@@ -2228,6 +2237,13 @@ export default {
       })
     },
 
+    handleDisplayRightModule () {
+      if (this.currentStep.commonFields.indexOf(TaskField.Slides) !== -1) {
+        this.currentRightModule = RightModule.recommend
+      } else {
+        this.currentRightModule = RightModule.customTag
+      }
+    },
     handleAuthCallback() {
       this.$logger.info('handleAuthCallback')
       this.loadThumbnail()
@@ -3542,10 +3558,10 @@ export default {
       this.$logger.info('handleSwitchComment', data)
       if (!data.activeStatus) {
         this.currentFieldName = ''
-        this.resetRightModuleVisible()
+        this.handleDisplayRightModule()
         return
       }
-      this.setRightModuleVisible(this.rightModule.collaborateComment)
+      this.currentRightModule = RightModule.collaborate
       this.currentFieldName = data.fieldName
       this.currentCollaborateCommentList = []
       const list = []
@@ -5398,7 +5414,8 @@ export default {
   flex-direction: row;
   align-items: center;
   justify-content: flex-end;
-  padding-top: 10px;
+  padding-top: 5px;
+  padding-bottom: 5px;
   padding-right: 60px;
 
   .slide-switch {
