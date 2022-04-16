@@ -1,15 +1,21 @@
 <template>
   <div class="task-tip">
-    <template v-if="currentTemp == tempInfo.main">
+    <template v-if="taskLoading">
+      <div class="loading-task">
+        <img src="~@/assets/newBrowser/loading.gif" />
+      </div>
+    </template>
+    <template v-if="!taskLoading">
       <a-spin :tip="uploadText" :spinning="!canUpload">
         <div class="tip-content">
           <a-textarea
             placeholder="Insert tip for the slide"
             :autoSize="{ minRows: 4, maxRows: 5 }"
+            allow-clear
             v-model="tip_text"
           />
           <a-col class="tip-row">
-            <upload-enter-for-tip :uploadProgress="uploadProgress" :choiceFileType="choiceFileType" />
+            <upload-enter-for-tip :uploadProgress="uploadProgress" />
           </a-col>
           <a-col class="tip-row">
             <div class="carousel-page">
@@ -61,12 +67,6 @@
         </div>
       </a-spin>
     </template>
-    <template v-else-if="currentTemp == tempInfo.classcipeDirve">
-      <classcipe-drive :insertClasscipeFile="insertClasscipeFile" />
-    </template>
-    <template v-else-if="currentTemp == tempInfo.youtube">
-      <google-youtube-video ref="googleyoutubevideo" :insertClasscipeFile="insertClasscipeFile" />
-    </template>
   </div>
 </template>
 
@@ -76,15 +76,11 @@ import DeleteBtn from '@/assets/svgIcon/tip/delete_btn.svg?inline'
 import UploadEnterForTip from '@/components/AddMaterial/UploadEnterForTip'
 import { AddMaterialEventBus, ModalEventsNameEnum } from '@/components/AddMaterial/AddMaterialEventBus'
 import { addElement, queryElementById, updateElement } from '@/api/addMaterial'
-import ClasscipeDrive from '@/components/AddMaterial/ClasscipeDrive/ClasscipeDrive'
-import GoogleYoutubeVideo from '@/components/AddMaterial/Google/GoogleYoutubeVideo'
 export default {
   name: 'Tip',
   components: {
     UploadEnterForTip,
-    DeleteBtn,
-    ClasscipeDrive,
-    GoogleYoutubeVideo
+    DeleteBtn
   },
   props: {
     slideId: {
@@ -98,12 +94,6 @@ export default {
   },
   data() {
     return {
-      currentTemp: 0,
-      tempInfo: {
-        main: 0,
-        classcipeDirve: 1,
-        youtube: 2
-      },
       taskLoading: false,
       tip_text: '',
       uploadText: 'Uploading...',
@@ -169,31 +159,6 @@ export default {
       console.log('uploadProgress', fileProgress)
       this.fileProgress = fileProgress
     },
-    choiceFileType(type) {
-      if (type === 1) {
-        this.currentTemp = this.tempInfo.classcipeDirve
-      } else if (type === 2) {
-        this.currentTemp = this.tempInfo.youtube
-      }
-    },
-    insertClasscipeFile(fileItem) {
-      if (fileItem) {
-        this.addMaterialList({
-          type: 'video',
-          url: fileItem.filePath
-        })
-      }
-      this.currentTemp = this.tempInfo.main
-    },
-    nextYoutube(videoItem) {
-      if (videoItem) {
-        this.addMaterialList({
-          type: 'iframe',
-          url: videoItem.link
-        })
-        this.currentTemp = this.tempInfo.main
-      }
-    },
     getTipInfo() {
       var param = {}
       param.pageId = this.pageId
@@ -237,7 +202,6 @@ export default {
     },
     cancel() {
       this.closeAddonWindow()
-      this.currentTemp = this.tempInfo.youtube
     },
     confirm() {
       if (this.tip_text.length < 1 && this.videoUrlList.length < 1) {

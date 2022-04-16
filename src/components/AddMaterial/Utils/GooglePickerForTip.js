@@ -173,11 +173,17 @@ class LoadPicker {
 
   upDriveFire(file, mimeType) {
     logger.info('upDriveFire', this.classcipeUserId, file, mimeType)
-    this.uploadDriveInstance = upAwsS3File(this.classcipeUserId, file, this.onloadingCallBack, result => {
-      logger.info(result, mimeType)
-      this.classCallback('upload-ended', result, mimeType)
-      this.uploadDriveInstance = null
-    }, false)
+    this.uploadDriveInstance = upAwsS3File(
+      this.classcipeUserId,
+      file,
+      this.onloadingCallBack,
+      result => {
+        logger.info(result, mimeType)
+        this.classCallback('upload-ended', result, mimeType)
+        this.uploadDriveInstance = null
+      },
+      true
+    )
   }
 
   cancelUpDrive() {

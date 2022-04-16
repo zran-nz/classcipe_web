@@ -30,9 +30,30 @@
         </div>
       </a-tooltip>
     </a-space>
-    <div class="material-recorder">
+
+    <a-modal
+      :visible.sync="showYoutube"
+      @cancel="closeYoutubeDialog"
+      :append-to-body="true"
+      :destroy-on-close="false"
+      :footer="null"
+      width="90%"
+    >
+      <google-youtube-video ref="googleyoutubevideo" :nextYoutube="nextYoutube" />
+    </a-modal>
+    <a-modal
+      :visible.sync="showClasscipeDrive"
+      @cancel="closeClasscipeDriveDialog"
+      :append-to-body="true"
+      :destroy-on-close="false"
+      :footer="null"
+      width="90%"
+    >
+      <classcipe-drive :insertClasscipeFile="insertClasscipeFile" />
+    </a-modal>
+    <!-- <div class="material-recorder">
       <common-progress :progress="driveUpLoadProgress" :cancel="cancelUpDrive" />
-    </div>
+    </div> -->
   </div>
 </template>
 <script>
@@ -60,10 +81,6 @@ export default {
   },
   props: {
     uploadProgress: {
-      type: Function,
-      default: () => null
-    },
-    choiceFileType: {
       type: Function,
       default: () => null
     }
@@ -95,11 +112,11 @@ export default {
       }
     },
     canUpLoad() {
-      // if (this.canUpLoad === false) {
-      //   AddMaterialEventBus.$emit(ModalEventsNameEnum.IS_UPLOAD, false)
-      // } else {
-      //   AddMaterialEventBus.$emit(ModalEventsNameEnum.IS_UPLOAD, true)
-      // }
+      if (this.canUpLoad === false) {
+        AddMaterialEventBus.$emit(ModalEventsNameEnum.IS_UPLOAD, false)
+      } else {
+        AddMaterialEventBus.$emit(ModalEventsNameEnum.IS_UPLOAD, true)
+      }
     }
   },
 
@@ -131,10 +148,37 @@ export default {
       })
     },
     addYoutube() {
-      this.choiceFileType(2)
+      this.showYoutube = true
+    },
+    nextYoutube(videoItem) {
+      if (videoItem) {
+        AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_MEDIA_FOR_TIP, {
+          type: 'iframe',
+          url: videoItem.link
+        })
+        this.showYoutube = false
+      }
+    },
+    insertClasscipeFile(fileItem) {
+      if (fileItem) {
+        AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_MEDIA_FOR_TIP, {
+          type: 'video',
+          url: fileItem.filePath
+        })
+      }
+      this.showClasscipeDrive = false
     },
     openClasscipeDrive() {
-      this.choiceFileType(1)
+      this.showClasscipeDrive = true
+    },
+    closeClasscipeDriveDialog() {
+      this.showClasscipeDrive = false
+    },
+    closeYoutubeDialog() {
+      this.youtubeUrl = null
+      this.withKeyUrl = null
+      this.showIframe = false
+      this.showYoutube = false
     },
     addDrive() {
       // if (!this.canUpload) {

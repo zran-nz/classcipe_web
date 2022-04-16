@@ -15,7 +15,7 @@
             >
               <div class="img-box" @click="choiceItem(item)">
                 <video height="150" width="260" :src="item.filePath" preload="auto" controls></video>
-                <div>{{ decodeURIComponent(item.fileName) }}</div>
+                <div>{{ showFileName(decodeURIComponent(item.fileName)) }}</div>
               </div>
             </div>
           </div>
@@ -60,7 +60,7 @@ export default {
   },
   methods: {
     getFileRecord() {
-      FileRecord({ fileType: 'video' }).then(response => {
+      FileRecord({ fileType: 'video', pageSize: 20 }).then(response => {
         this.$logger.info('FileRecord ', response.result)
         if (response.result && response.result.records) {
           this.fileList = response.result.records
@@ -86,6 +86,13 @@ export default {
     },
     cancel() {
       this.insertClasscipeFile()
+    },
+    showFileName(fileName) {
+      if (fileName.length > 30) {
+        return fileName.substring(0, 17) + '...'
+      } else {
+        return fileName
+      }
     }
   }
 }

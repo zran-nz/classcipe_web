@@ -57,7 +57,14 @@
         </div>
       </a-spin>
     </div>
-    <div class="btn" @click="insert" v-show="chooseVideoId.length > 0">save</div>
+    <a-col class="col-button">
+      <a-button class="btn1" @click="cancel()">
+        Cancel
+      </a-button>
+      <a-button class="btn" @click="insert" type="primary">
+        Confirm
+      </a-button>
+    </a-col>
   </div>
 </template>
 <script>
@@ -65,7 +72,7 @@ import * as logger from '@/utils/logger'
 import { YoutubeQueryByKeywords } from '@/api/material'
 export default {
   props: {
-    nextYoutube: {
+    insertClasscipeFile: {
       type: Function,
       required: true
     }
@@ -114,11 +121,14 @@ export default {
     },
     insert() {
       logger.info('insert ')
-      this.nextYoutube(this.choose)
+      this.insertClasscipeFile(this.choose)
       this.choose = null
       this.keywords = ''
       this.chooseVideoId = ''
       this.videos = []
+    },
+    cancel() {
+      this.insertClasscipeFile(this.choose)
     },
     chooseVideo(item) {
       logger.info('chooseVideo', item)
@@ -260,25 +270,23 @@ export default {
   }
 }
 
+.col-button {
+  text-align: center;
+  margin-top: 10px;
+}
+.btn1 {
+  margin-right: 20px;
+}
+
 .btn {
-  margin-top: 40px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 160px;
-  height: 40px;
-  color: white;
-  font-size: 14px;
-  font-family: Inter-Bold;
-  background-color: #15c39a;
-  border-radius: 6px;
-  cursor: pointer;
-  align-self: flex-end;
-  :disabled {
-    cursor: not-allowed;
-    color: #eee;
-    background-color: #bbb;
-    border-color: #bbb;
+  background: #15c39a;
+  border-color: #15c39a;
+  font-family: Arial;
+  font-weight: bold;
+  color: #ffffff;
+  &:disabled {
+    background: #aaaaaa;
+    border-color: #aaaaaa;
   }
 }
 </style>

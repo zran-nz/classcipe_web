@@ -31,8 +31,9 @@ export const upAwsS3File = (userId, file, onProgress, onSuccess, isAutoAddFileUp
       if (isAutoAddFileUploadRecord) {
         addFileUploadRecord({
           fileLength: file.size,
+          fileName: file.name,
           filePath: replaceToClasscipeCDN(data['Location'])
-        }).then((res) => {
+        }).then(res => {
           logger.info('addFileUploadRecord res', res)
         })
       }
