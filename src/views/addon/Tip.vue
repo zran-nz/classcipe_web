@@ -237,7 +237,6 @@ export default {
     },
     cancel() {
       this.closeAddonWindow()
-      this.currentTemp = this.tempInfo.youtube
     },
     confirm() {
       if (this.tip_text.length < 1 && this.videoUrlList.length < 1) {
@@ -280,7 +279,6 @@ export default {
 <style lang="less" scoped>
 @import '~@/components/index.less';
 .task-tip {
-  height: 600px;
   width: 920px;
   margin: auto;
   display: flex;
@@ -312,6 +310,7 @@ export default {
     }
     .tip-button {
       text-align: center;
+      margin:20px;
       .btn1 {
         margin-right: 20px;
       }
