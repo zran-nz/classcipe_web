@@ -183,16 +183,24 @@ export default {
       if (role === 'teacher') {
         storage.set(NOT_REMEMBER_ME, false)
       }
-      console.log('thirdSignIn', source)
-      let url = getThirdAuthURL(source)
-      url += `?role=${role}`
-      url += `&callbackUrl=`
-      url += thirdAuthCallbackUrl
-      if (this.callbackUrl) {
-        window.sessionStorage.setItem(SESSION_CALLBACK_URL, getUrlWithNoParams(this.callbackUrl))
+      let url
+      switch (source) {
+        case 'google':
+        case 'zoom':
+          this.$logger.info('thirdSignIn google', source)
+          url = getThirdAuthURL(source)
+          url += `?role=${role}`
+          url += `&callbackUrl=`
+          url += thirdAuthCallbackUrl
+          if (this.callbackUrl) {
+            window.sessionStorage.setItem(SESSION_CALLBACK_URL, getUrlWithNoParams(this.callbackUrl))
+          }
+          this.$logger.info('full auth url ', url)
+          window.location.href = url
+          break
+        default:
+          break
       }
-      console.log('full auth url ', url)
-      window.location.href = url
     },
     handleSubmit(e) {
       this.studentLoginErrorMessage = null
