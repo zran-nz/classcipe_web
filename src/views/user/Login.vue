@@ -16,11 +16,13 @@
             <third-login-button
               icon="googleIcon"
               :label="$t('user.login.loginWithGoogle')"
+              :type="'google'"
               @click.native="thirdSignIn('google', 'teacher')"
             />
             <third-login-button
               icon="googleIcon"
-              :label="'Sign in with zoom'"
+              :label="'Sign in with Zoom'"
+              :type="'zoom'"
               @click.native="zoomLogin('zoom', 'student')"
             />
           </div>

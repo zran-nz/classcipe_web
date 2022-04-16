@@ -1,8 +1,8 @@
 <template>
   <a-button type="primary" class="third-login-btn" :disabled="disabled">
     <div class="svg-icon">
-      <google-icon-svg v-if="type === 'google'" />
-      <zoom-icon-svg v-if="type === 'zoom'" />
+      <google-icon-svg v-if="type === 'google'" class='google-icon'/>
+      <zoom-icon-svg v-if="type === 'zoom'" class='zoom-icon'/>
     </div>
     <div class="label">{{ label }}</div>
   </a-button>
@@ -43,8 +43,6 @@ export default {
 <style lang='less' scoped>
 @import '~@/components/index.less';
 .third-login-btn {
-  // cursor: pointer;
-  // user-select: none;
   margin: 10px 0;
   min-width: 260px;
   width: 100%;
@@ -66,11 +64,13 @@ export default {
     color: rgba(0, 0, 0, 0.25);
   }
   .svg-icon {
-    height: 40px;
     width: 40px;
-    svg {
-      height: 40px;
-      width: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .zoom-icon {
+      height: 20px;
+      width: 20px;
     }
   }
 }
