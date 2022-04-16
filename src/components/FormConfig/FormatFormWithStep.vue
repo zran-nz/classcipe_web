@@ -15,6 +15,12 @@
             </template>
           </span>
         </div>
+        <div class='format-tag-settings'>
+          <div class='step-visible-toggle'>
+            <div class='field-visible'>visible</div>
+            <a-switch size="small" v-model='step.visible' />
+          </div>
+        </div>
       </div>
       <div class='common-field-list'>
         <draggable
@@ -238,6 +244,10 @@ export default {
     stepList: {
       type: Array,
       required: true
+    },
+    stepType: {
+      type: Number,
+      required: true
     }
   },
   data () {
@@ -430,19 +440,50 @@ export default {
 
       const myCommonList = JSON.parse(JSON.stringify(this.myCommonList))
       const myCustomList = JSON.parse(JSON.stringify(this.myCustomList))
-      myCommonList.forEach((item, index) => {
-        item.sortNo = index + 1
+
+      // 删除自定义字段
+      myCommonList.forEach(item => {
+        delete item.isCustomField
       })
-      myCustomList.forEach((item, index) => {
-        item.sortNo = index + 1
+      myCustomList.forEach(item => {
+        delete item.isCustomField
         if (item.id.indexOf('ext_') !== -1) {
           item.id = null
         }
       })
-      this.$logger.info('getFormatConfig ' + this.title, myCommonList, myCustomList)
+
+      const mySteps = JSON.parse(JSON.stringify(this.steps))
+      mySteps.forEach((step, index) => {
+        delete step.nameEditing
+        delete step.key
+        step.commonFields = step.commonFieldItems.map(item => item.fieldName)
+        step.customFields = step.customFieldItems.map(item => item.fieldName)
+
+        // 设置字段排序
+        step.commonFields.forEach((item, index) => {
+          const fieldItem = myCommonList.find(field => field.fieldName === item.fieldName)
+          if (fieldItem) {
+            fieldItem.sort = index
+          }
+        })
+
+        step.customFields.forEach((item, index) => {
+          const fieldItem = myCustomList.find(field => field.fieldName === item.fieldName)
+          if (fieldItem) {
+            fieldItem.sort = index
+          }
+        })
+        step.stepNo = index
+        step.type = this.stepType
+
+        delete step.commonFieldItems
+        delete step.customFieldItems
+      })
+      this.$logger.info('getFormatConfig ', myCommonList, myCustomList, mySteps)
       return {
         commonList: myCommonList,
-        customList: myCustomList
+        customList: myCustomList,
+        steps: mySteps
       }
     }
   }
@@ -807,6 +848,17 @@ export default {
 
   100% {
     opacity: 1;
+  }
+}
+
+.step-visible-toggle {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 10px;
+  .field-visible {
+    padding: 0 5px;
   }
 }
 </style>

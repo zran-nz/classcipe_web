@@ -1,12 +1,13 @@
 <template>
   <a-card class='planning-format' :body-style="{'padding': 0}" :loading='loading'>
-    <a-tabs type="card" v-model='activeKey'>
+    <a-tabs type="card" v-model='activeKey' v-if='!loading'>
       <a-tab-pane key="plan" tab="Unit Format" class='planning-content' :forceRender='true'>
         <format-form-with-step
           ref='plan'
           :common-list='planConfig.commonList'
           :custom-list='planConfig.customList'
           :step-list='planConfig.steps'
+          :step-type='typeMap["unit-plan"]'
           v-if='planConfig' />
       </a-tab-pane>
       <a-tab-pane key="task" tab="Task Format" class='planning-content' :forceRender='true'>
@@ -15,6 +16,7 @@
           :common-list='taskConfig.commonList'
           :custom-list='taskConfig.customList'
           :step-list='taskConfig.steps'
+          :step-type='typeMap.task'
           v-if='taskConfig' />
       </a-tab-pane>
       <div class='form-config-action' slot="tabBarExtraContent">
@@ -145,6 +147,7 @@ export default {
           FormConfigAddOrUpdate({
             commonList: config.planConfig.commonList,
             customList: config.planConfig.customList,
+            steps: config.planConfig.steps,
             schoolId: this.currentSchool.id,
             type: typeMap['unit-plan']
           }).then((response) => {
@@ -163,6 +166,7 @@ export default {
           FormConfigAddOrUpdate({
             commonList: config.taskConfig.commonList,
             customList: config.taskConfig.customList,
+            steps: config.taskConfig.steps,
             schoolId: this.currentSchool.id,
             type: typeMap.task
           }).then((response) => {
