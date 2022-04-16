@@ -72,7 +72,7 @@ import * as logger from '@/utils/logger'
 import { YoutubeQueryByKeywords } from '@/api/material'
 export default {
   props: {
-    insertClasscipeFile: {
+    addYoutube: {
       type: Function,
       required: true
     }
@@ -121,14 +121,14 @@ export default {
     },
     insert() {
       logger.info('insert ')
-      this.insertClasscipeFile(this.choose)
+      this.addYoutube(this.choose)
       this.choose = null
       this.keywords = ''
       this.chooseVideoId = ''
       this.videos = []
     },
     cancel() {
-      this.insertClasscipeFile(this.choose)
+      this.addYoutube(this.choose)
     },
     chooseVideo(item) {
       logger.info('chooseVideo', item)
