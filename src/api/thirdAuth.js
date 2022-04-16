@@ -19,6 +19,8 @@ export const getThirdAuthURL = function (source) {
   switch (source.toString().trim()) {
     case 'google':
       return process.env.VUE_APP_API_BASE_URL + '/classcipe/thirdLogin/render/google'
+    case 'zoom':
+      return process.env.VUE_APP_API_BASE_URL + '/classcipe/thirdLogin/render/zoom'
     default:
       throw new Error('not config auth url for source[' + source + ']')
   }
