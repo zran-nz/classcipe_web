@@ -1056,7 +1056,7 @@ export default {
         this.form.email = this.$store.getters.email
       }).finally(() => {
         if ((!this.forms || this.forms.length === 0) && this.mode !== EvaluationTableMode.Edit) {
-          window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/' + this.sessionId + '/edit'
+          window.location.pathname = '/classroom-iframe/class-evaluation/' + this.taskId + '/' + this.classId + '/' + this.sessionId + '/edit'
         }
         this.loading = false
 
@@ -1694,7 +1694,7 @@ export default {
     },
 
     goEvaluatePage () {
-      window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/' + this.sessionId
+      window.location.pathname = '/classroom-iframe/class-evaluation/' + this.taskId + '/' + this.classId + '/' + this.sessionId
     },
     handleSaveAndBackEvaluation () {
       this.$logger.info('handleSaveAndBackEvaluation', this.forms)
@@ -2027,7 +2027,7 @@ export default {
           this.$confirm({
             content: 'Are you sure to switch to edit mode ?',
             onOk: () => {
-              window.location.pathname = '/teacher/class-evaluation/' + this.taskId + '/' + this.classId + '/' + this.sessionId + '/edit'
+              window.location.pathname = '/classroom-iframe/class-evaluation/' + this.taskId + '/' + this.classId + '/' + this.sessionId + '/edit'
             }
           })
         } else {
