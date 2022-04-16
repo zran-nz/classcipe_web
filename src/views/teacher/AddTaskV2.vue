@@ -720,7 +720,7 @@
                   :key='rIndex'>
                   <div class='template-hover-action-mask'>
                     <div class='template-hover-action'>
-                      <div class='modal-ensure-action-line'>
+                      <a-space>
                         <a-button
                           class='action-ensure action-item'
                           shape='round'
@@ -752,7 +752,7 @@
                             Remove
                           </div>
                         </a-button>
-                      </div>
+                      </a-space>
                     </div>
                   </div>
                   <a-carousel arrows>
@@ -3427,7 +3427,7 @@ export default {
         const slideAnimateDom = document.getElementById('slide-animate')
         const slideAnimateImgDom = document.getElementById('slide-animate-img')
         const imgDomPos = slideAnimateDom.getBoundingClientRect()
-        const containerDomPos = document.getElementById('templateSelected').getBoundingClientRect()
+        const containerDomPos = document.getElementById('form-body').getBoundingClientRect()
         const buttonPos = event.target.getBoundingClientRect()
 
         console.log(containerDomPos)
@@ -4309,7 +4309,11 @@ export default {
 
       .template-hover-action {
         width: 100%;
-        top: 30%
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        top: 50%;
+        margin-top: -16px;
       }
 
       .action-item {
@@ -4317,7 +4321,6 @@ export default {
         align-items: center;
         justify-content: center;
         padding: 6px 13px;
-        background: rgba(0, 0, 0, 0.45);
         opacity: 1;
         border: 1px solid rgba(188, 188, 188, 1);
       }
@@ -4660,7 +4663,6 @@ export default {
             align-items: center;
             justify-content: center;
             padding: 6px 13px;
-            background: rgba(0, 0, 0, 0.45);
             opacity: 1;
             border: 1px solid rgba(188, 188, 188, 1);
           }
@@ -5657,7 +5659,11 @@ export default {
 
       .template-hover-action {
         width: 100%;
-        top: 30%
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        top: 50%;
+        margin-top: -16px;
       }
 
       .action-item {
@@ -5665,7 +5671,6 @@ export default {
         align-items: center;
         justify-content: center;
         padding: 6px 13px;
-        background: rgba(0, 0, 0, 0.45);
         opacity: 1;
         border: 1px solid rgba(188, 188, 188, 1);
       }
@@ -5969,7 +5974,6 @@ export default {
           align-items: center;
           justify-content: center;
           padding: 6px 13px;
-          background: rgba(0, 0, 0, 0.45);
           opacity: 1;
           border: 1px solid rgba(188, 188, 188, 1);
         }
@@ -6173,7 +6177,6 @@ export default {
             align-items: center;
             justify-content: center;
             padding: 6px 13px;
-            background: rgba(0, 0, 0, 0.45);
             opacity: 1;
             border: 1px solid rgba(188, 188, 188, 1);
           }
