@@ -44,6 +44,8 @@ import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 
 import AcademicAdd from './academic/AcademicAdd.vue'
+
+// import { QueryAcademic } from '@/api/schoolAcademic'
 import { mapState } from 'vuex'
 const { debounce } = require('lodash-es')
 

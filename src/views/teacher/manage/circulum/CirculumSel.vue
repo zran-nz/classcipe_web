@@ -6,9 +6,9 @@
           <a-col :span="8">
             <a-input-search placeholder="Search for Name" v-model="queryParam.searchKey" enter-button @search="triggerSearch"/>
           </a-col>
-          <!-- <a-col>
-            <a-button type="primary">Save</a-button>
-          </a-col> -->
+          <a-col>
+            <a-button type="primary" @click="handleYearSet">全年级设置</a-button>
+          </a-col>
         </a-row>
       </a-form>
     </div>
@@ -45,14 +45,35 @@
         </div>
       </div>
     </div>
+    <a-modal
+      v-model="yearSetVisible"
+      :footer="null"
+      :title="null"
+      :closable="true"
+      destroyOnClose
+      :dialog-style="{ top: '50px' }"
+      width="400px">
+      <div>
+        <year-name-set
+          :curriculumId="choosed.id"
+          :school="this.currentSchool"
+          @cancel="yearSetVisible = false"
+        />
+      </div>
+    </a-modal>
   </a-card>
 </template>
 
 <script>
 import { getAllCurriculums } from '@/api/preference'
+import { SaveSchoolCurriculum } from '@/api/schoolAcademic'
+import YearNameSet from './YearNameSet'
 const { groupBy } = require('lodash-es')
 export default {
   name: 'CirculumSel',
+  components: {
+    YearNameSet
+  },
   props: {
     school: {
       type: Object,
@@ -81,7 +102,9 @@ export default {
       queryParam: {
         searchKey: ''
       },
-      curriculumTree: {}
+      curriculumTree: {},
+      choosed: {},
+      yearSetVisible: false
     }
   },
   created() {
@@ -94,6 +117,7 @@ export default {
             let checked = false
             if (this.currentSchool.curriculumId && this.currentSchool.curriculumId === item.id) {
               checked = true
+              this.choosed = { ...item }
               this.$emit('change', item)
             }
             return {
@@ -131,7 +155,22 @@ export default {
         }
       })
       this.curriculumTree = groupBy(this.curriculumOptions, 'country')
+      this.choosed = { ...curriculum }
       this.$emit('change', curriculum)
+    },
+    handleYearSet() {
+      this.yearSetVisible = true
+    },
+    handleSave() {
+      SaveSchoolCurriculum({
+        schoolId: this.currentSchool.id,
+        curriculumId: this.choosed.id
+      }).then(res => {
+        if (res.success) {
+        }
+      }).finally(() => {
+        this.$emit('save-success')
+      })
     }
   }
 }

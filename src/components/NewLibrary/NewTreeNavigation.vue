@@ -42,20 +42,26 @@
 <script>
 import NewTreeItem from '@/components/NewLibrary/NewTreeItem'
 import { getAll21Century } from '@/api/knowledge'
+import { GetSchoolSubject, GetSchoolGrade } from '@/api/schoolAcademic'
 import { NavigationType } from '@/components/NewLibrary/NavigationType'
 
-import { SubjectType } from '@/const/common'
+import { SubjectType, USER_MODE } from '@/const/common'
 import storage from 'store'
 import { GRADE_COMMON } from '@/store/mutation-types'
 import { GetGradesByCurriculumId } from '@/api/preference'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
+import { mapState } from 'vuex'
+import { UserModeMixin } from '@/mixins/UserModeMixin'
+import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 
 const { GetAllSdgs } = require('@/api/scenario')
 const { SubjectTree } = require('@/api/subject')
+const { debounce } = require('lodash-es')
 
 export default {
   name: 'NewTreeNavigation',
+  mixins: [UserModeMixin, CurrentSchoolMixin],
   components: {
     NoMoreResources,
     NewTreeItem
@@ -80,6 +86,10 @@ export default {
     defaultCurriculumId: {
       type: String,
       default: null
+    },
+    onlySubjects: {
+      type: Array,
+      default: () => []
     }
   },
   data () {
@@ -103,9 +113,18 @@ export default {
       this.subjectTree = []
       this.gradeList = []
       this.initData()
+    },
+    onlySubjects: {
+      handler(onlySubjects) {
+        this.debounceResetData()
+      }
     }
   },
   computed: {
+     ...mapState({
+      currentSchool: state => state.user.currentSchool,
+      userMode: state => state.app.userMode
+    }),
     displayCategoryList () {
       const list = []
       this.treeDataList.forEach(dataItem => {
@@ -119,10 +138,24 @@ export default {
   created () {
     this.$logger.info('NewTreeNavigation selectMode', this.selectMode)
     this.initData()
+    this.debounceResetData = debounce(this.resetData, 1000)
     LibraryEventBus.$on(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
     LibraryEventBus.$on(LibraryEvent.ChangeCurriculum, this.handleChangeCurriculum)
   },
   methods: {
+    resetData() {
+      this.treeDataList = []
+      this.sdgList = []
+      this.subjectTree = []
+      this.gradeList = []
+      this.initData()
+    },
+    handleSchoolChange(currentSchool) {
+      this.debounceResetData()
+    },
+    handleModeChange(userMode) {
+      this.debounceResetData()
+    },
     initData () {
       const skillCategory = this.$store.getters.skillCategory
       this.$logger.info('NewTreeNavigation skillCategory ', skillCategory)
@@ -160,7 +193,9 @@ export default {
         SubjectTree({ curriculumId: this.defaultCurriculumId ? this.defaultCurriculumId : this.$store.getters.bindCurriculum }),
         GetGradesByCurriculumId({ curriculumId: this.defaultCurriculumId ? this.defaultCurriculumId : this.$store.getters.bindCurriculum }),
         GetAllSdgs(),
-        getAll21Century()
+        getAll21Century(),
+        GetSchoolSubject({ schoolId: this.currentSchool.id }),
+        GetSchoolGrade({ schoolId: this.currentSchool.id })
       ]).then((initDataResponse) => {
         this.$logger.info('initData done', initDataResponse)
 
@@ -168,6 +203,17 @@ export default {
         this.$logger.info('GetMyGrades Response ', initDataResponse[1])
         if (!initDataResponse[1].code) {
           this.gradeList = initDataResponse[1].result
+          // 获取学校自定义的名称
+          if (initDataResponse[5].success) {
+            const repeatOptions = initDataResponse[5].result.gradeInfo
+            this.gradeList = this.gradeList.map(item => {
+              const repeat = repeatOptions.find(opt => opt.gradeId === item.id)
+              if (repeat && repeat.officialGradeName) {
+                item.name = repeat.officialGradeName
+              }
+              return item
+            })
+          }
           // 将grade名称和21century grade名称对应起来
           const gradeJson = {}
           this.gradeList.forEach(grade => {
@@ -181,6 +227,27 @@ export default {
         this.$logger.info('SubjectTree Response ', initDataResponse[0])
         if (!initDataResponse[0].code) {
           this.subjectTree = initDataResponse[0].result
+          let onlyShowSubjects = []
+          // 如果传入了onlySubjects， 则表示只展示部分subject
+          if (this.onlySubjects && this.onlySubjects.length > 0) {
+            onlyShowSubjects = this.onlySubjects.concat()
+          } else {
+            // 如果没有传入onlySubjects，则取学校所设定的subject来展示
+            if (this.userMode === USER_MODE.SCHOOL) {
+              if (initDataResponse[4].success) {
+                onlyShowSubjects = initDataResponse[4].result.subjectInfo.map(item => item.subjectId)
+              }
+            }
+          }
+          if (onlyShowSubjects.length > 0) {
+            this.subjectTree = this.subjectTree
+              .map(item => {
+                if (item.children && item.children.length > 0) {
+                  item.children = item.children.filter(child => onlyShowSubjects.includes(child.id))
+                }
+                return item
+              }).filter(item => item.children.length > 0)
+          }
           // 兼容新的任意层级,任意一个层级下一层都会可能是gradeList
           this.addGradeListProperty(this.subjectTree)
           const subjectTreeData = JSON.parse(JSON.stringify(this.subjectTree))
@@ -207,6 +274,7 @@ export default {
           this.$logger.info('all21CenturyData addParentObjListProperty', all21CenturyData)
         }
       }).finally(() => {
+        this.treeDataList = []
         this.treeDataList.push(curriculumData)
         this.treeDataList.push(sdgData)
 

@@ -9,7 +9,13 @@
           ref="fullCalendar"
           :options="calendarOptions"
           class="schedule-calendar"
-        />
+        >
+          <!-- <template v-slot:eventContent="arg">
+            <div class="schedule-event-content">
+              arg: {{ arg }}
+            </div>
+          </template> -->
+        </FullCalendar>
         <div class="schedule-tip" v-show="attendanceVisible">
           <div class="attendance"><!-- :style="{visibility: attendanceVisible ? 'visible' : 'hidden'}"> -->
             <a-select class="attendance-choose" v-model="currentClass" @change="handleChangeClass">

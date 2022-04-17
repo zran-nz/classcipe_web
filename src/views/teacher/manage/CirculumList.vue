@@ -16,7 +16,7 @@
       </div>
       <a-space class="opt">
         <a-button @click="handleReset">Reset</a-button>
-        <a-button type="primary" @click="handleSave">Save</a-button>
+        <a-button type="primary" :loading="saveLoading" @click="handleSave">Save</a-button>
       </a-space>
     </div>
     <circulum-sel
@@ -25,13 +25,16 @@
       :gradeOptions="gradeOptions"
       :school="currentSchool"
       @change="changeCurriculum"
+      @save-success="() => successCb('pendingCurriculum')"
     />
     <subject-sel
+      ref="SubjectRef"
       v-show="currentTab === 'Subject'"
       :gradeOptions="gradeOptions"
       :curriculum="currentCurriculum"
-      :subjectIds="selectedSubjects"
+      :school="currentSchool"
       @change="changeSubjects"
+      @save-success="() => successCb('pendingSubject')"
     />
     <div class="new-library" id="new-library" v-show="currentTab === 'Teaching'">
       <div class="library-title">Please uploade the achivement objectives for your school.</div>
@@ -43,6 +46,7 @@
             :show-menu="showMenu"
             :default-active-menu="defaultActiveMenu"
             :default-curriculum-id="defaultCurriculumId"
+            :only-subjects="changedSubjects"
           />
         </div>
         <div class="content-list">
@@ -127,7 +131,10 @@ export default {
       defaultCurriculumId: null,
       gradeOptions: [],
 
-      selectedSubjects: ['1441190898836762626', '1441190957791899649', '1509357909961666562', '1461153004264173570', '1509357913677819906']
+      changedSubjects: [],
+      pendingCurriculum: false,
+      pendingSubject: false,
+      saveLoading: false
     }
   },
   created() {
@@ -166,6 +173,8 @@ export default {
     },
     changeSubjects(val) {
       console.log(val)
+      this.changedSubjects = [...val]
+      this.$refs.contentList.handleResetContentList()
     },
     updateSelectedGradeSet() {
 
@@ -183,9 +192,20 @@ export default {
         content: 'Are you confirm save changes ?',
         centered: true,
         onOk: () => {
-
+          this.saveLoading = true
+          this.pendingCurriculum = true
+          this.pendingSubject = true
+          this.$refs['CurriculumRef'].handleSave()
+          this.$refs['SubjectRef'].handleSave()
         }
       })
+    },
+    successCb(pending) {
+      this[pending] = false
+      if (!this.pendingCurriculum && !this.pendingSubject) {
+        this.$message.success('Save successfully')
+        this.saveLoading = false
+      }
     },
     handleSelectBigIdeaData (data) {
       this.$logger.info('NewBrowser handleSelectBigIdeaData', data)
