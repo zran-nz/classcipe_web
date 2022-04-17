@@ -7,7 +7,7 @@
             <a-input-search placeholder="Search for Name" v-model="queryParam.searchKey" enter-button @search="triggerSearch"/>
           </a-col>
           <a-col>
-            <a-button type="primary" @click="handleYearSet">全年级设置</a-button>
+            <a-button type="primary" @click="handleYearSet">Customize grades</a-button>
           </a-col>
         </a-row>
       </a-form>
