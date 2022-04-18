@@ -21,7 +21,7 @@
         <img src="~@/assets/icons/collaborate/link_valid.png">
       </div>
       <div class="title">
-        Sorry, The link is no longer available.
+        Sorry, the link is no longer available.
       </div>
     </div>
   </div>
