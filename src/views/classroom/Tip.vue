@@ -156,7 +156,7 @@ export default {
     if (window.parent) {
       window.parent.postMessage(
         JSON.stringify({
-          from: 'addon',
+          to: 'classroom',
           event: 'tip-loaded',
           data: null
         }),

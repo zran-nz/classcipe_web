@@ -65,7 +65,7 @@
     >
       <google-youtube-video
         ref="googleyoutubevideo"
-        :nextYoutube="nextYoutube"
+        :addYoutube="nextYoutube"
       />
     </a-modal>
 
