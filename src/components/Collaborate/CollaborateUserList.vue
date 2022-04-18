@@ -936,9 +936,11 @@ export default {
           margin: 4px;
           width: 110%;
           &:focus,
+          &:hover,
           &:active {
             border: none;
             outline: none;
+             background: #E3E5E6;
           }
         }
       }
