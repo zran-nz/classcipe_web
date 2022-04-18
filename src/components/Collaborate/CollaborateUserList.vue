@@ -916,14 +916,15 @@ export default {
           padding: @input-padding-vertical-base 0;
           height: 32px;
           line-height: 24px;
+          opacity: 0;
         }
         input {
           position: absolute;
           left: 0;
           top: 0;
-          background: #E3E5E6;
           border: none;
           outline: none;
+          background: transparent;
           height: @input-height-base;
           border-radius: @border-radius-base;
           display: inline-block;
@@ -940,7 +941,6 @@ export default {
           &:active {
             border: none;
             outline: none;
-             background: #E3E5E6;
           }
         }
       }
