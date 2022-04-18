@@ -23,7 +23,8 @@
                       </a-tag>
                     </div>
 
-                    <div class="tag-input tag-dom" :style="{ width: selectedUserEmailList.length === 0 ? '220px' : '220px' }">
+                    <div class="tag-input tag-dom">
+                      <span class="input-expander">{{ userNameOrEmail }}</span>
                       <input
                         v-if='debounceSearchUser'
                         type="text"
@@ -589,6 +590,7 @@ export default {
 @import "~@/components/index.less";
 
 .toggle-header {
+  user-select: none;
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -903,26 +905,42 @@ export default {
       align-items: center;
 
       .tag-input {
-        display: inline-block;
+        display: flex;
+        align-items: flex-start;
+        position: relative;
+        .input-expander {
+          display: inline-block;
+          font-size: 14px;
+          min-width: 160px;
+          margin: 4px;
+          padding: @input-padding-vertical-base 0;
+          height: 32px;
+          line-height: 24px;
+        }
         input {
-          background: transparent;
+          position: absolute;
+          left: 0;
+          top: 0;
+          background: #E3E5E6;
           border: none;
           outline: none;
           height: @input-height-base;
           border-radius: @border-radius-base;
-          position: relative;
           display: inline-block;
           padding: @input-padding-vertical-base 0;
           color: @black;
           font-size: 14px;
           font-family: Inter-Bold;
           line-height: 24px;
+          min-width: 160px;
           margin: 4px;
-          width: 100%;
+          width: 110%;
           &:focus,
+          &:hover,
           &:active {
             border: none;
             outline: none;
+             background: #E3E5E6;
           }
         }
       }

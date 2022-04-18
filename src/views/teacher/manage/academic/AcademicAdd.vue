@@ -30,6 +30,7 @@
                 <a-date-picker
                   v-model="item.startTime"
                   :disabled-date="val => disabledStartDate(val, item)"
+                  :allowClear="false"
                   format="YYYY-MM-DD"
                   valueFormat="YYYY-MM-DD"
                   placeholder="Pick a date"
@@ -43,6 +44,7 @@
                 <a-date-picker
                   v-model="item.endTime"
                   :disabled-date="val => disabledEndDate(val, item)"
+                  :allowClear="false"
                   format="YYYY-MM-DD"
                   valueFormat="YYYY-MM-DD"
                   placeholder="Pick a date"
@@ -145,7 +147,7 @@ export default {
     },
     changeStartTime(date, item) {
       if (date && !item.endTime) {
-        item.endTime = moment(date).add(1, 'days').format('YYYY-MM-DD')
+        item.endTime = moment(date).add(1, 'months').format('YYYY-MM-DD')
       }
     },
     add () {
@@ -172,7 +174,7 @@ export default {
       if (this.model.terms.length > 0) {
         const last = this.model.terms[this.model.terms.length - 1]
         startTime = last.endTime
-        endTime = startTime ? moment(startTime).add(1, 'days').format('YYYY-MM-DD') : ''
+        endTime = startTime ? moment(startTime).add(1, 'months').format('YYYY-MM-DD') : ''
       }
       this.model.terms.push({
         name: '',
