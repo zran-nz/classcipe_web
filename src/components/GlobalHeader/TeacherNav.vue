@@ -163,8 +163,15 @@ export default {
         this.currentSchool.roleNames.includes(this.schoolUserRole.admin))) {
           this.$router.push({ path: '/teacher/main/created-by-me' })
       }
-      // 非管理员页面直接刷新当前页
-      if (this.$route.path.indexOf('/teacher/managing') === -1) {
+      // 没经过usermodemixin schoolmixin处理的直接刷新当前页
+      const hasMixin = ['/teacher/managing', '/account/settings']
+      let needReload = true
+      hasMixin.forEach(route => {
+        if (this.$route.path.indexOf(route) > -1) {
+          needReload = false
+        }
+      })
+      if (needReload) {
         window.location.reload()
       }
     },

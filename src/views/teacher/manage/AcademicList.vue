@@ -7,34 +7,41 @@
           <a-col :span="8">
             <a-input-search
               placeholder="Search for ID、Name、Email..."
-              v-model="queryParams.searchKey"
+              v-model="queryParams.keywords"
               enter-button
               @search="triggerSearch"/>
           </a-col>
           <a-col>
-            <a-button @click="handleAdd" type="primary" icon="plus" >Add acadeic year</a-button>
+            <a-button @click="handleAdd" type="primary" icon="plus" >Add academic year</a-button>
           </a-col>
         </a-row>
       </a-form>
     </div>
 
-    <div class="list-view">
-      <div class="list-view-item">
-        <div class="view-item-title">July 2021 -May 2022 （Current)</div>
-        <div class="view-item-opt">Edit</div>
+    <div class="list-view" v-if="datas && datas.length > 0">
+      <div class="list-view-item" v-for="(item) in datas" :key="'academic_' + item.academicId">
+        <div class="view-item-title">
+          {{ formatDate(item) }} ({{ item.name }})
+        </div>
+        <div class="view-item-opt">
+          <a-button type="link" @click="handleEdit(item)">Edit</a-button>
+          <a-button type="link" :loading="delLoading" @click="handleDelete(item)">Delete</a-button>
+        </div>
         <div class="view-item-detail">
-          <div class="item-detail-content">
-            <div class="detail-content-title">First term</div>
-            <div class="detail-content-time">July 7- Dec 10 ,2021 </div>
-          </div>
-          <div class="item-detail-content">
-            <div class="detail-content-title">First term</div>
-            <div class="detail-content-time">July 7- Dec 10 ,2021 </div>
+          <div class="item-detail-content" v-for="(term, termIndex) in item.terms" :key="'term_' + termIndex">
+            <div class="detail-content-title">{{ term.name }}</div>
+            <div class="detail-content-time">{{ formatDate(term) }} </div>
           </div>
         </div>
       </div>
     </div>
-    <academic-add ref="modalForm"/>
+
+    <div v-else class="no-subject">
+      <img src='~@/assets/newBrowser/no-subject.png'/>
+      <p>None academic because you dont set the academic</p>
+    </div>
+
+    <academic-add ref="modalForm" @close="handleClose"/>
   </a-card>
 </template>
 
@@ -43,10 +50,13 @@ import { USER_MODE } from '@/const/common'
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 
+import { DeleteAcademicYearById, QueryAcademic } from '@/api/schoolAcademic'
+
 import AcademicAdd from './academic/AcademicAdd.vue'
 
 // import { QueryAcademic } from '@/api/schoolAcademic'
 import { mapState } from 'vuex'
+import moment from 'moment'
 const { debounce } = require('lodash-es')
 
 export default {
@@ -60,10 +70,11 @@ export default {
       USER_MODE: USER_MODE,
       loading: false,
       queryParams: {
-        searchKey: ''
+        keywords: ''
       },
       datas: [],
-      debounceInit: null
+      debounceInit: null,
+      delLoading: false
     }
   },
   created() {
@@ -91,12 +102,15 @@ export default {
     },
     loadData() {
       this.loading = true
-      Promise.resolve().then(res => {
-        this.datas = [
-          {
-
-          }
-        ]
+      QueryAcademic({
+        ...this.queryParams,
+        schoolId: this.currentSchool.id
+      }).then(res => {
+        if (res.success) {
+          this.datas = res.result
+        } else {
+          this.datas = []
+        }
       }).finally(() => {
         this.loading = false
       })
@@ -108,14 +122,38 @@ export default {
     },
     handleEdit(record) {
       this.$refs.modalForm.title = 'Edit acadeic year'
-      this.$refs.modalForm.edit(record)
+      this.$refs.modalForm.edit({ ...record })
       this.$refs.modalForm.disableSubmit = false
     },
-    handleDelete(record) {
+    handleDelete(record, index) {
       this.$logger.info('handleDelete ', record)
+      this.$confirm({
+        title: 'Confirm delete academic',
+        content: 'Are you confirm delete academic ' + record.name + ' ?',
+        centered: true,
+        onOk: () => {
+          this.delLoading = true
+          DeleteAcademicYearById({
+            academicId: record.academicId
+          }).then(response => {
+            if (response.success) {
+              this.datas = this.datas.filter(item => item.academicId !== record.academicId)
+              this.$message.success('Delete successfully')
+            }
+          }).finally(() => {
+            this.delLoading = false
+          })
+        }
+      })
     },
     triggerSearch() {
       this.debounceInit()
+    },
+    formatDate(item) {
+      return `${moment(item.startTime).format('MMMM YYYY')} - ${moment(item.endTime).format('MMMM YYYY')}`
+    },
+    handleClose() {
+      this.loadData()
     }
   }
 }
@@ -134,12 +172,16 @@ export default {
   display: flex;
   flex-direction: column;
   .list-view-item {
-    height: 165px;
+    // height: 165px;
     background: #FFFFFF;
     border: 1px solid #D8D8D8;
     opacity: 1;
     border-radius: 10px;
     padding: 20px;
+    position: relative;
+    & ~ .list-view-item {
+      margin-top: 20px;
+    }
     .view-item-title {
       height: 21px;
       line-height: 1;
@@ -154,7 +196,6 @@ export default {
       position: absolute;
       top: 20px;
       right: 20px;
-      height: 16px;
       line-height: 1;
       font-size: 14px;
       font-family: Arial;
@@ -167,7 +208,7 @@ export default {
       display: flex;
       background: #fff;
       justify-content: space-between;
-      height: 81px;
+      // height: 81px;
       .item-detail-content {
         height: 100%;
         flex: 1;
@@ -199,6 +240,25 @@ export default {
         }
       }
     }
+  }
+}
+.no-subject {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: auto;
+  width: 400px;
+  img {
+    width: 400px;
+    height: 400px;
+  }
+  p {
+    font-size: 14px;
+    font-family: Leelawadee UI;
+    font-weight: bold;
+    color: #070707;
+    opacity: 1;
+    text-align: center;
   }
 }
 </style>

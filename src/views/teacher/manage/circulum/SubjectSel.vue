@@ -105,8 +105,8 @@ export default {
     return {
       loading: false,
       currentSchool: this.school,
-      selected: [],
-      prevSelected: [],
+      selected: [], // 当前选中
+      currentSelected: [], // 原始选中
       result: [
         {
           indeterminate: false,
@@ -149,6 +149,8 @@ export default {
               })
             }
           })
+          this.setSelected()
+          this.$emit('change', this.selected)
         }
       })
     },
@@ -159,8 +161,7 @@ export default {
         }).then(res => {
           if (res.success) {
             const ids = res.result.subjectInfo.map(item => item.subjectId)
-            this.selected = [...ids]
-            this.prevSelected = [...ids]
+            this.currentSelected = [...ids]
             this.setSelected()
             this.$emit('change', this.selected)
           }
@@ -168,20 +169,20 @@ export default {
       }
     },
     reset() {
-      console.log(this.prevSelected)
-      this.selected = [ ...this.prevSelected ]
       this.setSelected()
       this.$emit('change', this.selected)
     },
     setSelected() {
+      this.selected = []
       this.result = this.result.map(item => {
         let checkedList = []
         let indeterminate = false
         let checkAll = false
         if (item.children && item.children.length > 0) {
           checkedList = item.children.filter(child => {
-            return this.selected.includes(child.id)
+            return this.currentSelected.includes(child.id)
           }).map(_ => _.id)
+          this.selected = [...this.selected, ...checkedList]
           if (checkedList.length === item.children.length) {
             checkAll = true
           } else {

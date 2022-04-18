@@ -26,7 +26,6 @@ export function AddAcademic (parameter) {
     url: schoolAcademic.AddAcademic,
     method: 'post',
     data: parameter,
-    params: parameter,
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
@@ -56,7 +55,6 @@ export function DeleteAcademicYearById (parameter) {
     url: schoolAcademic.EditAcademic,
     method: 'post',
     data: parameter,
-    params: parameter,
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }

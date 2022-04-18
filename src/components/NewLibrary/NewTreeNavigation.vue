@@ -232,8 +232,8 @@ export default {
           if (this.onlySubjects && this.onlySubjects.length > 0) {
             onlyShowSubjects = this.onlySubjects.concat()
           } else {
-            // 如果没有传入onlySubjects，则取学校所设定的subject来展示
-            if (this.userMode === USER_MODE.SCHOOL) {
+            // 如果没有传入onlySubjects，则取学校所设定的subject来展示,且当前学校的curriculum和传过来的一样
+            if (this.userMode === USER_MODE.SCHOOL && this.currentSchool.curriculumId === this.defaultCurriculumId) {
               if (initDataResponse[4].success) {
                 onlyShowSubjects = initDataResponse[4].result.subjectInfo.map(item => item.subjectId)
               }
