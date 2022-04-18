@@ -168,7 +168,7 @@
               </div>
             </div>
           </div>
-          <div class="selected-list">
+          <div class="selected-list" v-if="hasSelectedContent">
             <div class="recommend-title">
               <h3>Selected learning objectives</h3>
             </div>
