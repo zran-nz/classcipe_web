@@ -163,6 +163,9 @@ export default {
     },
     toggleTab(status) {
       this.currentTab = status
+      if (status === 'Subject') {
+        this.$refs.SubjectRef.$forceUpdate()
+      }
     },
     changeCurriculum(val) {
       this.currentCurriculum = { ...val }
@@ -312,6 +315,9 @@ export default {
     height: 100%;
     overflow-y: scroll;
     background-color: #fff;
+    .new-tree-navigation {
+      overflow: unset;
+    }
   }
 
   .content-list {
