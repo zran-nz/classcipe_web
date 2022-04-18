@@ -65,7 +65,7 @@
       <classcipe-drive :insertClasscipeFile="insertClasscipeFile" />
     </template>
     <template v-else-if="currentTemp == tempInfo.youtube">
-      <google-youtube-video ref="googleyoutubevideo" :nextYoutube="nextYoutube" />
+      <google-youtube-video ref="googleyoutubevideo" :addYoutube="addYoutube" />
     </template>
   </div>
 </template>
@@ -156,7 +156,7 @@ export default {
     if (window.parent) {
       window.parent.postMessage(
         JSON.stringify({
-          from: 'addon',
+          to: 'classroom',
           event: 'tip-loaded',
           data: null
         }),
@@ -185,7 +185,7 @@ export default {
       }
       this.currentTemp = this.tempInfo.main
     },
-    nextYoutube(videoItem) {
+    addYoutube(videoItem) {
       if (videoItem) {
         this.addMaterialList({
           type: 'iframe',
