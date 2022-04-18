@@ -11,7 +11,7 @@
         <div class='tag-content-wrapper'>
           <div class='selected-tag' v-show="tagList.length">
             <div class="skt-tag-list">
-              <div class="skt-tag-item " v-for="tag in showTagList" :key="tag.name" v-if='tag.fieldName === currentFieldName' >
+              <div class="skt-tag-item " v-for="tag in showTagList" :key="tag.name" v-if='currentFieldName && tag.fieldName === currentFieldName' >
                 <a-tooltip :title="tag.parentName">
                   <a-tag
                     :closable="canCloseTag(tag)"
@@ -212,7 +212,11 @@ export default {
     showTagList: function () {
        const showList = []
        this.tagList.forEach(item => {
-         showList.push(item)
+         if (this.currentFieldName && this.currentFieldName === item.fieldName) {
+          showList.push(item)
+         } else if (!this.currentFieldName) {
+          showList.push(item)
+         }
        })
       return showList
     },
