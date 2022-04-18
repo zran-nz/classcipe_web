@@ -58,7 +58,7 @@
     <a-modal
       title="youtube"
       :visible.sync="showYoutube"
-      @close="closeYoutubeDialog"
+      @cancel="closeYoutubeDialog"
       :append-to-body="true"
       :destroy-on-close="false"
       width="85%"
@@ -204,7 +204,7 @@ export default {
       this.youtubeUrl = null
       this.withKeyUrl = null
       this.showIframe = false
-      this.$refs.googleyoutubevideo.closeYoutubeVideo()
+      this.showYoutube = false
     },
     addDrive() {
       GooglePicker.init((driveUpLoadProgress) => {
