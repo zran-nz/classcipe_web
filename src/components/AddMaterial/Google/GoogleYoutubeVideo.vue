@@ -120,6 +120,10 @@ export default {
       }
     },
     insert() {
+      if (this.chooseVideoId.length === 0) {
+        this.$message.warn('Please choose a video')
+        return null
+      }
       logger.info('insert ')
       this.addYoutube(this.choose)
       this.choose = null
@@ -128,7 +132,7 @@ export default {
       this.videos = []
     },
     cancel() {
-      this.addYoutube(this.choose)
+      this.addYoutube()
     },
     chooseVideo(item) {
       logger.info('chooseVideo', item)

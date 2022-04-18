@@ -2,54 +2,54 @@
   <div class="media-enter">
     <a-dropdown :getPopupContainer="trigger => trigger.parentElement">
       <div class="add-material-label">
-        <img src='~@/assets/icons/addMaterial/media-add.png' alt='' class='add-material-icon'>
+        <img src="~@/assets/icons/addMaterial/media-add.png" alt="" class="add-material-icon" />
         <strong>Add Material</strong>
       </div>
       <a-menu slot="overlay">
-        <a-menu-item class='my-add-material-menu-item'>
+        <a-menu-item class="my-add-material-menu-item">
           <a-tooltip title="Record Audio" placement="right">
-            <div class='upload-type-item'>
+            <div class="upload-type-item">
               <div class="remark-button-outer">
-                <img @click="audio" src="~@/assets/icons/addMaterial/voice-button.png" class="remark-button" alt=''/>
+                <img @click="audio" src="~@/assets/icons/addMaterial/voice-button.png" class="remark-button" alt="" />
               </div>
             </div>
           </a-tooltip>
         </a-menu-item>
-        <a-menu-item class='my-add-material-menu-item'>
+        <a-menu-item class="my-add-material-menu-item">
           <a-tooltip title="Record Video" placement="right">
-            <div class='upload-type-item'>
+            <div class="upload-type-item">
               <div class="remark-button-outer">
-                <img @click="video" src="~@/assets/icons/addMaterial/video.png" class="remark-button" alt=''/>
+                <img @click="video" src="~@/assets/icons/addMaterial/video.png" class="remark-button" alt="" />
               </div>
             </div>
           </a-tooltip>
         </a-menu-item>
-        <a-menu-item class='my-add-material-menu-item'>
+        <a-menu-item class="my-add-material-menu-item">
           <a-tooltip title="my computer" placement="right">
-            <div class='upload-type-item'>
+            <div class="upload-type-item">
               <open-dir-svg class="opened" />
-              <common-upload accept="image/*,video/*,audio/*" :onSuccess="onSuccess"/>
+              <common-upload accept="image/*,video/*,audio/*" :onSuccess="onSuccess" />
             </div>
           </a-tooltip>
         </a-menu-item>
-        <a-menu-item class='my-add-material-menu-item'>
+        <a-menu-item class="my-add-material-menu-item">
           <a-tooltip title="google drive" placement="right">
-            <div class='upload-type-item'>
-              <google-drive-icon @click="addDrive" class='svg-icon'/>
+            <div class="upload-type-item">
+              <google-drive-icon @click="addDrive" class="svg-icon" />
             </div>
           </a-tooltip>
         </a-menu-item>
-        <a-menu-item class='my-add-material-menu-item'>
+        <a-menu-item class="my-add-material-menu-item">
           <a-tooltip title="google image search" placement="right">
-            <div class='upload-type-item'>
-              <google-image-search-icon @click="addGoogleImage" class='svg-icon' />
+            <div class="upload-type-item">
+              <google-image-search-icon @click="addGoogleImage" class="svg-icon" />
             </div>
           </a-tooltip>
         </a-menu-item>
-        <a-menu-item class='my-add-material-menu-item'>
+        <a-menu-item class="my-add-material-menu-item">
           <a-tooltip title="youtube" placement="right">
-            <div class='upload-type-item'>
-              <youtube-icon @click="addYoutube" class='svg-icon'/>
+            <div class="upload-type-item">
+              <youtube-icon @click="addYoutube" class="svg-icon" />
             </div>
           </a-tooltip>
         </a-menu-item>
@@ -59,14 +59,12 @@
       title="youtube"
       :visible.sync="showYoutube"
       @close="closeYoutubeDialog"
+      :footer="null"
       :append-to-body="true"
       :destroy-on-close="false"
       width="85%"
     >
-      <google-youtube-video
-        ref="googleyoutubevideo"
-        :addYoutube="nextYoutube"
-      />
+      <google-youtube-video ref="googleyoutubevideo" :addYoutube="nextYoutube" />
     </a-modal>
 
     <a-modal
@@ -76,23 +74,17 @@
       width="70%"
       :destroy-on-close="destroyOnClose"
     >
-      <google-image-search
-        :doneSelect="doneSelect"
-      />
+      <google-image-search :doneSelect="doneSelect" />
     </a-modal>
-    <div class='material-recorder'>
-      <record-video
-        v-if="recordType === ModalEventsTypeEnum.VIDEO"
-        :onSend="onSendVideo"
-        :cancel="cancelRecord"
-      />
+    <div class="material-recorder">
+      <record-video v-if="recordType === ModalEventsTypeEnum.VIDEO" :onSend="onSendVideo" :cancel="cancelRecord" />
       <record-audio
         v-else-if="recordType === ModalEventsTypeEnum.AUDIO"
         :onSend="onSendAudio"
         :cancel="cancelRecord"
         :autoDone="true"
       />
-      <common-progress :progress="driveUpLoadProgress" :cancel="cancelUpDrive"/>
+      <common-progress :progress="driveUpLoadProgress" :cancel="cancelUpDrive" />
     </div>
   </div>
 </template>
@@ -148,9 +140,7 @@ export default {
       driveUpLoadProgress: 0
     }
   },
-  mounted() {
-
-  },
+  mounted() {},
   methods: {
     onSuccess(file, result) {
       this.$logger.info('onSuccess', file, result)
@@ -190,40 +180,45 @@ export default {
         })
       }
     },
-    nextYoutube(videoUrl) {
-      console.log(this.withKeyUrl)
-      if (videoUrl) {
+    nextYoutube(videoItem) {
+      console.log('videoItem', videoItem)
+      if (videoItem && videoItem.link) {
+        const videoUrl = videoItem.link
         AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_NEW_MEDIA, {
           type: 'iframe',
           url: videoUrl
         })
-        this.showYoutube = false
       }
+      this.showYoutube = false
     },
     closeYoutubeDialog() {
       this.youtubeUrl = null
       this.withKeyUrl = null
       this.showIframe = false
+      this.showYoutube = false
       this.$refs.googleyoutubevideo.closeYoutubeVideo()
     },
     addDrive() {
-      GooglePicker.init((driveUpLoadProgress) => {
-        this.driveUpLoadProgress = driveUpLoadProgress
-      }, (type, url, mediaType) => {
-        if (url) {
-          this.$logger.info('addDrive done', url, mediaType)
-          AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_NEW_MEDIA, {
-            type: mediaType.indexOf('image') > -1 ? 'image' : 'video',
-            url: this.$classcipe.replaceToClasscipeCDN(url)
+      GooglePicker.init(
+        driveUpLoadProgress => {
+          this.driveUpLoadProgress = driveUpLoadProgress
+        },
+        (type, url, mediaType) => {
+          if (url) {
+            this.$logger.info('addDrive done', url, mediaType)
+            AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_NEW_MEDIA, {
+              type: mediaType.indexOf('image') > -1 ? 'image' : 'video',
+              url: this.$classcipe.replaceToClasscipeCDN(url)
+            })
+          }
+          this.$nextTick(() => {
+            this.driveUpLoadProgress = 0
           })
-        }
-        this.$nextTick(() => {
-          this.driveUpLoadProgress = 0
-        })
-      }, this.$store.getters.userInfo.id)
+        },
+        this.$store.getters.userInfo.id
+      )
     },
-    cancelUpDrive() {
-    },
+    cancelUpDrive() {},
     searchImage() {
       if (this.imageName) {
         this.load()
@@ -238,36 +233,37 @@ export default {
           }
         }
       )
-        .then((response) => {
+        .then(response => {
           // // console.log(d)
           return response.json()
         })
-        .then((d) => {
+        .then(d => {
           // console.log(d.items)
           if (d.items.length > 0) {
             this.imagesList = d.items
           }
         })
-        .catch(() => {
-        })
+        .catch(() => {})
     },
     selectImage(index) {
       this.imageSelectedIndex = index
     },
     doneSelect(imageUrl) {
-      uploadImageToAwsByUrl(this.$store.getters.userInfo.id, imageUrl).then((url) => {
-        this.$logger.info('uploadImageToAwsByUrl', url)
-        AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_NEW_MEDIA, {
-          type: 'image',
-          url: this.$classcipe.replaceToClasscipeCDN(url)
+      uploadImageToAwsByUrl(this.$store.getters.userInfo.id, imageUrl)
+        .then(url => {
+          this.$logger.info('uploadImageToAwsByUrl', url)
+          AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_NEW_MEDIA, {
+            type: 'image',
+            url: this.$classcipe.replaceToClasscipeCDN(url)
+          })
+          this.closeImageSearch()
         })
-        this.closeImageSearch()
-      }).catch((e) => {
-        console.log(e)
-        this.$logger.warn('uploadImageToAwsByUrl', e)
-        this.closeImageSearch()
-        this.$message.error('The image you selected is not available')
-      })
+        .catch(e => {
+          console.log(e)
+          this.$logger.warn('uploadImageToAwsByUrl', e)
+          this.closeImageSearch()
+          this.$message.error('The image you selected is not available')
+        })
     },
     closeImageSearch() {
       this.imageSelectedIndex = -1
@@ -306,7 +302,6 @@ export default {
 }
 </script>
 <style scoped>
-
 .media-enter {
   color: #36425a;
   font-weight: bold;
@@ -323,7 +318,7 @@ export default {
 .add-material-icon {
   width: 25px;
 }
-.remark-button{
+.remark-button {
   width: 32px;
   height: 32px;
 }
