@@ -121,7 +121,7 @@ export default {
     },
     insert() {
       if (this.chooseVideoId.length === 0) {
-        this.$message.warn('Please choose a video')
+        this.$message.warn('Please select a video')
         return null
       }
       logger.info('insert ')
