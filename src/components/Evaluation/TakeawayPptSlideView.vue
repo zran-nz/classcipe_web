@@ -124,68 +124,35 @@
                 </div>
               </div>
 
-              <div
-                class="img-item-list"
-                v-if="slideItem.material && slideItem.material.hasOwnProperty('image')"
-                @click.stop="">
-                <div class="img-item" v-for="(imgItem, index) in slideItem.material.image" :key="index" @click.stop="">
-                  <div :style="{'background-image': 'url(' + imgItem.url + ')'}" class="img-cover" />
-                  <div class="view-item" @click.stop="handleViewItem(imgItem.url)">View
-                    <a-icon type="eye" />
-                  </div>
-                </div>
-              </div>
-
-              <div class="audio-item-list" v-if="slideItem.material && slideItem.material.hasOwnProperty('audio')">
-                <div
-                  class="audio-item"
-                  v-for="(audioItem, index) in slideItem.material.audio"
-                  :key="index"
-                  @click.stop="">
-                  <img src="~@/assets/evaluation/evidence/audio.png" class="img-icon">
-                  <div class="audio-view">
-                    <audio controls :src="audioItem.url" />
-                  </div>
-                </div>
-              </div>
-
-              <div class="video-item-list" v-if="slideItem.material && slideItem.material.hasOwnProperty('video')">
-                <div
-                  class="video-item"
-                  v-for="(videoItem, index) in slideItem.material.video"
-                  :key="index"
-                  @click.stop="">
-                  <img src="~@/assets/evaluation/evidence/video.png" class="img-icon">
-                  <div class="video-view">
-                    <video controls :src="videoItem.url" />
-                  </div>
-                </div>
-              </div>
-
-              <div class="data-item" v-for="(data, rIndex) in slideItem.responseList" :key="rIndex">
-                <template v-if="data.itemData.type === 'media'">
-                  <template v-if="data.responseData.content.mediaType === 'audio'">
+              <template v-for="(data, rIndex) in slideItem.responseList">
+                <div class="data-item" :key="rIndex" v-if="data.studentUserId === studentName">
+                  <template v-if="data.itemData.type === 'media'">
+                    <template v-if="data.responseData.content.mediaType === 'audio'">
+                      <audio :src="data.responseData.content.link" controls />
+                    </template>
+                  </template>
+                  <template v-if="data.responseData.type === 'audio'">
                     <audio :src="data.responseData.content.link" controls />
                   </template>
-                </template>
-                <template v-if="data.responseData.type === 'audio'">
-                  <audio :src="data.responseData.content.link" controls />
-                </template>
-                <template v-if="data.responseData.type === 'draw'">
-                  <img :src="data.responseData.content" />
-                </template>
-                <template v-if="data.responseData.type === 'text'">
-                  {{ data.responseData.content }}
-                </template>
-                <template v-if="data.itemData && data.itemData.data && data.itemData.data.options">
-                  <div class="option-list" @click.stop="">
-                    <div class="option-item" v-for="(optionItem, oIndex) in data.itemData.data.options" :key="oIndex">
-                      <a-radio :checked="optionItem.isAnswer">{{ optionItem.text }}</a-radio>
-                      <span class="correct-option" v-if="optionItem.isAnswer">Correct answer</span>
+                  <template v-if="data.responseData.type === 'draw'">
+                    <div class="ppt-cover">
+                      <img :src="slideItem.contentUrl" class="ppt-img" />
+                      <img :src="data.responseData.content" class="ppt-img"/>
                     </div>
-                  </div>
-                </template>
-              </div>
+                  </template>
+                  <template v-if="data.responseData.type === 'text'">
+                    {{ data.responseData.content }}
+                  </template>
+                  <template v-if="data.itemData && data.itemData.data && data.itemData.data.options">
+                    <div class="option-list" @click.stop="">
+                      <div class="option-item" v-for="(optionItem, oIndex) in data.itemData.data.options" :key="oIndex">
+                        <a-radio :checked="optionItem.isAnswer">{{ optionItem.text }}</a-radio>
+                        <span class="correct-option" v-if="optionItem.isAnswer">Correct answer</span>
+                      </div>
+                    </div>
+                  </template>
+                </div>
+              </template>
             </div>
           </div>
           <div class="slide-comment">
@@ -317,7 +284,7 @@
         :title="null"
         @ok="viewSlideItemVisible = false"
         @cancel="viewSlideItemVisible = false">
-        <slide-preview :slide-item="currentViewSlideItem" />
+        <slide-preview :slide-item="currentViewSlideItem" :user-id="studentName" />
       </a-modal>
     </div>
     <div class='save-takeaway' v-if="!loading && canEdit">
@@ -590,11 +557,12 @@ export default {
             slideItem.commentList.push({ ...data, user_id: item.user_id })
             this.rawSlideDataMap.set(pageId, slideItem)
           } else {
-            this.$logger.warn('commentList no get slideIem by pageId ' + pageId)
+            this.$logger.info('not found page item ' + pageId)
+            this.rawSlideDataMap.set(pageId, slideItem)
           }
         })
+        this.$logger.info('rawCommentDataList', rawCommentDataList)
         const rawResponseData = response.data.response
-        const itemIdList = []
         rawResponseData.forEach((item) => {
           const responseData = JSON.parse(item.response_data)
           const itemData = JSON.parse(item.item_data)
@@ -602,12 +570,15 @@ export default {
           const studentUserId = item.student_user_id
           const pageId = responseData.page_id
           const slideItem = this.rawSlideDataMap.get(pageId)
-          if (slideItem && itemIdList.indexOf(itemData.item_id) === -1) {
-            itemIdList.push(itemData.item_id)
+          if (slideItem) {
+            if (responseType === 'choice' && responseData.answer && itemData.data.options[responseData.answer]) {
+              itemData.data.options[responseData.answer].isAnswer = true
+            }
             this.$logger.info('find slideItem response ' + responseData.page_id, itemData)
             slideItem.responseList.push({ responseData, itemData, responseType, studentUserId })
             this.rawSlideDataMap.set(pageId, slideItem)
           } else {
+            this.$logger.info('not find slideItem response ' + pageId)
           }
         })
         this.$logger.info('after set rawSlideDataMap ', this.rawSlideDataMap)
@@ -942,8 +913,17 @@ export default {
                 width: 180px;
               }
 
-              img {
-                width: 180px;
+              .ppt-cover {
+                position: relative;
+                width: 100%;
+                height: 160px;
+
+                img {
+                  position: absolute;
+                  left: 0;
+                  top: 0;
+                  width: 100%;
+                }
               }
 
               .text {
