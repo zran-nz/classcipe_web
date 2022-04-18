@@ -572,9 +572,13 @@ export default {
 
     handleRemoveSelected (item) {
       this.$logger.info('NewBrowser handleRemoveSelected', item)
-      this.$refs['contentList'].handleRemoveSelected(item)
 
-      this.updateSelectedGradeSet()
+      if (item.dataType) {
+        this.$refs['contentList'].handleRemoveSelected(item)
+        this.updateSelectedGradeSet()
+      } else {
+        this.handleRemoveMySelected(item)
+      }
     },
 
     handleUpdateSelectedList (data) {
