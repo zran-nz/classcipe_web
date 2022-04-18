@@ -109,18 +109,20 @@
                     src="~@/assets/evaluation/evidence/expand.png"
                     class="expand-icon"
                     @click.stop="handleViewExpand(slideItem)" />
-                  <div
-                    class="dot-item"
-                    v-for="(item, index) in slideItem.commentList"
-                    :key="index"
-                    :style="{
-                      position: 'absolute',
-                      border: '2px solid #aaa',
-                      backgroundColor: item.background,
-                      left: ((item.left / item.content_width) * 280) + 'px',
-                      top: ((item.top / item.content_height) * 160) + 'px',
-                    }">
-                  </div>
+                  <template v-for="(item, index) in slideItem.commentList">
+                    <div
+                      v-if="item.user_id === studentName"
+                      class="dot-item"
+                      :key="index"
+                      :style="{
+                        position: 'absolute',
+                        border: '2px solid #aaa',
+                        backgroundColor: item.background,
+                        left: ((item.left / item.content_width) * 280) + 'px',
+                        top: ((item.top / item.content_height) * 160) + 'px',
+                      }">
+                    </div>
+                  </template>
                 </div>
               </div>
 
@@ -129,6 +131,12 @@
                   <template v-if="data.itemData.type === 'media'">
                     <template v-if="data.responseData.content.mediaType === 'audio'">
                       <audio :src="data.responseData.content.link" controls />
+                    </template>
+                    <template v-if="data.responseData.content.mediaType === 'image'">
+                      <img :src="data.responseData.content.link" class="media-img" />
+                    </template>
+                    <template v-if="data.responseData.content.mediaType === 'video'">
+                      <video :src="data.responseData.content.link" class="media-video" controls />
                     </template>
                   </template>
                   <template v-if="data.responseData.type === 'audio'">
@@ -563,18 +571,20 @@ export default {
         })
         this.$logger.info('rawCommentDataList', rawCommentDataList)
         const rawResponseData = response.data.response
+        this.$logger.info('rawResponseData', rawResponseData)
         rawResponseData.forEach((item) => {
+          this.$logger.info('handle slideItem raw', JSON.parse(JSON.stringify(item)))
           const responseData = JSON.parse(item.response_data)
           const itemData = JSON.parse(item.item_data)
           const responseType = item.response_type
           const studentUserId = item.student_user_id
           const pageId = responseData.page_id
           const slideItem = this.rawSlideDataMap.get(pageId)
+          this.$logger.info('handle slideItem', JSON.parse(JSON.stringify(slideItem.responseList)))
           if (slideItem) {
             if (responseType === 'choice' && responseData.answer && itemData.data.options[responseData.answer]) {
               itemData.data.options[responseData.answer].isAnswer = true
             }
-            this.$logger.info('find slideItem response ' + responseData.page_id, itemData)
             slideItem.responseList.push({ responseData, itemData, responseType, studentUserId })
             this.rawSlideDataMap.set(pageId, slideItem)
           } else {
@@ -603,11 +613,11 @@ export default {
             material: material
           })
           if (value.commentList.length) {
-            this.$logger.info('commentList have data' + JSON.stringify(value))
+            this.$logger.info('commentList have data', value.commentList)
           }
 
           if (value.responseList.length) {
-            this.$logger.info('responseList have data' + JSON.stringify(value))
+            this.$logger.info('responseList have data', value.responseList)
           }
         }
         this.$logger.info('slideDataList', this.slideDataList)
