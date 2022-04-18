@@ -72,7 +72,7 @@ import * as logger from '@/utils/logger'
 import { YoutubeQueryByKeywords } from '@/api/material'
 export default {
   props: {
-    addYoutube: {
+    nextYoutube: {
       type: Function,
       required: true
     }
@@ -125,14 +125,14 @@ export default {
         return null
       }
       logger.info('insert ')
-      this.addYoutube(this.choose)
+      this.nextYoutube(this.choose)
       this.choose = null
       this.keywords = ''
       this.chooseVideoId = ''
       this.videos = []
     },
     cancel() {
-      this.addYoutube()
+      this.nextYoutube()
     },
     chooseVideo(item) {
       logger.info('chooseVideo', item)

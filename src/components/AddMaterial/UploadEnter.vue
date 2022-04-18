@@ -64,7 +64,7 @@
       :destroy-on-close="false"
       width="85%"
     >
-      <google-youtube-video ref="googleyoutubevideo" :addYoutube="nextYoutube" />
+      <google-youtube-video ref="googleyoutubevideo" :nextYoutube="nextYoutube" />
     </a-modal>
 
     <a-modal
