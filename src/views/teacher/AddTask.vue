@@ -2529,7 +2529,8 @@ export default {
       this.$logger.info('handleToggleSelectContentItem', data, event)
       this.previewTemplateVisible = false
       if (this.drawerSelectedTemplateIds.indexOf(data.id) === -1) {
-        this.handleSelectTemplateMadelAnimate(data, event)
+        // this.handleSelectTemplateMadelAnimate(data, event)
+        this.selectRecommendTemplate(data, 0, event)
       } else {
         this.handleSelectTemplateMadel(data)
       }
