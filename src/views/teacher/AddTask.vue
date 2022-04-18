@@ -992,6 +992,7 @@
                 <template v-if='showRightModule(rightModule.customTag) && this.currentActiveStepIndex !== 1'>
                   <div v-if='!this.contentLoading' :style="{'width':rightWidth+'px', 'margin-top':customTagTop+'px'}">
                     <custom-tag
+                      :display-mode="canEdit ? 'edit' : 'readonly'"
                       ref='customTag'
                       :show-arrow='showCustomTag'
                       :custom-tags='customTags'
@@ -1007,6 +1008,7 @@
 
               <div class='sub-task-tag-wrapper' v-if='currentActiveStepIndex === 2 && currentTaskFormData'>
                 <custom-tag
+                  :display-mode="canEdit ? 'edit' : 'readonly'"
                   ref='customTag'
                   :show-arrow='showCustomTag'
                   :custom-tags='customTags'

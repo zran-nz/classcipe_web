@@ -1,10 +1,10 @@
 <template>
   <div class="custom-tag" v-show='mergeTagList.length || tagList.length'>
     <div>
-      <a-card class="cover-card" :head-style="{ background:'#15c39a',color:'#fff'}" :body-style="{'padding': '10px'}" title="Tag your content" :bordered="false">
+      <a-card class="cover-card" :head-style="{ background:'#15c39a',color:'#fff'}" :body-style="{'padding': '10px'}" :title="displayMode === 'edit' ? 'Tag your content' : 'Tag'" :bordered="false">
         <a v-if="showArrow" class="header-triangle"></a>
-        <a-button class="setting-button" slot="extra" href="#" @click="handleSetting">My tags <a-icon type="edit" /></a-button>
-        <div class='tag-selected-label'>
+        <a-button class="setting-button" slot="extra" href="#" @click="handleSetting" v-show="displayMode === 'edit'">My tags <a-icon type="edit" /></a-button>
+        <div class='tag-selected-label' v-if="displayMode === 'edit'">
           <template v-if="tagList.length === 0">No tags added : </template>
           <template v-if='tagList.length !== 0'>Tags added :</template>
         </div>
@@ -25,12 +25,13 @@
           </div>
           <div class='no-selected-tag' v-show='!tagList.length'>
             <div class='no-tag-content'>
-              Click on the tag below to select
+              <template v-if="displayMode === 'edit'">Click on the tag below to select</template>
+              <template v-if="displayMode === 'readonly'">no tag</template>
             </div>
           </div>
         </div>
 
-        <a-spin :spinning="tagLoading">
+        <a-spin :spinning="tagLoading" v-if="displayMode === 'edit'">
           <div class="tag-category" >
             <a-row>
               <a-col offset="0" span="24">
@@ -179,6 +180,10 @@ export default {
     currentFieldName: {
       type: String,
       default: null
+    },
+    displayMode: {
+      type: String,
+      default: 'edit' // readonly edit两种
     }
   },
   mounted () {

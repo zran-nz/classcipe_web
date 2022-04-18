@@ -635,6 +635,7 @@
                   v-show='!this.contentLoading'
                   :style="{'width':rightWidth+'px', 'margin-top':customTagTop+'px', 'z-index': 50}">
                   <custom-tag
+                    :display-mode="canEdit ? 'edit' : 'readonly'"
                     ref='customTag'
                     :scope-tags-list='customTagList'
                     :selected-tags-list='form.customTags'
