@@ -344,7 +344,7 @@ export default {
 }
 .material-recorder {
   position: absolute;
-  right: -250px;
+  right: -130px;
   top: 0;
 }
 </style>

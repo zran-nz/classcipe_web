@@ -19,6 +19,10 @@ export const NoticeMixin = {
   methods: {
     ...mapActions(['refreshCollaborateAction']),
     gotoContent(record) {
+      if (record.busId === '-1') {
+        this.$router.push({ path: '/teacher/main/created-by-me' })
+        return
+      }
       // 申请跳转到闲情页
       const typeIds = record.busId.split('#')
       if (parseInt(typeIds[0]) === typeMap.task) {

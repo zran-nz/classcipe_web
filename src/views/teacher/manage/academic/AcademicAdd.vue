@@ -13,6 +13,12 @@
     >
       <a-spin :spinning="confirmLoading">
         <a-form-model ref="form" :model="model" :rules="validatorRules">
+          <a-form-model-item label="Title">
+            <a-input
+              v-model="model.name"
+              placeholder="Title"
+            />
+          </a-form-model-item>
           <a-row :gutter=16 v-for="(item, index) in model.terms" :key="'modelItem'+index">
             <a-col :span="7">
               <a-form-model-item label="Name" :prop="'terms.'+index+'.name'" :rules="validatorRules.name">
@@ -22,9 +28,13 @@
             <a-col :span="8">
               <a-form-model-item label="Start on">
                 <a-date-picker
-                  v-model="item.startOn"
-                  type="date"
+                  v-model="item.startTime"
+                  :disabled-date="val => disabledStartDate(val, item)"
+                  :allowClear="false"
+                  format="YYYY-MM-DD"
+                  valueFormat="YYYY-MM-DD"
                   placeholder="Pick a date"
+                  @change="val => changeStartTime(val, item)"
                   style="width: 100%;"
                 />
               </a-form-model-item>
@@ -32,8 +42,11 @@
             <a-col :span="8">
               <a-form-model-item label="End on">
                 <a-date-picker
-                  v-model="item.endOn"
-                  type="date"
+                  v-model="item.endTime"
+                  :disabled-date="val => disabledEndDate(val, item)"
+                  :allowClear="false"
+                  format="YYYY-MM-DD"
+                  valueFormat="YYYY-MM-DD"
                   placeholder="Pick a date"
                   style="width: 100%;"
                 />
@@ -62,34 +75,38 @@
 
 <script>
 import JModal from '@/components/jeecg/JModal'
-// import { httpAction, uploadAction } from '@/api/manage'
-import { USER_MODE } from '@/const/common'
+import { AddAcademic, EditAcademic } from '@/api/schoolAcademic'
+import { UserModeMixin } from '@/mixins/UserModeMixin'
+import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import { mapState } from 'vuex'
+import moment from 'moment'
+import cloneDeep from 'lodash.clonedeep'
 
 export default {
   name: 'AcademicAdd',
-  mixins: [],
+  mixins: [UserModeMixin, CurrentSchoolMixin],
   components: {
     JModal
   },
   data() {
     return {
-      USER_MODE: USER_MODE,
-      title: 'Add acadeic year',
+      title: 'Add academic year',
       mode: 'add',
       width: 800,
       visible: false,
       confirmLoading: false,
       form: this.$form.createForm(this, { name: 'modalAdd' }),
       model: {
+        academicId: '',
+        name: '',
+        schoolId: this.currentSchool ? this.currentSchool.id : '',
         terms: [{
+          id: '',
           name: '',
-          startOn: '',
-          endOn: ''
+          startTime: '',
+          endTime: ''
         }]
-      },
-      fileList: [],
-      uploading: false
+      }
     }
   },
   created() {
@@ -111,13 +128,38 @@ export default {
     }
   },
   methods: {
+    handleSchoolChange(currentSchool) {
+      this.model.schoolId = currentSchool.id
+    },
+    disabledStartDate(startValue, item) {
+      const endValue = item.endTime
+      if (!startValue || !endValue) {
+        return false
+      }
+      return moment(startValue).valueOf() > moment(endValue).valueOf()
+    },
+    disabledEndDate(endValue, item) {
+      const startValue = item.startTime
+      if (!endValue || !startValue) {
+        return false
+      }
+      return moment(startValue).valueOf() >= moment(endValue).valueOf()
+    },
+    changeStartTime(date, item) {
+      if (date && !item.endTime) {
+        item.endTime = moment(date).add(1, 'months').format('YYYY-MM-DD')
+      }
+    },
     add () {
       this.mode = 'add'
       // 初始化默认值
       this.edit(this.modelDefault)
     },
     edit (record) {
-      this.model = Object.assign({}, record)
+      this.model = cloneDeep(Object.assign({}, record, {
+        schoolId: this.currentSchool.id
+      }))
+      console.log(this.model)
       this.mode = 'update'
       this.visible = true
     },
@@ -127,10 +169,17 @@ export default {
       this.$refs.form.clearValidate()
     },
     addItem() {
+      let startTime = ''
+      let endTime = ''
+      if (this.model.terms.length > 0) {
+        const last = this.model.terms[this.model.terms.length - 1]
+        startTime = last.endTime
+        endTime = startTime ? moment(startTime).add(1, 'months').format('YYYY-MM-DD') : ''
+      }
       this.model.terms.push({
         name: '',
-        startOn: '',
-        endOn: ''
+        startTime: startTime,
+        endTime: endTime
       })
     },
     removeItem(item) {
@@ -140,27 +189,25 @@ export default {
       }
     },
     handleOk() {
-      // const that = this
+      const that = this
       // 触发表单验证
       this.$refs.form.validate(valid => {
         if (valid) {
-          // that.confirmLoading = true
-          // const addOrUpdate = this.userMode === USER_MODE.SELF ? personalClassApiUrl.AddOrUpdate : schoolClassAPIUrl.SchoolClassAddOrUpdate
-          // httpAction(addOrUpdate, this.model, 'post').then((res) => {
-          //   if (res.success) {
-          //     this.model.id = res.result.id
-          //     if (this.fileList.length > 0) {
-          //         this.handleUpload()
-          //     } else {
-          //       that.$message.success(res.message)
-          //       this.$emit('ok')
-          //       that.confirmLoading = false
-          //       that.close()
-          //     }
-          //   } else {
-          //     that.$message.warning(res.message)
-          //   }
-          // })
+          that.confirmLoading = true
+          let promise = AddAcademic
+          if (this.model.academicId) promise = EditAcademic
+          promise({
+            ...this.model
+          }).then((res) => {
+            if (res.success) {
+              that.$message.success(res.message)
+              that.close()
+            } else {
+              that.$message.warning(res.message)
+            }
+          }).finally(res => {
+            that.confirmLoading = false
+          })
         } else {
           return false
         }
@@ -169,9 +216,6 @@ export default {
     handleCancel() {
       this.visible = false
       this.confirmLoading = false
-    },
-    handleRemove(file) {
-      this.fileList = []
     }
   }
 }

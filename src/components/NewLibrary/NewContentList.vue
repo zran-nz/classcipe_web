@@ -8,29 +8,25 @@
     <div class="content-list" >
       <template v-if="contentDataList && contentDataList.length">
         <div
+          @click="handleContentListItemClick(item)"
           :data-item-id="item.id"
           :class="{'content-item': true,
                    'odd-line': index % 2 === 0,'even-line': index % 2 === 1,
                    'active-line': currentId === item.id,
-                   'selected-line': selectedIdList.indexOf(item.id) !== -1 ? true : (currentDataType === NavigationType.sync ? (selectedKnowledgeIdList.indexOf(item.knowledgeId) !== -1) : (
-                     currentDataType === NavigationType.learningOutcomes ? (selectedCurriculumIdList.indexOf(item.id) !== -1) : (
-                       currentDataType === NavigationType.specificSkills ? (selectedSubjectSpecificSkillIdList.indexOf(item.id) !== -1) : (
-                         (currentDataType === NavigationType.centurySkills ||
-                           currentDataType === NavigationType.AUGeneralCapabilities ||
-                           currentDataType === NavigationType.NZKeyCompetencies) ? (selected21CenturySkillIdList.indexOf(item.id) !== -1) : (
-                           currentDataType === NavigationType.sdg ? (selectedBigIdeaList.indexOf(item.id) !== -1) : (
-                             currentDataType === NavigationType.assessmentType ? (selectedAssessmentIdList.indexOf(item.id) !== -1) : (
-                               currentDataType === NavigationType.all21Century ? (selectedAll21CenturyIdList.indexOf(item.id) !== -1) : (
-                                 currentDataType === NavigationType.idu ? (selectedIDUIdList.indexOf(item.id) !== -1) : false
-                               )
-                             )
-                           )
-                         )))))}"
+                   'selected-line': isSelectedItem(item)}"
           v-for="(item,index) in contentDataList"
           :key="index">
-          <div class="name" :style="{width: nameWidth + 'px'}" @click="handleContentListItemClick(item)">
-            <div class="icon">
-              <a-icon type="folder" theme="filled" class="file-dir-icon"/>
+          <div class="name" :style="{width: nameWidth + 'px'}">
+            <div class="icon item-type-icon">
+              <template v-if="item.children.length !== 0 || (item.gradeList && item.gradeList.length !== 0) || (item.hasOwnProperty('isGrade') && item.isGrade) || !item.hasOwnProperty('tagType')">
+                <a-icon type="folder" theme="filled" class="file-dir-icon" />
+              </template>
+              <template v-else-if="isSelectedItem(item) && item.hasOwnProperty('tagType')">
+                <img src="~@/assets/icons/lesson/selected.png" />
+              </template>
+              <template v-else-if="!isSelectedItem(item) && item.hasOwnProperty('tagType')">
+                <div class="empty-circle"></div>
+              </template>
             </div>
             <a-tooltip placement="top" >
               <template slot="title" v-if="item.gradeNames && item.gradeNames.length > 0">{{ item.gradeNames | gradeFormat }}</template>
@@ -38,9 +34,6 @@
                 {{ item.name || item.description }}
               </div>
             </a-tooltip>
-            <div class="action-icon">
-              <img src="~@/assets/icons/lesson/selected.png"/>
-            </div>
           </div>
         </div>
       </template>
@@ -167,6 +160,35 @@ export default {
     this.assignSelectedList()
   },
   methods: {
+
+    isSelectedItem (item) {
+      if (this.selectedIdList.indexOf(item.id) !== -1) {
+        return true
+      } else {
+        switch (this.currentDataType) {
+          case NavigationType.sync:
+            return this.selectedKnowledgeIdList.indexOf(item.knowledgeId) !== -1
+          case NavigationType.learningOutcomes:
+            return this.selectedCurriculumIdList.indexOf(item.id) !== -1
+          case NavigationType.specificSkills:
+            return this.selectedSubjectSpecificSkillIdList.indexOf(item.id) !== -1
+          case NavigationType.centurySkills:
+          case NavigationType.AUGeneralCapabilities:
+          case NavigationType.NZKeyCompetencies:
+            return this.selected21CenturySkillIdList.indexOf(item.id) !== -1
+          case NavigationType.sdg:
+            return this.selectedBigIdeaList.indexOf(item.id) !== -1
+          case NavigationType.assessmentType:
+            return this.selectedAssessmentIdList.indexOf(item.id) !== -1
+          case NavigationType.all21Century:
+            return this.selectedAll21CenturyIdList.indexOf(item.id) !== -1
+          case NavigationType.idu:
+            return this.selectedIDUIdList.indexOf(item.id) !== -1
+          default:
+            return false
+        }
+      }
+    },
     handleChangeCurriculum () {
       this.$logger.info('NewContentList handleChangeCurriculum')
       this.contentDataList = []
@@ -422,7 +444,7 @@ export default {
         }
       } else if (this.currentDataType === NavigationType.assessmentType) {
         // assessmentType 是mainSubject-year-assessmentType-knowledge
-        // asseeement的grade下面有两层，所以根据数据字段中特定的标识字段判断是否为knowledge(QueryKnowledgesByAssessmentTypeId、GetAssessmentTypeList的时候标识的
+        // assessment的grade下面有两层，所以根据数据字段中特定的标识字段判断是否为knowledge(QueryKnowledgesByAssessmentTypeId、GetAssessmentTypeList的时候标识的
         if (!item.hasOwnProperty('isKnowledge') || (item.gradeList && item.gradeList.length)) {
           // 如果有子列表，表示还未到最后一层knowledge，通知左侧导航栏更新同步层级
           LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, {
@@ -760,27 +782,12 @@ export default {
       background-color: rgba(228, 228, 228, 0.2);
     }
 
-    .action-icon {
-      display: none;
-    }
-
     .selected-line {
       background-color: fade(@outline-color, 10%) !important;
       color: @text-color;
       border: 1px solid #15C39A !important;
       box-sizing: border-box;
       position: relative;
-
-      .action-icon {
-        display: block;
-        position: absolute;
-        right: 5px;
-        top: 50%;
-        margin-top: -10px;
-        img {
-          height: 18px;
-        }
-      }
     }
 
     .active-line {
@@ -807,9 +814,8 @@ export default {
         cursor: pointer;
         display: flex;
         flex-direction: row;
-        align-items: flex-start;
+        align-items: center;
         word-break: break-all;
-        padding: 0 10px;
         width: 100%;
         .icon {
           .file-dir-icon {
@@ -869,12 +875,33 @@ export default {
     border-radius: 1px;
     background: rgba(0,0,0,0.00);
     -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
   }
   /* 滚动条滑块 */
   *::-webkit-scrollbar-thumb {
     border-radius: 3px;
     background: rgba(0,0,0,0.12);
     -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+  }
+}
+
+.item-type-icon {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 25px;
+  .empty-circle {
+    height: 18px;
+    width: 18px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+  }
+
+  img {
+    width: 20px;
+    height: 20px;
   }
 }
 </style>

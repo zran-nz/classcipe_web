@@ -643,7 +643,7 @@
               </template>
             </div>
             <div class='form-field-item custom-field' v-for='custFieldItem in $store.getters.formConfigData.taskCustomList' :key='custFieldItem.id'>
-              <template v-if='step.customFields.indexOf(custFieldItem.fieldName) !== -1'>
+              <template v-if='step.customFields.indexOf(custFieldItem.name) !== -1'>
                 <div class='form-block tag-content-block' v-if="custFieldItem.visible && form.customFieldData && form.customFieldData.hasOwnProperty(custFieldItem.id)" :key='custFieldItem.id' :data-field-name="'cust_' + custFieldItem.name" :data-field-id='custFieldItem.id'>
                   <a-form-item>
                     <template class='my-label' slot='label'>

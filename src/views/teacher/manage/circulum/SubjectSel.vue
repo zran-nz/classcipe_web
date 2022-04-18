@@ -1,6 +1,6 @@
 <template>
   <div class="subject-col">
-    <div v-show="currentCurriculum">
+    <div v-if="currentCurriculum">
       <div class="subject-result-wrap" ref="subjectWrap">
         <div class="subject-circulum">
           <div class="circulum-item active">
@@ -33,7 +33,7 @@
               </a-space>
             </div>
           </div>
-          <div v-show="noChecked">No results</div>
+          <div v-show="noChecked">You have not selected any subject</div>
         </div>
         <div ref="copySelected"></div>
       </div>
@@ -43,11 +43,10 @@
           v-for="(item, index) in result"
           :key="'subectArr_' + index"
         >
-          <div class="area-item-title">Studies in {{ item.name }}</div>
+          <div class="area-item-title">Subjects in {{ item.name }}</div>
           <div class="area-item-check">
             <div>
-              <a-checkbox :indeterminate="item.indeterminate" :checked="item.checkAll" @change="e => onCheckAllChange(e, index)">
-                Check all
+              <a-checkbox :indeterminate="item.indeterminate" :checked="item.checkAll" @change="e => onCheckAllChange(e, index)">Select all
               </a-checkbox>
             </div>
             <a-checkbox-group v-model="item.checkedList" :options="item.data" @change="check => onCheckChange(check, index)">
@@ -66,6 +65,7 @@
 
 <script>
 import { SubjectTree } from '@/api/subject'
+import { GetSchoolSubject, SaveSchoolSubject } from '@/api/schoolAcademic'
 export default {
   name: 'SubjectSel',
   props: {
@@ -77,9 +77,9 @@ export default {
       type: Array,
       default: () => []
     },
-    subjectIds: {
-      type: Array,
-      default: () => []
+    school: {
+      type: Object,
+      default: () => {}
     }
   },
   watch: {
@@ -93,10 +93,10 @@ export default {
       immediate: true,
       deep: true
     },
-    subjectIds: {
+    school: {
       handler(val, valPrev) {
-        this.selected = val ? [ ...val ] : []
-        this.prevSelected = val ? [ ...val ] : []
+        this.currentSchool = val ? { ...val } : null
+        this.initSubject()
       },
       immediate: true
     }
@@ -104,8 +104,9 @@ export default {
   data() {
     return {
       loading: false,
-      selected: this.subjectIds,
-      prevSelected: this.subjectIds,
+      currentSchool: this.school,
+      selected: [], // 当前选中
+      currentSelected: [], // 原始选中
       result: [
         {
           indeterminate: false,
@@ -149,23 +150,39 @@ export default {
             }
           })
           this.setSelected()
+          this.$emit('change', this.selected)
         }
       })
     },
+    initSubject() {
+      if (this.currentSchool && this.currentSchool.id) {
+        GetSchoolSubject({
+          schoolId: this.currentSchool.id
+        }).then(res => {
+          if (res.success) {
+            const ids = res.result.subjectInfo.map(item => item.subjectId)
+            this.currentSelected = [...ids]
+            this.setSelected()
+            this.$emit('change', this.selected)
+          }
+        })
+      }
+    },
     reset() {
-      this.selected = [ ...this.prevSelected ]
       this.setSelected()
       this.$emit('change', this.selected)
     },
     setSelected() {
+      this.selected = []
       this.result = this.result.map(item => {
         let checkedList = []
         let indeterminate = false
         let checkAll = false
         if (item.children && item.children.length > 0) {
           checkedList = item.children.filter(child => {
-            return this.selected.includes(child.id)
+            return this.currentSelected.includes(child.id)
           }).map(_ => _.id)
+          this.selected = [...this.selected, ...checkedList]
           if (checkedList.length === item.children.length) {
             checkAll = true
           } else {
@@ -230,6 +247,34 @@ export default {
     closeTag(e, index, tagIndex) {
       this.result[index].checkedList.splice(tagIndex, 1)
       this.onCheckChange(this.result[index].checkedList, index)
+    },
+    handleSave() {
+      const subjectInfo = []
+      this.result.forEach(parent => {
+        if (parent.checkedList.length > 0) {
+          parent.children.forEach(child => {
+            if (parent.checkedList.includes(child.id)) {
+              subjectInfo.push({
+                curriculumId: this.currentCurriculum.id,
+                parentSubjectId: parent.id,
+                parentSubjectName: parent.name,
+                subjectId: child.id,
+                subjectName: child.name
+              })
+            }
+          })
+        }
+      })
+      SaveSchoolSubject({
+        schoolId: this.currentSchool.id,
+        subjectInfo: subjectInfo
+      }).then(res => {
+        if (res.success) {
+
+        }
+      }).finally(() => {
+        this.$emit('save-success')
+      })
     }
   }
 }
@@ -305,7 +350,7 @@ export default {
           // }
           .selected-content-title {
             width: 150px;
-            font-size: 16px;
+            font-size: 14px;
             font-family: Inter-Bold;
             line-height: 25px;
             color: #000000;

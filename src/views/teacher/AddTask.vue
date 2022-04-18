@@ -15,7 +15,7 @@
         @collaborate='handleStartCollaborate'
       />
     </div>
-    <a-card :bordered='false' :bodyStyle="{ padding: '16px 24px 40px 24px', height: '100%', minHeight: '1000px' }">
+    <a-card :bordered='false' :bodyStyle="{ padding: '16px 24px 40px 24px', height: '100%', minHeight: '1000px', minWidth: '1250px' }">
       <a-row class='unit-content' v-if='!contentLoading'>
         <a-col span='24' class='main-content'>
           <a-card
@@ -992,6 +992,7 @@
                 <template v-if='showRightModule(rightModule.customTag) && this.currentActiveStepIndex !== 1'>
                   <div v-if='!this.contentLoading' :style="{'width':rightWidth+'px', 'margin-top':customTagTop+'px'}">
                     <custom-tag
+                      :display-mode="canEdit ? 'edit' : 'readonly'"
                       ref='customTag'
                       :show-arrow='showCustomTag'
                       :custom-tags='customTags'
@@ -1007,6 +1008,7 @@
 
               <div class='sub-task-tag-wrapper' v-if='currentActiveStepIndex === 2 && currentTaskFormData'>
                 <custom-tag
+                  :display-mode="canEdit ? 'edit' : 'readonly'"
                   ref='customTag'
                   :show-arrow='showCustomTag'
                   :custom-tags='customTags'
@@ -2527,7 +2529,8 @@ export default {
       this.$logger.info('handleToggleSelectContentItem', data, event)
       this.previewTemplateVisible = false
       if (this.drawerSelectedTemplateIds.indexOf(data.id) === -1) {
-        this.handleSelectTemplateMadelAnimate(data, event)
+        // this.handleSelectTemplateMadelAnimate(data, event)
+        this.selectRecommendTemplate(data, 0, event)
       } else {
         this.handleSelectTemplateMadel(data)
       }
@@ -4324,7 +4327,8 @@ export default {
       this.$logger.info('handleUpdateWeeks', status)
       if (!status) {
         this.form.taskClassList.forEach(item => {
-          if (item.checked && item.momentRangeDate.length === 2) {
+          this.$logger.info('handleUpdateWeeks item', item)
+          if (item && item.checked && item.momentRangeDate.length === 2) {
             item.weeks = this.getWeekByDate(item.momentRangeDate[0], item.momentRangeDate[1])
           }
         })
@@ -4505,6 +4509,7 @@ export default {
 
     .card-wrapper {
       .task-form-left {
+        min-width: 720px;
         /deep/ .ant-steps-item-content {
           padding-right: 30px;
         }
