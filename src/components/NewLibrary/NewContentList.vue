@@ -444,7 +444,7 @@ export default {
         }
       } else if (this.currentDataType === NavigationType.assessmentType) {
         // assessmentType 是mainSubject-year-assessmentType-knowledge
-        // asseeement的grade下面有两层，所以根据数据字段中特定的标识字段判断是否为knowledge(QueryKnowledgesByAssessmentTypeId、GetAssessmentTypeList的时候标识的
+        // assessment的grade下面有两层，所以根据数据字段中特定的标识字段判断是否为knowledge(QueryKnowledgesByAssessmentTypeId、GetAssessmentTypeList的时候标识的
         if (!item.hasOwnProperty('isKnowledge') || (item.gradeList && item.gradeList.length)) {
           // 如果有子列表，表示还未到最后一层knowledge，通知左侧导航栏更新同步层级
           LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, {
@@ -782,7 +782,6 @@ export default {
       background-color: rgba(228, 228, 228, 0.2);
     }
 
-
     .selected-line {
       background-color: fade(@outline-color, 10%) !important;
       color: @text-color;
@@ -876,12 +875,14 @@ export default {
     border-radius: 1px;
     background: rgba(0,0,0,0.00);
     -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
   }
   /* 滚动条滑块 */
   *::-webkit-scrollbar-thumb {
     border-radius: 3px;
     background: rgba(0,0,0,0.12);
     -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
   }
 }
 
