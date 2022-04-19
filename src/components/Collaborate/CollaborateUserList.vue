@@ -908,6 +908,7 @@ export default {
         display: flex;
         align-items: flex-start;
         position: relative;
+        overflow: hidden;
         .input-expander {
           display: inline-block;
           font-size: 14px;

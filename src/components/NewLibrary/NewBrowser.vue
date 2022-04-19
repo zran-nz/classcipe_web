@@ -23,7 +23,7 @@
       </div>
     </div>
     <div class="main">
-      <div class="selected-content">
+      <div class="selected-content" :style="{'width': componentWidth - 400 + 'px'}">
         <div class="main-content-list">
 
           <div class='no-select-content' v-if='!hasSelectedContent && selectMode !== selectModelType.evaluationMode && isEmptyRecommend'>
@@ -168,7 +168,7 @@
               </div>
             </div>
           </div>
-          <div class="selected-list">
+          <div class="selected-list" v-if="hasSelectedContent">
             <div class="recommend-title">
               <h3>Selected learning objectives</h3>
             </div>
@@ -258,7 +258,16 @@
                   </template>
                 </div>
               </div>
-
+              <div class="selected-action">
+                <div class="modal-ensure-action-line-center" v-show="hasSelectedContent">
+                  <a-space>
+                    <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectData">Cancel</a-button>
+                    <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">
+                      Ok
+                    </a-button>
+                  </a-space>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -269,7 +278,7 @@
         <div
           class="expand-icon"
           @click="expandedListFlag = !expandedListFlag"
-          :style="{'left': (!expandedListFlag ? 30 : 695) + 'px'}">
+          :style="{'left': (!expandedListFlag ? 30 : componentWidth - 470) + 'px'}">
           <template v-if="expandedListFlag">
             <a-icon type="double-left" style="font-size: 20px; color: #07AB84" />
           </template>
@@ -277,16 +286,8 @@
             <a-icon type="double-right" style="font-size: 20px; color: #07AB84" />
           </template>
         </div>
-        <div class="modal-ensure-action-line-center" v-show="hasSelectedContent">
-          <a-space>
-            <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectData">Cancel</a-button>
-            <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">
-              Ok
-            </a-button>
-          </a-space>
-        </div>
       </div>
-      <div class="main-tree-content" :style="{'left': (expandedListFlag ? 765 : 100) + 'px'}">
+      <div class="main-tree-content" :style="{'left': (expandedListFlag ? componentWidth - 400 : 100) + 'px'}">
         <div class="selected-toggle-mask" @click="expandedListFlag = !expandedListFlag" v-show="expandedListFlag"></div>
         <div class="tree-navigation">
           <new-tree-navigation
@@ -297,7 +298,7 @@
             :default-curriculum-id="defaultCurriculumId"
           />
         </div>
-        <div class="content-list" v-show="!expandedListFlag">
+        <div class="content-list">
           <new-content-list
             :selected-list="mySelectedList"
             :current-nav-path='currentNavPath'
@@ -331,6 +332,7 @@ import {
 import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
 import { SelectModel } from '@/components/NewLibrary/SelectModel'
 import { TagType } from '@/const/common'
+const { debounce } = require('lodash-es')
 
 export default {
   name: 'NewBrowser',
@@ -408,7 +410,8 @@ export default {
       tagType: TagType,
 
       myRecommendData: [],
-      currentNavPath: null
+      currentNavPath: null,
+      componentWidth: 0
     }
   },
   computed: {
@@ -498,6 +501,13 @@ export default {
     LibraryEventBus.$off(LibraryEvent.CenturySkillsSelect, this.handleCenturySkillsSelect)
     LibraryEventBus.$off(LibraryEvent.CancelCenturySkillsSelect, this.handleCancelCenturySkillsSelect)
   },
+  mounted () {
+    this.componentWidth = document.getElementById('new-library').getBoundingClientRect().width
+
+    window.onresize = debounce(() => {
+      this.componentWidth = document.getElementById('new-library').getBoundingClientRect().width
+    }, 300)
+  },
   methods: {
 
     handleCurriculumChange (value) {
@@ -572,9 +582,13 @@ export default {
 
     handleRemoveSelected (item) {
       this.$logger.info('NewBrowser handleRemoveSelected', item)
-      this.$refs['contentList'].handleRemoveSelected(item)
 
-      this.updateSelectedGradeSet()
+      if (item.dataType) {
+        this.$refs['contentList'].handleRemoveSelected(item)
+        this.updateSelectedGradeSet()
+      } else {
+        this.handleRemoveMySelected(item)
+      }
     },
 
     handleUpdateSelectedList (data) {
@@ -826,7 +840,6 @@ export default {
     border: 1px solid #e9e9e9;
     overflow-y: hidden;
     height: calc(100% - 65px);
-    min-height: 500px;
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
@@ -836,12 +849,9 @@ export default {
     .selected-content {
       position: relative;
       z-index: 100;
-      padding-bottom: 50px;
       position: relative;
-      width: 770px;
       flex-shrink: 0;
       height: 100%;
-      overflow-y: scroll;
       background-color: #fff;
 
       .selected-list {
@@ -857,7 +867,6 @@ export default {
 
         .content-list {
           flex: 1;
-          overflow-y: scroll;
           overflow-x: hidden;
           white-space: nowrap;
           text-overflow: ellipsis;
@@ -1014,10 +1023,6 @@ export default {
         justify-content: center;
         align-items: center;
         padding: 10px;
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
       }
     }
 
@@ -1234,7 +1239,7 @@ export default {
     font-family: Segoe UI;
     font-weight: bold;
     line-height: 0px;
-    color: #C6C6C6;
+    color: #666666;
   }
 }
 

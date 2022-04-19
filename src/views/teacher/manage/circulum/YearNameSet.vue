@@ -169,7 +169,7 @@ export default {
   position: relative;
   display: flex;
   flex-direction: column;
-  margin-top: 20px;
+  margin-top: 30px;
 }
 .year-name-opt {
   justify-content: flex-end;

@@ -1,17 +1,17 @@
 <template>
-  <div class="custom-tag" v-show='mergeTagList.length || tagList.length'>
+  <div class="custom-tag" v-show='mergeTagList.length || showTagList.length'>
     <div>
       <a-card class="cover-card" :head-style="{ background:'#15c39a',color:'#fff'}" :body-style="{'padding': '10px'}" :title="displayMode === 'edit' ? 'Tag your content' : 'Tag'" :bordered="false">
         <a v-if="showArrow" class="header-triangle"></a>
         <a-button class="setting-button" slot="extra" href="#" @click="handleSetting" v-show="displayMode === 'edit'">My tags <a-icon type="edit" /></a-button>
         <div class='tag-selected-label' v-if="displayMode === 'edit'">
-          <template v-if="tagList.length === 0">No tags added : </template>
-          <template v-if='tagList.length !== 0'>Tags added :</template>
+          <template v-if="showTagList.length === 0">No tags added : </template>
+          <template v-if='showTagList.length !== 0'>Tags added :</template>
         </div>
         <div class='tag-content-wrapper'>
-          <div class='selected-tag' v-show="tagList.length">
+          <div class='selected-tag' v-show="showTagList.length">
             <div class="skt-tag-list">
-              <div class="skt-tag-item " v-for="tag in showTagList" :key="tag.name" v-if='tag.fieldName === currentFieldName' >
+              <div class="skt-tag-item " v-for="tag in showTagList" :key="tag.name">
                 <a-tooltip :title="tag.parentName">
                   <a-tag
                     :closable="canCloseTag(tag)"
@@ -212,7 +212,11 @@ export default {
     showTagList: function () {
        const showList = []
        this.tagList.forEach(item => {
-         showList.push(item)
+         if (this.currentFieldName && this.currentFieldName === item.fieldName) {
+          showList.push(item)
+         } else if (!this.currentFieldName) {
+          showList.push(item)
+         }
        })
       return showList
     },

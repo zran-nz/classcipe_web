@@ -13,13 +13,22 @@
                 <a-space class="objectives-tag-type" v-if="k.commandTerms && k.commandTerms.length > 0">
                   <div class="objectives-tag-title">Command term:</div>
                   <div class="objectives-tag-content">
-                    <a-tag class="objectives-tag-item" :closable="true" @close="e => handleCloseObjectiveTag(k, 'commandTerms', tagIndex)" v-for="(tag, tagIndex) in k.commandTerms" :key="'skill_command_'+tagIndex">{{ tag.name }}</a-tag>
+                    <div class="objectives-tag-item" v-for="(tag, tagIndex) in k.commandTerms" :key="'skill_command_'+tagIndex">
+                      <a-tag color="#ec7d31" :closable="true" @close="e => handleCloseObjectiveTag(k, 'commandTerms', tagIndex)">{{ tag.name }}</a-tag>
+                      <!-- <rate-level :bloom="tag.bloomTag"/> -->
+                    </div>
                   </div>
                 </a-space>
                 <a-space class="objectives-tag-type" v-if="k.knowledgeTags && k.knowledgeTags.length > 0">
                   <div class="objectives-tag-title">Knowledge tag:</div>
                   <div class="objectives-tag-content">
-                    <a-tag class="objectives-tag-item" :closable="true" @close="e => handleCloseObjectiveTag(k, 'knowledgeTags', tagIndex)" v-for="(tag, tagIndex) in k.knowledgeTags" :key="'skill_knowledge_'+tagIndex">{{ tag.name }}</a-tag>
+                    <div
+                      class="objectives-tag-item"
+                      v-for="(tag, tagIndex) in k.knowledgeTags"
+                      :key="'skill_knowledge_'+tagIndex"
+                    >
+                      <a-tag color="#a5a5a5" :closable="true" @close="e => handleCloseObjectiveTag(k, 'knowledgeTags', tagIndex)">{{ tag.name }}</a-tag>
+                    </div>
                   </div>
                 </a-space>
               </a-space>
@@ -55,13 +64,22 @@
               <a-space class="objectives-tag-type" v-if="skillInput.commandTerms && skillInput.commandTerms.length > 0">
                 <div class="objectives-tag-title">Command term:</div>
                 <div class="objectives-tag-content">
-                  <a-tag class="objectives-tag-item" :closable="true" @close="e => handleCloseObjectiveTag(skillInput, 'commandTerms', tagIndex)" v-for="(tag, tagIndex) in skillInput.commandTerms" :key="'skill_input_command_'+tagIndex">{{ tag.name }}</a-tag>
+                  <div class="objectives-tag-item" v-for="(tag, tagIndex) in skillInput.commandTerms" :key="'skill_input_command_'+tagIndex">
+                    <a-tag color="#ec7d31" :closable="true" @close="e => handleCloseObjectiveTag(skillInput, 'commandTerms', tagIndex)">{{ tag.name }}</a-tag>
+                    <!-- <rate-level :bloom="tag.bloomTag"/> -->
+                  </div>
                 </div>
               </a-space>
               <a-space class="objectives-tag-type" v-if="skillInput.knowledgeTags && skillInput.knowledgeTags.length > 0">
                 <div class="objectives-tag-title">Knowledge tag:</div>
                 <div class="objectives-tag-content">
-                  <a-tag class="objectives-tag-item" :closable="true" @close="e => handleCloseObjectiveTag(skillInput, 'knowledgeTags', tagIndex)" v-for="(tag, tagIndex) in skillInput.knowledgeTags" :key="'skill_input_knowledge_'+tagIndex">{{ tag.name }}</a-tag>
+                  <div
+                    class="objectives-tag-item"
+                    v-for="(tag, tagIndex) in skillInput.knowledgeTags"
+                    :key="'skill_input_knowledge_'+tagIndex"
+                  >
+                    <a-tag color="#a5a5a5" :closable="true" @close="e => handleCloseObjectiveTag(skillInput, 'knowledgeTags', tagIndex)">{{ tag.name }}</a-tag>
+                  </div>
                 </div>
               </a-space>
             </a-space>
@@ -86,13 +104,22 @@
                 <a-space class="objectives-tag-type" v-if="k.commandTerms && k.commandTerms.length > 0">
                   <div class="objectives-tag-title">Command term:</div>
                   <div class="objectives-tag-content">
-                    <a-tag class="objectives-tag-item" :closable="true" @close="e => handleCloseObjectiveTag(k, 'commandTerms', tagIndex)" v-for="(tag, tagIndex) in k.commandTerms" :key="'knowledge_command_'+tagIndex">{{ tag.name }}</a-tag>
+                    <div class="objectives-tag-item" v-for="(tag, tagIndex) in k.commandTerms" :key="'knowledge_command_'+tagIndex">
+                      <a-tag color="#ec7d31" :closable="true" @close="e => handleCloseObjectiveTag(k, 'commandTerms', tagIndex)">{{ tag.name }}</a-tag>
+                      <!-- <rate-level :bloom="tag.bloomTag"/> -->
+                    </div>
                   </div>
                 </a-space>
                 <a-space class="objectives-tag-type" v-if="k.knowledgeTags && k.knowledgeTags.length > 0">
                   <div class="objectives-tag-title">Knowledge tag:</div>
                   <div class="objectives-tag-content">
-                    <a-tag class="objectives-tag-item" :closable="true" @close="e => handleCloseObjectiveTag(k, 'knowledgeTags', tagIndex)" v-for="(tag, tagIndex) in k.knowledgeTags" :key="'knowledge_knowledge_'+tagIndex">{{ tag.name }}</a-tag>
+                    <div
+                      class="objectives-tag-item"
+                      v-for="(tag, tagIndex) in k.knowledgeTags"
+                      :key="'knowledge_knowledge_'+tagIndex"
+                    >
+                      <a-tag color="#a5a5a5" :closable="true" @close="e => handleCloseObjectiveTag(k, 'knowledgeTags', tagIndex)" >{{ tag.name }}</a-tag>
+                    </div>
                   </div>
                 </a-space>
               </a-space>
@@ -128,13 +155,29 @@
               <a-space class="objectives-tag-type" v-if="knowledgeInput.commandTerms && knowledgeInput.commandTerms.length > 0">
                 <div class="objectives-tag-title">Command term:</div>
                 <div class="objectives-tag-content">
-                  <a-tag class="objectives-tag-item" :closable="true" @close="e => handleCloseObjectiveTag(knowledgeInput, 'commandTerms', tagIndex)" v-for="(tag, tagIndex) in knowledgeInput.commandTerms" :key="'knowledgeInput_command_'+tagIndex">{{ tag.name }}</a-tag>
+                  <div
+                    class="objectives-tag-item"
+                    v-for="(tag, tagIndex) in knowledgeInput.commandTerms"
+                    :key="'knowledgeInput_command_'+tagIndex">
+                    <a-tag
+                      color="#ec7d31"
+                      :closable="true"
+                      @close="e => handleCloseObjectiveTag(knowledgeInput, 'commandTerms', tagIndex)"
+                    >{{ tag.name }}</a-tag>
+                    <!-- <rate-level :bloom="tag.bloomTag"/> -->
+                  </div>
                 </div>
               </a-space>
               <a-space class="objectives-tag-type" v-if="knowledgeInput.knowledgeTags && knowledgeInput.knowledgeTags.length > 0">
                 <div class="objectives-tag-title">Knowledge tag:</div>
                 <div class="objectives-tag-content">
-                  <a-tag class="objectives-tag-item" :closable="true" @close="e => handleCloseObjectiveTag(knowledgeInput, 'knowledgeTags', tagIndex)" v-for="(tag, tagIndex) in knowledgeInput.knowledgeTags" :key="'knowledgeInput_knowledge_'+tagIndex">{{ tag.name }}</a-tag>
+                  <div
+                    class="objectives-tag-item"
+                    v-for="(tag, tagIndex) in knowledgeInput.knowledgeTags"
+                    :key="'knowledgeInput_knowledge_'+tagIndex"
+                  >
+                    <a-tag color="#a5a5a5" :closable="true" @close="e => handleCloseObjectiveTag(knowledgeInput, 'knowledgeTags', tagIndex)">{{ tag.name }}</a-tag>
+                  </div>
                 </div>
               </a-space>
             </a-space>
@@ -163,13 +206,30 @@
                   <a-space class="objectives-tag-type" v-if="k.commandTerms && k.commandTerms.length > 0">
                     <div class="objectives-tag-title">Command term:</div>
                     <div class="objectives-tag-content">
-                      <a-tag class="objectives-tag-item" :closable="true" @close="e => handleCloseObjectiveTag(k, 'commandTerms', tagIndex)" v-for="(tag, tagIndex) in k.commandTerms" :key="'century_command_'+tagIndex">{{ tag.name }}</a-tag>
+                      <div
+                        class="objectives-tag-item"
+                        v-for="(tag, tagIndex) in k.commandTerms"
+                        :key="'century_command_'+tagIndex"
+                      >
+                        <a-tag
+                          color="#ec7d31"
+                          :closable="true"
+                          @close="e => handleCloseObjectiveTag(k, 'commandTerms', tagIndex)"
+                        >{{ tag.name }}</a-tag>
+                        <!-- <rate-level :bloom="tag.bloomTag"/> -->
+                      </div>
                     </div>
                   </a-space>
                   <a-space class="objectives-tag-type" v-if="k.knowledgeTags && k.knowledgeTags.length > 0">
                     <div class="objectives-tag-title">Knowledge tag:</div>
                     <div class="objectives-tag-content">
-                      <a-tag class="objectives-tag-item" :closable="true" @close="e => handleCloseObjectiveTag(k, 'knowledgeTags', tagIndex)" v-for="(tag, tagIndex) in k.knowledgeTags" :key="'century_knowledge_'+tagIndex">{{ tag.name }}</a-tag>
+                      <a-tag
+                        color="#a5a5a5"
+                        class="objectives-tag-item"
+                        :closable="true"
+                        @close="e => handleCloseObjectiveTag(k, 'knowledgeTags', tagIndex)"
+                        v-for="(tag, tagIndex) in k.knowledgeTags"
+                        :key="'century_knowledge_'+tagIndex">{{ tag.name }}</a-tag>
                     </div>
                   </a-space>
                 </a-space>
@@ -223,13 +283,30 @@
               <a-space class="objectives-tag-type" v-if="centuryInput.commandTerms && centuryInput.commandTerms.length > 0">
                 <div class="objectives-tag-title">Command term:</div>
                 <div class="objectives-tag-content">
-                  <a-tag class="objectives-tag-item" :closable="true" @close="e => handleCloseObjectiveTag(centuryInput, 'commandTerms', tagIndex)" v-for="(tag, tagIndex) in centuryInput.commandTerms" :key="'century_input_command_'+tagIndex">{{ tag.name }}</a-tag>
+                  <div
+                    class="objectives-tag-item"
+                    v-for="(tag, tagIndex) in centuryInput.commandTerms"
+                    :key="'century_input_command_'+tagIndex"
+                  >
+                    <a-tag
+                      color="#ec7d31"
+                      :closable="true"
+                      @close="e => handleCloseObjectiveTag(centuryInput, 'commandTerms', tagIndex)"
+                    >{{ tag.name }}</a-tag>
+                    <!-- <rate-level :bloom="tag.bloomTag"/> -->
+                  </div>
                 </div>
               </a-space>
               <a-space class="objectives-tag-type" v-if="centuryInput.knowledgeTags && centuryInput.knowledgeTags.length > 0">
                 <div class="objectives-tag-title">Knowledge tag:</div>
                 <div class="objectives-tag-content">
-                  <a-tag class="objectives-tag-item" :closable="true" @close="e => handleCloseObjectiveTag(centuryInput, 'knowledgeTags', tagIndex)" v-for="(tag, tagIndex) in centuryInput.knowledgeTags" :key="'century_input_knowledge_'+tagIndex">{{ tag.name }}</a-tag>
+                  <div
+                    class="objectives-tag-item"
+                    v-for="(tag, tagIndex) in centuryInput.knowledgeTags"
+                    :key="'century_input_knowledge_'+tagIndex"
+                  >
+                    <a-tag color="#a5a5a5" :closable="true" @close="e => handleCloseObjectiveTag(centuryInput, 'knowledgeTags', tagIndex)" >{{ tag.name }}</a-tag>
+                  </div>
                 </div>
               </a-space>
             </a-space>
@@ -361,6 +438,7 @@
   import * as logger from '@/utils/logger'
   import NoMoreResources from '@/components/Common/NoMoreResources'
   import LearnOutAddTag from '@/components/UnitPlan/LearnOutAddTag'
+  import RateLevel from '@/components/RateLevel'
   import { TagType, AllCurriculums } from '@/const/common'
   import { getAll21Century } from '@/api/knowledge'
   import AddGreenIcon from '@/assets/svgIcon/evaluation/form/tianjia_green.svg?inline'
@@ -375,7 +453,8 @@
       LearnOutAddTag,
       NoMoreResources,
       AddGreenIcon,
-      QuickWordButton
+      QuickWordButton,
+      RateLevel
     },
     props: {
       learnOuts: {
@@ -791,13 +870,15 @@
             if (!find[key].find(item => item.id === res.id)) {
               find[key].push({
                 id: res.id,
-                name: res.word
+                name: res.word,
+                bloomTag: res.bloomTag
               })
             }
           } else {
             this.$set(find, key, [{
               id: res.id,
-              name: res.word
+              name: res.word,
+              bloomTag: res.bloomTag
             }])
           }
         } else {
@@ -812,13 +893,15 @@
             if (!findInput[key].find(item => item.id === res.id)) {
               findInput[key].push({
                 id: res.id,
-                name: res.word
+                name: res.word,
+                bloomTag: res.bloomTag
               })
             }
           } else {
             this.$set(findInput, key, [{
               id: res.id,
-              name: res.word
+              name: res.word,
+              bloomTag: res.bloomTag
             }])
           }
         }
@@ -839,6 +922,7 @@
                   word: this.commandTermForm.name,
                   parentId: this.bloomParentId,
                   tag: this.commandTermForm.bloom,
+                  bloomTag: this.commandTermForm.bloom,
                   id: res.result.id
                 }, 'commandTerms')
               }
@@ -1186,8 +1270,14 @@
         width: 110px;
         color: #333;
       }
-      .objectives-tag-item {
-        margin: 3px;
+      .objectives-tag-content {
+        display: flex;
+        flex-wrap: wrap;
+        .objectives-tag-item {
+          margin: 3px;
+          display: flex;
+          align-items: center;
+        }
       }
     }
   }

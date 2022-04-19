@@ -12,6 +12,7 @@ export const DICT_BLOOM_TAXONOMY = 'bloom_taxonomy'
 export const DICT_ORDER_TYPE = 'order_type'
 export const DICT_ORDER_STATUS = 'order_status'
 export const DICT_KNOWLEDGE_PHASE = 'knowledge_phase'
+export const DICT_KNOWLEDGE_DIMENSION = 'knowledge_dimension'
 export const TAG_CATGORY_KEYWORDS = 'Key words'
 export const SESSION_CALLBACK_URL = 'classcipe_callback_url'
 
@@ -242,4 +243,9 @@ export const STATISTICS_TYPE = {
     label: 'Assessments sold',
     value: 6
   }
+}
+
+export const COLOR_LEVEL = {
+  BLOOM: ['#e1f0d8', '#c3e0b2', '#a9d08c', '#76b54a', '#558135', '#385524'],
+  KNOWLEDGE: ['#bbd6ee', '#9cc2e5', '#2f74b5', '#1e4e79']
 }

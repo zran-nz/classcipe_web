@@ -411,6 +411,7 @@ export default {
         this.treeDataList = this.treeDataList.sort((a, b) => a.sort - b.sort)
         this.$logger.info('sort treeDataList', this.treeDataList)
         this.loaded = true
+        this.$emit('finishInit')
       })
     },
     // 给任意层级的数据先增加gradeList属性，然后直接给vue进行监测数据更新。避免数据操作过程中加数据，太麻烦

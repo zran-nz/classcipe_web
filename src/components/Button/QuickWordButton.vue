@@ -141,6 +141,7 @@ export default {
         word: item.name,
         parentId: item.bloomTagId,
         tag: item.bloomTag,
+        bloomTag: item.bloomTag,
         id: item.id
       })
     },
