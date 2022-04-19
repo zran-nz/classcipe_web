@@ -21,7 +21,7 @@
           </a-form-model-item>
           <a-row :gutter=16 v-for="(item, index) in model.terms" :key="'modelItem'+index">
             <a-col :span="7">
-              <a-form-model-item label="Name" :prop="'terms.'+index+'.name'" :rules="validatorRules.name">
+              <a-form-model-item label="Term name" :prop="'terms.'+index+'.name'" :rules="validatorRules.name">
                 <a-input v-model="item.name" placeholder="First term" ></a-input>
               </a-form-model-item>
             </a-col>

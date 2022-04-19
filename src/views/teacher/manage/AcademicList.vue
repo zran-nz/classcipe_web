@@ -21,7 +21,7 @@
     <div class="list-view" v-if="datas && datas.length > 0">
       <div class="list-view-item" v-for="(item) in datas" :key="'academic_' + item.academicId">
         <div class="view-item-title">
-          {{ formatDate(item) }} ({{ item.name }})
+          {{ formatDate(item) }} {{ item.name ? `(${item.name})` : '' }}
         </div>
         <div class="view-item-opt">
           <a-button type="link" @click="handleEdit(item)">Edit</a-button>
@@ -31,6 +31,7 @@
           <div class="item-detail-content" v-for="(term, termIndex) in item.terms" :key="'term_' + termIndex">
             <div class="detail-content-title">{{ term.name }}</div>
             <div class="detail-content-time">{{ formatDate(term) }} </div>
+            <div class="detail-content-current" v-show="isCurrent(term)">Current</div>
           </div>
         </div>
       </div>
@@ -152,6 +153,9 @@ export default {
     formatDate(item) {
       return `${moment(item.startTime).format('MMMM YYYY')} - ${moment(item.endTime).format('MMMM YYYY')}`
     },
+    isCurrent(item) {
+      return moment().isBefore(moment(item.endTime)) && moment().isAfter(moment(item.startTime))
+    },
     handleClose() {
       this.loadData()
     }
@@ -216,6 +220,7 @@ export default {
         opacity: 1;
         border-radius: 10px;
         padding: 15px;
+        position: relative;
         & ~ .item-detail-content {
           margin-left: 20px;
         }
@@ -228,15 +233,17 @@ export default {
           color: #070707;
           opacity: 1;
           margin-bottom: 10px;
-          .detail-content-time {
-            height: 20px;
-            line-height: 1;
-            font-size: 16px;
-            font-family: Inter-Bold;
-            line-height: 24px;
-            color: #000000;
-            opacity: 1;
-          }
+        }
+        .detail-content-time {
+          line-height: 1;
+          font-size: 13px;
+          opacity: 1;
+        }
+        .detail-content-current {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          color: @primary-color;
         }
       }
     }
