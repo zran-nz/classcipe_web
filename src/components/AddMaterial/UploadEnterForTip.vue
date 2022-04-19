@@ -31,7 +31,7 @@
       </a-tooltip>
     </a-space>
     <div class="material-recorder">
-      <common-progress :progress="driveUpLoadProgress" :cancel="cancelUpDrive" />
+      <!-- <common-progress :progress="driveUpLoadProgress" :cancel="cancelUpDrive" /> -->
     </div>
   </div>
 </template>
@@ -44,7 +44,6 @@ import GooglePickerForTip from './Utils/GooglePickerForTip'
 import { videoTypes, audioTypes } from './Utils/Constants'
 // import MetarialWebSite from './metarialWebSite.vue'
 import CommonUpload from './Common/CommonUpload'
-import CommonProgress from './Common/CommonProgress'
 import ClasscipeDrive from '@/components/AddMaterial/ClasscipeDrive/ClasscipeDrive'
 import GoogleYoutubeVideo from '@/components/AddMaterial/Google/GoogleYoutubeVideo'
 export default {
@@ -55,8 +54,7 @@ export default {
     OpenDirSvg,
     // GoogleYoutubeVedio,
     ClasscipeDrive,
-    CommonUpload,
-    CommonProgress
+    CommonUpload
   },
   props: {
     uploadProgress: {
@@ -95,11 +93,11 @@ export default {
       }
     },
     canUpLoad() {
-      // if (this.canUpLoad === false) {
-      //   AddMaterialEventBus.$emit(ModalEventsNameEnum.IS_UPLOAD, false)
-      // } else {
-      //   AddMaterialEventBus.$emit(ModalEventsNameEnum.IS_UPLOAD, true)
-      // }
+      if (this.canUpLoad === false) {
+        AddMaterialEventBus.$emit(ModalEventsNameEnum.IS_UPLOAD, false)
+      } else {
+        AddMaterialEventBus.$emit(ModalEventsNameEnum.IS_UPLOAD, true)
+      }
     }
   },
 
@@ -159,7 +157,6 @@ export default {
         }
       )
     },
-    cancelUpDrive() {},
     video() {
       this.recordType = ModalEventsTypeEnum.VIDEO
     }

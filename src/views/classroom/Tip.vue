@@ -45,19 +45,6 @@
               </div>
             </div>
           </a-col>
-          <a-col class="tip-button">
-            <a-button class="btn1" @click="cancel()">
-              Cancel
-            </a-button>
-            <a-button
-              class="btn"
-              @click="confirm()"
-              type="primary"
-              :disabled="tip_text.length == 0 && videoUrlList.length == 0 && canUpload"
-            >
-              Confirm
-            </a-button>
-          </a-col>
         </div>
       </a-spin>
     </template>
@@ -144,9 +131,13 @@ export default {
     window.addEventListener(
       'message',
       function(e) {
-        console.log('window.addEventListener', e)
-        console.log('e.data.scrollTop', e.data.scrollTop)
-        console.log('e.data.windowHeight', e.data.windowHeight)
+        console.log('tip window.addEventListener', e)
+        try {
+          const data = JSON.parse(e.data)
+          this.initTipData(data)
+        } catch (error) {
+          console.log(error)
+        }
       },
       false
     )
@@ -168,6 +159,9 @@ export default {
     uploadProgress(fileProgress) {
       console.log('uploadProgress', fileProgress)
       this.fileProgress = fileProgress
+    },
+    initTipData(data) {
+      console.log('initTipData', data)
     },
     choiceFileType(type) {
       if (type === 1) {
@@ -235,6 +229,7 @@ export default {
       this.videoUrlList.push({ type: type, url: url })
     },
     cancel() {
+      console.log('closeAddonWindow')
       this.closeAddonWindow()
     },
     confirm() {
@@ -295,7 +290,7 @@ export default {
   }
   .tip-content {
     display: flex;
-    flex-direction:column;
+    flex-direction: column;
     height: 100%;
     width: 100%;
     padding: 50px;
@@ -309,7 +304,7 @@ export default {
     }
     .tip-button {
       text-align: center;
-      margin:20px;
+      margin: 20px;
       .btn1 {
         margin-right: 20px;
       }

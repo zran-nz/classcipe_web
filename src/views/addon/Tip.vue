@@ -294,10 +294,9 @@ export default {
     }
   }
   .tip-content {
+    width: 920px;
     display: flex;
     flex-direction:column;
-    height: 100%;
-    width: 100%;
     padding: 50px;
     justify-content: center;
     .tip-row {
