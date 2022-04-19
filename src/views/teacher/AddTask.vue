@@ -1753,7 +1753,7 @@
         v-model='selectSyncDataVisible'
         :footer='null'
         destroyOnClose
-        width='1200px'
+        width='1000px'
         :dialog-style="{ top: '20px' }"
         :title='null'
         @ok='selectSyncDataVisible = false'

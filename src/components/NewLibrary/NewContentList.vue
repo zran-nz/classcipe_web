@@ -1,7 +1,7 @@
 <template>
-  <div class="content-list-wrapper">
+  <div class="content-list-wrapper" :style="{width: nameWidth + 'px'}">
     <div class="content-header">
-      <div class="name" :style="{width: nameWidth + 'px'}">
+      <div class="name">
         Name
       </div>
     </div>
@@ -16,7 +16,7 @@
                    'selected-line': isSelectedItem(item)}"
           v-for="(item,index) in contentDataList"
           :key="index">
-          <div class="name" :style="{width: nameWidth + 'px'}">
+          <div class="name">
             <div class="icon item-type-icon">
               <template v-if="item.children.length !== 0 || (item.gradeList && item.gradeList.length !== 0) || (item.hasOwnProperty('isGrade') && item.isGrade) || !item.hasOwnProperty('tagType')">
                 <a-icon type="folder" theme="filled" class="file-dir-icon" />
@@ -70,6 +70,7 @@ import MaterialPreview from '@/components/Material/MaterialPreview'
 import { typeMap } from '@/const/teacher'
 import { NavigationType } from '@/components/NewLibrary/NavigationType'
 import NoMoreResources from '@/components/Common/NoMoreResources'
+const { debounce } = require('lodash-es')
 
 export default {
   name: 'NewContentList',
@@ -153,11 +154,15 @@ export default {
     LibraryEventBus.$on(LibraryEvent.ContentListSelectedListUpdate, this.handleContentSelectedListUpdate)
     LibraryEventBus.$on(LibraryEvent.ChangeCurriculum, this.handleChangeCurriculum)
     LibraryEventBus.$on(LibraryEvent.ResetContentList, this.handleResetContentList)
-    this.nameWidth = document.getElementById('new-library').getBoundingClientRect().width - 400
+    this.nameWidth = document.getElementById('new-library').getBoundingClientRect().width - 505
     this.$logger.info('nameWidth ' + this.nameWidth)
     this.$logger.info('NewContentList selectedList', this.selectedList)
     this.mySelectedList = this.selectedList
     this.assignSelectedList()
+
+    window.onresize = debounce(() => {
+      this.nameWidth = document.getElementById('new-library').getBoundingClientRect().width - 505
+    }, 300)
   },
   methods: {
 
