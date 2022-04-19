@@ -185,7 +185,7 @@ export const asyncRouterMap = [
                     path: '/teacher/managing/academic',
                     name: 'AcademicList',
                     component: () => import('@/views/teacher/manage/AcademicList'),
-                    meta: { title: 'menu.managing.academic', keepAlive: true, permission: ['teacher'] }
+                    meta: { title: 'menu.managing.academic', keepAlive: true, permission: ['teacher'], mode: USER_MODE.SCHOOL }
                   },
                   {
                     path: '/teacher/managing/curriculum',
