@@ -2610,6 +2610,9 @@ export default {
       })
       const taskData = Object.assign({}, this.form)
       taskData.status = status
+      if (taskData.customFieldData) {
+        taskData.customFieldData = JSON.stringify(taskData.customFieldData)
+      }
       this.publishing = true
       TaskAddOrUpdate(taskData).then(response => {
         this.$logger.info('UpdateContentStatus response', response)
