@@ -1,32 +1,60 @@
 <template>
   <a-space>
-    <a-rate
-      v-show="currentBloom"
-      class="rate-bar-con super-small bloom-color"
-      :tooltips="bloomLevelDesc"
-      :count="bloomLevel.length"
-      :value="currentBloomLevel"
-      disabled>
-      <div slot="character">
-        <div class="rate-bar"></div>
-      </div>
-    </a-rate>
-    <a-rate
-      v-show="currentKnowledge"
-      class="rate-bar-con super-small knowledge-color"
-      :tooltips="knowledgeLevelDesc"
-      :count="knowledgeLevel.length"
-      :value="currentKnowledgeLevel"
-      disabled>
-      <div slot="character">
-        <div class="rate-bar"></div>
-      </div>
-    </a-rate>
+    <a-popover trigger="click" :visible="bloomTagVisible" @visibleChange="handleBloomChange">
+      <template slot="content">
+        <div class="choose-bar">
+          <div
+            class="choose-bar-item"
+            @click="changeLevel('bloomTag', item.title)"
+            :style="{background: COLOR_LEVEL.BLOOM[index], height: HEIGHT[index]+'px'}"
+            v-for="(item, index) in bloomLevel"
+            :key="'bloom_' + item.title">
+            <label>{{ item.title }}</label>
+          </div>
+        </div>
+      </template>
+      <a-rate
+        v-show="currentBloom"
+        class="rate-bar-con super-small bloom-color"
+        :tooltips="bloomLevelDesc"
+        :count="bloomLevel.length"
+        :value="currentBloomLevel"
+        disabled>
+        <div slot="character">
+          <div class="rate-bar"></div>
+        </div>
+      </a-rate>
+    </a-popover>
+    <a-popover trigger="click" :visible="knowledgeVisible" @visibleChange="handleKnowledgeChange">
+      <template slot="content">
+        <div class="choose-bar">
+          <div
+            class="choose-bar-item"
+            @click="changeLevel('knowledge', item.title)"
+            :style="{background: COLOR_LEVEL.KNOWLEDGE[index], height: HEIGHT[index]+'px'}"
+            v-for="(item, index) in knowledgeLevel"
+            :key="'knowledge_' + item.title">
+            <label>{{ item.title }}</label>
+          </div>
+        </div>
+      </template>
+      <a-rate
+        v-show="currentKnowledge"
+        class="rate-bar-con super-small knowledge-color"
+        :tooltips="knowledgeLevelDesc"
+        :count="knowledgeLevel.length"
+        :value="currentKnowledgeLevel"
+        disabled>
+        <div slot="character">
+          <div class="rate-bar"></div>
+        </div>
+      </a-rate>
+    </a-popover>
   </a-space>
 </template>
 
 <script>
-import { DICT_BLOOM_TAXONOMY, DICT_KNOWLEDGE_DIMENSION } from '@/const/common'
+import { DICT_BLOOM_TAXONOMY, DICT_KNOWLEDGE_DIMENSION, COLOR_LEVEL } from '@/const/common'
 import { GetDictItems } from '@/api/common'
 export default {
   name: 'RateLevel',
@@ -84,6 +112,10 @@ export default {
   },
   data() {
     return {
+      COLOR_LEVEL: COLOR_LEVEL,
+      bloomTagVisible: false,
+      knowledgeVisible: false,
+      HEIGHT: [30, 50, 70, 90, 110, 130, 150, 180],
       currentBloom: this.bloom,
       currentKnowledge: this.knowledge,
       bloomLevel: [],
@@ -106,6 +138,19 @@ export default {
           this.knowledgeLevel = knowledgeRes.result
         }
       })
+    },
+    changeLevel(type, title) {
+      this[type + 'Visible'] = false
+      this.$emit('change', {
+        type: type,
+        title: title
+      })
+    },
+    handleKnowledgeChange(visible) {
+      this.knowledgeVisible = visible
+    },
+    handleBloomChange(visible) {
+      this.bloomTagVisible = visible
     }
   }
 }
@@ -115,12 +160,19 @@ export default {
 .bloom-color {
   /deep/ .ant-rate-star{
     border: 1px solid #76b54a;
+    transition: none;
+    & > div:hover {
+      transform: scale(1);
+    }
+    & > div:focus {
+      transform: scale(1);
+    }
     .rate-bar {
       background: #fff!important;
     }
   }
   /deep/ .ant-rate-star-full {
-    border: none;
+    border-top: none;
     .rate-bar {
       background: #76b54a!important;
     }
@@ -129,14 +181,41 @@ export default {
 .knowledge-color {
   /deep/ .ant-rate-star{
     border: .5px solid #2f74b5;
+    transition: none;
+    & > div:hover {
+      transform: scale(1);
+    }
+    & > div:focus {
+      transform: scale(1);
+    }
     .rate-bar {
       background: #fff!important;
     }
   }
   /deep/ .ant-rate-star-full {
-    border: none;
+    border-top: none;
     .rate-bar {
       background: #2f74b5!important;
+    }
+  }
+}
+.choose-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  .choose-bar-item {
+    flex: 1;
+    min-width: 85px;
+    margin:0 5px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+    label {
+      width: 100%;
+      cursor: pointer;
+      font-size: 12px;
     }
   }
 }

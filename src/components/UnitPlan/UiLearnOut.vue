@@ -15,7 +15,7 @@
                   <div class="objectives-tag-content">
                     <div class="objectives-tag-item" v-for="(tag, tagIndex) in k.commandTerms" :key="'skill_command_'+tagIndex">
                       <a-tag color="#ec7d31" :closable="true" @close="e => handleCloseObjectiveTag(k, 'commandTerms', tagIndex)">{{ tag.name }}</a-tag>
-                      <!-- <rate-level :bloom="tag.bloomTag"/> -->
+                      <!-- <rate-level @change="val => handleChangeLevel(val, tag)" :bloom="tag.bloomTag"/> -->
                     </div>
                   </div>
                 </a-space>
@@ -66,7 +66,7 @@
                 <div class="objectives-tag-content">
                   <div class="objectives-tag-item" v-for="(tag, tagIndex) in skillInput.commandTerms" :key="'skill_input_command_'+tagIndex">
                     <a-tag color="#ec7d31" :closable="true" @close="e => handleCloseObjectiveTag(skillInput, 'commandTerms', tagIndex)">{{ tag.name }}</a-tag>
-                    <!-- <rate-level :bloom="tag.bloomTag"/> -->
+                    <!-- <rate-level @change="val => handleChangeLevel(val, tag)" :bloom="tag.bloomTag"/> -->
                   </div>
                 </div>
               </a-space>
@@ -106,7 +106,7 @@
                   <div class="objectives-tag-content">
                     <div class="objectives-tag-item" v-for="(tag, tagIndex) in k.commandTerms" :key="'knowledge_command_'+tagIndex">
                       <a-tag color="#ec7d31" :closable="true" @close="e => handleCloseObjectiveTag(k, 'commandTerms', tagIndex)">{{ tag.name }}</a-tag>
-                      <!-- <rate-level :bloom="tag.bloomTag"/> -->
+                      <!-- <rate-level @change="val => handleChangeLevel(val, tag)" :bloom="tag.bloomTag"/> -->
                     </div>
                   </div>
                 </a-space>
@@ -164,7 +164,7 @@
                       :closable="true"
                       @close="e => handleCloseObjectiveTag(knowledgeInput, 'commandTerms', tagIndex)"
                     >{{ tag.name }}</a-tag>
-                    <!-- <rate-level :bloom="tag.bloomTag"/> -->
+                    <!-- <rate-level @change="val => handleChangeLevel(val, tag)" :bloom="tag.bloomTag"/> -->
                   </div>
                 </div>
               </a-space>
@@ -216,7 +216,7 @@
                           :closable="true"
                           @close="e => handleCloseObjectiveTag(k, 'commandTerms', tagIndex)"
                         >{{ tag.name }}</a-tag>
-                        <!-- <rate-level :bloom="tag.bloomTag"/> -->
+                        <!-- <rate-level @change="val => handleChangeLevel(val, tag)" :bloom="tag.bloomTag"/> -->
                       </div>
                     </div>
                   </a-space>
@@ -293,7 +293,7 @@
                       :closable="true"
                       @close="e => handleCloseObjectiveTag(centuryInput, 'commandTerms', tagIndex)"
                     >{{ tag.name }}</a-tag>
-                    <!-- <rate-level :bloom="tag.bloomTag"/> -->
+                    <!-- <rate-level @change="val => handleChangeLevel(val, tag)" :bloom="tag.bloomTag"/> -->
                   </div>
                 </div>
               </a-space>
@@ -933,6 +933,11 @@
             return false
           }
         })
+      },
+      handleChangeLevel(val, tag) {
+        if (val) {
+          tag[val.type] = val.title
+        }
       }
     }
   }
