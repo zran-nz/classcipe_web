@@ -154,6 +154,7 @@ export default {
   },
   mounted() {
     if (window.parent) {
+      console.log('window.parent', window.parent)
       window.parent.postMessage(
         JSON.stringify({
           from: 'form',
@@ -303,7 +304,7 @@ export default {
     display: flex;
     flex-direction: column;
     height: 100%;
-    width: 700px;
+    width: 100%;
     padding: 50px;
     justify-content: center;
     .tip-row {

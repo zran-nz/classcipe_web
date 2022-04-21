@@ -46,17 +46,22 @@
             </div>
           </a-col>
           <a-col class="tip-button">
-            <a-button class="btn1" @click="cancel()">
-              Cancel
-            </a-button>
-            <a-button
-              class="btn"
-              @click="confirm()"
-              type="primary"
-              :disabled="tip_text.length == 0 && videoUrlList.length == 0 && canUpload"
-            >
-              Confirm
-            </a-button>
+            <div class="selected-action">
+              <div class="modal-ensure-action-line-center">
+                <a-space>
+                  <a-button class="action-item action-cancel" shape="round" @click="cancel">Cancel</a-button>
+                  <a-button
+                    class="action-ensure action-item"
+                    type="primary"
+                    shape="round"
+                    @click="confirm"
+                    :disabled="tip_text.length == 0 && videoUrlList.length == 0 && canUpload"
+                  >
+                    Confirm
+                  </a-button>
+                </a-space>
+              </div>
+            </div>
           </a-col>
         </div>
       </a-spin>
@@ -296,7 +301,7 @@ export default {
   .tip-content {
     width: 920px;
     display: flex;
-    flex-direction:column;
+    flex-direction: column;
     padding: 50px;
     justify-content: center;
     .tip-row {
@@ -308,7 +313,7 @@ export default {
     }
     .tip-button {
       text-align: center;
-      margin:20px;
+      margin: 20px;
       .btn1 {
         margin-right: 20px;
       }

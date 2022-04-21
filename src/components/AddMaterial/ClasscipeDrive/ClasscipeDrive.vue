@@ -38,7 +38,7 @@
         <div class="modal-ensure-action-line-center">
           <a-space>
             <a-button class="action-item action-cancel" shape="round" @click="cancel">Cancel</a-button>
-            <a-button class="action-ensure action-item" type="primary" shape="round" @click="confirm">
+            <a-button class="action-ensure action-item" type="primary" shape="round" @click="confirm" :disabled="chooseVideoId.length == 0">
               Confirm
             </a-button>
           </a-space>
@@ -147,6 +147,7 @@ export default {
 }
 .search-input {
   margin-left: 10px;
+  width: 400px;
   flex: 1;
 }
 .carousel-page {
@@ -194,9 +195,7 @@ export default {
   }
 }
 .col-button {
-  margin-top: 10px;
-  position: absolute;
-  right: 50px;
-  bottom: 50px;
+  margin-top: 20px;
+  text-align: center;
 }
 </style>

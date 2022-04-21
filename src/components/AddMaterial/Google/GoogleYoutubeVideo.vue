@@ -58,12 +58,16 @@
       </a-spin>
     </div>
     <a-col class="col-button">
-      <a-button class="btn1" @click="cancel()">
-        Cancel
-      </a-button>
-      <a-button class="btn" @click="insert" type="primary">
-        Confirm
-      </a-button>
+      <div class="selected-action">
+        <div class="modal-ensure-action-line-center">
+          <a-space>
+            <a-button class="action-item action-cancel" shape="round" @click="cancel">Cancel</a-button>
+            <a-button class="action-ensure action-item" type="primary" shape="round" @click="insert" :disabled="chooseVideoId.length == 0">
+              Confirm
+            </a-button>
+          </a-space>
+        </div>
+      </div>
     </a-col>
   </div>
 </template>
@@ -201,7 +205,7 @@ export default {
   }
   .youtube-video-con {
     width: 100%;
-    height: 320px;
+    height: 400px;
     align-items: center;
     overflow-y: auto;
     .video-text {
