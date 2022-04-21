@@ -1,8 +1,19 @@
 <template>
   <div class="page">
-    <a-col class="drive-title">
+    <div class="drive-title">
       Classcipe Drive
-    </a-col>
+    </div>
+    <div>
+      <a-input-search
+        placeholder="Search"
+        size="large"
+        class="search-input"
+        v-model="keywords"
+        @search="searchVideo"
+        @pressEnter="searchVideo"
+      >
+      </a-input-search>
+    </div>
     <a-col class="tip-row">
       <div class="carousel-page">
         <div class="video-list-wrapper">
@@ -23,12 +34,16 @@
       </div>
     </a-col>
     <a-col class="col-button">
-      <a-button class="btn1" @click="cancel()">
-        Cancel
-      </a-button>
-      <a-button class="btn" @click="confirm()" type="primary">
-        Confirm
-      </a-button>
+      <div class="selected-action">
+        <div class="modal-ensure-action-line-center">
+          <a-space>
+            <a-button class="action-item action-cancel" shape="round" @click="cancel">Cancel</a-button>
+            <a-button class="action-ensure action-item" type="primary" shape="round" @click="confirm">
+              Confirm
+            </a-button>
+          </a-space>
+        </div>
+      </div>
     </a-col>
   </div>
 </template>
@@ -48,7 +63,8 @@ export default {
       chooseItem: null,
       baseFileUrl: 'https://dcdkqlzgpl5ba.cloudfront.net/',
       fileList: [],
-      videoUrlList: []
+      videoUrlList: [],
+      keywords: ''
     }
   },
 
@@ -59,8 +75,16 @@ export default {
     this.getFileRecord()
   },
   methods: {
-    getFileRecord() {
-      FileRecord({ fileType: 'video', pageSize: 20 }).then(response => {
+    searchVideo() {
+      console.log('searchVideo', this.keywords)
+      this.getFileRecord(this.keywords)
+    },
+    getFileRecord(keywords) {
+      const param = { fileType: 'video', pageSize: 20 }
+      if (keywords) {
+        param.keywords = keywords
+      }
+      FileRecord(param).then(response => {
         this.$logger.info('FileRecord ', response.result)
         if (response.result && response.result.records) {
           this.fileList = response.result.records
@@ -102,16 +126,31 @@ export default {
 @import '~@/components/index.less';
 .tip-row {
   margin-top: 20px;
+
+}
+.page{
+  width: 100%;
+  margin: auto;
+  padding: 50px;
+  display: flex;
+  justify-content: center;
+  flex-flow: column;
 }
 .drive-title {
-  text-align: center;
-  color: #36425a;
+  height: 23px;
+  font-size: 24px;
+  font-family: Arial;
   font-weight: bold;
-  cursor: pointer;
-  font-size: 28px;
+  color: #000000;
+  line-height: 40px;
+  margin-bottom: 36px;
+}
+.search-input {
+  margin-left: 10px;
+  flex: 1;
 }
 .carousel-page {
-  height: 300px;
+  height: 400px;
   width: 100%;
   overflow-x: hidden;
   overflow-y: auto;
@@ -155,10 +194,9 @@ export default {
   }
 }
 .col-button {
-  text-align: center;
   margin-top: 10px;
-}
-.btn1 {
-  margin-right: 20px;
+  position: absolute;
+  right: 50px;
+  bottom: 50px;
 }
 </style>

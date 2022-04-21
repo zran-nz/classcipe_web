@@ -828,11 +828,11 @@ export const constantRouterMap = [
                meta: { title: 'Classroom Evaluation', keepAlive: true }
              },
              {
-               path: '/classroom-iframe/tip/:slideId/',
-               name: 'Tip',
+               path: '/classroom-iframe/tip/',
+               name: 'classroomTip',
                props: true,
                component: () => import(/* webpackChunkName: "Tip" */ '@/views/classroom/Tip'),
-               meta: { title: 'Tip', keepAlive: true }
+               meta: { title: 'TipPage', keepAlive: true }
              }
            ]
          },

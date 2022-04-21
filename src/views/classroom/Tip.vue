@@ -3,11 +3,34 @@
     <template v-if="currentTemp == tempInfo.main">
       <a-spin :tip="uploadText" :spinning="!canUpload">
         <div class="tip-content">
-          <a-textarea
-            placeholder="Insert tip for the slide"
-            :autoSize="{ minRows: 4, maxRows: 5 }"
-            v-model="tip_text"
-          />
+          <a-row :gutter="16">
+            <a-col :span="12">
+              <span>text tip</span>
+              <a-textarea
+                placeholder="Insert tip for the slide"
+                :autoSize="{ minRows: 4, maxRows: 5 }"
+                v-model="tip_text"
+              />
+            </a-col>
+            <a-col :span="12">
+              <div class="ppt-tips-item-content right-answer-content" v-if="choiceItem">
+                <span>correct answer</span>
+                <div v-for="(item, index) in choiceItem.data.options" :key="index" class="checktext checkitem">
+                  <input
+                    type="checkbox"
+                    v-model="rightAnswers"
+                    @change="handleCheckedChange"
+                    :value="item.id"
+                    class="tipscheck"
+                  />
+                  <p class="checktextbox" :title="item.text">
+                    {{ item.text }}
+                  </p>
+                </div>
+              </div>
+            </a-col>
+          </a-row>
+
           <a-col :span="24" class="tip-row">
             <upload-enter-for-tip :uploadProgress="uploadProgress" :choiceFileType="choiceFileType" />
           </a-col>
@@ -62,7 +85,6 @@ import * as logger from '@/utils/logger'
 import DeleteBtn from '@/assets/svgIcon/tip/delete_btn.svg?inline'
 import UploadEnterForTip from '@/components/AddMaterial/UploadEnterForTip'
 import { AddMaterialEventBus, ModalEventsNameEnum } from '@/components/AddMaterial/AddMaterialEventBus'
-import { addElement, queryElementById, updateElement } from '@/api/addMaterial'
 import ClasscipeDrive from '@/components/AddMaterial/ClasscipeDrive/ClasscipeDrive'
 import GoogleYoutubeVideo from '@/components/AddMaterial/Google/GoogleYoutubeVideo'
 export default {
@@ -73,18 +95,9 @@ export default {
     ClasscipeDrive,
     GoogleYoutubeVideo
   },
-  props: {
-    slideId: {
-      type: String,
-      required: true
-    },
-    pageId: {
-      type: String,
-      required: true
-    }
-  },
   data() {
     return {
+      rightAnswers: [],
       currentTemp: 0,
       tempInfo: {
         main: 0,
@@ -97,18 +110,17 @@ export default {
       fileProgress: 0,
       tip_id: 0,
       param: {
-        slide_id: '1yDugYGGpnYpnirssemu-dUdYsx87Dt-QHHV9hRB5IWU',
-        page_id: 'g1122e959211_0_0',
         data: {
           type: 'tip',
           urls: '',
           tip: '',
-          source: 'add-on',
-          totalTime: 0
+          source: 'add-on'
         }
       },
       videoUrlList: [],
-      canUpload: true
+      canUpload: true,
+      tipData: {},
+      choiceItem: {}
     }
   },
   watch: {
@@ -117,9 +129,6 @@ export default {
     }
   },
   created() {
-    logger.info('created ', this.pageId, this.slideId)
-    this.param.slide_id = this.slideId
-    this.param.page_id = this.pageId
     // addMaterial事件处理
     AddMaterialEventBus.$on(ModalEventsNameEnum.ADD_MEDIA_FOR_TIP, url => {
       this.addMaterialList(url)
@@ -128,13 +137,14 @@ export default {
       console.log('ModalEventsNameEnum.IS_UPLOAD', flag)
       this.canUpload = flag
     })
+    const _this = this
     window.addEventListener(
       'message',
       function(e) {
-        console.log('tip window.addEventListener', e)
+        // console.log('tip window.addEventListener', e.data, e)
         try {
           const data = JSON.parse(e.data)
-          this.initTipData(data)
+          _this.initTipData(data)
         } catch (error) {
           console.log(error)
         }
@@ -143,11 +153,10 @@ export default {
     )
   },
   mounted() {
-    this.getTipInfo()
     if (window.parent) {
       window.parent.postMessage(
         JSON.stringify({
-          to: 'classroom',
+          from: 'form',
           event: 'tip-loaded',
           data: null
         }),
@@ -162,6 +171,47 @@ export default {
     },
     initTipData(data) {
       console.log('initTipData', data)
+      if (data.from === 'classroom' && data.event === 'sendtipData') {
+        if (data.data) {
+          const { elements, items } = data.data
+          const tipItemIndex = elements.findIndex(ele => ele.type === 'tip')
+          if (tipItemIndex > -1) {
+            this.tipData = elements[tipItemIndex]
+            this.tip_text = this.tipData.tip ? this.tipData.tip : ''
+            this.videoUrlList = this.tipData.urls ? this.tipData.urls : []
+          } else {
+            this.tip_text = ''
+            this.videoUrlList = []
+            this.tipData = {}
+          }
+
+          const itemIndex = items.findIndex(item => item.type === 'choice')
+          this.choiceItem = items[itemIndex] ? items[itemIndex] : null
+          this.setRightAnswers()
+          console.log('this.choiceItem', itemIndex, this.choiceItem)
+        }
+      }
+    },
+    setRightAnswers() {
+      const currentItem = this.choiceItem
+      if (currentItem) {
+        const {
+          type,
+          data: { options }
+        } = currentItem
+        if (type === 'choice') {
+          this.rightAnswers = options.filter(item => item.isAnswer).map(item => item.id)
+          console.log(this.rightAnswers)
+        }
+      }
+    },
+    handleCheckedChange() {
+      // 单选题
+      if (!this.choiceItem.data.isMulti) {
+        this.rightAnswers = [this.rightAnswers[this.rightAnswers.length - 1]]
+      }
+      logger.info('this.rightAnswers ', this.rightAnswers)
+      this.sendMsgToParent(this.rightAnswers, 'changeAnswer')
     },
     choiceFileType(type) {
       if (type === 1) {
@@ -188,29 +238,6 @@ export default {
       }
       this.currentTemp = this.tempInfo.main
     },
-    getTipInfo() {
-      var param = {}
-      param.pageId = this.pageId
-      param.slideId = this.slideId
-      queryElementById(param)
-        .then(response => {
-          logger.info('queryElementById ', response.result)
-          const eles = response.result
-          for (let j = 0; j < eles.length; j++) {
-            logger.info('eles ', eles[j])
-            if (eles[j].data.type === 'tip') {
-              this.tip_id = eles[j].id
-              this.tip_text = eles[j].data.tip
-              this.param.data = eles[j].data
-              if (eles[j].data.urls) {
-                this.videoUrlList = eles[j].data.urls
-              }
-              break
-            }
-          }
-        })
-        .finally(() => {})
-    },
     isVideoType(item, type) {
       console.log('item', item, type)
       if (item.type === type || item.tpye === type) {
@@ -220,6 +247,7 @@ export default {
     },
     deleteVideo(index) {
       this.videoUrlList.splice(index, 1)
+      this.updateTip()
     },
     addMaterialList({ url, type }) {
       this.$logger.info('addMaterialList', url, type)
@@ -227,40 +255,22 @@ export default {
         this.videoUrlList = []
       }
       this.videoUrlList.push({ type: type, url: url })
+      this.updateTip()
     },
-    cancel() {
-      console.log('closeAddonWindow')
-      this.closeAddonWindow()
+    updateTip() {
+      this.tipData.tip = this.tip_text
+      this.tipData.urls = this.videoUrlList
+      console.log('updateTip', this.tipData)
+      this.sendMsgToParent(this.tipData, 'updateTip')
     },
-    confirm() {
-      if (this.tip_text.length < 1 && this.videoUrlList.length < 1) {
-        this.$message.warn('Insert tip for the slide!')
-        return
-      }
-      this.param.data.tip = this.tip_text
-      this.param.data.urls = this.videoUrlList
-      console.log('param', this.param, this.tip_id)
-      if (this.tip_id > 0) {
-        this.param.id = this.tip_id
-        updateElement(this.param).then(response => {
-          logger.info('updateElement ', response)
-          this.closeAddonWindow()
-        })
-      } else {
-        addElement(this.param).then(response => {
-          logger.info('addElement ', response)
-          this.closeAddonWindow()
-        })
-      }
-    },
-    closeAddonWindow() {
-      // 通知Google addon 关闭页面
+    sendMsgToParent(data, event) {
+      // 通知课堂更新tip内容
       if (window.parent) {
         window.parent.postMessage(
           JSON.stringify({
-            from: 'addon',
-            event: 'close',
-            data: null
+            from: 'form',
+            event: event,
+            data: data
           }),
           '*'
         )
@@ -292,7 +302,7 @@ export default {
     display: flex;
     flex-direction: column;
     height: 100%;
-    width: 100%;
+    width: 700px;
     padding: 50px;
     justify-content: center;
     .tip-row {
@@ -335,6 +345,11 @@ export default {
       color: red;
     }
   }
+}
+.radioStyle {
+  display: 'flex';
+  height: '30px';
+  line-height: '30px';
 }
 
 .carousel-page {
@@ -407,5 +422,68 @@ export default {
       }
     }
   }
+}
+.checktext {
+  font-size: 14px;
+  font-family: Inter-Bold;
+  color: #11142d;
+}
+.tipscheck {
+  width: 14px;
+  height: 14px;
+  position: relative;
+}
+.tipscheck::before {
+  position: absolute;
+  top: 0;
+  background-color: #fff;
+  color: #fff;
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  visibility: visible;
+  padding-left: 0px;
+  text-align: center;
+  content: ' ';
+  border-radius: 1px;
+  border: 1px solid rgba(112, 112, 112, 0.2);
+}
+
+.tipscheck:checked::before {
+  background-color: rgba(21, 195, 154, 1);
+  border: 1px solid rgba(21, 195, 154, 1);
+}
+.tipscheck:checked::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 5px;
+  width: 3px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.ppt-tips-item-checklist {
+  padding: 12px 0 0 12px;
+  flex: 1;
+}
+.checkitem {
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+}
+.checktextbox {
+  width: 100%;
+  height: 20px;
+  background-color: rgba(245, 245, 245, 0.5);
+  margin-left: 7px;
+  box-sizing: border-box;
+  text-align: left;
+  padding-left: 7px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 200px;
 }
 </style>
