@@ -184,6 +184,7 @@ export default {
             this.videoUrlList = []
             this.tipData = {}
           }
+          this.currentTemp = this.tempInfo.main
 
           const itemIndex = items.findIndex(item => item.type === 'choice')
           this.choiceItem = items[itemIndex] ? items[itemIndex] : null
