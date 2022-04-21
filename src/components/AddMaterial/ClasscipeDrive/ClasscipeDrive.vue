@@ -25,7 +25,7 @@
               :key="'index' + index"
             >
               <div class="img-box" @click="choiceItem(item)">
-                <video height="150" width="260" :src="item.filePath" preload="auto" controls></video>
+                <video width="340" height="190" :src="item.filePath" preload="auto" controls></video>
                 <div>{{ showFileName(decodeURIComponent(item.fileName)) }}</div>
               </div>
             </div>
@@ -38,7 +38,13 @@
         <div class="modal-ensure-action-line-center">
           <a-space>
             <a-button class="action-item action-cancel" shape="round" @click="cancel">Cancel</a-button>
-            <a-button class="action-ensure action-item" type="primary" shape="round" @click="confirm" :disabled="chooseVideoId.length == 0">
+            <a-button
+              class="action-ensure action-item"
+              type="primary"
+              shape="round"
+              @click="confirm"
+              :disabled="chooseVideoId.length == 0"
+            >
               Confirm
             </a-button>
           </a-space>
@@ -126,9 +132,8 @@ export default {
 @import '~@/components/index.less';
 .tip-row {
   margin-top: 20px;
-
 }
-.page{
+.page {
   width: 100%;
   margin: auto;
   padding: 50px;
@@ -182,8 +187,8 @@ export default {
       flex-direction: row;
       flex-wrap: wrap;
       .video-item {
-        height: 200px;
-        width: 280px;
+        height: 230px;
+        width: 360px;
         border: 1px solid #fff;
         padding: 10px;
         margin: 15px;

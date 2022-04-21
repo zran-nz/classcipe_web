@@ -64,6 +64,10 @@ export default {
     choiceFileType: {
       type: Function,
       default: () => null
+    },
+    googleOriginUrl: {
+      type: String,
+      default: ''
     }
   },
   data() {
@@ -150,7 +154,9 @@ export default {
           this.$nextTick(() => {
             this.driveUpLoadProgress = 0
           })
-        }
+        },
+        this.$store.getters.userInfo.id,
+        this.googleOriginUrl
       )
     },
     video() {

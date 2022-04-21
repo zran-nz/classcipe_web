@@ -5,16 +5,17 @@
         <div class="tip-content">
           <a-row :gutter="16">
             <a-col :span="12">
-              <span>text tip</span>
+              <span class="span">Text Tip</span>
               <a-textarea
                 placeholder="Insert tip for the slide"
                 :autoSize="{ minRows: 4, maxRows: 5 }"
                 v-model="tip_text"
+                @change="updateTip"
               />
             </a-col>
             <a-col :span="12">
               <div class="ppt-tips-item-content right-answer-content" v-if="choiceItem">
-                <span>correct answer</span>
+                <span class="span">Correct Answer</span>
                 <div v-for="(item, index) in choiceItem.data.options" :key="index" class="checktext checkitem">
                   <input
                     type="checkbox"
@@ -32,7 +33,8 @@
           </a-row>
 
           <a-col :span="24" class="tip-row">
-            <upload-enter-for-tip :uploadProgress="uploadProgress" :choiceFileType="choiceFileType" />
+            <span class="span">Vedio Tip</span>
+            <upload-enter-for-tip :uploadProgress="uploadProgress" :choiceFileType="choiceFileType" :googleOriginUrl="googleOriginUrl" />
           </a-col>
           <a-col class="tip-row">
             <div class="carousel-page">
@@ -41,16 +43,16 @@
                   <div class="img-item" v-for="(item, index) in videoUrlList" :key="'index' + index">
                     <div class="img-box">
                       <video
-                        width="260px"
-                        height="150px"
+                        width="340px"
+                        height="190px"
                         :src="item.url"
                         v-if="isVideoType(item, 'video')"
                         preload="auto"
                         controls
                       ></video>
                       <iframe
-                        width="260px"
-                        height="150px"
+                        width="340px"
+                        height="190px"
                         v-if="isVideoType(item, 'iframe')"
                         id="item_player"
                         :src="item.url"
@@ -75,7 +77,7 @@
       <classcipe-drive :insertClasscipeFile="insertClasscipeFile" />
     </template>
     <template v-else-if="currentTemp == tempInfo.youtube">
-      <google-youtube-video ref="googleyoutubevideo" :addYoutube="addYoutube" />
+      <google-youtube-video ref="googleyoutubevideo" :nextYoutube="nextYoutube" />
     </template>
   </div>
 </template>
@@ -120,7 +122,8 @@ export default {
       videoUrlList: [],
       canUpload: true,
       tipData: {},
-      choiceItem: {}
+      choiceItem: {},
+      googleOriginUrl: 'https://dev.frontend.classcipe.com/'
     }
   },
   watch: {
@@ -136,6 +139,7 @@ export default {
     AddMaterialEventBus.$on(ModalEventsNameEnum.IS_UPLOAD, flag => {
       console.log('ModalEventsNameEnum.IS_UPLOAD', flag)
       this.canUpload = flag
+      this.sendMsgToParent(flag, 'canUpload')
     })
     const _this = this
     window.addEventListener(
@@ -231,7 +235,7 @@ export default {
       }
       this.currentTemp = this.tempInfo.main
     },
-    addYoutube(videoItem) {
+    nextYoutube(videoItem) {
       if (videoItem) {
         this.addMaterialList({
           type: 'iframe',
@@ -284,6 +288,13 @@ export default {
 
 <style lang="less" scoped>
 @import '~@/components/index.less';
+.span{
+font-size: 24px;
+font-family: Arial;
+font-weight: bold;
+color: #000000;
+line-height: 40px;
+}
 .task-tip {
   width: 100%;
   margin: auto;
@@ -304,8 +315,8 @@ export default {
     display: flex;
     flex-direction: column;
     height: 100%;
-    width: 100%;
-    padding: 50px;
+    width: 740px;
+    padding: 10px;
     justify-content: center;
     .tip-row {
       margin-top: 20px;
@@ -355,7 +366,7 @@ export default {
 }
 
 .carousel-page {
-  height: 200px;
+  height: 250px;
   width: 100%;
   overflow-x: hidden;
   overflow-y: auto;
@@ -389,11 +400,12 @@ export default {
 
       .img-item {
         position: relative;
-        height: 150px;
-        width: 270px;
+        height: 190px;
+        width: 340px;
         border: 1px solid #fff;
         padding: 10px;
         margin-bottom: 20px;
+        margin-left: 10px;
         .img-box {
           position: absolute;
           img {
