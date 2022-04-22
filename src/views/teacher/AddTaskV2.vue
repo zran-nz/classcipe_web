@@ -30,7 +30,6 @@
             v-show='currentActiveStepIndex === stepIndex'
             v-for='(step, stepIndex) in $store.getters.formConfigData.taskSteps'
             :key='step.id'>
-
             <div class='form-field-item' v-for='fieldItem in $store.getters.formConfigData.taskCommonList' :key='fieldItem.id'>
               <template v-if='step.commonFields.indexOf(fieldItem.fieldName) !== -1'>
                 <div class='form-block tag-content-block' :data-field-name='taskField.Name' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Name' :key='fieldItem.fieldName'>
@@ -580,7 +579,7 @@
                   </a-skeleton>
                 </div>
 
-                <div class='form-block tag-content-block' :data-field-name='taskField.Associate' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Associate' :key='fieldItem.fieldName'>
+                <div class='form-block tag-content-block' :data-field-name='taskField.Link' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Link' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :field-name='taskField.Link' />
                   <comment-switch
                     v-show="canEdit"
@@ -6671,5 +6670,13 @@ p.ant-upload-text {
   display: flex;
   justify-content: flex-end;
   z-index: 999;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  height: 400px;
 }
 </style>

@@ -291,9 +291,14 @@ export default {
     },
     ...mapActions(['removedCollaborateAction']),
     formatUserList(users) {
-      let userList = [({ userName: this.owner.nickname, userAvatar: this.owner.avatar, email: this.owner.email })]
-      userList = userList.concat(users.filter(user => this.onlineUsers.indexOf(user.email) > -1 && user.email !== this.owner.email))
-      userList = userList.concat(users.filter(user => this.onlineUsers.indexOf(user.email) === -1 && user.email !== this.owner.email))
+      let userList = []
+      if (this.owner) {
+        userList = [({ userName: this.owner.nickname, userAvatar: this.owner.avatar, email: this.owner.email })]
+      }
+      if (users) {
+        userList = userList.concat(users.filter(user => this.onlineUsers.indexOf(user.email) > -1 && user.email !== this.owner.email))
+        userList = userList.concat(users.filter(user => this.onlineUsers.indexOf(user.email) === -1 && user.email !== this.owner.email))
+      }
       this.collaborateUserList = userList
     },
     handleBack() {
