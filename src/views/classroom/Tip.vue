@@ -498,6 +498,5 @@ line-height: 40px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  width: 200px;
 }
 </style>
