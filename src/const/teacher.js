@@ -26,7 +26,9 @@ export const typeMap = {
   'task': 4,
   'lesson': 5,
   'evaluation': 6,
-  'classSessionEvaluation': 7
+  'classSessionEvaluation': 7,
+  'video': 8,
+  'pd': 9
 }
 
 export function getLabelNameType (type) {
@@ -43,5 +45,9 @@ export function getLabelNameType (type) {
       return 'Lesson'
     case typeMap.evaluation:
       return 'Assessment tool'
+    case typeMap.video:
+      return 'Video'
+    case typeMap.pd:
+      return 'PD content'
   }
 }
