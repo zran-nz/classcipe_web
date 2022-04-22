@@ -113,7 +113,7 @@ export default {
 #feed-back {
   position: fixed;
   right: 35px;
-  bottom: 90px;
+  bottom: 140px;
   color: #fff;
   line-height: 30px;
   border-radius: 5px;

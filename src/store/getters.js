@@ -4,6 +4,7 @@ import { AllCurriculums, USER_MODE } from '@/const/common'
 
 const getters = {
   isMobile: state => state.app.isMobile,
+  hiddenHeader: state => state.app.hiddenHeader,
   lang: state => state.app.lang,
   theme: state => state.app.theme,
   color: state => state.app.color,

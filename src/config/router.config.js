@@ -41,7 +41,7 @@ export const asyncRouterMap = [
         children: [
           {
             path: '/teacher/main',
-            name: 'Main',
+            name: 'TeacherMain',
             redirect: '/teacher/main/created-by-me',
             component: () => import('@/views/teacher/Main'),
             meta: { title: 'menu.main', keepAlive: true, permission: ['teacher'] },
@@ -230,10 +230,10 @@ export const asyncRouterMap = [
           },
           {
             path: '/teacher/add-task-v2/:taskId?/:mode?', // mode:edit 编辑模式 pick-task-slide:选择slide创建task模式
-            name: 'AddTask',
+            name: 'AddTaskV2',
             props: true,
             component: () => import('@/views/teacher/AddTaskV2'),
-            meta: { title: 'menu.task', keepAlive: true, permission: ['teacher'] }
+            meta: { title: 'menu.task', keepAlive: true, permission: ['teacher'], fullLayout: true, allowHiddenHeader: true }
           },
           {
             path: '/teacher/task-redirect/:taskId?/:parentId?',
@@ -283,19 +283,19 @@ export const asyncRouterMap = [
             component: () => import('@/views/teacher/LessonRedirect'),
             meta: { title: 'menu.lessons', keepAlive: true, permission: ['teacher'] }
           },
-          // {
-          //   path: '/teacher/add-material/:materialId',
-          //   props: true,
-          //   name: 'AddMaterial',
-          //   component: () => import('@/views/teacher/AddMaterial'),
-          //   meta: { title: 'menu.add-material', keepAlive: true, permission: ['teacher'] }
-          // },
           {
             path: '/teacher/unit-plan/:unitPlanId',
             props: true,
             name: 'UnitPlan',
             component: () => import('@/views/teacher/AddUnitPlan'),
             meta: { title: 'menu.teacher.add-unit-plan', keepAlive: true, permission: ['teacher'] }
+          },
+          {
+            path: '/teacher/unit-plan-v2/:unitPlanId',
+            props: true,
+            name: 'UnitPlanV2',
+            component: () => import('@/views/teacher/AddUnitPlanV2'),
+            meta: { title: 'menu.teacher.add-unit-plan', keepAlive: true, permission: ['teacher'], fullLayout: true, allowHiddenHeader: true }
           },
           {
             path: '/teacher/unit-plan-redirect/:unitPlanId',
@@ -392,82 +392,6 @@ export const asyncRouterMap = [
         ]
       },
 
-      // expert
-      {
-        path: '/expert',
-        name: 'expert',
-        redirect: '/expert/created-by-me',
-        component: RouteView,
-        meta: { title: 'menu.main', keepAlive: true, icon: bxAnaalyse, permission: ['teacher'] },
-        children: [
-          {
-            path: '/expert/main',
-            name: 'Main',
-            redirect: '/expert/main/created-by-me',
-            component: () => import('@/views/expert/Main'),
-            meta: { title: 'menu.main', keepAlive: true, permission: ['teacher'] },
-            children: [
-              {
-                path: '/expert/main/created-by-me',
-                name: 'ExpertCreatedByMe',
-                component: () => import('@/views/teacher/CreatedByMe'),
-                meta: { title: 'menu.my-content', keepAlive: true, permission: ['teacher'] }
-              },
-              {
-                path: '/expert/main/my-favorite',
-                name: 'ExpertMyFavorite',
-                component: () => import('@/views/teacher/MyFavorite'),
-                meta: { title: 'menu.my-favorite', keepAlive: true, permission: ['teacher'] }
-              },
-              {
-                path: '/expert/main/shared',
-                name: 'ExpertShared',
-                component: () => import('@/views/teacher/Shared'),
-                meta: { title: 'menu.shared', keepAlive: true, permission: ['teacher'] }
-              },
-              {
-                path: '/expert/main/discover',
-                name: 'ExpertDiscover',
-                component: () => import('@/views/teacher/Discover'),
-                meta: { title: 'menu.discover', keepAlive: true, permission: ['teacher'] }
-              },
-              {
-                path: '/expert/main/subscribes',
-                name: 'ExpertSubscribes',
-                component: () => import('@/views/teacher/Subscribes'),
-                meta: { title: 'menu.subscribes', keepAlive: true, permission: ['teacher'] }
-              },
-              {
-                path: '/expert/main/popular',
-                name: 'ExpertPopular',
-                component: () => import('@/views/teacher/Popular'),
-                meta: { title: 'menu.popular', keepAlive: true, permission: ['teacher'] }
-              }
-            ]
-          },
-          {
-            path: '/expert/library/:browserType?/',
-            name: 'Library',
-            component: () => import('@/views/teacher/Library'),
-            meta: { title: 'menu.library', keepAlive: true, permission: ['teacher'] }
-          },
-          {
-            path: '/expert/topic/:topicId',
-            props: true,
-            name: 'AddTopic',
-            component: () => import('@/views/expert/AddTopic'),
-            meta: { title: 'menu.topics-from-experts', keepAlive: true, permission: ['teacher'] }
-          },
-          {
-            path: '/expert/topic-redirect/:topicId',
-            props: true,
-            name: 'TopicRedirect',
-            component: () => import('@/views/expert/TopicRedirect'),
-            meta: { title: 'menu.teacher.unit-plan', keepAlive: true, permission: ['teacher'] }
-          }
-        ]
-      },
-
       // student
       {
         path: '/student',
@@ -478,7 +402,7 @@ export const asyncRouterMap = [
         children: [
           {
             path: '/student/main',
-            name: 'Main',
+            name: 'StudentMain',
             redirect: '/student/main/my-task',
             component: () => import('@/views/student/Main'),
             meta: { title: 'menu.main', keepAlive: true, permission: ['student'] },
