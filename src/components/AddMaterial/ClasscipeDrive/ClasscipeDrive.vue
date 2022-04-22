@@ -136,7 +136,7 @@ export default {
 .page {
   width: 100%;
   margin: auto;
-  padding: 50px;
+  padding-left: 10px;
   display: flex;
   justify-content: center;
   flex-flow: column;
@@ -156,7 +156,7 @@ export default {
   flex: 1;
 }
 .carousel-page {
-  height: 400px;
+  height: 350px;
   width: 100%;
   overflow-x: hidden;
   overflow-y: auto;

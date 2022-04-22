@@ -142,6 +142,7 @@ export default {
       GooglePickerForTip.init(
         driveUpLoadProgress => {
           this.driveUpLoadProgress = driveUpLoadProgress
+          console.log('this.driveUpLoadProgress---', this.driveUpLoadProgress)
         },
         (type, url, mediaType) => {
           if (url) {
