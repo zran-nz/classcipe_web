@@ -41,6 +41,12 @@ export default {
           step
         })
       }
+    },
+    nextStep() {
+      this.$logger.info('nextStep')
+      if (this.currentStepIndex < this.steps.length - 1) {
+        this.handleSelectStep(this.steps[this.currentStepIndex + 1], this.currentStepIndex + 1)
+      }
     }
   }
 }

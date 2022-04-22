@@ -1,5 +1,5 @@
 <template>
-  <div class='my-full-form-wrapper' :style="{'margin-top': $store.getters.hiddenHeader ? '25px' : '90px'}" id='formRoot'>
+  <div class='my-full-form-wrapper' :style="{'margin-top': $store.getters.hiddenHeader ? '0' : '74px'}" id='formRoot'>
     <div class='form-header' :style="{top: $store.getters.hiddenHeader ? 0 : '64px'}">
       <common-form-header
         ref='commonFormHeader'
@@ -15,14 +15,15 @@
         @collaborate='handleStartCollaborate'
       />
     </div>
-    <a-card :bordered='false' :loading='contentLoading' :bodyStyle="{ padding: '10px 20px' }">
-      <div class='step-nav'>
-        <my-vertical-steps
-          :steps='$store.getters.formConfigData.taskSteps'
-          :step-index='currentActiveStepIndex'
-          @step-change='handleStepChange' />
-      </div>
-      <div class='step-content'>
+    <div class='step-nav' :style="{top: $store.getters.hiddenHeader ? '64px' : '138px'}">
+      <my-vertical-steps
+        ref='steps-nav'
+        :steps='$store.getters.formConfigData.taskSteps'
+        :step-index='currentActiveStepIndex'
+        @step-change='handleStepChange' />
+    </div>
+    <div class='form-content' :style="{ height: $store.getters.hiddenHeader ? 'calc(100vh - 138px)' : 'calc(100vh - 193px)', 'margin-top': $store.getters.hiddenHeader ? '55px' : '129px' }">
+      <div class='step-content' v-if='!contentLoading'>
         <div class='form-body root-locate-form' id='form-body'>
           <div
             class='form-page-item'
@@ -513,8 +514,7 @@
                             <a-row class='tag-row'>
                               <span class='tag-item' v-if='currentPageItem.data.bloomLevel'>
                                 <span class='tag-title'>Bloom's Taxonomy:</span>
-                                <span class='tag-value' style='color:#F16A39'>{{ currentPageItem.data.bloomLevel
-                                }}</span>
+                                <span class='tag-value' style='color:#F16A39'>{{ currentPageItem.data.bloomLevel }}</span>
                               </span>
                               <span class='tag-item' v-if='currentPageItem.data.knowledgeLevel'>
                                 <span class='tag-title'>Knowledge dimension(s):</span>
@@ -836,8 +836,13 @@
           </template>
         </div>
       </div>
-    </a-card>
-
+      <div class='loading-content' v-if='contentLoading'>
+        <a-spin />
+      </div>
+    </div>
+    <div class='bottom-action-bar'>
+      <a-button type='primary' @click='handleNextStep'>Next</a-button>
+    </div>
     <a-modal
       v-model='showCollaborateModalVisible'
       :footer='null'
@@ -2244,11 +2249,15 @@ export default {
         this.currentRightModule = RightModule.customTag
       }
     },
+
     handleAuthCallback() {
       this.$logger.info('handleAuthCallback')
       this.loadThumbnail()
     },
 
+    handleNextStep () {
+      this.$refs['steps-nav'].nextStep()
+    },
     restoreTask(taskId, isFirstLoad) {
       if (isFirstLoad) {
         this.contentLoading = true
@@ -4207,7 +4216,7 @@ export default {
 @import "~@/components/index.less";
 
 .step-content {
-  padding: 25px 0 10px 0;
+  padding: 10px 0;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
@@ -6628,5 +6637,38 @@ p.ant-upload-text {
       }
     }
   }
+}
+
+.step-nav {
+  background: #fff;
+  padding: 0 20px;
+  position: fixed;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 999;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+}
+
+.form-content {
+  padding: 0 20px;
+  overflow: scroll;
+  background: #fff;
+  transition: all 0.2s ease-in-out;
+}
+
+.bottom-action-bar {
+  padding: 0 30px;
+  position: fixed;
+  box-shadow: 3px 0 6px rgba(0, 0, 0, 0.16);
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: #fff;
+  align-items: center;
+  display: flex;
+  justify-content: flex-end;
 }
 </style>
