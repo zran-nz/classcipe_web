@@ -3623,4 +3623,38 @@ svg.add-input {
   overflow: visible;
   margin-left: 50px;
 }
+
+.step-nav {
+  background: #fff;
+  padding: 0 20px;
+  position: fixed;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 999;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+}
+
+.form-content {
+  padding: 0 20px;
+  overflow: scroll;
+  background: #fff;
+  transition: all 0.2s ease-in-out;
+}
+
+.bottom-action-bar {
+  padding: 0 30px;
+  position: fixed;
+  box-shadow: 3px 0 6px rgba(0, 0, 0, 0.16);
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: #fff;
+  align-items: center;
+  display: flex;
+  justify-content: flex-end;
+  z-index: 999;
+}
 </style>

@@ -1,5 +1,6 @@
 <template>
   <a-row class='common-form-header'>
+    <div class='hover-bar' v-show='$store.getters.hiddenHeader && debounceHiddenHeader' @mouseenter='handleMouseEnterOutHoverBar' @mouseout='handleCancelBounce'></div>
     <a-col span='15'>
       <a-space>
         <span class='back-icon' v-if='showBack'>
@@ -165,6 +166,7 @@ import EditIcon from '@/assets/svgIcon/evaluation/bianji.svg?inline'
 import { mapActions, mapState } from 'vuex'
 import { Modal } from 'ant-design-vue'
 import { HIDDEN_HEADER } from '@/store/mutation-types'
+const { debounce } = require('lodash-es')
 
 export default {
   name: 'CommonFormHeader',
@@ -218,7 +220,8 @@ export default {
       collaborateUserList: [],
       owner: {},
       isShare: false,
-      onlineUsers: [this.$store.getters.userInfo.email]
+      onlineUsers: [this.$store.getters.userInfo.email],
+      debounceHiddenHeader: null
     }
   },
   computed: {
@@ -279,13 +282,13 @@ export default {
     if (this.form && this.form.name) {
       this.formName = this.form.name
     }
-  },
-  mounted () {
-    // setTimeout(() => {
-    //   this.refreshCollaborateAction(false)
-    // }, 3000)
+
+    this.debounceHiddenHeader = debounce(this.toggleHiddenHeader, 500)
   },
   methods: {
+    handleMouseEnterOutHoverBar() {
+      this.debounceHiddenHeader()
+    },
     ...mapActions(['removedCollaborateAction']),
     formatUserList(users) {
       let userList = [({ userName: this.owner.nickname, userAvatar: this.owner.avatar, email: this.owner.email })]
@@ -343,7 +346,13 @@ export default {
       return email === this.form.createBy ? 'Owner: ' + email : email
     },
     toggleHiddenHeader() {
+      this.$logger.info('toggleHiddenHeader')
       this.$store.commit(HIDDEN_HEADER, !this.$store.getters.hiddenHeader)
+    },
+
+    handleCancelBounce () {
+      this.$logger.info('handleCancelBounce')
+      this.debounceHiddenHeader.cancel()
     }
   }
 }
@@ -354,10 +363,10 @@ export default {
 
 .gray {
   filter: grayscale(100%);
-  filter: gray;
 }
 
 .common-form-header {
+  position: relative;
   padding: 15px;
   background: #fff;
   z-index: 1000;
@@ -367,6 +376,15 @@ export default {
   display: flex;
   min-width: 1000px;
   align-items: center;
+
+  .hover-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 18px;
+    background: transparent;
+  }
 
   .back-icon {
     color: rgba(24, 37, 82, 1);
