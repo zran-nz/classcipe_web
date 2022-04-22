@@ -1,6 +1,6 @@
 <template>
-  <div class='my-full-form-wrapper' id='formRoot'>
-    <div class='form-header'>
+  <div class='my-full-form-wrapper' :style="{'margin-top': $store.getters.hiddenHeader ? '25px' : '90px'}" id='formRoot'>
+    <div class='form-header' :style="{top: $store.getters.hiddenHeader ? 0 : '64px'}">
       <common-form-header
         ref='commonFormHeader'
         :form='form'

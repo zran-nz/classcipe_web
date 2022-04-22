@@ -233,7 +233,7 @@ export const asyncRouterMap = [
             name: 'AddTask',
             props: true,
             component: () => import('@/views/teacher/AddTaskV2'),
-            meta: { title: 'menu.task', keepAlive: true, permission: ['teacher'] }
+            meta: { title: 'menu.task', keepAlive: true, permission: ['teacher'], fullLayout: true, allowHiddenHeader: true }
           },
           {
             path: '/teacher/task-redirect/:taskId?/:parentId?',
@@ -283,13 +283,6 @@ export const asyncRouterMap = [
             component: () => import('@/views/teacher/LessonRedirect'),
             meta: { title: 'menu.lessons', keepAlive: true, permission: ['teacher'] }
           },
-          // {
-          //   path: '/teacher/add-material/:materialId',
-          //   props: true,
-          //   name: 'AddMaterial',
-          //   component: () => import('@/views/teacher/AddMaterial'),
-          //   meta: { title: 'menu.add-material', keepAlive: true, permission: ['teacher'] }
-          // },
           {
             path: '/teacher/unit-plan/:unitPlanId',
             props: true,
@@ -302,7 +295,7 @@ export const asyncRouterMap = [
             props: true,
             name: 'UnitPlan',
             component: () => import('@/views/teacher/AddUnitPlanV2'),
-            meta: { title: 'menu.teacher.add-unit-plan', keepAlive: true, permission: ['teacher'] }
+            meta: { title: 'menu.teacher.add-unit-plan', keepAlive: true, permission: ['teacher'], fullLayout: true, allowHiddenHeader: true }
           },
           {
             path: '/teacher/unit-plan-redirect/:unitPlanId',

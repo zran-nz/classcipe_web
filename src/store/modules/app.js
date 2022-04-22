@@ -14,7 +14,8 @@ import {
   TOGGLE_MULTI_TAB,
   TOGGLE_NAV_THEME,
   TOGGLE_WEAK,
-  TOOGLE_USER_MODE
+  TOOGLE_USER_MODE,
+  HIDDEN_HEADER
 } from '@/store/mutation-types'
 import { loadLanguageAsync } from '@/locales'
 import { getSysConfig } from '@/api/common'
@@ -24,6 +25,7 @@ import { USER_MODE } from '@/const/common'
 const app = {
   state: {
     sideCollapsed: false,
+    hiddenHeader: false,
     isMobile: false,
     theme: 'dark',
     layout: '',
@@ -44,6 +46,10 @@ const app = {
     [SIDEBAR_TYPE]: (state, type) => {
       state.sideCollapsed = type
       storage.set(SIDEBAR_TYPE, type)
+    },
+    [HIDDEN_HEADER]: (state, hidden) => {
+      state.hiddenHeader = hidden
+      storage.set(HIDDEN_HEADER, hidden)
     },
     [TOGGLE_MOBILE_TYPE]: (state, isMobile) => {
       state.isMobile = isMobile

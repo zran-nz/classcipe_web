@@ -10,6 +10,9 @@
     <!--    </div>-->
     <avatar-dropdown :menu="showMenu" :current-user="$store.getters.userInfo" :class="prefixCls" @switch-role="handleSwitchRole" />
     <!--    <select-lang :class="prefixCls" />-->
+    <a-tooltip title='Hide menu'>
+      <a-icon type="caret-up" :style="{ fontSize: '16px', color: '#fff' }" v-if='allowHiddenHeader' @click='toggleHiddenHeader'/>
+    </a-tooltip>
   </div>
 </template>
 
@@ -18,6 +21,8 @@ import AvatarDropdown from './AvatarDropdown'
 import SelectLang from '@/components/SelectLang'
 import * as logger from '@/utils/logger'
 import NoticeIcon from '@/components/NoticeIcon'
+import { HIDDEN_HEADER } from '@/store/mutation-types'
+import { mapState } from 'vuex'
 
 export default {
   name: 'RightContent',
@@ -66,7 +71,13 @@ export default {
         'ant-pro-global-header-index-right': true,
         [`ant-pro-global-header-index-${(this.isMobile || !this.topMenu) ? 'light' : this.theme}`]: true
       }
-    }
+    },
+    allowHiddenHeader () {
+      return this.$route.meta.allowHiddenHeader
+    },
+    ...mapState({
+      hiddenHeader: state => state.app.hiddenHeader
+    })
   },
   mounted () {
     if (this.$route.path === '/notification') {
@@ -79,6 +90,9 @@ export default {
     handleSwitchRole (role) {
       logger.info('handleSwitchRole ' + role)
       this.$emit('switch-role', role)
+    },
+    toggleHiddenHeader() {
+      this.$store.commit(HIDDEN_HEADER, !this.$store.getters.hiddenHeader)
     }
   }
 }
@@ -98,4 +112,5 @@ export default {
     color: @primary-color;
   }
 }
+
 </style>

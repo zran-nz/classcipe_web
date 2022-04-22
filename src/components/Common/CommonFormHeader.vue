@@ -144,6 +144,13 @@
           </div>
         </a-button>
       </a-space>
+      <div class='hidden-top-header' :style="{'background-color': hiddenHeader ? '#fff' : '#fff'}" v-if='allowHiddenHeader'>
+        <div class='hidden-toggle' @click='toggleHiddenHeader'>
+          <template v-if='hiddenHeader'>
+            <a-icon type="caret-down" :style="{ fontSize: '16px', color: '#182552' }"/>
+          </template>
+        </div>
+      </div>
     </a-col>
   </a-row>
 </template>
@@ -157,6 +164,7 @@ import { typeMap } from '@/const/teacher'
 import EditIcon from '@/assets/svgIcon/evaluation/bianji.svg?inline'
 import { mapActions, mapState } from 'vuex'
 import { Modal } from 'ant-design-vue'
+import { HIDDEN_HEADER } from '@/store/mutation-types'
 
 export default {
   name: 'CommonFormHeader',
@@ -229,8 +237,12 @@ export default {
       return false
     },
     ...mapState({
-      removedCollaborate: state => state.websocket.removedCollaborate
-    })
+      removedCollaborate: state => state.websocket.removedCollaborate,
+      hiddenHeader: state => state.app.hiddenHeader
+    }),
+    allowHiddenHeader () {
+      return this.$route.meta.allowHiddenHeader
+    }
   },
   watch: {
     collaborate(val) {
@@ -329,6 +341,9 @@ export default {
     },
     formatOnlineEmail(email) {
       return email === this.form.createBy ? 'Owner: ' + email : email
+    },
+    toggleHiddenHeader() {
+      this.$store.commit(HIDDEN_HEADER, !this.$store.getters.hiddenHeader)
     }
   }
 }
@@ -346,7 +361,8 @@ export default {
   padding: 15px;
   background: #fff;
   z-index: 1000;
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+  height: 74px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
   opacity: 1;
   display: flex;
   min-width: 1000px;
@@ -493,4 +509,25 @@ export default {
   }
 }
 
+.hidden-top-header {
+  position: absolute;
+  right: 14px;
+  top: -19px;
+  height: 18px;
+  line-height: 18px;
+  padding: 0 5px;
+  z-index: 1500;
+  display: flex;
+  justify-content: center;
+  align-content: flex-start;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+  cursor: pointer;
+}
+
+.hidden-toggle {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
 </style>
