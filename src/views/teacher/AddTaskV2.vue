@@ -820,8 +820,8 @@
             </div>
           </template>
           <template v-if='currentRightModule === rightModule.customTag'>
-            <div v-if='!this.contentLoading' :style="{'width':rightWidth+'px', 'margin-top':customTagTop+'px'}">
-              <custom-tag
+            <div v-if='!this.contentLoading' :style="{'width':rightWidth+'px', 'position': 'fixed', 'top': $store.getters.hiddenHeader ? '140px' : '200px'}">
+              <custom-tag-v2
                 ref='customTag'
                 :show-arrow='showCustomTag'
                 :custom-tags='customTags'
@@ -830,7 +830,7 @@
                 :current-field-name='currentFocusFieldName'
                 @reload-user-tags='loadCustomTags'
                 @change-add-keywords='handleChangeAddKeywords'
-                @change-user-tags='handleChangeCustomTags'></custom-tag>
+                @change-user-tags='handleChangeCustomTags'></custom-tag-v2>
             </div>
           </template>
         </div>
@@ -1713,7 +1713,7 @@ import TaskForm from '@/components/Task/TaskForm'
 import TaskPreview from '@/components/Task/TaskPreview'
 import Collaborate from '@/components/UnitPlan/Collaborate'
 import AssociateSidebar from '@/components/Associate/AssociateSidebar'
-import CustomTag from '@/components/UnitPlan/CustomTag'
+import CustomTagV2 from '@/components/UnitPlan/CustomTagV2'
 import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
 import CollaborateUserList from '@/components/Collaborate/CollaborateUserList'
 import { CustomTagType, DICT_PROMPT_PURPOSE, TaskField, TemplateType } from '@/const/common'
@@ -1799,7 +1799,7 @@ export default {
     Collaborate,
     AssociateSidebar,
     CollaborateUserList,
-    CustomTag,
+    CustomTagV2,
     commentIcon,
     TaskMaterialPreview,
     MediaPreview,
@@ -4813,8 +4813,7 @@ export default {
 
 *::-webkit-scrollbar-track {
   border-radius: 1px;
-  background: rgba(0, 0, 0, 0.00);
-  -webkit-box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.04);
+  background: transparent;
 }
 
 /* 滚动条滑块 */

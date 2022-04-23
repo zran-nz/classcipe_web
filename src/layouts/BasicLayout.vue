@@ -30,7 +30,7 @@
       <right-content :top-menu="settings.layout === 'topmenu'" :is-mobile="isMobile" :theme="settings.theme" @switch-role="handleSwitchRole" />
     </template>
     <!-- custom footer / 自定义Footer -->
-    <template v-slot:footerRender>
+    <template v-slot:footerRender v-if='showFooter'>
       <global-footer />
     </template>
     <div :class="{'classcipe-main': true, 'no-full-layout': !fullLayoutFlag}">
@@ -120,6 +120,9 @@ export default {
     }),
     fullLayoutFlag () {
       return this.$route.meta.fullLayout
+    },
+    showFooter () {
+      return !this.$route.meta.hiddenFooter
     }
   },
   created () {
