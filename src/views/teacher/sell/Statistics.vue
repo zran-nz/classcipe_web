@@ -98,24 +98,18 @@
       destroyOnClose
       placement="right"
       :closable="false"
-      width="800px"
+      width="1000px"
       :visible="previewVisible"
       @close="handlePreviewClose"
     >
-      <a-row class="preview-wrapper-row">
-        <a-col span="2">
-          <div class="view-back" @click="handlePreviewClose">
-            <div class="back-icon">
-              <img src="~@/assets/icons/common/back.png" />
-            </div>
-          </div>
-        </a-col>
-        <a-col span="22">
-          <div class="detail-wrapper" v-if="previewCurrentId && previewType">
-            <common-preview :id="previewCurrentId" :type="previewType" />
-          </div>
-        </a-col>
-      </a-row>
+      <div class="preview-wrapper-row">
+        <div class="view-back">
+          <a-button type='primary' class='preview-back-btn' shape='round' @click="handlePreviewClose"><a-icon type="left" :style="{'font-size': '12px'}" />Back</a-button>
+        </div>
+        <div class="detail-wrapper" v-if="previewCurrentId && previewType">
+          <common-preview-v2 :id="previewCurrentId" :type="previewType" />
+        </div>
+      </div>
     </a-drawer>
   </div>
 </template>
@@ -127,7 +121,7 @@ import { typeMap } from '@/const/teacher'
 
 import { STable } from '@/components'
 import ReviewScore from '@/components/Reviews/ReviewScore'
-import CommonPreview from '@/components/Common/CommonPreview'
+import CommonPreviewV2 from '@/components/Common/CommonPreviewV2'
 import { TableWidthMixin } from '@/mixins/TableWidthMixin'
 
 import FilterIcon from '@/assets/libraryv2/filter.svg?inline'

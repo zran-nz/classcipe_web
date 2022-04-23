@@ -358,24 +358,18 @@
         destroyOnClose
         placement="right"
         :closable="false"
-        width="800px"
+        width="1000px"
         :visible="previewVisible"
         @close="handlePreviewClose"
       >
-        <a-row class="preview-wrapper-row">
-          <a-col span="2">
-            <div class="view-back" @click="handlePreviewClose">
-              <div class="back-icon">
-                <img src="~@/assets/icons/common/back.png" />
-              </div>
-            </div>
-          </a-col>
-          <a-col span="22">
-            <div class="detail-wrapper" v-if="previewCurrentId && previewType">
-              <common-preview :id="previewCurrentId" :type="previewType" />
-            </div>
-          </a-col>
-        </a-row>
+        <div class="preview-wrapper-row">
+          <div class="view-back">
+            <a-button type='primary' class='preview-back-btn' shape='round' @click="handlePreviewClose"><a-icon type="left" :style="{'font-size': '12px'}" />Back</a-button>
+          </div>
+          <div class="detail-wrapper" v-if="previewCurrentId && previewType">
+            <common-preview-v2 :id="previewCurrentId" :type="previewType" />
+          </div>
+        </div>
       </a-drawer>
 
       <a-modal
@@ -479,7 +473,7 @@ import CustomTag from '@/components/UnitPlan/CustomTag'
 import LiebiaoSvg from '@/assets/svgIcon/myContent/liebiao.svg?inline'
 import PubuSvg from '@/assets/svgIcon/myContent/pubu.svg?inline'
 import { CustomTagType } from '@/const/common'
-import CommonPreview from '@/components/Common/CommonPreview'
+import CommonPreviewV2 from '@/components/Common/CommonPreviewV2'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import ModalHeader from '@/components/Common/ModalHeader'
 import { FindCustomTags } from '@/api/tag'
@@ -499,7 +493,7 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
     components: {
       OldSessionList,
       NoMoreResources,
-      CommonPreview,
+      CommonPreviewV2,
       ClassListTable,
       ContentStatusIcon,
       ContentTypeIcon,

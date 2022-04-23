@@ -2,7 +2,7 @@
   <div style="width: 600px">
     <div class="preview-wrapper">
       <div class="preview-detail">
-        <common-preview :id="id" :type="type" :can-edit="false"/>
+        <common-preview-v2 :id="id" :type="type" :can-edit="false"/>
       </div>
     </div>
   </div>
@@ -11,7 +11,7 @@
 <script>
   import storage from 'store'
   import { ACCESS_TOKEN } from '../../store/mutation-types'
-  import CommonPreview from '@/components/Common/CommonPreview'
+  import CommonPreviewV2 from '@/components/Common/CommonPreviewV2'
 
   export default {
   name: 'AddonPreview',

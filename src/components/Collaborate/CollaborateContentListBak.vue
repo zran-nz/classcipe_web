@@ -50,7 +50,7 @@
         destroyOnClose
         placement="right"
         :closable="false"
-        width="800px"
+        width="1000px"
         :visible="previewVisible"
         @close="handlePreviewClose"
       >
@@ -64,7 +64,7 @@
           </a-col>
           <a-col span="22">
             <div class="detail-wrapper" v-if="previewCurrentId && previewType">
-              <common-preview :id="previewCurrentId" :type="previewType" />
+              <common-preview-v2 :id="previewCurrentId" :type="previewType" />
             </div>
           </a-col>
         </a-row>
@@ -82,13 +82,13 @@ import { GetAssociate } from '@/api/teacher'
 import { typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
-import CommonPreview from '@/components/Common/CommonPreview'
+import CommonPreviewV2 from '@/components/Common/CommonPreviewV2'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 
 export default {
   name: 'CollaborateContentList',
   components: {
-    CommonPreview,
+    CommonPreviewV2,
     ContentStatusIcon,
     ContentTypeIcon,
     UnitPlanPreview,

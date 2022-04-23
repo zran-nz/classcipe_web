@@ -214,28 +214,20 @@
       <a-drawer
         destroyOnClose
         placement="right"
-        width="700px"
+        width="1000px"
         :closable="false"
         :visible="previewVisible"
         @close="handlePreviewClose"
       >
-        <div class="preview-wrapper">
-          <a-row class="preview-wrapper-row">
-            <a-col span="3">
-              <div class="view-back" @click="handlePreviewClose">
-                <div class="back-icon">
-                  <img src="~@/assets/icons/common/back.png" />
-                </div>
-              </div>
-            </a-col>
-            <a-col span="21">
-              <div class="detail-wrapper">
-                <div class="preview-detail" v-if="previewCurrentId && previewType">
-                  <common-preview :id="previewCurrentId" :type="previewType" />
-                </div>
-              </div>
-            </a-col>
-          </a-row>
+        <div class="preview-wrapper-row">
+          <div class="view-back">
+            <a-button type='primary' class='preview-back-btn' shape='round' @click="handlePreviewClose"><a-icon type="left" :style="{'font-size': '12px'}" />Back</a-button>
+          </div>
+          <div class="detail-wrapper">
+            <div class="preview-detail" v-if="previewCurrentId && previewType">
+              <common-preview-v2 :id="previewCurrentId" :type="previewType" />
+            </div>
+          </div>
         </div>
       </a-drawer>
     </div>
@@ -253,7 +245,7 @@ import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { MyContentEvent, MyContentEventBus } from '@/components/MyContent/MyContentEventBus'
 import DisplayMode from '@/components/MyContent/DisplayMode'
-import CommonPreview from '@/components/Common/CommonPreview'
+import CommonPreviewV2 from '@/components/Common/CommonPreviewV2'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import LiebiaoSvg from '@/assets/svgIcon/myContent/liebiao.svg?inline'
 import PubuSvg from '@/assets/svgIcon/myContent/pubu.svg?inline'
@@ -261,7 +253,7 @@ import PubuSvg from '@/assets/svgIcon/myContent/pubu.svg?inline'
 export default {
   name: 'MyContentCreatedByMe',
   components: {
-    CommonPreview,
+    CommonPreviewV2,
     ContentStatusIcon,
     ContentTypeIcon,
     UnitPlanPreview,

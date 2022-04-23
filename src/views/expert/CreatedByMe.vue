@@ -276,7 +276,7 @@
 <!--          </a-col>-->
 <!--          <a-col span="22">-->
 <!--            <div class="detail-wrapper" v-if="previewCurrentId && previewType">-->
-<!--              <common-preview :id="previewCurrentId" :type="previewType" />-->
+<!--              <common-preview-v2 :id="previewCurrentId" :type="previewType" />-->
 <!--            </div>-->
 <!--          </a-col>-->
 <!--        </a-row>-->
@@ -358,7 +358,7 @@
 <!--  SESSION_CURRENT_TYPE_LABEL,-->
 <!--  SESSION_VIEW_MODE-->
 <!--} from '@/const/common'-->
-<!--import CommonPreview from '@/components/Common/CommonPreview'-->
+<!--import CommonPreviewV2 from '@/components/Common/CommonPreviewV2'-->
 <!--import NoMoreResources from '@/components/Common/NoMoreResources'-->
 <!--import ModalHeader from '@/components/Common/ModalHeader'-->
 <!--import { FindCustomTags } from '@/api/tag'-->
@@ -367,7 +367,7 @@
 <!--  name: 'CreatedByMe',-->
 <!--  components: {-->
 <!--    NoMoreResources,-->
-<!--    CommonPreview,-->
+<!--    CommonPreviewV2,-->
 <!--    ClassList,-->
 <!--    ContentStatusIcon,-->
 <!--    ContentTypeIcon,-->

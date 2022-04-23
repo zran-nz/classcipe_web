@@ -188,7 +188,7 @@
 <!--          </a-col>-->
 <!--          <a-col span="22">-->
 <!--            <div class="detail-wrapper" v-if="previewCurrentId && previewType">-->
-<!--              <common-preview :id="previewCurrentId" :type="previewType" />-->
+<!--              <common-preview-v2 :id="previewCurrentId" :type="previewType" />-->
 <!--            </div>-->
 <!--          </a-col>-->
 <!--        </a-row>-->
@@ -209,12 +209,12 @@
 <!--import { StartLesson, getMyClasses } from '@/api/lesson'-->
 <!--import storage from 'store'-->
 <!--import { VIEW_MODE } from '@/store/mutation-types'-->
-<!--import CommonPreview from '@/components/Common/CommonPreview'-->
+<!--import CommonPreviewV2 from '@/components/Common/CommonPreviewV2'-->
 
 <!--export default {-->
 <!--  name: 'MyFavorite',-->
 <!--  components: {-->
-<!--    CommonPreview,-->
+<!--    CommonPreviewV2,-->
 <!--    ContentStatusIcon,-->
 <!--    ContentTypeIcon,-->
 <!--    UnitPlanPreview,-->
