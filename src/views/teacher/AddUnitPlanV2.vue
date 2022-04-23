@@ -502,8 +502,8 @@
                       <plan-link
                         ref='planLink'
                         :can-edit="canEdit"
-                        :from-id='this.unitPlanId'
-                        :from-type="this.contentType['unit-plan']"
+                        :from-id='unitPlanId'
+                        :from-type="contentType['unit-plan']"
                         @group-name-list-update='handleUpdateGroupNameList' />
                     </div>
                   </div>
@@ -1394,6 +1394,8 @@ export default {
     handleDisplayRightModule () {
       if (this.currentStep.commonFields.indexOf(TaskField.Slides) !== -1) {
         this.currentRightModule = RightModule.recommend
+      } else if (this.currentStep.commonFields.indexOf(TaskField.LearnOuts) !== -1) {
+        this.currentRightModule = null
       } else {
         this.currentRightModule = RightModule.customTag
       }
