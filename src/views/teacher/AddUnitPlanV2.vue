@@ -598,6 +598,10 @@
                 @hide-assessment-task='resetRightModuleVisible()' />
             </div>
           </template>
+
+          <template v-if='currentRightModule === rightModule.associate'>
+            <link-content-list />
+          </template>
         </div>
       </div>
       <div class='loading-content' v-if='contentLoading'>
@@ -1001,10 +1005,12 @@ import AddGreenIcon from '@/assets/svgIcon/evaluation/form/tianjia_green.svg?inl
 import MyVerticalSteps from '@/components/Steps/MyVerticalSteps'
 import storage from 'store'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
+import LinkContentList from '@/components/UnitPlan/LinkContentList'
 
 export default {
   name: 'AddUnitPlan',
   components: {
+    LinkContentList,
     MyVerticalSteps,
     PublishList,
     ShareContentSetting,
@@ -1396,6 +1402,8 @@ export default {
         this.currentRightModule = RightModule.recommend
       } else if (this.currentStep.commonFields.indexOf(TaskField.LearnOuts) !== -1) {
         this.currentRightModule = null
+      } else if (this.currentStep.commonFields.indexOf(TaskField.Link) !== -1) {
+        this.currentRightModule = RightModule.associate
       } else {
         this.currentRightModule = RightModule.customTag
       }
