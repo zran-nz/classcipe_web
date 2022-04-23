@@ -7,8 +7,7 @@
           <a-textarea
             placeholder="Insert tip for the slide"
             :autoSize="{ minRows: 4, maxRows: 5 }"
-            v-model="tip_text"
-          />       
+            v-model="tip_text" />
           <a-col :span="24" class="tip-row">
             <upload-enter-for-tip :uploadProgress="uploadProgress" :choiceFileType="choiceFileType" />
           </a-col>

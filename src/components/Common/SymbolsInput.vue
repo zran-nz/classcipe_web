@@ -6,7 +6,7 @@
       :autoSize="{ minRows: 4, maxRows: 5 }"
       v-model="input_text"
     />
-    <a-popover v-model:visible="visible" placement="rightTop" trigger="click">
+    <a-popover :visible="visible" placement="rightTop" trigger="click">
       <template #content>
         <div class="virtual_keyboard">
           <div class="virtual_keyboard__header">
@@ -75,7 +75,7 @@ export default {
         this.input_text.substr(0, lastInput.selectionStart) +
         item +
         this.input_text.substring(lastInput.selectionStart, this.input_text.length)
-      //this.input_text = this.input_text + item
+        // this.input_text = this.input_text + item
     }
   }
 }

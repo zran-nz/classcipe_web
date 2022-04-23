@@ -6,12 +6,27 @@
     <div class='display-content-list'>
       <draggable
         animation="300"
+        @change='handleDragChange'
+        @@start='handleDragStart'
         group="root">
         <div class='content-item' v-for='(item) in myContentList' :key='item.id'>
           <div class='type-icon'>
             <content-type-icon :type='item.type'/>
           </div>
-          <div class='name'> {{ item.name }}</div>
+          <div class='name'>
+            {{ item.name }}
+            <template v-if='item.taskType'>
+              <a-tag class='task-type-tag green-active-task-type' v-if="item.taskType.toLowerCase() === 'fa'">
+                {{ item.taskType }}
+              </a-tag>
+              <a-tag class='task-type-tag red-active-task-type' v-if="item.taskType.toLowerCase() === 'sa'">
+                {{ item.taskType }}
+              </a-tag>
+              <a-tag class='task-type-tag blue-active-task-type' v-if="item.taskType.toLowerCase() === 'activity'">
+                {{ item.taskType }}
+              </a-tag>
+            </template>
+          </div>
           <div class='status'>
             <template v-if="item.status === 0">Draft</template>
             <template v-if="item.status === 1">Published</template>
@@ -33,6 +48,7 @@ import { FindMyContent } from '@/api/teacher'
 import { ownerMap, statusMap, typeMap } from '@/const/teacher'
 import * as logger from '@/utils/logger'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
+
 export default {
   name: 'LinkContentList',
   components: { ContentTypeIcon, draggable },
@@ -96,6 +112,12 @@ export default {
       }).finally(() => {
         this.loading = false
       })
+    },
+    handleDragChange (data) {
+      this.$logger.info('LinkContentList handleDragChange', data)
+    },
+    handleDragStart (data) {
+      this.$logger.info('LinkContentList handleDragStart', data)
     }
   }
 }
@@ -149,6 +171,41 @@ export default {
       font-weight: 500;
     }
   }
+}
+
+.green-active-task-type {
+  background: rgba(21, 195, 154, 0.1);
+  border: 2px solid #15C39A;
+  border-radius: 50%;
+  font-weight: bold;
+  color: #15C39A;
+}
+
+.red-active-task-type {
+  background: rgba(255, 51, 85, 0.1);
+  border: 2px solid #FF3355;
+  border-radius: 50%;
+  opacity: 1;
+  font-weight: bold;
+  color: #FF3355;
+  opacity: 1;
+}
+
+.blue-active-task-type {
+  background: rgb(230, 247, 255);
+  border: 2px solid rgb(145, 213, 255);
+  border-radius: 50px;
+  opacity: 1;
+  font-weight: bold;
+  color: rgb(24, 144, 255);
+}
+
+.task-type-tag {
+  margin-left: 5px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 </style>
