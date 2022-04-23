@@ -431,7 +431,7 @@ export default {
 
   .tree-navigation {
     z-index: 150;
-    width: 400px;
+    width: 440px;
     flex-shrink: 0;
     height: 100%;
     overflow-y: scroll;

@@ -298,15 +298,24 @@ export default {
         if (valid) {
           logger.info('save teacher', this.teacherForm)
           const school = this.myCreateSchoolOptions.find(item => item.id === this.teacherForm.school)
-          if (school) {
+          const createdSchool = this.schoolOptions.find(item => item.id === this.teacherForm.school)
+          if (school || (createdSchool && createSchool.country !== this.teacherForm.country)) {
             this.confirmLoading = true
             createSchool({
-              name: this.searchText,
+              name: (school || createdSchool).name,
               country: this.teacherForm.country,
               curriculumId: this.teacherForm.curriculumId
             }).then(res => {
               if (res.success) {
-                school.id = res.result.id
+                if (school) {
+                  school.id = res.result.id
+                }
+                if (createdSchool) {
+                  this.schoolOptions.push({
+                    id: res.result.id,
+                    name: res.result.name
+                  })
+                }
                 this.teacherForm.school = res.result.id
                 const param = {
                   curriculumId: this.teacherForm.curriculumId,
