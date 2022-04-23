@@ -14,7 +14,8 @@ export const RightModule = {
   'imageUpload': 3,
   'customTag': 4,
   'taskDetails': 5,
-  'recommend': 6
+  'recommend': 6,
+  'associate': 7
 }
 export const BaseEventMixin = {
   data () {

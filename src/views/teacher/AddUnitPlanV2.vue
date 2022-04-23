@@ -502,8 +502,8 @@
                       <plan-link
                         ref='planLink'
                         :can-edit="canEdit"
-                        :from-id='this.unitPlanId'
-                        :from-type="this.contentType['unit-plan']"
+                        :from-id='unitPlanId'
+                        :from-type="contentType['unit-plan']"
                         @group-name-list-update='handleUpdateGroupNameList' />
                     </div>
                   </div>
@@ -575,7 +575,7 @@
             <div
               v-show='!this.contentLoading'
               :style="{'width':rightWidth+'px', 'margin-top':customTagTop+'px'}">
-              <custom-tag
+              <custom-tag-v2
                 :display-mode="canEdit ? 'edit' : 'readonly'"
                 ref='customTag'
                 :scope-tags-list='customTagList'
@@ -585,7 +585,7 @@
                 :current-field-name='currentFocusFieldName'
                 @reload-user-tags='loadCustomTags'
                 @change-add-keywords='handleChangeAddKeywords'
-                @change-user-tags='handleChangeCustomTags'></custom-tag>
+                @change-user-tags='handleChangeCustomTags'></custom-tag-v2>
             </div>
           </template>
 
@@ -597,6 +597,10 @@
                 :associate-task-list='associateTaskList'
                 @hide-assessment-task='resetRightModuleVisible()' />
             </div>
+          </template>
+
+          <template v-if='currentRightModule === rightModule.associate'>
+            <link-content-list />
           </template>
         </div>
       </div>
@@ -960,7 +964,7 @@ import AssociateSidebar from '@/components/Associate/AssociateSidebar'
 import { TaskAddOrUpdate } from '@/api/task'
 import { LessonAddOrUpdate } from '@/api/myLesson'
 import { EvaluationAddOrUpdate } from '@/api/evaluation'
-import CustomTag from '../../components/UnitPlan/CustomTag'
+import CustomTagV2 from '../../components/UnitPlan/CustomTagV2'
 import { MyContentEvent, MyContentEventBus } from '@/components/MyContent/MyContentEventBus'
 import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import AddKeywordTag from '@/components/Evaluation/AddKeywordTag'
@@ -1001,10 +1005,12 @@ import AddGreenIcon from '@/assets/svgIcon/evaluation/form/tianjia_green.svg?inl
 import MyVerticalSteps from '@/components/Steps/MyVerticalSteps'
 import storage from 'store'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
+import LinkContentList from '@/components/UnitPlan/LinkContentList'
 
 export default {
   name: 'AddUnitPlan',
   components: {
+    LinkContentList,
     MyVerticalSteps,
     PublishList,
     ShareContentSetting,
@@ -1027,7 +1033,7 @@ export default {
     SkillTag,
     MyContentSelector,
     AssociateSidebar,
-    CustomTag,
+    CustomTagV2,
     RelevantTagSelector,
     AddKeywordTag,
     NewBrowser,
@@ -1394,6 +1400,10 @@ export default {
     handleDisplayRightModule () {
       if (this.currentStep.commonFields.indexOf(TaskField.Slides) !== -1) {
         this.currentRightModule = RightModule.recommend
+      } else if (this.currentStep.commonFields.indexOf(TaskField.LearnOuts) !== -1) {
+        this.currentRightModule = null
+      } else if (this.currentStep.commonFields.indexOf(TaskField.Link) !== -1) {
+        this.currentRightModule = RightModule.associate
       } else {
         this.currentRightModule = RightModule.customTag
       }
