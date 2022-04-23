@@ -134,9 +134,8 @@ export default {
   margin-top: 20px;
 }
 .page {
-  width: 100%;
+  width: 760px;
   margin: auto;
-  padding-left: 10px;
   display: flex;
   justify-content: center;
   flex-flow: column;
@@ -156,7 +155,7 @@ export default {
   flex: 1;
 }
 .carousel-page {
-  height: 350px;
+  height: 360px;
   width: 100%;
   overflow-x: hidden;
   overflow-y: auto;
@@ -191,7 +190,6 @@ export default {
         width: 360px;
         border: 1px solid #fff;
         padding: 10px;
-        margin: 15px;
         &.active {
           border: 2px solid @primary-color;
         }

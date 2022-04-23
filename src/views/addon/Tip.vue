@@ -283,7 +283,7 @@ export default {
 <style lang="less" scoped>
 @import '~@/components/index.less';
 .task-tip {
-  width: 100%;
+  width: 760px;
   margin: auto;
   display: flex;
   justify-content: center;
@@ -299,7 +299,7 @@ export default {
     }
   }
   .tip-content {
-    width: 920px;
+    width: 760px;
     display: flex;
     flex-direction: column;
     padding: 50px;

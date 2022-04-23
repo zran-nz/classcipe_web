@@ -32,7 +32,7 @@
             </a-col>
           </a-row>
 
-          <a-col :span="24" class="tip-row">
+          <a-col :span="24" class="upvideo-row">
             <span class="span">Vedio Tip</span>
             <upload-enter-for-tip :uploadProgress="uploadProgress" :choiceFileType="choiceFileType" :googleOriginUrl="googleOriginUrl" />
           </a-col>
@@ -289,14 +289,15 @@ export default {
 <style lang="less" scoped>
 @import '~@/components/index.less';
 .span{
-font-size: 24px;
+font-size: 18px;
 font-family: Arial;
 font-weight: bold;
 color: #000000;
 line-height: 40px;
+margin-right: 20px;
 }
 .task-tip {
-  width: 100%;
+  width: 760px;
   margin: auto;
   display: flex;
   justify-content: center;
@@ -318,6 +319,11 @@ line-height: 40px;
     width: 740px;
     padding: 10px;
     justify-content: center;
+    .upvideo-row{
+      margin-top: 20px;
+      display: flex;
+      flex-direction: row;
+    }
     .tip-row {
       margin-top: 20px;
     }

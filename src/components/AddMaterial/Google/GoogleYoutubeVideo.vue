@@ -10,7 +10,6 @@
         v-model="keywords"
         @search="searchVideo"
         @pressEnter="searchVideo"
-        :allowClear="true"
       >
       </a-input-search>
     </div>
