@@ -1058,26 +1058,28 @@ export default {
       const list = [...this.myCreateSchoolOptions, ...this.schoolOptions]
       const findOne = list.find(item => item.id === schoolId)
       if (findOne) {
-        this.userForm.country = findOne.country
+        findOne.country && (this.userForm.country = findOne.country)
         this.userForm.schoolName = findOne.name
       }
     },
     changeAdminSchool(schoolId) {
       const list = [...this.myCreateSchoolOptions, ...this.schoolOptions]
       const findOne = list.find(item => item.id === schoolId)
-      if (findOne && findOne.country) {
-        this.adminForm.country = findOne.country
+      if (findOne) {
+        findOne.country && (this.adminForm.country = findOne.country)
         this.adminForm.schoolName = findOne.name
       }
     },
     doSaveUserForm() {
       this.$refs.userForm.validate(valid => {
         if (valid) {
+          // 同名 同国家 才是同学校，否则不是同学校
           const school = this.myCreateSchoolOptions.find(item => item.id === this.userForm.schoolId)
-          if (school) {
+          const createdSchool = this.schoolOptions.find(item => item.id === this.userForm.schoolId)
+          if (school || (createdSchool && createSchool.country !== this.userForm.country)) {
             this.confirmLoading = true
             createSchool({
-              name: school.name,
+              name: (school || createdSchool).name,
               country: this.userForm.country,
               principleEmail: this.userForm.principleEmail,
               principleFirstname: this.userForm.principleFirstname,
@@ -1085,9 +1087,17 @@ export default {
               curriculumId: this.userInfo.curriculumId
             }).then(res => {
               if (res.success) {
-                school.id = res.result.id
+                if (school) {
+                  school.id = res.result.id
+                }
+                if (createdSchool) {
+                  this.schoolOptions.push({
+                    id: res.result.id,
+                    name: res.result.name
+                  })
+                }
                 this.userForm.schoolId = res.result.id
-                this.userForm.schoolName = school.name
+                this.userForm.schoolName = res.result.name
                 SchoolPrincipleSave(this.userForm).then(res => {
                   if (res.success) {
                     this.$message.success('Send successfully')
@@ -1114,10 +1124,11 @@ export default {
       this.$refs.adminForm.validate(valid => {
         if (valid) {
           const school = this.myCreateSchoolOptions.find(item => item.id === this.adminForm.schoolId)
-          if (school) {
+          const createdSchool = this.schoolOptions.find(item => item.id === this.adminForm.schoolId)
+          if (school || (createdSchool && createSchool.country !== this.adminForm.country)) {
             this.confirmLoading = true
             createSchool({
-              name: school.name,
+              name: (school || createdSchool).name,
               country: this.adminForm.country,
               principleEmail: this.adminForm.email,
               principleFirstname: this.adminForm.firstname,
@@ -1125,9 +1136,17 @@ export default {
               curriculumId: this.userInfo.curriculumId
             }).then(res => {
               if (res.success) {
-                school.id = res.result.id
+                if (school) {
+                  school.id = res.result.id
+                }
+                if (createdSchool) {
+                  this.schoolOptions.push({
+                    id: res.result.id,
+                    name: res.result.name
+                  })
+                }
                 this.adminForm.schoolId = res.result.id
-                this.adminForm.schoolName = school.name
+                this.adminForm.schoolName = res.result.name
                 QuotationAddOrUpdate(this.adminForm).then(res => {
                   if (res.success) {
                     this.$message.success('Send successfully')
@@ -1175,7 +1194,6 @@ export default {
         name: this.createSchoolName
       }
       this.myCreateSchoolOptions.push(res)
-      this[formName].school = res.id
     },
     upperCaseName(name) {
       return name.substr(0, 1).toUpperCase() + name.substr(1)
