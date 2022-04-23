@@ -1,9 +1,11 @@
 <template>
   <div class="custom-tag" v-show='mergeTagList.length || showTagList.length'>
-    <a-icon type="edit" @click="handleSetting" v-show="displayMode === 'edit'" class='tag-setting'/>
-    <div class='tag-selected-label' v-if="displayMode === 'edit'">
-      <template v-if="showTagList.length === 0">No tags selected : </template>
-      <template v-if='showTagList.length !== 0'>Tags selected :</template>
+    <div class='tag-header'>
+      <div class='tag-selected-label' v-if="displayMode === 'edit'">
+        <template v-if="showTagList.length === 0">No tags selected : </template>
+        <template v-if='showTagList.length !== 0'>Tags selected :</template>
+      </div>
+      <a-button type='primary' shape='round' @click="handleSetting" v-show="displayMode === 'edit'" class='tag-setting' >My tag</a-button>
     </div>
     <div class='tag-content-wrapper'>
       <div class='selected-tag' v-show="showTagList.length">
@@ -29,98 +31,100 @@
     </div>
 
     <a-spin :spinning="tagLoading" v-if="displayMode === 'edit'">
-      <div class="tag-category" >
-        <a-row>
-          <a-col offset="0" span="24">
-            <div>
-              <a-tabs
-                tab-position="top"
-              >
-                <a-tab-pane v-for="(parent,index) in mergeTagList" :key="index" :tab="parent.name">
-                  <a-row>
-                    <a-col offset="0" :span="24">
-                      <div class="tag-search-input">
-                        <a-input-search
-                          v-model="inputTag"
-                          placeholder="Search or create tags"
-                          class="search-input"
-                          @keyup.enter.native="handleKeyEnter(parent)"
-                          @search="searchTag"
-                          @keyup="searchTag" >
-                        </a-input-search>
+      <div class="tag-category" :style="{'height': $store.getters.hiddenHeader ? 'calc(100vh - 360px)' : 'calc(100vh - 460px)'}">
+        <div v-for="(parent,index) in mergeTagList" :key="index" class='tag-category-item' :class="{'active-category-item': currentActiveTagCategory === parent.name}" @click.stop='currentActiveTagCategory = parent.name'>
+          <div class='category-name'><a-icon type="tag" /> {{ parent.name }}</div>
+          <div class='tag-description tag-content' v-if="tagMode === 'select'">
+            <div class="tag-search-input">
+              <a-input-search
+                v-model="inputTag"
+                placeholder="Search or create tags"
+                class="custom-tag-search search-input"
+                @keyup.enter.native="handleKeyEnter(parent)"
+                @search="searchTag"
+                @keyup="searchTag" >
+              </a-input-search>
+            </div>
+            <div class="skt-tag-wrapper">
+              <template v-if="parent.customDeep === 1">
+                <div class="skt-tag-list">
+                  <div class="search-tag-wrapper tag-wrapper" v-if="filterKeywordListInput(parent.keywords).length > 0">
+                    <div class="skt-tag-item" v-for="(keyword,tagIndex) in filterKeywordListInput(parent.keywords)" :key="tagIndex" >
+                      <a-tag
+                        draggable="true"
+                        @click="selectChooseTag(parent,keyword)"
+                        class="tag-item">
+                        {{ keyword }}
+                      </a-tag>
+                    </div>
+                  </div>
+                  <div class='no-tag-content' v-if='filterKeywordListInput(parent.keywords).length === 0 && !parent.createOwn'>
+                    <div class='no-tag-text'>Tag does not exist</div>
+                  </div>
+                  <div class="create-tag-wrapper tag-wrapper" v-show="parent.createOwn && !tagNameIsExist(createTagName,showTagList) && !tagIsExist(createTagName,filterKeywordListInput(parent.keywords)) && createTagName && createTagName.length >= 1">
+                    <div class="skt-tag-create-line" @click="handleCreateTagByInput(parent)">
+                      <div class="create-tag-label">
+                        Create
                       </div>
-                    </a-col>
-                  </a-row>
-
-                  <div class="skt-tag-wrapper">
-                    <div class="triangle"></div>
-                    <template v-if="parent.customDeep === 1">
-                      <div class="skt-tag-list">
-                        <div class="search-tag-wrapper tag-wrapper" v-if="filterKeywordListInput(parent.keywords).length > 0">
-                          <div class="skt-tag-item" v-for="(keyword,tagIndex) in filterKeywordListInput(parent.keywords)" :key="tagIndex" >
-                            <a-tag
-                              draggable="true"
-                              @click="selectChooseTag(parent,keyword)"
-                              class="tag-item">
-                              {{ keyword }}
+                      <div class="create-tag">
+                        <a-tag class="created-tag-item">
+                          {{ createTagName }}
+                        </a-tag>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </template>
+              <template v-else>
+                <a-tabs
+                  tab-position="top"
+                >
+                  <a-tab-pane v-for="(child, childIndex) in parent.children" :key="childIndex" :tab="child.name">
+                    <div class="skt-tag-list">
+                      <div class="search-tag-wrapper tag-wrapper" v-if="filterKeywordListInput(child.keywords).length > 0">
+                        <div class="skt-tag-item" v-for="(keyword, tagIndex) in filterKeywordListInput(child.keywords)" :key="tagIndex" >
+                          <a-tag
+                            @click="selectChooseTag(child,keyword,parent)"
+                            class="tag-item">
+                            {{ keyword }}
+                          </a-tag>
+                        </div>
+                      </div>
+                      <div class="create-tag-wrapper tag-wrapper">
+                        <div class="skt-tag-create-line" @click="handleCreateTagByInput(child, parent)" v-show="!tagNameIsExist(createTagName,showTagList) && !tagIsExist(createTagName, filterKeywordListInput(child.keywords)) && createTagName && createTagName.length >= 1">
+                          <div class="create-tag-label">
+                            Create
+                          </div>
+                          <div class="create-tag">
+                            <a-tag class="created-tag-item">
+                              {{ createTagName }}
                             </a-tag>
                           </div>
                         </div>
-                        <dvi class='no-tag-content' v-if='filterKeywordListInput(parent.keywords).length === 0 && !parent.createOwn'>
-                          <div class='no-tag-text'>Tag does not exist</div>
-                        </dvi>
-                        <div class="create-tag-wrapper tag-wrapper" v-show="parent.createOwn && !tagNameIsExist(createTagName,showTagList) && !tagIsExist(createTagName,filterKeywordListInput(parent.keywords)) && createTagName && createTagName.length >= 1">
-                          <div class="skt-tag-create-line" @click="handleCreateTagByInput(parent)">
-                            <div class="create-tag-label">
-                              Create
-                            </div>
-                            <div class="create-tag">
-                              <a-tag class="created-tag-item">
-                                {{ createTagName }}
-                              </a-tag>
-                            </div>
-                          </div>
-                        </div>
                       </div>
-                    </template>
-                    <template v-else>
-                      <a-tabs
-                        tab-position="top"
-                      >
-                        <a-tab-pane v-for="(child, childIndex) in parent.children" :key="childIndex" :tab="child.name">
-                          <div class="skt-tag-list">
-                            <div class="search-tag-wrapper tag-wrapper" v-if="filterKeywordListInput(child.keywords).length > 0">
-                              <div class="skt-tag-item" v-for="(keyword, tagIndex) in filterKeywordListInput(child.keywords)" :key="tagIndex" >
-                                <a-tag
-                                  @click="selectChooseTag(child,keyword,parent)"
-                                  class="tag-item">
-                                  {{ keyword }}
-                                </a-tag>
-                              </div>
-                            </div>
-                            <div class="create-tag-wrapper tag-wrapper">
-                              <div class="skt-tag-create-line" @click="handleCreateTagByInput(child, parent)" v-show="!tagNameIsExist(createTagName,showTagList) && !tagIsExist(createTagName, filterKeywordListInput(child.keywords)) && createTagName && createTagName.length >= 1">
-                                <div class="create-tag-label">
-                                  Create
-                                </div>
-                                <div class="create-tag">
-                                  <a-tag class="created-tag-item">
-                                    {{ createTagName }}
-                                  </a-tag>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </a-tab-pane>
-                      </a-tabs>
+                    </div>
+                  </a-tab-pane>
+                </a-tabs>
 
-                    </template>
-                  </div>
-                </a-tab-pane>
-              </a-tabs>
+              </template>
             </div>
-          </a-col>
-        </a-row>
+          </div>
+          <div class='tag-explanation tag-content' v-if="tagMode === 'desc' || currentActiveTagCategory === parent.name">
+            <a-textarea
+              placeholder="Explanation on how and why you teach with selected Bloom’s Taxonomy"
+              :autoSize="{ minRows: 3, maxRows: 5 }"
+              allow-clear
+            />
+          </div>
+        </div>
+      </div>
+      <div class='tag-switch'>
+        <a-button size='small' shape='round' @click="tagMode = 'desc'" v-if="tagMode === 'select'">
+          Show all
+        </a-button>
+        <a-button size='small' shape='round' @click="tagMode = 'select'" v-if="tagMode === 'desc'">
+          Hide all
+        </a-button>
       </div>
     </a-spin>
 
@@ -182,9 +186,7 @@ export default {
     }
   },
   mounted () {
-  },
-  destroyed () {
-
+    this.globalClick(this.handleClick)
   },
   data () {
     return {
@@ -197,7 +199,9 @@ export default {
       inputTag: '',
       tagName: '',
       createTagName: '',
-      tagSearchList: []
+      tagSearchList: [],
+      currentActiveTagCategory: null,
+      tagMode: 'select' // select/desc
     }
   },
   created () {
@@ -215,7 +219,6 @@ export default {
        })
       return showList
     },
-
     mergeTagList: function () {
       const list = []
       this.$logger.info('customTags', this.customTags)
@@ -299,6 +302,9 @@ export default {
     }
   },
   methods: {
+    handleClick () {
+      this.currentActiveTagCategory = null
+    },
     handleOk () {
     },
     handleCancel () {
@@ -402,13 +408,16 @@ export default {
 .custom-tag {
   box-sizing: border-box;
   position: relative;
-  margin-top: 20px;
+  margin-top: 5px;
 
-  .tag-setting {
-    position: absolute;
-    right: 5px;
-    top: 5px;
+  .tag-header {
+    margin-bottom: 5px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
   }
+
   .setting-button{
     color: #fff;
     background-color: #15c39a;
@@ -421,18 +430,7 @@ export default {
   .skt-tag-wrapper {
     margin-top: 10px;
     position: relative;
-    .triangle {
-      position: absolute;
-      top: -18px;
-      left: 20px;
-      width: 0;
-      height: 0;
-      border: 10px solid transparent;
-      border-bottom: 10px solid rgba(21, 195, 154, 0.1);
-    }
     .skt-tag-list {
-      background: rgba(255, 255, 255, 1);
-      border: 1px solid #f1f1f1;
       display: flex;
       flex-direction: row;
       flex-wrap: wrap;
@@ -443,8 +441,6 @@ export default {
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
-        padding: 10px;
-        background: rgba(21, 195, 154, 0.1);
         .create-tag {
           margin-right: 5px;
           .created-tag-item {
@@ -535,15 +531,13 @@ export default {
   }
 
   .tag-category {
-    margin-top: 15px;
+    position: relative;
+    margin-top: 10px;
+    overflow-y: scroll;
     background: #f9f9f9;
-    padding: 10px 10px 15px 10px;
+    padding: 0 10px 0 10px;
     border-radius: 6px;
-    .skt-tag-list {
-      max-height: 250px;
-      overflow-y: auto;
-      box-shadow: 0 5px 10px rgba(78, 78, 78, 0.16);
-    }
+    box-shadow: 0 5px 10px rgba(78, 78, 78, 0.16);
     .ant-radio-button-wrapper{
       margin-bottom: 10px;
     }
@@ -551,6 +545,7 @@ export default {
 
   .tag-search-input {
     margin-top: 20px;
+    width: 200px;
     .browse{
       padding: 10px 5px;
       display: flex;
@@ -584,10 +579,6 @@ export default {
   color: rgba(21, 195, 154, 1);
 }
 
-.tag-selected-label {
-  padding-bottom: 10px;
-}
-
 .tag-content-wrapper {
   min-height: 100px;
   border-radius: 5px;
@@ -612,7 +603,7 @@ export default {
   .skt-tag-list {
     max-height: 300px;
     overflow-y: auto;
-    padding: 7px 5px;
+    padding: 3px 0;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -667,12 +658,44 @@ export default {
     width: 100%;
     height: 50px;
     display: flex;
-    background: rgba(21, 195, 154, 0.1);
     justify-content: center;
     align-items: center;
     user-select: none;
     cursor: pointer;
     color: #aaa;
+    font-size: 12px;
   }
+}
+
+.category-name {
+  font-weight: bold;
+  font-size: 15px;
+  color: #333;
+}
+
+.tag-category-item {
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px dashed #15c39a;
+}
+
+.tag-switch {
+  position: absolute;
+  right: 5px;
+  bottom: -35px;
+}
+
+.search-input {
+  input {
+    background: transparent;
+  }
+}
+
+.tag-explanation {
+  margin-top: 10px;
+}
+
+.active-category-item {
+  background: rgba(21, 195, 154, 0.1);
 }
 </style>

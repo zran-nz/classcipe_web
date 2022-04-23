@@ -575,7 +575,7 @@
             <div
               v-show='!this.contentLoading'
               :style="{'width':rightWidth+'px', 'margin-top':customTagTop+'px'}">
-              <custom-tag
+              <custom-tag-v2
                 :display-mode="canEdit ? 'edit' : 'readonly'"
                 ref='customTag'
                 :scope-tags-list='customTagList'
@@ -585,7 +585,7 @@
                 :current-field-name='currentFocusFieldName'
                 @reload-user-tags='loadCustomTags'
                 @change-add-keywords='handleChangeAddKeywords'
-                @change-user-tags='handleChangeCustomTags'></custom-tag>
+                @change-user-tags='handleChangeCustomTags'></custom-tag-v2>
             </div>
           </template>
 
@@ -960,7 +960,7 @@ import AssociateSidebar from '@/components/Associate/AssociateSidebar'
 import { TaskAddOrUpdate } from '@/api/task'
 import { LessonAddOrUpdate } from '@/api/myLesson'
 import { EvaluationAddOrUpdate } from '@/api/evaluation'
-import CustomTag from '../../components/UnitPlan/CustomTag'
+import CustomTagV2 from '../../components/UnitPlan/CustomTagV2'
 import { MyContentEvent, MyContentEventBus } from '@/components/MyContent/MyContentEventBus'
 import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import AddKeywordTag from '@/components/Evaluation/AddKeywordTag'
@@ -1027,7 +1027,7 @@ export default {
     SkillTag,
     MyContentSelector,
     AssociateSidebar,
-    CustomTag,
+    CustomTagV2,
     RelevantTagSelector,
     AddKeywordTag,
     NewBrowser,
