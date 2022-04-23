@@ -271,7 +271,7 @@ export default {
       }
     },
     searchSchool(value) {
-      if (!this.currentCurriculum) return
+      if (!value) return
       getSchools({
         // curriculumId: this.currentCurriculum.id,
         name: value

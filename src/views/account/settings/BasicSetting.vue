@@ -1174,7 +1174,7 @@ export default {
       this.debouncedSearchSchool(value)
     },
     searchSchool(value) {
-      if (!this.userInfo.curriculumId) return
+      if (!value) return
       getSchools({
         // curriculumId: this.userInfo.curriculumId,
         name: value
