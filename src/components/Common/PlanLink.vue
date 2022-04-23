@@ -6,10 +6,13 @@
           v-model="groups"
           :disabled="!canEdit"
           animation="300"
-          group="root"
-          @end="handleDragEnd"
+          group="group"
           :move="onMove">
-          <div v-for="(group, lIndex) in groups" :key="lIndex" class="link-group" v-show='!(hiddenEmptyGroup && group.contents.length === 0)'>
+          <div
+            v-for="(group, lIndex) in groups"
+            :key="lIndex"
+            class="link-group"
+            v-show='!(hiddenEmptyGroup && group.contents.length === 0)'>
             <div class="group-item">
               <div class="group-header" v-show='group.groupName'>
                 <div class="group-left-info">
@@ -60,6 +63,7 @@
                 animation="300"
                 group="site"
                 style="width: 100%; min-height: 50px"
+                @add="handleDragContent"
                 @end="handleDragEnd">
                 <div v-for="item in group.contents" :key="item.id" class="group-link-item">
                   <div class="left-info">
@@ -163,23 +167,17 @@
       :visible="previewVisible"
       destroyOnClose
       placement="right"
-      width="800px"
+      width="1000px"
       @close="previewVisible = false"
     >
-      <a-row class="preview-wrapper-row">
-        <a-col span="2">
-          <div class="view-back" @click="previewVisible = false">
-            <div class="back-icon">
-              <img src="~@/assets/icons/common/back.png" />
-            </div>
-          </div>
-        </a-col>
-        <a-col span="22">
-          <div v-if="previewCurrentId && previewType" class="detail-wrapper">
-            <common-preview-no-link :id="previewCurrentId" :type="previewType" />
-          </div>
-        </a-col>
-      </a-row>
+      <div class="preview-wrapper-row">
+        <div class="view-back">
+          <a-button type='primary' class='preview-back-btn' shape='round' @click="previewVisible = false"><a-icon type="left" :style="{'font-size': '12px'}" />Back</a-button>
+        </div>
+        <div v-if="previewCurrentId && previewType" class="detail-wrapper">
+          <common-preview-v2 :id="previewCurrentId" :type="previewType" />
+        </div>
+      </div>
     </a-drawer>
   </div>
 </template>
@@ -192,14 +190,14 @@ import NewMyContent from '@/components/MyContent/NewMyContent'
 import { typeMap } from '@/const/teacher'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import * as logger from '@/utils/logger'
-import CommonPreviewNoLink from '@/components/Common/CommonPreviewNoLink'
+import CommonPreviewV2 from '@/components/Common/CommonPreviewV2'
 
 import draggable from 'vuedraggable'
 import DownloadedSvg from '@/assets/libraryv2/downloaded.svg?inline'
 
 export default {
   name: 'PlanLink',
-  components: { ContentTypeIcon, NewMyContent, MyContentSelector, CommonPreviewNoLink, draggable, DownloadedSvg },
+  components: { ContentTypeIcon, NewMyContent, MyContentSelector, CommonPreviewV2, draggable, DownloadedSvg },
   props: {
     fromType: {
       type: Number,
@@ -437,6 +435,10 @@ export default {
       // 不允许停靠
       if (!e.relatedContext.element.groupName) return false
       return true
+    },
+
+    handleDragContent (event) {
+      this.$logger.info('handleDragContent', event)
     }
   }
 }
