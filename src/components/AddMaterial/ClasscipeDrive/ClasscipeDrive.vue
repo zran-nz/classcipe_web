@@ -119,7 +119,7 @@ export default {
     },
     showFileName(fileName) {
       if (fileName.length > 30) {
-        return fileName.substring(0, 17) + '...'
+        return fileName.substring(0, 27) + '...'
       } else {
         return fileName
       }

@@ -3,11 +3,12 @@
     <template v-if="currentTemp == tempInfo.main">
       <a-spin :tip="uploadText" :spinning="!canUpload">
         <div class="tip-content">
+          <!-- <symbols-input></symbols-input> -->
           <a-textarea
             placeholder="Insert tip for the slide"
             :autoSize="{ minRows: 4, maxRows: 5 }"
             v-model="tip_text"
-          />
+          />       
           <a-col :span="24" class="tip-row">
             <upload-enter-for-tip :uploadProgress="uploadProgress" :choiceFileType="choiceFileType" />
           </a-col>
@@ -82,6 +83,7 @@ import UploadEnterForTip from '@/components/AddMaterial/UploadEnterForTip'
 import { AddMaterialEventBus, ModalEventsNameEnum } from '@/components/AddMaterial/AddMaterialEventBus'
 import { addElement, queryElementById, updateElement } from '@/api/addMaterial'
 import ClasscipeDrive from '@/components/AddMaterial/ClasscipeDrive/ClasscipeDrive'
+import SymbolsInput from '@/components/Common/SymbolsInput.vue'
 import GoogleYoutubeVideo from '@/components/AddMaterial/Google/GoogleYoutubeVideo'
 export default {
   name: 'Tip',
@@ -89,7 +91,8 @@ export default {
     UploadEnterForTip,
     DeleteBtn,
     ClasscipeDrive,
-    GoogleYoutubeVideo
+    GoogleYoutubeVideo,
+    SymbolsInput
   },
   props: {
     slideId: {

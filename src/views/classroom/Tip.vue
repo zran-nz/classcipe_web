@@ -34,7 +34,11 @@
 
           <a-col :span="24" class="upvideo-row">
             <span class="span">Vedio Tip</span>
-            <upload-enter-for-tip :uploadProgress="uploadProgress" :choiceFileType="choiceFileType" :googleOriginUrl="googleOriginUrl" />
+            <upload-enter-for-tip
+              :uploadProgress="uploadProgress"
+              :choiceFileType="choiceFileType"
+              :googleOriginUrl="googleOriginUrl"
+            />
           </a-col>
           <a-col class="tip-row">
             <div class="carousel-page">
@@ -288,13 +292,13 @@ export default {
 
 <style lang="less" scoped>
 @import '~@/components/index.less';
-.span{
-font-size: 18px;
-font-family: Arial;
-font-weight: bold;
-color: #000000;
-line-height: 40px;
-margin-right: 20px;
+.span {
+  font-size: 18px;
+  font-family: Arial;
+  font-weight: bold;
+  color: #000000;
+  line-height: 40px;
+  margin-right: 20px;
 }
 .task-tip {
   width: 760px;
@@ -319,7 +323,7 @@ margin-right: 20px;
     width: 740px;
     padding: 10px;
     justify-content: center;
-    .upvideo-row{
+    .upvideo-row {
       margin-top: 20px;
       display: flex;
       flex-direction: row;
