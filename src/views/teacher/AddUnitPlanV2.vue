@@ -145,7 +145,7 @@
                     :is-active="currentFieldName === planField.StartDate"
                     @switch='handleSwitchComment'
                     :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.StartDate}" />
-                  <a-form-item style='width:26%;margin-bottom: 0px;'>
+                  <a-form-item style='width:23%;margin-bottom: 0px;'>
                     <template class='my-label' slot='label'>
                       {{ 'Grade level' | unitLabelName(planField.GradeId, $store.getters.formConfigData) }}
                       <template v-if='unitLabelHint(planField.GradeId, $store.getters.formConfigData)'>
@@ -159,8 +159,7 @@
                       v-model='form.gradeId'
                       class='my-big-select'
                       placeholder='Select a grade'
-                      :disabled="!canEdit"
-                      size='large'>
+                      :disabled="!canEdit">
                       <a-select-option v-for='(grade,index) in gradeList' :key='index' :value='grade.id'>
                         {{ grade.name }}
                       </a-select-option>
@@ -169,7 +168,7 @@
                   <a-form-item
                     class='range-time'
                     label='Start Date'
-                    style='width:70%;margin-bottom: 0px;position:relative'>
+                    style='width:75%;margin-bottom: 0;position:relative'>
                     <div v-if='getWeek' class='week-time'>
                       <a-tag color='cyan' style='border-radius: 10px;font-size: 14px;'>
                         {{ getWeek }}
@@ -180,7 +179,6 @@
                       v-model='rangeDate'
                       :show-time="{ format: 'HH:mm' }"
                       format='LLL'
-                      size='large'
                       style='width:100%'>
                       <a-icon slot='suffixIcon' type='calendar' />
                     </a-range-picker>
@@ -264,8 +262,7 @@
                           @change="handleCollaborateEvent(unitPlanId,planField.Sdg,form.sdg)"
                           class='my-big-select'
                           placeholder='Select a goal from UN'
-                          :disabled="!canEdit"
-                          size='large'>
+                          :disabled="!canEdit">
                           <a-select-option
                             v-for='(sdg,index) in sdgList'
                             :key='index'
@@ -311,8 +308,8 @@
                     </template>
                     <a-select
                       :getPopupContainer="trigger => trigger.parentElement"
-                      size='large'
                       v-model='form.rwc'
+                      class='my-big-select'
                       placeholder='Choose real world connection'
                       @change="handleCollaborateEvent(unitPlanId,planField.Rwc,form.rwc)"
                       :disabled="!canEdit" >
@@ -351,7 +348,7 @@
                         </a-tooltip>
                       </template>
                     </span>
-                    <div v-if='!$store.getters.userInfo.disableQuestion'>
+                    <div v-if='!$store.getters.userInfo.disableQuestion' style='position: relative'>
                       <div class='question-more'>
                         <a-button type='link' @click='questionMoreVisible=true'>more</a-button>
                       </div>
@@ -375,7 +372,7 @@
                           </ul>
                         </div>
                       </div>
-                      <div v-for='(question, index) in form.questions' :key='index' class='form-input-item'>
+                      <div v-for='(question, index) in form.questions' :key='index' >
                         <a-textarea
                           v-model='question.name'
                           :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-nth-key-question') : $t('teacher.add-unit-plan.expert-nth-key-question')"
@@ -392,14 +389,7 @@
                       </div>
                     </div>
                   </a-form-item>
-                  <a-button
-                    v-if='!$store.getters.userInfo.disableQuestion'
-                    class='add-button'
-                    icon='plus-circle'
-                    size='large'
-                    style='top:-40px;'
-                    type='link'
-                    @click='handleAddMoreQuestion'></a-button>
+                  <add-green-icon class='add-input input-icon' @click='handleAddMoreQuestion' v-if='!$store.getters.userInfo.disableQuestion'/>
                 </div>
 
                 <div class='form-block tag-content-block' :data-field-name='planField.LearnOuts' v-if="fieldItem.visible && fieldItem.fieldName === planField.LearnOuts" :key='fieldItem.fieldName'>
@@ -3230,52 +3220,40 @@ export default {
   }
 }
 
-.card-wrapper {
-  .unit-plan-form-left {
-    position: relative;
+/deep/ .ant-steps-item-content {
+  padding-right: 30px;
+}
 
-    /deep/ .ant-steps-item-content {
-      padding-right: 30px;
-    }
-
-    .form-radio-wrapper {
-      /deep/ .ant-radio-wrapper {
-        width: 180px;
-      }
-
-      /deep/ .ant-form-item-label {
-        width: 170px;
-        text-align: left;
-      }
-    }
-
+.form-radio-wrapper {
+  /deep/ .ant-radio-wrapper {
+    width: 180px;
+    display: inline-block;
   }
 
-  .unit-plan-form-right {
-    position: relative;
-
-    .form-block-right {
-      .img-wrapper {
-        position: relative;
-        width: 100%;
-      }
-
-      .delete-img {
-        position: absolute;
-        top: -10px;
-        right: -10px;
-        background-color: #fafafa;
-        border-radius: 50%;
-        height: 30px;
-        width: 30px;
-        text-align: center;
-        vertical-align: middle;
-        color: @red-5;
-        z-index: 100;
-        font-size: 20px;
-      }
-    }
+  /deep/ .ant-form-item-label {
+    width: 170px;
+    text-align: left;
   }
+}
+
+.img-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.delete-img {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background-color: #fafafa;
+  border-radius: 50%;
+  height: 30px;
+  width: 30px;
+  text-align: center;
+  vertical-align: middle;
+  color: @red-5;
+  z-index: 100;
+  font-size: 20px;
 }
 
 .form-input-item {
@@ -3284,8 +3262,8 @@ export default {
 }
 
 .my-form-textarea {
-  height: 40px;
   margin-bottom: 10px;
+  line-height: 24px;
 }
 
 .preview-wrapper-row {
@@ -3368,12 +3346,12 @@ export default {
 .sdg {
   .sdg-form-block {
     border: 1px solid #15C39A !important;
-
-    .my-big-select {
-      //width: 600px;
-    }
   }
+}
 
+.my-big-select {
+  min-width: 150px;
+  width: 100%;
 }
 
 .inquiry {
@@ -3521,10 +3499,11 @@ export default {
 }
 
 .question-more {
-  top: -40px;
-  left: 500px;
+  top: -43px;
+  right: 20px;
   position: absolute;
   cursor: pointer;
+  color: @primary-color;
 }
 
 /deep/ .ant-breadcrumb > span:last-child {
@@ -3534,10 +3513,6 @@ export default {
 .form-block-disabled {
   background-color: #f5f5f5;
   cursor: not-allowed;
-}
-
-/deep/ textarea {
-  border-radius: 5px;
 }
 
 code {

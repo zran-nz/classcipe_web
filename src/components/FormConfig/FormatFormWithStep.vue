@@ -302,21 +302,25 @@ export default {
       step.key = step.id
       step.commonFieldItems = []
       step.commonFields.forEach(commonFieldName => {
-        const targetItem = myCommonList.find(item => item.fieldName === commonFieldName)
-        if (targetItem) {
-          step.commonFieldItems.push(JSON.parse(JSON.stringify(targetItem)))
-        } else {
-          this.$logger.warn('no exist common field ' + commonFieldName)
+        if (commonFieldName && commonFieldName.trim()) {
+          const targetItem = myCommonList.find(item => item.fieldName === commonFieldName.trim())
+          if (targetItem) {
+            step.commonFieldItems.push(JSON.parse(JSON.stringify(targetItem)))
+          } else {
+            this.$logger.warn('no exist common field ' + commonFieldName)
+          }
         }
       })
 
       step.customFieldItems = []
       step.customFields.forEach(customFieldName => {
-        const targetItem = myCustomList.find(item => item.name === customFieldName)
-        if (targetItem) {
-          step.customFieldItems.push(JSON.parse(JSON.stringify(targetItem)))
-        } else {
-          this.$logger.warn('no exist common field ' + customFieldName)
+        if (customFieldName && customFieldName.trim()) {
+          const targetItem = myCustomList.find(item => item.name === customFieldName)
+          if (targetItem) {
+            step.customFieldItems.push(JSON.parse(JSON.stringify(targetItem)))
+          } else {
+            this.$logger.warn('no exist common field ' + customFieldName)
+          }
         }
       })
     })

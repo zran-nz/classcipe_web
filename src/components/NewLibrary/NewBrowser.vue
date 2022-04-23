@@ -502,10 +502,14 @@ export default {
     LibraryEventBus.$off(LibraryEvent.CancelCenturySkillsSelect, this.handleCancelCenturySkillsSelect)
   },
   mounted () {
-    this.componentWidth = document.getElementById('new-library').getBoundingClientRect().width
-
+    const libraryDom = document.getElementById('new-library')
+    if (libraryDom) {
+      this.componentWidth = libraryDom.getBoundingClientRect().width
+    }
     window.onresize = debounce(() => {
-      this.componentWidth = document.getElementById('new-library').getBoundingClientRect().width
+      if (libraryDom) {
+        this.componentWidth = libraryDom.getBoundingClientRect().width
+      }
     }, 300)
   },
   methods: {
