@@ -9,6 +9,7 @@ const userApi = {
   SignUp: '/classcipe/sys/signUp',
   ForgePassword: '/classcipe/sys/sendResetPasswordLink',
   ResetPassword: '/classcipe/sys/resetPassword',
+  CheckOauthToken: '/classcipe/sys/checkOauthToken',
 
   twoStepCode: '/auth/2step-code',
   SendSms: '/account/sms',
@@ -119,6 +120,14 @@ export function resetPassword (parameter) {
   return request({
     url: userApi.ResetPassword,
     method: 'post',
+    params: parameter
+  })
+}
+
+export function CheckOauthToken (parameter) {
+  return request({
+    url: userApi.CheckOauthToken,
+    method: 'get',
     params: parameter
   })
 }

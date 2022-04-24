@@ -56,7 +56,7 @@
 <script>
 
 import { GetStudentResponse } from '@/api/lesson'
-import { TemplatesGetPresentation, TemplatesGetPageThumbnail } from '@/api/template'
+import { TemplatesGetPublishedPresentation, TemplatesGetPageThumbnail } from '@/api/template'
 import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 
 export default {
@@ -89,7 +89,7 @@ export default {
     loadData () {
       Promise.all([
         GetStudentResponse({ class_id: this.classId }),
-        TemplatesGetPresentation({ presentationId: this.slideId })
+        TemplatesGetPublishedPresentation({ presentationId: this.slideId })
       ]).then(response => {
         this.$logger.info('PptCommentPreview loadData', response)
         const rawCommentDataList = response[0].data.presentation_comments
@@ -132,7 +132,7 @@ export default {
 
     handleAuthCallback () {
       this.$logger.info('TaskPreview handleAuthCallback')
-      TemplatesGetPresentation({ presentationId: this.slideId }).then(response => {
+      TemplatesGetPublishedPresentation({ presentationId: this.slideId }).then(response => {
         if (response.code !== this.ErrorCode.ppt_google_token_expires) {
           const pageObjectIds = response.result.pageObjectIds
           if (pageObjectIds.length) {

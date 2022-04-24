@@ -548,7 +548,7 @@ import * as logger from '@/utils/logger'
 import { typeMap } from '@/const/teacher'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import CommonAssociatePreview from '@/components/Common/CommonAssociatePreview'
-import { TemplatesGetPresentation, TemplatesGetPublishedPresentation } from '@/api/template'
+import { TemplatesGetPublishedPresentation } from '@/api/template'
 import EvaluationTablePreview from '@/components/Evaluation/EvaluationTablePreview'
 import TaskLink from '@/components/Task/TaskLink'
 import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
@@ -773,7 +773,7 @@ export default {
             }
           })
         } else {
-          TemplatesGetPresentation({
+          TemplatesGetPublishedPresentation({
             presentationId: this.data.presentationId
           }).then(response => {
             if (response.code !== this.ErrorCode.ppt_google_token_expires) {

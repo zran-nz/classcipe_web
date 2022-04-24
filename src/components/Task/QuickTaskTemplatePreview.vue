@@ -177,7 +177,7 @@ import UrlTypeSvg from '@/assets/icons/material/url.svg?inline'
 import MaterialTypeIcon from '@/components/Task/MaterialTypeIcon'
 import TaskMaterialPreview from '@/components/Task/TaskMaterialPreview'
 import { typeMap } from '@/const/teacher'
-import { TemplatesGetPresentation } from '@/api/template'
+import { TemplatesGetPublishedPresentation } from '@/api/template'
 import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
 import MediaPreview from '@/components/Task/MediaPreview'
 import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
@@ -226,7 +226,7 @@ export default {
       this.templateData = this.template
       if (this.templateData.type === typeMap.task) {
         this.loading = true
-        TemplatesGetPresentation({
+        TemplatesGetPublishedPresentation({
           presentationId: this.templateData.presentationId
         }).then(response => {
           if (response.code !== this.ErrorCode.ppt_google_token_expires) {

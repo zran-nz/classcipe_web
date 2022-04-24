@@ -143,7 +143,7 @@
 
 <script>
 import * as logger from '@/utils/logger'
-import { TemplatesGetPresentation } from '@/api/template'
+import { TemplatesGetPublishedPresentation } from '@/api/template'
 import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 const { LessonQueryById } = require('@/api/myLesson')
 
@@ -214,7 +214,7 @@ export default {
     loadThumbnail () {
       this.$logger.info('LessonPreview loadThumbnail ' + this.lesson.presentationId, this.lesson.selectPageObjectIds)
       if (this.lesson.presentationId) {
-        TemplatesGetPresentation({
+        TemplatesGetPublishedPresentation({
           presentationId: this.lesson.presentationId
         }).then(response => {
           if (response.code !== this.ErrorCode.ppt_google_token_expires) {

@@ -1901,7 +1901,7 @@ import { Associate, FindSourceOutcomes, GetAssociate, GetMyGrades, GetReferOutco
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
 import SkillTag from '@/components/UnitPlan/SkillTag'
-import { FilterTemplates, recommendTemplates, TemplatesGetPresentation } from '@/api/template'
+import { FilterTemplates, recommendTemplates, TemplatesGetPublishedPresentation } from '@/api/template'
 import { MyContentEvent, MyContentEventBus } from '@/components/MyContent/MyContentEventBus'
 import { TaskAddOrUpdate, TaskCreateNewTaskPPT, TaskQueryById } from '@/api/task'
 import { SelectModel } from '@/components/NewLibrary/SelectModel'
@@ -2917,7 +2917,7 @@ export default {
       this.thumbnailListLoading = true
       this.skeletonLoading = true
       this.$logger.info('loadThumbnail ' + this.form.presentationId)
-      TemplatesGetPresentation({
+      TemplatesGetPublishedPresentation({
         presentationId: this.form.presentationId
       }).then(response => {
         this.$logger.info('loadThumbnail response', response.result)

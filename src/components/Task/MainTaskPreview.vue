@@ -143,9 +143,9 @@
 
 <script>
 import * as logger from '@/utils/logger'
-import { TemplatesGetPresentation } from '@/api/template'
-const { TaskQueryById } = require('@/api/task')
+import { TemplatesGetPublishedPresentation } from '@/api/template'
 import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
+const { TaskQueryById } = require('@/api/task')
 
 export default {
   name: 'MainTaskPreview',
@@ -222,7 +222,7 @@ export default {
     loadThumbnail () {
       this.$logger.info('TaskPreview loadThumbnail ' + this.task.presentationId, this.task.selectPageObjectIds)
       if (this.task.presentationId) {
-        TemplatesGetPresentation({
+        TemplatesGetPublishedPresentation({
           presentationId: this.task.presentationId
         }).then(response => {
           this.$logger.info('task loadThumbnail response', response.result)
