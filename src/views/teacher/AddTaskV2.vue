@@ -2747,6 +2747,7 @@ export default {
         this.selectedMyContentVisible = false
         this.loadThumbnail(true)
         hideLoading()
+        return response
       }
     },
 
@@ -3022,7 +3023,7 @@ export default {
       } else {
         res = await this.handleCreateTask()
       }
-      if (res.success) {
+      if (res.code === 0) {
         window.open(this.presentationLink, '_blank')
       }
       this.editGoogleSlideLoading = false
@@ -3996,6 +3997,7 @@ export default {
       logger.info('basic taskData', taskData)
       const response = await TaskAddOrUpdate(taskData)
       logger.info('TaskAddOrUpdate', response.result)
+      return response
     },
     setCustomTagByPPT(nameList, parent) {
       nameList.forEach(name => {
