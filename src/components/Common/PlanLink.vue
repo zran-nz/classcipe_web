@@ -64,6 +64,7 @@
                 group="site"
                 style="width: 100%; min-height: 50px"
                 @add="handleDragContent"
+                @update="handleDragContent"
                 @end="handleDragEnd">
                 <div v-for="item in group.contents" :key="item.id" class="group-link-item">
                   <div class="left-info">
@@ -437,8 +438,8 @@ export default {
       return true
     },
 
-    handleDragContent (event) {
-      this.$logger.info('handleDragContent', event)
+    handleDragContent (event, data) {
+      this.$logger.info('handleDragContent', event, this.groups, data)
     }
   }
 }
