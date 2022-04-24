@@ -3,7 +3,7 @@
     <template v-if="currentTemp == tempInfo.main">
       <a-spin :tip="uploadText" :spinning="!canUpload">
         <div class="tip-content">
-          <symbols-input v-model="tip_text" ></symbols-input>
+          <symbols-input v-model="tip_text"></symbols-input>
           <a-col :span="24" class="tip-row">
             <upload-enter-for-tip :uploadProgress="uploadProgress" :choiceFileType="choiceFileType" />
           </a-col>
@@ -195,7 +195,7 @@ export default {
           url: videoItem.link
         })
       }
-      
+
       this.currentTemp = this.tempInfo.main
     },
     getTipInfo() {

@@ -36,7 +36,7 @@ export default {
       selectedKey: '/student/main/my-task',
       quickSessionVisible: false,
       currentRouterName: 'student',
-      mainRouter: 'Main',
+      mainRouter: 'StudentMain',
       openKeys: []
     }
   },

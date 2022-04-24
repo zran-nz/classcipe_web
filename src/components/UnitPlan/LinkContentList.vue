@@ -6,23 +6,69 @@
     <div class='display-content-list'>
       <draggable
         animation="300"
-        group="root">
-        <div class='content-item' v-for='(item) in myContentList' :key='item.id'>
-          <div class='type-icon'>
-            <content-type-icon :type='item.type'/>
+        group="link-content"
+        @start='handleDragStart'
+      >
+        <div v-for='(item) in myContentList' :key='item.id' class="group-link-item" :data-item='JSON.stringify(item)'>
+          <div class="left-info">
+            <div class="icon">
+              <content-type-icon :type="item.type" />
+            </div>
+            <div class="name" @click="handleViewDetail(item)">
+              {{ item.name ? item.name : 'untitled' }}
+            </div>
+            <template v-if='item.taskType'>
+              <a-tag class='task-type-tag green-active-task-type' v-if="item.taskType.toLowerCase() === 'fa'">
+                {{ item.taskType }}
+              </a-tag>
+              <a-tag class='task-type-tag red-active-task-type' v-if="item.taskType.toLowerCase() === 'sa'">
+                {{ item.taskType }}
+              </a-tag>
+              <a-tag class='task-type-tag blue-active-task-type' v-if="item.taskType.toLowerCase() === 'activity'">
+                {{ item.taskType }}
+              </a-tag>
+            </template>
+            <div class='downloaded-icon' v-if='item.isCreated'>
+              <a-tooltip placement="top" title='already saved in my content'>
+                <downloaded-svg />
+              </a-tooltip>
+            </div>
           </div>
-          <div class='name'> {{ item.name }}</div>
-          <div class='status'>
-            <template v-if="item.status === 0">Draft</template>
-            <template v-if="item.status === 1">Published</template>
-          </div>
-          <div class='date'>{{ item.updateTime }}</div>
-          <div class='action-area'>
-            <div class='action-item'>Preview</div>
+          <div class="right-info">
+            <div class="date">{{ item.createTime | dayjs }}</div>
+            <div class="status">
+              <template v-if="item.status === 0">Draft</template>
+              <template v-if="item.status === 1">Published</template>
+            </div>
+            <div class="more-action-wrapper action-item-wrapper">
+              <a-dropdown>
+                <a-icon style="margin-right: 8px" type="more" />
+                <a-menu slot="overlay">
+                </a-menu>
+              </a-dropdown>
+            </div>
           </div>
         </div>
       </draggable>
     </div>
+
+    <a-drawer
+      :closable="false"
+      :visible="previewVisible"
+      destroyOnClose
+      placement="right"
+      width="1000px"
+      @close="previewVisible = false"
+    >
+      <div class="preview-wrapper-row">
+        <div class="view-back">
+          <a-button type='primary' class='preview-back-btn' shape='round' @click="previewVisible = false"><a-icon type="left" :style="{'font-size': '12px'}" />Back</a-button>
+        </div>
+        <div v-if="previewCurrentId && previewType" class="detail-wrapper">
+          <common-preview-v2 :id="previewCurrentId" :type="previewType" />
+        </div>
+      </div>
+    </a-drawer>
   </div>
 </template>
 
@@ -33,9 +79,12 @@ import { FindMyContent } from '@/api/teacher'
 import { ownerMap, statusMap, typeMap } from '@/const/teacher'
 import * as logger from '@/utils/logger'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
+import DownloadedSvg from '@/assets/libraryv2/downloaded.svg?inline'
+import CommonPreviewV2 from '@/components/Common/CommonPreviewV2'
+
 export default {
   name: 'LinkContentList',
-  components: { ContentTypeIcon, draggable },
+  components: { ContentTypeIcon, draggable, DownloadedSvg, CommonPreviewV2 },
   data () {
     return {
       loading: true,
@@ -51,7 +100,10 @@ export default {
         pageSize: 16
       },
       searchKey: null,
-      myContentList: []
+      myContentList: [],
+      previewVisible: false,
+      previewCurrentId: '',
+      previewType: ''
     }
   },
   created() {
@@ -96,6 +148,16 @@ export default {
       }).finally(() => {
         this.loading = false
       })
+    },
+    handleDragStart (e) {
+      this.$logger.info('LinkContentList handleDragStart', e)
+    },
+
+    handleViewDetail (item) {
+      logger.info('handleViewDetail', item)
+      this.previewCurrentId = item.id
+      this.previewType = item.type
+      this.previewVisible = true
     }
   }
 }
@@ -147,6 +209,121 @@ export default {
     .action-item {
       color: #15c39a;
       font-weight: 500;
+    }
+  }
+}
+
+.green-active-task-type {
+  background: rgba(21, 195, 154, 0.1);
+  border: 2px solid #15C39A;
+  border-radius: 50%;
+  font-weight: bold;
+  color: #15C39A;
+}
+
+.red-active-task-type {
+  background: rgba(255, 51, 85, 0.1);
+  border: 2px solid #FF3355;
+  border-radius: 50%;
+  opacity: 1;
+  font-weight: bold;
+  color: #FF3355;
+  opacity: 1;
+}
+
+.blue-active-task-type {
+  background: rgb(230, 247, 255);
+  border: 2px solid rgb(145, 213, 255);
+  border-radius: 50px;
+  opacity: 1;
+  font-weight: bold;
+  color: rgb(24, 144, 255);
+}
+
+.task-type-tag {
+  margin-left: 5px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.downloaded-icon {
+  cursor: pointer;
+  padding-left: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  svg {
+    height: 15px;
+    width: 15px;
+  }
+}
+
+.group-link-item {
+  border-bottom: 1px solid #eee;
+  padding: 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  flex: 1;
+  position: relative;
+
+  .left-info {
+    z-index: 50;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    position: relative;
+    width: calc(100% - 250px);
+
+    .icon {
+      width: 40px;
+    }
+
+    &:hover {
+      background-color: #fdfdfd;
+      cursor: move;
+    }
+
+    .name {
+      color: #000;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      word-break: break-all;
+    }
+
+    .task-type-tag {
+      right: 5px;
+      margin-left: 5px;
+      border-radius: 20px;
+      border-width: 2px;
+      font-weight: bold;
+    }
+  }
+
+  .right-info {
+    z-index: 100;
+    background-color: #fff;
+    position: absolute;
+    right: 0;
+    padding-left: 15px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    .status {
+      text-align: right;
+      width: 70px;
+    }
+
+    .more-action-wrapper {
+      width: 30px;
+      display: flex;
+      justify-content: flex-end;
     }
   }
 }

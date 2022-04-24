@@ -136,7 +136,7 @@ export default {
       selectedKey: '/teacher/main/created-by-me',
       quickSessionVisible: false,
       currentRouterName: 'teacher',
-      mainRouter: 'Main',
+      mainRouter: 'TeacherMain',
       openKeys: []
     }
   },

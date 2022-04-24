@@ -2416,7 +2416,7 @@ export default {
 
     handleAuthCallback() {
       this.$logger.info('handleAuthCallback')
-      this.loadThumbnail()
+      this.loadThumbnail(true)
     },
 
     restoreTask(taskId, isFirstLoad) {
@@ -2502,7 +2502,7 @@ export default {
         this.contentLoading = false
         this.loadCollaborateData(this.form.type, this.form.id)
         if (this.form.presentationId) {
-          this.loadThumbnail()
+          this.loadThumbnail(false)
           this.loadRecommendThumbnail()
         }
         // copy副本 为了判断数据变更
@@ -2711,7 +2711,7 @@ export default {
               this.$logger.info('handleEnsureChooseAnother update form.taskClassList', this.form.taskClassList)
             })
           }
-          this.loadThumbnail()
+          this.loadThumbnail(true)
           this.loadRecommendThumbnail()
         } else {
           this.$message.warn(response.message)
@@ -2908,17 +2908,19 @@ export default {
         window.open('https://docs.google.com/presentation/d/' + this.form.presentationId, '_blank')
         this.creating = false
         this.selectedMyContentVisible = false
-        this.loadThumbnail()
+        this.loadThumbnail(true)
         hideLoading()
+        return response
       }
     },
 
-    loadThumbnail() {
+    loadThumbnail(needRefresh) {
       this.thumbnailListLoading = true
       this.skeletonLoading = true
       this.$logger.info('loadThumbnail ' + this.form.presentationId)
       TemplatesGetPresentation({
-        presentationId: this.form.presentationId
+        presentationId: this.form.presentationId,
+        needRefresh: needRefresh
       }).then(response => {
         this.$logger.info('loadThumbnail response', response.result)
         if (response.code === 0) {
@@ -3178,11 +3180,14 @@ export default {
     async handleEditGoogleSlide() {
       this.editGoogleSlideLoading = true
       this.$logger.info('handleEditGoogleSlide', this.form.presentationId)
+      let res
       if (this.form.presentationId) {
-        await this.autoSave()
-        window.open(this.presentationLink, '_blank')
+         res = await this.autoSave()
       } else {
-        await this.handleCreateTask()
+         res = await this.handleCreateTask()
+      }
+      if (res.code === 0) {
+        window.open(this.presentationLink, '_blank')
       }
       this.editGoogleSlideLoading = false
     },
@@ -4189,6 +4194,7 @@ export default {
       logger.info('basic taskData', taskData)
       const response = await TaskAddOrUpdate(taskData)
       logger.info('TaskAddOrUpdate', response.result)
+      return response
     },
     setCustomTagByPPT(nameList, parent) {
       nameList.forEach(name => {

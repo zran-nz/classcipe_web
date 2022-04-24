@@ -499,7 +499,7 @@ import { UpdateContentStatus, GetMyGrades, Associate, SaveSessonTags } from '@/a
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
 import SkillTag from '@/components/UnitPlan/SkillTag'
-import { TemplatesGetTemplates, TemplatesGetPresentation } from '@/api/template'
+import { TemplatesGetTemplates, TemplatesGetPublishedPresentation } from '@/api/template'
 import { MyContentEventBus, MyContentEvent } from '@/components/MyContent/MyContentEventBus'
 import { LessonCreateLessonPPT, LessonQueryById, LessonAddOrUpdate } from '@/api/myLesson'
 import { UnitPlanQueryById } from '@/api/unitPlan'
@@ -1217,7 +1217,7 @@ export default {
     loadThumbnail () {
       this.thumbnailListLoading = true
       this.$logger.info('loadThumbnail ' + this.form.presentationId)
-      TemplatesGetPresentation({
+      TemplatesGetPublishedPresentation({
         presentationId: this.form.presentationId
       }).then(response => {
         this.$logger.info('loadThumbnail response', response.result)

@@ -1730,7 +1730,7 @@ import { FindSourceOutcomes, GetMyGrades } from '@/api/teacher'
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
 import SkillTag from '@/components/UnitPlan/SkillTag'
-import { FilterTemplates, TemplatesGetPresentation } from '@/api/template'
+import { FilterTemplates, TemplatesGetPublishedPresentation } from '@/api/template'
 import { SelectModel } from '@/components/NewLibrary/SelectModel'
 import { formatLocalUTC } from '@/utils/util'
 import { commonAPIUrl } from '@/api/common'
@@ -2367,7 +2367,7 @@ export default {
       this.thumbnailListLoading = true
       this.skeletonLoading = true
       this.$logger.info('loadThumbnail ' + this.form.presentationId)
-      TemplatesGetPresentation({
+      TemplatesGetPublishedPresentation({
         presentationId: this.form.presentationId
       }).then(response => {
         this.$logger.info('loadThumbnail response', response.result)

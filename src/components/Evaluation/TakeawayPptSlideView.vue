@@ -326,7 +326,7 @@
 
 import { GetStudentResponse } from '@/api/lesson'
 import { QuerySessionTakeaway, SaveSessionTakeaway } from '@/api/evaluation'
-import { TemplatesGetPresentation, TemplatesGetPublishedPresentation } from '@/api/template'
+import { TemplatesGetPublishedPresentation } from '@/api/template'
 import EvaluationTableMode from '@/components/Evaluation/EvaluationTableMode'
 import StudentIcon from '@/assets/svgIcon/evaluation/StudentIcon.svg?inline'
 import TeacherIcon from '@/assets/svgIcon/evaluation/TeacherIcon.svg?inline'
@@ -490,7 +490,7 @@ export default {
       this.resetData()
       this.$logger.info('加载PPT数据 ' + this.classId + ' slideId ' + this.slideId + ' formId' + this.formId + ' rowId ' + this.rowId)
       // 学生和老师调用接口不一样
-      let presentationPromise = TemplatesGetPresentation
+      let presentationPromise = TemplatesGetPublishedPresentation
       if (this.currentRole === 'student') {
         presentationPromise = TemplatesGetPublishedPresentation
       }

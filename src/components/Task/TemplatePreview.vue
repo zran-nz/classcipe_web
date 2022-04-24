@@ -186,7 +186,7 @@ import UrlTypeSvg from '@/assets/icons/material/url.svg?inline'
 import MaterialTypeIcon from '@/components/Task/MaterialTypeIcon'
 import TaskMaterialPreview from '@/components/Task/TaskMaterialPreview'
 import { typeMap } from '@/const/teacher'
-import { TemplatesGetPresentation } from '@/api/template'
+import { TemplatesGetPublishedPresentation } from '@/api/template'
 import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
 import MediaPreview from '@/components/Task/MediaPreview'
 import { MyContentEvent, MyContentEventBus } from '@/components/MyContent/MyContentEventBus'
@@ -249,7 +249,7 @@ export default {
       this.selectIds = this.selectedTemplateIdList
       if (this.templateData.type === typeMap.task) {
         this.loading = true
-        TemplatesGetPresentation({
+        TemplatesGetPublishedPresentation({
           presentationId: this.templateData.presentationId
         }).then(response => {
           this.$logger.info('task loadThumbnail response', response.result)

@@ -352,7 +352,7 @@
 
 import { GetStudentResponse } from '@/api/lesson'
 import { QuerySessionEvidence, SaveSessionEvidence } from '@/api/evaluation'
-import { TemplatesGetPresentation } from '@/api/template'
+import { TemplatesGetPublishedPresentation } from '@/api/template'
 import EvaluationTableMode from '@/components/Evaluation/EvaluationTableMode'
 import StudentIcon from '@/assets/svgIcon/evaluation/StudentIcon.svg?inline'
 import TeacherIcon from '@/assets/svgIcon/evaluation/TeacherIcon.svg?inline'
@@ -500,7 +500,7 @@ export default {
       this.resetData()
       this.$logger.info('加载PPT数据 ' + this.classId + ' slideId ' + this.slideId + ' formId' + this.formId + ' rowId ' + this.rowId)
       Promise.all([
-        TemplatesGetPresentation({ presentationId: this.slideId }),
+        TemplatesGetPublishedPresentation({ presentationId: this.slideId }),
         QueryByClassInfoSlideId({ slideId: this.slideId }),
         QuerySessionEvidence({
           sessionId: this.sessionId,
