@@ -1,7 +1,7 @@
 export const lessonStatus = {
   live: 'live',
   studentPaced: 'student-paced',
-  teacherPaced: 'insturctor-paced',
+  teacherPaced: 'teacher-paced',
   scheduled: 'scheduled',
   close: 'close'
 }

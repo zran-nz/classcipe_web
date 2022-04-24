@@ -6,10 +6,10 @@
     <div class='display-content-list'>
       <draggable
         animation="300"
-        group="site"
+        group="link-content"
         @start='handleDragStart'
       >
-        <div v-for='(item) in myContentList' :key='item.id' class="group-link-item">
+        <div v-for='(item) in myContentList' :key='item.id' class="group-link-item" :data-item='JSON.stringify(item)'>
           <div class="left-info">
             <div class="icon">
               <content-type-icon :type="item.type" />
