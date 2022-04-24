@@ -19,12 +19,12 @@
               :type="'google'"
               @click.native="thirdSignIn('google', 'teacher')"
             />
-            <!--            <third-login-button-->
-            <!--              icon="googleIcon"-->
-            <!--              :label="'Sign in with Zoom'"-->
-            <!--              :type="'zoom'"-->
-            <!--              @click.native="thirdSignIn('zoom', 'teacher')"-->
-            <!--            />-->
+            <third-login-button
+              icon="googleIcon"
+              :label="'Sign in with Zoom'"
+              :type="'zoom'"
+              @click.native="thirdSignIn('zoom', 'teacher')"
+            />
           </div>
 
           <!-- <div class="info">
