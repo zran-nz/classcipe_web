@@ -3,12 +3,7 @@
     <template v-if="currentTemp == tempInfo.main">
       <a-spin :tip="uploadText" :spinning="!canUpload">
         <div class="tip-content">
-          <!-- <symbols-input></symbols-input> -->
-          <a-textarea
-            placeholder="Insert tip for the slide"
-            :autoSize="{ minRows: 4, maxRows: 5 }"
-            v-model="tip_text"
-          />       
+          <symbols-input v-model="tip_text" ></symbols-input>
           <a-col :span="24" class="tip-row">
             <upload-enter-for-tip :uploadProgress="uploadProgress" :choiceFileType="choiceFileType" />
           </a-col>
@@ -19,16 +14,16 @@
                   <div class="img-item" v-for="(item, index) in videoUrlList" :key="'index' + index">
                     <div class="img-box">
                       <video
-                        width="260px"
-                        height="150px"
+                        width="340px"
+                        height="190px"
                         :src="item.url"
                         v-if="isVideoType(item, 'video')"
                         preload="auto"
                         controls
                       ></video>
                       <iframe
-                        width="260px"
-                        height="150px"
+                        width="340px"
+                        height="190px"
                         v-if="isVideoType(item, 'iframe')"
                         id="item_player"
                         :src="item.url"
@@ -200,6 +195,7 @@ export default {
           url: videoItem.link
         })
       }
+      
       this.currentTemp = this.tempInfo.main
     },
     getTipInfo() {
@@ -305,7 +301,7 @@ export default {
     width: 760px;
     display: flex;
     flex-direction: column;
-    padding: 50px;
+    padding: 10px;
     justify-content: center;
     .tip-row {
       margin-top: 20px;
@@ -384,8 +380,8 @@ export default {
 
       .img-item {
         position: relative;
-        height: 150px;
-        width: 270px;
+        height: 190px;
+        width: 350px;
         border: 1px solid #fff;
         padding: 10px;
         margin-bottom: 20px;

@@ -1,44 +1,71 @@
 <template>
-  <div>
+  <div class="virtual_keyboard_input">
     <a-textarea
       id="input-area"
       placeholder="Insert tip for the slide"
+      ref="inputVal"
+      @blur="hideSymbolBtn()"
+      @focus="showSymbolBtn()"
       :autoSize="{ minRows: 4, maxRows: 5 }"
       v-model="input_text"
     />
-    <a-popover v-model:visible="visible" placement="rightTop" trigger="click">
-      <template #content>
-        <div class="virtual_keyboard">
-          <div class="virtual_keyboard__header">
-            <button class="virtual_keyboard__header-prev" @click="prevSymbol"><</button>
-            <div class="virtual_keyboard__header-title">{{ MathSymbols[symbolIndex].name }}</div>
-            <button class="virtual_keyboard__header-next" @click="nextSymbol">></button>
-          </div>
-          <div class="virtual_keyboard_body">
-            <ul class="virtual_keyboard__list">
-              <li
-                class="virtual_keyboard__list-item"
-                v-for="(item, index) in MathSymbols[symbolIndex].values"
-                :key="index"
-              >
-                <button class="virtual_keyboard__list-item-button" @click="insertSymbol(item)">{{ item }}</button>
-              </li>
-            </ul>
+    <div class="bundle-virtual-keyboard-wrapper" v-show="symbolBtnShow">
+      <div style="position: relative;">
+        <button @click="showKeyBoard()">π</button>
+        <div class="math-symbols-keyboard" v-show="keyboardShow">
+          <div class="virtual_keyboard" @click="noCloseKeyBtn()">
+            <div class="virtual_keyboard__header">
+              <button class="virtual_keyboard__header-prev" @click="prevSymbol"><</button>
+              <div class="virtual_keyboard__header-title">{{ MathSymbols[symbolIndex].name }}</div>
+              <button class="virtual_keyboard__header-next" @click="nextSymbol">></button>
+            </div>
+            <div class="virtual_keyboard_body">
+              <ul class="virtual_keyboard__list">
+                <li
+                  class="virtual_keyboard__list-item"
+                  v-for="(item, index) in MathSymbols[symbolIndex].values"
+                  :key="index"
+                >
+                  <button class="virtual_keyboard__list-item-button" @click="insertSymbol(item)">{{ item }}</button>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
-      </template>
-      <a-button type="primary">π </a-button>
-    </a-popover>
+      </div>
+    </div>
   </div>
 </template>
 <script>
+// var chars = '+−=()AaÆᴂɐɑɒBbcɕDdðEeƎəɛɜɜfGgɡɣhHɦIiɪɨᵻɩjJʝɟKklLʟᶅɭMmɱNnɴɲɳŋOoɔᴖᴗɵȢPpɸqrRɹɻʁsʂʃTtƫUuᴜᴝʉɥɯɰʊvVʋʌwWxyzʐʑʒꝯᴥβγδθφχнნʕⵡ',
+
+// sup = '⁺⁻⁼⁽⁾⁰¹²³⁴⁵⁶⁷⁸⁹ᴬᵃᴭᵆᵄᵅᶛᴮᵇᶜᶝᴰᵈᶞᴱᵉᴲᵊᵋᶟᵌᶠᴳᵍᶢˠʰᴴʱᴵⁱᶦᶤᶧᶥʲᴶᶨᶡᴷᵏˡᴸᶫᶪᶩᴹᵐᶬᴺⁿᶰᶮᶯᵑᴼᵒᵓᵔᵕᶱᴽᴾᵖᶲqʳᴿʴʵʶˢᶳᶴᵀᵗᶵᵁᵘᶸᵙᶶᶣᵚᶭᶷᵛⱽᶹᶺʷᵂˣʸᶻᶼᶽᶾꝰᵜᵝᵞᵟᶿᵠᵡᵸჼˤⵯ';
+// sub='₀₁₂₃₄₅₆₇₈₉ₐᵦₑᵢₒᵣᵤᵥₓᵧ₍₎'
 export default {
   name: 'Tip',
+  props: {
+    inputText: String
+  },
+  model: {
+    prop: 'inputText',
+    event: 'input'
+  },
+  computed: {
+    input_text: {
+      get() {
+        return this.inputText
+      },
+      set(val) {
+        this.$emit('input', val)
+      }
+    }
+  },
   data() {
     return {
-      input_text: '',
-      visible: false,
+      keyboardShow: false,
+      symbolBtnShow: false,
       symbolIndex: 0,
+      canCloseKeyBtn: false,
       MathSymbols: [
         { name: 'Exponents', values: ['Xⁿ', 'Xᵤ', 'X²', 'X³', 'X⁴', '√'] },
         { name: 'Operators', values: ['+', '-', '×', '÷', '/', '±', '∑', '!', 'log()', 'ln()'] },
@@ -49,9 +76,38 @@ export default {
     }
   },
   methods: {
-    showMathSymbol() {
-      console.log('showMathSymbol')
-      this.visible = false
+    noCloseKeyBtn() {
+      console.log('test')
+      this.setInputFocus()
+      this.canCloseKeyBtn = false
+    },
+    hideSymbolBtn() {
+      // 延迟200毫秒，等待其他事件先执行
+      setTimeout(() => {
+        console.log('hideSymbolBtn', this.canCloseKeyBtn)
+        if (this.canCloseKeyBtn) {
+          this.symbolBtnShow = false
+          this.keyboardShow = false
+        }
+        this.canCloseKeyBtn = true
+        console.log('hideSymbolBtn', this.canCloseKeyBtn)
+      }, 200)
+    },
+    showSymbolBtn() {
+      console.log('showSymbolBtn')
+      this.symbolBtnShow = true
+      this.setInputFocus()
+    },
+    setInputFocus() {
+      const lastInput = document.getElementById('input-area')
+      lastInput.focus()
+      this.$refs.inputVal.focus()
+    },
+    showKeyBoard() {
+      console.log('showKeyBoard')
+      this.canCloseKeyBtn = false
+      this.keyboardShow = !this.keyboardShow
+      this.setInputFocus()
     },
     prevSymbol() {
       if (this.symbolIndex > 0) {
@@ -71,17 +127,31 @@ export default {
       console.log('item', item)
       const lastInput = document.getElementById('input-area')
       console.log('input', lastInput.selectionStart)
+      this.setInputFocus()
       this.input_text =
         this.input_text.substr(0, lastInput.selectionStart) +
         item +
         this.input_text.substring(lastInput.selectionStart, this.input_text.length)
-      //this.input_text = this.input_text + item
     }
   }
 }
 </script>
 <style lang="less" scoped>
 @import '~@/components/index.less';
+.virtual_keyboard_input {
+  margin-bottom: 50px;
+  position: relative;
+}
+.bundle-virtual-keyboard-wrapper {
+  position: absolute;
+  bottom: -31px;
+  z-index: 12;
+}
+.math-symbols-keyboard {
+  position: absolute;
+  top: 0;
+  left: calc(100% + 5px);
+}
 .virtual_keyboard {
   width: 252px;
   background: #ffffff;

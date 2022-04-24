@@ -13,17 +13,17 @@
           </div>
         </div>
       </a-tooltip>
-      <a-tooltip title="my computer" placement="top">
+      <!-- <a-tooltip title="my computer" placement="top">
         <div class="upload-type-item">
           <open-dir-svg class="opened" />
           <common-upload accept="video/*" :onSuccess="onSuccess" :getProgressUpLoad="getProgressUpLoad" />
         </div>
-      </a-tooltip>
-      <a-tooltip title="google drive" placement="top">
+      </a-tooltip> -->
+      <!-- <a-tooltip title="google drive" placement="top">
         <div class="upload-type-item">
           <google-drive-icon @click="addDrive" class="svg-icon" />
         </div>
-      </a-tooltip>
+      </a-tooltip> -->
       <a-tooltip title="youtube" placement="top">
         <div class="upload-type-item">
           <youtube-icon @click="addYoutube" class="svg-icon" />
