@@ -61,7 +61,13 @@
         <div class="modal-ensure-action-line-center">
           <a-space>
             <a-button class="action-item action-cancel" shape="round" @click="cancel">Cancel</a-button>
-            <a-button class="action-ensure action-item" type="primary" shape="round" @click="insert" :disabled="chooseVideoId.length == 0">
+            <a-button
+              class="action-ensure action-item"
+              type="primary"
+              shape="round"
+              @click="insert"
+              :disabled="chooseVideoId.length == 0"
+            >
               Confirm
             </a-button>
           </a-space>
@@ -73,6 +79,7 @@
 <script>
 import * as logger from '@/utils/logger'
 import { YoutubeQueryByKeywords } from '@/api/material'
+import { addFileUploadRecord } from '@/api/material'
 export default {
   props: {
     nextYoutube: {
@@ -128,7 +135,16 @@ export default {
         return null
       }
       logger.info('insert ')
+      addFileUploadRecord({
+        fileLength: 0,
+        fileName: this.choose.title,
+        filePath: this.choose.link,
+        uploadType: 2
+      }).then(res => {
+        logger.info('addFileUploadRecord res', res)
+      })
       this.nextYoutube(this.choose)
+
       this.choose = null
       this.keywords = ''
       this.chooseVideoId = ''
