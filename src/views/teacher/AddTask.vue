@@ -3179,11 +3179,14 @@ export default {
     async handleEditGoogleSlide() {
       this.editGoogleSlideLoading = true
       this.$logger.info('handleEditGoogleSlide', this.form.presentationId)
+      let res
       if (this.form.presentationId) {
-        await this.autoSave()
-        window.open(this.presentationLink, '_blank')
+         res = await this.autoSave()
       } else {
-        await this.handleCreateTask()
+         res = await this.handleCreateTask()
+      }
+      if (res.success) {
+        window.open(this.presentationLink, '_blank')
       }
       this.editGoogleSlideLoading = false
     },
