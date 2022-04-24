@@ -1901,7 +1901,7 @@ import { Associate, FindSourceOutcomes, GetAssociate, GetMyGrades, GetReferOutco
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
 import SkillTag from '@/components/UnitPlan/SkillTag'
-import { FilterTemplates, recommendTemplates, TemplatesGetPublishedPresentation } from '@/api/template'
+import { FilterTemplates, recommendTemplates, TemplatesGetPresentation } from '@/api/template'
 import { MyContentEvent, MyContentEventBus } from '@/components/MyContent/MyContentEventBus'
 import { TaskAddOrUpdate, TaskCreateNewTaskPPT, TaskQueryById } from '@/api/task'
 import { SelectModel } from '@/components/NewLibrary/SelectModel'
@@ -2416,7 +2416,7 @@ export default {
 
     handleAuthCallback() {
       this.$logger.info('handleAuthCallback')
-      this.loadThumbnail()
+      this.loadThumbnail(true)
     },
 
     restoreTask(taskId, isFirstLoad) {
@@ -2502,7 +2502,7 @@ export default {
         this.contentLoading = false
         this.loadCollaborateData(this.form.type, this.form.id)
         if (this.form.presentationId) {
-          this.loadThumbnail()
+          this.loadThumbnail(false)
           this.loadRecommendThumbnail()
         }
         // copy副本 为了判断数据变更
@@ -2711,7 +2711,7 @@ export default {
               this.$logger.info('handleEnsureChooseAnother update form.taskClassList', this.form.taskClassList)
             })
           }
-          this.loadThumbnail()
+          this.loadThumbnail(true)
           this.loadRecommendThumbnail()
         } else {
           this.$message.warn(response.message)
@@ -2908,17 +2908,18 @@ export default {
         window.open('https://docs.google.com/presentation/d/' + this.form.presentationId, '_blank')
         this.creating = false
         this.selectedMyContentVisible = false
-        this.loadThumbnail()
+        this.loadThumbnail(true)
         hideLoading()
       }
     },
 
-    loadThumbnail() {
+    loadThumbnail(needRefresh) {
       this.thumbnailListLoading = true
       this.skeletonLoading = true
       this.$logger.info('loadThumbnail ' + this.form.presentationId)
-      TemplatesGetPublishedPresentation({
-        presentationId: this.form.presentationId
+      TemplatesGetPresentation({
+        presentationId: this.form.presentationId,
+        needRefresh: needRefresh
       }).then(response => {
         this.$logger.info('loadThumbnail response', response.result)
         if (response.code === 0) {
