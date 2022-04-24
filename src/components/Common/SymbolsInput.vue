@@ -139,7 +139,7 @@ export default {
 <style lang="less" scoped>
 @import '~@/components/index.less';
 .virtual_keyboard_input {
-  margin-bottom: 50px;
+  margin-bottom: 20px;
   position: relative;
 }
 .bundle-virtual-keyboard-wrapper {

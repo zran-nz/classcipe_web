@@ -346,7 +346,7 @@ export default {
 }
 
 .carousel-page {
-  height: 200px;
+  height: 320px;
   width: 100%;
   overflow-x: hidden;
   overflow-y: auto;
