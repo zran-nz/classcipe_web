@@ -25,7 +25,17 @@
               :key="'index' + index"
             >
               <div class="img-box" @click="choiceItem(item)">
-                <video width="340" height="190" :src="item.filePath" preload="auto" controls></video>
+                <!-- <video width="340" height="190" :src="item.filePath" preload="auto" controls></video> -->
+                <iframe
+                  width="340px"
+                  height="190px"
+                  id="item_player"
+                  :src="item.filePath"
+                  :title="item.title"
+                  frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;"
+                  allowfullscreen
+                ></iframe>
                 <div>{{ showFileName(decodeURIComponent(item.fileName)) }}</div>
               </div>
             </div>
@@ -86,7 +96,7 @@ export default {
       this.getFileRecord(this.keywords)
     },
     getFileRecord(keywords) {
-      const param = { fileType: 'video', pageSize: 20 }
+      const param = { uploadType: 2, pageSize: 20 }
       if (keywords) {
         param.keywords = keywords
       }
@@ -94,12 +104,12 @@ export default {
         this.$logger.info('FileRecord ', response.result)
         if (response.result && response.result.records) {
           this.fileList = response.result.records
-          this.fileList = this.fileList.filter(item => videoTypes.indexOf(item.suffix) > -1)
-          for (let i = 0; i < this.fileList.length; i++) {
-            if (this.fileList[i].filePath.indexOf('https://') === -1) {
-              this.fileList[i].filePath = this.baseFileUrl + this.fileList[i].filePath
-            }
-          }
+          // this.fileList = this.fileList.filter(item => videoTypes.indexOf(item.suffix) > -1)
+          // for (let i = 0; i < this.fileList.length; i++) {
+          //   if (this.fileList[i].filePath.indexOf('https://') === -1) {
+          //     this.fileList[i].filePath = this.baseFileUrl + this.fileList[i].filePath
+          //   }
+          // }
         }
       })
     },
