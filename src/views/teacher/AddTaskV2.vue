@@ -3915,6 +3915,7 @@ export default {
       this.subTasks.forEach(taskItem => {
         taskItem.subTask.selectPageObjectIds = taskItem.selectPageObjectIds
         taskItem.subTask.status = status
+        taskItem.subTask.customFieldData = taskItem.customFieldData ? JSON.stringify(taskItem.customFieldData) : ''
         postData.subTasks.push(taskItem.subTask)
       })
       this.$logger.info('handleSaveSubTask postData', postData)
@@ -3946,6 +3947,7 @@ export default {
       this.subTasks.forEach(taskItem => {
         taskItem.subTask.selectPageObjectIds = taskItem.selectPageObjectIds
         taskItem.subTask.status = status
+        taskItem.subTask.customFieldData = taskItem.customFieldData ? JSON.stringify(taskItem.customFieldData) : ''
         postData.subTasks.push(taskItem.subTask)
       })
       this.$logger.info('handleSaveSubTask postData', postData)
