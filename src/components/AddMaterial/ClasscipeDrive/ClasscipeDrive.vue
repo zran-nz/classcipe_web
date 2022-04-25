@@ -17,7 +17,10 @@
     <a-col class="tip-row">
       <div class="carousel-page">
         <div class="video-list-wrapper">
-          <div class="video-list">
+          <div v-if="fileList.length == 0" class="video-text">
+            no data
+          </div>
+          <div class="video-list" v-else>
             <div
               class="video-item"
               :class="{ active: chooseVideoId === item.id }"
@@ -190,6 +193,16 @@ export default {
 
   .video-list-wrapper {
     width: 100%;
+    .video-text {
+      margin-top: 200px;
+      font-size: 18px;
+      font-family: Source Han Sans CN;
+      font-weight: 400;
+      color: #ababab;
+      line-height: 32px;
+      text-align: center;
+      align-items: center;
+    }
     .video-list {
       cursor: pointer;
       display: flex;
