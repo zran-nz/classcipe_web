@@ -48,7 +48,10 @@
 export default {
   name: 'Tip',
   props: {
-    inputText: String
+    inputText: {
+      type: String,
+      default: null
+    }
   },
   model: {
     prop: 'inputText',
@@ -136,7 +139,7 @@ export default {
       console.log('item', item)
       const lastInput = document.getElementById('input-area') // this.$refs.inputRef //
       console.log('input', lastInput.selectionStart)
-      if (this.input_text == null || this.input_text == '') {
+      if (this.input_text === null || this.input_text === '') {
         this.input_text = item
       } else {
         this.input_text =
