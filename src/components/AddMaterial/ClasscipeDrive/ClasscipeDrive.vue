@@ -147,7 +147,7 @@ export default {
   margin-top: 20px;
 }
 .page {
-  width: 760px;
+  width: 740px;
   margin: auto;
   display: flex;
   justify-content: center;
@@ -161,6 +161,7 @@ export default {
   color: #000000;
   line-height: 40px;
   margin-bottom: 36px;
+  margin-left: 10px
 }
 .search-input {
   margin-left: 10px;
@@ -210,9 +211,9 @@ export default {
       flex-wrap: wrap;
       .video-item {
         height: 230px;
-        width: 360px;
+        width: 364px;
         border: 1px solid #fff;
-        padding: 10px;
+        padding: 12px;
         &.active {
           border: 2px solid @primary-color;
         }

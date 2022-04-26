@@ -411,11 +411,10 @@ export default {
       .img-item {
         position: relative;
         height: 190px;
-        width: 340px;
+        width: 360px;
         border: 1px solid #fff;
         padding: 10px;
         margin-bottom: 20px;
-        margin-left: 10px;
         .img-box {
           position: absolute;
           img {

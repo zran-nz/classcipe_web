@@ -9,7 +9,17 @@
       :autoSize="{ minRows: 4, maxRows: 5 }"
       @keyup="inputValue"
       v-model="input_text"
+      v-if="isAreaText"
     />
+    <a-input
+      size="large"
+      id="input-area"
+      @blur="hideSymbolBtn()"
+      @focus="showSymbolBtn()"
+      v-model="input_text"
+      v-else
+    />
+
     <div class="bundle-virtual-keyboard-wrapper" v-show="symbolBtnShow">
       <div style="position: relative;">
         <button class="keybtn-active" @click="showKeyBoard()">π</button>
@@ -48,7 +58,8 @@
 export default {
   name: 'Tip',
   props: {
-    inputText: String
+    inputText: String,
+    isAreaText: String
   },
   model: {
     prop: 'inputText',
