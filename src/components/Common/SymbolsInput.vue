@@ -3,15 +3,16 @@
     <a-textarea
       id="input-area"
       placeholder="Insert tip for the slide"
-      ref="inputVal"
+      ref="inputRef"
       @blur="hideSymbolBtn()"
       @focus="showSymbolBtn()"
       :autoSize="{ minRows: 4, maxRows: 5 }"
+      @keyup="inputValue"
       v-model="input_text"
     />
     <div class="bundle-virtual-keyboard-wrapper" v-show="symbolBtnShow">
       <div style="position: relative;">
-        <button @click="showKeyBoard()">π</button>
+        <button class="keybtn-active" @click="showKeyBoard()">π</button>
         <div class="math-symbols-keyboard" v-show="keyboardShow">
           <div class="virtual_keyboard" @click="noCloseKeyBtn()">
             <div class="virtual_keyboard__header">
@@ -23,10 +24,13 @@
               <ul class="virtual_keyboard__list">
                 <li
                   class="virtual_keyboard__list-item"
+                  :style="item.length > 3 ? 'width:70px' : ''"
                   v-for="(item, index) in MathSymbols[symbolIndex].values"
                   :key="index"
                 >
-                  <button class="virtual_keyboard__list-item-button" @click="insertSymbol(item)">{{ item }}</button>
+                  <button class="virtual_keyboard__list-item-button" @click="insertSymbol(item)">
+                    {{ item }}
+                  </button>
                 </li>
               </ul>
             </div>
@@ -66,13 +70,18 @@ export default {
       symbolBtnShow: false,
       symbolIndex: 0,
       canCloseKeyBtn: false,
+      currentIndex: 0,
       MathSymbols: [
         { name: 'Exponents', values: ['Xⁿ', 'Xᵤ', 'X²', 'X³', 'X⁴', '√'] },
         { name: 'Operators', values: ['+', '-', '×', '÷', '/', '±', '∑', '!', 'log()', 'ln()'] },
         { name: 'Angles', values: ['π', 'º', "'", "''", 'sin()', 'cos()', 'tan()', 'sin⁻¹()', 'cos⁻¹()', 'tan⁻¹()'] },
-        { name: 'Functions', values: ['()', '[]', '{}', '||', 'ƒ’(x)', 'ƒ’’(x)', '∫'] }
-      ],
-      suplist: '⁰¹²³⁴⁵⁶⁷⁸⁹'
+        { name: 'Functions', values: ['()', '[]', '{}', '||', 'ƒ’(x)', 'ƒ’’(x)', '∫'] },
+        { name: 'superscript', values: ['⁰', '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹'] },
+        {
+          name: 'subscript',
+          values: ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉', 'ₐ', 'ᵦ', 'ₑ', 'ᵢ', 'ₒ', 'ᵣ', 'ᵤ', 'ᵥ', 'ₓ', 'ᵧ']
+        }
+      ]
     }
   },
   methods: {
@@ -101,7 +110,7 @@ export default {
     setInputFocus() {
       const lastInput = document.getElementById('input-area')
       lastInput.focus()
-      this.$refs.inputVal.focus()
+      // this.$refs.inputRef.focus()
     },
     showKeyBoard() {
       console.log('showKeyBoard')
@@ -120,18 +129,45 @@ export default {
       if (this.symbolIndex < this.MathSymbols.length - 1) {
         this.symbolIndex += 1
       } else {
-        this.input_text = 0
+        this.symbolIndex = 0
       }
     },
     insertSymbol(item) {
       console.log('item', item)
-      const lastInput = document.getElementById('input-area')
+      const lastInput = document.getElementById('input-area') // this.$refs.inputRef //
       console.log('input', lastInput.selectionStart)
+      if (this.input_text == null || this.input_text == '') {
+        this.input_text = item
+      } else {
+        this.input_text =
+          this.input_text.substr(0, lastInput.selectionStart) +
+          item +
+          this.input_text.substring(lastInput.selectionStart)
+      }
+
       this.setInputFocus()
-      this.input_text =
-        this.input_text.substr(0, lastInput.selectionStart) +
-        item +
-        this.input_text.substring(lastInput.selectionStart, this.input_text.length)
+    },
+    inputValue(e) {
+      // console.log(e)
+      // const textValue = e.target.value
+      // const lastInput = document.getElementById('input-area')
+      // const inputKey = textValue.substr(lastInput.selectionStart - 1, 1)
+      // console.log('inputKey', inputKey)
+      // const keyIndex = this.normalList.indexOf(inputKey)
+      // const supKey = this.suplist.charAt(keyIndex)
+      // console.log('inputKey', inputKey, supKey)
+      // if (supKey) {
+      //   console.log('input_text11', inputKey, supKey, lastInput.selectionStart, this.input_text.length)
+      //   this.input_text =
+      //     this.input_text.substr(0, lastInput.selectionStart - 1) +
+      //     supKey +
+      //     this.input_text.substring(lastInput.selectionStart)
+      // } else {
+      //   this.input_text =
+      //     this.input_text.substr(0, lastInput.selectionStart - 1) +
+      //     this.input_text.substring(lastInput.selectionStart)
+      //   console.log(lastInput.selectionStart, this.input_text.length)
+      // }
     }
   }
 }
@@ -146,6 +182,10 @@ export default {
   position: absolute;
   bottom: -31px;
   z-index: 12;
+}
+.keybtn-active {
+  background: #00a8ff;
+  color: #ffffff;
 }
 .math-symbols-keyboard {
   position: absolute;
