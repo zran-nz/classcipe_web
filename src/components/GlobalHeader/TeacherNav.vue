@@ -88,11 +88,11 @@ import EditIconSvg from '@/assets/icons/header/bianji.svg?inline'
 import SousuoIconSvg from '@/assets/icons/header/sousuo.svg?inline'
 import ManageIconSvg from '@/assets/icons/header/Managing_icon.svg?inline'
 import TaskModeChoose from '@/components/QuickSession/TaskModeChoose'
-import { mapState, mapMutations, mapActions } from 'vuex'
+import { mapActions, mapMutations, mapState } from 'vuex'
 import { TOOGLE_USER_MODE } from '@/store/mutation-types'
 import { SchoolUserRole } from '@/const/role'
 import { USER_MODE } from '@/const/common'
-import { SwitchSchool } from '@/api/user'
+import { SwitchUserModeSchool } from '@/api/user'
 
 export default {
   name: 'TeacherNav',
@@ -142,19 +142,25 @@ export default {
     },
     handleChange(val) {
       this[TOOGLE_USER_MODE](val)
-      this.justifyCurrentRoute()
+      // 后端记录当前用户是否是个人模式，在个人模式下后台设置school未空字符
+      SwitchUserModeSchool({
+        isPersonal: val === USER_MODE.SELF,
+        schoolId: val === USER_MODE.SCHOOL ? this.currentSchool?.id : ''
+      }).finally(() => {
+        this.justifyCurrentRoute()
+      })
     },
     handleChangeSchool(val) {
       this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
       const item = this.info.schoolList.find(item => item.id === val.key)
       this.SET_CURRENT_SCHOOL(item)
-      SwitchSchool({
+      SwitchUserModeSchool({
           schoolId: val.key
       }).then(res => {
         // 获取对应学校班级
         this.GetClassList(this.userMode)
+        this.justifyCurrentRoute()
       })
-      this.justifyCurrentRoute()
     },
     justifyCurrentRoute() {
       // 当前mode是school，且没有admin权限，则跳出去
