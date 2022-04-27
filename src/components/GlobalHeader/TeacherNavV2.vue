@@ -68,7 +68,7 @@
       </div>
     </div>
     <div class='bottom-menu'>
-      <div class='personal menu-icon-block' :style="{ width: collapseMenu ? '80px' : '256px'}">
+      <div class='personal menu-icon-block'>
         <div class='cc-menu-icon-item'>
           <router-link to='/notification'>
             <a-icon type="mail" theme='filled' :style="{ fontSize: '14px' }" v-if="$route.path.startsWith('/notification')"/>
@@ -113,7 +113,7 @@ import EditIconSvg from '@/assets/icons/header/bianji.svg?inline'
 import SousuoIconSvg from '@/assets/icons/header/sousuo.svg?inline'
 import ManageIconSvg from '@/assets/icons/header/Managing_icon.svg?inline'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import { TOOGLE_USER_MODE } from '@/store/mutation-types'
+import { SIDEBAR_TYPE, TOOGLE_USER_MODE } from '@/store/mutation-types'
 import { SchoolUserRole } from '@/const/role'
 import { USER_MODE } from '@/const/common'
 import { SwitchUserModeSchool } from '@/api/user'
@@ -131,7 +131,6 @@ export default {
   },
   data () {
     return {
-      collapseMenu: false, // 菜单是否收缩显示
       defaultSelectedKeys: [],
       selectedKeys: [],
       showTaskMode: false,
@@ -154,7 +153,8 @@ export default {
 
       // 动态主路由
       mainMenu: state => state.permission.addRouters,
-      currentRole: state => state.user.currentRole
+      currentRole: state => state.user.currentRole,
+      collapsed: state => state.app.sideCollapsed
     }),
     navMenu() {
       const addRouters = this.mainMenu
@@ -266,14 +266,8 @@ export default {
       })
     },
 
-    handleUpdateMenuCollapse (collapsed) {
-      this.$logger.info('handleUpdateMenuCollapse ' + collapsed)
-      this.collapseMenu = collapsed
-    },
-
     handleExpandMenu() {
-      this.collapseMenu = false
-      this.$emit('expand-menu')
+      this.$store.commit(SIDEBAR_TYPE, false)
     }
   }
 }

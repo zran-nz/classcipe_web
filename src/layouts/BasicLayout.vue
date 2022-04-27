@@ -18,8 +18,8 @@
           <img src="~@/assets/logo/logo.png" alt='classcipe' @click="goHome">
           <h1 @click="goHome">{{ title }}</h1>
         </div>
-        <span class='collapse-icon'>
-          <a-icon type="menu-fold" @click='handleMenuCollapse'/>
+        <span class='collapse-icon' @click.stop.prevent='handleMenuCollapse'>
+          <a-icon type="menu-fold" />
         </span>
       </div>
     </template>
@@ -27,7 +27,7 @@
           增加 Header 左侧内容区自定义
     -->
     <template v-slot:menuRender>
-      <teacher-nav-v2 ref='teacherNav' v-show="$store.getters.currentRole === 'teacher'" @expand-menu='handleExpandMenu'></teacher-nav-v2>
+      <teacher-nav-v2 v-show="$store.getters.currentRole === 'teacher'"></teacher-nav-v2>
       <student-nav v-show="$store.getters.currentRole === 'student'"></student-nav>
     </template>
 
@@ -45,7 +45,7 @@
 <script>
 import { i18nRender } from '@/locales'
 import { mapState } from 'vuex'
-import { CONTENT_WIDTH_TYPE } from '@/store/mutation-types'
+import { CONTENT_WIDTH_TYPE, SIDEBAR_TYPE } from '@/store/mutation-types'
 
 import defaultSettings from '@/config/defaultSettings'
 import RightContent from '@/components/GlobalHeader/RightContent'
@@ -72,7 +72,6 @@ export default {
       // base
       menus: [],
       // 侧栏收起状态
-      collapsed: false,
       title: defaultSettings.title,
       settings: {
         // 布局类型
@@ -117,7 +116,8 @@ export default {
   computed: {
     ...mapState({
       // 动态主路由
-      mainMenu: state => state.permission.addRouters
+      mainMenu: state => state.permission.addRouters,
+      collapsed: state => state.app.sideCollapsed
     }),
     fullLayoutFlag () {
       return this.$route.meta.fullLayout
@@ -137,16 +137,6 @@ export default {
     }
   },
   mounted () {
-    const userAgent = navigator.userAgent
-    if (userAgent.indexOf('Edge') > -1) {
-      this.$nextTick(() => {
-        this.collapsed = !this.collapsed
-        setTimeout(() => {
-          this.collapsed = !this.collapsed
-        }, 16)
-      })
-    }
-
     this.headerDom = []
     this.headerDom = document.getElementsByTagName('header')
 
@@ -159,12 +149,6 @@ export default {
     }
 
     this.$logger.info('fullLayoutFlag', this.fullLayoutFlag)
-
-    // first update color
-    // TIPS: THEME COLOR HANDLER!! PLEASE CHECK THAT!!
-    // if (process.env.NODE_ENV !== 'production' || process.env.VUE_APP_PREVIEW === 'true') {
-    //   updateTheme(this.settings.primaryColor)
-    // }
   },
   methods: {
     i18nRender,
@@ -183,22 +167,19 @@ export default {
     handleMediaQuery (val) {
       this.query = val
       if (this.isMobile && !val['screen-xs']) {
-        this.isMobile = false
+        this.$store.commit(SIDEBAR_TYPE, false)
         return
       }
       if (!this.isMobile && val['screen-xs']) {
         this.isMobile = true
-        this.collapsed = false
+        this.$store.commit(SIDEBAR_TYPE, false)
         this.settings.contentWidth = CONTENT_WIDTH_TYPE.Fluid
         // this.settings.fixSiderbar = false
       }
     },
     handleCollapse (val) {
       this.$logger.info('handleCollapse ' + val)
-      this.collapsed = val
-    },
-    handleExpandMenu () {
-      this.collapsed = false
+      this.$store.commit(SIDEBAR_TYPE, val)
     },
     handleSettingChange ({ type, value }) {
       console.log('type', type, value)
@@ -231,10 +212,7 @@ export default {
 
     handleMenuCollapse () {
       this.$logger.info('handleMenuCollapse ' + this.collapsed)
-      if (this.$refs.teacherNav) {
-        this.$refs.teacherNav.handleUpdateMenuCollapse(!this.collapsed)
-        this.collapsed = !this.collapsed
-      }
+      this.$store.commit(SIDEBAR_TYPE, !this.collapsed)
     }
   }
 }
