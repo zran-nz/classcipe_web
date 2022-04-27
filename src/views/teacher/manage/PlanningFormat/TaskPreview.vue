@@ -4797,7 +4797,7 @@ export default {
 }
 
 .my-full-form-wrapper {
-  margin-top: 70px;
+  margin-top: 90px;
 }
 
 .my-slide-pick-modal {
