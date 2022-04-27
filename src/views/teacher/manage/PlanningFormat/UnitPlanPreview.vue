@@ -789,7 +789,6 @@ import NewClickableSkillTag from '@/components/UnitPlan/NewClickableSkillTag'
 import SkillTag from '@/components/UnitPlan/SkillTag'
 import { formatLocalUTC } from '@/utils/util'
 import MyContentSelector from '@/components/MyContent/MyContentSelector'
-import AssociateSidebar from '@/components/Associate/AssociateSidebar'
 import CustomTag from '@/components/UnitPlan/CustomTag'
 import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import AddKeywordTag from '@/components/Evaluation/AddKeywordTag'
@@ -842,7 +841,6 @@ export default {
     NewClickableSkillTag,
     SkillTag,
     MyContentSelector,
-    AssociateSidebar,
     CustomTag,
     RelevantTagSelector,
     AddKeywordTag,

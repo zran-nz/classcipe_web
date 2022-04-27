@@ -658,7 +658,6 @@
   import TaskForm from '@/components/Task/TaskForm'
   import TaskPreview from '@/components/Task/TaskPreview'
   import Collaborate from '@/components/UnitPlan/Collaborate'
-  import AssociateSidebar from '@/components/Associate/AssociateSidebar'
   import CustomTag from '@/components/UnitPlan/CustomTag'
   import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
   import { lessonHost, lessonStatus } from '@/const/googleSlide'
@@ -695,7 +694,6 @@
       MyContentSelector,
       RelevantTagSelector,
       Collaborate,
-      AssociateSidebar,
       CollaborateContent,
       CustomTag
     },

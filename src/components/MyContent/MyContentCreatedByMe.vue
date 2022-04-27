@@ -18,53 +18,6 @@
           </div>
         </div>
       </div>
-      <!--      <div class="type-owner">-->
-      <!--        <a-space>-->
-      <!--          <div class="type-filter" v-show="mode !== 'refer'">-->
-      <!--            <a-dropdown>-->
-      <!--              <a-menu slot="overlay">-->
-      <!--                <a-menu-item disabled>-->
-      <!--                  <span>{{ $t('teacher.my-content.choose-types-of-content') }}</span>-->
-      <!--                </a-menu-item>-->
-      <!--                <a-menu-item @click="toggleType('', $t('teacher.my-content.all-type'))" >-->
-      <!--                  <span>{{ $t('teacher.my-content.all-type') }}</span>-->
-      <!--                </a-menu-item>-->
-      <!--                <a-menu-item @click="toggleType('topic', $t('teacher.my-content.topics-type') )" v-if="filterTypeList.indexOf('topic') !== -1">-->
-      <!--                  <span>{{ $t('teacher.my-content.topics-type') }}</span>-->
-      <!--                </a-menu-item>-->
-      <!--                <a-menu-item @click="toggleType('material', $t('teacher.my-content.materials-type'))" v-if="filterTypeList.indexOf('material') !== -1">-->
-      <!--                  <span>{{ $t('teacher.my-content.materials-type') }}</span>-->
-      <!--                </a-menu-item>-->
-      <!--                <a-menu-item @click="toggleType('unit-plan', $t('teacher.my-content.unit-plan-type'))" v-if="filterTypeList.indexOf('unit-plan') !== -1">-->
-      <!--                  <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>-->
-      <!--                </a-menu-item>-->
-      <!--                <a-menu-item @click="toggleType('task', $t('teacher.my-content.tasks-type') )" v-if="filterTypeList.indexOf('task') !== -1">-->
-      <!--                  <span>{{ $t('teacher.my-content.tasks-type') }}</span>-->
-      <!--                </a-menu-item>-->
-      <!--                &lt;!&ndash;                <a-menu-item @click="toggleType('lesson', $t('teacher.my-content.lesson-type'))" v-if="filterTypeList.indexOf('lesson') !== -1">-->
-      <!--                  <span>{{ $t('teacher.my-content.lesson-type') }}</span>-->
-      <!--                </a-menu-item>&ndash;&gt;-->
-      <!--                <a-menu-item @click="toggleType('evaluation', $t('teacher.my-content.evaluation-type'))" v-if="filterTypeList.indexOf('evaluation') !== -1">-->
-      <!--                  <span>{{ $t('teacher.my-content.evaluation-type') }}</span>-->
-      <!--                </a-menu-item>-->
-      <!--              </a-menu>-->
-      <!--              <a-button-->
-      <!--                class="type-filter-button"-->
-      <!--                style="padding: 0 20px;display:flex; align-items:center ;height: 40px;border-radius: 6px;background: #FFFFFF;font-family: Inter-Bold;color: #182552;">-->
-      <!--                {{ currentTypeLabel }} <a-icon type="caret-down" />-->
-      <!--              </a-button>-->
-      <!--            </a-dropdown>-->
-      <!--          </div>-->
-      <!--          <div class="switch-icon">-->
-      <!--            <div :class="{'icon-item': true, 'active-icon': dataListMode === 'list'}" @click="handleToggleDataListMode('list')">-->
-      <!--              <liebiao-svg />-->
-      <!--            </div>-->
-      <!--            <div :class="{'icon-item': true, 'active-icon': dataListMode === 'card'}" @click="handleToggleDataListMode('card')">-->
-      <!--              <pubu-svg />-->
-      <!--            </div>-->
-      <!--          </div>-->
-      <!--        </a-space>-->
-      <!--      </div>-->
     </div>
     <div class="content-wrapper">
       <a-skeleton :loading="skeletonLoading" active>

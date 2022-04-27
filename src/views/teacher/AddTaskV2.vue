@@ -1712,7 +1712,6 @@ import { TemplateTypeMap } from '@/const/template'
 import TaskForm from '@/components/Task/TaskForm'
 import TaskPreview from '@/components/Task/TaskPreview'
 import Collaborate from '@/components/UnitPlan/Collaborate'
-import AssociateSidebar from '@/components/Associate/AssociateSidebar'
 import CustomTagV2 from '@/components/UnitPlan/CustomTagV2'
 import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
 import CollaborateUserList from '@/components/Collaborate/CollaborateUserList'
@@ -1797,7 +1796,6 @@ export default {
     MyContentSelector,
     RelevantTagSelector,
     Collaborate,
-    AssociateSidebar,
     CollaborateUserList,
     CustomTagV2,
     commentIcon,

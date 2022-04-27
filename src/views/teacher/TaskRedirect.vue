@@ -27,7 +27,7 @@ export default {
     handleTaskRedirect() {
       this.$logger.info('task redirecting ' + this.taskId)
       if (this.taskId) {
-        this.$router.replace('/teacher/add-task/' + this.taskId)
+        this.$router.replace('/teacher/add-task-v2/' + this.taskId)
       } else {
         const data = {
           name: null,
@@ -38,7 +38,7 @@ export default {
           this.$logger.info('TaskAddOrUpdate response', response.result)
           if (response.success) {
             if (response.code !== 520) {
-              this.$router.replace('/teacher/add-task/' + response.result.id)
+              this.$router.replace('/teacher/add-task-v2/' + response.result.id)
             } else {
               this.$logger.info('等待授权回调')
             }

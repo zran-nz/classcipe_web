@@ -1,6 +1,5 @@
 import request from '@/utils/request'
 import { typeMap } from '@/const/teacher'
-import { TopicDelete } from '@/api/topic'
 import { MaterialDelete } from '@/api/material'
 import { UnitPlanDelete } from '@/api/unitPlan'
 import { TaskDelete } from '@/api/task'
@@ -101,8 +100,6 @@ export function deleteMyContentByType (data) {
   const MyContentType = data.type
   const id = data.id
   switch (MyContentType) {
-    case typeMap.topic:
-      return TopicDelete({ id })
     case typeMap['unit-plan']:
       return UnitPlanDelete({ id })
     case typeMap.material:

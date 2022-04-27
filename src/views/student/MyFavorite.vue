@@ -21,11 +21,6 @@
                   <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
                 </a-menu-item>
               </template>
-              <template v-if="$store.getters.roles.indexOf('expert') !== -1">
-                <a-menu-item @click="toggleType('topic', $t('teacher.my-content.topics-type'))">
-                  <span>{{ $t('teacher.my-content.topics-type') }}</span>
-                </a-menu-item>
-              </template>
               <a-menu-item @click="toggleType('task', $t('teacher.my-content.tasks-type') )">
                 <span>{{ $t('teacher.my-content.tasks-type') }}</span>
               </a-menu-item>

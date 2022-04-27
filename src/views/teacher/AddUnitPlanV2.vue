@@ -709,7 +709,7 @@
       <div class='link-content-wrapper'>
         <my-content-selector
           :current-id='unitPlanId'
-          :filter-type-list="['unit-plan', 'topic']"
+          :filter-type-list="['unit-plan']"
           :mode='DisplayMode.Refer' />
       </div>
     </a-modal>
@@ -960,7 +960,6 @@ import SkillTag from '@/components/UnitPlan/SkillTag'
 import { UnitPlanAddOrUpdate, UnitPlanQueryById } from '@/api/unitPlan'
 import { formatLocalUTC } from '@/utils/util'
 import MyContentSelector from '@/components/MyContent/MyContentSelector'
-import AssociateSidebar from '@/components/Associate/AssociateSidebar'
 import { TaskAddOrUpdate } from '@/api/task'
 import { LessonAddOrUpdate } from '@/api/myLesson'
 import { EvaluationAddOrUpdate } from '@/api/evaluation'
@@ -1032,7 +1031,6 @@ export default {
     NewClickableSkillTag,
     SkillTag,
     MyContentSelector,
-    AssociateSidebar,
     CustomTagV2,
     RelevantTagSelector,
     AddKeywordTag,

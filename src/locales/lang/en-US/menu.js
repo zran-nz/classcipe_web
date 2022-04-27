@@ -95,5 +95,5 @@ export default {
     'menu.sell.statistics': 'My statistics',
     'menu.sell.followers': 'My followers',
     'menu.pd': 'PD Content',
-    'menu.video': 'Video',
+    'menu.video': 'Video'
 }
