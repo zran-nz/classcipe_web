@@ -93,5 +93,7 @@ export default {
     'menu.sell.inspiration-teacher': 'Inspiration for teachers',
     'menu.sell.inspiration-student': 'Inspiration for students',
     'menu.sell.statistics': 'My statistics',
-    'menu.sell.followers': 'My followers'
+    'menu.sell.followers': 'My followers',
+    'menu.pd': 'PD Content',
+    'menu.video': 'Video',
 }
