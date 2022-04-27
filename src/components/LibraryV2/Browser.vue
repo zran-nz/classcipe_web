@@ -362,9 +362,9 @@ import SearchFilter from '@/components/LibraryV2/SearchFilter'
 import { QueryContentsFilter, QueryRecommendContents } from '@/api/library'
 import { SubjectTree } from '@/api/subject'
 import { FindCustomTags } from '@/api/tag'
+import { mapState } from 'vuex'
 const { Search, QueryContents } = require('@/api/library')
 const { debounce } = require('lodash-es')
-import { mapState } from 'vuex'
 
 const BrowserTypeMap = {
   curriculum: 'curriculum',
@@ -546,11 +546,11 @@ export default {
       if (this.expandedListFlag) {
         width = `calc(100vw - ${this.collapsed ? '80px' : '256px'})`
       } else if (this.showRecommend) {
-        width =  `calc(85vw - ${this.collapsed ? '80px' : '256px'})`
+        width = `calc(85vw - ${this.collapsed ? '80px' : '256px'})`
       } else if (!this.currentBrowserType) {
-        width =  `calc(85vw - ${this.collapsed ? '80px' : '256px'})`
+        width = `calc(85vw - ${this.collapsed ? '80px' : '256px'})`
       } else if (this.currentBrowserType) {
-        width =  `calc(70vw - ${this.collapsed ? '80px' : '256px'})`
+        width = `calc(70vw - ${this.collapsed ? '80px' : '256px'})`
       }
       return width
     },
