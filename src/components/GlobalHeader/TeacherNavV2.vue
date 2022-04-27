@@ -8,17 +8,17 @@
           </a>
         </div>
       </div>
-      <div class='role menu-block' @click.stop.prevent=''>
+      <div class='role menu-block'>
         <a-dropdown class='cc-role-dropdown' :placement="'topCenter'" :trigger="['click']">
-          <a-menu slot="overlay" @click.stop="handleChangeSchool">
-            <a-menu-item class="self-mode" :class="{active: userMode === USER_MODE.SELF}" @click.native.stop.prevent="handleChange(USER_MODE.SELF)">
+          <a-menu slot="overlay">
+            <a-menu-item class="self-mode" @click.native="handleChangePersonal">
               <span class='menu-label'>Personal</span>
             </a-menu-item>
-            <a-menu-item :key="item.id" v-for="item in info.schoolList">
+            <a-menu-item :key="item.id" v-for="item in info.schoolList" @click.native="handleChangeSchool(item)">
               <span class='menu-label'>{{ item.schoolName }}</span>
             </a-menu-item>
           </a-menu>
-          <a-button @click="handleChange(USER_MODE.SCHOOL)"> {{ currentSchool.schoolName }} <a-icon type="down" /> </a-button>
+          <a-button> {{ currentSchool.schoolName }} <a-icon type="down" /> </a-button>
         </a-dropdown>
       </div>
       <div class='menu menu-block'>
@@ -28,7 +28,7 @@
             <span class='menu-label'>Library</span>
           </router-link>
         </div>
-        <div class='cc-menu-item' :class="{'active-menu': $route.path === ''}">
+        <div class='cc-menu-item' :class="{'active-menu': $route.path === ''}" v-if='userMode !== USER_MODE.SCHOOL'>
           <router-link to='/teacher/main/created-by-me'>
             <a-icon type="container" />
             <span class='menu-label'>Published</span>
@@ -186,24 +186,23 @@ export default {
       this.SET_CURRENT_SCHOOL(current)
       this.GetClassList(this.userMode)
     },
-    handleChange(val) {
-      alert('handleChange' + val)
-      this[TOOGLE_USER_MODE](val)
+    handleChangePersonal() {
+      this[TOOGLE_USER_MODE](USER_MODE.SELF)
       // 后端记录当前用户是否是个人模式，在个人模式下后台设置school未空字符
       SwitchUserModeSchool({
-        isPersonal: val === USER_MODE.SELF,
-        schoolId: val === USER_MODE.SCHOOL ? this.currentSchool?.id : ''
+        isPersonal: true,
+        schoolId: ''
       }).finally(() => {
         this.justifyCurrentRoute()
       })
     },
     handleChangeSchool(val) {
-      alert('handleChangeSchool' + val)
       this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
-      const item = this.info.schoolList.find(item => item.id === val.key)
+      const item = this.info.schoolList.find(item => item.id === val.id)
       this.SET_CURRENT_SCHOOL(item)
       SwitchUserModeSchool({
-          schoolId: val.key
+          isPersonal: false,
+          schoolId: val.id
       }).then(res => {
         // 获取对应学校班级
         this.GetClassList(this.userMode)
