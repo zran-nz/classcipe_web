@@ -216,18 +216,32 @@ export const asyncRouterMap = [
             meta: { title: 'menu.task', keepAlive: true, permission: ['teacher'] }
           },
           {
-            path: '/teacher/add-evaluation/:evaluationId?/:mode?',
-            name: 'AddEvaluation',
+            path: '/teacher/pd-content-redirect/:pdId',
+            name: 'PDContentRedirect',
             props: true,
-            component: () => import('@/views/teacher/AddEvaluation'),
-            meta: { title: 'menu.evaluation', keepAlive: true, permission: ['teacher'] }
+            component: () => import('@/views/teacher/PDContentRedirect'),
+            meta: { title: 'menu.pd', keepAlive: true, permission: ['teacher'] }
           },
           {
-            path: '/teacher/evaluation-redirect/:evaluationId?',
-            name: 'EvaluationRedirect',
+            path: '/teacher/pd-content/:pdId',
+            name: 'AddPD',
             props: true,
-            component: () => import('@/views/teacher/EvaluationRedirect'),
-            meta: { title: 'menu.evaluation', keepAlive: true, permission: ['teacher'] }
+            component: () => import('@/views/teacher/AddPD'),
+            meta: { title: 'menu.pd', keepAlive: true, permission: ['teacher'] }
+          },
+          {
+            path: '/teacher/video-redirect/:videoId',
+            name: 'VideoRedirect',
+            props: true,
+            component: () => import('@/views/teacher/VideoRedirect'),
+            meta: { title: 'menu.pd', keepAlive: true, permission: ['teacher'] }
+          },
+          {
+            path: '/teacher/video/:videoId',
+            name: 'AddVideo',
+            props: true,
+            component: () => import('@/views/teacher/AddVideo'),
+            meta: { title: 'menu.pd', keepAlive: true, permission: ['teacher'] }
           },
           {
             path: '/teacher/topics-from-experts',

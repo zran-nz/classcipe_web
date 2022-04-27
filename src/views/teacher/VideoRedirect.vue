@@ -5,32 +5,30 @@
 </template>
 
 <script>
-import { PageHeaderWrapper } from '@ant-design-vue/pro-layout'
-import { TopicAddOrUpdate } from '@/api/topic'
+import { VideoAddOrUpdate } from '@/api/video'
 import * as logger from '@/utils/logger'
 
 export default {
-  name: 'TopicRedirect',
-  components: {
-    PageHeaderWrapper
-  },
+  name: 'VideoRedirect',
   props: {
-    // eslint-disable-next-line vue/require-default-prop
-    topicId: null
+    videoId: {
+      type: String,
+      default: null
+    }
   },
   created () {
-    if (this.topicId !== 'create') {
-      this.$router.replace('/expert/topic/' + this.topicId)
+    if (this.videoId !== 'create') {
+      this.$router.replace('/teacher/video/' + this.videoId)
     } else {
-      const topicData = {
-        name: 'Unnamed Topic'
+      const videoData = {
+        name: 'Unnamed Video'
       }
 
-      TopicAddOrUpdate(topicData).then((response) => {
-        logger.info('creatingTopic response', response.result)
+      VideoAddOrUpdate(videoData).then((response) => {
+        logger.info('VideoAddOrUpdate response', response.result)
         if (response.success) {
           this.$router.replace({
-            path: '/expert/topic/' + response.result.id
+            path: '/teacher/video/' + response.result.id
           })
         } else {
           this.$message.error(response.message)

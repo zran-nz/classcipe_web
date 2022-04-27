@@ -5,34 +5,30 @@
 </template>
 
 <script>
-import { PageHeaderWrapper } from '@ant-design-vue/pro-layout'
-import { UnitPlanAddOrUpdate } from '@/api/unitPlan'
+import { PDContentAddOrUpdate } from '@/api/pdContent'
 import * as logger from '@/utils/logger'
 
 export default {
-  name: 'UnitPlanRedirect',
-  components: {
-    PageHeaderWrapper
-  },
+  name: 'PDContentRedirect',
   props: {
-    unitPlanId: {
+    pdId: {
       type: String,
       default: null
     }
   },
   created () {
-    if (this.unitPlanId !== 'create') {
-      this.$router.replace('/teacher/unit-plan-v2/' + this.unitPlanId)
+    if (this.pdId !== 'create') {
+      this.$router.replace('/teacher/pd-content/' + this.pdId)
     } else {
-      const unitPlanData = {
-        name: 'Unnamed Unit Plan'
+      const pdData = {
+        name: 'Unnamed PD Content'
       }
 
-      UnitPlanAddOrUpdate(unitPlanData).then((response) => {
-        logger.info('creatingUnitPlan response', response.result)
+      PDContentAddOrUpdate(pdData).then((response) => {
+        logger.info('PDContentAddOrUpdate response', response.result)
         if (response.success) {
           this.$router.replace({
-            path: '/teacher/unit-plan-v2/' + response.result.id
+            path: '/teacher/pd-content/' + response.result.id
           })
         } else {
           this.$message.error(response.message)
