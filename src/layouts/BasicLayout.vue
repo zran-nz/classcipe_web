@@ -32,9 +32,9 @@
     </template>
 
     <!-- custom footer / 自定义Footer -->
-    <template v-slot:footerRender v-if='showFooter'>
-      <global-footer />
-    </template>
+    <!--    <template v-slot:footerRender v-if='showFooter'>-->
+    <!--      <global-footer />-->
+    <!--    </template>-->
     <!-- 主页面内容 -->
     <div :class="{'classcipe-main': true, 'no-full-layout': !fullLayoutFlag}">
       <router-view />
@@ -121,9 +121,6 @@ export default {
     }),
     fullLayoutFlag () {
       return this.$route.meta.fullLayout
-    },
-    showFooter () {
-      return !this.$route.meta.hiddenFooter
     }
   },
   created () {
