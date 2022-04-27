@@ -13,26 +13,29 @@
           我们推荐使用这种方式进行 LOGO 和 title 自定义
     -->
     <template v-slot:menuHeaderRender>
-      <div class="home-nav" @click="goHome">
-        <img src="~@/assets/logo/logo.png">
-        <h1>{{ title }}</h1>
+      <div class="home-nav">
+        <div class='home-logo'>
+          <img src="~@/assets/logo/logo.png" alt='classcipe' @click="goHome">
+          <h1 @click="goHome">{{ title }}</h1>
+        </div>
+        <span class='collapse-icon'>
+          <a-icon type="menu-fold" @click='handleMenuCollapse'/>
+        </span>
       </div>
     </template>
     <!-- 1.0.0+ 版本 pro-layout 提供 API,
           增加 Header 左侧内容区自定义
     -->
     <template v-slot:menuRender>
-      <expert-nav v-show="$store.getters.currentRole === 'expert'"></expert-nav>
-      <teacher-nav v-show="$store.getters.currentRole === 'teacher'"></teacher-nav>
+      <teacher-nav-v2 ref='teacherNav' v-show="$store.getters.currentRole === 'teacher'" @expand-menu='handleExpandMenu'></teacher-nav-v2>
       <student-nav v-show="$store.getters.currentRole === 'student'"></student-nav>
     </template>
-    <template v-slot:rightContentRender>
-      <right-content :top-menu="settings.layout === 'topmenu'" :is-mobile="isMobile" :theme="settings.theme" @switch-role="handleSwitchRole" />
-    </template>
+
     <!-- custom footer / 自定义Footer -->
     <template v-slot:footerRender v-if='showFooter'>
       <global-footer />
     </template>
+    <!-- 主页面内容 -->
     <div :class="{'classcipe-main': true, 'no-full-layout': !fullLayoutFlag}">
       <router-view />
     </div>
@@ -49,8 +52,7 @@ import RightContent from '@/components/GlobalHeader/RightContent'
 import GlobalFooter from '@/components/GlobalFooter'
 import * as logger from '@/utils/logger'
 
-import TeacherNav from '@/components/GlobalHeader/TeacherNav'
-import ExpertNav from '@/components/GlobalHeader/ExpertNav'
+import TeacherNavV2 from '@/components/GlobalHeader/TeacherNavV2'
 import StudentNav from '@/components/GlobalHeader/StudentNav'
 
 export default {
@@ -59,8 +61,7 @@ export default {
     StudentNav,
     RightContent,
     GlobalFooter,
-    TeacherNav,
-    ExpertNav
+    TeacherNavV2
   },
   data () {
     return {
@@ -127,6 +128,9 @@ export default {
   },
   created () {
     logger.info('BasicLayout created, path ' + this.$route.path)
+    const routes = this.mainMenu.find(item => item.path === '/')
+    this.menus = (routes && routes.children) || []
+    this.$logger.info('menus -> ', this.menus)
     if (this.$route.path === '/') {
       logger.info('go to defaultRouter ' + this.$store.getters.defaultRouter)
       this.$router.replace(this.$store.getters.defaultRouter)
@@ -190,7 +194,11 @@ export default {
       }
     },
     handleCollapse (val) {
+      this.$logger.info('handleCollapse ' + val)
       this.collapsed = val
+    },
+    handleExpandMenu () {
+      this.collapsed = false
     },
     handleSettingChange ({ type, value }) {
       console.log('type', type, value)
@@ -219,6 +227,14 @@ export default {
         domItem.style.opacity = visible ? 1 : 0
         domItem.style['pointer-events'] = visible ? 'auto' : 'none'
       })
+    },
+
+    handleMenuCollapse () {
+      this.$logger.info('handleMenuCollapse ' + this.collapsed)
+      if (this.$refs.teacherNav) {
+        this.$refs.teacherNav.handleUpdateMenuCollapse(!this.collapsed)
+        this.collapsed = !this.collapsed
+      }
     }
   }
 }
@@ -227,6 +243,9 @@ export default {
 <style lang='less'>
 @import "./BasicLayout.less";
   .home-nav {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
     h1 {
       font-family: Inter-Bold;
     }
@@ -287,6 +306,20 @@ export default {
       color: #fff;
     }
   }
+}
+
+.collapse-icon {
+  padding-right: 10px;
+  color: @text-color-secondary-dark;
+
+  &:hover {
+    color: @primary-color;
+  }
+}
+
+.ant-pro-sider-menu-logo svg {
+  width: 20px;
+  height: 20px;
 }
 
 </style>
