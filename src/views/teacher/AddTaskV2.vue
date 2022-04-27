@@ -1,6 +1,6 @@
 <template>
-  <div class='my-full-form-wrapper' :style="{'margin-top': $store.getters.hiddenHeader ? '0' : '74px'}" id='formRoot'>
-    <div class='form-header' :style="{top: $store.getters.hiddenHeader ? 0 : '64px'}">
+  <div class='my-full-form-wrapper' id='formRoot'>
+    <div class='form-header' :style="{left: collapsed ? '80px' : '256px'}">
       <common-form-header
         ref='commonFormHeader'
         :form='form'
@@ -15,14 +15,14 @@
         @collaborate='handleStartCollaborate'
       />
     </div>
-    <div class='step-nav' :style="{top: $store.getters.hiddenHeader ? '64px' : '138px'}">
+    <div class='step-nav' :style="{left: collapsed ? '80px' : '256px'}">
       <my-vertical-steps
         ref='steps-nav'
         :steps='$store.getters.formConfigData.taskSteps'
         :step-index='currentActiveStepIndex'
         @step-change='handleStepChange' />
     </div>
-    <div class='form-content' :style="{ height: $store.getters.hiddenHeader ? 'calc(100vh - 138px)' : 'calc(100vh - 193px)', 'margin-top': $store.getters.hiddenHeader ? '55px' : '129px' }">
+    <div class='form-content'>
       <div class='step-content' v-if='!contentLoading'>
         <div class='form-body root-locate-form' id='form-body'>
           <div
@@ -5296,18 +5296,6 @@ export default {
   }
 }
 
-.form-header {
-  z-index: 997;
-  position: fixed;
-  top: 64px;
-  left: 0;
-  right: 0;
-}
-
-.my-full-form-wrapper {
-  margin-top: 70px;
-}
-
 .my-slide-pick-modal {
   padding: 0;
   box-sizing: border-box;
@@ -6647,15 +6635,17 @@ p.ant-upload-text {
   background: #fff;
   padding: 0 20px;
   position: fixed;
-  left: 0;
   right: 0;
   width: 100%;
+  top: 74px;
   z-index: 999;
   transition: all 0.3s ease-in-out;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
 }
 
 .form-content {
+  height: calc(100vh - 198px);
+  margin-top: 138px;
   padding: 0 20px;
   overflow: scroll;
   background: #fff;

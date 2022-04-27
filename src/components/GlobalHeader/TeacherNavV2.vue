@@ -8,10 +8,10 @@
           </a>
         </div>
       </div>
-      <div class='role menu-block'>
+      <div class='role menu-block' @click.stop.prevent=''>
         <a-dropdown class='cc-role-dropdown' :placement="'topCenter'" :trigger="['click']">
-          <a-menu slot="overlay" @click="handleChangeSchool">
-            <a-menu-item class="self-mode" :class="{active: userMode === USER_MODE.SELF}" @click="handleChange(USER_MODE.SELF)">
+          <a-menu slot="overlay" @click.stop="handleChangeSchool">
+            <a-menu-item class="self-mode" :class="{active: userMode === USER_MODE.SELF}" @click.native.stop.prevent="handleChange(USER_MODE.SELF)">
               <span class='menu-label'>Personal</span>
             </a-menu-item>
             <a-menu-item :key="item.id" v-for="item in info.schoolList">
@@ -187,6 +187,7 @@ export default {
       this.GetClassList(this.userMode)
     },
     handleChange(val) {
+      alert('handleChange' + val)
       this[TOOGLE_USER_MODE](val)
       // 后端记录当前用户是否是个人模式，在个人模式下后台设置school未空字符
       SwitchUserModeSchool({
@@ -197,6 +198,7 @@ export default {
       })
     },
     handleChangeSchool(val) {
+      alert('handleChangeSchool' + val)
       this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
       const item = this.info.schoolList.find(item => item.id === val.key)
       this.SET_CURRENT_SCHOOL(item)

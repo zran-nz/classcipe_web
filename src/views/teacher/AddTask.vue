@@ -1,6 +1,6 @@
 <template>
   <div class='my-full-form-wrapper' id='formRoot'>
-    <div class='form-header'>
+    <div class='form-header' :style="{left: collapsed ? '80px' : '256px'}">
       <common-form-header
         ref='commonFormHeader'
         :form='form'
@@ -4518,7 +4518,6 @@ export default {
 
     .card-wrapper {
       .task-form-left {
-        min-width: 720px;
         /deep/ .ant-steps-item-content {
           padding-right: 30px;
         }
@@ -5726,14 +5725,6 @@ export default {
   .select-item {
     width: 280px;
   }
-}
-
-.form-header {
-  z-index: 997;
-  position: fixed;
-  top: 64px;
-  left: 0;
-  right: 0;
 }
 
 .my-full-form-wrapper {

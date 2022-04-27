@@ -1,6 +1,6 @@
 <template>
   <div class='my-full-form-wrapper'>
-    <div class='form-header'>
+    <div class='form-header' :style="{left: collapsed ? '80px' : '256px'}">
       <common-form-header
         ref='commonFormHeader'
         :collaborate='collaborate'
