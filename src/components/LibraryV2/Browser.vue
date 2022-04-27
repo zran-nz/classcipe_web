@@ -1,6 +1,6 @@
 <template>
   <div class="library-wrapper" ref="wrapper" data-version="v2" @click="handleSearchKeyInputBlur">
-    <div class="nav-header" :style="{height: currentBrowserType === BrowserTypeMap.sdg ? '100px' : '100px'}">
+    <div class="nav-header" :style="{left: collapsed ? '80px' : '256px'}">
       <div class="header-info">
         <div class="library-nav-bar" >
           <navigation :path="navPath" @pathChange="handleNavPathChange" v-show="libraryMode === LibraryMode.browserMode"/>
@@ -62,9 +62,7 @@
       </div>
     </div>
     <div
-      class="library-detail-wrapper"
-      :style="{top: currentBrowserType === BrowserTypeMap.sdg ? '100px' : '100px',
-               height: currentBrowserType === BrowserTypeMap.sdg ? 'calc(100vh - 164px)': 'calc(100vh - 164px)'}">
+      class="library-detail-wrapper">
       <div class='library-mask' v-if='searchResultVisible && (searching || searchResultList.length)'></div>
       <div class="curriculum-filter-line">
         <div class="curriculum-select" v-excludeRole="['student']">
@@ -366,6 +364,7 @@ import { SubjectTree } from '@/api/subject'
 import { FindCustomTags } from '@/api/tag'
 const { Search, QueryContents } = require('@/api/library')
 const { debounce } = require('lodash-es')
+import { mapState } from 'vuex'
 
 const BrowserTypeMap = {
   curriculum: 'curriculum',
@@ -554,7 +553,10 @@ export default {
         width = '70vw'
       }
       return width
-    }
+    },
+    ...mapState({
+      collapsed: state => state.app.sideCollapsed
+    })
   },
   created () {
     if (this.$store.getters.currentRole === 'student') {
@@ -574,12 +576,12 @@ export default {
     this.debouncedSearchKeyFocus = debounce(this.handleSearchKeyFocus, 400)
   },
   mounted () {
-    this.blockWidth = this.$refs['wrapper'].getBoundingClientRect().width * 0.15
+    this.blockWidth = document.getElementById('app').getBoundingClientRect().width * 0.15
     this.filterHeight = document.documentElement.clientHeight - 350
     this.$logger.info('globalWidth ' + this.blockWidth)
 
     window.onresize = debounce(() => {
-      this.blockWidth = this.$refs['wrapper'].getBoundingClientRect().width * 0.15
+      this.blockWidth = document.getElementById('app').getBoundingClientRect().width * 0.15
       this.filterHeight = document.documentElement.clientHeight - 350
       this.browserMarginLeft = (this.blockIndex - 1) * this.blockWidth
     }, 300)
@@ -1042,8 +1044,8 @@ export default {
   background: rgba(247, 248, 255, 1);
   .nav-header {
     position: fixed;
-    left: 0;
-    top: 64px;
+    height: 100px;
+    top: 0;
     right: 0;
     box-sizing: border-box;
     box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.06);
@@ -1105,6 +1107,8 @@ export default {
   .library-detail-wrapper {
     position: absolute;
     width: 100%;
+    top: 100px;
+    height: calc(100vh - 100px);
     overflow: hidden;
     display: flex;
     flex-direction: row;
@@ -1159,7 +1163,7 @@ export default {
           height: calc(100vh - 190px);
           display: flex;
           flex-direction: row;
-          border: 1px solid #ddd;
+          border-left: 1px solid #ddd;
           border-top: none;
           border-bottom: none;
           border-right: none;
