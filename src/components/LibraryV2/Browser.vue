@@ -542,15 +542,15 @@ export default {
       return width
     },
     rightBrowserWidth () {
-      let width = '85vw'
+      let width = `calc(85vw - ${this.collapsed ? '80px' : '256px'})`
       if (this.expandedListFlag) {
-        width = '100vw'
+        width = `calc(100vw - ${this.collapsed ? '80px' : '256px'})`
       } else if (this.showRecommend) {
-        width = '85vw'
+        width =  `calc(85vw - ${this.collapsed ? '80px' : '256px'})`
       } else if (!this.currentBrowserType) {
-        width = '85vw'
+        width =  `calc(85vw - ${this.collapsed ? '80px' : '256px'})`
       } else if (this.currentBrowserType) {
-        width = '70vw'
+        width =  `calc(70vw - ${this.collapsed ? '80px' : '256px'})`
       }
       return width
     },
