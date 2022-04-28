@@ -2,78 +2,80 @@
   <div class="task-tip">
     <template v-if="currentTemp == tempInfo.main">
       <a-spin :tip="uploadText" :spinning="!canUpload">
-        <div class="tip-content">
-          <a-row :gutter="16">
-            <a-col :span="12">
-              <span class="span">Text Tip</span>
-              <a-textarea
-                placeholder="Insert tip for the slide"
-                :autoSize="{ minRows: 4, maxRows: 5 }"
-                v-model="tip_text"
-                @change="updateTip"
+        <div class="content">
+          <div class="tip-content">
+            <a-row :gutter="16">
+              <a-col :span="12">
+                <span class="span">Text Tip</span>
+                <a-textarea
+                  placeholder="Insert tip for the slide"
+                  :autoSize="{ minRows: 4, maxRows: 5 }"
+                  v-model="tip_text"
+                  @change="updateTip"
+                />
+              </a-col>
+            </a-row>
+
+            <a-col :span="24" class="upvideo-row">
+              <span class="span">Vedio Tip</span>
+              <upload-enter-for-tip
+                :uploadProgress="uploadProgress"
+                :choiceFileType="choiceFileType"
+                :googleOriginUrl="googleOriginUrl"
               />
             </a-col>
-            <a-col :span="12">
-              <div class="ppt-tips-item-content right-answer-content" v-if="choiceItem">
-                <span class="span">Correct Answer</span>
-                <div v-for="(item, index) in choiceItem.data.options" :key="index" class="checktext checkitem">
-                  <input
-                    type="checkbox"
-                    v-model="rightAnswers"
-                    @change="handleCheckedChange"
-                    :value="item.id"
-                    class="tipscheck"
-                  />
-                  <p class="checktextbox" :title="item.text">
-                    {{ item.text }}
-                  </p>
-                </div>
-              </div>
-            </a-col>
-          </a-row>
-
-          <a-col :span="24" class="upvideo-row">
-            <span class="span">Vedio Tip</span>
-            <upload-enter-for-tip
-              :uploadProgress="uploadProgress"
-              :choiceFileType="choiceFileType"
-              :googleOriginUrl="googleOriginUrl"
-            />
-          </a-col>
-          <a-col class="tip-row">
-            <div class="carousel-page">
-              <div class="img-list-wrapper">
-                <div class="img-list">
-                  <div class="img-item" v-for="(item, index) in videoUrlList" :key="'index' + index">
-                    <div class="img-box">
-                      <video
-                        width="340px"
-                        height="190px"
-                        :src="item.url"
-                        v-if="isVideoType(item, 'video')"
-                        preload="auto"
-                        controls
-                      ></video>
-                      <iframe
-                        width="340px"
-                        height="190px"
-                        v-if="isVideoType(item, 'iframe')"
-                        id="item_player"
-                        :src="item.url"
-                        title="YouTube video player"
-                        frameborder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;"
-                        allowfullscreen
-                      ></iframe>
-                      <div class="delete_btn" @click="deleteVideo(index)">
-                        <delete-btn class="del-icon" />
+            <a-col class="tip-row">
+              <div class="carousel-page">
+                <div class="img-list-wrapper">
+                  <div class="img-list">
+                    <div class="img-item" v-for="(item, index) in videoUrlList" :key="'index' + index">
+                      <div class="img-box">
+                        <video
+                          width="340px"
+                          height="190px"
+                          :src="item.url"
+                          v-if="isVideoType(item, 'video')"
+                          preload="auto"
+                          controls
+                        ></video>
+                        <iframe
+                          width="340px"
+                          height="190px"
+                          v-if="isVideoType(item, 'iframe')"
+                          id="item_player"
+                          :src="item.url"
+                          title="YouTube video player"
+                          frameborder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;"
+                          allowfullscreen
+                        ></iframe>
+                        <div class="delete_btn" @click="deleteVideo(index)">
+                          <delete-btn class="del-icon" />
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
+            </a-col>
+          </div>
+          <div class="answer-content">
+            <div class="ppt-tips-item-content right-answer-content" v-if="choiceItem">
+              <span class="span">Correct Answer</span>
+              <div v-for="(item, index) in choiceItem.data.options" :key="index" class="checktext checkitem">
+                <input
+                  type="checkbox"
+                  v-model="rightAnswers"
+                  @change="handleCheckedChange"
+                  :value="item.id"
+                  class="tipscheck"
+                />
+                <p class="checktextbox" :title="item.text">
+                  {{ item.text }}
+                </p>
+              </div>
             </div>
-          </a-col>
+          </div>
         </div>
       </a-spin>
     </template>
@@ -318,44 +320,53 @@ export default {
       height: 200px;
     }
   }
-  .tip-content {
+  .content {
     display: flex;
     flex-direction: column;
     height: 100%;
     width: 740px;
     padding: 10px;
-    justify-content: center;
-    .upvideo-row {
-      margin-top: 20px;
-      display: flex;
-      flex-direction: row;
+    .answer-content{
+      flex: 1;
     }
-    .tip-row {
-      margin-top: 20px;
-    }
-    .tip-img-item {
-      margin-right: 10px;
-      margin-top: 20px;
-    }
-    .tip-button {
-      text-align: center;
-      margin: 20px;
-      .btn1 {
-        margin-right: 20px;
+    .tip-content {
+      flex: 1;
+      flex-direction: column;
+      height: 100%;
+      justify-content: center;
+      .upvideo-row {
+        margin-top: 20px;
+        display: flex;
+        flex-direction: row;
       }
-      .btn {
-        background: #15c39a;
-        border-color: #15c39a;
-        font-family: Arial;
-        font-weight: bold;
-        color: #ffffff;
-        &:disabled {
-          background: #aaaaaa;
-          border-color: #aaaaaa;
+      .tip-row {
+        margin-top: 20px;
+      }
+      .tip-img-item {
+        margin-right: 10px;
+        margin-top: 20px;
+      }
+      .tip-button {
+        text-align: center;
+        margin: 20px;
+        .btn1 {
+          margin-right: 20px;
+        }
+        .btn {
+          background: #15c39a;
+          border-color: #15c39a;
+          font-family: Arial;
+          font-weight: bold;
+          color: #ffffff;
+          &:disabled {
+            background: #aaaaaa;
+            border-color: #aaaaaa;
+          }
         }
       }
     }
   }
+
   .remark-button {
     width: 32px;
     height: 32px;

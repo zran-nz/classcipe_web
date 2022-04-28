@@ -68,7 +68,6 @@
 </template>
 <script>
 import { FileRecord } from '@/api/material'
-import { videoTypes } from '../Utils/Constants'
 export default {
   props: {
     insertClasscipeFile: {

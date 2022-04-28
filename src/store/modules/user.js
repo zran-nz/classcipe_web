@@ -2,7 +2,16 @@ import storage from 'store'
 import { login, getInfo, logout, changeRole, signUp } from '@/api/login'
 import { SchoolClassGetMyClasses } from '@/api/schoolClass'
 import { StudentClasses } from '@/api/selfStudy'
-import { ACCESS_TOKEN, CURRENT_ROLE, IS_ADD_PREFERENCE, USER_INFO, ADD_PREFERENCE_SKIP_TIME, SET_CLASS_LIST, SET_CURRENT_SCHOOL } from '@/store/mutation-types'
+import {
+  ACCESS_TOKEN,
+  CURRENT_ROLE,
+  IS_ADD_PREFERENCE,
+  USER_INFO,
+  ADD_PREFERENCE_SKIP_TIME,
+  SET_CLASS_LIST,
+  SET_CURRENT_SCHOOL,
+  TOOGLE_USER_MODE
+} from '@/store/mutation-types'
 import { welcome, setCookie, delCookie } from '@/utils/util'
 import * as logger from '@/utils/logger'
 import { SESSION_ACTIVE_KEY, USER_MODE } from '@/const/common'
@@ -169,6 +178,8 @@ const user = {
             commit('SET_CURRENT_ROLE', result.currentRole)
             commit('SET_IS_ADD_PREFERENCE', result.isAddPreference)
             commit('SET_DISABLED_QUESTION', result.disableQuestion)
+            // 没有设置学校默认个人模式
+            storage.set(TOOGLE_USER_MODE, result.school ? USER_MODE.SCHOOL : USER_MODE.SELF)
             const schoolIndex = result.schoolList.findIndex(item => item.id === result.school)
             if (schoolIndex > -1) commit('SET_CURRENT_SCHOOL', result.schoolList[schoolIndex])
             storage.set(CURRENT_ROLE, result.currentRole)

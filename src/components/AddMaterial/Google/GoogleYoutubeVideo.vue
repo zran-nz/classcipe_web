@@ -78,8 +78,8 @@
 </template>
 <script>
 import * as logger from '@/utils/logger'
-import { YoutubeQueryByKeywords } from '@/api/material'
-import { addFileUploadRecord } from '@/api/material'
+import { YoutubeQueryByKeywords, addFileUploadRecord } from '@/api/material'
+
 export default {
   props: {
     nextYoutube: {

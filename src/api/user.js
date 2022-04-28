@@ -8,7 +8,7 @@ export const userAPIUrl = {
   GetShared: '/classcipe/api/collaborate/getShared',
   DeleteSharedByIdAndType: '/classcipe/api/collaborate/deleteByIdAndType',
   UserSetting: '/classcipe/sys/user/setting',
-  SwitchSchool: '/classcipe/sys/switchSchool'
+  SwitchUserModeSchool: '/classcipe/sys/switchSchool'
 }
 
 /**
@@ -92,9 +92,9 @@ export function UserSetting (parameter) {
   })
 }
 
-export function SwitchSchool (parameter) {
+export function SwitchUserModeSchool (parameter) {
   return request({
-    url: userAPIUrl.SwitchSchool,
+    url: userAPIUrl.SwitchUserModeSchool,
     method: 'post',
     data: parameter,
     headers: {
