@@ -1125,39 +1125,42 @@ export default {
         if (valid) {
           const school = this.myCreateSchoolOptions.find(item => item.id === this.adminForm.schoolId)
           const createdSchool = this.schoolOptions.find(item => item.id === this.adminForm.schoolId)
-          if (school || (createdSchool && createSchool.country !== this.adminForm.country)) {
+          // if (school || (createdSchool && createSchool.country !== this.adminForm.country)) {
+          //   this.confirmLoading = true
+          //   createSchool({
+          //     name: (school || createdSchool).name,
+          //     country: this.adminForm.country,
+          //     principleEmail: this.adminForm.email,
+          //     principleFirstname: this.adminForm.firstname,
+          //     principleLastname: this.adminForm.lastname,
+          //     curriculumId: this.userInfo.curriculumId
+          //   }).then(res => {
+          //     if (res.success) {
+          //       if (school) {
+          //         school.id = res.result.id
+          //       }
+          //       if (createdSchool) {
+          //         this.schoolOptions.push({
+          //           id: res.result.id,
+          //           name: res.result.name
+          //         })
+          //       }
+          //       this.adminForm.schoolId = res.result.id
+          //       this.adminForm.schoolName = res.result.name
+          //       QuotationAddOrUpdate(this.adminForm).then(res => {
+          //         if (res.success) {
+          //           this.$message.success('Send successfully')
+          //         }
+          //       })
+          //     }
+          //   }).finally(res => {
+          //     this.confirmLoading = false
+          //   })
+          // } else {
             this.confirmLoading = true
-            createSchool({
-              name: (school || createdSchool).name,
-              country: this.adminForm.country,
-              principleEmail: this.adminForm.email,
-              principleFirstname: this.adminForm.firstname,
-              principleLastname: this.adminForm.lastname,
-              curriculumId: this.userInfo.curriculumId
-            }).then(res => {
-              if (res.success) {
-                if (school) {
-                  school.id = res.result.id
-                }
-                if (createdSchool) {
-                  this.schoolOptions.push({
-                    id: res.result.id,
-                    name: res.result.name
-                  })
-                }
-                this.adminForm.schoolId = res.result.id
-                this.adminForm.schoolName = res.result.name
-                QuotationAddOrUpdate(this.adminForm).then(res => {
-                  if (res.success) {
-                    this.$message.success('Send successfully')
-                  }
-                })
-              }
-            }).finally(res => {
-              this.confirmLoading = false
-            })
-          } else {
-            this.confirmLoading = true
+            if (school || (createdSchool && createSchool.country !== this.adminForm.country)) {
+              this.adminForm.schoolId = null
+            }
             QuotationAddOrUpdate(this.adminForm).then(res => {
               if (res.success) {
                 this.$message.success('Send successfully')
@@ -1165,7 +1168,7 @@ export default {
             }).finally(res => {
               this.confirmLoading = false
             })
-          }
+          // }
         }
       })
     },

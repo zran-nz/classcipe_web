@@ -45,6 +45,7 @@ import {
   Cascader,
   message,
   Progress,
+  Pagination,
   notification, Switch, Rate, Collapse, DatePicker, Mentions, AutoComplete
 } from 'ant-design-vue'
 import Viser from 'viser-vue'
@@ -66,6 +67,7 @@ import CollapsePanel from 'ant-design-vue/lib/collapse/CollapsePanel'
 //
 import * as classcipe from '@/utils/classcipe'
 
+Vue.use(Pagination)
 Vue.use(Rate)
 Vue.use(Collapse)
 Vue.use(CollapsePanel)

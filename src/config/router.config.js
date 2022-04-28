@@ -40,56 +40,28 @@ export const asyncRouterMap = [
         meta: { title: 'menu.main', keepAlive: true, icon: bxAnaalyse, permission: ['teacher'] },
         children: [
           {
-            path: '/teacher/main',
-            name: 'TeacherMain',
-            redirect: '/teacher/main/created-by-me',
-            component: () => import('@/views/teacher/Main'),
-            meta: { title: 'menu.main', keepAlive: true, permission: ['teacher'] },
-            children: [
-              {
-                path: '/teacher/main/created-by-me',
-                name: 'CreatedByMe',
-                component: () => import('@/views/teacher/CreatedByMe'),
-                meta: { title: 'menu.my-content', keepAlive: true, permission: ['teacher'], icon: CreatedByMeSvg }
-              },
-              {
-                path: '/teacher/main/my-favorite',
-                name: 'MyFavorite',
-                component: () => import('@/views/teacher/MyFavorite'),
-                meta: { title: 'menu.my-favorite', keepAlive: true, permission: ['teacher'], icon: DiscoverSvg }
-              },
-              // {
-              //   path: '/teacher/main/my-classes/:classId',
-              //   name: 'MyClassesTeacher',
-              //   props: true,
-              //   component: () => import('@/views/teacher/MyClasses'),
-              //   meta: { title: 'menu.my-classes', keepAlive: true, permission: ['teacher'], icon: 'contacts', dynamicKey: 'currentClassList' }
-              // },
-              {
-                path: '/teacher/main/shared',
-                name: 'Shared',
-                component: () => import('@/views/teacher/Shared'),
-                meta: { title: 'menu.shared', keepAlive: true, permission: ['teacher'], hidden: true }
-              },
-              {
-                path: '/teacher/main/discover',
-                name: 'Discover',
-                component: () => import('@/views/teacher/Discover'),
-                meta: { title: 'menu.discover', keepAlive: true, permission: ['teacher'], hidden: true }
-              },
-              {
-                path: '/teacher/main/subscribes',
-                name: 'Subscribes',
-                component: () => import('@/views/teacher/Subscribes'),
-                meta: { title: 'menu.subscribes', keepAlive: true, permission: ['teacher'], hidden: true }
-              },
-              {
-                path: '/teacher/main/popular',
-                name: 'Popular',
-                component: () => import('@/views/teacher/Popular'),
-                meta: { title: 'menu.popular', keepAlive: true, permission: ['teacher'], hidden: true }
-              }
-            ]
+            path: '/teacher/main/created-by-me',
+            name: 'CreatedByMe',
+            component: () => import('@/views/teacher/CreatedByMeV2'),
+            meta: { title: 'menu.my-content', keepAlive: true, permission: ['teacher'], icon: CreatedByMeSvg }
+          },
+          {
+            path: '/teacher/main/my-published',
+            name: 'MyPublished',
+            component: () => import('@/views/teacher/MyPublished'),
+            meta: { title: 'menu.my-published', keepAlive: true, permission: ['teacher'] }
+          },
+          {
+            path: '/teacher/main/my-favorite',
+            name: 'MyFavorite',
+            component: () => import('@/views/teacher/MyFavoriteV2'),
+            meta: { title: 'menu.my-favorite', keepAlive: true, permission: ['teacher'], icon: DiscoverSvg }
+          },
+          {
+            path: '/teacher/main/shared',
+            name: 'Shared',
+            component: () => import('@/views/teacher/Shared'),
+            meta: { title: 'menu.shared', keepAlive: true, permission: ['teacher'], hidden: true }
           },
           {
             path: '/teacher/library/:browserType?/',
@@ -250,38 +222,32 @@ export const asyncRouterMap = [
             meta: { title: 'menu.task', keepAlive: true, permission: ['teacher'] }
           },
           {
-            path: '/teacher/add-evaluation/:evaluationId?/:mode?',
-            name: 'AddEvaluation',
+            path: '/teacher/pd-content-redirect/:pdId',
+            name: 'PDContentRedirect',
             props: true,
-            component: () => import('@/views/teacher/AddEvaluation'),
-            meta: { title: 'menu.evaluation', keepAlive: true, permission: ['teacher'] }
+            component: () => import('@/views/teacher/PDContentRedirect'),
+            meta: { title: 'menu.pd', keepAlive: true, permission: ['teacher'] }
           },
           {
-            path: '/teacher/evaluation-redirect/:evaluationId?',
-            name: 'EvaluationRedirect',
+            path: '/teacher/pd-content/:pdId',
+            name: 'AddPD',
             props: true,
-            component: () => import('@/views/teacher/EvaluationRedirect'),
-            meta: { title: 'menu.evaluation', keepAlive: true, permission: ['teacher'] }
+            component: () => import('@/views/teacher/AddPD'),
+            meta: { title: 'menu.pd', keepAlive: true, permission: ['teacher'] }
           },
           {
-            path: '/teacher/topics-from-experts',
-            name: 'TopicsFromExperts',
-            component: () => import('@/views/teacher/TopicsFromExperts'),
-            meta: { title: 'menu.topics-from-experts', keepAlive: true, permission: ['teacher'] }
+            path: '/teacher/video-redirect/:videoId',
+            name: 'VideoRedirect',
+            props: true,
+            component: () => import('@/views/teacher/VideoRedirect'),
+            meta: { title: 'menu.pd', keepAlive: true, permission: ['teacher'] }
           },
           {
-            path: '/teacher/add-lesson/:lessonId?',
-            name: 'AddLesson',
+            path: '/teacher/video/:videoId',
+            name: 'AddVideo',
             props: true,
-            component: () => import('@/views/teacher/AddLesson'),
-            meta: { title: 'menu.lessons', keepAlive: true, permission: ['teacher'] }
-          },
-          {
-            path: '/teacher/lesson-redirect/:lessonId?',
-            name: 'LessonRedirect',
-            props: true,
-            component: () => import('@/views/teacher/LessonRedirect'),
-            meta: { title: 'menu.lessons', keepAlive: true, permission: ['teacher'] }
+            component: () => import('@/views/teacher/AddVideo'),
+            meta: { title: 'menu.pd', keepAlive: true, permission: ['teacher'] }
           },
           {
             path: '/teacher/unit-plan/:unitPlanId',
@@ -311,84 +277,6 @@ export const asyncRouterMap = [
             component: () => import('@/views/teacher/ClassSessionEvaluation'),
             meta: { title: 'Session evaluate', keepAlive: true, permission: ['teacher'] }
           }
-          // {
-          //   path: '/teacher/unit-plan-material-redirect/:unitPlanId/:materialId',
-          //   name: 'MaterialRedirect',
-          //   props: true,
-          //   component: () => import('@/views/teacher/MaterialRedirect'),
-          //   meta: { title: 'menu.teacher.material', keepAlive: true, permission: ['teacher'] }
-          // },
-          // {
-          //   path: '/teacher/unit-plan-material/:unitPlanId/:materialId',
-          //   props: true,
-          //   name: 'UnitPlanMaterial',
-          //   component: () => import('@/views/teacher/AddUnitPlanMaterial'),
-          //   meta: { title: 'menu.teacher.unit-plan-material', keepAlive: true, permission: ['teacher'] }
-          // },
-          // {
-          //   path: '/teacher/buy',
-          //   name: 'TeacherBuyMain',
-          //   redirect: '/teacher/buy/purchases',
-          //   component: RouteView, // () => import('@/views/teacher/OrderMain'),
-          //   meta: { title: 'menu.buy', keepAlive: true, permission: ['teacher'], fullLayout: true },
-          //   children: [
-          //     {
-          //       path: '/teacher/buy/purchases',
-          //       name: 'TeacherBuyPurchases',
-          //       component: () => import('@/views/teacher/buy/Purchases'),
-          //       meta: { title: 'menu.buy.purchase', keepAlive: true, icon: 'money-collect', permission: ['teacher'] }
-          //     }
-          //   ]
-          // },
-          // {
-          //   path: '/teacher/sell',
-          //   name: 'TeacherSellMain',
-          //   redirect: '/teacher/sell/dashboard',
-          //   component: RouteView, // () => import('@/views/teacher/OrderMain'),
-          //   meta: { title: 'menu.sell', keepAlive: true, permission: ['teacher'], fullLayout: true },
-          //   children: [
-          //     {
-          //       path: '/teacher/sell/dashboard',
-          //       name: 'TeacherSellDashboard',
-          //       component: () => import('@/views/teacher/sell/Dashboard'),
-          //       meta: { title: 'menu.sell.dashboard', keepAlive: true, icon: 'money-collect', permission: ['teacher'] }
-          //     },
-          //     {
-          //       path: '/teacher/sell/inspiration-teacher',
-          //       name: 'TeacherSellInspirationTeacher',
-          //       component: () => import('@/views/teacher/sell/InspirationTeacher'),
-          //       meta: {
-          //         title: 'menu.sell.inspiration-teacher',
-          //         keepAlive: true,
-          //         icon: 'pay-circle',
-          //         permission: ['teacher']
-          //       }
-          //     },
-          //     {
-          //       path: '/teacher/sell/inspiration-student',
-          //       name: 'TeacherSellInspirationStudent',
-          //       component: () => import('@/views/teacher/sell/InspirationStudent'),
-          //       meta: {
-          //         title: 'menu.sell.inspiration-student',
-          //         keepAlive: true,
-          //         icon: 'pay-circle',
-          //         permission: ['teacher']
-          //       }
-          //     },
-          //     {
-          //       path: '/teacher/sell/statistics',
-          //       name: 'TeacherSellStatistics',
-          //       component: () => import('@/views/teacher/sell/Statistics'),
-          //       meta: { title: 'menu.sell.statistics', keepAlive: true, icon: 'pay-circle', permission: ['teacher'] }
-          //     }
-          //     // {
-          //     //   path: '/teacher/sell/followers',
-          //     //   name: 'TeacherSellFollowers',
-          //     //   component: () => import('@/views/teacher/sell/Followers'),
-          //     //   meta: { title: 'menu.sell.followers', keepAlive: true, icon: 'pay-circle', permission: ['teacher'] }
-          //     // }
-          //   ]
-          // }
         ]
       },
 

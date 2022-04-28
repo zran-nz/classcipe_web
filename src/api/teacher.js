@@ -1,12 +1,8 @@
 import request from '@/utils/request'
 import { typeMap } from '@/const/teacher'
-import { TopicDelete } from '@/api/topic'
-import { MaterialDelete } from '@/api/material'
 import { UnitPlanDelete } from '@/api/unitPlan'
 import { TaskDelete } from '@/api/task'
 import * as logger from '@/utils/logger'
-import { EvaluationDelete } from '@/api/evaluation'
-import { LessonDelete } from '@/api/myLesson'
 
 export const teacherAPIUrl = {
   Associate: '/classcipe/api/teacher/associate',
@@ -97,22 +93,14 @@ export function GetMyGrades () {
  * @param data
  * @constructor
  */
-export function deleteMyContentByType (data) {
+export function DeleteMyContentByType (data) {
   const MyContentType = data.type
   const id = data.id
   switch (MyContentType) {
-    case typeMap.topic:
-      return TopicDelete({ id })
     case typeMap['unit-plan']:
       return UnitPlanDelete({ id })
-    case typeMap.material:
-      return MaterialDelete({ id })
     case typeMap.task:
       return TaskDelete({ id })
-    case typeMap.lesson:
-      return LessonDelete({ id })
-    case typeMap.evaluation:
-      return EvaluationDelete({ id })
     default:
       logger.error('wrong delete type ' + MyContentType + ' id: ' + id)
       break

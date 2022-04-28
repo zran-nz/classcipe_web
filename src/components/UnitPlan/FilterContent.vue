@@ -273,8 +273,9 @@ export default {
     right: -5px;
     cursor: pointer;
     z-index: 100;
+    background: #fafafa;
     &:hover {
-      background: rgba(228, 228, 228, 0.5);
+      background: #f1f1f1;
     }
   }
   .filter-item {

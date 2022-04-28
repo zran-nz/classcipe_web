@@ -25,6 +25,7 @@ export default {
     'menu.managing.curriculum': 'Curriculum',
     'menu.managing.school-info': 'School Info',
     'menu.my-content': 'MyContent',
+    'menu.my-published': 'Published',
     'menu.my-favorite': 'My Favorite',
     'menu.my-orders': 'My Orders',
     'menu.my-schedule': 'Time & Table',
@@ -93,5 +94,7 @@ export default {
     'menu.sell.inspiration-teacher': 'Inspiration for teachers',
     'menu.sell.inspiration-student': 'Inspiration for students',
     'menu.sell.statistics': 'My statistics',
-    'menu.sell.followers': 'My followers'
+    'menu.sell.followers': 'My followers',
+    'menu.pd': 'PD Content',
+    'menu.video': 'Video'
 }

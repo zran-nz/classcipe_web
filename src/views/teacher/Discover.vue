@@ -15,12 +15,6 @@
                 v-show="$store.getters.currentRole === 'teacher'">
                 <span>{{ $t('teacher.my-content.all-type') }}</span>
               </a-menu-item>
-              <a-menu-item @click="toggleType('topic', $t('teacher.my-content.topics-type') )">
-                <span>{{ $t('teacher.my-content.topics-type') }}</span>
-              </a-menu-item>
-              <!--                <a-menu-item @click="toggleType('material', $t('teacher.my-content.materials-type'))">
-                <span>{{ $t('teacher.my-content.materials-type') }}</span>
-              </a-menu-item>-->
               <a-menu-item
                 @click="toggleType('unit-plan', $t('teacher.my-content.unit-plan-type'))"
                 v-show="$store.getters.currentRole === 'teacher'">
@@ -29,11 +23,6 @@
               <a-menu-item @click="toggleType('task', $t('teacher.my-content.tasks-type') )">
                 <span>{{ $t('teacher.my-content.tasks-type') }}</span>
               </a-menu-item>
-              <!--              <a-menu-item
-                @click="toggleType('lesson', $t('teacher.my-content.lesson-type'))"
-                v-show="$store.getters.currentRole === 'teacher'">
-                <span>{{ $t('teacher.my-content.lesson-type') }}</span>
-              </a-menu-item>-->
               <a-menu-item
                 @click="toggleType('evaluation', $t('teacher.my-content.evaluation-type'))"
                 v-show="$store.getters.currentRole === 'teacher'">
@@ -285,21 +274,9 @@
           this.$router.push({
             path: '/teacher/unit-plan-redirect/' + item.id
           })
-        } else if (item.type === typeMap['topic']) {
-          this.$router.push({
-            path: '/expert/topic-redirect/' + item.id
-          })
-        } else if (item.type === typeMap['material']) {
-          this.$router.push({
-            path: '/teacher/add-material/' + item.id
-          })
         } else if (item.type === typeMap.task) {
           this.$router.push({
             path: '/teacher/task-redirect/' + item.id
-          })
-        } else if (item.type === typeMap.lesson) {
-          this.$router.push({
-            path: '/teacher/lesson-redirect/' + item.id
           })
         } else if (item.type === typeMap.evaluation) {
           this.$router.push({

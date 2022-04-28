@@ -416,8 +416,7 @@ ol {
 .form-header {
   z-index: 999;
   position: fixed;
-  top: 64px;
-  left: 0;
+  top: 0;
   right: 0;
   height: 74px;
   transition: all 0.3s ease-in-out;
@@ -988,4 +987,37 @@ button.wide-action-button.ant-btn {
       background: #fff;
     }
   }
+}
+
+// 新版样式
+.ant-layout-header {
+  display: none;
+}
+
+.ant-layout-footer {
+  display: none;
+}
+
+.content-item-more-action {
+  background: #fff;
+  padding: 5px 10px;
+  .menu-item {
+    margin: 10px 0;
+  }
+  background-clip: padding-box;
+  border-radius: 4px;
+  outline: none;
+  box-shadow: 0 2px 8px rgba(0,0,0, 0.15);
+
+  .self-learning {
+    font-size: 14px;
+    color: @text-color-secondary;
+  }
+}
+
+.modal-action-right {
+  padding: 10px 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }

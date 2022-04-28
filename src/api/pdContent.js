@@ -1,11 +1,11 @@
 import request from '@/utils/request'
 
-export const topicAPIUrl = {
-  TopicAddOrUpdate: '/classcipe/api/topic/addOrUpdate',
-  TopicQueryById: '/classcipe/api/topic/queryById',
-  TopicDelete: '/classcipe/api/topic/delete',
-  TopicDeleteBatch: '/classcipe/api/topic/deleteBatch',
-  TopicList: '/classcipe/api/topic/list'
+export const pdContentAPIUrl = {
+  PDContentAddOrUpdate: '/classcipe/api/pdContent/addOrUpdate',
+  PDContentQueryById: '/classcipe/api/pdContent/queryById',
+  PDContentDelete: '/classcipe/api/pdContent/delete',
+  PDContentDeleteBatch: '/classcipe/api/pdContent/deleteBatch',
+  PDContentList: '/classcipe/api/pdContent/list'
 }
 
 /**
@@ -13,9 +13,9 @@ export const topicAPIUrl = {
  * @returns {AxiosPromise}
  * @constructor
  */
-export function TopicAddOrUpdate (parameter) {
+export function PDContentAddOrUpdate (parameter) {
   return request({
-    url: topicAPIUrl.TopicAddOrUpdate,
+    url: pdContentAPIUrl.PDContentAddOrUpdate,
     method: 'post',
     data: parameter,
     headers: {
@@ -29,9 +29,9 @@ export function TopicAddOrUpdate (parameter) {
  * @returns {AxiosPromise}
  * @constructor
  */
-export function TopicQueryById (parameter) {
+export function PDContentQueryById (parameter) {
   return request({
-    url: topicAPIUrl.TopicQueryById,
+    url: pdContentAPIUrl.PDContentQueryById,
     method: 'get',
     params: parameter
   })
@@ -42,9 +42,9 @@ export function TopicQueryById (parameter) {
  * @returns {AxiosPromise}
  * @constructor
  */
-export function TopicDelete (parameter) {
+export function PDContentDelete (parameter) {
   return request({
-    url: topicAPIUrl.TopicDelete,
+    url: pdContentAPIUrl.PDContentDelete,
     method: 'post',
     data: parameter,
     headers: {
@@ -58,9 +58,9 @@ export function TopicDelete (parameter) {
  * @returns {AxiosPromise}
  * @constructor
  */
-export function TopicDeleteBatch (parameter) {
+export function PDContentDeleteBatch (parameter) {
   return request({
-    url: topicAPIUrl.TopicDeleteBatch,
+    url: pdContentAPIUrl.PDContentDeleteBatch,
     method: 'post',
     data: parameter,
     headers: {
@@ -74,9 +74,9 @@ export function TopicDeleteBatch (parameter) {
  * @returns {AxiosPromise}
  * @constructor
  */
-export function TopicList (parameter) {
+export function PDContentList (parameter) {
   return request({
-    url: topicAPIUrl.TopicList,
+    url: pdContentAPIUrl.PDContentList,
     method: 'get',
     params: parameter
   })

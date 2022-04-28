@@ -13,26 +13,29 @@
           我们推荐使用这种方式进行 LOGO 和 title 自定义
     -->
     <template v-slot:menuHeaderRender>
-      <div class="home-nav" @click="goHome">
-        <img src="~@/assets/logo/logo.png">
-        <h1>{{ title }}</h1>
+      <div class="home-nav">
+        <div class='home-logo'>
+          <img src="~@/assets/logo/logo.png" alt='classcipe' @click="goHome">
+          <h1 @click="goHome">{{ title }}</h1>
+        </div>
+        <span class='collapse-icon' @click.stop.prevent='handleMenuCollapse'>
+          <a-icon type="menu-fold" />
+        </span>
       </div>
     </template>
     <!-- 1.0.0+ 版本 pro-layout 提供 API,
           增加 Header 左侧内容区自定义
     -->
     <template v-slot:menuRender>
-      <expert-nav v-show="$store.getters.currentRole === 'expert'"></expert-nav>
-      <teacher-nav v-show="$store.getters.currentRole === 'teacher'"></teacher-nav>
+      <teacher-nav-v2 v-show="$store.getters.currentRole === 'teacher'"></teacher-nav-v2>
       <student-nav v-show="$store.getters.currentRole === 'student'"></student-nav>
     </template>
-    <template v-slot:rightContentRender>
-      <right-content :top-menu="settings.layout === 'topmenu'" :is-mobile="isMobile" :theme="settings.theme" @switch-role="handleSwitchRole" />
-    </template>
+
     <!-- custom footer / 自定义Footer -->
-    <template v-slot:footerRender v-if='showFooter'>
-      <global-footer />
-    </template>
+    <!--    <template v-slot:footerRender v-if='showFooter'>-->
+    <!--      <global-footer />-->
+    <!--    </template>-->
+    <!-- 主页面内容 -->
     <div :class="{'classcipe-main': true, 'no-full-layout': !fullLayoutFlag}">
       <router-view />
     </div>
@@ -42,15 +45,14 @@
 <script>
 import { i18nRender } from '@/locales'
 import { mapState } from 'vuex'
-import { CONTENT_WIDTH_TYPE } from '@/store/mutation-types'
+import { CONTENT_WIDTH_TYPE, SIDEBAR_TYPE } from '@/store/mutation-types'
 
 import defaultSettings from '@/config/defaultSettings'
 import RightContent from '@/components/GlobalHeader/RightContent'
 import GlobalFooter from '@/components/GlobalFooter'
 import * as logger from '@/utils/logger'
 
-import TeacherNav from '@/components/GlobalHeader/TeacherNav'
-import ExpertNav from '@/components/GlobalHeader/ExpertNav'
+import TeacherNavV2 from '@/components/GlobalHeader/TeacherNavV2'
 import StudentNav from '@/components/GlobalHeader/StudentNav'
 
 export default {
@@ -59,8 +61,7 @@ export default {
     StudentNav,
     RightContent,
     GlobalFooter,
-    TeacherNav,
-    ExpertNav
+    TeacherNavV2
   },
   data () {
     return {
@@ -71,7 +72,6 @@ export default {
       // base
       menus: [],
       // 侧栏收起状态
-      collapsed: false,
       title: defaultSettings.title,
       settings: {
         // 布局类型
@@ -116,33 +116,24 @@ export default {
   computed: {
     ...mapState({
       // 动态主路由
-      mainMenu: state => state.permission.addRouters
+      mainMenu: state => state.permission.addRouters,
+      collapsed: state => state.app.sideCollapsed
     }),
     fullLayoutFlag () {
       return this.$route.meta.fullLayout
-    },
-    showFooter () {
-      return !this.$route.meta.hiddenFooter
     }
   },
   created () {
     logger.info('BasicLayout created, path ' + this.$route.path)
+    const routes = this.mainMenu.find(item => item.path === '/')
+    this.menus = (routes && routes.children) || []
+    this.$logger.info('menus -> ', this.menus)
     if (this.$route.path === '/') {
       logger.info('go to defaultRouter ' + this.$store.getters.defaultRouter)
       this.$router.replace(this.$store.getters.defaultRouter)
     }
   },
   mounted () {
-    const userAgent = navigator.userAgent
-    if (userAgent.indexOf('Edge') > -1) {
-      this.$nextTick(() => {
-        this.collapsed = !this.collapsed
-        setTimeout(() => {
-          this.collapsed = !this.collapsed
-        }, 16)
-      })
-    }
-
     this.headerDom = []
     this.headerDom = document.getElementsByTagName('header')
 
@@ -155,12 +146,6 @@ export default {
     }
 
     this.$logger.info('fullLayoutFlag', this.fullLayoutFlag)
-
-    // first update color
-    // TIPS: THEME COLOR HANDLER!! PLEASE CHECK THAT!!
-    // if (process.env.NODE_ENV !== 'production' || process.env.VUE_APP_PREVIEW === 'true') {
-    //   updateTheme(this.settings.primaryColor)
-    // }
   },
   methods: {
     i18nRender,
@@ -179,18 +164,19 @@ export default {
     handleMediaQuery (val) {
       this.query = val
       if (this.isMobile && !val['screen-xs']) {
-        this.isMobile = false
+        this.$store.commit(SIDEBAR_TYPE, false)
         return
       }
       if (!this.isMobile && val['screen-xs']) {
         this.isMobile = true
-        this.collapsed = false
+        this.$store.commit(SIDEBAR_TYPE, false)
         this.settings.contentWidth = CONTENT_WIDTH_TYPE.Fluid
         // this.settings.fixSiderbar = false
       }
     },
     handleCollapse (val) {
-      this.collapsed = val
+      this.$logger.info('handleCollapse ' + val)
+      this.$store.commit(SIDEBAR_TYPE, val)
     },
     handleSettingChange ({ type, value }) {
       console.log('type', type, value)
@@ -219,6 +205,11 @@ export default {
         domItem.style.opacity = visible ? 1 : 0
         domItem.style['pointer-events'] = visible ? 'auto' : 'none'
       })
+    },
+
+    handleMenuCollapse () {
+      this.$logger.info('handleMenuCollapse ' + this.collapsed)
+      this.$store.commit(SIDEBAR_TYPE, !this.collapsed)
     }
   }
 }
@@ -227,6 +218,9 @@ export default {
 <style lang='less'>
 @import "./BasicLayout.less";
   .home-nav {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
     h1 {
       font-family: Inter-Bold;
     }
@@ -287,6 +281,20 @@ export default {
       color: #fff;
     }
   }
+}
+
+.collapse-icon {
+  padding-right: 10px;
+  color: @text-color-secondary-dark;
+
+  &:hover {
+    color: @primary-color;
+  }
+}
+
+.ant-pro-sider-menu-logo svg {
+  width: 20px;
+  height: 20px;
 }
 
 </style>

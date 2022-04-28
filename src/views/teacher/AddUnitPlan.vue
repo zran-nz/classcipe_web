@@ -1,6 +1,6 @@
 <template>
   <div class='my-full-form-wrapper'>
-    <div class='form-header'>
+    <div class='form-header' :style="{left: collapsed ? '80px' : '256px'}">
       <common-form-header
         ref='commonFormHeader'
         :collaborate='collaborate'
@@ -759,7 +759,7 @@
         <div class='link-content-wrapper'>
           <my-content-selector
             :current-id='unitPlanId'
-            :filter-type-list="['unit-plan', 'topic']"
+            :filter-type-list="['unit-plan']"
             :mode='DisplayMode.Refer' />
         </div>
       </a-modal>
@@ -1011,7 +1011,6 @@ import SkillTag from '@/components/UnitPlan/SkillTag'
 import { UnitPlanAddOrUpdate, UnitPlanQueryById } from '@/api/unitPlan'
 import { formatLocalUTC } from '@/utils/util'
 import MyContentSelector from '@/components/MyContent/MyContentSelector'
-import AssociateSidebar from '@/components/Associate/AssociateSidebar'
 import { TaskAddOrUpdate } from '@/api/task'
 import { LessonAddOrUpdate } from '@/api/myLesson'
 import { EvaluationAddOrUpdate } from '@/api/evaluation'
@@ -1077,7 +1076,6 @@ export default {
     NewClickableSkillTag,
     SkillTag,
     MyContentSelector,
-    AssociateSidebar,
     CustomTag,
     RelevantTagSelector,
     AddKeywordTag,

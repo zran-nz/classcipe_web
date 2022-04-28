@@ -161,7 +161,8 @@ export const BaseEventMixin = {
     ...mapState({
       needRefreshCollaborate: state => state.websocket.needRefreshCollaborate,
       removedCollaborate: state => state.websocket.removedCollaborate,
-      changeCollaborate: state => state.websocket.changeCollaborate
+      changeCollaborate: state => state.websocket.changeCollaborate,
+      collapsed: state => state.app.sideCollapsed
     })
   },
   methods: {

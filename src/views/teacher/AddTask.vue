@@ -1,6 +1,6 @@
 <template>
   <div class='my-full-form-wrapper' id='formRoot'>
-    <div class='form-header'>
+    <div class='form-header' :style="{left: collapsed ? '80px' : '256px'}">
       <common-form-header
         ref='commonFormHeader'
         :form='form'
@@ -1913,7 +1913,6 @@ import { TemplateTypeMap } from '@/const/template'
 import TaskForm from '@/components/Task/TaskForm'
 import TaskPreview from '@/components/Task/TaskPreview'
 import Collaborate from '@/components/UnitPlan/Collaborate'
-import AssociateSidebar from '@/components/Associate/AssociateSidebar'
 import CustomTag from '@/components/UnitPlan/CustomTag'
 import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
 import CollaborateUserList from '@/components/Collaborate/CollaborateUserList'
@@ -1994,7 +1993,6 @@ export default {
     MyContentSelector,
     RelevantTagSelector,
     Collaborate,
-    AssociateSidebar,
     CollaborateUserList,
     CustomTag,
     commentIcon,
@@ -4518,7 +4516,6 @@ export default {
 
     .card-wrapper {
       .task-form-left {
-        min-width: 720px;
         /deep/ .ant-steps-item-content {
           padding-right: 30px;
         }
@@ -5728,16 +5725,8 @@ export default {
   }
 }
 
-.form-header {
-  z-index: 997;
-  position: fixed;
-  top: 64px;
-  left: 0;
-  right: 0;
-}
-
 .my-full-form-wrapper {
-  margin-top: 70px;
+  margin-top: 90px;
 }
 
 .my-slide-pick-modal {

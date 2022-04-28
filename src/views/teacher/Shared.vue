@@ -677,21 +677,9 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
           this.$router.push({
             path: '/teacher/unit-plan-redirect/' + item.id
           })
-        } else if (item.type === typeMap['topic']) {
-          this.$router.push({
-            path: '/expert/topic-redirect/' + item.id
-          })
-        } else if (item.type === typeMap['material']) {
-          this.$router.push({
-            path: '/teacher/add-material/' + item.id
-          })
         } else if (item.type === typeMap.task) {
           this.$router.push({
             path: '/teacher/task-redirect/' + item.id
-          })
-        } else if (item.type === typeMap.lesson) {
-          this.$router.push({
-            path: '/teacher/lesson-redirect/' + item.id
           })
         } else if (item.type === typeMap.evaluation) {
           this.$router.push({

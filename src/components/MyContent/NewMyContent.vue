@@ -3,13 +3,6 @@
     <div class="display-type-toggle" v-if="showTabs">
       <div
         :class="{'display-type-item': true,
-                 'active-display-type': currentType === typeMap.topic}"
-        v-if="filterTypeList.indexOf(typeMap.topic) !== -1"
-        @click="handleToggleDisplayType(typeMap.topic)">
-        {{ $t('teacher.my-content.topics-type') }}
-      </div>
-      <div
-        :class="{'display-type-item': true,
                  'active-display-type': currentType === typeMap['unit-plan']}"
         v-if="filterTypeList.indexOf(typeMap['unit-plan']) !== -1"
         @click="handleToggleDisplayType(typeMap['unit-plan'])">
@@ -304,7 +297,6 @@ import ListModeIcon from '@/assets/icons/library/liebiao .svg?inline'
 import { EvaluationAddOrUpdate } from '@/api/evaluation'
 import { TaskAddOrUpdate } from '@/api/task'
 import { UnitPlanAddOrUpdate } from '@/api/unitPlan'
-import { TopicAddOrUpdate } from '@/api/topic'
 import CommonPreviewNoLink from '@/components/Common/CommonPreviewNoLink'
 
 export default {
@@ -636,15 +628,6 @@ export default {
         }).finally(() => {
           this.createLoading = false
         })
-      } else if (this.currentType === this.typeMap.topic) {
-        TopicAddOrUpdate({
-          name: this.createNewName
-        }).then((response) => {
-          this.$logger.info('TopicAddOrUpdate response', response)
-          this.loadMyContent()
-        }).finally(() => {
-          this.createLoading = false
-        })
       }
     },
 
@@ -709,17 +692,8 @@ export default {
       if (item.type === typeMap['unit-plan']) {
         window.open('/teacher/unit-plan-redirect/' + item.id
           , '_blank')
-      } else if (item.type === typeMap['topic']) {
-        window.open('/expert/topic-redirect/' + item.id
-          , '_blank')
-      } else if (item.type === typeMap['material']) {
-        window.open('/teacher/add-material/' + item.id
-          , '_blank')
       } else if (item.type === typeMap.task) {
         window.open('/teacher/task-redirect/' + item.id
-          , '_blank')
-      } else if (item.type === typeMap.lesson) {
-        window.open('/teacher/lesson-redirect/' + item.id
           , '_blank')
       } else if (item.type === typeMap.evaluation) {
         window.open('/teacher/evaluation-redirect/' + item.id
