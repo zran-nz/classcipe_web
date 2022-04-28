@@ -24,7 +24,7 @@
     <div class='content-wrapper'>
       <a-spin tip='Loading...' :spinning="loading">
         <div class='content-list'>
-          <content-item v-for='item in myContentList' :key='item.id' :content='item' @delete='handleDeleteItem' @update-publish='handleUpdatePublish'></content-item>
+          <content-item v-for='item in myContentList' :key='item.id' :content='item' @delete='handleDeleteItem' @update-publish='handleShowContentPublish'></content-item>
         </div>
       </a-spin>
       <div class='pagination'>
@@ -37,6 +37,8 @@
           show-less-items />
       </div>
     </div>
+
+    <content-publish v-if='contentPublishVisible' :content='currentContent' @publish='handleUpdatePublish' @close='handleCancelPublish' />
   </div>
 </template>
 
@@ -45,14 +47,15 @@ import CreateNew from '@/components/MyContentV2/CreateNew'
 import { SourceType } from '@/components/MyContentV2/Constant'
 import ContentFilter from '@/components/MyContentV2/ContentFilter'
 import { ownerMap } from '@/const/teacher'
-import { FindMyContent } from '@/api/teacher'
+import { FindMyContent, UpdateContentStatus } from '@/api/teacher'
 import * as logger from '@/utils/logger'
 import { SESSION_CURRENT_PAGE } from '@/const/common'
 import ContentItem from '@/components/MyContentV2/ContentItem'
+import ContentPublish from '@/components/MyContentV2/ContentPublish'
 
 export default {
   name: 'CreatedByMeV2',
-  components: { ContentItem, ContentFilter, CreateNew },
+  components: { ContentPublish, ContentItem, ContentFilter, CreateNew },
   data () {
     return {
       sourceType: SourceType.CreatedByMe,
@@ -73,7 +76,10 @@ export default {
       pageNo: sessionStorage.getItem(SESSION_CURRENT_PAGE) ? parseInt(sessionStorage.getItem(SESSION_CURRENT_PAGE)) : 1,
 
       searchText: '',
-      filterParams: {}
+      filterParams: {},
+
+      contentPublishVisible: true,
+      currentContent: null
     }
   },
   created() {
@@ -133,19 +139,49 @@ export default {
       }
     },
 
+    handleShowContentPublish(data) {
+      this.$logger.info('handleShowContentPublish', data)
+      this.currentContent = data.content
+      if (data.content.status === 1) {
+        // 取消发布直接更新
+        this.handleUpdatePublish(data)
+      } else {
+        // 发布显示对于的关联发布内容
+        this.contentPublishVisible = true
+      }
+    },
+
     handleUpdatePublish (data) {
       this.$logger.info('handleUpdatePublish', data)
       const index = this.myContentList.findIndex(item => item.id === data.content.id)
       if (index !== -1) {
-        this.myContentList[index].status = data.status
-        if (data.status) {
-          this.$message.success('Publish successfully!')
-        } else {
-          this.$message.success('UnPublish successfully!')
-        }
+        const targetStatus = data.content.status ? 0 : 1
+        UpdateContentStatus({
+          id: data.content.id,
+          status: targetStatus,
+          type: data.content.type
+        }).then((res) => {
+          this.$logger.info('handlePublishStatus res', res)
+          this.myContentList[index].status = targetStatus
+          if (targetStatus) {
+            this.$message.success('Publish successfully!')
+          } else {
+            this.$message.success('UnPublish successfully!')
+          }
+        }).finally(() => {
+          this.contentPublishVisible = false
+          this.currentContent = null
+        })
       } else {
         this.$logger.warn(`no found Update item ${data.content.id}`)
+        this.contentPublishVisible = false
+        this.currentContent = null
       }
+    },
+
+    handleCancelPublish () {
+      this.contentPublishVisible = false
+      this.currentContent = null
     }
   }
 }

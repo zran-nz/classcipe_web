@@ -102,17 +102,8 @@ export default {
     },
 
     handlePublishStatus () {
-      const status = this.status ? 0 : 1
-      UpdateContentStatus({
-        id: this.content.id,
-        status: status,
-        type: this.content.type
-      }).then((res) => {
-        this.$logger.info('handlePublishStatus res', res)
-        this.$emit('update-publish', {
-          content: this.content,
-          status: status
-        })
+      this.$emit('update-publish', {
+        content: this.content
       })
     },
 

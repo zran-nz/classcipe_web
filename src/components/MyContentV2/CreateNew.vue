@@ -49,6 +49,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="less" scoped>
+@import "~@/components/index.less";
 
 </style>
