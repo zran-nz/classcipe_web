@@ -24,7 +24,12 @@
     <div class='content-wrapper'>
       <a-spin tip='Loading...' :spinning="loading">
         <div class='content-list'>
-          <content-item v-for='item in myContentList' :key='item.id' :content='item' @delete='handleDeleteItem' @update-publish='handleShowContentPublish'></content-item>
+          <template v-if='pagination.total !== 0 && !loading'>
+            <content-item v-for='item in myContentList' :key='item.id' :content='item' @delete='handleDeleteItem' @update-publish='handleShowContentPublish'></content-item>
+          </template>
+          <template v-if='pagination.total === 0 && !loading'>
+            <no-more-resources />
+          </template>
         </div>
       </a-spin>
       <div class='pagination'>
@@ -52,10 +57,11 @@ import * as logger from '@/utils/logger'
 import { SESSION_CURRENT_PAGE } from '@/const/common'
 import ContentItem from '@/components/MyContentV2/ContentItem'
 import ContentPublish from '@/components/MyContentV2/ContentPublish'
+import NoMoreResources from '@/components/Common/NoMoreResources'
 
 export default {
   name: 'CreatedByMeV2',
-  components: { ContentPublish, ContentItem, ContentFilter, CreateNew },
+  components: { NoMoreResources, ContentPublish, ContentItem, ContentFilter, CreateNew },
   data () {
     return {
       sourceType: SourceType.CreatedByMe,
@@ -78,7 +84,7 @@ export default {
       searchText: '',
       filterParams: {},
 
-      contentPublishVisible: true,
+      contentPublishVisible: false,
       currentContent: null
     }
   },
@@ -211,6 +217,9 @@ export default {
 
   .content-wrapper {
     min-height: calc(100vh - 160px);
+    .content-list {
+      min-height: 400px;
+    }
   }
 }
 
