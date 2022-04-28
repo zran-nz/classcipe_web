@@ -31,6 +31,8 @@
     </div>
 
     <content-publish v-if='contentPublishVisible' :content='currentContent' @publish='handleUpdatePublish' @close='handleCancelPublish' />
+
+    <discount-setting v-if='discountSettingVisible' @close='discountSettingVisible = false' @confirm='discountSettingVisible = false'/>
   </div>
 </template>
 
@@ -45,10 +47,11 @@ import ContentItem from '@/components/MyContentV2/ContentItem'
 import ContentPublish from '@/components/MyContentV2/ContentPublish'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import PublishedContentItem from '@/components/MyContentV2/PublishedContentItem'
+import DiscountSetting from '@/components/MyContentV2/DiscountSetting'
 
 export default {
   name: 'MyPublished',
-  components: { PublishedContentItem, NoMoreResources, ContentPublish, ContentItem, ContentFilter, CreateNew },
+  components: { DiscountSetting, PublishedContentItem, NoMoreResources, ContentPublish, ContentItem, ContentFilter, CreateNew },
   data () {
     return {
       sourceType: SourceType.CreatedByMe,
@@ -74,7 +77,7 @@ export default {
       contentPublishVisible: false,
       currentContent: null,
 
-      handleShowDiscountSetting: false
+      discountSettingVisible: false
     }
   },
   created() {
@@ -179,6 +182,11 @@ export default {
     handleCancelPublish () {
       this.contentPublishVisible = false
       this.currentContent = null
+    },
+
+    handleShowDiscountSetting () {
+      this.$logger.info('handleShowDiscountSetting', this.discountSettingVisible)
+      this.discountSettingVisible = true
     }
   }
 }
