@@ -23,25 +23,27 @@
       </div>
       <div class='action'>
         <a-space>
-          <a-button type='primary' shape='round' v-if='content.type === typeMap.task'>SubTask</a-button>
-          <a-button type='primary' shape='round'>Original Tips</a-button>
-          <a-button type='primary' shape='round' v-if='content.type === typeMap.task'>Schedule</a-button>
-          <a-button type='primary' shape='round' @click='editItem(content)'>Edit</a-button>
+          <a-button type='primary' v-if='content.type === typeMap.task'>SubTask</a-button>
+          <a-button type='primary'>Original Tips</a-button>
+          <a-button type='primary' v-if='content.type === typeMap.task'>Schedule</a-button>
+          <a-button type='primary' @click='editItem(content)'>Edit</a-button>
           <a-dropdown :trigger="['click']" :getPopupContainer="trigger => trigger.parentElement">
-            <a-button type='primary' shape='round'><a-icon type="dash" /></a-button>
+            <a-button type='primary'><a-icon type="dash" /></a-button>
             <div class='content-item-more-action' slot="overlay">
               <div class='self-learning menu-item' v-if='content.type === typeMap.task'>
-                Self learning <a-switch size="small" />
+                Self learning <a-switch size="small" @change='handleSelfLearning' />
               </div>
               <div class='menu-item'>
-                <a-button type='primary' size='small' shape='round'>Unpublish</a-button>
+                <a-button type='primary' size='small' @click='handlePublishStatus'>
+                  <template v-if='content.status === 0'>Publish</template>
+                  <template v-if='content.status === 1'>UnPublish</template>
+                </a-button>
               </div>
               <div class='menu-item'>
-                <a-button type='primary' size='small' shape='round' @click='handleDeleteItem'>Delete</a-button>
+                <a-button type='danger' size='small' @click='handleDeleteItem'>Delete</a-button>
               </div>
             </div>
           </a-dropdown>
-
         </a-space>
       </div>
     </div>
@@ -52,7 +54,7 @@
 
 import { typeMap } from '@/const/teacher'
 import * as logger from '@/utils/logger'
-import { deleteMyContentByType } from '@/api/teacher'
+import { DeleteMyContentByType, UpdateContentStatus } from '@/api/teacher'
 
 export default {
   name: 'ContentItem',
@@ -64,7 +66,13 @@ export default {
   },
   data () {
     return {
-      typeMap: typeMap
+      typeMap: typeMap,
+      isSelfLearning: false
+    }
+  },
+  computed: {
+    status () {
+      return this.content.status
     }
   },
   methods: {
@@ -88,12 +96,33 @@ export default {
       }
     },
 
-    handleDeleteItem (item) {
-      logger.info('handleDeleteItem', item)
-      deleteMyContentByType(item).then(res => {
+    handleSelfLearning (isSelfLearning) {
+      this.$logger.info('handleSelfLearning', isSelfLearning)
+      this.isSelfLearning = isSelfLearning
+    },
+
+    handlePublishStatus () {
+      const status = this.status ? 0 : 1
+      UpdateContentStatus({
+        id: this.content.id,
+        status: status,
+        type: this.content.type
+      }).then((res) => {
+        this.$logger.info('handlePublishStatus res', res)
+        this.$emit('update-publish', {
+          content: this.content,
+          status: status
+        })
+      })
+    },
+
+    handleDeleteItem () {
+      logger.info('handleDeleteItem', this.content)
+      DeleteMyContentByType(this.content).then(res => {
         logger.info('DeleteMyContentByType', res)
-      }).then(() => {
-        this.loadMyContent()
+        this.$emit('delete', {
+          content: this.content
+        })
       })
     }
   }
@@ -104,9 +133,9 @@ export default {
 @import "~@/components/index.less";
 
 .content-item {
-  padding: 10px;
+  padding: 15px;
   border: 1px dashed #15c39a;
-  margin: 10px 0;
+  margin: 15px 0;
   display: flex;
   flex-direction: row;
   align-items: flex-start;

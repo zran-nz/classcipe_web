@@ -24,7 +24,7 @@
     <div class='content-wrapper'>
       <a-spin tip='Loading...' :spinning="loading">
         <div class='content-list'>
-          <content-item v-for='item in myContentList' :key='item.id' :content='item'></content-item>
+          <content-item v-for='item in myContentList' :key='item.id' :content='item' @delete='handleDeleteItem' @update-publish='handleUpdatePublish'></content-item>
         </div>
       </a-spin>
       <div class='pagination'>
@@ -121,6 +121,31 @@ export default {
       }).finally(() => {
         this.loading = false
       })
+    },
+
+    handleDeleteItem (data) {
+      this.$logger.info('handleDeleteItem', data)
+      const index = this.myContentList.findIndex(item => item.id === data.content.id)
+      if (index !== -1) {
+        this.myContentList.splice(index, 1)
+      } else {
+        this.$logger.warn(`no found delete item ${data.content.id}`, this.myContentList)
+      }
+    },
+
+    handleUpdatePublish (data) {
+      this.$logger.info('handleUpdatePublish', data)
+      const index = this.myContentList.findIndex(item => item.id === data.content.id)
+      if (index !== -1) {
+        this.myContentList[index].status = data.status
+        if (data.status) {
+          this.$message.success('Publish successfully!')
+        } else {
+          this.$message.success('UnPublish successfully!')
+        }
+      } else {
+        this.$logger.warn(`no found Update item ${data.content.id}`)
+      }
     }
   }
 }

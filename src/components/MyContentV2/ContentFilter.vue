@@ -16,9 +16,6 @@
         <div class="filter-item">
           <filter-icon class="filter-icon" />
           <filter-active-icon class="filter-active-icon"/>
-          <div class="filter-label">
-            Filter
-          </div>
         </div>
       </div>
     </div>
@@ -169,31 +166,20 @@ export default {
   .filter-line {
     display: flex;
     justify-content: flex-end;
-    .my-search{
-      margin-right: 10px;
-      border-radius:6px;
-      width: 200px;
-      /deep/ .ant-input{
-        border-radius:6px;
-        height: 40px;
-      }
-    }
     .filter-icon {
+      display: flex;
+      justify-content: center;
+      align-items: center;
       .filter-item {
         color: #333;
         cursor: pointer;
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
         background: #FFFFFF;
-        border: 1px solid #D3D3D3;
         opacity: 1;
-        border-radius: 6px;
-        padding: 9px 15px;
+        padding: 0 10px;
         white-space:nowrap;
 
         svg {
-          height: 20px;
+          height: 15px;
         }
         .filter-active-icon {
           display: none;
@@ -204,7 +190,6 @@ export default {
 
         &:hover {
           color: #38cfa6;
-          border: 1px solid #38cfa6;
           .filter-active-icon {
             display: inline;
           }
@@ -212,12 +197,6 @@ export default {
           .filter-icon {
             display: none;
           }
-        }
-
-        .filter-label {
-          font-family: Inter-Bold;
-          line-height: 20px;
-          padding-left: 8px;
         }
       }
     }

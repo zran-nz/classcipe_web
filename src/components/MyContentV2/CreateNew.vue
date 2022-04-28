@@ -21,15 +21,7 @@
           </router-link>
         </a-menu-item>
       </a-menu>
-      <a-button
-        style="padding: 0 20px;
-      display:flex;
-      align-items:center ;
-      border-radius: 6px;
-      background: #FFFFFF;
-      border: 1px solid #D3D3D3;
-      font-family: Inter-Bold;
-      color: #182552;"> Create New <a-icon type="caret-down" />
+      <a-button type='primary'>Create New <a-icon type="caret-down" />
       </a-button>
     </a-dropdown>
     <task-mode-choose @close='closeTaskModeChoose' :visible='showTaskMode' v-if='showTaskMode'/>

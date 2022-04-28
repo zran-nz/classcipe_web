@@ -456,7 +456,7 @@
 import * as logger from '@/utils/logger'
 import {
   ContentRestore,
-  deleteMyContentByType,
+  DeleteMyContentByType,
   Duplicate,
   FindMyContent,
   PermanentDeleteMyContent
@@ -760,7 +760,7 @@ export default {
     },
     handleDeleteItem (item) {
       logger.info('handleDeleteItem', item)
-      deleteMyContentByType(item).then(res => {
+      DeleteMyContentByType(item).then(res => {
         logger.info('DeleteMyContentByType', res)
       }).then(() => {
         this.loadMyContent()
