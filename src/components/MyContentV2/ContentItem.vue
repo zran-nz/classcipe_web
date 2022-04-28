@@ -11,7 +11,9 @@
             {{ content.name }}
           </div>
           <div class='tag-info'></div>
-          <div class='owner'></div>
+          <div class='owner'>
+            {{ content.createBy }}
+          </div>
         </div>
         <div class='right-info'>
           <div class='update-time'>
