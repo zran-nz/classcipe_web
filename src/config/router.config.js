@@ -46,6 +46,12 @@ export const asyncRouterMap = [
             meta: { title: 'menu.my-content', keepAlive: true, permission: ['teacher'], icon: CreatedByMeSvg }
           },
           {
+            path: '/teacher/main/my-published',
+            name: 'MyPublished',
+            component: () => import('@/views/teacher/MyPublished'),
+            meta: { title: 'menu.my-published', keepAlive: true, permission: ['teacher'] }
+          },
+          {
             path: '/teacher/main/my-favorite',
             name: 'MyFavorite',
             component: () => import('@/views/teacher/MyFavoriteV2'),

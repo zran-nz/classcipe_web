@@ -29,7 +29,7 @@
           </router-link>
         </div>
         <div class='cc-menu-item' :class="{'active-menu': $route.path === ''}" v-if='userMode !== USER_MODE.SCHOOL'>
-          <router-link to='/teacher/main/created-by-me'>
+          <router-link to='/teacher/main/my-published'>
             <a-icon type="container" />
             <span class='menu-label'>Published</span>
           </router-link>

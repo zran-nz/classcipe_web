@@ -1,31 +1,16 @@
 <template>
   <div class='my-content'>
-    <div class='content-header'>
-      <div class='source-type'>
-        <a-radio-group default-value="a" button-style="solid" v-model='sourceType'>
-          <a-radio-button value="CreatedByMe">
-            Created by me
-          </a-radio-button>
-          <a-radio-button value="SharedByMe">
-            Shared by me
-          </a-radio-button>
-          <a-radio-button value="SharedByOthers">
-            Shared by others
-          </a-radio-button>
-        </a-radio-group>
-      </div>
-      <div class='create-new'>
-        <create-new />
-      </div>
-    </div>
     <div class='filter-bar'>
       <content-filter @search='handleSearch'/>
+      <div class='discount-setting'>
+        <a-button type='primary' @click='handleShowDiscountSetting'>DisCount setting</a-button>
+      </div>
     </div>
     <div class='content-wrapper'>
       <a-spin tip='Loading...' :spinning="loading">
         <div class='content-list'>
           <template v-if='pagination.total !== 0 && !loading'>
-            <content-item v-for='item in myContentList' :key='item.id' :content='item' @delete='handleDeleteItem' @update-publish='handleShowContentPublish'></content-item>
+            <published-content-item v-for='item in myContentList' :key='item.id' :content='item' @delete='handleDeleteItem' @update-publish='handleShowContentPublish'></published-content-item>
           </template>
           <template v-if='pagination.total === 0 && !loading'>
             <div class='empty-tips'>
@@ -53,17 +38,17 @@
 import CreateNew from '@/components/MyContentV2/CreateNew'
 import { SourceType } from '@/components/MyContentV2/Constant'
 import ContentFilter from '@/components/MyContentV2/ContentFilter'
-import { ownerMap } from '@/const/teacher'
 import { FindMyContent, UpdateContentStatus } from '@/api/teacher'
 import * as logger from '@/utils/logger'
 import { SESSION_CURRENT_PAGE } from '@/const/common'
 import ContentItem from '@/components/MyContentV2/ContentItem'
 import ContentPublish from '@/components/MyContentV2/ContentPublish'
 import NoMoreResources from '@/components/Common/NoMoreResources'
+import PublishedContentItem from '@/components/MyContentV2/PublishedContentItem'
 
 export default {
-  name: 'CreatedByMeV2',
-  components: { NoMoreResources, ContentPublish, ContentItem, ContentFilter, CreateNew },
+  name: 'MyPublished',
+  components: { PublishedContentItem, NoMoreResources, ContentPublish, ContentItem, ContentFilter, CreateNew },
   data () {
     return {
       sourceType: SourceType.CreatedByMe,
@@ -87,7 +72,9 @@ export default {
       filterParams: {},
 
       contentPublishVisible: false,
-      currentContent: null
+      currentContent: null,
+
+      handleShowDiscountSetting: false
     }
   },
   created() {
@@ -104,11 +91,13 @@ export default {
     loadMyContent () {
       this.loading = true
       let params = {
-        collabrated: this.sourceType === SourceType.SharedByOthers ? ownerMap['owner-by-others'] : false,
+        collabrated: false,
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize,
         searchKey: this.searchText ? this.searchText : '',
         types: [],
+        status: 1,
+        createBy: this.$store.getters.email,
         delFlag: 0
       }
       if (this.filterParams) {
@@ -211,10 +200,16 @@ export default {
   }
 
   .filter-bar {
-    margin: 10px 0;
     display: flex;
     flex-direction: row;
-    justify-content: flex-end;
+    justify-content: flex-start;
+    position: relative;
+
+    .discount-setting {
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
   }
 
   .create-new {

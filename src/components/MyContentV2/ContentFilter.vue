@@ -8,7 +8,6 @@
           @search="triggerSearch"
           @pressEnter="triggerSearch"
           :allowClear="true"
-          size="large"
         >
         </a-input-search>
       </div>
@@ -162,10 +161,8 @@ export default {
 @import "~@/components/index.less";
 
 .content-filter {
-  margin: 10px 0;
   .filter-line {
     display: flex;
-    justify-content: flex-end;
     .filter-icon {
       display: flex;
       justify-content: center;
@@ -175,7 +172,7 @@ export default {
         cursor: pointer;
         background: #FFFFFF;
         opacity: 1;
-        padding: 0 10px;
+        padding: 5px 10px 0 10px;
         white-space:nowrap;
 
         svg {

@@ -25,6 +25,7 @@ export default {
     'menu.managing.curriculum': 'Curriculum',
     'menu.managing.school-info': 'School Info',
     'menu.my-content': 'MyContent',
+    'menu.my-published': 'Published',
     'menu.my-favorite': 'My Favorite',
     'menu.my-orders': 'My Orders',
     'menu.my-schedule': 'Time & Table',
