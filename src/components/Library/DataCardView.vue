@@ -56,12 +56,6 @@ export default {
   box-sizing: border-box;
   border-radius: 4px;
 
-  &:hover {
-    .card-title {
-      text-decoration: underline;
-    }
-  }
-
   .card-cover {
     height: 130px;
     background-size: cover;

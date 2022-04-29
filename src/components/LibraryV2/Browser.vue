@@ -239,64 +239,42 @@
             </template>
             <template v-if="dataListMode === 'card' && (!searching && !dataListLoading)">
               <div class="card-view-mode-wrapper" v-if="dataList.length">
-                <a-row :gutter="[16, 16]">
-                  <template v-if="libraryMode === LibraryMode.searchMode || expandedListFlag === true">
-                    <a-col
-                      class="gutter-row search-mode"
-                      :span="10"
-                      :xs="24"
-                      :sm="12"
-                      :md="8"
-                      :lg="6"
-                      :xl="6"
-                      :xxl="4"
-                      v-for="(dataItem, index) in dataList"
-                      v-if="(currentType === 0 || dataItem.type === currentType)"
-                      :key="index">
-                      <div
-                        class="card-item-wrapper"
-                        @click="handleSelectDataItem(dataItem)">
-                        <div class="card-item">
-                          <data-card-view
-                            :active-flag="currentDataId === dataItem.id"
-                            :cover="dataItem.image"
-                            :title="dataItem.name"
-                            :update-time="dataItem.updateTime"
-                            :content-type="dataItem.type"
-                          />
-                        </div>
-                      </div>
-                    </a-col>
-                  </template>
-                  <template v-else>
-                    <a-col
-                      class="gutter-row list-mode"
-                      :span="10"
-                      :xs="24"
-                      :sm="12"
-                      :md="8"
-                      :lg="6"
-                      :xl="6"
-                      :xxl="4"
-                      v-for="(dataItem, index) in dataList"
-                      v-if="(currentType === 0 || dataItem.type === currentType)"
-                      :key="index">
-                      <div
-                        class="card-item-wrapper"
-                        @click="handleSelectDataItem(dataItem)">
-                        <div class="card-item">
-                          <data-card-view
-                            :active-flag="currentDataId === dataItem.id"
-                            :cover="dataItem.image"
-                            :title="dataItem.name"
-                            :update-time="dataItem.updateTime"
-                            :content-type="dataItem.type"
-                          />
-                        </div>
-                      </div>
-                    </a-col>
-                  </template>
-                </a-row>
+                <template v-if="libraryMode === LibraryMode.searchMode || expandedListFlag === true">
+                  <div
+                    class="card-item-wrapper"
+                    @click="handleSelectDataItem(dataItem)"
+                    v-for="(dataItem, index) in dataList"
+                    v-if="(currentType === 0 || dataItem.type === currentType)"
+                    :key="index">
+                    <div class="card-item">
+                      <data-card-view
+                        :active-flag="currentDataId === dataItem.id"
+                        :cover="dataItem.image"
+                        :title="dataItem.name"
+                        :update-time="dataItem.updateTime"
+                        :content-type="dataItem.type"
+                      />
+                    </div>
+                  </div>
+                </template>
+                <template v-else>
+                  <div
+                    class="card-item-wrapper"
+                    @click="handleSelectDataItem(dataItem)"
+                    v-for="(dataItem, index) in dataList"
+                    v-if="(currentType === 0 || dataItem.type === currentType)"
+                    :key="index">
+                    <div class="card-item">
+                      <data-card-view
+                        :active-flag="currentDataId === dataItem.id"
+                        :cover="dataItem.image"
+                        :title="dataItem.name"
+                        :update-time="dataItem.updateTime"
+                        :content-type="dataItem.type"
+                      />
+                    </div>
+                  </div>
+                </template>
               </div>
             </template>
             <div class="loading-wrapper" v-show="searching || dataListLoading">
@@ -1400,6 +1378,9 @@ export default {
 
   .card-view-mode-wrapper {
     width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
     .card-item-wrapper {
       cursor: pointer;
       box-sizing: border-box;
@@ -1407,6 +1388,9 @@ export default {
       display: flex;
       flex-direction: row;
       justify-content: center;
+      width: 280px;
+      height: 200px;
+      margin: 0 10px 10px 0;
       .card-item {
         width: 100%;
         opacity: 1;
