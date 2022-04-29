@@ -33,6 +33,7 @@ export default {
 @import "~@/components/index.less";
 
 .no-more-resources {
+  user-select: none;
   display: flex;
   flex-direction: column;
   justify-content: center;
