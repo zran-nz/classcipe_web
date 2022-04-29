@@ -1,11 +1,11 @@
 <template>
-  <div class='content-item' v-if='content'>
+  <div class='content-item' v-if='content' @click='handlePreviewDetail(content)'>
     <div class='cover'>
       <div class='cover-block' :style="{'background-image': 'url(' + content.image + ')'}">
       </div>
     </div>
     <div class='detail'>
-      <div class='detail-content'>
+      <div class='detail-content' @click='handlePreviewDetail(content)'>
         <div class='base-info'>
           <div class='header-info'>
             <div class='name'>
@@ -46,6 +46,8 @@
         </a-space>
       </div>
     </div>
+
+    <preview-content :preview-current-id='previewCurrentId' :preview-type='previewType' v-if='previewVisible' @close='handlePreviewClose' />
   </div>
 </template>
 
@@ -54,15 +56,19 @@
 import { typeMap } from '@/const/teacher'
 import * as logger from '@/utils/logger'
 import { DeleteMyContentByType } from '@/api/teacher'
+import { ContentItemMixin } from '@/mixins/ContentItemMixin'
+import PreviewContent from '@/components/MyContentV2/PreviewContent'
 
 export default {
   name: 'PublishedContentItem',
+  components: { PreviewContent },
   props: {
     content: {
       type: Object,
       default: null
     }
   },
+  mixins: [ ContentItemMixin ],
   data () {
     return {
       typeMap: typeMap,

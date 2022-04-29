@@ -559,7 +559,7 @@ const { FavoritesAdd } = require('@/api/favorites')
 const { SelfStudyTaskBye, SelfStudyTaskStart } = require('@/api/selfStudy')
 
 export default {
-  name: 'CommonPreview',
+  name: 'CommonPreviewV2',
   components: {
     PlanLink,
     UiLearnOutSub,
