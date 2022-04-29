@@ -148,6 +148,7 @@ export default {
   align-items: flex-start;
   border-bottom: 1px solid #15c39a;
   padding-bottom: 15px;
+  min-width: 730px;
 
   .cover {
     .cover-block {

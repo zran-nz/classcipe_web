@@ -22,49 +22,35 @@
         </a-dropdown>
       </div>
       <div class='menu menu-block'>
-        <div class='cc-menu-item' :class="{'active-menu': $route.path === '/teacher/library-v2'}">
-          <router-link to='/teacher/library-v2'>
-            <a-icon type="bank" />
-            <span class='menu-label'>Library</span>
-          </router-link>
-        </div>
-        <div class='cc-menu-item' :class="{'active-menu': $route.path === '/teacher/main/my-published'}" v-if='userMode !== USER_MODE.SCHOOL'>
-          <router-link to='/teacher/main/my-published'>
-            <a-icon type="container" />
-            <span class='menu-label'>Published</span>
-          </router-link>
-        </div>
-        <div class='cc-menu-item' :class="{'active-menu': $route.path === '/teacher/main/created-by-me'}">
-          <router-link to='/teacher/main/created-by-me'>
-            <a-icon type="shopping" />
-            <span class='menu-label'>My Content</span>
-          </router-link>
-        </div>
-        <div class='cc-menu-item' :class="{'active-menu': $route.path === '/teacher/main/my-favorite'}">
-          <router-link to='/teacher/main/my-favorite'>
-            <a-icon type="star" />
-            <span class='menu-label'>My Favorite</span>
-          </router-link>
-        </div>
-      </div>
-      <div class='live-workshops menu-block'>
-        <div class='cc-menu-item' :class="{'active-menu': $route.path === ''}">
-          <router-link to=''>
-            <a-icon type="desktop" />
-            <span class='menu-label'>Live workshops</span>
-          </router-link>
-        </div>
-      </div>
-      <div class='classroom menu-block'>
         <a-menu
           class='cc-inner-menu'
-          :default-selected-keys="['1']"
-          :default-open-keys="['sub1']"
           mode="inline"
           theme="dark"
           :inline-collapsed="collapsed"
         >
-          <a-sub-menu key="sub1">
+          <a-menu-item key="Library" @click.native="handleSwitchMenu('/teacher/library-v2')">
+            <a-icon type="bank" />
+            <span>Library</span>
+          </a-menu-item>
+          <a-menu-item key="Published" @click.native="handleSwitchMenu('/teacher/main/my-published')" v-if='userMode !== USER_MODE.SCHOOL'>
+            <a-icon type="container" />
+            <span>Published</span>
+          </a-menu-item>
+          <a-menu-item key="My Content" @click.native="handleSwitchMenu('/teacher/main/created-by-me')">
+            <a-icon type="shopping" />
+            <span>My Content</span>
+          </a-menu-item>
+          <a-menu-item key="My Favorite" @click.native="handleSwitchMenu('/teacher/main/my-favorite')">
+            <a-icon type="star" />
+            <span>My Favorite</span>
+          </a-menu-item>
+
+          <a-menu-item key="Live workshops" @click.native="handleSwitchMenu()" class='block-menu'>
+            <a-icon type="desktop" />
+            <span>Live workshops</span>
+          </a-menu-item>
+
+          <a-sub-menu key="Classes" class='block-menu'>
             <span slot="title"><a-icon type="dashboard" /><span>Classes</span></span>
             <a-menu-item key="5">
               Option 5
@@ -79,30 +65,17 @@
               Option 8
             </a-menu-item>
           </a-sub-menu>
-        </a-menu>
-      </div>
-      <div class='co-teaching menu-block'>
-        <a-menu
-          class='cc-inner-menu'
-          mode="inline"
-          theme="dark"
-          :inline-collapsed="collapsed"
-        >
-          <a-menu-item key="1">
+
+          <a-menu-item key="Co-teaching" @click.native="handleSwitchMenu()" class='block-menu'>
             <a-icon type="pie-chart" />
             <span>Co-teaching</span>
           </a-menu-item>
-        </a-menu>
-      </div>
-      <div class='manager menu-block' v-if="userMode === USER_MODE.SELF || (currentSchool && currentSchool.roleNames && currentSchool.roleNames.includes(schoolUserRole.admin))">
-        <div class='cc-menu-item' :class="{'active-menu': $route.path.startsWith('/teacher/managing')}">
-          <router-link to='/teacher/managing'>
+          <a-menu-item key="Managing" @click.native="handleSwitchMenu('/teacher/managing')" v-if="userMode === USER_MODE.SELF || (currentSchool && currentSchool.roleNames && currentSchool.roleNames.includes(schoolUserRole.admin))">
             <a-icon type="control" />
-            <span class='menu-label'>
-              Managing
-            </span>
-          </router-link>
-        </div>
+            <span class='menu-label'>Managing</span>
+          </a-menu-item>
+
+        </a-menu>
       </div>
     </div>
     <div class='bottom-menu'>
@@ -307,6 +280,14 @@ export default {
 
     handleExpandMenu() {
       this.$store.commit(HIDDEN_SIDEBAR, false)
+    },
+
+    handleSwitchMenu (path) {
+      if (path) {
+        this.$router.push({
+          path
+        })
+      }
     }
   }
 }
@@ -360,25 +341,6 @@ export default {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-
-  a {
-    padding: 10px 10px 10px 24px;
-    display: block;
-    width: 100%;
-    color: @text-color-secondary-dark;
-    height: 41px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-
-  a:hover, a:visited, a:active {
-    color: #fff;
-  }
-
-  &:hover {
-    color: #fff;
-  }
 }
 
 .active-menu {
@@ -386,12 +348,6 @@ export default {
 
   a {
     color: #fff;
-  }
-}
-
-.collapse-menu {
-  .cc-menu-item {
-    padding: 10px;
   }
 }
 
@@ -407,10 +363,6 @@ export default {
   .bottom-menu {
     flex-shrink: 0;
   }
-}
-
-.menu-label {
-  margin-left: 10px;
 }
 
 .collapse {
@@ -449,5 +401,12 @@ export default {
   top: 10px;
   right: 5px;
   z-index: 1000;
+}
+
+.cc-inner-menu {
+  .block-menu {
+    margin-top: 25px;
+    margin-bottom: 8px;
+  }
 }
 </style>

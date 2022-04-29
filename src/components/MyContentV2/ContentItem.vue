@@ -130,6 +130,7 @@ export default {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
+  min-width: 730px;
 
   .cover {
     .cover-block {
