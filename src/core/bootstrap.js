@@ -12,7 +12,7 @@ import {
   TOOGLE_USER_MODE,
   SET_CLASS_LIST,
   SET_CURRENT_SCHOOL,
-  HIDDEN_HEADER
+  HIDDEN_HEADER, HIDDEN_SIDEBAR
 } from '@/store/mutation-types'
 import defaultSettings from '@/config/defaultSettings'
 import { USER_MODE } from '@/const/common'
@@ -35,6 +35,7 @@ export default function Initializer () {
   store.commit('SET_CURRENT_SCHOOL', storage.get(SET_CURRENT_SCHOOL, {}))
   store.commit('SET_CLASS_LIST', storage.get(SET_CLASS_LIST, []))
   store.commit(HIDDEN_HEADER, storage.get(HIDDEN_HEADER, false))
+  store.commit(HIDDEN_SIDEBAR, storage.get(HIDDEN_SIDEBAR, false))
 
   store.dispatch('setLang', storage.get(APP_LANGUAGE, 'en-US'))
   store.dispatch('getSysConfig')

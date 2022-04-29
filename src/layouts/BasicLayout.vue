@@ -45,7 +45,7 @@
 <script>
 import { i18nRender } from '@/locales'
 import { mapState } from 'vuex'
-import { CONTENT_WIDTH_TYPE, SIDEBAR_TYPE } from '@/store/mutation-types'
+import { CONTENT_WIDTH_TYPE, HIDDEN_SIDEBAR } from '@/store/mutation-types'
 
 import defaultSettings from '@/config/defaultSettings'
 import RightContent from '@/components/GlobalHeader/RightContent'
@@ -162,21 +162,10 @@ export default {
       this.$message.success('search something')
     },
     handleMediaQuery (val) {
-      this.query = val
-      if (this.isMobile && !val['screen-xs']) {
-        this.$store.commit(SIDEBAR_TYPE, false)
-        return
-      }
-      if (!this.isMobile && val['screen-xs']) {
-        this.isMobile = true
-        this.$store.commit(SIDEBAR_TYPE, false)
-        this.settings.contentWidth = CONTENT_WIDTH_TYPE.Fluid
-        // this.settings.fixSiderbar = false
-      }
     },
     handleCollapse (val) {
       this.$logger.info('handleCollapse ' + val)
-      this.$store.commit(SIDEBAR_TYPE, val)
+      this.$store.commit(HIDDEN_SIDEBAR, val)
     },
     handleSettingChange ({ type, value }) {
       console.log('type', type, value)
@@ -209,7 +198,7 @@ export default {
 
     handleMenuCollapse () {
       this.$logger.info('handleMenuCollapse ' + this.collapsed)
-      this.$store.commit(SIDEBAR_TYPE, !this.collapsed)
+      this.$store.commit(HIDDEN_SIDEBAR, !this.collapsed)
     }
   }
 }

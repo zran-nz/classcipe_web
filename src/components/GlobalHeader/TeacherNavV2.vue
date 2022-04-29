@@ -18,7 +18,7 @@
               <span class='menu-label'>{{ item.schoolName }}</span>
             </a-menu-item>
           </a-menu>
-          <a-button> {{ currentSchool.schoolName }} <a-icon type="down" /> </a-button>
+          <a-button style='width: 85%'> {{ currentSchool.schoolName }} <a-icon type="down" /> </a-button>
         </a-dropdown>
       </div>
       <div class='menu menu-block'>
@@ -113,7 +113,7 @@ import EditIconSvg from '@/assets/icons/header/bianji.svg?inline'
 import SousuoIconSvg from '@/assets/icons/header/sousuo.svg?inline'
 import ManageIconSvg from '@/assets/icons/header/Managing_icon.svg?inline'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import { SIDEBAR_TYPE, TOOGLE_USER_MODE } from '@/store/mutation-types'
+import { HIDDEN_SIDEBAR, TOOGLE_USER_MODE } from '@/store/mutation-types'
 import { SchoolUserRole } from '@/const/role'
 import { USER_MODE } from '@/const/common'
 import { SwitchUserModeSchool } from '@/api/user'
@@ -268,7 +268,7 @@ export default {
     },
 
     handleExpandMenu() {
-      this.$store.commit(SIDEBAR_TYPE, false)
+      this.$store.commit(HIDDEN_SIDEBAR, false)
     }
   }
 }
@@ -318,12 +318,20 @@ export default {
   flex-direction: row;
   align-items: center;
   width: 100%;
+  height: 41px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 
   a {
     padding: 10px 10px 10px 24px;
     display: block;
     width: 100%;
     color: @text-color-secondary-dark;
+    height: 41px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
   a:hover, a:visited, a:active {

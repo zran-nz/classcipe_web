@@ -7,7 +7,7 @@ export const ADD_PREFERENCE_SKIP_TIME = 'Add-Preference-Skip-Time'
 export const USER_INFO = 'USER_INFO'
 export const NOT_REMEMBER_ME = 'not-remember-me'
 
-export const SIDEBAR_TYPE = 'sidebar_type'
+export const HIDDEN_SIDEBAR = 'hidden_sidebar'
 export const TOGGLE_MOBILE_TYPE = 'is_mobile'
 export const TOGGLE_NAV_THEME = 'nav_theme'
 export const TOGGLE_LAYOUT = 'layout'

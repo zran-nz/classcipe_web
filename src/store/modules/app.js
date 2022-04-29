@@ -2,7 +2,7 @@ import storage from 'store'
 import {
   APP_LANGUAGE,
   DOWNLOAD_URL,
-  SIDEBAR_TYPE,
+  HIDDEN_SIDEBAR,
   SYS_CONFIG,
   TOGGLE_COLOR,
   TOGGLE_CONTENT_WIDTH,
@@ -43,9 +43,10 @@ const app = {
     userMode: USER_MODE.SELF // selfStudy: 自学习模式，schoolStudy：学校模式
   },
   mutations: {
-    [SIDEBAR_TYPE]: (state, type) => {
+    [HIDDEN_SIDEBAR]: (state, type) => {
+      logger.info(HIDDEN_SIDEBAR + ' ' + type)
       state.sideCollapsed = type
-      storage.set(SIDEBAR_TYPE, type)
+      storage.set(HIDDEN_SIDEBAR, type)
     },
     [HIDDEN_HEADER]: (state, hidden) => {
       state.hiddenHeader = hidden
