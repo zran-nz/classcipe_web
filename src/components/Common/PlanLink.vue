@@ -61,7 +61,7 @@
                 v-model="group.contents"
                 :disabled="!canEdit"
                 animation="300"
-                group="site"
+                group="link-content"
                 style="width: 100%; min-height: 50px"
                 @add="handleDragContent"
                 @update="handleDragContent"
@@ -433,7 +433,10 @@ export default {
     },
 
     handleDragContent (event, data) {
-      this.$logger.info('handleDragContent', event, this.groups, data)
+      this.$logger.info('PlanLink handleDragContent', event, this.groups, data)
+      // 提取数据
+      const item = JSON.parse(event.item.dataset.item)
+      this.$logger.info('drag in data ', item)
     }
   }
 }

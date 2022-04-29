@@ -8,6 +8,7 @@
         animation="300"
         group="link-content"
         @start='handleDragStart'
+        @update="handleDragContent"
       >
         <div v-for='(item) in myContentList' :key='item.id' class="group-link-item" :data-item='JSON.stringify(item)'>
           <div class="left-info">
@@ -151,6 +152,10 @@ export default {
     },
     handleDragStart (e) {
       this.$logger.info('LinkContentList handleDragStart', e)
+    },
+
+    handleDragContent (e) {
+      this.$logger.info('LinkContentList handleDragContent', e)
     },
 
     handleViewDetail (item) {
