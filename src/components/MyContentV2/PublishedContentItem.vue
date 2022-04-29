@@ -135,8 +135,7 @@ export default {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  min-width: 730px;
-
+  overflow: hidden;
   .cover {
     .cover-block {
       height: 160px;
