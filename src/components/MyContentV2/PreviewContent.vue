@@ -44,7 +44,7 @@ export default {
   methods: {
     handlePreviewClose() {
       this.$emit('close')
-    },
+    }
   }
 }
 </script>
