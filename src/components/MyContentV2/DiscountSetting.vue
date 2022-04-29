@@ -24,7 +24,16 @@
         </div>
       </div>
 
-      <div class='setting-item'>
+      <div class='setting-item' v-if='discountSetting.mode === mode.SalesOff'>
+        <div class='setting-label'>
+          sale off
+        </div>
+        <div class='setting-content'>
+          <a-input v-model="discountSetting.salesOffPercent" type='number' class='dollar-price-input' suffix="%"/>
+        </div>
+      </div>
+
+      <div class='setting-item' v-if='discountSetting.mode === mode.Discount'>
         <div class='setting-half'>
           <div class='setting-label'>
             Over
@@ -124,6 +133,7 @@ export default {
     align-items: center;
     justify-content: flex-start;
     margin: 5px 0;
+    width: 100%;
 
     .setting-half {
       width: 50%;
