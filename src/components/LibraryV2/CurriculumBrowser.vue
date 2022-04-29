@@ -436,7 +436,7 @@ export default {
 
   .browser-block-item-wrapper {
     overflow-y: scroll;
-    height: calc(100vh - 190px);
+    height: calc(100vh - 120px);
     box-sizing: border-box;
 
     &::-webkit-scrollbar {
@@ -531,7 +531,7 @@ export default {
     flex-direction: column;
     flex-wrap: wrap;
     justify-content: flex-start;
-      box-sizing: border-box;
+    box-sizing: border-box;
     border-right: 1px solid #ddd;
 
     .switch-type-wrapper {

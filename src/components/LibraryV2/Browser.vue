@@ -1264,7 +1264,7 @@ export default {
 
 .browser-block-item-wrapper {
   overflow-y: scroll;
-  height: calc(100vh - 190px);
+  height: calc(100vh - 120px);
   width: 100%;
   box-sizing: border-box;
 
@@ -1318,7 +1318,7 @@ export default {
   flex-wrap: wrap;
   justify-content: flex-start;
   box-sizing: border-box;
-  height: calc(100vh - 247px);
+  height: calc(100vh - 180px);
   overflow-y: scroll;
   margin-top: 10px;
   overflow-x: hidden;
