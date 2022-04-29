@@ -1,6 +1,6 @@
 <template>
-  <div class='content-item' v-if='content' @click='handlePreviewDetail(content)'>
-    <div class='cover'>
+  <div class='content-item' v-if='content'>
+    <div class='cover' @click='handlePreviewDetail(content)'>
       <div class='cover-block' :style="{'background-image': 'url(' + content.image + ')'}">
       </div>
     </div>
