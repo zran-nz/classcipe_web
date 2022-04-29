@@ -209,6 +209,7 @@ export default {
         justify-content: flex-start;
         .dollar-price-input {
           margin-left: 10px;
+          width: 40%;
 
           /deep/ input {
             border-top: none;
