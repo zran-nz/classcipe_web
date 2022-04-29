@@ -55,7 +55,45 @@
           </router-link>
         </div>
       </div>
-      <div class='classroom menu-block'></div>
+      <div class='classroom menu-block'>
+        <a-menu
+          class='cc-inner-menu'
+          :default-selected-keys="['1']"
+          :default-open-keys="['sub1']"
+          mode="inline"
+          theme="dark"
+          :inline-collapsed="collapsed"
+        >
+          <a-sub-menu key="sub1">
+            <span slot="title"><a-icon type="dashboard" /><span>Classes</span></span>
+            <a-menu-item key="5">
+              Option 5
+            </a-menu-item>
+            <a-menu-item key="6">
+              Option 6
+            </a-menu-item>
+            <a-menu-item key="7">
+              Option 7
+            </a-menu-item>
+            <a-menu-item key="8">
+              Option 8
+            </a-menu-item>
+          </a-sub-menu>
+        </a-menu>
+      </div>
+      <div class='co-teaching menu-block'>
+        <a-menu
+          class='cc-inner-menu'
+          mode="inline"
+          theme="dark"
+          :inline-collapsed="collapsed"
+        >
+          <a-menu-item key="1">
+            <a-icon type="pie-chart" />
+            <span>Co-teaching</span>
+          </a-menu-item>
+        </a-menu>
+      </div>
       <div class='manager menu-block' v-if="userMode === USER_MODE.SELF || (currentSchool && currentSchool.roleNames && currentSchool.roleNames.includes(schoolUserRole.admin))">
         <div class='cc-menu-item' :class="{'active-menu': $route.path.startsWith('/teacher/managing')}">
           <router-link to='/teacher/managing'>
@@ -372,7 +410,7 @@ export default {
 }
 
 .menu-label {
-  padding-left: 5px;
+  margin-left: 10px;
 }
 
 .collapse {
@@ -382,7 +420,7 @@ export default {
 .ant-layout-sider-collapsed {
   .cc-menu-item {
     a {
-      padding: 10px 10px 10px 30px;
+      padding: 10px 10px 10px 33px;
     }
   }
   .menu-label {
