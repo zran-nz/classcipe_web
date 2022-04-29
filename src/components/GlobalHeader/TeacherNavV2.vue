@@ -99,7 +99,7 @@
           <router-link to='/teacher/managing'>
             <a-icon type="control" />
             <span class='menu-label'>
-              <span class='menu-label'>Managing</span>
+              Managing
             </span>
           </router-link>
         </div>
