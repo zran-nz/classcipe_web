@@ -18,7 +18,7 @@
               <span class='menu-label'>{{ item.schoolName }}</span>
             </a-menu-item>
           </a-menu>
-          <a-button style='width: 85%'> {{ currentSchool.schoolName }} <a-icon type="down" /> </a-button>
+          <a-button style='width: 85%'> {{ userMode === USER_MODE.SCHOOL ? currentSchool.schoolName : 'Personal' }} <a-icon type="down" /> </a-button>
         </a-dropdown>
       </div>
       <div class='menu menu-block'>
