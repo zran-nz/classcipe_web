@@ -2,14 +2,14 @@
   <div class='my-content'>
     <div class='content-header'>
       <div class='source-type'>
-        <a-radio-group default-value="a" button-style="solid" v-model='sourceType'>
-          <a-radio-button value="CreatedByMe">
+        <a-radio-group button-style="solid" v-model='shareType' @change="handleSearch">
+          <a-radio-button :value="sourceType.CreatedByMe">
             Created by me
           </a-radio-button>
-          <a-radio-button value="SharedByMe">
+          <a-radio-button :value="sourceType.SharedByMe">
             Shared by me
           </a-radio-button>
-          <a-radio-button value="SharedByOthers">
+          <a-radio-button :value="sourceType.SharedByOthers">
             Shared by others
           </a-radio-button>
         </a-radio-group>
@@ -53,7 +53,6 @@
 import CreateNew from '@/components/MyContentV2/CreateNew'
 import { SourceType } from '@/components/MyContentV2/Constant'
 import ContentFilter from '@/components/MyContentV2/ContentFilter'
-import { ownerMap } from '@/const/teacher'
 import { FindMyContent, UpdateContentStatus } from '@/api/teacher'
 import * as logger from '@/utils/logger'
 import { SESSION_CURRENT_PAGE } from '@/const/common'
@@ -66,10 +65,10 @@ export default {
   components: { NoMoreResources, ContentPublish, ContentItem, ContentFilter, CreateNew },
   data () {
     return {
-      sourceType: SourceType.CreatedByMe,
+      sourceType: SourceType,
+      shareType: SourceType.CreatedByMe,
       loading: true,
       myContentList: [],
-
       pagination: {
         onChange: page => {
           logger.info('pagination onChange', page)
@@ -91,6 +90,9 @@ export default {
     }
   },
   created() {
+    if (this.$route.query.shareType) {
+      this.shareType = parseInt(this.$route.query.shareType)
+    }
     this.loadMyContent()
   },
   methods: {
@@ -104,7 +106,7 @@ export default {
     loadMyContent () {
       this.loading = true
       let params = {
-        collabrated: this.sourceType === SourceType.SharedByOthers ? ownerMap['owner-by-others'] : false,
+        shareType: this.shareType,
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize,
         searchKey: this.searchText ? this.searchText : '',

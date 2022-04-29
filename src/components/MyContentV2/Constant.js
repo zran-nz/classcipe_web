@@ -1,6 +1,6 @@
 
 export const SourceType = {
-  CreatedByMe: 'CreatedByMe',
-  SharedByMe: 'SharedByMe',
-  SharedByOthers: 'SharedByOthers'
+  CreatedByMe: 0,
+  SharedByMe: 1,
+  SharedByOthers: 2
 }
