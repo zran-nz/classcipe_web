@@ -6,49 +6,11 @@
     <div class='display-content-list'>
       <draggable
         animation="300"
-        group="link-content"
-        @start='handleDragStart'
-        @update="handleDragContent"
+        :sort='false'
+        group="content-item"
       >
         <div v-for='(item) in myContentList' :key='item.id' class="group-link-item" :data-item='JSON.stringify(item)'>
-          <div class="left-info">
-            <div class="icon">
-              <content-type-icon :type="item.type" />
-            </div>
-            <div class="name" @click="handleViewDetail(item)">
-              {{ item.name ? item.name : 'untitled' }}
-            </div>
-            <template v-if='item.taskType'>
-              <a-tag class='task-type-tag green-active-task-type' v-if="item.taskType.toLowerCase() === 'fa'">
-                {{ item.taskType }}
-              </a-tag>
-              <a-tag class='task-type-tag red-active-task-type' v-if="item.taskType.toLowerCase() === 'sa'">
-                {{ item.taskType }}
-              </a-tag>
-              <a-tag class='task-type-tag blue-active-task-type' v-if="item.taskType.toLowerCase() === 'activity'">
-                {{ item.taskType }}
-              </a-tag>
-            </template>
-            <div class='downloaded-icon' v-if='item.isCreated'>
-              <a-tooltip placement="top" title='already saved in my content'>
-                <downloaded-svg />
-              </a-tooltip>
-            </div>
-          </div>
-          <div class="right-info">
-            <div class="date">{{ item.createTime | dayjs }}</div>
-            <div class="status">
-              <template v-if="item.status === 0">Draft</template>
-              <template v-if="item.status === 1">Published</template>
-            </div>
-            <div class="more-action-wrapper action-item-wrapper">
-              <a-dropdown>
-                <a-icon style="margin-right: 8px" type="more" />
-                <a-menu slot="overlay">
-                </a-menu>
-              </a-dropdown>
-            </div>
-          </div>
+          <link-content-item :content='item' style='width: 100%' />
         </div>
       </draggable>
     </div>
@@ -82,10 +44,11 @@ import * as logger from '@/utils/logger'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import DownloadedSvg from '@/assets/libraryv2/downloaded.svg?inline'
 import CommonPreviewV2 from '@/components/Common/CommonPreviewV2'
+import LinkContentItem from '@/components/UnitPlan/LinkContentItem'
 
 export default {
   name: 'LinkContentList',
-  components: { ContentTypeIcon, draggable, DownloadedSvg, CommonPreviewV2 },
+  components: { LinkContentItem, ContentTypeIcon, draggable, DownloadedSvg, CommonPreviewV2 },
   data () {
     return {
       loading: true,
@@ -149,13 +112,6 @@ export default {
       }).finally(() => {
         this.loading = false
       })
-    },
-    handleDragStart (e) {
-      this.$logger.info('LinkContentList handleDragStart', e)
-    },
-
-    handleDragContent (e) {
-      this.$logger.info('LinkContentList handleDragContent', e)
     },
 
     handleViewDetail (item) {
@@ -266,8 +222,6 @@ export default {
 }
 
 .group-link-item {
-  border-bottom: 1px solid #eee;
-  padding: 10px;
   display: flex;
   flex-direction: row;
   align-items: center;

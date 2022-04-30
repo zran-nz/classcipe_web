@@ -30,9 +30,7 @@
             animation="300"
             group="content-item"
             style="width: 100%; min-height: 50px"
-            @add="handleDragContent"
-            @update="handleDragContent"
-            @end="handleDragEnd">
+            @add="handleDragContent($event, groupItem)">
             <div class='linked-item' v-for='content in groupItem.contents' :key='content.id'>
               <div class='linked-item-deleted'>
                 <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteLinkItem(content)" cancel-text="No">
@@ -52,7 +50,14 @@
 
 <script>
 import LinkedCategory from '@/components/UnitPlan/LinkedCategory'
-import { AddOrSaveGroupName, AssociateCancel, DeleteGroup, GetAssociate, SaveGroupItems } from '@/api/teacher'
+import {
+  AddOrSaveGroupName,
+  Associate,
+  AssociateCancel,
+  DeleteGroup,
+  GetAssociate,
+  SaveGroupItems
+} from '@/api/teacher'
 import LinkContentItem from '@/components/UnitPlan/LinkContentItem'
 import draggable from 'vuedraggable'
 import DeleteIcon from '@/components/Common/DeleteIcon'
@@ -151,8 +156,29 @@ export default {
       })
     },
 
-    handleDragContent (event, data) {
-      this.$logger.info('handleDropContent', event)
+    // 当拖入内容时，先隐藏dom，然后提取数据后删除组件插入的dom，随后手动处理数据，方便Vue监听
+    async handleDragContent (event, groupItem) {
+      this.$logger.info('UnitLinkedContent handleDropContent', event, groupItem)
+      event.item.style.display = 'none'
+      const itemData = JSON.parse(event.item.dataset.item)
+      event.item.parentElement.removeChild(event.item)
+      this.$logger.info('item data', itemData)
+
+      const associateData = {
+        fromId: this.fromId,
+        fromType: this.$classcipe.typeMap['unit-plan'],
+        groupName: groupItem.group,
+        otherContents: [
+          {
+            toId: itemData.id,
+            toType: itemData.type
+          }
+        ]
+      }
+
+      this.$logger.info('associateData', associateData)
+      await Associate(associateData)
+      this.getAssociate()
     },
 
     handleDragEnd () {
@@ -169,6 +195,7 @@ export default {
         this.$logger.info('AddOrSaveGroupName', response)
       })
     },
+
     handleDeleteGroup (group) {
       this.$logger.info('handleDeleteGroup', group)
       DeleteGroup({
@@ -205,7 +232,7 @@ export default {
         // 刷新子组件的关联数据
         this.getAssociate()
       })
-    },
+    }
   }
 }
 </script>
