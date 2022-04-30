@@ -5,6 +5,7 @@
     </div>
     <div class='display-content-list'>
       <draggable
+        data-nodraggable='link-content-list'
         animation="300"
         :sort='false'
         group="content-item"
@@ -96,6 +97,7 @@ export default {
         if (res.success) {
           res.result.records.forEach((record, index) => {
             record.key = index
+            record.isNoLinkedContent = true
           })
           this.myContentList = res.result.records
           this.pagination.total = res.result.total

@@ -30,6 +30,7 @@
             animation="300"
             group="content-item"
             style="width: 100%; min-height: 50px"
+            :move='handleOnMve'
             @add="handleDragContent($event, groupItem)">
             <div class='linked-item' v-for='content in groupItem.contents' :key='content.id'>
               <div class='linked-item-deleted'>
@@ -218,6 +219,14 @@ export default {
         })
       }
       this.getAssociate()
+    },
+
+    handleOnMve(e) {
+      console.log('handleOnMve', e.to.dataset)
+      if (e.to.dataset['nodraggable']) {
+        return false
+      }
+      return true
     },
 
     handleDeleteLinkItem (item) {
