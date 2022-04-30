@@ -15,7 +15,7 @@
         @collaborate='handleStartCollaborate'
       />
     </div>
-    <div class='step-nav' :style="{left: collapsed ? '80px' : '256px'}">
+    <div class='step-nav' :style="{left: collapsed ? '80px' : '256px', width: collapsed ? 'calc(100% - 80px)' : 'calc(100% - 256px)'}">
       <my-vertical-steps
         ref='steps-nav'
         :steps='$store.getters.formConfigData.taskSteps'
