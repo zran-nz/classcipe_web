@@ -827,7 +827,7 @@
             </div>
           </template>
           <template v-if='currentRightModule === rightModule.associate'>
-            <link-content-list />
+            <link-content-list :filter-types="[contentType['unit-plan'], contentType.evaluation]" />
           </template>
         </div>
       </div>

@@ -144,10 +144,11 @@ export default {
       event.item.parentElement.removeChild(event.item)
       this.$logger.info('item data', itemData)
 
+      const groupName = itemData.type === this.$classcipe.typeMap['unit-plan'] ? 'Relevant Unit Plan(s)' : 'Linked assessment tool(s)'
       const associateData = {
         fromId: this.fromId,
         fromType: this.$classcipe.typeMap.task,
-        groupName: groupItem.group,
+        groupName: groupName,
         otherContents: [
           {
             toId: itemData.id,

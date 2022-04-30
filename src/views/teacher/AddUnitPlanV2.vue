@@ -563,7 +563,7 @@
           </template>
 
           <template v-if='currentRightModule === rightModule.associate'>
-            <link-content-list />
+            <link-content-list :filter-types="[contentType.task]" />
           </template>
         </div>
       </div>

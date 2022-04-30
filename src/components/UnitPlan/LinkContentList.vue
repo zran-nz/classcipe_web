@@ -40,7 +40,7 @@
 
 import draggable from 'vuedraggable'
 import { FindMyContent } from '@/api/teacher'
-import { ownerMap, statusMap, typeMap } from '@/const/teacher'
+import { ownerMap, statusMap } from '@/const/teacher'
 import * as logger from '@/utils/logger'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import DownloadedSvg from '@/assets/libraryv2/downloaded.svg?inline'
@@ -50,6 +50,12 @@ import LinkContentItem from '@/components/UnitPlan/LinkContentItem'
 export default {
   name: 'LinkContentList',
   components: { LinkContentItem, ContentTypeIcon, draggable, DownloadedSvg, CommonPreviewV2 },
+  props: {
+    filterTypes: {
+      type: Array,
+      default: () => []
+    }
+  },
   data () {
     return {
       loading: true,
@@ -86,7 +92,7 @@ export default {
         owner: ownerMap['owner-by-me'],
         status: statusMap.published,
         collabrated: false,
-        types: [typeMap.task],
+        types: this.filterTypes,
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize,
         searchKey: this.searchKey ? this.searchKey : '',
