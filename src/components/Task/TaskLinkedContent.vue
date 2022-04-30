@@ -1,48 +1,28 @@
 <template>
   <div class='unit-linked-content'>
-    <div class='header-action'>
-      <a-space>
-        <a-button type='primary' @click='handleAddNew'>Add new</a-button>
-        <a-button type='primary' @click='handleAddCategory'>Add category</a-button>
-      </a-space>
-    </div>
     <div class='linked-content'>
-      <draggable
-        v-model="ownerLinkGroupList"
-        :disabled="!canEdit"
-        animation="300"
-        group="category">
-        <div
-          class='linked-category'
-          v-for='(groupItem, gIdx) in ownerLinkGroupList'
-          :key='groupItem.group'>
-          <div class='category-name' :style="{'background-color': color[gIdx]}">
-            {{ groupItem.group }}
-            <div class='category-delete' v-if="canEdit">
-              <a-popconfirm title="Delete category ?" ok-text="Yes" @confirm="handleDeleteGroup(groupItem)" cancel-text="No">
+      <div
+        class='linked-category'
+        v-for='(groupItem, gIdx) in ownerLinkGroupList'
+        :key='gIdx'>
+        <draggable
+          v-model="groupItem.contents"
+          :disabled="!canEdit"
+          animation="300"
+          group="content-item"
+          style="width: 100%; min-height: 50px"
+          :move='handleOnMve'
+          @add="handleDragContent($event, groupItem)">
+          <div class='linked-item' v-for='content in groupItem.contents' :key='content.id'>
+            <div class='linked-item-deleted'>
+              <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteLinkItem(content)" cancel-text="No">
                 <delete-icon />
               </a-popconfirm>
             </div>
+            <link-content-item :content='content' />
           </div>
-          <draggable
-            v-model="groupItem.contents"
-            :disabled="!canEdit"
-            animation="300"
-            group="content-item"
-            style="width: 100%; min-height: 50px"
-            :move='handleOnMve'
-            @add="handleDragContent($event, groupItem)">
-            <div class='linked-item' v-for='content in groupItem.contents' :key='content.id'>
-              <div class='linked-item-deleted'>
-                <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteLinkItem(content)" cancel-text="No">
-                  <delete-icon />
-                </a-popconfirm>
-              </div>
-              <link-content-item :content='content' />
-            </div>
-          </draggable>
-        </div>
-      </draggable>
+        </draggable>
+      </div>
     </div>
 
     <linked-category v-if='addCategoryVisible' :selected='groupNameList' @close='addCategoryVisible = false' @confirm='handleConfirmAddCategory'/>
@@ -63,7 +43,7 @@ import draggable from 'vuedraggable'
 import DeleteIcon from '@/components/Common/DeleteIcon'
 
 export default {
-  name: 'UnitLinkedContent',
+  name: 'TaskLinkedContent',
   components: { DeleteIcon, LinkContentItem, LinkedCategory, draggable },
   props: {
     fromId: {
@@ -86,13 +66,13 @@ export default {
         '#12b88611',
         '#fab00511'
       ],
-      associateTaskIdList: [],
-      associateTaskList: [],
+      associateUnitIdList: [],
+      associateUnitList: [],
       associateId2Name: new Map()
     }
   },
   created() {
-    this.$logger.info('UnitLinkedContent ' + this.fromId)
+    this.$logger.info('TaskLinkedContent ' + this.fromId)
     this.getAssociate()
   },
   computed: {
@@ -128,7 +108,7 @@ export default {
       this.linkGroupLoading = true
       await GetAssociate({
         id: this.fromId,
-        type: this.$classcipe.typeMap['unit-plan'],
+        type: this.$classcipe.typeMap.task,
         published: 1
       }).then(response => {
         this.$logger.info('UnitLinkedContent getAssociate', response)
@@ -144,10 +124,10 @@ export default {
 
         this.ownerLinkGroupList.forEach(group => {
           group.contents.forEach(content => {
-            if (content.type === this.$classcipe.typeMap.task) {
-              this.associateTaskIdList.push(content.id)
+            if (content.type === this.$classcipe.typeMap['unit-plan']) {
+              this.associateUnitIdList.push(content.id)
               this.associateId2Name.set(content.id, content.name)
-              this.associateTaskList.push(content)
+              this.associateUnitList.push(content)
             }
           })
         })
@@ -166,7 +146,7 @@ export default {
 
       const associateData = {
         fromId: this.fromId,
-        fromType: this.$classcipe.typeMap['unit-plan'],
+        fromType: this.$classcipe.typeMap.task,
         groupName: groupItem.group,
         otherContents: [
           {
@@ -185,7 +165,7 @@ export default {
       this.$logger.info('handleDeleteGroup', group)
       DeleteGroup({
         fromId: this.fromId,
-        fromType: this.$classcipe.typeMap['unit-plan'],
+        fromType: this.$classcipe.typeMap.task,
         id: group.id
       }).then(response => {
         this.$logger.info('DeleteGroup', response)
@@ -198,7 +178,7 @@ export default {
       for (let i = 0; i < newGroupNameList.length; i++) {
         await AddOrSaveGroupName({
           fromId: this.fromId,
-          fromType: this.$classcipe.typeMap['unit-plan'],
+          fromType: this.$classcipe.typeMap.task,
           groupName: newGroupNameList[i]
         })
       }

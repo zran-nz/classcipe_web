@@ -580,15 +580,8 @@
                 </div>
 
                 <div class='form-block tag-content-block' :data-field-name='taskField.Link' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Link' :key='fieldItem.fieldName'>
-                  <collaborate-tooltip :form-id="taskId" :field-name='taskField.Link' />
-                  <comment-switch
-                    v-show="canEdit"
-                    :is-active="currentFieldName === taskField.Link"
-                    @switch='handleSwitchComment'
-                    :field-name='taskField.Link'
-                    :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Link}" />
                   <div class='common-link-wrapper'>
-                    <task-link :can-edit="canEdit" ref='commonLink' :from-id='taskId' :from-type='contentType.task' />
+                    <task-linked-content :from-id='taskId' />
                   </div>
                 </div>
 
@@ -833,6 +826,9 @@
                 @change-user-tags='handleChangeCustomTags'></custom-tag-v2>
             </div>
           </template>
+          <template v-if='currentRightModule === rightModule.associate'>
+            <link-content-list />
+          </template>
         </div>
       </div>
       <div class='loading-content' v-if='contentLoading'>
@@ -955,22 +951,6 @@
       <a-tabs class='template-tabs'>
         <a-tab-pane key='1' tab='Slide template(s)'>
           <div class='select-template-wrapper'>
-            <!--              <div class="template-show-filter">-->
-            <!--                <div class="icon" style="height:20px">-->
-            <!--                  <a-tooltip title="Expand filter" placement="right">-->
-            <!--                    <img-->
-            <!--                      v-if="!showTemplateFilter"-->
-            <!--                      src="~@/assets/icons/tag/add.png"-->
-            <!--                      @click="showTemplateFilter = !showTemplateFilter">-->
-            <!--                  </a-tooltip>-->
-            <!--                  <a-tooltip title="Collapse filter" placement="right">-->
-            <!--                    <img-->
-            <!--                      v-if="showTemplateFilter"-->
-            <!--                      src="~@/assets/icons/task/toggle.png"-->
-            <!--                      @click="showTemplateFilter = !showTemplateFilter">-->
-            <!--                  </a-tooltip>-->
-            <!--                </div>-->
-            <!--              </div>-->
             <div class='template-select-header'>
               <div class='group-filter'>
                 <a-radio-group v-model='filterType' button-style='solid' @change='changeFilterType'>
@@ -1760,12 +1740,16 @@ import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 import MyVerticalSteps from '@/components/Steps/MyVerticalSteps'
 import storage from 'store'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
+import TaskLinkedContent from '@/components/Task/TaskLinkedContent'
+import LinkContentList from '@/components/UnitPlan/LinkContentList'
 
 const { SplitTask } = require('@/api/task')
 
 export default {
   name: 'AddTask',
   components: {
+    LinkContentList,
+    TaskLinkedContent,
     MyVerticalSteps,
     AddGreenIcon,
     UploadEnter,
@@ -2242,9 +2226,12 @@ export default {
     handleDisplayRightModule () {
       if (this.currentStep.commonFields.indexOf(TaskField.Slides) !== -1) {
         this.currentRightModule = RightModule.recommend
+      } else if (this.currentStep.commonFields.indexOf(TaskField.Link) !== -1) {
+        this.currentRightModule = RightModule.associate
       } else {
         this.currentRightModule = RightModule.customTag
       }
+      this.$logger.info('handleDisplayRightModule', this.currentRightModule)
     },
 
     handleAuthCallback() {
