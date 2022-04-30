@@ -19,7 +19,7 @@
           <div class='category-name' :style="{'background-color': color[gIdx]}">
             {{ groupItem.group }}
             <div class='category-delete' v-if="canEdit">
-              <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteGroup(groupItem)" cancel-text="No">
+              <a-popconfirm title="Delete category ?" ok-text="Yes" @confirm="handleDeleteGroup(groupItem)" cancel-text="No">
                 <delete-icon />
               </a-popconfirm>
             </div>
@@ -34,6 +34,11 @@
             @update="handleDragContent"
             @end="handleDragEnd">
             <div class='linked-item' v-for='content in groupItem.contents' :key='content.id'>
+              <div class='linked-item-deleted'>
+                <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteLinkItem(content)" cancel-text="No">
+                  <delete-icon />
+                </a-popconfirm>
+              </div>
               <link-content-item :content='content' />
             </div>
           </draggable>
@@ -47,7 +52,7 @@
 
 <script>
 import LinkedCategory from '@/components/UnitPlan/LinkedCategory'
-import { AddOrSaveGroupName, DeleteGroup, GetAssociate, SaveGroupItems } from '@/api/teacher'
+import { AddOrSaveGroupName, AssociateCancel, DeleteGroup, GetAssociate, SaveGroupItems } from '@/api/teacher'
 import LinkContentItem from '@/components/UnitPlan/LinkContentItem'
 import draggable from 'vuedraggable'
 import DeleteIcon from '@/components/Common/DeleteIcon'
@@ -186,7 +191,21 @@ export default {
         })
       }
       this.getAssociate()
-    }
+    },
+
+    handleDeleteLinkItem (item) {
+      this.$logger.info('handleDeleteLinkItem', item)
+      AssociateCancel({
+        fromId: this.fromId,
+        fromType: this.fromType,
+        toId: item.id,
+        toType: item.type
+      }).then(response => {
+        this.$logger.info('handleDeleteLinkItem response ', response)
+        // 刷新子组件的关联数据
+        this.getAssociate()
+      })
+    },
   }
 }
 </script>
@@ -210,6 +229,7 @@ export default {
   position: relative;
 
   .category-delete {
+    cursor: pointer;
     display: none;
     position: absolute;
     left: -30px;
@@ -229,6 +249,27 @@ export default {
 
 .unit-linked-content {
   padding: 0 15px;
+}
+
+.linked-item {
+  position: relative;
+  .linked-item-deleted {
+    cursor: pointer;
+    display: none;
+    position: absolute;
+    left: -30px;
+    top: 0;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 100%;
+  }
+
+  &:hover {
+    .linked-item-deleted {
+      display: flex;
+    }
+  }
 }
 
 </style>
