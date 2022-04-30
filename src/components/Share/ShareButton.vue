@@ -1,6 +1,8 @@
 <template>
   <div class="share-button">
-    <div class="share-qrcode"></div>
+    <div class="share-qrcode">
+      <img :src="qrCode" alt="qrCode">
+    </div>
     <a-divider>Or</a-divider>
     <a-space class="share-out">
       <img @click="share('fb')" src="~@/assets/icons/share/fb.png" alt="share to facebook" />
@@ -13,6 +15,7 @@
 </template>
 
 <script>
+import { CreateQRCode } from '@/api/v2/live'
 export default {
   name: 'ShareButton',
   props: {
@@ -27,6 +30,7 @@ export default {
   },
   data() {
     return {
+      qrCode: '',
       shareLink: {
         fb: `https://www.facebook.com/share.php?title=${this.title}&u=${encodeURIComponent(this.link)}`,
         in: `https://www.linkedin.com/shareArticle?mini=true&source=str&title=${this.title}&url=${encodeURIComponent(this.link)}`,
@@ -35,7 +39,26 @@ export default {
       }
     }
   },
+  created() {
+    this.initQrcode()
+  },
   methods: {
+    initQrcode() {
+      if (this.link) {
+        CreateQRCode({
+          url: this.link
+        }).then(data => {
+          const reader = new FileReader()
+          reader.readAsDataURL(new Blob([data]))
+          reader.onload = () => {
+            this.qrCode = reader.result
+          }
+          reader.onerror = () => {
+            console.log('read failed')
+          }
+        })
+      }
+    },
     share(type) {
       window.open(this.shareLink[type], '_blank')
     },
@@ -60,6 +83,10 @@ export default {
     width: 100px;
     height: 100px;
     border: 1px solid #dfdfdf;
+    img {
+      width: 100%;
+      height: 100%;
+    }
   }
   .share-out {
     img {

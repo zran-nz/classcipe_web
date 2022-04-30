@@ -41,7 +41,7 @@
       width='300px'
       @cancel='handleCloseShare'>
       <share-button
-        :link="shareItem.name || 'test'"
+        :link="shareItem.name || 'https://dev.classcipe.com/'"
         :title="shareItem.name || 'test'"
       />
     </a-modal>
