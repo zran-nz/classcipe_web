@@ -47,7 +47,7 @@ export const asyncRouterMap = [
           },
           {
             path: '/teacher/main/created-by-me-old',
-            name: 'CreatedByMe',
+            name: 'CreatedByMeOld',
             component: () => import('@/views/teacher/CreatedByMe'),
             meta: { title: 'menu.my-content', keepAlive: true, permission: ['teacher'], icon: CreatedByMeSvg }
           },
