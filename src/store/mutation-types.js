@@ -48,3 +48,5 @@ export const FORM_CONFIG_DATA = 'form_config_data'
 export const SET_CLASS_LIST = 'set_class_list'
 
 export const SET_CURRENT_SCHOOL = 'SET_CURRENT_SCHOOL'
+
+export const TOGGLE_DEVICE = 'TOGGLE_DEVICE'

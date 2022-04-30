@@ -45,7 +45,7 @@
             <span>My Favorite</span>
           </a-menu-item>
 
-          <a-menu-item key="Live workshops" @click.native="handleSwitchMenu()" class='block-menu'>
+          <a-menu-item key="Live workshops" @click.native="handleSwitchMenu('/teacher/main/live-workshops')" class='block-menu'>
             <a-icon type="desktop" />
             <span>Live workshops</span>
           </a-menu-item>

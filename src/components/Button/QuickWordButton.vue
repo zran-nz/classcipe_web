@@ -1,46 +1,57 @@
 <template>
-  <a-popover
-    v-model="visible"
-    trigger="click"
-    placement="bottom"
-    ref="popoverRef"
-    :getPopupContainer="trigger => trigger.parentElement"
-    @visibleChange="visibleChange">
-    <div slot="title" class="quick-title">
-      <a-input size="small" placeholder="Input keyword" @change="handleChange" v-model="word"></a-input>
-    </div>
-    <div slot="content" class="quick-word">
-      <div class="quick-word-title" v-show="result && result.length > 0">
-        Select an option
+  <div>
+    <a-popover
+      v-model="visible"
+      trigger="click"
+      placement="bottom"
+      ref="popoverRef"
+      :getPopupContainer="trigger => trigger.parentElement"
+      @visibleChange="visibleChange">
+      <div slot="title" class="quick-title">
+        <a-input size="small" placeholder="Input keyword" @change="handleChange" v-model="word"></a-input>
       </div>
-      <a-spin :spinning="loading">
-        <div class="quick-word-content" v-if="result && result.length > 0">
-          <div class="quick-word-item" v-for="(item) in result" :key="'quickWord_'+item.id">
-            <a-tooltip :title="item.hint">
-              <a @click="choose(item)">{{ item.name }}</a>
-            </a-tooltip>
+      <div slot="content" class="quick-word">
+        <div class="quick-word-title" v-show="result && result.length > 0">
+          Select an option
+        </div>
+        <a-spin :spinning="loading">
+          <div
+            class="quick-word-content"
+            v-infinite-scroll="handleInfiniteOnLoad"
+            :infinite-scroll-disabled="busy"
+            :infinite-scroll-distance="10"
+            v-if="result && result.length > 0"
+          >
+            <div class="quick-word-item" v-for="(item) in result" :key="'quickWord_'+item.id">
+              <a-tooltip :title="item.hint">
+                <a @click="choose(item)">{{ item.name }}</a>
+              </a-tooltip>
+            </div>
           </div>
-        </div>
-        <div v-else style="font-size: 12px;color:#999;">No relevant tag found</div>
-      </a-spin>
-      <slot name='create'>
-        <div class="quick-word-sub">
-          <label>Create: </label>
-          <a-input :size="size" v-model="selfWord"/>
-          <a-icon @click="doCreate()" type="check" />
-        </div>
-      </slot>
-    </div>
-    <a-button :type="type" :size="size">
-      {{ text }}
-    </a-button>
-  </a-popover>
+          <div v-else style="font-size: 12px;color:#999;">No relevant tag found</div>
+        </a-spin>
+        <slot name='create'>
+          <div class="quick-word-sub">
+            <label>Create: </label>
+            <a-input :size="size" v-model="selfWord"/>
+            <a-icon @click="doCreate()" type="check" />
+          </div>
+        </slot>
+      </div>
+      <a-button :type="type" :size="size">
+        {{ text }}
+      </a-button>
+    </a-popover>
+  </div>
 </template>
 
 <script>
+// import infiniteScroll from 'vue-infinite-scroll'
+import infiniteScroll from '@/core/directives/infiniteScroll'
 const { debounce } = require('lodash-es')
 export default {
   name: 'QuickWordButton',
+  directives: { infiniteScroll },
   props: {
     type: {
       type: String,
@@ -81,7 +92,7 @@ export default {
     },
     datas: {
       handler(val) {
-        this.result = val
+        this.result = [...val]
       },
       immediate: true
     }
@@ -94,8 +105,9 @@ export default {
       word: this.quickWord,
       result: [],
       loading: false,
-      visible: false,
-      selfWord: this.quickWord
+      visible: true,
+      selfWord: this.quickWord,
+      busy: false
     }
   },
   methods: {
@@ -121,6 +133,15 @@ export default {
       }
       this.loading = false
       return res
+    },
+    handleInfiniteOnLoad() {
+      // console.log(111)
+      // if (this.result.length > 0) {
+      //   this.result.push({
+      //     id: new Date().getTime(),
+      //     name: 'tett'
+      //   })
+      // }
     },
     visibleChange(visible) {
       if (visible && this.datas.length === 0) {
@@ -181,7 +202,7 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: center;
-    max-height: 150px;
+    height: 150px;
     overflow: auto;
     .quick-word-item {
       line-height: 30px;
