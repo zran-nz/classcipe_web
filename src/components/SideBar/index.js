@@ -40,10 +40,6 @@ export default {
       required: false,
       default: false
     },
-    inlineCollapsed: {
-      type: Boolean,
-      default: false
-    },
     initSelected: {
       type: String,
       default: '/student/main'
@@ -245,8 +241,7 @@ export default {
     const props = {
       mode: mode,
       theme: theme,
-      openKeys: this.openKeys,
-      inlineCollapsed: this.inlineCollapsed
+      openKeys: this.openKeys
     }
     const on = {
       select: obj => {

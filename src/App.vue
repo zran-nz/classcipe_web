@@ -13,6 +13,9 @@ import { domTitle, setDocumentTitle } from '@/utils/domUtil'
 import { i18nRender } from '@/locales'
 import Feedback from '@/components/Feedback/Feedback'
 import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
+import enquireScreen from '@/utils/device'
+import { mapMutations } from 'vuex'
+import { TOGGLE_DEVICE } from './store/mutation-types'
 
 export default {
   components: { Feedback },
@@ -52,7 +55,15 @@ export default {
 
     window.addEventListener('message', this.handlePostMessage, false)
   },
+  mounted() {
+    var that = this
+    enquireScreen(device => {
+      console.log(device)
+      that[TOGGLE_DEVICE](device)
+    })
+  },
   methods: {
+    ...mapMutations([TOGGLE_DEVICE]),
     handlePostMessage(e) {
       const eventData = e.data
       switch (eventData.event) {

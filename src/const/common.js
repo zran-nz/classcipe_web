@@ -247,3 +247,9 @@ export const COLOR_LEVEL = {
   BLOOM: ['#e1f0d8', '#c3e0b2', '#a9d08c', '#76b54a', '#558135', '#385524'],
   KNOWLEDGE: ['#bbd6ee', '#9cc2e5', '#2f74b5', '#1e4e79']
 }
+
+export const DEVICE = {
+  DESKTOP: 'desktop',
+  TABLET: 'tablet',
+  MOBILE: 'mobile'
+}

@@ -31,6 +31,7 @@ export default {
     'menu.my-schedule': 'Time & Table',
     'menu.my-task': 'My Task',
     'menu.my-classes': 'Classes',
+    'menu.live-workshops': 'Live Workshops',
     'menu.subscribe': 'Subscribe',
     'menu.shared': 'Collaborations',
     'menu.discover': 'Discover',

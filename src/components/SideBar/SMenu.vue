@@ -1,18 +1,24 @@
 <template>
   <div :class="className">
-    <side-menu
-      :collapsed="collapsed"
-      :inlineCollapse="inlineCollapsed"
-      :menus="menus"
-      :theme="theme"
-      :initSelected="initSelected"
-      @select="onSelect"
-      @updateMenuTitle="onUpdateMenuTitle"
-      :mode="mode"
-      :hiddenRoute="hiddenRoute"
-      :iconTheme="iconTheme"
-      :style="smenuStyle">
-    </side-menu>
+    <a-layout-sider
+      :class="[ theme ]"
+      width="200px"
+      :collapsible="collapsible"
+      v-model="collapsed"
+      :trigger="null">
+      <side-menu
+        :collapsed="collapsed"
+        :menus="menus"
+        :theme="theme"
+        :initSelected="initSelected"
+        @select="onSelect"
+        @updateMenuTitle="onUpdateMenuTitle"
+        :mode="mode"
+        :hiddenRoute="hiddenRoute"
+        :iconTheme="iconTheme"
+        :style="smenuStyle">
+      </side-menu>
+    </a-layout-sider>
   </div>
 </template>
 
@@ -37,10 +43,6 @@
       collapsible: {
         type: Boolean,
         required: false,
-        default: false
-      },
-      inlineCollapsed: {
-        type: Boolean,
         default: false
       },
       collapsed: {

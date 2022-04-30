@@ -15,12 +15,13 @@ import {
   TOGGLE_NAV_THEME,
   TOGGLE_WEAK,
   TOOGLE_USER_MODE,
-  HIDDEN_HEADER
+  HIDDEN_HEADER,
+  TOGGLE_DEVICE
 } from '@/store/mutation-types'
 import { loadLanguageAsync } from '@/locales'
 import { getSysConfig } from '@/api/common'
 import * as logger from '@/utils/logger'
-import { USER_MODE } from '@/const/common'
+import { USER_MODE, DEVICE } from '@/const/common'
 
 const app = {
   state: {
@@ -40,7 +41,8 @@ const app = {
     _antLocale: {},
     sysConfig: null,
     downloadUrl: '',
-    userMode: USER_MODE.SELF // selfStudy: 自学习模式，schoolStudy：学校模式
+    userMode: USER_MODE.SELF, // selfStudy: 自学习模式，schoolStudy：学校模式
+    device: DEVICE.DESKTOP
   },
   mutations: {
     [HIDDEN_SIDEBAR]: (state, type) => {
@@ -105,6 +107,9 @@ const app = {
     [TOOGLE_USER_MODE]: (state, userMode) => {
       state.userMode = userMode
       storage.set(TOOGLE_USER_MODE, userMode)
+    },
+    [TOGGLE_DEVICE]: (state, device) => {
+      state.device = device
     }
   },
   actions: {

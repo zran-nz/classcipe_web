@@ -118,7 +118,7 @@ export default {
 }
 .email-to {
   position: absolute;
-  z-index: 999;
+  z-index: 99;
   color: #666;
   top: 20px;
   right: 20px;
