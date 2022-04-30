@@ -18,6 +18,11 @@
           :key='groupItem.group'>
           <div class='category-name' :style="{'background-color': color[gIdx]}">
             {{ groupItem.group }}
+            <div class='category-delete' v-if="canEdit">
+              <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteGroup(groupItem)" cancel-text="No">
+                <delete-icon />
+              </a-popconfirm>
+            </div>
           </div>
           <draggable
             v-model="groupItem.contents"
@@ -45,10 +50,11 @@ import LinkedCategory from '@/components/UnitPlan/LinkedCategory'
 import { AddOrSaveGroupName, DeleteGroup, GetAssociate, SaveGroupItems } from '@/api/teacher'
 import LinkContentItem from '@/components/UnitPlan/LinkContentItem'
 import draggable from 'vuedraggable'
+import DeleteIcon from '@/components/Common/DeleteIcon'
 
 export default {
   name: 'UnitLinkedContent',
-  components: { LinkContentItem, LinkedCategory, draggable },
+  components: { DeleteIcon, LinkContentItem, LinkedCategory, draggable },
   props: {
     fromId: {
       type: String,
@@ -105,18 +111,23 @@ export default {
       })
       this.handleAddTerm(newGroupNameList)
       this.$logger.info('newGroupNameList', newGroupNameList)
-      this.getAssociate()
     },
 
-    getAssociate () {
+    async getAssociate () {
       this.$logger.info('GetAssociate id[' + this.fromId)
       this.linkGroupLoading = true
-      GetAssociate({
+      await GetAssociate({
         id: this.fromId,
         type: this.$classcipe.typeMap['unit-plan'],
         published: 1
       }).then(response => {
         this.$logger.info('UnitLinkedContent getAssociate', response)
+        response.result.owner.forEach(ownerItem => {
+          const groupItem = response.result.groups.find(group => group.groupName === ownerItem.group)
+          if (groupItem) {
+            ownerItem.groupId = groupItem.id
+          }
+        })
         this.ownerLinkGroupList = response.result.owner
         this.groups = response.result.groups
         this.$logger.info('ownerLinkGroupList', this.ownerLinkGroupList)
@@ -169,13 +180,12 @@ export default {
       this.$logger.info('handleAddTerm', this.groupNameList)
       for (let i = 0; i < newGroupNameList.length; i++) {
         await AddOrSaveGroupName({
-          fromId: this.unitPlanId,
-          fromType: this.contentType['unit-plan'],
+          fromId: this.fromId,
+          fromType: this.$classcipe.typeMap['unit-plan'],
           groupName: newGroupNameList[i]
-        }).then(response => {
-          this.$logger.info(`create ${newGroupNameList[i]}`, response)
         })
       }
+      this.getAssociate()
     }
   }
 }
@@ -197,6 +207,28 @@ export default {
   color: #333;
   font-size: 15px;
   font-weight: 400;
+  position: relative;
+
+  .category-delete {
+    display: none;
+    position: absolute;
+    left: -30px;
+    top: 0;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 42px;
+  }
+
+  &:hover {
+    .category-delete {
+      display: flex;
+    }
+  }
+}
+
+.unit-linked-content {
+  padding: 0 15px;
 }
 
 </style>
