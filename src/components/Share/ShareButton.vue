@@ -1,7 +1,9 @@
 <template>
   <div class="share-button">
     <div class="share-qrcode">
-      <img :src="qrCode" alt="qrCode">
+      <a-spin :spinning="loading">
+        <img :src="qrCode" alt="qrCode">
+      </a-spin>
     </div>
     <a-divider>Or</a-divider>
     <a-space class="share-out">
@@ -31,6 +33,7 @@ export default {
   data() {
     return {
       qrCode: '',
+      loading: false,
       shareLink: {
         fb: `https://www.facebook.com/share.php?title=${this.title}&u=${encodeURIComponent(this.link)}`,
         in: `https://www.linkedin.com/shareArticle?mini=true&source=str&title=${this.title}&url=${encodeURIComponent(this.link)}`,
@@ -45,6 +48,7 @@ export default {
   methods: {
     initQrcode() {
       if (this.link) {
+        this.loading = true
         CreateQRCode({
           url: this.link
         }).then(data => {
@@ -56,6 +60,7 @@ export default {
           reader.onerror = () => {
             console.log('read failed')
           }
+          this.loading = false
         })
       }
     },
