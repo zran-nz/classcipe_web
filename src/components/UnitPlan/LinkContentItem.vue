@@ -23,31 +23,9 @@
       </div>
       <div class='action'>
         <a-space>
-          <a-button type='primary' v-if='content.type === typeMap.task && content.subTasks.length > 0'>SubTask</a-button>
-          <a-button type='primary'>Original Tips</a-button>
-          <a-button type='primary' v-if='content.type === typeMap.task || content.type === typeMap.pd'>Schedule</a-button>
           <a-button type='primary' @click='editItem(content)'>Edit</a-button>
-          <a-dropdown :trigger="['click']" :getPopupContainer="trigger => trigger.parentElement">
-            <a-button type='primary'><a-icon type="dash" /></a-button>
-            <div class='content-item-more-action' slot="overlay">
-              <div class='self-learning menu-item' v-if='content.type === typeMap.task'>
-                Self learning <a-switch size="small" @change='handleSelfLearning' />
-              </div>
-              <div class='menu-item'>
-                <a-button type='primary' size='small' @click='handlePublishStatus'>
-                  <template v-if='content.status === 0'>Publish</template>
-                  <template v-if='content.status === 1'>UnPublish</template>
-                </a-button>
-              </div>
-              <div class='menu-item'>
-                <a-button type='danger' size='small' @click='handleDeleteItem'>Delete</a-button>
-              </div>
-            </div>
-          </a-dropdown>
         </a-space>
       </div>
-
-      <preview-content :preview-current-id='previewCurrentId' :preview-type='previewType' v-if='previewVisible' @close='handlePreviewClose' />
     </div>
   </div>
 </template>
@@ -55,13 +33,11 @@
 <script>
 
 import { typeMap } from '@/const/teacher'
-import * as logger from '@/utils/logger'
-import { DeleteMyContentByType } from '@/api/teacher'
 import { ContentItemMixin } from '@/mixins/ContentItemMixin'
 import PreviewContent from '@/components/MyContentV2/PreviewContent'
 
 export default {
-  name: 'ContentItem',
+  name: 'LinkContentItem',
   components: { PreviewContent },
   props: {
     content: {
@@ -100,27 +76,6 @@ export default {
           path: '/teacher/pd-content-redirect/' + item.id
         })
       }
-    },
-
-    handleSelfLearning (isSelfLearning) {
-      this.$logger.info('handleSelfLearning', isSelfLearning)
-      this.isSelfLearning = isSelfLearning
-    },
-
-    handlePublishStatus () {
-      this.$emit('update-publish', {
-        content: this.content
-      })
-    },
-
-    handleDeleteItem () {
-      logger.info('handleDeleteItem', this.content)
-      DeleteMyContentByType(this.content).then(res => {
-        logger.info('DeleteMyContentByType', res)
-        this.$emit('delete', {
-          content: this.content
-        })
-      })
     }
   }
 }

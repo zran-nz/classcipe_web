@@ -1,4 +1,5 @@
-import { AllCurriculums } from '@/const/common'
+import { AllCurriculums, PlanField, TaskField } from '@/const/common'
+import { typeMap } from '@/const/teacher'
 
 const classcipeCDN = 'https://d1nk0uvaoq8fwq.cloudfront.net/'
 
@@ -32,5 +33,8 @@ function replaceToClasscipeCDN(rawUrl) {
 export {
   get21stCenturyDisplayNameByCurriculum,
   classcipeCDN,
+  typeMap,
+  PlanField,
+  TaskField,
   replaceToClasscipeCDN
 }

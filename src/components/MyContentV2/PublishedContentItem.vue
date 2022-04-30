@@ -137,6 +137,7 @@ export default {
   align-items: flex-start;
   overflow: hidden;
   .cover {
+    border: 1px solid #e1e1e1;
     .cover-block {
       height: 160px;
       width: 260px;

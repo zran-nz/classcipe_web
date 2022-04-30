@@ -104,9 +104,7 @@ export default {
     },
     handleConfirm() {
       this.$logger.info('selectedList', this.selectedList)
-      this.$emit('confirm', {
-        selected: this.selectedList
-      })
+      this.$emit('confirm', this.selectedList)
     },
     handleShowNewCategory () {
       this.newCategory = null

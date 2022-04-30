@@ -468,44 +468,7 @@
 
                 <div class='form-block tag-content-block' :data-field-name='planField.Link' v-if='fieldItem.visible && fieldItem.fieldName === planField.Link' :key='fieldItem.fieldName'>
                   <div class='form-block'>
-                    <collaborate-tooltip :form-id="unitPlanId" :field-name='planField.Link'/>
-                    <comment-switch
-                      v-show="canEdit"
-                      :field-name="planField.Link"
-                      :is-active="currentFieldName === planField.Link "
-                      :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Link}"
-                      @switch='handleSwitchComment' />
-                    <a-form-item class='link-plan-title' label='Add task(s)' >
-                      <a-space v-show="canEdit">
-                        <a-button
-                          :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8', 'display': 'flex', 'align-items': 'center'}"
-                          type='primary'
-                          :loading='linkLoading'
-                          @click='handleAddTasks'>
-                          <div class='btn-text' style='line-height: 20px; padding-left: 5px'>
-                            + Link Task(s)
-                          </div>
-                        </a-button>
-                        <a-button
-                          :loading='addCategoryLoading'
-                          :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}"
-                          class='addCategory'
-                          type='primary'
-                          @click='handleAddTerm'>
-                          <div class='btn-text' style='line-height: 20px; padding-left: 5px'>
-                            + Add category
-                          </div>
-                        </a-button>
-                      </a-space>
-                    </a-form-item>
-                    <div class='common-link-wrapper'>
-                      <plan-link
-                        ref='planLink'
-                        :can-edit="canEdit"
-                        :from-id='unitPlanId'
-                        :from-type="contentType['unit-plan']"
-                        @group-name-list-update='handleUpdateGroupNameList' />
-                    </div>
+                    <unit-linked-content :from-id='unitPlanId' />
                   </div>
                 </div>
 
@@ -748,30 +711,6 @@
     </a-drawer>
 
     <a-modal
-      v-model='selectLinkContentVisible'
-      :dialog-style="{ top: '10px'}"
-      :footer='null'
-      destroyOnClose
-      width='900px'>
-      <div slot='title' class='my-modal-title'>
-        Link my content
-      </div>
-      <div class='link-content-wrapper'>
-        <new-my-content
-          :default-group-name='newTermName'
-          :filter-type-list='[contentType.task]'
-          :from-id='unitPlanId'
-          :from-type="contentType['unit-plan']"
-          :group-name-list='groupNameList'
-          :group-name-mode='groupNameMode'
-          :mode="'common-link'"
-          :selected-list='selectedTaskList'
-          @cancel='selectLinkContentVisible = false'
-          @ensure='handleEnsureSelectedLink' />
-      </div>
-    </a-modal>
-
-    <a-modal
       v-model='selectSyncDataVisible'
       :dialog-style="{ top: '20px' }"
       :footer='null'
@@ -944,7 +883,6 @@ import InputSearch from '@/components/UnitPlan/InputSearch'
 import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
 import {
   UpdateContentStatus,
-  AddOrSaveGroupName,
   Associate,
   FindBigIdeaSourceOutcomes,
   FindSourceOutcomes,
@@ -975,7 +913,6 @@ import DisplayMode from '@/components/MyContent/DisplayMode'
 import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
 import ReferPreview from '@/components/UnitPlanRefer/ReferPreview'
 import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
-import PlanLink from '@/components/Common/PlanLink'
 import NewMyContent from '@/components/MyContent/NewMyContent'
 import { FindCustomTags, GetTreeByKey } from '@/api/tag'
 import { NavigationType } from '@/components/NewLibrary/NavigationType'
@@ -1005,10 +942,12 @@ import MyVerticalSteps from '@/components/Steps/MyVerticalSteps'
 import storage from 'store'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 import LinkContentList from '@/components/UnitPlan/LinkContentList'
+import UnitLinkedContent from '@/components/UnitPlan/UnitLinkedContent'
 
 export default {
   name: 'AddUnitPlan',
   components: {
+    UnitLinkedContent,
     LinkContentList,
     MyVerticalSteps,
     PublishList,
@@ -1020,7 +959,6 @@ export default {
     CommentSwitch,
     CollaborateCommentPanel,
     NewMyContent,
-    PlanLink,
     ReferPreview,
     CollaborateUserList,
     CommonFormHeader,
@@ -1059,7 +997,6 @@ export default {
       DisplayMode: DisplayMode,
 
       selectAddContentTypeVisible: false,
-      selectLinkContentVisible: false,
 
       showAddAudioVisible: false,
       currentUploading: false,
@@ -1198,8 +1135,6 @@ export default {
       associateUnitPlanIdList: [],
       associateTaskIdList: [],
       associateId2Name: new Map(),
-      defaultGroupName: 'Untitled category',
-      addCategoryLoading: false,
       rwcList: [],
 
       shareVisible: false,
@@ -2073,93 +2008,6 @@ export default {
         this.$message.success('associate successfully!')
       })
     },
-    showSelectLinkContentVisible() {
-      if (!this.form.questions || this.form.questions.length === 0) {
-        this.$logger.info('no relevantQuestionList')
-        var that = this
-        this.$confirm({
-          title: 'Alert',
-          content: 'Please add questions and tags before linking',
-          onOk: function() {
-            that.handleHoverReferBlock({ blockType: 'question' })
-          }
-        })
-      } else {
-        this.selectLinkContentVisible = true
-      }
-    },
-    showSelectAddContentTypeVisible() {
-      if (!this.form.questions || this.form.questions.length === 0) {
-        this.$logger.info('no relevantQuestionList')
-        var that = this
-        this.$confirm({
-          title: 'Alert',
-          content: 'Please add questions and tags before linking',
-          onOk: function() {
-            that.handleHoverReferBlock({ blockType: 'question' })
-          }
-        })
-      } else {
-        this.selectAddContentTypeVisible = true
-      }
-    },
-
-    handleAddTasks() {
-      this.$logger.info('handleAddTasks', this.groupNameList)
-      this.linkLoading = true
-      // 如果第一部分有内容，点击link激活step 到第二部分，否则提示先输入第一部分表单内容
-      if (this.form.name ||
-        this.form.overview ||
-        this.form.inquiry ||
-        this.form.scenarios.length ||
-        this.form.questions.length) {
-        this.groupNameMode = 'input'
-        this.newTermName = ''
-        this.selectLinkContentVisible = true
-        this.setSessionStep(1)
-        // 添加link
-      } else {
-        this.$message.warn('Course info is empty, please fill the form first!')
-      }
-
-      // #协同编辑event事件
-      this.handleCollaborateEvent(this.unitPlanId, this.planField.Link, this.associateTaskList)
-
-      // 页面渲染后隐藏loading
-      this.$nextTick(() => {
-        setTimeout(() => {
-          this.linkLoading = false
-        }, 500)
-      })
-    },
-
-    handleAddTerm() {
-      this.$logger.info('handleAddTerm', this.groupNameList)
-      this.addCategoryLoading = true
-      AddOrSaveGroupName({
-        fromId: this.unitPlanId,
-        fromType: this.contentType['unit-plan'],
-        groupName: this.defaultGroupName + '_' + this.groupNameList.length
-      }).then(response => {
-        this.$logger.info('AddOrSaveGroupName', response)
-        this.$refs.planLink.getAssociate()
-        this.addCategoryLoading = false
-      })
-
-      // #协同编辑event事件
-      this.handleCollaborateEvent(this.unitPlanId, this.planField.Link, this.associateTaskList)
-    },
-
-    handleEnsureSelectedLink(data) {
-      this.$logger.info('handleEnsureSelectedLink', data)
-      this.selectLinkContentVisible = false
-      this.getAssociate()
-      // 刷新组件内的列表
-      this.$refs.planLink.getAssociate()
-
-      // #协同编辑event事件
-      this.handleCollaborateEvent(this.unitPlanId, this.planField.Link, this.associateTaskList)
-    },
 
     getAssociate() {
       this.$logger.info('AddUnitPlan GetAssociate id[' + this.unitPlanId + '] fromType[' + this.contentType['unit-plan'] + ']')
@@ -2328,13 +2176,6 @@ export default {
           this.$logger.info('************************update unit-plan recommendDataIdList ', this.recommendDataIdList)
         })
       }
-    },
-
-    handleUpdateGroupNameList() {
-      this.$logger.info('handleUpdateGroupNameList')
-      this.getAssociate()
-      // #协同编辑event事件
-      this.handleCollaborateEvent(this.unitPlanId, this.planField.Link, this.associateTaskList)
     },
 
     handleSelectBigIdeaData(data) {
