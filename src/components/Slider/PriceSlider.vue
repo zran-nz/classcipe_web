@@ -19,12 +19,10 @@ export default {
     current: {
       type: [Number],
       default: 32
-    }
-  },
-  data() {
-    return {
-      PREFIX: ' per',
-      datas: [{
+    },
+    priceList: {
+      type: Array,
+      default: () => [{
         value: 1,
         price: 10
       }, {
@@ -33,7 +31,18 @@ export default {
       }, {
         value: 50,
         price: 5
-      }],
+      }]
+    }
+  },
+  data() {
+    return {
+      PREFIX: ' per',
+      datas: this.priceList.map(item => {
+        return {
+          value: item.value || item.registeredNum,
+          price: item.price
+        }
+      }),
       result: null,
       min: 1,
       disabled: true

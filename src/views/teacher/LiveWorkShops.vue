@@ -41,11 +41,15 @@
     </div>
     <div class='content-wrapper'>
       <a-spin tip='Loading...' :spinning="loading">
-        <div class='content-list'>
+        <div class='content-list' v-if="myContentList && myContentList.length > 0">
           <content-item v-for='item in myContentList' :key='item.id' :content='item'></content-item>
         </div>
+        <div v-else class="no-subject">
+          <img src='~@/assets/newBrowser/no-subject.png'/>
+          <p>None live workshops because you dont set the live workshop</p>
+        </div>
       </a-spin>
-      <div class='pagination'>
+      <div class='pagination' v-if="myContentList && myContentList.length > 0">
         <a-pagination
           v-model="pageNo"
           :total="pagination.total"
@@ -61,7 +65,7 @@
 <script>
 import CreateNew from '@/components/MyContentV2/CreateNew'
 import ContentFilter from '@/components/MyContentV2/ContentFilter'
-import { FindMyContent } from '@/api/teacher'
+import { FindWorkShops } from '@/api/v2/live'
 import * as logger from '@/utils/logger'
 import { SESSION_CURRENT_PAGE, WORK_SHOPS_STATUS, WORK_SHOPS_TYPE } from '@/const/common'
 import ContentItem from '@/components/MyContentV2/LiveWorkShopContentItem'
@@ -125,7 +129,7 @@ export default {
       if (this.filterParams) {
         params = Object.assign(this.filterParams, params)
       }
-      FindMyContent(params).then(res => {
+      FindWorkShops(params).then(res => {
         logger.info('getMyContent', res)
         if (res.success && res.code === 0) {
           res.result.records.forEach((record, index) => {
@@ -201,6 +205,25 @@ export default {
         }
       }
     }
+  }
+}
+.no-subject {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: auto;
+  width: 400px;
+  img {
+    width: 400px;
+    height: 400px;
+  }
+  p {
+    font-size: 14px;
+    font-family: Leelawadee UI;
+    font-weight: bold;
+    color: #070707;
+    opacity: 1;
+    text-align: center;
   }
 }
 

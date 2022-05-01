@@ -1,28 +1,28 @@
 <template>
-  <div class='content-item' v-if='content'>
+  <div class='content-item' v-if='content && content.content'>
     <div class='cover'>
-      <div class='cover-block' :style="{'background-image': 'url(' + content.image + ')'}">
+      <div class='cover-block' :style="{'background-image': 'url(' + content.content.image + ')'}">
       </div>
     </div>
     <div class='detail'>
       <div class='detail-content'>
         <div class='base-info'>
           <div class='name'>
-            {{ content.name }}
+            {{ content.content.name }}
           </div>
           <div class='tag-info'></div>
           <div class='owner'>
-            {{ content.createBy }}
+            {{ content.content.createBy }}
           </div>
         </div>
         <div class='right-info'>
           <div class='update-time'>
-            {{ content.updateTime | dayjs }}
+            {{ content.content.updateTime | dayjs }}
           </div>
         </div>
       </div>
       <div class="detail-price">
-        <price-slider />
+        <price-slider :priceList="content.priceList" :current="content.registeredNum" />
       </div>
       <div class='action'>
         <a-space>
@@ -36,14 +36,14 @@
               <share-button
                 v-if="shareItem"
                 :link="content.link || 'https://dev.classcipe.com/'"
-                :title="content.name"
+                :title="content.content.name"
               />
             </template>
             <a-button type='primary' shape='round'>Share</a-button>
           </a-tooltip>
-          <template v-if="WORK_SHOPS_TYPE.FEATURE.value === content.workshopsType">
-            <a-button type='primary' shape='round' @click='editItem(content)'>Register</a-button>
-          </template>
+          <!-- <template v-if="WORK_SHOPS_TYPE.FEATURE.value === content.workshopsType"> -->
+          <a-button type='primary' shape='round' @click='editItem(content)'>Register</a-button>
+          <!-- </template> -->
           <template v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType">
             <a-button type='primary' shape='round' @click='editItem(content)'>Edit</a-button>
             <a-button type='primary' shape='round' @click='editItem(content)'>Delete</a-button>

@@ -18,7 +18,6 @@ export function FindWorkShops (parameter) {
     url: LiveApiUrl.FindWorkShops,
     method: 'post',
     data: parameter,
-    params: parameter,
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
@@ -49,7 +48,6 @@ export function CreateQRCode (parameter) {
     url: LiveApiUrl.SaveRegisteredRecord,
     method: 'post',
     data: parameter,
-    params: parameter,
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
