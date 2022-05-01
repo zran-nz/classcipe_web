@@ -2,7 +2,7 @@
   <div class='my-content'>
     <div class='content-header'>
       <div class='source-type'>
-        <a-radio-group button-style="solid" v-model='queryParams.workshopsType'>
+        <a-radio-group size="large" button-style="solid" v-model='queryParams.workshopsType'>
           <a-radio-button :value="item.value" v-for="item in WORK_SHOPS_TYPE" :key="item.label">
             {{ item.label }}
           </a-radio-button>
@@ -22,7 +22,7 @@
               </router-link>
             </a-menu-item>
           </a-menu>
-          <a-button type='primary'>Add New <a-icon type="caret-down" />
+          <a-button size="large" type='primary'>Add New <a-icon type="caret-down" />
           </a-button>
         </a-dropdown>
       </div>
@@ -153,7 +153,11 @@ export default {
 
 <style lang="less" scoped>
 @import "~@/components/index.less";
-
+.source-type {
+  /deep/ span {
+    font-size: 14px;
+  }
+}
 .my-content {
   padding: 15px;
   background: #fff;
