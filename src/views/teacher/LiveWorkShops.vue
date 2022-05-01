@@ -2,15 +2,9 @@
   <div class='my-content'>
     <div class='content-header'>
       <div class='source-type'>
-        <a-radio-group default-value="Features" button-style="solid" v-model='sourceType'>
-          <a-radio-button value="Features">
-            Features
-          </a-radio-button>
-          <a-radio-button value="LanchedByMe">
-            Lanched by me
-          </a-radio-button>
-          <a-radio-button value="Registered">
-            Workshops to attend
+        <a-radio-group size="large" button-style="solid" v-model='queryParams.workshopsType'>
+          <a-radio-button :value="item.value" v-for="item in WORK_SHOPS_TYPE" :key="item.label">
+            {{ item.label }}
           </a-radio-button>
         </a-radio-group>
       </div>
@@ -28,16 +22,18 @@
               </router-link>
             </a-menu-item>
           </a-menu>
-          <a-button type='primary'>Add New <a-icon type="caret-down" />
+          <a-button size="large" type='primary'>Add New <a-icon type="caret-down" />
           </a-button>
         </a-dropdown>
       </div>
     </div>
     <div class='filter-bar'>
       <a-space class="status-filter">
-        <label class="active"><a>On-going</a></label>
-        <label><a>Schedule</a></label>
-        <label><a>Ended</a></label>
+        <label
+          :class="{active: queryParams.workshopsStatus === item.value}"
+          v-for="item in WORK_SHOPS_STATUS"
+          @click="changeStatus(item.value)"
+          :key="item.label"><a>{{ item.label }}</a></label>
       </a-space>
       <div class="pd-filter">
         <a-checkbox>PD Content only</a-checkbox>
@@ -45,11 +41,15 @@
     </div>
     <div class='content-wrapper'>
       <a-spin tip='Loading...' :spinning="loading">
-        <div class='content-list'>
+        <div class='content-list' v-if="myContentList && myContentList.length > 0">
           <content-item v-for='item in myContentList' :key='item.id' :content='item'></content-item>
         </div>
+        <div v-else class="no-subject">
+          <img src='~@/assets/newBrowser/no-subject.png'/>
+          <p>None live workshops because you dont set the live workshop</p>
+        </div>
       </a-spin>
-      <div class='pagination'>
+      <div class='pagination' v-if="myContentList && myContentList.length > 0">
         <a-pagination
           v-model="pageNo"
           :total="pagination.total"
@@ -64,12 +64,10 @@
 
 <script>
 import CreateNew from '@/components/MyContentV2/CreateNew'
-import { SourceType } from '@/components/MyContentV2/Constant'
 import ContentFilter from '@/components/MyContentV2/ContentFilter'
-import { ownerMap } from '@/const/teacher'
-import { FindMyContent } from '@/api/teacher'
+import { FindWorkShops } from '@/api/v2/live'
 import * as logger from '@/utils/logger'
-import { SESSION_CURRENT_PAGE } from '@/const/common'
+import { SESSION_CURRENT_PAGE, WORK_SHOPS_STATUS, WORK_SHOPS_TYPE } from '@/const/common'
 import ContentItem from '@/components/MyContentV2/LiveWorkShopContentItem'
 
 export default {
@@ -77,7 +75,14 @@ export default {
   components: { ContentItem, ContentFilter, CreateNew },
   data () {
     return {
-      sourceType: 'Features',
+      WORK_SHOPS_STATUS: WORK_SHOPS_STATUS,
+      WORK_SHOPS_TYPE: WORK_SHOPS_TYPE,
+
+      queryParams: {
+        workshopsType: WORK_SHOPS_TYPE.FEATURE.value,
+        workshopsStatus: WORK_SHOPS_STATUS.ONGOING.value,
+        searchKey: ''
+      },
       loading: true,
       myContentList: [],
 
@@ -94,7 +99,6 @@ export default {
       },
       pageNo: sessionStorage.getItem(SESSION_CURRENT_PAGE) ? parseInt(sessionStorage.getItem(SESSION_CURRENT_PAGE)) : 1,
 
-      searchText: '',
       filterParams: {}
     }
   },
@@ -109,20 +113,23 @@ export default {
       this.pageNo = 1
       this.loadMyContent()
     },
+    changeStatus(value) {
+      this.queryParams.workshopsStatus = value
+      this.loadMyContent()
+    },
     loadMyContent () {
       this.loading = true
       let params = {
-        collabrated: this.sourceType === SourceType.SharedByOthers ? ownerMap['owner-by-others'] : false,
+        ...this.queryParams,
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize,
-        searchKey: this.searchText ? this.searchText : '',
         types: [],
         delFlag: 0
       }
       if (this.filterParams) {
         params = Object.assign(this.filterParams, params)
       }
-      FindMyContent(params).then(res => {
+      FindWorkShops(params).then(res => {
         logger.info('getMyContent', res)
         if (res.success && res.code === 0) {
           res.result.records.forEach((record, index) => {
@@ -150,7 +157,11 @@ export default {
 
 <style lang="less" scoped>
 @import "~@/components/index.less";
-
+.source-type {
+  /deep/ span {
+    font-size: 14px;
+  }
+}
 .my-content {
   padding: 15px;
   background: #fff;
@@ -194,6 +205,25 @@ export default {
         }
       }
     }
+  }
+}
+.no-subject {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: auto;
+  width: 400px;
+  img {
+    width: 400px;
+    height: 400px;
+  }
+  p {
+    font-size: 14px;
+    font-family: Leelawadee UI;
+    font-weight: bold;
+    color: #070707;
+    opacity: 1;
+    text-align: center;
   }
 }
 

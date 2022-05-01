@@ -78,8 +78,8 @@ export default {
   computed: {
     groupNameList () {
       const result = []
-      this.ownerLinkGroupList.forEach(group => {
-        result.push(group.group)
+      this.groups.forEach(group => {
+        result.push(group.groupName)
       })
       return result
     }
@@ -109,13 +109,14 @@ export default {
       await GetAssociate({
         id: this.fromId,
         type: this.$classcipe.typeMap.task,
-        published: 1
+        published: 0
       }).then(response => {
         this.$logger.info('UnitLinkedContent getAssociate', response)
         response.result.owner.forEach(ownerItem => {
           const groupItem = response.result.groups.find(group => group.groupName === ownerItem.group)
           if (groupItem) {
             ownerItem.groupId = groupItem.id
+            groupItem.contents = JSON.parse(JSON.stringify(ownerItem.contents))
           }
         })
         this.ownerLinkGroupList = response.result.owner

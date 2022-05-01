@@ -94,7 +94,7 @@ export default {
     }
   },
   created() {
-    this.$logger.info('LinkedCategory')
+    this.$logger.info('LinkedCategory', this.selected)
     this.selectedList = this.selected
   },
   methods: {
