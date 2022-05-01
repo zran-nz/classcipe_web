@@ -8,16 +8,16 @@
     </div>
     <div class='linked-content'>
       <draggable
-        v-model="ownerLinkGroupList"
+        v-model="groups"
         :disabled="!canEdit"
         animation="300"
         group="category">
         <div
           class='linked-category'
-          v-for='(groupItem, gIdx) in ownerLinkGroupList'
-          :key='groupItem.group'>
+          v-for='(groupItem, gIdx) in groups'
+          :key='groupItem.groupName'>
           <div class='category-name' :style="{'background-color': color[gIdx]}">
-            {{ groupItem.group }}
+            {{ groupItem.groupName }}
             <div class='category-delete' v-if="canEdit">
               <a-popconfirm title="Delete category ?" ok-text="Yes" @confirm="handleDeleteGroup(groupItem)" cancel-text="No">
                 <delete-icon />
@@ -98,8 +98,8 @@ export default {
   computed: {
     groupNameList () {
       const result = []
-      this.ownerLinkGroupList.forEach(group => {
-        result.push(group.group)
+      this.groups.forEach(group => {
+        result.push(group.groupName)
       })
       return result
     }
@@ -129,13 +129,14 @@ export default {
       await GetAssociate({
         id: this.fromId,
         type: this.$classcipe.typeMap['unit-plan'],
-        published: 1
+        published: 0
       }).then(response => {
         this.$logger.info('UnitLinkedContent getAssociate', response)
         response.result.owner.forEach(ownerItem => {
           const groupItem = response.result.groups.find(group => group.groupName === ownerItem.group)
           if (groupItem) {
             ownerItem.groupId = groupItem.id
+            groupItem.contents = JSON.parse(JSON.stringify(ownerItem.contents))
           }
         })
         this.ownerLinkGroupList = response.result.owner
@@ -167,7 +168,7 @@ export default {
       const associateData = {
         fromId: this.fromId,
         fromType: this.$classcipe.typeMap['unit-plan'],
-        groupName: groupItem.group,
+        groupName: groupItem.groupName,
         otherContents: [
           {
             toId: itemData.id,
