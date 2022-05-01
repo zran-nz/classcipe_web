@@ -7,12 +7,13 @@
             <a-col :span="choiceItem?12:24">
               <div>
                 <span class="span">Text Tip</span>
-                <a-textarea
+                <!-- <a-textarea
                   placeholder="Insert tip for the slide"
                   :autoSize="{ minRows: 4, maxRows: 5 }"
                   v-model="tip_text"
                   @change="updateTip"
-                />
+                /> -->
+                <symbols-input v-model="tip_text" :isAreaText="true"></symbols-input>
               </div>
 
               <div class="upvideo-row">
@@ -95,13 +96,15 @@ import UploadEnterForTip from '@/components/AddMaterial/UploadEnterForTip'
 import { AddMaterialEventBus, ModalEventsNameEnum } from '@/components/AddMaterial/AddMaterialEventBus'
 import ClasscipeDrive from '@/components/AddMaterial/ClasscipeDrive/ClasscipeDrive'
 import GoogleYoutubeVideo from '@/components/AddMaterial/Google/GoogleYoutubeVideo'
+import SymbolsInput from '@/components/Common/SymbolsInput.vue'
 export default {
   name: 'Tip',
   components: {
     UploadEnterForTip,
     DeleteBtn,
     ClasscipeDrive,
-    GoogleYoutubeVideo
+    GoogleYoutubeVideo,
+    SymbolsInput
   },
   data() {
     return {

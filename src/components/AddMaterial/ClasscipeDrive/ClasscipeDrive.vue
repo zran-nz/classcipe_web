@@ -21,27 +21,31 @@
             no data
           </div>
           <div class="video-list" v-else>
-            <div
-              class="video-item"
-              :class="{ active: chooseVideoId === item.id }"
-              v-for="(item, index) in fileList"
-              :key="'index' + index"
-            >
-              <div class="img-box" @click="choiceItem(item)">
-                <!-- <video width="340" height="190" :src="item.filePath" preload="auto" controls></video> -->
-                <iframe
-                  width="340px"
-                  height="190px"
-                  id="item_player"
-                  :src="item.filePath"
-                  :title="item.title"
-                  frameborder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;"
-                  allowfullscreen
-                ></iframe>
-                <div>{{ showFileName(decodeURIComponent(item.fileName)) }}</div>
+            <a-radio-group  class="video-list" v-model:value="chooseVideoId">
+              <div
+                class="video-item"
+                :class="{ active: chooseVideoId === item.id }"
+                v-for="(item, index) in fileList"
+                :key="'index' + index"
+              >
+                <div class="img-box" @click="choiceItem(item)">
+                  <!-- <video width="340" height="190" :src="item.filePath" preload="auto" controls></video> -->
+                  <iframe
+                    width="340px"
+                    height="190px"
+                    id="item_player"
+                    :src="item.filePath"
+                    :title="item.title"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;"
+                    allowfullscreen
+                  ></iframe>
+                  <a-radio :value="item.id">{{
+                    showFileName(decodeURIComponent(item.fileName))
+                  }}</a-radio>
+                </div>
               </div>
-            </div>
+            </a-radio-group>
           </div>
         </div>
       </div>
@@ -160,7 +164,7 @@ export default {
   color: #000000;
   line-height: 40px;
   margin-bottom: 36px;
-  margin-left: 10px
+  margin-left: 10px;
 }
 .search-input {
   margin-left: 10px;
