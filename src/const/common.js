@@ -253,3 +253,37 @@ export const DEVICE = {
   TABLET: 'tablet',
   MOBILE: 'mobile'
 }
+
+export const WORK_SHOPS_STATUS = {
+  ONGOING: {
+    label: 'On going',
+    value: 1
+  },
+  SCHEDULE: {
+    label: 'Schedule',
+    value: 2
+  },
+  ENDED: {
+    label: 'Ended',
+    value: 3
+  },
+  VIDEOSTOWATCH: {
+    label: 'Videos to watch',
+    value: 4
+  }
+}
+
+export const WORK_SHOPS_TYPE = {
+  FEATURE: {
+    label: 'Feature',
+    value: 1
+  },
+  LUNCHEDBYME: {
+    label: 'Lunched by me',
+    value: 2
+  },
+  REGISTERED: {
+    label: 'Registered',
+    value: 3
+  }
+}

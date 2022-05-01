@@ -2,15 +2,9 @@
   <div class='my-content'>
     <div class='content-header'>
       <div class='source-type'>
-        <a-radio-group default-value="Features" button-style="solid" v-model='sourceType'>
-          <a-radio-button value="Features">
-            Features
-          </a-radio-button>
-          <a-radio-button value="LanchedByMe">
-            Lanched by me
-          </a-radio-button>
-          <a-radio-button value="Registered">
-            Workshops to attend
+        <a-radio-group button-style="solid" v-model='queryParams.workshopsType'>
+          <a-radio-button :value="item.value" v-for="item in WORK_SHOPS_TYPE" :key="item.label">
+            {{ item.label }}
           </a-radio-button>
         </a-radio-group>
       </div>
@@ -35,9 +29,11 @@
     </div>
     <div class='filter-bar'>
       <a-space class="status-filter">
-        <label class="active"><a>On-going</a></label>
-        <label><a>Schedule</a></label>
-        <label><a>Ended</a></label>
+        <label
+          :class="{active: queryParams.workshopsStatus === item.value}"
+          v-for="item in WORK_SHOPS_STATUS"
+          @click="changeStatus(item.value)"
+          :key="item.label"><a>{{ item.label }}</a></label>
       </a-space>
       <div class="pd-filter">
         <a-checkbox>PD Content only</a-checkbox>
@@ -64,12 +60,10 @@
 
 <script>
 import CreateNew from '@/components/MyContentV2/CreateNew'
-import { SourceType } from '@/components/MyContentV2/Constant'
 import ContentFilter from '@/components/MyContentV2/ContentFilter'
-import { ownerMap } from '@/const/teacher'
 import { FindMyContent } from '@/api/teacher'
 import * as logger from '@/utils/logger'
-import { SESSION_CURRENT_PAGE } from '@/const/common'
+import { SESSION_CURRENT_PAGE, WORK_SHOPS_STATUS, WORK_SHOPS_TYPE } from '@/const/common'
 import ContentItem from '@/components/MyContentV2/LiveWorkShopContentItem'
 
 export default {
@@ -77,7 +71,14 @@ export default {
   components: { ContentItem, ContentFilter, CreateNew },
   data () {
     return {
-      sourceType: 'Features',
+      WORK_SHOPS_STATUS: WORK_SHOPS_STATUS,
+      WORK_SHOPS_TYPE: WORK_SHOPS_TYPE,
+
+      queryParams: {
+        workshopsType: WORK_SHOPS_TYPE.FEATURE.value,
+        workshopsStatus: WORK_SHOPS_STATUS.ONGOING.value,
+        searchKey: ''
+      },
       loading: true,
       myContentList: [],
 
@@ -94,7 +95,6 @@ export default {
       },
       pageNo: sessionStorage.getItem(SESSION_CURRENT_PAGE) ? parseInt(sessionStorage.getItem(SESSION_CURRENT_PAGE)) : 1,
 
-      searchText: '',
       filterParams: {}
     }
   },
@@ -109,13 +109,16 @@ export default {
       this.pageNo = 1
       this.loadMyContent()
     },
+    changeStatus(value) {
+      this.queryParams.workshopsStatus = value
+      this.loadMyContent()
+    },
     loadMyContent () {
       this.loading = true
       let params = {
-        collabrated: this.sourceType === SourceType.SharedByOthers ? ownerMap['owner-by-others'] : false,
+        ...this.queryParams,
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize,
-        searchKey: this.searchText ? this.searchText : '',
         types: [],
         delFlag: 0
       }

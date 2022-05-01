@@ -27,7 +27,16 @@
       <div class='action'>
         <a-space>
           <a-button type='primary' @click="handleShare(content)" shape='round'>Share</a-button>
-          <a-button type='primary' shape='round' @click='editItem(content)'>Register</a-button>
+          <template v-if="WORK_SHOPS_TYPE.FEATURE.value === content.workshopsType">
+            <a-button type='primary' shape='round' @click='editItem(content)'>Register</a-button>
+          </template>
+          <template v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType">
+            <a-button type='primary' shape='round' @click='editItem(content)'>Edit</a-button>
+            <a-button type='primary' shape='round' @click='editItem(content)'>Delete</a-button>
+          </template>
+          <template v-if="WORK_SHOPS_TYPE.REGISTERED.value === content.workshopsType">
+            <a-button type='primary' shape='round' @click='editItem(content)'>Cancel</a-button>
+          </template>
 
         </a-space>
       </div>
@@ -49,7 +58,7 @@
 </template>
 
 <script>
-
+import { WORK_SHOPS_STATUS, WORK_SHOPS_TYPE } from '@/const/common'
 import { typeMap } from '@/const/teacher'
 import PriceSlider from '@/components/Slider/PriceSlider'
 import ShareButton from '@/components/Share/ShareButton'
@@ -69,6 +78,8 @@ export default {
   data () {
     return {
       typeMap: typeMap,
+      WORK_SHOPS_STATUS: WORK_SHOPS_STATUS,
+      WORK_SHOPS_TYPE: WORK_SHOPS_TYPE,
       shareVisible: false,
       shareItem: {}
     }
