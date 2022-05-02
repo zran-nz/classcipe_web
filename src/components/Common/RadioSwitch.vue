@@ -50,7 +50,7 @@ export default {
     if (targetIndex > -1) {
       this.$logger.info('radioSwitch', this.$refs.radioSwitch.childNodes)
       const target = this.$refs.radioSwitch.childNodes[targetIndex]
-      const rect = target.getBoundingClientRect();
+      const rect = target.getBoundingClientRect()
       this.width = rect.width
       this.left = target.offsetLeft - 5
     }
@@ -59,8 +59,8 @@ export default {
     handleSelectItem (item, event) {
       this.$logger.info('handleSelectItem', item)
       this.selectedItem = item
-      const target = event.target;
-      const rect = target.getBoundingClientRect();
+      const target = event.target
+      const rect = target.getBoundingClientRect()
       this.width = rect.width
       this.left = target.offsetLeft - 10
       this.$emit('select', item)
