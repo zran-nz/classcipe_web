@@ -65,7 +65,7 @@ export default {
   justify-content: flex-start;
   position: relative;
   cursor: pointer;
-  background-color: #001529;
+  background-color: #222634;
   transition: all 0.3s ease-in-out;
   margin-bottom: 10px;
   padding-left: 12px;

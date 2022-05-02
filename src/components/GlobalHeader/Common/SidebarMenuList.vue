@@ -15,7 +15,12 @@
     <div class='sub-menu-list' v-if='expand && !$store.getters.collapsed'>
       <template v-if='menuList.length'>
         <div class='sub-menu-item' v-for='menu in menuList' :key='menu'>
-          {{ menu }}
+          <div class='sub-menu-icon'>
+            <student-icon />
+          </div>
+          <div class='sub-menu-label'>
+            {{ menu }}
+          </div>
         </div>
       </template>
       <template v-if='!menuList.length'>
@@ -26,8 +31,13 @@
 </template>
 
 <script>
+
+import StudentIcon from '@/assets/v2/icons/student.svg?inline'
 export default {
   name: 'SidebarMenuList',
+  components: {
+    StudentIcon
+  },
   props: {
     label: {
       type: String,
@@ -74,7 +84,7 @@ export default {
   justify-content: flex-start;
   position: relative;
   cursor: pointer;
-  background-color: #001529;
+  background-color: #222634;
   transition: all 0.3s ease-in-out;
   padding-left: 12px;
 
@@ -133,13 +143,13 @@ export default {
 .sub-menu-list {
   width: 100%;
   overflow: hidden;
-  background-color: #23252d;
+  background-color: #1e2230;
   .sub-menu-item {
     cursor: pointer;
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding-left: 62px;
+    padding-left: 30px;
     width: 100%;
     font-family: Arial;
     font-weight: 400;
@@ -148,6 +158,25 @@ export default {
     font-size: 14px;
     transition: all 0.3s ease-in-out;
 
+    .sub-menu-icon {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      svg {
+        width: 16px;
+        height: 16px;
+      }
+    }
+
+    .sub-menu-label {
+      padding-left: 15px;
+      color: #fff;
+      font-size: 14px;
+      text-overflow: ellipsis;
+      word-break: break-word;
+      user-select: none;
+      overflow: hidden;
+    }
     &:hover {
       background-color: #2F3341;
     }

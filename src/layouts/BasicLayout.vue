@@ -273,6 +273,7 @@ export default {
   display: flex;
   align-items: center;
   height: 90px;
+  background-color: #222634;
   img.full-logo {
     height: 100%;
     width: auto !important;
