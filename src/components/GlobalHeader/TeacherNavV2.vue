@@ -27,6 +27,23 @@
             <live-workshops-icon />
           </template>
         </sidebar-menu-item>
+
+        <sidebar-menu-list label='Classes' path-prefix='' :menu-list="['TestClass1', 'TestClass2']">
+          <template v-slot:icon>
+            <class-icon />
+          </template>
+        </sidebar-menu-list>
+
+        <sidebar-menu-item label='Co-teaching' path=''>
+          <template v-slot:icon>
+            <live-workshops-icon />
+          </template>
+        </sidebar-menu-item>
+        <sidebar-menu-item label='Managing' path='/teacher/managing' v-if="userMode === USER_MODE.SELF || (currentSchool && currentSchool.roleNames && currentSchool.roleNames.includes(schoolUserRole.admin))">
+          <template v-slot:icon>
+            <live-workshops-icon />
+          </template>
+        </sidebar-menu-item>
       </div>
     </div>
 
@@ -100,10 +117,12 @@ import { SwitchUserModeSchool } from '@/api/user'
 import AvatarDropdown from './AvatarDropdown'
 import { Modal } from 'ant-design-vue'
 import SidebarMenuItem from '@/components/GlobalHeader/Common/SidebarMenuItem'
+import SidebarMenuList from '@/components/GlobalHeader/Common/SidebarMenuList'
 
 export default {
   name: 'TeacherNav',
   components: {
+    SidebarMenuList,
     SidebarMenuItem,
     MyContentIcon,
     MyFavoriteIcon,
