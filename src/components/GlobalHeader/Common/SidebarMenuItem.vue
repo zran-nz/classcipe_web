@@ -1,5 +1,5 @@
 <template>
-  <div class='sidebar-menu-item' :class="{'active-sidebar-menu-item': path && $route.path === path}" @click='handleClickMenu' @dblclick='handleDbClickMenu'>
+  <div class='sidebar-menu-item' :class="{'active-sidebar-menu-item': path && $route.path === path, 'collapsed-menu': $store.getters.collapsed }" @click='handleClickMenu' @dblclick='handleDbClickMenu'>
     <div class='menu-icon'>
       <slot name='icon'></slot>
     </div>
@@ -68,7 +68,7 @@ export default {
   background-color: #001529;
   transition: all 0.3s ease-in-out;
   margin-bottom: 10px;
-  padding-left: 10px;
+  padding-left: 12px;
 
   &:hover {
     background-color: #2F3341;
@@ -95,6 +95,11 @@ export default {
     font-family: Arial;
     font-weight: 400;
     color: #F1F3F8;
+    transition: all 0.3s ease-in-out;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-all;
+    white-space: nowrap;
   }
 
   .menu-arrow {
@@ -107,6 +112,7 @@ export default {
     top: 50%;
     margin-top: -10px;
     height: 20px;
+    transition: all 0.3s ease-in-out;
   }
 }
 
@@ -119,6 +125,16 @@ export default {
 
   .menu-label {
     color: #fff;
+  }
+}
+
+.collapsed-menu {
+  .menu-label {
+    opacity: 0 !important;
+  }
+
+  .menu-arrow {
+    opacity: 0 !important;
   }
 }
 </style>

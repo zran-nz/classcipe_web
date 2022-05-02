@@ -1,6 +1,6 @@
 <template>
   <div class='sidebar-menu-list'>
-    <div class='sidebar-menu-item' :class="{'active-sidebar-menu-item': pathPrefix && $route.path.startsWith(pathPrefix)}" @click='handleExpandMenuList'>
+    <div class='sidebar-menu-item' :class="{'active-sidebar-menu-item': pathPrefix && $route.path.startsWith(pathPrefix), 'collapsed-menu': $store.getters.collapsed }" @click='handleExpandMenuList'>
       <div class='menu-icon'>
         <slot name='icon'></slot>
       </div>
@@ -12,7 +12,7 @@
         <a-icon type='down' :style="{ fontSize: '12px', color: '#fff' }" v-if='expand'></a-icon>
       </span>
     </div>
-    <div class='sub-menu-list' v-if='expand'>
+    <div class='sub-menu-list' v-if='expand && !$store.getters.collapsed'>
       <template v-if='menuList.length'>
         <div class='sub-menu-item' v-for='menu in menuList' :key='menu'>
           {{ menu }}
@@ -76,7 +76,7 @@ export default {
   cursor: pointer;
   background-color: #001529;
   transition: all 0.3s ease-in-out;
-  padding-left: 10px;
+  padding-left: 12px;
 
   &:hover {
     background-color: #2F3341;
@@ -159,4 +159,13 @@ export default {
   }
 }
 
+.collapsed-menu {
+  .menu-label {
+    display: none;
+  }
+
+  .menu-arrow {
+    display: none !important;
+  }
+}
 </style>

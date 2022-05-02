@@ -1,7 +1,7 @@
 <template>
   <div class="teacher-nav top-nav-v2">
-    <div class='top-menu'>
-      <div class='menu menu-block'>
+    <div class='top-menu' @dblclick='handleExpandMenu'>
+      <div class='menu menu-block' @dblclick.stop=''>
         <sidebar-menu-item label='Library' path='/teacher/library-v2'>
           <template v-slot:icon>
             <my-content-icon />
@@ -47,8 +47,8 @@
       </div>
     </div>
 
-    <div class='bottom-menu'>
-      <div class='menu-icon-block'>
+    <div class='bottom-menu' @dblclick.stop=''>
+      <div class='menu-icon-block' :style="{'flex-direction': collapsed ? 'column-reverse' : 'row'}">
         <div class='cc-menu-icon-item avatar-menu-item'>
           <a-dropdown :placement="'topCenter'">
             <a-avatar :src="$store.getters.userInfo.avatar" v-if="$store.getters.userInfo.avatar"/>
@@ -75,7 +75,7 @@
             </a-menu>
           </a-dropdown>
         </div>
-        <div class='switch-school-personal'>
+        <div class='switch-school-personal' v-show='!collapsed'>
           <div class='role-school-personal'>
             <a-dropdown class='cc-role-dropdown' :placement="'topCenter'" :trigger="['click']">
               <a-menu slot="overlay">
@@ -269,7 +269,8 @@ export default {
     },
 
     handleExpandMenu() {
-      this.$store.commit(HIDDEN_SIDEBAR, false)
+      this.$logger.info('handleExpandMenu', this.collapsed)
+      this.$store.commit(HIDDEN_SIDEBAR, !this.collapsed)
     },
 
     handleSwitchMenu (path) {
@@ -299,10 +300,9 @@ export default {
 
 .menu-icon-block {
   display: flex;
-  flex-direction: row;
   justify-content: space-around;
   align-items: center;
-  padding: 0 10px 8px 10px;
+  padding: 0 10px 10px 10px;
   .cc-menu-icon-item {
     user-select: none;
     padding: 0 15px;
