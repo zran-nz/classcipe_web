@@ -1,5 +1,5 @@
 <template>
-  <div class='sidebar-menu-item' @click='handleClickMenu' @dblclick='handleDbClickMenu'>
+  <div class='sidebar-menu-item' :class="{'active-sidebar-menu-item': $route.path === path}" @click='handleClickMenu' @dblclick='handleDbClickMenu'>
     <div class='menu-icon'>
       <slot name='icon'></slot>
     </div>
@@ -110,4 +110,15 @@ export default {
   }
 }
 
+.active-sidebar-menu-item {
+  background-color: #2F3341;
+
+  .menu-arrow {
+    display: flex;
+  }
+
+  .menu-label {
+    color: #fff;
+  }
+}
 </style>

@@ -283,7 +283,7 @@ export default {
   flex-direction: row;
   justify-content: space-around;
   align-items: center;
-  padding: 0 10px 15px 10px;
+  padding: 0 10px 8px 10px;
   .cc-menu-icon-item {
     user-select: none;
     padding: 0 15px;
@@ -324,10 +324,9 @@ export default {
 .top-nav-v2 {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 64px);
+  height: calc(100vh - 90px);
 
   .top-menu {
-    padding: 10px 0;
     flex-grow: 1;
   }
 

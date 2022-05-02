@@ -271,8 +271,9 @@ export default {
 
 .ant-pro-sider-menu-logo {
   padding-left: 0;
-  padding-top: 15px;
-  height: 70px;
+  display: flex;
+  align-items: center;
+  height: 90px;
   img {
     height: 100%;
     width: auto !important;
