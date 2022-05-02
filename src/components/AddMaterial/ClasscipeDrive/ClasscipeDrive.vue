@@ -21,7 +21,7 @@
             no data
           </div>
           <div class="video-list" v-else>
-            <a-radio-group  class="video-list" v-model:value="chooseVideoId">
+            <a-radio-group class="video-list" v-model="chooseVideoId">
               <div
                 class="video-item"
                 :class="{ active: chooseVideoId === item.id }"
