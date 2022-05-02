@@ -157,6 +157,7 @@ export default {
     color: #fff;
     font-size: 14px;
     transition: all 0.3s ease-in-out;
+    overflow: hidden;
 
     .sub-menu-icon {
       display: flex;
@@ -172,10 +173,10 @@ export default {
       padding-left: 15px;
       color: #fff;
       font-size: 14px;
-      text-overflow: ellipsis;
-      word-break: break-word;
-      user-select: none;
       overflow: hidden;
+      text-overflow: ellipsis;
+      word-break: break-all;
+      white-space: nowrap;
     }
     &:hover {
       background-color: #2F3341;
