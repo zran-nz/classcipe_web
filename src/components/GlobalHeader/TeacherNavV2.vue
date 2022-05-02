@@ -4,12 +4,12 @@
       <div class='menu menu-block' @dblclick.stop=''>
         <sidebar-menu-item label='Library' path='/teacher/library-v2'>
           <template v-slot:icon>
-            <my-content-icon />
+            <library-icon />
           </template>
         </sidebar-menu-item>
         <sidebar-menu-item label='Published' path='/teacher/main/my-published' v-if='userMode !== USER_MODE.SCHOOL'>
           <template v-slot:icon>
-            <my-content-icon />
+            <published-icon />
           </template>
         </sidebar-menu-item>
         <sidebar-menu-item label='My content' path='/teacher/main/created-by-me'>
@@ -36,12 +36,12 @@
 
         <sidebar-menu-item label='Co-teaching' path=''>
           <template v-slot:icon>
-            <live-workshops-icon />
+            <co-teaching-icon />
           </template>
         </sidebar-menu-item>
         <sidebar-menu-item label='Managing' path='/teacher/managing' v-if="userMode === USER_MODE.SELF || (currentSchool && currentSchool.roleNames && currentSchool.roleNames.includes(schoolUserRole.admin))">
           <template v-slot:icon>
-            <live-workshops-icon />
+            <managing-icon />
           </template>
         </sidebar-menu-item>
       </div>
@@ -109,6 +109,10 @@ import MyContentIcon from '@/assets/v2/icons/my_content.svg?inline'
 import MyFavoriteIcon from '@/assets/v2/icons/my_favorites.svg?inline'
 import LiveWorkshopsIcon from '@/assets/v2/icons/live_workshops.svg?inline'
 import ClassIcon from '@/assets/v2/icons/class.svg?inline'
+import CoTeachingIcon from '@/assets/v2/icons/Co-teaching.svg?inline'
+import LibraryIcon from '@/assets/v2/icons/library.svg?inline'
+import ManagingIcon from '@/assets/v2/icons/managing.svg?inline'
+import PublishedIcon from '@/assets/v2/icons/publish.svg?inline'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { HIDDEN_SIDEBAR, TOOGLE_USER_MODE } from '@/store/mutation-types'
 import { SchoolUserRole } from '@/const/role'
@@ -128,6 +132,10 @@ export default {
     MyFavoriteIcon,
     LiveWorkshopsIcon,
     ClassIcon,
+    LibraryIcon,
+    CoTeachingIcon,
+    ManagingIcon,
+    PublishedIcon,
     AvatarDropdown
   },
   data () {
