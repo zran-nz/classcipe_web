@@ -30,11 +30,16 @@ function replaceToClasscipeCDN(rawUrl) {
   }
 }
 
+const sysConfig = {
+  sidebarWidth: 230
+}
+
 export {
   get21stCenturyDisplayNameByCurriculum,
   classcipeCDN,
   typeMap,
   PlanField,
   TaskField,
+  sysConfig,
   replaceToClasscipeCDN
 }

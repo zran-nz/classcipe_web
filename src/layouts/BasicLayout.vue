@@ -4,6 +4,7 @@
     :collapsed="collapsed"
     :mediaQuery="query"
     :isMobile="isMobile"
+    :siderWidth="$classcipe.sysConfig.sidebarWidth"
     :handleMediaQuery="handleMediaQuery"
     :handleCollapse="handleCollapse"
     :i18nRender="i18nRender"
@@ -14,13 +15,7 @@
     -->
     <template v-slot:menuHeaderRender>
       <div class="home-nav">
-        <div class='home-logo'>
-          <img src="~@/assets/logo/logo.png" alt='classcipe' @click="goHome">
-          <h1 @click="goHome">{{ title }}</h1>
-        </div>
-        <span class='collapse-icon' @click.stop.prevent='handleMenuCollapse'>
-          <a-icon type="menu-fold" />
-        </span>
+        <img src="~@/assets/logo/11.png" alt='classcipe' @click="goHome">
       </div>
     </template>
     <!-- 1.0.0+ 版本 pro-layout 提供 API,
@@ -209,9 +204,11 @@ export default {
   .home-nav {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: flex-start;
+    padding-left: 15px;
+    height: 50px;
     h1 {
-      font-family: Inter-Bold;
+      color: #15c39a;
     }
   }
 
@@ -272,18 +269,14 @@ export default {
   }
 }
 
-.collapse-icon {
-  padding-right: 10px;
-  color: @text-color-secondary-dark;
-
-  &:hover {
-    color: @primary-color;
+.ant-pro-sider-menu-logo {
+  padding-left: 0;
+  padding-top: 15px;
+  height: 70px;
+  img {
+    height: 100%;
+    width: auto !important;
   }
-}
-
-.ant-pro-sider-menu-logo svg {
-  width: 20px;
-  height: 20px;
 }
 
 </style>
