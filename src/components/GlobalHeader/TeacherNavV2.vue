@@ -355,6 +355,8 @@ export default {
 
   .top-menu {
     flex-grow: 1;
+    max-height: calc(100vh - 180px);
+    overflow-y: scroll;
   }
 
   .bottom-menu {
