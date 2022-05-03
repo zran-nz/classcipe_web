@@ -21,7 +21,7 @@
             no data
           </div>
           <div class="video-list" v-else>
-            <a-radio-group  class="video-list" v-model:value="chooseVideoId">
+            <a-radio-group class="video-list" v-model="chooseVideoId">
               <div
                 class="video-item"
                 :class="{ active: chooseVideoId === item.id }"
@@ -40,9 +40,7 @@
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;"
                     allowfullscreen
                   ></iframe>
-                  <a-radio :value="item.id">{{
-                    showFileName(decodeURIComponent(item.fileName))
-                  }}</a-radio>
+                  <a-radio :value="item.id">{{ showFileName(decodeURIComponent(item.fileName)) }}</a-radio>
                 </div>
               </div>
             </a-radio-group>

@@ -4,7 +4,7 @@
       <a-spin :tip="uploadText" :spinning="!canUpload">
         <div class="tip-content">
           <a-row class="tip-context">
-            <a-col :span="choiceItem?12:24">
+            <a-col :span="choiceItem ? 12 : 24">
               <div>
                 <span class="span">Text Tip</span>
                 <!-- <a-textarea
@@ -60,7 +60,7 @@
               </div>
             </a-col>
             <a-col :span="12" v-if="choiceItem">
-              <div class="right-answer-content" >
+              <div class="right-answer-content">
                 <span class="span">Correct Answer</span>
                 <div v-for="(item, index) in choiceItem.data.data.options" :key="index" class="checktext checkitem">
                   <input
@@ -138,6 +138,9 @@ export default {
   watch: {
     fileProgress() {
       this.uploadText = 'Uploading...' + Math.floor(this.fileProgress)
+    },
+    tip_text() {
+      this.updateTip()
     }
   },
   created() {
@@ -450,7 +453,7 @@ export default {
   }
 }
 
-.right-answer-content{
+.right-answer-content {
   margin-left: 20px;
 }
 .checktext {
