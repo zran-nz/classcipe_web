@@ -2,13 +2,23 @@
   <div class='my-content'>
     <div class='content-header'>
       <div class='source-type'>
-        <a-radio-group size="large" button-style="solid" v-model='queryParams.workshopsType'>
+        <radio-switch @select="changeType" :menu-list='WORK_SHOPS_TYPE_VALUES' displayProperty="label"/>
+        <!-- <a-radio-group size="large" button-style="solid" v-model='queryParams.workshopsType'>
           <a-radio-button :value="item.value" v-for="item in WORK_SHOPS_TYPE" :key="item.label">
             {{ item.label }}
           </a-radio-button>
-        </a-radio-group>
+        </a-radio-group> -->
       </div>
-      <div class='create-new'>
+    </div>
+    <div class='filter-bar'>
+      <a-space class="status-filter" v-show="WORK_SHOPS_TYPE.FEATURE.value !== queryParams.workshopsType">
+        <label
+          :class="{active: queryParams.workshopsStatus === item.value}"
+          v-for="item in WORK_SHOPS_STATUS"
+          @click="changeStatus(item.value)"
+          :key="item.label"><a>{{ item.label }}</a></label>
+      </a-space>
+      <div class='create-new' v-show="WORK_SHOPS_TYPE.LUNCHEDBYME.value === queryParams.workshopsType">
         <a-dropdown>
           <a-menu slot="overlay">
             <a-menu-item>
@@ -22,34 +32,26 @@
               </router-link>
             </a-menu-item>
           </a-menu>
-          <a-button size="large" type='primary'>Add New <a-icon type="caret-down" />
+          <a-button type='primary'>Add New <a-icon type="caret-down" />
           </a-button>
         </a-dropdown>
       </div>
-    </div>
-    <div class='filter-bar'>
-      <a-space class="status-filter">
-        <label
-          :class="{active: queryParams.workshopsStatus === item.value}"
-          v-for="item in WORK_SHOPS_STATUS"
-          @click="changeStatus(item.value)"
-          :key="item.label"><a>{{ item.label }}</a></label>
-      </a-space>
-      <div class="pd-filter">
+      <!-- <div class="pd-filter">
         <a-checkbox>PD Content only</a-checkbox>
-      </div>
+      </div> -->
     </div>
     <div class='content-wrapper'>
       <a-spin tip='Loading...' :spinning="loading">
-        <div class='content-list' v-if="myContentList && myContentList.length > 0">
-          <content-item v-for='item in myContentList' :key='item.id' :content='item'></content-item>
-        </div>
-        <div v-else class="no-subject">
-          <img src='~@/assets/newBrowser/no-subject.png'/>
-          <p>None live workshops because you dont set the live workshop</p>
+        <div class='content-list'>
+          <template v-if='pagination.total !== 0 && !loading'>
+            <content-item v-for='item in myContentList' :key='item.id' :content='item'></content-item>
+          </template>
+          <div class='empty-tips' v-if='pagination.total === 0 && !loading'>
+            <no-more-resources />
+          </div>
         </div>
       </a-spin>
-      <div class='pagination' v-if="myContentList && myContentList.length > 0">
+      <div class='pagination' v-if='pagination.total !== 0 && !loading'>
         <a-pagination
           v-model="pageNo"
           :total="pagination.total"
@@ -65,18 +67,21 @@
 <script>
 import CreateNew from '@/components/MyContentV2/CreateNew'
 import ContentFilter from '@/components/MyContentV2/ContentFilter'
+import RadioSwitch from '@/components/Common/RadioSwitch'
 import { FindWorkShops } from '@/api/v2/live'
 import * as logger from '@/utils/logger'
 import { SESSION_CURRENT_PAGE, WORK_SHOPS_STATUS, WORK_SHOPS_TYPE } from '@/const/common'
 import ContentItem from '@/components/MyContentV2/LiveWorkShopContentItem'
+import NoMoreResources from '@/components/Common/NoMoreResources'
 
 export default {
   name: 'LiveWorkShops',
-  components: { ContentItem, ContentFilter, CreateNew },
+  components: { ContentItem, ContentFilter, CreateNew, RadioSwitch, NoMoreResources },
   data () {
     return {
       WORK_SHOPS_STATUS: WORK_SHOPS_STATUS,
       WORK_SHOPS_TYPE: WORK_SHOPS_TYPE,
+      WORK_SHOPS_TYPE_VALUES: Object.values(WORK_SHOPS_TYPE),
 
       queryParams: {
         workshopsType: WORK_SHOPS_TYPE.FEATURE.value,
@@ -94,6 +99,7 @@ export default {
           this.loadMyContent()
         },
         showTotal: total => `Total ${total} items`,
+        current: 1,
         total: 0,
         pageSize: 16
       },
@@ -115,6 +121,16 @@ export default {
     },
     changeStatus(value) {
       this.queryParams.workshopsStatus = value
+      this.loadMyContent()
+    },
+    changeType(item) {
+      this.queryParams.workshopsType = item.value
+      if (item.value === this.WORK_SHOPS_TYPE.FEATURE.value) {
+        // TODO
+        this.queryParams.workshopsStatus = '' // this.WORK_SHOPS_STATUS.SCHEDULE.value
+      } else {
+        this.queryParams.workshopsStatus = this.WORK_SHOPS_STATUS.ONGOING.value
+      }
       this.loadMyContent()
     },
     loadMyContent () {
@@ -183,6 +199,16 @@ export default {
 
   .content-wrapper {
     min-height: calc(100vh - 160px);
+    .content-list {
+      min-height: calc(100vh - 200px);
+
+      .empty-tips {
+        height: calc(100vh - 300px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+    }
   }
 
   .filter-bar {
@@ -193,14 +219,19 @@ export default {
     justify-content: space-between;
     .status-filter {
       label {
-        line-height: 30px;
-        margin-right: 10px;
+        margin-right: 20px;
+        border-radius: 3px;
+        padding: 5px;
+        height: 30px;
+        display: block;
         a {
-          color: #333;
+          color: #464749;
         }
         &.active {
+          background: #F8FAFB;
           a {
-            color: @primary-color;
+            font-weight: bold;
+            color: #1574B7;
           }
         }
       }

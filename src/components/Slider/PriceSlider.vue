@@ -4,7 +4,7 @@
       :marks="marks"
       :min="min"
       :max="max"
-      :default-value="current"
+      v-model="currentVal"
       :disabled="disabled" />
     <div class="slider-label">
       <div class="slider-label-item" :style="{left: item.left, width: item.width}" v-for="(item, index) in lines" :key="'line_' + index">{{ item.label }}</div>
@@ -18,7 +18,7 @@ export default {
   props: {
     current: {
       type: [Number],
-      default: 32
+      default: 0
     },
     priceList: {
       type: Array,
@@ -34,6 +34,14 @@ export default {
       }]
     }
   },
+  watch: {
+    current: {
+      handler(val) {
+        this.currentVal = val
+      },
+      immediate: true
+    }
+  },
   data() {
     return {
       PREFIX: ' per',
@@ -44,6 +52,7 @@ export default {
         }
       }),
       result: null,
+      currentVal: this.current,
       min: 1,
       disabled: true
     }
@@ -80,20 +89,20 @@ export default {
         // const width = (value / (this.max - this.min)) * 100 + '%'
         const left = ((prepare[index - 1].value - this.min) / (this.max - this.min)) * 100 + '%'
         result.push({
-          width: '25px',
+          width: '',
           left: left,
           label: '$' + labels[index - 1]
         })
-        if (this.current === prepare[index].value || this.current === prepare[index - 1].value) {
+        if (this.currentVal === prepare[index].value || this.currentVal === prepare[index - 1].value) {
           needCurrent = false
         }
       }
-      if (this.current && this.current > 0 && needCurrent) {
-        const left = ((this.current - this.min) / (this.max - this.min)) * 100 + '%'
+      if (this.currentVal && this.currentVal > 0 && needCurrent) {
+        const left = ((this.currentVal - this.min) / (this.max - this.min)) * 100 + '%'
         result.push({
           left: `calc(${left} - 25px)`,
           width: 'auto',
-          label: this.current + this.PREFIX
+          label: this.currentVal + this.PREFIX
         })
       }
       return result

@@ -215,8 +215,8 @@ export default {
       if (this.$refs.subjectWrap && this.$refs.subjectSelected) {
         const subjectWrapDom = this.$refs.subjectWrap.getBoundingClientRect()
         const subjectSelDom = this.$refs.subjectSelected.getBoundingClientRect()
-        if (subjectWrapDom.top < -44) {
-          this.$refs.subjectSelected.style.cssText = `position:fixed;top:60px;background: #fff;width:${subjectWrapDom.width}px;margin-left: -24px;padding: 20px;border: 1px solid #dfdfdf;box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);`
+        if (subjectWrapDom.top < (-44 - 60)) {
+          this.$refs.subjectSelected.style.cssText = `position:fixed;top:0px;background: #fff;width:${subjectWrapDom.width}px;margin-left: -24px;padding: 20px;border: 1px solid #dfdfdf;box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);`
           this.$refs.copySelected.style.cssText = `display: block;height: ${subjectSelDom.height}px;`
         } else {
           this.$refs.subjectSelected.style.cssText = ''

@@ -1,5 +1,5 @@
 // eslint-disable-next-line
-import { BasicLayout, BlankLayout, IframeLayout, UserLayout } from '@/layouts'
+import { BasicLayout, BlankLayout, IframeLayout, UserLayout, H5Layout } from '@/layouts'
 import { bxAnaalyse } from '@/core/icons'
 import { CurriculumType, USER_MODE } from '@/const/common'
 
@@ -676,6 +676,22 @@ export const constantRouterMap = [
              }
            ]
          },
+
+         {
+          path: '/h5',
+          name: 'H5',
+          component: H5Layout,
+          meta: { title: 'H5', keepAlive: true },
+          children: [
+            {
+              path: '/h5/live/:code',
+              name: 'H5Live',
+              props: true,
+              component: () => import('@/views/h5/Live'),
+              meta: { title: 'Live', keepAlive: true }
+            }
+          ]
+        },
 
          {
            path: '/404',

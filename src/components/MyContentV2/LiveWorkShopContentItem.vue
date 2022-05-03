@@ -4,7 +4,7 @@
       <div class='cover-block' :style="{'background-image': 'url(' + content.content.image + ')'}">
       </div>
     </div>
-    <div class='detail'>
+    <div class='detail' @click.prevent.stop='handlePreviewDetail(content.content)'>
       <div class='detail-content'>
         <div class='base-info'>
           <div class='name'>
@@ -25,7 +25,7 @@
         <price-slider :priceList="content.priceList" :current="content.registeredNum" />
       </div>
       <div class='action'>
-        <a-space>
+        <a-space @click.prevent.stop>
           <a-tooltip
             v-model="shareVisible"
             trigger="click"
@@ -35,7 +35,7 @@
             <template slot="title">
               <share-button
                 v-if="shareItem"
-                :link="content.link || 'https://dev.classcipe.com/'"
+                :link="wrapperLink(content)"
                 :title="content.content.name"
               />
             </template>
@@ -47,6 +47,9 @@
           <template v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType">
             <a-button type='primary' shape='round' @click='editItem(content)'>Edit</a-button>
             <a-button type='primary' shape='round' @click='editItem(content)'>Delete</a-button>
+          </template>
+          <template v-if="WORK_SHOPS_STATUS.ONGOING.value === content.workshopsStatus || WORK_SHOPS_STATUS.ENDED.value === content.workshopsStatus">
+            <a-button type='primary' shape='round' @click='editItem(content)'>Relaunch</a-button>
           </template>
           <template v-if="WORK_SHOPS_TYPE.REGISTERED.value === content.workshopsType">
             <a-button type='primary' shape='round' @click='editItem(content)'>Cancel</a-button>
@@ -68,6 +71,7 @@
         :title="shareItem.name || 'test'"
       />
     </a-modal> -->
+    <preview-content :preview-current-id='previewCurrentId' :preview-type='previewType' v-if='previewVisible' @close='handlePreviewClose' />
   </div>
 </template>
 
@@ -76,13 +80,18 @@ import { WORK_SHOPS_STATUS, WORK_SHOPS_TYPE } from '@/const/common'
 import { typeMap } from '@/const/teacher'
 import PriceSlider from '@/components/Slider/PriceSlider'
 import ShareButton from '@/components/Share/ShareButton'
+import PreviewContent from '@/components/MyContentV2/PreviewContent'
+
+import { ContentItemMixin } from '@/mixins/ContentItemMixin'
 
 export default {
   name: 'LiveWorkShopContentItem',
   components: {
     PriceSlider,
-    ShareButton
+    ShareButton,
+    PreviewContent
   },
+  mixins: [ ContentItemMixin ],
   props: {
     content: {
       type: Object,
@@ -123,6 +132,13 @@ export default {
         this.shareVisible = false
         this.shareItem = { ...content }
         this.shareVisible = true
+      }
+    },
+    wrapperLink(item) {
+      if (item && item.sessionId) {
+        return `${process.env.VUE_APP_BASE_URL}/h5/live/${item.sessionId}`
+      } else {
+        return ''
       }
     },
     handleCloseShare () {

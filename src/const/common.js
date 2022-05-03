@@ -266,11 +266,11 @@ export const WORK_SHOPS_STATUS = {
   ENDED: {
     label: 'Ended',
     value: 3
-  },
-  VIDEOSTOWATCH: {
-    label: 'Videos to watch',
-    value: 4
   }
+  // VIDEOSTOWATCH: {
+  //   label: 'Videos to watch',
+  //   value: 4
+  // }
 }
 
 export const WORK_SHOPS_TYPE = {

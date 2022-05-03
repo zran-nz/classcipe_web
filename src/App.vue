@@ -38,7 +38,8 @@ export default {
     showFeedback() {
       const noshowPage = window.location.href.indexOf('addon-iframe') === -1
       const noshowPage2 = window.location.href.indexOf('classroom-iframe') === -1
-      return noshowPage && noshowPage2
+      const noshowPage3 = window.location.href.indexOf('/h5/') === -1
+      return noshowPage && noshowPage2 && noshowPage3
     }
   },
   watch: {
