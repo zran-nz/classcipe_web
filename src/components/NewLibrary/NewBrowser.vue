@@ -23,7 +23,7 @@
       </div>
     </div>
     <div class="main">
-      <div class="selected-content" :style="{'width': componentWidth - 400 + 'px'}">
+      <div class="selected-content" :style="{'width': componentWidth - 380 + 'px'}">
         <div class="main-content-list">
 
           <div class='no-select-content' v-if='!hasSelectedContent && selectMode !== selectModelType.evaluationMode && isEmptyRecommend'>
@@ -277,12 +277,14 @@
         <div
           class="expand-icon"
           @click="expandedListFlag = !expandedListFlag">
-          <template v-if="expandedListFlag">
-            <a-icon type="double-left" style="font-size: 20px; color: #07AB84" />
-          </template>
-          <template v-if="!expandedListFlag">
-            <a-icon type="double-right" style="font-size: 20px; color: #07AB84" />
-          </template>
+          <div class='expand-icon-area'>
+            <template v-if="expandedListFlag">
+              <a-icon type="left" style="font-size: 16px; color: #07AB84" />
+            </template>
+            <template v-if="!expandedListFlag">
+              <a-icon type="right" style="font-size: 16px; color: #07AB84" />
+            </template>
+          </div>
         </div>
         <div class="tree-navigation">
           <new-tree-navigation
@@ -1014,8 +1016,6 @@ export default {
       z-index: 150;
       position: absolute;
       transition: all 200ms ease-in;
-      box-shadow: -3px 0 5px 0 rgba(31, 33, 44, 10%);
-      overflow-y: hidden;
       height: 100%;
       display: flex;
       flex-direction: row;
@@ -1030,6 +1030,7 @@ export default {
       height: 100%;
       overflow-y: scroll;
       background-color: #fff;
+      box-shadow: -3px 0 5px 0 rgba(31, 33, 44, 10%);
     }
 
     .content-list {
@@ -1292,6 +1293,27 @@ div[tag-type="3"] {
 }
 .title-21{
   color: #92B2D1
+}
+
+.expand-icon {
+  background-color: transparent;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .expand-icon-area {
+    cursor: pointer;
+    height: 100px;
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+    box-shadow: -3px 0 5px 3px rgba(31, 33, 44, 10%);
+    z-index: 1000;
+  }
 }
 
 </style>
