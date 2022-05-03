@@ -15,7 +15,7 @@
     -->
     <template v-slot:menuHeaderRender>
       <div class="home-nav">
-        <img src="~@/assets/logo/11.png" class='full-logo' alt='classcipe' @click="goHome" v-show='!collapsed'>
+        <img src="~@/assets/logo/150.png" class='full-logo' alt='classcipe' @click="goHome" v-show='!collapsed'>
         <img src="~@/assets/logo/logo-classicipe-round-transparent-with-name.png" class='single-logo-img' alt='classcipe' @click="goHome" v-show='collapsed'>
       </div>
     </template>
@@ -274,6 +274,14 @@ export default {
   align-items: center;
   height: 90px;
   background-color: #222634;
+  img {
+    image-rendering:-moz-crisp-edges;
+    image-rendering:-o-crisp-edges;
+    image-rendering: crisp-edges;
+    -ms-interpolation-mode: nearest-neighbor;
+    -webkit-font-smooting:  antialiased;
+  }
+
   img.full-logo {
     height: 100%;
     width: auto !important;

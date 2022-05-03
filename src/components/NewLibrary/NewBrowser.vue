@@ -271,26 +271,18 @@
             </div>
           </div>
         </div>
-        <div
-          class="selected-toggle-mask"
-          v-show="!expandedListFlag"
-          @click="expandedListFlag = !expandedListFlag"></div>
-        <div
-          class="expand-icon"
-          v-if="!expandedListFlag"
-          @click="expandedListFlag = true"
-          :style="{'left': '30px', 'display': expandedListFlag ? 'none' : 'block'}">
-          <a-icon type="double-right" style="font-size: 20px; color: #07AB84" />
-        </div>
       </div>
       <div class="main-tree-content" :style="{'left': (expandedListFlag ? componentWidth - 400 : 100) + 'px'}">
         <div class="selected-toggle-mask" @click="expandedListFlag = !expandedListFlag" v-show="expandedListFlag"></div>
         <div
           class="expand-icon"
-          v-if="expandedListFlag"
-          @click="expandedListFlag = false"
-          :style="{'left': '30px'}">
-          <a-icon type="double-left" style="font-size: 20px; color: #07AB84" />
+          @click="expandedListFlag = !expandedListFlag">
+          <template v-if="expandedListFlag">
+            <a-icon type="double-left" style="font-size: 20px; color: #07AB84" />
+          </template>
+          <template v-if="!expandedListFlag">
+            <a-icon type="double-right" style="font-size: 20px; color: #07AB84" />
+          </template>
         </div>
         <div class="tree-navigation">
           <new-tree-navigation
@@ -1067,16 +1059,6 @@ export default {
   }
 }
 
-.selected-toggle-mask {
-  cursor: pointer;
-  z-index: 250;
-  position: absolute;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-}
-
 .recommend-description {
   background-color: rgba(253, 238, 218, 0.5);
 
@@ -1312,19 +1294,4 @@ div[tag-type="3"] {
   color: #92B2D1
 }
 
-.expand-icon {
-  background-color: #fff;
-  box-shadow: 0 0 3px 3px rgba(159, 159, 159, 0.26);
-  border-radius: 40px;
-  padding: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  position: absolute;
-  top: 50%;
-  margin-top: -10px;
-  z-index: 300;
-  transition: none;
-}
 </style>
