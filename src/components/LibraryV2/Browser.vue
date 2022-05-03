@@ -1,6 +1,6 @@
 <template>
   <div class="library-wrapper" ref="wrapper" data-version="v2" @click="handleSearchKeyInputBlur">
-    <div class="nav-header" :style="{left: collapsed ? '80px' : '256px'}">
+    <div class="nav-header" :style="{left: collapsed ? $classcipe.sysConfig.collapsedSidebarWidth + 'px' : $classcipe.sysConfig.sidebarWidth + 'px'}">
       <div class="header-info">
         <div class="library-nav-bar" >
           <navigation :path="navPath" @pathChange="handleNavPathChange" v-show="libraryMode === LibraryMode.browserMode"/>
