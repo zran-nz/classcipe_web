@@ -37,7 +37,7 @@
               />
             </template>
             <template v-else>
-              <img class="youtube-video-img" :src="item.thumbnail" />
+              <img class="youtube-video-img" :src="item.thumbnailMedium" />
             </template>
           </div>
           <div class="youtube-video-detail">

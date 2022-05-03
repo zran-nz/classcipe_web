@@ -40,9 +40,7 @@
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;"
                     allowfullscreen
                   ></iframe>
-                  <a-radio :value="item.id">{{
-                    showFileName(decodeURIComponent(item.fileName))
-                  }}</a-radio>
+                  <a-radio :value="item.id">{{ showFileName(decodeURIComponent(item.fileName)) }}</a-radio>
                 </div>
               </div>
             </a-radio-group>
