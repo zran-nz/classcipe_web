@@ -16,7 +16,7 @@
     <template v-slot:menuHeaderRender>
       <div class="home-nav">
         <img src="~@/assets/logo/150.png" class='full-logo' alt='classcipe' @click="goHome" v-show='!collapsed'>
-        <img src="~@/assets/logo/logo-classicipe-round-transparent-with-name.png" class='single-logo-img' alt='classcipe' @click="goHome" v-show='collapsed'>
+        <img src="~@/assets/logo/50.png" class='single-logo-img' alt='classcipe' @click="goHome" v-show='collapsed'>
       </div>
     </template>
     <!-- 1.0.0+ 版本 pro-layout 提供 API,
@@ -288,8 +288,7 @@ export default {
   }
 
   img.single-logo-img {
-    height: 42px;
-    padding-left: 7px;
+    height: 50px;
     width: auto !important;
   }
 }
