@@ -4,6 +4,7 @@
     :collapsed="collapsed"
     :mediaQuery="query"
     :isMobile="isMobile"
+    :siderWidth="$classcipe.sysConfig.sidebarWidth"
     :handleMediaQuery="handleMediaQuery"
     :handleCollapse="handleCollapse"
     :i18nRender="i18nRender"
@@ -14,13 +15,8 @@
     -->
     <template v-slot:menuHeaderRender>
       <div class="home-nav">
-        <div class='home-logo'>
-          <img src="~@/assets/logo/logo.png" alt='classcipe' @click="goHome">
-          <h1 @click="goHome">{{ title }}</h1>
-        </div>
-        <span class='collapse-icon' @click.stop.prevent='handleMenuCollapse'>
-          <a-icon type="menu-fold" />
-        </span>
+        <img src="~@/assets/logo/11.png" class='full-logo' alt='classcipe' @click="goHome" v-show='!collapsed'>
+        <img src="~@/assets/logo/logo-classicipe-round-transparent-with-name.png" class='single-logo-img' alt='classcipe' @click="goHome" v-show='collapsed'>
       </div>
     </template>
     <!-- 1.0.0+ 版本 pro-layout 提供 API,
@@ -209,10 +205,10 @@ export default {
   .home-nav {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
-    h1 {
-      font-family: Inter-Bold;
-    }
+    justify-content: flex-start;
+    align-items: center;
+    padding-left: 10px;
+    height: 50px;
   }
 
 .nav-item {
@@ -272,18 +268,22 @@ export default {
   }
 }
 
-.collapse-icon {
-  padding-right: 10px;
-  color: @text-color-secondary-dark;
-
-  &:hover {
-    color: @primary-color;
+.ant-pro-sider-menu-logo {
+  padding-left: 0;
+  display: flex;
+  align-items: center;
+  height: 90px;
+  background-color: #222634;
+  img.full-logo {
+    height: 100%;
+    width: auto !important;
   }
-}
 
-.ant-pro-sider-menu-logo svg {
-  width: 20px;
-  height: 20px;
+  img.single-logo-img {
+    height: 42px;
+    padding-left: 7px;
+    width: auto !important;
+  }
 }
 
 </style>

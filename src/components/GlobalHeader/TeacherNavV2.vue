@@ -1,95 +1,58 @@
 <template>
   <div class="teacher-nav top-nav-v2">
-    <div class='top-menu'>
-      <div class='collapse menu-block'>
-        <div class='cc-menu-item collapse' @click.stop='handleExpandMenu'>
-          <a href='javascript:void(0)'>
-            <a-icon type="menu-unfold" />
-          </a>
-        </div>
-      </div>
-      <div class='role menu-block'>
-        <a-dropdown class='cc-role-dropdown' :placement="'topCenter'" :trigger="['click']">
-          <a-menu slot="overlay">
-            <a-menu-item class="self-mode" @click.native="handleChangePersonal">
-              <span class='menu-label'>Personal</span>
-            </a-menu-item>
-            <a-menu-item :key="item.id" v-for="item in info.schoolList" @click.native="handleChangeSchool(item)">
-              <span class='menu-label'>{{ item.schoolName }}</span>
-            </a-menu-item>
-          </a-menu>
-          <a-button style='width: 85%'> {{ userMode === USER_MODE.SCHOOL ? currentSchool.schoolName : 'Personal' }} <a-icon type="down" /> </a-button>
-        </a-dropdown>
-      </div>
-      <div class='menu menu-block'>
-        <a-menu
-          class='cc-inner-menu'
-          mode="inline"
-          theme="dark"
-          :inline-collapsed="collapsed"
-        >
-          <a-menu-item key="Library" @click.native="handleSwitchMenu('/teacher/library-v2')">
-            <a-icon type="bank" />
-            <span>Library</span>
-          </a-menu-item>
-          <a-menu-item key="Published" @click.native="handleSwitchMenu('/teacher/main/my-published')" v-if='userMode !== USER_MODE.SCHOOL'>
-            <a-icon type="container" />
-            <span>Published</span>
-          </a-menu-item>
-          <a-menu-item key="My Content" @click.native="handleSwitchMenu('/teacher/main/created-by-me')">
-            <a-icon type="shopping" />
-            <span>My Content</span>
-          </a-menu-item>
-          <a-menu-item key="My Favorite" @click.native="handleSwitchMenu('/teacher/main/my-favorite')">
-            <a-icon type="star" />
-            <span>My Favorite</span>
-          </a-menu-item>
+    <div class='top-menu' @dblclick='handleExpandMenu'>
+      <div class='menu menu-block' @dblclick.stop=''>
+        <sidebar-menu-item label='Library' path='/teacher/library-v2'>
+          <template v-slot:icon>
+            <library-icon />
+          </template>
+        </sidebar-menu-item>
+        <sidebar-menu-item label='Published' path='/teacher/main/my-published' v-if='userMode !== USER_MODE.SCHOOL'>
+          <template v-slot:icon>
+            <published-icon />
+          </template>
+        </sidebar-menu-item>
+        <sidebar-menu-item label='My content' path='/teacher/main/created-by-me'>
+          <template v-slot:icon>
+            <my-content-icon />
+          </template>
+        </sidebar-menu-item>
+        <sidebar-menu-item label='My favorites' path='/teacher/main/my-favorite'>
+          <template v-slot:icon>
+            <my-favorite-icon />
+          </template>
+        </sidebar-menu-item>
+        <sidebar-menu-item label='Live workshops' path='/teacher/main/live-workshops'>
+          <template v-slot:icon>
+            <live-workshops-icon />
+          </template>
+        </sidebar-menu-item>
 
-          <a-menu-item key="Live workshops" @click.native="handleSwitchMenu('/teacher/main/live-workshops')" class='block-menu'>
-            <a-icon type="desktop" />
-            <span>Live workshops</span>
-          </a-menu-item>
+        <sidebar-menu-list label='Classes' path-prefix='' :menu-list="['TestClass1', 'TestClass2']">
+          <template v-slot:icon>
+            <class-icon />
+          </template>
+        </sidebar-menu-list>
 
-          <a-sub-menu key="Classes" class='block-menu'>
-            <span slot="title"><a-icon type="dashboard" /><span>Classes</span></span>
-            <a-menu-item key="5">
-              Option 5
-            </a-menu-item>
-            <a-menu-item key="6">
-              Option 6
-            </a-menu-item>
-            <a-menu-item key="7">
-              Option 7
-            </a-menu-item>
-            <a-menu-item key="8">
-              Option 8
-            </a-menu-item>
-          </a-sub-menu>
-
-          <a-menu-item key="Co-teaching" @click.native="handleSwitchMenu()" class='block-menu'>
-            <a-icon type="pie-chart" />
-            <span>Co-teaching</span>
-          </a-menu-item>
-          <a-menu-item key="Managing" @click.native="handleSwitchMenu('/teacher/managing')" v-if="userMode === USER_MODE.SELF || (currentSchool && currentSchool.roleNames && currentSchool.roleNames.includes(schoolUserRole.admin))">
-            <a-icon type="control" />
-            <span class='menu-label'>Managing</span>
-          </a-menu-item>
-
-        </a-menu>
+        <sidebar-menu-item label='Co-teaching' path=''>
+          <template v-slot:icon>
+            <co-teaching-icon />
+          </template>
+        </sidebar-menu-item>
+        <sidebar-menu-item label='Managing' path='/teacher/managing' v-if="userMode === USER_MODE.SELF || (currentSchool && currentSchool.roleNames && currentSchool.roleNames.includes(schoolUserRole.admin))">
+          <template v-slot:icon>
+            <managing-icon />
+          </template>
+        </sidebar-menu-item>
       </div>
     </div>
-    <div class='bottom-menu'>
-      <div class='personal menu-icon-block'>
-        <div class='cc-menu-icon-item'>
-          <router-link to='/notification'>
-            <a-icon type="mail" theme='filled' :style="{ fontSize: '14px' }" v-if="$route.path.startsWith('/notification')"/>
-            <a-icon type="mail" :style="{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.65)' }" v-else/>
-          </router-link>
-        </div>
+
+    <div class='bottom-menu' @dblclick.stop=''>
+      <div class='menu-icon-block' :style="{'flex-direction': collapsed ? 'column-reverse' : 'row'}">
         <div class='cc-menu-icon-item avatar-menu-item'>
           <a-dropdown :placement="'topCenter'">
-            <a-avatar size='small' :src="$store.getters.userInfo.avatar" v-if="$store.getters.userInfo.avatar"/>
-            <a-avatar size='small' src="~@/assets/logo/beatop.png" v-else/>
+            <a-avatar :src="$store.getters.userInfo.avatar" v-if="$store.getters.userInfo.avatar"/>
+            <a-avatar src="~@/assets/logo/beatop.png" v-else/>
             <a-menu slot="overlay">
               <a-menu-item key="settings" @click="handleToSettings">
                 <a-icon type="user" />
@@ -112,6 +75,29 @@
             </a-menu>
           </a-dropdown>
         </div>
+        <div class='switch-school-personal' v-show='!collapsed'>
+          <div class='role-school-personal'>
+            <a-dropdown class='cc-role-dropdown' :placement="'topCenter'" :trigger="['click']">
+              <a-menu slot="overlay">
+                <a-menu-item class="self-mode" @click.native="handleChangePersonal">
+                  <span class='menu-label'>Personal</span>
+                </a-menu-item>
+                <a-menu-item :key="item.id" v-for="item in info.schoolList" @click.native="handleChangeSchool(item)">
+                  <span class='menu-label'>{{ item.schoolName }}</span>
+                </a-menu-item>
+              </a-menu>
+              <div class='current-role'>
+                {{ userMode === USER_MODE.SCHOOL ? currentSchool.schoolName : 'Personal' }} <a-icon type="caret-down" />
+              </div>
+            </a-dropdown>
+          </div>
+        </div>
+        <div class='cc-menu-icon-item'>
+          <router-link to='/notification'>
+            <a-icon type="mail" theme='filled' :style="{ fontSize: '14px' }" v-if="$route.path.startsWith('/notification')"/>
+            <a-icon type="mail" :style="{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.65)' }" v-else/>
+          </router-link>
+        </div>
       </div>
     </div>
   </div>
@@ -119,10 +105,14 @@
 <script>
 
 import * as logger from '@/utils/logger'
-import LibraryIconSvg from '@/assets/icons/header/Librar_icony.svg?inline'
-import EditIconSvg from '@/assets/icons/header/bianji.svg?inline'
-import SousuoIconSvg from '@/assets/icons/header/sousuo.svg?inline'
-import ManageIconSvg from '@/assets/icons/header/Managing_icon.svg?inline'
+import MyContentIcon from '@/assets/v2/icons/my_content.svg?inline'
+import MyFavoriteIcon from '@/assets/v2/icons/my_favorites.svg?inline'
+import LiveWorkshopsIcon from '@/assets/v2/icons/live_workshops.svg?inline'
+import ClassIcon from '@/assets/v2/icons/class.svg?inline'
+import CoTeachingIcon from '@/assets/v2/icons/Co-teaching.svg?inline'
+import LibraryIcon from '@/assets/v2/icons/library.svg?inline'
+import ManagingIcon from '@/assets/v2/icons/managing.svg?inline'
+import PublishedIcon from '@/assets/v2/icons/publish.svg?inline'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { HIDDEN_SIDEBAR, TOOGLE_USER_MODE } from '@/store/mutation-types'
 import { SchoolUserRole } from '@/const/role'
@@ -130,14 +120,22 @@ import { USER_MODE } from '@/const/common'
 import { SwitchUserModeSchool } from '@/api/user'
 import AvatarDropdown from './AvatarDropdown'
 import { Modal } from 'ant-design-vue'
+import SidebarMenuItem from '@/components/GlobalHeader/Common/SidebarMenuItem'
+import SidebarMenuList from '@/components/GlobalHeader/Common/SidebarMenuList'
 
 export default {
   name: 'TeacherNav',
   components: {
-    LibraryIconSvg,
-    EditIconSvg,
-    ManageIconSvg,
-    SousuoIconSvg,
+    SidebarMenuList,
+    SidebarMenuItem,
+    MyContentIcon,
+    MyFavoriteIcon,
+    LiveWorkshopsIcon,
+    ClassIcon,
+    LibraryIcon,
+    CoTeachingIcon,
+    ManagingIcon,
+    PublishedIcon,
     AvatarDropdown
   },
   data () {
@@ -279,7 +277,8 @@ export default {
     },
 
     handleExpandMenu() {
-      this.$store.commit(HIDDEN_SIDEBAR, false)
+      this.$logger.info('handleExpandMenu', this.collapsed)
+      this.$store.commit(HIDDEN_SIDEBAR, !this.collapsed)
     },
 
     handleSwitchMenu (path) {
@@ -296,13 +295,8 @@ export default {
 <style lang='less' scoped>
 @import "~@/components/index.less";
 
-.role {
-  padding-left: 24px;
-  height: 41px;
-}
-
 .menu-block {
-  margin: 15px 0;
+  margin-bottom: 10px;
   width: 100%;
   display: -ms-flexbox;
   display: flex;
@@ -314,18 +308,29 @@ export default {
 
 .menu-icon-block {
   display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
+  justify-content: space-around;
   align-items: center;
-  padding-bottom: 10px;
-  padding-left: 24px;
+  padding: 0 10px 10px 10px;
   .cc-menu-icon-item {
     user-select: none;
-    width: 50px;
+    padding: 0 15px;
     height: 40px;
     display: flex;
     align-items: center;
     cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .switch-school-personal {
+    flex-grow: 1;
+
+    .current-role {
+      font-family: Arial;
+      font-weight: 400;
+      color: #F1F3F8;
+      cursor: pointer;
+      user-select: none;
+    }
   }
 }
 
@@ -343,18 +348,10 @@ export default {
   text-overflow: ellipsis;
 }
 
-.active-menu {
-  background: @primary-color;
-
-  a {
-    color: #fff;
-  }
-}
-
 .top-nav-v2 {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 64px);
+  height: calc(100vh - 90px);
 
   .top-menu {
     flex-grow: 1;
@@ -365,48 +362,4 @@ export default {
   }
 }
 
-.collapse {
-  display: none;
-}
-
-.ant-layout-sider-collapsed {
-  .cc-menu-item {
-    a {
-      padding: 10px 10px 10px 33px;
-    }
-  }
-  .menu-label {
-    display: none;
-  }
-  .role {
-    display: none;
-  }
-  .collapse {
-    display: flex;
-  }
-
-  .menu-icon-block {
-    display: flex;
-    flex-direction: column;
-    padding-left: 30px;
-  }
-
-  .avatar-menu-item {
-    margin-left: -8px;
-  }
-}
-
-.collapse-icon {
-  position: absolute;
-  top: 10px;
-  right: 5px;
-  z-index: 1000;
-}
-
-.cc-inner-menu {
-  .block-menu {
-    margin-top: 25px;
-    margin-bottom: 8px;
-  }
-}
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div class='my-full-form-wrapper' id='formRoot'>
-    <div class='form-header' :style="{left: collapsed ? '80px' : '256px'}">
+    <div class='form-header' :style="{left: collapsed ? $classcipe.sysConfig.collapsedSidebarWidth + 'px' : $classcipe.sysConfig.sidebarWidth + 'px'}">
       <common-form-header
         ref='commonFormHeader'
         :form='form'
@@ -15,7 +15,7 @@
         @collaborate='handleStartCollaborate'
       />
     </div>
-    <div class='step-nav' :style="{left: collapsed ? '80px' : '256px', width: collapsed ? 'calc(100% - 80px)' : 'calc(100% - 256px)'}">
+    <div class='step-nav' :style="{left: collapsed ? $classcipe.sysConfig.collapsedSidebarWidth + 'px' : $classcipe.sysConfig.sidebarWidth + 'px', width: collapsed ? 'calc(100% - ' + $classcipe.sysConfig.collapsedSidebarWidth + 'px)' : 'calc(100% - ' + $classcipe.sysConfig.sidebarWidth + 'px)'}">
       <my-vertical-steps
         ref='steps-nav'
         :steps='$store.getters.formConfigData.taskSteps'
@@ -835,7 +835,7 @@
         <a-spin />
       </div>
     </div>
-    <div class='bottom-action-bar'>
+    <div class='bottom-action-bar' :style="{left: collapsed ? $classcipe.sysConfig.collapsedSidebarWidth + 'px' : $classcipe.sysConfig.sidebarWidth + 'px'}">
       <a-button type='primary' @click='handleNextStep'>Next</a-button>
     </div>
     <a-modal

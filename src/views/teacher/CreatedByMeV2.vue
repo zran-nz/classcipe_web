@@ -2,17 +2,7 @@
   <div class='my-content'>
     <div class='content-header'>
       <div class='source-type'>
-        <a-radio-group button-style="solid" v-model='shareType' @change="handleSearch">
-          <a-radio-button :value="sourceType.CreatedByMe">
-            Created by me
-          </a-radio-button>
-          <a-radio-button :value="sourceType.SharedByMe">
-            Shared by me
-          </a-radio-button>
-          <a-radio-button :value="sourceType.SharedByOthers">
-            Shared by others
-          </a-radio-button>
-        </a-radio-group>
+        <radio-switch :menu-list='menuList' />
       </div>
       <div class='create-new'>
         <create-new />
@@ -59,12 +49,27 @@ import { SESSION_CURRENT_PAGE } from '@/const/common'
 import ContentItem from '@/components/MyContentV2/ContentItem'
 import ContentPublish from '@/components/MyContentV2/ContentPublish'
 import NoMoreResources from '@/components/Common/NoMoreResources'
+import RadioSwitch from '@/components/Common/RadioSwitch'
 
 export default {
   name: 'CreatedByMeV2',
-  components: { NoMoreResources, ContentPublish, ContentItem, ContentFilter, CreateNew },
+  components: { RadioSwitch, NoMoreResources, ContentPublish, ContentItem, ContentFilter, CreateNew },
   data () {
     return {
+      menuList: [
+        {
+          name: 'Created by me',
+          type: SourceType.CreatedByMe
+        },
+        {
+          name: 'Shared by me',
+          type: SourceType.SharedByMe
+        },
+        {
+          name: 'Shared by others',
+          type: SourceType.SharedByOthers
+        }
+      ],
       sourceType: SourceType,
       shareType: SourceType.CreatedByMe,
       loading: true,

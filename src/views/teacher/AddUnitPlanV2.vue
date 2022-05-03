@@ -1,6 +1,6 @@
 <template>
   <div class='my-full-form-wrapper'>
-    <div class='form-header' :style="{left: collapsed ? '80px' : '256px'}">
+    <div class='form-header' :style="{left: collapsed ? $classcipe.sysConfig.collapsedSidebarWidth + 'px' : $classcipe.sysConfig.sidebarWidth + 'px'}">
       <common-form-header
         ref='commonFormHeader'
         :collaborate='collaborate'
@@ -15,7 +15,7 @@
         @view-collaborate='handleViewCollaborate'
       />
     </div>
-    <div class='step-nav' :style="{left: collapsed ? '80px' : '256px', width: collapsed ? 'calc(100% - 80px)' : 'calc(100% - 256px)'}">
+    <div class='step-nav' :style="{left: collapsed ? $classcipe.sysConfig.collapsedSidebarWidth + 'px' : $classcipe.sysConfig.sidebarWidth + 'px', width: collapsed ? 'calc(100% - ' + $classcipe.sysConfig.collapsedSidebarWidth + 'px)' : 'calc(100% - ' + $classcipe.sysConfig.sidebarWidth + 'px)'}">
       <my-vertical-steps
         ref='steps-nav'
         :steps='$store.getters.formConfigData.planSteps'
@@ -571,7 +571,7 @@
         <a-spin />
       </div>
     </div>
-    <div class='bottom-action-bar'>
+    <div class='bottom-action-bar' :style="{left: collapsed ? $classcipe.sysConfig.collapsedSidebarWidth + 'px' : $classcipe.sysConfig.sidebarWidth + 'px'}">
       <a-button type='primary' @click='handleNextStep'>Next</a-button>
     </div>
 
@@ -3469,7 +3469,6 @@ svg.add-input {
   position: fixed;
   box-shadow: 3px 0 6px rgba(0, 0, 0, 0.16);
   bottom: 0;
-  left: 0;
   right: 0;
   height: 60px;
   background: #fff;
