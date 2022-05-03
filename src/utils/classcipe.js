@@ -31,7 +31,8 @@ function replaceToClasscipeCDN(rawUrl) {
 }
 
 const sysConfig = {
-  sidebarWidth: 230
+  sidebarWidth: 230,
+  collapsedSidebarWidth: 80
 }
 
 export {
