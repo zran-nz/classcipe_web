@@ -52,7 +52,7 @@ export default {
       const target = this.$refs.radioSwitch.childNodes[targetIndex]
       const rect = target.getBoundingClientRect()
       this.width = rect.width
-      this.left = target.offsetLeft - 5
+      this.left = target.offsetLeft - 2
     }
   },
   methods: {
@@ -62,7 +62,7 @@ export default {
       const target = event.target
       const rect = target.getBoundingClientRect()
       this.width = rect.width
-      this.left = target.offsetLeft - 10
+      this.left = target.offsetLeft - 2
       this.$emit('select', item)
     }
   }
@@ -78,10 +78,10 @@ export default {
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
-  padding: 3px 10px;
+  padding: 2px;
   background: #FFFFFF;
   border: 2px solid #EEF1F6;
-  border-radius: 8px;
+  border-radius: 5px;
   cursor: pointer;
   user-select: none;
 
