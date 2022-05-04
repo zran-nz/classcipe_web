@@ -13,6 +13,8 @@
 </template>
 
 <script>
+import { DEVICE } from '@/const/common'
+import { mapState } from 'vuex'
 export default {
   name: 'PriceSlider',
   props: {
@@ -44,7 +46,6 @@ export default {
   },
   data() {
     return {
-      PREFIX: ' per',
       datas: this.priceList.map(item => {
         return {
           value: item.value || item.registeredNum,
@@ -58,6 +59,23 @@ export default {
     }
   },
   computed: {
+    ...mapState({
+      device: state => state.app.device
+    }),
+    PREFIX() {
+      if (this.device === DEVICE.DESKTOP) {
+        return ' person'
+      } else {
+        return ' p'
+      }
+    },
+    PREFIXS() {
+      if (this.device === DEVICE.DESKTOP) {
+        return ' people'
+      } else {
+        return ' p'
+      }
+    },
     max() {
       const values = this.datas.map(item => item.value)
       const max = Math.max(...values)
@@ -73,7 +91,7 @@ export default {
       //  if (index === values.length - 1 && val < this.max) {
       //    result[this.max] = this.max + PREFIX
       //  }
-       result[val] = val + this.PREFIX
+       result[val] = val + (index === 0 ? this.PREFIX : this.PREFIXS)
       })
       return result
     },
@@ -102,7 +120,7 @@ export default {
         result.push({
           left: `calc(${left} - 25px)`,
           width: 'auto',
-          label: this.currentVal + this.PREFIX
+          label: this.currentVal + this.PREFIXS
         })
       }
       return result

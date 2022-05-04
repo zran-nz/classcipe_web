@@ -279,7 +279,7 @@ export const WORK_SHOPS_TYPE = {
     value: 1
   },
   LUNCHEDBYME: {
-    label: 'Lunched by me',
+    label: 'Launched by me',
     value: 2
   },
   REGISTERED: {
