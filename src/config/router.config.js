@@ -292,10 +292,14 @@ export const asyncRouterMap = [
           {
             path: '/teacher/schedule-session/:id/:type',
             name: 'ScheduleSession',
-            props: true,
+            props(route) {
+              const props = { ...route.params }
+              props.type = +props.type // convert string to number
+              return props
+            },
             component: () => import('@/views/teacher/schedule/ScheduleSession'),
             meta: { title: 'Schedule', keepAlive: true, permission: ['teacher'] }
-          },
+          }
         ]
       },
 
