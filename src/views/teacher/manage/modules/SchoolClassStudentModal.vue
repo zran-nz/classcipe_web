@@ -30,6 +30,8 @@ import { httpAction } from '@/api/manage'
 import JModal from '@/components/jeecg/JModal'
 import { schoolClassStudentAPIUrl } from '@/api/schoolClassStudent'
 import moment from 'moment'
+import { mapState } from 'vuex'
+import { CLASS_TYPE, USER_MODE } from '@/const/common'
 
 export default {
     name: 'SchoolClassStudentModal',
@@ -62,6 +64,12 @@ export default {
       default: ''
     }
   },
+  computed: {
+    ...mapState({
+      userMode: state => state.app.userMode,
+      currentSchool: state => state.user.currentSchool
+    })
+  },
   components: {
     JModal
   },
@@ -70,7 +78,7 @@ export default {
     methods: {
       add () {
         // 初始化默认值
-        this.edit({ classId: this.classId, status: 1 })
+        this.edit({ classId: this.classId, status: 1, classFlag: this.userMode === USER_MODE.SELF ? CLASS_TYPE.personal : CLASS_TYPE.school })
       },
       edit (record) {
         this.model = Object.assign({}, record)

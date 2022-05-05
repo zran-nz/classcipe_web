@@ -70,7 +70,7 @@
 
       <a-space slot="action" slot-scope="item" style="display: flex;justify-content: center;align-items: center">
         <a-button v-show="userMode === USER_MODE.SCHOOL" type="primary" shape="round" @click="handleTeacher(item)" >Teachers </a-button>
-        <a-button v-show="userMode === USER_MODE.SCHOOL" type="primary" shape="round" @click="handleStudent(item)" >Students </a-button>
+        <a-button type="primary" shape="round" @click="handleStudent(item)" >Students </a-button>
         <a-button type="primary" shape="round" @click="handleEdit(item)" >Edit </a-button>
         <a-popconfirm v-show="userMode === USER_MODE.SELF" title="Delete this class ?" ok-text="Yes" @confirm="handleDelete(item)" cancel-text="No">
           <a-button type="primary" shape="round" >Delete </a-button>
@@ -219,16 +219,16 @@ export default {
               dataIndex: 'headTeacherName',
               key: 'teacher',
               width: 120
-            },
-            {
-              title: 'Students No.',
-              dataIndex: '',
-              key: 'studentCount',
-              width: 120,
-              scopedSlots: { customRender: 'studentsNo' }
             }
           ]
         ),
+        {
+          title: 'Students No.',
+          dataIndex: '',
+          key: 'studentCount',
+          width: 120,
+          scopedSlots: { customRender: 'studentsNo' }
+        },
         {
           title: 'Subject',
           dataIndex: 'subjectName',
