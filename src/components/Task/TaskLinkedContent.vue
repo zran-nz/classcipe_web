@@ -6,14 +6,34 @@
         v-for='(groupItem, gIdx) in ownerLinkGroupList'
         :key='gIdx'>
         <draggable
+          class='list-group'
           v-model="groupItem.contents"
+          :disabled="!canEdit"
+          animation="300"
+          group="content-item"
+          :move='handleOnMve'
+          @add="handleDragContent($event)">
+          <div class='linked-item' v-for='content in groupItem.contents' :key='content.id'>
+            <div class='linked-item-deleted'>
+              <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteLinkItem(content)" cancel-text="No">
+                <delete-icon />
+              </a-popconfirm>
+            </div>
+            <link-content-item :content='content' />
+          </div>
+        </draggable>
+      </div>
+      <div class='init-group' v-if='ownerLinkGroupList.length === 0'>
+        <draggable
+          class='list-group'
+          v-model="initContents"
           :disabled="!canEdit"
           animation="300"
           group="content-item"
           style="width: 100%; min-height: 50px"
           :move='handleOnMve'
-          @add="handleDragContent($event, groupItem)">
-          <div class='linked-item' v-for='content in groupItem.contents' :key='content.id'>
+          @add="handleDragContent($event)">
+          <div class='linked-item' v-for='content in initContents' :key='content.id'>
             <div class='linked-item-deleted'>
               <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteLinkItem(content)" cancel-text="No">
                 <delete-icon />
@@ -68,7 +88,9 @@ export default {
       ],
       associateUnitIdList: [],
       associateUnitList: [],
-      associateId2Name: new Map()
+      associateId2Name: new Map(),
+
+      initContents: []
     }
   },
   created() {
@@ -138,8 +160,8 @@ export default {
     },
 
     // 当拖入内容时，先隐藏dom，然后提取数据后删除组件插入的dom，随后手动处理数据，方便Vue监听
-    async handleDragContent (event, groupItem) {
-      this.$logger.info('UnitLinkedContent handleDropContent', event, groupItem)
+    async handleDragContent (event) {
+      this.$logger.info('UnitLinkedContent handleDropContent', event)
       event.item.style.display = 'none'
       const itemData = JSON.parse(event.item.dataset.item)
       event.item.parentElement.removeChild(event.item)
@@ -272,6 +294,10 @@ export default {
       display: flex;
     }
   }
+}
+
+.list-group {
+  min-height: 100px;
 }
 
 </style>
