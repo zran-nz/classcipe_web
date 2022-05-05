@@ -10,14 +10,10 @@
     </div>
     <div class='schedule-content-wrapper'>
       <a-skeleton v-show='loading' />
-      <div class='schedule-content'>
-        <template v-show='currentActiveStepIndex === 0'>
-          <select-participant :class-list='classList'/>
-        </template>
-        <template v-show='currentActiveStepIndex === 1'>
-          <schedule-date v-show='!isOpenSession'/>
-          <schedule-pay-info v-show='isOpenSession'/>
-        </template>
+      <div class='schedule-content' v-show='!loading'>
+        <select-participant ref='participant' :class-list='classList' v-show='currentActiveStepIndex === 0' />
+        <schedule-date v-show='!isOpenSession && currentActiveStepIndex === 1' />
+        <schedule-pay-info v-show='isOpenSession && currentActiveStepIndex === 1'/>
       </div>
     </div>
     <div class='bottom-action'>
@@ -140,12 +136,14 @@ export default {
       if (this.currentActiveStepIndex === 0) {
         this.handleBack()
       } else {
-        this.currentActiveStepIndex = this.currentActiveStepIndex - 1
+        this.$refs['steps-nav'].prevStep()
       }
     },
     handleGoNext () {
       if (this.currentActiveStepIndex === 0) {
         this.$refs['steps-nav'].nextStep()
+        const participantData = this.$refs.participant.getSelectedData()
+        this.$logger.info('ScheduleSession handleGoNext participantData ', participantData)
       }
       this.$logger.info('ScheduleSession handleGoNext ', this.currentActiveStepIndex)
     }
