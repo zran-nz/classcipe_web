@@ -287,3 +287,10 @@ export const WORK_SHOPS_TYPE = {
     value: 3
   }
 }
+
+export const CLASS_TYPE = {
+  school: 1,
+  personal: 2,
+  open: 3, // 开放的班级统称
+  self: 4 // self study
+}
