@@ -115,6 +115,7 @@ export default {
         this.currentSelectedClass = item
       }
       this.loadCurrentClassStudent()
+      this.$emit('select-class-student')
     },
     loadCurrentClassStudent() {
       this.$logger.info('loadCurrentClassStudent', this.currentSelectedClass)
@@ -153,6 +154,7 @@ export default {
       } else {
         this.checkedStudent.push(student)
       }
+      this.$emit('select-class-student')
     }
   }
 }

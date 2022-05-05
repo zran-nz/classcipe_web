@@ -11,14 +11,29 @@
     <div class='schedule-content-wrapper'>
       <a-skeleton v-show='loading' />
       <div class='schedule-content' v-show='!loading'>
-        <select-participant ref='participant' :class-list='classList' v-show='currentActiveStepIndex === 0' />
+        <select-participant
+          ref='participant'
+          :class-list='classList'
+          v-show='currentActiveStepIndex === 0'
+          @select-class-student='handleSelectClassStudent'
+          @select-open-session='handleSelectOpenSession'/>
         <schedule-date v-show='!isOpenSession && currentActiveStepIndex === 1' />
         <schedule-pay-info v-show='isOpenSession && currentActiveStepIndex === 1'/>
       </div>
     </div>
     <div class='bottom-action'>
       <a-button @click='handleGoBack'><a-icon type='left' /> Back</a-button>
-      <a-button type='primary' @click='handleGoNext'>Next <a-icon type='right' /></a-button>
+      <div class='right-button'>
+        <a-space>
+          <a-button type='primary' v-if='currentActiveStepIndex === $classcipe.ScheduleSteps.length - 1'>Teach the session now</a-button>
+          <a-button type='primary' @click='handleGoNext'>
+            <template v-if='currentActiveStepIndex !== $classcipe.ScheduleSteps.length - 1'>
+              Next <a-icon type='right' />
+            </template>
+            <template v-else>Assign</template>
+          </a-button>
+        </a-space>
+      </div>
     </div>
 
     <select-session-unit
@@ -146,6 +161,15 @@ export default {
         this.$logger.info('ScheduleSession handleGoNext participantData ', participantData)
       }
       this.$logger.info('ScheduleSession handleGoNext ', this.currentActiveStepIndex)
+    },
+
+    handleSelectClassStudent () {
+      this.isOpenSession = false
+    },
+
+    handleSelectOpenSession (data) {
+      this.$logger.info('ScheduleSession handleSelectOpenSession ', data)
+      this.isOpenSession = true
     }
   }
 }
