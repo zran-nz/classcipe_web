@@ -274,13 +274,13 @@ export default {
     }
 
     .student-item {
-      margin-bottom: 10px;
+      margin-bottom: 5px;
       display: flex;
       flex-direction: row;
       justify-content: flex-start;
       align-items: center;
       .student-info {
-        padding: 6px;
+        padding: 7px 10px;
         display: flex;
         flex-direction: row;
         justify-content: flex-start;
