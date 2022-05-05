@@ -10,7 +10,19 @@
     </div>
     <div class='schedule-content-wrapper'>
       <a-skeleton v-show='loading' />
-      <div class='schedule-content'></div>
+      <div class='schedule-content'>
+        <template v-show='currentActiveStepIndex === 0'>
+          <select-participant :class-list='classList'/>
+        </template>
+        <template v-show='currentActiveStepIndex === 1'>
+          <schedule-date v-show='!isOpenSession'/>
+          <schedule-pay-info v-show='isOpenSession'/>
+        </template>
+      </div>
+    </div>
+    <div class='bottom-action'>
+      <a-button @click='handleGoBack'><a-icon type='left' /> Back</a-button>
+      <a-button type='primary' @click='handleGoNext'>Next <a-icon type='right' /></a-button>
     </div>
 
     <select-session-unit
@@ -27,10 +39,13 @@ import MyVerticalSteps from '@/components/Steps/MyVerticalSteps'
 import { AssociateMixin } from '@/mixins/AssociateMixin'
 import { SchoolClassGetMyClasses } from '@/api/schoolClass'
 import SelectSessionUnit from '@/components/Schedule/SelectSessionUnit'
+import SelectParticipant from '@/components/Schedule/SelectParticipant'
+import ScheduleDate from '@/components/Schedule/ScheduleDate'
+import SchedulePayInfo from '@/components/Schedule/SchedulePayInfo'
 
 export default {
   name: 'ScheduleSession',
-  components: { SelectSessionUnit, MyVerticalSteps },
+  components: { SchedulePayInfo, ScheduleDate, SelectParticipant, SelectSessionUnit, MyVerticalSteps },
   mixins: [ AssociateMixin ],
   props: {
     id: {
@@ -48,7 +63,12 @@ export default {
       currentActiveStepIndex: 0,
       selectSessionUnitVisible: false,
       associateUnit: null,
-      associateUnitList: []
+      associateUnitList: [],
+      isOpenSession: false,
+
+      classList: [],
+      selectedClassId: [],
+      selectStudents: []
     }
   },
   created() {
@@ -87,6 +107,7 @@ export default {
         })
       } else if (this.associateUnitList.length === 1) {
         this.associateUnit = this.associateUnitList[0]
+        this.getClassList()
       } else {
         this.selectSessionUnitVisible = true
       }
@@ -95,6 +116,11 @@ export default {
     getClassList() {
       SchoolClassGetMyClasses().then(res => {
         this.$logger.info('ScheduleSession getClassList ', res)
+        if (res.result) {
+          this.classList = res.result
+        }
+      }).finally(() => {
+        this.loading = false
       })
     },
 
@@ -104,8 +130,25 @@ export default {
 
     handleSelectUnit(data) {
       this.$logger.info('ScheduleSession handleSelectUnit ', data)
+      this.associateUnit = data
       this.selectSessionUnitVisible = false
-    }
+      this.getClassList()
+    },
+
+    handleGoBack () {
+      if (this.currentActiveStepIndex === 0) {
+        this.handleBack()
+      } else {
+        this.currentActiveStepIndex = this.currentActiveStepIndex - 1
+      }
+    },
+    handleGoNext () {
+      if (this.currentActiveStepIndex === 1) {
+        this.handleBack()
+      } else {
+        this.currentActiveStepIndex = this.currentActiveStepIndex + 1
+      }
+    },
   }
 }
 
@@ -120,4 +163,18 @@ export default {
   min-height: calc(100vh - 50px);
 }
 
+.schedule-content-wrapper {
+  height: calc(100vh - 150px);
+  .schedule-content {
+    height: 100%;
+  }
+}
+
+.bottom-action {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
 </style>

@@ -1,20 +1,283 @@
 <template>
-  <div class='select-participant'></div>
+  <div class='select-participant'>
+    <div class='class-info'>
+      <div class='list-title'>
+        <div class='title-item'>
+          Class list
+        </div>
+        <div class='title-action'>
+          Add new
+        </div>
+      </div>
+      <div class='class-list'>
+        <div
+          class='class-item'
+          :class="{'selected-item': checkedClass.indexOf(classItem) !== -1, 'current-active-item': classItem === currentSelectedClass }"
+          v-for='classItem in classList'
+          :key='classItem.id'
+          @click='handleSelectClass(classItem)'>
+          <div class='item-checked-icon'>
+            <template v-if="checkedClass.indexOf(classItem) !== -1">
+              <img src="~@/assets/icons/lesson/selected.png" />
+            </template>
+            <template v-if="checkedClass.indexOf(classItem) === -1">
+              <div class="empty-circle"></div>
+            </template>
+          </div>
+          <div class='class-name'>{{ classItem.name }}</div>
+        </div>
+        <div class='open-session'>
+          <a-button type='primary' @click='handleSelectOpenSession'>Open Session</a-button>
+        </div>
+      </div>
+    </div>
+    <div class='student-info'>
+      <div class='list-title'>
+        <div class='title-item'>
+          Student list
+        </div>
+        <div class='title-action'>
+          Select all
+        </div>
+      </div>
+      <div class='student-list'>
+        <template v-if='studentListLoading'>
+          <a-skeleton />
+        </template>
+        <template v-else>
+          <template v-if='studentList.length'>
+            <div
+              class='student-item'
+              :class="{'selected-item': checkedStudent.indexOf(student) !== -1 }"
+              v-for='student in studentList'
+              :key='student.id'
+              @click='handleSelectStudent(student)'>
+              >
+              <div class='item-checked-icon'>
+                <template v-if="checkedStudent.indexOf(student) !== -1">
+                  <img src="~@/assets/icons/lesson/selected.png" />
+                </template>
+                <template v-if="checkedStudent.indexOf(student) === -1">
+                  <div class="empty-circle"></div>
+                </template>
+              </div>
+              <div class='class-name'>{{ student.name }}</div>
+            </div>
+          </template>
+          <template v-else>
+            <div class='no-student-tips'>
+              <no-more-resources tips='No student'/>
+            </div>
+          </template>
+        </template>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
+import { SchoolClassListClassMembers } from '@/api/schoolClass'
+import NoMoreResources from '@/components/Common/NoMoreResources'
+
 export default {
   name: 'SelectParticipant',
+  components: { NoMoreResources },
+  props: {
+    classList: {
+      type: Array,
+      default: () => []
+    }
+  },
   data() {
-    return {}
+    return {
+      currentSelectedClass: null,
+      studentList: [],
+      checkedClass: [],
+      studentListLoading: false,
+      checkedStudent: []
+    }
   },
   created() {
   },
-  methods: {}
+  methods: {
+    handleSelectClass (item) {
+      this.$logger.info('handleSelectClass', item)
+      if (this.checkedClass.indexOf(item) !== -1) {
+        this.checkedClass.splice(this.checkedClass.indexOf(item), 1)
+        this.currentSelectedClass = this.checkedClass.length > 0 ? this.checkedClass[0] : null
+      } else {
+        this.checkedClass.push(item)
+        this.currentSelectedClass = item
+      }
+      this.loadCurrentClassStudent()
+    },
+    loadCurrentClassStudent() {
+      this.$logger.info('loadCurrentClassStudent', this.currentSelectedClass)
+      if (this.currentSelectedClass) {
+        this.studentListLoading = true
+        SchoolClassListClassMembers({
+          classId: this.currentSelectedClass.id
+        }).then(res => {
+          this.$logger.info('loadClassStudent', res)
+          this.studentList = res.result
+        }).finally(() => {
+          this.studentListLoading = false
+        })
+      }
+    },
+
+    handleSelectOpenSession () {
+      this.$logger.info('handleSelectOpenSession', this.checkedStudent)
+      this.$emit('select-open-session')
+    },
+
+    getSelectedData () {
+      this.$logger.info('getSelectedData', this.checkedClass, this.checkedStudent)
+      return {
+        classIds: this.checkedClass.map(item => item.id),
+        selectStudents: this.checkedStudent.map(item => item.id)
+      }
+    },
+
+    handleSelectStudent (student) {
+      this.$logger.info('handleSelectStudent', student)
+      if (this.checkedStudent.indexOf(student) !== -1) {
+        this.checkedStudent.splice(this.checkedStudent.indexOf(student), 1)
+      } else {
+        this.checkedStudent.push(student)
+      }
+    }
+  }
 }
 </script>
 
 <style lang='less' scoped>
 @import "~@/components/index.less";
+
+.select-participant {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-around;
+  height: 100%;
+
+  .list-title {
+    margin: 10px 0 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    line-height: 35px;
+    padding: 0 15px;
+    cursor: pointer;
+    user-select: none;
+    .title-item {
+      font-weight: 500;
+      color: #333;
+    }
+
+    .title-action {
+      color: #15c39a;
+      font-weight: 500;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+.class-info, .student-info {
+  height: 100%;
+  position: relative;
+  .class-list, .student-list {
+    border: 1px solid #f1f1f1;
+    padding: 10px;
+    min-width: 300px;
+    max-width: 500px;
+    height: calc(100% - 50px);
+    overflow-y: scroll;
+    .class-item {
+      line-height: 35px;
+      padding: 0 5px;
+      margin: 3px 0;
+      user-select: none;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      border: 2px solid #fff;
+      .item-checked-icon {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        width: 25px;
+        margin-right: 5px;
+        .empty-circle {
+          height: 18px;
+          width: 18px;
+          border-radius: 50%;
+          border: 2px solid #ccc;
+        }
+
+        img {
+          width: 18px;
+          height: 18px;
+        }
+      }
+
+      .class-name {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        font-family: Inter-Bold;
+      }
+
+      &:hover {
+        border: 2px solid #15c39a;
+      }
+    }
+
+    .selected-item {
+      background-color: #15c39a2e;
+      color: #15c39a;
+    }
+
+    .current-active-item {
+      background-color: #15c39a;
+      border: 2px solid #15c39a;
+      color: #fff;
+    }
+  }
+
+  .class-list {
+    padding-bottom: 50px;
+    height: calc(100% - 50px);
+  }
+
+  .open-session {
+    width: calc(100% - 20px);
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    background-color: #fff;
+    border-top: 1px solid #f1f1f1;
+    position: absolute;
+    bottom: 5px;
+  }
+
+  .student-list {
+    width: 350px;
+    .no-student-tips {
+      height: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}
 
 </style>

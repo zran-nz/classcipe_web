@@ -1,7 +1,7 @@
 <template>
   <div class="my-modal-header">
     <div v-if="title" class="title">{{ title }}</div>
-    <div class="close-icon" @click="handleClickClose">
+    <div class="close-icon" @click="handleClickClose" v-show='allowClose'>
       <img src="~@/assets/icons/common/close.png" v-if="!white" />
       <img src="~@/assets/icons/common/close_white.png" v-if="white"/>
     </div>
