@@ -55,7 +55,7 @@
               <div class='student-info'>
                 <div class='avatar'>
                   <img :src='student.avatar' v-if='student.avatar'/>
-                  <img  src="~@/assets/icons/evaluation/default_avatar.png" v-else/>
+                  <img src="~@/assets/icons/evaluation/default_avatar.png" v-else/>
                 </div>
                 <div class='nickname'>
                   {{ student.nickname }}

@@ -38,7 +38,7 @@ export const ZoomAuthMixin = {
     },
 
     handleZoomAuthCallback (event) {
-      const { data } = event;
+      const { data } = event
       // 如果zoom授权成功更新本地zoomAuthToken
       if (data && data.eventType === 'authUpdate' && data.authType === 'zoom') {
         this.$store.dispatch('GetInfo')

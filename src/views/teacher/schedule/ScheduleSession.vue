@@ -192,6 +192,7 @@ export default {
           this.$logger.info('save scheduleReq', res)
           if (res.result && res.success) {
             this.$message.success('Schedule session successfully')
+            this.$router.replace('/teacher/main/created-by-me')
           } else {
             this.$confirm({
               title: 'Warn',
