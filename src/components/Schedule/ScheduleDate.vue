@@ -35,7 +35,7 @@
     <div class='select-date'>
       <div class='title'>Schedule</div>
       <div class='date-picker'>
-        <a-range-picker @change="handleDateChange" format='LLL' :show-time="{ format: 'HH:mm' }"/>
+        <a-range-picker @change="handleDateChange" format='YYYY-MM-DD HH:mm:ss' :show-time="{ format: 'HH:mm' }"/>
       </div>
     </div>
   </div>
