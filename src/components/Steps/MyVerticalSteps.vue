@@ -24,6 +24,10 @@ export default {
     stepIndex: {
       type: Number,
       default: 0
+    },
+    allowSwitch: {
+      type: Boolean,
+      default: true
     }
   },
   data () {
@@ -34,12 +38,16 @@ export default {
   methods: {
     handleSelectStep (step, index) {
       this.$logger.info('handleSelectStep', step, index)
-      if (this.currentStepIndex !== index) {
-        this.currentStepIndex = index
-        this.$emit('step-change', {
-          index,
-          step
-        })
+      if (this.allowSwitch) {
+        if (this.currentStepIndex !== index) {
+          this.currentStepIndex = index
+          this.$emit('step-change', {
+            index,
+            step
+          })
+        }
+      } else {
+        this.$logger.info('handleSelectStep', 'allowSwitch is false')
       }
     },
     nextStep() {

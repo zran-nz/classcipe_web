@@ -25,7 +25,7 @@
         <a-space>
           <a-button type='primary' v-if='content.type === typeMap.task && content.subTasks.length > 0'>SubTask</a-button>
           <a-button type='primary'>Original Tips</a-button>
-          <a-button type='primary' v-if='content.type === typeMap.task || content.type === typeMap.pd'>Schedule</a-button>
+          <a-button type='primary' v-if='content.type === typeMap.task || content.type === typeMap.pd' @click='handleSchedule'>Schedule</a-button>
           <a-button type='primary' @click='editItem(content)'>Edit</a-button>
           <a-dropdown :trigger="['click']" :getPopupContainer="trigger => trigger.parentElement">
             <a-button type='primary'><a-icon type="dash" /></a-button>
@@ -100,6 +100,12 @@ export default {
           path: '/teacher/pd-content-redirect/' + item.id
         })
       }
+    },
+
+    handleSchedule () {
+      this.$router.push({
+        path: '/teacher/schedule-session/' + this.content.id + '/' + this.content.type
+      })
     },
 
     handleSelfLearning (isSelfLearning) {

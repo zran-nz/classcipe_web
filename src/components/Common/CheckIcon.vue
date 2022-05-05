@@ -1,5 +1,5 @@
 <template>
-  <div class='check-icon' :style="{ 'background-color': bgColor, 'border-radius': width + 'px' }">
+  <div class='check-icon' :style="{ 'background-color': bgColor, 'border-radius': size + 'px' }">
     <check-svg :style="{ fill: color, width: size + 'px', height: size + 'px' }" />
   </div>
 </template>
