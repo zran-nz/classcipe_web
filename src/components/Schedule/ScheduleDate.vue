@@ -35,7 +35,7 @@
     <div class='select-date'>
       <div class='title'>Schedule</div>
       <div class='date-picker'>
-        <a-range-picker @change="handleDateChange" />
+        <a-range-picker @change="handleDateChange" format='YYYY-MM-DD HH:mm:ss'/>
       </div>
     </div>
   </div>
@@ -43,8 +43,11 @@
 
 <script>
 
+import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
+
 export default {
   name: 'ScheduleDate',
+  mixins: [ ZoomAuthMixin ],
   data() {
     return {
       // 1-assignment 2-lession(PD session只能是公开课，类型是lesson) 3-Test
@@ -54,26 +57,29 @@ export default {
           name: 'Assignment',
           allowZoom: false,
           enableZoom: false,
-          color: '#333333'
+          color: '#333333',
+          type: this.$classcipe.ScheduleSessionType.assignment
         },
         {
           id: 2,
           name: 'Lesson',
           allowZoom: true,
           enableZoom: false,
-          color: '#15c39a'
+          color: '#15c39a',
+          type: this.$classcipe.ScheduleSessionType.lesson
         },
         {
           id: 3,
           name: 'Test',
           allowZoom: true,
           enableZoom: false,
-          color: '#c92a2a'
+          color: '#c92a2a',
+          type: this.$classcipe.ScheduleSessionType.test
         }
       ],
 
       selectedSessionType: null,
-      startData: null,
+      startDate: null,
       endData: null
     }
   },
@@ -93,16 +99,27 @@ export default {
         })
         this.$logger.info('sessionTypeList', this.sessionTypeList)
       }
+      this.$emit('select-zoom-status', false) // 切换类型后重置zoom状态
+      this.$emit('select-session-type', this.selectedSessionType ? this.selectedSessionType.type : null)
     },
     handleDateChange (date, dateString) {
       this.$logger.info('handleDateChange', date, dateString)
-      this.startData = dateString[0]
+      this.startDate = dateString[0]
       this.endData = dateString[1]
-      this.$logger.info('handleDateChange', this.startData, this.endData)
+      this.$logger.info('handleDateChange', this.startDate, this.endData)
+      this.$emit('select-date', {
+        startDate: this.startDate,
+        endDate: this.endData
+      })
     },
 
     handleZoomStatusChange (status) {
       this.$logger.info('handleZoomStatusChange', status)
+      if (this.zoomAuthToken) {
+        this.$emit('select-zoom-status', status)
+      } else {
+        this.goToZoomAuth()
+      }
     }
   }
 }

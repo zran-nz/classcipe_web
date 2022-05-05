@@ -73,7 +73,7 @@ export function addQuickSessionV2 (parameter) {
  * @returns {AxiosPromise}
  * @constructor
  */
-export function addSessionV2 (parameter) {
+export function AddSessionV2 (parameter) {
   return request({
     url: ClassesV2Url.addSession,
     method: 'post',

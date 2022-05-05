@@ -17,15 +17,20 @@
           v-show='currentActiveStepIndex === 0'
           @select-class-student='handleSelectClassStudent'
           @select-open-session='handleSelectOpenSession'/>
-        <schedule-date v-show='!isOpenSession && currentActiveStepIndex === 1' />
-        <schedule-pay-info v-show='isOpenSession && currentActiveStepIndex === 1'/>
+        <schedule-date
+          v-show='!scheduleReq.openSession && currentActiveStepIndex === 1'
+          @select-date='handleSelectDate'
+          @select-session-type='handleSelectSessionType'
+          @select-zoom-status='handleSelectZoom'
+        />
+        <schedule-pay-info v-show='scheduleReq.openSession && currentActiveStepIndex === 1'/>
       </div>
     </div>
     <div class='bottom-action'>
       <a-button @click='handleGoBack'><a-icon type='left' /> Back</a-button>
       <div class='right-button'>
         <a-space>
-          <a-button type='primary' v-if='currentActiveStepIndex === $classcipe.ScheduleSteps.length - 1'>Teach the session now</a-button>
+          <a-button type='primary' v-if='currentActiveStepIndex === $classcipe.ScheduleSteps.length - 1' @click='handleTeacherSessionNow'>Teach the session now</a-button>
           <a-button type='primary' @click='handleGoNext'>
             <template v-if='currentActiveStepIndex !== $classcipe.ScheduleSteps.length - 1'>
               Next <a-icon type='right' />
@@ -53,6 +58,7 @@ import SelectSessionUnit from '@/components/Schedule/SelectSessionUnit'
 import SelectParticipant from '@/components/Schedule/SelectParticipant'
 import ScheduleDate from '@/components/Schedule/ScheduleDate'
 import SchedulePayInfo from '@/components/Schedule/SchedulePayInfo'
+import { AddSessionV2 } from '@/api/v2/classes'
 
 export default {
   name: 'ScheduleSession',
@@ -73,13 +79,28 @@ export default {
       loading: true,
       currentActiveStepIndex: 0,
       selectSessionUnitVisible: false,
-      associateUnit: null,
       associateUnitList: [],
-      isOpenSession: false,
 
       classList: [],
-      selectedClassId: [],
-      selectStudents: []
+
+      scheduleReq: {
+        classIds: [],
+        contentId: this.id,
+        endDate: null,
+        openSession: false,
+        planId: null,
+        register: {
+          discountInfo: [],
+          maxParticipants: 0,
+          price: 0,
+          registerBefore: null
+        },
+        selectStudents: [],
+        sessionType: 0,
+        startDate: null,
+        teachSessionNow: 0,
+        zoom: 0
+      }
     }
   },
   created() {
@@ -117,7 +138,7 @@ export default {
           }
         })
       } else if (this.associateUnitList.length === 1) {
-        this.associateUnit = this.associateUnitList[0]
+        this.scheduleReq.planId = this.associateUnitList[0].id
       } else {
         this.selectSessionUnitVisible = true
       }
@@ -142,7 +163,7 @@ export default {
 
     handleSelectUnit(data) {
       this.$logger.info('ScheduleSession handleSelectUnit ', data)
-      this.associateUnit = data
+      this.scheduleReq.planId = data.id
       this.selectSessionUnitVisible = false
       this.getClassList()
     },
@@ -157,19 +178,57 @@ export default {
     handleGoNext () {
       if (this.currentActiveStepIndex === 0) {
         this.$refs['steps-nav'].nextStep()
-        const participantData = this.$refs.participant.getSelectedData()
-        this.$logger.info('ScheduleSession handleGoNext participantData ', participantData)
+        if (this.scheduleReq.openSession) {
+          this.scheduleReq.selectStudents = []
+          this.scheduleReq.classIds = []
+        } else {
+          const participantData = this.$refs.participant.getSelectedData()
+          this.scheduleReq.selectStudents = participantData.selectStudents
+          this.scheduleReq.classIds = participantData.classIds
+        }
+      } else if (this.currentActiveStepIndex === 1) {
+        this.$logger.info('try save scheduleReq', this.scheduleReq)
+        AddSessionV2(this.scheduleReq).then(res => {
+          this.$logger.info('save scheduleReq', res)
+          if (res.result && res.success) {
+            this.$message.success('Schedule session successfully')
+          } else {
+            this.$confirm({
+              title: 'Warn',
+              content: 'Schedule session failed.' + res.message + '. Please try again.',
+              centered: true
+            })
+          }
+        })
       }
-      this.$logger.info('ScheduleSession handleGoNext ', this.currentActiveStepIndex)
     },
 
     handleSelectClassStudent () {
-      this.isOpenSession = false
+      this.scheduleReq.openSession = false
     },
 
     handleSelectOpenSession (data) {
       this.$logger.info('ScheduleSession handleSelectOpenSession ', data)
-      this.isOpenSession = true
+      this.scheduleReq.openSession = true
+    },
+
+    handleSelectDate (data) {
+      this.$logger.info('ScheduleSession handleSelectDate ', data)
+      this.scheduleReq.startDate = data.startDate
+      this.scheduleReq.endDate = data.endDate
+      this.$logger.info('ScheduleSession handleSelectDate ', this.scheduleReq)
+    },
+
+    handleSelectSessionType (type) {
+      this.scheduleReq.sessionType = type
+    },
+
+    handleSelectZoom (zoom) {
+      this.scheduleReq.zoom = zoom ? 1 : 0
+    },
+
+    handleTeacherSessionNow () {
+      this.scheduleReq.teachSessionNow = this.scheduleReq.teachSessionNow ? 0 : 1
     }
   }
 }
