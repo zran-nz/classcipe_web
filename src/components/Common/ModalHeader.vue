@@ -19,6 +19,10 @@ export default {
     title: {
       type: String,
       default: ''
+    },
+    allowClose: {
+      type: Boolean,
+      default: true
     }
   },
   methods: {

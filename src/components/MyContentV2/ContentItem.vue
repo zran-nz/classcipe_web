@@ -1,5 +1,5 @@
 <template>
-  <div class='content-item' v-if='content'>
+  <div class='content-item' v-if='content' :style="{'border': '1px ' + borderStyle + ' #15c39a'}">
     <div class='cover' @click='handlePreviewDetail(content)'>
       <div class='cover-block' :style="{'background-image': 'url(' + content.image + ')'}">
       </div>
@@ -22,29 +22,31 @@
         </div>
       </div>
       <div class='action'>
-        <a-space>
-          <a-button type='primary' v-if='content.type === typeMap.task && content.subTasks.length > 0'>SubTask</a-button>
-          <a-button type='primary'>Original Tips</a-button>
-          <a-button type='primary' v-if='content.type === typeMap.task || content.type === typeMap.pd' @click='handleSchedule'>Schedule</a-button>
-          <a-button type='primary' @click='editItem(content)'>Edit</a-button>
-          <a-dropdown :trigger="['click']" :getPopupContainer="trigger => trigger.parentElement">
-            <a-button type='primary'><a-icon type="dash" /></a-button>
-            <div class='content-item-more-action' slot="overlay">
-              <div class='self-learning menu-item' v-if='content.type === typeMap.task'>
-                Self learning <a-switch size="small" @change='handleSelfLearning' />
+        <template v-if='showButton'>
+          <a-space>
+            <a-button type='primary' v-if='content.type === typeMap.task && content.subTasks.length > 0'>SubTask</a-button>
+            <a-button type='primary'>Original Tips</a-button>
+            <a-button type='primary' v-if='content.type === typeMap.task || content.type === typeMap.pd' @click='handleSchedule'>Schedule</a-button>
+            <a-button type='primary' @click='editItem(content)'>Edit</a-button>
+            <a-dropdown :trigger="['click']" :getPopupContainer="trigger => trigger.parentElement">
+              <a-button type='primary'><a-icon type="dash" /></a-button>
+              <div class='content-item-more-action' slot="overlay">
+                <div class='self-learning menu-item' v-if='content.type === typeMap.task'>
+                  Self learning <a-switch size="small" @change='handleSelfLearning' />
+                </div>
+                <div class='menu-item'>
+                  <a-button type='primary' size='small' @click='handlePublishStatus'>
+                    <template v-if='content.status === 0'>Publish</template>
+                    <template v-if='content.status === 1'>UnPublish</template>
+                  </a-button>
+                </div>
+                <div class='menu-item'>
+                  <a-button type='danger' size='small' @click='handleDeleteItem'>Delete</a-button>
+                </div>
               </div>
-              <div class='menu-item'>
-                <a-button type='primary' size='small' @click='handlePublishStatus'>
-                  <template v-if='content.status === 0'>Publish</template>
-                  <template v-if='content.status === 1'>UnPublish</template>
-                </a-button>
-              </div>
-              <div class='menu-item'>
-                <a-button type='danger' size='small' @click='handleDeleteItem'>Delete</a-button>
-              </div>
-            </div>
-          </a-dropdown>
-        </a-space>
+            </a-dropdown>
+          </a-space>
+        </template>
       </div>
 
       <preview-content :preview-current-id='previewCurrentId' :preview-type='previewType' v-if='previewVisible' @close='handlePreviewClose' />
@@ -67,6 +69,18 @@ export default {
     content: {
       type: Object,
       default: null
+    },
+    showButton: {
+      type: Boolean,
+      default: true
+    },
+    clickPreview: {
+      type: Boolean,
+      default: true
+    },
+    borderStyle: {
+      type: String,
+      default: 'dashed'
     }
   },
   mixins: [ ContentItemMixin ],
@@ -75,6 +89,9 @@ export default {
       typeMap: typeMap,
       isSelfLearning: false
     }
+  },
+  created() {
+    this.allowPreview = this.clickPreview
   },
   computed: {
     status () {
@@ -137,7 +154,6 @@ export default {
 
 .content-item {
   padding: 15px;
-  border: 1px dashed #15c39a;
   margin: 15px 0;
   display: flex;
   flex-direction: row;

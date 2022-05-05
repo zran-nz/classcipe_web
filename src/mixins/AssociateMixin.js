@@ -4,11 +4,7 @@ import { Associate, AssociateCancel, GetAssociate } from '@/api/teacher'
  * 表单内容数据关联公用操作mixin
  * @type {{data(), created(), methods: {}}}
  */
-export const UtilMixin = {
-  data () {
-  },
-  created () {
-  },
+export const AssociateMixin = {
   methods: {
     async getAssociate (fromId, fromType, published) {
       this.$logger.info(`GetAssociate fromId: ${fromId}, fromType: ${fromType}, published: ${published}`)
