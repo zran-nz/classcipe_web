@@ -52,21 +52,26 @@
               v-for='student in studentList'
               :key='student.id'
               @click='handleSelectStudent(student)'>
-              >
-              <div class='item-checked-icon'>
-                <template v-if="checkedStudent.indexOf(student) !== -1">
-                  <img src="~@/assets/icons/lesson/selected.png" />
-                </template>
-                <template v-if="checkedStudent.indexOf(student) === -1">
-                  <div class="empty-circle"></div>
-                </template>
+              <div class='student-info'>
+                <div class='avatar'>
+                  <img :src='student.avatar' v-if='student.avatar'/>
+                  <img  src="~@/assets/icons/evaluation/default_avatar.png" v-else/>
+                </div>
+                <div class='nickname'>
+                  {{ student.nickname }}
+                </div>
+                <div class='email'>
+                  {{ student.email }}
+                </div>
               </div>
-              <div class='class-name'>{{ student.name }}</div>
             </div>
           </template>
           <template v-else>
             <div class='no-student-tips'>
-              <no-more-resources tips='No student'/>
+              <no-more-resources tips='No student' v-if='currentSelectedClass' />
+              <div class='select-class-tips' v-else>
+                Select a class first.
+              </div>
             </div>
           </template>
         </template>
@@ -76,7 +81,7 @@
 </template>
 
 <script>
-import { SchoolClassListClassMembers } from '@/api/schoolClass'
+import { getClassesStudent } from '@/api/v2/classes'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 
 export default {
@@ -115,11 +120,13 @@ export default {
       this.$logger.info('loadCurrentClassStudent', this.currentSelectedClass)
       if (this.currentSelectedClass) {
         this.studentListLoading = true
-        SchoolClassListClassMembers({
+        getClassesStudent({
           classId: this.currentSelectedClass.id
         }).then(res => {
           this.$logger.info('loadClassStudent', res)
-          this.studentList = res.result
+          if (res.result) {
+            this.studentList = res.result
+          }
         }).finally(() => {
           this.studentListLoading = false
         })
@@ -208,25 +215,6 @@ export default {
       align-items: center;
       justify-content: flex-start;
       border: 2px solid #fff;
-      .item-checked-icon {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: center;
-        width: 25px;
-        margin-right: 5px;
-        .empty-circle {
-          height: 18px;
-          width: 18px;
-          border-radius: 50%;
-          border: 2px solid #ccc;
-        }
-
-        img {
-          width: 18px;
-          height: 18px;
-        }
-      }
 
       .class-name {
         overflow: hidden;
@@ -276,7 +264,72 @@ export default {
       display: flex;
       align-items: center;
       justify-content: center;
+      .select-class-tips {
+        color: #aaa;
+        user-select: none;
+        cursor: pointer;
+      }
     }
+
+    .student-item {
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+      align-items: center;
+      .student-info {
+        padding: 6px;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+        cursor: pointer;
+        user-select: none;
+
+        .avatar {
+          width: 35px;
+          height: 35px;
+          border-radius: 50%;
+          margin-right: 10px;
+
+          img {
+            width: 35px;
+            border-radius: 50%;
+          }
+        }
+
+        .nickname {
+          font-size: 14px;
+          font-weight: 500;
+        }
+
+        .email {
+          font-size: 12px;
+          color: #bbb;
+          padding-left: 5px;
+        }
+      }
+    }
+  }
+}
+
+.item-checked-icon {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 25px;
+  margin-right: 5px;
+  .empty-circle {
+    height: 18px;
+    width: 18px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+  }
+
+  img {
+    width: 18px;
+    height: 18px;
   }
 }
 

@@ -6,6 +6,7 @@ export const ClassesV2Url = {
   findWorkShops: '/classcipe/api/v2/live/findWorkShops',
   addQuickSession: '/classcipe/api/v2/schedule/addQucikSession',
   addSession: '/classcipe/api/v2/schedule/addSession',
+  getClassesStudent: '/classcipe/api/v2/classes/getClassesStudent'
 }
 
 /**
@@ -80,5 +81,13 @@ export function addSessionV2 (parameter) {
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
+  })
+}
+
+export function getClassesStudent (parameter) {
+  return request({
+    url: ClassesV2Url.getClassesStudent,
+    method: 'get',
+    params: parameter
   })
 }

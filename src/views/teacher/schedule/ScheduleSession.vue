@@ -107,10 +107,11 @@ export default {
         })
       } else if (this.associateUnitList.length === 1) {
         this.associateUnit = this.associateUnitList[0]
-        this.getClassList()
       } else {
         this.selectSessionUnitVisible = true
       }
+
+      this.getClassList()
     },
 
     getClassList() {
@@ -143,11 +144,10 @@ export default {
       }
     },
     handleGoNext () {
-      if (this.currentActiveStepIndex === 1) {
-        this.handleBack()
-      } else {
-        this.currentActiveStepIndex = this.currentActiveStepIndex + 1
+      if (this.currentActiveStepIndex === 0) {
+        this.$refs['steps-nav'].nextStep()
       }
+      this.$logger.info('ScheduleSession handleGoNext ', this.currentActiveStepIndex)
     }
   }
 }
