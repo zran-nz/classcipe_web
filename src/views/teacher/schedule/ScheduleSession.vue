@@ -23,7 +23,9 @@
           @select-session-type='handleSelectSessionType'
           @select-zoom-status='handleSelectZoom'
         />
-        <schedule-pay-info v-show='scheduleReq.openSession && currentActiveStepIndex === 1'/>
+        <schedule-pay-info
+          v-show='scheduleReq.openSession && currentActiveStepIndex === 1'
+        />
       </div>
     </div>
     <div class='bottom-action'>
@@ -211,6 +213,7 @@ export default {
     handleSelectOpenSession (data) {
       this.$logger.info('ScheduleSession handleSelectOpenSession ', data)
       this.scheduleReq.openSession = true
+      this.$refs['steps-nav'].nextStep()
     },
 
     handleSelectDate (data) {
