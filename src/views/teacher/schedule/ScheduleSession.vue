@@ -8,23 +8,40 @@
         :step-index='currentActiveStepIndex'
         @step-change='handleStepChange'/>
     </div>
-    <div class='schedule-content'>
-
+    <div class='schedule-content-wrapper'>
+      <a-skeleton v-show='loading' />
+      <div class='schedule-content'></div>
     </div>
+
+
   </div>
 </template>
 
 <script>
+
 import MyVerticalSteps from '@/components/Steps/MyVerticalSteps'
 export default {
   name: 'ScheduleSession',
   components: { MyVerticalSteps },
+  props: {
+    id: {
+      type: String,
+      required: true
+    },
+    type: {
+      type: Number,
+      required: true
+    }
+  },
   data() {
     return {
-      currentActiveStepIndex: 0
+      loading: true,
+      currentActiveStepIndex: 0,
+      selectSessionUnitVisible: false
     }
   },
   created() {
+    this.$logger.info(`ScheduleSession created with id: ${this.id} type ${this.type}`)
   },
   methods: {
     handleStepChange(data) {
@@ -33,6 +50,7 @@ export default {
     }
   }
 }
+
 </script>
 
 <style lang='less' scoped>
