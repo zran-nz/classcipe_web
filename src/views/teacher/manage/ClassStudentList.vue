@@ -306,7 +306,7 @@ export default {
       }
       const params = {
         schoolId: store.getters.school,
-        classFlag: this.userMode === USER_MODE.SELF ? CLASS_TYPE.self : CLASS_TYPE.school,
+        classFlag: this.userMode === USER_MODE.SELF ? CLASS_TYPE.personal : CLASS_TYPE.school,
         classId: this.classId,
         email: user.email,
         studentName: user.nickname,
