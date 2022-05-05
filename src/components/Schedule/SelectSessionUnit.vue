@@ -19,7 +19,7 @@
     </div>
     <div class='modal-action-right'>
       <a-space>
-        <a-button @click='handleClose'>Back</a-button>
+        <a-button @click='handleBack'>Back</a-button>
         <a-button type='primary' @click='handleConfirmSelect' :disabled='!selected'>Next</a-button>
       </a-space>
     </div>
@@ -49,15 +49,14 @@ export default {
   created() {
   },
   methods: {
-    handleClose() {
-      this.$emit('close')
+    handleBack() {
+      this.$emit('back')
     },
     handleSelect (content) {
       this.selected = content
     },
     handleConfirmSelect () {
       this.$emit('select', this.selected)
-      this.handleClose()
     }
   }
 }

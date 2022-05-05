@@ -16,7 +16,8 @@
     <select-session-unit
       v-if='selectSessionUnitVisible'
       :list='associateUnitList'
-      @close='selectSessionUnitVisible = false' />
+      @back='handleBack'
+      @select='handleSelectUnit' />
   </div>
 </template>
 
@@ -95,6 +96,15 @@ export default {
       SchoolClassGetMyClasses().then(res => {
         this.$logger.info('ScheduleSession getClassList ', res)
       })
+    },
+
+    handleBack () {
+      this.$router.go(-1)
+    },
+
+    handleSelectUnit(data) {
+      this.$logger.info('ScheduleSession handleSelectUnit ', data)
+      this.selectSessionUnitVisible = false
     }
   }
 }
