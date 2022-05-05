@@ -64,6 +64,7 @@ export default {
 @import "~@/components/index.less";
 
 .my-steps {
+  user-select: none;
   width: 100%;
   display: flex;
   flex-direction: row;
