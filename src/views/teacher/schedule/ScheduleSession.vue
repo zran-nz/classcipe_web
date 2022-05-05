@@ -148,7 +148,7 @@ export default {
       } else {
         this.currentActiveStepIndex = this.currentActiveStepIndex + 1
       }
-    },
+    }
   }
 }
 
