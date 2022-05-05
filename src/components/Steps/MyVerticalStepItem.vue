@@ -1,18 +1,20 @@
 <template>
   <div class='my-vertical-step-item' :class="{'my-vertical-step-item-active': stepIndex === currentStepIndex}">
-    <div class='step-index' v-show='showIndex'>
-      <span class='step-index-number'>{{ (stepIndex + 1) }}</span>
+    <div class='step-check-icon' :style="{'opacity': stepIndex == currentStepIndex ? '1' : '0'}">
+      <check-icon :size='17' />
     </div>
     <div class='step-info'>
-      <div class='name'>{{ name }}</div>
+      <div class='name'>{{ (stepIndex + 1) }}. {{ name }}</div>
       <div class='description'>{{ description }}</div>
     </div>
   </div>
 </template>
 
 <script>
+import CheckIcon from '@/components/Common/CheckIcon'
 export default {
   name: 'MyVerticalStepItem',
+  components: { CheckIcon },
   props: {
     stepIndex: {
       type: Number,
@@ -50,7 +52,8 @@ export default {
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
+  transition: all 0.2s;
   font-weight: 500;
 
   &::before {
@@ -59,33 +62,19 @@ export default {
     left: 50%;
     display: inline-block;
     width: 0;
-    height: 2px;
-    background-color: @primary-color;
-    transition: width 0.3s, left 0.3s;
+    height: 4px;
+    background-color: #208557;
+    transition: width 0.2s, left 0.2s;
     transition-timing-function: ease-out;
     content: '';
   }
 
-  .step-index {
-    width: 30px;
-    height: 30px;
-    margin-right: 8px;
-    font-size: 16px;
-    font-family: -apple-system, BlinkMacSystemFont,Segoe UI,PingFang SC,Hiragino Sans GB,Microsoft YaHei,Helvetica Neue,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol;
-    line-height: 30px;
-    border: 1px solid rgba(0,0,0,.25);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 30px;
-    background-color: #fff;
-    color: rgba(0, 0, 0, 0.25);
-    transition: all 0.3s ease-out;
-  }
-
   .step-info {
-    color: rgba(0, 0, 0, 0.45);
+    color: #5E5E5E;
     transition: color 0.3s;
+    font-family: Arial;
+    font-weight: 400;
+    line-height: 42px;
 
     .name {
       max-width: 100%;
@@ -108,37 +97,25 @@ export default {
 
   &:hover {
     .step-info {
-      color: @primary-color;
+      color: #171717;
       transition: color 0.3s;
-    }
-
-    .step-index {
-      color: @primary-color;
-      border-color: @primary-color;
     }
   }
 }
 
 .my-vertical-step-item-active {
+  background-color: #F8F9FB;
   &::before {
     left: 0;
     width: 100%;
   }
 
-  .step-index {
-    background: @primary-color;
-    border: 1px solid @primary-color;
-    color: #fff;
-  }
-
   .step-info {
-    color: @primary-color;
+    color: #171717;
   }
+}
 
-  &:hover {
-    .step-index {
-      color: #fff;
-    }
-  }
+.step-check-icon {
+  margin-right: 6px;
 }
 </style>
