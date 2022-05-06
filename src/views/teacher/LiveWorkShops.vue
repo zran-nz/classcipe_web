@@ -1,5 +1,5 @@
 <template>
-  <div class='my-content'>
+  <div class='my-content' :style="{'font-size': fontSize}">
     <div class='content-header'>
       <div class='source-type'>
         <radio-switch @select="changeType" :menu-list='WORK_SHOPS_TYPE_VALUES' displayProperty="label"/>
@@ -19,7 +19,7 @@
           :key="item.label"><a>{{ item.label }}</a></label>
       </a-space>
       <div class='create-new' v-show="WORK_SHOPS_TYPE.LUNCHEDBYME.value === queryParams.workshopsType">
-        <a-dropdown>
+        <a-dropdown :getPopupContainer="trigger => trigger.parentElement">
           <a-menu slot="overlay">
             <a-menu-item>
               <router-link to='/teacher/unit-plan-redirect/create'>
@@ -105,13 +105,28 @@ export default {
       },
       pageNo: sessionStorage.getItem(SESSION_CURRENT_PAGE) ? parseInt(sessionStorage.getItem(SESSION_CURRENT_PAGE)) : 1,
 
-      filterParams: {}
+      filterParams: {},
+      fontSize: '16px'
     }
   },
   created() {
     this.loadMyContent()
   },
+  mounted() {
+    window.addEventListener('resize', this.resizeFn, false)
+    this.resizeFn()
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.resizeFn)
+  },
   methods: {
+    resizeFn () {
+      var docElem = document.documentElement
+      var htmlWidth = docElem.getBoundingClientRect().width
+      // if (htmlWidth > 1024) htmlWidth = 480
+      const rem = htmlWidth / 16
+      this.fontSize = rem + 'px'
+    },
     handleSearch (data) {
       this.$logger.info('handleSearch', data)
       this.searchText = data.searchKey
@@ -177,6 +192,18 @@ export default {
   /deep/ span {
     font-size: 14px;
   }
+  /deep/ .cc-radio-switch {
+    padding: 0.02em /* 2/100 */;
+    border-radius: 0.05em /* 5/100 */;
+    .radio-item {
+      font-size: 0.15em /* 15/100 */;
+      padding: 0 1/0.15*0.2em /* 20/100 */;
+      line-height: 1/0.15*0.58em /* 58/100 */;
+    }
+    .bg-block {
+      height: 0.58em /* 58/100 */;
+    }
+  }
 }
 .my-content {
   padding: 15px;
@@ -195,37 +222,81 @@ export default {
     flex-direction: row;
     align-items: center;
     justify-content: center;
+    /deep/ button {
+      display: flex;
+      align-items: center;
+      height: 0.32em /* 32/100 */;
+      padding: 0 0.15em /* 15/100 */;
+      span {
+        font-size: .16em;
+      }
+      i {
+        font-size: .16em;
+      }
+    }
+    /deep/ .ant-dropdown {
+      font-size: inherit;
+      ul {
+        margin-bottom: 0;
+        li {
+          font-size: inherit;
+          height: 0.32em /* 32/100 */;
+          display: flex;
+          align-items: center;
+          padding: .05em .12em;
+          a {
+            padding: 1/0.16*0.05em /* 5/100 */ 1/0.16*0.12em /* 12/100 */;
+            margin: -1/0.16*0.05em /* 5/100 */ -1/0.16*0.12em /* 12/100 */;
+          }
+        }
+      }
+      a {
+        font-size: .16em;
+      }
+    }
   }
 
   .content-wrapper {
     min-height: calc(100vh - 160px);
     .content-list {
       min-height: calc(100vh - 200px);
+      /deep/ a {
+        font-size: 0.2em /* 20/100 */;
+      }
 
       .empty-tips {
-        height: calc(100vh - 300px);
+        padding-top: 1em;
         display: flex;
         justify-content: center;
         align-items: center;
+        .icon {
+          img {
+            width: 1.5rem /* 150/100 */
+          }
+        }
+        .tips {
+          line-height: 0.24em /* 24/100 */;
+        }
       }
     }
   }
 
   .filter-bar {
     position: relative;
-    margin: 10px 0;
+    margin: 0.1em /* 10/100 */ 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
     .status-filter {
       label {
-        margin-right: 20px;
+        margin-right: 0.2em /* 20/100 */;
         border-radius: 3px;
-        padding: 5px;
-        height: 30px;
-        display: block;
+        padding: 0.05em /* 5/100 */;
+        height: 0.3em /* 30/100 */;
+        display: flex;
         a {
           color: #464749;
+          font-size: 0.16em /* 16/100 */;
         }
         &.active {
           background: #F8FAFB;

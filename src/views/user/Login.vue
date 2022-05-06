@@ -313,6 +313,15 @@ export default {
 }
 </style>
 <style lang="less" scoped>
+@media only screen and (max-width: 550px) {
+  .user-login {
+    width: 350px!important;
+    min-width: 350px!important;
+    .login {
+      padding: 20px 25px 30px!important;
+    }
+  }
+}
 .user-login {
   margin: 0 auto;
   width: 520px;

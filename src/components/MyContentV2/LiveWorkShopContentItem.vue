@@ -25,7 +25,13 @@
         <price-slider :priceList="content.priceList" :current="content.registeredNum" />
       </div>
       <div class='action'>
+        <div class="schedule-time">
+          Sched: {{ content.lastRegisteredTime }}
+        </div>
         <a-space @click.prevent.stop>
+          <div v-if="content.session && content.session.zoomMeeting" class='zoom-icon' @click.prevent.stop="handleToZoom(content)">
+            <img src='~@/assets/icons/zoom/img.png' />
+          </div>
           <a-tooltip
             v-model="shareVisible"
             trigger="click"
@@ -33,11 +39,13 @@
             @visibleChange="vis => visibleChange(vis, content)"
           >
             <template slot="title">
-              <share-button
-                v-if="shareItem"
-                :link="wrapperLink(content)"
-                :title="content.content.name"
-              />
+              <div class="detail-share">
+                <share-button
+                  v-if="shareItem"
+                  :link="wrapperLink(content)"
+                  :title="content.content.name"
+                />
+              </div>
             </template>
             <a-button type='primary' shape='round'>Share</a-button>
           </a-tooltip>
@@ -136,9 +144,19 @@ export default {
     },
     wrapperLink(item) {
       if (item && item.sessionId) {
-        return `${process.env.VUE_APP_BASE_URL}/h5/live/${item.sessionId}`
+        return `${process.env.VUE_APP_SHARE_URL}/h5/live/${item.sessionId}`
       } else {
         return ''
+      }
+    },
+    handleToZoom(item) {
+      if (item && item.session && item.session.zoomMeeting) {
+        try {
+          const zoomMeetingConfig = JSON.parse(item.session.zoomMeeting)
+          window.open(zoomMeetingConfig.start_url, '_blank')
+        } catch (error) {
+          this.$message.error('parse json error')
+        }
       }
     },
     handleCloseShare () {
@@ -156,20 +174,20 @@ export default {
 @import "~@/components/index.less";
 
 .content-item {
-  padding: 10px;
+  padding: 0.16em /* 16/100 */ 0.27em /* 27/100 */;
   border: 1px solid #EEF1F6;
-  border-radius: 7px;
-  margin: 10px 0;
+  border-radius: 0.1em /* 10/100 */;
+  margin: 0.15em /* 15/100 */ 0;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
 
   .cover {
     .cover-block {
-      height: 160px;
-      width: 260px;
+      height: 1.82em /* 182/100 */;
+      width: 3.29em /* 329/100 */;
       border: 1px solid #EEF1F6;
-      border-radius: 7px;
+      border-radius: 0.07em /* 7/100 */;
       background-position: center center;
       background-size: cover;
       background-repeat: no-repeat;
@@ -180,37 +198,154 @@ export default {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding-left: 10px;
-    height: 160px;
+    padding-left: 0.35em /* 35/100 */;
+    height: 1.82em /* 182/100 */;
 
     .detail-content {
       display: flex;
       flex-direction: row;
       justify-content: space-between;
-      flex-grow: 1;
 
       .base-info {
         .name {
-          font-size: 15px;
+          font-size: 0.22em /* 22/100 */;
           font-family: Arial;
           font-weight: bold;
           color: #17181A;
-          line-height: 17px;
+        }
+        .owner {
+          font-size: 0.18em /* 18/100 */;
+          font-family: Arial;
+          font-weight: 400;
+          color: #757578;
+        }
+      }
+      .right-info {
+        .update-time {
+          font-size: 0.18em /* 18/100 */;
+          font-family: Arial;
+          font-weight: 400;
+          color: #4B4B4B;
         }
       }
     }
 
     .action {
       flex-shrink: 0;
-      height: 50px;
+      height: 0.4em /* 40/100 */;
       display: flex;
       flex-direction: row;
       align-items: center;
-      justify-content: flex-end;
+      justify-content: space-between;
+      .schedule-time {
+        font-size: 0.18em /* 18/100 */;
+        font-family: Arial;
+        font-weight: 400;
+        color: #4B4B4B;
+      }
+      .zoom-icon {
+        height: 0.4em /* 40/100 */;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        img {
+          // width: 0.4em /* 40/100 */;
+          height: 0.3em /* 40/100 */;
+        }
+      }
+      /deep/ .ant-tooltip {
+        font-size: inherit;
+      }
+      /deep/ .ant-space-item {
+        margin-right: 0.18em /* 18/100 */;
+      }
+      /deep/ button {
+        height: 0.4em /* 40/100 */;
+        border-radius: 0.25em /* 25/100 */;
+        display: flex;
+        align-items: center;
+        span {
+          font-family: Arial;
+          font-weight: 400;
+          font-size: 0.16em /* 16/100 */;
+        }
+      }
+    }
+  }
+}
+.detail-share {
+  /deep/ .share-button {
+    width:  2em;
+    height: 2em;
+    padding: .1em;
+    .share-title {
+      font-size: 0.16em /* 16/100 */;
+      font-family: Arial;
+      font-weight: 400;
+      color: #ECEFF4;
+      margin-bottom: 1/0.16*0.12em /* 12/100 */;
+      line-height: 1;
+      white-space: nowrap;
+    }
+    .share-qrcode {
+      width: 0.77em /* 77/100 */;
+      height: 0.77em /* 77/100 */;
+      display: flex;
+    }
+    .share-divider {
+      font-size: 0.14em /* 14/100 */;
+      margin: 1/0.14*0.12em /* 12/100 */ 0;
+      line-height: 1;
+    }
+    .share-out {
+      height: .3em;
+      .ant-space-item {
+        height: 0.3em;
+        display: flex;
+        align-items: center;
+      }
+      img {
+        width: 0.23em /* 23/100 */;
+        height: 0.23em /* 23/100 */;
+      }
     }
   }
 }
 .detail-price {
-  padding: 0 10px;
+  padding: 0 0.1em /* 10/100 */;
+  flex-grow: 1;
+  /deep/ .price-slider {
+    .slider-label {
+      width: calc(100% - 0.125em /* 12.5/100 */);
+      left: 0.0175em /* 1.75/100 */;
+      top: 0em;
+      .slider-label-item {
+        font-size: 0.16em /* 16/100 */;
+        width:2.25em /* 100/16*.36 */;
+        height:2.25em /* 100/16*.36 */;
+        line-height:2.25em /* 100/16*.36 */;
+      }
+    }
+    .ant-slider {
+      height: 0.3em /* 30/100 */;
+      margin: 0.1em /* 10/100 */ 0.06em /* 6/100 */ 0.1em /* 10/100 */;
+      padding: 0.09em /* 9/100 */ 0;
+      font-size: inherit;
+      .ant-slider-rail {
+        height: 0.14em /* 14/100 */;
+      }
+      .ant-slider-dot {
+        width:0.37em /* 37/100 */;
+        height:0.37em /* 37/100 */;
+      }
+      .ant-slider-track {
+        height: 0.14em /* 14/100 */;;
+      }
+      .ant-slider-mark {
+        top:2em;
+        font-size: 0.16em /* 14/100 */;
+      }
+    }
+  }
 }
 </style>
