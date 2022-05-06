@@ -24,7 +24,9 @@
           @select-zoom-status='handleSelectZoom'
         />
         <schedule-pay-info
+          ref='pay'
           v-show='scheduleReq.openSession && currentActiveStepIndex === 1'
+          @select-date='handleSelectDate'
         />
       </div>
     </div>
@@ -32,7 +34,7 @@
       <a-button @click='handleGoBack'><a-icon type='left' /> Back</a-button>
       <div class='right-button'>
         <a-space>
-          <a-button type='primary' v-if='currentActiveStepIndex === $classcipe.ScheduleSteps.length - 1' @click='handleTeacherSessionNow'>Teach the session now</a-button>
+          <a-button type='primary' :loading='teacherSessionNowLoading' v-if='currentActiveStepIndex === $classcipe.ScheduleSteps.length - 1' @click='handleTeacherSessionNow'>Teach the session now</a-button>
           <a-button type='primary' @click='handleGoNext' :loading='creating'>
             <template v-if='currentActiveStepIndex !== $classcipe.ScheduleSteps.length - 1'>
               Next <a-icon type='right' />
@@ -80,6 +82,7 @@ export default {
   data() {
     return {
       loading: true,
+      teacherSessionNowLoading: false,
       currentActiveStepIndex: 0,
       selectSessionUnitVisible: false,
       associateUnitList: [],
@@ -191,23 +194,7 @@ export default {
           this.scheduleReq.classIds = participantData.classIds
         }
       } else if (this.currentActiveStepIndex === 1) {
-        this.$logger.info('try save scheduleReq', this.scheduleReq)
-        this.creating = true
-        AddSessionV2(this.scheduleReq).then(res => {
-          this.$logger.info('save scheduleReq', res)
-          if (res.result && res.success && res.code === 0) {
-            this.$message.success('Schedule session successfully')
-            this.$router.replace('/teacher/main/created-by-me')
-          } else {
-            this.$confirm({
-              title: 'Warn',
-              content: 'Schedule session failed.' + res.message + '. Please try again.',
-              centered: true
-            })
-          }
-        }).finally(() => {
-          this.creating = false
-        })
+        this.createSession()
       }
     },
 
@@ -240,8 +227,67 @@ export default {
       this.scheduleReq.zoom = zoom ? 1 : 0
     },
 
-    handleTeacherSessionNow () {
+    async handleTeacherSessionNow () {
       this.scheduleReq.teachSessionNow = this.scheduleReq.teachSessionNow ? 0 : 1
+      this.teacherSessionNowLoading = true
+      try {
+        const zoomRes = await this.createSession(true)
+        this.$logger.info('zoom res ', zoomRes)
+        if (zoomRes.length > 0) {
+          const zoomMeetingItem = zoomRes[0]
+          if (zoomMeetingItem.zoomMeeting) {
+            const zoomMeetingConfig = JSON.parse(zoomMeetingItem.zoomMeeting)
+            window.open(zoomMeetingConfig.start_url, '_blank')
+          }
+        }
+      } catch (e) {
+        this.$logger.error('handleTeacherSessionNow ', e)
+      } finally {
+        this.teacherSessionNowLoading = false
+      }
+    },
+
+    /**
+     * 如果retValue为false，则表示需要跳转返回。
+     * @param retValue
+     * @returns {Promise<*>}
+     */
+    async createSession(retValue) {
+      if (this.scheduleReq.openSession) {
+        const openSessionData = this.$refs.pay.getPaidInfo()
+        this.scheduleReq.register.discountInfo = openSessionData.discountInfo
+        this.scheduleReq.register.maxParticipants = openSessionData.maxParticipants
+        this.scheduleReq.register.price = openSessionData.price
+        this.scheduleReq.register.registerBefore = openSessionData.registerBefore
+      }
+      this.$logger.info('try createSession scheduleReq', this.scheduleReq)
+      this.creating = true
+      try {
+        const res = await AddSessionV2(this.scheduleReq)
+        this.$logger.info('save scheduleReq', res)
+        if (res.result && res.success && res.code === 0) {
+          this.$message.success('Schedule session successfully')
+          if (!retValue) {
+            this.$router.replace('/teacher/main/created-by-me')
+          } else {
+            return res.result
+          }
+        } else {
+          this.$confirm({
+            title: 'Warn',
+            content: 'Schedule session failed.' + res.message + '. Please try again.',
+            centered: true
+          })
+        }
+      } catch (e) {
+        this.$confirm({
+          title: 'Error',
+          content: 'Schedule session error.' + e.message + '. Please try again.',
+          centered: true
+        })
+      } finally {
+        this.creating = false
+      }
     }
   }
 }
