@@ -36,7 +36,7 @@
         <div class='title-item'>
           Student list
         </div>
-        <div class='title-action'>
+        <div class='title-action' @click='handleSelectAllStudent'>
           Select all
         </div>
       </div>
@@ -154,6 +154,16 @@ export default {
       } else {
         this.checkedStudent.push(student)
       }
+      this.$emit('select-class-student')
+    },
+
+    handleSelectAllStudent () {
+      this.$logger.info('handleSelectAllStudent', this.checkedStudent)
+      this.studentList.forEach(student => {
+        if (this.checkedStudent.indexOf(student) === -1) {
+          this.checkedStudent.push(student)
+        }
+      })
       this.$emit('select-class-student')
     }
   }
