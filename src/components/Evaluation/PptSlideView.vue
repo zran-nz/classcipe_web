@@ -519,7 +519,7 @@ export default {
           this.$logger.info('使用历史评估数据 this.slideDataList', this.slideDataList, ' this.elementsList', this.elementsList, ' this.itemsList', this.itemsList)
           this.loading = false
         } else {
-          if (response[0].code !== this.ErrorCode.ppt_google_token_expires) {
+          if (response[0].code !== this.ErrorCode.ppt_google_token_expires && response[0].code !== this.ErrorCode.ppt_forbidden) {
             const pageObjects = response[0].result.pageObjects
             if (pageObjects.length) {
               pageObjects.forEach(pItem => {

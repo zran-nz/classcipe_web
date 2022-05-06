@@ -101,7 +101,7 @@ export default {
           })
         })
 
-        if (response[1].code !== this.ErrorCode.ppt_google_token_expires) {
+        if (response[1].code !== this.ErrorCode.ppt_google_token_expires && response[1].code !== this.ErrorCode.ppt_forbidden) {
           const pageObjectIds = response[1].result.pageObjectIds
           if (pageObjectIds.length) {
             pageObjectIds.forEach(id => {
@@ -133,7 +133,7 @@ export default {
     handleAuthCallback () {
       this.$logger.info('TaskPreview handleAuthCallback')
       TemplatesGetPublishedPresentation({ presentationId: this.slideId }).then(response => {
-        if (response.code !== this.ErrorCode.ppt_google_token_expires) {
+        if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
           const pageObjectIds = response.result.pageObjectIds
           if (pageObjectIds.length) {
             pageObjectIds.forEach(id => {

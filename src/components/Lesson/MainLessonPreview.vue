@@ -217,7 +217,7 @@ export default {
         TemplatesGetPublishedPresentation({
           presentationId: this.lesson.presentationId
         }).then(response => {
-          if (response.code !== this.ErrorCode.ppt_google_token_expires) {
+          if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
             this.imgList = []
             this.$logger.info('lesson loadThumbnail response', response.result)
             const pageObjects = response.result.pageObjects

@@ -731,7 +731,7 @@ export default {
           TemplatesGetPublishedPresentation({
             presentationId: this.data.presentationId
           }).then(response => {
-            if (response.code !== this.ErrorCode.ppt_google_token_expires) {
+            if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
               const pageObjects = response.result.pageObjects
               this.thumbnailList = []
               if (pageObjects.length) {
@@ -754,7 +754,7 @@ export default {
           TemplatesGetPublishedPresentation({
             presentationId: this.data.presentationId
           }).then(response => {
-            if (response.code !== this.ErrorCode.ppt_google_token_expires) {
+            if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
               const pageObjects = response.result.pageObjects
               this.thumbnailList = []
               if (pageObjects.length) {
@@ -849,7 +849,7 @@ export default {
         onOk: () => {
           this.copyLoading = true
           Duplicate({ id: this.data.id, type: this.data.type }).then((response) => {
-            if (response.code !== this.ErrorCode.ppt_google_token_expires) {
+            if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
               this.$logger.info('Duplicate response', response)
               this.$message.success('Copy successfully')
             } else {

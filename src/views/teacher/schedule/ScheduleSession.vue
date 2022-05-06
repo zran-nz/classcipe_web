@@ -233,15 +233,18 @@ export default {
       try {
         const zoomRes = await this.createSession(true)
         this.$logger.info('zoom res ', zoomRes)
-        if (zoomRes.length > 0) {
+        if (zoomRes && zoomRes.length > 0) {
           const zoomMeetingItem = zoomRes[0]
           if (zoomMeetingItem.zoomMeeting) {
             const zoomMeetingConfig = JSON.parse(zoomMeetingItem.zoomMeeting)
             window.open(zoomMeetingConfig.start_url, '_blank')
           }
+        } else {
+          this.$message.error('create zoom meeting failed')
         }
       } catch (e) {
         this.$logger.error('handleTeacherSessionNow ', e)
+        console.log(e)
       } finally {
         this.teacherSessionNowLoading = false
       }
@@ -288,6 +291,7 @@ export default {
       } finally {
         this.creating = false
       }
+      return null
     }
   }
 }

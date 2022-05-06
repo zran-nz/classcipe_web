@@ -37,7 +37,7 @@ export default {
         TaskAddOrUpdate(data).then((response) => {
           this.$logger.info('TaskAddOrUpdate response', response.result)
           if (response.success) {
-            if (response.code !== 520) {
+            if (response.code !== 520 && response.code !== 403) {
               this.$router.replace('/teacher/add-task-v2/' + response.result.id)
             } else {
               this.$logger.info('等待授权回调')

@@ -226,7 +226,7 @@ export default {
           presentationId: this.task.presentationId
         }).then(response => {
           this.$logger.info('task loadThumbnail response', response.result)
-          if (response.code !== this.ErrorCode.ppt_google_token_expires) {
+          if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
             const pageObjects = response.result.pageObjects
             this.imgList = []
             pageObjects.forEach(page => {

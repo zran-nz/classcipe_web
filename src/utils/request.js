@@ -51,7 +51,8 @@ request.interceptors.request.use(config => {
 
 export const ErrorCode = {
   token_expires: 510,
-  ppt_google_token_expires: 520
+  ppt_google_token_expires: 520,
+  ppt_forbidden: 403
 }
 
 // response interceptor
@@ -68,7 +69,7 @@ request.interceptors.response.use((response) => {
           }, 1500)
         })
       }
-    } else if (response.data.code === ErrorCode.ppt_google_token_expires) {
+    } else if (response.data.code === ErrorCode.ppt_google_token_expires || response.data.code === ErrorCode.ppt_forbidden) {
       const googleAuthUrl = response.data.result.googleAuthUrl
       var windowObjectReference
       var height = 600

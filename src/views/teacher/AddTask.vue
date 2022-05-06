@@ -2933,7 +2933,7 @@ export default {
           }
         } else if (response.code === 403) {
           this.$router.push({ path: '/teacher/main/created-by-me' })
-        } else if (response.code === this.ErrorCode.ppt_google_token_expires) {
+        } else if (response.code === this.ErrorCode.ppt_google_token_expires || response.code === this.ErrorCode.ppt_forbidden) {
           this.$logger.info('等待授权事件通知')
         }
       }).finally(() => {

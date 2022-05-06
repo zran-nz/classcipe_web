@@ -36,7 +36,7 @@ export default {
         TaskAddOrUpdate(data).then((response) => {
           this.$logger.info('TaskAddOrUpdate response', response.result)
           if (response.success) {
-            if (response.code !== 520) {
+            if (response.code !== 520 && response.code !== 403) {
               this.$router.replace('/teacher/add-task/' + response.result.id)
               this.$emit('close')
             } else {

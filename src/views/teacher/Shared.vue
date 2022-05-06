@@ -728,7 +728,7 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
           onOk: () => {
             this.loading = true
             Duplicate({ id: item.sourceId, type: item.sourceType }).then((response) => {
-              if (response.code !== this.ErrorCode.ppt_google_token_expires) {
+              if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
                 this.$logger.info('Duplicate response', response)
                 this.loading = false
               } else {

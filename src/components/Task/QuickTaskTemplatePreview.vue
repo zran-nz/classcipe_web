@@ -229,7 +229,7 @@ export default {
         TemplatesGetPublishedPresentation({
           presentationId: this.templateData.presentationId
         }).then(response => {
-          if (response.code !== this.ErrorCode.ppt_google_token_expires) {
+          if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
             this.$logger.info('task loadThumbnail response', response.result)
             const pageObjects = response.result.pageObjects
             this.templateData.pageObjectIds = []
