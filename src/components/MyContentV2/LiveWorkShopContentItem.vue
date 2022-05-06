@@ -1,8 +1,9 @@
 <template>
   <div class='content-item' v-if='content && content.content'>
-    <div class='cover'>
+    <div class='cover' @click.prevent.stop="handleGoWork(content)">
       <div class='cover-block' :style="{'background-image': 'url(' + content.content.image + ')'}">
       </div>
+      <div v-if="content.session && content.session.classId" class="cover-btn"><label>Enter workshop</label></div>
     </div>
     <div class='detail' @click.prevent.stop='handlePreviewDetail(content.content)'>
       <div class='detail-content'>
@@ -85,12 +86,15 @@
 
 <script>
 import { WORK_SHOPS_STATUS, WORK_SHOPS_TYPE } from '@/const/common'
+import { lessonHost } from '@/const/googleSlide'
 import { typeMap } from '@/const/teacher'
 import PriceSlider from '@/components/Slider/PriceSlider'
 import ShareButton from '@/components/Share/ShareButton'
 import PreviewContent from '@/components/MyContentV2/PreviewContent'
 
 import { ContentItemMixin } from '@/mixins/ContentItemMixin'
+import { ACCESS_TOKEN } from '@/store/mutation-types'
+import storage from 'store'
 
 export default {
   name: 'LiveWorkShopContentItem',
@@ -162,6 +166,12 @@ export default {
     handleCloseShare () {
       this.shareVisible = false
     },
+    handleGoWork(item) {
+      if (item && item.session && item.session.classId) {
+        const targetUrl = lessonHost + 's/' + item.session.classId + '?token=' + storage.get(ACCESS_TOKEN)
+        window.location.href = targetUrl
+      }
+    },
     handleShare(item) {
       this.shareVisible = true
       this.shareLink = { ...item }
@@ -183,6 +193,10 @@ export default {
   align-items: flex-start;
 
   .cover {
+    position: relative;
+    display:flex;
+    justify-content: center;
+    cursor: pointer;
     .cover-block {
       height: 1.82em /* 182/100 */;
       width: 3.29em /* 329/100 */;
@@ -191,6 +205,24 @@ export default {
       background-position: center center;
       background-size: cover;
       background-repeat: no-repeat;
+    }
+    .cover-btn {
+      position: absolute;
+      height: 0.46em /* 46/100 */;
+      top: calc(50% - 0.23em /* 23/100 */);
+      border-radius: 0.23em /* 23/100 */;
+      padding: 0 0.23em /* 23/100 */;
+      background: #2582B5;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      label {
+        font-size: 0.14em /* 14/100 */;
+        font-family: Arial;
+        font-weight: 400;
+        color: #FFFFFF;
+        cursor: pointer;
+      }
     }
   }
 
