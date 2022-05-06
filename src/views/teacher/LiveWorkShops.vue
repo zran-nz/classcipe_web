@@ -2,7 +2,7 @@
   <div class='my-content' :style="{'font-size': fontSize}">
     <div class='content-header'>
       <div class='source-type'>
-        <radio-switch @select="changeType" :menu-list='WORK_SHOPS_TYPE_VALUES' displayProperty="label"/>
+        <radio-switch v-if="radioSwitchShow" ref="radioSwitch" @select="changeType" :menu-list='WORK_SHOPS_TYPE_VALUES' displayProperty="label"/>
         <!-- <a-radio-group size="large" button-style="solid" v-model='queryParams.workshopsType'>
           <a-radio-button :value="item.value" v-for="item in WORK_SHOPS_TYPE" :key="item.label">
             {{ item.label }}
@@ -85,7 +85,7 @@ export default {
 
       queryParams: {
         workshopsType: WORK_SHOPS_TYPE.FEATURE.value,
-        workshopsStatus: WORK_SHOPS_STATUS.ONGOING.value,
+        workshopsStatus: '',
         searchKey: ''
       },
       loading: true,
@@ -106,7 +106,8 @@ export default {
       pageNo: sessionStorage.getItem(SESSION_CURRENT_PAGE) ? parseInt(sessionStorage.getItem(SESSION_CURRENT_PAGE)) : 1,
 
       filterParams: {},
-      fontSize: '16px'
+      fontSize: '16px',
+      radioSwitchShow: false
     }
   },
   created() {
@@ -121,11 +122,13 @@ export default {
   },
   methods: {
     resizeFn () {
+      this.radioSwitchShow = false
       var docElem = document.documentElement
       var htmlWidth = docElem.getBoundingClientRect().width
       // if (htmlWidth > 1024) htmlWidth = 480
       const rem = htmlWidth / 16
       this.fontSize = rem + 'px'
+      this.radioSwitchShow = true
     },
     handleSearch (data) {
       this.$logger.info('handleSearch', data)
