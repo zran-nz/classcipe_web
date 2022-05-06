@@ -3562,7 +3562,7 @@ export default {
         this.handleDisplayRightModule()
         return
       }
-      this.currentRightModule = RightModule.collaborate
+      this.currentRightModule = RightModule.collaborateComment
       this.currentFieldName = data.fieldName
       this.currentCollaborateCommentList = []
       const list = []

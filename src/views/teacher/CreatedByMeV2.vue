@@ -2,7 +2,7 @@
   <div class='my-content'>
     <div class='content-header'>
       <div class='source-type'>
-        <radio-switch :menu-list='menuList' />
+        <radio-switch @select="handleSelectShareType" :menu-list='menuList' />
       </div>
       <div class='create-new'>
         <create-new />
@@ -197,6 +197,10 @@ export default {
     handleCancelPublish () {
       this.contentPublishVisible = false
       this.currentContent = null
+    },
+    handleSelectShareType(item) {
+      this.shareType = item.type
+      this.loadMyContent()
     }
   }
 }
