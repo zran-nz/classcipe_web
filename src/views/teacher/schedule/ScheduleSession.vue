@@ -15,6 +15,7 @@
           ref='participant'
           :class-list='classList'
           v-show='currentActiveStepIndex === 0'
+          @update-class-list='getClassList'
           @select-class-student='handleSelectClassStudent'
           @select-open-session='handleSelectOpenSession'/>
         <schedule-date

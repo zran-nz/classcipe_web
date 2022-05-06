@@ -5,7 +5,7 @@
         <div class='title-item'>
           Class list
         </div>
-        <div class='title-action'>
+        <div class='title-action' @click='creatingNewClass = !creatingNewClass'>
           Add new
         </div>
       </div>
@@ -25,6 +25,32 @@
             </template>
           </div>
           <div class='class-name'>{{ classItem.name }}</div>
+        </div>
+        <div
+          class='input-class-item'
+          v-if='creatingNewClass'>
+          <div class='item-checked-icon'>
+            <div class="empty-circle"></div>
+          </div>
+          <div class='class-name'>
+            <a-select
+              show-search
+              :value="newClassName"
+              placeholder="Input class name"
+              style="width: 200px"
+              :default-active-first-option="false"
+              :show-arrow="false"
+              :filter-option="false"
+              :not-found-content="null"
+              @search="handleFilterClass"
+              @change="handleChangeFilterClass"
+              @keyup.native.enter='handleEnsureCreate'
+            >
+              <a-select-option v-for="classItem in displayClassList" :key="classItem.id">
+                {{ classItem.name }}
+              </a-select-option>
+            </a-select>
+          </div>
         </div>
         <div class='open-session'>
           <a-button type='primary' @click='handleSelectOpenSession'>Open Session</a-button>
@@ -83,10 +109,12 @@
 <script>
 import { getClassesStudent } from '@/api/v2/classes'
 import NoMoreResources from '@/components/Common/NoMoreResources'
+import InputWithCreate from '@/components/Common/InputWithCreate'
+import { PersonalAddOrUpdateClass } from '@/api/schoolClass'
 
 export default {
   name: 'SelectParticipant',
-  components: { NoMoreResources },
+  components: { InputWithCreate, NoMoreResources },
   props: {
     classList: {
       type: Array,
@@ -99,7 +127,11 @@ export default {
       studentList: [],
       checkedClass: [],
       studentListLoading: false,
-      checkedStudent: []
+      checkedStudent: [],
+
+      creatingNewClass: false,
+      displayClassList: this.classList,
+      newClassName: null
     }
   },
   created() {
@@ -165,6 +197,31 @@ export default {
         }
       })
       this.$emit('select-class-student')
+    },
+
+    handleChangeFilterClass (value) {
+      this.$logger.info('handleCreateClass', value)
+      this.creatingNewClass = false
+      this.newClassName = null
+    },
+    handleFilterClass (value) {
+      this.$logger.info('handleFilterClass', value)
+      this.newClassName = value
+      this.displayClassList = this.classList.filter(item => item.name.indexOf(value) !== -1)
+      this.$logger.info('handleFilterClass handleCreateClass', this.displayClassList)
+    },
+
+    handleEnsureCreate () {
+      this.$logger.info('handleEnsureCreate', this.newClassName)
+      if (this.classList.some(item => item.name === this.newClassName)) {
+        this.$message.error('Class name already exists.')
+      } else {
+        this.creatingNewClass = false
+        PersonalAddOrUpdateClass({ name: this.newClassName }).then(response => {
+          this.$emit('update-class-list')
+          this.newClassName = null
+        })
+      }
     }
   }
 }
@@ -238,6 +295,20 @@ export default {
       &:hover {
         border: 2px solid #15c39a;
       }
+    }
+
+    .input-class-item {
+      line-height: 35px;
+      padding: 0 5px;
+      margin: 3px 0;
+      user-select: none;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      border: 2px solid #fff;
     }
 
     .selected-item {

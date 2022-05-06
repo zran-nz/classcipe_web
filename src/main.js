@@ -25,7 +25,6 @@ import './global.less' // global style
 import { FormModel } from 'ant-design-vue'
 
 import Moment from 'moment'
-import * as logger from '@/utils/logger'
 
 // import VueRecord from '@codekraft-studio/vue-record'
 import preview from 'vue-photo-preview'
@@ -61,22 +60,17 @@ window.umi_plugin_ant_themeVar = themePluginConfig.theme
 // globalClick
 window.__globalClickHandler = new Map()
 Vue.prototype.globalClick = function (callback, pageName = '', reBind = false) {
-  logger.info('globalClick handler', window.__globalClickHandler)
   if (pageName && window.__globalClickHandler.get(pageName)) {
     if (reBind) {
       document.getElementById('app').removeEventListener('click', function (event) {
         callback(event)
       })
-      logger.info('reBind globalClick handler for ' + pageName, callback)
       document.getElementById('app').addEventListener('click', function (event) {
         callback(event)
       })
       window.__globalClickHandler.set(pageName, callback)
-    } else {
-      logger.info('already bind globalClick handler for ' + pageName + ' skip!', callback)
     }
   } else {
-    logger.info('bind globalClick handler for ' + pageName, callback)
     document.getElementById('app').addEventListener('click', function (event) {
       callback(event)
     })
