@@ -10,7 +10,8 @@ import { getUrlWithNoParams } from '@/utils/util'
 export const ZoomAuthMixin = {
   computed: {
     ...mapState({
-      zoomAuthToken: state => state.user.info.zoomAuthToken
+      zoomAccessToken: state => state.user.info.zoomAuthToken?.accessToken,
+      zoomRefreshToken: state => state.user.info.zoomAuthToken?.refreshToken
     })
   },
   created() {
@@ -38,9 +39,9 @@ export const ZoomAuthMixin = {
     },
 
     handleZoomAuthCallback (event) {
-      const { data } = event
-      // 如果zoom授权成功更新本地zoomAuthToken
-      if (data && data.eventType === 'authUpdate' && data.authType === 'zoom') {
+      const data = event.data
+      if (data && data.event === 'authUpdate' && data.authType === 'zoom') {
+        this.$logger.info('zoom auth update!')
         this.$store.dispatch('GetInfo')
       }
     }

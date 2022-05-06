@@ -152,7 +152,7 @@ export default {
 
     .pay-detail {
       margin: 5px 0;
-      padding: 15px;
+      padding: 10px;
       background-color: #f1f1f1;
       border-radius: 5px;
       border: 1px solid #ddd;
@@ -182,7 +182,7 @@ export default {
 
       .pay-discount {
         padding: 10px 5px;
-        background-color: #15c39a33;
+        background-color: #15c39a11;
       }
 
       .pay-discount-item {

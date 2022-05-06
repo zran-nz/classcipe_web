@@ -33,7 +33,7 @@
       <div class='right-button'>
         <a-space>
           <a-button type='primary' v-if='currentActiveStepIndex === $classcipe.ScheduleSteps.length - 1' @click='handleTeacherSessionNow'>Teach the session now</a-button>
-          <a-button type='primary' @click='handleGoNext'>
+          <a-button type='primary' @click='handleGoNext' :loading='creating'>
             <template v-if='currentActiveStepIndex !== $classcipe.ScheduleSteps.length - 1'>
               Next <a-icon type='right' />
             </template>
@@ -61,11 +61,12 @@ import SelectParticipant from '@/components/Schedule/SelectParticipant'
 import ScheduleDate from '@/components/Schedule/ScheduleDate'
 import SchedulePayInfo from '@/components/Schedule/SchedulePayInfo'
 import { AddSessionV2 } from '@/api/v2/classes'
+import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
 
 export default {
   name: 'ScheduleSession',
   components: { SchedulePayInfo, ScheduleDate, SelectParticipant, SelectSessionUnit, MyVerticalSteps },
-  mixins: [ AssociateMixin ],
+  mixins: [ AssociateMixin, ZoomAuthMixin ],
   props: {
     id: {
       type: String,
@@ -102,7 +103,8 @@ export default {
         startDate: null,
         teachSessionNow: 0,
         zoom: 0
-      }
+      },
+      creating: false
     }
   },
   created() {
@@ -190,9 +192,10 @@ export default {
         }
       } else if (this.currentActiveStepIndex === 1) {
         this.$logger.info('try save scheduleReq', this.scheduleReq)
+        this.creating = true
         AddSessionV2(this.scheduleReq).then(res => {
           this.$logger.info('save scheduleReq', res)
-          if (res.result && res.success) {
+          if (res.result && res.success && res.code === 0) {
             this.$message.success('Schedule session successfully')
             this.$router.replace('/teacher/main/created-by-me')
           } else {
@@ -202,6 +205,8 @@ export default {
               centered: true
             })
           }
+        }).finally(() => {
+          this.creating = false
         })
       }
     },
@@ -213,7 +218,11 @@ export default {
     handleSelectOpenSession (data) {
       this.$logger.info('ScheduleSession handleSelectOpenSession ', data)
       this.scheduleReq.openSession = true
+      this.scheduleReq.zoom = 1
       this.$refs['steps-nav'].nextStep()
+      if (!this.zoomAccessToken) {
+        this.goToZoomAuth()
+      }
     },
 
     handleSelectDate (data) {

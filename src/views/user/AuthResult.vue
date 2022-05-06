@@ -38,6 +38,15 @@ export default {
       this.$store.dispatch('GetInfo').then(response => {
         this.$logger.info('auth-result-redirect', this.$route)
         const callbackUrl = window.sessionStorage.getItem(SESSION_CALLBACK_URL)
+
+        // 如果有zoom授权token，且当前窗口有opener发送zoom 授权更新消息
+        if (window.opener && window.opener.postMessage && this.$store.state.user.info.zoomAuthToken.accessToken) {
+          window.opener.postMessage({
+            authType: 'zoom',
+            event: 'authUpdate',
+            data: null
+          }, '*')
+        }
         if (callbackUrl) {
           window.sessionStorage.removeItem(SESSION_CALLBACK_URL)
           window.location.href = callbackUrl + (callbackUrl.indexOf('?') > -1 ? '&' : '?') + 'token=' + accessToken
