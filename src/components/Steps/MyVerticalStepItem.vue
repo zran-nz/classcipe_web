@@ -1,7 +1,7 @@
 <template>
   <div class='my-vertical-step-item' :class="{'my-vertical-step-item-active': stepIndex === currentStepIndex}">
     <div class='step-check-icon' :style="{'opacity': stepIndex == currentStepIndex ? '1' : '0'}">
-      <check-icon :size='17' />
+      <check-icon :size='15' />
     </div>
     <div class='step-info'>
       <div class='name'>{{ (stepIndex + 1) }}. {{ name }}</div>
@@ -45,7 +45,7 @@ export default {
 
 .my-vertical-step-item {
   cursor: pointer;
-  padding: 10px 10px 15px 0;
+  padding: 7px;
   flex: 1;
   position: relative;
   text-align: center;
@@ -74,7 +74,7 @@ export default {
     transition: color 0.3s;
     font-family: Arial;
     font-weight: 400;
-    line-height: 42px;
+    line-height: 35px;
 
     .name {
       max-width: 100%;
