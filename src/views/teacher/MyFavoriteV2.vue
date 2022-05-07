@@ -1,37 +1,7 @@
 <template>
   <div class="my-content">
     <div class="filter-line">
-      <div class="status-tab">
-      </div>
-      <div class="type-owner">
-        <div class="type-filter">
-          <a-dropdown>
-            <a-menu slot="overlay">
-              <a-menu-item disabled>
-                <span>{{ $t('teacher.my-content.choose-types-of-content') }}</span>
-              </a-menu-item>
-              <a-menu-item @click="toggleType('all-type', $t('teacher.my-content.all-type'))">
-                <span>{{ $t('teacher.my-content.all-type') }}</span>
-              </a-menu-item>
-              <template v-if="$store.getters.roles.indexOf('teacher') !== -1">
-                <a-menu-item @click="toggleType('unit-plan', $t('teacher.my-content.unit-plan-type'))">
-                  <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>
-                </a-menu-item>
-                <a-menu-item @click="toggleType('evaluation', $t('teacher.my-content.evaluation-type'))">
-                  <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
-                </a-menu-item>
-              </template>
-              <a-menu-item @click="toggleType('task', $t('teacher.my-content.tasks-type') )">
-                <span>{{ $t('teacher.my-content.tasks-type') }}</span>
-              </a-menu-item>
-            </a-menu>
-            <a-button type='primary'>
-              <span v-if="currentTypeLabel">{{ currentTypeLabel }}</span> <span v-else>Choose type(s)of content</span>
-              <a-icon type="caret-down" />
-            </a-button>
-          </a-dropdown>
-        </div>
-      </div>
+      <radio-switch @select="toggleType" :menu-list='menuList'/>
     </div>
     <div class='content-wrapper'>
       <a-spin tip='Loading...' :spinning="loading">
@@ -147,10 +117,13 @@ import CustomTag from '@/components/UnitPlan/CustomTag'
 import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 import ContentItem from '@/components/MyContentV2/ContentItem'
 import FavoriteContentItem from '@/components/MyContentV2/FavoriteContentItem'
+import RadioSwitch from '@/components/Common/RadioSwitch'
+import { SourceType } from '@/components/MyContentV2/Constant'
 
 export default {
   name: 'MyFavorite',
   components: {
+    RadioSwitch,
     FavoriteContentItem,
     ContentItem,
     CommonPreviewV2,
@@ -175,16 +148,9 @@ export default {
   mixins: [ GoogleAuthCallBackMixin ],
   data () {
     return {
-      skeletonLoading: true,
       loading: true,
-      loadFailed: false,
       myContentList: [],
-      currentStatus: 'all-status',
-      currentStatusLabel: this.$t('teacher.my-content.all-status'),
-      currentType: 'all-type',
-      currentTypeLabel: this.$t('teacher.my-content.all-type'),
-      currentOwner: 'all-owner',
-      currentOwnerLabel: this.$t('teacher.my-content.all-owner'),
+      currentType: null,
 
       previewVisible: false,
       previewCurrentId: '',
@@ -214,7 +180,22 @@ export default {
       startLoading: false,
       userTags: {},
 
-      customTagList: []
+      customTagList: [],
+
+      menuList: [
+        {
+          name: 'All types',
+          type: null
+        },
+        {
+          name: 'Unit Plan',
+          type: this.$classcipe.typeMap['unit-plan']
+        },
+        {
+          name: 'Task',
+          type: this.$classcipe.typeMap['task']
+        }
+      ]
     }
   },
   computed: {
@@ -226,11 +207,15 @@ export default {
   methods: {
     loadMyContent () {
       this.loading = true
-      FavoritesGetMyFavorites({
-        type: typeMap[this.currentType],
+      const postData = {
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize
-      }).then(res => {
+      }
+
+      if (this.currentType) {
+        postData.type = this.currentType
+      }
+      FavoritesGetMyFavorites(postData).then(res => {
         logger.info('FavoritesGetMyFavorites', res)
         if (res.result && res.result.records && res.result.records.length) {
           res.result.records.forEach((record, index) => {
@@ -246,18 +231,16 @@ export default {
         logger.info('myContentList', this.myContentList)
       }).finally(() => {
         this.loading = false
-        this.skeletonLoading = false
       })
     },
-    toggleType (type, label) {
-      logger.info('toggleType ' + type + ' label ' + label)
-      this.currentType = type
-      this.currentTypeLabel = label
+    toggleType (item) {
+      logger.info('toggleType ', item)
+      this.currentType = item.type
       this.loadMyContent()
     },
 
     handleEditItem (item) {
-      logger.info('handleEditItem', item)
+      logger.info('handleEditItem', ...item)
       if (item.type === typeMap['unit-plan']) {
         this.$router.push({
           path: '/teacher/unit-plan-redirect/' + item.id
