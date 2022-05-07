@@ -1,27 +1,20 @@
 <template>
   <div class='my-full-form-wrapper'>
-    <div class='form-header' :style="{left: collapsed ? $classcipe.sysConfig.collapsedSidebarWidth + 'px' : $classcipe.sysConfig.sidebarWidth + 'px'}">
-      <common-form-header
-        ref='commonFormHeader'
-        :collaborate='collaborate'
-        :form='form'
-        :share-status='shareStatus'
-        :last-change-saved-time='lastChangeSavedTime'
-        @back='goBack'
-        @collaborate='handleStartCollaborate'
-        @publish='handlePublishUnitPlan'
-        @save='handleSaveUnitPlan(true)'
-        @share='handleShareUnitPlan'
-        @view-collaborate='handleViewCollaborate'
-      />
-    </div>
-    <div class='step-nav' :style="{left: collapsed ? $classcipe.sysConfig.collapsedSidebarWidth + 'px' : $classcipe.sysConfig.sidebarWidth + 'px', width: collapsed ? 'calc(100% - ' + $classcipe.sysConfig.collapsedSidebarWidth + 'px)' : 'calc(100% - ' + $classcipe.sysConfig.sidebarWidth + 'px)'}">
-      <my-vertical-steps
-        ref='steps-nav'
-        :steps='$store.getters.formConfigData.planSteps'
-        :step-index='currentActiveStepIndex'
-        @step-change='handleStepChange' />
-    </div>
+    <fixed-form-header>
+      <template v-slot:header>
+        <form-header title='Create unit' @back='goBack'>
+          <template v-slot:right>
+          </template>
+        </form-header>
+      </template>
+      <template v-slot:nav>
+        <my-vertical-steps
+          ref='steps-nav'
+          :steps='$store.getters.formConfigData.planSteps'
+          :step-index='currentActiveStepIndex'
+          @step-change='handleStepChange' />
+      </template>
+    </fixed-form-header>
     <div class='form-content'>
       <div class='step-content' v-if='!contentLoading'>
         <div class='form-body root-locate-form' id='form-body'>
@@ -943,10 +936,14 @@ import storage from 'store'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 import LinkContentList from '@/components/UnitPlan/LinkContentList'
 import UnitLinkedContent from '@/components/UnitPlan/UnitLinkedContent'
+import FixedFormHeader from '@/components/Common/FixedFormHeader'
+import FormHeader from '@/components/FormHeader/FormHeader'
 
 export default {
   name: 'AddUnitPlan',
   components: {
+    FormHeader,
+    FixedFormHeader,
     UnitLinkedContent,
     LinkContentList,
     MyVerticalSteps,
@@ -3446,7 +3443,6 @@ svg.add-input {
 
 .step-nav {
   background: #fff;
-  padding: 0 20px;
   position: fixed;
   right: 0;
   top: 74px;
@@ -3456,8 +3452,8 @@ svg.add-input {
 }
 
 .form-content {
-  height: calc(100vh - 198px);
-  margin-top: 138px;
+  height: calc(100vh - 160px);
+  margin-top: 110px;
   padding: 0 20px;
   overflow: scroll;
   background: #fff;
@@ -3470,7 +3466,7 @@ svg.add-input {
   box-shadow: 3px 0 6px rgba(0, 0, 0, 0.16);
   bottom: 0;
   right: 0;
-  height: 60px;
+  height: 50px;
   background: #fff;
   align-items: center;
   display: flex;

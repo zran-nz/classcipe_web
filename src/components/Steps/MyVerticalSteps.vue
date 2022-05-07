@@ -72,6 +72,7 @@ export default {
 
 .my-steps {
   user-select: none;
+  height: 49px;
   width: 100%;
   display: flex;
   flex-direction: row;

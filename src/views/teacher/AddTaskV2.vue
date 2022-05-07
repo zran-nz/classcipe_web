@@ -1,27 +1,20 @@
 <template>
   <div class='my-full-form-wrapper' id='formRoot'>
-    <div class='form-header' :style="{left: collapsed ? $classcipe.sysConfig.collapsedSidebarWidth + 'px' : $classcipe.sysConfig.sidebarWidth + 'px'}">
-      <common-form-header
-        ref='commonFormHeader'
-        :form='form'
-        :share-status='shareStatus'
-        :collaborate='collaborate'
-        :last-change-saved-time='lastChangeSavedTime'
-        @view-collaborate='handleViewCollaborate'
-        @back='goBack'
-        @save='handleSaveTask(true)'
-        @share='handleShareTask'
-        @publish='handlePublishTask'
-        @collaborate='handleStartCollaborate'
-      />
-    </div>
-    <div class='step-nav' :style="{left: collapsed ? $classcipe.sysConfig.collapsedSidebarWidth + 'px' : $classcipe.sysConfig.sidebarWidth + 'px', width: collapsed ? 'calc(100% - ' + $classcipe.sysConfig.collapsedSidebarWidth + 'px)' : 'calc(100% - ' + $classcipe.sysConfig.sidebarWidth + 'px)'}">
-      <my-vertical-steps
-        ref='steps-nav'
-        :steps='$store.getters.formConfigData.taskSteps'
-        :step-index='currentActiveStepIndex'
-        @step-change='handleStepChange' />
-    </div>
+    <fixed-form-header>
+      <template v-slot:header>
+        <form-header title='Create task' @back='goBack'>
+          <template v-slot:right>
+          </template>
+        </form-header>
+      </template>
+      <template v-slot:nav>
+        <my-vertical-steps
+          ref='steps-nav'
+          :steps='$store.getters.formConfigData.planSteps'
+          :step-index='currentActiveStepIndex'
+          @step-change='handleStepChange' />
+      </template>
+    </fixed-form-header>
     <div class='form-content'>
       <div class='step-content' v-if='!contentLoading'>
         <div class='form-body root-locate-form' id='form-body'>
@@ -1742,12 +1735,16 @@ import storage from 'store'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 import TaskLinkedContent from '@/components/Task/TaskLinkedContent'
 import LinkContentList from '@/components/UnitPlan/LinkContentList'
+import FixedFormHeader from '@/components/Common/FixedFormHeader'
+import FormHeader from '@/components/FormHeader/FormHeader'
 
 const { SplitTask } = require('@/api/task')
 
 export default {
   name: 'AddTask',
   components: {
+    FormHeader,
+    FixedFormHeader,
     LinkContentList,
     TaskLinkedContent,
     MyVerticalSteps,
@@ -6618,7 +6615,6 @@ p.ant-upload-text {
 
 .step-nav {
   background: #fff;
-  padding: 0 20px;
   position: fixed;
   right: 0;
   width: 100%;
@@ -6629,8 +6625,8 @@ p.ant-upload-text {
 }
 
 .form-content {
-  height: calc(100vh - 198px);
-  margin-top: 138px;
+  height: calc(100vh - 160px);
+  margin-top: 110px;
   padding: 0 20px;
   overflow: scroll;
   background: #fff;
@@ -6644,7 +6640,7 @@ p.ant-upload-text {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 60px;
+  height: 50px;
   background: #fff;
   align-items: center;
   display: flex;
