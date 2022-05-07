@@ -133,21 +133,9 @@ export default {
         })
       })
       this.$logger.info('ScheduleSession associateUnitList', this.associateUnitList)
-      if (this.associateUnitList.length === 0) {
-        this.$confirm({
-          title: 'Warn',
-          content: 'The current task is not yet associated with any unit plan. Please associate the task with a unit plan first.',
-          centered: true,
-          onOk: () => {
-            this.$router.go(-1)
-          },
-          onCancel: () => {
-            this.$router.go(-1)
-          }
-        })
-      } else if (this.associateUnitList.length === 1) {
+      if (this.associateUnitList.length === 1) {
         this.scheduleReq.planId = this.associateUnitList[0].id
-      } else {
+      } else if (this.associateUnitList.length > 1) {
         this.selectSessionUnitVisible = true
       }
 
@@ -173,7 +161,6 @@ export default {
       this.$logger.info('ScheduleSession handleSelectUnit ', data)
       this.scheduleReq.planId = data.id
       this.selectSessionUnitVisible = false
-      this.getClassList()
     },
 
     handleGoBack () {
