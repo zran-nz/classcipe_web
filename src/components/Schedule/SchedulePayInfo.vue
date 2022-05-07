@@ -89,8 +89,8 @@ export default {
   methods: {
     handleDateChange (date, dateString) {
       this.$logger.info('handleDateChange', date, dateString)
-      this.startDate = dateString[0]
-      this.endData = dateString[1]
+      this.startDate = date[0].utc().format('YYYY-MM-DD HH:mm:ss')
+      this.endData = date[1].utc().format('YYYY-MM-DD HH:mm:ss')
       this.$logger.info('handleDateChange', this.startDate, this.endData)
       this.$emit('select-date', {
         startDate: this.startDate,
@@ -100,7 +100,7 @@ export default {
 
     handleSelectDate (ddate, dateStringate) {
       this.$logger.info('handleSelectDate')
-      this.registerBefore = dateStringate
+      this.registerBefore = ddate.utc().format('YYYY-MM-DD HH:mm:ss')
     },
 
     getPaidInfo() {
