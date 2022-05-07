@@ -256,11 +256,11 @@ export const DEVICE = {
 
 export const WORK_SHOPS_STATUS = {
   ONGOING: {
-    label: 'On going',
+    label: 'On-going',
     value: 1
   },
   SCHEDULE: {
-    label: 'Schedule',
+    label: 'Scheduled',
     value: 2
   },
   ENDED: {
@@ -275,7 +275,7 @@ export const WORK_SHOPS_STATUS = {
 
 export const WORK_SHOPS_TYPE = {
   FEATURE: {
-    label: 'Feature',
+    label: 'Featured',
     value: 1
   },
   LUNCHEDBYME: {

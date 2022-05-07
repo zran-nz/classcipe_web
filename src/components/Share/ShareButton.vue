@@ -7,13 +7,18 @@
       </div>
     </a-spin>
     <div class="share-divider">Or</div>
-    <a-space class="share-out">
-      <img @click="share('fb')" src="~@/assets/icons/share/fb.png" alt="share to facebook" />
+    <div class="share-out">
+      <icon-font @click="share('fb')" type="icon-Facebook"/>
+      <icon-font @click="share('in')" type="icon-Linkdin"/>
+      <icon-font @click="share('ins')" type="icon-Instergram"/>
+      <icon-font @click="share('twitter')" type="icon-Twitter"/>
+      <icon-font @click="handleCopy" type="icon-lianjie1"/>
+      <!-- <img @click="share('fb')" src="~@/assets/icons/share/fb.png" alt="share to facebook" />
       <img @click="share('in')" src="~@/assets/icons/share/in.png" alt="share to linked in" />
       <img @click="share('ins')" src="~@/assets/icons/share/ins.png" alt="share to instagram" />
       <img @click="share('twitter')" src="~@/assets/icons/share/twitter.png" alt="share to twitter" />
-      <a-icon @click="handleCopy" type="link" />
-    </a-space>
+      <a-icon @click="handleCopy" type="link" /> -->
+    </div>
   </div>
 </template>
 
@@ -123,6 +128,10 @@ export default {
     margin: 8px 0 4px 0;
   }
   .share-out {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
     img {
       width: 16px;
       height: 16px;
