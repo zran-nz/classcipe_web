@@ -2,14 +2,10 @@
   <div class='content-filter'>
     <div class='filter-line'>
       <div class="my-search">
-        <a-input-search
-          placeholder="Search"
-          v-model="searchKey"
-          @search="triggerSearch"
-          @pressEnter="triggerSearch"
-          :allowClear="true"
-        >
-        </a-input-search>
+        <custom-search-input
+          @search='triggerSearch'
+          :value.sync='searchKey'
+          placeholder="Search" />
       </div>
       <div class="filter-icon" @click.stop="showFilter = !showFilter">
         <div class="filter-item">
@@ -44,10 +40,12 @@ import { GetGradesByCurriculumId } from '@/api/preference'
 import { FindCustomTags } from '@/api/tag'
 import { CustomTagType } from '@/const/common'
 import FilterContent from '@/components/UnitPlan/FilterContent'
+import CustomSearchInput from '@/components/Common/CustomSearchInput'
 
 export default {
   name: 'ContentFilter',
   components: {
+    CustomSearchInput,
     FilterIcon,
     FilterActiveIcon,
     FilterContent

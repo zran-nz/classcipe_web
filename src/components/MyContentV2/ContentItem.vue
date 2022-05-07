@@ -1,5 +1,5 @@
 <template>
-  <div class='content-item' v-if='content' :style="{'border': '1px ' + borderStyle + ' #15c39a'}">
+  <div class='content-item' v-if='content'>
     <div class='cover' @click='handlePreviewDetail(content)'>
       <div class='cover-block' :style="{'background-image': 'url(' + content.image + ')'}">
       </div>
@@ -10,46 +10,88 @@
           <div class='name'>
             {{ content.name }}
           </div>
-          <div class='tag-info'></div>
+          <div class='subject'>
+            Ray ka Art
+          </div>
+          <div class='tag-info'>
+            <div class='tag-info-item'>
+              Knowledge tag
+            </div>
+            <div class='tag-info-item'>
+              Commen term
+            </div>
+          </div>
           <div class='owner'>
-            {{ content.createBy }}
           </div>
         </div>
         <div class='right-info'>
           <div class='update-time'>
-            {{ content.updateTime | dayjs }}
           </div>
         </div>
       </div>
       <div class='action'>
         <template v-if='showButton'>
           <a-space>
-            <a-button type='primary' v-if='content.type === typeMap.task && content.subTasks.length > 0'>SubTask</a-button>
-            <a-button type='primary'>Original Tips</a-button>
-            <a-button type='primary' v-if='content.type === typeMap.task || content.type === typeMap.pd' @click='handleSchedule'>Schedule</a-button>
-            <a-button type='primary' @click='editItem(content)'>Edit</a-button>
-            <a-dropdown :trigger="['click']" :getPopupContainer="trigger => trigger.parentElement">
-              <a-button type='primary'><a-icon type="dash" /></a-button>
-              <div class='content-item-more-action' slot="overlay">
+            <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement'>
+              <div class='more-action'>
+                <more-icon />
+              </div>
+              <div class='content-item-more-action' slot='overlay'>
                 <div class='self-learning menu-item' v-if='content.type === typeMap.task'>
-                  Self learning <a-switch size="small" @change='handleSelfLearning' />
+                  Self learning
+                  <a-switch size='small' @change='handleSelfLearning' />
                 </div>
                 <div class='menu-item'>
-                  <a-button type='primary' size='small' @click='handlePublishStatus'>
-                    <template v-if='content.status === 0'>Publish</template>
-                    <template v-if='content.status === 1'>UnPublish</template>
-                  </a-button>
-                </div>
-                <div class='menu-item'>
-                  <a-button type='danger' size='small' @click='handleDeleteItem'>Delete</a-button>
+                  <custom-button label='Delete' @click='handleDeleteItem'>
+                    <template v-slot:icon>
+                      <delete-icon />
+                    </template>
+                  </custom-button>
                 </div>
               </div>
             </a-dropdown>
+
+            <custom-button label='Sub-task' v-if='content.type === typeMap.task && content.subTasks.length > 0'>
+              <template v-slot:icon>
+                <sub-task-icon />
+              </template>
+            </custom-button>
+
+            <custom-button label='Original Tips'>
+              <template v-slot:icon>
+                <original-tips-icon />
+              </template>
+            </custom-button>
+
+            <custom-button
+              label='Schedule'
+              v-if='content.type === typeMap.task || content.type === typeMap.pd'
+              @click='handleSchedule'>
+              <template v-slot:icon>
+                <schedule-icon />
+              </template>
+            </custom-button>
+
+            <custom-button label='Edit' @click='editItem'>
+              <template v-slot:icon>
+                <edit-icon />
+              </template>
+            </custom-button>
+
+            <custom-button :label="content.status === 0 ? 'Publish' : 'UnPublish'" @click='handlePublishStatus'>
+              <template v-slot:icon>
+                <publish1-icon />
+              </template>
+            </custom-button>
           </a-space>
         </template>
       </div>
 
-      <preview-content :preview-current-id='previewCurrentId' :preview-type='previewType' v-if='previewVisible' @close='handlePreviewClose' />
+      <preview-content
+        :preview-current-id='previewCurrentId'
+        :preview-type='previewType'
+        v-if='previewVisible'
+        @close='handlePreviewClose' />
     </div>
   </div>
 </template>
@@ -61,10 +103,28 @@ import * as logger from '@/utils/logger'
 import { DeleteMyContentByType } from '@/api/teacher'
 import { ContentItemMixin } from '@/mixins/ContentItemMixin'
 import PreviewContent from '@/components/MyContentV2/PreviewContent'
+import CustomButton from '@/components/Common/CustomButton'
+import SubTaskIcon from '@/assets/v2/icons/sub-task.svg?inline'
+import EditIcon from '@/assets/v2/icons/edit.svg?inline'
+import Publish1Icon from '@/assets/v2/icons/publish_01.svg?inline'
+import ScheduleIcon from '@/assets/v2/icons/schedule.svg?inline'
+import OriginalTipsIcon from '@/assets/v2/icons/original_tips.svg?inline'
+import DeleteIcon from '@/assets/v2/icons/delete.svg?inline'
+import MoreIcon from '@/assets/v2/icons/more.svg?inline'
 
 export default {
   name: 'ContentItem',
-  components: { PreviewContent },
+  components: {
+    CustomButton,
+    PreviewContent,
+    SubTaskIcon,
+    EditIcon,
+    Publish1Icon,
+    ScheduleIcon,
+    OriginalTipsIcon,
+    DeleteIcon,
+    MoreIcon
+  },
   props: {
     content: {
       type: Object,
@@ -77,14 +137,10 @@ export default {
     clickPreview: {
       type: Boolean,
       default: true
-    },
-    borderStyle: {
-      type: String,
-      default: 'dashed'
     }
   },
-  mixins: [ ContentItemMixin ],
-  data () {
+  mixins: [ContentItemMixin],
+  data() {
     return {
       typeMap: typeMap,
       isSelfLearning: false
@@ -94,12 +150,12 @@ export default {
     this.allowPreview = this.clickPreview
   },
   computed: {
-    status () {
+    status() {
       return this.content.status
     }
   },
   methods: {
-    editItem (item) {
+    editItem(item) {
       if (item.type === typeMap['unit-plan']) {
         this.$router.push({
           path: '/teacher/unit-plan-redirect/' + item.id
@@ -119,24 +175,24 @@ export default {
       }
     },
 
-    handleSchedule () {
+    handleSchedule() {
       this.$router.push({
         path: '/teacher/schedule-session/' + this.content.id + '/' + this.content.type
       })
     },
 
-    handleSelfLearning (isSelfLearning) {
+    handleSelfLearning(isSelfLearning) {
       this.$logger.info('handleSelfLearning', isSelfLearning)
       this.isSelfLearning = isSelfLearning
     },
 
-    handlePublishStatus () {
+    handlePublishStatus() {
       this.$emit('update-publish', {
         content: this.content
       })
     },
 
-    handleDeleteItem () {
+    handleDeleteItem() {
       logger.info('handleDeleteItem', this.content)
       DeleteMyContentByType(this.content).then(res => {
         logger.info('DeleteMyContentByType', res)
@@ -149,22 +205,24 @@ export default {
 }
 </script>
 
-<style lang="less" scoped>
+<style lang='less' scoped>
 @import "~@/components/index.less";
 
 .content-item {
-  padding: 15px;
-  margin: 15px 0;
+  padding: 15px 20px;
+  margin: 20px 0;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
   overflow: hidden;
+  border-radius: 7px;
+  border: 1px solid #EEF1F6;
 
   .cover {
-    border: 1px solid #e1e1e1;
     .cover-block {
+      border-radius: 8px;
       height: 160px;
-      width: 260px;
+      width: 270px;
       background-position: center center;
       background-size: cover;
       background-repeat: no-repeat;
@@ -175,7 +233,7 @@ export default {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding-left: 10px;
+    padding-left: 20px;
     height: 160px;
 
     .detail-content {
@@ -186,10 +244,21 @@ export default {
 
       .base-info {
         .name {
-          line-height: 30px;
-          font-size: 15px;
-          color: #333;
-          font-weight: 500;
+          line-height: 32px;
+          font-size: 16px;
+          font-family: Arial;
+          font-weight: bold;
+          color: #17181A;
+          cursor: pointer;
+        }
+
+        .subject {
+          cursor: pointer;
+          font-family: Arial;
+          font-weight: 400;
+          color: #757578;
+          line-height: 22px;
+          font-size: 13px;
         }
       }
     }
@@ -200,7 +269,22 @@ export default {
       display: flex;
       flex-direction: row;
       align-items: center;
-      justify-content: flex-end;
+      justify-content: flex-start;
+    }
+  }
+}
+
+.more-action {
+  cursor: pointer;
+  svg {
+    width: 40px;
+    height: 36px;
+    fill: #494B52 !important;
+  }
+
+  &:hover {
+    svg {
+      fill: #14C39A !important;
     }
   }
 }
