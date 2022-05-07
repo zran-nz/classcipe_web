@@ -215,7 +215,7 @@ export default {
       this.$logger.info('LessonPreview loadThumbnail ' + this.lesson.presentationId, this.lesson.selectPageObjectIds)
       if (this.lesson.presentationId) {
         TemplatesGetPublishedPresentation({
-          presentationId: this.lesson.presentationId
+          taskId: this.lesson.id
         }).then(response => {
           if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
             this.imgList = []

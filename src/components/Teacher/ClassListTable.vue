@@ -167,7 +167,7 @@
         @ok="PPTCommentPreviewVisible = false"
         @cancel="PPTCommentPreviewVisible = false">
         <div class="view-ppt-comment">
-          <ppt-comment-preview :slide-id="slideId" :class-id="currentClassId" v-if="slideId"/>
+          <ppt-comment-preview :slide-id="slideId" :class-data="classData" v-if="slideId"/>
         </div>
       </a-modal>
 

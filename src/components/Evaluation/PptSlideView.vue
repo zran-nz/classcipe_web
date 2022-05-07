@@ -500,7 +500,7 @@ export default {
       this.resetData()
       this.$logger.info('加载PPT数据 ' + this.classId + ' slideId ' + this.slideId + ' formId' + this.formId + ' rowId ' + this.rowId)
       Promise.all([
-        TemplatesGetPublishedPresentation({ presentationId: this.slideId }),
+        TemplatesGetPublishedPresentation({ taskId: this.formId }),
         QueryByClassInfoSlideId({ slideId: this.slideId }),
         QuerySessionEvidence({
           sessionId: this.sessionId,

@@ -729,7 +729,7 @@ export default {
       if (this.data.presentationId) {
         if (this.isLibrary) {
           TemplatesGetPublishedPresentation({
-            presentationId: this.data.presentationId
+            taskId: this.data.id
           }).then(response => {
             if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
               const pageObjects = response.result.pageObjects
@@ -752,7 +752,7 @@ export default {
           })
         } else {
           TemplatesGetPublishedPresentation({
-            presentationId: this.data.presentationId
+            taskId: this.data.id
           }).then(response => {
             if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
               const pageObjects = response.result.pageObjects

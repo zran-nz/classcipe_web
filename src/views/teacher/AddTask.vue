@@ -2917,7 +2917,7 @@ export default {
       this.skeletonLoading = true
       this.$logger.info('loadThumbnail ' + this.form.presentationId)
       TemplatesGetPresentation({
-        presentationId: this.form.presentationId,
+        taskId: this.form.id,
         needRefresh: needRefresh
       }).then(response => {
         this.$logger.info('loadThumbnail response', response.result)

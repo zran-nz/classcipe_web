@@ -2366,7 +2366,7 @@ export default {
       this.skeletonLoading = true
       this.$logger.info('loadThumbnail ' + this.form.presentationId)
       TemplatesGetPublishedPresentation({
-        presentationId: this.form.presentationId
+        taskId: this.form.id
       }).then(response => {
         this.$logger.info('loadThumbnail response', response.result)
         if (response.success) {

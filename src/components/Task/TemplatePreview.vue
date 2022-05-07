@@ -250,7 +250,7 @@ export default {
       if (this.templateData.type === typeMap.task) {
         this.loading = true
         TemplatesGetPublishedPresentation({
-          presentationId: this.templateData.presentationId
+          taskId: this.templateData.id
         }).then(response => {
           this.$logger.info('task loadThumbnail response', response.result)
           if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {

@@ -223,7 +223,7 @@ export default {
       this.$logger.info('TaskPreview loadThumbnail ' + this.task.presentationId, this.task.selectPageObjectIds)
       if (this.task.presentationId) {
         TemplatesGetPublishedPresentation({
-          presentationId: this.task.presentationId
+          taskId: this.task.id
         }).then(response => {
           this.$logger.info('task loadThumbnail response', response.result)
           if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {

@@ -66,8 +66,8 @@ export default {
       type: String,
       default: '1tfhTKkxPXsgfh_9mYZUVqHQn_1up1sAOln5PHiRXmj4'
     },
-    classId: {
-      type: String,
+    classData: {
+      type: Object,
       default: null
     }
   },
@@ -82,14 +82,14 @@ export default {
     }
   },
   created () {
-    this.$logger.info('PptCommentPreview' + this.slideId + ' classId ' + this.classId)
+    this.$logger.info('PptCommentPreview' + this.slideId + ' classId ' + this.classData.classId)
     this.loadData()
   },
   methods: {
     loadData () {
       Promise.all([
-        GetStudentResponse({ class_id: this.classId }),
-        TemplatesGetPublishedPresentation({ presentationId: this.slideId })
+        GetStudentResponse({ class_id: this.classData.classId }),
+        TemplatesGetPublishedPresentation({ taskId: this.classData.contentId })
       ]).then(response => {
         this.$logger.info('PptCommentPreview loadData', response)
         const rawCommentDataList = response[0].data.presentation_comments
