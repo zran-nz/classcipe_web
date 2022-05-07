@@ -1,7 +1,7 @@
 <template>
   <div class='create-new'>
     <a-dropdown>
-      <a-menu slot="overlay">
+      <a-menu slot="overlay" class='create-new-menu'>
         <a-menu-item>
           <router-link to='/teacher/unit-plan-redirect/create'>
             {{ $t('menu.unit-plan') }}
@@ -21,7 +21,7 @@
           </router-link>
         </a-menu-item>
       </a-menu>
-      <a-button type='primary'>Create New <a-icon type="caret-down" />
+      <a-button class='create-new-btn'>Create New <a-icon type="caret-down" :style="{color: '#4F4F4F'}"/>
       </a-button>
     </a-dropdown>
     <task-mode-choose @close='closeTaskModeChoose' :visible='showTaskMode' v-if='showTaskMode'/>
@@ -52,4 +52,25 @@ export default {
 <style lang="less" scoped>
 @import "~@/components/index.less";
 
+.create-new-btn {
+  border: 1px solid #D0D0D0;
+  width: 130px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 5px;
+  line-height: 38px;
+  color: #4F4F4F;
+  span {
+    padding-right: 5px;
+  }
+}
+
+.create-new-menu {
+  a {
+    font-family: Arial;
+    font-weight: 400;
+    color: #525252;
+  }
+}
 </style>
