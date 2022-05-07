@@ -118,7 +118,6 @@ import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 import ContentItem from '@/components/MyContentV2/ContentItem'
 import FavoriteContentItem from '@/components/MyContentV2/FavoriteContentItem'
 import RadioSwitch from '@/components/Common/RadioSwitch'
-import { SourceType } from '@/components/MyContentV2/Constant'
 
 export default {
   name: 'MyFavorite',
