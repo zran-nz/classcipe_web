@@ -36,8 +36,8 @@
         </div>
         <div class='pay-slider'>
           <a-space>
-            <a-slider v-model="maxParticipants" :min="0" :max="100" style='width: 100px' />
-            <a-input-number v-model="maxParticipants" :min="1" :max="100" />
+            <a-slider v-model="maxParticipants" :min="1" :max="500" style='width: 100px' />
+            <a-input-number v-model="maxParticipants" :min="1" :max="500" />
           </a-space>
         </div>
       </div>
