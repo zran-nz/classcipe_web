@@ -104,7 +104,8 @@ export default {
     }
   },
   methods: {
-    editItem(item) {
+    editItem() {
+      const item = this.content
       if (item.type === typeMap['unit-plan']) {
         this.$router.push({
           path: '/teacher/unit-plan-redirect/' + item.id
