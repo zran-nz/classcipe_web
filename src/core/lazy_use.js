@@ -140,4 +140,10 @@ Vue.use(Dialog) // this.$dialog func
 Vue.use(PermissionHelper)
 Vue.use(VueCropper)
 
+const IconFont = Icon.createFromIconfontCN({
+  scriptUrl: '//at.alicdn.com/t/font_3302558_z2ekl0v8qf.js'
+})
+
+Vue.component('icon-font', IconFont)
+
 process.env.NODE_ENV !== 'production' && console.warn('[NOTICE] use lazy-load.')

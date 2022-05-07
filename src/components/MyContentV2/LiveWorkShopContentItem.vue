@@ -3,7 +3,7 @@
     <div class='cover' @click.prevent.stop="handleGoWork(content)">
       <div class='cover-block' :style="{'background-image': 'url(' + content.content.image + ')'}">
       </div>
-      <div v-if="content.session && content.session.classId" class="cover-btn"><label>Enter workshop</label></div>
+      <div v-if="content.session && content.session.classId && [WORK_SHOPS_TYPE.LUNCHEDBYME.value, WORK_SHOPS_TYPE.REGISTERED.value].includes(content.workshopsType)" class="cover-btn"><label>Enter workshop</label></div>
     </div>
     <div class='detail' @click.prevent.stop='handlePreviewDetail(content.content)'>
       <div class='detail-content'>
@@ -12,22 +12,52 @@
             {{ content.content.name }}
           </div>
           <div class='tag-info'></div>
-          <div class='owner'>
-            {{ content.content.createBy }}
-          </div>
+          <!-- <div class='owner'>
+            {{ content.userRealName || content.content.createBy }}
+          </div> -->
         </div>
         <div class='right-info'>
           <div class='update-time'>
-            {{ content.content.updateTime | dayjs }}
+            Sched: {{ content.sessionStartTime }}
           </div>
         </div>
       </div>
       <div class="detail-price">
+        <div class="tag-info" v-show="content.content.customTags && content.content.customTags.length > 0">
+          <div class="tag-item" :key="tag.id" v-for="tag in content.content.customTags.slice(0, 2)">
+            <a-tooltip :title="tag.name">
+              {{ tag.name }}
+            </a-tooltip>
+          </div>
+          <div class="tag-item" v-if="content.content.customTags.length > 2">
+            <a-popover :overlayStyle="{ width: '310px' }" overlayClassName="tag-info-tip">
+              <template slot="content">
+                <a-space class="tag-info">
+                  <a-tag color="#FFDF9B" class="tag-item" :key="tag.id" v-for="tag in content.content.customTags.slice(2)">
+                    <a-tooltip :title="tag.name">
+                      {{ tag.name }}
+                    </a-tooltip>
+                  </a-tag>
+                </a-space>
+              </template>
+              more
+            </a-popover>
+          </div>
+        </div>
         <price-slider :priceList="content.priceList" :current="content.registeredNum" />
       </div>
       <div class='action'>
-        <div class="schedule-time">
-          Sched: {{ content.lastRegisteredTime }}
+        <div class="author-name">
+          <a-avatar v-if="!content.userAvatar" icon="user" />
+          <img
+            v-else
+            class="ant-avatar"
+            :src="content.userAvatar"
+            alt="avatar"
+          />
+          <div class="author-name">
+            {{ content.userRealName || content.content.createBy }}
+          </div>
         </div>
         <a-space @click.prevent.stop>
           <div v-if="content.session && content.session.zoomMeeting" class='zoom-icon' @click.prevent.stop="handleToZoom(content)">
@@ -35,6 +65,7 @@
           </div>
           <a-tooltip
             v-model="shareVisible"
+            v-if="userMode === USER_MODE.SELF"
             trigger="click"
             :getPopupContainer="trigger => trigger.parentElement"
             @visibleChange="vis => visibleChange(vis, content)"
@@ -48,44 +79,44 @@
                 />
               </div>
             </template>
-            <a-button type='primary' shape='round'>Share</a-button>
+            <a-button type="primary" shape='round'>
+              <!-- <icon-font type="icon-share" class="detail-font"/> -->
+              Share
+            </a-button>
           </a-tooltip>
-          <!-- <template v-if="WORK_SHOPS_TYPE.FEATURE.value === content.workshopsType"> -->
-          <a-button type='primary' shape='round' @click='editItem(content)'>Register</a-button>
-          <!-- </template> -->
-          <template v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType">
-            <a-button type='primary' shape='round' @click='editItem(content)'>Edit</a-button>
-            <a-button type='primary' shape='round' @click='editItem(content)'>Delete</a-button>
+          <template v-if="WORK_SHOPS_TYPE.FEATURE.value === content.workshopsType">
+            <a-button type='primary' shape='round' @click='handleRegister(content)'>
+              <!-- <icon-font type="icon-register" class="detail-font"/> -->
+              Register</a-button>
           </template>
-          <template v-if="WORK_SHOPS_STATUS.ONGOING.value === content.workshopsStatus || WORK_SHOPS_STATUS.ENDED.value === content.workshopsStatus">
-            <a-button type='primary' shape='round' @click='editItem(content)'>Relaunch</a-button>
+          <template v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType">
+            <a-button v-if="WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus" type='primary' shape='round' @click='handleEdit(content)'>
+              <!-- <icon-font type="icon-edit" class="detail-font"/> -->
+              Edit</a-button>
+            <a-button v-else type='primary' shape='round' @click='handleRelaunch(content)'>
+              <!-- <icon-font type="icon-tizhibianbie-zhongxinceshi" class="detail-font"/> -->
+              Relaunch</a-button>
+            <a-button type='primary' shape='round' @click='handleDel(content)'>
+              <!-- <icon-font type="icon-shanchu" class="detail-font"/> -->
+              Delete</a-button>
           </template>
           <template v-if="WORK_SHOPS_TYPE.REGISTERED.value === content.workshopsType">
-            <a-button type='primary' shape='round' @click='editItem(content)'>Cancel</a-button>
+            <a-button type='primary' shape='round' @click='handleCancel(content)'>
+              <!-- <icon-font type="icon-cancel" class="detail-font"/> -->
+              Cancel</a-button>
           </template>
 
         </a-space>
       </div>
     </div>
-    <!-- <a-modal
-      v-model='shareVisible'
-      :closable='true'
-      :footer='null'
-      :maskClosable='true'
-      destroyOnClose
-      width='300px'
-      @cancel='handleCloseShare'>
-      <share-button
-        :link="shareItem.name || 'https://dev.classcipe.com/'"
-        :title="shareItem.name || 'test'"
-      />
-    </a-modal> -->
     <preview-content :preview-current-id='previewCurrentId' :preview-type='previewType' v-if='previewVisible' @close='handlePreviewClose' />
+
   </div>
 </template>
 
 <script>
-import { WORK_SHOPS_STATUS, WORK_SHOPS_TYPE } from '@/const/common'
+import { WORK_SHOPS_STATUS, WORK_SHOPS_TYPE, USER_MODE } from '@/const/common'
+import { SaveRegisteredRecord, CancelRegistered } from '@/api/v2/live'
 import { lessonHost } from '@/const/googleSlide'
 import { typeMap } from '@/const/teacher'
 import PriceSlider from '@/components/Slider/PriceSlider'
@@ -95,6 +126,7 @@ import PreviewContent from '@/components/MyContentV2/PreviewContent'
 import { ContentItemMixin } from '@/mixins/ContentItemMixin'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 import storage from 'store'
+import { mapState } from 'vuex'
 
 export default {
   name: 'LiveWorkShopContentItem',
@@ -113,11 +145,18 @@ export default {
   data () {
     return {
       typeMap: typeMap,
+      USER_MODE: USER_MODE,
       WORK_SHOPS_STATUS: WORK_SHOPS_STATUS,
       WORK_SHOPS_TYPE: WORK_SHOPS_TYPE,
       shareVisible: false,
       shareItem: {}
     }
+  },
+  computed: {
+    ...mapState({
+      userMode: state => state.app.userMode,
+      currentSchool: state => state.user.currentSchool
+    })
   },
   methods: {
     editItem (item) {
@@ -175,6 +214,43 @@ export default {
     handleShare(item) {
       this.shareVisible = true
       this.shareLink = { ...item }
+    },
+    handleRegister(item) {
+      if (item && item.content && item.sessionId) {
+        SaveRegisteredRecord({
+          contentId: item.content.id,
+          sessionId: item.sessionId
+        }).then(res => {
+          if (res.success) {
+            this.$message.success('Register successfully')
+            this.$emit('reload')
+          }
+        })
+      }
+    },
+    handleCancel(item) {
+      if (item && item.content && item.sessionId) {
+        CancelRegistered({
+          contentId: item.content.id,
+          sessionId: item.sessionId
+        }).then(res => {
+          if (res.success) {
+            this.$message.success('Cancel successfully')
+            this.$emit('reload')
+          }
+        })
+      }
+    },
+    handleRelaunch(item) {
+      this.$router.push({
+        path: '/teacher/schedule-session/' + item.content.id + '/' + item.content.type
+      })
+    },
+    handleDel(item) {
+      this.$message.info('coming soon...')
+    },
+    handleEdit(item) {
+      this.$message.info('coming soon...')
     }
   }
 }
@@ -182,7 +258,17 @@ export default {
 
 <style lang="less" scoped>
 @import "~@/components/index.less";
-
+.tag-info-tip {
+  .tag-info {
+    display: flex;
+    flex-wrap: wrap;
+    .tag-item {
+      color: #D97909;
+      margin: 5px 0;
+      border-radius: 10px;
+    }
+  }
+}
 .content-item {
   padding: 0.16em /* 16/100 */ 0.27em /* 27/100 */;
   border: 1px solid #EEF1F6;
@@ -191,7 +277,10 @@ export default {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-
+  .detail-font {
+    font-size: 0.18em /* 18/100 */;
+    color: #fff;
+  }
   .cover {
     position: relative;
     display:flex;
@@ -269,11 +358,24 @@ export default {
       flex-direction: row;
       align-items: center;
       justify-content: space-between;
-      .schedule-time {
-        font-size: 0.18em /* 18/100 */;
-        font-family: Arial;
-        font-weight: 400;
-        color: #4B4B4B;
+      .author-name {
+        display: flex;
+        align-items: center;
+        .author-name {
+          font-size: 0.16em /* 13/100 */;
+          font-family: Arial;
+          font-weight: 400;
+          color: #0c0c0c;
+          margin-left: 1/0.16*0.1em /* 10/100 */;
+        }
+        /deep/ .ant-avatar {
+          width: 0.35em /* 35/100 */;
+          height: 0.35em /* 35/100 */;
+          font-size: inherit;
+          i {
+            font-size: 0.26em /* 26/100 */;
+          }
+        }
       }
       .zoom-icon {
         height: 0.4em /* 40/100 */;
@@ -307,7 +409,7 @@ export default {
 }
 .detail-share {
   /deep/ .share-button {
-    width:  2em;
+    width:  2.5em;
     height: 2em;
     padding: .1em;
     .share-title {
@@ -340,17 +442,46 @@ export default {
         width: 0.23em /* 23/100 */;
         height: 0.23em /* 23/100 */;
       }
+      i {
+        font-size: 0.37em /* 37/100 */;
+      }
     }
   }
 }
 .detail-price {
   padding: 0 0.1em /* 10/100 */;
   flex-grow: 1;
+  display: flex;
+  align-items: center;
+  .tag-info {
+    width: 3em /* 300/100 */;
+    display: flex;
+    align-items: center;
+    height: .3em;
+    margin-top: -0.2em;
+    .tag-item {
+      height: 1/0.15*0.3em /* 30/100 */;
+      line-height: 1/0.15*0.3em /* 30/100 */;
+      padding: 0 1/0.15*0.1em /* 10/100 */;
+      font-size: 0.15em /* 15/100 */;
+      background: #FFDF9B;
+      color: #D97909;
+      margin-right: 1/0.15*0.05em /* 5/100 */;
+      border-radius: 1/0.15*0.1rem /* 10/100 */;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 6em;
+      text-align: center;
+    }
+  }
   /deep/ .price-slider {
+    margin-top: -0.2em;
+    flex: 1;
     .slider-label {
       width: calc(100% - 0.125em /* 12.5/100 */);
       left: 0.0175em /* 1.75/100 */;
-      top: 0em;
+      top: 0.1em;
       .slider-label-item {
         font-size: 0.16em /* 16/100 */;
         width:2.25em /* 100/16*.36 */;
