@@ -161,6 +161,8 @@ export default {
 .content-filter {
   .filter-line {
     display: flex;
+    align-items: center;
+    justify-content: flex-end;
     .filter-icon {
       display: flex;
       justify-content: center;
