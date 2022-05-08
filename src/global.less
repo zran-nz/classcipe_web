@@ -373,16 +373,6 @@ ol {
     border-radius: 2px;
   }
 
-  .my-form-input {
-    border-radius: 2px;
-    padding: 10px;
-    height: 35px;
-    font-size: 14px;
-    font-family: Inter-Bold;
-    line-height: 24px;
-    color: #000000;
-  }
-
   .my-big-select {
     .ant-select-lg {
       background: rgba(245, 245, 245, 0.5);
@@ -901,23 +891,6 @@ button.wide-action-button.ant-btn {
   max-width: 300px;
 }
 
-.form-block {
-  label {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
-    color: #666;
-    .anticon {
-      cursor: pointer;
-    }
-  }
-
-  .ant-form-item {
-    margin-bottom: 10px;
-  }
-}
-
 .url-error-input {
   .ant-input:focus {
     border-color: #ff4d4f;
@@ -1033,4 +1006,91 @@ button.wide-action-button.ant-btn {
 
 .form-content {
   height: calc(100vh - 155px);
+}
+
+.cc-form-input {
+  font-size: 14px;
+  font-family: Arial;
+  line-height: 24px;
+  color: #5E6064;
+  border-color: #EEF1F6;
+  border-width: 2px !important;
+  border-radius: 6px;
+  transition: all 0.3s ease-in-out;
+  box-sizing: border-box;
+
+  &:focus {
+    box-shadow: none;
+  }
+
+  &::placeholder {
+    font-family: Arial;
+    font-weight: 400;
+    color: #44464F;
+    font-size: 13px;
+  }
+}
+
+.cc-form-textarea, .cc-form-input {
+  textarea {
+    font-size: 14px;
+    font-family: Arial;
+    line-height: 24px;
+    color: #5E6064;
+    border-color: #EEF1F6;
+    border-width: 2px !important;
+    border-radius: 6px;
+    transition: all 0.3s ease-in-out;
+    box-sizing: border-box;
+
+    &:focus {
+      box-shadow: none;
+    }
+
+    &::placeholder {
+      font-family: Arial;
+      font-weight: 400;
+      color: #44464F;
+      font-size: 13px;
+    }
+  }
+}
+
+textarea.cc-form-textarea {
+  font-size: 14px;
+  font-family: Arial;
+  line-height: 24px;
+  color: #5E6064;
+  border-color: #EEF1F6;
+  border-width: 2px !important;
+  border-radius: 6px;
+  transition: all 0.3s ease-in-out;
+  box-sizing: border-box;
+
+  &:focus {
+    box-shadow: none;
+  }
+
+  &::placeholder {
+    font-family: Arial;
+    font-weight: 400;
+    color: #44464F;
+    font-size: 13px;
+  }
+}
+
+.cc-select {
+  min-width: 150px;
+  width: 100%;
+
+  .ant-select-selection {
+    background: #FAFAFA;
+    border-radius: 6px;
+    border: 1px solid #D9DCDF;
+  }
+
+  .ant-select-selection__placeholder {
+    font-weight: 400;
+    color: #131824;
+  }
 }

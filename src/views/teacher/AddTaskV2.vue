@@ -4233,11 +4233,6 @@ export default {
               display: block;
             }
           }
-
-          /deep/ .ant-form-item label {
-            font-weight: 500;
-            font-family: Inter-Bold;
-          }
         }
       }
     }
