@@ -215,7 +215,7 @@
                       <div class='scenario-description'>
                         <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteSdg(sdgIndex)" cancel-text="No" v-show='form.scenarios.length > 1'>
                           <span class="delete-action" >
-                            <delete-icon />
+                            <a-icon :style="{ fontSize: '14px', color: 'red' }" type='delete' />
                           </span>
                         </a-popconfirm>
                         <!--sdg-->
@@ -298,20 +298,20 @@
                     :field-name='planField.Question'
                     @switch='handleSwitchComment' />
                   <custom-form-item class='unit-question'>
-                    <span slot='label'>
+                    <template slot='label'>
                       <a-tooltip title='Set key question/Line of inquiry'>
                         <a-icon
                           style='color: #15c39a;cursor: pointer;font-size: 18px'
                           type='exclamation-circle'
                           @click='questionSettingVisible=true' />
                       </a-tooltip>
-                      {{ 'Key question(s) / Line(s) of inquiry' | unitLabelName(planField.Question, $store.getters.formConfigData) }}
-                      <template v-if='unitLabelHint(planField.Question, $store.getters.formConfigData)'>
-                        <a-tooltip :title="'Key question(s) / Line(s) of inquiry' | unitLabelHint(planField.Question, $store.getters.formConfigData)" placement='top'>
-                          <a-icon type="info-circle" />
-                        </a-tooltip>
-                      </template>
-                    </span>
+                      &nbsp;{{ 'Key question(s) / Line(s) of inquiry' | unitLabelName(planField.Question, $store.getters.formConfigData) }}
+                    </template>
+                    <template v-if='unitLabelHint(planField.Question, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="'Key question(s) / Line(s) of inquiry' | unitLabelHint(planField.Question, $store.getters.formConfigData)" placement='top'>
+                        <a-icon type="info-circle" />
+                      </a-tooltip>
+                    </template>
                     <div v-if='!$store.getters.userInfo.disableQuestion' style='position: relative'>
                       <div class='question-more'>
                         <a-button type='link' @click='questionMoreVisible=true'>more</a-button>
@@ -336,7 +336,7 @@
                           </ul>
                         </div>
                       </div>
-                      <div v-for='(question, index) in form.questions' :key='index' >
+                      <div v-for='(question, index) in form.questions' :key='index' class='question-item'>
                         <a-textarea
                           v-model='question.name'
                           :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-nth-key-question') : $t('teacher.add-unit-plan.expert-nth-key-question')"
@@ -348,7 +348,7 @@
                           v-if='form.questions.length > 1'
                           class='delete-icon'
                           @click='handleRemoveQuestion(index)'>
-                          <a-icon :style="{ fontSize: '20px' }" type='delete' />
+                          <a-icon :style="{ fontSize: '14px', color: 'red' }" type='delete' />
                         </div>
                       </div>
                     </div>
@@ -3403,5 +3403,9 @@ svg.add-input {
     height: 100%;
     overflow-y: scroll;
   }
+}
+
+.question-item {
+  margin-bottom: 10px;
 }
 </style>
