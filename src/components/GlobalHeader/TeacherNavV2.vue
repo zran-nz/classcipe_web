@@ -28,7 +28,7 @@
           </template>
         </sidebar-menu-item>
 
-        <sidebar-menu-list label='Classes' path-prefix='' :menu-list="['TestClass1', 'TestClass2']">
+        <sidebar-menu-list label='Classes' path-prefix='' :menu-list="classList">
           <template v-slot:icon>
             <class-icon />
           </template>
@@ -159,6 +159,7 @@ export default {
       info: state => state.user.info,
       currentSchool: state => state.user.currentSchool,
       userMode: state => state.app.userMode,
+      classList: state => state.user.classList,
 
       // 动态主路由
       mainMenu: state => state.permission.addRouters,

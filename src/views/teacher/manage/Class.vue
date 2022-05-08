@@ -294,8 +294,10 @@ export default {
       this.loadData()
       this.getGradeList()
       this.getSubjectList()
-      this.getTeacherList()
-      this.getStudentList()
+      if (this.userMode === USER_MODE.SCHOOL) {
+        this.getTeacherList()
+        this.getStudentList()
+      }
     },
     async loadData() {
       this.loading = true

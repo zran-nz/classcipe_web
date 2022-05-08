@@ -1,22 +1,22 @@
 import storage from 'store'
-import { login, getInfo, logout, changeRole, signUp } from '@/api/login'
-import { SchoolClassGetMyClasses } from '@/api/schoolClass'
+import { changeRole, getInfo, login, logout, signUp } from '@/api/login'
 import { StudentClasses } from '@/api/selfStudy'
 import {
   ACCESS_TOKEN,
+  ADD_PREFERENCE_SKIP_TIME,
   CURRENT_ROLE,
   IS_ADD_PREFERENCE,
-  USER_INFO,
-  ADD_PREFERENCE_SKIP_TIME,
   SET_CLASS_LIST,
   SET_CURRENT_SCHOOL,
-  TOOGLE_USER_MODE
+  TOOGLE_USER_MODE,
+  USER_INFO
 } from '@/store/mutation-types'
-import { welcome, setCookie, delCookie } from '@/utils/util'
+import { delCookie, setCookie, welcome } from '@/utils/util'
 import * as logger from '@/utils/logger'
 import { SESSION_ACTIVE_KEY, USER_MODE } from '@/const/common'
 import { teacher } from '@/const/role'
 import { getAllSubjectsByCurriculumId } from '@/api/preference'
+import { myClassesList } from '@/api/v2/classes'
 
 const user = {
   state: {
@@ -291,7 +291,7 @@ const user = {
 
     // get all class list
     GetClassList({ commit, state }, userMode = USER_MODE.SELF) {
-      const remotePromise = state.currentRole === 'student' ? StudentClasses : SchoolClassGetMyClasses
+      const remotePromise = state.currentRole === 'student' ? StudentClasses : myClassesList
       return new Promise((resolve, reject) => {
         remotePromise().then((response) => {
           if (response.success) {

@@ -299,6 +299,13 @@ export const asyncRouterMap = [
             },
             component: () => import('@/views/teacher/schedule/ScheduleSession'),
             meta: { title: 'Schedule', keepAlive: true, permission: ['teacher'] }
+          },
+          {
+            path: '/teacher/class-session/:classId?',
+            name: 'ClassSession',
+            props: true,
+            component: () => import('@/views/teacher/ClassSession'),
+            meta: { title: 'Class', keepAlive: true, permission: ['teacher'] }
           }
         ]
       },

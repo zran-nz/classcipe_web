@@ -14,12 +14,12 @@
     </div>
     <div class='sub-menu-list' v-if='expand && !$store.getters.collapsed'>
       <template v-if='menuList.length'>
-        <div class='sub-menu-item' v-for='menu in menuList' :key='menu'>
+        <div class='sub-menu-item' v-for='menu in menuList' :key='menu.id' @click='handleClickMenu(menu)'>
           <div class='sub-menu-icon'>
             <student-icon />
           </div>
           <div class='sub-menu-label'>
-            {{ menu }}
+            {{ menu.name }}
           </div>
         </div>
       </template>
@@ -63,6 +63,11 @@ export default {
     handleExpandMenuList () {
       this.$logger.info('handleExpandMenuList')
       this.expand = !this.expand
+    },
+    handleClickMenu (item) {
+      this.$logger.info('handleClickMenu', item)
+      // this.onClick(this.label, this.path)
+      this.$router.push({ path: '/teacher/class-session/' + item.id })
     }
   }
 }
