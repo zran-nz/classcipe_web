@@ -16,24 +16,24 @@
             {{ content.userRealName || content.content.createBy }}
           </div> -->
         </div>
-        <div class='right-info'>
+        <div class='right-info' v-if="content.sessionStartTime">
           <div class='update-time'>
             Sched: {{ content.sessionStartTime }}
           </div>
         </div>
       </div>
-      <div class="detail-price">
-        <div class="tag-info" v-show="content.content.customTags && content.content.customTags.length > 0">
-          <div class="tag-item" :key="tag.id" v-for="tag in content.content.customTags.slice(0, 2)">
+      <div class="detail-price" ref="detailPrice">
+        <div class="tag-info" ref="tagInfo" v-show="content.content.customTags && content.content.customTags.length > 0">
+          <div class="tag-item" :key="tag.id" v-for="tag in content.content.customTags.slice(0, showTagLen)">
             <a-tooltip :title="tag.name">
               {{ tag.name }}
             </a-tooltip>
           </div>
-          <div class="tag-item" v-if="content.content.customTags.length > 2">
+          <div class="tag-item" v-if="content.content.customTags.length > showTagLen">
             <a-popover :overlayStyle="{ width: '310px' }" overlayClassName="tag-info-tip">
               <template slot="content">
-                <a-space class="tag-info">
-                  <a-tag color="#FFDF9B" class="tag-item" :key="tag.id" v-for="tag in content.content.customTags.slice(2)">
+                <a-space class="tag-tip">
+                  <a-tag color="#FFDF9B" class="tag-item" :key="tag.id" v-for="tag in content.content.customTags.slice(showTagLen)">
                     <a-tooltip :title="tag.name">
                       {{ tag.name }}
                     </a-tooltip>
@@ -44,7 +44,9 @@
             </a-popover>
           </div>
         </div>
-        <price-slider :priceList="content.priceList" :current="content.registeredNum" />
+        <template v-if="this.content.priceList && this.content.priceList.length > 0">
+          <price-slider :priceList="content.priceList" :current="content.registeredNum" />
+        </template>
       </div>
       <div class='action'>
         <div class="author-name">
@@ -149,7 +151,8 @@ export default {
       WORK_SHOPS_STATUS: WORK_SHOPS_STATUS,
       WORK_SHOPS_TYPE: WORK_SHOPS_TYPE,
       shareVisible: false,
-      shareItem: {}
+      shareItem: {},
+      showTagLen: 2
     }
   },
   computed: {
@@ -157,6 +160,22 @@ export default {
       userMode: state => state.app.userMode,
       currentSchool: state => state.user.currentSchool
     })
+  },
+  mounted() {
+    const tagInfoEl = this.$refs.tagInfo
+    const items = this.$refs.tagInfo.getElementsByClassName('tag-item')
+    if (!this.content.priceList || this.content.priceList.length === 0) {
+      tagInfoEl.style.width = this.$refs.detailPrice.getBoundingClientRect().width + 'px'
+    }
+    if (items.length > 0) {
+      const itemWidth = items[0].getBoundingClientRect().width + 5
+      this.showTagLen = parseInt(tagInfoEl.getBoundingClientRect().width / itemWidth)
+      // if (this.showTagLen >= items.length) {
+      //   items.forEach(item => {
+      //     item.style.width = 'auto'
+      //   })
+      // }
+    }
   },
   methods: {
     editItem (item) {
@@ -206,7 +225,7 @@ export default {
       this.shareVisible = false
     },
     handleGoWork(item) {
-      if (item && item.session && item.session.classId) {
+      if (item && item.session && item.session.classId && [WORK_SHOPS_TYPE.LUNCHEDBYME.value, WORK_SHOPS_TYPE.REGISTERED.value].includes(item.workshopsType)) {
         const targetUrl = lessonHost + 's/' + item.session.classId + '?token=' + storage.get(ACCESS_TOKEN)
         window.location.href = targetUrl
       }
@@ -259,7 +278,7 @@ export default {
 <style lang="less" scoped>
 @import "~@/components/index.less";
 .tag-info-tip {
-  .tag-info {
+  .tag-tip {
     display: flex;
     flex-wrap: wrap;
     .tag-item {
