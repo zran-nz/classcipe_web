@@ -6,8 +6,8 @@
       :max="max"
       v-model="currentVal"
       :disabled="disabled" />
-    <div class="slider-label">
-      <div class="slider-label-item" :style="{left: item.left, width: item.width}" v-for="(item, index) in lines" :key="'line_' + index">{{ item.label }}</div>
+    <div class="slider-label" ref="sliderLabel">
+      <div :class="{ 'slider-label-item': true, current: item.isCurrent}" :style="{left: item.left, width: item.width}" v-for="(item, index) in lines" :key="'line_' + index">{{ item.label }}</div>
     </div>
   </div>
 </template>
@@ -120,7 +120,8 @@ export default {
         result.push({
           left: `calc(${left} - 25px)`,
           width: 'auto',
-          label: this.currentVal + this.PREFIXS
+          label: this.currentVal + this.PREFIXS,
+          isCurrent: true
         })
       }
       return result

@@ -193,9 +193,9 @@ export default {
     }
     if (items.length > 0) {
       const itemWidth = items[0].getBoundingClientRect().width + 5
-      const showTagLen = parseInt(tagInfoEl.getBoundingClientRect().width / itemWidth)
+      const showTagLen = parseInt(tagInfoEl.getBoundingClientRect().width / itemWidth) - 1
       if (total - showTagLen > 1) {
-        this.showTagLen = showTagLen - 1
+        // this.showTagLen = showTagLen - 1
       } else {
         this.showTagLen = total
       }
@@ -544,6 +544,9 @@ export default {
         width:2.25em /* 100/16*.36 */;
         height:2.25em /* 100/16*.36 */;
         line-height:2.25em /* 100/16*.36 */;
+        &.current {
+          top: -2em;
+        }
       }
     }
     .ant-slider {
@@ -563,7 +566,7 @@ export default {
       }
       .ant-slider-mark {
         top:2em;
-        font-size: 0.16em /* 14/100 */;
+        font-size: 0.15em /* 14/100 */;
       }
     }
   }
