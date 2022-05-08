@@ -1,5 +1,5 @@
 <template>
-  <div class='link-text' :style="{'font-size': size + 'px', 'line-height': size + 'px'}" @click='handleClick'>
+  <div class='link-text' :style="{'font-size': size + 'px', 'line-height': size + 'px', color: color}" @click='handleClick'>
     {{ text }}
   </div>
 </template>
@@ -11,6 +11,10 @@ export default {
     text: {
       type: String,
       default: null
+    },
+    color: {
+      type: String,
+      default: '#007A8E'
     },
     size: {
       type: Number,
