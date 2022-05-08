@@ -96,12 +96,6 @@ import { findClassSessionsV2 } from '@/api/v2/classes'
 
 export default {
   name: 'ClassSession',
-  props: {
-    classId: {
-      type: String,
-      default: null
-    }
-  },
   components: {
     ContentItem,
     ContentFilter,
@@ -110,15 +104,19 @@ export default {
     NoMoreResources,
     ContentSelect
   },
+  watch: {
+    $route(to, from) {
+        this.loadMyContent()
+    }
+  },
   data () {
     return {
       typeMap: typeMap,
       WORK_SHOPS_STATUS: WORK_SHOPS_STATUS,
       WORK_SHOPS_TYPE: WORK_SHOPS_TYPE,
       WORK_SHOPS_TYPE_VALUES: Object.values(WORK_SHOPS_TYPE),
-
       queryParams: {
-        classId: this.classId,
+        classId: '',
         status: '',
         searchKey: ''
       },
@@ -194,6 +192,7 @@ export default {
     },
     loadMyContent () {
       this.loading = true
+      this.queryParams.classId = this.$route.params.classId
       let params = {
         ...this.queryParams,
         pageNo: this.pageNo,
