@@ -1,6 +1,6 @@
 <template>
   <div class='cc-custom-form-item'>
-    <div class='label'>
+    <div class='label' v-if='showLabel'>
       <div class='label-left'>
         <slot name='label'></slot>
         <div class='tips'>
@@ -20,6 +20,12 @@
 <script>
 export default {
   name: 'CustomFormItem',
+  props: {
+    showLabel: {
+      type: Boolean,
+      default: true
+    }
+  },
   data() {
     return {}
   },
@@ -70,6 +76,8 @@ export default {
       flex-wrap: nowrap;
       align-items: center;
       justify-content: flex-end;
+      color: #007A8E;
+      fill: #007A8E;
     }
   }
 

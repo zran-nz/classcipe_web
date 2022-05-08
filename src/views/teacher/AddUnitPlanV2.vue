@@ -27,15 +27,19 @@
               <template v-if='step.commonFields.indexOf(fieldItem.fieldName) !== -1'>
                 <div class='form-block tag-content-block' :data-field-name='planField.Name' v-if='fieldItem.visible && fieldItem.fieldName === planField.Name' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Name />
-                  <comment-switch
-                    v-show="canEdit"
-                    :is-active="currentFieldName === planField.Name"
-                    :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Name}"
-                    :field-name='planField.Name'
-                    @switch='handleSwitchComment'/>
                   <custom-form-item>
                     <template slot='label'>
                       {{ 'Unit Name' | unitLabelName(planField.Name, $store.getters.formConfigData) }}
+                    </template>
+                    <template slot='action'>
+                      <a-space>
+                        <comment-switch
+                          v-show="canEdit"
+                          :is-active="currentFieldName === planField.Name"
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Name}"
+                          :field-name='planField.Name'
+                          @switch='handleSwitchComment'/>
+                      </a-space>
                     </template>
                     <template v-if='unitLabelHint(planField.Name, $store.getters.formConfigData)' slot='tips'>
                       <a-tooltip :title="'Unit Name' | unitLabelHint(planField.Name, $store.getters.formConfigData)" placement='top'>
@@ -48,15 +52,19 @@
 
                 <div class='form-block tag-content-block' :data-field-name='planField.Overview' id='overview' v-if='fieldItem.visible && fieldItem.fieldName === planField.Overview' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Overview />
-                  <comment-switch
-                    v-show="canEdit"
-                    :field-name='planField.Overview'
-                    :is-active="currentFieldName === planField.Overview"
-                    @switch='handleSwitchComment'
-                    :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Overview}" />
                   <custom-form-item ref='overview'>
                     <template slot='label'>
                       {{ 'Overview' | unitLabelName(planField.Overview, $store.getters.formConfigData) }}
+                    </template>
+                    <template slot='action'>
+                      <a-space>
+                        <comment-switch
+                          v-show="canEdit"
+                          :field-name='planField.Overview'
+                          :is-active="currentFieldName === planField.Overview"
+                          @switch='handleSwitchComment'
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Overview}" />
+                      </a-space>
                     </template>
                     <template v-if='unitLabelHint(planField.Overview, $store.getters.formConfigData)' slot='tips'>
                       <a-tooltip :title="'Overview' | unitLabelHint(planField.Overview, $store.getters.formConfigData)" placement='top'>
@@ -76,16 +84,20 @@
 
                 <div class='form-block form-radio-wrapper tag-content-block' :data-field-name='planField.ProjectBased' v-if='fieldItem.visible && fieldItem.fieldName === planField.ProjectBased' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.ProjectBased style="top:-30px" />
-                  <comment-switch
-                    v-show="canEdit"
-                    :field-name='planField.ProjectBased'
-                    :is-active="currentFieldName === planField.ProjectBased"
-                    @switch='handleSwitchComment'
-                    :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.ProjectBased}"
-                  />
                   <custom-form-item>
                     <template slot='label'>
                       {{ 'Project-based Unit' | unitLabelName(planField.ProjectBased, $store.getters.formConfigData) }}
+                    </template>
+                    <template slot='action'>
+                      <a-space>
+                        <comment-switch
+                          v-show="canEdit"
+                          :field-name='planField.ProjectBased'
+                          :is-active="currentFieldName === planField.ProjectBased"
+                          @switch='handleSwitchComment'
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.ProjectBased}"
+                        />
+                      </a-space>
                     </template>
                     <template v-if='unitLabelHint(planField.ProjectBased, $store.getters.formConfigData)' slot='tips'>
                       <a-tooltip :title="'Project-based Unit' | unitLabelHint(planField.ProjectBased, $store.getters.formConfigData)" placement='top'>
@@ -102,15 +114,19 @@
 
                 <div class='form-block form-radio-wrapper tag-content-block' :data-field-name='planField.UnitType' v-if='fieldItem.visible && fieldItem.fieldName === planField.UnitType' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.UnitType style="top:-30px"/>
-                  <comment-switch
-                    v-show="canEdit"
-                    :field-name='planField.UnitType'
-                    :is-active="currentFieldName === planField.UnitType"
-                    @switch='handleSwitchComment'
-                    :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.UnitType}" />
                   <custom-form-item>
                     <template slot='label'>
                       {{ 'Unit type' | unitLabelName(planField.UnitType, $store.getters.formConfigData) }}
+                    </template>
+                    <template slot='action'>
+                      <a-space>
+                        <comment-switch
+                          v-show="canEdit"
+                          :field-name='planField.UnitType'
+                          :is-active="currentFieldName === planField.UnitType"
+                          @switch='handleSwitchComment'
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.UnitType}" />
+                      </a-space>
                     </template>
                     <template v-if='unitLabelName(planField.UnitType, $store.getters.formConfigData)' slot='tips'>
                       <a-tooltip :title="'Unit type' | unitLabelHint(planField.UnitType, $store.getters.formConfigData)" placement='top'>
@@ -127,15 +143,19 @@
 
                 <div class='form-block grade-time tag-content-block' :data-field-name='planField.GradeId' v-if="fieldItem.visible && fieldItem.fieldName === planField.GradeId" :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.StartDate />
-                  <comment-switch
-                    v-show="canEdit"
-                    :field-name='planField.StartDate'
-                    :is-active="currentFieldName === planField.StartDate"
-                    @switch='handleSwitchComment'
-                    :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.StartDate}" />
                   <custom-form-item style='width:23%;margin-bottom: 0px;'>
                     <template slot='label'>
                       {{ 'Grade level' | unitLabelName(planField.GradeId, $store.getters.formConfigData) }}
+                    </template>
+                    <template slot='action'>
+                      <a-space>
+                        <comment-switch
+                          v-show="canEdit"
+                          :field-name='planField.StartDate'
+                          :is-active="currentFieldName === planField.StartDate"
+                          @switch='handleSwitchComment'
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.StartDate}" />
+                      </a-space>
                     </template>
                     <template v-if='unitLabelHint(planField.GradeId, $store.getters.formConfigData)' slot='tips'>
                       <a-tooltip :title="'Grade level' | unitLabelHint(planField.GradeId, $store.getters.formConfigData)" placement='top'>
@@ -157,15 +177,19 @@
 
                 <div id='inquiry' class='form-block tag-content-block' :data-field-name='planField.Inquiry' v-if="fieldItem.visible && fieldItem.fieldName === planField.Inquiry" :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :field-name='planField.Inquiry'/>
-                  <comment-switch
-                    v-show="canEdit"
-                    :is-active="currentFieldName === planField.Inquiry"
-                    :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Inquiry}"
-                    :field-name='planField.Inquiry'
-                    @switch='handleSwitchComment' />
                   <custom-form-item>
                     <template slot='label'>
                       {{ 'Big Idea/ Statement of Inquiry/ Central Idea' | unitLabelName(planField.Inquiry, $store.getters.formConfigData) }}
+                    </template>
+                    <template slot='action'>
+                      <a-space>
+                        <comment-switch
+                          v-show="canEdit"
+                          :is-active="currentFieldName === planField.Inquiry"
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Inquiry}"
+                          :field-name='planField.Inquiry'
+                          @switch='handleSwitchComment' />
+                      </a-space>
                     </template>
                     <template v-if='unitLabelHint(planField.Inquiry, $store.getters.formConfigData)' slot='tips'>
                       <a-tooltip :title="'Big Idea/ Statement of Inquiry/ Central Idea' | unitLabelHint(planField.Inquiry, $store.getters.formConfigData)" placement='top'>
@@ -189,16 +213,21 @@
 
                 <div class='form-block tag-content-block' :data-field-name='planField.Scenarios' v-if="fieldItem.visible && fieldItem.fieldName === planField.Scenarios" :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Sdg />
-                  <comment-switch
-                    v-show="canEdit"
-                    :is-active="currentFieldName === planField.Sdg"
-                    :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Sdg}"
-                    :field-name='planField.Sdg'
-                    @switch='handleSwitchComment' />
                   <a-divider>Teaching goals</a-divider>
                   <custom-form-item>
                     <template slot='label'>
                       {{ 'UN Sustainable Development Goal(s)' | unitLabelName(planField.Scenarios, $store.getters.formConfigData) }}
+                    </template>
+                    <template slot='action'>
+                      <a-space>
+                        <comment-switch
+                          v-show="canEdit"
+                          :is-active="currentFieldName === planField.Sdg"
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Sdg}"
+                          :field-name='planField.Sdg'
+                          @switch='handleSwitchComment' />
+                        <plus-icon @click='handleAddMoreSdg'/>
+                      </a-space>
                     </template>
                     <template v-if='unitLabelHint(planField.Scenarios, $store.getters.formConfigData)' slot='tips'>
                       <a-tooltip :title="'UN Sustainable Development Goal(s)' | unitLabelHint(planField.Scenarios, $store.getters.formConfigData)" placement='top'>
@@ -219,7 +248,7 @@
                           </span>
                         </a-popconfirm>
                         <!--sdg-->
-                        <custom-form-item>
+                        <custom-form-item :show-label='false'>
                           <a-select
                             :getPopupContainer="trigger => trigger.parentElement"
                             v-model='scenario.sdgId'
@@ -237,7 +266,7 @@
                           </a-select>
                         </custom-form-item>
 
-                        <custom-form-item>
+                        <custom-form-item :show-label='false'>
                           <input-search
                             class='cc-form-input'
                             ref='descriptionInputSearch'
@@ -255,7 +284,6 @@
                         </custom-form-item>
                       </div>
                     </div>
-                    <add-green-icon class='add-input input-icon' @click='handleAddMoreSdg'/>
                   </custom-form-item>
                 </div>
 
@@ -290,22 +318,30 @@
                   v-if="fieldItem.visible && fieldItem.fieldName === planField.Question"
                   :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Question />
-                  <comment-switch
-                    v-show="canEdit"
-                    v-if='!$store.getters.userInfo.disableQuestion'
-                    :is-active="currentFieldName === planField.Question"
-                    :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Question}"
-                    :field-name='planField.Question'
-                    @switch='handleSwitchComment' />
                   <custom-form-item class='unit-question'>
                     <template slot='label'>
-                      <a-tooltip title='Set key question/Line of inquiry'>
-                        <a-icon
-                          style='color: #15c39a;cursor: pointer;font-size: 18px'
-                          type='exclamation-circle'
-                          @click='questionSettingVisible=true' />
-                      </a-tooltip>
-                      &nbsp;{{ 'Key question(s) / Line(s) of inquiry' | unitLabelName(planField.Question, $store.getters.formConfigData) }}
+                      <a-space>
+                        <a-tooltip title='Set key question/Line of inquiry'>
+                          <a-icon
+                            style='color: #15c39a;cursor: pointer;font-size: 18px'
+                            type='exclamation-circle'
+                            @click='questionSettingVisible=true' />
+                        </a-tooltip>
+                        {{ 'Key question(s) / Line(s) of inquiry' | unitLabelName(planField.Question, $store.getters.formConfigData) }}
+                      </a-space>
+                    </template>
+                    <template slot='action'>
+                      <a-space>
+                        <plus-icon @click='handleAddMoreQuestion' v-if='!$store.getters.userInfo.disableQuestion'/>
+                        <comment-switch
+                          v-show="canEdit"
+                          v-if='!$store.getters.userInfo.disableQuestion'
+                          :is-active="currentFieldName === planField.Question"
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Question}"
+                          :field-name='planField.Question'
+                          @switch='handleSwitchComment' />
+                        <custom-link-text text='more' :size='13' @click='questionMoreVisible=true'></custom-link-text>
+                      </a-space>
                     </template>
                     <template v-if='unitLabelHint(planField.Question, $store.getters.formConfigData)' slot='tips'>
                       <a-tooltip :title="'Key question(s) / Line(s) of inquiry' | unitLabelHint(planField.Question, $store.getters.formConfigData)" placement='top'>
@@ -313,9 +349,6 @@
                       </a-tooltip>
                     </template>
                     <div v-if='!$store.getters.userInfo.disableQuestion' style='position: relative'>
-                      <div class='question-more'>
-                        <a-button type='link' @click='questionMoreVisible=true'>more</a-button>
-                      </div>
                       <div v-if='showRecommendQuestion' class='recommend-question'>
                         <a-icon class='close-icon' type='close' @click.stop='hideRecommendQuestion=true' />
                         <div class='recommend-box'>
@@ -353,20 +386,23 @@
                       </div>
                     </div>
                   </custom-form-item>
-                  <add-green-icon class='add-input input-icon' @click='handleAddMoreQuestion' v-if='!$store.getters.userInfo.disableQuestion'/>
                 </div>
 
                 <div class='form-block tag-content-block' :data-field-name='planField.LearnOuts' v-if="fieldItem.visible && fieldItem.fieldName === planField.LearnOuts" :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Assessment style="left:100px" />
-                  <comment-switch
-                    v-show="canEdit"
-                    :is-active="currentFieldName === planField.Assessment"
-                    :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Assessment}"
-                    :field-name='planField.Assessment'
-                    @switch='handleSwitchComment' />
                   <custom-form-item>
                     <template slot='label'>
                       {{ 'Set learning objectives' | unitLabelName(planField.LearnOuts, $store.getters.formConfigData) }}
+                    </template>
+                    <template slot='action'>
+                      <a-space>
+                        <comment-switch
+                          v-show="canEdit"
+                          :is-active="currentFieldName === planField.Assessment"
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Assessment}"
+                          :field-name='planField.Assessment'
+                          @switch='handleSwitchComment' />
+                      </a-space>
                     </template>
                     <template v-if='unitLabelHint(planField.LearnOuts, $store.getters.formConfigData)' slot='tips'>
                       <a-tooltip :title="'Set learning objectives' | unitLabelHint(planField.LearnOuts, $store.getters.formConfigData)" placement='top'>
@@ -405,15 +441,19 @@
 
                 <div class='form-block tag-content-block' :data-field-name='planField.Prior' style='clear:both' v-if="fieldItem.visible && fieldItem.fieldName === planField.Prior" :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Prior />
-                  <comment-switch
-                    v-show="canEdit"
-                    :is-active="currentFieldName === planField.Prior"
-                    :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Prior}"
-                    :field-name='planField.Prior'
-                    @switch='handleSwitchComment' />
                   <custom-form-item>
                     <template slot='label'>
                       {{ 'Prior learning experience' | unitLabelName(planField.Prior, $store.getters.formConfigData) }}
+                    </template>
+                    <template slot='action'>
+                      <a-space>
+                        <comment-switch
+                          v-show="canEdit"
+                          :is-active="currentFieldName === planField.Prior"
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Prior}"
+                          :field-name='planField.Prior'
+                          @switch='handleSwitchComment' />
+                      </a-space>
                     </template>
                     <template v-if='unitLabelHint(planField.Prior, $store.getters.formConfigData)' slot='tips'>
                       <a-tooltip :title="'Prior learning experience' | unitLabelHint(planField.Prior, $store.getters.formConfigData)" placement='top'>
@@ -911,10 +951,14 @@ import FixedFormFooter from '@/components/Common/FixedFormFooter'
 import CustomFormItem from '@/components/Common/CustomFormItem'
 import CustomRadioButtonGroup from '@/components/Common/CustomRadioButtonGroup'
 import DeleteIcon from '@/components/Common/DeleteIcon'
+import PlusIcon from '@/components/Common/PlusIcon'
+import CustomLinkText from '@/components/Common/CustomLinkText'
 
 export default {
   name: 'AddUnitPlan',
   components: {
+    CustomLinkText,
+    PlusIcon,
     DeleteIcon,
     CustomRadioButtonGroup,
     CustomFormItem,
@@ -1075,7 +1119,6 @@ export default {
       defaultActiveMenu: NavigationType.learningOutcomes,
       showMenuList: [NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType, NavigationType.idu],
 
-      collaborateTop: 0,
       questionSettingVisible: false,
       disableQuestion: false,
       confirmLoading: false,
@@ -2379,9 +2422,6 @@ export default {
         list.push(item)
       })
       this.collaborateCommentList = list
-      this.collaborateTop = data.top
-      // this.showCollaborateCommentVisible = true
-      // this.$logger.info('currentCollaborateCommentList', this.currentCollaborateCommentList)
     },
 
     // 每次点击都重新加载一下最新数据
@@ -3163,13 +3203,6 @@ export default {
   position: relative;
 }
 
-.my-comment-switch {
-  display: none;
-  position: absolute;
-  right: -10px;
-  top: -5px;
-  z-index: 200;
-}
 .my-comment-show {
   display: block;
 }
@@ -3244,14 +3277,6 @@ export default {
       color: #15c39a;
     }
   }
-}
-
-.question-more {
-  top: -43px;
-  right: 20px;
-  position: absolute;
-  cursor: pointer;
-  color: @primary-color;
 }
 
 /deep/ .ant-breadcrumb > span:last-child {
@@ -3331,12 +3356,6 @@ code {
   }
 }
 
-svg.add-input {
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-}
-
 /deep/ .ant-steps-item-content {
   overflow: visible;
   margin-left: 50px;
@@ -3380,20 +3399,6 @@ svg.add-input {
     height: 100%;
     overflow-y: auto;
     background-color: #fff;
-
-    .form-page-item {
-      .form-field-item {
-        .form-block {
-          position: relative;
-
-          &:hover {
-            .my-comment-switch {
-              display: block;
-            }
-          }
-        }
-      }
-    }
   }
 
   .tag-body {
