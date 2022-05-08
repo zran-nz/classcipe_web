@@ -16,24 +16,24 @@
             {{ content.userRealName || content.content.createBy }}
           </div> -->
         </div>
-        <div class='right-info'>
+        <div class='right-info' v-if="content.sessionStartTime">
           <div class='update-time'>
             Sched: {{ content.sessionStartTime }}
           </div>
         </div>
       </div>
-      <div class="detail-price">
-        <div class="tag-info" v-show="content.content.customTags && content.content.customTags.length > 0">
-          <div class="tag-item" :key="tag.id" v-for="tag in content.content.customTags.slice(0, 2)">
+      <div class="detail-price" ref="detailPrice">
+        <div class="tag-info" ref="tagInfo" v-show="content.content.customTags && content.content.customTags.length > 0">
+          <div class="tag-item" :key="tag.id" v-for="tag in content.content.customTags.slice(0, showTagLen)">
             <a-tooltip :title="tag.name">
               {{ tag.name }}
             </a-tooltip>
           </div>
-          <div class="tag-item" v-if="content.content.customTags.length > 2">
+          <div class="tag-item" v-if="content.content.customTags.length > showTagLen">
             <a-popover :overlayStyle="{ width: '310px' }" overlayClassName="tag-info-tip">
               <template slot="content">
-                <a-space class="tag-info">
-                  <a-tag color="#FFDF9B" class="tag-item" :key="tag.id" v-for="tag in content.content.customTags.slice(2)">
+                <a-space class="tag-tip">
+                  <a-tag color="#FFDF9B" class="tag-item" :key="tag.id" v-for="tag in content.content.customTags.slice(showTagLen)">
                     <a-tooltip :title="tag.name">
                       {{ tag.name }}
                     </a-tooltip>
@@ -44,7 +44,9 @@
             </a-popover>
           </div>
         </div>
-        <price-slider :priceList="content.priceList" :current="content.registeredNum" />
+        <template v-if="this.content.priceList && this.content.priceList.length > 0">
+          <price-slider :priceList="content.priceList" :current="content.registeredNum" />
+        </template>
       </div>
       <div class='action'>
         <div class="author-name">
@@ -79,31 +81,52 @@
                 />
               </div>
             </template>
-            <a-button type="primary" shape='round'>
-              <!-- <icon-font type="icon-share" class="detail-font"/> -->
+            <!-- <a-button type="primary" shape='round'>
+              <icon-font type="icon-share" class="detail-font"/>
               Share
-            </a-button>
+            </a-button> -->
+            <custom-button label='Share'>
+              <template v-slot:icon>
+                <icon-font type="icon-share" class="detail-font"/>
+              </template>
+            </custom-button>
           </a-tooltip>
           <template v-if="WORK_SHOPS_TYPE.FEATURE.value === content.workshopsType">
-            <a-button type='primary' shape='round' @click='handleRegister(content)'>
-              <!-- <icon-font type="icon-register" class="detail-font"/> -->
-              Register</a-button>
+            <!-- <a-button type='primary' shape='round' @click='handleRegister(content)'>
+              <icon-font type="icon-register" class="detail-font"/>
+              Register</a-button> -->
+            <custom-button label='Register' @click='handleRegister(content)'>
+              <template v-slot:icon>
+                <icon-font type="icon-register" class="detail-font"/>
+              </template>
+            </custom-button>
           </template>
           <template v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType">
-            <a-button v-if="WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus" type='primary' shape='round' @click='handleEdit(content)'>
-              <!-- <icon-font type="icon-edit" class="detail-font"/> -->
-              Edit</a-button>
-            <a-button v-else type='primary' shape='round' @click='handleRelaunch(content)'>
-              <!-- <icon-font type="icon-tizhibianbie-zhongxinceshi" class="detail-font"/> -->
-              Relaunch</a-button>
-            <a-button type='primary' shape='round' @click='handleDel(content)'>
-              <!-- <icon-font type="icon-shanchu" class="detail-font"/> -->
-              Delete</a-button>
+            <!-- <a-button v-if="WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus" type='primary' shape='round' @click='handleEdit(content)'>
+              <icon-font type="icon-edit" class="detail-font"/>
+              Edit</a-button> -->
+            <custom-button label='Edit' v-if="WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus" @click='handleEdit(content)'>
+              <template v-slot:icon>
+                <icon-font type="icon-edit" class="detail-font"/>
+              </template>
+            </custom-button>
+            <custom-button label='Relaunch' v-else @click='handleRelaunch(content)'>
+              <template v-slot:icon>
+                <icon-font type="icon-tizhibianbie-zhongxinceshi" class="detail-font"/>
+              </template>
+            </custom-button>
+            <custom-button label='Delete' @click='handleDel(content)'>
+              <template v-slot:icon>
+                <icon-font type="icon-shanchu" class="detail-font"/>
+              </template>
+            </custom-button>
           </template>
           <template v-if="WORK_SHOPS_TYPE.REGISTERED.value === content.workshopsType">
-            <a-button type='primary' shape='round' @click='handleCancel(content)'>
-              <!-- <icon-font type="icon-cancel" class="detail-font"/> -->
-              Cancel</a-button>
+            <custom-button label='Cancel' @click='handleCancel(content)'>
+              <template v-slot:icon>
+                <icon-font type="icon-cancel" class="detail-font"/>
+              </template>
+            </custom-button>
           </template>
 
         </a-space>
@@ -121,6 +144,7 @@ import { lessonHost } from '@/const/googleSlide'
 import { typeMap } from '@/const/teacher'
 import PriceSlider from '@/components/Slider/PriceSlider'
 import ShareButton from '@/components/Share/ShareButton'
+import CustomButton from '@/components/Common/CustomButton'
 import PreviewContent from '@/components/MyContentV2/PreviewContent'
 
 import { ContentItemMixin } from '@/mixins/ContentItemMixin'
@@ -133,6 +157,7 @@ export default {
   components: {
     PriceSlider,
     ShareButton,
+    CustomButton,
     PreviewContent
   },
   mixins: [ ContentItemMixin ],
@@ -149,7 +174,8 @@ export default {
       WORK_SHOPS_STATUS: WORK_SHOPS_STATUS,
       WORK_SHOPS_TYPE: WORK_SHOPS_TYPE,
       shareVisible: false,
-      shareItem: {}
+      shareItem: {},
+      showTagLen: 2
     }
   },
   computed: {
@@ -157,6 +183,26 @@ export default {
       userMode: state => state.app.userMode,
       currentSchool: state => state.user.currentSchool
     })
+  },
+  mounted() {
+    const tagInfoEl = this.$refs.tagInfo
+    const items = this.$refs.tagInfo.getElementsByClassName('tag-item')
+    const total = this.content.content.customTags ? this.content.content.customTags.length : 0
+    if (!this.content.priceList || this.content.priceList.length === 0) {
+      tagInfoEl.style.width = this.$refs.detailPrice.getBoundingClientRect().width + 'px'
+    }
+    if (items.length > 0) {
+      const itemWidth = items[0].getBoundingClientRect().width + 5
+      const showTagLen = parseInt(tagInfoEl.getBoundingClientRect().width / itemWidth) - 1
+      if (total - showTagLen > 1) {
+        // this.showTagLen = showTagLen - 1
+      } else {
+        this.showTagLen = total
+      }
+    }
+    if (total === 0) {
+      this.$refs.detailPrice.getElementsByClassName('price-slider')[0].style.width = '100%'
+    }
   },
   methods: {
     editItem (item) {
@@ -206,7 +252,7 @@ export default {
       this.shareVisible = false
     },
     handleGoWork(item) {
-      if (item && item.session && item.session.classId) {
+      if (item && item.session && item.session.classId && [WORK_SHOPS_TYPE.LUNCHEDBYME.value, WORK_SHOPS_TYPE.REGISTERED.value].includes(item.workshopsType)) {
         const targetUrl = lessonHost + 's/' + item.session.classId + '?token=' + storage.get(ACCESS_TOKEN)
         window.location.href = targetUrl
       }
@@ -259,7 +305,7 @@ export default {
 <style lang="less" scoped>
 @import "~@/components/index.less";
 .tag-info-tip {
-  .tag-info {
+  .tag-tip {
     display: flex;
     flex-wrap: wrap;
     .tag-item {
@@ -404,6 +450,15 @@ export default {
           font-size: 0.16em /* 16/100 */;
         }
       }
+      .cc-custom-button {
+        padding: 0.1em /* 10/100 */ 0.18em /* 18/100 */;
+        border-radius: 0.4em /* 40/100 */;
+        label {
+          font-size: 0.13em /* 13/100 */;
+          padding: 0 1/0.13*0.06em /* 6/100 */;
+          line-height: 1/0.13*0.16em /* 16/100 */;
+        }
+      }
     }
   }
 }
@@ -449,12 +504,13 @@ export default {
   }
 }
 .detail-price {
-  padding: 0 0.1em /* 10/100 */;
+  // padding: 0 0.1em /* 10/100 */;
   flex-grow: 1;
   display: flex;
   align-items: center;
   .tag-info {
-    width: 3em /* 300/100 */;
+    // width: 3em /* 300/100 */;
+    flex: 1;
     display: flex;
     align-items: center;
     height: .3em;
@@ -477,7 +533,8 @@ export default {
   }
   /deep/ .price-slider {
     margin-top: -0.2em;
-    flex: 1;
+    // flex: 1;
+    width: 5em;
     .slider-label {
       width: calc(100% - 0.125em /* 12.5/100 */);
       left: 0.0175em /* 1.75/100 */;
@@ -487,6 +544,9 @@ export default {
         width:2.25em /* 100/16*.36 */;
         height:2.25em /* 100/16*.36 */;
         line-height:2.25em /* 100/16*.36 */;
+        &.current {
+          top: -2em;
+        }
       }
     }
     .ant-slider {
@@ -506,7 +566,7 @@ export default {
       }
       .ant-slider-mark {
         top:2em;
-        font-size: 0.16em /* 14/100 */;
+        font-size: 0.15em /* 14/100 */;
       }
     }
   }
