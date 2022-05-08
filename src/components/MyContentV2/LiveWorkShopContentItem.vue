@@ -187,17 +187,21 @@ export default {
   mounted() {
     const tagInfoEl = this.$refs.tagInfo
     const items = this.$refs.tagInfo.getElementsByClassName('tag-item')
+    const total = this.content.content.customTags ? this.content.content.customTags.length : 0
     if (!this.content.priceList || this.content.priceList.length === 0) {
       tagInfoEl.style.width = this.$refs.detailPrice.getBoundingClientRect().width + 'px'
     }
     if (items.length > 0) {
       const itemWidth = items[0].getBoundingClientRect().width + 5
-      this.showTagLen = parseInt(tagInfoEl.getBoundingClientRect().width / itemWidth)
-      // if (this.showTagLen >= items.length) {
-      //   items.forEach(item => {
-      //     item.style.width = 'auto'
-      //   })
-      // }
+      const showTagLen = parseInt(tagInfoEl.getBoundingClientRect().width / itemWidth)
+      if (total - showTagLen > 1) {
+        this.showTagLen = showTagLen - 1
+      } else {
+        this.showTagLen = total
+      }
+    }
+    if (total === 0) {
+      this.$refs.detailPrice.getElementsByClassName('price-slider')[0].style.width = '100%'
     }
   },
   methods: {
@@ -505,7 +509,8 @@ export default {
   display: flex;
   align-items: center;
   .tag-info {
-    width: 3em /* 300/100 */;
+    // width: 3em /* 300/100 */;
+    flex: 1;
     display: flex;
     align-items: center;
     height: .3em;
@@ -528,7 +533,8 @@ export default {
   }
   /deep/ .price-slider {
     margin-top: -0.2em;
-    flex: 1;
+    // flex: 1;
+    width: 5em;
     .slider-label {
       width: calc(100% - 0.125em /* 12.5/100 */);
       left: 0.0175em /* 1.75/100 */;
