@@ -1162,7 +1162,7 @@ export default {
 
       publishListVisible: false,
 
-      currentActiveStepIndex: 0,
+      currentActiveStepIndex: this.getSessionStep(),
       currentStep: {
         id: null,
         commonFields: [],
@@ -1282,7 +1282,7 @@ export default {
       token = storage.get(ACCESS_TOKEN)
     }
     await this.$store.dispatch('loadFormConfigData', token)
-    this.currentActiveStepIndex = this.getSessionStep()
+    this.$logger.info('currentActiveStepIndex init ' + this.currentActiveStepIndex)
     this.currentStep = this.$store.getters.formConfigData.planSteps[this.currentActiveStepIndex]
     this.handleDisplayRightModule()
 
@@ -1292,9 +1292,6 @@ export default {
     this.debouncedGetSdgByDescription = debounce(this.searchScenario, 300)
     this.findQuestionsByBigIdea = debounce(this.findQuestionsByBigIdea, 800)
     this.queryContentCollaborates(this.unitPlanId, this.contentType['unit-plan'])
-
-    // 恢复step
-    this.currentActiveStepIndex = this.getSessionStep()
   },
   beforeDestroy() {
     MyContentEventBus.$off(MyContentEvent.ReferContentItem, this.handleReferItem)
