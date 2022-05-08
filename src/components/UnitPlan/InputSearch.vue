@@ -2,10 +2,10 @@
   <div class="input-search">
     <a-textarea
       v-model="value"
-      :auto-size="{ minRows: 1, maxRows: 5 }"
+      :auto-size="{ minRows: 2, maxRows: 6 }"
       @keyup="handleSearch"
       @focus="handleSearch"
-      class="my-form-input"
+      class='cc-form-textarea'
       placeholder="Describe how the Unit matches with the chosen goal by giving real life context"
       :disabled="!canEdit" />
     <a-spin v-if="fetching" slot="notFoundContent" size="small" />
