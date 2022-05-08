@@ -38,7 +38,7 @@ export default {
   height: 110px;
   background-color: #fff;
   box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
-  z-index: 2000;
+  z-index: 900;
 
   .cc-header {
     border-bottom: 1px solid #ECECEC;

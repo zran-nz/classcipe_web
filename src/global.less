@@ -1029,6 +1029,37 @@ button.wide-action-button.ant-btn {
     color: #44464F;
     font-size: 13px;
   }
+
+  .ant-input-group-addon {
+    transition: all 0.3s ease-in-out;
+    box-sizing: border-box;
+    color: #5E6064;
+    border-color: #EEF1F6;
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+    border-width: 2px !important;
+  }
+
+  .ant-input-affix-wrapper {
+    input {
+      border-top-right-radius: 6px;
+      border-bottom-right-radius: 6px;
+      color: #5E6064;
+      border-color: #EEF1F6;
+      border-width: 2px !important;
+
+      &:focus {
+        box-shadow: none;
+      }
+
+      &::placeholder {
+        font-family: Arial;
+        font-weight: 400;
+        color: #44464F;
+        font-size: 13px;
+      }
+    }
+  }
 }
 
 .cc-form-textarea, .cc-form-input {

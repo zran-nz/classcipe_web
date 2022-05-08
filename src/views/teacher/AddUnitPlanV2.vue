@@ -34,7 +34,7 @@
                     :field-name='planField.Name'
                     @switch='handleSwitchComment'/>
                   <custom-form-item>
-                    <template class='my-label' slot='label'>
+                    <template slot='label'>
                       {{ 'Unit Name' | unitLabelName(planField.Name, $store.getters.formConfigData) }}
                     </template>
                     <template v-if='unitLabelHint(planField.Name, $store.getters.formConfigData)' slot='tips'>
@@ -55,7 +55,7 @@
                     @switch='handleSwitchComment'
                     :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Overview}" />
                   <custom-form-item ref='overview'>
-                    <template class='my-label' slot='label'>
+                    <template slot='label'>
                       {{ 'Overview' | unitLabelName(planField.Overview, $store.getters.formConfigData) }}
                     </template>
                     <template v-if='unitLabelHint(planField.Overview, $store.getters.formConfigData)' slot='tips'>
@@ -84,7 +84,7 @@
                     :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.ProjectBased}"
                   />
                   <custom-form-item>
-                    <template class='my-label' slot='label'>
+                    <template slot='label'>
                       {{ 'Project-based Unit' | unitLabelName(planField.ProjectBased, $store.getters.formConfigData) }}
                     </template>
                     <template v-if='unitLabelHint(planField.ProjectBased, $store.getters.formConfigData)' slot='tips'>
@@ -109,7 +109,7 @@
                     @switch='handleSwitchComment'
                     :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.UnitType}" />
                   <custom-form-item>
-                    <template class='my-label' slot='label'>
+                    <template slot='label'>
                       {{ 'Unit type' | unitLabelName(planField.UnitType, $store.getters.formConfigData) }}
                     </template>
                     <template v-if='unitLabelName(planField.UnitType, $store.getters.formConfigData)' slot='tips'>
@@ -134,7 +134,7 @@
                     @switch='handleSwitchComment'
                     :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.StartDate}" />
                   <custom-form-item style='width:23%;margin-bottom: 0px;'>
-                    <template class='my-label' slot='label'>
+                    <template slot='label'>
                       {{ 'Grade level' | unitLabelName(planField.GradeId, $store.getters.formConfigData) }}
                     </template>
                     <template v-if='unitLabelHint(planField.GradeId, $store.getters.formConfigData)' slot='tips'>
@@ -164,7 +164,7 @@
                     :field-name='planField.Inquiry'
                     @switch='handleSwitchComment' />
                   <custom-form-item>
-                    <template class='my-label' slot='label'>
+                    <template slot='label'>
                       {{ 'Big Idea/ Statement of Inquiry/ Central Idea' | unitLabelName(planField.Inquiry, $store.getters.formConfigData) }}
                     </template>
                     <template v-if='unitLabelHint(planField.Inquiry, $store.getters.formConfigData)' slot='tips'>
@@ -197,7 +197,7 @@
                     @switch='handleSwitchComment' />
                   <a-divider>Teaching goals</a-divider>
                   <custom-form-item>
-                    <template class='my-label' slot='label'>
+                    <template slot='label'>
                       {{ 'UN Sustainable Development Goal(s)' | unitLabelName(planField.Scenarios, $store.getters.formConfigData) }}
                     </template>
                     <template v-if='unitLabelHint(planField.Scenarios, $store.getters.formConfigData)' slot='tips'>
@@ -262,7 +262,7 @@
                 <div class='form-block form-block-rwc tag-content-block' :data-field-name='planField.Rwc' v-if="fieldItem.visible && fieldItem.fieldName === planField.Rwc" :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Rwc />
                   <custom-form-item>
-                    <template class='my-label' slot='label'>
+                    <template slot='label'>
                       {{ 'Real World Connection(s)' | unitLabelName(planField.Rwc, $store.getters.formConfigData) }}
                     </template>
                     <template v-if='unitLabelHint(planField.Rwc, $store.getters.formConfigData)' slot='tips'>
@@ -365,7 +365,7 @@
                     :field-name='planField.Assessment'
                     @switch='handleSwitchComment' />
                   <custom-form-item>
-                    <template class='my-label' slot='label'>
+                    <template slot='label'>
                       {{ 'Set learning objectives' | unitLabelName(planField.LearnOuts, $store.getters.formConfigData) }}
                     </template>
                     <template v-if='unitLabelHint(planField.LearnOuts, $store.getters.formConfigData)' slot='tips'>
@@ -412,7 +412,7 @@
                     :field-name='planField.Prior'
                     @switch='handleSwitchComment' />
                   <custom-form-item>
-                    <template class='my-label' slot='label'>
+                    <template slot='label'>
                       {{ 'Prior learning experience' | unitLabelName(planField.Prior, $store.getters.formConfigData) }}
                     </template>
                     <template v-if='unitLabelHint(planField.Prior, $store.getters.formConfigData)' slot='tips'>
@@ -442,7 +442,7 @@
               <template v-if='step.customFields.indexOf(custFieldItem.name) !== -1'>
                 <div class='form-block tag-content-block' v-if="custFieldItem.visible && form.customFieldData && form.customFieldData.hasOwnProperty(custFieldItem.id)" :key='custFieldItem.id' :data-field-name="'cust_' + custFieldItem.name" :data-field-id='custFieldItem.id'>
                   <custom-form-item>
-                    <template class='my-label' slot='label'>
+                    <template slot='label'>
                       {{ custFieldItem.name }}
                     </template>
                     <template v-if='custFieldItem.hint' slot='tips'>
