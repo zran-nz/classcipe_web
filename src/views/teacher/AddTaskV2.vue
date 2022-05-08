@@ -27,15 +27,17 @@
               <template v-if='step.commonFields.indexOf(fieldItem.fieldName) !== -1'>
                 <div class='form-block tag-content-block' :data-field-name='taskField.Name' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Name' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Name />
-                  <comment-switch
-                    v-show="canEdit"
-                    :field-name='taskField.Name'
-                    :is-active="currentFieldName === taskField.Name"
-                    @switch='handleSwitchComment'
-                    :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Name}" />
                   <custom-form-item>
                     <template slot='label'>
                       {{ 'Task name' | taskLabelName(taskField.Name, $store.getters.formConfigData) }}
+                    </template>
+                    <template slot='action'>
+                      <comment-switch
+                        v-show="canEdit"
+                        :field-name='taskField.Name'
+                        :is-active="currentFieldName === taskField.Name"
+                        @switch='handleSwitchComment'
+                        :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Name}" />
                     </template>
                     <template v-if='taskLabelHint(taskField.Name, $store.getters.formConfigData)' slot='tips'>
                       <a-tooltip :title="'Task name' | taskLabelHint(taskField.Name, $store.getters.formConfigData)" placement='top'>
@@ -48,15 +50,17 @@
 
                 <div class='form-block over-form-block tag-content-block' :data-field-name='taskField.Overview' id='overview' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Overview' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Overview />
-                  <comment-switch
-                    v-show="canEdit"
-                    :field-name='taskField.Overview'
-                    :is-active="currentFieldName === taskField.Overview"
-                    @switch='handleSwitchComment'
-                    :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Overview}" />
                   <a-form-model-item class='task-audio-line' ref='overview'>
-                    <template class='my-label' slot='label'>
+                    <template slot='label'>
                       {{ 'Task details' | taskLabelName(taskField.Overview, $store.getters.formConfigData) }}
+                    </template>
+                    <template slot='action'>
+                      <comment-switch
+                        v-show="canEdit"
+                        :field-name='taskField.Overview'
+                        :is-active="currentFieldName === taskField.Overview"
+                        @switch='handleSwitchComment'
+                        :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Overview}" />
                     </template>
                     <template v-if='taskLabelHint(taskField.Overview, $store.getters.formConfigData)' slot='tips'>
                       <a-tooltip :title="'Task details' | taskLabelHint(taskField.Overview, $store.getters.formConfigData)" placement='top'>
@@ -76,15 +80,17 @@
 
                 <div class='form-block taskType tag-content-block' :data-field-name='taskField.TaskType' v-if='fieldItem.visible && fieldItem.fieldName === taskField.TaskType' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.TaskType style="left:20px" />
-                  <comment-switch
-                    v-show="canEdit"
-                    :field-name='taskField.TaskType'
-                    :is-active="currentFieldName === taskField.TaskType"
-                    @switch='handleSwitchComment'
-                    :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.TaskType}" />
                   <a-form-model-item class='task-audio-line' ref='taskType' :colon='false'>
                     <template slot='label'>
                       {{ 'Choose Task Type' | taskLabelName(taskField.TaskType, $store.getters.formConfigData) }}
+                    </template>
+                    <template slot='action'>
+                      <comment-switch
+                        v-show="canEdit"
+                        :field-name='taskField.TaskType'
+                        :is-active="currentFieldName === taskField.TaskType"
+                        @switch='handleSwitchComment'
+                        :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.TaskType}" />
                     </template>
                     <template v-if='taskLabelHint(taskField.TaskType, $store.getters.formConfigData)' slot='tips'>
                       <a-tooltip :title="'Choose Task Type' | taskLabelHint(taskField.TaskType, $store.getters.formConfigData)" placement='top'>
@@ -113,15 +119,17 @@
 
                 <div class='form-block form-question tag-content-block' :data-field-name='taskField.Question' v-if='associateQuestionList.length > 0 && fieldItem.visible && fieldItem.fieldName === taskField.Question' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Question />
-                  <comment-switch
-                    v-show="canEdit"
-                    :field-name='taskField.Question'
-                    :is-active="currentFieldName === taskField.Question"
-                    @switch='handleSwitchComment'
-                    :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Question}" />
                   <a-form-model-item>
                     <template slot='label'>
                       {{ 'Choose Key questions' | taskLabelName(taskField.Overview, $store.getters.formConfigData) }}
+                    </template>
+                    <template slot='action'>
+                      <comment-switch
+                        v-show="canEdit"
+                        :field-name='taskField.Question'
+                        :is-active="currentFieldName === taskField.Question"
+                        @switch='handleSwitchComment'
+                        :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Question}" />
                     </template>
                     <template v-if='taskLabelHint(taskField.Overview, $store.getters.formConfigData)' slot='tips'>
                       <a-tooltip :title="'Choose Key questions' | taskLabelHint(taskField.Overview, $store.getters.formConfigData)" placement='top'>
@@ -155,15 +163,17 @@
 
                 <div class='form-block tag-content-block' :data-field-name='taskField.LearnOuts' v-if='fieldItem.visible && fieldItem.fieldName === taskField.LearnOuts' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Assessment style="left:100px" />
-                  <comment-switch
-                    v-show="canEdit"
-                    :field-name='taskField.Assessment'
-                    :is-active="currentFieldName === taskField.Assessment"
-                    @switch='handleSwitchComment'
-                    :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Assessment}" />
                   <custom-form-item>
                     <template slot='label'>
                       {{ 'Set learning objectives' | taskLabelName(taskField.LearnOuts, $store.getters.formConfigData) }}
+                    </template>
+                    <template slot='action'>
+                      <comment-switch
+                        v-show="canEdit"
+                        :field-name='taskField.Assessment'
+                        :is-active="currentFieldName === taskField.Assessment"
+                        @switch='handleSwitchComment'
+                        :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Assessment}" />
                     </template>
                     <template v-if='taskLabelHint(taskField.LearnOuts, $store.getters.formConfigData)' slot='tips'>
                       <a-tooltip :title="'Set learning objectives' | taskLabelHint(taskField.LearnOuts, $store.getters.formConfigData)" placement='top'>
@@ -192,15 +202,17 @@
 
                 <div class='form-block tag-content-block material-list-block' :data-field-name='taskField.MaterialList' style='clear: both' v-if='fieldItem.visible && fieldItem.fieldName === taskField.MaterialList' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.MaterialList />
-                  <comment-switch
-                    v-show="canEdit"
-                    :field-name='taskField.MaterialList'
-                    :is-active="currentFieldName === taskField.MaterialList"
-                    @switch='handleSwitchComment'
-                    :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.MaterialList}" />
                   <custom-form-item>
                     <template slot='label'>
                       {{ 'Resources required for hands-on activities' | taskLabelName(taskField.MaterialList, $store.getters.formConfigData) }}
+                    </template>
+                    <template slot='action'>
+                      <comment-switch
+                        v-show="canEdit"
+                        :field-name='taskField.MaterialList'
+                        :is-active="currentFieldName === taskField.MaterialList"
+                        @switch='handleSwitchComment'
+                        :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.MaterialList}" />
                     </template>
                     <template v-if='taskLabelHint(taskField.MaterialList, $store.getters.formConfigData)' slot='tips'>
                       <a-tooltip :title="'Resources required for hands-on activities' | taskLabelHint(taskField.MaterialList, $store.getters.formConfigData)" placement='top'>
@@ -4160,20 +4172,6 @@ export default {
     height: 100%;
     overflow-y: auto;
     background-color: #fff;
-
-    .form-page-item {
-      .form-field-item {
-        .form-block {
-          position: relative;
-
-          &:hover {
-            .my-comment-switch {
-              display: block;
-            }
-          }
-        }
-      }
-    }
   }
 
   .tag-body {
@@ -5654,20 +5652,12 @@ export default {
   position: relative;
 }
 
-.my-comment-switch {
-  display: none;
-  position: absolute;
-  right: -10px;
-  top: -5px;
-  z-index: 200;
-}
 .my-comment-show {
   display: block;
 }
 
 .collaborate-panel {
   background-color: #fff;
-  //box-shadow: 0px 6px 10px rgba(159, 159, 159, 0.16);
   .icon {
     padding: 10px 5px 0 15px;
     display: flex;

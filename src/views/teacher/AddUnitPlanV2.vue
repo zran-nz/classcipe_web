@@ -1292,7 +1292,6 @@ export default {
     this.debouncedGetSdgByDescription = debounce(this.searchScenario, 300)
     this.findQuestionsByBigIdea = debounce(this.findQuestionsByBigIdea, 800)
     this.queryContentCollaborates(this.unitPlanId, this.contentType['unit-plan'])
-
   },
   beforeDestroy() {
     MyContentEventBus.$off(MyContentEvent.ReferContentItem, this.handleReferItem)
