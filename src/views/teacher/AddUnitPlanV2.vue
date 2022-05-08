@@ -3315,14 +3315,13 @@ code {
   position: relative;
   .delete-action {
     position: absolute;
-    top:5px;
-    right: -35px;
+    text-align: center;
+    top: 5px;
+    right: -25px;
+    width: 30px;
     display: none;
     cursor: pointer;
     height: 35px;
-    img {
-      width: 35px;
-    }
   }
 
   &:hover {
