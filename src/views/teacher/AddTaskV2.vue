@@ -650,8 +650,7 @@
           <template v-if='currentRightModule === rightModule.collaborate'>
             <a-skeleton :loading='showHistoryLoading' active>
               <div
-                class='collaborate-panel'
-                :style="{'width':rightWidth + 'px', 'margin-top': '0px', 'z-index': 100, 'padding': '10px'}">
+                class='collaborate-panel'>
                 <div class='icon'>
                   <comment-icon />
                 </div>
@@ -673,8 +672,7 @@
           </template>
           <template v-if='currentRightModule === rightModule.collaborateComment'>
             <div
-              class='collaborate-panel'
-              :style="{'width':rightWidth + 'px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}">
+              class='collaborate-panel'>
               <collaborate-comment-panel
                 :source-id='taskId'
                 :source-type='contentType.task'
@@ -806,7 +804,7 @@
             </div>
           </template>
           <template v-if='currentRightModule === rightModule.customTag'>
-            <div v-if='!this.contentLoading' :style="{'width':rightWidth+'px', 'position': 'fixed', 'top': $store.getters.hiddenHeader ? '140px' : '200px'}">
+            <div v-if='!this.contentLoading'>
               <custom-tag-v2
                 ref='customTag'
                 :show-arrow='showCustomTag'
@@ -828,9 +826,15 @@
         <a-spin />
       </div>
     </div>
-    <div class='bottom-action-bar' :style="{left: collapsed ? $classcipe.sysConfig.collapsedSidebarWidth + 'px' : $classcipe.sysConfig.sidebarWidth + 'px'}">
-      <a-button type='primary' @click='handleNextStep'>Next</a-button>
-    </div>
+    <fixed-form-footer>
+      <template v-slot:left>
+        <a-button class='cc-round-button'>Discard</a-button>
+      </template>
+      <template v-slot:right>
+        <a-button type='primary' @click='handleNextStep' class='cc-round-button'>Next</a-button>
+      </template>
+    </fixed-form-footer>
+
     <a-modal
       v-model='showCollaborateModalVisible'
       :footer='null'
@@ -1737,12 +1741,14 @@ import TaskLinkedContent from '@/components/Task/TaskLinkedContent'
 import LinkContentList from '@/components/UnitPlan/LinkContentList'
 import FixedFormHeader from '@/components/Common/FixedFormHeader'
 import FormHeader from '@/components/FormHeader/FormHeader'
+import FixedFormFooter from '@/components/Common/FixedFormFooter'
 
 const { SplitTask } = require('@/api/task')
 
 export default {
   name: 'AddTask',
   components: {
+    FixedFormFooter,
     FormHeader,
     FixedFormHeader,
     LinkContentList,
@@ -4203,16 +4209,19 @@ export default {
 @import "~@/components/index.less";
 
 .step-content {
-  padding: 10px 0;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
   width: 100%;
+  height: 100%;
+  overflow: hidden;
 
   .form-body {
-    flex-grow: 1;
-    max-width: calc(100% - 650px);
-    padding-right: 30px;
+    width: 55%;
+    padding: 20px 30px;
+    height: 100%;
+    overflow-y: auto;
+    background-color: #fff;
 
     .form-page-item {
       .form-field-item {
@@ -4235,7 +4244,10 @@ export default {
   }
 
   .tag-body {
-    width: 650px;
+    width: 45%;
+    padding: 20px 30px;
+    height: 100%;
+    overflow-y: scroll;
   }
 }
 
@@ -6625,11 +6637,9 @@ p.ant-upload-text {
 }
 
 .form-content {
-  height: calc(100vh - 160px);
+  height: calc(100vh - 155px);
   margin-top: 110px;
-  padding: 0 20px;
-  overflow: scroll;
-  background: #fff;
+  overflow: hidden;
   transition: all 0.2s ease-in-out;
 }
 

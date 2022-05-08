@@ -489,9 +489,7 @@
         <div class='tag-body'>
           <template v-if='currentRightModule === rightModule.collaborate'>
             <a-skeleton :loading='showHistoryLoading' active>
-              <div
-                :style="{'width':rightWidth + 'px', 'margin-top': '0px', 'z-index': 100, 'padding': '10px'}"
-                class='collaborate-panel'>
+              <div class='collaborate-panel'>
                 <div class='icon'>
                   <comment-icon />
                 </div>
@@ -513,9 +511,7 @@
           </template>
 
           <template v-if='currentRightModule === rightModule.collaborateComment'>
-            <div
-              :style="{'width':rightWidth + 'px', 'margin-top':collaborateTop+'px', 'z-index': 100, 'padding': '10px'}"
-              class='collaborate-panel'>
+            <div class='collaborate-panel'>
               <collaborate-comment-panel
                 :comment-list='collaborateCommentList'
                 :field-name='currentFieldName'
@@ -528,9 +524,7 @@
           </template>
 
           <template v-if='currentRightModule === rightModule.customTag'>
-            <div
-              v-show='!this.contentLoading'
-              :style="{'width':rightWidth+'px', 'margin-top':customTagTop+'px'}">
+            <div v-show='!this.contentLoading' >
               <custom-tag-v2
                 :display-mode="canEdit ? 'edit' : 'readonly'"
                 ref='customTag'
@@ -546,9 +540,7 @@
           </template>
 
           <template v-if='currentRightModule === rightModule.taskDetails'>
-            <div
-              :style="{'width':rightWidth + 'px', 'margin-top':taskDetailsTop+'px', 'z-index': 200}"
-              class='task-details-panel'>
+            <div class='task-details-panel'>
               <Assessment-Task-Details
                 :associate-task-list='associateTaskList'
                 @hide-assessment-task='resetRightModuleVisible()' />
@@ -564,9 +556,15 @@
         <a-spin />
       </div>
     </div>
-    <div class='bottom-action-bar' :style="{left: collapsed ? $classcipe.sysConfig.collapsedSidebarWidth + 'px' : $classcipe.sysConfig.sidebarWidth + 'px'}">
-      <a-button type='primary' @click='handleNextStep'>Next</a-button>
-    </div>
+
+    <fixed-form-footer>
+      <template v-slot:left>
+        <a-button class='cc-round-button'>Discard</a-button>
+      </template>
+      <template v-slot:right>
+        <a-button type='primary' @click='handleNextStep' class='cc-round-button'>Next</a-button>
+      </template>
+    </fixed-form-footer>
 
     <a-modal
       v-model='showCollaborateModalVisible'
@@ -938,10 +936,12 @@ import LinkContentList from '@/components/UnitPlan/LinkContentList'
 import UnitLinkedContent from '@/components/UnitPlan/UnitLinkedContent'
 import FixedFormHeader from '@/components/Common/FixedFormHeader'
 import FormHeader from '@/components/FormHeader/FormHeader'
+import FixedFormFooter from '@/components/Common/FixedFormFooter'
 
 export default {
   name: 'AddUnitPlan',
   components: {
+    FixedFormFooter,
     FormHeader,
     FixedFormHeader,
     UnitLinkedContent,
@@ -3452,26 +3452,9 @@ svg.add-input {
 }
 
 .form-content {
-  height: calc(100vh - 160px);
   margin-top: 110px;
-  padding: 0 20px;
-  overflow: scroll;
-  background: #fff;
+  overflow: hidden;
   transition: all 0.2s ease-in-out;
-}
-
-.bottom-action-bar {
-  padding: 0 30px;
-  position: fixed;
-  box-shadow: 3px 0 6px rgba(0, 0, 0, 0.16);
-  bottom: 0;
-  right: 0;
-  height: 50px;
-  background: #fff;
-  align-items: center;
-  display: flex;
-  justify-content: flex-end;
-  z-index: 999;
 }
 
 .loading-content {
@@ -3483,16 +3466,19 @@ svg.add-input {
 }
 
 .step-content {
-  padding: 10px 0;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
   width: 100%;
+  height: 100%;
+  overflow: hidden;
 
   .form-body {
-    flex-grow: 1;
-    max-width: calc(100% - 650px);
-    padding-right: 30px;
+    width: 55%;
+    padding: 20px 30px;
+    height: 100%;
+    overflow-y: auto;
+    background-color: #fff;
 
     .form-page-item {
       .form-field-item {
@@ -3515,7 +3501,10 @@ svg.add-input {
   }
 
   .tag-body {
-    width: 650px;
+    width: 45%;
+    padding: 20px 30px;
+    height: 100%;
+    overflow-y: scroll;
   }
 }
 </style>

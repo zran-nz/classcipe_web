@@ -37,7 +37,8 @@ export default {
   transition: all 0.3s ease-in-out;
   height: 110px;
   background-color: #fff;
-  box-shadow: 0 3px 3px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+  z-index: 2000;
 
   .cc-header {
     border-bottom: 1px solid #ECECEC;
