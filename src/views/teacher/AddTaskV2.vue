@@ -1948,7 +1948,7 @@ export default {
       dontRemindMe: false,
 
       editGoogleSlideLoading: false,
-      currentActiveStepIndex: 0,
+      currentActiveStepIndex: this.getSessionStep(),
       currentStep: {
         id: null,
         commonFields: [],
@@ -2065,7 +2065,6 @@ export default {
       token = storage.get(ACCESS_TOKEN)
     }
     await this.$store.dispatch('loadFormConfigData', token)
-    this.currentActiveStepIndex = this.getSessionStep()
     this.currentStep = this.$store.getters.formConfigData.taskSteps[this.currentActiveStepIndex]
     this.handleDisplayRightModule()
     this.$logger.info('恢复step', this.currentActiveStepIndex, this.currentStep)

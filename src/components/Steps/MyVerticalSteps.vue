@@ -35,6 +35,11 @@ export default {
       currentStepIndex: this.stepIndex
     }
   },
+  watch: {
+    stepIndex (val) {
+      this.currentStepIndex = val
+    }
+  },
   methods: {
     handleSelectStep (step, index, force) {
       this.$logger.info('handleSelectStep', step, index)
