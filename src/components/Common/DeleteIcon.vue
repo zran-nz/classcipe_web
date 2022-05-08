@@ -1,6 +1,6 @@
 <template>
-  <div class='delete-icon' :style="{ width: size + 'px', height: size + 'px'}">
-    <delete-btn :style="{ width: size + 'px', height: size + 'px'}" />
+  <div class='delete-icon' :style="{ width: size + 'px', height: size + 'px'}" @click='handleClick'>
+    <delete-btn :style="{ width: size + 'px', height: size + 'px', fill: color}" />
   </div>
 </template>
 
@@ -14,6 +14,10 @@ export default {
     size: {
       type: Number,
       default: 15
+    },
+    color: {
+      type: String,
+      default: '#e611'
     }
   },
   components: {
@@ -24,7 +28,11 @@ export default {
   },
   created() {
   },
-  methods: {}
+  methods: {
+    handleClick () {
+      this.$emit('click')
+    }
+  }
 }
 </script>
 
