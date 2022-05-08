@@ -81,31 +81,52 @@
                 />
               </div>
             </template>
-            <a-button type="primary" shape='round'>
-              <!-- <icon-font type="icon-share" class="detail-font"/> -->
+            <!-- <a-button type="primary" shape='round'>
+              <icon-font type="icon-share" class="detail-font"/>
               Share
-            </a-button>
+            </a-button> -->
+            <custom-button label='Share'>
+              <template v-slot:icon>
+                <icon-font type="icon-share" class="detail-font"/>
+              </template>
+            </custom-button>
           </a-tooltip>
           <template v-if="WORK_SHOPS_TYPE.FEATURE.value === content.workshopsType">
-            <a-button type='primary' shape='round' @click='handleRegister(content)'>
-              <!-- <icon-font type="icon-register" class="detail-font"/> -->
-              Register</a-button>
+            <!-- <a-button type='primary' shape='round' @click='handleRegister(content)'>
+              <icon-font type="icon-register" class="detail-font"/>
+              Register</a-button> -->
+            <custom-button label='Register' @click='handleRegister(content)'>
+              <template v-slot:icon>
+                <icon-font type="icon-register" class="detail-font"/>
+              </template>
+            </custom-button>
           </template>
           <template v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType">
-            <a-button v-if="WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus" type='primary' shape='round' @click='handleEdit(content)'>
-              <!-- <icon-font type="icon-edit" class="detail-font"/> -->
-              Edit</a-button>
-            <a-button v-else type='primary' shape='round' @click='handleRelaunch(content)'>
-              <!-- <icon-font type="icon-tizhibianbie-zhongxinceshi" class="detail-font"/> -->
-              Relaunch</a-button>
-            <a-button type='primary' shape='round' @click='handleDel(content)'>
-              <!-- <icon-font type="icon-shanchu" class="detail-font"/> -->
-              Delete</a-button>
+            <!-- <a-button v-if="WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus" type='primary' shape='round' @click='handleEdit(content)'>
+              <icon-font type="icon-edit" class="detail-font"/>
+              Edit</a-button> -->
+            <custom-button label='Edit' v-if="WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus" @click='handleEdit(content)'>
+              <template v-slot:icon>
+                <icon-font type="icon-edit" class="detail-font"/>
+              </template>
+            </custom-button>
+            <custom-button label='Relaunch' v-else @click='handleRelaunch(content)'>
+              <template v-slot:icon>
+                <icon-font type="icon-tizhibianbie-zhongxinceshi" class="detail-font"/>
+              </template>
+            </custom-button>
+            <custom-button label='Delete' @click='handleDel(content)'>
+              <template v-slot:icon>
+                <icon-font type="icon-shanchu" class="detail-font"/>
+              </template>
+            </custom-button>
           </template>
           <template v-if="WORK_SHOPS_TYPE.REGISTERED.value === content.workshopsType">
-            <a-button type='primary' shape='round' @click='handleCancel(content)'>
-              <!-- <icon-font type="icon-cancel" class="detail-font"/> -->
-              Cancel</a-button>
+            <custom-button label='Cancel' @click='handleCancel(content)'>
+              <template v-slot:icon>
+                <icon-font type="icon-cancel" class="detail-font"/>
+              </template>
+            </custom-button>
           </template>
 
         </a-space>
@@ -123,6 +144,7 @@ import { lessonHost } from '@/const/googleSlide'
 import { typeMap } from '@/const/teacher'
 import PriceSlider from '@/components/Slider/PriceSlider'
 import ShareButton from '@/components/Share/ShareButton'
+import CustomButton from '@/components/Common/CustomButton'
 import PreviewContent from '@/components/MyContentV2/PreviewContent'
 
 import { ContentItemMixin } from '@/mixins/ContentItemMixin'
@@ -135,6 +157,7 @@ export default {
   components: {
     PriceSlider,
     ShareButton,
+    CustomButton,
     PreviewContent
   },
   mixins: [ ContentItemMixin ],
@@ -423,6 +446,15 @@ export default {
           font-size: 0.16em /* 16/100 */;
         }
       }
+      .cc-custom-button {
+        padding: 0.1em /* 10/100 */ 0.18em /* 18/100 */;
+        border-radius: 0.4em /* 40/100 */;
+        label {
+          font-size: 0.13em /* 13/100 */;
+          padding: 0 1/0.13*0.06em /* 6/100 */;
+          line-height: 1/0.13*0.16em /* 16/100 */;
+        }
+      }
     }
   }
 }
@@ -468,7 +500,7 @@ export default {
   }
 }
 .detail-price {
-  padding: 0 0.1em /* 10/100 */;
+  // padding: 0 0.1em /* 10/100 */;
   flex-grow: 1;
   display: flex;
   align-items: center;

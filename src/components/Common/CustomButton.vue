@@ -59,6 +59,9 @@ export default {
       height: 14px;
       fill: #515564 !important;
     }
+    i {
+      color: #515564 !important;
+    }
   }
 
   &:hover {
@@ -68,6 +71,9 @@ export default {
     .icon {
       svg {
         fill: #fff !important;
+      }
+      i {
+        color: #fff !important;
       }
     }
   }
