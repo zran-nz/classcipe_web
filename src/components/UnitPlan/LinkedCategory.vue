@@ -133,7 +133,7 @@ export default {
     },
     handleConfirm() {
       this.$logger.info('selectedList', this.selectedList)
-      this.$emit('confirm', this.selectedList)
+      this.$emit('confirm', this.selectedList.map(item => item.title))
     },
     handleShowNewCategory () {
       this.newCategory = null
