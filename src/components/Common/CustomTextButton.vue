@@ -1,5 +1,9 @@
 <template>
   <div class='cc-custom-text-button' @click='handleClick' @dblclick='handleDbClick'>
+    <div class='icon'>
+      <slot name='icon'>
+      </slot>
+    </div>
     <div class='label'>
       {{ label }}
     </div>
@@ -45,6 +49,21 @@ export default {
   border: 2px solid #FBD32C;
   transition: background-color 0.3s ease-in-out;
 
+  .icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    padding-bottom: 1px;
+    svg {
+      width: 13px;
+      height: 14px;
+      fill: #515564 !important;
+    }
+    i {
+      color: #515564 !important;
+    }
+  }
   .label {
     font-size: 13px;
     padding: 0 6px;
