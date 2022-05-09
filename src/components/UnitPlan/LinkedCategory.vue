@@ -5,49 +5,63 @@
     :footer='null'
     :maskClosable='false'
     destroyOnClose
-    width='800px'>
-    <modal-header @close='handleClose'/>
+    width='760px'>
+    <modal-header @close='handleClose' title='Create new category or choose from system tag(s) to set as category' :white='true'/>
     <div class='category-list'>
-      <div class='category-block' v-for='(category, cIdx) in categoryList' :key='category.id' :style="{'background-color': color[cIdx]}">
-        <div class='category-item' v-for='item in category.list' :key='item' @click='handleAddItem(item)'>
-          <div class='selected-icon'>
-            <template v-if="selectedList.indexOf(item) !== -1">
-              <img src="~@/assets/icons/lesson/selected.png" />
-            </template>
-            <template v-if="selectedList.indexOf(item) === -1">
+      <a-skeleton :loading='loading' />
+      <template v-if='!loading'>
+        <div class='category-block' v-for='(category, cIdx) in categoryList' :key='category.key' :style="{'background-color': color[cIdx]}">
+          <div class='category-item' :class="{'selected-item': selectedList.indexOf(item) !== -1}" v-for='item in category.children' :key='item.key' @click='handleAddItem(item)'>
+            <div class='selected-icon'>
+              <div class='checked-icon'>
+                <template v-if='cIdx % 3 === 0'>
+                  <checked-green-icon />
+                </template>
+                <template v-if='cIdx % 3 === 1'>
+                  <checked-yellow-icon />
+                </template>
+                <template v-if='cIdx % 3 === 2'>
+                  <checked-blur-icon />
+                </template>
+              </div>
               <div class="empty-circle"></div>
-            </template>
+            </div>
+            <div class='item-name'>{{ item.title }}</div>
           </div>
-          <div class='item-name'>{{ item }}</div>
         </div>
-      </div>
-      <div class='category-block self-category' style='background-color: #15c2d811'>
-        <div class='category-item' v-for='item in selfCategory' :key='item' @click="handleAddItem(item)">
-          <div class='selected-icon'>
-            <template v-if="selectedList.indexOf(item) !== -1">
-              <img src="~@/assets/icons/lesson/selected.png" />
-            </template>
-            <template v-if="selectedList.indexOf(item) === -1">
+        <div class='category-block self-category' style='background-color: #F4F4F4'>
+          <div class='category-item' :class="{'selected-item': selectedList.indexOf(item) !== -1}" v-for='item in selfCategory' :key='item.key' @click="handleAddItem(item)">
+            <div class='selected-icon'>
+              <div class='checked-icon'>
+                <checked-green-icon />
+              </div>
               <div class="empty-circle"></div>
-            </template>
+            </div>
+            <div class='item-name'>{{ item.title }}</div>
+            <div class='self-item-delete' @click='handleDeleteSelfItem(item)'>
+              <a-icon type="close" />
+            </div>
           </div>
-          <div class='item-name'>{{ item }}</div>
-          <div class='self-item-delete' @click='handleDeleteSelfItem(item)'>
-            <a-icon type="close" />
+          <div class='category-item self-input' v-if='showNewCategory'>
+            <a-input v-model='newCategory' ref='newCategory' class='new-category-input' @keyup.native.enter='handleAddNewSelfCategory'/>
+          </div>
+          <div class='category-item slef-category slef-category-btn'>
+            <custom-text-button @click='handleShowNewCategory' label='Add new' :size='12'>
+              <template v-slot:icon>
+                <a-icon type="plus-circle" :style="{fontSize: '12px'}"/>
+              </template>
+            </custom-text-button>
+          </div>
+          <div class='no-self-category' v-if='selfCategory.length === 0'>
+            <common-no-data />
           </div>
         </div>
-        <div class='category-item self-input' v-if='showNewCategory'>
-          <a-input v-model='newCategory' ref='newCategory' class='new-category-input' @keyup.native.enter='handleAddNewSelfCategory'/>
-        </div>
-        <div class='category-item slef-category slef-category-btn'>
-          <a-button type="dashed" shape='round' @click='handleShowNewCategory' style='width: 100%'>Add new</a-button>
-        </div>
-      </div>
+      </template>
     </div>
-    <div class='modal-action-right'>
-      <a-space>
-        <a-button @click='handleClose'>Discard</a-button>
-        <a-button type='primary' @click='handleConfirm'>Confirm</a-button>
+    <div class='modal-action-center'>
+      <a-space :size='30'>
+        <a-button class='cc-round-button' @click='handleClose'>Discard</a-button>
+        <a-button class='cc-round-button' type='primary' @click='handleConfirm'>Confirm</a-button>
       </a-space>
     </div>
   </a-modal>
@@ -55,9 +69,16 @@
 
 <script>
 import ModalHeader from '@/components/Common/ModalHeader'
+import CustomTextButton from '@/components/Common/CustomTextButton'
+import CheckedGreenIcon from '@/assets/v2/icons/checked_green.svg?inline'
+import CheckedBlurIcon from '@/assets/v2/icons/checked_blue.svg?inline'
+import CheckedYellowIcon from '@/assets/v2/icons/checked_yellow.svg?inline'
+import CommonNoData from '@/components/Common/CommonNoData'
+import { AddOrUpdateLinkCategory, DeleteLinkCategory, GetLinkCategory } from '@/api/v2/mycontent'
+
 export default {
   name: 'LinkedCategory',
-  components: { ModalHeader },
+  components: { CommonNoData, CustomTextButton, ModalHeader, CheckedGreenIcon, CheckedBlurIcon, CheckedYellowIcon },
   props: {
     selected: {
       type: Array,
@@ -67,26 +88,16 @@ export default {
   data() {
     return {
       visible: true,
+      loading: true,
       color: [
-        '#fa525211',
-        '#12b88611',
-        '#fab00511'
+        '#DEF1EE',
+        '#FAE7D1',
+        '#DEEFF1',
+        '#F4F4F4'
       ],
-      categoryList: [
-        {
-          id: 1,
-          list: ['science', 'math', 'english', 'social', 'health', 'art', 'music', 'other1']
-        },
-        {
-          id: 2,
-          list: ['acknowledge', 'learn', 'apply', 'practice', 'build', 'teach', 'other2']
-        },
-        {
-          id: 3,
-          list: ['self-awareness', 'self-expression', 'self-control', 'self-esteem', 'self-confidence', 'other3']
-        }
-      ],
+      categoryList: [],
       selfCategory: [],
+      selfCategoryId: null,
       selectedList: [],
       selectedNameList: [],
       showNewCategory: false,
@@ -96,8 +107,35 @@ export default {
   created() {
     this.$logger.info('LinkedCategory', this.selected)
     this.selectedList = this.selected
+    this.loadLinkCategoryData()
   },
   methods: {
+    async loadLinkCategoryData () {
+      this.$logger.info('loadLinkCategoryData')
+      this.loading = true
+      try {
+        const response = await GetLinkCategory()
+        if (response.result) {
+          this.categoryList = []
+          response.result.forEach((categoryItem, cIndex) => {
+            if (cIndex !== response.result.length - 1) {
+              this.categoryList.push(categoryItem)
+            }
+          })
+
+          response.result[response.result.length - 1].children.forEach(item => {
+            this.selfCategory.push(item)
+          })
+          this.selfCategoryId = response.result[response.result.length - 1].key
+          this.$logger.info('loaded self category', this.categoryList, this.selfCategory, this.selfCategoryId)
+        }
+      } catch (e) {
+        console.log(e)
+        this.$logger.error('loadLinkCategoryData', e)
+      } finally {
+        this.loading = false
+      }
+    },
     handleClose() {
       this.$logger.info('close', this.selectedList)
       this.$emit('close')
@@ -118,15 +156,15 @@ export default {
       if (this.newCategory) {
         let isDuplicated = false
         for (let i = 0; i < this.selfCategory.length; i++) {
-          if (this.selfCategory[i] === this.newCategory) {
+          if (this.selfCategory[i].title === this.newCategory) {
             isDuplicated = true
             break
           }
         }
 
         for (let i = 0; i < this.categoryList.length; i++) {
-          for (let j = 0; j < this.categoryList[i].list.length; j++) {
-            if (this.categoryList[i].list[j] === this.newCategory) {
+          for (let j = 0; j < this.categoryList[i].children.length; j++) {
+            if (this.categoryList[i].children[j] === this.newCategory) {
               isDuplicated = true
               break
             }
@@ -134,8 +172,21 @@ export default {
         }
 
         if (!isDuplicated) {
-          this.selfCategory.push(this.newCategory)
-          this.showNewCategory = false
+          AddOrUpdateLinkCategory({
+            id: this.selfCategoryId,
+            name: this.newCategory
+          }).then((res) => {
+            if (res.success && res.code === 0) {
+              this.selfCategory.push({
+                key: res.result.id,
+                title: this.newCategory
+              })
+              this.$logger.info('add new self category success')
+              this.showNewCategory = false
+            } else {
+              this.$message.warn('add new category failed. ' + res.message)
+            }
+          })
         } else {
           this.$message.warn('Duplicated category name')
         }
@@ -148,14 +199,14 @@ export default {
       this.$logger.info('handleAddItem', item)
       let groupIndex = -1
       for (let i = 0; i < this.categoryList.length; i++) {
-        if (this.categoryList[i].list.indexOf(item) !== -1) {
+        if (this.categoryList[i].children.indexOf(item) !== -1) {
           groupIndex = i
           break
         }
       }
 
       if (groupIndex !== -1) {
-        this.categoryList[groupIndex].list.forEach(gItem => {
+        this.categoryList[groupIndex].children.forEach(gItem => {
           if (this.selectedList.indexOf(gItem) !== -1) {
             this.selectedList.splice(this.selectedList.indexOf(gItem), 1)
           }
@@ -176,7 +227,15 @@ export default {
     handleDeleteSelfItem (item) {
       this.$logger.info('handleDeleteSelfItem', item)
       if (this.selfCategory.indexOf(item) !== -1) {
-        this.selfCategory.splice(this.selfCategory.indexOf(item), 1)
+        DeleteLinkCategory({
+          id: item.key
+        }).then(res => {
+          if (res.success && res.code === 0) {
+            this.selfCategory.splice(this.selfCategory.indexOf(item), 1)
+          } else {
+            this.$message.warn('Delete category failed. ' + res.message)
+          }
+        })
       }
 
       if (this.selectedList.indexOf(item) !== -1) {
@@ -191,17 +250,17 @@ export default {
 @import "~@/components/index.less";
 
 .category-list {
-  padding: 10px 0;
+  padding: 10px 20px;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
   justify-content: space-between;
-  height: 300px;
+  height: 270px;
 
   .category-block {
     width: 23%;
     margin: 0 10px;
-    border-radius: 4px;
+    border-radius: 6px;
     padding: 5px 10px 5px 8px;
     height: 100%;
     overflow-y: auto;
@@ -211,8 +270,10 @@ export default {
       flex-direction: row;
       align-items: center;
       cursor: pointer;
-      color: #333;
+      color: #4A4B50;
       margin: 5px 0;
+      height: 24px;
+      line-height: 24px;
       user-select: none;
       .selected-icon {
         display: flex;
@@ -221,18 +282,32 @@ export default {
         justify-content: center;
         height: 24px;
         width: 24px;
-        .empty-circle {
-          margin-top: 3px;
-          height: 15px;
-          width: 15px;
-          border-radius: 50%;
-          border: 2px solid #ccc;
+        padding-top: 3px;
+
+        .checked-icon {
+          display: none;
         }
 
-        img {
-          width: 17px;
-          height: 17px;
+        .empty-circle {
+          height: 11px;
+          width: 11px;
+          border-radius: 50%;
+          border: 2px solid #64716F;
+          display: block;
         }
+
+        svg {
+          width: 13px;
+          height: 13px;
+        }
+      }
+
+      .item-name {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        padding-left: 2px;
       }
 
       &:hover {
@@ -241,6 +316,24 @@ export default {
           align-items: center;
           justify-content: center;
         }
+      }
+    }
+
+    .selected-item {
+      .selected-icon {
+        .checked-icon {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-direction: row;
+        }
+        .empty-circle {
+          display: none;
+        }
+      }
+      .item-name {
+        font-weight: bold;
+        color: #181A1F;
       }
     }
 
@@ -255,7 +348,7 @@ export default {
     }
 
     .slef-category-btn {
-      margin-top: 10px;
+      margin-top: 15px;
       width: 100%;
       justify-content: center;
     }
@@ -267,6 +360,10 @@ export default {
       box-shadow: none;
     }
   }
+}
+
+.no-self-category {
+  height: 150px;
 }
 
 </style>
