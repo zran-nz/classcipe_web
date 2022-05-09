@@ -113,7 +113,7 @@ export default {
   },
   methods: {
     handleAddNew () {
-
+      window.open('/teacher/task-redirect')
     },
     handleAddCategory () {
       this.addCategoryVisible = true
