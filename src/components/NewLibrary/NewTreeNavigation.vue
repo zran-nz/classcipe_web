@@ -189,14 +189,19 @@ export default {
         sort: 2,
         backgroundColor: '#D7E0E9'
       }
+      let schoolPromises = []
+      if (this.currentSchool && this.currentSchool.id) {
+        schoolPromises = [
+          GetSchoolSubject({ schoolId: this.currentSchool.id }),
+          GetSchoolGrade({ schoolId: this.currentSchool.id })
+        ]
+      }
       Promise.all([
         SubjectTree({ curriculumId: this.defaultCurriculumId ? this.defaultCurriculumId : this.$store.getters.bindCurriculum }),
         GetGradesByCurriculumId({ curriculumId: this.defaultCurriculumId ? this.defaultCurriculumId : this.$store.getters.bindCurriculum }),
         GetAllSdgs(),
-        getAll21Century(),
-        GetSchoolSubject({ schoolId: this.currentSchool.id }),
-        GetSchoolGrade({ schoolId: this.currentSchool.id })
-      ]).then((initDataResponse) => {
+        getAll21Century()
+      ].concat(schoolPromises)).then((initDataResponse) => {
         this.$logger.info('initData done', initDataResponse)
 
         // GetMyGrades
@@ -204,7 +209,7 @@ export default {
         if (!initDataResponse[1].code) {
           this.gradeList = initDataResponse[1].result
           // 获取学校自定义的名称
-          if (initDataResponse[5].success) {
+          if (initDataResponse[5] && initDataResponse[5].success) {
             const repeatOptions = initDataResponse[5].result.gradeInfo
             this.gradeList = this.gradeList.map(item => {
               const repeat = repeatOptions.find(opt => opt.gradeId === item.id)
@@ -234,7 +239,7 @@ export default {
           } else {
             // 如果没有传入onlySubjects，则取学校所设定的subject来展示,且当前学校的curriculum和传过来的一样
             if (this.userMode === USER_MODE.SCHOOL && this.currentSchool.curriculumId === this.defaultCurriculumId) {
-              if (initDataResponse[4].success) {
+              if (initDataResponse[4] && initDataResponse[4].success) {
                 onlyShowSubjects = initDataResponse[4].result.subjectInfo.map(item => item.subjectId)
               }
             }
