@@ -4,7 +4,7 @@
       <slot name='icon'>
       </slot>
     </div>
-    <div class='label'>
+    <div class='label' :style="{fontSize: size + 'px'}">
       {{ label }}
     </div>
   </div>
@@ -17,6 +17,10 @@ export default {
     label: {
       type: String,
       default: ''
+    },
+    size: {
+      type: Number,
+      default: 13
     }
   },
   methods: {
@@ -34,7 +38,7 @@ export default {
 @import "~@/components/index.less";
 
 .cc-custom-text-button {
-  padding: 7px 15px;
+  padding: 6px 20px;
   border-radius: 40px;
   font-family: Arial;
   font-weight: 400;
@@ -58,20 +62,19 @@ export default {
     svg {
       width: 13px;
       height: 14px;
-      fill: #515564 !important;
+      fill: #292929 !important;
     }
     i {
-      color: #515564 !important;
+      color: #292929 !important;
     }
   }
   .label {
-    font-size: 13px;
     padding: 0 6px;
     line-height: 16px;
     white-space: nowrap;
     font-family: Arial;
     font-weight: 400;
-    color: #444444;
+    color: #292929;
   }
 }
 </style>
