@@ -96,6 +96,9 @@ export default {
     this.loadContent()
   },
   methods: {
+    handleSearch () {
+      this.searchContent()
+    },
     searchContent() {
       this.pageNo = 0
       this.myContentList = []
