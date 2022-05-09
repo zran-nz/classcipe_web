@@ -1,6 +1,6 @@
 <template>
   <div class="search-filter">
-    <a-button type="link" class="clear-all" @click="clearFilter()">
+    <a-button type="link" size='small' class="clear-all" @click="clearFilter()">
       Clear all
     </a-button>
 
@@ -271,6 +271,7 @@ export default {
   .clear-all {
     position: absolute;
     right: -5px;
+    top: -25px;
     cursor: pointer;
     z-index: 100;
     background: #fafafa;
@@ -308,6 +309,10 @@ export default {
   .task-type {
     padding-bottom: 10px;
   }
+}
+
+.option-content {
+  margin-top: 25px;
 }
 
 </style>
