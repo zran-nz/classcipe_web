@@ -38,7 +38,7 @@ export default {
 @import "~@/components/index.less";
 
 .cc-custom-text-button {
-  padding: 6px 20px;
+  padding: 7px 20px;
   border-radius: 40px;
   font-family: Arial;
   font-weight: 400;

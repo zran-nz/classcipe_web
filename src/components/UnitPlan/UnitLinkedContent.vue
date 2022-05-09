@@ -2,8 +2,12 @@
   <div class='unit-linked-content'>
     <div class='header-action'>
       <a-space>
-        <a-button type='primary' @click='handleAddNew'>Add new</a-button>
-        <a-button type='primary' @click='handleAddCategory'>Add category</a-button>
+        <custom-text-button label='Add new task' @click='handleAddNew'></custom-text-button>
+        <custom-text-button label='Add category' @click='handleAddCategory'>
+          <template slot='icon'>
+            <a-icon type='plus-circle' />
+          </template>
+        </custom-text-button>
       </a-space>
     </div>
     <div class='linked-content'>
@@ -61,10 +65,12 @@ import {
 import LinkContentItem from '@/components/UnitPlan/LinkContentItem'
 import draggable from 'vuedraggable'
 import DeleteIcon from '@/components/Common/DeleteIcon'
+import CustomTextButton from '@/components/Common/CustomTextButton'
+import CommonNoData from '@/components/Common/CommonNoData'
 
 export default {
   name: 'UnitLinkedContent',
-  components: { DeleteIcon, LinkContentItem, LinkedCategory, draggable },
+  components: { CommonNoData, CustomTextButton, DeleteIcon, LinkContentItem, LinkedCategory, draggable },
   props: {
     fromId: {
       type: String,
@@ -82,9 +88,10 @@ export default {
       groups: [],
       ownerLinkGroupList: [],
       color: [
-        '#fa525211',
-        '#12b88611',
-        '#fab00511'
+        '#DEF1EE',
+        '#FAE7D1',
+        '#DEEFF1',
+        '#F4F4F4'
       ],
       associateTaskIdList: [],
       associateTaskList: [],
@@ -235,7 +242,6 @@ export default {
 @import "~@/components/index.less";
 
 .header-action {
-  padding: 10px 0;
   display: flex;
   justify-content: flex-start;
   align-items: center;
@@ -243,10 +249,10 @@ export default {
 
 .category-name {
   cursor: pointer;
-  padding: 10px;
+  padding: 10px 15px;
   color: #333;
   font-size: 15px;
-  font-weight: 400;
+  font-weight: 500;
   position: relative;
 
   .category-delete {
@@ -269,7 +275,9 @@ export default {
 }
 
 .unit-linked-content {
-  padding: 0 15px;
+  .linked-content {
+    margin-top: 15px;
+  }
 }
 
 .linked-item {
