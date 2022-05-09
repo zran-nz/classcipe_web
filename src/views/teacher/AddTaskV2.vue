@@ -163,29 +163,10 @@
 
                 <div class='form-block tag-content-block' :data-field-name='taskField.LearnOuts' v-if='fieldItem.visible && fieldItem.fieldName === taskField.LearnOuts' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Assessment style="left:100px" />
-                  <custom-form-item>
-                    <template slot='label'>
-                      {{ 'Set learning objectives' | taskLabelName(taskField.LearnOuts, $store.getters.formConfigData) }}
-                    </template>
-                    <template slot='action'>
-                      <comment-switch
-                        v-show="canEdit"
-                        :field-name='taskField.Assessment'
-                        :is-active="currentFieldName === taskField.Assessment"
-                        @switch='handleSwitchComment'
-                        :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Assessment}" />
-                    </template>
-                    <template v-if='taskLabelHint(taskField.LearnOuts, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="'Set learning objectives' | taskLabelHint(taskField.LearnOuts, $store.getters.formConfigData)" placement='top'>
-                        <a-icon type="info-circle" />
-                      </a-tooltip>
-                    </template>
+                  <custom-form-item :show-label='false'>
                     <a-badge :dot='hasExtraRecommend'>
-                      <a-button type='primary' @click='handleSelectDescription' :disabled="!canEdit">
-                        <div class='btn-text' style='line-height: 20px'>
-                          {{ 'Set learning objectives' | unitLabelName(taskField.LearnOuts, $store.getters.formConfigData) }}
-                        </div>
-                      </a-button>
+                      <custom-text-button @click='handleSelectDescription()' :label="'Set learning objectives' | unitLabelName(taskField.LearnOuts, $store.getters.formConfigData)">
+                      </custom-text-button>
                     </a-badge>
                   </custom-form-item>
 
@@ -1692,12 +1673,14 @@ import FixedFormHeader from '@/components/Common/FixedFormHeader'
 import FormHeader from '@/components/FormHeader/FormHeader'
 import FixedFormFooter from '@/components/Common/FixedFormFooter'
 import CustomFormItem from '@/components/Common/CustomFormItem'
+import CustomTextButton from '@/components/Common/CustomTextButton'
 
 const { SplitTask } = require('@/api/task')
 
 export default {
   name: 'AddTask',
   components: {
+    CustomTextButton,
     CustomFormItem,
     FixedFormFooter,
     FormHeader,
