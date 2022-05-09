@@ -213,7 +213,6 @@
 
                 <div class='form-block tag-content-block' :data-field-name='planField.Scenarios' v-if="fieldItem.visible && fieldItem.fieldName === planField.Scenarios" :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Sdg />
-                  <a-divider>Teaching goals</a-divider>
                   <custom-form-item>
                     <template slot='label'>
                       {{ 'UN Sustainable Development Goal(s)' | unitLabelName(planField.Scenarios, $store.getters.formConfigData) }}
@@ -390,42 +389,14 @@
 
                 <div class='form-block tag-content-block' :data-field-name='planField.LearnOuts' v-if="fieldItem.visible && fieldItem.fieldName === planField.LearnOuts" :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Assessment style="left:100px" />
-                  <custom-form-item>
-                    <template slot='label'>
-                      {{ 'Set learning objectives' | unitLabelName(planField.LearnOuts, $store.getters.formConfigData) }}
-                    </template>
-                    <template slot='action'>
-                      <a-space>
-                        <comment-switch
-                          v-show="canEdit"
-                          :is-active="currentFieldName === planField.Assessment"
-                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Assessment}"
-                          :field-name='planField.Assessment'
-                          @switch='handleSwitchComment' />
-                      </a-space>
-                    </template>
-                    <template v-if='unitLabelHint(planField.LearnOuts, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="'Set learning objectives' | unitLabelHint(planField.LearnOuts, $store.getters.formConfigData)" placement='top'>
-                        <a-icon type="info-circle" />
-                      </a-tooltip>
-                    </template>
-                    <a-badge :dot='hasExtraRecommend'>
-                      <a-button type='primary' @click='handleSelectDescription()' :disabled="!canEdit">
-                        <div class='btn-text' style='line-height: 20px'>
-                          {{ 'Set learning objectives' | unitLabelName(planField.LearnOuts, $store.getters.formConfigData) }}
-                        </div>
-                      </a-button>
-                    </a-badge>
-
-                    <a-button
-                      class='assessment-task-button'
-                      ghost
-                      type='link'
-                      @click='handleClickTaskDetail($event)'>
-                      Assessment task details
-                      <a-icon type='right' />
-                    </a-button>
-
+                  <custom-form-item :show-label='false'>
+                    <div class='learn-out-action'>
+                      <a-badge :dot='hasExtraRecommend'>
+                        <custom-text-button @click='handleSelectDescription()' :label="'Set learning objectives' | unitLabelName(planField.LearnOuts, $store.getters.formConfigData)">
+                        </custom-text-button>
+                      </a-badge>
+                      <custom-link-text text='Assessment task details' @click='handleClickTaskDetail($event)'></custom-link-text>
+                    </div>
                   </custom-form-item>
 
                   <!--knowledge tag-select -->
@@ -953,10 +924,12 @@ import CustomRadioButtonGroup from '@/components/Common/CustomRadioButtonGroup'
 import DeleteIcon from '@/components/Common/DeleteIcon'
 import PlusIcon from '@/components/Common/PlusIcon'
 import CustomLinkText from '@/components/Common/CustomLinkText'
+import CustomTextButton from '@/components/Common/CustomTextButton'
 
 export default {
   name: 'AddUnitPlan',
   components: {
+    CustomTextButton,
     CustomLinkText,
     PlusIcon,
     DeleteIcon,
@@ -3408,5 +3381,11 @@ code {
 
 .question-item {
   margin-bottom: 10px;
+}
+
+.learn-out-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 </style>

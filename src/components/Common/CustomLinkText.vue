@@ -43,6 +43,8 @@ export default {
   font-family: Arial;
   color: #8A8D93;
   font-weight: normal;
+  cursor: pointer;
+  user-select: none;
 
   &:hover {
     text-decoration: underline;

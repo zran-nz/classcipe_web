@@ -1,7 +1,7 @@
 <template>
   <div class='cc-custom-form-item'>
     <div class='label' v-if='showLabel'>
-      <div class='label-left'>
+      <div class='label-left' :style="{color: labelColor, fontSize: labelSize + 'px'}">
         <slot name='label'></slot>
         <div class='tips'>
           <slot name='tips'></slot>
@@ -24,6 +24,14 @@ export default {
     showLabel: {
       type: Boolean,
       default: true
+    },
+    labelColor: {
+      type: String,
+      default: '#202020'
+    },
+    labelSize: {
+      type: Number,
+      default: 14
     }
   },
   data() {
@@ -47,10 +55,8 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 14px;
     font-family: Arial;
     font-weight: bold;
-    color: #202020;
     line-height: 40px;
 
     .label-left {
