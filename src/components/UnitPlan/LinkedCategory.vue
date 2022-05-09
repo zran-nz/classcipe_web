@@ -79,12 +79,6 @@ import { AddOrUpdateLinkCategory, DeleteLinkCategory, GetLinkCategory } from '@/
 export default {
   name: 'LinkedCategory',
   components: { CommonNoData, CustomTextButton, ModalHeader, CheckedGreenIcon, CheckedBlurIcon, CheckedYellowIcon },
-  props: {
-    selected: {
-      type: Array,
-      default: () => []
-    }
-  },
   data() {
     return {
       visible: true,
@@ -97,7 +91,6 @@ export default {
       ],
       categoryList: [],
       selfCategory: [],
-      selfCategoryId: null,
       selectedList: [],
       selectedNameList: [],
       showNewCategory: false,
@@ -106,7 +99,6 @@ export default {
   },
   created() {
     this.$logger.info('LinkedCategory', this.selected)
-    this.selectedList = this.selected
     this.loadLinkCategoryData()
   },
   methods: {
@@ -126,8 +118,7 @@ export default {
           response.result[response.result.length - 1].children.forEach(item => {
             this.selfCategory.push(item)
           })
-          this.selfCategoryId = response.result[response.result.length - 1].key
-          this.$logger.info('loaded self category', this.categoryList, this.selfCategory, this.selfCategoryId)
+          this.$logger.info('loaded self category', this.categoryList, this.selfCategory)
         }
       } catch (e) {
         console.log(e)
@@ -173,13 +164,12 @@ export default {
 
         if (!isDuplicated) {
           AddOrUpdateLinkCategory({
-            id: this.selfCategoryId,
             name: this.newCategory
           }).then((res) => {
             if (res.success && res.code === 0) {
               this.selfCategory.push({
                 key: res.result.id,
-                title: this.newCategory
+                title: res.result.name
               })
               this.$logger.info('add new self category success')
               this.showNewCategory = false
@@ -227,9 +217,9 @@ export default {
     handleDeleteSelfItem (item) {
       this.$logger.info('handleDeleteSelfItem', item)
       if (this.selfCategory.indexOf(item) !== -1) {
-        DeleteLinkCategory({
-          id: item.key
-        }).then(res => {
+        const data = new FormData()
+        data.append('id', item.key)
+        DeleteLinkCategory(data).then(res => {
           if (res.success && res.code === 0) {
             this.selfCategory.splice(this.selfCategory.indexOf(item), 1)
           } else {

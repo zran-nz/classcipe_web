@@ -45,7 +45,7 @@
       </div>
     </div>
 
-    <linked-category v-if='addCategoryVisible' :selected='groupNameList' @close='addCategoryVisible = false' @confirm='handleConfirmAddCategory'/>
+    <linked-category v-if='addCategoryVisible' @close='addCategoryVisible = false' @confirm='handleConfirmAddCategory'/>
   </div>
 </template>
 
