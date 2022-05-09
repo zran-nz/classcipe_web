@@ -1,7 +1,19 @@
 <template>
-  <div class='content-item' v-if='content'>
+  <div class='link-content-item' v-if='content'>
     <div class='cover' @click='handlePreviewDetail(content)'>
       <div class='cover-block' :style="{'background-image': 'url(' + content.image + ')'}">
+        <div class='preview-mask'>
+        </div>
+        <div class='preview-button-wrapper'>
+          <div class='preview-button'>
+            <div class='preview-icon'>
+              <preview-icon />
+            </div>
+            <div class='preview-label'>
+              Preview
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div class='detail'>
@@ -10,21 +22,24 @@
           <div class='name'>
             {{ content.name }}
           </div>
-          <div class='tag-info'></div>
-          <div class='owner'>
-            {{ content.createBy }}
+          <div class='subject'>
+            Ray ka Art
+          </div>
+          <div class='tag-info'>
+            <div class='tag-info-item'>
+              Knowledge tag
+            </div>
+            <div class='tag-info-item'>
+              Commen term
+            </div>
           </div>
         </div>
         <div class='right-info'>
           <div class='update-time'>
-            {{ content.updateTime | dayjs }}
           </div>
         </div>
       </div>
       <div class='action'>
-        <a-space>
-          <a-button type='primary' @click='editItem(content)'>Edit</a-button>
-        </a-space>
       </div>
     </div>
   </div>
@@ -35,10 +50,10 @@
 import { typeMap } from '@/const/teacher'
 import { ContentItemMixin } from '@/mixins/ContentItemMixin'
 import PreviewContent from '@/components/MyContentV2/PreviewContent'
-
+import PreviewIcon from '@/assets/v2/icons/preview.svg?inline'
 export default {
   name: 'LinkContentItem',
-  components: { PreviewContent },
+  components: { PreviewContent, PreviewIcon },
   props: {
     content: {
       type: Object,
@@ -84,23 +99,91 @@ export default {
 <style lang="less" scoped>
 @import "~@/components/index.less";
 
-.content-item {
-  padding: 15px;
-  border: 1px dashed #15c39a;
+.link-content-item {
+  padding: 15px 20px;
   margin: 15px 0;
+  background: #FFFFFF;
+  border: 1px solid #E0E0E0;
+  box-shadow: 0 1px 3px 0 rgba(99, 99, 99, 0.11);
+  border-radius: 6px;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
   overflow: hidden;
 
   .cover {
-    border: 1px solid #e1e1e1;
     .cover-block {
-      height: 160px;
-      width: 260px;
+      border-radius: 6px;
+      height: 130px;
+      width: 240px;
       background-position: center center;
       background-size: cover;
       background-repeat: no-repeat;
+      position: relative;
+
+      .preview-mask {
+        position: absolute;
+        left: 0;
+        right: 0;
+        border-radius: 6px;
+        top: 0;
+        bottom: 0;
+        opacity: 0;
+        background-color: #000;
+        transition: all 0.2s ease-in-out;
+        z-index: 100;
+      }
+
+      .preview-button-wrapper {
+        position: absolute;
+        left: 0;
+        right: 0;
+        border-radius: 6px;
+        top: 0;
+        bottom: 0;
+        opacity: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: row;
+        z-index: 200;
+        transition: all 0.2s ease-in-out;
+        .preview-button {
+          cursor: pointer;
+          border-radius: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-direction: row;
+          .preview-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: row;
+            svg {
+              width: 25px;
+              height: 25px;
+              fill: #FF686B;
+            }
+          }
+
+          .preview-label {
+            padding-left: 5px;
+            color: #FF686B;
+            font-size: 16px;
+          }
+        }
+
+        &:hover {
+          opacity: 1;
+        }
+      }
+
+      &:hover {
+        .preview-mask {
+          opacity: 0.7;
+        }
+      }
     }
   }
 
@@ -108,8 +191,7 @@ export default {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding-left: 10px;
-    height: 160px;
+    padding-left: 20px;
 
     .detail-content {
       display: flex;
@@ -119,17 +201,29 @@ export default {
 
       .base-info {
         .name {
-          line-height: 30px;
+          line-height: 25px;
           font-size: 15px;
-          color: #333;
-          font-weight: 500;
+          font-family: Arial;
+          font-weight: bold;
+          color: #1D2041;
+        }
+        .subject {
+          cursor: pointer;
+          font-family: Arial;
+          font-weight: 400;
+          color: #757578;
+          line-height: 22px;
+          font-size: 13px;
+        }
+        .tag-info {
+          display: flex;
+          flex-direction: row;
         }
       }
     }
 
     .action {
       flex-shrink: 0;
-      height: 50px;
       display: flex;
       flex-direction: row;
       align-items: center;
