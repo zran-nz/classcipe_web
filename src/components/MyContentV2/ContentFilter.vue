@@ -1,18 +1,20 @@
 <template>
   <div class='content-filter'>
     <div class='filter-line'>
-      <div class="my-search">
-        <custom-search-input
-          @search='triggerSearch'
-          :value.sync='searchKey'
-          placeholder="Search" />
-      </div>
-      <div class="filter-icon" @click.stop="showFilter = !showFilter">
-        <div class="filter-item">
-          <filter-icon class="filter-icon" />
-          <filter-active-icon class="filter-active-icon"/>
+      <a-space>
+        <div class="my-search">
+          <custom-search-input
+            @search='triggerSearch'
+            :value.sync='searchKey'
+            placeholder="Search" />
         </div>
-      </div>
+        <div class="filter-icon" @click.stop="showFilter = !showFilter">
+          <div class="filter-item">
+            <filter-icon class="filter-icon" />
+            <filter-active-icon class="filter-active-icon"/>
+          </div>
+        </div>
+      </a-space>
     </div>
     <div v-if="showFilter" @click.stop=''>
       <div class="filter-params">

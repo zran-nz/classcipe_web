@@ -1140,3 +1140,21 @@ textarea.cc-form-textarea {
     color: #131824;
   }
 }
+
+.cc-radio-group {
+  .ant-radio-button-wrapper-checked {
+    background-color: #363B4C !important;
+    border-color: #363B4C !important;
+  }
+
+  .ant-radio-button-wrapper {
+    background-color: #F7F8F9;
+    &:hover {
+      color: #363B4C;
+    }
+  }
+
+  .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled)::before {
+    background-color: #363B4C;
+  }
+}

@@ -1,7 +1,19 @@
 <template>
   <div class='link-content-list'>
-    <div class='search-input'>
-      <a-input-search placeholder="input search text" v-model='searchKey' style="width: 300px" enter-button @search="searchContent" />
+    <div class='content-filter-wrapper'>
+      <div class='source-filter'>
+        <a-radio-group default-value="MyContent" button-style="solid" class='cc-radio-group' v-model='sourceType'>
+          <a-radio-button value="MyContent">
+            My content
+          </a-radio-button>
+          <a-radio-button value="Library">
+            Library
+          </a-radio-button>
+        </a-radio-group>
+      </div>
+      <div class='content-filter'>
+        <content-filter @search='handleSearch'/>
+      </div>
     </div>
     <div class='display-content-list'>
       <draggable
@@ -46,10 +58,12 @@ import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import DownloadedSvg from '@/assets/libraryv2/downloaded.svg?inline'
 import CommonPreviewV2 from '@/components/Common/CommonPreviewV2'
 import LinkContentItem from '@/components/UnitPlan/LinkContentItem'
+import CustomSearchInput from '@/components/Common/CustomSearchInput'
+import ContentFilter from '@/components/MyContentV2/ContentFilter'
 
 export default {
   name: 'LinkContentList',
-  components: { LinkContentItem, ContentTypeIcon, draggable, DownloadedSvg, CommonPreviewV2 },
+  components: { ContentFilter, CustomSearchInput, LinkContentItem, ContentTypeIcon, draggable, DownloadedSvg, CommonPreviewV2 },
   props: {
     filterTypes: {
       type: Array,
@@ -74,7 +88,8 @@ export default {
       myContentList: [],
       previewVisible: false,
       previewCurrentId: '',
-      previewType: ''
+      previewType: '',
+      sourceType: 'MyContent'
     }
   },
   created() {
