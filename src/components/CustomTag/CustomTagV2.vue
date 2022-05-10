@@ -35,7 +35,65 @@
         <custom-search-input :round='true' placeholder='Search your tag' />
       </div>
       <div class='category-content'>
-        {{ currentActiveTagCategory }}
+        <template v-if="currentActiveTagCategory && currentActiveTagCategory.customDeep === 1">
+          <div class="search-tag-wrapper tag-wrapper" v-if="filterKeywordListInput(currentActiveTagCategory.keywords).length > 0">
+            <div class="skt-tag-item" v-for="(keyword,tagIndex) in filterKeywordListInput(currentActiveTagCategory.keywords)" :key="tagIndex" >
+              <a-tag
+                draggable="true"
+                @click="selectChooseTag(parent,keyword)"
+                class="tag-item cc-custom-tag-item">
+                {{ keyword }}
+              </a-tag>
+            </div>
+          </div>
+          <dvi class='no-tag-content' v-if='filterKeywordListInput(currentActiveTagCategory.keywords).length === 0 && !currentActiveTagCategory.createOwn'>
+            <div class='no-tag-text'>Tag does not exist</div>
+          </dvi>
+          <div class="create-tag-wrapper tag-wrapper" v-show="currentActiveTagCategory.createOwn && !tagNameIsExist(createTagName,showTagList) && !tagIsExist(createTagName,filterKeywordListInput(currentActiveTagCategory.keywords)) && createTagName && createTagName.length >= 1">
+            <div class="skt-tag-create-line" @click="handleCreateTagByInput(parent)">
+              <div class="create-tag-label">
+                Create
+              </div>
+              <div class="create-tag">
+                <a-tag class="created-tag-item">
+                  {{ createTagName }}
+                </a-tag>
+              </div>
+            </div>
+          </div>
+        </template>
+        <template v-else-if='currentActiveTagCategory'>
+          <a-tabs
+            tab-position="top"
+          >
+            <a-tab-pane v-for="(child, childIndex) in currentActiveTagCategory.children" :key="childIndex" :tab="child.name">
+              <div class="skt-tag-list">
+                <div class="search-tag-wrapper tag-wrapper" v-if="filterKeywordListInput(child.keywords).length > 0">
+                  <div class="skt-tag-item" v-for="(keyword, tagIndex) in filterKeywordListInput(child.keywords)" :key="tagIndex" >
+                    <a-tag
+                      @click="selectChooseTag(child,keyword,currentActiveTagCategory)"
+                      class="tag-item cc-custom-tag-item">
+                      {{ keyword }}
+                    </a-tag>
+                  </div>
+                </div>
+                <div class="create-tag-wrapper tag-wrapper">
+                  <div class="skt-tag-create-line" @click="handleCreateTagByInput(child, currentActiveTagCategory)" v-show="!tagNameIsExist(createTagName,showTagList) && !tagIsExist(createTagName, filterKeywordListInput(child.keywords)) && createTagName && createTagName.length >= 1">
+                    <div class="create-tag-label">
+                      Create
+                    </div>
+                    <div class="create-tag">
+                      <a-tag class="created-tag-item">
+                        {{ createTagName }}
+                      </a-tag>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </a-tab-pane>
+          </a-tabs>
+
+        </template>
       </div>
     </div>
     <div class='tag-category-description'>
@@ -43,8 +101,8 @@
         v-if='currentActiveTagCategory'
         :auto-size="{ minRows: 3, maxRows: 6 }"
         v-model='currentActiveTagCategory.description'
-        placeholder='Explan why choose the tags'
-        class='cc-form-textarea'
+        placeholder='Explain why choose the tags'
+        class='cc-form-textarea-white-bg'
         allow-clear />
     </div>
 
@@ -165,7 +223,7 @@ export default {
           if (parent.customDeep > 1) {
             // 从user中合并tag
             if (userGlobalTags.length > 0) {
-            parent.children.forEach(child => {
+              parent.children.forEach(child => {
                 userGlobalTags.forEach(tag => {
                   if (tag.parentId === child.id && child.keywords.indexOf(tag.name) === -1) {
                     child.keywords.push(tag.name)
@@ -388,6 +446,7 @@ export default {
       .skt-tag-item {
         margin: 0 10px 10px 0;
         display: flex;
+        flex-direction: row;
         justify-content: center;
         align-items: center;
         vertical-align: middle;
@@ -431,9 +490,9 @@ export default {
       }
 
     }
+
   }
 }
-
 .tag-category-wrapper {
   margin-top: 30px;
 }
@@ -444,5 +503,42 @@ export default {
   border-radius: 4px;
   width: 100%;
   padding: 15px;
+}
+
+.tag-category-description {
+  margin-top: 20px;
+}
+
+.cc-custom-tag-item {
+  background: #FFEDAF;
+  border-radius: 36px;
+  font-family: Arial;
+  padding: 0 10px;
+  font-weight: 400;
+  color: #734110;
+  line-height: 36px;
+  border-color: #FFEDAF;
+}
+
+.category-content {
+  padding-top: 15px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.search-tag-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+
+  .skt-tag-item {
+    margin: 0 10px 10px 0;
+    cursor: pointer;
+  }
 }
 </style>
