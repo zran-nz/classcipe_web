@@ -489,7 +489,7 @@ export default {
         justify-content: flex-start;
         border-bottom: 1px solid #eee;
         margin-bottom: 10px;
-        overflow-x: overlay;
+        overflow-x: scroll;
 
         &::-webkit-scrollbar-thumb{
           background: transparent;
