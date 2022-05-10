@@ -16,7 +16,7 @@
         </div>
       </a-space>
     </div>
-    <div v-if="showFilter" @click.stop=''>
+    <div v-if="showFilter" @click.stop='' class='filter-wrapper'>
       <div class="filter-params">
         <filter-content
           @filter-config-update="handleUpdateFilterConfig"
@@ -161,6 +161,8 @@ export default {
 @import "~@/components/index.less";
 
 .content-filter {
+  position: relative;
+  z-index: 500;
   .filter-line {
     display: flex;
     align-items: center;
@@ -200,15 +202,19 @@ export default {
       }
     }
   }
-  .filter-params{
-    margin: 10px 0;
-    border: 1px solid #E4E4E4;
-    padding: 5px 15px;
-    border-radius: 5px;
-    max-height: 290px;
-    overflow: auto;
-    background: rgba(228, 228, 228, 0.2);
 
+  .filter-wrapper {
+    position: absolute;
+    right: 0;
+    top: 40px;
+    max-height: 290px;
+    width: 650px;
+    overflow-y: scroll;
+    background-color: #fdfdfd;
+    box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #E4E4E4;
+    padding: 5px 25px;
+    border-radius: 5px;
     &::-webkit-scrollbar {
       width: 5px;
       height: 5px;
