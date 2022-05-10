@@ -1,6 +1,11 @@
 <template>
   <div class='custom-search-input'>
-    <a-input v-model='data' :placeholder='placeholder' @keyup.native.enter='handleSearch' @keydown.native='handleUpdateValue'/>
+    <a-input
+      v-model='data'
+      :style="{borderRadius: round ? '32px' : '6px'}"
+      :placeholder='placeholder'
+      @keyup.native.enter='handleSearch'
+      @keydown.native='handleUpdateValue'/>
     <div class='search-icon' @click='handleSearch'>
       <search-icon />
     </div>
@@ -20,6 +25,10 @@ export default {
     value: {
       type: String,
       default: null
+    },
+    round: {
+      type: Boolean,
+      default: false
     },
     placeholder: {
       type: String,
@@ -58,7 +67,7 @@ export default {
 
   .search-icon {
     position: absolute;
-    width: 30px;
+    width: 35px;
     display: flex;
     align-items: center;
     flex-direction: row;
