@@ -17,7 +17,7 @@
       </div>
     </div>
     <div class='detail'>
-      <div class='detail-content' @click='handlePreviewDetail(content)'>
+      <div class='detail-content'>
         <div class='base-info'>
           <div class='name'>
             {{ content.name }}

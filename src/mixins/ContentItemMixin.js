@@ -18,6 +18,7 @@ export const ContentItemMixin = {
           this.previewType = data.type
           this.previewVisible = true
         })
+        this.$emit('preview', data)
       }
     },
     handlePreviewClose () {
