@@ -3,11 +3,6 @@
     <div class='content-header'>
       <div class='source-type'>
         <radio-switch v-if="radioSwitchShow" ref="radioSwitch" @select="changeType" :menu-list='WORK_SHOPS_TYPE_VALUES' displayProperty="label"/>
-        <!-- <a-radio-group size="large" button-style="solid" v-model='queryParams.workshopsType'>
-          <a-radio-button :value="item.value" v-for="item in WORK_SHOPS_TYPE" :key="item.label">
-            {{ item.label }}
-          </a-radio-button>
-        </a-radio-group> -->
       </div>
     </div>
     <div class='filter-bar'>
@@ -30,6 +25,34 @@
             >
             </a-input-search>
           </div>
+          <div class="more-filter" v-clickOutside="() => this.moreFilterVisible = false">
+            <icon-font type="icon-loudou" @click="handleShowFilter"></icon-font>
+            <div class="fliter-con" v-show="moreFilterVisible">
+              <div class="filter-opt">
+                <label @click="clearFilter">Clear all</label>
+              </div>
+              <div class="filter-item">
+                <div class="filter-label">Date</div>
+                <div class="filter-options">
+                  <a-radio-group
+                    @change="updateFilterConfig"
+                    v-model="filterParams.dateType"
+                    :options="dateTypeOptions"
+                  />
+                </div>
+              </div>
+              <div class="filter-item">
+                <div class="filter-label">Type</div>
+                <div class="filter-options">
+                  <a-radio-group
+                    @change="updateFilterConfig"
+                    v-model="filterParams.paidType"
+                    :options="paidTypeOptions"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <div class='create-new' v-show="WORK_SHOPS_TYPE.LUNCHEDBYME.value === queryParams.workshopsType">
           <a-dropdown :getPopupContainer="trigger => trigger.parentElement">
@@ -50,9 +73,6 @@
           </a-dropdown>
         </div>
       </a-space>
-      <!-- <div class="pd-filter">
-        <a-checkbox>PD Content only</a-checkbox>
-      </div> -->
     </div>
     <div class='content-wrapper'>
       <a-spin tip='Loading...' :spinning="loading">
@@ -120,6 +140,20 @@ export default {
       WORK_SHOPS_STATUS: WORK_SHOPS_STATUS,
       WORK_SHOPS_TYPE: WORK_SHOPS_TYPE,
       WORK_SHOPS_TYPE_VALUES: Object.values(WORK_SHOPS_TYPE),
+      dateTypeOptions: [{
+        label: 'Weekdays only',
+        value: 1
+      }, {
+        label: 'Weekends only',
+        value: 2
+      }],
+      paidTypeOptions: [{
+        label: 'Free workshops',
+        value: 0
+      }, {
+        label: 'Paid workshops',
+        value: 1
+      }],
 
       queryParams: {
         workshopsType: WORK_SHOPS_TYPE.FEATURE.value,
@@ -143,7 +177,11 @@ export default {
       },
       pageNo: sessionStorage.getItem(SESSION_CURRENT_PAGE) ? parseInt(sessionStorage.getItem(SESSION_CURRENT_PAGE)) : 1,
 
-      filterParams: {},
+      filterParams: {
+        dateType: null,
+        paidType: null
+      },
+      moreFilterVisible: false,
       fontSize: '16px',
       radioSwitchShow: false,
 
@@ -185,6 +223,21 @@ export default {
     },
     handleCloseImport() {
       this.importVisible = false
+    },
+    handleShowFilter() {
+      console.log(123)
+      this.moreFilterVisible = true
+      console.log(this.moreFilterVisible)
+    },
+    clearFilter() {
+      this.filterParams = {
+        dateType: null,
+        paidType: null
+      }
+      this.loadMyContent()
+    },
+    updateFilterConfig() {
+      this.loadMyContent()
     },
     changeType(item) {
       this.queryParams.workshopsType = item.value
@@ -365,9 +418,56 @@ export default {
     .content-filter {
       height: .37em;
       display: flex;
+      align-items: center;
       .my-search {
         display: flex;
         width: 2.5em;
+      }
+      .more-filter {
+        position: relative;
+        display: flex;
+        margin-left: 0.2em;
+        i {
+          font-size: 0.18em /* 18/100 */;
+        }
+        .fliter-con {
+          position: absolute;
+          top: 0.37em;
+          right: 0;
+          width: 4em /* 400/100 */;
+          height: 3.19em /* 319/100 */;
+          overflow: auto;
+          z-index: 99;
+          background: #FAFAFA;
+          border: 1px solid #D9DEE5;
+          box-shadow: 0px 2px 5px 1px rgba(37, 37, 37, 0.06);
+          border-radius: 2px;
+          padding: 0.2em /* 20/100 */;
+          .filter-opt {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            label {
+              color: @primary-color;
+              cursor: pointer;
+              font-size: 0.16em /* 16/100 */;
+            }
+          }
+          .filter-item {
+            margin-bottom: 0.2em /* 20/100 */;
+            .filter-label {
+              font-size: 0.18em /* 18/100 */;
+              font-family: Arial;
+              font-weight: bold;
+              color: #27282A;
+            }
+            .filter-options {
+              margin-top: 0.15em /* 15/100 */;
+              display: flex;
+              align-items: center;
+            }
+          }
+        }
       }
     }
   }
