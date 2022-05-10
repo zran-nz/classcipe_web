@@ -2,7 +2,7 @@
   <div class='link-content-list'>
     <div class='content-filter-wrapper'>
       <div class='source-filter'>
-        <a-radio-group default-value="MyContent" button-style="solid" class='cc-radio-group' v-model='sourceType'>
+        <a-radio-group default-value="MyContent" button-style="solid" class='cc-radio-group' v-model='sourceType' @change='handleSearch({})'>
           <a-radio-button value="MyContent">
             My content
           </a-radio-button>
@@ -16,16 +16,26 @@
       </div>
     </div>
     <div class='display-content-list'>
-      <draggable
-        data-nodraggable='link-content-list'
-        animation="300"
-        :sort='false'
-        group="content-item"
-      >
-        <div v-for='(item) in myContentList' :key='item.id' class="group-link-item" :data-item='JSON.stringify(item)'>
-          <link-content-item :content='item' style='width: 100%' />
-        </div>
-      </draggable>
+      <template v-if='searching'>
+        <a-skeleton />
+      </template>
+      <template v-if='!searching'>
+        <draggable
+          data-nodraggable='link-content-list'
+          animation="300"
+          :sort='false'
+          group="content-item"
+        >
+          <div v-for='(item) in myContentList' :key='item.id' class="group-link-item" :data-item='JSON.stringify(item)'>
+            <link-content-item :content='item' style='width: 100%' />
+          </div>
+          <template v-if='myContentList.length === 0'>
+            <div class='empty-content-list'>
+              <common-no-data />
+            </div>
+          </template>
+        </draggable>
+      </template>
     </div>
 
     <a-drawer
@@ -52,7 +62,6 @@
 
 import draggable from 'vuedraggable'
 import { FindMyContent } from '@/api/teacher'
-import { ownerMap, statusMap } from '@/const/teacher'
 import * as logger from '@/utils/logger'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import DownloadedSvg from '@/assets/libraryv2/downloaded.svg?inline'
@@ -60,10 +69,13 @@ import CommonPreviewV2 from '@/components/Common/CommonPreviewV2'
 import LinkContentItem from '@/components/UnitPlan/LinkContentItem'
 import CustomSearchInput from '@/components/Common/CustomSearchInput'
 import ContentFilter from '@/components/MyContentV2/ContentFilter'
+import { SourceType } from '@/components/MyContentV2/Constant'
+import { QueryContentsFilter } from '@/api/library'
+import CommonNoData from '@/components/Common/CommonNoData'
 
 export default {
   name: 'LinkContentList',
-  components: { ContentFilter, CustomSearchInput, LinkContentItem, ContentTypeIcon, draggable, DownloadedSvg, CommonPreviewV2 },
+  components: { CommonNoData, ContentFilter, CustomSearchInput, LinkContentItem, ContentTypeIcon, draggable, DownloadedSvg, CommonPreviewV2 },
   props: {
     filterTypes: {
       type: Array,
@@ -72,7 +84,7 @@ export default {
   },
   data () {
     return {
-      loading: true,
+      searching: true,
       pageNo: 0,
       pagination: {
         onChange: page => {
@@ -84,7 +96,6 @@ export default {
         total: 0,
         pageSize: 16
       },
-      searchKey: null,
       myContentList: [],
       previewVisible: false,
       previewCurrentId: '',
@@ -93,29 +104,38 @@ export default {
     }
   },
   created() {
-    this.loadContent()
+    this.handleSearch({})
   },
   methods: {
-    handleSearch () {
-      this.searchContent()
+    handleSearch (data) {
+      this.$logger.info('handleSearch data', data)
+      this.searching = true
+      if (this.sourceType === 'MyContent') {
+        this.searchContent(data)
+      } else if (this.sourceType === 'Library') {
+        this.searchLibrary(data)
+      }
     },
-    searchContent() {
+    searchContent(data) {
       this.pageNo = 0
       this.myContentList = []
-      this.loadContent()
+      this.loadContent(data)
     },
-    loadContent () {
-      this.loading = true
-      const params = {
-        owner: ownerMap['owner-by-me'],
-        status: statusMap.published,
-        collabrated: false,
-        types: this.filterTypes,
+    searchLibrary (data) {
+      this.pageNo = 0
+      this.myContentList = []
+      this.loadLibrary(data)
+    },
+    loadContent (data) {
+      let params = {
+        shareType: SourceType.CreatedByMe,
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize,
-        searchKey: this.searchKey ? this.searchKey : '',
+        searchKey: data.searchKey ? data.searchKey : '',
+        types: this.filterTypes,
         delFlag: 0
       }
+      params = Object.assign(data, params)
       FindMyContent(params).then(res => {
         logger.info('loadContent', res)
         if (res.success) {
@@ -136,10 +156,21 @@ export default {
         }
         this.$logger.info('loadContent myContentList', this.myContentList)
       }).finally(() => {
-        this.loading = false
+        this.searching = false
       })
     },
-
+    loadLibrary (data) {
+      QueryContentsFilter({
+        searchKey: data.searchKey ? data.searchKey : '',
+        type: this.filterTypes
+      }).then(response => {
+        if (response.result) {
+          this.myContentList = response.result
+        }
+      }).finally(() => {
+        this.searching = false
+      })
+    },
     handleViewDetail (item) {
       logger.info('handleViewDetail', item)
       this.previewCurrentId = item.id
@@ -311,6 +342,24 @@ export default {
       justify-content: flex-end;
     }
   }
+}
+
+.empty-content-list {
+  width: 100%;
+  height: 200px;
+}
+
+.content-filter-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.display-content-list {
+  max-height: calc(100vh - 230px);
+  overflow-y: scroll;
 }
 
 </style>
