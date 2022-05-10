@@ -44,6 +44,7 @@
 <script>
 
 import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
+import moment from 'moment'
 
 export default {
   name: 'ScheduleDate',
@@ -104,8 +105,8 @@ export default {
     },
     handleDateChange (date, dateString) {
       this.$logger.info('handleDateChange', date, dateString)
-      this.startDate = date[0].utc().format('YYYY-MM-DD HH:mm:ss')
-      this.endData = date[1].utc().format('YYYY-MM-DD HH:mm:ss')
+      this.startDate = moment(date[0].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
+      this.endData = moment(date[1].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
       this.$logger.info('handleDateChange', this.startDate, this.endData)
       this.$emit('select-date', {
         startDate: this.startDate,

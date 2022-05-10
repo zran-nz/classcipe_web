@@ -37,7 +37,7 @@
         <div class='pay-slider'>
           <a-space>
             <a-slider v-model="maxParticipants" :min="1" :max="500" style='width: 100px' />
-            <a-input-number v-model="maxParticipants" :min="1" :max="500" />
+            <a-input-number v-model="maxParticipants" :min="1" :max="zoomMeetingCapacity" />
           </a-space>
         </div>
       </div>
@@ -46,7 +46,7 @@
           Register before
         </div>
         <div class='pay-switch'>
-          <a-date-picker format='YYYY-MM-DD HH:mm:ss' :show-time="{ format: 'HH:mm' }" @change="handleSelectDate" />
+          <a-date-picker :show-time="{ format: 'HH:mm' }" @change="handleSelectDate" />
         </div>
       </div>
     </div>
@@ -60,6 +60,8 @@
 </template>
 
 <script>
+import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
+import moment from 'moment'
 export default {
   name: 'SchedulePayInfo',
   data() {
@@ -84,13 +86,12 @@ export default {
       ]
     }
   },
-  created() {
-  },
+  mixins: [ ZoomAuthMixin ],
   methods: {
     handleDateChange (date, dateString) {
       this.$logger.info('handleDateChange', date, dateString)
-      this.startDate = date[0].utc().format('YYYY-MM-DD HH:mm:ss')
-      this.endData = date[1].utc().format('YYYY-MM-DD HH:mm:ss')
+      this.startDate = moment(date[0].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
+      this.endData = moment(date[1].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
       this.$logger.info('handleDateChange', this.startDate, this.endData)
       this.$emit('select-date', {
         startDate: this.startDate,
@@ -98,9 +99,9 @@ export default {
       })
     },
 
-    handleSelectDate (ddate, dateStringate) {
-      this.$logger.info('handleSelectDate')
-      this.registerBefore = ddate.utc().format('YYYY-MM-DD HH:mm:ss')
+    handleSelectDate (date, dateString) {
+      this.$logger.info('handleSelectDate', moment(date.toDate()).utc().format('YYYY-MM-DD HH:mm:ss'))
+      this.registerBefore = moment(date.toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
     },
 
     getPaidInfo() {

@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import moment from 'moment'
-import 'moment/locale/zh-cn'
 import storage from 'store'
 import { GRADE_COMMON } from '@/store/mutation-types'
 moment.locale(navigator.language)

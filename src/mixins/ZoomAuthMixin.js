@@ -12,7 +12,16 @@ export const ZoomAuthMixin = {
     ...mapState({
       zoomAccessToken: state => state.user.info.zoomAuthToken?.accessToken,
       zoomRefreshToken: state => state.user.info.zoomAuthToken?.refreshToken
-    })
+    }),
+    zoomMeetingCapacity () {
+      const extInfoJson = this.$store.state.user.info.zoomAuthToken?.extInfo
+      if (extInfoJson) {
+        const extInfo = JSON.parse(extInfoJson)
+        return extInfo.meeting_capacity
+      } else {
+        return 100
+      }
+    }
   },
   created() {
     window.addEventListener('message', this.handleZoomAuthCallback)
