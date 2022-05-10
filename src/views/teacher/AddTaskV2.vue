@@ -6346,7 +6346,6 @@ export default {
 }
 
 .common-link-wrapper {
-  padding-top: 40px;
 }
 
 .url-error-tips {
