@@ -1125,6 +1125,57 @@ textarea.cc-form-textarea {
   }
 }
 
+textarea.cc-form-textarea-white-bg {
+  font-size: 14px;
+  font-family: Arial;
+  line-height: 24px;
+  color: #5E6064;
+  border-color: #EEF1F6;
+  border-width: 2px !important;
+  border-radius: 6px;
+  transition: all 0.3s ease-in-out;
+  box-sizing: border-box;
+  background: #fff;
+
+  &:focus {
+    box-shadow: none;
+  }
+
+  &::placeholder {
+    font-family: Arial;
+    font-weight: 400;
+    color: #8A8D93;
+    font-size: 13px;
+  }
+}
+
+.cc-form-textarea-white-bg, .cc-form-input-white-bg {
+  textarea {
+    font-size: 14px;
+    font-family: Arial;
+    line-height: 24px;
+    color: #5E6064;
+    border-color: #EEF1F6;
+    border-width: 2px !important;
+    border-radius: 6px;
+    transition: all 0.3s ease-in-out;
+    box-sizing: border-box;
+    background: #fff;
+
+    &:focus {
+      box-shadow: none;
+    }
+
+    &::placeholder {
+      font-family: Arial;
+      font-weight: 400;
+      color: #8A8D93;
+      font-size: 13px;
+    }
+  }
+}
+
+
 .cc-select {
   min-width: 150px;
   width: 100%;
