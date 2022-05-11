@@ -2043,9 +2043,11 @@ export default {
   watch: {
     currentStep: {
       handler(val) {
+        this.$logger.info('currentStep change', val)
         this.handleDisplayRightModule()
       },
-      deep: true
+      deep: true,
+      immediate: false
     }
   },
   async created() {
@@ -2060,6 +2062,9 @@ export default {
       token = storage.get(ACCESS_TOKEN)
     }
     await this.$store.dispatch('loadFormConfigData', token)
+    if (this.currentActiveStepIndex < 0 || this.currentActiveStepIndex > this.$store.getters.formConfigData.taskSteps.length - 1) {
+      this.currentActiveStepIndex = 0
+    }
     this.currentStep = this.$store.getters.formConfigData.taskSteps[this.currentActiveStepIndex]
     this.handleDisplayRightModule()
     this.$logger.info('恢复step', this.currentActiveStepIndex, this.currentStep)

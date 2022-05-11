@@ -1256,6 +1256,9 @@ export default {
     }
     await this.$store.dispatch('loadFormConfigData', token)
     this.$logger.info('currentActiveStepIndex init ' + this.currentActiveStepIndex)
+    if (this.currentActiveStepIndex < 0 || this.currentActiveStepIndex > this.$store.getters.formConfigData.taskSteps.length - 1) {
+      this.currentActiveStepIndex = 0
+    }
     this.currentStep = this.$store.getters.formConfigData.planSteps[this.currentActiveStepIndex]
     this.handleDisplayRightModule()
 
