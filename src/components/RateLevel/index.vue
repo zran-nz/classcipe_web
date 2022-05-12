@@ -25,12 +25,12 @@
         </div>
       </a-rate>
     </a-popover>
-    <a-popover trigger="click" :visible="knowledgeVisible" @visibleChange="handleKnowledgeChange">
+    <a-popover trigger="click" :visible="knowledgeDimensionVisible" @visibleChange="handleKnowledgeChange">
       <template slot="content">
         <div class="choose-bar">
           <div
             class="choose-bar-item"
-            @click="changeLevel('knowledge', item.title)"
+            @click="changeLevel('knowledgeDimension', item.title)"
             :style="{background: COLOR_LEVEL.KNOWLEDGE[index], height: HEIGHT[index]+'px'}"
             v-for="(item, index) in knowledgeLevel"
             :key="'knowledge_' + item.title">
@@ -114,7 +114,7 @@ export default {
     return {
       COLOR_LEVEL: COLOR_LEVEL,
       bloomTagVisible: false,
-      knowledgeVisible: false,
+      knowledgeDimensionVisible: false,
       HEIGHT: [30, 50, 70, 90, 110, 130, 150, 180],
       currentBloom: this.bloom,
       currentKnowledge: this.knowledge,
@@ -147,7 +147,7 @@ export default {
       })
     },
     handleKnowledgeChange(visible) {
-      this.knowledgeVisible = visible
+      this.knowledgeDimensionVisible = visible
     },
     handleBloomChange(visible) {
       this.bloomTagVisible = visible

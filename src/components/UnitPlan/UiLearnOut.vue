@@ -20,7 +20,7 @@
                   <div class="objectives-tag-content">
                     <div class="objectives-tag-item" v-for="(tag, tagIndex) in k.commandTerms" :key="'skill_command_'+tagIndex">
                       <a-tag color="#ec7d31" :closable="true" @close="e => handleCloseObjectiveTag(k, 'commandTerms', tagIndex)">{{ tag.name }}</a-tag>
-                      <!-- <rate-level @change="val => handleChangeLevel(val, tag)" :bloom="tag.bloomTag"/> -->
+                      <rate-level @change="val => handleChangeLevel(val, tag)" :bloom="tag.bloomTag" :knowledge="tag.knowledgeDimension" />
                     </div>
                   </div>
                 </a-space>
@@ -73,7 +73,7 @@
                 <div class="objectives-tag-content">
                   <div class="objectives-tag-item" v-for="(tag, tagIndex) in skillInput.commandTerms" :key="'skill_input_command_'+tagIndex">
                     <a-tag color="#ec7d31" :closable="true" @close="e => handleCloseObjectiveTag(skillInput, 'commandTerms', tagIndex)">{{ tag.name }}</a-tag>
-                    <!-- <rate-level @change="val => handleChangeLevel(val, tag)" :bloom="tag.bloomTag"/> -->
+                    <rate-level @change="val => handleChangeLevel(val, tag)" :bloom="tag.bloomTag" :knowledge="tag.knowledgeDimension" />
                   </div>
                 </div>
               </a-space>
@@ -112,7 +112,7 @@
                   <div class="objectives-tag-content">
                     <div class="objectives-tag-item" v-for="(tag, tagIndex) in k.commandTerms" :key="'knowledge_command_'+tagIndex">
                       <a-tag color="#ec7d31" :closable="true" @close="e => handleCloseObjectiveTag(k, 'commandTerms', tagIndex)">{{ tag.name }}</a-tag>
-                    <!-- <rate-level @change="val => handleChangeLevel(val, tag)" :bloom="tag.bloomTag"/> -->
+                      <rate-level @change="val => handleChangeLevel(val, tag)" :bloom="tag.bloomTag" :knowledge="tag.knowledgeDimension" />
                     </div>
                   </div>
                 </a-space>
@@ -172,7 +172,7 @@
                       :closable="true"
                       @close="e => handleCloseObjectiveTag(knowledgeInput, 'commandTerms', tagIndex)"
                     >{{ tag.name }}</a-tag>
-                  <!-- <rate-level @change="val => handleChangeLevel(val, tag)" :bloom="tag.bloomTag"/> -->
+                    <rate-level @change="val => handleChangeLevel(val, tag)" :bloom="tag.bloomTag" :knowledge="tag.knowledgeDimension" />
                   </div>
                 </div>
               </a-space>
@@ -221,7 +221,7 @@
                           :closable="true"
                           @close="e => handleCloseObjectiveTag(k, 'commandTerms', tagIndex)"
                         >{{ tag.name }}</a-tag>
-                        <!-- <rate-level @change="val => handleChangeLevel(val, tag)" :bloom="tag.bloomTag"/> -->
+                        <rate-level @change="val => handleChangeLevel(val, tag)" :bloom="tag.bloomTag" :knowledge="tag.knowledgeDimension" />
                       </div>
                     </div>
                   </a-space>
@@ -300,7 +300,7 @@
                       :closable="true"
                       @close="e => handleCloseObjectiveTag(centuryInput, 'commandTerms', tagIndex)"
                     >{{ tag.name }}</a-tag>
-                    <!-- <rate-level @change="val => handleChangeLevel(val, tag)" :bloom="tag.bloomTag"/> -->
+                    <rate-level @change="val => handleChangeLevel(val, tag)" :bloom="tag.bloomTag" :knowledge="tag.knowledgeDimension" />
                   </div>
                 </div>
               </a-space>
@@ -395,10 +395,10 @@
                     labelCol: { span: 0 },
                     wrapperCol: { span: 24 },
                   }">
-                  <a-form-model-item label="" prop="name">
+                  <a-form-model-item label="" prop="name" style="margin-bottom:0">
                     <a-input v-model="commandTermForm.name" placeholder="input command term" />
                   </a-form-model-item>
-                  <a-form-model-item label="" prop="bloom">
+                  <a-form-model-item label="" prop="bloom" style="margin-bottom:0">
                     <a-select
                       :getPopupContainer="trigger => trigger.parentElement"
                       v-model="commandTermForm.bloom"
@@ -406,6 +406,17 @@
                     >
                       <a-select-option v-for="bloom in bloomOptions" :value="bloom" :key="'bloom_' + bloom">
                         {{ bloom }}
+                      </a-select-option>
+                    </a-select>
+                  </a-form-model-item>
+                  <a-form-model-item label="" prop="knowledge" style="margin-bottom:10px">
+                    <a-select
+                      :getPopupContainer="trigger => trigger.parentElement"
+                      v-model="commandTermForm.knowledge"
+                      placeholder="Knowledge Dimensions"
+                    >
+                      <a-select-option v-for="item in knowLedgeOptions" :value="item" :key="'knowledge_' + item">
+                        {{ item }}
                       </a-select-option>
                     </a-select>
                   </a-form-model-item>
@@ -513,16 +524,20 @@
         currentObjective: null,
         bloomParentId: '',
         bloomOptions: [],
+        knowLedgeParentId: '',
+        knowLedgeOptions: [],
         saveCommanTermLoading: false,
         KnowledgeTermTagQueryByKeywords: KnowledgeTermTagQueryByKeywords,
         commandTermForm: {
           name: '',
           parentId: '',
-          bloom: ''
+          bloom: '',
+          knowledge: ''
         },
         commandTermRules: {
           name: [{ required: true, message: 'Please input term name', trigger: 'blur' }],
-          bloom: [{ required: true, message: 'Please select bloom', trigger: 'change' }]
+          bloom: [{ required: true, message: 'Please select bloom', trigger: 'change' }],
+          knowledge: [{ required: true, message: 'Please select knowledgeDimension', trigger: 'change' }]
           // bloom: [
           //   {
           //     type: 'array',
@@ -579,13 +594,20 @@
       initBloomOptions () {
         if (this.customTags && this.customTags.recommends) {
           const bloom = this.customTags.recommends.find(item => item.name === "Bloom's Taxonomy")
-          console.log(bloom)
           if (bloom) {
             this.bloomOptions = bloom.keywords
             this.bloomParentId = bloom.id
           } else {
             this.bloomOptions = []
             this.bloomParentId = ''
+          }
+          const knowLedge = this.customTags.recommends.find(item => item.name === 'Knowledge Dimensions')
+          if (knowLedge) {
+            this.knowLedgeOptions = knowLedge.keywords
+            this.knowLedgeParentId = knowLedge.id
+          } else {
+            this.knowLedgeOptions = []
+            this.knowLedgeParentId = ''
           }
         }
       },
@@ -850,7 +872,8 @@
         this.currentObjective = { ...currentChoose }
         this.quickWord = key.split(' ')[0]
         this.commandTermForm.name = this.quickWord
-        this.commandTermForm.bloom = []
+        this.commandTermForm.bloom = ''
+        this.commandTermForm.knowledge = ''
         this.showQuickWordCreate = false
         // KnowledgeTermTagQueryByKeywords({
         //   keywords: this.quickWord
@@ -867,6 +890,7 @@
         this.$forceUpdate()
       },
       handleQuickWordSet(res, key) {
+        console.log(res)
         setTimeout(() => {
           this.$refs.quickModal.style.display = 'none'
         }, 200)
@@ -878,14 +902,16 @@
               find[key].push({
                 id: res.id,
                 name: res.word,
-                bloomTag: res.bloomTag
+                bloomTag: res.bloomTag,
+                knowledgeDimension: res.knowledgeDimension
               })
             }
           } else {
             this.$set(find, key, [{
               id: res.id,
               name: res.word,
-              bloomTag: res.bloomTag
+              bloomTag: res.bloomTag,
+              knowledgeDimension: res.knowledgeDimension
             }])
           }
         } else {
@@ -901,14 +927,16 @@
               findInput[key].push({
                 id: res.id,
                 name: res.word,
-                bloomTag: res.bloomTag
+                bloomTag: res.bloomTag,
+                knowledgeDimension: res.knowledgeDimension
               })
             }
           } else {
             this.$set(findInput, key, [{
               id: res.id,
               name: res.word,
-              bloomTag: res.bloomTag
+              bloomTag: res.bloomTag,
+              knowledgeDimension: res.knowledgeDimension
             }])
           }
         }
@@ -921,6 +949,8 @@
               name: this.commandTermForm.name,
               bloomTagId: this.bloomParentId,
               bloomTag: this.commandTermForm.bloom,
+              knowledgeDimensionId: this.knowLedgeParentId,
+              knowledgeDimension: this.commandTermForm.knowledge,
               type: 1,
               isGlobal: 2
             }).then(res => {
@@ -930,6 +960,8 @@
                   parentId: this.bloomParentId,
                   tag: this.commandTermForm.bloom,
                   bloomTag: this.commandTermForm.bloom,
+                  knowledgeDimensionId: this.knowLedgeParentId,
+                  knowledgeDimension: this.commandTermForm.knowledge,
                   id: res.result.id
                 }, 'commandTerms')
               }

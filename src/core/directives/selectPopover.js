@@ -26,8 +26,10 @@ import Vue from 'vue'
         }
         text = text.toString().replace(/\n/g, '').trim()
         const $dom = document.getElementById(domQuery)
-        $dom.style.position = 'absolute'
+        // $dom.style.position = 'absolute'
+        $dom.style.position = 'fixed'
         $dom.style.zIndex = 999
+        // console.log(x, y, e.pageX, e.pageY)
         if (showEmpty || text) {
           // 找到最近一层relative
           let parentNode = $dom.parentNode
@@ -35,8 +37,10 @@ import Vue from 'vue'
             parentNode = parentNode.parentNode
           }
           $dom.style.display = 'block'
-          $dom.style.top = e.pageY - y - parentNode.getBoundingClientRect().y + 20 + 'px'
-          $dom.style.left = x - parentNode.getBoundingClientRect().x + 'px'
+          // $dom.style.top = e.pageY - y - parentNode.getBoundingClientRect().y + 20 + 'px'
+          // $dom.style.left = x - parentNode.getBoundingClientRect().x + 'px'
+          $dom.style.top = e.pageY + 15 + 'px'
+          $dom.style.left = e.pageX - 15 + 'px'
           domFn && domFn(text, params)
         } else {
           $dom.style.display = 'none'
