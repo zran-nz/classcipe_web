@@ -163,6 +163,7 @@ export default {
         parentId: item.bloomTagId,
         tag: item.bloomTag,
         bloomTag: item.bloomTag,
+        knowledgeDimension: item.knowledgeDimension,
         id: item.id
       })
     },
