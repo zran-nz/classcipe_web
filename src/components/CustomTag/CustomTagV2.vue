@@ -28,7 +28,7 @@
     </div>
 
     <div class='tag-category-wrapper'>
-      <custom-tag-category-bar :category-list='mergeTagList' @change='handleChangeCategory'/>
+      <custom-tag-category-bar :category-list='mergeTagList' :default-active-tag-category-name='mergeTagList.length ? mergeTagList[0] : null' @change='handleChangeCategory'/>
     </div>
     <div class='tag-category-content-wrapper'>
       <div class='category-search'>

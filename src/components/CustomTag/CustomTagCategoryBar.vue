@@ -32,6 +32,10 @@ export default {
     categoryList: {
       type: Array,
       default: () => []
+    },
+    defaultActiveTagCategoryName: {
+      type: String,
+      default: null
     }
   },
   data() {
@@ -40,6 +44,7 @@ export default {
     }
   },
   created() {
+    this.currentActiveTagCategoryName = this.defaultActiveTagCategoryName
   },
   methods: {
     scrollLeft () {

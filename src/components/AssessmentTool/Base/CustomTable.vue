@@ -1,6 +1,5 @@
 <template>
   <div class='cc-custom-table'>
-
   </div>
 </template>
 
