@@ -409,7 +409,7 @@
                       </a-select-option>
                     </a-select>
                   </a-form-model-item>
-                  <a-form-model-item label="" prop="knowledge" style="margin-bottom:0">
+                  <a-form-model-item label="" prop="knowledge" style="margin-bottom:10px">
                     <a-select
                       :getPopupContainer="trigger => trigger.parentElement"
                       v-model="commandTermForm.knowledge"
