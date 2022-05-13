@@ -7,6 +7,10 @@
     <div class='label' :style="{fontSize: size + 'px'}">
       {{ label }}
     </div>
+    <div class='suffix'>
+      <slot name='suffix'>
+      </slot>
+    </div>
   </div>
 </template>
 
@@ -53,7 +57,7 @@ export default {
   border: 2px solid #FBD32C;
   transition: background-color 0.3s ease-in-out;
 
-  .icon {
+  .icon, .suffix {
     display: flex;
     align-items: center;
     justify-content: center;
