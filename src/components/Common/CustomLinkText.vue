@@ -1,6 +1,10 @@
 <template>
   <div class='link-text' :style="{'font-size': size + 'px', 'line-height': size + 'px', color: color}" @click='handleClick'>
-    {{ text }}
+    <slot name='prefix'></slot>
+    <div class='text'>
+      {{ text }}
+    </div>
+    <slot name='suffix'></slot>
   </div>
 </template>
 
@@ -46,9 +50,16 @@ export default {
   cursor: pointer;
   user-select: none;
 
-  &:hover {
-    text-decoration: underline;
-    color: #007A8E;
+  .text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Arial;
+    padding: 0 5px;
+    &:hover {
+      text-decoration: underline;
+      color: #007A8E;
+    }
   }
 }
 
