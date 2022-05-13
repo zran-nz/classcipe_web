@@ -34,7 +34,7 @@
     </div>
     <div class='tag-category-content-wrapper'>
       <div class='category-search'>
-        <custom-search-input :round='true' placeholder='Search your tag' />
+        <custom-search-input :round='true' placeholder='Search your tag' :value.sync='inputTag' @change='searchTag' @search='handleKeyEnter'/>
       </div>
       <div class='category-content'>
         <template v-if="currentActiveTagCategory && currentActiveTagCategory.customDeep === 1">
@@ -48,9 +48,9 @@
               </a-tag>
             </div>
           </div>
-          <dvi class='no-tag-content' v-if='filterKeywordListInput(currentActiveTagCategory.keywords).length === 0 && !currentActiveTagCategory.createOwn'>
+          <div class='no-tag-content' v-if='filterKeywordListInput(currentActiveTagCategory.keywords).length === 0 && !currentActiveTagCategory.createOwn'>
             <div class='no-tag-text'>Tag does not exist</div>
-          </dvi>
+          </div>
           <div class="create-tag-wrapper tag-wrapper" v-show="currentActiveTagCategory.createOwn && !tagNameIsExist(createTagName,showTagList) && !tagIsExist(createTagName,filterKeywordListInput(currentActiveTagCategory.keywords)) && createTagName && createTagName.length >= 1">
             <div class="skt-tag-create-line" @click="handleCreateTagByInput(parent)">
               <div class="create-tag-label">
@@ -377,10 +377,9 @@ export default {
       }
     },
 
-    handleKeyEnter (parent) {
-      this.$logger.info('tag handleKeyEnter ', this.inputTag, parent)
-      this.createTagName = this.inputTag
-      this.handleCreateTagByInput(parent)
+    handleKeyEnter (data) {
+      this.$logger.info('tag handleKeyEnter', data)
+      this.handleCreateTagByInput(this.currentActiveTagCategory)
     },
 
     searchTag (keyword) {
@@ -476,6 +475,7 @@ export default {
 
           /deep/ .anticon-close {
             opacity: 0;
+            color: #f26c59;
           }
 
           &:hover {

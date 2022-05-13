@@ -5,7 +5,7 @@
       :style="{borderRadius: round ? '32px' : '6px'}"
       :placeholder='placeholder'
       @keyup.native.enter='handleSearch'
-      @keydown.native='handleUpdateValue'/>
+      @keyup.native='handleUpdateValue'/>
     <div class='search-icon' @click='handleSearch'>
       <search-icon />
     </div>
@@ -50,6 +50,7 @@ export default {
     },
     handleUpdateValue () {
       this.$emit('update:value', this.data)
+      this.$emit('change', this.data)
     }
   }
 }
