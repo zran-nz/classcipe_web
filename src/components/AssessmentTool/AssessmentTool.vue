@@ -5,8 +5,8 @@
         {{ assessment.title }}
       </div>
       <div class='right-action'>
-        <a-space>
-          <custom-link-text text='Option'>
+        <a-space v-if='assessment.type === AssessmentToolType.Rubric'>
+          <custom-link-text text='Option' @click='selectHeaderSet'>
             <template v-slot:prefix>
               <a-icon type='plus-circle' />
             </template>
@@ -15,7 +15,7 @@
       </div>
     </div>
     <div class='assessment-body'>
-      <assessment-tool-table />
+      <assessment-tool-table ref='table' />
     </div>
   </div>
 </template>
@@ -25,6 +25,7 @@ import CustomTextButton from '@/components/Common/CustomTextButton'
 import CustomLinkText from '@/components/Common/CustomLinkText'
 import AssessmentToolMixin from '@/components/AssessmentTool/Mixin/AssessmentToolMixin'
 import AssessmentToolTable from '@/components/AssessmentTool/AssessmentToolTable'
+import { AssessmentToolType } from '@/components/AssessmentTool/Constant'
 
 export default {
   name: 'AssessmentTool',
@@ -42,11 +43,18 @@ export default {
   },
   mixins: [ AssessmentToolMixin ],
   data() {
-    return {}
+    return {
+      AssessmentToolType: AssessmentToolType
+    }
   },
   created() {
   },
-  methods: {}
+  methods: {
+    selectHeaderSet () {
+      this.$logger.info('selectHeaderSet', this.$refs.table)
+      this.$refs.table.selectHeaderSetModalVisible = true
+    }
+  }
 }
 </script>
 

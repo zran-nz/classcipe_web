@@ -38,6 +38,9 @@
       <div class='add-row' v-if='mode === AssessmentMode.edit'>
         <plus-icon color='#a9adb4' @click='handleAddRow' />
       </div>
+      <div class='right-action'>
+        <custom-link-text text='Save as set of options' @click='handleSaveHeaderAsSet'></custom-link-text>
+      </div>
     </div>
 
     <a-modal
@@ -56,6 +59,20 @@
         </div>
       </div>
     </a-modal>
+
+    <a-modal
+      v-model='selectHeaderSetModalVisible'
+      destroyOnClose
+      :title='null'
+      :closable='false'
+      :footer='null'>
+      <modal-header title="Select header option" @close='selectHeaderSetModalVisible = false'/>
+      <div class='edit-header-action'>
+        <div class='edit-header-action-item header-option' v-for='(options, idx) in optionList' :key='idx' @click='selectHeaderSet(options)'>
+          <a-tag v-for='(option,oIdx) in options' :key='oIdx'>{{ option }}</a-tag>
+        </div>
+      </div>
+    </a-modal>
   </div>
 </template>
 
@@ -66,10 +83,11 @@ import { AssessmentMode, HeaderType } from '@/components/AssessmentTool/Constant
 import DeleteIcon from '@/components/Common/DeleteIcon'
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import ModalHeader from '@/components/Common/ModalHeader'
+import CustomLinkText from '@/components/Common/CustomLinkText'
 
 export default {
   name: 'AssessmentToolTable',
-  components: { ModalHeader, CustomTextButton, DeleteIcon, PlusIcon, CommonNoData },
+  components: { CustomLinkText, ModalHeader, CustomTextButton, DeleteIcon, PlusIcon, CommonNoData },
   inject: [ 'assessment' ],
   props: {
     mode: {
@@ -83,7 +101,14 @@ export default {
       AssessmentMode: AssessmentMode,
 
       editHeaderModalVisible: false,
-      currentEditHeader: null
+      currentEditHeader: null,
+
+      selectHeaderSetModalVisible: false,
+      optionList: [
+        [ 'Option1', 'Option2', 'Option3' ],
+        [ 'Option4', 'Option5', 'Option6' ],
+        [ 'Option7', 'Option8', 'Option9' ]
+      ]
     }
   },
   mounted() {
@@ -111,6 +136,7 @@ export default {
         this.currentEditHeader.editing = false
       }
     },
+
     handleEditName () {
       this.currentEditHeader.editing = true
       this.editHeaderModalVisible = false
@@ -170,6 +196,21 @@ export default {
         }
       })
       this.assessment.bodyList.push(row)
+    },
+
+    handleSaveHeaderAsSet () {
+      this.$logger.info('handleSaveHeaderAsSet', this.assessment.headerList)
+    },
+
+    selectHeaderSet (options) {
+      let index = 0
+      this.assessment.headerList.forEach(header => {
+        if (header.type.startsWith(HeaderType.custom)) {
+          header.title = options[index % options.length]
+          index++
+        }
+      })
+      this.selectHeaderSetModalVisible = false
     }
   }
 }
@@ -262,6 +303,7 @@ export default {
     display: flex;
     flex-direction: row;
     align-items: center;
+    justify-content: space-between;
     .add-row {
       display: block;
       cursor: pointer;
@@ -274,6 +316,18 @@ export default {
   .edit-header-action-item {
     .cc-custom-text-button {
       margin: 15px auto;
+    }
+  }
+
+  .header-option {
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f1f1f1;
+    margin: 15px auto;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #e1e1e1;
     }
   }
 }
