@@ -22,13 +22,15 @@
           </div>
         </div>
       </div>
-      <div class='no-selected-tag' v-show='!tagList.length'>
+      <div class='no-selected-tag' v-show='!showTagList.length'>
         <common-no-data text='No tag' />
       </div>
     </div>
 
     <div class='tag-category-wrapper'>
-      <custom-tag-category-bar :category-list='mergeTagList' :default-active-tag-category-name='mergeTagList.length ? mergeTagList[0] : null' @change='handleChangeCategory'/>
+      <template v-if='currentActiveTagCategory'>
+        <custom-tag-category-bar :category-list='mergeTagList' :default-active-tag-category-name='currentActiveTagCategory.name' @change='handleChangeCategory'/>
+      </template>
     </div>
     <div class='tag-category-content-wrapper'>
       <div class='category-search'>
@@ -40,7 +42,7 @@
             <div class="skt-tag-item" v-for="(keyword,tagIndex) in filterKeywordListInput(currentActiveTagCategory.keywords)" :key="tagIndex" >
               <a-tag
                 draggable="true"
-                @click="selectChooseTag(parent,keyword)"
+                @click="selectChooseTag(currentActiveTagCategory,keyword)"
                 class="tag-item cc-custom-tag-item">
                 {{ keyword }}
               </a-tag>
@@ -71,7 +73,7 @@
                 <div class="search-tag-wrapper tag-wrapper" v-if="filterKeywordListInput(child.keywords).length > 0">
                   <div class="skt-tag-item" v-for="(keyword, tagIndex) in filterKeywordListInput(child.keywords)" :key="tagIndex" >
                     <a-tag
-                      @click="selectChooseTag(child,keyword,currentActiveTagCategory)"
+                      @click="selectChooseTag(child, keyword, currentActiveTagCategory)"
                       class="tag-item cc-custom-tag-item">
                       {{ keyword }}
                     </a-tag>
@@ -133,7 +135,7 @@ import CustomTagCategoryBar from '@/components/CustomTag/CustomTagCategoryBar'
 import CustomSearchInput from '@/components/Common/CustomSearchInput'
 
 export default {
-  name: 'CustomTag',
+  name: 'CustomTagV2',
   components: {
     CustomSearchInput,
     CustomTagCategoryBar,
@@ -197,6 +199,10 @@ export default {
   },
   created () {
     this.$logger.info('customTags', this.customTags)
+  },
+  mounted() {
+    this.currentActiveTagCategory = this.mergeTagList.length ? this.mergeTagList[0] : null
+    this.$logger.info('currentActiveTagCategory inited', this.currentActiveTagCategory)
   },
   computed: {
     showTagList: function () {
@@ -313,7 +319,7 @@ export default {
     },
     selectChooseTag (parent, tag, superParent) {
       this.$logger.info('choose tag ', parent, tag, superParent)
-        this.tagList.unshift({
+        this.tagList.push({
           'parentName': superParent ? (superParent.name + '-' + parent.name) : parent.name,
           'name': tag,
           'fieldName': this.currentFieldName,
@@ -539,6 +545,9 @@ export default {
   .skt-tag-item {
     margin: 0 10px 10px 0;
     cursor: pointer;
+    .ant-tag {
+      cursor: pointer;
+    }
   }
 }
 </style>

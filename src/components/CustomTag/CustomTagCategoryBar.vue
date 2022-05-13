@@ -51,7 +51,7 @@ export default {
       this.$logger.info('scrollLeft')
       const tagCategoryTabDom = document.getElementById('cc-user-tag-category-tabs')
       tagCategoryTabDom.scrollTo({
-        left: tagCategoryTabDom.scrollLeft - 400,
+        left: tagCategoryTabDom.scrollLeft - 300,
         behavior: 'smooth'
       })
     },
@@ -59,7 +59,7 @@ export default {
       this.$logger.info('scrollRight')
       const tagCategoryTabDom = document.getElementById('cc-user-tag-category-tabs')
       tagCategoryTabDom.scrollTo({
-        left: tagCategoryTabDom.scrollLeft + 400,
+        left: tagCategoryTabDom.scrollLeft + 300,
         behavior: 'smooth'
       })
     },
