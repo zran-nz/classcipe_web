@@ -219,7 +219,8 @@ export default {
 <style lang='less' scoped>
 @import "~@/components/index.less";
 .assessment-tool-table {
-  overflow-y: scroll;
+  overflow-y: hidden;
+  overflow-x: auto;
   table {
     width: 100%;
     background: #FFFFFF;
@@ -232,6 +233,7 @@ export default {
         th {
           padding: 0;
           user-select: none;
+          min-width: 100px;
 
           .header-action {
             position: absolute;
@@ -279,7 +281,7 @@ export default {
 
     th {
       border-right: 2px dashed #D8DEEA;
-      height: 40px;
+      min-height: 40px;
       padding: 0 20px;
       font-size: 14px;
       font-family: Arial;
@@ -333,7 +335,7 @@ export default {
 }
 
 .cc-table-input {
-  height: 100%;
+  min-height: 40px;
   line-height: 100%;
   border: none;
   box-shadow: none;
