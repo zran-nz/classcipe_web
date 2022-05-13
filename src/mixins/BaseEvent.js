@@ -15,7 +15,8 @@ export const RightModule = {
   'customTag': 4,
   'taskDetails': 5,
   'recommend': 6,
-  'associate': 7
+  'associate': 7,
+  'assessmentToolsLearnOuts': 8 // 评估表关联大纲条
 }
 export const BaseEventMixin = {
   data () {
