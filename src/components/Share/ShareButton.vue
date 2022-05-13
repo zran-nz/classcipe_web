@@ -10,7 +10,7 @@
     <div class="share-out">
       <icon-font @click="share('fb')" type="icon-Facebook"/>
       <icon-font @click="share('in')" type="icon-Linkdin"/>
-      <icon-font @click="share('ins')" type="icon-Instergram"/>
+      <!-- <icon-font @click="share('ins')" type="icon-Instergram"/> -->
       <icon-font @click="share('twitter')" type="icon-Twitter"/>
       <icon-font @click="handleCopy" type="icon-lianjie1"/>
       <!-- <img @click="share('fb')" src="~@/assets/icons/share/fb.png" alt="share to facebook" />

@@ -464,7 +464,7 @@ export default {
 }
 .detail-share {
   /deep/ .share-button {
-    width:  2.5em;
+    width:  2.1em;
     height: 2em;
     padding: .1em;
     .share-title {
