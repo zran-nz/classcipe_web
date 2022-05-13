@@ -2,7 +2,6 @@ import { AllCurriculums, PlanField, TaskField } from '@/const/common'
 import { typeMap } from '@/const/teacher'
 import ScheduleSteps from '@/components/Schedule/ScheduleSteps'
 import ScheduleSessionType from '@/components/Schedule/ScheduleSessionType'
-import AssessmentToolType from '@/components/AssessmentTool/AssessmentToolType'
 
 const classcipeCDN = 'https://d1nk0uvaoq8fwq.cloudfront.net/'
 
@@ -47,6 +46,5 @@ export {
   sysConfig,
   ScheduleSteps,
   ScheduleSessionType,
-  AssessmentToolType,
   replaceToClasscipeCDN
 }

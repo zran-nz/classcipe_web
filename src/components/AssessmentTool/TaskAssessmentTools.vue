@@ -23,28 +23,21 @@
             <a-menu-item>
               <a href="javascript:;" @click="handleAddAssessmentTool('checkList')">Checklist</a>
             </a-menu-item>
-            <a-menu-item>
-              <a href="javascript:;" @click="handleAddAssessmentTool('openQuestions')">Open questions</a>
-            </a-menu-item>
           </a-menu>
         </a-dropdown>
       </a-space>
     </div>
     <div class='assessment-list'>
-      <div class='assessment-item' v-for='assessment in assessmentList' :key='assessment.key'>
-        <rubric
-          :assessment='assessment'
-          @delete='handleDeleteAssessmentTool'
-          v-if='assessment.type === $classcipe.AssessmentToolType.Rubric' />
-        <single-point-rubric
-          :assessment='assessment'
-          @delete='handleDeleteAssessmentTool'
-          v-if='assessment.type === $classcipe.AssessmentToolType.SinglePointRubric' />
-        <check-list
-          :assessment='assessment'
-          @delete='handleDeleteAssessmentTool'
-          v-if='assessment.type === $classcipe.AssessmentToolType.CheckList' />
-      </div>
+      <template v-if='assessmentList.length'>
+        <div class='assessment-item' v-for='assessment in assessmentList' :key='assessment.key'>
+          <assessment-tool
+            :assessment='assessment'
+            @delete='handleDeleteAssessmentTool' />
+        </div>
+      </template>
+      <template v-if='!assessmentList.length'>
+        <common-no-data text='No assessment tool.'/>
+      </template>
     </div>
   </div>
 </template>
@@ -52,25 +45,15 @@
 <script>
 
 import CustomTextButton from '@/components/Common/CustomTextButton'
-import Rubric from '@/components/AssessmentTool/Rubric'
-import CheckList from '@/components/AssessmentTool/CheckList'
-import SinglePointRubric from '@/components/AssessmentTool/SinglePointRubric'
-
-const HeaderType = {
-  criteria: 'criteria',
-  improvement: 'improvement',
-  exceeding: 'exceeding',
-  yes: 'yes',
-  no: 'no',
-  custom: 'custom_'
-}
+import CommonNoData from '@/components/Common/CommonNoData'
+import AssessmentTool from '@/components/AssessmentTool/AssessmentTool'
+import { HeaderType, AssessmentToolType } from '@/components/AssessmentTool/Constant'
 
 export default {
   name: 'TaskAssessmentTools',
   components: {
-    Rubric,
-    CheckList,
-    SinglePointRubric,
+    AssessmentTool,
+    CommonNoData,
     CustomTextButton
   },
   data() {
@@ -80,69 +63,85 @@ export default {
       // 初始评估表配置
       assessmentToolConfig: {
         rubric: {
-          type: this.$classcipe.AssessmentToolType.Rubric,
+          type: AssessmentToolType.Rubric,
           title: 'Rubric',
           canAddCustomRow: true,
+          canAddCustomCol: true,
           headerList: [
             {
               title: 'Criteria',
               type: HeaderType.criteria,
-              bgColor: '#E6F8F3'
+              bgColor: '#E6F8F3',
+              editing: false
             },
             {
               title: 'Option1',
-              type: `${HeaderType.custom}_1`
+              type: `${HeaderType.custom}_1`,
+              canAddCustomCol: true,
+              editing: false
             },
             {
               title: 'Option2',
-              type: `${HeaderType.custom}_2`
+              type: `${HeaderType.custom}_2`,
+              canAddCustomCol: true,
+              editing: false
             },
             {
               title: 'Option3',
-              type: `${HeaderType.custom}_3`
+              type: `${HeaderType.custom}_3`,
+              canAddCustomCol: true,
+              editing: false
             }
           ],
           bodyList: []
         },
         singlePointRubric: {
-          type: this.$classcipe.AssessmentToolType.SinglePointRubric,
+          type: AssessmentToolType.SinglePointRubric,
           title: 'Single-point rubric',
-          canAddCustomRow: false,
+          canAddCustomRow: true,
+          canAddCustomCol: false,
           headerList: [
             {
               title: 'Areas for improvement',
-              type: HeaderType.improvement
+              type: HeaderType.improvement,
+              editing: false
             },
             {
               title: 'Criteria',
               type: HeaderType.criteria,
               bgColor: '#E6E4FF',
-              tips: 'Standard for this performance'
+              tips: 'Standard for this performance',
+              editing: false
             },
             {
               title: 'Evidence of exceeding standards',
-              type: HeaderType.improvement
+              type: HeaderType.exceeding,
+              editing: false
             }
           ],
           bodyList: []
         },
         checkList: {
-          type: this.$classcipe.AssessmentToolType.CheckList,
+          type: AssessmentToolType.Checklist,
           title: 'Checklist',
-          canAddCustomRow: false,
+          canAddCustomRow: true,
+          canAddCustomCol: false,
           headerList: [
             {
-              title: 'Areas for improvement',
-              type: HeaderType.improvement,
-              bgColor: '#E4F8FF'
+              title: 'Criteria',
+              type: HeaderType.criteria,
+              bgColor: '#E4F8FF',
+              editing: false
             },
             {
               title: 'Yes',
-              type: HeaderType.yes
+              type: HeaderType.yes,
+              editing: false
             },
             {
               title: 'No',
-              type: HeaderType.no
+              type: HeaderType.no,
+              editing: false
             }
           ],
           bodyList: []
@@ -174,7 +173,8 @@ export default {
           teacherSelected: false,
           data: null,
           type: item.type,
-          ext: null
+          ext: null,
+          key: Math.random()
         }
       })
 

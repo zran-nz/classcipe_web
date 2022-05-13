@@ -1,0 +1,291 @@
+<template>
+  <div class='assessment-tool-table'>
+    <table v-if='assessment'>
+      <thead>
+        <tr>
+          <th
+            v-for='header in assessment.headerList'
+            :key='header.type'
+            :style="{
+              backgroundColor: header.bgColor || '#ffffff',
+              maxWidth: header.maxWidth || 'auto',
+              padding: header.editing ? '0px' : '10px',
+            }"
+            @click='handleEditHeader(header)'>
+            <template v-if='!header.editing'>
+              <div class='header-title'>
+                {{ header.title }}
+              </div>
+              <div class='header-tips' v-if='header.tips'>
+                {{ header.tips }}
+              </div>
+            </template>
+            <template v-if='header.editing'>
+              <a-input class='cc-table-input' v-model='header.title' @click.native.stop='' @blur.native='currentEditHeader.editing = false'/>
+            </template>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for='row in assessment.bodyList' :key='row.key'>
+          <th v-for='header in assessment.headerList' :key='header.type' :style="{backgroundColor: header.bgColor || '#ffffff'}">
+            {{ row[header.type].display }}
+          </th>
+        </tr>
+      </tbody>
+    </table>
+    <div class='table-bottom-bar'>
+      <div class='add-row' v-if='mode === AssessmentMode.edit'>
+        <plus-icon color='#a9adb4' @click='handleAddRow' />
+      </div>
+    </div>
+
+    <a-modal
+      v-model='editHeaderModalVisible'
+      destroyOnClose
+      :title='null'
+      :closable='false'
+      width='300px'
+      :footer='null'>
+      <modal-header :title="'Operation for ' + (currentEditHeader ? currentEditHeader.title : '') + ''" @close='editHeaderModalVisible = false'/>
+      <div class='edit-header-action'>
+        <div class='edit-header-action-item'>
+          <custom-text-button label='Add a column' @click='handleAddCol'></custom-text-button>
+          <custom-text-button label='Delete current column' @click='handleDelCol'></custom-text-button>
+          <custom-text-button label='Edit column name' @click='handleEditName'></custom-text-button>
+        </div>
+      </div>
+    </a-modal>
+  </div>
+</template>
+
+<script>
+import CommonNoData from '@/components/Common/CommonNoData'
+import PlusIcon from '@/components/Common/PlusIcon'
+import { AssessmentMode, HeaderType } from '@/components/AssessmentTool/Constant'
+import DeleteIcon from '@/components/Common/DeleteIcon'
+import CustomTextButton from '@/components/Common/CustomTextButton'
+import ModalHeader from '@/components/Common/ModalHeader'
+
+export default {
+  name: 'AssessmentToolTable',
+  components: { ModalHeader, CustomTextButton, DeleteIcon, PlusIcon, CommonNoData },
+  inject: [ 'assessment' ],
+  props: {
+    mode: {
+      type: String,
+      default: 'edit' // edit、view、evaluate
+    }
+  },
+  data() {
+    return {
+      editingData: null,
+      AssessmentMode: AssessmentMode,
+
+      editHeaderModalVisible: false,
+      currentEditHeader: null
+    }
+  },
+  mounted() {
+    this.globalClick(this.handleClick)
+  },
+  computed: {
+    headerTypeList () {
+      return this.assessment ? this.assessment.headerList.map(header => header.type) : []
+    }
+  },
+  methods: {
+    handleEditHeader (header) {
+      if (this.mode === AssessmentMode.edit) {
+        if (this.currentEditHeader) {
+          this.currentEditHeader.editing = false
+        }
+        this.currentEditHeader = header
+        this.editHeaderModalVisible = true
+      }
+    },
+
+    handleClick () {
+      this.$logger.info('handleClick', this.currentEditHeader)
+      if (this.currentEditHeader) {
+        this.currentEditHeader.editing = false
+      }
+    },
+    handleEditName () {
+      this.currentEditHeader.editing = true
+      this.editHeaderModalVisible = false
+    },
+
+    handleDelCol () {
+      if (this.mode === 'edit') {
+        this.assessment.headerList.splice(this.assessment.headerList.indexOf(this.currentEditHeader), 1)
+        this.assessment.bodyList.forEach(row => {
+          this.$delete(row, this.currentEditHeader.type)
+        })
+      }
+      this.editHeaderModalVisible = false
+      this.currentEditHeader = null
+    },
+
+    handleAddCol () {
+      if (this.mode === 'edit' && this.assessment && this.assessment.canAddCustomCol) {
+        const index = this.assessment.headerList.findIndex(item => item.type === this.currentEditHeader.type)
+        let idx = this.headerTypeList.length + 1
+        while (this.headerTypeList.indexOf(`${HeaderType.custom}_${idx}`) !== -1) {
+          idx++
+        }
+        const newHeaderType = `${HeaderType.custom}_${idx}`
+        const newHeader = {
+          type: newHeaderType,
+          title: 'Option',
+          canAddCustomCol: true
+        }
+        this.assessment.headerList.splice(index + 1, 0, newHeader)
+
+        this.assessment.bodyList.forEach(row => {
+          row[newHeaderType] = {
+            display: null,
+            teacherSelected: false,
+            data: null,
+            type: newHeaderType,
+            ext: null,
+            key: Math.random()
+          }
+        })
+      }
+
+      this.editHeaderModalVisible = false
+      this.currentEditHeader = null
+    },
+    handleAddRow () {
+      const row = {}
+      this.assessment.headerList.forEach(item => {
+        row[item.type] = {
+          display: null,
+          teacherSelected: false,
+          data: null,
+          type: item.type,
+          ext: null,
+          key: Math.random()
+        }
+      })
+      this.assessment.bodyList.push(row)
+    }
+  }
+}
+</script>
+
+<style lang='less' scoped>
+@import "~@/components/index.less";
+.assessment-tool-table {
+  overflow-y: scroll;
+  table {
+    width: 100%;
+    background: #FFFFFF;
+    border-top: 2px dashed #D8DEEA;
+    border-left: 2px dashed #D8DEEA;
+    thead {
+      tr {
+        cursor: pointer;
+        border-bottom: 2px solid #D8DEEA;
+        th {
+          padding: 0;
+          user-select: none;
+
+          .header-action {
+            position: absolute;
+            right: 0;
+            top: 7.5px;
+            display: none;
+            background-color: #fff;
+            padding: 5px;
+          }
+
+          &:hover {
+            .header-action {
+              display: block;
+            }
+          }
+
+          .header-title {
+          }
+
+          .header-tips {
+            line-height: 14px;
+            font-size: 12px;
+            color: #888;
+            font-weight: normal;
+            max-width: 150px;
+          }
+        }
+      }
+    }
+
+    tbody {
+      border-bottom: 2px dashed #D8DEEA;
+      tr {
+        border-bottom: 2px solid #D8DEEA;
+        th {
+          line-height: 30px;
+        }
+      }
+
+      tr:nth-last-child(1) {
+        border-bottom: 2px dashed #D8DEEA;
+      }
+    }
+
+    th {
+      border-right: 2px dashed #D8DEEA;
+      height: 40px;
+      padding: 0 20px;
+      font-size: 14px;
+      font-family: Arial;
+      font-weight: bold;
+      color: #222328;
+      position: relative;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      word-break: break-all;
+      white-space: nowrap;
+      box-sizing: border-box;
+    }
+
+    tr:nth-last-child(1) {
+      border-right: 2px dashed #D8DEEA;
+    }
+  }
+
+  .table-bottom-bar {
+    height: 30px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    .add-row {
+      display: block;
+      cursor: pointer;
+    }
+  }
+}
+
+.edit-header-action {
+  padding: 0 20px 0 20px;
+  .edit-header-action-item {
+    .cc-custom-text-button {
+      margin: 15px auto;
+    }
+  }
+}
+
+.cc-table-input {
+  height: 100%;
+  line-height: 100%;
+  border: none;
+  box-shadow: none;
+
+  /deep/ input{
+    border: none;
+    box-shadow: none;
+  }
+}
+</style>
