@@ -10,7 +10,7 @@
       <template v-slot:nav>
         <my-vertical-steps
           ref='steps-nav'
-          :steps='$store.getters.formConfigData.planSteps'
+          :steps='$store.getters.formConfigData.taskSteps'
           :step-index='currentActiveStepIndex'
           @step-change='handleStepChange' />
       </template>
@@ -507,7 +507,6 @@
                     <task-linked-content :from-id='taskId' />
                   </div>
                 </div>
-
                 <div class='form-block' :data-field-name='taskField.Image' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Image' :key='fieldItem.fieldName'>
                   <!-- image-->
                   <a-form-model-item class='img-wrapper'>
@@ -573,6 +572,13 @@
                   </custom-form-item>
                 </div>
               </template>
+            </div>
+            <div class='form-field-item assessment-tools-item' v-if="currentStep && currentStep.name === 'Add Assessment tool'">
+              <div class='form-block tag-content-block'>
+                <div class='common-link-wrapper assessment-tools'>
+                  <task-assessment-tools />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -750,6 +756,9 @@
           <template v-if='currentRightModule === rightModule.associate'>
             <link-content-list :filter-types="[contentType['unit-plan'], contentType.evaluation]" />
           </template>
+          <template v-if='currentRightModule === rightModule.assessmentToolsLearnOuts'>
+            <learning-objective-list />
+          </template>
         </div>
       </div>
       <div class='loading-content' v-if='contentLoading'>
@@ -778,25 +787,6 @@
         :content-type='contentType.task'
         @confirmSelect='confirmSelectCollaborateUsers'
         v-if='showCollaborateModalVisible' />
-    </a-modal>
-    <a-modal
-      v-model='selectAddContentTypeVisible'
-      :footer='null'
-      destroyOnClose
-      title='Select Content Type'
-      @ok='selectAddContentTypeVisible = false'
-      @cancel='selectAddContentTypeVisible = false'>
-      <div class='add-content-wrapper'>
-        <div class='add-content-item' @click='handleAddTaskEvaluation'>
-          <a>
-            <content-type-icon :type='contentType.evaluation' />
-            {{ $t('teacher.add-unit-plan.evaluation') }}
-          </a>
-        </div>
-        <div class='add-loading' v-if='addLoading'>
-          <a-spin />
-        </div>
-      </div>
     </a-modal>
     <a-modal
       v-model='selectLinkUnitPlanContentVisible'
@@ -1674,12 +1664,16 @@ import FormHeader from '@/components/FormHeader/FormHeader'
 import FixedFormFooter from '@/components/Common/FixedFormFooter'
 import CustomFormItem from '@/components/Common/CustomFormItem'
 import CustomTextButton from '@/components/Common/CustomTextButton'
+import TaskAssessmentTools from '@/components/AssessmentTool/TaskAssessmentTools'
+import LearningObjectiveList from '@/components/AssessmentTool/LearningObjectiveList'
 
 const { SplitTask } = require('@/api/task')
 
 export default {
   name: 'AddTask',
   components: {
+    LearningObjectiveList,
+    TaskAssessmentTools,
     CustomTextButton,
     CustomFormItem,
     FixedFormFooter,
@@ -1822,7 +1816,6 @@ export default {
       sessionTags: [],
       startLoading: false,
       addLoading: false,
-      selectAddContentTypeVisible: false,
 
       groupNameList: [],
       groupNameListOther: [],
@@ -2169,6 +2162,8 @@ export default {
         this.currentRightModule = RightModule.recommend
       } else if (this.currentStep.commonFields.indexOf(TaskField.Link) !== -1) {
         this.currentRightModule = RightModule.associate
+      } else if (this.currentStep.name === 'Add Assessment tool') {
+        this.currentRightModule = RightModule.assessmentToolsLearnOuts
       } else {
         this.currentRightModule = RightModule.customTag
       }
