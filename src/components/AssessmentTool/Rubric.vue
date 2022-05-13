@@ -1,10 +1,18 @@
 <template>
-  <div class='rubric'></div>
+  <div class='rubric'>
+    {{assessment}}
+  </div>
 </template>
 
 <script>
 export default {
   name: 'Rubric',
+  props: {
+    assessment: {
+      type: Object,
+      required: true
+    }
+  },
   data() {
     return {}
   },

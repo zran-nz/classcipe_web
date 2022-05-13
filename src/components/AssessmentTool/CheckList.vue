@@ -5,6 +5,12 @@
 <script>
 export default {
   name: 'CheckList',
+  props: {
+    assessment: {
+      type: Object,
+      required: true
+    }
+  },
   data() {
     return {}
   },

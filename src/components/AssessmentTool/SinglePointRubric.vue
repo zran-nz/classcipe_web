@@ -5,6 +5,12 @@
 <script>
 export default {
   name: 'SinglePointRubric',
+  props: {
+    assessment: {
+      type: Object,
+      required: true
+    }
+  },
   data() {
     return {}
   },
