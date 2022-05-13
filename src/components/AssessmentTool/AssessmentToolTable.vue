@@ -28,8 +28,8 @@
       </thead>
       <tbody>
         <tr v-for='row in assessment.bodyList' :key='row.key'>
-          <th v-for='header in assessment.headerList' :key='header.type' :style="{backgroundColor: header.bgColor || '#ffffff'}">
-            {{ row[header.type].display }}
+          <th v-for='header in assessment.headerList' :key='header.type'>
+            <a-input class='cc-table-input' v-model='row[header.type].display' :style="{ backgroundColor: header.bgColor || '#ffffff' }"/>
           </th>
         </tr>
       </tbody>
@@ -161,7 +161,7 @@ export default {
       const row = {}
       this.assessment.headerList.forEach(item => {
         row[item.type] = {
-          display: null,
+          display: item.type === HeaderType.yes ? 'YES' : (item.type === HeaderType.no ? 'NO' : null),
           teacherSelected: false,
           data: null,
           type: item.type,
@@ -227,6 +227,7 @@ export default {
         border-bottom: 2px solid #D8DEEA;
         th {
           line-height: 30px;
+          padding: 0;
         }
       }
 
@@ -284,6 +285,7 @@ export default {
   box-shadow: none;
 
   /deep/ input{
+    font-weight: bold;
     border: none;
     box-shadow: none;
   }

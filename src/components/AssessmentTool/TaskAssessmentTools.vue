@@ -169,7 +169,7 @@ export default {
       const row = {}
       assessment.headerList.forEach(item => {
         row[item.type] = {
-          display: null,
+          display: item.type === HeaderType.yes ? 'YES' : (item.type === HeaderType.no ? 'NO' : null),
           teacherSelected: false,
           data: null,
           type: item.type,
