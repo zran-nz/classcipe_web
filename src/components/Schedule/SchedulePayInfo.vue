@@ -17,15 +17,26 @@
           </div>
         </div>
         <div class='add-discount'>
-          Add discount
+          <custom-link-text text='Add discount' @click='handleAddDiscount'></custom-link-text>
         </div>
         <div class='pay-discount'>
-          <div class='pay-discount-item' v-for='discount in discountList' :key='discount.id'>
+          <div class='pay-discount-item' v-for='discount in discountList' :key='discount.id' @click.stop='handleDiscountEdit(discount)'>
             <div class='person-num'>
-              {{ discount.name }}
+              People
+              <template v-if='discount.editing'>
+                <a-input v-model='discount.peopleThreshold' type='number' class='cc-form-input discount-input'/>
+              </template>
+              <template v-else>
+                {{ discount.peopleThreshold }}
+              </template>
             </div>
             <div class='discount-off'>
-              {{ discount.discount }}
+              <template v-if='discount.editing'>
+                <a-input v-model='discount.discount' type='number' class='cc-form-input discount-input'/>% off
+              </template>
+              <template v-else>
+                {{ discount.discount }}% off
+              </template>
             </div>
           </div>
         </div>
@@ -62,8 +73,10 @@
 <script>
 import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
 import moment from 'moment'
+import CustomLinkText from '@/components/Common/CustomLinkText'
 export default {
   name: 'SchedulePayInfo',
+  components: { CustomLinkText },
   data() {
     return {
       paidSession: false,
@@ -74,19 +87,30 @@ export default {
       registerBefore: null,
       discountList: [
         {
-          id: 1,
-          name: 'Persons 10',
-          discount: 'Off 20%'
+          peopleThreshold: 10,
+          discount: 20,
+          editing: false
         },
         {
-          id: 2,
-          name: 'Persons 20',
-          discount: 'Off 30%'
+          peopleThreshold: 20,
+          discount: 30,
+          editing: false
+        },
+        {
+          peopleThreshold: 30,
+          discount: 40,
+          editing: false
         }
       ]
     }
   },
   mixins: [ ZoomAuthMixin ],
+  mounted() {
+    this.globalClick(this.handleBlurClick)
+  },
+  beforeDestroy() {
+    this.globalClick(this.handleBlurClick)
+  },
   methods: {
     handleDateChange (date, dateString) {
       this.$logger.info('handleDateChange', date, dateString)
@@ -106,11 +130,29 @@ export default {
 
     getPaidInfo() {
       return {
-        discountInfo: [],
+        discountInfo: this.discountList,
         maxParticipants: this.maxParticipants,
         price: this.price,
         registerBefore: this.registerBefore
       }
+    },
+    handleAddDiscount () {
+      this.discountList.push({
+        peopleThreshold: 0,
+        discount: 0,
+        editing: true
+      })
+    },
+
+    handleDiscountEdit (discount) {
+      discount.editing = true
+    },
+
+    handleBlurClick() {
+      this.$logger.info('handleBlurClick')
+      this.discountList.forEach(discount => {
+        discount.editing = false
+      })
     }
   }
 }
@@ -171,8 +213,10 @@ export default {
       }
 
       .add-discount {
-        line-height: 35px;
-        text-align: right;
+        height: 35px;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
         color: #15c39a;
         font-size: 13px;
 
@@ -187,7 +231,7 @@ export default {
       }
 
       .pay-discount-item {
-        line-height: 25px;
+        line-height: 32px;
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -220,5 +264,9 @@ export default {
       padding-left: 5px;
     }
   }
+}
+
+.discount-input {
+  width: 70px;
 }
 </style>
