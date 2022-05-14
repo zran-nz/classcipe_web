@@ -64,6 +64,12 @@
                 </custom-form-item>
               </div>
 
+              <div class='form-block tag-content-block' :data-field-name='PdField.Link' v-if='fieldName === PdField.Link' :key='fieldName'>
+                <div class='common-link-wrapper'>
+                  <task-linked-content :from-id='pdId' />
+                </div>
+              </div>
+
               <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === PdField.Slides' :key='fieldName'>
                 <custom-form-item :show-label='false'>
                   <form-slide :source-type='contentType.pd' :source-id='pdId' :need-refresh='true'/>
@@ -126,10 +132,12 @@ import LinkContentList from '@/components/UnitPlan/LinkContentList'
 import { typeMap } from '@/const/teacher'
 import FormSlide from '@/components/PPT/FormSlide'
 import SlideSelectList from '@/components/PPT/SlideSelectList'
+import TaskLinkedContent from '@/components/Task/TaskLinkedContent'
 
 export default {
   name: 'AddPD',
   components: {
+    TaskLinkedContent,
     SlideSelectList,
     FormSlide,
     LinkContentList,
