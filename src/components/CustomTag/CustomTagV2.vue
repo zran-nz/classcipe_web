@@ -37,64 +37,20 @@
         <custom-search-input :round='true' placeholder='Search your tag' :value.sync='inputTag' @change='searchTag' @search='handleKeyEnter'/>
       </div>
       <div class='category-content'>
-        <template v-if="currentActiveTagCategory && currentActiveTagCategory.customDeep === 1">
+        <template v-if="currentActiveTagCategory">
           <div class="search-tag-wrapper tag-wrapper" v-if="filterKeywordListInput(currentActiveTagCategory.keywords).length > 0">
             <div class="skt-tag-item" v-for="(keyword,tagIndex) in filterKeywordListInput(currentActiveTagCategory.keywords)" :key="tagIndex" >
               <a-tag
                 draggable="true"
-                @click="selectChooseTag(currentActiveTagCategory,keyword)"
+                @click="selectChooseTag(currentActiveTagCategory, keyword)"
                 class="tag-item cc-custom-tag-item">
                 {{ keyword }}
               </a-tag>
             </div>
           </div>
-          <div class='no-tag-content' v-if='filterKeywordListInput(currentActiveTagCategory.keywords).length === 0 && !currentActiveTagCategory.createOwn'>
-            <div class='no-tag-text'>Tag does not exist</div>
+          <div class='no-tag-content' v-if='filterKeywordListInput(currentActiveTagCategory.keywords).length === 0 && !currentActiveTagCategory.createOwn && !!inputTag'>
+            <div class='no-tag-text'>Tag does not exist, Press the Enter key to create.</div>
           </div>
-          <div class="create-tag-wrapper tag-wrapper" v-show="currentActiveTagCategory.createOwn && !tagNameIsExist(createTagName,showTagList) && !tagIsExist(createTagName,filterKeywordListInput(currentActiveTagCategory.keywords)) && createTagName && createTagName.length >= 1">
-            <div class="skt-tag-create-line" @click="handleCreateTagByInput(parent)">
-              <div class="create-tag-label">
-                Create
-              </div>
-              <div class="create-tag">
-                <a-tag class="created-tag-item">
-                  {{ createTagName }}
-                </a-tag>
-              </div>
-            </div>
-          </div>
-        </template>
-        <template v-else-if='currentActiveTagCategory'>
-          <a-tabs
-            tab-position="top"
-          >
-            <a-tab-pane v-for="(child, childIndex) in currentActiveTagCategory.children" :key="childIndex" :tab="child.name">
-              <div class="skt-tag-list">
-                <div class="search-tag-wrapper tag-wrapper" v-if="filterKeywordListInput(child.keywords).length > 0">
-                  <div class="skt-tag-item" v-for="(keyword, tagIndex) in filterKeywordListInput(child.keywords)" :key="tagIndex" >
-                    <a-tag
-                      @click="selectChooseTag(child, keyword, currentActiveTagCategory)"
-                      class="tag-item cc-custom-tag-item">
-                      {{ keyword }}
-                    </a-tag>
-                  </div>
-                </div>
-                <div class="create-tag-wrapper tag-wrapper">
-                  <div class="skt-tag-create-line" @click="handleCreateTagByInput(child, currentActiveTagCategory)" v-show="!tagNameIsExist(createTagName,showTagList) && !tagIsExist(createTagName, filterKeywordListInput(child.keywords)) && createTagName && createTagName.length >= 1">
-                    <div class="create-tag-label">
-                      Create
-                    </div>
-                    <div class="create-tag">
-                      <a-tag class="created-tag-item">
-                        {{ createTagName }}
-                      </a-tag>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </a-tab-pane>
-          </a-tabs>
-
         </template>
       </div>
     </div>
@@ -239,6 +195,22 @@ export default {
             }
           }
         }
+
+        // 拼接pd tags
+        const pdIndex = this.customTags.pdTags.findIndex(item => item.name === scope)
+        if (pdIndex > -1) {
+          if (!parent) {
+            parent = this.customTags.pdTags[pdIndex]
+          } else {
+            // 合并
+            this.customTags.pdTags[pdIndex].keywords.forEach(key => {
+              if (parent.keywords.indexOf(key) === -1) {
+                parent.keywords.push(key)
+              }
+            })
+          }
+        }
+
         // 再拼接user tags
         const userIndex = this.customTags.userTags.findIndex(item => item.name === scope)
         if (userIndex > -1) {
@@ -268,6 +240,7 @@ export default {
     },
     filterKeywordListInput() {
       return function(keywords) {
+        this.$logger.info('filterKeywordListInput', keywords)
         let result = keywords
         if (this.inputTag) {
           result = keywords.filter(item => item.toLowerCase().indexOf(this.inputTag.toLowerCase()) > -1)
@@ -296,6 +269,11 @@ export default {
     selectedTagsList () {
       this.$logger.info('selectedTagsList change', this.selectedTagsList)
        this.tagList = this.selectedTagsList
+    },
+    mergeTagList () {
+      if (!this.currentActiveTagCategory && this.mergeTagList.length) {
+        this.currentActiveTagCategory = this.mergeTagList[0]
+      }
     }
   },
   methods: {

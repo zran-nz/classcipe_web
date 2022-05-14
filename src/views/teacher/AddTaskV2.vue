@@ -3496,7 +3496,7 @@ export default {
       if (tag.isGlobal) {
         this.customTags.userGlobalTags.push(tag)
       } else {
-        var index = this.customTags.userTags.findIndex(item => item.name === tag.parentName)
+        const index = this.customTags.userTags.findIndex(item => item.name === tag.parentName)
         if (index > -1) {
           this.customTags.userTags[index].keywords.push(tag.name)
         }

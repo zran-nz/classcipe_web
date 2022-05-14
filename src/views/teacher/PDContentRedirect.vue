@@ -5,8 +5,8 @@
 </template>
 
 <script>
-import { PDContentAddOrUpdate } from '@/api/pdContent'
-import * as logger from '@/utils/logger'
+// import { PDContentAddOrUpdate } from '@/api/pdContent'
+// import * as logger from '@/utils/logger'
 
 export default {
   name: 'PDContentRedirect',
@@ -20,9 +20,9 @@ export default {
     if (this.pdId !== 'create') {
       this.$router.replace('/teacher/pd-content/' + this.pdId)
     } else {
-      const pdData = {
-        name: 'Unnamed PD Content'
-      }
+      // const pdData = {
+      //   name: 'Unnamed PD Content'
+      // }
 
       // TODO 创建PD Content
       this.$router.replace({
