@@ -64,6 +64,12 @@
                 </custom-form-item>
               </div>
 
+              <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === PdField.Slides' :key='fieldName'>
+                <custom-form-item :show-label='false'>
+                  <form-slide :source-type='contentType.pd' :source-id='pdId' :need-refresh='true'/>
+                </custom-form-item>
+              </div>
+
             </div>
           </div>
         </div>
@@ -81,6 +87,9 @@
           </template>
           <template v-if='currentRightModule === rightModule.associate'>
             <link-content-list :filter-types="[contentType.task]" />
+          </template>
+          <template v-if='currentRightModule === rightModule.recommend'>
+            <slide-select-list />
           </template>
         </div>
       </div>
@@ -114,10 +123,15 @@ import CustomCoverMedia from '@/components/Common/CustomCoverMedia'
 import CustomTagV2 from '@/components/CustomTag/CustomTagV2'
 import { FindCustomTags } from '@/api/tag'
 import LinkContentList from '@/components/UnitPlan/LinkContentList'
+import { typeMap } from '@/const/teacher'
+import FormSlide from '@/components/PPT/FormSlide'
+import SlideSelectList from '@/components/PPT/SlideSelectList'
 
 export default {
   name: 'AddPD',
   components: {
+    SlideSelectList,
+    FormSlide,
     LinkContentList,
     CustomTagV2,
     CustomCoverMedia,
@@ -157,8 +171,10 @@ export default {
         coverUrl: null,
         goals: null,
         customTags: [],
+        presentationId: null,
         createBy: null
       },
+      contentType: typeMap,
       currentFocusFieldName: null,
       customTagList: [],
       customTags: {},

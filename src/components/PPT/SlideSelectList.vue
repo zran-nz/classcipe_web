@@ -25,6 +25,7 @@
           <div class='slide-item' v-for='slide in slideList' :key='slide.id'>
             <slide-viewer
               :title='slide.name'
+              :show-hover-mask='true'
               :show-title='true'
               :img-list='slide.images'
               :width="'300px'"

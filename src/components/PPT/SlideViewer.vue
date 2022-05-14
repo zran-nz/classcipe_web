@@ -1,11 +1,11 @@
 <template>
   <div class='slide-viewer'>
-    <div class='hover-mask'>
+    <div class='hover-mask' v-if='showHoverMask'>
       <div class='hover-action'>
         <a-button type='primary' shape='round' class='cc-slide-btn' @click='handlePreview'>
           <a-icon type='eye' /> Preview
         </a-button>
-        <a-button shape='round' class='cc-slide-btn'  @click='handleAdd'>
+        <a-button shape='round' class='cc-slide-btn' @click='handleAdd'>
           <a-icon type='plus-circle' /> Add
         </a-button>
       </div>
@@ -15,14 +15,13 @@
       </div>
     </a-carousel>
     <div class='slide-title' v-show='showTitle' :style="{width: width}">
-      {{ title}}
+      {{ title }}
     </div>
   </div>
 </template>
 
 <script>
 
-import { TemplatesGetPresentation } from '@/api/template'
 export default {
   name: 'SlideViewer',
   props: {
@@ -53,6 +52,10 @@ export default {
     showScrollBar: {
       type: Boolean,
       default: false
+    },
+    showHoverMask: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -66,7 +69,7 @@ export default {
     },
     handleAdd () {
       this.$emit('add', this.slideId)
-    },
+    }
   }
 }
 </script>
