@@ -28,12 +28,12 @@
       </thead>
       <tbody>
         <tr v-for='row in assessment.bodyList' :key='row.key'>
-          <th v-for='header in assessment.headerList' :key='header.type'>
+          <th v-for='header in assessment.headerList' :key='header.type' @dblclick='handleEditRow(row)'>
             <a-textarea
               :auto-size="{ minRows: 2, maxRows: 5 }"
               class='cc-table-textarea'
               v-model='row[header.type].display'
-              :style="{ backgroundColor: header.bgColor || '#ffffff' }"/>
+              :style="{ backgroundColor: header.bgColor || '#ffffff' }" />
           </th>
         </tr>
       </tbody>
@@ -60,6 +60,21 @@
           <custom-text-button label='Add a column' @click='handleAddCol' v-if='currentEditHeader.canAddCustomCol'></custom-text-button>
           <custom-text-button label='Delete current column' @click='handleDelCol' v-if='currentEditHeader.canAddCustomCol'></custom-text-button>
           <custom-text-button label='Edit column name' @click='handleEditName'></custom-text-button>
+        </div>
+      </div>
+    </a-modal>
+
+    <a-modal
+      v-model='editRowModalVisible'
+      destroyOnClose
+      :title='null'
+      :closable='false'
+      width='300px'
+      :footer='null'>
+      <modal-header title="Edit row" @close='editRowModalVisible = false'/>
+      <div class='edit-header-action'>
+        <div class='edit-header-action-item' v-if='currentEditRow'>
+          <custom-text-button label='Delete current column' @click='handleDelRow'></custom-text-button>
         </div>
       </div>
     </a-modal>
@@ -116,6 +131,9 @@ export default {
 
       editHeaderModalVisible: false,
       currentEditHeader: null,
+
+      currentEditRow: null,
+      editRowModalVisible: false,
 
       selectHeaderSetModalVisible: false,
       optionList: [
@@ -267,6 +285,19 @@ export default {
           })
         }
       }
+    },
+
+    handleEditRow (row) {
+      this.$logger.info('handleEditRow', row)
+      this.currentEditRow = row
+      this.editRowModalVisible = true
+    },
+
+    handleDelRow () {
+      if (this.mode === 'edit') {
+        this.assessment.bodyList.splice(this.assessment.bodyList.indexOf(this.currentEditRow), 1)
+      }
+      this.editRowModalVisible = false
     }
   }
 }
