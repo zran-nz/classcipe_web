@@ -272,6 +272,10 @@ export default {
     },
 
     autoSaveAssessment() {
+      const data = JSON.parse(JSON.stringify(this.assessment))
+      data.headerListJson = JSON.stringify(data.headerList)
+      data.bodyListJson = JSON.stringify(data.bodyList)
+      console.log(JSON.stringify(data))
       this.$logger.info('autoSaveAssessment', this.assessment)
       return this.assessment
     },

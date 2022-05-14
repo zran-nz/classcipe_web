@@ -10,8 +10,18 @@
         </a-button>
       </div>
     </div>
-    <a-carousel :style="{width: width, height: height}">
-      <div class='slider-img-cover' :style="{width: width, height: height, backgroundImage: 'url(' + image + ')'}" v-for='(image,idx) in imgList' :key='idx'>
+    <a-carousel :arrows='showArrow && imgList.length > 1'>
+      <div
+        slot="prevArrow"
+        class="custom-slick-arrow"
+        style="left: 0;z-index: 200"
+      >
+        <a-icon type="left" />
+      </div>
+      <div slot="nextArrow" class="custom-slick-arrow" style="right: 0; z-index: 200">
+        <a-icon type="right" />
+      </div>
+      <div class='slider-img-cover' :style="{width: width, backgroundImage: 'url(' + image + ')'}" v-for='(image,idx) in imgList' :key='idx'>
       </div>
     </a-carousel>
     <div class='slide-title' v-show='showTitle' :style="{width: width}">
@@ -41,10 +51,6 @@ export default {
       type: String,
       default: '100%'
     },
-    height: {
-      type: String,
-      default: '100%'
-    },
     showTitle: {
       type: Boolean,
       default: false
@@ -54,6 +60,10 @@ export default {
       default: false
     },
     showHoverMask: {
+      type: Boolean,
+      default: false
+    },
+    showArrow: {
       type: Boolean,
       default: false
     }
@@ -81,8 +91,8 @@ export default {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  height: 100%;
-  width: 100%;
+  padding-bottom: 45%;
+  position: relative;
 }
 
 .slide-title {
@@ -132,6 +142,10 @@ export default {
       display: block;
       opacity: 1;
     }
+
+    .custom-slick-arrow {
+      display: flex !important;
+    }
   }
 }
 
@@ -140,4 +154,36 @@ export default {
   width: 110px;
   line-height: 20px;
 }
+
+.custom-slick-arrow {
+  display: none !important;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  z-index: 200;
+  width: 15px;
+  height: 26px;
+  text-align: center;
+  font-size: 13px;
+  line-height: 20px;
+  color: #fff;
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 4px 0;
+  opacity: 0.3;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.custom-slick-arrow::before {
+  display: none;
+}
+
+.custom-slick-arrow {
+  &:hover {
+    color: #fff;
+    background-color: rgba(0, 0, 0, 0.6);
+    opacity: 1;
+  }
+}
+
 </style>

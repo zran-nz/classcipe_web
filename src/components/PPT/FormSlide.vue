@@ -23,8 +23,7 @@
       <div class='slide-wrapper'>
         <slide-viewer
           :img-list='imageList'
-          :width="'100%'"
-          :height="'500px'"
+          :width="'80%'"
           v-if='!loading'/>
         <a-skeleton v-if='loading'/>
       </div>
@@ -111,6 +110,10 @@ export default {
 
 <style lang='less' scoped>
 @import "~@/components/index.less";
+
+.form-slide {
+  padding: 0 15px;
+}
 
 .form-action-bar {
   display: flex;
