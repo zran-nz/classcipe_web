@@ -1,39 +1,72 @@
 <template>
-  <div class='slide-viewer'>
-    <div class='hover-mask' v-if='showHoverMask'>
-      <div class='hover-action'>
-        <a-button type='primary' shape='round' class='cc-slide-btn' @click='handlePreview'>
-          <a-icon type='eye' /> Preview
-        </a-button>
-        <a-button shape='round' class='cc-slide-btn' @click='handleAdd'>
-          <a-icon type='plus-circle' /> Add
-        </a-button>
-      </div>
+  <div class='slide-viewer-wrapper'>
+    <div class='slide-viewer'>
+      <template v-if='imgList.length'>
+        <div class='hover-mask' v-if='showHoverMask'>
+          <div class='hover-action'>
+            <a-button type='primary' shape='round' class='cc-slide-btn' @click='handlePreview'>
+              <a-icon type='eye' /> Preview
+            </a-button>
+            <a-button shape='round' class='cc-slide-btn' @click='handleAdd'>
+              <a-icon type='plus-circle' /> Add
+            </a-button>
+          </div>
+        </div>
+        <a-carousel ref='carousel' :arrows='showArrow && imgList.length > 1'>
+          <div
+            slot="prevArrow"
+            class="custom-slick-arrow"
+            style="left: 0;z-index: 200"
+          >
+            <a-icon type="left" />
+          </div>
+          <div slot="nextArrow" class="custom-slick-arrow" style="right: 0; z-index: 200">
+            <a-icon type="right" />
+          </div>
+          <div class='slider-img-cover' :style="{width: width, backgroundImage: 'url(' + image + ')'}" v-for='(image,idx) in imgList' :key='idx'>
+          </div>
+        </a-carousel>
+        <div class='slide-title' v-show='showTitle' :style="{width: width}">
+          {{ title }}
+        </div>
+      </template>
+      <template v-if='!imgList.length'>
+        <div class='no-slide-image'>
+          <common-no-data text='PPT image not found.'/>
+        </div>
+      </template>
     </div>
-    <a-carousel :arrows='showArrow && imgList.length > 1'>
-      <div
-        slot="prevArrow"
-        class="custom-slick-arrow"
-        style="left: 0;z-index: 200"
-      >
-        <a-icon type="left" />
+    <div class='slide-viewer-nav' v-if='showNav'>
+      <div class='carousel-page'>
+        <div class='img-list-wrapper'>
+          <div class='slide-left' @click='scrollLeft'>
+            <a-icon type="left" />
+          </div>
+          <div class='img-list' id='slide-img-list'>
+            <div
+              class='img-item'
+              :class="{'active-img-item': currentImgIndex === index}"
+              v-for='(img,index) in imgList'
+              :key="'index' + index"
+              @click='handleGotoImgIndex(index)'>
+              <img :src='img' />
+            </div>
+          </div>
+          <div class='slide-right' @click='scrollRight'>
+            <a-icon type="right" />
+          </div>
+        </div>
       </div>
-      <div slot="nextArrow" class="custom-slick-arrow" style="right: 0; z-index: 200">
-        <a-icon type="right" />
-      </div>
-      <div class='slider-img-cover' :style="{width: width, backgroundImage: 'url(' + image + ')'}" v-for='(image,idx) in imgList' :key='idx'>
-      </div>
-    </a-carousel>
-    <div class='slide-title' v-show='showTitle' :style="{width: width}">
-      {{ title }}
     </div>
   </div>
 </template>
 
 <script>
 
+import CommonNoData from '@/components/Common/CommonNoData'
 export default {
   name: 'SlideViewer',
+  components: { CommonNoData },
   props: {
     imgList: {
       type: Array,
@@ -66,10 +99,16 @@ export default {
     showArrow: {
       type: Boolean,
       default: false
+    },
+    showNav: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
-    return {}
+    return {
+      currentImgIndex: 0
+    }
   },
   created() {
   },
@@ -79,6 +118,27 @@ export default {
     },
     handleAdd () {
       this.$emit('add', this.slideId)
+    },
+    handleGotoImgIndex(index) {
+      this.$logger.info('handleGotoImgIndex ' + index)
+      this.currentImgIndex = index
+      this.$refs.carousel.goTo(index)
+    },
+    scrollLeft () {
+      this.$logger.info('scrollLeft')
+      const dom = document.getElementById('slide-img-list')
+      dom.scrollTo({
+        left: dom.scrollLeft - 200,
+        behavior: 'smooth'
+      })
+    },
+    scrollRight () {
+      this.$logger.info('scrollLeft')
+      const dom = document.getElementById('slide-img-list')
+      dom.scrollTo({
+        left: dom.scrollLeft + 200,
+        behavior: 'smooth'
+      })
     }
   }
 }
@@ -91,18 +151,21 @@ export default {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  padding-bottom: 45%;
+  padding-bottom: 55%;
   position: relative;
+  box-sizing: border-box;
+  min-height: 100px;
 }
 
 .slide-title {
   text-align: center;
   font-family: Arial;
-  font-weight: 400;
+  font-weight: 500;
   color: #282828;
+  font-size: 13px;
   background-color: #ffffff;
   cursor: pointer;
-  line-height: 30px;
+  line-height: 25px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -113,9 +176,10 @@ export default {
 
 .slide-viewer {
   position: relative;
-  width: 100%;
-  height: 100%;
   overflow: hidden;
+  background: #FFFFFF;
+  border: 1px solid #E1E1E1;
+  box-shadow: 0 1px 2px 0px rgba(65, 65, 65, 0.07);
   .hover-mask {
     opacity: 0;
     position: absolute;
@@ -186,4 +250,106 @@ export default {
   }
 }
 
+.no-slide-image {
+  height: 350px;
+}
+
+.carousel-page {
+  display: flex;
+  height: 110px;
+  width: 100%;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  .img-list-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    position: relative;
+    padding-left: 25px;
+    padding-right: 25px;
+
+    .slide-left {
+      cursor: pointer;
+      position: absolute;
+      left: 0;
+      top: 50%;
+      margin-top: -15px;
+      width: 15px;
+      height: 26px;
+      text-align: center;
+      font-size: 13px;
+      line-height: 20px;
+      color: #fff;
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 4px 0;
+      opacity: 0.3;
+      transition: opacity 0.3s ease-in-out;
+    }
+
+    .slide-right {
+      cursor: pointer;
+      position: absolute;
+      right: 0;
+      top: 50%;
+      margin-top: -15px;
+      width: 15px;
+      height: 26px;
+      text-align: center;
+      font-size: 13px;
+      line-height: 20px;
+      color: #fff;
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 4px 0;
+      opacity: 0.3;
+      transition: opacity 0.3s ease-in-out;
+    }
+
+    .img-list {
+      cursor: pointer;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: flex-start;
+      width: calc(100% - 50px);
+      margin: auto;
+      overflow-x: auto;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+
+      .img-item {
+        height: 80px;
+        border: 2px solid #fff;
+        margin-right: 10px;
+
+        img {
+          height: 100%;
+          border: 2px solid #fff;
+        }
+      }
+
+      .img-item:nth-last-child(1) {
+        margin-right: 0;
+      }
+
+      .active-img-item {
+         img {
+           border: 2px solid #15C39A;
+           box-shadow: 0 0 3px 3px #15C39A1A;
+         }
+      }
+    }
+  }
+}
 </style>

@@ -22,8 +22,9 @@
     <div class='form-slide-content'>
       <div class='slide-wrapper'>
         <slide-viewer
+          :show-arrow='true'
+          :show-nav='true'
           :img-list='imageList'
-          :width="'80%'"
           v-if='!loading'/>
         <a-skeleton v-if='loading'/>
       </div>
@@ -122,7 +123,7 @@ export default {
 }
 
 .form-slide-content {
-  margin-top: 15px;
+  margin: 20px 0;
 }
 
 .slide-wrapper {

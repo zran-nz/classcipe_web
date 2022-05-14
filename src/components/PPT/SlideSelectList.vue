@@ -152,8 +152,6 @@ export default {
   .slide-item {
     margin: 0 20px 20px 0;
     width: calc(50% - 20px);
-    border: 1px solid #E1E1E1;
-    box-shadow: 0 1px 2px 0 rgba(65, 65, 65, 0.07);
   }
 }
 
