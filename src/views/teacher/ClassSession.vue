@@ -93,9 +93,11 @@ import ContentItem from '@/components/MyContentV2/LiveWorkShopContentItem'
 import ContentSelect from '@/components/MyContentV2/ContentSelect'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import { findClassSessionsV2 } from '@/api/v2/classes'
+import { StudentClassMixin } from '@/mixins/StudentClassMixin'
 
 export default {
   name: 'ClassSession',
+  mixins: [StudentClassMixin],
   components: {
     ContentItem,
     ContentFilter,
@@ -156,6 +158,18 @@ export default {
     window.removeEventListener('resize', this.resizeFn)
   },
   methods: {
+    handleClassChange(classList) {
+      if (classList && classList.length > 0) {
+        console.log(classList)
+        const currentClass = classList.filter(item => item.id === this.$route.params.classId)
+        if (currentClass.length === 0) {
+          const classId = classList[0].id
+          this.$router.push(`/teacher/class-session/${classId}`)
+        }
+      } else {
+        this.$router.push({ path: '/teacher/main/created-by-me' })
+      }
+    },
     resizeFn () {
       this.radioSwitchShow = false
       var docElem = document.documentElement
