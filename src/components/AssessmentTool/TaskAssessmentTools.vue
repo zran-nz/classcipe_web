@@ -36,7 +36,7 @@
         </div>
       </template>
       <template v-if='!assessmentList.length'>
-        <common-no-data text='No assessment tool.'/>
+        <common-no-data text='No assessment tool.' class='no-assessment'/>
       </template>
     </div>
   </div>
@@ -55,6 +55,12 @@ export default {
     AssessmentTool,
     CommonNoData,
     CustomTextButton
+  },
+  props: {
+    taskId: {
+      type: String,
+      required: true
+    }
   },
   data() {
     return {
@@ -158,6 +164,8 @@ export default {
       if (config) {
         const assessmentTool = JSON.parse(JSON.stringify(config))
         assessmentTool.key = Math.random()
+        assessmentTool.taskId = this.taskId
+        assessmentTool.sort = this.assessmentList.length
         if (!assessmentTool.bodyList.length) {
           assessmentTool.bodyList.push(this.generateEmptyRowByAssessment(assessmentTool))
         }
@@ -166,15 +174,13 @@ export default {
       }
     },
     generateEmptyRowByAssessment(assessment) {
-      const row = {}
+      const row = {
+        key: Math.random()
+      }
       assessment.headerList.forEach(item => {
         row[item.type] = {
           display: item.type === HeaderType.yes ? 'YES' : (item.type === HeaderType.no ? 'NO' : null),
-          teacherSelected: false,
-          data: null,
-          type: item.type,
-          ext: null,
-          key: Math.random()
+          type: item.type
         }
       })
 
@@ -195,7 +201,7 @@ export default {
 .assessment-list {
   margin-top: 20px;
   height: calc(100vh - 250px);
-  overflow-y: scroll;
+  overflow-y: auto;
   .assessment-item {
     margin-bottom: 15px;
   }
