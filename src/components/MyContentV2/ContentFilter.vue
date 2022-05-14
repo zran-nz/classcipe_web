@@ -208,7 +208,7 @@ export default {
     right: 0;
     top: 40px;
     max-height: 290px;
-    width: 650px;
+    width: 450px;
     overflow-y: scroll;
     background-color: #fdfdfd;
     box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.1);
