@@ -757,7 +757,9 @@
             <link-content-list :filter-types="[contentType['unit-plan'], contentType.evaluation]" />
           </template>
           <template v-if='currentRightModule === rightModule.assessmentToolsLearnOuts'>
-            <learning-objective-list />
+            <learning-objective-list
+              :learn-outs='form.learnOuts'
+              :self-outs='form.selfOuts' />
           </template>
         </div>
       </div>

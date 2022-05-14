@@ -29,9 +29,10 @@
     </div>
     <div class='assessment-list'>
       <template v-if='assessmentList.length'>
-        <div class='assessment-item' v-for='assessment in assessmentList' :key='assessment.key'>
+        <div class='assessment-item' v-for='assessment in assessmentList' :key='assessment.key' @click='handleSelectActiveTable(assessment)'>
           <assessment-tool
             :assessment='assessment'
+            :is-active-table='activeAssessmentTableKey === assessment.key'
             @delete='handleDeleteAssessmentTool' />
         </div>
       </template>
@@ -152,10 +153,11 @@ export default {
           ],
           bodyList: []
         }
-      }
+      },
+
+      // 当前正在操作的评估表
+      activeAssessmentTableKey: null
     }
-  },
-  created() {
   },
   methods: {
     handleAddAssessmentTool (type) {
@@ -171,6 +173,7 @@ export default {
         }
         this.assessmentList.push(assessmentTool)
         this.$logger.info('add assessment tool', assessmentTool)
+        this.activeAssessmentTableKey = assessmentTool.key
       }
     },
     generateEmptyRowByAssessment(assessment) {
@@ -183,13 +186,17 @@ export default {
           type: item.type
         }
       })
-
       return row
     },
 
     handleDeleteAssessmentTool (assessment) {
       this.$logger.info('handleDeleteAssessmentTool', assessment)
       this.assessmentList.splice(this.assessmentList.findIndex(item => item.key === assessment.key), 1)
+    },
+
+    handleSelectActiveTable (assessmentTable) {
+      this.$logger.info('handleSelectActiveTable', assessmentTable)
+      this.activeAssessmentTableKey = assessmentTable.key
     }
   }
 }

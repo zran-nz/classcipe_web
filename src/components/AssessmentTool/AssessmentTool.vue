@@ -1,7 +1,7 @@
 <template>
   <div class='assessment-content'>
     <div class='assessment-header'>
-      <div class='title'>
+      <div class='title' :class="{'active-table-title': isActiveTable }">
         {{ assessment.title }}
       </div>
       <div class='right-action'>
@@ -15,7 +15,7 @@
       </div>
     </div>
     <div class='assessment-body'>
-      <assessment-tool-table ref='table' />
+      <assessment-tool-table ref='table' :is-active-table='isActiveTable' />
     </div>
   </div>
 </template>
@@ -34,6 +34,10 @@ export default {
     assessment: {
       type: Object,
       required: true
+    },
+    isActiveTable: {
+      type: Boolean,
+      required: true
     }
   },
   provide () {
@@ -46,8 +50,6 @@ export default {
     return {
       AssessmentToolType: AssessmentToolType
     }
-  },
-  created() {
   },
   methods: {
     selectHeaderSet () {
@@ -71,7 +73,13 @@ export default {
     font-weight: 400;
     color: #222328;
     line-height: 30px;
+    transition: all 0.2s ease-in-out;
   }
+
+  .active-table-title {
+    color: #15c39a;
+  }
+
   .assessment-header {
     display: flex;
     flex-direction: row;

@@ -86,6 +86,11 @@ import ModalHeader from '@/components/Common/ModalHeader'
 import CustomLinkText from '@/components/Common/CustomLinkText'
 import { debounce } from 'lodash-es'
 
+import {
+  AssessmentToolsEvent,
+  AssessmentToolsEventBus
+} from '@/components/AssessmentTool/EventBus/AssessmentToolsEventBus'
+
 export default {
   name: 'AssessmentToolTable',
   components: { CustomLinkText, ModalHeader, CustomTextButton, DeleteIcon, PlusIcon, CommonNoData },
@@ -94,6 +99,10 @@ export default {
     mode: {
       type: String,
       default: 'edit' // edit、view、evaluate
+    },
+    isActiveTable: {
+      type: Boolean,
+      required: true
     }
   },
   data() {
@@ -120,6 +129,10 @@ export default {
   },
   created() {
     this.asyncSaveTableData = debounce(this.autoSaveAssessment, 1000)
+    AssessmentToolsEventBus.$on(AssessmentToolsEvent.SelectLearningObjective, this.handleSelectLearningObjective)
+  },
+  beforeDestroy() {
+    AssessmentToolsEventBus.$off(AssessmentToolsEvent.SelectLearningObjective, this.handleSelectLearningObjective)
   },
   watch: {
     assessment: {
@@ -199,14 +212,21 @@ export default {
       this.editHeaderModalVisible = false
       this.currentEditHeader = null
     },
-    handleAddRow () {
+    handleAddRow (criteriaDisplay) {
       const row = {
         key: Math.random()
       }
       this.assessment.headerList.forEach(item => {
-        row[item.type] = {
-          display: item.type === HeaderType.yes ? 'YES' : (item.type === HeaderType.no ? 'NO' : null),
-          type: item.type
+        if (item.type === HeaderType.criteria) {
+          row[item.type] = {
+            display: criteriaDisplay || null,
+            type: item.type
+          }
+        } else {
+          row[item.type] = {
+            display: item.type === HeaderType.yes ? 'YES' : (item.type === HeaderType.no ? 'NO' : null),
+            type: item.type
+          }
         }
       })
       this.assessment.bodyList.push(row)
@@ -232,6 +252,17 @@ export default {
     autoSaveAssessment() {
       this.$logger.info('autoSaveAssessment', this.assessment)
       return this.assessment
+    },
+
+    handleSelectLearningObjective (data) {
+      if (this.isActiveTable) {
+        this.$logger.info('handleSelectLearningObjective', this.assessment.title, data)
+        if (data && data.length) {
+          data.forEach(item => {
+            this.handleAddRow(item.name)
+          })
+        }
+      }
     }
   }
 }
