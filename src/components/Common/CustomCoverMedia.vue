@@ -9,7 +9,7 @@
         <div class='img-cover' :style="{backgroundImage: 'url(' + mediaUrl + ')' }"></div>
       </div>
       <div class='upload-text' v-if="mediaType === 'video' && mediaUrl">
-        <video :src='mediaUrl'></video>
+        <video :src='mediaUrl' :controls='videoControls'></video>
       </div>
       <div class='upload-tips' v-if='!uploading'>
         <custom-uploaded-button label='Set cover image/video' bg-color='#2582B5' font-color='#fff'>
@@ -43,6 +43,10 @@ export default {
     url: {
       type: String,
       default: null
+    },
+    videoControls: {
+      type: Boolean,
+      default: true
     },
     width: {
       type: String,
