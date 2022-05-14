@@ -238,7 +238,7 @@ export const asyncRouterMap = [
             name: 'PDContentRedirect',
             props: true,
             component: () => import('@/views/teacher/PDContentRedirect'),
-            meta: { title: 'menu.pd', keepAlive: true, permission: ['teacher'] }
+            meta: { title: 'menu.pd', keepAlive: true, permission: ['teacher'], fullLayout: true }
           },
           {
             path: '/teacher/pd-content/:pdId',

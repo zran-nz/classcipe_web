@@ -24,16 +24,20 @@ export default {
         name: 'Unnamed PD Content'
       }
 
-      PDContentAddOrUpdate(pdData).then((response) => {
-        logger.info('PDContentAddOrUpdate response', response.result)
-        if (response.success) {
-          this.$router.replace({
-            path: '/teacher/pd-content/' + response.result.id
-          })
-        } else {
-          this.$message.error(response.message)
-        }
+      // TODO 创建PD Content
+      this.$router.replace({
+        path: '/teacher/pd-content/testPdId'
       })
+      // PDContentAddOrUpdate(pdData).then((response) => {
+      //   logger.info('PDContentAddOrUpdate response', response.result)
+      //   if (response.success) {
+      //     this.$router.replace({
+      //       path: '/teacher/pd-content/' + response.result.id
+      //     })
+      //   } else {
+      //     this.$message.error(response.message)
+      //   }
+      // })
     }
   }
 }

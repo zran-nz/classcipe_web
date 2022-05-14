@@ -97,6 +97,15 @@ export const TaskField = {
   Image: 'image'
 }
 
+export const PdField = {
+  Name: 'name',
+  CoverImage: 'coverImage',
+  Goals: 'goals',
+  Slides: 'slides',
+  Link: 'link',
+  Video: 'video'
+}
+
 export const TaskFieldDisplayName = {
   name: 'Task name',
   taskType: 'Choose Task Type',
