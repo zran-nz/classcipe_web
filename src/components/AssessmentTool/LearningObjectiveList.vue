@@ -557,6 +557,7 @@ export default {
 .learning-objective-list {
   .select-content {
     margin-top: 20px;
+    padding-right: 10px;
     overflow-y: auto;
     height: calc(100vh - 300px);
   }
