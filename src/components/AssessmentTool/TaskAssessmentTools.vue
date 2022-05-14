@@ -36,7 +36,7 @@
         </div>
       </template>
       <template v-if='!assessmentList.length'>
-        <common-no-data text='No assessment tool.'/>
+        <common-no-data text='No assessment tool.' class='no-assessment'/>
       </template>
     </div>
   </div>
@@ -165,6 +165,7 @@ export default {
         const assessmentTool = JSON.parse(JSON.stringify(config))
         assessmentTool.key = Math.random()
         assessmentTool.taskId = this.taskId
+        assessmentTool.sort = this.assessmentList.length
         if (!assessmentTool.bodyList.length) {
           assessmentTool.bodyList.push(this.generateEmptyRowByAssessment(assessmentTool))
         }
@@ -200,7 +201,7 @@ export default {
 .assessment-list {
   margin-top: 20px;
   height: calc(100vh - 250px);
-  overflow-y: scroll;
+  overflow-y: auto;
   .assessment-item {
     margin-bottom: 15px;
   }
