@@ -52,9 +52,9 @@
       :footer='null'>
       <modal-header :title="'Operation for ' + (currentEditHeader ? currentEditHeader.title : '') + ''" @close='editHeaderModalVisible = false'/>
       <div class='edit-header-action'>
-        <div class='edit-header-action-item'>
-          <custom-text-button label='Add a column' @click='handleAddCol'></custom-text-button>
-          <custom-text-button label='Delete current column' @click='handleDelCol'></custom-text-button>
+        <div class='edit-header-action-item' v-if='currentEditHeader'>
+          <custom-text-button label='Add a column' @click='handleAddCol' v-if='currentEditHeader.canAddCustomCol'></custom-text-button>
+          <custom-text-button label='Delete current column' @click='handleDelCol' v-if='currentEditHeader.canAddCustomCol'></custom-text-button>
           <custom-text-button label='Edit column name' @click='handleEditName'></custom-text-button>
         </div>
       </div>
@@ -84,6 +84,7 @@ import DeleteIcon from '@/components/Common/DeleteIcon'
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import ModalHeader from '@/components/Common/ModalHeader'
 import CustomLinkText from '@/components/Common/CustomLinkText'
+import { debounce } from 'lodash-es'
 
 export default {
   name: 'AssessmentToolTable',
@@ -108,11 +109,25 @@ export default {
         [ 'Option1', 'Option2', 'Option3' ],
         [ 'Option4', 'Option5', 'Option6' ],
         [ 'Option7', 'Option8', 'Option9' ]
-      ]
+      ],
+
+      // 异步延迟保存表格数据
+      asyncSaveTableData: null
     }
   },
   mounted() {
     this.globalClick(this.handleClick)
+  },
+  created() {
+    this.asyncSaveTableData = debounce(this.autoSaveAssessment, 1000)
+  },
+  watch: {
+    assessment: {
+      handler() {
+        this.asyncSaveTableData()
+      },
+      deep: true
+    }
   },
   computed: {
     headerTypeList () {
@@ -131,9 +146,14 @@ export default {
     },
 
     handleClick () {
-      this.$logger.info('handleClick', this.currentEditHeader)
       if (this.currentEditHeader) {
         this.currentEditHeader.editing = false
+        // 如果是checkList那么顺便修改对应的列数据
+        if (this.currentEditHeader.type === HeaderType.yes || this.currentEditHeader.type === HeaderType.no) {
+          this.assessment.bodyList.forEach(row => {
+            row[this.currentEditHeader.type].display = this.currentEditHeader.title
+          })
+        }
       }
     },
 
@@ -171,11 +191,7 @@ export default {
         this.assessment.bodyList.forEach(row => {
           row[newHeaderType] = {
             display: null,
-            teacherSelected: false,
-            data: null,
-            type: newHeaderType,
-            ext: null,
-            key: Math.random()
+            type: newHeaderType
           }
         })
       }
@@ -184,15 +200,13 @@ export default {
       this.currentEditHeader = null
     },
     handleAddRow () {
-      const row = {}
+      const row = {
+        key: Math.random()
+      }
       this.assessment.headerList.forEach(item => {
         row[item.type] = {
           display: item.type === HeaderType.yes ? 'YES' : (item.type === HeaderType.no ? 'NO' : null),
-          teacherSelected: false,
-          data: null,
-          type: item.type,
-          ext: null,
-          key: Math.random()
+          type: item.type
         }
       })
       this.assessment.bodyList.push(row)
@@ -200,6 +214,8 @@ export default {
 
     handleSaveHeaderAsSet () {
       this.$logger.info('handleSaveHeaderAsSet', this.assessment.headerList)
+      const headerNameList = this.assessment.headerList.map(item => item.title)
+      console.log(headerNameList)
     },
 
     selectHeaderSet (options) {
@@ -211,6 +227,11 @@ export default {
         }
       })
       this.selectHeaderSetModalVisible = false
+    },
+
+    autoSaveAssessment() {
+      this.$logger.info('autoSaveAssessment', this.assessment)
+      return this.assessment
     }
   }
 }

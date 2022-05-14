@@ -56,6 +56,12 @@ export default {
     CommonNoData,
     CustomTextButton
   },
+  props: {
+    taskId: {
+      type: String,
+      required: true
+    }
+  },
   data() {
     return {
       assessmentList: [],
@@ -158,6 +164,7 @@ export default {
       if (config) {
         const assessmentTool = JSON.parse(JSON.stringify(config))
         assessmentTool.key = Math.random()
+        assessmentTool.taskId = this.taskId
         if (!assessmentTool.bodyList.length) {
           assessmentTool.bodyList.push(this.generateEmptyRowByAssessment(assessmentTool))
         }
@@ -166,15 +173,13 @@ export default {
       }
     },
     generateEmptyRowByAssessment(assessment) {
-      const row = {}
+      const row = {
+        key: Math.random()
+      }
       assessment.headerList.forEach(item => {
         row[item.type] = {
           display: item.type === HeaderType.yes ? 'YES' : (item.type === HeaderType.no ? 'NO' : null),
-          teacherSelected: false,
-          data: null,
-          type: item.type,
-          ext: null,
-          key: Math.random()
+          type: item.type
         }
       })
 

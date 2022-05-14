@@ -576,7 +576,7 @@
             <div class='form-field-item assessment-tools-item' v-if="currentStep && currentStep.name === 'Add Assessment tool'">
               <div class='form-block tag-content-block'>
                 <div class='common-link-wrapper assessment-tools'>
-                  <task-assessment-tools />
+                  <task-assessment-tools :task-id='taskId' />
                 </div>
               </div>
             </div>
