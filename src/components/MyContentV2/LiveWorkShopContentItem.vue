@@ -201,7 +201,9 @@ export default {
       }
     }
     if (total === 0) {
-      this.$refs.detailPrice.getElementsByClassName('price-slider')[0].style.width = '100%'
+      if (this.$refs.detailPrice.getElementsByClassName('price-slider')[0]) {
+        this.$refs.detailPrice.getElementsByClassName('price-slider')[0].style.width = '100%'
+      }
     }
   },
   methods: {
@@ -374,11 +376,21 @@ export default {
       justify-content: space-between;
 
       .base-info {
+        flex: 1;
         .name {
           font-size: 0.22em /* 22/100 */;
           font-family: Arial;
           font-weight: bold;
           color: #17181A;
+          width: calc(100% - 2.5em);
+          word-break: break-all;
+          text-overflow: ellipsis;
+          display: -webkit-box;
+          /* autoprefixer: off */
+          -webkit-box-orient: vertical;
+          /* autoprefixer: on */
+          -webkit-line-clamp: 2;
+          overflow: hidden;
         }
         .owner {
           font-size: 0.18em /* 18/100 */;
@@ -388,6 +400,8 @@ export default {
         }
       }
       .right-info {
+        width: 2.5em;
+        text-align: right;
         .update-time {
           font-size: 0.18em /* 18/100 */;
           font-family: Arial;

@@ -45,14 +45,17 @@ import { SourceType } from '@/components/MyContentV2/Constant'
 import ContentFilter from '@/components/MyContentV2/ContentFilter'
 import { FindMyContent, UpdateContentStatus } from '@/api/teacher'
 import * as logger from '@/utils/logger'
-import { SESSION_CURRENT_PAGE } from '@/const/common'
+import { SESSION_CURRENT_PAGE, USER_MODE } from '@/const/common'
 import ContentItem from '@/components/MyContentV2/ContentItem'
 import ContentPublish from '@/components/MyContentV2/ContentPublish'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import RadioSwitch from '@/components/Common/RadioSwitch'
+import { UserModeMixin } from '@/mixins/UserModeMixin'
+import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 
 export default {
   name: 'CreatedByMeV2',
+  mixins: [UserModeMixin, CurrentSchoolMixin],
   components: { RadioSwitch, NoMoreResources, ContentPublish, ContentItem, ContentFilter, CreateNew },
   data () {
     return {
@@ -101,6 +104,17 @@ export default {
     this.loadMyContent()
   },
   methods: {
+    handleSchoolChange(currentSchool) {
+      this.pageNo = 1
+      this.loadMyContent()
+    },
+    handleModeChange(userMode) {
+      // 模式切换，个人还是学校 个人接口
+      if (userMode === USER_MODE.SELF) {
+        this.pageNo = 1
+        this.loadMyContent()
+      }
+    },
     handleSearch (data) {
       this.$logger.info('handleSearch', data)
       this.searchText = data.searchKey

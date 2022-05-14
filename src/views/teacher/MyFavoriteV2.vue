@@ -98,7 +98,7 @@ import TvSvg from '@/assets/icons/lesson/tv.svg?inline'
 import { lessonHost, lessonStatus } from '@/const/googleSlide'
 import { StartLesson } from '@/api/lesson'
 import ModalHeader from '@/components/Common/ModalHeader'
-import { CustomTagType } from '@/const/common'
+import { CustomTagType, USER_MODE } from '@/const/common'
 import CommonPreviewV2 from '@/components/Common/CommonPreviewV2'
 import { FindCustomTags } from '@/api/tag'
 import LiebiaoSvg from '@/assets/svgIcon/myContent/liebiao.svg?inline'
@@ -118,6 +118,9 @@ import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 import ContentItem from '@/components/MyContentV2/ContentItem'
 import FavoriteContentItem from '@/components/MyContentV2/FavoriteContentItem'
 import RadioSwitch from '@/components/Common/RadioSwitch'
+import NoMoreResources from '@/components/Common/NoMoreResources'
+import { UserModeMixin } from '@/mixins/UserModeMixin'
+import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 
 export default {
   name: 'MyFavorite',
@@ -142,9 +145,10 @@ export default {
     EditSvg,
     CopySvg,
     LiebiaoSvg,
-    PubuSvg
+    PubuSvg,
+    NoMoreResources
   },
-  mixins: [ GoogleAuthCallBackMixin ],
+  mixins: [ GoogleAuthCallBackMixin, UserModeMixin, CurrentSchoolMixin ],
   data () {
     return {
       loading: true,
@@ -204,6 +208,17 @@ export default {
     this.loadMyContent()
   },
   methods: {
+    handleSchoolChange(currentSchool) {
+      this.pageNo = 1
+      this.loadMyContent()
+    },
+    handleModeChange(userMode) {
+      // 模式切换，个人还是学校 个人接口
+      if (userMode === USER_MODE.SELF) {
+        this.pageNo = 1
+        this.loadMyContent()
+      }
+    },
     loadMyContent () {
       this.loading = true
       const postData = {

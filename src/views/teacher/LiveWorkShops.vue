@@ -118,14 +118,17 @@ import ContentFilter from '@/components/MyContentV2/ContentFilter'
 import RadioSwitch from '@/components/Common/RadioSwitch'
 import { FindWorkShops } from '@/api/v2/live'
 import * as logger from '@/utils/logger'
-import { SESSION_CURRENT_PAGE, WORK_SHOPS_STATUS, WORK_SHOPS_TYPE } from '@/const/common'
+import { SESSION_CURRENT_PAGE, WORK_SHOPS_STATUS, WORK_SHOPS_TYPE, USER_MODE } from '@/const/common'
 import { typeMap } from '@/const/teacher'
 import ContentItem from '@/components/MyContentV2/LiveWorkShopContentItem'
 import ContentSelect from '@/components/MyContentV2/ContentSelect'
 import NoMoreResources from '@/components/Common/NoMoreResources'
+import { UserModeMixin } from '@/mixins/UserModeMixin'
+import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 
 export default {
   name: 'LiveWorkShops',
+  mixins: [UserModeMixin, CurrentSchoolMixin],
   components: {
     ContentItem,
     ContentFilter,
@@ -200,6 +203,17 @@ export default {
     window.removeEventListener('resize', this.resizeFn)
   },
   methods: {
+    handleSchoolChange(currentSchool) {
+      this.pageNo = 1
+      this.loadMyContent()
+    },
+    handleModeChange(userMode) {
+      // 模式切换，个人还是学校 个人接口
+      if (userMode === USER_MODE.SELF) {
+        this.pageNo = 1
+        this.loadMyContent()
+      }
+    },
     resizeFn () {
       this.radioSwitchShow = false
       var docElem = document.documentElement

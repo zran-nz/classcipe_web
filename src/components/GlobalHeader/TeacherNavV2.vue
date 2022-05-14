@@ -79,10 +79,10 @@
           <div class='role-school-personal'>
             <a-dropdown class='cc-role-dropdown' :placement="'topCenter'" :trigger="['click']">
               <a-menu slot="overlay">
-                <a-menu-item class="self-mode" @click.native="handleChangePersonal">
+                <a-menu-item class="self-mode" @click="handleChangePersonal">
                   <span class='menu-label'>Personal</span>
                 </a-menu-item>
-                <a-menu-item :key="item.id" v-for="item in info.schoolList" @click.native="handleChangeSchool(item)">
+                <a-menu-item :key="item.id" v-for="item in info.schoolList" @click="handleChangeSchool(item)">
                   <span class='menu-label'>{{ item.schoolName }}</span>
                 </a-menu-item>
               </a-menu>
@@ -197,26 +197,26 @@ export default {
       this.GetClassList(this.userMode)
     },
     handleChangePersonal() {
-      this[TOOGLE_USER_MODE](USER_MODE.SELF)
       // 后端记录当前用户是否是个人模式，在个人模式下后台设置school未空字符
       SwitchUserModeSchool({
         isPersonal: true,
         schoolId: ''
       }).finally(() => {
-        this.justifyCurrentRoute()
+        // this.justifyCurrentRoute()
+        this[TOOGLE_USER_MODE](USER_MODE.SELF)
       })
     },
     handleChangeSchool(val) {
-      this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
-      const item = this.info.schoolList.find(item => item.id === val.id)
-      this.SET_CURRENT_SCHOOL(item)
       SwitchUserModeSchool({
           isPersonal: false,
           schoolId: val.id
       }).then(res => {
         // 获取对应学校班级
+        this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
+        const item = this.info.schoolList.find(item => item.id === val.id)
+        this.SET_CURRENT_SCHOOL(item)
         this.GetClassList(this.userMode)
-        this.justifyCurrentRoute()
+        // this.justifyCurrentRoute()
       })
     },
     justifyCurrentRoute() {
@@ -235,7 +235,7 @@ export default {
         }
       })
       if (needReload) {
-        window.location.reload()
+        // window.location.reload()
       }
     },
     triggerSearch () {
