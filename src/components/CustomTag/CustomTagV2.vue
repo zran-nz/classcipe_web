@@ -4,6 +4,9 @@
       <div class='tag-selected-label'>
         Selected tags
       </div>
+      <div class='tag-setting'>
+        <a-icon type="setting" @click='handleSetting' />
+      </div>
     </div>
     <div class='tag-content-wrapper'>
       <div class='selected-tag' v-show="showTagList.length">
@@ -386,7 +389,7 @@ export default {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: space-between;
     .tag-selected-label {
       font-size: 16px;
       font-family: Arial;
