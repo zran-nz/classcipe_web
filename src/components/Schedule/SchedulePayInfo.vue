@@ -24,7 +24,7 @@
             <div class='person-num'>
               People
               <template v-if='discount.editing'>
-                <a-input v-model='discount.peopleThreshold' type='number' class='cc-form-input discount-input'/>
+                <a-input v-model='discount.peopleThreshold' min='0' type='number' class='cc-form-input discount-input'/>
               </template>
               <template v-else>
                 {{ discount.peopleThreshold }}
@@ -32,7 +32,7 @@
             </div>
             <div class='discount-off'>
               <template v-if='discount.editing'>
-                <a-input v-model='discount.discount' type='number' class='cc-form-input discount-input'/>% off
+                <a-input v-model='discount.discount' min='0' max='100' type='number' class='cc-form-input discount-input'/>% off
               </template>
               <template v-else>
                 {{ discount.discount }}% off
