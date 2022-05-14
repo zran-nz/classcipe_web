@@ -29,7 +29,11 @@
       <tbody>
         <tr v-for='row in assessment.bodyList' :key='row.key'>
           <th v-for='header in assessment.headerList' :key='header.type'>
-            <a-input class='cc-table-input' v-model='row[header.type].display' :style="{ backgroundColor: header.bgColor || '#ffffff' }"/>
+            <a-textarea
+              :auto-size="{ minRows: 2, maxRows: 5 }"
+              class='cc-table-textarea'
+              v-model='row[header.type].display'
+              :style="{ backgroundColor: header.bgColor || '#ffffff' }"/>
           </th>
         </tr>
       </tbody>
@@ -398,4 +402,17 @@ export default {
     box-shadow: none;
   }
 }
+
+.cc-table-textarea {
+  line-height: 20px;
+  border: none;
+  box-shadow: none;
+
+  /deep/ textarea{
+    font-weight: bold;
+    border: none;
+    box-shadow: none;
+  }
+}
+
 </style>

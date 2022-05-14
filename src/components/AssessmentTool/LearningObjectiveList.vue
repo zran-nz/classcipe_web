@@ -115,7 +115,10 @@
     </div>
     <div class='modal-action-right'>
       <a-space>
-        <div class='insert-tips'></div>
+        <div class='insert-tips' v-if='mode === selectMode.learningObjective'>
+          Please go to step 'Set Learning Objectives', <br/>
+          if you wish to add criteria apart from above.
+        </div>
         <a-button
           @click='handleInsert'
           type='primary'>
@@ -873,5 +876,14 @@ export default {
       }
     }
   }
+}
+
+.insert-tips {
+  cursor: pointer;
+  user-select: none;
+  font-size: 12px;
+  color: #aaa;
+  max-width: 300px;
+  padding-right: 10px;
 }
 </style>
