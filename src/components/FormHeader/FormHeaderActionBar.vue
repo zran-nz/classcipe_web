@@ -3,22 +3,22 @@
     <a-space>
       <div class='collaborate-user-list'></div>
 
-      <div class='action-item invite' @click="emitEvent('invite')">
+      <div class='action-item invite' @click="emitEvent('invite')" v-if="showInvite">
         <a-tooltip title='Invite'>
           <invite-icon />
         </a-tooltip>
       </div>
-      <div class='action-item collaborate' @click="emitEvent('collaborate')">
+      <div class='action-item collaborate' @click="emitEvent('collaborate')" v-if="showCollaborate">
         <a-tooltip title='Collaborate'>
           <message-icon />
         </a-tooltip>
       </div>
-      <div class='action-item share' @click="emitEvent('share')">
+      <div class='action-item share' @click="emitEvent('share')" v-if="showShare">
         <a-tooltip title='Share'>
           <share-icon />
         </a-tooltip>
       </div>
-      <div class='action-item publish' @click="emitEvent('publish')">
+      <div class='action-item publish' @click="emitEvent('publish')" v-if="showPublish">
         <a-tooltip title='Publish'>
           <publish-icon />
         </a-tooltip>
@@ -43,6 +43,24 @@ export default {
   },
   data() {
     return {}
+  },
+  props: {
+    showInvite: {
+      type: Boolean,
+      default: false
+    },
+    showCollaborate: {
+      type: Boolean,
+      default: false
+    },
+    showPublish: {
+      type: Boolean,
+      default: false
+    },
+    showShare: {
+      type: Boolean,
+      default: false
+    }
   },
   created() {
   },

@@ -2,7 +2,18 @@
   <div class='my-full-form-wrapper' id='formRoot'>
     <fixed-form-header>
       <template v-slot:header>
-        <form-header title='Create task' @back='goBack'>
+        <form-header
+          title='Create task'
+          :form='form'
+          :share-status='shareStatus'
+          :collaborate='collaborate'
+          :last-change-saved-time='lastChangeSavedTime'
+          @view-collaborate='handleViewCollaborate'
+          @back='goBack'
+          @save='handleSaveTask(true)'
+          @share='handleShareTask'
+          @publish='handlePublishTask'
+          @collaborate='handleStartCollaborate'>
           <template v-slot:right>
           </template>
         </form-header>
@@ -3526,6 +3537,7 @@ export default {
       } else {
         this.setRightModuleVisible(this.rightModule.collaborate)
       }
+      this.handleDisplayRightModule()
       this.showHistoryLoading = true
       this.loadCollaborateData(this.form.type, this.form.id)
     },
