@@ -128,7 +128,7 @@ export default {
       this.$logger.info('scrollLeft')
       const dom = document.getElementById('slide-img-list')
       dom.scrollTo({
-        left: dom.scrollLeft - 200,
+        left: dom.scrollLeft - 400,
         behavior: 'smooth'
       })
     },
@@ -136,7 +136,7 @@ export default {
       this.$logger.info('scrollLeft')
       const dom = document.getElementById('slide-img-list')
       dom.scrollTo({
-        left: dom.scrollLeft + 200,
+        left: dom.scrollLeft + 400,
         behavior: 'smooth'
       })
     }
@@ -275,10 +275,16 @@ export default {
     align-items: center;
     width: 100%;
     position: relative;
-    padding-left: 25px;
-    padding-right: 25px;
+
+    &:hover {
+      .slide-left, .slide-right {
+        display: flex;
+        opacity: 1;
+      }
+    }
 
     .slide-left {
+      display: none;
       cursor: pointer;
       position: absolute;
       left: 0;
@@ -286,17 +292,19 @@ export default {
       margin-top: -15px;
       width: 15px;
       height: 26px;
-      text-align: center;
       font-size: 13px;
       line-height: 20px;
+      align-items: center;
+      justify-content: center;
+      flex-direction: row;
       color: #fff;
       background-color: rgba(0, 0, 0, 0.6);
-      padding: 4px 0;
       opacity: 0.3;
       transition: opacity 0.3s ease-in-out;
     }
 
     .slide-right {
+      display: none;
       cursor: pointer;
       position: absolute;
       right: 0;
@@ -307,9 +315,11 @@ export default {
       text-align: center;
       font-size: 13px;
       line-height: 20px;
+      align-items: center;
+      justify-content: center;
+      flex-direction: row;
       color: #fff;
       background-color: rgba(0, 0, 0, 0.6);
-      padding: 4px 0;
       opacity: 0.3;
       transition: opacity 0.3s ease-in-out;
     }
@@ -318,11 +328,11 @@ export default {
       cursor: pointer;
       display: flex;
       flex-direction: row;
-      justify-content: center;
+      justify-content: flex-start;
       align-items: flex-start;
-      width: calc(100% - 50px);
-      margin: auto;
+      width: 100%;
       overflow-x: auto;
+      user-select: none;
 
       &::-webkit-scrollbar {
         display: none;
@@ -330,12 +340,11 @@ export default {
 
       .img-item {
         height: 80px;
-        border: 2px solid #fff;
         margin-right: 10px;
 
         img {
+          box-sizing: border-box;
           height: 100%;
-          border: 2px solid #fff;
         }
       }
 
