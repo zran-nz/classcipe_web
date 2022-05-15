@@ -129,18 +129,21 @@ export default {
 @import "~@/components/index.less";
 
 .content-item {
-  padding: 15px;
-  border: 1px dashed #15c39a;
-  margin: 15px 0;
+  padding: 1rem;
+  margin: 1rem 0;
+  font-size: 1rem;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
   overflow: hidden;
+  border-radius: 7px;
+  border: 1px solid #EEF1F6;
   .cover {
     border: 1px solid #e1e1e1;
     .cover-block {
-      height: 160px;
-      width: 260px;
+      border-radius: 8px;
+      height: 9rem;
+      width: 16rem;
       background-position: center center;
       background-size: cover;
       background-repeat: no-repeat;
@@ -151,8 +154,8 @@ export default {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding-left: 10px;
-    height: 160px;
+    padding-left: 1rem;
+    height: 9rem;
 
     .detail-content {
       display: flex;
@@ -161,78 +164,28 @@ export default {
       flex-grow: 1;
 
       .base-info {
-        .header-info {
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          .name {
-            width: 350px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            word-break: break-all;
-            white-space: nowrap;
-            line-height: 30px;
-            font-size: 15px;
-            color: #333;
-            font-weight: 500;
-          }
+        .name {
+          line-height: 2rem;
+          font-size: 1rem;
+          font-family: Arial;
+          font-weight: bold;
+          color: #17181A;
+          cursor: pointer;
+        }
 
-          .price {
-            width: 120px;
-            user-select: none;
-            cursor: pointer;
-            padding-left: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            line-height: 30px;
-          }
+        .subject {
+          cursor: pointer;
+          font-family: Arial;
+          font-weight: 400;
+          color: #757578;
+          line-height: 1rem;
+          font-size: 0.7rem;
+        }
 
-          .sales {
-            width: 80px;
-            user-select: none;
-            cursor: pointer;
-            padding-right: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            line-height: 30px;
-          }
-
-          .price-label, .sales-label {
-            font-size: 12px;
-            color: #8e8e8e;
-            padding-right: 5px;
-            line-height: 30px;
-          }
-
-          .price-data {
-            color: #e4393c;
-            font-size: 20px;
-            font-weight: 400;
-            font-family: Verdana;
-            vertical-align: middle;
-            line-height: 30px;
-          }
-
-          .price-setting {
-            display: none;
-            padding-left: 5px;
-          }
-
-          .price {
-            &:hover {
-              .price-setting {
-                display: flex;
-              }
-            }
-          }
-
-          .sales-data {
-            color: #6C6C6C;
-            font-size: 18px;
-            font-weight: 400;
-            line-height: 30px;
+        .tag-info {
+          .tag-info-item {
+            line-height: 1rem;
+            font-size: 0.6rem;
           }
         }
       }
@@ -244,7 +197,7 @@ export default {
       display: flex;
       flex-direction: row;
       align-items: center;
-      justify-content: flex-end;
+      justify-content: flex-start;
     }
   }
 }

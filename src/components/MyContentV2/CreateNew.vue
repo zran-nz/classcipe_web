@@ -55,6 +55,7 @@ export default {
 .create-new-btn {
   border: 1px solid #D0D0D0;
   width: 130px;
+  font-size: 0.7rem;
   display: flex;
   justify-content: space-between;
   align-items: center;

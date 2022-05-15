@@ -144,21 +144,23 @@ export default {
 <style lang='less' scoped>
 @import "~@/components/index.less";
 
+
 .content-item {
-  padding: 15px 20px;
-  margin: 20px 0;
+  padding: 1rem;
+  margin: 1rem 0;
+  font-size: 1rem;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
   overflow: hidden;
   border-radius: 7px;
   border: 1px solid #EEF1F6;
-
   .cover {
+    border: 1px solid #e1e1e1;
     .cover-block {
       border-radius: 8px;
-      height: 160px;
-      width: 270px;
+      height: 9rem;
+      width: 16rem;
       background-position: center center;
       background-size: cover;
       background-repeat: no-repeat;
@@ -169,8 +171,8 @@ export default {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding-left: 20px;
-    height: 160px;
+    padding-left: 1rem;
+    height: 9rem;
 
     .detail-content {
       display: flex;
@@ -180,8 +182,8 @@ export default {
 
       .base-info {
         .name {
-          line-height: 32px;
-          font-size: 16px;
+          line-height: 2rem;
+          font-size: 1rem;
           font-family: Arial;
           font-weight: bold;
           color: #17181A;
@@ -193,8 +195,15 @@ export default {
           font-family: Arial;
           font-weight: 400;
           color: #757578;
-          line-height: 22px;
-          font-size: 13px;
+          line-height: 1rem;
+          font-size: 0.7rem;
+        }
+
+        .tag-info {
+          .tag-info-item {
+            line-height: 1rem;
+            font-size: 0.6rem;
+          }
         }
       }
     }
