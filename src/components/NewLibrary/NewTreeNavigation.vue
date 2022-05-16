@@ -190,7 +190,8 @@ export default {
         backgroundColor: '#D7E0E9'
       }
       let schoolPromises = []
-      if (this.currentSchool && this.currentSchool.id) {
+      // 只有学校模式才有个性化选择
+      if (this.userMode === USER_MODE.SCHOOL && this.currentSchool && this.currentSchool.id) {
         schoolPromises = [
           GetSchoolSubject({ schoolId: this.currentSchool.id }),
           GetSchoolGrade({ schoolId: this.currentSchool.id })

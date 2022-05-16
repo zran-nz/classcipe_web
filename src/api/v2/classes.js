@@ -6,7 +6,8 @@ export const ClassesV2Url = {
   findWorkShops: '/classcipe/api/v2/live/findWorkShops',
   addQuickSession: '/classcipe/api/v2/schedule/addQucikSession',
   addSession: '/classcipe/api/v2/schedule/addSession',
-  getClassesStudent: '/classcipe/api/v2/classes/getClassesStudent'
+  getClassesStudent: '/classcipe/api/v2/classes/getClassesStudent',
+  deleteClass: '/classcipe/api/v2/classes/delete'
 }
 
 /**
@@ -89,5 +90,22 @@ export function getClassesStudent (parameter) {
     url: ClassesV2Url.getClassesStudent,
     method: 'get',
     params: parameter
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+ export function DeleteClassV2 (parameter) {
+  return request({
+    url: ClassesV2Url.deleteClass,
+    method: 'post',
+    data: parameter,
+    params: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
   })
 }
