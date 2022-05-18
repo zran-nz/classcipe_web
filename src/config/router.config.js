@@ -306,6 +306,17 @@ export const asyncRouterMap = [
             props: true,
             component: () => import('@/views/teacher/ClassSession'),
             meta: { title: 'Class', keepAlive: true, permission: ['teacher'] }
+          },
+          {
+            path: '/teacher/live-workshop/:id/:type',
+            name: 'AddLiveWorkshop',
+            props(route) {
+              const props = { ...route.params }
+              props.type = +props.type // convert string to number
+              return props
+            },
+            component: () => import('@/views/teacher/AddLiveWorkshop'),
+            meta: { title: 'AddLiveWorkshop', keepAlive: true, permission: ['teacher'] }
           }
         ]
       },

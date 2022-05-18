@@ -1,7 +1,7 @@
 <template>
   <div class='content-item' v-if='content && content.content'>
     <div class='cover' @click.prevent.stop="handleGoWork(content)">
-      <div class='cover-block' :style="{'background-image': 'url(' + content.content.image + ')'}">
+      <div class='cover-block' :style="{'background-image': 'url(' + (content.cover || content.content.image) + ')'}">
       </div>
       <div v-if="content.session && content.session.classId && [WORK_SHOPS_TYPE.LUNCHEDBYME.value, WORK_SHOPS_TYPE.REGISTERED.value].includes(content.workshopsType)" class="cover-btn"><label>Enter workshop</label></div>
     </div>
@@ -9,7 +9,7 @@
       <div class='detail-content'>
         <div class='base-info'>
           <div class='name'>
-            {{ content.content.name }}
+            {{ content.title || content.content.name }}
           </div>
           <div class='tag-info'></div>
           <!-- <div class='owner'>
@@ -18,7 +18,7 @@
         </div>
         <div class='right-info' v-if="content.sessionStartTime">
           <div class='update-time'>
-            Sched: {{ content.sessionStartTime }}
+            Sched: {{ content.sessionStartTime | dayjs }}
           </div>
         </div>
       </div>
@@ -195,8 +195,11 @@ export default {
     if (items.length > 0) {
       const itemWidth = items[0].getBoundingClientRect().width + 5
       const showTagLen = parseInt(tagInfoEl.getBoundingClientRect().width / itemWidth) - 1
+      // console.log(itemWidth)
+      // console.log(total)
+      // console.log(showTagLen)
       if (total - showTagLen > 1) {
-        // this.showTagLen = showTagLen - 1
+        this.showTagLen = showTagLen
       } else {
         this.showTagLen = total
       }
