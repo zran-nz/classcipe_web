@@ -144,7 +144,6 @@ export default {
 <style lang='less' scoped>
 @import "~@/components/index.less";
 
-
 .content-item {
   padding: 1rem;
   margin: 1rem 0;
