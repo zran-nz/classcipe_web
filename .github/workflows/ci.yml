@@ -89,6 +89,6 @@ jobs:
           eval "$(ssh-agent -s)"
           ssh-add ~/.ssh/id_rsa
           ssh -o StrictHostKeyChecking=no ubuntu@13.236.143.19
-          ssh  ubuntu@13.236.143.19  'cd deployment-last && ./start-ui.sh'
+          ssh  ubuntu@13.236.143.19  'cd deployment-cloud/cc-api-cloud && ./start-ui.sh'
         env:
           TEST_SERVER_PRIVATE_KEY: ${{ secrets.TEST_SERVER_PRIVATE_KEY }}
