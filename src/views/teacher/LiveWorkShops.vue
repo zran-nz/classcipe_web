@@ -301,7 +301,7 @@ export default {
       console.log(item)
       this.importVisible = false
       this.$router.push({
-        path: '/teacher/schedule-session/' + item.id + '/' + item.type
+        path: '/teacher/live-workshop/' + item.id + '/' + item.type
       })
     }
   }

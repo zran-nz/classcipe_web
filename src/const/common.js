@@ -303,3 +303,25 @@ export const CLASS_TYPE = {
   open: 3, // 开放的班级统称
   self: 4 // self study
 }
+
+export const PAID_TYPE = {
+  FREE: {
+    label: 'Free workshops',
+    value: 0
+  },
+  PAID: {
+    label: 'Paid workshops',
+    value: 1
+  }
+}
+
+export const NOTIFY_TYPE = {
+  ALL: {
+    label: 'All teachers',
+    value: 1
+  },
+  FILTER: {
+    label: 'Filter teachers by Years or Subjects',
+    value: 2
+  }
+}
