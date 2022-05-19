@@ -12,7 +12,7 @@
             </a-button>
           </div>
         </div>
-        <a-carousel ref='carousel' :arrows='showArrow && imgList.length > 1'>
+        <a-carousel ref='carousel' :arrows='showArrow && imgList.length > 1' :after-change='onChangePage'>
           <div
             slot="prevArrow"
             class="custom-slick-arrow"
@@ -58,15 +58,21 @@
         </div>
       </div>
     </div>
+    <div class='slider-materials-wrapper'>
+      <slide-materials :current-page-material='currentPageMaterial'/>
+    </div>
   </div>
 </template>
 
 <script>
 
 import CommonNoData from '@/components/Common/CommonNoData'
+import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
+import SlideMaterials from '@/components/PPT/SlideMaterials'
+
 export default {
   name: 'SlideViewer',
-  components: { CommonNoData },
+  components: { SlideMaterials, CommonNoData },
   props: {
     imgList: {
       type: Array,
@@ -103,6 +109,10 @@ export default {
     showNav: {
       type: Boolean,
       default: false
+    },
+    showElementsAndItemsInfo: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -110,7 +120,12 @@ export default {
       currentImgIndex: 0
     }
   },
+  mixins: [ PptPreviewMixin ],
   created() {
+    this.$logger.info('SlideViewer created showElementsAndItemsInfo ' + this.showElementsAndItemsInfo)
+    if (this.showElementsAndItemsInfo) {
+      this.getClassInfo(this.slideId)
+    }
   },
   methods: {
     handlePreview () {
@@ -339,12 +354,15 @@ export default {
       }
 
       .img-item {
-        height: 80px;
+        height: 84px;
         margin-right: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
 
         img {
           box-sizing: border-box;
-          height: 100%;
+          height: 80px;
         }
       }
 
@@ -354,7 +372,7 @@ export default {
 
       .active-img-item {
          img {
-           border: 2px solid #15C39A;
+           outline: 2px solid #15C39A;
            box-shadow: 0 0 3px 3px #15C39A1A;
          }
       }

@@ -37,7 +37,7 @@ export const PptPreviewMixin = {
 
   },
   computed: {
-      currentPageElements () {
+    currentPageElements () {
       const showMenuList = []
       if (this.thumbnailList.length === 0) {
         return showMenuList

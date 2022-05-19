@@ -24,6 +24,7 @@
         <slide-viewer
           :show-arrow='true'
           :show-nav='true'
+          :show-elements-and-items-info='showElementsAndItemsInfo'
           :img-list='imageList'
           v-if='!loading'/>
         <a-skeleton v-if='loading'/>
@@ -62,6 +63,10 @@ export default {
     needRefresh: {
       type: Boolean,
       required: false
+    },
+    showElementsAndItemsInfo: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -127,6 +132,5 @@ export default {
 }
 
 .slide-wrapper {
-  height: 400px;
 }
 </style>

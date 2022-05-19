@@ -27,7 +27,7 @@ export default {
       // TODO 创建PD Content
       // TODO 删除mock数据
       this.$router.replace({
-        path: '/teacher/pd-content/1522135572421865474'
+        path: '/teacher/pd-content/1506828908248494082'
       })
       // PDContentAddOrUpdate(pdData).then((response) => {
       //   logger.info('PDContentAddOrUpdate response', response.result)

@@ -269,7 +269,7 @@
                 </div>
 
                 <div class='form-block tag-content-block' :data-field-name='taskField.Slides' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Slides' :key='fieldItem.fieldName'>
-                  <form-slide :source-type='contentType.task' :source-id='taskId' :need-refresh='true'/>
+                  <form-slide :source-type='contentType.task' :source-id='taskId' :need-refresh='true' :show-elements-and-items-info='true'/>
                 </div>
 
                 <div class='form-block tag-content-block' :data-field-name='taskField.Link' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Link' :key='fieldItem.fieldName'>
