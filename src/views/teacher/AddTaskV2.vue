@@ -269,7 +269,15 @@
                 </div>
 
                 <div class='form-block tag-content-block' :data-field-name='taskField.Slides' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Slides' :key='fieldItem.fieldName'>
-                  <form-slide :source-type='contentType.task' :source-id='taskId' :need-refresh='true' :show-elements-and-items-info='true'/>
+                  <form-slide
+                    :source-type='contentType.task'
+                    :source-id='taskId'
+                    :slide-id='form.presentationId'
+                    :showMaterialsAndTips='true'
+                    :showEditGoogleSlide='form.taskMode === 1'
+                    :thumbnailList='thumbnailList'
+                    @edit-google-slide='handleEditGoogleSlide'
+                  />
                 </div>
 
                 <div class='form-block tag-content-block' :data-field-name='taskField.Link' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Link' :key='fieldItem.fieldName'>
@@ -1288,7 +1296,6 @@ import NoMoreResources from '@/components/Common/NoMoreResources'
 import TemplatePreview from '@/components/Task/TemplatePreview'
 import TaskMaterialPreview from '@/components/Task/TaskMaterialPreview'
 import TaskPptPreview from '@/components/Task/TaskPptPreview'
-import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
 import MediaPreview from '@/components/Task/MediaPreview'
 import { UtilMixin } from '@/mixins/UtilMixin'
 import moment from 'moment'
@@ -1379,7 +1386,7 @@ export default {
     CollaborateTooltip,
     CollaborateUpdateContent
   },
-  mixins: [ PptPreviewMixin, UtilMixin, BaseEventMixin, FormConfigMixin, GoogleAuthCallBackMixin ],
+  mixins: [ UtilMixin, BaseEventMixin, FormConfigMixin, GoogleAuthCallBackMixin ],
   props: {
     taskId: {
       type: String,
@@ -2358,7 +2365,6 @@ export default {
       }).finally(() => {
         this.thumbnailListLoading = false
         this.skeletonLoading = false
-        this.getClassInfo(this.form.presentationId)
 
         if (this.currentActiveStepIndex === 2 && this.thumbnailList.length > 1) {
           if (this.dontRemindMe) {

@@ -36,6 +36,12 @@
         </div>
       </template>
     </div>
+    <div class='slide-notes-wrapper' v-if='showNotes'>
+      <slide-notes
+        :current-page-item='currentPageItem'
+        :current-page-tips='currentPageTips'
+      />
+    </div>
     <div class='slide-viewer-nav' v-if='showNav'>
       <div class='carousel-page'>
         <div class='img-list-wrapper'>
@@ -59,7 +65,9 @@
       </div>
     </div>
     <div class='slider-materials-wrapper'>
-      <slide-materials :current-page-material='currentPageMaterial'/>
+      <slide-materials-and-tips
+        :current-page-material='currentPageMaterial'
+        v-if='showMaterialsAndTips' />
     </div>
   </div>
 </template>
@@ -67,17 +75,14 @@
 <script>
 
 import CommonNoData from '@/components/Common/CommonNoData'
+import SlideMaterialsAndTips from '@/components/PPT/SlideMaterialsAndTips'
 import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
-import SlideMaterials from '@/components/PPT/SlideMaterials'
+import SlideNotes from '@/components/PPT/SlideNotes'
 
 export default {
   name: 'SlideViewer',
-  components: { SlideMaterials, CommonNoData },
+  components: { SlideNotes, SlideMaterialsAndTips, CommonNoData },
   props: {
-    imgList: {
-      type: Array,
-      required: true
-    },
     title: {
       type: String,
       default: null
@@ -90,29 +95,65 @@ export default {
       type: String,
       default: '100%'
     },
+    // 显示页底标题栏
     showTitle: {
       type: Boolean,
       default: false
     },
-    showScrollBar: {
-      type: Boolean,
-      default: false
-    },
+    // 显示悬浮遮罩层
     showHoverMask: {
       type: Boolean,
       default: false
     },
+    // 显示悬浮切换上下页图标按钮
     showArrow: {
       type: Boolean,
       default: false
     },
+    // 显示PPT notes标签数据
+    showNotes: {
+      type: Boolean,
+      default: false
+    },
+    // 显示图片导航栏
     showNav: {
       type: Boolean,
       default: false
     },
-    showElementsAndItemsInfo: {
+    showEditGoogleSlide: {
       type: Boolean,
       default: false
+    },
+    showMaterialsAndTips: {
+      type: Boolean,
+      default: false
+    },
+    thumbnailList: {
+      type: Array,
+      default: () => []
+    },
+    defaultThumbnailList: {
+      type: Array,
+      default: () => []
+    }
+  },
+  mixins: [ PptPreviewMixin ],
+  watch: {
+    thumbnailList: {
+      handler(newVal) {
+        if (this.slideId && this.showMaterialsAndTips) {
+          this.getClassInfo(this.slideId)
+        }
+      }
+    }
+  },
+  computed: {
+    imgList () {
+      if (this.defaultThumbnailList.length) {
+        return this.defaultThumbnailList.map(item => item.contentUrl)
+      } else {
+        return this.thumbnailList.map(item => item.contentUrl)
+      }
     }
   },
   data() {
@@ -120,12 +161,8 @@ export default {
       currentImgIndex: 0
     }
   },
-  mixins: [ PptPreviewMixin ],
   created() {
-    this.$logger.info('SlideViewer created showElementsAndItemsInfo ' + this.showElementsAndItemsInfo)
-    if (this.showElementsAndItemsInfo) {
-      this.getClassInfo(this.slideId)
-    }
+    this.$logger.info('SlideViewer created showElementsAndItemsInfo ' + this.showMaterialsAndTips)
   },
   methods: {
     handlePreview () {
@@ -364,10 +401,6 @@ export default {
           box-sizing: border-box;
           height: 80px;
         }
-      }
-
-      .img-item:nth-last-child(1) {
-        margin-right: 0;
       }
 
       .active-img-item {

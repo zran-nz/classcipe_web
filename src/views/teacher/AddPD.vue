@@ -72,7 +72,6 @@
 
               <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === PdField.Slides' :key='fieldName'>
                 <custom-form-item :show-label='false'>
-                  <form-slide :source-type='contentType.pd' :source-id='pdId' :need-refresh='true' :show-elements-and-items-info='true'/>
                 </custom-form-item>
               </div>
 

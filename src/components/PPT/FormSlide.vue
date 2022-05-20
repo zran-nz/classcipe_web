@@ -12,7 +12,9 @@
         </a-radio-group>
       </div>
       <div class='go-to-google'>
-        <custom-text-button label='Edit google slides'>
+        <custom-text-button
+          label='Edit google slides'
+          @click="handleEditGoogleSlide">
           <template v-slot:icon>
             <google-icon />
           </template>
@@ -24,20 +26,19 @@
         <slide-viewer
           :show-arrow='true'
           :show-nav='true'
-          :show-elements-and-items-info='showElementsAndItemsInfo'
-          :img-list='imageList'
-          v-if='!loading'/>
-        <a-skeleton v-if='loading'/>
+          :show-notes='true'
+          :slide-id='slideId'
+          v-bind="$attrs" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
+
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import GoogleIcon from '@/assets/v2/icons/google_02.svg?inline'
 import SlideViewer from '@/components/PPT/SlideViewer'
-import { TemplatesGetPresentation } from '@/api/template'
 
 const displayModeType = {
   SlideDrift: 'SlideDrift',
@@ -60,55 +61,25 @@ export default {
       type: Number,
       required: true
     },
-    needRefresh: {
-      type: Boolean,
-      required: false
-    },
-    showElementsAndItemsInfo: {
-      type: Boolean,
-      default: false
+    slideId: {
+      type: String,
+      default: null
     }
   },
   data() {
     return {
       displayMode: displayModeType.SlideDrift,
-      displayModeType: displayModeType,
-
-      loading: true,
-      pptTitle: null,
-      thumbnailList: null,
-      imageList: null
+      displayModeType: displayModeType
     }
   },
   created() {
-    this.loadSlideData()
   },
   methods: {
-    loadSlideData() {
-      this.loading = true
-      TemplatesGetPresentation({
-        taskId: this.sourceId,
-        needRefresh: this.needRefresh
-      }).then(response => {
-        this.$logger.info('loadThumbnail response', response.result)
-        if (response.code === 0) {
-          const pageObjects = response.result.pageObjects
-          this.pptTitle = response.result.title
-          this.thumbnailList = []
-          this.imageList = []
-          pageObjects.forEach(page => {
-            this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
-            this.imageList.push(page.contentUrl)
-          })
-        } else if (response.code === this.ErrorCode.ppt_google_token_expires || response.code === this.ErrorCode.ppt_forbidden) {
-          this.$logger.info('等待授权事件通知')
-        }
-      }).finally(() => {
-        this.loading = false
-      })
-    },
     handleSwitchDisplayMode () {
+    },
 
+    async handleEditGoogleSlide() {
+      this.$emit('edit-google-slide')
     }
   }
 }

@@ -28,7 +28,7 @@
               :show-hover-mask='true'
               :show-title='true'
               :show-arrow='true'
-              :img-list='slide.images'/>
+              :default-thumbnail-list='slide.thumbnailList'/>
           </div>
         </template>
         <template v-if='slideList.length === 0'>
@@ -105,6 +105,15 @@ export default {
       }).then(res => {
         this.$logger.info('recommendTemplates res', res)
         if (res && res.result) {
+          res.result.forEach(item => {
+            item.thumbnailList = []
+            for (let i = 0; i < item.images.length; i++) {
+              item.thumbnailList[i] = {
+                contentUrl: item.images[i].replace('http://', 'https://'),
+                id: item.pageObjectIds[i]
+              }
+            }
+          })
           this.slideList = res.result
         }
       }).finally(() => {

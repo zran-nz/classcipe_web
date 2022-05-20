@@ -1,10 +1,11 @@
 <template>
   <div class="media-enter">
     <a-dropdown :getPopupContainer="trigger => trigger.parentElement">
-      <div class="add-material-label">
-        <img src="~@/assets/icons/addMaterial/media-add.png" alt="" class="add-material-icon" />
-        <strong>Add Material</strong>
-      </div>
+      <custom-text-button label='Add material'>
+        <template v-slot:icon>
+          <a-icon type='circle-plus' />
+        </template>
+      </custom-text-button>
       <a-menu slot="overlay">
         <a-menu-item class="my-add-material-menu-item">
           <a-tooltip title="Record Audio" placement="right">
@@ -55,6 +56,7 @@
         </a-menu-item>
       </a-menu>
     </a-dropdown>
+
     <a-modal
       title="youtube"
       :visible.sync="showYoutube"
@@ -106,8 +108,10 @@ import RecordVideo from './Video/RecordVideo'
 import CommonProgress from './Common/CommonProgress'
 import GoogleImageSearch from '@/components/AddMaterial/Google/GoogleImageSearch'
 import GoogleYoutubeVideo from '@/components/AddMaterial/Google/GoogleYoutubeVideo'
+import CustomTextButton from '@/components/Common/CustomTextButton'
 export default {
   components: {
+    CustomTextButton,
     GoogleYoutubeVideo,
     GoogleImageSearch,
     GoogleDriveIcon,
@@ -341,4 +345,5 @@ export default {
   right: -130px;
   top: 0;
 }
+
 </style>
