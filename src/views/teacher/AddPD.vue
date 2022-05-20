@@ -85,6 +85,9 @@
                 </custom-form-item>
               </div>
 
+              <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === PdField.Video' :key='fieldName'>
+                <case-video :video-list='form.videoList'/>
+              </div>
             </div>
           </div>
         </div>
@@ -144,10 +147,12 @@ import SlideSelectList from '@/components/PPT/SlideSelectList'
 import TaskLinkedContent from '@/components/Task/TaskLinkedContent'
 import { TemplatesGetPresentation } from '@/api/template'
 import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
+import CaseVideo from '@/components/PdContent/CaseVideo'
 
 export default {
   name: 'AddPD',
   components: {
+    CaseVideo,
     TaskLinkedContent,
     SlideSelectList,
     FormSlide,
@@ -191,6 +196,7 @@ export default {
         coverUrl: null,
         goals: null,
         customTags: [],
+        videoList: [],
         presentationId: null,
         createBy: null
       },

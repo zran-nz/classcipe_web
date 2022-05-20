@@ -19,7 +19,7 @@
 
 <script>
 export default {
-  name: 'CustomUploadedButton',
+  name: 'CustomMediaCoverButton',
   props: {
     label: {
       type: String,

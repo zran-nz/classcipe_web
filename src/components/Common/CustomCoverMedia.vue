@@ -12,8 +12,9 @@
         <video :src='mediaUrl' :controls='videoControls'></video>
       </div>
       <div class='upload-tips' v-if='!uploading'>
-        <custom-uploaded-button label='Set cover image/video' bg-color='#2582B5' font-color='#fff'>
-        </custom-uploaded-button>
+        <custom-media-cover-button label='Set cover image/video' bg-color='#2582B5' font-color='#fff' v-show='showUploadButton'></custom-media-cover-button>
+        <custom-media-cover-button label='Edit' bg-color='#2582B5' font-color='#fff' v-show='showEditButton' @click.stop='handleEdit'></custom-media-cover-button>
+        <custom-media-cover-button label='Delete' bg-color='#2582B5' font-color='#fff' v-show='showDeleteButton' @click.stop='handleDelete'></custom-media-cover-button>
       </div>
     </a-upload-dragger>
     <div class='uploading-progress' v-show='uploading'>
@@ -29,12 +30,13 @@
 import * as logger from '@/utils/logger'
 import { upAwsS3File } from '@/components/AddMaterial/Utils/AwsS3'
 import CustomButton from '@/components/Common/CustomButton'
-import CustomUploadedButton from '@/components/Common/CustomUploadedButton'
+import CustomMediaCoverButton from '@/components/Common/CustomMediaCoverButton'
 import CustomLinkText from '@/components/Common/CustomLinkText'
+import PdEvent from '@/components/PdContent/PdEvent'
 
 export default {
   name: 'CustomCoverMedia',
-  components: { CustomLinkText, CustomUploadedButton, CustomButton },
+  components: { CustomLinkText, CustomMediaCoverButton, CustomButton },
   props: {
     type: {
       type: String,
@@ -55,6 +57,22 @@ export default {
     height: {
       type: String,
       default: '160px'
+    },
+    showUploadButton: {
+      type: Boolean,
+      default: true
+    },
+    showEditButton: {
+      type: Boolean,
+      default: false
+    },
+    showDeleteButton: {
+      type: Boolean,
+      default: false
+    },
+    videoItem: {
+      type: Object,
+      default: null
     }
   },
   data() {
@@ -100,6 +118,18 @@ export default {
         this.uploading = false
         this.progressPercent = 0
       }
+    },
+
+    handleEdit () {
+      this.$EventBus.$emit(PdEvent.PD_VIDEO_EDIT, this.videoItem)
+    },
+
+    handleDelete () {
+      this.$EventBus.$emit(PdEvent.PD_VIDEO_DELETE, this.videoItem)
+    },
+
+    handleUpdate () {
+      this.$EventBus.$emit(PdEvent.PD_VIDEO_UPDATE, this.videoItem)
     }
   }
 }
