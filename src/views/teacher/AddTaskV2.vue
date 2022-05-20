@@ -7,7 +7,7 @@
           :form='form'
           :share-status='shareStatus'
           :collaborate='collaborate'
-          :last-change-saved-time='lastChangeSavedTime'
+          :last-change-saved-time='(form.updateTime || form.createTime) | dayjs'
           @view-collaborate='handleViewCollaborate'
           @back='goBack'
           @save='handleSaveTask(true)'
@@ -276,6 +276,7 @@
                     :showMaterialsAndTips='true'
                     :showEditGoogleSlide='form.taskMode === 1'
                     :thumbnailList='thumbnailList'
+                    :selectedTemplateList='form.selectedTemplateList'
                     @edit-google-slide='handleEditGoogleSlide'
                   />
                 </div>
@@ -288,48 +289,7 @@
                 <div class='form-block' :data-field-name='taskField.Image' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Image' :key='fieldItem.fieldName'>
                   <!-- image-->
                   <a-form-model-item class='img-wrapper'>
-                    <a-upload-dragger
-                      name='file'
-                      accept='image/png, image/jpeg'
-                      :showUploadList='false'
-                      :customRequest='handleUploadImage'
-                      :disabled="!canEdit"
-                    >
-                      <div class='delete-img' @click='handleDeleteImage($event)' v-show='form.image' v-if="canEdit">
-                        <a-icon type='close-circle' />
-                      </div>
-                      <template v-if='uploading'>
-                        <div class='upload-container'>
-                          <p class='ant-upload-drag-icon'>
-                            <a-icon type='cloud-upload' />
-                          </p>
-                          <p class='ant-upload-text'>
-                            <a-spin />
-                            <span class='uploading-tips'>{{ $t('teacher.add-unit-plan.uploading') }}</span>
-                          </p>
-                        </div>
-                      </template>
-                      <template v-if='!uploading && form && form.image'>
-                        <div class='image-preview'>
-                          <img :src='form.image' alt=''>
-                          <div class='upload-text-mask'>
-                            <div class='upload-text'>
-                              <a-button shape='round' type='primary'>Upload a cover image</a-button>
-                            </div>
-                          </div>
-                        </div>
-                      </template>
-                      <template v-if='!uploading && form && !form.image'>
-                        <div class='upload-container'>
-                          <p class='ant-upload-drag-icon'>
-                            <img src='~@/assets/icons/lesson/upload_icon.png' class='upload-icon' />
-                          </p>
-                          <p class='ant-upload-text'>
-                            Upload a cover image
-                          </p>
-                        </div>
-                      </template>
-                    </a-upload-dragger>
+                    <custom-cover-media :type='form.coverType' :url='form.coverUrl' @update='handleUpdateCover'/>
                   </a-form-model-item>
                 </div>
               </template>
@@ -351,7 +311,7 @@
                 </div>
               </template>
             </div>
-            <div class='form-field-item assessment-tools-item' v-if="currentStep && currentStep.name === 'Add Assessment tool'">
+            <div class='form-field-item assessment-tools-item' v-if="currentStep && currentStep.name.toLowerCase().indexOf('assessment') !== -1">
               <div class='form-block tag-content-block'>
                 <div class='common-link-wrapper assessment-tools'>
                   <task-assessment-tools :task-id='taskId' />
@@ -452,726 +412,6 @@
         v-if='showCollaborateModalVisible' />
     </a-modal>
     <a-modal
-      v-model='selectLinkUnitPlanContentVisible'
-      :footer='null'
-      destroyOnClose
-      :dialog-style="{ top: '10px'}"
-      width='900px'>
-      <div class='my-modal-title' slot='title'>
-        Link Unit Plan
-      </div>
-      <div class='link-content-wrapper'>
-        <new-my-content
-          :from-type='contentType.task'
-          :from-id='taskId'
-          :filter-type-list="[contentType['unit-plan']]"
-          :group-name-list='groupNameList'
-          default-group-name='Relevant Unit Plan(s)'
-          :show-tabs='false'
-          :show-create='false'
-          :mode="'common-link'"
-          :group-name-mode='groupNameMode'
-          @cancel='selectLinkUnitPlanContentVisible = false'
-          @ensure='handleEnsureSelectedLink' />
-      </div>
-    </a-modal>
-    <a-modal
-      v-model='selectLinkContentVisible'
-      :footer='null'
-      destroyOnClose
-      :dialog-style="{ top: '10px'}"
-      width='900px'>
-      <div class='my-modal-title' slot='title'>
-        Link Assessment rubric(s)
-      </div>
-      <div class='link-content-wrapper'>
-        <new-my-content
-          :from-type='contentType.task'
-          :from-id='taskId'
-          :filter-type-list='[contentType.evaluation]'
-          :group-name-list='groupNameList'
-          default-group-name='Linked assessment tool(s)'
-          :show-tabs='false'
-          :mode="'common-link'"
-          :group-name-mode='groupNameMode'
-          @cancel='selectLinkContentVisible = false'
-          @ensure='handleEnsureSelectedLink' />
-      </div>
-    </a-modal>
-    <a-modal
-      v-model='viewInGoogleSlideVisible'
-      :footer='null'
-      destroyOnClose
-      title='Created Successfully'
-      @ok='viewInGoogleSlideVisible = false'
-      @cancel='viewInGoogleSlideVisible = false'>
-      <div class='view-in-google-slider'>
-        <div class='view-line'>
-          <div class='link-url'>
-            <a :href='presentationLink' target='_blank'>{{ presentationLink }}</a>
-          </div>
-          <div class='view-action'>
-            <a-button type='primary' :loading='editGoogleSlideLoading' @click='handleEditGoogleSlide()'>Edit in Google Slides</a-button>
-          </div>
-        </div>
-      </div>
-    </a-modal>
-    <a-modal
-      v-model='selectedMyContentVisible'
-      :footer='null'
-      :title='null'
-      :zIndex='2000'
-      :mask='false'
-      :maskClosable='false'
-      destroyOnClose
-      :dialog-style="{ top: '10px','margin-left':selectedTemplateMarginLeft,'transition': '0.8s' }"
-      :width='selectedTemplateMadelWidth'
-      :closable='!selectedTemplateDrawerVisible'
-      @ok='selectedMyContentVisible = false'>
-      <a-tabs class='template-tabs'>
-        <a-tab-pane key='1' tab='Slide template(s)'>
-          <div class='select-template-wrapper'>
-            <div class='template-select-header'>
-              <div class='group-filter'>
-                <a-radio-group v-model='filterType' button-style='solid' @change='changeFilterType'>
-                  <a-radio-button :value='1'>
-                    Learning Experience
-                  </a-radio-button>
-                  <a-radio-button :value='2'>
-                    Assessment
-                  </a-radio-button>
-                  <a-radio-button :value='3'>
-                    21st Century Skills
-                  </a-radio-button>
-                  <a-radio-button :value='4'>
-                    5E model
-                  </a-radio-button>
-                </a-radio-group>
-                <a-button
-                  v-if='showTemplateFilter'
-                  type='link'
-                  class='clear-all'
-                  @click='clearFilter()'
-                  style='float:right;'>
-                  Clear all
-                </a-button>
-              </div>
-              <a-row v-if='filterType == 1 && showTemplateFilter'>
-                <div class='filter-row'>
-                  <div class='row-select'>
-                    <div
-                      class='sub-select'
-                      v-for="(item ,index) in templateFilterCondition(templateType.Learning,'')"
-                      :key='index'>
-                      <a-row>
-                        <h4>{{ item.name }}</h4>
-                      </a-row>
-                      <div class='sub-items'>
-                        <div class='sub-item' v-for='(child,cIndex) in item.children' :key='cIndex'>
-                          <a-checkbox
-                            :value='child.id'
-                            @change='onChangeCheckBox($event,templateType.Learning,item)'
-                            :checked='filterLearn.indexOf(child.id) > -1 ? true: false'>
-                            {{ child.name }}
-                          </a-checkbox>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </a-row>
-              <a-row v-if='filterType == 2 && showTemplateFilter'>
-                <a-tabs
-                  class='assessments-tabs'
-                  v-model='filterAssessmentsType'
-                  :defaultActiveKey='filterAssessmentsType'
-                  @change='changeFilterType'
-                  :animated="false"
-                  :tabBarGutter='3'
-                  :tabBarStyle="{margin:'10px 20px'}">
-                  <a-tab-pane key='1' tab='Knowledge focus'>
-                    <div class='filter-row'>
-                      <a-row>
-                        <div class='row-select row-select-assessments'>
-                          <a-col :span='24'>
-                            <!--                          <span class="sub-category">Knowledge focus </span>-->
-                            <div
-                              class='sub-select'
-                              v-for="(item ,index) in templateFilterCondition(templateType.Assessments,'Knowledge focus')"
-                              :key='index'>
-                              <a-row>
-                                <h4>{{ item.name }}</h4>
-                              </a-row>
-                              <div class='sub-items'>
-                                <div class='sub-item' v-for='(child,cIndex) in item.children' :key='cIndex'>
-                                  <a-radio
-                                    :name='item.name'
-                                    :value='child.id'
-                                    :checked="filterAssessments.indexOf(child.id) !== -1"
-                                    @click='onClickRadio($event,templateType.Assessments,item)'>
-                                    {{ child.name }}
-                                  </a-radio>
-                                </div>
-                              </div>
-                            </div>
-                          </a-col>
-                        </div>
-                      </a-row>
-                    </div>
-                  </a-tab-pane>
-                  <a-tab-pane key='2' tab='Skill focus' force-render>
-                    <div class='filter-row'>
-                      <a-row>
-                        <div class='row-select row-select-assessments'>
-                          <a-col :span='24'>
-                            <!--                          <span class="sub-category">Skill focus</span>-->
-                            <div
-                              class='sub-select'
-                              v-for="(item ,index) in templateFilterCondition(templateType.Assessments,'Skill focus')"
-                              :key='index'>
-                              <a-row>
-                                <h4>{{ item.name }}</h4>
-                              </a-row>
-                              <div class='sub-items'>
-                                <div class='sub-item' v-for='(child,cIndex) in item.children' :key='cIndex'>
-                                  <a-radio
-                                    :name='item.name'
-                                    :value='child.id'
-                                    :checked="filterAssessments.indexOf(child.id) !== -1"
-                                    @click='onClickRadio($event,templateType.Assessments,item)'>
-                                    {{ child.name }}
-                                  </a-radio>
-                                </div>
-                              </div>
-                            </div>
-                          </a-col>
-                        </div>
-                      </a-row>
-                    </div>
-                  </a-tab-pane>
-                </a-tabs>
-
-              </a-row>
-              <a-row v-if='filterType == 3 && showTemplateFilter'>
-                <div class='filter-row'>
-                  <a-row class='row-select'>
-                    <a-row>
-                      <a-tabs
-                        :activeKey='selectYearTab'
-                        @change='handleTabYearChange'
-                        tab-position='top'
-                        size='small'
-                        :tabBarGutter='1'>
-                        <a-tab-pane v-for='(tag) in centuryTagMap' :key='tag[0]' :tab='tag[0]' />
-                      </a-tabs>
-                    </a-row>
-                    <a-col :span='12'>
-                      <a-col
-                        class='sub-select'
-                        v-if='index < 2'
-                        :span='24'
-                        v-for="(item ,index) in templateFilterCondition(templateType.Century,'')"
-                        :key='index'>
-                        <a-row>
-                          <h4>{{ item.name }}</h4>
-                        </a-row>
-                        <a-row v-for='(child,cIndex) in item.children' :key='cIndex'>
-                          <a-col :span='24' class='first-child'>
-                            <a-checkbox
-                              :value='child.id'
-                              @change='onChangeCheckBox($event,templateType.Century,child)'
-                              :checked='filterCentury.indexOf(child.id) > -1 ? true: false'>
-                              {{ child.name }}
-                            </a-checkbox>
-                            <div class='sub-child'>
-                              <a-row
-                                v-if='child.children.length > 0'
-                                v-for='(subChild,subIndex) in child.children'
-                                :key='subIndex'>
-                                <a-col :span='24' class='sub-child-child'>
-                                  <a-checkbox
-                                    :value='subChild.id'
-                                    @change='onChangeCheckBox($event,templateType.Century,child)'
-                                    :checked='filterCentury.indexOf(subChild.id) > -1 ? true: false'>
-                                    <a-tooltip
-                                      placement='right'
-                                      :overlayStyle="{ 'z-index': '3000'}"
-                                      :title='filterGradeTips(subChild)'> {{ subChild.name }}
-                                    </a-tooltip>
-                                  </a-checkbox>
-                                </a-col>
-                              </a-row>
-                            </div>
-                          </a-col>
-                        </a-row>
-                      </a-col>
-                    </a-col>
-                    <a-col :span='12'>
-                      <a-col
-                        class='sub-select'
-                        v-if='index >= 2'
-                        :span='24'
-                        v-for="(item ,index) in templateFilterCondition(templateType.Century,'')"
-                        :key='index'>
-                        <a-row>
-                          <h4>{{ item.name }}</h4>
-                        </a-row>
-                        <a-row v-for='(child,cIndex) in item.children' :key='cIndex'>
-                          <a-col :span='24' class='first-child'>
-                            <a-checkbox
-                              :value='child.id'
-                              @change='onChangeCheckBox($event,templateType.Century,child)'
-                              :checked='filterCentury.indexOf(child.id) > -1 ? true: false'>
-                              {{ child.name }}
-                            </a-checkbox>
-                            <div class='sub-child'>
-                              <a-row
-                                v-if='child.children.length > 0'
-                                v-for='(subChild,subIndex) in child.children'
-                                :key='subIndex'>
-                                <a-col class='sub-child-child' :span='24'>
-                                  <a-checkbox
-                                    :value='subChild.id'
-                                    @change='onChangeCheckBox($event,templateType.Century,child)'
-                                    :checked='filterCentury.indexOf(subChild.id) > -1 ? true: false'>
-                                    <a-tooltip placement='top' :title='filterGradeTips(subChild)'> {{ subChild.name
-                                    }}
-                                    </a-tooltip>
-                                  </a-checkbox>
-                                </a-col>
-                              </a-row>
-                            </div>
-                          </a-col>
-                        </a-row>
-                      </a-col>
-                    </a-col>
-                  </a-row>
-                </div>
-              </a-row>
-              <a-row v-if='filterType == 4 && showTemplateFilter'>
-                <div class='filter-row'>
-                  <div class='row-select'>
-                    <div class='sub-select'>
-                      <a-row>
-                        <h4></h4>
-                      </a-row>
-                      <div class='sub-items'>
-                        <div class='sub-item' v-for='(item,cIndex) in initPrompts' :key='cIndex' v-if="item.text !== 'General purpose'">
-                          <a-checkbox
-                            :value='item.value'
-                            @change='onChangeCheckBox($event,templateType.Prompt,item)'
-                            :checked='filterPruposeList.indexOf(item.value) > -1 ? true: false'>
-                            {{ item.text }}
-                          </a-checkbox>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </a-row>
-              <div class='expand-icon' v-if='showTemplateFilter' @click='toggleUpFilter()'>
-                <a-icon type='up-circle' theme='filled' title='Collapse filter' />
-                Close
-              </div>
-            </div>
-            <div class='template-list-wrapper'>
-              <div class='template-list' v-if='!templateLoading'>
-                <!--购物车效果截图 -->
-                <!--                  <div class="slide-animate-cover" id="slide-animate-drawer" v-show="currentSlideCoverImgSrc">-->
-                <!--                    <img-->
-                <!--                      id="slide-animate-img-drawer"-->
-                <!--                      :src="currentSlideCoverImgSrc"-->
-                <!--                      class="slide-animate-item" />-->
-                <!--                  </div>-->
-                <div
-                  :class="{'template-item': true, 'template-item-active': template.id && drawerSelectedTemplateIds.indexOf(template.id) !== -1 }"
-                  v-for='(template,index) in templateList'
-                  :key='index'>
-                  <div class='template-hover-action-mask'>
-                    <div class='template-hover-action'>
-                      <div class='modal-ensure-action-line'>
-                        <a-button
-                          class='action-ensure action-item'
-                          shape='round'
-                          @click='handlePreviewTemplate(template)'
-                        >
-                          <a-icon type='eye' theme='filled' />
-                          <div class='btn-text'>
-                            Preview
-                          </div>
-                        </a-button>
-                        <a-button
-                          v-if='drawerSelectedTemplateIds.indexOf(template.id) === -1'
-                          class='action-ensure action-item'
-                          shape='round'
-                          @click='handleSelectTemplateMadelAnimate(template, $event)'>
-                          <a-icon type='plus-circle' theme='filled' />
-                          <div class='btn-text'>
-                            Add
-                          </div>
-                        </a-button>
-                        <a-button
-                          v-else
-                          class='action-ensure action-item'
-                          shape='round'
-                          @click='handleSelectTemplateMadel(template)'
-                        >
-                          <a-icon type='minus-circle' theme='filled' />
-                          <div class='btn-text'>
-                            Remove
-                          </div>
-                        </a-button>
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                    class='template-cover'
-                    :style="{backgroundImage: 'url(' + (template.cover ? template.cover : template.image) + ')'}">
-                  </div>
-                  <div class='template-info'>
-                    <div class='template-name'>{{ template.name }}</div>
-                    <div class='template-intro'>{{ template.introduce }}</div>
-                  </div>
-                  <div
-                    class='template-select-icon'
-                    v-if='template.id && drawerSelectedTemplateIds.indexOf(template.id) !== -1'>
-                    <img
-                      src='~@/assets/icons/task/selected.png'
-                      v-if='template.id && drawerSelectedTemplateIds.indexOf(template.id) !== -1 ' />
-                  </div>
-                </div>
-              </div>
-              <div class='no-template' v-if='!templateLoading && templateList.length === 0'>
-                <a-empty />
-              </div>
-              <div class='template-loading' v-if='templateLoading'>
-                <a-spin />
-              </div>
-            </div>
-            <!--              <div class="template-action">-->
-            <!--                <div class="create-loading" v-if="creating">-->
-            <!--                  <a-spin />-->
-            <!--                </div>-->
-            <!--                <div style="position: absolute;left:20px"><a-radio :checked="onlyShowSelected" @click="onChangeShowSelected">Only selected template</a-radio></div>-->
-            <!--                <a-button-->
-            <!--                  v-if="!form.presentationId"-->
-            <!--                  @click="handleAddTemplate"-->
-            <!--                  :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '10px'}"-->
-            <!--                  shape="round"-->
-            <!--                  type="primary"-->
-            <!--                  :loading="creating">-->
-            <!--                  <img src="~@/assets/icons/task/path.png" class="btn-icon"/>-->
-            <!--                  <div class="btn-text">-->
-            <!--                    Create the task in Google Slides-->
-            <!--                  </div>-->
-            <!--                </a-button>-->
-            <!--                <a-button-->
-            <!--                  v-if="form.presentationId"-->
-            <!--                  @click="handleSelectedTemplate"-->
-            <!--                  :style="{'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding': '10px'}"-->
-            <!--                  shape="round"-->
-            <!--                  type="primary"-->
-            <!--                  :loading="creating">-->
-            <!--                  <img src="~@/assets/icons/task/path.png" class="btn-icon"/>-->
-            <!--                  <div class="btn-text">-->
-            <!--                    Save selected templates-->
-            <!--                  </div>-->
-            <!--                </a-button>-->
-            <!--              </div>-->
-          </div>
-        </a-tab-pane>
-        <a-tab-pane key='2' tab='My content'>
-          <div class='link-content-wrapper'>
-            <my-content-selector
-              :current-id='taskId'
-              :filter-type-list="['task']"
-              :selected-list='drawerSelectedTemplateIds'
-              mode='select'
-            />
-          </div>
-          <!--            <div class="action-line">-->
-          <!--              &lt;!&ndash;              <a-button @click="handleCancelSelectedMyContent" class="button-item">Cancel</a-button>&ndash;&gt;-->
-          <!--              <a-button @click="handleConfirmSelectedMyContent" type="primary" shape="round" class="button-item" :loading="creating"> Save selected contents</a-button>-->
-          <!--            </div>-->
-        </a-tab-pane>
-      </a-tabs>
-    </a-modal>
-    <a-drawer
-      id='drawerTemplateSelected'
-      destroyOnClose
-      placement='right'
-      :closable='true'
-      :style="{width: selectedTemplateDrawerVisible ? '20%': '0px'}"
-      width='100%'
-      :zIndex='selectedTemplateDrawerZindex'
-      :mask='false'
-      :bodyStyle="{padding:'10px'}"
-      :visible='selectedTemplateDrawerVisible'
-      :title="'Selected slides (' + drawerSelectedTemplateList.length + ')'"
-      @close='handleSelectDrawerClose'
-    >
-      <div class='drawer-wrapper-row'>
-
-        <div class='drawer-template-selected'>
-          <div class='drawer-template-list'>
-            <div
-              :class="{'template-item': true }"
-              v-for='(template,index) in drawerSelectedTemplateList'
-              :key='index'>
-              <div class='template-hover-action-mask'>
-                <span
-                  class='delete-action'
-                  style='position: absolute;right: 0;'
-                  @click='handleSelectTemplateMadel(template)'>
-                  <img src='~@/assets/icons/tag/delete.png' width='50'>
-                </span>
-                <div class='template-hover-action'>
-                  <div class='modal-ensure-action-line'>
-                    <a-button
-                      class='action-ensure action-item'
-                      shape='round'
-                      @click='handlePreviewTemplate(template)'>
-                      <a-icon type='eye' theme='filled' />
-                      <div class='btn-text'>
-                        Preview
-                      </div>
-                    </a-button>
-                  </div>
-                </div>
-              </div>
-              <div
-                class='template-cover'
-                :style="{backgroundImage: 'url(' + (template.cover ? template.cover : template.image) + ')'}">
-              </div>
-              <div class='template-info'>
-                <div class='template-name'>{{ template.name }}</div>
-                <div class='template-intro' v-show='template.introduce'>{{ template.introduce }}</div>
-              </div>
-              <div class='template-select-icon'>
-                <img src='~@/assets/icons/task/selected.png' />
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <div class='drawer-action'>
-        <a-button type='primary' shape='round' @click='handleSelectDrawerSave()'>
-          Save
-        </a-button>
-      </div>
-    </a-drawer>
-    <a-modal
-      v-model='showAddAudioVisible'
-      :footer='null'
-      destroyOnClose
-      title='Add Audio'
-      @ok='showAddAudioVisible = false'
-      @cancel='showAddAudioVisible = false'>
-
-      <div class='audio-material-action'>
-        <div class='uploading-mask' v-show='currentUploading'>
-          <div class='uploading'>
-            <a-spin large />
-          </div>
-        </div>
-        <div class='action-item'>
-          <a-upload name='file' accept='audio/*' :customRequest='handleUploadAudio' :showUploadList='false'>
-            <a-button type='primary' icon='upload'>{{ $t('teacher.add-unit-plan.upload-audio') }}</a-button>
-          </a-upload>
-        </div>
-        <a-divider>
-          {{ $t('teacher.add-unit-plan.or') }}
-        </a-divider>
-        <div class='action-item-column'>
-          <!--            <vue-record-audio mode="press" @result="handleAudioResult" />-->
-          <div class='action-tips'>
-            {{ $t('teacher.add-unit-plan.record-your-voice') }}
-          </div>
-        </div>
-        <div class='material-action'>
-          <a-button key='back' @click='handleCancelAddAudio' class='action-item'>
-            Cancel
-          </a-button>
-          <a-button key='submit' type='primary' @click='handleConfirmAddAudio' class='action-item'>
-            Ok
-          </a-button>
-        </div>
-      </div>
-    </a-modal>
-    <a-modal
-      v-model='showCreateChoice'
-      @ok='handleShowCreateChoice'
-      @cancel='showCreateChoice = false'
-      destroyOnClose>
-      <div class='evaluation-modal'>
-        <div class='evaluation-header'>
-          <div class='my-modal-header'>
-            <div class='my-modal-icon'>
-              <img src='~@/assets/icons/evaluation/evaluation_icon.png' alt='rubric'>
-            </div>
-            <div class='my-modal-title'>
-              Create Task
-            </div>
-          </div>
-        </div>
-        <div class='associate-evaluation'>
-          <div class='tips-area'>
-            <img src='@/assets/icons/evaluation/Collaboration-Develope-Website@2x.png' alt=''>
-          </div>
-          <div class='tips'>
-            Create task by using my content or template ?
-          </div>
-        </div>
-      </div>
-    </a-modal>
-    <a-modal
-      class='my-slide-pick-modal'
-      v-model='selectedSlideVisible'
-      :footer='null'
-      :title='null'
-      destroyOnClose
-      width='700px'
-      :closable='false'>
-      <div class='select-slide-wrapper'>
-        <modal-header @close='handleCancelPickTaskSlide' :white='true' />
-        <div class='modal-title'>
-          Would you like to breakdown your slides into small task
-        </div>
-        <div class='main-tips'>
-          <div class='left-img'>
-            <img src='~@/assets/icons/task/woniu.png' />
-          </div>
-          <div class='right-img-text'>
-            <img src='~@/assets/icons/task/quote.png' />
-            <div class='img-text'>
-              So its easier to be shared with global educators or saved for your future inspiration!
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class='dont-remind-me'>
-        <a-checkbox v-model='dontRemindMe' @change='handleDontRemindMe'>
-          Don't remind me again.
-        </a-checkbox>
-      </div>
-      <div class='slide-action row-flex-center'>
-        <div class='slide-btn-wrapper'>
-          <a-button
-            @click='handleCancelPickTaskSlide'
-            style='background: #D7D9D9;border: 1px solid #D7D9D9;border-radius: 25px;color: #000;'
-            class='slide-btn-item slide-btn-item-no '
-            type='primary'>
-            Not this time
-          </a-button>
-          <a-button
-            @click='handleAddTaskWithSlide'
-            style='background: #15C39A;;border: 1px solid #15C39A;border-radius: 25px;color: #fff;'
-            class='slide-btn-item slide-btn-item-yes'
-            type='primary'>
-            Pick now
-          </a-button>
-        </div>
-      </div>
-    </a-modal>
-    <a-modal
-      class='my-slide-pick-modal'
-      v-model='selectedSlideVisibleFromSave'
-      :footer='null'
-      :title='null'
-      destroyOnClose
-      width='700px'
-      :closable='false'>
-      <div class='select-slide-wrapper'>
-        <modal-header @close='selectedSlideVisibleFromSave = false' :white='true' />
-        <div class='modal-title'>
-          Congratulations! You have published your content successfully!
-        </div>
-        <div class='main-tips'>
-          <div class='left-img'>
-            <img src='~@/assets/icons/task/woniu.png' />
-          </div>
-          <div class='right-img-text'>
-            <img src='~@/assets/icons/task/quote.png' />
-            <div class='img-text'>
-              Pick slides to create a brilliant task and use it in your future tasks or share with global educators
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class='slide-action row-flex-center'>
-        <div class='slide-btn-wrapper'>
-          <a-button
-            @click='goBack'
-            style='background: #D7D9D9;border: 1px solid #D7D9D9;border-radius: 25px;color: #000;'
-            class='slide-btn-item slide-btn-item-no '
-            type='primary'>
-            Not this time
-          </a-button>
-          <a-button
-            @click='handleAddTaskWithSlide'
-            style='background: #15C39A;;border: 1px solid #15C39A;border-radius: 25px;color: #fff;'
-            class='slide-btn-item slide-btn-item-yes'
-            type='primary'>
-            Pick now
-          </a-button>
-        </div>
-      </div>
-    </a-modal>
-    <a-modal
-      v-model='selectSyncDataVisible'
-      :footer='null'
-      destroyOnClose
-      width='1200px'
-      :dialog-style="{ top: '20px' }"
-      :title='null'
-      @ok='selectSyncDataVisible = false'
-      @cancel='selectSyncDataVisible = false'>
-      <div class='link-content-wrapper'>
-        <!-- 此处的questionIndex用于标识区分是哪个组件调用的，返回的事件数据中会带上，方便业务数据处理，可随意写，可忽略-->
-        <new-browser
-          ref='newBrowser'
-          question-index='_questionIndex_1'
-          :show-curriculum='true'
-          :show-menu='[NavigationType.specificSkills,
-                       NavigationType.centurySkills,
-                       NavigationType.learningOutcomes,
-                       NavigationType.assessmentType,
-                       NavigationType.idu]'
-          :default-active-menu='NavigationType.learningOutcomes'
-          :recommend-data='recommendData'
-          :selected-list='selectedList'
-          :selected-id='selectedIdList'
-          @select-assessmentType='handleSelectAssessmentType'
-          @select-sync='handleSelectListData'
-          @select-curriculum='handleSelectCurriculum'
-          @select-subject-specific-skill='handleSelectSubjectSpecificSkillListData'
-          @select-century-skill='handleSelect21CenturySkillListData'
-          @select-idu='handleSelectIdu'
-          @select-recommend='handleSelectRecommend'
-          @cancel-select='handleCancelSelectData'
-          @ensure-select='handleEnsureSelectData'
-        />
-      </div>
-    </a-modal>
-    <a-modal
-      v-model='previewTemplateVisible'
-      :footer='null'
-      destroyOnClose
-      width='1000px'
-      :zIndex='4000'
-      :title='null'
-      @ok='previewTemplateVisible = false'
-      @cancel='previewTemplateVisible = false'>
-      <div class='link-content-wrapper'>
-        <template-preview
-          :template='previewTemplate'
-          :selected-template-id-list='drawerSelectedTemplateIds'
-          @handle-select='handleSelectPreviewTemplate'></template-preview>
-      </div>
-    </a-modal>
-    <a-modal
       v-model='quickTaskPreviewTemplateVisible'
       :footer='null'
       destroyOnClose
@@ -1187,31 +427,7 @@
           @handle-select='handleSelectQuickTaskPreviewTemplate'></quick-task-template-preview>
       </div>
     </a-modal>
-    <a-modal
-      v-model='materialVisible'
-      :footer='null'
-      destroyOnClose
-      width='800px'
-      :zIndex='3000'
-      title='My Materials'
-      @ok='materialVisible = false'
-      @cancel='materialVisible = false'>
-      <task-material-preview
-        :current-page-element-lists='currentPageElementLists'
-        :filter-type='filterMaterialType'
-        :current-page-index='currentImgIndex'></task-material-preview>
-    </a-modal>
-    <a-modal
-      v-model='mediaVisible'
-      :footer='null'
-      destroyOnClose
-      width='900px'
-      :zIndex='3000'
-      :title='null'
-      @ok='mediaVisible = false'
-      @cancel='mediaVisible = false'>
-      <media-preview :media-list='mediaList' :material-type='filterMaterialType'></media-preview>
-    </a-modal>
+
     <a-modal
       v-model='shareVisible'
       :footer='null'
@@ -1253,50 +469,23 @@
 </template>
 
 <script>
-import * as logger from '@/utils/logger'
-import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { typeMap } from '@/const/teacher'
-import { Associate, FindSourceOutcomes, GetAssociate, GetMyGrades, GetReferOutcomes } from '@/api/teacher'
-import InputSearch from '@/components/UnitPlan/InputSearch'
-import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
-import SkillTag from '@/components/UnitPlan/SkillTag'
-import { FilterTemplates, recommendTemplates, TemplatesGetPresentation } from '@/api/template'
+import { FindSourceOutcomes, GetAssociate, GetMyGrades, GetReferOutcomes } from '@/api/teacher'
+import { FilterTemplates, TemplatesGetPresentation } from '@/api/template'
 import { MyContentEvent, MyContentEventBus } from '@/components/MyContent/MyContentEventBus'
 import { TaskAddOrUpdate, TaskCreateNewTaskPPT, TaskQueryById } from '@/api/task'
-import { SelectModel } from '@/components/NewLibrary/SelectModel'
-import { formatLocalUTC } from '@/utils/util'
-import { commonAPIUrl, GetDictItems } from '@/api/common'
-import MyContentSelector from '@/components/MyContent/MyContentSelector'
-import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
-import { TemplateTypeMap } from '@/const/template'
-import TaskForm from '@/components/Task/TaskForm'
-import TaskPreview from '@/components/Task/TaskPreview'
 import Collaborate from '@/components/UnitPlan/Collaborate'
 import CustomTagV2 from '@/components/CustomTag/CustomTagV2'
-import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
 import CollaborateUserList from '@/components/Collaborate/CollaborateUserList'
-import { CustomTagType, DICT_PROMPT_PURPOSE, TaskField, TemplateType } from '@/const/common'
-import ModalHeader from '@/components/Common/ModalHeader'
-import CommonFormHeader from '@/components/Common/CommonFormHeader'
-import { EvaluationAddOrUpdate } from '@/api/evaluation'
-import TaskLink from '@/components/Task/TaskLink'
+import { CustomTagType, TaskField } from '@/const/common'
 import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
 import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
-import NewBrowser from '@/components/NewLibrary/NewBrowser'
-import NewMyContent from '@/components/MyContent/NewMyContent'
-import { FindCustomTags, GetTagYearTips, GetTreeByKey } from '@/api/tag'
-import { NavigationType } from '@/components/NewLibrary/NavigationType'
+import { FindCustomTags } from '@/api/tag'
 import CollaborateCommentPanel from '@/components/Collaborate/CollaborateCommentPanel'
 import CommentSwitch from '@/components/Collaborate/CommentSwitch'
 import CollaborateCommentView from '@/components/Collaborate/CollaborateCommentView'
-import commentIcon from '@/assets/icons/collaborate/comment.svg?inline'
-import ExpendSvg from '@/assets/icons/task/expend.svg?inline'
 import CollaborateHistory from '@/components/Collaborate/CollaborateHistory'
-import NoMoreResources from '@/components/Common/NoMoreResources'
 import TemplatePreview from '@/components/Task/TemplatePreview'
-import TaskMaterialPreview from '@/components/Task/TaskMaterialPreview'
-import TaskPptPreview from '@/components/Task/TaskPptPreview'
-import MediaPreview from '@/components/Task/MediaPreview'
 import { UtilMixin } from '@/mixins/UtilMixin'
 import moment from 'moment'
 import { BaseEventMixin, RightModule } from '@/mixins/BaseEvent'
@@ -1306,13 +495,10 @@ import { QueryContentShare } from '@/api/share'
 import CollaborateTooltip from '@/components/Collaborate/CollaborateTooltip'
 import CollaborateUpdateContent from '@/components/Collaborate/CollaborateUpdateContent'
 import LocalStore from '@/websocket/localstore'
-import { PersonalAddOrUpdateClass, SchoolClassGetMyClasses } from '@/api/schoolClass'
-import InputWithCreate from '@/components/Common/InputWithCreate'
 import QuickSession from '@/components/QuickSession/QuickSession'
 import { chooseAnother } from '@/api/quickTask'
 import QuickTaskTemplatePreview from '@/components/Task/QuickTaskTemplatePreview'
 import { AddMaterialEventBus, ModalEventsNameEnum } from '@/components/AddMaterial/AddMaterialEventBus'
-import UploadEnter from '@/components/AddMaterial/UploadEnter'
 import { addBatchElements } from '@/api/addMaterial'
 import AddGreenIcon from '@/assets/svgIcon/evaluation/form/tianjia_green.svg?inline'
 import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
@@ -1330,12 +516,13 @@ import TaskAssessmentTools from '@/components/AssessmentTool/TaskAssessmentTools
 import LearningObjectiveList from '@/components/AssessmentTool/LearningObjectiveList'
 import FormSlide from '@/components/PPT/FormSlide'
 import SlideSelectList from '@/components/PPT/SlideSelectList'
-
-const { SplitTask } = require('@/api/task')
+import SlideEvent from '@/components/PPT/SlideEvent'
+import CustomCoverMedia from '@/components/Common/CustomCoverMedia'
 
 export default {
-  name: 'AddTask',
+  name: 'AddTaskV2',
   components: {
+    CustomCoverMedia,
     SlideSelectList,
     FormSlide,
     LearningObjectiveList,
@@ -1349,40 +536,18 @@ export default {
     TaskLinkedContent,
     MyVerticalSteps,
     AddGreenIcon,
-    UploadEnter,
     QuickTaskTemplatePreview,
     QuickSession,
-    InputWithCreate,
     ShareContentSetting,
-    TaskPptPreview,
     TemplatePreview,
-    NoMoreResources,
     CollaborateHistory,
     CollaborateCommentView,
     CommentSwitch,
     CollaborateCommentPanel,
-    CommonFormHeader,
-    NewBrowser,
-    NewMyContent,
     UiLearnOut,
-    TaskLink,
-    ModalHeader,
-    TaskPreview,
-    TaskForm,
-    ContentTypeIcon,
-    InputSearch,
-    SdgTagInput,
-    NewUiClickableKnowledgeTag,
-    SkillTag,
-    MyContentSelector,
-    RelevantTagSelector,
     Collaborate,
     CollaborateUserList,
     CustomTagV2,
-    commentIcon,
-    TaskMaterialPreview,
-    MediaPreview,
-    ExpendSvg,
     CollaborateTooltip,
     CollaborateUpdateContent
   },
@@ -1400,18 +565,8 @@ export default {
   data() {
     return {
       contentLoading: true,
-      referenceLoading: false,
       contentType: typeMap,
-      templateTypeMap: TemplateTypeMap,
-      templateType: TemplateType,
       creating: false,
-
-      leftAddExpandStatus: false,
-      selectLinkContentVisible: false,
-      selectLinkUnitPlanContentVisible: false,
-      viewInGoogleSlideVisible: false,
-      selectTemplateVisible: false,
-      showAddAudioVisible: false,
       form: {
         id: null,
         image: '',
@@ -1440,124 +595,33 @@ export default {
         taskClassList: [],
         customFieldData: null
       },
-      // Grades
       gradeList: [],
-      // SubjectTree
-      // subjectTree: [],
 
-      currentTemplateType: TemplateTypeMap['visible-thinking-tool'],
-      currentBloomCategory: '',
-      currentFasa: '',
       templateList: [],
       templateLoading: false,
       selectedTemplateList: [],
-      currentUploading: false,
-      audioUrl: null,
 
       selectedTaskIdList: [],
-      selectedMyContentVisible: false,
-      selectedMyContentKeyList: [],
-      selectedMyContentList: [],
-      selectedMyContentInfoMap: new Map(),
-      showChoseSelectTemplateVisible: false,
 
-      showCreateChoice: false,
-
-      pageObjectIds: [],
       thumbnailList: [],
-      selectedPageIdList: [],
-      selectedPageImageList: [],
-      subTasks: [],
 
       thumbnailListLoading: false,
 
-      taskIndex: 0,
-      taskSaving: false,
-      publishing: false,
-      initTemplates: [],
-      initPrompts: [],
-      uploading: false,
-      selectedSlideVisible: false,
-      taskSelectTagVisible: false,
-      sessionTags: [],
-      startLoading: false,
-      addLoading: false,
-
-      groupNameList: [],
-      groupNameListOther: [],
-      selectSyncDataVisible: false,
-      selectedSyncList: [],
-      // 已选择的大纲知识点描述数据
-      selectedCurriculumList: [],
-      // specific skill
-      selectedSpecificSkillList: [],
-      // century skill
-      selectedCenturySkillList: [],
-      selectedAssessmentList: [],
-      selectModel: SelectModel,
-
-      selectedIduList: [],
-      selectedRecommendList: [],
-
-      editPPTMode: false,
-
-      recommendTemplateList: [],
-      learnExperienceList: [],
-      filterLearn: [],
-      assessmentsList: [],
-      filterAssessments: [],
-      centuryList: [],
-      filterCentury: [],
-      filterPruposeList: [],
-      filterParentMap: new Map(),
-      recomendListLoading: false,
-      addRecomendLoading: false,
-      skeletonLoading: false,
       associateQuestionList: [],
       showCustomTag: false,
-      customTagTop: 20,
       customTagList: [],
       customTags: {},
-      NavigationType: NavigationType,
-      showCollaborateCommentVisible: false,
 
-      // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateComment)
-      collaborateTop: 0,
-      showAllCollaborateCommentVisible: false,
-      // TODO mock数据待更新为接口请求（loadCollaborateData方法中的GetCollaborateModifiedHistory)
-      centuryTagMap: new Map(),
-      selectYearTab: '',
       showHistoryLoading: false,
 
-      // 复制当前表单数据，给选择slide创建task用‘pick-task-slide’
-      currentTaskFormData: null,
-      groupNameMode: 'input', // input、select,
-      newTermName: 'Untitled category',
       previewTemplate: {},
       previewTemplateVisible: false,
-      currentImgIndex: 0,
-      showTemplateFilter: false,
-      currentSlideCoverImgSrc: null,
-      filterType: undefined,
-      filterAssessmentsType: '1',
-      selectedTemplateMadelWidth: '90%',
-      selectedTemplateMarginLeft: '5%',
-      selectedTemplateDrawerVisible: false,
-      selectedTemplateDrawerZindex: 3000,
-      drawerSelectedTemplateList: [],
-
-      selectedSlideVisibleFromSave: false, // 点击保存时，是否显示选择slide的弹窗，此处不去选择slide直接goBack
 
       recommendData: [],
       recommendDataIdList: [],
       selectedList: [],
 
-      subTaskSaving: false,
-      subTaskPublishing: false,
-
-      selectedPageItemData: [],
-      pptTitle: '',
-      selectedIdList: [], // browser中已经选择的id列表
+      selectedIdList: [],
 
       associateUnitPlanIdList: [],
       associateTaskIdList: [],
@@ -1565,41 +629,16 @@ export default {
 
       materialListFlag: false,
 
-      showSubTaskDetail: false,
-
       shareVisible: false,
       shareStatus: 0,
       taskField: TaskField,
 
-      classList: [],
-
-      tagTypeConfig: {
-        1: {
-          color: '#F4B183',
-          label: 'Classcipe International School'
-        },
-        2: {
-          color: '#9DC3E6',
-          label: 'Personal'
-        }
-      },
-
-      linkUnitPlanLoading: false,
-      linkRubricLoading: false,
-
       chooseAnotherVisible: false,
-
-      customizeLearnOut: [],
 
       quickTaskPreviewTemplateVisible: false,
       quickTaskPreviewTemplate: null,
 
       quickSessionClassItem: null,
-
-      // sub task 当前激活的字段
-      currentSubTaskFocusFieldName: null,
-
-      dontRemindMe: false,
 
       editGoogleSlideLoading: false,
       currentActiveStepIndex: this.getSessionStep(),
@@ -1611,51 +650,12 @@ export default {
     }
   },
   computed: {
-    lastChangeSavedTime() {
-      const time = this.form.updateTime || this.form.createTime
-      if (time) {
-        return formatLocalUTC(this.form.updateTime || this.form.createTime)
-      } else {
-        return ''
-      }
-    },
     selectedTemplateIdList() {
       const list = []
       this.selectedTemplateList.forEach(item => {
         list.push(item.id)
       })
       return list
-    },
-    drawerSelectedTemplateIds() {
-      const list = []
-      this.drawerSelectedTemplateList.forEach(item => {
-        list.push(item.id)
-      })
-      return list
-    },
-    filterRecommendTemplateList() {
-      const list = []
-      const selectedIds = this.selectedTemplateList.map(template => {
-        return template.id
-      })
-      this.recommendTemplateList.forEach(item => {
-        if (selectedIds.indexOf(item.id) === -1) {
-          list.push(item)
-        }
-      })
-      return list
-    },
-    filterGradeTips() {
-      return function(item) {
-        if (!this.selectYearTab) {
-          return item.name
-        }
-        const filerList = this.centuryTagMap.get(this.selectYearTab).filter(tag => tag.tagId === item.id)
-        return filerList.length > 0 ? filerList[0].tooltip : ''
-      }
-    },
-    presentationLink() {
-      return 'https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit'
     },
     isOwner() {
       return this.$store.getters.userInfo.email === this.form.createBy
@@ -1673,32 +673,6 @@ export default {
       return ret
     }
   },
-  beforeRouteLeave(to, from, next) {
-    this.$logger.info('beforeRouteLeave', to, from, next)
-    // owner或者协同着可以save
-    const that = this
-    if (this.canEdit) {
-      if (this.initCompleted && JSON.stringify(this.form) !== JSON.stringify(this.oldForm)) {
-        this.$confirm({
-          title: 'Alert',
-          okText: 'Save',
-          cancelText: 'No',
-          content: 'Do you want to save the changes?',
-          onOk: function() {
-            that.handleSaveTask(false)
-            next()
-          },
-          onCancel() {
-            next()
-          }
-        })
-      } else {
-        next()
-      }
-    } else {
-      next()
-    }
-  },
   watch: {
     currentStep: {
       handler(val) {
@@ -1710,12 +684,13 @@ export default {
     }
   },
   async created() {
-    logger.info('add task created ' + this.taskId + ' ' + this.$route.path + ' mode: ' + this.mode)
+    this.$logger.info('add task created ' + this.taskId + ' ' + this.$route.path + ' mode: ' + this.mode)
     // 初始化关联事件处理
-    MyContentEventBus.$on(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
     MyContentEventBus.$on(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
     LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
 
+    this.$EventBus.$on(SlideEvent.SELECT_TEMPLATE, this.handleSelectTemplate)
+    this.$EventBus.$on(SlideEvent.CANCEL_SELECT_TEMPLATE, this.handleRemoveTemplate)
     let token = this.$route.query.token
     if (!token) {
       token = storage.get(ACCESS_TOKEN)
@@ -1730,37 +705,29 @@ export default {
     this.initData()
     this.getAssociate()
     this.loadCustomTags()
-    this.initTemplateFilter()
-    this.GetTagYearTips()
     this.queryContentCollaborates(this.taskId, this.contentType.task)
 
     // addMaterial事件处理
     AddMaterialEventBus.$on(ModalEventsNameEnum.ADD_NEW_MEDIA, url => {
       this.addMaterialList(url)
     })
+
     AddMaterialEventBus.$on(ModalEventsNameEnum.DELETE_MEDIA_ELEMENT, data => {
       this.deleteMaterial(data)
     })
-
-    this.dontRemindMe = !!window.localStorage.getItem('dontRemindMe_' + this.$store.getters.email)
-  },
-  mounted() {
-    if (this.recommendTemplateList.length === 0) {
-      this.loadRecommendThumbnail()
-    }
   },
   beforeDestroy() {
-    MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
     MyContentEventBus.$off(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
     LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
+    this.$EventBus.$off(SlideEvent.SELECT_TEMPLATE, this.handleSelectTemplate)
+    this.$EventBus.$off(SlideEvent.CANCEL_SELECT_TEMPLATE, this.handleRemoveTemplate)
   },
   methods: {
     initData() {
-      logger.info('initData doing...')
+      this.$logger.info('initData doing...')
       Promise.all([
         GetMyGrades(),
-        FilterTemplates({}),
-        SchoolClassGetMyClasses()
+        FilterTemplates({})
       ]).then((response) => {
         this.$logger.info('add task initData done', response)
 
@@ -1774,11 +741,6 @@ export default {
           this.$logger.info('template list', response[1].result)
           this.templateList = response[1].result
         }
-
-        if (!response[2].code) {
-          this.$logger.info('class list', response[2].result)
-          this.classList = response[2].result
-        }
       }).then(() => {
         if (this.taskId) {
           this.$logger.info('restore task data ' + this.taskId)
@@ -1789,38 +751,13 @@ export default {
       }).catch((e) => {
         this.$logger.error(e)
         this.$message.error(this.$t('teacher.add-task.init-data-failed'))
-      }).finally(() => {
-        this.referenceLoading = false
       })
     },
 
-    initTemplateFilter() {
-      GetTreeByKey({ key: 'template' }).then((response) => {
-        this.$logger.info('initTemplateFilter response', response.result)
-        if (response.success) {
-          this.treeItemData = response.result.children
-          this.treeItemData.forEach(item => {
-            if (item.name === TemplateType.Learning) {
-              this.learnExperienceList = item.children
-            }
-            if (item.name === TemplateType.Assessments) {
-              this.assessmentsList = item.children
-            }
-            if (item.name === TemplateType.Century) {
-              this.centuryList = item.children
-            }
-          })
-        } else {
-          this.$message.error(response.message)
-        }
-      })
-
-      GetDictItems(DICT_PROMPT_PURPOSE).then((response) => {
-        if (response.success) {
-          logger.info('DICT_PROMPT_PURPOSE', response.result)
-          this.initPrompts = response.result
-        }
-      })
+    handleUpdateCover (coverData) {
+      this.$logger.info('handleUpdateCover', coverData)
+      this.form.coverType = coverData.type
+      this.form.coverUrl = coverData.url
     },
 
     handleDisplayRightModule () {
@@ -1828,7 +765,7 @@ export default {
         this.currentRightModule = RightModule.recommend
       } else if (this.currentStep.commonFields.indexOf(TaskField.Link) !== -1) {
         this.currentRightModule = RightModule.associate
-      } else if (this.currentStep.name === 'Add Assessment tool') {
+      } else if (this.currentStep.name.toLowerCase().indexOf('assessment') !== -1) {
         this.currentRightModule = RightModule.assessmentToolsLearnOuts
       } else {
         this.currentRightModule = RightModule.customTag
@@ -1848,11 +785,11 @@ export default {
       if (isFirstLoad) {
         this.contentLoading = true
       }
-      logger.info('restoreTask ' + taskId)
+      this.$logger.info('restoreTask ' + taskId)
       TaskQueryById({
         id: taskId
       }).then(response => {
-        logger.info('TaskQueryById ' + taskId, response.result)
+        this.$logger.info('TaskQueryById ' + taskId, response.result)
         const taskData = response.result
         if (!taskData.materialList) {
           taskData.materialList = []
@@ -1928,7 +865,6 @@ export default {
         this.loadCollaborateData(this.form.type, this.form.id)
         if (this.form.presentationId) {
           this.loadThumbnail(false)
-          this.loadRecommendThumbnail()
         }
         // copy副本 为了判断数据变更
         this.oldForm = JSON.parse(JSON.stringify(this.form))
@@ -1943,92 +879,56 @@ export default {
       })
     },
 
-    handleLinkMyContent(data) {
-      this.$logger.info('handleLinkMyContent ', data)
-      this.selectLinkContentVisible = false
-      // link到unit plan必须全question
-      this.loadRelevantTagInfo(data.item)
-    },
-
-    handleToggleSelectContentItem(data, event) {
-      this.$logger.info('handleToggleSelectContentItem', data, event)
-      this.previewTemplateVisible = false
-      if (this.drawerSelectedTemplateIds.indexOf(data.id) === -1) {
-        this.handleSelectTemplateMadelAnimate(data, event)
-      } else {
-        this.handleSelectTemplateMadel(data)
-      }
-    },
-
     async handleSaveTask(isBack) {
-      logger.info('handleSaveTask', this.form, this.questionDataObj)
-
-      if (this.subTasks.length > 0) {
-        this.$confirm({
-          title: 'Save sub-task(s)',
-          okText: 'Yes',
-          content: 'Do you want to save the sub-tasks?',
-          onOk: () => {
-            this.currentActiveStepIndex = 2
-            this.handleSaveSubTaskAndForm(0)
-          },
-          onCancel: () => {
-            // 取消时清空subTasks再进入正常保存逻辑
-            this.subTasks = []
-            this.handleSaveTask()
+      this.cleaPageCache()
+      const taskData = Object.assign({}, this.form)
+      const taskClassList = []
+      taskData.taskClassList.forEach(item => {
+        if (item.classId) {
+          const classScheduleData = {
+            classId: item.classId,
+            startDate: null,
+            endDate: null
           }
-        })
-      } else {
-        this.cleaPageCache()
-        const taskData = Object.assign({}, this.form)
-        const taskClassList = []
-        taskData.taskClassList.forEach(item => {
-          if (item.classId) {
-            const classScheduleData = {
-              classId: item.classId,
-              startDate: null,
-              endDate: null
-            }
-            if (item.checked && item.momentRangeDate.length === 2) {
-              const startDate = item.momentRangeDate[0].clone()
-              const endDate = item.momentRangeDate[1].clone()
-              classScheduleData.startDate = startDate.utc().format('YYYY-MM-DD HH:mm:ss')
-              classScheduleData.endDate = endDate.utc().format('YYYY-MM-DD HH:mm:ss')
-            }
-            taskClassList.push(classScheduleData)
+          if (item.checked && item.momentRangeDate.length === 2) {
+            const startDate = item.momentRangeDate[0].clone()
+            const endDate = item.momentRangeDate[1].clone()
+            classScheduleData.startDate = startDate.utc().format('YYYY-MM-DD HH:mm:ss')
+            classScheduleData.endDate = endDate.utc().format('YYYY-MM-DD HH:mm:ss')
           }
-        })
-        taskData.taskClassList = taskClassList
-        if (this.taskId) {
-          taskData.id = this.taskId
+          taskClassList.push(classScheduleData)
         }
-        taskData.selectedTemplateList = this.selectedTemplateList
-
-        // 更新selfOuts数据
-        if (this.$refs.learnOut && this.$refs.learnOut.length > 0) {
-          taskData.selfOuts = this.$refs.learnOut[0].getSelfOuts()
-        }
-        if (taskData.customFieldData) {
-          taskData.customFieldData = JSON.stringify(taskData.customFieldData)
-        }
-        logger.info('basic taskData', taskData)
-        const response = await TaskAddOrUpdate(taskData)
-        logger.info('TaskAddOrUpdate', response.result)
-        if (response.success) {
-          // this.restoreTask(response.result.id, false)
-          this.oldForm = JSON.parse(JSON.stringify(this.form))
-          this.$message.success(this.$t('teacher.add-task.save-success'))
-          if (isBack) {
-            this.handleBack()
-          }
-        } else {
-          this.$message.error(response.message)
-        }
-        this.handleSaveContentEvent(this.taskId, this.contentType.task, this.oldForm)
+      })
+      taskData.taskClassList = taskClassList
+      if (this.taskId) {
+        taskData.id = this.taskId
       }
+      taskData.selectedTemplateList = this.selectedTemplateList
+
+      // 更新selfOuts数据
+      if (this.$refs.learnOut && this.$refs.learnOut.length > 0) {
+        taskData.selfOuts = this.$refs.learnOut[0].getSelfOuts()
+      }
+      if (taskData.customFieldData) {
+        taskData.customFieldData = JSON.stringify(taskData.customFieldData)
+      }
+      this.$logger.info('basic taskData', taskData)
+      const response = await TaskAddOrUpdate(taskData)
+      this.$logger.info('TaskAddOrUpdate', response.result)
+      if (response.success) {
+        // this.restoreTask(response.result.id, false)
+        this.oldForm = JSON.parse(JSON.stringify(this.form))
+        this.$message.success(this.$t('teacher.add-task.save-success'))
+        if (isBack) {
+          this.handleBack()
+        }
+      } else {
+        this.$message.error(response.message)
+      }
+      this.handleSaveContentEvent(this.taskId, this.contentType.task, this.oldForm)
     },
     handlePublishTask(status) {
-      logger.info('handlePublishTask', {
+      this.$logger.info('handlePublishTask', {
         id: this.taskId,
         status: status
       })
@@ -2044,7 +944,6 @@ export default {
         this.form.status = status
       }).then(() => {
         if (status === 1) {
-          this.selectedSlideVisible = !this.dontRemindMe
           this.$message.success(this.$t('teacher.add-task.publish-success'))
         } else {
           this.$message.success('Unpublish successfully')
@@ -2062,39 +961,8 @@ export default {
       this.handleCollaborateEvent(this.taskId, this.taskField.TaskType, this.form.taskType)
     },
 
-    handleSelectSubTaskType(type) {
-      this.$logger.info('handleSelectSubTaskType ' + type)
-      this.currentTaskFormData.taskType = type
-      this.customTagList = []
-      if (type === 'FA') {
-        CustomTagType.task.fa.forEach(name => {
-          this.customTagList.push(name)
-        })
-      } else if (type === 'SA') {
-        CustomTagType.task.sa.forEach(name => {
-          this.customTagList.push(name)
-        })
-      } else if (type === 'Activity') {
-        CustomTagType.task.activity.forEach(name => {
-          this.customTagList.push(name)
-        })
-      }
-    },
-
     goBack() {
       this.$router.push({ path: '/teacher/main/created-by-me' })
-    },
-
-    handleShowSelectMyContent() {
-      this.$logger.info('handleShowSelectMyContent')
-      this.selectedTaskIdList = []
-      this.selectedMyContentList = []
-      this.selectedMyContentVisible = true
-      this.templateLoading = false
-      this.drawerSelectedTemplateList = []
-      this.selectedTemplateList.forEach(item => {
-        this.drawerSelectedTemplateList.push(item)
-      })
     },
 
     handleChooseAntherPrompt () {
@@ -2136,11 +1004,17 @@ export default {
             })
           }
           this.loadThumbnail(true)
-          this.loadRecommendThumbnail()
         } else {
           this.$message.warn(response.message)
         }
       })
+    },
+
+    handleSelectTemplate (template) {
+      this.$logger.info('handleSelectTemplate', template)
+      if (!this.selectedTemplateList.some(item => item.presentationId === template.presentationId)) {
+        this.selectedTemplateList.push(template)
+      }
     },
 
     handleRemoveTemplate(template) {
@@ -2151,108 +1025,6 @@ export default {
         this.selectedTemplateList.splice(index, 1)
       }
       this.autoSave()
-    },
-
-    handleSelectTemplateMadelAnimate(template, event) {
-      this.$logger.info('handleSelectTemplateMadelAnimate ', template)
-      this.selectedTemplateMarginLeft = '2%'
-      this.selectedTemplateMadelWidth = '80%'
-      this.selectedTemplateDrawerVisible = true
-      this.selectedTemplateDrawerZindex = 3000
-      this.form.showSelected = true
-      this.$logger.info('event', event)
-      this.form.showSelected = true
-
-      // 计算元素位置，然后添加动画
-      this.currentSlideCoverImgSrc = template.cover ? template.cover : template.image
-      this.$nextTick(() => {
-        const slideAnimateDom = document.getElementById('slide-animate')
-        const slideAnimateImgDom = document.getElementById('slide-animate-img')
-        const imgDomPos = slideAnimateDom.getBoundingClientRect()
-        const containerDomPos = document.getElementById('drawerTemplateSelected').getBoundingClientRect()
-        const buttonPos = event.target.getBoundingClientRect()
-
-        console.log(containerDomPos)
-        console.log('buttonPos y ' + buttonPos.y + ' containerDomPos y ' + containerDomPos.y + ' containerDomPos h ' + containerDomPos.height + ' img y ' + imgDomPos.y + ' distY ' + (buttonPos.y - containerDomPos.y - containerDomPos.height / 2))
-        const offsetX = -(buttonPos.left + buttonPos.width / 2 - (containerDomPos.left + containerDomPos.width / 2))
-        const offsetY = -(event.clientY - (containerDomPos.y + containerDomPos.height / 2))
-        console.log('offsetX: ' + offsetX + ' offsetY: ' + offsetY)
-
-        // slide截图出现与初始定位
-        slideAnimateDom.style.left = buttonPos.left + buttonPos.width / 2 - 200 + 'px'
-        slideAnimateDom.style.top = buttonPos.top + buttonPos.height / 2 - 100 + 'px'
-        slideAnimateDom.style.display = 'block'
-
-        // 开始动画
-        slideAnimateDom.style.transform = 'translateX(' + offsetX + 'px)'
-        slideAnimateImgDom.style.transform = 'translateY(' + offsetY + 'px) scale(0.1)'
-        setTimeout(() => {
-          this.currentSlideCoverImgSrc = null
-          slideAnimateDom.style.transform = 'translateX(0px)'
-          slideAnimateImgDom.style.transform = 'translateY(0px) scale(1)'
-
-          if (this.drawerSelectedTemplateIds.indexOf(template.id) === -1) {
-            this.drawerSelectedTemplateList.unshift(template)
-          }
-        }, 600)
-      })
-    },
-
-    handleSelectTemplateMadel(template) {
-      this.$logger.info('handleSelectTemplateMadel ', template)
-      this.selectedTemplateMarginLeft = '2%'
-      this.selectedTemplateMadelWidth = '80%'
-      this.selectedTemplateDrawerVisible = true
-      this.selectedTemplateDrawerZindex = 3000
-      const index = this.drawerSelectedTemplateList.findIndex(item => item.id === template.id)
-      this.form.showSelected = true
-      if (index !== -1) {
-        this.drawerSelectedTemplateList.splice(index, 1)
-      } else {
-        this.drawerSelectedTemplateList.unshift(template)
-      }
-    },
-
-    handleAddTemplate() {
-      this.$logger.info('handleAddTemplate ', this.selectedTemplateList)
-      if (!this.creating) {
-        if (this.selectedTemplateList.length) {
-          const hideLoading = this.$message.loading('Creating ppt in Google side...', 0)
-          this.creating = true
-          TaskCreateNewTaskPPT({
-            taskId: this.taskId ? this.taskId : '',
-            name: this.form.name ? this.form.name : 'Unnamed Task',
-            overview: this.form.overview,
-            templatePresentationIds: this.selectedTemplateList.map(item => {
-              return item.presentationId
-            })
-          }).then(response => {
-            if (!response.success) {
-              this.$message.error(response.message)
-              return
-            }
-            this.$logger.info('handleAddTemplate response', response.result)
-            this.form.id = response.result.id
-            this.form.presentationId = response.result.presentationId
-            this.selectTemplateVisible = false
-            this.restoreTask(this.form.id, false)
-            this.$router.replace({
-              path: '/teacher/add-task/' + response.result.id
-            })
-            this.$message.success('Created Successfully in Google Slides')
-          }).finally(() => {
-            this.templateLoading = false
-            this.creating = false
-            this.selectedMyContentVisible = false
-            this.addRecomendLoading = false
-            hideLoading()
-          })
-        } else {
-          this.$message.warn('Please select template!')
-        }
-      } else {
-        this.$logger.info('creating wait...')
-      }
     },
 
     handleViewDetail(item) {
@@ -2269,46 +1041,6 @@ export default {
       this.relevantSelectedQuestionList = data.questionList
     },
 
-    handleCancelSelectedMyContent() {
-      this.selectedMyContentVisible = false
-      this.selectedTaskIdList = []
-      this.selectedMyContentList = []
-    },
-
-    handleConfirmSelectedMyContent() {
-      this.$logger.info('handleConfirmSelectedMyContent', this.selectedMyContentKeyList)
-      if (this.selectedMyContentKeyList.length === 0) {
-        this.$message.warn('Please select a content!')
-        return
-      }
-      this.selectedTaskIdList = []
-      this.selectedMyContentList = []
-      this.selectedMyContentKeyList.forEach(key => {
-        if (this.selectedMyContentInfoMap.has(key)) {
-          this.selectedMyContentList.push(this.selectedMyContentInfoMap.get(key))
-        }
-
-        const keyArr = key.split('-')
-        if (parseInt(keyArr[0]) === this.contentType.task) {
-          this.selectedTaskIdList.push(keyArr[1])
-        }
-      })
-      this.selectedMyContentList.forEach(item => {
-        if (this.selectedTemplateIdList.indexOf(item.id) === -1) {
-          // task和template图片字段不一致
-          item.cover = item.image
-          this.selectedTemplateList.unshift(item)
-        }
-      })
-      this.selectedMyContentVisible = false
-      if (this.selectedTemplateIdList.length > 0) {
-        this.form.showSelected = true
-      } else {
-        this.form.showSelected = false
-      }
-      this.autoSave()
-    },
-
     async handleCreateTask() {
       this.$logger.info('handleCreateTask')
       const hideLoading = this.$message.loading('Creating ppt in Google side...', 0)
@@ -2322,16 +1054,12 @@ export default {
         })
 
         this.$logger.info('handleCreateTask', response.result)
-        this.showChoseSelectTemplateVisible = false
-        this.selectedMyContentVisible = false
         this.form.id = response.result.id
         this.form.presentationId = response.result.presentationId
-        this.selectTemplateVisible = false
         await this.autoSave()
         this.$message.success('Created Successfully in Google Slides')
         window.open('https://docs.google.com/presentation/d/' + this.form.presentationId, '_blank')
         this.creating = false
-        this.selectedMyContentVisible = false
         this.loadThumbnail(true)
         hideLoading()
         return response
@@ -2340,7 +1068,6 @@ export default {
 
     loadThumbnail(needRefresh) {
       this.thumbnailListLoading = true
-      this.skeletonLoading = true
       this.$logger.info('loadThumbnail ' + this.form.presentationId)
       TemplatesGetPresentation({
         taskId: this.form.id,
@@ -2349,7 +1076,6 @@ export default {
         this.$logger.info('loadThumbnail response', response.result)
         if (response.code === 0) {
           const pageObjects = response.result.pageObjects
-          this.pptTitle = response.result.title
           this.thumbnailList = []
           pageObjects.forEach(page => {
             this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
@@ -2364,240 +1090,7 @@ export default {
         }
       }).finally(() => {
         this.thumbnailListLoading = false
-        this.skeletonLoading = false
-
-        if (this.currentActiveStepIndex === 2 && this.thumbnailList.length > 1) {
-          if (this.dontRemindMe) {
-            this.handleAddTaskWithSlide()
-          } else {
-            this.selectedSlideVisible = true
-            this.currentTaskFormData = JSON.parse(JSON.stringify(this.form))
-            // 只展示选中ppt的标签
-            this.currentTaskFormData.customTags = []
-          }
-        } else {
-          this.currentTaskFormData = null
-        }
       })
-    },
-
-    // TODO 修改为加载推荐模板
-    loadRecommendThumbnail() {
-      this.$logger.info('loadRecommendThumbnail')
-      this.recomendListLoading = true
-      recommendTemplates({ taskId: this.taskId }).then(response => {
-        logger.info('loadRecommendThumbnail res:', response.result)
-        if (response.success) {
-          this.recommendTemplateList = response.result
-          this.recomendListLoading = false
-        }
-      })
-    },
-
-    handleToggleThumbnail(thumbnail) {
-      this.$logger.info('handleToggleThumbnail', thumbnail)
-      const pageId = thumbnail.id
-      const index = this.selectedPageIdList.indexOf(pageId)
-      if (index !== -1) {
-        this.selectedPageIdList.splice(index, 1)
-      } else {
-        // 不可用全选所有的ppt
-        if (this.selectedPageIdList.length >= this.thumbnailList.length - 1) {
-          this.$message.warning('You can only select up to ' + this.thumbnailList.length + ' slides')
-          return
-        }
-        this.selectedPageIdList.push(thumbnail.id)
-      }
-
-      const contentUrlIndex = this.selectedPageImageList.indexOf(thumbnail.contentUrl)
-      if (contentUrlIndex !== -1) {
-        this.selectedPageImageList.splice(contentUrlIndex, 1)
-      } else {
-        this.selectedPageImageList.push(thumbnail.contentUrl)
-      }
-
-      const pageDataIndex = this.selectedPageItemData.findIndex(item => item.pageId === pageId)
-      const pageData = this.getTargetPageItemData(pageId)
-      this.$logger.info('pageData', pageData)
-      if (pageDataIndex !== -1) {
-        this.selectedPageItemData.splice(pageDataIndex, 1)
-      } else if (pageData) {
-        pageData.pageId = pageId
-        this.selectedPageItemData.push(pageData)
-      }
-      this.$logger.info('selectedPageItemData', this.selectedPageItemData)
-      this.$logger.info('selectedPageIdList', this.selectedPageIdList)
-
-      // 处理sub task封面
-      if (this.selectedPageIdList.length > 0) {
-        const pageId = this.thumbnailList.filter(item => this.selectedPageIdList.indexOf(item.id) > -1)[0].id
-        const selectPage = this.thumbnailList.filter(item => item.id === pageId)
-        this.$logger.info('selectPage', selectPage)
-        if (selectPage.length > 0) {
-          this.currentTaskFormData.image = selectPage[0].contentUrl
-        }
-      }
-
-      // 处理选中的ppt封面的标签custom
-      this.currentTaskFormData.customTags = []
-      this.itemsList.forEach(e => {
-        if (this.selectedPageIdList.indexOf(e.pageId) !== -1) {
-          const json = typeof (e.data) === 'object' ? e.data : JSON.parse(e.data)
-          if (json.data && json.data.bloomLevel) {
-            if (this.currentTaskFormData.customTags.findIndex(tag => tag.name === json.data.bloomLevel) === -1) {
-              this.currentTaskFormData.customTags.push({
-                name: json.data.bloomLevel,
-                parentName: 'Bloom\'s Taxonomy'
-              })
-            }
-          }
-          if (json.data && json.data.knowledgeLevel) {
-            if (this.currentTaskFormData.customTags.findIndex(tag => tag.name === json.data.knowledgeLevel) === -1) {
-              this.currentTaskFormData.customTags.push({
-                name: json.data.knowledgeLevel,
-                parentName: 'Knowledge Dimensions'
-              })
-            }
-          }
-        }
-      })
-    },
-
-    handleContinueSelectTemplate() {
-      this.showChoseSelectTemplateVisible = false
-      this.selectTemplateVisible = true
-    },
-
-    handleShowCreateChoice() {
-      this.showCreateChoice = false
-      this.selectedMyContentVisible = true
-    },
-
-    handleAudioResult(data) {
-      logger.info('handleAudioResult', data)
-      this.currentUploading = true
-      const formData = new FormData()
-      formData.append('file', data, 'audio.wav')
-      this.$http.post(commonAPIUrl.UploadFile, formData, {
-        contentType: false,
-        processData: false,
-        headers: { 'Content-Type': 'multipart/form-data' },
-        timeout: 60000
-      })
-        .then((response) => {
-          logger.info('handleAudioResult upload response:', response)
-          this.audioUrl = this.$store.getters.downloadUrl + response.result
-          logger.info('handleAudioResult audioUrl', this.audioUrl)
-        }).catch(err => {
-        logger.error('handleAudioResult error', err)
-      }).finally(() => {
-        this.currentUploading = false
-      })
-    },
-
-    handleUploadAudio(data) {
-      logger.info('handleUploadAudio', data)
-      this.currentUploading = true
-      const formData = new FormData()
-      formData.append('file', data.file, data.file.name)
-      this.uploading = true
-      this.$http.post(commonAPIUrl.UploadFile, formData, {
-        contentType: false,
-        processData: false,
-        headers: { 'Content-Type': 'multipart/form-data' },
-        timeout: 60000
-      })
-        .then((response) => {
-          logger.info('handleUploadAudio upload response:', response)
-          this.audioUrl = this.$store.getters.downloadUrl + response.result
-        }).catch(err => {
-        logger.error('handleUploadImage error', err)
-      }).finally(() => {
-        this.currentUploading = false
-      })
-    },
-
-    handleCancelAddAudio() {
-      this.audioUrl = null
-      this.showAddAudioVisible = false
-    },
-
-    handleConfirmAddAudio() {
-      if (this.audioUrl) {
-        this.form.audioUrl = this.audioUrl
-        this.audioUrl = null
-      }
-      this.showAddAudioVisible = false
-    },
-
-    handleAddAudioOverview() {
-      this.$logger.info('handleAddAudioOverview')
-      this.showAddAudioVisible = true
-    },
-
-    handleAddAnotherTask() {
-      this.$logger.info('handleAddAnotherTask')
-    },
-
-    handleAddSubTask(data) {
-      this.$logger.info('handleAddSubTask', data, this.currentTaskFormData)
-      if (this.selectedPageIdList.length) {
-        const task = Object.assign({
-          _uid: '' + Math.random(), // 随机生成一个id方便后面删除
-          presentationId: this.form.presentationId,
-          selectPageObjectIds: this.selectedPageIdList,
-          selectPageImages: this.selectedPageImageList,
-          taskId: this.form.id
-        }, JSON.parse(JSON.stringify(data)))
-        this.$logger.info('add sub task', task)
-        this.subTasks.push(task)
-        this.selectedPageIdList = []
-        this.selectedPageImageList = []
-        this.selectedPageItemData = []
-        this.taskIndex++
-        this.$logger.info('after add tasks ', this.subTasks)
-      } else {
-        this.$message.warn('Please select at least one slide!')
-      }
-    },
-
-    handleDeleteSubTask(data) {
-      this.$logger.info('handleDeleteSubTask data', data, this.subTasks)
-      this.subTasks = this.subTasks.filter(item => item._uid !== data._uid)
-      this.$logger.info('after delete tasks ', this.subTasks)
-    },
-    handleUploadImage(data) {
-      logger.info('handleUploadImage', data)
-      const formData = new FormData()
-      formData.append('file', data.file, data.file.name)
-      this.uploading = true
-      this.$http.post(commonAPIUrl.UploadFile, formData, {
-        contentType: false,
-        processData: false,
-        headers: { 'Content-Type': 'multipart/form-data' },
-        timeout: 60000
-      })
-        .then((response) => {
-          logger.info('handleUploadImage upload response:', response)
-          this.form.image = this.$store.getters.downloadUrl + response.result
-          // 设置是否已经人工上传
-          if (this.form.presentationId) {
-            this.form.hasUploadImage = true
-          }
-        }).catch(err => {
-        logger.error('handleUploadImage error', err)
-        this.$message.error(this.$t('teacher.add-unit-plan.upload-image-file-failed'))
-      }).finally(() => {
-        this.uploading = false
-      })
-    },
-
-    handleDeleteImage(e) {
-      logger.info('handleDeleteImage ', e)
-      e.stopPropagation()
-      e.preventDefault()
-      this.form.image = null
-      this.form.hasUploadImage = false
     },
 
     async handleEditGoogleSlide() {
@@ -2610,78 +1103,9 @@ export default {
         res = await this.handleCreateTask()
       }
       if (res.code === 0) {
-        window.open(this.presentationLink, '_blank')
+        window.open('https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit', '_blank')
       }
       this.editGoogleSlideLoading = false
-    },
-
-    handleAddTaskWithSlide() {
-      this.$logger.info('handleAddTaskWithSlide')
-      this.selectedSlideVisible = false
-      this.selectedSlideVisibleFromSave = false
-      this.currentActiveStepIndex = 2
-      this.showSubTaskDetail = true
-      this.currentTaskFormData = JSON.parse(JSON.stringify(this.form))
-      this.$logger.info('currentTaskFormData', this.currentTaskFormData, 'customTags', this.customTags)
-    },
-
-    handleGotoEditMode() {
-      this.$logger.info('handleGotoEditMode')
-      this.$router.push({
-        path: '/teacher/add-task/' + this.taskId + '/edit'
-      })
-    },
-
-    handleCancelPickTaskSlide() {
-      this.$logger.info('handleCancelPickTaskSlide')
-      this.selectedSlideVisible = false
-      this.currentTaskFormData = null
-      this.currentActiveStepIndex = 3
-    },
-    handleSelectedSessionTags(tags) {
-      this.sessionTags = tags
-      this.$logger.info('handleSelectedSessionTags', tags)
-    },
-    handleAddTaskEvaluation() {
-      logger.info('handleAddTaskEvaluation ' + this.taskId)
-      // 下创建一个空的evaluation，然后关联，然后再跳转过去
-      if (!this.addLoading) {
-        this.addLoading = true
-        EvaluationAddOrUpdate({ name: null }).then((response) => {
-          this.$logger.info('EvaluationAddOrUpdate', response.result)
-          if (response.success) {
-            Associate({
-              fromId: this.taskId,
-              fromType: this.contentType.task,
-              toId: response.result.id,
-              toType: this.contentType.evaluation
-            }).then(response => {
-              this.$logger.info('Associate response ', response)
-              // 刷新子组件的关联数据
-            })
-            this.addLoading = false
-            this.$router.push({
-              path: '/teacher/evaluation-redirect/' + response.result.id
-            })
-          } else {
-            this.$message.error(response.message)
-          }
-        }).finally(() => {
-          this.addLoading = false
-        })
-      } else {
-        this.$logger.info('add loading')
-      }
-    },
-    handleEnsureSelectedLink(data) {
-      this.$logger.info('handleEnsureSelectedLink', data)
-      this.selectLinkUnitPlanContentVisible = false
-      this.selectLinkContentVisible = false
-      this.getAssociate()
-      // 刷新组件内的列表
-      this.$refs.commonLink.getAssociate()
-      // #协同编辑event事件
-      this.handleCollaborateEvent(this.taskId, this.taskField.Link, this.associateUnitPlanIdList)
     },
 
     getAssociate() {
@@ -2742,7 +1166,6 @@ export default {
             }
           })
         })
-        this.newTermName = 'Untitled category_' + (this.groupNameList.length)
         this.$logger.info('AddTask GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
         this.$logger.info('*******************associateUnitPlanIdList', this.associateUnitPlanIdList)
         this.$logger.info('associateTaskIdList', this.associateTaskIdList)
@@ -2789,7 +1212,6 @@ export default {
       }
     },
 
-    // 填充自定义大纲内容
     async handleSelfOutsData() {
       this.$logger.info(' handleSelfOutsData')
       const response = await GetReferOutcomes({
@@ -2815,142 +1237,6 @@ export default {
       }
     },
 
-    handleSelectAssessmentType(data) {
-      this.$logger.info('handleSelectAssessmentType', data)
-      this.selectedAssessmentList = data
-    },
-
-    handleSelectListData(data) {
-      this.$logger.info('handleSelectListData', data)
-      this.selectedSyncList = data
-    },
-
-    handleSelectCurriculum(data) {
-      this.$logger.info('handleSelectCurriculum', data)
-      this.selectedCurriculumList = data
-    },
-
-    handleSelectSubjectSpecificSkillListData(data) {
-      this.selectedSpecificSkillList = data
-      this.$logger.info('handleSelectSubjectSpecificSkillListData', data)
-    },
-
-    handleSelect21CenturySkillListData(data) {
-      this.$logger.info('handleSelect21CenturySkillListData', data)
-      this.selectedCenturySkillList = data
-    },
-
-    handleSelectIdu(data) {
-      this.$logger.info('handleSelectIdu', data)
-      this.selectedIduList = data
-    },
-
-    handleSelectRecommend(data) {
-      this.$logger.info('handleSelectRecommend', data)
-      this.selectedRecommendList = data
-    },
-
-    handleCancelSelectData() {
-      this.selectedSyncList = []
-      this.selectedCurriculumList = []
-      this.selectedSpecificSkillList = []
-      this.selectedCenturySkillList = []
-      this.selectedAssessmentList = []
-      this.selectedIduList = []
-      this.selectedRecommendList = []
-      this.selectSyncDataVisible = false
-    },
-
-    handleEnsureSelectData() {
-      this.$logger.info('handleEnsureSelectData',
-        this.selectedCurriculumList,
-        this.selectedSpecificSkillList,
-        this.selectedCenturySkillList,
-        this.selectedAssessmentList,
-        this.selectedIduList,
-        this.selectedRecommendList,
-        this.selectedSyncList)
-      this.$logger.info('mySelectedList', this.$refs.newBrowser.mySelectedList)
-      this.$logger.info('learnOuts', this.form.learnOuts)
-      const filterLearnOuts = this.$refs.newBrowser.mySelectedList.filter(item => (!item.hasOwnProperty('isSelfCustom') || (item.hasOwnProperty('isSelfCustom') && !item.isSelfCustom)))
-      this.$logger.info('filterLearnOuts', filterLearnOuts)
-      this.form.learnOuts = JSON.parse(JSON.stringify(filterLearnOuts))
-      this.$refs.newBrowser.selectedRecommendList.forEach(item => {
-        if (item.hasOwnProperty('isSelfCustom') && item.isSelfCustom) {
-          // 自定义大纲不用判断重复，直接插入
-          const copyItem = JSON.parse(JSON.stringify(item))
-          copyItem.key = Math.random() + ''
-          this.form.selfOuts.push(copyItem)
-        } else {
-          const index = this.form.learnOuts.findIndex(dataItem => dataItem.knowledgeId === item.knowledgeId)
-          if (index === -1) {
-            this.form.learnOuts.push(item)
-          }
-        }
-      })
-      this.selectedSyncList.forEach(data => {
-        const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
-        if (filterLearnOuts.length > 0) {
-          return
-        }
-        this.form.learnOuts.push({
-          knowledgeId: data.knowledgeId,
-          name: data.name,
-          tags: data.tags,
-          tagType: data.tagType,
-          path: data.path
-        })
-      })
-
-      this.selectedRecommendList.forEach(data => {
-        if (!(data.hasOwnProperty('isSelfCustom') && data.isSelfCustom)) {
-          const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
-          if (filterLearnOuts.length > 0) {
-            return
-          }
-          this.form.learnOuts.push({
-            knowledgeId: data.knowledgeId,
-            name: data.name,
-            tags: data.tags,
-            tagType: data.tagType,
-            path: data.path
-          })
-        }
-      })
-
-      this.selectedIduList.forEach(data => {
-        const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.id)
-        if (filterLearnOuts.length > 0) {
-          return
-        }
-        this.form.learnOuts.push({
-          knowledgeId: data.knowledgeData.id,
-          name: data.knowledgeData.name,
-          tagType: data.knowledgeData.tagType,
-          gradeId: data.knowledgeData.selectedGradeId,
-          path: data.knowledgeData.path,
-          tags: data.tags
-        })
-      })
-      const selectList = this.selectedCurriculumList.concat(this.selectedSpecificSkillList).concat(this.selectedCenturySkillList)
-        .concat(this.selectedAssessmentList)
-      selectList.forEach(data => {
-        const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
-        if (filterLearnOuts.length > 0) {
-          return
-        }
-        this.form.learnOuts.push({
-          knowledgeId: data.knowledgeData.id,
-          name: data.knowledgeData.name,
-          gradeId: data.knowledgeData.selectedGradeId,
-          tagType: data.knowledgeData.tagType,
-          path: data.knowledgeData.path
-        })
-      })
-      this.$logger.info('this.form.learnOuts', this.form.learnOuts)
-      this.selectSyncDataVisible = false
-      this.handleCancelSelectData()
-    },
     handleRemoveLearnOuts(data) {
       this.$logger.info('handleRemoveLearnOuts', data)
       var index = this.form.learnOuts.findIndex(item => (item.knowledgeId === data.knowledgeId))
@@ -2999,64 +1285,7 @@ export default {
       this.currentActiveStepIndex = data.index
       this.setSessionStep(data.index)
     },
-    filterSearch(inputValue, path) {
-      return path.some(option => option.name.toLowerCase().indexOf(inputValue.toLowerCase()) > -1)
-    },
-    selectFilter(data) {
-      this.$logger.info('selectFilter', data)
-      this.$logger.info('filterType', this.filterType)
-      this.templateLoading = true
-      FilterTemplates({
-        filterCategoryType: this.filterType,
-        filterLearn: this.filterLearn,
-        filterAssessments: this.getFilterAssessmentsParams(this.filterAssessments),
-        filterCentury: this.getFilterParams(this.filterCentury),
-        filterPruposeList: this.filterPruposeList
-      }).then(response => {
-        this.$logger.info('handleToggleTemplateType ', response)
-        this.templateList = response.result
-      }).finally(() => {
-        this.templateLoading = false
-      })
-    },
-    selectRecommendTemplate(template, rIndex, event) {
-      this.$logger.info('selectRecommendTemplate', template)
-      this.form.showSelected = true
 
-      // 计算元素位置，然后添加动画
-      this.currentSlideCoverImgSrc = template.images[0]
-      this.$nextTick(() => {
-        const slideAnimateDom = document.getElementById('slide-animate')
-        const slideAnimateImgDom = document.getElementById('slide-animate-img')
-        const imgDomPos = slideAnimateDom.getBoundingClientRect()
-        const containerDomPos = document.getElementById('form-body').getBoundingClientRect()
-        const buttonPos = event.target.getBoundingClientRect()
-
-        console.log(containerDomPos)
-        console.log('buttonPos y ' + buttonPos.y + ' containerDomPos y ' + containerDomPos.y + ' containerDomPos h ' + containerDomPos.height + ' img y ' + imgDomPos.y + ' distY ' + (buttonPos.y - containerDomPos.y - containerDomPos.height / 2))
-        const offsetX = -(buttonPos.left + buttonPos.width / 2 - (containerDomPos.left + containerDomPos.width / 2))
-        const offsetY = -(event.clientY - (containerDomPos.y + containerDomPos.height / 2))
-        console.log('offsetX: ' + offsetX + ' offsetY: ' + offsetY)
-
-        // slide截图出现与初始定位
-        slideAnimateDom.style.left = buttonPos.left + buttonPos.width / 2 - 200 + 'px'
-        slideAnimateDom.style.top = buttonPos.top + buttonPos.height / 2 - 100 + 'px'
-        slideAnimateDom.style.display = 'block'
-
-        // 开始动画
-        slideAnimateDom.style.transform = 'translateX(' + offsetX + 'px)'
-        slideAnimateImgDom.style.transform = 'translateY(' + offsetY + 'px) scale(0.1)'
-        setTimeout(() => {
-          this.currentSlideCoverImgSrc = null
-          slideAnimateDom.style.transform = 'translateX(0px)'
-          slideAnimateImgDom.style.transform = 'translateY(0px) scale(1)'
-          if (this.selectedTemplateIdList.indexOf(template.id) === -1) {
-            this.selectedTemplateList.unshift(template)
-          }
-          this.autoSave()
-        }, 600)
-      })
-    },
     loadCustomTags() {
       // this.$refs.customTag.tagLoading = true
       FindCustomTags({}).then((response) => {
@@ -3082,15 +1311,11 @@ export default {
     focusInput(event) {
       this.$logger.info('focusInput ', event.target)
 
-      // 设置一个父级定位专用的dom，设置class名称【root-locate-form】，
-      // 然后通过事件获取到当前元素，依次往上层查询父元素，累加偏离值，直到定位元素。
       const eventDom = event.target
-      let formTop = eventDom.offsetTop ? eventDom.offsetTop : 0
       let currentDom = eventDom.offsetParent
       this.currentFocusFieldName = null
       this.customTagList = []
       while (currentDom !== null) {
-        formTop += (currentDom ? currentDom.offsetTop : 0)
         currentDom = currentDom ? currentDom.offsetParent : undefined
         if (!currentDom) {
           break
@@ -3117,7 +1342,6 @@ export default {
       // custom tag 自带了margin-top: 20px,这里减掉不然不对齐。
       if (this.currentFocusFieldName) {
         this.$logger.info('show currentFocusFieldName tag ', this.currentFocusFieldName)
-        this.customTagTop = formTop - 20
         this.showCustomTag = true
         this.setRightModuleVisible(this.rightModule.customTag)
       } else {
@@ -3132,18 +1356,14 @@ export default {
           }
         })
         this.showCustomTag = false
-        this.customTagTop = 20
         this.setRightModuleVisible()
       }
     },
+
     handleChangeCustomTags(tags) {
       this.form.customTags = tags
     },
-    handleChangeSubCustomTags(tags) {
-      if (this.currentTaskFormData) {
-        this.currentTaskFormData.customTags = tags
-      }
-    },
+
     handleChangeAddKeywords(tag) {
       if (tag.isGlobal) {
         this.customTags.userGlobalTags.push(tag)
@@ -3173,7 +1393,6 @@ export default {
         }
       })
       this.currentCollaborateCommentList = list
-      this.collaborateTop = data.top
       this.$logger.info('currentCollaborateCommentList', list)
 
       // #协同编辑event事件
@@ -3194,205 +1413,18 @@ export default {
       this.loadCollaborateData(this.form.type, this.form.id)
     },
 
-    // TODO 发布评论后需要更新最新的评论列表,刷新数据
     handleUpdateCommentList() {
       this.$logger.info('handleUpdateCommentList')
       this.GetCollaborateComment(this.form.type, this.form.id)
     },
 
-    // historyData以及在接口请求的相应逻辑中正对数据进行‘格式’，
-    // 这样在这里就可以直接this.$set设置字段的数据
     handleRestoreField(data) {
       this.$logger.info('handleRestoreField', data, this.form)
       if (data) {
-        // data.historyData.forEach(dataItem => {
-        //   this.$logger.info('set ' + dataItem.fieldName, dataItem.data[0])
-        //   if (Array.isArray(dataItem.data[0])) {
-        //     dataItem.data[0].forEach((item, index) => {
-        //       this.$set(this.form[dataItem.fieldName], index, dataItem.data[0][index])
-        //     })
-        //   } else {
-        //     this.$set(this.form, dataItem.fieldName, dataItem.data[0])
-        //   }
-        // })
         this.form = data
         this.$message.success('restore successfully!')
       }
       this.$logger.info('after handleRestoreField', this.form)
-    },
-    templateFilterCondition(category1, category2) {
-      let list = []
-      if (category1 === TemplateType.Learning) {
-        list = this.learnExperienceList
-      } else if (category1 === TemplateType.Assessments) {
-        list = this.assessmentsList
-      } else if (category1 === TemplateType.Century) {
-        list = this.centuryList
-      }
-      console.log('list size:' + list.length)
-      if (!category2) {
-        return list
-      }
-      const resultList = list.filter(item => item.name === category2)
-      logger.info('templateFilterCondition ', resultList)
-      return resultList.length > 0 ? resultList[0].children : []
-    },
-    onClickRadio(e, category, parent) {
-      logger.info('onChangeCheckBox ', e, category, parent)
-      logger.info('filterLearn ', this.filterLearn)
-      const id = e.target.value
-      const isAdd = this.filterAssessments.indexOf(id) === -1
-      // 单选，去除同parent其他值
-      parent.children.forEach(item => {
-        if (this.filterAssessments.indexOf(item.id) !== -1) {
-          this.filterAssessments.splice(this.filterAssessments.indexOf(item.id), 1)
-        }
-      })
-      if (isAdd) {
-        this.filterAssessments.push(id)
-      }
-      this.selectFilter()
-    },
-    onChangeCheckBox(e, category, parent) {
-      logger.info('onChangeCheckBox ', e, category, parent)
-      logger.info('filterLearn ', this.filterLearn)
-      const id = e.target.value
-      if (category === TemplateType.Learning) {
-        if (this.filterLearn.indexOf(id) === -1) {
-          this.filterLearn.push(id)
-        } else {
-          this.filterLearn.splice(this.filterLearn.indexOf(id), 1)
-        }
-      } else if (category === TemplateType.Assessments) {
-        // 单选，去除同parent其他值
-        parent.children.forEach(item => {
-          if (this.filterAssessments.indexOf(item.id) !== -1) {
-            this.filterAssessments.splice(this.filterAssessments.indexOf(item.id), 1)
-          }
-        })
-        this.filterAssessments.push(id)
-      } else if (category === TemplateType.Century) {
-        if (this.filterCentury.indexOf(id) === -1) {
-          this.filterCentury.push(id)
-        } else {
-          this.filterCentury.splice(this.filterCentury.indexOf(id), 1)
-          // 去重父标签
-          if (!e.target.checked && parent && parent.id !== id && this.filterCentury.indexOf(parent.id) !== -1) {
-            this.filterCentury.splice(this.filterCentury.indexOf(parent.id), 1)
-          }
-        }
-        // child设置
-        if (parent.id === id) {
-          parent.children.forEach(child => {
-            if (e.target.checked) {
-              if (this.filterCentury.indexOf(child.id) === -1) {
-                this.filterCentury.push(child.id)
-              }
-            } else {
-              this.filterCentury.splice(this.filterCentury.indexOf(child.id), 1)
-            }
-          })
-        }
-      } else if (category === TemplateType.Prompt) {
-        if (this.filterPruposeList.indexOf(id) === -1) {
-          this.filterPruposeList.push(id)
-        } else {
-          this.filterPruposeList.splice(this.filterPruposeList.indexOf(id), 1)
-        }
-      }
-      // 如果选中的是子类 父id要从筛选条件中去除，记录关系
-      if (parent && parent.children && parent.children.length > 0) {
-        this.filterParentMap.set(id, parent.id)
-      }
-      this.selectFilter()
-    },
-    clearFilter() {
-      if (this.filterType === 1) {
-        this.filterLearn = []
-      } else if (this.filterType === 2) {
-        this.filterAssessments = []
-        this.assessmentsList.forEach(parent => {
-          parent.children.forEach(child => {
-            child.tooltip = ''
-          })
-        })
-      } else if (this.filterType === 3) {
-        this.filterCentury = []
-      } else if (this.filterType === 4) {
-        this.filterPruposeList = []
-      }
-      this.selectFilter()
-    },
-    getFilterParams(list) {
-      logger.info('getFilterParams ', list)
-      if (list.length === 0) {
-        return []
-      }
-      var resList = [...list]
-      console.log(this.filterParentMap)
-      list.forEach(id => {
-        if (this.filterParentMap.has(id)) {
-          const pId = this.filterParentMap.get(id)
-          if (resList.indexOf(pId) > -1) {
-            resList.splice(resList.indexOf(pId), 1)
-          }
-        }
-      })
-      return resList
-    },
-    getFilterAssessmentsParams(list) {
-      if (list.length === 0) {
-        return []
-      }
-      var resList = []
-      if (!this.filterAssessmentsType) {
-        return list
-      }
-      if (this.assessmentsList.length !== 2) {
-        return list
-      }
-      if (this.filterAssessmentsType === '1') {
-        this.assessmentsList[0].children.forEach(parent => {
-          parent.children.forEach(child => {
-            if (list.indexOf(child.id) !== -1) {
-              resList.push(child.id)
-            }
-          })
-        })
-      } else {
-        this.assessmentsList[1].children.forEach(parent => {
-          parent.children.forEach(child => {
-            if (list.indexOf(child.id) !== -1) {
-              resList.push(child.id)
-            }
-          })
-        })
-      }
-      console.log(resList)
-      return resList
-    },
-    GetTagYearTips() {
-      GetTagYearTips().then((response) => {
-        this.$logger.info('GetTagYearTips response', response.result)
-        if (response.success) {
-          const tagYears = response.result
-          tagYears.forEach(tag => {
-            if (!this.centuryTagMap.has(tag.yearName)) {
-              this.centuryTagMap.set(tag.yearName, [])
-            }
-            this.centuryTagMap.get(tag.yearName).push(tag)
-          })
-          if (tagYears.length > 0) {
-            this.selectYearTab = tagYears[0].yearName
-          }
-        } else {
-          this.$message.error(response.message)
-        }
-        this.$logger.info('centuryTagMap ', this.centuryTagMap)
-      })
-    },
-    handleTabYearChange(activeKey) {
-      this.selectYearTab = activeKey
     },
 
     setSessionStep(step) {
@@ -3408,16 +1440,6 @@ export default {
         return 0
       }
     },
-    handlePreviewTemplate(template) {
-      this.$logger.info('handlePreviewTemplate ', template)
-      this.previewTemplateVisible = true
-      this.previewTemplate = template
-    },
-    handlePreviewQuickTaskTemplate(template) {
-      this.$logger.info('handlePreviewTemplate ', template)
-      this.quickTaskPreviewTemplate = template
-      this.quickTaskPreviewTemplateVisible = true
-    },
     handleSelectPreviewTemplate(template) {
       this.$logger.info('handleSelectPreviewTemplate ', template)
       this.handleSelectTemplateMadel(template)
@@ -3430,13 +1452,6 @@ export default {
       }
       this.quickTaskPreviewTemplateVisible = false
     },
-    handleGotoImgIndex(index) {
-      this.$logger.info('handleGotoImgIndex ' + index, this.$refs)
-      this.currentImgIndex = index
-      if (this.$refs.carousel) {
-        this.$refs.carousel[0].goTo(index)
-      }
-    },
     removeSelectTemplate(template) {
       this.$logger.info('removeSelectTemplate ', template)
       var index = this.selectedTemplateList.findIndex(item => item.id === template.id)
@@ -3447,108 +1462,6 @@ export default {
         this.form.showSelected = false
       }
       this.autoSave()
-    },
-    handleSelectedTemplate() {
-      this.$logger.info('handleSelectedTemplate ', this.handleSelectedTemplate)
-      this.selectedMyContentVisible = false
-    },
-    changeSelected(checked) {
-      this.$logger.info('changeSelected ', checked)
-      this.form.showSelected = checked
-    },
-    changeFilterType(e) {
-      this.showTemplateFilter = true
-      this.selectFilter()
-    },
-    toggleUpFilter() {
-      this.showTemplateFilter = false
-      // this.clearFilter()
-      this.filterType = ''
-    },
-    handleSelectDrawerClose() {
-      this.selectedTemplateMarginLeft = '5%'
-      this.selectedTemplateMadelWidth = '90%'
-      this.selectedTemplateDrawerVisible = false
-      this.selectedTemplateDrawerZindex = 1000
-      if (this.selectedTemplateIdList.length === 0) {
-        this.form.showSelected = false
-      }
-    },
-    handleSelectDrawerSave() {
-      this.selectedTemplateMarginLeft = '5%'
-      this.selectedTemplateMadelWidth = '90%'
-      this.selectedTemplateDrawerZindex = 1000
-      this.selectedTemplateDrawerVisible = false
-      this.selectedMyContentVisible = false
-      this.selectedTemplateList = this.drawerSelectedTemplateList
-      // to do insert
-      if (this.selectedTemplateList.length === 0) {
-        this.form.showSelected = false
-      }
-      this.autoSave()
-    },
-
-    handleSaveSubTask(status) {
-      this.$logger.info('handleSaveSubTask status ' + status, this.subTasks)
-      if (status) {
-        this.subTaskPublishing = true
-      } else {
-        this.subTaskSaving = true
-      }
-      const postData = {
-        taskId: this.taskId,
-        subTasks: []
-      }
-      this.subTasks.forEach(taskItem => {
-        taskItem.subTask.selectPageObjectIds = taskItem.selectPageObjectIds
-        taskItem.subTask.status = status
-        postData.subTasks.push(taskItem.subTask)
-      })
-      this.$logger.info('handleSaveSubTask postData', postData)
-      SplitTask(postData).then(response => {
-        this.$logger.info('handleSaveSubTask response', response)
-        if (response.success) {
-          this.$message.success('add successfully')
-          this.subTasks = []
-        } else {
-          this.$message.error(response.message)
-        }
-      }).finally(() => {
-        this.subTaskPublishing = false
-        this.subTaskSaving = false
-      })
-    },
-
-    handleSaveSubTaskAndForm (status) {
-      this.$logger.info('handleSaveSubTaskAndForm status ' + status, this.subTasks)
-      if (status) {
-        this.subTaskPublishing = true
-      } else {
-        this.subTaskSaving = true
-      }
-      const postData = {
-        taskId: this.taskId,
-        subTasks: []
-      }
-      this.subTasks.forEach(taskItem => {
-        taskItem.subTask.selectPageObjectIds = taskItem.selectPageObjectIds
-        taskItem.subTask.status = status
-        postData.subTasks.push(taskItem.subTask)
-      })
-      this.$logger.info('handleSaveSubTask postData', postData)
-      SplitTask(postData).then(response => {
-        this.$logger.info('handleSaveSubTask response', response)
-        if (response.success) {
-          this.$message.success('add successfully')
-          this.subTasks = []
-          this.handleSaveTask(true)
-        } else {
-          this.$message.error(response.message)
-        }
-      }).finally(() => {
-        this.subTaskPublishing = false
-        this.subTaskSaving = false
-      })
     },
     async autoSave() {
       const taskData = Object.assign({}, this.form)
@@ -3581,22 +1494,10 @@ export default {
       if (taskData.customFieldData) {
         taskData.customFieldData = JSON.stringify(taskData.customFieldData)
       }
-      logger.info('basic taskData', taskData)
+      this.$logger.info('basic taskData', taskData)
       const response = await TaskAddOrUpdate(taskData)
-      logger.info('TaskAddOrUpdate', response.result)
+      this.$logger.info('TaskAddOrUpdate', response.result)
       return response
-    },
-    setCustomTagByPPT(nameList, parent) {
-      nameList.forEach(name => {
-        const res = this.form.customTags.filter(tag => tag.parentName === parent && name === tag.name)
-        if (res.length === 0) {
-          this.form.customTags.push({
-            name: name,
-            parentName: parent
-          })
-        }
-      })
-      console.log(this.form.customTags)
     },
 
     handleAddMaterial() {
@@ -3693,46 +1594,6 @@ export default {
       this.form.taskClassList = newTaskClassList
     },
 
-    handleCreateNewClass (data) {
-      this.$logger.info('handleCreateNewClass', data)
-      PersonalAddOrUpdateClass({ name: data.value }).then(response => {
-        SchoolClassGetMyClasses().then(response => {
-          this.$logger.info('SchoolClassGetMyClasses', response)
-          this.classList = response.result
-          // 自动选中刚刚新建的班级
-          const selectedClassItem = this.classList.find(item => item.name === data.value)
-          if (data.index !== -1 && this.form.taskClassList.length > data.index && selectedClassItem) {
-            this.$logger.info('handleCreateNewClass selectedClassItem', selectedClassItem)
-            this.form.taskClassList[data.index].classId = selectedClassItem.id
-          }
-        })
-      })
-    },
-
-    handleSelectClass (classItem, eventData) {
-      this.$logger.info('handleSelectClass', classItem, eventData)
-      classItem.classId = eventData.id
-      classItem.classType = eventData.classType
-      classItem.className = eventData.name
-      if (this.form.taskMode === 2) {
-        eventData.classId = eventData.id
-        eventData.className = eventData.name
-        this.quickSessionClassItem = eventData
-        this.$logger.info('handleSelectClass quickSessionClassItem', this.quickSessionClassItem)
-      }
-    },
-
-    handleUpdateWeeks (status) {
-      this.$logger.info('handleUpdateWeeks', status)
-      if (!status) {
-        this.form.taskClassList.forEach(item => {
-          if (item.checked && item.momentRangeDate.length === 2) {
-            item.weeks = this.getWeekByDate(item.momentRangeDate[0], item.momentRangeDate[1])
-          }
-        })
-      }
-    },
-
     addMaterialList({ url, type }) {
       this.$logger.info('addMaterialList', url, type)
       const pageId = this.currentPageId
@@ -3784,13 +1645,6 @@ export default {
         window.open('https://' + materialItem.link, '_blank')
       } else {
         this.$message.warn('Please enter a valid URL')
-      }
-    },
-
-    handleDontRemindMe () {
-      this.$logger.info('handleDontRemindMe', this.dontRemindMe)
-      if (this.dontRemindMe) {
-        window.localStorage.setItem('dontRemindMe_' + this.$store.getters.email, 'true')
       }
     },
 
