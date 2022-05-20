@@ -303,7 +303,7 @@ export default {
 }
 
 .no-slide-image {
-  height: 350px;
+  height: 160px;
 }
 
 .carousel-page {
