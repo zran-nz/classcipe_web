@@ -25,19 +25,11 @@ export default {
   methods: {
     async handleScreenCapture () {
       this.$logger.info('handleScreenCapture')
-      this.recordChunks = []
-      await screenCapture(this.handleOnDataAvailable, this.handleScreenCaptureFinish)
+      await screenCapture(this.handleScreenCaptureFinish)
     },
-
-    handleOnDataAvailable (event) {
-      this.recordChunks.push(event.data)
-    },
-
-    handleScreenCaptureFinish (event) {
-      this.$logger.info('ScreenCapture end', event)
-      this.$logger.info('blob data', this.screenCaptureRecorder.requestData())
-      this.screenCaptureStream = null
-      this.screenCaptureRecorder = null
+    handleScreenCaptureFinish (data) {
+      this.$logger.info('ScreenCapture end', data)
+      this.recordChunks = data
     }
   }
 }
