@@ -7,8 +7,11 @@
             <a-button type='primary' shape='round' class='cc-slide-btn' @click='handlePreview'>
               <a-icon type='eye' /> Preview
             </a-button>
-            <a-button shape='round' class='cc-slide-btn' @click='handleAdd'>
+            <a-button shape='round' class='cc-slide-btn' @click='handleAdd' v-show='showAddButton'>
               <a-icon type='plus-circle' /> Add
+            </a-button>
+            <a-button shape='round' class='cc-slide-btn' @click='handleRemove' v-show='showRemoveButton'>
+              <a-icon type="delete" /> Remove
             </a-button>
           </div>
         </div>
@@ -128,13 +131,21 @@ export default {
       type: Boolean,
       default: false
     },
-    thumbnailList: {
-      type: Array,
-      default: () => []
-    },
     defaultThumbnailList: {
       type: Array,
       default: () => []
+    },
+    slideItem: {
+      type: Object,
+      default: null
+    },
+    showAddButton: {
+      type: Boolean,
+      default: true
+    },
+    showRemoveButton: {
+      type: Boolean,
+      default: false
     }
   },
   mixins: [ PptPreviewMixin ],
@@ -169,7 +180,10 @@ export default {
       this.$emit('preview', this.slideId)
     },
     handleAdd () {
-      this.$emit('add', this.slideId)
+      this.$emit('add', this.slideItem)
+    },
+    handleRemove () {
+      this.$emit('remove', this.slideItem)
     },
     handleGotoImgIndex(index) {
       this.$logger.info('handleGotoImgIndex ' + index)

@@ -67,11 +67,11 @@ export default {
   name: 'SlideNotes',
   props: {
     currentPageItem: {
-      type: Object,
+      type: [Object, String],
       default: null
     },
     currentPageTips: {
-      type: Object,
+      type: [Object, String],
       default: null
     }
   },

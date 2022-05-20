@@ -28,6 +28,8 @@
               :show-hover-mask='true'
               :show-title='true'
               :show-arrow='true'
+              :slide-item='slide'
+              @add='handleSelectTemplate'
               :default-thumbnail-list='slide.thumbnailList'/>
           </div>
         </template>
@@ -46,6 +48,7 @@ import CustomSearchInput from '@/components/Common/CustomSearchInput'
 import ContentFilter from '@/components/MyContentV2/ContentFilter'
 import CommonNoData from '@/components/Common/CommonNoData'
 import SlideViewer from '@/components/PPT/SlideViewer'
+import SlideEvent from '@/components/PPT/SlideEvent'
 
 const sourceType = {
   Recommend: 1,
@@ -133,6 +136,11 @@ export default {
     },
     getMyContentSlide () {
 
+    },
+
+    handleSelectTemplate (slideItem) {
+      this.$logger.info('handleSelectTemplate', slideItem)
+      this.$EventBus.$emit(SlideEvent.SELECT_TEMPLATE, slideItem)
     }
   }
 }
