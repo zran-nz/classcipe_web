@@ -273,10 +273,10 @@
                     :source-type='contentType.task'
                     :source-id='taskId'
                     :slide-id='form.presentationId'
-                    :showMaterialsAndTips='true'
-                    :showEditGoogleSlide='form.taskMode === 1'
-                    :defaultThumbnailList='thumbnailList'
-                    :selectedTemplateList='form.selectedTemplateList'
+                    :show-materials-and-tips='true'
+                    :show-edit-google-slide='form.taskMode === 1'
+                    :default-thumbnail-list='thumbnailList'
+                    :selected-template-list='form.selectedTemplateList'
                     @edit-google-slide='handleEditGoogleSlide'
                   />
                 </div>
@@ -358,7 +358,7 @@
             </div>
           </template>
           <template v-if='currentRightModule === rightModule.recommend'>
-            <slide-select-list />
+            <slide-select-list :selected-template-list='form.selectedTemplateList' />
           </template>
           <template v-if='currentRightModule === rightModule.customTag'>
             <div v-if='!this.contentLoading'>
@@ -1012,15 +1012,15 @@ export default {
 
     handleSelectTemplate (template) {
       this.$logger.info('handleSelectTemplate', template)
-      if (!this.selectedTemplateList.some(item => item.presentationId === template.presentationId)) {
+      const index = this.selectedTemplateList.findIndex(item => item.presentationId === template.presentationId)
+      if (index === -1) {
         this.selectedTemplateList.push(template)
       }
     },
 
     handleRemoveTemplate(template) {
       this.$logger.info('handleRemoveTemplate ', template)
-      const index = this.selectedTemplateList.findIndex(item => item.id === template.id)
-      this.form.showSelected = true
+      const index = this.selectedTemplateList.findIndex(item => item.presentationId === template.presentationId)
       if (index !== -1) {
         this.selectedTemplateList.splice(index, 1)
       }

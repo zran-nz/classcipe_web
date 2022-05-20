@@ -22,15 +22,17 @@
       </template>
       <template v-else>
         <template v-if='slideList.length'>
-          <div class='slide-item' v-for='slide in slideList' :key='slide.id'>
+          <div class='slide-item' :class="{'selected-template': selectedPresentationIdList.indexOf(slide.presentationId) !== -1}" v-for='slide in slideList' :key='slide.id'>
             <slide-viewer
               :title='slide.name'
               :show-hover-mask='true'
               :show-title='true'
               :show-arrow='true'
               :slide-item='slide'
-              @add='handleSelectTemplate'
+              :show-remove-button='selectedPresentationIdList.indexOf(slide.presentationId) !== -1'
+              :show-add-button='selectedPresentationIdList.indexOf(slide.presentationId) === -1'
               :default-thumbnail-list='slide.thumbnailList'/>
+            <img src="~@/assets/icons/lesson/selected.png" class='selected-icon'/>
           </div>
         </template>
         <template v-if='slideList.length === 0'>
@@ -48,7 +50,6 @@ import CustomSearchInput from '@/components/Common/CustomSearchInput'
 import ContentFilter from '@/components/MyContentV2/ContentFilter'
 import CommonNoData from '@/components/Common/CommonNoData'
 import SlideViewer from '@/components/PPT/SlideViewer'
-import SlideEvent from '@/components/PPT/SlideEvent'
 
 const sourceType = {
   Recommend: 1,
@@ -63,6 +64,15 @@ export default {
     sourceId: {
       type: String,
       default: '1522782224384061441' // TODO 删除mock id
+    },
+    selectedTemplateList: {
+      type: Array,
+      default: () => []
+    }
+  },
+  computed: {
+    selectedPresentationIdList () {
+      return this.selectedTemplateList.map(item => item.presentationId)
     }
   },
   data() {
@@ -136,11 +146,6 @@ export default {
     },
     getMyContentSlide () {
 
-    },
-
-    handleSelectTemplate (slideItem) {
-      this.$logger.info('handleSelectTemplate', slideItem)
-      this.$EventBus.$emit(SlideEvent.SELECT_TEMPLATE, slideItem)
     }
   }
 }
@@ -167,8 +172,33 @@ export default {
   justify-content: flex-start;
 
   .slide-item {
+    position: relative;
     margin: 0 20px 20px 0;
     width: calc(50% - 20px);
+
+    .selected-icon {
+      position: absolute;
+      z-index: 200;
+      top: 5px;
+      right: 5px;
+      width: 20px;
+      height: 20px;
+      background-color: #fff;
+      border-radius: 50%;
+      border: 1px solid #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease-in-out;
+      cursor: pointer;
+      opacity: 0;
+    }
+  }
+
+  .selected-template {
+    .selected-icon {
+      opacity: 1;
+    }
   }
 }
 

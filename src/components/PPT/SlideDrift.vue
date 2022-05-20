@@ -1,6 +1,6 @@
 <template>
   <div class='slide-drift'>
-    <div class='slide-item' v-for='slide in selectedTemplateList' :key='slide.id'>
+    <div class='slide-item' v-for='slide in displaySelectedTemplateList' :key='slide.id'>
       <slide-viewer
         :title='slide.name'
         :show-hover-mask='true'
@@ -9,7 +9,6 @@
         :slide-item='slide'
         :show-add-button='false'
         :show-remove-button='true'
-        @remove='handleRemoveTemplate'
         :default-thumbnail-list='slide.thumbnailList'/>
     </div>
   </div>
@@ -30,11 +29,26 @@ export default {
     return {}
   },
   created() {
+    this.$logger.info('SlideDrift created ', this.displaySelectedTemplateList)
+  },
+  computed: {
+    displaySelectedTemplateList () {
+      const list = []
+      this.selectedTemplateList.forEach(item => {
+        item.thumbnailList = []
+        for (let i = 0; i < item.images.length; i++) {
+          item.thumbnailList.push({
+            contentUrl: item.images[i],
+            id: item.pageObjectIds[i]
+          })
+        }
+        list.push(item)
+      })
+
+      return list
+    }
   },
   methods: {
-    handleRemoveTemplate (slideItem) {
-
-    }
   }
 }
 </script>
@@ -49,9 +63,11 @@ export default {
   align-items: flex-start;
   flex-wrap: wrap;
   padding: 10px;
+  width: 100%;
 
   .slide-item {
-    margin-right: 10px;
+    width: 30%;
+    margin-right: 3%;
     margin-bottom: 10px;
   }
 }

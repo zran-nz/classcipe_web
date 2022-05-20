@@ -81,6 +81,7 @@ import CommonNoData from '@/components/Common/CommonNoData'
 import SlideMaterialsAndTips from '@/components/PPT/SlideMaterialsAndTips'
 import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
 import SlideNotes from '@/components/PPT/SlideNotes'
+import SlideEvent from '@/components/PPT/SlideEvent'
 
 export default {
   name: 'SlideViewer',
@@ -177,13 +178,13 @@ export default {
   },
   methods: {
     handlePreview () {
-      this.$emit('preview', this.slideId)
+      this.$EventBus.$emit(SlideEvent.PREVIEW_TEMPLATE, this.slideItem)
     },
     handleAdd () {
-      this.$emit('add', this.slideItem)
+      this.$EventBus.$emit(SlideEvent.SELECT_TEMPLATE, this.slideItem)
     },
     handleRemove () {
-      this.$emit('remove', this.slideItem)
+      this.$EventBus.$emit(SlideEvent.CANCEL_SELECT_TEMPLATE, this.slideItem)
     },
     handleGotoImgIndex(index) {
       this.$logger.info('handleGotoImgIndex ' + index)

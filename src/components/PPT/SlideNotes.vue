@@ -1,6 +1,6 @@
 <template>
-  <div class='slide-notes'>
-    <div class='plugin-tags' v-if='currentPageItem'>
+  <div class='slide-notes' v-if='currentPageItem'>
+    <div class='plugin-tags'>
       <a-row class='tag-row'>
         <a-space>
           <span class='tag-item' v-if='currentPageItem.data.bloomLevel'>
