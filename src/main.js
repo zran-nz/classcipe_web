@@ -26,6 +26,9 @@ import { FormModel } from 'ant-design-vue'
 
 import Moment from 'moment'
 
+import EventBus from './utils/eventBus'
+Vue.prototype.$EventBus = EventBus
+
 // import VueRecord from '@codekraft-studio/vue-record'
 import preview from 'vue-photo-preview'
 import VueClipboard from 'vue-clipboard2'
