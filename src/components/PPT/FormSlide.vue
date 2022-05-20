@@ -23,19 +23,17 @@
     </div>
     <div class='form-slide-content'>
       <div class='slide-wrapper'>
-        <template v-show='displayMode === displayModeType.SlideTemplate'>
-          <slide-viewer
-            :show-arrow='true'
-            :show-nav='true'
-            :show-notes='true'
-            :slide-id='slideId'
-            v-bind="$attrs" />
-        </template>
-        <template v-show='displayMode === displayModeType.SlideDrift'>
-          <slide-drift
-            v-bind="$attrs"
-          />
-        </template>
+        <slide-viewer
+          v-show='displayMode === displayModeType.SlideTemplate'
+          :show-arrow='true'
+          :show-nav='true'
+          :show-notes='true'
+          :slide-id='slideId'
+          v-bind="$attrs" />
+        <slide-drift
+          v-show='displayMode === displayModeType.SlideDrift'
+          v-bind="$attrs"
+        />
       </div>
     </div>
   </div>

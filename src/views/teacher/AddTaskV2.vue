@@ -275,7 +275,7 @@
                     :slide-id='form.presentationId'
                     :showMaterialsAndTips='true'
                     :showEditGoogleSlide='form.taskMode === 1'
-                    :thumbnailList='thumbnailList'
+                    :defaultThumbnailList='thumbnailList'
                     :selectedTemplateList='form.selectedTemplateList'
                     @edit-google-slide='handleEditGoogleSlide'
                   />
