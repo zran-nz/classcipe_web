@@ -75,7 +75,7 @@ export default {
   },
   data() {
     return {
-      displayMode: displayModeType.SlideDrift,
+      displayMode: displayModeType.SlideTemplate,
       displayModeType: displayModeType
     }
   },
