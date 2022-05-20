@@ -17,7 +17,7 @@
             Achievement objectives
           </template>
           <template v-if='getKnowledgeListType(TagType.skill).length > 0'>
-            <div class='objectives-list' v-for='(k,index) in getKnowledgeListType(TagType.skill)' :key='index' @click='handleAddLearningObjective(k)'>
+            <div class='objectives-list' v-for='(k,index) in getKnowledgeListType(TagType.skill)' :key='index + k.name' @click='handleAddLearningObjective(k)'>
               <div class='item-type-icon'>
                 <img src="~@/assets/icons/lesson/selected.png" v-if='selectedLearningObjective.indexOf(k) !== -1' />
                 <div class="empty-circle" v-if='selectedLearningObjective.indexOf(k) === -1'></div>
@@ -29,7 +29,7 @@
               </div>
             </div>
           </template>
-          <div class='objectives-list' v-for='(skillInput, sIdx) in skillInputList' :key='sIdx' @click='handleAddLearningObjective(skillInput)'>
+          <div class='objectives-list' v-for='(skillInput, sIdx) in skillInputList' :key='sIdx + skillInput.name' @click='handleAddLearningObjective(skillInput)'>
             <div class='item-type-icon'>
               <img src="~@/assets/icons/lesson/selected.png" v-if='selectedLearningObjective.indexOf(skillInput) !== -1' />
               <div class="empty-circle" v-if='selectedLearningObjective.indexOf(skillInput) === -1'></div>
@@ -46,7 +46,7 @@
             Learning outcomes
           </template>
           <template v-if='getKnowledgeListType(TagType.knowledge).length > 0'>
-            <div class='objectives-list' v-for='(k,index) in getKnowledgeListType(TagType.knowledge)' :key='index' @click='handleAddLearningObjective(k)'>
+            <div class='objectives-list' v-for='(k,index) in getKnowledgeListType(TagType.knowledge)' :key='index + k.name' @click='handleAddLearningObjective(k)'>
               <div class='item-type-icon'>
                 <img src="~@/assets/icons/lesson/selected.png" v-if='selectedLearningObjective.indexOf(k) !== -1' />
                 <div class="empty-circle" v-if='selectedLearningObjective.indexOf(k) === -1'></div>
@@ -58,7 +58,7 @@
               </div>
             </div>
           </template>
-          <div class='objectives-list' v-for='(knowledgeInput, sIdx) in knowledgeInputList' :key='sIdx' @click='handleAddLearningObjective(knowledgeInput)'>
+          <div class='objectives-list' v-for='(knowledgeInput, sIdx) in knowledgeInputList' :key='sIdx + knowledgeInput.name' @click='handleAddLearningObjective(knowledgeInput)'>
             <div class='item-type-icon'>
               <img src="~@/assets/icons/lesson/selected.png" v-if='selectedLearningObjective.indexOf(knowledgeInput) !== -1' />
               <div class="empty-circle" v-if='selectedLearningObjective.indexOf(knowledgeInput) === -1'></div>
@@ -77,13 +77,13 @@
           <template v-if='getKnowledgeListType(TagType.century).length > 0'>
             <div
               class='category-item'
-              v-for='categoryItem in getCenturyCategoryList(TagType.century)'
-              :key='categoryItem.categoryName'>
+              v-for='(categoryItem, cIdx) in getCenturyCategoryList(TagType.century)'
+              :key='cIdx'>
               <div class='category-name'>
                 <a-icon type='tag' />
                 {{ categoryItem.categoryName }}
               </div>
-              <div class='objectives-list' v-for='(k,index) in categoryItem.list' :key='index' @click='handleAddLearningObjective(k)'>
+              <div class='objectives-list' v-for='(k,index) in categoryItem.list' :key='index + k.name' @click='handleAddLearningObjective(k)'>
                 <div class='item-type-icon'>
                   <img src="~@/assets/icons/lesson/selected.png" v-if='selectedLearningObjective.indexOf(k) !== -1' />
                   <div class="empty-circle" v-if='selectedLearningObjective.indexOf(k) === -1'></div>
@@ -98,7 +98,7 @@
               </div>
             </div>
           </template>
-          <div class='objectives-list' v-for='(centuryInput, sIdx) in centuryInputList' :key='sIdx' @click='handleAddLearningObjective(centuryInput)'>
+          <div class='objectives-list' v-for='(centuryInput, sIdx) in centuryInputList' :key='sIdx + centuryInput.name' @click='handleAddLearningObjective(centuryInput)'>
             <div class='item-type-icon'>
               <img src="~@/assets/icons/lesson/selected.png" v-if='selectedLearningObjective.indexOf(centuryInput) !== -1' />
               <div class="empty-circle" v-if='selectedLearningObjective.indexOf(centuryInput) === -1'></div>
