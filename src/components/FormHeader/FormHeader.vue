@@ -39,6 +39,44 @@ export default {
     FormHeaderActionBar,
     BackArrowIcon
   },
+  props: {
+    title: {
+      type: String,
+      default: ''
+    },
+    form: {
+      type: Object,
+      default: () => null
+    },
+    collaborate: {
+      type: Object,
+      default: () => null
+    },
+    lastChangeSavedTime: {
+      type: String,
+      default: ''
+    },
+    showCollaborate: {
+      type: Boolean,
+      default: true
+    },
+    showBack: {
+      type: Boolean,
+      default: true
+    },
+    shareStatus: {
+      type: Number,
+      default: 0
+    },
+    showShare: {
+      type: Boolean,
+      default: true
+    },
+    isPreviewMode: {
+      type: Boolean,
+      default: false
+    }
+  },
   data() {
     return {
       publishing: false,
@@ -55,7 +93,7 @@ export default {
   },
   computed: {
     isOwner() {
-      return this.$store.getters.userInfo.email === this.form.createBy
+      return this.form && this.$store.getters.userInfo.email === this.form.createBy
     },
     isCollaborater() {
       const index = this.collaborateUserList.findIndex(item => item.email === this.$store.getters.userInfo.email)
@@ -101,50 +139,6 @@ export default {
         this.collaborate.users.splice(index, 1)
       }
       this.removedCollaborateAction(false)
-    }
-  },
-  props: {
-    title: {
-      type: String,
-      default: ''
-    },
-    form: {
-      type: Object,
-      default: () => null
-    },
-    collaborate: {
-      type: Object,
-      default: () => null
-    },
-    lastChangeSavedTime: {
-      type: String,
-      default: ''
-    },
-    showCollaborate: {
-      type: Boolean,
-      default: true
-    },
-    showBack: {
-      type: Boolean,
-      default: true
-    },
-    shareStatus: {
-      type: Number,
-      default: 0
-    },
-    showShare: {
-      type: Boolean,
-      default: true
-    },
-    isPreviewMode: {
-      type: Boolean,
-      default: false
-    }
-  },
-  created() {
-    this.$logger.info('form header name:' + this.form.name + ' lastChangeSavedTime:' + this.lastChangeSavedTime)
-    if (this.form && this.form.name) {
-      this.formName = this.form.name
     }
   },
   methods: {

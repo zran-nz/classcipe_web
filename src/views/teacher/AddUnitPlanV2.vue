@@ -2,7 +2,18 @@
   <div class='my-full-form-wrapper'>
     <fixed-form-header>
       <template v-slot:header>
-        <form-header title='Create unit' @back='goBack'>
+        <form-header
+          title='Create unit'
+          :form='form'
+          :share-status='shareStatus'
+          :collaborate='collaborate'
+          :last-change-saved-time='(form.updateTime || form.createTime) | dayjs'
+          @view-collaborate='handleViewCollaborate'
+          @back='goBack'
+          @save='handleSaveUnitPlan(true)'
+          @share='handleShareUnitPlan'
+          @publish='handlePublishUnitPlan'
+          @collaborate='handleStartCollaborate'>
           <template v-slot:right>
           </template>
         </form-header>
@@ -1032,6 +1043,7 @@ export default {
         endDate: '',
         gradeId: undefined,
         prior: '',
+        createBy: null,
         customFieldData: null
       },
       rangeDate: [],
