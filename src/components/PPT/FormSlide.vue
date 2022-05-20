@@ -2,7 +2,13 @@
   <div class='form-slide'>
     <div class='form-action-bar'>
       <div class='slide-switch'>
-        <a-radio-group :default-value="displayModeType.SlideDrift" button-style="solid" class='cc-radio-group' v-model='displayMode' @change='handleSwitchDisplayMode'>
+        <a-radio-group
+          v-show='showDisplayModeSwitch'
+          :default-value="displayModeType.SlideDrift"
+          button-style="solid"
+          class='cc-radio-group'
+          v-model='displayMode'
+          @change='handleSwitchDisplayMode'>
           <a-radio-button :value="displayModeType.SlideDrift">
             Slide draft
           </a-radio-button>
@@ -71,6 +77,10 @@ export default {
     slideId: {
       type: String,
       default: null
+    },
+    showDisplayModeSwitch: {
+      type: Boolean,
+      default: true
     }
   },
   data() {

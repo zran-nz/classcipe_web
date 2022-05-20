@@ -72,6 +72,16 @@
 
               <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === PdField.Slides' :key='fieldName'>
                 <custom-form-item :show-label='false'>
+                  <form-slide
+                    :source-type='contentType.pd'
+                    :source-id='pdId'
+                    :slide-id='form.presentationId'
+                    :show-materials-and-tips='true'
+                    :show-edit-google-slide='true'
+                    :show-display-mode-switch='false'
+                    :default-thumbnail-list='thumbnailList'
+                    @edit-google-slide='handleEditGoogleSlide'
+                  />
                 </custom-form-item>
               </div>
 
@@ -132,6 +142,8 @@ import { typeMap } from '@/const/teacher'
 import FormSlide from '@/components/PPT/FormSlide'
 import SlideSelectList from '@/components/PPT/SlideSelectList'
 import TaskLinkedContent from '@/components/Task/TaskLinkedContent'
+import { TemplatesGetPresentation } from '@/api/template'
+import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 
 export default {
   name: 'AddPD',
@@ -169,6 +181,7 @@ export default {
       }
     }
   },
+  mixins: [ GoogleAuthCallBackMixin ],
   data() {
     return {
       contentLoading: true,
@@ -223,7 +236,9 @@ export default {
       },
       currentActiveStepIndex: this.getSessionStep(),
       currentRightModule: null,
-      rightModule: RightModule
+      rightModule: RightModule,
+
+      thumbnailList: []
     }
   },
   created() {
@@ -234,6 +249,7 @@ export default {
     this.currentFocusFieldName = this.currentStep.commonFields[0]
     this.loadCustomTags()
     this.handleDisplayRightModule()
+    this.loadThumbnail(true)
     this.contentLoading = false
   },
   methods: {
@@ -256,6 +272,32 @@ export default {
       this.currentActiveStepIndex = data.index
       this.handleDisplayRightModule()
       this.setSessionStep(data.index)
+    },
+
+    handleAuthCallback() {
+      this.$logger.info('handleAuthCallback')
+      this.loadThumbnail(true)
+    },
+
+    loadThumbnail(needRefresh) {
+      this.$logger.info('loadThumbnail ' + this.form.presentationId)
+      TemplatesGetPresentation({
+        taskId: this.pdId,
+        needRefresh: needRefresh
+      }).then(response => {
+        this.$logger.info('loadThumbnail response', response.result)
+        if (response.code === 0) {
+          const pageObjects = response.result.pageObjects
+          this.thumbnailList = []
+          pageObjects.forEach(page => {
+            this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
+          })
+        } else if (response.code === 403) {
+          this.$router.push({ path: '/teacher/main/created-by-me' })
+        } else if (response.code === this.ErrorCode.ppt_google_token_expires || response.code === this.ErrorCode.ppt_forbidden) {
+          this.$logger.info('等待授权事件通知')
+        }
+      })
     },
 
     setSessionStep(step) {
@@ -282,6 +324,21 @@ export default {
       this.$logger.info('handleUpdateCover', coverData)
       this.form.coverType = coverData.type
       this.form.coverUrl = coverData.url
+    },
+
+    async handleEditGoogleSlide() {
+      this.editGoogleSlideLoading = true
+      this.$logger.info('handleEditGoogleSlide', this.form.presentationId)
+      let res
+      if (this.form.presentationId) {
+        res = await this.autoSave()
+      } else {
+        alert('Please create a new presentation first')
+      }
+      if (res.code === 0) {
+        window.open('https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit', '_blank')
+      }
+      this.editGoogleSlideLoading = false
     },
 
     focusInput(event) {
