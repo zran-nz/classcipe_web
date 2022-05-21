@@ -358,7 +358,7 @@
             </div>
           </template>
           <template v-if='currentRightModule === rightModule.recommend'>
-            <slide-select-list :selected-template-list='form.selectedTemplateList' />
+            <slide-select-list :source-id='taskId' :selected-template-list='form.selectedTemplateList' />
           </template>
           <template v-if='currentRightModule === rightModule.customTag'>
             <div v-if='!this.contentLoading'>
@@ -599,7 +599,6 @@ export default {
       gradeList: [],
 
       templateLoading: false,
-      selectedTemplateList: [],
 
       selectedTaskIdList: [],
 
@@ -650,13 +649,6 @@ export default {
     }
   },
   computed: {
-    selectedTemplateIdList() {
-      const list = []
-      this.selectedTemplateList.forEach(item => {
-        list.push(item.id)
-      })
-      return list
-    },
     isOwner() {
       return this.$store.getters.userInfo.email === this.form.createBy
     },
@@ -738,7 +730,7 @@ export default {
   methods: {
     initData() {
       this.$logger.info('initData doing...')
-      GetMyGrades.then((response) => {
+      GetMyGrades().then((response) => {
         this.$logger.info('add task initData done', response)
         this.gradeList = response.result
       }).then(() => {
@@ -795,36 +787,6 @@ export default {
           taskData.materialList = []
         }
 
-        if (!taskData.taskClassList.length) {
-          taskData.taskClassList = [{
-            classId: null,
-            startDate: null,
-            endDate: null,
-            checked: false,
-            momentRangeDate: [],
-            weeks: null
-          }]
-        } else {
-          taskData.taskClassList.forEach(item => {
-            item.checked = !!(item.startDate && item.endDate)
-            if (item.checked) {
-              item.momentRangeDate = [
-                moment.utc(item.startDate).local(),
-                moment.utc(item.endDate).local()
-              ]
-
-              item.weeks = this.getWeekByDate(item.momentRangeDate[0], item.momentRangeDate[1])
-            }
-          })
-
-          this.quickSessionClassItem = {
-            id: taskData.taskClassList[0].classId,
-            name: taskData.taskClassList[0].className,
-            ...taskData.taskClassList[0]
-          }
-          this.$logger.info('init quickSessionClassItem', this.quickSessionClassItem)
-        }
-
         this.materialListFlag = taskData.materialList.length > 0
         // 填充自定义字段
         const customFieldData = taskData.customFieldData ? JSON.parse(taskData.customFieldData) : null
@@ -848,8 +810,7 @@ export default {
         this.form = taskData
         this.form.showSelected = taskData.showSelected ? taskData.showSelected : false
         this.form.bloomCategories = this.form.bloomCategories ? this.form.bloomCategories : undefined // 为了展示placeholder
-        this.selectedTemplateList = this.form.selectedTemplateList
-        if (this.selectedTemplateList.length === 0) {
+        if (this.form.selectedTemplateList.length === 0) {
           this.form.showSelected = false
         }
         if (!taskData.gradeId) {
@@ -882,29 +843,9 @@ export default {
     async handleSaveTask(isBack) {
       this.cleaPageCache()
       const taskData = Object.assign({}, this.form)
-      const taskClassList = []
-      taskData.taskClassList.forEach(item => {
-        if (item.classId) {
-          const classScheduleData = {
-            classId: item.classId,
-            startDate: null,
-            endDate: null
-          }
-          if (item.checked && item.momentRangeDate.length === 2) {
-            const startDate = item.momentRangeDate[0].clone()
-            const endDate = item.momentRangeDate[1].clone()
-            classScheduleData.startDate = startDate.utc().format('YYYY-MM-DD HH:mm:ss')
-            classScheduleData.endDate = endDate.utc().format('YYYY-MM-DD HH:mm:ss')
-          }
-          taskClassList.push(classScheduleData)
-        }
-      })
-      taskData.taskClassList = taskClassList
       if (this.taskId) {
         taskData.id = this.taskId
       }
-      taskData.selectedTemplateList = this.selectedTemplateList
-
       // 更新selfOuts数据
       if (this.$refs.learnOut && this.$refs.learnOut.length > 0) {
         taskData.selfOuts = this.$refs.learnOut[0].getSelfOuts()
@@ -1027,17 +968,17 @@ export default {
 
     handleSelectTemplate (template) {
       this.$logger.info('handleSelectTemplate', template)
-      const index = this.selectedTemplateList.findIndex(item => item.presentationId === template.presentationId)
+      const index = this.form.selectedTemplateList.findIndex(item => item.presentationId === template.presentationId)
       if (index === -1) {
-        this.selectedTemplateList.push(template)
+        this.form.selectedTemplateList.push(template)
       }
     },
 
     handleRemoveTemplate(template) {
       this.$logger.info('handleRemoveTemplate ', template)
-      const index = this.selectedTemplateList.findIndex(item => item.presentationId === template.presentationId)
+      const index = this.form.selectedTemplateList.findIndex(item => item.presentationId === template.presentationId)
       if (index !== -1) {
-        this.selectedTemplateList.splice(index, 1)
+        this.form.selectedTemplateList.splice(index, 1)
       }
       this.autoSave()
     },
@@ -1469,39 +1410,20 @@ export default {
     },
     removeSelectTemplate(template) {
       this.$logger.info('removeSelectTemplate ', template)
-      var index = this.selectedTemplateList.findIndex(item => item.id === template.id)
+      var index = this.form.selectedTemplateList.findIndex(item => item.id === template.id)
       if (index > -1) {
-        this.selectedTemplateList.splice(index, 1)
+        this.form.selectedTemplateList.splice(index, 1)
       }
-      if (this.selectedTemplateList.length === 0) {
+      if (this.form.selectedTemplateList.length === 0) {
         this.form.showSelected = false
       }
       this.autoSave()
     },
     async autoSave() {
       const taskData = Object.assign({}, this.form)
-      const taskClassList = []
-      taskData.taskClassList.forEach(item => {
-        if (item.classId) {
-          const classScheduleData = {
-            classId: item.classId,
-            startDate: null,
-            endDate: null
-          }
-          if (item.checked && item.momentRangeDate.length === 2) {
-            const startDate = item.momentRangeDate[0].clone()
-            const endDate = item.momentRangeDate[1].clone()
-            classScheduleData.startDate = startDate.utc().format('YYYY-MM-DD HH:mm:ss')
-            classScheduleData.endDate = endDate.utc().format('YYYY-MM-DD HH:mm:ss')
-          }
-          taskClassList.push(classScheduleData)
-        }
-      })
-      taskData.taskClassList = taskClassList
       if (this.taskId) {
         taskData.id = this.taskId
       }
-      taskData.selectedTemplateList = this.selectedTemplateList
       // 更新selfOuts数据
       if (this.$refs.learnOut && this.$refs.learnOut.length > 0) {
         taskData.selfOuts = this.$refs.learnOut[0].getSelfOuts()
