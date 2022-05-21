@@ -455,6 +455,21 @@ export default {
     handlePublish (status) {
       this.$logger.info('handlePublish', status, this.requiredFields, this.form)
       this.checkRequiredFields()
+      if (this.emptyRequiredFields.length === 0) {
+
+      } else {
+        let requiredStepIndex = -1
+        for (let i = 0; i < this.formSteps.length; i++) {
+          if (this.formSteps[i].showRequiredTips) {
+            requiredStepIndex = i
+            break
+          }
+        }
+
+        if (requiredStepIndex !== -1) {
+          this.currentActiveStepIndex = requiredStepIndex
+        }
+      }
     }
   }
 }

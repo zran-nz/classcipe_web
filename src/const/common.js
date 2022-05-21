@@ -64,7 +64,8 @@ export const PlanField = {
   Assessment: 'assessment',
   LearnOuts: 'learnOuts',
   Prior: 'prior',
-  Link: 'link'
+  Link: 'link',
+  Image: 'image'
 }
 export const PlanFieldDisplayName = {
   name: 'Unit plan',

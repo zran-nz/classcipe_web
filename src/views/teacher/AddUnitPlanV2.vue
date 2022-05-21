@@ -21,7 +21,7 @@
       <template v-slot:nav>
         <my-vertical-steps
           ref='steps-nav'
-          :steps='$store.getters.formConfigData.planSteps'
+          :steps='formSteps'
           :step-index='currentActiveStepIndex'
           @step-change='handleStepChange' />
       </template>
@@ -32,13 +32,13 @@
           <div
             class='form-page-item'
             v-show='currentActiveStepIndex === stepIndex'
-            v-for='(step, stepIndex) in $store.getters.formConfigData.planSteps'
+            v-for='(step, stepIndex) in formSteps'
             :key='step.id'>
             <div class='form-field-item' v-for='fieldItem in $store.getters.formConfigData.planCommonList' :key='fieldItem.id'>
               <template v-if='step.commonFields.indexOf(fieldItem.fieldName) !== -1'>
                 <div class='form-block tag-content-block' :data-field-name='planField.Name' v-if='fieldItem.visible && fieldItem.fieldName === planField.Name' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Name />
-                  <custom-form-item>
+                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.Name) !== -1'>
                     <template slot='label'>
                       {{ 'Unit Name' | unitLabelName(planField.Name, $store.getters.formConfigData) }}
                     </template>
@@ -63,7 +63,7 @@
 
                 <div class='form-block tag-content-block' :data-field-name='planField.Overview' id='overview' v-if='fieldItem.visible && fieldItem.fieldName === planField.Overview' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Overview />
-                  <custom-form-item ref='overview'>
+                  <custom-form-item ref='overview' :required='emptyRequiredFields.indexOf(planField.Overview) !== -1'>
                     <template slot='label'>
                       {{ 'Overview' | unitLabelName(planField.Overview, $store.getters.formConfigData) }}
                     </template>
@@ -95,7 +95,7 @@
 
                 <div class='form-block form-radio-wrapper tag-content-block' :data-field-name='planField.ProjectBased' v-if='fieldItem.visible && fieldItem.fieldName === planField.ProjectBased' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.ProjectBased style="top:-30px" />
-                  <custom-form-item>
+                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.ProjectBased) !== -1'>
                     <template slot='label'>
                       {{ 'Project-based Unit' | unitLabelName(planField.ProjectBased, $store.getters.formConfigData) }}
                     </template>
@@ -125,7 +125,7 @@
 
                 <div class='form-block form-radio-wrapper tag-content-block' :data-field-name='planField.UnitType' v-if='fieldItem.visible && fieldItem.fieldName === planField.UnitType' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.UnitType style="top:-30px"/>
-                  <custom-form-item>
+                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.UnitType) !== -1'>
                     <template slot='label'>
                       {{ 'Unit type' | unitLabelName(planField.UnitType, $store.getters.formConfigData) }}
                     </template>
@@ -152,9 +152,9 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block grade-time tag-content-block' :data-field-name='planField.GradeId' v-if="fieldItem.visible && fieldItem.fieldName === planField.GradeId" :key='fieldItem.fieldName'>
+                <div class='form-block grade-time tag-content-block' :data-field-name='planField.GradeIds' v-if="fieldItem.visible && fieldItem.fieldName === planField.GradeId" :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.StartDate />
-                  <custom-form-item style='width:23%;margin-bottom: 0px;'>
+                  <custom-form-item style='width:23%;margin-bottom: 0px;' :required='emptyRequiredFields.indexOf(planField.GradeIds) !== -1'>
                     <template slot='label'>
                       {{ 'Grade level' | unitLabelName(planField.GradeId, $store.getters.formConfigData) }}
                     </template>
@@ -188,7 +188,7 @@
 
                 <div id='inquiry' class='form-block tag-content-block' :data-field-name='planField.Inquiry' v-if="fieldItem.visible && fieldItem.fieldName === planField.Inquiry" :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :field-name='planField.Inquiry'/>
-                  <custom-form-item>
+                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.Inquiry) !== -1'>
                     <template slot='label'>
                       {{ 'Big Idea/ Statement of Inquiry/ Central Idea' | unitLabelName(planField.Inquiry, $store.getters.formConfigData) }}
                     </template>
@@ -224,7 +224,7 @@
 
                 <div class='form-block tag-content-block' :data-field-name='planField.Scenarios' v-if="fieldItem.visible && fieldItem.fieldName === planField.Scenarios" :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Sdg />
-                  <custom-form-item>
+                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.Sdg) !== -1'>
                     <template slot='label'>
                       {{ 'UN Sustainable Development Goal(s)' | unitLabelName(planField.Scenarios, $store.getters.formConfigData) }}
                     </template>
@@ -299,7 +299,7 @@
 
                 <div class='form-block form-block-rwc tag-content-block' :data-field-name='planField.Rwc' v-if="fieldItem.visible && fieldItem.fieldName === planField.Rwc" :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Rwc />
-                  <custom-form-item>
+                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.Rwc) !== -1'>
                     <template slot='label'>
                       {{ 'Real World Connection(s)' | unitLabelName(planField.Rwc, $store.getters.formConfigData) }}
                     </template>
@@ -328,7 +328,7 @@
                   v-if="fieldItem.visible && fieldItem.fieldName === planField.Question"
                   :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Question />
-                  <custom-form-item class='unit-question'>
+                  <custom-form-item class='unit-question' :required='emptyRequiredFields.indexOf(planField.Question) !== -1'>
                     <template slot='label'>
                       <a-space>
                         <a-tooltip title='Set key question/Line of inquiry'>
@@ -423,7 +423,7 @@
 
                 <div class='form-block tag-content-block' :data-field-name='planField.Prior' style='clear:both' v-if="fieldItem.visible && fieldItem.fieldName === planField.Prior" :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Prior />
-                  <custom-form-item>
+                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.Prior) !== -1'>
                     <template slot='label'>
                       {{ 'Prior learning experience' | unitLabelName(planField.Prior, $store.getters.formConfigData) }}
                     </template>
@@ -936,6 +936,7 @@ import DeleteIcon from '@/components/Common/DeleteIcon'
 import PlusIcon from '@/components/Common/PlusIcon'
 import CustomLinkText from '@/components/Common/CustomLinkText'
 import CustomTextButton from '@/components/Common/CustomTextButton'
+import { PublishMixin } from '@/mixins/PublishMixin'
 
 export default {
   name: 'AddUnitPlan',
@@ -989,7 +990,7 @@ export default {
       default: null
     }
   },
-  mixins: [UtilMixin, BaseEventMixin, FormConfigMixin],
+  mixins: [UtilMixin, BaseEventMixin, FormConfigMixin, PublishMixin],
   data() {
     return {
       showCollaborateVisible: false,
@@ -1266,13 +1267,25 @@ export default {
     if (!token) {
       token = storage.get(ACCESS_TOKEN)
     }
-    await this.$store.dispatch('loadFormConfigData', token)
-    this.$logger.info('currentActiveStepIndex init ' + this.currentActiveStepIndex)
-    if (this.currentActiveStepIndex < 0 || this.currentActiveStepIndex > this.$store.getters.formConfigData.taskSteps.length - 1) {
-      this.currentActiveStepIndex = 0
-    }
-    this.currentStep = this.$store.getters.formConfigData.planSteps[this.currentActiveStepIndex]
-    this.handleDisplayRightModule()
+    await this.$store.dispatch('loadFormConfigData', token).then(() => {
+      this.formSteps = this.$store.getters.formConfigData.planSteps || []
+      this.$logger.info('formSteps', this.formSteps)
+      this.requiredFields = [
+        PlanField.Name,
+        PlanField.Image,
+        PlanField.Inquiry,
+        PlanField.Scenarios,
+        PlanField.Question,
+        PlanField.GradeIds,
+        PlanField.SubjectIds,
+        PlanField.LearnOuts
+      ]
+      if (this.currentActiveStepIndex < 0 || this.currentActiveStepIndex > this.formSteps.length - 1) {
+        this.currentActiveStepIndex = 0
+      }
+      this.currentStep = this.formSteps[this.currentActiveStepIndex]
+      this.handleDisplayRightModule()
+    })
 
     this.initData()
     this.getAssociate()
@@ -1629,41 +1642,56 @@ export default {
         status: status
       }, 'associateTaskList', this.associateTaskList)
 
-      const isNeedPublishAssociate = this.associateTaskList.some(item => item.status === 0)
-      this.$logger.info('handlePublishUnitPlan isNeedPublishAssociate', isNeedPublishAssociate)
-      if (status) {
-        if (!isNeedPublishAssociate) {
-          this.form.status = status
-          this.handlePublishFormItem(status)
+      this.checkRequiredFields()
+      if (this.emptyRequiredFields.length === 0) {
+        const isNeedPublishAssociate = this.associateTaskList.some(item => item.status === 0)
+        this.$logger.info('handlePublishUnitPlan isNeedPublishAssociate', isNeedPublishAssociate)
+        if (status) {
+          if (!isNeedPublishAssociate) {
+            this.form.status = status
+            this.handlePublishFormItem(status)
+          } else {
+            this.$confirm({
+              title: 'Alert',
+              content: 'Would you like to publish the linked tasks as well?',
+              centered: true,
+              okText: 'Yes',
+              cancelText: 'No, publish this Unit plan only.',
+              onOk: () => {
+                this.$logger.info('handlePublishUnitPlan onOk')
+                this.publishListVisible = true
+              },
+              onCancel: () => {
+                this.handlePublishFormItem(status)
+                this.$refs.commonFormHeader.publishing = false
+              }
+            })
+          }
         } else {
           this.$confirm({
             title: 'Alert',
-            content: 'Would you like to publish the linked tasks as well?',
-            centered: true,
-            okText: 'Yes',
-            cancelText: 'No, publish this Unit plan only.',
+            content: 'If you wish to unpublish the linked tasks, please go to individual task page to unpublish.',
             onOk: () => {
-              this.$logger.info('handlePublishUnitPlan onOk')
-              this.publishListVisible = true
+              this.form.status = status
+              this.handlePublishFormItem(status)
             },
             onCancel: () => {
-              this.handlePublishFormItem(status)
               this.$refs.commonFormHeader.publishing = false
             }
           })
         }
       } else {
-        this.$confirm({
-          title: 'Alert',
-          content: 'If you wish to unpublish the linked tasks, please go to individual task page to unpublish.',
-          onOk: () => {
-            this.form.status = status
-            this.handlePublishFormItem(status)
-          },
-          onCancel: () => {
-            this.$refs.commonFormHeader.publishing = false
+        let requiredStepIndex = -1
+        for (let i = 0; i < this.formSteps.length; i++) {
+          if (this.formSteps[i].showRequiredTips) {
+            requiredStepIndex = i
+            break
           }
-        })
+        }
+
+        if (requiredStepIndex !== -1) {
+          this.currentActiveStepIndex = requiredStepIndex
+        }
       }
     },
 

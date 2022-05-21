@@ -21,7 +21,7 @@
       <template v-slot:nav>
         <my-vertical-steps
           ref='steps-nav'
-          :steps='$store.getters.formConfigData.taskSteps'
+          :steps='formSteps'
           :step-index='currentActiveStepIndex'
           @step-change='handleStepChange' />
       </template>
@@ -32,13 +32,13 @@
           <div
             class='form-page-item'
             v-show='currentActiveStepIndex === stepIndex'
-            v-for='(step, stepIndex) in $store.getters.formConfigData.taskSteps'
+            v-for='(step, stepIndex) in formSteps'
             :key='step.id'>
             <div class='form-field-item' v-for='fieldItem in $store.getters.formConfigData.taskCommonList' :key='fieldItem.id'>
               <template v-if='step.commonFields.indexOf(fieldItem.fieldName) !== -1'>
                 <div class='form-block tag-content-block' :data-field-name='taskField.Name' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Name' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Name />
-                  <custom-form-item>
+                  <custom-form-item :required='emptyRequiredFields.indexOf(taskField.Name) !== -1'>
                     <template slot='label'>
                       {{ 'Task name' | taskLabelName(taskField.Name, $store.getters.formConfigData) }}
                     </template>
@@ -61,7 +61,7 @@
 
                 <div class='form-block over-form-block tag-content-block' :data-field-name='taskField.Overview' id='overview' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Overview' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Overview />
-                  <a-form-model-item class='task-audio-line' ref='overview'>
+                  <custom-form-item class='task-audio-line' ref='overview' :required='emptyRequiredFields.indexOf(taskField.Overview) !== -1'>
                     <template slot='label'>
                       {{ 'Task details' | taskLabelName(taskField.Overview, $store.getters.formConfigData) }}
                     </template>
@@ -86,12 +86,12 @@
                       allow-clear
                       @change="handleCollaborateEvent(taskId,taskField.Overview,form.overview)"
                       :disabled="!canEdit"/>
-                  </a-form-model-item>
+                  </custom-form-item>
                 </div>
 
                 <div class='form-block taskType tag-content-block' :data-field-name='taskField.TaskType' v-if='fieldItem.visible && fieldItem.fieldName === taskField.TaskType' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.TaskType style="left:20px" />
-                  <a-form-model-item class='task-audio-line' ref='taskType' :colon='false'>
+                  <custom-form-item class='task-audio-line' ref='taskType' :colon='false' :required='emptyRequiredFields.indexOf(taskField.TaskType) !== -1'>
                     <template slot='label'>
                       {{ 'Choose Task Type' | taskLabelName(taskField.TaskType, $store.getters.formConfigData) }}
                     </template>
@@ -125,12 +125,12 @@
                         </div>
                       </div>
                     </div>
-                  </a-form-model-item>
+                  </custom-form-item>
                 </div>
 
                 <div class='form-block form-question tag-content-block' :data-field-name='taskField.Question' v-if='associateQuestionList.length > 0 && fieldItem.visible && fieldItem.fieldName === taskField.Question' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Question />
-                  <a-form-model-item>
+                  <custom-form-item :required='emptyRequiredFields.indexOf(taskField.Question) !== -1'>
                     <template slot='label'>
                       {{ 'Choose Key questions' | taskLabelName(taskField.Overview, $store.getters.formConfigData) }}
                     </template>
@@ -169,12 +169,12 @@
                         From Unit Plan({{ item.unitName }})
                       </a-select-option>
                     </a-select>
-                  </a-form-model-item>
+                  </custom-form-item>
                 </div>
 
                 <div class='form-block tag-content-block' :data-field-name='taskField.LearnOuts' v-if='fieldItem.visible && fieldItem.fieldName === taskField.LearnOuts' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Assessment style="left:100px" />
-                  <custom-form-item :show-label='false'>
+                  <custom-form-item :show-label='false' :required='emptyRequiredFields.indexOf(taskField.LearnOuts) !== -1'>
                     <a-badge :dot='hasExtraRecommend'>
                       <custom-text-button @click='handleSelectDescription()' :label="'Set learning objectives' | unitLabelName(taskField.LearnOuts, $store.getters.formConfigData)">
                       </custom-text-button>
@@ -194,7 +194,7 @@
 
                 <div class='form-block tag-content-block material-list-block' :data-field-name='taskField.MaterialList' style='clear: both' v-if='fieldItem.visible && fieldItem.fieldName === taskField.MaterialList' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.MaterialList />
-                  <custom-form-item>
+                  <custom-form-item :required='emptyRequiredFields.indexOf(taskField.MaterialList) !== -1'>
                     <template slot='label'>
                       {{ 'Resources required for hands-on activities' | taskLabelName(taskField.MaterialList, $store.getters.formConfigData) }}
                     </template>
@@ -288,9 +288,9 @@
                 </div>
                 <div class='form-block' :data-field-name='taskField.Image' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Image' :key='fieldItem.fieldName'>
                   <!-- image-->
-                  <a-form-model-item class='img-wrapper'>
-                    <custom-cover-media :type='form.coverType' :url='form.coverUrl' @update='handleUpdateCover'/>
-                  </a-form-model-item>
+                  <custom-form-item class='img-wrapper' :required='emptyRequiredFields.indexOf(taskField.Image) !== -1'>
+                    <custom-cover-media type='image' :url='form.image' @update='handleUpdateCover'/>
+                  </custom-form-item>
                 </div>
               </template>
             </div>
@@ -518,6 +518,7 @@ import FormSlide from '@/components/PPT/FormSlide'
 import SlideSelectList from '@/components/PPT/SlideSelectList'
 import SlideEvent from '@/components/PPT/SlideEvent'
 import CustomCoverMedia from '@/components/Common/CustomCoverMedia'
+import { PublishMixin } from '@/mixins/PublishMixin'
 
 export default {
   name: 'AddTaskV2',
@@ -551,7 +552,7 @@ export default {
     CollaborateTooltip,
     CollaborateUpdateContent
   },
-  mixins: [ UtilMixin, BaseEventMixin, FormConfigMixin, GoogleAuthCallBackMixin ],
+  mixins: [ UtilMixin, BaseEventMixin, FormConfigMixin, GoogleAuthCallBackMixin, PublishMixin ],
   props: {
     taskId: {
       type: String,
@@ -685,6 +686,7 @@ export default {
   },
   async created() {
     this.$logger.info('add task created ' + this.taskId + ' ' + this.$route.path + ' mode: ' + this.mode)
+
     // 初始化关联事件处理
     MyContentEventBus.$on(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
     LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
@@ -695,12 +697,24 @@ export default {
     if (!token) {
       token = storage.get(ACCESS_TOKEN)
     }
-    await this.$store.dispatch('loadFormConfigData', token)
-    if (this.currentActiveStepIndex < 0 || this.currentActiveStepIndex > this.$store.getters.formConfigData.taskSteps.length - 1) {
-      this.currentActiveStepIndex = 0
-    }
-    this.currentStep = this.$store.getters.formConfigData.taskSteps[this.currentActiveStepIndex]
-    this.handleDisplayRightModule()
+    this.$store.dispatch('loadFormConfigData', token).then(() => {
+      this.formSteps = this.$store.getters.formConfigData.taskSteps || []
+      this.$logger.info('formSteps', this.formSteps)
+      this.requiredFields = [
+        TaskField.Name,
+        TaskField.Image,
+        TaskField.Overview,
+        TaskField.Question,
+        TaskField.GradeIds,
+        TaskField.SubjectIds,
+        TaskField.LearnOuts
+      ]
+      if (this.currentActiveStepIndex < 0 || this.currentActiveStepIndex > this.formSteps.length - 1) {
+        this.currentActiveStepIndex = 0
+      }
+      this.currentStep = this.formSteps[this.currentActiveStepIndex]
+      this.handleDisplayRightModule()
+    })
     this.$logger.info('恢复step', this.currentActiveStepIndex, this.currentStep)
     this.initData()
     this.getAssociate()
@@ -928,30 +942,45 @@ export default {
       this.handleSaveContentEvent(this.taskId, this.contentType.task, this.oldForm)
     },
     handlePublishTask(status) {
-      this.$logger.info('handlePublishTask', {
-        id: this.taskId,
-        status: status
-      })
-      const taskData = Object.assign({}, this.form)
-      taskData.status = status
-      this.publishing = true
-      if (taskData.customFieldData) {
-        taskData.customFieldData = JSON.stringify(taskData.customFieldData)
-      }
-      TaskAddOrUpdate(taskData).then(response => {
-        this.$logger.info('UpdateContentStatus response', response)
-        // this.$message.success('Publish success')
-        this.form.status = status
-      }).then(() => {
-        if (status === 1) {
-          this.$message.success(this.$t('teacher.add-task.publish-success'))
-        } else {
-          this.$message.success('Unpublish successfully')
+      this.checkRequiredFields()
+      if (this.emptyRequiredFields.length === 0) {
+        this.$logger.info('handlePublishTask', {
+          id: this.taskId,
+          status: status
+        })
+        const taskData = Object.assign({}, this.form)
+        taskData.status = status
+        this.publishing = true
+        if (taskData.customFieldData) {
+          taskData.customFieldData = JSON.stringify(taskData.customFieldData)
         }
-        this.form.status = status
-        this.$refs.commonFormHeader.publishing = false
-        this.oldForm = JSON.parse(JSON.stringify(this.form))
-      })
+        TaskAddOrUpdate(taskData).then(response => {
+          this.$logger.info('UpdateContentStatus response', response)
+          // this.$message.success('Publish success')
+          this.form.status = status
+        }).then(() => {
+          if (status === 1) {
+            this.$message.success(this.$t('teacher.add-task.publish-success'))
+          } else {
+            this.$message.success('Unpublish successfully')
+          }
+          this.form.status = status
+          this.$refs.commonFormHeader.publishing = false
+          this.oldForm = JSON.parse(JSON.stringify(this.form))
+        })
+      } else {
+        let requiredStepIndex = -1
+        for (let i = 0; i < this.formSteps.length; i++) {
+          if (this.formSteps[i].showRequiredTips) {
+            requiredStepIndex = i
+            break
+          }
+        }
+
+        if (requiredStepIndex !== -1) {
+          this.currentActiveStepIndex = requiredStepIndex
+        }
+      }
     },
 
     handleSelectTaskType(type) {

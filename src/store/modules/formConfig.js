@@ -81,6 +81,10 @@ const formConfig = {
         formConfigData.task.customList.forEach(item => {
           configData.taskFieldTagMap['cust_' + item.name] = item.tags
         })
+        formConfigData.task.steps.forEach(step => {
+            step.showRequiredTips = false
+            step.showSatisfiedTips = false
+        })
         configData.taskSteps = formConfigData.task.steps.sort((a, b) => {
           return a.step - b.step
         })
@@ -94,6 +98,10 @@ const formConfig = {
         configData.planCustomList = formConfigData.plan.customList
         formConfigData.plan.customList.forEach(item => {
           configData.planFieldTagMap['cust_' + item.name] = item.tags
+        })
+        formConfigData.plan.steps.forEach(step => {
+          step.showRequiredTips = false
+          step.showSatisfiedTips = false
         })
         configData.planSteps = formConfigData.plan.steps.sort((a, b) => {
           return a.step - b.step
