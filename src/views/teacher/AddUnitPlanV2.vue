@@ -458,6 +458,21 @@
                   </div>
                 </div>
 
+                <div class='form-block' :data-field-name='planField.Image' v-if='fieldItem.visible && fieldItem.fieldName === planField.Image' :key='fieldItem.fieldName'>
+                  <!-- image-->
+                  <custom-form-item class='img-wrapper' :required='emptyRequiredFields.indexOf(planField.Image) !== -1'>
+                    <template slot='label'>
+                      {{ 'Cover' | taskLabelName(planField.Image, $store.getters.formConfigData) }}
+                    </template>
+                    <template v-if='taskLabelHint(planField.Image, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="'Cover' | taskLabelHint(planField.Image, $store.getters.formConfigData)" placement='top'>
+                        <a-icon type="info-circle" />
+                      </a-tooltip>
+                    </template>
+                    <custom-cover-media type='image' :url='form.image' @update='handleUpdateCover'/>
+                  </custom-form-item>
+                </div>
+
               </template>
             </div>
             <div class='form-field-item custom-field' v-for='custFieldItem in $store.getters.formConfigData.planCustomList' :key='custFieldItem.id'>
@@ -937,10 +952,12 @@ import PlusIcon from '@/components/Common/PlusIcon'
 import CustomLinkText from '@/components/Common/CustomLinkText'
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import { PublishMixin } from '@/mixins/PublishMixin'
+import CustomCoverMedia from '@/components/Common/CustomCoverMedia'
 
 export default {
   name: 'AddUnitPlan',
   components: {
+    CustomCoverMedia,
     CustomTextButton,
     CustomLinkText,
     PlusIcon,
@@ -2628,6 +2645,11 @@ export default {
       if (res.parentId && this.$refs.customTag) {
         this.$refs.customTag.remoteChooseTag(res.parentId, res.tag)
       }
+    },
+
+    handleUpdateCover (coverData) {
+      this.$logger.info('handleUpdateCover', coverData)
+      this.form.image = coverData.url
     }
   }
 }

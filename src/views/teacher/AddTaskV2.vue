@@ -289,6 +289,14 @@
                 <div class='form-block' :data-field-name='taskField.Image' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Image' :key='fieldItem.fieldName'>
                   <!-- image-->
                   <custom-form-item class='img-wrapper' :required='emptyRequiredFields.indexOf(taskField.Image) !== -1'>
+                    <template slot='label'>
+                      {{ 'Cover' | taskLabelName(taskField.Image, $store.getters.formConfigData) }}
+                    </template>
+                    <template v-if='taskLabelHint(taskField.Image, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="'Cover' | taskLabelHint(taskField.Image, $store.getters.formConfigData)" placement='top'>
+                        <a-icon type="info-circle" />
+                      </a-tooltip>
+                    </template>
                     <custom-cover-media type='image' :url='form.image' @update='handleUpdateCover'/>
                   </custom-form-item>
                 </div>
@@ -749,7 +757,7 @@ export default {
     handleUpdateCover (coverData) {
       this.$logger.info('handleUpdateCover', coverData)
       this.form.coverType = coverData.type
-      this.form.coverUrl = coverData.url
+      this.form.image = coverData.url
     },
 
     handleDisplayRightModule () {
