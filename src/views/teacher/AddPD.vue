@@ -450,6 +450,11 @@ export default {
       if (index > -1) {
         this.form.videoList.splice(index, 1)
       }
+    },
+
+    handlePublish (status) {
+      this.$logger.info('handlePublish', status, this.requiredFields, this.form)
+      this.checkRequiredFields()
     }
   }
 }
