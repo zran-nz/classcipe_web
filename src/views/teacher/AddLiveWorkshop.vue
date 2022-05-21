@@ -8,6 +8,7 @@
           :show-share='false'
           :show-collaborate='false'
           :last-change-saved-time='lastChangeSavedTime'
+          :is-preview-mode='true'
           @back='goBack'>
           <template v-slot:right>
           </template>
