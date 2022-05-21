@@ -22,7 +22,7 @@
       </template>
       <template v-else>
         <template v-if='slideList.length'>
-          <div class='slide-item' :class="{'selected-template': selectedPresentationIdList.indexOf(slide.presentationId) !== -1}" v-for='slide in displaySelectedTemplateList' :key='slide.id'>
+          <div class='slide-item' :class="{'selected-template': selectedPresentationIdList.indexOf(slide.presentationId) !== -1}" v-for='slide in slideList' :key='slide.id'>
             <slide-viewer
               :title='slide.name'
               :show-hover-mask='true'
@@ -63,7 +63,7 @@ export default {
   props: {
     sourceId: {
       type: String,
-      default: '1522782224384061441' // TODO 删除mock id
+      required: true
     },
     selectedTemplateList: {
       type: Array,
@@ -73,21 +73,6 @@ export default {
   computed: {
     selectedPresentationIdList () {
       return this.selectedTemplateList.map(item => item.presentationId)
-    },
-    displaySelectedTemplateList () {
-      const list = []
-      this.selectedTemplateList.forEach(item => {
-        item.thumbnailList = []
-        for (let i = 0; i < item.images.length; i++) {
-          item.thumbnailList.push({
-            contentUrl: item.images[i],
-            id: item.pageObjectIds[i]
-          })
-        }
-        list.push(item)
-      })
-
-      return list
     }
   },
   data() {
@@ -143,6 +128,7 @@ export default {
             }
           })
           this.slideList = res.result
+          this.$logger.info('recommendTemplates slideList', this.slideList)
         }
       }).finally(() => {
         this.searching = false
@@ -153,6 +139,15 @@ export default {
       FilterTemplates({}).then(res => {
         this.$logger.info('getTemplateSlide res', res)
         if (res && res.result) {
+          res.result.forEach(item => {
+            item.thumbnailList = []
+            for (let i = 0; i < item.images.length; i++) {
+              item.thumbnailList[i] = {
+                contentUrl: item.images[i].replace('http://', 'https://'),
+                id: item.pageObjectIds[i]
+              }
+            }
+          })
           this.slideList = res.result
         }
       }).finally(() => {
