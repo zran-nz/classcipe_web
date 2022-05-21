@@ -1,7 +1,8 @@
 <template>
   <a-space>
-    <a-popover trigger="click" :visible="bloomTagVisible" @visibleChange="handleBloomChange">
+    <a-popover trigger="click" overlayClassName="choose-con" :visible="bloomTagVisible" @visibleChange="handleBloomChange">
       <template slot="content">
+        <div class="choose-bar-title">Set Bloom's taxonomy</div>
         <div class="choose-bar">
           <div
             class="choose-bar-item"
@@ -25,8 +26,9 @@
         </div>
       </a-rate>
     </a-popover>
-    <a-popover trigger="click" :visible="knowledgeDimensionVisible" @visibleChange="handleKnowledgeChange">
+    <a-popover trigger="click" overlayClassName="choose-con" :visible="knowledgeDimensionVisible" @visibleChange="handleKnowledgeChange">
       <template slot="content">
+        <div class="choose-bar-title">Set Knowledge Dimensions</div>
         <div class="choose-bar">
           <div
             class="choose-bar-item"
@@ -115,7 +117,7 @@ export default {
       COLOR_LEVEL: COLOR_LEVEL,
       bloomTagVisible: false,
       knowledgeDimensionVisible: false,
-      HEIGHT: [30, 50, 70, 90, 110, 130, 150, 180],
+      HEIGHT: [20, 27, 35, 45, 56, 67, 78, 100],
       currentBloom: this.bloom,
       currentKnowledge: this.knowledge,
       bloomLevel: [],
@@ -159,7 +161,7 @@ export default {
 <style scoped lang="less">
 .bloom-color {
   /deep/ .ant-rate-star{
-    border: 1px solid #76b54a;
+    // border: 1px solid #76b54a;
     transition: none;
     & > div:hover {
       transform: scale(1);
@@ -168,7 +170,7 @@ export default {
       transform: scale(1);
     }
     .rate-bar {
-      background: #fff!important;
+      background: #CDCDCD;
     }
   }
   /deep/ .ant-rate-star-full {
@@ -180,7 +182,7 @@ export default {
 }
 .knowledge-color {
   /deep/ .ant-rate-star{
-    border: .5px solid #2f74b5;
+    // border: .5px solid #2f74b5;
     transition: none;
     & > div:hover {
       transform: scale(1);
@@ -189,7 +191,7 @@ export default {
       transform: scale(1);
     }
     .rate-bar {
-      background: #fff!important;
+      background: #CDCDCD;
     }
   }
   /deep/ .ant-rate-star-full {
@@ -199,23 +201,46 @@ export default {
     }
   }
 }
-.choose-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  .choose-bar-item {
-    flex: 1;
-    min-width: 85px;
-    margin:0 5px;
-    color: #fff;
+</style>
+<style lang="less">
+.choose-con {
+  .ant-popover-content {
+    .ant-popover-arrow {
+      border-right-color: #222634;
+      border-bottom-color: #222634;
+    }
+    .ant-popover-inner {
+      background: #222634;
+      border-radius: 2px;
+    }
+  }
+  .choose-bar-title {
+    font-size: 10px;
+    font-family: Arial;
+    font-weight: bold;
+    color: #FFFFFF;
+    line-height: 10px;
+  }
+  .choose-bar {
     display: flex;
-    align-items: center;
-    text-align: center;
-    cursor: pointer;
-    label {
-      width: 100%;
+    justify-content: space-between;
+    align-items: flex-end;
+    .choose-bar-item {
+      flex: 1;
+      min-width: 80px;
+      margin:0 5px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      text-align: center;
       cursor: pointer;
-      font-size: 12px;
+      border-radius: 3px;
+      label {
+        width: 100%;
+        cursor: pointer;
+        font-size: 10px;
+        color: #4A6B98;
+      }
     }
   }
 }

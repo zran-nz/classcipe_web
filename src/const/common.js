@@ -253,8 +253,8 @@ export const STATISTICS_TYPE = {
 }
 
 export const COLOR_LEVEL = {
-  BLOOM: ['#e1f0d8', '#c3e0b2', '#a9d08c', '#76b54a', '#558135', '#385524'],
-  KNOWLEDGE: ['#bbd6ee', '#9cc2e5', '#2f74b5', '#1e4e79']
+  BLOOM: ['#CDE7FF', '#F7E3FF', '#BAEAD0', '#FCF2BD', '#FDD7DE', '#BCDCF7'],
+  KNOWLEDGE: ['#CDE7FF', '#F7E3FF', '#BAEAD0', '#FCF2BD', '#FDD7DE', '#BCDCF7']
 }
 
 export const DEVICE = {
