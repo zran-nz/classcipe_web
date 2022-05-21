@@ -37,7 +37,7 @@ export const asyncRouterMap = [
         name: 'teacher',
         redirect: '/teacher/main/created-by-me',
         component: RouteView,
-        meta: { title: 'menu.main', keepAlive: true, icon: bxAnaalyse, permission: ['teacher'] },
+        meta: { title: 'menu.main', keepAlive: true, icon: bxAnaalyse, permission: ['teacher', 'common'] },
         children: [
           {
             path: '/teacher/main/created-by-me',
@@ -85,7 +85,7 @@ export const asyncRouterMap = [
             path: '/teacher/main/live-workshops',
             name: 'LiveWorkshops',
             component: () => import('@/views/teacher/LiveWorkShops'),
-            meta: { title: 'menu.live-workshops', keepAlive: true, icon: DiscoverSvg }
+            meta: { title: 'menu.live-workshops', keepAlive: true, permission: ['common'], icon: DiscoverSvg }
           },
           {
             path: '/teacher/managing',

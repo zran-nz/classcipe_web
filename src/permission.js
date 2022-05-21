@@ -14,7 +14,6 @@ import { getToken, setCookie } from './utils/util'
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
 const allowList = ['login', 'register', 'resetPassword', 'registerResult', 'authResult', 'authCheck', 'pageRedirect', 'addonCallback', 'classGoBack', 'authRedirect', 'shareDetail', 'H5Live', 'PromoteTg', 'LiveWorkshops'] // no redirect allowList
-const allowPaths = ['/teacher/main/live-workshops']
 const loginRoutePath = '/user/login'
 
 router.beforeEach((to, from, next) => {
@@ -25,7 +24,7 @@ router.beforeEach((to, from, next) => {
   logger.info('router', to)
 
   const role = to.fullPath.indexOf('student') > -1 ? 'student' : 'teacher'
-  if (allowPaths.includes(to.path) || ((allowList.includes(to.name) && to.name))) {
+  if (allowList.includes(to.name) && to.name) {
     // 在免登录名单，直接进入
     logger.info('allowList ', to.name)
     next()
@@ -55,7 +54,7 @@ router.beforeEach((to, from, next) => {
             .then(res => {
               const currentRole = res.result && res.result.currentRole
               // generate dynamic router
-              store.dispatch('GenerateRoutes', { roles: { permissionList: [currentRole] } }).then(() => {
+              store.dispatch('GenerateRoutes', { roles: { permissionList: [currentRole, 'common'] } }).then(() => {
                 // 根据roles权限生成可访问的路由表
                 // 动态添加可访问路由表
                 router.addRoutes(store.getters.addRouters)
@@ -91,8 +90,8 @@ router.beforeEach((to, from, next) => {
     }
   } else {
     console.log(to)
-      next({ path: loginRoutePath, query: { redirect: to.fullPath, role } })
-      NProgress.done() // if current page is login will not trigger afterEach hook, so manually handle it
+    next({ path: loginRoutePath, query: { redirect: to.fullPath, role } })
+    NProgress.done() // if current page is login will not trigger afterEach hook, so manually handle it
   }
 })
 
