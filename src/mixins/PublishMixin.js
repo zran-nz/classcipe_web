@@ -43,11 +43,6 @@ export const PublishMixin = {
       })
 
       this.$logger.info('checkRequiredFields done!', this.formSteps)
-    },
-
-    handlePublish (status) {
-      this.$logger.info('handlePublish', status, this.requiredFields, this.form)
-      this.checkRequiredFields()
     }
   }
 }
