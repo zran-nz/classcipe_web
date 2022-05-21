@@ -469,6 +469,7 @@ export default {
       } else {
         this.form.image = coverData.url
       }
+      this.form.cover = coverData.url
     },
 
     handleSelectDate (date, dateString) {
