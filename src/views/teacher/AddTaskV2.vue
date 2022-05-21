@@ -283,7 +283,7 @@
 
                 <div class='form-block tag-content-block' :data-field-name='taskField.Link' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Link' :key='fieldItem.fieldName'>
                   <div class='common-link-wrapper'>
-                    <task-linked-content :from-id='taskId' />
+                    <form-linked-content :from-id='taskId' :from-type='contentType.task'/>
                   </div>
                 </div>
                 <div class='form-block' :data-field-name='taskField.Image' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Image' :key='fieldItem.fieldName'>
@@ -505,7 +505,7 @@ import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 import MyVerticalSteps from '@/components/Steps/MyVerticalSteps'
 import storage from 'store'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
-import TaskLinkedContent from '@/components/Task/TaskLinkedContent'
+import FormLinkedContent from '@/components/Common/FormLinkedContent'
 import LinkContentList from '@/components/UnitPlan/LinkContentList'
 import FixedFormHeader from '@/components/Common/FixedFormHeader'
 import FormHeader from '@/components/FormHeader/FormHeader'
@@ -534,7 +534,7 @@ export default {
     FormHeader,
     FixedFormHeader,
     LinkContentList,
-    TaskLinkedContent,
+    FormLinkedContent,
     MyVerticalSteps,
     AddGreenIcon,
     QuickTaskTemplatePreview,

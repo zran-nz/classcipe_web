@@ -63,11 +63,15 @@ import draggable from 'vuedraggable'
 import DeleteIcon from '@/components/Common/DeleteIcon'
 
 export default {
-  name: 'TaskLinkedContent',
+  name: 'FormLinkedContent',
   components: { DeleteIcon, LinkContentItem, LinkedCategory, draggable },
   props: {
     fromId: {
       type: String,
+      required: true
+    },
+    fromType: {
+      type: Number,
       required: true
     },
     canEdit: {
@@ -94,7 +98,7 @@ export default {
     }
   },
   created() {
-    this.$logger.info('TaskLinkedContent ' + this.fromId)
+    this.$logger.info('FormLinkedContent ' + this.fromId)
     this.getAssociate()
   },
   computed: {
@@ -126,11 +130,11 @@ export default {
     },
 
     async getAssociate () {
-      this.$logger.info('GetAssociate id[' + this.fromId)
+      this.$logger.info('GetAssociate id[' + this.fromId + '] [type:' + this.fromType + ']')
       this.linkGroupLoading = true
       await GetAssociate({
         id: this.fromId,
-        type: this.$classcipe.typeMap.task,
+        type: this.fromType,
         published: 0
       }).then(response => {
         this.$logger.info('UnitLinkedContent getAssociate', response)
@@ -167,10 +171,17 @@ export default {
       event.item.parentElement.removeChild(event.item)
       this.$logger.info('item data', itemData)
 
-      const groupName = itemData.type === this.$classcipe.typeMap['unit-plan'] ? 'Relevant Unit Plan(s)' : 'Linked assessment tool(s)'
+      let groupName
+      if (itemData.type === this.$classcipe.typeMap['unit-plan']) {
+        groupName = 'Relevant Unit Plan(s)'
+      } else if (itemData.type === this.$classcipe.typeMap.evaluation) {
+        groupName = 'Linked assessment tool(s)'
+      } else {
+        groupName = 'Linked content(s)'
+      }
       const associateData = {
         fromId: this.fromId,
-        fromType: this.$classcipe.typeMap.task,
+        fromType: this.fromType,
         groupName: groupName,
         otherContents: [
           {
@@ -189,7 +200,7 @@ export default {
       this.$logger.info('handleDeleteGroup', group)
       DeleteGroup({
         fromId: this.fromId,
-        fromType: this.$classcipe.typeMap.task,
+        fromType: this.fromType,
         id: group.id
       }).then(response => {
         this.$logger.info('DeleteGroup', response)
@@ -202,7 +213,7 @@ export default {
       for (let i = 0; i < newGroupNameList.length; i++) {
         await AddOrSaveGroupName({
           fromId: this.fromId,
-          fromType: this.$classcipe.typeMap.task,
+          fromType: this.fromType,
           groupName: newGroupNameList[i]
         })
       }

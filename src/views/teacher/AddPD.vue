@@ -5,6 +5,7 @@
         <form-header
           title='Create PD Content'
           :form='form'
+          :spin='saving'
           :show-share='false'
           :show-collaborate='false'
           :last-change-saved-time='lastChangeSavedTime'
@@ -67,7 +68,7 @@
 
               <div class='form-block tag-content-block' :data-field-name='PdField.Link' v-if='fieldName === PdField.Link' :key='fieldName'>
                 <div class='common-link-wrapper'>
-                  <task-linked-content :from-id='pdId' />
+                  <form-linked-content :from-id='pdId' :from-type='contentType.pd' />
                 </div>
               </div>
 
@@ -79,8 +80,8 @@
                     :slide-id='form.presentationId'
                     :show-materials-and-tips='true'
                     :show-edit-google-slide='true'
-                    :show-display-mode-switch='false'
                     :default-thumbnail-list='thumbnailList'
+                    :selected-template-list='form.selectedTemplateList'
                     @edit-google-slide='handleEditGoogleSlide'
                   />
                 </custom-form-item>
@@ -108,7 +109,7 @@
             <link-content-list :filter-types="[contentType.task]" />
           </template>
           <template v-if='currentRightModule === rightModule.recommend'>
-            <slide-select-list />
+            <slide-select-list :source-id='pdId' :selected-template-list='form.selectedTemplateList' />
           </template>
         </div>
       </div>
@@ -145,18 +146,21 @@ import LinkContentList from '@/components/UnitPlan/LinkContentList'
 import { typeMap } from '@/const/teacher'
 import FormSlide from '@/components/PPT/FormSlide'
 import SlideSelectList from '@/components/PPT/SlideSelectList'
-import TaskLinkedContent from '@/components/Task/TaskLinkedContent'
+import FormLinkedContent from '@/components/Common/FormLinkedContent'
 import { TemplatesGetPresentation } from '@/api/template'
 import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 import CaseVideo from '@/components/PdContent/CaseVideo'
 import PdEvent from '@/components/PdContent/PdEvent'
 import { PublishMixin } from '@/mixins/PublishMixin'
+import { PDContentAddOrUpdate, PDContentQueryById } from '@/api/pdContent'
+import { AutoSaveMixin } from '@/mixins/AutoSaveMixin'
+import SlideEvent from '@/components/PPT/SlideEvent'
 
 export default {
   name: 'AddPD',
   components: {
     CaseVideo,
-    TaskLinkedContent,
+    FormLinkedContent,
     SlideSelectList,
     FormSlide,
     LinkContentList,
@@ -189,7 +193,7 @@ export default {
       }
     }
   },
-  mixins: [ GoogleAuthCallBackMixin, PublishMixin ],
+  mixins: [ GoogleAuthCallBackMixin, PublishMixin, AutoSaveMixin ],
   data() {
     return {
       contentLoading: true,
@@ -201,8 +205,9 @@ export default {
         goals: null,
         customTags: [],
         videoList: [],
+        selectedTemplateList: [],
         presentationId: null,
-        createBy: 'yangxunwu@gmail.com'
+        createBy: null
       },
       contentType: typeMap,
       currentFocusFieldName: null,
@@ -232,6 +237,7 @@ export default {
       PdField.CoverVideo,
       PdField.Goals
     ]
+    this.initData()
     this.loadCustomTags()
     this.handleDisplayRightModule()
     this.loadThumbnail(true)
@@ -239,12 +245,49 @@ export default {
 
     this.$EventBus.$on(PdEvent.PD_VIDEO_ADD, this.handleAddVideo)
     this.$EventBus.$on(PdEvent.PD_VIDEO_DELETE, this.handleDeleteVideo)
+
+    this.$EventBus.$on(SlideEvent.SELECT_TEMPLATE, this.handleSelectTemplate)
+    this.$EventBus.$on(SlideEvent.CANCEL_SELECT_TEMPLATE, this.handleRemoveTemplate)
   },
   beforeDestroy() {
     this.$EventBus.$off(PdEvent.PD_VIDEO_ADD, this.handleAddVideo)
     this.$EventBus.$off(PdEvent.PD_VIDEO_DELETE, this.handleDeleteVideo)
+
+    this.$EventBus.$off(SlideEvent.SELECT_TEMPLATE, this.handleSelectTemplate)
+    this.$EventBus.$off(SlideEvent.CANCEL_SELECT_TEMPLATE, this.handleRemoveTemplate)
   },
   methods: {
+
+    initData () {
+      this.saving = true
+      this.restorePdContent()
+    },
+
+    restorePdContent() {
+      this.$logger.info('restorePdContent ' + this.pdId)
+      PDContentQueryById({
+        id: this.pdId
+      }).then(response => {
+        this.$logger.info('PDContentQueryById ' + this.pdId, response.result)
+        const pdContent = response.result
+        this.form = pdContent
+      }).finally(() => {
+        if (this.form.presentationId) {
+          this.loadThumbnail(false)
+        }
+        this.saving = false
+      })
+    },
+
+    save() {
+      this.saving = true
+      return PDContentAddOrUpdate(this.form).then(res => {
+        this.$logger.info('PDContentAddOrUpdate', res)
+        this.restorePdContent()
+      }).catch(() => {
+        this.saving = false
+      })
+    },
 
     initFormSteps () {
       this.formSteps = [
@@ -291,6 +334,7 @@ export default {
         }
       ]
     },
+
     goBack() {
       this.$router.push({ path: '/teacher/main/created-by-me' })
     },
@@ -314,7 +358,7 @@ export default {
 
     handleAuthCallback() {
       this.$logger.info('handleAuthCallback')
-      this.loadThumbnail(true)
+      this.loadThumbnail(false)
     },
 
     loadThumbnail(needRefresh) {
@@ -330,8 +374,6 @@ export default {
           pageObjects.forEach(page => {
             this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
           })
-        } else if (response.code === 403) {
-          this.$router.push({ path: '/teacher/main/created-by-me' })
         } else if (response.code === this.ErrorCode.ppt_google_token_expires || response.code === this.ErrorCode.ppt_forbidden) {
           this.$logger.info('等待授权事件通知')
         }
@@ -367,15 +409,12 @@ export default {
     async handleEditGoogleSlide() {
       this.editGoogleSlideLoading = true
       this.$logger.info('handleEditGoogleSlide', this.form.presentationId)
-      let res
       if (this.form.presentationId) {
-        res = await this.autoSave()
+        await this.save()
       } else {
         alert('Please create a new presentation first')
       }
-      if (res.code === 0) {
-        window.open('https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit', '_blank')
-      }
+      window.open('https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit', '_blank')
       this.editGoogleSlideLoading = false
     },
 
@@ -469,6 +508,22 @@ export default {
         if (requiredStepIndex !== -1) {
           this.currentActiveStepIndex = requiredStepIndex
         }
+      }
+    },
+
+    handleSelectTemplate (template) {
+      this.$logger.info('handleSelectTemplate', template)
+      const index = this.form.selectedTemplateList.findIndex(item => item.presentationId === template.presentationId)
+      if (index === -1) {
+        this.form.selectedTemplateList.push(template)
+      }
+    },
+
+    handleRemoveTemplate(template) {
+      this.$logger.info('handleRemoveTemplate ', template)
+      const index = this.form.selectedTemplateList.findIndex(item => item.presentationId === template.presentationId)
+      if (index !== -1) {
+        this.form.selectedTemplateList.splice(index, 1)
       }
     }
   }

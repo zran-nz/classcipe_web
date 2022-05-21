@@ -3,6 +3,7 @@ import { debounce } from 'lodash-es'
 export const AutoSaveMixin = {
   data () {
     return {
+      saving: false,
       asyncSaveDataFn: null
     }
   },
@@ -14,15 +15,17 @@ export const AutoSaveMixin = {
     form: {
       deep: true,
       handler(newVal, oldVal) {
-        this.asyncSaveDataFn()
+        if (!this.saving) {
+          this.asyncSaveDataFn()
+        }
       }
     }
   },
   methods: {
-    autoSaveData () {
+    async autoSaveData () {
       this.$logger.info('AutoSaveMixin: autoSaveData', this.form)
       if (this.save) {
-        this.save()
+        await this.save()
       } else {
         this.$logger.warn('AutoSaveMixin: autoSaveData: save method not found')
         alert('AutoSaveMixin: autoSaveData: save method not found')
