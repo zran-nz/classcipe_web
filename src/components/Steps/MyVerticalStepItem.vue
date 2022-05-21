@@ -7,6 +7,11 @@
       <div class='name'>{{ (stepIndex + 1) }}. {{ name }}</div>
       <div class='description'>{{ description }}</div>
     </div>
+    <div class='step-tips' v-if='tips'>
+      <a-tooltip :title="tips" placement="left">
+        <a-icon type="info-circle" :style="{color: '#666'}" />
+      </a-tooltip>
+    </div>
   </div>
 </template>
 
@@ -29,6 +34,10 @@ export default {
       required: true
     },
     description: {
+      type: String,
+      default: null
+    },
+    tips: {
       type: String,
       default: null
     },
@@ -100,6 +109,10 @@ export default {
       color: #171717;
       transition: color 0.3s;
     }
+  }
+
+  .step-tips {
+    margin-left: 5px;
   }
 }
 

@@ -4,6 +4,7 @@
       :name='step.name'
       :current-step-index='currentStepIndex'
       :description='step.description'
+      :tips='step.tips'
       :step-index='sIdx'
       v-for='(step, sIdx) in steps'
       :key='step.id'
