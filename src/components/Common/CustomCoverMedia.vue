@@ -13,8 +13,8 @@
       </div>
       <div class='upload-tips' v-if='!uploading'>
         <custom-media-cover-button label='Set cover image/video' bg-color='#2582B5' font-color='#fff' v-show='showUploadButton'></custom-media-cover-button>
-        <custom-media-cover-button label='Edit' bg-color='#2582B5' font-color='#fff' v-show='showEditButton' @click='handleEdit'></custom-media-cover-button>
-        <custom-media-cover-button label='Delete' bg-color='#2582B5' font-color='#fff' v-show='showDeleteButton' @click='handleDelete'></custom-media-cover-button>
+        <custom-media-cover-button label='Edit' bg-color='#2582B5' font-color='#fff' v-show='showEditButton' @click.native.capture.stop='handleEdit($event)'></custom-media-cover-button>
+        <custom-media-cover-button label='Delete' bg-color='#2582B5' font-color='#fff' v-show='showDeleteButton' @click.native.capture.stop='handleDelete($event)'></custom-media-cover-button>
       </div>
     </a-upload-dragger>
     <div class='uploading-progress' v-show='uploading'>

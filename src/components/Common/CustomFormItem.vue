@@ -3,6 +3,9 @@
     <div class='label' v-if='showLabel'>
       <div class='label-left' :style="{color: labelColor, fontSize: labelSize + 'px'}">
         <slot name='label'></slot>
+        <div class='required' v-if='required'>
+          *Required
+        </div>
         <div class='tips'>
           <slot name='tips'></slot>
         </div>
@@ -32,6 +35,10 @@ export default {
     labelSize: {
       type: Number,
       default: 14
+    },
+    required: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -85,6 +92,12 @@ export default {
       color: #007A8E;
       fill: #007A8E;
     }
+  }
+
+  .required {
+    padding: 0 5px;
+    color: #f5222d;
+    vertical-align: middle;
   }
 
   .form-item-content {

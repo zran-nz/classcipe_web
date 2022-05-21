@@ -99,7 +99,7 @@ export const TaskField = {
 
 export const PdField = {
   Name: 'name',
-  CoverImage: 'coverImage',
+  CoverVideo: 'coverVideo',
   Goals: 'goals',
   Slides: 'slides',
   Link: 'link',
