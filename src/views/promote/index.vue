@@ -8,7 +8,7 @@
 import { SET_PROMOTE_CODE } from '@/store/mutation-types'
 import { mapMutations } from 'vuex'
 export default {
-  name: 'Promote',
+  name: 'PromoteTg',
   props: {
     code: {
       type: String,

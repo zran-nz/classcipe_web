@@ -85,7 +85,7 @@ export const asyncRouterMap = [
             path: '/teacher/main/live-workshops',
             name: 'LiveWorkshops',
             component: () => import('@/views/teacher/LiveWorkShops'),
-            meta: { title: 'menu.live-workshops', keepAlive: true, permission: ['teacher'], icon: DiscoverSvg }
+            meta: { title: 'menu.live-workshops', keepAlive: true, icon: DiscoverSvg }
           },
           {
             path: '/teacher/managing',
@@ -730,7 +730,7 @@ export const constantRouterMap = [
           children: [
             {
               path: '/tg/:code',
-              name: 'Promote',
+              name: 'PromoteTg',
               props: true,
               component: () => import('@/views/promote/index'),
               meta: { title: 'Promote', keepAlive: true }
