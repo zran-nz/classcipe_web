@@ -1,8 +1,12 @@
 <template>
   <div class='cc-form-header-action-bar'>
     <a-space>
+      <div class='spin' v-if='spin'>
+        <a-spin>
+          <a-icon slot="indicator" type="loading" style="font-size: 18px" spin />
+        </a-spin>
+      </div>
       <div class='collaborate-user-list'></div>
-
       <div class='action-item invite' @click="emitEvent('invite')" v-if="showInvite">
         <a-tooltip title='Invite'>
           <invite-icon />
@@ -58,6 +62,10 @@ export default {
       default: false
     },
     showShare: {
+      type: Boolean,
+      default: false
+    },
+    spin: {
       type: Boolean,
       default: false
     }

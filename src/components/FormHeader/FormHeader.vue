@@ -9,10 +9,14 @@
           {{ title }}
         </slot>
       </div>
+      <div class='last-save-date' v-if='lastChangeSavedTime'>
+        last save at {{ lastChangeSavedTime }}
+      </div>
     </div>
     <div class='cc-header-right'>
       <slot name='right'>
         <form-header-action-bar
+          v-bind='$attrs'
           :show-publish="isOwner"
           :show-invite="isOwner"
           :show-collaborate="isOwner || isCollaborater"
@@ -251,5 +255,13 @@ export default {
       padding-left: 10px;
     }
   }
+}
+
+.last-save-date {
+  margin-left: 10px;
+  padding-left: 5px;
+  font-size: 12px;
+  color: #aaa;
+  line-height: 20px;
 }
 </style>
