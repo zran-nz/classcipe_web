@@ -1,11 +1,11 @@
 import request from '@/utils/request'
 
 export const videoAPIUrl = {
-  VideoAddOrUpdate: '/classcipe/api/video/addOrUpdate',
-  VideoQueryById: '/classcipe/api/video/queryById',
-  VideoDelete: '/classcipe/api/video/delete',
-  VideoDeleteBatch: '/classcipe/api/video/deleteBatch',
-  VideoList: '/classcipe/api/video/list'
+  VideoAddOrUpdate: '/classcipe/api/v2/video/addOrUpdate',
+  VideoQueryById: '/classcipe/api/v2/video/queryById',
+  VideoDelete: '/classcipe/api/v2/video/delete',
+  VideoDeleteBatch: '/classcipe/api/v2/video/deleteBatch',
+  VideoList: '/classcipe/api/v2/video/list'
 }
 
 /**
