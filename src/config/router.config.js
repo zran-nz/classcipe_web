@@ -85,7 +85,7 @@ export const asyncRouterMap = [
             path: '/teacher/main/live-workshops',
             name: 'LiveWorkshops',
             component: () => import('@/views/teacher/LiveWorkShops'),
-            meta: { title: 'menu.live-workshops', keepAlive: true, permission: ['teacher'], icon: DiscoverSvg }
+            meta: { title: 'menu.live-workshops', keepAlive: true, icon: DiscoverSvg }
           },
           {
             path: '/teacher/managing',
@@ -718,6 +718,22 @@ export const constantRouterMap = [
               props: true,
               component: () => import('@/views/h5/Live'),
               meta: { title: 'Live', keepAlive: true }
+            }
+          ]
+        },
+
+        {
+          path: '/tg',
+          name: 'Promote',
+          component: H5Layout,
+          meta: { title: 'Promote', keepAlive: true },
+          children: [
+            {
+              path: '/tg/:code',
+              name: 'PromoteTg',
+              props: true,
+              component: () => import('@/views/promote/index'),
+              meta: { title: 'Promote', keepAlive: true }
             }
           ]
         },

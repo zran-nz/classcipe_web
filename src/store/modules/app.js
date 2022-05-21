@@ -16,7 +16,8 @@ import {
   TOGGLE_WEAK,
   TOOGLE_USER_MODE,
   HIDDEN_HEADER,
-  TOGGLE_DEVICE
+  TOGGLE_DEVICE,
+  SET_PROMOTE_CODE
 } from '@/store/mutation-types'
 import { loadLanguageAsync } from '@/locales'
 import { getSysConfig } from '@/api/common'
@@ -42,7 +43,8 @@ const app = {
     sysConfig: null,
     downloadUrl: '',
     userMode: USER_MODE.SELF, // selfStudy: 自学习模式，schoolStudy：学校模式
-    device: DEVICE.DESKTOP
+    device: DEVICE.DESKTOP,
+    promoteCode: ''
   },
   mutations: {
     [HIDDEN_SIDEBAR]: (state, type) => {
@@ -110,6 +112,10 @@ const app = {
     },
     [TOGGLE_DEVICE]: (state, device) => {
       state.device = device
+    },
+    [SET_PROMOTE_CODE]: (state, promoteCode) => {
+      state.promoteCode = promoteCode
+      storage.set(SET_PROMOTE_CODE, promoteCode)
     }
   },
   actions: {

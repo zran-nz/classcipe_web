@@ -50,3 +50,5 @@ export const SET_CLASS_LIST = 'set_class_list'
 export const SET_CURRENT_SCHOOL = 'SET_CURRENT_SCHOOL'
 
 export const TOGGLE_DEVICE = 'TOGGLE_DEVICE'
+
+export const SET_PROMOTE_CODE = 'SET_PROMOTE_CODE'
