@@ -54,8 +54,8 @@
               class='skill-input'
               v-selectPopover="['modal', domFn, skillInput, true]"
               :filter-types='[TagType.skill, TagType.ibSkill, TagType.idu]'
-              :grade-ids='$store.getters.userInfo.preference.gradeIds'
-              :subject-ids='$store.getters.userInfo.preference.subjectIds'
+              :grade-ids='gradeIds'
+              :subject-ids='subjectIds'
               :default-display-name='skillInput.name'
               :default-self-out-subject='skillInput.subjectId ? skillInput.subjectId : null'
               :disabled="!canEdit"
@@ -146,8 +146,8 @@
               class='knowledge-input'
               v-selectPopover="['modal', domFn, knowledgeInput, true]"
               :filter-types='[TagType.knowledge]'
-              :grade-ids='$store.getters.userInfo.preference.gradeIds'
-              :subject-ids='$store.getters.userInfo.preference.subjectIds'
+              :grade-ids='gradeIds'
+              :subject-ids='subjectIds'
               :default-display-name='knowledgeInput.name'
               :default-self-out-subject='knowledgeInput.subjectId ? knowledgeInput.subjectId : null'
               :disabled="!canEdit"
@@ -273,8 +273,8 @@
               class='century-input'
               v-selectPopover="['modal', domFn, centuryInput, true]"
               :filter-types='[TagType.century, TagType.common]'
-              :grade-ids='$store.getters.userInfo.preference.gradeIds'
-              :subject-ids='$store.getters.userInfo.preference.subjectIds'
+              :grade-ids='gradeIds'
+              :subject-ids='subjectIds'
               :default-display-name='centuryInput.name'
               :default-self-out-subject='centuryInput.subjectId ? centuryInput.subjectId : null'
               :disabled="!canEdit"
@@ -368,7 +368,7 @@
       <a-space class="quick-keyword-con">
         <label>Set </label>
         <quick-word-button
-          type="danger"
+          type="black"
           text="Command term"
           @sub="res => handleQuickWordSet(res, 'commandTerms')"
           :quickWord="quickWord"
@@ -385,53 +385,19 @@
               </a-space>
               <!-- <a-divider style="margin: 5px 0;font-size: 14px;">Create</a-divider>
               <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="showQuickWordCreate = true"> Do Create </a-button> -->
-              <div v-show="showQuickWordCreate">
-                <a-form-model
-                  layout="horizontal"
-                  :rules="commandTermRules"
-                  :model="commandTermForm"
-                  ref="commandTermFormRef"
-                  v-bind="{
-                    labelCol: { span: 0 },
-                    wrapperCol: { span: 24 },
-                  }">
-                  <a-form-model-item label="" prop="name" style="margin-bottom:0">
-                    <a-input v-model="commandTermForm.name" placeholder="input command term" />
-                  </a-form-model-item>
-                  <a-form-model-item label="" prop="bloom" style="margin-bottom:0">
-                    <a-select
-                      :getPopupContainer="trigger => trigger.parentElement"
-                      v-model="commandTermForm.bloom"
-                      placeholder="Bloom's Taxonomy"
-                    >
-                      <a-select-option v-for="bloom in bloomOptions" :value="bloom" :key="'bloom_' + bloom">
-                        {{ bloom }}
-                      </a-select-option>
-                    </a-select>
-                  </a-form-model-item>
-                  <a-form-model-item label="" prop="knowledge" style="margin-bottom:10px">
-                    <a-select
-                      :getPopupContainer="trigger => trigger.parentElement"
-                      v-model="commandTermForm.knowledge"
-                      placeholder="Knowledge Dimensions"
-                    >
-                      <a-select-option v-for="item in knowLedgeOptions" :value="item" :key="'knowledge_' + item">
-                        {{ item }}
-                      </a-select-option>
-                    </a-select>
-                  </a-form-model-item>
-                </a-form-model>
-                <a-space>
-                  <a-button :loading="saveCommanTermLoading" @click="handleSaveCommanTerm" size="small" type="primary">Create</a-button>
-                  <a-button @click="showQuickWordCreate = false" size="small" type="">Cancel</a-button>
-                </a-space>
-              </div>
+              <command-term-add
+                v-show="showQuickWordCreate"
+                :customTags="customTags"
+                :initName="commandTermForm.name"
+                @cancel="showQuickWordCreate = false"
+                @save="handleSaveCommanTerm"
+              />
             </div>
           </template>
         </quick-word-button>
         <label> or </label>
         <quick-word-button
-          type="primary"
+          type="black"
           text="Knowledge tag"
           @sub="res => handleQuickWordSet(res, 'knowledgeTags')"
           :quickWord="quickWord"
@@ -456,10 +422,12 @@
   import AddGreenIcon from '@/assets/svgIcon/evaluation/form/tianjia_green.svg?inline'
   import QuickWordButton from '@/components/Button/QuickWordButton'
   import SelfOutsInput from '@/components/UnitPlan/SelfOutsInput'
-  import { KnowledgeTermTagQueryByKeywords, KnowledgeTermTagCustomCreate } from '@/api/knowledgeTermTag'
+  import { KnowledgeTermTagQueryByKeywords } from '@/api/knowledgeTermTag'
   import CustomFormItem from '@/components/Common/CustomFormItem'
   import PlusIcon from '@/components/Common/PlusIcon'
   import DeleteIcon from '@/components/Common/DeleteIcon'
+  import CommandTermAdd from '@/components/CommandTerm/CommandTermAdd.vue'
+  import { mapState } from 'vuex'
 
   export default {
     name: 'UiLearnOut',
@@ -472,7 +440,8 @@
       NoMoreResources,
       AddGreenIcon,
       QuickWordButton,
-      RateLevel
+      RateLevel,
+      CommandTermAdd
     },
     props: {
       learnOuts: {
@@ -493,6 +462,11 @@
       }
     },
     computed: {
+      ...mapState({
+        info: state => state.user.info,
+        gradeIds: state => state.user.info.preference ? state.user.info.preference.gradeIds : [],
+        subjectIds: state => state.user.info.preference ? state.user.info.preference.subjectIds : []
+      }),
       dealPath () {
         return (path) => {
           if (!path) {
@@ -526,26 +500,9 @@
         bloomOptions: [],
         knowLedgeParentId: '',
         knowLedgeOptions: [],
-        saveCommanTermLoading: false,
         KnowledgeTermTagQueryByKeywords: KnowledgeTermTagQueryByKeywords,
         commandTermForm: {
-          name: '',
-          parentId: '',
-          bloom: '',
-          knowledge: ''
-        },
-        commandTermRules: {
-          name: [{ required: true, message: 'Please input term name', trigger: 'blur' }],
-          bloom: [{ required: true, message: 'Please select bloom', trigger: 'change' }],
-          knowledge: [{ required: true, message: 'Please select knowledgeDimension', trigger: 'change' }]
-          // bloom: [
-          //   {
-          //     type: 'array',
-          //     required: true,
-          //     message: 'Please select at least one bloom',
-          //     trigger: 'change'
-          //   }
-          // ]
+          name: ''
         }
       }
     },
@@ -872,8 +829,6 @@
         this.currentObjective = { ...currentChoose }
         this.quickWord = key.split(' ')[0]
         this.commandTermForm.name = this.quickWord
-        this.commandTermForm.bloom = ''
-        this.commandTermForm.knowledge = ''
         this.showQuickWordCreate = false
         // KnowledgeTermTagQueryByKeywords({
         //   keywords: this.quickWord
@@ -941,37 +896,10 @@
           }
         }
       },
-      handleSaveCommanTerm() {
-        this.$refs.commandTermFormRef.validate(valid => {
-          if (valid) {
-            this.saveCommanTermLoading = true
-            KnowledgeTermTagCustomCreate({
-              name: this.commandTermForm.name,
-              bloomTagId: this.bloomParentId,
-              bloomTag: this.commandTermForm.bloom,
-              knowledgeDimensionId: this.knowLedgeParentId,
-              knowledgeDimension: this.commandTermForm.knowledge,
-              type: 1,
-              isGlobal: 2
-            }).then(res => {
-              if (res.success) {
-                 this.handleQuickWordSet({
-                  word: this.commandTermForm.name,
-                  parentId: this.bloomParentId,
-                  tag: this.commandTermForm.bloom,
-                  bloomTag: this.commandTermForm.bloom,
-                  knowledgeDimensionId: this.knowLedgeParentId,
-                  knowledgeDimension: this.commandTermForm.knowledge,
-                  id: res.result.id
-                }, 'commandTerms')
-              }
-            }).finally(() => {
-              this.saveCommanTermLoading = false
-            })
-          } else {
-            return false
-          }
-        })
+      handleSaveCommanTerm(res) {
+        console.log(res)
+        this.handleQuickWordSet(res, 'commandTerms')
+        this.showQuickWordCreate = false
       },
       handleChangeLevel(val, tag) {
         if (val) {

@@ -6,10 +6,18 @@
       <div v-if="content.session && content.session.classId && [WORK_SHOPS_TYPE.LUNCHEDBYME.value, WORK_SHOPS_TYPE.REGISTERED.value].includes(content.workshopsType)" class="cover-btn"><label>Enter workshop</label></div>
     </div>
     <div class='detail' @click.prevent.stop='handlePreviewDetail(content.content)'>
-      <div class='detail-content'>
+      <div class='detail-content' @click.prevent.stop>
         <div class='base-info'>
-          <div class='name'>
+          <div class='name' v-show="!showEditName">
             {{ content.title || content.content.name }}
+            <a-icon v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType" type="edit" @click.prevent.stop="editName(content)"/>
+          </div>
+          <div class="name" v-show="showEditName">
+            <a-input :disabled="loading" :value="choose.title" @change="e => changeTitle(e.target.value, content)"></a-input>
+            <div class="opt">
+              <a-icon type="check" @click.stop.prevent="handleSave(content)" />
+              <a-icon type="close" @click.stop.prevent="handleCancelSingle(content)"/>
+            </div>
           </div>
           <div class='tag-info'></div>
           <!-- <div class='owner'>
@@ -17,8 +25,20 @@
           </div> -->
         </div>
         <div class='right-info' v-if="content.sessionStartTime">
-          <div class='update-time'>
+          <div class='update-time' v-show="!showEditSche">
             Sched: {{ content.sessionStartTime | dayjs }}
+            <a-icon v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType" type="edit" @click.prevent.stop="editSche(content)"/>
+          </div>
+          <div class="update-time" v-show="showEditSche">
+            <a-range-picker
+              :disabled="loading"
+              @change="handleDateChange"
+              format='YYYY-MM-DD HH:mm:ss'
+              :show-time="{ format: 'HH:mm' }"/>
+            <div class="opt">
+              <a-icon type="check" @click.stop.prevent="handleSave(content)" />
+              <a-icon type="close" @click.stop.prevent="handleCancelSingle(content)"/>
+            </div>
           </div>
         </div>
       </div>
@@ -102,15 +122,12 @@
             </custom-button>
           </template>
           <template v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType">
-            <!-- <a-button v-if="WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus" type='primary' shape='round' @click='handleEdit(content)'>
-              <icon-font type="icon-edit" class="detail-font"/>
-              Edit</a-button> -->
-            <custom-button label='Edit' v-if="WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus" @click='handleEdit(content)'>
+            <!-- <custom-button label='Edit' v-if="WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus" @click='handleEdit(content)'>
               <template v-slot:icon>
                 <icon-font type="icon-edit" class="detail-font"/>
               </template>
-            </custom-button>
-            <custom-button label='Relaunch' v-else @click='handleRelaunch(content)'>
+            </custom-button> -->
+            <custom-button label='Relaunch' v-if="WORK_SHOPS_STATUS.SCHEDULE.value !== content.workshopsStatus" @click='handleRelaunch(content)'>
               <template v-slot:icon>
                 <icon-font type="icon-tizhibianbie-zhongxinceshi" class="detail-font"/>
               </template>
@@ -140,7 +157,7 @@
 <script>
 import { WORK_SHOPS_STATUS, WORK_SHOPS_TYPE, USER_MODE } from '@/const/common'
 import { SaveRegisteredRecord, CancelRegistered } from '@/api/v2/live'
-import { DeleteClassV2 } from '@/api/v2/classes'
+import { DeleteClassV2, EditSessionScheduleV2 } from '@/api/v2/classes'
 import { lessonHost } from '@/const/googleSlide'
 import { typeMap } from '@/const/teacher'
 import PriceSlider from '@/components/Slider/PriceSlider'
@@ -151,6 +168,7 @@ import PreviewContent from '@/components/MyContentV2/PreviewContent'
 import { ContentItemMixin } from '@/mixins/ContentItemMixin'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 import storage from 'store'
+import moment from 'moment'
 import { mapState } from 'vuex'
 
 export default {
@@ -176,7 +194,15 @@ export default {
       WORK_SHOPS_TYPE: WORK_SHOPS_TYPE,
       shareVisible: false,
       shareItem: {},
-      showTagLen: 2
+      showTagLen: 2,
+      showEditName: false,
+      showEditSche: false,
+      choose: {
+        title: '',
+        startDate: null,
+        endData: null
+      },
+      loading: false
     }
   },
   computed: {
@@ -230,6 +256,19 @@ export default {
         })
       }
     },
+    editName(item) {
+      this.showEditName = true
+      this.choose = { ...item }
+      this.choose.startDate = item.sessionStartTime
+      this.choose.endData = item.sessionEndTime
+    },
+    editSche(item) {
+      this.showEditSche = true
+      this.choose = { ...item }
+      this.choose.startDate = item.sessionStartTime
+      this.choose.endData = item.sessionEndTime
+      console.log(this.choose)
+    },
     visibleChange(visible, content) {
       if (visible && content.name) {
         this.shareVisible = false
@@ -256,6 +295,38 @@ export default {
     },
     handleCloseShare () {
       this.shareVisible = false
+    },
+    changeTitle(value, item) {
+      this.choose.title = value
+    },
+    handleCancelSingle(item) {
+      this.showEditName = false
+      this.showEditSche = false
+    },
+    handleDateChange (date, dateString) {
+      this.choose.startDate = moment(date[0].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
+      this.choose.endData = moment(date[1].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
+    },
+    handleSave(item) {
+      const params = {
+        startDate: this.choose.startDate,
+        endData: this.choose.endData,
+        register: {
+          title: this.choose.title
+        },
+        id: item.id
+      }
+      this.loading = true
+      EditSessionScheduleV2(params).then(res => {
+        if (res.success) {
+          this.$message.success('Opt Successfully')
+          item.title = this.choose.title
+          this.showEditName = false
+          this.showEditSche = false
+        }
+      }).finally(res => {
+        this.loading = false
+      })
     },
     handleGoWork(item) {
       if (item && item.session && item.session.classId && [WORK_SHOPS_TYPE.LUNCHEDBYME.value, WORK_SHOPS_TYPE.REGISTERED.value].includes(item.workshopsType)) {
@@ -295,7 +366,7 @@ export default {
     },
     handleRelaunch(item) {
       this.$router.push({
-        path: '/teacher/schedule-session/' + item.content.id + '/' + item.content.type
+        path: '/teacher/live-workshop/' + item.content.id + '/' + item.content.type
       })
     },
     handleDel(item) {
@@ -390,6 +461,7 @@ export default {
       display: flex;
       flex-direction: row;
       justify-content: space-between;
+      align-items: center;
 
       .base-info {
         flex: 1;
@@ -398,7 +470,7 @@ export default {
           font-family: Arial;
           font-weight: bold;
           color: #17181A;
-          width: calc(100% - 2.5em);
+          width: calc(100% - 3em);
           word-break: break-all;
           text-overflow: ellipsis;
           display: -webkit-box;
@@ -407,6 +479,17 @@ export default {
           /* autoprefixer: on */
           -webkit-line-clamp: 2;
           overflow: hidden;
+          position: relative;
+          .opt {
+            position: absolute;
+            right: 0;
+            top: 0;
+            i {
+              color: @primary-color;
+              margin-right: 5px;
+              font-size: 14px;
+            }
+          }
         }
         .owner {
           font-size: 0.18em /* 18/100 */;
@@ -416,13 +499,28 @@ export default {
         }
       }
       .right-info {
-        width: 2.5em;
+        width: 3em;
         text-align: right;
         .update-time {
           font-size: 0.18em /* 18/100 */;
           font-family: Arial;
           font-weight: 400;
           color: #4B4B4B;
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+          /deep/ .ant-calendar-picker {
+            padding-right: 20px;
+          }
+          .opt {
+            position: absolute;
+            right: 0;
+            i {
+              color: @primary-color;
+              margin-right: 5px;
+              font-size: 14px;
+            }
+          }
         }
       }
     }

@@ -237,4 +237,10 @@ export default {
     }
   }
 }
+/deep/ .ant-btn-black {
+  background: #484D53;
+  color: #fff;
+  border-radius: 4px;
+  font-size: 12px;
+}
 </style>
