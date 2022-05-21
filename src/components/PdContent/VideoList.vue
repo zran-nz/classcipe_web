@@ -1,7 +1,13 @@
 <template>
   <div class='video-list'>
     <div class='video-item' v-for='videoItem in videoList' :key='videoItem.url'>
-      <custom-cover-media type='video' :url='videoItem.url' />
+      <custom-cover-media
+        :show-delete-button='true'
+        :show-upload-button='false'
+        :show-edit-button='true'
+        :video-item='videoItem'
+        type='video'
+        :url='videoItem.url' />
     </div>
   </div>
 </template>
@@ -30,4 +36,15 @@ export default {
 <style lang='less' scoped>
 @import "~@/components/index.less";
 
+.video-list {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+
+  .video-item {
+    margin-right: 10px;
+    margin-bottom: 10px;
+  }
+}
 </style>

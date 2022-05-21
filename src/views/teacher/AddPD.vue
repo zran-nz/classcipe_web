@@ -148,6 +148,7 @@ import TaskLinkedContent from '@/components/Task/TaskLinkedContent'
 import { TemplatesGetPresentation } from '@/api/template'
 import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 import CaseVideo from '@/components/PdContent/CaseVideo'
+import PdEvent from '@/components/PdContent/PdEvent'
 
 export default {
   name: 'AddPD',
@@ -257,6 +258,13 @@ export default {
     this.handleDisplayRightModule()
     this.loadThumbnail(true)
     this.contentLoading = false
+
+    this.$EventBus.$on(PdEvent.PD_VIDEO_ADD, this.handleAddVideo)
+    this.$EventBus.$on(PdEvent.PD_VIDEO_DELETE, this.handleDeleteVideo)
+  },
+  beforeDestroy() {
+    this.$EventBus.$off(PdEvent.PD_VIDEO_ADD, this.handleAddVideo)
+    this.$EventBus.$off(PdEvent.PD_VIDEO_DELETE, this.handleDeleteVideo)
   },
   methods: {
     goBack() {
@@ -405,6 +413,19 @@ export default {
 
     handleChangeCustomTags(tags) {
       this.form.customTags = tags
+    },
+
+    handleAddVideo (url) {
+      this.form.videoList.push({
+        url
+      })
+    },
+
+    handleDeleteVideo(videoItem) {
+      const index = this.form.videoList.findIndex(item => item.url === videoItem.url)
+      if (index > -1) {
+        this.form.videoList.splice(index, 1)
+      }
     }
   }
 }

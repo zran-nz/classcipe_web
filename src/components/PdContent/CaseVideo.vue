@@ -3,7 +3,7 @@
     <div class='action-bar'>
       <a-space>
         <classcipe-drive />
-        <screen-capture />
+        <screen-capture @capture-done='handleCapturedVideoData'/>
       </a-space>
     </div>
     <div class='video-list'>
@@ -27,7 +27,11 @@ export default {
   },
   created() {
   },
-  methods: {}
+  methods: {
+    handleCapturedVideoData(data) {
+
+    }
+  }
 }
 </script>
 

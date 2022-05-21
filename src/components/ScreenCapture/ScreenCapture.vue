@@ -1,5 +1,6 @@
 <template>
   <div class='screen-capture'>
+    <RecordVideo v-if='recording' :onSend="onSendVideo" :cancel="cancelRecord" />
     <custom-text-button label='Screen Capture' @click='handleScreenCapture'>
       <template v-slot:icon>
         <a-icon type='plus-circle' />
@@ -11,25 +12,31 @@
 <script>
 
 import CustomTextButton from '@/components/Common/CustomTextButton'
-import { screenCapture } from '@/utils/screenCapture'
+import RecordVideo from '@/components/AddMaterial/Video/RecordVideo'
+import PdEvent from '@/components/PdContent/PdEvent'
 export default {
   name: 'ScreenCapture',
-  components: { CustomTextButton },
+  components: { RecordVideo, CustomTextButton },
   data() {
     return {
-      recordChunks: []
+      recording: false
     }
   },
-  created() {
-  },
   methods: {
-    async handleScreenCapture () {
+    handleScreenCapture () {
       this.$logger.info('handleScreenCapture')
-      await screenCapture(this.handleScreenCaptureFinish)
+      this.recording = true
     },
-    handleScreenCaptureFinish (data) {
-      this.$logger.info('ScreenCapture end', data)
-      this.recordChunks = data
+
+    onSendVideo(url) {
+      this.$logger.info('onSendVideo', url)
+      this.recording = false
+      this.$EventBus.$emit(PdEvent.PD_VIDEO_ADD, url)
+    },
+
+    cancelRecord (data) {
+      this.$logger.info('cancelRecord', data)
+      this.recording = false
     }
   }
 }
@@ -38,4 +45,15 @@ export default {
 <style lang='less' scoped>
 @import "~@/components/index.less";
 
+.fixed-capture-preview {
+  position: fixed;
+  right: 10px;
+  top: 10px;
+  width: 280px;
+  height: 150px;
+  z-index: 5000;
+  video {
+    z-index: 5000;
+  }
+}
 </style>

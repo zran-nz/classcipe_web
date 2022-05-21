@@ -1,8 +1,8 @@
 <template>
   <div
     class='cc-custom-button'
-    @click='handleClick'
-    @dblclick='handleDbClick'
+    @click.stop='handleClick'
+    @dblclick.stop='handleDbClick'
     :style="{
       backgroundColor: bgColor,
       color: fontColor

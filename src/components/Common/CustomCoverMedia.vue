@@ -13,8 +13,8 @@
       </div>
       <div class='upload-tips' v-if='!uploading'>
         <custom-media-cover-button label='Set cover image/video' bg-color='#2582B5' font-color='#fff' v-show='showUploadButton'></custom-media-cover-button>
-        <custom-media-cover-button label='Edit' bg-color='#2582B5' font-color='#fff' v-show='showEditButton' @click.stop='handleEdit'></custom-media-cover-button>
-        <custom-media-cover-button label='Delete' bg-color='#2582B5' font-color='#fff' v-show='showDeleteButton' @click.stop='handleDelete'></custom-media-cover-button>
+        <custom-media-cover-button label='Edit' bg-color='#2582B5' font-color='#fff' v-show='showEditButton' @click='handleEdit'></custom-media-cover-button>
+        <custom-media-cover-button label='Delete' bg-color='#2582B5' font-color='#fff' v-show='showDeleteButton' @click='handleDelete'></custom-media-cover-button>
       </div>
     </a-upload-dragger>
     <div class='uploading-progress' v-show='uploading'>
@@ -121,14 +121,17 @@ export default {
     },
 
     handleEdit () {
+      this.$logger.info('handleEdit', this.videoItem)
       this.$EventBus.$emit(PdEvent.PD_VIDEO_EDIT, this.videoItem)
     },
 
     handleDelete () {
+      this.$logger.info('handleDelete', this.videoItem)
       this.$EventBus.$emit(PdEvent.PD_VIDEO_DELETE, this.videoItem)
     },
 
     handleUpdate () {
+      this.$logger.info('handleUpdate', this.videoItem)
       this.$EventBus.$emit(PdEvent.PD_VIDEO_UPDATE, this.videoItem)
     }
   }
@@ -155,18 +158,24 @@ export default {
     .upload-tips {
       display: none;
       position: absolute;
-      top: 40%;
+      top: 35%;
       left: 50%;
       margin-left: -90px;
       width: 180px;
       align-items: center;
       justify-content: center;
       flex-direction: row;
+
+      .cc-custom-button {
+        min-width: 120px;
+        margin: 5px 0;
+      }
     }
 
     &:hover {
       .upload-tips {
         display: flex;
+        flex-direction: column;
       }
     }
   }
