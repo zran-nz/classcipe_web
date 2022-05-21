@@ -387,8 +387,7 @@
               <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="showQuickWordCreate = true"> Do Create </a-button> -->
               <command-term-add
                 v-show="showQuickWordCreate"
-                :bloomOptions="bloomOptions"
-                :knowLedgeOptions="knowLedgeOptions"
+                :customTags="customTags"
                 :initName="commandTermForm.name"
                 @cancel="showQuickWordCreate = false"
                 @save="handleSaveCommanTerm"
@@ -898,7 +897,9 @@
         }
       },
       handleSaveCommanTerm(res) {
+        console.log(res)
         this.handleQuickWordSet(res, 'commandTerms')
+        this.showQuickWordCreate = false
       },
       handleChangeLevel(val, tag) {
         if (val) {

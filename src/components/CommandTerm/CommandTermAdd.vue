@@ -47,13 +47,9 @@ import { KnowledgeTermTagQueryByKeywords, KnowledgeTermTagCustomCreate } from '@
 export default {
   name: 'CommandTermAdd',
   props: {
-    bloomOptions: {
-      type: Array,
-      default: () => []
-    },
-    knowLedgeOptions: {
-      type: Array,
-      default: () => []
+    customTags: {
+      type: Object,
+      default: () => {}
     },
     initName: {
       type: String,
@@ -67,6 +63,10 @@ export default {
   },
   data() {
     return {
+      bloomParentId: '',
+      bloomOptions: [],
+      knowLedgeParentId: '',
+      knowLedgeOptions: [],
       saveCommanTermLoading: false,
       KnowledgeTermTagQueryByKeywords: KnowledgeTermTagQueryByKeywords,
       commandTermForm: {
@@ -82,7 +82,30 @@ export default {
       }
     }
   },
+  created() {
+    this.initBloomOptions()
+  },
   methods: {
+    initBloomOptions () {
+      if (this.customTags && this.customTags.recommends) {
+        const bloom = this.customTags.recommends.find(item => item.name === "Bloom's Taxonomy")
+        if (bloom) {
+          this.bloomOptions = bloom.keywords
+          this.bloomParentId = bloom.id
+        } else {
+          this.bloomOptions = []
+          this.bloomParentId = ''
+        }
+        const knowLedge = this.customTags.recommends.find(item => item.name === 'Knowledge Dimensions')
+        if (knowLedge) {
+          this.knowLedgeOptions = knowLedge.keywords
+          this.knowLedgeParentId = knowLedge.id
+        } else {
+          this.knowLedgeOptions = []
+          this.knowLedgeParentId = ''
+        }
+      }
+    },
     handleSaveCommanTerm() {
       this.$refs.commandTermFormRef.validate(valid => {
         if (valid) {
@@ -96,8 +119,8 @@ export default {
             type: 1,
             isGlobal: 2
           }).then(res => {
-            if (res.success) {
-              this.$$emit('save', {
+            if (res.code === 0) {
+              this.$emit('save', {
                 word: this.commandTermForm.name,
                 parentId: this.bloomParentId,
                 tag: this.commandTermForm.bloom,
@@ -106,6 +129,8 @@ export default {
                 knowledgeDimension: this.commandTermForm.knowledge,
                 id: res.result.id
               })
+            } else {
+              this.$message.error(res.message)
             }
           }).finally(() => {
             this.saveCommanTermLoading = false
