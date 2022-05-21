@@ -1,11 +1,11 @@
 import request from '@/utils/request'
 
 export const pdContentAPIUrl = {
-  PDContentAddOrUpdate: '/classcipe/api/pdContent/addOrUpdate',
-  PDContentQueryById: '/classcipe/api/pdContent/queryById',
-  PDContentDelete: '/classcipe/api/pdContent/delete',
-  PDContentDeleteBatch: '/classcipe/api/pdContent/deleteBatch',
-  PDContentList: '/classcipe/api/pdContent/list'
+  PDContentAddOrUpdate: '/classcipe/api/v2/pd/addOrUpdate',
+  PDContentQueryById: '/classcipe/api/v2/pd/queryById',
+  PDContentDelete: '/classcipe/api/v2/pd/delete',
+  PDContentDeleteBatch: '/classcipe/api/v2/pd/deleteBatch',
+  PDContentList: '/classcipe/api/v2/pd/list'
 }
 
 /**

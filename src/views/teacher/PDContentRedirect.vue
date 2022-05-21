@@ -5,8 +5,8 @@
 </template>
 
 <script>
-// import { PDContentAddOrUpdate } from '@/api/pdContent'
-// import * as logger from '@/utils/logger'
+import { PDContentAddOrUpdate } from '@/api/pdContent'
+import * as logger from '@/utils/logger'
 
 export default {
   name: 'PDContentRedirect',
@@ -20,25 +20,19 @@ export default {
     if (this.pdId !== 'create') {
       this.$router.replace('/teacher/pd-content/' + this.pdId)
     } else {
-      // const pdData = {
-      //   name: 'Unnamed PD Content'
-      // }
-
-      // TODO 创建PD Content
-      // TODO 删除mock数据
-      this.$router.replace({
-        path: '/teacher/pd-content/1506828908248494082'
+      const pdData = {
+        name: 'Unnamed PD Content'
+      }
+      PDContentAddOrUpdate(pdData).then((response) => {
+        logger.info('PDContentAddOrUpdate response', response.result)
+        if (response.success) {
+          this.$router.replace({
+            path: '/teacher/pd-content/' + response.result.id
+          })
+        } else {
+          this.$message.error(response.message)
+        }
       })
-      // PDContentAddOrUpdate(pdData).then((response) => {
-      //   logger.info('PDContentAddOrUpdate response', response.result)
-      //   if (response.success) {
-      //     this.$router.replace({
-      //       path: '/teacher/pd-content/' + response.result.id
-      //     })
-      //   } else {
-      //     this.$message.error(response.message)
-      //   }
-      // })
     }
   }
 }
