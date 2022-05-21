@@ -471,7 +471,7 @@
 <script>
 import { typeMap } from '@/const/teacher'
 import { FindSourceOutcomes, GetAssociate, GetMyGrades, GetReferOutcomes } from '@/api/teacher'
-import { FilterTemplates, TemplatesGetPresentation } from '@/api/template'
+import { TemplatesGetPresentation } from '@/api/template'
 import { MyContentEvent, MyContentEventBus } from '@/components/MyContent/MyContentEventBus'
 import { TaskAddOrUpdate, TaskCreateNewTaskPPT, TaskQueryById } from '@/api/task'
 import Collaborate from '@/components/UnitPlan/Collaborate'
@@ -598,7 +598,6 @@ export default {
       },
       gradeList: [],
 
-      templateList: [],
       templateLoading: false,
       selectedTemplateList: [],
 
@@ -739,22 +738,9 @@ export default {
   methods: {
     initData() {
       this.$logger.info('initData doing...')
-      Promise.all([
-        GetMyGrades(),
-        FilterTemplates({})
-      ]).then((response) => {
+      GetMyGrades.then((response) => {
         this.$logger.info('add task initData done', response)
-
-        // GetMyGrades
-        if (!response[0].code) {
-          this.$logger.info('GetMyGrades', response[0].result)
-          this.gradeList = response[0].result
-        }
-
-        if (!response[1].code) {
-          this.$logger.info('template list', response[1].result)
-          this.templateList = response[1].result
-        }
+        this.gradeList = response.result
       }).then(() => {
         if (this.taskId) {
           this.$logger.info('restore task data ' + this.taskId)
