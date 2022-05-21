@@ -110,6 +110,18 @@ export const PdField = {
   Video: 'video'
 }
 
+export const VideoField = {
+  Name: 'name',
+  Goals: 'goals',
+  ContentType: 'contentType',
+  CoverVideo: 'coverVideo',
+  Image: 'image',
+  CustomTags: 'customTags',
+  LearnOuts: 'learnOuts',
+  SubjectIds: 'subjectIds',
+  Link: 'link'
+}
+
 export const TaskFieldDisplayName = {
   name: 'Task name',
   taskType: 'Choose Task Type',

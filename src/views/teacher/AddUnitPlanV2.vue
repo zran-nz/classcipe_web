@@ -2649,7 +2649,11 @@ export default {
 
     handleUpdateCover (coverData) {
       this.$logger.info('handleUpdateCover', coverData)
-      this.form.image = coverData.url
+      if (coverData.type === 'video') {
+        this.form.coverVideo = coverData.url
+      } else {
+        this.form.image = coverData.url
+      }
     }
   }
 }
