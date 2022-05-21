@@ -722,6 +722,22 @@ export const constantRouterMap = [
           ]
         },
 
+        {
+          path: '/tg',
+          name: 'Promote',
+          component: H5Layout,
+          meta: { title: 'Promote', keepAlive: true },
+          children: [
+            {
+              path: '/tg/:code',
+              name: 'Promote',
+              props: true,
+              component: () => import('@/views/promote/index'),
+              meta: { title: 'Promote', keepAlive: true }
+            }
+          ]
+        },
+
          {
            path: '/404',
            component: () => import(/* webpackChunkName: "fail" */ '@/views/exception/404')
