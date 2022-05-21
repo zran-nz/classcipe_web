@@ -8,13 +8,14 @@
           :show-share='false'
           :show-collaborate='false'
           :last-change-saved-time='lastChangeSavedTime'
+          @publish='handlePublish'
           @back='goBack'>
         </form-header>
       </template>
       <template v-slot:nav>
         <my-vertical-steps
           ref='steps-nav'
-          :steps='pdSteps'
+          :steps='formSteps'
           :step-index='currentActiveStepIndex'
           @step-change='handleStepChange' />
       </template>
@@ -25,12 +26,12 @@
           <div
             class='form-page-item'
             v-show='currentActiveStepIndex === stepIndex'
-            v-for='(step, stepIndex) in pdSteps'
+            v-for='(step, stepIndex) in formSteps'
             :key='step.id'>
             <div class='form-field-item' v-for='fieldName in step.commonFields' :key='fieldName'>
 
               <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === PdField.Name' :key='fieldName'>
-                <custom-form-item>
+                <custom-form-item :required='emptyRequiredFields.indexOf(PdField.Name) !== -1'>
                   <template slot='label'>
                     Name
                   </template>
@@ -41,17 +42,17 @@
                 </custom-form-item>
               </div>
 
-              <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === PdField.CoverImage' :key='fieldName'>
-                <custom-form-item>
+              <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === PdField.CoverVideo' :key='fieldName'>
+                <custom-form-item :required='emptyRequiredFields.indexOf(PdField.CoverVideo) !== -1'>
                   <template slot='label'>
                     Cover image / Video
                   </template>
-                  <custom-cover-media :type='form.coverType' :url='form.coverUrl' @update='handleUpdateCover'/>
+                  <custom-cover-media :type='form.coverType' :url='form.coverVideo' @update='handleUpdateCover'/>
                 </custom-form-item>
               </div>
 
               <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === PdField.Goals' :key='fieldName'>
-                <custom-form-item>
+                <custom-form-item :required='emptyRequiredFields.indexOf(PdField.Goals) !== -1'>
                   <template slot='label'>
                     Goals
                   </template>
@@ -149,6 +150,7 @@ import { TemplatesGetPresentation } from '@/api/template'
 import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 import CaseVideo from '@/components/PdContent/CaseVideo'
 import PdEvent from '@/components/PdContent/PdEvent'
+import { PublishMixin } from '@/mixins/PublishMixin'
 
 export default {
   name: 'AddPD',
@@ -187,57 +189,27 @@ export default {
       }
     }
   },
-  mixins: [ GoogleAuthCallBackMixin ],
+  mixins: [ GoogleAuthCallBackMixin, PublishMixin ],
   data() {
     return {
       contentLoading: true,
       form: {
         name: null,
+        contentType: 1,
         coverType: null,
-        coverUrl: null,
+        coverVideo: null,
         goals: null,
         customTags: [],
         videoList: [],
         presentationId: null,
-        createBy: null
+        createBy: 'yangxunwu@gmail.com'
       },
       contentType: typeMap,
       currentFocusFieldName: null,
       customTagList: [],
       customTags: {},
       PdField: PdField,
-      pdSteps: [
-        {
-          id: 1,
-          name: 'PD goals',
-          commonFields: [
-            PdField.Name,
-            PdField.CoverImage,
-            PdField.Goals
-          ]
-        },
-        {
-          id: 2,
-          name: 'Edit Slides',
-          commonFields: [
-            PdField.Slides
-          ]
-        },
-        {
-          id: 3,
-          name: 'Link Tasks',
-          commonFields: [
-            PdField.Link
-          ]
-        },
-        {
-          id: 4,
-          name: 'Case Video',
-          commonFields: [
-            PdField.Video
-          ]
-        }
-      ],
+
       pdFieldTagMap: {
         [PdField.Goals]: []
       },
@@ -249,11 +221,17 @@ export default {
     }
   },
   created() {
-    if (this.currentActiveStepIndex < 0 || this.currentActiveStepIndex > this.pdSteps.length - 1) {
+    this.initFormSteps()
+    if (this.currentActiveStepIndex < 0 || this.currentActiveStepIndex > this.formSteps.length - 1) {
       this.currentActiveStepIndex = 0
     }
-    this.currentStep = this.pdSteps[this.currentActiveStepIndex]
+    this.currentStep = this.formSteps[this.currentActiveStepIndex]
     this.currentFocusFieldName = this.currentStep.commonFields[0]
+    this.requiredFields = [
+      PdField.Name,
+      PdField.CoverVideo,
+      PdField.Goals
+    ]
     this.loadCustomTags()
     this.handleDisplayRightModule()
     this.loadThumbnail(true)
@@ -267,6 +245,52 @@ export default {
     this.$EventBus.$off(PdEvent.PD_VIDEO_DELETE, this.handleDeleteVideo)
   },
   methods: {
+
+    initFormSteps () {
+      this.formSteps = [
+        {
+          id: 1,
+          name: 'PD goals',
+          commonFields: [
+            PdField.Name,
+            PdField.CoverVideo,
+            PdField.Goals
+          ],
+          showRequiredTips: false,
+          showSatisfiedTips: false
+        },
+        {
+          id: 2,
+          name: 'Edit Slides',
+          commonFields: [
+            PdField.Slides
+          ],
+          showRequiredTips: false,
+          showSatisfiedTips: false
+        },
+        {
+          id: 3,
+          name: 'Link Tasks',
+          commonFields: [
+            PdField.Link
+          ],
+          showRequiredTips: false,
+          showSatisfiedTips: false
+        },
+        {
+          id: 4,
+          name: 'Case Video',
+          commonFields: [
+            PdField.Video
+          ],
+          tips: 'You can publish case study video to library for other teachers to purchase and develop their professional skills',
+          skip: true,
+          needSchedule: true,
+          showRequiredTips: false,
+          showSatisfiedTips: false
+        }
+      ]
+    },
     goBack() {
       this.$router.push({ path: '/teacher/main/created-by-me' })
     },
@@ -337,7 +361,7 @@ export default {
     handleUpdateCover (coverData) {
       this.$logger.info('handleUpdateCover', coverData)
       this.form.coverType = coverData.type
-      this.form.coverUrl = coverData.url
+      this.form.coverVideo = coverData.url
     },
 
     async handleEditGoogleSlide() {

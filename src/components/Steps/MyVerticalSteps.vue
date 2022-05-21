@@ -5,6 +5,8 @@
       :current-step-index='currentStepIndex'
       :description='step.description'
       :tips='step.tips'
+      :show-required-tips='step.showRequiredTips'
+      :show-satisfied-tips='step.showSatisfiedTips'
       :step-index='sIdx'
       v-for='(step, sIdx) in steps'
       :key='step.id'

@@ -1,6 +1,6 @@
 <template>
-  <div class='my-vertical-step-item' :class="{'my-vertical-step-item-active': stepIndex === currentStepIndex}">
-    <div class='step-check-icon' :style="{'opacity': stepIndex == currentStepIndex ? '1' : '0'}">
+  <div class='my-vertical-step-item' :class="{ 'my-vertical-step-item-active': stepIndex === currentStepIndex, 'is-satisfied': showRequiredTips, 'is-required': showRequiredTips }">
+    <div class='step-check-icon' :style="{'opacity': stepIndex == currentStepIndex && !showRequiredTips ? '1' : '0'}">
       <check-icon :size='15' />
     </div>
     <div class='step-info'>
@@ -9,7 +9,15 @@
     </div>
     <div class='step-tips' v-if='tips'>
       <a-tooltip :title="tips" placement="left">
-        <a-icon type="info-circle" :style="{color: '#666'}" />
+        <a-icon type="question-circle" :style="{color: '#666'}" />
+      </a-tooltip>
+    </div>
+    <div class='satisfied-step check-result-icon' v-if='showSatisfiedTips'>
+      <a-icon type="check-circle" :style="{fontSize: '20px', color: 'green'}" />
+    </div>
+    <div class='required-step check-result-icon' v-if='showRequiredTips'>
+      <a-tooltip title="Current step has unfilled required fields">
+        <a-icon type="exclamation-circle" :style="{fontSize: '20px', color: 'red'}" />
       </a-tooltip>
     </div>
   </div>
@@ -44,6 +52,14 @@ export default {
     showIndex: {
       type: Boolean,
       default: true
+    },
+    showSatisfiedTips: {
+      type: Boolean,
+      default: false
+    },
+    showRequiredTips: {
+      type: Boolean,
+      default: false
     }
   }
 }
@@ -116,6 +132,18 @@ export default {
   }
 }
 
+.is-required {
+  .step-info {
+    .name {
+      color: #f5222d;
+    }
+  }
+
+  &::before {
+    background-color: #f5222d;
+  }
+}
+
 .my-vertical-step-item-active {
   background-color: #F8F9FB;
   &::before {
@@ -130,5 +158,16 @@ export default {
 
 .step-check-icon {
   margin-right: 6px;
+}
+
+.check-result-icon {
+  position: absolute;
+  top: 0;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  right: 15px;
+  font-size: 14px;
 }
 </style>
