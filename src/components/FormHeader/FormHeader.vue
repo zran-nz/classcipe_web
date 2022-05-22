@@ -4,7 +4,7 @@
       <div class='cc-back-icon' @click='handleBack'>
         <back-arrow-icon />
       </div>
-      <div class='cc-header-title'>
+      <div class='cc-header-title' @click='handleBack'>
         <slot name='left'>
           {{ title }}
         </slot>
