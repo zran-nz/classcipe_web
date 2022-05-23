@@ -27,7 +27,7 @@
         <youtube v-bind='$attrs' />
       </div>
       <div v-show='currentDriveType === DriveType.GoogleImage'>
-        <google-image v-bind='$attrs' />
+        <google-image v-bind='$attrs' :doneSelect='handleSelectGoogleImage' />
       </div>
       <div v-show='currentDriveType === DriveType.Upload'>
         <upload v-bind='$attrs' />
@@ -47,6 +47,7 @@ import Youtube from '@/components/ClasscipeDrive/Content/Youtube'
 import GoogleImage from '@/components/ClasscipeDrive/Content/GoogleImage'
 import GoogleDrive from '@/components/ClasscipeDrive/Content/GoogleDrive'
 import Upload from '@/components/ClasscipeDrive/Content/Upload'
+import ClasscipeDriveEvent from '@/components/ClasscipeDrive/ClasscipeDriveEvent'
 
 export default {
   name: 'ClasscipeDrive',
@@ -68,9 +69,15 @@ export default {
     }
   },
   created() {
+    this.$EventBus.$on(ClasscipeDriveEvent.INSERT_GOOGLE_IMAGE, this.handleSelectGoogleImage)
+  },
+  beforeDestroy() {
+    this.$EventBus.$off(ClasscipeDriveEvent.INSERT_GOOGLE_IMAGE, this.handleSelectGoogleImage)
   },
   methods: {
-
+    handleSelectGoogleImage (url) {
+      this.$logger.info('handleSelectGoogleImage', url)
+    }
   }
 }
 </script>
