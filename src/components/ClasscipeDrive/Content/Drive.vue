@@ -261,7 +261,7 @@ export default {
 
     handleInsertSelected () {
       this.$logger.info('handleInsertSelected', this.selectedList)
-      this.$EventBus.$emit(ClasscipeDriveEvent.INSERT_SELECTED_DRIVE_ITEM, this.selectedList)
+      this.$EventBus.$emit(ClasscipeDriveEvent.INSERT_DRIVE_ITEM, this.selectedList)
     }
   }
 }

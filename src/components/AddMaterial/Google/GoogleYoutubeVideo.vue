@@ -60,7 +60,7 @@
       <div class="selected-action">
         <div class="modal-ensure-action-line-center">
           <a-space>
-            <a-button class="action-item action-cancel" shape="round" @click="cancel">Cancel</a-button>
+            <a-button class="action-item action-cancel" shape="round" @click="cancel" v-if='showCancel'>Cancel</a-button>
             <a-button
               class="action-ensure action-item"
               type="primary"
@@ -85,6 +85,10 @@ export default {
     nextYoutube: {
       type: Function,
       required: true
+    },
+    showCancel: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -93,27 +97,11 @@ export default {
       keywords: '',
       choose: {},
       chooseVideoId: '',
-      videos: [
-        // {
-        //   link: 'https://www.youtube.com/embed/k5Bgw6-Zj_c?showinfo=0&modestbranding=1&rel=0',
-        //   thumbnail: 'https://i.ytimg.com/vi/k5Bgw6-Zj_c/default.jpg',
-        //   title: 'ABC',
-        //   description:
-        //     'Provided to YouTube by Universal Music Group ABC · Lola Indigo Toy Story ℗ 2022 Universal Music Spain, S.L.U. Released on: ...',
-        //   date: '2022-04-07 22:01:35',
-        //   videoId: 'k5Bgw6-Zj_c'
-        // }
-      ]
+      videos: []
     }
   },
 
   created() {},
-  watch: {
-    videoId() {}
-  },
-  mounted() {
-    this.$logger.info(this.videoId, 'watch videoId')
-  },
   methods: {
     searchVideo() {
       if (this.keywords.trim().length > 0) {
@@ -152,6 +140,7 @@ export default {
     },
     cancel() {
       this.nextYoutube()
+      this.$emit('cancel')
     },
     chooseVideo(item) {
       logger.info('chooseVideo', item)
