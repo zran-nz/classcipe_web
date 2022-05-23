@@ -1198,6 +1198,24 @@ textarea.cc-form-textarea-white-bg {
   }
 }
 
+
+.cc-select-white-no-round {
+  min-width: 150px;
+  width: 100%;
+
+  .ant-select-selection, .ant-select-selection:active {
+    box-shadow: none;
+    background: #fff;
+    border: 1px solid #D9DCDF;
+  }
+
+  .ant-select-selection__placeholder, .ant-select-selection-selected-value{
+    font-weight: 400;
+    color: #131824;
+  }
+
+}
+
 .cc-radio-group {
   .ant-radio-button-wrapper-checked {
     background-color: #363B4C !important;
@@ -1222,5 +1240,26 @@ textarea.cc-form-textarea-white-bg {
       font-weight: 400;
       color: #131824;
     }
+  }
+}
+
+.classcipe-drive-modal {
+  .ant-modal-content {
+    background-color: #f1f1f1;
+  }
+
+  .ant-modal-header {
+    background-color: #f1f1f1;
+  }
+}
+
+.cc-checkbox {
+  .ant-checkbox-wrapper:hover .ant-checkbox-inner, .ant-checkbox:hover .ant-checkbox-inner, .ant-checkbox-input:focus + .ant-checkbox-inner {
+    border-color: #363B4C;
+  }
+
+  .ant-checkbox-checked .ant-checkbox-inner {
+    background-color: #363B4C;
+    border-color: #363B4C;
   }
 }

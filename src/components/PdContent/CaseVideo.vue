@@ -2,7 +2,7 @@
   <div class='case-video'>
     <div class='action-bar'>
       <a-space>
-        <classcipe-drive />
+        <classcipe-drive-button />
         <screen-capture @capture-done='handleCapturedVideoData'/>
       </a-space>
     </div>
@@ -14,13 +14,13 @@
 
 <script>
 
-import ClasscipeDrive from '@/components/ClasscipeDrive/ClasscipeDrive'
+import ClasscipeDriveButton from '@/components/ClasscipeDrive/ClasscipeDriveButton'
 import ScreenCapture from '@/components/ScreenCapture/ScreenCapture'
 import VideoList from '@/components/PdContent/VideoList'
 
 export default {
   name: 'CaseVideo',
-  components: { VideoList, ScreenCapture, ClasscipeDrive },
+  components: { VideoList, ScreenCapture, ClasscipeDriveButton },
   data() {
     return {
     }

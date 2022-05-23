@@ -31,7 +31,7 @@
             :key='step.id'>
             <div class='form-field-item' v-for='fieldName in step.commonFields' :key='fieldName'>
 
-              <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === VideoField.Name' :key='fieldName'>
+              <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === VideoField.Name && form.coverVideo' :key='fieldName'>
                 <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.Name) !== -1'>
                   <template slot='label'>
                     Name
@@ -40,6 +40,12 @@
                     v-model='form.name'
                     placeholder='Enter PD Content Name'
                     class='cc-form-input' />
+                </custom-form-item>
+              </div>
+
+              <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === VideoField.CoverVideo' :key='fieldName'>
+                <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.CoverVideo) !== -1' :show-label='false'>
+                  <video-select />
                 </custom-form-item>
               </div>
 
@@ -87,10 +93,12 @@ import { typeMap } from '@/const/teacher'
 import { PublishMixin } from '@/mixins/PublishMixin'
 import { VideoAddOrUpdate, VideoQueryById } from '@/api/video'
 import { AutoSaveMixin } from '@/mixins/AutoSaveMixin'
+import VideoSelect from '@/components/Video/VideoSelect'
 
 export default {
   name: 'AddPD',
   components: {
+    VideoSelect,
     CustomCoverMedia,
     FixedFormHeader,
     FormHeader,
@@ -188,7 +196,7 @@ export default {
           commonFields: [
             VideoField.Name,
             VideoField.CoverVideo,
-            VideoField.CoverImage,
+            VideoField.CoverImage
           ],
           showRequiredTips: false,
           showSatisfiedTips: false

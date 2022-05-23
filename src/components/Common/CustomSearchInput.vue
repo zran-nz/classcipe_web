@@ -73,7 +73,7 @@ export default {
     align-items: center;
     flex-direction: row;
     justify-content: flex-end;
-    padding-right: 5px;
+    padding-right: 10px;
     cursor: pointer;
 
     svg {
