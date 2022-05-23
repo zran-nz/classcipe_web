@@ -345,8 +345,10 @@ export default {
           sessionId: item.sessionId
         }).then(res => {
           if (res.success) {
-            this.$message.success('Register successfully')
-            this.$emit('reload')
+            this.$message.success('You have successfully registered in')
+            setTimeout(() => {
+              this.$emit('reload')
+            }, 300)
           }
         })
       }

@@ -337,8 +337,12 @@ export const NOTIFY_TYPE = {
     label: 'All teachers',
     value: 1
   },
-  FILTER: {
-    label: 'Filter teachers by Years or Subjects',
+  FILTER_SUBJECTS: {
+    label: 'Filter teachers by Subjects',
     value: 2
+  },
+  FILTER_YEARS: {
+    label: 'Filter teachers by Years',
+    value: 3
   }
 }
