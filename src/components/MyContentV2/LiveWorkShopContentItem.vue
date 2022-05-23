@@ -82,7 +82,7 @@
           </div>
         </div>
         <a-space @click.prevent.stop>
-          <div v-if="content.session && content.session.zoomMeeting" class='zoom-icon' @click.prevent.stop="handleToZoom(content)">
+          <div v-if="WORK_SHOPS_TYPE.REGISTERED.value === content.workshopsType && content.session && content.session.zoomMeeting" class='zoom-icon' @click.prevent.stop="handleToZoom(content)">
             <img src='~@/assets/icons/zoom/img.png' />
           </div>
           <a-tooltip
