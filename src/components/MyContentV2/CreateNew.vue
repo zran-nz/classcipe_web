@@ -12,7 +12,7 @@
         </a-menu-item>
         <a-menu-item>
           <router-link to='/teacher/pd-content-redirect/create'>
-            PD CONTENT
+            PD Content
           </router-link>
         </a-menu-item>
         <a-menu-item>
