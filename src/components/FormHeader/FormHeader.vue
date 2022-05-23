@@ -9,14 +9,21 @@
           {{ title }}
         </slot>
       </div>
-      <div class='last-save-date' v-if='lastChangeSavedTime'>
-        last save at {{ lastChangeSavedTime }}
+      <div class='last-save-date'>
+        <div class='spin' v-if='spin'>
+          <a-spin>
+            <a-icon slot="indicator" type="loading" style="font-size: 18px" spin />
+          </a-spin>
+          &nbsp;Saving...
+        </div>
+        <div class='last-save-date-text' v-if='lastChangeSavedTime && !spin'>
+          last save at {{ lastChangeSavedTime }}
+        </div>
       </div>
     </div>
     <div class='cc-header-right'>
       <slot name='right'>
         <form-header-action-bar
-          v-bind='$attrs'
           :show-publish="isOwner"
           :show-invite="isOwner"
           :show-collaborate="isOwner || isCollaborater"
@@ -77,6 +84,10 @@ export default {
       default: true
     },
     isPreviewMode: {
+      type: Boolean,
+      default: false
+    },
+    spin: {
       type: Boolean,
       default: false
     }
@@ -261,7 +272,7 @@ export default {
   margin-left: 10px;
   padding-left: 5px;
   font-size: 12px;
-  color: #aaa;
+  color: #999;
   line-height: 20px;
 }
 </style>

@@ -80,7 +80,7 @@
 
             <custom-button :label="content.status === 0 ? 'Publish' : 'UnPublish'" @click='handlePublishStatus'>
               <template v-slot:icon>
-                <publish1-icon />
+                <publish-icon />
               </template>
             </custom-button>
           </a-space>
@@ -106,7 +106,7 @@ import PreviewContent from '@/components/MyContentV2/PreviewContent'
 import CustomButton from '@/components/Common/CustomButton'
 import SubTaskIcon from '@/assets/v2/icons/sub-task.svg?inline'
 import EditIcon from '@/assets/v2/icons/edit.svg?inline'
-import Publish1Icon from '@/assets/v2/icons/publish_01.svg?inline'
+import PublishIcon from '@/assets/v2/icons/publish_new.svg?inline'
 import ScheduleIcon from '@/assets/v2/icons/schedule.svg?inline'
 import OriginalTipsIcon from '@/assets/v2/icons/original_tips.svg?inline'
 import DeleteIcon from '@/assets/v2/icons/delete.svg?inline'
@@ -119,7 +119,7 @@ export default {
     PreviewContent,
     SubTaskIcon,
     EditIcon,
-    Publish1Icon,
+    PublishIcon,
     ScheduleIcon,
     OriginalTipsIcon,
     DeleteIcon,

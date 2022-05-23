@@ -1,11 +1,6 @@
 <template>
   <div class='cc-form-header-action-bar'>
     <a-space>
-      <div class='spin' v-if='spin'>
-        <a-spin>
-          <a-icon slot="indicator" type="loading" style="font-size: 18px" spin />
-        </a-spin>
-      </div>
       <div class='collaborate-user-list'></div>
       <div class='action-item invite' @click="emitEvent('invite')" v-if="showInvite">
         <a-tooltip title='Invite'>
@@ -24,7 +19,7 @@
       </div>
       <div class='action-item publish' @click="emitEvent('publish')" v-if="showPublish">
         <a-tooltip title='Publish'>
-          <publish-icon />
+          <publish-icon style='width: 20px; height: 20px;' />
         </a-tooltip>
       </div>
     </a-space>
@@ -34,7 +29,7 @@
 <script>
 import MessageIcon from '@/assets/v2/icons/message.svg?inline'
 import InviteIcon from '@/assets/v2/icons/header_invite.svg?inline'
-import PublishIcon from '@/assets/v2/icons/header_publish.svg?inline'
+import PublishIcon from '@/assets/v2/icons/publish_new.svg?inline'
 import ShareIcon from '@/assets/v2/icons/header_share.svg?inline'
 
 export default {
@@ -62,10 +57,6 @@ export default {
       default: false
     },
     showShare: {
-      type: Boolean,
-      default: false
-    },
-    spin: {
       type: Boolean,
       default: false
     }
