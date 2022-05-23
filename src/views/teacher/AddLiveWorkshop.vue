@@ -54,29 +54,13 @@
             </div>
           </template>
           <template v-else>
-            <a-radio-group class="notify-session" v-model="form.notifyType">
+            <a-radio-group class="notify-session" v-model="form.notifyType" @change="changeNotifyType">
               <a-radio v-for="item in NOTIFY_TYPE" :value="item.value" :key="item.value">
                 {{ item.label }}
-                <a-popover title="Teachers" placement="right" v-show="item.value === NOTIFY_TYPE.FILTER.value" >
-                  <template slot="content">
-                    <div class="member-list" v-if="memberList && memberList.length > 0">
-                      <div class="member-item" v-for="member in memberList" :key="member.id">
-                        <a-avatar class="item-avatar" icon="user" v-if="!member.avatar"/>
-                        <img :src="member.avatar" class="item-avatar" v-else alt="">
-                        <div class="item-detail">
-                          <label for="">{{ member.realname }}</label>
-                          <label>{{ member.email }}</label>
-                        </div>
-                      </div>
-                    </div>
-                    <div v-else style="color: #666; font-size: 12px;">No results</div>
-                  </template>
-                  <span class="detail-font"><icon-font type="icon-xuesheng"/></span>
-                </a-popover>
 
               </a-radio>
             </a-radio-group>
-            <div class="filter-session" v-show="form.notifyType === NOTIFY_TYPE.FILTER.value">
+            <div class="filter-session" v-show="form.notifyType === NOTIFY_TYPE.FILTER_SUBJECTS.value">
               <a-select
                 @change="changeFilter"
                 v-model="filter.subjects"
@@ -88,7 +72,24 @@
                   {{ item.label }}
                 </a-select-option>
               </a-select>
-
+              <a-popover title="Teachers" placement="right" >
+                <template slot="content">
+                  <div class="member-list" v-if="memberList && memberList.length > 0">
+                    <div class="member-item" v-for="member in memberList" :key="member.id">
+                      <a-avatar class="item-avatar" icon="user" v-if="!member.avatar"/>
+                      <img :src="member.avatar" class="item-avatar" v-else alt="">
+                      <div class="item-detail">
+                        <label for="">{{ member.realname }}</label>
+                        <label>{{ member.email }}</label>
+                      </div>
+                    </div>
+                  </div>
+                  <div v-else style="color: #666; font-size: 12px;">No results</div>
+                </template>
+                <span class="detail-font"><icon-font type="icon-xuesheng"/></span>
+              </a-popover>
+            </div>
+            <div class="filter-session" v-show="form.notifyType === NOTIFY_TYPE.FILTER_YEARS.value">
               <a-select
                 @change="changeFilter"
                 v-model="filter.ages"
@@ -100,6 +101,22 @@
                   {{ item.label }}
                 </a-select-option>
               </a-select>
+              <a-popover title="Teachers" placement="right" >
+                <template slot="content">
+                  <div class="member-list" v-if="memberList && memberList.length > 0">
+                    <div class="member-item" v-for="member in memberList" :key="member.id">
+                      <a-avatar class="item-avatar" icon="user" v-if="!member.avatar"/>
+                      <img :src="member.avatar" class="item-avatar" v-else alt="">
+                      <div class="item-detail">
+                        <label for="">{{ member.realname }}</label>
+                        <label>{{ member.email }}</label>
+                      </div>
+                    </div>
+                  </div>
+                  <div v-else style="color: #666; font-size: 12px;">No results</div>
+                </template>
+                <span class="detail-font"><icon-font type="icon-xuesheng"/></span>
+              </a-popover>
             </div>
           </template>
         </div>
@@ -305,11 +322,15 @@ export default {
       }
     },
 
+    changeNotifyType() {
+      this.changeFilter()
+    },
+
     changeFilter() {
-      if (USER_MODE.SCHOOL === this.userMode) {
+      if (USER_MODE.SCHOOL === this.userMode && this.form.notifyType !== NOTIFY_TYPE.ALL.value) {
         queryTeachers({
-          gradeIds: this.filter.ages,
-          subjectIds: this.filter.subjects,
+          gradeIds: this.form.notifyType === NOTIFY_TYPE.FILTER_YEARS.value ? this.filter.ages : [],
+          subjectIds: this.form.notifyType === NOTIFY_TYPE.FILTER_SUBJECTS.value ? this.filter.subjects : [],
           schoolId: this.currentSchool.id
         }).then(res => {
           if (res.success) {
@@ -419,6 +440,11 @@ export default {
         this.$message.error('Please Input Schedule Date')
         return
       }
+      let notifyType = this.userMode === USER_MODE.SELF ? null : this.form.notifyType
+      // server只有1、2，所以前端 3和2 传递的都是2
+      if (notifyType === NOTIFY_TYPE.FILTER_YEARS.value) {
+        notifyType = NOTIFY_TYPE.FILTER_SUBJECTS.value
+      }
       const params = {
         startDate: this.startDate,
         endData: this.endData,
@@ -429,11 +455,11 @@ export default {
         register: {
           ...this.form,
           paidType: Number(this.form.paidType),
-          notifyType: this.userMode === USER_MODE.SELF ? null : this.form.notifyType,
+          notifyType: notifyType,
           notifyStudents: this.memberList.map(item => item.id)
         }
       }
-      if (params.register.notifyType === NOTIFY_TYPE.FILTER.value && this.memberList.length === 0) {
+      if (params.register.notifyType !== NOTIFY_TYPE.ALL.value && this.memberList.length === 0) {
         params.register.notifyType = NOTIFY_TYPE.ALL.value
       }
       console.log(params)
@@ -597,6 +623,7 @@ export default {
 .filter-session {
   margin-top: 20px;
   display: flex;
+  align-items: center;
   .filter-select {
     margin-right: 20px;
     flex: 1;
