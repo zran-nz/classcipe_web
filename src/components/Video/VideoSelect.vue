@@ -2,7 +2,7 @@
   <div class='video-select'>
     <div class='video-select-action'>
       <a-space>
-        <classcipe-drive-button />
+        <classcipe-drive-button filter-file-type='video' />
         <screen-capture />
       </a-space>
     </div>

@@ -16,7 +16,7 @@
       class='classcipe-drive-modal'
       @ok="driveVisible = false"
       @cancel="driveVisible = false">
-      <classcipe-drive />
+      <classcipe-drive v-bind='$attrs'/>
     </a-modal>
   </div>
 </template>

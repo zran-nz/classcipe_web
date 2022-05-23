@@ -13,13 +13,24 @@
     </div>
     <div class='upload-text' v-if="mediaType === 'video' && mediaUrl">
       <video :src='mediaUrl' :controls='videoControls'></video>
+      <div class='media-info'>
+        <div class='media-title'>
+          {{ mediaTitle }}
+        </div>
+        <div class='media-size'>
+          {{ mediaSize | sizeFormat }}
+        </div>
+      </div>
     </div>
     <div class='upload-tips'>
-      <custom-media-cover-button label='Select' bg-color='#2582B5' font-color='#fff'>
+      <custom-media-cover-button :label='showMaskSelected ? "Cancel" : "Select"' bg-color='#2582B5' font-color='#fff' @click='handleSelectItem'>
         <template v-slot:icon>
-          <a-icon type='plus-circle' />
+          <a-icon type='plus-circle' v-if='!showMaskSelected' />
         </template>
       </custom-media-cover-button>
+    </div>
+    <div class='selected-mask' v-if='showMaskSelected'>
+      <img src="~@/assets/icons/lesson/selected.png" alt='selected'/>
     </div>
   </div>
 </template>
@@ -64,6 +75,15 @@ export default {
     mediaItem: {
       type: Object,
       default: null
+    },
+    showMaskSelected: {
+      type: Boolean,
+      default: false
+    }
+  },
+  methods: {
+    handleSelectItem() {
+      this.$emit('click', this.mediaItem)
     }
   }
 }
@@ -75,7 +95,7 @@ export default {
 .custom-cover-media {
   border-radius: 4px;
   border: 1px solid #E1E1E1;
-  box-shadow: 0px 1px 2px 0px rgba(65, 65, 65, 0.07);
+  box-shadow: 0 1px 2px 0 rgba(65, 65, 65, 0.07);
   position: relative;
 
   .upload-tips {
@@ -88,6 +108,7 @@ export default {
     align-items: center;
     justify-content: center;
     flex-direction: row;
+    z-index: 1000;
 
     .cc-custom-button {
       min-width: 120px;
@@ -99,6 +120,23 @@ export default {
     .upload-tips {
       display: flex;
       flex-direction: column;
+    }
+  }
+
+  .selected-mask {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 500;
+
+    img {
+      width: 16px;
+      position: absolute;
+      right: 10px;
+      top: 10px;
     }
   }
 }
@@ -142,12 +180,38 @@ export default {
 }
 
 .upload-text {
-  width: 100%;
   height: 100%;
 
   video {
     width: 100%;
-    height: 100%;
+    height: calc(100% - 50px);
+  }
+
+  .media-info {
+    height: 50px;
+    background-color: rgba(255, 255, 255, 0.5);
+    padding: 0 5px;
+    .media-title {
+      font-family: Arial;
+      color: #282828;
+      height: 30px;
+      line-height: 30px;
+      text-overflow: ellipsis;
+      word-break: break-word;
+      user-select: none;
+      overflow: hidden;
+    }
+
+    .media-size {
+      font-family: Arial;
+      height: 20px;
+      line-height: 15px;
+      font-size: 12px;
+      text-overflow: ellipsis;
+      word-break: break-word;
+      user-select: none;
+      overflow: hidden;
+    }
   }
 }
 </style>

@@ -28,10 +28,13 @@
           <custom-media-item
             width='230px'
             height='180px'
+            @click='handleSelectItem(fileItem)'
+            :show-mask-selected='selectedList.indexOf(fileItem) !== -1'
             :media-title='fileItem.fileName'
             :media-size='fileItem.fileLength'
             :media-url='fileItem.filePath'
             :media-type='fileItem.fileType'
+            :video-controls='false'
             :media-item='fileItem' />
         </div>
       </div>
@@ -53,16 +56,22 @@
           <custom-media-item
             width='230px'
             height='180px'
+            @click='handleSelectItem(fileItem)'
+            :show-mask-selected='selectedList.indexOf(fileItem) !== -1'
             :media-title='fileItem.fileName'
             :media-size='fileItem.fileLength'
             :media-url='fileItem.filePath'
             :media-type='fileItem.fileType'
+            :video-controls='false'
             :media-item='fileItem' />
         </div>
       </div>
       <div class='list-loading' v-show='loading'>
         <a-spin tip='loading...' />
       </div>
+    </div>
+    <div class='drive-action'>
+      <a-button type='primary' :disabled='selectedList.length === 0' @click='handleInsertSelected'>Insert</a-button>
     </div>
   </div>
 </template>
@@ -76,6 +85,7 @@ import CustomMediaItem from '@/components/Common/CustomMediaItem'
 import * as logger from '@/utils/logger'
 import ContentItem from '@/components/MyContentV2/ContentItem'
 import CustomTextButton from '@/components/Common/CustomTextButton'
+import ClasscipeDriveEvent from '@/components/ClasscipeDrive/ClasscipeDriveEvent'
 
 const searchModeType = {
   fileName: 'fileName',
@@ -95,6 +105,11 @@ export default {
     filterFileType: {
       type: String,
       default: 'image'
+    },
+    // 最多允许选择的数量
+    maxSelectedNum: {
+      type: Number,
+      default: 1
     }
   },
   data() {
@@ -115,10 +130,13 @@ export default {
       pageNo: 0,
       pageSize: 50,
 
-      currentContentItem: null
+      currentContentItem: null,
+
+      selectedList: []
     }
   },
   created() {
+    this.$logger.info('Drive created ' + this.filterFileType)
     this.initData()
   },
   methods: {
@@ -227,6 +245,23 @@ export default {
     contentSubGoBack () {
       this.searchMode = this.searchModeType.content
       this.currentContentItem = null
+    },
+
+    handleSelectItem(fileItem) {
+      if (this.selectedList.indexOf(fileItem) === -1) {
+        this.selectedList.push(fileItem)
+      } else {
+        this.selectedList.splice(this.selectedList.indexOf(fileItem), 1)
+      }
+
+      if (this.selectedList.length > this.maxSelectedNum) {
+        this.selectedList.splice(0, this.selectedList.length - this.maxSelectedNum)
+      }
+    },
+
+    handleInsertSelected () {
+      this.$logger.info('handleInsertSelected', this.selectedList)
+      this.$EventBus.$emit(ClasscipeDriveEvent.INSERT_SELECTED_DRIVE_ITEM, this.selectedList)
     }
   }
 }
@@ -245,7 +280,7 @@ export default {
 
 .drive-content {
   margin-top: 20px;
-  height: 450px;
+  height: 430px;
   overflow-y: auto;
   .file-list {
     display: flex;
@@ -254,6 +289,7 @@ export default {
     flex-wrap: wrap;
     justify-content: flex-start;
     .file-item {
+      position: relative;
       margin-right: 13px;
       margin-bottom: 15px;
     }
@@ -271,6 +307,14 @@ export default {
   }
 }
 
+.drive-action {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+}
+
 .content-list {
   padding-right: 10px;
   .content-item {
@@ -282,6 +326,9 @@ export default {
 .content-sub-file-back {
   font-size: 15px;
   font-weight: bold;
+}
+
+.selected-item {
 }
 
 </style>
