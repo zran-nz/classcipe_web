@@ -1,7 +1,7 @@
 <template>
   <div class='classcipe-drive'>
     <div class='drive-type-switch'>
-      <a-radio-group :default-value="currentDriveType" button-style="solid" class='cc-radio-group' v-model='currentDriveType' >
+      <a-radio-group :default-value="currentDriveType" button-style="solid" class='cc-radio-group' v-model='currentDriveType' @change='driveTypeChange' >
         <a-radio-button :value="DriveType.ClasscipeDrive">
           Classcipe Drive
         </a-radio-button>
@@ -33,7 +33,7 @@
         <upload v-bind='$attrs' />
       </div>
       <div v-show='currentDriveType === DriveType.GoogleDrive'>
-        <google-drive v-bind='$attrs' />
+        <google-drive v-bind='$attrs' :drive-loading='driveLoading' @show-google-drive='handleShowGoogleDrive'/>
       </div>
     </div>
   </div>
@@ -48,6 +48,7 @@ import GoogleImage from '@/components/ClasscipeDrive/Content/GoogleImage'
 import GoogleDrive from '@/components/ClasscipeDrive/Content/GoogleDrive'
 import Upload from '@/components/ClasscipeDrive/Content/Upload'
 import ClasscipeDriveEvent from '@/components/ClasscipeDrive/ClasscipeDriveEvent'
+import GooglePicker from '@/components/AddMaterial/Utils/GooglePicker'
 
 export default {
   name: 'ClasscipeDrive',
@@ -65,16 +66,19 @@ export default {
   data() {
     return {
       DriveType: DriveType,
-      currentDriveType: DriveType.ClasscipeDrive
+      currentDriveType: DriveType.ClasscipeDrive,
+      driveLoading: false
     }
   },
   created() {
     this.$EventBus.$on(ClasscipeDriveEvent.INSERT_GOOGLE_IMAGE, this.handleSelectGoogleImage)
     this.$EventBus.$on(ClasscipeDriveEvent.INSERT_YOUTUBE_ITEM, this.handleSelectYoutube)
+    this.$EventBus.$on(ClasscipeDriveEvent.INSERT_GOOGLE_DRIVE, this.handleSelectGoogleDrive)
   },
   beforeDestroy() {
     this.$EventBus.$off(ClasscipeDriveEvent.INSERT_GOOGLE_IMAGE, this.handleSelectGoogleImage)
     this.$EventBus.$off(ClasscipeDriveEvent.INSERT_YOUTUBE_ITEM, this.handleSelectYoutube)
+    this.$EventBus.$off(ClasscipeDriveEvent.INSERT_GOOGLE_DRIVE, this.handleSelectGoogleDrive)
   },
   methods: {
     handleSelectGoogleImage (url) {
@@ -82,6 +86,32 @@ export default {
     },
     handleSelectYoutube (youtubeItem) {
       this.$logger.info('handleSelectYoutube', youtubeItem)
+    },
+    handleSelectGoogleDrive (url, mediaType) {
+      this.$logger.info('handleSelectGoogleDrive', url, mediaType)
+    },
+
+    driveTypeChange() {
+      this.$logger.info('driveTypeChange', this.currentDriveType)
+      this.handleShowGoogleDrive()
+    },
+
+    handleShowGoogleDrive() {
+      if (this.currentDriveType === this.DriveType.GoogleDrive) {
+        GooglePicker.init(
+          driveUpLoadProgress => {
+            this.driveLoading = true
+          },
+          (type, url, mediaType) => {
+            if (url) {
+              this.$logger.info('GooglePicker addDrive done', url, mediaType)
+              this.handleSelectGoogleDrive(url, mediaType)
+            }
+            this.driveLoading = false
+          },
+          this.$store.getters.userInfo.id
+        )
+      }
     }
   }
 }
