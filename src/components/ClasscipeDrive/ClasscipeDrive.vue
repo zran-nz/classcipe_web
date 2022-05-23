@@ -70,13 +70,18 @@ export default {
   },
   created() {
     this.$EventBus.$on(ClasscipeDriveEvent.INSERT_GOOGLE_IMAGE, this.handleSelectGoogleImage)
+    this.$EventBus.$on(ClasscipeDriveEvent.INSERT_YOUTUBE_ITEM, this.handleSelectYoutube)
   },
   beforeDestroy() {
     this.$EventBus.$off(ClasscipeDriveEvent.INSERT_GOOGLE_IMAGE, this.handleSelectGoogleImage)
+    this.$EventBus.$off(ClasscipeDriveEvent.INSERT_YOUTUBE_ITEM, this.handleSelectYoutube)
   },
   methods: {
     handleSelectGoogleImage (url) {
       this.$logger.info('handleSelectGoogleImage', url)
+    },
+    handleSelectYoutube (youtubeItem) {
+      this.$logger.info('handleSelectYoutube', youtubeItem)
     }
   }
 }

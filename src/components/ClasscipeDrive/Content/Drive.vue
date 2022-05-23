@@ -280,7 +280,7 @@ export default {
 
 .drive-content {
   margin-top: 20px;
-  height: 430px;
+  height: 400px;
   overflow-y: auto;
   .file-list {
     display: flex;
