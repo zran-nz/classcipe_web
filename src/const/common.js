@@ -114,6 +114,7 @@ export const VideoField = {
   Name: 'name',
   Goals: 'goals',
   ContentType: 'contentType',
+  CoverImage: 'coverImage',
   CoverVideo: 'coverVideo',
   Image: 'image',
   CustomTags: 'customTags',

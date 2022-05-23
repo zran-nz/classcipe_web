@@ -117,9 +117,6 @@
       </div>
     </div>
     <fixed-form-footer>
-      <template v-slot:left>
-        <a-button class='cc-round-button' @click="goBack">Discard</a-button>
-      </template>
       <template v-slot:right>
         <a-button type='primary' :loading="confirmLoading" @click='handleNextStep' class='cc-round-button'>Next</a-button>
       </template>

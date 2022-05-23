@@ -397,9 +397,6 @@
       </div>
     </div>
     <fixed-form-footer>
-      <template v-slot:left>
-        <a-button class='cc-round-button'>Discard</a-button>
-      </template>
       <template v-slot:right>
         <a-button type='primary' @click='handleNextStep' class='cc-round-button'>Next</a-button>
       </template>

@@ -1,7 +1,11 @@
 <template>
   <div class='cc-fixed-form-footer' :style="{left: collapsed ? $classcipe.sysConfig.collapsedSidebarWidth + 'px' : $classcipe.sysConfig.sidebarWidth + 'px'}">
-    <slot name='left'></slot>
-    <slot name='right'></slot>
+    <div class='left'>
+      <slot name='left'></slot>
+    </div>
+    <div class='right'>
+      <slot name='right'></slot>
+    </div>
   </div>
 </template>
 
