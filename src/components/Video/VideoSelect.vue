@@ -15,7 +15,6 @@
       <video-viewer
         v-if='currentMediaFileUrl'
         :media-url='currentMediaFileUrl'
-        :media-type='currentMediaType'
         :drive-type='currentDriveType' />
     </div>
   </div>
@@ -32,11 +31,32 @@ import VideoEvent from '@/components/Video/VideoEvent'
 export default {
   name: 'VideoSelect',
   components: { VideoViewer, ScreenCapture, ClasscipeDriveButton, CustomTextButton },
+  props: {
+    defaultVideo: {
+      type: String,
+      default: null
+    },
+    defaultType: {
+      type: String,
+      default: null
+    }
+  },
   data() {
     return {
       currentMediaFileUrl: null,
-      currentMediaType: null,
       currentDriveType: null
+    }
+  },
+  watch: {
+    defaultVideo(val) {
+      if (!this.currentMediaFileUrl) {
+        this.currentMediaFileUrl = val
+      }
+    },
+    defaultType(val) {
+      if (!this.currentDriveType) {
+        this.currentDriveType = val
+      }
     }
   },
   created() {
@@ -44,6 +64,11 @@ export default {
     this.$EventBus.$on(ClasscipeDriveEvent.INSERT_YOUTUBE_ITEM, this.handleSelectYoutube)
     this.$EventBus.$on(ClasscipeDriveEvent.INSERT_GOOGLE_DRIVE, this.handleSelectGoogleDrive)
     this.$EventBus.$on(VideoEvent.VIDEO_ADD, this.handleAddScreenCapture)
+
+    if (this.defaultVideo) {
+      this.currentMediaFileUrl = this.defaultVideo
+      this.currentDriveType = this.defaultType
+    }
   },
   beforeDestroy() {
     this.$EventBus.$off(ClasscipeDriveEvent.INSERT_DRIVE_ITEM, this.handleSelectDriveItem)
@@ -55,21 +80,18 @@ export default {
     handleSelectDriveItem (driveItem) {
       this.$logger.info('handleSelectDriveItem', driveItem[[0]])
       this.currentMediaFileUrl = driveItem[0].filePath
-      this.currentMediaType = driveItem[0].fileType
       this.currentDriveType = DriveType.ClasscipeDrive
       this.afterSelectInsert()
     },
     handleSelectYoutube (youtubeItem) {
       this.$logger.info('handleSelectYoutube', youtubeItem)
       this.currentMediaFileUrl = youtubeItem.link
-      this.currentMediaType = 'youtube'
       this.currentDriveType = DriveType.Youtube
       this.afterSelectInsert()
     },
     handleSelectGoogleDrive (googleDriveItem) {
       this.$logger.info('handleSelectGoogleDrive', googleDriveItem)
       this.currentMediaFileUrl = googleDriveItem.url
-      this.currentMediaType = 'video'
       this.currentDriveType = DriveType.GoogleDrive
       this.afterSelectInsert()
     },
@@ -77,17 +99,15 @@ export default {
     handleAddScreenCapture (url) {
       this.$logger.info('handleAddScreenCapture', url)
       this.currentMediaFileUrl = url
-      this.currentMediaType = 'video'
       this.currentDriveType = DriveType.Upload
       this.afterSelectInsert()
     },
 
     afterSelectInsert() {
-      this.$logger.info('handleAddScreenCapture done', this.currentMediaFileUrl, this.currentMediaType, this.currentDriveType)
+      this.$logger.info('handleAddScreenCapture done', this.currentMediaFileUrl, this.currentDriveType)
       this.$refs.drive.hiddenClasscipeDrive()
       this.$emit('update-video', {
-        url: this.currentMediaFileUrl,
-        type: this.currentMediaType
+        url: this.currentMediaFileUrl
       })
     }
   }

@@ -286,6 +286,7 @@
                     <form-linked-content :from-id='taskId' :from-type='contentType.task'/>
                   </div>
                 </div>
+
                 <div class='form-block' :data-field-name='taskField.Image' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Image' :key='fieldItem.fieldName'>
                   <!-- image-->
                   <custom-form-item class='img-wrapper' :required='emptyRequiredFields.indexOf(taskField.Image) !== -1'>

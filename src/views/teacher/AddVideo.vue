@@ -31,7 +31,7 @@
             :key='step.id'>
             <div class='form-field-item' v-for='fieldName in step.commonFields' :key='fieldName'>
 
-              <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === VideoField.Name && form.coverVideo' :key='fieldName'>
+              <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === VideoField.Name && form.video' :key='fieldName'>
                 <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.Name) !== -1'>
                   <template slot='label'>
                     Video Name
@@ -43,12 +43,32 @@
                 </custom-form-item>
               </div>
 
-              <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === VideoField.CoverVideo' :key='fieldName'>
-                <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.CoverVideo) !== -1'>
+              <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === VideoField.Video' :key='fieldName'>
+                <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.Video) !== -1'>
                   <template slot='label'>
                     Select video
                   </template>
-                  <video-select @update-video='handleUpdateVideo' />
+                  <video-select @update-video='handleUpdateVideo' :default-video='form.video' :default-type='form.videoType' />
+                </custom-form-item>
+              </div>
+
+              <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === VideoField.CoverVideo' :key='fieldName'>
+                <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.CoverVideo) !== -1 || emptyRequiredFields.indexOf(VideoField.CoverImage) !== -1'>
+                  <template slot='label'>
+                    Edit cover Video/Image
+                  </template>
+                  <div class='edit-cover'>
+                    <a-space>
+                      <custom-cover-media
+                        :url='form.coverVideo'
+                        :video-item='form.coverVideo'
+                        :type="'video'"
+                        videoControls
+                        :label-text="'Cover video'"
+                        :show-delete-button='true'/>
+                      <custom-cover-media :url='form.coverImage' :video-item='form.coverImage' :type="'image'" :label-text="'Cover image'" :show-delete-button='true'/>
+                    </a-space>
+                  </div>
                 </custom-form-item>
               </div>
 
@@ -64,17 +84,64 @@
                 </custom-form-item>
               </div>
 
-              <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === VideoField.Goals' :key='fieldName'>
+              <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === VideoField.Goals && form.contentType === 1' :key='fieldName'>
                 <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.Goals) !== -1'>
                   <template slot='label'>
                     Goals
                   </template>
-                  <a-textarea
-                    :auto-size="{ minRows: 5, maxRows: 10 }"
-                    v-model='form.goals'
-                    placeholder='Please enter goals...'
-                    class='cc-form-textarea-white-bg'
-                    allow-clear/>
+                  <div class='video-goals-wrapper'>
+                    <a-row>
+                      <a-col span='12'>
+                        <a-textarea
+                          :auto-size="{ minRows: 5, maxRows: 10 }"
+                          v-model='form.goals'
+                          placeholder='Please enter goals...'
+                          class='cc-form-textarea-white-bg'
+                          allow-clear/>
+                      </a-col>
+                      <a-col span='10' offset='1'>
+                        <custom-tag-v2
+                          ref='customTag'
+                          :custom-tags='customTags'
+                          :scope-tags-list='customTagList'
+                          :selected-tags-list='form.customTags'
+                          :current-field-name='currentFocusFieldName'
+                          @reload-user-tags='loadCustomTags'
+                          @change-add-keywords='handleChangeAddKeywords'
+                          @change-user-tags='handleChangeCustomTags'></custom-tag-v2>
+                      </a-col>
+                    </a-row>
+                  </div>
+                </custom-form-item>
+              </div>
+
+              <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === VideoField.LearnOuts && form.contentType === 0' :key='fieldName'>
+                <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.LearnOuts) !== -1'>
+                  <template slot='label'>
+                    Learning objectives
+                  </template>
+                  <a-row>
+                    <a-col span='12'>
+                    </a-col>
+                    <a-col span='10' offset='1'>
+                    </a-col>
+                  </a-row>
+                </custom-form-item>
+              </div>
+
+              <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === VideoField.Link' :key='fieldName'>
+                <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.Link) !== -1'>
+                  <template slot='label'>
+                    Linked tasks
+                  </template>
+                  <a-row>
+                    <a-col span='12'>
+                      <form-linked-content :from-id='videoId' :from-type='contentType.video'/>
+                    </a-col>
+                    <a-col span='10' offset='1'>
+                      <link-content-list :filter-types="[contentType.task]" />
+                    </a-col>
+                  </a-row>
                 </custom-form-item>
               </div>
             </div>
@@ -102,17 +169,26 @@ import CustomFormItem from '@/components/Common/CustomFormItem'
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import MyVerticalSteps from '@/components/Steps/MyVerticalSteps'
 import { formatLocalUTC } from '@/utils/util'
-import { VideoField } from '@/const/common'
+import { CustomTagType, VideoField } from '@/const/common'
 import CustomCoverMedia from '@/components/Common/CustomCoverMedia'
 import { PublishMixin } from '@/mixins/PublishMixin'
 import { VideoAddOrUpdate, VideoQueryById } from '@/api/video'
 import { AutoSaveMixin } from '@/mixins/AutoSaveMixin'
 import VideoSelect from '@/components/Video/VideoSelect'
 import CustomRadioButtonGroup from '@/components/Common/CustomRadioButtonGroup'
+import CustomTagV2 from '@/components/CustomTag/CustomTagV2'
+import { FindCustomTags } from '@/api/tag'
+import { typeMap } from '@/const/teacher'
+import FormLinkedContent from '@/components/Common/FormLinkedContent'
+import LinkContentList from '@/components/UnitPlan/LinkContentList'
+import PdEvent from '@/components/PdContent/PdEvent'
 
 export default {
   name: 'AddPD',
   components: {
+    LinkContentList,
+    FormLinkedContent,
+    CustomTagV2,
     CustomRadioButtonGroup,
     VideoSelect,
     CustomCoverMedia,
@@ -145,16 +221,22 @@ export default {
       contentLoading: true,
       form: {
         name: null,
+        video: null,
+        videoType: null,
+        coverImage: null,
         coverVideo: null,
-        coverVideoType: null,
         contentType: 0,
         goals: null,
         customTags: [],
         videoList: [],
         createBy: null
       },
-      VideoField: VideoField,
 
+      contentType: typeMap,
+      VideoField: VideoField,
+      customTagList: [],
+      customTags: {},
+      currentFocusFieldName: VideoField.Goals,
       currentActiveStepIndex: this.getSessionStep(),
 
       thumbnailList: []
@@ -168,13 +250,18 @@ export default {
     this.currentStep = this.formSteps[this.currentActiveStepIndex]
     this.requiredFields = [
       VideoField.Name,
+      VideoField.Video,
       VideoField.CoverVideo,
-      VideoField.Image
+      VideoField.CoverImage
     ]
     this.initData()
+    this.loadCustomTags()
     this.contentLoading = false
+
+    this.$EventBus.$on(PdEvent.PD_VIDEO_DELETE, this.handleDeleteCover)
   },
   beforeDestroy() {
+    this.$EventBus.$off(PdEvent.PD_VIDEO_DELETE, this.handleDeleteCover)
   },
   methods: {
 
@@ -212,8 +299,7 @@ export default {
           name: 'Editing',
           commonFields: [
             VideoField.Name,
-            VideoField.CoverVideo,
-            VideoField.CoverImage
+            VideoField.Video
           ],
           showRequiredTips: false,
           showSatisfiedTips: false
@@ -223,6 +309,8 @@ export default {
           name: 'Video setting',
           commonFields: [
             VideoField.ContentType,
+            VideoField.CoverImage,
+            VideoField.CoverVideo,
             VideoField.Goals,
             VideoField.LearnOuts
           ],
@@ -272,18 +360,9 @@ export default {
 
     handleUpdateVideo (video) {
       this.$logger.info('handleUpdateVideo', video)
-      this.form.coverVideo = video.url
-      this.form.coverVideoType = video.type
+      this.form.video = video.url
+      this.form.videoType = video.type
       this.form.videoList.push(video)
-    },
-
-    handleUpdateCover (coverData) {
-      this.$logger.info('handleUpdateCover', coverData)
-      if (coverData.type === 'video') {
-        this.form.coverVideo = coverData.url
-      } else {
-        this.form.image = coverData.url
-      }
     },
 
     handlePublish (status) {
@@ -303,6 +382,53 @@ export default {
         if (requiredStepIndex !== -1) {
           this.currentActiveStepIndex = requiredStepIndex
         }
+      }
+    },
+
+    loadCustomTags() {
+      // this.$refs.customTag.tagLoading = true
+      FindCustomTags({}).then((response) => {
+        this.$logger.info('FindCustomTags response', response.result)
+        if (response.success) {
+          this.customTags = response.result
+          // 默认展示的tag分类
+          CustomTagType.task.default.forEach(name => {
+            this.customTagList.push(name)
+          })
+          // // 再拼接自己添加的
+          this.customTags.userTags.forEach(tag => {
+            if (this.customTagList.indexOf(tag.name) === -1) {
+              this.customTagList.push(tag.name)
+            }
+          })
+        } else {
+          this.$message.error(response.message)
+        }
+        // this.$refs.customTag.tagLoading = false
+      })
+    },
+
+    handleChangeAddKeywords(tag) {
+      if (tag.isGlobal) {
+        this.customTags.userGlobalTags.push(tag)
+      } else {
+        const index = this.customTags.userTags.findIndex(item => item.name === tag.parentName)
+        if (index > -1) {
+          this.customTags.userTags[index].keywords.push(tag.name)
+        }
+      }
+    },
+
+    handleChangeCustomTags(tags) {
+      this.form.customTags = tags
+    },
+
+    handleDeleteCover (item) {
+      this.$logger.info('handleDeleteCover', item)
+      if (item.indexOf('mp4')) {
+        this.form.coverVideo = null
+      } else if (item.indexOf('png') !== -1 || item.indexOf('jpg') !== -1 || item.indexOf('jpeg') !== -1) {
+        this.form.image = null
       }
     }
   }

@@ -22,10 +22,6 @@ export default {
       type: String,
       default: null
     },
-    mediaType: {
-      type: String,
-      default: null
-    },
     driveType: {
       type: String,
       default: null

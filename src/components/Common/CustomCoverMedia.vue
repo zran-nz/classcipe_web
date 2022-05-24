@@ -3,6 +3,7 @@
     <a-upload-dragger
       class='cc-upload'
       :showUploadList='false'
+      :accept="type === 'image' ? 'image/png, image/jpeg' : 'video/mp4'"
       :customRequest='handleUploadImage'
       name="file">
       <div class='uploaded-cover' v-if="mediaType === 'image' && mediaUrl">
@@ -12,7 +13,7 @@
         <video :src='mediaUrl' :controls='videoControls'></video>
       </div>
       <div class='upload-tips' v-if='!uploading'>
-        <custom-media-cover-button label='Set cover image/video' bg-color='#2582B5' font-color='#fff' v-show='showUploadButton'></custom-media-cover-button>
+        <custom-media-cover-button :label='labelText' bg-color='#2582B5' font-color='#fff' v-show='showUploadButton'></custom-media-cover-button>
         <custom-media-cover-button label='Edit' bg-color='#2582B5' font-color='#fff' v-show='showEditButton' @click.native.capture.stop='handleEdit($event)'></custom-media-cover-button>
         <custom-media-cover-button label='Delete' bg-color='#2582B5' font-color='#fff' v-show='showDeleteButton' @click.native.capture.stop='handleDelete($event)'></custom-media-cover-button>
       </div>
@@ -58,6 +59,10 @@ export default {
       type: String,
       default: '160px'
     },
+    labelText: {
+      type: String,
+      default: 'Set cover image/video'
+    },
     showUploadButton: {
       type: Boolean,
       default: true
@@ -71,7 +76,7 @@ export default {
       default: false
     },
     videoItem: {
-      type: Object,
+      type: [Object, String],
       default: null
     }
   },
@@ -83,8 +88,6 @@ export default {
       progressPercent: 0,
       uploader: null
     }
-  },
-  created() {
   },
   methods: {
     handleUploadImage(data) {
