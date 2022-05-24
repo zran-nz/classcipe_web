@@ -27,7 +27,7 @@
         <a-divider class='cc-small-divider' />
         <div class='class-info'>
           <div class='class-list'>
-            <div class='class-item' v-for='classItem in classList' :key='classItem.id'>
+            <div class='class-item' v-for='classItem in classList' :key='classItem.id' @click='goToClassSession(classItem)'>
               <div class='class-avatar'>
                 <a-avatar style="color: #f56a00; backgroundColor: #fde3cf">
                   {{ classItem.name ? classItem.name[0] : 'C' }}
@@ -96,6 +96,10 @@ export default {
         },
         onCancel () {}
       })
+    },
+
+    goToClassSession(classItem) {
+      this.$router.push({ path: '/teacher/class-session/' + classItem.id })
     }
   }
 }
@@ -106,6 +110,7 @@ export default {
 
 .user-profile-avatar {
   background-color: #fff;
+  padding: 0 5px;
 
   .profile-info {
     padding: 10px 15px;
