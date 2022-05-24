@@ -1,7 +1,24 @@
 <template>
   <div class='cc-form-header-action-bar'>
     <a-space>
-      <div class='collaborate-user-list'></div>
+      <div class='collaborate-user-list'>
+        <div :style="{'z-index': 1000-index}" :class="{'item-avator':true,'gray':onlineUsers.indexOf(user.email) === -1}" v-if='index < 5' v-for='(user,index) in collaborateUserList' :key='index'>
+          <a-tooltip :title="user.email" placement='bottom'>
+            <a-badge color="green"> <a-avatar :size="23" class='user-item' :src='user.userAvatar' /></a-badge>
+          </a-tooltip>
+        </div>
+        <a-dropdown v-show='collaborateUserList.length > 5' :overlayStyle="{ 'z-index': '3000'}">
+          <a class='ant-dropdown-link' style="font-size: 16px;margin-left: 15px;">
+            +{{ collaborateUserList.length - 5 }}
+          </a>
+          <a-menu slot='overlay'>
+            <a-menu-item v-if='index > 4' v-for='(user,index) in collaborateUserList' :key='index'>
+              <a-avatar size='small' :class="{'user-item':true,'gray':onlineUsers.indexOf(user.email) === -1}" :src='user.userAvatar' />
+              {{ user.userName }}
+            </a-menu-item>
+          </a-menu>
+        </a-dropdown>
+      </div>
       <div class='action-item invite' @click="emitEvent('invite')" v-if="showInvite">
         <a-tooltip title='Invite'>
           <invite-icon />
@@ -59,6 +76,14 @@ export default {
     showShare: {
       type: Boolean,
       default: false
+    },
+    onlineUsers: {
+      type: Array,
+      default: () => []
+    },
+    collaborateUserList: {
+      type: Array,
+      default: () => []
     }
   },
   created() {
@@ -87,6 +112,30 @@ export default {
       max-height: 30px;
       outline: none;
     }
+  }
+
+  .collaborate-user-list {
+    display: flex;
+    justify-content: flex-end;
+    margin-right:10px;
+    margin-top: -5px;
+    height:23px;
+    width:23px;
+    .item-avator{
+      margin-right: -10px;
+    }
+    .user-item {
+      margin: 0px 4px;
+    }
+  }
+
+  /deep/ .ant-badge-status-green {
+    right: 12px;
+    top: 2px;
+    background: #52c41a;
+  }
+  .gray {
+    filter: grayscale(100%);
   }
 }
 </style>
