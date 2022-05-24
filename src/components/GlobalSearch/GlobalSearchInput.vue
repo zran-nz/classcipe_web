@@ -13,38 +13,39 @@
           <a-icon type='arrow-left' @click='handleBack' :style="{color: '#999', fontSize: '16px'}" />
         </div>
         <div class='search-input'>
-          <input v-model='searchKeyword' @keyup.native='handleSearch' placeholder='Search...' />
+          <input v-model='searchKeyword' @keyup='handleSearch' @keyup.enter='emitSearchEvent(searchKeyword)' placeholder='Search...' />
         </div>
         <div class='search-clear'>
           <a-icon type='close' @click='handleSearchClear' />
         </div>
       </div>
       <div class='search-recommend-list'>
-        <div class='do-search' v-show='searchKeyword'>
+        <div class='do-search' v-show='searchKeyword' @click='emitSearchEvent(searchKeyword)'>
           <div class='icon'>
             <a-icon type="search" :style="{color: '#999', fontSize: '16px'}" />
           </div>
-          <div class='search-content'>
+          <div class='search-content-left'>
             Search "<span class='bold'>{{ searchKeyword }}</span>"
           </div>
         </div>
         <div class='search-history' v-show='showSearchHistory'>
-          <div class='history-item' v-for='historyItem in historyList' :key='historyItem.name'>
+          <div class='history-item' v-for='(name, idx) in historyList' :key='idx' @click='emitSearchEvent(name)'>
             <div class='icon'>
               <a-icon type="clock-circle" theme="filled" :style="{color: '#999', fontSize: '16px'}" />
             </div>
             <div class='search-content'>
-              {{ historyItem.name }}
+              {{ name }}
             </div>
           </div>
         </div>
         <div class='recommend-list' v-show='showSearchRecommend'>
-          <div class='history-item' v-for='recommendItem in recommendList' :key='recommendItem.name'>
+          <div class='history-item' v-for='(recommendItem, idx) in recommendList' :key='idx' @click='emitSearchEvent(recommendItem.name)'>
             <div class='icon'>
               <a-icon type="star" theme="filled" :style="{color: '#999', fontSize: '16px'}" />
             </div>
             <div class='search-content'>
-              {{ recommendItem.name }}
+              <div class='content-name' v-html='recommendItem.tagName'></div>
+              <div class='content-tagName'> {{ recommendItem.fromType }}</div>
             </div>
           </div>
         </div>
@@ -57,6 +58,7 @@
 <script>
 import SearchIcon from '@/assets/v2/icons/search.svg?inline'
 import { debounce } from 'lodash-es'
+import { Search } from '@/api/library'
 
 export default {
   name: 'GlobalSearchInput',
@@ -64,47 +66,109 @@ export default {
   data() {
     return {
       data: null,
-      searchKeyword: null,
+      searchKeyword: '',
       showSearchWrapper: false,
 
       searching: false,
       handleSearch: null,
 
-      showSearchHistory: true,
-      showSearchRecommend: false,
-
-      historyList: [
-        {
-          name: 'Search history1'
-        },
-        {
-          name: 'Search history2'
-        }
-      ],
-      recommendList: [
-        {
-          name: 'Search recommend1'
-        },
-        {
-          name: 'Search recommend2'
-        }
-      ]
+      historyList: [],
+      recommendList: []
+    }
+  },
+  computed: {
+    showSearchHistory () {
+      return this.searchKeyword === null || this.searchKeyword.trim() === ''
+    },
+    showSearchRecommend () {
+      return this.searchKeyword && this.historyList.length > 0
     }
   },
   created() {
-    this.handleSearch = debounce(this.searchByInput, 1000)
+    this.handleSearch = debounce(this.doSearch, 1000)
+    this.restoreSearchKey()
   },
   methods: {
-    searchByInput () {
-      this.$emit('search', {
-        keyword: this.searchKeyword
-      })
+
+    storeSearchKey() {
+      const userId = this.$store.getters.userInfo.id
+      window.sessionStorage.setItem(`${userId}_search_key_list`, JSON.stringify(this.historyList))
+    },
+
+    restoreSearchKey() {
+      const userId = this.$store.getters.userInfo.id
+      const searchKeyList = window.sessionStorage.getItem(`${userId}_search_key_list`)
+      if (searchKeyList) {
+        this.historyList = JSON.parse(searchKeyList)
+      } else {
+        this.historyList = []
+      }
     },
     handleSearchClear () {
+      this.searchKeyword = null
+      this.recommendList = []
     },
 
     handleBack () {
       this.showSearchWrapper = false
+    },
+
+    doSearch () {
+      const key = this.searchKeyword.trim()
+      if (key) {
+        const index = this.historyList.indexOf(key)
+        if (index !== -1) {
+          this.historyList.splice(index, 1)
+        }
+        this.historyList.unshift(key)
+        if (this.historyList.length > 5) {
+          this.historyList = this.historyList.slice(0, 5)
+        }
+        this.storeSearchKey()
+        this.search(key)
+      }
+    },
+
+    search(value) {
+      this.$logger.info('search', value)
+      this.searching = true
+      this.recommendList = []
+      Search({
+        curriculumId: this.$store.getters.bindCurriculum,
+        key: value
+      }).then(response => {
+        this.$logger.info('searchByKeyword ' + value, response)
+        const list = []
+        // 添加高亮标签
+        response.result.forEach(item => {
+          if (item.name) {
+            let lastIndex = 0
+            let index = item.name.toLowerCase().indexOf(value)
+            let tagName = ''
+            while (index !== -1 && index + value.length <= item.name.length) {
+              tagName += item.name.substring(lastIndex, index) + '<span class="search-keyword-item">' + item.name.substring(index, index + value.length) + '</span>'
+              lastIndex = index + value.length
+              index = item.name.toLowerCase().indexOf(value, index + value.length)
+            }
+            tagName += item.name.substring(lastIndex)
+            const tagItem = {
+              fromType: item.fromType,
+              name: item.name,
+              tagName: tagName
+            }
+            list.push(tagItem)
+          }
+        })
+        this.recommendList = list
+      }).finally(() => {
+        this.searching = false
+      })
+    },
+
+    emitSearchEvent (key) {
+      this.$logger.info('emitSearchEvent', key)
+      this.$emit('search', key)
+      this.$message.success('search ' + key)
     }
   }
 }
@@ -245,6 +309,21 @@ export default {
         flex-direction: row;
         justify-content: center;
       }
+
+      .search-content-left {
+        color: #999;
+        padding-right: 20px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        word-break: break-all;
+        white-space: nowrap;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        width: 100%;
+        flex-direction: row;
+      }
+
       .search-content {
         color: #999;
         padding-right: 20px;
@@ -252,6 +331,22 @@ export default {
         text-overflow: ellipsis;
         word-break: break-all;
         white-space: nowrap;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        flex-direction: row;
+
+        .content-tagName {
+          margin-right: 10px;
+          cursor: pointer;
+          background: #f6f6f6;
+          color: #aaa;
+          font-size: 14px;
+          line-height: 20px;
+          padding: 0 5px;
+          border-radius: 3px;
+        }
       }
     }
   }
