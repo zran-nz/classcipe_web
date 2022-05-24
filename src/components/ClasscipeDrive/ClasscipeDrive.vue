@@ -11,9 +11,6 @@
         <a-radio-button :value="DriveType.GoogleImage">
           Google Image
         </a-radio-button>
-        <a-radio-button :value="DriveType.Upload">
-          Upload
-        </a-radio-button>
         <a-radio-button :value="DriveType.GoogleDrive">
           Google Drive
         </a-radio-button>
@@ -29,9 +26,6 @@
       <div v-show='currentDriveType === DriveType.GoogleImage'>
         <google-image v-bind='$attrs' :doneSelect='handleSelectGoogleImage' />
       </div>
-      <div v-show='currentDriveType === DriveType.Upload'>
-        <upload v-bind='$attrs' />
-      </div>
       <div v-show='currentDriveType === DriveType.GoogleDrive'>
         <google-drive v-bind='$attrs' :drive-loading='driveLoading' @show-google-drive='handleShowGoogleDrive'/>
       </div>
@@ -46,13 +40,12 @@ import Drive from '@/components/ClasscipeDrive/Content/Drive'
 import Youtube from '@/components/ClasscipeDrive/Content/Youtube'
 import GoogleImage from '@/components/ClasscipeDrive/Content/GoogleImage'
 import GoogleDrive from '@/components/ClasscipeDrive/Content/GoogleDrive'
-import Upload from '@/components/ClasscipeDrive/Content/Upload'
 import ClasscipeDriveEvent from '@/components/ClasscipeDrive/ClasscipeDriveEvent'
 import GooglePicker from '@/components/AddMaterial/Utils/GooglePicker'
 
 export default {
   name: 'ClasscipeDrive',
-  components: { GoogleDrive, GoogleImage, Youtube, Drive, Upload },
+  components: { GoogleDrive, GoogleImage, Youtube, Drive },
   props: {
     contentId: {
       type: String,
