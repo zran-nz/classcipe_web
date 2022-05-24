@@ -28,6 +28,7 @@ import ScreenCapture from '@/components/ScreenCapture/ScreenCapture'
 import ClasscipeDriveEvent from '@/components/ClasscipeDrive/ClasscipeDriveEvent'
 import VideoViewer from '@/components/Video/VideoViewer'
 import DriveType from '@/components/ClasscipeDrive/Content/DriveType'
+import VideoEvent from '@/components/Video/VideoEvent'
 export default {
   name: 'VideoSelect',
   components: { VideoViewer, ScreenCapture, ClasscipeDriveButton, CustomTextButton },
@@ -42,11 +43,13 @@ export default {
     this.$EventBus.$on(ClasscipeDriveEvent.INSERT_DRIVE_ITEM, this.handleSelectDriveItem)
     this.$EventBus.$on(ClasscipeDriveEvent.INSERT_YOUTUBE_ITEM, this.handleSelectYoutube)
     this.$EventBus.$on(ClasscipeDriveEvent.INSERT_GOOGLE_DRIVE, this.handleSelectGoogleDrive)
+    this.$EventBus.$on(VideoEvent.VIDEO_ADD, this.handleAddScreenCapture)
   },
   beforeDestroy() {
     this.$EventBus.$off(ClasscipeDriveEvent.INSERT_DRIVE_ITEM, this.handleSelectDriveItem)
     this.$EventBus.$off(ClasscipeDriveEvent.INSERT_YOUTUBE_ITEM, this.handleSelectYoutube)
     this.$EventBus.$off(ClasscipeDriveEvent.INSERT_GOOGLE_DRIVE, this.handleSelectGoogleDrive)
+    this.$EventBus.$off(VideoEvent.VIDEO_ADD, this.handleAddScreenCapture)
   },
   methods: {
     handleSelectDriveItem (driveItem) {
@@ -71,6 +74,15 @@ export default {
       this.currentMediaType = 'video'
       this.currentDriveType = DriveType.GoogleDrive
       this.$logger.info('handleSelectGoogleDrive done', this.currentMediaFileUrl, this.currentMediaType, this.currentDriveType)
+      this.$refs.drive.hiddenClasscipeDrive()
+    },
+
+    handleAddScreenCapture (url) {
+      this.$logger.info('handleAddScreenCapture', url)
+      this.currentMediaFileUrl = url
+      this.currentMediaType = 'video'
+      this.currentDriveType = DriveType.Upload
+      this.$logger.info('handleAddScreenCapture done', this.currentMediaFileUrl, this.currentMediaType, this.currentDriveType)
       this.$refs.drive.hiddenClasscipeDrive()
     }
   }

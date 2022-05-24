@@ -1,7 +1,7 @@
 <template>
   <div class='video-viewer-wrapper'>
     <div class='video-viewer-content'>
-      <template v-if='driveType === DriveTypeMap.ClasscipeDrive || driveType === DriveTypeMap.GoogleDrive'>
+      <template v-if='driveType === DriveTypeMap.ClasscipeDrive || driveType === DriveTypeMap.GoogleDrive || driveType === DriveTypeMap.Upload'>
         <video :src='mediaUrl' v-if='mediaUrl' controls></video>
       </template>
       <template v-if='driveType === DriveTypeMap.Youtube'>
