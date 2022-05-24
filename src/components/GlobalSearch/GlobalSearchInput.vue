@@ -1,7 +1,7 @@
 <template>
   <div class='global-search-input'>
     <a-input
-      @click.native.stop='showSearchWrapper = true'
+      @click.native.stop='activeSearchInput'
       v-model='data'
       placeholder='Search here...'/>
     <div class='search-icon'>
@@ -13,7 +13,7 @@
           <a-icon type='arrow-left' @click='handleBack' :style="{color: '#999', fontSize: '16px'}" />
         </div>
         <div class='search-input'>
-          <input v-model='searchKeyword' @keyup='handleSearch' @keyup.enter='emitSearchEvent(searchKeyword)' placeholder='Search...' />
+          <input v-model='searchKeyword' id='search-input' @keyup='handleSearch' @keyup.enter='emitSearchEvent(searchKeyword)' placeholder='Search...' />
         </div>
         <div class='search-clear'>
           <a-icon type='close' @click='handleSearchClear' />
@@ -165,10 +165,18 @@ export default {
       })
     },
 
+    activeSearchInput () {
+      this.showSearchWrapper = true
+      this.$nextTick(() => {
+        document.getElementById('search-input').focus()
+      })
+    },
+
     emitSearchEvent (key) {
       this.$logger.info('emitSearchEvent', key)
       this.$emit('search', key)
       this.$message.success('search ' + key)
+      this.handleBack()
     }
   }
 }
@@ -352,7 +360,7 @@ export default {
   }
 
   .bg-mask {
-    background: rgba(0,0,0,.3);
+    background: rgba(0,0,0,.6);
     height: 100vh;
     position: absolute;
     width: 100%;
