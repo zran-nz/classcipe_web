@@ -34,7 +34,7 @@
               <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === VideoField.Name && form.coverVideo' :key='fieldName'>
                 <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.Name) !== -1'>
                   <template slot='label'>
-                    Name
+                    Video Name
                   </template>
                   <a-input
                     v-model='form.name'
@@ -44,8 +44,23 @@
               </div>
 
               <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === VideoField.CoverVideo' :key='fieldName'>
-                <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.CoverVideo) !== -1' :show-label='false'>
-                  <video-select />
+                <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.CoverVideo) !== -1'>
+                  <template slot='label'>
+                    Select video
+                  </template>
+                  <video-select @update-video='handleUpdateVideo' />
+                </custom-form-item>
+              </div>
+
+              <div class='form-block form-radio-wrapper tag-content-block' :data-field-name='VideoField.ContentType' v-if='fieldName === VideoField.ContentType' :key='fieldName'>
+                <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.ContentType) !== -1'>
+                  <template slot='label'>
+                    Purpose of video
+                  </template>
+                  <custom-radio-button-group
+                    :list="[ {name: 'Student self-learning', value: 0}, {name: 'Teacher PD', value: 1}]"
+                    :value.sync='form.contentType' >
+                  </custom-radio-button-group>
                 </custom-form-item>
               </div>
 
@@ -89,15 +104,16 @@ import MyVerticalSteps from '@/components/Steps/MyVerticalSteps'
 import { formatLocalUTC } from '@/utils/util'
 import { VideoField } from '@/const/common'
 import CustomCoverMedia from '@/components/Common/CustomCoverMedia'
-import { typeMap } from '@/const/teacher'
 import { PublishMixin } from '@/mixins/PublishMixin'
 import { VideoAddOrUpdate, VideoQueryById } from '@/api/video'
 import { AutoSaveMixin } from '@/mixins/AutoSaveMixin'
 import VideoSelect from '@/components/Video/VideoSelect'
+import CustomRadioButtonGroup from '@/components/Common/CustomRadioButtonGroup'
 
 export default {
   name: 'AddPD',
   components: {
+    CustomRadioButtonGroup,
     VideoSelect,
     CustomCoverMedia,
     FixedFormHeader,
@@ -130,12 +146,13 @@ export default {
       form: {
         name: null,
         coverVideo: null,
+        coverVideoType: null,
+        contentType: 0,
         goals: null,
         customTags: [],
         videoList: [],
         createBy: null
       },
-      contentType: typeMap,
       VideoField: VideoField,
 
       currentActiveStepIndex: this.getSessionStep(),
@@ -251,6 +268,13 @@ export default {
 
     handleNextStep () {
       this.$refs['steps-nav'].nextStep()
+    },
+
+    handleUpdateVideo (video) {
+      this.$logger.info('handleUpdateVideo', video)
+      this.form.coverVideo = video.url
+      this.form.coverVideoType = video.type
+      this.form.videoList.push(video)
     },
 
     handleUpdateCover (coverData) {

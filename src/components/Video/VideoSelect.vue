@@ -57,24 +57,21 @@ export default {
       this.currentMediaFileUrl = driveItem[0].filePath
       this.currentMediaType = driveItem[0].fileType
       this.currentDriveType = DriveType.ClasscipeDrive
-      this.$logger.info('handleSelectDriveItem done', this.currentMediaFileUrl, this.currentMediaType, this.currentDriveType)
-      this.$refs.drive.hiddenClasscipeDrive()
+      this.afterSelectInsert()
     },
     handleSelectYoutube (youtubeItem) {
       this.$logger.info('handleSelectYoutube', youtubeItem)
       this.currentMediaFileUrl = youtubeItem.link
       this.currentMediaType = 'youtube'
       this.currentDriveType = DriveType.Youtube
-      this.$logger.info('handleSelectYoutube done', this.currentMediaFileUrl, this.currentMediaType, this.currentDriveType)
-      this.$refs.drive.hiddenClasscipeDrive()
+      this.afterSelectInsert()
     },
     handleSelectGoogleDrive (googleDriveItem) {
       this.$logger.info('handleSelectGoogleDrive', googleDriveItem)
       this.currentMediaFileUrl = googleDriveItem.url
       this.currentMediaType = 'video'
       this.currentDriveType = DriveType.GoogleDrive
-      this.$logger.info('handleSelectGoogleDrive done', this.currentMediaFileUrl, this.currentMediaType, this.currentDriveType)
-      this.$refs.drive.hiddenClasscipeDrive()
+      this.afterSelectInsert()
     },
 
     handleAddScreenCapture (url) {
@@ -82,8 +79,16 @@ export default {
       this.currentMediaFileUrl = url
       this.currentMediaType = 'video'
       this.currentDriveType = DriveType.Upload
+      this.afterSelectInsert()
+    },
+
+    afterSelectInsert() {
       this.$logger.info('handleAddScreenCapture done', this.currentMediaFileUrl, this.currentMediaType, this.currentDriveType)
       this.$refs.drive.hiddenClasscipeDrive()
+      this.$emit('update-video', {
+        url: this.currentMediaFileUrl,
+        type: this.currentMediaType
+      })
     }
   }
 }
