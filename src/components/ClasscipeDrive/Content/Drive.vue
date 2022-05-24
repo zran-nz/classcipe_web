@@ -82,7 +82,6 @@ import { FindMyContent, GetMyGrades } from '@/api/teacher'
 import { FileRecord } from '@/api/material'
 import CustomSearchInput from '@/components/Common/CustomSearchInput'
 import CustomMediaItem from '@/components/Common/CustomMediaItem'
-import * as logger from '@/utils/logger'
 import ContentItem from '@/components/MyContentV2/ContentItem'
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import ClasscipeDriveEvent from '@/components/ClasscipeDrive/ClasscipeDriveEvent'
@@ -202,7 +201,7 @@ export default {
         delFlag: 0
       }
       FindMyContent(params).then(res => {
-        logger.info('Drive getMyContent', res)
+        this.$logger.info('Drive getMyContent', res)
         if (res.success && res.code === 0) {
           this.contentList = res.result.records
         }

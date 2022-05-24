@@ -41,6 +41,10 @@ export default {
   methods: {
     handleShowClasscipeDrive () {
       this.driveVisible = true
+    },
+    hiddenClasscipeDrive () {
+      this.$logger.info('hiddenClasscipeDrive')
+      this.driveVisible = false
     }
   }
 }

@@ -1,5 +1,5 @@
 <template>
-  <div class='custom-cover-media' :style="{width: width, height: height}">
+  <div class='custom-cover-media' :style="{ width: width, height: height, outline: showMaskSelected ? '2px solid #15C39A' : 'none' }">
     <div class='uploaded-cover' v-if="mediaType === 'image' && mediaUrl">
       <div class='img-cover' :style="{backgroundImage: 'url(' + mediaUrl + ')' }"></div>
       <div class='media-info'>
