@@ -88,6 +88,12 @@ export const asyncRouterMap = [
             meta: { title: 'menu.live-workshops', keepAlive: true, permission: ['common'], icon: DiscoverSvg }
           },
           {
+            path: '/teacher/main/calendar',
+            name: 'Calendar',
+            component: () => import('@/views/teacher/Calendar'),
+            meta: { title: 'Calendar', keepAlive: true, permission: ['teacher'] }
+          },
+          {
             path: '/teacher/managing',
             name: 'Managing',
             redirect: '/teacher/managing/school-user',
