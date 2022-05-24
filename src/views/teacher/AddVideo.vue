@@ -31,10 +31,10 @@
             :key='step.id'>
             <div class='form-field-item' v-for='fieldName in step.commonFields' :key='fieldName'>
 
-              <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === VideoField.Name && form.video' :key='fieldName'>
+              <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === VideoField.Name' :key='fieldName'>
                 <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.Name) !== -1'>
                   <template slot='label'>
-                    Video Name
+                    Video name
                   </template>
                   <a-input
                     v-model='form.name'
