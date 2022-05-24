@@ -41,13 +41,11 @@ export default {
   created() {
     this.$EventBus.$on(ClasscipeDriveEvent.INSERT_DRIVE_ITEM, this.handleSelectDriveItem)
     this.$EventBus.$on(ClasscipeDriveEvent.INSERT_YOUTUBE_ITEM, this.handleSelectYoutube)
-    this.$EventBus.$on(ClasscipeDriveEvent.INSERT_GOOGLE_IMAGE, this.handleSelectGoogleImage)
     this.$EventBus.$on(ClasscipeDriveEvent.INSERT_GOOGLE_DRIVE, this.handleSelectGoogleDrive)
   },
   beforeDestroy() {
     this.$EventBus.$off(ClasscipeDriveEvent.INSERT_DRIVE_ITEM, this.handleSelectDriveItem)
     this.$EventBus.$off(ClasscipeDriveEvent.INSERT_YOUTUBE_ITEM, this.handleSelectYoutube)
-    this.$EventBus.$off(ClasscipeDriveEvent.INSERT_GOOGLE_IMAGE, this.handleSelectGoogleImage)
     this.$EventBus.$off(ClasscipeDriveEvent.INSERT_GOOGLE_DRIVE, this.handleSelectGoogleDrive)
   },
   methods: {
@@ -64,14 +62,16 @@ export default {
       this.currentMediaFileUrl = youtubeItem.link
       this.currentMediaType = 'youtube'
       this.currentDriveType = DriveType.Youtube
-      this.$logger.info('handleSelectDriveItem done', this.currentMediaFileUrl, this.currentMediaType, this.currentDriveType)
+      this.$logger.info('handleSelectYoutube done', this.currentMediaFileUrl, this.currentMediaType, this.currentDriveType)
       this.$refs.drive.hiddenClasscipeDrive()
     },
-    handleSelectGoogleImage (url) {
-      this.$logger.info('handleSelectGoogleImage', url)
-    },
-    handleSelectGoogleDrive (url, mediaType) {
-      this.$logger.info('handleSelectGoogleDrive', url, mediaType)
+    handleSelectGoogleDrive (googleDriveItem) {
+      this.$logger.info('handleSelectGoogleDrive', googleDriveItem)
+      this.currentMediaFileUrl = googleDriveItem.url
+      this.currentMediaType = 'video'
+      this.currentDriveType = DriveType.GoogleDrive
+      this.$logger.info('handleSelectGoogleDrive done', this.currentMediaFileUrl, this.currentMediaType, this.currentDriveType)
+      this.$refs.drive.hiddenClasscipeDrive()
     }
   }
 }

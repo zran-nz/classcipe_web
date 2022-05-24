@@ -1,14 +1,11 @@
 <template>
   <div class='video-viewer-wrapper'>
     <div class='video-viewer-content'>
-      <template v-if='driveType === DriveTypeMap.ClasscipeDrive'>
+      <template v-if='driveType === DriveTypeMap.ClasscipeDrive || driveType === DriveTypeMap.GoogleDrive'>
         <video :src='mediaUrl' v-if='mediaUrl' controls></video>
       </template>
       <template v-if='driveType === DriveTypeMap.Youtube'>
         <iframe :src='mediaUrl' class='video-iframe'/>
-      </template>
-      <template v-if='driveType === DriveTypeMap.GoogleDrive'>
-        {{ mediaUrl }}
       </template>
     </div>
   </div>
