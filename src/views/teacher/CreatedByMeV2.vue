@@ -5,11 +5,12 @@
         <radio-switch @select="handleSelectShareType" :menu-list='menuList' />
       </div>
       <div class='create-new'>
-        <create-new />
+        <a-space>
+          <create-new />
+          <global-search-input />
+          <user-profile-avatar />
+        </a-space>
       </div>
-    </div>
-    <div class='filter-bar'>
-      <content-filter @search='handleSearch'/>
     </div>
     <div class='content-wrapper'>
       <a-spin tip='Loading...' :spinning="loading">
@@ -52,11 +53,13 @@ import NoMoreResources from '@/components/Common/NoMoreResources'
 import RadioSwitch from '@/components/Common/RadioSwitch'
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
+import GlobalSearchInput from '@/components/GlobalSearch/GlobalSearchInput'
+import UserProfileAvatar from '@/components/User/UserProfileAvatar'
 
 export default {
   name: 'CreatedByMeV2',
   mixins: [UserModeMixin, CurrentSchoolMixin],
-  components: { RadioSwitch, NoMoreResources, ContentPublish, ContentItem, ContentFilter, CreateNew },
+  components: { UserProfileAvatar, GlobalSearchInput, RadioSwitch, NoMoreResources, ContentPublish, ContentItem, ContentFilter, CreateNew },
   data () {
     return {
       menuList: [
