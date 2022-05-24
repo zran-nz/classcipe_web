@@ -2,6 +2,12 @@
   <div class="my-content">
     <div class="filter-line">
       <radio-switch @select="toggleType" :menu-list='menuList'/>
+      <div class='create-new'>
+        <a-space>
+          <global-search-input />
+          <user-profile-avatar />
+        </a-space>
+      </div>
     </div>
     <div class='content-wrapper'>
       <a-spin tip='Loading...' :spinning="loading">
@@ -121,10 +127,14 @@ import RadioSwitch from '@/components/Common/RadioSwitch'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
+import GlobalSearchInput from '@/components/GlobalSearch/GlobalSearchInput'
+import UserProfileAvatar from '@/components/User/UserProfileAvatar'
 
 export default {
   name: 'MyFavorite',
   components: {
+    UserProfileAvatar,
+    GlobalSearchInput,
     RadioSwitch,
     FavoriteContentItem,
     ContentItem,
@@ -454,10 +464,9 @@ export default {
 @import "~@/components/index.less";
 
 .my-content {
-  padding: 0 15px 25px 15px;
+  padding: 15px;
   background: #fff;
   .filter-line {
-    padding-top: 10px;
     display: flex;
     justify-content: space-between;
 
@@ -466,6 +475,12 @@ export default {
       display: flex;
       flex-direction: row;
       align-items: center;
+    }
+
+    .create-new {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
     }
   }
 
