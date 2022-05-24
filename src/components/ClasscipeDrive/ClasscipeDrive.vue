@@ -24,7 +24,7 @@
         <youtube v-bind='$attrs' />
       </div>
       <div v-show='currentDriveType === DriveType.GoogleImage'>
-        <google-image v-bind='$attrs' :doneSelect='handleSelectGoogleImage' />
+        <google-image v-bind='$attrs' />
       </div>
       <div v-show='currentDriveType === DriveType.GoogleDrive'>
         <google-drive v-bind='$attrs' :drive-loading='driveLoading' @show-google-drive='handleShowGoogleDrive'/>
@@ -63,27 +63,8 @@ export default {
       driveLoading: false
     }
   },
-  created() {
-    this.$EventBus.$on(ClasscipeDriveEvent.INSERT_GOOGLE_IMAGE, this.handleSelectGoogleImage)
-    this.$EventBus.$on(ClasscipeDriveEvent.INSERT_YOUTUBE_ITEM, this.handleSelectYoutube)
-    this.$EventBus.$on(ClasscipeDriveEvent.INSERT_GOOGLE_DRIVE, this.handleSelectGoogleDrive)
-  },
-  beforeDestroy() {
-    this.$EventBus.$off(ClasscipeDriveEvent.INSERT_GOOGLE_IMAGE, this.handleSelectGoogleImage)
-    this.$EventBus.$off(ClasscipeDriveEvent.INSERT_YOUTUBE_ITEM, this.handleSelectYoutube)
-    this.$EventBus.$off(ClasscipeDriveEvent.INSERT_GOOGLE_DRIVE, this.handleSelectGoogleDrive)
-  },
-  methods: {
-    handleSelectGoogleImage (url) {
-      this.$logger.info('handleSelectGoogleImage', url)
-    },
-    handleSelectYoutube (youtubeItem) {
-      this.$logger.info('handleSelectYoutube', youtubeItem)
-    },
-    handleSelectGoogleDrive (url, mediaType) {
-      this.$logger.info('handleSelectGoogleDrive', url, mediaType)
-    },
 
+  methods: {
     driveTypeChange() {
       this.$logger.info('driveTypeChange', this.currentDriveType)
       this.handleShowGoogleDrive()
@@ -98,7 +79,9 @@ export default {
           (type, url, mediaType) => {
             if (url) {
               this.$logger.info('GooglePicker addDrive done', url, mediaType)
-              this.handleSelectGoogleDrive(url, mediaType)
+              this.$EventBus.$emit(ClasscipeDriveEvent.INSERT_GOOGLE_DRIVE, {
+                url, mediaType
+              })
             }
             this.driveLoading = false
           },
