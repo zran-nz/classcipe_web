@@ -70,6 +70,7 @@ export default {
       border: none;
       overflow: hidden;
       height: 500px;
+      width: 900px;
     }
   }
 }
