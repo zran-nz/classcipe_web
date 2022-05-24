@@ -65,8 +65,13 @@
                         :type="'video'"
                         videoControls
                         :label-text="'Cover video'"
-                        :show-delete-button='true'/>
-                      <custom-cover-media :url='form.coverImage' :video-item='form.coverImage' :type="'image'" :label-text="'Cover image'" :show-delete-button='true'/>
+                        :show-delete-button='form.coverVideo && true'/>
+                      <custom-cover-media
+                        :url='form.image'
+                        :video-item='form.image'
+                        :type="'image'"
+                        :label-text="'Cover image'"
+                        :show-delete-button='form.image && true'/>
                     </a-space>
                   </div>
                 </custom-form-item>
@@ -223,12 +228,11 @@ export default {
         name: null,
         video: null,
         videoType: null,
-        coverImage: null,
+        image: null,
         coverVideo: null,
         contentType: 0,
         goals: null,
         customTags: [],
-        videoList: [],
         createBy: null
       },
 
@@ -362,7 +366,6 @@ export default {
       this.$logger.info('handleUpdateVideo', video)
       this.form.video = video.url
       this.form.videoType = video.type
-      this.form.videoList.push(video)
     },
 
     handlePublish (status) {

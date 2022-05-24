@@ -107,7 +107,8 @@ export default {
       this.$logger.info('handleAddScreenCapture done', this.currentMediaFileUrl, this.currentDriveType)
       this.$refs.drive.hiddenClasscipeDrive()
       this.$emit('update-video', {
-        url: this.currentMediaFileUrl
+        url: this.currentMediaFileUrl,
+        type: this.currentDriveType
       })
     }
   }
