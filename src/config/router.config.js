@@ -76,9 +76,9 @@ export const asyncRouterMap = [
             meta: { title: 'menu.library', keepAlive: true, permission: ['teacher'], fullLayout: true }
           },
           {
-            path: '/teacher/library-v2/:browserType?/',
-            name: 'LibraryV2',
-            component: () => import('@/views/teacher/LibraryV2'),
+            path: '/teacher/library-v3/:browserType?/',
+            name: 'LibraryV3',
+            component: () => import('@/views/teacher/LibraryV3'),
             meta: { title: 'menu.library', keepAlive: true, permission: ['teacher'], fullLayout: true, hiddenFooter: true }
           },
           {

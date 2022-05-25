@@ -2,7 +2,7 @@
   <div class="teacher-nav top-nav-v2">
     <div class='top-menu' @dblclick='handleExpandMenu'>
       <div class='menu menu-block' @dblclick.stop=''>
-        <sidebar-menu-item label='Library' path='/teacher/library-v2'>
+        <sidebar-menu-item label='Library' path='/teacher/library-v3'>
           <template v-slot:icon>
             <library-icon />
           </template>
