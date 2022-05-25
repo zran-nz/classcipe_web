@@ -13,10 +13,10 @@
       <a-col span='13'>
         <div class='school-switch'>
           <a-radio-group :default-value="currentSchoolId" button-style="solid" class='cc-radio-group' v-model='currentSchoolId' @change='handleSearchContent'>
-            <a-radio-button :value="null">
+            <a-radio-button :value="null" v-if='userMode === USER_MODE.SCHOOL'>
               Personal
             </a-radio-button>
-            <a-radio-button :value="school.id" v-for='school in info.schoolList' :key='school.id'>
+            <a-radio-button :value="school.id" v-for='school in info.schoolList' :key='school.id' v-show='userMode === USER_MODE.SELF || (currentSchool && school.id !== currentSchool.id)'>
               {{ school.schoolName }}
             </a-radio-button>
           </a-radio-group>
@@ -80,6 +80,7 @@ import { mapState } from 'vuex'
 import ContentPreview from '@/components/Preview/ContentPreview'
 import { ImportOtherIdentityContent } from '@/api/v2/mycontent'
 import UserModeChangeEvent from '@/components/User/UserModeChangeEvent'
+import { USER_MODE } from '@/const/common'
 
 export default {
   name: 'ImportContent',
@@ -114,16 +115,31 @@ export default {
       myContentList: [],
       selectedList: [],
       currentActiveItem: null,
-      importing: false
+      importing: false,
+      USER_MODE: USER_MODE
     }
   },
   computed: {
     ...mapState({
-      info: state => state.user.info
+      info: state => state.user.info,
+      userMode: state => state.app.userMode,
+      currentSchool: state => state.user.currentSchool
     })
   },
   created() {
-    this.handleSearchContent()
+    if (this.userMode === this.USER_MODE.SELF) {
+      if (this.currentSchool) {
+        this.currentSchoolId = this.currentSchool.id
+        this.handleSearchContent()
+      }
+    } else if (this.userMode === this.USER_MODE.SCHOOL) {
+      const target = this.info.schoolList.find(item => item.id !== this.currentSchool.id)
+      if (target) {
+        this.currentSchoolId = target.id
+        this.handleSearchContent()
+      }
+    }
+    this.$logger.info('ImportContent created ' + this.currentSchoolId)
   },
   methods: {
     handleCloseModal () {
@@ -143,7 +159,7 @@ export default {
       }
 
       if (this.currentSchoolId) {
-        params.schooldId = this.currentSchoolId
+        params.schoolId = this.currentSchoolId
       }
       FindMyContent(params).then(res => {
         logger.info('handleSearchContent', res)
