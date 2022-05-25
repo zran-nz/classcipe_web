@@ -153,9 +153,10 @@ export default {
         pageSize: this.pagination.pageSize,
         searchKey: this.searchText ? this.searchText : '',
         types: [],
-        status: 1,
+        // status: 1,
         createBy: this.$store.getters.email,
-        delFlag: 0
+        delFlag: 0,
+        isImport: true
       }
 
       if (this.currentSchoolId) {
