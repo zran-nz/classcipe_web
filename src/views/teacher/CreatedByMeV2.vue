@@ -55,6 +55,7 @@ import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import GlobalSearchInput from '@/components/GlobalSearch/GlobalSearchInput'
 import UserProfileAvatar from '@/components/User/UserProfileAvatar'
+import UserModeChangeEvent from '@/components/User/UserModeChangeEvent'
 
 export default {
   name: 'CreatedByMeV2',
@@ -105,9 +106,13 @@ export default {
       this.shareType = parseInt(this.$route.query.shareType)
     }
     this.loadMyContent()
+    this.$EventBus.$on(UserModeChangeEvent.USER_MODE_CHANGE, this.handleSchoolChange)
+  },
+  beforeDestroy() {
+    this.$EventBus.$off(UserModeChangeEvent.USER_MODE_CHANGE, this.handleSchoolChange)
   },
   methods: {
-    handleSchoolChange(currentSchool) {
+    handleSchoolChange() {
       this.pageNo = 1
       this.loadMyContent()
     },
