@@ -6,6 +6,7 @@
       </div>
       <div class='create-new'>
         <a-space>
+          <content-type-filter @change='handleUpdateFilterType'/>
           <create-new />
           <global-search-input />
           <user-profile-avatar />
@@ -56,11 +57,12 @@ import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import GlobalSearchInput from '@/components/GlobalSearch/GlobalSearchInput'
 import UserProfileAvatar from '@/components/User/UserProfileAvatar'
 import UserModeChangeEvent from '@/components/User/UserModeChangeEvent'
+import ContentTypeFilter from '@/components/MyContentV2/ContentTypeFilter'
 
 export default {
   name: 'CreatedByMeV2',
   mixins: [UserModeMixin, CurrentSchoolMixin],
-  components: { UserProfileAvatar, GlobalSearchInput, RadioSwitch, NoMoreResources, ContentPublish, ContentItem, ContentFilter, CreateNew },
+  components: { ContentTypeFilter, UserProfileAvatar, GlobalSearchInput, RadioSwitch, NoMoreResources, ContentPublish, ContentItem, ContentFilter, CreateNew },
   data () {
     return {
       menuList: [
@@ -137,7 +139,7 @@ export default {
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize,
         searchKey: this.searchText ? this.searchText : '',
-        types: [],
+        types: this.filterType ? [this.filterType] : [],
         delFlag: 0
       }
       if (this.filterParams) {
@@ -222,6 +224,13 @@ export default {
     },
     handleSelectShareType(item) {
       this.shareType = item.type
+      this.loadMyContent()
+    },
+
+    handleUpdateFilterType (filterType) {
+      this.$logger.info('handleUpdateFilterType', filterType)
+      this.filterType = filterType
+      this.pageNo = 1
       this.loadMyContent()
     }
   }

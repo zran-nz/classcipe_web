@@ -14,6 +14,7 @@
 </template>
 
 <script>
+
 import PreviewSlideCarousel from '@/components/Preview/PreviewSlideCarousel'
 import PreviewContentHeader from '@/components/Preview/PreviewContentHeader'
 import PreviewContentBody from '@/components/Preview/PreviewContentBody'
