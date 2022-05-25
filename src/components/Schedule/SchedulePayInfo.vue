@@ -11,34 +11,50 @@
       </div>
       <div class='pay-detail' v-show='paidSession'>
         <div class='fee'>
-          <span class='fee-title'>Fee</span>
+          <span class='fee-title'>Pricing</span>
           <div class='fee-input'>
-            <a-input v-model='price' type='number' class='dollar-price-input' suffix="$"/>
+            <a-input v-model='price' type='number' class='dollar-price-input' prefix="$" />
           </div>
         </div>
-        <div class='add-discount'>
-          <custom-link-text text='Add discount' @click='handleAddDiscount'></custom-link-text>
-        </div>
         <div class='pay-discount'>
+          <div class='pay-sub-title'>
+            Bulk discount pricing
+          </div>
+          <div class='pay-discount-title'>
+            <div class='pay-participant'>No of participants</div>
+            <div class='pay-percent'>Percentage off</div>
+          </div>
           <div class='pay-discount-item' v-for='discount in discountList' :key='discount.id' @click.stop='handleDiscountEdit(discount)'>
             <div class='person-num'>
-              People
               <template v-if='discount.editing'>
                 <a-input v-model='discount.peopleThreshold' min='0' type='number' class='cc-form-input discount-input'/>
               </template>
               <template v-else>
                 {{ discount.peopleThreshold }}
               </template>
+              and more
             </div>
             <div class='discount-off'>
               <template v-if='discount.editing'>
                 <a-input v-model='discount.discount' min='0' max='100' type='number' class='cc-form-input discount-input'/>% off
               </template>
               <template v-else>
-                {{ discount.discount }}% off
+                {{ discount.discount }}%
               </template>
             </div>
+            <div class='delete-item' @click.stop=''>
+              <a-popconfirm title="Delete?" ok-text="Yes" @confirm="deleteDiscount(discount)" cancel-text="No">
+                <delete-icon color='#F16A39' />
+              </a-popconfirm>
+            </div>
           </div>
+        </div>
+        <div class='add-discount'>
+          <custom-text-button label='Add row' @click='handleAddDiscount'>
+            <template v-slot:icon>
+              <a-icon type='plus-circle' />
+            </template>
+          </custom-text-button>
         </div>
       </div>
       <div class='pay-title'>
@@ -47,17 +63,20 @@
         </div>
         <div class='pay-slider'>
           <a-space>
-            <a-slider v-model="maxParticipants" :min="1" :max="500" style='width: 100px' />
+            <a-slider v-model="maxParticipants" :min="1" :max="zoomMeetingCapacity" style='width: 100px' />
             <a-input-number v-model="maxParticipants" :min="1" :max="zoomMeetingCapacity" />
           </a-space>
         </div>
       </div>
       <div class='pay-title'>
         <div class='title'>
-          Register before
+          Registration deadline
         </div>
         <div class='pay-switch'>
-          <a-date-picker :show-time="{ format: 'HH:mm' }" @change="handleSelectDate" />
+          <a-date-picker
+            :disabled-date="disabledDate"
+            :show-time="{ format: 'HH:mm' }"
+            @change="handleSelectDate" />
         </div>
       </div>
     </div>
@@ -65,6 +84,9 @@
       <div class='title'>Schedule</div>
       <div class='date-picker'>
         <a-range-picker @change="handleDateChange" format='YYYY-MM-DD HH:mm:ss' :show-time="{ format: 'HH:mm' }"/>
+      </div>
+      <div class='go-calender'>
+        <a>Go to calender</a>
       </div>
     </div>
   </div>
@@ -74,9 +96,11 @@
 import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
 import moment from 'moment'
 import CustomLinkText from '@/components/Common/CustomLinkText'
+import DeleteIcon from '@/components/Common/DeleteIcon'
+import CustomTextButton from '@/components/Common/CustomTextButton'
 export default {
   name: 'SchedulePayInfo',
-  components: { CustomLinkText },
+  components: { CustomTextButton, DeleteIcon, CustomLinkText },
   data() {
     return {
       paidSession: false,
@@ -153,6 +177,17 @@ export default {
       this.discountList.forEach(discount => {
         discount.editing = false
       })
+    },
+
+    disabledDate(current) {
+      return current && current < moment().endOf('day')
+    },
+
+    deleteDiscount (discount) {
+      const index = this.discountList.indexOf(discount)
+      if (index > -1) {
+        this.discountList.splice(index, 1)
+      }
     }
   }
 }
@@ -169,7 +204,7 @@ export default {
   padding: 15px 0;
 
   .pay-info {
-    width: 400px;
+    padding: 0 20px;
     .pay-title {
       margin: 10px 0;
       cursor: pointer;
@@ -194,11 +229,11 @@ export default {
     }
 
     .pay-detail {
-      margin: 5px 0;
-      padding: 10px;
-      background-color: #f1f1f1;
+      margin: 10px 0;
+      padding: 10px 20px;
+      background-color: #F7F8F9;
       border-radius: 5px;
-      border: 1px solid #ddd;
+      border: 1px solid #eee;
       font-size: 13px;
       font-weight: 500;
       cursor: pointer;
@@ -213,47 +248,74 @@ export default {
       }
 
       .add-discount {
+        margin-top: 15px;
         height: 35px;
         display: flex;
-        justify-content: flex-end;
+        justify-content: flex-start;
         align-items: center;
         color: #15c39a;
         font-size: 13px;
-
-        &:hover {
-          text-decoration: underline;
-        }
       }
 
       .pay-discount {
-        padding: 10px 5px;
+        margin-top: 15px;
+        padding: 5px 20px 10px;
         background-color: #15c39a11;
+
+        .pay-sub-title {
+          font-size: 14px;
+          color: #15c39a;
+          line-height: 28px;
+        }
+
+        .pay-discount-title {
+          font-size: 14px;
+          color: #15c39a;
+          line-height: 30px;
+          font-weight: bold;
+        }
       }
 
       .pay-discount-item {
-        line-height: 32px;
+        margin: 5px 0;
+        line-height: 28px;
         display: flex;
         flex-direction: row;
         align-items: center;
         justify-content: space-between;
-        padding: 0 10px;
+        position: relative;
         .person-num {
           font-size: 14px;
-          color: #15c39a;
+          color: #666;
         }
 
         .discount-off {
           color: #e4393c;
           font-size: 14px;
-          font-weight: 400;
+          width: 120px;
+          text-align: center;
           font-family: Verdana;
+        }
+
+        .delete-item {
+          display: none;
+          position: absolute;
+          right: -13px;
+          top: 50%;
+          margin-top: -7px;
+        }
+
+        &:hover {
+          .delete-item {
+            display: flex;
+          }
         }
       }
     }
   }
 
   .select-date {
-    width: 380px;
+    padding: 0 20px;
     .date-picker {
       width: 380px;
     }
@@ -269,4 +331,16 @@ export default {
 .discount-input {
   width: 70px;
 }
+
+.pay-discount-title {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.go-calender {
+  margin-top: 10px;
+}
+
 </style>
