@@ -46,34 +46,6 @@
         </sidebar-menu-item>
       </div>
     </div>
-
-    <div class='bottom-menu' @dblclick.stop=''>
-      <div class='menu-icon-block' :style="{'flex-direction': collapsed ? 'column-reverse' : 'row'}">
-        <div class='switch-school-personal' v-show='!collapsed'>
-          <div class='role-school-personal'>
-            <a-dropdown class='cc-role-dropdown' :placement="'topCenter'" :trigger="['click']">
-              <a-menu slot="overlay">
-                <a-menu-item class="self-mode" @click="handleChangePersonal">
-                  <span class='menu-label'>Personal</span>
-                </a-menu-item>
-                <a-menu-item :key="item.id" v-for="item in info.schoolList" @click="handleChangeSchool(item)">
-                  <span class='menu-label'>{{ item.schoolName }}</span>
-                </a-menu-item>
-              </a-menu>
-              <div class='current-role'>
-                {{ userMode === USER_MODE.SCHOOL ? currentSchool.schoolName : 'Personal' }} <a-icon type="caret-down" />
-              </div>
-            </a-dropdown>
-          </div>
-        </div>
-        <div class='cc-menu-icon-item'>
-          <router-link to='/notification'>
-            <a-icon type="mail" theme='filled' :style="{ fontSize: '14px' }" v-if="$route.path.startsWith('/notification')"/>
-            <a-icon type="mail" :style="{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.65)' }" v-else/>
-          </router-link>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 <script>
@@ -330,12 +302,8 @@ export default {
 
   .top-menu {
     flex-grow: 1;
-    max-height: calc(100vh - 140px);
-    overflow-y: scroll;
-  }
-
-  .bottom-menu {
-    flex-shrink: 0;
+    max-height: calc(100vh - 90px);
+    overflow-y: auto;
   }
 }
 

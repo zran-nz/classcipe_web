@@ -21,26 +21,42 @@
         <div class='plan-upgrade'>
           <a-space>
             <div class='free-plan'>Free plan</div>
-            <div class='upgrade'>Upgrade</div>
+            <div class='upgrade'>Upgrade storage</div>
           </a-space>
         </div>
         <a-divider class='cc-small-divider' />
         <div class='class-info'>
           <div class='class-list'>
-            <div class='class-item' v-for='classItem in classList' :key='classItem.id' @click='goToClassSession(classItem)'>
+            <div class='class-item' @click='handleChangePersonal'>
+              <div class='class-avatar'>
+                <a-avatar :src='$store.getters.userInfo.avatar' />
+              </div>
+              <div class='class-base-info'>
+                <div class='class-name'>Personal</div>
+                <div class='class-updated-by'>{{ $store.getters.userInfo.email }}</div>
+                <div class='active-dot' v-if='userMode === USER_MODE.SELF'></div>
+              </div>
+            </div>
+            <div class='class-item' v-for='schoolItem in info.schoolList' :key='schoolItem.id' @click='handleChangeSchool(schoolItem)'>
               <div class='class-avatar'>
                 <a-avatar style="color: #f56a00; backgroundColor: #fde3cf">
-                  {{ classItem.name ? classItem.name[0] : 'C' }}
+                  {{ schoolItem.schoolName ? schoolItem.schoolName[0].toUpperCase() : 'C' }}
                 </a-avatar>
               </div>
               <div class='class-base-info'>
-                <div class='class-name'>{{ classItem.name }}</div>
-                <div class='class-updated-by'>{{ classItem.headTeacherName || classItem.updateBy }}</div>
+                <div class='class-name'>{{ schoolItem.schoolName }}</div>
+                <div class='class-updated-by'>
+                  <div class='role-name' v-for='roleName in schoolItem.roleNames' :key='roleName'>{{ roleName }}</div>
+                </div>
+                <div class='active-dot' v-if='userMode === USER_MODE.SCHOOL && currentSchool.schoolName === schoolItem.schoolName'></div>
               </div>
             </div>
           </div>
         </div>
         <a-divider class='cc-small-divider' />
+        <div class='profile profile-menu-item' @click='handleToNotification'>
+          Notification
+        </div>
         <div class='profile profile-menu-item' @click='handleToSettings'>
           Profile
         </div>
@@ -56,20 +72,28 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapActions, mapMutations, mapState } from 'vuex'
 import { Modal } from 'ant-design-vue'
+import { SwitchUserModeSchool } from '@/api/user'
+import { TOOGLE_USER_MODE } from '@/store/mutation-types'
+import { USER_MODE } from '@/const/common'
+import { SchoolUserRole } from '@/const/role'
 
 export default {
   name: 'UserProfileAvatar',
   data() {
     return {
-      consumedSize: 102400,
-      totalSize: 1024000
+      consumedSize: 102400000,
+      totalSize: 1024 * 1024 * 1024,
+      schoolUserRole: SchoolUserRole,
+      USER_MODE: USER_MODE
     }
   },
   computed: {
     ...mapState({
-      classList: state => state.user.classList
+      info: state => state.user.info,
+      currentSchool: state => state.user.currentSchool,
+      userMode: state => state.app.userMode
     }),
 
     storageProgress () {
@@ -79,8 +103,13 @@ export default {
   created() {
   },
   methods: {
+    ...mapMutations([TOOGLE_USER_MODE, 'SET_CURRENT_SCHOOL']),
+    ...mapActions(['GetClassList']),
     handleToSettings () {
       this.$router.push({ path: '/account/settings' })
+    },
+    handleToNotification () {
+      this.$router.push({ path: '/notification' })
     },
     handleLogout (e) {
       Modal.confirm({
@@ -98,8 +127,28 @@ export default {
       })
     },
 
-    goToClassSession(classItem) {
-      this.$router.push({ path: '/teacher/class-session/' + classItem.id })
+    handleChangePersonal() {
+      // 后端记录当前用户是否是个人模式，在个人模式下后台设置school未空字符
+      SwitchUserModeSchool({
+        isPersonal: true,
+        schoolId: ''
+      }).finally(() => {
+        // this.justifyCurrentRoute()
+        this[TOOGLE_USER_MODE](USER_MODE.SELF)
+      })
+    },
+    handleChangeSchool(val) {
+      SwitchUserModeSchool({
+        isPersonal: false,
+        schoolId: val.id
+      }).then(res => {
+        // 获取对应学校班级
+        this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
+        const item = this.info.schoolList.find(item => item.id === val.id)
+        this.SET_CURRENT_SCHOOL(item)
+        this.GetClassList(this.userMode)
+        // this.justifyCurrentRoute()
+      })
     }
   }
 }
@@ -197,8 +246,8 @@ export default {
     }
 
     .class-info {
-      max-height: 150px;
-      overflow-y: scroll;
+      max-height: 200px;
+      overflow-y: auto;
       .class-item {
         padding: 8px 0;
         display: flex;
@@ -206,6 +255,8 @@ export default {
         align-items: center;
         justify-content: flex-start;
         .class-base-info {
+          position: relative;
+          width: 100%;
           padding-left: 10px;
           .class-name {
             font-size: 14px;
@@ -223,6 +274,24 @@ export default {
             color: #aaa;
             line-height: 14px;
             cursor: pointer;
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: center;
+            .role-name {
+              margin-right: 5px;
+            }
+          }
+
+          .active-dot {
+            position: absolute;
+            right: 1px;
+            top: 50%;
+            margin-top: -3px;
+            width: 6px;
+            height: 6px;
+            border-radius: 6px;
+            border: 3px solid #15c39a;
           }
         }
       }
