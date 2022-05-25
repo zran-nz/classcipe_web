@@ -3,6 +3,11 @@
     <a-dropdown>
       <a-menu slot="overlay" class='create-new-menu'>
         <a-menu-item>
+          <a @click='handleImport'>
+            Import
+          </a>
+        </a-menu-item>
+        <a-menu-item>
           <router-link to='/teacher/unit-plan-redirect/create'>
             {{ $t('menu.unit-plan') }}
           </router-link>
@@ -26,12 +31,26 @@
       <a-button class='create-new-btn'>Create New <a-icon type="caret-down" :style="{color: '#4F4F4F'}"/>
       </a-button>
     </a-dropdown>
+
+    <import-content :visible='showImportContent' @close='showImportContent = false'/>
   </div>
 </template>
 
 <script>
+import ImportContent from '@/components/ImportContent/ImportContent'
 export default {
-  name: 'CreateNew'
+  name: 'CreateNew',
+  components: { ImportContent },
+  data () {
+    return {
+      showImportContent: false
+    }
+  },
+  methods: {
+    handleImport () {
+      this.showImportContent = true
+    }
+  }
 }
 </script>
 

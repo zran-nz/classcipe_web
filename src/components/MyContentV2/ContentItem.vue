@@ -57,12 +57,6 @@
               </template>
             </custom-button>
 
-            <custom-button label='Original Tips'>
-              <template v-slot:icon>
-                <original-tips-icon />
-              </template>
-            </custom-button>
-
             <custom-button
               label='Schedule'
               v-if='content.type === typeMap.task || content.type === typeMap.pd'
