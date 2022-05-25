@@ -24,6 +24,8 @@
     <div class='cc-header-right'>
       <slot name='right'>
         <form-header-action-bar
+          :collaborate-user-list="collaborateUserList"
+          :online-users="onlineUsers"
           :show-publish="isOwner"
           :show-invite="isOwner"
           :show-collaborate="isOwner || isCollaborater"
@@ -99,29 +101,30 @@ export default {
       typeMap: typeMap,
       editFormNameMode: false,
       formName: '',
-      collaborateUserList: [],
       owner: {},
       isShare: false,
-      onlineUsers: [this.$store.getters.userInfo.email],
+      onlineUsers: [],
+      collaborateUserList: [],
       debounceHiddenHeader: null
     }
   },
   computed: {
     isOwner() {
-      return this.form && this.$store.getters.userInfo.email === this.form.createBy
+      return this.form && this.user.email === this.form.createBy
     },
     isCollaborater() {
-      const index = this.collaborateUserList.findIndex(item => item.email === this.$store.getters.userInfo.email)
+      const index = this.collaborateUserList.findIndex(item => item.email === this.user.email)
       return index > -1
     },
     isEditCollaborater() {
-      const index = this.collaborateUserList.findIndex(item => item.email === this.$store.getters.userInfo.email)
+      const index = this.collaborateUserList.findIndex(item => item.email === this.user.email)
       if (index > -1) {
         return this.collaborateUserList[index].permissions === 'Edit'
       }
       return false
     },
     ...mapState({
+      user: state => state.user.info,
       removedCollaborate: state => state.websocket.removedCollaborate,
       hiddenHeader: state => state.app.hiddenHeader
     })
@@ -129,7 +132,7 @@ export default {
   watch: {
     collaborate(val) {
       this.owner = val.owner
-      const onlineList = [this.$store.getters.userInfo.email].concat(val.onlineEmails)
+      const onlineList = [this.user.email].concat(val.onlineEmails)
       this.onlineUsers = onlineList
       this.formatUserList(val.users)
     },
@@ -149,7 +152,7 @@ export default {
           }
         })
       }
-      const index = this.collaborate.users.findIndex(item => item.email === this.$store.getters.userInfo.email)
+      const index = this.collaborate.users.findIndex(item => item.email === this.user.email)
       if (index > -1) {
         this.collaborate.users.splice(index, 1)
       }

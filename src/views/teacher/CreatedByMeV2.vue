@@ -5,11 +5,12 @@
         <radio-switch @select="handleSelectShareType" :menu-list='menuList' />
       </div>
       <div class='create-new'>
-        <create-new />
+        <a-space>
+          <create-new />
+          <global-search-input />
+          <user-profile-avatar />
+        </a-space>
       </div>
-    </div>
-    <div class='filter-bar'>
-      <content-filter @search='handleSearch'/>
     </div>
     <div class='content-wrapper'>
       <a-spin tip='Loading...' :spinning="loading">
@@ -52,11 +53,14 @@ import NoMoreResources from '@/components/Common/NoMoreResources'
 import RadioSwitch from '@/components/Common/RadioSwitch'
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
+import GlobalSearchInput from '@/components/GlobalSearch/GlobalSearchInput'
+import UserProfileAvatar from '@/components/User/UserProfileAvatar'
+import UserModeChangeEvent from '@/components/User/UserModeChangeEvent'
 
 export default {
   name: 'CreatedByMeV2',
   mixins: [UserModeMixin, CurrentSchoolMixin],
-  components: { RadioSwitch, NoMoreResources, ContentPublish, ContentItem, ContentFilter, CreateNew },
+  components: { UserProfileAvatar, GlobalSearchInput, RadioSwitch, NoMoreResources, ContentPublish, ContentItem, ContentFilter, CreateNew },
   data () {
     return {
       menuList: [
@@ -102,9 +106,13 @@ export default {
       this.shareType = parseInt(this.$route.query.shareType)
     }
     this.loadMyContent()
+    this.$EventBus.$on(UserModeChangeEvent.NEED_RELOAD_CONTENT_LIST, this.handleSchoolChange)
+  },
+  beforeDestroy() {
+    this.$EventBus.$off(UserModeChangeEvent.NEED_RELOAD_CONTENT_LIST, this.handleSchoolChange)
   },
   methods: {
-    handleSchoolChange(currentSchool) {
+    handleSchoolChange() {
       this.pageNo = 1
       this.loadMyContent()
     },

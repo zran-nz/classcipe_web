@@ -2,7 +2,7 @@
   <div class="teacher-nav top-nav-v2">
     <div class='top-menu' @dblclick='handleExpandMenu'>
       <div class='menu menu-block' @dblclick.stop=''>
-        <sidebar-menu-item label='Library' path='/teacher/library-v2'>
+        <sidebar-menu-item label='Library' path='/teacher/library-v3'>
           <template v-slot:icon>
             <library-icon />
           </template>
@@ -49,60 +49,6 @@
             <managing-icon />
           </template>
         </sidebar-menu-item>
-      </div>
-    </div>
-
-    <div class='bottom-menu' @dblclick.stop=''>
-      <div class='menu-icon-block' :style="{'flex-direction': collapsed ? 'column-reverse' : 'row'}">
-        <div class='cc-menu-icon-item avatar-menu-item'>
-          <a-dropdown :placement="'topCenter'">
-            <a-avatar :src="$store.getters.userInfo.avatar" v-if="$store.getters.userInfo.avatar"/>
-            <a-avatar src="~@/assets/logo/beatop.png" v-else/>
-            <a-menu slot="overlay">
-              <a-menu-item key="settings" @click="handleToSettings">
-                <a-icon type="user" />
-                {{ $t('menu.account.profile') }}
-              </a-menu-item>
-              <template v-if="navMenu && navMenu.length > 0">
-                <a-menu-item-group :key="'g1'+index" v-for="(item, index) in navMenu">
-                  <template slot="title"><span>{{ $t(item.meta.title) }}</span> </template>
-                  <a-menu-item :key="'g1_child_'+childIndex" v-for="(child, childIndex) in item.children">
-                    <router-link :to="child.path">
-                      {{ $t(child.meta.title) }}
-                    </router-link>
-                  </a-menu-item>
-                </a-menu-item-group>
-              </template>
-              <a-menu-item key="logout" @click="handleLogout">
-                <a-icon type="logout" />
-                {{ $t('menu.account.logout') }}
-              </a-menu-item>
-            </a-menu>
-          </a-dropdown>
-        </div>
-        <div class='switch-school-personal' v-show='!collapsed'>
-          <div class='role-school-personal'>
-            <a-dropdown class='cc-role-dropdown' :placement="'topCenter'" :trigger="['click']">
-              <a-menu slot="overlay">
-                <a-menu-item class="self-mode" @click="handleChangePersonal">
-                  <span class='menu-label'>Personal</span>
-                </a-menu-item>
-                <a-menu-item :key="item.id" v-for="item in info.schoolList" @click="handleChangeSchool(item)">
-                  <span class='menu-label'>{{ item.schoolName }}</span>
-                </a-menu-item>
-              </a-menu>
-              <div class='current-role'>
-                {{ userMode === USER_MODE.SCHOOL ? currentSchool.schoolName : 'Personal' }} <a-icon type="caret-down" />
-              </div>
-            </a-dropdown>
-          </div>
-        </div>
-        <div class='cc-menu-icon-item'>
-          <router-link to='/notification'>
-            <a-icon type="mail" theme='filled' :style="{ fontSize: '14px' }" v-if="$route.path.startsWith('/notification')"/>
-            <a-icon type="mail" :style="{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.65)' }" v-else/>
-          </router-link>
-        </div>
       </div>
     </div>
   </div>
@@ -317,6 +263,7 @@ export default {
   justify-content: space-around;
   align-items: center;
   padding: 0 10px 10px 10px;
+  justify-content: center;
   .cc-menu-icon-item {
     user-select: none;
     padding: 0 15px;
@@ -328,7 +275,6 @@ export default {
   }
 
   .switch-school-personal {
-    flex-grow: 1;
 
     .current-role {
       font-family: Arial;
@@ -361,12 +307,8 @@ export default {
 
   .top-menu {
     flex-grow: 1;
-    max-height: calc(100vh - 140px);
-    overflow-y: scroll;
-  }
-
-  .bottom-menu {
-    flex-shrink: 0;
+    max-height: calc(100vh - 90px);
+    overflow-y: auto;
   }
 }
 

@@ -8,13 +8,12 @@
     width='700px'>
     <modal-header title='Please select a Unit this session belongs to' :allow-close='false'/>
     <div class='data-list'>
-      <div class='data-content-item' v-for='content in list' :key='content.id'>
+      <div class='data-content-item' :class="{'active-item': content === selected}" v-for='content in list' :key='content.id' @click='handleSelect(content)'>
         <content-item
           :show-button='false'
           :click-preview='false'
           :border-style="selected === content ? 'solid' : 'dashed'"
-          :content='content'
-          @click.native='handleSelect(content)' />
+          :content='content' />
       </div>
     </div>
     <div class='modal-action-right'>
@@ -53,6 +52,7 @@ export default {
       this.$emit('back')
     },
     handleSelect (content) {
+      this.$logger.info('handleSelect', content)
       this.selected = content
     },
     handleConfirmSelect () {
@@ -65,4 +65,7 @@ export default {
 <style lang='less' scoped>
 @import "~@/components/index.less";
 
+.active-item {
+  outline: 2px solid #15c39a;
+}
 </style>

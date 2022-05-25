@@ -32,7 +32,7 @@
     <!--      <global-footer />-->
     <!--    </template>-->
     <!-- 主页面内容 -->
-    <div :class="{'classcipe-main': true, 'no-full-layout': !fullLayoutFlag}">
+    <div>
       <router-view />
     </div>
   </pro-layout>
@@ -114,10 +114,7 @@ export default {
       // 动态主路由
       mainMenu: state => state.permission.addRouters,
       collapsed: state => state.app.sideCollapsed
-    }),
-    fullLayoutFlag () {
-      return this.$route.meta.fullLayout
-    }
+    })
   },
   created () {
     logger.info('BasicLayout created, path ' + this.$route.path)
@@ -140,8 +137,6 @@ export default {
         this.showGlobalHeader(true)
       }
     }
-
-    this.$logger.info('fullLayoutFlag', this.fullLayoutFlag)
   },
   methods: {
     i18nRender,

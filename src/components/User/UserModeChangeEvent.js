@@ -1,0 +1,3 @@
+export default {
+  NEED_RELOAD_CONTENT_LIST: 'NEED_RELOAD_CONTENT_LIST'
+}
