@@ -12,7 +12,10 @@
     <a-row>
       <a-col span='13'>
         <div class='school-switch'>
-          <a-radio-group :default-value="currentSchool" button-style="solid" class='cc-radio-group' v-model='currentSchool' @change='handleSearchContent'>
+          <a-radio-group :default-value="currentSchoolId" button-style="solid" class='cc-radio-group' v-model='currentSchoolId' @change='handleSearchContent'>
+            <a-radio-button :value="null">
+              Personal
+            </a-radio-button>
             <a-radio-button :value="school.id" v-for='school in info.schoolList' :key='school.id'>
               {{ school.schoolName }}
             </a-radio-button>
@@ -94,7 +97,7 @@ export default {
   },
   data() {
     return {
-      currentSchool: null,
+      currentSchoolId: null,
       pagination: {
         onChange: page => {
           logger.info('pagination onChange', page)
@@ -121,9 +124,6 @@ export default {
   },
   created() {
     this.handleSearchContent()
-    if (this.info.schoolList) {
-      this.currentSchool = this.info.schoolList[0].id
-    }
   },
   methods: {
     handleCloseModal () {
@@ -142,8 +142,8 @@ export default {
         delFlag: 0
       }
 
-      if (this.currentSchool) {
-        params.schooldId = this.currentSchool.id
+      if (this.currentSchoolId) {
+        params.schooldId = this.currentSchoolId
       }
       FindMyContent(params).then(res => {
         logger.info('handleSearchContent', res)
@@ -266,6 +266,7 @@ export default {
 
 .school-switch {
   padding-left: 30px;
+  overflow-x: auto;
 }
 
 .active-item-preview {
