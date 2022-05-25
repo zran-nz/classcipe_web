@@ -58,10 +58,15 @@ import GlobalSearchInput from '@/components/GlobalSearch/GlobalSearchInput'
 import UserProfileAvatar from '@/components/User/UserProfileAvatar'
 import UserModeChangeEvent from '@/components/User/UserModeChangeEvent'
 import ContentTypeFilter from '@/components/MyContentV2/ContentTypeFilter'
+import { mapState } from 'vuex'
 
 export default {
   name: 'CreatedByMeV2',
   mixins: [UserModeMixin, CurrentSchoolMixin],
+  ...mapState({
+    info: state => state.user.info,
+    currentSchool: state => state.user.currentSchool
+  }),
   components: { ContentTypeFilter, UserProfileAvatar, GlobalSearchInput, RadioSwitch, NoMoreResources, ContentPublish, ContentItem, ContentFilter, CreateNew },
   data () {
     return {
@@ -140,7 +145,8 @@ export default {
         pageSize: this.pagination.pageSize,
         searchKey: this.searchText ? this.searchText : '',
         types: this.filterType ? [this.filterType] : [],
-        delFlag: 0
+        delFlag: 0,
+        schoolId: this.currentSchool?.id
       }
       if (this.filterParams) {
         params = Object.assign(this.filterParams, params)
