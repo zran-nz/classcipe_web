@@ -30,7 +30,7 @@ export default {
         this.$router.replace('/teacher/add-task-v2/' + this.taskId)
       } else {
         const data = {
-          name: null,
+          name: 'Untitled task',
           status: 0
         }
 
