@@ -51,7 +51,7 @@
               </div>
             </a-col>
             <a-col span='6'>
-              <a-radio-group v-model="tag.isOptional" @change="handleOptionalChange(tag)" class='tag-body-item' v-if='!tag.schoolId'>
+              <a-radio-group :disabled="!tag.isOptional" v-model="tag.isOptional" @change="handleOptionalChange(tag)" class='tag-body-item' v-if='!tag.schoolId'>
                 <a-radio :value="true">
                   Yes
                 </a-radio>
@@ -62,7 +62,7 @@
               <div class='school-setting' v-if='tag.schoolId'>{{ tag.isOptional ? 'Yes' : 'No' }}</div>
             </a-col>
             <a-col span='6'>
-              <a-radio-group class='tag-body-item' v-model="tag.createOwn" @change="handleCreateOwnChange(tag)" v-if='!tag.schoolId'>
+              <a-radio-group class='tag-body-item' :disabled="!tag.createOwn" v-model="tag.createOwn" @change="handleCreateOwnChange(tag)" v-if='!tag.schoolId'>
                 <a-radio :value="true">
                   Yes
                 </a-radio>
