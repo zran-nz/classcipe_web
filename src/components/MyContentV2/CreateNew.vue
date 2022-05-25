@@ -8,7 +8,9 @@
           </router-link>
         </a-menu-item>
         <a-menu-item>
-          <a @click='showTaskModeChoose'> {{ $t('menu.task') }}</a>
+          <router-link to='/teacher/task-redirect'>
+            {{ $t('menu.task') }}
+          </router-link>
         </a-menu-item>
         <a-menu-item>
           <router-link to='/teacher/pd-content-redirect/create'>
@@ -24,28 +26,12 @@
       <a-button class='create-new-btn'>Create New <a-icon type="caret-down" :style="{color: '#4F4F4F'}"/>
       </a-button>
     </a-dropdown>
-    <task-mode-choose @close='closeTaskModeChoose' :visible='showTaskMode' v-if='showTaskMode'/>
   </div>
 </template>
 
 <script>
-import TaskModeChoose from '@/components/QuickSession/TaskModeChoose'
 export default {
-  name: 'CreateNew',
-  components: { TaskModeChoose },
-  data () {
-    return {
-      showTaskMode: false
-    }
-  },
-  methods: {
-    showTaskModeChoose () {
-      this.showTaskMode = true
-    },
-    closeTaskModeChoose() {
-      this.showTaskMode = false
-    }
-  }
+  name: 'CreateNew'
 }
 </script>
 
