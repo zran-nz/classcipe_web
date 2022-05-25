@@ -3,7 +3,8 @@ import request from '@/utils/request'
 export const MyContentV2Url = {
   GetLinkCategory: '/classcipe/api/v2/mycontent/getLinkCategory',
   AddOrUpdateLinkCategory: '/classcipe/api/v2/mycontent/addOrUpdateLinkCategory',
-  DeleteLinkCategory: '/classcipe/api/v2/mycontent/deleteLinkCategory'
+  DeleteLinkCategory: '/classcipe/api/v2/mycontent/deleteLinkCategory',
+  ImportOtherIdentityContent: '/classcipe/api/v2/mycontent/importOtherIdentityContent'
 }
 
 /**
@@ -48,5 +49,13 @@ export function DeleteLinkCategory (parameter) {
     headers: {
       'content-type': 'application/x-www-form-urlencoded'
     }
+  })
+}
+
+export function ImportOtherIdentityContent(parameter) {
+  return request({
+    url: MyContentV2Url.ImportOtherIdentityContent,
+    method: 'post',
+    data: parameter
   })
 }

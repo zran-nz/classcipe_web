@@ -217,10 +217,10 @@ export default {
   created () {
     logger.info('teacher my content')
     this.loadMyContent()
-    this.$EventBus.$on(UserModeChangeEvent.USER_MODE_CHANGE, this.handleSchoolChange)
+    this.$EventBus.$on(UserModeChangeEvent.NEED_RELOAD_CONTENT_LIST, this.handleSchoolChange)
   },
   beforeDestroy() {
-    this.$EventBus.$off(UserModeChangeEvent.USER_MODE_CHANGE, this.handleSchoolChange)
+    this.$EventBus.$off(UserModeChangeEvent.NEED_RELOAD_CONTENT_LIST, this.handleSchoolChange)
   },
   methods: {
     handleSchoolChange() {

@@ -1,5 +1,5 @@
 <template>
-  <div class='content-item' v-if='content'>
+  <div class='content-item' v-if='content' :style="{'border': activeItem ? '1px solid #15c39a' : '1px solid #EEF1F6'}">
     <div class='cover' @click='handlePreviewDetail(content)'>
       <div class='cover-block' :style="{'background-image': 'url(' + content.image + ')'}">
       </div>
@@ -131,6 +131,10 @@ export default {
     clickPreview: {
       type: Boolean,
       default: true
+    },
+    activeItem: {
+      type: Boolean,
+      default: false
     }
   },
   mixins: [ContentItemMixin],
@@ -205,6 +209,7 @@ export default {
 
 .content-item {
   padding: 1rem;
+  width: 100%;
   margin: 1rem 0;
   font-size: 1rem;
   display: flex;
@@ -212,7 +217,6 @@ export default {
   align-items: flex-start;
   overflow: hidden;
   border-radius: 7px;
-  border: 1px solid #EEF1F6;
 
   .cover {
     .cover-block {

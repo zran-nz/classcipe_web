@@ -140,7 +140,7 @@ export default {
         schoolId: ''
       }).finally(() => {
         this[TOOGLE_USER_MODE](USER_MODE.SELF)
-        this.$EventBus.$emit(UserModeChangeEvent.USER_MODE_CHANGE)
+        this.$EventBus.$emit(UserModeChangeEvent.NEED_RELOAD_CONTENT_LIST)
       })
     },
     handleChangeSchool(val) {
@@ -153,7 +153,7 @@ export default {
         const item = this.info.schoolList.find(item => item.id === val.id)
         this.SET_CURRENT_SCHOOL(item)
         this.GetClassList(this.userMode)
-        this.$EventBus.$emit(UserModeChangeEvent.USER_MODE_CHANGE, this.userMode)
+        this.$EventBus.$emit(UserModeChangeEvent.NEED_RELOAD_CONTENT_LIST, this.userMode)
       })
     }
   }
