@@ -61,7 +61,12 @@
           Profile
         </div>
         <div class='account profile-menu-item' @click='handleToSettings'>
-          Account
+          <template v-if='userMode === USER_MODE.SCHOOL'>
+            School account
+          </template>
+          <template v-else>
+            Account
+          </template>
         </div>
         <div class='logout profile-menu-item' @click='handleLogout'>
           Logout
