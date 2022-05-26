@@ -16,7 +16,7 @@
       <a-icon type="check-circle" :style="{fontSize: '20px', color: 'green'}" />
     </div>
     <div class='required-step check-result-icon' v-if='showRequiredTips'>
-      <a-tooltip title="Current step has unfilled required fields">
+      <a-tooltip title="Please complete the marked area(s) before publishing.">
         <a-icon type="exclamation-circle" :style="{fontSize: '20px', color: 'red'}" />
       </a-tooltip>
     </div>
