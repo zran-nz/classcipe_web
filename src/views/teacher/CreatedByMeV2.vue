@@ -6,6 +6,7 @@
       </div>
       <div class='create-new'>
         <a-space>
+          <content-type-filter @change='handleUpdateFilterType'/>
           <create-new />
           <global-search-input />
           <user-profile-avatar />
@@ -55,12 +56,17 @@ import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import GlobalSearchInput from '@/components/GlobalSearch/GlobalSearchInput'
 import UserProfileAvatar from '@/components/User/UserProfileAvatar'
-import UserModeChangeEvent from '@/components/User/UserModeChangeEvent'
+import ContentTypeFilter from '@/components/MyContentV2/ContentTypeFilter'
+import { mapState } from 'vuex'
 
 export default {
   name: 'CreatedByMeV2',
   mixins: [UserModeMixin, CurrentSchoolMixin],
-  components: { UserProfileAvatar, GlobalSearchInput, RadioSwitch, NoMoreResources, ContentPublish, ContentItem, ContentFilter, CreateNew },
+  ...mapState({
+    info: state => state.user.info,
+    currentSchool: state => state.user.currentSchool
+  }),
+  components: { ContentTypeFilter, UserProfileAvatar, GlobalSearchInput, RadioSwitch, NoMoreResources, ContentPublish, ContentItem, ContentFilter, CreateNew },
   data () {
     return {
       menuList: [
@@ -106,10 +112,6 @@ export default {
       this.shareType = parseInt(this.$route.query.shareType)
     }
     this.loadMyContent()
-    this.$EventBus.$on(UserModeChangeEvent.NEED_RELOAD_CONTENT_LIST, this.handleSchoolChange)
-  },
-  beforeDestroy() {
-    this.$EventBus.$off(UserModeChangeEvent.NEED_RELOAD_CONTENT_LIST, this.handleSchoolChange)
   },
   methods: {
     handleSchoolChange() {
@@ -137,8 +139,9 @@ export default {
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize,
         searchKey: this.searchText ? this.searchText : '',
-        types: [],
-        delFlag: 0
+        types: this.filterType ? [this.filterType] : [],
+        delFlag: 0,
+        schoolId: this.currentSchool?.id
       }
       if (this.filterParams) {
         params = Object.assign(this.filterParams, params)
@@ -222,6 +225,13 @@ export default {
     },
     handleSelectShareType(item) {
       this.shareType = item.type
+      this.loadMyContent()
+    },
+
+    handleUpdateFilterType (filterType) {
+      this.$logger.info('handleUpdateFilterType', filterType)
+      this.filterType = filterType
+      this.pageNo = 1
       this.loadMyContent()
     }
   }

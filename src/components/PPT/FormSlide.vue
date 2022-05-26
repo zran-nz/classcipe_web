@@ -30,14 +30,14 @@
     <div class='form-slide-content'>
       <div class='slide-wrapper'>
         <slide-viewer
-          v-show='displayMode === displayModeType.SlideTemplate'
+          v-show='displayMode === displayModeType.SlideDrift'
           :show-arrow='true'
           :show-nav='true'
           :show-notes='true'
           :slide-id='slideId'
           v-bind="$attrs" />
-        <slide-drift
-          v-show='displayMode === displayModeType.SlideDrift'
+        <slide-template
+          v-show='displayMode === displayModeType.SlideTemplate'
           v-bind="$attrs"
         />
       </div>
@@ -50,7 +50,7 @@
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import GoogleIcon from '@/assets/v2/icons/google_02.svg?inline'
 import SlideViewer from '@/components/PPT/SlideViewer'
-import SlideDrift from '@/components/PPT/SlideDrift'
+import SlideTemplate from '@/components/PPT/SlideTemplate'
 
 const displayModeType = {
   SlideDrift: 'SlideDrift',
@@ -60,7 +60,7 @@ const displayModeType = {
 export default {
   name: 'FormSlide',
   components: {
-    SlideDrift,
+    SlideTemplate,
     SlideViewer,
     CustomTextButton,
     GoogleIcon

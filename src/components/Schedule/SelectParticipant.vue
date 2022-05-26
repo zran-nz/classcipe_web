@@ -5,9 +5,6 @@
         <div class='title-item'>
           Class list
         </div>
-        <div class='title-action' @click='creatingNewClass = !creatingNewClass'>
-          Add new
-        </div>
       </div>
       <div class='class-list'>
         <div
@@ -26,34 +23,32 @@
           </div>
           <div class='class-name'>{{ classItem.name }}</div>
         </div>
-        <div
-          class='input-class-item'
-          v-if='creatingNewClass'>
-          <div class='item-checked-icon'>
-            <div class="empty-circle"></div>
-          </div>
-          <div class='class-name'>
-            <a-select
-              show-search
-              :value="newClassName"
-              placeholder="Input class name"
-              style="width: 200px"
-              :default-active-first-option="false"
-              :show-arrow="false"
-              :filter-option="false"
-              :not-found-content="null"
-              @search="handleFilterClass"
-              @change="handleChangeFilterClass"
-              @keyup.native.enter='handleEnsureCreate'
-            >
-              <a-select-option v-for="classItem in displayClassList" :key="classItem.id">
-                {{ classItem.name }}
-              </a-select-option>
-            </a-select>
-          </div>
-        </div>
         <div class='open-session'>
-          <a-button type='primary' @click='handleSelectOpenSession'>Open Session</a-button>
+          <a-space>
+            <custom-text-button @click='selectPrivateWorkshop' label='Private Workshop'>
+              <template v-slot:badge>
+                <a-tooltip
+                  title="Private workshop allows you to set up a session for your students
+without having a class. Zoom is not available for free-plan users,
+you can ask your student to attend via direct link generated on the workshop page. ">
+                  <a-icon type="question-circle" theme="filled" :style="{ fontSize: '16px', color: '#EB5062' }"/>
+                </a-tooltip>
+              </template>
+            </custom-text-button>
+            <custom-text-button @click='selectPublicWorkshop' label='Public Workshop'>
+              <template v-slot:badge>
+                <a-tooltip
+                  title="Public workshop can only be promoted by our platform
+via library and featured list(you can not invite people
+to participate via direct link, they can only attend upon
+registration(optional) and you can set price for attendants.
+After scheduling, you can edit it in live workshop
+page, thus zoom will be auto-scheduled.">
+                  <a-icon type="question-circle" theme="filled" :style="{ fontSize: '16px', color: '#EB5062' }"/>
+                </a-tooltip>
+              </template>
+            </custom-text-button>
+          </a-space>
         </div>
       </div>
     </div>
@@ -110,11 +105,11 @@
 import { getClassesStudent } from '@/api/v2/classes'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import InputWithCreate from '@/components/Common/InputWithCreate'
-import { PersonalAddOrUpdateClass } from '@/api/schoolClass'
+import CustomTextButton from '@/components/Common/CustomTextButton'
 
 export default {
   name: 'SelectParticipant',
-  components: { InputWithCreate, NoMoreResources },
+  components: { CustomTextButton, InputWithCreate, NoMoreResources },
   props: {
     classList: {
       type: Array,
@@ -127,14 +122,8 @@ export default {
       studentList: [],
       checkedClass: [],
       studentListLoading: false,
-      checkedStudent: [],
-
-      creatingNewClass: false,
-      displayClassList: this.classList,
-      newClassName: null
+      checkedStudent: []
     }
-  },
-  created() {
   },
   methods: {
     handleSelectClass (item) {
@@ -166,9 +155,18 @@ export default {
       }
     },
 
-    handleSelectOpenSession () {
-      this.$logger.info('handleSelectOpenSession', this.checkedStudent)
-      this.$emit('select-open-session')
+    selectPrivateWorkshop () {
+      this.$logger.info('selectPrivateWorkshop', this.checkedStudent)
+      this.$emit('select-private-workshop', {
+        isPublic: true
+      })
+    },
+
+    selectPublicWorkshop () {
+      this.$logger.info('selectPrivateWorkshop', this.checkedStudent)
+      this.$emit('select-public-workshop', {
+        isPublic: true
+      })
     },
 
     getSelectedData () {
@@ -197,31 +195,6 @@ export default {
         }
       })
       this.$emit('select-class-student')
-    },
-
-    handleChangeFilterClass (value) {
-      this.$logger.info('handleCreateClass', value)
-      this.creatingNewClass = false
-      this.newClassName = null
-    },
-    handleFilterClass (value) {
-      this.$logger.info('handleFilterClass', value)
-      this.newClassName = value
-      this.displayClassList = this.classList.filter(item => item.name.indexOf(value) !== -1)
-      this.$logger.info('handleFilterClass handleCreateClass', this.displayClassList)
-    },
-
-    handleEnsureCreate () {
-      this.$logger.info('handleEnsureCreate', this.newClassName)
-      if (this.classList.some(item => item.name === this.newClassName)) {
-        this.$message.error('Class name already exists.')
-      } else {
-        this.creatingNewClass = false
-        PersonalAddOrUpdateClass({ name: this.newClassName }).then(response => {
-          this.$emit('update-class-list')
-          this.newClassName = null
-        })
-      }
     }
   }
 }
@@ -247,8 +220,10 @@ export default {
     cursor: pointer;
     user-select: none;
     .title-item {
-      font-weight: 500;
-      color: #333;
+      font-size: 14px;
+      font-family: Arial;
+      font-weight: bold;
+      color: #202020;
     }
 
     .title-action {
@@ -266,16 +241,15 @@ export default {
   height: 100%;
   position: relative;
   .class-list, .student-list {
-    border: 1px solid #f1f1f1;
-    padding: 10px;
-    min-width: 300px;
-    max-width: 500px;
-    height: calc(100% - 50px);
-    overflow-y: scroll;
+    padding: 0 10px 10px 10px;
+    min-width: 400px;
+    max-width: 100%;
+    height: calc(100% - 90px);
+    overflow-y: auto;
     .class-item {
-      line-height: 35px;
-      padding: 0 5px;
-      margin: 3px 0;
+      margin-bottom: 13px;
+      line-height: 30px;
+      padding: 13px 10px 13px 13px;
       user-select: none;
       cursor: pointer;
       font-size: 14px;
@@ -283,17 +257,17 @@ export default {
       flex-direction: row;
       align-items: center;
       justify-content: flex-start;
-      border: 2px solid #fff;
+      border: 1px solid #E1E6ED;
+      border-radius: 3px;
 
       .class-name {
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
-        font-family: Inter-Bold;
-      }
-
-      &:hover {
-        border: 2px solid #15c39a;
+        font-size: 14px;
+        font-family: Arial;
+        font-weight: bold;
+        color: #202020;
       }
     }
 
@@ -312,36 +286,31 @@ export default {
     }
 
     .selected-item {
-      background-color: #15c39a2e;
+      background-color: #15c39a11;
       color: #15c39a;
+      border: 1px solid #15c39a;
     }
 
     .current-active-item {
-      background-color: #15c39a;
-      border: 2px solid #15c39a;
-      color: #fff;
+      background-color: #15c39a11;
+      color: #15c39a;
+      border: 1px solid #15c39a;
     }
-  }
-
-  .class-list {
-    padding-bottom: 50px;
-    height: calc(100% - 50px);
   }
 
   .open-session {
     width: calc(100% - 20px);
-    height: 50px;
+    margin-top: 15px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: flex-start;
     background-color: #fff;
-    border-top: 1px solid #f1f1f1;
     position: absolute;
-    bottom: 5px;
+    bottom: -30px;
   }
 
   .student-list {
-    width: 350px;
     .no-student-tips {
       height: 300px;
       display: flex;

@@ -17,7 +17,7 @@
 <script>
 import SlideViewer from '@/components/PPT/SlideViewer'
 export default {
-  name: 'SlideDrift',
+  name: 'SlideTemplate',
   components: { SlideViewer },
   props: {
     selectedTemplateList: {
@@ -29,7 +29,7 @@ export default {
     return {}
   },
   created() {
-    this.$logger.info('SlideDrift created ', this.displaySelectedTemplateList)
+    this.$logger.info('SlideTemplate created ', this.displaySelectedTemplateList)
   },
   computed: {
     displaySelectedTemplateList () {

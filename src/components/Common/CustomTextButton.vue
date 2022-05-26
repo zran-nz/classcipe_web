@@ -11,6 +11,10 @@
       <slot name='suffix'>
       </slot>
     </div>
+    <div class='cc-badge'>
+      <slot name='badge'>
+      </slot>
+    </div>
   </div>
 </template>
 
@@ -42,6 +46,7 @@ export default {
 @import "~@/components/index.less";
 
 .cc-custom-text-button {
+  position: relative;
   padding: 7px 20px;
   border-radius: 40px;
   font-family: Arial;
@@ -72,6 +77,7 @@ export default {
       color: #292929 !important;
     }
   }
+
   .label {
     padding: 0 6px;
     line-height: 16px;
@@ -79,6 +85,12 @@ export default {
     font-family: Arial;
     font-weight: 400;
     color: #292929;
+  }
+
+  .cc-badge {
+    position: absolute;
+    top: -10px;
+    right: -5px;
   }
 }
 </style>
