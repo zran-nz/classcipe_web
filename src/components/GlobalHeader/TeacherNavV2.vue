@@ -44,6 +44,11 @@
             <managing-icon />
           </template>
         </sidebar-menu-item>
+        <sidebar-menu-item label='Calendar' path='/teacher/main/calendar'>
+          <template v-slot:icon>
+            <managing-icon />
+          </template>
+        </sidebar-menu-item>
       </div>
     </div>
   </div>

@@ -31,6 +31,9 @@ import EventBus from './utils/eventBus'
 // import VueRecord from '@codekraft-studio/vue-record'
 import preview from 'vue-photo-preview'
 import VueClipboard from 'vue-clipboard2'
+// "sass": "~1.32",
+// "sass-loader": "^10.2.0",
+// import vuetify from './plugins/vuetify'
 Vue.prototype.$EventBus = EventBus
 Vue.use(preview, { maxSpreadZoom: 4 })
 Vue.use(VueClipboard)
@@ -85,6 +88,7 @@ new Vue({
   router,
   store,
   i18n,
+  // vuetify,
   // init localstorage, vuex
   created: bootstrap,
   render: h => h(App)
