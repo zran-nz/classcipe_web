@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class='my-content'>
     <a-spin :spinning="loading">
       <div class="schedule-content">
         <FullCalendar
@@ -25,7 +25,7 @@
               </span>
               <a-tooltip>
                 <template slot="title">
-                  prompt text
+                  {{ info.event.title }}
                 </template>
                 <label for="">{{ info.event.title }} </label>
               </a-tooltip>
@@ -34,19 +34,32 @@
         </FullCalendar>
       </div>
     </a-spin>
-    <div class="tooltip">
+    <div class="tooltip" v-clickOutside="closeTip">
       <div class="tooltip-wrap" ref="tooltip">
         <div class="tooltip-content">
-          <h4>{{ event.title }}</h4>
-          <div>Class: {{ event.classId }}</div>
+          <div class="content-item" @click="handleAddUnit"><span>Add Unit</span></div>
+          <div class="content-item" @click="handleAddSession"><span>Add Session</span></div>
         </div>
       </div>
     </div>
+    <a-modal
+      v-model='importVisible'
+      :closable='true'
+      :footer='null'
+      :maskClosable='true'
+      destroyOnClose
+      width='1000px'
+      @cancel='handleCloseImport'>
+      <content-select
+        :type="importType"
+        :title="importTitle"
+        @choose="handleChoose"
+      />
+    </a-modal>
   </div>
 </template>
 
 <script>
-import { tippy } from 'vue-tippy'
 
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
@@ -56,11 +69,12 @@ import FullCalendar from '@fullcalendar/vue'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
-import EPie from '@/components/ECharts/Pie'
+import ContentSelect from '@/components/MyContentV2/ContentSelect'
 
 import { getClassSchedule } from '@/api/selfStudy'
 
 import { ABSENT_COLORS, BG_COLORS, TASK_ATTENDANCE } from '@/const/common'
+import { typeMap } from '@/const/teacher'
 
 import { mapState } from 'vuex'
 
@@ -71,12 +85,13 @@ export default {
   mixins: [UserModeMixin, CurrentSchoolMixin],
   components: {
     FullCalendar,
-    EPie
+    ContentSelect
   },
   data() {
     return {
       ABSENT_COLORS: ABSENT_COLORS,
       BG_COLORS: BG_COLORS,
+      typeMap: typeMap,
       currentClassList: [{
         id: '1'
       }],
@@ -643,13 +658,13 @@ export default {
             this.loading = false
           })
         },
-        editable: false,
-        selectable: false,
-        selectMirror: false,
+        editable: true,
+        selectable: true,
+        selectMirror: true,
         dayMaxEvents: true,
         weekends: true,
         select: this.handleDateSelect,
-        // eventClick: this.handleEventClick,
+        eventClick: this.handleEventClick,
         eventsSet: this.handleEvents,
         datesSet: this.handleDatesSet,
         eventMouseEnter: this.handleMouseEnter,
@@ -679,53 +694,16 @@ export default {
 
       showClass: [],
       showStatus: [],
-      showStatusOptions: []
+      showStatusOptions: [],
+
+      importVisible: false,
+      importType: typeMap.task
     }
   },
   computed: {
     ...mapState({
       currentSchool: state => state.user.currentSchool
     }),
-    dataSource() {
-      const currentEvents = this.getCurrentEvents()
-      const presentCount = currentEvents.filter(item => item.attendance === TASK_ATTENDANCE.PRESENT).length
-      return [
-        // { item: 'Absent', count: currentEvents.length - presentCount, color: ABSENT_COLORS[0] },
-        // { item: 'Present', count: presentCount, color: ABSENT_COLORS[1] }
-        { name: 'Absent', value: currentEvents.length - presentCount, color: ABSENT_COLORS[0] },
-        { name: 'Present', value: presentCount, color: ABSENT_COLORS[1] }
-      ]
-    },
-    guideData() {
-      const currentEvents = this.getCurrentEvents()
-      const presentCount = currentEvents.filter(item => item.attendance === TASK_ATTENDANCE.PRESENT).length
-      return [{
-        content: currentEvents.length - presentCount + '/' + currentEvents.length,
-        style: {
-          fontSize: 16,
-          textAlign: 'center'
-        },
-        position: ['50%', '45%']
-      }, {
-        content: 'Absent',
-         style: {
-          fontSize: 14,
-          textAlign: 'center'
-        },
-        position: ['50%', '60%']
-      }]
-    },
-    chartTitle() {
-      const currentEvents = this.getCurrentEvents()
-      const presentCount = currentEvents.filter(item => item.attendance === TASK_ATTENDANCE.PRESENT).length
-      return {
-          text: (currentEvents.length - presentCount) + '/' + currentEvents.length + '\nAbsent',
-          // subtext: currentEvents.length - presentCount + '/' + currentEvents.length,
-          show: true,
-          left: 'center',
-          top: '40%'
-        }
-    },
     showClassOptions() {
       return this.currentClassList.map((item, index) => {
         return {
@@ -734,6 +712,20 @@ export default {
           index: index
         }
       })
+    },
+    importTitle() {
+      let title = 'Select Task content'
+      switch (this.importType) {
+        case typeMap.task:
+          title = 'Select Task content'
+          break
+        case typeMap['unit-plan']:
+          title = 'Select Unit content'
+          break
+        default:
+          break
+      }
+      return title
     }
   },
   created() {
@@ -768,20 +760,39 @@ export default {
       this.calendarOptions.weekends = !this.calendarOptions.weekends // update a property
     },
     handleDateSelect(selectInfo) {
-      const title = prompt('Please enter a new title for your event')
-      const calendarApi = selectInfo.view.calendar
-      calendarApi.unselect() // clear date selection
-      if (title) {
-        calendarApi.addEvent({
-          id: new Date().getTime(),
-          title,
-          start: selectInfo.startStr,
-          end: selectInfo.endStr,
-          allDay: selectInfo.allDay
-        })
-      }
+      console.log(selectInfo)
+      this.$refs.tooltip.style.visibility = 'visible'
+      this.$refs.tooltip.style.top = selectInfo.jsEvent.clientY + 'px'
+      this.$refs.tooltip.style.left = selectInfo.jsEvent.clientX + 'px'
+      this.event = selectInfo
+      // const title = prompt('Please enter a new title for your event')
+      // const calendarApi = selectInfo.view.calendar
+      // calendarApi.unselect() // clear date selection
+      // if (title) {
+      //   calendarApi.addEvent({
+      //     id: new Date().getTime(),
+      //     title,
+      //     start: selectInfo.startStr,
+      //     end: selectInfo.endStr,
+      //     allDay: selectInfo.allDay
+      //   })
+      // }
+    },
+    closeTip() {
+      this.$refs.tooltip.style.visibility = 'hidden'
+    },
+    handleAddUnit() {
+      this.closeTip()
+    },
+    handleAddSession() {
+      this.closeTip()
+      this.importVisible = true
+    },
+    handleCloseImport() {
+      this.importVisible = false
     },
     handleEventClick(clickInfo) {
+      console.log(clickInfo)
       if (confirm(`Are you sure you want to delete the event '${clickInfo.event.title}'`)) {
         clickInfo.event.remove()
       }
@@ -794,21 +805,6 @@ export default {
       this.startDate = moment(event.start).format('YYYY-MM-DD')
       this.endDate = moment(event.end).format('YYYY-MM-DD')
       this.viewType = event.view.type
-    },
-    handleChangeClass() {
-      // this.handleChangeEvents()
-    },
-    handleChangeEvents() {
-      if (this.showClass.length === this.showClassOptions.length && this.showStatus === this.showStatusOptions.length) return
-      const calendarApi = this.$refs.fullCalendar.getApi()
-      calendarApi.removeAllEvents()
-      this.allEvents.forEach(item => {
-        const props = item.extendedProps
-        if (this.showClass.includes(props.classId) && this.showStatus.includes(props.status)) {
-          calendarApi.addEvent(item)
-        }
-      })
-      // this.reRender()
     },
     handleMouseEnter(info) {
 
@@ -853,17 +849,28 @@ export default {
     },
     getColorIndex(status) {
       return Object.values(TASK_ATTENDANCE).findIndex(item => item === status)
+    },
+    handleChoose(item) {
+      console.log(item)
+      this.importVisible = false
+      this.$router.push({
+        path: '/teacher/schedule-session/' + item.id + '/' + item.type,
+        query: {
+          startDate: moment(this.event.start).format('YYYY-MM-DD HH:mm:ss'),
+          endDate: moment(this.event.end).format('YYYY-MM-DD HH:mm:ss')
+        }
+      })
     }
   }
 }
 </script>
 <style lang='less'>
-.tippy-self-content {
-  margin-top: 10px;
-  text-align: left;
-  p {
-    margin-bottom: 5px;
-  }
+@import "~@/components/index.less";
+
+.my-content {
+  padding: 15px;
+  background: #fff;
+  height: 100%;
 }
 .schedule-event-content {
   padding: 2px;
@@ -926,10 +933,31 @@ export default {
     z-index: 1060;
     max-width: 250px;
     visibility: hidden;
-    transition: all .5s;
+    transition: left .5s, top .5s;
     border: 1px solid #dfdf;
     .tooltip-content {
-      padding: 10px;
+      padding: 4px 0;
+      .content-item {
+        padding: 5px 12px;
+        color: rgba(0, 0, 0, 0.65);
+        font-weight: normal;
+        font-size: 14px;
+        line-height: 22px;
+        white-space: nowrap;
+        cursor: pointer;
+        // transition: all 0.3s;
+        clear: both;
+        margin: 0;
+        span {
+          font-family: Arial;
+          font-weight: 400;
+          color: #525252;
+        }
+        &:hover {
+          color: #15c39a;
+          background: #EDF1F5;
+        }
+      }
     }
   }
 }

@@ -35,7 +35,7 @@
     <div class='select-date'>
       <div class='title'>Schedule</div>
       <div class='date-picker'>
-        <a-range-picker @change="handleDateChange" format='YYYY-MM-DD HH:mm:ss' :show-time="{ format: 'HH:mm' }"/>
+        <a-range-picker :default-value="initDate" @change="handleDateChange" format='YYYY-MM-DD HH:mm:ss' :show-time="{ format: 'HH:mm' }"/>
       </div>
       <div class='go-calender'>
         <a>Go to calender</a>
@@ -84,10 +84,14 @@ export default {
 
       selectedSessionType: null,
       startDate: null,
-      endData: null
+      endData: null,
+      initDate: null
     }
   },
   created() {
+    if (this.$route.query.startDate && this.$route.query.endDate) {
+      this.initDate = [moment(this.$route.query.startDate), moment(this.$route.query.endDate)]
+    }
   },
   methods: {
     chooseSessionType (item) {
