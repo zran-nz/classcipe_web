@@ -174,22 +174,12 @@
 
                 <div class='form-block tag-content-block' :data-field-name='taskField.LearnOuts' v-if='fieldItem.visible && fieldItem.fieldName === taskField.LearnOuts' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Assessment style="left:100px" />
-                  <custom-form-item :show-label='false' :required='emptyRequiredFields.indexOf(taskField.LearnOuts) !== -1'>
-                    <a-badge :dot='hasExtraRecommend'>
-                      <custom-text-button @click='handleSelectDescription()' :label="'Set learning objectives' | unitLabelName(taskField.LearnOuts, $store.getters.formConfigData)">
-                      </custom-text-button>
-                    </a-badge>
+                  <custom-form-item :required='emptyRequiredFields.indexOf(taskField.LearnOuts) !== -1'>
+                    <template slot='label'>
+                      {{ 'Learning objectives' | taskLabelName(taskField.LearnOuts, $store.getters.formConfigData) }}
+                    </template>
+                    <learning-objective />
                   </custom-form-item>
-
-                  <!--knowledge tag-select -->
-                  <ui-learn-out
-                    ref='learnOut'
-                    :learn-outs='form.learnOuts'
-                    :self-outs='form.selfOuts'
-                    :can-edit="canEdit"
-                    :custom-tags='customTags'
-                    @addCustomTag="handleAddCustomTagRemote"
-                    @remove-learn-outs='handleRemoveLearnOuts' />
                 </div>
 
                 <div class='form-block tag-content-block material-list-block' :data-field-name='taskField.MaterialList' style='clear: both' v-if='fieldItem.visible && fieldItem.fieldName === taskField.MaterialList' :key='fieldItem.fieldName'>
@@ -525,10 +515,12 @@ import SlideSelectList from '@/components/PPT/SlideSelectList'
 import SlideEvent from '@/components/PPT/SlideEvent'
 import CustomCoverMedia from '@/components/Common/CustomCoverMedia'
 import { PublishMixin } from '@/mixins/PublishMixin'
+import LearningObjective from '@/components/LearningObjective/LearningObjective'
 
 export default {
   name: 'AddTaskV2',
   components: {
+    LearningObjective,
     CustomCoverMedia,
     SlideSelectList,
     FormSlide,
