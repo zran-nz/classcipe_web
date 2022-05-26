@@ -202,9 +202,7 @@ export default {
       this.scheduleReq.zoom = 1
       this.scheduleReq.openSession = data.openSession
       this.$refs['steps-nav'].nextStep()
-      if (!this.zoomAccessToken) {
-        this.goToZoomAuth()
-      }
+      this.checkZoomAuth()
     },
 
     handleSelectDate (data) {

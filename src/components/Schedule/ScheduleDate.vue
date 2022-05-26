@@ -121,9 +121,7 @@ export default {
       this.$logger.info('handleZoomStatusChange', status)
       this.$emit('select-zoom-status', status)
       if (status) {
-        if (!this.zoomAccessToken) {
-          this.goToZoomAuth()
-        }
+        this.checkZoomAuth()
       }
     }
   }
