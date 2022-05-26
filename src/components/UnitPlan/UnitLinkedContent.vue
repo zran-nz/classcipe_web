@@ -46,6 +46,11 @@
             </div>
           </draggable>
         </div>
+        <template v-if='groups.length === 0'>
+          <div class='no-linked-data'>
+            <common-no-data text='No linked content, please Add category.' />
+          </div>
+        </template>
       </draggable>
     </div>
 
@@ -299,6 +304,10 @@ export default {
       display: flex;
     }
   }
+}
+
+.no-linked-data {
+  height: 200px;
 }
 
 </style>
