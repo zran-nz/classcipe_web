@@ -67,7 +67,7 @@ export const ZoomAuthMixin = {
     },
 
     async checkZoomAuthExpired() {
-      const ret = await checkAuthExpired('zoom', this.$store.getters.email)
+      const ret = await checkAuthExpired('zoom', 'ss' + this.$store.getters.email)
       this.$logger.info('checkZoomAuthExpired', ret)
       if (ret.code === 0 && ret.success) {
         this.$logger.info('zoom auth no expired!')
@@ -80,13 +80,16 @@ export const ZoomAuthMixin = {
     async checkZoomAuth() {
       if (!this.zoomAccessToken) {
         this.goToZoomAuth()
+        return false
       } else {
         const authExpired = await this.checkZoomAuthExpired()
         if (!authExpired) {
           this.$logger.info('zoom auth already expired')
           this.goToZoomAuth()
+          return false
         } else {
           this.$logger.info('zoom auth still no expired')
+          return true
         }
       }
     }
