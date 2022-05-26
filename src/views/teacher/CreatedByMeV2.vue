@@ -56,7 +56,6 @@ import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import GlobalSearchInput from '@/components/GlobalSearch/GlobalSearchInput'
 import UserProfileAvatar from '@/components/User/UserProfileAvatar'
-import UserModeChangeEvent from '@/components/User/UserModeChangeEvent'
 import ContentTypeFilter from '@/components/MyContentV2/ContentTypeFilter'
 import { mapState } from 'vuex'
 
@@ -113,10 +112,6 @@ export default {
       this.shareType = parseInt(this.$route.query.shareType)
     }
     this.loadMyContent()
-    this.$EventBus.$on(UserModeChangeEvent.NEED_RELOAD_CONTENT_LIST, this.handleSchoolChange)
-  },
-  beforeDestroy() {
-    this.$EventBus.$off(UserModeChangeEvent.NEED_RELOAD_CONTENT_LIST, this.handleSchoolChange)
   },
   methods: {
     handleSchoolChange() {

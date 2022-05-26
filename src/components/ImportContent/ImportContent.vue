@@ -79,7 +79,6 @@ import NoMoreResources from '@/components/Common/NoMoreResources'
 import { mapState } from 'vuex'
 import ContentPreview from '@/components/Preview/ContentPreview'
 import { ImportOtherIdentityContent } from '@/api/v2/mycontent'
-import UserModeChangeEvent from '@/components/User/UserModeChangeEvent'
 import { USER_MODE } from '@/const/common'
 
 export default {
@@ -215,7 +214,6 @@ export default {
       ImportOtherIdentityContent(data).then((res) => {
         if (res.success && res.code === 0) {
           this.$message.success('Import successfully')
-          this.$EventBus.$emit(UserModeChangeEvent.NEED_RELOAD_CONTENT_LIST)
           this.$emit('close')
         } else {
           this.$message.error(res.message)
