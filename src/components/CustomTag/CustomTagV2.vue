@@ -11,13 +11,12 @@
     <div class='tag-content-wrapper'>
       <div class='selected-tag' v-show="showTagList.length">
         <div class="skt-tag-list">
-          <div class="skt-tag-item " v-for="(tag, tIdx) in showTagList" :key="tag.name">
+          <div class="skt-tag-item " v-for="(tag) in showTagList" :key="tag.name">
             <a-tooltip :title="tag.parentName">
               <a-tag
                 :closable="canCloseTag(tag)"
                 @close="closeTag(tag)"
-                :color="color[tIdx % color.length]"
-                :style="{'color': fontColor[tIdx % color.length], 'border-color': color[tIdx % color.length]}"
+                :color="tag.tagColor"
                 :class="{ 'tag-item':true, 'tag-disable': !canCloseTag(tag) }">
                 {{ tag.name }}
               </a-tag>
@@ -46,6 +45,7 @@
               <a-tag
                 draggable="true"
                 @click="selectChooseTag(currentActiveTagCategory, keyword)"
+                :style="{ 'background-color': currentActiveTagCategory.tagColor || '#fff', 'border-color': currentActiveTagCategory.tagColor || '#15c39a'}"
                 class="tag-item cc-custom-tag-item">
                 {{ keyword }}
               </a-tag>
@@ -135,14 +135,21 @@ export default {
       color: [
         '#FFEDAF',
         '#C8F4FF',
-        '#E6E4FF'
+        '#E6E4FF',
+        '#ffccb0',
+        '#ffa9a2',
+        '#a3ecb9',
+        '#f7c5f8',
+        '#ffbfe2',
+        '#d5b9ff',
+        '#c4f6b1'
       ],
       fontColor: [
         '#734110',
         '#1A485F',
         '#201C54'
       ],
-      tagList: this.selectedTagsList,
+      tagList: [],
       globalRootKey: '',
       tagLoading: false,
       visible: true,
@@ -156,12 +163,17 @@ export default {
       tagMode: 'select' // select/desc
     }
   },
-  created () {
-    this.$logger.info('customTags', this.customTags)
-  },
   mounted() {
     this.currentActiveTagCategory = this.mergeTagList.length ? this.mergeTagList[0] : null
-    this.$logger.info('currentActiveTagCategory inited', this.currentActiveTagCategory)
+    this.$logger.info('customTags', this.customTags, 'selectedTagsList', this.selectedTagsList, 'currentActiveTagCategory', this.currentActiveTagCategory)
+    const tagList = this.selectedTagsList.slice()
+    tagList.forEach(tag => {
+      const tagCategoryItem = this.mergeTagList.find(item => item.name === tag.parentName)
+      if (tagCategoryItem) {
+        tag.tagColor = tagCategoryItem.tagColor
+      }
+    })
+    this.tagList = tagList
   },
   computed: {
     showTagList: function () {
@@ -180,7 +192,7 @@ export default {
       this.$logger.info('customTags', this.customTags)
       this.$logger.info('scopeTagsList', this.scopeTagsList)
       const userGlobalTags = this.customTags.userGlobalTags
-      this.scopeTagsList.forEach(scope => {
+      this.scopeTagsList.forEach((scope, index) => {
        const scopeIndex = this.customTags.recommends.findIndex(item => item.name === scope)
         let parent = ''
         if (scopeIndex > -1) {
@@ -234,6 +246,7 @@ export default {
         }
 
         if (parent) {
+          parent.tagColor = this.color[index % this.color.length]
           list.push(parent)
         }
       })
@@ -271,7 +284,14 @@ export default {
   watch: {
     selectedTagsList () {
       this.$logger.info('selectedTagsList change', this.selectedTagsList)
-       this.tagList = this.selectedTagsList
+      const tagList = this.selectedTagsList.slice()
+      tagList.forEach(tag => {
+        const tagCategoryItem = this.mergeTagList.find(item => item.name === tag.parentName)
+        if (tagCategoryItem) {
+          tag.tagColor = tagCategoryItem.tagColor
+        }
+      })
+      this.tagList = tagList
     },
     mergeTagList () {
       if (!this.currentActiveTagCategory && this.mergeTagList.length) {
@@ -303,6 +323,7 @@ export default {
         this.tagList.push({
           'parentName': superParent ? (superParent.name + '-' + parent.name) : parent.name,
           'name': tag,
+          'tagColor': parent.tagColor,
           'fieldName': this.currentFieldName,
           'id': 'unique_id_' + Math.random()
         })
@@ -440,6 +461,7 @@ export default {
 
         .tag-item {
           cursor: pointer;
+          color: #734110;
           font-size: 13px;
           border-radius: 30px;
           line-height: 30px;
@@ -497,14 +519,12 @@ export default {
 }
 
 .cc-custom-tag-item {
-  background: #FFEDAF;
   border-radius: 36px;
   font-family: Arial;
   padding: 0 10px;
   font-weight: 400;
   color: #734110;
   line-height: 36px;
-  border-color: #FFEDAF;
 }
 
 .category-content {
