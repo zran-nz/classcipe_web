@@ -389,9 +389,9 @@
                           :disabled="!canEdit" />
                         <div
                           v-if='form.questions.length > 1'
-                          class='delete-icon'
+                          class='delete-icon-wrapper'
                           @click='handleRemoveQuestion(index)'>
-                          <a-icon :style="{ fontSize: '14px', color: 'red' }" type='delete' />
+                          <delete-icon color='#F16A39' />
                         </div>
                       </div>
                     </div>
@@ -2801,6 +2801,7 @@ export default {
     }
 
     .question-item {
+      position: relative;
       padding-bottom: 24px;
     }
   }
@@ -3199,17 +3200,27 @@ export default {
   }
 }
 
-.delete-icon {
+.delete-icon-wrapper {
   transition: all 0.2s ease-in;
   position: absolute;
-  right: -50px;
-  top: -2px;
-  line-height: 40px;
-  width: 40px;
-  height: 40px;
+  right: -20px;
+  top: 50%;
+  margin-top: -7px;
   cursor: pointer;
-  color: #38cfa6;
   z-index: 100;
+  width: 30px;
+  height: 15px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  display: none;
+
+  .delete-icon {
+    width: 15px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+  }
 }
 
 .link-plan-title {
@@ -3446,7 +3457,13 @@ code {
 }
 
 .question-item {
+  position: relative;
   margin-bottom: 10px;
+  &:hover {
+    .delete-icon-wrapper {
+      display: flex;
+    }
+  }
 }
 
 .learn-out-action {

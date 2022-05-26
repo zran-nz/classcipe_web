@@ -22,6 +22,7 @@ export const PublishMixin = {
       })
 
       // 给有未填写字段的step添加红色提示
+      let showRequiredTips = false
       this.requiredFields.forEach(field => {
         if (isEmpty(this.form[field])) {
           this.$logger.info(`${field} is empty`, this.form[field])
@@ -30,6 +31,7 @@ export const PublishMixin = {
             if (step.commonFields.indexOf(field) > -1) {
               step.showRequiredTips = true
               step.showSatisfiedTips = false
+              showRequiredTips = true
             }
           })
         }
@@ -41,6 +43,10 @@ export const PublishMixin = {
           step.showSatisfiedTips = true
         }
       })
+
+      if (showRequiredTips) {
+        this.$message.warn('Please complete the marked area(s) before publishing')
+      }
 
       this.$logger.info('checkRequiredFields done!', this.formSteps)
     }

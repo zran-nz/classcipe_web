@@ -85,6 +85,7 @@ import CustomMediaItem from '@/components/Common/CustomMediaItem'
 import ContentItem from '@/components/MyContentV2/ContentItem'
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import ClasscipeDriveEvent from '@/components/ClasscipeDrive/ClasscipeDriveEvent'
+import { mapState } from 'vuex'
 
 const searchModeType = {
   fileName: 'fileName',
@@ -133,6 +134,11 @@ export default {
 
       selectedList: []
     }
+  },
+  computed: {
+    ...mapState({
+      currentSchool: state => state.user.currentSchool
+    })
   },
   created() {
     this.$logger.info('Drive created ' + this.filterFileType)
@@ -198,7 +204,8 @@ export default {
         pageSize: this.pageSize,
         searchKey: this.keywords || '',
         types: [],
-        delFlag: 0
+        delFlag: 0,
+        schoolId: this.currentSchool?.id
       }
       FindMyContent(params).then(res => {
         this.$logger.info('Drive getMyContent', res)

@@ -155,7 +155,8 @@ export default {
         // status: 1,
         createBy: this.$store.getters.email,
         delFlag: 0,
-        isImport: true
+        isImport: true,
+        schoolId: this.currentSchool?.id
       }
 
       if (this.currentSchoolId) {

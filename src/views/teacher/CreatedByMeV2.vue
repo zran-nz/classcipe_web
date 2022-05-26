@@ -62,10 +62,6 @@ import { mapState } from 'vuex'
 export default {
   name: 'CreatedByMeV2',
   mixins: [UserModeMixin, CurrentSchoolMixin],
-  ...mapState({
-    info: state => state.user.info,
-    currentSchool: state => state.user.currentSchool
-  }),
   components: { ContentTypeFilter, UserProfileAvatar, GlobalSearchInput, RadioSwitch, NoMoreResources, ContentPublish, ContentItem, ContentFilter, CreateNew },
   data () {
     return {
@@ -107,6 +103,12 @@ export default {
       currentContent: null
     }
   },
+  computed: {
+    ...mapState({
+      info: state => state.user.info,
+      currentSchool: state => state.user.currentSchool
+    })
+  },
   created() {
     if (this.$route.query.shareType) {
       this.shareType = parseInt(this.$route.query.shareType)
@@ -115,6 +117,7 @@ export default {
   },
   methods: {
     handleSchoolChange() {
+      this.$logger.info('handleSchoolChange called')
       this.pageNo = 1
       this.loadMyContent()
     },

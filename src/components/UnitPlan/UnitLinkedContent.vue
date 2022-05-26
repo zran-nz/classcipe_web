@@ -28,6 +28,11 @@
               </a-popconfirm>
             </div>
           </div>
+          <div class='delete-category' >
+            <a-popconfirm cancel-text="No" ok-text="Yes" title="Delete ?" @confirm="handleDeleteGroup(groupItem)">
+              <delete-icon color='#F16A39' />
+            </a-popconfirm>
+          </div>
           <draggable
             v-model="groupItem.contents"
             :disabled="!canEdit"
@@ -37,15 +42,15 @@
             :move='handleOnMve'
             @add="handleDragContent($event, groupItem)">
             <div class='linked-item' v-for='content in groupItem.contents' :key='content.id'>
-              <div class='linked-item-deleted'>
-                <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteLinkItem(content)" cancel-text="No">
-                  <delete-icon />
-                </a-popconfirm>
-              </div>
-              <link-content-item :content='content' />
+              <link-content-item :content='content' :show-delete='true' @delete='handleDeleteLinkItem' />
             </div>
           </draggable>
         </div>
+        <template v-if='groups.length === 0'>
+          <div class='no-linked-data'>
+            <common-no-data text='No linked content, please Add category.' />
+          </div>
+        </template>
       </draggable>
     </div>
 
@@ -225,7 +230,7 @@ export default {
       this.$logger.info('handleDeleteLinkItem', item)
       AssociateCancel({
         fromId: this.fromId,
-        fromType: this.fromType,
+        fromType: this.$classcipe.typeMap['unit-plan'],
         toId: item.id,
         toType: item.type
       }).then(response => {
@@ -286,16 +291,41 @@ export default {
     cursor: pointer;
     display: none;
     position: absolute;
-    left: -30px;
-    top: 0;
+    right: 10px;
+    top: 10px;
     align-items: center;
     justify-content: center;
     width: 30px;
-    height: 100%;
+    height: 30px;
   }
 
   &:hover {
     .linked-item-deleted {
+      display: flex;
+    }
+  }
+}
+
+.no-linked-data {
+  height: 200px;
+}
+
+.linked-category {
+  position: relative;
+
+  .delete-category {
+    cursor: pointer;
+    position: absolute;
+    right: 10px;
+    top: 14px;
+    display: none;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &:hover {
+    .delete-category {
       display: flex;
     }
   }

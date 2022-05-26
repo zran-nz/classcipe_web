@@ -32,7 +32,7 @@
       </a-button>
     </a-dropdown>
 
-    <import-content :visible='showImportContent' @close='showImportContent = false'/>
+    <import-content :visible='showImportContent' v-if='showImportContent' @close='showImportContent = false'/>
   </div>
 </template>
 

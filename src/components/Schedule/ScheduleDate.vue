@@ -25,7 +25,7 @@
                 <img src='~@/assets/icons/zoom/img.png' />
               </div>
               <div class='zoom-switch'>
-                <a-switch size='small' :disabled='item !== selectedSessionType' v-model='item.enableZoom' @change='handleZoomStatusChange'></a-switch>
+                <a-switch size='small' :disabled='item !== selectedSessionType' v-model='item.enableZoom' @change='handleZoomStatusChange(item)'></a-switch>
               </div>
             </template>
           </div>
@@ -117,11 +117,17 @@ export default {
       })
     },
 
-    handleZoomStatusChange (status) {
-      this.$logger.info('handleZoomStatusChange', status)
-      this.$emit('select-zoom-status', status)
-      if (status) {
-        this.checkZoomAuth()
+    async handleZoomStatusChange (item) {
+      this.$logger.info('handleZoomStatusChange', item)
+      this.$emit('select-zoom-status', item)
+      if (item.enableZoom) {
+        const status = await this.checkZoomAuth()
+        if (!status) {
+          item.enableZoom = false
+          this.$logger.info('reset item enableZoom', item)
+        } else {
+          this.$logger.info('zoom auth success')
+        }
       }
     }
   }

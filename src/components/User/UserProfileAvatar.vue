@@ -139,6 +139,8 @@ export default {
         schoolId: ''
       }).finally(() => {
         this[TOOGLE_USER_MODE](USER_MODE.SELF)
+        this.SET_CURRENT_SCHOOL(null)
+        this.GetClassList(this.userMode)
       })
     },
     handleChangeSchool(val) {

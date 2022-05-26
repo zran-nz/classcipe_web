@@ -11,6 +11,9 @@ export const CurrentSchoolMixin = {
       currentSchool => currentSchool && this.$route.name === this.routeName && (this.handleSchoolChange(currentSchool))
     )
   },
+  computed: {
+
+  },
   beforeDestroy() {
     this.unwatch && this.unwatch()
   },

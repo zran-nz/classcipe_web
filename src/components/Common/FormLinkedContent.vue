@@ -14,13 +14,13 @@
           :move='handleOnMve'
           @add="handleDragContent($event)">
           <div class='linked-item' v-for='content in groupItem.contents' :key='content.id'>
-            <div class='linked-item-deleted'>
-              <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteLinkItem(content)" cancel-text="No">
-                <delete-icon />
-              </a-popconfirm>
-            </div>
-            <link-content-item :content='content' />
+            <link-content-item :content='content' :show-delete='true' @delete='handleDeleteLinkItem' />
           </div>
+          <template v-if='groupItem.contents.length === 0'>
+            <div class='no-linked-data'>
+              <common-no-data text='No linked content, please drag content from right side here' />
+            </div>
+          </template>
         </draggable>
       </div>
       <div class='init-group' v-if='ownerLinkGroupList.length === 0'>
@@ -34,13 +34,13 @@
           :move='handleOnMve'
           @add="handleDragContent($event)">
           <div class='linked-item' v-for='content in initContents' :key='content.id'>
-            <div class='linked-item-deleted'>
-              <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteLinkItem(content)" cancel-text="No">
-                <delete-icon />
-              </a-popconfirm>
-            </div>
-            <link-content-item :content='content' />
+            <link-content-item :content='content' :show-delete='true' @delete='handleDeleteLinkItem' />
           </div>
+          <template v-if='initContents.length === 0'>
+            <div class='no-linked-data'>
+              <common-no-data text='No linked content, please drag content from right side here' />
+            </div>
+          </template>
         </draggable>
       </div>
     </div>
@@ -61,10 +61,11 @@ import {
 import LinkContentItem from '@/components/UnitPlan/LinkContentItem'
 import draggable from 'vuedraggable'
 import DeleteIcon from '@/components/Common/DeleteIcon'
+import CommonNoData from '@/components/Common/CommonNoData'
 
 export default {
   name: 'FormLinkedContent',
-  components: { DeleteIcon, LinkContentItem, LinkedCategory, draggable },
+  components: { CommonNoData, DeleteIcon, LinkContentItem, LinkedCategory, draggable },
   props: {
     fromId: {
       type: String,
@@ -309,6 +310,10 @@ export default {
 
 .list-group {
   min-height: 100px;
+}
+
+.no-linked-data {
+  height: 200px;
 }
 
 </style>

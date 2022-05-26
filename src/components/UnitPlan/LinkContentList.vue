@@ -72,6 +72,7 @@ import ContentFilter from '@/components/MyContentV2/ContentFilter'
 import { SourceType } from '@/components/MyContentV2/Constant'
 import { QueryContentsFilter } from '@/api/library'
 import CommonNoData from '@/components/Common/CommonNoData'
+import { mapState } from 'vuex'
 
 export default {
   name: 'LinkContentList',
@@ -103,6 +104,11 @@ export default {
       sourceType: 'MyContent'
     }
   },
+  computed: {
+    ...mapState({
+      currentSchool: state => state.user.currentSchool
+    })
+  },
   created() {
     this.handleSearch({})
   },
@@ -133,7 +139,8 @@ export default {
         pageSize: this.pagination.pageSize,
         searchKey: data.searchKey ? data.searchKey : '',
         types: this.filterTypes,
-        delFlag: 0
+        delFlag: 0,
+        schoolId: this.currentSchool?.id
       }
       params = Object.assign(data, params)
       FindMyContent(params).then(res => {

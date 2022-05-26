@@ -80,13 +80,16 @@ export const ZoomAuthMixin = {
     async checkZoomAuth() {
       if (!this.zoomAccessToken) {
         this.goToZoomAuth()
+        return false
       } else {
         const authExpired = await this.checkZoomAuthExpired()
         if (!authExpired) {
           this.$logger.info('zoom auth already expired')
           this.goToZoomAuth()
+          return false
         } else {
           this.$logger.info('zoom auth still no expired')
+          return true
         }
       }
     }
