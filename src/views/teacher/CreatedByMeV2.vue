@@ -115,6 +115,7 @@ export default {
   },
   methods: {
     handleSchoolChange() {
+      this.$logger.info('handleSchoolChange called')
       this.pageNo = 1
       this.loadMyContent()
     },
