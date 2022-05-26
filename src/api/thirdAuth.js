@@ -1,5 +1,6 @@
 
 import router from '../router'
+import request from '@/utils/request'
 
 /**
  * third auth callback url with vue router path
@@ -24,4 +25,11 @@ export const getThirdAuthURL = function (source) {
     default:
       throw new Error('not config auth url for source[' + source + ']')
   }
+}
+
+export function checkAuthExpired (source, email) {
+  return request({
+    url: `/classcipe/thirdLogin/${source}/refreshToken?email=${email}`,
+    method: 'get'
+  })
 }

@@ -46,6 +46,7 @@ export default {
             event: 'authUpdate',
             data: null
           }, '*')
+          window.close()
         }
         if (callbackUrl) {
           window.sessionStorage.removeItem(SESSION_CALLBACK_URL)

@@ -1,101 +1,106 @@
 <template>
   <div class='select-participant'>
-    <div class='class-info'>
-      <div class='list-title'>
-        <div class='title-item'>
-          Class list
-        </div>
-      </div>
-      <div class='class-list'>
-        <div
-          class='class-item'
-          :class="{'selected-item': checkedClass.indexOf(classItem) !== -1, 'current-active-item': classItem === currentSelectedClass }"
-          v-for='classItem in classList'
-          :key='classItem.id'
-          @click='handleSelectClass(classItem)'>
-          <div class='item-checked-icon'>
-            <template v-if="checkedClass.indexOf(classItem) !== -1">
-              <img src="~@/assets/icons/lesson/selected.png" />
-            </template>
-            <template v-if="checkedClass.indexOf(classItem) === -1">
-              <div class="empty-circle"></div>
-            </template>
+    <div class='class-info-wrapper'>
+      <div class='class-info'>
+        <div class='list-title'>
+          <div class='title-item'>
+            Class list
           </div>
-          <div class='class-name'>{{ classItem.name }}</div>
         </div>
-        <div class='open-session'>
-          <a-space>
-            <custom-text-button @click='selectPrivateWorkshop' label='Private Workshop'>
-              <template v-slot:badge>
-                <a-tooltip
-                  title="Private workshop allows you to set up a session for your students
+        <div class='class-list'>
+          <div
+            class='class-item'
+            :class="{'selected-item': checkedClass.indexOf(classItem) !== -1, 'current-active-item': classItem === currentSelectedClass }"
+            v-for='classItem in classList'
+            :key='classItem.id'
+            @click='handleSelectClass(classItem)'>
+            <div class='item-checked-icon'>
+              <template v-if="checkedClass.indexOf(classItem) !== -1">
+                <img src="~@/assets/icons/lesson/selected.png" />
+              </template>
+              <template v-if="checkedClass.indexOf(classItem) === -1">
+                <div class="empty-circle"></div>
+              </template>
+            </div>
+            <div class='class-name'>{{ classItem.name }}</div>
+          </div>
+          <div class='open-session'>
+            <a-space>
+              <custom-text-button @click='selectPrivateWorkshop' label='Private Workshop'>
+                <template v-slot:badge>
+                  <a-tooltip
+                    title="Private workshop allows you to set up a session for your students
 without having a class. Zoom is not available for free-plan users,
 you can ask your student to attend via direct link generated on the workshop page. ">
-                  <a-icon type="question-circle" theme="filled" :style="{ fontSize: '16px', color: '#EB5062' }"/>
-                </a-tooltip>
-              </template>
-            </custom-text-button>
-            <custom-text-button @click='selectPublicWorkshop' label='Public Workshop'>
-              <template v-slot:badge>
-                <a-tooltip
-                  title="Public workshop can only be promoted by our platform
+                    <a-icon type="question-circle" theme="filled" :style="{ fontSize: '16px', color: '#EB5062' }"/>
+                  </a-tooltip>
+                </template>
+              </custom-text-button>
+              <custom-text-button @click='selectPublicWorkshop' label='Public Workshop'>
+                <template v-slot:badge>
+                  <a-tooltip
+                    title="Public workshop can only be promoted by our platform
 via library and featured list(you can not invite people
 to participate via direct link, they can only attend upon
 registration(optional) and you can set price for attendants.
 After scheduling, you can edit it in live workshop
 page, thus zoom will be auto-scheduled.">
-                  <a-icon type="question-circle" theme="filled" :style="{ fontSize: '16px', color: '#EB5062' }"/>
-                </a-tooltip>
-              </template>
-            </custom-text-button>
-          </a-space>
+                    <a-icon type="question-circle" theme="filled" :style="{ fontSize: '16px', color: '#EB5062' }"/>
+                  </a-tooltip>
+                </template>
+              </custom-text-button>
+            </a-space>
+          </div>
         </div>
       </div>
     </div>
-    <div class='student-info'>
-      <div class='list-title'>
-        <div class='title-item'>
-          Student list
+    <div class='student-info-wrapper'>
+      <div class='student-info'>
+        <div class='list-title'>
+          <div class='title-item'>
+            Student list
+          </div>
+          <div class='title-action' @click='handleSelectAllStudent'>
+            Select all
+          </div>
         </div>
-        <div class='title-action' @click='handleSelectAllStudent'>
-          Select all
-        </div>
-      </div>
-      <div class='student-list'>
-        <template v-if='studentListLoading'>
-          <a-skeleton />
-        </template>
-        <template v-else>
-          <template v-if='studentList.length'>
-            <div
-              class='student-item'
-              :class="{'selected-item': checkedStudent.indexOf(student) !== -1 }"
-              v-for='student in studentList'
-              :key='student.id'
-              @click='handleSelectStudent(student)'>
-              <div class='student-info'>
-                <div class='avatar'>
-                  <img :src='student.avatar' v-if='student.avatar'/>
-                  <img src="~@/assets/icons/evaluation/default_avatar.png" v-else/>
-                </div>
-                <div class='nickname'>
-                  {{ student.nickname }}
-                </div>
-                <div class='email'>
-                  {{ student.email }}
-                </div>
-              </div>
-            </div>
+        <div class='student-list'>
+          <template v-if='studentListLoading'>
+            <a-skeleton />
           </template>
           <template v-else>
-            <div class='no-student-tips'>
-              <no-more-resources tips='No student' v-if='currentSelectedClass' />
-              <div class='select-class-tips' v-else>
-                Select a class first.
+            <template v-if='studentList.length'>
+              <div
+                class='student-item'
+                :class="{'selected-item': checkedStudent.indexOf(student) !== -1, 'odd-item': sIdx % 2 === 1, 'even-item': sIdx % 2 === 0}"
+                v-for='(student, sIdx) in studentList'
+                :key='student.id'
+                @click='handleSelectStudent(student)'>
+                <div class='student-item-info'>
+                  <div class='avatar'>
+                    <a-avatar style="color: #f56a00; backgroundColor: #fde3cf">
+                      {{ student.nickname ? student.nickname[0].toUpperCase() : 'S' }}
+                    </a-avatar>
+                  </div>
+                  <div class='nickname'>
+                    {{ student.nickname }}
+                  </div>
+                  <div class='email'>
+                    {{ student.email }}
+                  </div>
+                </div>
               </div>
-            </div>
+            </template>
+            <template v-else>
+              <div class='no-student-tips'>
+                <no-more-resources tips='No student' v-if='currentSelectedClass' />
+                <div class='select-class-tips' v-else>
+                  Select a class first.
+                </div>
+              </div>
+            </template>
           </template>
-        </template>
+        </div>
       </div>
     </div>
   </div>
@@ -158,14 +163,14 @@ export default {
     selectPrivateWorkshop () {
       this.$logger.info('selectPrivateWorkshop', this.checkedStudent)
       this.$emit('select-private-workshop', {
-        isPublic: true
+        openSession: true
       })
     },
 
     selectPublicWorkshop () {
       this.$logger.info('selectPrivateWorkshop', this.checkedStudent)
       this.$emit('select-public-workshop', {
-        isPublic: true
+        openSession: true
       })
     },
 
@@ -237,14 +242,29 @@ export default {
   }
 }
 
+.class-info-wrapper {
+  background-color: #ffffff;
+  height: 100%;
+  width: 100%;
+  padding: 0 40px;
+}
+
+.student-info-wrapper {
+  background-color: #F7F8F9;
+  height: 100%;
+  width: 100%;
+  padding: 0 40px;
+}
+
 .class-info, .student-info {
   height: 100%;
+  width: 100%;
   position: relative;
   .class-list, .student-list {
     padding: 0 10px 10px 10px;
     min-width: 400px;
     max-width: 100%;
-    height: calc(100% - 90px);
+    height: calc(100% - 80px);
     overflow-y: auto;
     .class-item {
       margin-bottom: 13px;
@@ -271,20 +291,6 @@ export default {
       }
     }
 
-    .input-class-item {
-      line-height: 35px;
-      padding: 0 5px;
-      margin: 3px 0;
-      user-select: none;
-      cursor: pointer;
-      font-size: 14px;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: flex-start;
-      border: 2px solid #fff;
-    }
-
     .selected-item {
       background-color: #15c39a11;
       color: #15c39a;
@@ -307,7 +313,7 @@ export default {
     justify-content: flex-start;
     background-color: #fff;
     position: absolute;
-    bottom: -30px;
+    bottom: -5px;
   }
 
   .student-list {
@@ -325,11 +331,13 @@ export default {
 
     .student-item {
       margin-bottom: 5px;
+      line-height: 30px;
       display: flex;
       flex-direction: row;
       justify-content: flex-start;
       align-items: center;
-      .student-info {
+      border: 1px solid #F7F8F9;
+      .student-item-info {
         padding: 7px 10px;
         display: flex;
         flex-direction: row;
@@ -361,6 +369,16 @@ export default {
           padding-left: 5px;
         }
       }
+    }
+
+    .odd-item {
+      background-color: #fff;
+      border: 1px solid #fff;
+    }
+
+    .selected-item {
+      background-color: #15c39a11;
+      border: 1px solid #15c39a;
     }
   }
 }

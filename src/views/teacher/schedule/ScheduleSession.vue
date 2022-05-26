@@ -32,20 +32,24 @@
         />
       </div>
     </div>
-    <div class='bottom-action'>
-      <a-button @click='handleGoBack'><a-icon type='left' /> Back</a-button>
-      <div class='right-button'>
-        <a-space>
-          <a-button type='primary' :loading='teacherSessionNowLoading' v-if='currentActiveStepIndex === $classcipe.ScheduleSteps.length - 1' @click='handleTeacherSessionNow'>Teach the session now</a-button>
-          <a-button type='primary' @click='handleGoNext' :loading='creating'>
-            <template v-if='currentActiveStepIndex !== $classcipe.ScheduleSteps.length - 1'>
-              Next <a-icon type='right' />
-            </template>
-            <template v-else>Assign</template>
-          </a-button>
-        </a-space>
-      </div>
-    </div>
+    <fixed-form-footer>
+      <template v-slot:left>
+        <a-button @click='handleGoBack'><a-icon type='left' /> Back</a-button>
+      </template>
+      <template v-slot:right>
+        <div class='right-button'>
+          <a-space>
+            <a-button type='primary' :loading='teacherSessionNowLoading' v-if='currentActiveStepIndex === $classcipe.ScheduleSteps.length - 1' @click='handleTeacherSessionNow'>Teach the session now</a-button>
+            <a-button type='primary' @click='handleGoNext' :loading='creating'>
+              <template v-if='currentActiveStepIndex !== $classcipe.ScheduleSteps.length - 1'>
+                Next <a-icon type='right' />
+              </template>
+              <template v-else>Assign</template>
+            </a-button>
+          </a-space>
+        </div>
+      </template>
+    </fixed-form-footer>
 
     <select-session-unit
       v-if='selectSessionUnitVisible'
@@ -66,10 +70,11 @@ import ScheduleDate from '@/components/Schedule/ScheduleDate'
 import SchedulePayInfo from '@/components/Schedule/SchedulePayInfo'
 import { AddSessionV2 } from '@/api/v2/classes'
 import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
+import FixedFormFooter from '@/components/Common/FixedFormFooter'
 
 export default {
   name: 'ScheduleSession',
-  components: { SchedulePayInfo, ScheduleDate, SelectParticipant, SelectSessionUnit, MyVerticalSteps },
+  components: { FixedFormFooter, SchedulePayInfo, ScheduleDate, SelectParticipant, SelectSessionUnit, MyVerticalSteps },
   mixins: [ AssociateMixin, ZoomAuthMixin ],
   props: {
     id: {
@@ -107,8 +112,7 @@ export default {
         sessionType: 0,
         startDate: null,
         teachSessionNow: 0,
-        zoom: 0,
-        isPublic: false
+        zoom: 0
       },
       creating: false
     }
@@ -196,11 +200,9 @@ export default {
       this.$logger.info('ScheduleSession handleSelectOpenSession ', data)
       this.scheduleReq.openSession = true
       this.scheduleReq.zoom = 1
-      this.scheduleReq.isPublic = data.isPublic
+      this.scheduleReq.openSession = data.openSession
       this.$refs['steps-nav'].nextStep()
-      if (!this.zoomAccessToken) {
-        this.goToZoomAuth()
-      }
+      this.checkZoomAuth()
     },
 
     handleSelectDate (data) {

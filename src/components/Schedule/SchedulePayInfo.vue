@@ -173,7 +173,6 @@ export default {
     },
 
     handleBlurClick() {
-      this.$logger.info('handleBlurClick')
       this.discountList.forEach(discount => {
         discount.editing = false
       })
@@ -205,6 +204,8 @@ export default {
 
   .pay-info {
     padding: 0 20px;
+    max-height: calc(100vh - 160px);
+    overflow-y: auto;
     .pay-title {
       margin: 10px 0;
       cursor: pointer;
