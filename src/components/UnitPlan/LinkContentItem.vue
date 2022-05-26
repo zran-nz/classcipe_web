@@ -42,6 +42,12 @@
       <div class='action'>
       </div>
     </div>
+
+    <div class='delete-wrapper' v-if='showDelete'>
+      <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDelete" cancel-text="No">
+        <delete-icon color='#F16A39' />
+      </a-popconfirm>
+    </div>
   </div>
 </template>
 
@@ -51,13 +57,19 @@ import { typeMap } from '@/const/teacher'
 import { ContentItemMixin } from '@/mixins/ContentItemMixin'
 import PreviewContent from '@/components/MyContentV2/PreviewContent'
 import PreviewIcon from '@/assets/v2/icons/preview.svg?inline'
+import DeleteIcon from '@/components/Common/DeleteIcon'
+
 export default {
   name: 'LinkContentItem',
-  components: { PreviewContent, PreviewIcon },
+  components: { DeleteIcon, PreviewContent, PreviewIcon },
   props: {
     content: {
       type: Object,
       default: null
+    },
+    showDelete: {
+      type: Boolean,
+      default: false
     }
   },
   mixins: [ ContentItemMixin ],
@@ -91,6 +103,10 @@ export default {
           path: '/teacher/pd-content-redirect/' + item.id
         })
       }
+    },
+
+    handleDelete () {
+      this.$emit('delete', this.content)
     }
   }
 }
@@ -100,6 +116,7 @@ export default {
 @import "~@/components/index.less";
 
 .link-content-item {
+  position: relative;
   padding: 15px 20px;
   margin: 15px 0;
   background: #FFFFFF;
@@ -228,6 +245,24 @@ export default {
       flex-direction: row;
       align-items: center;
       justify-content: flex-end;
+    }
+  }
+
+  .delete-wrapper {
+    cursor: pointer;
+    display: none;
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+  }
+
+  &:hover {
+    .delete-wrapper {
+      display: flex;
     }
   }
 }
