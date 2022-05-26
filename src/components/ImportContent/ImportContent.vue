@@ -80,6 +80,9 @@ import { mapState } from 'vuex'
 import ContentPreview from '@/components/Preview/ContentPreview'
 import { ImportOtherIdentityContent } from '@/api/v2/mycontent'
 import { USER_MODE } from '@/const/common'
+import EventBus from '@/utils/eventBus'
+import * as MyContentEventBus from '@/components/MyContent/MyContentEventBus'
+import { MyContentEvent } from '@/components/MyContent/MyContentEventBus'
 
 export default {
   name: 'ImportContent',
@@ -215,6 +218,7 @@ export default {
         if (res.success && res.code === 0) {
           this.$message.success('Import successfully')
           this.$emit('close')
+          EventBus.$emit(MyContentEvent.ReloadMyContent, {})
         } else {
           this.$message.error(res.message)
         }

@@ -264,9 +264,11 @@
                     :source-id='taskId'
                     :slide-id='form.presentationId'
                     :show-materials-and-tips='true'
+                    :show-selected="form.showSelected"
                     :show-edit-google-slide='form.taskMode === 1'
                     :default-thumbnail-list='thumbnailList'
                     :selected-template-list='form.selectedTemplateList'
+                    @handle-change-selected='changeSelected'
                     @edit-google-slide='handleEditGoogleSlide'
                   />
                 </div>
@@ -1591,6 +1593,12 @@ export default {
       if (res.parentId && this.$refs.customTag) {
         this.$refs.customTag.remoteChooseTag(res.parentId, res.tag)
       }
+    },
+
+    // 切换ppt展示封面还是选择的模板
+    changeSelected(checked) {
+      this.$logger.info('changeSelected ', checked)
+      this.form.showSelected = checked
     }
   }
 }

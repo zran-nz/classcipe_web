@@ -1,6 +1,9 @@
 <template>
   <div class="collaborate-comment-panel">
-    <a-tooltip v-if="formatCommentList.length > 0" title="Add comment" placement="right"><add-green-icon class='add-icon' @click="addRootComment"/></a-tooltip>
+    <div class="panel-header">
+      <div><a-tooltip v-if="formatCommentList.length > 0" title="Add comment" placement="right"><add-green-icon class='add-icon' @click="addRootComment"/></a-tooltip></div>
+      <div><a-icon type="close" @click="$emit('cancel-comment')" :style="{ color: 'red', fontSize: '18px',cursor:'pointer' }"/></div>
+    </div>
     <div class="add-comment-wrapper" v-if="addRoot" style="box-shadow: 0px 3px 6px rgb(0 0 0 / 16%)" >
       <div class="comment-user-info">
         <div class="avatar">
@@ -247,11 +250,16 @@ export default {
   z-index: 100;
   position:relative;
   svg.add-icon {
-    top: -10px;
-    position: absolute;
-    left: 20px;
+    //top: -10px;
+    //position: absolute;
+    //left: 20px;
     cursor: pointer;
     width: 20px;
+  }
+  .panel-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
   }
 }
 .add-comment-wrapper {

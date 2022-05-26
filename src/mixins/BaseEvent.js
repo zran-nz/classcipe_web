@@ -263,7 +263,7 @@ export const BaseEventMixin = {
 
     // 取消comment
     handleCancelComment() {
-      this.resetRightModuleVisible()
+      this.handleDisplayRightModule()
       this.currentFieldName = ''
     },
     handleStartCollaborate() {

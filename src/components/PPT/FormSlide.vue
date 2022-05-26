@@ -4,7 +4,7 @@
       <div class='slide-switch'>
         <a-radio-group
           v-show='showDisplayModeSwitch'
-          :default-value="displayModeType.SlideDrift"
+          :default-value="displayMode"
           button-style="solid"
           class='cc-radio-group'
           v-model='displayMode'
@@ -78,6 +78,10 @@ export default {
       type: String,
       default: null
     },
+    showSelected: {
+      type: Boolean,
+      default: false
+    },
     showDisplayModeSwitch: {
       type: Boolean,
       default: true
@@ -85,7 +89,7 @@ export default {
   },
   data() {
     return {
-      displayMode: displayModeType.SlideTemplate,
+      displayMode: this.showSelected ? displayModeType.SlideTemplate : displayModeType.SlideDrift,
       displayModeType: displayModeType
     }
   },
@@ -93,6 +97,7 @@ export default {
   },
   methods: {
     handleSwitchDisplayMode () {
+      this.$emit('handle-change-selected', this.displayMode === displayModeType.SlideTemplate)
     },
 
     async handleEditGoogleSlide() {

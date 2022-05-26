@@ -58,6 +58,8 @@ import GlobalSearchInput from '@/components/GlobalSearch/GlobalSearchInput'
 import UserProfileAvatar from '@/components/User/UserProfileAvatar'
 import ContentTypeFilter from '@/components/MyContentV2/ContentTypeFilter'
 import { mapState } from 'vuex'
+import { MyContentEvent } from '@/components/MyContent/MyContentEventBus'
+import EventBus from '@/utils/eventBus'
 
 export default {
   name: 'CreatedByMeV2',
@@ -237,6 +239,12 @@ export default {
       this.pageNo = 1
       this.loadMyContent()
     }
+  },
+  mounted() {
+    EventBus.$on(MyContentEvent.ReloadMyContent, this.loadMyContent)
+  },
+  beforeDestroy() {
+    EventBus.$off(MyContentEvent.ReloadMyContent, this.loadMyContent)
   }
 }
 </script>
