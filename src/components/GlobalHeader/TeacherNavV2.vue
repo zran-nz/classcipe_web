@@ -138,7 +138,7 @@ export default {
     ...mapMutations([TOOGLE_USER_MODE, 'SET_CURRENT_SCHOOL']),
     ...mapActions(['GetClassList']),
     init() {
-      const current = this.currentSchool.id ? this.currentSchool : (this.info.schoolList && this.info.schoolList.length > 0) ? { ...this.info.schoolList[0] } : {}
+      const current = this.currentSchool?.id ? this.currentSchool : (this.info.schoolList && this.info.schoolList.length > 0) ? { ...this.info.schoolList[0] } : {}
       this.SET_CURRENT_SCHOOL(current)
       this.GetClassList(this.userMode)
     },
@@ -169,7 +169,7 @@ export default {
       // 当前mode是school，且没有admin权限，则跳出去
       if (this.userMode === USER_MODE.SCHOOL &&
         !(this.currentSchool && this.currentSchool.roleNames &&
-        this.currentSchool.roleNames.includes(this.schoolUserRole.admin))) {
+        this.currentSchool?.roleNames.includes(this.schoolUserRole.admin))) {
           this.$router.push({ path: '/teacher/main/created-by-me' })
       }
       // 没经过usermodemixin schoolmixin处理的直接刷新当前页

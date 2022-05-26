@@ -23,8 +23,8 @@
           增加 Header 左侧内容区自定义
     -->
     <template v-slot:menuRender>
-      <teacher-nav-v2 v-show="$store.getters.currentRole === 'teacher'"></teacher-nav-v2>
-      <student-nav v-show="$store.getters.currentRole === 'student'"></student-nav>
+      <teacher-nav-v2 v-if="$store.getters.currentRole === 'teacher'"></teacher-nav-v2>
+      <student-nav v-if="$store.getters.currentRole === 'student'"></student-nav>
     </template>
 
     <!-- custom footer / 自定义Footer -->
@@ -32,7 +32,7 @@
     <!--      <global-footer />-->
     <!--    </template>-->
     <!-- 主页面内容 -->
-    <div>
+    <div class='cc-main-content'>
       <router-view />
     </div>
   </pro-layout>

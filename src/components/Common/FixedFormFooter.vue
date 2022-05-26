@@ -43,5 +43,7 @@ export default {
   justify-content: space-between;
   z-index: 999;
   transition: all 0.3s ease-in-out;
+  min-width: 1000px;
+  overflow-x: auto;
 }
 </style>

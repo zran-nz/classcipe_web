@@ -103,11 +103,11 @@ export default {
 
     .name {
       max-width: 100%;
-      padding-right: 0;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
       font-size: 14px;
+      padding-right: 30px;
     }
 
     .description {
@@ -162,12 +162,13 @@ export default {
 
 .check-result-icon {
   position: absolute;
-  top: 0;
-  height: 50px;
+  top: 15px;
+  height: 20px;
+  width: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  right: 15px;
+  right: 5px;
   font-size: 14px;
 }
 </style>
