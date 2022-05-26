@@ -2990,7 +2990,7 @@ anymatch@^2.0.0:
     micromatch "^3.1.4"
     normalize-path "^2.1.1"
 
-anymatch@^3.0.0, anymatch@~3.1.1, anymatch@~3.1.2:
+anymatch@^3.0.0, anymatch@~3.1.1:
   version "3.1.2"
   resolved "https://registry.npm.taobao.org/anymatch/download/anymatch-3.1.2.tgz"
   integrity sha1-wFV8CWrzLxBhmPT04qODU343hxY=
@@ -4483,21 +4483,6 @@ check-types@^8.0.3:
   version "8.0.3"
   resolved "https://registry.nlark.com/check-types/download/check-types-8.0.3.tgz"
   integrity sha1-M1bMoZyIlUTy16le1JzlCKDs9VI=
-
-"chokidar@>=3.0.0 <4.0.0":
-  version "3.5.3"
-  resolved "https://registry.yarnpkg.com/chokidar/-/chokidar-3.5.3.tgz#1cf37c8707b932bd1af1ae22c0432e2acd1903bd"
-  integrity sha512-Dr3sfKRP6oTcjf2JmUmFJfeVMvXBdegxB0iVQ5eb2V10uFJUCAS8OByZdVAyVb8xXNz3GjjTgj9kLWsZTqE6kw==
-  dependencies:
-    anymatch "~3.1.2"
-    braces "~3.0.2"
-    glob-parent "~5.1.2"
-    is-binary-path "~2.1.0"
-    is-glob "~4.0.1"
-    normalize-path "~3.0.0"
-    readdirp "~3.6.0"
-  optionalDependencies:
-    fsevents "~2.3.2"
 
 chokidar@^2.1.2, chokidar@^2.1.8:
   version "2.1.8"
@@ -7286,7 +7271,7 @@ fsevents@^1.2.7:
     bindings "^1.5.0"
     nan "^2.12.1"
 
-fsevents@~2.3.1, fsevents@~2.3.2:
+fsevents@~2.3.1:
   version "2.3.2"
   resolved "https://registry.npm.taobao.org/fsevents/download/fsevents-2.3.2.tgz?cache=0&sync_timestamp=1612536422255&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Ffsevents%2Fdownload%2Ffsevents-2.3.2.tgz"
   integrity sha1-ilJveLj99GI7cJ4Ll1xSwkwC/Ro=
@@ -7382,7 +7367,7 @@ glob-parent@^3.1.0:
     is-glob "^3.1.0"
     path-dirname "^1.0.0"
 
-glob-parent@~5.1.0, glob-parent@~5.1.2:
+glob-parent@~5.1.0:
   version "5.1.2"
   resolved "https://registry.nlark.com/glob-parent/download/glob-parent-5.1.2.tgz?cache=0&sync_timestamp=1620073245729&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fglob-parent%2Fdownload%2Fglob-parent-5.1.2.tgz"
   integrity sha1-hpgyxYA0/mikCTwX3BXoNA2EAcQ=
@@ -9382,11 +9367,6 @@ kleur@^3.0.3:
   version "3.0.3"
   resolved "https://registry.nlark.com/kleur/download/kleur-3.0.3.tgz"
   integrity sha1-p5yezIbuHOP6YgbRIWxQHxR/wH4=
-
-klona@^2.0.4:
-  version "2.0.5"
-  resolved "https://registry.yarnpkg.com/klona/-/klona-2.0.5.tgz#d166574d90076395d9963aa7a928fabb8d76afbc"
-  integrity sha512-pJiBpiXMbt7dkzXe8Ghj/u4FfXOOa98fPW+bihOJ4SjnoijweJrNThJfd3ifXpXhREjpoF2mZVH1GfS9LV3kHQ==
 
 launch-editor-middleware@^2.2.1:
   version "2.2.1"
@@ -12238,13 +12218,6 @@ readdirp@~3.5.0:
   dependencies:
     picomatch "^2.2.1"
 
-readdirp@~3.6.0:
-  version "3.6.0"
-  resolved "https://registry.yarnpkg.com/readdirp/-/readdirp-3.6.0.tgz#74a370bd857116e245b29cc97340cd431a02a6c7"
-  integrity sha512-hOS089on8RduqdbhvQ5Z37A0ESjsqz6qnRcffsMU3495FuTdqSm+7bhJ29JvIOsBDEEnan5DPu9t3To9VRlMzA==
-  dependencies:
-    picomatch "^2.2.1"
-
 realpath-native@^1.1.0:
   version "1.1.0"
   resolved "https://registry.npm.taobao.org/realpath-native/download/realpath-native-1.1.0.tgz"
@@ -12751,24 +12724,6 @@ sane@^4.0.3:
     minimist "^1.1.1"
     walker "~1.0.5"
 
-sass-loader@^10.2.0:
-  version "10.2.1"
-  resolved "https://registry.yarnpkg.com/sass-loader/-/sass-loader-10.2.1.tgz#17e51df313f1a7a203889ce8ff91be362651276e"
-  integrity sha512-RRvWl+3K2LSMezIsd008ErK4rk6CulIMSwrcc2aZvjymUgKo/vjXGp1rSWmfTUX7bblEOz8tst4wBwWtCGBqKA==
-  dependencies:
-    klona "^2.0.4"
-    loader-utils "^2.0.0"
-    neo-async "^2.6.2"
-    schema-utils "^3.0.0"
-    semver "^7.3.2"
-
-sass@~1.32:
-  version "1.32.13"
-  resolved "https://registry.yarnpkg.com/sass/-/sass-1.32.13.tgz#8d29c849e625a415bce71609c7cf95e15f74ed00"
-  integrity sha512-dEgI9nShraqP7cXQH+lEXVf73WOPCse0QlFzSD8k+1TcOxCMwVXfQlr0jtoluZysQOyJGnfr21dLvYKDJq8HkA==
-  dependencies:
-    chokidar ">=3.0.0 <4.0.0"
-
 sax@1.2.1:
   version "1.2.1"
   resolved "https://registry.npmmirror.com/sax/-/sax-1.2.1.tgz"
@@ -12878,13 +12833,6 @@ semver@^6.0.0, semver@^6.1.0, semver@^6.1.1, semver@^6.1.2, semver@^6.2.0, semve
   version "6.3.0"
   resolved "https://registry.nlark.com/semver/download/semver-6.3.0.tgz"
   integrity sha1-7gpkyK9ejO6mdoexM3YeG+y9HT0=
-
-semver@^7.3.2:
-  version "7.3.7"
-  resolved "https://registry.yarnpkg.com/semver/-/semver-7.3.7.tgz#12c5b649afdbf9049707796e22a4028814ce523f"
-  integrity sha512-QlYTucUYOews+WeEujDoEGziz4K6c47V/Bd+LjSSYcA94p+DmINdf7ncaUinThfvZyu13lN9OY1XDxt8C0Tw0g==
-  dependencies:
-    lru-cache "^6.0.0"
 
 send@0.17.1:
   version "0.17.1"
