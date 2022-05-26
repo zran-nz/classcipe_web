@@ -61,9 +61,10 @@
       <a-textarea
         v-if='currentActiveTagCategory'
         :auto-size="{ minRows: 3, maxRows: 6 }"
-        v-model='currentActiveTagCategory.description'
+        v-model='currentActiveTagCategory.tooltip'
         placeholder='Explain why choose the tags'
         class='cc-form-textarea-white-bg'
+        @change='asyncUpdateTooltip'
         allow-clear />
     </div>
 
@@ -83,15 +84,15 @@
 </template>
 
 <script>
-import * as logger from '@/utils/logger'
 import TagBrowser from '@/components/UnitPlan/TagBrowser'
 import TagSetting from '@/components/UnitPlan/TagSetting'
-import { AddUserTagNew } from '@/api/tag'
+import { AddUserTagNew, UserTagAddOrUpdate } from '@/api/tag'
 import { UtilMixin } from '@/mixins/UtilMixin'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import CommonNoData from '@/components/Common/CommonNoData'
 import CustomTagCategoryBar from '@/components/CustomTag/CustomTagCategoryBar'
 import CustomSearchInput from '@/components/Common/CustomSearchInput'
+import { debounce } from 'lodash-es'
 
 export default {
   name: 'CustomTagV2',
@@ -160,7 +161,9 @@ export default {
       createTagName: '',
       tagSearchList: [],
       currentActiveTagCategory: null,
-      tagMode: 'select' // select/desc
+      tagMode: 'select', // select/desc,
+
+      asyncUpdateTooltip: null // 异步更新标签分类tooltip函数
     }
   },
   mounted() {
@@ -174,6 +177,8 @@ export default {
       }
     })
     this.tagList = tagList
+
+    this.asyncUpdateTooltip = debounce(this.updateTagCategoryTooltip, 2000)
   },
   computed: {
     showTagList: function () {
@@ -247,6 +252,7 @@ export default {
 
         if (parent) {
           parent.tagColor = this.color[index % this.color.length]
+          parent.tooltip = null
           list.push(parent)
         }
       })
@@ -256,7 +262,6 @@ export default {
     },
     filterKeywordListInput() {
       return function(keywords) {
-        this.$logger.info('filterKeywordListInput', keywords)
         let result = keywords
         if (this.inputTag) {
           result = keywords.filter(item => item.toLowerCase().indexOf(this.inputTag.toLowerCase()) > -1)
@@ -385,7 +390,7 @@ export default {
     },
 
     searchTag (keyword) {
-      logger.info('tag searchTag', keyword)
+      this.$logger.info('tag searchTag', keyword)
       this.createTagName = this.inputTag
     },
     refreshTag () {
@@ -394,6 +399,22 @@ export default {
     handleChangeCategory(category) {
       this.$logger.info('change category', category)
       this.currentActiveTagCategory = category
+    },
+
+    updateTagCategoryTooltip () {
+      this.$logger.info('updateTagCategoryTooltip', this.currentActiveTagCategory)
+      if (this.currentActiveTagCategory) {
+        UserTagAddOrUpdate({
+          id: this.currentActiveTagCategory.id,
+          tooltip: this.currentActiveTagCategory.tooltip
+        }).then((res) => {
+          if (res.success) {
+            this.$message.success('Update tag category tooltip successfully')
+          } else {
+            this.$message.error(res.message)
+          }
+        })
+      }
     }
   }
 
