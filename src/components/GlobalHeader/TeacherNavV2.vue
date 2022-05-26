@@ -68,6 +68,7 @@ import AvatarDropdown from './AvatarDropdown'
 import { Modal } from 'ant-design-vue'
 import SidebarMenuItem from '@/components/GlobalHeader/Common/SidebarMenuItem'
 import SidebarMenuList from '@/components/GlobalHeader/Common/SidebarMenuList'
+import { debounce } from 'lodash-es'
 
 export default {
   name: 'TeacherNav',
@@ -91,7 +92,9 @@ export default {
       showTaskMode: false,
       schoolUserRole: SchoolUserRole,
       USER_MODE: USER_MODE,
-      mainRouter: ['TeacherBuyMain', 'TeacherSellMain']
+      mainRouter: ['TeacherBuyMain', 'TeacherSellMain'],
+
+      asyncResizeSidebarFn: null
     }
   },
   watch: {
@@ -133,6 +136,11 @@ export default {
   },
   created() {
     this.init()
+    this.asyncResizeSidebarFn = debounce(this.resizeSidebar, 500)
+    window.addEventListener('resize', this.asyncResizeSidebarFn)
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.asyncResizeSidebarFn)
   },
   methods: {
     ...mapMutations([TOOGLE_USER_MODE, 'SET_CURRENT_SCHOOL']),
@@ -233,6 +241,15 @@ export default {
         this.$router.push({
           path
         })
+      }
+    },
+
+    resizeSidebar () {
+      this.$logger.info('resizeSidebar', window.innerWidth)
+      if (window.innerWidth <= 1000) {
+        this.$store.commit(HIDDEN_SIDEBAR, true)
+      } else {
+        this.$store.commit(HIDDEN_SIDEBAR, false)
       }
     }
   }
