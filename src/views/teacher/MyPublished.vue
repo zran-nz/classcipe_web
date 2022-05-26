@@ -50,6 +50,7 @@ import PublishedContentItem from '@/components/MyContentV2/PublishedContentItem'
 import DiscountSetting from '@/components/MyContentV2/DiscountSetting'
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
+import { mapState } from 'vuex'
 
 export default {
   name: 'MyPublished',
@@ -83,6 +84,12 @@ export default {
       discountSettingVisible: false
     }
   },
+  computed: {
+    ...mapState({
+      info: state => state.user.info,
+      currentSchool: state => state.user.currentSchool
+    })
+  },
   created() {
     this.loadMyContent()
   },
@@ -115,7 +122,8 @@ export default {
         types: [],
         status: 1,
         createBy: this.$store.getters.email,
-        delFlag: 0
+        delFlag: 0,
+        schoolId: this.currentSchool?.id
       }
       if (this.filterParams) {
         params = Object.assign(this.filterParams, params)
