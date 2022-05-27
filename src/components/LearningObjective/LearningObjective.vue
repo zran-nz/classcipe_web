@@ -23,6 +23,7 @@
           <div class='select-item'>
             <a-select
               :getPopupContainer="trigger => trigger.parentElement"
+              v-model='selectedSubject'
               @select='handleSelectSubject'
               class='cc-select cc-lo-select'>
               <a-select-option :value='subjectName' v-for='subjectName in subjectOptions' :key='subjectName'>
@@ -43,6 +44,7 @@
           <div class='select-item'>
             <a-select
               :getPopupContainer="trigger => trigger.parentElement"
+              v-model='selectedYear'
               @select='handleSelectYear'
               class='cc-select cc-lo-select-small'>
               <a-select-option :value='year' v-for='year in yearOptions' :key='year'>
@@ -206,6 +208,9 @@ export default {
         'Year 10'
       ],
 
+      selectedSubject: null,
+      selectedYear: null,
+
       filterConfig: {
         curriculumId: null,
         selectedSubjectList: [],
@@ -252,10 +257,12 @@ export default {
 
     if (Array.isArray(this.subjectList) && this.subjectList.length > 0) {
       this.filterConfig.selectedSubjectList = this.subjectList
+      this.selectedSubject = this.filterConfig.selectedSubjectList[0]
     }
 
     if (Array.isArray(this.yearList) && this.yearList.length > 0) {
       this.filterConfig.selectedYearList = this.yearList
+      this.selectedYear = this.filterConfig.selectedYearList[0]
     }
 
     if (Array.isArray(this.learningObjectives) && this.learningObjectives.length > 0) {
