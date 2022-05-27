@@ -178,7 +178,12 @@
                     <template slot='label'>
                       {{ 'Learning objectives' | taskLabelName(taskField.LearnOuts, $store.getters.formConfigData) }}
                     </template>
-                    <learning-objective />
+                    <learning-objective
+                      @change='handleUpdateLearningObjectives'
+                      :curriculum='form.curriculum'
+                      :learning-objectives='form.learnOuts'
+                      :subject-list='form.subjectList'
+                      :year-list='form.yearList' />
                   </custom-form-item>
                 </div>
 
@@ -518,6 +523,7 @@ import SlideEvent from '@/components/PPT/SlideEvent'
 import CustomCoverMedia from '@/components/Common/CustomCoverMedia'
 import { PublishMixin } from '@/mixins/PublishMixin'
 import LearningObjective from '@/components/LearningObjective/LearningObjective'
+import { AutoSaveMixin } from '@/mixins/AutoSaveMixin'
 
 export default {
   name: 'AddTaskV2',
@@ -552,7 +558,7 @@ export default {
     CollaborateTooltip,
     CollaborateUpdateContent
   },
-  mixins: [ UtilMixin, BaseEventMixin, FormConfigMixin, GoogleAuthCallBackMixin, PublishMixin ],
+  mixins: [ UtilMixin, BaseEventMixin, FormConfigMixin, GoogleAuthCallBackMixin, PublishMixin, AutoSaveMixin ],
   props: {
     taskId: {
       type: String,
@@ -586,7 +592,10 @@ export default {
         subjectIds: [],
         gradeIds: [],
         bloomCategories: '',
+        curriculum: null,
         learnOuts: [],
+        yearList: [],
+        subjectList: [],
         selfOuts: [],
         showSelect: false,
         startDate: '',
@@ -988,7 +997,6 @@ export default {
       if (index !== -1) {
         this.form.selectedTemplateList.splice(index, 1)
       }
-      this.autoSave()
     },
 
     handleViewDetail(item) {
@@ -1020,7 +1028,6 @@ export default {
         this.$logger.info('handleCreateTask', response.result)
         this.form.id = response.result.id
         this.form.presentationId = response.result.presentationId
-        await this.autoSave()
         this.$message.success('Created Successfully in Google Slides')
         window.open('https://docs.google.com/presentation/d/' + this.form.presentationId, '_blank')
         this.creating = false
@@ -1062,7 +1069,7 @@ export default {
       this.$logger.info('handleEditGoogleSlide', this.form.presentationId)
       let res
       if (this.form.presentationId) {
-        res = await this.autoSave()
+        res = await this.save()
       } else {
         res = await this.handleCreateTask()
       }
@@ -1436,16 +1443,15 @@ export default {
     },
     removeSelectTemplate(template) {
       this.$logger.info('removeSelectTemplate ', template)
-      var index = this.form.selectedTemplateList.findIndex(item => item.id === template.id)
+      const index = this.form.selectedTemplateList.findIndex(item => item.id === template.id)
       if (index > -1) {
         this.form.selectedTemplateList.splice(index, 1)
       }
       if (this.form.selectedTemplateList.length === 0) {
         this.form.showSelected = false
       }
-      this.autoSave()
     },
-    async autoSave() {
+    async save() {
       const taskData = Object.assign({}, this.form)
       if (this.taskId) {
         taskData.id = this.taskId
@@ -1622,6 +1628,14 @@ export default {
     changeSelected(checked) {
       this.$logger.info('changeSelected ', checked)
       this.form.showSelected = checked
+    },
+
+    handleUpdateLearningObjectives (data) {
+      this.$logger.info('handleUpdateLearningObjectives', data)
+      this.form.learnOuts = data.learnOuts
+      this.form.curriculum = data.curriculum
+      this.form.subjectList = data.selectedSubjectList
+      this.form.yearList = data.selectedYearList
     }
   }
 }

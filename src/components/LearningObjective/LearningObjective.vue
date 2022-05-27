@@ -8,7 +8,7 @@
               :getPopupContainer="trigger => trigger.parentElement"
               v-model='filterConfig.curriculum'
               class='cc-select cc-lo-select-mid'>
-              <a-select-option :value='item.id' v-for='(item, index) in curriculumList' :key='index'>
+              <a-select-option :value='item.id' v-for='(item, index) in curriculumOptions' :key='index'>
                 {{ item.name }}
               </a-select-option>
             </a-select>
@@ -25,7 +25,7 @@
               :getPopupContainer="trigger => trigger.parentElement"
               @select='handleSelectSubject'
               class='cc-select cc-lo-select'>
-              <a-select-option :value='subjectName' v-for='subjectName in subjectList' :key='subjectName'>
+              <a-select-option :value='subjectName' v-for='subjectName in subjectOptions' :key='subjectName'>
                 {{ subjectName }}
               </a-select-option>
             </a-select>
@@ -45,7 +45,7 @@
               :getPopupContainer="trigger => trigger.parentElement"
               @select='handleSelectYear'
               class='cc-select cc-lo-select-small'>
-              <a-select-option :value='year' v-for='year in yearList' :key='year'>
+              <a-select-option :value='year' v-for='year in yearOptions' :key='year'>
                 {{ year }}
               </a-select-option>
             </a-select>
@@ -158,23 +158,42 @@ import { CurriculumSearch, GeneralCapabilitiesFormat } from '@/components/Learni
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import { getAllCurriculums } from '@/api/preference'
 import DeleteIcon from '@/components/Common/DeleteIcon'
+import { debounce } from 'lodash-es'
 
 export default {
   name: 'LearningObjective',
   components: { DeleteIcon, CustomTextButton },
+  props: {
+    curriculum: {
+      type: String,
+      default: null
+    },
+    subjectList: {
+      type: Array,
+      default: () => []
+    },
+    yearList: {
+      type: Array,
+      default: () => []
+    },
+    learningObjectives: {
+      type: Array,
+      default: () => []
+    }
+  },
   data() {
     return {
       data: data,
       yearIndex: data['Learning outcomes']?.__year,
-      curriculumList: [],
-      subjectList: [
+      curriculumOptions: [],
+      subjectOptions: [
         'Science',
         'The Arts',
         'Humanities and Social Sciences',
         'Health and Physical Education',
         'Mathematics'
       ],
-      yearList: [
+      yearOptions: [
         'Year 1',
         'Year 2',
         'Year 3',
@@ -199,7 +218,8 @@ export default {
 
       selectedList: [],
 
-      generalCapabilitiesData: []
+      generalCapabilitiesData: [],
+      asyncEmitUpdateEventFn: null
     }
   },
   watch: {
@@ -208,15 +228,40 @@ export default {
       immediate: false,
       handler() {
         this.filterList = CurriculumSearch(this.data['Learning outcomes'], this.filterConfig.selectedSubjectList, this.filterConfig.selectedYearList, this.filterConfig.keyword)
+        this.asyncEmitUpdateEventFn()
+      }
+    },
+    selectedList: {
+      deep: true,
+      immediate: false,
+      handler() {
+        this.asyncEmitUpdateEventFn()
       }
     }
   },
   computed: {
     selectedCurriculumName () {
-      return this.curriculumList.find(item => item.id === this.filterConfig.curriculum)?.name
+      return this.curriculumOptions.find(item => item.id === this.filterConfig.curriculum)?.name
     }
   },
   created() {
+    this.asyncEmitUpdateEventFn = debounce(this.emitUpdateEvent, 1000)
+    if (this.curriculum) {
+      this.filterConfig.curriculum = this.curriculum
+    }
+
+    if (Array.isArray(this.subjectList) && this.subjectList.length > 0) {
+      this.filterConfig.selectedSubjectList = this.subjectList
+    }
+
+    if (Array.isArray(this.yearList) && this.yearList.length > 0) {
+      this.filterConfig.selectedYearList = this.yearList
+    }
+
+    if (Array.isArray(this.learningObjectives) && this.learningObjectives.length > 0) {
+      this.selectedList = this.learningObjectives
+    }
+
     this.initData()
   },
   mounted() {
@@ -226,9 +271,9 @@ export default {
     initData() {
       getAllCurriculums().then((response) => {
         this.$logger.info('getAllCurriculums', response)
-        this.curriculumList = response.result
-        this.filterConfig.curriculum = this.curriculumList[0].id
-        this.$logger.info('getAllCurriculums', this.curriculumList)
+        this.curriculumOptions = response.result
+        this.filterConfig.curriculum = this.curriculumOptions[0].id
+        this.$logger.info('getAllCurriculums', this.curriculumOptions)
       })
 
       this.generalCapabilitiesData = GeneralCapabilitiesFormat(this.data['General capabilities'])
@@ -304,6 +349,15 @@ export default {
       if (index !== -1) {
         item.generalCapabilities.splice(index, 1)
       }
+    },
+
+    emitUpdateEvent () {
+      const eventData = {
+        ...this.filterConfig,
+        learnOuts: this.selectedList
+      }
+      this.$logger.info('emitUpdateEvent eventData', eventData)
+      this.$emit('change', eventData)
     }
   }
 }
