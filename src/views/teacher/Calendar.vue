@@ -50,11 +50,32 @@
       destroyOnClose
       width='1000px'
       @cancel='handleCloseImport'>
-      <content-select
-        :type="importType"
-        :title="importTitle"
-        @choose="handleChoose"
-      />
+      <div>
+        <my-vertical-steps
+          ref='steps-nav'
+          :allow-switch='false'
+          :steps='ScheduleStepsFilter'
+          :step-index='currentActiveStepIndex'
+          @step-change='handleStepChange'
+        />
+        <div class="import-content">
+          <content-select
+            v-show="'unit' === ScheduleStepsFilter[currentActiveStepIndex].type"
+            :type="typeMap['unit-plan']"
+            @choose="(item) => handleChoose(item, 'unit')"
+            @cancel="handleBack"
+          />
+          <content-select
+            v-show="'task' === ScheduleStepsFilter[currentActiveStepIndex].type"
+            :type="typeMap.task"
+            :datas="importDatas"
+            :need-filter="currentActiveStepIndex === 0 "
+            :back-txt="currentActiveStepIndex === 0 ? 'Discard': 'Back'"
+            @choose="item => handleChoose(item ,'task')"
+            @cancel="handleBack"
+          />
+        </div>
+      </div>
     </a-modal>
   </div>
 </template>
@@ -70,8 +91,10 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import ContentSelect from '@/components/MyContentV2/ContentSelect'
+import MyVerticalSteps from '@/components/Steps/MyVerticalSteps'
 
 import { getClassSchedule } from '@/api/selfStudy'
+import { GetAssociate } from '@/api/teacher'
 
 import { ABSENT_COLORS, BG_COLORS, TASK_ATTENDANCE } from '@/const/common'
 import { typeMap } from '@/const/teacher'
@@ -85,13 +108,36 @@ export default {
   mixins: [UserModeMixin, CurrentSchoolMixin],
   components: {
     FullCalendar,
-    ContentSelect
+    ContentSelect,
+    MyVerticalSteps
   },
   data() {
     return {
       ABSENT_COLORS: ABSENT_COLORS,
       BG_COLORS: BG_COLORS,
       typeMap: typeMap,
+      ScheduleSteps: [
+        {
+          id: '1',
+          name: 'Select Unit',
+          description: null,
+          filter: typeMap['unit-plan'],
+          type: 'unit'
+        },
+        {
+          id: '2',
+          name: 'Select Task',
+          description: null,
+          type: 'task'
+        },
+        {
+          id: '3',
+          name: 'Schedule Session',
+          description: null,
+          type: 'schedule'
+        }
+      ],
+      currentActiveStepIndex: 0,
       currentClassList: [{
         id: '1'
       }],
@@ -663,6 +709,8 @@ export default {
         selectMirror: true,
         dayMaxEvents: true,
         weekends: true,
+        slotDuration: '00:15:00',
+        slotLabelInterval: '01:00',
         select: this.handleDateSelect,
         eventClick: this.handleEventClick,
         eventsSet: this.handleEvents,
@@ -697,7 +745,15 @@ export default {
       showStatusOptions: [],
 
       importVisible: false,
-      importType: typeMap.task
+      importLoading: false,
+      importType: typeMap.task,
+      importDatas: [],
+      importModel: {
+        startDate: null,
+        endDate: null,
+        task: null,
+        unit: null
+      }
     }
   },
   computed: {
@@ -726,6 +782,9 @@ export default {
           break
       }
       return title
+    },
+    ScheduleStepsFilter() {
+      return this.ScheduleSteps.filter(item => !item.filter || item.filter === this.importType)
     }
   },
   created() {
@@ -781,11 +840,22 @@ export default {
     closeTip() {
       this.$refs.tooltip.style.visibility = 'hidden'
     },
+    handleStepChange(data) {
+      this.currentActiveStepIndex = data.index
+    },
     handleAddUnit() {
       this.closeTip()
+      this.currentActiveStepIndex = 0
+      this.importType = typeMap['unit-plan']
+      this.importVisible = true
     },
     handleAddSession() {
       this.closeTip()
+      this.currentActiveStepIndex = 0
+      this.importType = typeMap.task
+      this.importDatas = []
+      this.importModel.startDate = moment(this.event.start).format('YYYY-MM-DD HH:mm:ss')
+      this.importModel.endDate = moment(this.event.end).format('YYYY-MM-DD HH:mm:ss')
       this.importVisible = true
     },
     handleCloseImport() {
@@ -850,15 +920,58 @@ export default {
     getColorIndex(status) {
       return Object.values(TASK_ATTENDANCE).findIndex(item => item === status)
     },
-    handleChoose(item) {
-      console.log(item)
-      this.importVisible = false
-      this.$router.push({
-        path: '/teacher/schedule-session/' + item.id + '/' + item.type,
-        query: {
-          startDate: moment(this.event.start).format('YYYY-MM-DD HH:mm:ss'),
-          endDate: moment(this.event.end).format('YYYY-MM-DD HH:mm:ss')
+    async getAssociate (id, type) {
+      this.importLoading = true
+      const response = await GetAssociate({
+        id: id,
+        type: type,
+        published: 0
+      })
+      response.result.owner.forEach(ownerItem => {
+        const groupItem = response.result.groups.find(group => group.groupName === ownerItem.group)
+        if (groupItem) {
+          ownerItem.groupId = groupItem.id
+          groupItem.contents = JSON.parse(JSON.stringify(ownerItem.contents))
         }
+      })
+      const ownerLinkGroupList = response.result.owner
+      const taskList = []
+      // task 找 unit， unit 找task
+      const findType = type === typeMap.task ? typeMap['unit-plan'] : typeMap.task
+      console.log(findType)
+
+      ownerLinkGroupList.forEach(group => {
+        group.contents.forEach(content => {
+          if (content.type === findType) {
+            taskList.push(content)
+          }
+        })
+      })
+      this.importLoading = false
+      return taskList
+    },
+    handleBack(item) {
+      if (this.currentActiveStepIndex === 0) {
+        this.handleCloseImport()
+      } else {
+        this.$refs['steps-nav'].prevStep()
+      }
+    },
+    handleChoose(item, type) {
+      console.log(item)
+      // this.importVisible = false
+      // this.$router.push({
+      //   path: '/teacher/schedule-session/' + item.id + '/' + item.type,
+      //   query: {
+      //     startDate: moment(this.event.start).format('YYYY-MM-DD HH:mm:ss'),
+      //     endDate: moment(this.event.end).format('YYYY-MM-DD HH:mm:ss')
+      //   }
+      // })
+      this.importModel[type] = { ...item }
+      this.getAssociate(item.id, item.type).then(res => {
+        this.importDatas = res
+        console.log(this.importDatas)
+        this.$refs['steps-nav'].nextStep()
       })
     }
   }
@@ -1001,5 +1114,8 @@ export default {
       }
     }
   }
+}
+.import-content {
+  margin-top: 20px;
 }
 </style>

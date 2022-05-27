@@ -1,11 +1,11 @@
 <template>
   <div class="content-select">
-    <div class="content-select-title">
+    <div class="content-select-title" v-show="title">
       {{ title }}
     </div>
     <div class="content-select-wrap">
       <div class="content-select-left">
-        <div class="content-select-filter">
+        <div class="content-select-filter" v-show="showFilter">
           <a-radio-group @change="handleSearch" v-model="sourceApi" button-style="solid">
             <a-radio-button value="FindMyContent">
               My content
@@ -78,6 +78,7 @@
       </div>
     </div>
     <div class="content-select-action">
+      <a-button type="" @click="handleCancel">{{ backText }}</a-button>
       <a-button :disabled="!selectedId" type="primary" @click="handleNext">Next</a-button>
     </div>
   </div>
@@ -88,8 +89,13 @@ import { FindMyContent } from '@/api/teacher'
 import { QueryContentsFilter } from '@/api/library'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import CommonPreviewV2 from '@/components/Common/CommonPreviewV2'
+import { UserModeMixin } from '@/mixins/UserModeMixin'
+import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
+import { USER_MODE } from '@/const/common'
+import { mapState } from 'vuex'
 export default {
   name: 'ContentSelect',
+  mixins: [UserModeMixin, CurrentSchoolMixin],
   components: {
     NoMoreResources,
     CommonPreviewV2
@@ -101,7 +107,32 @@ export default {
     },
     title: {
       type: String,
-      default: 'Select Task or PD content'
+      default: ''
+    },
+    backTxt: {
+      type: String,
+      default: 'Discard'
+    },
+    datas: {
+      type: Array,
+      default: () => []
+    },
+    needFilter: {
+      type: Boolean,
+      default: true
+    }
+  },
+  watch: {
+    datas(val) {
+      if (val && !this.showFilter) {
+        this.myContentList = val.concat()
+      }
+    },
+    needFilter(val) {
+      this.showFilter = val
+    },
+    backTxt(val, newVal) {
+      this.backText = val
     }
   },
   data() {
@@ -120,22 +151,45 @@ export default {
       },
       myContentList: [],
       selectedId: '',
-      previewLoading: true
+      previewLoading: true,
+      backText: this.backTxt,
+      showFilter: this.needFilter
     }
+  },
+  computed: {
+    ...mapState({
+      userMode: state => state.app.userMode,
+      currentSchool: state => state.user.currentSchool
+    })
   },
   created() {
     this.init()
   },
   methods: {
     init() {
+      if (!this.showFilter) {
+        return
+      }
       this.loading = true
-      this[this.sourceApi](this.queryParams).then(res => {
+      this[this.sourceApi]({
+        ...this.queryParams,
+        schoolId: this.userMode === USER_MODE.SELF ? null : this.currentSchool.id
+      }).then(res => {
         if (res.success) {
           this.myContentList = res.result.records || res.result
         }
       }).finally(res => {
         this.loading = false
       })
+    },
+    handleSchoolChange(currentSchool) {
+      this.init()
+    },
+    handleModeChange(userMode) {
+      // 模式切换，个人还是学校 个人接口
+      if (userMode === USER_MODE.SELF) {
+        this.init()
+      }
     },
     handlePreviewDetail(item) {
       this.previewLoading = true
@@ -146,6 +200,9 @@ export default {
     },
     handleSearch() {
       this.init()
+    },
+    handleCancel() {
+      this.$emit('cancel')
     },
     handleNext() {
       const item = this.myContentList.find(res => res.id === this.selectedId)
@@ -175,12 +232,12 @@ export default {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        margin-bottom: 20px;
         .filter-search {
           width: 150px;
         }
       }
       .content-select-con {
-        margin-top: 20px;
         overflow: auto;
         height: 330px;
         .content-list {
@@ -274,7 +331,7 @@ export default {
   }
   .content-select-action {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
     height: 40px;
   }

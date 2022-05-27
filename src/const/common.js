@@ -282,13 +282,13 @@ export const DEVICE = {
 }
 
 export const WORK_SHOPS_STATUS = {
-  ONGOING: {
-    label: 'On-going',
-    value: 1
-  },
   SCHEDULE: {
     label: 'Scheduled',
     value: 2
+  },
+  ONGOING: {
+    label: 'On-going',
+    value: 1
   },
   ENDED: {
     label: 'Ended',
