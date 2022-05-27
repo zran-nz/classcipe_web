@@ -71,8 +71,25 @@
       </div>
     </div>
     <div class='cc-lo-content'>
+      <div class='cc-lo-title'>
+        Subject Learning Objectives
+      </div>
+      <div class='cc-lo-input'>
+        <a-input v-model='filterConfig.keyword' @click.native.stop='showFilterList = true' placeholder='Search learning objectives' @keyup.native.enter='handleEnsureInput' class='cc-form-input' />
+        <div class='filter-list' v-show='showFilterList && filterList.length' @click.stop=''>
+          <div class='filter-item' v-for='(item, idx) in filterList' :key='idx' @click='handleSelectItem(item)'>
+            <div class='item-desc'>
+              {{ item.desc }}
+            </div>
+            <div class='item-subject-year'>
+              <div class='item-sub-title'>{{ item.path[0] }}</div>
+              <div class='item-sub-title'>{{ item.path[yearIndex] }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class='cc-lo-list'>
-        <div class='selected-item' v-for='(item, idx) in selectedList' :key='idx' @click='handleActiveItem(item)'>
+        <div class='selected-item' v-for='(item, idx) in selectedList' :key='idx'>
           <div class='item-desc'>
             {{ item.desc }}
           </div>
@@ -84,20 +101,6 @@
             <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDelete(item)" cancel-text="No">
               <delete-icon color='#F16A39' />
             </a-popconfirm>
-          </div>
-        </div>
-      </div>
-      <div class='cc-lo-input'>
-        <a-input v-model='filterConfig.keyword' @click.native.stop='showFilterList = true' @keyup.native.enter='handleEnsureInput' class='cc-form-input' />
-        <div class='filter-list' v-show='showFilterList && filterList.length' @click.stop=''>
-          <div class='filter-item' v-for='(item, idx) in filterList' :key='idx' @click='handleSelectItem(item)'>
-            <div class='item-desc'>
-              {{ item.desc }}
-            </div>
-            <div class='item-subject-year'>
-              <div class='item-sub-title'>{{ item.path[0] }}</div>
-              <div class='item-sub-title'>{{ item.path[yearIndex] }}</div>
-            </div>
           </div>
         </div>
       </div>
@@ -212,7 +215,7 @@ export default {
     handleSelectItem (item) {
       this.$logger.info('handleSelectItem', item)
       if (this.selectedList.indexOf(item) === -1) {
-        this.selectedList.push(item)
+        this.selectedList.unshift(item)
       }
       this.showFilterList = false
     },
@@ -235,11 +238,6 @@ export default {
         })
         this.filterConfig.keyword = null
       }
-    },
-
-    handleActiveItem (item) {
-      this.showFilterList = true
-      this.filterConfig.keyword = item.desc
     }
   }
 }
@@ -327,16 +325,25 @@ export default {
   }
 
   .cc-lo-content {
-    padding-bottom: 20px;
+
+    .cc-lo-title {
+      font-size: 16px;
+      font-family: Arial;
+      font-weight: bold;
+      color: #FF786D;
+      line-height: 25px;
+    }
 
     .cc-lo-list {
+      margin-top: 15px;
+      z-index: 1;
       .selected-item {
         position: relative;
         cursor: pointer;
         background: #FAFAFA;
         border: 1px solid #E1E6ED;
         border-radius: 4px;
-        padding: 10px;
+        padding: 10px 0 10px 10px;
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -360,7 +367,7 @@ export default {
             white-space: nowrap;
             text-overflow: ellipsis;
             word-break: break-all;
-            padding: 5px;
+            margin-right: 10px;
             font-weight: bold;
             color: #111;
             cursor: pointer;
@@ -393,7 +400,9 @@ export default {
       position: relative;
 
       .filter-list {
+        background-color: #fff;
         position: absolute;
+        z-index: 4000;
         left: 0;
         right: 0;
         top: 40px;
@@ -415,8 +424,16 @@ export default {
             color: #15C39A;
           }
 
+          .item-desc {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
+            cursor: pointer;
+            user-select: none;
+          }
+
           .item-subject-year {
-            padding: 0 10px;
             display: flex;
             flex-direction: row;
             align-items: center;
@@ -426,7 +443,7 @@ export default {
               white-space: nowrap;
               text-overflow: ellipsis;
               word-break: break-all;
-              padding: 5px;
+              margin-right: 10px;
               font-weight: bold;
               cursor: pointer;
               user-select: none;
