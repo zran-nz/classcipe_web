@@ -1254,7 +1254,8 @@ export default {
       this.$logger.info('task handleStepChange ', data)
       this.currentStep = data.step
       this.currentActiveStepIndex = data.index
-      this.setSessionStep(data.index)
+      this.resetRightModuleVisible()
+      sessionStorage.setItem('task-step-' + this.taskId, data.index)
       this.checkIsFullBodyStep()
     },
 
@@ -1416,11 +1417,6 @@ export default {
       this.$logger.info('after handleRestoreField', this.form)
     },
 
-    setSessionStep(step) {
-      this.resetRightModuleVisible()
-      this.currentActiveStepIndex = step
-      sessionStorage.setItem('task-step-' + this.taskId, step)
-    },
     getSessionStep() {
       const oldStep = sessionStorage.getItem('task-step-' + this.taskId)
       if (oldStep !== null) {
