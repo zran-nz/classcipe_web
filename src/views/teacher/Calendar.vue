@@ -314,6 +314,7 @@ export default {
       this.importVisible = true
     },
     handleChoose() {
+      this.reFetch()
       this.handleCloseImport()
     },
     handleCloseImport() {
