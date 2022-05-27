@@ -31,13 +31,15 @@ export const ZoomAuthMixin = {
   },
   methods: {
     /**
-     * 进行zoom授权，获取zoom授权token
+     * 进行zoom授权，获取zoom授权token 不是登录
      * @returns {Promise<any>}
      */
-    goToZoomAuth() {
+    goToZoomAuth(email) {
       this.$logger.info('goToZoomAuth')
       let url = getThirdAuthURL('zoom')
       url += `?role=teacher`
+      url += `&email=${email}`
+      url += `&slideAuth=1`
       url += `&callbackUrl=`
       url += thirdAuthCallbackUrl
       if (this.callbackUrl) {
