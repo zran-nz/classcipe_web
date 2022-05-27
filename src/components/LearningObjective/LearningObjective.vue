@@ -6,7 +6,7 @@
           <div class='select-item'>
             <a-select
               :getPopupContainer="trigger => trigger.parentElement"
-              v-model='filterConfig.curriculum'
+              v-model='filterConfig.curriculumId'
               class='cc-select cc-lo-select-mid'>
               <a-select-option :value='item.id' v-for='(item, index) in curriculumOptions' :key='index'>
                 {{ item.name }}
@@ -164,7 +164,7 @@ export default {
   name: 'LearningObjective',
   components: { DeleteIcon, CustomTextButton },
   props: {
-    curriculum: {
+    curriculumId: {
       type: String,
       default: null
     },
@@ -207,7 +207,7 @@ export default {
       ],
 
       filterConfig: {
-        curriculum: null,
+        curriculumId: null,
         selectedSubjectList: [],
         selectedYearList: [],
         keyword: null
@@ -241,13 +241,13 @@ export default {
   },
   computed: {
     selectedCurriculumName () {
-      return this.curriculumOptions.find(item => item.id === this.filterConfig.curriculum)?.name
+      return this.curriculumOptions.find(item => item.id === this.filterConfig.curriculumId)?.name
     }
   },
   created() {
     this.asyncEmitUpdateEventFn = debounce(this.emitUpdateEvent, 1000)
-    if (this.curriculum) {
-      this.filterConfig.curriculum = this.curriculum
+    if (this.curriculumId) {
+      this.filterConfig.curriculumId = this.curriculumId
     }
 
     if (Array.isArray(this.subjectList) && this.subjectList.length > 0) {
@@ -272,15 +272,15 @@ export default {
       getAllCurriculums().then((response) => {
         this.$logger.info('getAllCurriculums', response)
         this.curriculumOptions = response.result
-        this.filterConfig.curriculum = this.curriculumOptions[0].id
+        this.filterConfig.curriculumId = this.curriculumOptions[0].id
         this.$logger.info('getAllCurriculums', this.curriculumOptions)
       })
 
       this.generalCapabilitiesData = GeneralCapabilitiesFormat(this.data['General capabilities'])
     },
 
-    handleResetCurriculum (curriculum) {
-      this.filterConfig.curriculum = null
+    handleResetCurriculum () {
+      this.filterConfig.curriculumId = null
     },
 
     handleRemoveSubject (subject) {

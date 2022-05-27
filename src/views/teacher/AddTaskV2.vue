@@ -180,7 +180,7 @@
                     </template>
                     <learning-objective
                       @change='handleUpdateLearningObjectives'
-                      :curriculum='form.curriculum'
+                      :curriculumId='form.curriculumId'
                       :learning-objectives='form.learnOuts'
                       :subject-list='form.subjectList'
                       :year-list='form.yearList' />
@@ -592,7 +592,7 @@ export default {
         subjectIds: [],
         gradeIds: [],
         bloomCategories: '',
-        curriculum: null,
+        curriculumId: null,
         learnOuts: [],
         yearList: [],
         subjectList: [],
@@ -1633,7 +1633,7 @@ export default {
     handleUpdateLearningObjectives (data) {
       this.$logger.info('handleUpdateLearningObjectives', data)
       this.form.learnOuts = data.learnOuts
-      this.form.curriculum = data.curriculum
+      this.form.curriculumId = data.curriculumId
       this.form.subjectList = data.selectedSubjectList
       this.form.yearList = data.selectedYearList
     }
