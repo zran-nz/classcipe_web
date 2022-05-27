@@ -16,7 +16,7 @@ export default {
   computed: {
     iframeSrc() {
       if (this.baseUrl) {
-        return this.baseUrl + '/v2/library'
+        return this.baseUrl + '/v2/iframe/library'
       }
       return null
     }
