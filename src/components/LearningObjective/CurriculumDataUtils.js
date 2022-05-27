@@ -33,6 +33,29 @@ export const CurriculumSearch = (list, subjects, levels, keyword) => {
   return arr
 }
 
-export const CurriculumGetAllSubject = (list) => {
-
+/**
+ * 生成cascader组件所需要的解构
+ * @param GeneralCapabilitiesObj
+ * @constructor
+ */
+export const GeneralCapabilitiesFormat = (GeneralCapabilitiesObj) => {
+  console.log('GeneralCapabilitiesObj', GeneralCapabilitiesObj)
+  const _st = Date.now()
+  const getKeyAndChildren = (obj) => {
+     return obj ? Object.keys(obj).map(v => {
+      return {
+        value: v,
+        label: v,
+        children: Array.isArray(obj[v]) ? obj[v].map(s => {
+          s.value = s.desc
+          s.label = s.desc
+          return s
+        }) : getKeyAndChildren(obj[v])
+      }
+    }) : []
+  }
+  console.log('GeneralCapabilitiesFormat:', Date.now() - _st)
+  const result = getKeyAndChildren(GeneralCapabilitiesObj)
+  console.log('GeneralCapabilitiesFormat result', result)
+  return result
 }
