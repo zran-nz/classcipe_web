@@ -28,7 +28,7 @@
     </fixed-form-header>
     <div class='form-content'>
       <div class='step-content' v-if='!contentLoading'>
-        <div class='form-body root-locate-form' id='form-body'>
+        <div class='form-body root-locate-form' id='form-body' :style="{ width: formBodyWidth }" v-show="formBodyWidth !== '0%'">
           <div
             class='form-page-item'
             v-show='currentActiveStepIndex === stepIndex'
@@ -321,7 +321,7 @@
             </div>
           </div>
         </div>
-        <div class='tag-body'>
+        <div class='tag-body' :style="{ width: tagBodyWidth }" v-show="tagBodyWidth !== '0%'">
           <template v-if='currentRightModule === rightModule.collaborate'>
             <a-skeleton :loading='showHistoryLoading' active>
               <div
@@ -645,7 +645,11 @@ export default {
         id: null,
         commonFields: [],
         customFields: []
-      }
+      },
+
+      formBodyWidth: '55%',
+      tagBodyWidth: '45%',
+      fullBodyFields: ['learnOuts']
     }
   },
   computed: {
@@ -705,6 +709,7 @@ export default {
       }
       this.currentStep = this.formSteps[this.currentActiveStepIndex]
       this.handleDisplayRightModule()
+      this.checkIsFullBodyStep()
     })
     this.$logger.info('恢复step', this.currentActiveStepIndex, this.currentStep)
     this.initData()
@@ -1243,6 +1248,24 @@ export default {
       this.currentStep = data.step
       this.currentActiveStepIndex = data.index
       this.setSessionStep(data.index)
+      this.checkIsFullBodyStep()
+    },
+
+    checkIsFullBodyStep() {
+      let isFullBody = false
+      this.fullBodyFields.forEach(field => {
+        if (this.currentStep.commonFields.some(item => item === field)) {
+          isFullBody = true
+        }
+      })
+
+      if (isFullBody) {
+        this.formBodyWidth = '100%'
+        this.tagBodyWidth = '0%'
+      } else {
+        this.formBodyWidth = '55%'
+        this.tagBodyWidth = '45%'
+      }
     },
 
     loadCustomTags() {
@@ -1616,7 +1639,6 @@ export default {
   overflow: hidden;
 
   .form-body {
-    width: 55%;
     padding: 20px 30px;
     height: 100%;
     overflow-y: auto;
@@ -1624,7 +1646,6 @@ export default {
   }
 
   .tag-body {
-    width: 45%;
     padding: 20px 30px;
     height: 100%;
     overflow-y: scroll;
