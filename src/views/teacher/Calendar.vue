@@ -13,10 +13,10 @@
               :style="{backgroundColor: info.event._def.extendedProps.backgroundColor, color: '#fff'}"
             >
               <div v-show="info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay'">
-                {{ info.event.start | dayjs(FORMATTER_SIM) }} - {{ info.event.end | dayjs(FORMATTER_SIM) }}
+                {{ info.event.start }} - {{ info.event.end }}
               </div>
               <span v-show="info.view.type === 'dayGridMonth'" style="margin-right: 5px;">
-                {{ info.event.start | dayjs(FORMATTER_SIM) }}
+                {{ info.event.start }}
               </span>
               <span
                 class="event-content-dot"
@@ -139,8 +139,8 @@ export default {
                 return {
                   id: item.sessionInfo.id,
                   title: item.sessionInfo.sessionName,
-                  start: item.startTime,
-                  end: item.endTime,
+                  start: this.$options.filters['dayjs'](item.startTime, this.FORMATTER_SIM),
+                  end: this.$options.filters['dayjs'](item.endTime, this.FORMATTER_SIM),
                   // backgroundColor: 'transparent',
                   // borderColor: 'transparent',
                   extendedProps: {
