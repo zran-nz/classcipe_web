@@ -347,3 +347,18 @@ export const NOTIFY_TYPE = {
     value: 3
   }
 }
+
+export const CALENDAR_QUERY_TYPE = {
+  WORKSHOP: {
+    label: 'My workshops',
+    value: 1
+  },
+  CLASS: {
+    label: 'Class',
+    value: 2
+  },
+  MY: {
+    label: 'My calendar',
+    value: 3
+  }
+}

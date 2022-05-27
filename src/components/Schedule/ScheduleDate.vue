@@ -52,6 +52,23 @@ import moment from 'moment'
 export default {
   name: 'ScheduleDate',
   mixins: [ ZoomAuthMixin ],
+  props: {
+    defaultDate: {
+      type: Array,
+      default: null
+    }
+  },
+  watch: {
+    defaultDate: {
+      handler(val) {
+        if (val) {
+          this.initDate = [...val]
+          this.handleDateChange(this.initDate)
+        }
+      },
+      immediate: true
+    }
+  },
   data() {
     return {
       // 1-assignment 2-lession(PD session只能是公开课，类型是lesson) 3-Test
