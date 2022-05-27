@@ -1,7 +1,16 @@
 <template>
-  <div class='content-preview'>
-    <iframe :src="iframeSrc" class='preview-iframe'></iframe>
-  </div>
+  <a-drawer
+    class='cc-content-preview-drawer'
+    :visible='true'
+    :title='null'
+    width='600px'
+    :bodyStyle="{ padding: 0, height: '100%', border: none }"
+    @close='handleClose'
+  >
+    <div class='content-preview'>
+      <iframe :src="iframeSrc" class='preview-iframe' v-if='iframeSrc'></iframe>
+    </div>
+  </a-drawer>
 </template>
 
 <script>
@@ -9,19 +18,41 @@
 export default {
   name: 'ContentPreview',
  props: {
-    content: {
-      type: Object,
-      default: null
+    contentId: {
+      type: String,
+      required: true
+    }
+  },
+  computed: {
+    iframeSrc() {
+      if (this.baseUrl) {
+        return this.baseUrl + '/v2/detail/' + this.contentId
+      }
+      return null
     }
   },
   data() {
     return {
-      iframeSrc: null
+      baseUrl: null
     }
   },
   created() {
+    const host = window.location.host
+    if (host.indexOf('localhost') !== -1) {
+      this.baseUrl = 'http://localhost:9004'
+    } else if (host.indexOf('dev.classcipe.com') !== -1) {
+      this.baseUrl = 'https://dev.rssmv.cn'
+    } else if (host.indexOf('my.classcipe.com') !== -1) {
+      this.baseUrl = 'https://my.classcipe.com'
+    } else {
+      this.$logger.warn('ContentPreview: unknown host', host)
+    }
   },
-  methods: {}
+  methods: {
+    handleClose () {
+      this.$emit('close')
+    }
+  }
 }
 </script>
 
@@ -29,7 +60,13 @@ export default {
 @import "~@/components/index.less";
 
 .content-preview {
+  height: 100vh;
+  width: 100%;
   .preview-iframe {
+    height: 100vh;
+    width: 100%;
+    border: none;
+    outline: none;
   }
 }
 </style>
