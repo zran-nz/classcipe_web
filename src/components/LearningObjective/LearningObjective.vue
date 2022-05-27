@@ -626,7 +626,6 @@ export default {
 
                 .item-tag-name {
                   padding: 0 5px;
-                  max-width: 35%;
                   overflow-x: hidden;
                   white-space: nowrap;
                   text-overflow: ellipsis;
