@@ -39,8 +39,6 @@ export const CurriculumSearch = (list, subjects, levels, keyword) => {
  * @constructor
  */
 export const GeneralCapabilitiesFormat = (GeneralCapabilitiesObj) => {
-  console.log('GeneralCapabilitiesObj', GeneralCapabilitiesObj)
-  const _st = Date.now()
   const getKeyAndChildren = (obj) => {
      return obj ? Object.keys(obj).map(v => {
       return {
@@ -54,8 +52,5 @@ export const GeneralCapabilitiesFormat = (GeneralCapabilitiesObj) => {
       }
     }) : []
   }
-  console.log('GeneralCapabilitiesFormat:', Date.now() - _st)
-  const result = getKeyAndChildren(GeneralCapabilitiesObj)
-  console.log('GeneralCapabilitiesFormat result', result)
-  return result
+  return getKeyAndChildren(GeneralCapabilitiesObj)
 }
