@@ -146,10 +146,10 @@ export default {
   },
   created() {
     this.asyncSaveTableData = debounce(this.autoSaveAssessment, 1000)
-    this.$EventBus.on(AssessmentToolsEvent.InsertCriteria, this.handleInsertCriteria)
+    this.$EventBus.$on(AssessmentToolsEvent.InsertCriteria, this.handleInsertCriteria)
   },
   beforeDestroy() {
-    this.$EventBus.off(AssessmentToolsEvent.InsertCriteria, this.handleInsertCriteria)
+    this.$EventBus.$off(AssessmentToolsEvent.InsertCriteria, this.handleInsertCriteria)
   },
   watch: {
     assessment: {

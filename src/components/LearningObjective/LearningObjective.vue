@@ -342,9 +342,11 @@ export default {
     handleSelectGeneralCapability (item) {
       this.$logger.info('handleSelectGeneralCapability', arguments[1])
       const generalCapabilityList = JSON.parse(JSON.stringify(arguments[1][0]))
+      const lastIndex = generalCapabilityList.length - 1
       const generalCapability = {
-        desc: generalCapabilityList[generalCapabilityList.length - 1],
-        path: generalCapabilityList.slice(-3, -1)
+        desc: generalCapabilityList[lastIndex],
+        path: generalCapabilityList.slice(-3, -1),
+        id: arguments[1][1][lastIndex].id
       }
       item.generalCapabilities.push(generalCapability)
       this.$logger.info('current lo item', item)
