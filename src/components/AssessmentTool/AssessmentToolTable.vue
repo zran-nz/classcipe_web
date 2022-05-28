@@ -295,25 +295,27 @@ export default {
       if (extraData) {
         this.$logger.info(extraData.type, 'extraData', extraData)
         if (extraData.type === this.criteriaExtraDataType.learningObjective || extraData.type === this.criteriaExtraDataType.generalCapability) {
-          const criteriaCategoryName = extraData.path.slice(-1)[0]
-          const extraRow = {
-            key: 'extra_' + Math.random()
-          }
-          this.assessment.headerList.forEach(item => {
-            if (item.type === HeaderType.criteria) {
-              extraRow[item.type] = {
-                display: criteriaCategoryName || null,
-                type: item.type,
-                tooltip: extraData.path.join('/')
-              }
-            } else {
-              extraRow[item.type] = {
-                display: item.type === HeaderType.yes ? 'YES' : (item.type === HeaderType.no ? 'NO' : null),
-                type: item.type
-              }
+          if (extraData.path && extraData.path.length) {
+            const criteriaCategoryName = extraData.path.slice(-1)[0]
+            const extraRow = {
+              key: 'extra_' + Math.random()
             }
-          })
-          this.assessment.extraCriteriaBodyList.push(extraRow)
+            this.assessment.headerList.forEach(item => {
+              if (item.type === HeaderType.criteria) {
+                extraRow[item.type] = {
+                  display: criteriaCategoryName || null,
+                  type: item.type,
+                  tooltip: extraData.path.join('/')
+                }
+              } else {
+                extraRow[item.type] = {
+                  display: item.type === HeaderType.yes ? 'YES' : (item.type === HeaderType.no ? 'NO' : null),
+                  type: item.type
+                }
+              }
+            })
+            this.assessment.extraCriteriaBodyList.push(extraRow)
+          }
         }
       }
     },
