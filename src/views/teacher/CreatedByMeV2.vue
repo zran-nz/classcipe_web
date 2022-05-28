@@ -108,7 +108,7 @@ export default {
   computed: {
     ...mapState({
       info: state => state.user.info,
-      currentSchool: state => state.user.currentSchool
+      school: state => state.user.school
     })
   },
   created() {
@@ -146,7 +146,7 @@ export default {
         searchKey: this.searchText ? this.searchText : '',
         types: this.filterType ? [this.filterType] : [],
         delFlag: 0,
-        schoolId: this.currentSchool?.id
+        schoolId: this.school
       }
       if (this.filterParams) {
         params = Object.assign(this.filterParams, params)

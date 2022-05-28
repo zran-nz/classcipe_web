@@ -145,7 +145,7 @@ export default {
       // 后端记录当前用户是否是个人模式，在个人模式下后台设置school未空字符
       SwitchUserModeSchool({
         isPersonal: val === USER_MODE.SELF,
-        schoolId: val === USER_MODE.SCHOOL ? this.currentSchool?.id : ''
+        schoolId: val === USER_MODE.SCHOOL ? this.currentSchool?.id : '0'
       }).finally(() => {
         this.justifyCurrentRoute()
       })
