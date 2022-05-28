@@ -6,29 +6,33 @@
     <a-spin :spinning="loading">
       <div class="schedule-content">
         <div class="schedule-tip" v-show="attendanceVisible">
-          <div class="unit-tip">
-            <!-- <div class="tip-title">My Unit Legend</div>
-            <a-checkbox-group
-              :options="showUnitOptions"
-              v-model="showUnit"
-              @change="handleChangeEvents"
-              class="tip-check"
-            >
-              <div slot="label" class="tip-content" slot-scope="item">
-                <span class="tip-dot" :style="{backgroundColor: BG_COLORS[item.index]}"></span>
-                <span>Unit: {{ item.name }}</span>
+          <a-affix :target="affixTarget">
+            <div class="tip-wrap">
+              <div class="unit-tip">
+                <!-- <div class="tip-title">My Unit Legend</div>
+                <a-checkbox-group
+                  :options="showUnitOptions"
+                  v-model="showUnit"
+                  @change="handleChangeEvents"
+                  class="tip-check"
+                >
+                  <div slot="label" class="tip-content" slot-scope="item">
+                    <span class="tip-dot" :style="{backgroundColor: BG_COLORS[item.index]}"></span>
+                    <span>Unit: {{ item.name }}</span>
+                  </div>
+                </a-checkbox-group> -->
+
+                <div
+                  class="unit-tip-item"
+                  :style="{backgroundColor: BG_COLORS[item.index]}"
+                  v-for="(item) in showUnitOptions"
+                  :key="item.id">
+                  <a-tooltip :title="item.name">Unit: {{ item.name }}</a-tooltip>
+                </div>
+
               </div>
-            </a-checkbox-group> -->
-
-            <div
-              class="unit-tip-item"
-              :style="{backgroundColor: BG_COLORS[item.index]}"
-              v-for="(item) in showUnitOptions"
-              :key="item.id">
-              <a-tooltip :title="item.name">Unit: {{ item.name }}</a-tooltip>
             </div>
-
-          </div>
+          </a-affix>
         </div>
         <FullCalendar
           ref="fullCalendar"
@@ -41,22 +45,17 @@
               :style="{backgroundColor: info.event._def.extendedProps.backgroundColor, color: '#333'}"
             >
               <div v-show="info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay'">
-                {{ info.event.start | dayjs(FORMATTER_SIM) }}<!-- - {{ info.event.end | dayjs(FORMATTER_SIM) }} -->
+                {{ info.event.start | dayjs(FORMATTER_SIM) }}-{{ info.event.end | dayjs(FORMATTER_SIM) }}
               </div>
               <span v-show="info.view.type === 'dayGridMonth'" style="margin-right: 5px;">
                 {{ info.event.start | dayjs(FORMATTER_SIM) }}
               </span>
-              <!-- <span
-                class="event-content-dot"
-                :style="{backgroundColor: ABSENT_COLORS[getColorIndex(info.event._def.extendedProps.status)]}"
-              >
-              </span> -->
-              <a-tooltip>
+              <!-- <a-tooltip>
                 <template slot="title">
                   {{ info.event.title }}
-                </template>
-                <label for="">{{ info.event.title }} </label>
-              </a-tooltip>
+                </template> -->
+              <label for="">{{ info.event.title }} </label>
+              <!-- </a-tooltip> -->
             </div>
           </template>
         </FullCalendar>
@@ -101,8 +100,9 @@ import interactionPlugin from '@fullcalendar/interaction'
 import SessionImportForCalendar from '@/components/MyContentV2/SessionImportForCalendar'
 
 import { QueryForCalendar } from '@/api/v2/calendarSchedule'
+import { DeleteClassV2, EditSessionScheduleV2 } from '@/api/v2/classes'
 
-import { ABSENT_COLORS, BG_COLORS, TASK_ATTENDANCE, CALENDAR_QUERY_TYPE } from '@/const/common'
+import { ABSENT_COLORS, BG_COLORS, CALENDAR_QUERY_TYPE } from '@/const/common'
 import { typeMap } from '@/const/teacher'
 
 import { mapState } from 'vuex'
@@ -130,13 +130,13 @@ export default {
       loading: false,
       startDate: '',
       endDate: '',
-      viewType: 'dayGridMonth',
-      classSchedules: [],
+      viewType: 'timeGridWeek',
+      calendarDatas: [],
       allEvents: [],
       // fullcalendar
       calendarOptions: {
         plugins: [ dayGridPlugin, interactionPlugin, timeGridPlugin ],
-        initialView: 'dayGridMonth',
+        initialView: 'timeGridWeek',
         headerToolbar: {
           left: 'prev,next,today',
           center: 'title',
@@ -159,6 +159,7 @@ export default {
           }).then(res => {
             if (res.success && res.result) {
               const filterRes = res.result.filter(item => item.unitPlanInfo)
+              this.calendarDatas = res.result
               if (filterRes.length > 0) {
                 this.currentUnitList = uniqBy(filterRes.map(item => item.unitPlanInfo), 'id')
                 const events = filterRes.map(item => {
@@ -177,11 +178,12 @@ export default {
                       classId: item.sessionInfo.classId,
                       unitId: item.unitPlanInfo.id,
                       status: item.attendance || 'absent',
+                      id: item.sessionInfo.id,
                       backgroundColor: color
                     }
                   }
                 })
-                this.classSchedules = res.result
+                this.calendarDatas = res.result
                 this.allEvents = events
                 const filterEvents = events.filter(event => {
                   // const props = event.extendedProps
@@ -213,6 +215,8 @@ export default {
         datesSet: this.handleDatesSet,
         eventMouseEnter: this.handleMouseEnter,
         eventMouseLeave: this.handleMouseLeave,
+        eventDrop: this.handleEventDrop,
+        eventResize: this.handleEventResize,
         eventTimeFormat: {
           hour: 'numeric',
           minute: '2-digit',
@@ -220,13 +224,6 @@ export default {
         }
       },
       currentEvents: [],
-      // pie chart
-      labelConfig: [],
-      // radius: {
-      //   radius: 0.85,
-      //   innerRadius: 0.8
-      // },
-      radius: ['60%', '80%'],
       currentClass: 1,
       event: {
         title: 'My Event'
@@ -259,23 +256,6 @@ export default {
           index: index
         }
       })
-    },
-    importTitle() {
-      let title = 'Select Task content'
-      switch (this.importType) {
-        case typeMap.task:
-          title = 'Select Task content'
-          break
-        case typeMap['unit-plan']:
-          title = 'Select Unit content'
-          break
-        default:
-          break
-      }
-      return title
-    },
-    ScheduleStepsFilter() {
-      return this.ScheduleSteps.filter(item => !item.filter || item.filter === this.importType)
     }
   },
   created() {
@@ -291,8 +271,10 @@ export default {
       this.currentUnit = this.currentUnitList.length > 0 ? this.currentUnitList[0].id : ''
       this.showUnit = this.currentUnitList.map(item => item.id)
     },
+    affixTarget() {
+      return document.getElementById('app')
+    },
     handleSchoolChange(school) {
-      // this.triggerSearch()
       this.initData()
       setTimeout(() => {
         this.reFetch()
@@ -347,9 +329,24 @@ export default {
     },
     handleEventClick(clickInfo) {
       console.log(clickInfo)
-      // if (confirm(`Are you sure you want to delete the event '${clickInfo.event.title}'`)) {
-      //   clickInfo.event.remove()
-      // }
+      this.$confirm({
+        title: 'Confirm remove session',
+        content: `Are you sure you want to delete the session '${clickInfo.event.title}'`,
+        centered: true,
+        onOk: () => {
+          this.loading = true
+          DeleteClassV2({
+            sessionId: clickInfo.event.extendedProps.id
+          }).then(res => {
+            if (res.code === 0) {
+              this.$message.success('Remove successfully')
+              clickInfo.event.remove()
+            }
+          }).finally(() => {
+            this.loading = false
+          })
+        }
+      })
     },
     handleEvents(events) {
       this.currentEvents = events
@@ -380,9 +377,42 @@ export default {
     //     this.$refs.tooltip.style.visibility = 'hidden'
     //   }, 200)
     // },
+    handleEventDrop(event) {
+      console.log(event.event.start, event.event.end)
+      const current = event.event
+      const extendedProps = current.extendedProps
+      const params = {
+        sessionStartTime: moment(current.start).utc().format('YYYY-MM-DD HH:mm:ss'),
+        deadline: moment(current.end).utc().format('YYYY-MM-DD HH:mm:ss'),
+        id: extendedProps.id
+      }
+      this.handleSave(params)
+    },
+    handleEventResize(event) {
+      console.log(event)
+      const current = event.event
+      const extendedProps = current.extendedProps
+      const params = {
+        sessionStartTime: moment(current.start).utc().format('YYYY-MM-DD HH:mm:ss'),
+        deadline: moment(current.end).utc().format('YYYY-MM-DD HH:mm:ss'),
+        id: extendedProps.id
+      }
+      this.handleSave(params)
+    },
     showAttendance() {
       this.attendanceVisible = !this.attendanceVisible
       this.reRender()
+    },
+    handleSave(params) {
+      console.log(params)
+      this.loading = true
+      EditSessionScheduleV2(params).then(res => {
+        if (res.success) {
+          this.$message.success('Opt Successfully')
+        }
+      }).finally(res => {
+        this.loading = false
+      })
     },
     reRender() {
       this.$nextTick(() => {
@@ -399,21 +429,6 @@ export default {
           calendarApi && calendarApi.refetchEvents()
         }
       })
-    },
-    getCurrentEvents() {
-      const dateStart = this.startDate
-      let dateEnd = this.endDate
-      if (this.viewType === 'timeGridDay') {
-        dateEnd = dateStart
-      }
-      const currentEvents = this.classSchedules.filter(item => {
-        return item.classId === this.currentClass && moment(dateEnd).diff(moment(item.startDate), 'days') >= 0
-      })
-
-      return currentEvents
-    },
-    getColorIndex(status) {
-      return Object.values(TASK_ATTENDANCE).findIndex(item => item === status)
     }
   }
 }
