@@ -246,6 +246,7 @@ export default {
     },
 
     handleAddCol () {
+      this.$logger.info('handleAddCol currentEditHeader', this.currentEditHeader, 'headerList', this.assessment.headerList)
       if (this.mode === 'edit' && this.assessment && this.assessment.canAddCustomCol) {
         const index = this.assessment.headerList.findIndex(item => item.type === this.currentEditHeader.type)
         let idx = this.headerTypeList.length + 1
@@ -261,6 +262,13 @@ export default {
         this.assessment.headerList.splice(index + 1, 0, newHeader)
 
         this.assessment.bodyList.forEach(row => {
+          row[newHeaderType] = {
+            display: null,
+            type: newHeaderType
+          }
+        })
+
+        this.assessment.extraCriteriaBodyList.forEach(row => {
           row[newHeaderType] = {
             display: null,
             type: newHeaderType
