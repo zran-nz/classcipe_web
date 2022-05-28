@@ -282,13 +282,13 @@ export const DEVICE = {
 }
 
 export const WORK_SHOPS_STATUS = {
-  ONGOING: {
-    label: 'On-going',
-    value: 1
-  },
   SCHEDULE: {
     label: 'Scheduled',
     value: 2
+  },
+  ONGOING: {
+    label: 'On-going',
+    value: 1
   },
   ENDED: {
     label: 'Ended',
@@ -344,6 +344,21 @@ export const NOTIFY_TYPE = {
   },
   FILTER_YEARS: {
     label: 'Filter teachers by Years',
+    value: 3
+  }
+}
+
+export const CALENDAR_QUERY_TYPE = {
+  WORKSHOP: {
+    label: 'My workshops',
+    value: 1
+  },
+  CLASS: {
+    label: 'Class',
+    value: 2
+  },
+  MY: {
+    label: 'My calendar',
     value: 3
   }
 }

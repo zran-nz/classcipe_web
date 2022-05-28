@@ -1,39 +1,24 @@
 <template>
-  <a-drawer
-    class='cc-content-preview-drawer'
-    :visible='true'
-    :title='null'
-    width='600px'
-    :bodyStyle="{ padding: 0, height: '100%', border: none }"
-    @close='handleClose'
-  >
-    <div class='content-preview'>
-      <iframe :src="iframeSrc" class='preview-iframe' v-if='iframeSrc'></iframe>
-    </div>
-  </a-drawer>
+  <div class="library-iframe-container">
+    <iframe v-if='iframeSrc' :src='iframeSrc' class='library-iframe' />
+  </div>
 </template>
 
 <script>
 
 export default {
-  name: 'ContentPreview',
- props: {
-    contentId: {
-      type: String,
-      required: true
+  name: 'LibraryIframe',
+  data () {
+    return {
+      baseUrl: null
     }
   },
   computed: {
     iframeSrc() {
       if (this.baseUrl) {
-        return this.baseUrl + '/v2/iframe/detail/' + this.contentId
+        return this.baseUrl + '/v2/iframe/library'
       }
       return null
-    }
-  },
-  data() {
-    return {
-      baseUrl: null
     }
   },
   created() {
@@ -48,21 +33,18 @@ export default {
       this.$logger.warn('ContentPreview: unknown host', host)
     }
   },
+  mounted () {
+  },
   methods: {
-    handleClose () {
-      this.$emit('close')
-    }
   }
 }
 </script>
 
-<style lang='less' scoped>
-@import "~@/components/index.less";
-
-.content-preview {
+<style lang="less" scoped>
+.library-iframe-container {
   height: 100vh;
   width: 100%;
-  .preview-iframe {
+  .library-iframe {
     height: 100vh;
     width: 100%;
     border: none;

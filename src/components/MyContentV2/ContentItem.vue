@@ -81,9 +81,9 @@
         </template>
       </div>
 
-      <preview-content
-        :preview-current-id='previewCurrentId'
-        :preview-type='previewType'
+      <content-preview
+        :content-id='previewCurrentId'
+        :content-type='previewType'
         v-if='previewVisible'
         @close='handlePreviewClose' />
     </div>
@@ -93,10 +93,8 @@
 <script>
 
 import { typeMap } from '@/const/teacher'
-import * as logger from '@/utils/logger'
 import { DeleteMyContentByType } from '@/api/teacher'
 import { ContentItemMixin } from '@/mixins/ContentItemMixin'
-import PreviewContent from '@/components/MyContentV2/PreviewContent'
 import CustomButton from '@/components/Common/CustomButton'
 import SubTaskIcon from '@/assets/v2/icons/sub-task.svg?inline'
 import EditIcon from '@/assets/v2/icons/edit.svg?inline'
@@ -105,12 +103,13 @@ import ScheduleIcon from '@/assets/v2/icons/schedule.svg?inline'
 import OriginalTipsIcon from '@/assets/v2/icons/original_tips.svg?inline'
 import DeleteIcon from '@/assets/v2/icons/delete.svg?inline'
 import MoreIcon from '@/assets/v2/icons/more.svg?inline'
+import ContentPreview from '@/components/Preview/ContentPreview'
 
 export default {
   name: 'ContentItem',
   components: {
+    ContentPreview,
     CustomButton,
-    PreviewContent,
     SubTaskIcon,
     EditIcon,
     PublishIcon,
@@ -192,9 +191,9 @@ export default {
     },
 
     handleDeleteItem() {
-      logger.info('handleDeleteItem', this.content)
+      this.$logger.info('handleDeleteItem', this.content)
       DeleteMyContentByType(this.content).then(res => {
-        logger.info('DeleteMyContentByType', res)
+        this.$logger.info('DeleteMyContentByType', res)
         this.$emit('delete', {
           content: this.content
         })

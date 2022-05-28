@@ -28,7 +28,7 @@
     </fixed-form-header>
     <div class='form-content'>
       <div class='step-content' v-if='!contentLoading'>
-        <div class='form-body root-locate-form' id='form-body'>
+        <div class='form-body root-locate-form' id='form-body' :style="{ width: formBodyWidth }" v-show="formBodyWidth !== '0%'">
           <div
             class='form-page-item'
             v-show='currentActiveStepIndex === stepIndex'
@@ -178,7 +178,12 @@
                     <template slot='label'>
                       {{ 'Learning objectives' | taskLabelName(taskField.LearnOuts, $store.getters.formConfigData) }}
                     </template>
-                    <learning-objective />
+                    <learning-objective
+                      @change='handleUpdateLearningObjectives'
+                      :curriculumId='form.curriculumId'
+                      :learning-objectives='form.learnOuts'
+                      :subject-list='form.subjectList'
+                      :year-list='form.yearList' />
                   </custom-form-item>
                 </div>
 
@@ -321,7 +326,7 @@
             </div>
           </div>
         </div>
-        <div class='tag-body'>
+        <div class='tag-body' :style="{ width: tagBodyWidth }" v-show="tagBodyWidth !== '0%'">
           <template v-if='currentRightModule === rightModule.collaborate'>
             <a-skeleton :loading='showHistoryLoading' active>
               <div
@@ -518,6 +523,7 @@ import SlideEvent from '@/components/PPT/SlideEvent'
 import CustomCoverMedia from '@/components/Common/CustomCoverMedia'
 import { PublishMixin } from '@/mixins/PublishMixin'
 import LearningObjective from '@/components/LearningObjective/LearningObjective'
+import { AutoSaveMixin } from '@/mixins/AutoSaveMixin'
 
 export default {
   name: 'AddTaskV2',
@@ -552,7 +558,7 @@ export default {
     CollaborateTooltip,
     CollaborateUpdateContent
   },
-  mixins: [ UtilMixin, BaseEventMixin, FormConfigMixin, GoogleAuthCallBackMixin, PublishMixin ],
+  mixins: [ UtilMixin, BaseEventMixin, FormConfigMixin, GoogleAuthCallBackMixin, PublishMixin, AutoSaveMixin ],
   props: {
     taskId: {
       type: String,
@@ -586,7 +592,10 @@ export default {
         subjectIds: [],
         gradeIds: [],
         bloomCategories: '',
+        curriculumId: null,
         learnOuts: [],
+        yearList: [],
+        subjectList: [],
         selfOuts: [],
         showSelect: false,
         startDate: '',
@@ -645,7 +654,11 @@ export default {
         id: null,
         commonFields: [],
         customFields: []
-      }
+      },
+
+      formBodyWidth: '55%',
+      tagBodyWidth: '45%',
+      fullBodyFields: ['learnOuts']
     }
   },
   computed: {
@@ -705,6 +718,7 @@ export default {
       }
       this.currentStep = this.formSteps[this.currentActiveStepIndex]
       this.handleDisplayRightModule()
+      this.checkIsFullBodyStep()
     })
     this.$logger.info('恢复step', this.currentActiveStepIndex, this.currentStep)
     this.initData()
@@ -983,7 +997,6 @@ export default {
       if (index !== -1) {
         this.form.selectedTemplateList.splice(index, 1)
       }
-      this.autoSave()
     },
 
     handleViewDetail(item) {
@@ -1015,7 +1028,6 @@ export default {
         this.$logger.info('handleCreateTask', response.result)
         this.form.id = response.result.id
         this.form.presentationId = response.result.presentationId
-        await this.autoSave()
         this.$message.success('Created Successfully in Google Slides')
         window.open('https://docs.google.com/presentation/d/' + this.form.presentationId, '_blank')
         this.creating = false
@@ -1057,7 +1069,7 @@ export default {
       this.$logger.info('handleEditGoogleSlide', this.form.presentationId)
       let res
       if (this.form.presentationId) {
-        res = await this.autoSave()
+        res = await this.save()
       } else {
         res = await this.handleCreateTask()
       }
@@ -1242,7 +1254,26 @@ export default {
       this.$logger.info('task handleStepChange ', data)
       this.currentStep = data.step
       this.currentActiveStepIndex = data.index
-      this.setSessionStep(data.index)
+      this.resetRightModuleVisible()
+      sessionStorage.setItem('task-step-' + this.taskId, data.index)
+      this.checkIsFullBodyStep()
+    },
+
+    checkIsFullBodyStep() {
+      let isFullBody = false
+      this.fullBodyFields.forEach(field => {
+        if (this.currentStep.commonFields.some(item => item === field)) {
+          isFullBody = true
+        }
+      })
+
+      if (isFullBody) {
+        this.formBodyWidth = '100%'
+        this.tagBodyWidth = '0%'
+      } else {
+        this.formBodyWidth = '55%'
+        this.tagBodyWidth = '45%'
+      }
     },
 
     loadCustomTags() {
@@ -1386,11 +1417,6 @@ export default {
       this.$logger.info('after handleRestoreField', this.form)
     },
 
-    setSessionStep(step) {
-      this.resetRightModuleVisible()
-      this.currentActiveStepIndex = step
-      sessionStorage.setItem('task-step-' + this.taskId, step)
-    },
     getSessionStep() {
       const oldStep = sessionStorage.getItem('task-step-' + this.taskId)
       if (oldStep !== null) {
@@ -1413,16 +1439,15 @@ export default {
     },
     removeSelectTemplate(template) {
       this.$logger.info('removeSelectTemplate ', template)
-      var index = this.form.selectedTemplateList.findIndex(item => item.id === template.id)
+      const index = this.form.selectedTemplateList.findIndex(item => item.id === template.id)
       if (index > -1) {
         this.form.selectedTemplateList.splice(index, 1)
       }
       if (this.form.selectedTemplateList.length === 0) {
         this.form.showSelected = false
       }
-      this.autoSave()
     },
-    async autoSave() {
+    async save() {
       const taskData = Object.assign({}, this.form)
       if (this.taskId) {
         taskData.id = this.taskId
@@ -1599,6 +1624,14 @@ export default {
     changeSelected(checked) {
       this.$logger.info('changeSelected ', checked)
       this.form.showSelected = checked
+    },
+
+    handleUpdateLearningObjectives (data) {
+      this.$logger.info('handleUpdateLearningObjectives', data)
+      this.form.learnOuts = data.learnOuts
+      this.form.curriculumId = data.curriculumId
+      this.form.subjectList = data.selectedSubjectList
+      this.form.yearList = data.selectedYearList
     }
   }
 }
@@ -1616,7 +1649,6 @@ export default {
   overflow: hidden;
 
   .form-body {
-    width: 55%;
     padding: 20px 30px;
     height: 100%;
     overflow-y: auto;
@@ -1624,7 +1656,6 @@ export default {
   }
 
   .tag-body {
-    width: 45%;
     padding: 20px 30px;
     height: 100%;
     overflow-y: scroll;

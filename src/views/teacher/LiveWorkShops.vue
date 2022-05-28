@@ -107,6 +107,7 @@
         :type="importType"
         :title="importType === typeMap.task ? 'Select Task content' : 'Select PD content'"
         @choose="handleChoose"
+        @cancel="handleCloseImport"
       />
     </a-modal>
   </div>
@@ -259,7 +260,7 @@ export default {
         // TODO
         this.queryParams.workshopsStatus = '' // this.WORK_SHOPS_STATUS.SCHEDULE.value
       } else {
-        this.queryParams.workshopsStatus = this.WORK_SHOPS_STATUS.ONGOING.value
+        this.queryParams.workshopsStatus = this.WORK_SHOPS_STATUS.SCHEDULE.value
       }
       this.loadMyContent()
     },

@@ -83,7 +83,7 @@
     <div class='select-date'>
       <div class='title'>Schedule</div>
       <div class='date-picker'>
-        <a-range-picker @change="handleDateChange" format='YYYY-MM-DD HH:mm:ss' :show-time="{ format: 'HH:mm' }"/>
+        <a-range-picker :default-value="initDate" @change="handleDateChange" format='YYYY-MM-DD HH:mm:ss' :show-time="{ format: 'HH:mm' }"/>
       </div>
       <div class='go-calender'>
         <a>Go to calender</a>
@@ -101,6 +101,23 @@ import CustomTextButton from '@/components/Common/CustomTextButton'
 export default {
   name: 'SchedulePayInfo',
   components: { CustomTextButton, DeleteIcon, CustomLinkText },
+  props: {
+    defaultDate: {
+      type: Array,
+      default: null
+    }
+  },
+  watch: {
+    defaultDate: {
+      handler(val) {
+        if (val) {
+          this.initDate = [...val]
+          this.handleDateChange(this.initDate)
+        }
+      },
+      immediate: true
+    }
+  },
   data() {
     return {
       paidSession: false,
@@ -125,7 +142,8 @@ export default {
           discount: 40,
           editing: false
         }
-      ]
+      ],
+      initDate: this.defaultDate
     }
   },
   mixins: [ ZoomAuthMixin ],

@@ -5,12 +5,13 @@
         <form-header
           title='Create unit'
           :form='form'
+          :spin='saving'
           :share-status='shareStatus'
           :collaborate='collaborate'
-          :last-change-saved-time='(form.updateTime || form.createTime) | dayjs'
+          :last-change-saved-time='lastChangeSavedTime'
           @view-collaborate='handleViewCollaborate'
           @back='goBack'
-          @save='handleSaveUnitPlan(true)'
+          @save='save'
           @share='handleShareUnitPlan'
           @publish='handlePublishUnitPlan'
           @collaborate='handleStartCollaborate'>
@@ -28,7 +29,7 @@
     </fixed-form-header>
     <div class='form-content'>
       <div class='step-content' v-if='!contentLoading'>
-        <div class='form-body root-locate-form' id='form-body'>
+        <div class='form-body root-locate-form' id='form-body' :style="{ width: formBodyWidth }" v-show="formBodyWidth !== '0%'">
           <div
             class='form-page-item'
             v-show='currentActiveStepIndex === stepIndex'
@@ -372,7 +373,7 @@
                               v-if='rqIndex < 3 && selectQuestion.indexOf(item.name) === -1'
                               :key='rqIndex'>
                               {{ item.name }}
-                              <a-button class='add-question' type='link' @click.stop='handerInsertQuestion(item)'>
+                              <a-button class='add-question' type='link' @click.stop='handleInsertQuestion(item)'>
                                 add
                               </a-button>
                             </li>
@@ -400,25 +401,17 @@
 
                 <div class='form-block tag-content-block' :data-field-name='planField.LearnOuts' v-if="fieldItem.visible && fieldItem.fieldName === planField.LearnOuts" :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Assessment style="left:100px" />
-                  <custom-form-item :show-label='false'>
-                    <div class='learn-out-action'>
-                      <a-badge :dot='hasExtraRecommend'>
-                        <custom-text-button @click='handleSelectDescription()' :label="'Set learning objectives' | unitLabelName(planField.LearnOuts, $store.getters.formConfigData)">
-                        </custom-text-button>
-                      </a-badge>
-                      <custom-link-text text='Assessment task details' @click='handleClickTaskDetail($event)'></custom-link-text>
-                    </div>
+                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.LearnOuts) !== -1'>
+                    <template slot='label'>
+                      {{ 'Learning objectives' | taskLabelName(planField.LearnOuts, $store.getters.formConfigData) }}
+                    </template>
+                    <learning-objective
+                      @change='handleUpdateLearningObjectives'
+                      :curriculumId='form.curriculumId'
+                      :learning-objectives='form.learnOuts'
+                      :subject-list='form.subjectList'
+                      :year-list='form.yearList' />
                   </custom-form-item>
-
-                  <!--knowledge tag-select -->
-                  <ui-learn-out
-                    ref='learnOut'
-                    :custom-tags='customTags'
-                    :learn-outs='form.learnOuts'
-                    :self-outs='form.selfOuts'
-                    @addCustomTag="handleAddCustomTagRemote"
-                    @remove-learn-outs='handleRemoveLearnOuts'
-                    :can-edit="canEdit" />
                 </div>
 
                 <div class='form-block tag-content-block' :data-field-name='planField.Prior' style='clear:both' v-if="fieldItem.visible && fieldItem.fieldName === planField.Prior" :key='fieldItem.fieldName'>
@@ -494,7 +487,7 @@
             </div>
           </div>
         </div>
-        <div class='tag-body'>
+        <div class='tag-body' :style="{ width: tagBodyWidth }" v-show="tagBodyWidth !== '0%'">
           <template v-if='currentRightModule === rightModule.collaborate'>
             <a-skeleton :loading='showHistoryLoading' active>
               <div class='collaborate-panel'>
@@ -587,158 +580,6 @@
     </a-modal>
 
     <a-modal
-      v-model='selectAddContentTypeVisible'
-      :footer='null'
-      destroyOnClose
-      title='Select Content Type'
-      @cancel='selectAddContentTypeVisible = false'
-      @ok='selectAddContentTypeVisible = false'>
-      <div class='add-content-wrapper'>
-        <div class='add-content-item' @click='handleAddUnitPlanTask'>
-          <a>
-            <content-type-icon :type='contentType.task' />
-            {{ $t('teacher.add-unit-plan.task') }}
-          </a>
-        </div>
-        <div class='add-content-item' @click='handleAddUnitPlanLesson'>
-          <a>
-            <content-type-icon :type='contentType.lesson' />
-            {{ $t('teacher.add-unit-plan.lesson') }}
-          </a>
-        </div>
-        <div class='add-content-item' @click='handleAddUnitPlanEvaluation'>
-          <a>
-            <content-type-icon :type='contentType.evaluation' />
-            {{ $t('teacher.add-unit-plan.evaluation') }}
-          </a>
-        </div>
-        <div v-if='addLoading' class='add-loading'>
-          <a-spin />
-        </div>
-      </div>
-    </a-modal>
-
-    <a-modal
-      v-model='showAddAudioVisible'
-      :footer='null'
-      destroyOnClose
-      title='Add Audio'
-      @cancel='showAddAudioVisible = false'
-      @ok='showAddAudioVisible = false'>
-
-      <div class='audio-material-action'>
-        <div v-show='currentUploading' class='uploading-mask'>
-          <div class='uploading'>
-            <a-spin large />
-          </div>
-        </div>
-        <div class='action-item'>
-          <a-upload :customRequest='handleUploadAudio' :showUploadList='false' accept='audio/*' name='file'>
-            <a-button icon='upload' type='primary'>{{ $t('teacher.add-unit-plan.upload-audio') }}</a-button>
-          </a-upload>
-        </div>
-        <a-divider>
-          {{ $t('teacher.add-unit-plan.or') }}
-        </a-divider>
-        <div class='action-item-column'>
-          <!--            <vue-record-audio mode="press" @result="handleAudioResult" />-->
-          <div class='action-tips'>
-            {{ $t('teacher.add-unit-plan.record-your-voice') }}
-          </div>
-        </div>
-        <div class='material-action'>
-          <a-button key='back' class='action-item' @click='handleCancelAddAudio'>
-            Cancel
-          </a-button>
-          <a-button key='submit' class='action-item' type='primary' @click='handleConfirmAddAudio'>
-            Ok
-          </a-button>
-        </div>
-      </div>
-    </a-modal>
-
-    <a-modal
-      v-model='selectReferMyContentVisible'
-      :footer='null'
-      destroyOnClose
-      title='Refer MyContent'
-      width='1150px'
-      @cancel='selectReferMyContentVisible = false'
-      @ok='selectReferMyContentVisible = false'>
-      <div class='link-content-wrapper'>
-        <my-content-selector
-          :current-id='unitPlanId'
-          :filter-type-list="['unit-plan']"
-          :mode='DisplayMode.Refer' />
-      </div>
-    </a-modal>
-
-    <a-drawer
-      :closable='false'
-      :mask='false'
-      :visible='referDetailVisible'
-      destroyOnClose
-      placement='right'
-      width='700px'
-      @close='handleCloseReferDetail'
-    >
-      <a-row class='preview-wrapper-row'>
-        <a-col class='view-back-col' span='2'>
-          <div class='view-back' @click='handleCloseReferDetail'>
-            <div class='back-icon'>
-              <img src='~@/assets/icons/common/back.png' />
-            </div>
-          </div>
-        </a-col>
-        <a-col class='preview-wrapper-col' span='24'>
-          <div class='detail-wrapper'>
-            <div class='refer-detail'>
-              <refer-preview
-                :id='referId'
-                :type='referType'
-                @refer='handleReferBlock'
-                @hover-refer-block='handleHoverReferBlock'
-                @refer-associate='handleReferAssociate'
-              />
-            </div>
-          </div>
-        </a-col>
-      </a-row>
-    </a-drawer>
-
-    <a-modal
-      v-model='selectSyncDataVisible'
-      :dialog-style="{ top: '20px' }"
-      :footer='null'
-      :title='null'
-      destroyOnClose
-      width='1200px'
-      @cancel='selectSyncDataVisible = false'
-      @ok='selectSyncDataVisible = false'>
-      <div class='link-content-wrapper'>
-        <!-- 此处的questionIndex用于标识区分是哪个组件调用的，返回的事件数据中会带上，方便业务数据处理，可随意写，可忽略, show-menu中列出的类型才会显示-->
-        <new-browser
-          ref='newBrowser'
-          :default-active-menu='defaultActiveMenu'
-          :recommend-data='recommendData'
-          :selected-id='selectedIdList'
-          :selected-list='selectedList'
-          :show-menu='showMenuList'
-          :show-curriculum='true'
-          question-index='_questionIndex_1'
-          @select-assessmentType='handleSelectAssessmentType'
-          @select-curriculum='handleSelectCurriculum'
-          @select-subject-specific-skill='handleSelectSubjectSpecificSkillListData'
-          @select-century-skill='handleSelect21CenturySkillListData'
-          @select-idu='handleSelectIdu'
-          @select-recommend='handleSelectRecommend'
-          @cancel-select='handleCancelSelectData'
-          @ensure-select='handleEnsureSelectData'
-        />
-      </div>
-    </a-modal>
-
-    <a-modal
       v-model='questionSettingVisible'
       :footer='null'
       destroyOnClose
@@ -765,32 +606,6 @@
             shape='round'
             type='primary'
             @click='handQuestionSetting'>Confirm
-          </a-button>
-        </div>
-      </div>
-    </a-modal>
-
-    <a-modal
-      v-model='selectBigIdeaDataVisible'
-      :footer='null'
-      destroyOnClose
-      title='Browse big idea'
-      width='70%'
-      @cancel='selectBigIdeaDataVisible = false'
-      @ok='selectBigIdeaDataVisible = false'>
-      <div class='link-content-wrapper'>
-        <BigIdeaBrowse @handle-select='handleSelectBigIdeaData'>
-
-        </BigIdeaBrowse>
-
-        <div class='modal-ensure-action-line-right'>
-          <a-button class='action-item action-cancel' shape='round' @click='selectBigIdeaDataVisible=false'>Cancel
-          </a-button>
-          <a-button
-            class='action-ensure action-item'
-            shape='round'
-            type='primary'
-            @click='handleEnsureSelectBigIdeaData'>Ok
           </a-button>
         </div>
       </div>
@@ -854,31 +669,20 @@
       />
     </a-modal>
 
-    <publish-list
-      :parent-id='unitPlanId'
-      :parent-type="contentType['unit-plan']"
-      :task-list='associateTaskList'
-      v-if='publishListVisible'
-      @publish='handleMultiPublish'
-      @close='handleMultiPublishClose' />
-
     <a-skeleton :loading='contentLoading' active>
     </a-skeleton>
   </div>
 </template>
 
 <script>
-import * as logger from '@/utils/logger'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { typeMap } from '@/const/teacher'
 import { CustomTagType, PlanField, TaskField } from '@/const/common'
-import { commonAPIUrl } from '@/api/common'
 import { GetAllSdgs, ScenarioSearch } from '@/api/scenario'
 import { debounce } from 'lodash-es'
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
 import {
-  UpdateContentStatus,
   Associate,
   FindBigIdeaSourceOutcomes,
   FindSourceOutcomes,
@@ -895,10 +699,7 @@ import { UnitPlanAddOrUpdate, UnitPlanQueryById } from '@/api/unitPlan'
 import { formatLocalUTC } from '@/utils/util'
 import MyContentSelector from '@/components/MyContent/MyContentSelector'
 import { TaskAddOrUpdate } from '@/api/task'
-import { LessonAddOrUpdate } from '@/api/myLesson'
-import { EvaluationAddOrUpdate } from '@/api/evaluation'
 import CustomTagV2 from '@/components/CustomTag/CustomTagV2'
-import { MyContentEvent, MyContentEventBus } from '@/components/MyContent/MyContentEventBus'
 import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import AddKeywordTag from '@/components/Evaluation/AddKeywordTag'
 import CollaborateUserList from '@/components/Collaborate/CollaborateUserList'
@@ -950,6 +751,8 @@ import CustomLinkText from '@/components/Common/CustomLinkText'
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import { PublishMixin } from '@/mixins/PublishMixin'
 import CustomCoverMedia from '@/components/Common/CustomCoverMedia'
+import LearningObjective from '@/components/LearningObjective/LearningObjective'
+import { AutoSaveMixin } from '@/mixins/AutoSaveMixin'
 
 export default {
   name: 'AddUnitPlan',
@@ -996,7 +799,8 @@ export default {
     Collapse,
     CollaborateTooltip,
     CollaborateUpdateContent,
-    AddGreenIcon
+    AddGreenIcon,
+    LearningObjective
   },
   props: {
     unitPlanId: {
@@ -1004,21 +808,15 @@ export default {
       default: null
     }
   },
-  mixins: [UtilMixin, BaseEventMixin, FormConfigMixin, PublishMixin],
+  mixins: [ UtilMixin, BaseEventMixin, FormConfigMixin, PublishMixin, AutoSaveMixin ],
   data() {
     return {
       showCollaborateVisible: false,
       contentLoading: true,
-      referenceLoading: false,
       contentType: typeMap,
       DisplayMode: DisplayMode,
 
-      selectAddContentTypeVisible: false,
-
-      showAddAudioVisible: false,
-      currentUploading: false,
-      audioUrl: null,
-
+      oldForm: null,
       labelCol: { span: 4 },
       wrapperCol: { span: 18 },
       form: {
@@ -1028,7 +826,10 @@ export default {
         name: 'Untitled UnitPlan',
         status: 0,
         subjects: '',
+        curriculumId: null,
         learnOuts: [],
+        yearList: [],
+        subjectList: [],
         selfOuts: [],
         questions: [
           {
@@ -1083,16 +884,10 @@ export default {
       selectModel: SelectModel,
       selectDescriptionIndex: '',
 
-      selectReferMyContentVisible: false,
-      referDetailVisible: false,
-      referId: null,
-      referType: null,
-      activeReferBlock: '',
       showSidebar: true,
 
       groupNameList: [],
       groupNameListOther: [],
-      selectSyncDataVisible: false,
 
       // 已选择的大纲知识点描述数据
       selectedCurriculumList: [],
@@ -1112,7 +907,6 @@ export default {
 
       selectIdea: false,
       showCustomTag: false,
-      customTagTop: 0,
       customTagList: [],
       customTags: {},
       NavigationType: NavigationType,
@@ -1122,7 +916,6 @@ export default {
       questionSettingVisible: false,
       disableQuestion: false,
       confirmLoading: false,
-      selectBigIdeaDataVisible: false,
       selectNewBigIdea: '',
       recommendQuestionList: [],
       showHistoryLoading: false,
@@ -1167,7 +960,11 @@ export default {
         id: null,
         commonFields: [],
         customFields: []
-      }
+      },
+
+      formBodyWidth: '55%',
+      tagBodyWidth: '45%',
+      fullBodyFields: ['learnOuts']
     }
   },
   watch: {
@@ -1195,30 +992,6 @@ export default {
         this.handleDisplayRightModule()
       },
       deep: true
-    }
-  },
-  beforeRouteLeave(to, from, next) {
-    var that = this
-    if (this.canEdit) {
-      if (this.initCompleted && JSON.stringify(this.form) !== JSON.stringify(this.oldForm)) {
-        this.$confirm({
-          title: 'Alert',
-          okText: 'Save',
-          cancelText: 'No',
-          content: 'Do you want to save the changes?',
-          onOk: function() {
-            that.handleSaveUnitPlan(false)
-            next()
-          },
-          onCancel() {
-            next()
-          }
-        })
-      } else {
-        next()
-      }
-    } else {
-      next()
     }
   },
   computed: {
@@ -1272,9 +1045,7 @@ export default {
     }
   },
   async created() {
-    logger.info('unitPlanId ' + this.unitPlanId + ' ' + this.$route.path)
-    // 初始化关联事件处理
-    MyContentEventBus.$on(MyContentEvent.ReferContentItem, this.handleReferItem)
+    this.$logger.info('unitPlanId ' + this.unitPlanId + ' ' + this.$route.path)
     LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
 
     let token = this.$route.query.token
@@ -1299,6 +1070,7 @@ export default {
       }
       this.currentStep = this.formSteps[this.currentActiveStepIndex]
       this.handleDisplayRightModule()
+      this.checkIsFullBodyStep()
     })
 
     this.initData()
@@ -1309,53 +1081,49 @@ export default {
     this.queryContentCollaborates(this.unitPlanId, this.contentType['unit-plan'])
   },
   beforeDestroy() {
-    MyContentEventBus.$off(MyContentEvent.ReferContentItem, this.handleReferItem)
     LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
   },
   methods: {
     initData() {
-      logger.info('initData doing...')
+      this.$logger.info('initData doing...')
       Promise.all([
         GetAllSdgs(),
-        // GetTreeByKey({ key: 'Related Concepts MYP' }),
         GetMyGrades(),
         SubjectTree({ curriculumId: this.$store.getters.bindCurriculum }),
         GetTreeByKey({ key: 'Real world connections' })
       ]).then((sdgListResponse) => {
-        logger.info('initData done', sdgListResponse)
+        this.$logger.info('initData done', sdgListResponse)
 
         // GetAllSdgs
-        logger.info('GetAllSdgs Response ', sdgListResponse[0])
+        this.$logger.info('GetAllSdgs Response ', sdgListResponse[0])
         if (!sdgListResponse[0].code) {
           this.sdgList = sdgListResponse[0].result
         }
 
         // GetMyGrades
         if (!sdgListResponse[1].code) {
-          logger.info('GetMyGrades', sdgListResponse[1].result)
+          this.$logger.info('GetMyGrades', sdgListResponse[1].result)
           this.gradeList = sdgListResponse[1].result
         }
 
         // SubjectTree
         if (!sdgListResponse[2].code) {
-          logger.info('SubjectTree', sdgListResponse[2].result)
+          this.$logger.info('SubjectTree', sdgListResponse[2].result)
           let subjectTree = sdgListResponse[2].result
           subjectTree = formatSubjectTree(subjectTree)
           this.subjectTree = subjectTree
-          logger.info('after format subjectTree', subjectTree)
+          this.$logger.info('after format subjectTree', subjectTree)
         }
         // rwc list
         if (!sdgListResponse[3].code) {
-          logger.info('rwc', sdgListResponse[3].result)
+          this.$logger.info('rwc', sdgListResponse[3].result)
           this.rwcList = sdgListResponse[3].result.children ? sdgListResponse[3].result.children : []
         }
-        logger.info('sdgList', this.sdgList)
+        this.$logger.info('sdgList', this.sdgList)
       }).then(() => {
         this.restoreUnitPlan(this.unitPlanId, true)
       }).catch((e) => {
-        this.$message.error(this.$t('teacher.add-unit-plan.init-data-failed'))
-      }).finally(() => {
-        this.referenceLoading = false
+        this.$message.error('Init Unit Plan Data Failed, Please Retry! ' + e)
       })
     },
 
@@ -1405,11 +1173,11 @@ export default {
       if (isFirstLoad) {
         this.contentLoading = true
       }
-      logger.info('restoreUnitPlan ' + unitPlanId)
+      this.$logger.info('restoreUnitPlan ' + unitPlanId)
       UnitPlanQueryById({
         id: unitPlanId
       }).then(response => {
-        logger.info('UnitPlanQueryById ' + unitPlanId, response.result)
+        this.$logger.info('UnitPlanQueryById ' + unitPlanId, response.result)
         const unitPlanData = response.result
         if (unitPlanData.scenarios.length === 0) {
           unitPlanData.scenarios.push({
@@ -1435,11 +1203,6 @@ export default {
         if (!unitPlanData.rwc) {
           unitPlanData.rwc = undefined
         }
-        if (unitPlanData.startDate && unitPlanData.endDate) {
-          this.rangeDate.push(moment.utc(unitPlanData.startDate).local())
-          this.rangeDate.push(moment.utc(unitPlanData.endDate).local())
-        }
-
         // 填充自定义字段
         const customFieldData = unitPlanData.customFieldData ? JSON.parse(unitPlanData.customFieldData) : null
         const displayCustomFieldData = {}
@@ -1460,65 +1223,35 @@ export default {
         this.$logger.info('displayCustomFieldData', displayCustomFieldData)
         unitPlanData.customFieldData = displayCustomFieldData
 
+        this.saving = true
         this.form = unitPlanData
         if (unitPlanData.questions.length === 0) {
-          this.form.questions.push({ 'name': '' })
+          this.form.questions.push({ name: '' })
         }
       }).finally(() => {
         this.contentLoading = false
+        this.saving = false
         this.loadCollaborateData(this.form.type, this.form.id)
-        // copy副本 为了判断数据变更
         this.oldForm = JSON.parse(JSON.stringify(this.form))
-        this.initCompleted = true
-
         this.loadingShareContent()
       })
     },
 
-    handleUploadImage(data) {
-      logger.info('handleUploadImage', data)
-      const formData = new FormData()
-      formData.append('file', data.file, data.file.name)
-      this.uploading = true
-      this.$http.post(commonAPIUrl.UploadFile, formData, {
-        contentType: false,
-        processData: false,
-        headers: { 'Content-Type': 'multipart/form-data' },
-        timeout: 60000
-      })
-        .then((response) => {
-          logger.info('handleUploadImage upload response:', response)
-          this.form.image = this.$store.getters.downloadUrl + response.result
-        }).catch(err => {
-        logger.error('handleUploadImage error', err)
-        this.$message.error(this.$t('teacher.add-unit-plan.upload-image-file-failed'))
-      }).finally(() => {
-        this.uploading = false
-      })
-    },
-
-    handleDeleteImage(e) {
-      logger.info('handleDeleteImage ', e)
-      e.stopPropagation()
-      e.preventDefault()
-      this.form.image = null
-    },
-
     handleDescriptionSearch(index, description) {
-      logger.info('handleDescriptionSearch:', index, description)
+      this.$logger.info('handleDescriptionSearch:', index, description)
       this.form.scenarios[index].description = description
       this.debouncedGetSdgByDescription(index, description)
     },
 
     searchScenario(index, description) {
-      logger.info('searchScenario', description)
+      this.$logger.info('searchScenario', description)
       this.currentIndex = index
       if (typeof description === 'string' && description.trim().length >= 3) {
         // this.$refs.descriptionInputSearch.fetching = true
         ScenarioSearch({
           searchKey: this.form.scenarios[index].description
         }).then((response) => {
-          logger.info('searchByDescription', response)
+          this.$logger.info('searchByDescription', response)
           this.descriptionSearchList = response.result
         })
       } else {
@@ -1526,15 +1259,13 @@ export default {
       }
     },
 
-    // 由于Vue无法响应式处理数据元素，此处通过将数据转为scenarioObj的属性进行处理------------------废弃
-    // 直接修改form.scenarios数据
     handleSelectScenario(index, scenario) {
       console.log(scenario)
       if (this.form.scenarios.hasOwnProperty(index) && scenario && scenario.sdgKeyWords && scenario.description) {
         this.form.scenarios[index].description = scenario.description
         if (scenario.sdgKeyWords.length) {
           const keyWords = scenario.sdgKeyWords
-          logger.info('scenario[' + index + '].sdgKeyWords', keyWords)
+          this.$logger.info('scenario[' + index + '].sdgKeyWords', keyWords)
           this.form.scenarios[index].sdgKeyWords = keyWords
         }
       }
@@ -1547,52 +1278,26 @@ export default {
         sdgKeyWords: []
       }
       this.form.scenarios.push(sdg)
-      // this.$set(this.sdgDataObj, this.sdgPrefix + this.sdgMaxIndex, sdg)
-      // logger.info('after add scenarioObj: ', this.sdgDataObj, 'sdgMaxIndex ' + this.sdgMaxIndex, ' sdgTotal ' + this.sdgTotal)
     },
 
     handleDeleteSdg(sdgIndex) {
       if (this.form.scenarios.length > 1) {
         this.form.scenarios.splice(sdgIndex, 1)
-        logger.info('scenarios ', this.form.scenarios, 'sdgTotal ' + this.form.scenarios.length)
+        this.$logger.info('scenarios ', this.form.scenarios, 'sdgTotal ' + this.form.scenarios.length)
       } else {
         this.$message.warn(this.$t('teacher.add-unit-plan.at-least-one-sdg'))
       }
     },
-
-    handleAddSdgTag(data) {
-      const tag = {
-        name: data.tagName
-      }
-      const sdgKey = data.sdgKey
-      logger.info('handleAddSdgTag ', tag.name, sdgKey)
-      this.form.scenarios[sdgKey].sdgKeyWords.push(tag)
-      logger.info('after handleAddSdgTag ', this.form.scenarios[sdgKey].sdgKeyWords)
-    },
-
-    handleRemoveSdgTag(data) {
-      const tagName = data.tagName
-      const sdgKey = data.sdgKey
-      logger.info('handleRemoveSdgTag ', tagName, sdgKey)
-      this.form.scenarios[sdgKey].sdgKeyWords.splice(this.form.scenarios[sdgKey].sdgKeyWords.indexOf(tagName), 1)
-      logger.info('after handleRemoveSdgTag ', this.form.scenarios[sdgKey].sdgKeyWords)
-    },
-
-    handleSelectSubject(subjects) {
-      logger.info('handleSelectSubject', subjects)
-      this.form.subjects = subjects
-    },
-
     handleAddMoreQuestion() {
       const question = {
         id: null,
         name: ''
       }
-      logger.info('handleAddMoreQuestion ', question)
+      this.$logger.info('handleAddMoreQuestion ', question)
       this.form.questions.push(question)
     },
     handleRemoveQuestion(index) {
-      logger.info('handleRemoveQuestion ', index)
+      this.$logger.info('handleRemoveQuestion ', index)
       if (this.form.questions.length === 1) {
         this.form.questions[index].name = ''
       } else {
@@ -1600,100 +1305,41 @@ export default {
       }
     },
 
-    handleRemoveSkillTag(data) {
-      logger.info('Unit Plan handleRemoveSkillTag', data)
-      logger.info('target question data', this.questionDataObj[data.questionIndex])
-      this.questionDataObj[data.questionIndex].skillTags = this.questionDataObj[data.questionIndex].skillTags.filter(item => item.id !== data.id)
-      logger.info('Unit Plan after handleRemoveSkillTag ', this.questionDataObj[data.questionIndex].skillTags)
-    },
-
-    handleAddSkillTag(data) {
-      logger.info('Unit Plan handleAddSkillTag', data)
-      logger.info('target question data', this.questionDataObj[data.questionIndex])
-      this.questionDataObj[data.questionIndex].skillTags.push(Object.assign({}, data))
-      this.$logger.info('after handleAddSkillTag questionDataObj ' + data.questionIndex, this.questionDataObj[data.questionIndex])
-    },
-
-    async handleSaveUnitPlan(isBack) {
-      logger.info('handleSaveUnitPlan', this.form, this.sdgDataObj, this.questionDataObj)
+    async save() {
+      this.$logger.info('save', this.form)
+      this.saving = true
       this.cleaPageCache()
-      const unitPlanData = Object.assign({}, this.form)
-      if (this.rangeDate.length === 2) {
-        const startDate = this.rangeDate[0].clone()
-        const endDate = this.rangeDate[1].clone()
-        unitPlanData.startDate = startDate.utc().format('YYYY-MM-DD HH:mm:ss')
-        unitPlanData.endDate = endDate.utc().format('YYYY-MM-DD HH:mm:ss')
-      }
+      const unitPlanData = JSON.parse(JSON.stringify(this.form))
       if (this.unitPlanId) {
         unitPlanData.id = this.unitPlanId
-      }
-      // 更新selfOuts数据
-      if (this.$refs.learnOut && this.$refs.learnOut.length > 0) {
-        unitPlanData.selfOuts = this.$refs.learnOut[0].getSelfOuts()
       }
       if (unitPlanData.customFieldData) {
         unitPlanData.customFieldData = JSON.stringify(unitPlanData.customFieldData)
       }
-      logger.info('basic unitPlanData', unitPlanData)
-      const response = await UnitPlanAddOrUpdate(unitPlanData)
-      logger.info('UnitPlanAddOrUpdate', response.result)
-      if (response.success) {
-        // 为了保存提示去掉
-        this.oldForm = JSON.parse(JSON.stringify(this.form))
-        // this.restoreUnitPlan(response.result.id, false)
-        this.$message.success(this.$t('teacher.add-unit-plan.save-success'))
-        if (isBack) {
-          this.handleBack()
+      this.$logger.info('UnitPlanAddOrUpdate unitPlanData', unitPlanData)
+      try {
+        const response = await UnitPlanAddOrUpdate(unitPlanData)
+        this.$logger.info('UnitPlanAddOrUpdate res', response.result)
+        if (!response.success) {
+          this.oldForm = JSON.parse(JSON.stringify(this.form))
+          this.$message.error(response.message)
         }
-      } else {
-        this.$message.error(response.message)
+        this.restoreUnitPlan(this.unitPlanId)
+        this.handleSaveContentEvent(this.unitPlanId, this.contentType['unit-plan'], this.oldForm)
+      } finally {
+        this.saving = false
       }
-      this.handleSaveContentEvent(this.unitPlanId, this.contentType['unit-plan'], this.oldForm)
     },
     handlePublishUnitPlan(status) {
       this.$logger.info('handlePublishUnitPlan', {
         id: this.unitPlanId,
         status: status
-      }, 'associateTaskList', this.associateTaskList)
+      })
 
       this.checkRequiredFields()
       if (this.emptyRequiredFields.length === 0) {
-        const isNeedPublishAssociate = this.associateTaskList.some(item => item.status === 0)
-        this.$logger.info('handlePublishUnitPlan isNeedPublishAssociate', isNeedPublishAssociate)
-        if (status) {
-          if (!isNeedPublishAssociate) {
-            this.form.status = status
-            this.handlePublishFormItem(status)
-          } else {
-            this.$confirm({
-              title: 'Alert',
-              content: 'Would you like to publish the linked tasks as well?',
-              centered: true,
-              okText: 'Yes',
-              cancelText: 'No, publish this Unit plan only.',
-              onOk: () => {
-                this.$logger.info('handlePublishUnitPlan onOk')
-                this.publishListVisible = true
-              },
-              onCancel: () => {
-                this.handlePublishFormItem(status)
-                this.$refs.commonFormHeader.publishing = false
-              }
-            })
-          }
-        } else {
-          this.$confirm({
-            title: 'Alert',
-            content: 'If you wish to unpublish the linked tasks, please go to individual task page to unpublish.',
-            onOk: () => {
-              this.form.status = status
-              this.handlePublishFormItem(status)
-            },
-            onCancel: () => {
-              this.$refs.commonFormHeader.publishing = false
-            }
-          })
-        }
+        this.form.status = status
+        this.handlePublishFormItem(status)
       } else {
         let requiredStepIndex = -1
         for (let i = 0; i < this.formSteps.length; i++) {
@@ -1707,61 +1353,6 @@ export default {
           this.currentActiveStepIndex = requiredStepIndex
         }
       }
-    },
-
-    handleMultiPublish(associateIdList) {
-      this.$logger.info('handleMultiPublish', associateIdList)
-      const associates = associateIdList.map(id => { return { id: id, type: this.contentType.task } })
-      this.$logger.info('handleMultiPublish associates', associates)
-      const data = {
-        id: this.unitPlanId,
-        status: 1,
-        type: this.contentType['unit-plan'],
-        associates: associates
-      }
-      UpdateContentStatus(data).then((response) => {
-        if (response.success) {
-          this.$message.success(this.$t('teacher.add-unit-plan.save-success'))
-          this.publishListVisible = false
-        } else {
-          this.$message.error(response.message)
-        }
-        this.form.status = 1
-      }).finally(() => {
-        this.$refs.commonFormHeader.publishing = false
-        this.$refs.planLink.getAssociate()
-      })
-    },
-
-    handleMultiPublishClose() {
-      this.$logger.info('handleMultiPublishClose')
-      this.$refs.commonFormHeader.publishing = false
-      this.publishListVisible = false
-    },
-
-    handlePublishFormItem (status) {
-      const data = {
-        id: this.unitPlanId,
-        status: status,
-        type: this.contentType['unit-plan']
-      }
-      UpdateContentStatus(data).then(() => {
-        if (status === 1) {
-          this.$message.success(this.$t('teacher.add-unit-plan.publish-success'))
-        } else {
-          this.$message.success('Unpublish successfully')
-        }
-        this.form.status = status
-      }).finally(() => {
-        this.$refs.commonFormHeader.publishing = false
-      })
-    },
-
-    handleAddUnitPlanMaterial() {
-      logger.info('handleAddUnitPlanMaterial ' + this.unitPlanId)
-      this.$router.push({
-        path: '/teacher/unit-plan-material-redirect/' + this.unitPlanId + '/create'
-      })
     },
 
     handleAddUnitPlanTask() {
@@ -1799,76 +1390,6 @@ export default {
       }
     },
 
-    handleAddUnitPlanLesson() {
-      logger.info('handleAddUnitPlanLesson ' + this.unitPlanId)
-      // 下创建一个空的lesson，然后关联，然后再跳转过去
-      if (!this.addLoading) {
-        this.addLoading = true
-        LessonAddOrUpdate({
-          name: 'Unnamed Lesson',
-          associateId: this.form.id,
-          associateType: this.form.type
-        }).then((response) => {
-          this.$logger.info('LessonAddOrUpdate', response.result)
-          if (response.success) {
-            Associate({
-              fromId: this.unitPlanId,
-              fromType: this.contentType['unit-plan'],
-              toId: response.result.id,
-              toType: this.contentType.lesson
-            }).then(response => {
-              this.$logger.info('Associate response ', response)
-            })
-            this.addLoading = false
-            this.$router.push({
-              path: '/teacher/unit-plan-lesson-redirect/' + response.result.id
-            })
-          } else {
-            this.$message.error(response.message)
-          }
-        }).finally(() => {
-          this.addLoading = false
-        })
-      } else {
-        this.$logger.info('add loading')
-      }
-    },
-
-    handleAddUnitPlanEvaluation() {
-      logger.info('handleAddUnitPlanEvaluation ' + this.unitPlanId)
-      // 下创建一个空的evaluation，然后关联，然后再跳转过去
-      if (!this.addLoading) {
-        this.addLoading = true
-        EvaluationAddOrUpdate({
-          name: null,
-          associateId: this.form.id,
-          associateType: this.form.type
-        }).then((response) => {
-          this.$logger.info('EvaluationAddOrUpdate', response.result)
-          if (response.success) {
-            Associate({
-              fromId: this.unitPlanId,
-              fromType: this.contentType['unit-plan'],
-              toId: response.result.id,
-              toType: this.contentType.evaluation
-            }).then(response => {
-              this.$logger.info('Associate response ', response)
-            })
-            this.addLoading = false
-            this.$router.push({
-              path: '/teacher/evaluation-redirect/' + response.result.id
-            })
-          } else {
-            this.$message.error(response.message)
-          }
-        }).finally(() => {
-          this.addLoading = false
-        })
-      } else {
-        this.$logger.info('add loading')
-      }
-    },
-
     goBack() {
       this.$logger.info('click goBack')
       this.$router.push({ path: '/teacher/main/created-by-me' })
@@ -1886,171 +1407,10 @@ export default {
         }
       }
     },
-    handleAudioResult(data) {
-      logger.info('handleAudioResult', data)
-      this.currentUploading = true
-      const formData = new FormData()
-      formData.append('file', data, 'audio.wav')
-      this.$http.post(commonAPIUrl.UploadFile, formData, {
-        contentType: false,
-        processData: false,
-        headers: { 'Content-Type': 'multipart/form-data' },
-        timeout: 60000
-      })
-        .then((response) => {
-          logger.info('handleAudioResult upload response:', response)
-          this.audioUrl = this.$store.getters.downloadUrl + response.result
-          logger.info('handleAudioResult audioUrl', this.audioUrl)
-        }).catch(err => {
-        logger.error('handleAudioResult error', err)
-      }).finally(() => {
-        this.currentUploading = false
-      })
-    },
 
-    handleUploadAudio(data) {
-      logger.info('handleUploadAudio', data)
-      this.currentUploading = true
-      const formData = new FormData()
-      formData.append('file', data.file, data.file.name)
-      this.uploading = true
-      this.$http.post(commonAPIUrl.UploadFile, formData, {
-        contentType: false,
-        processData: false,
-        headers: { 'Content-Type': 'multipart/form-data' },
-        timeout: 60000
-      })
-        .then((response) => {
-          logger.info('handleUploadAudio upload response:', response)
-          this.audioUrl = this.$store.getters.downloadUrl + response.result
-        }).catch(err => {
-        logger.error('handleUploadImage error', err)
-      }).finally(() => {
-        this.currentUploading = false
-      })
-    },
-
-    handleCancelAddAudio() {
-      this.audioUrl = null
-      this.showAddAudioVisible = false
-    },
-
-    handleConfirmAddAudio() {
-      if (this.audioUrl) {
-        this.form.audioUrl = this.audioUrl
-        this.audioUrl = null
-      }
-      this.showAddAudioVisible = false
-    },
-
-    handleAddAudioOverview() {
-      this.$logger.info('handleAddAudioOverview')
-      this.showAddAudioVisible = true
-    },
-    handleSelectDescription() {
-      this.showMenuList = [NavigationType.specificSkills,
-        NavigationType.centurySkills,
-        NavigationType.learningOutcomes,
-        NavigationType.assessmentType,
-        NavigationType.idu
-      ]
-      this.selectedList = JSON.parse(JSON.stringify(this.form.learnOuts))
-      this.form.learnOuts.forEach(item => {
-        if (item.knowledgeId) {
-          this.selectedIdList.push(item.knowledgeId)
-        } else {
-          this.$logger.info('parentData selected id not exist ', item)
-        }
-      })
-      this.$logger.info('handleSelectDescription selectedList', this.selectedList, ' recommendData ', this.recommendData)
-      this.selectSyncDataVisible = true
-      this.defaultActiveMenu = NavigationType.learningOutcomes
-
-      // #协同编辑event事件
-      this.handleCollaborateEvent(this.unitPlanId, this.planField.Assessment, this.form.assessment)
-    },
     handleConfirmAssociate() {
       this.$logger.info('handleConfirmAssociate')
       this.associateLibraryVisible = false
-    },
-
-    handleStartRefer() {
-      this.$logger.info('handleStartRefer')
-      this.selectReferMyContentVisible = true
-      this.referDetailVisible = false
-    },
-
-    handleDescriptionSelectClick(data) {
-      this.$logger.info('unit plan handleDescriptionSelectClick', data)
-      this.selectSyncDataVisible = false
-    },
-
-    handleReferItem(data) {
-      this.$logger.info('handleReferItem', data)
-      this.referId = data.item.id
-      this.referType = data.item.type
-      this.selectReferMyContentVisible = false
-      this.referDetailVisible = true
-      this.$logger.info('referId ' + this.referId + ' referType ' + this.referType)
-    },
-
-    handleCloseReferDetail() {
-      this.$logger.info('handleCloseReferDetail')
-      this.referDetailVisible = false
-      this.referId = null
-      this.referType = null
-      this.$refs['form'].className = 'unit-plan-form-left'
-    },
-
-    handleHoverReferBlock(data) {
-      this.$logger.info('handleHoverReferBlock', data)
-      this.$refs['form'].className = 'unit-plan-form-left ' + data.blockType
-      document.getElementById(data.blockType).scrollIntoView({
-        behavior: 'smooth',
-        block: 'center'
-      })
-    },
-
-    handleReferBlock(data) {
-      this.$logger.info('handleReferBlock', data)
-      if (data.blockType === 'overview') {
-        this.form.overview = data.data
-      }
-
-      if (data.blockType === 'inquiry') {
-        this.form.inquiry = data.data
-      }
-
-      if (data.blockType === 'sdg') {
-        this.form.scenarios.push(data.data)
-      }
-
-      if (data.blockType === 'question') {
-        this.form.scenarios.push(data.data)
-
-        const question = Object.assign({
-          questionId: null,
-          visible: false
-        }, data.data)
-        logger.info('handleReferBlock AddQuestion ', question)
-        this.questionMaxIndex = this.questionMaxIndex + 1
-        this.questionTotal = this.questionTotal + 1
-        this.$set(this.questionDataObj, this.questionPrefix + this.questionMaxIndex, question)
-      }
-    },
-
-    handleReferAssociate(data) {
-      this.$logger.info('handleReferAssociate', data)
-      Associate({
-        fromId: this.unitPlanId,
-        fromType: this.contentType['unit-plan'],
-        toId: data.item.id,
-        toType: data.item.type
-      }).then(response => {
-        this.$logger.info('Associate response ', response)
-        // 刷新子组件的关联数据
-        this.$message.success('associate successfully!')
-      })
     },
 
     getAssociate() {
@@ -2072,12 +1432,6 @@ export default {
             if (content.type === this.contentType['unit-plan']) {
               this.associateUnitPlanIdList.push(content.id)
               this.associateId2Name.set(content.id, content.name)
-              content.questions.forEach(question => {
-                this.associateQuestionList.push({
-                  ...question,
-                  unitName: content.name
-                })
-              })
             }
 
             if (content.type === this.contentType.task) {
@@ -2096,12 +1450,6 @@ export default {
             if (content.type === this.contentType['unit-plan']) {
               this.associateUnitPlanIdList.push(content.id)
               this.associateId2Name.set(content.id, content.name)
-              content.questions.forEach(question => {
-                this.associateQuestionList.push({
-                  ...question,
-                  unitName: content.name
-                })
-              })
             }
 
             if (content.type === this.contentType.task) {
@@ -2222,142 +1570,29 @@ export default {
       }
     },
 
-    handleSelectBigIdeaData(data) {
-      this.selectNewBigIdea = data
-    },
-    // TODO 选择的assessment数据
-    handleSelectAssessmentType(data) {
-      this.$logger.info('handleSelectAssessmentType', data)
-      this.selectedAssessmentList = data
-    },
-
-    handleSelectCurriculum(data) {
-      this.$logger.info('handleSelectCurriculum', data)
-      this.selectedCurriculumList = data
-    },
-
-    handleSelectSubjectSpecificSkillListData(data) {
-      this.selectedSpecificSkillList = data
-      this.$logger.info('handleSelectSubjectSpecificSkillListData', data)
-    },
-
-    handleSelect21CenturySkillListData(data) {
-      this.$logger.info('handleSelect21CenturySkillListData', data)
-      this.selectedCenturySkillList = data
-    },
-
-    handleSelectIdu(data) {
-      this.$logger.info('handleSelectIdu', data)
-      this.selectedIduList = data
-    },
-
-    handleSelectRecommend(data) {
-      this.$logger.info('handleSelectRecommend', data)
-      this.selectedRecommendList = data
-    },
-
-    handleCancelSelectData() {
-      this.selectedCurriculumList = []
-      this.selectedSpecificSkillList = []
-      this.selectedCenturySkillList = []
-      this.selectedAssessmentList = []
-      this.selectedIduList = []
-      this.selectedRecommendList = []
-      this.selectSyncDataVisible = false
-    },
-
-    handleEnsureSelectData() {
-      this.$logger.info('handleEnsureSelectData',
-        this.selectedCurriculumList,
-        this.selectedSpecificSkillList,
-        this.selectedCenturySkillList,
-        this.selectedBigIdeaList,
-        this.selectedAssessmentList,
-        this.selectedIduList)
-      this.$logger.info('mySelectedList', this.$refs.newBrowser.mySelectedList)
-      this.$logger.info('learnOuts', this.form.learnOuts)
-      const filterLearnOuts = this.$refs.newBrowser.mySelectedList.filter(item => (!item.hasOwnProperty('isSelfCustom') || (item.hasOwnProperty('isSelfCustom') && !item.isSelfCustom)))
-      this.$logger.info('filterLearnOuts', filterLearnOuts)
-      this.form.learnOuts = JSON.parse(JSON.stringify(filterLearnOuts))
-      this.$refs.newBrowser.selectedRecommendList.forEach(item => {
-        if (item.hasOwnProperty('isSelfCustom') && item.isSelfCustom) {
-          // 自定义大纲不用判断重复，直接插入
-          const copyItem = JSON.parse(JSON.stringify(item))
-          copyItem.key = Math.random() + ''
-          this.form.selfOuts.push(copyItem)
-        } else {
-          const index = this.form.learnOuts.findIndex(dataItem => dataItem.knowledgeId === item.knowledgeId)
-          if (index === -1) {
-            this.form.learnOuts.push(item)
-          }
-        }
-      })
-
-      this.selectedIduList.forEach(data => {
-        const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.id)
-        if (filterLearnOuts.length > 0) {
-          return
-        }
-        this.form.learnOuts.push({
-          knowledgeId: data.knowledgeData.id,
-          name: data.knowledgeData.name,
-          tagType: data.knowledgeData.tagType,
-          path: data.knowledgeData.path,
-          tags: data.tags
-        })
-      })
-      const selectList = this.selectedCurriculumList.concat(this.selectedSpecificSkillList).concat(this.selectedCenturySkillList)
-        .concat(this.selectedAssessmentList)
-      if (this.selectIdea) {
-        if (this.selectedBigIdeaList.length > 0) {
-          this.form.inquiry = this.selectedBigIdeaList[0].bigIdea
-        }
-        this.selectSyncDataVisible = false
-        return
-      }
-      selectList.forEach(data => {
-        const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
-        if (filterLearnOuts.length > 0) {
-          return
-        }
-        this.form.learnOuts.push({
-          knowledgeId: data.knowledgeData.id,
-          name: data.knowledgeData.name,
-          tagType: data.knowledgeData.tagType,
-          path: data.knowledgeData.path
-        })
-      })
-      this.$logger.info('this.form.learnOuts', this.form.learnOuts)
-      this.selectSyncDataVisible = false
-      this.handleCancelSelectData()
-    },
-    handleRemoveLearnOuts(data) {
-      this.$logger.info('handleRemoveLearnOuts', data)
-      var index = this.form.learnOuts.findIndex(item => (item.knowledgeId === data.knowledgeId))
-      if (index > -1) {
-        this.form.learnOuts.splice(index, 1)
-      }
-      // #协同编辑event事件
-      this.handleCollaborateEvent(this.unitPlanId, this.planField.Assessment, this.form.assessment)
-    },
-    onChangeStep(current) {
-      console.log('onChange:', current)
-      if (typeof current === 'number') {
-        this.setSessionStep(current)
-        setTimeout(function() {
-          const returnEle = document.querySelector('.ant-layout-content')
-          if (returnEle) {
-            returnEle.scrollIntoView(true) // true 是默认的
-          }
-        }, 100)
-      }
-    },
-
     handleStepChange(data) {
       this.$logger.info('task handleStepChange ', data)
       this.currentStep = data.step
       this.currentActiveStepIndex = data.index
-      this.setSessionStep(data.index)
+      this.resetRightModuleVisible()
+      sessionStorage.setItem('unit-plan-step-' + this.unitPlanId, data.index)
+      this.checkIsFullBodyStep()
+    },
+    checkIsFullBodyStep() {
+      let isFullBody = false
+      this.fullBodyFields.forEach(field => {
+        if (this.currentStep.commonFields.some(item => item === field)) {
+          isFullBody = true
+        }
+      })
+
+      if (isFullBody) {
+        this.formBodyWidth = '100%'
+        this.tagBodyWidth = '0%'
+      } else {
+        this.formBodyWidth = '55%'
+        this.tagBodyWidth = '45%'
+      }
     },
     loadCustomTags() {
       // this.$refs.customTag.tagLoading = true
@@ -2378,20 +1613,14 @@ export default {
         } else {
           this.$message.error(response.message)
         }
-        // this.$refs.customTag.tagLoading = false
       })
     },
-    // 通过class为tag-content-block的定位到附带字段数据的dom，然后取出data-field-name字段值
     focusInput(event) {
-      // 设置一个父级定位专用的dom，设置class名称【root-locate-form】，
-      // 然后通过事件获取到当前元素，依次往上层查询父元素，累加偏离值，直到定位元素。
       const eventDom = event.target
-      let formTop = eventDom.offsetTop ? eventDom.offsetTop : 0
       let currentDom = eventDom.offsetParent
       this.currentFocusFieldName = null
       this.customTagList = []
       while (currentDom !== null) {
-        formTop += (currentDom ? currentDom.offsetTop : 0)
         currentDom = currentDom ? currentDom.offsetParent : undefined
         if (!currentDom) {
           break
@@ -2409,10 +1638,8 @@ export default {
           break
         }
       }
-      // custom tag 自带了margin-top: 20px,这里减掉不然不对齐。
       if (this.currentFocusFieldName) {
         this.$logger.info('show currentFocusFieldName tag ', this.currentFocusFieldName)
-        this.customTagTop = formTop - 20
         this.showCustomTag = true
         this.setRightModuleVisible(this.rightModule.customTag)
       } else {
@@ -2420,20 +1647,16 @@ export default {
         CustomTagType.plan.default.forEach(name => {
           this.customTagList.push(name)
         })
-        // // 再拼接自己添加的
         this.customTags.userTags.forEach(tag => {
           if (this.customTagList.indexOf(tag.name) === -1) {
             this.customTagList.push(tag.name)
           }
         })
         this.showCustomTag = false
-        this.customTagTop = 0
-        // this.showModuleList.push(RightModule.imageUpload)
         this.setRightModuleVisible()
       }
     },
 
-    // 切换当前的字段的点评数据，从总的collaborateCommentList筛选初当前字段相关的点评数据
     handleSwitchComment(data) {
       this.$logger.info('handleSwitchComment', data)
       if (!data.activeStatus) {
@@ -2459,36 +1682,18 @@ export default {
       } else {
         this.setRightModuleVisible(this.rightModule.collaborate)
       }
-      // this.showAllCollaborateCommentVisible = !this.showAllCollaborateCommentVisible
-      // this.showCollaborateCommentVisible = false
-      // this.currentCollaborateCommentList = []
       this.showHistoryLoading = true
       this.loadCollaborateData(this.form.type, this.form.id)
     },
 
-    // TODO 发布评论后需要更新最新的评论列表,刷新数据
     handleUpdateCommentList() {
       this.$logger.info('handleUpdateCommentList')
       this.GetCollaborateComment(this.form.type, this.form.id)
     },
 
-    // historyData以及在接口请求的相应逻辑中正对数据进行‘格式’，
-    // 这样在这里就可以直接this.$set设置字段的数据
     handleRestoreField(data) {
       this.$logger.info('handleRestoreField', data, this.form)
       if (data) {
-        // data.historyData.forEach(dataItem => {
-        //   this.$logger.info('set ' + dataItem.fieldName, dataItem.data[0])
-        //   if (Array.isArray(dataItem.data[0])) {
-        //     // 清空数组
-        //     this.form[dataItem.fieldName].splice(0, this.form[dataItem.fieldName].length)
-        //     dataItem.data[0].forEach((item, index) => {
-        //       this.$set(this.form[dataItem.fieldName], index, dataItem.data[0][index])
-        //     })
-        //   } else {
-        //     this.$set(this.form, dataItem.fieldName, dataItem.data[0])
-        //   }
-        // })
         this.form = data
         this.$message.success('restore successfully!')
       }
@@ -2513,20 +1718,12 @@ export default {
     onChangeSwitch(checked) {
       this.disableQuestion = checked
     },
-    handleEnsureSelectBigIdeaData() {
-      if (!this.selectNewBigIdea) {
-        this.$message.error('Please select a big idea')
-        return
-      }
-      this.form.inquiry = this.selectNewBigIdea
-      this.selectBigIdeaDataVisible = false
-    },
     findQuestionsByBigIdea(bigIdea) {
       if (!bigIdea) {
         return
       }
       FindQuestionsByBigIdea({ bigIdea: bigIdea }).then(response => {
-        logger.info('FindQuestionsByBigIdea ', response)
+        this.$logger.info('FindQuestionsByBigIdea ', response)
         this.recommendQuestionList = []
         if (response.success) {
           const formQuestion = this.form.questions.map(item => {
@@ -2542,7 +1739,7 @@ export default {
         }
       }).finally({})
     },
-    handerInsertQuestion(question) {
+    handleInsertQuestion(question) {
       const formQuestion = this.form.questions.map(item => {
         return item.name
       })
@@ -2556,24 +1753,20 @@ export default {
       this.form.questions.push(question)
     },
     handleSelectQuestion(questions) {
-      logger.info('handleSelectQuestion ', questions)
+      this.$logger.info('handleSelectQuestion ', questions)
       this.selectedQuestionList = questions
     },
     handleEnsureSelectQuestionData() {
-      logger.info('handleEnsureSelectQuestionData ', this.selectedQuestionList)
+      this.$logger.info('handleEnsureSelectQuestionData ', this.selectedQuestionList)
       const formQuestion = this.form.questions.map(item => {
         return item.name
       })
       this.selectedQuestionList.forEach(q => {
         if (formQuestion.indexOf(q) === -1) {
-          this.form.questions.push({ 'name': q })
+          this.form.questions.push({ name: q })
         }
       })
       this.questionMoreVisible = false
-    },
-    setSessionStep(step) {
-      this.currentActiveStepIndex = step
-      sessionStorage.setItem('unit-plan-step-' + this.unitPlanId, step)
     },
     getSessionStep() {
       const oldStep = sessionStorage.getItem('unit-plan-step-' + this.unitPlanId)
@@ -2651,6 +1844,14 @@ export default {
       } else {
         this.form.image = coverData.url
       }
+    },
+
+    handleUpdateLearningObjectives (data) {
+      this.$logger.info('handleUpdateLearningObjectives', data)
+      this.form.learnOuts = data.learnOuts
+      this.form.curriculumId = data.curriculumId
+      this.form.subjectList = data.selectedSubjectList
+      this.form.yearList = data.selectedYearList
     }
   }
 }
@@ -3441,7 +2642,6 @@ code {
   overflow: hidden;
 
   .form-body {
-    width: 55%;
     padding: 20px 30px;
     height: 100%;
     overflow-y: auto;
@@ -3449,7 +2649,6 @@ code {
   }
 
   .tag-body {
-    width: 45%;
     padding: 20px 30px;
     height: 100%;
     overflow-y: scroll;
