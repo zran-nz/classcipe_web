@@ -229,7 +229,7 @@ export default {
       this.editHeaderModalVisible = false
       this.currentEditHeader = null
     },
-    handleAddRow (criteriaDisplay) {
+    handleAddRow (criteriaDisplay, extraDataJson) {
       const row = {
         key: Math.random()
       }
@@ -237,7 +237,8 @@ export default {
         if (item.type === HeaderType.criteria) {
           row[item.type] = {
             display: criteriaDisplay || null,
-            type: item.type
+            type: item.type,
+            extraDataJson: extraDataJson || null
           }
         } else {
           row[item.type] = {
@@ -278,11 +279,15 @@ export default {
     handleInsertCriteria (data) {
       if (this.isActiveTable) {
         this.$logger.info('handleInsertCriteria', this.assessment.title, data)
-        if (data && data.length) {
-          data.forEach(item => {
-            this.handleAddRow(item.name)
-          })
-        }
+        data.generalCapabilityList.forEach(item => {
+          this.handleAddRow(item.name || item.desc, JSON.stringify(item))
+        })
+        data.learningObjectiveList.forEach(item => {
+          this.handleAddRow(item.name || item.desc, JSON.stringify(item))
+        })
+        data.performanceList.forEach(item => {
+          this.handleAddRow(item.name || item.desc, JSON.stringify(item))
+        })
       }
     },
 
