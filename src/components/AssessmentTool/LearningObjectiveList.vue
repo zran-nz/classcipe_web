@@ -263,6 +263,9 @@ export default {
           performanceList: this.selectedPerformance
         }
       )))
+      this.selectedLearningObjective = []
+      this.selectedGeneralCapabilities = []
+      this.selectedPerformance = []
     }
   }
 }

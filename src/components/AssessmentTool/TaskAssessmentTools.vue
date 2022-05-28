@@ -100,7 +100,8 @@ export default {
               editing: false
             }
           ],
-          bodyList: []
+          bodyList: [],
+          extraCriteriaBodyList: []
         },
         singlePointRubric: {
           type: AssessmentToolType.SinglePointRubric,
@@ -126,7 +127,8 @@ export default {
               editing: false
             }
           ],
-          bodyList: []
+          bodyList: [],
+          extraCriteriaBodyList: []
         },
         checkList: {
           type: AssessmentToolType.Checklist,
@@ -151,7 +153,8 @@ export default {
               editing: false
             }
           ],
-          bodyList: []
+          bodyList: [],
+          extraCriteriaBodyList: []
         }
       },
 

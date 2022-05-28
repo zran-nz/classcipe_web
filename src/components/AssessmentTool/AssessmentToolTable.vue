@@ -1,5 +1,39 @@
 <template>
   <div class='assessment-tool-table'>
+    <div class='extra-criteria-table' v-if='assessment && assessment.extraCriteriaBodyList && assessment.extraCriteriaBodyList.length'>
+      <table>
+        <thead>
+          <tr>
+            <th
+              v-for='header in assessment.headerList'
+              :key='header.type'
+              :style="{
+                backgroundColor: header.bgColor || '#ffffff',
+                maxWidth: header.maxWidth || 'auto',
+                padding: header.editing ? '0px' : '10px',
+              }">
+              <div class='header-title'>
+                {{ header.title }}
+              </div>
+              <div class='header-tips' v-if='header.tips'>
+                {{ header.tips }}
+              </div>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for='row in assessment.extraCriteriaBodyList' :key='row.key'>
+            <th v-for='header in assessment.headerList' :key='header.type' @dblclick='handleEditExtraRow(row)'>
+              <a-textarea
+                :auto-size="{ minRows: 2, maxRows: 5 }"
+                class='cc-table-textarea'
+                v-model='row[header.type].display'
+                :style="{ backgroundColor: header.bgColor || '#ffffff' }" />
+            </th>
+          </tr>
+        </tbody>
+      </table>
+    </div>
     <table v-if='assessment'>
       <thead>
         <tr>
@@ -129,6 +163,7 @@ export default {
 
       currentEditRow: null,
       editRowModalVisible: false,
+      editExtraRowModalVisible: false,
 
       selectHeaderSetModalVisible: false,
       optionList: [
@@ -138,7 +173,14 @@ export default {
       ],
 
       // 异步延迟保存表格数据
-      asyncSaveTableData: null
+      asyncSaveTableData: null,
+
+      // 评估项附带数据类型
+      criteriaExtraDataType: {
+        generalCapability: 'generalCapability',
+        learningObjective: 'learningObjective',
+        performance: 'performance'
+      }
     }
   },
   mounted() {
@@ -229,7 +271,7 @@ export default {
       this.editHeaderModalVisible = false
       this.currentEditHeader = null
     },
-    handleAddRow (criteriaDisplay, extraDataJson) {
+    handleAddRow (criteriaDisplay, extraData) {
       const row = {
         key: Math.random()
       }
@@ -238,7 +280,7 @@ export default {
           row[item.type] = {
             display: criteriaDisplay || null,
             type: item.type,
-            extraDataJson: extraDataJson || null
+            extraDataJson: JSON.stringify(extraData) || null
           }
         } else {
           row[item.type] = {
@@ -248,6 +290,32 @@ export default {
         }
       })
       this.assessment.bodyList.push(row)
+
+      // 检查extraData
+      if (extraData) {
+        this.$logger.info(extraData.type, 'extraData', extraData)
+        if (extraData.type === this.criteriaExtraDataType.learningObjective || extraData.type === this.criteriaExtraDataType.generalCapability) {
+          const criteriaCategoryName = extraData.path.slice(-1)[0]
+          const extraRow = {
+            key: 'extra_' + Math.random()
+          }
+          this.assessment.headerList.forEach(item => {
+            if (item.type === HeaderType.criteria) {
+              extraRow[item.type] = {
+                display: criteriaCategoryName || null,
+                type: item.type,
+                tooltip: extraData.path.join('/')
+              }
+            } else {
+              extraRow[item.type] = {
+                display: item.type === HeaderType.yes ? 'YES' : (item.type === HeaderType.no ? 'NO' : null),
+                type: item.type
+              }
+            }
+          })
+          this.assessment.extraCriteriaBodyList.push(extraRow)
+        }
+      }
     },
 
     handleSaveHeaderAsSet () {
@@ -280,13 +348,16 @@ export default {
       if (this.isActiveTable) {
         this.$logger.info('handleInsertCriteria', this.assessment.title, data)
         data.generalCapabilityList.forEach(item => {
-          this.handleAddRow(item.name || item.desc, JSON.stringify(item))
+          item.type = this.criteriaExtraDataType.generalCapability
+          this.handleAddRow(item.name || item.desc, item)
         })
         data.learningObjectiveList.forEach(item => {
-          this.handleAddRow(item.name || item.desc, JSON.stringify(item))
+          item.type = this.criteriaExtraDataType.learningObjective
+          this.handleAddRow(item.name || item.desc, item)
         })
         data.performanceList.forEach(item => {
-          this.handleAddRow(item.name || item.desc, JSON.stringify(item))
+          item.type = this.criteriaExtraDataType.performance
+          this.handleAddRow(item.name || item.desc, item)
         })
       }
     },
@@ -295,6 +366,11 @@ export default {
       this.$logger.info('handleEditRow', row)
       this.currentEditRow = row
       this.editRowModalVisible = true
+    },
+
+    handleEditExtraRow (row) {
+      this.$logger.info('handleEditExtraRow', row)
+      this.editExtraRowModalVisible = true
     },
 
     handleDelRow () {
@@ -312,6 +388,10 @@ export default {
 .assessment-tool-table {
   overflow-y: hidden;
   overflow-x: auto;
+  .extra-criteria-table {
+    margin-bottom: 15px;
+  }
+
   table {
     width: 100%;
     background: #FFFFFF;
