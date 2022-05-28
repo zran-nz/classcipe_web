@@ -34,8 +34,9 @@ export const ZoomAuthMixin = {
      * 进行zoom授权，获取zoom授权token 不是登录
      * @returns {Promise<any>}
      */
-    goToZoomAuth(email) {
-      this.$logger.info('goToZoomAuth')
+    goToZoomAuth() {
+      const email = this.$store.getters.email
+      this.$logger.info('goToZoomAuth email:', email)
       let url = getThirdAuthURL('zoom')
       url += `?role=teacher`
       url += `&email=${email}`

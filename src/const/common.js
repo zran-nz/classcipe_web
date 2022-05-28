@@ -222,7 +222,7 @@ export const TASK_STATUS = {
   ARCHIVED: 2
 }
 
-export const BG_COLORS = ['#f03132', '#0072bb', '#91191a', '#4d91f9', '#002056', '#f68e54', '#329933', '#3333cc']
+export const BG_COLORS = ['#CDE7FF', '#F7E3FF', '#BAEAD0', '#FCF2BD', '#FDD7DE', '#BCDCF7']
 
 export const ABSENT_COLORS = ['#faad3c', '#1aaf5c', '#849bbb']
 
