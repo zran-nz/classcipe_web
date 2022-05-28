@@ -19,11 +19,15 @@
                 <span>Unit: {{ item.name }}</span>
               </div>
             </a-checkbox-group> -->
+
             <div
               class="unit-tip-item"
               :style="{backgroundColor: BG_COLORS[item.index]}"
               v-for="(item) in showUnitOptions"
-              :key="item.id">Unit: {{ item.name }}</div>
+              :key="item.id">
+              <a-tooltip :title="item.name">Unit: {{ item.name }}</a-tooltip>
+            </div>
+
           </div>
         </div>
         <FullCalendar
@@ -537,6 +541,9 @@ export default {
         height: 30px;
         line-height: 30px;
         padding: 0 5px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
     }
   }
