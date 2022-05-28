@@ -1,7 +1,35 @@
 <template>
   <div class='my-content'>
+    <!-- <div class="opt">
+      <a-button type="primary" @click="showAttendance">{{ attendanceVisible ? 'Close' : 'Show' }} Attendance</a-button>
+    </div> -->
     <a-spin :spinning="loading">
       <div class="schedule-content">
+        <div class="schedule-tip" v-show="attendanceVisible">
+          <div class="unit-tip">
+            <!-- <div class="tip-title">My Unit Legend</div>
+            <a-checkbox-group
+              :options="showUnitOptions"
+              v-model="showUnit"
+              @change="handleChangeEvents"
+              class="tip-check"
+            >
+              <div slot="label" class="tip-content" slot-scope="item">
+                <span class="tip-dot" :style="{backgroundColor: BG_COLORS[item.index]}"></span>
+                <span>Unit: {{ item.name }}</span>
+              </div>
+            </a-checkbox-group> -->
+
+            <div
+              class="unit-tip-item"
+              :style="{backgroundColor: BG_COLORS[item.index]}"
+              v-for="(item) in showUnitOptions"
+              :key="item.id">
+              <a-tooltip :title="item.name">Unit: {{ item.name }}</a-tooltip>
+            </div>
+
+          </div>
+        </div>
         <FullCalendar
           ref="fullCalendar"
           :options="calendarOptions"
@@ -10,19 +38,19 @@
           <template v-slot:eventContent="info">
             <div
               class="schedule-event-content"
-              :style="{backgroundColor: info.event._def.extendedProps.backgroundColor, color: '#fff'}"
+              :style="{backgroundColor: info.event._def.extendedProps.backgroundColor, color: '#333'}"
             >
               <div v-show="info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay'">
-                {{ info.event.start | dayjs(FORMATTER_SIM) }} - {{ info.event.end | dayjs(FORMATTER_SIM) }}
+                {{ info.event.start | dayjs(FORMATTER_SIM) }}<!-- - {{ info.event.end | dayjs(FORMATTER_SIM) }} -->
               </div>
               <span v-show="info.view.type === 'dayGridMonth'" style="margin-right: 5px;">
                 {{ info.event.start | dayjs(FORMATTER_SIM) }}
               </span>
-              <span
+              <!-- <span
                 class="event-content-dot"
                 :style="{backgroundColor: ABSENT_COLORS[getColorIndex(info.event._def.extendedProps.status)]}"
               >
-              </span>
+              </span> -->
               <a-tooltip>
                 <template slot="title">
                   {{ info.event.title }}
@@ -37,8 +65,8 @@
     <div class="tooltip" v-clickOutside="closeTip">
       <div class="tooltip-wrap" ref="tooltip">
         <div class="tooltip-content">
-          <div class="content-item" @click="handleAddUnit"><span>Add Unit</span></div>
-          <div class="content-item" @click="handleAddSession"><span>Add Session</span></div>
+          <div class="content-item" @click="handleAddUnit"><span>Import from Unit</span></div>
+          <div class="content-item" @click="handleAddSession"><span>Import from Task</span></div>
         </div>
       </div>
     </div>
@@ -80,6 +108,7 @@ import { typeMap } from '@/const/teacher'
 import { mapState } from 'vuex'
 
 import moment from 'moment'
+import { uniqBy } from 'lodash-es'
 
 export default {
   name: 'Calendar',
@@ -96,10 +125,8 @@ export default {
       typeMap: typeMap,
       queryType: CALENDAR_QUERY_TYPE.MY.value,
       queryClassId: null,
-      currentClassList: [{
-        id: '1'
-      }],
-      attendanceVisible: false,
+      currentUnitList: [],
+      attendanceVisible: true,
       loading: false,
       startDate: '',
       endDate: '',
@@ -131,32 +158,39 @@ export default {
             classId: this.queryClassId
           }).then(res => {
             if (res.success && res.result) {
-              const events = res.result.map(item => {
-                // 根据classId获取颜色
-                const index = Math.floor(Math.random() * 10) // this.currentClassList.findIndex(clasz => clasz.id === item.classId)
-                const color = BG_COLORS[index]
+              const filterRes = res.result.filter(item => item.unitPlanInfo)
+              if (filterRes.length > 0) {
+                this.currentUnitList = uniqBy(filterRes.map(item => item.unitPlanInfo), 'id')
+                const events = filterRes.map(item => {
+                  // 根据classId获取颜色
+                  const index = this.currentUnitList.findIndex(unit => unit.id === item.unitPlanInfo.id)
+                  const color = BG_COLORS[index]
 
-                return {
-                  id: item.sessionInfo.id,
-                  title: item.sessionInfo.sessionName,
-                  start: this.$options.filters['dayjs'](item.startTime),
-                  end: this.$options.filters['dayjs'](item.endTime),
-                  // backgroundColor: 'transparent',
-                  // borderColor: 'transparent',
-                  extendedProps: {
-                    classId: item.sessionInfo.classId,
-                    status: item.attendance || 'absent',
-                    backgroundColor: color
+                  return {
+                    id: item.sessionInfo.id,
+                    title: item.sessionInfo.sessionName,
+                    start: this.$options.filters['dayjs'](item.startTime),
+                    end: this.$options.filters['dayjs'](item.endTime),
+                    backgroundColor: 'transparent',
+                    borderColor: 'transparent',
+                    extendedProps: {
+                      classId: item.sessionInfo.classId,
+                      unitId: item.unitPlanInfo.id,
+                      status: item.attendance || 'absent',
+                      backgroundColor: color
+                    }
                   }
-                }
-              })
-              this.classSchedules = res.result
-              this.allEvents = events
-              const filterEvents = events.filter(event => {
-                // const props = event.extendedProps
-                return true
-              })
-              successCb(filterEvents)
+                })
+                this.classSchedules = res.result
+                this.allEvents = events
+                const filterEvents = events.filter(event => {
+                  // const props = event.extendedProps
+                  return true
+                })
+                successCb(filterEvents)
+              } else {
+                successCb([])
+              }
             } else {
               failCb()
             }
@@ -202,9 +236,8 @@ export default {
       FORMATTER_SIM: 'h:mma',
       FORMATTER_FULL: 'YYYY-MM-DD h:mm a',
 
-      showClass: [],
-      showStatus: [],
-      showStatusOptions: [],
+      showUnit: [],
+      currentUnit: null,
 
       importVisible: false,
       importType: typeMap.task,
@@ -218,8 +251,8 @@ export default {
     ...mapState({
       currentSchool: state => state.user.currentSchool
     }),
-    showClassOptions() {
-      return this.currentClassList.map((item, index) => {
+    showUnitOptions() {
+      return this.currentUnitList.map((item, index) => {
         return {
           value: item.id,
           name: item.name,
@@ -255,16 +288,8 @@ export default {
   },
   methods: {
     initData() {
-      this.currentClass = this.currentClassList.length > 0 ? this.currentClassList[0].id : ''
-      this.showClass = this.currentClassList.map(item => item.id)
-      this.showStatus = Object.values(TASK_ATTENDANCE)
-      this.showStatusOptions = Object.keys(TASK_ATTENDANCE).map((key, index) => {
-        return {
-          value: TASK_ATTENDANCE[key],
-          name: key.slice(0, 1).toUpperCase() + key.slice(1).toLowerCase(),
-          index: index
-        }
-      })
+      this.currentUnit = this.currentUnitList.length > 0 ? this.currentUnitList[0].id : ''
+      this.showUnit = this.currentUnitList.map(item => item.id)
     },
     handleSchoolChange(school) {
       // this.triggerSearch()
@@ -322,9 +347,9 @@ export default {
     },
     handleEventClick(clickInfo) {
       console.log(clickInfo)
-      if (confirm(`Are you sure you want to delete the event '${clickInfo.event.title}'`)) {
-        clickInfo.event.remove()
-      }
+      // if (confirm(`Are you sure you want to delete the event '${clickInfo.event.title}'`)) {
+      //   clickInfo.event.remove()
+      // }
     },
     handleEvents(events) {
       this.currentEvents = events
@@ -337,6 +362,17 @@ export default {
     },
     handleMouseEnter(info) {
 
+    },
+    handleChangeEvents() {
+      const calendarApi = this.$refs.fullCalendar.getApi()
+      calendarApi.removeAllEvents()
+      this.allEvents.forEach(item => {
+        const props = item.extendedProps
+        if (this.showUnit.includes(props.unitId)) {
+          calendarApi.addEvent(item)
+        }
+      })
+      // this.reRender()
     },
     // handleMouseLeave(event) {
     //   if (this.timer) clearTimeout(this.timer)
@@ -415,22 +451,6 @@ export default {
   align-items: center;
   justify-content: flex-end;
 }
-.attendance {
-  // position: fixed;
-  // left: 58px;
-  // bottom: 20px;
-  // z-index: 101;
-  width: 200px;
-  border: 1px solid #dfdfdf;
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
-  flex-direction: column;
-  align-items: center;
-  background: #fff;
-  .attendance-choose {
-    width: 150px;
-    margin: 10px 25px;
-  }
-}
 .tooltip {
   position: absolute;
   top: 0;
@@ -489,12 +509,12 @@ export default {
     }
   }
   .schedule-tip {
-    width: 200px;
-    margin-left: 10px;
+    width: 190px;
     display: flex;
     flex-direction: column;
-    .class-tip {
-      margin-top: 20px;
+    margin-top: 60px;
+    margin-right: 10px;
+    .unit-tip {
       display: flex;
       flex-direction: column;
       .tip-check {
@@ -516,6 +536,14 @@ export default {
             border-radius: 10px;
           }
         }
+      }
+      .unit-tip-item {
+        height: 30px;
+        line-height: 30px;
+        padding: 0 5px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
     }
   }

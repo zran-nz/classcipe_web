@@ -386,7 +386,7 @@
           <template v-if='currentRightModule === rightModule.assessmentToolsLearnOuts'>
             <learning-objective-list
               :learn-outs='form.learnOuts'
-              :self-outs='form.selfOuts' />
+              :selected-tag-list='form.customTags'/>
           </template>
         </div>
       </div>
@@ -1351,6 +1351,7 @@ export default {
     },
 
     handleChangeCustomTags(tags) {
+      this.$logger.info('handleChangeCustomTags', tags)
       this.form.customTags = tags
     },
 

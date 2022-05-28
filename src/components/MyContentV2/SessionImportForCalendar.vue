@@ -268,8 +268,9 @@ export default {
           if (this.importType === item.type) {
             associates = res
           }
-          if (this.importType === typeMap['unit-plan']) {
+          if (this.importType === typeMap['unit-plan'] && typeMap['unit-plan'] === item.type) {
             this.importDatas = res
+            this.scheduleReq.planId = item.id
           }
           console.log(associates)
           if (this.importType === typeMap.task && associates.length > 0) {
