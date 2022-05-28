@@ -19,3 +19,7 @@ export const HeaderType = {
     no: 'no',
     custom: 'custom'
 }
+
+export const AssessmentToolsEvent = {
+  InsertCriteria: 'InsertCriteria'
+}

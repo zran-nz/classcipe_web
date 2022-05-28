@@ -98,17 +98,12 @@
 <script>
 import CommonNoData from '@/components/Common/CommonNoData'
 import PlusIcon from '@/components/Common/PlusIcon'
-import { AssessmentMode, HeaderType } from '@/components/AssessmentTool/Constant'
+import { AssessmentMode, AssessmentToolsEvent, HeaderType } from '@/components/AssessmentTool/Constant'
 import DeleteIcon from '@/components/Common/DeleteIcon'
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import ModalHeader from '@/components/Common/ModalHeader'
 import CustomLinkText from '@/components/Common/CustomLinkText'
 import { debounce } from 'lodash-es'
-
-import {
-  AssessmentToolsEvent,
-  AssessmentToolsEventBus
-} from '@/components/AssessmentTool/EventBus/AssessmentToolsEventBus'
 
 export default {
   name: 'AssessmentToolTable',
@@ -151,10 +146,10 @@ export default {
   },
   created() {
     this.asyncSaveTableData = debounce(this.autoSaveAssessment, 1000)
-    AssessmentToolsEventBus.$on(AssessmentToolsEvent.SelectLearningObjective, this.handleSelectLearningObjective)
+    this.$EventBus.on(AssessmentToolsEvent.InsertCriteria, this.handleInsertCriteria)
   },
   beforeDestroy() {
-    AssessmentToolsEventBus.$off(AssessmentToolsEvent.SelectLearningObjective, this.handleSelectLearningObjective)
+    this.$EventBus.off(AssessmentToolsEvent.InsertCriteria, this.handleInsertCriteria)
   },
   watch: {
     assessment: {
@@ -280,9 +275,9 @@ export default {
       return this.assessment
     },
 
-    handleSelectLearningObjective (data) {
+    handleInsertCriteria (data) {
       if (this.isActiveTable) {
-        this.$logger.info('handleSelectLearningObjective', this.assessment.title, data)
+        this.$logger.info('handleInsertCriteria', this.assessment.title, data)
         if (data && data.length) {
           data.forEach(item => {
             this.handleAddRow(item.name)

@@ -385,8 +385,7 @@
           </template>
           <template v-if='currentRightModule === rightModule.assessmentToolsLearnOuts'>
             <learning-objective-list
-              :learn-outs='form.learnOuts'
-              :self-outs='form.selfOuts' />
+              :learn-outs='form.learnOuts' />
           </template>
         </div>
       </div>
