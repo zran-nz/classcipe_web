@@ -15,7 +15,7 @@
     </div>
     <div class='select-content'>
       <div class='objectives-wrapper' v-show='mode === selectMode.subjectLearningObjectives'>
-        <div class='objectives-list-item' v-for='objectiveItem in learningObjectiveList' :key='objectiveItem.id'>
+        <div class='objectives-list-item' v-for='objectiveItem in learningObjectiveList' :key='objectiveItem.id' :class="{'disabled-item': disabledLearningObjectiveIdList.indexOf(objectiveItem.id) !== -1}">
           <div class='objective-item'>
             <div class='objective-item-title'>
               <a-icon type="tag" />
@@ -33,10 +33,11 @@
               </div>
             </div>
           </div>
+          <div class='disable-mask'></div>
         </div>
       </div>
       <div class='objectives-wrapper' v-show='mode === selectMode.generalCapabilities'>
-        <div class='objectives-list-item' v-for='objectiveItem in generalCapabilityList' :key='objectiveItem.id'>
+        <div class='objectives-list-item' v-for='objectiveItem in generalCapabilityList' :key='objectiveItem.id' :class="{'disabled-item': disabledGeneralCapabilityIdList.indexOf(objectiveItem.id) !== -1}">
           <div class='objective-item'>
             <div class='objective-item-title'>
               <a-icon type="tag" />
@@ -54,6 +55,7 @@
               </div>
             </div>
           </div>
+          <div class='disable-mask'></div>
         </div>
       </div>
       <div class='performance' v-show='mode === selectMode.studentPerformance'>
@@ -157,7 +159,7 @@ export default {
       const list = []
       this.selectedGeneralCapabilities.forEach(item => {
         this.selectedLearningObjective.forEach(learningObjective => {
-          if (learningObjective.generalCapabilities.some(generalCapability => generalCapability.id === item.id)) {
+          if (learningObjective.id === item.learningObjectiveId) {
             list.push(learningObjective.id)
           }
         })
@@ -240,6 +242,7 @@ export default {
       } else {
         this.selectedGeneralCapabilities.splice(index, 1)
       }
+      this.$logger.info('handleAddGeneralCapability selectedGeneralCapabilities', this.selectedGeneralCapabilities)
     },
 
     handleAddPerformance (dataItem) {
@@ -281,7 +284,12 @@ export default {
         display: flex;
         flex-direction: row;
         align-items: flex-start;
-        justify-content: center;
+        justify-content: flex-start;
+        position: relative;
+
+        .disable-mask {
+          display: none;
+        }
 
         .item-type-icon {
           display: block;
@@ -302,6 +310,7 @@ export default {
 
         .objective-item {
           overflow: hidden;
+          width: 100%;
           .objective-item-title {
             user-select: none;
             cursor: pointer;
@@ -413,4 +422,20 @@ export default {
   max-width: 300px;
   padding-right: 10px;
 }
+
+.disabled-item {
+  position: relative;
+  .disable-mask {
+    //display: block !important;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.6);
+    border-radius: 4px;
+    filter: grayscale(0.5);
+  }
+}
+
 </style>
