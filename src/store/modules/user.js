@@ -90,8 +90,11 @@ const user = {
       state.classList = classList
     },
     SET_CURRENT_SCHOOL: (state, currentSchool) => {
+      if (!currentSchool) {
+        currentSchool = { id: '0' }
+      }
       state.currentSchool = currentSchool
-      state.school = currentSchool ? currentSchool.id : '0'
+      state.school = currentSchool.id
       storage.set(SET_CURRENT_SCHOOL, currentSchool)
     },
     SET_SUBJECTS: (state, allSubjects) => {
@@ -182,7 +185,7 @@ const user = {
             // 没有设置学校默认个人模式
             storage.set(TOOGLE_USER_MODE, result.school === '0' ? USER_MODE.SCHOOL : USER_MODE.SELF)
             const schoolIndex = result.schoolList.findIndex(item => item.id === result.school)
-            if (schoolIndex > -1) commit('SET_CURRENT_SCHOOL', result.schoolList[schoolIndex])
+            commit('SET_CURRENT_SCHOOL', schoolIndex > -1 ? result.schoolList[schoolIndex] : null)
             storage.set(CURRENT_ROLE, result.currentRole)
             storage.set(IS_ADD_PREFERENCE, result.isAddPreference)
             storage.set(USER_INFO, result)
