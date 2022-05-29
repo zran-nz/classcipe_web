@@ -8,7 +8,7 @@
         <a-space>
           <content-type-filter @change='handleUpdateFilterType'/>
           <create-new />
-          <global-search-input />
+          <global-search-input @search='handleGlobalSearch' />
           <user-profile-avatar />
         </a-space>
       </div>
@@ -238,6 +238,12 @@ export default {
       this.filterType = filterType
       this.pageNo = 1
       this.loadMyContent()
+    },
+    handleGlobalSearch(data) {
+      this.$logger.info('handleSearch', data)
+      if (data && data.length >= 3) {
+        this.$router.push({ path: '/teacher/library/search/' + data })
+      }
     }
   },
   mounted() {

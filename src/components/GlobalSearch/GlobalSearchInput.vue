@@ -175,7 +175,6 @@ export default {
     emitSearchEvent (key) {
       this.$logger.info('emitSearchEvent', key)
       this.$emit('search', key)
-      this.$message.success('search ' + key)
       this.handleBack()
     }
   }

@@ -76,6 +76,12 @@ export const asyncRouterMap = [
             meta: { title: 'menu.library', keepAlive: true, permission: ['teacher'], fullLayout: true }
           },
           {
+            path: '/teacher/library/search/:keyword',
+            name: 'LibrarySearch',
+            component: () => import('@/views/teacher/LibrarySearch'),
+            meta: { title: 'menu.librarySearch', keepAlive: true, permission: ['teacher'], fullLayout: true }
+          },
+          {
             path: '/teacher/library-v3/:browserType?/',
             name: 'LibraryIframe',
             component: () => import('@/views/teacher/LibraryIframe'),

@@ -3,7 +3,7 @@
     <div class='library-search'>
       <div class='create-new'>
         <a-space>
-          <global-search-input />
+          <global-search-input @search='handleSearch' />
           <user-profile-avatar />
         </a-space>
       </div>
@@ -63,7 +63,6 @@ export default {
       data.callbackData = await this.getEventCallbackData(data)
       delete data.event
       data.from = 'form_page'
-      this.$logger.info('handleIframeEvent send message', JSON.stringify(data))
       window.frames['library-iframe'].contentWindow.postMessage(data, '*')
     },
 
@@ -77,6 +76,12 @@ export default {
         return librarySearch(data.param)
       } else if (data.act === 'queryAllResource') {
         return queryAllResource(data.param)
+      }
+    },
+    handleSearch (data) {
+      this.$logger.info('handleSearch', data)
+      if (data && data.length >= 3) {
+        this.$router.push({ path: '/teacher/library/search/' + data })
       }
     }
   }
