@@ -114,6 +114,21 @@
     </a-modal>
 
     <a-modal
+      v-model='editExtraRowModalVisible'
+      destroyOnClose
+      :title='null'
+      :closable='false'
+      width='300px'
+      :footer='null'>
+      <modal-header title="Edit row" @close='editExtraRowModalVisible = false'/>
+      <div class='edit-header-action'>
+        <div class='edit-header-action-item' v-if='currentEditExtraRow'>
+          <custom-text-button label='Delete current column' @click='handleDelExtraRow'></custom-text-button>
+        </div>
+      </div>
+    </a-modal>
+
+    <a-modal
       v-model='selectHeaderSetModalVisible'
       destroyOnClose
       :title='null'
@@ -163,6 +178,8 @@ export default {
 
       currentEditRow: null,
       editRowModalVisible: false,
+
+      currentEditExtraRow: null,
       editExtraRowModalVisible: false,
 
       selectHeaderSetModalVisible: false,
@@ -246,6 +263,7 @@ export default {
     },
 
     handleAddCol () {
+      this.$logger.info('handleAddCol currentEditHeader', this.currentEditHeader, 'headerList', this.assessment.headerList)
       if (this.mode === 'edit' && this.assessment && this.assessment.canAddCustomCol) {
         const index = this.assessment.headerList.findIndex(item => item.type === this.currentEditHeader.type)
         let idx = this.headerTypeList.length + 1
@@ -261,6 +279,13 @@ export default {
         this.assessment.headerList.splice(index + 1, 0, newHeader)
 
         this.assessment.bodyList.forEach(row => {
+          row[newHeaderType] = {
+            display: null,
+            type: newHeaderType
+          }
+        })
+
+        this.assessment.extraCriteriaBodyList.forEach(row => {
           row[newHeaderType] = {
             display: null,
             type: newHeaderType
@@ -295,25 +320,27 @@ export default {
       if (extraData) {
         this.$logger.info(extraData.type, 'extraData', extraData)
         if (extraData.type === this.criteriaExtraDataType.learningObjective || extraData.type === this.criteriaExtraDataType.generalCapability) {
-          const criteriaCategoryName = extraData.path.slice(-1)[0]
-          const extraRow = {
-            key: 'extra_' + Math.random()
-          }
-          this.assessment.headerList.forEach(item => {
-            if (item.type === HeaderType.criteria) {
-              extraRow[item.type] = {
-                display: criteriaCategoryName || null,
-                type: item.type,
-                tooltip: extraData.path.join('/')
-              }
-            } else {
-              extraRow[item.type] = {
-                display: item.type === HeaderType.yes ? 'YES' : (item.type === HeaderType.no ? 'NO' : null),
-                type: item.type
-              }
+          if (extraData.path && extraData.path.length) {
+            const criteriaCategoryName = extraData.path.slice(-1)[0]
+            const extraRow = {
+              key: 'extra_' + Math.random()
             }
-          })
-          this.assessment.extraCriteriaBodyList.push(extraRow)
+            this.assessment.headerList.forEach(item => {
+              if (item.type === HeaderType.criteria) {
+                extraRow[item.type] = {
+                  display: criteriaCategoryName || null,
+                  type: item.type,
+                  tooltip: extraData.path.join('/')
+                }
+              } else {
+                extraRow[item.type] = {
+                  display: item.type === HeaderType.yes ? 'YES' : (item.type === HeaderType.no ? 'NO' : null),
+                  type: item.type
+                }
+              }
+            })
+            this.assessment.extraCriteriaBodyList.push(extraRow)
+          }
         }
       }
     },
@@ -370,6 +397,7 @@ export default {
 
     handleEditExtraRow (row) {
       this.$logger.info('handleEditExtraRow', row)
+      this.currentEditExtraRow = row
       this.editExtraRowModalVisible = true
     },
 
@@ -378,6 +406,13 @@ export default {
         this.assessment.bodyList.splice(this.assessment.bodyList.indexOf(this.currentEditRow), 1)
       }
       this.editRowModalVisible = false
+    },
+
+    handleDelExtraRow () {
+      if (this.mode === 'edit') {
+        this.assessment.extraCriteriaBodyList.splice(this.assessment.extraCriteriaBodyList.indexOf(this.currentEditExtraRow), 1)
+      }
+      this.editExtraRowModalVisible = false
     }
   }
 }

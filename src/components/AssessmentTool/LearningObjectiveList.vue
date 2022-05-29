@@ -17,7 +17,7 @@
       <div class='objectives-wrapper' v-show='mode === selectMode.subjectLearningObjectives'>
         <div class='objectives-list-item' v-for='objectiveItem in learningObjectiveList' :key='objectiveItem.id' :class="{'disabled-item': disabledLearningObjectiveIdList.indexOf(objectiveItem.id) !== -1}">
           <div class='objective-item'>
-            <div class='objective-item-title'>
+            <div class='objective-item-title' v-if='objectiveItem && objectiveItem.path && objectiveItem.path.length'>
               <a-icon type="tag" />
               <div class='title-text'>
                 {{ objectiveItem.path.slice(-2).join(' > ') }}
@@ -39,7 +39,7 @@
       <div class='objectives-wrapper' v-show='mode === selectMode.generalCapabilities'>
         <div class='objectives-list-item' v-for='objectiveItem in generalCapabilityList' :key='objectiveItem.id' :class="{'disabled-item': disabledGeneralCapabilityIdList.indexOf(objectiveItem.id) !== -1}">
           <div class='objective-item'>
-            <div class='objective-item-title'>
+            <div class='objective-item-title' v-if='objectiveItem && objectiveItem.path && objectiveItem.path.length'>
               <a-icon type="tag" />
               <div class='title-text'>
                 {{ objectiveItem.path.slice(-2).join(' > ') }}
