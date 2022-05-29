@@ -10,6 +10,7 @@ export default {
     'menu.evaluation': 'Assessment tool',
     'menu.my-class': 'My Class',
     'menu.library': 'Library',
+    'menu.librarySearch': 'Library Search',
     'menu.library.center': 'Library',
     'menu.managing': 'Managing',
     'menu.managing.skill': 'Upload achievement objectives',

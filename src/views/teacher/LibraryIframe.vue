@@ -3,7 +3,7 @@
     <div class='library-search'>
       <div class='create-new'>
         <a-space>
-          <global-search-input />
+          <global-search-input @search='handleSearch' />
           <user-profile-avatar />
         </a-space>
       </div>
@@ -20,6 +20,10 @@ import GlobalSearchInput from '@/components/GlobalSearch/GlobalSearchInput'
 import UserProfileAvatar from '@/components/User/UserProfileAvatar'
 import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
 import { getLibraryRecommend, getLibraryResource, librarySearch, queryAllResource } from '@/api/v2/library'
+import { UnitPlanQueryById } from '@/api/unitPlan'
+import { TaskQueryById } from '@/api/task'
+import { PDContentQueryById } from '@/api/pdContent'
+import { VideoQueryById } from '@/api/video'
 
 export default {
   name: 'LibraryIframe',
@@ -63,7 +67,6 @@ export default {
       data.callbackData = await this.getEventCallbackData(data)
       delete data.event
       data.from = 'form_page'
-      this.$logger.info('handleIframeEvent send message', JSON.stringify(data))
       window.frames['library-iframe'].contentWindow.postMessage(data, '*')
     },
 
@@ -77,6 +80,30 @@ export default {
         return librarySearch(data.param)
       } else if (data.act === 'queryAllResource') {
         return queryAllResource(data.param)
+      } else if (data.act === 'loadContentDetail') {
+        return this.loadContentDetail(data.param.contentType, data.param.contentId)
+      }
+    },
+
+    async loadContentDetail(type, id) {
+      if (type === this.$classcipe.typeMap['unit-plan']) {
+        return UnitPlanQueryById({ id })
+      } else if (type === this.$classcipe.typeMap.task) {
+        return TaskQueryById({ id })
+      } else if (type === this.$classcipe.typeMap.pd) {
+        return PDContentQueryById({ id })
+      } else if (type === this.$classcipe.typeMap.video) {
+        return VideoQueryById({ id })
+      } else {
+        this.$logger.info('not support type', type, 'id', id)
+        return null
+      }
+    },
+
+    handleSearch (data) {
+      this.$logger.info('handleSearch', data)
+      if (data && data.length >= 3) {
+        this.$router.push({ path: '/teacher/library/search/' + data })
       }
     }
   }

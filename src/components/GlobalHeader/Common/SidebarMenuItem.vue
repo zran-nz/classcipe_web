@@ -88,6 +88,9 @@ export default {
       height: 22px;
       width: 22px;
     }
+    i {
+      font-size: 20px;
+    }
   }
 
   .menu-label {
