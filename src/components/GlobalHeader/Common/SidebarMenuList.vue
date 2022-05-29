@@ -147,6 +147,7 @@ export default {
 
 .sub-menu-list {
   width: 100%;
+  text-align: center;
   overflow: hidden;
   background-color: #1e2230;
   .sub-menu-item {
