@@ -89,6 +89,11 @@ export default {
   height: 100vh;
   width: 100%;
   .library-search {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 20px;
     height: 80px;
     width: 100%;
   }
