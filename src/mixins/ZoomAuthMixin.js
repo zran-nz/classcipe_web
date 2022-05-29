@@ -40,7 +40,7 @@ export const ZoomAuthMixin = {
       let url = getThirdAuthURL('zoom')
       url += `?role=teacher`
       url += `&email=${email}`
-      url += `&slideAuth=1`
+      url += `&slideAuth=2`
       url += `&callbackUrl=`
       url += thirdAuthCallbackUrl
       if (this.callbackUrl) {
