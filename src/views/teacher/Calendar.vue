@@ -4,11 +4,11 @@
       <a-button type="primary" @click="showAttendance">{{ attendanceVisible ? 'Close' : 'Show' }} Attendance</a-button>
     </div> -->
     <a-spin :spinning="loading">
-      <div class="schedule-content">
+      <div id="scheduleContent" class="schedule-content" ref="scheduleContent">
         <div class="schedule-tip" v-show="attendanceVisible">
           <a-affix :target="affixTarget">
             <div class="tip-wrap">
-              <div class="unit-tip">
+              <div class="unit-tip" v-show="queryType === CALENDAR_QUERY_TYPE.MY.value">
                 <!-- <div class="tip-title">My Unit Legend</div>
                 <a-checkbox-group
                   :options="showUnitOptions"
@@ -31,6 +31,27 @@
                 </div>
 
               </div>
+              <div class="calendar-type" v-show="false">
+                <div class="calendar-type-item" v-for="type in CALENDAR_QUERY_TYPE" :key="type.value">
+                  <div class="type-item-title">
+                    <a-radio :checked="queryType === type.value" @change="handleChangeType(type)">
+                      {{ type.label }}
+                    </a-radio>
+                  </div>
+                  <div class="type-item-desc" v-if="getOptions(type.label).length > 0">
+                    <a-checkbox-group
+                      :options="getOptions(type.label)"
+                      v-model="typeFilters"
+                      @change="handleChangeEvents"
+                      class="type-check"
+                    >
+                      <div slot="label" class="type-content" slot-scope="item">
+                        <span>{{ item.name }}</span>
+                      </div>
+                    </a-checkbox-group>
+                  </div>
+                </div>
+              </div>
             </div>
           </a-affix>
         </div>
@@ -40,23 +61,39 @@
           class="schedule-calendar"
         >
           <template v-slot:eventContent="info">
-            <div
-              class="schedule-event-content"
-              :style="{backgroundColor: info.event._def.extendedProps.backgroundColor, color: '#333'}"
+            <a-popover
+              title="Session Detail"
+              trigger="click"
+              @visibleChange="visible => showPopover(visible, info)"
             >
-              <div v-show="info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay'">
-                {{ info.event.start | dayjs(FORMATTER_SIM) }}-{{ info.event.end | dayjs(FORMATTER_SIM) }}
-              </div>
-              <span v-show="info.view.type === 'dayGridMonth'" style="margin-right: 5px;">
-                {{ info.event.start | dayjs(FORMATTER_SIM) }}
-              </span>
-              <!-- <a-tooltip>
+              <a slot="content" >
+                <content-item-calendar
+                  :content='getSession(info)'
+                  :units='currentUnitList'
+                  @close="closeAllModal"
+                  @delete='(data) => handleDelete(info, data)'
+                  @change-unit="(params) => handleSave(params, info)"
+                >
+                </content-item-calendar>
+              </a>
+              <div
+                class="schedule-event-content"
+                :style="{backgroundColor: info.event.extendedProps.backgroundColor, color: '#333'}"
+              >
+                <div v-show="info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay'">
+                  {{ info.event.start | dayjs(FORMATTER_SIM) }}-{{ info.event.end | dayjs(FORMATTER_SIM) }}
+                </div>
+                <span v-show="info.view.type === 'dayGridMonth'" style="margin-right: 5px;">
+                  {{ info.event.start | dayjs(FORMATTER_SIM) }}
+                </span>
+                <!-- <a-tooltip>
                 <template slot="title">
                   {{ info.event.title }}
                 </template> -->
-              <label for="">{{ info.event.title }} </label>
+                <label for="">{{ info.event.title }} </label>
               <!-- </a-tooltip> -->
-            </div>
+              </div>
+            </a-popover>
           </template>
         </FullCalendar>
       </div>
@@ -98,6 +135,7 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import SessionImportForCalendar from '@/components/MyContentV2/SessionImportForCalendar'
+import ContentItemCalendar from '@/components/MyContentV2/ContentItemCalendar'
 
 import { QueryForCalendar } from '@/api/v2/calendarSchedule'
 import { DeleteClassV2, EditSessionScheduleV2 } from '@/api/v2/classes'
@@ -115,7 +153,8 @@ export default {
   mixins: [UserModeMixin, CurrentSchoolMixin],
   components: {
     FullCalendar,
-    SessionImportForCalendar
+    SessionImportForCalendar,
+    ContentItemCalendar
   },
   data() {
     return {
@@ -124,6 +163,8 @@ export default {
       CALENDAR_QUERY_TYPE: CALENDAR_QUERY_TYPE,
       typeMap: typeMap,
       queryType: CALENDAR_QUERY_TYPE.MY.value,
+      [CALENDAR_QUERY_TYPE.WORKSHOP.label]: [],
+      typeFilters: [], // 根据类型的筛选条件
       queryClassId: null,
       currentUnitList: [],
       attendanceVisible: true,
@@ -140,8 +181,15 @@ export default {
         headerToolbar: {
           left: 'prev,next,today',
           center: 'title',
-          right: 'dayGridMonth,timeGridWeek,timeGridDay'
+          right: 'dayGridMonth,timeGridWeek,timeGridDay' // ,timeGridFourDay'
         },
+        // views: {
+        //   timeGridFourDay: {
+        //     type: 'timeGrid',
+        //     duration: { days: 12 },
+        //     buttonText: 'year'
+        //   }
+        // },
         // initialEvents: INITIAL_EVENTS, // alternatively, use the `events` setting to fetch from a feed
         events: (date, successCb, failCb) => {
           const start = moment(date.start).format('YYYY-MM-DD')
@@ -176,7 +224,8 @@ export default {
                     borderColor: 'transparent',
                     extendedProps: {
                       classId: item.sessionInfo.classId,
-                      unitId: item.unitPlanInfo.id,
+                      planId: item.sessionInfo.planId,
+                      contentId: item.sessionInfo.contentId,
                       status: item.attendance || 'absent',
                       id: item.sessionInfo.id,
                       backgroundColor: color
@@ -241,13 +290,26 @@ export default {
       importModel: {
         startDate: null,
         endDate: null
-      }
+      },
+
+      currentSession: null,
+      popoverVisible: false
     }
   },
   computed: {
     ...mapState({
-      currentSchool: state => state.user.currentSchool
+      currentSchool: state => state.user.currentSchool,
+      classList: state => state.user.classList
     }),
+    [CALENDAR_QUERY_TYPE.CLASS.label]() {
+      return this.classList.map((item, index) => (
+        {
+          value: item.id,
+          name: item.name,
+          index: index
+        }
+      ))
+    },
     showUnitOptions() {
       return this.currentUnitList.map((item, index) => {
         return {
@@ -270,6 +332,10 @@ export default {
     initData() {
       this.currentUnit = this.currentUnitList.length > 0 ? this.currentUnitList[0].id : ''
       this.showUnit = this.currentUnitList.map(item => item.id)
+    },
+    getOptions(typeLabel) {
+      console.log(typeLabel)
+      return this[typeLabel] ? this[typeLabel] : []
     },
     affixTarget() {
       return document.getElementById('app')
@@ -329,24 +395,6 @@ export default {
     },
     handleEventClick(clickInfo) {
       console.log(clickInfo)
-      this.$confirm({
-        title: 'Confirm remove session',
-        content: `Are you sure you want to delete the session '${clickInfo.event.title}'`,
-        centered: true,
-        onOk: () => {
-          this.loading = true
-          DeleteClassV2({
-            sessionId: clickInfo.event.extendedProps.id
-          }).then(res => {
-            if (res.code === 0) {
-              this.$message.success('Remove successfully')
-              clickInfo.event.remove()
-            }
-          }).finally(() => {
-            this.loading = false
-          })
-        }
-      })
     },
     handleEvents(events) {
       this.currentEvents = events
@@ -361,11 +409,12 @@ export default {
 
     },
     handleChangeEvents() {
+      console.log(this.typeFilters)
       const calendarApi = this.$refs.fullCalendar.getApi()
       calendarApi.removeAllEvents()
       this.allEvents.forEach(item => {
         const props = item.extendedProps
-        if (this.showUnit.includes(props.unitId)) {
+        if (this.showUnit.includes(props.planId)) {
           calendarApi.addEvent(item)
         }
       })
@@ -403,16 +452,87 @@ export default {
       this.attendanceVisible = !this.attendanceVisible
       this.reRender()
     },
-    handleSave(params) {
+    showPopover(visible, clickInfo) {
+      // if (visible) {
+      //   const currentSession = this.calendarDatas.find(item => item.sessionInfo.id === clickInfo.event.extendedProps.id)
+      //   // 拼接详情
+      //   if (currentSession) {
+      //     this.currentSession = { ...currentSession.sessionInfo }
+      //   } else {
+      //     this.currentSession = null
+      //   }
+      //   console.log(this.currentSession)
+      // }
+    },
+    handleChangeType(type) {
+      this.queryType = type.value
+      console.log(this[type.label])
+      this.typeFilters = this[type.label] ? this[type.label].map(item => item.value) : []
+      this.reFetch()
+    },
+    getSession(clickInfo) {
+      const currentSession = this.calendarDatas.find(item => item.sessionInfo.id === clickInfo.event.extendedProps.id)
+      return currentSession ? { ...currentSession } : null
+    },
+    handleDelete(clickInfo) {
+      // this.$confirm({
+      //   title: 'Confirm remove session',
+      //   content: `Are you sure you want to delete the session '${clickInfo.event.title}'`,
+      //   centered: true,
+      //   onOk: () => {
+          this.loading = true
+          DeleteClassV2({
+            sessionId: clickInfo.event.extendedProps.id
+          }).then(res => {
+            if (res.code === 0) {
+              this.$message.success('Remove successfully')
+              this.reFetch() // 需要重新生成units，还是重新fetch的好
+              // clickInfo.event.remove()
+            }
+          }).finally(() => {
+            this.loading = false
+          })
+      //   }
+      // })
+    },
+    handleSave(params, info) {
       console.log(params)
       this.loading = true
       EditSessionScheduleV2(params).then(res => {
         if (res.success) {
           this.$message.success('Opt Successfully')
+          const find = this.calendarDatas.find(item => item.sessionInfo.id === params.id)
+          let modifyUnitPlanInfo = {}
+          if (params.planId) {
+            modifyUnitPlanInfo = this.currentUnitList.find(unit => unit.id === params.planId) || {}
+          }
+          // this.calendarDatas 也得变
+          if (find) {
+            find.sessionInfo = {
+              ...find.sessionInfo,
+              ...params
+            }
+            find.unitPlanInfo = {
+              ...find.unitPlanInfo,
+              ...modifyUnitPlanInfo
+            }
+          }
+          // unit变了，颜色得变
+          if (params.planId && info) {
+            const index = this.currentUnitList.findIndex(unit => unit.id === params.planId)
+            const color = BG_COLORS[index]
+            info.event.setExtendedProp('backgroundColor', color)
+            info.event.setExtendedProp('planId', params.planId)
+          }
+          // this.reFetch()
         }
       }).finally(res => {
         this.loading = false
       })
+    },
+    closeAllModal() {
+      // this.$refs.scheduleContent.dispatchEvent(new MouseEvent('click'))
+      document.getElementsByClassName('ant-popover').forEach(item => (item.style.display = 'none'))
     },
     reRender() {
       this.$nextTick(() => {
@@ -532,6 +652,7 @@ export default {
     .unit-tip {
       display: flex;
       flex-direction: column;
+      margin-bottom: 50px;
       .tip-check {
         width: 100%;
       }
@@ -565,5 +686,23 @@ export default {
 }
 .import-content {
   margin-top: 20px;
+}
+.calendar-type {
+  .calendar-type-item {
+    margin-bottom: 20px;
+    .type-check {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      /deep/ .ant-checkbox-group-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px;
+      }
+    }
+  }
+  .type-item-desc {
+    padding-left: 25px;
+  }
 }
 </style>

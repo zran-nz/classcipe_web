@@ -46,7 +46,7 @@
         </sidebar-menu-item>
         <sidebar-menu-item label='Calendar' path='/teacher/main/calendar'>
           <template v-slot:icon>
-            <managing-icon />
+            <icon-font type="icon-rili" class="detail-font"/>
           </template>
         </sidebar-menu-item>
       </div>
@@ -64,6 +64,7 @@ import CoTeachingIcon from '@/assets/v2/icons/Co-teaching.svg?inline'
 import LibraryIcon from '@/assets/v2/icons/library.svg?inline'
 import ManagingIcon from '@/assets/v2/icons/managing.svg?inline'
 import PublishedIcon from '@/assets/v2/icons/publish.svg?inline'
+import ScheduleIcon from '@/assets/v2/icons/schedule.svg?inline'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { HIDDEN_SIDEBAR, TOOGLE_USER_MODE } from '@/store/mutation-types'
 import { SchoolUserRole } from '@/const/role'
@@ -88,7 +89,8 @@ export default {
     CoTeachingIcon,
     ManagingIcon,
     PublishedIcon,
-    AvatarDropdown
+    AvatarDropdown,
+    ScheduleIcon
   },
   data () {
     return {
