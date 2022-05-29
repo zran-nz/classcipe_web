@@ -114,6 +114,21 @@
     </a-modal>
 
     <a-modal
+      v-model='editExtraRowModalVisible'
+      destroyOnClose
+      :title='null'
+      :closable='false'
+      width='300px'
+      :footer='null'>
+      <modal-header title="Edit row" @close='editExtraRowModalVisible = false'/>
+      <div class='edit-header-action'>
+        <div class='edit-header-action-item' v-if='currentEditExtraRow'>
+          <custom-text-button label='Delete current column' @click='handleDelExtraRow'></custom-text-button>
+        </div>
+      </div>
+    </a-modal>
+
+    <a-modal
       v-model='selectHeaderSetModalVisible'
       destroyOnClose
       :title='null'
@@ -163,6 +178,8 @@ export default {
 
       currentEditRow: null,
       editRowModalVisible: false,
+
+      currentEditExtraRow: null,
       editExtraRowModalVisible: false,
 
       selectHeaderSetModalVisible: false,
@@ -380,6 +397,7 @@ export default {
 
     handleEditExtraRow (row) {
       this.$logger.info('handleEditExtraRow', row)
+      this.currentEditExtraRow = row
       this.editExtraRowModalVisible = true
     },
 
@@ -388,6 +406,13 @@ export default {
         this.assessment.bodyList.splice(this.assessment.bodyList.indexOf(this.currentEditRow), 1)
       }
       this.editRowModalVisible = false
+    },
+
+    handleDelExtraRow () {
+      if (this.mode === 'edit') {
+        this.assessment.extraCriteriaBodyList.splice(this.assessment.extraCriteriaBodyList.indexOf(this.currentEditExtraRow), 1)
+      }
+      this.editExtraRowModalVisible = false
     }
   }
 }

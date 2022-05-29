@@ -9,7 +9,7 @@
       </div>
     </div>
     <div class='library-iframe-wrapper'>
-      <iframe v-if='iframeSrc' :src='iframeSrc' class='library-iframe' />
+      <iframe v-if='iframeSrc' :src='iframeSrc' id='library-iframe' />
     </div>
   </div>
 </template>
@@ -19,6 +19,8 @@
 import GlobalSearchInput from '@/components/GlobalSearch/GlobalSearchInput'
 import UserProfileAvatar from '@/components/User/UserProfileAvatar'
 import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
+import { getLibraryRecommend, getLibraryResource, librarySearch, queryAllResource } from '@/api/v2/library'
+
 export default {
   name: 'LibraryIframe',
   components: { UserProfileAvatar, GlobalSearchInput },
@@ -56,9 +58,26 @@ export default {
   },
   methods: {
 
-    handleIframeEvent (data) {
-      this.$logger.info('handleIframeEvent', data)
-      return 'ok'
+    async handleIframeEvent (data) {
+      this.$logger.info('handleIframeEvent', JSON.stringify(data))
+      data.callbackData = await this.getEventCallbackData(data)
+      delete data.event
+      data.from = 'form_page'
+      this.$logger.info('handleIframeEvent send message', JSON.stringify(data))
+      window.frames['library-iframe'].contentWindow.postMessage(data, '*')
+    },
+
+    async getEventCallbackData(data) {
+      this.$logger.info('getEventCallbackData', JSON.stringify(data))
+      if (data.act === 'getLibraryResource') {
+        return getLibraryResource(data.param)
+      } else if (data.act === 'getLibraryRecommend') {
+        return getLibraryRecommend(data.param)
+      } else if (data.act === 'librarySearch') {
+        return librarySearch(data.param)
+      } else if (data.act === 'queryAllResource') {
+        return queryAllResource(data.param)
+      }
     }
   }
 }
@@ -77,7 +96,7 @@ export default {
   .library-iframe-wrapper {
     height: calc(100vh - 80px);
     width: 100%;
-    .library-iframe {
+    #library-iframe {
       height: 100%;
       width: 100%;
       border: none;
