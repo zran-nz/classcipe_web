@@ -20,10 +20,6 @@ import GlobalSearchInput from '@/components/GlobalSearch/GlobalSearchInput'
 import UserProfileAvatar from '@/components/User/UserProfileAvatar'
 import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
 import { getLibraryRecommend, getLibraryResource, librarySearch, queryAllResource } from '@/api/v2/library'
-import { UnitPlanQueryById } from '@/api/unitPlan'
-import { TaskQueryById } from '@/api/task'
-import { PDContentQueryById } from '@/api/pdContent'
-import { VideoQueryById } from '@/api/video'
 
 export default {
   name: 'LibraryIframe',
@@ -58,8 +54,6 @@ export default {
   beforeDestroy() {
     ClasscipeEventBus.$off(ClasscipeEvent.LIBRARY_IFRAME_EVENT, this.handleIframeEvent)
   },
-  mounted () {
-  },
   methods: {
 
     async handleIframeEvent (data) {
@@ -80,23 +74,6 @@ export default {
         return librarySearch(data.param)
       } else if (data.act === 'queryAllResource') {
         return queryAllResource(data.param)
-      } else if (data.act === 'loadContentDetail') {
-        return this.loadContentDetail(data.param.contentType, data.param.contentId)
-      }
-    },
-
-    async loadContentDetail(type, id) {
-      if (type === this.$classcipe.typeMap['unit-plan']) {
-        return UnitPlanQueryById({ id })
-      } else if (type === this.$classcipe.typeMap.task) {
-        return TaskQueryById({ id })
-      } else if (type === this.$classcipe.typeMap.pd) {
-        return PDContentQueryById({ id })
-      } else if (type === this.$classcipe.typeMap.video) {
-        return VideoQueryById({ id })
-      } else {
-        this.$logger.info('not support type', type, 'id', id)
-        return null
       }
     },
 

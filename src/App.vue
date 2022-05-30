@@ -16,6 +16,10 @@ import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
 import enquireScreen from '@/utils/device'
 import { mapMutations } from 'vuex'
 import { TOGGLE_DEVICE } from './store/mutation-types'
+import { UnitPlanQueryById } from '@/api/unitPlan'
+import { TaskQueryById } from '@/api/task'
+import { PDContentQueryById } from '@/api/pdContent'
+import { VideoQueryById } from '@/api/video'
 
 export default {
   components: { Feedback },
@@ -65,17 +69,41 @@ export default {
   },
   methods: {
     ...mapMutations([TOGGLE_DEVICE]),
-    handlePostMessage(e) {
+    async handlePostMessage(e) {
       const eventData = e.data
       switch (eventData.event) {
         case ClasscipeEvent.GOOGLE_AUTH_REFRESH:
           ClasscipeEventBus.$emit(ClasscipeEvent.GOOGLE_AUTH_REFRESH)
           break
         case ClasscipeEvent.LIBRARY_IFRAME_EVENT:
-          ClasscipeEventBus.$emit(ClasscipeEvent.LIBRARY_IFRAME_EVENT, eventData)
+          this.$logger.info('LIBRARY_IFRAME_EVENT', eventData)
+          if (eventData.act === 'loadContentDetail') {
+            // 加载详情接口由于多个页面组件会用到，统一放到这里处理
+            eventData.callbackData = await this.loadContentDetail(eventData.param.contentType, eventData.param.contentId)
+            delete eventData.event
+            eventData.from = 'form_page'
+            window.frames['library-iframe'].contentWindow.postMessage(eventData, '*')
+          } else {
+            ClasscipeEventBus.$emit(ClasscipeEvent.LIBRARY_IFRAME_EVENT, eventData)
+          }
           break
         default:
           break
+      }
+    },
+
+    async loadContentDetail(type, id) {
+      if (type === this.$classcipe.typeMap['unit-plan']) {
+        return UnitPlanQueryById({ id })
+      } else if (type === this.$classcipe.typeMap.task) {
+        return TaskQueryById({ id })
+      } else if (type === this.$classcipe.typeMap.pd) {
+        return PDContentQueryById({ id })
+      } else if (type === this.$classcipe.typeMap.video) {
+        return VideoQueryById({ id })
+      } else {
+        this.$logger.info('not support type', type, 'id', id)
+        return null
       }
     }
   }

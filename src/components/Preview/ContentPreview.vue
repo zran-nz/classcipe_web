@@ -4,11 +4,11 @@
     :visible='true'
     :title='null'
     width='600px'
-    :bodyStyle="{ padding: 0, height: '100%', border: none }"
+    :bodyStyle="{ padding: 0, height: '100%' }"
     @close='handleClose'
   >
     <div class='content-preview'>
-      <iframe :src="iframeSrc" class='preview-iframe' v-if='iframeSrc'></iframe>
+      <iframe :src="iframeSrc" class='preview-iframe' id='library-iframe' v-if='iframeSrc'></iframe>
     </div>
   </a-drawer>
 </template>
@@ -17,16 +17,20 @@
 
 export default {
   name: 'ContentPreview',
- props: {
-    contentId: {
-      type: String,
-      required: true
-    }
+  props: {
+   contentId: {
+     type: String,
+     required: true
+   },
+   contentType: {
+     type: Number,
+     required: true
+   }
   },
   computed: {
     iframeSrc() {
       if (this.baseUrl) {
-        return this.baseUrl + '/v2/iframe/detail/' + this.contentId
+        return this.baseUrl + '/v2/iframe/detail/' + this.contentType + '/' + this.contentId
       }
       return null
     }
