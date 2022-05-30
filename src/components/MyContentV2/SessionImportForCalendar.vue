@@ -51,7 +51,9 @@
         </div>
         <div class="content-select-action">
           <a-button type="" @click="handleBack">Back</a-button>
-          <a-button :loading="importLoading" type="primary" @click="handleChoose()">Next</a-button>
+          <a-button :loading="importLoading" type="primary" @click="handleChoose()">
+            {{ currentActiveStepIndex === ScheduleStepsFilter.length - 1 ? 'Save' : 'Next' }}
+          </a-button>
         </div>
       </div>
     </div>

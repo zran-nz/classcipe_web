@@ -166,10 +166,11 @@ import CustomButton from '@/components/Common/CustomButton'
 import PreviewContent from '@/components/MyContentV2/PreviewContent'
 
 import { ContentItemMixin } from '@/mixins/ContentItemMixin'
-import { ACCESS_TOKEN } from '@/store/mutation-types'
+import { ACCESS_TOKEN, SET_PROMOTE_CODE } from '@/store/mutation-types'
 import storage from 'store'
 import moment from 'moment'
 import { mapState } from 'vuex'
+import { getCookie } from '@/utils/util'
 
 export default {
   name: 'LiveWorkShopContentItem',
@@ -342,7 +343,8 @@ export default {
       if (item && item.content && item.sessionId) {
         SaveRegisteredRecord({
           contentId: item.content.id,
-          sessionId: item.sessionId
+          sessionId: item.sessionId,
+          channelId: getCookie(SET_PROMOTE_CODE)
         }).then(res => {
           if (res.success) {
             this.$message.success('You have successfully registered in')

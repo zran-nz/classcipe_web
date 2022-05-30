@@ -419,6 +419,9 @@ export default {
     width: 15px;
     height: 15px;
     border-radius: 15px;
+    & ~ span {
+      flex: 1;
+    }
   }
 }
 </style>

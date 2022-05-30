@@ -108,16 +108,17 @@
     </div>
     <a-modal
       v-model='importVisible'
-      :closable='true'
+      :closable='false'
+      :maskClosable='false'
+      :keyboard='false'
       :footer='null'
-      :maskClosable='true'
       destroyOnClose
       width='80%'
-      @cancel='handleCloseImport'>
+      @cancel='handleCancelImport'>
       <session-import-for-calendar
         :type="importType"
         :init="importModel"
-        @cancel="handleCloseImport"
+        @cancel="handleCancelImport"
         @ok="handleChoose"
       />
     </a-modal>
@@ -389,6 +390,18 @@ export default {
     handleChoose() {
       this.reFetch()
       this.handleCloseImport()
+    },
+    handleCancelImport() {
+      this.$confirm({
+        title: 'Confirm cancel import',
+        content: `Please complete the setting before leaving the page, otherwise the session can not be created`,
+        centered: true,
+        okText: 'Leave without saving',
+        cancelText: 'Continue',
+        onOk: () => {
+          this.handleCloseImport()
+        }
+      })
     },
     handleCloseImport() {
       this.importVisible = false

@@ -5,6 +5,7 @@
 </template>
 
 <script>
+import { addPvCount } from '@/api/v2/promotionChannel'
 import { SET_PROMOTE_CODE } from '@/store/mutation-types'
 import { mapMutations } from 'vuex'
 export default {
@@ -24,9 +25,12 @@ export default {
     handleRedirect() {
       this.$logger.info('promote redirecting ' + this.code)
       if (this.code) {
+        addPvCount({
+          channelId: this.code
+        })
         this[SET_PROMOTE_CODE](this.code)
       }
-      this.$router.replace('/teacher/main/live-workshops')
+      this.$router.replace('/teacher/library-v3')
     }
   }
 }

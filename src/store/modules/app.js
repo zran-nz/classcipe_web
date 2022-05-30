@@ -23,6 +23,7 @@ import { loadLanguageAsync } from '@/locales'
 import { getSysConfig } from '@/api/common'
 import * as logger from '@/utils/logger'
 import { USER_MODE, DEVICE } from '@/const/common'
+import { setCookie } from '@/utils/util'
 
 const app = {
   state: {
@@ -116,6 +117,7 @@ const app = {
     [SET_PROMOTE_CODE]: (state, promoteCode) => {
       state.promoteCode = promoteCode
       storage.set(SET_PROMOTE_CODE, promoteCode)
+      setCookie(SET_PROMOTE_CODE, promoteCode)
     }
   },
   actions: {
