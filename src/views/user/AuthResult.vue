@@ -21,6 +21,8 @@ import { selectRoleRouter } from '@/config/router.config'
 import { getThirdAuthURL, thirdAuthCallbackUrl } from '@/api/thirdAuth'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import { SESSION_CALLBACK_URL } from '@/const/common'
+import { SET_PROMOTE_CODE } from '@/store/mutation-types'
+import { getCookie } from '@/utils/util'
 
 export default {
   name: 'AuthResult',
@@ -68,6 +70,7 @@ export default {
     handleRetryAuth () {
       let url = getThirdAuthURL('google')
       url += `?role=teacher`
+      url += `&channelId=${getCookie(SET_PROMOTE_CODE)}`
       url += `&callbackUrl=`
       url += thirdAuthCallbackUrl
       window.location.href = url

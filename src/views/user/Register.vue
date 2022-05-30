@@ -189,8 +189,9 @@ import { deviceMixin } from '@/store/device-mixin'
 import ThirdLoginButton from '@/components/Button/ThirdLoginButton'
 import { getThirdAuthURL, thirdAuthCallbackUrl } from '@/api/thirdAuth'
 import { mapActions } from 'vuex'
-import { NOT_REMEMBER_ME } from '@/store/mutation-types'
+import { NOT_REMEMBER_ME, SET_PROMOTE_CODE } from '@/store/mutation-types'
 import storage from 'store'
+import { getCookie } from '@/utils/util'
 
 export default {
   name: 'Register',
@@ -248,6 +249,7 @@ export default {
       console.log('thirdSignIn', source)
       let url = getThirdAuthURL(source)
       url += `?role=${role}`
+      url += `&channelId=${getCookie(SET_PROMOTE_CODE)}`
       url += `&callbackUrl=`
       url += thirdAuthCallbackUrl
       console.log('full auth url ', url)

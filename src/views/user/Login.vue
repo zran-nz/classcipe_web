@@ -125,10 +125,10 @@ import ThirdLoginButton from '@/components/Button/ThirdLoginButton'
 import ForgetPasswordModal from './ForgetPasswordModal.vue'
 import { mapActions } from 'vuex'
 import { getThirdAuthURL, thirdAuthCallbackUrl } from '@/api/thirdAuth'
-import { NOT_REMEMBER_ME } from '@/store/mutation-types'
+import { NOT_REMEMBER_ME, SET_PROMOTE_CODE } from '@/store/mutation-types'
 import storage from 'store'
 import { SESSION_CALLBACK_URL } from '@/const/common'
-import { getUrlWithNoParams } from '@/utils/util'
+import { getUrlWithNoParams, getCookie } from '@/utils/util'
 
 export default {
   components: {
@@ -190,6 +190,7 @@ export default {
           this.$logger.info('thirdSignIn google', source)
           url = getThirdAuthURL(source)
           url += `?role=${role}`
+          url += `&channelId=${getCookie(SET_PROMOTE_CODE)}`
           url += `&callbackUrl=`
           url += thirdAuthCallbackUrl
           if (this.callbackUrl) {

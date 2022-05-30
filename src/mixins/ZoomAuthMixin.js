@@ -1,7 +1,8 @@
 import { mapState } from 'vuex'
 import { checkAuthExpired, getThirdAuthURL, thirdAuthCallbackUrl } from '@/api/thirdAuth'
 import { SESSION_CALLBACK_URL } from '@/const/common'
-import { getUrlWithNoParams } from '@/utils/util'
+import { SET_PROMOTE_CODE } from '@/store/mutation-types'
+import { getUrlWithNoParams, getCookie } from '@/utils/util'
 
 /**
  * zoom 授权公共方法
@@ -41,6 +42,7 @@ export const ZoomAuthMixin = {
       url += `?role=teacher`
       url += `&email=${email}`
       url += `&slideAuth=2`
+      url += `&channelId=${getCookie(SET_PROMOTE_CODE)}`
       url += `&callbackUrl=`
       url += thirdAuthCallbackUrl
       if (this.callbackUrl) {

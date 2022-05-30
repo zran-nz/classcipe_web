@@ -122,8 +122,8 @@ import PriceSlider from '@/components/Slider/PriceSlider'
 import ThirdLoginButton from '@/components/Button/ThirdLoginButton'
 import ShareButton from '@/components/Share/ShareButton'
 import { mapState } from 'vuex'
-import { NOT_REMEMBER_ME } from '@/store/mutation-types'
-import { getUrlWithNoParams } from '@/utils/util'
+import { NOT_REMEMBER_ME, SET_PROMOTE_CODE } from '@/store/mutation-types'
+import { getUrlWithNoParams, getCookie } from '@/utils/util'
 import storage from 'store'
 export default {
   name: 'H5Live',
@@ -213,6 +213,7 @@ export default {
           this.$logger.info('thirdSignIn google', source)
           url = getThirdAuthURL(source)
           url += `?role=${role}`
+          url += `&channelId=${getCookie(SET_PROMOTE_CODE)}`
           url += `&callbackUrl=`
           url += thirdAuthCallbackUrl
           window.sessionStorage.setItem(SESSION_CALLBACK_URL, getUrlWithNoParams(window.location.href))
