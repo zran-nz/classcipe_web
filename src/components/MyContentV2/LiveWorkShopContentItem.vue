@@ -43,7 +43,7 @@
         </div>
       </div>
       <div class="detail-price" ref="detailPrice">
-        <div class="tag-info" ref="tagInfo" v-show="content.content.customTags && content.content.customTags.length > 0">
+        <!-- <div class="tag-info" ref="tagInfo" v-show="content.content.customTags && content.content.customTags.length > 0">
           <div class="tag-item" :key="tag.id" v-for="tag in content.content.customTags.slice(0, showTagLen)">
             <a-tooltip :title="tag.name">
               {{ tag.name }}
@@ -63,7 +63,8 @@
               more
             </a-popover>
           </div>
-        </div>
+        </div> -->
+        <tags-line :tags="content.content.customTags" />
         <template v-if="this.content.priceList && this.content.priceList.length > 0">
           <price-slider :priceList="content.priceList" :current="content.registeredNum" />
         </template>
@@ -164,6 +165,7 @@ import PriceSlider from '@/components/Slider/PriceSlider'
 import ShareButton from '@/components/Share/ShareButton'
 import CustomButton from '@/components/Common/CustomButton'
 import PreviewContent from '@/components/MyContentV2/PreviewContent'
+import TagsLine from '@/components/TagsLine'
 
 import { ContentItemMixin } from '@/mixins/ContentItemMixin'
 import { ACCESS_TOKEN, SET_PROMOTE_CODE } from '@/store/mutation-types'
@@ -178,7 +180,8 @@ export default {
     PriceSlider,
     ShareButton,
     CustomButton,
-    PreviewContent
+    PreviewContent,
+    TagsLine
   },
   mixins: [ ContentItemMixin ],
   props: {
@@ -213,24 +216,21 @@ export default {
     })
   },
   mounted() {
-    const tagInfoEl = this.$refs.tagInfo
-    const items = this.$refs.tagInfo.getElementsByClassName('tag-item')
     const total = this.content.content.customTags ? this.content.content.customTags.length : 0
-    if (!this.content.priceList || this.content.priceList.length === 0) {
-      tagInfoEl.style.width = this.$refs.detailPrice.getBoundingClientRect().width + 'px'
-    }
-    if (items.length > 0) {
-      const itemWidth = items[0].getBoundingClientRect().width + 5
-      const showTagLen = parseInt(tagInfoEl.getBoundingClientRect().width / itemWidth) - 1
-      // console.log(itemWidth)
-      // console.log(total)
-      // console.log(showTagLen)
-      if (total - showTagLen > 1) {
-        this.showTagLen = showTagLen
-      } else {
-        this.showTagLen = total
-      }
-    }
+    // const tagInfoEl = this.$refs.tagInfo
+    // const items = this.$refs.tagInfo.getElementsByClassName('tag-item')
+    // if (!this.content.priceList || this.content.priceList.length === 0) {
+    //   tagInfoEl.style.width = this.$refs.detailPrice.getBoundingClientRect().width + 'px'
+    // }
+    // if (items.length > 0) {
+    //   const itemWidth = items[0].getBoundingClientRect().width + 5
+    //   const showTagLen = parseInt(tagInfoEl.getBoundingClientRect().width / itemWidth) - 1
+    //   if (total - showTagLen > 1) {
+    //     this.showTagLen = showTagLen
+    //   } else {
+    //     this.showTagLen = total
+    //   }
+    // }
     if (total === 0) {
       if (this.$refs.detailPrice.getElementsByClassName('price-slider')[0]) {
         this.$refs.detailPrice.getElementsByClassName('price-slider')[0].style.width = '100%'
