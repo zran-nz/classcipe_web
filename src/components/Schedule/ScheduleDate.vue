@@ -35,7 +35,7 @@
     <div class='select-date'>
       <div class='title'>Schedule</div>
       <div class='date-picker'>
-        <a-range-picker :default-value="initDate" @change="handleDateChange" format='YYYY-MM-DD HH:mm:ss' :show-time="{ format: 'HH:mm' }"/>
+        <a-range-picker :default-value="initDate" :disabled-date="disabledDate" @change="handleDateChange" format='YYYY-MM-DD HH:mm:ss' :show-time="{ format: 'HH:mm' }"/>
       </div>
       <div class='go-calender'>
         <a>Go to calender</a>
@@ -150,6 +150,10 @@ export default {
           this.$logger.info('zoom auth success')
         }
       }
+    },
+
+    disabledDate(current) {
+      return current && current < moment().subtract(1, 'days').endOf('day')
     }
   }
 }

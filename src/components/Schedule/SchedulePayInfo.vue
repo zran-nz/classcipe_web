@@ -83,7 +83,7 @@
     <div class='select-date'>
       <div class='title'>Schedule</div>
       <div class='date-picker'>
-        <a-range-picker :default-value="initDate" @change="handleDateChange" format='YYYY-MM-DD HH:mm:ss' :show-time="{ format: 'HH:mm' }"/>
+        <a-range-picker :default-value="initDate" :disabled-date="disabledDate" @change="handleDateChange" format='YYYY-MM-DD HH:mm:ss' :show-time="{ format: 'HH:mm' }"/>
       </div>
       <div class='go-calender'>
         <a>Go to calender</a>
@@ -197,7 +197,7 @@ export default {
     },
 
     disabledDate(current) {
-      return current && current < moment().endOf('day')
+      return current && current < moment().subtract(1, 'days').endOf('day')
     },
 
     deleteDiscount (discount) {
