@@ -225,7 +225,7 @@ export default {
     cursor: pointer;
     user-select: none;
     .title-item {
-      font-size: 14px;
+      font-size: 16px;
       font-family: Arial;
       font-weight: bold;
       color: #202020;
@@ -272,7 +272,7 @@ export default {
       padding: 13px 10px 13px 13px;
       user-select: none;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 16px;
       display: flex;
       flex-direction: row;
       align-items: center;
@@ -284,7 +284,7 @@ export default {
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
-        font-size: 14px;
+        font-size: 16px;
         font-family: Arial;
         font-weight: bold;
         color: #202020;
@@ -359,12 +359,12 @@ export default {
         }
 
         .nickname {
-          font-size: 14px;
+          font-size: 16px;
           font-weight: 500;
         }
 
         .email {
-          font-size: 12px;
+          font-size: 14px;
           color: #bbb;
           padding-left: 5px;
         }
