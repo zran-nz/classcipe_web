@@ -115,7 +115,7 @@ export default {
       info: state => state.user.info,
       currentSchool: state => state.user.currentSchool,
       userMode: state => state.app.userMode,
-      classList: state => state.user.classList,
+      classList: state => state.user.classList.map(item => item.schoolId === state.user.info.school),
 
       // 动态主路由
       mainMenu: state => state.permission.addRouters,
