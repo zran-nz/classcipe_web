@@ -194,6 +194,7 @@ export default {
         }).finally(() => {
           this.contentPublishVisible = false
           this.currentContent = null
+          this.loadMyContent()
         })
       } else {
         this.$logger.warn(`no found Update item ${data.content.id}`)
