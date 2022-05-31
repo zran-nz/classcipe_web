@@ -1,5 +1,5 @@
 <template>
-  <div class='cc-custom-button' @click='handleClick' @dblclick='handleDbClick'>
+  <div class='cc-custom-button' :style="{'background-color': bgColor, 'color': color}" @click='handleClick' @dblclick='handleDbClick'>
     <div class='icon'>
       <slot name='icon'>
       </slot>
@@ -17,6 +17,14 @@ export default {
     label: {
       type: String,
       default: ''
+    },
+    bgColor: {
+      type: String,
+      default: '#EEF1F3'
+    },
+    color: {
+      type: String,
+      default: '#16274A'
     }
   },
   methods: {

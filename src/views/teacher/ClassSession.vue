@@ -1,54 +1,31 @@
 <template>
-  <div class='my-content' :style="{'font-size': fontSize}">
-    <div class='filter-bar'>
-      <a-space class="status-filter" :style="{visibility: WORK_SHOPS_TYPE.FEATURE.value !== queryParams.workshopsType ? 'visible' : 'hidden'}">
-        <label
-          :class="{active: queryParams.status === item.value}"
-          v-for="item in WORK_SHOPS_STATUS"
-          @click="changeStatus(item.value)"
-          :key="item.label"><a>{{ item.label }}</a></label>
-      </a-space>
-      <a-space>
-        <div class="content-filter">
-          <div class="my-search">
-            <a-input-search
-              placeholder="Search"
-              v-model="queryParams.searchKey"
-              @search="handleSearch"
-              @pressEnter="handleSearch"
-              :allowClear="true"
-            >
-            </a-input-search>
-          </div>
-        </div>
-        <div class='create-new' v-show="WORK_SHOPS_TYPE.LUNCHEDBYME.value === queryParams.workshopsType">
-          <a-dropdown :getPopupContainer="trigger => trigger.parentElement">
-            <a-menu slot="overlay">
-              <a-menu-item>
-                <a @click="handleImport(typeMap.task)">
-                  Import from task
-                </a>
-              </a-menu-item>
-              <a-menu-item>
-                <a @click="handleImport(typeMap.pd)">
-                  Import from PD content
-                </a>
-              </a-menu-item>
-            </a-menu>
-            <a-button type='primary'>Add New <a-icon type="caret-down" />
-            </a-button>
-          </a-dropdown>
-        </div>
-      </a-space>
-      <!-- <div class="pd-filter">
-        <a-checkbox>PD Content only</a-checkbox>
-      </div> -->
+  <div class='my-content'>
+    <div class='content-header'>
+      <div class='source-type' :style="{visibility: WORK_SHOPS_TYPE.FEATURE.value !== queryParams.workshopsType ? 'visible' : 'hidden'}">
+        <radio-switch @select="handleSelectWorkStatus" :menu-list='menuList' />
+      </div>
+      <div class='create-new'>
+        <a-space>
+          <custom-search-input :round='false' :value.sync='queryParams.searchKey' @search='handleSearch' placeholder='Search your content'/>
+          <class-create-new @create='handleImport' v-show="WORK_SHOPS_TYPE.LUNCHEDBYME.value === queryParams.workshopsType"/>
+          <user-profile-avatar />
+        </a-space>
+      </div>
     </div>
     <div class='content-wrapper'>
       <a-spin tip='Loading...' :spinning="loading">
         <div class='content-list'>
           <template v-if='pagination.total !== 0 && !loading'>
-            <content-item @reload="loadMyContent" v-for='item in myContentList' :key='item.id' :content='item'></content-item>
+            <content-item @reload="loadMyContent" v-for='item in myContentList' :key='item.id' :content='item.content' :session='item'>
+              <template v-slot:cover-action>
+                <div class='cover-action'>
+                  <div class='action-btn' @click.stop=''>
+                    <custom-button bg-color='#0C90E3' color='#ffffff' label='Student pace' @click="handleStartSessionHistory(item.content, 1)"></custom-button>
+                    <custom-button bg-color='#0C90E3' color='#ffffff' label='Teacher pace' @click="handleStartSessionHistory(item.content, 2)"></custom-button>
+                  </div>
+                </div>
+              </template>
+            </content-item>
           </template>
           <div class='empty-tips' v-if='pagination.total === 0 && !loading'>
             <no-more-resources />
@@ -79,6 +56,26 @@
         @choose="handleChoose"
       />
     </a-modal>
+
+    <a-modal
+      v-model="oldSelectSessionVisible"
+      :footer="null"
+      :title="null"
+      :closable="true"
+      destroyOnClose
+      :dialog-style="{ top: '50px' }"
+      width="950px">
+      <div>
+        <old-session-list
+          :task-id='oldSelectSessionTaskId'
+          :session-list="sessionList"
+          @start-new-session="handleStartSession"
+          @cancel="oldSelectSessionVisible=false"
+          @show-preview-session-list='viewPreviewSessionVisible = true'
+          :mode="sessionMode" />
+      </div>
+    </a-modal>
+
   </div>
 </template>
 
@@ -89,16 +86,34 @@ import RadioSwitch from '@/components/Common/RadioSwitch'
 import * as logger from '@/utils/logger'
 import { SESSION_CURRENT_PAGE, WORK_SHOPS_STATUS, WORK_SHOPS_TYPE } from '@/const/common'
 import { typeMap } from '@/const/teacher'
-import ContentItem from '@/components/MyContentV2/LiveWorkShopContentItem'
+import ContentItem from '@/components/ClassSession/ContentItem'
 import ContentSelect from '@/components/MyContentV2/ContentSelect'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import { findClassSessionsV2 } from '@/api/v2/classes'
 import { StudentClassMixin } from '@/mixins/StudentClassMixin'
+import ContentTypeFilter from '@/components/MyContentV2/ContentTypeFilter'
+import GlobalSearchInput from '@/components/GlobalSearch/GlobalSearchInput'
+import UserProfileAvatar from '@/components/User/UserProfileAvatar'
+import CustomSearchInput from '@/components/Common/CustomSearchInput'
+import ClassCreateNew from '@/components/ClassSession/ClassCreateNew'
+import CustomButton from '@/components/Common/CustomButton'
+import { FindNewClasses, StartOpenSession } from '@/api/classroom'
+import { lessonHost, lessonStatus } from '@/const/googleSlide'
+import storage from 'store'
+import { ACCESS_TOKEN } from '@/store/mutation-types'
+import OldSessionList from '@/components/Teacher/OldSessionList'
 
 export default {
   name: 'ClassSession',
   mixins: [StudentClassMixin],
   components: {
+    OldSessionList,
+    CustomButton,
+    ClassCreateNew,
+    CustomSearchInput,
+    UserProfileAvatar,
+    GlobalSearchInput,
+    ContentTypeFilter,
     ContentItem,
     ContentFilter,
     CreateNew,
@@ -114,6 +129,20 @@ export default {
   data () {
     return {
       typeMap: typeMap,
+      menuList: [
+        {
+          name: 'Scheduled',
+          type: 2
+        },
+        {
+          name: 'On-going',
+          type: 1
+        },
+        {
+          name: 'Ended',
+          type: 3
+        }
+      ],
       WORK_SHOPS_STATUS: WORK_SHOPS_STATUS,
       WORK_SHOPS_TYPE: WORK_SHOPS_TYPE,
       WORK_SHOPS_TYPE_VALUES: Object.values(WORK_SHOPS_TYPE),
@@ -140,22 +169,23 @@ export default {
       pageNo: sessionStorage.getItem(SESSION_CURRENT_PAGE) ? parseInt(sessionStorage.getItem(SESSION_CURRENT_PAGE)) : 1,
 
       filterParams: {},
-      fontSize: '16px',
       radioSwitchShow: false,
 
       importVisible: false,
-      importType: typeMap.task
+      importType: typeMap.task,
+
+      oldSelectSessionVisible: false,
+      viewPreviewSessionVisible: false,
+      oldSelectSessionTaskId: null,
+      sessionMode: null,
+      sessionItem: null,
+      lastedRevisionId: null,
+      sessionList: [],
+      startLoading: false
     }
   },
   created() {
     this.loadMyContent()
-  },
-  mounted() {
-    window.addEventListener('resize', this.resizeFn, false)
-    this.resizeFn()
-  },
-  beforeDestroy() {
-    window.removeEventListener('resize', this.resizeFn)
   },
   methods: {
     handleClassChange(classList) {
@@ -170,26 +200,14 @@ export default {
         this.$router.push({ path: '/teacher/main/created-by-me' })
       }
     },
-    resizeFn () {
-      this.radioSwitchShow = false
-      var docElem = document.documentElement
-      var htmlWidth = docElem.getBoundingClientRect().width
-      // if (htmlWidth > 1024) htmlWidth = 480
-      const rem = htmlWidth / 16
-      this.fontSize = rem + 'px'
-      this.radioSwitchShow = true
-    },
     handleSearch () {
       this.pageNo = 1
       this.loadMyContent()
     },
-    changeStatus(value) {
-      this.queryParams.status = value
-      this.loadMyContent()
-    },
     handleImport(type) {
-      this.importType = type
-      this.importVisible = true
+      this.$logger.info('handleImport', type)
+      // this.importType = type
+      // this.importVisible = true
     },
     handleCloseImport() {
       this.importVisible = false
@@ -245,6 +263,80 @@ export default {
       this.$router.push({
         path: '/teacher/schedule-session/' + item.id + '/' + item.type
       })
+    },
+
+    handleSelectWorkStatus (item) {
+      this.queryParams.status = item.type
+      this.loadMyContent()
+    },
+
+    handleStartSessionHistory (item, mode) {
+      this.$logger.info('handleStartSessionHistory', item, 'mode:', mode)
+      this.sessionMode = mode
+      this.sessionItem = item
+      if (!item.presentationId) {
+        this.$message.warn('This Task is not bound to PPT!')
+      }
+      logger.info('loadTeacherClasses  slideId:' + item.presentationId)
+      this.loading = true
+      FindNewClasses({ slideId: item.presentationId }).then(response => {
+        logger.info('FindNewClasses', response.result.data)
+        if (response.success) {
+          this.sessionList = response.result.classList
+          this.lastedRevisionId = response.result.revisionId
+        }
+        this.loading = false
+      }).finally(() => {
+        this.oldSelectSessionVisible = true
+        this.oldSelectSessionTaskId = item.id
+        this.$logger.info('set currentPreviewLesson', item)
+        this.currentPreviewLesson = item
+      })
+    },
+
+    handleStartSession () {
+      this.startLoading = true
+      const item = this.sessionItem
+      this.$logger.info('handleStartSession', item)
+      if (item.presentationId) {
+        const requestData = {
+          taskId: item.id,
+          mode: this.sessionMode === 1 ? lessonStatus.teacherPaced : lessonStatus.studentPaced
+        }
+        this.$logger.info('handleStartSession', requestData)
+        StartOpenSession(requestData).then(res => {
+          this.$logger.info('StartOpenSession res', res)
+          if (res.success) {
+            this.startLoading = false
+            const targetUrl = lessonHost + 'd/' + res.result.classId + '?token=' + storage.get(ACCESS_TOKEN)
+            this.$logger.info('try open ' + targetUrl)
+            const url = lessonHost + 't/' + res.result.classId + '?token=' + storage.get(ACCESS_TOKEN)
+            let windowObjectReference
+            const height = document.documentElement.clientHeight * 0.7
+            const width = document.documentElement.clientWidth * 0.7
+            const strWindowFeatures = 'width=' + width + ',height=' + height + ',menubar=yes,location=yes,resizable=yes,scrollbars=true,status=true,top=100,left=200'
+            if (this.sessionMode === 1) {
+              windowObjectReference = window.open(
+                'about:blank',
+                '_blank',
+                strWindowFeatures
+              )
+              windowObjectReference.location = url
+              setTimeout(function () {
+                window.location.href = targetUrl
+              }, 1000)
+            } else {
+              window.location.href = targetUrl
+            }
+          } else {
+            this.$message.warn('StartLesson Failed! ' + res.message)
+            this.startLoading = false
+          }
+        })
+      } else {
+        this.$message.warn('This record is not bound to PPT!')
+        this.startLoading = false
+      }
     }
   }
 }
@@ -252,23 +344,7 @@ export default {
 
 <style lang="less" scoped>
 @import "~@/components/index.less";
-.source-type {
-  /deep/ span {
-    font-size: 0.14em /* 14/100 */;
-  }
-  /deep/ .cc-radio-switch {
-    padding: 0.02em /* 2/100 */;
-    border-radius: 0.2em /* 45/100 */;
-    .radio-item {
-      font-size: 0.16em /* 15/100 */;
-      padding: 0 1/0.15*0.2em /* 20/100 */;
-      line-height: 1/0.15*0.45em /* 50/100 */;
-    }
-    .bg-block {
-      height: 0.45em /* 50/100 */;
-    }
-  }
-}
+
 .my-content {
   padding: 15px;
   background: #fff;
@@ -282,122 +358,25 @@ export default {
   }
 
   .create-new {
+    max-width: 300px;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    /deep/ button {
-      display: flex;
-      align-items: center;
-      height: 0.37em /* 37/100 */;
-      padding: 0 0.15em /* 15/100 */;
-      span {
-        font-size: .16em;
-      }
-      i {
-        font-size: .16em;
-      }
-    }
-    /deep/ .ant-dropdown {
-      font-size: inherit;
-      ul {
-        margin-bottom: 0;
-        li {
-          font-size: inherit;
-          height: 0.37em /* 37/100 */;
-          display: flex;
-          align-items: center;
-          padding: .05em .12em;
-          a {
-            padding: 1/0.16*0.05em /* 5/100 */ 1/0.16*0.12em /* 12/100 */;
-            margin: -1/0.16*0.05em /* 5/100 */ -1/0.16*0.12em /* 12/100 */;
-          }
-        }
-      }
-      a {
-        font-size: .16em;
-      }
-    }
   }
 
   .content-wrapper {
     min-height: calc(100vh - 160px);
     .content-list {
       min-height: calc(100vh - 200px);
-      /deep/ a {
-        font-size: 0.18em /* 20/100 */;
-      }
 
       .empty-tips {
-        padding-top: 1em;
+        height: calc(100vh - 300px);
         display: flex;
         justify-content: center;
         align-items: center;
-        .icon {
-          img {
-            width: 1.5rem /* 150/100 */
-          }
-        }
-        .tips {
-          line-height: 0.24em /* 24/100 */;
-        }
       }
     }
-  }
-
-  .filter-bar {
-    position: relative;
-    margin: 0.1em /* 10/100 */ 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    .status-filter {
-      label {
-        margin-right: 0.2em /* 20/100 */;
-        border-radius: 3px;
-        padding: 0.05em /* 5/100 */;
-        height: 0.3em /* 30/100 */;
-        display: flex;
-        a {
-          color: #464749;
-          font-size: 0.16em /* 16/100 */;
-        }
-        &.active {
-          background: #F8FAFB;
-          a {
-            font-weight: bold;
-            color: #1574B7;
-          }
-        }
-      }
-    }
-    .content-filter {
-      height: .37em;
-      display: flex;
-      .my-search {
-        display: flex;
-        width: 2.5em;
-      }
-    }
-  }
-}
-.no-subject {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: auto;
-  width: 400px;
-  img {
-    width: 400px;
-    height: 400px;
-  }
-  p {
-    font-size: 14px;
-    font-family: Leelawadee UI;
-    font-weight: bold;
-    color: #070707;
-    opacity: 1;
-    text-align: center;
   }
 }
 
