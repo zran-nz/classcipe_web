@@ -43,12 +43,21 @@
                 </custom-form-item>
               </div>
 
+              <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === PdField.Image' :key='fieldName'>
+                <custom-form-item :required='emptyRequiredFields.indexOf(PdField.Image) !== -1'>
+                  <template slot='label'>
+                    Cover image
+                  </template>
+                  <custom-cover-media type='image' :url='form.image' @update='handleUpdateCover'/>
+                </custom-form-item>
+              </div>
+
               <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === PdField.CoverVideo' :key='fieldName'>
                 <custom-form-item :required='emptyRequiredFields.indexOf(PdField.CoverVideo) !== -1'>
                   <template slot='label'>
-                    Cover image / Video
+                    Cover video
                   </template>
-                  <custom-cover-media :type='form.coverType' :url='form.coverVideo' @update='handleUpdateCover'/>
+                  <custom-cover-media type='video' :url='form.coverVideo' @update='handleUpdateCover'/>
                 </custom-form-item>
               </div>
 
@@ -68,14 +77,14 @@
 
               <div class='form-block tag-content-block' :data-field-name='PdField.Link' v-if='fieldName === PdField.Link' :key='fieldName'>
                 <div class='common-link-wrapper'>
-                  <form-linked-content :from-id='pdId' :from-type='contentType.pd' />
+                  <form-linked-content :from-id='pdId' :from-type='typeMap.pd' />
                 </div>
               </div>
 
               <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === PdField.Slides' :key='fieldName'>
                 <custom-form-item :show-label='false'>
                   <form-slide
-                    :source-type='contentType.pd'
+                    :source-type='typeMap.pd'
                     :source-id='pdId'
                     :slide-id='form.presentationId'
                     :show-materials-and-tips='true'
@@ -106,7 +115,7 @@
               @change-user-tags='handleChangeCustomTags'></custom-tag-v2>
           </template>
           <template v-if='currentRightModule === rightModule.associate'>
-            <link-content-list :filter-types="[contentType.task]" />
+            <link-content-list :filter-types="[typeMap.task]" />
           </template>
           <template v-if='currentRightModule === rightModule.recommend'>
             <slide-select-list :source-id='pdId' :selected-template-list='form.selectedTemplateList' />
@@ -198,6 +207,7 @@ export default {
         name: null,
         contentType: 1,
         coverType: null,
+        image: null,
         coverVideo: null,
         goals: null,
         customTags: [],
@@ -206,7 +216,7 @@ export default {
         presentationId: null,
         createBy: null
       },
-      contentType: typeMap,
+      typeMap: typeMap,
       currentFocusFieldName: null,
       customTagList: [],
       customTags: {},
@@ -231,6 +241,7 @@ export default {
     this.currentFocusFieldName = this.currentStep.commonFields[0]
     this.requiredFields = [
       PdField.Name,
+      PdField.Image,
       PdField.CoverVideo,
       PdField.Goals
     ]
@@ -293,6 +304,7 @@ export default {
           name: 'PD goals',
           commonFields: [
             PdField.Name,
+            PdField.Image,
             PdField.CoverVideo,
             PdField.Goals
           ],

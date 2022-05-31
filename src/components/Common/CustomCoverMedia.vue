@@ -13,7 +13,7 @@
         <video :src='mediaUrl' :controls='videoControls'></video>
       </div>
       <div class='upload-tips' v-if='!uploading'>
-        <custom-media-cover-button :label='labelText' bg-color='#2582B5' font-color='#fff' v-show='showUploadButton'></custom-media-cover-button>
+        <custom-media-cover-button :label='label' bg-color='#2582B5' font-color='#fff' v-show='showUploadButton'></custom-media-cover-button>
         <custom-media-cover-button label='Edit' bg-color='#2582B5' font-color='#fff' v-show='showEditButton' @click.native.capture.stop='handleEdit($event)'></custom-media-cover-button>
         <custom-media-cover-button label='Delete' bg-color='#2582B5' font-color='#fff' v-show='showDeleteButton' @click.native.capture.stop='handleDelete($event)'></custom-media-cover-button>
       </div>
@@ -61,7 +61,7 @@ export default {
     },
     labelText: {
       type: String,
-      default: 'Set cover image/video'
+      default: null
     },
     showUploadButton: {
       type: Boolean,
@@ -87,6 +87,15 @@ export default {
       mediaUrl: this.url,
       progressPercent: 0,
       uploader: null
+    }
+  },
+  computed: {
+    label () {
+      if (this.labelText) {
+        return this.labelText
+      } else {
+        return this.type === 'image' ? 'Upload Image' : 'Upload Video'
+      }
     }
   },
   methods: {

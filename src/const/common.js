@@ -105,6 +105,7 @@ export const TaskField = {
 
 export const PdField = {
   Name: 'name',
+  Image: 'image',
   CoverVideo: 'coverVideo',
   Goals: 'goals',
   Slides: 'slides',
@@ -116,6 +117,7 @@ export const VideoField = {
   Name: 'name',
   Goals: 'goals',
   ContentType: 'contentType',
+  Image: 'image',
   Video: 'video',
   VideoType: 'videoType',
   CoverImage: 'image',
