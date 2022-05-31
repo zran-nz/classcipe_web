@@ -3,7 +3,7 @@
     <div class='filter-bar'>
       <content-filter @search='handleSearch'/>
       <div class='discount-setting'>
-        <a-button type='primary' @click='handleShowDiscountSetting'>DisCount setting</a-button>
+        <a-button class='cc-round-button' @click='handleShowDiscountSetting'>DisCount setting</a-button>
       </div>
     </div>
     <div class='content-wrapper'>
@@ -51,11 +51,12 @@ import DiscountSetting from '@/components/MyContentV2/DiscountSetting'
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import { mapState } from 'vuex'
+import CustomButton from '@/components/Common/CustomButton'
 
 export default {
   name: 'MyPublished',
   mixins: [UserModeMixin, CurrentSchoolMixin],
-  components: { DiscountSetting, PublishedContentItem, NoMoreResources, ContentPublish, ContentItem, ContentFilter, CreateNew },
+  components: { CustomButton, DiscountSetting, PublishedContentItem, NoMoreResources, ContentPublish, ContentItem, ContentFilter, CreateNew },
   data () {
     return {
       sourceType: SourceType.CreatedByMe,

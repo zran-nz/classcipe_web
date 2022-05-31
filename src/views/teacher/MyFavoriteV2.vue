@@ -4,7 +4,7 @@
       <radio-switch @select="toggleType" :menu-list='menuList'/>
       <div class='create-new'>
         <a-space>
-          <global-search-input @search='handleGlobalSearch' />
+          <custom-search-input :round='false' :value.sync='searchText' @search='handleSearch' placeholder='Search your content'/>
           <user-profile-avatar />
         </a-space>
       </div>
@@ -129,10 +129,12 @@ import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import GlobalSearchInput from '@/components/GlobalSearch/GlobalSearchInput'
 import UserProfileAvatar from '@/components/User/UserProfileAvatar'
+import CustomSearchInput from '@/components/Common/CustomSearchInput'
 
 export default {
   name: 'MyFavorite',
   components: {
+    CustomSearchInput,
     UserProfileAvatar,
     GlobalSearchInput,
     RadioSwitch,
@@ -455,13 +457,6 @@ export default {
     },
     handleFavoriteChange(item) {
       this.loadMyContent()
-    },
-
-    handleGlobalSearch(data) {
-      this.$logger.info('handleSearch', data)
-      if (data && data.length >= 3) {
-        this.$router.push({ path: '/teacher/library/search/' + data })
-      }
     }
   }
 }

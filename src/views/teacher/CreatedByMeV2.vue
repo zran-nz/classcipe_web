@@ -8,7 +8,7 @@
         <a-space>
           <content-type-filter @change='handleUpdateFilterType'/>
           <create-new />
-          <global-search-input @search='handleGlobalSearch' />
+          <custom-search-input :round='false' :value.sync='searchText' @search='handleSearch' placeholder='Search your content'/>
           <user-profile-avatar />
         </a-space>
       </div>
@@ -60,11 +60,12 @@ import ContentTypeFilter from '@/components/MyContentV2/ContentTypeFilter'
 import { mapState } from 'vuex'
 import { MyContentEvent } from '@/components/MyContent/MyContentEventBus'
 import EventBus from '@/utils/eventBus'
+import CustomSearchInput from '@/components/Common/CustomSearchInput'
 
 export default {
   name: 'CreatedByMeV2',
   mixins: [UserModeMixin, CurrentSchoolMixin],
-  components: { ContentTypeFilter, UserProfileAvatar, GlobalSearchInput, RadioSwitch, NoMoreResources, ContentPublish, ContentItem, ContentFilter, CreateNew },
+  components: { CustomSearchInput, ContentTypeFilter, UserProfileAvatar, GlobalSearchInput, RadioSwitch, NoMoreResources, ContentPublish, ContentItem, ContentFilter, CreateNew },
   data () {
     return {
       menuList: [
@@ -132,7 +133,6 @@ export default {
     },
     handleSearch (data) {
       this.$logger.info('handleSearch', data)
-      this.searchText = data.searchKey
       this.filterParams = data
       this.pageNo = 1
       this.loadMyContent()
@@ -238,12 +238,6 @@ export default {
       this.filterType = filterType
       this.pageNo = 1
       this.loadMyContent()
-    },
-    handleGlobalSearch(data) {
-      this.$logger.info('handleSearch', data)
-      if (data && data.length >= 3) {
-        this.$router.push({ path: '/teacher/library/search/' + data })
-      }
     }
   },
   mounted() {
@@ -268,13 +262,6 @@ export default {
     align-items: center;
     justify-content: space-between;
     flex-direction: row;
-  }
-
-  .filter-bar {
-    margin: 10px 0;
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
   }
 
   .create-new {
