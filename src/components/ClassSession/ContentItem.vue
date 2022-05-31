@@ -29,9 +29,13 @@
                 </div>
               </div>
               <div class='teach-way'>
-
+                <a-space>
+                  <div class='session-type' v-if='session.session.sessionType === 1'>Assignment</div>
+                  <div class='session-type' v-if='session.session.sessionType === 2'>Lesson</div>
+                  <div class='session-type' v-if='session.session.sessionType === 3'>Test</div>
+                </a-space>
               </div>
-              <div class='lesson-zoom'>
+              <div class='lesson-zoom' v-show='zoomMeetStartUrl' @click='startZoom'>
                 <div class='icon'>
                   <zoom-icon />
                 </div>
@@ -40,10 +44,12 @@
             </div>
             <div class='sub-right'>
               <div class='session-date'>
-                <template v-if='content.sessionStartTime'>
-                  {{ content.sessionStartTime | dayjs }}
+                <template v-if='session.session.sessionStartTime || session.session.deadline'>
+                  {{ session.session.sessionStartTime | dayjs }}
+                  <template v-if='session.session.sessionStartTime && session.session.deadline'> - </template>
+                  {{ session.session.deadline | dayjs }}
                 </template>
-                <template>
+                <template v-else>
                   session start time not set
                 </template>
                 <div class='edit-icon'>
@@ -53,14 +59,13 @@
             </div>
           </div>
           <div class='subject'>
-            Ray ka Art
-          </div>
-          <div class='tag-info'>
-            <div class='tag-info-item'>
-              Knowledge tag
+            <div class='subject-item' v-for='(subject, idx) in content.subjectList' :key='idx'>
+              {{ subject }}
             </div>
-            <div class='tag-info-item'>
-              Commen term
+          </div>
+          <div class='year'>
+            <div class='year-item' v-for='(year, idx) in content.yearList' :key='idx'>
+              {{ year }}
             </div>
           </div>
         </div>
@@ -191,6 +196,14 @@ export default {
     },
     contentTypeName () {
       return this.content ? getLabelNameType(this.content.type) : null
+    },
+    zoomMeetStartUrl () {
+      if (this.session && this.session.session.zoomMeeting) {
+        const zoomMeeting = JSON.parse(this.session.session.zoomMeeting)
+        return zoomMeeting.start_url
+      } else {
+        return null
+      }
     }
   },
   methods: {
@@ -231,6 +244,14 @@ export default {
 
     handleTakeaway() {
       this.$logger.info('handleTakeaway', this.content)
+    },
+
+    startZoom () {
+      if (this.zoomMeetStartUrl) {
+        window.open(this.zoomMeetStartUrl)
+      } else {
+        this.$message.warn('Zoom meeting info not found!')
+      }
     }
   }
 }
@@ -335,8 +356,17 @@ export default {
 
               .user-name {
                 margin-left: 5px;
+                line-height: 24px;
                 font-size: 14px;
               }
+            }
+
+            .teach-way {
+              font-size: 13px;
+              color: #4a8cff;
+              line-height: 24px;
+              font-weight: bold;
+              padding: 0 10px;
             }
 
             .lesson-zoom {
@@ -370,7 +400,7 @@ export default {
               justify-content: flex-end;
             }
             .edit-icon {
-              display: flex;
+              visibility: hidden;
               flex-direction: row;
               align-items: center;
               justify-content: flex-start;
@@ -380,22 +410,30 @@ export default {
                 height: 14px;
               }
             }
+
+            &:hover {
+              .edit-icon {
+                visibility: visible;
+              }
+            }
           }
         }
-        .subject {
+
+        .subject, .year {
           cursor: pointer;
           font-family: Arial;
           font-weight: 400;
           color: #757578;
-          line-height: 1rem;
+          height: 1rem;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
           font-size: 0.7rem;
-        }
-
-        .tag-info {
-          .tag-info-item {
-            line-height: 1rem;
-            font-size: 0.6rem;
-          }
+          display: flex;
+          align-items: center;
+          justify-content: flex-start;
+          flex-direction: row;
+          flex-wrap: nowrap;
         }
       }
     }
