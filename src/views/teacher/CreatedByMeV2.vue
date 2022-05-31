@@ -86,6 +86,7 @@ export default {
       shareType: SourceType.CreatedByMe,
       loading: true,
       myContentList: [],
+      filterType: null,
       pagination: {
         onChange: page => {
           logger.info('pagination onChange', page)
