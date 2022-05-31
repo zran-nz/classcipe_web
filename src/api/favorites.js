@@ -91,7 +91,10 @@ export function FavoritesList (parameter) {
 export function FavoritesGetMyFavorites (parameter) {
   return request({
     url: favoritesAPIUrl.FavoritesGetMyFavorites,
-    method: 'get',
-    params: parameter
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
   })
 }
