@@ -214,4 +214,12 @@ export default {
 #feed-back:hover .classcipe-hidden-feedback {
   display: block;
 }
+
+.feed-back-type {
+  .feed-back-type-title {
+    line-height: 30px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+}
 </style>
