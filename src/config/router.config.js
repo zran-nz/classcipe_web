@@ -60,7 +60,7 @@ export const asyncRouterMap = [
           {
             path: '/teacher/main/my-favorite',
             name: 'MyFavorite',
-            component: () => import('@/views/teacher/MyFavoriteV2'),
+            component: () => import('@/views/teacher/MyFavorite'),
             meta: { title: 'menu.my-favorite', keepAlive: true, permission: ['teacher'], icon: DiscoverSvg }
           },
           {

@@ -1,5 +1,5 @@
 <template>
-  <div class='sidebar-menu-item' :class="{'active-sidebar-menu-item': path && $route.path === path, 'collapsed-menu': $store.getters.collapsed }" @click='handleClickMenu' @dblclick='handleDbClickMenu'>
+  <div class='sidebar-menu-item' :title='label' :class="{'active-sidebar-menu-item': path && $route.path === path, 'collapsed-menu': $store.getters.collapsed }" @click='handleClickMenu' @dblclick='handleDbClickMenu'>
     <div class='menu-icon'>
       <slot name='icon'></slot>
     </div>
