@@ -1,0 +1,467 @@
+<template>
+  <div class='content-item' v-if='content' :style="{'border': activeItem ? '1px solid #15c39a' : '1px solid #EEF1F6'}">
+    <div class='cover'>
+      <div class='cover-block' :style="{'background-image': 'url(' + content.image + ')'}">
+        <slot name='cover-action'>
+        </slot>
+      </div>
+    </div>
+    <div class='detail'>
+      <div class='detail-content'>
+        <div class='base-info'>
+          <div class='name'>
+            <div class='content-type-name' v-if='contentTypeName'>
+              {{ contentTypeName }}
+            </div>
+            <div class='content-name'>
+              {{ content.name }}
+            </div>
+            <div class='edit-icon'>
+              <edit-blue-icon />
+            </div>
+          </div>
+          <div class='sub-row'>
+            <div class='sub-left'>
+              <div class='owner'>
+                <a-avatar :src='session.userAvatar' size="small" />
+                <div class='user-name'>
+                  {{ session.userRealName }}
+                </div>
+              </div>
+              <div class='teach-way'>
+
+              </div>
+              <div class='lesson-zoom'>
+                <div class='icon'>
+                  <zoom-icon />
+                </div>
+                Zoom
+              </div>
+            </div>
+            <div class='sub-right'>
+              <div class='session-date'>
+                <template v-if='content.sessionStartTime'>
+                  {{ content.sessionStartTime | dayjs }}
+                </template>
+                <template>
+                  session start time not set
+                </template>
+                <div class='edit-icon'>
+                  <edit-blue-icon />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class='subject'>
+            Ray ka Art
+          </div>
+          <div class='tag-info'>
+            <div class='tag-info-item'>
+              Knowledge tag
+            </div>
+            <div class='tag-info-item'>
+              Commen term
+            </div>
+          </div>
+        </div>
+        <div class='right-info'>
+          <div class='update-time'>
+          </div>
+        </div>
+      </div>
+      <div class='action'>
+        <template v-if='showButton'>
+          <a-space :size='30'>
+            <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement'>
+              <div class='more-action'>
+                <more-icon />
+              </div>
+              <div class='content-item-more-action' slot='overlay'>
+                <div class='menu-item'>
+                  <custom-button label='Takeaways' @click='handleTakeaway'></custom-button>
+                  <custom-button label='Ask someone to teach' @click='handleCoteacher'></custom-button>
+                  <custom-button label='Previous sessions' @click='handlePreviewSession'></custom-button>
+                </div>
+              </div>
+            </a-dropdown>
+
+            <custom-button label='Sub-task' v-if='content.type === typeMap.task && content.subTasks.length > 0'>
+              <template v-slot:icon>
+                <sub-task-icon />
+              </template>
+            </custom-button>
+
+            <custom-button
+              :label="'Evaluate 6/19'"
+              @click='handleSchedule'>
+            </custom-button>
+
+            <custom-button label='Edit' @click='editItem'>
+              <template v-slot:icon>
+                <edit-icon />
+              </template>
+            </custom-button>
+
+            <custom-button label='Preview' @click='handlePreviewDetail(content)'>
+              <template v-slot:icon>
+                <view-icon style='width: 20px' />
+              </template>
+            </custom-button>
+          </a-space>
+        </template>
+      </div>
+
+      <content-preview
+        :content-id='previewCurrentId'
+        :content-type='previewType'
+        v-if='previewVisible'
+        @close='handlePreviewClose' />
+    </div>
+  </div>
+</template>
+
+<script>
+
+import { getLabelNameType, typeMap } from '@/const/teacher'
+import { ContentItemMixin } from '@/mixins/ContentItemMixin'
+import CustomButton from '@/components/Common/CustomButton'
+import SubTaskIcon from '@/assets/v2/icons/sub-task.svg?inline'
+import EditIcon from '@/assets/v2/icons/edit.svg?inline'
+import PublishIcon from '@/assets/v2/icons/publish_new.svg?inline'
+import ViewIcon from '@/assets/v2/icons/view.svg?inline'
+import EditBlueIcon from '@/assets/v2/icons/edit_blue.svg?inline'
+import ScheduleIcon from '@/assets/v2/icons/schedule.svg?inline'
+import OriginalTipsIcon from '@/assets/v2/icons/original_tips.svg?inline'
+import DeleteIcon from '@/assets/v2/icons/delete.svg?inline'
+import MoreIcon from '@/assets/v2/icons/more.svg?inline'
+import ContentPreview from '@/components/Preview/ContentPreview'
+import ZoomIcon from '@/assets/icons/zoom/zoomus-icon.svg?inline'
+
+export default {
+  name: 'ContentItem',
+  components: {
+    ContentPreview,
+    CustomButton,
+    EditBlueIcon,
+    SubTaskIcon,
+    ViewIcon,
+    EditIcon,
+    PublishIcon,
+    ScheduleIcon,
+    OriginalTipsIcon,
+    DeleteIcon,
+    ZoomIcon,
+    MoreIcon
+  },
+  props: {
+    content: {
+      type: Object,
+      default: null
+    },
+    session: {
+      type: Object,
+      default: null
+    },
+    showButton: {
+      type: Boolean,
+      default: true
+    },
+    clickPreview: {
+      type: Boolean,
+      default: true
+    },
+    activeItem: {
+      type: Boolean,
+      default: false
+    }
+  },
+  mixins: [ContentItemMixin],
+  data() {
+    return {
+      typeMap: typeMap,
+      isSelfLearning: false
+    }
+  },
+  created() {
+    this.allowPreview = this.clickPreview
+  },
+  computed: {
+    status() {
+      return this.content.status
+    },
+    contentTypeName () {
+      return this.content ? getLabelNameType(this.content.type) : null
+    }
+  },
+  methods: {
+    editItem() {
+      const item = this.content
+      if (item.type === typeMap['unit-plan']) {
+        this.$router.push({
+          path: '/teacher/unit-plan-redirect/' + item.id
+        })
+      } else if (item.type === typeMap.task) {
+        this.$router.push({
+          path: '/teacher/task-redirect/' + item.id
+        })
+      } else if (item.type === typeMap.video) {
+        this.$router.push({
+          path: '/teacher/video-redirect/' + item.id
+        })
+      } else if (item.type === typeMap.pd) {
+        this.$router.push({
+          path: '/teacher/pd-content-redirect/' + item.id
+        })
+      }
+    },
+
+    handleSchedule() {
+      this.$router.push({
+        path: '/teacher/schedule-session/' + this.content.id + '/' + this.content.type
+      })
+    },
+
+    handlePreviewSession() {
+      this.$logger.info('handlePreviewSession', this.content)
+    },
+
+    handleCoteacher() {
+      this.$logger.info('handleCoteacher', this.content)
+    },
+
+    handleTakeaway() {
+      this.$logger.info('handleTakeaway', this.content)
+    }
+  }
+}
+</script>
+
+<style lang='less' scoped>
+@import "~@/components/index.less";
+
+.content-item {
+  padding: 1rem;
+  width: 100%;
+  margin: 1rem 0;
+  font-size: 1rem;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  overflow: hidden;
+  border-radius: 7px;
+
+  .cover {
+    .cover-block {
+      position: relative;
+      border-radius: 8px;
+      height: 9rem;
+      width: 16rem;
+      background-position: center center;
+      background-size: cover;
+      background-repeat: no-repeat;
+    }
+  }
+
+  .detail {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding-left: 1rem;
+    height: 9rem;
+
+    .detail-content {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      flex-grow: 1;
+
+      .base-info {
+        width: 100%;
+        cursor: pointer;
+        .name {
+          line-height: 2rem;
+          font-size: 1rem;
+          font-family: Arial;
+          font-weight: bold;
+          color: #17181A;
+          cursor: pointer;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: flex-start;
+
+          .content-type-name {
+            margin-right: 5px;
+            color: #0C90E3;
+          }
+
+          .edit-icon {
+            display: none;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
+            margin-left: 5px;
+            svg {
+              width: 14px;
+              height: 14px;
+            }
+          }
+
+          &:hover {
+            .edit-icon {
+              display: flex;
+            }
+          }
+        }
+
+        .sub-row {
+          width: 100%;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+          padding-bottom: 5px;
+          .sub-left {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            flex-direction: row;
+            .owner {
+              margin-right: 10px;
+              display: flex;
+              align-items: center;
+              justify-content: flex-start;
+              flex-direction: row;
+
+              .user-name {
+                margin-left: 5px;
+                font-size: 14px;
+              }
+            }
+
+            .lesson-zoom {
+              margin-right: 10px;
+              display: flex;
+              align-items: center;
+              justify-content: flex-start;
+              flex-direction: row;
+              font-size: 13px;
+              color: #4a8cff;
+              .icon {
+                display: flex;
+                align-items: center;
+                justify-content: flex-start;
+                flex-direction: row;
+                padding: 0 4px;
+                svg {
+                  width: 20px;
+                  height: 20px;
+                }
+              }
+            }
+          }
+
+          .sub-right {
+            .session-date {
+              font-size: 13px;
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              justify-content: flex-end;
+            }
+            .edit-icon {
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              justify-content: flex-start;
+              margin-left: 5px;
+              svg {
+                width: 14px;
+                height: 14px;
+              }
+            }
+          }
+        }
+        .subject {
+          cursor: pointer;
+          font-family: Arial;
+          font-weight: 400;
+          color: #757578;
+          line-height: 1rem;
+          font-size: 0.7rem;
+        }
+
+        .tag-info {
+          .tag-info-item {
+            line-height: 1rem;
+            font-size: 0.6rem;
+          }
+        }
+      }
+    }
+
+    .action {
+      flex-shrink: 0;
+      height: 50px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+    }
+  }
+}
+
+.more-action {
+  cursor: pointer;
+  svg {
+    width: 40px;
+    height: 36px;
+    fill: #494B52 !important;
+  }
+
+  &:hover {
+    svg {
+      fill: #14C39A !important;
+    }
+  }
+}
+
+.cover-action {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.0);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  transition: all 0.3s ease-in-out;
+
+  .action-btn {
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    transition: all 0.3s ease-in-out;
+    div {
+      margin: 8px 0;
+    }
+  }
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.4);
+    .action-btn {
+      opacity: 1;
+    }
+  }
+}
+
+.menu-item {
+  div {
+    margin: 8px 0;
+  }
+}
+
+</style>
