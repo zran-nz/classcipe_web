@@ -240,16 +240,9 @@ export default {
           data.date = parseInt(moment.utc(new Date()).toDate().getTime() / 1000)
         }
 
-        // 首次开课初始化评估表数据，然后再创建进入课堂
-        this.evaluationForm.className = item.className
-        this.evaluationForm.name = item.sessionName
-        this.evaluationForm.email = this.$store.getters.userInfo.email
-        this.CheckAndCreateTaskSessionEvaluationData(item.classId, this.taskId, () => {
-          this.$logger.info('AddOrUpdateClass data :', data)
-          AddOrUpdateClass(data).then(response => {
-            item.startLoading = false
-            this.goToClassPage(item.classId)
-          })
+        AddOrUpdateClass(data).then(response => {
+          item.startLoading = false
+          this.goToClassPage(item.classId)
         })
       } else {
         this.goToClassPage(item.classId)
