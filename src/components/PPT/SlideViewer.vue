@@ -174,7 +174,7 @@ export default {
     }
   },
   created() {
-    this.$logger.info('SlideViewer created showElementsAndItemsInfo ' + this.showMaterialsAndTips)
+    this.$logger.info('SlideViewer created showElementsAndItemsInfo defaultThumbnailList', this.defaultThumbnailList, 'thumbnailList', this.thumbnailList)
   },
   methods: {
     handlePreview () {

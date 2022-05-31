@@ -842,7 +842,7 @@ export default {
         this.contentLoading = false
         this.loadCollaborateData(this.form.type, this.form.id)
         if (this.form.presentationId) {
-          this.loadThumbnail(false)
+          this.loadThumbnail(true)
         }
         // copy副本 为了判断数据变更
         this.oldForm = JSON.parse(JSON.stringify(this.form))
