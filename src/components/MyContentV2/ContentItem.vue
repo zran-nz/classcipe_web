@@ -8,8 +8,9 @@
       <div class='detail-content' @click='handlePreviewDetail(content)'>
         <div class='base-info'>
           <div class='name'>
-            {{ content.name }}
+            {{ content.name || 'Untitled ' + contentTypeName }}
           </div>
+          <div class='owner-info'></div>
           <div class='subject'>
             Ray ka Art
           </div>
@@ -92,7 +93,7 @@
 
 <script>
 
-import { typeMap } from '@/const/teacher'
+import { getLabelNameType, typeMap } from '@/const/teacher'
 import { DeleteMyContentByType } from '@/api/teacher'
 import { ContentItemMixin } from '@/mixins/ContentItemMixin'
 import CustomButton from '@/components/Common/CustomButton'
@@ -149,6 +150,9 @@ export default {
   computed: {
     status() {
       return this.content.status
+    },
+    contentTypeName () {
+      return this.content ? getLabelNameType(this.content.type) : null
     }
   },
   methods: {

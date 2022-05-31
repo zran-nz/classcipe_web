@@ -466,6 +466,21 @@
                   </custom-form-item>
                 </div>
 
+                <div class='form-block' :data-field-name='planField.CoverVideo' v-if='fieldItem.visible && fieldItem.fieldName === planField.CoverVideo' :key='fieldItem.fieldName'>
+                  <!-- image-->
+                  <custom-form-item class='img-wrapper' :required='emptyRequiredFields.indexOf(planField.CoverVideo) !== -1'>
+                    <template slot='label'>
+                      {{ 'Cover video' | taskLabelName(planField.CoverVideo, $store.getters.formConfigData) }}
+                    </template>
+                    <template v-if='taskLabelHint(planField.CoverVideo, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="'Cover Video' | taskLabelHint(planField.CoverVideo, $store.getters.formConfigData)" placement='top'>
+                        <a-icon type="info-circle" />
+                      </a-tooltip>
+                    </template>
+                    <custom-cover-media type='video' :url='form.CoverVideo' @update='handleUpdateCover'/>
+                  </custom-form-item>
+                </div>
+
               </template>
             </div>
             <div class='form-field-item custom-field' v-for='custFieldItem in $store.getters.formConfigData.planCustomList' :key='custFieldItem.id'>
@@ -821,7 +836,8 @@ export default {
       wrapperCol: { span: 18 },
       form: {
         id: null,
-        image: '',
+        image: null,
+        coverVideo: null,
         inquiry: '',
         name: 'Untitled UnitPlan',
         status: 0,

@@ -73,8 +73,8 @@ export default {
   }
 
   &:hover {
-    background-color: #14C39A;
-    color: #fff;
+    background-color: #14C39A !important;
+    color: #fff !important;
 
     .icon {
       svg {

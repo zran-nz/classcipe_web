@@ -298,6 +298,22 @@
                     <custom-cover-media type='image' :url='form.image' @update='handleUpdateCover'/>
                   </custom-form-item>
                 </div>
+
+                <div class='form-block' :data-field-name='taskField.CoverVideo' v-if='fieldItem.visible && fieldItem.fieldName === taskField.CoverVideo' :key='fieldItem.fieldName'>
+                  <!-- image-->
+                  <custom-form-item class='img-wrapper' :required='emptyRequiredFields.indexOf(taskField.CoverVideo) !== -1'>
+                    <template slot='label'>
+                      {{ 'Cover video' | taskLabelName(taskField.CoverVideo, $store.getters.formConfigData) }}
+                    </template>
+                    <template v-if='taskLabelHint(taskField.CoverVideo, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="'Cover video' | taskLabelHint(taskField.CoverVideo, $store.getters.formConfigData)" placement='top'>
+                        <a-icon type="info-circle" />
+                      </a-tooltip>
+                    </template>
+                    <custom-cover-media type='video' :url='form.coverVideo' @update='handleUpdateCover'/>
+                  </custom-form-item>
+                </div>
+
               </template>
             </div>
             <div class='form-field-item custom-field' v-for='custFieldItem in $store.getters.formConfigData.taskCustomList' :key='custFieldItem.id'>
@@ -576,7 +592,8 @@ export default {
       creating: false,
       form: {
         id: null,
-        image: '',
+        coverVideo: null,
+        image: null,
         copyFromSlide: null,
         presentationId: '',
         pageObjectIds: '',
@@ -1463,6 +1480,7 @@ export default {
       this.$logger.info('basic taskData', taskData)
       const response = await TaskAddOrUpdate(taskData)
       this.$logger.info('TaskAddOrUpdate', response.result)
+      this.restoreTask(this.taskId, false)
       return response
     },
 
