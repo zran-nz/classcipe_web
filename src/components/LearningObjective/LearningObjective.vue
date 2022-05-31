@@ -78,7 +78,7 @@
           Subject Learning Objectives
         </div>
         <div class='cc-lo-input'>
-          <a-input v-model='filterConfig.keyword' @click.native.stop='showFilterList = true' placeholder='Search learning objectives' @keyup.native.enter='handleEnsureInput' class='cc-form-input' />
+          <a-input v-model='filterConfig.keyword' @click.native.stop='showFilterList = true' placeholder='Search learning objectives' class='cc-form-input' />
           <div class='filter-list' v-show='showFilterList && filterList.length' @click.stop=''>
             <div class='filter-item' v-for='(item, idx) in filterList' :key='idx' @click='handleSelectItem(item)'>
               <div class='item-desc'>
@@ -89,6 +89,9 @@
                 <div class='item-sub-title' :title='item.path && item.path[yearIndex]'>{{ item.path && item.path[yearIndex] }}</div>
               </div>
             </div>
+          </div>
+          <div class='create-item' v-show='showFilterList && !filterList.length'>
+            <a-button type='primary' size="small" @click='handleEnsureInput'><a-icon type='plus' /> Create</a-button>
           </div>
         </div>
       </div>
@@ -524,6 +527,12 @@ export default {
               }
             }
           }
+        }
+
+        .create-item {
+          position: absolute;
+          right: 5px;
+          top: 4px;
         }
       }
     }
