@@ -26,6 +26,7 @@ import CustomLinkText from '@/components/Common/CustomLinkText'
 import AssessmentToolMixin from '@/components/AssessmentTool/Mixin/AssessmentToolMixin'
 import AssessmentToolTable from '@/components/AssessmentTool/AssessmentToolTable'
 import { AssessmentToolType } from '@/components/AssessmentTool/Constant'
+import { AssessmentToolHeaderNamesList } from '@/api/v2/assessment'
 
 export default {
   name: 'AssessmentTool',
@@ -54,7 +55,22 @@ export default {
   methods: {
     selectHeaderSet () {
       this.$logger.info('selectHeaderSet', this.$refs.table)
-      this.$refs.table.selectHeaderSetModalVisible = true
+      AssessmentToolHeaderNamesList().then(res => {
+        this.$logger.info('AssessmentToolHeaderNamesList', res)
+        if (res.code === 0) {
+          const headerSet = new Set()
+          res.result.forEach(item => headerSet.add(item.headerNameList))
+          const headerStrList = [...headerSet]
+          const headerList = []
+          headerStrList.forEach(item => headerList.push(JSON.parse(item)))
+          this.$logger.info('headerList', headerList)
+          this.$refs.table.optionStrSet = headerSet
+          this.$refs.table.optionList = headerList
+          this.$refs.table.selectHeaderSetModalVisible = true
+        } else {
+          this.$message.error(res.message)
+        }
+      })
     }
   }
 }
