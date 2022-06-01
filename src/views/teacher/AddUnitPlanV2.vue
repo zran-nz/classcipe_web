@@ -560,7 +560,14 @@
 
     <fixed-form-footer>
       <template v-slot:right>
-        <a-button type='primary' @click='handleNextStep' class='cc-round-button'>Next</a-button>
+        <a-button type='primary' @click='handleNextStep' class='cc-round-button'>
+          <template v-if='currentActiveStepIndex < formSteps.length - 1'>
+            Next
+          </template>
+          <template v-else>
+            Complete
+          </template>
+        </a-button>
       </template>
     </fixed-form-footer>
 
@@ -1143,7 +1150,13 @@ export default {
     },
 
     handleNextStep () {
-      this.$refs['steps-nav'].nextStep()
+      if (this.currentActiveStepIndex === this.formSteps.length - 1) {
+        this.$router.replace({
+          path: '/'
+        })
+      } else {
+        this.$refs['steps-nav'].nextStep()
+      }
     },
 
     // 填充自定义大纲内容
