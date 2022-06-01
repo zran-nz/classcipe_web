@@ -139,6 +139,9 @@
         <div class='edit-header-action-item header-option' v-for='(options, idx) in optionList' :key='idx' @click='selectHeaderSet(options)'>
           <a-tag v-for='(option,oIdx) in options' :key='oIdx'>{{ option }}</a-tag>
         </div>
+        <div class='no-header' v-if='optionList.length === 0'>
+          <common-no-data />
+        </div>
       </div>
     </a-modal>
   </div>
@@ -153,6 +156,7 @@ import CustomTextButton from '@/components/Common/CustomTextButton'
 import ModalHeader from '@/components/Common/ModalHeader'
 import CustomLinkText from '@/components/Common/CustomLinkText'
 import { debounce } from 'lodash-es'
+import { AssessmentToolHeaderNamesSave, AssessmentToolInfoSave } from '@/api/v2/assessment'
 
 export default {
   name: 'AssessmentToolTable',
@@ -183,11 +187,8 @@ export default {
       editExtraRowModalVisible: false,
 
       selectHeaderSetModalVisible: false,
-      optionList: [
-        [ 'Option1', 'Option2', 'Option3' ],
-        [ 'Option4', 'Option5', 'Option6' ],
-        [ 'Option7', 'Option8', 'Option9' ]
-      ],
+      optionList: [],
+      optionStrSet: new Set(),
 
       // 异步延迟保存表格数据
       asyncSaveTableData: null,
@@ -348,7 +349,21 @@ export default {
     handleSaveHeaderAsSet () {
       this.$logger.info('handleSaveHeaderAsSet', this.assessment.headerList)
       const headerNameList = this.assessment.headerList.map(item => item.title)
-      console.log(headerNameList)
+      const headerStr = JSON.stringify(headerNameList)
+      if (!this.optionStrSet.has(headerStr)) {
+        AssessmentToolHeaderNamesSave({
+          headerNameList: JSON.stringify(headerNameList)
+        }).then((res) => {
+          if (res.code === 0) {
+            this.optionStrSet.add(headerStr)
+            this.$message.success('Save successfully')
+          } else {
+            this.$message.error(res.message)
+          }
+        })
+      } else {
+        this.$message.success('This header has been saved')
+      }
     },
 
     selectHeaderSet (options) {
@@ -366,9 +381,14 @@ export default {
       const data = JSON.parse(JSON.stringify(this.assessment))
       data.headerListJson = JSON.stringify(data.headerList)
       data.bodyListJson = JSON.stringify(data.bodyList)
-      console.log(JSON.stringify(data))
-      this.$logger.info('autoSaveAssessment', this.assessment)
-      return this.assessment
+      this.$logger.info('autoSaveAssessment', data)
+      AssessmentToolInfoSave(data).then((res) => {
+        if (res.code === 0) {
+          this.$message.success('Save successfully')
+        } else {
+          this.$message.error(res.message)
+        }
+      })
     },
 
     handleInsertCriteria (data) {
@@ -563,6 +583,14 @@ export default {
     border: none;
     box-shadow: none;
   }
+}
+
+.no-header {
+  min-height: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 30px;
 }
 
 </style>

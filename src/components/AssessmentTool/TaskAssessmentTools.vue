@@ -49,6 +49,7 @@ import CustomTextButton from '@/components/Common/CustomTextButton'
 import CommonNoData from '@/components/Common/CommonNoData'
 import AssessmentTool from '@/components/AssessmentTool/AssessmentTool'
 import { HeaderType, AssessmentToolType } from '@/components/AssessmentTool/Constant'
+import { AssessmentToolInfoList } from '@/api/v2/assessment'
 
 export default {
   name: 'TaskAssessmentTools',
@@ -162,13 +163,46 @@ export default {
       activeAssessmentTableKey: null
     }
   },
+  created() {
+    this.getAssessmentList()
+  },
   methods: {
+
+    getAssessmentList () {
+      this.assessmentList = []
+      AssessmentToolInfoList({
+        taskId: this.taskId,
+        pageNo: 1,
+        pageSize: 100
+      }).then(res => {
+        this.$logger.info('getAssessmentList', res)
+        if (res.code === 0) {
+          res.result.forEach(item => {
+            const assessment = {
+              ...item
+            }
+            assessment.headerList = JSON.parse(item.headerListJson)
+            assessment.bodyList = JSON.parse(item.bodyListJson)
+            delete assessment.headerListJson
+            delete assessment.bodyListJson
+            this.assessmentList.push(assessment)
+          })
+
+          this.$logger.info('init assessmentList', this.assessmentList)
+          if (this.assessmentList.length) {
+            this.activeAssessmentTableKey = this.assessmentList[0].key
+          }
+        } else {
+          this.$message.error('getAssessmentList error. ' + res.message)
+        }
+      })
+    },
     handleAddAssessmentTool (type) {
       this.$logger.info('handleAddAssessmentTool', type)
       const config = this.assessmentToolConfig[type]
       if (config) {
         const assessmentTool = JSON.parse(JSON.stringify(config))
-        assessmentTool.key = Math.random()
+        assessmentTool.key = Date.now().toString(36) + '_' + Math.random().toString(36).substr(2)
         assessmentTool.taskId = this.taskId
         assessmentTool.sort = this.assessmentList.length
         if (!assessmentTool.bodyList.length) {
@@ -181,7 +215,7 @@ export default {
     },
     generateEmptyRowByAssessment(assessment) {
       const row = {
-        key: Math.random()
+        key: Date.now().toString(36) + '_' + Math.random().toString(36).substr(2)
       }
       assessment.headerList.forEach(item => {
         row[item.type] = {
