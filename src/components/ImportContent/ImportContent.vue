@@ -48,7 +48,7 @@
       </a-col>
       <a-col span='10' offset='1'>
         <div class='active-item-preview'>
-          <content-preview :content-id='currentActiveItem.id' :content-type='currentActiveItem.type' />
+          <content-preview :content-id='currentActiveItem.id' :content-type='currentActiveItem.type' v-if='currentActiveItem' />
         </div>
       </a-col>
     </a-row>
