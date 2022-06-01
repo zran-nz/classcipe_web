@@ -280,7 +280,11 @@ export default {
         id: this.videoId
       }).then(response => {
         this.$logger.info('VideoQueryById ' + this.videoId, response.result)
-        this.form = response.result
+        if (response.code === 0 && response.success) {
+          this.form = response.result
+        } else {
+          this.$message.error(response.message)
+        }
       }).finally(() => {
         this.saving = false
       })

@@ -1194,55 +1194,59 @@ export default {
         id: unitPlanId
       }).then(response => {
         this.$logger.info('UnitPlanQueryById ' + unitPlanId, response.result)
-        const unitPlanData = response.result
-        if (unitPlanData.scenarios.length === 0) {
-          unitPlanData.scenarios.push({
-            description: '',
-            sdgId: '1',
-            sdgKeyWords: []
-          })
-        } else {
-          unitPlanData.scenarios.forEach(item => {
-            if (!item.sdgId) {
-              item.sdgId = undefined
-            }
-          })
-        }
-        if (!unitPlanData.gradeId) {
-          unitPlanData.gradeId = undefined
-        } else {
-          // 年级在本国大纲不存在的情况
-          if (this.gradeList.filter(grade => grade.id === unitPlanData.gradeId).length === 0) {
-            this.form.gradeId = undefined
+        if (response.code === 0 && response.success) {
+          const unitPlanData = response.result
+          if (unitPlanData.scenarios.length === 0) {
+            unitPlanData.scenarios.push({
+              description: '',
+              sdgId: '1',
+              sdgKeyWords: []
+            })
+          } else {
+            unitPlanData.scenarios.forEach(item => {
+              if (!item.sdgId) {
+                item.sdgId = undefined
+              }
+            })
           }
-        }
-        if (!unitPlanData.rwc) {
-          unitPlanData.rwc = undefined
-        }
-        // 填充自定义字段
-        const customFieldData = unitPlanData.customFieldData ? JSON.parse(unitPlanData.customFieldData) : null
-        const displayCustomFieldData = {}
-        if (customFieldData) {
-          // 只显示配置中存在的字段,用id做key，改名后依旧可以使用老数据
-          this.$store.getters.formConfigData.planCustomList.forEach(customField => {
-            if (customFieldData.hasOwnProperty(customField.id)) {
-              displayCustomFieldData[customField.id] = customFieldData[customField.id]
-            } else {
-              displayCustomFieldData[customField.id] = ''
+          if (!unitPlanData.gradeId) {
+            unitPlanData.gradeId = undefined
+          } else {
+            // 年级在本国大纲不存在的情况
+            if (this.gradeList.filter(grade => grade.id === unitPlanData.gradeId).length === 0) {
+              this.form.gradeId = undefined
             }
-          })
-        } else {
-          this.$store.getters.formConfigData.planCustomList.forEach(customField => {
-            displayCustomFieldData[customField.id] = ''
-          })
-        }
-        this.$logger.info('displayCustomFieldData', displayCustomFieldData)
-        unitPlanData.customFieldData = displayCustomFieldData
+          }
+          if (!unitPlanData.rwc) {
+            unitPlanData.rwc = undefined
+          }
+          // 填充自定义字段
+          const customFieldData = unitPlanData.customFieldData ? JSON.parse(unitPlanData.customFieldData) : null
+          const displayCustomFieldData = {}
+          if (customFieldData) {
+            // 只显示配置中存在的字段,用id做key，改名后依旧可以使用老数据
+            this.$store.getters.formConfigData.planCustomList.forEach(customField => {
+              if (customFieldData.hasOwnProperty(customField.id)) {
+                displayCustomFieldData[customField.id] = customFieldData[customField.id]
+              } else {
+                displayCustomFieldData[customField.id] = ''
+              }
+            })
+          } else {
+            this.$store.getters.formConfigData.planCustomList.forEach(customField => {
+              displayCustomFieldData[customField.id] = ''
+            })
+          }
+          this.$logger.info('displayCustomFieldData', displayCustomFieldData)
+          unitPlanData.customFieldData = displayCustomFieldData
 
-        this.saving = true
-        this.form = unitPlanData
-        if (unitPlanData.questions.length === 0) {
-          this.form.questions.push({ name: '' })
+          this.saving = true
+          this.form = unitPlanData
+          if (unitPlanData.questions.length === 0) {
+            this.form.questions.push({ name: '' })
+          }
+        } else {
+          this.$message.error(response.message)
         }
       }).finally(() => {
         this.contentLoading = false

@@ -173,9 +173,6 @@ export default {
       currentImgIndex: 0
     }
   },
-  created() {
-    this.$logger.info('SlideViewer created showElementsAndItemsInfo defaultThumbnailList', this.defaultThumbnailList, 'thumbnailList', this.thumbnailList)
-  },
   methods: {
     handlePreview () {
       this.$EventBus.$emit(SlideEvent.PREVIEW_TEMPLATE, this.slideItem)

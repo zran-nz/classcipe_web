@@ -276,9 +276,12 @@ export default {
       PDContentQueryById({
         id: this.pdId
       }).then(response => {
-        this.$logger.info('PDContentQueryById ' + this.pdId, response.result)
-        const pdContent = response.result
-        this.form = pdContent
+        this.$logger.info('PDContentQueryById ' + this.pdId, response)
+        if (response.code === 0 && response.success) {
+          this.form = response.result
+        } else {
+          this.$message.error(response.message)
+        }
       }).finally(() => {
         if (this.form.presentationId) {
           this.loadThumbnail(false)

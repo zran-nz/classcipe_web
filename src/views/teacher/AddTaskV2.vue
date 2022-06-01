@@ -804,44 +804,48 @@ export default {
         id: taskId
       }).then(response => {
         this.$logger.info('TaskQueryById ' + taskId, response.result)
-        const taskData = response.result
-        if (!taskData.materialList) {
-          taskData.materialList = []
-        }
-
-        this.materialListFlag = taskData.materialList.length > 0
-        // 填充自定义字段
-        const customFieldData = taskData.customFieldData ? JSON.parse(taskData.customFieldData) : null
-        const displayCustomFieldData = {}
-        if (customFieldData) {
-          // 只显示配置中存在的字段,用id做key，改名后依旧可以使用老数据
-          this.$store.getters.formConfigData.taskCustomList.forEach(customField => {
-            if (customFieldData.hasOwnProperty(customField.id)) {
-              displayCustomFieldData[customField.id] = customFieldData[customField.id]
-            } else {
-              displayCustomFieldData[customField.id] = ''
-            }
-          })
-        } else {
-          this.$store.getters.formConfigData.taskCustomList.forEach(customField => {
-            displayCustomFieldData[customField.id] = ''
-          })
-        }
-        this.$logger.info('displayCustomFieldData', displayCustomFieldData)
-        taskData.customFieldData = displayCustomFieldData
-        this.form = taskData
-        this.form.showSelected = taskData.showSelected ? taskData.showSelected : false
-        this.form.bloomCategories = this.form.bloomCategories ? this.form.bloomCategories : undefined // 为了展示placeholder
-        if (this.form.selectedTemplateList.length === 0) {
-          this.form.showSelected = false
-        }
-        if (!taskData.gradeId) {
-          this.form.gradeId = undefined
-        } else {
-          // 年级在本国大纲不存在的情况
-          if (this.gradeList.filter(grade => grade.id === taskData.gradeId).length === 0) {
-            this.form.gradeId = undefined
+        if (response.code === 0 && response.success) {
+          const taskData = response.result
+          if (!taskData.materialList) {
+            taskData.materialList = []
           }
+
+          this.materialListFlag = taskData.materialList.length > 0
+          // 填充自定义字段
+          const customFieldData = taskData.customFieldData ? JSON.parse(taskData.customFieldData) : null
+          const displayCustomFieldData = {}
+          if (customFieldData) {
+            // 只显示配置中存在的字段,用id做key，改名后依旧可以使用老数据
+            this.$store.getters.formConfigData.taskCustomList.forEach(customField => {
+              if (customFieldData.hasOwnProperty(customField.id)) {
+                displayCustomFieldData[customField.id] = customFieldData[customField.id]
+              } else {
+                displayCustomFieldData[customField.id] = ''
+              }
+            })
+          } else {
+            this.$store.getters.formConfigData.taskCustomList.forEach(customField => {
+              displayCustomFieldData[customField.id] = ''
+            })
+          }
+          this.$logger.info('displayCustomFieldData', displayCustomFieldData)
+          taskData.customFieldData = displayCustomFieldData
+          this.form = taskData
+          this.form.showSelected = taskData.showSelected ? taskData.showSelected : false
+          this.form.bloomCategories = this.form.bloomCategories ? this.form.bloomCategories : undefined // 为了展示placeholder
+          if (this.form.selectedTemplateList.length === 0) {
+            this.form.showSelected = false
+          }
+          if (!taskData.gradeId) {
+            this.form.gradeId = undefined
+          } else {
+            // 年级在本国大纲不存在的情况
+            if (this.gradeList.filter(grade => grade.id === taskData.gradeId).length === 0) {
+              this.form.gradeId = undefined
+            }
+          }
+        } else {
+          this.$message.error(response.message)
         }
       }).finally(() => {
         this.contentLoading = false
