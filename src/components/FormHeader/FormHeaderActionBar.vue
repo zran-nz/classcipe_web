@@ -19,13 +19,13 @@
           </a-menu>
         </a-dropdown>
       </div>
-      <div class='action-item invite' @click="emitEvent('invite')" v-if="showInvite">
-        <a-tooltip title='Invite'>
-          <invite-icon />
+      <div class='action-item invite' @click="emitEvent('collaborate')" v-if="showInvite">
+        <a-tooltip title='Collaborate'>
+          <collaborate-icon />
         </a-tooltip>
       </div>
-      <div class='action-item collaborate' @click="emitEvent('collaborate')" v-if="showCollaborate">
-        <a-tooltip title='Collaborate'>
+      <div class='action-item collaborate' @click="emitEvent('comment')" v-if="showCollaborate">
+        <a-tooltip title='Comment'>
           <message-icon />
         </a-tooltip>
       </div>
@@ -44,6 +44,7 @@
 </template>
 
 <script>
+import CollaborateIcon from '@/assets/v2/icons/collaborate.svg?inline'
 import MessageIcon from '@/assets/v2/icons/message.svg?inline'
 import InviteIcon from '@/assets/v2/icons/header_invite.svg?inline'
 import PublishIcon from '@/assets/v2/icons/publish_new.svg?inline'
@@ -52,6 +53,7 @@ import ShareIcon from '@/assets/v2/icons/header_share.svg?inline'
 export default {
   name: 'FormHeaderActionBar',
   components: {
+    CollaborateIcon,
     MessageIcon,
     InviteIcon,
     PublishIcon,

@@ -30,9 +30,9 @@
           :show-invite="isOwner"
           :show-collaborate="isOwner || isCollaborater"
           :show-share="isOwner || isCollaborater"
-          @invite="handleStartCollaborate"
+          @collaborate="handleStartCollaborate"
           @share="handleSharing"
-          @collaborate="handleViewComment"
+          @comment="handleViewComment"
           @publish="handlePublish"/>
       </slot>
     </div>
