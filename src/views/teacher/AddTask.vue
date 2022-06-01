@@ -2794,7 +2794,8 @@ export default {
           const hideLoading = this.$message.loading('Creating ppt in Google side...', 0)
           this.creating = true
           TaskCreateNewTaskPPT({
-            taskId: this.taskId ? this.taskId : '',
+            id: this.taskId ? this.taskId : '',
+            type: this.contentType.task,
             name: this.form.name ? this.form.name : 'Unnamed Task',
             overview: this.form.overview,
             templatePresentationIds: this.selectedTemplateList.map(item => {

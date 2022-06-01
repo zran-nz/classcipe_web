@@ -435,7 +435,8 @@ export default {
       if (!this.creating) {
         this.creating = true
         const response = await TaskCreateNewTaskPPT({
-          taskId: this.pdId,
+          id: this.pdId,
+          type: this.typeMap.pd,
           name: this.form.name ? this.form.name : 'Unnamed Pd Content'
         })
 
