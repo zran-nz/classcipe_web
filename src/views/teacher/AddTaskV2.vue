@@ -1047,7 +1047,7 @@ export default {
           this.loadThumbnail(false)
         } finally {
           this.creating = false
-          this.saving =false
+          this.saving = false
         }
         hideLoading()
         return response
