@@ -161,6 +161,7 @@ import { PDContentAddOrUpdate, PDContentQueryById } from '@/api/pdContent'
 import { AutoSaveMixin } from '@/mixins/AutoSaveMixin'
 import SlideEvent from '@/components/PPT/SlideEvent'
 import CustomImageUploader from '@/components/Common/CustomImageUploader'
+import { TaskCreateNewTaskPPT } from '@/api/task'
 
 export default {
   name: 'AddPD',
@@ -212,6 +213,7 @@ export default {
       customTagList: [],
       customTags: {},
       PdField: PdField,
+      creating: false,
 
       pdFieldTagMap: {
         [PdField.Goals]: []
@@ -415,13 +417,43 @@ export default {
     async handleEditGoogleSlide() {
       this.editGoogleSlideLoading = true
       this.$logger.info('handleEditGoogleSlide', this.form.presentationId)
+      let res
       if (this.form.presentationId) {
-        await this.save()
+        res = await this.save()
       } else {
-        alert('Please create a new presentation first')
+        res = await this.handleCreatePPT()
       }
-      window.open('https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit', '_blank')
+      if (res.code === 0) {
+        window.open('https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit', '_blank')
+      }
       this.editGoogleSlideLoading = false
+    },
+
+    async handleCreatePPT() {
+      this.$logger.info('handleCreatePPT')
+      const hideLoading = this.$message.loading('Creating ppt in Google side...', 0)
+      if (!this.creating) {
+        this.creating = true
+        const response = await TaskCreateNewTaskPPT({
+          taskId: this.pdId,
+          name: this.form.name ? this.form.name : 'Unnamed Pd Content'
+        })
+
+        this.$logger.info('handleCreateTask', response.result)
+        try {
+          this.saving = true
+          this.form.id = response.result.id
+          this.form.presentationId = response.result.presentationId
+          this.$message.success('Created Successfully in Google Slides')
+          window.open('https://docs.google.com/presentation/d/' + this.form.presentationId, '_blank')
+          this.loadThumbnail(true)
+        } finally {
+          hideLoading()
+          this.creating = false
+          this.saving = false
+        }
+        return response
+      }
     },
 
     focusInput(event) {

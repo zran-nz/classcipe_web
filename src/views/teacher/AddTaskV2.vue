@@ -1038,12 +1038,17 @@ export default {
         })
 
         this.$logger.info('handleCreateTask', response.result)
-        this.form.id = response.result.id
-        this.form.presentationId = response.result.presentationId
-        this.$message.success('Created Successfully in Google Slides')
-        window.open('https://docs.google.com/presentation/d/' + this.form.presentationId, '_blank')
-        this.creating = false
-        this.loadThumbnail(false)
+        try {
+          this.saving = true
+          this.form.id = response.result.id
+          this.form.presentationId = response.result.presentationId
+          this.$message.success('Created Successfully in Google Slides')
+          window.open('https://docs.google.com/presentation/d/' + this.form.presentationId, '_blank')
+          this.loadThumbnail(false)
+        } finally {
+          this.creating = false
+          this.saving =false
+        }
         hideLoading()
         return response
       }
