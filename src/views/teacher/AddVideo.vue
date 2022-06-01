@@ -173,7 +173,6 @@ import FixedFormFooter from '@/components/Common/FixedFormFooter'
 import CustomFormItem from '@/components/Common/CustomFormItem'
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import MyVerticalSteps from '@/components/Steps/MyVerticalSteps'
-import { formatLocalUTC } from '@/utils/util'
 import { CustomTagType, VideoField } from '@/const/common'
 import CustomCoverMedia from '@/components/Common/CustomCoverMedia'
 import { PublishMixin } from '@/mixins/PublishMixin'
@@ -208,16 +207,6 @@ export default {
     videoId: {
       type: String,
       required: true
-    }
-  },
-  computed: {
-    lastChangeSavedTime() {
-      const time = this.form && (this.form.updateTime || this.form.createTime)
-      if (time) {
-        return formatLocalUTC(time)
-      } else {
-        return ''
-      }
     }
   },
   mixins: [ PublishMixin, AutoSaveMixin ],
@@ -276,6 +265,7 @@ export default {
 
     restoreVideo() {
       this.$logger.info('restoreVideo ' + this.videoId)
+      this.saving = true
       VideoQueryById({
         id: this.videoId
       }).then(response => {
@@ -294,8 +284,7 @@ export default {
       this.saving = true
       return VideoAddOrUpdate(this.form).then(res => {
         this.$logger.info('VideoAddOrUpdate', res)
-        this.restoreVideo()
-      }).catch(() => {
+      }).finally(() => {
         this.saving = false
       })
     },

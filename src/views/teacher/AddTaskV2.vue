@@ -5,9 +5,10 @@
         <form-header
           title='Create task'
           :form='form'
+          :spin='saving'
           :share-status='shareStatus'
           :collaborate='collaborate'
-          :last-change-saved-time='(form.updateTime || form.createTime) | dayjs'
+          :last-change-saved-time='lastChangeSavedTime'
           @view-collaborate='handleViewCollaborate'
           @back='goBack'
           @save='handleSaveTask(true)'
@@ -800,6 +801,7 @@ export default {
         this.contentLoading = true
       }
       this.$logger.info('restoreTask ' + taskId)
+      this.saving = true
       TaskQueryById({
         id: taskId
       }).then(response => {
@@ -849,6 +851,7 @@ export default {
         }
       }).finally(() => {
         this.contentLoading = false
+        this.saving = false
         this.loadCollaborateData(this.form.type, this.form.id)
         if (this.form.presentationId) {
           this.loadThumbnail(false)
@@ -863,8 +866,6 @@ export default {
         if (this.$store.getters.userInfo.email !== this.form.createBy) {
           this.form.showSelected = false
         }
-
-        this.saving = false
       })
     },
 
@@ -1474,8 +1475,8 @@ export default {
       this.$logger.info('basic taskData', taskData)
       this.saving = true
       const response = await TaskAddOrUpdate(taskData)
+      this.saving = false
       this.$logger.info('TaskAddOrUpdate', response.result)
-      this.restoreTask(this.taskId, false)
       return response
     },
 

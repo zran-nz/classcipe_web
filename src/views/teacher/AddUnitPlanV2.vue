@@ -703,7 +703,6 @@ import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnow
 import NewClickableSkillTag from '@/components/UnitPlan/NewClickableSkillTag'
 import SkillTag from '@/components/UnitPlan/SkillTag'
 import { UnitPlanAddOrUpdate, UnitPlanQueryById } from '@/api/unitPlan'
-import { formatLocalUTC } from '@/utils/util'
 import MyContentSelector from '@/components/MyContent/MyContentSelector'
 import { TaskAddOrUpdate } from '@/api/task'
 import CustomTagV2 from '@/components/CustomTag/CustomTagV2'
@@ -889,7 +888,6 @@ export default {
       descriptionSearchList: [],
       addLoading: false,
       currentIndex: 0,
-      saving: false,
       publishing: false,
       selectModel: SelectModel,
       selectDescriptionIndex: '',
@@ -1005,14 +1003,6 @@ export default {
     }
   },
   computed: {
-    lastChangeSavedTime() {
-      const time = this.form.updateTime || this.form.createTime
-      if (time) {
-        return formatLocalUTC(this.form.updateTime || this.form.createTime)
-      } else {
-        return ''
-      }
-    },
     selectedSdg() {
       const sdgList = []
       this.form.scenarios.forEach(item => sdgList.push(item.sdgId))
@@ -1344,7 +1334,6 @@ export default {
           this.oldForm = JSON.parse(JSON.stringify(this.form))
           this.$message.error(response.message)
         }
-        this.restoreUnitPlan(this.unitPlanId)
         this.handleSaveContentEvent(this.unitPlanId, this.contentType['unit-plan'], this.oldForm)
       } finally {
         this.saving = false

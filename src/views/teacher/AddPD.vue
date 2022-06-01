@@ -48,7 +48,7 @@
                   <template slot='label'>
                     Cover image
                   </template>
-                  <custom-cover-media type='image' :url='form.image' @update='handleUpdateCover'/>
+                  <custom-image-uploader :img-url='form.image' @update='handleUpdateCover' />
                 </custom-form-item>
               </div>
 
@@ -142,7 +142,6 @@ import FixedFormFooter from '@/components/Common/FixedFormFooter'
 import CustomFormItem from '@/components/Common/CustomFormItem'
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import MyVerticalSteps from '@/components/Steps/MyVerticalSteps'
-import { formatLocalUTC } from '@/utils/util'
 import { PdField } from '@/const/common'
 import { RightModule } from '@/mixins/BaseEvent'
 import CustomCoverMedia from '@/components/Common/CustomCoverMedia'
@@ -161,10 +160,12 @@ import { PublishMixin } from '@/mixins/PublishMixin'
 import { PDContentAddOrUpdate, PDContentQueryById } from '@/api/pdContent'
 import { AutoSaveMixin } from '@/mixins/AutoSaveMixin'
 import SlideEvent from '@/components/PPT/SlideEvent'
+import CustomImageUploader from '@/components/Common/CustomImageUploader'
 
 export default {
   name: 'AddPD',
   components: {
+    CustomImageUploader,
     CaseVideo,
     FormLinkedContent,
     SlideSelectList,
@@ -187,16 +188,6 @@ export default {
     mode: {
       type: String,
       default: 'edit'
-    }
-  },
-  computed: {
-    lastChangeSavedTime() {
-      const time = this.form && (this.form.updateTime || this.form.createTime)
-      if (time) {
-        return formatLocalUTC(time)
-      } else {
-        return ''
-      }
     }
   },
   mixins: [ GoogleAuthCallBackMixin, PublishMixin, AutoSaveMixin ],
@@ -273,6 +264,7 @@ export default {
 
     restorePdContent() {
       this.$logger.info('restorePdContent ' + this.pdId)
+      this.saving = true
       PDContentQueryById({
         id: this.pdId
       }).then(response => {
@@ -294,8 +286,7 @@ export default {
       this.saving = true
       return PDContentAddOrUpdate(this.form).then(res => {
         this.$logger.info('PDContentAddOrUpdate', res)
-        this.restorePdContent()
-      }).catch(() => {
+      }).finally(() => {
         this.saving = false
       })
     },
