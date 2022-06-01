@@ -206,6 +206,7 @@ export default {
 }
 
 .classcipe-hidden-feedback img {
+  z-index: 100;
   width: 15px;
   position: absolute;
   right: -5px;
