@@ -1031,7 +1031,8 @@ export default {
       if (!this.creating) {
         this.creating = true
         const response = await TaskCreateNewTaskPPT({
-          taskId: this.taskId ? this.taskId : '',
+          id: this.taskId ? this.taskId : '',
+          type: this.contentType.task,
           taskIds: this.selectedTaskIdList,
           name: this.form.name ? this.form.name : 'Unnamed Task',
           overview: this.form.overview

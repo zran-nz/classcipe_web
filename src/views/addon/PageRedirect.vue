@@ -15,6 +15,7 @@ import {
 } from '@/const/common'
 import store from '@/store'
 import { setCookie } from '@/utils/util'
+import { typeMap } from '@/const/teacher'
 
 export default {
   name: 'PageRedirect',
@@ -22,7 +23,7 @@ export default {
   },
   data () {
     return {
-      type: 4
+      // type: 4
     }
   },
   created () {
@@ -38,16 +39,16 @@ export default {
     sessionStorage.removeItem(SESSION_CURRENT_PAGE)
     sessionStorage.removeItem(SESSION_CURRENT_TYPE_LABEL)
     sessionStorage.removeItem(SESSION_CURRENT_TYPE)
-
+    const target = this.sourceType === typeMap.task.toString() ? 'add-task-v2' : 'pd-content'
     if (store.getters.roles.length === 0) {
-        const targetUrl = `${process.env.VUE_APP_BASE_URL}/teacher/add-task/${this.id}`
+        const targetUrl = `${process.env.VUE_APP_BASE_URL}/teacher/${target}/${this.id}`
         window.sessionStorage.setItem(SESSION_CALLBACK_URL, targetUrl)
         this.$store.dispatch('GetInfo').then((data) => {
           window.sessionStorage.removeItem(SESSION_CALLBACK_URL)
-          this.$router.push('/teacher/add-task/' + this.id)
+          this.$router.push('/teacher/' + target + '/' + this.id)
         })
     } else {
-      this.$router.push('/teacher/add-task/' + this.id)
+      this.$router.push('/teacher/' + target + '/' + this.id)
     }
   },
   props: {
