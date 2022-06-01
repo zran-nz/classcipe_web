@@ -795,7 +795,7 @@ export default {
 
     handleAuthCallback() {
       this.$logger.info('handleAuthCallback')
-      this.loadThumbnail(true)
+      this.loadThumbnail(false)
     },
 
     handleNextStep () {
@@ -859,7 +859,7 @@ export default {
         this.contentLoading = false
         this.loadCollaborateData(this.form.type, this.form.id)
         if (this.form.presentationId) {
-          this.loadThumbnail(true)
+          this.loadThumbnail(false)
         }
         // copy副本 为了判断数据变更
         this.oldForm = JSON.parse(JSON.stringify(this.form))
@@ -995,7 +995,7 @@ export default {
               this.$logger.info('handleEnsureChooseAnother update form.taskClassList', this.form.taskClassList)
             })
           }
-          this.loadThumbnail(true)
+          this.loadThumbnail(false)
         } else {
           this.$message.warn(response.message)
         }
@@ -1050,7 +1050,7 @@ export default {
         this.$message.success('Created Successfully in Google Slides')
         window.open('https://docs.google.com/presentation/d/' + this.form.presentationId, '_blank')
         this.creating = false
-        this.loadThumbnail(true)
+        this.loadThumbnail(false)
         hideLoading()
         return response
       }

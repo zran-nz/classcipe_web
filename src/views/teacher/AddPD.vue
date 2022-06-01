@@ -248,7 +248,7 @@ export default {
     this.initData()
     this.loadCustomTags()
     this.handleDisplayRightModule()
-    this.loadThumbnail(true)
+    this.loadThumbnail(false)
     this.contentLoading = false
 
     this.$EventBus.$on(PdEvent.PD_VIDEO_ADD, this.handleAddVideo)
