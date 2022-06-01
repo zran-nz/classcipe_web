@@ -180,6 +180,7 @@
                     </template>
                     <learning-objective
                       @change='handleUpdateLearningObjectives'
+                      :recommend-data-list='recommendData'
                       :curriculumId='form.curriculumId'
                       :learning-objectives='form.learnOuts'
                       :subject-list='form.subjectList'
@@ -637,7 +638,6 @@ export default {
       previewTemplateVisible: false,
 
       recommendData: [],
-      recommendDataIdList: [],
       selectedList: [],
 
       selectedIdList: [],
@@ -675,18 +675,6 @@ export default {
   computed: {
     isOwner() {
       return this.$store.getters.userInfo.email === this.form.createBy
-    },
-    hasExtraRecommend() {
-      this.$logger.info('-------------', this.form.learnOuts, this.recommendDataIdList)
-      let ret = false
-      this.form.learnOuts.forEach(item => {
-        if (this.recommendDataIdList.indexOf(item.knowledgeId) === -1) {
-          ret = true
-          this.$logger.info('------------learnOuts', item, ' not exist in ', this.recommendDataIdList)
-        }
-      })
-
-      return ret
     }
   },
   watch: {
@@ -1162,6 +1150,7 @@ export default {
       }).finally(() => {
         this.linkGroupLoading = false
 
+        this.$logger.info('AddTask GetAssociate associateUnitPlanIdList', this.associateUnitPlanIdList)
         if (this.associateUnitPlanIdList.length > 0) {
           this.loadRefLearnOuts()
           this.handleSelfOutsData()
@@ -1171,7 +1160,6 @@ export default {
 
     async loadRefLearnOuts() {
       this.recommendData = []
-      this.recommendDataIdList = []
       const unitPlanIdSet = new Set(this.associateUnitPlanIdList)
       this.associateUnitPlanIdList = [...unitPlanIdSet]
       const response = await FindSourceOutcomes({
@@ -1187,7 +1175,6 @@ export default {
           } else {
             recommendMap.set(item.fromId, [item])
           }
-          this.recommendDataIdList.push(item.knowledgeId)
         })
         this.recommendData = []
         for (const value of recommendMap.values()) {
@@ -1198,7 +1185,7 @@ export default {
             list: value
           })
         }
-        this.$logger.info('update recommendData ', this.recommendData)
+        this.$logger.info('loadRefLearnOuts update RecommendData ', this.recommendData)
       }
     },
 
@@ -1224,6 +1211,7 @@ export default {
              }
            }
          })
+        this.$logger.info('handleSelfOutsData update RecommendData ', this.recommendData)
       }
     },
 

@@ -1,6 +1,6 @@
 <template>
   <div class='slide-drift'>
-    <div class='slide-item' v-for='slide in displaySelectedTemplateList' :key='slide.id'>
+    <div class='slide-item' v-for='(slide, sId) in displaySelectedTemplateList' :key='sId'>
       <slide-viewer
         :title='slide.name'
         :show-hover-mask='true'

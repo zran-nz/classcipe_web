@@ -64,8 +64,8 @@
           </div>
         </div>
         <div class='recommend-button'>
-          <a-badge dot>
-            <custom-text-button label='Recommend'>
+          <a-badge dot v-if='recommendDataList.length'>
+            <custom-text-button label='Recommend' @click='showRecommend'>
               <template v-slot:icon>
                 <a-icon type='plus-circle' />
               </template>
@@ -153,6 +153,12 @@
         </div>
       </div>
     </div>
+
+    <recommend-data
+      :recommend-data-list='recommendDataList'
+      @close='recommendDataVisible = false'
+      @confirm='handleConfirmSelectRecommend'
+      v-if='recommendDataVisible && recommendDataList.length' />
   </div>
 </template>
 
@@ -164,10 +170,11 @@ import CustomTextButton from '@/components/Common/CustomTextButton'
 import { getAllCurriculums } from '@/api/preference'
 import DeleteIcon from '@/components/Common/DeleteIcon'
 import { debounce } from 'lodash-es'
+import RecommendData from '@/components/LearningObjective/RecommendData'
 
 export default {
   name: 'LearningObjective',
-  components: { DeleteIcon, CustomTextButton },
+  components: { RecommendData, DeleteIcon, CustomTextButton },
   props: {
     curriculumId: {
       type: String,
@@ -182,6 +189,10 @@ export default {
       default: () => []
     },
     learningObjectives: {
+      type: Array,
+      default: () => []
+    },
+    recommendDataList: {
       type: Array,
       default: () => []
     }
@@ -227,7 +238,8 @@ export default {
       selectedList: [],
 
       generalCapabilitiesData: [],
-      asyncEmitUpdateEventFn: null
+      asyncEmitUpdateEventFn: null,
+      recommendDataVisible: false
     }
   },
   watch: {
@@ -301,6 +313,11 @@ export default {
       this.filterConfig.selectedYearList.splice(this.filterConfig.selectedYearList.indexOf(year), 1)
     },
 
+    showRecommend () {
+      this.$logger.info('showRecommend', this.recommendDataList)
+      this.recommendDataVisible = true
+    },
+
     handleSelectSubject (subject) {
       if (this.filterConfig.selectedSubjectList.indexOf(subject) === -1) {
         this.filterConfig.selectedSubjectList.unshift(subject)
@@ -370,6 +387,16 @@ export default {
       }
       this.$logger.info('emitUpdateEvent eventData', eventData)
       this.$emit('change', eventData)
+    },
+
+    handleConfirmSelectRecommend (dataList) {
+      this.$logger.info('handleConfirmSelectRecommend', dataList)
+      if (dataList && dataList.length) {
+        dataList.forEach(item => {
+          this.selectedList.unshift(JSON.parse(JSON.stringify(item)))
+        })
+      }
+      this.recommendDataVisible = false
     }
   }
 }
