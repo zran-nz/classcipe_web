@@ -30,7 +30,7 @@
           </div>
         </a-carousel>
         <div class='slide-title' v-show='showTitle' :style="{width: width}">
-          {{ title }}
+          {{ title || 'Untitled' }}
         </div>
       </template>
       <template v-if='!imgList.length'>

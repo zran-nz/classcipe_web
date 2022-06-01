@@ -50,6 +50,8 @@ import CustomSearchInput from '@/components/Common/CustomSearchInput'
 import ContentFilter from '@/components/MyContentV2/ContentFilter'
 import CommonNoData from '@/components/Common/CommonNoData'
 import SlideViewer from '@/components/PPT/SlideViewer'
+import { FindMyContent } from '@/api/teacher'
+import { mapState } from 'vuex'
 
 const sourceType = {
   Recommend: 1,
@@ -73,14 +75,31 @@ export default {
   computed: {
     selectedPresentationIdList () {
       return this.selectedTemplateList.map(item => item.presentationId)
-    }
+    },
+    ...mapState({
+      school: state => state.user.school
+    })
   },
   data() {
     return {
       filterSourceType: sourceType.Recommend,
       sourceType: sourceType,
       slideList: [],
-      searching: true
+      searching: true,
+
+      filterParams: null,
+      filterType: null,
+
+      pageNo: 1,
+      pagination: {
+        onChange: page => {
+          this.pageNo = page
+          this.getMyContentSlide()
+        },
+        showTotal: total => `Total ${total} items`,
+        total: 0,
+        pageSize: 16
+      }
     }
   },
   created() {
@@ -92,10 +111,13 @@ export default {
     },
 
     handleSearchByInputFilter (data) {
+      this.$logger.info('handleSearchByInputFilter', data)
+      this.filterParams = data
       this.handleSearchSlide()
     },
 
     handleSearchSlide () {
+      this.$logger.info('handleSearchSlide', this.filterSourceType)
       switch (this.filterSourceType) {
         case sourceType.Recommend:
           this.getRecommendSlide()
@@ -155,7 +177,36 @@ export default {
       })
     },
     getMyContentSlide () {
-
+      this.searching = true
+      let params = {
+        pageNo: this.pageNo,
+        pageSize: this.pagination.pageSize,
+        searchKey: this.filterParams ? this.filterParams.searchKey : null,
+        types: [ this.$classcipe.typeMap.task ],
+        delFlag: 0,
+        schoolId: this.school
+      }
+      if (this.filterParams) {
+        params = Object.assign(this.filterParams, params)
+      }
+      FindMyContent(params).then((res) => {
+        this.$logger.info('getMyContentSlide res', res)
+        if (res && res.result) {
+          res.result.records.forEach(item => {
+            item.thumbnailList = []
+            for (let i = 0; i < item.pageObjects.length; i++) {
+              item.thumbnailList[i] = {
+                contentUrl: item.pageObjects[i].contentUrl,
+                id: item.pageObjectIds[i]
+              }
+            }
+          })
+          this.slideList = res.result.records
+          this.$logger.info('slideList', this.slideList)
+        }
+      }).finally(() => {
+        this.searching = false
+      })
     }
   }
 }

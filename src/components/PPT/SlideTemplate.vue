@@ -35,14 +35,18 @@ export default {
     displaySelectedTemplateList () {
       const list = []
       this.selectedTemplateList.forEach(item => {
-        item.thumbnailList = []
-        for (let i = 0; i < item.images.length; i++) {
-          item.thumbnailList.push({
-            contentUrl: item.images[i],
-            id: item.pageObjectIds[i]
-          })
+        if (item.thumbnailList && item.thumbnailList.length) {
+          list.push(item)
+        } else {
+          item.thumbnailList = []
+          for (let i = 0; i < item.images.length; i++) {
+            item.thumbnailList.push({
+              contentUrl: item.images[i],
+              id: item.pageObjectIds[i]
+            })
+          }
+          list.push(item)
         }
-        list.push(item)
       })
 
       return list
