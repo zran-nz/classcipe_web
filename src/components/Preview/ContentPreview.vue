@@ -3,7 +3,7 @@
     class='cc-content-preview-drawer'
     :visible='true'
     :title='null'
-    width='600px'
+    width='800px'
     :bodyStyle="{ padding: 0, height: '100%' }"
     @close='handleClose'
   >
