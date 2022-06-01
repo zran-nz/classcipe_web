@@ -295,22 +295,7 @@
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
-                    <custom-cover-media type='image' :url='form.image' @update='handleUpdateCover'/>
-                  </custom-form-item>
-                </div>
-
-                <div class='form-block' :data-field-name='taskField.CoverVideo' v-if='fieldItem.visible && fieldItem.fieldName === taskField.CoverVideo' :key='fieldItem.fieldName'>
-                  <!-- image-->
-                  <custom-form-item class='img-wrapper' :required='emptyRequiredFields.indexOf(taskField.CoverVideo) !== -1'>
-                    <template slot='label'>
-                      {{ 'Cover video' | taskLabelName(taskField.CoverVideo, $store.getters.formConfigData) }}
-                    </template>
-                    <template v-if='taskLabelHint(taskField.CoverVideo, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="'Cover video' | taskLabelHint(taskField.CoverVideo, $store.getters.formConfigData)" placement='top'>
-                        <a-icon type="info-circle" />
-                      </a-tooltip>
-                    </template>
-                    <custom-cover-media type='video' :url='form.coverVideo' @update='handleUpdateCover'/>
+                    <custom-image-uploader :img-url='form.image' @update='handleUpdateCover' />
                   </custom-form-item>
                 </div>
 
@@ -540,10 +525,12 @@ import CustomCoverMedia from '@/components/Common/CustomCoverMedia'
 import { PublishMixin } from '@/mixins/PublishMixin'
 import LearningObjective from '@/components/LearningObjective/LearningObjective'
 import { AutoSaveMixin } from '@/mixins/AutoSaveMixin'
+import CustomImageUploader from '@/components/Common/CustomImageUploader'
 
 export default {
   name: 'AddTaskV2',
   components: {
+    CustomImageUploader,
     LearningObjective,
     CustomCoverMedia,
     SlideSelectList,
@@ -592,8 +579,8 @@ export default {
       creating: false,
       form: {
         id: null,
-        coverVideo: null,
-        image: null,
+        coverVideo: '',
+        image: '',
         copyFromSlide: null,
         presentationId: '',
         pageObjectIds: '',
@@ -871,6 +858,8 @@ export default {
         if (this.$store.getters.userInfo.email !== this.form.createBy) {
           this.form.showSelected = false
         }
+
+        this.saving = false
       })
     },
 
@@ -1478,6 +1467,7 @@ export default {
         taskData.customFieldData = JSON.stringify(taskData.customFieldData)
       }
       this.$logger.info('basic taskData', taskData)
+      this.saving = true
       const response = await TaskAddOrUpdate(taskData)
       this.$logger.info('TaskAddOrUpdate', response.result)
       this.restoreTask(this.taskId, false)
