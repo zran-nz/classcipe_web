@@ -78,6 +78,10 @@ export default {
     videoItem: {
       type: [Object, String],
       default: null
+    },
+    emitGlobalEvent: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -138,8 +142,10 @@ export default {
 
     handleDelete () {
       this.$logger.info('handleDelete', this.videoItem)
-      this.$EventBus.$emit(CoverMediaEvent.COVER_MEDIA_DELETE, this.videoItem)
       this.$emit('delete', this.videoItem)
+      if (this.emitGlobalEvent) {
+        this.$EventBus.$emit(CoverMediaEvent.COVER_MEDIA_DELETE, this.videoItem)
+      }
     }
   }
 }

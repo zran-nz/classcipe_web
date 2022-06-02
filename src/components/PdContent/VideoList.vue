@@ -3,17 +3,20 @@
     <div class='video-item' v-for='videoItem in videoList' :key='videoItem.url'>
       <custom-cover-media
         :show-delete-button='true'
+        :emit-global-event='false'
         :show-upload-button='false'
         :show-edit-button='true'
         :video-item='videoItem'
         type='video'
-        :url='videoItem.url' />
+        @delete='handleDeleteVideo'
+        :url='videoItem.filePath' />
     </div>
   </div>
 </template>
 
 <script>
 import CustomCoverMedia from '@/components/Common/CustomCoverMedia'
+import ClasscipeDriveEvent from '@/components/ClasscipeDrive/ClasscipeDriveEvent'
 export default {
   name: 'VideoList',
   components: { CustomCoverMedia },
@@ -29,6 +32,10 @@ export default {
   created() {
   },
   methods: {
+    handleDeleteVideo (videoItem) {
+      this.$logger.info('handleDeleteVideo', videoItem)
+      this.$EventBus.$emit(ClasscipeDriveEvent.DELETE_VIDEO, videoItem)
+    }
   }
 }
 </script>

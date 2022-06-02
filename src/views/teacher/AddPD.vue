@@ -97,7 +97,7 @@
               </div>
 
               <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === PdField.Video' :key='fieldName'>
-                <case-video :video-list='form.videoList' />
+                <case-video :video-list='form.videoList' @add-video='handleAddVideoList' @delete-video='handleDeleteVideo' />
               </div>
             </div>
           </div>
@@ -294,6 +294,7 @@ export default {
           commonFields: [
             PdField.Name,
             PdField.Image,
+            PdField.CoverVideo,
             PdField.Goals
           ],
           showRequiredTips: false,
@@ -513,12 +514,15 @@ export default {
       this.form.customTags = tags
     },
 
-    handleAddVideoList (url) {
-
+    handleAddVideoList (videoList) {
+      this.$logger.info('handleAddVideoList', videoList)
+      this.form.videoList = this.form.videoList.concat(...videoList)
+      this.$logger.info('videoList', this.form.videoList)
     },
 
     handleDeleteVideo(videoItem) {
-      const index = this.form.videoList.findIndex(item => item.url === videoItem.url)
+      this.$logger.info('pd handleDeleteVideo', videoItem)
+      const index = this.form.videoList.findIndex(item => item.filePath === videoItem.filePath)
       if (index > -1) {
         this.form.videoList.splice(index, 1)
       }

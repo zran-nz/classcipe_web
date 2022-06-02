@@ -7,7 +7,7 @@
       </a-space>
     </div>
     <div class='video-list'>
-      <video-list v-bind="$attrs" />
+      <video-list v-bind="$attrs"/>
     </div>
   </div>
 </template>
@@ -31,13 +31,15 @@ export default {
     this.$EventBus.$on(ClasscipeDriveEvent.INSERT_DRIVE_ITEM, this.handleSelectDrive)
     this.$EventBus.$on(ClasscipeDriveEvent.INSERT_YOUTUBE_ITEM, this.handleSelectYoutube)
     this.$EventBus.$on(ClasscipeDriveEvent.INSERT_GOOGLE_DRIVE, this.handleSelectGoogleDrive)
+    this.$EventBus.$on(ClasscipeDriveEvent.DELETE_VIDEO, this.handleDeleteVideo)
     this.$EventBus.$on(ScreenCaptureEvent.SCREEN_CAPTURE_VIDEO_ADD, this.handleAddScreenCapture)
   },
   beforeDestroy() {
-    this.$EventBus.$on(ClasscipeDriveEvent.INSERT_DRIVE_ITEM, this.handleSelectDrive)
-    this.$EventBus.$on(ClasscipeDriveEvent.INSERT_YOUTUBE_ITEM, this.handleSelectYoutube)
-    this.$EventBus.$on(ClasscipeDriveEvent.INSERT_GOOGLE_DRIVE, this.handleSelectGoogleDrive)
-    this.$EventBus.$on(ScreenCaptureEvent.SCREEN_CAPTURE_VIDEO_ADD, this.handleAddScreenCapture)
+    this.$EventBus.$off(ClasscipeDriveEvent.INSERT_DRIVE_ITEM, this.handleSelectDrive)
+    this.$EventBus.$off(ClasscipeDriveEvent.INSERT_YOUTUBE_ITEM, this.handleSelectYoutube)
+    this.$EventBus.$off(ClasscipeDriveEvent.INSERT_GOOGLE_DRIVE, this.handleSelectGoogleDrive)
+    this.$EventBus.$off(ClasscipeDriveEvent.DELETE_VIDEO, this.handleDeleteVideo)
+    this.$EventBus.$off(ScreenCaptureEvent.SCREEN_CAPTURE_VIDEO_ADD, this.handleAddScreenCapture)
   },
   methods: {
     handleCapturedVideoData(data) {
@@ -45,7 +47,9 @@ export default {
     },
 
     handleSelectDrive (driveItemList) {
-      this.$logger.info('handleSelectDriveItem', driveItemList)
+      this.$logger.info('case video handleSelectDriveItem', driveItemList)
+      this.$emit('add-video', driveItemList)
+      this.$refs.drive.hiddenClasscipeDrive()
     },
     handleSelectYoutube (youtubeItem) {
       this.$logger.info('handleSelectYoutube', youtubeItem)
@@ -58,7 +62,8 @@ export default {
       this.$logger.info('handleAddScreenCapture', url)
     },
 
-    handleAddCaptureVideo () {
+    handleDeleteVideo (item) {
+      this.$emit('delete-video', item)
     }
   }
 }
