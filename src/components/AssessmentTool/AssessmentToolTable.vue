@@ -1,5 +1,5 @@
 <template>
-  <div class='assessment-tool-table'>
+  <div class='assessment-tool-table' ref='table'>
     <div class='extra-criteria-table' v-if='assessment && assessment.extraCriteriaBodyList && assessment.extraCriteriaBodyList.length'>
       <table>
         <thead>
@@ -157,6 +157,7 @@ import ModalHeader from '@/components/Common/ModalHeader'
 import CustomLinkText from '@/components/Common/CustomLinkText'
 import { debounce } from 'lodash-es'
 import { AssessmentToolHeaderNamesSave, AssessmentToolInfoSave } from '@/api/v2/assessment'
+import html2canvas from 'html2canvas'
 
 export default {
   name: 'AssessmentToolTable',
@@ -378,16 +379,33 @@ export default {
     },
 
     autoSaveAssessment() {
+      this.$logger.info('table', this.$refs.table)
       const data = JSON.parse(JSON.stringify(this.assessment))
       data.headerListJson = JSON.stringify(data.headerList)
       data.bodyListJson = JSON.stringify(data.bodyList)
-      this.$logger.info('autoSaveAssessment', data)
-      AssessmentToolInfoSave(data).then((res) => {
-        if (res.code === 0) {
-          this.$message.success('Save successfully')
-        } else {
-          this.$message.error(res.message)
-        }
+      data.extraCriteriaBodyListJson = JSON.stringify(data.extraCriteriaBodyList)
+
+      html2canvas(this.$refs.table, {
+        allowTaint: true,
+        useCORS: true,
+        scrollX: window.pageXOffset,
+        scrollY: window.pageYOffset,
+        x: window.pageXOffset,
+        y: window.pageYOffset
+      }).then(canvas => {
+        canvas.style.opacity = '1'
+        canvas.style.zIndex = '99999999'
+        canvas.style.transition =
+          'transform 0.3s cubic-bezier(0.42, 0, 0.58, 1),opacity 0.3s cubic-bezier(0.42, 0, 0.58, 1),-webkit-transform 0.3s cubic-bezier(0.42, 0, 0.58, 1)'
+        data.assessmentToolPreviewImgBase64 = canvas.toDataURL('image/png', 1)
+        this.$logger.info('autoSaveAssessment', data)
+        AssessmentToolInfoSave(data).then((res) => {
+          if (res.code === 0) {
+            this.$message.success('Save successfully')
+          } else {
+            this.$message.error(res.message)
+          }
+        })
       })
     },
 
