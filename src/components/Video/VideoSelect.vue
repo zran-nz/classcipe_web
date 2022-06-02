@@ -27,7 +27,8 @@ import ScreenCapture from '@/components/ScreenCapture/ScreenCapture'
 import ClasscipeDriveEvent from '@/components/ClasscipeDrive/ClasscipeDriveEvent'
 import VideoViewer from '@/components/Video/VideoViewer'
 import DriveType from '@/components/ClasscipeDrive/Content/DriveType'
-import VideoEvent from '@/components/Video/VideoEvent'
+import ScreenCaptureEvent from '@/components/ScreenCapture/ScreenCaptureEvent'
+
 export default {
   name: 'VideoSelect',
   components: { VideoViewer, ScreenCapture, ClasscipeDriveButton, CustomTextButton },
@@ -63,7 +64,7 @@ export default {
     this.$EventBus.$on(ClasscipeDriveEvent.INSERT_DRIVE_ITEM, this.handleSelectDriveItem)
     this.$EventBus.$on(ClasscipeDriveEvent.INSERT_YOUTUBE_ITEM, this.handleSelectYoutube)
     this.$EventBus.$on(ClasscipeDriveEvent.INSERT_GOOGLE_DRIVE, this.handleSelectGoogleDrive)
-    this.$EventBus.$on(VideoEvent.VIDEO_ADD, this.handleAddScreenCapture)
+    this.$EventBus.$on(ScreenCaptureEvent.SCREEN_CAPTURE_VIDEO_ADD, this.handleAddScreenCapture)
 
     if (this.defaultVideo) {
       this.currentMediaFileUrl = this.defaultVideo
@@ -74,7 +75,7 @@ export default {
     this.$EventBus.$off(ClasscipeDriveEvent.INSERT_DRIVE_ITEM, this.handleSelectDriveItem)
     this.$EventBus.$off(ClasscipeDriveEvent.INSERT_YOUTUBE_ITEM, this.handleSelectYoutube)
     this.$EventBus.$off(ClasscipeDriveEvent.INSERT_GOOGLE_DRIVE, this.handleSelectGoogleDrive)
-    this.$EventBus.$off(VideoEvent.VIDEO_ADD, this.handleAddScreenCapture)
+    this.$EventBus.$off(ScreenCaptureEvent.SCREEN_CAPTURE_VIDEO_ADD, this.handleAddScreenCapture)
   },
   methods: {
     handleSelectDriveItem (driveItem) {

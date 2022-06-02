@@ -65,12 +65,16 @@
                         :type="'video'"
                         videoControls
                         :label-text="'Cover video'"
+                        @update='handleUpdateCover'
+                        @delete='form.coverVideo = null'
                         :show-delete-button='form.coverVideo && true'/>
                       <custom-cover-media
                         :url='form.image'
                         :video-item='form.image'
                         :type="'image'"
                         :label-text="'Cover image'"
+                        @update='handleUpdateCover'
+                        @delete='form.image = null'
                         :show-delete-button='form.image && true'/>
                     </a-space>
                   </div>
@@ -185,7 +189,6 @@ import { FindCustomTags } from '@/api/tag'
 import { typeMap } from '@/const/teacher'
 import FormLinkedContent from '@/components/Common/FormLinkedContent'
 import LinkContentList from '@/components/UnitPlan/LinkContentList'
-import PdEvent from '@/components/PdContent/PdEvent'
 
 export default {
   name: 'AddPD',
@@ -250,11 +253,6 @@ export default {
     this.initData()
     this.loadCustomTags()
     this.contentLoading = false
-
-    this.$EventBus.$on(PdEvent.PD_VIDEO_DELETE, this.handleDeleteCover)
-  },
-  beforeDestroy() {
-    this.$EventBus.$off(PdEvent.PD_VIDEO_DELETE, this.handleDeleteCover)
   },
   methods: {
 
@@ -418,13 +416,12 @@ export default {
     handleChangeCustomTags(tags) {
       this.form.customTags = tags
     },
-
-    handleDeleteCover (item) {
-      this.$logger.info('handleDeleteCover', item)
-      if (item.indexOf('mp4')) {
-        this.form.coverVideo = null
-      } else if (item.indexOf('png') !== -1 || item.indexOf('jpg') !== -1 || item.indexOf('jpeg') !== -1) {
-        this.form.image = null
+    handleUpdateCover (coverData) {
+      this.$logger.info('handleUpdateCover', coverData)
+      if (coverData.type === 'video') {
+        this.form.coverVideo = coverData.url
+      } else {
+        this.form.image = coverData.url
       }
     }
   }

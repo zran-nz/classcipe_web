@@ -57,7 +57,7 @@
                   <template slot='label'>
                     Cover video
                   </template>
-                  <custom-cover-media type='video' :url='form.coverVideo' @update='handleUpdateCover'/>
+                  <custom-cover-media type='video' :url='form.coverVideo' :show-delete-button='true' @delete='handleDeleteVideoCover' @update='handleUpdateCover'/>
                 </custom-form-item>
               </div>
 
@@ -97,7 +97,7 @@
               </div>
 
               <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === PdField.Video' :key='fieldName'>
-                <case-video :video-list='form.videoList'/>
+                <case-video :video-list='form.videoList' />
               </div>
             </div>
           </div>
@@ -155,7 +155,6 @@ import FormLinkedContent from '@/components/Common/FormLinkedContent'
 import { TemplatesGetPresentation } from '@/api/template'
 import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 import CaseVideo from '@/components/PdContent/CaseVideo'
-import PdEvent from '@/components/PdContent/PdEvent'
 import { PublishMixin } from '@/mixins/PublishMixin'
 import { PDContentAddOrUpdate, PDContentQueryById } from '@/api/pdContent'
 import { AutoSaveMixin } from '@/mixins/AutoSaveMixin'
@@ -244,16 +243,10 @@ export default {
     this.loadThumbnail(false)
     this.contentLoading = false
 
-    this.$EventBus.$on(PdEvent.PD_VIDEO_ADD, this.handleAddVideo)
-    this.$EventBus.$on(PdEvent.PD_VIDEO_DELETE, this.handleDeleteVideo)
-
     this.$EventBus.$on(SlideEvent.SELECT_TEMPLATE, this.handleSelectTemplate)
     this.$EventBus.$on(SlideEvent.CANCEL_SELECT_TEMPLATE, this.handleRemoveTemplate)
   },
   beforeDestroy() {
-    this.$EventBus.$off(PdEvent.PD_VIDEO_ADD, this.handleAddVideo)
-    this.$EventBus.$off(PdEvent.PD_VIDEO_DELETE, this.handleDeleteVideo)
-
     this.$EventBus.$off(SlideEvent.SELECT_TEMPLATE, this.handleSelectTemplate)
     this.$EventBus.$off(SlideEvent.CANCEL_SELECT_TEMPLATE, this.handleRemoveTemplate)
   },
@@ -301,7 +294,6 @@ export default {
           commonFields: [
             PdField.Name,
             PdField.Image,
-            PdField.CoverVideo,
             PdField.Goals
           ],
           showRequiredTips: false,
@@ -414,6 +406,10 @@ export default {
       }
     },
 
+    handleDeleteVideoCover () {
+      this.form.coverVideo = null
+    },
+
     async handleEditGoogleSlide() {
       this.editGoogleSlideLoading = true
       this.$logger.info('handleEditGoogleSlide', this.form.presentationId)
@@ -517,10 +513,8 @@ export default {
       this.form.customTags = tags
     },
 
-    handleAddVideo (url) {
-      this.form.videoList.push({
-        url
-      })
+    handleAddVideoList (url) {
+
     },
 
     handleDeleteVideo(videoItem) {
