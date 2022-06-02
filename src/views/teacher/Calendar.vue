@@ -531,6 +531,7 @@ export default {
     },
     getWorkshopItem(clickInfo) {
       const currentSession = this.calendarDatas.find(item => item.sessionInfo.id === clickInfo.event.extendedProps.id)
+      if (!currentSession) return {}
       return {
         content: { ...currentSession.content },
         sessionInfo: { ...currentSession.sessionInfo },
