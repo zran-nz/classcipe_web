@@ -8,27 +8,27 @@
         <div class="schedule-tip" v-show="attendanceVisible">
           <a-affix :target="affixTarget">
             <div class="tip-wrap">
-              <div class="unit-tip" v-show="queryType === CALENDAR_QUERY_TYPE.MY.value">
-                <!-- <div class="tip-title">My Unit Legend</div>
-                <a-checkbox-group
-                  :options="showUnitOptions"
-                  v-model="showUnit"
-                  @change="handleChangeEvents"
-                  class="tip-check"
-                >
-                  <div slot="label" class="tip-content" slot-scope="item">
-                    <span class="tip-dot" :style="{backgroundColor: BG_COLORS[item.index]}"></span>
-                    <span>Unit: {{ item.name }}</span>
-                  </div>
-                </a-checkbox-group> -->
+              <div class="unit-tip">
 
-                <div
-                  class="unit-tip-item"
-                  :style="{backgroundColor: BG_COLORS[item.index]}"
-                  v-for="(item) in showUnitOptions"
-                  :key="item.id">
-                  <a-tooltip :title="item.name">Unit: {{ item.name }}</a-tooltip>
-                </div>
+                <template v-if="queryType === CALENDAR_QUERY_TYPE.MY.value">
+                  <div
+                    class="unit-tip-item"
+                    :style="{backgroundColor: BG_COLORS[item.index]}"
+                    v-for="(item) in showUnitOptions"
+                    :key="item.id">
+                    <a-tooltip :title="item.name">Unit: {{ item.name }}</a-tooltip>
+                  </div>
+                </template>
+
+                <template v-if="queryType === CALENDAR_QUERY_TYPE.CLASS.value">
+                  <div
+                    class="unit-tip-item"
+                    :style="{backgroundColor: BG_COLORS[item.index]}"
+                    v-for="(item) in showClassOptions"
+                    :key="item.id">
+                    <a-tooltip :title="item.name">Class: {{ item.name }}</a-tooltip>
+                  </div>
+                </template>
 
               </div>
               <div class="calendar-type" v-show="true">
@@ -42,7 +42,7 @@
                     <a-checkbox-group
                       :options="getOptions(type.label)"
                       v-model="typeFilters"
-                      @change="handleChangeEvents"
+                      @change="val => handleChangeFilters(val, type.value)"
                       class="type-check"
                     >
                       <div slot="label" class="type-content" slot-scope="item">
@@ -332,6 +332,15 @@ export default {
           index: index
         }
       })
+    },
+    showClassOptions() {
+      return this.classList.map((item, index) => (
+        {
+          value: item.id,
+          name: item.name,
+          index: index
+        }
+      ))
     }
   },
   created() {
@@ -509,6 +518,12 @@ export default {
       console.log(this[type.label])
       this.typeFilters = this[type.label] ? this[type.label].map(item => item.value) : []
       this.reFetch()
+    },
+    handleChangeFilters(filter, val) {
+      if (this.queryType !== val) {
+        this.queryType = val
+        this.reFetch()
+      }
     },
     getSession(clickInfo) {
       const currentSession = this.calendarDatas.find(item => item.sessionInfo.id === clickInfo.event.extendedProps.id)
