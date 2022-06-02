@@ -151,22 +151,22 @@ export default {
   flex: 1;
   display: flex;
   align-items: center;
-  height: .3em;
-  margin-top: -0.2em;
+  height: 30px;
+  margin-top: -20px;
   flex-wrap: wrap;
   .tag-item {
-    height: 1/0.15*0.3em /* 30/100 */;
-    line-height: 1/0.15*0.3em /* 30/100 */;
-    padding: 0 1/0.15*0.1em /* 10/100 */;
-    font-size: 0.15em /* 15/100 */;
+    height: 30px /* 30/100 */;
+    line-height: 30px /* 30/100 */;
+    padding: 0 10px /* 10/100 */;
+    font-size: 15px /* 15/100 */;
     background: #FFDF9B;
     color: #D97909;
-    margin-right: 1/0.15*0.05em /* 5/100 */;
-    border-radius: 1/0.15*0.1rem /* 10/100 */;
+    margin-right: 5px /* 5/100 */;
+    border-radius: 10px /* 10/100 */;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    width: 6em;
+    width: 60px;
     text-align: center;
   }
   &.auto-size {

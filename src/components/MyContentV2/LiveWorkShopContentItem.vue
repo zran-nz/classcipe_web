@@ -13,7 +13,7 @@
             <a-icon v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType" type="edit" @click.prevent.stop="editName(content)"/>
           </div>
           <div class="name" v-show="showEditName">
-            <a-input :disabled="loading" :value="choose.title" @change="e => changeTitle(e.target.value, content)"></a-input>
+            <a-input :disabled="loading" :value="choose.title || content.content.name" @change="e => changeTitle(e.target.value, content)"></a-input>
             <div class="opt">
               <a-icon type="check" @click.stop.prevent="handleSave(content)" />
               <a-icon type="close" @click.stop.prevent="handleCancelSingle(content)"/>
@@ -65,8 +65,8 @@
           </div>
         </div> -->
         <tags-line :tags="content.content.customTags" />
-        <template v-if="this.content.priceList && this.content.priceList.length > 0">
-          <price-slider :priceList="content.priceList" :current="content.registeredNum" />
+        <template v-if="content.priceList && content.priceList.length > 0">
+          <price-slider :priceList="content.priceList" :current="content.registeredNum" :origin="content.price" />
         </template>
       </div>
       <div class='action'>
@@ -640,7 +640,7 @@ export default {
   flex-grow: 1;
   display: flex;
   align-items: center;
-  .tag-info {
+  /deep/ .tag-info {
     // width: 3em /* 300/100 */;
     flex: 1;
     display: flex;
