@@ -87,7 +87,7 @@ export function AssessmentToolInfoList (parameter) {
  */
 export function AssessmentToolInfoDelete (parameter) {
   return request({
-    url: AssessmentUrl.assessmentToolHeaderNamesDelete,
+    url: AssessmentUrl.assessmentToolInfoDelete,
     method: 'delete',
     params: parameter
   })
