@@ -64,7 +64,7 @@ export default {
   },
   methods: {
     selectHeaderSet () {
-      this.$logger.info('selectHeaderSet', this.$refs.table)
+      this.$logger.info('selectHeaderSet')
       AssessmentToolHeaderNamesList().then(res => {
         this.$logger.info('AssessmentToolHeaderNamesList', res)
         if (res.code === 0) {

@@ -164,6 +164,7 @@ export default {
     }
   },
   created() {
+    this.$logger.info('TaskAssessmentTools created')
     this.getAssessmentList()
   },
   methods: {
@@ -175,7 +176,7 @@ export default {
         pageNo: 1,
         pageSize: 100
       }).then(res => {
-        this.$logger.info('getAssessmentList', res)
+        this.$logger.info('getAssessmentList res', res)
         if (res.code === 0) {
           res.result.records.forEach(item => {
             const assessment = {

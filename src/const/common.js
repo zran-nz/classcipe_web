@@ -94,7 +94,7 @@ export const TaskField = {
   SubjectIds: 'subjectIds',
   GradeIds: 'gradeIds',
   Question: 'question',
-  Assessment: 'assessment',
+  AssessmentTools: 'assessmentTools',
   LearnOuts: 'learnOuts',
   MaterialList: 'materialList',
   Link: 'link',

@@ -174,7 +174,7 @@
                 </div>
 
                 <div class='form-block tag-content-block' :data-field-name='taskField.LearnOuts' v-if='fieldItem.visible && fieldItem.fieldName === taskField.LearnOuts' :key='fieldItem.fieldName'>
-                  <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Assessment style="left:100px" />
+                  <collaborate-tooltip :form-id="taskId" :fieldName=taskField.LearnOuts style="left:100px" />
                   <custom-form-item :required='emptyRequiredFields.indexOf(taskField.LearnOuts) !== -1'>
                     <template slot='label'>
                       {{ 'Learning objectives' | taskLabelName(taskField.LearnOuts, $store.getters.formConfigData) }}
@@ -301,6 +301,14 @@
                   </custom-form-item>
                 </div>
 
+                <div class='form-field-item assessment-tools-item' v-if="fieldItem.visible && fieldItem.fieldName === taskField.AssessmentTools">
+                  <div class='form-block tag-content-block'>
+                    <div class='common-link-wrapper assessment-tools'>
+                      <task-assessment-tools :task-id='taskId' />
+                    </div>
+                  </div>
+                </div>
+
               </template>
             </div>
             <div class='form-field-item custom-field' v-for='custFieldItem in $store.getters.formConfigData.taskCustomList' :key='custFieldItem.id'>
@@ -319,13 +327,6 @@
                   </custom-form-item>
                 </div>
               </template>
-            </div>
-            <div class='form-field-item assessment-tools-item' v-if="currentStep && currentStep.name.toLowerCase().indexOf('assessment') !== -1">
-              <div class='form-block tag-content-block'>
-                <div class='common-link-wrapper assessment-tools'>
-                  <task-assessment-tools :task-id='taskId' />
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -1234,7 +1235,7 @@ export default {
       }
 
       // #协同编辑event事件
-      this.handleCollaborateEvent(this.taskId, this.taskField.Assessment, this.form.assessment)
+      this.handleCollaborateEvent(this.taskId, this.taskField.AssessmentTools, this.form.assessment)
     },
 
     handleUpdateSelfOuts (data) {
@@ -1265,7 +1266,7 @@ export default {
       this.selectSyncDataVisible = true
 
       // #协同编辑event事件
-      this.handleCollaborateEvent(this.taskId, this.taskField.Assessment, this.form.assessment)
+      this.handleCollaborateEvent(this.taskId, this.taskField.AssessmentTools, this.form.assessment)
     },
 
     handleStepChange(data) {
