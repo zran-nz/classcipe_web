@@ -13,8 +13,7 @@
 
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import RecordVideo from '@/components/AddMaterial/Video/RecordVideo'
-import PdEvent from '@/components/PdContent/PdEvent'
-import VideoEvent from '@/components/Video/VideoEvent'
+import ScreenCaptureEvent from '@/components/ScreenCapture/ScreenCaptureEvent'
 
 export default {
   name: 'ScreenCapture',
@@ -33,8 +32,7 @@ export default {
     onSendVideo(url) {
       this.$logger.info('onSendVideo', url)
       this.recording = false
-      this.$EventBus.$emit(PdEvent.PD_VIDEO_ADD, url)
-      this.$EventBus.$emit(VideoEvent.VIDEO_ADD, url)
+      this.$EventBus.$emit(ScreenCaptureEvent.SCREEN_CAPTURE_VIDEO_ADD, url)
     },
 
     cancelRecord (data) {
