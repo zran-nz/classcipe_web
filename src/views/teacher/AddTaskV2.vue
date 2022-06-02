@@ -735,12 +735,15 @@ export default {
     AddMaterialEventBus.$on(ModalEventsNameEnum.DELETE_MEDIA_ELEMENT, data => {
       this.deleteMaterial(data)
     })
+
+    this.$EventBus.$on('assessment-saved', this.autoSaveMixinUpdateSaveTime)
   },
   beforeDestroy() {
     MyContentEventBus.$off(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
     LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
     this.$EventBus.$off(SlideEvent.SELECT_TEMPLATE, this.handleSelectTemplate)
     this.$EventBus.$off(SlideEvent.CANCEL_SELECT_TEMPLATE, this.handleRemoveTemplate)
+    this.$EventBus.$on('assessment-saved', this.autoSaveMixinUpdateSaveTime)
   },
   methods: {
     initData() {

@@ -43,6 +43,10 @@ export const AutoSaveMixin = {
         this.$logger.warn('AutoSaveMixin: autoSaveData: save method not found')
         alert('AutoSaveMixin: autoSaveData: save method not found')
       }
+    },
+
+    autoSaveMixinUpdateSaveTime () {
+      this.saveTime = new Date()
     }
   }
 }
