@@ -284,7 +284,7 @@ export default {
       })
     },
 
-    save() {
+    async save() {
       this.saving = true
       return PDContentAddOrUpdate(this.form).then(res => {
         this.$logger.info('PDContentAddOrUpdate', res)

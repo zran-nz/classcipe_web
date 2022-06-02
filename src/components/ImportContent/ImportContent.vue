@@ -13,7 +13,7 @@
       <a-col span='13'>
         <div class='school-switch'>
           <a-radio-group :default-value="currentSchoolId" button-style="solid" class='cc-radio-group' v-model='currentSchoolId' @change='handleSearchContent'>
-            <a-radio-button :value="null" v-if='userMode === USER_MODE.SCHOOL'>
+            <a-radio-button :value="0" v-if='userMode === USER_MODE.SCHOOL'>
               Personal
             </a-radio-button>
             <a-radio-button :value="school.id" v-for='school in info.schoolList' :key='school.id' v-show='userMode === USER_MODE.SELF || (currentSchool && school.id !== currentSchool.id)'>
@@ -99,7 +99,7 @@ export default {
   },
   data() {
     return {
-      currentSchoolId: null,
+      currentSchoolId: 0, // 0表示个人模式
       pagination: {
         onChange: page => {
           logger.info('pagination onChange', page)
@@ -129,16 +129,13 @@ export default {
   },
   created() {
     if (this.userMode === this.USER_MODE.SELF) {
-      if (this.currentSchool) {
-        this.currentSchoolId = this.currentSchool.id
-        this.handleSearchContent()
-      }
-    } else if (this.userMode === this.USER_MODE.SCHOOL) {
       const target = this.info.schoolList.find(item => item.id !== this.currentSchool.id)
       if (target) {
         this.currentSchoolId = target.id
         this.handleSearchContent()
       }
+    } else if (this.userMode === this.USER_MODE.SCHOOL) {
+      this.handleSearchContent()
     }
     this.$logger.info('ImportContent created ' + this.currentSchoolId)
   },
@@ -154,14 +151,11 @@ export default {
         pageSize: this.pagination.pageSize,
         searchKey: this.searchText ? this.searchText : '',
         types: [],
+        schoolId: this.currentSchoolId,
         // status: 1,
-        createBy: this.$store.getters.email,
+        // createBy: this.$store.getters.email,
         delFlag: 0,
         isImport: true
-      }
-
-      if (this.currentSchoolId) {
-        params.schoolId = this.currentSchoolId
       }
       FindMyContent(params).then(res => {
         logger.info('handleSearchContent', res)
