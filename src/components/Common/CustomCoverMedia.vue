@@ -33,7 +33,7 @@ import { upAwsS3File } from '@/components/AddMaterial/Utils/AwsS3'
 import CustomButton from '@/components/Common/CustomButton'
 import CustomMediaCoverButton from '@/components/Common/CustomMediaCoverButton'
 import CustomLinkText from '@/components/Common/CustomLinkText'
-import PdEvent from '@/components/PdContent/PdEvent'
+import { CoverMediaEvent } from '@/components/Common/CommonEvent'
 
 export default {
   name: 'CustomCoverMedia',
@@ -53,11 +53,11 @@ export default {
     },
     width: {
       type: String,
-      default: '280px'
+      default: '320px'
     },
     height: {
       type: String,
-      default: '160px'
+      default: '180px'
     },
     labelText: {
       type: String,
@@ -134,17 +134,12 @@ export default {
 
     handleEdit () {
       this.$logger.info('handleEdit', this.videoItem)
-      this.$EventBus.$emit(PdEvent.PD_VIDEO_EDIT, this.videoItem)
     },
 
     handleDelete () {
       this.$logger.info('handleDelete', this.videoItem)
-      this.$EventBus.$emit(PdEvent.PD_VIDEO_DELETE, this.videoItem)
-    },
-
-    handleUpdate () {
-      this.$logger.info('handleUpdate', this.videoItem)
-      this.$EventBus.$emit(PdEvent.PD_VIDEO_UPDATE, this.videoItem)
+      this.$EventBus.$emit(CoverMediaEvent.COVER_MEDIA_DELETE, this.videoItem)
+      this.$emit('delete', this.videoItem)
     }
   }
 }
@@ -170,7 +165,7 @@ export default {
     .upload-tips {
       display: none;
       position: absolute;
-      top: 35%;
+      top: 25%;
       left: 50%;
       margin-left: -90px;
       width: 180px;
