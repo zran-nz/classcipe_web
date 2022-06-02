@@ -22,6 +22,10 @@ export default {
       type: [Number],
       default: 0
     },
+    origin: {
+      type: [Number],
+      default: null
+    },
     priceList: {
       type: Array,
       default: () => [{
@@ -91,7 +95,7 @@ export default {
       //  if (index === values.length - 1 && val < this.max) {
       //    result[this.max] = this.max + PREFIX
       //  }
-       result[val] = val + (index === 0 ? this.PREFIX : this.PREFIXS)
+       result[val] = val + (val > 1 ? this.PREFIXS : this.PREFIX)
       })
       return result
     },
@@ -102,6 +106,13 @@ export default {
       }])
       const result = []
       let needCurrent = true
+      if (this.origin !== null) {
+        result.push({
+          width: '',
+          left: 0,
+          label: '$' + this.origin
+        })
+      }
       for (let index = 1; index < prepare.length; index++) {
         // const value = prepare[index].value - prepare[index - 1].value
         // const width = (value / (this.max - this.min)) * 100 + '%'
@@ -120,7 +131,7 @@ export default {
         result.push({
           left: `calc(${left} - 25px)`,
           width: 'auto',
-          label: this.currentVal + this.PREFIXS,
+          label: this.currentVal + (this.currentVal > 1 ? this.PREFIXS : this.PREFIX),
           isCurrent: true
         })
       }

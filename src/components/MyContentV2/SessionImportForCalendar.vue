@@ -7,6 +7,9 @@
       :step-index='currentActiveStepIndex'
       @step-change='handleStepChange'
     />
+    <div class="close">
+      <a-icon type="close" @click="handleCloseImport"/>
+    </div>
     <div class="import-content">
       <!-- unit为第一步的时候，task为选中unit中的task -->
       <content-select
@@ -14,6 +17,7 @@
         :type="typeMap['unit-plan']"
         @choose="(item) => handleChoose(item, 'unit')"
         @cancel="handleBack"
+
       />
       <!-- 直接选task的时候，即task为第一步，则需要从全部课件里面过滤 -->
       <content-select
@@ -73,15 +77,17 @@ import ScheduleDate from '@/components/Schedule/ScheduleDate'
 import SchedulePayInfo from '@/components/Schedule/SchedulePayInfo'
 import SelectSessionUnit from '@/components/Schedule/SelectSessionUnit'
 
-import { GetAssociate } from '@/api/teacher'
+import { GetAssociate, FindMyContent } from '@/api/teacher'
 import { AddSessionV2 } from '@/api/v2/classes'
 import { SchoolClassGetMyClasses } from '@/api/schoolClass'
 
 import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
 
 import { typeMap } from '@/const/teacher'
+import { mapState } from 'vuex'
 
 import moment from 'moment'
+import { IoTSecureTunneling } from 'aws-sdk'
 export default {
   name: 'SessionImportForCalendar',
   mixins: [ ZoomAuthMixin ],
@@ -101,6 +107,10 @@ export default {
     init: {
       type: Object,
       default: () => {}
+    },
+    needClose: {
+      type: Boolean,
+      default: false
     }
   },
   watch: {
@@ -179,6 +189,10 @@ export default {
     }
   },
   computed: {
+    ...mapState({
+      userMode: state => state.app.userMode,
+      currentSchool: state => state.user.currentSchool
+    }),
     ScheduleStepsFilter() {
       return this.ScheduleSteps.filter(item => !item.filter || item.filter === this.importType)
     },
@@ -275,10 +289,29 @@ export default {
             this.scheduleReq.planId = item.id
           }
           console.log(associates)
-          if (this.importType === typeMap.task && associates.length > 0) {
+          if (this.importType === typeMap.task) {
             if (associates.length > 1) {
               this.associateUnitList = associates
               this.selectSessionUnitVisible = true
+            // 如果为0，则从所有unit选择
+            } else if (associates.length === 0) {
+              this.importLoading = IoTSecureTunneling
+              FindMyContent({
+                type: [typeMap['unit-plan']],
+                searchKey: '',
+                delFlag: 0,
+                pageNo: 1,
+                pageSize: 1000,
+                types: [typeMap['unit-plan']],
+                schoolId: this.currentSchool.id // this.userMode === USER_MODE.SELF ? null : this.currentSchool.id
+              }).then(res => {
+                if (res.success) {
+                  this.associateUnitList = res.result.records || res.result
+                  this.selectSessionUnitVisible = true
+                }
+              }).finally(res => {
+                this.importLoading = false
+              })
             } else {
               this.scheduleReq.planId = associates[0].id
               this.$refs['steps-nav'].nextStep()
@@ -381,5 +414,12 @@ export default {
     display: flex;
     justify-content: space-between;
   }
+}
+.close {
+  position: absolute;
+  right: 20px;
+  top: 10px;
+  font-size: 20px;
+  color: #999;
 }
 </style>

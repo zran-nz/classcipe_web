@@ -8,30 +8,30 @@
         <div class="schedule-tip" v-show="attendanceVisible">
           <a-affix :target="affixTarget">
             <div class="tip-wrap">
-              <div class="unit-tip" v-show="queryType === CALENDAR_QUERY_TYPE.MY.value">
-                <!-- <div class="tip-title">My Unit Legend</div>
-                <a-checkbox-group
-                  :options="showUnitOptions"
-                  v-model="showUnit"
-                  @change="handleChangeEvents"
-                  class="tip-check"
-                >
-                  <div slot="label" class="tip-content" slot-scope="item">
-                    <span class="tip-dot" :style="{backgroundColor: BG_COLORS[item.index]}"></span>
-                    <span>Unit: {{ item.name }}</span>
-                  </div>
-                </a-checkbox-group> -->
+              <div class="unit-tip">
 
-                <div
-                  class="unit-tip-item"
-                  :style="{backgroundColor: BG_COLORS[item.index]}"
-                  v-for="(item) in showUnitOptions"
-                  :key="item.id">
-                  <a-tooltip :title="item.name">Unit: {{ item.name }}</a-tooltip>
-                </div>
+                <template v-if="queryType === CALENDAR_QUERY_TYPE.MY.value">
+                  <div
+                    class="unit-tip-item"
+                    :style="{backgroundColor: BG_COLORS[item.index]}"
+                    v-for="(item) in showUnitOptions"
+                    :key="item.id">
+                    <a-tooltip :title="item.name">Unit: {{ item.name }}</a-tooltip>
+                  </div>
+                </template>
+
+                <template v-if="queryType === CALENDAR_QUERY_TYPE.CLASS.value">
+                  <div
+                    class="unit-tip-item"
+                    :style="{backgroundColor: BG_COLORS[item.index]}"
+                    v-for="(item) in showClassOptions"
+                    :key="item.id">
+                    <a-tooltip :title="item.name">Class: {{ item.name }}</a-tooltip>
+                  </div>
+                </template>
 
               </div>
-              <div class="calendar-type" v-show="false">
+              <div class="calendar-type" v-show="true">
                 <div class="calendar-type-item" v-for="type in CALENDAR_QUERY_TYPE" :key="type.value">
                   <div class="type-item-title">
                     <a-radio :checked="queryType === type.value" @change="handleChangeType(type)">
@@ -42,7 +42,7 @@
                     <a-checkbox-group
                       :options="getOptions(type.label)"
                       v-model="typeFilters"
-                      @change="handleChangeEvents"
+                      @change="val => handleChangeFilters(val, type.value)"
                       class="type-check"
                     >
                       <div slot="label" class="type-content" slot-scope="item">
@@ -64,17 +64,25 @@
             <a-popover
               title="Session Detail"
               trigger="click"
+              :destroyTooltipOnHide="true"
+              :getPopupContainer="trigger => getPopupContainer(trigger, info)"
               @visibleChange="visible => showPopover(visible, info)"
             >
               <a slot="content" >
                 <content-item-calendar
+                  v-if="queryType !== CALENDAR_QUERY_TYPE.WORKSHOP.value"
+                  ref="contentItemCalendar"
                   :content='getSession(info)'
                   :units='currentUnitList'
                   @close="closeAllModal"
                   @delete='(data) => handleDelete(info, data)'
                   @change-unit="(params) => handleSave(params, info)"
+                  @save-response-limit="params => handleSave(params, info)"
                 >
                 </content-item-calendar>
+                <div v-else style="font-size: 60px">
+                  <liveworkshop-item :content="getWorkshopItem(info)"/>
+                </div>
               </a>
               <div
                 class="schedule-event-content"
@@ -118,6 +126,7 @@
       <session-import-for-calendar
         :type="importType"
         :init="importModel"
+        :need-close="true"
         @cancel="handleCancelImport"
         @ok="handleChoose"
       />
@@ -137,6 +146,7 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import SessionImportForCalendar from '@/components/MyContentV2/SessionImportForCalendar'
 import ContentItemCalendar from '@/components/MyContentV2/ContentItemCalendar'
+import LiveworkshopItem from '@/components/MyContentV2/LiveWorkShopContentItem'
 
 import { QueryForCalendar } from '@/api/v2/calendarSchedule'
 import { DeleteClassV2, EditSessionScheduleV2 } from '@/api/v2/classes'
@@ -155,7 +165,8 @@ export default {
   components: {
     FullCalendar,
     SessionImportForCalendar,
-    ContentItemCalendar
+    ContentItemCalendar,
+    LiveworkshopItem
   },
   data() {
     return {
@@ -207,14 +218,14 @@ export default {
             classId: this.queryClassId
           }).then(res => {
             if (res.success && res.result) {
-              const filterRes = res.result.filter(item => item.unitPlanInfo)
+              const filterRes = res.result// .filter(item => item.unitPlanInfo)
               this.calendarDatas = res.result
               if (filterRes.length > 0) {
-                this.currentUnitList = uniqBy(filterRes.map(item => item.unitPlanInfo), 'id')
+                this.currentUnitList = uniqBy(filterRes.filter(item => item.unitPlanInfo).map(item => item.unitPlanInfo), 'id')
                 const events = filterRes.map(item => {
                   // 根据classId获取颜色
-                  const index = this.currentUnitList.findIndex(unit => unit.id === item.unitPlanInfo.id)
-                  const color = BG_COLORS[index]
+                  const index = this.currentUnitList.findIndex(unit => unit.id === (item.unitPlanInfo ? item.unitPlanInfo.id : -1))
+                  const color = (index === -1) ? '#fff' : BG_COLORS[index]
 
                   return {
                     id: item.sessionInfo.id,
@@ -256,6 +267,7 @@ export default {
         selectable: true,
         selectMirror: true,
         dayMaxEvents: true,
+        nowIndicator: true,
         weekends: true,
         slotDuration: '00:15:00',
         slotLabelInterval: '01:00',
@@ -271,7 +283,8 @@ export default {
           hour: 'numeric',
           minute: '2-digit',
           meridiem: 'short'
-        }
+        },
+        viewDidMount: this.handleViewDieMount
       },
       currentEvents: [],
       currentClass: 1,
@@ -319,6 +332,15 @@ export default {
           index: index
         }
       })
+    },
+    showClassOptions() {
+      return this.classList.map((item, index) => (
+        {
+          value: item.id,
+          name: item.name,
+          index: index
+        }
+      ))
     }
   },
   created() {
@@ -335,7 +357,6 @@ export default {
       this.showUnit = this.currentUnitList.map(item => item.id)
     },
     getOptions(typeLabel) {
-      console.log(typeLabel)
       return this[typeLabel] ? this[typeLabel] : []
     },
     affixTarget() {
@@ -349,6 +370,17 @@ export default {
     },
     handleWeekendsToggle() {
       this.calendarOptions.weekends = !this.calendarOptions.weekends // update a property
+    },
+    // 将当前时间线延长成整个table而不是某天的格子里
+    handleViewDieMount() {
+      this.$nextTick(() => {
+        const nowLine = document.getElementsByClassName('fc-timegrid-now-indicator-line')
+        if (nowLine && nowLine.length > 0) {
+          // const cloneLine = nowLine[0].cloneNode(true)
+          const fcBody = document.getElementsByClassName('fc-timegrid-body')[0]
+          fcBody.insertBefore(nowLine[0], fcBody.firstChild)
+        }
+      })
     },
     handleDateSelect(selectInfo) {
       console.log(selectInfo)
@@ -448,7 +480,7 @@ export default {
         deadline: moment(current.end).utc().format('YYYY-MM-DD HH:mm:ss'),
         id: extendedProps.id
       }
-      this.handleSave(params)
+      this.handleSave(params, event)
     },
     handleEventResize(event) {
       console.log(event)
@@ -459,11 +491,15 @@ export default {
         deadline: moment(current.end).utc().format('YYYY-MM-DD HH:mm:ss'),
         id: extendedProps.id
       }
-      this.handleSave(params)
+      this.handleSave(params, event)
     },
     showAttendance() {
       this.attendanceVisible = !this.attendanceVisible
       this.reRender()
+    },
+    getPopupContainer(trigger, info) {
+      // return trigger => trigger.parentElement
+      return document.body
     },
     showPopover(visible, clickInfo) {
       // if (visible) {
@@ -483,9 +519,24 @@ export default {
       this.typeFilters = this[type.label] ? this[type.label].map(item => item.value) : []
       this.reFetch()
     },
+    handleChangeFilters(filter, val) {
+      if (this.queryType !== val) {
+        this.queryType = val
+        this.reFetch()
+      }
+    },
     getSession(clickInfo) {
       const currentSession = this.calendarDatas.find(item => item.sessionInfo.id === clickInfo.event.extendedProps.id)
       return currentSession ? { ...currentSession } : null
+    },
+    getWorkshopItem(clickInfo) {
+      const currentSession = this.calendarDatas.find(item => item.sessionInfo.id === clickInfo.event.extendedProps.id)
+      if (!currentSession) return {}
+      return {
+        content: { ...currentSession.content },
+        sessionInfo: { ...currentSession.sessionInfo },
+        ...currentSession.workshopsDetailInfo
+      }
     },
     handleDelete(clickInfo) {
       // this.$confirm({
@@ -536,6 +587,10 @@ export default {
             const color = BG_COLORS[index]
             info.event.setExtendedProp('backgroundColor', color)
             info.event.setExtendedProp('planId', params.planId)
+          } else {
+            // 为了popover跟着变。
+            const color = info.event.extendedProps.backgroundColor
+            info.event.setExtendedProp('backgroundColor', color)
           }
           // this.reFetch()
         }

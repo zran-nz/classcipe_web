@@ -173,7 +173,7 @@ export default {
       this.loading = true
       this[this.sourceApi]({
         ...this.queryParams,
-        schoolId: this.userMode === USER_MODE.SELF ? null : this.currentSchool.id
+        schoolId: this.currentSchool.id // this.userMode === USER_MODE.SELF ? null : this.currentSchool.id
       }).then(res => {
         if (res.success) {
           this.myContentList = res.result.records || res.result
