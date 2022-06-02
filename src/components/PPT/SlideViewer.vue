@@ -163,8 +163,12 @@ export default {
     imgList () {
       if (this.defaultThumbnailList.length) {
         return this.defaultThumbnailList.map(item => item.contentUrl)
-      } else {
+      } else if (this.thumbnailList && this.thumbnailList.length) {
         return this.thumbnailList.map(item => item.contentUrl)
+      } else if (this.slideItem && this.slideItem.image) {
+        return [ this.slideItem.image ]
+      } else {
+        return []
       }
     }
   },

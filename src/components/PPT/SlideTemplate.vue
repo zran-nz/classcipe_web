@@ -37,7 +37,7 @@ export default {
       this.selectedTemplateList.forEach(item => {
         if (item.thumbnailList && item.thumbnailList.length) {
           list.push(item)
-        } else {
+        } else if (item.images) {
           item.thumbnailList = []
           for (let i = 0; i < item.images.length; i++) {
             item.thumbnailList.push({
@@ -45,6 +45,8 @@ export default {
               id: item.pageObjectIds[i]
             })
           }
+          list.push(item)
+        } else {
           list.push(item)
         }
       })
