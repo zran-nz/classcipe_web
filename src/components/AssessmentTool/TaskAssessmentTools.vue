@@ -177,7 +177,7 @@ export default {
       }).then(res => {
         this.$logger.info('getAssessmentList', res)
         if (res.code === 0) {
-          res.result.forEach(item => {
+          res.result.records.forEach(item => {
             const assessment = {
               ...item
             }
@@ -226,9 +226,9 @@ export default {
       return row
     },
 
-    handleDeleteAssessmentTool (assessment) {
-      this.$logger.info('handleDeleteAssessmentTool', assessment)
-      this.assessmentList.splice(this.assessmentList.findIndex(item => item.key === assessment.key), 1)
+    handleDeleteAssessmentTool (key) {
+      this.$logger.info('handleDeleteAssessmentTool', key)
+      this.assessmentList.splice(this.assessmentList.findIndex(item => item.key === key), 1)
     },
 
     handleSelectActiveTable (assessmentTable) {

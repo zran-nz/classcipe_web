@@ -74,7 +74,7 @@ export function AssessmentToolInfoSave (parameter) {
  */
 export function AssessmentToolInfoList (parameter) {
   return request({
-    url: AssessmentUrl.assessmentToolHeaderNamesList,
+    url: AssessmentUrl.assessmentToolInfoList,
     method: 'get',
     params: parameter
   })

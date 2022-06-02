@@ -1,8 +1,17 @@
 <template>
   <div class='assessment-content'>
     <div class='assessment-header'>
-      <div class='title' :class="{'active-table-title': isActiveTable }">
-        {{ assessment.title }}
+      <div class='title'>
+        <a-space>
+          <div class='title-name' :class="{'active-table-title': isActiveTable }">
+            {{ assessment.title }}
+          </div>
+          <div class='delete'>
+            <a-popconfirm title="Delete?" ok-text="Yes" @confirm="deleteAssessmentTool" cancel-text="No">
+              <delete-icon color='#F16A39' />
+            </a-popconfirm>
+          </div>
+        </a-space>
       </div>
       <div class='right-action'>
         <a-space v-if='assessment.type === AssessmentToolType.Rubric'>
@@ -26,11 +35,12 @@ import CustomLinkText from '@/components/Common/CustomLinkText'
 import AssessmentToolMixin from '@/components/AssessmentTool/Mixin/AssessmentToolMixin'
 import AssessmentToolTable from '@/components/AssessmentTool/AssessmentToolTable'
 import { AssessmentToolType } from '@/components/AssessmentTool/Constant'
-import { AssessmentToolHeaderNamesList } from '@/api/v2/assessment'
+import { AssessmentToolHeaderNamesList, AssessmentToolInfoDelete } from '@/api/v2/assessment'
+import DeleteIcon from '@/components/Common/DeleteIcon'
 
 export default {
   name: 'AssessmentTool',
-  components: { AssessmentToolTable, CustomLinkText, CustomTextButton },
+  components: { DeleteIcon, AssessmentToolTable, CustomLinkText, CustomTextButton },
   props: {
     assessment: {
       type: Object,
@@ -70,6 +80,15 @@ export default {
         } else {
           this.$message.error(res.message)
         }
+      })
+    },
+
+    deleteAssessmentTool () {
+      AssessmentToolInfoDelete({
+        id: this.assessment.id
+      }).then((res) => {
+        this.$logger.info('deleteAssessmentTool res', res)
+        this.$emit('delete', this.assessment.key)
       })
     }
   }

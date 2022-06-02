@@ -61,8 +61,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for='row in assessment.bodyList' :key='row.key'>
-          <th v-for='header in assessment.headerList' :key='header.type' @dblclick='handleEditRow(row)'>
+        <tr v-for='row in assessment.bodyList' :key="'row_' + row.key">
+          <th v-for='header in assessment.headerList' :key="'rc_' + row.key + '_' + header.type" @dblclick='handleEditRow(row)'>
             <a-textarea
               :auto-size="{ minRows: 2, maxRows: 5 }"
               class='cc-table-textarea'
