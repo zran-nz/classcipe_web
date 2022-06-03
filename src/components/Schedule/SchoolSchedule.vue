@@ -152,7 +152,7 @@ export default {
 
   .pay-info {
     padding: 0 20px;
-    min-height: 400px;
+    min-height: 300px;
     overflow-y: auto;
 
     .filter-teacher {
