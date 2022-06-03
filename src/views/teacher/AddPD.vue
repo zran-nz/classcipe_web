@@ -145,7 +145,7 @@
       </template>
     </fixed-form-footer>
 
-    <pd-schedule v-if='scheduleVisible' :visible='scheduleVisible' />
+    <pd-schedule ref='schedule' />
   </div>
 </template>
 
@@ -614,7 +614,7 @@ export default {
 
     handleScheduleWorkShop () {
       this.$logger.info('handleScheduleWorkShop')
-      this.scheduleVisible = true
+      this.$refs.schedule.visible = true
     }
   }
 }
