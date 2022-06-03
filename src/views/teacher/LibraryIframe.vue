@@ -44,7 +44,7 @@ export default {
   created() {
     const host = window.location.host
     if (host.indexOf('localhost') !== -1) {
-      this.baseUrl = 'https://dev.rssmv.cn'
+      this.baseUrl = 'http://localhost:9004'
     } else if (host.indexOf('dev.classcipe.com') !== -1) {
       this.baseUrl = 'https://dev.rssmv.cn'
     } else if (host.indexOf('my.classcipe.com') !== -1) {
