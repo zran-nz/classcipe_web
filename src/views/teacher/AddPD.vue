@@ -23,7 +23,7 @@
     </fixed-form-header>
     <div class='form-content'>
       <div class='step-content' v-if='!contentLoading'>
-        <div class='form-body root-locate-form' id='form-body'>
+        <div class='form-body root-locate-form' id='form-body' :style="{ width: formBodyWidth }" v-show="formBodyWidth !== '0%'">
           <div
             class='form-page-item'
             v-show='currentActiveStepIndex === stepIndex'
@@ -96,13 +96,13 @@
                 </custom-form-item>
               </div>
 
-              <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === PdField.Video' :key='fieldName'>
+              <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === PdField.VideoList' :key='fieldName'>
                 <case-video :video-list='form.videoList' @add-video='handleAddVideoList' @delete-video='handleDeleteVideo' />
               </div>
             </div>
           </div>
         </div>
-        <div class='tag-body'>
+        <div class='tag-body' :style="{ width: tagBodyWidth }" v-show="tagBodyWidth !== '0%'">
           <template v-if='currentRightModule === rightModule.customTag'>
             <custom-tag-v2
               ref='customTag'
@@ -128,9 +128,24 @@
     </div>
     <fixed-form-footer>
       <template v-slot:right>
-        <a-button type='primary' @click='handleNextStep' class='cc-round-button'>Next</a-button>
+        <a-space>
+          <a-button type='primary' @click='handleNextStep' class='cc-round-button'>
+            <template v-if='currentActiveStepIndex < formSteps.length - 1'>
+              Next
+            </template>
+            <template v-else>
+              Skip
+            </template>
+          </a-button>
+
+          <a-button type='primary' @click='handleScheduleWorkShop' class='cc-round-button cc-dark-button' v-if='currentActiveStepIndex === formSteps.length - 1'>
+            Schedule workshop
+          </a-button>
+        </a-space>
       </template>
     </fixed-form-footer>
+
+    <pd-schedule v-if='scheduleVisible' :visible='scheduleVisible' />
   </div>
 </template>
 
@@ -161,10 +176,12 @@ import { AutoSaveMixin } from '@/mixins/AutoSaveMixin'
 import SlideEvent from '@/components/PPT/SlideEvent'
 import CustomImageUploader from '@/components/Common/CustomImageUploader'
 import { TaskCreateNewTaskPPT } from '@/api/task'
+import PdSchedule from '@/components/PdContent/PdSchedule'
 
 export default {
   name: 'AddPD',
   components: {
+    PdSchedule,
     CustomImageUploader,
     CaseVideo,
     FormLinkedContent,
@@ -221,7 +238,13 @@ export default {
       currentRightModule: null,
       rightModule: RightModule,
 
-      thumbnailList: []
+      thumbnailList: [],
+
+      formBodyWidth: '55%',
+      tagBodyWidth: '45%',
+      fullBodyFields: [PdField.VideoList],
+
+      scheduleVisible: false
     }
   },
   created() {
@@ -239,9 +262,15 @@ export default {
     ]
     this.initData()
     this.loadCustomTags()
-    this.handleDisplayRightModule()
     this.loadThumbnail(false)
     this.contentLoading = false
+
+    if (this.currentActiveStepIndex < 0 || this.currentActiveStepIndex > this.formSteps.length - 1) {
+      this.currentActiveStepIndex = 0
+    }
+    this.currentStep = this.formSteps[this.currentActiveStepIndex]
+    this.handleDisplayRightModule()
+    this.checkIsFullBodyStep()
 
     this.$EventBus.$on(SlideEvent.SELECT_TEMPLATE, this.handleSelectTemplate)
     this.$EventBus.$on(SlideEvent.CANCEL_SELECT_TEMPLATE, this.handleRemoveTemplate)
@@ -322,11 +351,11 @@ export default {
           id: 4,
           name: 'Case Video',
           commonFields: [
-            PdField.Video
+            PdField.VideoList
           ],
           tips: 'You can publish case study video to library for other teachers to purchase and develop their professional skills',
           skip: true,
-          needSchedule: true,
+          showSchedule: true,
           showRequiredTips: false,
           showSatisfiedTips: false
         }
@@ -351,7 +380,25 @@ export default {
       this.currentStep = data.step
       this.currentActiveStepIndex = data.index
       this.handleDisplayRightModule()
-      this.setSessionStep(data.index)
+      sessionStorage.setItem('pd-step-' + this.taskId, data.index)
+      this.checkIsFullBodyStep()
+    },
+
+    checkIsFullBodyStep() {
+      let isFullBody = false
+      this.fullBodyFields.forEach(field => {
+        if (this.currentStep.commonFields.some(item => item === field)) {
+          isFullBody = true
+        }
+      })
+
+      if (isFullBody) {
+        this.formBodyWidth = '100%'
+        this.tagBodyWidth = '0%'
+      } else {
+        this.formBodyWidth = '55%'
+        this.tagBodyWidth = '45%'
+      }
     },
 
     handleAuthCallback() {
@@ -378,11 +425,6 @@ export default {
       })
     },
 
-    setSessionStep(step) {
-      this.currentActiveStepIndex = step
-      sessionStorage.setItem('pd-step-' + this.pdId, step)
-    },
-
     handleDisplayRightModule () {
       if (this.currentStep.commonFields.indexOf(PdField.Slides) !== -1) {
         this.currentRightModule = RightModule.recommend
@@ -395,7 +437,13 @@ export default {
     },
 
     handleNextStep () {
-      this.$refs['steps-nav'].nextStep()
+      if (this.currentActiveStepIndex === this.formSteps.length - 1) {
+        this.$router.replace({
+          path: '/'
+        })
+      } else {
+        this.$refs['steps-nav'].nextStep()
+      }
     },
 
     handleUpdateCover (coverData) {
@@ -562,6 +610,11 @@ export default {
       if (index !== -1) {
         this.form.selectedTemplateList.splice(index, 1)
       }
+    },
+
+    handleScheduleWorkShop () {
+      this.$logger.info('handleScheduleWorkShop')
+      this.scheduleVisible = true
     }
   }
 }
