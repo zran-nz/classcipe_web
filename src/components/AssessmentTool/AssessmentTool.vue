@@ -11,6 +11,12 @@
               <delete-icon color='#F16A39' />
             </a-popconfirm>
           </div>
+          <div class='table-saving' v-if='saving'>
+            <a-spin>
+              <a-icon slot="indicator" type="loading" style="font-size: 18px" spin />
+            </a-spin>
+            &nbsp;saving...
+          </div>
         </a-space>
       </div>
       <div class='right-action'>
@@ -24,7 +30,7 @@
       </div>
     </div>
     <div class='assessment-body'>
-      <assessment-tool-table ref='table' :is-active-table='isActiveTable' />
+      <assessment-tool-table ref='table' :is-active-table='isActiveTable' :saving.sync='saving' />
     </div>
   </div>
 </template>
@@ -59,7 +65,8 @@ export default {
   mixins: [ AssessmentToolMixin ],
   data() {
     return {
-      AssessmentToolType: AssessmentToolType
+      AssessmentToolType: AssessmentToolType,
+      saving: false
     }
   },
   methods: {
@@ -90,6 +97,10 @@ export default {
         this.$logger.info('deleteAssessmentTool res', res)
         this.$emit('delete', this.assessment.key)
       })
+    },
+
+    saveAssessment() {
+      this.$refs.table.autoSaveAssessment()
     }
   }
 }
@@ -113,6 +124,8 @@ export default {
 
   .active-table-title {
     color: #15c39a;
+    font-size: 16px;
+    font-weight: bold;
   }
 
   .assessment-header {
@@ -120,6 +133,18 @@ export default {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+
+    .delete {
+      visibility: hidden;
+    }
+  }
+
+  &:hover {
+    .assessment-header {
+      .delete {
+        visibility: visible;
+      }
+    }
   }
 
   .assessment-body {
