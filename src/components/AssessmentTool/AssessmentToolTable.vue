@@ -197,6 +197,7 @@ export default {
 
       // 异步延迟保存表格数据
       asyncSaveTableData: null,
+      lastSaveTableDataJson: null,
 
       // 评估项附带数据类型
       criteriaExtraDataType: {
@@ -387,6 +388,10 @@ export default {
       this.$emit('update:saving', true)
       try {
         const data = JSON.parse(JSON.stringify(this.assessment))
+        if (data === this.lastSaveTableDataJson) {
+          return
+        }
+        this.lastSaveTableDataJson = data
         data.headerListJson = JSON.stringify(data.headerList)
         data.bodyListJson = JSON.stringify(data.bodyList)
         data.extraCriteriaBodyListJson = JSON.stringify(data.extraCriteriaBodyList)
@@ -407,7 +412,6 @@ export default {
           this.$logger.info('autoSaveAssessment', data)
           AssessmentToolInfoSave(data).then((res) => {
             if (res.code === 0) {
-              this.$message.success('Save successfully')
               this.$EventBus.$emit('assessment-saved')
             } else {
               this.$message.error(res.message)
