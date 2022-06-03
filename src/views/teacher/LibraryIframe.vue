@@ -20,6 +20,7 @@ import GlobalSearchInput from '@/components/GlobalSearch/GlobalSearchInput'
 import UserProfileAvatar from '@/components/User/UserProfileAvatar'
 import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
 import { getLibraryRecommend, getLibraryResource, librarySearch, queryAllResource } from '@/api/v2/library'
+import { mapState } from 'vuex'
 
 export default {
   name: 'LibraryIframe',
@@ -35,12 +36,15 @@ export default {
         return this.baseUrl + '/v2/iframe/library'
       }
       return null
-    }
+    },
+    ...mapState({
+      currentSchool: state => state.user.currentSchool
+    })
   },
   created() {
     const host = window.location.host
     if (host.indexOf('localhost') !== -1) {
-      this.baseUrl = 'http://localhost:9004'
+      this.baseUrl = 'https://dev.rssmv.cn'
     } else if (host.indexOf('dev.classcipe.com') !== -1) {
       this.baseUrl = 'https://dev.rssmv.cn'
     } else if (host.indexOf('my.classcipe.com') !== -1) {
@@ -66,6 +70,10 @@ export default {
 
     async getEventCallbackData(data) {
       this.$logger.info('getEventCallbackData', JSON.stringify(data))
+      // 当前身份信息加入
+      if (!data.schoolId) {
+         data.schoolId = this.currentSchool ? this.currentSchool.id : 0
+      }
       if (data.act === 'getLibraryResource') {
         return getLibraryResource(data.param)
       } else if (data.act === 'getLibraryRecommend') {
