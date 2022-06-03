@@ -84,7 +84,13 @@
     <div class='select-date'>
       <div class='title'>Schedule</div>
       <div class='date-picker'>
-        <a-range-picker class='cc-modal-date' :default-value="initDate" :disabled-date="disabledDate" @change="handleDateChange" format='YYYY-MM-DD HH:mm:ss' :show-time="{ format: 'HH:mm' }"/>
+        <a-range-picker
+          class='cc-modal-date'
+          :default-value="initDate"
+          :disabled-date="disabledDate"
+          @change="handleDateChange"
+          format='YYYY-MM-DD HH:mm:ss'
+          :show-time="{ format: 'HH:mm' }"/>
       </div>
       <div class='go-calender'>
         <a>Go to calender</a>
