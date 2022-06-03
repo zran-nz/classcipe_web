@@ -60,6 +60,9 @@ export default {
 
     handleAddScreenCapture (url) {
       this.$logger.info('handleAddScreenCapture', url)
+      this.$emit('add-video', [{
+        filePath: url
+      }])
     },
 
     handleDeleteVideo (item) {
