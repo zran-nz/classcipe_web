@@ -17,7 +17,7 @@ export default {
     },
     color: {
       type: String,
-      default: '#e611'
+      default: '#F16A39'
     }
   },
   components: {

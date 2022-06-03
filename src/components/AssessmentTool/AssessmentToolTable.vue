@@ -137,7 +137,8 @@
       <modal-header title="Select header option" @close='selectHeaderSetModalVisible = false'/>
       <div class='edit-header-action'>
         <div class='edit-header-action-item header-option' v-for='(options, idx) in optionList' :key='idx' @click='selectHeaderSet(options)'>
-          <a-tag v-for='(option,oIdx) in options' :key='oIdx'>{{ option }}</a-tag>
+          <a-tag v-for='(option,oIdx) in options.headerNameList' :key='oIdx'>{{ option }}</a-tag>
+          <delete-icon @click.stop='handleDeleteHeader(options)' class='delete-item'/>
         </div>
         <div class='no-header' v-if='optionList.length === 0'>
           <common-no-data />
@@ -156,7 +157,11 @@ import CustomTextButton from '@/components/Common/CustomTextButton'
 import ModalHeader from '@/components/Common/ModalHeader'
 import CustomLinkText from '@/components/Common/CustomLinkText'
 import { debounce } from 'lodash-es'
-import { AssessmentToolHeaderNamesSave, AssessmentToolInfoSave } from '@/api/v2/assessment'
+import {
+  AssessmentToolHeaderNamesDelete,
+  AssessmentToolHeaderNamesSave,
+  AssessmentToolInfoSave
+} from '@/api/v2/assessment'
 import html2canvas from 'html2canvas'
 
 export default {
@@ -468,6 +473,19 @@ export default {
         this.assessment.extraCriteriaBodyList.splice(this.assessment.extraCriteriaBodyList.indexOf(this.currentEditExtraRow), 1)
       }
       this.editExtraRowModalVisible = false
+    },
+
+    handleDeleteHeader (option) {
+      this.$logger.info('handleDeleteHeader', option)
+      AssessmentToolHeaderNamesDelete({
+        id: option.id
+      }).then(res => {
+        if (res.code === 0) {
+          this.optionList.splice(this.optionList.indexOf(option), 1)
+        } else {
+          this.$message.error(res.message)
+        }
+      })
     }
   }
 }
@@ -585,14 +603,21 @@ export default {
   }
 
   .header-option {
-    padding: 10px;
+    padding: 10px 30px 10px 10px;
     border-radius: 5px;
-    background-color: #f1f1f1;
-    margin: 15px auto;
+    background-color: #f9f9f9;
+    margin: 10px auto;
     cursor: pointer;
+    position: relative;
 
     &:hover {
-      background-color: #e1e1e1;
+      background-color: #f1f1f1;
+    }
+
+    .delete-item {
+      position: absolute;
+      right: 5px;
+      top: 13px;
     }
   }
 }
