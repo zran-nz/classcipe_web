@@ -30,6 +30,16 @@
                   </div>
                 </template>
 
+                <template v-if="queryType === CALENDAR_QUERY_TYPE.WORKSHOP.value">
+                  <div
+                    class="unit-tip-item"
+                    :style="{backgroundColor: BG_COLORS[item.index]}"
+                    v-for="(item) in showWorkshopOptions"
+                    :key="item.id">
+                    <a-tooltip :title="item.name">{{ item.name }}</a-tooltip>
+                  </div>
+                </template>
+
               </div>
               <div class="calendar-type" v-show="true">
                 <div class="calendar-type-item" v-for="type in CALENDAR_QUERY_TYPE" :key="type.value">
@@ -38,9 +48,9 @@
                       {{ type.label }}
                     </a-radio>
                   </div>
-                  <div class="type-item-desc" v-if="getOptions(type.label).length > 0">
+                  <div class="type-item-desc" v-if="getOptions(type.value).length > 0">
                     <a-checkbox-group
-                      :options="getOptions(type.label)"
+                      :options="getOptions(type.value)"
                       v-model="typeFilters"
                       @change="val => handleChangeFilters(val, type.value)"
                       class="type-check"
@@ -175,8 +185,66 @@ export default {
       CALENDAR_QUERY_TYPE: CALENDAR_QUERY_TYPE,
       typeMap: typeMap,
       queryType: CALENDAR_QUERY_TYPE.MY.value,
-      [CALENDAR_QUERY_TYPE.WORKSHOP.label]: [],
-      typeFilters: [], // 根据类型的筛选条件
+      [CALENDAR_QUERY_TYPE.WORKSHOP.label]: [
+      // {
+      //   value: 1,
+      //   name: 'public workshop',
+      //   index: 1
+      // }, {
+      //   value: 2,
+      //   name: 'private workshop',
+      //   index: 2
+      // },
+      {
+        value: 3,
+        name: 'PD workshop',
+        index: 3
+      }, {
+        value: 4,
+        name: 'student workshop',
+        index: 4
+      }, {
+        value: 5,
+        name: 'launched by me',
+        index: 5
+      }, {
+        value: 6,
+        name: 'workshop to attend',
+        index: 6
+      }],
+      [CALENDAR_QUERY_TYPE.MY.label]: [
+        {
+          id: 1,
+          index: 1,
+          name: 'Assignment',
+          value: 'sessionType' + 1,
+          allowZoom: false,
+          enableZoom: false,
+          color: '#333333',
+          type: this.$classcipe.ScheduleSessionType.assignment
+        },
+        {
+          id: 2,
+          index: 2,
+          name: 'Lesson',
+          value: 'sessionType' + 2,
+          allowZoom: true,
+          enableZoom: false,
+          color: '#15c39a',
+          type: this.$classcipe.ScheduleSessionType.lesson
+        },
+        {
+          id: 3,
+          index: 3,
+          name: 'Test',
+          value: 'sessionType' + 3,
+          allowZoom: true,
+          enableZoom: false,
+          color: '#c92a2a',
+          type: this.$classcipe.ScheduleSessionType.test
+        }
+      ],
+      typeFilters: ['sessionType1', 'sessionType2', 'sessionType3'], // 根据类型的筛选条件
       queryClassId: null,
       currentUnitList: [],
       attendanceVisible: true,
@@ -206,62 +274,91 @@ export default {
         events: (date, successCb, failCb) => {
           const start = moment(date.start).format('YYYY-MM-DD')
           const end = moment(date.end).format('YYYY-MM-DD')
-          this.loading = true
           if (this.$refs.fullCalendar) {
             const calendarApi = this.$refs.fullCalendar.getApi()
             calendarApi && calendarApi.removeAllEvents()
           }
-          QueryForCalendar({
-            startDate: start,
-            endDate: end,
-            queryType: this.queryType,
-            classId: this.queryClassId
-          }).then(res => {
-            if (res.success && res.result) {
-              const filterRes = res.result// .filter(item => item.unitPlanInfo)
-              this.calendarDatas = res.result
-              if (filterRes.length > 0) {
-                this.currentUnitList = uniqBy(filterRes.filter(item => item.unitPlanInfo).map(item => item.unitPlanInfo), 'id')
-                const events = filterRes.map(item => {
-                  // 根据classId获取颜色
-                  const index = this.currentUnitList.findIndex(unit => unit.id === (item.unitPlanInfo ? item.unitPlanInfo.id : -1))
-                  const color = (index === -1) ? '#fff' : BG_COLORS[index]
 
-                  return {
-                    id: item.sessionInfo.id,
-                    title: item.sessionInfo.sessionName,
-                    start: this.$options.filters['dayjs'](item.startTime),
-                    end: this.$options.filters['dayjs'](item.endTime),
-                    backgroundColor: 'transparent',
-                    borderColor: 'transparent',
-                    extendedProps: {
-                      classId: item.sessionInfo.classId,
-                      planId: item.sessionInfo.planId,
-                      contentId: item.sessionInfo.contentId,
-                      status: item.attendance || 'absent',
-                      id: item.sessionInfo.id,
-                      backgroundColor: color
-                    }
-                  }
-                })
+          const params = {}
+          let noNeedQuery = false
+          if (this.queryType === this.CALENDAR_QUERY_TYPE.CLASS.value) {
+            params.classIds = this.typeFilters
+            noNeedQuery = this.typeFilters.length === 0
+          } else if (this.queryType === this.CALENDAR_QUERY_TYPE.WORKSHOP.value) {
+            params.workshopStatus = this.typeFilters
+            noNeedQuery = this.typeFilters.length === 0
+          }
+          if (noNeedQuery) {
+            successCb([])
+          } else {
+            this.loading = true
+            QueryForCalendar({
+              ...params,
+              startDate: start,
+              endDate: end,
+              queryType: this.queryType
+            }).then(res => {
+              if (res.success && res.result) {
+                const filterRes = res.result// .filter(item => item.unitPlanInfo)
                 this.calendarDatas = res.result
-                this.allEvents = events
-                const filterEvents = events.filter(event => {
-                  // const props = event.extendedProps
-                  return true
-                })
-                successCb(filterEvents)
+                if (filterRes.length > 0) {
+                  this.currentUnitList = uniqBy(filterRes.filter(item => item.unitPlanInfo).map(item => item.unitPlanInfo), 'id')
+                  const events = filterRes.map(item => {
+                    // 根据classId获取颜色
+                    let index = -1
+                    if (this.queryType === this.CALENDAR_QUERY_TYPE.MY.value) {
+                      index = this.currentUnitList.findIndex(unit => unit.id === (item.unitPlanInfo ? item.unitPlanInfo.id : -1))
+                    } else if (this.queryType === this.CALENDAR_QUERY_TYPE.CLASS.value) {
+                      index = this.showClassOptions.findIndex(option => option.value === (item.sessionInfo ? item.sessionInfo.taskClassId : -1))
+                    } else if (this.queryType === this.CALENDAR_QUERY_TYPE.WORKSHOP.value) {
+                      index = this.showWorkshopOptions.findIndex(option => option.value === (item.workshopsDetailInfo ? item.workshopsDetailInfo.registeredNum : -1))
+                    }
+                    const color = (index === -1) ? '#fff' : BG_COLORS[index]
+
+                    return {
+                      id: item.sessionInfo.id,
+                      title: item.sessionInfo.sessionName,
+                      start: this.$options.filters['dayjs'](item.startTime),
+                      end: this.$options.filters['dayjs'](item.endTime),
+                      backgroundColor: 'transparent',
+                      borderColor: 'transparent',
+                      extendedProps: {
+                        classId: item.sessionInfo.classId,
+                        planId: item.sessionInfo.planId,
+                        contentId: item.sessionInfo.contentId,
+                        sessionType: item.sessionInfo.sessionType,
+                        status: item.attendance || 'absent',
+                        id: item.sessionInfo.id,
+                        backgroundColor: color
+                      }
+                    }
+                  })
+                  this.calendarDatas = res.result
+                  this.allEvents = events
+                  const filterEvents = events.filter(event => {
+                    // const props = event.extendedProps
+                    if (this.queryType === this.CALENDAR_QUERY_TYPE.MY.value) {
+                      console.log(event.extendedProps.sessionType)
+                      console.log(this.typeFilters)
+                      if (!this.typeFilters.includes('sessionType' + event.extendedProps.sessionType)) {
+                        return false
+                      }
+                    }
+                    return true
+                  })
+                  successCb(filterEvents)
+                } else {
+                  successCb([])
+                }
               } else {
-                successCb([])
+                failCb()
               }
-            } else {
+            }).catch(() => {
               failCb()
-            }
-          }).catch(() => {
-            failCb()
-          }).finally(() => {
-            this.loading = false
-          })
+            }).finally(() => {
+              this.loading = false
+            })
+          }
         },
         editable: true,
         selectable: true,
@@ -324,6 +421,9 @@ export default {
         }
       ))
     },
+    showWorkshopOptions() {
+      return this[CALENDAR_QUERY_TYPE.WORKSHOP.label].slice(0, 2)
+    },
     showUnitOptions() {
       return this.currentUnitList.map((item, index) => {
         return {
@@ -356,7 +456,13 @@ export default {
       this.currentUnit = this.currentUnitList.length > 0 ? this.currentUnitList[0].id : ''
       this.showUnit = this.currentUnitList.map(item => item.id)
     },
-    getOptions(typeLabel) {
+    getOptions(typeVal) {
+      let typeLabel = ''
+      for (const i in this.CALENDAR_QUERY_TYPE) {
+        if (this.CALENDAR_QUERY_TYPE[i].value === typeVal) {
+          typeLabel = this.CALENDAR_QUERY_TYPE[i].label
+        }
+      }
       return this[typeLabel] ? this[typeLabel] : []
     },
     affixTarget() {
@@ -522,8 +628,8 @@ export default {
     handleChangeFilters(filter, val) {
       if (this.queryType !== val) {
         this.queryType = val
-        this.reFetch()
       }
+      this.reFetch()
     },
     getSession(clickInfo) {
       const currentSession = this.calendarDatas.find(item => item.sessionInfo.id === clickInfo.event.extendedProps.id)
@@ -720,7 +826,7 @@ export default {
     .unit-tip {
       display: flex;
       flex-direction: column;
-      margin-bottom: 50px;
+      margin-bottom: 20px;
       .tip-check {
         width: 100%;
       }
@@ -757,7 +863,7 @@ export default {
 }
 .calendar-type {
   .calendar-type-item {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     .type-check {
       margin-top: 10px;
       display: flex;
