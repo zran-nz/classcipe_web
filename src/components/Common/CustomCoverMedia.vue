@@ -6,11 +6,11 @@
       :accept="type === 'image' ? 'image/png, image/jpeg' : 'video/mp4'"
       :customRequest='handleUploadImage'
       name="file">
-      <div class='uploaded-cover' v-if="mediaType === 'image' && mediaUrl">
-        <div class='img-cover' :style="{backgroundImage: 'url(' + mediaUrl + ')' }"></div>
+      <div class='uploaded-cover' v-if="(mediaType || type) === 'image' && (mediaUrl || url)">
+        <div class='img-cover' :style="{backgroundImage: 'url(' + (mediaUrl || url) + ')' }"></div>
       </div>
-      <div class='upload-text' v-if="mediaType === 'video' && mediaUrl">
-        <video :src='mediaUrl' :controls='videoControls'></video>
+      <div class='upload-text' v-if="(mediaType || type) === 'video' && (mediaUrl || url)">
+        <video :src='(mediaUrl || url)' :controls='videoControls'></video>
       </div>
       <div class='upload-tips' v-if='!uploading'>
         <custom-media-cover-button :label='label' bg-color='#2582B5' font-color='#fff' v-show='showUploadButton'></custom-media-cover-button>
@@ -87,8 +87,8 @@ export default {
   data() {
     return {
       uploading: false,
-      mediaType: this.type,
-      mediaUrl: this.url,
+      mediaType: null,
+      mediaUrl: null,
       progressPercent: 0,
       uploader: null
     }
