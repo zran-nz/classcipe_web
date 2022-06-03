@@ -2,7 +2,7 @@
   <div class='task-assessment-tools'>
     <div class='create-assessment-bar'>
       <a-space>
-        <custom-text-button label='Import Assessment tool'>
+        <custom-text-button label='Import Assessment tool' @click='showAssessmentToolList'>
           <template v-slot:suffix>
             <a-icon type="caret-down" />
           </template>
@@ -32,6 +32,7 @@
         <div class='assessment-item' v-for='assessment in assessmentList' :key='assessment.key' @click='handleSelectActiveTable(assessment)'>
           <assessment-tool
             :assessment='assessment'
+            ref='assessmentTool'
             :is-active-table='activeAssessmentTableKey === assessment.key'
             @delete='handleDeleteAssessmentTool' />
         </div>
@@ -40,6 +41,19 @@
         <common-no-data text='No assessment tool.' class='no-assessment'/>
       </template>
     </div>
+
+    <a-modal
+      v-model="assessmentToolListVisible"
+      width="700px"
+      destory-on-close
+      :maskClosable="false"
+      :keyboard="false"
+      :footer="null"
+      :closable="false"
+    >
+      <modal-header @close='assessmentToolListVisible = false' title='Import Assessment tool' />
+      <assessment-tool-list v-if='assessmentToolListVisible' @confirm-select='handleInsertSelectAssessmentTool' @cancel-select='assessmentToolListVisible = false' :task-id='taskId'/>
+    </a-modal>
   </div>
 </template>
 
@@ -50,10 +64,14 @@ import CommonNoData from '@/components/Common/CommonNoData'
 import AssessmentTool from '@/components/AssessmentTool/AssessmentTool'
 import { HeaderType, AssessmentToolType } from '@/components/AssessmentTool/Constant'
 import { AssessmentToolInfoList } from '@/api/v2/assessment'
+import AssessmentToolList from '@/components/AssessmentTool/AssessmentToolList'
+import ModalHeader from '@/components/Common/ModalHeader'
 
 export default {
   name: 'TaskAssessmentTools',
   components: {
+    ModalHeader,
+    AssessmentToolList,
     AssessmentTool,
     CommonNoData,
     CustomTextButton
@@ -160,7 +178,9 @@ export default {
       },
 
       // 当前正在操作的评估表
-      activeAssessmentTableKey: null
+      activeAssessmentTableKey: null,
+
+      assessmentToolListVisible: false
     }
   },
   created() {
@@ -237,6 +257,43 @@ export default {
     handleSelectActiveTable (assessmentTable) {
       this.$logger.info('handleSelectActiveTable', assessmentTable)
       this.activeAssessmentTableKey = assessmentTable.key
+    },
+
+    showAssessmentToolList () {
+      this.assessmentToolListVisible = true
+    },
+
+    handleInsertSelectAssessmentTool (selectedAssessmentList) {
+      this.$logger.info('handleInsertSelectAssessmentTool', selectedAssessmentList)
+      const newAssessmentKeyList = []
+      selectedAssessmentList.forEach(item => {
+        const assessment = {
+          ...item
+        }
+        assessment.key = Date.now().toString(36) + '_' + Math.random().toString(36).substr(2)
+        newAssessmentKeyList.push(assessment.key)
+        assessment.taskId = this.taskId
+        assessment.headerList = item.headerListJson ? JSON.parse(item.headerListJson) : []
+        assessment.bodyList = item.bodyListJson ? JSON.parse(item.bodyListJson) : []
+        assessment.extraCriteriaBodyList = item.extraCriteriaBodyListJson ? JSON.parse(item.extraCriteriaBodyListJson) : []
+        delete assessment.id
+        delete assessment.createBy
+        delete assessment.createTime
+        delete assessment.createUserId
+        delete assessment.headerListJson
+        delete assessment.bodyListJson
+        delete assessment.extraCriteriaBodyListJson
+        this.assessmentList.push(assessment)
+      })
+      this.$nextTick(() => {
+        this.$logger.info('newAssessmentKeyList', newAssessmentKeyList)
+        this.$refs.assessmentTool.forEach(compRef => {
+          if (newAssessmentKeyList.includes(compRef.assessment.key)) {
+            compRef.saveAssessment()
+          }
+        })
+      })
+      this.assessmentToolListVisible = false
     }
   }
 }

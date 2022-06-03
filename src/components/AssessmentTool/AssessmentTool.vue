@@ -11,6 +11,12 @@
               <delete-icon color='#F16A39' />
             </a-popconfirm>
           </div>
+          <div class='table-saving' v-if='saving'>
+            <a-spin>
+              <a-icon slot="indicator" type="loading" style="font-size: 18px" spin />
+            </a-spin>
+            &nbsp;saving...
+          </div>
         </a-space>
       </div>
       <div class='right-action'>
@@ -24,7 +30,7 @@
       </div>
     </div>
     <div class='assessment-body'>
-      <assessment-tool-table ref='table' :is-active-table='isActiveTable' />
+      <assessment-tool-table ref='table' :is-active-table='isActiveTable' :saving.sync='saving' />
     </div>
   </div>
 </template>
@@ -59,7 +65,8 @@ export default {
   mixins: [ AssessmentToolMixin ],
   data() {
     return {
-      AssessmentToolType: AssessmentToolType
+      AssessmentToolType: AssessmentToolType,
+      saving: false
     }
   },
   methods: {
@@ -68,13 +75,17 @@ export default {
       AssessmentToolHeaderNamesList().then(res => {
         this.$logger.info('AssessmentToolHeaderNamesList', res)
         if (res.code === 0) {
-          const headerSet = new Set()
-          res.result.forEach(item => headerSet.add(item.headerNameList))
-          const headerStrList = [...headerSet]
           const headerList = []
-          headerStrList.forEach(item => headerList.push(JSON.parse(item)))
+          const headerNameStrSet = new Set()
+          res.result.forEach(item => {
+            headerList.push({
+              id: item.id,
+              headerNameList: JSON.parse(item.headerNameList)
+            })
+            headerNameStrSet.add(item.headerNameList)
+          })
           this.$logger.info('headerList', headerList)
-          this.$refs.table.optionStrSet = headerSet
+          this.$refs.table.optionStrSet = headerNameStrSet
           this.$refs.table.optionList = headerList
           this.$refs.table.selectHeaderSetModalVisible = true
         } else {
@@ -90,6 +101,10 @@ export default {
         this.$logger.info('deleteAssessmentTool res', res)
         this.$emit('delete', this.assessment.key)
       })
+    },
+
+    saveAssessment() {
+      this.$refs.table.autoSaveAssessment()
     }
   }
 }
@@ -113,6 +128,8 @@ export default {
 
   .active-table-title {
     color: #15c39a;
+    font-size: 16px;
+    font-weight: bold;
   }
 
   .assessment-header {
@@ -120,6 +137,18 @@ export default {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+
+    .delete {
+      visibility: hidden;
+    }
+  }
+
+  &:hover {
+    .assessment-header {
+      .delete {
+        visibility: visible;
+      }
+    }
   }
 
   .assessment-body {

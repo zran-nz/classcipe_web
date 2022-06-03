@@ -137,7 +137,8 @@
       <modal-header title="Select header option" @close='selectHeaderSetModalVisible = false'/>
       <div class='edit-header-action'>
         <div class='edit-header-action-item header-option' v-for='(options, idx) in optionList' :key='idx' @click='selectHeaderSet(options)'>
-          <a-tag v-for='(option,oIdx) in options' :key='oIdx'>{{ option }}</a-tag>
+          <a-tag v-for='(option,oIdx) in options.headerNameList' :key='oIdx'>{{ option }}</a-tag>
+          <delete-icon @click.stop='handleDeleteHeader(options)' class='delete-item'/>
         </div>
         <div class='no-header' v-if='optionList.length === 0'>
           <common-no-data />
@@ -156,7 +157,11 @@ import CustomTextButton from '@/components/Common/CustomTextButton'
 import ModalHeader from '@/components/Common/ModalHeader'
 import CustomLinkText from '@/components/Common/CustomLinkText'
 import { debounce } from 'lodash-es'
-import { AssessmentToolHeaderNamesSave, AssessmentToolInfoSave } from '@/api/v2/assessment'
+import {
+  AssessmentToolHeaderNamesDelete,
+  AssessmentToolHeaderNamesSave,
+  AssessmentToolInfoSave
+} from '@/api/v2/assessment'
 import html2canvas from 'html2canvas'
 
 export default {
@@ -171,6 +176,10 @@ export default {
     isActiveTable: {
       type: Boolean,
       required: true
+    },
+    saving: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -193,6 +202,7 @@ export default {
 
       // 异步延迟保存表格数据
       asyncSaveTableData: null,
+      lastSaveTableDataJson: null,
 
       // 评估项附带数据类型
       criteriaExtraDataType: {
@@ -379,35 +389,46 @@ export default {
     },
 
     autoSaveAssessment() {
-      this.$logger.info('table', this.$refs.table)
-      const data = JSON.parse(JSON.stringify(this.assessment))
-      data.headerListJson = JSON.stringify(data.headerList)
-      data.bodyListJson = JSON.stringify(data.bodyList)
-      data.extraCriteriaBodyListJson = JSON.stringify(data.extraCriteriaBodyList)
+      this.$logger.info('autoSaveAssessment ', this.assessment.key)
+      this.$emit('update:saving', true)
+      try {
+        const data = JSON.parse(JSON.stringify(this.assessment))
+        if (data === this.lastSaveTableDataJson) {
+          return
+        }
+        this.lastSaveTableDataJson = data
+        data.headerListJson = JSON.stringify(data.headerList)
+        data.bodyListJson = JSON.stringify(data.bodyList)
+        data.extraCriteriaBodyListJson = JSON.stringify(data.extraCriteriaBodyList)
 
-      html2canvas(this.$refs.table, {
-        allowTaint: true,
-        useCORS: true,
-        scrollX: window.pageXOffset,
-        scrollY: window.pageYOffset,
-        x: window.pageXOffset,
-        y: window.pageYOffset
-      }).then(canvas => {
-        canvas.style.opacity = '1'
-        canvas.style.zIndex = '99999999'
-        canvas.style.transition =
-          'transform 0.3s cubic-bezier(0.42, 0, 0.58, 1),opacity 0.3s cubic-bezier(0.42, 0, 0.58, 1),-webkit-transform 0.3s cubic-bezier(0.42, 0, 0.58, 1)'
-        data.assessmentToolPreviewImgBase64 = canvas.toDataURL('image/png', 1)
-        this.$logger.info('autoSaveAssessment', data)
-        AssessmentToolInfoSave(data).then((res) => {
-          if (res.code === 0) {
-            this.$message.success('Save successfully')
-            this.$EventBus.$emit('assessment-saved')
-          } else {
-            this.$message.error(res.message)
-          }
+        html2canvas(this.$refs.table, {
+          allowTaint: true,
+          useCORS: true,
+          scrollX: window.pageXOffset,
+          scrollY: window.pageYOffset,
+          x: window.pageXOffset,
+          y: window.pageYOffset
+        }).then(canvas => {
+          canvas.style.opacity = '1'
+          canvas.style.zIndex = '99999999'
+          canvas.style.transition =
+            'transform 0.3s cubic-bezier(0.42, 0, 0.58, 1),opacity 0.3s cubic-bezier(0.42, 0, 0.58, 1),-webkit-transform 0.3s cubic-bezier(0.42, 0, 0.58, 1)'
+          data.assessmentToolPreviewImgBase64 = canvas.toDataURL('image/png', 1)
+          this.$logger.info('autoSaveAssessment', data)
+          AssessmentToolInfoSave(data).then((res) => {
+            if (res.code === 0) {
+              this.$EventBus.$emit('assessment-saved')
+            } else {
+              this.$message.error(res.message)
+            }
+          }).finally(() => {
+            this.$emit('update:saving', false)
+          })
         })
-      })
+      } catch (e) {
+        this.$logger.error('autoSaveAssessment', e)
+        this.$emit('update:saving', false)
+      }
     },
 
     handleInsertCriteria (data) {
@@ -452,6 +473,19 @@ export default {
         this.assessment.extraCriteriaBodyList.splice(this.assessment.extraCriteriaBodyList.indexOf(this.currentEditExtraRow), 1)
       }
       this.editExtraRowModalVisible = false
+    },
+
+    handleDeleteHeader (option) {
+      this.$logger.info('handleDeleteHeader', option)
+      AssessmentToolHeaderNamesDelete({
+        id: option.id
+      }).then(res => {
+        if (res.code === 0) {
+          this.optionList.splice(this.optionList.indexOf(option), 1)
+        } else {
+          this.$message.error(res.message)
+        }
+      })
     }
   }
 }
@@ -462,6 +496,8 @@ export default {
 .assessment-tool-table {
   overflow-y: hidden;
   overflow-x: auto;
+  position: relative;
+
   .extra-criteria-table {
     margin-bottom: 15px;
   }
@@ -567,14 +603,21 @@ export default {
   }
 
   .header-option {
-    padding: 10px;
+    padding: 10px 30px 10px 10px;
     border-radius: 5px;
-    background-color: #f1f1f1;
-    margin: 15px auto;
+    background-color: #f9f9f9;
+    margin: 10px auto;
     cursor: pointer;
+    position: relative;
 
     &:hover {
-      background-color: #e1e1e1;
+      background-color: #f1f1f1;
+    }
+
+    .delete-item {
+      position: absolute;
+      right: 5px;
+      top: 13px;
     }
   }
 }
