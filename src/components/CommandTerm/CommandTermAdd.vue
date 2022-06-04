@@ -43,7 +43,6 @@
 </template>
 
 <script>
-import { KnowledgeTermTagCustomCreate } from '@/api/knowledgeTermTag'
 import { termsCreate, dimensionsCreate } from '@/api/v2/tagsTerm'
 export default {
   name: 'CommandTermAdd',
