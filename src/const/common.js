@@ -103,6 +103,26 @@ export const TaskField = {
   CoverVideo: 'coverVideo'
 }
 
+export const SplitTaskField = {
+  Name: 'name',
+  TaskType: 'taskType',
+  StartDate: 'startDate',
+  Overview: 'overview',
+  Sdg: 'sdg',
+  Rwc: 'rwc',
+  SubjectIds: 'subjectIds',
+  GradeIds: 'gradeIds',
+  Question: 'question',
+  AssessmentTools: 'assessmentTools',
+  LearnOuts: 'learnOuts',
+  MaterialList: 'materialList',
+  Link: 'link',
+  Slides: 'taskSlides',
+  SelectSlides: 'selectSlides',
+  Image: 'image',
+  CoverVideo: 'coverVideo'
+}
+
 export const PdField = {
   Name: 'name',
   Image: 'image',

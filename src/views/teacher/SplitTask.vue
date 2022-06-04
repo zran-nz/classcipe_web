@@ -3,7 +3,7 @@
     <fixed-form-header>
       <template v-slot:header>
         <form-header
-          title='Create task'
+          title='Split task'
           :form='form'
           :spin='saving'
           :share-status='shareStatus'
@@ -11,7 +11,7 @@
           :last-change-saved-time='lastChangeSavedTime'
           @view-collaborate='handleViewCollaborate'
           @back='goBack'
-          @save='handleSaveTask(true)'
+          @save='save'
           @share='handleShareTask'
           @publish='handlePublishTask'
           @collaborate='handleStartCollaborate'>
@@ -35,47 +35,38 @@
             v-show='currentActiveStepIndex === stepIndex'
             v-for='(step, stepIndex) in formSteps'
             :key='step.id'>
-            <div class='form-field-item' v-for='fieldItem in $store.getters.formConfigData.taskCommonList' :key='fieldItem.id'>
+            <div class='form-field-item' v-for='fieldItem in taskCommonList' :key='fieldItem.id'>
               <template v-if='step.commonFields.indexOf(fieldItem.fieldName) !== -1'>
-                <div class='form-block tag-content-block' :data-field-name='taskField.Name' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Name' :key='fieldItem.fieldName'>
-                  <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Name />
-                  <custom-form-item :required='emptyRequiredFields.indexOf(taskField.Name) !== -1'>
+                <div class='form-block tag-content-block' :data-field-name='splitTaskField.Name' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.Name' :key='fieldItem.fieldName'>
+                  <collaborate-tooltip :form-id="taskId" :fieldName=splitTaskField.Name />
+                  <custom-form-item :required='emptyRequiredFields.indexOf(splitTaskField.Name) !== -1'>
                     <template slot='label'>
-                      {{ 'Task name' | taskLabelName(taskField.Name, $store.getters.formConfigData) }}
+                      {{ 'Task name' | taskLabelName(splitTaskField.Name, $store.getters.formConfigData) }}
                     </template>
-                    <template slot='action'>
-                      <comment-switch
-                        v-show="canEdit"
-                        :field-name='taskField.Name'
-                        :is-active="currentFieldName === taskField.Name"
-                        @switch='handleSwitchComment'
-                        :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Name}" />
-                    </template>
-                    <template v-if='taskLabelHint(taskField.Name, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="'Task name' | taskLabelHint(taskField.Name, $store.getters.formConfigData)" placement='top'>
+                    <template v-if='taskLabelHint(splitTaskField.Name, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="'Task name' | taskLabelHint(splitTaskField.Name, $store.getters.formConfigData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
-                    <a-input v-model='form.name' placeholder='Enter Task Name' class='cc-form-input' @change="handleCollaborateEvent(taskId,'name',form.name)" :disabled="!canEdit" />
+                    <a-input v-model='form.name' placeholder='Enter Task Name' class='cc-form-input' />
                   </custom-form-item>
                 </div>
 
-                <div class='form-block over-form-block tag-content-block' :data-field-name='taskField.Overview' id='overview' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Overview' :key='fieldItem.fieldName'>
-                  <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Overview />
-                  <custom-form-item class='task-audio-line' ref='overview' :required='emptyRequiredFields.indexOf(taskField.Overview) !== -1'>
+                <div class='form-block over-form-block tag-content-block' :data-field-name='splitTaskField.Overview' id='overview' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.Overview' :key='fieldItem.fieldName'>
+                  <collaborate-tooltip :form-id="taskId" :fieldName=splitTaskField.Overview />
+                  <custom-form-item class='task-audio-line' ref='overview' :required='emptyRequiredFields.indexOf(splitTaskField.Overview) !== -1'>
                     <template slot='label'>
-                      {{ 'Task details' | taskLabelName(taskField.Overview, $store.getters.formConfigData) }}
+                      {{ 'Task details' | taskLabelName(splitTaskField.Overview, $store.getters.formConfigData) }}
                     </template>
                     <template slot='action'>
                       <comment-switch
-                        v-show="canEdit"
-                        :field-name='taskField.Overview'
-                        :is-active="currentFieldName === taskField.Overview"
+                        :field-name='splitTaskField.Overview'
+                        :is-active="currentFieldName === splitTaskField.Overview"
                         @switch='handleSwitchComment'
-                        :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Overview}" />
+                        :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === splitTaskField.Overview}" />
                     </template>
-                    <template v-if='taskLabelHint(taskField.Overview, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="'Task details' | taskLabelHint(taskField.Overview, $store.getters.formConfigData)" placement='top'>
+                    <template v-if='taskLabelHint(splitTaskField.Overview, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="'Task details' | taskLabelHint(splitTaskField.Overview, $store.getters.formConfigData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
@@ -84,28 +75,25 @@
                       v-model='form.overview'
                       placeholder='Details'
                       class='cc-form-textarea'
-                      allow-clear
-                      @change="handleCollaborateEvent(taskId,taskField.Overview,form.overview)"
-                      :disabled="!canEdit"/>
+                      allow-clear/>
                   </custom-form-item>
                 </div>
 
-                <div class='form-block taskType tag-content-block' :data-field-name='taskField.TaskType' v-if='fieldItem.visible && fieldItem.fieldName === taskField.TaskType' :key='fieldItem.fieldName'>
-                  <collaborate-tooltip :form-id="taskId" :fieldName=taskField.TaskType style="left:20px" />
-                  <custom-form-item class='task-audio-line' ref='taskType' :colon='false' :required='emptyRequiredFields.indexOf(taskField.TaskType) !== -1'>
+                <div class='form-block taskType tag-content-block' :data-field-name='splitTaskField.TaskType' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.TaskType' :key='fieldItem.fieldName'>
+                  <collaborate-tooltip :form-id="taskId" :fieldName=splitTaskField.TaskType style="left:20px" />
+                  <custom-form-item class='task-audio-line' ref='taskType' :colon='false' :required='emptyRequiredFields.indexOf(splitTaskField.TaskType) !== -1'>
                     <template slot='label'>
-                      {{ 'Choose Task Type' | taskLabelName(taskField.TaskType, $store.getters.formConfigData) }}
+                      {{ 'Choose Task Type' | taskLabelName(splitTaskField.TaskType, $store.getters.formConfigData) }}
                     </template>
                     <template slot='action'>
                       <comment-switch
-                        v-show="canEdit"
-                        :field-name='taskField.TaskType'
-                        :is-active="currentFieldName === taskField.TaskType"
+                        :field-name='splitTaskField.TaskType'
+                        :is-active="currentFieldName === splitTaskField.TaskType"
                         @switch='handleSwitchComment'
-                        :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.TaskType}" />
+                        :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === splitTaskField.TaskType}" />
                     </template>
-                    <template v-if='taskLabelHint(taskField.TaskType, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="'Choose Task Type' | taskLabelHint(taskField.TaskType, $store.getters.formConfigData)" placement='top'>
+                    <template v-if='taskLabelHint(splitTaskField.TaskType, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="'Choose Task Type' | taskLabelHint(splitTaskField.TaskType, $store.getters.formConfigData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
@@ -129,35 +117,32 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block form-question tag-content-block' :data-field-name='taskField.Question' v-if='associateQuestionList.length > 0 && fieldItem.visible && fieldItem.fieldName === taskField.Question' :key='fieldItem.fieldName'>
-                  <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Question />
-                  <custom-form-item :required='emptyRequiredFields.indexOf(taskField.Question) !== -1'>
+                <div class='form-block form-question tag-content-block' :data-field-name='splitTaskField.Question' v-if='associateQuestionList.length > 0 && fieldItem.visible && fieldItem.fieldName === splitTaskField.Question' :key='fieldItem.fieldName'>
+                  <collaborate-tooltip :form-id="taskId" :fieldName=splitTaskField.Question />
+                  <custom-form-item :required='emptyRequiredFields.indexOf(splitTaskField.Question) !== -1'>
                     <template slot='label'>
-                      {{ 'Choose Key questions' | taskLabelName(taskField.Overview, $store.getters.formConfigData) }}
+                      {{ 'Choose Key questions' | taskLabelName(splitTaskField.Overview, $store.getters.formConfigData) }}
                     </template>
                     <template slot='action'>
                       <comment-switch
-                        v-show="canEdit"
-                        :field-name='taskField.Question'
-                        :is-active="currentFieldName === taskField.Question"
+                        :field-name='splitTaskField.Question'
+                        :is-active="currentFieldName === splitTaskField.Question"
                         @switch='handleSwitchComment'
-                        :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Question}" />
+                        :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === splitTaskField.Question}" />
                     </template>
-                    <template v-if='taskLabelHint(taskField.Overview, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="'Choose Key questions' | taskLabelHint(taskField.Overview, $store.getters.formConfigData)" placement='top'>
+                    <template v-if='taskLabelHint(splitTaskField.Overview, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="'Choose Key questions' | taskLabelHint(splitTaskField.Overview, $store.getters.formConfigData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
                     <a-select
                       :getPopupContainer="trigger => trigger.parentElement"
-                      @change="handleCollaborateEvent(taskId,taskField.Question,form.questions)"
                       size='large'
                       class='my-big-select'
                       v-model='form.questionIds'
                       mode='multiple'
                       placeholder='Choose Key questions'
                       option-label-prop='label'
-                      :disabled="!canEdit"
                     >
                       <a-select-option
                         v-for='(item,index) in associateQuestionList'
@@ -173,11 +158,11 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block tag-content-block' :data-field-name='taskField.LearnOuts' v-if='fieldItem.visible && fieldItem.fieldName === taskField.LearnOuts' :key='fieldItem.fieldName'>
-                  <collaborate-tooltip :form-id="taskId" :fieldName=taskField.LearnOuts style="left:100px" />
-                  <custom-form-item :required='emptyRequiredFields.indexOf(taskField.LearnOuts) !== -1'>
+                <div class='form-block tag-content-block' :data-field-name='splitTaskField.LearnOuts' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.LearnOuts' :key='fieldItem.fieldName'>
+                  <collaborate-tooltip :form-id="taskId" :fieldName=splitTaskField.LearnOuts style="left:100px" />
+                  <custom-form-item :required='emptyRequiredFields.indexOf(splitTaskField.LearnOuts) !== -1'>
                     <template slot='label'>
-                      {{ 'Learning objectives' | taskLabelName(taskField.LearnOuts, $store.getters.formConfigData) }}
+                      {{ 'Learning objectives' | taskLabelName(splitTaskField.LearnOuts, $store.getters.formConfigData) }}
                     </template>
                     <learning-objective
                       @change='handleUpdateLearningObjectives'
@@ -189,27 +174,26 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block tag-content-block material-list-block' :data-field-name='taskField.MaterialList' style='clear: both' v-if='fieldItem.visible && fieldItem.fieldName === taskField.MaterialList' :key='fieldItem.fieldName'>
-                  <collaborate-tooltip :form-id="taskId" :fieldName=taskField.MaterialList />
-                  <custom-form-item :required='emptyRequiredFields.indexOf(taskField.MaterialList) !== -1'>
+                <div class='form-block tag-content-block material-list-block' :data-field-name='splitTaskField.MaterialList' style='clear: both' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.MaterialList' :key='fieldItem.fieldName'>
+                  <collaborate-tooltip :form-id="taskId" :fieldName=splitTaskField.MaterialList />
+                  <custom-form-item :required='emptyRequiredFields.indexOf(splitTaskField.MaterialList) !== -1'>
                     <template slot='label'>
-                      {{ 'Resources required for hands-on activities' | taskLabelName(taskField.MaterialList, $store.getters.formConfigData) }}
+                      {{ 'Resources required for hands-on activities' | taskLabelName(splitTaskField.MaterialList, $store.getters.formConfigData) }}
                     </template>
                     <template slot='action'>
                       <comment-switch
-                        v-show="canEdit"
-                        :field-name='taskField.MaterialList'
-                        :is-active="currentFieldName === taskField.MaterialList"
+                        :field-name='splitTaskField.MaterialList'
+                        :is-active="currentFieldName === splitTaskField.MaterialList"
                         @switch='handleSwitchComment'
-                        :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.MaterialList}" />
+                        :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === splitTaskField.MaterialList}" />
                     </template>
-                    <template v-if='taskLabelHint(taskField.MaterialList, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="'Resources required for hands-on activities' | taskLabelHint(taskField.MaterialList, $store.getters.formConfigData)" placement='top'>
+                    <template v-if='taskLabelHint(splitTaskField.MaterialList, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="'Resources required for hands-on activities' | taskLabelHint(splitTaskField.MaterialList, $store.getters.formConfigData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
                     <div>
-                      <a-switch size="small" v-model='materialListFlag' @change='handleMaterialListFlagChange' :disabled="!canEdit"/>
+                      <a-switch size="small" v-model='materialListFlag' @change='handleMaterialListFlagChange'/>
                     </div>
                   </custom-form-item>
                   <div class='material-list'>
@@ -223,9 +207,7 @@
                             class='cc-form-input'
                             v-model='materialItem.name'
                             aria-placeholder='Enter material name'
-                            placeholder='Enter material name'
-                            :disabled="!canEdit"
-                            @change="handleCollaborateEvent(taskId,taskField.MaterialList,form.materialList)"/>
+                            placeholder='Enter material name' />
                         </a-col>
                         <a-col span='16'>
                           <a-tooltip placement='topLeft' :mouseEnterDelay="1">
@@ -238,9 +220,7 @@
                               addon-before="https://"
                               v-model='materialItem.link'
                               aria-placeholder='Enter URL'
-                              placeholder='Enter URL'
-                              :disabled="!canEdit"
-                              @change="handleCollaborateEvent(taskId, taskField.MaterialList, form.materialList)" >
+                              placeholder='Enter URL'>
                               <a-button
                                 @click="handleTestWebsiteLink(materialItem)"
                                 slot='suffix'
@@ -265,35 +245,25 @@
                   </div>
                 </div>
 
-                <div class='form-block tag-content-block' :data-field-name='taskField.Slides' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Slides' :key='fieldItem.fieldName'>
-                  <form-slide
-                    :source-type='contentType.task'
-                    :source-id='taskId'
-                    :slide-id='form.presentationId'
-                    :show-materials-and-tips='true'
-                    :show-selected="form.showSelected"
-                    :show-edit-google-slide='form.taskMode === 1'
-                    :default-thumbnail-list='thumbnailList'
-                    :selected-template-list='form.selectedTemplateList'
-                    @handle-change-selected='changeSelected'
-                    @edit-google-slide='handleEditGoogleSlide'
-                  />
+                <div class='form-block tag-content-block' :data-field-name='splitTaskField.SelectSlides' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.SelectSlides' :key='fieldItem.fieldName'>
+                  <form-slide-page-select :thumbnail-list='thumbnailList' :select-page-object-ids.sync='form.selectPageObjectIds' v-if='!thumbnailListLoading'/>
+                  <a-skeleton v-if='thumbnailListLoading' />
                 </div>
 
-                <div class='form-block tag-content-block' :data-field-name='taskField.Link' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Link' :key='fieldItem.fieldName'>
+                <div class='form-block tag-content-block' :data-field-name='splitTaskField.Link' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.Link' :key='fieldItem.fieldName'>
                   <div class='common-link-wrapper'>
-                    <form-linked-content :from-id='taskId' :from-type='contentType.task'/>
+                    <form-linked-content :from-id='taskId' :from-type='contentType.task' v-if='taskId'/>
                   </div>
                 </div>
 
-                <div class='form-block' :data-field-name='taskField.Image' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Image' :key='fieldItem.fieldName'>
+                <div class='form-block' :data-field-name='splitTaskField.Image' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.Image' :key='fieldItem.fieldName'>
                   <!-- image-->
-                  <custom-form-item class='img-wrapper' :required='emptyRequiredFields.indexOf(taskField.Image) !== -1'>
+                  <custom-form-item class='img-wrapper' :required='emptyRequiredFields.indexOf(splitTaskField.Image) !== -1'>
                     <template slot='label'>
-                      {{ 'Cover' | taskLabelName(taskField.Image, $store.getters.formConfigData) }}
+                      {{ 'Cover' | taskLabelName(splitTaskField.Image, $store.getters.formConfigData) }}
                     </template>
-                    <template v-if='taskLabelHint(taskField.Image, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="'Cover' | taskLabelHint(taskField.Image, $store.getters.formConfigData)" placement='top'>
+                    <template v-if='taskLabelHint(splitTaskField.Image, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="'Cover' | taskLabelHint(splitTaskField.Image, $store.getters.formConfigData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
@@ -301,10 +271,10 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-field-item assessment-tools-item' v-if="fieldItem.visible && fieldItem.fieldName === taskField.AssessmentTools">
+                <div class='form-field-item assessment-tools-item' v-if="fieldItem.visible && fieldItem.fieldName === splitTaskField.AssessmentTools">
                   <div class='form-block tag-content-block'>
                     <div class='common-link-wrapper assessment-tools'>
-                      <task-assessment-tools :task-id='taskId' />
+                      <task-assessment-tools :task-id='taskId' v-if='taskId'/>
                     </div>
                   </div>
                 </div>
@@ -323,7 +293,7 @@
                         </a-tooltip>
                       </template>
                     </template>
-                    <a-input v-model='form.customFieldData[custFieldItem.id]' class='cc-form-input' :disabled="!canEdit"/>
+                    <a-input v-model='form.customFieldData[custFieldItem.id]' class='cc-form-input'/>
                   </custom-form-item>
                 </div>
               </template>
@@ -345,7 +315,8 @@
                       :source-type='contentType.task'
                       :comment-list='collaborateCommentList'
                       :collaborate-user-list="collaborate.users"
-                      @update-comment='handleUpdateCommentList' />
+                      @update-comment='handleUpdateCommentList'
+                      v-if='taskId'/>
                   </a-tab-pane>
                   <a-tab-pane key='2' tab='History' force-render>
                     <collaborate-history :history-list='historyList' @restore='handleRestoreField' />
@@ -364,11 +335,12 @@
                 :comment-list='currentCollaborateCommentList'
                 :collaborate-user-list="collaborate.users"
                 @cancel-comment="handleCancelComment"
-                @update-comment='handleUpdateCommentList' />
+                @update-comment='handleUpdateCommentList'
+                v-if='taskId'/>
             </div>
           </template>
           <template v-if='currentRightModule === rightModule.recommend'>
-            <slide-select-list :source-id='taskId' :selected-template-list='form.selectedTemplateList' />
+            <slide-select-list :source-id='taskId' :selected-template-list='form.selectedTemplateList' v-if='taskId'/>
           </template>
           <template v-if='currentRightModule === rightModule.customTag'>
             <div v-if='!this.contentLoading'>
@@ -400,7 +372,7 @@
     </div>
     <fixed-form-footer>
       <template v-slot:right>
-        <a-button type='primary' @click='handleNextStep' class='cc-round-button' :disabled='waitingRedirectHome || waitingRedirectSplitTask'>
+        <a-button type='primary' @click='handleNextStep' class='cc-round-button'>
           <template v-if='currentActiveStepIndex < formSteps.length - 1'>
             Next
           </template>
@@ -423,23 +395,7 @@
         :main-content='collaborateContent'
         :content-type='contentType.task'
         @confirmSelect='confirmSelectCollaborateUsers'
-        v-if='showCollaborateModalVisible' />
-    </a-modal>
-    <a-modal
-      v-model='quickTaskPreviewTemplateVisible'
-      :footer='null'
-      destroyOnClose
-      width='1000px'
-      :zIndex='4000'
-      :title='null'
-      @ok='quickTaskPreviewTemplateVisible = false'
-      @cancel='quickTaskPreviewTemplateVisible = false'>
-      <div class='link-content-wrapper'>
-        <quick-task-template-preview
-          :show-replace-tips='form.presentationId && form.taskMode === 2'
-          :template='quickTaskPreviewTemplate'
-          @handle-select='handleSelectQuickTaskPreviewTemplate'></quick-task-template-preview>
-      </div>
+        v-if='showCollaborateModalVisible && taskId' />
     </a-modal>
     <a-modal
       v-model='shareVisible'
@@ -468,16 +424,9 @@
         :source-id='taskId'
         :source-type='contentType.task'
         @update-content='handleUpdateContent'
+        v-if='taskId'
       />
     </a-modal>
-    <quick-session
-      v-if='chooseAnotherVisible'
-      @close='handleCloseQuickSession'
-      @select='handleEnsureChooseAnother'
-      :selected-class='quickSessionClassItem'
-      :visible='chooseAnotherVisible'
-      :mode="'choose-another'"
-    />
   </div>
 </template>
 
@@ -485,14 +434,12 @@
 import { typeMap } from '@/const/teacher'
 import { FindSourceOutcomes, GetAssociate, GetMyGrades, GetReferOutcomes } from '@/api/teacher'
 import { TemplatesGetPresentation } from '@/api/template'
-import { MyContentEvent, MyContentEventBus } from '@/components/MyContent/MyContentEventBus'
-import { TaskAddOrUpdate, TaskCreateNewTaskPPT, TaskQueryById } from '@/api/task'
+import { SplitTask } from '@/api/task'
 import Collaborate from '@/components/UnitPlan/Collaborate'
 import CustomTagV2 from '@/components/CustomTag/CustomTagV2'
 import CollaborateUserList from '@/components/Collaborate/CollaborateUserList'
-import { CustomTagType, TaskField } from '@/const/common'
+import { CustomTagType, SplitTaskField } from '@/const/common'
 import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
-import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
 import { FindCustomTags } from '@/api/tag'
 import CollaborateCommentPanel from '@/components/Collaborate/CollaborateCommentPanel'
 import CommentSwitch from '@/components/Collaborate/CommentSwitch'
@@ -508,11 +455,7 @@ import { QueryContentShare } from '@/api/share'
 import CollaborateTooltip from '@/components/Collaborate/CollaborateTooltip'
 import CollaborateUpdateContent from '@/components/Collaborate/CollaborateUpdateContent'
 import LocalStore from '@/websocket/localstore'
-import QuickSession from '@/components/QuickSession/QuickSession'
 import { chooseAnother } from '@/api/quickTask'
-import QuickTaskTemplatePreview from '@/components/Task/QuickTaskTemplatePreview'
-import { AddMaterialEventBus, ModalEventsNameEnum } from '@/components/AddMaterial/AddMaterialEventBus'
-import { addBatchElements } from '@/api/addMaterial'
 import AddGreenIcon from '@/assets/svgIcon/evaluation/form/tianjia_green.svg?inline'
 import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 import MyVerticalSteps from '@/components/Steps/MyVerticalSteps'
@@ -529,19 +472,18 @@ import TaskAssessmentTools from '@/components/AssessmentTool/TaskAssessmentTools
 import LearningObjectiveList from '@/components/AssessmentTool/LearningObjectiveList'
 import FormSlide from '@/components/PPT/FormSlide'
 import SlideSelectList from '@/components/PPT/SlideSelectList'
-import SlideEvent from '@/components/PPT/SlideEvent'
 import CustomCoverMedia from '@/components/Common/CustomCoverMedia'
 import { PublishMixin } from '@/mixins/PublishMixin'
 import LearningObjective from '@/components/LearningObjective/LearningObjective'
 import { AutoSaveMixin } from '@/mixins/AutoSaveMixin'
 import CustomImageUploader from '@/components/Common/CustomImageUploader'
 import ModalHeader from '@/components/Common/ModalHeader'
-import SplitTaskSetting from '@/components/Task/SplitTaskSetting'
+import FormSlidePageSelect from '@/components/SplitTask/FormSlidePageSelect'
 
 export default {
   name: 'SplitTask',
   components: {
-    SplitTaskSetting,
+    FormSlidePageSelect,
     ModalHeader,
     CustomImageUploader,
     LearningObjective,
@@ -559,8 +501,6 @@ export default {
     FormLinkedContent,
     MyVerticalSteps,
     AddGreenIcon,
-    QuickTaskTemplatePreview,
-    QuickSession,
     ShareContentSetting,
     TemplatePreview,
     CollaborateHistory,
@@ -576,7 +516,7 @@ export default {
   },
   mixins: [ UtilMixin, BaseEventMixin, FormConfigMixin, GoogleAuthCallBackMixin, PublishMixin, AutoSaveMixin ],
   props: {
-    taskId: {
+    parentTaskId: {
       type: String,
       default: null
     }
@@ -593,7 +533,7 @@ export default {
         copyFromSlide: null,
         presentationId: '',
         pageObjectIds: '',
-        name: 'Untitled Task',
+        name: 'Untitled sub task',
         overview: '',
         tasks: [],
         status: 0,
@@ -604,6 +544,7 @@ export default {
         customTags: [],
         subjectIds: [],
         gradeIds: [],
+        selectPageObjectIds: [],
         bloomCategories: '',
         curriculumId: null,
         learnOuts: [],
@@ -615,20 +556,14 @@ export default {
         endDate: '',
         gradeId: undefined,
         materialList: [],
-        taskClassList: [],
         customFieldData: null,
         price: 0,
         isSelfLearning: false
       },
       gradeList: [],
 
-      templateLoading: false,
-
-      selectedTaskIdList: [],
-
       thumbnailList: [],
-
-      thumbnailListLoading: false,
+      thumbnailListLoading: true,
 
       associateQuestionList: [],
       showCustomTag: false,
@@ -637,13 +572,7 @@ export default {
 
       showHistoryLoading: false,
 
-      previewTemplate: {},
-      previewTemplateVisible: false,
-
       recommendData: [],
-      selectedList: [],
-
-      selectedIdList: [],
 
       associateUnitPlanIdList: [],
       associateTaskIdList: [],
@@ -653,16 +582,8 @@ export default {
 
       shareVisible: false,
       shareStatus: 0,
-      taskField: TaskField,
+      splitTaskField: SplitTaskField,
 
-      chooseAnotherVisible: false,
-
-      quickTaskPreviewTemplateVisible: false,
-      quickTaskPreviewTemplate: null,
-
-      quickSessionClassItem: null,
-
-      editGoogleSlideLoading: false,
       currentActiveStepIndex: this.getSessionStep(),
       currentStep: {
         id: null,
@@ -672,12 +593,17 @@ export default {
 
       formBodyWidth: '55%',
       tagBodyWidth: '45%',
-      fullBodyFields: ['learnOuts']
+      fullBodyFields: [SplitTaskField.LearnOuts, SplitTaskField.SelectSlides],
+
+      taskCommonList: []
     }
   },
   computed: {
     isOwner() {
       return this.$store.getters.userInfo.email === this.form.createBy
+    },
+    taskId () {
+      return this.form.id ? this.form.id : null
     }
   },
   watch: {
@@ -691,32 +617,58 @@ export default {
     }
   },
   async created() {
-    this.$logger.info('add task created ' + this.taskId + ' ' + this.$route.path + ' mode: ' + this.mode)
+    this.$logger.info('split task created ' + this.parentTaskId + ' ' + this.$route.path)
 
-    // 初始化关联事件处理
-    MyContentEventBus.$on(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
-    LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
-
-    this.$EventBus.$on(SlideEvent.SELECT_TEMPLATE, this.handleSelectTemplate)
-    this.$EventBus.$on(SlideEvent.CANCEL_SELECT_TEMPLATE, this.handleRemoveTemplate)
     let token = this.$route.query.token
     if (!token) {
       token = storage.get(ACCESS_TOKEN)
     }
     this.$store.dispatch('loadFormConfigData', token).then(() => {
+      // 添加选择PPT页字段
+      const taskCommonList = JSON.parse(JSON.stringify(this.$store.getters.formConfigData.taskCommonList))
+      taskCommonList.push({
+        fieldLabel: 'Select slides',
+        showName: 'Select slides',
+        id: SplitTaskField.SelectSlides,
+        sortNo: 0,
+        visible: true,
+        fieldName: SplitTaskField.SelectSlides
+      })
+      this.taskCommonList = taskCommonList
+      this.$logger.info('taskCommonList', this.taskCommonList.map(item => item.showName + ' ' + item.fieldName))
+
       // 从task的step中拷贝一份，去掉最后一步slide，添加第一步选择slide图片形成split task的步骤配置
-      let taskFormSteps = JSON.parse(JSON.stringify(this.$store.getters.formConfigData.taskSteps || []))
+      const taskFormSteps = JSON.parse(JSON.stringify(this.$store.getters.formConfigData.taskSteps || []))
+      // 拆分task是自选父Task的PPT图片,故去掉最后一步slide
+      const slideStepIndex = taskFormSteps.findIndex(step => step.commonFields.indexOf(SplitTaskField.Slides) > -1)
+      if (slideStepIndex > -1) {
+        taskFormSteps.splice(slideStepIndex, 1)
+      } else {
+        this.$logger.warn('split task no slide step')
+      }
+      taskFormSteps.unshift({
+        id: 0,
+        stepNo: 0,
+        visible: true,
+        name: 'Select slides',
+        commonFields: [
+          SplitTaskField.SelectSlides
+        ],
+        showRequiredTips: false,
+        showSatisfiedTips: false
+      })
       this.$logger.info('taskFormSteps', taskFormSteps)
       this.formSteps = taskFormSteps
       this.$logger.info('formSteps', this.formSteps)
       this.requiredFields = [
-        TaskField.Name,
-        TaskField.Image,
-        TaskField.Overview,
-        TaskField.Question,
-        TaskField.GradeIds,
-        TaskField.SubjectIds,
-        TaskField.LearnOuts
+        SplitTaskField.Name,
+        SplitTaskField.Image,
+        SplitTaskField.Overview,
+        SplitTaskField.Question,
+        SplitTaskField.GradeIds,
+        SplitTaskField.SubjectIds,
+        SplitTaskField.LearnOuts,
+        SplitTaskField.SelectSlides
       ]
       if (this.currentActiveStepIndex < 0 || this.currentActiveStepIndex > this.formSteps.length - 1) {
         this.currentActiveStepIndex = 0
@@ -727,26 +679,11 @@ export default {
     })
     this.$logger.info('恢复step', this.currentActiveStepIndex, this.currentStep)
     this.initData()
-    this.getAssociate()
     this.loadCustomTags()
-    this.queryContentCollaborates(this.taskId, this.contentType.task)
-
-    // addMaterial事件处理
-    AddMaterialEventBus.$on(ModalEventsNameEnum.ADD_NEW_MEDIA, url => {
-      this.addMaterialList(url)
-    })
-
-    AddMaterialEventBus.$on(ModalEventsNameEnum.DELETE_MEDIA_ELEMENT, data => {
-      this.deleteMaterial(data)
-    })
 
     this.$EventBus.$on('assessment-saved', this.autoSaveMixinUpdateSaveTime)
   },
   beforeDestroy() {
-    MyContentEventBus.$off(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
-    LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
-    this.$EventBus.$off(SlideEvent.SELECT_TEMPLATE, this.handleSelectTemplate)
-    this.$EventBus.$off(SlideEvent.CANCEL_SELECT_TEMPLATE, this.handleRemoveTemplate)
     this.$EventBus.$off('assessment-saved', this.autoSaveMixinUpdateSaveTime)
   },
   methods: {
@@ -756,16 +693,12 @@ export default {
         this.$logger.info('add task initData done', response)
         this.gradeList = response.result
       }).then(() => {
-        if (this.taskId) {
-          this.$logger.info('restore task data ' + this.taskId)
-          this.restoreTask(this.taskId, true)
-        } else {
-          this.contentLoading = false
-        }
+        this.contentLoading = false
       }).catch((e) => {
         this.$logger.error(e)
         this.$message.error(this.$t('teacher.add-task.init-data-failed'))
       })
+      this.loadThumbnail(false)
     },
 
     handleUpdateCover (coverData) {
@@ -778,11 +711,9 @@ export default {
     },
 
     handleDisplayRightModule () {
-      if (this.currentStep.commonFields.indexOf(TaskField.Slides) !== -1) {
-        this.currentRightModule = RightModule.recommend
-      } else if (this.currentStep.commonFields.indexOf(TaskField.Link) !== -1) {
+      if (this.currentStep.commonFields.indexOf(SplitTaskField.Link) !== -1) {
         this.currentRightModule = RightModule.associate
-      } else if (this.currentStep.name.toLowerCase().indexOf('assessment') !== -1) {
+      } else if (this.currentStep.commonFields.indexOf(SplitTaskField.AssessmentTools) !== -1) {
         this.currentRightModule = RightModule.assessmentToolsLearnOuts
       } else {
         this.currentRightModule = RightModule.customTag
@@ -804,134 +735,48 @@ export default {
         this.$refs['steps-nav'].nextStep()
       }
     },
-    restoreTask(taskId, isFirstLoad) {
-      if (isFirstLoad) {
-        this.contentLoading = true
-      }
-      this.$logger.info('restoreTask ' + taskId)
+    restoreSplitTaskByResponse(response) {
       this.saving = true
-      TaskQueryById({
-        id: taskId
-      }).then(response => {
-        this.$logger.info('TaskQueryById ' + taskId, response.result)
-        if (response.code === 0 && response.success) {
-          const taskData = response.result
-          if (!taskData.materialList) {
-            taskData.materialList = []
-          }
+      if (response.code === 0 && response.success) {
+        const taskData = response.result
+        if (!taskData.materialList) {
+          taskData.materialList = []
+        }
 
-          this.materialListFlag = taskData.materialList.length > 0
-          // 填充自定义字段
-          const customFieldData = taskData.customFieldData ? JSON.parse(taskData.customFieldData) : null
-          const displayCustomFieldData = {}
-          if (customFieldData) {
-            // 只显示配置中存在的字段,用id做key，改名后依旧可以使用老数据
-            this.$store.getters.formConfigData.taskCustomList.forEach(customField => {
-              if (customFieldData.hasOwnProperty(customField.id)) {
-                displayCustomFieldData[customField.id] = customFieldData[customField.id]
-              } else {
-                displayCustomFieldData[customField.id] = ''
-              }
-            })
-          } else {
-            this.$store.getters.formConfigData.taskCustomList.forEach(customField => {
+        this.materialListFlag = taskData.materialList.length > 0
+        // 填充自定义字段
+        const customFieldData = taskData.customFieldData ? JSON.parse(taskData.customFieldData) : null
+        const displayCustomFieldData = {}
+        if (customFieldData) {
+          // 只显示配置中存在的字段,用id做key，改名后依旧可以使用老数据
+          this.$store.getters.formConfigData.taskCustomList.forEach(customField => {
+            if (customFieldData.hasOwnProperty(customField.id)) {
+              displayCustomFieldData[customField.id] = customFieldData[customField.id]
+            } else {
               displayCustomFieldData[customField.id] = ''
-            })
-          }
-          this.$logger.info('displayCustomFieldData', displayCustomFieldData)
-          taskData.customFieldData = displayCustomFieldData
-          this.form = taskData
-          this.form.showSelected = taskData.showSelected ? taskData.showSelected : false
-          this.form.bloomCategories = this.form.bloomCategories ? this.form.bloomCategories : undefined // 为了展示placeholder
-          if (this.form.selectedTemplateList.length === 0) {
-            this.form.showSelected = false
-          }
-          if (!taskData.gradeId) {
-            this.form.gradeId = undefined
-          } else {
-            // 年级在本国大纲不存在的情况
-            if (this.gradeList.filter(grade => grade.id === taskData.gradeId).length === 0) {
-              this.form.gradeId = undefined
             }
-          }
+          })
         } else {
-          this.$message.error(response.message)
+          this.$store.getters.formConfigData.taskCustomList.forEach(customField => {
+            displayCustomFieldData[customField.id] = ''
+          })
         }
-      }).finally(() => {
-        this.contentLoading = false
-        this.saving = false
-        this.loadCollaborateData(this.form.type, this.form.id)
-        if (this.form.presentationId) {
-          this.loadThumbnail(false)
-        }
-        // copy副本 为了判断数据变更
-        this.oldForm = JSON.parse(JSON.stringify(this.form))
-        this.initCompleted = true
-        this.$logger.info('restoreTask done', this.form)
-
-        this.loadingShareContent()
-        // 非owner看到图片
-        if (this.$store.getters.userInfo.email !== this.form.createBy) {
-          this.form.showSelected = false
-        }
-      })
-    },
-
-    async handleSaveTask(isBack) {
-      this.cleaPageCache()
-      const taskData = Object.assign({}, this.form)
-      if (this.taskId) {
-        taskData.id = this.taskId
-      }
-      // 更新selfOuts数据
-      if (this.$refs.learnOut && this.$refs.learnOut.length > 0) {
-        taskData.selfOuts = this.$refs.learnOut[0].getSelfOuts()
-      }
-      if (taskData.customFieldData) {
-        taskData.customFieldData = JSON.stringify(taskData.customFieldData)
-      }
-      this.$logger.info('basic taskData', taskData)
-      const response = await TaskAddOrUpdate(taskData)
-      this.$logger.info('TaskAddOrUpdate', response.result)
-      if (response.success) {
-        // this.restoreTask(response.result.id, false)
-        this.oldForm = JSON.parse(JSON.stringify(this.form))
-        this.$message.success(this.$t('teacher.add-task.save-success'))
-        if (isBack) {
-          this.handleBack()
-        }
+        this.$logger.info('displayCustomFieldData', displayCustomFieldData)
+        taskData.customFieldData = displayCustomFieldData
+        this.form = taskData
       } else {
         this.$message.error(response.message)
       }
-      this.handleSaveContentEvent(this.taskId, this.contentType.task, this.oldForm)
+      this.saving = false
     },
     handlePublishTask(status) {
       this.checkRequiredFields()
       if (this.emptyRequiredFields.length === 0) {
-        this.$logger.info('handlePublishTask', {
+        this.$logger.info('handlePublishSplitTask', {
           id: this.taskId,
           status: status
         })
-        const taskData = Object.assign({}, this.form)
-        taskData.status = status
-        this.publishing = true
-        if (taskData.customFieldData) {
-          taskData.customFieldData = JSON.stringify(taskData.customFieldData)
-        }
-        TaskAddOrUpdate(taskData).then(response => {
-          this.$logger.info('UpdateContentStatus response', response)
-          // this.$message.success('Publish success')
-          this.form.status = status
-        }).then(() => {
-          if (status === 1) {
-            this.$message.success(this.$t('teacher.add-task.publish-success'))
-          } else {
-            this.$message.success('Unpublish successfully')
-          }
-          this.form.status = status
-          this.$refs.commonFormHeader.publishing = false
-          this.oldForm = JSON.parse(JSON.stringify(this.form))
-        })
+        this.form.status = status
       } else {
         let requiredStepIndex = -1
         for (let i = 0; i < this.formSteps.length; i++) {
@@ -950,8 +795,6 @@ export default {
     handleSelectTaskType(type) {
       this.$logger.info('handleSelectTaskType ' + type)
       this.form.taskType = type
-      // #协同编辑event事件
-      this.handleCollaborateEvent(this.taskId, this.taskField.TaskType, this.form.taskType)
     },
 
     goBack() {
@@ -1003,22 +846,6 @@ export default {
       })
     },
 
-    handleSelectTemplate (template) {
-      this.$logger.info('handleSelectTemplate', template)
-      const index = this.form.selectedTemplateList.findIndex(item => item.presentationId === template.presentationId)
-      if (index === -1) {
-        this.form.selectedTemplateList.push(template)
-      }
-    },
-
-    handleRemoveTemplate(template) {
-      this.$logger.info('handleRemoveTemplate ', template)
-      const index = this.form.selectedTemplateList.findIndex(item => item.presentationId === template.presentationId)
-      if (index !== -1) {
-        this.form.selectedTemplateList.splice(index, 1)
-      }
-    },
-
     handleViewDetail(item) {
       this.$logger.info('handleViewDetail ', item)
       if (item.type === this.contentType['unit-plan']) {
@@ -1033,53 +860,23 @@ export default {
       this.relevantSelectedQuestionList = data.questionList
     },
 
-    async handleCreateTask() {
-      this.$logger.info('handleCreateTask')
-      const hideLoading = this.$message.loading('Creating ppt in Google side...', 0)
-      if (!this.creating) {
-        this.creating = true
-        const response = await TaskCreateNewTaskPPT({
-          id: this.taskId ? this.taskId : '',
-          type: this.contentType.task,
-          taskIds: this.selectedTaskIdList,
-          name: this.form.name ? this.form.name : 'Unnamed Task',
-          overview: this.form.overview
-        })
-
-        this.$logger.info('handleCreateTask', response.result)
-        try {
-          this.saving = true
-          this.form.id = response.result.id
-          this.form.presentationId = response.result.presentationId
-          this.$message.success('Created Successfully in Google Slides')
-          window.open('https://docs.google.com/presentation/d/' + this.form.presentationId, '_blank')
-          this.loadThumbnail(false)
-        } finally {
-          this.creating = false
-          this.saving = false
-        }
-        hideLoading()
-        return response
-      }
-    },
-
     loadThumbnail(needRefresh) {
       this.thumbnailListLoading = true
       this.$logger.info('loadThumbnail ' + this.form.presentationId)
       TemplatesGetPresentation({
-        taskId: this.form.id,
+        taskId: this.parentTaskId,
         needRefresh: needRefresh
       }).then(response => {
         this.$logger.info('loadThumbnail response', response.result)
         if (response.code === 0) {
+          this.form.presentationId = response.result.presentationId
+          this.form.revisionId = response.result.revisionId
+          this.form.pageObjectIds = response.result.pageObjectIds.join(',')
           const pageObjects = response.result.pageObjects
           this.thumbnailList = []
           pageObjects.forEach(page => {
             this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
           })
-          if (!this.form.fileDeleted && response.result.fileDeleted) {
-            this.form.fileDeleted = true
-          }
         } else if (response.code === 403) {
           this.$router.push({ path: '/teacher/main/created-by-me' })
         } else if (response.code === this.ErrorCode.ppt_google_token_expires || response.code === this.ErrorCode.ppt_forbidden) {
@@ -1090,91 +887,78 @@ export default {
       })
     },
 
-    async handleEditGoogleSlide() {
-      this.editGoogleSlideLoading = true
-      this.$logger.info('handleEditGoogleSlide', this.form.presentationId)
-      let res
-      if (this.form.presentationId) {
-        res = await this.save()
-      } else {
-        res = await this.handleCreateTask()
-      }
-      if (res.code === 0) {
-        window.open('https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit', '_blank')
-      }
-      this.editGoogleSlideLoading = false
-    },
-
     getAssociate() {
       this.$logger.info('AddTask GetAssociate id[' + this.taskId + '] fromType[' + this.contentType.task + ']')
       this.associateUnitPlanIdList = []
       this.associateTaskIdList = []
-      GetAssociate({
-        id: this.taskId,
-        type: this.contentType.task
-      }).then(response => {
-        this.$logger.info('AddTask GetAssociate response', response)
-        this.groupNameList = []
-        this.groupNameListOther = []
-        response.result.owner.forEach(item => {
-          if (this.groupNameList.indexOf(item.group) === -1) {
-            this.groupNameList.push(item.group)
-          }
+      if (this.taskId) {
+        GetAssociate({
+          id: this.taskId,
+          type: this.contentType.task
+        }).then(response => {
+          this.$logger.info('AddTask GetAssociate response', response)
+          this.groupNameList = []
+          this.groupNameListOther = []
+          response.result.owner.forEach(item => {
+            if (this.groupNameList.indexOf(item.group) === -1) {
+              this.groupNameList.push(item.group)
+            }
 
-          item.contents.forEach(content => {
-            console.log(content)
-            if (content.type === this.contentType['unit-plan']) {
-              this.associateUnitPlanIdList.push(content.id)
-              this.associateId2Name.set(content.id, content.name)
-              content.questions.forEach(question => {
-                this.associateQuestionList.push({
-                  ...question,
-                  unitName: content.name
+            item.contents.forEach(content => {
+              console.log(content)
+              if (content.type === this.contentType['unit-plan']) {
+                this.associateUnitPlanIdList.push(content.id)
+                this.associateId2Name.set(content.id, content.name)
+                content.questions.forEach(question => {
+                  this.associateQuestionList.push({
+                    ...question,
+                    unitName: content.name
+                  })
                 })
-              })
-            }
+              }
 
-            if (content.type === this.contentType.task) {
-              this.associateTaskIdList.push(content.id)
-              this.associateId2Name.set(content.id, content.name)
-            }
+              if (content.type === this.contentType.task) {
+                this.associateTaskIdList.push(content.id)
+                this.associateId2Name.set(content.id, content.name)
+              }
+            })
           })
-        })
-        response.result.others.forEach(item => {
-          if (this.groupNameListOther.indexOf(item.group) === -1) {
-            this.groupNameListOther.push(item.group)
-          }
-          item.contents.forEach(content => {
-            console.log(content)
-            if (content.type === this.contentType['unit-plan']) {
-              this.associateUnitPlanIdList.push(content.id)
-              this.associateId2Name.set(content.id, content.name)
-              content.questions.forEach(question => {
-                this.associateQuestionList.push({
-                  ...question,
-                  unitName: content.name
+          response.result.others.forEach(item => {
+            if (this.groupNameListOther.indexOf(item.group) === -1) {
+              this.groupNameListOther.push(item.group)
+            }
+            item.contents.forEach(content => {
+              console.log(content)
+              if (content.type === this.contentType['unit-plan']) {
+                this.associateUnitPlanIdList.push(content.id)
+                this.associateId2Name.set(content.id, content.name)
+                content.questions.forEach(question => {
+                  this.associateQuestionList.push({
+                    ...question,
+                    unitName: content.name
+                  })
                 })
-              })
-            }
+              }
 
-            if (content.type === this.contentType.task) {
-              this.associateTaskIdList.push(content.id)
-              this.associateId2Name.set(content.id, content.name)
-            }
+              if (content.type === this.contentType.task) {
+                this.associateTaskIdList.push(content.id)
+                this.associateId2Name.set(content.id, content.name)
+              }
+            })
           })
-        })
-        this.$logger.info('AddTask GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
-        this.$logger.info('*******************associateUnitPlanIdList', this.associateUnitPlanIdList)
-        this.$logger.info('associateTaskIdList', this.associateTaskIdList)
-      }).finally(() => {
-        this.linkGroupLoading = false
+          this.$logger.info('AddTask GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
+          this.$logger.info('*******************associateUnitPlanIdList', this.associateUnitPlanIdList)
+          this.$logger.info('associateTaskIdList', this.associateTaskIdList)
+        }).finally(() => {
+          this.linkGroupLoading = false
 
-        this.$logger.info('AddTask GetAssociate associateUnitPlanIdList', this.associateUnitPlanIdList)
-        if (this.associateUnitPlanIdList.length > 0) {
-          this.loadRefLearnOuts()
-          this.handleSelfOutsData()
-        }
-      })
+          this.$logger.info('AddTask GetAssociate associateUnitPlanIdList', this.associateUnitPlanIdList)
+          if (this.associateUnitPlanIdList.length > 0) {
+            this.loadRefLearnOuts()
+            this.handleSelfOutsData()
+          }
+        })
+      }
     },
 
     async loadRefLearnOuts() {
@@ -1233,55 +1017,12 @@ export default {
         this.$logger.info('handleSelfOutsData update RecommendData ', this.recommendData)
       }
     },
-
-    handleRemoveLearnOuts(data) {
-      this.$logger.info('handleRemoveLearnOuts', data)
-      var index = this.form.learnOuts.findIndex(item => (item.knowledgeId === data.knowledgeId))
-      if (index > -1) {
-        this.form.learnOuts.splice(index, 1)
-      }
-
-      // #协同编辑event事件
-      this.handleCollaborateEvent(this.taskId, this.taskField.AssessmentTools, this.form.assessment)
-    },
-
-    handleUpdateSelfOuts (data) {
-      this.$logger.info('handleUpdateSelfOuts', data)
-      const tagType = data.tagType
-      const dataList = data.list
-      let selfOuts = this.form.selfOuts
-      selfOuts = selfOuts.filter(item => item.tagType !== tagType)
-      dataList.forEach(item => {
-        if (item.name && item.name.trim() !== '') {
-          selfOuts.push(item)
-        }
-      })
-      this.form.selfOutss = selfOuts
-      this.$logger.info('selfOuts', selfOuts)
-    },
-    handleSelectDescription() {
-      // 获取当前task关联的unit-plan的描述数据
-      this.selectedList = JSON.parse(JSON.stringify(this.form.learnOuts))
-      this.form.learnOuts.forEach(item => {
-        if (item.knowledgeId) {
-          this.selectedIdList.push(item.knowledgeId)
-        } else {
-          this.$logger.info('parentData selected id not exist ', item)
-        }
-      })
-      this.$logger.info('handleSelectDescription selectedList', this.selectedList, ' recommendData ', this.recommendData)
-      this.selectSyncDataVisible = true
-
-      // #协同编辑event事件
-      this.handleCollaborateEvent(this.taskId, this.taskField.AssessmentTools, this.form.assessment)
-    },
-
     handleStepChange(data) {
       this.$logger.info('task handleStepChange ', data)
       this.currentStep = data.step
       this.currentActiveStepIndex = data.index
       this.resetRightModuleVisible()
-      sessionStorage.setItem('task-step-' + this.taskId, data.index)
+      sessionStorage.setItem('split-task-step-' + this.taskId, data.index)
       this.checkIsFullBodyStep()
     },
 
@@ -1341,12 +1082,12 @@ export default {
           const fieldName = currentDom.getAttribute('data-field-name')
           this.$logger.info('current block fieldName', fieldName)
           this.currentFocusFieldName = fieldName
-          if (this.$store.getters.formConfigData?.taskFieldTagMap?.[fieldName]) {
-            if (fieldName === this.taskField.TaskType) {
-              this.customTagList = this.$store.getters.formConfigData.taskFieldTagMap[fieldName].filter(item => item.subFieldName && item.subFieldName.toLowerCase() === this.form.taskType.toLowerCase()).map(item => item.tagName)
+          if (this.$store.getters.formConfigData?.splitTaskFieldTagMap?.[fieldName]) {
+            if (fieldName === this.splitTaskField.TaskType) {
+              this.customTagList = this.$store.getters.formConfigData.splitTaskFieldTagMap[fieldName].filter(item => item.subFieldName && item.subFieldName.toLowerCase() === this.form.taskType.toLowerCase()).map(item => item.tagName)
               this.$logger.info(fieldName + ' customTagList taskType ' + this.form.taskType, this.customTagList)
             } else {
-              this.customTagList = this.$store.getters.formConfigData.taskFieldTagMap[fieldName].map(item => item.tagName)
+              this.customTagList = this.$store.getters.formConfigData.splitTaskFieldTagMap[fieldName].map(item => item.tagName)
               this.$logger.info(fieldName + ' customTagList', this.customTagList)
             }
           }
@@ -1411,9 +1152,6 @@ export default {
       })
       this.currentCollaborateCommentList = list
       this.$logger.info('currentCollaborateCommentList', list)
-
-      // #协同编辑event事件
-      this.handleCollaborateEvent(this.taskId, data.fieldName, data.fieldName)
     },
 
     // 每次点击都重新加载一下最新数据
@@ -1452,33 +1190,8 @@ export default {
         return 0
       }
     },
-    handleSelectPreviewTemplate(template) {
-      this.$logger.info('handleSelectPreviewTemplate ', template)
-      this.handleSelectTemplateMadel(template)
-      this.previewTemplateVisible = false
-    },
-    handleSelectQuickTaskPreviewTemplate(data) {
-      this.$logger.info('handleSelectQuickTaskPreviewTemplate ', data)
-      if (data.presentationId && data.selectPageObjectIds && data.selectPageObjectIds.length > 0) {
-        this.handleEnsureChooseAnother(data)
-      }
-      this.quickTaskPreviewTemplateVisible = false
-    },
-    removeSelectTemplate(template) {
-      this.$logger.info('removeSelectTemplate ', template)
-      const index = this.form.selectedTemplateList.findIndex(item => item.id === template.id)
-      if (index > -1) {
-        this.form.selectedTemplateList.splice(index, 1)
-      }
-      if (this.form.selectedTemplateList.length === 0) {
-        this.form.showSelected = false
-      }
-    },
     async save() {
-      const taskData = Object.assign({}, this.form)
-      if (this.taskId) {
-        taskData.id = this.taskId
-      }
+      const taskData = JSON.parse(JSON.stringify(this.form))
       // 更新selfOuts数据
       if (this.$refs.learnOut && this.$refs.learnOut.length > 0) {
         taskData.selfOuts = this.$refs.learnOut[0].getSelfOuts()
@@ -1486,11 +1199,19 @@ export default {
       if (taskData.customFieldData) {
         taskData.customFieldData = JSON.stringify(taskData.customFieldData)
       }
-      this.$logger.info('basic taskData', taskData)
+      this.$logger.info('basic sub split taskData', taskData)
       this.saving = true
-      const response = await TaskAddOrUpdate(taskData)
+      const response = await SplitTask({
+        subTasks: [taskData],
+        taskId: this.parentTaskId
+      })
+
+      if (response.code === 0 && !this.form.id) {
+        this.form.id = response.result.ids[0]
+        this.$logger.info('update sub task id')
+      }
       this.saving = false
-      this.$logger.info('TaskAddOrUpdate', response.result)
+      this.$logger.info('Split task response', response.result)
       return response
     },
 
@@ -1543,9 +1264,6 @@ export default {
       this.shareStatus = status
     },
     handleUpdateContent() {
-      // const contentMsg = this.$store.state.websocket.saveContentMsg
-      // contentMsg.hideUpdate = true
-      // this.form = contentMsg.content.details
       // 缓存时间少于最新的内容
       this.form.updateTime = moment.utc(new Date()).format('YYYY-MM-DD HH:mm:ss')
       LocalStore.setFormContentLocal(this.form.id, this.form.type, JSON.stringify(this.form))
@@ -1574,50 +1292,6 @@ export default {
         momentRangeDate: [],
         weeks: null
       })
-    },
-
-    handleDeleteClass (idx, classItem) {
-      this.$logger.info('handleDeleteClass', classItem)
-      const newTaskClassList = []
-      for (let i = 0; i < this.form.taskClassList.length; i++) {
-        if (this.form.taskClassList[i].classId === classItem.classId && i === idx) {
-        } else {
-          newTaskClassList.push(this.form.taskClassList[i])
-        }
-      }
-      this.form.taskClassList = newTaskClassList
-    },
-
-    addMaterialList({ url, type }) {
-      this.$logger.info('addMaterialList', url, type)
-      const pageId = this.currentPageId
-      const itemData = {
-        page_id: pageId,
-        url: url,
-        type: type,
-        position: { x: 0, y: 0, w: 0, h: 0 }
-      }
-      const elementItem = {
-        data: itemData,
-        pageId: pageId,
-        slideId: this.form.presentationId
-      }
-      const elementList = [elementItem]
-      addBatchElements({
-        elementsList: elementList,
-        itemsList: []
-      }).then(response => {
-        this.$logger.info('addBatchElements', response)
-        if (response.success) {
-          this.$message.success('Upload successfully')
-        } else {
-          this.$message.error('Upload failed ' + response.message)
-        }
-        this.getClassInfo(this.form.presentationId)
-      })
-    },
-    deleteMaterial(id) {
-      this.$logger.info('addMaterialList', id)
     },
     checkUrl(url) {
       if (url && url.trim()) {
@@ -1649,33 +1323,12 @@ export default {
       }
     },
 
-    // 切换ppt展示封面还是选择的模板
-    changeSelected(checked) {
-      this.$logger.info('changeSelected ', checked)
-      this.form.showSelected = checked
-    },
-
     handleUpdateLearningObjectives (data) {
       this.$logger.info('handleUpdateLearningObjectives', data)
       this.form.learnOuts = data.learnOuts
       this.form.curriculumId = data.curriculumId
       this.form.subjectList = data.selectedSubjectList
       this.form.yearList = data.selectedYearList
-    },
-
-    handleUpdateBySubTaskSetting (data) {
-      this.$logger.info('handleUpdateBySubTaskSetting', data)
-      this.waitingRedirectHome = true
-      this.form.price = data.price
-      this.form.isSelfLearning = data.isSelfLearning
-      this.showSplitTask = false
-    },
-    handleGoToSubTask (data) {
-      this.$logger.info('handleGoToSubTask', data)
-      this.waitingRedirectSplitTask = true
-      this.form.price = data.price
-      this.form.isSelfLearning = data.isSelfLearning
-      this.showSplitTask = false
     }
   }
 }
