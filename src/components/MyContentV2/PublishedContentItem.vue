@@ -64,9 +64,24 @@
             {{ (content.updateTime || content.createTime) | dayjs }}
           </div>
         </div>
-        <div class='right-info'>
-          <div class='update-time'>
-          </div>
+        <div class='right-info' @click.stop=''>
+          <a-space>
+            <div class='price'>
+              <template v-if='!editPrice'>${{ price }}</template>
+              <template v-if='editPrice'>
+                <a-input
+                  v-model='price'
+                  type='number'
+                  prefix='$'
+                  class='cc-form-input cc-small-input'
+                  @keyup.native.enter='updatePrice'/>
+              </template>
+            </div>
+            <div class='edit'>
+              <a-icon type="edit" v-if='!editPrice' @click.native='editPrice = true'/>
+              <a-icon type="check" v-if='editPrice' @click.native='updatePrice'/>
+            </div>
+          </a-space>
         </div>
       </div>
       <div class='action'>
@@ -152,6 +167,10 @@ import ScheduleIcon from '@/assets/v2/icons/schedule.svg?inline'
 import OriginalTipsIcon from '@/assets/v2/icons/original_tips.svg?inline'
 import DeleteIcon from '@/assets/v2/icons/delete.svg?inline'
 import MoreIcon from '@/assets/v2/icons/more.svg?inline'
+import { UnitPlanAddOrUpdate } from '@/api/unitPlan'
+import { TaskAddOrUpdate } from '@/api/task'
+import { VideoAddOrUpdate } from '@/api/video'
+import { PDContentAddOrUpdate } from '@/api/pdContent'
 
 export default {
   name: 'ContentItem',
@@ -185,7 +204,9 @@ export default {
   data() {
     return {
       typeMap: typeMap,
-      isSelfLearning: false
+      isSelfLearning: false,
+      price: this.content.price || 0,
+      editPrice: false
     }
   },
   created() {
@@ -249,6 +270,32 @@ export default {
           content: this.content
         })
       })
+    },
+
+    updatePrice () {
+      const type = parseInt(this.content.type)
+      if (type === this.$classcipe.typeMap['unit-plan']) {
+        UnitPlanAddOrUpdate({
+          id: this.content.id,
+          price: this.price
+        })
+      } else if (type === this.$classcipe.typeMap.task) {
+        TaskAddOrUpdate({
+          id: this.content.id,
+          price: this.price
+        })
+      } else if (type === this.$classcipe.typeMap.video) {
+        VideoAddOrUpdate({
+          id: this.content.id,
+          price: this.price
+        })
+      } else if (type === this.$classcipe.typeMap.pd) {
+        PDContentAddOrUpdate({
+          id: this.content.id,
+          price: this.price
+        })
+      }
+      this.editPrice = false
     }
   }
 }
@@ -461,5 +508,32 @@ export default {
     font-weight: 400;
     color: #FFA63D;
   }
+}
+
+.right-info {
+  display: flex;
+  .price {
+    cursor: pointer;
+    color: #e4393c;
+    font-size: 20px;
+    font-weight: 400;
+    font-family: Verdana;
+  }
+
+  .edit {
+    visibility: hidden;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  &:hover {
+    .edit {
+      visibility: visible;
+    }
+  }
+}
+
+.cc-small-input {
+  width: 100px;
 }
 </style>
