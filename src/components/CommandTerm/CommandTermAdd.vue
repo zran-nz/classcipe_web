@@ -12,7 +12,7 @@
       <a-form-model-item label="" prop="name" style="margin-bottom:0">
         <a-input v-model="commandTermForm.name" placeholder="input command term" />
       </a-form-model-item>
-      <a-form-model-item label="" prop="bloom" style="margin-bottom:0">
+      <!-- <a-form-model-item label="" prop="bloom" style="margin-bottom:0">
         <a-select
           :getPopupContainer="trigger => trigger.parentElement"
           v-model="commandTermForm.bloom"
@@ -33,7 +33,7 @@
             {{ item }}
           </a-select-option>
         </a-select>
-      </a-form-model-item>
+      </a-form-model-item> -->
     </a-form-model>
     <a-space>
       <a-button :loading="saveCommanTermLoading" @click="handleSaveCommanTerm" size="small" type="primary">Create</a-button>
@@ -43,7 +43,8 @@
 </template>
 
 <script>
-import { KnowledgeTermTagQueryByKeywords, KnowledgeTermTagCustomCreate } from '@/api/knowledgeTermTag'
+import { KnowledgeTermTagCustomCreate } from '@/api/knowledgeTermTag'
+import { termsCreate, dimensionsCreate } from '@/api/v2/tagsTerm'
 export default {
   name: 'CommandTermAdd',
   props: {
@@ -54,6 +55,10 @@ export default {
     initName: {
       type: String,
       default: ''
+    },
+    type: {
+      type: String,
+      default: 'terms'
     }
   },
   watch: {
@@ -68,7 +73,8 @@ export default {
       knowLedgeParentId: '',
       knowLedgeOptions: [],
       saveCommanTermLoading: false,
-      KnowledgeTermTagQueryByKeywords: KnowledgeTermTagQueryByKeywords,
+      termsCreate: termsCreate,
+      dimensionsCreate: dimensionsCreate,
       commandTermForm: {
         name: '',
         parentId: '',
@@ -110,14 +116,15 @@ export default {
       this.$refs.commandTermFormRef.validate(valid => {
         if (valid) {
           this.saveCommanTermLoading = true
-          KnowledgeTermTagCustomCreate({
-            name: this.commandTermForm.name,
-            bloomTagId: this.bloomParentId,
-            bloomTag: this.commandTermForm.bloom,
-            knowledgeDimensionId: this.knowLedgeParentId,
-            knowledgeDimension: this.commandTermForm.knowledge,
-            type: 1,
-            isGlobal: 2
+          this[this.type + 'Create']({
+            // name: this.commandTermForm.name,
+            // bloomTagId: this.bloomParentId,
+            // bloomTag: this.commandTermForm.bloom,
+            // knowledgeDimensionId: this.knowLedgeParentId,
+            // knowledgeDimension: this.commandTermForm.knowledge,
+            // type: 1,
+            // isGlobal: 2
+            tag: this.commandTermForm.name
           }).then(res => {
             if (res.code === 0) {
               this.$emit('save', {

@@ -1,6 +1,6 @@
 <template>
   <a-space>
-    <a-popover trigger="click" overlayClassName="choose-con" :visible="bloomTagVisible" @visibleChange="handleBloomChange">
+    <a-popover v-if="currentBloom !== null" trigger="click" overlayClassName="choose-con" :visible="bloomTagVisible" @visibleChange="handleBloomChange">
       <template slot="content">
         <div class="choose-bar-title">Set Bloom's taxonomy</div>
         <div class="choose-bar">
@@ -15,7 +15,7 @@
         </div>
       </template>
       <a-rate
-        v-show="currentBloom"
+        v-if="currentBloom"
         class="rate-bar-con super-small bloom-color"
         :tooltips="bloomLevelDesc"
         :count="bloomLevel.length"
@@ -25,8 +25,9 @@
           <div class="rate-bar"></div>
         </div>
       </a-rate>
+      <a-icon class="default-icon" v-else type="plus-circle" />
     </a-popover>
-    <a-popover trigger="click" overlayClassName="choose-con" :visible="knowledgeDimensionVisible" @visibleChange="handleKnowledgeChange">
+    <a-popover v-if="currentKnowledge !== null" trigger="click" overlayClassName="choose-con" :visible="knowledgeDimensionVisible" @visibleChange="handleKnowledgeChange">
       <template slot="content">
         <div class="choose-bar-title">Set Knowledge Dimensions</div>
         <div class="choose-bar">
@@ -41,7 +42,7 @@
         </div>
       </template>
       <a-rate
-        v-show="currentKnowledge"
+        v-if="currentKnowledge"
         class="rate-bar-con super-small knowledge-color"
         :tooltips="knowledgeLevelDesc"
         :count="knowledgeLevel.length"
@@ -51,6 +52,7 @@
           <div class="rate-bar"></div>
         </div>
       </a-rate>
+      <a-icon class="default-icon" v-else type="plus-circle" />
     </a-popover>
   </a-space>
 </template>
@@ -63,16 +65,17 @@ export default {
   props: {
     bloom: {
       type: String,
-      default: ''
+      default: null
     },
     knowledge: {
       type: String,
-      default: ''
+      default: null
     }
   },
   watch: {
     bloom: {
       handler(val) {
+        console.log(val)
         this.currentBloom = val
       }
     },
@@ -227,7 +230,7 @@ export default {
     align-items: flex-end;
     .choose-bar-item {
       flex: 1;
-      min-width: 80px;
+      min-width: 85px;
       margin:0 5px;
       color: #fff;
       display: flex;
@@ -243,5 +246,9 @@ export default {
       }
     }
   }
+}
+.default-icon {
+  font-size: 14px;
+  cursor: pointer;
 }
 </style>

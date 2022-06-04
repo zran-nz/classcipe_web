@@ -114,23 +114,27 @@ export default {
     async loadData() {
       this.loading = true
       const res = await this.loadApi({
-        keywords: this.word
+        key: this.word
       })
-      if (res.success) {
-        if (this.dataCondition) {
-          this.result = res.result.filter(item => {
-            let isTrue = true
-            for (const key in this.dataCondition) {
-              if (isTrue) {
-                isTrue = (item[key] === this.dataCondition[key])
-              }
-            }
-            return isTrue
-          })
-        } else {
-          this.result = res.data
-        }
-      }
+      // if (res.success) {
+      //   if (this.dataCondition) {
+      //     this.result = res.result.filter(item => {
+      //       let isTrue = true
+      //       for (const key in this.dataCondition) {
+      //         if (isTrue) {
+      //           isTrue = (item[key] === this.dataCondition[key])
+      //         }
+      //       }
+      //       return isTrue
+      //     })
+      //   } else {
+      //     this.result = res.data
+      //   }
+      // }
+      this.result = res.map(item => ({
+        name: item,
+        id: item
+      }))
       this.loading = false
       return res
     },
