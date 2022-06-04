@@ -129,12 +129,12 @@
                   <template slot='label'>
                     Learning objectives
                   </template>
-                  <a-row>
-                    <a-col span='12'>
-                    </a-col>
-                    <a-col span='10' offset='1'>
-                    </a-col>
-                  </a-row>
+                  <learning-objective
+                    @change='handleUpdateLearningObjectives'
+                    :curriculumId='form.curriculumId'
+                    :learning-objectives='form.learnOuts'
+                    :subject-list='form.subjectList'
+                    :year-list='form.yearList' />
                 </custom-form-item>
               </div>
 
@@ -163,7 +163,14 @@
     </div>
     <fixed-form-footer>
       <template v-slot:right>
-        <a-button type='primary' @click='handleNextStep' class='cc-round-button'>Next</a-button>
+        <a-button type='primary' @click='handleNextStep' class='cc-round-button'>
+          <template v-if='currentActiveStepIndex < formSteps.length - 1'>
+            Next
+          </template>
+          <template v-else>
+            Complete
+          </template>
+        </a-button>
       </template>
     </fixed-form-footer>
   </div>
@@ -189,10 +196,12 @@ import { FindCustomTags } from '@/api/tag'
 import { typeMap } from '@/const/teacher'
 import FormLinkedContent from '@/components/Common/FormLinkedContent'
 import LinkContentList from '@/components/UnitPlan/LinkContentList'
+import LearningObjective from '@/components/LearningObjective/LearningObjective'
 
 export default {
   name: 'AddPD',
   components: {
+    LearningObjective,
     LinkContentList,
     FormLinkedContent,
     CustomTagV2,
@@ -220,11 +229,15 @@ export default {
         name: null,
         video: null,
         videoType: null,
+        curriculumId: null,
         image: null,
         coverVideo: null,
         contentType: 0,
         goals: null,
         customTags: [],
+        learnOuts: [],
+        subjectList: [],
+        yearList: [],
         createBy: null
       },
 
@@ -247,7 +260,7 @@ export default {
     this.requiredFields = [
       VideoField.Name,
       VideoField.Video,
-      VideoField.CoverVideo,
+      VideoField.ContentType,
       VideoField.CoverImage
     ]
     this.initData()
@@ -350,7 +363,13 @@ export default {
     },
 
     handleNextStep () {
-      this.$refs['steps-nav'].nextStep()
+      if (this.currentActiveStepIndex === this.formSteps.length - 1) {
+        this.$router.replace({
+          path: '/'
+        })
+      } else {
+        this.$refs['steps-nav'].nextStep()
+      }
     },
 
     handleUpdateVideo (video) {
@@ -423,6 +442,14 @@ export default {
       } else {
         this.form.image = coverData.url
       }
+    },
+
+    handleUpdateLearningObjectives (data) {
+      this.$logger.info('handleUpdateLearningObjectives', data)
+      this.form.learnOuts = data.learnOuts
+      this.form.curriculumId = data.curriculumId
+      this.form.subjectList = data.selectedSubjectList
+      this.form.yearList = data.selectedYearList
     }
   }
 }
