@@ -10,7 +10,6 @@
           <div class='name'>
             {{ content.name || 'Untitled ' + contentTypeName }}
           </div>
-          <div class='owner-info'></div>
           <div class='extra-info'>
             <a-space>
               <div class='info-item curriculum-info'>
@@ -358,7 +357,6 @@ export default {
 
 .update-time {
   padding-left: 25px;
-  margin-left: 20px;
   line-height: 24px;
   color: #aaa;
   font-size: 0.6rem;
