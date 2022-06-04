@@ -642,7 +642,8 @@ export default {
     width: 55%;
     padding: 20px 30px;
     height: 100%;
-    overflow-y: auto;
+    -moz-overflow-y: auto;
+    overflow-y: overlay;
     background-color: #fff;
   }
 
