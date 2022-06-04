@@ -51,7 +51,12 @@
     <div class='select-date'>
       <div class='title'>Schedule </div>
       <div class='date-picker'>
-        <a-range-picker class='cc-modal-date' :disabled-date="disabledDate" @change="handleDateChange" format='YYYY-MM-DD HH:mm:ss' :show-time="{ format: 'HH:mm' }"/>
+        <a-range-picker
+          :getCalendarContainer='trigger => trigger.parentElement'
+          :disabled-date="disabledDate"
+          @change="handleDateChange"
+          format='YYYY-MM-DD HH:mm:ss'
+          :show-time="{ format: 'HH:mm' }"/>
       </div>
       <div class='go-calender'>
         <a>Go to calender</a>
@@ -61,7 +66,6 @@
 </template>
 
 <script>
-import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
 import moment from 'moment'
 import CustomLinkText from '@/components/Common/CustomLinkText'
 import DeleteIcon from '@/components/Common/DeleteIcon'
@@ -107,7 +111,6 @@ export default {
       scheduleDataArray: []
     }
   },
-  mixins: [ ZoomAuthMixin ],
   methods: {
     handleDateChange (date, dateString) {
       this.$logger.info('handleDateChange', date, dateString)
@@ -122,13 +125,19 @@ export default {
 
     getScheduleInfo() {
       return {
-        teacherFilterType: this.teacherFilterType,
+        selectTeachers: this.getSelectTeachersByFilter(),
         yearList: this.filterConfig.yearList,
         subjectList: this.filterConfig.subjectList,
         startDate: this.startDate,
         endDate: this.endData
       }
     },
+
+    getSelectTeachersByFilter () {
+      // TODO 实现老师过滤逻辑
+      return []
+    },
+
     disabledDate(current) {
       return current && current < moment().subtract(1, 'days').endOf('day')
     },

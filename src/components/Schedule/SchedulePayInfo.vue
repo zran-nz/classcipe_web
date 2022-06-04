@@ -74,7 +74,7 @@
         </div>
         <div class='pay-switch'>
           <a-date-picker
-            class='cc-modal-date'
+            :getCalendarContainer='trigger => trigger.parentElement'
             :disabled-date="disabledDate"
             :show-time="{ format: 'HH:mm' }"
             @change="handleSelectDate" />
@@ -85,7 +85,7 @@
       <div class='title'>Schedule</div>
       <div class='date-picker'>
         <a-range-picker
-          class='cc-modal-date'
+          :getCalendarContainer='trigger => trigger.parentElement'
           :default-value="initDate"
           :disabled-date="disabledDate"
           @change="handleDateChange"
@@ -182,7 +182,9 @@ export default {
         discountInfo: this.discountList,
         maxParticipants: this.maxParticipants,
         price: this.price,
-        registerBefore: this.registerBefore
+        registerBefore: this.registerBefore,
+        startDate: this.startDate,
+        endDate: this.endData
       }
     },
     handleAddDiscount () {
@@ -229,6 +231,7 @@ export default {
 
   .pay-info {
     padding: 0 20px;
+    min-height: 400px;
     max-height: calc(100vh - 160px);
     overflow-y: auto;
     .pay-title {
@@ -367,6 +370,10 @@ export default {
 
 .go-calender {
   margin-top: 10px;
+}
+
+.pay-switch {
+  position: relative;
 }
 
 </style>
