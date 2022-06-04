@@ -59,6 +59,7 @@ export default {
     }
 
     window.addEventListener('message', this.handlePostMessage, false)
+    this.$store.dispatch('initCurriculumData')
   },
   mounted() {
     var that = this
