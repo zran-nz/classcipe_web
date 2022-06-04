@@ -186,6 +186,10 @@ export default {
   created() {
     this.$logger.info('TaskAssessmentTools created')
     this.getAssessmentList()
+    this.$EventBus.$on('assessment-saved', this.autoSaveMixinUpdateKeyId)
+  },
+  beforeDestroy() {
+    this.$EventBus.$off('assessment-saved', this.autoSaveMixinUpdateKeyId)
   },
   methods: {
 
@@ -217,6 +221,16 @@ export default {
           }
         } else {
           this.$message.error('getAssessmentList error. ' + res.message)
+        }
+      })
+    },
+
+    autoSaveMixinUpdateKeyId (data) {
+      this.$logger.info('autoSaveMixinUpdateKeyId', data)
+      const { key, id } = data
+      this.assessmentList.forEach(item => {
+        if (item.key === key) {
+          item.id = id
         }
       })
     },
@@ -285,15 +299,17 @@ export default {
         delete assessment.extraCriteriaBodyListJson
         this.assessmentList.push(assessment)
       })
-      this.$nextTick(() => {
-        this.$logger.info('newAssessmentKeyList', newAssessmentKeyList)
-        this.$refs.assessmentTool.forEach(compRef => {
-          if (newAssessmentKeyList.includes(compRef.assessment.key)) {
-            compRef.saveAssessment()
-          }
-        })
-      })
-      this.assessmentToolListVisible = false
+      setTimeout(() => {
+       this.$nextTick(() => {
+         this.$logger.info('newAssessmentKeyList', newAssessmentKeyList)
+         this.$refs.assessmentTool.forEach(compRef => {
+           if (newAssessmentKeyList.includes(compRef.assessment.key)) {
+             compRef.saveAssessment()
+           }
+         })
+         this.assessmentToolListVisible = false
+       })
+      }, 0)
     }
   }
 }

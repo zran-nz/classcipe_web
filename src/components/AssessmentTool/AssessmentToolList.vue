@@ -22,7 +22,7 @@
           <a-button @click='handleCancelSelect'>
             Cancel
           </a-button>
-          <a-button type='primary' @click='handleConfirmSelect' :disabled='assessmentList.length === 0 || selectedAssessmentList.length === 0'>
+          <a-button type='primary' @click='handleConfirmSelect' :disabled='assessmentList.length === 0 || selectedAssessmentList.length === 0 || inserting' :loading='inserting'>
             <a-icon type='plus-circle' />
             Confirm
           </a-button>
@@ -47,6 +47,7 @@ export default {
   },
   data() {
     return {
+      inserting: false,
       loading: true,
       assessmentList: [],
       selectedAssessmentList: []
@@ -61,8 +62,7 @@ export default {
       this.assessmentList = []
       AssessmentToolInfoList({
         pageNo: 1,
-        pageSize: 100,
-        taskId: this.taskId
+        pageSize: 100
       }).then(res => {
         if (res.code === 0) {
           this.assessmentList = res.result.records
@@ -87,6 +87,7 @@ export default {
 
     handleConfirmSelect () {
       this.$logger.info('handleConfirmSelect', this.selectedAssessmentList)
+      this.inserting = true
       this.$emit('confirm-select', this.selectedAssessmentList)
     }
   }
@@ -97,6 +98,7 @@ export default {
 @import "~@/components/index.less";
 
 .assessment-tool-list-wrapper {
+  position: relative;
   .assessment-tool-list {
     min-height: 300px;
     max-height: 400px;

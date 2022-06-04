@@ -417,7 +417,10 @@ export default {
           this.$logger.info('autoSaveAssessment', data)
           AssessmentToolInfoSave(data).then((res) => {
             if (res.code === 0) {
-              this.$EventBus.$emit('assessment-saved')
+              this.$EventBus.$emit('assessment-saved', {
+                key: res.result.key,
+                id: res.result.id
+              })
             } else {
               this.$message.error(res.message)
             }

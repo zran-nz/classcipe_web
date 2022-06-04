@@ -1,5 +1,3 @@
-import { isEmpty } from 'lodash-es'
-
 export const PublishMixin = {
   data () {
     return {
@@ -15,13 +13,11 @@ export const PublishMixin = {
   methods: {
 
     checkRequiredFields () {
-
       // 检查必填项是否为空,只检测null,undefined,空字符串,空数组,空对象
       function simpleIsEmpty(value) {
         if (value === null || value === '' || value === undefined) {
           return true
         }
-
         if (value.hasOwnProperty('length') && value.length === 0) {
           return true
         }
