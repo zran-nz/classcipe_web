@@ -20,7 +20,8 @@
         </div>
         <div class='plan-upgrade'>
           <a-space>
-            <div class='free-plan'>Free plan</div>
+            <div class='free-plan' v-if="info.planInfo">{{ info.planInfo.planName }}</div>
+            <div class='free-plan' v-else>Free plan</div>
             <div class='upgrade'>Upgrade storage</div>
           </a-space>
         </div>
@@ -88,8 +89,9 @@ export default {
   name: 'UserProfileAvatar',
   data() {
     return {
-      consumedSize: 102400000,
-      totalSize: 1024 * 1024 * 1024,
+      // consumedSize: 102400000,
+      // totalSize: 1024 * 1024 * 1024,
+      unit: 1024 * 1024 * 1024,
       schoolUserRole: SchoolUserRole,
       USER_MODE: USER_MODE
     }
@@ -100,7 +102,12 @@ export default {
       currentSchool: state => state.user.currentSchool,
       userMode: state => state.app.userMode
     }),
-
+    consumedSize() {
+     return this.info.usedSpace * 1024
+    },
+    totalSize() {
+      return this.info.planInfo ? this.info.planInfo.storageSpace * this.unit : this.unit
+    },
     storageProgress () {
       return Math.round(this.consumedSize / this.totalSize * 100)
     }

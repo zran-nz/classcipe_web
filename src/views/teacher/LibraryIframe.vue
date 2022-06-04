@@ -71,8 +71,8 @@ export default {
     async getEventCallbackData(data) {
       this.$logger.info('getEventCallbackData', JSON.stringify(data))
       // 当前身份信息加入
-      if (!data.schoolId) {
-         data.schoolId = this.currentSchool ? this.currentSchool.id : 0
+      if (!data.param.schoolId) {
+        data.param.schoolId = this.currentSchool ? this.currentSchool.id : 0
       }
       if (data.act === 'getLibraryResource') {
         return getLibraryResource(data.param)
