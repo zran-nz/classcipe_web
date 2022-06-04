@@ -400,7 +400,7 @@
     </div>
     <fixed-form-footer>
       <template v-slot:right>
-        <a-button type='primary' @click='handleNextStep' class='cc-round-button' :disabled='waitingRedirectHome || waitingRedirectSplitTask'>
+        <a-button type='primary' @click='handleNextStep' class='cc-round-button' :disabled='waitingRedirect'>
           <template v-if='currentActiveStepIndex < formSteps.length - 1'>
             Next
           </template>
@@ -411,7 +411,7 @@
       </template>
     </fixed-form-footer>
 
-    <div class='waiting-redirect' v-if='waitingRedirectHome || waitingRedirectSplitTask'>
+    <div class='waiting-redirect' v-if='waitingRedirect'>
       <div class='mask'></div>
       <div class='waiting-block'>
         <a-spin tip='Redirecting'/>
@@ -695,8 +695,7 @@ export default {
       fullBodyFields: ['learnOuts'],
 
       showSplitTask: false,
-      waitingRedirectSplitTask: false,
-      waitingRedirectHome: false
+      waitingRedirect: false
     }
   },
   computed: {
@@ -1509,17 +1508,6 @@ export default {
       this.saving = true
       const response = await TaskAddOrUpdate(taskData)
       this.saving = false
-      if (this.waitingRedirectSplitTask) {
-        this.$router.replace({
-          path: '/teacher/split-task/' + this.taskId
-        })
-      }
-
-      if (this.waitingRedirectHome) {
-        this.$router.replace({
-          path: '/'
-        })
-      }
       this.$logger.info('TaskAddOrUpdate', response.result)
       return response
     },
@@ -1695,17 +1683,29 @@ export default {
 
     handleUpdateBySubTaskSetting (data) {
       this.$logger.info('handleUpdateBySubTaskSetting', data)
-      this.waitingRedirectHome = true
+      this.waitingRedirect = true
+      this.saving = true
       this.form.price = data.price
       this.form.isSelfLearning = data.isSelfLearning
       this.showSplitTask = false
+      this.save()
+      this.waitingRedirect = false
+      this.$router.replace({
+        path: '/'
+      })
     },
     handleGoToSubTask (data) {
       this.$logger.info('handleGoToSubTask', data)
-      this.waitingRedirectSplitTask = true
+      this.waitingRedirect = true
+      this.saving = true
       this.form.price = data.price
       this.form.isSelfLearning = data.isSelfLearning
       this.showSplitTask = false
+      this.save()
+      this.waitingRedirect = false
+      this.$router.replace({
+        path: '/teacher/split-task/' + this.taskId
+      })
     }
   }
 }
