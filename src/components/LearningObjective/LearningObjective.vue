@@ -100,17 +100,56 @@
       <div class='cc-lo-list'>
         <div v-for='(item, idx) in selectedList' :key='idx' class='cc-lo-item'>
           <div class='cc-left-lo'>
-            <div class='item-desc'>
-              {{ item.desc }}
+            <div class="item-desc-wrapper">
+              <div class='item-desc' v-selectPopover="['modal', domFn, item, true]">
+                {{ item.desc }}
+              </div>
+              <div class='item-subject-year'>
+                <div class='item-sub-title' :title='item.path && item.path[0]'>{{ item.path && item.path[0] }}</div>
+                <div class='item-sub-title' :title='item.path && item.path[yearIndex]'>{{ item.path && item.path[yearIndex] }}</div>
+              </div>
+
+              <div class='delete-wrapper'>
+                <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDelete(item)" cancel-text="No">
+                  <delete-icon color='#F16A39' />
+                </a-popconfirm>
+              </div>
             </div>
-            <div class='item-subject-year'>
-              <div class='item-sub-title' :title='item.path && item.path[0]'>{{ item.path && item.path[0] }}</div>
-              <div class='item-sub-title' :title='item.path && item.path[yearIndex]'>{{ item.path && item.path[yearIndex] }}</div>
+            <div class="item-bloom-wrapper">
+              <div class="bloom-wrapper">
+                <label for="">Bloom's Taxonomy:</label>
+                <rate-level @change="val => handleChangeLevel(val, item)" :bloom="item.bloomTag"/>
+              </div>
+              <div class="bloom-wrapper">
+                <label for="">Knowlegde Dimensions:</label>
+                <rate-level @change="val => handleChangeLevel(val, item)" :knowledge="item.knowledgeDimension" />
+              </div>
             </div>
-            <div class='delete-wrapper'>
-              <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDelete(item)" cancel-text="No">
-                <delete-icon color='#F16A39' />
-              </a-popconfirm>
+            <div class="item-command-wrapper" v-if="item.commandTerms && item.commandTerms.length > 0">
+              <label for="">Command Term:</label>
+              <div class="wrapper-list">
+                <div
+                  class='wrapper-list-item'
+                  v-for='(terms, termIndex) in item.commandTerms'
+                  :key='termIndex'>
+                  <a-tag closable class='command-tag' @close="handleRemoveCommand(terms, 'commandTerms')">
+                    <div class='tag-content'>{{ terms.name }}</div>
+                  </a-tag>
+                </div>
+              </div>
+            </div>
+            <div class="item-command-wrapper" v-if="item.knowledgeTags && item.knowledgeTags.length > 0">
+              <label for="">Knowledge tag:</label>
+              <div class="wrapper-list">
+                <div
+                  class='wrapper-list-item'
+                  v-for='(terms, termIndex) in item.knowledgeTags'
+                  :key='termIndex'>
+                  <a-tag closable class='command-tag knowledge' @close="handleRemoveCommand(terms, 'knowledgeTags')">
+                    <div class='tag-content'>{{ terms.name }}</div>
+                  </a-tag>
+                </div>
+              </div>
             </div>
           </div>
           <div class='cc-right-general-capabilities'>
@@ -159,6 +198,49 @@
       @close='recommendDataVisible = false'
       @confirm='handleConfirmSelectRecommend'
       v-if='recommendDataVisible && recommendDataList.length' />
+
+    <div v-clickOutside id="modal" ref="quickModal" v-show="false">
+      <a-space class="quick-keyword-con">
+        <label>Set </label>
+        <quick-word-button
+          type="black"
+          text="Command term"
+          @sub="res => handleQuickWordSet(res, 'commandTerms')"
+          :quickWord="quickWord"
+          :loadApi="termsSearch"
+          @changeWord="res => this.commandTermForm.name = res"
+        >
+          <template v-slot:create>
+            <div class="quick-word-sub">
+              <a-divider style="margin: 10px 0;"/>
+              <a-space v-show="!showQuickWordCreate" >
+                <label>Create:</label>
+                <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="showQuickWordCreate = true"> {{ commandTermForm.name || 'Command term' }} </a-button>
+              </a-space>
+              <!-- <a-divider style="margin: 5px 0;font-size: 14px;">Create</a-divider>
+              <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="showQuickWordCreate = true"> Do Create </a-button> -->
+              <command-term-add
+                v-show="showQuickWordCreate"
+                :customTags="{}"
+                :initName="commandTermForm.name"
+                @cancel="showQuickWordCreate = false"
+                @save="handleSaveCommanTerm"
+              />
+            </div>
+          </template>
+        </quick-word-button>
+        <label> or </label>
+        <quick-word-button
+          type="black"
+          text="Knowledge tag"
+          @sub="res => handleQuickWordSet(res, 'knowledgeTags')"
+          :quickWord="quickWord"
+          :loadApi="dimensionsSearch"
+        >
+          <template v-slot:create><div></div></template>
+        </quick-word-button>
+      </a-space>
+    </div>
   </div>
 </template>
 
@@ -168,13 +250,25 @@ import data from './data.json'
 import { CurriculumSearch, GeneralCapabilitiesFormat } from '@/components/LearningObjective/CurriculumDataUtils'
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import { getAllCurriculums } from '@/api/preference'
+import { KnowledgeTermTagQueryByKeywords } from '@/api/knowledgeTermTag'
+import { termsSearch, dimensionsSearch } from '@/api/v2/tagsTerm'
 import DeleteIcon from '@/components/Common/DeleteIcon'
 import { debounce } from 'lodash-es'
 import RecommendData from '@/components/LearningObjective/RecommendData'
+import RateLevel from '@/components/RateLevel'
+import CommandTermAdd from '@/components/CommandTerm/CommandTermAdd.vue'
+import QuickWordButton from '@/components/Button/QuickWordButton'
 
 export default {
   name: 'LearningObjective',
-  components: { RecommendData, DeleteIcon, CustomTextButton },
+  components: {
+    RecommendData,
+    DeleteIcon,
+    CustomTextButton,
+    RateLevel,
+    CommandTermAdd,
+    QuickWordButton
+  },
   props: {
     curriculumId: {
       type: String,
@@ -239,7 +333,20 @@ export default {
 
       generalCapabilitiesData: [],
       asyncEmitUpdateEventFn: null,
-      recommendDataVisible: false
+      recommendDataVisible: false,
+
+      KnowledgeTermTagQueryByKeywords: KnowledgeTermTagQueryByKeywords,
+      termsSearch: termsSearch,
+      dimensionsSearch: dimensionsSearch,
+      quickWord: '',
+      commandTerms: [],
+      knowledgeTags: [],
+      showQuickWordCreate: false,
+      currentObjective: null,
+      commandTermForm: {
+        name: ''
+      }
+
     }
   },
   watch: {
@@ -334,6 +441,8 @@ export default {
       this.$logger.info('handleSelectItem', item)
       if (this.selectedList.indexOf(item) === -1) {
         this.$set(item, 'generalCapabilities', [])
+        this.$set(item, 'bloomTag', '')
+        this.$set(item, 'knowledgeDimension', '')
         this.selectedList.unshift(item)
       }
       this.showFilterList = false
@@ -397,6 +506,58 @@ export default {
         })
       }
       this.recommendDataVisible = false
+    },
+
+    handleChangeLevel(val, tag) {
+      console.log(val, tag)
+      if (val) {
+        tag[val.type] = val.title
+        this.$set(tag, val.type, val.title)
+      }
+    },
+
+    domFn(key, currentChoose) {
+      this.currentObjective = { ...currentChoose }
+      this.quickWord = key.split(' ')[0]
+      this.commandTermForm.name = this.quickWord
+      this.showQuickWordCreate = false
+      // KnowledgeTermTagQueryByKeywords({
+      //   keywords: this.quickWord
+      // }).then(res => {
+      //   if (res.success) {
+      //     this.commandTerms = res.result.filter(item => item.type === 1)
+      //     this.knowledgeTags = res.result.filter(item => item.type === 2)
+      //   }
+      // })
+    },
+
+    handleQuickWordSet(res, key) {
+      console.log(res)
+      console.log(this.currentObjective)
+      setTimeout(() => {
+        this.$refs.quickModal.style.display = 'none'
+      }, 200)
+      const find = this.selectedList.find(item => item.id === this.currentObjective.id)
+      if (find) {
+        if (find[key]) {
+          if (!find[key].find(item => item.name === res.word)) {
+            find[key].push({
+              id: res.id,
+              name: res.word
+            })
+          }
+        } else {
+          this.$set(find, key, [{
+            id: res.id,
+            name: res.word
+          }])
+        }
+      }
+    },
+    handleSaveCommanTerm(res) {
+      console.log(res)
+      this.handleQuickWordSet(res, 'commandTerms')
+      this.showQuickWordCreate = false
     }
   }
 }
@@ -579,41 +740,115 @@ export default {
         .cc-left-lo {
           width: 55%;
           position: relative;
-          cursor: pointer;
-          background: #FAFAFA;
-          border: 1px solid #E1E6ED;
-          border-radius: 4px;
-          padding: 10px 10px 10px 20px;
           display: flex;
-          flex-direction: row;
-          align-items: center;
-          justify-content: space-between;
-          font-weight: 400;
-          color: #313234;
-          font-family: Arial;
+          flex-direction: column;
           margin-bottom: 10px;
-
-          .item-desc {
-            padding-right: 10px;
-          }
-
-          .item-subject-year {
+          .item-desc-wrapper {
+            background: #FAFAFA;
+            border: 1px solid #E1E6ED;
+            position: relative;
             display: flex;
             flex-direction: row;
             align-items: center;
-            justify-content: flex-end;
+            justify-content: space-between;
+            color: #313234;
+            font-family: Arial;
+            cursor: pointer;
+            border-radius: 4px;
+            padding: 10px 10px 10px 20px;
+            font-weight: 400;
+            .item-desc {
+              padding-right: 10px;
+            }
 
-            .item-sub-title {
-              max-width: 100px;
-              overflow: hidden;
-              text-overflow: ellipsis;
-              word-break: break-all;
-              white-space: nowrap;
-              margin-right: 10px;
+            .item-subject-year {
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              justify-content: flex-end;
+
+              .item-sub-title {
+                max-width: 100px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                word-break: break-all;
+                white-space: nowrap;
+                margin-right: 10px;
+                font-weight: bold;
+                color: #111;
+                cursor: pointer;
+                user-select: none;
+              }
+            }
+          }
+
+          .item-bloom-wrapper {
+            margin-top: 20px;
+            display: flex;
+            padding-left: 8px;
+            .bloom-wrapper {
+              font-size: 10px;
+              font-family: Arial;
               font-weight: bold;
-              color: #111;
-              cursor: pointer;
-              user-select: none;
+              color: #191A1C;
+              margin-right: 50px;
+              display: flex;
+              align-items: center;
+              label {
+                margin-right: 5px;
+              }
+            }
+          }
+
+          .item-command-wrapper {
+            display: flex;
+            align-items: center;
+            padding-left: 8px;
+            margin-top: 24px;
+            label {
+              font-size: 10px;
+              font-family: Arial;
+              font-weight: bold;
+              color: #191A1C;
+              width: 100px;
+            }
+            .wrapper-list {
+              margin-left: 10px;
+              display: flex;
+              flex-wrap: wrap;
+              flex: 1;
+              .wrapper-list-item {
+                margin-bottom: 5px;
+                .command-tag {
+                  max-width: 150px;
+                  border: none;
+                  cursor: pointer;
+                  padding: 0 10px;
+                  border-radius: 26px;
+                  line-height: 30px;
+                  font-family: Arial;
+                  font-weight: 400;
+                  background: #06ACD7;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  .tag-content {
+                    display: inline-block;
+                    max-width: 120px;
+                    text-overflow: ellipsis;
+                    word-break: break-word;
+                    user-select: none;
+                    overflow: hidden;
+                    color: #fff;
+                  }
+                  /deep/ i {
+                    color: #fff
+                  }
+                  &.knowledge {
+                    background: #EABA7F;
+                  }
+                }
+              }
             }
           }
 
@@ -718,5 +953,12 @@ export default {
       }
     }
   }
+}
+
+.quick-keyword-con {
+  border: 1px solid #dfdfdf;
+  background: #fff;
+  padding: 5px 10px;
+  // width: 330px;
 }
 </style>
