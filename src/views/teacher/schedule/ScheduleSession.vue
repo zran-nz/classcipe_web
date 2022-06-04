@@ -196,17 +196,11 @@ export default {
       this.scheduleReq.openSession = false
     },
 
-    handleSelectOpenSession (data) {
-      this.$logger.info('ScheduleSession handleSelectOpenSession ', data)
-      this.scheduleReq.openSession = true
-      this.scheduleReq.zoom = 1
-      this.scheduleReq.openSession = data.openSession
-      this.$refs['steps-nav'].nextStep()
-      this.checkZoomAuth()
-    },
-
     handleSelectWorkshopType (data) {
       this.scheduleReq.workshopType = data.workshopType
+      this.scheduleReq.openSession = data.workshopType === 2
+      this.scheduleReq.zoom = 1
+      this.$refs['steps-nav'].nextStep()
     },
 
     handleSelectDate (data) {
