@@ -1,7 +1,7 @@
 <template>
   <div class='assessment-tool-list-wrapper'>
     <div class='assessment-tool-list'>
-      <div class='assessment-preview-item' v-for='assessment in assessmentList' :key='assessment.key' @click='selectAssessment(assessment)'>
+      <div class='assessment-preview-item' v-for='(assessment, idx) in assessmentList' :key='idx' @click='selectAssessment(assessment)' v-show='assessment.assessmentToolPreviewImgBase64'>
         <div class='item-type-icon'>
           <img src="~@/assets/icons/lesson/selected.png" v-if='selectedAssessmentList.indexOf(assessment) !== -1' />
           <div class="empty-circle" v-if='selectedAssessmentList.indexOf(assessment) === -1'></div>

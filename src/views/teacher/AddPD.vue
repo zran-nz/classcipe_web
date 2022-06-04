@@ -145,7 +145,7 @@
       </template>
     </fixed-form-footer>
 
-    <pd-schedule ref='schedule' />
+    <pd-schedule ref='schedule' :content-id='pdId' />
   </div>
 </template>
 
