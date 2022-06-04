@@ -400,7 +400,7 @@
     </div>
     <fixed-form-footer>
       <template v-slot:right>
-        <a-button type='primary' @click='handleNextStep' class='cc-round-button'>
+        <a-button type='primary' @click='handleNextStep' class='cc-round-button' :disabled='waitingRedirectHome || waitingRedirectSplitTask'>
           <template v-if='currentActiveStepIndex < formSteps.length - 1'>
             Next
           </template>
@@ -411,6 +411,12 @@
       </template>
     </fixed-form-footer>
 
+    <div class='waiting-redirect' v-if='waitingRedirectHome || waitingRedirectSplitTask'>
+      <div class='mask'></div>
+      <div class='waiting-block'>
+        <a-spin tip='Redirecting'/>
+      </div>
+    </div>
     <a-modal
       v-model='showCollaborateModalVisible'
       :footer='null'
@@ -441,7 +447,6 @@
           @handle-select='handleSelectQuickTaskPreviewTemplate'></quick-task-template-preview>
       </div>
     </a-modal>
-
     <a-modal
       v-model='shareVisible'
       :footer='null'
@@ -479,6 +484,16 @@
       :visible='chooseAnotherVisible'
       :mode="'choose-another'"
     />
+    <a-modal
+      v-model='showSplitTask'
+      :footer='null'
+      :title='null'
+      :closable='false'
+      destroyOnClose
+      width='600px'>
+      <modal-header title='Congratulation!' @close='showSplitTask = false' />
+      <split-task-setting :price='form.price' :is-self-learning='form.isSelfLearning' @confirm='handleUpdateBySubTaskSetting' @confirm-and-split='handleGoToSubTask' />
+    </a-modal>
   </div>
 </template>
 
@@ -536,10 +551,14 @@ import { PublishMixin } from '@/mixins/PublishMixin'
 import LearningObjective from '@/components/LearningObjective/LearningObjective'
 import { AutoSaveMixin } from '@/mixins/AutoSaveMixin'
 import CustomImageUploader from '@/components/Common/CustomImageUploader'
+import ModalHeader from '@/components/Common/ModalHeader'
+import SplitTaskSetting from '@/components/Task/SplitTaskSetting'
 
 export default {
   name: 'AddTaskV2',
   components: {
+    SplitTaskSetting,
+    ModalHeader,
     CustomImageUploader,
     LearningObjective,
     CustomCoverMedia,
@@ -617,7 +636,9 @@ export default {
         gradeId: undefined,
         materialList: [],
         taskClassList: [],
-        customFieldData: null
+        customFieldData: null,
+        price: 0,
+        isSelfLearning: false
       },
       gradeList: [],
 
@@ -671,7 +692,11 @@ export default {
 
       formBodyWidth: '55%',
       tagBodyWidth: '45%',
-      fullBodyFields: ['learnOuts']
+      fullBodyFields: ['learnOuts'],
+
+      showSplitTask: false,
+      waitingRedirectSplitTask: false,
+      waitingRedirectHome: false
     }
   },
   computed: {
@@ -793,9 +818,7 @@ export default {
 
     handleNextStep () {
       if (this.currentActiveStepIndex === this.formSteps.length - 1) {
-        this.$router.replace({
-          path: '/'
-        })
+        this.showSplitTask = true
       } else {
         this.$refs['steps-nav'].nextStep()
       }
@@ -1486,6 +1509,17 @@ export default {
       this.saving = true
       const response = await TaskAddOrUpdate(taskData)
       this.saving = false
+      if (this.waitingRedirectSplitTask) {
+        this.$router.replace({
+          path: '/teacher/split-task/' + this.taskId
+        })
+      }
+
+      if (this.waitingRedirectHome) {
+        this.$router.replace({
+          path: '/'
+        })
+      }
       this.$logger.info('TaskAddOrUpdate', response.result)
       return response
     },
@@ -1657,6 +1691,21 @@ export default {
       this.form.curriculumId = data.curriculumId
       this.form.subjectList = data.selectedSubjectList
       this.form.yearList = data.selectedYearList
+    },
+
+    handleUpdateBySubTaskSetting (data) {
+      this.$logger.info('handleUpdateBySubTaskSetting', data)
+      this.waitingRedirectHome = true
+      this.form.price = data.price
+      this.form.isSelfLearning = data.isSelfLearning
+      this.showSplitTask = false
+    },
+    handleGoToSubTask (data) {
+      this.$logger.info('handleGoToSubTask', data)
+      this.waitingRedirectSplitTask = true
+      this.form.price = data.price
+      this.form.isSelfLearning = data.isSelfLearning
+      this.showSplitTask = false
     }
   }
 }
@@ -1664,6 +1713,43 @@ export default {
 
 <style lang="less" scoped>
 @import "~@/components/index.less";
+
+.my-full-form-wrapper {
+  position: relative;
+
+  .waiting-redirect {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+
+    .mask {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      z-index: 8000;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+    .waiting-block {
+      padding: 15px 25px;
+      z-index: 9000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: row;
+      background-color: rgba(255, 255, 255);
+      border-radius: 4px;
+      box-shadow: 0 0 3px 3px rgba(0, 0, 0, 0.1);
+    }
+  }
+}
 
 .step-content {
   display: flex;

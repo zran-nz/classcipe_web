@@ -229,7 +229,14 @@ export const asyncRouterMap = [
             name: 'AddTaskV2',
             props: true,
             component: () => import('@/views/teacher/AddTaskV2'),
-            meta: { title: 'menu.task', keepAlive: true, permission: ['teacher'], fullLayout: true, allowHiddenHeader: true, hiddenFooter: true }
+            meta: { title: 'menu.task', keepAlive: true, permission: ['teacher'], fullLayout: true }
+          },
+          {
+            path: '/teacher/split-task/:taskId',
+            name: 'SplitTask',
+            props: true,
+            component: () => import('@/views/teacher/SplitTask'),
+            meta: { title: 'menu.splitTask', keepAlive: true, permission: ['teacher'], fullLayout: true }
           },
           {
             path: '/teacher/task-redirect/:taskId?/:parentId?',
