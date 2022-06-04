@@ -21,8 +21,8 @@
       </a-tab-pane>
       <div class='form-config-action' slot="tabBarExtraContent">
         <a-space>
-          <a-button @click='handleAddStep' type="primary"><a-icon type="plus" /> Add step</a-button>
-          <a-divider type="vertical" />
+<!--          <a-button @click='handleAddStep' type="primary"><a-icon type="plus" /> Add step</a-button>-->
+<!--          <a-divider type="vertical" />-->
           <a-button @click='handlePreviewPlanningForm'>Preview</a-button>
           <a-button type="primary" @click='handleSavePlanningForm' :loading='saving'>Save changes</a-button>
         </a-space>
