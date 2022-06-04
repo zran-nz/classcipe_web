@@ -17,8 +17,7 @@
           v-show='currentActiveStepIndex === 0'
           @update-class-list='getClassList'
           @select-class-student='handleSelectClassStudent'
-          @select-public-workshop='handleSelectOpenSession'
-          @select-private-workshop='handleSelectOpenSession'/>
+          @select-workshop-type='handleSelectWorkshopType'/>
         <schedule-date
           v-show='!scheduleReq.openSession && currentActiveStepIndex === 1'
           @select-date='handleSelectDate'
@@ -111,7 +110,8 @@ export default {
         selectStudents: [],
         sessionType: 0,
         startDate: null,
-        teachSessionNow: 0,
+        teachSessionNow: 1,
+        workshopType: 1, // 1-private workshop 2-public workshop
         zoom: 0
       },
       creating: false
@@ -196,13 +196,11 @@ export default {
       this.scheduleReq.openSession = false
     },
 
-    handleSelectOpenSession (data) {
-      this.$logger.info('ScheduleSession handleSelectOpenSession ', data)
-      this.scheduleReq.openSession = true
+    handleSelectWorkshopType (data) {
+      this.scheduleReq.workshopType = data.workshopType
+      this.scheduleReq.openSession = data.workshopType === 2
       this.scheduleReq.zoom = 1
-      this.scheduleReq.openSession = data.openSession
       this.$refs['steps-nav'].nextStep()
-      this.checkZoomAuth()
     },
 
     handleSelectDate (data) {

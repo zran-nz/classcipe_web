@@ -26,7 +26,7 @@ export default {
       default: 'name'
     },
     value: {
-      type: null,
+      type: [Number, String],
       default: null
     }
   },
@@ -36,7 +36,7 @@ export default {
     }
   },
   created() {
-    if (this.value) {
+    if (this.value !== null) {
       this.checkedItem = this.list.find(item => item.value === this.value)
     }
   },

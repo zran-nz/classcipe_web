@@ -162,15 +162,15 @@ export default {
 
     selectPrivateWorkshop () {
       this.$logger.info('selectPrivateWorkshop', this.checkedStudent)
-      this.$emit('select-private-workshop', {
-        openSession: true
+      this.$emit('select-workshop-type', {
+        workshopType: 1
       })
     },
 
     selectPublicWorkshop () {
       this.$logger.info('selectPrivateWorkshop', this.checkedStudent)
-      this.$emit('select-public-workshop', {
-        openSession: true
+      this.$emit('select-workshop-type', {
+        workshopType: 2
       })
     },
 
