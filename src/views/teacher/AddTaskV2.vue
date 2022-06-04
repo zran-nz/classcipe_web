@@ -431,22 +431,7 @@
         @confirmSelect='confirmSelectCollaborateUsers'
         v-if='showCollaborateModalVisible' />
     </a-modal>
-    <a-modal
-      v-model='quickTaskPreviewTemplateVisible'
-      :footer='null'
-      destroyOnClose
-      width='1000px'
-      :zIndex='4000'
-      :title='null'
-      @ok='quickTaskPreviewTemplateVisible = false'
-      @cancel='quickTaskPreviewTemplateVisible = false'>
-      <div class='link-content-wrapper'>
-        <quick-task-template-preview
-          :show-replace-tips='form.presentationId && form.taskMode === 2'
-          :template='quickTaskPreviewTemplate'
-          @handle-select='handleSelectQuickTaskPreviewTemplate'></quick-task-template-preview>
-      </div>
-    </a-modal>
+
     <a-modal
       v-model='shareVisible'
       :footer='null'
@@ -476,14 +461,6 @@
         @update-content='handleUpdateContent'
       />
     </a-modal>
-    <quick-session
-      v-if='chooseAnotherVisible'
-      @close='handleCloseQuickSession'
-      @select='handleEnsureChooseAnother'
-      :selected-class='quickSessionClassItem'
-      :visible='chooseAnotherVisible'
-      :mode="'choose-another'"
-    />
     <a-modal
       v-model='showSplitTask'
       :footer='null'
@@ -501,14 +478,12 @@
 import { typeMap } from '@/const/teacher'
 import { FindSourceOutcomes, GetAssociate, GetMyGrades, GetReferOutcomes } from '@/api/teacher'
 import { TemplatesGetPresentation } from '@/api/template'
-import { MyContentEvent, MyContentEventBus } from '@/components/MyContent/MyContentEventBus'
 import { TaskAddOrUpdate, TaskCreateNewTaskPPT, TaskQueryById } from '@/api/task'
 import Collaborate from '@/components/UnitPlan/Collaborate'
 import CustomTagV2 from '@/components/CustomTag/CustomTagV2'
 import CollaborateUserList from '@/components/Collaborate/CollaborateUserList'
 import { CustomTagType, TaskField } from '@/const/common'
 import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
-import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
 import { FindCustomTags } from '@/api/tag'
 import CollaborateCommentPanel from '@/components/Collaborate/CollaborateCommentPanel'
 import CommentSwitch from '@/components/Collaborate/CommentSwitch'
@@ -524,9 +499,6 @@ import { QueryContentShare } from '@/api/share'
 import CollaborateTooltip from '@/components/Collaborate/CollaborateTooltip'
 import CollaborateUpdateContent from '@/components/Collaborate/CollaborateUpdateContent'
 import LocalStore from '@/websocket/localstore'
-import QuickSession from '@/components/QuickSession/QuickSession'
-import { chooseAnother } from '@/api/quickTask'
-import QuickTaskTemplatePreview from '@/components/Task/QuickTaskTemplatePreview'
 import { AddMaterialEventBus, ModalEventsNameEnum } from '@/components/AddMaterial/AddMaterialEventBus'
 import { addBatchElements } from '@/api/addMaterial'
 import AddGreenIcon from '@/assets/svgIcon/evaluation/form/tianjia_green.svg?inline'
@@ -575,8 +547,6 @@ export default {
     FormLinkedContent,
     MyVerticalSteps,
     AddGreenIcon,
-    QuickTaskTemplatePreview,
-    QuickSession,
     ShareContentSetting,
     TemplatePreview,
     CollaborateHistory,
@@ -675,13 +645,6 @@ export default {
       shareStatus: 0,
       taskField: TaskField,
 
-      chooseAnotherVisible: false,
-
-      quickTaskPreviewTemplateVisible: false,
-      quickTaskPreviewTemplate: null,
-
-      quickSessionClassItem: null,
-
       editGoogleSlideLoading: false,
       currentActiveStepIndex: this.getSessionStep(),
       currentStep: {
@@ -715,10 +678,6 @@ export default {
   },
   async created() {
     this.$logger.info('add task created ' + this.taskId + ' ' + this.$route.path + ' mode: ' + this.mode)
-
-    // 初始化关联事件处理
-    MyContentEventBus.$on(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
-    LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
 
     this.$EventBus.$on(SlideEvent.SELECT_TEMPLATE, this.handleSelectTemplate)
     this.$EventBus.$on(SlideEvent.CANCEL_SELECT_TEMPLATE, this.handleRemoveTemplate)
@@ -763,8 +722,6 @@ export default {
     this.$EventBus.$on('assessment-saved', this.autoSaveMixinUpdateSaveTime)
   },
   beforeDestroy() {
-    MyContentEventBus.$off(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
-    LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
     this.$EventBus.$off(SlideEvent.SELECT_TEMPLATE, this.handleSelectTemplate)
     this.$EventBus.$off(SlideEvent.CANCEL_SELECT_TEMPLATE, this.handleRemoveTemplate)
     this.$EventBus.$off('assessment-saved', this.autoSaveMixinUpdateSaveTime)
@@ -974,51 +931,6 @@ export default {
 
     goBack() {
       this.$router.push({ path: '/teacher/main/created-by-me' })
-    },
-
-    handleChooseAntherPrompt () {
-      this.$logger.info('handleChooseAntherPrompt')
-      this.chooseAnotherVisible = true
-    },
-
-    handleCloseQuickSession () {
-      this.$logger.info('handleCloseQuickSession')
-      this.chooseAnotherVisible = false
-    },
-
-    handleEnsureChooseAnother (data) {
-      this.$logger.info('handleEnsureChooseAnother', data)
-      chooseAnother({
-        presentationId: data.presentationId,
-        selectPageObjectIds: data.selectPageObjectIds,
-        taskId: this.taskId
-      }).then(response => {
-        if (response.success) {
-          this.form.pageObjectIds = response.result.pageObjectIds
-          this.form.presentationId = response.result.presentationId
-          this.form.fileDeleted = response.result.fileDeleted
-          this.form.copyFromSlide = response.result.copyFromSlide
-          this.form.image = response.result.image
-          this.$message.success('Choose another successfully')
-          this.chooseAnotherVisible = false
-          if (data.classItem && this.form.taskMode === 2) {
-            this.form.taskClassList = []
-            this.$nextTick(() => {
-              this.form.taskClassList.push({
-                classId: data.classItem.id,
-                className: data.classItem.name,
-                classType: data.classItem.classType,
-                startDate: null,
-                endDate: null
-              })
-              this.$logger.info('handleEnsureChooseAnother update form.taskClassList', this.form.taskClassList)
-            })
-          }
-          this.loadThumbnail(false)
-        } else {
-          this.$message.warn(response.message)
-        }
-      })
     },
 
     handleSelectTemplate (template) {
@@ -1474,13 +1386,6 @@ export default {
       this.$logger.info('handleSelectPreviewTemplate ', template)
       this.handleSelectTemplateMadel(template)
       this.previewTemplateVisible = false
-    },
-    handleSelectQuickTaskPreviewTemplate(data) {
-      this.$logger.info('handleSelectQuickTaskPreviewTemplate ', data)
-      if (data.presentationId && data.selectPageObjectIds && data.selectPageObjectIds.length > 0) {
-        this.handleEnsureChooseAnother(data)
-      }
-      this.quickTaskPreviewTemplateVisible = false
     },
     removeSelectTemplate(template) {
       this.$logger.info('removeSelectTemplate ', template)
