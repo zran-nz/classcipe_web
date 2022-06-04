@@ -29,7 +29,7 @@
           </div>
         </div>
         <div class='search-history' v-show='showSearchHistory'>
-          <div class='history-item' v-for='(name, idx) in historyList' :key='idx' @click='emitSearchEvent(name)'>
+          <div class='list-item' v-for='(name) in historyList' :key='name' @click='emitSearchEvent(name)'>
             <div class='icon'>
               <a-icon type="clock-circle" theme="filled" :style="{color: '#999', fontSize: '16px'}" />
             </div>
@@ -39,15 +39,51 @@
           </div>
         </div>
         <div class='recommend-list' v-show='showSearchRecommend'>
-          <div class='history-item' v-for='(recommendItem, idx) in recommendList' :key='idx' @click='emitSearchEvent(recommendItem.name)'>
-            <div class='icon'>
-              <a-icon type="star" theme="filled" :style="{color: '#999', fontSize: '16px'}" />
+          <div class='list-item' v-for='item in similarList' :key='item.id' @click='emitSearchEvent(item.name)'>
+            <div class='icon similar-icon'>
+              #
             </div>
             <div class='search-content'>
-              <div class='content-name' v-html='recommendItem.tagName'></div>
-              <div class='content-tagName'> {{ recommendItem.fromType }}</div>
+              <div class='content-name'>
+                {{ item.name }}
+              </div>
             </div>
           </div>
+          <div class='list-item' v-for='item in pdList' :key='item.id' @click='viewItem(item)'>
+            <div class='icon'>
+              <div class='tag-icon'>PD</div>
+            </div>
+            <div class='search-content'>
+              <div class='content-name'>
+                {{ item.name }}
+              </div>
+            </div>
+          </div>
+          <div class='list-item' v-for='item in planList' :key='item.id' @click='viewItem(item)'>
+            <div class='icon'>
+              <div class='tag-icon'>Unit</div>
+            </div>
+            <div class='search-content'>
+              <div class='content-name'>
+                {{ item.name }}
+              </div>
+            </div>
+          </div>
+          <div class='list-item' v-for='item in taskList' :key='item.id' @click='viewItem(item)'>
+            <div class='icon'>
+              <div class='tag-icon'>Task</div>
+            </div>
+            <div class='search-content'>
+              <div class='content-name'>
+                {{ item.name }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class='searching' v-if='searching'>
+          <a-spin>
+            <a-icon slot="indicator" type="loading" style="font-size: 24px" spin tip='searching...' />
+          </a-spin>
         </div>
       </div>
       <div class='bg-mask' @click='handleBack'></div>
@@ -58,7 +94,7 @@
 <script>
 import SearchIcon from '@/assets/v2/icons/search.svg?inline'
 import { debounce } from 'lodash-es'
-import { Search } from '@/api/library'
+import { librarySearch } from '@/api/v2/library'
 
 export default {
   name: 'GlobalSearchInput',
@@ -72,8 +108,12 @@ export default {
       searching: false,
       handleSearch: null,
 
-      historyList: [],
-      recommendList: []
+      pdList: [],
+      planList: [],
+      similarList: [],
+      taskList: [],
+
+      historyList: []
     }
   },
   computed: {
@@ -81,7 +121,7 @@ export default {
       return this.searchKeyword === null || this.searchKeyword.trim() === ''
     },
     showSearchRecommend () {
-      return this.searchKeyword && this.historyList.length > 0
+      return this.searchKeyword
     }
   },
   created() {
@@ -133,14 +173,18 @@ export default {
       this.$logger.info('search', value)
       this.searching = true
       this.recommendList = []
-      Search({
-        curriculumId: this.$store.getters.bindCurriculum,
+      librarySearch({
         key: value
       }).then(response => {
         this.$logger.info('searchByKeyword ' + value, response)
         const list = []
         // 添加高亮标签
-        response.result.forEach(item => {
+        const similarList = response.result.similarList
+        this.pdList = response.result.pdList
+        this.planList = response.result.planList
+        this.taskList = response.result.taskList
+
+        similarList.forEach(item => {
           if (item.name) {
             let lastIndex = 0
             let index = item.name.toLowerCase().indexOf(value)
@@ -154,12 +198,13 @@ export default {
             const tagItem = {
               fromType: item.fromType,
               name: item.name,
-              tagName: tagName
+              tagName: tagName,
+              id: item.id
             }
             list.push(tagItem)
           }
         })
-        this.recommendList = list
+        this.similarList = similarList
       }).finally(() => {
         this.searching = false
       })
@@ -176,6 +221,11 @@ export default {
       this.$logger.info('emitSearchEvent', key)
       this.$emit('search', key)
       this.handleBack()
+    },
+
+    viewItem(item) {
+      this.$logger.info('viewItem', item)
+      this.$emit('view-content', item)
     }
   }
 }
@@ -300,7 +350,7 @@ export default {
     z-index: 6000;
     background-color: #fff;
 
-    .do-search, .history-item, .recommend-item {
+    .do-search, .list-item, .recommend-item {
       display: flex;
       align-items: center;
       flex-direction: row;
@@ -309,12 +359,20 @@ export default {
         background-color: #f8f8f8;
       }
       .icon {
-        width: 50px;
+        width: 80px;
         height: 50px;
         display: flex;
         align-items: center;
         flex-direction: row;
         justify-content: center;
+
+        .tag-icon {
+          background: #f0f0f0;
+          color: #aaa;
+          border-radius: 5px;
+          padding: 3px 6px;
+
+        }
       }
 
       .search-content-left {
@@ -369,5 +427,13 @@ export default {
 
 .bold {
   font-weight: bold;
+}
+
+.searching {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  padding: 10px 0;
 }
 </style>

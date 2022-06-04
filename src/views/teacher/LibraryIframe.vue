@@ -3,7 +3,7 @@
     <div class='library-search'>
       <div class='create-new'>
         <a-space>
-          <global-search-input @search='handleSearch' />
+          <global-search-input @search='handleSearch' @view-content='handleViewContent' />
           <user-profile-avatar />
         </a-space>
       </div>
@@ -90,6 +90,30 @@ export default {
       this.$logger.info('handleSearch', data)
       if (data && data.length >= 3) {
         this.$router.push({ path: '/teacher/library/search/' + data })
+      }
+    },
+
+    handleViewContent (item) {
+      this.$logger.info('handleViewContent', item)
+      item.fromType = parseInt(item.fromType)
+      if (item.fromType === this.$classcipe.typeMap.pd) {
+        this.$router.push({
+          path: '/teacher/pd-content-redirect/' + item.id
+        })
+      } else if (item.fromType === this.$classcipe.typeMap.task) {
+        this.$router.push({
+          path: '/teacher/task-redirect/' + item.id
+        })
+      } else if (item.fromType === this.$classcipe.typeMap['unit-plan']) {
+        this.$router.push({
+          path: '/teacher/unit-plan-redirect/' + item.id
+        })
+      } else if (item.fromType === this.$classcipe.typeMap.video) {
+        this.$router.push({
+          path: '/teacher/video-redirect/' + item.id
+        })
+      } else {
+        this.$logger.warn('handleViewContent: unknown type', item.fromType)
       }
     }
   }

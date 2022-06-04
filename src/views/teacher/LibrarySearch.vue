@@ -52,12 +52,12 @@ export default {
   data() {
     return {
       searching: true,
-      searchKeyword: null,
+      searchKeyword: this.keyword,
       list: []
     }
   },
   created() {
-    this.searchKeyword = this.keyword
+    this.$logger.info('LibrarySearch: created', this.searchKeyword)
     this.handleDoSearch()
   },
   methods: {
@@ -108,6 +108,7 @@ export default {
       min-height: calc(100vh - 200px);
 
       .empty-tips {
+        min-height: 120px;
         height: calc(100vh - 300px);
         display: flex;
         justify-content: center;
