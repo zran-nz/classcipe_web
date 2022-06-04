@@ -71,17 +71,18 @@ export default {
     async getEventCallbackData(data) {
       this.$logger.info('getEventCallbackData', JSON.stringify(data))
       // 当前身份信息加入
-      if (!data.param.schoolId) {
-        data.param.schoolId = this.currentSchool ? this.currentSchool.id : 0
+      const param = Object.assign({}, data.param)
+      if (!param.schoolId) {
+        param.schoolId = this.currentSchool ? this.currentSchool.id : 0
       }
       if (data.act === 'getLibraryResource') {
-        return getLibraryResource(data.param)
+        return getLibraryResource(param)
       } else if (data.act === 'getLibraryRecommend') {
-        return getLibraryRecommend(data.param)
+        return getLibraryRecommend(param)
       } else if (data.act === 'librarySearch') {
-        return librarySearch(data.param)
+        return librarySearch(param)
       } else if (data.act === 'queryAllResource') {
-        return queryAllResource(data.param)
+        return queryAllResource(param)
       }
     },
 
