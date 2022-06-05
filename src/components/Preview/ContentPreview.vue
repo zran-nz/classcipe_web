@@ -15,6 +15,8 @@
 
 <script>
 
+import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
+
 export default {
   name: 'ContentPreview',
   props: {
@@ -30,7 +32,7 @@ export default {
   computed: {
     iframeSrc() {
       if (this.baseUrl) {
-        return this.baseUrl + '/v2/iframe/detail/' + this.contentType + '/' + this.contentId
+        return this.baseUrl + '/v2/detail/' + this.contentType + '/' + this.contentId
       }
       return null
     }
@@ -51,8 +53,16 @@ export default {
     } else {
       this.$logger.warn('ContentPreview: unknown host', host)
     }
+    ClasscipeEventBus.$on(ClasscipeEvent.LIBRARY_IFRAME_EVENT, this.handleIframeEvent)
+  },
+  beforeDestroy() {
+    ClasscipeEventBus.$off(ClasscipeEvent.LIBRARY_IFRAME_EVENT, this.handleIframeEvent)
   },
   methods: {
+
+    async handleIframeEvent (data) {
+      this.$logger.info('handleIframeEvent', JSON.stringify(data))
+    },
     handleClose () {
       this.$emit('close')
     }

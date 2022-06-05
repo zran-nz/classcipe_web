@@ -87,9 +87,9 @@
         </template>
       </div>
 
-      <preview-content
-        :preview-current-id='previewCurrentId'
-        :preview-type='previewType'
+      <content-preview
+        :content-id='previewCurrentId'
+        :content-type='previewType'
         v-if='previewVisible'
         @close='handlePreviewClose' />
     </div>
@@ -101,16 +101,16 @@
 import { getLabelNameType, typeMap } from '@/const/teacher'
 import * as logger from '@/utils/logger'
 import { ContentItemMixin } from '@/mixins/ContentItemMixin'
-import PreviewContent from '@/components/MyContentV2/PreviewContent'
 import CustomButton from '@/components/Common/CustomButton'
 import EditIcon from '@/assets/v2/icons/edit.svg?inline'
 import DuplicateIcon from '@/assets/v2/icons/duplicate.svg?inline'
+import ContentPreview from '@/components/Preview/ContentPreview'
 
 export default {
   name: 'FavoriteContentItem',
   components: {
+    ContentPreview,
     CustomButton,
-    PreviewContent,
     DuplicateIcon,
     EditIcon
   },

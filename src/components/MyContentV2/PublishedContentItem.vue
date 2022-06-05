@@ -142,9 +142,9 @@
         </template>
       </div>
 
-      <preview-content
-        :preview-current-id='previewCurrentId'
-        :preview-type='previewType'
+      <content-preview
+        :content-id='previewCurrentId'
+        :content-type='previewType'
         v-if='previewVisible'
         @close='handlePreviewClose' />
     </div>
@@ -157,7 +157,6 @@ import { getLabelNameType, typeMap } from '@/const/teacher'
 import * as logger from '@/utils/logger'
 import { DeleteMyContentByType } from '@/api/teacher'
 import { ContentItemMixin } from '@/mixins/ContentItemMixin'
-import PreviewContent from '@/components/MyContentV2/PreviewContent'
 import CustomButton from '@/components/Common/CustomButton'
 import SubTaskIcon from '@/assets/v2/icons/sub-task.svg?inline'
 import EditIcon from '@/assets/v2/icons/edit.svg?inline'
@@ -171,12 +170,13 @@ import { UnitPlanAddOrUpdate } from '@/api/unitPlan'
 import { TaskAddOrUpdate } from '@/api/task'
 import { VideoAddOrUpdate } from '@/api/video'
 import { PDContentAddOrUpdate } from '@/api/pdContent'
+import ContentPreview from '@/components/Preview/ContentPreview'
 
 export default {
   name: 'ContentItem',
   components: {
+    ContentPreview,
     CustomButton,
-    PreviewContent,
     SubTaskIcon,
     EditIcon,
     PublishIcon,

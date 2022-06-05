@@ -73,6 +73,10 @@ export default {
         case ClasscipeEvent.GOOGLE_AUTH_REFRESH:
           ClasscipeEventBus.$emit(ClasscipeEvent.GOOGLE_AUTH_REFRESH)
           break
+        case ClasscipeEvent.LIBRARY_IFRAME_EVENT:
+          this.$logger.info('LIBRARY_IFRAME_EVENT', eventData)
+          ClasscipeEventBus.$emit(ClasscipeEvent.LIBRARY_IFRAME_EVENT, eventData)
+          break
         default:
           break
       }
