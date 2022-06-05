@@ -241,7 +241,7 @@
             <template v-slot:create><div></div></template>
           </quick-word-button>
         </a-space>
-        <div class="recommend-con">
+        <div class="recommend-con" v-if="termRecommend.length > 0 || knowledgeRecommend.length > 0">
           <label for="">Recommended</label>
           <div class="recommend-tag">
             <div

@@ -5,9 +5,12 @@
       </div>
       <div v-if="content.session && content.session.classId && [WORK_SHOPS_TYPE.LUNCHEDBYME.value, WORK_SHOPS_TYPE.REGISTERED.value].includes(content.workshopsType)" class="cover-btn"><label>Enter workshop</label></div>
     </div>
-    <div class='detail' @click.prevent.stop='handlePreviewDetail(content.content)'>
+    <div class='detail' @click.prevent.stop='handlePreview(content.content)'>
       <div class='detail-content' @click.prevent.stop>
         <div class='base-info'>
+          <div class='type-icon'>
+            <content-type-icon :type="content.content.type" />
+          </div>
           <div class='name' v-show="!showEditName">
             {{ content.title || content.content.name }}
             <a-icon v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType" type="edit" @click.prevent.stop="editName(content)"/>
@@ -150,7 +153,12 @@
         </a-space>
       </div>
     </div>
-    <preview-content :preview-current-id='previewCurrentId' :preview-type='previewType' v-if='previewVisible' @close='handlePreviewClose' />
+    <!-- <preview-content :preview-current-id='previewCurrentId' :preview-type='previewType' v-if='previewVisible' @close='handlePreviewClose' /> -->
+    <content-preview
+      :content-id='previewCurrentId'
+      :content-type='previewType'
+      v-if='previewVisible'
+      @close='handlePreviewClose' />
 
   </div>
 </template>
@@ -165,7 +173,9 @@ import PriceSlider from '@/components/Slider/PriceSlider'
 import ShareButton from '@/components/Share/ShareButton'
 import CustomButton from '@/components/Common/CustomButton'
 import PreviewContent from '@/components/MyContentV2/PreviewContent'
+import ContentPreview from '@/components/Preview/ContentPreview'
 import TagsLine from '@/components/TagsLine'
+import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 
 import { ContentItemMixin } from '@/mixins/ContentItemMixin'
 import { ACCESS_TOKEN, SET_PROMOTE_CODE } from '@/store/mutation-types'
@@ -181,7 +191,9 @@ export default {
     ShareButton,
     CustomButton,
     PreviewContent,
-    TagsLine
+    ContentPreview,
+    TagsLine,
+    ContentTypeIcon
   },
   mixins: [ ContentItemMixin ],
   props: {
@@ -390,6 +402,10 @@ export default {
     },
     handleEdit(item) {
       this.$message.info('coming soon...')
+    },
+    handlePreview(data) {
+      this.$emit('close')
+      this.handlePreviewDetail(data)
     }
   }
 }
@@ -469,6 +485,11 @@ export default {
 
       .base-info {
         flex: 1;
+        display: flex;
+        align-items: center;
+        .type-icon {
+          margin-right: 0.1em;
+        }
         .name {
           font-size: 0.22em /* 22/100 */;
           font-family: Arial;

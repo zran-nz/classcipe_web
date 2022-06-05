@@ -37,8 +37,7 @@
             v-show="'participants' === ScheduleStepsFilter[currentActiveStepIndex].type"
             @update-class-list='getClassList'
             @select-class-student='handleSelectClassStudent'
-            @select-public-workshop='handleSelectOpenSession'
-            @select-private-workshop='handleSelectOpenSession'/>
+            @select-workshop-type='handleSelectWorkshopType'/>
           <schedule-date
             v-show='!scheduleReq.openSession && "schedule" === ScheduleStepsFilter[currentActiveStepIndex].type'
             :default-date="defaultDate"
@@ -87,7 +86,6 @@ import { typeMap } from '@/const/teacher'
 import { mapState } from 'vuex'
 
 import moment from 'moment'
-import { IoTSecureTunneling } from 'aws-sdk'
 export default {
   name: 'SessionImportForCalendar',
   mixins: [ ZoomAuthMixin ],
@@ -295,7 +293,7 @@ export default {
               this.selectSessionUnitVisible = true
             // 如果为0，则从所有unit选择
             } else if (associates.length === 0) {
-              this.importLoading = IoTSecureTunneling
+              this.importLoading = true
               FindMyContent({
                 type: [typeMap['unit-plan']],
                 searchKey: '',
@@ -347,6 +345,12 @@ export default {
       this.scheduleReq.openSession = data.openSession
       this.$refs['steps-nav'].nextStep()
       this.checkZoomAuth()
+    },
+    handleSelectWorkshopType (data) {
+      this.scheduleReq.workshopType = data.workshopType
+      this.scheduleReq.openSession = data.workshopType === 2
+      this.scheduleReq.zoom = 1
+      this.$refs['steps-nav'].nextStep()
     },
     handleSelectDate (data) {
       this.scheduleReq.startDate = data.startDate

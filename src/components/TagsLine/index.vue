@@ -105,7 +105,7 @@ export default {
       if (items.length > 0) {
         const lastItem = items[0]
         if (lastItem) {
-          const moreWidth = lastItem.getBoundingClientRect().width
+          const moreWidth = 100 // lastItem.getBoundingClientRect().width
           const totalWidth = tagInfoEl.getBoundingClientRect().width
           let showTagsWidth = 0
           items.forEach((item, index) => {
@@ -117,13 +117,13 @@ export default {
               }
             }
           })
-          // console.log(moreWidth)
-          // console.log(totalWidth)
-          // console.log(showTagsWidth)
-          // console.log(showTagLen)
+          console.log(moreWidth)
+          console.log(totalWidth)
+          console.log(showTagsWidth)
+          console.log(showTagLen)
         }
       }
-      if (total - showTagLen > 1) {
+      if (total - showTagLen > 0) {
         this.showTagLen = showTagLen
       } else {
         this.showTagLen = total

@@ -73,7 +73,8 @@
           <no-more-resources tips="No content selected" />
         </div>
         <div v-else class="preview-wrap">
-          <common-preview-v2 v-if="!previewLoading" :id="selectedId" :type="type" />
+          <iframe :src="iframeSrc" class='preview-iframe' id='library-iframe' v-if='iframeSrc'></iframe>
+          <!-- <common-preview-v2 v-if="!previewLoading" :id="selectedId" :type="type" /> -->
         </div>
       </div>
     </div>
@@ -153,17 +154,34 @@ export default {
       selectedId: '',
       previewLoading: true,
       backText: this.backTxt,
-      showFilter: this.needFilter
+      showFilter: this.needFilter,
+      baseUrl: null
     }
   },
   computed: {
     ...mapState({
       userMode: state => state.app.userMode,
       currentSchool: state => state.user.currentSchool
-    })
+    }),
+    iframeSrc() {
+      if (this.baseUrl) {
+        return this.baseUrl + '/v2/iframe/detail/' + this.type + '/' + this.selectedId
+      }
+      return null
+    }
   },
   created() {
     this.init()
+    const host = window.location.host
+    if (host.indexOf('localhost') !== -1) {
+      this.baseUrl = 'http://localhost:9004'
+    } else if (host.indexOf('dev.classcipe.com') !== -1) {
+      this.baseUrl = 'https://dev.classcipe.com'
+    } else if (host.indexOf('my.classcipe.com') !== -1) {
+      this.baseUrl = 'https://my.classcipe.com'
+    } else {
+      this.$logger.warn('ContentPreview: unknown host', host)
+    }
   },
   methods: {
     init() {
@@ -312,6 +330,12 @@ export default {
       height: 375px;
       overflow: auto;
       .preview-wrap {
+        .preview-iframe {
+          height: 100vh;
+          width: 100%;
+          border: none;
+          outline: none;
+        }
         /deep/ .my-common-preview {
           .top-header {
             display: none;

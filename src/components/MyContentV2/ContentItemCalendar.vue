@@ -150,16 +150,16 @@
         </template>
       </div>
     </div>
-    <preview-content
+    <!-- <preview-content
       :preview-current-id='previewCurrentId'
       :preview-type='previewType'
       v-if='previewVisible'
-      @close='handlePreviewClose' />
-    <!-- <content-preview
+      @close='handlePreviewClose' /> -->
+    <content-preview
       :content-id='previewCurrentId'
       :content-type='previewType'
       v-if='previewVisible'
-      @close='handlePreviewClose' /> -->
+      @close='handlePreviewClose' />
   </div>
 </template>
 

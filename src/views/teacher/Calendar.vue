@@ -90,8 +90,10 @@
                   @save-response-limit="params => handleSave(params, info)"
                 >
                 </content-item-calendar>
-                <div v-else style="font-size: 60px">
-                  <liveworkshop-item :content="getWorkshopItem(info)"/>
+                <div v-else style="font-size: 90px">
+                  <liveworkshop-item
+                    @close="closeAllModal"
+                    :content="getWorkshopItem(info)"/>
                 </div>
               </a>
               <div
