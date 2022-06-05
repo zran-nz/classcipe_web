@@ -1,11 +1,7 @@
 <template>
   <div class='global-search-input'>
-    <a-input
-      @click.native.stop='activeSearchInput'
-      v-model='data'
-      placeholder='Search here...'/>
     <div class='search-icon'>
-      <search-icon />
+      <a-icon type='search' @click.native='activeSearchInput' />
     </div>
     <div class='global-search' v-show='showSearchWrapper'>
       <div class='search-input-line'>
@@ -242,7 +238,6 @@ export default {
   cursor: pointer;
 
   .search-icon {
-    position: absolute;
     width: 35px;
     display: flex;
     align-items: center;
@@ -250,11 +245,6 @@ export default {
     justify-content: flex-end;
     padding-right: 10px;
     cursor: pointer;
-
-    svg {
-      width: 13px;
-      height: 13px;
-    }
   }
 
   /deep/ input {
