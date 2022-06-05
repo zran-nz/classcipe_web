@@ -2745,10 +2745,6 @@ export default {
         }
       })
     },
-    handleShareStatus (status) {
-      this.$logger.info('handleShareStatus', status)
-      this.shareStatus = status
-    },
     handleUpdateContent() {
       // 缓存时间少于最新的内容
       this.form.updateTime = moment.utc(new Date()).format('YYYY-MM-DD HH:mm:ss')

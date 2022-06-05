@@ -6,10 +6,13 @@
           title='Create PD Content'
           :form='form'
           :spin='saving'
+          :share-status='shareStatus'
           :show-share='false'
-          :show-collaborate='false'
+          :collaborate='collaborate'
           :last-change-saved-time='lastChangeSavedTime'
           @publish='handlePublish'
+          @share='handleSharePd'
+          @collaborate='handleStartCollaborate'
           @back='goBack'>
         </form-header>
       </template>
@@ -146,6 +149,36 @@
     </fixed-form-footer>
 
     <pd-schedule ref='schedule' :content-id='pdId' />
+
+    <a-modal
+      v-model='showCollaborateModalVisible'
+      :footer='null'
+      :maskClosable='false'
+      :closable='true'
+      destroyOnClose
+      width='640px'>
+      <collaborate-user-list
+        :content-id='pdId'
+        :main-content='collaborateContent'
+        :content-type='typeMap.pd'
+        @confirmSelect='confirmSelectCollaborateUsers'
+        v-if='showCollaborateModalVisible' />
+    </a-modal>
+
+    <a-modal
+      v-model='shareVisible'
+      :footer='null'
+      destroyOnClose
+      title='Share'
+      width='500px'
+      @ok='shareVisible = false'
+      @cancel='shareVisible = false'>
+      <share-content-setting
+        :source-id='pdId'
+        :source-type='typeMap.pd'
+        @update-share-status='handleShareStatus'
+      />
+    </a-modal>
   </div>
 </template>
 
@@ -158,7 +191,7 @@ import CustomFormItem from '@/components/Common/CustomFormItem'
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import MyVerticalSteps from '@/components/Steps/MyVerticalSteps'
 import { PdField } from '@/const/common'
-import { RightModule } from '@/mixins/BaseEvent'
+import { BaseEventMixin, RightModule } from '@/mixins/BaseEvent'
 import CustomCoverMedia from '@/components/Common/CustomCoverMedia'
 import CustomTagV2 from '@/components/CustomTag/CustomTagV2'
 import { FindCustomTags } from '@/api/tag'
@@ -177,6 +210,9 @@ import SlideEvent from '@/components/PPT/SlideEvent'
 import CustomImageUploader from '@/components/Common/CustomImageUploader'
 import { TaskCreateNewTaskPPT } from '@/api/task'
 import PdSchedule from '@/components/PdContent/PdSchedule'
+import Collaborate from '@/components/UnitPlan/Collaborate'
+import CollaborateUserList from '@/components/Collaborate/CollaborateUserList'
+import ShareContentSetting from '@/components/Share/ShareContentSetting'
 
 export default {
   name: 'AddPD',
@@ -195,7 +231,10 @@ export default {
     FixedFormFooter,
     CustomFormItem,
     MyVerticalSteps,
-    CustomTextButton
+    CustomTextButton,
+    Collaborate,
+    CollaborateUserList,
+    ShareContentSetting
   },
   props: {
     pdId: {
@@ -207,7 +246,7 @@ export default {
       default: 'edit'
     }
   },
-  mixins: [ GoogleAuthCallBackMixin, PublishMixin, AutoSaveMixin ],
+  mixins: [ GoogleAuthCallBackMixin, PublishMixin, AutoSaveMixin, BaseEventMixin ],
   data() {
     return {
       contentLoading: true,
@@ -615,6 +654,11 @@ export default {
     handleScheduleWorkShop () {
       this.$logger.info('handleScheduleWorkShop')
       this.$refs.schedule.visible = true
+    },
+
+    handleSharePd() {
+      this.$logger.info('handleSharePd')
+      this.shareVisible = true
     }
   }
 }

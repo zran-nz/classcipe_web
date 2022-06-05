@@ -550,6 +550,9 @@ export default {
             this.$message.success('Remove successfully')
           }).finally(() => {
             that.collaborateUserList.splice(index, 1)
+            // that.collaborate.users = that.collaborateUserList
+            // that.$emit('confirmSelect', that.collaborate)
+            that.queryContentCollaborates()
           })
         }
       })

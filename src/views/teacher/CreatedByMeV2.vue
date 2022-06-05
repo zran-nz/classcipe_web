@@ -134,7 +134,7 @@ export default {
     },
     handleSearch (data) {
       this.$logger.info('handleSearch', data)
-      this.filterParams = data
+      this.searchText = data
       this.pageNo = 1
       this.loadMyContent()
     },

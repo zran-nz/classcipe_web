@@ -641,8 +641,6 @@ export default {
 
       materialListFlag: false,
 
-      shareVisible: false,
-      shareStatus: 0,
       taskField: TaskField,
 
       editGoogleSlideLoading: false,
@@ -1460,10 +1458,6 @@ export default {
           this.shareStatus = 0
         }
       })
-    },
-    handleShareStatus (status) {
-      this.$logger.info('handleShareStatus', status)
-      this.shareStatus = status
     },
     handleUpdateContent() {
       // const contentMsg = this.$store.state.websocket.saveContentMsg

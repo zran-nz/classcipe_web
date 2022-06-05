@@ -955,8 +955,6 @@ export default {
       associateId2Name: new Map(),
       rwcList: [],
 
-      shareVisible: false,
-      shareStatus: 0,
       planField: PlanField,
 
       linkLoading: false,
@@ -1824,10 +1822,6 @@ export default {
           this.shareStatus = 0
         }
       })
-    },
-    handleShareStatus (status) {
-      this.$logger.info('handleShareStatus', status)
-      this.shareStatus = status
     },
     handleUpdateContent() {
       // 缓存时间少于最新的内容

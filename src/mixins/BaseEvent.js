@@ -21,6 +21,8 @@ export const RightModule = {
 export const BaseEventMixin = {
   data () {
     return {
+      shareVisible: false,
+      shareStatus: 0,
       oldForm: {},
       rightModule: RightModule,
       showModuleList: [RightModule.customTag, RightModule.recommend],
@@ -301,6 +303,10 @@ export const BaseEventMixin = {
     loadCollaborateData(sourceType, sourceId) {
       this.GetCollaborateModifiedHistory(sourceType, sourceId)
       this.GetCollaborateComment(sourceType, sourceId)
+    },
+    handleShareStatus (status) {
+      this.$logger.info('handleShareStatus', status)
+      this.shareStatus = status
     }
   }
 

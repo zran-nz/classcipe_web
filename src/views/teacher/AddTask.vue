@@ -4252,10 +4252,6 @@ export default {
         }
       })
     },
-    handleShareStatus (status) {
-      this.$logger.info('handleShareStatus', status)
-      this.shareStatus = status
-    },
     handleUpdateContent() {
       // const contentMsg = this.$store.state.websocket.saveContentMsg
       // contentMsg.hideUpdate = true
