@@ -47,7 +47,7 @@ export default {
     if (host.indexOf('localhost') !== -1) {
       this.baseUrl = 'http://localhost:9004'
     } else if (host.indexOf('dev.classcipe.com') !== -1) {
-      this.baseUrl = 'https://dev.rssmv.cn'
+      this.baseUrl = 'https://dev.classcipe.com'
     } else if (host.indexOf('my.classcipe.com') !== -1) {
       this.baseUrl = 'https://my.classcipe.com'
     } else {
