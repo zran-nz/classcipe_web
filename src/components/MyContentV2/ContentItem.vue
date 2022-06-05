@@ -7,8 +7,13 @@
     <div class='detail'>
       <div class='detail-content' @click='handlePreviewDetail(content)'>
         <div class='base-info'>
-          <div class='name'>
-            {{ content.name || 'Untitled ' + contentTypeName }}
+          <div class='name-type'>
+            <div class='type-icon'>
+              <content-type-icon :type="content.type" />
+            </div>
+            <div class='name'>
+              {{ content.name || 'Untitled ' + contentTypeName }}
+            </div>
           </div>
           <div class='extra-info'>
             <a-space>
@@ -151,10 +156,12 @@ import OriginalTipsIcon from '@/assets/v2/icons/original_tips.svg?inline'
 import DeleteIcon from '@/assets/v2/icons/delete.svg?inline'
 import MoreIcon from '@/assets/v2/icons/more.svg?inline'
 import ContentPreview from '@/components/Preview/ContentPreview'
+import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 
 export default {
   name: 'ContentItem',
   components: {
+    ContentTypeIcon,
     ContentPreview,
     CustomButton,
     SubTaskIcon,
@@ -296,13 +303,22 @@ export default {
       flex-grow: 1;
 
       .base-info {
-        .name {
-          line-height: 2rem;
-          font-size: 1rem;
-          font-family: Arial;
-          font-weight: bold;
-          color: #17181A;
-          cursor: pointer;
+        .name-type {
+          display: flex;
+          justify-content: flex-start;
+          align-items: center;
+          flex-direction: row;
+
+          .name {
+            margin-left: 10px;
+            line-height: 2rem;
+            font-size: 1rem;
+            font-family: Arial;
+            font-weight: bold;
+            color: #17181A;
+            cursor: pointer;
+          }
+
         }
 
         .subject {

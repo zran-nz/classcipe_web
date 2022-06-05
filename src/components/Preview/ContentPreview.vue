@@ -32,7 +32,7 @@ export default {
   computed: {
     iframeSrc() {
       if (this.baseUrl) {
-        return this.baseUrl + '/v2/detail/' + this.contentType + '/' + this.contentId
+        return this.baseUrl + '/v2/iframe/detail/' + this.contentType + '/' + this.contentId
       }
       return null
     }
