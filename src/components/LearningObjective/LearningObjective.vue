@@ -118,11 +118,11 @@
             <div class="item-bloom-wrapper">
               <div class="bloom-wrapper">
                 <label for="">Bloom's Taxonomy:</label>
-                <rate-level @change="val => handleChangeLevel(val, item)" :bloom="item.bloomTag"/>
+                <rate-level @change="val => handleChangeLevel(val, item)" :bloom="item.bloomTag || ''"/>
               </div>
               <div class="bloom-wrapper">
                 <label for="">Knowlegde Dimensions:</label>
-                <rate-level @change="val => handleChangeLevel(val, item)" :knowledge="item.knowledgeDimension" />
+                <rate-level @change="val => handleChangeLevel(val, item)" :knowledge="item.knowledgeDimension || ''" />
               </div>
             </div>
             <div class="item-command-wrapper" v-if="item.commandTerms && item.commandTerms.length > 0">
@@ -200,46 +200,61 @@
       v-if='recommendDataVisible && recommendDataList.length' />
 
     <div v-clickOutside id="modal" ref="quickModal" v-show="false">
-      <a-space class="quick-keyword-con">
-        <label>Set </label>
-        <quick-word-button
-          type="black"
-          text="Command term"
-          @sub="res => handleQuickWordSet(res, 'commandTerms')"
-          :quickWord="quickWord"
-          :loadApi="termsSearch"
-          @changeWord="res => this.commandTermForm.name = res"
-        >
-          <template v-slot:create>
-            <div class="quick-word-sub">
-              <a-divider style="margin: 10px 0;"/>
-              <a-space v-show="!showQuickWordCreate" >
-                <label>Create:</label>
-                <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="showQuickWordCreate = true"> {{ commandTermForm.name || 'Command term' }} </a-button>
-              </a-space>
-              <!-- <a-divider style="margin: 5px 0;font-size: 14px;">Create</a-divider>
-              <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="showQuickWordCreate = true"> Do Create </a-button> -->
-              <command-term-add
-                v-show="showQuickWordCreate"
-                :customTags="{}"
-                :initName="commandTermForm.name"
-                @cancel="showQuickWordCreate = false"
-                @save="handleSaveCommanTerm"
-              />
+      <div class="quick-keyword-con" >
+        <a-space>
+          <label>Set </label>
+          <quick-word-button
+            type="black"
+            text="Command term"
+            @sub="res => handleQuickWordSet(res, 'commandTerms')"
+            :quickWord="quickWord"
+            :loadApi="termsSearch"
+            @changeWord="res => this.commandTermForm.name = res"
+          >
+            <template v-slot:create>
+              <div class="quick-word-sub">
+                <a-divider style="margin: 10px 0;"/>
+                <a-space v-show="!showQuickWordCreate" >
+                  <label>Create:</label>
+                  <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="createCommandTerm"> {{ commandTermForm.name || 'Command term' }} </a-button>
+                </a-space>
+                <!-- <a-divider style="margin: 5px 0;font-size: 14px;">Create</a-divider>
+                <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="showQuickWordCreate = true"> Do Create </a-button> -->
+                <!-- <command-term-add
+                  v-show="showQuickWordCreate"
+                  :customTags="{}"
+                  :initName="commandTermForm.name"
+                  @cancel="showQuickWordCreate = false"
+                  @save="handleSaveCommanTerm"
+                /> -->
+              </div>
+            </template>
+          </quick-word-button>
+          <label> or </label>
+          <quick-word-button
+            type="black"
+            text="Knowledge tag"
+            @sub="res => handleQuickWordSet(res, 'knowledgeTags')"
+            :quickWord="quickWord"
+            :loadApi="dimensionsSearch"
+          >
+            <template v-slot:create><div></div></template>
+          </quick-word-button>
+        </a-space>
+        <div class="recommend-con">
+          <label for="">Recommended</label>
+          <div class="recommend-tag">
+            <div
+              class='wrapper-list-item'
+              v-for='(terms, termIndex) in recommendData'
+              :key='termIndex'>
+              <a-tag class='command-tag knowledge' @click="handleRemoveCommand(terms, 'knowledgeTags')">
+                <div class='tag-content'>{{ terms.name }}</div>
+              </a-tag>
             </div>
-          </template>
-        </quick-word-button>
-        <label> or </label>
-        <quick-word-button
-          type="black"
-          text="Knowledge tag"
-          @sub="res => handleQuickWordSet(res, 'knowledgeTags')"
-          :quickWord="quickWord"
-          :loadApi="dimensionsSearch"
-        >
-          <template v-slot:create><div></div></template>
-        </quick-word-button>
-      </a-space>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -251,13 +266,16 @@ import { CurriculumSearch, GeneralCapabilitiesFormat } from '@/components/Learni
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import { getAllCurriculums } from '@/api/preference'
 import { KnowledgeTermTagQueryByKeywords } from '@/api/knowledgeTermTag'
-import { termsSearch, dimensionsSearch } from '@/api/v2/tagsTerm'
+import { termsSearch, dimensionsSearch, termsCreate, dimensionsCreate } from '@/api/v2/tagsTerm'
+import { getRecommend, addToSetTerms, incBloom } from '@/api/v2/statsTarget'
+import { GetDictItems } from '@/api/common'
 import DeleteIcon from '@/components/Common/DeleteIcon'
 import { debounce } from 'lodash-es'
 import RecommendData from '@/components/LearningObjective/RecommendData'
 import RateLevel from '@/components/RateLevel'
 import CommandTermAdd from '@/components/CommandTerm/CommandTermAdd.vue'
 import QuickWordButton from '@/components/Button/QuickWordButton'
+import { DICT_BLOOM_TAXONOMY, DICT_KNOWLEDGE_DIMENSION } from '@/const/common'
 
 export default {
   name: 'LearningObjective',
@@ -345,7 +363,10 @@ export default {
       currentObjective: null,
       commandTermForm: {
         name: ''
-      }
+      },
+      recommendData: [],
+      bloomTagLevel: [],
+      knowledgeDimensionLevel: []
 
     }
   },
@@ -392,6 +413,7 @@ export default {
     }
 
     this.initData()
+    this.initDict()
   },
   mounted() {
     this.globalClick(this.handleClick)
@@ -508,12 +530,45 @@ export default {
       this.recommendDataVisible = false
     },
 
+    initDict() {
+      Promise.all([
+        GetDictItems(DICT_BLOOM_TAXONOMY),
+        GetDictItems(DICT_KNOWLEDGE_DIMENSION)
+      ]).then(([bloomRes, knowledgeRes]) => {
+        if (bloomRes.success) {
+          this.bloomTagLevel = bloomRes.result
+        }
+        if (knowledgeRes.success) {
+          this.knowledgeDimensionLevel = knowledgeRes.result
+        }
+      })
+    },
+
     handleChangeLevel(val, tag) {
       console.log(val, tag)
       if (val) {
+        const origin = tag[val.type]
+        const originLevel = this.getLevel(val.type, origin)
         tag[val.type] = val.title
         this.$set(tag, val.type, val.title)
+        // 上报
+        if (tag.id) {
+          const currentLevel = this.getLevel(val.type, val.title)
+          console.log({
+            [`bloom.${originLevel - 1}`]: -1,
+            [`bloom.${currentLevel - 1}`]: 1
+          })
+          incBloom(tag.id, {
+            [`bloom.${originLevel - 1}`]: -1,
+            [`bloom.${currentLevel - 1}`]: 1
+          })
+        }
       }
+    },
+
+    getLevel(type, title) {
+      const levelObj = this[type + 'Level'].find(bloom => bloom.text === title)
+      return levelObj ? parseInt(levelObj.value) : 0
     },
 
     domFn(key, currentChoose) {
@@ -521,6 +576,12 @@ export default {
       this.quickWord = key.split(' ')[0]
       this.commandTermForm.name = this.quickWord
       this.showQuickWordCreate = false
+      // 获取联想
+      if (currentChoose.id) {
+        getRecommend(currentChoose.id).then(res => {
+          console.log(res)
+        })
+      }
       // KnowledgeTermTagQueryByKeywords({
       //   keywords: this.quickWord
       // }).then(res => {
@@ -537,7 +598,13 @@ export default {
       setTimeout(() => {
         this.$refs.quickModal.style.display = 'none'
       }, 200)
-      const find = this.selectedList.find(item => item.id === this.currentObjective.id)
+      const find = this.selectedList.find(item => {
+        if (this.currentObjective.id) {
+          return item.id === this.currentObjective.id
+        } else {
+          return item.desc === this.currentObjective.desc
+        }
+      })
       if (find) {
         if (find[key]) {
           if (!find[key].find(item => item.name === res.word)) {
@@ -551,13 +618,38 @@ export default {
             id: res.id,
             name: res.word
           }])
+          // 上报
+          if (this.currentObjective.id) {
+            const params = {}
+            if (key === 'commandTerms') {
+              params.terms = res.word
+            }
+            if (key === 'knowledgeTags') {
+              params.tags = res.word
+            }
+            addToSetTerms(this.currentObjective.id, params)
+          }
         }
       }
     },
-    handleSaveCommanTerm(res) {
+    handleSaveCommanTerm(res, key = 'commandTerms') {
       console.log(res)
-      this.handleQuickWordSet(res, 'commandTerms')
+      this.handleQuickWordSet(res, key)
       this.showQuickWordCreate = false
+    },
+    createCommandTerm() {
+      termsCreate({
+        tag: this.commandTermForm.name || 'Command term'
+      }).then(res => {
+        this.handleSaveCommanTerm(res)
+      })
+    },
+    createDimension() {
+      dimensionsCreate({
+        tag: this.commandTermForm.name || 'Knowledge Dimensions'
+      }).then(res => {
+        this.handleSaveCommanTerm(res, 'knowledgeTags')
+      })
     }
   }
 }
@@ -960,5 +1052,17 @@ export default {
   background: #fff;
   padding: 5px 10px;
   // width: 330px;
+}
+.recommend-con {
+  position: relative;
+  margin-top: 10px;
+  & > label {
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  .recommend-tag {
+    display: flex;
+  }
+
 }
 </style>
