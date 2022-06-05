@@ -606,7 +606,7 @@ export default {
     handleCloseObjectiveTag(item, key, tagIndex) {
       item[key].splice(tagIndex, 1)
       console.log(item)
-      this.$forceUpdate()
+      // this.$forceUpdate()
     },
 
     handleQuickWordSet(res, key) {
@@ -655,7 +655,7 @@ export default {
       this.showQuickWordCreate = false
     },
     handleAddRecommend(res, key = 'commandTerms') {
-      this.handleQuickWordSet({
+      this.handleSaveCommanTerm({
         word: res,
         id: res
       }, key)
@@ -1079,7 +1079,7 @@ export default {
   font-family: Arial;
   font-weight: 400;
   background: #06ACD7;
-  display: flex;
+  display: flex!important;
   align-items: center;
   justify-content: center;
   .tag-content {
