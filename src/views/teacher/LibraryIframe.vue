@@ -9,7 +9,6 @@
       </div>
     </div>
     <div class='library-iframe-wrapper'>
-      <iframe v-if='iframeSrc' :src='iframeSrc' id='library-iframe' />
     </div>
   </div>
 </template>
@@ -18,8 +17,6 @@
 
 import GlobalSearchInput from '@/components/GlobalSearch/GlobalSearchInput'
 import UserProfileAvatar from '@/components/User/UserProfileAvatar'
-import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
-import { getLibraryRecommend, getLibraryResource, librarySearch, queryAllResource } from '@/api/v2/library'
 import { mapState } from 'vuex'
 
 export default {
@@ -33,7 +30,7 @@ export default {
   computed: {
     iframeSrc() {
       if (this.baseUrl) {
-        return this.baseUrl + '/v2/iframe/library'
+        return this.baseUrl + '/v2/library'
       }
       return null
     },
@@ -52,39 +49,10 @@ export default {
     } else {
       this.$logger.warn('ContentPreview: unknown host', host)
     }
-
-    ClasscipeEventBus.$on(ClasscipeEvent.LIBRARY_IFRAME_EVENT, this.handleIframeEvent)
-  },
-  beforeDestroy() {
-    ClasscipeEventBus.$off(ClasscipeEvent.LIBRARY_IFRAME_EVENT, this.handleIframeEvent)
+    this.$logger.info('open library page', this.iframeSrc)
+    window.open(this.iframeSrc, '_blank')
   },
   methods: {
-
-    async handleIframeEvent (data) {
-      this.$logger.info('handleIframeEvent', JSON.stringify(data))
-      data.callbackData = await this.getEventCallbackData(data)
-      delete data.event
-      data.from = 'form_page'
-      window.frames['library-iframe'].contentWindow.postMessage(data, '*')
-    },
-
-    async getEventCallbackData(data) {
-      this.$logger.info('getEventCallbackData', JSON.stringify(data))
-      // 当前身份信息加入
-      const param = Object.assign({}, data.param)
-      if (!param.schoolId) {
-        param.schoolId = this.currentSchool ? this.currentSchool.id : 0
-      }
-      if (data.act === 'getLibraryResource') {
-        return getLibraryResource(param)
-      } else if (data.act === 'getLibraryRecommend') {
-        return getLibraryRecommend(param)
-      } else if (data.act === 'librarySearch') {
-        return librarySearch(param)
-      } else if (data.act === 'queryAllResource') {
-        return queryAllResource(param)
-      }
-    },
 
     handleSearch (data) {
       this.$logger.info('handleSearch', data)
@@ -138,12 +106,6 @@ export default {
   .library-iframe-wrapper {
     height: calc(100vh - 80px);
     width: 100%;
-    #library-iframe {
-      height: 100%;
-      width: 100%;
-      border: none;
-      outline: none;
-    }
   }
 }
 </style>
