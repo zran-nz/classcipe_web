@@ -17,6 +17,7 @@ import { SESSION_ACTIVE_KEY, USER_MODE } from '@/const/common'
 import { teacher } from '@/const/role'
 import { getAllSubjectsByCurriculumId } from '@/api/preference'
 import { myClassesList } from '@/api/v2/classes'
+import { appLogin } from '@/api/v2/statsTarget'
 
 const user = {
   state: {
@@ -112,6 +113,7 @@ const user = {
           commit('SET_TOKEN', accessToken)
           window.sessionStorage.setItem(SESSION_ACTIVE_KEY, accessToken)
           setCookie(ACCESS_TOKEN, accessToken)
+          appLogin(accessToken)
           resolve()
         } else {
           reject(new Error('illegal token ' + accessToken))
@@ -130,6 +132,7 @@ const user = {
             commit('SET_TOKEN', result.token)
             window.sessionStorage.setItem(SESSION_ACTIVE_KEY, result.token)
             setCookie(ACCESS_TOKEN, result.token)
+            appLogin(result.token)
             resolve(response)
           } else {
             reject(response)
@@ -152,6 +155,7 @@ const user = {
             commit('SET_TOKEN', result.token)
             window.sessionStorage.setItem(SESSION_ACTIVE_KEY, result.token)
             setCookie(ACCESS_TOKEN, result.token)
+            appLogin(result.token)
             resolve(response)
           } else {
             reject(response)
@@ -195,6 +199,7 @@ const user = {
               storage.set(ACCESS_TOKEN, result.token, 7 * 24 * 60 * 60 * 1000)
               commit('SET_TOKEN', result.token)
               setCookie(ACCESS_TOKEN, result.token)
+              appLogin(result.token)
               window.sessionStorage.setItem(SESSION_ACTIVE_KEY, result.token)
             }
             resolve(response)

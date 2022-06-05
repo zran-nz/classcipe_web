@@ -117,6 +117,11 @@ const vueConfig = {
         target: ' https://dev.classcipe.com/',
         ws: false,
         changeOrigin: true
+      },
+      '/fio': {
+        target: ' https://dev.classcipe.com/',
+        ws: true,
+        changeOrigin: true
       }
     }
   },

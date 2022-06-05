@@ -10,6 +10,7 @@ import { defaultExpertRouter, defaultStudentRouter, defaultTeacherRouter } from 
 import * as logger from '@/utils/logger'
 import { SESSION_ACTIVE_KEY } from '@/const/common'
 import { getToken, setCookie } from './utils/util'
+import { appLogin } from '@/api/v2/statsTarget'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
@@ -35,6 +36,7 @@ router.beforeEach((to, from, next) => {
       storage.set(ACCESS_TOKEN, token)
       window.sessionStorage.setItem(SESSION_ACTIVE_KEY, token)
       setCookie(ACCESS_TOKEN, token)
+      appLogin(token)
     }
     const accessToken = getToken()
     logger.info('accessToken check', accessToken)
