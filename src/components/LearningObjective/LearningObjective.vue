@@ -131,7 +131,7 @@
                 <div
                   class='wrapper-list-item'
                   v-for='(terms, termIndex) in item.commandTerms'
-                  :key='termIndex'>
+                  :key='terms.name'>
                   <a-tag closable class='command-tag' @close="e => handleCloseObjectiveTag(item, 'commandTerms', termIndex)">
                     <div class='tag-content'>{{ terms.name }}</div>
                   </a-tag>
@@ -144,7 +144,7 @@
                 <div
                   class='wrapper-list-item'
                   v-for='(terms, termIndex) in item.knowledgeTags'
-                  :key='termIndex'>
+                  :key='terms.name'>
                   <a-tag closable class='command-tag knowledge' @close="e => handleCloseObjectiveTag(item, 'knowledgeTags', termIndex)" >
                     <div class='tag-content'>{{ terms.name }}</div>
                   </a-tag>
@@ -606,7 +606,7 @@ export default {
     handleCloseObjectiveTag(item, key, tagIndex) {
       item[key].splice(tagIndex, 1)
       console.log(item)
-      // this.$forceUpdate()
+      this.$forceUpdate()
     },
 
     handleQuickWordSet(res, key) {
@@ -1079,7 +1079,7 @@ export default {
   font-family: Arial;
   font-weight: 400;
   background: #06ACD7;
-  display: flex!important;
+  display: flex;
   align-items: center;
   justify-content: center;
   .tag-content {
