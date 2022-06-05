@@ -131,7 +131,7 @@
                 <div
                   class='wrapper-list-item'
                   v-for='(terms, termIndex) in item.commandTerms'
-                  :key='termIndex'>
+                  :key='terms.name'>
                   <a-tag closable class='command-tag' @close="e => handleCloseObjectiveTag(item, 'commandTerms', termIndex)">
                     <div class='tag-content'>{{ terms.name }}</div>
                   </a-tag>
@@ -144,7 +144,7 @@
                 <div
                   class='wrapper-list-item'
                   v-for='(terms, termIndex) in item.knowledgeTags'
-                  :key='termIndex'>
+                  :key='terms.name'>
                   <a-tag closable class='command-tag knowledge' @close="e => handleCloseObjectiveTag(item, 'knowledgeTags', termIndex)" >
                     <div class='tag-content'>{{ terms.name }}</div>
                   </a-tag>
@@ -241,7 +241,7 @@
             <template v-slot:create><div></div></template>
           </quick-word-button>
         </a-space>
-        <div class="recommend-con">
+        <div class="recommend-con" v-if="termRecommend.length > 0 || knowledgeRecommend.length > 0">
           <label for="">Recommended</label>
           <div class="recommend-tag">
             <div
@@ -655,7 +655,7 @@ export default {
       this.showQuickWordCreate = false
     },
     handleAddRecommend(res, key = 'commandTerms') {
-      this.handleQuickWordSet({
+      this.handleSaveCommanTerm({
         word: res,
         id: res
       }, key)
