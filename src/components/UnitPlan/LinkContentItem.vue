@@ -19,19 +19,66 @@
     <div class='detail'>
       <div class='detail-content'>
         <div class='base-info'>
-          <div class='name'>
-            {{ content.name }}
+          <div class='name-type'>
+            <div class='type-icon'>
+              <content-type-icon :type="content.type" />
+            </div>
+            <div class='name'>
+              {{ content.name || 'Untitled ' + contentTypeName }}
+            </div>
           </div>
-          <div class='subject'>
-            Ray ka Art
+          <div class='extra-info'>
+            <a-space>
+              <div class='info-item curriculum-info'>
+                {{ curriculumName }}
+              </div>
+              <div class='info-item subject-info'>
+                <a-space>
+                  <div class='subject-item' v-for='(subject, idx) in content.subjectList' :key='idx'>{{ subject }}</div>
+                </a-space>
+              </div>
+              <div class='info-item year-info'>
+                <a-space>
+                  <div class='subject-item' v-for='(year, idx) in content.yearList' :key='idx'>{{ year }}</div>
+                </a-space>
+              </div>
+              <div class='info-item task-type-info' v-if='content.taskType'>
+                <div class='self-type-wrapper'>
+                  <div class='self-field-label'>
+                    <div
+                      class='task-type-item green-active-task-type'
+                      v-if="content.taskType === 'FA'">
+                      FA
+                    </div>
+                    <div
+                      class='task-type-item red-active-task-type'
+                      v-if="content.taskType === 'SA'">
+                      SA
+                    </div>
+                    <div
+                      class='task-type-item blue-active-task-type task-type-activity'
+                      v-if="content.taskType === 'Activity'">
+                      <a-tooltip title='Teaching/Learning Activity' placement='top'>Activity</a-tooltip>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </a-space>
           </div>
           <div class='tag-info'>
             <div class='tag-info-item'>
-              Knowledge tag
             </div>
             <div class='tag-info-item'>
-              Commen term
             </div>
+          </div>
+          <div class='owner'>
+            <a-avatar :src='content.owner.avatar' size="small" />
+            <div class='user-name'>
+              {{ content.owner.nickname }}
+            </div>
+          </div>
+          <div class='update-time'>
+            {{ (content.updateTime || content.createTime) | dayjs }}
           </div>
         </div>
         <div class='right-info'>
@@ -48,20 +95,28 @@
         <delete-icon color='#F16A39' />
       </a-popconfirm>
     </div>
+
+    <content-preview
+      :content-id='previewCurrentId'
+      :content-type='previewType'
+      v-if='previewVisible'
+      @close='handlePreviewClose' />
   </div>
 </template>
 
 <script>
 
-import { typeMap } from '@/const/teacher'
+import { getLabelNameType, typeMap } from '@/const/teacher'
 import { ContentItemMixin } from '@/mixins/ContentItemMixin'
 import PreviewContent from '@/components/MyContentV2/PreviewContent'
 import PreviewIcon from '@/assets/v2/icons/preview.svg?inline'
 import DeleteIcon from '@/components/Common/DeleteIcon'
+import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
+import ContentPreview from '@/components/Preview/ContentPreview'
 
 export default {
   name: 'LinkContentItem',
-  components: { DeleteIcon, PreviewContent, PreviewIcon },
+  components: { ContentPreview, ContentTypeIcon, DeleteIcon, PreviewContent, PreviewIcon },
   props: {
     content: {
       type: Object,
@@ -82,6 +137,12 @@ export default {
   computed: {
     status () {
       return this.content.status
+    },
+    contentTypeName () {
+      return this.content ? getLabelNameType(this.content.type) : null
+    },
+    curriculumName () {
+      return this.$store.getters.curriculumId2NameMap.hasOwnProperty(this.content.curriculumId) ? this.$store.getters.curriculumId2NameMap[this.content.curriculumId] : null
     }
   },
   methods: {
@@ -217,24 +278,39 @@ export default {
       flex-grow: 1;
 
       .base-info {
-        .name {
-          line-height: 25px;
-          font-size: 15px;
-          font-family: Arial;
-          font-weight: bold;
-          color: #1D2041;
+        .name-type {
+          display: flex;
+          justify-content: flex-start;
+          align-items: center;
+          flex-direction: row;
+
+          .name {
+            margin-left: 10px;
+            line-height: 2rem;
+            font-size: 1rem;
+            font-family: Arial;
+            font-weight: bold;
+            color: #17181A;
+            cursor: pointer;
+          }
+
         }
+
         .subject {
           cursor: pointer;
           font-family: Arial;
           font-weight: 400;
           color: #757578;
-          line-height: 22px;
-          font-size: 13px;
+          line-height: 1rem;
+          font-size: 0.7rem;
         }
+
         .tag-info {
-          display: flex;
-          flex-direction: row;
+          .tag-info-item {
+            height: 1rem;
+            line-height: 1rem;
+            font-size: 0.6rem;
+          }
         }
       }
     }
