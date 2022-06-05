@@ -1,3 +1,12 @@
+export async function appLogin(token) {
+  if (window.AppLogin) {
+    const result = await window.AppLogin(token)
+    return Promise.resolve(result)
+  } else {
+    return Promise.reject(new Error('No APP imported'))
+  }
+}
+
 export const isAPPExists = (App) => {
   return App && App.service && typeof App.service === 'function'
 }

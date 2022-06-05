@@ -12,11 +12,12 @@
   import storage from 'store'
   import { ACCESS_TOKEN } from '../../store/mutation-types'
   import CommonPreviewV2 from '@/components/Common/CommonPreviewV2'
+  import { appLogin } from '@/api/v2/statsTarget'
 
   export default {
   name: 'AddonPreview',
   components: {
-    CommonPreview
+    CommonPreviewV2
   },
   data () {
     return {
@@ -30,6 +31,7 @@
       token = this.$route.query.accessToken
     }
     storage.set(ACCESS_TOKEN, token)
+    appLogin(token)
   },
   props: {
     id: {

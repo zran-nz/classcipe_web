@@ -196,21 +196,21 @@ export default {
       //   index: 2
       // },
       {
-        value: 3,
+        value: 1,
         name: 'PD workshop',
+        index: 1
+      }, {
+        value: 2,
+        name: 'Student workshop',
+        index: 2
+      }, {
+        value: 3,
+        name: 'Launched by me',
         index: 3
       }, {
         value: 4,
-        name: 'student workshop',
+        name: 'Workshop to attend',
         index: 4
-      }, {
-        value: 5,
-        name: 'launched by me',
-        index: 5
-      }, {
-        value: 6,
-        name: 'workshop to attend',
-        index: 6
       }],
       [CALENDAR_QUERY_TYPE.MY.label]: [
         {
@@ -263,15 +263,31 @@ export default {
           center: 'title',
           right: 'dayGridMonth,timeGridWeek,timeGridDay' // ,timeGridFourDay'
         },
-        // views: {
-        //   timeGridFourDay: {
-        //     type: 'timeGrid',
-        //     duration: { days: 12 },
-        //     buttonText: 'year'
-        //   }
-        // },
+        views: {
+          timeGridFourDay: {
+            type: 'timeGrid',
+            duration: { days: 12 },
+            buttonText: 'year',
+            allDaySlot: false,
+            slotMaxTime: '8:00:00',
+            slotLabelInterval: '00:15',
+            eventMinHeight: 60,
+            eventShortHeight: 60,
+            eventTimeFormat: {
+              hour: '2-digit',
+              minute: '2-digit',
+              meridiem: 'short'
+            },
+            dayHeaderContent: (info) => {
+              console.log(info)
+              return 123
+            }
+          }
+        },
+        slotEventOverlap: true,
         // initialEvents: INITIAL_EVENTS, // alternatively, use the `events` setting to fetch from a feed
         events: (date, successCb, failCb) => {
+          console.log(date)
           const start = moment(date.start).format('YYYY-MM-DD')
           const end = moment(date.end).format('YYYY-MM-DD')
           if (this.$refs.fullCalendar) {
@@ -286,6 +302,7 @@ export default {
             noNeedQuery = this.typeFilters.length === 0
           } else if (this.queryType === this.CALENDAR_QUERY_TYPE.WORKSHOP.value) {
             params.workshopStatus = this.typeFilters
+            params.workshopType = [1, 2]
             noNeedQuery = this.typeFilters.length === 0
           }
           if (noNeedQuery) {
@@ -350,6 +367,7 @@ export default {
                 } else {
                   successCb([])
                 }
+                this.handleViewDieMount()
               } else {
                 failCb()
               }
@@ -376,6 +394,13 @@ export default {
         eventMouseLeave: this.handleMouseLeave,
         eventDrop: this.handleEventDrop,
         eventResize: this.handleEventResize,
+        slotLabelContent: (info) => {
+          console.log(info)
+          if (info.view.type === 'timeGridFourDay') {
+            return info.text
+          }
+          return info.text
+        },
         eventTimeFormat: {
           hour: 'numeric',
           minute: '2-digit',

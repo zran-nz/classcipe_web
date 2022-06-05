@@ -16,6 +16,7 @@ import {
 import store from '@/store'
 import { setCookie } from '@/utils/util'
 import { typeMap } from '@/const/teacher'
+import { appLogin } from '@/api/v2/statsTarget'
 
 export default {
   name: 'PageRedirect',
@@ -34,6 +35,7 @@ export default {
     if (token) {
       storage.set(ACCESS_TOKEN, token)
       setCookie(ACCESS_TOKEN, token)
+      appLogin(token)
     }
     // del cache
     sessionStorage.removeItem(SESSION_CURRENT_PAGE)

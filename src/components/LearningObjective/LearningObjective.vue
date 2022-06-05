@@ -132,7 +132,7 @@
                   class='wrapper-list-item'
                   v-for='(terms, termIndex) in item.commandTerms'
                   :key='termIndex'>
-                  <a-tag closable class='command-tag' @close="handleRemoveCommand(terms, 'commandTerms')">
+                  <a-tag closable class='command-tag' @close="e => handleCloseObjectiveTag(item, 'commandTerms', termIndex)">
                     <div class='tag-content'>{{ terms.name }}</div>
                   </a-tag>
                 </div>
@@ -145,7 +145,7 @@
                   class='wrapper-list-item'
                   v-for='(terms, termIndex) in item.knowledgeTags'
                   :key='termIndex'>
-                  <a-tag closable class='command-tag knowledge' @close="handleRemoveCommand(terms, 'knowledgeTags')">
+                  <a-tag closable class='command-tag knowledge' @close="e => handleCloseObjectiveTag(item, 'knowledgeTags', termIndex)" >
                     <div class='tag-content'>{{ terms.name }}</div>
                   </a-tag>
                 </div>
@@ -246,10 +246,18 @@
           <div class="recommend-tag">
             <div
               class='wrapper-list-item'
-              v-for='(terms, termIndex) in recommendData'
+              v-for='(terms, termIndex) in termRecommend'
               :key='termIndex'>
-              <a-tag class='command-tag knowledge' @click="handleRemoveCommand(terms, 'knowledgeTags')">
-                <div class='tag-content'>{{ terms.name }}</div>
+              <a-tag class='command-tag' @click="handleAddRecommend(terms, 'commandTerms')">
+                <div class='tag-content'>{{ terms }}</div>
+              </a-tag>
+            </div>
+            <div
+              class='wrapper-list-item'
+              v-for='(terms, termIndex) in knowledgeRecommend'
+              :key='termIndex'>
+              <a-tag class='command-tag knowledge' @click="handleAddRecommend(terms, 'knowledgeTags')">
+                <div class='tag-content'>{{ terms }}</div>
               </a-tag>
             </div>
           </div>
@@ -364,7 +372,8 @@ export default {
       commandTermForm: {
         name: ''
       },
-      recommendData: [],
+      termRecommend: [],
+      knowledgeRecommend: [],
       bloomTagLevel: [],
       knowledgeDimensionLevel: []
 
@@ -551,17 +560,18 @@ export default {
         const originLevel = this.getLevel(val.type, origin)
         tag[val.type] = val.title
         this.$set(tag, val.type, val.title)
+        this.$forceUpdate()
         // 上报
         if (tag.id) {
           const currentLevel = this.getLevel(val.type, val.title)
-          console.log({
-            [`bloom.${originLevel - 1}`]: -1,
+          const params = {
             [`bloom.${currentLevel - 1}`]: 1
-          })
-          incBloom(tag.id, {
-            [`bloom.${originLevel - 1}`]: -1,
-            [`bloom.${currentLevel - 1}`]: 1
-          })
+          }
+          if (originLevel > 0) {
+            params[`bloom.${originLevel - 1}`] = -1
+          }
+          console.log(params)
+          incBloom(tag.id, params)
         }
       }
     },
@@ -579,7 +589,8 @@ export default {
       // 获取联想
       if (currentChoose.id) {
         getRecommend(currentChoose.id).then(res => {
-          console.log(res)
+          this.termRecommend = res.terms
+          this.knowledgeRecommend = res.tags
         })
       }
       // KnowledgeTermTagQueryByKeywords({
@@ -590,6 +601,12 @@ export default {
       //     this.knowledgeTags = res.result.filter(item => item.type === 2)
       //   }
       // })
+    },
+
+    handleCloseObjectiveTag(item, key, tagIndex) {
+      item[key].splice(tagIndex, 1)
+      console.log(item)
+      this.$forceUpdate()
     },
 
     handleQuickWordSet(res, key) {
@@ -636,6 +653,12 @@ export default {
       console.log(res)
       this.handleQuickWordSet(res, key)
       this.showQuickWordCreate = false
+    },
+    handleAddRecommend(res, key = 'commandTerms') {
+      this.handleQuickWordSet({
+        word: res,
+        id: res
+      }, key)
     },
     createCommandTerm() {
       termsCreate({
@@ -911,35 +934,7 @@ export default {
               flex: 1;
               .wrapper-list-item {
                 margin-bottom: 5px;
-                .command-tag {
-                  max-width: 150px;
-                  border: none;
-                  cursor: pointer;
-                  padding: 0 10px;
-                  border-radius: 26px;
-                  line-height: 30px;
-                  font-family: Arial;
-                  font-weight: 400;
-                  background: #06ACD7;
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  .tag-content {
-                    display: inline-block;
-                    max-width: 120px;
-                    text-overflow: ellipsis;
-                    word-break: break-word;
-                    user-select: none;
-                    overflow: hidden;
-                    color: #fff;
-                  }
-                  /deep/ i {
-                    color: #fff
-                  }
-                  &.knowledge {
-                    background: #EABA7F;
-                  }
-                }
+
               }
             }
           }
@@ -1062,7 +1057,45 @@ export default {
   }
   .recommend-tag {
     display: flex;
+    width: 300px;
+    flex-wrap: wrap;
+    .wrapper-list-item {
+      margin-bottom: 5px;
+      .command-tag {
+        line-height: 25px;
+      }
+    }
   }
 
+}
+
+.command-tag {
+  max-width: 150px;
+  border: none;
+  cursor: pointer;
+  padding: 0 10px;
+  border-radius: 26px;
+  line-height: 30px;
+  font-family: Arial;
+  font-weight: 400;
+  background: #06ACD7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .tag-content {
+    display: inline-block;
+    max-width: 120px;
+    text-overflow: ellipsis;
+    word-break: break-word;
+    user-select: none;
+    overflow: hidden;
+    color: #fff;
+  }
+  /deep/ i {
+    color: #fff
+  }
+  &.knowledge {
+    background: #EABA7F;
+  }
 }
 </style>
