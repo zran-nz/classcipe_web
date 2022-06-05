@@ -1,27 +1,18 @@
 <template>
   <div class="status-icon-item">
-    <task-svg :style="{height: size}" v-if="type === typeMap.task"/>
-    <unit-svg :style="{height: size}" v-else-if="type === typeMap['unit-plan']"/>
-    <ev-svg :style="{height: size}" v-else-if="type === typeMap.evaluation"/>
+    <span v-if="type === typeMap.task">Task</span>
+    <span v-if="type === typeMap['unit-plan']">Unit</span>
+    <span v-if="type === typeMap.pd">PD</span>
+    <span v-if="type === typeMap.video">Video</span>
   </div>
 </template>
 
 <script>
 
 import { typeMap } from '@/const/teacher'
-import EvSvg from '@/assets/svgIcon/contentType/EV.svg?inline'
-import TaskSvg from '@/assets/svgIcon/contentType/Task.svg?inline'
-import ToSvg from '@/assets/svgIcon/contentType/To.svg?inline'
-import UnitSvg from '@/assets/svgIcon/contentType/Unit.svg?inline'
 
 export default {
   name: 'ContentTypeIcon',
-  components: {
-    EvSvg,
-    ToSvg,
-    UnitSvg,
-    TaskSvg
-  },
   props: {
     type: {
       type: Number,
@@ -42,13 +33,16 @@ export default {
 
 <style lang='less' scoped>
 .status-icon-item {
+  cursor: pointer;
   text-align: center;
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.ant-menu-item .anticon, .ant-menu-submenu-title .anticon {
-  margin-right: 0;
+  background: #ced8dd;
+  color: #fff;
+  font-weight: bold;
+  border-radius: 30px;
+  padding: 3px 8px;
+  font-size: 0.7rem;
 }
 </style>
