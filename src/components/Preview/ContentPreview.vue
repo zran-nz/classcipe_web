@@ -45,7 +45,7 @@ export default {
   created() {
     const host = window.location.host
     if (host.indexOf('localhost') !== -1) {
-      this.baseUrl = 'http://localhost:9004'
+      this.baseUrl = 'https://dev.classcipe.com'
     } else if (host.indexOf('dev.classcipe.com') !== -1) {
       this.baseUrl = 'https://dev.classcipe.com'
     } else if (host.indexOf('my.classcipe.com') !== -1) {
