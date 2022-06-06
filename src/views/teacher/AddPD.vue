@@ -213,6 +213,7 @@ import PdSchedule from '@/components/PdContent/PdSchedule'
 import Collaborate from '@/components/UnitPlan/Collaborate'
 import CollaborateUserList from '@/components/Collaborate/CollaborateUserList'
 import ShareContentSetting from '@/components/Share/ShareContentSetting'
+import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
 
 export default {
   name: 'AddPD',
@@ -313,10 +314,12 @@ export default {
 
     this.$EventBus.$on(SlideEvent.SELECT_TEMPLATE, this.handleSelectTemplate)
     this.$EventBus.$on(SlideEvent.CANCEL_SELECT_TEMPLATE, this.handleRemoveTemplate)
+    ClasscipeEventBus.$on(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleCreatePPT)
   },
   beforeDestroy() {
     this.$EventBus.$off(SlideEvent.SELECT_TEMPLATE, this.handleSelectTemplate)
     this.$EventBus.$off(SlideEvent.CANCEL_SELECT_TEMPLATE, this.handleRemoveTemplate)
+    ClasscipeEventBus.$off(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleCreatePPT)
   },
   methods: {
 
@@ -504,18 +507,18 @@ export default {
       let res
       if (this.form.presentationId) {
         res = await this.save()
+        if (res.code === 0) {
+          window.open('https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit', '_blank')
+        }
       } else {
         res = await this.handleCreatePPT()
-      }
-      if (res.code === 0) {
-        window.open('https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit', '_blank')
       }
       this.editGoogleSlideLoading = false
     },
 
     async handleCreatePPT() {
       this.$logger.info('handleCreatePPT')
-      const hideLoading = this.$message.loading('Creating ppt in Google side...', 0)
+      const hideLoading = this.$message.loading('Creating ppt in Google Slides...', 0)
       if (!this.creating) {
         this.creating = true
         const response = await TaskCreateNewTaskPPT({
@@ -523,6 +526,19 @@ export default {
           type: this.typeMap.pd,
           name: this.form.name ? this.form.name : 'Unnamed Pd Content'
         })
+
+        if (response.success) {
+          if (response.code === 520 || response.code === 403) {
+            this.$logger.info('等待授权回调')
+            hideLoading()
+            this.$message.loading('Waiting for Google Slides auth...', 10)
+            this.creating = false
+            this.saving = false
+            return
+          }
+        } else {
+          this.$message.error(response.message)
+        }
 
         this.$logger.info('handleCreateTask', response.result)
         try {
