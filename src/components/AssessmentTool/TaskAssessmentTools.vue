@@ -202,17 +202,21 @@ export default {
       }).then(res => {
         this.$logger.info('getAssessmentList res', res)
         if (res.code === 0) {
+          const assessmentKeySet = new Set()
           res.result.records.forEach(item => {
-            const assessment = {
-              ...item
+            if (!assessmentKeySet.has(item.key)) {
+              const assessment = {
+                ...item
+              }
+              assessment.headerList = item.headerListJson ? JSON.parse(item.headerListJson) : []
+              assessment.bodyList = item.bodyListJson ? JSON.parse(item.bodyListJson) : []
+              assessment.extraCriteriaBodyList = item.extraCriteriaBodyListJson ? JSON.parse(item.extraCriteriaBodyListJson) : []
+              delete assessment.headerListJson
+              delete assessment.bodyListJson
+              delete assessment.extraCriteriaBodyListJson
+              this.assessmentList.push(assessment)
+              assessmentKeySet.add(item.key)
             }
-            assessment.headerList = item.headerListJson ? JSON.parse(item.headerListJson) : []
-            assessment.bodyList = item.bodyListJson ? JSON.parse(item.bodyListJson) : []
-            assessment.extraCriteriaBodyList = item.extraCriteriaBodyListJson ? JSON.parse(item.extraCriteriaBodyListJson) : []
-            delete assessment.headerListJson
-            delete assessment.bodyListJson
-            delete assessment.extraCriteriaBodyListJson
-            this.assessmentList.push(assessment)
           })
 
           this.$logger.info('init assessmentList', this.assessmentList)

@@ -684,7 +684,7 @@ export default {
 .learning-objective {
 
   .half-body-content {
-    width: 55%;
+    width: 50%;
     .cc-lo-header {
       display: flex;
       flex-direction: row;
@@ -853,7 +853,7 @@ export default {
         align-items: flex-start;
         margin-bottom: 10px;
         .cc-left-lo {
-          width: 55%;
+          width: 50%;
           position: relative;
           display: flex;
           flex-direction: column;
@@ -959,7 +959,7 @@ export default {
         }
 
         .cc-right-general-capabilities {
-          width: 45%;
+          width: 50%;
           padding-left: 30px;
 
           .cc-right-general-capabilities-title {
