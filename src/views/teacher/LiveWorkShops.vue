@@ -4,6 +4,9 @@
       <div class='source-type'>
         <radio-switch v-if="radioSwitchShow" ref="radioSwitch" @select="changeType" :menu-list='WORK_SHOPS_TYPE_VALUES' displayProperty="label"/>
       </div>
+      <div style="font-size: 12px;">
+        <user-profile-avatar />
+      </div>
     </div>
     <div class='filter-bar'>
       <a-space class="status-filter" :style="{visibility: WORK_SHOPS_TYPE.FEATURE.value !== queryParams.workshopsType ? 'visible' : 'hidden'}">
@@ -117,6 +120,7 @@
 import CreateNew from '@/components/MyContentV2/CreateNew'
 import ContentFilter from '@/components/MyContentV2/ContentFilter'
 import RadioSwitch from '@/components/Common/RadioSwitch'
+import UserProfileAvatar from '@/components/User/UserProfileAvatar'
 import { FindWorkShops } from '@/api/v2/live'
 import * as logger from '@/utils/logger'
 import { SESSION_CURRENT_PAGE, WORK_SHOPS_STATUS, WORK_SHOPS_TYPE, USER_MODE } from '@/const/common'
@@ -136,7 +140,8 @@ export default {
     CreateNew,
     RadioSwitch,
     NoMoreResources,
-    ContentSelect
+    ContentSelect,
+    UserProfileAvatar
   },
   data () {
     return {

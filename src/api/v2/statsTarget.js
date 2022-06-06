@@ -3,7 +3,8 @@ export async function appLogin(token) {
     const result = await window.AppLogin(token)
     return Promise.resolve(result)
   } else {
-    return Promise.reject(new Error('No APP imported'))
+    // return Promise.reject(new Error('No APP imported'))
+    return Promise.resolve()
   }
 }
 

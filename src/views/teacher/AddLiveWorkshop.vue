@@ -34,7 +34,7 @@
             </div>
           </div>
           <template v-if="userMode === USER_MODE.SELF">
-            <div class="pay-session">
+            <!-- <div class="pay-session">
               <label for="">Paid session</label>
               <a-switch v-model="form.paidType" />
               <div class="pay-session-discount" v-show="form.paidType">
@@ -51,6 +51,87 @@
             <div class="pay-session">
               <label for="">Register Before</label>
               <a-date-picker :show-time="{ format: 'HH:mm' }" @change="handleSelectDate" />
+            </div> -->
+            <div class='pay-info'>
+              <div class='pay-title'>
+                <div class='title'>
+                  Paid session
+                </div>
+                <div class='pay-switch'>
+                  <a-switch size='small' v-model='form.paidType' />
+                </div>
+              </div>
+              <div class='pay-detail' v-show='form.paidType'>
+                <div class='fee'>
+                  <span class='fee-title'>Pricing</span>
+                  <div class='fee-input'>
+                    <a-input v-model='price' type='number' class='dollar-price-input' prefix="$" />
+                  </div>
+                </div>
+                <div class='pay-discount'>
+                  <div class='pay-sub-title'>
+                    Bulk discount pricing
+                  </div>
+                  <div class='pay-discount-title'>
+                    <div class='pay-participant'>No of participants</div>
+                    <div class='pay-percent'>Percentage off</div>
+                  </div>
+                  <div class='pay-discount-item' v-for='discount in discountList' :key='discount.id' @click.stop='handleDiscountEdit(discount)'>
+                    <div class='person-num'>
+                      <template v-if='discount.editing'>
+                        <a-input v-model='discount.peopleThreshold' min='0' type='number' class='cc-form-input discount-input'/>
+                      </template>
+                      <template v-else>
+                        {{ discount.peopleThreshold }}
+                      </template>
+                      and more
+                    </div>
+                    <div class='discount-off'>
+                      <template v-if='discount.editing'>
+                        <a-input v-model='discount.discount' min='0' max='100' type='number' class='cc-form-input discount-input'/>% off
+                      </template>
+                      <template v-else>
+                        {{ discount.discount }}%
+                      </template>
+                    </div>
+                    <div class='delete-item' @click.stop=''>
+                      <a-popconfirm title="Delete?" ok-text="Yes" @confirm="deleteDiscount(discount)" cancel-text="No">
+                        <delete-icon color='#F16A39' />
+                      </a-popconfirm>
+                    </div>
+                  </div>
+                </div>
+                <div class='add-discount'>
+                  <custom-text-button label='Add row' @click='handleAddDiscount'>
+                    <template v-slot:icon>
+                      <a-icon type='plus-circle' />
+                    </template>
+                  </custom-text-button>
+                </div>
+              </div>
+              <div class='pay-title'>
+                <div class='title'>
+                  Max Participants
+                </div>
+                <div class='pay-slider'>
+                  <a-space>
+                    <a-slider v-model="form.maxParticipants" :min="1" :max="zoomMeetingCapacity" style='width: 100px' />
+                    <a-input-number v-model="form.maxParticipants" :min="1" :max="zoomMeetingCapacity" />
+                  </a-space>
+                </div>
+              </div>
+              <div class='pay-title'>
+                <div class='title'>
+                  Registration deadline
+                </div>
+                <div class='pay-switch'>
+                  <a-date-picker
+                    :getCalendarContainer='trigger => trigger.parentElement'
+                    :disabled-date="disabledDate"
+                    :show-time="{ format: 'HH:mm' }"
+                    @change="handleSelectDate" />
+                </div>
+              </div>
             </div>
           </template>
           <template v-else>
@@ -155,6 +236,9 @@ import MyVerticalSteps from '@/components/Steps/MyVerticalSteps'
 import CustomCoverMedia from '@/components/Common/CustomCoverMedia'
 import PriceDiscountSet from '@/components/Common/PriceDiscountSet'
 import SelectSessionUnit from '@/components/Schedule/SelectSessionUnit'
+import CustomTextButton from '@/components/Common/CustomTextButton'
+import DeleteIcon from '@/components/Common/DeleteIcon'
+
 import { formatLocalUTC } from '@/utils/util'
 import { typeMap } from '@/const/teacher'
 import { TaskQueryById } from '@/api/task'
@@ -182,7 +266,9 @@ export default {
     MyVerticalSteps,
     CustomCoverMedia,
     PriceDiscountSet,
-    SelectSessionUnit
+    SelectSessionUnit,
+    CustomTextButton,
+    DeleteIcon
   },
   props: {
     id: {
@@ -235,11 +321,11 @@ export default {
         coverType: null,
         cover: null,
         goals: null,
-        maxParticipants: null,
+        maxParticipants: 0,
         notifyStudents: [],
         paidType: Boolean(PAID_TYPE.FREE.value),
         notifyType: NOTIFY_TYPE.ALL.value,
-        needParticipants: false,
+        needParticipants: true,
         price: 0,
         discountInfo: [],
         registerBefore: null
@@ -257,7 +343,25 @@ export default {
       ],
       currentActiveStepIndex: this.getSessionStep(),
       currentRightModule: null,
-      memberList: []
+      memberList: [],
+      price: 100,
+      discountList: [
+        {
+          peopleThreshold: 10,
+          discount: 20,
+          editing: false
+        },
+        {
+          peopleThreshold: 20,
+          discount: 30,
+          editing: false
+        },
+        {
+          peopleThreshold: 30,
+          discount: 40,
+          editing: false
+        }
+      ]
     }
   },
   created() {
@@ -320,6 +424,10 @@ export default {
           this.contentLoading = false
         })
       }
+    },
+
+    disabledDate(current) {
+      return current && current < moment().subtract(1, 'days').endOf('day')
     },
 
     changeNotifyType() {
@@ -398,13 +506,16 @@ export default {
         this.form.discountInfo = []
         this.handleSubmit()
       } else {
-        this.$refs.priceDiscount.validate((valid, priceInfo) => {
-          if (valid) {
-            this.form.price = priceInfo.price
-            this.form.discountInfo = [ ...priceInfo.discountInfo ]
-            this.handleSubmit()
-          }
-        })
+        // this.$refs.priceDiscount.validate((valid, priceInfo) => {
+        //   if (valid) {
+        //     this.form.price = priceInfo.price
+        //     this.form.discountInfo = [ ...priceInfo.discountInfo ]
+        //     this.handleSubmit()
+        //   }
+        // })
+        this.form.price = this.price
+        this.form.discountInfo = [ ...this.discountList ]
+        this.handleSubmit()
       }
     },
     validateNumber(rule, value, callback) {
@@ -503,6 +614,31 @@ export default {
     handleDateChange (date, dateString) {
       this.startDate = moment(date[0].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
       this.endData = moment(date[1].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
+    },
+
+    handleAddDiscount () {
+      this.discountList.push({
+        peopleThreshold: 0,
+        discount: 0,
+        editing: true
+      })
+    },
+
+    handleDiscountEdit (discount) {
+      discount.editing = true
+    },
+
+    handleBlurClick() {
+      this.discountList.forEach(discount => {
+        discount.editing = false
+      })
+    },
+
+    deleteDiscount (discount) {
+      const index = this.discountList.indexOf(discount)
+      if (index > -1) {
+        this.discountList.splice(index, 1)
+      }
     }
   }
 }
@@ -672,5 +808,129 @@ export default {
       }
     }
   }
+}
+.pay-info {
+  padding: 0 20px;
+  min-height: 400px;
+  margin-top: 20px;
+  overflow-y: auto;
+  .pay-title {
+    margin: 10px 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: row;
+    .title {
+      font-weight: 500;
+      color: #333;
+      line-height: 30px;
+      padding-left: 5px;
+    }
+
+    .pay-slider {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-end;
+      width: 250px;
+    }
+  }
+
+  .pay-detail {
+    margin: 10px 0;
+    padding: 10px 20px;
+    background-color: #F7F8F9;
+    border-radius: 5px;
+    border: 1px solid #eee;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    user-select: none;
+
+    .fee {
+      line-height: 30px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .add-discount {
+      margin-top: 15px;
+      height: 35px;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      color: #15c39a;
+      font-size: 13px;
+    }
+
+    .pay-discount {
+      margin-top: 15px;
+      padding: 5px 20px 10px;
+      background-color: #15c39a11;
+
+      .pay-sub-title {
+        font-size: 14px;
+        color: #15c39a;
+        line-height: 28px;
+      }
+
+      .pay-discount-title {
+        font-size: 14px;
+        color: #15c39a;
+        line-height: 30px;
+        font-weight: bold;
+      }
+    }
+
+    .pay-discount-item {
+      margin: 5px 0;
+      line-height: 28px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      .person-num {
+        font-size: 14px;
+        color: #666;
+      }
+
+      .discount-off {
+        color: #e4393c;
+        font-size: 14px;
+        width: 120px;
+        text-align: center;
+        font-family: Verdana;
+      }
+
+      .delete-item {
+        display: none;
+        position: absolute;
+        right: -13px;
+        top: 50%;
+        margin-top: -7px;
+      }
+
+      &:hover {
+        .delete-item {
+          display: flex;
+        }
+      }
+    }
+  }
+}
+
+.discount-input {
+  width: 70px;
+}
+
+.pay-discount-title {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 }
 </style>
