@@ -367,13 +367,10 @@ export default {
         }).then((res) => {
           if (res.code === 0) {
             this.optionStrSet.add(headerStr)
-            this.$message.success('Save successfully')
           } else {
             this.$message.error(res.message)
           }
         })
-      } else {
-        this.$message.success('This header has been saved')
       }
     },
 
