@@ -153,7 +153,7 @@ export default {
           type: AssessmentToolType.Checklist,
           title: 'Checklist',
           canAddCustomRow: true,
-          canAddCustomCol: false,
+          canAddCustomCol: true,
           headerList: [
             {
               title: 'Criteria',
@@ -164,11 +164,13 @@ export default {
             {
               title: 'Yes',
               type: HeaderType.yes,
+              canAddCustomCol: true,
               editing: false
             },
             {
               title: 'No',
               type: HeaderType.no,
+              canAddCustomCol: true,
               editing: false
             }
           ],
