@@ -3,6 +3,8 @@ import { typeMap } from '@/const/teacher'
 import { UnitPlanDelete } from '@/api/unitPlan'
 import { TaskDelete } from '@/api/task'
 import * as logger from '@/utils/logger'
+import { PDContentDelete } from '@/api/pdContent'
+import { VideoDelete } from '@/api/video'
 
 export const teacherAPIUrl = {
   Associate: '/classcipe/api/teacher/associate',
@@ -101,6 +103,10 @@ export function DeleteMyContentByType (data) {
       return UnitPlanDelete({ id })
     case typeMap.task:
       return TaskDelete({ id })
+    case typeMap.pd:
+      return PDContentDelete({ id })
+    case typeMap.video:
+      return VideoDelete({ id })
     default:
       logger.error('wrong delete type ' + MyContentType + ' id: ' + id)
       break

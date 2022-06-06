@@ -7,6 +7,8 @@
 <script>
 import { PDContentAddOrUpdate } from '@/api/pdContent'
 import * as logger from '@/utils/logger'
+import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
+import { TaskAddOrUpdate } from '@/api/task'
 
 export default {
   name: 'PDContentRedirect',
@@ -17,22 +19,37 @@ export default {
     }
   },
   created () {
-    if (this.pdId !== 'create') {
-      this.$router.replace('/teacher/pd-content/' + this.pdId)
-    } else {
-      const pdData = {
-        name: 'Unnamed PD Content'
-      }
-      PDContentAddOrUpdate(pdData).then((response) => {
-        logger.info('PDContentAddOrUpdate response', response.result)
-        if (response.success) {
-          this.$router.replace({
-            path: '/teacher/pd-content/' + response.result.id
-          })
-        } else {
-          this.$message.error(response.message)
+    this.$logger.info('task redirecting ' + this.pdId)
+    ClasscipeEventBus.$on(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handlePdRedirect)
+    this.handlePdRedirect()
+  },
+  beforeDestroy() {
+    ClasscipeEventBus.$off(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handlePdRedirect)
+  },
+  methods: {
+    handlePdRedirect() {
+      this.$logger.info('task redirecting ' + this.pdId)
+      if (this.taskId) {
+        this.$router.replace('/teacher/add-task-v2/' + this.taskId)
+      } else {
+        const data = {
+          name: 'Unnamed PD Content',
+          status: 0
         }
-      })
+
+        PDContentAddOrUpdate(data).then((response) => {
+          this.$logger.info('PDContentAddOrUpdate response', response.result)
+          if (response.success) {
+            if (response.code !== 520 && response.code !== 403) {
+              this.$router.replace('/teacher/pd-content/' + response.result.id)
+            } else {
+              this.$logger.info('等待授权回调')
+            }
+          } else {
+            this.$message.error(response.message)
+          }
+        })
+      }
     }
   }
 }
