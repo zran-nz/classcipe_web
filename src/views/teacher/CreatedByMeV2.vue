@@ -127,10 +127,10 @@ export default {
     },
     handleModeChange(userMode) {
       // 模式切换，个人还是学校 个人接口
-      if (userMode === USER_MODE.SELF) {
-        this.pageNo = 1
-        this.loadMyContent()
-      }
+      // if (userMode === USER_MODE.SELF) {
+      //   this.pageNo = 1
+      //   this.loadMyContent()
+      // }
     },
     handleSearch (data) {
       this.$logger.info('handleSearch', data)

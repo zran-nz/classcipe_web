@@ -103,7 +103,7 @@ export default {
       userMode: state => state.app.userMode
     }),
     consumedSize() {
-     return this.info.usedSpace * 1024
+     return this.userMode === USER_MODE.SELF ? this.info.usedSpace * 1024 : this.currentSchool.usedSpace * 1024
     },
     totalSize() {
       return this.info.planInfo ? this.info.planInfo.storageSpace * this.unit : this.unit
@@ -146,8 +146,9 @@ export default {
         schoolId: ''
       }).finally(() => {
         this[TOOGLE_USER_MODE](USER_MODE.SELF)
-        this.SET_CURRENT_SCHOOL(null)
+        // this.SET_CURRENT_SCHOOL(null)
         this.GetClassList(this.userMode)
+        this.$store.dispatch('GetInfo')
       })
     },
     handleChangeSchool(val) {
@@ -157,9 +158,10 @@ export default {
       }).then(res => {
         // 获取对应学校班级
         this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
-        const item = this.info.schoolList.find(item => item.id === val.id)
-        this.SET_CURRENT_SCHOOL(item)
+        // const item = this.info.schoolList.find(item => item.id === val.id)
+        // this.SET_CURRENT_SCHOOL(item)
         this.GetClassList(this.userMode)
+        this.$store.dispatch('GetInfo')
       })
     }
   }
