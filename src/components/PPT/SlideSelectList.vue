@@ -1,17 +1,22 @@
 <template>
   <div class='slide-select-list'>
     <div class='slide-source-switch'>
-      <a-radio-group default-value="Recommend" button-style="solid" class='cc-radio-group' v-model='filterSourceType' @change='handleSearchByFilter'>
-        <a-radio-button :value="sourceType.Recommend">
+      <a-select
+        :getPopupContainer="trigger => trigger.parentElement"
+        placeholder='Curriculum'
+        v-model='filterSourceType'
+        @change='handleSearchByFilter'
+        class='cc-select cc-lo-select-mid'>
+        <a-select-option :value="sourceType.Recommend">
           Recommend
-        </a-radio-button>
-        <a-radio-button :value="sourceType.SlideTemplate">
+        </a-select-option>
+        <a-select-option :value="sourceType.SlideTemplate">
           Slide template
-        </a-radio-button>
-        <a-radio-button :value="sourceType.MyContent">
+        </a-select-option>
+        <a-select-option :value="sourceType.MyContent">
           My content
-        </a-radio-button>
-      </a-radio-group>
+        </a-select-option>
+      </a-select>
     </div>
     <div class='search-bar'>
       <content-filter @search='handleSearchByInputFilter'/>
@@ -261,6 +266,10 @@ export default {
       opacity: 1;
     }
   }
+}
+
+.slide-source-switch {
+  width: 180px;
 }
 
 </style>
