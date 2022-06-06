@@ -3,7 +3,7 @@
     <div class='filter-bar'>
       <content-filter @search='handleSearch'/>
       <div class='discount-setting'>
-        <a-button class='cc-round-button' @click='handleShowDiscountSetting'>DisCount setting</a-button>
+        <a-button class='cc-round-button' @click='handleShowDiscountSetting'>Discount setting</a-button>
       </div>
     </div>
     <div class='content-wrapper'>

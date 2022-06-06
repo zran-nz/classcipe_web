@@ -14,9 +14,19 @@
           我们推荐使用这种方式进行 LOGO 和 title 自定义
     -->
     <template v-slot:menuHeaderRender>
-      <div class="home-nav">
-        <img src="~@/assets/logo/150.png" class='full-logo' alt='classcipe' @click="goHome" v-show='!collapsed'>
-        <img src="~@/assets/logo/50.png" class='single-logo-img' alt='classcipe' @click="goHome" v-show='collapsed'>
+      <div class="home-nav" @click="goHome">
+        <img src="~@/assets/logo/50.png" class='single-logo-img' alt='classcipe' />
+        <div class='home-title'>
+          <div class='classcipe-title'>Classcipe</div>
+          <div class='classcipe-type'>
+            <template v-if='userMode === USER_MODE.SCHOOL'>
+              {{ currentSchool.schoolName }}
+            </template>
+            <template v-if='userMode === USER_MODE.SELF'>
+              Personal
+            </template>
+          </div>
+        </div>
       </div>
     </template>
     <!-- 1.0.0+ 版本 pro-layout 提供 API,
@@ -50,6 +60,7 @@ import * as logger from '@/utils/logger'
 
 import TeacherNavV2 from '@/components/GlobalHeader/TeacherNavV2'
 import StudentNav from '@/components/GlobalHeader/StudentNav'
+import { USER_MODE } from '@/const/common'
 
 export default {
   name: 'BasicLayout',
@@ -89,7 +100,8 @@ export default {
       query: {},
 
       // 是否手机模式
-      isMobile: false
+      isMobile: false,
+      USER_MODE: USER_MODE
     }
   },
   watch: {
@@ -113,7 +125,10 @@ export default {
     ...mapState({
       // 动态主路由
       mainMenu: state => state.permission.addRouters,
-      collapsed: state => state.app.sideCollapsed
+      collapsed: state => state.app.sideCollapsed,
+      currentSchool: state => state.user.currentSchool,
+      userMode: state => state.app.userMode,
+      currentRole: state => state.user.currentRole
     })
   },
   created () {
@@ -288,4 +303,24 @@ export default {
   }
 }
 
+.home-nav {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+}
+.home-title {
+  padding-left: 16px;
+  .classcipe-title {
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 28px;
+  }
+
+  .classcipe-type {
+    line-height: 14px;
+    font-size: 13px;
+    padding-bottom: 5px;
+  }
+}
 </style>
