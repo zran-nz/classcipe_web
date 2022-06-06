@@ -5,7 +5,7 @@
       </div>
       <div v-if="content.session && content.session.classId && [WORK_SHOPS_TYPE.LUNCHEDBYME.value, WORK_SHOPS_TYPE.REGISTERED.value].includes(content.workshopsType)" class="cover-btn"><label>Enter workshop</label></div>
     </div>
-    <div class='detail' @click.prevent.stop='handlePreview(content.content)'>
+    <div class='detail'>
       <div class='detail-content' @click.prevent.stop>
         <div class='base-info'>
           <div class='type-icon'>
@@ -115,6 +115,11 @@
               </template>
             </custom-button>
           </a-tooltip>
+          <custom-button label='Preview' @click='handlePreview(content.content)'>
+            <template v-slot:icon>
+              <icon-font type="icon-xianshi" class="detail-font"/>
+            </template>
+          </custom-button>
           <template v-if="WORK_SHOPS_TYPE.FEATURE.value === content.workshopsType">
             <!-- <a-button type='primary' shape='round' @click='handleRegister(content)'>
               <icon-font type="icon-register" class="detail-font"/>

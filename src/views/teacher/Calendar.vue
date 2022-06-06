@@ -110,7 +110,8 @@
                 <template slot="title">
                   {{ info.event.title }}
                 </template> -->
-                <label for="">{{ info.event.title }} </label>
+                <label v-if="info.view.type !== 'timeGridFourDay'" for="">{{ info.event.title }} </label>
+                <label v-else for=""> {{ info.event.title }} </label>
               <!-- </a-tooltip> -->
               </div>
             </a-popover>
@@ -169,7 +170,7 @@ import { typeMap } from '@/const/teacher'
 import { mapState } from 'vuex'
 
 import moment from 'moment'
-import { uniqBy } from 'lodash-es'
+import { uniqBy, debounce } from 'lodash-es'
 
 export default {
   name: 'Calendar',
@@ -249,6 +250,8 @@ export default {
       typeFilters: ['sessionType1', 'sessionType2', 'sessionType3'], // 根据类型的筛选条件
       queryClassId: null,
       currentUnitList: [],
+      timeLabelForYear: [],
+      dayLabelForYear: [],
       attendanceVisible: true,
       loading: false,
       startDate: '',
@@ -272,30 +275,60 @@ export default {
             buttonText: 'year',
             allDaySlot: false,
             slotMaxTime: '8:00:00',
+            slotDuration: '00:15:00',
             slotLabelInterval: '00:15',
-            eventMinHeight: 60,
-            eventShortHeight: 60,
+            titleFormat: (date) => {
+              return date.start.year
+            },
+            dayPopoverFormat: date => {
+              const time = moment(date.date).format('HH:mm')
+              const day = moment(date.date).format('YYYY-MM-DD')
+              const dayObj = this.timeLabelForYear.find(item => item.value === time)
+              const monthObj = this.dayLabelForYear.find(item => item.value === day)
+              return monthObj.label + ', ' + dayObj.label
+            },
+            eventMaxStack: 2,
+            // eventMinHeight: 60,
+            // eventShortHeight: 60,
+            selectable: false,
+            nowIndicator: false,
+            slotEventOverlap: false,
             eventTimeFormat: {
               hour: '2-digit',
               minute: '2-digit',
-              meridiem: 'short'
+              meridiem: false,
+              hour12: false
             },
             dayHeaderContent: (info) => {
-              console.log(info)
-              return 123
+              const dayLabelForYear = this.convertDayForYear()
+              const find = dayLabelForYear.find(item => item.value === moment(info.date).format('YYYY-MM-DD'))
+              return find ? find.label : info.text
+            },
+            slotLabelContent: (info) => {
+              if (info.view.type === 'timeGridFourDay') {
+                const find = this.timeLabelForYear.find(item => item.value === moment(info.date).format('HH:mm'))
+                return find ? find.label : info.text
+              }
+              return info.text
             }
           }
         },
-        slotEventOverlap: true,
         // initialEvents: INITIAL_EVENTS, // alternatively, use the `events` setting to fetch from a feed
         events: (date, successCb, failCb) => {
           console.log(date)
-          const start = moment(date.start).format('YYYY-MM-DD')
-          const end = moment(date.end).format('YYYY-MM-DD')
+          let start = moment(date.start).format('YYYY-MM-DD')
+          let end = moment(date.end).format('YYYY-MM-DD')
+          this.startDate = start
+          this.endDate = end
           if (this.$refs.fullCalendar) {
             const calendarApi = this.$refs.fullCalendar.getApi()
-            calendarApi && calendarApi.removeAllEvents()
+            if (calendarApi) {
+              calendarApi.removeAllEvents()
+            }
           }
+
+          const diff = moment(date.end).diff(moment(date.start), 'days')
+          console.log(diff)
 
           const params = {}
           let noNeedQuery = false
@@ -311,13 +344,18 @@ export default {
             successCb([])
           } else {
             this.loading = true
-            QueryForCalendar({
+            // 如果diff等于12，表示年视图
+            if (diff === 12) {
+              start = moment().startOf('year').format('YYYY-MM-DD')
+              end = moment().endOf('year').format('YYYY-MM-DD')
+            }
+            this.loadData({
               ...params,
               startDate: start,
               endDate: end,
               queryType: this.queryType
             }).then(res => {
-              if (res.success && res.result) {
+              if (res && res.success && res.result) {
                 const filterRes = res.result// .filter(item => item.unitPlanInfo)
                 this.calendarDatas = res.result
                 if (filterRes.length > 0) {
@@ -334,13 +372,29 @@ export default {
                     }
                     const color = (index === -1) ? '#fff' : BG_COLORS[index]
 
+                    let startTime = item.startTime
+                    let endTime = item.endTime
+                    let editable = true
+                    if (diff === 12) {
+                      this.convertDayForYear()
+                      startTime = this.convertYearToTime(item.startTime)
+                      endTime = this.convertYearToTime(item.endTime)
+                      if (startTime === endTime) {
+                        endTime = this.convertYearToTime(item.endTime, true)
+                      }
+                      editable = false
+                    } else {
+                      startTime = this.$options.filters['dayjs'](startTime)
+                      endTime = this.$options.filters['dayjs'](endTime)
+                    }
                     return {
                       id: item.sessionInfo.id,
                       title: item.sessionInfo.sessionName,
-                      start: this.$options.filters['dayjs'](item.startTime),
-                      end: this.$options.filters['dayjs'](item.endTime),
+                      start: startTime,
+                      end: endTime,
                       backgroundColor: 'transparent',
                       borderColor: 'transparent',
+                      editable: editable,
                       extendedProps: {
                         classId: item.sessionInfo.classId,
                         planId: item.sessionInfo.planId,
@@ -348,7 +402,9 @@ export default {
                         sessionType: item.sessionInfo.sessionType,
                         status: item.attendance || 'absent',
                         id: item.sessionInfo.id,
-                        backgroundColor: color
+                        backgroundColor: color,
+                        start: item.startTime,
+                        end: item.endTime
                       }
                     }
                   })
@@ -357,8 +413,8 @@ export default {
                   const filterEvents = events.filter(event => {
                     // const props = event.extendedProps
                     if (this.queryType === this.CALENDAR_QUERY_TYPE.MY.value) {
-                      console.log(event.extendedProps.sessionType)
-                      console.log(this.typeFilters)
+                      // console.log(event.extendedProps.sessionType)
+                      // console.log(this.typeFilters)
                       if (!this.typeFilters.includes('sessionType' + event.extendedProps.sessionType)) {
                         return false
                       }
@@ -369,7 +425,7 @@ export default {
                 } else {
                   successCb([])
                 }
-                this.handleViewDieMount()
+                this.handleViewDidMount()
               } else {
                 failCb()
               }
@@ -380,12 +436,14 @@ export default {
             })
           }
         },
+        slotEventOverlap: true,
         editable: true,
         selectable: true,
         selectMirror: true,
         dayMaxEvents: true,
         nowIndicator: true,
         weekends: true,
+        lazyFetching: false,
         slotDuration: '00:15:00',
         slotLabelInterval: '01:00',
         select: this.handleDateSelect,
@@ -396,19 +454,12 @@ export default {
         eventMouseLeave: this.handleMouseLeave,
         eventDrop: this.handleEventDrop,
         eventResize: this.handleEventResize,
-        slotLabelContent: (info) => {
-          console.log(info)
-          if (info.view.type === 'timeGridFourDay') {
-            return info.text
-          }
-          return info.text
-        },
         eventTimeFormat: {
           hour: 'numeric',
           minute: '2-digit',
           meridiem: 'short'
         },
-        viewDidMount: this.handleViewDieMount
+        viewDidMount: this.handleViewDidMount
       },
       currentEvents: [],
       currentClass: 1,
@@ -471,6 +522,7 @@ export default {
     }
   },
   created() {
+    this.debounceLoad = debounce(this.loadData, 300)
     this.initData()
   },
   mounted() {
@@ -482,6 +534,55 @@ export default {
     initData() {
       this.currentUnit = this.currentUnitList.length > 0 ? this.currentUnitList[0].id : ''
       this.showUnit = this.currentUnitList.map(item => item.id)
+      this.convertTimeForYear()
+    },
+    async loadData(params) {
+      const res = await QueryForCalendar(params)
+      return res
+    },
+    convertTimeForYear() {
+      // 将24小时映射成31day， 方便year视图
+      let start = moment().startOf('day')
+      const end = moment().endOf('day')
+      const timeLabelForYear = []
+      let index = 1
+      while (start.isBefore(end)) {
+        timeLabelForYear.push({
+          value: start.format('HH:mm'),
+          label: index
+        })
+        start = start.add(15, 'm')
+        index++
+      }
+      this.timeLabelForYear = timeLabelForYear
+    },
+    convertDayForYear() {
+      // 将最近12天映射成12个月，方便year视图
+      const dayLabelForYear = []
+      let start = moment(this.startDate)
+      const end = moment(this.endDate)
+      let index = 0
+      while (start.isBefore(end)) {
+        dayLabelForYear.push({
+          value: start.format('YYYY-MM-DD'),
+          label: moment().month(index).format('MMM')
+        })
+        start = start.add(1, 'd')
+        index++
+      }
+      this.dayLabelForYear = dayLabelForYear
+      return dayLabelForYear
+    },
+    convertYearToTime(time, sameEnd = false) {
+      // 如果是年视图，将时间转换成对应的12日视图
+      // 2月 -> 2号  2号 -> 00:15
+      const month = moment(time).get('month')
+      const day = moment(time).get('date')
+      // const second = moment(time).seconds()
+      const extra = sameEnd ? 1 : 0
+      const newDate = this.dayLabelForYear[month].value
+      const newTime = this.timeLabelForYear[day - 1 + extra].value
+      return newDate + ' ' + newTime + ':00'// + (second > 9 ? second : ('0' + second))
     },
     getOptions(typeVal) {
       let typeLabel = ''
@@ -505,7 +606,7 @@ export default {
       this.calendarOptions.weekends = !this.calendarOptions.weekends // update a property
     },
     // 将当前时间线延长成整个table而不是某天的格子里
-    handleViewDieMount() {
+    handleViewDidMount() {
       this.$nextTick(() => {
         const nowLine = document.getElementsByClassName('fc-timegrid-now-indicator-line')
         if (nowLine && nowLine.length > 0) {
@@ -579,9 +680,14 @@ export default {
       console.log(events)
     },
     handleDatesSet(event) {
+      console.log(event)
+      // const originType = this.viewType
       this.startDate = moment(event.start).format('YYYY-MM-DD')
       this.endDate = moment(event.end).format('YYYY-MM-DD')
       this.viewType = event.view.type
+      // if (event.view.type === 'timeGridFourDay') {
+      //   this.reFetch()
+      // }
     },
     handleMouseEnter(info) {
 
@@ -631,8 +737,10 @@ export default {
       this.reRender()
     },
     getPopupContainer(trigger, info) {
-      // return trigger => trigger.parentElement
-      return document.body
+      if (trigger.parentElement.parentElement.parentElement.classList.contains('fc-timegrid-event-harness')) {
+        return document.body
+      }
+      return trigger.parentElement
     },
     showPopover(visible, clickInfo) {
       // if (visible) {
@@ -842,6 +950,14 @@ export default {
     flex: 1;
     /deep/ .fc-view-harness {
       background: #fff;
+      .fc-timeGridFourDay-view {
+        .fc-timegrid-slot {
+          height: 60px;
+        }
+        .fc-day-today {
+          background-color: unset;
+        }
+      }
     }
   }
   .schedule-tip {
@@ -854,6 +970,9 @@ export default {
       display: flex;
       flex-direction: column;
       margin-bottom: 20px;
+      max-height: 200px;
+      overflow: auto;
+      line-height: 1;
       .tip-check {
         width: 100%;
       }
@@ -875,12 +994,16 @@ export default {
         }
       }
       .unit-tip-item {
-        height: 30px;
-        line-height: 30px;
         padding: 0 5px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        span {
+          display: inline-block;
+          height: 30px;
+          line-height: 30px;
+          width:100%;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
       }
     }
   }
