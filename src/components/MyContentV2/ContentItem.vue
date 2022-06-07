@@ -533,6 +533,10 @@ export default {
     font-family: Arial;
     font-weight: bold;
     color: #464ABB;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-all;
+    white-space: nowrap;
   }
 
   .subject-info {
