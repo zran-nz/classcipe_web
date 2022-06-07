@@ -147,7 +147,7 @@
 
           </a-space>
         </template>
-        <template v-if='content.delFlag === 1'>
+        <template v-if='showButton && content.delFlag === 1'>
           <a-space :size='30'>
 
             <a-popconfirm :title="'Confirm permanent delete ' +(content.name ? content.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem" cancel-text="No">
