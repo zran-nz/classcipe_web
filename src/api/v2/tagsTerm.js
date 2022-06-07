@@ -1,4 +1,6 @@
 import request from '@/utils/request'
+import { ACCESS_TOKEN } from '@/store/mutation-types'
+import storage from 'store'
 
 const API_PREFIX = 'fio'
 
@@ -6,9 +8,9 @@ export const tagsTermsApi = {
   termsPubList: `/${API_PREFIX}/tags-terms/pubList`,
   termsSearch: `/${API_PREFIX}/tags-terms/search`,
   termsCreate: `/${API_PREFIX}/tags-terms`,
-  dimensionsPubList: `/${API_PREFIX}/tags-dimensions/pubList`,
-  dimensionsSearch: `/${API_PREFIX}/tags-dimensions/search`,
-  dimensionsCreate: `/${API_PREFIX}/tags-dimensions`
+  dimensionsPubList: `/${API_PREFIX}/tags-knowledge/pubList`,
+  dimensionsSearch: `/${API_PREFIX}/tags-knowledge/search`,
+  dimensionsCreate: `/${API_PREFIX}/tags-knowledge`
 }
 
 /**
@@ -35,7 +37,8 @@ export function termsPubList (parameter) {
     method: 'post',
     data: parameter,
     headers: {
-      'Content-Type': 'application/json;charset=UTF-8'
+      'Content-Type': 'application/json;charset=UTF-8',
+      'Authorization': storage.get(ACCESS_TOKEN)
     }
   })
 }
@@ -77,7 +80,8 @@ export function termsSearch (parameter) {
     method: 'post',
     data: parameter,
     headers: {
-      'Content-Type': 'application/json;charset=UTF-8'
+      'Content-Type': 'application/json;charset=UTF-8',
+      'Authorization': storage.get(ACCESS_TOKEN)
     }
   })
 }

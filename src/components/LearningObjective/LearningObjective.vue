@@ -285,7 +285,7 @@ import { CurriculumSearch, GeneralCapabilitiesFormat } from '@/components/Learni
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import { getAllCurriculums } from '@/api/preference'
 import { KnowledgeTermTagQueryByKeywords } from '@/api/knowledgeTermTag'
-import { termsSearch, dimensionsSearch, termsCreate, dimensionsCreate } from '@/api/v2/tagsTerm'
+import { termsSearch, dimensionsSearch, dimensionsPubList, termsPubList, termsCreate, dimensionsCreate } from '@/api/v2/tagsTerm'
 import { getRecommend, addToSetTerms, incBloom } from '@/api/v2/statsTarget'
 import { GetDictItems } from '@/api/common'
 import DeleteIcon from '@/components/Common/DeleteIcon'
@@ -375,6 +375,8 @@ export default {
       KnowledgeTermTagQueryByKeywords: KnowledgeTermTagQueryByKeywords,
       termsSearch: termsSearch,
       dimensionsSearch: dimensionsSearch,
+      dimensionsPubList: dimensionsPubList,
+      termsPubList: termsPubList,
       quickWord: '',
       commandTerms: [],
       knowledgeTags: [],
@@ -683,14 +685,20 @@ export default {
       termsCreate({
         tag: this.commandTermForm.name || 'Command term'
       }).then(res => {
-        this.handleSaveCommanTerm(res)
+        this.handleSaveCommanTerm({
+          word: res.tag,
+          id: res._id
+        })
       })
     },
     createDimension() {
       dimensionsCreate({
         tag: this.commandTermForm.name || 'Knowledge Tags'
       }).then(res => {
-        this.handleSaveCommanTerm(res, 'knowledgeTags')
+        this.handleSaveCommanTerm({
+          word: res.tag,
+          id: res._id
+        }, 'knowledgeTags')
       })
     }
   }

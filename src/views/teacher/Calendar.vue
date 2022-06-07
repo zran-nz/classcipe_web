@@ -43,22 +43,32 @@
               </div>
               <div class="calendar-type" v-show="true">
                 <div class="calendar-type-item" v-for="type in CALENDAR_QUERY_TYPE" :key="type.value">
-                  <div class="type-item-title">
-                    <a-radio :checked="queryType === type.value" @change="handleChangeType(type)">
-                      {{ type.label }}
+                  <template v-if="type.value !== CALENDAR_QUERY_TYPE.CLASS.value">
+                    <div class="type-item-title">
+                      <a-radio :checked="queryType === type.value" @change="handleChangeType(type)">
+                        {{ type.label }}
+                      </a-radio>
+                    </div>
+                    <div class="type-item-desc" v-if="getOptions(type.value).length > 0">
+                      <a-checkbox-group
+                        :options="getOptions(type.value)"
+                        v-model="typeFilters"
+                        @change="val => handleChangeFilters(val, type.value)"
+                        class="type-check"
+                      >
+                        <div slot="label" class="type-content" slot-scope="item">
+                          <span>{{ item.name }}</span>
+                        </div>
+                      </a-checkbox-group>
+                    </div>
+                  </template>
+                </div>
+                <!-- 每个class和querytype同级  -->
+                <div class="calendar-type-item" v-for="type in showClassOptions" :key="type.value">
+                  <div :class="{'type-item-title': true, 'active': queryClass === type.value}">
+                    <a-radio :checked="queryType === CALENDAR_QUERY_TYPE.CLASS.value && queryClass === type.value" @change="handleChangeClass(type)">
+                      Class: {{ type.name }}
                     </a-radio>
-                  </div>
-                  <div class="type-item-desc" v-if="getOptions(type.value).length > 0">
-                    <a-checkbox-group
-                      :options="getOptions(type.value)"
-                      v-model="typeFilters"
-                      @change="val => handleChangeFilters(val, type.value)"
-                      class="type-check"
-                    >
-                      <div slot="label" class="type-content" slot-scope="item">
-                        <span>{{ item.name }}</span>
-                      </div>
-                    </a-checkbox-group>
                   </div>
                 </div>
               </div>
@@ -166,6 +176,7 @@ import { DeleteClassV2, EditSessionScheduleV2 } from '@/api/v2/classes'
 
 import { ABSENT_COLORS, BG_COLORS, CALENDAR_QUERY_TYPE } from '@/const/common'
 import { typeMap } from '@/const/teacher'
+import { formatLocalUTC } from '@/utils/util'
 
 import { mapState } from 'vuex'
 
@@ -188,6 +199,7 @@ export default {
       CALENDAR_QUERY_TYPE: CALENDAR_QUERY_TYPE,
       typeMap: typeMap,
       queryType: CALENDAR_QUERY_TYPE.MY.value,
+      queryClass: '',
       [CALENDAR_QUERY_TYPE.WORKSHOP.label]: [
       // {
       //   value: 1,
@@ -351,8 +363,8 @@ export default {
             }
             this.loadData({
               ...params,
-              startDate: start,
-              endDate: end,
+              startDate: formatLocalUTC(start, 'YYYY-MM-DD'),
+              endDate: formatLocalUTC(end, 'YYYY-MM-DD'),
               queryType: this.queryType
             }).then(res => {
               if (res && res.success && res.result) {
@@ -387,6 +399,7 @@ export default {
                       startTime = this.$options.filters['dayjs'](startTime)
                       endTime = this.$options.filters['dayjs'](endTime)
                     }
+                    console.log(startTime, endTime)
                     return {
                       id: item.sessionInfo.id,
                       title: item.sessionInfo.sessionName,
@@ -424,6 +437,7 @@ export default {
                   successCb(filterEvents)
                 } else {
                   successCb([])
+                  this.currentUnitList = []
                 }
                 this.handleViewDidMount()
               } else {
@@ -766,6 +780,12 @@ export default {
       }
       this.reFetch()
     },
+    handleChangeClass(type) {
+      this.queryType = this.CALENDAR_QUERY_TYPE.CLASS.value
+      this.queryClass = type.value
+      this.typeFilters = [type.value]
+      this.reFetch()
+    },
     getSession(clickInfo) {
       const currentSession = this.calendarDatas.find(item => item.sessionInfo.id === clickInfo.event.extendedProps.id)
       return currentSession ? { ...currentSession } : null
@@ -950,12 +970,12 @@ export default {
     flex: 1;
     /deep/ .fc-view-harness {
       background: #fff;
+      .fc-day-today {
+        background-color: unset;
+      }
       .fc-timeGridFourDay-view {
         .fc-timegrid-slot {
           height: 60px;
-        }
-        .fc-day-today {
-          background-color: unset;
         }
       }
     }
@@ -1014,6 +1034,14 @@ export default {
 .calendar-type {
   .calendar-type-item {
     margin-bottom: 15px;
+    .type-item-title {
+      &.active {
+       /deep/ .ant-radio-wrapper span {
+          color: @primary-color;
+          font-weight: bold;
+        }
+      }
+    }
     .type-check {
       margin-top: 10px;
       display: flex;
