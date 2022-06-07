@@ -45,6 +45,12 @@
         </template>
       </template>
     </div>
+
+    <content-preview
+      :content-id='previewCurrentId'
+      :content-type='previewType'
+      v-if='previewVisible'
+      @close='handlePreviewClose' />
   </div>
 </template>
 
@@ -57,6 +63,9 @@ import CommonNoData from '@/components/Common/CommonNoData'
 import SlideViewer from '@/components/PPT/SlideViewer'
 import { FindMyContent } from '@/api/teacher'
 import { mapState } from 'vuex'
+import ContentPreview from '@/components/Preview/ContentPreview'
+import * as logger from '@/utils/logger'
+import SlideEvent from '@/components/PPT/SlideEvent'
 
 const sourceType = {
   Recommend: 1,
@@ -66,7 +75,7 @@ const sourceType = {
 
 export default {
   name: 'SlideSelectList',
-  components: { SlideViewer, CommonNoData, ContentFilter, CustomSearchInput },
+  components: { ContentPreview, SlideViewer, CommonNoData, ContentFilter, CustomSearchInput },
   props: {
     sourceId: {
       type: String,
@@ -104,15 +113,37 @@ export default {
         showTotal: total => `Total ${total} items`,
         total: 0,
         pageSize: 16
-      }
+      },
+
+      previewCurrentId: null,
+      previewType: null,
+      previewVisible: false
     }
   },
   created() {
     this.handleSearchSlide()
+    this.$EventBus.$on(SlideEvent.PREVIEW_TEMPLATE, this.handlePreviewDetail)
+  },
+  beforeDestroy() {
+    this.$EventBus.$off(SlideEvent.PREVIEW_TEMPLATE, this.handlePreviewDetail)
   },
   methods: {
     handleSearchByFilter (data) {
       this.handleSearchSlide()
+    },
+
+    handlePreviewDetail (data) {
+      this.$logger.info('handlePreviewDetail', data)
+      this.previewCurrentId = data.id
+      this.previewType = data.type
+      this.previewVisible = true
+    },
+
+    handlePreviewClose () {
+      logger.info('handlePreviewClose')
+      this.previewCurrentId = ''
+      this.previewType = ''
+      this.previewVisible = false
     },
 
     handleSearchByInputFilter (data) {

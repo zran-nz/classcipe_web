@@ -276,6 +276,8 @@
                     :default-thumbnail-list='thumbnailList'
                     :selected-template-list='form.selectedTemplateList'
                     :edit-google-slide-loading="editGoogleSlideLoading"
+                    :empty-tips="'No slides created yet, click “Edit google slide” to create the first page!'"
+                    :empty-height="'350px'"
                     @handle-change-selected='changeSelected'
                     @edit-google-slide='handleEditGoogleSlide'
                   />
