@@ -77,7 +77,7 @@
         <plus-icon color='#a9adb4' @click='handleAddRow' />
       </div>
       <div class='right-action'>
-        <custom-link-text text='Save as set of options' @click='handleSaveHeaderAsSet'></custom-link-text>
+        <custom-link-text text='Save as set of options' @click='handleSaveHeaderAsSet' v-if='assessment.type === AssessmentToolType.Rubric'></custom-link-text>
       </div>
     </div>
 
@@ -190,6 +190,7 @@ export default {
   data() {
     return {
       editingData: null,
+      AssessmentToolType: AssessmentToolType,
       AssessmentMode: AssessmentMode,
 
       editHeaderModalVisible: false,
