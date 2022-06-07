@@ -343,7 +343,7 @@ export default {
     display: flex;
     flex-direction: column;
     padding-left: 1rem;
-    height: 9rem;
+    min-height: 9rem;
 
     .detail-content {
       display: flex;
