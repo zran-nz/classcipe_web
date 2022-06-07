@@ -80,7 +80,7 @@
         </div>
       </div>
       <div class='action'>
-        <template v-if='showButton'>
+        <template v-if='showButton && content.delFlag === 0'>
           <a-space :size='30'>
             <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement'>
               <div class='more-action'>
@@ -92,11 +92,20 @@
                   <a-switch size='small' @change='handleSelfLearning' />
                 </div>
                 <div class='menu-item'>
-                  <custom-button label='Delete' @click='handleDeleteItem'>
+                  <custom-button label='Archived' @click='handleDeleteItem'>
                     <template v-slot:icon>
                       <delete-icon />
                     </template>
                   </custom-button>
+                </div>
+                <div class='menu-item'>
+                  <a-popconfirm :title="'Confirm permanent delete ' +(content.name ? content.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem" cancel-text="No">
+                    <custom-button label='Delete'>
+                      <template v-slot:icon>
+                        <delete-icon />
+                      </template>
+                    </custom-button>
+                  </a-popconfirm>
                 </div>
               </div>
             </a-dropdown>
@@ -122,17 +131,41 @@
               </template>
             </custom-button>
 
-            <custom-button label="Publish" @click='handlePublishStatus' v-if='content.status === 0'>
-              <template v-slot:icon >
-                <publish-icon/>
-              </template>
-            </custom-button>
+            <template v-if="showPublish">
+              <custom-button label="Publish" @click='handlePublishStatus' v-if='content.status === 0'>
+                <template v-slot:icon >
+                  <publish-icon/>
+                </template>
+              </custom-button>
 
-            <custom-button label="UnPublish" @click='handlePublishStatus' v-if='content.status !== 0'>
-              <template v-slot:icon >
-                <un-publish-icon />
-              </template>
-            </custom-button>
+              <custom-button label="UnPublish" @click='handlePublishStatus' v-if='content.status !== 0'>
+                <template v-slot:icon >
+                  <un-publish-icon />
+                </template>
+              </custom-button>
+            </template>
+
+          </a-space>
+        </template>
+        <template v-if='showButton && content.delFlag === 1'>
+          <a-space :size='30'>
+
+            <a-popconfirm :title="'Confirm permanent delete ' +(content.name ? content.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem" cancel-text="No">
+              <custom-button label='Delete'>
+                <template v-slot:icon>
+                  <delete-icon />
+                </template>
+              </custom-button>
+            </a-popconfirm>
+
+            <a-popconfirm :title="'Confirm restore ' +(content.name ? content.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleRestoreItem(content)" cancel-text="No">
+              <custom-button label='Restore'>
+                <template v-slot:icon>
+                  <edit-icon />
+                </template>
+              </custom-button>
+            </a-popconfirm>
+
           </a-space>
         </template>
       </div>
@@ -149,7 +182,7 @@
 <script>
 
 import { getLabelNameType, typeMap } from '@/const/teacher'
-import { DeleteMyContentByType } from '@/api/teacher'
+import {ContentRestore, DeleteMyContentByType, PermanentDeleteMyContent} from '@/api/teacher'
 import { ContentItemMixin } from '@/mixins/ContentItemMixin'
 import CustomButton from '@/components/Common/CustomButton'
 import SubTaskIcon from '@/assets/v2/icons/sub-task.svg?inline'
@@ -162,6 +195,7 @@ import DeleteIcon from '@/assets/v2/icons/delete.svg?inline'
 import MoreIcon from '@/assets/v2/icons/more.svg?inline'
 import ContentPreview from '@/components/Preview/ContentPreview'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
+import * as logger from "@/utils/logger";
 
 export default {
   name: 'ContentItem',
@@ -194,6 +228,10 @@ export default {
     activeItem: {
       type: Boolean,
       default: false
+    },
+    showPublish: {
+      type: Boolean,
+      default: false
     }
   },
   mixins: [ContentItemMixin],
@@ -215,6 +253,9 @@ export default {
     },
     curriculumName () {
       return this.$store.getters.curriculumId2NameMap.hasOwnProperty(this.content.curriculumId) ? this.$store.getters.curriculumId2NameMap[this.content.curriculumId] : null
+    },
+    isOwner () {
+      return this.$store.getters.userInfo.email === this.content.createBy
     }
   },
   methods: {
@@ -264,7 +305,29 @@ export default {
           content: this.content
         })
       })
-    }
+    },
+
+    handlePermanentDeleteItem () {
+      logger.info('handlePermanentDeleteItem', this.content)
+      PermanentDeleteMyContent({ sourceId: this.content.id, sourceType: this.content.type }).then(res => {
+        logger.info('handlePermanentDeleteItem', res)
+      }).then(() => {
+        this.$emit('delete', {
+          content: this.content
+        })
+      })
+    },
+
+    handleRestoreItem () {
+      logger.info('handleRestoreItem', this.content)
+      ContentRestore({ id: this.content.id, type: this.content.type }).then(response => {
+        this.$logger.info('handleRestoreItem response', response)
+      }).finally(() => {
+        this.$emit('delete', {
+          content: this.content
+        })
+      })
+    },
   }
 }
 </script>
