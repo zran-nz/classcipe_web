@@ -386,3 +386,18 @@ export const CALENDAR_QUERY_TYPE = {
     value: 3
   }
 }
+
+export const EXPIRE_UNIT = [
+  {
+    label: 'day',
+    value: 1
+  },
+  {
+    label: 'month',
+    value: 2
+  },
+  {
+    label: 'year',
+    value: 3
+  }
+]

@@ -446,7 +446,7 @@ export const asyncRouterMap = [
       {
         path: '/account',
         component: RouteView,
-        redirect: '/account/center',
+        redirect: '/account/info',
         name: 'account',
         meta: { title: 'menu.account', icon: 'user', keepAlive: true, permission: ['teacher', 'student'] },
         children: [
@@ -515,6 +515,12 @@ export const asyncRouterMap = [
                 }
               }
             ]
+          },
+          {
+            path: '/account/info',
+            name: 'info',
+            component: () => import('@/views/account/info'),
+            meta: { title: 'menu.account.center', keepAlive: true, permission: ['teacher', 'student'] }
           }
         ]
       },

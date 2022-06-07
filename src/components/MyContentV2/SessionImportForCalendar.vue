@@ -40,6 +40,7 @@
             @select-workshop-type='handleSelectWorkshopType'/>
           <schedule-date
             v-show='!scheduleReq.openSession && "schedule" === ScheduleStepsFilter[currentActiveStepIndex].type'
+            :showCalendarLink="false"
             :default-date="defaultDate"
             @select-date='handleSelectDate'
             @select-session-type='handleSelectSessionType'

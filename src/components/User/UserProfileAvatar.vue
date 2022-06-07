@@ -63,7 +63,7 @@
         <div class='profile profile-menu-item' @click='handleToSettings'>
           Profile
         </div>
-        <div class='account profile-menu-item' @click='handleToSettings'>
+        <div class='account profile-menu-item' @click='handleToAccounts'>
           <template v-if='userMode === USER_MODE.SCHOOL'>
             School account
           </template>
@@ -155,6 +155,9 @@ export default {
       })
     },
     handleToSettings () {
+      this.$router.push({ path: '/account/settings' })
+    },
+    handleToAccounts () {
       this.$router.push({ path: '/account/settings' })
     },
     handleToNotification () {
