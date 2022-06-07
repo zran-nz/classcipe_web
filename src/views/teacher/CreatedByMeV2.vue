@@ -17,7 +17,7 @@
       <a-spin tip='Loading...' :spinning="loading">
         <div class='content-list'>
           <template v-if='pagination.total !== 0 && !loading'>
-            <content-item v-for='item in myContentList' :key='item.id' :content='item' @delete='handleDeleteItem' @update-publish='handleShowContentPublish'></content-item>
+            <content-item v-for='item in myContentList' :key='item.id' :content='item' @delete='handleDeleteItem' @update-publish='handleShowContentPublish' :show-publish="userMode === 'self'"></content-item>
           </template>
           <template v-if='pagination.total === 0 && !loading'>
             <div class='empty-tips'>
@@ -45,9 +45,9 @@
 import CreateNew from '@/components/MyContentV2/CreateNew'
 import { SourceType } from '@/components/MyContentV2/Constant'
 import ContentFilter from '@/components/MyContentV2/ContentFilter'
-import { FindMyContent, UpdateContentStatus } from '@/api/teacher'
+import {FindMyContent, PermanentDeleteMyContent, UpdateContentStatus} from '@/api/teacher'
 import * as logger from '@/utils/logger'
-import { SESSION_CURRENT_PAGE } from '@/const/common'
+import {SESSION_CURRENT_PAGE, USER_MODE} from '@/const/common'
 import ContentItem from '@/components/MyContentV2/ContentItem'
 import ContentPublish from '@/components/MyContentV2/ContentPublish'
 import NoMoreResources from '@/components/Common/NoMoreResources'
@@ -114,7 +114,8 @@ export default {
   computed: {
     ...mapState({
       info: state => state.user.info,
-      school: state => state.user.school
+      school: state => state.user.school,
+      userMode: state => state.app.userMode
     })
   },
   created() {
