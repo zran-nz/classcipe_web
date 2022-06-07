@@ -122,7 +122,7 @@ export default {
       this.$logger.info('handleSearch data', data)
       this.searching = true
       if (this.sourceType === 'MyContent') {
-        this.searchContent(data)
+        this.searchContent({})
       } else if (this.sourceType === 'Library') {
         this.searchLibrary(data)
       }

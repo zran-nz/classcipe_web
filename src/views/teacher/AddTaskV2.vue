@@ -1365,12 +1365,11 @@ export default {
     handleViewCollaborate() {
       this.showHistoryLoading = true
       this.$logger.info('handleViewCollaborate')
-      if (this.showModuleList.indexOf(this.rightModule.collaborate) !== -1) {
-        this.resetRightModuleVisible()
-      } else {
-        this.setRightModuleVisible(this.rightModule.collaborate)
+      if(this.currentRightModule === this.rightModule.collaborate){
+        this.handleDisplayRightModule()
+      }else{
+        this.currentRightModule = this.rightModule.collaborate
       }
-      this.handleDisplayRightModule()
       this.showHistoryLoading = true
       this.loadCollaborateData(this.form.type, this.form.id)
     },
