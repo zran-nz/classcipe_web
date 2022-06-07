@@ -182,7 +182,7 @@
 <script>
 
 import { getLabelNameType, typeMap } from '@/const/teacher'
-import {ContentRestore, DeleteMyContentByType, PermanentDeleteMyContent} from '@/api/teacher'
+import { ContentRestore, DeleteMyContentByType, PermanentDeleteMyContent } from '@/api/teacher'
 import { ContentItemMixin } from '@/mixins/ContentItemMixin'
 import CustomButton from '@/components/Common/CustomButton'
 import SubTaskIcon from '@/assets/v2/icons/sub-task.svg?inline'
@@ -195,7 +195,7 @@ import DeleteIcon from '@/assets/v2/icons/delete.svg?inline'
 import MoreIcon from '@/assets/v2/icons/more.svg?inline'
 import ContentPreview from '@/components/Preview/ContentPreview'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
-import * as logger from "@/utils/logger";
+import * as logger from '@/utils/logger'
 
 export default {
   name: 'ContentItem',
@@ -327,7 +327,7 @@ export default {
           content: this.content
         })
       })
-    },
+    }
   }
 }
 </script>

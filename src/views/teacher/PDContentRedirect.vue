@@ -6,9 +6,7 @@
 
 <script>
 import { PDContentAddOrUpdate } from '@/api/pdContent'
-import * as logger from '@/utils/logger'
 import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
-import { TaskAddOrUpdate } from '@/api/task'
 
 export default {
   name: 'PDContentRedirect',
