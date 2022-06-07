@@ -29,6 +29,12 @@
             <div class='free-plan' v-else>Free plan</div>
             <div class='upgrade'>Upgrade storage</div>
           </a-space>
+          <div class='plan-end' v-if='info.planInfo.planUser.planEndTime && !info.planInfo.freeUsePlan'>
+            Ends on {{ info.planInfo.planUser.planEndTime }}
+          </div>
+          <div class='plan-end' v-if='info.planInfo.freeUsePlan'>
+            trial
+          </div>
         </div>
         <a-divider class='cc-small-divider' />
         <div class='class-info'>
@@ -298,6 +304,14 @@ export default {
         font-weight: bold;
         color: #153C76;
         line-height: 15px;
+      }
+
+      .plan-end {
+        cursor: pointer;
+        font-size: 12px;
+        padding-top: 5px;
+        line-height: 15px;
+        color: #999;
       }
 
       .upgrade {
