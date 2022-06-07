@@ -2,14 +2,19 @@
   <div class='link-content-list'>
     <div class='content-filter-wrapper'>
       <div class='source-filter'>
-        <a-radio-group default-value="MyContent" button-style="solid" class='cc-radio-group' v-model='sourceType' @change='handleSearch({})'>
-          <a-radio-button value="MyContent">
+        <a-select
+          :getPopupContainer="trigger => trigger.parentElement"
+          placeholder='Curriculum'
+          v-model='sourceType'
+          @change='handleSearch'
+          class='cc-select cc-lo-select-mid'>
+          <a-select-option value='MyContent' >
             My content
-          </a-radio-button>
-          <a-radio-button value="Library">
+          </a-select-option>
+          <a-select-option value='Library' >
             Library
-          </a-radio-button>
-        </a-radio-group>
+          </a-select-option>
+        </a-select>
       </div>
       <div class='content-filter'>
         <content-filter @search='handleSearch'/>

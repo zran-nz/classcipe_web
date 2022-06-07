@@ -44,7 +44,7 @@ export function PDContentQueryById (parameter) {
  */
 export function PDContentDelete (parameter) {
   return request({
-    url: pdContentAPIUrl.PDContentDelete,
+    url: pdContentAPIUrl.PDContentDelete + '?id=' + parameter.id,
     method: 'post',
     data: parameter,
     headers: {

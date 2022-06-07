@@ -88,7 +88,7 @@
       :closable='false'
       width='300px'
       :footer='null'>
-      <modal-header :title="'Operation for ' + (currentEditHeader ? currentEditHeader.title : '') + ''" @close='editHeaderModalVisible = false'/>
+      <modal-header title="Editing Options" @close='editHeaderModalVisible = false'/>
       <div class='edit-header-action'>
         <div class='edit-header-action-item' v-if='currentEditHeader'>
           <custom-text-button label='Add a column' @click='handleAddCol' v-if='currentEditHeader.canAddCustomCol'></custom-text-button>
@@ -105,7 +105,7 @@
       :closable='false'
       width='300px'
       :footer='null'>
-      <modal-header title="Edit row" @close='editRowModalVisible = false'/>
+      <modal-header title="Editing Options" @close='editRowModalVisible = false'/>
       <div class='edit-header-action'>
         <div class='edit-header-action-item' v-if='currentEditRow'>
           <custom-text-button label='Delete current column' @click='handleDelRow'></custom-text-button>
@@ -120,7 +120,7 @@
       :closable='false'
       width='300px'
       :footer='null'>
-      <modal-header title="Edit row" @close='editExtraRowModalVisible = false'/>
+      <modal-header title="Editing Options" @close='editExtraRowModalVisible = false'/>
       <div class='edit-header-action'>
         <div class='edit-header-action-item' v-if='currentEditExtraRow'>
           <custom-text-button label='Delete current column' @click='handleDelExtraRow'></custom-text-button>
@@ -134,7 +134,7 @@
       :title='null'
       :closable='false'
       :footer='null'>
-      <modal-header title="Select header option" @close='selectHeaderSetModalVisible = false'/>
+      <modal-header title="Editing Options" @close='selectHeaderSetModalVisible = false'/>
       <div class='edit-header-action'>
         <div class='edit-header-action-item header-option' v-for='(options, idx) in optionList' :key='idx' @click='selectHeaderSet(options)'>
           <a-tag v-for='(option,oIdx) in options.headerNameList' :key='oIdx'>{{ option }}</a-tag>
@@ -151,7 +151,12 @@
 <script>
 import CommonNoData from '@/components/Common/CommonNoData'
 import PlusIcon from '@/components/Common/PlusIcon'
-import { AssessmentMode, AssessmentToolsEvent, HeaderType } from '@/components/AssessmentTool/Constant'
+import {
+  AssessmentMode,
+  AssessmentToolsEvent,
+  AssessmentToolType,
+  HeaderType
+} from '@/components/AssessmentTool/Constant'
 import DeleteIcon from '@/components/Common/DeleteIcon'
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import ModalHeader from '@/components/Common/ModalHeader'
@@ -247,14 +252,12 @@ export default {
     },
 
     handleClick () {
-      if (this.currentEditHeader) {
+      if (this.currentEditHeader && this.assessment.type === AssessmentToolType.Checklist) {
         this.currentEditHeader.editing = false
         // 如果是checkList那么顺便修改对应的列数据
-        if (this.currentEditHeader.type === HeaderType.yes || this.currentEditHeader.type === HeaderType.no) {
-          this.assessment.bodyList.forEach(row => {
-            row[this.currentEditHeader.type].display = this.currentEditHeader.title
-          })
-        }
+        this.assessment.bodyList.forEach(row => {
+          row[this.currentEditHeader.type].display = this.currentEditHeader.title
+        })
       }
     },
 
@@ -367,13 +370,10 @@ export default {
         }).then((res) => {
           if (res.code === 0) {
             this.optionStrSet.add(headerStr)
-            this.$message.success('Save successfully')
           } else {
             this.$message.error(res.message)
           }
         })
-      } else {
-        this.$message.success('This header has been saved')
       }
     },
 
@@ -622,19 +622,6 @@ export default {
       right: 5px;
       top: 13px;
     }
-  }
-}
-
-.cc-table-input {
-  min-height: 40px;
-  line-height: 100%;
-  border: none;
-  box-shadow: none;
-
-  /deep/ input{
-    font-weight: bold;
-    border: none;
-    box-shadow: none;
   }
 }
 

@@ -72,9 +72,14 @@
             </div>
           </div>
           <div class='owner'>
-            <a-avatar :src='content.owner.avatar' size="small" />
+            <template v-if='content.owner'>
+              <a-avatar :src='content.owner.avatar' size="small" />
+            </template>
+            <template v-else>
+              <a-avatar size="small">{{ content.createBy.toUpperCase()[0] }}</a-avatar>
+            </template>
             <div class='user-name'>
-              {{ content.owner.nickname }}
+              {{ content.owner ? content.owner.nickname : content.createBy }}
             </div>
           </div>
           <div class='update-time'>
@@ -340,6 +345,17 @@ export default {
     .delete-wrapper {
       display: flex;
     }
+  }
+}
+
+.owner {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+
+  .user-name {
+    padding-left: 5px;
   }
 }
 </style>

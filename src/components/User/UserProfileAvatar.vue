@@ -1,5 +1,10 @@
 <template>
   <div class='user-profile-avatar'>
+    <div class='notification' @click='handleToNotification'>
+      <a-badge :count="msg1Count" >
+        <a-icon type="mail" :style="{ fontSize: '20px', color: '#999' }" />
+      </a-badge>
+    </div>
     <a-dropdown :getPopupContainer="trigger => trigger.parentElement">
       <a-avatar :src='$store.getters.userInfo.avatar' />
       <div class='profile-info' slot="overlay">
@@ -55,9 +60,6 @@
           </div>
         </div>
         <a-divider class='cc-small-divider' />
-        <div class='profile profile-menu-item' @click='handleToNotification'>
-          Notification
-        </div>
         <div class='profile profile-menu-item' @click='handleToSettings'>
           Profile
         </div>
@@ -84,6 +86,7 @@ import { SwitchUserModeSchool } from '@/api/user'
 import { TOOGLE_USER_MODE } from '@/store/mutation-types'
 import { USER_MODE } from '@/const/common'
 import { SchoolUserRole } from '@/const/role'
+import { ListCementByUser } from '@/api/notice'
 
 export default {
   name: 'UserProfileAvatar',
@@ -93,7 +96,11 @@ export default {
       // totalSize: 1024 * 1024 * 1024,
       unit: 1024 * 1024 * 1024,
       schoolUserRole: SchoolUserRole,
-      USER_MODE: USER_MODE
+      USER_MODE: USER_MODE,
+
+      msg1Count: '0',
+      msg2Count: '0',
+      stopTimer: false
     }
   },
   computed: {
@@ -102,6 +109,9 @@ export default {
       currentSchool: state => state.user.currentSchool,
       userMode: state => state.app.userMode
     }),
+    msgTotal () {
+      return parseInt(this.msg1Count) + parseInt(this.msg2Count)
+    },
     consumedSize() {
      return this.userMode === USER_MODE.SELF ? this.info.usedSpace * 1024 : this.currentSchool.usedSpace * 1024
     },
@@ -113,10 +123,37 @@ export default {
     }
   },
   created() {
+    this.initData()
   },
   methods: {
     ...mapMutations([TOOGLE_USER_MODE, 'SET_CURRENT_SCHOOL']),
     ...mapActions(['GetClassList']),
+
+    timerFun () {
+      this.stopTimer = false
+      const myTimer = setInterval(() => {
+        // 停止定时器
+        if (this.stopTimer) {
+          clearInterval(myTimer)
+          return
+        }
+        this.loadData()
+      }, 6000)
+    },
+    initData() {
+      ListCementByUser().then((res) => {
+        if (res.success) {
+          this.announcement1 = res.result.anntMsgList
+          this.msg1Count = res.result.anntMsgTotal
+          this.$store.commit('SET_UNREAD_COUNT', this.msg1Count ? this.msg1Count : 0)
+          this.$store.commit('SET_SHARED_COUNT', res.result.collaborate ? res.result.collaborate : 0)
+        }
+      }).catch(error => {
+        this.$logger.error('系统消息通知异常', error)
+        this.stopTimer = true
+        this.$logger.error('清理timer')
+      })
+    },
     handleToSettings () {
       this.$router.push({ path: '/account/settings' })
     },
@@ -174,6 +211,19 @@ export default {
 .user-profile-avatar {
   background-color: #fff;
   padding: 0 5px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+
+  .notification {
+    margin-left: 5px;
+    margin-right: 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+  }
 
   .profile-info {
     padding: 10px 15px;
@@ -289,9 +339,9 @@ export default {
             line-height: 14px;
             cursor: pointer;
             display: flex;
-            flex-direction: row;
+            flex-direction: column;
             justify-content: flex-start;
-            align-items: center;
+            align-items: flex-start;
             .role-name {
               margin-right: 5px;
             }

@@ -1,17 +1,21 @@
 <template>
   <div class='learning-objective-list'>
     <div class='select-switch'>
-      <a-radio-group :default-value="selectMode.subjectLearningObjectives" button-style="solid" class='cc-radio-group' v-model='mode'>
-        <a-radio-button :value="selectMode.subjectLearningObjectives">
+      <a-select
+        :getPopupContainer="trigger => trigger.parentElement"
+        placeholder='Curriculum'
+        v-model='mode'
+        class='cc-select cc-lo-select-mid'>
+        <a-select-option :value="selectMode.subjectLearningObjectives">
           Learning objectives
-        </a-radio-button>
-        <a-radio-button :value="selectMode.generalCapabilities">
+        </a-select-option>
+        <a-select-option :value="selectMode.generalCapabilities">
           21st century skills
-        </a-radio-button>
-        <a-radio-button :value="selectMode.studentPerformance">
+        </a-select-option>
+        <a-select-option :value="selectMode.studentPerformance">
           Student performance
-        </a-radio-button>
-      </a-radio-group>
+        </a-select-option>
+      </a-select>
     </div>
     <div class='select-content'>
       <div class='objectives-wrapper' v-show='mode === selectMode.subjectLearningObjectives'>
@@ -439,6 +443,10 @@ export default {
     border-radius: 4px;
     filter: grayscale(0.5);
   }
+}
+
+.select-switch {
+  width: 180px;
 }
 
 </style>

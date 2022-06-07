@@ -1,8 +1,9 @@
 <template>
   <div class='cc-custom-text-button' @click='handleClick' @dblclick='handleDbClick'>
     <div class='icon'>
-      <slot name='icon'>
+      <slot name='icon' v-if="!loading">
       </slot>
+      <a-icon type="loading" v-if="loading" />
     </div>
     <div class='label' :style="{fontSize: size + 'px'}">
       {{ label }}
@@ -29,6 +30,10 @@ export default {
     size: {
       type: Number,
       default: 13
+    },
+    loading: {
+      type: Boolean,
+      default: false
     }
   },
   methods: {

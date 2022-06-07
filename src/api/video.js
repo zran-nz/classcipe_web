@@ -44,7 +44,7 @@ export function VideoQueryById (parameter) {
  */
 export function VideoDelete (parameter) {
   return request({
-    url: videoAPIUrl.VideoDelete,
+    url: videoAPIUrl.VideoDelete + '?id=' + parameter.id,
     method: 'post',
     data: parameter,
     headers: {

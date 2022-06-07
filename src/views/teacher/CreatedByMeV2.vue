@@ -47,7 +47,7 @@ import { SourceType } from '@/components/MyContentV2/Constant'
 import ContentFilter from '@/components/MyContentV2/ContentFilter'
 import { FindMyContent, UpdateContentStatus } from '@/api/teacher'
 import * as logger from '@/utils/logger'
-import { SESSION_CURRENT_PAGE, USER_MODE } from '@/const/common'
+import { SESSION_CURRENT_PAGE } from '@/const/common'
 import ContentItem from '@/components/MyContentV2/ContentItem'
 import ContentPublish from '@/components/MyContentV2/ContentPublish'
 import NoMoreResources from '@/components/Common/NoMoreResources'
@@ -80,6 +80,10 @@ export default {
         {
           name: 'Shared by others',
           type: SourceType.SharedByOthers
+        },
+        {
+          name: 'Archived',
+          type: SourceType.Archived
         }
       ],
       sourceType: SourceType,
@@ -141,12 +145,12 @@ export default {
     loadMyContent () {
       this.loading = true
       let params = {
-        shareType: this.shareType,
+        shareType: this.shareType === this.sourceType.Archived ? this.sourceType.CreatedByMe : this.shareType,
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize,
         searchKey: this.searchText ? this.searchText : '',
         types: this.filterType ? [this.filterType] : [],
-        delFlag: 0,
+        delFlag: this.shareType === this.sourceType.Archived ? 1 : 0,
         schoolId: this.school
       }
       if (this.filterParams) {

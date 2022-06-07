@@ -6,7 +6,8 @@
           <div class='select-item'>
             <a-select
               :getPopupContainer="trigger => trigger.parentElement"
-              v-model='filterConfig.curriculumId'
+              placeholder='Curriculum'
+              @select='handleSelectCurriculum'
               class='cc-select cc-lo-select-mid'>
               <a-select-option :value='item.id' v-for='(item, index) in curriculumOptions' :key='index'>
                 {{ item.name }}
@@ -24,6 +25,7 @@
             <a-select
               :getPopupContainer="trigger => trigger.parentElement"
               v-model='selectedSubject'
+              placeholder='Subject'
               @select='handleSelectSubject'
               class='cc-select cc-lo-select'>
               <a-select-option :value='subjectName' v-for='subjectName in subjectOptions' :key='subjectName'>
@@ -45,6 +47,7 @@
             <a-select
               :getPopupContainer="trigger => trigger.parentElement"
               v-model='selectedYear'
+              placeholder='Grade'
               @select='handleSelectYear'
               class='cc-select cc-lo-select-small'>
               <a-select-option :value='year' v-for='year in yearOptions' :key='year'>
@@ -451,6 +454,10 @@ export default {
       this.filterConfig.curriculumId = null
     },
 
+    handleSelectCurriculum (id) {
+      this.filterConfig.curriculumId = id
+    },
+
     handleRemoveSubject (subject) {
       this.filterConfig.selectedSubjectList.splice(this.filterConfig.selectedSubjectList.indexOf(subject), 1)
     },
@@ -465,15 +472,19 @@ export default {
     },
 
     handleSelectSubject (subject) {
+      this.$logger.info('handleSelectSubject', subject)
       if (this.filterConfig.selectedSubjectList.indexOf(subject) === -1) {
         this.filterConfig.selectedSubjectList.unshift(subject)
       }
+      this.selectedSubject = null
     },
 
     handleSelectYear (year) {
+      this.$logger.info('handleSelectYear', year)
       if (this.filterConfig.selectedYearList.indexOf(year) === -1) {
         this.filterConfig.selectedYearList.unshift(year)
       }
+      this.selectedYear = null
     },
 
     handleSelectItem (item) {
@@ -692,7 +703,7 @@ export default {
 .learning-objective {
 
   .half-body-content {
-    width: 55%;
+    width: 50%;
     .cc-lo-header {
       display: flex;
       flex-direction: row;
@@ -861,7 +872,7 @@ export default {
         align-items: flex-start;
         margin-bottom: 10px;
         .cc-left-lo {
-          width: 55%;
+          width: 50%;
           position: relative;
           display: flex;
           flex-direction: column;
@@ -967,7 +978,7 @@ export default {
         }
 
         .cc-right-general-capabilities {
-          width: 45%;
+          width: 50%;
           padding-left: 30px;
 
           .cc-right-general-capabilities-title {
