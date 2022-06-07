@@ -34,8 +34,8 @@
         </div>
       </template>
       <template v-if='!imgList.length'>
-        <div class='no-slide-image'>
-          <common-no-data text='PPT image not found.'/>
+        <div class='no-slide-image' :style="{ height: emptyHeight }">
+          <common-no-data :text='emptyTips'/>
         </div>
       </template>
     </div>
@@ -147,6 +147,14 @@ export default {
     showRemoveButton: {
       type: Boolean,
       default: false
+    },
+    emptyTips: {
+      type: String,
+      default: 'PPT image not found.'
+    },
+    emptyHeight: {
+      type: String,
+      default: '160px'
     }
   },
   mixins: [ PptPreviewMixin ],
@@ -316,10 +324,6 @@ export default {
     background-color: rgba(0, 0, 0, 0.6);
     opacity: 1;
   }
-}
-
-.no-slide-image {
-  height: 160px;
 }
 
 .carousel-page {

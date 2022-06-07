@@ -2,7 +2,11 @@
   <div class='unit-linked-content'>
     <div class='header-action'>
       <a-space>
-        <custom-text-button label='Add new task' @click='handleAddNew'></custom-text-button>
+        <custom-text-button label='Add new task' @click='handleAddNew'>
+          <template v-slot:icon>
+            <a-spin v-if='creatingTask'></a-spin>
+          </template>
+        </custom-text-button>
         <custom-text-button label='Add category' @click='handleAddCategory'>
           <template slot='icon'>
             <a-icon type='plus-circle' />
@@ -72,6 +76,8 @@ import draggable from 'vuedraggable'
 import DeleteIcon from '@/components/Common/DeleteIcon'
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import CommonNoData from '@/components/Common/CommonNoData'
+import { TaskAddOrUpdate } from '@/api/task'
+import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
 
 export default {
   name: 'UnitLinkedContent',
@@ -100,12 +106,17 @@ export default {
       ],
       associateTaskIdList: [],
       associateTaskList: [],
-      associateId2Name: new Map()
+      associateId2Name: new Map(),
+      creatingTask: false
     }
   },
   created() {
     this.$logger.info('UnitLinkedContent ' + this.fromId)
     this.getAssociate()
+    ClasscipeEventBus.$on(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleAddNew)
+  },
+  beforeDestroy() {
+    ClasscipeEventBus.$off(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleAddNew)
   },
   computed: {
     groupNameList () {
@@ -118,7 +129,50 @@ export default {
   },
   methods: {
     handleAddNew () {
-      window.open('/teacher/task-redirect')
+      if (this.creatingTask) {
+        return
+      }
+
+      const data = {
+        name: 'Untitled task',
+        status: 0
+      }
+      this.creatingTask = true
+
+      TaskAddOrUpdate(data).then((response) => {
+        this.$logger.info('TaskAddOrUpdate response', response.result)
+        if (response.success) {
+          if (response.code !== 520 && response.code !== 403) {
+            // 关联当前unit与task
+            const taskId = response.result.id
+
+            const associateData = {
+              fromId: this.fromId,
+              fromType: this.$classcipe.typeMap['unit-plan'],
+              groupName: 'Relevant Unit Plan(s)',
+              otherContents: [
+                {
+                  toId: taskId,
+                  toType: this.$classcipe.typeMap.task
+                }
+              ]
+            }
+            Associate(associateData).then((res) => {
+              this.$logger.info('associate success')
+              this.$router.replace('/teacher/add-task-v2/' + taskId)
+            }).finally(() => {
+              this.creatingTask = false
+            })
+          } else {
+            this.$logger.info('等待授权回调')
+          }
+        } else {
+          this.$message.error(response.message)
+        }
+      }).catch((e) => {
+        this.$logger.error(e)
+        this.creatingTask = false
+      })
     },
     handleAddCategory () {
       this.addCategoryVisible = true

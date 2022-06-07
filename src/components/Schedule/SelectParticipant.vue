@@ -153,6 +153,7 @@ export default {
           this.$logger.info('loadClassStudent', res)
           if (res.result) {
             this.studentList = res.result
+            this.checkedStudent = this.studentList.slice()
           }
         }).finally(() => {
           this.studentListLoading = false

@@ -77,7 +77,7 @@
         <plus-icon color='#a9adb4' @click='handleAddRow' />
       </div>
       <div class='right-action'>
-        <custom-link-text text='Save as set of options' @click='handleSaveHeaderAsSet'></custom-link-text>
+        <custom-link-text text='Save as set of options' @click='handleSaveHeaderAsSet' v-if='assessment.type === AssessmentToolType.Rubric'></custom-link-text>
       </div>
     </div>
 
@@ -88,12 +88,12 @@
       :closable='false'
       width='300px'
       :footer='null'>
-      <modal-header title="Editing Options" @close='editHeaderModalVisible = false'/>
+      <modal-header :title="'Operation for ' + (currentEditHeader ? currentEditHeader.title : '') + ''" @close='editHeaderModalVisible = false'/>
       <div class='edit-header-action'>
         <div class='edit-header-action-item' v-if='currentEditHeader'>
           <custom-text-button label='Add a column' @click='handleAddCol' v-if='currentEditHeader.canAddCustomCol'></custom-text-button>
           <custom-text-button label='Delete current column' @click='handleDelCol' v-if='currentEditHeader.canAddCustomCol'></custom-text-button>
-          <custom-text-button label='Edit column name' @click='handleEditName'></custom-text-button>
+          <custom-text-button label='Edit option' @click='handleEditName'></custom-text-button>
         </div>
       </div>
     </a-modal>
@@ -105,7 +105,7 @@
       :closable='false'
       width='300px'
       :footer='null'>
-      <modal-header title="Editing Options" @close='editRowModalVisible = false'/>
+      <modal-header title="Edit row" @close='editRowModalVisible = false'/>
       <div class='edit-header-action'>
         <div class='edit-header-action-item' v-if='currentEditRow'>
           <custom-text-button label='Delete current column' @click='handleDelRow'></custom-text-button>
@@ -120,7 +120,7 @@
       :closable='false'
       width='300px'
       :footer='null'>
-      <modal-header title="Editing Options" @close='editExtraRowModalVisible = false'/>
+      <modal-header title="Edit row" @close='editExtraRowModalVisible = false'/>
       <div class='edit-header-action'>
         <div class='edit-header-action-item' v-if='currentEditExtraRow'>
           <custom-text-button label='Delete current column' @click='handleDelExtraRow'></custom-text-button>
@@ -134,7 +134,7 @@
       :title='null'
       :closable='false'
       :footer='null'>
-      <modal-header title="Editing Options" @close='selectHeaderSetModalVisible = false'/>
+      <modal-header title="Select header option" @close='selectHeaderSetModalVisible = false'/>
       <div class='edit-header-action'>
         <div class='edit-header-action-item header-option' v-for='(options, idx) in optionList' :key='idx' @click='selectHeaderSet(options)'>
           <a-tag v-for='(option,oIdx) in options.headerNameList' :key='oIdx'>{{ option }}</a-tag>
@@ -190,6 +190,7 @@ export default {
   data() {
     return {
       editingData: null,
+      AssessmentToolType: AssessmentToolType,
       AssessmentMode: AssessmentMode,
 
       editHeaderModalVisible: false,

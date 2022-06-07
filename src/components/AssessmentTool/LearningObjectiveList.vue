@@ -162,11 +162,7 @@ export default {
       // 计算已选择的通用能力对应的学习目标id
       const list = []
       this.selectedGeneralCapabilities.forEach(item => {
-        this.selectedLearningObjective.forEach(learningObjective => {
-          if (learningObjective.id === item.learningObjectiveId) {
-            list.push(learningObjective.id)
-          }
-        })
+        list.push(item.learningObjectiveId)
       })
       return list
     },
@@ -360,6 +356,19 @@ export default {
               width: calc(100% - 10px);
             }
           }
+        }
+      }
+
+      .disabled-item {
+        .disable-mask {
+          cursor: not-allowed;
+          display: block !important;
+          background: rgba(255, 255, 255, .6);
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
         }
       }
     }
