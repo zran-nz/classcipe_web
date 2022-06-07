@@ -10,17 +10,17 @@
             <div class="tip-wrap">
               <div class="unit-tip">
 
-                <template v-if="queryType === CALENDAR_QUERY_TYPE.MY.value">
-                  <div
-                    class="unit-tip-item"
-                    :style="{backgroundColor: BG_COLORS[item.index]}"
-                    v-for="(item) in showUnitOptions"
-                    :key="item.id">
-                    <a-tooltip :title="item.name">Unit: {{ item.name }}</a-tooltip>
-                  </div>
-                </template>
+                <!-- <template v-if="queryType === CALENDAR_QUERY_TYPE.MY.value"> -->
+                <div
+                  class="unit-tip-item"
+                  :style="{backgroundColor: BG_COLORS[item.index]}"
+                  v-for="(item) in showUnitOptions"
+                  :key="item.id">
+                  <a-tooltip :title="item.name">Unit: {{ item.name }}</a-tooltip>
+                </div>
+                <!-- </template> -->
 
-                <template v-if="queryType === CALENDAR_QUERY_TYPE.CLASS.value">
+                <!-- <template v-if="queryType === CALENDAR_QUERY_TYPE.CLASS.value">
                   <div
                     class="unit-tip-item"
                     :style="{backgroundColor: BG_COLORS[item.index]}"
@@ -38,7 +38,7 @@
                     :key="item.id">
                     <a-tooltip :title="item.name">{{ item.name }}</a-tooltip>
                   </div>
-                </template>
+                </template> -->
 
               </div>
               <div class="calendar-type" v-show="true">
@@ -363,13 +363,13 @@ export default {
                   const events = filterRes.map(item => {
                     // 根据classId获取颜色
                     let index = -1
-                    if (this.queryType === this.CALENDAR_QUERY_TYPE.MY.value) {
+                    // if (this.queryType === this.CALENDAR_QUERY_TYPE.MY.value) {
                       index = this.currentUnitList.findIndex(unit => unit.id === (item.unitPlanInfo ? item.unitPlanInfo.id : -1))
-                    } else if (this.queryType === this.CALENDAR_QUERY_TYPE.CLASS.value) {
-                      index = this.showClassOptions.findIndex(option => option.value === (item.sessionInfo ? item.sessionInfo.taskClassId : -1))
-                    } else if (this.queryType === this.CALENDAR_QUERY_TYPE.WORKSHOP.value) {
-                      index = this.showWorkshopOptions.findIndex(option => option.value === (item.workshopsDetailInfo ? item.workshopsDetailInfo.registeredNum : -1))
-                    }
+                    // } else if (this.queryType === this.CALENDAR_QUERY_TYPE.CLASS.value) {
+                    //   index = this.showClassOptions.findIndex(option => option.value === (item.sessionInfo ? item.sessionInfo.taskClassId : -1))
+                    // } else if (this.queryType === this.CALENDAR_QUERY_TYPE.WORKSHOP.value) {
+                    //   index = this.showWorkshopOptions.findIndex(option => option.value === (item.workshopsDetailInfo ? item.workshopsDetailInfo.registeredNum : -1))
+                    // }
                     const color = (index === -1) ? '#fff' : BG_COLORS[index]
 
                     let startTime = item.startTime

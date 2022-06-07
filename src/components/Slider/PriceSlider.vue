@@ -169,6 +169,7 @@ export default {
   }
   /deep/ .ant-slider {
     height: 18px;
+    cursor: default!important;
     .ant-slider-rail {
       height: 12px;
       background-color: #E9ECEE!important;

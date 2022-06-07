@@ -238,7 +238,15 @@
             :quickWord="quickWord"
             :loadApi="dimensionsSearch"
           >
-            <template v-slot:create><div></div></template>
+            <template v-slot:create>
+              <div class="quick-word-sub">
+                <a-divider style="margin: 10px 0;"/>
+                <a-space v-show="!showQuickWordCreate" >
+                  <label>Create:</label>
+                  <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="createDimension"> {{ commandTermForm.name || 'Knowledge Tags' }} </a-button>
+                </a-space>
+              </div>
+            </template>
           </quick-word-button>
         </a-space>
         <div class="recommend-con" v-if="termRecommend.length > 0 || knowledgeRecommend.length > 0">
@@ -583,7 +591,7 @@ export default {
 
     domFn(key, currentChoose) {
       this.currentObjective = { ...currentChoose }
-      this.quickWord = key.split(' ')[0]
+      this.quickWord = key ? key.split(' ')[0] : ''
       this.commandTermForm.name = this.quickWord
       this.showQuickWordCreate = false
       // 获取联想
@@ -669,7 +677,7 @@ export default {
     },
     createDimension() {
       dimensionsCreate({
-        tag: this.commandTermForm.name || 'Knowledge Dimensions'
+        tag: this.commandTermForm.name || 'Knowledge Tags'
       }).then(res => {
         this.handleSaveCommanTerm(res, 'knowledgeTags')
       })

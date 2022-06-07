@@ -234,24 +234,27 @@ export default {
   },
   mounted() {
     const total = this.content.content.customTags ? this.content.content.customTags.length : 0
-    // const tagInfoEl = this.$refs.tagInfo
-    // const items = this.$refs.tagInfo.getElementsByClassName('tag-item')
-    // if (!this.content.priceList || this.content.priceList.length === 0) {
-    //   tagInfoEl.style.width = this.$refs.detailPrice.getBoundingClientRect().width + 'px'
-    // }
-    // if (items.length > 0) {
-    //   const itemWidth = items[0].getBoundingClientRect().width + 5
-    //   const showTagLen = parseInt(tagInfoEl.getBoundingClientRect().width / itemWidth) - 1
-    //   if (total - showTagLen > 1) {
-    //     this.showTagLen = showTagLen
-    //   } else {
-    //     this.showTagLen = total
-    //   }
-    // }
+      // const tagInfoEl = this.$refs.tagInfo
+      // const items = this.$refs.tagInfo.getElementsByClassName('tag-item')
+      // if (!this.content.priceList || this.content.priceList.length === 0) {
+      //   tagInfoEl.style.width = this.$refs.detailPrice.getBoundingClientRect().width + 'px'
+      // }
+      // if (items.length > 0) {
+      //   const itemWidth = items[0].getBoundingClientRect().width + 5
+      //   const showTagLen = parseInt(tagInfoEl.getBoundingClientRect().width / itemWidth) - 1
+      //   if (total - showTagLen > 1) {
+      //     this.showTagLen = showTagLen
+      //   } else {
+      //     this.showTagLen = total
+      //   }
+      // }
+    // 有没有标签都固定右边。。。
     if (total === 0) {
       if (this.$refs.detailPrice.getElementsByClassName('price-slider')[0]) {
-        this.$refs.detailPrice.getElementsByClassName('price-slider')[0].style.width = '100%'
+        this.$refs.detailPrice.getElementsByClassName('price-slider')[0].parentElement.style.justifyContent = 'flex-end'
       }
+    } else {
+      this.$refs.detailPrice.getElementsByClassName('price-slider')[0].parentElement.style.justifyContent = 'space-between'
     }
   },
   methods: {
