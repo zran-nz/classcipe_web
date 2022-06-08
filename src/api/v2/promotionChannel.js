@@ -5,7 +5,8 @@ const API_PREFIX = 'promotionChannel'
 export const PromotionChannelApi = {
   addPvCount: `/classcipe/api/${API_PREFIX}/addPvCount`,
   addRegisterCount: `/classcipe/api/${API_PREFIX}/addRegisterCount`,
-  addParticipateCount: `/classcipe/api/${API_PREFIX}/addParticipateCount`
+  addParticipateCount: `/classcipe/api/${API_PREFIX}/addParticipateCount`,
+  queryById: `/classcipe/api/${API_PREFIX}/queryById`
 }
 
 /**
@@ -42,6 +43,19 @@ export const PromotionChannelApi = {
  export function addParticipateCount (parameter) {
   return request({
     url: PromotionChannelApi.addParticipateCount,
+    method: 'get',
+    params: parameter
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+ export function queryById (parameter) {
+  return request({
+    url: PromotionChannelApi.queryById,
     method: 'get',
     params: parameter
   })

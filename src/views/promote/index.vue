@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import { addPvCount } from '@/api/v2/promotionChannel'
+import { addPvCount, queryById } from '@/api/v2/promotionChannel'
 import { SET_PROMOTE_CODE } from '@/store/mutation-types'
 import { mapMutations } from 'vuex'
 export default {
@@ -14,6 +14,11 @@ export default {
     code: {
       type: String,
       default: null
+    }
+  },
+  data() {
+    return {
+      redirects: ['', '/teacher/library-v3', '/teacher/main/live-workshops']
     }
   },
   created () {
@@ -25,12 +30,29 @@ export default {
     handleRedirect() {
       this.$logger.info('promote redirecting ' + this.code)
       if (this.code) {
-        addPvCount({
-          channelId: this.code
+        queryById({
+          id: this.code
+        }).then(res => {
+          if (res.success && res.result && res.result.promotionContent) {
+            addPvCount({
+              channelId: this.code
+            })
+            this[SET_PROMOTE_CODE](this.code)
+            // 根据promotionContent 决定跳转地址
+            // （1：Latest publishing；2：Featured workshops）
+            this.$router.replace(this.redirects[res.result.promotionContent])
+          } else {
+            this.doDefault()
+          }
+        }).catch(() => {
+          this.doDefault()
         })
-        this[SET_PROMOTE_CODE](this.code)
+      } else {
+        this.doDefault()
       }
-      this.$router.replace('/teacher/library-v3')
+    },
+    doDefault() {
+      this.$router.replace('/teacher/main/created-by-me')
     }
   }
 }
