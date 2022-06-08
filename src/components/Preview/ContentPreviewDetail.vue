@@ -1,5 +1,5 @@
 <template>
-  <div class='content-preview-detail'>
+  <div class='content-preview-detail' ref="container">
     <div class='preview-carousel-wrapper'>
       <preview-carousel :page-object-list='thumbnailList' :video-list='videoList' v-if='!carouselContentLoading' />
       <a-skeleton v-if='carouselContentLoading' />
@@ -68,6 +68,7 @@
           </div>
         </a-col>
       </a-row>
+
       <div class='split-line'></div>
       <div class='edit-content' v-if='content.createBy === $store.getters.userInfo.email'>
         <a-button class='cc-dark-button' style='width: 90px' shape='round' @click='handleEdit'>Edit</a-button>
@@ -237,6 +238,8 @@ import { QueryByClassInfoSlideId } from '@/api/classroom'
 import { FavoritesAdd } from '@/api/favorites'
 import CardListItem from '@/components/Preview/CardListItem'
 import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
+import { debounce } from 'lodash-es'
+import { ContentItemMixin } from '@/mixins/ContentItemMixin'
 
 export default {
   name: 'ContentPreviewDetail',
@@ -267,7 +270,8 @@ export default {
       favoriteFlag: false,
 
       typeMap: this.$classcipe.typeMap,
-      copyLoading: false
+      copyLoading: false,
+      handleScrollFn: null,
     }
   },
   computed: {
@@ -295,6 +299,13 @@ export default {
   },
   created() {
     this.loadDetail()
+    this.handleScrollFn = debounce(this.handleScroll, 200)
+  },
+  mounted() {
+    this.$refs.container.addEventListener('scroll', this.handleScrollFn)
+  },
+  beforeDestroy() {
+    this.$refs.container.removeEventListener('scroll', this.handleScrollFn)
   },
   methods: {
 
@@ -345,6 +356,10 @@ export default {
       if (this.content.presentationId) {
         this.getClassInfo(this.content.presentationId)
       }
+    },
+
+    handleScroll (e) {
+      this.$logger.info('handleScroll', e)
     },
 
     initVideoList () {
