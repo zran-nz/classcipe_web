@@ -239,7 +239,6 @@ import { FavoritesAdd } from '@/api/favorites'
 import CardListItem from '@/components/Preview/CardListItem'
 import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 import { debounce } from 'lodash-es'
-import { ContentItemMixin } from '@/mixins/ContentItemMixin'
 
 export default {
   name: 'ContentPreviewDetail',
@@ -271,7 +270,7 @@ export default {
 
       typeMap: this.$classcipe.typeMap,
       copyLoading: false,
-      handleScrollFn: null,
+      handleScrollFn: null
     }
   },
   computed: {
