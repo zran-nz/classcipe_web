@@ -1,13 +1,20 @@
 <template>
   <div class='my-content' :style="{'font-size': fontSize}">
     <div class="account-info">
-      <div class="account-info-header" v-if="currentSchool.id !== '0'">
-        <div class="info-header-avatar">
+      <div class="account-info-header">
+        <div class="info-header-avatar persona" v-if="userMode === USER_MODE.SELF">
+          <img :src="info.avatar"/>
+        </div>
+        <div class="info-header-avatar" v-else>
           <img src="~@/assets/icons/library/default-avatar.png"/>
         </div>
         <div class="info-header-detail">
           <div class="header-detail-title">
-            {{ currentSchool.schoolName }}
+            {{ currentSchool.schoolName || info.nickname }}
+          </div>
+          <div class="header-detail-email" v-if="userMode === USER_MODE.SELF">
+            <label>{{ info.email }}</label>
+            <a-button size="small" type="primary">Go to profile</a-button>
           </div>
           <div class="header-detail-plan">
             <div class="plan-name">
@@ -22,7 +29,7 @@
             <div class='storage-info-text'>
               {{ consumedSize | sizeFormat }} of {{ totalSize | sizeFormat }}
             </div>
-            <div class="storage-info-pay" v-if="info.planInfo.planUser.buyStatus === 2">
+            <div class="storage-info-pay" v-if="info.planInfo && info.planInfo.planUser && info.planInfo.planUser.buyStatus === 2">
               <a-button type='primary'>Pay</a-button>
             </div>
           </div>
@@ -31,10 +38,10 @@
           </div>
         </div>
       </div>
-      <a-divider v-if="currentSchool.id !== '0'"></a-divider>
-      <div class="account-info-self">
+      <a-divider v-if="userMode === USER_MODE.SCHOOL"></a-divider>
+      <div class="account-info-self" v-if="userMode === USER_MODE.SCHOOL">
         <div class="info-self-avatar">
-          <img src="~@/assets/icons/library/default-avatar.png"/>
+          <img :src="info.avatar"/>
           <a-button type="primary" size="small">Upload</a-button>
         </div>
         <div class="info-self-detail">
@@ -49,44 +56,38 @@
               <a-icon @click="handleSelfEdit" type="close" />
             </template>
           </div>
-          <div class="self-detail-email">1278312478@gmail.com</div>
-          <div class="self-detail-role">Teacher</div>
+          <div class="self-detail-email">{{ info.email }}</div>
+          <div class="self-detail-role">
+            {{ roles }}
+          </div>
         </div>
       </div>
       <!-- Basic info -->
-      <div class="account-info-wrap" v-for="(item, index) in linkDatas" :key="'linkwrap_' + index">
+      <div class="account-info-wrap" v-for="(item, index) in linkDatas.filter(_ => !_.hidden)" :key="'linkwrap_' + index">
         <div class="account-info-title">{{ item.title }}</div>
         <div class="account-info-link">
           <div
-            class="info-link-item"
-            :class="{'unable': !link.url}"
-            v-for="(link, linkIndex) in item.links"
+            class="info-link-item-wrap"
+            v-for="(link, linkIndex) in item.links.filter(_ => !_.hidden)"
             :key="'link_'+linkIndex"
-            :style="{'visibility': link.title ? 'visible' : 'hidden'}"
+            :style="{'visibility': (link.title) ? 'visible' : 'hidden'}"
             @click="handleGoPage(link.url)"
           >
-            <div class="link-item-basic">
-              <div class="item-basic-avatar">
-                <img :src="link.avatar"/>
+            <div class="info-link-item" :class="{'unable': !link.url}">
+              <div class="link-item-basic">
+                <div class="item-basic-avatar">
+                  <img :src="link.avatar"/>
+                </div>
+                <div class="item-basic-name">
+                  <label for="">{{ link.title }}</label>
+                  <label for="" class="basic-name-extra" v-if="link.extraKey"> {{ getExtra(link.extraKey) }} </label>
+                </div>
               </div>
-              <div class="item-basic-name">
-                <label for="">{{ link.title }}</label>
-                <label for="" class="basic-name-extra" v-if="link.extraKey"> {{ getExtra(link.extraKey) }} </label>
+              <div class="link-item-desc">
+                {{ link.desc }}
               </div>
-            </div>
-            <div class="link-item-desc">
-              {{ link.desc }}
             </div>
           </div>
-          <template v-if="item.links.length < lineCounts">
-            <div
-              class="info-link-item"
-              v-for="(link, linkIndex) in (lineCounts - item.links.length)"
-              :key="'link_add_'+linkIndex"
-              :style="{'visibility': 'hidden'}"
-            >
-            </div>
-          </template>
         </div>
       </div>
     </div>
@@ -98,6 +99,7 @@ import { USER_MODE, EXPIRE_UNIT } from '@/const/common'
 
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
+import { ReSetFontMixin } from '@/mixins/ReSetFontMixin'
 
 import SchoolInfoPng from '@/assets/icons/account/schoolInfo.png?inline'
 import AcademicPng from '@/assets/icons/account/academic.png?inline'
@@ -112,15 +114,20 @@ import SpaceManagePng from '@/assets/icons/account/spaceManage.png?inline'
 import StudentsPng from '@/assets/icons/account/students.png?inline'
 import TagsPng from '@/assets/icons/account/tags.png?inline'
 import TeachersPng from '@/assets/icons/account/teachers.png?inline'
+import SecurityPng from '@/assets/icons/account/security.png?inline'
+import PayoutsPng from '@/assets/icons/account/payouts.png?inline'
+import CertifiedPng from '@/assets/icons/account/certified.png?inline'
+import PersonaPng from '@/assets/icons/account/persona.png?inline'
 
 import { mapState } from 'vuex'
 
 export default {
   name: 'AccountInfo',
-  mixins: [UserModeMixin, CurrentSchoolMixin],
+  mixins: [UserModeMixin, CurrentSchoolMixin, ReSetFontMixin],
   data() {
     return {
       fontSize: '16px',
+      fixHtmlWidth: 1200,
       USER_MODE: USER_MODE,
       unit: 1024 * 1024 * 1024,
       loading: false,
@@ -128,26 +135,60 @@ export default {
       lineCounts: 3,
       selfEditModel: {
         name: ''
-      },
-      linkDatas: [{
+      }
+    }
+  },
+  computed: {
+    ...mapState({
+      info: state => state.user.info,
+      currentSchool: state => state.user.currentSchool,
+      userMode: state => state.app.userMode
+    }),
+    linkDatas() {
+      return [{
         title: '',
+        hidden: this.userMode === USER_MODE.SCHOOL && this.isNotAdmin,
         links: [
           {
             avatar: SchoolInfoPng,
             title: 'School info',
             desc: '',
+            hidden: this.isNotAdmin,
             url: ''
           },
           {
             avatar: PaymentsPng,
             title: 'Payments',
             desc: 'Review payments, payouts, coupons,gift cards and taxes',
+            hidden: this.isNotAdmin,
             url: ''
           },
           {
             avatar: OrdersPng,
             title: 'Orders',
             desc: '',
+            url: '',
+            hidden: this.isNotAdmin
+          },
+          {
+            avatar: PersonaPng,
+            title: 'Personal info',
+            desc: 'Review payments, payouts, coupons,gift cards and taxes',
+            hidden: this.userMode === USER_MODE.SCHOOL,
+            url: ''
+          },
+          {
+            avatar: SecurityPng,
+            title: 'Login & security',
+            desc: 'Review payments, payouts, coupons,gift cards and taxes',
+            hidden: this.userMode === USER_MODE.SCHOOL,
+            url: ''
+          },
+          {
+            avatar: PayoutsPng,
+            title: 'Payments & payouts',
+            hidden: this.userMode === USER_MODE.SCHOOL,
+            desc: 'Review payments, payouts, coupons,gift cards and taxes',
             url: ''
           }
         ]
@@ -158,7 +199,7 @@ export default {
             avatar: ClassesPng,
             title: 'Classes',
             extraKey: 'classCount',
-            desc: '',
+            desc: 'Review payments, payouts, coupons,gift cards and taxes',
             url: ''
           },
           {
@@ -166,19 +207,17 @@ export default {
             title: 'Teachers',
             extraKey: 'teacherCount',
             desc: 'Review payments, payouts, coupons,gift cards and taxes',
-            url: ''
+            url: '',
+            hidden: this.isNotAdmin
           },
           {
             avatar: StudentsPng,
             title: 'Students',
             extraKey: 'studentCount',
             desc: '',
-            url: ''
-          }
-        ]
-      }, {
-        title: '',
-        links: [
+            url: '',
+            hidden: this.isNotAdmin
+          },
           {
             avatar: SpaceManagePng,
             title: 'Space Manage',
@@ -189,56 +228,58 @@ export default {
             avatar: RoleManagePng,
             title: 'Role Manage',
             desc: 'Review payments, payouts, coupons,gift cards and taxes',
-            url: ''
+            url: '',
+            hidden: this.isNotAdmin
           }
         ]
-      }, {
-        title: 'Setting',
-        links: [
-          {
-            avatar: AcademicPng,
-            title: 'Academic Term',
-            desc: '',
-            url: '/teacher/managing/academic'
-          },
-          {
-            avatar: TagsPng,
-            title: 'Tags setting',
-            desc: 'Review payments, payouts, coupons,gift cards and taxes',
-            url: ''
-          },
-          {
-            avatar: PlanningPng,
-            title: 'Planning Format',
-            desc: '',
-            url: ''
-          }
-        ]
-      }, {
-        title: '',
-        links: [
-          {
-            avatar: AttendancePng,
-            title: 'Attendance',
-            desc: '',
-            url: ''
-          },
-          {
-            avatar: CurriculumPng,
-            title: 'Curriculum',
-            desc: 'Review payments, payouts, coupons,gift cards and taxes',
-            url: '/teacher/managing/curriculum'
-          }
-        ]
-      }]
-    }
-  },
-  computed: {
-    ...mapState({
-      info: state => state.user.info,
-      currentSchool: state => state.user.currentSchool,
-      userMode: state => state.app.userMode
-    }),
+      },
+        {
+          title: 'Setting',
+          links: [
+            {
+              avatar: AcademicPng,
+              title: 'Academic Term',
+              hidden: this.userMode === USER_MODE.SELF,
+              desc: '',
+              url: '/manage/academic'
+            },
+            {
+              avatar: TagsPng,
+              title: 'Tags setting',
+              hidden: this.userMode === USER_MODE.SELF,
+              desc: 'Review payments, payouts, coupons,gift cards and taxes',
+              url: ''
+            },
+            {
+              avatar: PlanningPng,
+              title: 'Planning Format',
+              desc: '',
+              url: ''
+            },
+            {
+              avatar: AttendancePng,
+              title: 'Attendance',
+              hidden: this.userMode === USER_MODE.SELF,
+              desc: '',
+              url: ''
+            },
+            {
+              avatar: CurriculumPng,
+              title: 'Curriculum',
+              desc: 'Review payments, payouts, coupons,gift cards and taxes',
+              url: '/manage/curriculum'
+            },
+            {
+              avatar: CertifiedPng,
+              title: 'Application for certification/service',
+              desc: '',
+              hidden: this.userMode === USER_MODE.SCHOOL,
+              url: ''
+            }
+          ]
+        }
+      ]
+    },
     consumedSize() {
      return this.userMode === USER_MODE.SELF ? this.info.usedSpace * 1024 : this.currentSchool.usedSpace * 1024
     },
@@ -247,6 +288,20 @@ export default {
     },
     storageProgress () {
       return Math.round(this.consumedSize / this.totalSize * 100)
+    },
+    roles() {
+      if (this.userMode === USER_MODE.SCHOOL && this.currentSchool.roleNames) {
+        return this.currentSchool.roleNames.join(', ')
+      } else {
+        return ''
+      }
+    },
+    isNotAdmin() {
+      if (this.userMode === USER_MODE.SCHOOL && this.currentSchool.roleNames) {
+        return !this.currentSchool.roleNames.includes('admin')
+      } else {
+        return true
+      }
     },
     expiredDay() {
       if (this.info.planInfo && this.info.planInfo.planUser && this.info.planInfo.planUser.buyStatus === 1) {
@@ -271,13 +326,6 @@ export default {
   created() {
     this.loadData()
   },
-  mounted() {
-    window.addEventListener('resize', this.resizeFn, false)
-    this.resizeFn()
-  },
-  beforeDestroy() {
-    window.emoveEventListener('resize', this.resizeFn)
-  },
   methods: {
     handleSchoolChange(currentSchool) {
       this.pageNo = 1
@@ -292,16 +340,6 @@ export default {
     },
     loadData() {
 
-    },
-    resizeFn () {
-      this.radioSwitchShow = false
-      // var docElem = document.documentElement
-      // var htmlWidth = docElem.getBoundingClientRect().width
-      var htmlWidth = 1200
-      // if (htmlWidth > 1024) htmlWidth = 480
-      const em = htmlWidth / 16
-      this.fontSize = em + 'px'
-      this.radioSwitchShow = true
     },
     handleSelfEdit() {
       this.selfEditModel.name = this.info.nickname
@@ -351,6 +389,14 @@ export default {
           height: 100%;
           object-fit: contain;
         }
+        &.persona {
+          width: 1.32em /* 132/100 */;
+          height: 1.32em /* 132/100 */;
+          border-radius: 100%;
+          img {
+            border-radius: 100%;
+          }
+        }
       }
       .info-header-detail {
         margin-left: 0.38em /* 38/100 */;
@@ -362,6 +408,17 @@ export default {
           font-family: Arial;
           font-weight: bold;
           color: #17181A;
+        }
+        .header-detail-email {
+          display: flex;
+          align-items: center;
+          label {
+            font-size: 0.19em /* 19/100 */;
+            font-family: Arial;
+            font-weight: 400;
+            margin-right: 1/0.19*0.33em /* 33/100 */;
+            color: #384977;
+          }
         }
         .header-detail-plan {
           margin-top: 0.27em /* 27/100 */;
@@ -417,14 +474,15 @@ export default {
       display: flex;
       width: 100%;
       .info-self-avatar {
-        width: 1em /* 100/100 */;
+        width: 0.88em /* 88/100 */;
         border-radius: 100%;
         display: flex;
         flex-direction: column;
         margin-right: 0.3em /* 30/100 */;
         img {
-          width: 1em /* 100/100 */;
-          height: 1em /* 100/100 */;
+          width: 0.88em /* 88/100 */;
+          height: 0.88em /* 88/100 */;
+          border-radius: 100%;
           object-fit: contain;
           margin-bottom: 0.1em /* 10/100 */;
         }
@@ -475,64 +533,71 @@ export default {
         margin-top: 1/0.24*.3em;
       }
       .account-info-link {
-        margin-top: 0.3em /* 30/100 */;
+        margin-top: 0.2em /* 20/100 */;
         display: flex;
+        flex-wrap: wrap;
         width: 100%;
-        .info-link-item {
-          flex: 1;
+        &::after {
+          content: '';
+          flex-grow: 999;
+        }
+        .info-link-item-wrap {
+          width: 33.333333%;
           display: flex;
+          flex-grow: 1;
           flex-direction: column;
           cursor: pointer;
           background: #FFFFFF;
-          border: 1px solid #CED7E5;
-          border-radius: 0.05em /* 5/100 */;
-          padding: 0.1em /* 10/100 */ 0.2em /* 20/100 */;
-          & ~ .info-link-item {
-            margin-left: 0.3em /* 30/100 */;
-          }
-          &:hover {
-            background: #dfd;
-          }
-          &.unable {
-            background: #fff!important;
-            cursor: default;
-          }
-          .link-item-basic {
-            display: flex;
-            align-items: center;
-            width: 100%;
-            .item-basic-avatar {
-              width: 0.66em /* 66/100 */;
-              height: 0.66em /* 66/100 */;
-              border-radius: 100%;
-              display: flex;
-              margin-right: 0.04em /* 4/100 */;
-              img {
-                width: 100%;
-                height: 100%;
-                object-fit: contain;
-              }
+          padding: 0.1em /* 30/100 */;
+          .info-link-item {
+            padding: 0.1em /* 10/100 */ 0.2em /* 20/100 */;
+            border: 1px solid #CED7E5;
+            border-radius: 0.05em /* 5/100 */;
+            height: 100%;
+            &:hover {
+              background: #dfd;
             }
-            .item-basic-name {
+            &.unable {
+              background: #fff!important;
+              cursor: default;
+            }
+            .link-item-basic {
               display: flex;
               align-items: center;
-              color: #202020;
-              label {
-                font-size: 0.2em /* 20/100 */;
-                font-family: Arial;
-                font-weight: bold;
+              width: 100%;
+              .item-basic-avatar {
+                width: 0.66em /* 66/100 */;
+                height: 0.66em /* 66/100 */;
+                border-radius: 100%;
+                display: flex;
+                margin-right: 0.04em /* 4/100 */;
+                img {
+                  width: 100%;
+                  height: 100%;
+                  object-fit: contain;
+                }
               }
-              .basic-name-extra {
-                margin-left: 1/0.2*.4em;
+              .item-basic-name {
+                display: flex;
+                align-items: center;
+                color: #202020;
+                label {
+                  font-size: 0.2em /* 20/100 */;
+                  font-family: Arial;
+                  font-weight: bold;
+                }
+                .basic-name-extra {
+                  margin-left: 1/0.2*.4em;
+                }
               }
             }
-          }
-          .link-item-desc {
-            margin-top: 1/0.19*0.18em /* 18/100 */;
-            font-size: 0.19em /* 19/100 */;
-            font-family: Arial;
-            font-weight: 400;
-            color: #202020;
+            .link-item-desc {
+              margin-top: 1/0.19*0.18em /* 18/100 */;
+              font-size: 0.19em /* 19/100 */;
+              font-family: Arial;
+              font-weight: 400;
+              color: #202020;
+            }
           }
         }
       }
