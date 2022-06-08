@@ -506,6 +506,7 @@ export default {
       this.$logger.info('handleEditGoogleSlide', this.form.presentationId)
       let res
       if (this.form.presentationId) {
+        this.form.slideEditing = true
         res = await this.save()
         if (res.code === 0) {
           window.open('https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit', '_blank')
