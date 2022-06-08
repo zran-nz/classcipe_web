@@ -61,7 +61,7 @@
               </a-space>
             </div>
             <div class='buy-button'>
-              <a-button class='buy-now' type="danger" shape='round'>
+              <a-button class='buy-now' type="danger" shape='round' @click='handleDuplicateItem' :loading='copyLoading'>
                 Buy now
               </a-button>
             </div>
@@ -228,7 +228,7 @@ import { PDContentQueryById } from '@/api/pdContent'
 import { TaskQueryById } from '@/api/task'
 import { VideoQueryById } from '@/api/video'
 import { TemplatesGetPublishedPresentation } from '@/api/template'
-import { GetAssociate } from '@/api/teacher'
+import { Duplicate, GetAssociate } from '@/api/teacher'
 import { mapState } from 'vuex'
 import * as logger from '@/utils/logger'
 import { formatLocalUTC } from '@/utils/util'
@@ -236,6 +236,7 @@ import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
 import { QueryByClassInfoSlideId } from '@/api/classroom'
 import { FavoritesAdd } from '@/api/favorites'
 import CardListItem from '@/components/Preview/CardListItem'
+import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 
 export default {
   name: 'ContentPreviewDetail',
@@ -250,7 +251,7 @@ export default {
       required: true
     }
   },
-  mixins: [ PptPreviewMixin ],
+  mixins: [PptPreviewMixin, GoogleAuthCallBackMixin],
   data() {
     return {
       contentLoading: true,
@@ -265,7 +266,8 @@ export default {
       associateList: [],
       favoriteFlag: false,
 
-      typeMap: this.$classcipe.typeMap
+      typeMap: this.$classcipe.typeMap,
+      copyLoading: false
     }
   },
   computed: {
@@ -458,6 +460,29 @@ export default {
       } else if (this.content.type === this.typeMap.video) {
         window.open('/teacher/video-redirect/' + this.content.id, '_blank')
       }
+    },
+
+    handleDuplicateItem () {
+      this.$logger.info('handleDuplicateItem', this.content)
+      this.$confirm({
+        title: 'Confirm to buy',
+        content: 'Are you sure to buy ' + this.content.name + ' ?',
+        centered: true,
+        onOk: () => {
+          this.copyLoading = true
+          Duplicate({ id: this.content.id, type: this.content.type }).then((response) => {
+            if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
+              this.$logger.info('Duplicate response', response)
+              this.$message.success('Copy successfully')
+              this.$router.push({ path: '/teacher/main/created-by-me' })
+            } else {
+              this.currentMethodName = 'handleDuplicateItem'
+            }
+          }).finally(() => {
+            this.copyLoading = false
+          })
+        }
+      })
     }
   }
 }

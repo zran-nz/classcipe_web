@@ -1042,7 +1042,7 @@ export default {
       this.$logger.info('handleEditGoogleSlide', this.form.presentationId)
       let res
       if (this.form.presentationId) {
-        //设置正在编辑状态，my content根据这个提示是否先save再排课
+        // 设置正在编辑状态，my content根据这个提示是否先save再排课
         this.form.slideEditing = true
         res = await this.save()
         if (res.code === 0) {
