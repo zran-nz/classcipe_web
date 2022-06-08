@@ -34,6 +34,7 @@ import UserProfileAvatar from '@/components/User/UserProfileAvatar'
 import ContentItem from '@/components/MyContentV2/ContentItem'
 import { librarySearch } from '@/api/v2/library'
 import CommonNoData from '@/components/Common/CommonNoData'
+import { QueryContentsFilter } from '@/api/library'
 
 export default {
   name: 'LibrarySearch',
@@ -63,10 +64,11 @@ export default {
   methods: {
     handleDoSearch () {
       this.searching = true
-      librarySearch({
-        key: this.searchKeyword
-      }).then(res => {
-        this.list = res.result || []
+      QueryContentsFilter({
+        searchKey: this.searchKeyword
+      }).then(response => {
+        this.$logger.info('QueryContentsFilter result : ', response)
+        this.dataList = response.result ? response.result : []
       }).finally(() => {
         this.searching = false
       })

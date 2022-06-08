@@ -79,6 +79,7 @@ export const asyncRouterMap = [
             path: '/teacher/library/search/:keyword',
             name: 'LibrarySearch',
             component: () => import('@/views/teacher/LibrarySearch'),
+            props: true,
             meta: { title: 'menu.librarySearch', keepAlive: true, permission: ['teacher'], fullLayout: true }
           },
           {
