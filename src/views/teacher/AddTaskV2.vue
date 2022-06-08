@@ -1367,9 +1367,9 @@ export default {
     handleViewCollaborate() {
       this.showHistoryLoading = true
       this.$logger.info('handleViewCollaborate')
-      if(this.currentRightModule === this.rightModule.collaborate){
+      if (this.currentRightModule === this.rightModule.collaborate) {
         this.handleDisplayRightModule()
-      }else{
+      } else {
         this.currentRightModule = this.rightModule.collaborate
       }
       this.showHistoryLoading = true

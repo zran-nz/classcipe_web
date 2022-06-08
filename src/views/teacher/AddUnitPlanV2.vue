@@ -1684,9 +1684,9 @@ export default {
     // 每次点击都重新加载一下最新数据
     handleViewCollaborate() {
       this.$logger.info('handleViewCollaborate')
-      if(this.currentRightModule === this.rightModule.collaborate){
+      if (this.currentRightModule === this.rightModule.collaborate) {
         this.handleDisplayRightModule()
-      }else{
+      } else {
         this.currentRightModule = this.rightModule.collaborate
       }
       this.showHistoryLoading = true
