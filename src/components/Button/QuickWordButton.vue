@@ -22,9 +22,9 @@
             :infinite-scroll-distance="10"
             v-if="result && result.length > 0"
           >
-            <div class="quick-word-item" v-for="(item) in result" :key="'quickWord_'+item.id">
-              <a-tooltip :title="item.hint">
-                <a @click="choose(item)">{{ item.name }}</a>
+            <div class="quick-word-item" v-for="(item) in result" :key="'quickWord_'+item">
+              <a-tooltip :title="item">
+                <a @click="choose(item)">{{ item }}</a>
               </a-tooltip>
             </div>
           </div>
@@ -73,9 +73,19 @@ export default {
       type: Array,
       default: () => []
     },
+    // 搜索接口api
     loadApi: {
       type: Function,
       default: () => Promise.resolve()
+    },
+    // 缓存接口
+    cacheApi: {
+      type: Function,
+      default: () => Promise.resolve()
+    },
+    cacheKey: {
+      type: String,
+      default: ''
     },
     dataCondition: {
       type: Object,
@@ -111,32 +121,31 @@ export default {
     }
   },
   methods: {
+    // 1、这个是获取平台知识点标签，只要获取一次就缓存，不刷新页面不用重复获取
+    // 2、关键词搜索优先过滤显示平台的标签数据，（这个时候不需要请求搜索接口）
+    // 3、关键词过滤的数据少于3条的时候，才会调用搜索接口，把搜索结果追加到当前结果下
     async loadData() {
       this.loading = true
-      const res = await this.loadApi({
-        key: this.word
-      })
-      // if (res.success) {
-      //   if (this.dataCondition) {
-      //     this.result = res.result.filter(item => {
-      //       let isTrue = true
-      //       for (const key in this.dataCondition) {
-      //         if (isTrue) {
-      //           isTrue = (item[key] === this.dataCondition[key])
-      //         }
-      //       }
-      //       return isTrue
-      //     })
-      //   } else {
-      //     this.result = res.data
-      //   }
-      // }
-      this.result = res.map(item => ({
-        name: item,
-        id: item
-      }))
+      const userId = this.$store.getters.userInfo.id
+      if (this.cacheKey && this.cacheApi) {
+        const cachedatas = sessionStorage.getItem(userId + this.cacheKey)
+        if (cachedatas) {
+          this.result = JSON.parse(cachedatas)
+        } else {
+          const cacheds = await this.cacheApi({})
+          sessionStorage.setItem(userId + this.cacheKey, JSON.stringify(cacheds))
+          this.result = cacheds.concat()
+        }
+      }
+      this.result = this.result.filter(item => item.toLocaleLowerCase().indexOf(this.word.toLocaleLowerCase()) > -1)
+      if (this.result.length < 4) {
+        const res = await this.loadApi({
+          key: this.word
+        })
+        this.result = this.result.concat(res)
+      }
       this.loading = false
-      return res
+      return this.result
     },
     handleInfiniteOnLoad() {
       // console.log(111)
@@ -163,12 +172,12 @@ export default {
     choose(item) {
       this.visible = false
       this.$emit('sub', {
-        word: item.name,
-        parentId: item.bloomTagId,
-        tag: item.bloomTag,
-        bloomTag: item.bloomTag,
-        knowledgeDimension: item.knowledgeDimension,
-        id: item.id
+        word: item,
+        // parentId: item.bloomTagId,
+        // tag: item.bloomTag,
+        // bloomTag: item.bloomTag,
+        // knowledgeDimension: item.knowledgeDimension,
+        id: item
       })
     },
     doCreate() {

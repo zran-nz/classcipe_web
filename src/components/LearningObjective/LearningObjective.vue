@@ -212,6 +212,8 @@
             @sub="res => handleQuickWordSet(res, 'commandTerms')"
             :quickWord="quickWord"
             :loadApi="termsSearch"
+            :cacheApi="termsPubList"
+            cacheKey="TERMS_PUBLIST"
             @changeWord="res => this.commandTermForm.name = res"
           >
             <template v-slot:create>
@@ -240,6 +242,8 @@
             @sub="res => handleQuickWordSet(res, 'knowledgeTags')"
             :quickWord="quickWord"
             :loadApi="dimensionsSearch"
+            :cacheApi="dimensionsPubList"
+            cacheKey="DIMENSIONS_PUBLIST"
           >
             <template v-slot:create>
               <div class="quick-word-sub">

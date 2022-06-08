@@ -1,20 +1,20 @@
 <template>
   <div class='my-content' :style="{'font-size': fontSize}">
     <div class="account-info">
-      <div class="account-info-header">
+      <div class="account-info-header" v-if="currentSchool.id !== '0'">
         <div class="info-header-avatar">
           <img src="~@/assets/icons/library/default-avatar.png"/>
         </div>
         <div class="info-header-detail">
           <div class="header-detail-title">
-            Stanford University
+            {{ currentSchool.schoolName }}
           </div>
           <div class="header-detail-plan">
             <div class="plan-name">
-              {{ info.planInfo.planName }}
+              {{ info.planInfo.planName }} {{ planStatus }}
             </div>
             <div class="plan-deadline">
-              Plan ends in {{ expiredDay }}
+              {{ expiredDay }}
             </div>
           </div>
           <div class="header-detail-storage">
@@ -22,13 +22,16 @@
             <div class='storage-info-text'>
               {{ consumedSize | sizeFormat }} of {{ totalSize | sizeFormat }}
             </div>
+            <div class="storage-info-pay" v-if="info.planInfo.planUser.buyStatus === 2">
+              <a-button type='primary'>Pay</a-button>
+            </div>
           </div>
           <div class="header-detail-opt">
             <a class="">Upgrade</a>
           </div>
         </div>
       </div>
-      <a-divider></a-divider>
+      <a-divider v-if="currentSchool.id !== '0'"></a-divider>
       <div class="account-info-self">
         <div class="info-self-avatar">
           <img src="~@/assets/icons/library/default-avatar.png"/>
@@ -56,20 +59,34 @@
         <div class="account-info-link">
           <div
             class="info-link-item"
+            :class="{'unable': !link.url}"
             v-for="(link, linkIndex) in item.links"
             :key="'link_'+linkIndex"
             :style="{'visibility': link.title ? 'visible' : 'hidden'}"
+            @click="handleGoPage(link.url)"
           >
             <div class="link-item-basic">
               <div class="item-basic-avatar">
                 <img :src="link.avatar"/>
               </div>
-              <div class="item-basic-name">{{ link.title }}</div>
+              <div class="item-basic-name">
+                <label for="">{{ link.title }}</label>
+                <label for="" class="basic-name-extra" v-if="link.extraKey"> {{ getExtra(link.extraKey) }} </label>
+              </div>
             </div>
             <div class="link-item-desc">
               {{ link.desc }}
             </div>
           </div>
+          <template v-if="item.links.length < lineCounts">
+            <div
+              class="info-link-item"
+              v-for="(link, linkIndex) in (lineCounts - item.links.length)"
+              :key="'link_add_'+linkIndex"
+              :style="{'visibility': 'hidden'}"
+            >
+            </div>
+          </template>
         </div>
       </div>
     </div>
@@ -108,6 +125,7 @@ export default {
       unit: 1024 * 1024 * 1024,
       loading: false,
       showSelfEdit: false,
+      lineCounts: 3,
       selfEditModel: {
         name: ''
       },
@@ -117,17 +135,20 @@ export default {
           {
             avatar: SchoolInfoPng,
             title: 'School info',
-            desc: ''
+            desc: '',
+            url: ''
           },
           {
             avatar: PaymentsPng,
             title: 'Payments',
-            desc: 'Review payments, payouts, coupons,gift cards and taxes'
+            desc: 'Review payments, payouts, coupons,gift cards and taxes',
+            url: ''
           },
           {
             avatar: OrdersPng,
             title: 'Orders',
-            desc: ''
+            desc: '',
+            url: ''
           }
         ]
       }, {
@@ -136,17 +157,23 @@ export default {
           {
             avatar: ClassesPng,
             title: 'Classes',
-            desc: ''
+            extraKey: 'classCount',
+            desc: '',
+            url: ''
           },
           {
             avatar: TeachersPng,
             title: 'Teachers',
-            desc: 'Review payments, payouts, coupons,gift cards and taxes'
+            extraKey: 'teacherCount',
+            desc: 'Review payments, payouts, coupons,gift cards and taxes',
+            url: ''
           },
           {
             avatar: StudentsPng,
             title: 'Students',
-            desc: ''
+            extraKey: 'studentCount',
+            desc: '',
+            url: ''
           }
         ]
       }, {
@@ -155,17 +182,14 @@ export default {
           {
             avatar: SpaceManagePng,
             title: 'Space Manage',
-            desc: ''
+            desc: '',
+            url: ''
           },
           {
             avatar: RoleManagePng,
             title: 'Role Manage',
-            desc: 'Review payments, payouts, coupons,gift cards and taxes'
-          },
-          {
-            avatar: '',
-            title: '',
-            desc: ''
+            desc: 'Review payments, payouts, coupons,gift cards and taxes',
+            url: ''
           }
         ]
       }, {
@@ -174,17 +198,20 @@ export default {
           {
             avatar: AcademicPng,
             title: 'Academic Term',
-            desc: ''
+            desc: '',
+            url: '/teacher/managing/academic'
           },
           {
             avatar: TagsPng,
             title: 'Tags setting',
-            desc: 'Review payments, payouts, coupons,gift cards and taxes'
+            desc: 'Review payments, payouts, coupons,gift cards and taxes',
+            url: ''
           },
           {
             avatar: PlanningPng,
             title: 'Planning Format',
-            desc: ''
+            desc: '',
+            url: ''
           }
         ]
       }, {
@@ -193,17 +220,14 @@ export default {
           {
             avatar: AttendancePng,
             title: 'Attendance',
-            desc: ''
+            desc: '',
+            url: ''
           },
           {
             avatar: CurriculumPng,
             title: 'Curriculum',
-            desc: 'Review payments, payouts, coupons,gift cards and taxes'
-          },
-          {
-            avatar: '',
-            title: '',
-            desc: ''
+            desc: 'Review payments, payouts, coupons,gift cards and taxes',
+            url: '/teacher/managing/curriculum'
           }
         ]
       }]
@@ -212,7 +236,7 @@ export default {
   computed: {
     ...mapState({
       info: state => state.user.info,
-      school: state => state.user.school,
+      currentSchool: state => state.user.currentSchool,
       userMode: state => state.app.userMode
     }),
     consumedSize() {
@@ -225,12 +249,22 @@ export default {
       return Math.round(this.consumedSize / this.totalSize * 100)
     },
     expiredDay() {
-      if (this.info.planInfo && this.info.planInfo.planExpire) {
-        const days = this.info.planInfo ? this.info.planInfo.planExpire : 0
+      if (this.info.planInfo && this.info.planInfo.planUser && this.info.planInfo.planUser.buyStatus === 1) {
+        const days = this.info.planInfo.planExpire ? this.info.planInfo.planExpire : 0
         const unit = EXPIRE_UNIT.find(unit => unit.value === this.info.planInfo.planExpireUnit).label
-        return `${days} ${unit}${days > 1 ? 's' : ''}`
+        return `Plan ends in ${days} ${unit}${days > 1 ? 's' : ''}`
       } else {
-        return 'future'
+        const remain = 'TODO'
+        return `Balance of $${remain} unpaid`
+      }
+    },
+    planStatus() {
+      if (this.info.planInfo && this.info.planInfo) {
+        const isExpired = this.info.planInfo.flag !== 1 ? '( Plan expired )' : ''
+        const isUnpay = '' // this.info.planInfo.planUser.buyStatus !== 1 ? '( Unpaid )' : ''
+        return isExpired ? `${isExpired}` : isUnpay ? `${isUnpay}` : ''
+      } else {
+        return ''
       }
     }
   },
@@ -275,6 +309,18 @@ export default {
     },
     handleSelfEditCheck() {
       this.showSelfEdit = false
+    },
+    getExtra(key) {
+      if (this.info && this.info.planInfo) {
+        return `( ${this.info.planInfo[key]} )`
+      } else {
+        return ''
+      }
+    },
+    handleGoPage(url) {
+      if (url) {
+        this.$router.push({ path: url })
+      }
     }
   }
 
@@ -348,6 +394,10 @@ export default {
             font-family: Arial;
             font-weight: 400;
             color: #414954;
+          }
+          .storage-info-pay {
+            font-size: 12px;
+            margin-left: 20px;
           }
         }
         .header-detail-opt {
@@ -443,6 +493,10 @@ export default {
           &:hover {
             background: #dfd;
           }
+          &.unable {
+            background: #fff!important;
+            cursor: default;
+          }
           .link-item-basic {
             display: flex;
             align-items: center;
@@ -460,10 +514,17 @@ export default {
               }
             }
             .item-basic-name {
-              font-size: 0.2em /* 20/100 */;
-              font-family: Arial;
-              font-weight: bold;
+              display: flex;
+              align-items: center;
               color: #202020;
+              label {
+                font-size: 0.2em /* 20/100 */;
+                font-family: Arial;
+                font-weight: bold;
+              }
+              .basic-name-extra {
+                margin-left: 1/0.2*.4em;
+              }
             }
           }
           .link-item-desc {
