@@ -3,22 +3,25 @@
     class='cc-content-preview-drawer'
     :visible='true'
     :title='null'
-    width='800px'
+    width='700px'
     :bodyStyle="{ padding: 0, height: '100%' }"
     @close='handleClose'
   >
     <div class='content-preview'>
-      <iframe :src="iframeSrc" class='preview-iframe' id='library-iframe' v-if='iframeSrc'></iframe>
+      <content-preview-detail
+        :content-type='contentType'
+        :content-id='contentId' />
     </div>
   </a-drawer>
 </template>
 
 <script>
 
-import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
+import ContentPreviewDetail from '@/components/Preview/ContentPreviewDetail'
 
 export default {
   name: 'ContentPreview',
+  components: { ContentPreviewDetail },
   props: {
    contentId: {
      type: String,
@@ -29,40 +32,11 @@ export default {
      required: true
    }
   },
-  computed: {
-    iframeSrc() {
-      if (this.baseUrl) {
-        return this.baseUrl + '/v2/iframe/detail/' + this.contentType + '/' + this.contentId
-      }
-      return null
-    }
-  },
   data() {
     return {
-      baseUrl: null
     }
-  },
-  created() {
-    const host = window.location.host
-    if (host.indexOf('localhost') !== -1) {
-      this.baseUrl = 'https://dev.classcipe.com'
-    } else if (host.indexOf('dev.classcipe.com') !== -1) {
-      this.baseUrl = 'https://dev.classcipe.com'
-    } else if (host.indexOf('my.classcipe.com') !== -1) {
-      this.baseUrl = 'https://my.classcipe.com'
-    } else {
-      this.$logger.warn('ContentPreview: unknown host', host)
-    }
-    ClasscipeEventBus.$on(ClasscipeEvent.LIBRARY_IFRAME_EVENT, this.handleIframeEvent)
-  },
-  beforeDestroy() {
-    ClasscipeEventBus.$off(ClasscipeEvent.LIBRARY_IFRAME_EVENT, this.handleIframeEvent)
   },
   methods: {
-
-    async handleIframeEvent (data) {
-      this.$logger.info('handleIframeEvent', JSON.stringify(data))
-    },
     handleClose () {
       this.$emit('close')
     }
