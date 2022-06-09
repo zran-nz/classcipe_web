@@ -51,11 +51,27 @@
       :content-type='previewType'
       v-if='previewVisible'
       @close='handlePreviewClose' />
+
+    <a-modal
+      v-model='previewPptVisible'
+      :maskClosable='false'
+      :keyboard='false'
+      :footer='null'
+      width='700px'
+      @close='handlePreviewClose'
+      destroyOnClose>
+      <div class='content-preview-detail' ref="container">
+        <div class='preview-carousel-wrapper'>
+          <preview-carousel :page-object-list='pptThumbnailList' v-if='previewPptVisible' />
+        </div>
+      </div>
+    </a-modal>
   </div>
 </template>
 
 <script>
 
+import PreviewCarousel from '@/components/Preview/PreviewCarousel'
 import { FilterTemplates, recommendTemplates } from '@/api/template'
 import CustomSearchInput from '@/components/Common/CustomSearchInput'
 import ContentFilter from '@/components/MyContentV2/ContentFilter'
@@ -75,7 +91,7 @@ const sourceType = {
 
 export default {
   name: 'SlideSelectList',
-  components: { ContentPreview, SlideViewer, CommonNoData, ContentFilter, CustomSearchInput },
+  components: { ContentPreview, SlideViewer, CommonNoData, ContentFilter, CustomSearchInput, PreviewCarousel },
   props: {
     sourceId: {
       type: String,
@@ -117,7 +133,10 @@ export default {
 
       previewCurrentId: null,
       previewType: null,
-      previewVisible: false
+      previewVisible: false,
+
+      previewPptVisible: false,
+      pptThumbnailList: []
     }
   },
   created() {
@@ -134,9 +153,15 @@ export default {
 
     handlePreviewDetail (data) {
       this.$logger.info('handlePreviewDetail', data)
-      this.previewCurrentId = data.id
-      this.previewType = data.type
-      this.previewVisible = true
+      if (data.type) {
+        this.previewCurrentId = data.id
+        this.previewType = data.type
+        this.previewVisible = true
+      } else {
+        this.$logger.info('previewPpt')
+        this.pptThumbnailList = data.thumbnailList
+        this.previewPptVisible = true
+      }
     },
 
     handlePreviewClose () {
@@ -144,6 +169,9 @@ export default {
       this.previewCurrentId = ''
       this.previewType = ''
       this.previewVisible = false
+
+      this.previewPptVisible = false
+      this.pptThumbnailList = []
     },
 
     handleSearchByInputFilter (data) {
