@@ -3,7 +3,7 @@
     <fixed-form-header>
       <template v-slot:header>
         <form-header
-          title='Split task'
+          title='Create sub-task'
           :form='form'
           :spin='saving'
           :share-status='shareStatus'
@@ -435,7 +435,7 @@
 import { typeMap } from '@/const/teacher'
 import { FindSourceOutcomes, GetAssociate, GetMyGrades, GetReferOutcomes } from '@/api/teacher'
 import { TemplatesGetPresentation } from '@/api/template'
-import { SplitTask } from '@/api/task'
+import { SplitTask, TaskQueryById } from '@/api/task'
 import Collaborate from '@/components/UnitPlan/Collaborate'
 import CustomTagV2 from '@/components/CustomTag/CustomTagV2'
 import CollaborateUserList from '@/components/Collaborate/CollaborateUserList'
@@ -699,6 +699,40 @@ export default {
       }).catch((e) => {
         this.$logger.error(e)
         this.$message.error(this.$t('teacher.add-task.init-data-failed'))
+      })
+
+      TaskQueryById({
+        id: this.parentTaskId
+      }).then(response => {
+        if (response.code === 0) {
+          const taskData = response.result
+          if (!taskData.materialList) {
+            taskData.materialList = []
+          }
+
+          this.materialListFlag = taskData.materialList.length > 0
+          // 填充自定义字段
+          const customFieldData = taskData.customFieldData ? JSON.parse(taskData.customFieldData) : null
+          const displayCustomFieldData = {}
+          if (customFieldData) {
+            // 只显示配置中存在的字段,用id做key，改名后依旧可以使用老数据
+            this.$store.getters.formConfigData.taskCustomList.forEach(customField => {
+              if (customFieldData.hasOwnProperty(customField.id)) {
+                displayCustomFieldData[customField.id] = customFieldData[customField.id]
+              } else {
+                displayCustomFieldData[customField.id] = ''
+              }
+            })
+          } else {
+            this.$store.getters.formConfigData.taskCustomList.forEach(customField => {
+              displayCustomFieldData[customField.id] = ''
+            })
+          }
+          this.$logger.info('displayCustomFieldData', displayCustomFieldData)
+          taskData.customFieldData = displayCustomFieldData
+          delete taskData.id
+          this.form = taskData
+        }
       })
       this.loadThumbnail(false)
     },

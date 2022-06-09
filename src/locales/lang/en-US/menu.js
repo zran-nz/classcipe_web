@@ -6,7 +6,7 @@ export default {
     'menu.unit-plan': 'Unit plan',
     'menu.materials': 'Materials',
     'menu.task': 'Task',
-    'menu.splitTask': 'Split Task',
+    'menu.splitTask': 'Create sub-task',
     'menu.lessons': 'Lessons',
     'menu.evaluation': 'Assessment tool',
     'menu.my-class': 'My Class',
