@@ -29,13 +29,13 @@ paid to your account upon each purchase.">
         <a-switch size='small' v-model='enablePrice'></a-switch>
         <div class='price-input'>
           <div class='price-label'>Price</div>
-          <a-input v-model='myPrice' type='number' class='cc-form-input dollar-price-input' :disabled='!enablePrice' suffix='$' />
+          <a-input v-model='myPrice' type='number' class='cc-form-input dollar-price-input' :disabled='!enablePrice' prefix='$' />
         </div>
       </a-space>
     </div>
     <div class='action-bar'>
       <a-space>
-        <a-button class='cc-round-button' type='primary' @click='handleConfirmAndSplitTask'>Confirm & Split task</a-button>
+        <a-button class='cc-round-button' type='primary' @click='handleConfirmAndSplitTask'>Create sub-task</a-button>
         <a-button class='cc-round-button' type='primary' @click='handleConfirm'>Confirm</a-button>
       </a-space>
     </div>
