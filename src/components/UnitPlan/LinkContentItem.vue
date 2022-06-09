@@ -23,7 +23,7 @@
             <div class='type-icon'>
               <content-type-icon :type="content.type" />
             </div>
-            <div class='name'>
+            <div class='name cc-ellipsis'>
               {{ content.name || 'Untitled ' + contentTypeName }}
             </div>
           </div>
@@ -271,7 +271,7 @@ export default {
   }
 
   .detail {
-    flex: 1;
+    width: calc(100% - 240px);
     display: flex;
     flex-direction: column;
     padding-left: 20px;
@@ -280,10 +280,12 @@ export default {
       display: flex;
       flex-direction: row;
       justify-content: space-between;
-      flex-grow: 1;
+      width: 100%;
 
       .base-info {
+        width: 100%;
         .name-type {
+          width: 100%;
           display: flex;
           justify-content: flex-start;
           align-items: center;
@@ -298,7 +300,6 @@ export default {
             color: #17181A;
             cursor: pointer;
           }
-
         }
 
         .subject {

@@ -42,24 +42,6 @@
         </draggable>
       </template>
     </div>
-
-    <a-drawer
-      :closable="false"
-      :visible="previewVisible"
-      destroyOnClose
-      placement="right"
-      width="1000px"
-      @close="previewVisible = false"
-    >
-      <div class="preview-wrapper-row">
-        <div class="view-back">
-          <a-button type='primary' class='preview-back-btn' shape='round' @click="previewVisible = false"><a-icon type="left" :style="{'font-size': '12px'}" />Back</a-button>
-        </div>
-        <div v-if="previewCurrentId && previewType" class="detail-wrapper">
-          <common-preview-v2 :id="previewCurrentId" :type="previewType" />
-        </div>
-      </div>
-    </a-drawer>
   </div>
 </template>
 
@@ -70,7 +52,6 @@ import { FindMyContent } from '@/api/teacher'
 import * as logger from '@/utils/logger'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import DownloadedSvg from '@/assets/libraryv2/downloaded.svg?inline'
-import CommonPreviewV2 from '@/components/Common/CommonPreviewV2'
 import LinkContentItem from '@/components/UnitPlan/LinkContentItem'
 import CustomSearchInput from '@/components/Common/CustomSearchInput'
 import ContentFilter from '@/components/MyContentV2/ContentFilter'
@@ -81,7 +62,7 @@ import { mapState } from 'vuex'
 
 export default {
   name: 'LinkContentList',
-  components: { CommonNoData, ContentFilter, CustomSearchInput, LinkContentItem, ContentTypeIcon, draggable, DownloadedSvg, CommonPreviewV2 },
+  components: { CommonNoData, ContentFilter, CustomSearchInput, LinkContentItem, ContentTypeIcon, draggable, DownloadedSvg },
   props: {
     filterTypes: {
       type: Array,
