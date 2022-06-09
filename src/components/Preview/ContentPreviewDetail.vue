@@ -6,24 +6,8 @@
     </div>
     <div class='preview-main-content' v-if='content'>
       <a-row class='content-info-item'>
-        <a-col span='18' class='cc-ellipsis cc-info-left'>
+        <a-col span='24' class='cc-ellipsis cc-info-left'>
           <h3>{{ content.name || 'Untitled' }}</h3>
-        </a-col>
-        <a-col span='6' class='cc-info-right'>
-          <a-space :size='20'>
-            <div class='start-it' @click='handleFavorite'>
-              <div class='favorite'>
-                <a-icon type="heart" :style="{ color: '#fb0' }" theme="filled" v-if='favoriteFlag' />
-                <a-icon type="heart" v-if='!favoriteFlag' />
-              </div>
-              <div class='favorite-num'>
-                {{ content.favoriteCount || 15 }}
-              </div>
-            </div>
-            <div class='sales'>
-              Sales {{ content.sales || 16 }}
-            </div>
-          </a-space>
         </a-col>
       </a-row>
 
@@ -44,6 +28,22 @@
                   </template>
                   <a-rate :default-value="5" disabled class='cc-rate'/>
                 </a-tooltip>
+                <div class='star-info'>
+                  <a-space :size='15'>
+                    <div class='start-it' @click='handleFavorite'>
+                      <div class='favorite'>
+                        <a-icon type="heart" :style="{ color: '#fb0' }" theme="filled" v-if='favoriteFlag' />
+                        <a-icon type="heart" v-if='!favoriteFlag' />
+                      </div>
+                      <div class='favorite-num'>
+                        {{ content.favoriteCount || 15 }}
+                      </div>
+                    </div>
+                    <div class='sales'>
+                      Sales {{ content.sales || 16 }}
+                    </div>
+                  </a-space>
+                </div>
               </div>
             </div>
           </div>
@@ -535,7 +535,7 @@ export default {
   justify-content: flex-start;
 
   .favorite-num {
-    padding-left: 5px;
+    padding-left: 3px;
     font-weight: 400;
     color: #080B13;
   }
@@ -565,11 +565,10 @@ export default {
     height: 55px;
     display: flex;
     flex-direction: row;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
   }
   .author-info-detail {
-    height: 55px;
     padding-left: 10px;
 
     .author-name {
@@ -697,5 +696,25 @@ export default {
       margin-right: 10px;
     }
   }
+}
+
+.rate-star {
+  margin-top: 5px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 20px;
+  ul {
+    margin-bottom: 5px;
+  }
+}
+
+.star-info {
+  margin-left: 15px;
+  font-size: 13px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 20px;
 }
 </style>
