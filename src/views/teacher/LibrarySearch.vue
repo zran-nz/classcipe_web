@@ -32,7 +32,6 @@
 import GlobalSearchInput from '@/components/GlobalSearch/GlobalSearchInput'
 import UserProfileAvatar from '@/components/User/UserProfileAvatar'
 import ContentItem from '@/components/MyContentV2/ContentItem'
-import { librarySearch } from '@/api/v2/library'
 import CommonNoData from '@/components/Common/CommonNoData'
 import { QueryContentsFilter } from '@/api/library'
 
