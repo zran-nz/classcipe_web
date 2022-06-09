@@ -94,6 +94,8 @@
                     :show-edit-google-slide='true'
                     :default-thumbnail-list='thumbnailList'
                     :selected-template-list='form.selectedTemplateList'
+                    :empty-tips="'No slides created yet, click “Edit google slide” to create the first page!'"
+                    :empty-height="'350px'"
                     @edit-google-slide='handleEditGoogleSlide'
                   />
                 </custom-form-item>

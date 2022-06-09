@@ -185,7 +185,8 @@
                       :curriculumId='form.curriculumId'
                       :learning-objectives='form.learnOuts'
                       :subject-list='form.subjectList'
-                      :year-list='form.yearList' />
+                      :year-list='form.yearList'
+                      :language-list='form.languageList' />
                   </custom-form-item>
                 </div>
 
@@ -602,6 +603,7 @@ export default {
         curriculumId: null,
         learnOuts: [],
         yearList: [],
+        languageList: [],
         subjectList: [],
         selfOuts: [],
         showSelect: false,
@@ -1598,6 +1600,7 @@ export default {
       this.form.curriculumId = data.curriculumId
       this.form.subjectList = data.selectedSubjectList
       this.form.yearList = data.selectedYearList
+      this.form.languageList = data.selectedLanguageList
     },
 
     handleUpdateBySubTaskSetting (data) {

@@ -58,6 +58,7 @@ export default {
         startDate: null,
         subjectList: [],
         yearList: [],
+        languageList: [],
         teachSessionNow: 0,
         zoom: 1
       }
@@ -90,6 +91,7 @@ export default {
           this.scheduleReq.selectTeachers = scheduleConfig.selectTeachers
           this.scheduleReq.yearList = scheduleConfig.yearList
           this.scheduleReq.subjectList = scheduleConfig.subjectList
+          this.scheduleReq.languageList = scheduleConfig.languageList
           this.scheduleReq.startDate = scheduleConfig.startDate
           this.scheduleReq.endDate = scheduleConfig.endDate
           this.$logger.info('schoolScheduleInfo', scheduleConfig)

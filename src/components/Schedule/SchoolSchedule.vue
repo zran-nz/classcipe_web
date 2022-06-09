@@ -104,7 +104,8 @@ export default {
       teacherFilterType: 1, // 1: all, 2: teacher-filter
       filterConfig: {
         yearList: [],
-        subjectList: []
+        subjectList: [],
+        languageList: []
       },
       endData: null,
       startDate: null,
@@ -127,6 +128,7 @@ export default {
       return {
         selectTeachers: this.getSelectTeachersByFilter(),
         yearList: this.filterConfig.yearList,
+        languageList: this.filterConfig.languageList,
         subjectList: this.filterConfig.subjectList,
         startDate: this.startDate,
         endDate: this.endData

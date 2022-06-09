@@ -65,6 +65,28 @@
               </div>
             </div>
           </div>
+          <div class='select-item'>
+            <a-select
+              :getPopupContainer="trigger => trigger.parentElement"
+              v-model='selectedLanguage'
+              placeholder='Language'
+              @select='handleSelectLanguage'
+              class='cc-select cc-lo-select-small'>
+              <a-select-option :value='language' v-for='language in languageOptions' :key='language'>
+                {{ language }}
+              </a-select-option>
+            </a-select>
+            <div class='selected-label' v-if='filterConfig.selectedLanguageList'>
+              <div
+                class='selected-label-item'
+                v-for='language in filterConfig.selectedLanguageList'
+                :key='language'>
+                <a-tag closable class='label-language' @close="handleRemoveLanguage(language)">
+                  <div class='tag-content'>{{ language }}</div>
+                </a-tag>
+              </div>
+            </div>
+          </div>
         </div>
         <div class='recommend-button'>
           <a-badge dot v-if='recommendDataList.length'>
@@ -327,6 +349,10 @@ export default {
       type: Array,
       default: () => []
     },
+    languageList: {
+      type: Array,
+      default: () => []
+    },
     recommendDataList: {
       type: Array,
       default: () => []
@@ -357,13 +383,19 @@ export default {
         'Year 10'
       ],
 
+      languageOptions: [
+        'Arabic', 'Auslan', 'Chinese', 'French', 'German', 'Hindi', 'Indonesian', 'Italian', 'Japanese', 'Korean', 'Modern Greek', 'Spanish', 'Turkish', 'Vietnamese', 'English as second language', 'Urdu', 'Malay', 'Maori'
+      ],
+
       selectedSubject: null,
       selectedYear: null,
+      selectedLanguage: null,
 
       filterConfig: {
         curriculumId: null,
         selectedSubjectList: [],
         selectedYearList: [],
+        selectedLanguageList: [],
         keyword: null
       },
 
@@ -434,6 +466,11 @@ export default {
       this.selectedYear = this.filterConfig.selectedYearList[0]
     }
 
+    if (Array.isArray(this.languageList) && this.languageList.length > 0) {
+      this.filterConfig.selectedLanguageList = this.languageList
+      this.selectedLanguage = this.filterConfig.selectedLanguageList[0]
+    }
+
     if (Array.isArray(this.learningObjectives) && this.learningObjectives.length > 0) {
       this.selectedList = this.learningObjectives
     }
@@ -491,6 +528,18 @@ export default {
         this.filterConfig.selectedYearList.unshift(year)
       }
       this.selectedYear = null
+    },
+
+    handleSelectLanguage (language) {
+      this.$logger.info('handleSelectLanguage', language)
+      if (this.filterConfig.selectedLanguageList.indexOf(language) === -1) {
+        this.filterConfig.selectedLanguageList.unshift(language)
+      }
+      this.selectedLanguage = null
+    },
+
+    handleRemoveLanguage (language) {
+      this.filterConfig.selectedLanguageList.splice(this.filterConfig.selectedLanguageList.indexOf(language), 1)
     },
 
     handleSelectItem (item) {
@@ -747,7 +796,7 @@ export default {
                 margin-bottom: 15px;
               }
 
-              .label-curriculum, .label-subject, .label-year {
+              .label-curriculum, .label-subject, .label-year, .label-language{
                 max-width: 150px;
                 border: none;
                 cursor: pointer;
@@ -774,6 +823,11 @@ export default {
               .label-year {
                 background: #FFEDAF;
                 color: #734110;
+              }
+
+              .label-language {
+                background: #15C3A4;
+                color: #ffffff;
               }
             }
           }
