@@ -80,18 +80,18 @@
         </div>
       </div>
     </div>
-    <div class='modal-action-right'>
+    <div class='modal-action-left'>
       <a-space>
-        <div class='insert-tips' v-if='mode === selectMode.subjectLearningObjectives || mode === selectMode.generalCapabilities'>
-          Please go to step 'Set Learning Objectives', <br/>
-          if you wish to add criteria apart from above.
-        </div>
         <a-button
           @click='handleInsert'
           class='cc-round-button'
           type='primary'>
           <a-icon type='plus-circle' /> Insert
         </a-button>
+        <div class='insert-tips' v-if='mode === selectMode.subjectLearningObjectives || mode === selectMode.generalCapabilities'>
+          Please go to step 'Set Learning Objectives', <br/>
+          if you wish to add criteria apart from above.
+        </div>
       </a-space>
     </div>
   </div>
@@ -433,9 +433,10 @@ export default {
 .insert-tips {
   cursor: pointer;
   user-select: none;
-  font-size: 12px;
-  color: #aaa;
+  font-size: 13px;
+  color: #333;
   max-width: 300px;
+  font-weight: 400;
   padding-right: 10px;
 }
 
@@ -458,4 +459,7 @@ export default {
   width: 180px;
 }
 
+div.modal-action-left {
+  justify-content: flex-start;
+}
 </style>
