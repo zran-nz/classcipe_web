@@ -1,16 +1,11 @@
 <template>
   <div class='my-content'>
-    <!-- <div class="opt">
-      <a-button type="primary" @click="showAttendance">{{ attendanceVisible ? 'Close' : 'Show' }} Attendance</a-button>
-    </div> -->
     <a-spin :spinning="loading">
       <div id="scheduleContent" class="schedule-content" ref="scheduleContent">
         <div class="schedule-tip" v-show="attendanceVisible">
           <a-affix :target="affixTarget">
             <div class="tip-wrap">
               <div class="unit-tip">
-
-                <!-- <template v-if="queryType === CALENDAR_QUERY_TYPE.MY.value"> -->
                 <div
                   class="unit-tip-item"
                   :style="{backgroundColor: BG_COLORS[item.index]}"
@@ -18,28 +13,6 @@
                   :key="item.id">
                   <a-tooltip :title="item.name">Unit: {{ item.name }}</a-tooltip>
                 </div>
-                <!-- </template> -->
-
-                <!-- <template v-if="queryType === CALENDAR_QUERY_TYPE.CLASS.value">
-                  <div
-                    class="unit-tip-item"
-                    :style="{backgroundColor: BG_COLORS[item.index]}"
-                    v-for="(item) in showClassOptions"
-                    :key="item.id">
-                    <a-tooltip :title="item.name">Class: {{ item.name }}</a-tooltip>
-                  </div>
-                </template>
-
-                <template v-if="queryType === CALENDAR_QUERY_TYPE.WORKSHOP.value">
-                  <div
-                    class="unit-tip-item"
-                    :style="{backgroundColor: BG_COLORS[item.index]}"
-                    v-for="(item) in showWorkshopOptions"
-                    :key="item.id">
-                    <a-tooltip :title="item.name">{{ item.name }}</a-tooltip>
-                  </div>
-                </template> -->
-
               </div>
               <div class="calendar-type" v-show="true">
                 <div class="calendar-type-item" v-for="type in CALENDAR_QUERY_TYPE" :key="type.value">
@@ -75,58 +48,32 @@
             </div>
           </a-affix>
         </div>
-        <FullCalendar
+        <cc-calendar
           ref="fullCalendar"
-          :options="calendarOptions"
+          :eventsApi="loadEvents"
+          :selfViews="selfViews"
+          :headerToolbar="headerToolbar"
+          @select="handleDateSelect"
+          @eventClick="handleEventClick"
+          @eventsSet="handleEvents"
+          @datesSet="handleDatesSet"
+          @eventMouseEnter="handleMouseEnter"
+          @eventMouseLeave="handleMouseLeave"
+          @eventDrop="handleEventDrop"
+          @eventResize="handleEventResize"
           class="schedule-calendar"
         >
-          <template v-slot:eventContent="info">
-            <a-popover
-              title="Session Detail"
-              trigger="click"
-              :destroyTooltipOnHide="true"
-              :getPopupContainer="trigger => getPopupContainer(trigger, info)"
-              @visibleChange="visible => showPopover(visible, info)"
-            >
-              <a slot="content" >
-                <content-item-calendar
-                  v-if="queryType !== CALENDAR_QUERY_TYPE.WORKSHOP.value"
-                  ref="contentItemCalendar"
-                  :content='getSession(info)'
-                  :units='currentUnitList'
-                  @close="closeAllModal"
-                  @delete='(data) => handleDelete(info, data)'
-                  @change-unit="(params) => handleSave(params, info)"
-                  @save-response-limit="params => handleSave(params, info)"
-                >
-                </content-item-calendar>
-                <div v-else style="font-size: 90px">
-                  <liveworkshop-item
-                    @close="closeAllModal"
-                    :content="getWorkshopItem(info)"/>
-                </div>
-              </a>
-              <div
-                class="schedule-event-content"
-                :style="{backgroundColor: info.event.extendedProps.backgroundColor, color: '#333'}"
-              >
-                <div v-show="info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay'">
-                  {{ info.event.start | dayjs(FORMATTER_SIM) }}-{{ info.event.end | dayjs(FORMATTER_SIM) }}
-                </div>
-                <span v-show="info.view.type === 'dayGridMonth'" style="margin-right: 5px;">
-                  {{ info.event.start | dayjs(FORMATTER_SIM) }}
-                </span>
-                <!-- <a-tooltip>
-                <template slot="title">
-                  {{ info.event.title }}
-                </template> -->
-                <label v-if="info.view.type !== 'timeGridFourDay'" for="">{{ info.event.title }} </label>
-                <label v-else for=""> {{ info.event.title }} </label>
-              <!-- </a-tooltip> -->
-              </div>
-            </a-popover>
+          <template v-slot:eventContent="{ info }">
+            <session-event-content
+              :info="info"
+              :unitList="currentUnitList"
+              :type="queryType"
+              :allDatas="calendarDatas"
+              @reFetch="reFetch"
+              @save="handleSaveContentEvent"
+            />
           </template>
-        </FullCalendar>
+        </cc-calendar>
       </div>
     </a-spin>
     <div class="tooltip" v-clickOutside="closeTip">
@@ -162,17 +109,15 @@
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 
-import '@fullcalendar/core/vdom' // solves problem with Vite
-import FullCalendar from '@fullcalendar/vue'
-import dayGridPlugin from '@fullcalendar/daygrid'
-import timeGridPlugin from '@fullcalendar/timegrid'
-import interactionPlugin from '@fullcalendar/interaction'
+import CcCalendar from '@/components/Calendar'
+import SessionEventContent from '@/components/Calendar/SessionEventContent'
+
 import SessionImportForCalendar from '@/components/MyContentV2/SessionImportForCalendar'
 import ContentItemCalendar from '@/components/MyContentV2/ContentItemCalendar'
 import LiveworkshopItem from '@/components/MyContentV2/LiveWorkShopContentItem'
 
 import { QueryForCalendar } from '@/api/v2/calendarSchedule'
-import { DeleteClassV2, EditSessionScheduleV2 } from '@/api/v2/classes'
+import { EditSessionScheduleV2 } from '@/api/v2/classes'
 
 import { ABSENT_COLORS, BG_COLORS, CALENDAR_QUERY_TYPE } from '@/const/common'
 import { typeMap } from '@/const/teacher'
@@ -187,7 +132,8 @@ export default {
   name: 'Calendar',
   mixins: [UserModeMixin, CurrentSchoolMixin],
   components: {
-    FullCalendar,
+    CcCalendar,
+    SessionEventContent,
     SessionImportForCalendar,
     ContentItemCalendar,
     LiveworkshopItem
@@ -201,15 +147,6 @@ export default {
       queryType: CALENDAR_QUERY_TYPE.MY.value,
       queryClass: '',
       [CALENDAR_QUERY_TYPE.WORKSHOP.label]: [
-      // {
-      //   value: 1,
-      //   name: 'public workshop',
-      //   index: 1
-      // }, {
-      //   value: 2,
-      //   name: 'private workshop',
-      //   index: 2
-      // },
       {
         value: 1,
         name: 'PD workshop',
@@ -271,219 +208,61 @@ export default {
       viewType: 'timeGridWeek',
       calendarDatas: [],
       allEvents: [],
-      // fullcalendar
-      calendarOptions: {
-        plugins: [ dayGridPlugin, interactionPlugin, timeGridPlugin ],
-        initialView: 'timeGridWeek',
-        headerToolbar: {
-          left: 'prev,next,today',
-          center: 'title',
-          right: 'dayGridMonth,timeGridWeek,timeGridDay' // ,timeGridFourDay'
-        },
-        views: {
-          timeGridFourDay: {
-            type: 'timeGrid',
-            duration: { days: 12 },
-            buttonText: 'year',
-            allDaySlot: false,
-            slotMaxTime: '8:00:00',
-            slotDuration: '00:15:00',
-            slotLabelInterval: '00:15',
-            titleFormat: (date) => {
-              return date.start.year
-            },
-            dayPopoverFormat: date => {
-              const time = moment(date.date).format('HH:mm')
-              const day = moment(date.date).format('YYYY-MM-DD')
-              const dayObj = this.timeLabelForYear.find(item => item.value === time)
-              const monthObj = this.dayLabelForYear.find(item => item.value === day)
-              return monthObj.label + ', ' + dayObj.label
-            },
-            eventMaxStack: 2,
-            // eventMinHeight: 60,
-            // eventShortHeight: 60,
-            selectable: false,
-            nowIndicator: false,
-            slotEventOverlap: false,
-            eventTimeFormat: {
-              hour: '2-digit',
-              minute: '2-digit',
-              meridiem: false,
-              hour12: false
-            },
-            dayHeaderContent: (info) => {
-              const dayLabelForYear = this.convertDayForYear()
-              const find = dayLabelForYear.find(item => item.value === moment(info.date).format('YYYY-MM-DD'))
-              return find ? find.label : info.text
-            },
-            slotLabelContent: (info) => {
-              if (info.view.type === 'timeGridFourDay') {
-                const find = this.timeLabelForYear.find(item => item.value === moment(info.date).format('HH:mm'))
-                return find ? find.label : info.text
-              }
-              return info.text
-            }
-          }
-        },
-        // initialEvents: INITIAL_EVENTS, // alternatively, use the `events` setting to fetch from a feed
-        events: (date, successCb, failCb) => {
-          console.log(date)
-          let start = moment(date.start).format('YYYY-MM-DD')
-          let end = moment(date.end).format('YYYY-MM-DD')
-          this.startDate = start
-          this.endDate = end
-          if (this.$refs.fullCalendar) {
-            const calendarApi = this.$refs.fullCalendar.getApi()
-            if (calendarApi) {
-              calendarApi.removeAllEvents()
-            }
-          }
-
-          const diff = moment(date.end).diff(moment(date.start), 'days')
-          console.log(diff)
-
-          const params = {}
-          let noNeedQuery = false
-          if (this.queryType === this.CALENDAR_QUERY_TYPE.CLASS.value) {
-            params.classIds = this.typeFilters
-            noNeedQuery = this.typeFilters.length === 0
-          } else if (this.queryType === this.CALENDAR_QUERY_TYPE.WORKSHOP.value) {
-            params.workshopStatus = this.typeFilters
-            params.workshopType = [1, 2]
-            noNeedQuery = this.typeFilters.length === 0
-          }
-          if (noNeedQuery) {
-            successCb([])
-          } else {
-            this.loading = true
-            // 如果diff等于12，表示年视图
-            if (diff === 12) {
-              start = moment().startOf('year').format('YYYY-MM-DD')
-              end = moment().endOf('year').format('YYYY-MM-DD')
-            }
-            this.loadData({
-              ...params,
-              startDate: formatLocalUTC(start, 'YYYY-MM-DD'),
-              endDate: formatLocalUTC(end, 'YYYY-MM-DD'),
-              queryType: this.queryType
-            }).then(res => {
-              if (res && res.success && res.result) {
-                const filterRes = res.result// .filter(item => item.unitPlanInfo)
-                this.calendarDatas = res.result
-                if (filterRes.length > 0) {
-                  this.currentUnitList = uniqBy(filterRes.filter(item => item.unitPlanInfo).map(item => item.unitPlanInfo), 'id')
-                  const events = filterRes.map(item => {
-                    // 根据classId获取颜色
-                    let index = -1
-                    // if (this.queryType === this.CALENDAR_QUERY_TYPE.MY.value) {
-                      index = this.currentUnitList.findIndex(unit => unit.id === (item.unitPlanInfo ? item.unitPlanInfo.id : -1))
-                    // } else if (this.queryType === this.CALENDAR_QUERY_TYPE.CLASS.value) {
-                    //   index = this.showClassOptions.findIndex(option => option.value === (item.sessionInfo ? item.sessionInfo.taskClassId : -1))
-                    // } else if (this.queryType === this.CALENDAR_QUERY_TYPE.WORKSHOP.value) {
-                    //   index = this.showWorkshopOptions.findIndex(option => option.value === (item.workshopsDetailInfo ? item.workshopsDetailInfo.registeredNum : -1))
-                    // }
-                    const color = (index === -1) ? '#fff' : BG_COLORS[index]
-
-                    let startTime = item.startTime
-                    let endTime = item.endTime
-                    let editable = true
-                    if (diff === 12) {
-                      this.convertDayForYear()
-                      startTime = this.convertYearToTime(item.startTime)
-                      endTime = this.convertYearToTime(item.endTime)
-                      if (startTime === endTime) {
-                        endTime = this.convertYearToTime(item.endTime, true)
-                      }
-                      editable = false
-                    } else {
-                      startTime = this.$options.filters['dayjs'](startTime)
-                      endTime = this.$options.filters['dayjs'](endTime)
-                    }
-                    console.log(startTime, endTime)
-                    return {
-                      id: item.sessionInfo.id,
-                      title: item.sessionInfo.sessionName,
-                      start: startTime,
-                      end: endTime,
-                      backgroundColor: 'transparent',
-                      borderColor: 'transparent',
-                      editable: editable,
-                      extendedProps: {
-                        classId: item.sessionInfo.classId,
-                        planId: item.sessionInfo.planId,
-                        contentId: item.sessionInfo.contentId,
-                        sessionType: item.sessionInfo.sessionType,
-                        status: item.attendance || 'absent',
-                        id: item.sessionInfo.id,
-                        backgroundColor: color,
-                        start: item.startTime,
-                        end: item.endTime
-                      }
-                    }
-                  })
-                  this.calendarDatas = res.result
-                  this.allEvents = events
-                  const filterEvents = events.filter(event => {
-                    // const props = event.extendedProps
-                    if (this.queryType === this.CALENDAR_QUERY_TYPE.MY.value) {
-                      // console.log(event.extendedProps.sessionType)
-                      // console.log(this.typeFilters)
-                      if (!this.typeFilters.includes('sessionType' + event.extendedProps.sessionType)) {
-                        return false
-                      }
-                    }
-                    return true
-                  })
-                  successCb(filterEvents)
-                } else {
-                  successCb([])
-                  this.currentUnitList = []
-                }
-                this.handleViewDidMount()
-              } else {
-                failCb()
-              }
-            }).catch(() => {
-              failCb()
-            }).finally(() => {
-              this.loading = false
-            })
-          }
-        },
-        slotEventOverlap: true,
-        editable: true,
-        selectable: true,
-        selectMirror: true,
-        dayMaxEvents: true,
-        nowIndicator: true,
-        weekends: true,
-        lazyFetching: false,
-        slotDuration: '00:15:00',
-        slotLabelInterval: '01:00',
-        select: this.handleDateSelect,
-        eventClick: this.handleEventClick,
-        eventsSet: this.handleEvents,
-        datesSet: this.handleDatesSet,
-        eventMouseEnter: this.handleMouseEnter,
-        eventMouseLeave: this.handleMouseLeave,
-        eventDrop: this.handleEventDrop,
-        eventResize: this.handleEventResize,
-        eventTimeFormat: {
-          hour: 'numeric',
-          minute: '2-digit',
-          meridiem: 'short'
-        },
-        viewDidMount: this.handleViewDidMount
-      },
       currentEvents: [],
       currentClass: 1,
       event: {
         title: 'My Event'
       },
-      timer: null,
-      FORMATTER: 'h:mm a',
-      FORMATTER_SIM: 'h:mma',
-      FORMATTER_FULL: 'YYYY-MM-DD h:mm a',
+      headerToolbar: {
+        left: 'prev,next,today',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek,timeGridDay' // ,timeGridFourDay'
+      },
+      selfViews: {
+        timeGridFourDay: {
+          type: 'timeGrid',
+          duration: { days: 12 },
+          buttonText: 'year',
+          allDaySlot: false,
+          slotMaxTime: '8:00:00',
+          slotDuration: '00:15:00',
+          slotLabelInterval: '00:15',
+          titleFormat: (date) => {
+            return date.start.year
+          },
+          dayPopoverFormat: date => {
+            const time = moment(date.date).format('HH:mm')
+            const day = moment(date.date).format('YYYY-MM-DD')
+            const dayObj = this.timeLabelForYear.find(item => item.value === time)
+            const monthObj = this.dayLabelForYear.find(item => item.value === day)
+            return monthObj.label + ', ' + dayObj.label
+          },
+          eventMaxStack: 2,
+          // eventMinHeight: 60,
+          // eventShortHeight: 60,
+          selectable: false,
+          nowIndicator: false,
+          slotEventOverlap: false,
+          eventTimeFormat: {
+            hour: '2-digit',
+            minute: '2-digit',
+            meridiem: false,
+            hour12: false
+          },
+          dayHeaderContent: (info) => {
+            const dayLabelForYear = this.convertDayForYear()
+            const find = dayLabelForYear.find(item => item.value === moment(info.date).format('YYYY-MM-DD'))
+            return find ? find.label : info.text
+          },
+          slotLabelContent: (info) => {
+            if (info.view.type === 'timeGridFourDay') {
+              const find = this.timeLabelForYear.find(item => item.value === moment(info.date).format('HH:mm'))
+              return find ? find.label : info.text
+            }
+            return info.text
+          }
+        }
+      },
 
       showUnit: [],
       currentUnit: null,
@@ -495,8 +274,7 @@ export default {
         endDate: null
       },
 
-      currentSession: null,
-      popoverVisible: false
+      currentSession: null
     }
   },
   computed: {
@@ -598,6 +376,126 @@ export default {
       const newTime = this.timeLabelForYear[day - 1 + extra].value
       return newDate + ' ' + newTime + ':00'// + (second > 9 ? second : ('0' + second))
     },
+    loadEvents(date, successCb, failCb) {
+      let start = moment(date.start).format('YYYY-MM-DD')
+      let end = moment(date.end).format('YYYY-MM-DD')
+      this.startDate = start
+      this.endDate = end
+      if (this.$refs.fullCalendar) {
+        const calendarApi = this.$refs.fullCalendar.getApi()
+        if (calendarApi) {
+          calendarApi.removeAllEvents()
+        }
+      }
+
+      const diff = moment(date.end).diff(moment(date.start), 'days')
+      console.log(diff)
+
+      const params = {}
+      let noNeedQuery = false
+      if (this.queryType === this.CALENDAR_QUERY_TYPE.CLASS.value) {
+        params.classIds = this.typeFilters
+        noNeedQuery = this.typeFilters.length === 0
+      } else if (this.queryType === this.CALENDAR_QUERY_TYPE.WORKSHOP.value) {
+        params.workshopStatus = this.typeFilters
+        params.workshopType = [1, 2]
+        noNeedQuery = this.typeFilters.length === 0
+      }
+      if (noNeedQuery) {
+        successCb([])
+      } else {
+        this.loading = true
+        // 如果diff等于12，表示年视图
+        if (diff === 12) {
+          start = moment().startOf('year').format('YYYY-MM-DD')
+          end = moment().endOf('year').format('YYYY-MM-DD')
+        }
+        this.loadData({
+          ...params,
+          startDate: formatLocalUTC(start, 'YYYY-MM-DD'),
+          endDate: formatLocalUTC(end, 'YYYY-MM-DD'),
+          queryType: this.queryType
+        }).then(res => {
+          if (res && res.success && res.result) {
+            const filterRes = res.result// .filter(item => item.unitPlanInfo)
+            this.calendarDatas = res.result
+            if (filterRes.length > 0) {
+              this.currentUnitList = uniqBy(filterRes.filter(item => item.unitPlanInfo).map(item => item.unitPlanInfo), 'id')
+              const events = filterRes.map(item => {
+                // 根据classId获取颜色
+                let index = -1
+                // if (this.queryType === this.CALENDAR_QUERY_TYPE.MY.value) {
+                  index = this.currentUnitList.findIndex(unit => unit.id === (item.unitPlanInfo ? item.unitPlanInfo.id : -1))
+                // } else if (this.queryType === this.CALENDAR_QUERY_TYPE.CLASS.value) {
+                //   index = this.showClassOptions.findIndex(option => option.value === (item.sessionInfo ? item.sessionInfo.taskClassId : -1))
+                // } else if (this.queryType === this.CALENDAR_QUERY_TYPE.WORKSHOP.value) {
+                //   index = this.showWorkshopOptions.findIndex(option => option.value === (item.workshopsDetailInfo ? item.workshopsDetailInfo.registeredNum : -1))
+                // }
+                const color = (index === -1) ? '#fff' : BG_COLORS[index]
+
+                let startTime = item.startTime
+                let endTime = item.endTime
+                let editable = true
+                if (diff === 12) {
+                  this.convertDayForYear()
+                  startTime = this.convertYearToTime(item.startTime)
+                  endTime = this.convertYearToTime(item.endTime)
+                  if (startTime === endTime) {
+                    endTime = this.convertYearToTime(item.endTime, true)
+                  }
+                  editable = false
+                } else {
+                  startTime = this.$options.filters['dayjs'](startTime)
+                  endTime = this.$options.filters['dayjs'](endTime)
+                }
+                console.log(startTime, endTime)
+                return {
+                  id: item.sessionInfo.id,
+                  title: item.sessionInfo.sessionName,
+                  start: startTime,
+                  end: endTime,
+                  backgroundColor: 'transparent',
+                  borderColor: 'transparent',
+                  editable: editable,
+                  extendedProps: {
+                    classId: item.sessionInfo.classId,
+                    planId: item.sessionInfo.planId,
+                    contentId: item.sessionInfo.contentId,
+                    sessionType: item.sessionInfo.sessionType,
+                    status: item.attendance || 'absent',
+                    id: item.sessionInfo.id,
+                    backgroundColor: color,
+                    start: item.startTime,
+                    end: item.endTime
+                  }
+                }
+              })
+              this.calendarDatas = res.result
+              this.allEvents = events
+              const filterEvents = events.filter(event => {
+                if (this.queryType === this.CALENDAR_QUERY_TYPE.MY.value) {
+                  if (!this.typeFilters.includes('sessionType' + event.extendedProps.sessionType)) {
+                    return false
+                  }
+                }
+                return true
+              })
+              successCb(filterEvents)
+            } else {
+              successCb([])
+              this.currentUnitList = []
+            }
+            this.handleViewDidMount()
+          } else {
+            failCb()
+          }
+        }).catch(() => {
+          failCb()
+        }).finally(() => {
+          this.loading = false
+        })
+      }
+    },
     getOptions(typeVal) {
       let typeLabel = ''
       for (const i in this.CALENDAR_QUERY_TYPE) {
@@ -638,18 +536,6 @@ export default {
       this.event = selectInfo
       this.importModel.startDate = moment(this.event.start).format('YYYY-MM-DD HH:mm:ss')
       this.importModel.endDate = moment(this.event.end).format('YYYY-MM-DD HH:mm:ss')
-      // const title = prompt('Please enter a new title for your event')
-      // const calendarApi = selectInfo.view.calendar
-      // calendarApi.unselect() // clear date selection
-      // if (title) {
-      //   calendarApi.addEvent({
-      //     id: new Date().getTime(),
-      //     title,
-      //     start: selectInfo.startStr,
-      //     end: selectInfo.endStr,
-      //     allDay: selectInfo.allDay
-      //   })
-      // }
     },
     closeTip() {
       this.$refs.tooltip.style.visibility = 'hidden'
@@ -718,12 +604,9 @@ export default {
       })
       // this.reRender()
     },
-    // handleMouseLeave(event) {
-    //   if (this.timer) clearTimeout(this.timer)
-    //   this.timer = setTimeout(() => {
-    //     this.$refs.tooltip.style.visibility = 'hidden'
-    //   }, 200)
-    // },
+    handleMouseLeave(event) {
+
+    },
     handleEventDrop(event) {
       console.log(event.event.start, event.event.end)
       const current = event.event
@@ -746,28 +629,6 @@ export default {
       }
       this.handleSave(params, event)
     },
-    showAttendance() {
-      this.attendanceVisible = !this.attendanceVisible
-      this.reRender()
-    },
-    getPopupContainer(trigger, info) {
-      if (trigger.parentElement.parentElement.parentElement.classList.contains('fc-timegrid-event-harness')) {
-        return document.body
-      }
-      return trigger.parentElement
-    },
-    showPopover(visible, clickInfo) {
-      // if (visible) {
-      //   const currentSession = this.calendarDatas.find(item => item.sessionInfo.id === clickInfo.event.extendedProps.id)
-      //   // 拼接详情
-      //   if (currentSession) {
-      //     this.currentSession = { ...currentSession.sessionInfo }
-      //   } else {
-      //     this.currentSession = null
-      //   }
-      //   console.log(this.currentSession)
-      // }
-    },
     handleChangeType(type) {
       this.queryType = type.value
       console.log(this[type.label])
@@ -786,78 +647,51 @@ export default {
       this.typeFilters = [type.value]
       this.reFetch()
     },
-    getSession(clickInfo) {
-      const currentSession = this.calendarDatas.find(item => item.sessionInfo.id === clickInfo.event.extendedProps.id)
-      return currentSession ? { ...currentSession } : null
-    },
-    getWorkshopItem(clickInfo) {
-      const currentSession = this.calendarDatas.find(item => item.sessionInfo.id === clickInfo.event.extendedProps.id)
-      if (!currentSession) return {}
-      return {
-        content: { ...currentSession.content },
-        sessionInfo: { ...currentSession.sessionInfo },
-        ...currentSession.workshopsDetailInfo
-      }
-    },
-    handleDelete(clickInfo) {
-      // this.$confirm({
-      //   title: 'Confirm remove session',
-      //   content: `Are you sure you want to delete the session '${clickInfo.event.title}'`,
-      //   centered: true,
-      //   onOk: () => {
-          this.loading = true
-          DeleteClassV2({
-            sessionId: clickInfo.event.extendedProps.id
-          }).then(res => {
-            if (res.code === 0) {
-              this.$message.success('Remove successfully')
-              this.reFetch() // 需要重新生成units，还是重新fetch的好
-              // clickInfo.event.remove()
-            }
-          }).finally(() => {
-            this.loading = false
-          })
-      //   }
-      // })
-    },
     handleSave(params, info) {
       console.log(params)
       this.loading = true
       EditSessionScheduleV2(params).then(res => {
         if (res.success) {
           this.$message.success('Opt Successfully')
-          const find = this.calendarDatas.find(item => item.sessionInfo.id === params.id)
-          let modifyUnitPlanInfo = {}
-          if (params.planId) {
-            modifyUnitPlanInfo = this.currentUnitList.find(unit => unit.id === params.planId) || {}
-          }
-          // this.calendarDatas 也得变
-          if (find) {
-            find.sessionInfo = {
-              ...find.sessionInfo,
-              ...params
-            }
-            find.unitPlanInfo = {
-              ...find.unitPlanInfo,
-              ...modifyUnitPlanInfo
-            }
-          }
-          // unit变了，颜色得变
-          if (params.planId && info) {
-            const index = this.currentUnitList.findIndex(unit => unit.id === params.planId)
-            const color = BG_COLORS[index]
-            info.event.setExtendedProp('backgroundColor', color)
-            info.event.setExtendedProp('planId', params.planId)
-          } else {
-            // 为了popover跟着变。
-            const color = info.event.extendedProps.backgroundColor
-            info.event.setExtendedProp('backgroundColor', color)
-          }
-          // this.reFetch()
+          this.handleSaveContentEvent({
+            params: params,
+            info: info
+          })
         }
       }).finally(res => {
         this.loading = false
       })
+    },
+    handleSaveContentEvent(data) {
+      const params = data.params
+      const info = data.info
+      const find = this.calendarDatas.find(item => item.sessionInfo.id === params.id)
+      let modifyUnitPlanInfo = {}
+      if (params.planId) {
+        modifyUnitPlanInfo = this.currentUnitList.find(unit => unit.id === params.planId) || {}
+      }
+      // this.calendarDatas 也得变
+      if (find) {
+        find.sessionInfo = {
+          ...find.sessionInfo,
+          ...params
+        }
+        find.unitPlanInfo = {
+          ...find.unitPlanInfo,
+          ...modifyUnitPlanInfo
+        }
+      }
+      // unit变了，颜色得变
+      if (params.planId && info) {
+        const index = this.currentUnitList.findIndex(unit => unit.id === params.planId)
+        const color = BG_COLORS[index]
+        info.event.setExtendedProp('backgroundColor', color)
+        info.event.setExtendedProp('planId', params.planId)
+      } else {
+        // 为了popover跟着变。
+        const color = info.event.extendedProps.backgroundColor
+        info.event.setExtendedProp('backgroundColor', color)
+      }
     },
     closeAllModal() {
       // this.$refs.scheduleContent.dispatchEvent(new MouseEvent('click'))

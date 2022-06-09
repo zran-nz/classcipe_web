@@ -164,7 +164,7 @@ export default {
       this.$router.push({ path: '/account/settings' })
     },
     handleToAccounts () {
-      this.$router.push({ path: '/account/settings' })
+      this.$router.push({ path: '/account/info' })
     },
     handleToNotification () {
       this.$router.push({ path: '/notification' })

@@ -33,6 +33,17 @@
         @change="changeCurriculum"
         @save-success="() => successCb('pendingCurriculum')"
       />
+      <div style="font-size: 14px;">
+        <subject-sel
+          ref="SubjectRef"
+          v-show="currentTab === 'Subject'"
+          :gradeOptions="gradeOptions"
+          :curriculum="currentCurriculum"
+          :school="currentSchool"
+          @change="changeSubjects"
+          @save-success="() => successCb('pendingSubject')"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -49,14 +60,16 @@ import { GradeGetAllGrades } from '@/api/grade'
 import FixedFormHeader from '@/components/Common/FixedFormHeader'
 import FormHeader from '@/components/FormHeader/FormHeader'
 import CuriculumSel from './curiculum/CuriculumSel'
+import SubjectSel from './curiculum/SubjectSel'
 
 import { mapState } from 'vuex'
 export default {
-  name: 'CirculumListV2',
+  name: 'CuriculumListV2',
   components: {
     FixedFormHeader,
     FormHeader,
-    CuriculumSel
+    CuriculumSel,
+    SubjectSel
   },
   mixins: [UserModeMixin, CurrentSchoolMixin, ReSetFontMixin],
   data() {
@@ -78,6 +91,7 @@ export default {
           title: 'Teaching contents'
       }],
       pendingCurriculum: false,
+      pendingSubject: false,
       saveLoading: false,
       defaultCurriculumId: null,
       currentCurriculum: null
@@ -114,6 +128,10 @@ export default {
       if (this.currentCurriculum.id) {
         this.defaultCurriculumId = this.currentCurriculum.id
       }
+    },
+    changeSubjects(val) {
+      console.log(val)
+      this.changedSubjects = [...val]
     },
     successCb(pending) {
       this[pending] = false

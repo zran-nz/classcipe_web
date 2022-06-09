@@ -556,7 +556,7 @@ export const asyncRouterMap = [
             path: '/manage/curriculum',
             name: 'CirculumListV2',
             component: () => import('@/views/account/manage/CuriculumListV2'),
-            meta: { title: 'menu.managing.curriculum', keepAlive: true, permission: ['teacher'], mode: USER_MODE.SCHOOL }
+            meta: { title: 'menu.managing.curriculum', keepAlive: true, permission: ['teacher'] }
           }
         ]
       },
