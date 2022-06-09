@@ -1,7 +1,12 @@
 <template>
   <div class='card-list-wrapper'>
     <div class='card-list-title'>
-      {{ title }}
+      <div class='title-item'>
+        {{ title }}
+      </div>
+      <div class='more-action'>
+        All
+      </div>
     </div>
     <div class='card-list'>
       <div class="card-item" v-for="item in list" :key="item.id" @click="handlePreviewDetail(item)">
@@ -83,6 +88,16 @@ export default {
     color: #202020;
     line-height: 25px;
     padding-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+
+    .more-action {
+      font-size: 16px;
+      user-select: none;
+      cursor: pointer;
+    }
   }
 
   .card-list {

@@ -118,6 +118,7 @@
 
             <custom-button
               label='Schedule'
+              :title="content.presentationId ? '' : 'This task/PD content can not be scheduled without interactive slides, please edit google slides first before scheduling'"
               v-if='content.type === typeMap.task || content.type === typeMap.pd'
               @click='handleSchedule'>
               <template v-slot:icon>
@@ -281,9 +282,13 @@ export default {
     },
 
     handleSchedule() {
-      this.$router.push({
-        path: '/teacher/schedule-session/' + this.content.id + '/' + this.content.type
-      })
+      if (this.content.presentationId) {
+        this.$router.push({
+          path: '/teacher/schedule-session/' + this.content.id + '/' + this.content.type
+        })
+      } else {
+        this.$message.warn('This task/PD content can not be scheduled without interactive slides, please edit google slides first before scheduling.')
+      }
     },
 
     handleSelfLearning(isSelfLearning) {
