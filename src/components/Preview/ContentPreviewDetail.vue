@@ -61,7 +61,13 @@
               </a-space>
             </div>
             <div class='buy-button'>
-              <a-button class='buy-now' type="danger" shape='round' @click='handleDuplicateItem' :loading='copyLoading'>
+              <a-button
+                class='buy-now'
+                type="danger"
+                shape='round'
+                @click='handleDuplicateItem'
+                :loading='copyLoading'
+                v-if='content.createBy !== $store.getters.userInfo.email'>
                 Buy now
               </a-button>
             </div>
