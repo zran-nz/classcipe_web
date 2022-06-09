@@ -565,7 +565,7 @@ export default {
     height: 55px;
     display: flex;
     flex-direction: row;
-    align-items: flex-start;
+    align-items: center;
     justify-content: center;
   }
   .author-info-detail {
