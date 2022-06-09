@@ -336,7 +336,7 @@ export const asyncRouterMap = [
               return props
             },
             component: () => import('@/views/teacher/AddLiveWorkshop'),
-            meta: { title: 'AddLiveWorkshop', keepAlive: true, permission: ['teacher'] }
+            meta: { title: 'AddLiveWorkshop', owner: '/teacher/main/live-workshops', keepAlive: true, permission: ['teacher'] }
           }
         ]
       },
@@ -522,6 +522,41 @@ export const asyncRouterMap = [
             name: 'info',
             component: () => import('@/views/account/info'),
             meta: { title: 'menu.account.center', keepAlive: true, permission: ['teacher', 'student'] }
+          }
+        ]
+      },
+
+      // manage
+      {
+        path: '/manage',
+        component: RouteView,
+        redirect: '/manage/school-info',
+        name: 'manage',
+        meta: { title: 'menu.managing', keepAlive: true, permission: ['teacher'], fullLayout: true },
+        children: [
+          {
+            path: '/manage/school-info',
+            name: 'center',
+            component: () => import('@/views/teacher/manage/SchoolInfo'),
+            meta: {
+              title: 'menu.managing.school-info',
+              keepAlive: true,
+              icon: 'home',
+              permission: ['teacher'],
+              mode: USER_MODE.SCHOOL
+            }
+          },
+          {
+            path: '/manage/academic',
+            name: 'AcademicListV2',
+            component: () => import('@/views/account/manage/AcademicListV2'),
+            meta: { title: 'menu.managing.academic', keepAlive: true, permission: ['teacher'], mode: USER_MODE.SCHOOL }
+          },
+          {
+            path: '/manage/curriculum',
+            name: 'CirculumListV2',
+            component: () => import('@/views/account/manage/CuriculumListV2'),
+            meta: { title: 'menu.managing.curriculum', keepAlive: true, permission: ['teacher'], mode: USER_MODE.SCHOOL }
           }
         ]
       },

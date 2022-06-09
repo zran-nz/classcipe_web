@@ -68,7 +68,7 @@
                     <a-input v-model='price' type='number' class='dollar-price-input' prefix="$" />
                   </div>
                 </div>
-                <div class='pay-discount'>
+                <div class='pay-discount' v-clickOutside="handleBlurClick">
                   <div class='pay-sub-title'>
                     Bulk discount pricing
                   </div>
@@ -88,7 +88,7 @@
                     </div>
                     <div class='discount-off'>
                       <template v-if='discount.editing'>
-                        <a-input v-model='discount.discount' min='0' max='100' type='number' class='cc-form-input discount-input'/>% off
+                        <a-input v-model='discount.discount' min='0' max='100' type='number' class='cc-form-input discount-input'/>%
                       </template>
                       <template v-else>
                         {{ discount.discount }}%
@@ -205,7 +205,12 @@
           <div class='select-date'>
             <div class='title'>Schedule</div>
             <div class='date-picker'>
-              <a-range-picker @change="handleDateChange" format='YYYY-MM-DD HH:mm:ss' :show-time="{ format: 'HH:mm' }"/>
+              <a-range-picker
+                @change="handleDateChange"
+                format='YYYY-MM-DD HH:mm:ss'
+                :disabled-date="disabledDateRange"
+                :show-time="{ format: 'HH:mm' }"
+              />
             </div>
           </div>
         </div>
@@ -347,19 +352,9 @@ export default {
       price: 100,
       discountList: [
         {
-          peopleThreshold: 10,
-          discount: 20,
-          editing: false
-        },
-        {
-          peopleThreshold: 20,
-          discount: 30,
-          editing: false
-        },
-        {
-          peopleThreshold: 30,
-          discount: 40,
-          editing: false
+          peopleThreshold: 1,
+          discount: 0,
+          editing: true
         }
       ]
     }
@@ -427,7 +422,11 @@ export default {
     },
 
     disabledDate(current) {
-      return current && current < moment().subtract(1, 'days').endOf('day')
+      return current && current < moment()
+    },
+
+    disabledDateRange(current) {
+      return current && current < moment().subtract(1, 'minutes') // .endOf('day')
     },
 
     changeNotifyType() {
@@ -618,7 +617,7 @@ export default {
 
     handleAddDiscount () {
       this.discountList.push({
-        peopleThreshold: 0,
+        peopleThreshold: 1,
         discount: 0,
         editing: true
       })

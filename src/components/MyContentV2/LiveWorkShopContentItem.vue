@@ -78,7 +78,7 @@
           <img
             v-else
             class="ant-avatar"
-            :src="content.userAvatar"
+            src="~@/assets/icons/library/default-avatar.png"
             alt="avatar"
           />
           <div class="author-name">
@@ -249,12 +249,12 @@ export default {
       //   }
       // }
     // 有没有标签都固定右边。。。
-    if (total === 0) {
-      if (this.$refs.detailPrice.getElementsByClassName('price-slider')[0]) {
+    if (this.$refs.detailPrice.getElementsByClassName('price-slider')[0]) {
+      if (total === 0) {
         this.$refs.detailPrice.getElementsByClassName('price-slider')[0].parentElement.style.justifyContent = 'flex-end'
+      } else {
+        this.$refs.detailPrice.getElementsByClassName('price-slider')[0].parentElement.style.justifyContent = 'space-between'
       }
-    } else {
-      this.$refs.detailPrice.getElementsByClassName('price-slider')[0].parentElement.style.justifyContent = 'space-between'
     }
   },
   methods: {
@@ -325,8 +325,13 @@ export default {
       this.showEditSche = false
     },
     handleDateChange (date, dateString) {
-      this.choose.startDate = moment(date[0].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
-      this.choose.endData = moment(date[1].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
+      if (date.length > 0) {
+        this.choose.startDate = moment(date[0].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
+        this.choose.endData = moment(date[1].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
+      } else {
+        this.choose.startDate = null
+        this.choose.endData = null
+      }
     },
     handleSave(item) {
       const params = {

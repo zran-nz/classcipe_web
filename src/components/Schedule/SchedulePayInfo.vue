@@ -36,7 +36,7 @@
             </div>
             <div class='discount-off'>
               <template v-if='discount.editing'>
-                <a-input v-model='discount.discount' min='0' max='100' type='number' class='cc-form-input discount-input'/>% off
+                <a-input v-model='discount.discount' min='0' max='100' type='number' class='cc-form-input discount-input'/>%
               </template>
               <template v-else>
                 {{ discount.discount }}%
@@ -135,19 +135,9 @@ export default {
       registerBefore: null,
       discountList: [
         {
-          peopleThreshold: 10,
-          discount: 20,
-          editing: false
-        },
-        {
-          peopleThreshold: 20,
-          discount: 30,
-          editing: false
-        },
-        {
-          peopleThreshold: 30,
-          discount: 40,
-          editing: false
+          peopleThreshold: 1,
+          discount: 0,
+          editing: true
         }
       ],
       initDate: this.defaultDate
@@ -189,7 +179,7 @@ export default {
     },
     handleAddDiscount () {
       this.discountList.push({
-        peopleThreshold: 0,
+        peopleThreshold: 1,
         discount: 0,
         editing: true
       })
