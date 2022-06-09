@@ -64,7 +64,7 @@
         <tr v-for='row in assessment.bodyList' :key="'row_' + row.key">
           <th v-for='header in assessment.headerList' :key="'rc_' + row.key + '_' + header.type" @dblclick='handleEditRow(row)'>
             <a-textarea
-              :auto-size="{ minRows: 2, maxRows: 5 }"
+              :auto-size="{ minRows: 2, maxRows: 20 }"
               class='cc-table-textarea'
               v-model='row[header.type].display'
               :style="{ backgroundColor: header.bgColor || '#ffffff' }" />
