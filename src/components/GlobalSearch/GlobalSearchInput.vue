@@ -11,8 +11,8 @@
         <div class='search-input'>
           <input v-model='searchKeyword' id='search-input' @keyup='handleSearch' @keyup.enter='emitSearchEvent(searchKeyword)' placeholder='Search...' />
         </div>
-        <div class='search-clear'>
-          <a-icon type='close' @click='handleSearchClear' />
+        <div class='search-clear' @click='handleSearchClear' v-show='searchKeyword.length > 0' >
+          <a-icon type='close' />
         </div>
       </div>
       <div class='search-recommend-list'>
@@ -146,6 +146,7 @@ export default {
     },
 
     handleBack () {
+      this.$logger.info('handleBack')
       this.showSearchWrapper = false
     },
 
