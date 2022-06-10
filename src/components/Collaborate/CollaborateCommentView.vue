@@ -12,7 +12,7 @@
                 <span>All</span>
               </a-menu-item>
               <a-menu-item @click="toggleType(1, 'My')">
-                <span>My</span>
+                <span>My comment</span>
               </a-menu-item>
             </a-menu>
             <a-button

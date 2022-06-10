@@ -57,9 +57,12 @@ import UserProfileAvatar from '@/components/User/UserProfileAvatar'
 import { mapState } from 'vuex'
 import CardList from '@/components/LibraryV3/CardList'
 import { getLibraryRecommend, getLibraryResource } from '@/api/v2/library'
+import { UserModeMixin } from '@/mixins/UserModeMixin'
+import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 
 export default {
   name: 'Library',
+  mixins: [UserModeMixin, CurrentSchoolMixin],
   components: { CardList, UserProfileAvatar, GlobalSearchInput },
   data () {
     return {
@@ -79,6 +82,11 @@ export default {
     this.initData()
   },
   methods: {
+
+    handleSchoolChange() {
+      this.$logger.info('handleSchoolChange called')
+      this.initData()
+    },
 
     initData () {
       console.log('initData library page')

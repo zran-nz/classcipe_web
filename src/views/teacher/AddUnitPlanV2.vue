@@ -492,8 +492,11 @@
           <template v-if='currentRightModule === rightModule.collaborate'>
             <a-skeleton :loading='showHistoryLoading' active>
               <div class='collaborate-panel'>
-                <div class='icon'>
+                <div class='icon' style="margin-left:10px">
                   <comment-icon />
+                </div>
+                <div class="panel-close">
+                  <a-icon type="close" @click="handleViewCollaborate()" :style="{ color: 'red', fontSize: '18px',cursor:'pointer' }"/>
                 </div>
                 <a-tabs :default-active-key='defaultHistoryKey'>
                   <a-tab-pane key='1' tab='Comment'>
@@ -2463,14 +2466,19 @@ export default {
 
 .collaborate-panel {
   background-color: #fff;
+  position: relative;
   //box-shadow: 0px 6px 10px rgba(159, 159, 159, 0.16);
-
+  .panel-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+  }
   .icon {
-    padding: 10px 5px 0 15px;
+/*    padding: 10px 5px 0 15px;
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: flex-start;*/
 
     svg {
       width: 30px;

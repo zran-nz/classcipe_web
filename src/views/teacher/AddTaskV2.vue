@@ -339,8 +339,11 @@
             <a-skeleton :loading='showHistoryLoading' active>
               <div
                 class='collaborate-panel'>
-                <div class='icon'>
+                <div class='icon' style="margin-left:10px">
                   <comment-icon />
+                </div>
+                <div class="panel-close">
+                  <a-icon type="close" @click="handleViewCollaborate()" :style="{ color: 'red', fontSize: '18px',cursor:'pointer' }"/>
                 </div>
                 <a-tabs :default-active-key='defaultHistoryKey'>
                   <a-tab-pane key='1' tab='Comment'>
@@ -530,6 +533,7 @@ import CustomImageUploader from '@/components/Common/CustomImageUploader'
 import ModalHeader from '@/components/Common/ModalHeader'
 import SplitTaskSetting from '@/components/Task/SplitTaskSetting'
 import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
+import commentIcon from '@/assets/icons/collaborate/comment.svg?inline'
 
 export default {
   name: 'AddTaskV2',
@@ -563,7 +567,8 @@ export default {
     CollaborateUserList,
     CustomTagV2,
     CollaborateTooltip,
-    CollaborateUpdateContent
+    CollaborateUpdateContent,
+    commentIcon
   },
   mixins: [ UtilMixin, BaseEventMixin, FormConfigMixin, GoogleAuthCallBackMixin, PublishMixin, AutoSaveMixin ],
   props: {
@@ -3172,13 +3177,14 @@ export default {
 
 .collaborate-panel {
   background-color: #fff;
+  position: relative;
+  .panel-close{
+    position: absolute;
+    top:10px;
+    right:10px;
+  }
   .icon {
-    padding: 10px 5px 0 15px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
-
+    margin-left:10px;
     svg {
       width: 30px;
     }
