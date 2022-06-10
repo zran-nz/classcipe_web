@@ -5,7 +5,7 @@
         <div class="toggle-mode-type">
           <div class="toggle-mode">
             <div
-              v-for="(item,index) in tabsList"
+              v-for="(item,index) in filterTabs"
               :key="'types'+index"
               :class="{'mode-item': true, 'active-mode' : currentTab === item.value}"
               @click="toggleTab(item.value)">
@@ -36,7 +36,7 @@
       @change="changeSubjects"
       @save-success="() => successCb('pendingSubject')"
     />
-    <div class="new-library" id="new-library" v-show="currentTab === 'Teaching'">
+    <div class="new-library" id="new-library" v-show="currentTab === 'Authorization'">
       <div class="library-header" v-show="currentCurriculum.id == CurriculumType.IBMYP">
         <div class="library-title">Please upload the achivement objectives for your school.</div>
         <a-space class="library-opt">
@@ -125,8 +125,8 @@ export default {
           value: 'Subject',
           title: 'Subject'
       }, {
-          value: 'Teaching',
-          title: 'Teaching contents'
+          value: 'Authorization',
+          title: 'IB authorization'
       }],
 
       NavigationType: NavigationType,
@@ -195,6 +195,9 @@ export default {
     tokenHeader () {
       const head = { 'X-Access-Token': storage.get(ACCESS_TOKEN) }
       return head
+    },
+    filterTabs() {
+      return this.tabsList
     }
   },
   methods: {

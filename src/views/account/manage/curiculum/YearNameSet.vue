@@ -2,49 +2,57 @@
   <div class="year-name-set">
     <a-spin :spinning="loading">
       <a-form-model layout="horizontal" :model="gradeForm" v-bind="formItemLayout" ref="form">
-        <a-form-model-item label="Curriculum">
-          <a-select
-            v-model="currentCurriculumId"
-            placeholder="Please Select a curriculum"
-            :getPopupContainer="target => target.parentNode"
-          >
-            <a-select-option
-              v-for="param in curriculums"
-              :value="param.id"
-              :key="'curriculums_' + param.name"
+        <div class="year-name-curriculum" v-for="curriculum in currentCurriculums" :key="'curriculum'+curriculum.id">
+
+          <a-row class="curriculum-title">
+            <a-col :span="formItemLayout.labelCol.span">
+              <a-checkbox
+                :indeterminate="curriculum.indeterminate"
+                :checked="curriculum.checkAll"
+                @change="val => changeCurriculum(val, curriculum)"
+              >{{ curriculum.name || curriculum.curriculumName }}</a-checkbox>
+            </a-col>
+          </a-row>
+
+          <template v-for="(grade, index) in gradeForm.gradeInfo.filter(item => item.curriculumId === curriculum.id)">
+            <a-form-model-item
+              :key="'grade'+index"
+              class="mb0"
             >
-              {{ param.name }}
-            </a-select-option>
-          </a-select>
-        </a-form-model-item>
-        <template v-for="(grade, index) in gradeForm.gradeInfo">
-          <a-form-model-item
-            v-show="grade.curriculumId === currentCurriculumId"
-            :key="'grade'+index"
-            :label="grade.gradeName"
-          >
-            <!-- :prop="'grade.' + index + '.officialGradeName'"
-            :rules="{
-              required: true,
-              message: 'Please input name',
-              trigger: 'blur',
-            }"> -->
-            <a-input v-model="grade.officialGradeName" placeholder="input name" />
-          </a-form-model-item>
-        </template>
+              <div slot="label" class="grade-item">
+                <a-checkbox v-model="grade.checked" @change="val => changeGradeCheck(val, grade)">{{ grade.officialGradeName }}</a-checkbox>
+              </div>
+              <a-row :gutter=16>
+                <a-col :span="12">
+                  <a-form-model-item>
+                    <!-- <a-input :disabled="!grade.checked" v-model="grade.gradeName" placeholder="input name" /> -->
+                    <a-select :disabled="!grade.checked" mode="tags" v-model="grade.gradeNameArr" :token-separators="[',']">
+                    </a-select>
+                  </a-form-model-item >
+                </a-col>
+                <a-col :span="12">
+                  <a-form-model-item>
+                    <a-input-number :disabled="!grade.checked" v-model="grade.age" placeholder="input age" />
+                  </a-form-model-item >
+                </a-col>
+              </a-row>
+
+            </a-form-model-item>
+          </template>
+
+        </div>
       </a-form-model>
-      <a-space class="year-name-opt">
+      <!-- <a-space class="year-name-opt">
         <a-button @click="handleCancel">Cancel</a-button>
-        <a-button type="primary" @click="handleSave">Save</a-button>
-      </a-space>
+        <a-button type="primary" :loading="loading" @click="handleSave">Save</a-button>
+      </a-space> -->
     </a-spin>
   </div>
 </template>
 
 <script>
 import { getAllGrades, getAllCurriculums } from '@/api/preference'
-import { GetSchoolGrade, SaveSchoolGrade } from '@/api/schoolAcademic'
-const { debounce } = require('lodash-es')
+const { debounce, cloneDeep, groupBy } = require('lodash-es')
 export default {
   name: 'YearNameSet',
   props: {
@@ -52,9 +60,9 @@ export default {
       type: Object,
       default: () => {}
     },
-    curriculumId: {
-      type: String,
-      default: ''
+    curriculums: {
+      type: Array,
+      default: () => []
     }
   },
   watch: {
@@ -62,17 +70,16 @@ export default {
       handler(val) {
         this.currentSchool = { ...val }
         if (val.id) {
-          this.gradeForm.schoolId = val.id
           this.debounceInit()
         }
       },
       deep: true
     },
-    curriculumId: {
+    curriculums: {
       handler(val) {
-        this.currentCurriculumId = val
+        this.initCurriculum(val)
       },
-      immediate: true,
+      immediate: false,
       deep: true
     }
   },
@@ -87,20 +94,27 @@ export default {
       loading: false,
       activeTab: 'year',
       grades: [],
-      curriculums: [],
+      currentCurriculums: [],
+      allCurriculums: [],
       formItemLayout: {
         labelCol: { span: 6 },
         wrapperCol: { span: 18 }
       },
+      forms: {},
+      gradeInfoTotal: [],
       gradeForm: {
         gradeInfo: [{
           gradeId: '',
           gradeName: '',
+          gradeNameArr: '',
+          age: null,
           officialGradeName: '',
-          curriculumId: ''
-        }],
-        schoolId: this.school ? this.school.id : ''
-      }
+          curriculumId: '',
+          checked: false
+        }]
+      },
+      origin: {},
+      gradeInfoTree: {}
     }
   },
   methods: {
@@ -108,38 +122,111 @@ export default {
       this.loading = true
       Promise.all([
         getAllGrades(),
-        getAllCurriculums(),
-        GetSchoolGrade({
-          schoolId: this.currentSchool.id
-        })
-      ]).then(([gradeRes, curriculumRes, schoolGrades]) => {
+        getAllCurriculums()
+      ]).then(([gradeRes, curriculumRes]) => {
         if (gradeRes.success) {
           this.grades = gradeRes.result
         }
         if (curriculumRes.success) {
-          this.curriculums = curriculumRes.result
+          this.allCurriculums = curriculumRes.result
         }
-        if (schoolGrades.success) {
-          this.gradeForm.gradeInfo = schoolGrades.result.gradeInfo
-        }
-        // 赋值curriculumIc
-        this.gradeForm.gradeInfo = this.grades.map(item => {
-          const grade = this.gradeForm.gradeInfo.find(grade => grade.gradeId === item.id)
+        this.gradeInfoTotal = this.grades.map(item => {
           const res = {
             gradeId: item.id,
             gradeName: item.name,
+            gradeNameArr: item.name.split(','),
             officialGradeName: item.name,
-            curriculumId: item.curriculumId
-          }
-          if (grade) {
-            res.officialGradeName = grade.officialGradeName
+            curriculumId: item.curriculumId,
+            age: item.age,
+            checked: false
           }
           return res
         })
-        console.log(this.gradeForm.gradeInfo)
+        this.initCurriculum(this.curriculums)
       }).finally(res => {
         this.loading = false
       })
+    },
+    initCurriculum(curriculums) {
+      console.log(curriculums)
+      let gradeInfos = []
+      curriculums.forEach(current => {
+        const find = this.gradeInfoTotal.filter(item => item.curriculumId === current.curriculumId)
+        const exists = this.gradeForm.gradeInfo.filter(item => item.curriculumId === current.curriculumId)
+        console.log(exists)
+        if (current.gradeSettingInfo) {
+          const actual = find.map(grade => {
+            const isFind = current.gradeSettingInfo.find(info => info.gradeId === grade.gradeId)
+            const exist = exists.find(ex => ex.gradeId === grade.gradeId)
+            return exist ? { ...exist }
+              : isFind ? {
+                ...isFind,
+                gradeNameArr: isFind.gradeName.split(','),
+                curriculumId: current.curriculumId,
+                checked: true
+              } : { ...grade }
+          })
+          gradeInfos = gradeInfos.concat(actual)
+        } else {
+          const actual = find.map(grade => {
+            const exist = exists.find(ex => ex.gradeId === grade.gradeId)
+            return exist ? { ...exist } : { ...grade }
+          })
+          gradeInfos = gradeInfos.concat(cloneDeep(actual))
+        }
+      })
+      this.gradeForm.gradeInfo = gradeInfos
+
+      const gradeInfoTree = groupBy(gradeInfos, 'curriculumId')
+      this.origin = cloneDeep(this.gradeForm)
+      const covertCurriculums = curriculums.map(item => {
+        let indeterminate = false
+        let checkAll = false
+        if (gradeInfoTree[item.id]) {
+          const checkedList = gradeInfoTree[item.id].filter(grade => grade.checked)
+          if (checkedList.length === gradeInfoTree[item.id].length) {
+            checkAll = true
+          } else {
+            if (checkedList.length > 0) {
+              indeterminate = true
+            }
+          }
+        }
+        item.checkAll = checkAll
+        item.indeterminate = indeterminate
+        return item
+      })
+      this.currentCurriculums = cloneDeep(covertCurriculums)
+    },
+    changeCurriculum(e, curriculum) {
+      curriculum.checkAll = e.target.checked
+      curriculum.indeterminate = false
+      this.gradeForm.gradeInfo.forEach(grade => {
+        if (grade.curriculumId === curriculum.id) {
+          grade.checked = e.target.checked
+        }
+      })
+    },
+    changeGradeCheck(e, grade) {
+      grade.checked = e.target.checked
+      const changeCurri = this.currentCurriculums.find(item => item.id === grade.curriculumId)
+      const gradeInfoTree = groupBy(this.gradeForm.gradeInfo, 'curriculumId')
+      let indeterminate = false
+      let checkAll = false
+      console.log(gradeInfoTree)
+      if (gradeInfoTree[grade.curriculumId]) {
+        const checkedList = gradeInfoTree[grade.curriculumId].filter(grade => grade.checked)
+        if (checkedList.length === gradeInfoTree[grade.curriculumId].length) {
+          checkAll = true
+        } else {
+          if (checkedList.length > 0) {
+            indeterminate = true
+          }
+        }
+      }
+      changeCurri.checkAll = checkAll
+      changeCurri.indeterminate = indeterminate
+      console.log(changeCurri)
     },
     handleCancel() {
       this.$emit('cancel')
@@ -148,15 +235,35 @@ export default {
       console.log(this.gradeForm)
       this.$refs.form.validate(valid => {
         if (valid) {
-          this.loading = true
-          SaveSchoolGrade(this.gradeForm).then(res => {
-            if (res.success) {
-              this.$message.success('Save successfully')
-              this.$emit('cancel')
+          const checkedGrade = this.gradeForm.gradeInfo.filter(item => item.checked)
+          const groupByCurri = groupBy(checkedGrade, 'curriculumId')
+          const curriculums = []
+          for (const curri in groupByCurri) {
+            const curriobj = this.allCurriculums.find(item => item.id === curri)
+            if (curriobj) {
+              const gradeSettingInfo = groupByCurri[curri].map(item => ({
+                ...item,
+                gradeName: item.gradeNameArr.join(',')
+              }))
+              curriculums.push({
+                curriculumId: curriobj.id,
+                curriculumName: curriobj.name,
+                gradeSettingInfo: gradeSettingInfo
+              })
             }
-          }).finally(res => {
-            this.loading = false
-          })
+          }
+          this.$emit('save', curriculums)
+          // this.loading = true
+          // const params = cloneDeep(this.gradeForm)
+          // params.schoolId = this.currentSchool.id
+          // SaveSchoolGrade(params).then(res => {
+          //   if (res.success) {
+          //     this.$message.success('Save successfully')
+          //     this.$emit('cancel')
+          //   }
+          // }).finally(res => {
+          //   this.loading = false
+          // })
         }
       })
     }
@@ -169,10 +276,32 @@ export default {
   position: relative;
   display: flex;
   flex-direction: column;
-  margin-top: 30px;
+  padding: 50px 20px;
+  overflow: auto;
+  height: 100%;
+  /deep/ .ant-col {
+    & > label {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+    }
+  }
 }
 .year-name-opt {
   justify-content: flex-end;
   width: 100%;
+}
+.curriculum-title {
+  text-align: right;
+  font-family: Arial;
+  font-weight: bold;
+  color: #27729A;
+  margin-bottom: 20px;
+  /deep/ span {
+    font-size: 16px;
+  }
+}
+.mb0 {
+  margin-bottom: 0;
 }
 </style>

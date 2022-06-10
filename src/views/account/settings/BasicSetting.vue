@@ -1101,6 +1101,7 @@ export default {
                 SchoolPrincipleSave(this.userForm).then(res => {
                   if (res.success) {
                     this.$message.success('Send successfully')
+                    this.userFormVisible = false
                   }
                 })
               }
@@ -1112,6 +1113,7 @@ export default {
             SchoolPrincipleSave(this.userForm).then(res => {
               if (res.success) {
                 this.$message.success('Send successfully')
+                this.userFormVisible = false
               }
             }).finally(res => {
               this.confirmLoading = false

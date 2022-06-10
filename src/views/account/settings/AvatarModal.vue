@@ -48,14 +48,17 @@
         <a-button icon="redo" @click="rotateRight"/>
       </a-col>
       <a-col :lg="{span: 2, offset: 6}" :md="2">
-        <a-button type="primary" @click="finish('blob')">{{ $t('account.settings.avatar.save-image') }}</a-button>
+        <a-button type="primary" @click="uploadImage" :disabled='confirmLoading' :loading='confirmLoading'>
+          <a-icon type="cloud-upload" />
+          Upload image
+        </a-button>
       </a-col>
     </a-row>
   </a-modal>
 
 </template>
 <script>
-import { commonAPIUrl } from '@/api/common'
+import { upAwsS3File } from '@/components/AddMaterial/Utils/AwsS3'
 
 export default {
   data () {
@@ -113,30 +116,37 @@ export default {
     },
 
     // 上传图片（点击上传按钮）
-    finish (type) {
-      console.log('finish')
-      const _this = this
-      const formData = new FormData()
-      // 输出
-      if (type === 'blob') {
-        this.$refs.cropper.getCropBlob((data) => {
-          const img = window.URL.createObjectURL(data)
-          this.model = true
-          this.modelSrc = img
-          formData.append('file', data, 'avatar.png')
-          this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
-            .then((response) => {
-              console.log('upload response:', response)
-              _this.$emit('ok', this.$store.getters.downloadUrl + response.result)
-              _this.visible = false
-            })
-        })
-      } else {
-        this.$refs.cropper.getCropData((data) => {
-          this.model = true
-          this.modelSrc = data
-        })
-      }
+    uploadImage () {
+      this.$refs.cropper.getCropData((data) => {
+        const arr = data.split(',')
+        const mime = arr[0].match(/:(.*?);/)[1]
+        const bstr = atob(arr[1])
+        let n = bstr.length
+        const u8arr = new Uint8Array(n)
+
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n)
+        }
+        this.model = true
+        this.modelSrc = data
+        const suffix = mime.split('/')[1]
+        const file = new File([u8arr], `custom_image_${Date.now()}_${Math.random().toString(36).slice(2)}.${suffix}`, { type: mime })
+        this.$logger.info('upload file', file)
+        this.confirmLoading = true
+        upAwsS3File(this.$store.getters.userInfo.id, file, this.getProgressUpLoad, result => {
+          this.onSuccess(file, result)
+        }, true)
+      })
+    },
+    getProgressUpLoad (progress) {
+      this.$logger.info('getProgressUpLoad', progress)
+      this.confirmLoading = true
+    },
+    onSuccess (file, result) {
+      this.$logger.info('upload success', file, result)
+      this.$emit('ok', result)
+      this.confirmLoading = false
+      this.okHandel()
     },
     okHandel () {
       const vm = this

@@ -1,74 +1,29 @@
 <template>
-  <a-card>
-    <div class="opt-area">
-      <a-form layout="inline">
-        <a-row type="flex" justify="space-between">
-          <a-col :span="8">
-            <a-input-search placeholder="Search for Name" v-model="queryParam.searchKey" enter-button @search="triggerSearch"/>
-          </a-col>
-          <a-col>
-            <a-button type="primary" @click="handleYearSet">Customize grades</a-button>
-          </a-col>
-        </a-row>
-      </a-form>
-    </div>
-    <div class="circulum-con" v-for="(circulumKey, key) in curriculumTree" :key="'circulum_key_' + key">
-      <div class="circulum-title">{{ key }}</div>
-      <div class="circulum-content">
-        <div class="circulum-detail">
-          <div class="detail-item" v-for="circulum in circulumKey" :key="'circulum+' + circulum.id">
-            <div class="item-check">
-              <a-checkbox v-model="circulum.checked" @change="val => onChange(val, circulum)">
-
-              </a-checkbox>
-            </div>
-            <div class="item-content">
-              <div class="item-content-avatar">
-                <a-avatar
-                  shape="square"
-                  :size="50"
-                  :style="{ backgroundColor: '#3377FF', verticalAlign: 'middle' }"
-                >
-                  {{ circulum.name }}
-                </a-avatar>
-              </div>
-              <div class="item-content-detail">
-                <div class="content-detail-title">{{ circulum.name }}</div>
-                <div class="content-detail-sub">{{ formatGrade(circulum.id) }}</div>
-                <a-space class="content-detail-opt" v-show="circulum.checked">
-                  <!-- <a-button size="small" type='danger'>L3</a-button> -->
-                  <a-button size="small" type='primary'>Enable</a-button>
-                </a-space>
-              </div>
-            </div>
+  <div class="curiculum-con">
+    <div class="curiculum-list">
+      <div class="curiculum-detail">
+        <div class="detail-item" v-for="circulum in curriculumOptions" :key="'circulum+' + circulum.id">
+          <div class="item-check">
+            <a-checkbox v-model="circulum.checked" @change="val => onChange(val, circulum)">
+              {{ circulum.name }}
+            </a-checkbox>
           </div>
         </div>
       </div>
     </div>
-    <a-modal
-      v-model="yearSetVisible"
-      :footer="null"
-      :title="null"
-      :closable="true"
-      destroyOnClose
-      :dialog-style="{ top: '50px' }"
-      width="400px">
-      <div>
-        <year-name-set
-          :curriculumId="choosed.id"
-          :school="this.currentSchool"
-          @cancel="yearSetVisible = false"
-        />
-      </div>
-    </a-modal>
-  </a-card>
+
+    <div class="curiculum-content">
+      <year-name-set ref="yearNameSet" @save="handleSave" :curriculums="choosed" :school="currentSchool"/>s
+    </div>
+
+  </div>
 </template>
 
 <script>
 import { getAllCurriculums } from '@/api/preference'
-import { SaveSchoolCurriculum } from '@/api/schoolAcademic'
+import { getCurriculumBySchoolId, saveCurriculum } from '@/api/academicSettingCurriculum'
 import YearNameSet from './YearNameSet'
-const { groupBy } = require('lodash-es')
+import cloneDeep from 'lodash.clonedeep'
 export default {
   name: 'CirculumSel',
   components: {
@@ -102,31 +57,54 @@ export default {
       queryParam: {
         searchKey: ''
       },
-      curriculumTree: {},
-      choosed: {},
-      yearSetVisible: false
+      choosed: [],
+      yearSetVisible: false,
+      initCurriculum: [],
+      loading: false
     }
   },
   created() {
   },
   methods: {
     initData() {
-      getAllCurriculums().then((response) => {
-        if (response.success) {
-          this.allOptions = response.result.map(item => {
+      Promise.all([
+        getAllCurriculums(),
+        getCurriculumBySchoolId({
+          schoolId: this.currentSchool.id
+        })
+      ]).then(([allRes, currentRes]) => {
+        if (allRes.success && currentRes.success) {
+          console.log(currentRes)
+          const choose = []
+          this.initCurriculum = currentRes.result
+          this.allOptions = allRes.result.map(item => {
             let checked = false
-            if (this.currentSchool.curriculumId && this.currentSchool.curriculumId === item.id) {
-              checked = true
-              this.choosed = { ...item }
-              this.$emit('change', item)
+            item.curriculumId = item.id
+            if (currentRes.result && currentRes.result.length > 0) {
+              currentRes.result.forEach(selected => {
+                if (selected.curriculumId === item.id) {
+                  checked = true
+                  selected.id = item.id
+                  selected.curriculumId = item.id
+                  item.gradeSettingInfo = selected.gradeSettingInfo ? [...selected.gradeSettingInfo] : []
+                  choose.push(cloneDeep(selected))
+                }
+              })
+            } else if (this.currentSchool.curriculumId) {
+              const current = Array.isArray(this.currentSchool.curriculumId) ? this.currentSchool.curriculumId : [this.currentSchool.curriculumId]
+              if (current.includes(item.id)) {
+                checked = true
+                choose.push({ ...item })
+              }
             }
             return {
               ...item,
               checked: checked
             }
           })
+          this.choosed = choose
+          this.$emit('change', this.choosed)
           this.curriculumOptions = this.allOptions.concat()
-          this.curriculumTree = groupBy(this.curriculumOptions, 'country')
         }
       })
     },
@@ -143,33 +121,49 @@ export default {
       this.curriculumOptions = this.allOptions.filter(item => {
         return item.name.toLowerCase().indexOf(this.queryParam.searchKey.toLowerCase()) > -1
       })
-      this.curriculumTree = groupBy(this.curriculumOptions, 'country')
     },
-    onChange(val, curriculum) {
+    onChange(e, curriculum) {
+      console.log(this.choosed)
+      if (!e.target.checked) {
+        if (this.choosed.length === 1) {
+          this.$message.error('Please select at least one')
+          curriculum.checked = true
+          return
+        }
+      }
       this.curriculumOptions.forEach(item => {
         // val.target.checked
         if (item.id === curriculum.id) {
-          item.checked = true
-        } else {
-          item.checked = false
+          item.checked = e.target.checked
         }
       })
-      this.curriculumTree = groupBy(this.curriculumOptions, 'country')
-      this.choosed = { ...curriculum }
-      this.$emit('change', curriculum)
+      if (e.target.checked) {
+        this.choosed.push({ ...curriculum })
+      } else {
+        const index = this.choosed.findIndex(item => item.id === curriculum.id)
+        if (index > -1) {
+          this.choosed.splice(index, 1)
+        }
+      }
+      this.$emit('change', this.choosed)
     },
-    handleYearSet() {
-      this.yearSetVisible = true
+    doSave() {
+      this.$refs.yearNameSet.handleSave()
     },
-    handleSave() {
-      SaveSchoolCurriculum({
+    handleSave(curriculums) {
+      console.log(curriculums)
+      this.loading = true
+      saveCurriculum({
         schoolId: this.currentSchool.id,
-        curriculumId: this.choosed.id
+        curriculums: curriculums
       }).then(res => {
         if (res.success) {
+          // this.choosed = cloneDeep(curriculums)
+          this.initData()
         }
       }).finally(() => {
         this.$emit('save-success')
+        this.loading = false
       })
     }
   }
@@ -177,82 +171,31 @@ export default {
 </script>
 
 <style scoped lang="less">
-.ant-card-bordered {
-  border-radius: 10px;
-}
-.circulum-con {
-  position: relative;
-  margin-top: 20px;
-  .circulum-title {
-    height: 21px;
-    font-size: 16px;
-    font-family: Leelawadee UI;
-    font-weight: bold;
-    color: #070707;
-    opacity: 1;
-    margin-bottom: 20px;
-  }
-  .circulum-content {
-    min-height: 140px;
-    background: #FAFAFA;
-    opacity: 1;
-    border-radius: 10px;
-    padding: 20px;
-    .circulum-detail {
-      min-height: 100px;
-      width: 100%;
-      background: #FFFFFF;
-      opacity: 1;
-      border-radius: 10px;
+.curiculum-con {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex: 1;
+  .curiculum-list {
+    width: 300px;
+    padding: 45px 60px;
+    background: #fff;
+    .curiculum-detail {
       display: flex;
-      flex-wrap: wrap;
-      padding: 10px 20px;
+      flex-direction: column;
       .detail-item {
-        display: flex;
-        min-width: 220px;
-        margin: 10px 0;
-        .item-check {
-          width:20px;
-          height: 20px;
-          margin-right: 20px;
-          margin-top: 12px;
-        }
-        .item-content {
-          display: flex;
-          .item-content-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 5px;
-            margin-right: 10px;
-          }
-          .item-content-detail {
-            display: flex;
-            flex-direction: column;
-            .content-detail-title {
-              line-height: 19px;
-              font-size: 14px;
-              font-family: Leelawadee UI;
-              font-weight: 400;
-              color: #070707;
-              opacity: 1;
-              margin-bottom: 5px;
-            }
-            .content-detail-sub {
-              line-height: 19px;
-              font-size: 14px;
-              font-family: Leelawadee UI;
-              font-weight: 400;
-              color: #070707;
-              opacity: 1;
-              margin-bottom: 5px;
-            }
-            .content-detail-opt {
-              display: flex;
-            }
-          }
-        }
+        line-height: 20px;
+        height: 30px;
+        margin: 5px;
+        font-size: 14px;
+        font-family: Arial;
+        font-weight: 400;
+        color: #484E52;
       }
     }
+  }
+  .curiculum-content {
+    flex: 1;
   }
 }
 </style>

@@ -18,7 +18,8 @@ export const schoolUserAPIUrl = {
   exportInvalidStaff: '/classcipe/api/school/user/exportInvalidStaff',
   exportInvalidStudent: '/classcipe/api/school/user/exportInvalidStudent',
   removeSchoolUser: '/classcipe/api/school/user/removeSchoolUser',
-  getUserInfo: '/classcipe/api/school/user/getUserInfo'
+  getUserInfo: '/classcipe/api/school/user/getUserInfo',
+  updateProfile: '/classcipe/api/school/user/updateProfile'
 }
 
 /**
@@ -116,5 +117,13 @@ export function getUserInfo (parameter) {
     url: schoolUserAPIUrl.getUserInfo,
     method: 'get',
     params: parameter
+  })
+}
+
+export function updateProfile (parameter) {
+  return request({
+    url: schoolUserAPIUrl.updateProfile,
+    method: 'post',
+    data: parameter
   })
 }

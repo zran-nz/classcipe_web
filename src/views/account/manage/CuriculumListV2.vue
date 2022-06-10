@@ -25,25 +25,41 @@
           </div>
         </div>
       </div>
-      <curiculum-sel
-        ref="CurriculumRef"
-        v-show="currentTab === 'Curriculum'"
-        :gradeOptions="gradeOptions"
-        :school="currentSchool"
-        @change="changeCurriculum"
-        @save-success="() => successCb('pendingCurriculum')"
-      />
-      <div style="font-size: 14px;">
-        <subject-sel
-          ref="SubjectRef"
-          v-show="currentTab === 'Subject'"
+      <div class="form-tab">
+        <curiculum-sel
+          ref="CurriculumRef"
+          v-show="currentTab === 'Curriculum'"
           :gradeOptions="gradeOptions"
-          :curriculum="currentCurriculum"
           :school="currentSchool"
-          @change="changeSubjects"
-          @save-success="() => successCb('pendingSubject')"
+          @change="changeCurriculum"
+          @save-success="() => successCb('pendingCurriculum')"
         />
+        <div style="font-size: 14px;">
+          <subject-sel
+            ref="SubjectRef"
+            v-show="currentTab === 'Subject'"
+            :gradeOptions="gradeOptions"
+            :curriculum="currentCurriculum"
+            :school="currentSchool"
+            @change="changeSubjects"
+            @save-success="() => successCb('pendingSubject')"
+          />
+        </div>
       </div>
+    </div>
+    <div style="font-size: 16px;">
+      <fixed-form-footer>
+        <template v-slot:right>
+          <a-button type='primary' @click='handleNextStep' class='cc-round-button'>
+            <template v-if='true'>
+              Next
+            </template>
+            <template v-else>
+              Complete
+            </template>
+          </a-button>
+        </template>
+      </fixed-form-footer>
     </div>
   </div>
 </template>
@@ -58,6 +74,7 @@ import { ReSetFontMixin } from '@/mixins/ReSetFontMixin'
 import { GradeGetAllGrades } from '@/api/grade'
 
 import FixedFormHeader from '@/components/Common/FixedFormHeader'
+import FixedFormFooter from '@/components/Common/FixedFormFooter'
 import FormHeader from '@/components/FormHeader/FormHeader'
 import CuriculumSel from './curiculum/CuriculumSel'
 import SubjectSel from './curiculum/SubjectSel'
@@ -67,6 +84,7 @@ export default {
   name: 'CuriculumListV2',
   components: {
     FixedFormHeader,
+    FixedFormFooter,
     FormHeader,
     CuriculumSel,
     SubjectSel
@@ -139,6 +157,11 @@ export default {
         this.$message.success('Save successfully')
         this.saveLoading = false
       }
+    },
+    handleNextStep() {
+      if (this.currentTab === 'Curriculum') {
+        this.$refs.CurriculumRef.doSave()
+      }
     }
   }
 }
@@ -150,9 +173,11 @@ export default {
 }
 .form-content {
   margin-top: 60px;
-  min-height: calc(100vh - 60px);
-  height: 100%;
+  height: calc(100vh - 60px);
   transition: all 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 .status-tab {
   display: flex;
@@ -200,5 +225,11 @@ export default {
       }
     }
   }
+}
+.form-tab {
+  height: calc(100% - 1.1em);
+}
+/deep/ .cc-fixed-form-footer {
+  background: #fff;
 }
 </style>

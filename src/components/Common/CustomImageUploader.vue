@@ -12,7 +12,7 @@
               <a-icon type="cloud-upload" />
             </template>
           </custom-button>
-          <custom-button label='Delete' @click='handleDeleteItem'>
+          <custom-button v-if="needDel" label='Delete' @click='handleDeleteItem'>
             <template v-slot:icon>
               <a-icon type="delete" />
             </template>
@@ -91,6 +91,10 @@ export default {
     imgUrl: {
       type: String,
       default: null
+    },
+    needDel: {
+      type: Boolean,
+      default: true
     }
   },
   data() {

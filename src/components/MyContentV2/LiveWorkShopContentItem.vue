@@ -68,9 +68,10 @@
           </div>
         </div> -->
         <tags-line :tags="content.content.customTags" />
-        <template v-if="content.priceList && content.priceList.length > 0">
+        <div class="price-con" v-if="content.priceList && content.priceList.length > 0">
           <price-slider :priceList="content.priceList" :current="content.registeredNum" :origin="content.price" />
-        </template>
+          <a-icon class="price-edit" @click="editPrice(content)" type="edit" v-if="!content.registeredNum && WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType"></a-icon>
+        </div>
       </div>
       <div class='action'>
         <div class="author-name">
@@ -165,6 +166,19 @@
       v-if='previewVisible'
       @close='handlePreviewClose' />
 
+    <a-modal
+      v-model="showEditPrice"
+      destroyOnClose
+      width="600px"
+      :zIndex="6000"
+      :confirmLoading="loading"
+      title="Price Set"
+      okText="Save"
+      @ok="handleSavePrice"
+      @cancel="showEditPrice = false">
+      <schedule-price-set ref="priceSet" :init-price="choose.price" :init-price-list="choose.priceList" />
+    </a-modal>
+
   </div>
 </template>
 
@@ -181,6 +195,7 @@ import PreviewContent from '@/components/MyContentV2/PreviewContent'
 import ContentPreview from '@/components/Preview/ContentPreview'
 import TagsLine from '@/components/TagsLine'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
+import SchedulePriceSet from '@/components/Schedule/SchedulePriceSet'
 
 import { ContentItemMixin } from '@/mixins/ContentItemMixin'
 import { ACCESS_TOKEN, SET_PROMOTE_CODE } from '@/store/mutation-types'
@@ -198,7 +213,8 @@ export default {
     PreviewContent,
     ContentPreview,
     TagsLine,
-    ContentTypeIcon
+    ContentTypeIcon,
+    SchedulePriceSet
   },
   mixins: [ ContentItemMixin ],
   props: {
@@ -218,8 +234,12 @@ export default {
       showTagLen: 2,
       showEditName: false,
       showEditSche: false,
+      showEditPrice: false,
       choose: {
+        id: null,
         title: '',
+        price: 0,
+        priceList: [],
         startDate: null,
         endData: null
       },
@@ -251,9 +271,9 @@ export default {
     // 有没有标签都固定右边。。。
     if (this.$refs.detailPrice.getElementsByClassName('price-slider')[0]) {
       if (total === 0) {
-        this.$refs.detailPrice.getElementsByClassName('price-slider')[0].parentElement.style.justifyContent = 'flex-end'
+        this.$refs.detailPrice.style.justifyContent = 'flex-end'
       } else {
-        this.$refs.detailPrice.getElementsByClassName('price-slider')[0].parentElement.style.justifyContent = 'space-between'
+        this.$refs.detailPrice.style.justifyContent = 'space-between'
       }
     }
   },
@@ -289,6 +309,12 @@ export default {
       this.choose.startDate = item.sessionStartTime
       this.choose.endData = item.sessionEndTime
       console.log(this.choose)
+    },
+    editPrice(item) {
+      this.showEditPrice = true
+      this.choose = { ...item }
+      this.choose.startDate = item.sessionStartTime
+      this.choose.endData = item.sessionEndTime
     },
     visibleChange(visible, content) {
       if (visible && content.name) {
@@ -333,7 +359,14 @@ export default {
         this.choose.endData = null
       }
     },
-    handleSave(item) {
+    handleSavePrice() {
+      const params = this.$refs.priceSet.getPriceSet()
+      this.handleSave({
+        ...params,
+        id: this.choose.id
+      }, true)
+    },
+    handleSave(item, needReload = false) {
       const params = {
         startDate: this.choose.startDate,
         endData: this.choose.endData,
@@ -342,6 +375,10 @@ export default {
         },
         id: item.id
       }
+      if (item.discountInfo) {
+        params.register.discountInfo = [ ...item.discountInfo ]
+        params.register.price = item.price
+      }
       this.loading = true
       EditSessionScheduleV2(params).then(res => {
         if (res.success) {
@@ -349,6 +386,10 @@ export default {
           item.title = this.choose.title
           this.showEditName = false
           this.showEditSche = false
+          this.showEditPrice = false
+          if (needReload) {
+            this.$emit('reload')
+          }
         }
       }).finally(res => {
         this.loading = false
@@ -697,42 +738,50 @@ export default {
       text-align: center;
     }
   }
-  /deep/ .price-slider {
+  .price-con {
     margin-top: -0.2em;
-    // flex: 1;
-    width: 5em;
-    .slider-label {
-      width: calc(100% - 0.125em /* 12.5/100 */);
-      left: 0.0175em /* 1.75/100 */;
-      top: 0.1em;
-      .slider-label-item {
-        font-size: 0.16em /* 16/100 */;
-        width:2.25em /* 100/16*.36 */;
-        height:2.25em /* 100/16*.36 */;
-        line-height:2.25em /* 100/16*.36 */;
-        &.current {
-          top: -2em;
+    display: flex;
+    align-items: center;
+    .price-edit {
+      font-size: 0.16em /* 16/100 */;
+      cursor: pointer;
+    }
+    /deep/ .price-slider {
+      // flex: 1;
+      width: 5em;
+      .slider-label {
+        width: calc(100% - 0.125em /* 12.5/100 */);
+        left: 0.0175em /* 1.75/100 */;
+        top: 0.1em;
+        .slider-label-item {
+          font-size: 0.16em /* 16/100 */;
+          width:2.25em /* 100/16*.36 */;
+          height:2.25em /* 100/16*.36 */;
+          line-height:2.25em /* 100/16*.36 */;
+          &.current {
+            top: -2em;
+          }
         }
       }
-    }
-    .ant-slider {
-      height: 0.3em /* 30/100 */;
-      margin: 0.1em /* 10/100 */ 0.06em /* 6/100 */ 0.1em /* 10/100 */;
-      padding: 0.09em /* 9/100 */ 0;
-      font-size: inherit;
-      .ant-slider-rail {
-        height: 0.14em /* 14/100 */;
-      }
-      .ant-slider-dot {
-        width:0.37em /* 37/100 */;
-        height:0.37em /* 37/100 */;
-      }
-      .ant-slider-track {
-        height: 0.14em /* 14/100 */;;
-      }
-      .ant-slider-mark {
-        top:2em;
-        font-size: 0.15em /* 14/100 */;
+      .ant-slider {
+        height: 0.3em /* 30/100 */;
+        margin: 0.1em /* 10/100 */ 0.06em /* 6/100 */ 0.1em /* 10/100 */;
+        padding: 0.09em /* 9/100 */ 0;
+        font-size: inherit;
+        .ant-slider-rail {
+          height: 0.14em /* 14/100 */;
+        }
+        .ant-slider-dot {
+          width:0.37em /* 37/100 */;
+          height:0.37em /* 37/100 */;
+        }
+        .ant-slider-track {
+          height: 0.14em /* 14/100 */;;
+        }
+        .ant-slider-mark {
+          top:2em;
+          font-size: 0.15em /* 14/100 */;
+        }
       }
     }
   }

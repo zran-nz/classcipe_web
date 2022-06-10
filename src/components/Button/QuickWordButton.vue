@@ -15,17 +15,22 @@
           Select an option
         </div>
         <a-spin :spinning="loading">
-          <div
+          <!-- <div
             class="quick-word-content"
             v-infinite-scroll="handleInfiniteOnLoad"
             :infinite-scroll-disabled="busy"
             :infinite-scroll-distance="10"
             v-if="result && result.length > 0"
+          > -->
+          <div
+            class="quick-word-content"
+            v-if="result && result.length > 0"
           >
             <div class="quick-word-item" v-for="(item) in result" :key="'quickWord_'+item">
-              <a-tooltip :title="item">
+              <!-- <a-tooltip :title="item">
                 <a @click="choose(item)">{{ item }}</a>
-              </a-tooltip>
+              </a-tooltip> -->
+              <a @click="choose(item)">{{ item }}</a>
             </div>
           </div>
           <div v-else style="font-size: 12px;color:#999;">No relevant tag found</div>
@@ -134,7 +139,7 @@ export default {
         } else {
           const cacheds = await this.cacheApi({})
           sessionStorage.setItem(userId + this.cacheKey, JSON.stringify(cacheds))
-          this.result = cacheds.concat()
+          this.result = cacheds
         }
       }
       this.result = this.result.filter(item => item.toLocaleLowerCase().indexOf(this.word.toLocaleLowerCase()) > -1)
@@ -207,7 +212,7 @@ export default {
 }
 .quick-word {
   position: relative;
-  width: 200px;
+  width: 250px;
   .quick-word-title {
     line-height: 30px;
     color: #666;
