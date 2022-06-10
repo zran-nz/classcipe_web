@@ -3,8 +3,8 @@
     <div class="nav-left">
       <div class="nav-items menu-list">
         <a-menu mode="horizontal" theme="dark" :defaultSelectedKeys="defaultSelectedKeys" :selectedKeys="selectedKeys">
-          <a-menu-item key="/teacher/library-v3">
-            <router-link to="/teacher/library-v3">
+          <a-menu-item key="/teacher/library">
+            <router-link to="/teacher/library">
               <div class="nav-item">
                 <div class="nav-icon">
                   <library-icon-svg />

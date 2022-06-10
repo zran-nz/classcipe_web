@@ -62,7 +62,7 @@ import LibraryContentItem from '@/components/MyContentV2/LibraryContentItem'
 import { mapState } from 'vuex'
 
 export default {
-  name: 'LibraryAll',
+  name: 'ResourceAll',
   props: {
     category: {
       type: String,
@@ -164,8 +164,8 @@ export default {
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize,
         saTags: [],
-        subject: []
-        // schoolId: this.school 个人身份不传学校id
+        subject: [],
+        schoolId: this.school
       }
       queryAllResource(params).then(res => {
         this.$logger.info('queryAllResource', res)

@@ -18,7 +18,7 @@ export default {
   },
   data() {
     return {
-      redirects: ['', '/teacher/library-v3', '/teacher/main/live-workshops']
+      redirects: ['', '/teacher/library', '/teacher/main/live-workshops']
     }
   },
   created () {

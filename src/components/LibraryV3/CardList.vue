@@ -5,7 +5,8 @@
         {{ title }}
       </div>
       <div class='more-action'>
-        <router-link :to="'/teacher/library-all/' + category">All</router-link>
+        <router-link :to="'/teacher/library-all/' + category" v-if='!isSchoolMode'>All</router-link>
+        <router-link :to="'/teacher/resource-all/' + category" v-if='isSchoolMode'>All</router-link>
       </div>
     </div>
     <div class='card-list'>
@@ -33,7 +34,8 @@ export default {
     title: { type: String, required: true },
     category: { type: String, required: true },
     cardSize: { type: Number, default: 20 },
-    list: { type: Array, required: true }
+    list: { type: Array, required: true },
+    isSchoolMode: { type: Boolean, default: false }
   },
   mixins: [ContentItemMixin],
   data() {

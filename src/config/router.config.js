@@ -70,12 +70,6 @@ export const asyncRouterMap = [
             meta: { title: 'menu.shared', keepAlive: true, permission: ['teacher'], hidden: true }
           },
           {
-            path: '/teacher/library/:browserType?/',
-            name: 'Library',
-            component: () => import('@/views/teacher/Library'),
-            meta: { title: 'menu.library', keepAlive: true, permission: ['teacher'], fullLayout: true }
-          },
-          {
             path: '/teacher/library/search/:keyword',
             name: 'LibrarySearch',
             component: () => import('@/views/teacher/LibrarySearch'),
@@ -83,7 +77,7 @@ export const asyncRouterMap = [
             meta: { title: 'menu.librarySearch', keepAlive: true, permission: ['teacher'], fullLayout: true }
           },
           {
-            path: '/teacher/library-v3/:browserType?/',
+            path: '/teacher/library',
             name: 'Library',
             component: () => import('@/views/teacher/Library'),
             meta: { title: 'menu.library', keepAlive: true, permission: ['teacher'], fullLayout: true, hiddenFooter: true }
@@ -94,6 +88,26 @@ export const asyncRouterMap = [
             props: true,
             component: () => import('@/views/teacher/LibraryAll'),
             meta: { title: 'menu.library', keepAlive: true, permission: ['teacher'] }
+          },
+          {
+            path: '/teacher/resource/search/:keyword',
+            name: 'ResourceSearch',
+            component: () => import('@/views/teacher/ResourceSearch'),
+            props: true,
+            meta: { title: 'menu.resourceSearch', keepAlive: true, permission: ['teacher'], fullLayout: true }
+          },
+          {
+            path: '/teacher/resource',
+            name: 'Resource',
+            component: () => import('@/views/teacher/Resource'),
+            meta: { title: 'menu.resource', keepAlive: true, permission: ['teacher'], fullLayout: true, hiddenFooter: true }
+          },
+          {
+            path: '/teacher/resource-all/:category',
+            name: 'ResourceAll',
+            props: true,
+            component: () => import('@/views/teacher/ResourceAll'),
+            meta: { title: 'menu.resource', keepAlive: true, permission: ['teacher'] }
           },
           {
             path: '/teacher/main/live-workshops',

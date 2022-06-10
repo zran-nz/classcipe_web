@@ -2,9 +2,14 @@
   <div class="teacher-nav top-nav-v2">
     <div class='top-menu' @dblclick='handleExpandMenu'>
       <div class='menu menu-block' @dblclick.stop=''>
-        <sidebar-menu-item label='Library' path='/teacher/library-v3'>
+        <sidebar-menu-item label='Library' path='/teacher/library'>
           <template v-slot:icon>
             <library-icon />
+          </template>
+        </sidebar-menu-item>
+        <sidebar-menu-item label='School resource' path='/teacher/resource'>
+          <template v-slot:icon>
+            <resource-icon />
           </template>
         </sidebar-menu-item>
         <sidebar-menu-item label='Published' path='/teacher/main/my-published' v-if='userMode !== USER_MODE.SCHOOL'>
@@ -56,6 +61,7 @@
 <script>
 
 import * as logger from '@/utils/logger'
+import ResourceIcon from '@/assets/v2/icons/order.svg?inline'
 import MyContentIcon from '@/assets/v2/icons/my_content.svg?inline'
 import MyFavoriteIcon from '@/assets/v2/icons/my_favorites.svg?inline'
 import LiveWorkshopsIcon from '@/assets/v2/icons/live_workshops.svg?inline'
@@ -84,6 +90,7 @@ export default {
     MyContentIcon,
     MyFavoriteIcon,
     LiveWorkshopsIcon,
+    ResourceIcon,
     ClassIcon,
     LibraryIcon,
     CoTeachingIcon,
