@@ -16,7 +16,7 @@
           </div>
           <div class="header-detail-email" v-if="userMode === USER_MODE.SELF">
             <label>{{ info.email }}</label>
-            <a-button size="small" type="primary">Go to profile</a-button>
+            <a-button size="small" type="primary" @click="goToProfile">Go to profile</a-button>
           </div>
           <div class="header-detail-plan">
             <div class="plan-name">
@@ -388,6 +388,9 @@ export default {
       if (url) {
         this.$router.push({ path: url })
       }
+    },
+    goToProfile() {
+      this.$router.push({ path: '/account/settings/basic' })
     },
     setAvatar (url) {
       this.selfEditModel.avatar = url
