@@ -89,6 +89,13 @@ export const asyncRouterMap = [
             meta: { title: 'menu.library', keepAlive: true, permission: ['teacher'], fullLayout: true, hiddenFooter: true }
           },
           {
+            path: '/teacher/library-all/:category',
+            name: 'LibraryAll',
+            props: true,
+            component: () => import('@/views/teacher/LibraryAll'),
+            meta: { title: 'menu.library', keepAlive: true, permission: ['teacher'] }
+          },
+          {
             path: '/teacher/main/live-workshops',
             name: 'LiveWorkshops',
             component: () => import('@/views/teacher/LiveWorkShops'),

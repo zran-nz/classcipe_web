@@ -5,7 +5,7 @@
         {{ title }}
       </div>
       <div class='more-action'>
-        All
+        <router-link :to="'/teacher/library-all/' + category">All</router-link>
       </div>
     </div>
     <div class='card-list'>
@@ -97,6 +97,12 @@ export default {
       font-size: 16px;
       user-select: none;
       cursor: pointer;
+      color: #153C76;
+
+      a {
+        font-size: 16px;
+        color: #153C76;
+      }
     }
   }
 
