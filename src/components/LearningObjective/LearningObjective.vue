@@ -657,6 +657,7 @@ export default {
 
     domFn(key, currentChoose) {
       this.currentObjective = { ...currentChoose }
+      console.log(this.currentObjective)
       this.quickWord = key ? key.split(' ')[0] : ''
       this.commandTermForm.name = this.quickWord
       this.showQuickWordCreate = false

@@ -4,7 +4,8 @@ export const schoolAPIUrl = {
   getSchools: '/classcipe/api/school/getSchools',
   getSchoolList: '/classcipe/api/school/list',
   createSchool: '/classcipe/api/school/create',
-  queryById: '/classcipe/api/school/queryById'
+  queryById: '/classcipe/api/school/queryById',
+  updateSchool: '/classcipe/api/school/addOrUpdate'
 }
 
 /**
@@ -39,5 +40,14 @@ export function queryById (parameter) {
     url: schoolAPIUrl.queryById,
     method: 'get',
     params: parameter
+  })
+}
+
+export function updateSchool (parameter) {
+  return request({
+    url: schoolAPIUrl.updateSchool,
+    method: 'post',
+    params: parameter,
+    data: parameter
   })
 }

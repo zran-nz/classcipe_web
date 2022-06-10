@@ -346,7 +346,7 @@
               <a-textarea :auto-size="{ minRows: 3}" size="large" v-model="userForm.personalizedMessage" placeholder="input your personalized message" />
             </a-form-model-item>
             <a-form-model-item style="text-align: right;">
-              <a-button type="primary" html-type="submit" @click="doSaveUserForm">
+              <a-button type="primary" html-type="submit" :loading="confirmLoading" @click="doSaveUserForm">
                 Send
               </a-button>
             </a-form-model-item>
@@ -486,7 +486,7 @@
               <a-input v-model="adminForm.notes" placeholder="Please Input Notes" />
             </a-form-model-item>
             <a-form-model-item style="text-align: right;">
-              <a-button type="primary" html-type="submit" @click="doSaveAdminForm">
+              <a-button type="primary" html-type="submit" :loading="confirmLoading" @click="doSaveAdminForm">
                 Send
               </a-button>
             </a-form-model-item>
@@ -747,7 +747,7 @@ export default {
         this.userInfo.gradeIds = this.userInfoStore.preference.gradeIds
       } else {
         this.userInfo.curriculumId = this.currentSchool.curriculumId || this.userInfoStore.bindCurriculum
-        this.userInfo.subjectIds = this.schoolUserInfo.classes.map(item => item.subject)
+        this.userInfo.subjectIds = this.schoolUserInfo.classes ? this.schoolUserInfo.classes.map(item => item.subject) : []
         this.userInfo.gradeIds = this.schoolUserInfo.grades
       }
 
@@ -836,6 +836,7 @@ export default {
         }).catch(err => {
           this.$message.error(err)
         }).finally(() => {
+          this.loading = false
         })
       } else {
         Promise.all([
@@ -879,6 +880,7 @@ export default {
         }).catch(err => {
           this.$message.error(err)
         }).finally(() => {
+          this.loading = false
         })
       }
     },
@@ -1101,6 +1103,7 @@ export default {
                 SchoolPrincipleSave(this.userForm).then(res => {
                   if (res.success) {
                     this.$message.success('Send successfully')
+                    this.userFormVisible = false
                   }
                 })
               }
@@ -1112,6 +1115,7 @@ export default {
             SchoolPrincipleSave(this.userForm).then(res => {
               if (res.success) {
                 this.$message.success('Send successfully')
+                this.userFormVisible = false
               }
             }).finally(res => {
               this.confirmLoading = false
@@ -1358,7 +1362,7 @@ export default {
 }
 
 .edit-action-wrapper {
-  width: 300px;
+  // width: 300px;
   cursor: pointer;
   text-align: left;
   color: @primary-color;

@@ -6,7 +6,9 @@
           <img :src="info.avatar"/>
         </div>
         <div class="info-header-avatar" v-else>
-          <img src="~@/assets/icons/library/default-avatar.png"/>
+          <!-- <img v-if="currentSchool.logo" :src="currentSchool.logo"/>
+          <img v-else src="~@/assets/icons/library/default-avatar.png"/> -->
+          <custom-image-uploader :need-del="false" :img-url='currentSchool.logo' @update='handleUploadLogo' />
         </div>
         <div class="info-header-detail">
           <div class="header-detail-title">
@@ -14,7 +16,7 @@
           </div>
           <div class="header-detail-email" v-if="userMode === USER_MODE.SELF">
             <label>{{ info.email }}</label>
-            <a-button size="small" type="primary">Go to profile</a-button>
+            <a-button size="small" type="primary" @click="goToProfile">Go to profile</a-button>
           </div>
           <div class="header-detail-plan">
             <div class="plan-name">
@@ -38,25 +40,25 @@
           </div>
         </div>
       </div>
-      <a-divider v-if="userMode === USER_MODE.SCHOOL"></a-divider>
-      <div class="account-info-self" v-if="userMode === USER_MODE.SCHOOL">
+      <a-divider v-if="userMode === USER_MODE.SCHOOL && currentSchool.schoolUser"></a-divider>
+      <div class="account-info-self" v-if="userMode === USER_MODE.SCHOOL && currentSchool.schoolUser">
         <div class="info-self-avatar">
-          <img :src="info.avatar"/>
-          <a-button type="primary" size="small">Upload</a-button>
+          <img :src="currentSchool.schoolUser.avatar"/>
+          <a-button type="primary" size="small" @click="$refs.modal.edit(1)">Upload</a-button>
         </div>
         <div class="info-self-detail">
           <div class="self-detail-name">
             <template v-if="!showSelfEdit">
-              <label>{{ info.nickname }}</label>
+              <label>{{ currentSchool.schoolUser.nickname || info.nickname }}</label>
               <a-icon @click="handleSelfEdit" type="edit" />
             </template>
             <template v-else>
-              <a-input style="width: 300px" v-model="selfEditModel.name"></a-input>
+              <a-input style="width: 300px" v-model="selfEditModel.nickname"></a-input>
               <a-icon @click="handleSelfEditCheck" type="check" />
               <a-icon @click="handleSelfEdit" type="close" />
             </template>
           </div>
-          <div class="self-detail-email">{{ info.email }}</div>
+          <div class="self-detail-email">{{ currentSchool.schoolUser.email }}</div>
           <div class="self-detail-role">
             {{ roles }}
           </div>
@@ -91,15 +93,22 @@
         </div>
       </div>
     </div>
+    <avatar-modal ref="modal" @ok="setAvatar"/>
   </div>
 </template>
 
 <script>
 import { USER_MODE, EXPIRE_UNIT } from '@/const/common'
 
+import { updateProfile } from '@/api/schoolUser'
+import { updateSchool } from '@/api/school'
+
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import { ReSetFontMixin } from '@/mixins/ReSetFontMixin'
+
+import CustomImageUploader from '@/components/Common/CustomImageUploader'
+import AvatarModal from '@/views/account/settings/AvatarModal'
 
 import SchoolInfoPng from '@/assets/icons/account/schoolInfo.png?inline'
 import AcademicPng from '@/assets/icons/account/academic.png?inline'
@@ -123,6 +132,10 @@ import { mapState } from 'vuex'
 
 export default {
   name: 'AccountInfo',
+  components: {
+    CustomImageUploader,
+    AvatarModal
+  },
   mixins: [UserModeMixin, CurrentSchoolMixin, ReSetFontMixin],
   data() {
     return {
@@ -134,8 +147,10 @@ export default {
       showSelfEdit: false,
       lineCounts: 3,
       selfEditModel: {
-        name: ''
-      }
+        nickname: '',
+        avatar: ''
+      },
+      confirmLoading: false
     }
   },
   computed: {
@@ -342,11 +357,25 @@ export default {
 
     },
     handleSelfEdit() {
-      this.selfEditModel.name = this.info.nickname
+      this.selfEditModel.nickname = this.currentSchool.schoolUser.nickname || this.info.nickname
+      this.selfEditModel.avatar = this.currentSchool.schoolUser.avatar
       this.showSelfEdit = !this.showSelfEdit
     },
     handleSelfEditCheck() {
-      this.showSelfEdit = false
+      this.confirmLoading = true
+      updateProfile({
+        ...this.selfEditModel,
+        id: this.currentSchool.schoolUser.id,
+        schoolId: this.currentSchool.id
+      }).then(res => {
+        if (res.success) {
+          this.$message.success('Save successfully')
+          this.$store.dispatch('GetInfo')
+          this.showSelfEdit = false
+        }
+      }).finally(() => {
+        this.confirmLoading = false
+      })
     },
     getExtra(key) {
       if (this.info && this.info.planInfo) {
@@ -359,6 +388,25 @@ export default {
       if (url) {
         this.$router.push({ path: url })
       }
+    },
+    goToProfile() {
+      this.$router.push({ path: '/account/settings/basic' })
+    },
+    setAvatar (url) {
+      this.selfEditModel.avatar = url
+      this.handleSelfEditCheck()
+    },
+    handleUploadLogo (coverData) {
+      this.$logger.info('handleUpdateCover', coverData)
+      updateSchool({
+        id: this.currentSchool.id,
+        logo: coverData.url
+      }).then(res => {
+        if (res.success) {
+          this.$message.success('Edit Successfully')
+          this.$store.dispatch('GetInfo')
+        }
+      })
     }
   }
 
@@ -384,6 +432,15 @@ export default {
         border: 1px solid #E0E3EA;
         border-radius: 0.08em /* 8/100 */;
         display: flex;
+        /deep/ .custom-image-uploader {
+          font-size: 16px;
+          width: 100%;
+          .image-placeholder {
+            height: 100%;
+            width: 100%;
+            min-height: 100%;
+          }
+        }
         img {
           width: 100%;
           height: 100%;
