@@ -1,11 +1,11 @@
 <template>
   <div class='content-item' v-if='content' :style="{'border': activeItem ? '1px solid #15c39a' : '1px solid #EEF1F6'}">
-    <div class='cover' @click='handlePreviewDetail(content)'>
+    <div class='cover'>
       <div class='cover-block' :style="{'background-image': 'url(' + content.image + ')'}">
       </div>
     </div>
     <div class='detail'>
-      <div class='detail-content' @click='handlePreviewDetail(content)'>
+      <div class='detail-content'>
         <div class='base-info'>
           <div class='name-type'>
             <div class='type-icon'>
@@ -110,6 +110,12 @@
               </div>
             </a-dropdown>
 
+            <custom-button label='Preview' @click='handlePreviewDetail(content)'>
+              <template v-slot:icon>
+                <preview-gray-icon />
+              </template>
+            </custom-button>
+
             <custom-button label='Sub-task' v-if='content.type === typeMap.task && content.subTasks.length > 0'>
               <template v-slot:icon>
                 <sub-task-icon />
@@ -187,6 +193,7 @@ import { ContentRestore, DeleteMyContentByType, PermanentDeleteMyContent } from 
 import { ContentItemMixin } from '@/mixins/ContentItemMixin'
 import CustomButton from '@/components/Common/CustomButton'
 import SubTaskIcon from '@/assets/v2/icons/sub-task.svg?inline'
+import PreviewGrayIcon from '@/assets/v2/icons/preview_gray.svg?inline'
 import EditIcon from '@/assets/v2/icons/edit.svg?inline'
 import PublishIcon from '@/assets/v2/icons/publish_new.svg?inline'
 import UnPublishIcon from '@/assets/v2/icons/unpublish.svg?inline'
@@ -205,6 +212,7 @@ export default {
     ContentPreview,
     CustomButton,
     SubTaskIcon,
+    PreviewGrayIcon,
     EditIcon,
     PublishIcon,
     UnPublishIcon,

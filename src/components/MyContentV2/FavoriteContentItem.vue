@@ -1,11 +1,11 @@
 <template>
   <div class='content-item' v-if='content'>
-    <div class='cover' @click='handlePreviewDetail(content)'>
+    <div class='cover'>
       <div class='cover-block' :style="{'background-image': 'url(' + content.image + ')'}">
       </div>
     </div>
     <div class='detail'>
-      <div class='detail-content' @click='handlePreviewDetail(content)'>
+      <div class='detail-content'>
         <div class='base-info'>
           <div class='name-type'>
             <div class='type-icon'>
@@ -82,6 +82,12 @@
       <div class='action'>
         <template v-if='showButton'>
           <a-space>
+            <custom-button label='Preview' @click='handlePreviewDetail(content)'>
+              <template v-slot:icon>
+                <preview-gray-icon />
+              </template>
+            </custom-button>
+
             <custom-button label='Duplicate' @click='handleDuplicateItem'>
               <template v-slot:icon>
                 <duplicate-icon />
@@ -116,11 +122,13 @@ import EditIcon from '@/assets/v2/icons/edit.svg?inline'
 import DuplicateIcon from '@/assets/v2/icons/duplicate.svg?inline'
 import ContentPreview from '@/components/Preview/ContentPreview'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
+import PreviewGrayIcon from '@/assets/v2/icons/preview_gray.svg?inline'
 
 export default {
   name: 'FavoriteContentItem',
   components: {
     ContentTypeIcon,
+    PreviewGrayIcon,
     ContentPreview,
     CustomButton,
     DuplicateIcon,
