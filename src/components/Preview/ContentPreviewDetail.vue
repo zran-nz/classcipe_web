@@ -1,5 +1,34 @@
 <template>
   <div class='content-preview-detail' ref="container">
+    <div class='top-fixed-header' v-if='showTopFixedHeader && content'>
+      <div class='header-left'>
+        <div class='back vertical-left'>
+          <a-icon type='left' />
+          <div class='back-text'>
+            Back
+          </div>
+        </div>
+        <div class='name'>
+          {{ content.name || 'Untitled' }}
+        </div>
+      </div>
+      <div class='header-right'>
+        <div class='buy-button vertical-right'>
+          <a-button
+            class='buy-now'
+            type="danger"
+            shape='round'
+            @click='handleDuplicateItem'
+            :loading='copyLoading'
+            v-if='content.createBy !== $store.getters.userInfo.email'>
+            Buy now
+          </a-button>
+        </div>
+        <div class='more-action vertical-right'>
+          <a-icon type='more' />
+        </div>
+      </div>
+    </div>
     <div class='preview-carousel-wrapper'>
       <preview-carousel :page-object-list='thumbnailList' :video-list='videoList' v-if='!carouselContentLoading' />
       <a-skeleton v-if='carouselContentLoading' />
@@ -11,7 +40,7 @@
         </a-col>
       </a-row>
 
-      <a-row class='content-info-item'>
+      <a-row class='content-info-item' v-observe-visibility="visibilityChanged">
         <a-col span='18' class='cc-ellipsis cc-info-left'>
           <div class='author-info'>
             <div class='author-avatar'>
@@ -244,7 +273,6 @@ import { QueryByClassInfoSlideId } from '@/api/classroom'
 import { FavoritesAdd } from '@/api/favorites'
 import CardListItem from '@/components/Preview/CardListItem'
 import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
-import { debounce } from 'lodash-es'
 
 export default {
   name: 'ContentPreviewDetail',
@@ -276,7 +304,8 @@ export default {
 
       typeMap: this.$classcipe.typeMap,
       copyLoading: false,
-      handleScrollFn: null
+
+      showTopFixedHeader: false
     }
   },
   computed: {
@@ -304,13 +333,6 @@ export default {
   },
   created() {
     this.loadDetail()
-    this.handleScrollFn = debounce(this.handleScroll, 200)
-  },
-  mounted() {
-    this.$refs.container.addEventListener('scroll', this.handleScrollFn)
-  },
-  beforeDestroy() {
-    this.$refs.container.removeEventListener('scroll', this.handleScrollFn)
   },
   methods: {
 
@@ -361,10 +383,6 @@ export default {
       if (this.content.presentationId) {
         this.getClassInfo(this.content.presentationId)
       }
-    },
-
-    handleScroll (e) {
-      this.$logger.info('handleScroll', e)
     },
 
     initVideoList () {
@@ -503,6 +521,10 @@ export default {
           })
         }
       })
+    },
+
+    visibilityChanged (isVisible, entry) {
+      this.showTopFixedHeader = !isVisible
     }
   }
 }
@@ -510,6 +532,69 @@ export default {
 
 <style lang='less' scoped>
 @import "~@/components/index.less";
+
+.content-preview-detail {
+  position: relative;
+
+  .top-fixed-header {
+    z-index: 9999;
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 700px;
+    background: #F7F8F9;
+    padding: 15px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    border: 2px solid #DDE0E4;
+    box-shadow: 0px 1px 12px 1px rgba(0, 0, 0, 0.07);
+
+    .header-left {
+      flex-shrink: 1;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+
+      .back {
+        padding-right: 10px;
+
+        .back-text {
+          font-size: 15px;
+          font-weight: bold;
+          padding-left: 10px;
+        }
+      }
+
+      .name {
+        padding-left: 10px;
+        font-size: 16px;
+        font-family: Arial;
+        font-weight: 400;
+        color: #0C1A3E;
+        line-height: 20px;
+      }
+    }
+
+    .header-right {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-end;
+
+      .buy-button {
+        padding-right: 10px;
+      }
+
+      .more-action {
+
+      }
+    }
+  }
+}
 
 .preview-carousel-wrapper {
   height: 430px;

@@ -31,6 +31,8 @@ import EventBus from './utils/eventBus'
 // import VueRecord from '@codekraft-studio/vue-record'
 import preview from 'vue-photo-preview'
 import VueClipboard from 'vue-clipboard2'
+
+import VueObserveVisibility from 'vue-observe-visibility'
 // "sass": "~1.32",
 // "sass-loader": "^10.2.0",
 // import vuetify from './plugins/vuetify'
@@ -51,6 +53,7 @@ Vue.filter('localFormatDate', function (value) {
 })
 
 Vue.config.productionTip = false
+Vue.use(VueObserveVisibility)
 
 // mount axios to `Vue.$http` and `this.$http`
 Vue.use(VueAxios)
