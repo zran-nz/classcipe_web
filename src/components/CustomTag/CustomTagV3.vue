@@ -270,6 +270,10 @@ export default {
         if (!this.currentActiveTagCategory) {
           this.currentActiveTagCategory = this.allTagList.length ? this.allTagList[0] : null
         }
+
+        if (this.allTagList.findIndex(item => item === this.currentActiveTagCategory) === -1) {
+          this.currentActiveTagCategory = this.allTagList.length ? this.allTagList[0] : null
+        }
       }).finally(() => {
         this.loading = false
       })
@@ -303,7 +307,7 @@ export default {
         // eslint-disable-next-line no-undef
         const ret = await App.service('tags').patch(this.currentActiveTagCategory._id, { $addToSet: { tags: [this.inputTag.trim()] } })
         this.$logger.info('create tag ret', ret)
-        this.currentActiveTagCategory.tags = ret.tags
+        this.initTagData()
         this.inputTag = ''
       }
     },
