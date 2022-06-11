@@ -274,6 +274,12 @@ export default {
     align-items: center;
     justify-content: space-between;
     flex-direction: row;
+
+    @media screen and (max-width: 1300px) {
+     /deep/ .radio-item {
+        font-size:12px;
+      }
+    }
   }
 
   .create-new {

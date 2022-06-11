@@ -23,29 +23,49 @@
         <a-space>
           <!--          <a-button @click='handleAddStep' type="primary"><a-icon type="plus" /> Add step</a-button>-->
           <!--          <a-divider type="vertical" />-->
+          <a-button @click='handleShowSelectTemplate' type="primary"><a-icon type="plus" /> Select Template</a-button>
+          <a-divider type="vertical" />
           <a-button @click='handlePreviewPlanningForm'>Preview</a-button>
           <a-button type="primary" @click='handleSavePlanningForm' :loading='saving'>Save changes</a-button>
         </a-space>
       </div>
     </a-tabs>
+
+    <a-modal
+      v-model='selectTemplateVisible'
+      :dialog-style="{ top: '50px'}"
+      :footer='null'
+      destroyOnClose
+      width='900px'>
+      <div slot='title' class='my-modal-title'>
+        Choice format template
+      </div>
+      <div class='content-wrapper'>
+        <select-template
+          :template-list="templateList"
+          @cancel='selectTemplateVisible = false'
+          @ensure='handleSelectTemplate' />
+      </div>
+    </a-modal>
   </a-card>
 </template>
 
 <script>
 
 import { typeMap } from '@/const/teacher'
-import { FormConfigData, FormConfigAddOrUpdate } from '@/api/formConfig'
+import { FormConfigAddOrUpdate, FormConfigData, GetTemplates, ImportTemplate } from '@/api/formConfig'
 import { FORM_CONFIG_PREVIEW_DATA } from '@/store/mutation-types'
 import { USER_MODE } from '@/const/common'
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import { mapState } from 'vuex'
 import FormatFormWithStep from '@/components/FormConfig/FormatFormWithStep'
+import SelectTemplate from '@/views/teacher/manage/PlanningFormat/SelectTemplate'
 
 export default {
   name: 'PlanningFormat',
   mixins: [UserModeMixin, CurrentSchoolMixin],
-  components: { FormatFormWithStep },
+  components: { FormatFormWithStep, SelectTemplate },
   data () {
     return {
       loading: false,
@@ -53,11 +73,14 @@ export default {
       taskConfig: null,
       activeKey: 'plan',
       typeMap: typeMap,
-      saving: false
+      saving: false,
+      templateList: [],
+      selectTemplateVisible: false
     }
   },
   created() {
     this.loadFormConfigData()
+    this.GetTemplates()
   },
   computed: {
     ...mapState({
@@ -182,6 +205,37 @@ export default {
           })
         }
       }
+    },
+
+    handleShowSelectTemplate() {
+      this.selectTemplateVisible = true
+    },
+
+    GetTemplates() {
+      this.$logger.info('GetTemplates')
+      GetTemplates().then((response) => {
+        this.$logger.info('GetTemplates response', response)
+        this.templateList = response.result
+      }).finally(() => {
+      })
+    },
+
+    handleSelectTemplate(id) {
+      this.selectTemplateVisible = false
+      this.saving = true
+      ImportTemplate({
+        templateId: id
+      }).then((response) => {
+        if (response.success) {
+          this.$message.success('Import format template successfully')
+          this.taskConfig = null
+          this.loadFormConfigData()
+        } else {
+          this.$message.error(response.message)
+        }
+      }).finally(() => {
+        this.saving = false
+      })
     }
   }
 }
