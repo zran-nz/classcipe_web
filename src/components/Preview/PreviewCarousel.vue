@@ -86,23 +86,38 @@ export default {
   }
 }
 
-.custom-slick-arrow {
-  width: 30px;
-  height: 30px;
-  font-size: 30px;
-  opacity: 0.5;
-  color: #fff;
-  background-color: rgba(31, 45, 61, 0.4);
-  border-radius: 50%;
+.preview-carousel {
+
+  .custom-slick-arrow {
+    width: 30px;
+    height: 30px;
+    font-size: 30px;
+    opacity: 0.2;
+    color: #fff;
+    background-color: rgba(31, 45, 61, 0.4);
+    border-radius: 50%;
+  }
+
+  &:hover {
+    .custom-slick-arrow {
+      width: 30px;
+      height: 30px;
+      font-size: 30px;
+      opacity: 0.5;
+      color: #fff;
+      background-color: rgba(31, 45, 61, 0.4);
+      border-radius: 50%;
+
+      &:hover {
+        opacity: 0.7;
+        color: #fff;
+        background-color: rgba(31, 45, 61, 0.8);
+      }
+    }
+  }
 }
 
 .custom-slick-arrow:before {
   display: none;
-}
-
-.custom-slick-arrow:hover {
-  opacity: 0.7;
-  color: #fff;
-  background-color: rgba(31, 45, 61, 0.8);
 }
 </style>
