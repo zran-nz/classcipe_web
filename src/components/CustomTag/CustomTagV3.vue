@@ -269,10 +269,13 @@ export default {
       }).then(() => {
         if (!this.currentActiveTagCategory) {
           this.currentActiveTagCategory = this.allTagList.length ? this.allTagList[0] : null
-        }
-
-        if (this.allTagList.findIndex(item => item === this.currentActiveTagCategory) === -1) {
-          this.currentActiveTagCategory = this.allTagList.length ? this.allTagList[0] : null
+        } else {
+          const index = this.allTagList.findIndex(item => item.set === this.currentActiveTagCategory.set)
+          if (index === -1) {
+            this.currentActiveTagCategory = this.allTagList.length ? this.allTagList[0] : null
+          } else {
+            this.currentActiveTagCategory = this.allTagList[index]
+          }
         }
       }).finally(() => {
         this.loading = false
