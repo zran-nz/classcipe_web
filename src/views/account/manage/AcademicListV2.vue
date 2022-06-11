@@ -1,49 +1,75 @@
 <template>
-  <a-card :bordered="false">
-
-    <div class="table-page-search-wrapper">
-      <a-form layout="inline">
-        <a-row type="flex" justify="space-between">
-          <a-col :span="8">
-            <a-input-search
-              placeholder="Search for ID、Name、Email..."
-              v-model="queryParams.keywords"
-              enter-button
-              @search="triggerSearch"/>
-          </a-col>
-          <a-col>
+  <div class='my-full-form-wrapper' id='formRoot'>
+    <fixed-form-header>
+      <template v-slot:header>
+        <form-header
+          title='School Account'
+          :show-share='false'
+          :show-collaborate='false'
+          :is-preview-mode='false'
+          @back='goBack'>
+          <template v-slot:right>
             <a-button @click="handleAdd" type="primary" icon="plus" >Add academic year</a-button>
-          </a-col>
-        </a-row>
-      </a-form>
-    </div>
+          </template>
+        </form-header>
+      </template>
+    </fixed-form-header>
+    <div class="form-content">
+      <!-- <div class="table-page-search-wrapper">
+        <a-form layout="inline">
+          <a-row type="flex" justify="space-between">
+            <a-col :span="8">
+              <a-input-search
+                placeholder="Search for ID、Name、Email..."
+                v-model="queryParams.keywords"
+                enter-button
+                @search="triggerSearch"/>
+            </a-col>
+            <a-col>
+              <a-button @click="handleAdd" type="primary" icon="plus" >Add academic year</a-button>
+            </a-col>
+          </a-row>
+        </a-form>
+      </div> -->
 
-    <div class="list-view" v-if="datas && datas.length > 0">
-      <div class="list-view-item" v-for="(item) in datas" :key="'academic_' + item.academicId">
-        <div class="view-item-title">
-          {{ formatDate(item) }} {{ item.name ? `(${item.name})` : '' }}
-        </div>
-        <div class="view-item-opt">
-          <a-button type="link" @click="handleEdit(item)">Edit</a-button>
-          <a-button type="link" :loading="delLoading" @click="handleDelete(item)">Delete</a-button>
-        </div>
-        <div class="view-item-detail">
-          <div class="item-detail-content" v-for="(term, termIndex) in item.terms" :key="'term_' + termIndex">
-            <div class="detail-content-title">{{ term.name }}</div>
-            <div class="detail-content-time">{{ formatDate(term) }} </div>
-            <div class="detail-content-current" v-show="isCurrent(term)">Current</div>
+      <div class="list-view" v-if="datas && datas.length > 0">
+        <div class="list-view-item" v-for="(item) in datas" :key="'academic_' + item.id">
+          <div class="view-item-title">
+            <label for="">{{ item.name }}</label>
+            <custom-text-button label='Add Term' @click="handleAddTerm(item)">
+              <template v-slot:icon>
+                <a-icon type='plus-circle' />
+              </template>
+            </custom-text-button>
+          </div>
+          <div class="view-item-opt">
+            <a-button type="link" @click="handleEdit(item)">Edit</a-button>
+            <a-button type="link" :loading="delLoading" @click="handleDelete(item)">Delete</a-button>
+          </div>
+          <div class="view-item-detail">
+            <div class="item-detail-content" v-for="(term, termIndex) in item.terms" :key="'term_' + termIndex">
+              <div class="detail-content-title">
+                <label>{{ term.name }}</label>
+                <a-space>
+                  <a-button type="link" @click="handleEditTerm(item, term)">Edit</a-button>
+                  <a-button type="link" :loading="delLoading" @click="handleDeleteTerm(item)">Delete</a-button>
+                </a-space>
+              </div>
+              <div class="detail-content-time">{{ formatDate(term) }} </div>
+            </div>
           </div>
         </div>
       </div>
+
+      <div v-else class="no-subject">
+        <img src='~@/assets/newBrowser/no-subject.png'/>
+        <p>None academic because you dont set the academic</p>
+      </div>
     </div>
 
-    <div v-else class="no-subject">
-      <img src='~@/assets/newBrowser/no-subject.png'/>
-      <p>None academic because you dont set the academic</p>
-    </div>
-
-    <academic-add ref="modalForm" @close="handleClose"/>
-  </a-card>
+    <academic-year-add ref="modalForm" @close="handleClose"/>
+    <academic-term-add ref="termForm" @close="handleClose"/>
+  </div>
 </template>
 
 <script>
@@ -51,9 +77,13 @@ import { USER_MODE } from '@/const/common'
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 
-import { DeleteAcademicYearById, QueryAcademic } from '@/api/schoolAcademic'
+import { termList, deleteYear, deleteTerm } from '@/api/academicTermInfo'
 
-import AcademicAdd from './academic/AcademicAdd.vue'
+import AcademicYearAdd from './academic/AcademicYearAdd.vue'
+import AcademicTermAdd from './academic/AcademicTermAdd.vue'
+import FixedFormHeader from '@/components/Common/FixedFormHeader'
+import FormHeader from '@/components/FormHeader/FormHeader'
+import CustomTextButton from '@/components/Common/CustomTextButton'
 
 // import { QueryAcademic } from '@/api/schoolAcademic'
 import { mapState } from 'vuex'
@@ -61,10 +91,14 @@ import moment from 'moment'
 const { debounce } = require('lodash-es')
 
 export default {
-  name: 'AcademicList',
+  name: 'AcademicListV2',
   mixins: [UserModeMixin, CurrentSchoolMixin],
   components: {
-    AcademicAdd
+    AcademicYearAdd,
+    AcademicTermAdd,
+    FixedFormHeader,
+    FormHeader,
+    CustomTextButton
   },
   data() {
     return {
@@ -89,6 +123,9 @@ export default {
     })
   },
   methods: {
+    goBack() {
+      this.$router.go(-1)
+    },
     handleSchoolChange(currentSchool) {
       if (this.userMode === USER_MODE.SCHOOL) {
         this.debounceInit()
@@ -103,7 +140,7 @@ export default {
     },
     loadData() {
       this.loading = true
-      QueryAcademic({
+      termList({
         ...this.queryParams,
         schoolId: this.currentSchool.id
       }).then(res => {
@@ -121,10 +158,31 @@ export default {
       this.$refs.modalForm.mode = 'add'
       this.$refs.modalForm.add({})
     },
+    handleAddTerm(item) {
+      this.$refs.termForm.title = 'Add acadeic term'
+      this.$refs.termForm.mode = 'add'
+      this.$refs.termForm.add({
+        parentId: item.id
+      })
+    },
     handleEdit(record) {
       this.$refs.modalForm.title = 'Edit acadeic year'
-      this.$refs.modalForm.edit({ ...record })
+      this.$refs.modalForm.edit({
+        ...record,
+        startTime: moment.utc(record.startTime).local().format('YYYY-MM-DD HH:mm:ss'),
+        endTime: moment.utc(record.endTime).local().format('YYYY-MM-DD HH:mm:ss')
+      })
       this.$refs.modalForm.disableSubmit = false
+    },
+     handleEditTerm(parent, item) {
+      this.$refs.termForm.title = 'Add acadeic term'
+      this.$refs.termForm.mode = 'add'
+      this.$refs.termForm.edit({
+        parentId: parent.id,
+        ...item,
+        startTime: moment.utc(item.startTime).local().format('YYYY-MM-DD HH:mm:ss'),
+        endTime: moment.utc(item.endTime).local().format('YYYY-MM-DD HH:mm:ss')
+      })
     },
     handleDelete(record, index) {
       this.$logger.info('handleDelete ', record)
@@ -134,11 +192,32 @@ export default {
         centered: true,
         onOk: () => {
           this.delLoading = true
-          DeleteAcademicYearById({
-            academicId: record.academicId
+          deleteYear({
+            id: record.id
           }).then(response => {
             if (response.success) {
-              this.datas = this.datas.filter(item => item.academicId !== record.academicId)
+              this.datas = this.datas.filter(item => item.id !== record.id)
+              this.$message.success('Delete successfully')
+            }
+          }).finally(() => {
+            this.delLoading = false
+          })
+        }
+      })
+    },
+    handleDeleteTerm(record, index) {
+      this.$logger.info('handleDeleteTerm ', record)
+      this.$confirm({
+        title: 'Confirm delete term',
+        content: 'Are you confirm delete term ' + record.name + ' ?',
+        centered: true,
+        onOk: () => {
+          this.delLoading = true
+          deleteTerm({
+            termId: record.id
+          }).then(response => {
+            if (response.success) {
+              this.loadData()
               this.$message.success('Delete successfully')
             }
           }).finally(() => {
@@ -164,6 +243,18 @@ export default {
 </script>
 <style lang="less" scoped>
 @import "~@/components/index.less";
+.cc-fixed-form-header {
+  height: 60px;
+}
+.form-content {
+  margin-top: 60px;
+  height: calc(100vh - 60px);
+  padding: 60px 90px;
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
 .operator {
   margin-bottom: 16px;
   button {
@@ -172,33 +263,32 @@ export default {
 }
 .list-view{
   position: relative;
-  margin-top: 20px;
   display: flex;
   flex-direction: column;
   .list-view-item {
     // height: 165px;
-    background: #FFFFFF;
-    border: 1px solid #D8D8D8;
     opacity: 1;
-    border-radius: 10px;
-    padding: 20px;
     position: relative;
     & ~ .list-view-item {
-      margin-top: 20px;
+      margin-top: 60px;
     }
     .view-item-title {
-      height: 21px;
-      line-height: 1;
-      font-size: 16px;
-      font-family: Leelawadee UI;
-      font-weight: bold;
-      color: #070707;
-      opacity: 1;
-      margin-bottom: 23px;
+      display: flex;
+      margin-bottom: 40px;
+      align-items: center;
+      & > label {
+        line-height: 1;
+        font-size: 16px;
+        font-family: Leelawadee UI;
+        font-weight: bold;
+        color: #070707;
+        opacity: 1;
+        margin-right: 20px;
+      }
     }
     .view-item-opt {
       position: absolute;
-      top: 20px;
+      top: 0px;
       right: 20px;
       line-height: 1;
       font-size: 14px;
@@ -210,34 +300,41 @@ export default {
     }
     .view-item-detail {
       display: flex;
-      background: #fff;
       justify-content: space-between;
       // height: 81px;
       .item-detail-content {
         height: 100%;
         flex: 1;
-        background: #FAFAFA;
+        background: #FFFFFF;
+        border: 1px solid #D9DEE6;
         opacity: 1;
         border-radius: 10px;
-        padding: 15px;
+        padding: 15px 20px;
         position: relative;
         & ~ .item-detail-content {
           margin-left: 20px;
         }
         .detail-content-title {
-          height: 20px;
-          line-height: 1;
-          font-size: 14px;
-          font-family: Leelawadee UI;
-          font-weight: bold;
-          color: #070707;
-          opacity: 1;
-          margin-bottom: 10px;
+          display:flex;
+          justify-content: space-between;
+          align-items: center;
+          label {
+            font-size: 16px;
+            font-family: Arial;
+            font-weight: bold;
+            color: #16171A;
+          }
+
+          /deep/ .ant-btn {
+            padding: 0
+          }
         }
         .detail-content-time {
-          line-height: 1;
-          font-size: 13px;
-          opacity: 1;
+          font-size: 14px;
+          font-family: Arial;
+          font-weight: 400;
+          color: #3E4550;
+          margin-top: 20px;
         }
         .detail-content-current {
           position: absolute;
