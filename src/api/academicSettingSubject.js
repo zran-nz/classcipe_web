@@ -3,7 +3,7 @@ import request from '@/utils/request'
 const API_PREFIX = 'academic/academicSettingSubject'
 
 export const AcademicSettingSubject = {
-  getBySchoolId: `/classcipe/${API_PREFIX}/getBySchoolId`,
+  getSubjectBySchoolId: `/classcipe/${API_PREFIX}/getBySchoolId`,
   saveSubject: `/classcipe/${API_PREFIX}/save`
 }
 
@@ -12,9 +12,9 @@ export const AcademicSettingSubject = {
  * @returns {AxiosPromise}
  * @constructor
  */
-export function saveCurriculum (parameter) {
+export function saveSubject (parameter) {
   return request({
-    url: AcademicSettingSubject.saveCurriculum,
+    url: AcademicSettingSubject.saveSubject,
     method: 'post',
     data: parameter,
     headers: {
@@ -28,9 +28,9 @@ export function saveCurriculum (parameter) {
  * @returns {AxiosPromise}
  * @constructor
  */
- export function getBySchoolId (parameter) {
+ export function getSubjectBySchoolId (parameter) {
   return request({
-    url: AcademicSettingSubject.getBySchoolId,
+    url: AcademicSettingSubject.getSubjectBySchoolId,
     method: 'get',
     params: parameter
   })
