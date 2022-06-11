@@ -50,6 +50,15 @@
       </template>
     </fixed-form-footer>
 
+    <zoom-meeting-setting
+      :password='scheduleReq.password'
+      :waiting-room='scheduleReq.waitingRoom'
+      :zoom-setting-visible.sync='zoomSettingVisible'
+      v-if='zoomSettingVisible'
+      @confirm='handleConfirmAssign'
+      @handleClose='handleCloseAssign'
+    />
+
     <select-session-unit
       v-if='selectSessionUnitVisible'
       :list='associateUnitList'
@@ -70,10 +79,11 @@ import SchedulePayInfo from '@/components/Schedule/SchedulePayInfo'
 import { AddSessionV2 } from '@/api/v2/classes'
 import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
 import FixedFormFooter from '@/components/Common/FixedFormFooter'
+import ZoomMeetingSetting from '@/components/Schedule/ZoomMeetingSetting'
 
 export default {
   name: 'ScheduleSession',
-  components: { FixedFormFooter, SchedulePayInfo, ScheduleDate, SelectParticipant, SelectSessionUnit, MyVerticalSteps },
+  components: { ZoomMeetingSetting, FixedFormFooter, SchedulePayInfo, ScheduleDate, SelectParticipant, SelectSessionUnit, MyVerticalSteps },
   mixins: [ AssociateMixin, ZoomAuthMixin ],
   props: {
     id: {
@@ -88,6 +98,7 @@ export default {
   data() {
     return {
       loading: true,
+      zoomSettingVisible: false,
       teacherSessionNowLoading: false,
       currentActiveStepIndex: 0,
       selectSessionUnitVisible: false,
@@ -111,6 +122,8 @@ export default {
         sessionType: 0,
         startDate: null,
         teachSessionNow: 1,
+        password: true,
+        waitingRoom: true,
         workshopType: 1, // 1-private workshop 2-public workshop
         zoom: 0
       },
@@ -121,6 +134,13 @@ export default {
     this.$logger.info(`ScheduleSession created with id: ${this.id} type ${this.type}`)
     this.handleAssociate()
     this.loading = false
+
+    this.$EventBus.$on('ZoomMeetingUpdatePassword', this.handleSelectPassword)
+    this.$EventBus.$on('ZoomMeetingUpdateWaitingRoom', this.handleSelectWaitingRoom)
+  },
+  beforeDestroy() {
+    this.$EventBus.$off('ZoomMeetingUpdatePassword', this.handleSelectPassword)
+    this.$EventBus.$off('ZoomMeetingUpdateWaitingRoom', this.handleSelectWaitingRoom)
   },
   methods: {
     handleStepChange(data) {
@@ -188,7 +208,49 @@ export default {
           this.scheduleReq.classIds = participantData.classIds
         }
       } else if (this.currentActiveStepIndex === 1) {
-        this.createSession()
+        if (this.scheduleReq.zoom) {
+          this.zoomSettingVisible = true
+        } else {
+          this.handleConfirmAssign({
+            password: false,
+            waitingRoom: false
+          })
+        }
+      }
+    },
+
+    handleCloseAssign () {
+      this.teacherSessionNowLoading = false
+      this.zoomSettingVisible = false
+    },
+
+    async handleConfirmAssign (data) {
+      this.$logger.info('ScheduleSession handleConfirmAssign ', data)
+      this.zoomSettingVisible = false
+      this.scheduleReq.password = data.password
+      this.scheduleReq.waitingRoom = data.waitingRoom
+
+      if (this.teacherSessionNowLoading) {
+        try {
+          const zoomRes = await this.createSession(true)
+          this.$logger.info('zoom res ', zoomRes)
+          if (zoomRes && zoomRes.length > 0) {
+            const zoomMeetingItem = zoomRes[0]
+            if (zoomMeetingItem.zoomMeeting) {
+              const zoomMeetingConfig = JSON.parse(zoomMeetingItem.zoomMeeting)
+              window.open(zoomMeetingConfig.start_url, '_blank')
+            }
+          } else {
+            this.$message.error('create zoom meeting failed')
+          }
+        } catch (e) {
+          this.$logger.error('handleTeacherSessionNow ', e)
+          console.log(e)
+        } finally {
+          this.teacherSessionNowLoading = false
+        }
+      } else {
+        await this.createSession()
       }
     },
 
@@ -210,6 +272,12 @@ export default {
       this.$logger.info('ScheduleSession handleSelectDate ', this.scheduleReq)
     },
 
+    handleSelectPassword (val) {
+      this.scheduleReq.password = val
+    },
+    handleSelectWaitingRoom (val) {
+      this.scheduleReq.waitingRoom = val
+    },
     handleSelectSessionType (type) {
       this.scheduleReq.sessionType = type
     },
@@ -221,23 +289,14 @@ export default {
     async handleTeacherSessionNow () {
       this.scheduleReq.teachSessionNow = this.scheduleReq.teachSessionNow ? 0 : 1
       this.teacherSessionNowLoading = true
-      try {
-        const zoomRes = await this.createSession(true)
-        this.$logger.info('zoom res ', zoomRes)
-        if (zoomRes && zoomRes.length > 0) {
-          const zoomMeetingItem = zoomRes[0]
-          if (zoomMeetingItem.zoomMeeting) {
-            const zoomMeetingConfig = JSON.parse(zoomMeetingItem.zoomMeeting)
-            window.open(zoomMeetingConfig.start_url, '_blank')
-          }
-        } else {
-          this.$message.error('create zoom meeting failed')
-        }
-      } catch (e) {
-        this.$logger.error('handleTeacherSessionNow ', e)
-        console.log(e)
-      } finally {
-        this.teacherSessionNowLoading = false
+
+      if (this.scheduleReq.zoom) {
+        this.zoomSettingVisible = true
+      } else {
+        await this.handleConfirmAssign({
+          password: false,
+          waitingRoom: false
+        })
       }
     },
 
@@ -253,6 +312,11 @@ export default {
         this.scheduleReq.register.maxParticipants = openSessionData.maxParticipants
         this.scheduleReq.register.price = openSessionData.price
         this.scheduleReq.register.registerBefore = openSessionData.registerBefore
+      }
+
+      if (!this.scheduleReq.startDate || !this.scheduleReq.endDate) {
+        this.$message.warn('Please select Schedule time!')
+        return
       }
       this.$logger.info('try createSession scheduleReq', this.scheduleReq)
       this.creating = true

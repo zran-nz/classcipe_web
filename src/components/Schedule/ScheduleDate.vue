@@ -37,9 +37,6 @@
       <div class='date-picker'>
         <a-range-picker :default-value="initDate" :disabled-date="disabledDate" @change="handleDateChange" format='YYYY-MM-DD HH:mm:ss' :show-time="{ format: 'HH:mm' }"/>
       </div>
-      <div class='go-calender' v-show="showCalendarLink">
-        <a>Go to calender</a>
-      </div>
     </div>
   </div>
 </template>
