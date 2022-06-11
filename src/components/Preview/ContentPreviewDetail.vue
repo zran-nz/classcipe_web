@@ -25,7 +25,19 @@
           </a-button>
         </div>
         <div class='more-action vertical-right'>
-          <a-icon type='more' />
+          <a-dropdown>
+            <a-menu slot="overlay">
+              <a-menu-item>
+                <div class='vertical-center'>
+                  <share-icon class='cc-preview-menu-icon' />
+                  <div class='menu-text'>
+                    Share
+                  </div>
+                </div>
+              </a-menu-item>
+            </a-menu>
+            <a-icon type='more' />
+          </a-dropdown>
         </div>
       </div>
     </div>
@@ -273,10 +285,11 @@ import { QueryByClassInfoSlideId } from '@/api/classroom'
 import { FavoritesAdd } from '@/api/favorites'
 import CardListItem from '@/components/Preview/CardListItem'
 import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
+import ShareIcon from '@/assets/v2/icons/header_share.svg?inline'
 
 export default {
   name: 'ContentPreviewDetail',
-  components: { CardListItem, PreviewCarousel },
+  components: { CardListItem, PreviewCarousel, ShareIcon },
   props: {
     contentId: {
       type: String,
@@ -810,4 +823,15 @@ export default {
   align-items: center;
   height: 20px;
 }
+
+.cc-preview-menu-icon {
+  width: 20px;
+  max-height: 25px;
+  outline: none;
+}
+
+.menu-text {
+  padding-left: 5px;
+}
+
 </style>
