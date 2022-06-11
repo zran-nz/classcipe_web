@@ -3,32 +3,40 @@
     <div v-if="currentCurriculum">
       <div class="subject-result-wrap" ref="subjectWrap">
         <div class="subject-circulum">
-          <div class="circulum-item active">
+          <div
+            :class="{'circulum-item': true, 'active': item.id === choosed.id}"
+            v-for="item in currentCurriculum"
+            :key="item.id"
+            @click="chooseCurriculum(item)">
             <div class="circulum-item-avatar">
               <a-avatar
                 shape="square"
                 :size="50"
                 :style="{ backgroundColor: '#3377FF', verticalAlign: 'middle' }"
               >
-                {{ currentCurriculum.name }}
+                {{ (item.curriculumName || item.name).substring(0, 2) }}
               </a-avatar>
             </div>
             <div class="circulum-item-detail">
-              <div>{{ currentCurriculum.name }}</div>
-              <div>{{ formatGrade(currentCurriculum.id) }} </div>
+              <div>{{ item.curriculumName || item.name }}</div>
             </div>
           </div>
         </div>
+        <!-- <a-radio-group v-model="choosed.id" class="subject-circulum">
+          <a-radio-button :value="item.id" v-for="item in currentCurriculum" :key="item.id">
+            {{ item.name }}
+          </a-radio-button>
+        </a-radio-group> -->
         <div class="subject-selected" ref="subjectSelected">
-          <div class="selected-title">Selected</div>
-          <div class="subject-selected-wrap" v-show="!noChecked">
-            <div class="selected-content" v-for="(item, index) in result" :key="'seletedArea_'+index">
+          <div class="selected-title">Selected<b ref="curName" style="display:none;"> : {{ choosed.curriculumName || choosed.name }}</b></div>
+          <div class="subject-selected-wrap" v-show="!noChecked" v-if="totalResult[choosed.id]">
+            <div class="selected-content" v-for="(item, index) in totalResult[choosed.id].result" :key="'seletedArea_'+index">
               <div class="selected-content-title" v-show="item.checkedList.length > 0">
                 {{ item.name }}
               </div>
               <a-space class="selected-content-detail" v-show="item.checkedList.length > 0">
-                <a-tag class="tag-item" :key="'tagCat'+index + 'tag' + tagIndex" v-for="(tag, tagIndex) in item.checkedList" :closable="true" @close="e => closeTag(e, index, tagIndex)">
-                  {{ formatTag(item, tag) }}
+                <a-tag class="tag-item" :key="'tagCat'+index + 'tag' + tagIndex" v-for="(tag, tagIndex) in item.checkedList" :closable="true" @close="e => closeTag(e, index, tagIndex, choosed.id)">
+                  {{ formatTag(item, tag, choosed.id) }}
                 </a-tag>
               </a-space>
             </div>
@@ -37,19 +45,19 @@
         </div>
         <div ref="copySelected"></div>
       </div>
-      <div class="subject-area">
+      <div class="subject-area" v-if="totalResult[choosed.id]">
         <div
           class="subject-area-item"
-          v-for="(item, index) in result"
+          v-for="(item, index) in totalResult[choosed.id].result"
           :key="'subectArr_' + index"
         >
           <div class="area-item-title">Subjects in {{ item.name }}</div>
           <div class="area-item-check">
             <div>
-              <a-checkbox :indeterminate="item.indeterminate" :checked="item.checkAll" @change="e => onCheckAllChange(e, index)">Select all
+              <a-checkbox :indeterminate="item.indeterminate" :checked="item.checkAll" @change="e => onCheckAllChange(e, index, choosed.id)">Select all
               </a-checkbox>
             </div>
-            <a-checkbox-group v-model="item.checkedList" :options="item.data" @change="check => onCheckChange(check, index)">
+            <a-checkbox-group v-model="item.checkedList" :options="item.data" @change="check => onCheckChange(check, index, choosed.id)">
               <span slot="label" slot-scope="{ label }">{{ label }}</span>
             </a-checkbox-group>
           </div>
@@ -65,15 +73,11 @@
 
 <script>
 import { SubjectTree } from '@/api/subject'
-import { GetSchoolSubject, SaveSchoolSubject } from '@/api/schoolAcademic'
+import { getSubjectBySchoolId, saveSubject } from '@/api/academicSettingSubject'
 export default {
   name: 'SubjectSel',
   props: {
     curriculum: {
-      type: Object,
-      default: () => {}
-    },
-    gradeOptions: {
       type: Array,
       default: () => []
     },
@@ -85,10 +89,8 @@ export default {
   watch: {
     curriculum: {
       handler(val, valPrev) {
-        this.currentCurriculum = val ? { ...val } : {}
-        if (val && val.id && (!valPrev || val.id !== valPrev.id)) {
-          this.initData()
-        }
+        this.currentCurriculum = val ? [ ...val ] : []
+        this.initData()
       },
       immediate: true,
       deep: true
@@ -105,20 +107,29 @@ export default {
     return {
       loading: false,
       currentSchool: this.school,
-      selected: [], // 当前选中
-      currentSelected: [], // 原始选中
-      result: [
-        {
-          indeterminate: false,
-          checkAll: false,
-          checkedList: []
+      choosed: null,
+      totalResult: {
+        '-1': {
+          curriculumId: '',
+          selected: [], // 当前选中
+          currentSelected: [], // 原始选中
+          result: [
+            {
+              indeterminate: false,
+              checkAll: false,
+              checkedList: []
+            }
+          ]
         }
-      ]
+      },
+      initResult: []
     }
   },
   computed: {
     noChecked() {
-      return this.result.length === 0 || !this.result.find(item => item.checkedList.length > 0)
+      const current = this.totalResult[this.choosed.id]
+      const result = current ? current.result : []
+      return result.length === 0 || !result.find(item => item.checkedList.length > 0)
     }
   },
   mounted () {
@@ -130,79 +141,108 @@ export default {
   },
   methods: {
     initData() {
-      this.loading = true
-      SubjectTree({
-        curriculumId: this.currentCurriculum.id
-      }).then((res) => {
-        if (res.success) {
-          this.result = res.result.map(item => {
-            return {
-              ...item,
-              indeterminate: false,
-              checkAll: false,
-              checkedList: [],
-              data: item.children.map(child => {
-                return {
-                  label: child.name,
-                  value: child.id
-                }
-              })
-            }
-          })
-          this.setSelected()
-          this.$emit('change', this.selected)
+      if (this.choosed) {
+        const isExist = this.currentCurriculum.find(item => item.id === this.choosed.id)
+        if (!isExist) {
+          this.choosed = { ...this.currentCurriculum[0] }
         }
-      })
+      } else {
+        this.choosed = { ...this.currentCurriculum[0] }
+      }
+      if (this.choosed.id && !this.totalResult[this.choosed.id]) {
+        this.loading = true
+        SubjectTree({
+          curriculumId: this.choosed.id
+        }).then((res) => {
+          if (res.success) {
+            const result = res.result.map(item => {
+              return {
+                ...item,
+                indeterminate: false,
+                checkAll: false,
+                checkedList: [],
+                data: item.children.map(child => {
+                  return {
+                    label: child.name,
+                    value: child.id
+                  }
+                })
+              }
+            })
+            this.$set(this.totalResult, this.choosed.id, {
+              selected: [], // 当前选中
+              currentSelected: [], // 原始选中
+              result: result
+            })
+            this.setSelected()
+          }
+        })
+      } else {
+        this.setSelected()
+      }
     },
     initSubject() {
       if (this.currentSchool && this.currentSchool.id) {
-        GetSchoolSubject({
+        getSubjectBySchoolId({
           schoolId: this.currentSchool.id
         }).then(res => {
           if (res.success) {
-            const ids = res.result.subjectInfo.map(item => item.subjectId)
-            this.currentSelected = [...ids]
+            this.initResult = res.result
             this.setSelected()
-            this.$emit('change', this.selected)
           }
         })
       }
     },
+    chooseCurriculum(item) {
+      this.choosed = { ...item }
+      this.initData()
+    },
     reset() {
       this.setSelected()
-      this.$emit('change', this.selected)
     },
     setSelected() {
-      this.selected = []
-      this.result = this.result.map(item => {
-        let checkedList = []
-        let indeterminate = false
-        let checkAll = false
-        if (item.children && item.children.length > 0) {
-          checkedList = item.children.filter(child => {
-            return this.currentSelected.includes(child.id)
-          }).map(_ => _.id)
-          this.selected = [...this.selected, ...checkedList]
-          if (checkedList.length === item.children.length) {
-            checkAll = true
-          } else {
-            if (checkedList.length > 0) {
-              indeterminate = true
-            }
+      // init from db
+      if (this.initResult && this.initResult.length > 0) {
+        for (const curriculumId in this.totalResult) {
+          const selectedFromDb = this.initResult.find(item => item.curriculumId === curriculumId)
+          if (selectedFromDb) {
+            this.totalResult[curriculumId].currentSelected = selectedFromDb.subjectList.map(item => item.subjectId)
           }
         }
-        return {
-          ...item,
-          indeterminate: indeterminate,
-          checkAll: checkAll,
-          checkedList: checkedList
-        }
-      })
-    },
-    formatGrade(id) {
-      const current = this.gradeOptions.filter(item => item.curriculumId === id)
-      const ages = current.map(item => item.age ? Number(item.age) : 0)
-      return Math.min(...ages) + '-' + Math.max(...ages) + ' Years'
+      }
+      for (const curriculumId in this.totalResult) {
+        if (curriculumId === '-1') continue
+        const current = this.totalResult[curriculumId]
+        current.selected = []
+        current.result = current.result.map(item => {
+          let checkedList = []
+          let indeterminate = false
+          let checkAll = false
+          if (item.children && item.children.length > 0) {
+            // 原始的
+            checkedList = item.children.filter(child => {
+              return current.currentSelected.includes(child.id)
+            }).map(_ => _.id)
+            // 原始的+当前的
+            checkedList = Array.from(new Set([...item.checkedList, ...checkedList]))
+            current.selected = checkedList.concat()
+            if (checkedList.length === item.children.length) {
+              checkAll = true
+            } else {
+              if (checkedList.length > 0) {
+                indeterminate = true
+              }
+            }
+          }
+          return {
+            ...item,
+            indeterminate: indeterminate,
+            checkAll: checkAll,
+            checkedList: checkedList
+          }
+        })
+      }
+      this.sendChecked()
     },
     formatTag(item, tag) {
       if (item.children && tag) {
@@ -216,65 +256,103 @@ export default {
         const subjectWrapDom = this.$refs.subjectWrap.getBoundingClientRect()
         const subjectSelDom = this.$refs.subjectSelected.getBoundingClientRect()
         if (subjectWrapDom.top < (-44 - 60)) {
-          this.$refs.subjectSelected.style.cssText = `position:fixed;top:0px;background: #fff;width:${subjectWrapDom.width}px;margin-left: -24px;padding: 20px;border: 1px solid #dfdfdf;box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);`
+          this.$refs.subjectSelected.style.cssText = `position:fixed;top:60px;background: #fff;width:${subjectWrapDom.width}px;margin-left: -24px;padding: 20px;border: 1px solid #dfdfdf;box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);`
           this.$refs.copySelected.style.cssText = `display: block;height: ${subjectSelDom.height}px;`
+          this.$refs.curName.style.display = 'block'
         } else {
           this.$refs.subjectSelected.style.cssText = ''
           this.$refs.copySelected.style.cssText = ''
+          this.$refs.curName.style.display = 'none'
         }
       }
     },
     sendChecked() {
       let checkedList = []
-      this.result.forEach(item => {
-        checkedList = checkedList.concat(item.checkedList)
-      })
+      for (const key in this.totalResult) {
+        const result = this.totalResult[key].result
+        result.forEach(item => {
+          checkedList = checkedList.concat(item.checkedList)
+        })
+      }
       this.$emit('change', checkedList)
     },
-    onCheckAllChange(e, index) {
-      Object.assign(this.result[index], {
-        checkedList: e.target.checked ? this.result[index].data.concat().map(item => item.value) : [],
+    onCheckAllChange(e, index, curriculumId) {
+      Object.assign(this.totalResult[curriculumId].result[index], {
+        checkedList: e.target.checked ? this.totalResult[curriculumId].result[index].data.concat().map(item => item.value) : [],
         indeterminate: false,
         checkAll: e.target.checked
       })
       this.sendChecked()
     },
-    onCheckChange(checkedList, index) {
-      this.result[index].indeterminate = !!checkedList.length && checkedList.length < this.result[index].data.length
-      this.result[index].checkAll = checkedList.length === this.result[index].data.length
+    onCheckChange(checkedList, index, curriculumId) {
+      this.totalResult[curriculumId].result[index].indeterminate = !!checkedList.length && checkedList.length < this.totalResult[curriculumId].result[index].data.length
+      this.totalResult[curriculumId].result[index].checkAll = checkedList.length === this.totalResult[curriculumId].result[index].data.length
       this.sendChecked()
     },
-    closeTag(e, index, tagIndex) {
-      this.result[index].checkedList.splice(tagIndex, 1)
-      this.onCheckChange(this.result[index].checkedList, index)
+    closeTag(e, index, tagIndex, curriculumId) {
+      this.totalResult[curriculumId].result[index].checkedList.splice(tagIndex, 1)
+      this.onCheckChange(this.totalResult[curriculumId].result[index].checkedList, index, curriculumId)
     },
-    handleSave() {
-      const subjectInfo = []
-      this.result.forEach(parent => {
-        if (parent.checkedList.length > 0) {
-          parent.children.forEach(child => {
-            if (parent.checkedList.includes(child.id)) {
-              subjectInfo.push({
-                curriculumId: this.currentCurriculum.id,
-                parentSubjectId: parent.id,
-                parentSubjectName: parent.name,
-                subjectId: child.id,
-                subjectName: child.name
+    doSave() {
+      // const subjectInfo = []
+      // this.result.forEach(parent => {
+      //   if (parent.checkedList.length > 0) {
+      //     parent.children.forEach(child => {
+      //       if (parent.checkedList.includes(child.id)) {
+      //         subjectInfo.push({
+      //           curriculumId: this.choosed.id,
+      //           parentSubjectId: parent.id,
+      //           parentSubjectName: parent.name,
+      //           subjectId: child.id,
+      //           subjectName: child.name
+      //         })
+      //       }
+      //     })
+      //   }
+      // })
+      const promises = []
+      for (const curriculum in this.totalResult) {
+        if (curriculum !== '-1') {
+          const result = this.totalResult[curriculum].result
+          const subjectList = []
+          result.forEach(parent => {
+            if (parent.checkedList.length > 0) {
+              parent.children.forEach(child => {
+                if (parent.checkedList.includes(child.id)) {
+                  subjectList.push({
+                    curriculumId: curriculum,
+                    parentSubjectId: parent.id,
+                    parentSubjectName: parent.name,
+                    subjectId: child.id,
+                    subjectName: child.name
+                  })
+                }
               })
             }
           })
+          promises.push({
+            curriculumId: curriculum,
+            schoolId: this.currentSchool.id,
+            subjectList: subjectList
+          })
         }
-      })
-      SaveSchoolSubject({
-        schoolId: this.currentSchool.id,
-        subjectInfo: subjectInfo
-      }).then(res => {
-        if (res.success) {
-
-        }
+      }
+      Promise.all(promises.map(params => saveSubject(params))).then(res => {
+        console.log(res)
       }).finally(() => {
+        this.initSubject()
         this.$emit('save-success')
       })
+      // saveSubject({
+      //   schoolId: this.currentSchool.id,
+      //   subjectInfo: subjectInfo
+      // }).then(res => {
+      //   if (res.success) {
+
+      //   }
+      // }).finally(() => {
+      //   this.$emit('save-success')
+      // })
     }
   }
 }
@@ -287,12 +365,16 @@ export default {
   border: 1px solid #e8e8e8;
   border-radius: 10px;
   background: #fff;
+  height: 100%;
+  overflow: auto;
   .subject-result-wrap {
     background: rgba(228, 228, 228, 0.2);
     opacity: 1;
     padding: 24px;
     .subject-circulum {
       display: flex;
+      width: 100%;
+      overflow: auto;
       .circulum-item {
         background: #fff;
         display: flex;
@@ -320,6 +402,7 @@ export default {
             font-weight: 400;
             color: #070707;
             opacity: 1;
+            white-space: nowrap;
             & ~ div {
               margin-top: 5px;
             }
@@ -338,6 +421,7 @@ export default {
         color: #070707;
         opacity: 1;
         margin-bottom: 15px;
+        display: flex;
       }
       .subject-selected-wrap {
         max-height: 200px;

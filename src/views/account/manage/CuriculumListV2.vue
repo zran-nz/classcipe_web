@@ -17,7 +17,7 @@
       <div class="status-tab">
         <div class="tab-list">
           <div
-            v-for="(item,index) in tabsList"
+            v-for="(item,index) in filterTabs"
             :key="'types'+index"
             :class="{'tab-item': true, 'active' : currentTab === item.value}"
             @click="toggleTab(item.value)">
@@ -29,20 +29,26 @@
         <curiculum-sel
           ref="CurriculumRef"
           v-show="currentTab === 'Curriculum'"
-          :gradeOptions="gradeOptions"
           :school="currentSchool"
           @change="changeCurriculum"
           @save-success="() => successCb('pendingCurriculum')"
         />
-        <div style="font-size: 14px;">
+        <div style="font-size: 14px;height: calc(100% - 50px);" v-show="currentTab === 'Subject'">
           <subject-sel
             ref="SubjectRef"
-            v-show="currentTab === 'Subject'"
-            :gradeOptions="gradeOptions"
             :curriculum="currentCurriculum"
             :school="currentSchool"
             @change="changeSubjects"
             @save-success="() => successCb('pendingSubject')"
+          />
+        </div>
+        <div style="font-size: 14px;height: calc(100% - 50px);" v-show="currentTab === 'Authorization'">
+          <authorize-sel
+            ref="AuthorizationRef"
+            :curriculum="currentCurriculum"
+            :school="currentSchool"
+            @change="changeAuth"
+            @save-success="() => successCb('pendingAuthorization')"
           />
         </div>
       </div>
@@ -50,9 +56,9 @@
     <div style="font-size: 16px;">
       <fixed-form-footer>
         <template v-slot:right>
-          <a-button type='primary' @click='handleNextStep' class='cc-round-button'>
+          <a-button :loading="saveLoading" :disabled="disabled" type='primary' @click='handleNextStep' class='cc-round-button'>
             <template v-if='true'>
-              Next
+              Save
             </template>
             <template v-else>
               Complete
@@ -65,19 +71,18 @@
 </template>
 
 <script>
-import { USER_MODE } from '@/const/common'
+import { AllCurriculums, USER_MODE } from '@/const/common'
 
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import { ReSetFontMixin } from '@/mixins/ReSetFontMixin'
-
-import { GradeGetAllGrades } from '@/api/grade'
 
 import FixedFormHeader from '@/components/Common/FixedFormHeader'
 import FixedFormFooter from '@/components/Common/FixedFormFooter'
 import FormHeader from '@/components/FormHeader/FormHeader'
 import CuriculumSel from './curiculum/CuriculumSel'
 import SubjectSel from './curiculum/SubjectSel'
+import AuthorizeSel from './curiculum/AuthorizeSel'
 
 import { mapState } from 'vuex'
 export default {
@@ -87,7 +92,8 @@ export default {
     FixedFormFooter,
     FormHeader,
     CuriculumSel,
-    SubjectSel
+    SubjectSel,
+    AuthorizeSel
   },
   mixins: [UserModeMixin, CurrentSchoolMixin, ReSetFontMixin],
   data() {
@@ -95,7 +101,6 @@ export default {
       fontSize: '16px',
       fixHtmlWidth: 1000,
       USER_MODE: USER_MODE,
-      gradeOptions: [],
       currentTab: 'Curriculum',
       tabsList: [{
           value: 'Curriculum',
@@ -105,14 +110,15 @@ export default {
           value: 'Subject',
           title: 'Subject'
       }, {
-          value: 'Teaching',
-          title: 'Teaching contents'
+          value: 'Authorization',
+          title: 'IB authorization'
       }],
       pendingCurriculum: false,
       pendingSubject: false,
+      pendingAuthorization: false,
       saveLoading: false,
-      defaultCurriculumId: null,
-      currentCurriculum: null
+      currentCurriculum: [],
+      currentAuth: {}
     }
   },
   computed: {
@@ -121,18 +127,22 @@ export default {
       bindCurriculum: state => state.user.bindCurriculum,
       currentSchool: state => state.user.currentSchool,
       userMode: state => state.app.userMode
-    })
+    }),
+    filterTabs() {
+      return this.tabsList.filter(item => {
+        const findIB = this.currentCurriculum.find(item => item.id === AllCurriculums.IBPYP || item.id === AllCurriculums.IBMYP)
+        return findIB ? true : item.value !== 'Authorization'
+      })
+    },
+    disabled() {
+      console.log(this.currentAuth.status)
+      if (this.currentTab === 'Authorization' && (this.currentAuth.status === 1 || this.currentAuth.status === 2)) {
+        return true
+      }
+      return false
+    }
   },
   created() {
-    GradeGetAllGrades().then(res => {
-      if (res.success) {
-        this.gradeOptions = res.result
-      }
-    })
-    this.currentCurriculum = {
-      curriculumId: this.currentSchool.curriculumId || this.bindCurriculum
-    }
-    this.defaultCurriculumId = this.currentSchool.curriculumId || this.bindCurriculum
   },
   methods: {
     goBack() {
@@ -142,25 +152,31 @@ export default {
       this.currentTab = status
     },
     changeCurriculum(val) {
-      this.currentCurriculum = { ...val }
-      if (this.currentCurriculum.id) {
-        this.defaultCurriculumId = this.currentCurriculum.id
-      }
+      console.log(val)
+      this.currentCurriculum = [ ...val ]
     },
     changeSubjects(val) {
       console.log(val)
       this.changedSubjects = [...val]
     },
+    changeAuth(val) {
+      console.log(val)
+      this.currentAuth = { ...val }
+    },
     successCb(pending) {
-      this[pending] = false
-      if (!this.pendingCurriculum) {
-        this.$message.success('Save successfully')
-        this.saveLoading = false
-      }
+      this.$message.success('Save successfully')
+      this.saveLoading = false
     },
     handleNextStep() {
       if (this.currentTab === 'Curriculum') {
+        this.saveLoading = true
         this.$refs.CurriculumRef.doSave()
+      } else if (this.currentTab === 'Subject') {
+        this.saveLoading = true
+        this.$refs.SubjectRef.doSave()
+      } else if (this.currentTab === 'Authorization') {
+        this.saveLoading = true
+        this.$refs.AuthorizationRef.doSave()
       }
     }
   }

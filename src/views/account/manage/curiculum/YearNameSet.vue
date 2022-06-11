@@ -1,47 +1,52 @@
 <template>
   <div class="year-name-set">
     <a-spin :spinning="loading">
-      <a-form-model layout="horizontal" :model="gradeForm" v-bind="formItemLayout" ref="form">
-        <div class="year-name-curriculum" v-for="curriculum in currentCurriculums" :key="'curriculum'+curriculum.id">
+      <template v-if="currentCurriculums && currentCurriculums.length > 0">
+        <a-form-model layout="horizontal" :model="gradeForm" v-bind="formItemLayout" ref="form">
+          <div class="year-name-curriculum" v-for="curriculum in currentCurriculums" :key="'curriculum'+curriculum.id">
 
-          <a-row class="curriculum-title">
-            <a-col :span="formItemLayout.labelCol.span">
-              <a-checkbox
-                :indeterminate="curriculum.indeterminate"
-                :checked="curriculum.checkAll"
-                @change="val => changeCurriculum(val, curriculum)"
-              >{{ curriculum.name || curriculum.curriculumName }}</a-checkbox>
-            </a-col>
-          </a-row>
+            <a-row class="curriculum-title">
+              <a-col :span="formItemLayout.labelCol.span">
+                <a-checkbox
+                  :indeterminate="curriculum.indeterminate"
+                  :checked="curriculum.checkAll"
+                  @change="val => changeCurriculum(val, curriculum)"
+                >{{ curriculum.name || curriculum.curriculumName }}</a-checkbox>
+              </a-col>
+            </a-row>
 
-          <template v-for="(grade, index) in gradeForm.gradeInfo.filter(item => item.curriculumId === curriculum.id)">
-            <a-form-model-item
-              :key="'grade'+index"
-              class="mb0"
-            >
-              <div slot="label" class="grade-item">
-                <a-checkbox v-model="grade.checked" @change="val => changeGradeCheck(val, grade)">{{ grade.officialGradeName }}</a-checkbox>
-              </div>
-              <a-row :gutter=16>
-                <a-col :span="12">
-                  <a-form-model-item>
-                    <!-- <a-input :disabled="!grade.checked" v-model="grade.gradeName" placeholder="input name" /> -->
-                    <a-select :disabled="!grade.checked" mode="tags" v-model="grade.gradeNameArr" :token-separators="[',']">
-                    </a-select>
-                  </a-form-model-item >
-                </a-col>
-                <a-col :span="12">
-                  <a-form-model-item>
-                    <a-input-number :disabled="!grade.checked" v-model="grade.age" placeholder="input age" />
-                  </a-form-model-item >
-                </a-col>
-              </a-row>
+            <template v-for="(grade, index) in gradeForm.gradeInfo.filter(item => item.curriculumId === curriculum.id)">
+              <a-form-model-item
+                :key="'grade'+index"
+                class="mb0"
+              >
+                <div slot="label" class="grade-item">
+                  <a-checkbox v-model="grade.checked" @change="val => changeGradeCheck(val, grade)">{{ grade.officialGradeName }}</a-checkbox>
+                </div>
+                <a-row :gutter=16>
+                  <a-col :span="12">
+                    <a-form-model-item>
+                      <!-- <a-input :disabled="!grade.checked" v-model="grade.gradeName" placeholder="input name" /> -->
+                      <a-select :disabled="!grade.checked" mode="tags" v-model="grade.gradeNameArr" :token-separators="[',']">
+                      </a-select>
+                    </a-form-model-item >
+                  </a-col>
+                  <a-col :span="12">
+                    <a-form-model-item>
+                      <a-input-number :disabled="!grade.checked" v-model="grade.age" placeholder="input age" />
+                    </a-form-model-item >
+                  </a-col>
+                </a-row>
 
-            </a-form-model-item>
-          </template>
+              </a-form-model-item>
+            </template>
+          </div>
+        </a-form-model>
+      </template>
 
-        </div>
-      </a-form-model>
+      <div class='empty-tips' v-if='(!currentCurriculums || currentCurriculums.length === 0) && !loading'>
+        <no-more-resources />
+      </div>
       <!-- <a-space class="year-name-opt">
         <a-button @click="handleCancel">Cancel</a-button>
         <a-button type="primary" :loading="loading" @click="handleSave">Save</a-button>
@@ -52,9 +57,13 @@
 
 <script>
 import { getAllGrades, getAllCurriculums } from '@/api/preference'
+import NoMoreResources from '@/components/Common/NoMoreResources'
 const { debounce, cloneDeep, groupBy } = require('lodash-es')
 export default {
   name: 'YearNameSet',
+  components: {
+    NoMoreResources
+  },
   props: {
     school: {
       type: Object,
@@ -138,7 +147,7 @@ export default {
             officialGradeName: item.name,
             curriculumId: item.curriculumId,
             age: item.age,
-            checked: false
+            checked: true
           }
           return res
         })
@@ -164,7 +173,10 @@ export default {
                 gradeNameArr: isFind.gradeName.split(','),
                 curriculumId: current.curriculumId,
                 checked: true
-              } : { ...grade }
+              } : {
+                ...grade,
+                checked: false
+              }
           })
           gradeInfos = gradeInfos.concat(actual)
         } else {
@@ -303,5 +315,8 @@ export default {
 }
 .mb0 {
   margin-bottom: 0;
+}
+.empty-tips {
+  font-size: 16px;
 }
 </style>

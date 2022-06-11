@@ -1,15 +1,17 @@
 <template>
   <div class="curiculum-con">
     <div class="curiculum-list">
-      <div class="curiculum-detail">
-        <div class="detail-item" v-for="circulum in curriculumOptions" :key="'circulum+' + circulum.id">
-          <div class="item-check">
-            <a-checkbox v-model="circulum.checked" @change="val => onChange(val, circulum)">
-              {{ circulum.name }}
-            </a-checkbox>
+      <a-spin :spinning="loading">
+        <div class="curiculum-detail">
+          <div class="detail-item" v-for="circulum in curriculumOptions" :key="'circulum+' + circulum.id">
+            <div class="item-check">
+              <a-checkbox v-model="circulum.checked" @change="val => onChange(val, circulum)">
+                {{ circulum.name }}
+              </a-checkbox>
+            </div>
           </div>
         </div>
-      </div>
+      </a-spin>
     </div>
 
     <div class="curiculum-content">
@@ -33,10 +35,6 @@ export default {
     school: {
       type: Object,
       default: () => {}
-    },
-    gradeOptions: {
-      type: Array,
-      default: () => []
     }
   },
   watch: {
@@ -67,6 +65,7 @@ export default {
   },
   methods: {
     initData() {
+      this.loading = true
       Promise.all([
         getAllCurriculums(),
         getCurriculumBySchoolId({
@@ -106,15 +105,12 @@ export default {
           this.$emit('change', this.choosed)
           this.curriculumOptions = this.allOptions.concat()
         }
+      }).finally(() => {
+        this.loading = false
       })
     },
     reset() {
       this.initData()
-    },
-    formatGrade(id) {
-      const current = this.gradeOptions.filter(item => item.curriculumId === id)
-      const ages = current.map(item => item.age ? Number(item.age) : 0)
-      return Math.min(...ages) + '-' + Math.max(...ages) + ' Years'
     },
     triggerSearch() {
       if (!this.queryParam.searchKey) this.curriculumOptions = this.allOptions.concat()

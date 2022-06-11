@@ -282,6 +282,7 @@ export default {
               avatar: CurriculumPng,
               title: 'Curriculum',
               desc: 'Review payments, payouts, coupons,gift cards and taxes',
+              hidden: this.userMode === USER_MODE.SELF,
               url: '/manage/curriculum'
             },
             {
