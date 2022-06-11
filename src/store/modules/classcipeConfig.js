@@ -60,6 +60,9 @@ const classcipeConfig = {
         pubTagList.forEach(item => {
           item.isPub = true
           item.isPri = false
+
+          const tags = item.tags.map(tag => { return { tag: tag, isPub: true, isPri: false } })
+          item.tags = tags
         })
 
         // eslint-disable-next-line no-undef
@@ -67,6 +70,8 @@ const classcipeConfig = {
         priTagList.forEach(item => {
           item.isPub = false
           item.isPri = true
+          const tags = item.tags.map(tag => { return { tag: tag, isPub: false, isPri: true } })
+          item.tags = tags
         })
         logger.info('initTagData', pubTagList, priTagList)
 

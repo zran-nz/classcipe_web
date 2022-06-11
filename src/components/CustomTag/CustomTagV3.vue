@@ -54,13 +54,16 @@
         <div class='category-content'>
           <template v-if="currentActiveTagCategory">
             <div class="search-tag-wrapper tag-wrapper" v-if="filterTagList.length > 0">
-              <div class="skt-tag-item" v-for="tag in filterTagList" :key="tag" >
+              <div class="skt-tag-item" v-for="tagItem in filterTagList" :key="tagItem.tag" >
                 <a-tag
-                  @click="selectTag(currentActiveTagCategory, tag)"
+                  @click="selectTag(currentActiveTagCategory, tagItem)"
                   :style="{ 'background-color': currentActiveTagCategory.tagColor || '#fff', 'border-color': currentActiveTagCategory.tagColor || '#15c39a'}"
-                  :class="{ 'selected-tag-item': selectedTagNameList.indexOf(tag) !== -1 }"
+                  :class="{ 'selected-tag-item': selectedTagNameList.indexOf(tagItem.tag) !== -1 }"
                   class="tag-item cc-custom-tag-item">
-                  {{ tag }}
+                  {{ tagItem.tag }}
+                  <span class='delete-tag-icon' v-if='tagItem.isPri' @click.stop='deleteTag(tagItem)'>
+                    <a-icon type='close' />
+                  </span>
                 </a-tag>
               </div>
             </div>
@@ -91,6 +94,17 @@
           allow-clear />
       </div>
 
+      <a-modal
+        title="My tags"
+        v-model="settingVisible"
+        :footer="null"
+        width='600px'
+        destroyOnClose
+        :afterClose="initTagData">
+        <div>
+          <tag-setting />
+        </div>
+      </a-modal>
     </div>
   </div>
 </template>
@@ -102,6 +116,7 @@ import CommonNoData from '@/components/Common/CommonNoData'
 import CustomTagCategoryBar from '@/components/CustomTag/CustomTagCategoryBar'
 import CustomSearchInput from '@/components/Common/CustomSearchInput'
 import { debounce } from 'lodash-es'
+import TagSetting from '@/components/UnitPlan/TagSetting'
 
 const setColor = [
   '#FFEDAF',
@@ -118,7 +133,7 @@ const setColor = [
 
 export default {
   name: 'CustomTagV3',
-  components: { CustomSearchInput, CustomTagCategoryBar, CommonNoData },
+  components: { TagSetting, CustomSearchInput, CustomTagCategoryBar, CommonNoData },
   props: {
     customTags: {
       type: Array,
@@ -155,17 +170,38 @@ export default {
         }
       })
     },
+
+    pubTagNameList () {
+      const tagSet = new Set()
+      this.$store.getters.pubTagList.forEach(item => {
+        item.tags.forEach(tag => {
+          tagSet.add(tag.tag)
+        })
+      })
+      return Array.from(tagSet)
+    },
+
+    priTagNameList () {
+      const tagSet = new Set()
+      this.$store.getters.priTagList.forEach(item => {
+        item.tags.forEach(tag => {
+          tagSet.add(tag.tag)
+        })
+      })
+      return Array.from(tagSet)
+    },
+
     selectedTagList() {
-      /**
-       [{
-          fieldName:  '',
-          tags: [{
-            set: '',
-            tag: ''
-          }]
-       }]
-       */
       return this.customTags.filter(tag => tag.fieldName === this.fieldName).reduce((acc, cur) => {
+        cur.tags.forEach(tag => {
+          if (this.pubTagNameList.indexOf(tag.tag) !== -1) {
+            tag.isPub = true
+            tag.isPri = false
+          } else {
+            tag.isPub = false
+            tag.isPri = true
+          }
+        })
         return acc.concat(cur.tags)
       }, [])
     },
@@ -177,7 +213,7 @@ export default {
     filterTagList() {
       if (this.currentActiveTagCategory) {
         if (this.inputTag.length > 0 && this.inputTag.trim()) {
-          return this.currentActiveTagCategory.tags.filter(tag => tag.toLowerCase().indexOf(this.inputTag.trim().toLowerCase()) > -1)
+          return this.currentActiveTagCategory.tags.filter(tag => tag.tag.toLowerCase().indexOf(this.inputTag.trim().toLowerCase()) > -1)
         } else {
           return this.currentActiveTagCategory.tags
         }
@@ -190,7 +226,7 @@ export default {
       let category = null
       for (let i = 0; i < this.allTagList.length && !category; i++) {
         this.allTagList[i].tags.forEach(tag => {
-          if (tag.toLowerCase() === this.inputTag.trim().toLowerCase()) {
+          if (tag.tag.toLowerCase() === this.inputTag.trim().toLowerCase()) {
             category = this.allTagList[i]
           }
         })
@@ -202,7 +238,7 @@ export default {
     isTagExistInCurrentCategory () {
       let exist = false
       if (this.currentActiveTagCategory) {
-        exist = this.currentActiveTagCategory.tags.some(tag => tag.toLowerCase().trim() === this.inputTag.trim().toLowerCase())
+        exist = this.currentActiveTagCategory.tags.some(tag => tag.tag.toLowerCase().trim() === this.inputTag.trim().toLowerCase())
       }
       return exist
     },
@@ -261,22 +297,35 @@ export default {
       if (this.inputTag.trim() && this.currentActiveTagCategory) {
         // eslint-disable-next-line no-undef
         const ret = await App.service('tags').patch(this.currentActiveTagCategory._id, { $addToSet: { tags: [this.inputTag.trim()] } })
-        this.$logger.info('create tag', ret)
+        this.$logger.info('create tag ret', ret)
         this.currentActiveTagCategory.tags = ret.tags
         this.inputTag = ''
       }
     },
 
-    selectTag (category, tag) {
-      this.$logger.info('select tag', category, tag)
+    async deleteTag (deleteTagItem) {
+      this.$logger.info('delete tag', deleteTagItem)
+      if (deleteTagItem && deleteTagItem.isPri && this.currentActiveTagCategory) {
+        // eslint-disable-next-line no-undef
+        const ret = await App.service('tags').patch(this.currentActiveTagCategory._id, { $pull: { tags: [deleteTagItem.tag] } })
+        this.$logger.info('deleteTag tag ret', ret)
+        const index = this.currentActiveTagCategory.tags.findIndex(tagItem => tagItem.tag === deleteTagItem.tag)
+        if (index > -1) {
+          this.currentActiveTagCategory.tags.splice(index, 1)
+        }
+      }
+    },
+
+    selectTag (category, selectTagItem) {
+      this.$logger.info('select tag', category, selectTagItem)
       const fieldItem = this.customTags.find(customTagItem => customTagItem.fieldName === this.fieldName)
       this.$logger.info('select tag fieldItem', fieldItem)
       if (fieldItem) {
-        const tagItem = fieldItem.tags.find(tagItem => tagItem.set === category.set && tagItem.tag === tag)
+        const tagItem = fieldItem.tags.find(tagItem => tagItem.set === category.set && tagItem.tag === selectTagItem.tag)
         if (!tagItem) {
           fieldItem.tags.push({
             set: category.set,
-            tag: tag,
+            tag: selectTagItem.tag,
             tagColor: category.tagColor
           })
         }
@@ -285,7 +334,7 @@ export default {
           fieldName: this.fieldName,
           tags: [{
             set: category.set,
-            tag: tag,
+            tag: selectTagItem.tag,
             tagColor: category.tagColor
           }]
         })
