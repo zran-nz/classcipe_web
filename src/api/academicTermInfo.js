@@ -127,7 +127,7 @@ export function deleteTerm (parameter) {
  export function termList (parameter) {
   return request({
     url: AcademicTermInfo.termList,
-    method: 'delete',
+    method: 'get',
     params: parameter
   })
 }
