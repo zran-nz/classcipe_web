@@ -10,7 +10,13 @@
     </div>
     <div class='library-iframe-wrapper'>
 
-      <card-list title="Recommend" category="recommended" :list="recommendList" :card-size="30" v-show="recommendList.length > 0" />
+      <card-list
+        title="Recommend"
+        category="recommended"
+        :list="recommendList"
+        :card-size="30"
+        :is-school-mode='true'
+        v-show="recommendList.length > 0" />
 
       <card-list
         title="Latest published"
@@ -18,6 +24,7 @@
         :list="lastPublishedList"
         :card-size="27"
         :inner-desc="true"
+        :is-school-mode='true'
         v-show="lastPublishedList.length > 0" />
 
       <card-list
@@ -27,6 +34,7 @@
         :card-size="22"
         :inner-desc="true"
         :outer-desc="false"
+        :is-school-mode='true'
         v-show="pdList.length > 0" />
 
       <card-list
@@ -36,6 +44,7 @@
         :card-size="22"
         :inner-desc="true"
         :outer-desc="false"
+        :is-school-mode='true'
         v-show="unitList.length > 0" />
 
       <card-list
@@ -45,6 +54,7 @@
         :card-size="22"
         :inner-desc="true"
         :outer-desc="false"
+        :is-school-mode='true'
         v-show="taskList.length > 0" />
     </div>
   </div>
@@ -95,16 +105,18 @@ export default {
     },
 
     async getLibraryRecommend() {
+      this.$logger.info('getLibraryRecommend schoolId', this.currentSchool?.id)
       const ret = await getLibraryRecommend({
-        schoolId: this.schoolId
+        schoolId: this.currentSchool?.id
       })
       console.log('getLibraryRecommend', ret.result)
       this.recommendList = ret.result || []
     },
 
     async getLibraryResource () {
+      this.$logger.info('getLibraryResource schoolId', this.currentSchool?.id)
       const ret = await getLibraryResource({
-        schoolId: this.schoolId
+        schoolId: this.currentSchool?.id
       })
       console.log('getLibraryResource', ret.result)
       this.lastPublishedList = ret.result.latestReleased || []

@@ -60,7 +60,7 @@ export default {
   },
   computed: {
     ...mapState({
-      school: state => state.user.school
+      currentSchool: state => state.user.currentSchool
     })
   },
   mixins: [ UserModeMixin ],
@@ -73,7 +73,7 @@ export default {
       this.searching = true
       QueryContentsFilter({
         searchKey: this.searchKeyword,
-        schoolId: this.school
+        schoolId: this.currentSchool?.id
       }).then(response => {
         this.$logger.info('QueryContentsFilter result : ', response)
         this.dataList = response.result ? response.result : []

@@ -7,7 +7,7 @@
             <library-icon />
           </template>
         </sidebar-menu-item>
-        <sidebar-menu-item label='School resource' path='/teacher/resource'>
+        <sidebar-menu-item label='School resource' path='/teacher/resource' v-if='userMode === USER_MODE.SCHOOL'>
           <template v-slot:icon>
             <resource-icon />
           </template>

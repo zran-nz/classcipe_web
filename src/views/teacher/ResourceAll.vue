@@ -86,7 +86,7 @@ export default {
   },
   computed: {
     ...mapState({
-      school: state => state.user.school
+      currentSchool: state => state.user.currentSchool
     })
   },
   mixins: [ UserModeMixin, CurrentSchoolMixin ],
@@ -154,6 +154,7 @@ export default {
       }
     },
     loadMyContent () {
+      this.$logger.info('ResourceAll queryAllResource', this.currentSchool?.id)
       this.loading = true
       const params = {
         activityTags: [],
@@ -165,7 +166,7 @@ export default {
         pageSize: this.pagination.pageSize,
         saTags: [],
         subject: [],
-        schoolId: this.school
+        schoolId: this.currentSchool?.id
       }
       queryAllResource(params).then(res => {
         this.$logger.info('queryAllResource', res)
