@@ -24,28 +24,6 @@
           <div class='select-item'>
             <a-select
               :getPopupContainer="trigger => trigger.parentElement"
-              v-model='selectedSubject'
-              placeholder='Subject'
-              @select='handleSelectSubject'
-              class='cc-select cc-lo-select'>
-              <a-select-option :value='subjectName' v-for='subjectName in subjectOptions' :key='subjectName'>
-                {{ subjectName }}
-              </a-select-option>
-            </a-select>
-            <div class='selected-label' v-if='filterConfig.selectedSubjectList'>
-              <div
-                class='selected-label-item'
-                v-for='subjectName in filterConfig.selectedSubjectList'
-                :key='subjectName'>
-                <a-tag closable class='label-subject' @close="handleRemoveSubject(subjectName)">
-                  <div class='tag-content'>{{ subjectName }}</div>
-                </a-tag>
-              </div>
-            </div>
-          </div>
-          <div class='select-item'>
-            <a-select
-              :getPopupContainer="trigger => trigger.parentElement"
               v-model='selectedYear'
               placeholder='Grade'
               @select='handleSelectYear'
@@ -61,6 +39,28 @@
                 :key='year'>
                 <a-tag closable class='label-year' @close="handleRemoveYear(year)">
                   <div class='tag-content'>{{ year }}</div>
+                </a-tag>
+              </div>
+            </div>
+          </div>
+          <div class='select-item'>
+            <a-select
+              :getPopupContainer="trigger => trigger.parentElement"
+              v-model='selectedSubject'
+              placeholder='Subject'
+              @select='handleSelectSubject'
+              class='cc-select cc-lo-select'>
+              <a-select-option :value='subjectName' v-for='subjectName in subjectOptions' :key='subjectName'>
+                {{ subjectName }}
+              </a-select-option>
+            </a-select>
+            <div class='selected-label' v-if='filterConfig.selectedSubjectList'>
+              <div
+                class='selected-label-item'
+                v-for='subjectName in filterConfig.selectedSubjectList'
+                :key='subjectName'>
+                <a-tag closable class='label-subject' @close="handleRemoveSubject(subjectName)">
+                  <div class='tag-content'>{{ subjectName }}</div>
                 </a-tag>
               </div>
             </div>
@@ -532,9 +532,7 @@ export default {
 
     handleSelectLanguage (language) {
       this.$logger.info('handleSelectLanguage', language)
-      if (this.filterConfig.selectedLanguageList.indexOf(language) === -1) {
-        this.filterConfig.selectedLanguageList.unshift(language)
-      }
+      this.filterConfig.selectedLanguageList = [ language ]
       this.selectedLanguage = null
     },
 

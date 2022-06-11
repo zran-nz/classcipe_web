@@ -92,7 +92,7 @@
                   <a-switch size='small' @change='handleSelfLearning' />
                 </div>
                 <div class='menu-item'>
-                  <custom-button label='Archived' @click='handleDeleteItem'>
+                  <custom-button label='Archive' @click='handleDeleteItem'>
                     <template v-slot:icon>
                       <delete-icon />
                     </template>
