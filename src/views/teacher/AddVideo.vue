@@ -109,15 +109,7 @@
                           allow-clear/>
                       </a-col>
                       <a-col span='10' offset='1'>
-                        <custom-tag-v2
-                          ref='customTag'
-                          :custom-tags='customTags'
-                          :scope-tags-list='customTagList'
-                          :selected-tags-list='form.customTags'
-                          :current-field-name='currentFocusFieldName'
-                          @reload-user-tags='loadCustomTags'
-                          @change-add-keywords='handleChangeAddKeywords'
-                          @change-user-tags='handleChangeCustomTags'></custom-tag-v2>
+                        <custom-tag-v3 :custom-tag.sync='form.customTags' :field-name='currentFocusFieldName' />
                       </a-col>
                     </a-row>
                   </div>
@@ -185,27 +177,26 @@ import FixedFormFooter from '@/components/Common/FixedFormFooter'
 import CustomFormItem from '@/components/Common/CustomFormItem'
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import MyVerticalSteps from '@/components/Steps/MyVerticalSteps'
-import { CustomTagType, VideoField } from '@/const/common'
+import { VideoField } from '@/const/common'
 import CustomCoverMedia from '@/components/Common/CustomCoverMedia'
 import { PublishMixin } from '@/mixins/PublishMixin'
 import { VideoAddOrUpdate, VideoQueryById } from '@/api/video'
 import { AutoSaveMixin } from '@/mixins/AutoSaveMixin'
 import VideoSelect from '@/components/Video/VideoSelect'
 import CustomRadioButtonGroup from '@/components/Common/CustomRadioButtonGroup'
-import CustomTagV2 from '@/components/CustomTag/CustomTagV2'
-import { FindCustomTags } from '@/api/tag'
 import { typeMap } from '@/const/teacher'
 import FormLinkedContent from '@/components/Common/FormLinkedContent'
 import LinkContentList from '@/components/UnitPlan/LinkContentList'
 import LearningObjective from '@/components/LearningObjective/LearningObjective'
+import CustomTagV3 from '@/components/CustomTag/CustomTagV3'
 
 export default {
   name: 'AddPD',
   components: {
+    CustomTagV3,
     LearningObjective,
     LinkContentList,
     FormLinkedContent,
-    CustomTagV2,
     CustomRadioButtonGroup,
     VideoSelect,
     CustomCoverMedia,
@@ -245,8 +236,6 @@ export default {
 
       contentType: typeMap,
       VideoField: VideoField,
-      customTagList: [],
-      customTags: {},
       currentFocusFieldName: VideoField.Goals,
       currentActiveStepIndex: this.getSessionStep(),
 
@@ -266,7 +255,6 @@ export default {
       VideoField.CoverImage
     ]
     this.initData()
-    this.loadCustomTags()
     this.contentLoading = false
   },
   methods: {
@@ -284,7 +272,13 @@ export default {
       }).then(response => {
         this.$logger.info('VideoQueryById ' + this.videoId, response.result)
         if (response.code === 0 && response.success) {
-          this.form = response.result
+          const data = response.result
+          if (data.customTags && data.customTags.length) {
+            if (!data.customTags[0].fieldName) {
+              data.customTags = []
+            }
+          }
+          this.form = data
         } else {
           this.$message.error(response.message)
         }
@@ -398,44 +392,6 @@ export default {
           this.currentActiveStepIndex = requiredStepIndex
         }
       }
-    },
-
-    loadCustomTags() {
-      // this.$refs.customTag.tagLoading = true
-      FindCustomTags({}).then((response) => {
-        this.$logger.info('FindCustomTags response', response.result)
-        if (response.success) {
-          this.customTags = response.result
-          // 默认展示的tag分类
-          CustomTagType.task.default.forEach(name => {
-            this.customTagList.push(name)
-          })
-          // // 再拼接自己添加的
-          this.customTags.userTags.forEach(tag => {
-            if (this.customTagList.indexOf(tag.name) === -1) {
-              this.customTagList.push(tag.name)
-            }
-          })
-        } else {
-          this.$message.error(response.message)
-        }
-        // this.$refs.customTag.tagLoading = false
-      })
-    },
-
-    handleChangeAddKeywords(tag) {
-      if (tag.isGlobal) {
-        this.customTags.userGlobalTags.push(tag)
-      } else {
-        const index = this.customTags.userTags.findIndex(item => item.name === tag.parentName)
-        if (index > -1) {
-          this.customTags.userTags[index].keywords.push(tag.name)
-        }
-      }
-    },
-
-    handleChangeCustomTags(tags) {
-      this.form.customTags = tags
     },
     handleUpdateCover (coverData) {
       this.$logger.info('handleUpdateCover', coverData)

@@ -824,6 +824,11 @@ export default {
           }
           this.$logger.info('displayCustomFieldData', displayCustomFieldData)
           taskData.customFieldData = displayCustomFieldData
+          if (taskData.customTags && taskData.customTags.length) {
+            if (!taskData.customTags[0].fieldName) {
+              taskData.customTags = []
+            }
+          }
           this.form = taskData
           this.form.showSelected = taskData.showSelected ? taskData.showSelected : false
           this.form.bloomCategories = this.form.bloomCategories ? this.form.bloomCategories : undefined // 为了展示placeholder

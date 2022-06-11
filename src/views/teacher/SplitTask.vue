@@ -37,7 +37,7 @@
             :key='step.id'>
             <div class='form-field-item' v-for='fieldItem in taskCommonList' :key='fieldItem.id'>
               <template v-if='step.commonFields.indexOf(fieldItem.fieldName) !== -1'>
-                <div class='form-block tag-content-block' :data-field-name='splitTaskField.Name' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.Name' :key='fieldItem.fieldName'>
+                <div class='form-block tag-content-block' @click='activeField(splitTaskField.Name)' :data-field-name='splitTaskField.Name' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.Name' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=splitTaskField.Name />
                   <custom-form-item :required='emptyRequiredFields.indexOf(splitTaskField.Name) !== -1'>
                     <template slot='label'>
@@ -52,7 +52,13 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block over-form-block tag-content-block' :data-field-name='splitTaskField.Overview' id='overview' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.Overview' :key='fieldItem.fieldName'>
+                <div
+                  class='form-block over-form-block tag-content-block'
+                  @click='activeField(splitTaskField.Overview)'
+                  :data-field-name='splitTaskField.Overview'
+                  id='overview'
+                  v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.Overview'
+                  :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=splitTaskField.Overview />
                   <custom-form-item class='task-audio-line' ref='overview' :required='emptyRequiredFields.indexOf(splitTaskField.Overview) !== -1'>
                     <template slot='label'>
@@ -79,7 +85,7 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block taskType tag-content-block' :data-field-name='splitTaskField.TaskType' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.TaskType' :key='fieldItem.fieldName'>
+                <div class='form-block taskType tag-content-block' @click='activeField(splitTaskField.TaskType)' :data-field-name='splitTaskField.TaskType' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.TaskType' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=splitTaskField.TaskType style="left:20px" />
                   <custom-form-item class='task-audio-line' ref='taskType' :colon='false' :required='emptyRequiredFields.indexOf(splitTaskField.TaskType) !== -1'>
                     <template slot='label'>
@@ -117,7 +123,7 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block form-question tag-content-block' :data-field-name='splitTaskField.Question' v-if='associateQuestionList.length > 0 && fieldItem.visible && fieldItem.fieldName === splitTaskField.Question' :key='fieldItem.fieldName'>
+                <div class='form-block form-question tag-content-block' @click='activeField(splitTaskField.Question)' :data-field-name='splitTaskField.Question' v-if='associateQuestionList.length > 0 && fieldItem.visible && fieldItem.fieldName === splitTaskField.Question' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=splitTaskField.Question />
                   <custom-form-item :required='emptyRequiredFields.indexOf(splitTaskField.Question) !== -1'>
                     <template slot='label'>
@@ -158,7 +164,7 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block tag-content-block' :data-field-name='splitTaskField.LearnOuts' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.LearnOuts' :key='fieldItem.fieldName'>
+                <div class='form-block tag-content-block' @click='activeField(splitTaskField.LearnOuts)' :data-field-name='splitTaskField.LearnOuts' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.LearnOuts' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=splitTaskField.LearnOuts style="left:100px" />
                   <custom-form-item :required='emptyRequiredFields.indexOf(splitTaskField.LearnOuts) !== -1'>
                     <template slot='label'>
@@ -175,7 +181,13 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block tag-content-block material-list-block' :data-field-name='splitTaskField.MaterialList' style='clear: both' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.MaterialList' :key='fieldItem.fieldName'>
+                <div
+                  class='form-block tag-content-block material-list-block'
+                  @click='activeField(splitTaskField.MaterialList)'
+                  :data-field-name='splitTaskField.MaterialList'
+                  style='clear: both'
+                  v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.MaterialList'
+                  :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=splitTaskField.MaterialList />
                   <custom-form-item :required='emptyRequiredFields.indexOf(splitTaskField.MaterialList) !== -1'>
                     <template slot='label'>
@@ -246,18 +258,18 @@
                   </div>
                 </div>
 
-                <div class='form-block tag-content-block' :data-field-name='splitTaskField.SelectSlides' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.SelectSlides' :key='fieldItem.fieldName'>
+                <div class='form-block tag-content-block' @click='activeField(splitTaskField.SelectSlides)' :data-field-name='splitTaskField.SelectSlides' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.SelectSlides' :key='fieldItem.fieldName'>
                   <form-slide-page-select :thumbnail-list='thumbnailList' :select-page-object-ids.sync='form.selectPageObjectIds' v-if='!thumbnailListLoading'/>
                   <a-skeleton v-if='thumbnailListLoading' />
                 </div>
 
-                <div class='form-block tag-content-block' :data-field-name='splitTaskField.Link' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.Link' :key='fieldItem.fieldName'>
+                <div class='form-block tag-content-block' @click='activeField(splitTaskField.Link)' :data-field-name='splitTaskField.Link' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.Link' :key='fieldItem.fieldName'>
                   <div class='common-link-wrapper'>
                     <form-linked-content :from-id='taskId' :from-type='contentType.task' v-if='taskId'/>
                   </div>
                 </div>
 
-                <div class='form-block' :data-field-name='splitTaskField.Image' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.Image' :key='fieldItem.fieldName'>
+                <div class='form-block' @click='activeField(splitTaskField.Image)' :data-field-name='splitTaskField.Image' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.Image' :key='fieldItem.fieldName'>
                   <!-- image-->
                   <custom-form-item class='img-wrapper' :required='emptyRequiredFields.indexOf(splitTaskField.Image) !== -1'>
                     <template slot='label'>
@@ -345,16 +357,7 @@
           </template>
           <template v-if='currentRightModule === rightModule.customTag'>
             <div v-if='!this.contentLoading'>
-              <custom-tag-v2
-                ref='customTag'
-                :show-arrow='showCustomTag'
-                :custom-tags='customTags'
-                :scope-tags-list='customTagList'
-                :selected-tags-list='form.customTags'
-                :current-field-name='currentFocusFieldName'
-                @reload-user-tags='loadCustomTags'
-                @change-add-keywords='handleChangeAddKeywords'
-                @change-user-tags='handleChangeCustomTags'></custom-tag-v2>
+              <custom-tag-v3 :custom-tag.sync='form.customTags' :field-name='currentFocusFieldName' />
             </div>
           </template>
           <template v-if='currentRightModule === rightModule.associate'>
@@ -437,11 +440,10 @@ import { FindSourceOutcomes, GetAssociate, GetMyGrades, GetReferOutcomes } from 
 import { TemplatesGetPresentation } from '@/api/template'
 import { SplitTask, TaskQueryById } from '@/api/task'
 import Collaborate from '@/components/UnitPlan/Collaborate'
-import CustomTagV2 from '@/components/CustomTag/CustomTagV2'
+import CustomTagV3 from '@/components/CustomTag/CustomTagV3'
 import CollaborateUserList from '@/components/Collaborate/CollaborateUserList'
-import { CustomTagType, SplitTaskField } from '@/const/common'
+import { SplitTaskField } from '@/const/common'
 import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
-import { FindCustomTags } from '@/api/tag'
 import CollaborateCommentPanel from '@/components/Collaborate/CollaborateCommentPanel'
 import CommentSwitch from '@/components/Collaborate/CommentSwitch'
 import CollaborateCommentView from '@/components/Collaborate/CollaborateCommentView'
@@ -511,7 +513,7 @@ export default {
     UiLearnOut,
     Collaborate,
     CollaborateUserList,
-    CustomTagV2,
+    CustomTagV3,
     CollaborateTooltip,
     CollaborateUpdateContent
   },
@@ -568,9 +570,6 @@ export default {
       thumbnailListLoading: true,
 
       associateQuestionList: [],
-      showCustomTag: false,
-      customTagList: [],
-      customTags: {},
 
       showHistoryLoading: false,
 
@@ -681,7 +680,6 @@ export default {
     })
     this.$logger.info('恢复step', this.currentActiveStepIndex, this.currentStep)
     this.initData()
-    this.loadCustomTags()
 
     this.$EventBus.$on('assessment-saved', this.autoSaveMixinUpdateSaveTime)
   },
@@ -731,6 +729,11 @@ export default {
           this.$logger.info('displayCustomFieldData', displayCustomFieldData)
           taskData.customFieldData = displayCustomFieldData
           delete taskData.id
+          if (taskData.customTags && taskData.customTags.length) {
+            if (!taskData.customTags[0].fieldName) {
+              taskData.customTags = []
+            }
+          }
           this.form = taskData
         }
       })
@@ -1079,94 +1082,9 @@ export default {
       }
     },
 
-    loadCustomTags() {
-      // this.$refs.customTag.tagLoading = true
-      FindCustomTags({}).then((response) => {
-        this.$logger.info('FindCustomTags response', response.result)
-        if (response.success) {
-          this.customTags = response.result
-          // 默认展示的tag分类
-          CustomTagType.task.default.forEach(name => {
-            this.customTagList.push(name)
-          })
-          // // 再拼接自己添加的
-          this.customTags.userTags.forEach(tag => {
-            if (this.customTagList.indexOf(tag.name) === -1) {
-              this.customTagList.push(tag.name)
-            }
-          })
-        } else {
-          this.$message.error(response.message)
-        }
-        // this.$refs.customTag.tagLoading = false
-      })
-    },
-    focusInput(event) {
-      this.$logger.info('focusInput ', event.target)
-
-      const eventDom = event.target
-      let currentDom = eventDom.offsetParent
-      this.currentFocusFieldName = null
-      this.customTagList = []
-      while (currentDom !== null) {
-        currentDom = currentDom ? currentDom.offsetParent : undefined
-        if (!currentDom) {
-          break
-        }
-
-        if (currentDom.classList.contains('tag-content-block') && currentDom.hasAttribute('data-field-name')) {
-          const fieldName = currentDom.getAttribute('data-field-name')
-          this.$logger.info('current block fieldName', fieldName)
-          this.currentFocusFieldName = fieldName
-          if (this.$store.getters.formConfigData?.splitTaskFieldTagMap?.[fieldName]) {
-            if (fieldName === this.splitTaskField.TaskType) {
-              this.customTagList = this.$store.getters.formConfigData.splitTaskFieldTagMap[fieldName].filter(item => item.subFieldName && item.subFieldName.toLowerCase() === this.form.taskType.toLowerCase()).map(item => item.tagName)
-              this.$logger.info(fieldName + ' customTagList taskType ' + this.form.taskType, this.customTagList)
-            } else {
-              this.customTagList = this.$store.getters.formConfigData.splitTaskFieldTagMap[fieldName].map(item => item.tagName)
-              this.$logger.info(fieldName + ' customTagList', this.customTagList)
-            }
-          }
-        }
-        if (currentDom.classList && currentDom.classList.contains('root-locate-form')) {
-          break
-        }
-      }
-      // custom tag 自带了margin-top: 20px,这里减掉不然不对齐。
-      if (this.currentFocusFieldName) {
-        this.$logger.info('show currentFocusFieldName tag ', this.currentFocusFieldName)
-        this.showCustomTag = true
-        this.setRightModuleVisible(this.rightModule.customTag)
-      } else {
-        this.$logger.info('show global tag')
-        CustomTagType.task.default.forEach(name => {
-          this.customTagList.push(name)
-        })
-        // 再拼接自己添加的
-        this.customTags.userTags.forEach(tag => {
-          if (this.customTagList.indexOf(tag.name === -1)) {
-            this.customTagList.push(tag.name)
-          }
-        })
-        this.showCustomTag = false
-        this.setRightModuleVisible()
-      }
-    },
-
-    handleChangeCustomTags(tags) {
-      this.$logger.info('handleChangeCustomTags', tags)
-      this.form.customTags = tags
-    },
-
-    handleChangeAddKeywords(tag) {
-      if (tag.isGlobal) {
-        this.customTags.userGlobalTags.push(tag)
-      } else {
-        const index = this.customTags.userTags.findIndex(item => item.name === tag.parentName)
-        if (index > -1) {
-          this.customTags.userTags[index].keywords.push(tag.name)
-        }
-      }
+    activeField(fieldName) {
+      this.$logger.info('activeField ', fieldName)
+      this.currentFocusFieldName = fieldName
     },
 
     // 切换当前的字段的点评数据，从总的collaborateCommentList筛选初当前字段相关的点评数据
@@ -1345,13 +1263,6 @@ export default {
         window.open('https://' + materialItem.link, '_blank')
       } else {
         this.$message.warn('Please enter a valid URL')
-      }
-    },
-
-    // 选词自动填入标签功能
-    handleAddCustomTagRemote(res) {
-      if (res.parentId && this.$refs.customTag) {
-        this.$refs.customTag.remoteChooseTag(res.parentId, res.tag)
       }
     },
 

@@ -326,7 +326,13 @@ export default {
       }).then(response => {
         this.$logger.info('PDContentQueryById ' + this.pdId, response)
         if (response.code === 0 && response.success) {
-          this.form = response.result
+          const data = response.result
+          if (data.customTags && data.customTags.length) {
+            if (!data.customTags[0].fieldName) {
+              data.customTags = []
+            }
+          }
+          this.form = data
         } else {
           this.$message.error(response.message)
         }

@@ -37,7 +37,7 @@
             :key='step.id'>
             <div class='form-field-item' v-for='fieldItem in $store.getters.formConfigData.planCommonList' :key='fieldItem.id'>
               <template v-if='step.commonFields.indexOf(fieldItem.fieldName) !== -1'>
-                <div class='form-block tag-content-block' :data-field-name='planField.Name' v-if='fieldItem.visible && fieldItem.fieldName === planField.Name' :key='fieldItem.fieldName'>
+                <div class='form-block tag-content-block' @click='activeField(planField.Name)' :data-field-name='planField.Name' v-if='fieldItem.visible && fieldItem.fieldName === planField.Name' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Name />
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.Name) !== -1'>
                     <template slot='label'>
@@ -62,7 +62,13 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block tag-content-block' :data-field-name='planField.Overview' id='overview' v-if='fieldItem.visible && fieldItem.fieldName === planField.Overview' :key='fieldItem.fieldName'>
+                <div
+                  class='form-block tag-content-block'
+                  @click='activeField(planField.Overview)'
+                  :data-field-name='planField.Overview'
+                  id='overview'
+                  v-if='fieldItem.visible && fieldItem.fieldName === planField.Overview'
+                  :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Overview />
                   <custom-form-item ref='overview' :required='emptyRequiredFields.indexOf(planField.Overview) !== -1'>
                     <template slot='label'>
@@ -94,7 +100,7 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block form-radio-wrapper tag-content-block' :data-field-name='planField.ProjectBased' v-if='fieldItem.visible && fieldItem.fieldName === planField.ProjectBased' :key='fieldItem.fieldName'>
+                <div class='form-block form-radio-wrapper tag-content-block' @click='activeField(planField.ProjectBased)' :data-field-name='planField.ProjectBased' v-if='fieldItem.visible && fieldItem.fieldName === planField.ProjectBased' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.ProjectBased style="top:-30px" />
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.ProjectBased) !== -1'>
                     <template slot='label'>
@@ -124,7 +130,7 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block form-radio-wrapper tag-content-block' :data-field-name='planField.UnitType' v-if='fieldItem.visible && fieldItem.fieldName === planField.UnitType' :key='fieldItem.fieldName'>
+                <div class='form-block form-radio-wrapper tag-content-block' @click='activeField(planField.UnitType)' :data-field-name='planField.UnitType' v-if='fieldItem.visible && fieldItem.fieldName === planField.UnitType' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.UnitType style="top:-30px"/>
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.UnitType) !== -1'>
                     <template slot='label'>
@@ -153,7 +159,7 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block grade-time tag-content-block' :data-field-name='planField.GradeIds' v-if="fieldItem.visible && fieldItem.fieldName === planField.GradeId" :key='fieldItem.fieldName'>
+                <div class='form-block grade-time tag-content-block' @click='activeField(planField.GradeIds)' :data-field-name='planField.GradeIds' v-if="fieldItem.visible && fieldItem.fieldName === planField.GradeId" :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.StartDate />
                   <custom-form-item style='width:23%;margin-bottom: 0px;' :required='emptyRequiredFields.indexOf(planField.GradeIds) !== -1'>
                     <template slot='label'>
@@ -187,7 +193,13 @@
                   </custom-form-item>
                 </div>
 
-                <div id='inquiry' class='form-block tag-content-block' :data-field-name='planField.Inquiry' v-if="fieldItem.visible && fieldItem.fieldName === planField.Inquiry" :key='fieldItem.fieldName'>
+                <div
+                  id='inquiry'
+                  class='form-block tag-content-block'
+                  @click='activeField(planField.Inquiry)'
+                  :data-field-name='planField.Inquiry'
+                  v-if="fieldItem.visible && fieldItem.fieldName === planField.Inquiry"
+                  :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :field-name='planField.Inquiry'/>
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.Inquiry) !== -1'>
                     <template slot='label'>
@@ -223,7 +235,7 @@
                   </a-tooltip>
                 </div>
 
-                <div class='form-block tag-content-block' :data-field-name='planField.Scenarios' v-if="fieldItem.visible && fieldItem.fieldName === planField.Scenarios" :key='fieldItem.fieldName'>
+                <div class='form-block tag-content-block' @click='activeField(planField.Scenarios)' :data-field-name='planField.Scenarios' v-if="fieldItem.visible && fieldItem.fieldName === planField.Scenarios" :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Sdg />
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.Sdg) !== -1'>
                     <template slot='label'>
@@ -298,7 +310,7 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block form-block-rwc tag-content-block' :data-field-name='planField.Rwc' v-if="fieldItem.visible && fieldItem.fieldName === planField.Rwc" :key='fieldItem.fieldName'>
+                <div class='form-block form-block-rwc tag-content-block' @click='activeField(planField.Rwc)' :data-field-name='planField.Rwc' v-if="fieldItem.visible && fieldItem.fieldName === planField.Rwc" :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Rwc />
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.Rwc) !== -1'>
                     <template slot='label'>
@@ -325,6 +337,7 @@
 
                 <div
                   :class="{'form-block': true, 'form-block-disabled' : $store.getters.userInfo.disableQuestion, 'tag-content-block': true}"
+                  @click='activeField(planField.Question)'
                   :data-field-name='planField.Question'
                   v-if="fieldItem.visible && fieldItem.fieldName === planField.Question"
                   :key='fieldItem.fieldName'>
@@ -399,7 +412,7 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block tag-content-block' :data-field-name='planField.LearnOuts' v-if="fieldItem.visible && fieldItem.fieldName === planField.LearnOuts" :key='fieldItem.fieldName'>
+                <div class='form-block tag-content-block' @click='activeField(planField.LearnOuts)' :data-field-name='planField.LearnOuts' v-if="fieldItem.visible && fieldItem.fieldName === planField.LearnOuts" :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Assessment style="left:100px" />
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.LearnOuts) !== -1'>
                     <template slot='label'>
@@ -415,7 +428,13 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block tag-content-block' :data-field-name='planField.Prior' style='clear:both' v-if="fieldItem.visible && fieldItem.fieldName === planField.Prior" :key='fieldItem.fieldName'>
+                <div
+                  class='form-block tag-content-block'
+                  @click='activeField(planField.Prior)'
+                  :data-field-name='planField.Prior'
+                  style='clear:both'
+                  v-if="fieldItem.visible && fieldItem.fieldName === planField.Prior"
+                  :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Prior />
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.Prior) !== -1'>
                     <template slot='label'>
@@ -446,13 +465,13 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block tag-content-block' :data-field-name='planField.Link' v-if='fieldItem.visible && fieldItem.fieldName === planField.Link' :key='fieldItem.fieldName'>
+                <div class='form-block tag-content-block' @click='activeField(planField.Link)' :data-field-name='planField.Link' v-if='fieldItem.visible && fieldItem.fieldName === planField.Link' :key='fieldItem.fieldName'>
                   <div class='form-block'>
                     <unit-linked-content :from-id='unitPlanId' />
                   </div>
                 </div>
 
-                <div class='form-block' :data-field-name='planField.Image' v-if='fieldItem.visible && fieldItem.fieldName === planField.Image' :key='fieldItem.fieldName'>
+                <div class='form-block' @click='activeField(planField.Image)' :data-field-name='planField.Image' v-if='fieldItem.visible && fieldItem.fieldName === planField.Image' :key='fieldItem.fieldName'>
                   <!-- image-->
                   <custom-form-item class='img-wrapper' :required='emptyRequiredFields.indexOf(planField.Image) !== -1'>
                     <template slot='label'>
@@ -530,17 +549,7 @@
 
           <template v-if='currentRightModule === rightModule.customTag'>
             <div v-show='!this.contentLoading' >
-              <custom-tag-v2
-                :display-mode="canEdit ? 'edit' : 'readonly'"
-                ref='customTag'
-                :scope-tags-list='customTagList'
-                :selected-tags-list='form.customTags'
-                :show-arrow='showCustomTag'
-                :custom-tags='customTags'
-                :current-field-name='currentFocusFieldName'
-                @reload-user-tags='loadCustomTags'
-                @change-add-keywords='handleChangeAddKeywords'
-                @change-user-tags='handleChangeCustomTags'></custom-tag-v2>
+              <custom-tag-v3 :custom-tag.sync='form.customTags' :field-name='currentFocusFieldName' />
             </div>
           </template>
 
@@ -688,7 +697,7 @@
 <script>
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { typeMap } from '@/const/teacher'
-import { CustomTagType, PlanField, TaskField } from '@/const/common'
+import { PlanField, TaskField } from '@/const/common'
 import { GetAllSdgs, ScenarioSearch } from '@/api/scenario'
 import { debounce } from 'lodash-es'
 import InputSearch from '@/components/UnitPlan/InputSearch'
@@ -709,7 +718,7 @@ import SkillTag from '@/components/UnitPlan/SkillTag'
 import { UnitPlanAddOrUpdate, UnitPlanQueryById } from '@/api/unitPlan'
 import MyContentSelector from '@/components/MyContent/MyContentSelector'
 import { TaskAddOrUpdate } from '@/api/task'
-import CustomTagV2 from '@/components/CustomTag/CustomTagV2'
+import CustomTagV3 from '@/components/CustomTag/CustomTagV3'
 import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import AddKeywordTag from '@/components/Evaluation/AddKeywordTag'
 import CollaborateUserList from '@/components/Collaborate/CollaborateUserList'
@@ -721,7 +730,6 @@ import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEv
 import ReferPreview from '@/components/UnitPlanRefer/ReferPreview'
 import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
 import NewMyContent from '@/components/MyContent/NewMyContent'
-import { FindCustomTags, GetTreeByKey } from '@/api/tag'
 import { NavigationType } from '@/components/NewLibrary/NavigationType'
 import CollaborateCommentPanel from '@/components/Collaborate/CollaborateCommentPanel'
 import CommentSwitch from '@/components/Collaborate/CommentSwitch'
@@ -764,10 +772,12 @@ import CustomCoverMedia from '@/components/Common/CustomCoverMedia'
 import LearningObjective from '@/components/LearningObjective/LearningObjective'
 import { AutoSaveMixin } from '@/mixins/AutoSaveMixin'
 import CustomImageUploader from '@/components/Common/CustomImageUploader'
+import { GetTreeByKey } from '@/api/tag'
 
 export default {
   name: 'AddUnitPlan',
   components: {
+    CustomTagV3,
     CustomImageUploader,
     CustomCoverMedia,
     CustomTextButton,
@@ -801,7 +811,6 @@ export default {
     NewClickableSkillTag,
     SkillTag,
     MyContentSelector,
-    CustomTagV2,
     RelevantTagSelector,
     AddKeywordTag,
     NewBrowser,
@@ -919,9 +928,6 @@ export default {
       selectedAssessmentList: [],
 
       selectIdea: false,
-      showCustomTag: false,
-      customTagList: [],
-      customTags: {},
       NavigationType: NavigationType,
       defaultActiveMenu: NavigationType.learningOutcomes,
       showMenuList: [NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType, NavigationType.idu],
@@ -1078,7 +1084,6 @@ export default {
 
     this.initData()
     this.getAssociate()
-    this.loadCustomTags()
     this.debouncedGetSdgByDescription = debounce(this.searchScenario, 300)
     this.findQuestionsByBigIdea = debounce(this.findQuestionsByBigIdea, 800)
     this.queryContentCollaborates(this.unitPlanId, this.contentType['unit-plan'])
@@ -1234,6 +1239,11 @@ export default {
           unitPlanData.customFieldData = displayCustomFieldData
 
           this.saving = true
+          if (unitPlanData.customTags && unitPlanData.customTags.length) {
+            if (!unitPlanData.customTags[0].fieldName) {
+              unitPlanData.customTags = []
+            }
+          }
           this.form = unitPlanData
           if (unitPlanData.questions.length === 0) {
             this.form.questions.push({ name: '' })
@@ -1406,20 +1416,6 @@ export default {
       this.$logger.info('click goBack')
       this.$router.push({ path: '/teacher/main/created-by-me' })
     },
-    handleChangeCustomTags(tags) {
-      this.form.customTags = tags
-    },
-    handleChangeAddKeywords(tag) {
-      if (tag.isGlobal) {
-        this.customTags.userGlobalTags.push(tag)
-      } else {
-        var index = this.customTags.userTags.findIndex(item => item.name === tag.parentName)
-        if (index > -1) {
-          this.customTags.userTags[index].keywords.push(tag.name)
-        }
-      }
-    },
-
     handleConfirmAssociate() {
       this.$logger.info('handleConfirmAssociate')
       this.associateLibraryVisible = false
@@ -1606,67 +1602,10 @@ export default {
         this.tagBodyWidth = '45%'
       }
     },
-    loadCustomTags() {
-      // this.$refs.customTag.tagLoading = true
-      FindCustomTags({}).then((response) => {
-        this.$logger.info('FindCustomTags response', response.result)
-        if (response.success) {
-          this.customTags = response.result
-          // 默认展示的tag分类
-          CustomTagType.plan.default.forEach(name => {
-            this.customTagList.push(name)
-          })
-          // // 再拼接自己添加的
-          this.customTags.userTags.forEach(tag => {
-            if (this.customTagList.indexOf(tag.name) === -1) {
-              this.customTagList.push(tag.name)
-            }
-          })
-        } else {
-          this.$message.error(response.message)
-        }
-      })
-    },
-    focusInput(event) {
-      const eventDom = event.target
-      let currentDom = eventDom.offsetParent
-      this.currentFocusFieldName = null
-      this.customTagList = []
-      while (currentDom !== null) {
-        currentDom = currentDom ? currentDom.offsetParent : undefined
-        if (!currentDom) {
-          break
-        }
-        if (currentDom.classList.contains('tag-content-block') && currentDom.hasAttribute('data-field-name')) {
-          const fieldName = currentDom.getAttribute('data-field-name')
-          this.$logger.info('current block fieldName', fieldName)
-          this.currentFocusFieldName = fieldName
-          if (this.$store.getters.formConfigData?.planFieldTagMap?.[fieldName]) {
-            this.customTagList = this.$store.getters.formConfigData.planFieldTagMap[fieldName].map(item => item.tagName)
-            this.$logger.info(fieldName + ' customTagList', this.customTagList)
-          }
-        }
-        if (currentDom && currentDom.classList.contains('root-locate-form')) {
-          break
-        }
-      }
-      if (this.currentFocusFieldName) {
-        this.$logger.info('show currentFocusFieldName tag ', this.currentFocusFieldName)
-        this.showCustomTag = true
-        this.setRightModuleVisible(this.rightModule.customTag)
-      } else {
-        this.$logger.info('show global tag')
-        CustomTagType.plan.default.forEach(name => {
-          this.customTagList.push(name)
-        })
-        this.customTags.userTags.forEach(tag => {
-          if (this.customTagList.indexOf(tag.name) === -1) {
-            this.customTagList.push(tag.name)
-          }
-        })
-        this.showCustomTag = false
-        this.setRightModuleVisible()
-      }
+
+    activeField(fieldName) {
+      this.$logger.info('activeField ', fieldName)
+      this.currentFocusFieldName = fieldName
     },
 
     handleSwitchComment(data) {
@@ -1838,13 +1777,6 @@ export default {
         this.restoreUnitPlan(this.form.id)
       }, 100)
     },
-    // 选词自动填入标签功能
-    handleAddCustomTagRemote(res) {
-      if (res.parentId && this.$refs.customTag) {
-        this.$refs.customTag.remoteChooseTag(res.parentId, res.tag)
-      }
-    },
-
     handleUpdateCover (coverData) {
       this.$logger.info('handleUpdateCover', coverData)
       if (coverData.type === 'video') {

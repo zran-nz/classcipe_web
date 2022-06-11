@@ -216,9 +216,16 @@ export default {
     },
 
     initTagData (tagList) {
+      this.$logger.info('lo initTagData', tagList)
       const dataList = JSON.parse(JSON.stringify(tagList))
       if (Array.isArray(dataList) && dataList.length > 0) {
-        this.performanceList = dataList
+        const tagSet = new Set()
+        dataList.forEach(item => {
+          item.tags.forEach(tag => {
+            tagSet.add(tag.tag)
+          })
+        })
+        this.performanceList = Array.from(tagSet)
       } else {
         this.performanceList = []
       }
