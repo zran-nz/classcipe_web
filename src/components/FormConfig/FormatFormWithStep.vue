@@ -471,6 +471,7 @@ export default {
           const fieldItem = myCommonList.find(field => field.fieldName === name)
           if (fieldItem && stepFieldItem) {
             fieldItem.name = stepFieldItem.name
+            fieldItem.showName = stepFieldItem.showName
             fieldItem.hint = stepFieldItem.hint
             fieldItem.sort = index
           }
