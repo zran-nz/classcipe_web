@@ -243,7 +243,13 @@
         <div class='card-list-title'>
           Sub tasks ({{ content.subTasks.length }})
         </div>
-        <div class='card-list'>
+        <div class='scroll-left' @click="scrollLeft('subTask')">
+          <a-icon type="left-circle" :style="{fontSize: '22px', color: '#dddddd'}" />
+        </div>
+        <div class='scroll-right' @click="scrollRight('subTask')">
+          <a-icon type="right-circle" :style="{fontSize: '22px', color: '#dddddd'}" />
+        </div>
+        <div class='card-list' id='subTask'>
           <div class="card-item" v-for="(subTask, i) in content.subTasks" :key="i">
             <card-list-item :content="subTask" :width="16" :inner-desc="false" :outer-desc="true" />
           </div>
@@ -256,7 +262,13 @@
           <template v-if="associateList[0].type === typeMap.task">Task</template>
           ({{ associateList.length }})
         </div>
-        <div class='card-list'>
+        <div class='scroll-left' @click="scrollLeft('taskUnit')">
+          <a-icon type="left-circle" :style="{fontSize: '22px', color: '#dddddd'}" />
+        </div>
+        <div class='scroll-right' @click="scrollRight('taskUnit')">
+          <a-icon type="right-circle" :style="{fontSize: '22px', color: '#dddddd'}" />
+        </div>
+        <div class='card-list' id='taskUnit'>
           <div class="card-item" v-for="(associate, i) in associateList" :key="i">
             <card-list-item :content="associate" :width="16" :inner-desc="false" :outer-desc="true" />
           </div>
@@ -605,6 +617,22 @@ export default {
 
     visibilityChanged (isVisible, entry) {
       this.showTopFixedHeader = !isVisible
+    },
+
+    scrollLeft (idName) {
+      const dom = document.getElementById(idName)
+      dom.scrollBy({
+        left: -600,
+        behavior: 'smooth'
+      })
+    },
+
+    scrollRight (idName) {
+      const dom = document.getElementById(idName)
+      dom.scrollBy({
+        left: 600,
+        behavior: 'smooth'
+      })
     }
   }
 }
@@ -848,6 +876,7 @@ export default {
 
 .card-list-wrapper {
   width: 100%;
+  position: relative;
   .card-list-title {
     font-size: 20px;
     font-family: Arial;
@@ -857,16 +886,33 @@ export default {
     padding-bottom: 10px;
   }
 
+  .scroll-left {
+    cursor: pointer;
+    position: absolute;
+    left: -5px;
+    top: 45%;
+  }
+
+  .scroll-right {
+    cursor: pointer;
+    position: absolute;
+    right: -5px;
+    top: 45%;
+  }
+
   .card-list {
     display: flex;
     flex-direction: row;
     align-items: flex-start;
     overflow-x: scroll;
-    width: 100%;
+    justify-content: flex-start;
+    width: 615px;
     padding-bottom: 15px;
+    margin: 0 25px;
+    position: relative;
 
     .card-item {
-      margin-right: 10px;
+      margin-right: 15px;
     }
   }
 }
