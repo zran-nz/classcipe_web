@@ -512,8 +512,10 @@ export default {
 @import "~@/components/index.less";
 
 .preview-carousel-wrapper {
-  height: 400px;
+  height: 430px;
   width: 100%;
+  padding: 15px 20px;
+  background: #f1f1f1;
 }
 
 .preview-main-content {

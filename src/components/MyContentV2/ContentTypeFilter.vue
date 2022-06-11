@@ -66,7 +66,7 @@ export default {
 
 .type-filter-button {
   border: 1px solid #D0D0D0;
-  width: 130px;
+  width: 140px;
   font-size: 0.7rem;
   display: flex;
   justify-content: space-between;

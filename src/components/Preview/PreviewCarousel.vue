@@ -1,15 +1,11 @@
 <template>
   <div class='preview-carousel'>
-    <a-carousel ref='carousel' :arrows='showArrow && pageObjectList.length > 1' :after-change='onChangePage'>
-      <div
-        slot="prevArrow"
-        class="custom-slick-arrow"
-        style="left: 0;z-index: 200"
-      >
-        <a-icon type="left" />
+    <a-carousel ref='carousel' arrows :after-change='onChangePage'>
+      <div slot="prevArrow" class="custom-slick-arrow" style="left: -15px;zIndex: 1">
+        <a-icon type="left-circle" />
       </div>
-      <div slot="nextArrow" class="custom-slick-arrow" style="right: 0; z-index: 200">
-        <a-icon type="right" />
+      <div slot="nextArrow" class="custom-slick-arrow" style="right: -15px">
+        <a-icon type="right-circle" />
       </div>
       <div class='slider-img-cover' :style="{backgroundImage: 'url(' + pageObject.contentUrl + ')' }" v-for='(pageObject,idx) in pageObjectList' :key='idx'>
       </div>
@@ -65,6 +61,10 @@ export default {
 <style lang='less' scoped>
 @import "~@/components/index.less";
 
+.preview-carousel {
+  position: relative;
+}
+
 .slider-img-cover {
   background-size: cover;
   background-position: center;
@@ -87,131 +87,22 @@ export default {
 }
 
 .custom-slick-arrow {
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  position: absolute;
-  z-index: 200;
-  width: 15px;
-  height: 26px;
-  text-align: center;
-  font-size: 13px;
-  line-height: 20px;
-  color: #fff !important;
-  background-color: rgba(0, 0, 0, 0.6) !important;
-  opacity: 1 !important;
-  padding: 4px 0;
-  transition: opacity 0.3s ease-in-out;
+  width: 30px;
+  height: 30px;
+  font-size: 30px;
+  opacity: 0.5;
+  color: #fff;
+  background-color: rgba(31, 45, 61, 0.4);
+  border-radius: 50%;
 }
 
-.custom-slick-arrow::before {
+.custom-slick-arrow:before {
   display: none;
 }
 
-.carousel-page {
-  display: flex;
-  height: 110px;
-  width: 100%;
-  overflow-x: scroll;
-  overflow-y: hidden;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-
-  .img-list-wrapper {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    width: 100%;
-    position: relative;
-
-    &:hover {
-      .slide-left, .slide-right {
-        display: flex;
-        opacity: 1;
-      }
-    }
-
-    .slide-left {
-      display: none;
-      cursor: pointer;
-      position: absolute;
-      left: 0;
-      top: 50%;
-      margin-top: -15px;
-      width: 15px;
-      height: 26px;
-      font-size: 13px;
-      line-height: 20px;
-      align-items: center;
-      justify-content: center;
-      flex-direction: row;
-      color: #fff;
-      background-color: rgba(0, 0, 0, 0.6);
-      opacity: 0.3;
-      transition: opacity 0.3s ease-in-out;
-    }
-
-    .slide-right {
-      display: none;
-      cursor: pointer;
-      position: absolute;
-      right: 0;
-      top: 50%;
-      margin-top: -15px;
-      width: 15px;
-      height: 26px;
-      text-align: center;
-      font-size: 13px;
-      line-height: 20px;
-      align-items: center;
-      justify-content: center;
-      flex-direction: row;
-      color: #fff;
-      background-color: rgba(0, 0, 0, 0.6);
-      opacity: 0.3;
-      transition: opacity 0.3s ease-in-out;
-    }
-
-    .img-list {
-      cursor: pointer;
-      display: flex;
-      flex-direction: row;
-      justify-content: flex-start;
-      align-items: flex-start;
-      width: 100%;
-      overflow-x: auto;
-      user-select: none;
-
-      &::-webkit-scrollbar {
-        display: none;
-      }
-
-      .img-item {
-        height: 84px;
-        margin-right: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        img {
-          box-sizing: border-box;
-          height: 80px;
-        }
-      }
-
-      .active-img-item {
-        img {
-          outline: 2px solid #15C39A;
-          box-shadow: 0 0 3px 3px #15C39A1A;
-        }
-      }
-    }
-  }
+.custom-slick-arrow:hover {
+  opacity: 0.7;
+  color: #fff;
+  background-color: rgba(31, 45, 61, 0.8);
 }
 </style>

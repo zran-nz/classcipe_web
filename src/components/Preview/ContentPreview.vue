@@ -2,6 +2,7 @@
   <a-drawer
     class='cc-content-preview-drawer'
     :visible='true'
+    :closable='false'
     :title='null'
     width='700px'
     :bodyStyle="{ padding: 0, height: '100%' }"
