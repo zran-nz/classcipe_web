@@ -41,10 +41,12 @@
         </div>
       </div>
     </div>
+
     <div class='preview-carousel-wrapper'>
       <preview-carousel :page-object-list='thumbnailList' :video-list='videoList' v-if='!carouselContentLoading' />
       <a-skeleton v-if='carouselContentLoading' />
     </div>
+
     <div class='preview-main-content' v-if='content'>
       <a-row class='content-info-item'>
         <a-col span='24' class='cc-ellipsis cc-info-left'>
@@ -263,7 +265,34 @@
     </div>
     <div class='preview-extra-data'>
     </div>
-    <div class='preview-review'></div>
+    <div class='preview-review'>
+      <a-row class="reviews-info">
+        <a-col class="slide-reviews" span="24" v-if="currentRole === 'student'">
+          <rate-by-percent :rates="reviewsStats"/>
+          <reviews-preview
+            :id="id"
+            role="student"
+            :list="ReviewsTask.ReviewsTaskList"
+            :save="ReviewsTask.ReviewsTaskSave"
+            :del="ReviewsTask.ReviewsTaskDelete"
+            :myReview="ReviewsTask.ReviewsTaskMyReview"
+          />
+        </a-col>
+        <a-col class="slide-reviews" span="24" v-else>
+          <!-- TODO 后续会有课件付费功能，只有付费过的才能评论 -->
+          <reviews-preview
+            :id="contentId"
+            role="teacher"
+            :list="ReviewsTeacher.ReviewsTeacherList"
+            :save="ReviewsTeacher.ReviewsTeacherSave"
+            :del="ReviewsTeacher.ReviewsTeacherDelete"
+            :myReview="ReviewsTeacher.ReviewsTeacherMyReview"
+            :canEdit="true"
+            @update="loadReviewStats"
+          />
+        </a-col>
+      </a-row>
+    </div>
     <div class='preview-recommend'></div>
   </div>
 </template>
@@ -286,10 +315,16 @@ import { FavoritesAdd } from '@/api/favorites'
 import CardListItem from '@/components/Preview/CardListItem'
 import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 import ShareIcon from '@/assets/v2/icons/header_share.svg?inline'
+import RateByPercent from '@/components/RateByPercent'
+import ReviewsPreview from '@/components/Reviews/ReviewsPreview'
+import ReviewScore from '@/components/Reviews/ReviewScore'
+import { RATE_TOOLTIPS } from '@/const/common'
+import * as ReviewsTask from '@/api/reviewsTask'
+import * as ReviewsTeacher from '@/api/reviewsTeacher'
 
 export default {
   name: 'ContentPreviewDetail',
-  components: { CardListItem, PreviewCarousel, ShareIcon },
+  components: { CardListItem, PreviewCarousel, ShareIcon, RateByPercent, ReviewsPreview, ReviewScore },
   props: {
     contentId: {
       type: String,
@@ -318,7 +353,22 @@ export default {
       typeMap: this.$classcipe.typeMap,
       copyLoading: false,
 
-      showTopFixedHeader: false
+      showTopFixedHeader: false,
+
+      reviewsStats: {
+        avgReviewsScore: 0,
+        reviewsScoreStatDetail: [],
+
+        reviewsCount: 0,
+        effectiveness: 0,
+        overall: 0,
+        quality: 0,
+        studentsEngagement: 0
+      },
+
+      RATE_TOOLTIPS: RATE_TOOLTIPS,
+      ReviewsTask: ReviewsTask,
+      ReviewsTeacher: ReviewsTeacher
     }
   },
   computed: {
@@ -396,6 +446,23 @@ export default {
       if (this.content.presentationId) {
         this.getClassInfo(this.content.presentationId)
       }
+    },
+
+    loadReviewStats () {
+      let promise = null
+      if (this.currentRole === 'student') {
+        promise = ReviewsTask.ReviewsTaskStats
+      } else {
+        promise = ReviewsTeacher.ReviewsTeacherStats
+      }
+      promise && promise({
+        taskId: this.id, // 学生需要
+        purchasesId: this.id // 老师需要
+      }).then(res => {
+        if (res.success) {
+          this.reviewsStats = res.result
+        }
+      })
     },
 
     initVideoList () {
