@@ -40,6 +40,11 @@ export default {
       data: null
     }
   },
+  watch: {
+    value(val) {
+      this.data = val
+    }
+  },
   created() {
     this.data = this.value
   },

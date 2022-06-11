@@ -6,14 +6,14 @@
       </div>
       <div class="user-tag-category-tabs" id='cc-user-tag-category-tabs'>
         <div
-          :class="{ 'user-tag-item': true, 'active-tab': categoryItem.name === currentActiveTagCategoryName }"
-          v-for="(categoryItem, idx) in categoryList"
+          :class="{ 'user-tag-item': true, 'active-tab': categoryItem === activeTagCategory }"
+          v-for="categoryItem in categoryList"
+          :id="'tag-category-' + categoryItem.set"
           @click="handleActiveTagCategory(categoryItem)"
-          :key="idx">
-
+          :key="categoryItem.set">
           <div class="action-icon">
             <div class="tag-title-item">
-              <div class="tag-title">{{ categoryItem.name }}</div>
+              <div class="tag-title">{{ categoryItem.set }}</div>
             </div>
           </div>
         </div>
@@ -33,18 +33,15 @@ export default {
       type: Array,
       default: () => []
     },
-    defaultActiveTagCategoryName: {
-      type: String,
+    activeTagCategory: {
+      type: Object,
       default: null
     }
   },
   data() {
-    return {
-      currentActiveTagCategoryName: null
-    }
+    return {}
   },
   created() {
-    this.currentActiveTagCategoryName = this.defaultActiveTagCategoryName
   },
   methods: {
     scrollLeft () {
@@ -66,8 +63,18 @@ export default {
 
     handleActiveTagCategory (categoryItem) {
       this.$logger.info('handleActiveTagCategory', categoryItem)
-      this.$emit('change', categoryItem)
-      this.currentActiveTagCategoryName = categoryItem.name
+      this.$emit('update:activeTagCategory', categoryItem)
+      this.$emit('update')
+    },
+
+    categoryScrollIntoView(category) {
+      const dom = document.getElementById(`tag-category-${category.set}`)
+      if (dom) {
+        dom.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        })
+      }
     }
   }
 }

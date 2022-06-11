@@ -34,7 +34,7 @@
             :key='step.id'>
             <div class='form-field-item' v-for='fieldName in step.commonFields' :key='fieldName'>
 
-              <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === PdField.Name' :key='fieldName'>
+              <div class='form-block tag-content-block' @click='activeField(PdField.Name)' :data-field-name='fieldName' v-if='fieldName === PdField.Name' :key='fieldName'>
                 <custom-form-item :required='emptyRequiredFields.indexOf(PdField.Name) !== -1'>
                   <template slot='label'>
                     Name
@@ -46,7 +46,7 @@
                 </custom-form-item>
               </div>
 
-              <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === PdField.Image' :key='fieldName'>
+              <div class='form-block tag-content-block' @click='activeField(PdField.Image)' :data-field-name='fieldName' v-if='fieldName === PdField.Image' :key='fieldName'>
                 <custom-form-item :required='emptyRequiredFields.indexOf(PdField.Image) !== -1'>
                   <template slot='label'>
                     Cover image
@@ -55,7 +55,7 @@
                 </custom-form-item>
               </div>
 
-              <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === PdField.CoverVideo' :key='fieldName'>
+              <div class='form-block tag-content-block' @click='activeField(PdField.CoverVideo)' :data-field-name='fieldName' v-if='fieldName === PdField.CoverVideo' :key='fieldName'>
                 <custom-form-item :required='emptyRequiredFields.indexOf(PdField.CoverVideo) !== -1'>
                   <template slot='label'>
                     Cover video
@@ -64,7 +64,7 @@
                 </custom-form-item>
               </div>
 
-              <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === PdField.Goals' :key='fieldName'>
+              <div class='form-block tag-content-block' @click='activeField(PdField.Goals)' :data-field-name='fieldName' v-if='fieldName === PdField.Goals' :key='fieldName'>
                 <custom-form-item :required='emptyRequiredFields.indexOf(PdField.Goals) !== -1'>
                   <template slot='label'>
                     Goals
@@ -78,13 +78,13 @@
                 </custom-form-item>
               </div>
 
-              <div class='form-block tag-content-block' :data-field-name='PdField.Link' v-if='fieldName === PdField.Link' :key='fieldName'>
+              <div class='form-block tag-content-block' @click='activeField(PdField.Link)' :data-field-name='PdField.Link' v-if='fieldName === PdField.Link' :key='fieldName'>
                 <div class='common-link-wrapper'>
                   <form-linked-content :from-id='pdId' :from-type='typeMap.pd' />
                 </div>
               </div>
 
-              <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === PdField.Slides' :key='fieldName'>
+              <div class='form-block tag-content-block' @click='activeField(PdField.Slides)' :data-field-name='fieldName' v-if='fieldName === PdField.Slides' :key='fieldName'>
                 <custom-form-item :show-label='false'>
                   <form-slide
                     :source-type='typeMap.pd'
@@ -101,7 +101,7 @@
                 </custom-form-item>
               </div>
 
-              <div class='form-block tag-content-block' :data-field-name='fieldName' v-if='fieldName === PdField.VideoList' :key='fieldName'>
+              <div class='form-block tag-content-block' @click='activeField(PdField.VideoList)' :data-field-name='fieldName' v-if='fieldName === PdField.VideoList' :key='fieldName'>
                 <case-video :video-list='form.videoList' @add-video='handleAddVideoList' @delete-video='handleDeleteVideo' />
               </div>
             </div>
@@ -109,15 +109,7 @@
         </div>
         <div class='tag-body' :style="{ width: tagBodyWidth }" v-show="tagBodyWidth !== '0%'">
           <template v-if='currentRightModule === rightModule.customTag'>
-            <custom-tag-v2
-              ref='customTag'
-              :custom-tags='customTags'
-              :scope-tags-list='customTagList'
-              :selected-tags-list='form.customTags'
-              :current-field-name='currentFocusFieldName'
-              @reload-user-tags='loadCustomTags'
-              @change-add-keywords='handleChangeAddKeywords'
-              @change-user-tags='handleChangeCustomTags'></custom-tag-v2>
+            <custom-tag-v3 :custom-tag.sync='form.customTags' :field-name='currentFocusFieldName' />
           </template>
           <template v-if='currentRightModule === rightModule.associate'>
             <link-content-list :filter-types="[typeMap.task]" />
@@ -195,8 +187,7 @@ import MyVerticalSteps from '@/components/Steps/MyVerticalSteps'
 import { PdField } from '@/const/common'
 import { BaseEventMixin, RightModule } from '@/mixins/BaseEvent'
 import CustomCoverMedia from '@/components/Common/CustomCoverMedia'
-import CustomTagV2 from '@/components/CustomTag/CustomTagV2'
-import { FindCustomTags } from '@/api/tag'
+import CustomTagV3 from '@/components/CustomTag/CustomTagV3'
 import LinkContentList from '@/components/UnitPlan/LinkContentList'
 import { typeMap } from '@/const/teacher'
 import FormSlide from '@/components/PPT/FormSlide'
@@ -227,7 +218,7 @@ export default {
     SlideSelectList,
     FormSlide,
     LinkContentList,
-    CustomTagV2,
+    CustomTagV3,
     CustomCoverMedia,
     FixedFormHeader,
     FormHeader,
@@ -268,8 +259,6 @@ export default {
       },
       typeMap: typeMap,
       currentFocusFieldName: null,
-      customTagList: [],
-      customTags: {},
       PdField: PdField,
       creating: false,
 
@@ -303,7 +292,6 @@ export default {
       PdField.Goals
     ]
     this.initData()
-    this.loadCustomTags()
     this.loadThumbnail(false)
     this.contentLoading = false
 
@@ -560,64 +548,9 @@ export default {
       }
     },
 
-    focusInput(event) {
-      this.$logger.info('focusInput ', event.target)
-      const eventDom = event.target
-      let currentDom = eventDom.offsetParent
-      this.currentFocusFieldName = null
-      this.customTagList = []
-      while (currentDom !== null) {
-        currentDom = currentDom ? currentDom.offsetParent : undefined
-        if (!currentDom) {
-          break
-        }
-
-        if (currentDom.classList.contains('tag-content-block') && currentDom.hasAttribute('data-field-name')) {
-          const fieldName = currentDom.getAttribute('data-field-name')
-          this.$logger.info('current block fieldName', fieldName)
-          this.currentFocusFieldName = fieldName
-          if (this.pdFieldTagMap.hasOwnProperty(fieldName)) {
-            this.customTagList = this.pdFieldTagMap[fieldName].map(item => item.tagName)
-            this.$logger.info(fieldName + ' customTagList', this.customTagList)
-          }
-        }
-        if (currentDom.classList && currentDom.classList.contains('root-locate-form')) {
-          break
-        }
-      }
-      this.setRightModuleVisible()
-    },
-
-    loadCustomTags() {
-      FindCustomTags({}).then((response) => {
-        this.$logger.info('FindCustomTags response', response.result)
-        if (response.success) {
-          if (response.result.pdTags) {
-            response.result.pdTags.forEach(pdTag => {
-              pdTag.keywords = pdTag.children.map(item => item.name)
-              this.customTagList.push(pdTag.name)
-            })
-          }
-          this.customTags = response.result
-        } else {
-          this.$message.error(response.message)
-        }
-      })
-    },
-
-    handleChangeAddKeywords(tag) {
-      if (tag.isGlobal) {
-        this.customTags.userGlobalTags.push(tag)
-      } else {
-        const index = this.customTags.userTags.findIndex(item => item.name === tag.parentName)
-        if (index > -1) {
-          this.customTags.userTags[index].keywords.push(tag.name)
-        }
-      }
-    },
-
-    handleChangeCustomTags(tags) {
-      this.form.customTags = tags
+    activeField(fieldName) {
+      this.$logger.info('activeField ', fieldName)
+      this.currentFocusFieldName = fieldName
     },
 
     handleAddVideoList (videoList) {

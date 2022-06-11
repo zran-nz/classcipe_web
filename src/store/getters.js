@@ -69,7 +69,10 @@ const getters = {
   userSubjects: state => state.user.allSubjects.filter(item => state.user.info.preference.subjectIds.includes(item.id)),
 
   curriculumList: state => state.classcipeConfig.curriculumList,
-  curriculumId2NameMap: state => state.classcipeConfig.curriculumId2NameMap
+  curriculumId2NameMap: state => state.classcipeConfig.curriculumId2NameMap,
+
+  pubTagList: state => state.classcipeConfig.pubTagList,
+  priTagList: state => state.classcipeConfig.priTagList
 }
 
 export default getters

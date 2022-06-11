@@ -54,3 +54,6 @@ export const TOGGLE_DEVICE = 'TOGGLE_DEVICE'
 export const SET_PROMOTE_CODE = 'SET_PROMOTE_CODE'
 
 export const SET_CURRICULUM_LIST = 'SET_CURRICULUM_LIST'
+
+export const SET_PUB_TAG = 'SET_PUB_TAG'
+export const SET_PRI_TAG = 'SET_PRI_TAG'

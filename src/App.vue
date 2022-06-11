@@ -16,7 +16,8 @@ import Feedback from '@/components/Feedback/Feedback'
 import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
 import enquireScreen from '@/utils/device'
 import { mapMutations } from 'vuex'
-import { TOGGLE_DEVICE } from './store/mutation-types'
+import { ACCESS_TOKEN, TOGGLE_DEVICE } from './store/mutation-types'
+import storage from 'store'
 
 export default {
   components: { Feedback },
@@ -57,6 +58,7 @@ export default {
 
     window.addEventListener('message', this.handlePostMessage, false)
     this.$store.dispatch('initCurriculumData')
+    this.$store.dispatch('initTagData', storage.get(ACCESS_TOKEN))
   },
   mounted() {
     var that = this
