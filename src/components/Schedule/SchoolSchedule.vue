@@ -58,9 +58,6 @@
           format='YYYY-MM-DD HH:mm:ss'
           :show-time="{ format: 'HH:mm' }"/>
       </div>
-      <div class='go-calender'>
-        <a>Go to calender</a>
-      </div>
     </div>
   </div>
 </template>
