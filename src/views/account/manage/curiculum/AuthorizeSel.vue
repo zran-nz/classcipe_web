@@ -100,6 +100,12 @@
             <div class="status-text" v-if="totalResult[choosed.id].status === 2">
               <a-icon type="check-circle" /> <span>Approved</span>
             </div>
+            <template v-if="totalResult[choosed.id].status === 3">
+              <div class="status-text deny">
+                <a-icon type="close-circle" /> <span>Application denied</span>
+              </div>
+              <div class="deny-text">Reason for refusal: {{ totalResult[choosed.id].denyReason }}  </div>
+            </template>
           </a-form-model-item>
         </a-form-model>
       </div>
@@ -390,7 +396,16 @@ export default {
   display: flex;
   align-items: center;
   padding: 0 60px;
-  label {
+  &.deny {
+    background: #E8FADE;
+    span {
+      color: #FA5555;
+    }
+    i {
+      color: #FA5555;
+    }
+  }
+  span {
     font-size: 24px;
     font-family: Arial;
     font-weight: bold;
@@ -401,6 +416,10 @@ export default {
     font-size: 16px;
     color: #67C23A;
   }
+}
+.deny-text {
+  margin-top: 10px;
+  font-size: 12px;
 }
 .preview-file {
   display: flex;
