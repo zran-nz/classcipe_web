@@ -611,7 +611,11 @@ export default {
 
     handleScheduleWorkShop () {
       this.$logger.info('handleScheduleWorkShop')
-      this.$refs.schedule.visible = true
+      if (this.form.presentationId) {
+        this.$refs.schedule.visible = true
+      } else {
+        this.$message.warn('Please create Google Slides first')
+      }
     },
 
     handleSharePd() {

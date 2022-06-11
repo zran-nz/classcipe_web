@@ -1,19 +1,30 @@
 <template>
-  <a-modal
-    v-model="visible"
-    :closable='false'
-    destroyOnClose
-    title=''
-    width="850px"
-    :zIndex="6000"
-    ok-text='Confirm'
-    :confirm-loading='creating'
-    @ok="confirmSchedule"
-    @cancel="closeSchedule">
-    <modal-header title='Schedule' @close='closeSchedule'/>
-    <schedule-pay-info ref='personal-schedule' v-show='userMode === USER_MODE.SELF' />
-    <school-schedule ref='school-schedule' v-show='userMode === USER_MODE.SCHOOL' />
-  </a-modal>
+  <div>
+    <a-modal
+      v-model="visible"
+      :closable='false'
+      destroyOnClose
+      title=''
+      width="850px"
+      ok-text='Confirm'
+      :confirm-loading='creating'
+      @ok="confirmSchedule"
+      @cancel="closeSchedule">
+      <modal-header title='Schedule' @close='closeSchedule'/>
+      <schedule-pay-info ref='personal-schedule' v-show='userMode === USER_MODE.SELF' />
+      <school-schedule ref='school-schedule' v-show='userMode === USER_MODE.SCHOOL' />
+    </a-modal>
+
+    <zoom-meeting-setting
+      :password='scheduleReq.password'
+      :waiting-room='scheduleReq.waitingRoom'
+      :zoom-setting-visible.sync='zoomSettingVisible'
+      v-if='zoomSettingVisible'
+      @confirm='handleConfirmAssign'
+      @handleClose='handleCloseAssign'
+    />
+
+  </div>
 </template>
 
 <script>
@@ -24,10 +35,11 @@ import { mapState } from 'vuex'
 import { USER_MODE } from '@/const/common'
 import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
 import { AddSessionV2 } from '@/api/v2/classes'
+import ZoomMeetingSetting from '@/components/Schedule/ZoomMeetingSetting'
 
 export default {
   name: 'PdSchedule',
-  components: { SchoolSchedule, ModalHeader, SchedulePayInfo },
+  components: { ZoomMeetingSetting, SchoolSchedule, ModalHeader, SchedulePayInfo },
   props: {
     contentId: {
       type: String,
@@ -56,12 +68,15 @@ export default {
         selectTeachers: [],
         sessionType: 0,
         startDate: null,
+        password: true,
+        waitingRoom: true,
         subjectList: [],
         yearList: [],
         languageList: [],
         teachSessionNow: 0,
         zoom: 1
-      }
+      },
+      zoomSettingVisible: false
     }
   },
   computed: {
@@ -77,6 +92,7 @@ export default {
         this.$logger.info('waiting for zoom auth')
       } else {
         let scheduleConfig = null
+
         if (this.userMode === USER_MODE.SELF) {
           scheduleConfig = this.$refs['personal-schedule'].getPaidInfo()
           this.scheduleReq.register.discountInfo = scheduleConfig.discountInfo
@@ -96,11 +112,28 @@ export default {
           this.scheduleReq.endDate = scheduleConfig.endDate
           this.$logger.info('schoolScheduleInfo', scheduleConfig)
         }
+        if (!this.scheduleReq.startDate || !this.scheduleReq.endDate) {
+          this.$message.warn('Please select Schedule time!')
+          return
+        }
+        this.zoomSettingVisible = true
         this.$logger.info('scheduleReq', this.scheduleReq)
-        await this.createSession(this.scheduleReq)
-        this.closeSchedule()
-        this.$logger.info('zoom auth success')
       }
+    },
+
+    async handleConfirmAssign (data) {
+      this.$logger.info('ScheduleSession handleConfirmAssign ', data)
+      this.zoomSettingVisible = false
+      this.scheduleReq.password = data.password
+      this.scheduleReq.waitingRoom = data.waitingRoom
+
+      await this.createSession(this.scheduleReq)
+      this.closeSchedule()
+      this.$logger.info('zoom auth success')
+    },
+
+    handleCloseAssign () {
+      this.zoomSettingVisible = false
     },
 
     async createSession(scheduleReq) {
