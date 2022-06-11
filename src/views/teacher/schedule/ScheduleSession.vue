@@ -56,7 +56,7 @@
       :zoom-setting-visible.sync='zoomSettingVisible'
       v-if='zoomSettingVisible'
       @confirm='handleConfirmAssign'
-      @handleClose='handleCloseAssign'
+      @close='handleCloseAssign'
     />
 
     <select-session-unit
