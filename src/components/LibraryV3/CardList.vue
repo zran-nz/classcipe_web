@@ -9,7 +9,13 @@
         <router-link :to="'/teacher/resource-all/' + category" v-if='isSchoolMode'>All</router-link>
       </div>
     </div>
-    <div class='card-list'>
+    <div class='scroll-left' @click="scrollLeft">
+      <a-icon type="left-circle" :style="{fontSize: '22px', color: '#dddddd'}" />
+    </div>
+    <div class='scroll-right' @click="scrollRight">
+      <a-icon type="right-circle" :style="{fontSize: '22px', color: '#dddddd'}" />
+    </div>
+    <div class='card-list' :id='category'>
       <div class="card-item" v-for="item in list" :key="item.id" @click="handlePreviewDetail(item)">
         <card-list-item :content="item" :width="cardSize" v-bind="$attrs" />
       </div>
@@ -62,6 +68,21 @@ export default {
     },
     viewAll () {
       console.log('viewAll', this.category)
+    },
+    scrollLeft () {
+      const dom = document.getElementById(this.category)
+      dom.scrollBy({
+        left: -800,
+        behavior: 'smooth'
+      })
+    },
+
+    scrollRight () {
+      const dom = document.getElementById(this.category)
+      dom.scrollBy({
+        left: 800,
+        behavior: 'smooth'
+      })
     }
   }
 }
@@ -81,8 +102,9 @@ export default {
 }
 
 .card-list-wrapper {
-  margin-bottom: 30px;
   width: 100%;
+  margin-bottom: 30px;
+  position: relative;
   .card-list-title {
     font-size: 20px;
     font-family: Arial;
@@ -108,16 +130,33 @@ export default {
     }
   }
 
+  .scroll-left {
+    cursor: pointer;
+    position: absolute;
+    left: -5px;
+    top: 45%;
+  }
+
+  .scroll-right {
+    cursor: pointer;
+    position: absolute;
+    right: -5px;
+    top: 45%;
+  }
+
   .card-list {
     display: flex;
     flex-direction: row;
     align-items: flex-start;
     overflow-x: scroll;
-    width: 100%;
+    justify-content: flex-start;
+    width: calc(100% - 50px);
     padding-bottom: 15px;
+    margin: 0 25px;
+    position: relative;
 
     .card-item {
-      margin-right: 10px;
+      margin-right: 15px;
     }
   }
 }
