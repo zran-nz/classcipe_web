@@ -109,7 +109,7 @@
                           allow-clear/>
                       </a-col>
                       <a-col span='10' offset='1'>
-                        <custom-tag-v3 :custom-tag.sync='form.customTags' :field-name='currentFocusFieldName' />
+                        <custom-tag-v3 :custom-tags.sync='form.customTags' :field-name='currentFocusFieldName' />
                       </a-col>
                     </a-row>
                   </div>

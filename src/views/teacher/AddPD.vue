@@ -109,7 +109,7 @@
         </div>
         <div class='tag-body' :style="{ width: tagBodyWidth }" v-show="tagBodyWidth !== '0%'">
           <template v-if='currentRightModule === rightModule.customTag'>
-            <custom-tag-v3 :custom-tag.sync='form.customTags' :field-name='currentFocusFieldName' />
+            <custom-tag-v3 :custom-tags.sync='form.customTags' :field-name='currentFocusFieldName' />
           </template>
           <template v-if='currentRightModule === rightModule.associate'>
             <link-content-list :filter-types="[typeMap.task]" />

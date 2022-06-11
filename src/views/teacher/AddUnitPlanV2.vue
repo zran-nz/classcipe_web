@@ -549,7 +549,7 @@
 
           <template v-if='currentRightModule === rightModule.customTag'>
             <div v-show='!this.contentLoading' >
-              <custom-tag-v3 :custom-tag.sync='form.customTags' :field-name='currentFocusFieldName' />
+              <custom-tag-v3 :custom-tags.sync='form.customTags' :field-name='currentFocusFieldName' />
             </div>
           </template>
 

@@ -194,6 +194,11 @@ export default {
     selectedTagList() {
       return this.customTags.filter(tag => tag.fieldName === this.fieldName).reduce((acc, cur) => {
         cur.tags.forEach(tag => {
+          // 找到对应的分类的颜色
+          const tagCategory = this.allTagList.find(item => item.set === tag.set)
+          if (tagCategory) {
+            tag.tagColor = tagCategory.tagColor
+          }
           if (this.pubTagNameList.indexOf(tag.tag) !== -1) {
             tag.isPub = true
             tag.isPri = false
@@ -245,7 +250,7 @@ export default {
 
     activeCategoryTagList () {
       if (this.currentActiveTagCategory) {
-        return this.currentActiveTagCategory.tags
+        return this.currentActiveTagCategory.tags.map(item => item.tag)
       } else {
         return []
       }

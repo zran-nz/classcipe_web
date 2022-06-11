@@ -390,8 +390,8 @@
             <slide-select-list :source-id='taskId' :selected-template-list='form.selectedTemplateList' />
           </template>
           <template v-if='currentRightModule === rightModule.customTag'>
-            <div v-if='!this.contentLoading && currentFocusFieldName'>
-              <custom-tag-v3 :custom-tag.sync='form.customTags' :field-name='currentFocusFieldName' />
+            <div v-if='!contentLoading && currentFocusFieldName'>
+              <custom-tag-v3 :custom-tags.sync='form.customTags' :field-name='currentFocusFieldName' />
             </div>
           </template>
           <template v-if='currentRightModule === rightModule.associate'>
