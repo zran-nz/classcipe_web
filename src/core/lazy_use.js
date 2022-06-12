@@ -48,6 +48,7 @@ import {
   Pagination,
   Slider,
   Affix,
+  TimePicker,
   notification, Switch, Rate, Collapse, DatePicker, Mentions, AutoComplete
 } from 'ant-design-vue'
 import Viser from 'viser-vue'
@@ -122,6 +123,7 @@ Vue.use(AutoComplete)
 Vue.use(Progress)
 Vue.use(Slider)
 Vue.use(Affix)
+Vue.use(TimePicker)
 
 Vue.prototype.$confirm = Modal.confirm
 Vue.prototype.$message = message
