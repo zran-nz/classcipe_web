@@ -53,6 +53,7 @@
                 <img v-else :src="totalResult[choosed.id].resources" alt="">
               </div>
               <a :href="totalResult[choosed.id].resources" target="_blank" for="">{{ totalResult[choosed.id].resources }}</a>
+              <a-icon v-if="totalResult[choosed.id].status === '' || totalResult[choosed.id].status === 3" class="close" type="close" @click="handleRemove('resources', totalResult[choosed.id].resources)"></a-icon>
             </div>
           </a-form-model-item>
           <a-form-model-item prop="certificate" label="certificate">
@@ -81,6 +82,7 @@
                       <img v-else :src="url" alt="">
                     </div>
                     <a :href="url" target="_blank" for="">{{ url }}</a>
+                    <a-icon v-if="totalResult[choosed.id].status === '' || totalResult[choosed.id].status === 3" class="close" type="close" @click="handleRemove('certificate', url)"></a-icon>
                   </div>
                   <!-- <a :href="url" target="_blank">{{ url }}</a>
                   <a-icon v-if="totalResult[choosed.id].status === '' || totalResult[choosed.id].status === 3" type="close" @click="handleRemove('certificate', url)"></a-icon> -->
@@ -276,6 +278,14 @@ export default {
       this.loading = true
       const params = { ...this.totalResult[this.choosed.id] }
       params.schoolId = this.currentSchool.id
+      if (!params.resources) {
+        this.$message.error('Please upload resources')
+        return
+      }
+      if (!params.certificate) {
+        this.$message.error('Please upload certificate')
+        return
+      }
       submitIbAuth(params).then(res => {
         if (res.success) {
           this.initAuths()
@@ -419,7 +429,7 @@ export default {
 }
 .deny-text {
   margin-top: 10px;
-  font-size: 12px;
+  font-size: 14px;
 }
 .preview-file {
   display: flex;
@@ -427,6 +437,7 @@ export default {
   background: #fff;
   border: 1px solid #DFE5E9;
   padding: 10px;
+  position: relative;
   width: 100%;
   .img {
     width: 80px;
@@ -448,6 +459,12 @@ export default {
     overflow: hidden;
     text-overflow: ellipsis;
     color: #333;
+  }
+  .close {
+    position: absolute;
+    cursor: pointer;
+    top: 10px;
+    right: 10px;
   }
 }
 </style>

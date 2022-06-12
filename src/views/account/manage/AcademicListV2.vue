@@ -52,7 +52,8 @@
                 <label>{{ term.name }}</label>
                 <a-space>
                   <a-button type="link" @click="handleEditTerm(item, term)">Edit</a-button>
-                  <a-button type="link" :loading="delLoading" @click="handleDeleteTerm(item)">Delete</a-button>
+                  <a-button type="link" @click="handleEditBlock(term)">Block setting</a-button>
+                  <a-button type="link" :loading="delLoading" @click="handleDeleteTerm(term)">Delete</a-button>
                 </a-space>
               </div>
               <div class="detail-content-time">{{ formatDate(term) }} </div>
@@ -69,6 +70,7 @@
 
     <academic-year-add ref="modalForm" @close="handleClose"/>
     <academic-term-add ref="termForm" @close="handleClose"/>
+    <academic-block-add ref="blockForm" @close="handleClose"/>
   </div>
 </template>
 
@@ -81,6 +83,7 @@ import { termList, deleteYear, deleteTerm } from '@/api/academicTermInfo'
 
 import AcademicYearAdd from './academic/AcademicYearAdd.vue'
 import AcademicTermAdd from './academic/AcademicTermAdd.vue'
+import AcademicBlockAdd from './academic/AcademicBlockAdd.vue'
 import FixedFormHeader from '@/components/Common/FixedFormHeader'
 import FormHeader from '@/components/FormHeader/FormHeader'
 import CustomTextButton from '@/components/Common/CustomTextButton'
@@ -96,6 +99,7 @@ export default {
   components: {
     AcademicYearAdd,
     AcademicTermAdd,
+    AcademicBlockAdd,
     FixedFormHeader,
     FormHeader,
     CustomTextButton
@@ -184,6 +188,13 @@ export default {
         endTime: moment.utc(item.endTime).local().format('YYYY-MM-DD HH:mm:ss')
       })
     },
+    handleEditBlock(item) {
+      this.$refs.blockForm.title = 'Block setting'
+      this.$refs.blockForm.mode = 'add'
+      this.$refs.blockForm.edit({
+        ...item.block
+      })
+    },
     handleDelete(record, index) {
       this.$logger.info('handleDelete ', record)
       this.$confirm({
@@ -249,7 +260,7 @@ export default {
 .form-content {
   margin-top: 60px;
   height: calc(100vh - 60px);
-  padding: 60px 90px;
+  padding: 60px 60px;
   transition: all 0.2s ease-in-out;
   display: flex;
   flex-direction: column;
