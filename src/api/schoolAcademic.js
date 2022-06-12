@@ -1,5 +1,6 @@
 import request from '@/utils/request'
 
+// 已废弃
 const API_PREFIX = 'schoolAcademic'
 
 export const schoolAcademic = {

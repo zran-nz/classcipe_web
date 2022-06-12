@@ -42,7 +42,6 @@
 <script>
 import NewTreeItem from '@/components/NewLibrary/NewTreeItem'
 import { getAll21Century } from '@/api/knowledge'
-import { GetSchoolSubject, GetSchoolGrade } from '@/api/schoolAcademic'
 import { NavigationType } from '@/components/NewLibrary/NavigationType'
 
 import { SubjectType, USER_MODE } from '@/const/common'
@@ -189,14 +188,14 @@ export default {
         sort: 2,
         backgroundColor: '#D7E0E9'
       }
-      let schoolPromises = []
+      const schoolPromises = []
       // 只有学校模式才有个性化选择
-      if (this.userMode === USER_MODE.SCHOOL && this.currentSchool && this.currentSchool.id) {
-        schoolPromises = [
-          GetSchoolSubject({ schoolId: this.currentSchool.id }),
-          GetSchoolGrade({ schoolId: this.currentSchool.id })
-        ]
-      }
+      // if (this.userMode === USER_MODE.SCHOOL && this.currentSchool && this.currentSchool.id) {
+      //   schoolPromises = [
+      //     GetSchoolSubject({ schoolId: this.currentSchool.id }),
+      //     GetSchoolGrade({ schoolId: this.currentSchool.id })
+      //   ]
+      // }
       Promise.all([
         SubjectTree({ curriculumId: this.defaultCurriculumId ? this.defaultCurriculumId : this.$store.getters.bindCurriculum }),
         GetGradesByCurriculumId({ curriculumId: this.defaultCurriculumId ? this.defaultCurriculumId : this.$store.getters.bindCurriculum }),
