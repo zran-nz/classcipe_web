@@ -501,7 +501,7 @@ export default {
       this.editGoogleSlideLoading = true
       this.$logger.info('handleEditGoogleSlide', this.form.presentationId)
       let res
-      if (this.form.presentationId) {
+      if (this.form.presentationId && !this.form.presentationId.startsWith('fake_buy_')) {
         this.form.slideEditing = true
         res = await this.save()
         if (res.code === 0) {

@@ -1051,7 +1051,8 @@ export default {
       this.editGoogleSlideLoading = true
       this.$logger.info('handleEditGoogleSlide', this.form.presentationId)
       let res
-      if (this.form.presentationId) {
+      // fake_buy_处理library bug后没有实际上copy ppt的情况
+      if (this.form.presentationId && !this.form.presentationId.startsWith('fake_buy_')) {
         // 设置正在编辑状态，my content根据这个提示是否先save再排课
         this.form.slideEditing = true
         res = await this.save()
