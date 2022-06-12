@@ -95,6 +95,10 @@ export default {
       this.$emit('cancel')
     },
     handleEnsure () {
+      if (!this.id) {
+        this.$message.warning('Please choice a format template.')
+        return
+      }
       this.$emit('ensure', this.id)
     },
 

@@ -95,13 +95,13 @@ export default {
     },
 
     async getLibraryRecommend() {
-      const ret = await getLibraryRecommend()
+      const ret = await getLibraryRecommend({ schoolId: 0 })
       console.log('getLibraryRecommend', ret.result)
       this.recommendList = ret.result || []
     },
 
     async getLibraryResource () {
-      const ret = await getLibraryResource()
+      const ret = await getLibraryResource({ schoolId: 0 })
       console.log('getLibraryResource', ret.result)
       this.lastPublishedList = ret.result.latestReleased || []
       this.unitList = ret.result.plans || []

@@ -194,7 +194,7 @@
                 title="Delete it?"
                 ok-text="Yes"
                 cancel-text="No"
-                @confirm="handleDeleteCustomField(fieldItem)"
+                @confirm="handleDeleteCustomField(sIdx,fieldItem)"
               >
                 <a-icon type="delete" />
               </a-popconfirm>
@@ -426,8 +426,10 @@ export default {
       })
     },
 
-    handleDeleteCustomField (fieldItem) {
+    handleDeleteCustomField (sIdx, fieldItem) {
       this.$logger.info('handleDeleteCustomField', fieldItem)
+      const index = this.steps[sIdx].customFieldItems.findIndex(item => item.id === fieldItem.id)
+      this.steps[sIdx].customFieldItems.splice(index, 1)
       this.myCustomList = this.myCustomList.filter(item => item.id !== fieldItem.id)
     },
 

@@ -164,8 +164,8 @@ export default {
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize,
         saTags: [],
-        subject: []
-        // schoolId: this.school 个人身份不传学校id
+        subject: [],
+        schoolId: 0 // 个人身份传学校id0 不然学校身份下无法看到classcipe resource
       }
       queryAllResource(params).then(res => {
         this.$logger.info('queryAllResource', res)
