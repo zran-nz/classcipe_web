@@ -56,7 +56,7 @@
             <div class="content-detail__title">
               <div class="title-info">
                 <div class="info-author">
-                  {{ myReviews.createBy }}
+                  {{ myReviews.nickName }}
                 </div>
                 <div class="info-time">
                   {{ myReviews.createTime | dayjs }}
@@ -105,7 +105,7 @@
                 <div class="content-detail__title">
                   <div class="title-info">
                     <div class="info-author">
-                      {{ item.createBy }}
+                      {{ item.nickName }}
                     </div>
                     <div class="info-time">
                       {{ item.createTime | dayjs }}
