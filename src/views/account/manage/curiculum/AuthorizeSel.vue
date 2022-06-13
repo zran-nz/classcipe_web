@@ -29,7 +29,13 @@
           :model="totalResult[choosed.id]"
           v-bind="formItemLayout"
           :rules="validatorRules">
-          <a-form-model-item prop="resources" label="resources">
+          <a-form-model-item prop="resources">
+            <span slot="label">
+              Resources&nbsp;
+              <a-tooltip title="Please make sure upload all necessary resource for teaching plan including subject guides, ATL and etc.">
+                <a-icon type="question-circle-o" />
+              </a-tooltip>
+            </span>
             <customer-upload-file
               v-if="totalResult[choosed.id].status === '' || totalResult[choosed.id].status === 3"
               accept="image/png, image/jpeg,  application/pdf"
@@ -56,7 +62,13 @@
               <a-icon v-if="totalResult[choosed.id].status === '' || totalResult[choosed.id].status === 3" class="close" type="close" @click="handleRemove('resources', totalResult[choosed.id].resources)"></a-icon>
             </div>
           </a-form-model-item>
-          <a-form-model-item prop="certificate" label="certificate">
+          <a-form-model-item prop="certificate">
+            <span slot="label">
+              Certificate&nbsp;
+              <a-tooltip title="Upload certificate">
+                <a-icon type="question-circle-o" />
+              </a-tooltip>
+            </span>
             <customer-upload-file
               v-if="totalResult[choosed.id].status === '' || totalResult[choosed.id].status === 3"
               accept="image/png, image/jpeg,  application/pdf"

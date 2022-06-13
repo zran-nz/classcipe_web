@@ -70,7 +70,12 @@
         <tags-line :tags="content.content.customTags" />
         <div class="price-con" v-if="content.priceList && content.priceList.length > 0">
           <price-slider :priceList="content.priceList" :current="content.registeredNum" :origin="content.price" />
-          <a-icon class="price-edit" @click="editPrice(content)" type="edit" v-if="!content.registeredNum && WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType"></a-icon>
+          <template v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType">
+            <a-icon class="price-edit" @click="editPrice(content)" type="edit" v-if="!content.registeredNum"></a-icon>
+            <a-tooltip v-else title="You can not edit the price because it has been already registered by other users.">
+              <a-icon class="price-edit" type="edit" style="color: #999"></a-icon>
+            </a-tooltip>
+          </template>
         </div>
       </div>
       <div class='action'>

@@ -2,12 +2,20 @@
   <div class="price-slider">
     <a-slider
       :marks="marks"
+      :tip-formatter="tipFormatter"
       :min="min"
       :max="max"
       v-model="currentVal"
       :disabled="disabled" />
     <div class="slider-label" ref="sliderLabel">
-      <div :class="{ 'slider-label-item': true, current: item.isCurrent}" :style="{left: item.left, width: item.width}" v-for="(item, index) in lines" :key="'line_' + index">{{ item.label }}</div>
+      <div
+        :class="{ 'slider-label-item': true, current: item.isCurrent}"
+        :style="{left: item.left, width: item.width}"
+        v-for="(item, index) in lines"
+        :key="'line_' + index">
+        <template v-if="!item.isCurrent">{{ item.label }}</template>
+        <a-tooltip v-else :title="tipFormatter(item.label)">{{ item.label }}</a-tooltip>
+      </div>
     </div>
   </div>
 </template>
@@ -105,7 +113,7 @@ export default {
         value: this.max
       }])
       const result = []
-      let needCurrent = true
+      const needCurrent = true
       if (this.origin !== null) {
         result.push({
           width: '',
@@ -122,10 +130,11 @@ export default {
           left: left,
           label: '$' + labels[index - 1]
         })
-        if (this.currentVal === prepare[index].value || this.currentVal === prepare[index - 1].value) {
-          needCurrent = false
-        }
+        // if (this.currentVal === prepare[index].value || this.currentVal === prepare[index - 1].value) {
+        //   needCurrent = false
+        // }
       }
+      console.log(this.currentVal)
       if (this.currentVal && this.currentVal > 0 && needCurrent) {
         const left = ((this.currentVal - this.min) / (this.max - this.min)) * 100 + '%'
         result.push({
@@ -139,7 +148,10 @@ export default {
     }
   },
   methods: {
-
+    tipFormatter(val) {
+      const prefix = (this.currentVal > 1 ? this.PREFIXS : this.PREFIX)
+      return `${this.currentVal} ${prefix} already registered`
+    }
   }
 }
 </script>
@@ -207,6 +219,7 @@ export default {
       height: 20px;
       background-color: #4CA3E1!important;
       border-color: #4CA3E1!important;
+      cursor: default;
       // display: none;
     }
     // .ant-slider-disabled {

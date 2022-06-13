@@ -88,7 +88,6 @@ import FixedFormHeader from '@/components/Common/FixedFormHeader'
 import FormHeader from '@/components/FormHeader/FormHeader'
 import CustomTextButton from '@/components/Common/CustomTextButton'
 
-// import { QueryAcademic } from '@/api/schoolAcademic'
 import { mapState } from 'vuex'
 import moment from 'moment'
 const { debounce } = require('lodash-es')
