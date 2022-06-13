@@ -4,8 +4,8 @@
     :visible='true'
     :closable='false'
     :title='null'
-    width='700px'
-    :bodyStyle="{ padding: 0, height: '100%' }"
+    width='50%'
+    :bodyStyle="{ height: '100%' }"
     @close='handleClose'
   >
     <div class='content-preview'>
