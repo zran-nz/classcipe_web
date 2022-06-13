@@ -212,6 +212,13 @@
                 :show-time="{ format: 'HH:mm' }"
               />
             </div>
+            <!-- <div style="width: 100%;">
+              <session-calendar
+                :editable="false"
+                :addable="false"
+                @date-select="handleSelectSchedule"
+              />
+            </div> -->
           </div>
         </div>
       </div>
@@ -243,6 +250,7 @@ import PriceDiscountSet from '@/components/Common/PriceDiscountSet'
 import SelectSessionUnit from '@/components/Schedule/SelectSessionUnit'
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import DeleteIcon from '@/components/Common/DeleteIcon'
+import SessionCalendar from '@/components/Calendar/SessionCalendar'
 
 import { formatLocalUTC } from '@/utils/util'
 import { typeMap } from '@/const/teacher'
@@ -273,7 +281,8 @@ export default {
     PriceDiscountSet,
     SelectSessionUnit,
     CustomTextButton,
-    DeleteIcon
+    DeleteIcon,
+    SessionCalendar
   },
   props: {
     id: {
@@ -526,7 +535,7 @@ export default {
       }
     },
     handleSubmit() {
-      if (!this.form.needParticipants) {
+      if (this.userMode === USER_MODE.SCHOOL) {
         this.form.maxParticipants = 0
       } else {
         if (!new RegExp(/^[0-9]*[1-9][0-9]*$/).test(this.form.maxParticipants)) {
@@ -615,6 +624,12 @@ export default {
       this.endData = moment(date[1].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
     },
 
+    handleSelectSchedule(date) {
+      this.startDate = moment(date.startDate).utc().format('YYYY-MM-DD HH:mm:ss')
+      this.endData = moment(date.endDate).utc().format('YYYY-MM-DD HH:mm:ss')
+      console.log(date)
+    },
+
     handleAddDiscount () {
       this.discountList.push({
         peopleThreshold: 1,
@@ -662,7 +677,7 @@ export default {
   overflow: hidden;
 
   .form-body {
-    width: 55%;
+    width: 50%;
     padding: 20px 30px;
     height: 100%;
     -moz-overflow-y: auto;
@@ -671,8 +686,8 @@ export default {
   }
 
   .tag-body {
-    width: 45%;
-    padding: 20px 30px;
+    width: 50%;
+    padding: 20px;
     height: 100%;
     overflow-y: scroll;
   }
@@ -736,7 +751,7 @@ export default {
   }
 }
 .select-date{
-  width: 380px;
+  width: 100%;
   .title {
     font-weight: 500;
     color: #333;
