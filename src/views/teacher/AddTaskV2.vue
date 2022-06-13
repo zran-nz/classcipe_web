@@ -391,7 +391,12 @@
           </template>
           <template v-if='currentRightModule === rightModule.customTag'>
             <div v-if='!contentLoading && currentFocusFieldName'>
-              <custom-tag-v3 :custom-tags.sync='form.customTags' :field-name='currentFocusFieldName' />
+              <custom-tag-v3
+                :custom-tags.sync='form.customTags'
+                :field-name='currentFocusFieldName'
+                :associate-id-type-list='associateIdTypeList'
+                :is-load-associate-tags='true'
+              />
             </div>
           </template>
           <template v-if='currentRightModule === rightModule.associate'>

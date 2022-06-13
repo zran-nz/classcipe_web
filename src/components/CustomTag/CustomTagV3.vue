@@ -36,6 +36,7 @@
             ref='categoryBar'
             :category-list='allTagList'
             :active-tag-category.sync='currentActiveTagCategory'
+            :dot-tag-category-name-list='associateTagCategoryNameList'
             @update='updateCurrentCategory'/>
         </template>
       </div>
@@ -60,7 +61,22 @@
                   :style="{ 'background-color': currentActiveTagCategory.tagColor || '#fff', 'border-color': currentActiveTagCategory.tagColor || '#15c39a'}"
                   :class="{ 'selected-tag-item': selectedTagNameList.indexOf(tagItem.tag) !== -1 }"
                   class="tag-item cc-custom-tag-item">
-                  {{ tagItem.tag }}
+
+                  <template v-if='getTagAssociateContentList(tagItem.tag)'>
+                    <a-badge dot>
+                      <a-tooltip placement="topRight">
+                        <template slot="title">
+                          <div class='associate-content-item' v-for='(content, idx) in getTagAssociateContentList(tagItem.tag)' :key='idx'>
+                            From {{ content.name }} ({{ content.type | type2Name }})
+                          </div>
+                        </template>
+                        {{ tagItem.tag }}
+                      </a-tooltip>
+                    </a-badge>
+                  </template>
+                  <template v-else>
+                    {{ tagItem.tag }}
+                  </template>
                   <span class='delete-tag-icon' v-if='tagItem.isPri' @click.stop='deleteTag(tagItem)'>
                     <a-icon type='close' />
                   </span>
@@ -117,6 +133,7 @@ import CustomTagCategoryBar from '@/components/CustomTag/CustomTagCategoryBar'
 import CustomSearchInput from '@/components/Common/CustomSearchInput'
 import { debounce } from 'lodash-es'
 import TagSetting from '@/components/UnitPlan/TagSetting'
+import { QueryCustomTags } from '@/api/v2/mycontent'
 
 const setColor = [
   '#FFEDAF',
@@ -142,12 +159,23 @@ export default {
     fieldName: {
       type: String,
       default: null
+    },
+    associateIdTypeList: {
+      type: Array,
+      default: () => []
+    },
+    isLoadAssociateTags: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
     return {
       loading: true,
       customTagList: [],
+
+      associateCustomTags: [],
+      associateTagContents: {},
 
       settingVisible: false,
 
@@ -156,6 +184,14 @@ export default {
       inputTag: '',
 
       asyncUpdateTooltip: null // 异步更新标签分类tooltip函数
+    }
+  },
+  watch: {
+    associateIdTypeList: {
+      immediate: true,
+      handler(newValue) {
+        this.loadAssociateCustomTags(newValue)
+      }
     }
   },
   computed: {
@@ -254,6 +290,19 @@ export default {
       } else {
         return []
       }
+    },
+
+    associateTagCategoryNameList () {
+      const categorySet = new Set()
+      this.associateCustomTags.forEach(item => {
+        const customTags = item.customTags
+        customTags.forEach(customTag => {
+          customTag.tags.forEach(tag => {
+            categorySet.add(tag.set)
+          })
+        })
+      })
+      return Array.from(categorySet)
     }
   },
   created() {
@@ -281,6 +330,7 @@ export default {
         this.loading = false
       })
     },
+
     handleSetting () {
       this.settingVisible = true
     },
@@ -378,6 +428,41 @@ export default {
       const category = this.allTagList.find(category => category.set === tagItem.set)
       if (category) {
         this.switchCategory(category)
+      }
+    },
+
+    loadAssociateCustomTags (idTypeList) {
+      this.$logger.info('loadAssociateCustomTags', idTypeList)
+      if (idTypeList.length) {
+        QueryCustomTags(idTypeList).then(response => {
+          this.$logger.info('loadAssociateCustomTags customTags', response)
+          this.associateCustomTags = response.result
+
+          const associateTagContents = {}
+          this.associateCustomTags.forEach(item => {
+            const content = item.vo
+            item.customTags.forEach(customTag => {
+              customTag.tags.forEach(tag => {
+                if (!associateTagContents[tag.tag]) {
+                  associateTagContents[tag.tag] = [content]
+                } else {
+                  associateTagContents[tag.tag].push(content)
+                }
+              })
+            })
+          })
+          this.associateTagContents = associateTagContents
+        }).catch(err => {
+          this.$logger.error('loadAssociateCustomTags error', err)
+        })
+      }
+    },
+
+    getTagAssociateContentList (tag) {
+      if (this.associateTagContents[tag]) {
+        return this.associateTagContents[tag]
+      } else {
+        return null
       }
     }
   }

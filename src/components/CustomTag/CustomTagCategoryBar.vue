@@ -13,7 +13,16 @@
           :key="categoryItem.set">
           <div class="action-icon">
             <div class="tag-title-item">
-              <div class="tag-title">{{ categoryItem.set }}</div>
+              <template v-if='dotTagCategoryNameList.indexOf(categoryItem.set) !== -1'>
+                <div class="tag-title">
+                  <a-badge dot>
+                    {{ categoryItem.set }}
+                  </a-badge>
+                </div>
+              </template>
+              <template v-else>
+                <div class="tag-title">{{ categoryItem.set }}</div>
+              </template>
             </div>
           </div>
         </div>
@@ -36,6 +45,10 @@ export default {
     activeTagCategory: {
       type: Object,
       default: null
+    },
+    dotTagCategoryNameList: {
+      type: Array,
+      default: () => []
     }
   },
   data() {
@@ -112,6 +125,7 @@ export default {
       justify-content: center;
       top: 0;
       cursor: pointer;
+      z-index: 100;
     }
 
     .user-tag-category-tabs {

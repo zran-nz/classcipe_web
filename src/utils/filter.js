@@ -2,6 +2,7 @@ import Vue from 'vue'
 import moment from 'moment'
 import storage from 'store'
 import { GRADE_COMMON } from '@/store/mutation-types'
+import { getLabelNameType } from '@/const/teacher'
 moment.locale(navigator.language)
 
 Vue.filter('NumberFormat', function (value) {
@@ -161,4 +162,8 @@ Vue.filter('sizeFormat', function (size) {
   }
 
   return ''
+})
+
+Vue.filter('type2Name', function (type) {
+  return getLabelNameType(type)
 })

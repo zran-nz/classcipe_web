@@ -158,6 +158,28 @@ export const BaseEventMixin = {
         return false
       }
     },
+    associateIdTypeList () {
+      const idTypeList = []
+      if (this.associateUnitPlanIdList) {
+        this.associateUnitPlanIdList.forEach(id => {
+          idTypeList.push({
+            id,
+            type: this.$classcipe.typeMap['unit-plan']
+          })
+        })
+      }
+
+      if (this.associateTaskIdList) {
+        this.associateTaskIdList.forEach(id => {
+          idTypeList.push({
+            id,
+            type: this.$classcipe.typeMap.task
+          })
+        })
+      }
+
+      return idTypeList
+    },
     ...mapGetters({
       vueSocket: 'vueSocket'
     }),
