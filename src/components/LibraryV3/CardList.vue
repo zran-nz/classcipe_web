@@ -24,6 +24,9 @@
     <content-preview
       :content-id='previewCurrentId'
       :content-type='previewType'
+      :show-buy-button="cardMode === 'library'"
+      :show-copy-button="cardMode === 'resource'"
+      :show-edit-button='true'
       v-if='previewVisible'
       @close='handlePreviewClose' />
   </div>
@@ -41,7 +44,8 @@ export default {
     category: { type: String, required: true },
     cardSize: { type: Number, default: 20 },
     list: { type: Array, required: true },
-    isSchoolMode: { type: Boolean, default: false }
+    isSchoolMode: { type: Boolean, default: false },
+    cardMode: { type: String, default: 'library' }
   },
   mixins: [ContentItemMixin],
   data() {
@@ -148,7 +152,7 @@ export default {
     display: flex;
     flex-direction: row;
     align-items: flex-start;
-    overflow-x: scroll;
+    overflow-x: auto;
     justify-content: flex-start;
     width: calc(100% - 50px);
     padding-bottom: 15px;

@@ -11,33 +11,6 @@
     <div class='library-iframe-wrapper'>
 
       <card-list
-        title="Recommend"
-        category="recommended"
-        :list="recommendList"
-        :card-size="30"
-        :is-school-mode='true'
-        v-show="recommendList.length > 0" />
-
-      <card-list
-        title="Latest published"
-        category="released"
-        :list="lastPublishedList"
-        :card-size="27"
-        :inner-desc="true"
-        :is-school-mode='true'
-        v-show="lastPublishedList.length > 0" />
-
-      <card-list
-        title="Professional development"
-        category="pd"
-        :list="pdList"
-        :card-size="22"
-        :inner-desc="true"
-        :outer-desc="false"
-        :is-school-mode='true'
-        v-show="pdList.length > 0" />
-
-      <card-list
         title="Unit Plan"
         category="plan"
         :list="unitList"
@@ -45,6 +18,7 @@
         :inner-desc="true"
         :outer-desc="false"
         :is-school-mode='true'
+        :card-mode="'resource'"
         v-show="unitList.length > 0" />
 
       <card-list
@@ -55,6 +29,7 @@
         :inner-desc="true"
         :outer-desc="false"
         :is-school-mode='true'
+        :card-mode="'resource'"
         v-show="taskList.length > 0" />
     </div>
   </div>

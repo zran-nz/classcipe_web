@@ -14,15 +14,28 @@
       </div>
       <div class='header-right'>
         <div class='buy-button vertical-right'>
-          <a-button
-            class='buy-now'
-            type="danger"
-            shape='round'
-            @click='handleDuplicateItem'
-            :loading='copyLoading'
-            v-if='content.createBy !== $store.getters.userInfo.email'>
-            Buy now
-          </a-button>
+          <a-space>
+            <a-space>
+              <a-button
+                class='buy-now'
+                type="danger"
+                shape='round'
+                @click='handleBuyItem'
+                :loading='buyLoading'
+                v-if='content.createBy !== $store.getters.userInfo.email && showBuyButton'>
+                Buy now
+              </a-button>
+              <a-button
+                shape='round'
+                type='primary'
+                @click='handleDuplicateItem'
+                :loading='copyLoading'
+                v-if='content.createBy !== $store.getters.userInfo.email && showCopyButton'
+                icon='copy'>
+                Copy
+              </a-button>
+            </a-space>
+          </a-space>
         </div>
         <div class='more-action vertical-right'>
           <a-dropdown>
@@ -104,22 +117,33 @@
               </a-space>
             </div>
             <div class='buy-button'>
-              <a-button
-                class='buy-now'
-                type="danger"
-                shape='round'
-                @click='handleDuplicateItem'
-                :loading='copyLoading'
-                v-if='content.createBy !== $store.getters.userInfo.email'>
-                Buy now
-              </a-button>
+              <a-space>
+                <a-button
+                  class='buy-now'
+                  type="danger"
+                  shape='round'
+                  @click='handleBuyItem'
+                  :loading='buyLoading'
+                  v-if='content.createBy !== $store.getters.userInfo.email && showBuyButton'>
+                  Buy now
+                </a-button>
+                <a-button
+                  shape='round'
+                  type='primary'
+                  @click='handleDuplicateItem'
+                  :loading='copyLoading'
+                  v-if='content.createBy !== $store.getters.userInfo.email && showCopyButton'
+                  icon='copy'>
+                  Copy
+                </a-button>
+              </a-space>
             </div>
           </div>
         </a-col>
       </a-row>
 
       <div class='split-line'></div>
-      <div class='edit-content' v-if='content.createBy === $store.getters.userInfo.email'>
+      <div class='edit-content' v-if='content.createBy === $store.getters.userInfo.email && showEditButton'>
         <a-button class='cc-dark-button' style='width: 90px' shape='round' @click='handleEdit'>Edit</a-button>
       </div>
       <template v-if="content.name && content.name.trim()">
@@ -345,6 +369,18 @@ export default {
     contentType: {
       type: Number,
       required: true
+    },
+    showBuyButton: {
+      type: Boolean,
+      default: true
+    },
+    showCopyButton: {
+      type: Boolean,
+      default: true
+    },
+    showEditButton: {
+      type: Boolean,
+      default: true
     }
   },
   mixins: [PptPreviewMixin, GoogleAuthCallBackMixin],
@@ -363,6 +399,7 @@ export default {
       favoriteFlag: false,
 
       typeMap: this.$classcipe.typeMap,
+      buyLoading: false,
       copyLoading: false,
 
       showTopFixedHeader: false,
@@ -595,8 +632,8 @@ export default {
     handleDuplicateItem () {
       this.$logger.info('handleDuplicateItem', this.content)
       this.$confirm({
-        title: 'Confirm to buy',
-        content: 'Are you sure to buy ' + this.content.name + ' ?',
+        title: 'Confirm to copy',
+        content: 'Are you sure to copy ' + this.content.name + ' ?',
         centered: true,
         onOk: () => {
           this.copyLoading = true
@@ -610,6 +647,29 @@ export default {
             }
           }).finally(() => {
             this.copyLoading = false
+          })
+        }
+      })
+    },
+
+    handleBuyItem () {
+      this.$logger.info('handleBuyItem', this.content)
+      this.$confirm({
+        title: 'Confirm to buy',
+        content: 'Are you sure to buy ' + this.content.name + ' ?',
+        centered: true,
+        onOk: () => {
+          this.buyLoading = true
+          Duplicate({ id: this.content.id, type: this.content.type }).then((response) => {
+            if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
+              this.$logger.info('Duplicate response', response)
+              this.$message.success('Buy successfully')
+              this.$router.push({ path: '/teacher/main/created-by-me' })
+            } else {
+              this.currentMethodName = 'handleBuyItem'
+            }
+          }).finally(() => {
+            this.buyLoading = false
           })
         }
       })

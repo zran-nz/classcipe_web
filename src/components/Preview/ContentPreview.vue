@@ -9,9 +9,7 @@
     @close='handleClose'
   >
     <div class='content-preview'>
-      <content-preview-detail
-        :content-type='contentType'
-        :content-id='contentId' />
+      <content-preview-detail v-bind='$attrs' />
     </div>
   </a-drawer>
 </template>
@@ -23,16 +21,6 @@ import ContentPreviewDetail from '@/components/Preview/ContentPreviewDetail'
 export default {
   name: 'ContentPreview',
   components: { ContentPreviewDetail },
-  props: {
-   contentId: {
-     type: String,
-     required: true
-   },
-   contentType: {
-     type: Number,
-     required: true
-   }
-  },
   data() {
     return {
     }
