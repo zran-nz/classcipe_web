@@ -447,8 +447,7 @@ export default {
           this.handleAddRow(item.name || item.desc, item)
         })
         data.performanceList.forEach(item => {
-          item.type = this.criteriaExtraDataType.performance
-          this.handleAddRow(item.name || item.desc, item)
+          this.handleAddRow(item, data)
         })
       }
     },

@@ -70,7 +70,7 @@
                 class='tag-item'
                 :closable='false'
                 :color="selectedPerformance.indexOf(tag) !== -1 ? '#FFEDAF' : ''">
-                {{ tag.name }}
+                {{ tag }}
                 <div class='close-icon' v-show='selectedPerformance.indexOf(tag) !== -1' @click.stop='handleAddPerformance(tag)'>
                   <a-icon type='close' />
                 </div>
