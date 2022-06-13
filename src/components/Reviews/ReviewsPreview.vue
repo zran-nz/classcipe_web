@@ -59,7 +59,7 @@
                   {{ myReviews.createBy }}
                 </div>
                 <div class="info-time">
-                  {{ myReviews.createTime }}
+                  {{ myReviews.createTime | dayjs }}
                 </div>
               </div>
             </div>
@@ -108,7 +108,7 @@
                       {{ item.createBy }}
                     </div>
                     <div class="info-time">
-                      {{ item.createTime }}
+                      {{ item.createTime | dayjs }}
                     </div>
                   </div>
                 </div>

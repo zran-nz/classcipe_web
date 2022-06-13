@@ -468,8 +468,8 @@ export default {
         promise = ReviewsTeacher.ReviewsTeacherStats
       }
       promise && promise({
-        taskId: this.id, // 学生需要
-        purchasesId: this.id // 老师需要
+        taskId: this.contentId, // 学生需要
+        purchasesId: this.contentId // 老师需要
       }).then(res => {
         if (res.success) {
           this.reviewsStats = res.result
@@ -945,6 +945,10 @@ export default {
 
 .menu-text {
   padding-left: 5px;
+}
+
+.preview-review {
+  padding: 15px;
 }
 
 </style>
