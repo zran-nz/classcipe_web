@@ -82,7 +82,7 @@
       <div class='action'>
         <template v-if='showButton && content.delFlag === 0'>
           <a-space :size='30'>
-            <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement'>
+            <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement' v-if='showDelete'>
               <div class='more-action'>
                 <more-icon />
               </div>
@@ -116,7 +116,7 @@
               </template>
             </custom-button>
 
-            <custom-button label='Sub-task' v-if='content.type === typeMap.task && content.subTasks.length > 0'>
+            <custom-button label='Sub-task' v-if='showSubTask && content.type === typeMap.task && content.subTasks.length > 0'>
               <template v-slot:icon>
                 <sub-task-icon />
               </template>
@@ -125,14 +125,14 @@
             <custom-button
               label='Schedule'
               :title="content.presentationId ? '' : 'This task/PD content can not be scheduled without interactive slides, please edit google slides first before scheduling'"
-              v-if='content.type === typeMap.task || content.type === typeMap.pd'
+              v-if='showSchedule && (content.type === typeMap.task || content.type === typeMap.pd)'
               @click='handleSchedule'>
               <template v-slot:icon>
                 <schedule-icon />
               </template>
             </custom-button>
 
-            <custom-button label='Edit' @click='editItem'>
+            <custom-button label='Edit' @click='editItem' v-if='showEdit'>
               <template v-slot:icon>
                 <edit-icon />
               </template>
@@ -145,7 +145,7 @@
                 </template>
               </custom-button>
 
-              <custom-button label="UnPublish" @click='handlePublishStatus' v-if='content.status !== 0'>
+              <custom-button label="UnPublish" @click='handlePublishStatus' v-if='showPublish && content.status !== 0'>
                 <template v-slot:icon >
                   <un-publish-icon />
                 </template>
@@ -241,6 +241,22 @@ export default {
     showPublish: {
       type: Boolean,
       default: false
+    },
+    showEdit: {
+      type: Boolean,
+      default: true
+    },
+    showSchedule: {
+      type: Boolean,
+      default: true
+    },
+    showSubTask: {
+      type: Boolean,
+      default: true
+    },
+    showDelete: {
+      type: Boolean,
+      default: true
     }
   },
   mixins: [ContentItemMixin],

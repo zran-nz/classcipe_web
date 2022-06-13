@@ -11,12 +11,22 @@
     <div class='content-wrapper'>
       <a-spin tip='Loading...' :spinning="searching">
         <div class='content-list'>
-          <template v-if='list.length !== 0 && !searching'>
-            <content-item v-for='item in list' :key='item.id' :content='item' :show-button='false'></content-item>
+          <template v-if='dataList.length !== 0 && !searching'>
+            <content-item
+              v-for='item in dataList'
+              :key='item.id'
+              :content='item'
+              :show-edit='false'
+              :show-schedule='false'
+              :show-publish='false'
+              :show-sub-task='false'
+              :show-delete='false'
+              :show-button='true'>
+            </content-item>
           </template>
-          <template v-if='list.length === 0 && !searching'>
+          <template v-if='dataList.length === 0 && !searching'>
             <div class='empty-tips'>
-              <common-no-data />
+              <common-no-data :text="'No data about ' + this.searchKeyword" />
             </div>
             <div class='go-back'>
               <a-button shape='round' @click='$router.go(-1)' type='primary'>Go Back</a-button>
@@ -53,7 +63,7 @@ export default {
     return {
       searching: true,
       searchKeyword: this.keyword,
-      list: []
+      dataList: []
     }
   },
   created() {

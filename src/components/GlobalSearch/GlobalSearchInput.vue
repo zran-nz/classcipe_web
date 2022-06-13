@@ -35,7 +35,7 @@
           </div>
         </div>
         <div class='recommend-list' v-show='showSearchRecommend'>
-          <div class='list-item' v-for='item in similarList' :key='item.id' @click='emitSearchEvent(item.name)'>
+          <div class='list-item' v-for='(item,idx) in similarList' :key='idx' @click='emitSearchEvent(item.name)'>
             <div class='icon similar-icon'>
               #
             </div>
@@ -84,6 +84,12 @@
       </div>
       <div class='bg-mask' @click='handleBack'></div>
     </div>
+
+    <content-preview
+      :content-id='previewCurrentId'
+      :content-type='previewType'
+      v-if='previewVisible'
+      @close='handlePreviewClose' />
   </div>
 </template>
 
@@ -91,10 +97,13 @@
 import SearchIcon from '@/assets/v2/icons/search.svg?inline'
 import { debounce } from 'lodash-es'
 import { librarySearch } from '@/api/v2/library'
+import ContentPreview from '@/components/Preview/ContentPreview'
+import { ContentItemMixin } from '@/mixins/ContentItemMixin'
 
 export default {
   name: 'GlobalSearchInput',
-  components: { SearchIcon },
+  components: { ContentPreview, SearchIcon },
+  mixins: [ContentItemMixin],
   data() {
     return {
       data: null,
@@ -141,7 +150,7 @@ export default {
       }
     },
     handleSearchClear () {
-      this.searchKeyword = null
+      this.searchKeyword = ''
       this.recommendList = []
     },
 
@@ -183,22 +192,24 @@ export default {
 
         similarList.forEach(item => {
           if (item.name) {
-            let lastIndex = 0
-            let index = item.name.toLowerCase().indexOf(value)
-            let tagName = ''
-            while (index !== -1 && index + value.length <= item.name.length) {
-              tagName += item.name.substring(lastIndex, index) + '<span class="search-keyword-item">' + item.name.substring(index, index + value.length) + '</span>'
-              lastIndex = index + value.length
-              index = item.name.toLowerCase().indexOf(value, index + value.length)
+            if (!list.some(i => i.name === item.name)) {
+              let lastIndex = 0
+              let index = item.name.toLowerCase().indexOf(value)
+              let tagName = ''
+              while (index !== -1 && index + value.length <= item.name.length) {
+                tagName += item.name.substring(lastIndex, index) + '<span class="search-keyword-item">' + item.name.substring(index, index + value.length) + '</span>'
+                lastIndex = index + value.length
+                index = item.name.toLowerCase().indexOf(value, index + value.length)
+              }
+              tagName += item.name.substring(lastIndex)
+              const tagItem = {
+                fromType: item.fromType,
+                name: item.name,
+                tagName: tagName,
+                id: item.id
+              }
+              list.push(tagItem)
             }
-            tagName += item.name.substring(lastIndex)
-            const tagItem = {
-              fromType: item.fromType,
-              name: item.name,
-              tagName: tagName,
-              id: item.id
-            }
-            list.push(tagItem)
           }
         })
         this.similarList = similarList
@@ -222,7 +233,12 @@ export default {
 
     viewItem(item) {
       this.$logger.info('viewItem', item)
-      this.$emit('view-content', item)
+      const dataItem = {
+        ...item,
+        type: parseInt(item.fromType)
+      }
+      this.showSearchWrapper = false
+      this.handlePreviewDetail(dataItem)
     }
   }
 }
