@@ -9,7 +9,7 @@
     @close='handleClose'
   >
     <div class='content-preview'>
-      <content-preview-detail v-bind='$attrs' />
+      <content-preview-detail v-bind='$attrs' @close='handleClose'/>
     </div>
   </a-drawer>
 </template>

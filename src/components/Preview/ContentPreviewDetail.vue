@@ -2,7 +2,7 @@
   <div class='content-preview-detail' ref="container">
     <div class='top-fixed-header' v-if='showTopFixedHeader && content'>
       <div class='header-left'>
-        <div class='back vertical-left'>
+        <div class='back vertical-left' @click='handleClose'>
           <a-icon type='left' />
           <div class='back-text'>
             Back
@@ -693,6 +693,10 @@ export default {
         left: 600,
         behavior: 'smooth'
       })
+    },
+
+    handleClose () {
+      this.$emit('close')
     }
   }
 }
@@ -709,7 +713,7 @@ export default {
     position: fixed;
     top: 0;
     right: 0;
-    width: 700px;
+    width: 50%;
     background: #F7F8F9;
     padding: 15px;
     display: flex;
@@ -727,6 +731,7 @@ export default {
       justify-content: flex-start;
 
       .back {
+        cursor: pointer;
         padding-right: 10px;
 
         .back-text {
