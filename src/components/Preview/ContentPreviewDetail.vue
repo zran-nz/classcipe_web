@@ -38,19 +38,22 @@
           </a-space>
         </div>
         <div class='more-action vertical-right'>
-          <a-dropdown>
-            <a-menu slot="overlay">
-              <a-menu-item>
-                <div class='vertical-center'>
-                  <share-icon class='cc-preview-menu-icon' />
-                  <div class='menu-text'>
-                    Share
-                  </div>
-                </div>
-              </a-menu-item>
-            </a-menu>
-            <a-icon type='more' />
-          </a-dropdown>
+          <a-tooltip
+            trigger="click"
+            :getPopupContainer="trigger => trigger.parentElement"
+            placement="bottomRight"
+          >
+            <template slot="title">
+              <div class="detail-share">
+                <share-button
+                  v-if="content"
+                  :link="wrapperLink(content)"
+                  :title="content.name"
+                />
+              </div>
+            </template>
+            <icon-font type="icon-share" class="detail-font"/>
+          </a-tooltip>
         </div>
       </div>
     </div>
@@ -357,10 +360,11 @@ import ReviewScore from '@/components/Reviews/ReviewScore'
 import { RATE_TOOLTIPS } from '@/const/common'
 import * as ReviewsTask from '@/api/reviewsTask'
 import * as ReviewsTeacher from '@/api/reviewsTeacher'
+import ShareButton from '@/components/Share/ShareButton'
 
 export default {
   name: 'ContentPreviewDetail',
-  components: { CardListItem, PreviewCarousel, ShareIcon, RateByPercent, ReviewsPreview, ReviewScore },
+  components: { ShareButton, CardListItem, PreviewCarousel, ShareIcon, RateByPercent, ReviewsPreview, ReviewScore },
   props: {
     contentId: {
       type: String,
@@ -376,7 +380,7 @@ export default {
     },
     showCopyButton: {
       type: Boolean,
-      default: true
+      default: false
     },
     showEditButton: {
       type: Boolean,
@@ -697,6 +701,14 @@ export default {
 
     handleClose () {
       this.$emit('close')
+    },
+
+    wrapperLink(item) {
+      if (item && item.id) {
+        return `${process.env.VUE_APP_SHARE_URL}/detail/${item.type}/${item.id}`
+      } else {
+        return ''
+      }
     }
   }
 }
@@ -753,6 +765,7 @@ export default {
 
     .header-right {
       flex-shrink: 0;
+      padding-right: 10px;
       display: flex;
       flex-direction: row;
       align-items: center;
@@ -1014,6 +1027,49 @@ export default {
 
 .preview-review {
   padding: 15px;
+}
+
+.more-action {
+  /deep/ .share-button {
+    width: auto !important;
+    height: auto !important;
+    padding: 10px;
+    .share-title {
+      font-size: 16px;
+      font-family: Arial;
+      font-weight: 400;
+      color: #ECEFF4;
+      margin-bottom: 10px;
+      line-height: 1;
+      white-space: nowrap;
+    }
+    .share-qrcode {
+      width: 90px /* 77/100 */;
+      height: 90px /* 77/100 */;
+      display: flex;
+    }
+    .share-divider {
+      font-size: 14px /* 14/100 */;
+      margin: 10px;
+      line-height: 1;
+    }
+    .share-out {
+      height: 30px;
+      .ant-space-item {
+        height: 30px;
+        display: flex;
+        align-items: center;
+      }
+      img {
+        width: 23px;
+        height: 23px;
+      }
+      i {
+        font-size: 37px;
+        margin: 0 5px;
+      }
+    }
+  }
 }
 
 </style>
