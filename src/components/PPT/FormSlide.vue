@@ -20,6 +20,7 @@
       <div class='go-to-google'>
         <custom-text-button
           label='Edit google slides'
+          :loading="editLoading"
           @click="handleEditGoogleSlide">
           <template v-slot:icon>
             <google-icon />
@@ -85,6 +86,10 @@ export default {
     showDisplayModeSwitch: {
       type: Boolean,
       default: true
+    },
+    editLoading: {
+      type: Boolean,
+      default: false
     }
   },
   data() {

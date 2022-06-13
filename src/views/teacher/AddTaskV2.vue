@@ -288,7 +288,7 @@
                     :show-edit-google-slide='form.taskMode === 1'
                     :default-thumbnail-list='thumbnailList'
                     :selected-template-list='form.selectedTemplateList'
-                    :edit-google-slide-loading="editGoogleSlideLoading"
+                    :edit-loading="editGoogleSlideLoading"
                     :empty-tips="'No slides created yet, click “Edit google slide” to create the first page!'"
                     :empty-height="'350px'"
                     @handle-change-selected='changeSelected'
@@ -1010,7 +1010,7 @@ export default {
           this.form.presentationId = response.result.presentationId
           this.$message.success('Created Successfully in Google Slides')
           window.open('https://docs.google.com/presentation/d/' + this.form.presentationId, '_blank')
-          this.loadThumbnail(false)
+          this.loadThumbnail(true)
         } finally {
           this.creating = false
           this.saving = false
