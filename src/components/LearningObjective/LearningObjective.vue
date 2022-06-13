@@ -65,7 +65,7 @@
               </div>
             </div>
           </div>
-          <div class='select-item'>
+          <div class='select-item' v-show='selectedSubject && selectedSubject.toLowerCase().trim() === "language"'>
             <a-select
               :getPopupContainer="trigger => trigger.parentElement"
               v-model='selectedLanguage'
@@ -366,6 +366,7 @@ export default {
       subjectOptions: [
         'Science',
         'The Arts',
+        'Language',
         'Humanities and Social Sciences',
         'Health and Physical Education',
         'Mathematics'
@@ -519,7 +520,6 @@ export default {
       if (this.filterConfig.selectedSubjectList.indexOf(subject) === -1) {
         this.filterConfig.selectedSubjectList.unshift(subject)
       }
-      this.selectedSubject = null
     },
 
     handleSelectYear (year) {
