@@ -752,14 +752,15 @@ export default {
       .slider-label {
         width: calc(100% - 0.125em /* 12.5/100 */);
         left: 0.0175em /* 1.75/100 */;
-        top: 0.1em;
+        top: -0.15em;
         .slider-label-item {
           font-size: 0.16em /* 16/100 */;
           width:2.25em /* 100/16*.36 */;
           height:2.25em /* 100/16*.36 */;
           line-height:2.25em /* 100/16*.36 */;
           &.current {
-            top: -2em;
+            top: 1.3em;
+            color: #fff;
           }
         }
       }
@@ -772,8 +773,8 @@ export default {
           height: 0.14em /* 14/100 */;
         }
         .ant-slider-dot {
-          width:0.37em /* 37/100 */;
-          height:0.37em /* 37/100 */;
+          width:0.16em /* 16/100 */;
+          height:0.16em /* 16/100 */;
         }
         .ant-slider-track {
           height: 0.14em /* 14/100 */;;

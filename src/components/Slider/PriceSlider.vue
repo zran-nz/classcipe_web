@@ -43,7 +43,7 @@ export default {
   watch: {
     current: {
       handler(val) {
-        this.currentVal = val
+        this.currentVal = 3 // val
       },
       immediate: true
     }
@@ -129,9 +129,9 @@ export default {
       if (this.currentVal && this.currentVal > 0 && needCurrent) {
         const left = ((this.currentVal - this.min) / (this.max - this.min)) * 100 + '%'
         result.push({
-          left: `calc(${left} - 25px)`,
+          left: `calc(${left} - 0px)`,
           width: 'auto',
-          label: this.currentVal + (this.currentVal > 1 ? this.PREFIXS : this.PREFIX),
+          label: this.currentVal, // + (this.currentVal > 1 ? this.PREFIXS : this.PREFIX),
           isCurrent: true
         })
       }
@@ -149,11 +149,14 @@ export default {
 .price-slider {
   width: 100%;
   position: relative;
+  .origin-price {
+    font-size: 14px;
+  }
   .slider-label {
     display: flex;
     width: calc(100% - 12.5px);
     position: absolute;
-    top: 0;
+    top: -1.5px;
     left: 1.75px;
     height: 1px;
     .slider-label-item {
@@ -165,6 +168,10 @@ export default {
       width: 25px;
       text-align: center;
       position: absolute;
+      .current {
+        top: 13px;
+        color: #fff;
+      }
     }
   }
   /deep/ .ant-slider {
@@ -175,10 +182,13 @@ export default {
       background-color: #E9ECEE!important;
     }
     .ant-slider-dot {
-      width: 25px;
-      height: 25px;
-      background-color: #E9ECEE!important;
-      border-color: transparent!important;
+      width: 16px;
+      height: 16px;
+      background-color: #FFE7A8!important;
+      border-color: #4CA3E1!important;
+      background: #FFE7A8;
+      border: 2px solid #4CA3E1;
+      border-radius: 50%;
     }
     .ant-slider-dot-active {
       background-color: #8FCBF6!important;
@@ -186,16 +196,18 @@ export default {
     .ant-slider-track {
       height: 12px;
     }
-    .ant-slider-step {
-      top: 0
-    }
+    // .ant-slider-step {
+    //   top: 0
+    // }
     .ant-slider-mark {
       top: 18px;
     }
     .ant-slider-handle {
       width: 20px;
       height: 20px;
-      display: none;
+      background-color: #4CA3E1!important;
+      border-color: #4CA3E1!important;
+      // display: none;
     }
     // .ant-slider-disabled {
        .ant-slider-track {
