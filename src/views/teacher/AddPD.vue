@@ -94,6 +94,7 @@
                     :show-edit-google-slide='true'
                     :default-thumbnail-list='thumbnailList'
                     :selected-template-list='form.selectedTemplateList'
+                    :edit-loading="editGoogleSlideLoading"
                     :empty-tips="'No slides created yet, click “Edit google slide” to create the first page!'"
                     :empty-height="'350px'"
                     @edit-google-slide='handleEditGoogleSlide'
@@ -275,7 +276,8 @@ export default {
       tagBodyWidth: '45%',
       fullBodyFields: [PdField.VideoList],
 
-      scheduleVisible: false
+      scheduleVisible: false,
+      editGoogleSlideLoading: false
     }
   },
   created() {
@@ -346,11 +348,11 @@ export default {
 
     async save() {
       this.saving = true
-      return PDContentAddOrUpdate(this.form).then(res => {
-        this.$logger.info('PDContentAddOrUpdate', res)
-      }).finally(() => {
-        this.saving = false
-      })
+      this.$logger.info('add PDContentAddOrUpdate', this.form)
+      const response = await PDContentAddOrUpdate(this.form)
+      this.saving = false
+      this.$logger.info('PDContentAddOrUpdate', response.result)
+      return response
     },
 
     initFormSteps () {

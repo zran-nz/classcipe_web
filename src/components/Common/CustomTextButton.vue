@@ -1,5 +1,5 @@
 <template>
-  <div class='cc-custom-text-button' @click='handleClick' @dblclick='handleDbClick'>
+  <div :class='{"cc-custom-text-button":true,"button-disabled":loading}' @click='handleClick' @dblclick='handleDbClick'>
     <div class='icon'>
       <slot name='icon' v-if="!loading">
       </slot>
@@ -38,6 +38,9 @@ export default {
   },
   methods: {
     handleClick() {
+      if (this.loading) {
+        return
+      }
       this.$emit('click')
     },
     handleDbClick() {
@@ -50,6 +53,11 @@ export default {
 <style lang='less' scoped>
 @import "~@/components/index.less";
 
+.button-disabled{
+  border-color: #d9d9d9 !important;
+  color: #999 !important;
+  cursor: not-allowed !important;
+}
 .cc-custom-text-button {
   position: relative;
   padding: 7px 20px;
