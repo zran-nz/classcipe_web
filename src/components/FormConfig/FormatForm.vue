@@ -426,7 +426,7 @@ export default {
       margin: 0;
       .list-group-item {
         position: relative;
-        min-width: 1100px;
+        // min-width: 1100px;
         margin-bottom: 15px;
         margin-right: 10px;
         background: rgba(21, 195, 154, 0.1);

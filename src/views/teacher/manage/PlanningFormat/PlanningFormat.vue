@@ -1,5 +1,5 @@
 <template>
-  <a-card class='planning-format' :body-style="{'padding': 0}" :loading='loading'>
+  <a-card class='planning-format' :body-style="{'padding': 20}" :loading='loading'>
     <a-tabs type="card" v-model='activeKey' v-if='!loading'>
       <a-tab-pane key="plan" tab="Unit Format" class='planning-content' :forceRender='true'>
         <format-form-with-step

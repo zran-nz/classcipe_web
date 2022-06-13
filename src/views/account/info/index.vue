@@ -215,7 +215,7 @@ export default {
             title: 'Classes',
             extraKey: 'classCount',
             desc: 'Review payments, payouts, coupons,gift cards and taxes',
-            url: ''
+            url: '/manage/class'
           },
           {
             avatar: TeachersPng,
@@ -269,7 +269,7 @@ export default {
               avatar: PlanningPng,
               title: 'Planning Format',
               desc: '',
-              url: ''
+              url: '/manage/planning-format'
             },
             {
               avatar: AttendancePng,

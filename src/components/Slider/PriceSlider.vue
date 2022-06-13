@@ -43,7 +43,7 @@ export default {
   watch: {
     current: {
       handler(val) {
-        this.currentVal = 3 // val
+        this.currentVal = val
       },
       immediate: true
     }

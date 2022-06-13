@@ -578,6 +578,22 @@ export const asyncRouterMap = [
             name: 'CirculumListV2',
             component: () => import('@/views/account/manage/CuriculumListV2'),
             meta: { title: 'menu.managing.curriculum', keepAlive: true, permission: ['teacher'] }
+          },
+          {
+            path: '/manage/planning-format',
+            name: 'PlanningFormat',
+            component: () => import('@/views/teacher/manage/PlanningFormat/PlanningFormat'),
+            meta: {
+              title: 'menu.managing.planning-format',
+              keepAlive: true,
+              permission: ['teacher']
+            }
+          },
+          {
+            path: '/manage/class',
+            name: 'MyCalssV2',
+            component: () => import('@/views/account/manage/MyClassV2'),
+            meta: { title: 'menu.my-class', keepAlive: true, permission: ['teacher'] }
           }
         ]
       },
