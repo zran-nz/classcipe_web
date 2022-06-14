@@ -73,8 +73,13 @@
           <no-more-resources tips="No content selected" />
         </div>
         <div v-else class="preview-wrap">
-          <iframe :src="iframeSrc" class='preview-iframe' id='library-iframe' v-if='iframeSrc'></iframe>
+          <!-- <iframe :src="iframeSrc" class='preview-iframe' id='library-iframe' v-if='iframeSrc'></iframe> -->
           <!-- <common-preview-v2 v-if="!previewLoading" :id="selectedId" :type="type" /> -->
+          <content-preview-detail
+            :contentId="selectedObj.id"
+            :contentType="selectedObj.type"
+            v-if="!previewLoading"
+          />
         </div>
       </div>
     </div>
@@ -90,6 +95,7 @@ import { FindMyContent } from '@/api/teacher'
 import { QueryContentsFilter } from '@/api/library'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import CommonPreviewV2 from '@/components/Common/CommonPreviewV2'
+import ContentPreviewDetail from '@/components/Preview/ContentPreviewDetail'
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import { USER_MODE } from '@/const/common'
@@ -99,7 +105,8 @@ export default {
   mixins: [UserModeMixin, CurrentSchoolMixin],
   components: {
     NoMoreResources,
-    CommonPreviewV2
+    CommonPreviewV2,
+    ContentPreviewDetail
   },
   props: {
     type: {
@@ -152,6 +159,7 @@ export default {
       },
       myContentList: [],
       selectedId: '',
+      selectedObj: '',
       previewLoading: true,
       backText: this.backTxt,
       showFilter: this.needFilter,
@@ -212,6 +220,7 @@ export default {
     handlePreviewDetail(item) {
       this.previewLoading = true
       this.selectedId = item.id
+      this.selectedObj = { ...item }
       setTimeout(() => {
         this.previewLoading = false
       }, 300)
@@ -243,7 +252,7 @@ export default {
     margin-top: 30px;
     display: flex;
     .content-select-left {
-      flex: 1;
+      flex: 0.8;
       background: #fff;
       padding-right: 5px;
       .content-select-filter {
@@ -342,6 +351,26 @@ export default {
           }
           .extra-content-preview {
             display: none;
+          }
+        }
+        /deep/ .content-preview-detail {
+          .top-fixed-header {
+            display: none!important;
+          }
+          .card-list {
+            width: auto;
+          }
+          .reviews-edit {
+            .reviews-edit__check {
+              div {
+                label {
+                  width: 110px;
+                }
+                .ant-rate{
+                  font-size: 16px!important;
+                }
+              }
+            }
           }
         }
       }

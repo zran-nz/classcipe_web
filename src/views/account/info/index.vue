@@ -594,7 +594,9 @@ export default {
         margin-top: 0.2em /* 20/100 */;
         display: flex;
         flex-wrap: wrap;
-        width: 100%;
+        // width: 100%;
+        margin-left: -0.1em;
+        margin-right: -0.1em;
         &::after {
           content: '';
           flex-grow: 999;

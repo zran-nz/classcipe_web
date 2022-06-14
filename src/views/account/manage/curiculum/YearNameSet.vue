@@ -26,9 +26,9 @@
                 <a-row :gutter=16>
                   <a-col :span="12">
                     <a-form-model-item>
-                      <!-- <a-input :disabled="!grade.checked" v-model="grade.gradeName" placeholder="input name" /> -->
-                      <a-select :disabled="!grade.checked" mode="tags" v-model="grade.gradeNameArr" :token-separators="[',']">
-                      </a-select>
+                      <a-input :disabled="!grade.checked" v-model="grade.gradeName" placeholder="input name" />
+                      <!-- <a-select :disabled="!grade.checked" mode="tags" v-model="grade.gradeNameArr" :token-separators="[',']">
+                      </a-select> -->
                     </a-form-model-item >
                   </a-col>
                   <a-col :span="12">
@@ -254,8 +254,8 @@ export default {
             const curriobj = this.allCurriculums.find(item => item.id === curri)
             if (curriobj) {
               const gradeSettingInfo = groupByCurri[curri].map(item => ({
-                ...item,
-                gradeName: item.gradeNameArr.join(',')
+                ...item
+                // gradeName: item.gradeNameArr.join(',')
               }))
               curriculums.push({
                 curriculumId: curriobj.id,

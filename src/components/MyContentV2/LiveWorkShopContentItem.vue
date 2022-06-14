@@ -16,7 +16,7 @@
             <a-icon v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType" type="edit" @click.prevent.stop="editName(content)"/>
           </div>
           <div class="name" v-show="showEditName">
-            <a-input :disabled="loading" :value="choose.title || content.content.name" @change="e => changeTitle(e.target.value, content)"></a-input>
+            <a-input :disabled="loading" :value="choose.title" @change="e => changeTitle(e.target.value, content)"></a-input>
             <div class="opt">
               <a-icon type="check" @click.stop.prevent="handleSave(content)" />
               <a-icon type="close" @click.stop.prevent="handleCancelSingle(content)"/>
@@ -36,6 +36,7 @@
             <a-range-picker
               :disabled="loading"
               @change="handleDateChange"
+              :disabled-date="disabledDateRange"
               format='YYYY-MM-DD HH:mm:ss'
               :show-time="{ format: 'HH:mm' }"/>
             <div class="opt">
@@ -71,7 +72,7 @@
         <div class="price-con" v-if="content.priceList && content.priceList.length > 0">
           <price-slider :priceList="content.priceList" :current="content.registeredNum" :origin="content.price" />
           <template v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType">
-            <a-icon class="price-edit" @click="editPrice(content)" type="edit" v-if="!content.registeredNum"></a-icon>
+            <a-icon class="price-edit" @click="editPrice(content)" type="edit" v-if="content.registeredNum == 0"></a-icon>
             <a-tooltip v-else title="You can not edit the price because it has been already registered by other users.">
               <a-icon class="price-edit" type="edit" style="color: #999"></a-icon>
             </a-tooltip>
@@ -245,8 +246,8 @@ export default {
         title: '',
         price: 0,
         priceList: [],
-        startDate: null,
-        endData: null
+        sessionStartTime: null,
+        deadline: null
       },
       loading: false
     }
@@ -305,21 +306,24 @@ export default {
     editName(item) {
       this.showEditName = true
       this.choose = { ...item }
-      this.choose.startDate = item.sessionStartTime
-      this.choose.endData = item.sessionEndTime
+      this.choose.sessionStartTime = moment(item.sessionStartTime).utc().format('YYYY-MM-DD HH:mm:ss')
+      this.choose.deadline = (item.deadline || item.sessionStartTime).utc().format('YYYY-MM-DD HH:mm:ss')
+      if (!this.choose.title) {
+        this.choose.title = item.content.name
+      }
     },
     editSche(item) {
       this.showEditSche = true
       this.choose = { ...item }
-      this.choose.startDate = item.sessionStartTime
-      this.choose.endData = item.sessionEndTime
+      this.choose.sessionStartTime = moment(item.sessionStartTime).utc().format('YYYY-MM-DD HH:mm:ss')
+      this.choose.deadline = (item.deadline || item.sessionStartTime).utc().format('YYYY-MM-DD HH:mm:ss')
       console.log(this.choose)
     },
     editPrice(item) {
       this.showEditPrice = true
       this.choose = { ...item }
-      this.choose.startDate = item.sessionStartTime
-      this.choose.endData = item.sessionEndTime
+      this.choose.sessionStartTime = moment(item.sessionStartTime).utc().format('YYYY-MM-DD HH:mm:ss')
+      this.choose.deadline = (item.deadline || item.sessionStartTime).utc().format('YYYY-MM-DD HH:mm:ss')
     },
     visibleChange(visible, content) {
       if (visible && content.name) {
@@ -355,13 +359,16 @@ export default {
       this.showEditName = false
       this.showEditSche = false
     },
+    disabledDateRange(current) {
+      return current && current < moment().subtract(1, 'minutes') // .endOf('day')
+    },
     handleDateChange (date, dateString) {
       if (date.length > 0) {
-        this.choose.startDate = moment(date[0].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
-        this.choose.endData = moment(date[1].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
+        this.choose.sessionStartTime = moment(date[0].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
+        this.choose.deadline = moment(date[1].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
       } else {
-        this.choose.startDate = null
-        this.choose.endData = null
+        this.choose.sessionStartTime = null
+        this.choose.deadline = null
       }
     },
     handleSavePrice() {
@@ -373,8 +380,8 @@ export default {
     },
     handleSave(item, needReload = false) {
       const params = {
-        startDate: this.choose.startDate,
-        endData: this.choose.endData,
+        sessionStartTime: this.choose.sessionStartTime,
+        deadline: this.choose.deadline,
         register: {
           title: this.choose.title
         },
@@ -389,6 +396,8 @@ export default {
         if (res.success) {
           this.$message.success('Opt Successfully')
           item.title = this.choose.title
+          item.sessionStartTime = this.choose.sessionStartTime
+          item.deadline = this.choose.deadline
           this.showEditName = false
           this.showEditSche = false
           this.showEditPrice = false
