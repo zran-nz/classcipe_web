@@ -146,7 +146,7 @@ export default {
   },
   methods: {
     goBack() {
-      this.$router.go(-1)
+      history.go(-1)
     },
     toggleTab(status) {
       this.currentTab = status

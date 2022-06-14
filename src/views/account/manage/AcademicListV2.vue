@@ -127,7 +127,7 @@ export default {
   },
   methods: {
     goBack() {
-      this.$router.go(-1)
+      history.go(-1)
     },
     handleSchoolChange(currentSchool) {
       if (this.userMode === USER_MODE.SCHOOL) {
@@ -165,15 +165,17 @@ export default {
       this.$refs.termForm.title = 'Add acadeic term'
       this.$refs.termForm.mode = 'add'
       this.$refs.termForm.add({
-        parentId: item.id
+        parentId: item.id,
+        minDate: moment.utc(item.startTime).startOf('day').local().format('YYYY-MM-DD HH:mm:ss'),
+        maxDate: moment.utc(item.endTime).endOf('day').local().format('YYYY-MM-DD HH:mm:ss')
       })
     },
     handleEdit(record) {
       this.$refs.modalForm.title = 'Edit acadeic year'
       this.$refs.modalForm.edit({
         ...record,
-        startTime: moment.utc(record.startTime).local().format('YYYY-MM-DD HH:mm:ss'),
-        endTime: moment.utc(record.endTime).local().format('YYYY-MM-DD HH:mm:ss')
+        startTime: moment.utc(record.startTime).startOf('day').local().format('YYYY-MM-DD HH:mm:ss'),
+        endTime: moment.utc(record.endTime).endOf('day').local().format('YYYY-MM-DD HH:mm:ss')
       })
       this.$refs.modalForm.disableSubmit = false
     },
@@ -182,6 +184,8 @@ export default {
       this.$refs.termForm.mode = 'add'
       this.$refs.termForm.edit({
         parentId: parent.id,
+        minDate: moment.utc(parent.startTime).startOf('day').local().format('YYYY-MM-DD HH:mm:ss'),
+        maxDate: moment.utc(parent.endTime).endOf('day').local().format('YYYY-MM-DD HH:mm:ss'),
         ...item,
         startTime: moment.utc(item.startTime).local().format('YYYY-MM-DD HH:mm:ss'),
         endTime: moment.utc(item.endTime).local().format('YYYY-MM-DD HH:mm:ss')
