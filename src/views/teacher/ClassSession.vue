@@ -20,8 +20,8 @@
               <template v-slot:cover-action>
                 <div class='cover-action'>
                   <div class='action-btn' @click.stop=''>
-                    <custom-button bg-color='#0C90E3' color='#ffffff' label='Student pace' @click="handleStartSessionHistory(item.content, 1)"></custom-button>
-                    <custom-button bg-color='#0C90E3' color='#ffffff' label='Teacher pace' @click="handleStartSessionHistory(item.content, 2)"></custom-button>
+                    <custom-button bg-color='#0C90E3' color='#ffffff' label='Student pace' @click="handleStartOrJoin(item.session, classStatus.studentPaced)"></custom-button>
+                    <custom-button bg-color='#0C90E3' color='#ffffff' label='Teacher pace' @click="handleStartOrJoin(item.session, classStatus.teacherPaced)"></custom-button>
                   </div>
                 </div>
               </template>
@@ -57,24 +57,24 @@
       />
     </a-modal>
 
-    <a-modal
-      v-model="oldSelectSessionVisible"
-      :footer="null"
-      :title="null"
-      :closable="true"
-      destroyOnClose
-      :dialog-style="{ top: '50px' }"
-      width="950px">
-      <div>
-        <old-session-list
-          :task-id='oldSelectSessionTaskId'
-          :session-list="sessionList"
-          @start-new-session="handleStartSession"
-          @cancel="oldSelectSessionVisible=false"
-          @show-preview-session-list='viewPreviewSessionVisible = true'
-          :mode="sessionMode" />
-      </div>
-    </a-modal>
+    <!--    <a-modal-->
+    <!--      v-model="oldSelectSessionVisible"-->
+    <!--      :footer="null"-->
+    <!--      :title="null"-->
+    <!--      :closable="true"-->
+    <!--      destroyOnClose-->
+    <!--      :dialog-style="{ top: '50px' }"-->
+    <!--      width="950px">-->
+    <!--      <div>-->
+    <!--        <old-session-list-->
+    <!--          :task-id='oldSelectSessionTaskId'-->
+    <!--          :session-list="sessionList"-->
+    <!--          @start-new-session="handleStartSession"-->
+    <!--          @cancel="oldSelectSessionVisible=false"-->
+    <!--          @show-preview-session-list='viewPreviewSessionVisible = true'-->
+    <!--          :mode="sessionMode" />-->
+    <!--      </div>-->
+    <!--    </a-modal>-->
 
   </div>
 </template>
@@ -97,11 +97,12 @@ import UserProfileAvatar from '@/components/User/UserProfileAvatar'
 import CustomSearchInput from '@/components/Common/CustomSearchInput'
 import ClassCreateNew from '@/components/ClassSession/ClassCreateNew'
 import CustomButton from '@/components/Common/CustomButton'
-import { FindNewClasses, StartOpenSession } from '@/api/classroom'
 import { lessonHost, lessonStatus } from '@/const/googleSlide'
 import storage from 'store'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 import OldSessionList from '@/components/Teacher/OldSessionList'
+import moment from 'moment'
+import { AddOrUpdateClass, StartOpenSession } from '@/api/classroom'
 
 export default {
   name: 'ClassSession',
@@ -181,7 +182,8 @@ export default {
       sessionItem: null,
       lastedRevisionId: null,
       sessionList: [],
-      startLoading: false
+      startLoading: false,
+      classStatus: lessonStatus
     }
   },
   created() {
@@ -274,24 +276,24 @@ export default {
       this.$logger.info('handleStartSessionHistory', item, 'mode:', mode)
       this.sessionMode = mode
       this.sessionItem = item
-      if (!item.presentationId) {
-        this.$message.warn('This Task is not bound to PPT!')
-      }
-      logger.info('loadTeacherClasses  slideId:' + item.presentationId)
-      this.loading = true
-      FindNewClasses({ slideId: item.presentationId }).then(response => {
-        logger.info('FindNewClasses', response.result.data)
-        if (response.success) {
-          this.sessionList = response.result.classList
-          this.lastedRevisionId = response.result.revisionId
-        }
-        this.loading = false
-      }).finally(() => {
-        this.oldSelectSessionVisible = true
-        this.oldSelectSessionTaskId = item.id
-        this.$logger.info('set currentPreviewLesson', item)
-        this.currentPreviewLesson = item
-      })
+      // if (!item.presentationId) {
+      //   this.$message.warn('This Task is not bound to PPT!')
+      // }
+      // logger.info('loadTeacherClasses  slideId:' + item.presentationId)
+      // this.loading = true
+      // FindNewClasses({ slideId: item.presentationId }).then(response => {
+      //   logger.info('FindNewClasses', response.result.data)
+      //   if (response.success) {
+      //     this.sessionList = response.result.classList
+      //     this.lastedRevisionId = response.result.revisionId
+      //   }
+      //   this.loading = false
+      // }).finally(() => {
+      //   this.oldSelectSessionVisible = true
+      //   this.oldSelectSessionTaskId = item.id
+      //   this.$logger.info('set currentPreviewLesson', item)
+      //   this.currentPreviewLesson = item
+      // })
     },
 
     handleStartSession () {
@@ -336,6 +338,49 @@ export default {
       } else {
         this.$message.warn('This record is not bound to PPT!')
         this.startLoading = false
+      }
+    },
+    goToClassPage(classId) {
+      const dashUrl = lessonHost + 'd/' + classId + '?token=' + storage.get(ACCESS_TOKEN)
+      const url = lessonHost + 't/' + classId + '?token=' + storage.get(ACCESS_TOKEN)
+      var height = document.documentElement.clientHeight * 0.7
+      var width = document.documentElement.clientWidth * 0.7
+      var strWindowFeatures = 'width=' + width + ',height=' + height + ',menubar=yes,location=yes,resizable=yes,scrollbars=true,status=true,top=100,left=200'
+      var windowObjectReference
+      if (this.mode === 1) {
+        windowObjectReference = window.open(
+          'about:blank',
+          '_blank',
+          strWindowFeatures
+        )
+        windowObjectReference.location = url
+        setTimeout(function () {
+          window.location.href = dashUrl
+        }, 1000)
+      } else {
+        window.location.href = dashUrl
+      }
+    },
+
+    handleStartOrJoin (item, paced) {
+      this.$logger.info('handleStartOrJoin', item, 'paced:', paced)
+      this.loading = true
+      if (item.status !== paced) {
+        const data = Object.assign({}, item)
+        // 状态需要提交后台处理
+        data.status = paced
+        // 课程开始时间未设置
+        if (!data.date) {
+          data.date = parseInt(moment.utc(new Date()).toDate().getTime() / 1000)
+        }
+
+        AddOrUpdateClass(data).then(response => {
+          item.loading = false
+          this.goToClassPage(item.classId)
+        })
+      } else {
+        this.goToClassPage(item.classId)
+        this.loading = false
       }
     }
   }
