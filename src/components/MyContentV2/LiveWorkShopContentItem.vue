@@ -307,7 +307,7 @@ export default {
       this.showEditName = true
       this.choose = { ...item }
       this.choose.sessionStartTime = moment(item.sessionStartTime).utc().format('YYYY-MM-DD HH:mm:ss')
-      this.choose.deadline = (item.deadline || item.sessionStartTime).utc().format('YYYY-MM-DD HH:mm:ss')
+      this.choose.deadline = moment(item.sessionEndTime || item.sessionStartTime).utc().format('YYYY-MM-DD HH:mm:ss')
       if (!this.choose.title) {
         this.choose.title = item.content.name
       }
@@ -316,14 +316,14 @@ export default {
       this.showEditSche = true
       this.choose = { ...item }
       this.choose.sessionStartTime = moment(item.sessionStartTime).utc().format('YYYY-MM-DD HH:mm:ss')
-      this.choose.deadline = (item.deadline || item.sessionStartTime).utc().format('YYYY-MM-DD HH:mm:ss')
+      this.choose.deadline = moment(item.sessionEndTime || item.sessionStartTime).utc().format('YYYY-MM-DD HH:mm:ss')
       console.log(this.choose)
     },
     editPrice(item) {
       this.showEditPrice = true
       this.choose = { ...item }
       this.choose.sessionStartTime = moment(item.sessionStartTime).utc().format('YYYY-MM-DD HH:mm:ss')
-      this.choose.deadline = (item.deadline || item.sessionStartTime).utc().format('YYYY-MM-DD HH:mm:ss')
+      this.choose.deadline = moment(item.sessionEndTime || item.sessionStartTime).utc().format('YYYY-MM-DD HH:mm:ss')
     },
     visibleChange(visible, content) {
       if (visible && content.name) {
@@ -397,7 +397,7 @@ export default {
           this.$message.success('Opt Successfully')
           item.title = this.choose.title
           item.sessionStartTime = this.choose.sessionStartTime
-          item.deadline = this.choose.deadline
+          item.sessionEndTime = this.choose.deadline
           this.showEditName = false
           this.showEditSche = false
           this.showEditPrice = false
