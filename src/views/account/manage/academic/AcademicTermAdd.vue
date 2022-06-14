@@ -29,7 +29,7 @@
               valueFormat="YYYY-MM-DD HH:mm:ss"
               :show-time="{ format: 'HH:mm:ss' }"
               placeholder="Pick a date"
-              @change="val => changeStartTime(val, model)"
+              @ok="val => changeStartTime(val, model)"
               style="width: 100%;"
             />
           </a-form-model-item>
@@ -81,7 +81,9 @@ export default {
         name: '',
         schoolId: this.currentSchool ? this.currentSchool.id : '',
         startTime: '',
-        endTime: ''
+        endTime: '',
+        minDate: '',
+        maxDate: ''
       }
     }
   },
@@ -108,22 +110,32 @@ export default {
       this.model.schoolId = currentSchool.id
     },
     disabledStartDate(startValue, item) {
-      const endValue = item.endTime
+      let endValue = item.endTime
+      const minDate = this.model.minDate
+      const maxDate = this.model.maxDate
+      if (!endValue) {
+        endValue = maxDate
+      }
       if (!startValue || !endValue) {
         return false
       }
-      return moment(startValue).valueOf() > moment(endValue).valueOf()
+      return !(moment(startValue).valueOf() >= moment(minDate).valueOf() && moment(startValue).valueOf() <= moment(endValue).valueOf())
     },
     disabledEndDate(endValue, item) {
-      const startValue = item.startTime
+      let startValue = item.startTime
+      const minDate = this.model.minDate
+      const maxDate = this.model.maxDate
+      if (!startValue) {
+        startValue = minDate
+      }
       if (!endValue || !startValue) {
         return false
       }
-      return moment(startValue).valueOf() >= moment(endValue).valueOf()
+      return !(moment(endValue).valueOf() >= moment(startValue).valueOf() && moment(endValue).valueOf() <= moment(maxDate).valueOf())
     },
     changeStartTime(date, item) {
       if (date && !item.endTime) {
-        item.endTime = moment(date).add(1, 'months').format('YYYY-MM-DD HH:mm:ss')
+        item.endTime = moment(date).add(3, 'months').format('YYYY-MM-DD HH:mm:ss')
       }
     },
     add (record) {
