@@ -198,19 +198,19 @@ export const asyncRouterMap = [
                       curriculumType: CurriculumType.IBMYP,
                       mode: USER_MODE.SCHOOL
                     }
-                  },
-                  {
-                    path: '/teacher/managing/academic',
-                    name: 'AcademicList',
-                    component: () => import('@/views/teacher/manage/AcademicList'),
-                    meta: { title: 'menu.managing.academic', keepAlive: true, permission: ['teacher'], mode: USER_MODE.SCHOOL }
-                  },
-                  {
-                    path: '/teacher/managing/curriculum',
-                    name: 'CirculumList',
-                    component: () => import('@/views/teacher/manage/CirculumList'),
-                    meta: { title: 'menu.managing.curriculum', keepAlive: true, permission: ['teacher'], mode: USER_MODE.SCHOOL }
                   }
+                  // {
+                  //   path: '/teacher/managing/academic',
+                  //   name: 'AcademicList',
+                  //   component: () => import('@/views/teacher/manage/AcademicList'),
+                  //   meta: { title: 'menu.managing.academic', keepAlive: true, permission: ['teacher'], mode: USER_MODE.SCHOOL }
+                  // },
+                  // {
+                  //   path: '/teacher/managing/curriculum',
+                  //   name: 'CirculumList',
+                  //   component: () => import('@/views/teacher/manage/CirculumList'),
+                  //   meta: { title: 'menu.managing.curriculum', keepAlive: true, permission: ['teacher'], mode: USER_MODE.SCHOOL }
+                  // }
                 ]
               },
               {
