@@ -57,3 +57,4 @@ export const SET_CURRICULUM_LIST = 'SET_CURRICULUM_LIST'
 
 export const SET_PUB_TAG = 'SET_PUB_TAG'
 export const SET_PRI_TAG = 'SET_PRI_TAG'
+export const SET_PD_TAG = 'SET_PD_TAG'

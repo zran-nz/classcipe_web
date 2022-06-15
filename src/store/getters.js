@@ -72,7 +72,8 @@ const getters = {
   curriculumId2NameMap: state => state.classcipeConfig.curriculumId2NameMap,
 
   pubTagList: state => state.classcipeConfig.pubTagList,
-  priTagList: state => state.classcipeConfig.priTagList
+  priTagList: state => state.classcipeConfig.priTagList,
+  pdTagList: state => state.classcipeConfig.pdTagList
 }
 
 export default getters

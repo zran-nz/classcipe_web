@@ -1,5 +1,5 @@
 import storage from 'store'
-import { SET_CURRICULUM_LIST, SET_PRI_TAG, SET_PUB_TAG } from '@/store/mutation-types'
+import { SET_CURRICULUM_LIST, SET_PRI_TAG, SET_PUB_TAG, SET_PD_TAG} from '@/store/mutation-types'
 import * as logger from '@/utils/logger'
 import { getAllCurriculums } from '@/api/preference'
 
@@ -9,7 +9,8 @@ const classcipeConfig = {
     curriculumMap: {},
     curriculumId2NameMap: {},
     pubTagList: [],
-    priTagList: []
+    priTagList: [],
+    pdTagList: []
   },
   mutations: {
     [SET_CURRICULUM_LIST]: (state, curriculumList) => {
@@ -33,6 +34,10 @@ const classcipeConfig = {
     [SET_PRI_TAG]: (state, priTagList) => {
       state.priTagList = priTagList
       storage.set(SET_PRI_TAG, priTagList)
+    },
+    [SET_PD_TAG]: (state, pdTagList) => {
+      state.pdTagList = pdTagList
+      storage.set(SET_PD_TAG, pdTagList)
     }
   },
   actions: {
@@ -79,6 +84,40 @@ const classcipeConfig = {
 
         commit(SET_PUB_TAG, pubTagList)
         commit(SET_PRI_TAG, priTagList)
+
+        // eslint-disable-next-line no-undef
+        const pdTagList = await App.service('conf').get('tags-pd')
+
+        // pd tag转换结构方便处理
+        const newPdTagList = []
+        Object.keys(pdTagList).forEach(category => {
+          const subCategoryList = []
+          Object.keys(pdTagList[category]).forEach(subCategory => {
+            subCategoryList.push({
+              category,
+              subCategory,
+              name: subCategory,
+              isSubCategory: true,
+              isTag: false,
+              expand: false,
+              children: pdTagList[category][subCategory].map(tag => {
+                return {
+                  category,
+                  subCategory,
+                  name: tag,
+                  isSubCategory: false,
+                  isTag: true
+                }
+              })
+            })
+          })
+          newPdTagList.push({
+            category,
+            children: subCategoryList
+          })
+        })
+        commit(SET_PD_TAG, newPdTagList)
+        logger.info('newPdTagList', newPdTagList)
         resolve()
       })
     }

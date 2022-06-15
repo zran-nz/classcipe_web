@@ -110,7 +110,7 @@
         </div>
         <div class='tag-body' :style="{ width: tagBodyWidth }" v-show="tagBodyWidth !== '0%'">
           <template v-if='currentRightModule === rightModule.customTag'>
-            <custom-tag-v3 :custom-tags.sync='form.customTags' :field-name='currentFocusFieldName' />
+            <custom-tag-pd :custom-tags.sync='form.customTags' :field-name='currentFocusFieldName' />
           </template>
           <template v-if='currentRightModule === rightModule.associate'>
             <link-content-list :filter-types="[typeMap.task]" />
@@ -208,10 +208,12 @@ import Collaborate from '@/components/UnitPlan/Collaborate'
 import CollaborateUserList from '@/components/Collaborate/CollaborateUserList'
 import ShareContentSetting from '@/components/Share/ShareContentSetting'
 import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
+import CustomTagPd from '@/components/CustomTag/CustomTagPd'
 
 export default {
   name: 'AddPD',
   components: {
+    CustomTagPd,
     PdSchedule,
     CustomImageUploader,
     CaseVideo,
@@ -331,6 +333,10 @@ export default {
           const data = response.result
           if (data.customTags && data.customTags.length) {
             if (!data.customTags[0].fieldName) {
+              data.customTags = []
+            }
+
+            if (data.customTags[0].tags.length && !data.customTags[0].tags[0].category) {
               data.customTags = []
             }
           }
