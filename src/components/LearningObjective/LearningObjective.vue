@@ -115,7 +115,7 @@
               </div>
             </div>
           </div>
-          <div class='create-item' v-show='showFilterList && !filterList.length'>
+          <div class='create-item' v-show='showFilterList && !filterList.length && filterConfig.keyword.trim().length'>
             <a-button type='primary' size="small" @click='handleEnsureInput'><a-icon type='plus' /> Create</a-button>
           </div>
         </div>
@@ -306,7 +306,6 @@
 
 <script>
 
-import data from './data.json'
 import { CurriculumSearch, GeneralCapabilitiesFormat } from '@/components/LearningObjective/CurriculumDataUtils'
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import { getAllCurriculums } from '@/api/preference'
@@ -321,6 +320,7 @@ import RateLevel from '@/components/RateLevel'
 import CommandTermAdd from '@/components/CommandTerm/CommandTermAdd.vue'
 import QuickWordButton from '@/components/Button/QuickWordButton'
 import { DICT_BLOOM_TAXONOMY, DICT_KNOWLEDGE_DIMENSION } from '@/const/common'
+import { GetAuCurriculum, GetNzCurriculum } from '@/api/v2/curriculumn'
 
 export default {
   name: 'LearningObjective',
@@ -360,29 +360,11 @@ export default {
   },
   data() {
     return {
-      data: data,
-      yearIndex: data['Learning outcomes']?.__year,
+      data: null,
+      yearIndex: null,
       curriculumOptions: [],
-      subjectOptions: [
-        'Science',
-        'The Arts',
-        'Language',
-        'Humanities and Social Sciences',
-        'Health and Physical Education',
-        'Mathematics'
-      ],
-      yearOptions: [
-        'Year 1',
-        'Year 2',
-        'Year 3',
-        'Year 4',
-        'Year 5',
-        'Year 6',
-        'Year 7',
-        'Year 8',
-        'Year 9',
-        'Year 10'
-      ],
+      subjectOptions: [],
+      yearOptions: [],
 
       languageOptions: [
         'Arabic', 'Auslan', 'Chinese', 'French', 'German', 'Hindi', 'Indonesian', 'Italian', 'Japanese', 'Korean', 'Modern Greek', 'Spanish', 'Turkish', 'Vietnamese', 'English as second language', 'Urdu', 'Malay', 'Maori'
@@ -397,15 +379,13 @@ export default {
         selectedSubjectList: [],
         selectedYearList: [],
         selectedLanguageList: [],
-        keyword: null
+        keyword: ''
       },
 
       showFilterList: false,
       filterList: [],
 
       selectedList: [],
-
-      generalCapabilitiesData: [],
       asyncEmitUpdateEventFn: null,
       recommendDataVisible: false,
 
@@ -425,8 +405,9 @@ export default {
       termRecommend: [],
       knowledgeRecommend: [],
       bloomTagLevel: [],
-      knowledgeDimensionLevel: []
+      knowledgeDimensionLevel: [],
 
+      cachedCurriculum: {}
     }
   },
   watch: {
@@ -434,8 +415,10 @@ export default {
       deep: true,
       immediate: false,
       handler() {
-        this.filterList = CurriculumSearch(this.data['Learning outcomes'], this.filterConfig.selectedSubjectList, this.filterConfig.selectedYearList, this.filterConfig.keyword)
-        this.asyncEmitUpdateEventFn()
+        if (this.data) {
+          this.filterList = CurriculumSearch(this.data['Learning outcomes'], this.filterConfig.selectedSubjectList, this.filterConfig.selectedYearList, this.filterConfig.keyword)
+          this.asyncEmitUpdateEventFn()
+        }
       }
     },
     selectedList: {
@@ -444,11 +427,56 @@ export default {
       handler() {
         this.asyncEmitUpdateEventFn()
       }
+    },
+    'filterConfig.curriculumId': {
+      immediate: true,
+      async handler(curriculumId) {
+        console.log('curriculumId change', curriculumId)
+        if (curriculumId) {
+          const id = parseInt(curriculumId)
+          if (id === 1) {
+            if (!this.cachedCurriculum['au']) {
+              this.$set(this.cachedCurriculum, 'au', await GetAuCurriculum())
+            }
+            this.data = this.cachedCurriculum['au']
+          } else if (id === 2) {
+            if (!this.cachedCurriculum['nz']) {
+              this.$set(this.cachedCurriculum, 'nz', await GetNzCurriculum())
+            }
+            this.data = this.cachedCurriculum['nz']
+          } else {
+            this.$message.warn('No curriculum data.')
+          }
+
+          if (this.data) {
+            this.subjectOptions = this.data['__subject']
+            this.yearOptions = this.data['__years']
+            this.yearIndex = this.data['Learning outcomes']['__year']
+          }
+          this.$logger.info('update data', this.data)
+        } else {
+          this.data = null
+          this.yearOptions = []
+          this.subjectOptions = []
+          this.yearIndex = null
+          this.$logger.info('reset data', this.data)
+        }
+        this.filterConfig.selectedSubjectList = []
+        this.filterConfig.selectedYearList = []
+        this.filterConfig.selectedLanguageList = []
+        this.filterConfig.keyword = ''
+      }
     }
   },
   computed: {
     selectedCurriculumName () {
       return this.curriculumOptions.find(item => item.id === this.filterConfig.curriculumId)?.name
+    },
+    generalCapabilitiesData () {
+      if (this.data) {
+        return GeneralCapabilitiesFormat(this.data['General capabilities'])
+      }
+      return []
     }
   },
   created() {
@@ -490,8 +518,6 @@ export default {
         this.filterConfig.curriculumId = this.curriculumOptions[0].id
         this.$logger.info('getAllCurriculums', this.curriculumOptions)
       })
-
-      this.generalCapabilitiesData = GeneralCapabilitiesFormat(this.data['General capabilities'])
     },
 
     handleResetCurriculum () {
@@ -499,7 +525,10 @@ export default {
     },
 
     handleSelectCurriculum (id) {
+      this.$logger.info('handleSelectCurriculum id', id)
       this.filterConfig.curriculumId = id
+      const curriculum = this.curriculumOptions.find(item => item.id === id)
+      this.$logger.info('handleSelectCurriculum curriculum', curriculum)
     },
 
     handleRemoveSubject (subject) {
@@ -567,7 +596,7 @@ export default {
         this.handleSelectItem({
           desc: this.filterConfig.keyword
         })
-        this.filterConfig.keyword = null
+        this.filterConfig.keyword = ''
       }
     },
 
