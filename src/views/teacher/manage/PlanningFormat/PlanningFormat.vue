@@ -43,6 +43,7 @@
       <div class='content-wrapper'>
         <select-template
           :template-list="templateList"
+          :active-key="activeKey"
           @cancel='selectTemplateVisible = false'
           @ensure='handleSelectTemplate' />
       </div>
