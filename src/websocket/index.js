@@ -99,6 +99,10 @@ export default class VueWebSocket {
         vuexStore.dispatch(type, data)
     }
 
+    sendMutation(type, data) {
+      vuexStore.commit(type, data)
+    }
+
     initHandlerList() {
         this.handlerList.push(new ReceiveMsgHandler(this))
         this.handlerList.push(new ReceiveCollaborateHandler(this))

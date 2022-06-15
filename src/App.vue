@@ -49,6 +49,12 @@ export default {
       if (newValue) {
         this.$store.dispatch('GetAllSubjects', newValue)
       }
+    },
+    '$store.state.websocket.currentNotificationMsg': function(newValue) {
+      console.log('currentNotificationMsg change', newValue)
+      if (newValue) {
+        this.showUserMessageNotification(newValue)
+      }
     }
   },
   created() {
@@ -82,6 +88,20 @@ export default {
         default:
           break
       }
+    },
+
+    showUserMessageNotification(message) {
+      console.log('showUserMessageNotification', message)
+      this.$notification.open({
+        message: 'Notification',
+        description: message.msgTxt,
+        onClick: () => {
+          console.log('Notification Clicked!', message)
+          this.$router.push({
+            path: '/notification-detail/' + message.msgId
+          })
+        }
+      })
     }
   }
 }

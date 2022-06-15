@@ -22,5 +22,10 @@ export default class ReceiveMsgHandler extends AbstractMessageHandler {
         } else if (proto.content.busType === NotificationTypeMap.changeCollaborate) {
           this.vueWebsocket.sendAction('changeCollaborateAction', proto.content.busId)
         }
+
+        // 发送消息通知
+       if (proto.content?.msgTxt) {
+         this.vueWebsocket.sendMutation('NOTIFICATION_MESSAGE', proto.content)
+       }
     }
 }

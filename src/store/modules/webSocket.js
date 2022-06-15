@@ -11,7 +11,8 @@ const websocket = {
     msgUnreadCount: 0,
     needRefreshCollaborate: false,
     removedCollaborate: false,
-    changeCollaborate: false
+    changeCollaborate: false,
+    currentNotificationMsg: null
   },
   mutations: {
     [WEBSOCKET_TYPE_INIT]: (state) => {
@@ -39,6 +40,10 @@ const websocket = {
     },
     SET_PERMISSION_COLLABORATE: (state, changeCollaborate) => {
       state.changeCollaborate = changeCollaborate
+    },
+    NOTIFICATION_MESSAGE: (state, userMessage) => {
+      console.log('currentNotificationMsg', userMessage)
+      state.currentNotificationMsg = userMessage
     }
   },
   actions: {
