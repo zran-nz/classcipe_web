@@ -110,7 +110,7 @@
               </div>
               <div class='visible-toggle'>
                 <div class='field-visible'>Enable</div>
-                <a-switch size="small" v-model='fieldItem.visible' />
+                <a-switch size="small" v-model='fieldItem.visible' @change="handleChangeCommonField(sIdx,fieldItem)"/>
               </div>
             </div>
           </li>
@@ -186,7 +186,7 @@
               </div>
               <div class='visible-toggle'>
                 <div class='field-visible'>Enable</div>
-                <a-switch size="small" v-model='fieldItem.visible' />
+                <a-switch size="small" v-model='fieldItem.visible' @change="handleChangeCustomField(sIdx,fieldItem)" />
               </div>
             </div>
             <div class='delete-row'>
@@ -431,6 +431,18 @@ export default {
       const index = this.steps[sIdx].customFieldItems.findIndex(item => item.id === fieldItem.id)
       this.steps[sIdx].customFieldItems.splice(index, 1)
       this.myCustomList = this.myCustomList.filter(item => item.id !== fieldItem.id)
+    },
+
+    handleChangeCustomField(sIdx, fieldItem) {
+      this.$logger.info('handleChangeCustomField', fieldItem)
+      const index = this.myCustomList.findIndex(item => item.id === fieldItem.id)
+      this.myCustomList[index] = fieldItem
+    },
+
+    handleChangeCommonField(sIdx, fieldItem) {
+      this.$logger.info('handleChangeCommonField', fieldItem)
+      const index = this.myCommonList.findIndex(item => item.id === fieldItem.id)
+      this.myCommonList[index] = fieldItem
     },
 
     getFormatConfig () {
