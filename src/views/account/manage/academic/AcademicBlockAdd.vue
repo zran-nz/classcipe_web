@@ -160,16 +160,17 @@ export default {
       })
     },
     edit (record) {
-      if (!record.blockSettings) {
-        record.blockSettings = []
-      } else {
-        record.blockSettings.forEach(item => {
-          item.start = moment('2000-01-01 ' + item.start)
-        })
-      }
       this.model = cloneDeep(Object.assign({}, record, {
         schoolId: this.currentSchool.id
       }))
+      if (!this.model.blockSettings) {
+        this.model.blockSettings = []
+      } else {
+        this.model.blockSettings.forEach(item => {
+          item.start = moment.utc('2000-01-01 ' + item.start).local()
+          item.end = moment.utc('2000-01-01 ' + item.end).local().format('HH:mm')
+        })
+      }
       console.log(this.model)
       this.mode = 'update'
       this.visible = true
@@ -214,8 +215,9 @@ export default {
         if (valid) {
           const params = cloneDeep(this.model)
           params.blockSettings = params.blockSettings.map((item, index) => {
-            item.start = item.start.format('HH:mm')
-            item.name = 'block ' + index
+            item.start = moment.utc(item.start).format('HH:mm')
+            item.end = moment.utc(moment('2000-01-01 ' + item.end)).format('HH:mm')
+            item.name = item.name ? item.name : ('block_' + new Date().getTime() + '_' + index)
             return item
           })
           that.confirmLoading = true

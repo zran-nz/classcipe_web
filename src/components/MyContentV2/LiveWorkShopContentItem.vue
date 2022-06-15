@@ -35,6 +35,7 @@
           <div class="update-time" v-show="showEditSche">
             <a-range-picker
               :disabled="loading"
+              :default-value="[moment.utc(content.sessionStartTime).local(), moment.utc(content.sessionEndTime).local()]"
               @change="handleDateChange"
               :disabled-date="disabledDateRange"
               format='YYYY-MM-DD HH:mm:ss'

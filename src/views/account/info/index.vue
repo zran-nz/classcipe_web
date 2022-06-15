@@ -333,7 +333,8 @@ export default {
       if (this.info.planInfo && this.info.planInfo) {
         const isExpired = this.info.planInfo.flag !== 1 ? '( Plan expired )' : ''
         const isUnpay = '' // this.info.planInfo.planUser.buyStatus !== 1 ? '( Unpaid )' : ''
-        return isExpired ? `${isExpired}` : isUnpay ? `${isUnpay}` : ''
+        const isTrial = this.info.planInfo.freeUsePlan ? '( trial )' : ''
+        return isTrial || (isExpired ? `${isExpired}` : isUnpay ? `${isUnpay}` : '')
       } else {
         return ''
       }

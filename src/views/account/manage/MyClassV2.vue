@@ -6,7 +6,7 @@
           title='School Class'
           :show-share='false'
           :show-collaborate='false'
-          :is-preview-mode='false'
+          :is-preview-mode='true'
           @back='goBack'>
           <template v-slot:right>
           </template>
@@ -24,9 +24,75 @@
             {{ item.title }}
           </div>
         </div>
+        <div class="opt-list">
+          <class-grade-sel v-if="currentTab === 'gradeId'" :grades="selectedGrades" @save="setGrades" :school="currentSchool"/>
+          <template v-if="currentTab === 'subject'">
+            <custom-text-button label='Add' @click="handleAddSubjectClass">
+              <template v-slot:icon>
+                <a-icon type='plus-circle' />
+              </template>
+            </custom-text-button>
+            <class-subject-sel ref="classSubject" @save="addSubjectClass" :school="currentSchool"/>
+          </template>
+        </div>
       </div>
       <div class="form-tab">
-        <div class="list-view" v-if="datas && datas.length > 0"></div>
+        <div class="list-view" v-if="allDatas[currentTab] && allDatas[currentTab].length > 0">
+          <div class="list-view-item" v-for="(view, index) in allDatas[currentTab]" :key="view.gradeId">
+            <div class="view-item-title">
+              <label for="">{{ view.gradeName || view.subjectName }}</label>
+              <a-space class="view-item-opt" v-if="currentTab === 'gradeId'">
+                <a-button type="primary" @click="addGradeClass(view)" icon="plus-circle">Add</a-button>
+                <a-button @click="deleteGrade(view, index)">Delete</a-button>
+              </a-space>
+            </div>
+            <div class="view-item-con">
+              <div
+                v-for="cls in view.classes"
+                :key="view.gradeId + '_' + cls.key"
+                class="item-class-wrap"
+              >
+                <div class="item-class" v-clickOutside="() => handleBlurClick(cls)">
+                  <div class="class-name">
+                    <label @click="doEditClassName(cls)" v-if="!cls.isNew && !cls.isEdit" for="">{{ cls.name }}</label>
+                    <a-input :ref="'name'+cls.key" placeholder="Enter class name" v-if="cls.isNew || cls.isEdit" v-model="cls.changeName">
+                      <a-icon slot="suffix" type="check" @click="handleSaveClassName(cls)"/>
+                    </a-input>
+                  </div>
+                  <div class="class-con">
+                    <div class="class-con-item">
+                      <div class="con-item-label">Teachers</div>
+                      <div class="con-item-detail">{{ cls.teacherCount }}</div>
+                    </div>
+                    <div class="class-con-item">
+                      <div class="con-item-label">Students</div>
+                      <div class="con-item-detail">
+                        <label v-if="!cls.isNew" for="">{{ cls.studentCount }}</label>
+                        <a type="link" v-else>Upload</a>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="class-opt" v-if="!cls.isNew">
+                    <a-dropdown :getPopupContainer="trigger => trigger.parentElement">
+                      <a-icon type="more" />
+                      <a-menu slot="overlay">
+                        <a-menu-item>
+                          <a href="javascript:;">Import students</a>
+                        </a-menu-item>
+                        <a-menu-item>
+                          <a href="javascript:;">Edit teachers</a>
+                        </a-menu-item>
+                        <a-menu-item>
+                          <a href="javascript:;">Archive</a>
+                        </a-menu-item>
+                      </a-menu>
+                    </a-dropdown>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         <div v-else class="no-subject">
           <img src='~@/assets/newBrowser/no-subject.png'/>
           <p>None class because you dont set the class</p>
@@ -44,6 +110,8 @@ import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import FixedFormHeader from '@/components/Common/FixedFormHeader'
 import FormHeader from '@/components/FormHeader/FormHeader'
 import CustomTextButton from '@/components/Common/CustomTextButton'
+import ClassGradeSel from './class/ClassGradeSel'
+import ClassSubjectSel from './class/ClassSubjectSel'
 
 import { mapState } from 'vuex'
 const { debounce } = require('lodash-es')
@@ -54,18 +122,20 @@ export default {
   components: {
     FixedFormHeader,
     FormHeader,
-    CustomTextButton
+    CustomTextButton,
+    ClassGradeSel,
+    ClassSubjectSel
   },
   data() {
     return {
       USER_MODE: USER_MODE,
-      currentTab: 'Standard',
+      currentTab: 'gradeId',
       tabsList: [{
-          value: 'Standard',
+          value: 'gradeId',
           title: 'Standard'
       },
       {
-          value: 'Subject',
+          value: 'subject',
           title: 'Subject'
       }, {
           value: 'Archive',
@@ -77,12 +147,21 @@ export default {
       },
       datas: [],
       debounceInit: null,
-      delLoading: false
+      delLoading: false,
+      selVis: false,
+      gradeIdInfos: [], // 先创建grade再创建class
+      subjectInfos: [], // 现创建class再按subject分类
+      allDatas: {
+        gradeId: [],
+        subject: []
+      },
+      viewDatas: [],
+      selectedGrades: []
     }
   },
   created() {
-    this.initData()
-    this.debounceInit = debounce(this.initData, 300)
+    this.loadData()
+    this.debounceLoad = debounce(this.loadData, 300)
   },
   computed: {
     ...mapState({
@@ -103,14 +182,128 @@ export default {
       // 模式切换，个人还是学校 个人接口
       this.debounceInit()
     },
-    initData() {
-      this.loadData()
+    // 先创建xxInfos,在创建class 才调用
+    initView() {
+      if (!this.allDatas[this.currentTab]) {
+        this.allDatas[this.currentTab] = []
+      }
+      // 添加没有的
+      this[this.currentTab + 'Infos'].forEach(info => {
+        const isFind = this.allDatas[this.currentTab].find(item => item[this.currentTab] === info[this.currentTab])
+        if (!isFind) {
+          this.allDatas[this.currentTab].push({
+            ...info,
+            classes: [{
+              key: new Date().getTime(),
+              isNew: true,
+              isEdit: true,
+              name: '',
+              changeName: '',
+              [this.currentTab]: info[this.currentTab],
+              schoolId: this.currentSchool.id,
+              classType: 0,
+              teacherCount: 0,
+              studentCount: 0
+            }]
+          })
+        }
+      })
+      // 去除多余的
+      for (let i = this.allDatas[this.currentTab].length - 1; i >= 0; i--) {
+        const view = this.allDatas[this.currentTab][i]
+        const isFind = this[this.currentTab + 'Infos'].find(info => info[this.currentTab] === view[[this.currentTab]])
+        if (!isFind) {
+          this.allDatas[this.currentTab].splice(i, 1)
+          // TODO 数据库是否删除
+        }
+      }
+      console.log(this.allDatas[this.currentTab])
     },
     loadData() {
+      // gradeId
+      this.initView()
 
+      // subject
     },
     toggleTab(status) {
       this.currentTab = status
+      this.debounceLoad()
+    },
+    handleBlurClick(cls) {
+      cls.isEdit = false
+      cls.changeName = cls.name
+    },
+    setGrades(val) {
+      this.gradeIdInfos = [...val]
+      this.initView()
+      this.selectedGrades = this.allDatas.gradeId.map(item => item.gradeId)
+    },
+    addGradeClass(view) {
+      view.classes.push({
+        key: new Date().getTime(),
+        isNew: true,
+        isEdit: true,
+        name: '',
+        changeName: '',
+        gradeId: view.gradeId,
+        schoolId: this.currentSchool.id,
+        classType: 0,
+        teacherCount: 0,
+        studentCount: 0
+      })
+    },
+    doEditClassName(cls) {
+      cls.isEdit = true
+      this.$nextTick(() => {
+        this.$refs['name' + cls.key][0].focus()
+      })
+    },
+    handleSaveClassName(cls) {
+      if (!cls.changeName) {
+        this.$message.error('Please input name')
+        return
+      }
+      cls.name = cls.changeName
+      cls.isNew = false
+      cls.isEdit = false
+    },
+    deleteGrade(view, index) {
+      this.allDatas.gradeId.splice(index, 1)
+      this.selectedGrades = this.allDatas.gradeId.map(item => item.gradeId)
+    },
+    handleAddSubjectClass() {
+      this.$refs.classSubject.doCreate({})
+    },
+    addSubjectClass(cls) {
+      const subject = this.subjectInfos.find(item => item.subject === cls.subject)
+      if (!subject) {
+        this.subjectInfos.push({
+          subject: cls.subject,
+          subjectName: cls.subjectName
+        })
+      }
+      const findDatas = this.allDatas.subject.find(item => item.subject === cls.subject)
+      if (!findDatas) {
+        this.allDatas.subject.push({
+          subject: cls.subject,
+          subjectName: cls.subjectName,
+          classes: [{
+            ...cls,
+            key: new Date().getTime(),
+            changeName: cls.name,
+            isNew: false,
+            isEdit: false
+          }]
+        })
+      } else {
+        findDatas.classes.push({
+          ...cls,
+          changeName: cls.name,
+          key: new Date().getTime(),
+          isNew: false,
+          isEdit: false
+        })
+      }
     }
   }
 }
@@ -178,6 +371,8 @@ export default {
 }
 .form-tab {
   height: calc(100% - 60px);
+  padding: 0 20px;
+  overflow: auto;
 }
 .no-subject {
   display: flex;
@@ -196,6 +391,106 @@ export default {
     color: #070707;
     opacity: 1;
     text-align: center;
+  }
+}
+.list-view {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  .list-view-item {
+    margin-top: 20px;
+    .view-item-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      label {
+        font-weight: bold;
+        font-size: 16px;
+        line-height: 30px;
+      }
+    }
+    .view-item-con {
+      display: flex;
+      flex-wrap: wrap;
+      margin-left: -10px;
+      margin-right: -10px;
+      &::after {
+        content: '';
+        flex-grow: 999;
+      }
+      .item-class-wrap {
+        width: 25%;
+        flex-grow: 1;
+        padding: 10px;
+        .item-class {
+          padding: 20px;
+          background: #FFFFFF;
+          border: 1px solid #CED7E5;
+          border-radius: 5px;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          position: relative;
+          .class-name {
+            margin-bottom: 20px;
+            height: 32px;
+            border: 1px solid transparent;
+            label {
+              font-weight: bold;
+              font-size: 14px;
+              display: inline-block;
+              line-height: 30px;
+              width: 100%;
+              cursor: pointer;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+          }
+          .class-con {
+            display: flex;
+            .class-con-item {
+              flex: 1;
+              display: flex;
+              flex-direction: column;
+              background: #EAEFF7;
+              align-items: center;
+              text-align: center;
+              justify-content: space-between;
+              padding: 15px 0;
+              & ~ .class-con-item {
+                margin-left: 20px;;
+              }
+            }
+          }
+          .class-opt {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            right: 0;
+            font-size: 20px;
+            display: none;
+            i {
+              color: #9AA4B3;
+            }
+          }
+          &:hover {
+            .class-name {
+              border: 1px solid #dfdfdf;
+            }
+            .class-con {
+              .class-con-item {
+                background: #627BD6;
+                color: #fff;
+              }
+            }
+            .class-opt {
+              display: block;
+            }
+          }
+        }
+      }
+    }
   }
 }
 </style>

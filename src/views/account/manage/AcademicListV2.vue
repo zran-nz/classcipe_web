@@ -6,7 +6,7 @@
           title='School Account'
           :show-share='false'
           :show-collaborate='false'
-          :is-preview-mode='false'
+          :is-preview-mode='true'
           @back='goBack'>
           <template v-slot:right>
             <a-button @click="handleAdd" type="primary" icon="plus" >Add academic year</a-button>
@@ -127,7 +127,7 @@ export default {
   },
   methods: {
     goBack() {
-      history.go(-1)
+      this.$router.go(-1)
     },
     handleSchoolChange(currentSchool) {
       if (this.userMode === USER_MODE.SCHOOL) {

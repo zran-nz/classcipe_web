@@ -6,7 +6,7 @@
           title='School Curriculum'
           :show-share='false'
           :show-collaborate='false'
-          :is-preview-mode='false'
+          :is-preview-mode='true'
           @back='goBack'>
           <template v-slot:right>
           </template>
@@ -146,7 +146,7 @@ export default {
   },
   methods: {
     goBack() {
-      history.go(-1)
+      this.$router.go(-1)
     },
     toggleTab(status) {
       this.currentTab = status

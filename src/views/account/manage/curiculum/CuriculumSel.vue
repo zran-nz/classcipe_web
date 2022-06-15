@@ -90,11 +90,12 @@ export default {
                 }
               })
             } else if (this.currentSchool.curriculumId) {
-              const current = Array.isArray(this.currentSchool.curriculumId) ? this.currentSchool.curriculumId : [this.currentSchool.curriculumId]
-              if (current.includes(item.id)) {
-                checked = true
-                choose.push({ ...item })
-              }
+              // 无需兼容老数据
+              // const current = Array.isArray(this.currentSchool.curriculumId) ? this.currentSchool.curriculumId : [this.currentSchool.curriculumId]
+              // if (current.includes(item.id)) {
+              //   checked = true
+              //   choose.push({ ...item })
+              // }
             }
             return {
               ...item,
