@@ -5,7 +5,7 @@
         <div class="content-list">
           <a-list
             size="large"
-            :data-source="templateList"
+            :data-source="filterTemplateList"
             :loading="loading">
             <div
               slot="renderItem"
@@ -69,6 +69,8 @@
 
 <script>
 
+import { typeMap } from '@/const/teacher'
+
 export default {
   name: 'SelectTemplate',
   components: {
@@ -77,6 +79,16 @@ export default {
     templateList: {
       type: Array,
       default: () => []
+    },
+    activeKey: {
+      type: String,
+      default: ''
+    }
+  },
+  computed: {
+    filterTemplateList() {
+      const type = this.activeKey === 'plan' ? typeMap['unit-plan'] : typeMap.task
+      return this.templateList.filter(item => item.type === type)
     }
   },
   data () {
@@ -410,7 +422,7 @@ a.delete-action {
 }
 
 .my-card-list-item {
-  cursor:pointer;
+  //cursor:pointer;
   overflow: hidden;
   box-sizing: border-box;
   margin: 10px;
