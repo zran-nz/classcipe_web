@@ -236,6 +236,7 @@ export default {
       USER_MODE: USER_MODE,
       WORK_SHOPS_STATUS: WORK_SHOPS_STATUS,
       WORK_SHOPS_TYPE: WORK_SHOPS_TYPE,
+      moment: moment,
       shareVisible: false,
       shareItem: {},
       showTagLen: 2,
