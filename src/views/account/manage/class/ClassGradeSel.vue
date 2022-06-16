@@ -25,7 +25,7 @@
                 v-for="grade in item.gradeSettingInfo"
                 :key="'grade'+grade.gradeId"
               >
-                <a-checkbox v-model="grade.checked" @change="val => changeGradeCheck(val, grade)">{{ grade.gradeName }}</a-checkbox>
+                <a-checkbox :disabled="grade.notEdit" v-model="grade.checked" @change="val => changeGradeCheck(val, grade)">{{ grade.gradeName }}</a-checkbox>
               </div>
             </div>
           </div>
@@ -104,7 +104,8 @@ export default {
           this.curriculumOptions = res.result.map(item => {
             const gradeSettingInfo = item.gradeSettingInfo.map(grade => ({
               ...grade,
-              checked: false
+              checked: false,
+              notEdit: false
             }))
             item.gradeSettingInfo = gradeSettingInfo
             return item
@@ -121,8 +122,10 @@ export default {
         curri.gradeSettingInfo.forEach(grade => {
           if (this.grades && this.grades.includes(grade.gradeId)) {
             grade.checked = true
+            grade.notEdit = true
           } else {
             grade.checked = false
+            grade.notEdit = false
           }
         })
       })

@@ -13,6 +13,16 @@
                   @change="val => changeCurriculum(val, curriculum)"
                 >{{ curriculum.name || curriculum.curriculumName }}</a-checkbox>
               </a-col>
+              <a-col :span="18">
+                <a-row :gutter=16>
+                  <a-col :span="12" style="text-align:left;color: #333;line-height: 24px;">
+                    Enter your school's Grade/Level/Year
+                  </a-col>
+                  <a-col :span="12" style="text-align:left;color: #333;line-height: 24px;">
+                    Enter student age
+                  </a-col>
+                </a-row>
+              </a-col>
             </a-row>
 
             <template v-for="(grade, index) in gradeForm.gradeInfo.filter(item => item.curriculumId === curriculum.id)">

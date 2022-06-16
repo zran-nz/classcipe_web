@@ -51,13 +51,14 @@
           </a-col>
           <a-col :span="12" v-if="formModel.selfRegister">
             <a-form-model-item label="Grade">
-              <!-- <a-select
-                  :getPopupContainer="trigger => trigger.parentElement"
-                  v-model="formModel.subject"
-                  placeholder="Select subject"
-                > -->
-              <a-input v-model="formModel.grade" placeholder="input grade name" />
-              <!-- </a-select> -->
+              <a-select
+                :getPopupContainer="trigger => trigger.parentElement"
+                v-model='formModel.grade'
+                placeholder='Please select grade'>
+                <a-select-option v-for='item in gradeOptions' :key='item.gradeId'>
+                  {{ item.gradeName }}
+                </a-select-option >
+              </a-select>
             </a-form-model-item >
           </a-col>
         </a-row>
@@ -102,6 +103,7 @@
 
 <script>
 import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
+import { getCurriculumBySchoolId } from '@/api/academicSettingCurriculum'
 import { termList } from '@/api/academicTermInfo'
 
 import CustomTextButton from '@/components/Common/CustomTextButton'
@@ -131,6 +133,7 @@ export default {
   data() {
     return {
       currentSchool: this.school,
+      gradeOptions: [],
       subjectOptions: [],
       termsOptions: [],
       blockOptions: {},
@@ -177,10 +180,13 @@ export default {
         getSubjectBySchoolId({
           schoolId: this.currentSchool.id
         }),
+        getCurriculumBySchoolId({
+          schoolId: this.currentSchool.id
+        }),
         termList({
           schoolId: this.currentSchool.id
         })
-      ]).then(([subjectRes, termRes]) => {
+      ]).then(([subjectRes, gradeRes, termRes]) => {
         if (subjectRes.success) {
           // this.subjectOptions = res.result.map(item => {
           //   return {
@@ -217,6 +223,13 @@ export default {
               })
             }
           })
+        }
+        if (gradeRes.success) {
+          let grades = []
+          this.curriculumOptions = gradeRes.result.forEach(item => {
+            grades = grades.concat(item.gradeSettingInfo || [])
+          })
+          this.gradeOptions = grades
         }
       }).finally(() => {
         this.loading = false

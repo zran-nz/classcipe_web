@@ -42,7 +42,7 @@
             @save-success="() => successCb('pendingSubject')"
           />
         </div>
-        <div style="font-size: 14px;height: calc(100% - 50px);" v-show="currentTab === 'Authorization'">
+        <div style="font-size: 14px;height: calc(100% - 0px);" v-show="currentTab === 'Authorization'">
           <authorize-sel
             ref="AuthorizationRef"
             :curriculum="currentCurriculum"
@@ -53,7 +53,7 @@
         </div>
       </div>
     </div>
-    <div style="font-size: 16px;">
+    <div style="font-size: 16px;" v-show="currentTab !== 'Authorization'">
       <fixed-form-footer>
         <template v-slot:right>
           <a-button :loading="saveLoading" :disabled="disabled" type='primary' @click='handleNextStep' class='cc-round-button'>

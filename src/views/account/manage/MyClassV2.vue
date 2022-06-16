@@ -55,7 +55,7 @@
                 <div class="item-class" v-clickOutside="() => handleBlurClick(cls)">
                   <div class="class-name">
                     <label @click="doEditClassName(cls)" v-if="!cls.isNew && !cls.isEdit" for="">{{ cls.name }}</label>
-                    <a-input :ref="'name'+cls.key" placeholder="Enter class name" v-if="cls.isNew || cls.isEdit" v-model="cls.changeName">
+                    <a-input @keyup.enter="handleSaveClassName(cls)" :ref="'name'+cls.key" placeholder="Enter class name" v-if="cls.isNew || cls.isEdit" v-model="cls.changeName">
                       <a-icon slot="suffix" type="check" @click="handleSaveClassName(cls)"/>
                     </a-input>
                   </div>
@@ -67,8 +67,8 @@
                     <div class="class-con-item">
                       <div class="con-item-label">Students</div>
                       <div class="con-item-detail">
-                        <label v-if="!cls.isNew" for="">{{ cls.studentCount }}</label>
-                        <a type="link" v-else>Upload</a>
+                        <a @click="handleEditStudents(cls)" v-if="!cls.isNew" for="">{{ cls.studentCount }}</a>
+                        <a type="link" @click="handleEditStudents(cls)" v-else>Upload</a>
                       </div>
                     </div>
                   </div>
@@ -77,10 +77,10 @@
                       <a-icon type="more" />
                       <a-menu slot="overlay">
                         <a-menu-item>
-                          <a href="javascript:;">Import students</a>
+                          <a href="javascript:;" @click="handleImport(cls)">Import students</a>
                         </a-menu-item>
                         <a-menu-item>
-                          <a href="javascript:;">Edit teachers</a>
+                          <a href="javascript:;" @click="handleEditTeachers(cls)">Edit teachers</a>
                         </a-menu-item>
                         <a-menu-item>
                           <a href="javascript:;">Archive</a>
@@ -99,6 +99,8 @@
         </div>
       </div>
     </div>
+    <class-student-import ref="studentImport" :school="currentSchool"/>
+    <class-member-list ref="memberList" :school="currentSchool"/>
   </div>
 </template>
 
@@ -112,6 +114,8 @@ import FormHeader from '@/components/FormHeader/FormHeader'
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import ClassGradeSel from './class/ClassGradeSel'
 import ClassSubjectSel from './class/ClassSubjectSel'
+import ClassStudentImport from './class/ClassStudentImport'
+import ClassMemberList from './class/ClassMemberList'
 
 import { mapState } from 'vuex'
 const { debounce } = require('lodash-es')
@@ -124,7 +128,9 @@ export default {
     FormHeader,
     CustomTextButton,
     ClassGradeSel,
-    ClassSubjectSel
+    ClassSubjectSel,
+    ClassStudentImport,
+    ClassMemberList
   },
   data() {
     return {
@@ -258,7 +264,7 @@ export default {
         this.$refs['name' + cls.key][0].focus()
       })
     },
-    handleSaveClassName(cls) {
+    handleSaveClassName(cls, cb) {
       if (!cls.changeName) {
         this.$message.error('Please input name')
         return
@@ -266,10 +272,19 @@ export default {
       cls.name = cls.changeName
       cls.isNew = false
       cls.isEdit = false
+      cls.id = '1'
+      cb && cb(cls.id)
     },
     deleteGrade(view, index) {
-      this.allDatas.gradeId.splice(index, 1)
-      this.selectedGrades = this.allDatas.gradeId.map(item => item.gradeId)
+       this.$confirm({
+        title: 'Confirm delete grade',
+        content: 'By deleting the grade/year, all classes belong to it will be removed. Do you confirm to delete? ',
+        centered: true,
+        onOk: () => {
+          this.allDatas.gradeId.splice(index, 1)
+          this.selectedGrades = this.allDatas.gradeId.map(item => item.gradeId)
+        }
+      })
     },
     handleAddSubjectClass() {
       this.$refs.classSubject.doCreate({})
@@ -304,6 +319,33 @@ export default {
           isEdit: false
         })
       }
+    },
+    handleImport(cls) {
+      this.$refs.studentImport.doCreate({
+        classId: cls.id,
+        type: this.currentTab
+      })
+    },
+    handleEditStudents(cls) {
+      if (!cls.id) {
+        this.handleSaveClassName(cls, classId => {
+          this.$refs.memberList.doCreate({
+            classId: classId,
+            role: 'student'
+          })
+        })
+      } else {
+        this.$refs.memberList.doCreate({
+          classId: cls.id,
+          role: 'student'
+        })
+      }
+    },
+    handleEditTeachers(cls) {
+      this.$refs.memberList.doCreate({
+        classId: cls.id || '1',
+        role: 'teacher'
+      })
     }
   }
 }

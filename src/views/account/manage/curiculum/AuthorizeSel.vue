@@ -58,14 +58,14 @@
                 </div>
                 <img v-else :src="totalResult[choosed.id].resources" alt="">
               </div>
-              <a :href="totalResult[choosed.id].resources" target="_blank" for="">{{ totalResult[choosed.id].resources }}</a>
+              <a :href="totalResult[choosed.id].resources" target="_blank" for="">{{ urlName(totalResult[choosed.id].resources) }}</a>
               <a-icon v-if="totalResult[choosed.id].status === '' || totalResult[choosed.id].status === 3" class="close" type="close" @click="handleRemove('resources', totalResult[choosed.id].resources)"></a-icon>
             </div>
           </a-form-model-item>
           <a-form-model-item prop="certificate">
             <span slot="label">
               Certificate&nbsp;
-              <a-tooltip title="Upload certificate">
+              <a-tooltip title="Please make sure upload all necessary certificates for teaching plan including subject guides, ATL and etc.">
                 <a-icon type="question-circle-o" />
               </a-tooltip>
             </span>
@@ -93,7 +93,7 @@
                       </div>
                       <img v-else :src="url" alt="">
                     </div>
-                    <a :href="url" target="_blank" for="">{{ url }}</a>
+                    <a :href="url" target="_blank" for="">{{ urlName(url) }}</a>
                     <a-icon v-if="totalResult[choosed.id].status === '' || totalResult[choosed.id].status === 3" class="close" type="close" @click="handleRemove('certificate', url)"></a-icon>
                   </div>
                   <!-- <a :href="url" target="_blank">{{ url }}</a>
@@ -120,6 +120,9 @@
               </div>
               <div class="deny-text">Reason for refusal: {{ totalResult[choosed.id].denyReason }}  </div>
             </template>
+          </a-form-model-item>
+          <a-form-model-item v-if="!(totalResult[choosed.id].status === 1 || totalResult[choosed.id].status === 2)" :wrapperCol="{offset: 4, span: 12}" label="">
+            <a-button style="line-height: 1;" @click="doSave" :loading="loading" type="primary">{{ totalResult[choosed.id].status === 3 ? 'Submit again' : 'Submit' }}</a-button>
           </a-form-model-item>
         </a-form-model>
       </div>
@@ -282,12 +285,15 @@ export default {
       currentArr.splice(index, 1)
       this.totalResult[this.choosed.id][key] = currentArr.join(',')
     },
+    urlName(url) {
+      const name = url.split('_').pop()
+      return decodeURIComponent(name)
+    },
     isPdf(url) {
       const subfix = url.split('.').pop()
       return subfix === 'pdf'
     },
     doSave() {
-      this.loading = true
       const params = { ...this.totalResult[this.choosed.id] }
       params.schoolId = this.currentSchool.id
       if (!params.resources) {
@@ -298,6 +304,7 @@ export default {
         this.$message.error('Please upload certificate')
         return
       }
+      this.loading = true
       submitIbAuth(params).then(res => {
         if (res.success) {
           this.initAuths()
