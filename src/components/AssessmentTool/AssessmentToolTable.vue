@@ -629,11 +629,15 @@ export default {
   line-height: 20px;
   border: none;
   box-shadow: none;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 
   /deep/ textarea{
     font-weight: bold;
     border: none;
     box-shadow: none;
+    white-space: pre-wrap;
+    word-wrap: break-word;
   }
 }
 
