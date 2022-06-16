@@ -37,7 +37,7 @@
             :key='step.id'>
             <div class='form-field-item' v-for='fieldItem in taskCommonList' :key='fieldItem.id'>
               <template v-if='step.commonFields.indexOf(fieldItem.fieldName) !== -1'>
-                <div class='form-block tag-content-block' @click='activeField(splitTaskField.Name)' :data-field-name='splitTaskField.Name' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.Name' :key='fieldItem.fieldName'>
+                <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.Name' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=splitTaskField.Name />
                   <custom-form-item :required='emptyRequiredFields.indexOf(splitTaskField.Name) !== -1'>
                     <template slot='label'>
@@ -54,8 +54,6 @@
 
                 <div
                   class='form-block over-form-block tag-content-block'
-                  @click='activeField(splitTaskField.Overview)'
-                  :data-field-name='splitTaskField.Overview'
                   id='overview'
                   v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.Overview'
                   :key='fieldItem.fieldName'>
@@ -85,7 +83,7 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block taskType tag-content-block' @click='activeField(splitTaskField.TaskType)' :data-field-name='splitTaskField.TaskType' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.TaskType' :key='fieldItem.fieldName'>
+                <div class='form-block taskType tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.TaskType' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=splitTaskField.TaskType style="left:20px" />
                   <custom-form-item class='task-audio-line' ref='taskType' :colon='false' :required='emptyRequiredFields.indexOf(splitTaskField.TaskType) !== -1'>
                     <template slot='label'>
@@ -123,7 +121,7 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block form-question tag-content-block' @click='activeField(splitTaskField.Question)' :data-field-name='splitTaskField.Question' v-if='associateQuestionList.length > 0 && fieldItem.visible && fieldItem.fieldName === splitTaskField.Question' :key='fieldItem.fieldName'>
+                <div class='form-block form-question tag-content-block' v-if='associateQuestionList.length > 0 && fieldItem.visible && fieldItem.fieldName === splitTaskField.Question' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=splitTaskField.Question />
                   <custom-form-item :required='emptyRequiredFields.indexOf(splitTaskField.Question) !== -1'>
                     <template slot='label'>
@@ -164,7 +162,7 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block tag-content-block' @click='activeField(splitTaskField.LearnOuts)' :data-field-name='splitTaskField.LearnOuts' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.LearnOuts' :key='fieldItem.fieldName'>
+                <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.LearnOuts' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=splitTaskField.LearnOuts style="left:100px" />
                   <custom-form-item :required='emptyRequiredFields.indexOf(splitTaskField.LearnOuts) !== -1'>
                     <template slot='label'>
@@ -183,8 +181,6 @@
 
                 <div
                   class='form-block tag-content-block material-list-block'
-                  @click='activeField(splitTaskField.MaterialList)'
-                  :data-field-name='splitTaskField.MaterialList'
                   style='clear: both'
                   v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.MaterialList'
                   :key='fieldItem.fieldName'>
@@ -258,18 +254,18 @@
                   </div>
                 </div>
 
-                <div class='form-block tag-content-block' @click='activeField(splitTaskField.SelectSlides)' :data-field-name='splitTaskField.SelectSlides' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.SelectSlides' :key='fieldItem.fieldName'>
+                <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.SelectSlides' :key='fieldItem.fieldName'>
                   <form-slide-page-select :thumbnail-list='thumbnailList' :select-page-object-ids.sync='form.selectPageObjectIds' v-if='!thumbnailListLoading'/>
                   <a-skeleton v-if='thumbnailListLoading' />
                 </div>
 
-                <div class='form-block tag-content-block' @click='activeField(splitTaskField.Link)' :data-field-name='splitTaskField.Link' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.Link' :key='fieldItem.fieldName'>
+                <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.Link' :key='fieldItem.fieldName'>
                   <div class='common-link-wrapper'>
                     <form-linked-content :from-id='taskId' :from-type='contentType.task' v-if='taskId'/>
                   </div>
                 </div>
 
-                <div class='form-block' @click='activeField(splitTaskField.Image)' :data-field-name='splitTaskField.Image' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.Image' :key='fieldItem.fieldName'>
+                <div class='form-block' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.Image' :key='fieldItem.fieldName'>
                   <!-- image-->
                   <custom-form-item class='img-wrapper' :required='emptyRequiredFields.indexOf(splitTaskField.Image) !== -1'>
                     <template slot='label'>
@@ -357,7 +353,7 @@
           </template>
           <template v-if='currentRightModule === rightModule.customTag'>
             <div v-if='!this.contentLoading'>
-              <custom-tag-v3 :custom-tag.sync='form.customTags' :field-name='currentFocusFieldName' />
+              <custom-tag-v3 :custom-tag.sync='form.customTags'/>
             </div>
           </template>
           <template v-if='currentRightModule === rightModule.associate'>
@@ -1081,12 +1077,6 @@ export default {
         this.tagBodyWidth = '45%'
       }
     },
-
-    activeField(fieldName) {
-      this.$logger.info('activeField ', fieldName)
-      this.currentFocusFieldName = fieldName
-    },
-
     // 切换当前的字段的点评数据，从总的collaborateCommentList筛选初当前字段相关的点评数据
     handleSwitchComment(data) {
       this.$logger.info('handleSwitchComment', data)
