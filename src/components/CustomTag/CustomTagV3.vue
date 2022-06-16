@@ -15,13 +15,13 @@
       <div class='tag-content-wrapper'>
         <div class='selected-tag'>
           <div class="skt-tag-list">
-            <div class="skt-tag-item" :class="{'active-category-tag': activeCategoryTagList.indexOf(tagItem.tag) !== -1}" v-for="(tagItem) in selectedTagList" :key="tagItem.tag" @click='activeCategory(tagItem)'>
+            <div class="skt-tag-item" :class="{'active-category-tag': activeCategoryTagList.indexOf(tagItem.name) !== -1}" v-for="(tagItem) in selectedTagList" :key="tagItem.name" @click='activeCategory(tagItem)'>
               <a-tag
                 :closable="canCloseTag(tagItem)"
                 @close="closeTag(tagItem)"
                 :color="tagItem.tagColor"
                 class='tag-item'>
-                {{ tagItem.tag }}
+                {{ tagItem.name }}
               </a-tag>
             </div>
           </div>
@@ -156,10 +156,6 @@ export default {
       type: Array,
       default: () => []
     },
-    fieldName: {
-      type: String,
-      default: null
-    },
     associateIdTypeList: {
       type: Array,
       default: () => []
@@ -182,6 +178,8 @@ export default {
       currentActiveTagCategory: null,
 
       inputTag: '',
+      selectedTagList: [],
+      categoryToColor: {},
 
       asyncUpdateTooltip: null // 异步更新标签分类tooltip函数
     }
@@ -191,6 +189,18 @@ export default {
       immediate: true,
       handler(newValue) {
         this.loadAssociateCustomTags(newValue)
+      }
+    },
+    customTags: {
+      deep: true,
+      immediate: true,
+      handler(newValue) {
+        const list = JSON.parse(JSON.stringify(newValue))
+        list.forEach((item) => {
+          const category = this.allTagList.find(categoryItem => categoryItem.set === item.category)
+          item.tagColor = category?.tagColor || '#f1f1f1'
+        })
+        this.selectedTagList = list
       }
     }
   },
@@ -225,26 +235,6 @@ export default {
         })
       })
       return Array.from(tagSet)
-    },
-
-    selectedTagList() {
-      return this.customTags.filter(tag => tag.fieldName === this.fieldName).reduce((acc, cur) => {
-        cur.tags.forEach(tag => {
-          // 找到对应的分类的颜色
-          const tagCategory = this.allTagList.find(item => item.set === tag.set)
-          if (tagCategory) {
-            tag.tagColor = tagCategory.tagColor
-          }
-          if (this.pubTagNameList.indexOf(tag.tag) !== -1) {
-            tag.isPub = true
-            tag.isPri = false
-          } else {
-            tag.isPub = false
-            tag.isPri = true
-          }
-        })
-        return acc.concat(cur.tags)
-      }, [])
     },
 
     selectedTagNameList () {
@@ -342,16 +332,12 @@ export default {
     closeTag (closeTagItem) {
       this.$logger.info('close tag', closeTagItem)
 
-      const fieldItem = this.customTags.find(customTagItem => customTagItem.fieldName === this.fieldName)
-      this.$logger.info('close tag fieldItem', fieldItem)
-      if (fieldItem) {
-        const index = fieldItem.tags.findIndex(tagItem => closeTagItem.set === tagItem.set && tagItem.tag === closeTagItem.tag)
-        if (index > -1) {
-          fieldItem.tags.splice(index, 1)
-        }
+      const index = this.selectedTagList.findIndex(customTagItem => customTagItem.name === closeTagItem.tag && customTagItem.category === closeTagItem.set)
+      if (index > -1) {
+        this.selectedTagList.splice(index, 1)
       }
-      this.$emit('update:customTag', this.customTags)
-      this.$logger.info('after close tag customTags', this.customTags)
+      this.$emit('update:customTags', this.selectedTagList)
+      this.$logger.info('after close tag customTags', this.selectedTagList)
     },
 
     async createTag () {
@@ -380,29 +366,16 @@ export default {
 
     selectTag (category, selectTagItem) {
       this.$logger.info('select tag', category, selectTagItem)
-      const fieldItem = this.customTags.find(customTagItem => customTagItem.fieldName === this.fieldName)
-      this.$logger.info('select tag fieldItem', fieldItem)
-      if (fieldItem) {
-        const tagItem = fieldItem.tags.find(tagItem => tagItem.set === category.set && tagItem.tag === selectTagItem.tag)
-        if (!tagItem) {
-          fieldItem.tags.push({
-            set: category.set,
-            tag: selectTagItem.tag,
-            tagColor: category.tagColor
-          })
-        }
-      } else {
-        this.customTags.push({
-          fieldName: this.fieldName,
-          tags: [{
-            set: category.set,
-            tag: selectTagItem.tag,
-            tagColor: category.tagColor
-          }]
+      const index = this.selectedTagList.findIndex(customTagItem => customTagItem.name === selectTagItem.tag && customTagItem.category === selectTagItem.set)
+      if (index === -1) {
+        this.selectedTagList.push({
+          category: category.set,
+          name: selectTagItem.tag,
+          tagColor: category.tagColor
         })
       }
-      this.$emit('update:customTag', this.customTags)
-      this.$logger.info('after selectTag customTags', this.customTags)
+      this.$emit('update:customTags', this.selectedTagList)
+      this.$logger.info('after selectTag customTags', this.selectedTagList)
     },
 
     updateTagCategoryTooltip () {
@@ -425,7 +398,7 @@ export default {
 
     activeCategory (tagItem) {
       this.$logger.info('activeCategory', tagItem)
-      const category = this.allTagList.find(category => category.set === tagItem.set)
+      const category = this.allTagList.find(category => category.set === tagItem.category)
       if (category) {
         this.switchCategory(category)
       }

@@ -5,7 +5,6 @@ export const FormConfigMixin = {
     return {
       PlanField: PlanField,
       taskField: TaskField,
-      currentFocusFieldName: null,
       formConfigPreviewData: null
     }
   },

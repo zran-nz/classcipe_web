@@ -37,7 +37,7 @@
             :key='step.id'>
             <div class='form-field-item' v-for='fieldItem in $store.getters.formConfigData.taskCommonList' :key='fieldItem.id'>
               <template v-if='step.commonFields.indexOf(fieldItem.fieldName) !== -1'>
-                <div class='form-block tag-content-block' @click='activeField(taskField.Name)' :data-field-name='taskField.Name' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Name' :key='fieldItem.fieldName' >
+                <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Name' :key='fieldItem.fieldName' >
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Name />
                   <custom-form-item :required='emptyRequiredFields.indexOf(taskField.Name) !== -1'>
                     <template slot='label'>
@@ -62,8 +62,6 @@
 
                 <div
                   class='form-block over-form-block tag-content-block'
-                  @click='activeField(taskField.Overview)'
-                  :data-field-name='taskField.Overview'
                   id='overview'
                   v-if='fieldItem.visible && fieldItem.fieldName === taskField.Overview'
                   :key='fieldItem.fieldName'>
@@ -96,7 +94,7 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block taskType tag-content-block' @click='activeField(taskField.TaskType)' :data-field-name='taskField.TaskType' v-if='fieldItem.visible && fieldItem.fieldName === taskField.TaskType' :key='fieldItem.fieldName'>
+                <div class='form-block taskType tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.TaskType' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.TaskType style="left:20px" />
                   <custom-form-item class='task-audio-line' ref='taskType' :colon='false' :required='emptyRequiredFields.indexOf(taskField.TaskType) !== -1'>
                     <template slot='label'>
@@ -135,7 +133,7 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block form-question tag-content-block' @click='activeField(taskField.Question)' :data-field-name='taskField.Question' v-if='associateQuestionList.length > 0 && fieldItem.visible && fieldItem.fieldName === taskField.Question' :key='fieldItem.fieldName'>
+                <div class='form-block form-question tag-content-block' v-if='associateQuestionList.length > 0 && fieldItem.visible && fieldItem.fieldName === taskField.Question' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Question />
                   <custom-form-item :required='emptyRequiredFields.indexOf(taskField.Question) !== -1'>
                     <template slot='label'>
@@ -179,7 +177,7 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block tag-content-block' @click='activeField(taskField.LearnOuts)' :data-field-name='taskField.LearnOuts' v-if='fieldItem.visible && fieldItem.fieldName === taskField.LearnOuts' :key='fieldItem.fieldName'>
+                <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.LearnOuts' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.LearnOuts style="left:100px" />
                   <custom-form-item :required='emptyRequiredFields.indexOf(taskField.LearnOuts) !== -1'>
                     <template slot='label'>
@@ -198,8 +196,6 @@
 
                 <div
                   class='form-block tag-content-block material-list-block'
-                  @click='activeField(taskField.MaterialList)'
-                  :data-field-name='taskField.MaterialList'
                   style='clear: both'
                   v-if='fieldItem.visible && fieldItem.fieldName === taskField.MaterialList'
                   :key='fieldItem.fieldName'>
@@ -278,7 +274,7 @@
                   </div>
                 </div>
 
-                <div class='form-block tag-content-block' @click='activeField(taskField.Slides)' :data-field-name='taskField.Slides' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Slides' :key='fieldItem.fieldName'>
+                <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Slides' :key='fieldItem.fieldName'>
                   <form-slide
                     :source-type='contentType.task'
                     :source-id='taskId'
@@ -296,13 +292,13 @@
                   />
                 </div>
 
-                <div class='form-block tag-content-block' @click='activeField(taskField.Link)' :data-field-name='taskField.Link' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Link' :key='fieldItem.fieldName'>
+                <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Link' :key='fieldItem.fieldName'>
                   <div class='common-link-wrapper'>
                     <form-linked-content :from-id='taskId' :from-type='contentType.task'/>
                   </div>
                 </div>
 
-                <div class='form-block' @click='activeField(taskField.Image)' :data-field-name='taskField.Image' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Image' :key='fieldItem.fieldName'>
+                <div class='form-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Image' :key='fieldItem.fieldName'>
                   <!-- image-->
                   <custom-form-item class='img-wrapper' :required='emptyRequiredFields.indexOf(taskField.Image) !== -1'>
                     <template slot='label'>
@@ -390,10 +386,9 @@
             <slide-select-list :source-id='taskId' :selected-template-list='form.selectedTemplateList' />
           </template>
           <template v-if='currentRightModule === rightModule.customTag'>
-            <div v-if='!contentLoading && currentFocusFieldName'>
+            <div v-if='!contentLoading'>
               <custom-tag-v3
                 :custom-tags.sync='form.customTags'
-                :field-name='currentFocusFieldName'
                 :associate-id-type-list='associateIdTypeList'
                 :is-load-associate-tags='true'
               />
@@ -829,11 +824,6 @@ export default {
           }
           this.$logger.info('displayCustomFieldData', displayCustomFieldData)
           taskData.customFieldData = displayCustomFieldData
-          if (taskData.customTags && taskData.customTags.length) {
-            if (!taskData.customTags[0].fieldName) {
-              taskData.customTags = []
-            }
-          }
           this.form = taskData
           this.form.showSelected = taskData.showSelected ? taskData.showSelected : false
           this.form.bloomCategories = this.form.bloomCategories ? this.form.bloomCategories : undefined // 为了展示placeholder
@@ -1264,11 +1254,6 @@ export default {
         this.formBodyWidth = '55%'
         this.tagBodyWidth = '45%'
       }
-    },
-
-    activeField(fieldName) {
-      this.$logger.info('activeField ', fieldName)
-      this.currentFocusFieldName = fieldName
     },
 
     // 切换当前的字段的点评数据，从总的collaborateCommentList筛选初当前字段相关的点评数据
