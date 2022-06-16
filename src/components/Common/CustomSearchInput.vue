@@ -9,6 +9,10 @@
     <div class='search-icon' @click='handleSearch'>
       <search-icon />
     </div>
+
+    <div v-if="data" class="search-close" @click='handleClear'>
+      <a-icon type="close" />
+    </div>
   </div>
 </template>
 
@@ -56,6 +60,9 @@ export default {
     handleUpdateValue () {
       this.$emit('update:value', this.data)
       this.$emit('change', this.data)
+    },
+    handleClear() {
+      this.data = ''
     }
   }
 }
@@ -70,6 +77,18 @@ export default {
   align-items: center;
   flex-direction: row;
   cursor: pointer;
+
+  .search-close{
+    position: absolute;
+    right: 5px;
+    cursor: pointer;
+    font-size: 12px;
+    top: 6px;
+    &:hover {
+     font-weight: bold;
+      color:#17181A
+    }
+  }
 
   .search-icon {
     position: absolute;
