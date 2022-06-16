@@ -50,7 +50,7 @@
         <div class='category-content'>
           <template v-if="currentActiveTagCategory">
             <div class="search-tag-wrapper tag-wrapper" v-if="filterTagList.length > 0">
-              <div class="skt-tag-item" v-for="tagItem in filterTagList" :key="tagItem.name" @click.stop=''>
+              <div class="skt-tag-item" :class="{'active-tag-block': tagItem.expand}" v-for="tagItem in filterTagList" :key="tagItem.name" @click.stop=''>
                 <a-tag
                   @click="selectTag(currentActiveTagCategory, tagItem)"
                   :style="{ 'background-color': currentActiveTagCategory.tagColor || '#fff', 'border-color': currentActiveTagCategory.tagColor || '#15c39a'}"
@@ -101,7 +101,6 @@ import CommonNoData from '@/components/Common/CommonNoData'
 import CustomPdTagCategoryBar from '@/components/CustomTag/CustomPdTagCategoryBar'
 import CustomSearchInput from '@/components/Common/CustomSearchInput'
 import TagSetting from '@/components/UnitPlan/TagSetting'
-import * as logger from '@/utils/logger'
 
 const setColor = [
   '#FFEDAF',
@@ -521,6 +520,13 @@ export default {
   border-radius: 5px;
   margin-top: 10px;
   background: #f1f1f17d;
+}
+
+.active-tag-block {
+  width: 100%;
+  padding: 10px;
+  border-radius: 3px;
+  border: 1px solid #f1f1f1;
 }
 
 </style>
