@@ -1,5 +1,5 @@
 import storage from 'store'
-import { SET_CURRICULUM_LIST, SET_PRI_TAG, SET_PUB_TAG, SET_PD_TAG} from '@/store/mutation-types'
+import { SET_CURRICULUM_LIST, SET_PRI_TAG, SET_PUB_TAG, SET_PD_TAG } from '@/store/mutation-types'
 import * as logger from '@/utils/logger'
 import { getAllCurriculums } from '@/api/preference'
 
@@ -95,6 +95,7 @@ const classcipeConfig = {
           Object.keys(pdTagList[category]).forEach(subCategory => {
             subCategoryList.push({
               category,
+              key: `${category}_${subCategory}`,
               subCategory,
               name: subCategory,
               isSubCategory: true,
@@ -102,6 +103,7 @@ const classcipeConfig = {
               expand: false,
               children: pdTagList[category][subCategory].map(tag => {
                 return {
+                  key: `${category}_${subCategory}_${tag}`,
                   category,
                   subCategory,
                   name: tag,

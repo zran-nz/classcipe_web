@@ -25,7 +25,6 @@
       :content-id='previewCurrentId'
       :content-type='previewType'
       :show-buy-button="cardMode === 'library'"
-      :show-copy-button="cardMode === 'resource'"
       :show-edit-button='true'
       v-if='previewVisible'
       @close='handlePreviewClose' />

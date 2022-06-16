@@ -14,18 +14,18 @@
       <div class='tag-content-wrapper'>
         <div class='selected-tag'>
           <div class="skt-tag-list">
-            <div class="skt-tag-item" :class="{'active-category-tag': activeCategoryTagList.indexOf(tagItem) !== -1}" v-for="(tagItem, idx) in customTags" :key="idx" @click='activeCategory(tagItem)'>
+            <div class="skt-tag-item" :class="{'active-category-tag': activeCategoryKeyList.some((key) => tagItem.key.startsWith(key)) }" v-for="(tagItem) in selectedTagList" :key="tagItem.key" @click='activeCategory(tagItem)'>
               <a-tag
                 closable
                 @close="closeTag(tagItem)"
                 :color="tagItem.tagColor"
                 class='tag-item'>
-                {{ tagItem }}
+                {{ tagItem.name }}
               </a-tag>
             </div>
           </div>
         </div>
-        <div class='no-selected-tag' v-show='customTags.length === 0 && !loading'>
+        <div class='no-selected-tag' v-show='selectedTagList && selectedTagList.length === 0 && !loading'>
           <common-no-data text='No tag' />
         </div>
       </div>
@@ -50,7 +50,7 @@
         <div class='category-content'>
           <template v-if="currentActiveTagCategory">
             <div class="search-tag-wrapper tag-wrapper" v-if="filterTagList.length > 0">
-              <div class="skt-tag-item" v-for="tagItem in filterTagList" :key="tagItem.name" >
+              <div class="skt-tag-item" v-for="tagItem in filterTagList" :key="tagItem.name" @click.stop=''>
                 <a-tag
                   @click="selectTag(currentActiveTagCategory, tagItem)"
                   :style="{ 'background-color': currentActiveTagCategory.tagColor || '#fff', 'border-color': currentActiveTagCategory.tagColor || '#15c39a'}"
@@ -61,9 +61,8 @@
                 <div class='sub-tag-block' v-if='tagItem.expand' @click.stop=''>
                   <div slot="content" @click.stop=''>
                     <div class="search-tag-wrapper tag-wrapper" v-if="tagItem.children.length > 0">
-                      <div class="skt-tag-item" v-for="tag in tagItem.children" :key="tag.name" >
+                      <div class="skt-tag-item" v-for="tag in tagItem.children" :key="tag.name" @click.stop="selectTag(currentActiveTagCategory, tag)">
                         <a-tag
-                          @click.native.stop="selectTag(currentActiveTagCategory, tag)"
                           :style="{ 'background-color': currentActiveTagCategory.tagColor || '#fff', 'border-color': currentActiveTagCategory.tagColor || '#15c39a'}"
                           :class="{ 'selected-tag-item': selectedTagNameList.indexOf(tag.name) !== -1 }"
                           class="tag-item cc-custom-tag-item">
@@ -102,6 +101,7 @@ import CommonNoData from '@/components/Common/CommonNoData'
 import CustomPdTagCategoryBar from '@/components/CustomTag/CustomPdTagCategoryBar'
 import CustomSearchInput from '@/components/Common/CustomSearchInput'
 import TagSetting from '@/components/UnitPlan/TagSetting'
+import * as logger from '@/utils/logger'
 
 const setColor = [
   '#FFEDAF',
@@ -123,16 +123,12 @@ export default {
     customTags: {
       type: Array,
       default: () => []
-    },
-    fieldName: {
-      type: String,
-      default: null
     }
   },
   data() {
     return {
       loading: true,
-      customTagList: [],
+      selectedTagList: [],
 
       associateCustomTags: [],
       associateTagContents: {},
@@ -142,6 +138,15 @@ export default {
       currentActiveTagCategory: null,
 
       inputTag: ''
+    }
+  },
+  watch: {
+    customTags: {
+      deep: true,
+      immediate: true,
+      handler (v) {
+        this.selectedTagList = JSON.parse(JSON.stringify(v))
+      }
     }
   },
   computed: {
@@ -168,7 +173,7 @@ export default {
     },
 
     selectedTagNameList () {
-      return this.customTags.map(item => item.name)
+      return this.selectedTagList.map(item => item.name)
     },
 
     filterTagList() {
@@ -200,15 +205,16 @@ export default {
       return category
     },
 
-    activeCategoryTagList() {
+    activeCategoryKeyList() {
       if (this.currentActiveTagCategory) {
-        const list = this.currentActiveTagCategory.children.slice()
+        const keySet = new Set()
         this.currentActiveTagCategory.children.forEach(subCategory => {
+          keySet.add(subCategory.key)
           subCategory.children.forEach(tag => {
-            list.push(tag)
+            keySet.add(tag.key)
           })
         })
-        return list
+        return Array.from(keySet)
       } else {
         return []
       }
@@ -216,6 +222,9 @@ export default {
   },
   created() {
     this.initTagData()
+  },
+  mounted () {
+    this.globalClick(this.handleClick)
   },
   methods: {
 
@@ -227,7 +236,7 @@ export default {
         if (!this.currentActiveTagCategory) {
           this.currentActiveTagCategory = this.allTagList.length ? this.allTagList[0] : null
         } else {
-          const index = this.allTagList.findIndex(item => item.set === this.currentActiveTagCategory.set)
+          const index = this.allTagList.findIndex(item => item.category === this.currentActiveTagCategory.category)
           if (index === -1) {
             this.currentActiveTagCategory = this.allTagList.length ? this.allTagList[0] : null
           } else {
@@ -241,50 +250,25 @@ export default {
     closeTag (closeTagItem) {
       this.$logger.info('close tag', closeTagItem)
 
-      const index = this.customTags.findIndex(customTagItem => customTagItem.name === closeTagItem.name &&
-        closeTagItem.isSubCategory === customTagItem.isSubCategory &&
-        closeTagItem.isTag === customTagItem.isTag)
-      this.$logger.info('close tag fieldItem isSubCategory', index)
+      const index = this.selectedTagList.findIndex(selectedTagItem => selectedTagItem.key === closeTagItem.key)
       if (index > -1) {
-        this.$emit('update:customTag', this.customTags.slice(0).splice(index, 1))
+        this.selectedTagList.splice(index, 1)
       }
-      this.$logger.info('after close tag customTags', this.customTags)
-    },
-
-    async deleteTag (deleteTagItem) {
-      this.$logger.info('delete tag', deleteTagItem)
-      if (deleteTagItem && deleteTagItem.isPri && this.currentActiveTagCategory) {
-        // eslint-disable-next-line no-undef
-        const ret = await App.service('tags').patch(this.currentActiveTagCategory._id, { $pull: { tags: [deleteTagItem.tag] } })
-        this.$logger.info('deleteTag tag ret', ret)
-        const index = this.currentActiveTagCategory.tags.findIndex(tagItem => tagItem.tag === deleteTagItem.tag)
-        if (index > -1) {
-          this.currentActiveTagCategory.tags.splice(index, 1)
-        }
-      }
+      this.$logger.info('after close tag customTags', this.selectedTagList)
+      this.$emit('update:customTags', this.selectedTagList)
     },
 
     selectTag (category, selectTagItem) {
-      this.$logger.info('select tag', category, selectTagItem)
-      const targetTagItem = this.customTags.find(customTagItem => customTagItem.fieldName === this.fieldName)
-      this.$logger.info('select targetTagItem', targetTagItem)
-      if (targetTagItem && targetTagItem.isSubCategory) {
-        const tagItem = targetTagItem.tags.find(tagItem => tagItem.category === category.category && tagItem.name === selectTagItem.name)
-        if (!tagItem) {
-          targetTagItem.tags.push(tagItem)
-        }
-      } else if (targetTagItem && targetTagItem.isTag) {
-        this.customTags.push({
-          fieldName: this.fieldName,
-          tags: [selectTagItem]
-        })
+      this.$logger.info(`select ${category.category} tag ${selectTagItem.name}`, this.customTags, category, selectTagItem)
+      const index = this.selectedTagList.findIndex(selectedTagItem => selectedTagItem.key === selectTagItem.key)
+      if (index === -1) {
+        this.selectedTagList.push(selectTagItem)
       }
-      this.currentActiveTagCategory.children.forEach(item => { item.expand = false })
-      if (selectTagItem.hasOwnProperty('expand')) {
+      if (selectTagItem.hasOwnProperty('expand') && selectTagItem.isSubCategory) {
+        this.currentActiveTagCategory.children.forEach(item => { item.expand = false })
         selectTagItem.expand = !selectTagItem.expand
       }
-      this.$emit('update:customTag', this.customTags)
-      this.$logger.info('after selectTag customTags', this.customTags)
+      this.$emit('update:customTags', this.selectedTagList)
     },
 
     switchCategory (category) {
@@ -299,19 +283,15 @@ export default {
       this.inputTag = ''
     },
 
+    handleClick () {
+      this.currentActiveTagCategory.children.forEach(item => { item.expand = false })
+    },
+
     activeCategory (tagItem) {
       this.$logger.info('activeCategory', tagItem)
       const category = this.allTagList.find(category => category.category === tagItem.category)
       if (category) {
         this.switchCategory(category)
-      }
-    },
-
-    getTagAssociateContentList (tag) {
-      if (this.associateTagContents[tag]) {
-        return this.associateTagContents[tag]
-      } else {
-        return null
       }
     }
   }
@@ -371,7 +351,7 @@ export default {
           position: relative;
 
           .skt-tag-item {
-            margin: 10px 10px 10px 0;
+            margin: 5px 10px 5px 0;
             display: flex;
             flex-direction: row;
             justify-content: center;
@@ -496,7 +476,7 @@ export default {
       flex-wrap: wrap;
 
       .skt-tag-item {
-        margin: 0 10px 10px 0;
+        margin: 5px 10px 5px 0;
         cursor: pointer;
         .ant-tag {
           cursor: pointer;
@@ -540,7 +520,7 @@ export default {
   padding: 10px;
   border-radius: 5px;
   margin-top: 10px;
-  background: #f1f1f1;
+  background: #f1f1f17d;
 }
 
 </style>
