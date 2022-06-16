@@ -238,7 +238,7 @@ export default {
     },
 
     selectedTagNameList () {
-      return this.selectedTagList.map(tag => tag.tag)
+      return this.selectedTagList.map(tag => tag.name)
     },
 
     filterTagList() {
@@ -287,9 +287,7 @@ export default {
       this.associateCustomTags.forEach(item => {
         const customTags = item.customTags
         customTags.forEach(customTag => {
-          customTag.tags.forEach(tag => {
-            categorySet.add(tag.set)
-          })
+          categorySet.add(customTag.category)
         })
       })
       return Array.from(categorySet)
@@ -332,7 +330,7 @@ export default {
     closeTag (closeTagItem) {
       this.$logger.info('close tag', closeTagItem)
 
-      const index = this.selectedTagList.findIndex(customTagItem => customTagItem.name === closeTagItem.tag && customTagItem.category === closeTagItem.set)
+      const index = this.selectedTagList.findIndex(customTagItem => customTagItem.name === closeTagItem.name && customTagItem.category === closeTagItem.category)
       if (index > -1) {
         this.selectedTagList.splice(index, 1)
       }
@@ -407,7 +405,16 @@ export default {
     loadAssociateCustomTags (idTypeList) {
       this.$logger.info('loadAssociateCustomTags', idTypeList)
       if (idTypeList.length) {
-        QueryCustomTags(idTypeList).then(response => {
+        const idTypeSet = new Set()
+        const idTypeListSet = []
+        idTypeList.forEach(item => {
+          const key = `${item.id}_${item.type}`
+          if (!idTypeSet.has(key)) {
+            idTypeSet.add(key)
+            idTypeListSet.push(item)
+          }
+        })
+        QueryCustomTags(Array.from(idTypeListSet)).then(response => {
           this.$logger.info('loadAssociateCustomTags customTags', response)
           this.associateCustomTags = response.result
 
@@ -415,13 +422,11 @@ export default {
           this.associateCustomTags.forEach(item => {
             const content = item.vo
             item.customTags.forEach(customTag => {
-              customTag.tags.forEach(tag => {
-                if (!associateTagContents[tag.tag]) {
-                  associateTagContents[tag.tag] = [content]
-                } else {
-                  associateTagContents[tag.tag].push(content)
-                }
-              })
+              if (!associateTagContents[customTag.name]) {
+                associateTagContents[customTag.name] = [content]
+              } else {
+                associateTagContents[customTag.name].push(content)
+              }
             })
           })
           this.associateTagContents = associateTagContents

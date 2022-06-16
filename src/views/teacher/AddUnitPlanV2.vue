@@ -37,7 +37,7 @@
             :key='step.id'>
             <div class='form-field-item' v-for='fieldItem in $store.getters.formConfigData.planCommonList' :key='fieldItem.id'>
               <template v-if='step.commonFields.indexOf(fieldItem.fieldName) !== -1'>
-                <div class='form-block tag-content-block' @click='activeField(planField.Name)' :data-field-name='planField.Name' v-if='fieldItem.visible && fieldItem.fieldName === planField.Name' :key='fieldItem.fieldName'>
+                <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === planField.Name' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Name />
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.Name) !== -1'>
                     <template slot='label'>
@@ -64,8 +64,6 @@
 
                 <div
                   class='form-block tag-content-block'
-                  @click='activeField(planField.Overview)'
-                  :data-field-name='planField.Overview'
                   id='overview'
                   v-if='fieldItem.visible && fieldItem.fieldName === planField.Overview'
                   :key='fieldItem.fieldName'>
@@ -100,7 +98,7 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block form-radio-wrapper tag-content-block' @click='activeField(planField.ProjectBased)' :data-field-name='planField.ProjectBased' v-if='fieldItem.visible && fieldItem.fieldName === planField.ProjectBased' :key='fieldItem.fieldName'>
+                <div class='form-block form-radio-wrapper tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === planField.ProjectBased' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.ProjectBased style="top:-30px" />
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.ProjectBased) !== -1'>
                     <template slot='label'>
@@ -130,7 +128,7 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block form-radio-wrapper tag-content-block' @click='activeField(planField.UnitType)' :data-field-name='planField.UnitType' v-if='fieldItem.visible && fieldItem.fieldName === planField.UnitType' :key='fieldItem.fieldName'>
+                <div class='form-block form-radio-wrapper tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === planField.UnitType' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.UnitType style="top:-30px"/>
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.UnitType) !== -1'>
                     <template slot='label'>
@@ -159,7 +157,7 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block grade-time tag-content-block' @click='activeField(planField.GradeIds)' :data-field-name='planField.GradeIds' v-if="fieldItem.visible && fieldItem.fieldName === planField.GradeId" :key='fieldItem.fieldName'>
+                <div class='form-block grade-time tag-content-block' v-if="fieldItem.visible && fieldItem.fieldName === planField.GradeId" :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.StartDate />
                   <custom-form-item style='width:23%;margin-bottom: 0px;' :required='emptyRequiredFields.indexOf(planField.GradeIds) !== -1'>
                     <template slot='label'>
@@ -196,8 +194,6 @@
                 <div
                   id='inquiry'
                   class='form-block tag-content-block'
-                  @click='activeField(planField.Inquiry)'
-                  :data-field-name='planField.Inquiry'
                   v-if="fieldItem.visible && fieldItem.fieldName === planField.Inquiry"
                   :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :field-name='planField.Inquiry'/>
@@ -235,7 +231,7 @@
                   </a-tooltip>
                 </div>
 
-                <div class='form-block tag-content-block' @click='activeField(planField.Scenarios)' :data-field-name='planField.Scenarios' v-if="fieldItem.visible && fieldItem.fieldName === planField.Scenarios" :key='fieldItem.fieldName'>
+                <div class='form-block tag-content-block' v-if="fieldItem.visible && fieldItem.fieldName === planField.Scenarios" :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Sdg />
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.Sdg) !== -1'>
                     <template slot='label'>
@@ -310,7 +306,7 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block form-block-rwc tag-content-block' @click='activeField(planField.Rwc)' :data-field-name='planField.Rwc' v-if="fieldItem.visible && fieldItem.fieldName === planField.Rwc" :key='fieldItem.fieldName'>
+                <div class='form-block form-block-rwc tag-content-block' v-if="fieldItem.visible && fieldItem.fieldName === planField.Rwc" :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Rwc />
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.Rwc) !== -1'>
                     <template slot='label'>
@@ -337,8 +333,6 @@
 
                 <div
                   :class="{'form-block': true, 'form-block-disabled' : $store.getters.userInfo.disableQuestion, 'tag-content-block': true}"
-                  @click='activeField(planField.Question)'
-                  :data-field-name='planField.Question'
                   v-if="fieldItem.visible && fieldItem.fieldName === planField.Question"
                   :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Question />
@@ -412,7 +406,7 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block tag-content-block' @click='activeField(planField.LearnOuts)' :data-field-name='planField.LearnOuts' v-if="fieldItem.visible && fieldItem.fieldName === planField.LearnOuts" :key='fieldItem.fieldName'>
+                <div class='form-block tag-content-block' v-if="fieldItem.visible && fieldItem.fieldName === planField.LearnOuts" :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Assessment style="left:100px" />
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.LearnOuts) !== -1'>
                     <template slot='label'>
@@ -430,8 +424,6 @@
 
                 <div
                   class='form-block tag-content-block'
-                  @click='activeField(planField.Prior)'
-                  :data-field-name='planField.Prior'
                   style='clear:both'
                   v-if="fieldItem.visible && fieldItem.fieldName === planField.Prior"
                   :key='fieldItem.fieldName'>
@@ -465,13 +457,13 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block tag-content-block' @click='activeField(planField.Link)' :data-field-name='planField.Link' v-if='fieldItem.visible && fieldItem.fieldName === planField.Link' :key='fieldItem.fieldName'>
+                <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === planField.Link' :key='fieldItem.fieldName'>
                   <div class='form-block'>
                     <unit-linked-content :from-id='unitPlanId' />
                   </div>
                 </div>
 
-                <div class='form-block' @click='activeField(planField.Image)' :data-field-name='planField.Image' v-if='fieldItem.visible && fieldItem.fieldName === planField.Image' :key='fieldItem.fieldName'>
+                <div class='form-block' v-if='fieldItem.visible && fieldItem.fieldName === planField.Image' :key='fieldItem.fieldName'>
                   <!-- image-->
                   <custom-form-item class='img-wrapper' :required='emptyRequiredFields.indexOf(planField.Image) !== -1'>
                     <template slot='label'>
@@ -549,7 +541,10 @@
 
           <template v-if='currentRightModule === rightModule.customTag'>
             <div v-show='!this.contentLoading' >
-              <custom-tag-v3 :custom-tags.sync='form.customTags' :field-name='currentFocusFieldName' />
+              <custom-tag-v3
+                :custom-tags.sync='form.customTags'
+                :associate-id-type-list='associateIdTypeList'
+                :is-load-associate-tags='true' />
             </div>
           </template>
 
@@ -1239,11 +1234,6 @@ export default {
           unitPlanData.customFieldData = displayCustomFieldData
 
           this.saving = true
-          if (unitPlanData.customTags && unitPlanData.customTags.length) {
-            if (!unitPlanData.customTags[0].fieldName) {
-              unitPlanData.customTags = []
-            }
-          }
           this.form = unitPlanData
           if (unitPlanData.questions.length === 0) {
             this.form.questions.push({ name: '' })
@@ -1601,11 +1591,6 @@ export default {
         this.formBodyWidth = '55%'
         this.tagBodyWidth = '45%'
       }
-    },
-
-    activeField(fieldName) {
-      this.$logger.info('activeField ', fieldName)
-      this.currentFocusFieldName = fieldName
     },
 
     handleSwitchComment(data) {
