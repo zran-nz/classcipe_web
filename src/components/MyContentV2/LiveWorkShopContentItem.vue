@@ -22,10 +22,11 @@
               <a-icon type="close" @click.stop.prevent="handleCancelSingle(content)"/>
             </div>
           </div>
-          <div class='tag-info'></div>
-          <!-- <div class='owner'>
-            {{ content.userRealName || content.content.createBy }}
-          </div> -->
+          <div class='tag-info'>
+            <div class='tag-info-item' v-for='(customTag, idx) in content.customTags' :key='idx'>
+              <a-tag color='#FFEDAF' class='tag-item' :title='customTag.category'> {{ customTag.name }} </a-tag>
+            </div>
+          </div>
         </div>
         <div class='right-info' v-if="content.sessionStartTime">
           <div class='update-time' v-show="!showEditSche">
@@ -803,4 +804,34 @@ export default {
     }
   }
 }
+
+.tag-item {
+  opacity: 0.8;
+  cursor: pointer;
+  color: #734110;
+  font-size: 12px;
+  border-radius: 30px;
+  line-height: 25px;
+  word-break: normal;
+  width: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow: hidden;
+  transition: all 0.3s ease;
+
+  /deep/ .anticon-close {
+    opacity: 0;
+    color: #f26c59;
+  }
+
+  &:hover {
+    /deep/ .anticon-close {
+      opacity: 1;
+    }
+  }
+}
+
 </style>

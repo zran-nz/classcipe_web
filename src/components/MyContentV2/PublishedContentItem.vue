@@ -54,9 +54,8 @@
             </a-space>
           </div>
           <div class='tag-info'>
-            <div class='tag-info-item'>
-            </div>
-            <div class='tag-info-item'>
+            <div class='tag-info-item' v-for='(customTag, idx) in content.customTags' :key='idx'>
+              <a-tag color='#FFEDAF' class='tag-item' :title='customTag.category'> {{ customTag.name }} </a-tag>
             </div>
           </div>
           <div class='owner'>
@@ -388,10 +387,15 @@ export default {
         }
 
         .tag-info {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: flex-start;
+          flex-wrap: wrap;
+          margin-top: 5px;
+          margin-bottom: 5px;
           .tag-info-item {
-            height: 1rem;
-            line-height: 1rem;
-            font-size: 0.6rem;
+            margin-right: 5px;
           }
         }
       }
@@ -576,4 +580,34 @@ export default {
     padding-left: 5px;
   }
 }
+
+.tag-item {
+  opacity: 0.8;
+  cursor: pointer;
+  color: #734110;
+  font-size: 12px;
+  border-radius: 30px;
+  line-height: 25px;
+  word-break: normal;
+  width: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow: hidden;
+  transition: all 0.3s ease;
+
+  /deep/ .anticon-close {
+    opacity: 0;
+    color: #f26c59;
+  }
+
+  &:hover {
+    /deep/ .anticon-close {
+      opacity: 1;
+    }
+  }
+}
+
 </style>
