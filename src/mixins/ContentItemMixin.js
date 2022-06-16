@@ -5,7 +5,19 @@ export const ContentItemMixin = {
       allowPreview: true,
       previewCurrentId: null,
       previewType: null,
-      previewVisible: false
+      previewVisible: false,
+      setColor: [
+        '#FFEDAF',
+        '#C8F4FF',
+        '#E6E4FF',
+        '#ffccb0',
+        '#ffa9a2',
+        '#a3ecb9',
+        '#f7c5f8',
+        '#ffbfe2',
+        '#d5b9ff',
+        '#c4f6b1'
+      ]
     }
   },
   methods: {
