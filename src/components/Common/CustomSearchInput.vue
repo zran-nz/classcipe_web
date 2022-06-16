@@ -9,7 +9,6 @@
     <div class='search-icon' @click='handleSearch'>
       <search-icon />
     </div>
-
     <div v-if="data" class="search-close" @click='handleClear'>
       <a-icon type="close" />
     </div>
@@ -63,6 +62,7 @@ export default {
     },
     handleClear() {
       this.data = ''
+      this.handleUpdateValue()
     }
   }
 }
