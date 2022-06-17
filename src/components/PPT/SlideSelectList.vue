@@ -19,7 +19,9 @@
       </a-select>
     </div>
     <div class='search-bar'>
-      <content-filter @search='handleSearchByInputFilter'/>
+      <template-filter v-if="filterSourceType === sourceType.SlideTemplate" @search='handleSearchByInputFilter'/>
+
+      <content-filter v-else @search='handleSearchByInputFilter'/>
     </div>
     <div class='slide-list'>
       <template v-if='searching'>
@@ -82,6 +84,7 @@ import { mapState } from 'vuex'
 import ContentPreview from '@/components/Preview/ContentPreview'
 import * as logger from '@/utils/logger'
 import SlideEvent from '@/components/PPT/SlideEvent'
+import TemplateFilter from '@/components/MyContentV2/TemplateFilter'
 
 const sourceType = {
   Recommend: 1,
@@ -91,7 +94,7 @@ const sourceType = {
 
 export default {
   name: 'SlideSelectList',
-  components: { ContentPreview, SlideViewer, CommonNoData, ContentFilter, CustomSearchInput, PreviewCarousel },
+  components: { ContentPreview, SlideViewer, CommonNoData, ContentFilter, CustomSearchInput, PreviewCarousel, TemplateFilter },
   props: {
     sourceId: {
       type: String,

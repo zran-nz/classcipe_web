@@ -18,7 +18,7 @@
           </router-link>
         </a-menu-item>
         <a-menu-item>
-          <router-link to='/teacher/pd-content-redirect/create'>
+          <router-link to='/teacher/pd-content-redirect'>
             PD Content
           </router-link>
         </a-menu-item>
