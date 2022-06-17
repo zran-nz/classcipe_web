@@ -642,7 +642,7 @@ export default {
 
   .template-select-header {
     background: rgba(255, 255, 255, 0.2);
-    border: 1px solid #ddd;
+    //border: 1px solid #ddd;
     opacity: 1;
     border-radius: 4px;
     padding: 10px;
