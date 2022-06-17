@@ -3,6 +3,7 @@
     <div class='tag-header'>
       <div class='tag-selected-label'>
         Selected tags
+        <template v-if='selectedTagList.length'>({{ selectedTagList.length }})</template>
       </div>
       <div class='tag-setting'>
         <a-icon type="setting" @click='handleSetting' />

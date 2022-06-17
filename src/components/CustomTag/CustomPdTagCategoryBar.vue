@@ -14,6 +14,9 @@
           <div class="action-icon">
             <div class="tag-title-item">
               <div class="tag-title">{{ categoryItem.category }}</div>
+              <div class='tag-tips-icon' v-if='categoryItem.category === "Difficulty level"' @click='showDifficultyLevelTips'>
+                <a-icon type="question-circle" alt='"Difficulty level' />
+              </div>
             </div>
           </div>
         </div>
@@ -22,6 +25,18 @@
         <a-icon type="right-circle" theme="filled" :style="{color: '#4A8DBC', fontSize: '18px'}"/>
       </div>
     </div>
+
+    <a-modal
+      v-model="visible"
+      :footer="null"
+      destroyOnClose
+      width="1000px"
+      :title="null"
+      :body-style="{padding: '0'}"
+      @ok="visible = false"
+      @cancel="visible = false">
+      <img src="~@/assets/v2/static/Rubric.jpg" alt='Rubric' class='difficulty-level-tip-img' />
+    </a-modal>
   </div>
 </template>
 
@@ -43,7 +58,9 @@ export default {
     }
   },
   data() {
-    return {}
+    return {
+      visible: false
+    }
   },
   created() {
   },
@@ -52,7 +69,7 @@ export default {
       this.$logger.info('scrollLeft')
       const tagCategoryTabDom = document.getElementById('cc-user-tag-category-tabs')
       tagCategoryTabDom.scrollTo({
-        left: tagCategoryTabDom.scrollLeft - 300,
+        left: tagCategoryTabDom.scrollLeft - 400,
         behavior: 'smooth'
       })
     },
@@ -60,7 +77,7 @@ export default {
       this.$logger.info('scrollRight')
       const tagCategoryTabDom = document.getElementById('cc-user-tag-category-tabs')
       tagCategoryTabDom.scrollTo({
-        left: tagCategoryTabDom.scrollLeft + 300,
+        left: tagCategoryTabDom.scrollLeft + 400,
         behavior: 'smooth'
       })
     },
@@ -79,6 +96,10 @@ export default {
           block: 'center'
         })
       }
+    },
+
+    showDifficultyLevelTips () {
+      this.visible = true
     }
   }
 }
@@ -174,4 +195,13 @@ export default {
     }
   }
 }
+
+.tag-tips-icon {
+  padding: 0 10px;
+}
+
+.difficulty-level-tip-img {
+  width: 100%;
+}
+
 </style>
