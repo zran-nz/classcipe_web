@@ -50,7 +50,7 @@
         <div class='category-content'>
           <template v-if="currentActiveTagCategory">
             <div class="search-tag-wrapper tag-wrapper" v-if="filterTagList.length > 0">
-              <div class="skt-tag-item" :class="{'active-tag-block': tagItem.expand}" v-for="tagItem in filterTagList" :key="tagItem.name" @click.stop=''>
+              <div class="skt-tag-item" :class="{'active-tag-block': tagItem.expand && tagItem.children.length}" v-for="tagItem in filterTagList" :key="tagItem.name" @click.stop=''>
                 <a-tag
                   @click="selectTag(currentActiveTagCategory, tagItem)"
                   :style="{ 'background-color': currentActiveTagCategory.tagColor || '#fff', 'border-color': currentActiveTagCategory.tagColor || '#15c39a'}"
@@ -58,14 +58,17 @@
                   class="tag-item cc-custom-tag-item">
                   {{ tagItem.name }}
                 </a-tag>
-                <div class='sub-tag-block' v-if='tagItem.expand' @click.stop=''>
-                  <div slot="content" @click.stop=''>
+                <div class='sub-tag-block' v-if='tagItem.expand && tagItem.children.length' @click.stop=''>
+                  <div class='sub-content-tips'>
+                    The tags belong to '{{ tagItem.name }}'
+                  </div>
+                  <div @click.stop=''>
                     <div class="search-tag-wrapper tag-wrapper" v-if="tagItem.children.length > 0">
-                      <div class="skt-tag-item" v-for="tag in tagItem.children" :key="tag.name" @click.stop="selectTag(currentActiveTagCategory, tag)">
+                      <div class="sub-skt-tag-item" v-for="tag in tagItem.children" :key="tag.name" @click.stop="selectTag(currentActiveTagCategory, tag)">
                         <a-tag
                           :style="{ 'background-color': currentActiveTagCategory.tagColor || '#fff', 'border-color': currentActiveTagCategory.tagColor || '#15c39a'}"
                           :class="{ 'selected-tag-item': selectedTagNameList.indexOf(tag.name) !== -1 }"
-                          class="tag-item cc-custom-tag-item">
+                          class="tag-item cc-sub-custom-tag-item">
                           {{ tag.name }}
                         </a-tag>
                       </div>
@@ -399,7 +402,6 @@ export default {
               cursor: not-allowed;
             }
           }
-
         }
 
       }
@@ -438,6 +440,17 @@ export default {
       font-weight: 400;
       color: #734110;
       line-height: 36px;
+      border: 2px solid #ffffff;
+    }
+
+    .cc-sub-custom-tag-item {
+      border-radius: 30px;
+      margin-left: 0;
+      font-family: Arial;
+      padding: 0 10px;
+      font-weight: 400;
+      color: #734110;
+      line-height: 30px;
       border: 2px solid #ffffff;
     }
 
@@ -516,17 +529,73 @@ export default {
 .sub-tag-block {
   display: block;
   width: 100%;
-  padding: 10px;
-  border-radius: 5px;
-  margin-top: 10px;
-  background: #f1f1f17d;
+  margin-top: 15px;
+  border-top: 1px dashed #999;
 }
 
 .active-tag-block {
   width: 100%;
   padding: 10px;
   border-radius: 3px;
+  background: #f1f1f17d;
   border: 1px solid #f1f1f1;
+}
+
+.sub-skt-tag-item {
+  margin: 5px 10px 5px 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  vertical-align: middle;
+  cursor: pointer;
+
+  .tag-item {
+    opacity: 0.8;
+    margin-left: 3px;
+    cursor: pointer;
+    color: #734110;
+    border: 2px solid #ffffff;
+    font-size: 12px;
+    border-radius: 30px;
+    line-height: 25px;
+    word-break: normal;
+    width: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow: hidden;
+    transition: all 0.3s ease;
+
+    /deep/ .anticon-close {
+      opacity: 0;
+      color: #f26c59;
+    }
+
+    &:hover {
+      /deep/ .anticon-close {
+        opacity: 1;
+      }
+    }
+  }
+
+  .tag-disable {
+    color: rgba(0, 0, 0, .25);
+    background-color: #f5f5f5;
+    border-color: #d9d9d9;
+    text-shadow: none;
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+}
+
+.sub-content-tips {
+  font-size: 13px;
+  color: #aaa;
+  line-height: 25px;
+  padding-left: 5px;
 }
 
 </style>
