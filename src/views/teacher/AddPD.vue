@@ -249,7 +249,7 @@ export default {
       contentLoading: true,
       form: {
         name: null,
-        contentType: this.typeMap.pd,
+        contentType: 9,
         coverType: null,
         image: null,
         coverVideo: null,

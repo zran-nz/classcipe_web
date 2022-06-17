@@ -17,7 +17,7 @@ export default {
     }
   },
   created () {
-    this.$logger.info('task redirecting ' + this.pdId)
+    this.$logger.info('pd redirecting ' + this.pdId)
     ClasscipeEventBus.$on(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handlePdRedirect)
     this.handlePdRedirect()
   },
