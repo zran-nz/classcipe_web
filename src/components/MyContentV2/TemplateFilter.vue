@@ -550,7 +550,7 @@ export default {
 @import "~@/components/index.less";
 
 .content-filter {
-  position: relative;
+  //position: relative;
   z-index: 500;
   .filter-line {
     display: flex;
@@ -594,15 +594,14 @@ export default {
 
   .filter-wrapper {
     position: absolute;
-    right: 0;
-    top: 40px;
-    max-height: 400px;
-    width: 600px;
+    right: 20px;
+    width: 45%;
+    float: right;
     overflow-y: scroll;
     background-color: #fdfdfd;
     box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.1);
     border: 1px solid #E4E4E4;
-    padding: 5px 25px;
+    padding: 5px 5px;
     border-radius: 5px;
     &::-webkit-scrollbar {
       width: 5px;
@@ -643,11 +642,13 @@ export default {
 
   .template-select-header {
     background: rgba(255, 255, 255, 0.2);
-    border: 1px solid #ddd;
+    //border: 1px solid #ddd;
     opacity: 1;
     border-radius: 4px;
     padding: 10px;
     position: relative;
+    max-width:100%;
+    float: right;
 
     .expand-icon {
       line-height: 30px;
@@ -664,7 +665,7 @@ export default {
     }
 
     .group-filter {
-      margin-left: 15px;
+      text-align: center;
       margin-bottom: 3px;
     }
 
