@@ -95,7 +95,7 @@
           </span>
         </span>
         <span slot="action" slot-scope="record">
-          <a-popconfirm title="Remove this teacher ?" ok-text="Yes" @confirm="handleDeleteRecord(record)" cancel-text="No">
+          <a-popconfirm title="Remove this user ?" ok-text="Yes" @confirm="handleDeleteRecord(record)" cancel-text="No">
             <a href="#">Remove</a>
           </a-popconfirm>
         </span>

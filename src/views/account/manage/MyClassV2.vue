@@ -523,10 +523,19 @@ export default {
       }
     },
     handleEditTeachers(cls) {
-      this.$refs.memberList.doCreate({
-        classId: cls.id || '1',
-        role: 'teacher'
-      })
+      if (!cls.id) {
+        this.handleSaveClassName(cls, classId => {
+          this.$refs.memberList.doCreate({
+            classId: classId,
+            role: 'teacher'
+          })
+        })
+      } else {
+        this.$refs.memberList.doCreate({
+          classId: cls.id,
+          role: 'teacher'
+        })
+      }
     },
     handleArchive(cls) {
       this.$confirm({
