@@ -632,8 +632,8 @@ export default {
         const filterList = CurriculumSearch(this.data['Learning outcomes'], this.filterConfig.selectedSubjectList, this.filterConfig.selectedYearList, this.filterConfig.keyword)
         filterList.forEach(item => {
           // 高亮命中单词
-          if (item.desc && this.filterConfig.keyword.trim() && item.desc.toLowerCase().includes(this.filterConfig.keyword.trim())) {
-            const keyword = this.filterConfig.keyword.toLowerCase()
+          if (item.desc && this.filterConfig.keyword.trim() && item.desc.toLowerCase().includes(this.filterConfig.keyword..trim().toLowerCase())) {
+            const keyword = this.filterConfig.keyword.trim().toLowerCase()
             let html = ''
             const desc = item.desc
             const lowCaseDesc = item.desc.toLowerCase()
@@ -648,7 +648,6 @@ export default {
           } else {
             item.html = item.desc
           }
-          this.$logger.info('更新html ', item.desc, item.html)
         })
         this.filterList = filterList
         this.asyncEmitUpdateEventFn()
