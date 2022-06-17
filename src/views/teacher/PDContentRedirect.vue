@@ -28,7 +28,7 @@ export default {
     handlePdRedirect() {
       this.$logger.info('task redirecting ' + this.pdId)
       if (this.pdId) {
-        this.$router.replace('/teacher/add-task-v2/' + this.taskId)
+        this.$router.replace('/teacher/pd-content/' + this.pdId)
       } else {
         const data = {
           name: 'Unnamed PD Content',
