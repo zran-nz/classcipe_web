@@ -275,7 +275,7 @@ export const asyncRouterMap = [
             meta: { title: 'menu.task', keepAlive: true, permission: ['teacher'] }
           },
           {
-            path: '/teacher/pd-content-redirect/:pdId',
+            path: '/teacher/pd-content-redirect/:pdId?/:parentId?',
             name: 'PDContentRedirect',
             props: true,
             component: () => import('@/views/teacher/PDContentRedirect'),
