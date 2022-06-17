@@ -225,7 +225,8 @@ export default {
     },
     getTemplateSlide () {
       this.searching = true
-      FilterTemplates({}).then(res => {
+      this.$logger.info('this.filterParams', this.filterParams)
+      FilterTemplates(Object.assign({}, this.filterParams)).then(res => {
         this.$logger.info('getTemplateSlide res', res)
         if (res && res.result) {
           res.result.forEach(item => {
