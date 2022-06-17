@@ -269,7 +269,6 @@ import { DICT_PROMPT_PURPOSE, TemplateType } from '@/const/common'
 import * as logger from '@/utils/logger'
 import { GetTagYearTips, GetTreeByKey } from '@/api/tag'
 import { GetDictItems } from '@/api/common'
-import { FilterTemplates } from '@/api/template'
 
 export default {
   name: 'TemplateFilter',
