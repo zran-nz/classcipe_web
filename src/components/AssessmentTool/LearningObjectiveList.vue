@@ -221,9 +221,7 @@ export default {
       if (Array.isArray(dataList) && dataList.length > 0) {
         const tagSet = new Set()
         dataList.forEach(item => {
-          item.tags.forEach(tag => {
-            tagSet.add(tag.tag)
-          })
+          tagSet.add(item.name)
         })
         this.performanceList = Array.from(tagSet)
       } else {
