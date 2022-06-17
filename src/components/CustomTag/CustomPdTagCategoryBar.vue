@@ -30,7 +30,7 @@
       v-model="visible"
       :footer="null"
       destroyOnClose
-      width="900px"
+      width="1000px"
       :title="null"
       :body-style="{padding: '0'}"
       @ok="visible = false"
