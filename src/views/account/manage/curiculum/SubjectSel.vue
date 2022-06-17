@@ -68,14 +68,21 @@
       <img src='~@/assets/newBrowser/no-subject.png'/>
       <p>None Subject because you dont choose the Circulum</p>
     </div>
+    <class-archive-batch ref="classArchiveBatch" @finish="truelySave" :school="currentSchool"/>
   </div>
 </template>
 
 <script>
 import { SubjectTree } from '@/api/subject'
 import { getSubjectBySchoolId, saveSubject } from '@/api/academicSettingSubject'
+import ClassArchiveBatch from '../class/ClassArchiveBatch'
+import { difference, reduce } from 'lodash-es'
+import LearnOutAddTagVue from '@/components/UnitPlan/LearnOutAddTag.vue'
 export default {
   name: 'SubjectSel',
+  components: {
+    ClassArchiveBatch
+  },
   props: {
     curriculum: {
       type: Array,
@@ -294,22 +301,33 @@ export default {
       this.onCheckChange(this.totalResult[curriculumId].result[index].checkedList, index, curriculumId)
     },
     doSave() {
-      // const subjectInfo = []
-      // this.result.forEach(parent => {
-      //   if (parent.checkedList.length > 0) {
-      //     parent.children.forEach(child => {
-      //       if (parent.checkedList.includes(child.id)) {
-      //         subjectInfo.push({
-      //           curriculumId: this.choosed.id,
-      //           parentSubjectId: parent.id,
-      //           parentSubjectName: parent.name,
-      //           subjectId: child.id,
-      //           subjectName: child.name
-      //         })
-      //       }
-      //     })
-      //   }
-      // })
+      // 被删除的学科下的班级需要删除
+      let rmSubjects = []
+      for (const curriculum in this.totalResult) {
+        if (curriculum !== '-1') {
+          const result = this.totalResult[curriculum].result
+          const originSelected = this.totalResult[curriculum].currentSelected
+          const currentSelected = reduce(result, (res, cur) => {
+            return res.concat(cur.checkedList)
+          }, [])
+          rmSubjects = rmSubjects.concat(difference(originSelected, currentSelected))
+        }
+      }
+      console.log(rmSubjects)
+      if (rmSubjects.length > 0) {
+        this.$refs.classArchiveBatch.doCreate({
+          subjectIds: rmSubjects,
+          curriculums: true
+        })
+      } else {
+        this.truelySave(true)
+      }
+    },
+    truelySave(save = false) {
+      if (!save) {
+        this.$emit('save-success', true)
+        return
+      }
       const promises = []
       for (const curriculum in this.totalResult) {
         if (curriculum !== '-1') {
@@ -343,16 +361,6 @@ export default {
         this.initSubject()
         this.$emit('save-success')
       })
-      // saveSubject({
-      //   schoolId: this.currentSchool.id,
-      //   subjectInfo: subjectInfo
-      // }).then(res => {
-      //   if (res.success) {
-
-      //   }
-      // }).finally(() => {
-      //   this.$emit('save-success')
-      // })
     }
   }
 }

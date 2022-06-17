@@ -31,7 +31,7 @@
           v-show="currentTab === 'Curriculum'"
           :school="currentSchool"
           @change="changeCurriculum"
-          @save-success="() => successCb('pendingCurriculum')"
+          @save-success="(notip) => successCb('pendingCurriculum', notip)"
         />
         <div style="font-size: 14px;height: calc(100% - 50px);" v-show="currentTab === 'Subject'">
           <subject-sel
@@ -39,7 +39,7 @@
             :curriculum="currentCurriculum"
             :school="currentSchool"
             @change="changeSubjects"
-            @save-success="() => successCb('pendingSubject')"
+            @save-success="(notip) => successCb('pendingSubject', notip)"
           />
         </div>
         <div style="font-size: 14px;height: calc(100% - 0px);" v-show="currentTab === 'Authorization'">
@@ -48,7 +48,7 @@
             :curriculum="currentCurriculum"
             :school="currentSchool"
             @change="changeAuth"
-            @save-success="() => successCb('pendingAuthorization')"
+            @save-success="(notip) => successCb('pendingAuthorization', notip)"
           />
         </div>
       </div>
@@ -163,8 +163,8 @@ export default {
       console.log(val)
       this.currentAuth = { ...val }
     },
-    successCb(pending) {
-      this.$message.success('Save successfully')
+    successCb(pending, notip = false) {
+      !notip && this.$message.success('Save successfully')
       this.saveLoading = false
     },
     handleNextStep() {

@@ -15,9 +15,9 @@
     </div>
 
     <div class="curiculum-content">
-      <year-name-set ref="yearNameSet" @save="handleSave" :curriculums="choosed" :school="currentSchool"/>s
+      <year-name-set ref="yearNameSet" @save="handleSave" :curriculums="choosed" :school="currentSchool"/>
     </div>
-
+    <class-archive-batch ref="classArchiveBatch" @finish="truelySave" :school="currentSchool"/>
   </div>
 </template>
 
@@ -25,11 +25,14 @@
 import { getAllCurriculums } from '@/api/preference'
 import { getCurriculumBySchoolId, saveCurriculum } from '@/api/academicSettingCurriculum'
 import YearNameSet from './YearNameSet'
+import ClassArchiveBatch from '../class/ClassArchiveBatch'
 import cloneDeep from 'lodash.clonedeep'
+import { differenceBy, reduce } from 'lodash-es'
 export default {
   name: 'CirculumSel',
   components: {
-    YearNameSet
+    YearNameSet,
+    ClassArchiveBatch
   },
   props: {
     school: {
@@ -56,6 +59,7 @@ export default {
         searchKey: ''
       },
       choosed: [],
+      origin: [],
       yearSetVisible: false,
       initCurriculum: [],
       loading: false
@@ -102,7 +106,8 @@ export default {
               checked: checked
             }
           })
-          this.choosed = choose
+          this.choosed = cloneDeep(choose)
+          this.origin = choose
           this.$emit('change', this.choosed)
           this.curriculumOptions = this.allOptions.concat()
         }
@@ -148,7 +153,24 @@ export default {
       this.$refs.yearNameSet.handleSave()
     },
     handleSave(curriculums) {
+      // 被删除的大纲下的班级需要删除，被删除的年级下的班级需要删除
+      const diffParams = this.diffChanges(this.origin, curriculums)
+      console.log(diffParams)
+      if (diffParams.curriculumIds.length > 0 || diffParams.gradeIds.length > 0) {
+        this.$refs.classArchiveBatch.doCreate({
+          ...diffParams,
+          curriculums: curriculums
+        })
+      } else {
+        this.truelySave(curriculums)
+      }
+    },
+    truelySave(curriculums) {
       console.log(curriculums)
+      if (!curriculums) {
+        this.$emit('save-success', true)
+        return
+      }
       this.loading = true
       saveCurriculum({
         schoolId: this.currentSchool.id,
@@ -162,6 +184,23 @@ export default {
         this.$emit('save-success')
         this.loading = false
       })
+    },
+    diffChanges(old, current) {
+      const rmCuris = differenceBy(old, current, 'curriculumId')
+      const curriculumIds = rmCuris.map(item => item.curriculumId)
+      const oldGrades = reduce(old, (res, cur) => {
+        return res.concat(cur.gradeSettingInfo)
+      }, [])
+      const currentGrades = reduce(current, (res, cur) => {
+        return res.concat(cur.gradeSettingInfo)
+      }, [])
+      // 获取被删除的grade
+      const rmGrades = differenceBy(oldGrades, currentGrades, 'gradeId')
+      const gradeIds = rmGrades.map(item => item.gradeId)
+      return {
+        curriculumIds: curriculumIds,
+        gradeIds: gradeIds
+      }
     }
   }
 }
