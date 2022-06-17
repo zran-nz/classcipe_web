@@ -27,7 +27,7 @@ export default {
   methods: {
     handlePdRedirect() {
       this.$logger.info('task redirecting ' + this.pdId)
-      if (this.taskId) {
+      if (this.pdId) {
         this.$router.replace('/teacher/add-task-v2/' + this.taskId)
       } else {
         const data = {
