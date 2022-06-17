@@ -632,7 +632,7 @@ export default {
         const filterList = CurriculumSearch(this.data['Learning outcomes'], this.filterConfig.selectedSubjectList, this.filterConfig.selectedYearList, this.filterConfig.keyword)
         filterList.forEach(item => {
           // 高亮命中单词
-          if (item.desc && this.filterConfig.keyword.trim() && item.desc.toLowerCase().includes(this.filterConfig.keyword..trim().toLowerCase())) {
+          if (item.desc && this.filterConfig.keyword.trim() && item.desc.toLowerCase().includes(this.filterConfig.keyword.trim().toLowerCase())) {
             const keyword = this.filterConfig.keyword.trim().toLowerCase()
             let html = ''
             const desc = item.desc
