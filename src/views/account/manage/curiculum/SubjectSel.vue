@@ -77,7 +77,6 @@ import { SubjectTree } from '@/api/subject'
 import { getSubjectBySchoolId, saveSubject } from '@/api/academicSettingSubject'
 import ClassArchiveBatch from '../class/ClassArchiveBatch'
 import { difference, reduce } from 'lodash-es'
-import LearnOutAddTagVue from '@/components/UnitPlan/LearnOutAddTag.vue'
 export default {
   name: 'SubjectSel',
   components: {
