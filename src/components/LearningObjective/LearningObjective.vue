@@ -106,9 +106,7 @@
           <a-input v-model='filterConfig.keyword' @click.native.stop='showFilterList = true' placeholder='Search learning objectives' class='cc-form-input' />
           <div class='filter-list' v-show='showFilterList && filterList.length' @click.stop=''>
             <div class='filter-item' v-for='(item, idx) in filterList' :key='idx' @click='handleSelectItem(item)'>
-              <div class='item-desc'>
-                {{ item.desc }}
-              </div>
+              <div class='item-desc' v-html='item.html'></div>
               <div class='item-subject-year'>
                 <div class='item-sub-title' :title='item.path && item.path[0]'>{{ item.path && item.path[0] }}</div>
                 <div class='item-sub-title' :title='item.path && item.path[yearIndex]'>{{ item.path && item.path[yearIndex] }}</div>
@@ -386,6 +384,7 @@ export default {
       filterList: [],
 
       selectedList: [],
+      asyncUpdateFilterListFn: null,
       asyncEmitUpdateEventFn: null,
       recommendDataVisible: false,
 
@@ -415,10 +414,7 @@ export default {
       deep: true,
       immediate: false,
       handler() {
-        if (this.data) {
-          this.filterList = CurriculumSearch(this.data['Learning outcomes'], this.filterConfig.selectedSubjectList, this.filterConfig.selectedYearList, this.filterConfig.keyword)
-          this.asyncEmitUpdateEventFn()
-        }
+        this.asyncUpdateFilterListFn()
       }
     },
     selectedList: {
@@ -481,6 +477,7 @@ export default {
   },
   created() {
     this.asyncEmitUpdateEventFn = debounce(this.emitUpdateEvent, 1000)
+    this.asyncUpdateFilterListFn = debounce(this.updateFilterList, 1000)
     if (this.curriculumId) {
       this.filterConfig.curriculumId = this.curriculumId
     }
@@ -628,6 +625,34 @@ export default {
       }
       this.$logger.info('emitUpdateEvent eventData', eventData)
       this.$emit('change', eventData)
+    },
+
+    updateFilterList () {
+      if (this.data) {
+        const filterList = CurriculumSearch(this.data['Learning outcomes'], this.filterConfig.selectedSubjectList, this.filterConfig.selectedYearList, this.filterConfig.keyword)
+        filterList.forEach(item => {
+          // 高亮命中单词
+          if (item.desc && this.filterConfig.keyword.trim() && item.desc.toLowerCase().includes(this.filterConfig.keyword.trim())) {
+            const keyword = this.filterConfig.keyword.toLowerCase()
+            let html = ''
+            const desc = item.desc
+            const lowCaseDesc = item.desc.toLowerCase()
+            let lastIndex = 0
+            let index = 0
+            while ((index = lowCaseDesc.indexOf(keyword, lastIndex)) !== -1) {
+              html += desc.slice(lastIndex, index) + '<em>' + desc.substr(index, keyword.length) + '</em>'
+              lastIndex = index + keyword.length
+            }
+            html += desc.slice(lastIndex)
+            item.html = html
+          } else {
+            item.html = item.desc
+          }
+          this.$logger.info('更新html ', item.desc, item.html)
+        })
+        this.filterList = filterList
+        this.asyncEmitUpdateEventFn()
+      }
     },
 
     handleConfirmSelectRecommend (dataList) {
@@ -916,10 +941,6 @@ export default {
 
             .item-desc {
               padding-right: 10px;
-              display: flex;
-              flex-direction: row;
-              align-items: center;
-              justify-content: flex-start;
               cursor: pointer;
               user-select: none;
             }
