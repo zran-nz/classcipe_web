@@ -249,7 +249,7 @@ export default {
       contentLoading: true,
       form: {
         name: null,
-        contentType: 1,
+        contentType: this.typeMap.pd,
         coverType: null,
         image: null,
         coverVideo: null,
@@ -353,6 +353,9 @@ export default {
     async save() {
       this.saving = true
       this.$logger.info('add PDContentAddOrUpdate', this.form)
+      if (this.pdId) {
+        this.form.id = this.pdId
+      }
       const response = await PDContentAddOrUpdate(this.form)
       this.saving = false
       this.$logger.info('PDContentAddOrUpdate', response.result)
