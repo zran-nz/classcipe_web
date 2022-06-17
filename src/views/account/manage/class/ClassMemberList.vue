@@ -105,12 +105,12 @@
 </template>
 
 <script>
-import { getSchoolUsers } from '@/api/schoolUser'
+import { getSchoolUsers } from '@/api/v2/schoolUser'
+import { addTeachers, removeTeachers } from '@/api/v2/schoolClass'
 import store from '@/store'
 import { schoolUserStatusList } from '@/const/schoolUser'
 import moment from 'moment'
 import { JeecgListMixin } from '@/mixins/JeecgListMixin'
-import { SchoolClassAddClassMember, SchoolClassRemoveClassMember } from '@/api/schoolClass'
 import {
   schoolClassStudentAPIUrl
 } from '@/api/schoolClassStudent'
@@ -212,6 +212,7 @@ export default {
       const res = await getSchoolUsers({
         schoolId: store.getters.school,
         roles: this.form.role,
+        pageNo: 1,
         pageSize: 1000
       })
       if (res.result) {
@@ -237,21 +238,28 @@ export default {
       this.loadData()
       this.selVis = true
     },
-    handleDeleteRecord: function (record) {
+    handleDeleteRecord(record) {
       const params = {
         schoolId: store.getters.school,
         userId: record.id,
         classId: this.form.classId
       }
-      this.loading = true
-      SchoolClassRemoveClassMember(params).then((res) => {
-        if (res.success) {
-          this.$message.success(res.message)
-          this.loadData()
-        } else {
-          this.$message.warning(res.message)
-        }
-      })
+      let promise = null
+      if (this.form.role === 'teacher') {
+        promise = removeTeachers
+      }
+      if (promise) {
+        this.loading = true
+        promise(params).then((res) => {
+          if (res.success) {
+            this.$message.success(res.message)
+            this.$emit('update')
+            this.loadData()
+          } else {
+            this.$message.warning(res.message)
+          }
+        })
+      }
     },
     handleAddMember(user) {
       if (this.classMemberList.findIndex(member => member.id === user.id) > -1) {
@@ -263,16 +271,23 @@ export default {
         classId: this.form.classId
       }
       this.selectMember = ''
-      this.loading = true
-      SchoolClassAddClassMember(params).then(res => {
-         if (res.success) {
-           this.loadData()
-         } else {
-           this.$message.error(res.message)
-           this.loading = false
-           this.selVis = false
-         }
-       })
+      let promise = null
+      if (this.form.role === 'teacher') {
+        promise = addTeachers
+      }
+      if (promise) {
+        this.loading = true
+        promise(params).then(res => {
+          if (res.success) {
+            this.$emit('update')
+            this.loadData()
+          } else {
+            this.$message.error(res.message)
+            this.loading = false
+            this.selVis = false
+          }
+        })
+      }
     },
     handleSearch(val) {
       this.searchKey = val

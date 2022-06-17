@@ -46,14 +46,14 @@
         <a-row :gutter=16>
           <a-col :span="12">
             <a-form-model-item :labelCol="{span: 12}" :wrapperCol="{span: 12}" label="Self-service registration">
-              <a-switch v-model="formModel.selfRegister" />
+              <a-switch v-model="formModel.ownJoin" />
             </a-form-model-item>
           </a-col>
-          <a-col :span="12" v-if="formModel.selfRegister">
+          <a-col :span="12" v-if="formModel.ownJoin">
             <a-form-model-item label="Grade">
               <a-select
                 :getPopupContainer="trigger => trigger.parentElement"
-                v-model='formModel.grade'
+                v-model='formModel.gradeId'
                 placeholder='Please select grade'>
                 <a-select-option v-for='item in gradeOptions' :key='item.gradeId'>
                   {{ item.gradeName }}
@@ -65,7 +65,7 @@
         <a-row :gutter=16>
           <a-col :span="12">
             <a-form-model-item label="Max Std">
-              <a-input v-model="formModel.studentCount" placeholder="input max student count" />
+              <a-input v-model="formModel.maxStudent" placeholder="input max student count" />
             </a-form-model-item>
           </a-col>
           <a-col :span="12">
@@ -89,7 +89,7 @@
                 :getPopupContainer="trigger => trigger.parentElement"
                 v-model='formModel.blockId'
                 placeholder='Please select block'>
-                <a-select-option v-for='item in blockOptions[formModel.termId]' :key='item.name'>
+                <a-select-option v-for='item in blockOptions[formModel.term]' :key='item.name'>
                   {{ ('2000-01-01 ' + item.start) | dayjs('HH:mm') }} - {{ ('2000-01-01 ' + item.end) | dayjs('HH:mm') }}
                 </a-select-option >
               </a-select>
@@ -144,13 +144,15 @@ export default {
         name: '',
         subject: '',
         subjectName: '',
-        selfRegister: false,
-        grades: '',
-        studentCount: 200,
+        ownJoin: false,
+        gradeId: '',
+        maxStudent: 200,
+        studentCount: 0,
         teacherCount: 0,
-        termId: '',
+        term: '',
         termArr: [],
         blockId: '',
+        blockSetting: '',
         classType: 1,
         schoolId: this.school.id
       },
@@ -233,10 +235,26 @@ export default {
         }
       }).finally(() => {
         this.loading = false
+        this.initSels()
       })
     },
     initSels() {
-
+      if (this.formModel.term) {
+        let termArr = []
+        this.termsOptions.forEach(year => {
+          if (year.terms && year.terms.length > 0) {
+            const term = year.terms.find(term => term.id === this.formModel.term)
+            if (term) {
+              termArr = [year.id, term.id]
+            }
+          }
+        })
+        this.formModel.termArr = termArr
+        if (this.formModel.blockSetting) {
+          const blockSetting = this.blockOptions[this.formModel.term].find(item => [item.start, item.end].join(' - ') === this.formModel.blockSetting)
+          this.formModel.blockId = blockSetting.name
+        }
+      }
     },
     doCreate(record) {
       this.doEdit({
@@ -246,8 +264,10 @@ export default {
     doEdit(record) {
       this.formModel = cloneDeep({
         ...this.initValue,
-        ...record
+        ...record,
+        ownJoin: Boolean(record.ownJoin)
       })
+      this.initSels()
       this.selVis = true
     },
     handleSave() {
@@ -255,6 +275,11 @@ export default {
         if (valid) {
           const params = { ...this.formModel }
           params.schoolId = this.currentSchool.id
+          if (params.blockId) {
+            const blockSetting = this.blockOptions[params.term].find(item => item.name === params.blockId)
+            params.blockSetting = [blockSetting.start, blockSetting.end].join(' - ')
+          }
+          params.ownJoin = Number(params.ownJoin)
           this.$emit('save', params)
           this.selVis = false
         }
@@ -266,9 +291,9 @@ export default {
     },
     onChangeTerm(value) {
       if (value && value.length > 0) {
-        this.formModel.termId = value.slice(value.length - 1)
+        this.formModel.term = value.slice(value.length - 1)[0]
       } else {
-        this.formModel.termId = ''
+        this.formModel.term = ''
       }
       this.formModel.blockId = undefined
     },

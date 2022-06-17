@@ -37,70 +37,89 @@
         </div>
       </div>
       <div class="form-tab">
-        <div class="list-view" v-if="allDatas[currentTab] && allDatas[currentTab].length > 0">
-          <div class="list-view-item" v-for="(view, index) in allDatas[currentTab]" :key="view.gradeId">
-            <div class="view-item-title">
-              <label for="">{{ view.gradeName || view.subjectName }}</label>
-              <a-space class="view-item-opt" v-if="currentTab === 'gradeId'">
-                <a-button type="primary" @click="addGradeClass(view)" icon="plus-circle">Add</a-button>
-                <a-button @click="deleteGrade(view, index)">Delete</a-button>
-              </a-space>
-            </div>
-            <div class="view-item-con">
-              <div
-                v-for="cls in view.classes"
-                :key="view.gradeId + '_' + cls.key"
-                class="item-class-wrap"
-              >
-                <div class="item-class" v-clickOutside="() => handleBlurClick(cls)">
-                  <div class="class-name">
-                    <label @click="doEditClassName(cls)" v-if="!cls.isNew && !cls.isEdit" for="">{{ cls.name }}</label>
-                    <a-input @keyup.enter="handleSaveClassName(cls)" :ref="'name'+cls.key" placeholder="Enter class name" v-if="cls.isNew || cls.isEdit" v-model="cls.changeName">
-                      <a-icon slot="suffix" type="check" @click="handleSaveClassName(cls)"/>
-                    </a-input>
-                  </div>
-                  <div class="class-con">
-                    <div class="class-con-item">
-                      <div class="con-item-label">Teachers</div>
-                      <div class="con-item-detail">{{ cls.teacherCount }}</div>
+        <a-spin :spinning="loading">
+          <div class="list-view" v-if="allDatas[currentTab] && allDatas[currentTab].length > 0">
+            <div class="list-view-item" v-for="(view, index) in allDatas[currentTab]" :key="view.id">
+              <div class="view-item-title">
+                <label for="">{{ view.name || formatViewName(view.id) }}</label>
+                <a-space class="view-item-opt" v-if="currentTab === 'gradeId'">
+                  <a-button type="primary" @click="addGradeClass(view)" icon="plus-circle">Add</a-button>
+                  <a-button @click="deleteGrade(view, index)">Delete</a-button>
+                </a-space>
+              </div>
+              <div class="view-item-con">
+                <div
+                  v-for="cls in view.classes"
+                  :id="cls.key"
+                  :key="view.id + '_' + cls.key"
+                  :class="{'item-class-wrap': true, 'archive': currentTab === 'archive' }"
+                >
+                  <div class="item-class" v-clickOutside="() => handleBlurClick(cls)">
+                    <div class="class-name">
+                      <label @click="doEditClassName(cls)" v-if="!cls.isNew && !cls.isEdit" for="">{{ cls.name }}</label>
+                      <a-input @keyup.enter="handleSaveClassName(cls)" :ref="'name'+cls.key" placeholder="Enter class name" v-if="cls.isNew || cls.isEdit" v-model="cls.changeName">
+                        <a-icon slot="suffix" type="check" @click="handleSaveClassName(cls)"/>
+                      </a-input>
                     </div>
-                    <div class="class-con-item">
-                      <div class="con-item-label">Students</div>
-                      <div class="con-item-detail">
-                        <a @click="handleEditStudents(cls)" v-if="!cls.isNew" for="">{{ cls.studentCount }}</a>
-                        <a type="link" @click="handleEditStudents(cls)" v-else>Upload</a>
+                    <div :class="{'class-con': true, 'archive': currentTab === 'archive'}">
+                      <div class="class-con-item">
+                        <div class="con-item-label">Teachers</div>
+                        <div class="con-item-detail" v-if="currentTab === 'archive'">{{ cls.teacherCount || 0 }}</div>
+                        <a @click="handleEditTeachers(cls)" v-else for="">{{ cls.teacherCount || 0 }}</a>
+                      </div>
+                      <div class="class-con-item">
+                        <div class="con-item-label">Students</div>
+                        <div class="con-item-detail">
+                          <label v-if="!cls.isNew && currentTab === 'archive'" for="">{{ cls.studentCount }}</label>
+                          <a @click="handleEditStudents(cls)" v-if="!cls.isNew && currentTab !== 'archive'" for="">{{ cls.studentCount }}</a>
+                          <a type="link" @click="handleEditStudents(cls)" v-if="cls.isNew">Upload</a>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div class="class-opt" v-if="!cls.isNew">
-                    <a-dropdown :getPopupContainer="trigger => trigger.parentElement">
-                      <a-icon type="more" />
-                      <a-menu slot="overlay">
-                        <a-menu-item>
-                          <a href="javascript:;" @click="handleImport(cls)">Import students</a>
-                        </a-menu-item>
-                        <a-menu-item>
-                          <a href="javascript:;" @click="handleEditTeachers(cls)">Edit teachers</a>
-                        </a-menu-item>
-                        <a-menu-item>
-                          <a href="javascript:;">Archive</a>
-                        </a-menu-item>
-                      </a-menu>
-                    </a-dropdown>
+                    <div class="class-opt" v-if="!cls.isNew">
+                      <a-dropdown :getPopupContainer="trigger => trigger.parentElement">
+                        <a-icon type="more" />
+                        <a-menu slot="overlay">
+                          <template v-if="currentTab !== 'archive'">
+                            <a-menu-item>
+                              <a href="javascript:;" @click="handleImport(cls)">Import students</a>
+                            </a-menu-item>
+                            <a-menu-item>
+                              <a href="javascript:;" @click="handleEditTeachers(cls)">Edit teachers</a>
+                            </a-menu-item>
+                            <a-menu-item>
+                              <a href="javascript:;" @click="handleArchive(cls)">Archive</a>
+                            </a-menu-item>
+                          </template>
+                          <template v-else>
+                            <a-menu-item>
+                              <a href="javascript:;" @click="handleRestore(cls)">Restore</a>
+                            </a-menu-item>
+                            <a-menu-item>
+                              <a href="javascript:;" @click="handleDelete(cls)">Delete</a>
+                            </a-menu-item>
+                          </template>
+                        </a-menu>
+                      </a-dropdown>
+                    </div>
+                    <div class="class-opt" style="font-size: 16px;" v-else>
+                      <a-icon type="close" @click="handleRemove(view.id, cls)"></a-icon>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-        <div v-else class="no-subject">
-          <img src='~@/assets/newBrowser/no-subject.png'/>
-          <p>None class because you dont set the class</p>
-        </div>
+          <div v-else class="no-subject">
+            <img src='~@/assets/newBrowser/no-subject.png'/>
+            <p>None class because you dont set the class</p>
+          </div>
+        </a-spin>
       </div>
     </div>
-    <class-student-import ref="studentImport" :school="currentSchool"/>
-    <class-member-list ref="memberList" :school="currentSchool"/>
+    <class-student-import ref="studentImport" @update="debounceLoad" :school="currentSchool"/>
+    <class-member-list ref="memberList" @update="debounceLoad" :school="currentSchool"/>
+    <class-restore-choose ref="restoreChoose" @save="doRestore" :chooseOptions="restoreChooseOptions"/>
   </div>
 </template>
 
@@ -116,9 +135,22 @@ import ClassGradeSel from './class/ClassGradeSel'
 import ClassSubjectSel from './class/ClassSubjectSel'
 import ClassStudentImport from './class/ClassStudentImport'
 import ClassMemberList from './class/ClassMemberList'
+import ClassRestoreChoose from './class/ClassRestoreChoose'
+
+import { getCurriculumBySchoolId } from '@/api/academicSettingCurriculum'
+import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
+
+import {
+  listClass,
+  saveClass,
+  archiveClass,
+  deleteClass,
+  deleteGrade,
+  restoreClass
+} from '@/api/v2/schoolClass'
 
 import { mapState } from 'vuex'
-const { debounce } = require('lodash-es')
+const { debounce, groupBy, uniqBy } = require('lodash-es')
 
 export default {
   name: 'MyClassV2',
@@ -130,11 +162,15 @@ export default {
     ClassGradeSel,
     ClassSubjectSel,
     ClassStudentImport,
-    ClassMemberList
+    ClassMemberList,
+    ClassRestoreChoose
   },
   data() {
     return {
       USER_MODE: USER_MODE,
+      gradeOptions: [],
+      subjectOptions: [],
+      restoreChooseOptions: [],
       currentTab: 'gradeId',
       tabsList: [{
           value: 'gradeId',
@@ -144,7 +180,7 @@ export default {
           value: 'subject',
           title: 'Subject'
       }, {
-          value: 'Archive',
+          value: 'archive',
           title: 'Archive'
       }],
       loading: false,
@@ -157,15 +193,18 @@ export default {
       selVis: false,
       gradeIdInfos: [], // 先创建grade再创建class
       subjectInfos: [], // 现创建class再按subject分类
+      archiveInfos: [],
       allDatas: {
         gradeId: [],
-        subject: []
+        subject: [],
+        archive: []
       },
       viewDatas: [],
       selectedGrades: []
     }
   },
   created() {
+    this.initDict()
     this.loadData()
     this.debounceLoad = debounce(this.loadData, 300)
   },
@@ -181,12 +220,42 @@ export default {
     },
     handleSchoolChange(currentSchool) {
       if (this.userMode === USER_MODE.SCHOOL) {
+        this.initDict()
         this.debounceInit()
       }
     },
     handleModeChange(userMode) {
       // 模式切换，个人还是学校 个人接口
+      this.initDict()
       this.debounceInit()
+    },
+    initDict() {
+      Promise.all([
+        getSubjectBySchoolId({
+          schoolId: this.currentSchool.id
+        }),
+        getCurriculumBySchoolId({
+          schoolId: this.currentSchool.id
+        })
+      ]).then(([subjectRes, gradeRes]) => {
+        if (subjectRes.success) {
+          let subjects = []
+          subjectRes.result.forEach(item => {
+            if (item.subjectList && item.subjectList.length > 0) {
+              subjects = subjects.concat(item.subjectList)
+            }
+          })
+          this.subjectOptions = subjects
+        }
+        if (gradeRes.success) {
+          let grades = []
+          this.curriculumOptions = gradeRes.result.forEach(item => {
+            grades = grades.concat(item.gradeSettingInfo || [])
+          })
+          this.gradeOptions = grades
+        }
+      }).finally(() => {
+      })
     },
     // 先创建xxInfos,在创建class 才调用
     initView() {
@@ -195,12 +264,19 @@ export default {
       }
       // 添加没有的
       this[this.currentTab + 'Infos'].forEach(info => {
-        const isFind = this.allDatas[this.currentTab].find(item => item[this.currentTab] === info[this.currentTab])
+        const isFind = this.allDatas[this.currentTab].find(item => item.id === info.id)
         if (!isFind) {
+          const infoName = {}
+          if (this.currentTab === 'gradeId') {
+            infoName.gradeName = info.name
+          } else {
+            infoName.subjectName = info.name
+          }
           this.allDatas[this.currentTab].push({
             ...info,
             classes: [{
-              key: new Date().getTime(),
+              ...infoName,
+              key: new Date().getTime() + Math.random(),
               isNew: true,
               isEdit: true,
               name: '',
@@ -217,7 +293,7 @@ export default {
       // 去除多余的
       for (let i = this.allDatas[this.currentTab].length - 1; i >= 0; i--) {
         const view = this.allDatas[this.currentTab][i]
-        const isFind = this[this.currentTab + 'Infos'].find(info => info[this.currentTab] === view[[this.currentTab]])
+        const isFind = this[this.currentTab + 'Infos'].find(info => info.id === view.id)
         if (!isFind) {
           this.allDatas[this.currentTab].splice(i, 1)
           // TODO 数据库是否删除
@@ -226,10 +302,51 @@ export default {
       console.log(this.allDatas[this.currentTab])
     },
     loadData() {
-      // gradeId
-      this.initView()
-
-      // subject
+      const queryType = this.tabsList.findIndex(item => item.value === this.currentTab)
+      this.loading = true
+      listClass({
+        queryType: queryType,
+        pageNo: 1,
+        pageSize: 10000,
+        schoolId: this.currentSchool.id
+      }).then(res => {
+        if (res.success) {
+          const groupKey = this.currentTab + 'Infos'
+          // 按grade，subject组装 data
+          const allDatas = res.result.records.map(item => {
+            return {
+              id: item.classType === 0 ? item.gradeId : item.subject,
+              name: item.classType === 0 ? item.gradeName : item.subjectName,
+              cls: {
+                ...item
+              }
+            }
+          })
+          this[groupKey] = uniqBy(allDatas, 'id')
+          const groupDatas = groupBy(allDatas, 'id')
+          const currentDatas = []
+          for (const key in groupDatas) {
+            const viewName = groupDatas[key][0].name
+            currentDatas.push({
+              id: key,
+              name: viewName,
+              classes: groupDatas[key].map(item => ({
+                ...item.cls,
+                key: new Date().getTime() + Math.random(),
+                isNew: false,
+                isEdit: false,
+                changeName: item.cls.name
+              }))
+            })
+          }
+          this.allDatas[this.currentTab] = currentDatas
+          if (this.currentTab === 'gradeId') {
+            this.selectedGrades = this.allDatas.gradeId.map(item => item.id)
+          }
+        }
+      }).finally(() => {
+        this.loading = false
+      })
     },
     toggleTab(status) {
       this.currentTab = status
@@ -237,21 +354,46 @@ export default {
     },
     handleBlurClick(cls) {
       cls.isEdit = false
-      cls.changeName = cls.name
+      if (!cls.isNew) {
+        cls.changeName = cls.name
+      }
+    },
+    formatViewName(id) {
+      const findSubject = this.subjectOptions.find(subject => subject.subjectId === id)
+      if (findSubject) return findSubject.subjectName
+      const findGrade = this.gradeOptions.find(grade => grade.gradeId === id)
+      if (findGrade) return findGrade.gradeName
+      return 'Untitle'
     },
     setGrades(val) {
-      this.gradeIdInfos = [...val]
+      this.gradeIdInfos = val.map(item => ({
+        ...item,
+        id: item.gradeId,
+        name: item.gradeName
+      }))
       this.initView()
-      this.selectedGrades = this.allDatas.gradeId.map(item => item.gradeId)
+      this.selectedGrades = this.allDatas.gradeId.map(item => item.id)
+      // 滚动到最后一个
+      this.$nextTick(() => {
+        let focusDom = null
+        this.allDatas.gradeId.forEach(group => {
+          const newAdd = group.classes.filter(item => item.isNew)
+          if (newAdd && newAdd.length > 0) {
+            focusDom = newAdd[newAdd.length - 1]
+          }
+        })
+        document.getElementById(focusDom.key).scrollIntoView({ behavior: 'smooth' })
+      })
     },
     addGradeClass(view) {
       view.classes.push({
-        key: new Date().getTime(),
+        key: new Date().getTime() + Math.random(),
         isNew: true,
         isEdit: true,
         name: '',
         changeName: '',
-        gradeId: view.gradeId,
+        gradeId: view.id,
+        gradeName: view.name,
         schoolId: this.currentSchool.id,
         classType: 0,
         teacherCount: 0,
@@ -269,20 +411,50 @@ export default {
         this.$message.error('Please input name')
         return
       }
-      cls.name = cls.changeName
-      cls.isNew = false
-      cls.isEdit = false
-      cls.id = '1'
-      cb && cb(cls.id)
+      this.loading = true
+      const params = { ...cls }
+      params.name = params.changeName
+      saveClass(params).then(res => {
+        if (res.success && res.code === 0) {
+          cls.name = cls.changeName
+          cls.isNew = false
+          cls.isEdit = false
+          cls.id = res.result.id
+          if (cb) {
+            cb(cls.id)
+          } else {
+            this.$message.success('Save successfully')
+          }
+        }
+      }).finally(() => {
+        this.loading = false
+      })
     },
     deleteGrade(view, index) {
-       this.$confirm({
+      // 没有班级的直接删
+      const classes = this.allDatas.gradeId[index].classes.filter(item => !!item.id)
+      if (classes.length === 0) {
+        this.allDatas.gradeId.splice(index, 1)
+        this.selectedGrades = this.allDatas.gradeId.map(item => item.id)
+        return
+      }
+      this.$confirm({
         title: 'Confirm delete grade',
         content: 'By deleting the grade/year, all classes belong to it will be removed. Do you confirm to delete? ',
         centered: true,
         onOk: () => {
-          this.allDatas.gradeId.splice(index, 1)
-          this.selectedGrades = this.allDatas.gradeId.map(item => item.gradeId)
+          this.loading = true
+          deleteGrade({
+            ids: view.id,
+            schoolId: this.currentSchool.id
+          }).then(res => {
+            if (res.success && res.code === 0) {
+              this.allDatas.gradeId.splice(index, 1)
+              this.selectedGrades = this.allDatas.gradeId.map(item => item.id)
+            }
+          }).finally(() => {
+            this.loading = false
+          })
         }
       })
     },
@@ -290,39 +462,48 @@ export default {
       this.$refs.classSubject.doCreate({})
     },
     addSubjectClass(cls) {
-      const subject = this.subjectInfos.find(item => item.subject === cls.subject)
-      if (!subject) {
-        this.subjectInfos.push({
-          subject: cls.subject,
-          subjectName: cls.subjectName
-        })
-      }
-      const findDatas = this.allDatas.subject.find(item => item.subject === cls.subject)
-      if (!findDatas) {
-        this.allDatas.subject.push({
-          subject: cls.subject,
-          subjectName: cls.subjectName,
-          classes: [{
-            ...cls,
-            key: new Date().getTime(),
-            changeName: cls.name,
-            isNew: false,
-            isEdit: false
-          }]
-        })
-      } else {
-        findDatas.classes.push({
-          ...cls,
-          changeName: cls.name,
-          key: new Date().getTime(),
-          isNew: false,
-          isEdit: false
-        })
-      }
+      console.log(cls)
+      this.loading = true
+      saveClass(cls).then(res => {
+        if (res.success && res.code === 0) {
+          const subject = this.subjectInfos.find(item => item.id === cls.subject)
+          if (!subject) {
+            this.subjectInfos.push({
+              id: cls.subject,
+              name: cls.subjectName
+            })
+          }
+          const findDatas = this.allDatas.subject.find(item => item.id === cls.subject)
+          if (!findDatas) {
+            this.allDatas.subject.push({
+              id: cls.subject,
+              name: cls.subjectName,
+              classes: [{
+                ...cls,
+                key: new Date().getTime() + Math.random(),
+                changeName: cls.name,
+                isNew: false,
+                isEdit: false
+              }]
+            })
+          } else {
+            findDatas.classes.push({
+              ...cls,
+              changeName: cls.name,
+              key: new Date().getTime() + Math.random(),
+              isNew: false,
+              isEdit: false
+            })
+          }
+        }
+      }).finally(() => {
+        this.loading = false
+      })
     },
     handleImport(cls) {
       this.$refs.studentImport.doCreate({
         classId: cls.id,
+        className: cls.name,
         type: this.currentTab
       })
     },
@@ -345,6 +526,111 @@ export default {
       this.$refs.memberList.doCreate({
         classId: cls.id || '1',
         role: 'teacher'
+      })
+    },
+    handleArchive(cls) {
+      this.$confirm({
+        title: 'Confirm archive class ' + cls.name,
+        content: 'Are you sure you want to archive this class?',
+        centered: true,
+        onOk: () => {
+          this.loading = true
+          archiveClass({
+            ids: cls.id
+          }).then(res => {
+            if (res.success && res.code === 0) {
+              this.$message.success('Archive successfully')
+              const group = this.allDatas[this.currentTab].find(item => item.id === cls[this.currentTab])
+              if (group && group.classes) {
+                if (group.classes.length > 1) {
+                  const index = group.classes.findIndex(item => item.id === cls.id)
+                  group.classes.splice(index, 1)
+                } else {
+                  // group.classes = []
+                  const groupIndex = this.allDatas[this.currentTab].findIndex(item => item.id === cls[this.currentTab])
+                  this.allDatas[this.currentTab].splice(groupIndex, 1)
+                  this.selectedGrades = this.allDatas.gradeId.map(item => item.id)
+                }
+              }
+            }
+          }).finally(() => {
+            this.loading = false
+          })
+        }
+      })
+    },
+    handleRestore(cls) {
+      // 如果之前的grade，subject现在不存在了，需要重新选择
+      if (cls.classType === 0) {
+        const isExist = this.gradeOptions.find(item => item.gradeId === cls.gradeId)
+        if (!isExist) {
+          this.restoreChooseOptions = this.gradeOptions.map(item => ({
+            ...item,
+            id: item.gradeId,
+            name: item.gradeName
+          }))
+          this.$refs.restoreChoose.doCreate(cls)
+          return
+        }
+      } else if (cls.classType === 1) {
+        const isExist = this.subjectOptions.find(item => item.subjectId === cls.subject)
+        if (!isExist) {
+          this.restoreChooseOptions = this.subjectOptions.map(item => ({
+            ...item,
+            id: item.subjectId,
+            name: item.subjectName
+          }))
+          this.$refs.restoreChoose.doCreate(cls)
+          return
+        }
+      }
+      this.doRestore(cls)
+    },
+    doRestore(cls) {
+      this.loading = true
+      restoreClass({
+        ids: cls.id
+      }).then(res => {
+        if (res.success && res.code === 0) {
+          this.$message.success('Restore successfully')
+          this.debounceLoad()
+        } else {
+          this.loading = false
+        }
+      }).finally(() => {
+      })
+    },
+    handleRemove(viewId, cls) {
+      // 移除没有保存的数据
+      const view = this.allDatas[this.currentTab].find(item => item.id === viewId)
+      const index = view.classes.findIndex(item => item.key === cls.key)
+      view.classes.splice(index, 1)
+      if (view.classes.length === 0) {
+        const groupIndex = this.allDatas[this.currentTab].findIndex(item => item.id === viewId)
+        this.allDatas[this.currentTab].splice(groupIndex, 1)
+        this.selectedGrades = this.allDatas.gradeId.map(item => item.id)
+      }
+    },
+    handleDelete(cls) {
+      this.$confirm({
+        title: 'Confirm delete class',
+        content: `Do you confirm to delete class [ ${cls.name} ]? `,
+        centered: true,
+        onOk: () => {
+          this.loading = true
+          deleteClass({
+            ids: cls.id
+          }).then(res => {
+            if (res.code === 0) {
+              this.$message.success('Delete successfully')
+              this.debounceLoad()
+            } else {
+              this.loading = false
+            }
+          }).finally(() => {
+            // this.loading = false
+          })
+        }
       })
     }
   }
@@ -464,6 +750,13 @@ export default {
         width: 25%;
         flex-grow: 1;
         padding: 10px;
+        &.archive {
+          .item-class {
+            .class-name {
+              border-color: transparent!important;
+            }
+          }
+        }
         .item-class {
           padding: 20px;
           background: #FFFFFF;
@@ -502,6 +795,12 @@ export default {
               padding: 15px 0;
               & ~ .class-con-item {
                 margin-left: 20px;;
+              }
+            }
+            &.archive {
+              .class-con-item {
+                background: #898A8D!important;
+                color: #fff!important;
               }
             }
           }

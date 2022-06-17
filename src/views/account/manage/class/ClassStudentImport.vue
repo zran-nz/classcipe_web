@@ -2,7 +2,7 @@
   <a-modal
     v-model='selVis'
     destroyOnClose
-    title='Import Studentrt Student'
+    title='Import Student'
     width='650px'
     okText='Import'
     :confirmLoading="loading"
@@ -39,13 +39,16 @@
           @search="handleSearch"></a-input-search>
       </div>
       <div class="student-import-detail">
-        <div class="import-detail-con">
-          <div class="detail-con-item" v-for="item in students" :key="item.id">
-            <a-checkbox v-model="item.checked" >{{ item.name }}</a-checkbox>
+        <a-spin :spinning="loading">
+          <div class="import-detail-con" v-if="students && students.length > 0">
+            <div class="detail-con-item" v-for="item in students" :key="item.id">
+              <a-checkbox v-model="item.checked" >{{ item.name }}</a-checkbox>
+            </div>
           </div>
-        </div>
+          <a-empty v-else/>
+        </a-spin>
         <div class="import-detail-tip">
-          The selected students will be {{ form.type === 'gradeId' ? 'moved' : 'added' }} to current class
+          The selected students will be {{ form.type === 'gradeId' ? 'moved' : 'added' }} to class [ {{ form.className }} ]
         </div>
       </div>
     </div>
@@ -54,6 +57,9 @@
 
 <script>
 import { getCurriculumBySchoolId } from '@/api/academicSettingCurriculum'
+import { listClass, studentImport } from '@/api/v2/schoolClass'
+import { getSchoolUsers } from '@/api/v2/schoolUser'
+import { debounce, groupBy } from 'lodash-es'
 export default {
   name: 'ClassStudentImport',
   props: {
@@ -78,6 +84,8 @@ export default {
       curriculumOptions: [],
       gradeOptions: [],
       classOptions: [],
+      allClass: [],
+      groupData: {},
       queryParam: {
         searchKey: '',
         gradeId: '',
@@ -85,21 +93,16 @@ export default {
       },
       form: {
         type: 'gradeId',
-        classId: ''
+        classId: '',
+        className: ''
       },
-      students: [{
-        name: 'student a',
-        id: 1
-      }, {
-        name: 'student b',
-        id: 2
-      }, {
-        name: 'student c',
-        id: 3
-      }],
+      students: [],
       loading: false,
       selVis: false
     }
+  },
+  created() {
+    this.debounceSearch = debounce(this.searchData, 300)
   },
   methods: {
     initData() {
@@ -107,14 +110,49 @@ export default {
       Promise.all([
         getCurriculumBySchoolId({
           schoolId: this.currentSchool.id
+        }),
+        listClass({
+          queryType: 0,
+          pageNo: 1,
+          pageSize: 10000,
+          schoolId: this.currentSchool.id
         })
-      ]).then(([curRes]) => {
+      ]).then(([curRes, clsRes]) => {
+        let grades = []
         if (curRes.success) {
-          let grades = []
           this.curriculumOptions = curRes.result.forEach(item => {
             grades = grades.concat(item.gradeSettingInfo || [])
           })
-          this.gradeOptions = grades
+        }
+        if (clsRes.success) {
+          this.allClass = clsRes.result.records
+          this.groupData = groupBy(clsRes.result.records, 'gradeId')
+          this.gradeOptions = grades.filter(item => {
+            const isFind = this.groupData[item.gradeId]
+            return isFind
+          })
+          this.classOptions = clsRes.result.records.filter(item => item.id !== this.form.classId)
+        }
+      }).finally(() => {
+        this.debounceSearch()
+      })
+    },
+    searchData() {
+      this.loading = true
+      getSchoolUsers({
+        pageNo: 1,
+        pageSize: 10000,
+        schoolId: this.currentSchool.id,
+        classes: this.queryParam.classId,
+        grades: this.queryParam.gradeId,
+        searchKey: this.queryParam.searchKey,
+        roles: 'student'
+      }).then(res => {
+        if (res.success) {
+          this.students = res.result.records.map(item => ({
+            ...item,
+            checked: false
+          }))
         }
       }).finally(() => {
         this.loading = false
@@ -122,16 +160,42 @@ export default {
     },
     doCreate(cls) {
       this.form = { ...cls }
+      this.classOptions = this.classOptions.filter(item => item.id !== this.form.classId)
       this.selVis = true
     },
     changeGrade(gradeId) {
-
+      let classOptions = []
+      if (gradeId) {
+        classOptions = this.groupData[gradeId] || []
+      } else {
+        classOptions = this.allClass
+      }
+      this.classOptions = classOptions.filter(item => item.id !== this.form.classId)
+      this.queryParam.classId = ''
+      this.debounceSearch()
     },
     handleSearch() {
-
+      this.debounceSearch()
     },
     handleSave() {
-      this.selVis = false
+      const sels = this.students.filter(item => item.checked).map(item => item.id)
+      if (sels && sels.length > 0) {
+        this.loading = true
+        studentImport({
+          classId: this.form.classId,
+          schoolId: this.currentSchool.id,
+          studentIds: sels
+        }).then(res => {
+          if (res.success) {
+            this.$emit('update')
+          }
+        }).finally(() => {
+          this.loading = false
+          this.selVis = false
+        })
+      } else {
+        this.$message.error('Please select at least one student')
+      }
     }
   }
 }
