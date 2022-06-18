@@ -144,7 +144,7 @@
                 </template>
               </custom-button>
 
-              <custom-button label="UnPublish" @click='handlePublishStatus' v-if='showPublish && content.status !== 0'>
+              <custom-button label="Unpublish" @click='handlePublishStatus' v-if='showPublish && content.status !== 0'>
                 <template v-slot:icon >
                   <un-publish-icon />
                 </template>
@@ -436,6 +436,7 @@ export default {
           margin-bottom: 5px;
           .tag-info-item {
             margin-right: 5px;
+            margin-bottom: 5px;
           }
         }
       }

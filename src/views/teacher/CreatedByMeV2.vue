@@ -223,7 +223,7 @@ export default {
           if (targetStatus) {
             this.$message.success('Publish successfully!')
           } else {
-            this.$message.success('UnPublish successfully!')
+            this.$message.success('Unpublish successfully!')
           }
         }).finally(() => {
           this.contentPublishVisible = false
