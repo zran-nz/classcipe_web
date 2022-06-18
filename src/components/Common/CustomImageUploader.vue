@@ -12,7 +12,7 @@
               <a-icon type="cloud-upload" />
             </template>
           </custom-button>
-          <custom-button v-if="needDel" label='Delete' @click='handleDeleteItem'>
+          <custom-button v-if="needDel" label='Delete' @click='handleDeleteItem' v-show='imgUrl'>
             <template v-slot:icon>
               <a-icon type="delete" />
             </template>
@@ -24,6 +24,7 @@
       title="Upload your image"
       :visible="visible"
       :maskClosable="false"
+      destory-on-close
       :confirmLoading="confirmLoading"
       :width="800"
       :footer="null"
@@ -52,7 +53,7 @@
       <br>
       <a-row>
         <a-col :lg="2" :md="2">
-          <a-upload name="file" :beforeUpload="beforeUpload" :showUploadList="false">
+          <a-upload name="file" :beforeUpload="beforeUpload" :showUploadList="false" accept='image/*'>
             <a-button icon="upload">Select Image</a-button>
           </a-upload>
         </a-col>
