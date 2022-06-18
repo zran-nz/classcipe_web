@@ -189,9 +189,11 @@ export default {
     this.$logger.info('TaskAssessmentTools created')
     this.getAssessmentList()
     this.$EventBus.$on('assessment-saved', this.autoSaveMixinUpdateKeyId)
+    this.$EventBus.$on('assessment-update-header', this.updateAssessmentHeader)
   },
   beforeDestroy() {
     this.$EventBus.$off('assessment-saved', this.autoSaveMixinUpdateKeyId)
+    this.$EventBus.$off('assessment-update-header', this.updateAssessmentHeader)
   },
   methods: {
 
@@ -316,6 +318,87 @@ export default {
          this.assessmentToolListVisible = false
        })
       }, 0)
+    },
+
+    updateAssessmentHeader ({ key, headerNameList }) {
+      this.$logger.info(`update assessment ${key}`, headerNameList)
+      const assessment = this.assessmentList.find(item => item.key === key)
+      const assessmentIndex = this.assessmentList.findIndex(item => item.key === key)
+      this.$logger.info('find assessment ', assessment, ' at ' + assessmentIndex)
+      const assessmentOptionsLen = assessment.headerList.filter(item => item.type.startsWith(HeaderType.custom)).length
+
+      this.$logger.info(`assessmentOptionsLen ${assessmentOptionsLen} headerNameList.length ${headerNameList.length}`)
+      if (assessmentOptionsLen === headerNameList.length) {
+        // 如果选择的option和现有表头列相同，则更新对应title
+        let index = 0
+        assessment.headerList.forEach((header) => {
+          if (header.type.startsWith(HeaderType.custom)) {
+            header.title = headerNameList[index % headerNameList.length]
+            index++
+          }
+        })
+        this.$logger.info('update header set', this.assessment.headerList)
+      } else if (assessmentOptionsLen < headerNameList.length) {
+        // 如果选择的option列表比现有的表头多，新增对应的表头列
+        const tempAssessment = JSON.parse(JSON.stringify(assessment))
+        const headerTypeList = tempAssessment.headerList.map(header => header.type)
+        let needCreateHeader = headerNameList.length - assessmentOptionsLen
+        while (needCreateHeader > 0) {
+          let minorCustomNum = assessmentOptionsLen
+          while (headerTypeList.indexOf(`${HeaderType.custom}_${minorCustomNum}`) !== -1) {
+            minorCustomNum++
+          }
+          const typeKey = `${HeaderType.custom}_${minorCustomNum}`
+          this.$logger.info(`wait create ${typeKey}`)
+          headerTypeList.push(typeKey)
+          tempAssessment.headerList.push({
+            type: typeKey,
+            title: 'Option',
+            editing: false,
+            canAddCustomCol: true
+          })
+          tempAssessment.bodyList.forEach(bodyRowObj => {
+            bodyRowObj[typeKey] = {
+              display: null,
+              type: typeKey
+            }
+          })
+          tempAssessment.extraCriteriaBodyList.forEach(bodyRowObj => {
+            bodyRowObj[typeKey] = {
+              display: null,
+              type: typeKey
+            }
+          })
+
+          let index = 0
+          tempAssessment.headerList.forEach((header) => {
+            if (header.type.startsWith(HeaderType.custom)) {
+              header.title = headerNameList[index % headerNameList.length]
+              this.$logger.info(`rename title to ${header.title}`)
+              index++
+            }
+          })
+          needCreateHeader--
+        }
+        this.assessmentList.splice(assessmentIndex, 1, tempAssessment)
+      } else {
+        // 如果选择的option列表比现有的表头少，删除多余的表头列
+        const tempAssessment = JSON.parse(JSON.stringify(assessment))
+        let needDelHeader = assessmentOptionsLen - headerNameList.length
+        while (needDelHeader > 0) {
+          const lastDelIndex = tempAssessment.headerList.findLastIndex(item => item.type.startsWith(HeaderType.custom))
+          const waitDelHeaderItem = tempAssessment.headerList.splice(lastDelIndex, 1)[0]
+          tempAssessment.bodyList.forEach(bodyRowObj => {
+            delete bodyRowObj[waitDelHeaderItem.type]
+          })
+          tempAssessment.extraCriteriaBodyList.forEach(bodyRowObj => {
+            delete bodyRowObj[waitDelHeaderItem.type]
+          })
+          needDelHeader--
+        }
+        this.assessmentList.splice(assessmentIndex, 1, tempAssessment)
+      }
+      this.$logger.info('update header', this.assessmentList[assessmentIndex])
     }
   }
 }

@@ -177,8 +177,11 @@ import html2canvas from 'html2canvas'
 export default {
   name: 'AssessmentToolTable',
   components: { CustomLinkText, ModalHeader, CustomTextButton, DeleteIcon, PlusIcon, CommonNoData },
-  inject: [ 'assessment' ],
   props: {
+    assessment: {
+      type: Object,
+      required: true
+    },
     mode: {
       type: String,
       default: 'edit' // edit、view、evaluate
@@ -398,14 +401,10 @@ export default {
     selectHeaderSet (optionItem) {
       const options = optionItem.headerNameList
       this.$logger.info('selectHeaderSet', options)
-      let index = 0
-      this.assessment.headerList.forEach((header) => {
-        if (header.type.startsWith(HeaderType.custom)) {
-          header.title = options[index % options.length]
-          index++
-        }
+      this.$EventBus.$emit('assessment-update-header', {
+        key: this.assessment.key,
+        headerNameList: options
       })
-      this.$logger.info('update header set', this.assessment.headerList)
       this.selectHeaderSetModalVisible = false
     },
 

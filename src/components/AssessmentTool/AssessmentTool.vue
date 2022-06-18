@@ -30,7 +30,7 @@
       </div>
     </div>
     <div class='assessment-body'>
-      <assessment-tool-table ref='table' :is-active-table='isActiveTable' :saving.sync='saving' />
+      <assessment-tool-table ref='table' :assessment='assessment' :is-active-table='isActiveTable' :saving.sync='saving' />
     </div>
   </div>
 </template>
@@ -55,11 +55,6 @@ export default {
     isActiveTable: {
       type: Boolean,
       required: true
-    }
-  },
-  provide () {
-    return {
-      assessment: this.assessment
     }
   },
   mixins: [ AssessmentToolMixin ],
