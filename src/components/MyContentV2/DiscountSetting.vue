@@ -61,7 +61,7 @@
         <div class='setting-label'>
         </div>
         <div class='setting-content'>
-          <a-range-picker @change="handleDurationChange" v-show='discountSetting.durationOn'/>
+          <a-range-picker :disabled-date="disabledDate" @change="handleDurationChange" v-show='discountSetting.durationOn'/>
         </div>
       </div>
 
@@ -78,6 +78,7 @@
 <script>
 
 import ModalHeader from '@/components/Common/ModalHeader'
+import moment from 'moment'
 
 const mode = {
   SalesOff: 'SalesOff',
@@ -118,6 +119,10 @@ export default {
 
     handleDurationChange (data) {
       this.$logger.info('handleDurationChange', data)
+    },
+
+    disabledDate(current) {
+      return current && current < moment().subtract(1, 'days').endOf('day')
     }
   }
 }
