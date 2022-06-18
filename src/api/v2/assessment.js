@@ -5,6 +5,7 @@ export const AssessmentUrl = {
   assessmentToolHeaderNamesList: '/classcipe/assessment/assessmentToolHeaderNames/list/my',
   assessmentToolHeaderNamesDelete: '/classcipe/assessment/assessmentToolHeaderNames/delete',
   assessmentToolInfoSave: '/classcipe/assessment/assessmentToolInfo/save',
+  assessmentToolInfoSaveBatch: '/classcipe/assessment/assessmentToolInfo/saveBatch',
   assessmentToolInfoList: '/classcipe/assessment/assessmentToolInfo/list',
   assessmentToolInfoDelete: '/classcipe/assessment/assessmentToolInfo/delete'
 }
@@ -59,6 +60,22 @@ export function AssessmentToolHeaderNamesDelete (parameter) {
 export function AssessmentToolInfoSave (parameter) {
   return request({
     url: AssessmentUrl.assessmentToolInfoSave,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function AssessmentToolInfoSaveBatch (parameter) {
+  return request({
+    url: AssessmentUrl.assessmentToolInfoSaveBatch,
     method: 'post',
     data: parameter,
     headers: {

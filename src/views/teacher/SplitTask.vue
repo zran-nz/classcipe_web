@@ -480,7 +480,7 @@ import CustomImageUploader from '@/components/Common/CustomImageUploader'
 import ModalHeader from '@/components/Common/ModalHeader'
 import FormSlidePageSelect from '@/components/SplitTask/FormSlidePageSelect'
 import LearningObjectiveSelect from '@/components/LearningObjective/LearningObjectiveSelect'
-import { AssessmentToolInfoList } from '@/api/v2/assessment'
+import { AssessmentToolInfoList, AssessmentToolInfoSaveBatch } from '@/api/v2/assessment'
 
 export default {
   name: 'SplitTask',
@@ -703,7 +703,7 @@ export default {
 
       TaskQueryById({
         id: this.parentTaskId
-      }).then(response => {
+      }).then(async response => {
         if (response.code === 0) {
           const taskData = response.result
           if (!taskData.materialList) {
@@ -732,8 +732,10 @@ export default {
           taskData.customFieldData = displayCustomFieldData
           this.allLearningObjectiveList = taskData.learnOuts
           taskData.id = null
+          this.saving = true
           this.form = taskData
-
+          await this.save()
+          this.saving = false
           this.loadAssessment()
           this.$logger.info('restore split task', this.form)
         }
@@ -742,6 +744,7 @@ export default {
     },
 
     loadAssessment () {
+      this.$logger.info('loadAssessment', this.taskId, this.form.id)
       AssessmentToolInfoList({
         taskId: this.parentTaskId,
         pageNo: 1,
@@ -763,7 +766,7 @@ export default {
               delete assessment.createUserId
               delete assessment.extraCriteriaBodyListJson
               assessment.key = Date.now().toString(36) + '_' + Math.random().toString(36).substr(2)
-              assessment.taskId = this.taskId
+              assessment.taskId = this.taskId || this.form.id
               assessmentList.push(assessment)
               assessmentKeySet.add(item.key)
             }
@@ -771,6 +774,14 @@ export default {
 
           this.$logger.info('copy assessmentList', assessmentList)
           // 批量转存task 评估表
+          AssessmentToolInfoSaveBatch(assessmentList).then(res => {
+            this.$logger.info('AssessmentToolInfoSaveBatch res', res)
+            if (res.code === 0) {
+              this.showSubAssessment = true
+            } else {
+              this.$message.error(res.message)
+            }
+          })
         } else {
           this.$message.error('getAssessmentList error. ' + res.message)
         }
