@@ -14,7 +14,7 @@
     </div>
     <div class='sub-menu-list' v-if='expand && !$store.getters.collapsed'>
       <template v-if='menuList.length'>
-        <div class='sub-menu-item' v-for='menu in menuList' :key='menu.id' @click='handleClickMenu(menu)'>
+        <div class='sub-menu-item' :class="{'active-menu-item': menu.id === activeId && activeId}" v-for='menu in menuList' :key='menu.id' @click='handleClickMenu(menu)'>
           <div class='sub-menu-icon'>
             <student-icon />
           </div>
@@ -44,6 +44,10 @@ export default {
       default: ''
     },
     pathPrefix: {
+      type: String,
+      default: ''
+    },
+    activeId: {
       type: String,
       default: ''
     },
@@ -186,6 +190,13 @@ export default {
     }
     &:hover {
       background-color: #2F3341;
+    }
+  }
+
+  .active-menu-item {
+    .sub-menu-label {
+      color: #15C39A;
+      font-weight: bold;
     }
   }
 

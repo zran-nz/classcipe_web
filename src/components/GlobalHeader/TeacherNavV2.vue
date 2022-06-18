@@ -33,7 +33,7 @@
           </template>
         </sidebar-menu-item>
 
-        <sidebar-menu-list label='Classes' path-prefix='/teacher/class-session' :menu-list="classList">
+        <sidebar-menu-list label='Classes' path-prefix='/teacher/class-session' :menu-list="classList" :active-id='activeClassId'>
           <template v-slot:icon>
             <class-icon />
           </template>
@@ -143,6 +143,11 @@ export default {
         }
       }
       return []
+    },
+    activeClassId() {
+      if (this.$route.name === 'ClassSession') {
+        return this.$route.params?.classId
+      }
     }
   },
   mounted () {
