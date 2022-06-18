@@ -10,7 +10,14 @@
     </div>
     <div class='library-iframe-wrapper'>
 
-      <card-list title="Recommend" category="recommended" :list="recommendList" :card-size="30" v-show="recommendList.length > 0" />
+      <card-list
+        title="Recommend"
+        category="recommended"
+        :list="recommendList"
+        :card-size="30"
+        :inner-desc="true"
+        :outer-desc="false"
+        v-show="recommendList.length > 0" />
 
       <card-list
         title="Latest published"
@@ -18,6 +25,7 @@
         :list="lastPublishedList"
         :card-size="27"
         :inner-desc="true"
+        :outer-desc="false"
         v-show="lastPublishedList.length > 0" />
 
       <card-list
