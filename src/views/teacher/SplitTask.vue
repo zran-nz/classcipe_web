@@ -353,7 +353,9 @@
           </template>
           <template v-if='currentRightModule === rightModule.customTag'>
             <div v-if='!this.contentLoading'>
-              <custom-tag-v3 :custom-tags.sync='form.customTags'/>
+              <custom-tag-v3
+                :custom-tags.sync='form.customTags'
+                :tag-category-desc.sync='form.tagCategoryDesc'/>
             </div>
           </template>
           <template v-if='currentRightModule === rightModule.associate'>
@@ -541,6 +543,7 @@ export default {
         createBy: '',
         updateTime: '',
         customTags: [],
+        tagCategoryDesc: [],
         subjectIds: [],
         gradeIds: [],
         selectPageObjectIds: [],

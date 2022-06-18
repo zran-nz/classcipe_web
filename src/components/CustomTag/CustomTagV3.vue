@@ -31,7 +31,7 @@
           <common-no-data text='No tag' />
         </div>
       </div>
-      <div class='tag-category-wrapper'>
+      <div class='tag-category-wrapper' v-show='tagSelectContainerVisible'>
         <template v-if='currentActiveTagCategory'>
           <custom-tag-category-bar
             ref='categoryBar'
@@ -41,8 +41,7 @@
             @update='updateCurrentCategory'/>
         </template>
       </div>
-
-      <div class='tag-category-content-wrapper'>
+      <div class='tag-category-content-wrapper' v-show='tagSelectContainerVisible'>
         <div class='category-search'>
           <custom-search-input
             :round='true'
@@ -100,14 +99,33 @@
           </template>
         </div>
       </div>
-      <div class='tag-category-description'>
+      <div class='all-description vertical-right'>
+        <custom-link-text text='All' v-if='tagSelectContainerVisible' @click='tagSelectContainerVisible = false'></custom-link-text>
+        <custom-link-text text='Hide' v-if='!tagSelectContainerVisible' @click='tagSelectContainerVisible = true'></custom-link-text>
+      </div>
+      <div class='all-category-description' v-show='!tagSelectContainerVisible'>
+        <div class='category-description-item' v-for='categoryDesc in tagCategoryDesc' :key='categoryDesc.category'>
+          <div class='category-title'>
+            {{ categoryDesc.category }}
+          </div>
+          <div class='category-description'>
+            <a-textarea
+              :auto-size="{ minRows: 3, maxRows: 6 }"
+              v-model='categoryDesc.description'
+              placeholder='Explain why choose the tags'
+              class='cc-form-textarea-white-bg'
+              allow-clear />
+          </div>
+        </div>
+      </div>
+      <div class='tag-category-description' v-show='tagSelectContainerVisible'>
         <a-textarea
-          v-if='currentActiveTagCategory'
+          v-if='currentActiveTagCategory && selectedCategoryNameList.indexOf(currentActiveTagCategory.set) !== -1'
           :auto-size="{ minRows: 3, maxRows: 6 }"
-          v-model='currentActiveTagCategory.tooltip'
+          v-model='currentTagCategoryDesc'
           placeholder='Explain why choose the tags'
           class='cc-form-textarea-white-bg'
-          @change='asyncUpdateTooltip'
+          @change='asyncUpdateTagCategoryDescFn'
           allow-clear />
       </div>
 
@@ -135,6 +153,8 @@ import CustomSearchInput from '@/components/Common/CustomSearchInput'
 import { debounce } from 'lodash-es'
 import TagSetting from '@/components/UnitPlan/TagSetting'
 import { QueryCustomTags } from '@/api/v2/mycontent'
+import CustomTextButton from '@/components/Common/CustomTextButton'
+import CustomLinkText from '@/components/Common/CustomLinkText'
 
 const setColor = [
   '#FFEDAF',
@@ -151,9 +171,13 @@ const setColor = [
 
 export default {
   name: 'CustomTagV3',
-  components: { TagSetting, CustomSearchInput, CustomTagCategoryBar, CommonNoData },
+  components: { CustomLinkText, CustomTextButton, TagSetting, CustomSearchInput, CustomTagCategoryBar, CommonNoData },
   props: {
     customTags: {
+      type: Array,
+      default: () => []
+    },
+    tagCategoryDesc: {
       type: Array,
       default: () => []
     },
@@ -182,7 +206,10 @@ export default {
       selectedTagList: [],
       categoryToColor: {},
 
-      asyncUpdateTooltip: null // 异步更新标签分类tooltip函数
+      currentTagCategoryDesc: '',
+      asyncUpdateTagCategoryDescFn: null, // 异步更新标签分类TagCategoryDesc函数
+
+      tagSelectContainerVisible: false
     }
   },
   watch: {
@@ -202,6 +229,35 @@ export default {
           item.tagColor = category?.tagColor || '#f1f1f1'
         })
         this.selectedTagList = list
+      }
+    },
+    tagCategoryDesc: {
+      deep: true,
+      immediate: true,
+      handler(newValue) {
+        const list = JSON.parse(JSON.stringify(newValue))
+        if (this.currentActiveTagCategory) {
+          const current = list.find(item => item.category === this.currentActiveTagCategory.set)
+          if (current) {
+            this.currentTagCategoryDesc = current.description
+          } else {
+            this.currentTagCategoryDesc = ''
+          }
+        }
+      }
+    },
+    currentActiveTagCategory: {
+      deep: true,
+      immediate: true,
+      handler(newValue) {
+        if (newValue) {
+          const current = this.tagCategoryDesc.find(item => item.category === newValue.set)
+          if (current) {
+            this.currentTagCategoryDesc = current.description
+          } else {
+            this.currentTagCategoryDesc = ''
+          }
+        }
       }
     }
   },
@@ -292,11 +348,19 @@ export default {
         })
       })
       return Array.from(categorySet)
+    },
+
+    selectedCategoryNameList () {
+      const categorySet = new Set()
+      this.selectedTagList.forEach(item => {
+        categorySet.add(item.category)
+      })
+      return Array.from(categorySet)
     }
   },
   created() {
     this.initTagData()
-    this.asyncUpdateTooltip = debounce(this.updateTagCategoryTooltip, 1000)
+    this.asyncUpdateTagCategoryDescFn = debounce(this.updateTagCategoryTagCategoryDesc, 1000)
   },
   methods: {
 
@@ -315,6 +379,16 @@ export default {
             this.currentActiveTagCategory = this.allTagList[index]
           }
         }
+
+        // 根据已选customTag，同步补全tagCategoryDesc
+        this.customTags.forEach(customTag => {
+          if (!this.tagCategoryDesc.some(categoryDesc => categoryDesc.category === customTag.category)) {
+            this.tagCategoryDesc.push({
+              category: customTag.category,
+              description: ''
+            })
+          }
+        })
       }).finally(() => {
         this.loading = false
       })
@@ -377,10 +451,29 @@ export default {
       this.$logger.info('after selectTag customTags', this.selectedTagList)
     },
 
-    updateTagCategoryTooltip () {
-      this.$logger.info('updateTagCategoryTooltip', this.currentActiveTagCategory)
-      if (this.currentActiveTagCategory) {
+    updateTagCategoryTagCategoryDesc () {
+      this.$logger.info('updateTagCategoryTagCategoryDesc', this.currentActiveTagCategory, this.currentTagCategoryDesc)
+      const categorySet = new Set()
+      const list = []
+
+      // 更新已有
+      this.tagCategoryDesc.forEach(item => {
+        if (!categorySet.has(item.category) && item.category) {
+          categorySet.add(item.category)
+          if (item.category === this.currentActiveTagCategory.set) {
+            list.push({ category: item.category, description: this.currentTagCategoryDesc })
+          } else {
+            list.push({ ...item })
+          }
+        }
+      })
+
+      // 新增描述
+      if (!this.tagCategoryDesc.some(item => item.category === this.currentActiveTagCategory.set)) {
+        list.push({ category: this.currentActiveTagCategory.set, description: this.currentTagCategoryDesc })
       }
+      this.$logger.info('update tagCategoryDesc', list)
+      this.$emit('update:tagCategoryDesc', list)
     },
 
     switchCategory (category) {
@@ -579,7 +672,7 @@ export default {
     }
 
     .tag-category-description {
-      margin-top: 20px;
+      margin-top: 10px;
     }
 
     .cc-custom-tag-item {
@@ -646,5 +739,18 @@ export default {
 .selected-tag-item {
   border: 2px dashed #15c39a !important;
   filter: opacity(0.3);
+}
+
+.all-description {
+  margin-top: 10px;
+}
+
+.category-description-item {
+  margin-top: 10px;
+  .category-title {
+    font-weight: 500;
+    padding-bottom: 3px;
+    padding-left: 5px;
+  }
 }
 </style>

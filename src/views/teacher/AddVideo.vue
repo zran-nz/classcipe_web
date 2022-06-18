@@ -109,7 +109,8 @@
                           allow-clear/>
                       </a-col>
                       <a-col span='10' offset='1'>
-                        <custom-tag-v3 :custom-tags.sync='form.customTags'/>
+                        <custom-tag-v3
+                          :custom-tags.sync='form.customTags' />
                       </a-col>
                     </a-row>
                   </div>
@@ -227,6 +228,7 @@ export default {
         contentType: 0,
         goals: null,
         customTags: [],
+        tagCategoryDesc: [],
         learnOuts: [],
         subjectList: [],
         languageList: [],

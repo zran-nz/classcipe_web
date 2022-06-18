@@ -389,6 +389,7 @@
             <div v-if='!contentLoading'>
               <custom-tag-v3
                 :custom-tags.sync='form.customTags'
+                :tag-category-desc.sync='form.tagCategoryDesc'
                 :associate-id-type-list='associateIdTypeList'
                 :is-load-associate-tags='true'
               />
@@ -604,6 +605,7 @@ export default {
         createBy: '',
         updateTime: '',
         customTags: [],
+        tagCategoryDesc: [],
         subjectIds: [],
         gradeIds: [],
         bloomCategories: '',
