@@ -139,11 +139,11 @@
       :title='null'
       :closable='false'
       :footer='null'>
-      <modal-header title="Select header option" @close='selectHeaderSetModalVisible = false'/>
+      <modal-header title="Select a set of options" @close='selectHeaderSetModalVisible = false'/>
       <div class='edit-header-action'>
         <div class='edit-header-action-item header-option' v-for='(options, idx) in optionList' :key='idx' @click='selectHeaderSet(options)'>
           <a-tag v-for='(option,oIdx) in options.headerNameList' :key='oIdx'>{{ option }}</a-tag>
-          <delete-icon @click.stop='handleDeleteHeader(options)' class='delete-item'/>
+          <delete-icon @click.native.stop='handleDeleteHeader(options)' class='delete-item'/>
         </div>
         <div class='no-header' v-if='optionList.length === 0'>
           <common-no-data />
@@ -384,6 +384,7 @@ export default {
           }).then((res) => {
             if (res.code === 0) {
               this.optionStrSet.add(headerStr)
+              this.$message.success('Save successfully')
             } else {
               this.$message.error(res.message)
             }
@@ -394,14 +395,17 @@ export default {
       }
     },
 
-    selectHeaderSet (options) {
+    selectHeaderSet (optionItem) {
+      const options = optionItem.headerNameList
+      this.$logger.info('selectHeaderSet', options)
       let index = 0
-      this.assessment.headerList.forEach(header => {
+      this.assessment.headerList.forEach((header) => {
         if (header.type.startsWith(HeaderType.custom)) {
           header.title = options[index % options.length]
           index++
         }
       })
+      this.$logger.info('update header set', this.assessment.headerList)
       this.selectHeaderSetModalVisible = false
     },
 
@@ -617,6 +621,7 @@ export default {
 .edit-header-action {
   padding: 0 20px 0 20px;
   .edit-header-action-item {
+    min-height: 30px;
     .cc-custom-text-button {
       margin: 15px auto;
     }
