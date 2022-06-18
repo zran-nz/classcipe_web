@@ -291,7 +291,7 @@
               </template>
             </div>
             <div class='form-field-item custom-field' v-for='custFieldItem in $store.getters.formConfigData.taskCustomList' :key='custFieldItem.id'>
-              <template v-if='step.customFields.indexOf(custFieldItem.name) !== -1'>
+              <template v-if='step.customFields && step.customFields.indexOf(custFieldItem.name) !== -1'>
                 <div class='form-block tag-content-block' v-if="custFieldItem.visible && form.customFieldData && form.customFieldData.hasOwnProperty(custFieldItem.id)" :key='custFieldItem.id' :data-field-name="'cust_' + custFieldItem.name" :data-field-id='custFieldItem.id'>
                   <custom-form-item>
                     <template slot='label'>
@@ -353,7 +353,7 @@
           </template>
           <template v-if='currentRightModule === rightModule.customTag'>
             <div v-if='!this.contentLoading'>
-              <custom-tag-v3 :custom-tag.sync='form.customTags'/>
+              <custom-tag-v3 :custom-tags.sync='form.customTags'/>
             </div>
           </template>
           <template v-if='currentRightModule === rightModule.associate'>
@@ -724,13 +724,9 @@ export default {
           }
           this.$logger.info('displayCustomFieldData', displayCustomFieldData)
           taskData.customFieldData = displayCustomFieldData
-          delete taskData.id
-          if (taskData.customTags && taskData.customTags.length) {
-            if (!taskData.customTags[0].fieldName) {
-              taskData.customTags = []
-            }
-          }
+          taskData.id = null
           this.form = taskData
+          this.$logger.info('restore split task', this.form)
         }
       })
       this.loadThumbnail(false)
