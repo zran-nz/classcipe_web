@@ -141,7 +141,7 @@ export default {
     handleDelete(clickInfo) {
         this.loading = true
         DeleteClassV2({
-          sessionId: clickInfo.event.extendedProps.id
+          sessionId: clickInfo.event.extendedProps.sessionId
         }).then(res => {
           if (res.code === 0) {
             this.$message.success('Remove successfully')

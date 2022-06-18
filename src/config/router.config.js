@@ -594,6 +594,12 @@ export const asyncRouterMap = [
             name: 'MyCalssV2',
             component: () => import('@/views/account/manage/MyClassV2'),
             meta: { title: 'menu.my-class', keepAlive: true, permission: ['teacher'] }
+          },
+          {
+            path: '/manage/persona/security',
+            name: 'PersonalSecurity',
+            component: () => import('@/views/account/manage/PersonaSecurity'),
+            meta: { title: 'Login & Security', keepAlive: true }
           }
         ]
       },

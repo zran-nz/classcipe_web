@@ -371,6 +371,7 @@ export default {
                     planId: item.sessionInfo.planId,
                     contentId: item.sessionInfo.contentId,
                     sessionType: item.sessionInfo.sessionType,
+                    sessionId: item.sessionId,
                     status: item.attendance || 'absent',
                     id: item.sessionInfo.id,
                     backgroundColor: color,

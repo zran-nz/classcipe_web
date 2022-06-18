@@ -15,7 +15,19 @@
             {{ currentSchool.schoolName || info.nickname }}
           </div>
           <div class="header-detail-email" v-if="userMode === USER_MODE.SELF">
-            <label>{{ info.email }}</label>
+            <label>
+              {{ info.email }}
+              <!-- <a-icon style="color: #52DB9C" type="check-circle" /> -->
+              <a-tooltip>
+                <div slot="title">
+                  <label for=""> The inactive account will be automatically removed after 30 days upon registration. Click to resend an email with activating link</label>
+                  <div style="text-align:right;">
+                    <a-button type="primary" size="small">Gesend</a-button>
+                  </div>
+                </div>
+                <a-icon style="color: #FF7916" type="exclamation-circle" />
+              </a-tooltip>
+            </label>
             <a-button size="small" type="primary" @click="goToProfile">Go to profile</a-button>
           </div>
           <div class="header-detail-plan">
@@ -197,7 +209,7 @@ export default {
             title: 'Login & security',
             desc: 'Review payments, payouts, coupons,gift cards and taxes',
             hidden: this.userMode === USER_MODE.SCHOOL,
-            url: ''
+            url: '/manage/persona/security'
           },
           {
             avatar: PayoutsPng,
