@@ -60,7 +60,12 @@
                   <template slot='label'>
                     Cover video
                   </template>
-                  <custom-cover-media type='video' :url='form.coverVideo' :show-delete-button='true' @delete='handleDeleteVideoCover' @update='handleUpdateCover'/>
+                  <custom-cover-media
+                    type='video'
+                    :url='form.coverVideo'
+                    :show-delete-button='true'
+                    @delete='handleDeleteVideoCover'
+                    @update='handleUpdateCover'/>
                 </custom-form-item>
               </div>
 

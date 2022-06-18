@@ -1,5 +1,5 @@
 <template>
-  <div class='custom-cover-media' :style="{width: width, height: height}">
+  <div class='custom-cover-media' :style="{width: width, 'min-height': height}">
     <a-upload-dragger
       class='cc-upload'
       :showUploadList='false'
@@ -15,7 +15,7 @@
       <div class='upload-tips' v-if='!uploading'>
         <custom-media-cover-button :label='label' bg-color='#2582B5' font-color='#fff' v-show='showUploadButton'></custom-media-cover-button>
         <custom-media-cover-button label='Edit' bg-color='#2582B5' font-color='#fff' v-show='showEditButton' @click.native.capture.stop='handleEdit($event)'></custom-media-cover-button>
-        <custom-media-cover-button label='Delete' bg-color='#2582B5' font-color='#fff' v-show='showDeleteButton' @click.native.capture.stop='handleDelete($event)'></custom-media-cover-button>
+        <custom-media-cover-button label='Delete' bg-color='#2582B5' font-color='#fff' v-show='showDeleteButton && (mediaUrl || url)' @click.native.capture.stop='handleDelete($event)'></custom-media-cover-button>
       </div>
     </a-upload-dragger>
     <div class='uploading-progress' v-show='uploading'>
@@ -171,8 +171,10 @@ export default {
     .upload-tips {
       display: none;
       position: absolute;
-      top: 25%;
+      top: 50%;
       left: 50%;
+      min-height: 150px;
+      margin-top: -75px;
       margin-left: -90px;
       width: 180px;
       align-items: center;
