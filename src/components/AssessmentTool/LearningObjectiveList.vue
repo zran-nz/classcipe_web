@@ -282,6 +282,7 @@ export default {
 .learning-objective-list {
   .select-content {
     margin-top: 20px;
+    margin-bottom: 10px;
     padding-right: 10px;
     overflow-y: auto;
     height: calc(100vh - 340px);
