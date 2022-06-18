@@ -95,12 +95,17 @@ export default {
     },
 
     deleteAssessmentTool () {
-      AssessmentToolInfoDelete({
-        id: this.assessment.id
-      }).then((res) => {
-        this.$logger.info('deleteAssessmentTool res', res)
+      this.$logger.info('deleteAssessmentTool', this.assessment)
+      if (this.assessment.id) {
+        AssessmentToolInfoDelete({
+          id: this.assessment.id
+        }).then((res) => {
+          this.$logger.info('deleteAssessmentTool res', res)
+          this.$emit('delete', this.assessment.key)
+        })
+      } else {
         this.$emit('delete', this.assessment.key)
-      })
+      }
     },
 
     saveAssessment() {
