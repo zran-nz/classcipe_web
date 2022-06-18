@@ -19,7 +19,7 @@
     </div>
     <div class='select-content'>
       <div class='objectives-wrapper' v-show='mode === selectMode.subjectLearningObjectives'>
-        <div class='objectives-list-item' v-for='objectiveItem in learningObjectiveList' :key='objectiveItem.id' :class="{'disabled-item': disabledLearningObjectiveIdList.indexOf(objectiveItem.id) !== -1}">
+        <div class='objectives-list-item' v-for='(objectiveItem, idx) in learningObjectiveList' :key='idx' :class="{'disabled-item': disabledLearningObjectiveIdList.indexOf(objectiveItem.id) !== -1}">
           <div class='objective-item'>
             <div class='objective-item-title' v-if='objectiveItem && objectiveItem.path && objectiveItem.path.length'>
               <a-icon type="tag" />
@@ -41,7 +41,7 @@
         </div>
       </div>
       <div class='objectives-wrapper' v-show='mode === selectMode.generalCapabilities'>
-        <div class='objectives-list-item' v-for='objectiveItem in generalCapabilityList' :key='objectiveItem.id' :class="{'disabled-item': disabledGeneralCapabilityIdList.indexOf(objectiveItem.id) !== -1}">
+        <div class='objectives-list-item' v-for='(objectiveItem, idx) in generalCapabilityList' :key='idx' :class="{'disabled-item': disabledGeneralCapabilityIdList.indexOf(objectiveItem.id) !== -1}">
           <div class='objective-item'>
             <div class='objective-item-title' v-if='objectiveItem && objectiveItem.path && objectiveItem.path.length'>
               <a-icon type="tag" />
@@ -65,7 +65,7 @@
       <div class='performance' v-show='mode === selectMode.studentPerformance'>
         <div class='tag-wrapper'>
           <div class="skt-tag-list">
-            <div class="skt-tag-item " v-for="(tag) in performanceList" :key="tag.id" @click="handleAddPerformance(tag)">
+            <div class="skt-tag-item " v-for="(tag, index) in performanceList" :key="index" @click="handleAddPerformance(tag)">
               <a-tag
                 class='tag-item'
                 :closable='false'
@@ -216,7 +216,7 @@ export default {
     },
 
     initTagData (tagList) {
-      this.$logger.info('lo initTagData', tagList)
+      this.$logger.info('lo initTagData', tagList, JSON.stringify(tagList))
       const dataList = JSON.parse(JSON.stringify(tagList))
       if (Array.isArray(dataList) && dataList.length > 0) {
         const tagSet = new Set()
