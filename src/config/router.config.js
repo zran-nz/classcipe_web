@@ -254,6 +254,13 @@ export const asyncRouterMap = [
             meta: { title: 'menu.task', keepAlive: true, permission: ['teacher'], fullLayout: true }
           },
           {
+            path: '/teacher/sub-task/:taskId',
+            name: 'MySubtask',
+            props: true,
+            component: () => import('@/views/teacher/MySubtaskList'),
+            meta: { title: 'menu.sub-task', keepAlive: true, permission: ['teacher'], fullLayout: true }
+          },
+          {
             path: '/teacher/split-task/:parentTaskId',
             name: 'SplitTask',
             props: true,

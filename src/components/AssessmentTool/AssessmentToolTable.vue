@@ -74,7 +74,7 @@
     </table>
     <div class='table-bottom-bar'>
       <div class='add-row' v-if='mode === AssessmentMode.edit'>
-        <plus-icon color='#a9adb4' @click='handleAddRow' />
+        <plus-icon color='#a9adb4' @click='handleAddRow' v-show='allowCreate' />
       </div>
       <div class='right-action'>
         <custom-link-text
@@ -96,7 +96,7 @@
       <modal-header :title="'Operation for ' + (currentEditHeader ? currentEditHeader.title : '') + ''" @close='editHeaderModalVisible = false'/>
       <div class='edit-header-action'>
         <div class='edit-header-action-item' v-if='currentEditHeader'>
-          <custom-text-button label='Add a column' @click='handleAddCol' v-if='currentEditHeader.canAddCustomCol'></custom-text-button>
+          <custom-text-button label='Add a column' @click='handleAddCol' v-if='currentEditHeader.canAddCustomCol && allowCreate'></custom-text-button>
           <custom-text-button label='Delete current column' @click='handleDelCol' v-if='currentEditHeader.canAddCustomCol'></custom-text-button>
           <custom-text-button label='Edit option' @click='handleEditName'></custom-text-button>
         </div>
@@ -193,6 +193,10 @@ export default {
     saving: {
       type: Boolean,
       default: false
+    },
+    allowCreate: {
+      type: Boolean,
+      default: true
     }
   },
   data() {

@@ -278,7 +278,10 @@
                 <div class='form-field-item assessment-tools-item' v-if="fieldItem.visible && fieldItem.fieldName === splitTaskField.AssessmentTools">
                   <div class='form-block tag-content-block'>
                     <div class='common-link-wrapper assessment-tools'>
-                      <task-assessment-tools :task-id='taskId' v-if='taskId'/>
+                      <task-assessment-tools
+                        :allow-create='false'
+                        :task-id='taskId'
+                        v-if='taskId && showSubAssessment' />
                     </div>
                   </div>
                 </div>
@@ -357,9 +360,6 @@
             <link-content-list :filter-types="[contentType['unit-plan'], contentType.evaluation]" />
           </template>
           <template v-if='currentRightModule === rightModule.assessmentToolsLearnOuts'>
-            <learning-objective-list
-              :learn-outs='form.learnOuts'
-              :selected-tag-list='form.customTags'/>
           </template>
         </div>
       </div>
@@ -368,6 +368,11 @@
       </div>
     </div>
     <fixed-form-footer>
+      <template v-slot:left>
+        <a-button @click='handleDiscardStep' class='cc-round-button'>
+          Discard
+        </a-button>
+      </template>
       <template v-slot:right>
         <a-button type='primary' @click='handleNextStep' class='cc-round-button'>
           <template v-if='currentActiveStepIndex < formSteps.length - 1'>
@@ -465,7 +470,6 @@ import FixedFormFooter from '@/components/Common/FixedFormFooter'
 import CustomFormItem from '@/components/Common/CustomFormItem'
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import TaskAssessmentTools from '@/components/AssessmentTool/TaskAssessmentTools'
-import LearningObjectiveList from '@/components/AssessmentTool/LearningObjectiveList'
 import FormSlide from '@/components/PPT/FormSlide'
 import SlideSelectList from '@/components/PPT/SlideSelectList'
 import CustomCoverMedia from '@/components/Common/CustomCoverMedia'
@@ -476,6 +480,7 @@ import CustomImageUploader from '@/components/Common/CustomImageUploader'
 import ModalHeader from '@/components/Common/ModalHeader'
 import FormSlidePageSelect from '@/components/SplitTask/FormSlidePageSelect'
 import LearningObjectiveSelect from '@/components/LearningObjective/LearningObjectiveSelect'
+import { AssessmentToolInfoList } from '@/api/v2/assessment'
 
 export default {
   name: 'SplitTask',
@@ -488,7 +493,6 @@ export default {
     CustomCoverMedia,
     SlideSelectList,
     FormSlide,
-    LearningObjectiveList,
     TaskAssessmentTools,
     CustomTextButton,
     CustomFormItem,
@@ -593,7 +597,8 @@ export default {
       tagBodyWidth: '45%',
       fullBodyFields: [SplitTaskField.LearnOuts, SplitTaskField.SelectSlides],
 
-      taskCommonList: []
+      taskCommonList: [],
+      showSubAssessment: false
     }
   },
   computed: {
@@ -728,10 +733,48 @@ export default {
           this.allLearningObjectiveList = taskData.learnOuts
           taskData.id = null
           this.form = taskData
+
+          this.loadAssessment()
           this.$logger.info('restore split task', this.form)
         }
       })
       this.loadThumbnail(false)
+    },
+
+    loadAssessment () {
+      AssessmentToolInfoList({
+        taskId: this.parentTaskId,
+        pageNo: 1,
+        pageSize: 100
+      }).then(res => {
+        this.$logger.info('parentTaskId getAssessmentList res', res)
+        if (res.code === 0) {
+          const assessmentList = []
+          const assessmentKeySet = new Set()
+          res.result.records.forEach(item => {
+            if (!assessmentKeySet.has(item.key)) {
+              const assessment = {
+                ...item
+              }
+              assessment.headerList = item.headerListJson ? JSON.parse(item.headerListJson) : []
+              assessment.bodyList = item.bodyListJson ? JSON.parse(item.bodyListJson) : []
+              assessment.extraCriteriaBodyList = item.extraCriteriaBodyListJson ? JSON.parse(item.extraCriteriaBodyListJson) : []
+              delete assessment.id
+              delete assessment.createUserId
+              delete assessment.extraCriteriaBodyListJson
+              assessment.key = Date.now().toString(36) + '_' + Math.random().toString(36).substr(2)
+              assessment.taskId = this.taskId
+              assessmentList.push(assessment)
+              assessmentKeySet.add(item.key)
+            }
+          })
+
+          this.$logger.info('copy assessmentList', assessmentList)
+          // 批量转存task 评估表
+        } else {
+          this.$message.error('getAssessmentList error. ' + res.message)
+        }
+      })
     },
 
     handleUpdateCover (coverData) {
@@ -762,12 +805,19 @@ export default {
     handleNextStep () {
       if (this.currentActiveStepIndex === this.formSteps.length - 1) {
         this.$router.replace({
-          path: '/'
+          path: '/teacher/sub-task/' + this.parentTaskId
         })
       } else {
         this.$refs['steps-nav'].nextStep()
       }
     },
+
+    handleDiscardStep () {
+      this.$router.replace({
+        path: '/teacher/sub-task/' + this.parentTaskId
+      })
+    },
+
     restoreSplitTaskByResponse(response) {
       this.saving = true
       if (response.code === 0 && response.success) {

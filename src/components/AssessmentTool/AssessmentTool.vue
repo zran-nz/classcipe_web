@@ -20,7 +20,7 @@
         </a-space>
       </div>
       <div class='right-action'>
-        <a-space v-if='assessment.type === AssessmentToolType.Rubric'>
+        <a-space v-if='assessment.type === AssessmentToolType.Rubric && allowCreate'>
           <custom-link-text text='Option' @click='selectHeaderSet'>
             <template v-slot:prefix>
               <a-icon type='plus-circle' />
@@ -30,7 +30,12 @@
       </div>
     </div>
     <div class='assessment-body'>
-      <assessment-tool-table ref='table' :assessment='assessment' :is-active-table='isActiveTable' :saving.sync='saving' />
+      <assessment-tool-table
+        ref='table'
+        :allow-create='allowCreate'
+        :assessment='assessment'
+        :is-active-table='isActiveTable'
+        :saving.sync='saving' />
     </div>
   </div>
 </template>
@@ -55,6 +60,10 @@ export default {
     isActiveTable: {
       type: Boolean,
       required: true
+    },
+    allowCreate: {
+      type: Boolean,
+      default: true
     }
   },
   mixins: [ AssessmentToolMixin ],

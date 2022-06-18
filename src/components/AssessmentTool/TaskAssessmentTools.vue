@@ -1,6 +1,6 @@
 <template>
   <div class='task-assessment-tools'>
-    <div class='create-assessment-bar'>
+    <div class='create-assessment-bar' v-show='allowCreate'>
       <a-space>
         <custom-text-button label='Import Assessment tool' @click='showAssessmentToolList'>
           <template v-slot:suffix>
@@ -32,6 +32,7 @@
         <div class='assessment-item' v-for='assessment in assessmentList' :key='assessment.key' @click='handleSelectActiveTable(assessment)'>
           <assessment-tool
             :assessment='assessment'
+            :allow-create='allowCreate'
             ref='assessmentTool'
             :is-active-table='activeAssessmentTableKey === assessment.key'
             @delete='handleDeleteAssessmentTool' />
@@ -80,6 +81,10 @@ export default {
     taskId: {
       type: String,
       required: true
+    },
+    allowCreate: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
