@@ -4,7 +4,7 @@
       v-model='selVis'
       destroyOnClose
       title='Subject Class Setting'
-      width='850px'
+      width='900px'
       okText='Done'
       :confirmLoading="loading"
       @ok='handleSave'
@@ -83,7 +83,7 @@
           </a-col>
         </a-row>
         <a-row :gutter=16>
-          <a-col :span="12">
+          <!-- <a-col :span="12">
             <a-form-model-item label="Block">
               <a-select
                 :getPopupContainer="trigger => trigger.parentElement"
@@ -94,7 +94,8 @@
                 </a-select-option >
               </a-select>
             </a-form-model-item >
-          </a-col>
+          </a-col> -->
+          <term-calendar :termId="formModel.term" :choose="formModel.blockSetting" @date-select="handleSelectBlock"/>
         </a-row>
       </a-form-model>
     </a-modal>
@@ -107,11 +108,13 @@ import { getCurriculumBySchoolId } from '@/api/academicSettingCurriculum'
 import { termList } from '@/api/academicTermInfo'
 
 import CustomTextButton from '@/components/Common/CustomTextButton'
+import TermCalendar from '@/components/Calendar/TermCalendar'
 import cloneDeep from 'lodash.clonedeep'
 export default {
   name: 'ClassSubjectSel',
   components: {
-    CustomTextButton
+    CustomTextButton,
+    TermCalendar
   },
   props: {
     school: {
@@ -249,6 +252,7 @@ export default {
             }
           }
         })
+        // 回显blocksetting
         this.formModel.termArr = termArr
         if (this.formModel.blockSetting) {
           const blockSetting = this.blockOptions[this.formModel.term].find(item => [item.start, item.end].join(' - ') === this.formModel.blockSetting)
@@ -275,10 +279,10 @@ export default {
         if (valid) {
           const params = { ...this.formModel }
           params.schoolId = this.currentSchool.id
-          if (params.blockId) {
-            const blockSetting = this.blockOptions[params.term].find(item => item.name === params.blockId)
-            params.blockSetting = [blockSetting.start, blockSetting.end].join(' - ')
-          }
+          // if (params.blockId) {
+          //   const blockSetting = this.blockOptions[params.term].find(item => item.name === params.blockId)
+          //   params.blockSetting = [blockSetting.start, blockSetting.end].join(' - ')
+          // }
           params.ownJoin = Number(params.ownJoin)
           this.$emit('save', params)
           this.selVis = false
@@ -296,6 +300,10 @@ export default {
         this.formModel.term = ''
       }
       this.formModel.blockId = undefined
+    },
+    handleSelectBlock(val) {
+      console.log(val)
+      this.formModel.blockSetting = val
     },
     goTerm() {
       this.$router.push('/manage/academic')

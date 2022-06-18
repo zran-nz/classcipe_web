@@ -75,6 +75,7 @@ export default {
         slotEventOverlap: true,
         editable: this.editable,
         selectable: this.selectable,
+        allDaySlot: false,
         selectMirror: true,
         dayMaxEvents: true,
         nowIndicator: true,
