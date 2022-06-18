@@ -2,7 +2,7 @@
   <div class="cc-card">
     <div class="cover-img relative-position" :style="{backgroundImage: 'url(' + content.image + ')', 'width' : width + 'rem'}">
       <div class="card-bottom-section q-pa-sm col q-gutter-xs inner-desc absolute-bottom" v-if="innerDesc">
-        <div class="card-title text-bold text-h7">{{ content.name }}</div>
+        <div class="card-title text-bold text-h7" :title="content.name || 'Untitled'">{{ content.name || 'Untitled' }}</div>
         <div class="card-info">
           <div class="row items-center justify-start q-gutter-xs q-pa-none">
             <template v-if="content.owner">
@@ -38,7 +38,7 @@
       </div>
     </div>
     <div class="card-bottom-section q-py-md col q-gutter-sm" v-if="outerDesc" :style="{'width' : width + 'rem'}">
-      <div class="card-title ellipsis text-bold text-h7">{{ content.name }}</div>
+      <div class="card-title-black ellipsis text-bold text-h7" :title="content.name || 'Untitled'">{{ content.name || 'Untitled' }}</div>
       <div class="card-info">
         <div class="row items-center justify-start q-gutter-sm">
           <template v-if="content.owner">
@@ -146,7 +146,23 @@ export default {
 }
 
 .card-title {
+  font-weight: 500;
   color: #fff;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  word-break: break-all;
+  cursor: pointer;
+}
+
+.card-title-black {
+  color: #333;
+  font-weight: 500;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  word-break: break-all;
+  cursor: pointer;
 }
 
 .col {
