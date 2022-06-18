@@ -77,7 +77,12 @@
         <plus-icon color='#a9adb4' @click='handleAddRow' />
       </div>
       <div class='right-action'>
-        <custom-link-text text='Save as set of options' @click='handleSaveHeaderAsSet' v-if='assessment.type === AssessmentToolType.Rubric'></custom-link-text>
+        <custom-link-text
+          text='Save as set of options'
+          @click='handleSaveHeaderAsSet'
+          :disabled='!assessment.headerList.some(item => item.type.startsWith(HeaderType.custom))'
+          v-if='assessment.type === AssessmentToolType.Rubric'>
+        </custom-link-text>
       </div>
     </div>
 
@@ -215,7 +220,9 @@ export default {
         generalCapability: 'generalCapability',
         learningObjective: 'learningObjective',
         performance: 'performance'
-      }
+      },
+
+      HeaderType: HeaderType
     }
   },
   mounted() {
@@ -269,10 +276,14 @@ export default {
 
     handleDelCol () {
       if (this.mode === 'edit') {
-        this.assessment.headerList.splice(this.assessment.headerList.indexOf(this.currentEditHeader), 1)
-        this.assessment.bodyList.forEach(row => {
-          this.$delete(row, this.currentEditHeader.type)
-        })
+        if (this.assessment.headerList.filter(item => item.type.startsWith(HeaderType.custom)).length > 1) {
+          this.assessment.headerList.splice(this.assessment.headerList.indexOf(this.currentEditHeader), 1)
+          this.assessment.bodyList.forEach(row => {
+            this.$delete(row, this.currentEditHeader.type)
+          })
+        } else {
+          this.$message.warn('At least one option exists for the assessment tool')
+        }
       }
       this.editHeaderModalVisible = false
       this.currentEditHeader = null
@@ -363,18 +374,23 @@ export default {
 
     handleSaveHeaderAsSet () {
       this.$logger.info('handleSaveHeaderAsSet', this.assessment.headerList)
-      const headerNameList = this.assessment.headerList.map(item => item.title)
-      const headerStr = JSON.stringify(headerNameList)
-      if (!this.optionStrSet.has(headerStr)) {
-        AssessmentToolHeaderNamesSave({
-          headerNameList: JSON.stringify(headerNameList)
-        }).then((res) => {
-          if (res.code === 0) {
-            this.optionStrSet.add(headerStr)
-          } else {
-            this.$message.error(res.message)
-          }
-        })
+      const headerNameList = this.assessment.headerList.filter(item => item.type !== HeaderType.criteria).map(item => item.title)
+      if (headerNameList.length) {
+        this.$logger.info('save header str', headerNameList)
+        const headerStr = JSON.stringify(headerNameList)
+        if (!this.optionStrSet.has(headerStr)) {
+          AssessmentToolHeaderNamesSave({
+            headerNameList: JSON.stringify(headerNameList)
+          }).then((res) => {
+            if (res.code === 0) {
+              this.optionStrSet.add(headerStr)
+            } else {
+              this.$message.error(res.message)
+            }
+          })
+        }
+      } else {
+        this.$logger.info('empty header')
       }
     },
 
@@ -405,6 +421,7 @@ export default {
         html2canvas(this.$refs.table, {
           allowTaint: true,
           useCORS: true,
+          logging: false,
           scrollX: window.pageXOffset,
           scrollY: window.pageYOffset,
           x: window.pageXOffset,

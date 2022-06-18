@@ -1,5 +1,5 @@
 <template>
-  <div class='link-text' :style="{'font-size': size + 'px', 'line-height': size + 'px', color: color}" @click='handleClick'>
+  <div class='link-text' :style="{'font-size': size + 'px', 'line-height': size + 'px', color: color, cursor: disabled ? 'not-allowed': 'pointer'}" @click='handleClick'>
     <slot name='prefix'></slot>
     <div class='text'>
       {{ text }}
@@ -23,6 +23,10 @@ export default {
     size: {
       type: Number,
       default: 14
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
