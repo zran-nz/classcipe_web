@@ -19,6 +19,7 @@
                 placeholder="Search and add by name/email"
                 :getPopupContainer="trigger => trigger.parentElement"
                 option-label-prop="title"
+                @select="selectMember = ''"
                 @search="handleSearch"
               >
                 <template slot="dataSource">
@@ -31,7 +32,7 @@
                       </div>
                       <div class="user-name-email">
                         <div class="user-name">
-                          {{ item.userInfo.nickname }}
+                          {{ item.userInfo.nickname || `${item.userInfo.firstname} ${item.userInfo.lastname}` }}
                         </div>
                         <div class="email">
                           {{ item.userInfo.email }}
@@ -167,7 +168,10 @@ export default {
         {
           title: 'Nick Name',
           dataIndex: 'userInfo.nickname',
-          key: 'name'
+          key: 'name',
+          customRender: (text, item, index) => {
+            return text || (`${item.userInfo.firstname} ${item.userInfo.lastname}`)
+          }
         },
         ...this.form.role === 'teacher' ? [
         {
@@ -267,7 +271,7 @@ export default {
       }
       const params = {
         schoolId: store.getters.school,
-        userId: user.id,
+        userId: user.userId,
         classId: this.form.classId
       }
       this.selectMember = ''
@@ -343,13 +347,16 @@ export default {
   align-items: flex-start;
   .email {
     padding-left: 10px;
+    font-size: 12px;;
   }
   .user-name {
     text-align: center;
     font-family: Inter-Bold;
     line-height: 24px;
-    padding-left: 15px;
+    font-size: 14px;
+    padding-left: 10px;
     color: #000000;
+    font-weight: bold;
   }
 }
 .action-wrapper{

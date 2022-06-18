@@ -42,7 +42,7 @@
         <a-spin :spinning="loading">
           <div class="import-detail-con" v-if="students && students.length > 0">
             <div class="detail-con-item" v-for="item in students" :key="item.id">
-              <a-checkbox v-model="item.checked" >{{ item.name }}</a-checkbox>
+              <a-checkbox v-model="item.checked" >{{ item.userInfo.email }}</a-checkbox>
             </div>
           </div>
           <a-empty v-else/>
@@ -161,6 +161,7 @@ export default {
     doCreate(cls) {
       this.form = { ...cls }
       this.classOptions = this.classOptions.filter(item => item.id !== this.form.classId)
+      this.searchData()
       this.selVis = true
     },
     changeGrade(gradeId) {
