@@ -441,7 +441,7 @@ export default {
             }
             this.data = this.cachedCurriculum['nz']
           } else {
-            this.$message.warn('No curriculum data.')
+            this.$logger.warn('No curriculum data.')
           }
 
           if (this.data) {

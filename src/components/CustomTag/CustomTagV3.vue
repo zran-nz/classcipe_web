@@ -100,7 +100,7 @@
         </div>
       </div>
       <div class='all-description vertical-right'>
-        <custom-link-text text='All' v-if='tagSelectContainerVisible' @click='tagSelectContainerVisible = false'></custom-link-text>
+        <custom-link-text text='All' v-if='tagSelectContainerVisible' @click='tagSelectContainerVisible = false' v-show='currentActiveTagCategory && selectedCategoryNameList.indexOf(this.currentActiveTagCategory.set) !== -1'></custom-link-text>
         <custom-link-text text='Hide' v-if='!tagSelectContainerVisible' @click='tagSelectContainerVisible = true'></custom-link-text>
       </div>
       <div class='all-category-description' v-show='!tagSelectContainerVisible'>
@@ -209,7 +209,7 @@ export default {
       currentTagCategoryDesc: '',
       asyncUpdateTagCategoryDescFn: null, // 异步更新标签分类TagCategoryDesc函数
 
-      tagSelectContainerVisible: false
+      tagSelectContainerVisible: true
     }
   },
   watch: {
@@ -410,6 +410,16 @@ export default {
         this.selectedTagList.splice(index, 1)
       }
       this.$emit('update:customTags', this.selectedTagList)
+
+      // 删除对应的分类描述
+      if (!this.selectedTagList.some(item => item.category === closeTagItem.category)) {
+        const list = JSON.parse(JSON.stringify(this.tagCategoryDesc))
+        const descIndex = list.findIndex(item => item.category === closeTagItem.category)
+        if (descIndex !== -1) {
+          list.splice(descIndex, 1)
+          this.$emit('update:tagCategoryDesc', list)
+        }
+      }
       this.$logger.info('after close tag customTags', this.selectedTagList)
     },
 
@@ -449,6 +459,17 @@ export default {
       }
       this.$emit('update:customTags', this.selectedTagList)
       this.$logger.info('after selectTag customTags', this.selectedTagList)
+
+      // 新增不存在的分类描述
+      const list = JSON.parse(JSON.stringify(this.tagCategoryDesc))
+      const descIndex = list.findIndex(item => item.category === category.set)
+      if (descIndex === -1) {
+        list.push({
+          category: category.set,
+          description: ''
+        })
+        this.$emit('update:tagCategoryDesc', list)
+      }
     },
 
     updateTagCategoryTagCategoryDesc () {
