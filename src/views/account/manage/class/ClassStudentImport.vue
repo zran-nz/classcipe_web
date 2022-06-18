@@ -161,6 +161,7 @@ export default {
     doCreate(cls) {
       this.form = { ...cls }
       this.classOptions = this.classOptions.filter(item => item.id !== this.form.classId)
+      this.searchData()
       this.selVis = true
     },
     changeGrade(gradeId) {
