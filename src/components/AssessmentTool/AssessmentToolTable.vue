@@ -423,13 +423,7 @@ export default {
         data.extraCriteriaBodyListJson = JSON.stringify(data.extraCriteriaBodyList)
 
         html2canvas(this.$refs.table, {
-          allowTaint: true,
-          useCORS: true,
-          logging: false,
-          scrollX: window.pageXOffset,
-          scrollY: window.pageYOffset,
-          x: window.pageXOffset,
-          y: window.pageYOffset
+          logging: false
         }).then(canvas => {
           canvas.style.opacity = '1'
           canvas.style.zIndex = '99999999'
