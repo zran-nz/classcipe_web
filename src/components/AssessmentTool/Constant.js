@@ -7,8 +7,7 @@ export const AssessmentMode = {
 export const AssessmentToolType = {
   Rubric: 1,
   SinglePointRubric: 2,
-  Checklist: 3,
-  OpenQuestions: 4
+  Checklist: 3
 }
 
 export const HeaderType = {
