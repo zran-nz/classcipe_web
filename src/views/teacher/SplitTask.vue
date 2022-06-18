@@ -168,14 +168,9 @@
                     <template slot='label'>
                       {{ 'Learning objectives' | taskLabelName(splitTaskField.LearnOuts, $store.getters.formConfigData) }}
                     </template>
-                    <learning-objective
+                    <learning-objective-select
                       @change='handleUpdateLearningObjectives'
-                      :recommend-data-list='recommendData'
-                      :curriculumId='form.curriculumId'
-                      :learning-objectives='form.learnOuts'
-                      :subject-list='form.subjectList'
-                      :year-list='form.yearList'
-                      :language-list='form.languageList' />
+                      :learning-objectives='allLearningObjectiveList' />
                   </custom-form-item>
                 </div>
 
@@ -480,10 +475,12 @@ import { AutoSaveMixin } from '@/mixins/AutoSaveMixin'
 import CustomImageUploader from '@/components/Common/CustomImageUploader'
 import ModalHeader from '@/components/Common/ModalHeader'
 import FormSlidePageSelect from '@/components/SplitTask/FormSlidePageSelect'
+import LearningObjectiveSelect from '@/components/LearningObjective/LearningObjectiveSelect'
 
 export default {
   name: 'SplitTask',
   components: {
+    LearningObjectiveSelect,
     FormSlidePageSelect,
     ModalHeader,
     CustomImageUploader,
@@ -527,6 +524,7 @@ export default {
       contentLoading: true,
       contentType: typeMap,
       creating: false,
+      allLearningObjectiveList: [],
       form: {
         id: null,
         coverVideo: '',
@@ -727,6 +725,7 @@ export default {
           }
           this.$logger.info('displayCustomFieldData', displayCustomFieldData)
           taskData.customFieldData = displayCustomFieldData
+          this.allLearningObjectiveList = taskData.learnOuts
           taskData.id = null
           this.form = taskData
           this.$logger.info('restore split task', this.form)
@@ -1255,13 +1254,9 @@ export default {
       }
     },
 
-    handleUpdateLearningObjectives (data) {
-      this.$logger.info('handleUpdateLearningObjectives', data)
-      this.form.learnOuts = data.learnOuts
-      this.form.curriculumId = data.curriculumId
-      this.form.subjectList = data.selectedSubjectList
-      this.form.yearList = data.selectedYearList
-      this.form.languageList = data.selectedLanguageList
+    handleUpdateLearningObjectives (learnOuts) {
+      this.$logger.info('handleUpdateLearningObjectives', learnOuts)
+      this.form.learnOuts = learnOuts
     }
   }
 }
