@@ -92,14 +92,29 @@ export default {
 
     showUserMessageNotification(message) {
       console.log('showUserMessageNotification', message)
+      const key = Date.now().toString(36) + Math.random().toString(36).slice(2)
       this.$notification.open({
         message: 'Notification',
         description: message.msgTxt,
-        onClick: () => {
-          console.log('Notification Clicked!', message)
-          this.$router.push({
-            path: '/notification-detail/' + message.msgId
-          })
+        key,
+        btn: h => {
+          return h(
+            'a-button',
+            {
+              props: {
+                type: 'primary'
+              },
+              on: {
+                click: () => {
+                  this.$notification.close(key)
+                  this.$router.push({
+                    path: '/notification-detail/' + message.msgId
+                  })
+                }
+              }
+            },
+            'Check detail'
+          )
         }
       })
     }
