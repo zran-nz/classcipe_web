@@ -147,6 +147,8 @@ export default {
     activeClassId() {
       if (this.$route.name === 'ClassSession') {
         return this.$route.params?.classId
+      } else {
+        return ''
       }
     }
   },
