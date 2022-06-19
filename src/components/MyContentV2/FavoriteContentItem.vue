@@ -87,7 +87,12 @@
               </template>
             </custom-button>
 
-            <custom-button label='Duplicate' @click='handleDuplicateItem'>
+            <custom-button v-if="content.createBy === $store.getters.userInfo.email" label='Duplicate' @click='handleDuplicateItem'>
+              <template v-slot:icon>
+                <duplicate-icon />
+              </template>
+            </custom-button>
+            <custom-button v-else @click='handleBuyItem' label='Buy now'>
               <template v-slot:icon>
                 <duplicate-icon />
               </template>
@@ -201,6 +206,9 @@ export default {
       this.$emit('duplicate', {
         content: this.content
       })
+    },
+    handleBuyItem() {
+      logger.info('handleBuyItem', this.content)
     }
   }
 }

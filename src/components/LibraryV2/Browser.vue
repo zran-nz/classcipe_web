@@ -965,7 +965,7 @@ export default {
         this.$logger.info('getSubjectTree response', response.result)
         this.filterSubjectOptions = []
         response.result.forEach(subject => {
-          this.filterSubjectOptions.push({ label: subject.name, value: subject.id })
+          this.filterSubjectOptions.push({ label: subject.name, value: subject.name })
         })
       })
       GetGradesByCurriculumId({ curriculumId: this.currentCurriculumId }).then(response => {

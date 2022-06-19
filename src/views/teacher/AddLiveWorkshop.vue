@@ -398,14 +398,14 @@ export default {
         this.$logger.info('getSubjectTree response', response.result)
         this.filterSubjectOptions = []
         response.result.forEach(subject => {
-          this.filterSubjectOptions.push({ label: subject.name, value: subject.id })
+          this.filterSubjectOptions.push({ label: subject.name, value: subject.name })
         })
       })
       GetGradesByCurriculumId({ curriculumId: curriculumId }).then(response => {
         this.$logger.info('GetGradesByCurriculumId', response.result)
         this.filterAgeOptions = []
         response.result.forEach(grade => {
-          this.filterAgeOptions.push({ label: grade.name, value: grade.id })
+          this.filterAgeOptions.push({ label: grade.name, value: grade.name })
         })
       })
     },
