@@ -149,7 +149,11 @@ export default {
         roles: 'student'
       }).then(res => {
         if (res.success) {
-          this.students = res.result.records.map(item => ({
+          // 排除当前班级的学生
+          this.students = res.result.records.filter(item => {
+            const isFind = item.classes.find(cls => cls.id === this.form.classId)
+            return !isFind
+          }).map(item => ({
             ...item,
             checked: false
           }))
