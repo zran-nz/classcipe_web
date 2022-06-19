@@ -53,7 +53,12 @@
       :closable="false"
     >
       <modal-header @close='assessmentToolListVisible = false' title='Import Assessment tool' />
-      <assessment-tool-list v-if='assessmentToolListVisible' @confirm-select='handleInsertSelectAssessmentTool' @cancel-select='assessmentToolListVisible = false' :task-id='taskId'/>
+      <assessment-tool-list
+        v-if='assessmentToolListVisible'
+        @confirm-select='handleInsertSelectAssessmentTool'
+        @cancel-select='assessmentToolListVisible = false'
+        :subject-list='subjectList'
+        :task-id='taskId'/>
     </a-modal>
   </div>
 </template>
@@ -85,6 +90,10 @@ export default {
     allowCreate: {
       type: Boolean,
       default: true
+    },
+    subjectList: {
+      type: Array,
+      default: () => []
     }
   },
   data() {

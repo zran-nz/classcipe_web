@@ -1,5 +1,35 @@
 <template>
   <div class='assessment-tool-list-wrapper'>
+    <div class='filter-bar vertical-right'>
+      <a-space>
+        <a-select
+          placeholder='Rubric type'
+          :getPopupContainer="trigger => trigger.parentElement"
+          v-model='filter.rubricType'
+          class='cc-select'>
+          <a-select-option :value='AssessmentToolType.Rubric'>
+            Rubric
+          </a-select-option>
+          <a-select-option :value='AssessmentToolType.SinglePointRubric'>
+            Single Point Rubric
+          </a-select-option>
+          <a-select-option :value='AssessmentToolType.Checklist'>
+            Checklist
+          </a-select-option>
+        </a-select>
+        <a-select
+          v-if='subjectList'
+          mode="multiple"
+          placeholder='Rubric type'
+          :getPopupContainer="trigger => trigger.parentElement"
+          v-model='filter.subjectIds'
+          class='cc-select'>
+          <a-select-option :value='1' v-for='(subject, idx) in subjectList' :key='idx'>
+            {{ subject }}
+          </a-select-option>
+        </a-select>
+      </a-space>
+    </div>
     <div class='assessment-tool-list'>
       <div class='assessment-preview-item' v-for='(assessment, idx) in assessmentList' :key='idx' @click='selectAssessment(assessment)' v-show='assessment.assessmentToolPreviewImgBase64'>
         <div class='item-type-icon'>
@@ -35,6 +65,10 @@
 <script>
 import { AssessmentToolInfoList } from '@/api/v2/assessment'
 import CommonNoData from '@/components/Common/CommonNoData'
+import { mapState } from 'vuex'
+import {
+  AssessmentToolType
+} from '@/components/AssessmentTool/Constant'
 
 export default {
   name: 'AssessmentToolList',
@@ -43,14 +77,37 @@ export default {
     taskId: {
       type: String,
       required: true
+    },
+    subjectList: {
+      type: Array,
+      default: () => []
     }
+  },
+  computed: {
+    ...mapState({
+      userMode: state => state.app.userMode
+    })
   },
   data() {
     return {
       inserting: false,
       loading: true,
+      AssessmentToolType: AssessmentToolType,
+      filter: {
+        rubricType: AssessmentToolType.Rubric,
+        subjectIds: []
+      },
       assessmentList: [],
       selectedAssessmentList: []
+    }
+  },
+  watch: {
+    filter: {
+      immediate: false,
+      deep: true,
+      handler(newVal) {
+        this.loadAssessmentToolList()
+      }
     }
   },
   created() {
@@ -61,6 +118,9 @@ export default {
       this.loading = true
       this.assessmentList = []
       AssessmentToolInfoList({
+        userMode: this.userMode,
+        rubricType: this.filter.rubricType,
+        subjectIds: this.filter.subjectIds,
         pageNo: 1,
         pageSize: 100
       }).then(res => {
@@ -99,6 +159,11 @@ export default {
 
 .assessment-tool-list-wrapper {
   position: relative;
+
+  .filter-bar {
+    margin: 10px 0;
+  }
+
   .assessment-tool-list {
     min-height: 300px;
     max-height: 400px;
