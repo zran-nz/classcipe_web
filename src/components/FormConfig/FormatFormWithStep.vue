@@ -15,7 +15,32 @@
             </template>
           </span>
         </div>
+
+        <div class='step-tag-config'>
+          <div class='tag-selected' v-if='step.tags && step.tags.length' @click='handleSetTag(step)'>
+            <div class='tag-selected-list'>
+              <div class='tag-selected-item' v-for='(tag, tIdx) in step.tags' :key="'tid2-' + tIdx">
+                <a-tag class='my-tag-selected' :class="{'my-tag-not-optional': tag.isOptional}">
+                  <template v-if='tag.isOptional'>
+                    <a-icon type="safety" :style="{ fontSize: '14px', 'margin-right': '3px'}"/>
+                  </template>
+                  <span class='my-tag-selected-name'>{{ tag.tagName }}</span>
+                </a-tag>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class='format-tag-settings'>
+
+          <div class='tag-setting' @click='handleStepSetTag(step)'>
+            <div class='set-tag-label'>
+              Set tag
+            </div>
+            <a-icon type="setting" :style="{ color: '#999999', fontSize: '12px' }" class='gray' />
+            <a-icon type="setting" :style="{ color: '#15C39A', fontSize: '12px' }" class='green'/>
+          </div>
+
           <div class='step-visible-toggle'>
             <div class='field-visible'>visible</div>
             <a-switch size="small" v-model='step.visible' />
@@ -60,54 +85,54 @@
                     <a-input v-model='fieldItem.hint' placeholder='Please enter the hint' class='hint-input'/>
                   </div>
                 </div>
-                <div class='field-config-right'>
-                  <div class='tag-selected'>
-                    <div class='tag-selected-list'>
-                      <div class='tag-selected-item' v-for='(tag, tIdx) in fieldItem.tags' :key="'tid-' + tIdx" @click='handleSetTag(fieldItem, tag.subFieldName)'>
-                        <a-tag class='my-tag-selected' :class="{'my-tag-not-optional': tag.isOptional}">
-                          <template v-if='tag.isOptional'>
-                            <a-icon type="safety" :style="{ fontSize: '14px', 'margin-right': '3px'}"/>
-                          </template>
-                          <span class='my-tag-selected-name'>
-                            <span class='tag-type' v-if="fieldItem.fieldName === 'taskType' && tag.subFieldName">{{ tag.subFieldName }} - </span>
-                            {{ tag.tagName }}
-                          </span>
-                        </a-tag>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <!--                <div class='field-config-right'>-->
+                <!--                  <div class='tag-selected'>-->
+                <!--                    <div class='tag-selected-list'>-->
+                <!--                      <div class='tag-selected-item' v-for='(tag, tIdx) in fieldItem.tags' :key="'tid-' + tIdx" @click='handleSetTag(fieldItem, tag.subFieldName)'>-->
+                <!--                        <a-tag class='my-tag-selected' :class="{'my-tag-not-optional': tag.isOptional}">-->
+                <!--                          <template v-if='tag.isOptional'>-->
+                <!--                            <a-icon type="safety" :style="{ fontSize: '14px', 'margin-right': '3px'}"/>-->
+                <!--                          </template>-->
+                <!--                          <span class='my-tag-selected-name'>-->
+                <!--                            <span class='tag-type' v-if="fieldItem.fieldName === 'taskType' && tag.subFieldName">{{ tag.subFieldName }} - </span>-->
+                <!--                            {{ tag.tagName }}-->
+                <!--                          </span>-->
+                <!--                        </a-tag>-->
+                <!--                      </div>-->
+                <!--                    </div>-->
+                <!--                  </div>-->
+                <!--                </div>-->
               </div>
-              <div class='tag-setting' @click='handleSetTag(fieldItem)' v-if="fieldItem.fieldName !== 'taskType'">
-                <div class='set-tag-label'>
-                  Set tag
-                </div>
-                <a-icon type="setting" :style="{ color: '#999999', fontSize: '12px' }" class='gray' />
-                <a-icon type="setting" :style="{ color: '#15C39A', fontSize: '12px' }" class='green'/>
-              </div>
-              <div class='task-type-tag-setting' v-if="fieldItem.fieldName === 'taskType'">
-                <div class='task-type-tag-setting-item' @click="handleSetTag(fieldItem, 'fa')" >
-                  <div class='set-tag-label'>
-                    Set fa tag
-                  </div>
-                  <a-icon type="setting" :style="{ color: '#999999', fontSize: '12px' }" class='gray' />
-                  <a-icon type="setting" :style="{ color: '#15C39A', fontSize: '12px' }" class='green'/>
-                </div>
-                <div class='task-type-tag-setting-item' @click="handleSetTag(fieldItem, 'sa')" >
-                  <div class='set-tag-label'>
-                    Set sa tag
-                  </div>
-                  <a-icon type="setting" :style="{ color: '#999999', fontSize: '12px' }" class='gray' />
-                  <a-icon type="setting" :style="{ color: '#15C39A', fontSize: '12px' }" class='green'/>
-                </div>
-                <div class='task-type-tag-setting-item' @click="handleSetTag(fieldItem, 'activity')" >
-                  <div class='set-tag-label'>
-                    Set activity tag
-                  </div>
-                  <a-icon type="setting" :style="{ color: '#999999', fontSize: '12px' }" class='gray' />
-                  <a-icon type="setting" :style="{ color: '#15C39A', fontSize: '12px' }" class='green'/>
-                </div>
-              </div>
+              <!--              <div class='tag-setting' @click='handleSetTag(fieldItem)' v-if="fieldItem.fieldName !== 'taskType'">-->
+              <!--                <div class='set-tag-label'>-->
+              <!--                  Set tag-->
+              <!--                </div>-->
+              <!--                <a-icon type="setting" :style="{ color: '#999999', fontSize: '12px' }" class='gray' />-->
+              <!--                <a-icon type="setting" :style="{ color: '#15C39A', fontSize: '12px' }" class='green'/>-->
+              <!--              </div>-->
+              <!--              <div class='task-type-tag-setting' v-if="fieldItem.fieldName === 'taskType'">-->
+              <!--                <div class='task-type-tag-setting-item' @click="handleSetTag(fieldItem, 'fa')" >-->
+              <!--                  <div class='set-tag-label'>-->
+              <!--                    Set fa tag-->
+              <!--                  </div>-->
+              <!--                  <a-icon type="setting" :style="{ color: '#999999', fontSize: '12px' }" class='gray' />-->
+              <!--                  <a-icon type="setting" :style="{ color: '#15C39A', fontSize: '12px' }" class='green'/>-->
+              <!--                </div>-->
+              <!--                <div class='task-type-tag-setting-item' @click="handleSetTag(fieldItem, 'sa')" >-->
+              <!--                  <div class='set-tag-label'>-->
+              <!--                    Set sa tag-->
+              <!--                  </div>-->
+              <!--                  <a-icon type="setting" :style="{ color: '#999999', fontSize: '12px' }" class='gray' />-->
+              <!--                  <a-icon type="setting" :style="{ color: '#15C39A', fontSize: '12px' }" class='green'/>-->
+              <!--                </div>-->
+              <!--                <div class='task-type-tag-setting-item' @click="handleSetTag(fieldItem, 'activity')" >-->
+              <!--                  <div class='set-tag-label'>-->
+              <!--                    Set activity tag-->
+              <!--                  </div>-->
+              <!--                  <a-icon type="setting" :style="{ color: '#999999', fontSize: '12px' }" class='gray' />-->
+              <!--                  <a-icon type="setting" :style="{ color: '#15C39A', fontSize: '12px' }" class='green'/>-->
+              <!--                </div>-->
+              <!--              </div>-->
               <div class='visible-toggle'>
                 <div class='field-visible'>Enable</div>
                 <a-switch size="small" v-model='fieldItem.visible' @change="handleChangeCommonField(sIdx,fieldItem)"/>
@@ -162,28 +187,28 @@
                     <a-input v-model='fieldItem.hint' placeholder='Please enter the hint' class='hint-input'/>
                   </div>
                 </div>
-                <div class='field-config-right'>
-                  <div class='tag-selected' v-if='fieldItem.tags && fieldItem.tags.length' @click='handleSetTag(fieldItem)'>
-                    <div class='tag-selected-list'>
-                      <div class='tag-selected-item' v-for='(tag, tIdx) in fieldItem.tags' :key="'tid2-' + tIdx">
-                        <a-tag class='my-tag-selected' :class="{'my-tag-not-optional': tag.isOptional}">
-                          <template v-if='tag.isOptional'>
-                            <a-icon type="safety" :style="{ fontSize: '14px', 'margin-right': '3px'}"/>
-                          </template>
-                          <span class='my-tag-selected-name'>{{ tag.tagName }}</span>
-                        </a-tag>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <!--                <div class='field-config-right'>-->
+                <!--                  <div class='tag-selected' v-if='fieldItem.tags && fieldItem.tags.length' @click='handleSetTag(fieldItem)'>-->
+                <!--                    <div class='tag-selected-list'>-->
+                <!--                      <div class='tag-selected-item' v-for='(tag, tIdx) in fieldItem.tags' :key="'tid2-' + tIdx">-->
+                <!--                        <a-tag class='my-tag-selected' :class="{'my-tag-not-optional': tag.isOptional}">-->
+                <!--                          <template v-if='tag.isOptional'>-->
+                <!--                            <a-icon type="safety" :style="{ fontSize: '14px', 'margin-right': '3px'}"/>-->
+                <!--                          </template>-->
+                <!--                          <span class='my-tag-selected-name'>{{ tag.tagName }}</span>-->
+                <!--                        </a-tag>-->
+                <!--                      </div>-->
+                <!--                    </div>-->
+                <!--                  </div>-->
+                <!--                </div>-->
               </div>
-              <div class='tag-setting' @click='handleSetTag(fieldItem)'>
-                <div class='set-tag-label'>
-                  Set tag
-                </div>
-                <a-icon type="setting" :style="{ color: '#999999', fontSize: '12px' }" class='gray' />
-                <a-icon type="setting" :style="{ color: '#15C39A', fontSize: '12px' }" class='green'/>
-              </div>
+              <!--              <div class='tag-setting' @click='handleSetTag(fieldItem)'>-->
+              <!--                <div class='set-tag-label'>-->
+              <!--                  Set tag-->
+              <!--                </div>-->
+              <!--                <a-icon type="setting" :style="{ color: '#999999', fontSize: '12px' }" class='gray' />-->
+              <!--                <a-icon type="setting" :style="{ color: '#15C39A', fontSize: '12px' }" class='green'/>-->
+              <!--              </div>-->
               <div class='visible-toggle'>
                 <div class='field-visible'>Enable</div>
                 <a-switch size="small" v-model='fieldItem.visible' @change="handleChangeCustomField(sIdx,fieldItem)" />
@@ -213,7 +238,7 @@
       :title="null">
       <modal-header :title="'Set tags for ' + (currentFieldName ? currentFieldName : 'field') + (currentSubFieldName ? ' (' + currentSubFieldName + ')' : '')" @close='handleCloseSetTags'/>
       <div class='my-set-tag'>
-        <set-tag :selected-tags='currentFieldTags' @update='handleUpdateTags' @go-to-tag-page='handleGotoTagPage' />
+        <set-tag :selected-tags='currentFieldTags' @update='handleUpdateStepTags' @go-to-tag-page='handleGotoTagPage' />
       </div>
     </a-modal>
   </div>
@@ -374,6 +399,14 @@ export default {
         item.sortNo = index
       })
     },
+    handleStepSetTag (step) {
+      this.$logger.info('handleSetTag', step)
+      this.currentFieldId = step.id
+      this.currentFieldName = step.name
+      this.currentFieldTags = step.tags.slice()
+      console.log(this.currentFieldTags)
+      this.setTagVisible = true
+    },
 
     handleSetTag (fieldItem, subFieldName) {
       this.$logger.info('handleSetTag', fieldItem)
@@ -394,6 +427,18 @@ export default {
       this.currentFieldId = null
       this.currentFieldName = null
       this.currentSubFieldName = null
+    },
+
+    handleUpdateStepTags (data) {
+      this.$logger.info('handleUpdateStepTags', data)
+      const index = this.steps.findIndex(item => item.id === this.currentFieldId)
+      if (index > -1) {
+        const step = this.steps[index]
+        step.tags = data
+        this.$set(this.steps, index, step)
+        this.$logger.info('update step tags', step)
+      }
+      this.setTagVisible = false
     },
 
     handleUpdateTags (data) {
@@ -534,6 +579,86 @@ export default {
     justify-content: space-between;
     margin-bottom: 15px;
     cursor: pointer;
+    .format-tag-settings{
+      display:flex;
+      .tag-setting {
+        margin-right: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .gray {
+          height: 18px;
+          padding-top: 3px;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: center;
+        }
+        .green {
+          height: 18px;
+          padding-top: 3px;
+          display: none;
+        }
+        .set-tag-label {
+          padding-right: 3px;
+          font-size: 12px;
+          color: #999999;
+        }
+
+        &:hover {
+          .gray {
+            display: none;
+          }
+          .green {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+          }
+          .set-tag-label {
+            color: #15C39A;
+          }
+        }
+      }
+    }
+
+    .step-tag-config{
+      max-width: 65%;
+      .tag-selected {
+        .tag-selected-list {
+          margin-right: -19px;
+          padding: 5px 8px;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: flex-start;
+          flex-wrap: wrap;
+
+          .tag-selected-item {
+            margin: 3px 3px 3px 0;
+            .my-tag-selected {
+              background-color: rgba(21, 195, 154, 0.1);
+              color: #15c39a;
+              border: 1px solid #15c39a;
+              border-radius: 22px;
+              padding: 0 12px;
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+
+              .tag-type {
+              }
+            }
+
+            .my-tag-not-optional {
+              background-color: #15C39A;
+              color: #fff;
+            }
+          }
+        }
+      }
+    }
 
     .format-form-title {
       display: flex;
