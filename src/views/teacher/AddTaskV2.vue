@@ -316,7 +316,7 @@
                 <div class='form-field-item assessment-tools-item' v-if="fieldItem.visible && fieldItem.fieldName === taskField.AssessmentTools">
                   <div class='form-block tag-content-block'>
                     <div class='common-link-wrapper assessment-tools'>
-                      <task-assessment-tools :task-id='taskId'/>
+                      <task-assessment-tools :task-id='taskId' :subject-list='form.subjectIds'/>
                     </div>
                   </div>
                 </div>
