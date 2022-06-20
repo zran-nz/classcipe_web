@@ -1415,8 +1415,7 @@ export default {
     },
 
     goBack() {
-      this.$logger.info('click goBack')
-      this.$router.push({ path: '/teacher/main/created-by-me' })
+      this.$router.go(-1)
     },
     handleConfirmAssociate() {
       this.$logger.info('handleConfirmAssociate')

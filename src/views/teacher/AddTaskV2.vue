@@ -937,7 +937,7 @@ export default {
     },
 
     goBack() {
-      this.$router.push({ path: '/teacher/main/created-by-me' })
+      this.$router.go(-1)
     },
 
     handleSelectTemplate (template) {
