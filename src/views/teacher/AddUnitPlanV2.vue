@@ -704,7 +704,7 @@ import {
   FindSourceOutcomes,
   GetAssociate,
   GetMyGrades,
-  GetReferOutcomes
+  GetReferOutcomes, UpdateContentStatus
 } from '@/api/teacher'
 import { SubjectTree } from '@/api/subject'
 import { formatSubjectTree } from '@/utils/bizUtil'
@@ -1067,8 +1067,6 @@ export default {
         PlanField.Inquiry,
         PlanField.Scenarios,
         PlanField.Question,
-        PlanField.GradeIds,
-        PlanField.SubjectIds,
         PlanField.LearnOuts
       ]
       if (this.currentActiveStepIndex < 0 || this.currentActiveStepIndex > this.formSteps.length - 1) {
@@ -1344,16 +1342,17 @@ export default {
         this.saving = false
       }
     },
-    handlePublishUnitPlan(status) {
+    handlePublishUnitPlan() {
       this.$logger.info('handlePublishUnitPlan', {
         id: this.unitPlanId,
-        status: status
+        status: 1
       })
 
       this.checkRequiredFields()
+      this.$logger.info('this.emptyRequiredFields', this.emptyRequiredFields)
       if (this.emptyRequiredFields.length === 0) {
-        this.form.status = status
-        this.handlePublishFormItem(status)
+        this.form.status = 1
+        this.handlePublishFormItem(1)
       } else {
         let requiredStepIndex = -1
         for (let i = 0; i < this.formSteps.length; i++) {
@@ -1367,6 +1366,17 @@ export default {
           this.currentActiveStepIndex = requiredStepIndex
         }
       }
+    },
+
+    handlePublishFormItem (status) {
+      const data = {
+        id: this.unitPlanId,
+        status: status,
+        type: this.contentType['unit-plan']
+      }
+      UpdateContentStatus(data).then(() => {
+        this.$message.success(this.$t('teacher.add-unit-plan.publish-success'))
+      })
     },
 
     handleAddUnitPlanTask() {
