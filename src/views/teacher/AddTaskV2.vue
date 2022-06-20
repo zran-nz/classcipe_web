@@ -487,7 +487,7 @@
 
 <script>
 import { typeMap } from '@/const/teacher'
-import { FindSourceOutcomes, GetAssociate, GetMyGrades, GetReferOutcomes } from '@/api/teacher'
+import { FindSourceOutcomes, GetAssociate, GetMyGrades, GetReferOutcomes, UpdateContentStatus } from '@/api/teacher'
 import { TemplatesGetPresentation } from '@/api/template'
 import { TaskAddOrUpdate, TaskCreateNewTaskPPT, TaskQueryById } from '@/api/task'
 import Collaborate from '@/components/UnitPlan/Collaborate'
@@ -702,9 +702,6 @@ export default {
         TaskField.Name,
         TaskField.Image,
         TaskField.Overview,
-        TaskField.Question,
-        TaskField.GradeIds,
-        TaskField.SubjectIds,
         TaskField.LearnOuts
       ]
       if (this.currentActiveStepIndex < 0 || this.currentActiveStepIndex > this.formSteps.length - 1) {
@@ -891,33 +888,17 @@ export default {
       }
       this.handleSaveContentEvent(this.taskId, this.contentType.task, this.oldForm)
     },
-    handlePublishTask(status) {
+    handlePublishTask() {
+      this.$logger.info('handlePublishTask', {
+        id: this.taskId,
+        status: 1
+      })
+
       this.checkRequiredFields()
+      this.$logger.info('this.emptyRequiredFields', this.emptyRequiredFields)
       if (this.emptyRequiredFields.length === 0) {
-        this.$logger.info('handlePublishTask', {
-          id: this.taskId,
-          status: status
-        })
-        const taskData = Object.assign({}, this.form)
-        taskData.status = status
-        this.publishing = true
-        if (taskData.customFieldData) {
-          taskData.customFieldData = JSON.stringify(taskData.customFieldData)
-        }
-        TaskAddOrUpdate(taskData).then(response => {
-          this.$logger.info('UpdateContentStatus response', response)
-          // this.$message.success('Publish success')
-          this.form.status = status
-        }).then(() => {
-          if (status === 1) {
-            this.$message.success(this.$t('teacher.add-task.publish-success'))
-          } else {
-            this.$message.success('Unpublish successfully')
-          }
-          this.form.status = status
-          this.$refs.commonFormHeader.publishing = false
-          this.oldForm = JSON.parse(JSON.stringify(this.form))
-        })
+        this.form.status = 1
+        this.handlePublishFormItem(1)
       } else {
         let requiredStepIndex = -1
         for (let i = 0; i < this.formSteps.length; i++) {
@@ -931,6 +912,17 @@ export default {
           this.currentActiveStepIndex = requiredStepIndex
         }
       }
+    },
+
+    handlePublishFormItem (status) {
+      const data = {
+        id: this.taskId,
+        status: status,
+        type: this.contentType.task
+      }
+      UpdateContentStatus(data).then(() => {
+        this.$message.success(this.$t('teacher.add-unit-plan.publish-success'))
+      })
     },
 
     handleSelectTaskType(type) {
