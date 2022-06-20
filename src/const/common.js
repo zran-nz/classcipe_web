@@ -401,3 +401,22 @@ export const EXPIRE_UNIT = [
     value: 3
   }
 ]
+
+export const SCHOOL_USER_STATUS = {
+  ACTIVE: {
+    label: 'Active',
+    value: 1
+  },
+  PENDING: {
+    label: 'Pending',
+    value: 0
+  },
+  INACTIVE: {
+    label: 'Inactive',
+    value: 2
+  },
+  ARCHIVE: {
+    label: 'Archive',
+    value: 3
+  }
+}

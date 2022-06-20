@@ -234,7 +234,7 @@ export default {
             title: 'Teachers',
             extraKey: 'teacherCount',
             desc: 'Review payments, payouts, coupons,gift cards and taxes',
-            url: '',
+            url: '/manage/teacher',
             hidden: this.isNotAdmin
           },
           {
@@ -242,7 +242,7 @@ export default {
             title: 'Students',
             extraKey: 'studentCount',
             desc: '',
-            url: '',
+            url: '/manage/student',
             hidden: this.isNotAdmin
           },
           {

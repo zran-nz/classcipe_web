@@ -222,9 +222,13 @@ export const JeecgListMixin = {
       this.$refs.modalForm.title = 'Add'
       this.$refs.modalForm.disableSubmit = false
     },
+    getFilterParams(filters) {
+      this.filters = filters
+    },
     handleTableChange (pagination, filters, sorter) {
       // 分页、排序、筛选变化时触发
       // TODO 筛选
+      this.getFilterParams(filters)
       console.log(pagination)
       if (Object.keys(sorter).length > 0) {
         this.isorter.column = sorter.field

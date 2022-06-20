@@ -1,0 +1,301 @@
+<template>
+  <div class='my-full-form-wrapper' id='formRoot'>
+    <fixed-form-header>
+      <template v-slot:header>
+        <form-header
+          title='School Teacher'
+          :show-share='false'
+          :show-collaborate='false'
+          :is-preview-mode='true'
+          @back='goBack'>
+          <template v-slot:right>
+          </template>
+        </form-header>
+      </template>
+    </fixed-form-header>
+    <div class="form-content">
+      <div class="status-tab">
+        <div class="tab-list">
+          <div :class="{'tab-item': true, 'active' : queryParam.schoolUserStatus === ''}" @click="toggleTab('')">All</div>
+          <div
+            v-for="(item,index) in tabsList"
+            :key="'types'+index"
+            :class="{'tab-item': true, 'active' : queryParam.schoolUserStatus === item.value}"
+            @click="toggleTab(item.value)">
+            {{ item.label }}
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-tab">
+        <div class="filter-search">
+          <a-input-search v-model="queryParam.searchKey" placeholder="Search" @search="searchQuery"></a-input-search>
+        </div>
+        <a-space class="filter-opt">
+          <a-dropdown>
+            <a-menu slot="overlay" @click="handleBatchOpt">
+              <a-menu-item key="move"> Move Class </a-menu-item>
+              <a-menu-item key="resend" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.INACTIVE.value"> Resend </a-menu-item>
+              <a-menu-item key="reset" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ACTIVE.value"> Reset password </a-menu-item>
+              <a-menu-item key="restore" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ARCHIVE.value"> Restore </a-menu-item>
+              <a-menu-item key="archive" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ACTIVE.value"> Archive </a-menu-item>
+              <a-menu-item key="delete" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ARCHIVE.value"> Delete </a-menu-item>
+            </a-menu>
+            <a-button style="margin-left: 8px"> Bulk manage <a-icon type="down" /> </a-button>
+          </a-dropdown>
+          <a-button type="primary">Add</a-button>
+          <a-button type="black">Bulk Upload</a-button>
+        </a-space>
+      </div>
+
+      <div class="form-tab">
+        <a-table
+          ref="table"
+          rowKey="id"
+          :columns="columns"
+          :dataSource="dataSource"
+          :pagination="ipagination"
+          :loading="loading"
+          :rowSelection="{selectedRowKeys: selectedRowKeys, onChange: onSelectChange}"
+          @change="handleTableChange">
+        </a-table>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import { USER_MODE, SCHOOL_USER_STATUS } from '@/const/common'
+import { UserModeMixin } from '@/mixins/UserModeMixin'
+import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
+import { JeecgListMixin } from '@/mixins/JeecgListMixin'
+
+import { listClass } from '@/api/v2/schoolClass'
+
+import FixedFormHeader from '@/components/Common/FixedFormHeader'
+import FormHeader from '@/components/FormHeader/FormHeader'
+import CustomTextButton from '@/components/Common/CustomTextButton'
+
+import { mapState } from 'vuex'
+const { debounce } = require('lodash-es')
+
+export default {
+  name: 'SchoolTeacher',
+  mixins: [UserModeMixin, CurrentSchoolMixin, JeecgListMixin],
+  components: {
+    FixedFormHeader,
+    FormHeader,
+    CustomTextButton
+  },
+  data() {
+    return {
+      USER_MODE: USER_MODE,
+      SCHOOL_USER_STATUS: SCHOOL_USER_STATUS,
+      tabsList: Object.values(SCHOOL_USER_STATUS),
+      loading: false,
+      queryParam: {
+        searchKey: '',
+        schoolId: this.$store.state.user.currentSchool.id,
+        schoolUserStatus: '',
+        grades: '',
+        roles: ''
+      },
+      filters: {
+        classes: ''
+      },
+      debounceInit: null,
+
+      classList: [],
+
+      url: {
+        // list: '/classcipe/api2/school/user/getSchoolUsers'
+        list: '/classcipe/api/school/schoolClassStudent/list'
+      }
+    }
+  },
+  created() {
+    this.initDict()
+    this.queryParam.schoolId = this.currentSchool.id
+    this.debounceLoad = debounce(this.loadData, 300)
+  },
+  computed: {
+    ...mapState({
+      userMode: state => state.app.userMode,
+      currentSchool: state => state.user.currentSchool
+    }),
+    columns() {
+      return [
+        {
+          title: 'ID',
+          align: 'center',
+          dataIndex: 'id',
+          width: 120
+        },
+        {
+          title: 'Name',
+          align: 'center',
+          dataIndex: 'userInfo.email',
+          width: 120
+        },
+        {
+          title: 'Class',
+          align: 'center',
+          dataIndex: 'classes',
+          width: 120,
+          filters: this.classList
+        },
+        {
+          title: 'Status',
+          align: 'center',
+          dataIndex: 'studentStatus',
+          width: 120
+        },
+        {
+          title: 'Last Login',
+          align: 'center',
+          dataIndex: 'userInfo.updateTime',
+          width: 120
+        },
+        {
+          title: 'Action',
+          align: 'center',
+          width: 120
+        }
+      ]
+    }
+  },
+  methods: {
+    goBack() {
+      this.$router.go(-1)
+    },
+    handleSchoolChange(currentSchool) {
+      if (this.userMode === USER_MODE.SCHOOL) {
+        this.queryParam.schoolId = currentSchool.id
+        this.initDict()
+        this.debounceInit()
+      }
+    },
+    handleModeChange(userMode) {
+      // 模式切换，个人还是学校 个人接口
+      this.initDict()
+      this.debounceInit()
+    },
+    initDict() {
+      // 获取所有班级用于筛选
+      Promise.all([
+        listClass({
+          schoolId: this.currentSchool.id,
+          pageNo: 1,
+          pageSize: 10000
+        })
+      ]).then(([clsRes]) => {
+        if (clsRes.code === 0) {
+          this.classList = clsRes.result.records.map(item => ({
+            text: item.name,
+            value: item.id
+          }))
+        }
+      })
+    },
+    toggleTab(status) {
+      this.queryParam.schoolUserStatus = status
+      this.debounceLoad()
+    },
+    handleBatchOpt(key) {
+      console.log(key)
+    },
+    getFilterParams(filters) {
+      if (filters.classes && filters.classes.length > 0) {
+        this.filters.classes = filters.classes.join(',')
+      } else {
+        this.filters.classes = ''
+      }
+    }
+  }
+}
+</script>
+
+<style lang="less" scoped>
+@import "~@/components/index.less";
+.cc-fixed-form-header {
+  height: 60px;
+}
+.form-content {
+  margin-top: 60px;
+  height: calc(100vh - 60px);
+  padding: 30px 60px;
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.status-tab {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 60px;
+  padding: 0 20px;
+  .tab-list {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+   .tab-item {
+      margin: 0 20px;
+      font-size: 16px;;
+      font-family: Arial;
+      font-weight: 400;
+      color: #3E4459;
+      cursor: pointer;
+      position: relative;
+      &::after {
+        content: '';
+        display: block;
+        width: 0;
+        height: 3px;
+        background: #208557;
+        margin-top: 10px;
+        position: absolute;
+        transition: width 0.2s, left 0.2s;
+        transition-timing-function: ease-out;
+        left: 50%;
+      }
+      &.active {
+        font-size: 16px;
+        font-family: Arial;
+        font-weight: bold;
+        color: #1F222D;
+        &::after {
+          width: 100%;
+          left: 0;
+        }
+      }
+    }
+  }
+}
+.filter-tab {
+  height: 40px;
+  padding: 0 40px;
+  margin: 20px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+}
+.form-tab {
+  height: calc(100% - 140px);
+  padding: 0 20px;
+  overflow: auto;
+}
+
+/deep/ .ant-btn-black {
+  background: #484D53;
+  border-color: #484D53;
+  color: #fff;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+</style>

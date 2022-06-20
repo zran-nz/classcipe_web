@@ -603,6 +603,34 @@ export const asyncRouterMap = [
             meta: { title: 'menu.my-class', keepAlive: true, permission: ['teacher'] }
           },
           {
+            path: '/manage/student',
+            name: 'SchoolStudent',
+            component: RouteView,
+            redirect: '/manage/student/list',
+            meta: { title: 'Student Manage', keepAlive: true, permission: ['teacher'] },
+            children: [
+              {
+                path: '/manage/student/list',
+                name: 'SchoolStudentList',
+                component: () => import('@/views/account/manage/SchoolStudent'),
+                meta: { title: 'Student Manage', keepAlive: true, permission: ['teacher'] }
+              },
+              {
+                path: '/manage/student/detail/:id?',
+                name: 'SchoolStudentEdit',
+                props: true,
+                component: () => import('@/views/account/manage/SchoolStudentEdit'),
+                meta: { title: 'Student Manage', keepAlive: true, permission: ['teacher'] }
+              }
+            ]
+          },
+          {
+            path: '/manage/teacher',
+            name: 'SchoolTeacher',
+            component: () => import('@/views/account/manage/SchoolTeacher'),
+            meta: { title: 'Teacher Manage', keepAlive: true, permission: ['teacher'] }
+          },
+          {
             path: '/manage/persona/security',
             name: 'PersonalSecurity',
             component: () => import('@/views/account/manage/PersonaSecurity'),
