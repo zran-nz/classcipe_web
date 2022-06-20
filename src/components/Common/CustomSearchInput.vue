@@ -63,6 +63,8 @@ export default {
     handleClear() {
       this.data = ''
       this.handleUpdateValue()
+      this.handleSearch()
+      this.$emit('clear')
     }
   }
 }
