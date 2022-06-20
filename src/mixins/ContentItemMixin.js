@@ -1,3 +1,7 @@
+import { UnitPlanAddOrUpdate, UnitPlanQueryById } from '@/api/unitPlan'
+import { TaskAddOrUpdate, TaskQueryById } from '@/api/task'
+import { VideoAddOrUpdate, VideoQueryById } from '@/api/video'
+import { PDContentAddOrUpdate, PDContentQueryById } from '@/api/pdContent'
 
 export const ContentItemMixin = {
   data () {
@@ -20,6 +24,14 @@ export const ContentItemMixin = {
       ]
     }
   },
+  computed: {
+    contentType() {
+      return this.content.type
+    },
+    contentId() {
+      return this.content.id
+    }
+  },
   methods: {
     handlePreviewDetail (data) {
       this.$logger.info('handlePreviewDetail', data, 'allowPreview', this.allowPreview)
@@ -38,6 +50,19 @@ export const ContentItemMixin = {
       this.previewVisible = false
       this.previewCurrentId = null
       this.previewType = null
+    },
+    async updateEditSlideStatus() {
+      const contentType = parseInt(this.contentType)
+      if (contentType === this.$classcipe.typeMap['unit-plan']) {
+        await UnitPlanAddOrUpdate({ id: this.contentId, slideEditing: false })
+      } else if (contentType === this.$classcipe.typeMap.task) {
+        await TaskAddOrUpdate({ id: this.contentId, slideEditing: false })
+      } else if (contentType === this.$classcipe.typeMap.video) {
+        await VideoAddOrUpdate({ id: this.contentId, slideEditing: false })
+      } else if (contentType === this.$classcipe.typeMap.pd) {
+        await PDContentAddOrUpdate({ id: this.contentId, slideEditing: false })
+      }
+      this.content.slideEditing = false
     }
   }
 }

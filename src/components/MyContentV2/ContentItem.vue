@@ -124,8 +124,17 @@
             <custom-button
               label='Schedule'
               :title="content.presentationId ? '' : 'This task/PD content can not be scheduled without interactive slides, please edit google slides first before scheduling'"
-              v-if='showSchedule && (content.type === typeMap.task || content.type === typeMap.pd)'
+              v-if='showSchedule && (content.type === typeMap.task || content.type === typeMap.pd) && !content.slideEditing'
               @click='handleSchedule'>
+              <template v-slot:icon>
+                <schedule-icon />
+              </template>
+            </custom-button>
+
+            <custom-button
+              label='Save changes'
+              v-if='showSchedule && (content.type === typeMap.task || content.type === typeMap.pd) && content.slideEditing'
+              @click='updateEditSlideStatus'>
               <template v-slot:icon>
                 <schedule-icon />
               </template>
