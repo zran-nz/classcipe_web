@@ -897,8 +897,12 @@ export default {
       this.checkRequiredFields()
       this.$logger.info('this.emptyRequiredFields', this.emptyRequiredFields)
       if (this.emptyRequiredFields.length === 0) {
-        this.form.status = 1
-        this.handlePublishFormItem(1)
+        if (this.form.presentationId) {
+          this.form.status = 1
+          this.handlePublishFormItem(1)
+        } else {
+          this.$message.warn('This task/PD content can not be published without interactive slides, please edit google slides first')
+        }
       } else {
         let requiredStepIndex = -1
         for (let i = 0; i < this.formSteps.length; i++) {

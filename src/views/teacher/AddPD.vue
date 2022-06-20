@@ -214,6 +214,7 @@ import CollaborateUserList from '@/components/Collaborate/CollaborateUserList'
 import ShareContentSetting from '@/components/Share/ShareContentSetting'
 import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
 import CustomTagPd from '@/components/CustomTag/CustomTagPd'
+import { UpdateContentStatus } from '@/api/teacher'
 
 export default {
   name: 'AddPD',
@@ -586,7 +587,12 @@ export default {
       this.$logger.info('handlePublish', status, this.requiredFields, this.form)
       this.checkRequiredFields()
       if (this.emptyRequiredFields.length === 0) {
-
+        if (this.form.presentationId) {
+          this.form.status = 1
+          this.handlePublishFormItem(1)
+        } else {
+          this.$message.warn('This task/PD content can not be published without interactive slides, please edit google slides first')
+        }
       } else {
         let requiredStepIndex = -1
         for (let i = 0; i < this.formSteps.length; i++) {
@@ -600,6 +606,17 @@ export default {
           this.currentActiveStepIndex = requiredStepIndex
         }
       }
+    },
+
+    handlePublishFormItem (status) {
+      const data = {
+        id: this.pdId,
+        status: status,
+        type: this.typeMap.pd
+      }
+      UpdateContentStatus(data).then(() => {
+        this.$message.success(this.$t('teacher.add-unit-plan.publish-success'))
+      })
     },
 
     handleSelectTemplate (template) {
