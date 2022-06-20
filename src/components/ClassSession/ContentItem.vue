@@ -14,10 +14,14 @@
               {{ contentTypeName }}
             </div>
             <div class='content-name'>
-              {{ content.name }}
+              <template v-if='!editingSessionName'>{{ session.sessionName || 'Untitled' }}</template>
+              <template v-if='editingSessionName'>
+                <a-input class='cc-form-input' v-model='newSessionName' />
+              </template>
             </div>
-            <div class='edit-icon'>
-              <edit-blue-icon />
+            <div class='edit-icon' @click='toggleEditSessionName'>
+              <edit-blue-icon v-if='!editingSessionName' />
+              <a-icon type="check" v-if='editingSessionName' />
             </div>
           </div>
           <div class='sub-row'>
@@ -44,16 +48,22 @@
             </div>
             <div class='sub-right'>
               <div class='session-date'>
-                <template v-if='session.session.sessionStartTime || session.session.deadline'>
-                  {{ session.session.sessionStartTime | dayjs }}
-                  <template v-if='session.session.sessionStartTime && session.session.deadline'> - </template>
-                  {{ session.session.deadline | dayjs }}
+                <template v-if='!editingSessionTime'>
+                  <template v-if='session.session.sessionStartTime || session.session.deadline'>
+                    {{ session.session.sessionStartTime | dayjs }}
+                    <template v-if='session.session.sessionStartTime && session.session.deadline'> - </template>
+                    {{ session.session.deadline | dayjs }}
+                  </template>
+                  <template v-else>
+                    session start time not set
+                  </template>
                 </template>
-                <template v-else>
-                  session start time not set
+                <template v-if='editingSessionTime'>
+                  <a-range-picker :default-value="initDate" :disabled-date="disabledDate" @change="handleDateChange" format='YYYY-MM-DD HH:mm:ss' :show-time="{ format: 'HH:mm' }"/>
                 </template>
-                <div class='edit-icon'>
-                  <edit-blue-icon />
+                <div class='edit-icon' @click='toggleEditSessionTime'>
+                  <edit-blue-icon v-if='!editingSessionTime' />
+                  <a-icon type="check" v-if='editingSessionTime' />
                 </div>
               </div>
             </div>
@@ -141,6 +151,8 @@ import DeleteIcon from '@/assets/v2/icons/delete.svg?inline'
 import MoreIcon from '@/assets/v2/icons/more.svg?inline'
 import ContentPreview from '@/components/Preview/ContentPreview'
 import ZoomIcon from '@/assets/icons/zoom/zoomus-icon.svg?inline'
+import moment from 'moment'
+import { AddOrUpdateClass } from '@/api/classroom'
 
 export default {
   name: 'ContentItem',
@@ -180,11 +192,18 @@ export default {
       default: false
     }
   },
-  mixins: [ContentItemMixin],
+  mixins: [ ContentItemMixin ],
   data() {
     return {
       typeMap: typeMap,
-      isSelfLearning: false
+      isSelfLearning: false,
+      editingSessionName: false,
+      editingSessionTime: false,
+      newSessionName: '',
+
+      initDate: null,
+      newSessionStartTime: '',
+      newDeadline: ''
     }
   },
   created() {
@@ -252,6 +271,47 @@ export default {
       } else {
         this.$message.warn('Zoom meeting info not found!')
       }
+    },
+
+    toggleEditSessionName () {
+      this.$logger.info('toggleEditSessionName')
+      if (this.editingSessionName) {
+        if (this.newSessionName.trim().length) {
+          this.session.sessionName = this.newSessionName.trim()
+          this.editingSessionName = false
+          this.updateSession()
+        }
+      } else {
+        this.newSessionName = this.session.sessionName || 'Untitled'
+        this.editingSessionName = true
+      }
+    },
+    toggleEditSessionTime () {
+      if (this.editingSessionTime) {
+        this.$emit('update-time')
+        this.editingSessionTime = false
+      } else {
+        this.initDate = [moment(this.session.sessionStartTime), moment(this.session.deadline)]
+        this.editingSessionTime = true
+      }
+    },
+
+    updateSession() {
+      this.$logger.info('update session', this.session)
+      AddOrUpdateClass(this.session).then(response => {
+        this.$logger.info('response item', response)
+      })
+    },
+
+    disabledDate(current) {
+      return current && current < moment().subtract(1, 'days').endOf('day')
+    },
+
+    handleDateChange (date, dateString) {
+      this.$logger.info('handleDateChange', date, dateString)
+      this.session.sessionStartTime = moment(date[0].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
+      this.session.deadline = moment(date[1].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
+      this.updateSession()
     }
   }
 }
