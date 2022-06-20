@@ -133,6 +133,7 @@
 
             <custom-button
               label='Save changes'
+              :loading='updateEditSlideLoading'
               v-if='showSchedule && (content.type === typeMap.task || content.type === typeMap.pd) && content.slideEditing'
               @click='updateEditSlideStatus'>
               <template v-slot:icon>

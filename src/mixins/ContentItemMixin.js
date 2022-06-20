@@ -1,7 +1,7 @@
-import { UnitPlanAddOrUpdate, UnitPlanQueryById } from '@/api/unitPlan'
-import { TaskAddOrUpdate, TaskQueryById } from '@/api/task'
-import { VideoAddOrUpdate, VideoQueryById } from '@/api/video'
-import { PDContentAddOrUpdate, PDContentQueryById } from '@/api/pdContent'
+import { UnitPlanAddOrUpdate } from '@/api/unitPlan'
+import { TaskAddOrUpdate } from '@/api/task'
+import { VideoAddOrUpdate } from '@/api/video'
+import { PDContentAddOrUpdate } from '@/api/pdContent'
 
 export const ContentItemMixin = {
   data () {
@@ -10,6 +10,7 @@ export const ContentItemMixin = {
       previewCurrentId: null,
       previewType: null,
       previewVisible: false,
+      updateEditSlideLoading: false,
       setColor: [
         '#FFEDAF',
         '#C8F4FF',
@@ -52,17 +53,26 @@ export const ContentItemMixin = {
       this.previewType = null
     },
     async updateEditSlideStatus() {
-      const contentType = parseInt(this.contentType)
-      if (contentType === this.$classcipe.typeMap['unit-plan']) {
-        await UnitPlanAddOrUpdate({ id: this.contentId, slideEditing: false })
-      } else if (contentType === this.$classcipe.typeMap.task) {
-        await TaskAddOrUpdate({ id: this.contentId, slideEditing: false })
-      } else if (contentType === this.$classcipe.typeMap.video) {
-        await VideoAddOrUpdate({ id: this.contentId, slideEditing: false })
-      } else if (contentType === this.$classcipe.typeMap.pd) {
-        await PDContentAddOrUpdate({ id: this.contentId, slideEditing: false })
+      if (!this.updateEditSlideLoading) {
+        try {
+          this.updateEditSlideLoading = true
+          const contentType = parseInt(this.contentType)
+          if (contentType === this.$classcipe.typeMap['unit-plan']) {
+            await UnitPlanAddOrUpdate({ id: this.contentId, slideEditing: false })
+          } else if (contentType === this.$classcipe.typeMap.task) {
+            await TaskAddOrUpdate({ id: this.contentId, slideEditing: false })
+          } else if (contentType === this.$classcipe.typeMap.video) {
+            await VideoAddOrUpdate({ id: this.contentId, slideEditing: false })
+          } else if (contentType === this.$classcipe.typeMap.pd) {
+            await PDContentAddOrUpdate({ id: this.contentId, slideEditing: false })
+          }
+          this.content.slideEditing = false
+        } catch (e) {
+          console.log('updateEditSlideStatus', e)
+        } finally {
+          this.updateEditSlideLoading = false
+        }
       }
-      this.content.slideEditing = false
     }
   }
 }

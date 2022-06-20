@@ -1,5 +1,10 @@
 <template>
   <div class='cc-custom-button' :style="{'background-color': bgColor, 'color': color}" @click='handleClick' @dblclick='handleDbClick'>
+    <div class='loading vertical-center' v-if='loading'>
+      <a-spin>
+        <a-icon slot="indicator" type="loading" style="font-size: 14px; color: #666666" spin />
+      </a-spin>
+    </div>
     <div class='icon'>
       <slot name='icon'>
       </slot>
@@ -25,6 +30,10 @@ export default {
     color: {
       type: String,
       default: '#16274A'
+    },
+    loading: {
+      type: Boolean,
+      default: false
     }
   },
   methods: {
@@ -92,5 +101,10 @@ export default {
     line-height: 16px;
     white-space: nowrap;
   }
+}
+
+.loading {
+  padding-right: 10px;
+  height: 15px;
 }
 </style>
