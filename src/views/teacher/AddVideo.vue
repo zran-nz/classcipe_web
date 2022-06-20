@@ -190,6 +190,7 @@ import FormLinkedContent from '@/components/Common/FormLinkedContent'
 import LinkContentList from '@/components/UnitPlan/LinkContentList'
 import LearningObjective from '@/components/LearningObjective/LearningObjective'
 import CustomTagV3 from '@/components/CustomTag/CustomTagV3'
+import { UpdateContentStatus } from '@/api/teacher'
 
 export default {
   name: 'AddPD',
@@ -379,7 +380,8 @@ export default {
       this.$logger.info('handlePublish', status, this.requiredFields, this.form)
       this.checkRequiredFields()
       if (this.emptyRequiredFields.length === 0) {
-
+        this.form.status = 1
+        this.handlePublishFormItem(1)
       } else {
         let requiredStepIndex = -1
         for (let i = 0; i < this.formSteps.length; i++) {
@@ -394,6 +396,18 @@ export default {
         }
       }
     },
+
+    handlePublishFormItem (status) {
+      const data = {
+        id: this.videoId,
+        status: status,
+        type: this.contentType.video
+      }
+      UpdateContentStatus(data).then(() => {
+        this.$message.success(this.$t('teacher.add-unit-plan.publish-success'))
+      })
+    },
+
     handleUpdateCover (coverData) {
       this.$logger.info('handleUpdateCover', coverData)
       if (coverData.type === 'video') {
