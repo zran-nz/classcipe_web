@@ -25,14 +25,6 @@ export const ContentItemMixin = {
       ]
     }
   },
-  computed: {
-    contentType() {
-      return this.content.type
-    },
-    contentId() {
-      return this.content.id
-    }
-  },
   methods: {
     handlePreviewDetail (data) {
       this.$logger.info('handlePreviewDetail', data, 'allowPreview', this.allowPreview)
@@ -56,15 +48,15 @@ export const ContentItemMixin = {
       if (!this.updateEditSlideLoading) {
         try {
           this.updateEditSlideLoading = true
-          const contentType = parseInt(this.contentType)
+          const contentType = parseInt(this.content.type)
           if (contentType === this.$classcipe.typeMap['unit-plan']) {
-            await UnitPlanAddOrUpdate({ id: this.contentId, slideEditing: false })
+            await UnitPlanAddOrUpdate({ id: this.content.id, slideEditing: false })
           } else if (contentType === this.$classcipe.typeMap.task) {
-            await TaskAddOrUpdate({ id: this.contentId, slideEditing: false })
+            await TaskAddOrUpdate({ id: this.content.id, slideEditing: false })
           } else if (contentType === this.$classcipe.typeMap.video) {
-            await VideoAddOrUpdate({ id: this.contentId, slideEditing: false })
+            await VideoAddOrUpdate({ id: this.content.id, slideEditing: false })
           } else if (contentType === this.$classcipe.typeMap.pd) {
-            await PDContentAddOrUpdate({ id: this.contentId, slideEditing: false })
+            await PDContentAddOrUpdate({ id: this.content.id, slideEditing: false })
           }
           this.content.slideEditing = false
         } catch (e) {
