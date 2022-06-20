@@ -6,15 +6,25 @@
     :maskClosable='false'
     :dialog-style="{ top: '50px'}"
     destroyOnClose
-    width='700px'>
+    width='1400px'>
     <modal-header title='Please select a Unit this session belongs to' :allow-close='false'/>
-    <div class='data-list'>
-      <div class='data-content-item' :class="{'active-item': content === selected}" v-for='content in list' :key='content.id' @click='handleSelect(content)'>
-        <content-item
-          :show-button='false'
-          :click-preview='false'
-          :border-style="selected === content ? 'solid' : 'dashed'"
-          :content='content' />
+    <div class='content'>
+      <div class='data-list'>
+        <div class='data-content-item' :class="{'active-item': content === selected}" v-for='content in list' :key='content.id' @click='handleSelect(content)'>
+          <content-item
+            :show-button='false'
+            :click-preview='false'
+            :border-style="selected === content ? 'solid' : 'dashed'"
+            :content='content' />
+        </div>
+      </div>
+      <div class='preview-item'>
+        <content-preview-detail
+          :display-fixed-header='false'
+          :content-id='previewCurrentId'
+          :content-type='previewType'
+          v-if='previewVisible'
+          @close='handlePreviewClose' />
       </div>
     </div>
     <div class='modal-action-right'>
@@ -30,10 +40,11 @@
 
 import ModalHeader from '@/components/Common/ModalHeader'
 import ContentItem from '@/components/MyContentV2/ContentItem'
+import ContentPreviewDetail from '@/components/Preview/ContentPreviewDetail'
 
 export default {
   name: 'SelectSessionUnit',
-  components: { ContentItem, ModalHeader },
+  components: { ContentPreviewDetail, ContentItem, ModalHeader },
   props: {
     list: {
       type: Array,
@@ -43,10 +54,17 @@ export default {
   data() {
     return {
       visible: true,
-      selected: null
+      selected: null,
+      previewCurrentId: null,
+      previewType: null,
+      previewVisible: false
     }
   },
   created() {
+    if (this.list.length) {
+      this.selected = this.list[0]
+      this.handleSelect(this.selected)
+    }
   },
   methods: {
     handleBack() {
@@ -55,6 +73,22 @@ export default {
     handleSelect (content) {
       this.$logger.info('handleSelect', content)
       this.selected = content
+      this.handlePreviewDetail(content)
+    },
+    handlePreviewDetail (data) {
+      this.$logger.info('handlePreviewDetail', data, 'allowPreview', this.allowPreview)
+      this.previewVisible = false
+      this.$nextTick(() => {
+        this.previewCurrentId = data.id
+        this.previewType = data.type
+        this.previewVisible = true
+      })
+    },
+    handlePreviewClose () {
+      this.$logger.info('handlePreviewClose')
+      this.previewVisible = false
+      this.previewCurrentId = null
+      this.previewType = null
     },
     handleConfirmSelect () {
       this.$emit('select', this.selected)
@@ -71,9 +105,24 @@ export default {
   border-radius: 6px;
 }
 
+.content {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+}
+
 .data-list {
   padding: 0 10px 0 5px;
   max-height: 500px;
+  width: 700px;
+  overflow-y: auto;
+}
+
+.preview-item {
+  padding: 0 10px 0 5px;
+  max-height: 500px;
+  width: 650px;
   overflow-y: auto;
 }
 </style>

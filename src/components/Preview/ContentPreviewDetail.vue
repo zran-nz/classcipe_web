@@ -1,6 +1,6 @@
 <template>
   <div class='content-preview-detail' ref="container">
-    <div class='top-fixed-header' v-if='showTopFixedHeader && content'>
+    <div class='top-fixed-header' v-if='showTopFixedHeader && content && displayFixedHeader'>
       <div class='header-left'>
         <div class='back vertical-left' @click='handleClose'>
           <a-icon type='left' />
@@ -383,6 +383,10 @@ export default {
       default: false
     },
     showEditButton: {
+      type: Boolean,
+      default: true
+    },
+    displayFixedHeader: {
       type: Boolean,
       default: true
     }
