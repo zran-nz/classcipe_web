@@ -102,7 +102,7 @@ export default {
     line-height: 35px;
 
     .name {
-      max-width: 100%;
+      max-width: 250px;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;

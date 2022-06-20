@@ -2,6 +2,7 @@
   <div class='my-steps'>
     <my-vertical-step-item
       :name='step.name'
+      :title='step.name'
       :current-step-index='currentStepIndex'
       :description='step.description'
       :tips='step.tips'
