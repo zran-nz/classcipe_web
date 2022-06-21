@@ -255,7 +255,7 @@ export default {
             avatar: RoleManagePng,
             title: 'Role Manage',
             desc: 'Review payments, payouts, coupons,gift cards and taxes',
-            url: '',
+            url: '/manage/role',
             hidden: this.isNotAdmin
           }
         ]

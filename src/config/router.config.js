@@ -621,6 +621,12 @@ export const asyncRouterMap = [
                 props: true,
                 component: () => import('@/views/account/manage/SchoolStudentEdit'),
                 meta: { title: 'Student Manage', keepAlive: true, permission: ['teacher'] }
+              },
+              {
+                path: '/manage/student/upload',
+                name: 'SchoolStudentUpload',
+                component: () => import('@/views/account/manage/SchoolStudentUpload'),
+                meta: { title: 'Student Upload', keepAlive: true, permission: ['teacher'] }
               }
             ]
           },
@@ -629,6 +635,12 @@ export const asyncRouterMap = [
             name: 'SchoolTeacher',
             component: () => import('@/views/account/manage/SchoolTeacher'),
             meta: { title: 'Teacher Manage', keepAlive: true, permission: ['teacher'] }
+          },
+          {
+            path: '/manage/role',
+            name: 'SchoolRole',
+            component: () => import('@/views/account/manage/SchoolRole'),
+            meta: { title: 'Role Manage', keepAlive: true, permission: ['teacher'] }
           },
           {
             path: '/manage/persona/security',

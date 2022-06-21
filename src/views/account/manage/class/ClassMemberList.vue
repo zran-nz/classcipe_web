@@ -52,24 +52,11 @@
               </a-auto-complete>
             </a-col>
             <template v-if="form.role === 'student'">
-              <a-col :span="5">
-                <a-upload
-                  name="file"
-                  :showUploadList="false"
-                  :multiple="false"
-                  :headers="tokenHeader"
-                  :action="importExcelUrl"
-                  @change="handleMyImportExcel">
-                  <a-button :loading="importLoading" type="primary" icon="import">{{ importLoadingText }}</a-button>
-                </a-upload>
-                <a-dropdown>
-                  <a-button type="link" shape="circle" icon="download" />
-                  <a-menu slot="overlay">
-                    <a-menu-item key="1">
-                      <a-button type="link" icon="download" @click="downloadTemplate">Download template</a-button>
-                    </a-menu-item>
-                  </a-menu>
-                </a-dropdown>
+              <a-col :span="10" style="text-align: right;">
+                <a-space>
+                  <a-button type="primary" @click="downloadTemplate">Download template</a-button>
+                  <school-user-import :action="importExcelUrl" @success="handleImportGet"/>
+                </a-space>
               </a-col>
             </template>
           </a-row>
@@ -116,11 +103,13 @@ import {
   schoolClassStudentAPIUrl
 } from '@/api/schoolClassStudent'
 
+import SchoolUserImport from '../schoolUser/SchoolUserImport'
+
 export default {
   name: 'ClassMemberList',
   mixins: [JeecgListMixin],
   components: {
-
+    SchoolUserImport
   },
   data() {
     return {
@@ -156,7 +145,7 @@ export default {
         member.userInfo.email.indexOf(this.searchKey || '') > -1)
     },
     importExcelUrl() {
-      return process.env.VUE_APP_API_BASE_URL + this.url.importExcelUrl + '?classId=' + this.form.classId
+      return this.url.importExcelUrl + '?classId=' + this.form.classId
     },
     selectedEmails() {
       return this.classMemberList.map(item => {
@@ -296,16 +285,7 @@ export default {
     handleSearch(val) {
       this.searchKey = val
     },
-    handleMyImportExcel(info) {
-      if (info.file.status === 'uploading') {
-        this.importLoading = true
-        this.importLoadingText = 'Uploading...'
-      }
-      if (info.file.status === 'done') {
-        this.importLoading = false
-        this.importLoadingText = 'Bulk import'
-      }
-      this.handleImportExcel(info)
+    handleImportGet(info) {
     },
     downloadTemplate () {
       const link = document.createElement('a')

@@ -44,7 +44,7 @@
             <a-button style="margin-left: 8px"> Bulk manage <a-icon type="down" /> </a-button>
           </a-dropdown>
           <a-button type="primary" @click="handleAdd">Add</a-button>
-          <a-button type="black">Bulk Upload</a-button>
+          <a-button type="black" @click="handleUpload">Bulk Upload</a-button>
         </a-space>
       </div>
 
@@ -224,6 +224,9 @@ export default {
     },
     handleAdd() {
       this.$router.push('/manage/student/detail')
+    },
+    handleUpload() {
+      this.$router.push('/manage/student/upload')
     },
     handleEdit(item) {
       this.$router.push('/manage/student/detail/' + item.id)
