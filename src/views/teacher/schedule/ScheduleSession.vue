@@ -150,7 +150,7 @@ export default {
 
     async handleAssociate() {
       this.$logger.info('ScheduleSession associateUnitList start', this.associateUnitList)
-      const associateData = await this.getAssociate(this.id, this.type, 1)
+      const associateData = await this.getAssociate(this.id, this.type)
       associateData.ownerLinkList.forEach(groupItem => {
         groupItem.contents.forEach(item => {
           if (item.type === this.$classcipe.typeMap['unit-plan']) {

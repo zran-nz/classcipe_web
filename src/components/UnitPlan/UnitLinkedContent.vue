@@ -25,7 +25,7 @@
           v-for='(groupItem, gIdx) in groups'
           :key='groupItem.groupName'>
           <div class='category-name' :style="{'background-color': color[gIdx]}">
-            {{ groupItem.groupName }}
+            {{ groupItem.groupName || 'Untitled' }}
             <div class='category-delete' v-if="canEdit">
               <a-popconfirm title="Delete category ?" ok-text="Yes" @confirm="handleDeleteGroup(groupItem)" cancel-text="No">
                 <delete-icon />
@@ -191,6 +191,11 @@ export default {
 
     async getAssociate () {
       this.$logger.info('GetAssociate id[' + this.fromId)
+      this.associateUnitList = []
+      this.associateUnitIdList = []
+      this.associateUnitIdList = []
+      this.associateTaskList = []
+      this.associateId2Name.clear()
       this.linkGroupLoading = true
       await GetAssociate({
         id: this.fromId,
@@ -211,6 +216,12 @@ export default {
 
         this.ownerLinkGroupList.forEach(group => {
           group.contents.forEach(content => {
+            if (content.type === this.$classcipe.typeMap['unit-plan']) {
+              this.associateUnitIdList.push(content.id)
+              this.associateId2Name.set(content.id, content.name)
+              this.associateUnitList.push(content)
+            }
+
             if (content.type === this.$classcipe.typeMap.task) {
               this.associateTaskIdList.push(content.id)
               this.associateId2Name.set(content.id, content.name)
@@ -218,12 +229,13 @@ export default {
             }
           })
         })
+        this.$emit('update-unit-id-list', this.associateUnitIdList)
+        this.$emit('update-task-id-list', this.associateTaskIdList)
       }).finally(() => {
         this.linkGroupLoading = false
       })
     },
 
-    // 当拖入内容时，先隐藏dom，然后提取数据后删除组件插入的dom，随后手动处理数据，方便Vue监听
     async handleDragContent (event, groupItem) {
       this.$logger.info('UnitLinkedContent handleDropContent', event, groupItem)
       event.item.style.display = 'none'
@@ -250,14 +262,28 @@ export default {
 
     handleDeleteGroup (group) {
       this.$logger.info('handleDeleteGroup', group)
-      DeleteGroup({
-        fromId: this.fromId,
-        fromType: this.$classcipe.typeMap['unit-plan'],
-        id: group.id
-      }).then(response => {
-        this.$logger.info('DeleteGroup', response)
-        this.getAssociate()
+      group.contents.forEach(async content => {
+        await AssociateCancel({
+          fromId: this.fromId,
+          fromType: this.$classcipe.typeMap['unit-plan'],
+          toId: content.id,
+          toType: content.type
+        }).then(response => {
+          this.$logger.info('handleDeleteLinkItem response ', response)
+        })
       })
+
+      this.$logger.info('handleDeleteGroup all contents')
+      setTimeout(() => {
+        DeleteGroup({
+          fromId: this.fromId,
+          fromType: this.$classcipe.typeMap['unit-plan'],
+          id: group.id
+        }).then(response => {
+          this.$logger.info('DeleteGroup', response)
+          this.getAssociate()
+        })
+      }, 1000)
     },
 
     async handleAddTerm(newGroupNameList) {

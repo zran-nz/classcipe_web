@@ -20,6 +20,10 @@
       </div>
       <div class='preview-item'>
         <content-preview-detail
+          :show-copy-button='false'
+          :show-price-info='false'
+          :show-buy-button='false'
+          :show-edit-button='false'
           :display-fixed-header='false'
           :content-id='previewCurrentId'
           :content-type='previewType'

@@ -110,7 +110,7 @@
         <a-col span='6' class='cc-info-right'>
           <div class='col-info'>
             <div class='price-info'>
-              <a-space :size='5'>
+              <a-space :size='5' v-show='showPriceInfo'>
                 <div class='discount-price'>
                   ${{ content.price || 0 }}
                 </div>
@@ -387,6 +387,10 @@ export default {
       default: true
     },
     displayFixedHeader: {
+      type: Boolean,
+      default: true
+    },
+    showPriceInfo: {
       type: Boolean,
       default: true
     }

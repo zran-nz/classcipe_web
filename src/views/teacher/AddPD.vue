@@ -85,7 +85,7 @@
 
               <div class='form-block tag-content-block' v-if='fieldName === PdField.Link' :key='fieldName'>
                 <div class='common-link-wrapper'>
-                  <form-linked-content :from-id='pdId' :from-type='typeMap.pd' />
+                  <form-linked-content :from-id='pdId' :from-type='typeMap.pd' @update-task-id-list='updateAssociatedIdList' />
                 </div>
               </div>
 
@@ -118,7 +118,9 @@
             <custom-tag-pd :custom-tags.sync='form.customTags'/>
           </template>
           <template v-if='currentRightModule === rightModule.associate'>
-            <link-content-list :filter-types="[typeMap.task]" />
+            <link-content-list
+              :filter-types="[typeMap.task]"
+              :selected-id-list='associateIdList' />
           </template>
           <template v-if='currentRightModule === rightModule.recommend'>
             <slide-select-list :source-id='pdId' :selected-template-list='form.selectedTemplateList' />
@@ -284,7 +286,8 @@ export default {
       fullBodyFields: [PdField.VideoList],
 
       scheduleVisible: false,
-      editGoogleSlideLoading: false
+      editGoogleSlideLoading: false,
+      associateIdList: []
     }
   },
   created() {
@@ -526,6 +529,11 @@ export default {
         res = await this.handleCreatePPT()
       }
       this.editGoogleSlideLoading = false
+    },
+
+    updateAssociatedIdList (idList) {
+      this.$logger.info('updateAssociatedIdList', idList)
+      this.associateIdList = idList
     },
 
     async handleCreatePPT() {

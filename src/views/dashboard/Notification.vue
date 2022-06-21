@@ -332,6 +332,7 @@ export default {
     }
   }
   .ant-list-item-meta-description {
+    width: calc(100% - 150px);
     font-family: Inter-Bold;
     color: #11142D;
   }

@@ -459,7 +459,7 @@
 
                 <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === planField.Link' :key='fieldItem.fieldName'>
                   <div class='form-block'>
-                    <unit-linked-content :from-id='unitPlanId' />
+                    <unit-linked-content :from-id='unitPlanId' @update-task-id-list='updateTaskIdList' />
                   </div>
                 </div>
 
@@ -558,7 +558,9 @@
           </template>
 
           <template v-if='currentRightModule === rightModule.associate'>
-            <link-content-list :filter-types="[contentType.task]" />
+            <link-content-list
+              :selected-id-list='associateTaskIdList'
+              :filter-types="[contentType.task]" />
           </template>
         </div>
       </div>
@@ -1780,6 +1782,11 @@ export default {
       } else {
         this.form.image = coverData.url
       }
+    },
+
+    updateTaskIdList (idList) {
+      this.$logger.info('associateTaskIdList', idList)
+      this.associateTaskIdList = idList
     },
 
     handleUpdateLearningObjectives (data) {

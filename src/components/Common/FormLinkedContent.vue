@@ -95,6 +95,9 @@ export default {
       associateUnitList: [],
       associateId2Name: new Map(),
 
+      associateTaskIdList: [],
+      associateTaskList: [],
+
       initContents: []
     }
   },
@@ -132,6 +135,11 @@ export default {
 
     async getAssociate () {
       this.$logger.info('GetAssociate id[' + this.fromId + '] [type:' + this.fromType + ']')
+      this.associateUnitList = []
+      this.associateUnitIdList = []
+      this.associateUnitIdList = []
+      this.associateTaskList = []
+      this.associateId2Name.clear()
       this.linkGroupLoading = true
       await GetAssociate({
         id: this.fromId,
@@ -157,8 +165,16 @@ export default {
               this.associateId2Name.set(content.id, content.name)
               this.associateUnitList.push(content)
             }
+
+            if (content.type === this.$classcipe.typeMap.task) {
+              this.associateTaskIdList.push(content.id)
+              this.associateId2Name.set(content.id, content.name)
+              this.associateTaskList.push(content)
+            }
           })
         })
+        this.$emit('update-unit-id-list', this.associateUnitIdList)
+        this.$emit('update-task-id-list', this.associateTaskIdList)
       }).finally(() => {
         this.linkGroupLoading = false
       })
