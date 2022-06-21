@@ -139,10 +139,12 @@
                   </template>
                   <a-row>
                     <a-col span='12'>
-                      <form-linked-content :from-id='videoId' :from-type='contentType.video'/>
+                      <form-linked-content :from-id='videoId' :from-type='contentType.video' @update-task-id-list='updateAssociatedIdList'/>
                     </a-col>
                     <a-col span='10' offset='1'>
-                      <link-content-list :filter-types="[contentType.task]" />
+                      <link-content-list
+                        :selected-id-list='associateIdList'
+                        :filter-types="[contentType.task]" />
                     </a-col>
                   </a-row>
                 </custom-form-item>
@@ -241,7 +243,8 @@ export default {
       VideoField: VideoField,
       currentActiveStepIndex: this.getSessionStep(),
 
-      thumbnailList: []
+      thumbnailList: [],
+      associateIdList: []
     }
   },
   created() {
@@ -368,6 +371,11 @@ export default {
       } else {
         this.$refs['steps-nav'].nextStep()
       }
+    },
+
+    updateAssociatedIdList (idList) {
+      this.$logger.info('updateAssociatedIdList', idList)
+      this.associateIdList = idList
     },
 
     handleUpdateVideo (video) {

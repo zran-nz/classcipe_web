@@ -31,7 +31,12 @@
           :sort='false'
           group="content-item"
         >
-          <div v-for='(item) in myContentList' :key='item.id' class="group-link-item" :data-item='JSON.stringify(item)'>
+          <div v-for='(item) in myContentList' :key='item.id' :class="{'selected-item': selectedIdList.indexOf(item.id) !== -1}" class="group-link-item" :data-item='JSON.stringify(item)'>
+            <div class='item-checked-icon'>
+              <template v-if="selectedIdList.indexOf(item.id) !== -1">
+                <img src="~@/assets/icons/lesson/selected.png" />
+              </template>
+            </div>
             <link-content-item :content='item' style='width: 100%' @preview='handleViewDetail' />
           </div>
           <template v-if='myContentList.length === 0'>
@@ -65,6 +70,10 @@ export default {
   components: { CommonNoData, ContentFilter, CustomSearchInput, LinkContentItem, ContentTypeIcon, draggable, DownloadedSvg },
   props: {
     filterTypes: {
+      type: Array,
+      default: () => []
+    },
+    selectedIdList: {
       type: Array,
       default: () => []
     }
@@ -351,8 +360,40 @@ export default {
 }
 
 .display-content-list {
+  padding-right: 10px;
   max-height: calc(100vh - 230px);
   overflow-y: scroll;
+}
+
+.item-checked-icon {
+  position: absolute;
+  top: 10px;
+  right: 0;
+  z-index: 100;
+  margin-top: 13px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 25px;
+  margin-right: 5px;
+  .empty-circle {
+    height: 18px;
+    width: 18px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+  }
+
+  img {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.selected-item {
+  .link-content-item {
+    border: 2px solid #15C39A;
+  }
 }
 
 </style>

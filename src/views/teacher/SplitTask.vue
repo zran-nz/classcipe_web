@@ -256,7 +256,7 @@
 
                 <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === splitTaskField.Link' :key='fieldItem.fieldName'>
                   <div class='common-link-wrapper'>
-                    <form-linked-content :from-id='taskId' :from-type='contentType.task' v-if='taskId'/>
+                    <form-linked-content :from-id='taskId' :from-type='contentType.task' v-if='taskId' @update-unit-id-list='updateUnitIdList'/>
                   </div>
                 </div>
 
@@ -795,6 +795,10 @@ export default {
       } else {
         this.form.image = coverData.url
       }
+    },
+
+    updateUnitIdList (idList) {
+      this.associateUnitPlanIdList = idList
     },
 
     handleDisplayRightModule () {
