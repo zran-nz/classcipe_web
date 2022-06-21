@@ -113,7 +113,7 @@
       <modal-header title="Edit row" @close='editRowModalVisible = false'/>
       <div class='edit-header-action'>
         <div class='edit-header-action-item' v-if='currentEditRow'>
-          <custom-text-button label='Delete current column' @click='handleDelRow'></custom-text-button>
+          <custom-text-button label='Delete current row' @click='handleDelRow'></custom-text-button>
         </div>
       </div>
     </a-modal>
@@ -128,7 +128,7 @@
       <modal-header title="Edit row" @close='editExtraRowModalVisible = false'/>
       <div class='edit-header-action'>
         <div class='edit-header-action-item' v-if='currentEditExtraRow'>
-          <custom-text-button label='Delete current column' @click='handleDelExtraRow'></custom-text-button>
+          <custom-text-button label='Delete current row' @click='handleDelExtraRow'></custom-text-button>
         </div>
       </div>
     </a-modal>
