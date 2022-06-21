@@ -430,29 +430,27 @@ export default {
         data.bodyListJson = JSON.stringify(data.bodyList)
         data.extraCriteriaBodyListJson = JSON.stringify(data.extraCriteriaBodyList)
 
-        // html2canvas(this.$refs.table, {
-        //   logging: false
-        // }).then(canvas => {
-        //   canvas.style.opacity = '1'
-        //   canvas.style.zIndex = '99999999'
-        //   canvas.style.transition =
-        //     'transform 0.3s cubic-bezier(0.42, 0, 0.58, 1),opacity 0.3s cubic-bezier(0.42, 0, 0.58, 1),-webkit-transform 0.3s cubic-bezier(0.42, 0, 0.58, 1)'
-        //   data.assessmentToolPreviewImgBase64 = canvas.toDataURL('image/png', 1)
-        //   this.$logger.info('autoSaveAssessment', data)
-        //
-        // })
-
-        AssessmentToolInfoSave(data).then((res) => {
-          if (res.code === 0) {
-            this.$EventBus.$emit('assessment-saved', {
-              key: res.result.key,
-              id: res.result.id
-            })
-          } else {
-            this.$message.error(res.message)
-          }
-        }).finally(() => {
-          this.$emit('update:saving', false)
+        html2canvas(this.$refs.table, {
+          logging: false
+        }).then(canvas => {
+          canvas.style.opacity = '1'
+          canvas.style.zIndex = '99999999'
+          canvas.style.transition =
+            'transform 0.3s cubic-bezier(0.42, 0, 0.58, 1),opacity 0.3s cubic-bezier(0.42, 0, 0.58, 1),-webkit-transform 0.3s cubic-bezier(0.42, 0, 0.58, 1)'
+          data.assessmentToolPreviewImgBase64 = canvas.toDataURL('image/png', 1)
+          this.$logger.info('autoSaveAssessment', data)
+          AssessmentToolInfoSave(data).then((res) => {
+            if (res.code === 0) {
+              this.$EventBus.$emit('assessment-saved', {
+                key: res.result.key,
+                id: res.result.id
+              })
+            } else {
+              this.$message.error(res.message)
+            }
+          }).finally(() => {
+            this.$emit('update:saving', false)
+          })
         })
       } catch (e) {
         this.$logger.error('autoSaveAssessment', e)
