@@ -132,13 +132,13 @@
                 <span class="label-txt">Subject(s) :</span>
               </div>
               <div class="profile-text profile-data" v-if="!editMode || !canEdit">
-                <div class="profile-tag-item" v-for="(subjectName,index) in userInfo.subjectNameList" :key="index">
+                <div class="profile-tag-item" v-for="(subjectName,index) in userInfo.subjects" :key="index">
                   <a-tag>{{ subjectName }}</a-tag>
                 </div>
               </div>
               <div class="profile-input profile-data" v-else>
-                <a-select :getPopupContainer="trigger => trigger.parentElement" v-model="userInfo.subjectIds" mode="multiple">
-                  <a-select-option :value="subject.id" v-for="subject in subjectOptionsFilter" :key="subject.id">{{ subject.name }}</a-select-option>
+                <a-select :getPopupContainer="trigger => trigger.parentElement" v-model="userInfo.subjects" mode="multiple">
+                  <a-select-option :value="subject.name" v-for="subject in subjectOptionsFilter" :key="subject.id">{{ subject.name }}</a-select-option>
                 </a-select>
               </div>
             </div>
@@ -551,10 +551,9 @@ export default {
         createTime: null,
         curriculumId: this.$store.getters.bindCurriculum,
         curriculumName: null,
-        subjectNameList: [],
         gradeNameList: [],
         areaNameList: [],
-        subjectIds: [],
+        subjects: [],
         gradeIds: [],
         areaIds: [],
         others: null,
@@ -732,7 +731,7 @@ export default {
       })
     },
     initBasic () {
-      this.userInfo.subjectNameList = []
+      this.userInfo.subjects = []
       this.userInfo.gradeNameList = []
       this.userInfo.areaNameList = []
       this.userInfo.avatar = this.userInfoStore.avatar
@@ -743,11 +742,11 @@ export default {
       // 区分个人和学校
       if (this.userMode === USER_MODE.SELF) {
         this.userInfo.curriculumId = this.userInfoStore.bindCurriculum
-        this.userInfo.subjectIds = this.userInfoStore.preference.subjectIds
+        this.userInfo.subjects = this.userInfoStore.preference.subjects
         this.userInfo.gradeIds = this.userInfoStore.preference.gradeIds
       } else {
         this.userInfo.curriculumId = this.currentSchool.curriculumId || this.userInfoStore.bindCurriculum
-        this.userInfo.subjectIds = this.schoolUserInfo.classes ? this.schoolUserInfo.classes.map(item => item.subject) : []
+        this.userInfo.subjects = this.schoolUserInfo.classes ? this.schoolUserInfo.classes.map(item => item.subject) : []
         this.userInfo.gradeIds = this.schoolUserInfo.grades
       }
 
@@ -769,9 +768,6 @@ export default {
           'value': item.id
         })
       })
-      if (this.subjectOptions && this.subjectOptions.length > 0 && this.userInfo.subjectIds && this.userInfo.subjectIds.length > 0) {
-        this.userInfo.subjectNameList = this.subjectOptions.filter(item => this.userInfo.subjectIds.includes(item.id)).map(item => item.name)
-      }
       if (this.gradeOptions && this.gradeOptions.length > 0 && this.userInfo.gradeIds && this.userInfo.gradeIds.length > 0) {
         this.userInfo.gradeNameList = this.gradeOptions.filter(item => this.userInfo.gradeIds.includes(item.id)).map(item => item.name)
       }
@@ -815,13 +811,13 @@ export default {
             this.userInfo.subjectNameList = []
             logger.info('SubjectTree response', response[2])
             this.subjectOptions = response[2].result
-            this.subjectOptions.forEach(option => {
-              if (this.userInfo.subjectIds.indexOf(option.id) !== -1 && this.userInfo.subjectNameList.indexOf(option.name) === -1) {
-                this.userInfo.subjectNameList.push(option.name)
-              } else {
-                this.$logger.info('subject id ' + option.id + ' dont exist in ', this.userInfo.subjectIds)
-              }
-            })
+            // this.subjectOptions.forEach(option => {
+            //   if (this.userInfo.subjectIds.indexOf(option.id) !== -1 && this.userInfo.subjectNameList.indexOf(option.name) === -1) {
+            //     this.userInfo.subjectNameList.push(option.name)
+            //   } else {
+            //     this.$logger.info('subject id ' + option.id + ' dont exist in ', this.userInfo.subjectIds)
+            //   }
+            // })
           }
 
           if (!response[3].code) {
@@ -866,14 +862,14 @@ export default {
           if (!response[1].code) {
             logger.info('SubjectTree response', response[1])
             this.subjectOptions = response[1].result
-            this.userInfo.subjectNameList = []
-            this.subjectOptions.forEach(option => {
-              if (this.userInfo.subjectIds.indexOf(option.id) !== -1) {
-                this.userInfo.subjectNameList.push(option.name)
-              } else {
-                this.$logger.info('subject id ' + option.id + ' dont exist in ', this.userInfo.subjectIds)
-              }
-            })
+            // this.userInfo.subjectNameList = []
+            // this.subjectOptions.forEach(option => {
+            //   if (this.userInfo.subjectIds.indexOf(option.id) !== -1) {
+            //     this.userInfo.subjectNameList.push(option.name)
+            //   } else {
+            //     this.$logger.info('subject id ' + option.id + ' dont exist in ', this.userInfo.subjectIds)
+            //   }
+            // })
           }
 
           this.loading = false
@@ -974,7 +970,7 @@ export default {
         postData = {
           curriculumId: this.userInfo.curriculumId,
           gradeIds: this.userInfo.gradeIds,
-          subjectIds: this.userInfo.subjectIds,
+          subjects: this.userInfo.subjects,
           tagIds: this.customizedTagIds.map(function (item) {
             return item.value
           })
