@@ -177,7 +177,7 @@ import {
   AssessmentToolHeaderNamesSave,
   AssessmentToolInfoSave
 } from '@/api/v2/assessment'
-import html2canvas from 'html2canvas'
+import { toPng } from 'html-to-image'
 
 export default {
   name: 'AssessmentToolTable',
@@ -430,14 +430,8 @@ export default {
         data.bodyListJson = JSON.stringify(data.bodyList)
         data.extraCriteriaBodyListJson = JSON.stringify(data.extraCriteriaBodyList)
 
-        html2canvas(this.$refs.table, {
-          logging: false
-        }).then(canvas => {
-          canvas.style.opacity = '1'
-          canvas.style.zIndex = '99999999'
-          canvas.style.transition =
-            'transform 0.3s cubic-bezier(0.42, 0, 0.58, 1),opacity 0.3s cubic-bezier(0.42, 0, 0.58, 1),-webkit-transform 0.3s cubic-bezier(0.42, 0, 0.58, 1)'
-          data.assessmentToolPreviewImgBase64 = canvas.toDataURL('image/png', 1)
+        toPng(this.$refs.table).then(base64 => {
+          data.assessmentToolPreviewImgBase64 = base64
           this.$logger.info('autoSaveAssessment', data)
           AssessmentToolInfoSave(data).then((res) => {
             if (res.code === 0) {

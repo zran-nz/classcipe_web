@@ -7730,6 +7730,11 @@ html-tags@^3.1.0:
   resolved "https://registry.nlark.com/html-tags/download/html-tags-3.1.0.tgz?cache=0&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fhtml-tags%2Fdownload%2Fhtml-tags-3.1.0.tgz"
   integrity sha1-e15vfmZen7QfMAB+2eDUHpf7IUA=
 
+html-to-image@^1.9.0:
+  version "1.9.0"
+  resolved "https://registry.npmmirror.com/html-to-image/-/html-to-image-1.9.0.tgz#cb49bf9f4b37376771c85cfdd65863ae9420b268"
+  integrity sha512-9gaDCIYg62Ek07F2pBk76AHgYZ2gxq2YALU7rK3gNCqXuhu6cWzsOQqM7qGbjZiOzxGzrU1deDqZpAod2NEwbA==
+
 html-webpack-plugin@^3.2.0:
   version "3.2.0"
   resolved "https://registry.npm.taobao.org/html-webpack-plugin/download/html-webpack-plugin-3.2.0.tgz"
