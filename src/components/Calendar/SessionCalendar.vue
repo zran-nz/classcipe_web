@@ -306,8 +306,8 @@ export default {
         params.classIds = this.typeFilters
         noNeedQuery = this.typeFilters.length === 0
       } else if (this.queryType === this.CALENDAR_QUERY_TYPE.WORKSHOP.value) {
-        params.workshopStatus = this.typeFilters
-        params.workshopType = [1, 2]
+        params.workshopStatus = this.typeFilters.join(',')
+        params.workshopType = '1,2'
         noNeedQuery = this.typeFilters.length === 0
       }
       if (noNeedQuery) {
