@@ -61,7 +61,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for='row in assessment.bodyList' :key="'row_' + row.key">
+        <tr class='row' v-for='row in assessment.bodyList' :key="'row_' + row.key">
           <th v-for='header in assessment.headerList' :key="'rc_' + row.key + '_' + header.type" @dblclick='handleEditRow(row)'>
             <a-textarea
               :auto-size="{ minRows: 2, maxRows: 20 }"
@@ -69,6 +69,11 @@
               v-model='row[header.type].display'
               :style="{ backgroundColor: header.bgColor || '#ffffff' }" />
           </th>
+          <div class='delete-icon'>
+            <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDelRowItem(row)" cancel-text="No">
+              <delete-icon color='#F16A39' />
+            </a-popconfirm>
+          </div>
         </tr>
       </tbody>
     </table>
@@ -489,6 +494,13 @@ export default {
       this.editRowModalVisible = false
     },
 
+    handleDelRowItem(item) {
+      if (this.mode === 'edit') {
+        this.assessment.bodyList.splice(this.assessment.bodyList.indexOf(item), 1)
+      }
+      this.editRowModalVisible = false
+    },
+
     handleDelExtraRow () {
       if (this.mode === 'edit') {
         this.assessment.extraCriteriaBodyList.splice(this.assessment.extraCriteriaBodyList.indexOf(this.currentEditExtraRow), 1)
@@ -524,7 +536,7 @@ export default {
   }
 
   table {
-    width: 100%;
+    width: calc(100% - 30px);
     background: #FFFFFF;
     border-top: 2px dashed #D8DEEA;
     border-left: 2px dashed #D8DEEA;
@@ -598,7 +610,7 @@ export default {
     }
 
     tr:nth-last-child(1) {
-      border-right: 2px dashed #D8DEEA;
+      //border-right: 2px dashed #D8DEEA;
     }
   }
 
@@ -648,15 +660,14 @@ export default {
   line-height: 20px;
   border: none;
   box-shadow: none;
-  white-space: pre-wrap;
-  word-wrap: break-word;
+  word-break: break-word;
 
   /deep/ textarea{
     font-weight: bold;
     border: none;
     box-shadow: none;
+    word-break: break-word;
     white-space: pre-wrap;
-    word-wrap: break-word;
   }
 }
 
@@ -668,4 +679,15 @@ export default {
   padding-bottom: 30px;
 }
 
+.row {
+  position: relative;
+  padding-right: 15px;
+  .delete-icon {
+    cursor: pointer;
+    position: absolute;
+    right: -15px;
+    top: 50%;
+    margin-top: -7px;
+  }
+}
 </style>
