@@ -53,10 +53,13 @@
                 <a-space size="middle">
                   <a-button style="color: #15c39a" type="link" @click="handleEditTerm(item, term)">Edit</a-button>
                   <a-button style="color: #15c39a" type="link" @click="handleEditBlock(term)">Block setting</a-button>
-                  <a-button style="color: #15c39a" type="link" :loading="delLoading" @click="handleDeleteTerm(term)">Delete</a-button>
+                  <!-- <a-button style="color: #15c39a" type="link" :loading="delLoading" @click="handleDeleteTerm(term)">Delete</a-button> -->
                 </a-space>
               </div>
-              <div class="detail-content-time">{{ formatDate(term) }} </div>
+              <div class="detail-content-time">{{ formatDate(term) }} {{ isCurrent(term) ? '(Current)' : '' }}</div>
+              <div class="detail-content-close">
+                <a-icon type="close-circle" @click="handleDeleteTerm"></a-icon>
+              </div>
             </div>
           </div>
         </div>
@@ -188,13 +191,18 @@ export default {
       this.$refs.modalForm.disableSubmit = false
     },
      handleEditTerm(parent, item) {
-      this.$refs.termForm.title = 'Add acadeic term'
-      this.$refs.termForm.mode = 'add'
-      // 最后一个term的截止时间
+      this.$refs.termForm.title = 'Edit acadeic term'
+      this.$refs.termForm.mode = 'edit'
+      // 前面一个term的截止时间
       let minDate = ''
       if (parent.terms && parent.terms.length > 0) {
-        const last = parent.terms[parent.terms.length - 1]
-        minDate = moment.utc(last.endTime).local().format('YYYY-MM-DD HH:mm:ss')
+        const currentIndex = parent.terms.findIndex(term => term.id === item.id)
+        const last = parent.terms[currentIndex - 1]
+        if (last) {
+          minDate = moment.utc(last.endTime).local().format('YYYY-MM-DD HH:mm:ss')
+        } else {
+          minDate = moment.utc(parent.startTime).startOf('day').local().format('YYYY-MM-DD HH:mm:ss')
+        }
       } else {
         minDate = moment.utc(parent.startTime).startOf('day').local().format('YYYY-MM-DD HH:mm:ss')
       }
@@ -371,6 +379,18 @@ export default {
           top: 10px;
           right: 10px;
           color: @primary-color;
+        }
+        .detail-content-close {
+          position: absolute;
+          top: -5px;
+          right: -5px;
+          i {
+            font-size: 16px;
+            color: @primary-color;
+            background: #fff;
+            border-radius: 16px;
+            cursor: pointer;
+          }
         }
       }
     }

@@ -27,7 +27,10 @@
               :allowClear="false"
               format="YYYY-MM-DD HH:mm:ss"
               valueFormat="YYYY-MM-DD HH:mm:ss"
-              :show-time="{ format: 'HH:mm:ss' }"
+              :show-time="{
+                format: 'HH:mm:ss',
+                defaultValue: moment('00:00:00', 'HH:mm:ss')
+              }"
               placeholder="Pick a date"
               @ok="val => changeStartTime(val, model)"
               style="width: 100%;"
@@ -40,7 +43,10 @@
               :allowClear="false"
               format="YYYY-MM-DD HH:mm:ss"
               valueFormat="YYYY-MM-DD HH:mm:ss"
-              :show-time="{ format: 'HH:mm:ss' }"
+              :show-time="{
+                format: 'HH:mm:ss',
+                defaultValue: moment('23:59:59', 'HH:mm:ss')
+              }"
               placeholder="Pick a date"
               style="width: 100%;"
             />
@@ -70,6 +76,7 @@ export default {
   data() {
     return {
       title: 'Add academic term',
+      moment: moment,
       mode: 'add',
       width: 800,
       visible: false,
