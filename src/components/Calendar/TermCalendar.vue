@@ -84,6 +84,7 @@ export default {
       startDate: '',
       endDate: '',
       current: '',
+      minDate: '06:00:00',
       viewType: 'timeGridWeek',
       initView: 'timeGridWeek',
       calendarDatas: [],
@@ -163,7 +164,18 @@ export default {
             }
           })
           this.calendarDatas = res.result
-          if (filterRes && filterRes.blockSettings.length > 0) {
+          if (filterRes && filterRes.blockSettings && filterRes.blockSettings.length > 0) {
+            // 获取最小的时间
+            let minDate = 0
+            let minDateLabel = this.minDate
+            filterRes.blockSettings.forEach(item => {
+              const current = parseInt(item.start.replace(':', ''))
+              if (current < minDate || minDate === 0) {
+                minDate = current
+                minDateLabel = item.start
+              }
+            })
+            this.minDate = moment.utc('2000-01-01 ' + minDateLabel + ':00').local().format('HH:mm')
             // 给每天都设置block
             let events = []
             let current = moment(date.start)
@@ -193,9 +205,11 @@ export default {
             })
             successCb(filterEvents)
           } else {
+            this.minDate = '06:00:00'
             successCb([])
           }
           this.handleViewDidMount()
+          this.handleScrollTime()
         } else {
           failCb()
         }
@@ -219,6 +233,14 @@ export default {
           // const cloneLine = nowLine[0].cloneNode(true)
           const fcBody = document.getElementsByClassName('fc-timegrid-body')[0]
           fcBody.insertBefore(nowLine[0], fcBody.firstChild)
+        }
+      })
+    },
+    handleScrollTime() {
+      this.$nextTick(() => {
+        if (this.$refs.fullCalendar) {
+          const calendarApi = this.$refs.fullCalendar.getApi()
+          calendarApi && calendarApi.scrollToTime(this.minDate)
         }
       })
     },

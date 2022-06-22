@@ -29,6 +29,18 @@ export default {
       type: String,
       default: '00:15:00'
     },
+    slotMinTime: {
+      type: String,
+      default: '00:00:00'
+    },
+    slotMaxTime: {
+      type: String,
+      default: '24:00:00'
+    },
+    scrollTime: {
+      type: String,
+      default: '06:00:00'
+    },
     slotLabelInterval: {
       type: String,
       default: '01:00'
@@ -81,6 +93,9 @@ export default {
         nowIndicator: true,
         weekends: true,
         lazyFetching: false,
+        slotMinTime: this.slotMinTime,
+        slotMaxTime: this.slotMaxTime,
+        scrollTime: this.scrollTime,
         slotDuration: this.slotDuration,
         slotLabelInterval: this.slotLabelInterval,
         select: this.handleDateSelect,
