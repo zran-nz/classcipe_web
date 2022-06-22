@@ -457,7 +457,7 @@ export default {
     },
 
     async handleAssociate() {
-      const associateData = await this.getAssociate(this.id, this.type, 1)
+      const associateData = await this.getAssociate(this.id, this.type)
       associateData.ownerLinkList.forEach(groupItem => {
         groupItem.contents.forEach(item => {
           if (item.type === this.$classcipe.typeMap['unit-plan']) {
@@ -806,8 +806,6 @@ export default {
       margin-right: 10px;
       border-radius: 50%;
       object-fit: contain;
-      i {
-      }
     }
     .item-detail {
       display: flex;

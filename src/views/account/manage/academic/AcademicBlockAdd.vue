@@ -194,7 +194,7 @@ export default {
       if (this.model.blockSettings.length > 0) {
         const last = this.model.blockSettings[this.model.blockSettings.length - 1]
         start = moment('2000-01-01 ' + last.end)
-        end = start ? start.add(interval, 'miniutes').format('HH:mm') : ''
+        end = start ? start.add(interval, 'minutes').format('HH:mm') : ''
       }
       this.model.blockSettings.push({
         name: '',

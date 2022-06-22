@@ -405,18 +405,22 @@ export const EXPIRE_UNIT = [
 export const SCHOOL_USER_STATUS = {
   ACTIVE: {
     label: 'Active',
-    value: 1
+    value: 1,
+    color: '#87d068'
   },
   PENDING: {
     label: 'Pending',
-    value: 0
+    value: 0,
+    color: '#2db7f5'
   },
   INACTIVE: {
     label: 'Inactive',
-    value: 2
+    value: 2,
+    color: '#f50'
   },
   ARCHIVE: {
     label: 'Archive',
-    value: 3
+    value: 3,
+    color: ''
   }
 }

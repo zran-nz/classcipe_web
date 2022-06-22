@@ -9,7 +9,7 @@
           :is-preview-mode='true'
           @back='goBack'>
           <template v-slot:right>
-            <a-button @click="handleAdd" type="primary" icon="plus" >Add academic year</a-button>
+            <a-button @click="handleAdd" type="primary" icon="plus" >Add Academic Year</a-button>
           </template>
         </form-header>
       </template>
@@ -50,10 +50,10 @@
             <div class="item-detail-content" v-for="(term, termIndex) in item.terms" :key="'term_' + termIndex">
               <div class="detail-content-title">
                 <label>{{ term.name }}</label>
-                <a-space>
-                  <a-button type="link" @click="handleEditTerm(item, term)">Edit</a-button>
-                  <a-button type="link" @click="handleEditBlock(term)">Block setting</a-button>
-                  <a-button type="link" :loading="delLoading" @click="handleDeleteTerm(term)">Delete</a-button>
+                <a-space size="middle">
+                  <a-button style="color: #15c39a" type="link" @click="handleEditTerm(item, term)">Edit</a-button>
+                  <a-button style="color: #15c39a" type="link" @click="handleEditBlock(term)">Block setting</a-button>
+                  <a-button style="color: #15c39a" type="link" :loading="delLoading" @click="handleDeleteTerm(term)">Delete</a-button>
                 </a-space>
               </div>
               <div class="detail-content-time">{{ formatDate(term) }} </div>
@@ -164,9 +164,17 @@ export default {
     handleAddTerm(item) {
       this.$refs.termForm.title = 'Add acadeic term'
       this.$refs.termForm.mode = 'add'
+      // 最后一个term的截止时间
+      let minDate = ''
+      if (item.terms && item.terms.length > 0) {
+        const last = item.terms[item.terms.length - 1]
+        minDate = moment.utc(last.endTime).local().format('YYYY-MM-DD HH:mm:ss')
+      } else {
+        minDate = moment.utc(item.startTime).startOf('day').local().format('YYYY-MM-DD HH:mm:ss')
+      }
       this.$refs.termForm.add({
         parentId: item.id,
-        minDate: moment.utc(item.startTime).startOf('day').local().format('YYYY-MM-DD HH:mm:ss'),
+        minDate: minDate,
         maxDate: moment.utc(item.endTime).endOf('day').local().format('YYYY-MM-DD HH:mm:ss')
       })
     },
@@ -182,9 +190,17 @@ export default {
      handleEditTerm(parent, item) {
       this.$refs.termForm.title = 'Add acadeic term'
       this.$refs.termForm.mode = 'add'
+      // 最后一个term的截止时间
+      let minDate = ''
+      if (parent.terms && parent.terms.length > 0) {
+        const last = parent.terms[parent.terms.length - 1]
+        minDate = moment.utc(last.endTime).local().format('YYYY-MM-DD HH:mm:ss')
+      } else {
+        minDate = moment.utc(parent.startTime).startOf('day').local().format('YYYY-MM-DD HH:mm:ss')
+      }
       this.$refs.termForm.edit({
         parentId: parent.id,
-        minDate: moment.utc(parent.startTime).startOf('day').local().format('YYYY-MM-DD HH:mm:ss'),
+        minDate: minDate,
         maxDate: moment.utc(parent.endTime).endOf('day').local().format('YYYY-MM-DD HH:mm:ss'),
         ...item,
         startTime: moment.utc(item.startTime).local().format('YYYY-MM-DD HH:mm:ss'),

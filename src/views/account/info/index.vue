@@ -37,15 +37,18 @@
             <div class="plan-deadline">
               {{ expiredDay }}
             </div>
+            <div class="plan-pay" v-if="info.planInfo && info.planInfo.planUser && info.planInfo.planUser.buyStatus === 2">
+              <a-button type='primary'>Pay</a-button>
+            </div>
           </div>
           <div class="header-detail-storage">
             <a-progress :percent="storageProgress" class='cc-storage-progress' :show-info='false'/>
             <div class='storage-info-text'>
               {{ consumedSize | sizeFormat }} of {{ totalSize | sizeFormat }}
             </div>
-            <div class="storage-info-pay" v-if="info.planInfo && info.planInfo.planUser && info.planInfo.planUser.buyStatus === 2">
+            <!-- <div class="storage-info-pay" v-if="info.planInfo && info.planInfo.planUser && info.planInfo.planUser.buyStatus === 2">
               <a-button type='primary'>Pay</a-button>
-            </div>
+            </div> -->
           </div>
           <div class="header-detail-opt">
             <a class="">Upgrade</a>
@@ -495,6 +498,7 @@ export default {
           margin-top: 0.27em /* 27/100 */;
           margin-bottom: 0.15em /* 15/100 */;
           display: flex;
+          align-items: center;
           .plan-name {
             font-size: 0.18em /* 18/100 */;
             font-family: Arial;
@@ -507,6 +511,10 @@ export default {
             font-family: Arial;
             font-weight: 400;
             color: #2F86FD;
+          }
+          .plan-pay {
+            margin-left: 20px;
+            font-size: 12px;
           }
         }
         .header-detail-storage {
