@@ -377,7 +377,7 @@
                 :source-type='contentType.task'
                 :field-name='currentFieldName'
                 :comment-list='currentCollaborateCommentList'
-                :collaborate-user-list="collaborate.users"
+                :collaborate-user-list="getCollaborateUsers(collaborate)"
                 @cancel-comment="handleCancelComment"
                 @update-comment='handleUpdateCommentList' />
             </div>
@@ -539,6 +539,7 @@ import ModalHeader from '@/components/Common/ModalHeader'
 import SplitTaskSetting from '@/components/Task/SplitTaskSetting'
 import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
 import commentIcon from '@/assets/icons/collaborate/comment.svg?inline'
+import { deepEqual } from '@/utils/util'
 
 export default {
   name: 'AddTaskV2',
@@ -855,7 +856,7 @@ export default {
           this.loadThumbnail(false)
         }
         // copy副本 为了判断数据变更
-        this.oldForm = JSON.parse(JSON.stringify(this.form))
+        this.oldForm = Object.assign({}, this.form)
         this.initCompleted = true
         this.$logger.info('restoreTask done', this.form)
 
@@ -883,9 +884,13 @@ export default {
       this.$logger.info('basic taskData', taskData)
       const response = await TaskAddOrUpdate(taskData)
       this.$logger.info('TaskAddOrUpdate', response.result)
+      // 内容更新发送协同通知
+      if (!deepEqual(this.form, this.oldForm)) {
+        this.handleSaveContentEvent(this.taskId, this.contentType.task, this.oldForm)
+      }
       if (response.success) {
         // this.restoreTask(response.result.id, false)
-        this.oldForm = JSON.parse(JSON.stringify(this.form))
+        this.oldForm = Object.assign({}, this.form)
         this.$message.success(this.$t('teacher.add-task.save-success'))
         if (isBack) {
           this.handleBack()
@@ -893,7 +898,6 @@ export default {
       } else {
         this.$message.error(response.message)
       }
-      this.handleSaveContentEvent(this.taskId, this.contentType.task, this.oldForm)
     },
     handlePublishTask() {
       this.$logger.info('handlePublishTask', {

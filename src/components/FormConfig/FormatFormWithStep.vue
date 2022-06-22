@@ -42,7 +42,7 @@
           </div>
 
           <div class='step-visible-toggle'>
-            <div class='field-visible'>visible</div>
+            <div class='field-visible'>Enable</div>
             <a-switch size="small" v-model='step.visible' />
           </div>
         </div>

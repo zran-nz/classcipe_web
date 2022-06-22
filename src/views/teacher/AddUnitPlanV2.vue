@@ -515,7 +515,7 @@
                       :comment-list='collaborateCommentList'
                       :source-id='unitPlanId'
                       :source-type="contentType['unit-plan']"
-                      :collaborate-user-list="collaborate.users"
+                      :collaborate-user-list="getCollaborateUsers(collaborate)"
                       @update-comment='handleUpdateCommentList' />
                   </a-tab-pane>
                   <a-tab-pane key='2' force-render tab='History'>
@@ -771,6 +771,7 @@ import LearningObjective from '@/components/LearningObjective/LearningObjective'
 import { AutoSaveMixin } from '@/mixins/AutoSaveMixin'
 import CustomImageUploader from '@/components/Common/CustomImageUploader'
 import { GetTreeByKey } from '@/api/tag'
+import { deepEqual } from '@/utils/util'
 
 export default {
   name: 'AddUnitPlan',
@@ -1247,7 +1248,7 @@ export default {
         this.contentLoading = false
         this.saving = false
         this.loadCollaborateData(this.form.type, this.form.id)
-        this.oldForm = JSON.parse(JSON.stringify(this.form))
+        this.oldForm = Object.assign({}, this.form)
         this.loadingShareContent()
       })
     },
@@ -1336,10 +1337,13 @@ export default {
         const response = await UnitPlanAddOrUpdate(unitPlanData)
         this.$logger.info('UnitPlanAddOrUpdate res', response.result)
         if (!response.success) {
-          this.oldForm = JSON.parse(JSON.stringify(this.form))
+          this.oldForm = Object.assign({}, this.form)
           this.$message.error(response.message)
         }
-        this.handleSaveContentEvent(this.unitPlanId, this.contentType['unit-plan'], this.oldForm)
+        // 内容更新发送协同通知
+        if (!deepEqual(this.form, this.oldForm)) {
+          this.handleSaveContentEvent(this.unitPlanId, this.contentType['unit-plan'], this.oldForm)
+        }
       } finally {
         this.saving = false
       }

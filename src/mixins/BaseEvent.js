@@ -106,6 +106,16 @@ export const BaseEventMixin = {
     window.removeEventListener('beforeunload', (e) => this.beforeunloadHandler(e))
   },
   computed: {
+    getCollaborateUsers() {
+      return function (collaborate) {
+        let result = []
+        if (collaborate.users) {
+          result = [...collaborate.users]
+        }
+        result.push(collaborate.owner)
+        return result
+      }
+    },
     isOwner () {
       if (!this.oldForm) {
         return false
@@ -177,7 +187,6 @@ export const BaseEventMixin = {
           })
         })
       }
-
       return idTypeList
     },
     ...mapGetters({
