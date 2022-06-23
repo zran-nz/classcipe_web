@@ -241,7 +241,7 @@ export default {
     this.globalClick(this.handleClick)
   },
   created() {
-    this.asyncSaveTableData = debounce(this.autoSaveAssessment, 1500)
+    this.asyncSaveTableData = debounce(this.autoSaveAssessment, 1000)
     this.$EventBus.$on(AssessmentToolsEvent.InsertCriteria, this.handleInsertCriteria)
   },
   beforeDestroy() {

@@ -115,12 +115,6 @@
               </template>
             </custom-button>
 
-            <custom-button label='Sub-task' v-if='showSubTask && content.type === typeMap.task && content.subTasks.length > 0'>
-              <template v-slot:icon>
-                <sub-task-icon />
-              </template>
-            </custom-button>
-
             <custom-button
               label='Schedule'
               :title="content.presentationId ? '' : 'This task/PD content can not be scheduled without interactive slides, please edit google slides first before scheduling'"
