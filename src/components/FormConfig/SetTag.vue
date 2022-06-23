@@ -1,8 +1,5 @@
 <template>
   <a-card :loading='loading' :body-style="{'padding': '10px 0', 'border': 'none' }" :bordered="false">
-    <div class='tag-tips' v-if='mustTagNameList.length'>
-      <a-alert :message="mustTagNameList.join(',') + ` are compulsory, please make sure you set them visible in enabled sections.`" type="warning" show-icon />
-    </div>
     <div class='set-tag'>
       <div class='tag-list-table'>
         <div class='tag-header'>

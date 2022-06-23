@@ -1,5 +1,21 @@
 <template>
   <div class='format-form'>
+    <div class='form-warning' v-if='showWarning'>
+      <a-alert type="warning" banner closable @close='hiddenFormWarning'>
+        <span slot='message'>
+          This section is set by system and the data logic is applied to all curriculum and schools.
+          Please do not change the data logic while you adjust the name and hint.
+          Example: The "Unit name" can be adjusted to "Unit title" or
+          "Name your Unit", but not "Unit purpose or Unit goal
+        </span>
+      </a-alert>
+      <br />
+      <a-alert type="warning" banner closable @close='hiddenFormWarning'>
+        <span slot='message'>
+          You can not disable this Step because the section(s) under are required by the system and can not be disabled. You might need to move those compulsory sections to another enabled step if you want to hide this one.
+        </span>
+      </a-alert>
+    </div>
     <div class='step-item' v-for='(step, sIdx) in steps' :key='step.key'>
       <div class='format-form-header'>
         <div class='format-form-title'>
@@ -35,7 +51,9 @@
 
           <div class='tag-setting' @click='handleStepSetTag(step)'>
             <div class='set-tag-label'>
-              Set tag
+              <a-tooltip title='You can prioritize tag categories to show on the tag box for this step.'>
+                Set tag
+              </a-tooltip>
             </div>
             <a-icon type="setting" :style="{ color: '#999999', fontSize: '12px' }" class='gray' />
             <a-icon type="setting" :style="{ color: '#15C39A', fontSize: '12px' }" class='green'/>
@@ -249,6 +267,7 @@
 import draggable from 'vuedraggable'
 import SetTag from '@/components/FormConfig/SetTag'
 import ModalHeader from '@/components/Common/ModalHeader'
+import storage from 'store'
 
 export default {
   name: 'FormatFormWithStep',
@@ -288,7 +307,9 @@ export default {
       currentFieldName: null,
       currentSubFieldName: null,
 
-      steps: []
+      steps: [],
+
+      showWarning: false
     }
   },
   computed: {
@@ -354,8 +375,20 @@ export default {
     this.myCustomList = myCustomList
     this.steps = steps
     this.$logger.info('FormatForm created', this.myCommonList, this.myCustomList, this.steps)
+    this.checkIsShowFormatWarning()
   },
   methods: {
+    hiddenFormWarning () {
+      storage.set(`hidden-format-warning-${this.$store.getters.userInfo.id}`, 'true')
+    },
+    checkIsShowFormatWarning() {
+      const showWaningKey = `hidden-format-warning-${this.$store.getters.userInfo.id}`
+      if (storage.get(showWaningKey) === 'true') {
+        this.showWarning = false
+      } else {
+        this.showWarning = true
+      }
+    },
     handleAddStep() {
       this.$logger.info('handleAddStep')
       const newStep = {
@@ -1012,5 +1045,9 @@ export default {
   .field-visible {
     padding: 0 5px;
   }
+}
+
+.form-warning {
+  margin: 10px 0;
 }
 </style>
