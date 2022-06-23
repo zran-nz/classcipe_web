@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="account-info-self" v-if="studentId">
+    <div class="account-info-self" v-if="teacherId">
       <div class="info-self-avatar">
         <img v-if="formModel.avatar" :src="formModel.avatar"/>
         <img v-else src="~@/assets/icons/library/default-avatar.png"/>
@@ -8,18 +8,19 @@
       </div>
       <div class="info-self-detail">
         <div class="self-detail-name">
-          ID: {{ studentId }}
+          {{ formModel.email }}
         </div>
         <div class="self-detail-email">{{ formModel.email }}</div>
       </div>
     </div>
+
     <a-form-model
       layout="horizontal"
       :model="formModel"
       v-bind="formItemLayout"
       :rules="validatorRules"
       ref="form">
-      <a-form-model-item v-if="studentId" label="Last Login" :required="true" :wrapperCol="{ span: 18 }">
+      <a-form-model-item v-if="teacherId" label="Last Login" :required="true" :wrapperCol="{ span: 18 }">
         <a-row :gutter=0>
           <a-col :span="16">
             2222-22-22 22:22:22
@@ -72,43 +73,20 @@
           </a-col>
         </a-row>
       </a-form-model-item>
-      <div class="sub-title">
-        <label for="">Parent guardian</label>
-      </div>
-      <a-form-model-item class="mb0" label="Name" :required="true">
-        <a-row :gutter=16>
-          <a-col :span="12">
-            <a-form-model-item prop="parentFirstName">
-              <a-input v-model="formModel.parentFirstName" placeholder="First name" />
-            </a-form-model-item >
-          </a-col>
-          <a-col :span="12">
-            <a-form-model-item prop="parentLastName">
-              <a-input v-model="formModel.parentLastName" placeholder="Last name" />
-            </a-form-model-item >
-          </a-col>
-        </a-row>
-      </a-form-model-item>
-      <a-form-model-item label="Email" class="mb0" :required="true" :wrapperCol="{ span: 18 }">
-        <a-row :gutter=0>
-          <a-col :span="16">
-            <a-form-model-item prop="parentEmail">
-              <a-input v-model="formModel.parentEmail" placeholder="Email" />
-            </a-form-model-item>
-          </a-col>
-          <a-col :span="2" style="text-align: center;">
-            <a-icon style="color: #007990" type="check" />
-          </a-col>
-          <a-col :span="6" style="text-align: center;">
-            <a-button type="black">Resend</a-button>
-          </a-col>
-        </a-row>
-      </a-form-model-item>
-      <a-form-model-item label="Phone" prop="parentPhone">
-        <a-input v-model="formModel.parentPhone" placeholder="Phone" />
+      <a-form-model-item label="Roles" prop="roleArr">
+        <a-select
+          mode="multiple"
+          optionFilterProp="children"
+          :getPopupContainer="trigger => trigger.parentElement"
+          v-model='formModel.roleArr'
+          placeholder='Please select role'>
+          <a-select-option v-for='item in roleList' :key='item.id'>
+            {{ item.name }}
+          </a-select-option >
+        </a-select>
       </a-form-model-item>
       <a-form-model-item :wrapperCol="{offset: 6}">
-        <a-button :loading="loading" @click="handleSave" type="primary">{{ studentId ? 'Update': 'Create' }}</a-button>
+        <a-button :loading="loading" @click="handleSave" type="primary">{{ teacherId ? 'Update': 'Create' }}</a-button>
       </a-form-model-item>
     </a-form-model>
 
@@ -127,14 +105,15 @@
 
 <script>
 import { listClass } from '@/api/v2/schoolClass'
-import { addStudents } from '@/api/v2/schoolUser'
+import { addTeacher } from '@/api/v2/schoolUser'
+import { listRole } from '@/api/v2/schoolRole'
 
 import ResetPassword from '../persona/ResetPassword'
 import AvatarModal from '@/views/account/settings/AvatarModal'
 
 import moment from 'moment'
 export default {
-  name: 'SchoolStudentAdd',
+  name: 'SchoolTeacherAdd',
   components: {
     ResetPassword,
     AvatarModal
@@ -161,7 +140,7 @@ export default {
     },
     id: {
       handler(val) {
-        this.studentId = val
+        this.teacherId = val
         this.initForm()
       },
       immediate: true
@@ -170,8 +149,9 @@ export default {
   data() {
     return {
       currentSchool: this.school,
-      studentId: this.id,
+      teacherId: this.id,
       classList: [],
+      roleList: [],
       formModel: {
         firstName: '',
         lastName: '',
@@ -179,13 +159,10 @@ export default {
         classes: '',
         classArr: [],
         email: '',
-        parentEmail: '',
-        parentEmailStatus: 0,
-        parentFirstName: '',
-        parentLastName: '',
-        parentPhone: '',
-        avatar: '',
-        schoolId: this.school?.id || ''
+        roles: '',
+        roleArr: [],
+        schoolId: this.school?.id || '',
+        avatar: ''
       },
       formItemLayout: {
         labelCol: { span: 6 },
@@ -204,17 +181,8 @@ export default {
           { required: true, message: 'Please Input Email!', trigger: 'change' },
           { type: 'email', message: 'Please Input Valid Email!' }
         ],
-        parentFirstName: [{ required: true, message: 'Please Input First Name!' }],
-        parentLastName: [{ required: true, message: 'Please Input Last Name!' }],
-        parentEmail: [
-          { required: true, message: 'Please Input Email!', trigger: 'change' },
-          { type: 'email', message: 'Please Input Valid Email!' }
-        ],
         classArr: [{ required: true, message: 'Please Select a class!', trigger: 'change' }],
-        parentPhone: [
-          { required: true, message: 'Please Input Phone!' }
-          // { pattern: /^1[3|4|5|7|8|9][0-9]\d{8}$/, message: 'Please Input Valid Phone!' }
-        ]
+        roleArr: [{ required: true, message: 'Please Select a role!', trigger: 'change' }]
       }
     }
   },
@@ -225,10 +193,16 @@ export default {
             schoolId: this.currentSchool.id,
             pageNo: 1,
             pageSize: 10000
+          }),
+          listRole({
+            schoolId: this.currentSchool.id
           })
-        ]).then(([clsRes]) => {
+        ]).then(([clsRes, roleRes]) => {
           if (clsRes.code === 0) {
             this.classList = clsRes.result.records
+          }
+          if (roleRes.code === 0) {
+            this.roleList = roleRes.result
           }
         })
     },
@@ -250,11 +224,12 @@ export default {
           const params = { ...this.formModel }
           params.schoolId = this.currentSchool.id
           params.classes = params.classArr.join(',')
+          params.roles = params.roleArr.join(',')
           if (params.birthDay) {
             params.birthDay = moment.utc(params.birthDay).format('YYYY-MM-DD HH:mm:ss')
           }
           this.loading = true
-          addStudents(params).then(res => {
+          addTeacher(params).then(res => {
             if (res.code === 0) {
               this.$message.success('Save successfully')
               this.$emit('save', params)
@@ -282,7 +257,6 @@ export default {
   color: #333;
   margin-left: calc(25% - 120px);
 }
-
 .account-info-self {
   display: flex;
   align-items: center;
@@ -332,5 +306,4 @@ export default {
     }
   }
 }
-
 </style>

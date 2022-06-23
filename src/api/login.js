@@ -10,6 +10,7 @@ const userApi = {
   ForgePassword: '/classcipe/sys/sendResetPasswordLink',
   ResetPassword: '/classcipe/sys/resetPassword',
   CheckOauthToken: '/classcipe/sys/checkOauthToken',
+  CheckPassword: '/classcipe/sys/checkPassword',
 
   twoStepCode: '/auth/2step-code',
   SendSms: '/account/sms',
@@ -113,14 +114,16 @@ export function forgePassword (parameter) {
   return request({
     url: userApi.ForgePassword,
     method: 'post',
-    params: parameter
+    params: parameter,
+    data: parameter
   })
 }
 export function resetPassword (parameter) {
   return request({
     url: userApi.ResetPassword,
     method: 'post',
-    params: parameter
+    params: parameter,
+    data: parameter
   })
 }
 
@@ -129,5 +132,14 @@ export function CheckOauthToken (parameter) {
     url: userApi.CheckOauthToken,
     method: 'get',
     params: parameter
+  })
+}
+
+export function CheckPassword (parameter) {
+  return request({
+    url: userApi.CheckPassword,
+    method: 'post',
+    params: parameter,
+    data: parameter
   })
 }

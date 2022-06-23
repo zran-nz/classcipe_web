@@ -5,43 +5,32 @@ import { SET_PROMOTE_CODE } from '@/store/mutation-types'
 import { getUrlWithNoParams, getCookie } from '@/utils/util'
 
 /**
- * zoom 授权公共方法
+ * google 授权公共方法
  * @type {{data(), created(), methods: {}}}
  */
-export const ZoomAuthMixin = {
+export const GoogleAuthMixin = {
   computed: {
     ...mapState({
-      zoomAccessToken: state => state.user.info.zoomAuthToken?.accessToken,
-      zoomRefreshToken: state => state.user.info.zoomAuthToken?.refreshToken
-    }),
-    zoomMeetingCapacity () {
-      const extInfoJson = this.$store.state.user.info.zoomAuthToken?.extInfo
-      if (extInfoJson) {
-        const extInfo = JSON.parse(extInfoJson)
-        return extInfo.meeting_capacity
-      } else {
-        return 100
-      }
-    }
+      goolgeAccessToken: state => state.user.info.googleAuthToken?.accessToken,
+      googleRefreshToken: state => state.user.info.googleAuthToken?.refreshToken
+    })
   },
   created() {
-    window.addEventListener('message', this.handleZoomAuthCallback)
+    window.addEventListener('message', this.handleGoogleAuthCallback)
   },
   beforeDestroy() {
-    window.removeEventListener('message', this.handleZoomAuthCallback)
+    window.removeEventListener('message', this.handleGoogleAuthCallback)
   },
   methods: {
     /**
-     * 进行zoom授权，获取zoom授权token 不是登录
+     * 进行google授权，获取google授权token 不是登录
      * @returns {Promise<any>}
      */
-    goToZoomAuth() {
+    goToGoogleAuth() {
       const email = this.$store.getters.email
-      this.$logger.info('goToZoomAuth email:', email)
-      let url = getThirdAuthURL('zoom')
+      this.$logger.info('goToGoogleAuth email:', email)
+      let url = getThirdAuthURL('google')
       url += `?role=teacher`
-      url += `&email=${email}`
-      url += `&slideAuth=2`
       url += `&channelId=${getCookie(SET_PROMOTE_CODE)}`
       url += `&callbackUrl=`
       url += thirdAuthCallbackUrl
@@ -59,51 +48,51 @@ export const ZoomAuthMixin = {
       const windowObjectReference = window.open(url, '_blank', strWindowFeatures)
       if (!windowObjectReference) {
         // 弹出框被拦截
-        alert('The zoom authorization window is blocked by the browser, please allow the authorization window to pop up and then refresh the page.')
+        alert('The google authorization window is blocked by the browser, please allow the authorization window to pop up and then refresh the page.')
       }
     },
 
-    handleZoomAuthCallback (event) {
+    handleGoogleAuthCallback (event) {
       const data = event.data
-      if (data && data.event === 'authUpdate' && data.authType === 'zoom') {
-        this.$logger.info('zoom auth update!')
+      if (data && data.event === 'authUpdate' && data.authType === 'google') {
+        this.$logger.info('google auth update!')
         this.$store.dispatch('GetInfo')
       }
     },
 
-    async checkZoomAuthExpired() {
-      const ret = await checkAuthExpired('zoom', this.$store.getters.email)
-      this.$logger.info('checkZoomAuthExpired', ret)
+    async checkGoogleAuthExpired() {
+      const ret = await checkAuthExpired('google', this.$store.getters.email)
+      this.$logger.info('checkGoogleAuthExpired', ret)
       if (ret.code === 0 && ret.success) {
-        this.$logger.info('zoom auth no expired!')
+        this.$logger.info('google auth no expired!')
         return true
       } else {
         return false
       }
     },
 
-    async checkZoomAuth() {
-      if (!this.zoomAccessToken) {
-        this.goToZoomAuth()
+    async checkGoogleAuth() {
+      if (!this.goolgeAccessToken) {
+        this.goToGoogleAuth()
         return false
       } else {
-        const authExpired = await this.checkZoomAuthExpired()
+        const authExpired = await this.checkGoogleAuthExpired()
         if (!authExpired) {
-          this.$logger.info('zoom auth already expired')
-          this.goToZoomAuth()
+          this.$logger.info('google auth already expired')
+          this.goToGoogleAuth()
           return false
         } else {
-          this.$logger.info('zoom auth still no expired')
+          this.$logger.info('google auth still no expired')
           return true
         }
       }
     },
 
-    async unbindZoomAuth() {
-      if (!this.zoomAccessToken) {
+    async unbindGoogleAuth() {
+      if (!this.goolgeAccessToken) {
         return false
       } else {
-        const res = await unbindAuth('zoom')
+        const res = await unbindAuth('google')
         if (res.success && res.code === 0) {
           this.$message.success('Unbind successfully')
           this.$store.dispatch('GetInfo')

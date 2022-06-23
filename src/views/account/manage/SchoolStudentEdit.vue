@@ -82,7 +82,7 @@ export default {
 
     },
     handleSave(data) {
-
+      this.goBack()
     }
   }
 }

@@ -4,9 +4,9 @@
       <div>
         <a-input-search placeholder="Search here" v-model="queryParams.searchKey" @search="handleSearch"></a-input-search>
       </div>
-      <a-space class="filter-opt">
+      <!-- <a-space class="filter-opt">
         <a-button type="primary" @click="handleAdd">Add Role</a-button>
-      </a-space>
+      </a-space> -->
     </div>
     <div class="table-con">
       <a-table
@@ -26,9 +26,9 @@
         <a-space slot="action" slot-scope="text, record">
           <a @click="showUsers(record)">Users</a>
           <template v-if="selectedRowKeys.length === 0">
-            <a v-if="record.roleType === 2" @click="handleEdit(record)">Edit</a>
+            <a @click="handleEdit(record)">Edit</a>
             <a @click="handlePermission(record)">Permissions</a>
-            <a v-if="record.roleType === 2" @click="handleDelete(record)">Delete</a>
+            <!-- <a @click="handleDelete(record)">Delete</a> -->
           </template>
           <a-dropdown v-else>
             <a class="ant-dropdown-link">
@@ -38,12 +38,12 @@
               <a-menu-item>
                 <a @click="handlePermission(record)">Permissions</a>
               </a-menu-item>
-              <a-menu-item v-if="record.roleType === 2">
+              <a-menu-item >
                 <a @click="handleEdit(record)">Edit</a>
               </a-menu-item>
-              <a-menu-item v-if="record.roleType === 2">
+              <!-- <a-menu-item >
                 <a @click="handleDelete(record)">Delete</a>
-              </a-menu-item>
+              </a-menu-item> -->
             </a-menu>
           </a-dropdown>
         </a-space>
@@ -107,24 +107,24 @@ export default {
         {
           title: 'Name',
           align: 'center',
-          dataIndex: 'name',
-          width: 200
+          dataIndex: 'name'
+          // width: 200
         },
         ...this.selectedRowKeys.length > 0 ? [] : [
-          {
-            title: 'Role Type',
-            align: 'center',
-            dataIndex: 'roleType',
-            width: 120,
-            customRender: (text, record) => {
-              return text === 2 ? '自定义角色' : '系统角色'
-            }
-          },
+          // {
+          //   title: 'Role Type',
+          //   align: 'center',
+          //   dataIndex: 'roleType',
+          //   // width: 120,
+          //   customRender: (text, record) => {
+          //     return text === 2 ? '自定义角色' : '系统角色'
+          //   }
+          // },
           {
             title: 'Create Time',
             align: 'center',
-            dataIndex: 'createTime',
-            width: 120
+            dataIndex: 'createTime'
+            // width: 120
           }
         ],
         {

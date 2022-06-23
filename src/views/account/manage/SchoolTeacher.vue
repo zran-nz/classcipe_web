@@ -3,7 +3,7 @@
     <fixed-form-header>
       <template v-slot:header>
         <form-header
-          title='School Teacher'
+          title='School Student'
           :show-share='false'
           :show-collaborate='false'
           :is-preview-mode='true'
@@ -32,7 +32,7 @@
           <a-input-search v-model="queryParam.searchKey" placeholder="Search" @search="searchQuery"></a-input-search>
         </div>
         <a-space class="filter-opt">
-          <a-dropdown>
+          <a-dropdown :disabled="selectedRowKeys.length === 0">
             <a-menu slot="overlay" @click="handleBatchOpt">
               <a-menu-item key="move"> Move Class </a-menu-item>
               <a-menu-item key="resend" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.INACTIVE.value"> Resend </a-menu-item>
@@ -43,14 +43,14 @@
             </a-menu>
             <a-button style="margin-left: 8px"> Bulk manage <a-icon type="down" /> </a-button>
           </a-dropdown>
-          <a-button type="primary">Add</a-button>
-          <a-button type="black">Bulk Upload</a-button>
+          <a-button type="primary" @click="handleAdd">Add</a-button>
+          <a-button type="black" @click="handleUpload">Bulk Upload</a-button>
         </a-space>
       </div>
 
       <div class="form-tab">
         <a-table
-          ref="table"
+          ref="tableCon"
           rowKey="id"
           :columns="columns"
           :dataSource="dataSource"
@@ -58,9 +58,46 @@
           :loading="loading"
           :rowSelection="{selectedRowKeys: selectedRowKeys, onChange: onSelectChange}"
           @change="handleTableChange">
+          <div class="user-info" slot="name" slot-scope="text, record">
+            <div class="user-avatar">
+              <img :src="record.userInfo.avatar" alt="" v-if="record.userInfo.avatar">
+              <img src="~@/assets/icons/library/default-avatar.png" alt="" v-else>
+            </div>
+            <div class="user-detail">
+              <label for="">{{ record.userInfo.firstname + record.userInfo.lastname }}</label>
+              <label for="">{{ record.userInfo.email }}</label>
+            </div>
+          </div>
+          <div class="flex-wrap" slot="classes" slot-scope="classes">
+            <a-tag v-for="cls in classes" :key="cls.id" :color="cls.classType === 0 ? '#2db7f5' : '#f50'">{{ cls.name }}</a-tag>
+          </div>
+          <div slot="status" slot-scope="status">
+            <a-tag :color="getStatusFormat(status, 'color')">{{ getStatusFormat(status) || ' - ' }}</a-tag>
+          </div>
+          <a-space slot="action" slot-scope="text, record">
+            <a @click="handleEdit(record)">Edit</a>
+            <a-dropdown>
+              <a-menu slot="overlay" @click="opt => handleSingleOpt(opt, record)">
+                <a-menu-item key="move"> Move Class </a-menu-item>
+                <a-menu-item key="resend" v-if="record.teacherStatus === SCHOOL_USER_STATUS.INACTIVE.value"> Resend </a-menu-item>
+                <a-menu-item key="reset" v-if="record.teacherStatus === SCHOOL_USER_STATUS.ACTIVE.value"> Reset password </a-menu-item>
+                <a-menu-item key="restore" v-if="record.teacherStatus === SCHOOL_USER_STATUS.ARCHIVE.value"> Restore </a-menu-item>
+                <a-menu-item key="archive" v-if="record.teacherStatus === SCHOOL_USER_STATUS.ACTIVE.value"> Archive </a-menu-item>
+                <a-menu-item key="delete" v-if="record.teacherStatus === SCHOOL_USER_STATUS.ARCHIVE.value"> Delete </a-menu-item>
+              </a-menu>
+              <a style="margin-left: 8px"> More <a-icon type="down" /> </a>
+            </a-dropdown>
+          </a-space>
         </a-table>
       </div>
     </div>
+
+    <school-student-move
+      ref="schoolStudentMove"
+      @update="debounceLoad"
+      :school="currentSchool"
+      :classes="classList"/>
+
   </div>
 </template>
 
@@ -69,23 +106,27 @@ import { USER_MODE, SCHOOL_USER_STATUS } from '@/const/common'
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import { JeecgListMixin } from '@/mixins/JeecgListMixin'
+import { TableWidthMixin } from '@/mixins/TableWidthMixin'
 
 import { listClass } from '@/api/v2/schoolClass'
 
 import FixedFormHeader from '@/components/Common/FixedFormHeader'
 import FormHeader from '@/components/FormHeader/FormHeader'
 import CustomTextButton from '@/components/Common/CustomTextButton'
+import SchoolStudentMove from './schoolUser/SchoolStudentMove'
 
 import { mapState } from 'vuex'
+import cloneDeep from 'lodash.clonedeep'
 const { debounce } = require('lodash-es')
 
 export default {
   name: 'SchoolTeacher',
-  mixins: [UserModeMixin, CurrentSchoolMixin, JeecgListMixin],
+  mixins: [UserModeMixin, CurrentSchoolMixin, JeecgListMixin, TableWidthMixin],
   components: {
     FixedFormHeader,
     FormHeader,
-    CustomTextButton
+    CustomTextButton,
+    SchoolStudentMove
   },
   data() {
     return {
@@ -98,7 +139,7 @@ export default {
         schoolId: this.$store.state.user.currentSchool.id,
         schoolUserStatus: '',
         grades: '',
-        roles: ''
+        roles: 'teacher'
       },
       filters: {
         classes: ''
@@ -107,10 +148,15 @@ export default {
 
       classList: [],
 
+      currentSel: null,
+      optType: 'multi',
+
       url: {
-        // list: '/classcipe/api2/school/user/getSchoolUsers'
-        list: '/classcipe/api/school/schoolClassStudent/list'
-      }
+        list: '/classcipe/api2/school/user/getSchoolUsers'
+        // list: '/classcipe/api/school/schoolClassStudent/list'
+      },
+
+      tableRefs: ['tableCon']
     }
   },
   created() {
@@ -126,29 +172,47 @@ export default {
     columns() {
       return [
         {
-          title: 'ID',
-          align: 'center',
-          dataIndex: 'id',
-          width: 120
-        },
-        {
           title: 'Name',
           align: 'center',
-          dataIndex: 'userInfo.email',
-          width: 120
+          dataIndex: 'userInfo.nickname',
+          width: 250,
+          scopedSlots: { customRender: 'name' }
+          // customRender: (text, record) => {
+          //   return text || (record.userInfo.firstname + record.userInfo.lastname) || record.email
+          // }
         },
         {
           title: 'Class',
           align: 'center',
           dataIndex: 'classes',
           width: 120,
-          filters: this.classList
+          scopedSlots: { customRender: 'classes' },
+          // customRender: (text, record) => {
+          //   return (text || []).map(item => item.name).join(',')
+          // },
+          filters: [{
+            text: 'Not assigned',
+            value: -1
+          }].concat(this.classList.map(item => ({
+            text: item.name,
+            value: item.id
+          })))
+        },
+        {
+          title: 'Role',
+          align: 'center',
+          dataIndex: 'roles',
+          width: 120,
+          customRender: (text, record) => {
+            return (text || []).map(item => item.name).join(', ')
+          }
         },
         {
           title: 'Status',
           align: 'center',
-          dataIndex: 'studentStatus',
-          width: 120
+          dataIndex: 'teacherStatus',
+          width: 120,
+          scopedSlots: { customRender: 'status' }
         },
         {
           title: 'Last Login',
@@ -159,7 +223,8 @@ export default {
         {
           title: 'Action',
           align: 'center',
-          width: 120
+          width: 120,
+          scopedSlots: { customRender: 'action' }
         }
       ]
     }
@@ -190,10 +255,7 @@ export default {
         })
       ]).then(([clsRes]) => {
         if (clsRes.code === 0) {
-          this.classList = clsRes.result.records.map(item => ({
-            text: item.name,
-            value: item.id
-          }))
+          this.classList = clsRes.result.records
         }
       })
     },
@@ -201,8 +263,22 @@ export default {
       this.queryParam.schoolUserStatus = status
       this.debounceLoad()
     },
-    handleBatchOpt(key) {
-      console.log(key)
+    getStatusFormat (status, key = 'label') {
+      const find = this.tabsList.find(tab => tab.value === status)
+      return find ? find[key] : ''
+    },
+    handleBatchOpt(opt) {
+      this.optType = 'multi'
+      if (opt.key === 'move') {
+        this.$refs.schoolStudentMove.doCreate()
+      }
+    },
+    handleSingleOpt(opt, item) {
+      this.optType = 'single'
+      this.currentSel = cloneDeep(item)
+      if (opt.key === 'move') {
+        this.$refs.schoolStudentMove.doCreate()
+      }
     },
     getFilterParams(filters) {
       if (filters.classes && filters.classes.length > 0) {
@@ -210,6 +286,15 @@ export default {
       } else {
         this.filters.classes = ''
       }
+    },
+    handleAdd() {
+      this.$router.push('/manage/teacher/detail')
+    },
+    handleUpload() {
+      this.$router.push('/manage/teacher/upload')
+    },
+    handleEdit(item) {
+      this.$router.push('/manage/teacher/detail/' + item.id)
     }
   }
 }
@@ -296,6 +381,43 @@ export default {
   color: #fff;
   border-radius: 4px;
   font-size: 12px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  .user-avatar {
+    margin-right: 10px;
+    width: 50px;
+    height: 50px;
+    border-radius: 100%;
+    img {
+      width: 50px;
+      height: 100%;
+      border-radius: 100%;
+    }
+  }
+  .user-detail {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    label {
+      font-size: 14px;
+      text-align: left;
+      &:first-child {
+        font-weight: bold;
+      }
+    }
+  }
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+  display: flex;
+  & > span {
+    margin-top: 2px;
+    margin-bottom: 2px;
+  }
 }
 
 </style>

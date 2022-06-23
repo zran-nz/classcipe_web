@@ -21,7 +21,7 @@
             <div class="item-child-title">Password</div>
             <div class="item-child-content">
               <div class="child-content-item">
-                <label for="">Last updated 2 days ago</label>
+                <label for="">Last updated {{ getUpdateTime }} ago</label>
                 <a-button type="primary" @click="handleReset">update</a-button>
               </div>
             </div>
@@ -35,26 +35,29 @@
             <div class="item-child-title">Google Account</div>
             <div class="item-child-content">
               <div class="child-content-item">
-                <label for="">mail@gmail.com connected</label>
-                <a-button type="primary">disconnect</a-button>
+                <label for="">{{ googleAuthToken ? googleAuthToken.email + ' connected' : 'Not connect' }}</label>
+                <a-button :loading="loading" :disabled="onlyOneAuth" @click="connect('googleAuthToken')" type="primary" v-if="googleAuthToken">disconnect</a-button>
+                <a-button :loading="loading" @click="connect('googleAuthToken')" type="primary" v-else>connect</a-button>
               </div>
             </div>
           </div>
           <div class="item-child">
-            <div class="item-child-title">Microsoft</div>
+            <div class="item-child-title">Microsoft Account</div>
             <div class="item-child-content">
               <div class="child-content-item">
-                <label for="">Not connected</label>
-                <a-button type="primary">connect</a-button>
+                <label for="">{{ mircosoftAuthToken ? mircosoftAuthToken.email + ' connected' : 'Not connect' }}</label>
+                <a-button :loading="loading" :disabled="onlyOneAuth" @click="disconnect('mircosoftAuthToken')" type="primary" v-if="mircosoftAuthToken">disconnect</a-button>
+                <a-button :loading="loading" @click="connect('mircosoftAuthToken')" type="primary" v-else>connect</a-button>
               </div>
             </div>
           </div>
           <div class="item-child">
-            <div class="item-child-title">Facebook</div>
+            <div class="item-child-title">Zoom Account</div>
             <div class="item-child-content">
               <div class="child-content-item">
-                <label for="">Not connected</label>
-                <a-button type="primary">connect</a-button>
+                <label for="">{{ zoomAuthToken ? zoomAuthToken.email + ' connected' : 'Not connect' }}</label>
+                <a-button :loading="loading" :disabled="onlyOneAuth" @click="disconnect('zoomAuthToken')" type="primary" v-if="zoomAuthToken">disconnect</a-button>
+                <a-button :loading="loading" @click="connect('zoomAuthToken')" type="primary" v-else>connect</a-button>
               </div>
             </div>
           </div>
@@ -77,6 +80,8 @@
 import { USER_MODE } from '@/const/common'
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
+import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
+import { GoogleAuthMixin } from '@/mixins/GoogleAuthMixin'
 
 import FixedFormHeader from '@/components/Common/FixedFormHeader'
 import FormHeader from '@/components/FormHeader/FormHeader'
@@ -84,12 +89,18 @@ import CustomTextButton from '@/components/Common/CustomTextButton'
 import ResetPassword from './persona/ResetPassword.vue'
 
 import { mapState } from 'vuex'
+import moment from 'moment'
 
 const { debounce } = require('lodash-es')
 
 export default {
   name: 'PersonaSecurity',
-  mixins: [UserModeMixin, CurrentSchoolMixin],
+  mixins: [
+    UserModeMixin,
+    CurrentSchoolMixin,
+    GoogleAuthMixin,
+    ZoomAuthMixin
+  ],
   components: {
     FixedFormHeader,
     FormHeader,
@@ -115,8 +126,30 @@ export default {
   computed: {
     ...mapState({
       userMode: state => state.app.userMode,
-      currentSchool: state => state.user.currentSchool
-    })
+      currentSchool: state => state.user.currentSchool,
+      info: state => state.user.info
+    }),
+    getUpdateTime() {
+      if (this.info) {
+        const passwordUpdateTime = this.info.passwordUpdateTime || this.info.createTime
+        const diffDays = moment().diff(moment(passwordUpdateTime), 'days')
+        return diffDays + ' days'
+      }
+      return ''
+    },
+    mircosoftAuthToken() {
+      return (this.info && this.info.mircosoftAuthToken && this.info.mircosoftAuthToken.accessToken) ? this.info.mircosoftAuthToken : null
+    },
+    googleAuthToken() {
+      return (this.info && this.info.googleAuthToken && this.info.googleAuthToken.accessToken) ? this.info.googleAuthToken : null
+    },
+    zoomAuthToken() {
+      return (this.info && this.info.zoomAuthToken && this.info.zoomAuthToken.accessToken) ? this.info.zoomAuthToken : null
+    },
+    onlyOneAuth() {
+      const nums = [this.mircosoftAuthToken, this.googleAuthToken, this.zoomAuthToken].filter(auth => auth === null)
+      return nums === 2
+    }
   },
   methods: {
     goBack() {
@@ -142,6 +175,24 @@ export default {
     },
     handleClose() {
       this.loadData()
+    },
+    async disconnect(tokenKey) {
+      if (tokenKey === 'zoomAuthToken') {
+        this.loading = true
+        await this.unbindZoomAuth()
+        this.loading = false
+      } else if (tokenKey === 'googleAuthToken') {
+        this.loading = true
+        await this.unbindGoogleAuth()
+        this.loading = false
+      }
+    },
+    connect(tokenKey) {
+      if (tokenKey === 'zoomAuthToken') {
+        this.goToZoomAuth()
+      } else if (tokenKey === 'googleAuthToken') {
+        this.goToGoogleAuth()
+      }
     }
   }
 }

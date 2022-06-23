@@ -3,7 +3,7 @@
     <fixed-form-header>
       <template v-slot:header>
         <form-header
-          title='Role Manage'
+          :title='title'
           :show-share='false'
           :show-collaborate='false'
           :is-preview-mode='true'
@@ -14,20 +14,7 @@
       </template>
     </fixed-form-header>
     <div class="form-content">
-      <div class="form-tab">
-        <a-row :gutter="10" style="height: 100%">
-          <a-col :md="leftColMd" :sm="24" style="height: 100%">
-            <a-card :bordered="false" style="height: 100%">
-              <school-role-list ref="schoolRoleList" :school="currentSchool" @choose="chooseRole"/>
-            </a-card>
-          </a-col>
-          <a-col :md="rightColMd" :sm="24" v-if="rightcolval === 1" style="height: 100%">
-            <a-card :bordered="false" style="height: 100%">
-              <school-role-user :school="currentSchool" :role="selectedRole" @close="clearRole"/>
-            </a-card>
-          </a-col>
-        </a-row>
-      </div>
+      <school-teacher-add :school="currentSchool" ref="schoolTeacherAdd" :id="id" @save="handleSave" />
     </div>
   </div>
 </template>
@@ -39,22 +26,18 @@ import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 
 import FixedFormHeader from '@/components/Common/FixedFormHeader'
 import FormHeader from '@/components/FormHeader/FormHeader'
-import CustomTextButton from '@/components/Common/CustomTextButton'
-import SchoolRoleList from './schoolRole/SchoolRoleList'
-import SchoolRoleUser from './schoolRole/SchoolRoleUser'
+import SchoolTeacherAdd from './schoolUser/SchoolTeacherAdd'
 
 import { mapState } from 'vuex'
 const { debounce } = require('lodash-es')
 
 export default {
-  name: 'SchoolRole',
+  name: 'SchoolTeacherEdit',
   mixins: [UserModeMixin, CurrentSchoolMixin],
   components: {
     FixedFormHeader,
     FormHeader,
-    CustomTextButton,
-    SchoolRoleList,
-    SchoolRoleUser
+    SchoolTeacherAdd
   },
   props: {
     id: {
@@ -65,10 +48,7 @@ export default {
   data() {
     return {
       USER_MODE: USER_MODE,
-      SCHOOL_USER_STATUS: SCHOOL_USER_STATUS,
-      rightcolval: 0,
-      selectedRole: '',
-      loading: false
+      SCHOOL_USER_STATUS: SCHOOL_USER_STATUS
     }
   },
   created() {
@@ -79,11 +59,8 @@ export default {
       userMode: state => state.app.userMode,
       currentSchool: state => state.user.currentSchool
     }),
-    leftColMd() {
-      return !this.selectedRole ? 24 : 10
-    },
-    rightColMd() {
-      return !this.selectedRole ? 0 : 14
+    title() {
+      return this.id ? 'School Teacher > Edit' : 'School Teacher > Add'
     }
   },
   methods: {
@@ -93,6 +70,7 @@ export default {
     handleSchoolChange(currentSchool) {
       if (this.userMode === USER_MODE.SCHOOL) {
         this.queryParam.schoolId = currentSchool.id
+        this.initDict()
         this.debounceInit()
       }
     },
@@ -104,20 +82,7 @@ export default {
 
     },
     handleSave(data) {
-
-    },
-    chooseRole(item) {
-      if (item) {
-        this.rightcolval = 1
-        this.selectedRole = { ...item }
-      } else {
-        this.clearRole()
-      }
-    },
-    clearRole() {
-      this.rightcolval = 0
-      this.selectedRole = ''
-      this.$refs.schoolRoleList.doClear()
+      this.goBack()
     }
   }
 }
@@ -131,18 +96,10 @@ export default {
 .form-content {
   margin-top: 60px;
   height: calc(100vh - 60px);
-  padding: 30px 30px;
+  padding: 30px 60px;
   transition: all 0.2s ease-in-out;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-}
-.form-tab {
-  height: calc(100% - 0px);
-  padding: 0 0px;
-  overflow: hidden;
-}
-/deep/ .ant-card-body {
-  height: 100%;
+  overflow: auto;
 }
 </style>

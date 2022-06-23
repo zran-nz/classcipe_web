@@ -633,8 +633,30 @@ export const asyncRouterMap = [
           {
             path: '/manage/teacher',
             name: 'SchoolTeacher',
-            component: () => import('@/views/account/manage/SchoolTeacher'),
-            meta: { title: 'Teacher Manage', keepAlive: true, permission: ['teacher'] }
+            component: RouteView,
+            redirect: '/manage/teacher/list',
+            meta: { title: 'Teacher Manage', keepAlive: true, permission: ['teacher'] },
+            children: [
+              {
+                path: '/manage/teacher/list',
+                name: 'SchoolTeacherList',
+                component: () => import('@/views/account/manage/SchoolTeacher'),
+                meta: { title: 'Teacher Manage', keepAlive: true, permission: ['teacher'] }
+              },
+              {
+                path: '/manage/teacher/detail/:id?',
+                name: 'SchoolTeacherEdit',
+                props: true,
+                component: () => import('@/views/account/manage/SchoolTeacherEdit'),
+                meta: { title: 'Teacher Manage', keepAlive: true, permission: ['teacher'] }
+              },
+              {
+                path: '/manage/teacher/upload',
+                name: 'SchoolTeacherUpload',
+                component: () => import('@/views/account/manage/SchoolTeacherUpload'),
+                meta: { title: 'Teacher Upload', keepAlive: true, permission: ['teacher'] }
+              }
+            ]
           },
           {
             path: '/manage/role',

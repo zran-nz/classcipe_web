@@ -32,9 +32,10 @@
           <a-input-search v-model="queryParam.searchKey" placeholder="Search" @search="searchQuery"></a-input-search>
         </div>
         <a-space class="filter-opt">
-          <a-dropdown :disabled="selectedRowKeys.length === 0">
+          <a-button type="primary" :disabled="selectedRowKeys.length === 0" @click="handleMove">Move Class</a-button>
+          <a-dropdown :disabled="selectedRowKeys.length === 0" v-if="queryParam.schoolUserStatus !== ''">
             <a-menu slot="overlay" @click="handleBatchOpt">
-              <a-menu-item key="move"> Move Class </a-menu-item>
+              <!-- <a-menu-item key="move"> Move Class </a-menu-item> -->
               <a-menu-item key="resend" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.INACTIVE.value"> Resend </a-menu-item>
               <a-menu-item key="reset" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ACTIVE.value"> Reset password </a-menu-item>
               <a-menu-item key="restore" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ARCHIVE.value"> Restore </a-menu-item>
@@ -58,6 +59,26 @@
           :loading="loading"
           :rowSelection="{selectedRowKeys: selectedRowKeys, onChange: onSelectChange}"
           @change="handleTableChange">
+          <div class="flex-wrap" slot="classes" slot-scope="classes">
+            <a-tag v-for="cls in classes" :key="cls.id" :color="cls.classType === 0 ? '#2db7f5' : '#f50'">{{ cls.name }}</a-tag>
+          </div>
+          <div slot="status" slot-scope="status">
+            <a-tag :color="getStatusFormat(status, 'color')">{{ getStatusFormat(status) || ' - ' }}</a-tag>
+          </div>
+          <a-space slot="action" slot-scope="text, record">
+            <a @click="handleEdit(record)">Edit</a>
+            <a-dropdown>
+              <a-menu slot="overlay" @click="opt => handleSingleOpt(opt, record)">
+                <a-menu-item key="move"> Move Class </a-menu-item>
+                <a-menu-item key="resend" v-if="record.studentStatus === SCHOOL_USER_STATUS.INACTIVE.value"> Resend </a-menu-item>
+                <a-menu-item key="reset" v-if="record.studentStatus === SCHOOL_USER_STATUS.ACTIVE.value"> Reset password </a-menu-item>
+                <a-menu-item key="restore" v-if="record.studentStatus === SCHOOL_USER_STATUS.ARCHIVE.value"> Restore </a-menu-item>
+                <a-menu-item key="archive" v-if="record.studentStatus === SCHOOL_USER_STATUS.ACTIVE.value"> Archive </a-menu-item>
+                <a-menu-item key="delete" v-if="record.studentStatus === SCHOOL_USER_STATUS.ARCHIVE.value"> Delete </a-menu-item>
+              </a-menu>
+              <a style="margin-left: 8px"> More <a-icon type="down" /> </a>
+            </a-dropdown>
+          </a-space>
         </a-table>
       </div>
     </div>
@@ -85,6 +106,7 @@ import CustomTextButton from '@/components/Common/CustomTextButton'
 import SchoolStudentMove from './schoolUser/SchoolStudentMove'
 
 import { mapState } from 'vuex'
+import cloneDeep from 'lodash.clonedeep'
 const { debounce } = require('lodash-es')
 
 export default {
@@ -100,14 +122,14 @@ export default {
     return {
       USER_MODE: USER_MODE,
       SCHOOL_USER_STATUS: SCHOOL_USER_STATUS,
-      tabsList: Object.values(SCHOOL_USER_STATUS),
+      tabsList: Object.values(SCHOOL_USER_STATUS).filter(item => item.value !== 0),
       loading: false,
       queryParam: {
         searchKey: '',
         schoolId: this.$store.state.user.currentSchool.id,
         schoolUserStatus: '',
         grades: '',
-        roles: ''
+        roles: 'student'
       },
       filters: {
         classes: ''
@@ -116,9 +138,12 @@ export default {
 
       classList: [],
 
+      currentSel: null,
+      optType: 'multi',
+
       url: {
-        // list: '/classcipe/api2/school/user/getSchoolUsers'
-        list: '/classcipe/api/school/schoolClassStudent/list'
+        list: '/classcipe/api2/school/user/getSchoolUsers'
+        // list: '/classcipe/api/school/schoolClassStudent/list'
       }
     }
   },
@@ -143,24 +168,35 @@ export default {
         {
           title: 'Name',
           align: 'center',
-          dataIndex: 'userInfo.email',
-          width: 120
+          dataIndex: 'userInfo.nickname',
+          width: 120,
+          customRender: (text, record) => {
+            return text || (record.userInfo.firstname + record.userInfo.lastname) || record.email
+          }
         },
         {
           title: 'Class',
           align: 'center',
           dataIndex: 'classes',
           width: 120,
-          filters: this.classList.map(item => ({
+          scopedSlots: { customRender: 'classes' },
+          // customRender: (text, record) => {
+          //   return (text || []).map(item => item.name).join(',')
+          // },
+          filters: [{
+            text: 'Not assigned',
+            value: -1
+          }].concat(this.classList.map(item => ({
             text: item.name,
             value: item.id
-          }))
+          })))
         },
         {
           title: 'Status',
           align: 'center',
           dataIndex: 'studentStatus',
-          width: 120
+          width: 120,
+          scopedSlots: { customRender: 'status' }
         },
         {
           title: 'Last Login',
@@ -171,7 +207,8 @@ export default {
         {
           title: 'Action',
           align: 'center',
-          width: 120
+          width: 120,
+          scopedSlots: { customRender: 'action' }
         }
       ]
     }
@@ -210,10 +247,25 @@ export default {
       this.queryParam.schoolUserStatus = status
       this.debounceLoad()
     },
+    getStatusFormat (status, key = 'label') {
+      const find = Object.values(SCHOOL_USER_STATUS).find(tab => tab.value === status)
+      return find ? find[key] : ''
+    },
     handleBatchOpt(opt) {
+      this.optType = 'multi'
       if (opt.key === 'move') {
         this.$refs.schoolStudentMove.doCreate()
       }
+    },
+    handleSingleOpt(opt, item) {
+      this.optType = 'single'
+      this.currentSel = cloneDeep(item)
+      if (opt.key === 'move') {
+        this.$refs.schoolStudentMove.doCreate()
+      }
+    },
+    handleMove() {
+      this.$refs.schoolStudentMove.doCreate()
     },
     getFilterParams(filters) {
       if (filters.classes && filters.classes.length > 0) {
@@ -316,6 +368,15 @@ export default {
   color: #fff;
   border-radius: 4px;
   font-size: 12px;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+  display: flex;
+  & > span {
+    margin-top: 2px;
+    margin-bottom: 2px;
+  }
 }
 
 </style>

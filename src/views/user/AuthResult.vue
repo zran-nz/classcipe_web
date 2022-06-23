@@ -42,12 +42,23 @@ export default {
         const callbackUrl = window.sessionStorage.getItem(SESSION_CALLBACK_URL)
 
         // 如果有zoom授权token，且当前窗口有opener发送zoom 授权更新消息
-        if (window.opener && window.opener.postMessage && this.$store.state.user.info.zoomAuthToken.accessToken) {
-          window.opener.postMessage({
-            authType: 'zoom',
-            event: 'authUpdate',
-            data: null
-          }, '*')
+        if (window.opener) {
+          if (window.opener.postMessage) {
+            if (this.$store.state.user.info.zoomAuthToken.accessToken) {
+              window.opener.postMessage({
+                authType: 'zoom',
+                event: 'authUpdate',
+                data: null
+              }, '*')
+            }
+            if (this.$store.state.user.info.googleAuthToken.accessToken) {
+              window.opener.postMessage({
+                authType: 'google',
+                event: 'authUpdate',
+                data: null
+              }, '*')
+            }
+          }
           window.close()
         }
         if (callbackUrl) {
