@@ -49,7 +49,7 @@
     <div class='modal-action-right'>
       <a-space>
         <a-button @click='handleClose'>Cancel</a-button>
-        <a-button type='primary' @click='handlePublish'>Publish</a-button>
+        <a-button :loading="publishLoading" type='primary' @click='handlePublish'>Publish</a-button>
       </a-space>
     </div>
   </a-modal>
@@ -62,42 +62,21 @@ export default {
     content: {
       type: Object,
       default: null
+    },
+    publishLoading: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
     return {
-      // TODO V2:测试待发布设置价格数据
-      publishList: [
-        {
-          typeLabel: 'The main task',
-          enablePrice: false,
-          price: 0,
-          name: '测试Task info',
-          updateTime: '2022-04-27 08:58:19',
-          createBy: 'yangxunwu@gmail.com',
-          image: 'https://dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/ppt/20220418/Ehr_wldG1BxvE8hwhKwWtfXytSDvZHe_TKBokBkishXf-G0P_qA2O7BkVHmBbHuH1IvY-qpxSTRbxxbdxoUyIKBDz_M4u2jyE01vsPp0bgtIQVaty9pyHFFMAvw9LnBUl1Y9KOrvd_t4u9-XcZcOq_dlBQMwqR2-IgVdN3lVOMQTUVgRffep3FlPdSNNh8kotBUVh8HCi30dVNzKB0yIH528YOX2ob_whb5v0g=s800'
-        },
-        {
-          typeLabel: 'Origrnal Video Tips',
-          enablePrice: false,
-          price: 0,
-          name: 'Tips Video Title.',
-          updateTime: '2022-04-17 08:58:19',
-          createBy: 'yangxunwu@gmail.com',
-          image: 'https://dcdkqlzgpl5ba.cloudfront.net/file/202203100225445519-th1.jpg'
-        },
-        {
-          typeLabel: 'Sub task(s)',
-          enablePrice: false,
-          price: 0,
-          name: 'Sub task(s) Title.',
-          updateTime: '2022-04-17 08:58:19',
-          createBy: 'yangxunwu@gmail.com',
-          image: 'https://dcdkqlzgpl5ba.cloudfront.net/file/202203100225445519-th1.jpg'
-        }
-      ],
-
       visible: true
+    }
+  },
+  computed: {
+    publishList() {
+      const result = [this.content]
+      return result
     }
   },
   created() {

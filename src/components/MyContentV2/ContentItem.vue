@@ -142,7 +142,7 @@
             </custom-button>
 
             <template v-if="showPublish">
-              <custom-button label="Publish" @click='handlePublishStatus' v-if='content.status === 0 && content.presentationId'>
+              <custom-button label="Publish" @click='handlePublishStatus' v-if='content.status === 0'>
                 <template v-slot:icon >
                   <publish-icon/>
                 </template>

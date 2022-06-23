@@ -43,7 +43,7 @@
       </div>
     </div>
 
-    <content-publish v-if='contentPublishVisible' :content='currentContent' @publish='handleUpdatePublish' @close='handleCancelPublish' />
+    <content-publish :publish-loading="publishLoading" v-if='contentPublishVisible' :content='currentContent' @publish='handleUpdatePublish' @close='handleCancelPublish' />
   </div>
 </template>
 
@@ -67,6 +67,8 @@ import { mapState } from 'vuex'
 import { MyContentEvent } from '@/components/MyContent/MyContentEventBus'
 import EventBus from '@/utils/eventBus'
 import CustomSearchInput from '@/components/Common/CustomSearchInput'
+import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
+import { typeMap } from '@/const/teacher'
 
 export default {
   name: 'CreatedByMeV2',
@@ -112,9 +114,10 @@ export default {
 
       searchText: '',
       filterParams: {},
-
+      contentType: typeMap,
       contentPublishVisible: false,
-      currentContent: null
+      currentContent: null,
+      publishLoading: false
     }
   },
   computed: {
@@ -129,6 +132,8 @@ export default {
       this.shareType = parseInt(this.$route.query.shareType)
     }
     this.loadMyContent()
+
+    ClasscipeEventBus.$on(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleUpdatePublish)
   },
   methods: {
     handleSchoolChange() {
@@ -199,6 +204,12 @@ export default {
     handleShowContentPublish(data) {
       this.$logger.info('handleShowContentPublish', data)
       this.currentContent = data.content
+      if ((this.currentContent.type === this.contentType.task ||
+        this.currentContent.type === this.contentType.pd) &&
+        !this.currentContent.presentationId) {
+        this.$message.warn('This task/PD content can not be published without interactive slides, please edit google slides first')
+        return
+      }
       if (data.content.status === 1) {
         // 取消发布直接更新
         this.handleUpdatePublish(data)
@@ -208,16 +219,24 @@ export default {
       }
     },
 
-    handleUpdatePublish (data) {
+    handleUpdatePublish () {
+      const data = this.currentContent
       this.$logger.info('handleUpdatePublish', data)
-      const index = this.myContentList.findIndex(item => item.id === data.content.id)
+      const index = this.myContentList.findIndex(item => item.id === data.id)
+      this.publishLoading = true
       if (index !== -1) {
-        const targetStatus = data.content.status ? 0 : 1
+        const targetStatus = data.status ? 0 : 1
         UpdateContentStatus({
-          id: data.content.id,
+          id: data.id,
           status: targetStatus,
-          type: data.content.type
+          type: data.type
         }).then((res) => {
+          if (res.code === 520 || res.code === 403) {
+            this.$logger.info('等待授权回调')
+            this.$message.loading('Waiting for Google Slides auth...', 10)
+            return
+          }
+          this.publishLoading = false
           this.$logger.info('handlePublishStatus res', res)
           this.myContentList[index].status = targetStatus
           if (targetStatus) {
@@ -230,7 +249,7 @@ export default {
           this.currentContent = null
         })
       } else {
-        this.$logger.warn(`no found Update item ${data.content.id}`)
+        this.$logger.warn(`no found Update item ${data.id}`)
         this.contentPublishVisible = false
         this.currentContent = null
       }
@@ -257,6 +276,7 @@ export default {
   },
   beforeDestroy() {
     EventBus.$off(MyContentEvent.ReloadMyContent, this.loadMyContent)
+    ClasscipeEventBus.$off(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleUpdatePublish)
   }
 }
 </script>
