@@ -59,6 +59,19 @@
             </a-radio-group>
           </div>
         </div>
+
+        <div class="filter-item" v-if='showContentType'>
+          <div class="filter-label">
+            Content Type
+          </div>
+          <div class="filter-toggle-list">
+            <a-checkbox-group
+              @change="updateFilterConfig"
+              v-model="filter.types"
+              :options="allContentTypeOptions"
+            />
+          </div>
+        </div>
       </div>
     </template>
     <div class="filter-icon-item">
@@ -86,6 +99,10 @@ export default {
   },
   props: {
     showFaSaActivityType: {
+      type: Boolean,
+      default: false
+    },
+    showContentType: {
       type: Boolean,
       default: false
     }
@@ -125,6 +142,13 @@ export default {
         types: [],
         faSaActivityType: ''
       },
+
+      allContentTypeOptions: [
+        { label: 'Unit Plan', value: this.$classcipe.typeMap['unit-plan'] },
+        { label: 'Task', value: this.$classcipe.typeMap.task },
+        { label: 'Video', value: this.$classcipe.typeMap.video },
+        { label: 'PD', value: this.$classcipe.typeMap.pd }
+      ],
       collapseList: [],
       showFilter: false
     }
