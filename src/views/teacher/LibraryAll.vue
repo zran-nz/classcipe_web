@@ -11,6 +11,12 @@
       </div>
       <div class='create-new'>
         <a-space>
+          <custom-search-input :round='false' :value.sync='queryParams.searchKey' @search='loadMyContent' placeholder='Search your content'/>
+          <common-content-filter
+            @update-filter='handleUpdateFilter'
+            :show-fa-sa-activity-type="category === 'task'"
+            :show-content-type="category === 'recommended'"
+          />
           <user-profile-avatar />
         </a-space>
       </div>
@@ -60,6 +66,8 @@ import CustomSearchInput from '@/components/Common/CustomSearchInput'
 import ContentTypeFilter from '@/components/MyContentV2/ContentTypeFilter'
 import LibraryContentItem from '@/components/MyContentV2/LibraryContentItem'
 import { mapState } from 'vuex'
+import { CommonFilterMixin } from '@/mixins/CommonFilterMixin'
+import CommonContentFilter from '@/components/Common/CommonContentFilter'
 
 export default {
   name: 'LibraryAll',
@@ -71,6 +79,7 @@ export default {
     }
   },
   components: {
+    CommonContentFilter,
     LibraryContentItem,
     ContentTypeFilter,
     CustomSearchInput,
@@ -89,7 +98,7 @@ export default {
       school: state => state.user.school
     })
   },
-  mixins: [ UserModeMixin, CurrentSchoolMixin ],
+  mixins: [ UserModeMixin, CurrentSchoolMixin, CommonFilterMixin ],
   data () {
     return {
       loading: true,
@@ -155,18 +164,10 @@ export default {
     },
     loadMyContent () {
       this.loading = true
-      const params = {
-        activityTags: [],
-        age: [],
-        category: this.category,
-        faSaActivityType: null,
-        faTags: [],
-        pageNo: this.pageNo,
-        pageSize: this.pagination.pageSize,
-        saTags: [],
-        subject: [],
-        schoolId: 0 // 个人身份传学校id0 不然学校身份下无法看到classcipe resource
-      }
+      const params = JSON.parse(JSON.stringify(this.queryParams))
+      params.pageSize = 15
+      params.pageNo = this.pageNo
+      params.schoolId = 0
       queryAllResource(params).then(res => {
         this.$logger.info('queryAllResource', res)
         if (res.result && res.result.records && res.result.records.length) {

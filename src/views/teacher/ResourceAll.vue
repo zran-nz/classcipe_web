@@ -66,6 +66,7 @@ import ContentTypeFilter from '@/components/MyContentV2/ContentTypeFilter'
 import LibraryContentItem from '@/components/MyContentV2/LibraryContentItem'
 import { mapState } from 'vuex'
 import CommonContentFilter from '@/components/Common/CommonContentFilter'
+import { CommonFilterMixin } from '@/mixins/CommonFilterMixin'
 
 export default {
   name: 'ResourceAll',
@@ -96,7 +97,7 @@ export default {
       currentSchool: state => state.user.currentSchool
     })
   },
-  mixins: [ UserModeMixin, CurrentSchoolMixin ],
+  mixins: [ UserModeMixin, CurrentSchoolMixin, CommonFilterMixin ],
   data () {
     return {
       loading: true,
@@ -140,20 +141,6 @@ export default {
         plan: 'Unit Plan',
         task: 'Task',
         pd: 'PD Content'
-      },
-
-      queryParams: {
-        activityTags: [],
-        age: [],
-        category: this.category,
-        faSaActivityType: null,
-        projectBased: null,
-        faTags: [],
-        saTags: [],
-        subject: [],
-        types: [],
-        schoolId: this.currentSchool?.id,
-        searchKey: ''
       }
     }
   },
@@ -202,13 +189,6 @@ export default {
       this.$router.replace({
         path: '/teacher/resource'
       })
-    },
-    handleUpdateFilter(filter) {
-      this.$logger.info('handleUpdateFilter', filter)
-      Object.keys(filter).forEach(key => {
-        this.queryParams[key] = filter[key]
-      })
-      this.loadMyContent()
     }
   }
 }

@@ -42,10 +42,14 @@
         </div>
 
         <div class="filter-item" v-if='showFaSaActivityType'>
-          <div class="filter-label">
+          <div class="filter-label" @click="handleCollapse('taskType')">
             Task Type
+            <span class='collapse-icon'>
+              <a-icon type="down" :style="{ fontSize: '10px', color: '#666' }" v-show="collapseList.indexOf('taskType') === -1"/>
+              <a-icon type="up" :style="{ fontSize: '10px', color: '#666' }" v-show="collapseList.indexOf('taskType') !== -1"/>
+            </span>
           </div>
-          <div class="filter-toggle-list">
+          <div class="filter-toggle-list" v-show="collapseList.indexOf('taskType') === -1">
             <a-radio-group name="radioGroup" default-value="fa" v-model="filter.faSaActivityType" @change="updateFilterConfig">
               <a-radio value="fa">
                 FA
@@ -61,10 +65,14 @@
         </div>
 
         <div class="filter-item" v-if='showContentType'>
-          <div class="filter-label">
+          <div class="filter-label" @click="handleCollapse('contentType')">
             Content Type
+            <span class='collapse-icon'>
+              <a-icon type="down" :style="{ fontSize: '10px', color: '#666' }" v-show="collapseList.indexOf('contentType') === -1"/>
+              <a-icon type="up" :style="{ fontSize: '10px', color: '#666' }" v-show="collapseList.indexOf('contentType') !== -1"/>
+            </span>
           </div>
-          <div class="filter-toggle-list">
+          <div class="filter-toggle-list" v-show="collapseList.indexOf('contentType') === -1">
             <a-checkbox-group
               @change="updateFilterConfig"
               v-model="filter.types"
