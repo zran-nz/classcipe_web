@@ -19,7 +19,7 @@
           @save-response-limit="params => handleSave(params, info)"
         >
         </content-item-calendar>
-        <div v-else style="font-size: 90px">
+        <div v-else style="font-size: 70px;max-width: 900px;">
           <liveworkshop-item
             @close="closeAllModal"
             :content="getWorkshopItem(info)"/>
@@ -174,6 +174,8 @@ export default {
 }
 </script>
 
-<style scoped>
-
+<style scoped lang="less">
+/deep/ .price-con {
+  margin-left: 10px;
+}
 </style>

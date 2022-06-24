@@ -565,13 +565,24 @@ export const asyncRouterMap = [
           {
             path: '/manage/school-info',
             name: 'center',
-            component: () => import('@/views/teacher/manage/SchoolInfo'),
+            component: () => import('@/views/account/manage/SchoolInfo'),
             meta: {
               title: 'menu.managing.school-info',
               keepAlive: true,
               icon: 'home',
               permission: ['teacher'],
               mode: USER_MODE.SCHOOL
+            }
+          },
+          {
+            path: '/manage/persona-info',
+            name: 'center',
+            component: () => import('@/views/account/manage/PersonaInfo'),
+            meta: {
+              title: 'Persona Info',
+              keepAlive: true,
+              permission: ['teacher'],
+              mode: USER_MODE.SELF
             }
           },
           {
@@ -669,6 +680,18 @@ export const asyncRouterMap = [
             name: 'PersonalSecurity',
             component: () => import('@/views/account/manage/PersonaSecurity'),
             meta: { title: 'Login & Security', keepAlive: true }
+          },
+          {
+            path: '/manage/persona/space',
+            name: 'PersonalSpace',
+            component: () => import('@/views/account/manage/PersonaSpace'),
+            meta: { title: 'Persona Space', keepAlive: true }
+          },
+          {
+            path: '/manage/school/space',
+            name: 'SchoolSpace',
+            component: () => import('@/views/account/manage/SchoolSpace'),
+            meta: { title: 'School Space', keepAlive: true }
           }
         ]
       },

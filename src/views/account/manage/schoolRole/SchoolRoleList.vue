@@ -50,18 +50,21 @@
       </a-table>
     </div>
     <school-role-add ref="schoolRoleAdd" @ok="debounceLoad"/>
+    <school-role-permission ref="schoolRolePermission" @ok="debounceLoad"/>
   </div>
 </template>
 
 <script>
 import { pageListRole, deleteRole } from '@/api/v2/schoolRole'
 import SchoolRoleAdd from './SchoolRoleAdd.vue'
+import SchoolRolePermission from './SchoolRolePermission.vue'
 const { debounce } = require('lodash-es')
 
 export default {
   name: 'SchoolRoleList',
   components: {
-    SchoolRoleAdd
+    SchoolRoleAdd,
+    SchoolRolePermission
   },
   props: {
     school: {
@@ -200,7 +203,10 @@ export default {
       this.$refs.schoolRoleAdd.edit(item)
     },
     handlePermission(item) {
-
+      this.$refs.schoolRolePermission.edit({
+        schoolId: this.currentSchool.id,
+        id: item.id
+      })
     },
     handleDelete(item) {
       this.$confirm({

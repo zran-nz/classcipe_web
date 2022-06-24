@@ -184,7 +184,7 @@ export default {
             title: 'School info',
             desc: '',
             hidden: this.isNotAdmin,
-            url: ''
+            url: '/manage/school-info'
           },
           {
             avatar: PaymentsPng,
@@ -205,7 +205,7 @@ export default {
             title: 'Personal info',
             desc: 'Review payments, payouts, coupons,gift cards and taxes',
             hidden: this.userMode === USER_MODE.SCHOOL,
-            url: ''
+            url: '/manage/persona-info'
           },
           {
             avatar: SecurityPng,
@@ -252,7 +252,15 @@ export default {
             avatar: SpaceManagePng,
             title: 'Space Manage',
             desc: '',
-            url: ''
+            hidden: this.userMode === USER_MODE.SCHOOL,
+            url: '/manage/persona/space'
+          },
+          {
+            avatar: SpaceManagePng,
+            title: 'Space Manage',
+            desc: '',
+            hidden: this.userMode === USER_MODE.SELF,
+            url: '/manage/school/space'
           },
           {
             avatar: RoleManagePng,

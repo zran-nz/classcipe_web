@@ -40,7 +40,9 @@
                 <div class="calendar-type-item" v-for="type in showClassOptions" :key="type.value">
                   <div :class="{'type-item-title': true, 'active': queryType === CALENDAR_QUERY_TYPE.CLASS.value && queryClass === type.value}">
                     <a-radio :checked="queryType === CALENDAR_QUERY_TYPE.CLASS.value && queryClass === type.value" @change="handleChangeClass(type)">
-                      Class: {{ type.name }}
+                      <a-tooltip :title="type.name">
+                        Class: {{ type.name }}
+                      </a-tooltip>
                     </a-radio>
                   </div>
                 </div>
