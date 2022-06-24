@@ -42,7 +42,7 @@
         <a-spin :spinning="loading">
           <div class="import-detail-con" v-if="students && students.length > 0">
             <div class="detail-con-item" v-for="item in students" :key="item.id">
-              <a-checkbox v-model="item.checked" >{{ item.userInfo.email }}</a-checkbox>
+              <a-checkbox v-model="item.checked" >{{ item.email }}</a-checkbox>
             </div>
           </div>
           <a-empty v-else/>

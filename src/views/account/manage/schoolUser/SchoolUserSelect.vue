@@ -92,28 +92,28 @@
            {
             title: 'Name',
             align: 'center',
-            dataIndex: 'userInfo.nickname',
+            dataIndex: 'nickname',
             width: 150,
             customRender: (text, record) => {
-              return text || (record.userInfo.firstname + record.userInfo.lastname) || record.userInfo.email
+              return text || (record.firstname + record.lastname) || record.email
             }
           },
           {
             title: 'Email',
             align: 'center',
             width: 100,
-            dataIndex: 'userInfo.email'
+            dataIndex: 'email'
           },
           {
             title: 'Gender',
             align: 'center',
             width: 100,
-            dataIndex: 'userInfo.gender'
+            dataIndex: 'gender'
           },
           {
             title: 'Create Time',
             align: 'center',
-            dataIndex: 'userInfo.createTime',
+            dataIndex: 'createTime',
             width: 120
           }
         ],

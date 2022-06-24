@@ -96,12 +96,12 @@
               <a-input v-model="formModel.parentEmail" placeholder="Email" />
             </a-form-model-item>
           </a-col>
-          <a-col :span="2" style="text-align: center;">
+          <!-- <a-col :span="2" style="text-align: center;">
             <a-icon style="color: #007990" type="check" />
           </a-col>
           <a-col :span="6" style="text-align: center;">
             <a-button type="black">Resend</a-button>
-          </a-col>
+          </a-col> -->
         </a-row>
       </a-form-model-item>
       <a-form-model-item label="Phone" prop="parentPhone">
@@ -232,8 +232,15 @@ export default {
           }
         })
     },
-    initForm() {
-
+    // modal模式传值
+    initForm(defaultForm) {
+      this.formModel = {
+        ...this.formModel,
+        ...defaultForm
+      }
+      if (this.formModel.classes) {
+        this.formModel.classArr = this.formModel.classes.split(',')
+      }
     },
     setAvatar (url) {
       this.formModel.avatar = url
@@ -256,6 +263,7 @@ export default {
           this.loading = true
           addStudents(params).then(res => {
             if (res.code === 0) {
+              // TODO 需要获取学生id
               this.$message.success('Save successfully')
               this.$emit('save', params)
             }

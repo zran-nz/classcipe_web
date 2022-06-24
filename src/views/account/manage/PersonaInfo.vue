@@ -3,7 +3,7 @@
     <fixed-form-header>
       <template v-slot:header>
         <form-header
-          title='School Info'
+          title='Persona Info'
           :show-share='false'
           :show-collaborate='false'
           :is-preview-mode='true'
@@ -24,7 +24,7 @@
           <a-form-model-item label="Email">
             {{ formModel.email }}
           </a-form-model-item>
-          <a-form-model-item class="mb0" label="School Name">
+          <a-form-model-item class="mb0" label="Name">
             <a-row :gutter="10">
               <a-col :span="12">
                 <a-form-model-item prop="firstname">
@@ -38,7 +38,7 @@
               </a-col>
             </a-row>
           </a-form-model-item>
-          <a-form-model-item class="mb0" label="School Address" :required="true">
+          <a-form-model-item class="mb0" label="Address" :required="true">
             <a-row :gutter="10">
               <a-col :span="12">
                 <a-form-model-item prop="country">

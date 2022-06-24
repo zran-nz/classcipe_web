@@ -3,7 +3,7 @@
     <fixed-form-header>
       <template v-slot:header>
         <form-header
-          title='School Student'
+          title='School Teacher'
           :show-share='false'
           :show-collaborate='false'
           :is-preview-mode='true'
@@ -60,12 +60,12 @@
           @change="handleTableChange">
           <div class="user-info" slot="name" slot-scope="text, record">
             <div class="user-avatar">
-              <img :src="record.userInfo.avatar" alt="" v-if="record.userInfo.avatar">
+              <img :src="record.avatar" alt="" v-if="record.avatar">
               <img src="~@/assets/icons/library/default-avatar.png" alt="" v-else>
             </div>
             <div class="user-detail">
-              <label for="">{{ record.userInfo.firstname + record.userInfo.lastname }}</label>
-              <label for="">{{ record.userInfo.email }}</label>
+              <label for="">{{ record.firstname + record.lastname }}</label>
+              <label for="">{{ record.email }}</label>
             </div>
           </div>
           <div class="flex-wrap" slot="classes" slot-scope="classes">
@@ -174,11 +174,11 @@ export default {
         {
           title: 'Name',
           align: 'center',
-          dataIndex: 'userInfo.nickname',
+          dataIndex: 'nickname',
           width: 250,
           scopedSlots: { customRender: 'name' }
           // customRender: (text, record) => {
-          //   return text || (record.userInfo.firstname + record.userInfo.lastname) || record.email
+          //   return text || (record.firstname + record.lastname) || record.email
           // }
         },
         {
@@ -210,14 +210,14 @@ export default {
         {
           title: 'Status',
           align: 'center',
-          dataIndex: 'teacherStatus',
+          dataIndex: 'status',
           width: 120,
           scopedSlots: { customRender: 'status' }
         },
         {
           title: 'Last Login',
           align: 'center',
-          dataIndex: 'userInfo.updateTime',
+          dataIndex: 'updateTime',
           width: 120
         },
         {
@@ -388,11 +388,11 @@ export default {
   align-items: center;
   .user-avatar {
     margin-right: 10px;
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     border-radius: 100%;
     img {
-      width: 50px;
+      width: 40px;
       height: 100%;
       border-radius: 100%;
     }

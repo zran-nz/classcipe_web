@@ -646,7 +646,7 @@ export const asyncRouterMap = [
             name: 'SchoolTeacher',
             component: RouteView,
             redirect: '/manage/teacher/list',
-            meta: { title: 'Teacher Manage', keepAlive: true, permission: ['teacher'] },
+            meta: { title: 'Teacher Manage', keepAlive: true, permission: ['teacher'], mode: USER_MODE.SCHOOL },
             children: [
               {
                 path: '/manage/teacher/list',
@@ -673,25 +673,25 @@ export const asyncRouterMap = [
             path: '/manage/role',
             name: 'SchoolRole',
             component: () => import('@/views/account/manage/SchoolRole'),
-            meta: { title: 'Role Manage', keepAlive: true, permission: ['teacher'] }
+            meta: { title: 'Role Manage', keepAlive: true, permission: ['teacher'], mode: USER_MODE.SCHOOL }
           },
           {
             path: '/manage/persona/security',
             name: 'PersonalSecurity',
             component: () => import('@/views/account/manage/PersonaSecurity'),
-            meta: { title: 'Login & Security', keepAlive: true }
+            meta: { title: 'Login & Security', keepAlive: true, mode: USER_MODE.SELF }
           },
           {
             path: '/manage/persona/space',
             name: 'PersonalSpace',
             component: () => import('@/views/account/manage/PersonaSpace'),
-            meta: { title: 'Persona Space', keepAlive: true }
+            meta: { title: 'Persona Space', keepAlive: true, mode: USER_MODE.SELF }
           },
           {
             path: '/manage/school/space',
             name: 'SchoolSpace',
             component: () => import('@/views/account/manage/SchoolSpace'),
-            meta: { title: 'School Space', keepAlive: true }
+            meta: { title: 'School Space', keepAlive: true, mode: USER_MODE.SCHOOL }
           }
         ]
       },

@@ -9,7 +9,9 @@ export const schoolUserApi = {
   removeStudents: `/classcipe/${API_PREFIX}/removeStudents`,
   removeTeachers: `/classcipe/${API_PREFIX}/removeTeachers`,
   updateStudentStatus: `/classcipe/${API_PREFIX}/updateStudentStatus`,
-  updateTeacherStatus: `/classcipe/${API_PREFIX}/updateTeacherStatus`
+  updateTeacherStatus: `/classcipe/${API_PREFIX}/updateTeacherStatus`,
+  updateTeacher: `/classcipe/${API_PREFIX}/updateTeacher`,
+  getInvite: `/classcipe/${API_PREFIX}/getInvite`
 }
 
 /**
@@ -113,6 +115,38 @@ export function getSchoolUsers (parameter) {
  export function updateTeacherStatus (parameter) {
   return request({
     url: schoolUserApi.updateTeacherStatus,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+ export function getInvite (parameter) {
+  return request({
+    url: schoolUserApi.getInvite,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+ export function updateTeacher (parameter) {
+  return request({
+    url: schoolUserApi.updateTeacher,
     method: 'post',
     data: parameter,
     headers: {

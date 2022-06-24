@@ -4,6 +4,7 @@ const API_PREFIX = 'api2/school/class'
 
 export const schoolClassApi = {
   addTeachers: `/classcipe/${API_PREFIX}/addTeachers`,
+  addStudents: `/classcipe/${API_PREFIX}/addStudents`,
   archiveClass: `/classcipe/${API_PREFIX}/archive`,
   deleteClass: `/classcipe/${API_PREFIX}/delete`,
   deleteGrade: `/classcipe/${API_PREFIX}/grade/delete`,
@@ -11,6 +12,7 @@ export const schoolClassApi = {
   listByGradeClass: `/classcipe/${API_PREFIX}/listByGrade`,
   listBySubjectClass: `/classcipe/${API_PREFIX}/listBySubject`,
   removeTeachers: `/classcipe/${API_PREFIX}/removeTeachers`,
+  removeStudents: `/classcipe/${API_PREFIX}/removeStudents`,
   restoreClass: `/classcipe/${API_PREFIX}/restore`,
   saveClass: `/classcipe/${API_PREFIX}/save`,
   studentImport: `/classcipe/${API_PREFIX}/student/import`
@@ -24,6 +26,22 @@ export const schoolClassApi = {
 export function addTeachers (parameter) {
   return request({
     url: schoolClassApi.addTeachers,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+ export function addStudents (parameter) {
+  return request({
+    url: schoolClassApi.addStudents,
     method: 'post',
     data: parameter,
     headers: {
@@ -118,6 +136,22 @@ export function deleteClass (parameter) {
  export function removeTeachers (parameter) {
   return request({
     url: schoolClassApi.removeTeachers,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+ export function removeStudents (parameter) {
+  return request({
+    url: schoolClassApi.removeStudents,
     method: 'post',
     data: parameter,
     headers: {

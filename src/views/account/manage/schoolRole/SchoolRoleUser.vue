@@ -28,15 +28,15 @@
 
               <div class="user-avatar">
                 <div class="avatar">
-                  <img :src="item.userInfo.avatar" />
+                  <img :src="item.avatar" />
                 </div>
               </div>
               <div class="user-name-email">
                 <div class="user-name">
-                  {{ item.userInfo.nickname || `${item.userInfo.firstname} ${item.userInfo.lastname}` }}
+                  {{ item.nickname || `${item.firstname} ${item.lastname}` }}
                 </div>
                 <div class="email">
-                  {{ item.userInfo.email }}
+                  {{ item.email }}
                 </div>
               </div>
               <!-- <div class="user-option">
@@ -168,22 +168,22 @@ export default {
         {
           title: 'Email',
           align: 'center',
-          dataIndex: 'userInfo.email',
+          dataIndex: 'email',
           width: 150
         },
         {
           title: 'Name',
           align: 'center',
-          dataIndex: 'userInfo.nickname',
+          dataIndex: 'nickname',
           width: 150,
           customRender: (text, record) => {
-            return text || (record.userInfo.firstname + record.userInfo.lastname) || record.userInfo.email
+            return text || (record.firstname + record.lastname) || record.email
           }
         },
         {
           title: 'Create Time',
           align: 'center',
-          dataIndex: 'userInfo.createTime',
+          dataIndex: 'createTime',
           width: 120
         },
         {
@@ -265,8 +265,8 @@ export default {
       this.filterMembers = this.teacherList.filter(member => {
         const roles = member.roles.map(item => item.name)
         const isIn = roles.includes(this.currentRole.roleCode)
-        const userName = ((member.userInfo.firstname || '') + (member.userInfo.lastname || '')).toLowerCase()
-        return !isIn && (member.userInfo.email.toLowerCase().indexOf(this.searchKeyMember.toLowerCase() || '') > -1 || userName.indexOf(this.searchKeyMember.toLowerCase() || '') > -1)
+        const userName = ((member.firstname || '') + (member.lastname || '')).toLowerCase()
+        return !isIn && (member.email.toLowerCase().indexOf(this.searchKeyMember.toLowerCase() || '') > -1 || userName.indexOf(this.searchKeyMember.toLowerCase() || '') > -1)
       }).map(item => {
         const classIds = item.classes.map(item => item.id)
         this.$set(item, 'classArr', classIds)
@@ -310,7 +310,7 @@ export default {
         return
       }
       this.$confirm({
-        title: 'Confirm delete user ' + item.userInfo.email,
+        title: 'Confirm delete user ' + item.email,
         // content: 'By deleting the role, all teachers belong to it will be removed. Do you confirm to delete? ',
         centered: true,
         onOk: () => {

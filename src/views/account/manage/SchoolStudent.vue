@@ -162,16 +162,16 @@ export default {
         {
           title: 'ID',
           align: 'center',
-          dataIndex: 'id',
+          dataIndex: 'uid',
           width: 120
         },
         {
           title: 'Name',
           align: 'center',
-          dataIndex: 'userInfo.nickname',
+          dataIndex: 'nickname',
           width: 120,
           customRender: (text, record) => {
-            return text || (record.userInfo.firstname + record.userInfo.lastname) || record.email
+            return text || (record.firstname + record.lastname) || record.email
           }
         },
         {
@@ -194,14 +194,14 @@ export default {
         {
           title: 'Status',
           align: 'center',
-          dataIndex: 'studentStatus',
+          dataIndex: 'status',
           width: 120,
           scopedSlots: { customRender: 'status' }
         },
         {
           title: 'Last Login',
           align: 'center',
-          dataIndex: 'userInfo.updateTime',
+          dataIndex: 'updateTime',
           width: 120
         },
         {

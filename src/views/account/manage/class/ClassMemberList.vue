@@ -23,23 +23,23 @@
                 @search="handleSearch"
               >
                 <template slot="dataSource">
-                  <a-select-option v-for="item in filterMembers" :key="item.userInfo.id" :title="item.userInfo.email">
+                  <a-select-option v-for="item in filterMembers" :key="item.id" :title="item.email">
                     <div style="display:flex">
                       <div class="user-avatar">
                         <div class="avatar">
-                          <img :src="item.userInfo.avatar" />
+                          <img :src="item.avatar" />
                         </div>
                       </div>
                       <div class="user-name-email">
                         <div class="user-name">
-                          {{ item.userInfo.nickname || `${item.userInfo.firstname} ${item.userInfo.lastname}` }}
+                          {{ item.nickname || `${item.firstname} ${item.lastname}` }}
                         </div>
                         <div class="email">
-                          {{ item.userInfo.email }}
+                          {{ item.email }}
                         </div>
                       </div>
                       <div class="action-wrapper">
-                        <a-button type="link" @click="handleAddMember(item.userInfo)">
+                        <a-button type="link" @click="handleAddMember(item)">
                           Add
                         </a-button>
                       </div>
@@ -52,8 +52,10 @@
               </a-auto-complete>
             </a-col>
             <template v-if="form.role === 'student'">
-              <a-col :span="10" style="text-align: right;">
+              <a-col :span="14" style="text-align: right;">
                 <a-space>
+                  <a-button type="primary" @click="handleAddStudent">Add Student</a-button>
+                  <a-button @click="handleInvite" type="primary">Invite by link<a-icon type="share-alt" /></a-button>
                   <a-button type="primary" @click="downloadTemplate">Download template</a-button>
                   <school-user-import :action="importExcelUrl" @success="handleImportGet"/>
                 </a-space>
@@ -88,14 +90,23 @@
           </a-popconfirm>
         </span>
       </a-table>
+      <school-user-invite ref="schoolUserInvite" :school="currentSchool"/>
+      <a-modal
+        v-model='studentVis'
+        destroyOnClose
+        :title='studentAddTitle'
+        width='600px'
+        :footer="null"
+      >
+        <school-student-add ref="schoolStudentAdd" :school="currentSchool" :id="studentId" @save="saveStudent"/>
+      </a-modal>
     </div>
   </a-modal>
 </template>
 
 <script>
 import { getSchoolUsers } from '@/api/v2/schoolUser'
-import { addTeachers, removeTeachers } from '@/api/v2/schoolClass'
-import store from '@/store'
+import { addTeachers, removeTeachers, addStudents, removeStudents } from '@/api/v2/schoolClass'
 import { schoolUserStatusList } from '@/const/schoolUser'
 import moment from 'moment'
 import { JeecgListMixin } from '@/mixins/JeecgListMixin'
@@ -104,18 +115,39 @@ import {
 } from '@/api/schoolClassStudent'
 
 import SchoolUserImport from '../schoolUser/SchoolUserImport'
+import SchoolUserInvite from '../schoolUser/SchoolUserInvite'
+import SchoolStudentAdd from '../schoolUser/SchoolStudentAdd'
 
 export default {
   name: 'ClassMemberList',
+  props: {
+    school: {
+      type: Object,
+      default: () => {}
+    }
+  },
+  watch: {
+    school: {
+      handler(val) {
+        this.currentSchool = { ...val }
+        this.loadData()
+      },
+      deep: true,
+      immediate: true
+    }
+  },
   mixins: [JeecgListMixin],
   components: {
-    SchoolUserImport
+    SchoolUserImport,
+    SchoolUserInvite,
+    SchoolStudentAdd
   },
   data() {
     return {
       statusList: schoolUserStatusList,
+      currentSchool: [],
       classMemberList: [],
-      teacherList: [],
+      memberList: [],
       url: {
         importExcelUrl: schoolClassStudentAPIUrl.SchoolClassStudentImportExcel
       },
@@ -133,7 +165,10 @@ export default {
       form: {
         role: 'teacher',
         classId: ''
-      }
+      },
+      studentVis: false,
+      studentAddTitle: 'Add Student',
+      studentId: null
     }
   },
   created() {
@@ -141,25 +176,25 @@ export default {
   },
   computed: {
     filterMembers() {
-      return this.teacherList.filter(member => this.selectedEmails.indexOf(member.userInfo.email) === -1 &&
-        member.userInfo.email.indexOf(this.searchKey || '') > -1)
+      return this.memberList.filter(member => this.selectedEmails.indexOf(member.email) === -1 &&
+        member.email.indexOf(this.searchKey || '') > -1)
     },
     importExcelUrl() {
       return this.url.importExcelUrl + '?classId=' + this.form.classId
     },
     selectedEmails() {
       return this.classMemberList.map(item => {
-        return item.userInfo.email
+        return item.email
       })
     },
     columns() {
       return [
         {
           title: 'Nick Name',
-          dataIndex: 'userInfo.nickname',
+          dataIndex: 'nickname',
           key: 'name',
           customRender: (text, item, index) => {
-            return text || (`${item.userInfo.firstname} ${item.userInfo.lastname}`)
+            return text || (`${item.firstname} ${item.lastname}`)
           }
         },
         ...this.form.role === 'teacher' ? [
@@ -171,7 +206,7 @@ export default {
         }] : [],
         {
           title: 'Email',
-          dataIndex: 'userInfo.email',
+          dataIndex: 'email',
           key: 'email'
         },
         {
@@ -203,19 +238,19 @@ export default {
   methods: {
     async initMemberList() {
       const res = await getSchoolUsers({
-        schoolId: store.getters.school,
+        schoolId: this.currentSchool.id,
         roles: this.form.role,
         pageNo: 1,
         pageSize: 1000
       })
       if (res.result) {
-        this.teacherList = res.result.records || []
+        this.memberList = res.result.records || []
       }
     },
     async loadData() {
       this.loading = true
       const res = await getSchoolUsers({
-        schoolId: store.getters.school,
+        schoolId: this.currentSchool.id,
         roles: this.form.role,
         classes: this.form.classId,
         pageSize: this.pagination.pageSize,
@@ -233,13 +268,15 @@ export default {
     },
     handleDeleteRecord(record) {
       const params = {
-        schoolId: store.getters.school,
-        userId: record.id,
+        schoolId: this.currentSchool.id,
+        userId: record.uid,
         classId: this.form.classId
       }
       let promise = null
       if (this.form.role === 'teacher') {
         promise = removeTeachers
+      } else {
+        promise = removeStudents
       }
       if (promise) {
         this.loading = true
@@ -255,18 +292,21 @@ export default {
       }
     },
     handleAddMember(user) {
-      if (this.classMemberList.findIndex(member => member.id === user.id) > -1) {
+      if (!user.uid) this.$message.error('This user has not id')
+      if (this.classMemberList.findIndex(member => member.uid === user.uid) > -1) {
         this.$message.error('This user has been added')
       }
       const params = {
-        schoolId: store.getters.school,
-        userId: user.userId,
+        schoolId: this.currentSchool.id,
+        userId: user.uid,
         classId: this.form.classId
       }
       this.selectMember = ''
       let promise = null
       if (this.form.role === 'teacher') {
         promise = addTeachers
+      } else {
+        promise = addStudents
       }
       if (promise) {
         this.loading = true
@@ -284,6 +324,26 @@ export default {
     },
     handleSearch(val) {
       this.searchKey = val
+    },
+    handleInvite() {
+      this.$refs.schoolUserInvite.doCreate(this.form.role)
+    },
+    handleAddStudent() {
+      this.studentAddTitle = 'Add Student'
+      this.studentId = null
+      this.studentVis = true
+      this.$nextTick(() => {
+        this.$refs.schoolStudentAdd.initForm({
+          classes: this.form.classId
+        })
+      })
+    },
+    saveStudent(user) {
+      console.log(user)
+      this.studentVis = false
+      // this.handleAddMember(user)
+      this.initMemberList()
+      this.loadData()
     },
     handleImportGet(info) {
     },

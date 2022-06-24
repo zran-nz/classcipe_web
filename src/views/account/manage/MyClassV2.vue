@@ -64,7 +64,7 @@
                     <div :class="{'class-con': true, 'archive': currentTab === 'archive'}">
                       <div class="class-con-item">
                         <div class="con-item-label">Teachers</div>
-                        <div class="con-item-detail" v-if="currentTab === 'archive'">{{ cls.teacherCount || 0 }}</div>
+                        <div class="con-item-detail" v-if="currentTab === 'archive' || userMode === USER_MODE.SELF">{{ cls.teacherCount || 0 }}</div>
                         <a @click="handleEditTeachers(cls)" v-else for="">{{ cls.teacherCount || 0 }}</a>
                       </div>
                       <div class="class-con-item">
@@ -84,7 +84,7 @@
                             <a-menu-item>
                               <a href="javascript:;" @click="handleImport(cls)">Import students</a>
                             </a-menu-item>
-                            <a-menu-item>
+                            <a-menu-item v-if="userMode === USER_MODE.SCHOOL">
                               <a href="javascript:;" @click="handleEditTeachers(cls)">Edit teachers</a>
                             </a-menu-item>
                             <a-menu-item>
