@@ -15,9 +15,9 @@ import { delCookie, setCookie, welcome } from '@/utils/util'
 import * as logger from '@/utils/logger'
 import { SESSION_ACTIVE_KEY, USER_MODE } from '@/const/common'
 import { teacher } from '@/const/role'
-import { getAllSubjectsByCurriculumId } from '@/api/preference'
 import { myClassesList } from '@/api/v2/classes'
 import { appLogin } from '@/api/v2/statsTarget'
+import { GetAuCurriculum, GetNzCurriculum } from '@/api/v2/curriculumn'
 
 const user = {
   state: {
@@ -40,7 +40,8 @@ const user = {
     schoolRole: '',
     classList: [],
     currentSchool: {},
-    allSubjects: []
+    allSubjects: [],
+    allYears: []
   },
 
   mutations: {
@@ -100,6 +101,10 @@ const user = {
     },
     SET_SUBJECTS: (state, allSubjects) => {
       state.allSubjects = allSubjects
+    },
+
+    SET_YEARS: (state, allYears) => {
+      state.allYears = allYears
     }
   },
 
@@ -203,6 +208,7 @@ const user = {
               window.sessionStorage.setItem(SESSION_ACTIVE_KEY, result.token)
             }
             resolve(response)
+            this.$store.dispatch('GetSubjectsByCurriculum', result.bindCurriculum)
           } else {
             reject(response.message)
           }
@@ -318,25 +324,31 @@ const user = {
       })
     },
 
-    GetAllSubjects({ commit }, curriculumId) {
-      logger.info('GetAllSubjects curriculumId ' + curriculumId)
-      return new Promise((resolve, reject) => {
-        if (curriculumId) {
-          getAllSubjectsByCurriculumId({ curriculumId }).then(res => {
-            logger.info('GetAllSubjects res' + curriculumId, res)
-            if (res.success) {
-              commit('SET_SUBJECTS', res.result)
-            } else {
-              reject(res.message)
-            }
-          }).catch(() => {
-            resolve()
-          }).finally(() => {
+    GetSubjectsByCurriculum({ commit }, curriculumId) {
+      logger.info('GetSubjectsByCurriculum curriculumId ' + curriculumId)
+      if (curriculumId) {
+        curriculumId = parseInt(curriculumId)
+        if (curriculumId === 1) {
+          GetAuCurriculum().then(res => {
+            console.log('GetAuCurriculum res', res)
+            commit('SET_SUBJECTS', res.__subject)
+            commit('SET_YEARS', res.__years)
+          })
+        } else if (curriculumId === 2) {
+          GetNzCurriculum().then(res => {
+            console.log('GetNzCurriculum res', res)
+            commit('SET_SUBJECTS', res.__subject)
+            commit('SET_YEARS', res.__years)
           })
         } else {
-          resolve()
+          GetAuCurriculum().then(res => {
+            console.log('GetAuCurriculum res', res)
+            commit('SET_SUBJECTS', res.__subject)
+            commit('SET_YEARS', res.__years)
+          })
+          console.warn('no found curriculum, default use GetAuCurriculum ' + curriculumId)
         }
-      })
+      }
     }
   }
 }

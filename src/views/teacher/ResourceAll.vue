@@ -11,6 +11,11 @@
       </div>
       <div class='create-new'>
         <a-space>
+          <custom-search-input :round='false' :value.sync='queryParams.searchKey' @search='loadMyContent' placeholder='Search your content'/>
+          <common-content-filter
+            @update-filter='handleUpdateFilter'
+            :show-fa-sa-activity-type="category === 'task'"
+          />
           <user-profile-avatar />
         </a-space>
       </div>
@@ -60,6 +65,7 @@ import CustomSearchInput from '@/components/Common/CustomSearchInput'
 import ContentTypeFilter from '@/components/MyContentV2/ContentTypeFilter'
 import LibraryContentItem from '@/components/MyContentV2/LibraryContentItem'
 import { mapState } from 'vuex'
+import CommonContentFilter from '@/components/Common/CommonContentFilter'
 
 export default {
   name: 'ResourceAll',
@@ -71,6 +77,7 @@ export default {
     }
   },
   components: {
+    CommonContentFilter,
     LibraryContentItem,
     ContentTypeFilter,
     CustomSearchInput,
@@ -113,7 +120,6 @@ export default {
       pageNo: 1,
 
       searchText: '',
-      filterParams: {},
 
       typeMap: typeMap,
 
@@ -134,8 +140,21 @@ export default {
         plan: 'Unit Plan',
         task: 'Task',
         pd: 'PD Content'
-      }
+      },
 
+      queryParams: {
+        activityTags: [],
+        age: [],
+        category: this.category,
+        faSaActivityType: null,
+        projectBased: null,
+        faTags: [],
+        saTags: [],
+        subject: [],
+        types: [],
+        schoolId: this.currentSchool?.id,
+        searchKey: ''
+      }
     }
   },
   created () {
@@ -154,20 +173,11 @@ export default {
       }
     },
     loadMyContent () {
-      this.$logger.info('ResourceAll queryAllResource', this.currentSchool?.id)
       this.loading = true
-      const params = {
-        activityTags: [],
-        age: [],
-        category: this.category,
-        faSaActivityType: null,
-        faTags: [],
-        pageNo: this.pageNo,
-        pageSize: this.pagination.pageSize,
-        saTags: [],
-        subject: [],
-        schoolId: this.currentSchool?.id
-      }
+      const params = JSON.parse(JSON.stringify(this.queryParams))
+      params.pageSize = 15
+      params.pageNo = this.pageNo
+      this.$logger.info('ResourceAll queryAllResource params', params)
       queryAllResource(params).then(res => {
         this.$logger.info('queryAllResource', res)
         if (res.result && res.result.records && res.result.records.length) {
@@ -190,8 +200,15 @@ export default {
 
     goBack () {
       this.$router.replace({
-        path: '/teacher/library'
+        path: '/teacher/resource'
       })
+    },
+    handleUpdateFilter(filter) {
+      this.$logger.info('handleUpdateFilter', filter)
+      Object.keys(filter).forEach(key => {
+        this.queryParams[key] = filter[key]
+      })
+      this.loadMyContent()
     }
   }
 }

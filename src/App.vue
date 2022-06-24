@@ -47,7 +47,7 @@ export default {
   watch: {
     '$store.getters.bindCurriculum': function(newValue) {
       if (newValue) {
-        this.$store.dispatch('GetAllSubjects', newValue)
+        this.$store.dispatch('GetSubjectsByCurriculum', newValue)
       }
     },
     '$store.state.websocket.currentNotificationMsg': function(newValue) {

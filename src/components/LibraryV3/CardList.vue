@@ -16,7 +16,7 @@
       <a-icon type="right-circle" :style="{fontSize: '22px', color: '#dddddd'}" />
     </div>
     <div class='card-list' :id='category'>
-      <div class="card-item" v-for="item in list" :key="item.id" @click="handlePreviewDetail(item)">
+      <div class="card-item" v-for="(item, idx) in list" :key="idx" @click="handlePreviewDetail(item)">
         <card-list-item :content="item" :width="cardSize" v-bind="$attrs" />
       </div>
     </div>

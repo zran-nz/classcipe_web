@@ -82,9 +82,9 @@ export default {
 
   .search-close{
     position: absolute;
-    right: 5px;
+    right: 10px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 11px;
     top: 6px;
     &:hover {
      font-weight: bold;
