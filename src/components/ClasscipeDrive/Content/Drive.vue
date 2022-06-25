@@ -261,7 +261,6 @@ export default {
       }
 
       if (this.selectedList.length > this.maxSelectedNum) {
-        this.$message.warn(`You can only select up to ${this.maxSelectedNum} files at a time`)
         this.selectedList.splice(0, this.selectedList.length - this.maxSelectedNum)
       }
     },

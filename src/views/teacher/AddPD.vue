@@ -51,7 +51,11 @@
                   <template slot='label'>
                     Cover image
                   </template>
-                  <custom-image-uploader :img-url='form.image' @update='handleUpdateCover' />
+                  <custom-image-uploader
+                    :content-id='pdId'
+                    :content-type='typeMap.pd'
+                    :img-url='form.image'
+                    @update='handleUpdateCover' />
                 </custom-form-item>
               </div>
 

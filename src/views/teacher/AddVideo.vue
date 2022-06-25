@@ -38,7 +38,7 @@
                   </template>
                   <a-input
                     v-model='form.name'
-                    placeholder='Enter PD Content Name'
+                    placeholder='Enter Video Content Name'
                     class='cc-form-input' />
                 </custom-form-item>
               </div>

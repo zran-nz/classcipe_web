@@ -28,13 +28,15 @@ class LoadPicker {
   classCallback = null
   onloadingCallBack = null
   uploadDriveInstance = null
-
-  init(onLoadingCallBack, onSuccessCallback, classcipeUserId) {
+  // https://developers.google.com/drive/picker/reference#view-id
+  filterType = null
+  init(onLoadingCallBack, onSuccessCallback, classcipeUserId, filterType = 'video') {
     logger.info('google drive init ' + classcipeUserId)
     this.loadPicker()
     this.classCallback = onSuccessCallback
     this.onloadingCallBack = onLoadingCallBack
     this.classcipeUserId = classcipeUserId
+    this.filterType = filterType
   }
 
   async checkLogin() {
@@ -108,7 +110,7 @@ class LoadPicker {
         .setOrigin(undefined)
         .setAppId(this.appId)
         .setOAuthToken(this.oauthToken)
-        .addView(window.google.picker.ViewId.DOCS_IMAGES_AND_VIDEOS)
+        .addView(this.filterType === 'image' ? window.google.picker.ViewId.DOCS_IMAGES : window.google.picker.ViewId.DOCS_IMAGES_AND_VIDEOS)
         .setDeveloperKey(this.developerKey)
         .setCallback(this.pickerCallback)
         .build()
@@ -121,6 +123,8 @@ class LoadPicker {
     if (data.action === window.google.picker.Action.PICKED) {
       const { id } = data.docs[0]
       this.getDownloadUrl(id)
+    } else if (data.action === window.google.picker.Action.CANCEL) {
+      this.classCallback()
     }
   }
 

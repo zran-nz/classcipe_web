@@ -6,14 +6,10 @@
         <common-no-data text='Select image'></common-no-data>
       </div>
       <div class='upload-mask'>
-        <div class='edit-icon' @click='editVisible = true' v-show='imgUrl'>
-          <a-icon type="edit" />
-          <div class='edit-text'>Edit or Upload from local</div>
-        </div>
         <div class='upload-btn'>
-          <custom-button label='Select' @click='visible = true'>
+          <custom-button label='Upload' @click='visible = true'>
             <template v-slot:icon>
-              <a-icon type="select" />
+              <a-icon type="cloud-upload" />
             </template>
           </custom-button>
           <custom-button v-if="needDel" label='Delete' @click='handleDeleteItem' v-show='imgUrl'>
@@ -24,28 +20,9 @@
         </div>
       </div>
     </div>
-
-    <a-modal
-      v-model="visible"
-      :dialog-style="{ top: '50px'}"
-      :footer="null"
-      destroyOnClose
-      width="1030px"
-      title="Classcipe Drive"
-      class='classcipe-drive-modal'
-      @ok="visible = false"
-      @cancel="visible = false">
-      <classcipe-drive
-        :content-id='contentId'
-        :content-type='contentType'
-        :filter-type="'image'"
-        :filter-tab-type-list='[DriveType.ClasscipeDrive, DriveType.GoogleDrive, DriveType.GoogleImage, DriveType.Upload]'
-      />
-    </a-modal>
-
     <a-modal
       title="Upload your image"
-      :visible="editVisible"
+      :visible="visible"
       :maskClosable="false"
       destory-on-close
       :confirmLoading="confirmLoading"
@@ -69,7 +46,7 @@
         </a-col>
         <a-col :xs="24" :md="12" :style="{height: '350px'}">
           <div class="avatar-upload-preview">
-            <img :src="previews.url" :style="previews.img" crossorigin='anonymous'/>
+            <img :src="previews.url" :style="previews.img"/>
           </div>
         </a-col>
       </a-row>
@@ -105,18 +82,12 @@
 
 <script>
 import CustomButton from '@/components/Common/CustomButton'
-import CommonNoData from '@/components/Common/CommonNoData'
-import ClasscipeDrive from '@/components/ClasscipeDrive/ClasscipeDrive'
-import DriveType from '@/components/ClasscipeDrive/Content/DriveType'
-import ClasscipeDriveEvent from '@/components/ClasscipeDrive/ClasscipeDriveEvent'
-import ScreenCaptureEvent from '@/components/ScreenCapture/ScreenCaptureEvent'
-import CustomTextButton from '@/components/Common/CustomTextButton'
-import CustomLinkText from '@/components/Common/CustomLinkText'
 import { upAwsS3File } from '@/components/AddMaterial/Utils/AwsS3'
+import CommonNoData from '@/components/Common/CommonNoData'
 
 export default {
   name: 'CustomImageUploader',
-  components: { CustomLinkText, CustomTextButton, ClasscipeDrive, CommonNoData, CustomButton },
+  components: { CommonNoData, CustomButton },
   props: {
     imgUrl: {
       type: String,
@@ -125,21 +96,11 @@ export default {
     needDel: {
       type: Boolean,
       default: true
-    },
-    contentId: {
-      type: String,
-      default: null
-    },
-    contentType: {
-      type: Number,
-      default: null
     }
   },
   data() {
     return {
-      editVisible: false,
       visible: false,
-      DriveType: DriveType,
       id: null,
       confirmLoading: false,
       fileList: [],
@@ -156,77 +117,16 @@ export default {
   },
   created() {
     this.options.img = this.imgUrl
-    this.$EventBus.$on(ClasscipeDriveEvent.INSERT_DRIVE_ITEM, this.handleSelectDrive)
-    this.$EventBus.$on(ClasscipeDriveEvent.INSERT_GOOGLE_IMAGE, this.handleSelectGoogleImage)
-    this.$EventBus.$on(ClasscipeDriveEvent.INSERT_GOOGLE_DRIVE, this.handleSelectGoogleDrive)
-    this.$EventBus.$on(ClasscipeDriveEvent.DELETE_VIDEO, this.handleDeleteVideo)
-    this.$EventBus.$on(ScreenCaptureEvent.SCREEN_CAPTURE_VIDEO_ADD, this.handleAddScreenCapture)
-  },
-  beforeDestroy() {
-    this.$EventBus.$off(ClasscipeDriveEvent.INSERT_DRIVE_ITEM, this.handleSelectDrive)
-    this.$EventBus.$off(ClasscipeDriveEvent.INSERT_GOOGLE_IMAGE, this.handleSelectGoogleImage)
-    this.$EventBus.$off(ClasscipeDriveEvent.INSERT_GOOGLE_DRIVE, this.handleSelectGoogleDrive)
-    this.$EventBus.$off(ClasscipeDriveEvent.DELETE_VIDEO, this.handleDeleteVideo)
-    this.$EventBus.$off(ScreenCaptureEvent.SCREEN_CAPTURE_VIDEO_ADD, this.handleAddScreenCapture)
   },
   methods: {
-    handleSetSelect(imgUrl) {
-      this.options.img = imgUrl
-      this.previews.url = imgUrl
-    },
-    handleSelectDrive (driveItemList) {
-      this.$logger.info('case image handleSelectDriveItem', driveItemList)
-      if (driveItemList.length) {
-        this.$emit('update', {
-          type: 'image',
-          url: driveItemList[0].filePath
-        })
-        this.handleSetSelect(driveItemList[0].filePath)
-      }
-      this.visible = false
-    },
-    handleSelectGoogleImage (googleImageUrl) {
-      this.$logger.info('handleSelectGoogleImage', googleImageUrl)
-      if (googleImageUrl.length) {
-        this.$emit('update', {
-          type: 'image',
-          url: googleImageUrl
-        })
-        this.handleSetSelect(googleImageUrl)
-      }
-      this.visible = false
-    },
-    handleSelectGoogleDrive (googleDriveItem) {
-      this.$logger.info('handleSelectGoogleDrive', googleDriveItem)
-      if (googleDriveItem?.url) {
-        this.$emit('update', {
-          type: 'image',
-          url: googleDriveItem?.url
-        })
-        this.handleSetSelect(googleDriveItem?.url)
-      }
-      this.visible = false
-    },
-
-    handleAddScreenCapture (url) {
-      this.$logger.info('handleAddScreenCapture', url)
-      this.$emit('add-video', [{
-        filePath: url
-      }])
-    },
-
-    handleDeleteVideo (item) {
-      this.$emit('delete-video', item)
-    },
-
     edit (id) {
-      this.editVisible = true
+      this.visible = true
       this.id = id
       /* 获取原始头像 */
     },
     close () {
       this.id = null
-      this.editVisible = false
+      this.visible = false
     },
     cancelHandel () {
       this.close()
@@ -362,26 +262,6 @@ export default {
           margin: 8px 0;
         }
       }
-
-      .edit-icon {
-        opacity: 0;
-        cursor: pointer;
-        user-select: none;
-        position: absolute;
-        right: 10px;
-        top: 10px;
-        color: #fff;
-        display: flex;
-        flex-direction: row;
-        font-size: 13px;
-        text-decoration: underline;
-        align-items: center;
-        height: 15px;
-
-        .edit-text {
-          padding: 0 5px;
-        }
-      }
     }
 
     &:hover {
@@ -389,7 +269,7 @@ export default {
         background-color: rgba(0, 0, 0, 0.7);
       }
 
-      .upload-btn, .edit-icon {
+      .upload-btn {
         opacity: 1;
       }
     }
