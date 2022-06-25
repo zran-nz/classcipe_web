@@ -13,7 +13,7 @@
         </form-header>
       </template>
     </fixed-form-header>
-    <div class="form-content">
+    <div class="form-content" id="formContent">
       <div class="account-info">
         <div class="info-title">{{ currentSchool.schoolName }}</div>
         <div class="info-storage">
@@ -24,6 +24,7 @@
           {{ consumedSize | sizeFormat }} of {{ totalSize | sizeFormat }}
         </div>
       </div>
+
       <div class="content-detail">
         <div class="status-tab">
           <div class="tab-list">
@@ -64,7 +65,18 @@
         <div class="filter-tab" style="margin-top: -20px;">
           <a-checkbox v-model="queryParam.showUnlinked">Show sessions unlinked to tasks</a-checkbox>
         </div>
+        <div class="item-tab">
+          <div class="item-con">
+            <div class="content-item-wrap">
+              <space-content-item :content="{}" />
+            </div>
+            <div class="content-item-wrap">
+              <space-content-item :content="{}" />
+            </div>
+          </div>
+        </div>
       </div>
+
     </div>
     <a-modal
       v-model='spaceModal'
@@ -75,7 +87,17 @@
       okText="Upgrade"
       @ok="doUpgrade"
     >
-      <space-plan :school="currentSchool" ref="spacePlan" @select="handleSelect" />
+      <div class="upgrade-con">
+        <space-plan :school="currentSchool" ref="spacePlan" @select="handleSelect" />
+        <div class="upgrade-duration">
+          <div class="duration-title">Duration</div>
+          <div class="duration-desc">
+            <p>The space plan will be valid for the duration of your current plan.</p>
+            <p>当前套餐名称 2022.5.13-2023.5.13</p>
+          </div>
+        </div>
+        <div class="upgrade-price"><span>Price: </span>$1000</div>
+      </div>
     </a-modal>
   </div>
 </template>
@@ -87,6 +109,7 @@ import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 
 import FixedFormHeader from '@/components/Common/FixedFormHeader'
 import FormHeader from '@/components/FormHeader/FormHeader'
+import SpaceContentItem from '@/components/MyContentV2/SpaceContentItem'
 import SpacePlan from './space/SpacePlan'
 
 import { termList } from '@/api/academicTermInfo'
@@ -101,7 +124,8 @@ export default {
   components: {
     FixedFormHeader,
     FormHeader,
-    SpacePlan
+    SpacePlan,
+    SpaceContentItem
   },
   data() {
     return {
@@ -347,6 +371,49 @@ export default {
       label {
         font-size: 16px;
       }
+    }
+  }
+  .upgrade-con {
+    display: flex;
+    flex-direction: column;
+    .upgrade-duration {
+      width: 100%;
+      margin-bottom: 10px;
+      .duration-title {
+        font-weight: bold;
+        font-size: 16px;
+      }
+      .duration-desc {
+        margin-top: 5px;
+        font-size: 14px;
+        p {
+          margin-bottom: 5px;
+        }
+      }
+    }
+    .upgrade-price {
+      span {
+        font-weight: bold;
+        font-size: 16px;
+      }
+    }
+  }
+}
+.item-tab {
+  .item-con {
+    display: flex;
+    flex-wrap: wrap;
+    margin-left: -10px;
+    margin-right: -10px;
+    &::after {
+      content: '';
+      flex-grow: 999;
+    }
+    .content-item-wrap {
+      width: 33.33333%;
+      flex-grow: 1;
+      padding: 10px;
+      // cursor: pointer;
     }
   }
 }

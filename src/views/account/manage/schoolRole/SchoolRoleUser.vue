@@ -263,8 +263,8 @@ export default {
     getFilterMembers() {
       // 根据roleCode判断是否存在
       this.filterMembers = this.teacherList.filter(member => {
-        const roles = member.roles.map(item => item.name)
-        const isIn = roles.includes(this.currentRole.roleCode)
+        const roles = member.roles.map(item => item.name.toLowerCase())
+        const isIn = roles.includes(this.currentRole.roleCode.toLowerCase())
         const userName = ((member.firstname || '') + (member.lastname || '')).toLowerCase()
         return !isIn && (member.email.toLowerCase().indexOf(this.searchKeyMember.toLowerCase() || '') > -1 || userName.indexOf(this.searchKeyMember.toLowerCase() || '') > -1)
       }).map(item => {
@@ -318,7 +318,7 @@ export default {
           deleteRoleUser({
             roleId: this.currentRole.id,
             schoolId: this.currentSchool.id,
-            userId: item.id
+            userId: item.uid
           }).then(res => {
             if (res.code === 0) {
               this.$message.success('Delete user successfully')
@@ -358,7 +358,7 @@ export default {
       addRoleUser({
         roleId: this.currentRole.id,
         schoolId: this.currentSchool.id,
-        userId: user.id
+        userId: user.uid
       }).then(res => {
         if (res.code === 0) {
           this.$message.success('Add user successfully')
