@@ -11,12 +11,12 @@
           <div class='edit-text'>Edit or Upload from local</div>
         </div>
         <div class='upload-btn'>
-          <custom-button label='Select' @click='visible = true'>
+          <custom-button label='Select image' @click='visible = true' style='width: 140px;'>
             <template v-slot:icon>
               <a-icon type="select" />
             </template>
           </custom-button>
-          <custom-button v-if="needDel" label='Delete' @click='handleDeleteItem' v-show='imgUrl'>
+          <custom-button v-if="needDel" label='Delete' @click='handleDeleteItem' v-show='imgUrl' style='width: 140px;'>
             <template v-slot:icon>
               <a-icon type="delete" />
             </template>
