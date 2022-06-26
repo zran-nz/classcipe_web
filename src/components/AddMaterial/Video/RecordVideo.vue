@@ -141,6 +141,7 @@ export default {
   right: 35px;
   background-color: #fff;
   z-index: 10000;
+  opacity: 1 !important;
 }
 .record-time{
   font-size: 10px;

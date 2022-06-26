@@ -2,12 +2,20 @@
   <div class='case-video'>
     <div class='action-bar'>
       <a-space>
-        <classcipe-drive-button ref='drive' filter-file-type='video' :max-selected-num='5' />
-        <screen-capture @capture-done='handleCapturedVideoData'/>
+        <classcipe-drive-button
+          :field='field'
+          ref='drive'
+          filter-file-type='video'
+          :max-selected-num='5' />
+        <screen-capture
+          :field='field'
+          @capture-done='handleCapturedVideoData'/>
       </a-space>
     </div>
     <div class='video-list'>
-      <video-list v-bind="$attrs"/>
+      <video-list
+        :field='field'
+        v-bind="$attrs"/>
     </div>
   </div>
 </template>
@@ -19,10 +27,17 @@ import ScreenCapture from '@/components/ScreenCapture/ScreenCapture'
 import VideoList from '@/components/PdContent/VideoList'
 import ClasscipeDriveEvent from '@/components/ClasscipeDrive/ClasscipeDriveEvent'
 import ScreenCaptureEvent from '@/components/ScreenCapture/ScreenCaptureEvent'
+import DriveType from '@/components/ClasscipeDrive/Content/DriveType'
 
 export default {
   name: 'CaseVideo',
   components: { VideoList, ScreenCapture, ClasscipeDriveButton },
+  props: {
+    field: {
+      type: String,
+      default: null
+    }
+  },
   data() {
     return {
     }
@@ -46,23 +61,35 @@ export default {
       this.$logger.info('handleCapturedVideoData', data)
     },
 
-    handleSelectDrive (driveItemList) {
-      this.$logger.info('case video handleSelectDriveItem', driveItemList)
-      this.$emit('add-video', driveItemList)
-      this.$refs.drive.hiddenClasscipeDrive()
+    handleSelectDrive (eventData) {
+      this.$logger.info('case video handleSelectDriveItem', eventData)
+      if (eventData?.field === this.field) {
+        this.$emit('add-video', eventData.data)
+        this.$refs.drive.hiddenClasscipeDrive()
+      }
     },
-    handleSelectYoutube (youtubeItem) {
-      this.$logger.info('handleSelectYoutube', youtubeItem)
+    handleSelectYoutube (eventData) {
+      this.$logger.info('handleSelectYoutube', eventData)
+      if (eventData && eventData.field === this.field) {
+        this.afterSelectInsert()
+      }
     },
-    handleSelectGoogleDrive (googleDriveItem) {
-      this.$logger.info('handleSelectGoogleDrive', googleDriveItem)
+    handleSelectGoogleDrive (eventData) {
+      this.$logger.info('handleSelectGoogleDrive', eventData)
+      if (eventData && eventData.field === this.field) {
+        this.currentMediaFileUrl = eventData.data.url
+        this.currentDriveType = DriveType.GoogleDrive
+        this.afterSelectInsert()
+      }
     },
 
-    handleAddScreenCapture (url) {
-      this.$logger.info('handleAddScreenCapture', url)
-      this.$emit('add-video', [{
-        filePath: url
-      }])
+    handleAddScreenCapture (eventData) {
+      this.$logger.info('handleAddScreenCapture', eventData)
+      if (eventData && eventData.field === this.field) {
+        this.currentMediaFileUrl = eventData.data
+        this.currentDriveType = DriveType.Upload
+        this.afterSelectInsert()
+      }
     },
 
     handleDeleteVideo (item) {

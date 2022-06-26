@@ -66,6 +66,7 @@
                   </template>
                   <custom-cover-media
                     type='video'
+                    :field='PdField.CoverVideo'
                     :url='form.coverVideo'
                     :show-delete-button='true'
                     @delete='handleDeleteVideoCover'
@@ -112,7 +113,11 @@
               </div>
 
               <div class='form-block tag-content-block' v-if='fieldName === PdField.VideoList' :key='fieldName'>
-                <case-video :video-list='form.videoList' @add-video='handleAddVideoList' @delete-video='handleDeleteVideo' />
+                <case-video
+                  :field='PdField.VideoList'
+                  :video-list='form.videoList'
+                  @add-video='handleAddVideoList'
+                  @delete-video='handleDeleteVideo' />
               </div>
             </div>
           </div>

@@ -28,12 +28,17 @@ export default {
     driveProcess: {
       type: Number,
       default: 0
+    },
+    field: {
+      type: String,
+      default: null
     }
   },
   data() {
     return {}
   },
   created() {
+    this.$logger.info(`GoogleDrive field ${this.field}`)
   },
   methods: {
     showGoogleDrive () {

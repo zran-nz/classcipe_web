@@ -140,6 +140,7 @@ export default {
   top: 5px ;
   right: 35px;
   background-color: #fff;
+  opacity: 1 !important;
   z-index: 10000;
 }
 .record-time{

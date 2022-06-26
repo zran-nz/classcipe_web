@@ -39,6 +39,10 @@ export default {
       type: String,
       default: null
     },
+    field: {
+      type: String,
+      default: null
+    },
     size: {
       type: Number,
       default: null
@@ -63,7 +67,10 @@ export default {
   methods: {
     handleDeleteVideo () {
       this.$logger.info('handleDeleteVideo', this.videoItem)
-      this.$EventBus.$emit(ClasscipeDriveEvent.DELETE_VIDEO, this.videoItem)
+      this.$EventBus.$emit(ClasscipeDriveEvent.DELETE_VIDEO, {
+        field: this.field,
+        data: this.videoItem
+      })
     }
   }
 }

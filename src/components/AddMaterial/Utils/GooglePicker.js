@@ -31,7 +31,7 @@ class LoadPicker {
   // https://developers.google.com/drive/picker/reference#view-id
   filterType = null
   init(onLoadingCallBack, onSuccessCallback, classcipeUserId, filterType = 'video') {
-    logger.info('google drive init ' + classcipeUserId)
+    logger.info('google drive init ' + classcipeUserId + ` filter type ${this.filterType}`)
     this.loadPicker()
     this.classCallback = onSuccessCallback
     this.onloadingCallBack = onLoadingCallBack
@@ -110,7 +110,7 @@ class LoadPicker {
         .setOrigin(undefined)
         .setAppId(this.appId)
         .setOAuthToken(this.oauthToken)
-        .addView(this.filterType === 'image' ? window.google.picker.ViewId.DOCS_IMAGES : window.google.picker.ViewId.DOCS_IMAGES_AND_VIDEOS)
+        .addView(this.filterType === 'image' ? window.google.picker.ViewId.DOCS_IMAGES : window.google.picker.ViewId.DOCS_VIDEOS)
         .setDeveloperKey(this.developerKey)
         .setCallback(this.pickerCallback)
         .build()

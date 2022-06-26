@@ -59,6 +59,12 @@ var test11
 var divE
 export default {
   name: 'GoogleImage',
+  props: {
+    field: {
+      type: String,
+      default: null
+    }
+  },
   data() {
     return {
       loading: false,
@@ -122,6 +128,7 @@ export default {
     }
   },
   created() {
+    this.$logger.info(`GoogleImage field ${this.field}`)
     this.loadGooleScript()
   },
   mounted() {
@@ -184,7 +191,10 @@ export default {
       uploadImageToAwsByUrl(this.$store.getters.userInfo.id, url)
         .then(url => {
           this.$logger.info('uploadImageToAwsByUrl', url)
-          this.$EventBus.$emit(ClasscipeDriveEvent.INSERT_GOOGLE_IMAGE, this.$classcipe.replaceToClasscipeCDN(url))
+          this.$EventBus.$emit(ClasscipeDriveEvent.INSERT_GOOGLE_IMAGE, {
+            field: this.field,
+            data: this.$classcipe.replaceToClasscipeCDN(url)
+          })
         })
         .catch(e => {
           console.log(e)

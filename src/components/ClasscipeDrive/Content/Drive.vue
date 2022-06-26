@@ -102,9 +102,13 @@ export default {
   name: 'Drive',
   components: { CustomTextButton, ContentItem, CustomMediaItem, CustomSearchInput },
   props: {
-    filterFileType: {
+    filterType: {
       type: String,
       default: 'image'
+    },
+    field: {
+      type: String,
+      default: null
     },
     // 最多允许选择的数量
     maxSelectedNum: {
@@ -141,7 +145,7 @@ export default {
     })
   },
   created() {
-    this.$logger.info('Drive created ' + this.filterFileType)
+    this.$logger.info('Drive created ' + this.filterType + ' field ' + this.field + ' filterType ' + this.filterType)
     this.initData()
   },
   methods: {
@@ -182,7 +186,7 @@ export default {
     searchFileName() {
       FileRecord({
         keywords: this.keywords,
-        fileType: this.filterFileType,
+        fileType: this.filterType,
         gradeId: this.gradeId,
         uploadType: 1,
         pageNo: this.pageNo,
@@ -267,7 +271,10 @@ export default {
 
     handleInsertSelected () {
       this.$logger.info('handleInsertSelected', this.selectedList)
-      this.$EventBus.$emit(ClasscipeDriveEvent.INSERT_DRIVE_ITEM, this.selectedList)
+      this.$EventBus.$emit(ClasscipeDriveEvent.INSERT_DRIVE_ITEM, {
+        field: this.field,
+        data: this.selectedList
+      })
     }
   }
 }

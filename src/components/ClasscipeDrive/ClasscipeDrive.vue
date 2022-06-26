@@ -14,20 +14,26 @@
         <a-radio-button :value="DriveType.GoogleDrive" v-if='filterTabTypeList.indexOf(DriveType.GoogleDrive) !== -1'>
           Google Drive
         </a-radio-button>
+        <a-radio-button :value="DriveType.UploadVideo" v-if='filterTabTypeList.indexOf(DriveType.UploadVideo) !== -1'>
+          Upload Video
+        </a-radio-button>
       </a-radio-group>
     </div>
     <div class='drive-content'>
       <div v-show='currentDriveType === DriveType.ClasscipeDrive'>
-        <drive v-bind='$attrs' />
+        <drive v-bind='$attrs' :field='field' :filter-type='filterType'/>
       </div>
       <div v-show='currentDriveType === DriveType.Youtube'>
-        <youtube v-bind='$attrs' />
+        <youtube v-bind='$attrs' :field='field' />
       </div>
       <div v-show='currentDriveType === DriveType.GoogleImage'>
-        <google-image v-bind='$attrs' />
+        <google-image v-bind='$attrs' :field='field' />
       </div>
       <div v-show='currentDriveType === DriveType.GoogleDrive'>
-        <google-drive v-bind='$attrs' :drive-loading='driveLoading' @show-google-drive='handleShowGoogleDrive'/>
+        <google-drive v-bind='$attrs' :field='field' :drive-loading='driveLoading' @show-google-drive='handleShowGoogleDrive'/>
+      </div>
+      <div v-show='currentDriveType === DriveType.UploadVideo'>
+        <drive-video-uploader  v-bind='$attrs' :field='field' />
       </div>
     </div>
   </div>
@@ -42,10 +48,11 @@ import GoogleImage from '@/components/ClasscipeDrive/Content/GoogleImage'
 import GoogleDrive from '@/components/ClasscipeDrive/Content/GoogleDrive'
 import ClasscipeDriveEvent from '@/components/ClasscipeDrive/ClasscipeDriveEvent'
 import GooglePicker from '@/components/AddMaterial/Utils/GooglePicker'
+import DriveVideoUploader from '@/components/Common/DriveVideoUploader'
 
 export default {
   name: 'ClasscipeDrive',
-  components: { GoogleDrive, GoogleImage, Youtube, Drive },
+  components: { DriveVideoUploader, GoogleDrive, GoogleImage, Youtube, Drive },
   props: {
     contentId: {
       type: String,
@@ -59,24 +66,32 @@ export default {
       type: String,
       default: 'image'
     },
-    filterTabTypeList: {
-      type: Array,
-      default: () => [
-        DriveType.ClasscipeDrive,
-        DriveType.Youtube,
-        DriveType.GoogleImage,
-        DriveType.GoogleDrive
-      ]
+    field: {
+      type: String,
+      default: null
     }
   },
   data() {
     return {
       DriveType: DriveType,
       currentDriveType: DriveType.ClasscipeDrive,
-      driveLoading: false
+      driveLoading: false,
+      filterTabTypeList: this.filterType === 'image' ? [
+        DriveType.ClasscipeDrive,
+        DriveType.Youtube,
+        DriveType.GoogleImage,
+        DriveType.GoogleDrive
+      ] : [
+        DriveType.ClasscipeDrive,
+        DriveType.Youtube,
+        DriveType.GoogleDrive,
+        DriveType.UploadVideo
+      ]
     }
   },
-
+  created() {
+    this.$logger.info(`ClasscipeDrive field ${this.field} filter type ${this.filterType}`)
+  },
   methods: {
     driveTypeChange() {
       this.$logger.info('driveTypeChange', this.currentDriveType)
@@ -84,17 +99,20 @@ export default {
     },
 
     handleShowGoogleDrive() {
+      this.$logger.info(`handleShowGoogleDrive filterType ${this.filterType}`)
       if (this.currentDriveType === this.DriveType.GoogleDrive) {
         GooglePicker.init(
           driveUpLoadProgress => {
             this.driveLoading = true
           },
           (type, url, mediaType) => {
-            console.log('url', url)
+            console.log('GooglePicker success url', url)
             if (url) {
               this.$logger.info('GooglePicker addDrive done', url, mediaType, ClasscipeDriveEvent)
               this.$EventBus.$emit(ClasscipeDriveEvent.INSERT_GOOGLE_DRIVE, {
-                url, mediaType
+                data: url,
+                mediaType,
+                field: this.field
               })
             }
             this.driveLoading = false

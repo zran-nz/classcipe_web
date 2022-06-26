@@ -70,6 +70,12 @@ import CustomSearchInput from '@/components/Common/CustomSearchInput'
 export default {
   name: 'Youtube',
   components: { CustomSearchInput },
+  props: {
+    field: {
+      type: String,
+      default: null
+    }
+  },
   data() {
     return {
       loading: false,
@@ -79,8 +85,9 @@ export default {
       videos: []
     }
   },
-
-  created() {},
+  created() {
+    this.$logger.info(`Youtube field ${this.field}`)
+  },
   methods: {
     searchVideo() {
       if (this.keywords.trim().length > 0) {
@@ -101,7 +108,10 @@ export default {
         this.$message.warn('Please select a video')
         return null
       }
-      this.$EventBus.$emit(ClasscipeDriveEvent.INSERT_YOUTUBE_ITEM, this.choose)
+      this.$EventBus.$emit(ClasscipeDriveEvent.INSERT_YOUTUBE_ITEM, {
+        field: this.field,
+        data: this.choose
+      })
       this.choose = null
       this.keywords = ''
       this.chooseVideoId = ''

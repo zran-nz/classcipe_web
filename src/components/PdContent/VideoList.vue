@@ -3,6 +3,7 @@
     <div class='video-item' v-for='videoItem in videoList' :key='videoItem.filePath'>
       <video-item
         :url='videoItem.filePath'
+        :field='field'
         :title='videoItem.fileName || "Untitled"'
         :size='videoItem.fileLength'
         :video-item='videoItem'
@@ -21,6 +22,10 @@ export default {
     videoList: {
       type: Array,
       default: () => []
+    },
+    field: {
+      type: String,
+      default: null
     }
   },
   data() {

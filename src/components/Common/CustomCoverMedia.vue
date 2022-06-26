@@ -1,49 +1,53 @@
 <template>
   <div class='custom-cover-media' :style="{width: width, 'min-height': height}">
-    <a-upload-dragger
-      class='cc-upload'
-      :showUploadList='false'
-      :accept="type === 'image' ? 'image/png, image/jpeg' : 'video/mp4'"
-      :customRequest='handleUploadImage'
-      name="file">
-      <div class='uploaded-cover' v-if="(mediaType || type) === 'image' && (mediaUrl || url)">
-        <div class='img-cover' :style="{backgroundImage: 'url(' + (mediaUrl || url) + ')' }"></div>
+    <template v-if='isYoutubeIframeUrl'>
+      <iframe :src='url' class='youtube-video-img' :style="{width: width, 'min-height': height}"/>
+    </template>
+    <template v-else>
+      <video :src='url' v-if='url' :controls='videoControls'></video>
+    </template>
+    <common-no-data text='Upload Video' v-if='!url'/>
+    <div class='upload-mask' v-if='field'>
+      <div class='edit-icon' @click='editVisible = true' v-show='url'>
+        <a-icon type="eye" />
+        <div class='edit-text' @click='viewItem'>View it</div>
       </div>
-      <div class='upload-text' v-if="(mediaType || type) === 'video' && (mediaUrl || url)">
-        <video :src='(mediaUrl || url)' :controls='videoControls'></video>
-      </div>
-      <div class='upload-tips' v-if='!uploading'>
-        <custom-media-cover-button :label='label' bg-color='#2582B5' font-color='#fff' v-show='showUploadButton'></custom-media-cover-button>
-        <custom-media-cover-button label='Edit' bg-color='#2582B5' font-color='#fff' v-show='showEditButton' @click.native.capture.stop='handleEdit($event)'></custom-media-cover-button>
-        <custom-media-cover-button label='Delete' bg-color='#2582B5' font-color='#fff' v-show='showDeleteButton && (mediaUrl || url)' @click.native.capture.stop='handleDelete($event)'></custom-media-cover-button>
-      </div>
-    </a-upload-dragger>
-    <div class='uploading-progress' v-show='uploading'>
-      <div class='progress'>
-        <a-progress :percent="progressPercent" strokeColor='#2582B5' />
-        <custom-link-text class='cancel-text' text='Cancel' color='#fff' @click='handleCancel'></custom-link-text>
-      </div>
+      <classcipe-drive-button
+        :field='field'
+        class='upload-btn'
+        filter-type='video'
+        ref='drive' />
+      <screen-capture :field='field' :class="{'recording': recording}" class='upload-btn' @update-recording='updateRecording' />
+      <custom-button class='upload-btn' label='Delete video' @click='handleDelete' v-if='url'>
+        <template v-slot:icon>
+          <a-icon type='delete' />
+        </template>
+      </custom-button>
     </div>
   </div>
 </template>
 
 <script>
-import * as logger from '@/utils/logger'
-import { upAwsS3File } from '@/components/AddMaterial/Utils/AwsS3'
 import CustomButton from '@/components/Common/CustomButton'
 import CustomMediaCoverButton from '@/components/Common/CustomMediaCoverButton'
 import CustomLinkText from '@/components/Common/CustomLinkText'
-import { CoverMediaEvent } from '@/components/Common/CommonEvent'
+import ClasscipeDrive from '@/components/AddMaterial/ClasscipeDrive/ClasscipeDrive'
+import ClasscipeDriveButton from '@/components/ClasscipeDrive/ClasscipeDriveButton'
+import ScreenCapture from '@/components/ScreenCapture/ScreenCapture'
+import CommonNoData from '@/components/Common/CommonNoData'
+import ClasscipeDriveEvent from '@/components/ClasscipeDrive/ClasscipeDriveEvent'
+import ScreenCaptureEvent from '@/components/ScreenCapture/ScreenCaptureEvent'
+import DriveType from '@/components/ClasscipeDrive/Content/DriveType'
 
 export default {
   name: 'CustomCoverMedia',
-  components: { CustomLinkText, CustomMediaCoverButton, CustomButton },
+  components: { CommonNoData, ScreenCapture, ClasscipeDriveButton, ClasscipeDrive, CustomLinkText, CustomMediaCoverButton, CustomButton },
   props: {
-    type: {
+    url: {
       type: String,
       default: null
     },
-    url: {
+    field: {
       type: String,
       default: null
     },
@@ -53,99 +57,105 @@ export default {
     },
     width: {
       type: String,
-      default: '320px'
+      default: '352px'
     },
     height: {
       type: String,
-      default: '180px'
-    },
-    labelText: {
-      type: String,
-      default: null
-    },
-    showUploadButton: {
-      type: Boolean,
-      default: true
-    },
-    showEditButton: {
-      type: Boolean,
-      default: false
+      default: '216px'
     },
     showDeleteButton: {
       type: Boolean,
       default: false
-    },
-    videoItem: {
-      type: [Object, String],
-      default: null
-    },
-    emitGlobalEvent: {
-      type: Boolean,
-      default: true
+    }
+  },
+  computed: {
+    isYoutubeIframeUrl() {
+      return this.url && this.url.indexOf('youtube.com/embed') !== -1
     }
   },
   data() {
     return {
-      uploading: false,
-      mediaType: null,
-      mediaUrl: null,
-      progressPercent: 0,
-      uploader: null
+      recording: false
     }
   },
-  computed: {
-    label () {
-      if (this.labelText) {
-        return this.labelText
-      } else {
-        return this.type === 'image' ? 'Upload Image' : 'Upload Video'
-      }
-    }
+  created() {
+    this.$logger.info(`CustomCoverMedia field ${this.field}`)
+    this.$EventBus.$on(ClasscipeDriveEvent.INSERT_UPLOADED_VIDEO, this.handleSelectUploadItem)
+    this.$EventBus.$on(ClasscipeDriveEvent.INSERT_DRIVE_ITEM, this.handleSelectDriveItem)
+    this.$EventBus.$on(ClasscipeDriveEvent.INSERT_YOUTUBE_ITEM, this.handleSelectYoutube)
+    this.$EventBus.$on(ClasscipeDriveEvent.INSERT_GOOGLE_DRIVE, this.handleSelectGoogleDrive)
+    this.$EventBus.$on(ScreenCaptureEvent.SCREEN_CAPTURE_VIDEO_ADD, this.handleAddScreenCapture)
+  },
+  beforeDestroy() {
+    this.$EventBus.$off(ClasscipeDriveEvent.INSERT_UPLOADED_VIDEO, this.handleSelectUploadItem)
+    this.$EventBus.$off(ClasscipeDriveEvent.INSERT_DRIVE_ITEM, this.handleSelectDriveItem)
+    this.$EventBus.$off(ClasscipeDriveEvent.INSERT_YOUTUBE_ITEM, this.handleSelectYoutube)
+    this.$EventBus.$off(ClasscipeDriveEvent.INSERT_GOOGLE_DRIVE, this.handleSelectGoogleDrive)
+    this.$EventBus.$off(ScreenCaptureEvent.SCREEN_CAPTURE_VIDEO_ADD, this.handleAddScreenCapture)
   },
   methods: {
-    handleUploadImage(data) {
-      logger.info('handleUploadImage data', data)
-      this.mediaType = data.file.type.indexOf('image') > -1 ? 'image' : (data.file.type.indexOf('video') > -1 ? 'video' : null)
-      if (this.mediaType) {
-        this.progressPercent = 0
-        this.uploading = true
-        this.uploader = upAwsS3File(this.$store.getters.userInfo.id, data.file,
-          progressSize => {
-            this.$logger.info('progressSize', progressSize)
-            this.progressPercent = progressSize
-        },
-          result => {
-            this.$logger.info('handleUploadImage result', result)
-            this.mediaUrl = result
-            this.uploading = false
-            this.$emit('update', {
-              type: this.mediaType,
-              url: this.mediaUrl
-            })
-        }, true)
-      } else {
-        this.$message.warn('Only image and video type files are allowed to be uploaded')
-      }
+    updateRecording(status) {
+      this.recording = status
     },
-
-    handleCancel () {
-      if (this.uploader) {
-        this.uploader.abort()
-        this.uploading = false
-        this.progressPercent = 0
-      }
-    },
-
-    handleEdit () {
-      this.$logger.info('handleEdit', this.videoItem)
-    },
-
     handleDelete () {
-      this.$logger.info('handleDelete', this.videoItem)
-      this.$emit('delete', this.videoItem)
-      if (this.emitGlobalEvent) {
-        this.$EventBus.$emit(CoverMediaEvent.COVER_MEDIA_DELETE, this.videoItem)
+      this.$logger.info('CustomCoverMedia handleDelete', this.url)
+      this.$emit('delete')
+    },
+
+    handleSelectUploadItem (eventData) {
+      this.$logger.info('CustomCoverMedia handleSelectUploadItem', eventData)
+      if (eventData && eventData.field === this.field) {
+        this.currentMediaFileUrl = eventData.data
+        this.currentDriveType = DriveType.Upload
+        this.afterSelectInsert()
       }
+    },
+
+    handleSelectDriveItem (eventData) {
+      this.$logger.info('CustomCoverMedia handleSelectDriveItem', eventData)
+      if (eventData && eventData.field === this.field) {
+        this.currentMediaFileUrl = eventData.data[0].filePath
+        this.currentDriveType = DriveType.ClasscipeDrive
+        this.afterSelectInsert()
+      }
+    },
+    handleSelectYoutube (eventData) {
+      this.$logger.info('CustomCoverMedia handleSelectYoutube', eventData)
+      if (eventData && eventData.field === this.field) {
+        this.currentMediaFileUrl = eventData.data.link
+        this.currentDriveType = DriveType.Youtube
+        this.afterSelectInsert()
+      }
+    },
+    handleSelectGoogleDrive (eventData) {
+      this.$logger.info('CustomCoverMedia handleSelectGoogleDrive', eventData)
+      if (eventData && eventData.field === this.field) {
+        this.currentMediaFileUrl = eventData.data
+        this.currentDriveType = DriveType.GoogleDrive
+        this.afterSelectInsert()
+      }
+    },
+
+    handleAddScreenCapture (eventData) {
+      this.$logger.info('CustomCoverMedia handleAddScreenCapture', eventData)
+      if (eventData && eventData.field === this.field) {
+        this.currentMediaFileUrl = eventData.data
+        this.currentDriveType = DriveType.Upload
+        this.afterSelectInsert()
+      }
+    },
+
+    afterSelectInsert() {
+      this.$logger.info('CustomCoverMedia handleAddVideo done', this.currentMediaFileUrl, this.currentDriveType)
+      this.$refs.drive.hiddenClasscipeDrive()
+      this.$emit('update', {
+        url: this.currentMediaFileUrl,
+        type: 'video'
+      })
+    },
+
+    viewItem () {
+      window.open(this.url, '_blank')
     }
   }
 }
@@ -155,95 +165,78 @@ export default {
 @import "~@/components/index.less";
 
 .custom-cover-media {
-  border-radius: 4px;
   position: relative;
-
-  .cc-upload {
-    z-index: 100;
+  video {
     width: 100%;
     height: 100%;
-
-    /deep/ .ant-upload.ant-upload-drag {
-      border: none;
-      background: #f1f1f1;
-    }
-
-    .upload-tips {
-      display: none;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      min-height: 150px;
-      margin-top: -75px;
-      margin-left: -90px;
-      width: 180px;
-      align-items: center;
-      justify-content: center;
-      flex-direction: row;
-
-      .cc-custom-button {
-        min-width: 120px;
-        margin: 5px 0;
-      }
-    }
-
-    &:hover {
-      .upload-tips {
-        display: flex;
-        flex-direction: column;
-      }
-    }
   }
 
-  .uploading-progress {
-    z-index: 200;
-    background: rgba(0, 0, 0, 0.3);
+  .upload-mask {
     position: absolute;
     left: 0;
     right: 0;
     top: 0;
     bottom: 0;
+    background-color: rgba(0, 0, 0, 0.0);
+    transition: all 0.3s ease-in-out;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
 
-    .progress {
+    .upload-btn {
+      opacity: 0;
+      transition: all 0.3s ease-in-out;
+      margin-top: 15px;
+      width: 160px;
       display: flex;
       justify-content: center;
-      flex-direction: column;
       align-items: center;
-      position: absolute;
-      top: 40%;
-      left: 50%;
-      margin-left: -90px;
-      width: 180px;
-      /deep/ .ant-progress-text {
-        color: #fff;
-      }
+      flex-direction: row;
 
-      .cancel-text {
-        margin-top: 5px;
-        color: #fff !important;
+      div {
+        margin: 8px 0;
+      }
+    }
+
+    .edit-icon {
+      opacity: 0;
+      cursor: pointer;
+      user-select: none;
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      color: #fff;
+      display: flex;
+      flex-direction: row;
+      font-size: 13px;
+      text-decoration: underline;
+      align-items: center;
+      height: 15px;
+
+      .edit-text {
+        padding: 0 5px;
       }
     }
   }
-}
-.uploaded-cover {
-  width: 100%;
-  height: 100%;
-  .img-cover {
-    width: 100%;
-    height: 100%;
-    background-position: center center;
-    background-size: cover;
-    background-repeat: no-repeat;
+
+  &:hover {
+    .upload-mask {
+      background-color: rgba(0, 0, 0, 0.7);
+    }
+
+    .upload-btn, .edit-icon {
+      opacity: 1;
+    }
   }
 }
 
-.upload-text {
-  width: 100%;
-  height: 100%;
-
-  video {
-    width: 100%;
-    height: 100%;
-  }
+.youtube-video-iframe {
+  border: none;
 }
+
+.recording {
+  opacity: 1 !important;
+}
+
 </style>

@@ -321,8 +321,8 @@ export default {
   position: relative;
   .image-placeholder {
     position: relative;
-    min-height: 180px;
-    width: 320px;
+    min-height: 216px;
+    width: 352px;
     img {
       min-width: 200px;
       max-width: 100%;

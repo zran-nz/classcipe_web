@@ -213,7 +213,8 @@ export default {
   width: 280px;
   position: fixed;
   top: 5px;
-  right: 35px
+  right: 35px;
+  opacity: 1 !important;
 }
 
 .record-footer {

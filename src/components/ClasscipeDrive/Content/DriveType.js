@@ -3,5 +3,7 @@ export default {
   'Youtube': 'Youtube',
   'GoogleImage': 'GoogleImage',
   'Upload': 'Upload',
-  'GoogleDrive': 'GoogleDrive'
+  'GoogleDrive': 'GoogleDrive',
+  'UploadImage': 'UploadImage',
+  'UploadVideo': 'UploadVideo'
 }
