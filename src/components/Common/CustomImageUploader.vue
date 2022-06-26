@@ -158,12 +158,17 @@ export default {
     }
   },
   created() {
-    this.options.img = this.imgUrl
     this.$EventBus.$on(ClasscipeDriveEvent.INSERT_DRIVE_ITEM, this.handleSelectDrive)
     this.$EventBus.$on(ClasscipeDriveEvent.INSERT_UPLOADED_IMAGE, this.handleSelectUpload)
     this.$EventBus.$on(ClasscipeDriveEvent.INSERT_GOOGLE_IMAGE, this.handleSelectGoogleImage)
     this.$EventBus.$on(ClasscipeDriveEvent.INSERT_GOOGLE_DRIVE, this.handleSelectGoogleDrive)
     this.$EventBus.$on(ClasscipeDriveEvent.DELETE_VIDEO, this.handleDeleteVideo)
+
+    this.$logger.info('CustomImageUploader created imgUrl', this.imgUrl)
+    if (this.imgUrl) {
+      this.options.img = this.imgUrl
+      this.previews.url = this.imgUrl
+    }
   },
   beforeDestroy() {
     this.$EventBus.$off(ClasscipeDriveEvent.INSERT_DRIVE_ITEM, this.handleSelectDrive)
