@@ -36,11 +36,11 @@
           <a-dropdown :disabled="selectedRowKeys.length === 0" v-if="queryParam.schoolUserStatus !== ''">
             <a-menu slot="overlay" @click="handleBatchOpt">
               <!-- <a-menu-item key="move"> Move Class </a-menu-item> -->
-              <a-menu-item key="resend" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.INACTIVE.value"> Resend </a-menu-item>
-              <a-menu-item key="reset" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ACTIVE.value"> Reset password </a-menu-item>
-              <a-menu-item key="restore" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ARCHIVE.value"> Restore </a-menu-item>
-              <a-menu-item key="archive" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ACTIVE.value"> Archive </a-menu-item>
-              <a-menu-item key="delete" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ARCHIVE.value"> Delete </a-menu-item>
+              <a-menu-item :key="'ACT_'+ACT.RESEND" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.INACTIVE.value"> Resend </a-menu-item>
+              <a-menu-item :key="'ACT_'+ACT.RESET" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ACTIVE.value"> Reset password </a-menu-item>
+              <a-menu-item :key="'ACT_'+ACT.RESTORE" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ARCHIVE.value"> Restore </a-menu-item>
+              <a-menu-item :key="'ACT_'+ACT.ARCHIVE" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ACTIVE.value"> Archive </a-menu-item>
+              <a-menu-item :key="'ACT_'+ACT.DELETE" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ARCHIVE.value"> Delete </a-menu-item>
             </a-menu>
             <a-button style="margin-left: 8px"> Bulk manage <a-icon type="down" /> </a-button>
           </a-dropdown>
@@ -52,7 +52,7 @@
       <div class="form-tab">
         <a-table
           ref="table"
-          rowKey="id"
+          rowKey="uid"
           :columns="columns"
           :dataSource="dataSource"
           :pagination="ipagination"
@@ -70,11 +70,11 @@
             <a-dropdown>
               <a-menu slot="overlay" @click="opt => handleSingleOpt(opt, record)">
                 <a-menu-item key="move"> Move Class </a-menu-item>
-                <a-menu-item key="resend" v-if="record.studentStatus === SCHOOL_USER_STATUS.INACTIVE.value"> Resend </a-menu-item>
-                <a-menu-item key="reset" v-if="record.studentStatus === SCHOOL_USER_STATUS.ACTIVE.value"> Reset password </a-menu-item>
-                <a-menu-item key="restore" v-if="record.studentStatus === SCHOOL_USER_STATUS.ARCHIVE.value"> Restore </a-menu-item>
-                <a-menu-item key="archive" v-if="record.studentStatus === SCHOOL_USER_STATUS.ACTIVE.value"> Archive </a-menu-item>
-                <a-menu-item key="delete" v-if="record.studentStatus === SCHOOL_USER_STATUS.ARCHIVE.value"> Delete </a-menu-item>
+                <a-menu-item :key="'ACT_'+ACT.RESEND" v-if="record.status === SCHOOL_USER_STATUS.INACTIVE.value"> Resend </a-menu-item>
+                <a-menu-item :key="'ACT_'+ACT.RESET" v-if="record.status === SCHOOL_USER_STATUS.ACTIVE.value"> Reset password </a-menu-item>
+                <a-menu-item :key="'ACT_'+ACT.RESTORE" v-if="record.status === SCHOOL_USER_STATUS.ARCHIVE.value"> Restore </a-menu-item>
+                <a-menu-item :key="'ACT_'+ACT.ARCHIVE" v-if="record.status === SCHOOL_USER_STATUS.ACTIVE.value"> Archive </a-menu-item>
+                <a-menu-item :key="'ACT_'+ACT.DELETE" v-if="record.status === SCHOOL_USER_STATUS.ARCHIVE.value"> Delete </a-menu-item>
               </a-menu>
               <a style="margin-left: 8px"> More <a-icon type="down" /> </a>
             </a-dropdown>
@@ -99,6 +99,7 @@ import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import { JeecgListMixin } from '@/mixins/JeecgListMixin'
 
 import { listClass } from '@/api/v2/schoolClass'
+import { bulkActStudent } from '@/api/v2/schoolUser'
 
 import FixedFormHeader from '@/components/Common/FixedFormHeader'
 import FormHeader from '@/components/FormHeader/FormHeader'
@@ -123,6 +124,14 @@ export default {
       USER_MODE: USER_MODE,
       SCHOOL_USER_STATUS: SCHOOL_USER_STATUS,
       tabsList: Object.values(SCHOOL_USER_STATUS).filter(item => item.value !== 0),
+      ACT: {
+        ARCHIVE: '4',
+        APPROVE: '1',
+        REJECT: '3',
+        RESTORE: '8',
+        RESEND: '9',
+        DELETE: '-1'
+      },
       loading: false,
       queryParam: {
         searchKey: '',
@@ -253,8 +262,21 @@ export default {
     },
     handleBatchOpt(opt) {
       this.optType = 'multi'
-      if (opt.key === 'move') {
-        this.$refs.schoolStudentMove.doCreate()
+      if (this.selectedRowKeys.length > 0) {
+        this.loading = true
+        bulkActStudent({
+          act: opt.key.split('_')[1],
+          schoolId: this.currentSchool.id,
+          userIdList: this.selectedRowKeys
+        }).then(res => {
+          if (res.code === 0) {
+            this.$message.success('Opt Successfully')
+            this.onClearSelected()
+            this.searchQuery()
+          }
+        }).finally(() => {
+          this.loading = false
+        })
       }
     },
     handleSingleOpt(opt, item) {
@@ -379,4 +401,9 @@ export default {
   }
 }
 
+/deep/ .ant-table-fixed-right{
+  table {
+    background: transparent;
+  }
+}
 </style>

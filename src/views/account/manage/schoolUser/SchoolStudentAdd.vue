@@ -55,11 +55,20 @@
         <a-row :gutter=16>
           <a-col :span="18">
             <a-form-model-item prop="classArr">
-              <a-select
+              <!-- <a-select
                 mode="multiple"
                 optionFilterProp="children"
                 :getPopupContainer="trigger => trigger.parentElement"
                 v-model='formModel.classArr'
+                placeholder='Please select class'>
+                <a-select-option v-for='item in classList' :key='item.id'>
+                  {{ item.name }}
+                </a-select-option >
+              </a-select> -->
+              <a-select
+                optionFilterProp="children"
+                :getPopupContainer="trigger => trigger.parentElement"
+                v-model='formModel.classes'
                 placeholder='Please select class'>
                 <a-select-option v-for='item in classList' :key='item.id'>
                   {{ item.name }}
@@ -223,6 +232,7 @@ export default {
        Promise.all([
           listClass({
             schoolId: this.currentSchool.id,
+            queryType: 0,
             pageNo: 1,
             pageSize: 10000
           })
@@ -256,7 +266,8 @@ export default {
         if (valid) {
           const params = { ...this.formModel }
           params.schoolId = this.currentSchool.id
-          params.classes = params.classArr.join(',')
+          // 变成单选
+          // params.classes = params.classArr.join(',')
           if (params.birthDay) {
             params.birthDay = moment.utc(params.birthDay).format('YYYY-MM-DD HH:mm:ss')
           }

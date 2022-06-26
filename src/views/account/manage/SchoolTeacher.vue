@@ -32,14 +32,13 @@
           <a-input-search v-model="queryParam.searchKey" placeholder="Search" @search="searchQuery"></a-input-search>
         </div>
         <a-space class="filter-opt">
-          <a-dropdown :disabled="selectedRowKeys.length === 0">
+          <a-dropdown :disabled="selectedRowKeys.length === 0" v-if="queryParam.schoolUserStatus !== ''">
             <a-menu slot="overlay" @click="handleBatchOpt">
-              <a-menu-item key="move"> Move Class </a-menu-item>
-              <a-menu-item key="resend" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.INACTIVE.value"> Resend </a-menu-item>
-              <a-menu-item key="reset" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ACTIVE.value"> Reset password </a-menu-item>
-              <a-menu-item key="restore" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ARCHIVE.value"> Restore </a-menu-item>
-              <a-menu-item key="archive" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ACTIVE.value"> Archive </a-menu-item>
-              <a-menu-item key="delete" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ARCHIVE.value"> Delete </a-menu-item>
+              <a-menu-item :key="'ACT_'+ACT.RESEND.value" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.INACTIVE.value"> Resend </a-menu-item>
+              <a-menu-item :key="'ACT_'+ACT.RESET.value" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ACTIVE.value"> Reset password </a-menu-item>
+              <a-menu-item :key="'ACT_'+ACT.RESTORE.value" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ARCHIVE.value"> Restore </a-menu-item>
+              <a-menu-item :key="'ACT_'+ACT.ARCHIVE.value" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ACTIVE.value"> Archive </a-menu-item>
+              <a-menu-item :key="'ACT_'+ACT.DELETE.value" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ARCHIVE.value"> Delete </a-menu-item>
             </a-menu>
             <a-button style="margin-left: 8px"> Bulk manage <a-icon type="down" /> </a-button>
           </a-dropdown>
@@ -51,7 +50,7 @@
       <div class="form-tab">
         <a-table
           ref="tableCon"
-          rowKey="id"
+          rowKey="uid"
           :columns="columns"
           :dataSource="dataSource"
           :pagination="ipagination"
@@ -78,12 +77,11 @@
             <a @click="handleEdit(record)">Edit</a>
             <a-dropdown>
               <a-menu slot="overlay" @click="opt => handleSingleOpt(opt, record)">
-                <a-menu-item key="move"> Move Class </a-menu-item>
-                <a-menu-item key="resend" v-if="record.teacherStatus === SCHOOL_USER_STATUS.INACTIVE.value"> Resend </a-menu-item>
-                <a-menu-item key="reset" v-if="record.teacherStatus === SCHOOL_USER_STATUS.ACTIVE.value"> Reset password </a-menu-item>
-                <a-menu-item key="restore" v-if="record.teacherStatus === SCHOOL_USER_STATUS.ARCHIVE.value"> Restore </a-menu-item>
-                <a-menu-item key="archive" v-if="record.teacherStatus === SCHOOL_USER_STATUS.ACTIVE.value"> Archive </a-menu-item>
-                <a-menu-item key="delete" v-if="record.teacherStatus === SCHOOL_USER_STATUS.ARCHIVE.value"> Delete </a-menu-item>
+                <a-menu-item :key="'ACT_'+ACT.RESEND.value" v-if="record.status === SCHOOL_USER_STATUS.INACTIVE.value"> Resend </a-menu-item>
+                <a-menu-item :key="'ACT_'+ACT.RESET.value" v-if="record.status === SCHOOL_USER_STATUS.ACTIVE.value"> Reset password </a-menu-item>
+                <a-menu-item :key="'ACT_'+ACT.RESTORE.value" v-if="record.status === SCHOOL_USER_STATUS.ARCHIVE.value"> Restore </a-menu-item>
+                <a-menu-item :key="'ACT_'+ACT.ARCHIVE.value" v-if="record.status === SCHOOL_USER_STATUS.ACTIVE.value"> Archive </a-menu-item>
+                <a-menu-item :key="'ACT_'+ACT.DELETE.value" v-if="record.status === SCHOOL_USER_STATUS.ARCHIVE.value"> Delete </a-menu-item>
               </a-menu>
               <a style="margin-left: 8px"> More <a-icon type="down" /> </a>
             </a-dropdown>
@@ -109,6 +107,7 @@ import { JeecgListMixin } from '@/mixins/JeecgListMixin'
 import { TableWidthMixin } from '@/mixins/TableWidthMixin'
 
 import { listClass } from '@/api/v2/schoolClass'
+import { bulkActTeacher, removeTeachers, resetPassword } from '@/api/v2/schoolUser'
 
 import FixedFormHeader from '@/components/Common/FixedFormHeader'
 import FormHeader from '@/components/FormHeader/FormHeader'
@@ -133,6 +132,36 @@ export default {
       USER_MODE: USER_MODE,
       SCHOOL_USER_STATUS: SCHOOL_USER_STATUS,
       tabsList: Object.values(SCHOOL_USER_STATUS),
+      ACT: {
+        ARCHIVE: {
+          value: '4',
+          label: 'archive'
+        },
+        APPROVE: {
+          value: '1',
+          label: 'approve'
+        },
+        REJECT: {
+          value: '3',
+          label: 'reject'
+        },
+        RESTORE: {
+          value: '8',
+          label: 'restore'
+        },
+        RESEND: {
+          value: '9',
+          label: 'resend'
+        },
+        DELETE: {
+          value: '-1',
+          label: 'delete'
+        },
+        RESET: {
+          value: '-2',
+          label: 'reset'
+        }
+      },
       loading: false,
       queryParam: {
         searchKey: '',
@@ -217,13 +246,13 @@ export default {
         {
           title: 'Last Login',
           align: 'center',
-          dataIndex: 'updateTime',
+          dataIndex: 'lastLogin',
           width: 120
         },
         {
           title: 'Action',
           align: 'center',
-          width: 120,
+          width: 150,
           scopedSlots: { customRender: 'action' }
         }
       ]
@@ -261,7 +290,8 @@ export default {
     },
     toggleTab(status) {
       this.queryParam.schoolUserStatus = status
-      this.debounceLoad()
+      this.onClearSelected()
+      this.searchQuery()
     },
     getStatusFormat (status, key = 'label') {
       const find = this.tabsList.find(tab => tab.value === status)
@@ -269,15 +299,53 @@ export default {
     },
     handleBatchOpt(opt) {
       this.optType = 'multi'
-      if (opt.key === 'move') {
-        this.$refs.schoolStudentMove.doCreate()
-      }
+      this.handleOpt(opt)
     },
     handleSingleOpt(opt, item) {
       this.optType = 'single'
       this.currentSel = cloneDeep(item)
-      if (opt.key === 'move') {
-        this.$refs.schoolStudentMove.doCreate()
+      this.handleOpt(opt)
+    },
+    handleOpt(opt) {
+      let userIdList = []
+      if (this.optType === 'multi') {
+        userIdList = this.selectedRowKeys
+      } else {
+        userIdList = [this.currentSel.uid]
+      }
+      if (userIdList.length > 0) {
+        this.loading = true
+        let promise = null
+        const act = opt.key.split('_')[1]
+        const actObj = Object.values(this.ACT).find(item => item.value === act)
+        if (act === this.ACT.DELETE.value) {
+          promise = removeTeachers
+        } else if (act === this.ACT.RESET.value) {
+          promise = resetPassword
+        } else {
+          promise = bulkActTeacher
+        }
+        this.$confirm({
+          title: `Confirm ${actObj.label}`,
+          content: `Do you want to ${actObj.label} this teacher(s)?`,
+          centered: true,
+          onOk: () => {
+            promise({
+              act: act,
+              schoolId: this.currentSchool.id,
+              userIdList: userIdList,
+              userIds: userIdList // reset
+            }).then(res => {
+              if (res.code === 0) {
+                this.$message.success('Opt Successfully')
+                this.onClearSelected()
+                this.searchQuery()
+              }
+            }).finally(() => {
+              this.loading = false
+            })
+          }
+        })
       }
     },
     getFilterParams(filters) {
@@ -420,4 +488,9 @@ export default {
   }
 }
 
+/deep/ .ant-table-fixed-right{
+  table {
+    background: transparent;
+  }
+}
 </style>

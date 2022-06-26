@@ -410,17 +410,17 @@ export const SCHOOL_USER_STATUS = {
   },
   PENDING: {
     label: 'Pending',
-    value: 0,
+    value: 2,
     color: '#2db7f5'
   },
   INACTIVE: {
     label: 'Inactive',
-    value: 2,
+    value: 0,
     color: '#f50'
   },
   ARCHIVE: {
     label: 'Archive',
-    value: 3,
+    value: 4,
     color: ''
   }
 }
