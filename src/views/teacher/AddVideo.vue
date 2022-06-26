@@ -57,26 +57,34 @@
               </div>
 
               <div class='form-block tag-content-block' v-if='fieldName === VideoField.CoverVideo' :key='fieldName'>
-                <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.CoverVideo) !== -1 || emptyRequiredFields.indexOf(VideoField.CoverImage) !== -1'>
+                <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.CoverVideo) !== -1'>
                   <template slot='label'>
-                    Edit cover Video/Image
+                    Edit cover Video
                   </template>
                   <div class='edit-cover'>
-                    <a-space>
-                      <custom-cover-media
-                        :url='form.coverVideo'
-                        :field='VideoField.CoverVideo'
-                        videoControls
-                        @update='handleUpdateCover'
-                        @delete='form.coverVideo = null'
-                        :show-delete-button='form.coverVideo && true'/>
-                      <custom-image-uploader
-                        :field='VideoField.Image'
-                        :content-id='videoId'
-                        :content-type='typeMap.video'
-                        :img-url='form.image'
-                        @update='handleUpdateCover' />
-                    </a-space>
+                    <custom-cover-media
+                      :url='form.coverVideo'
+                      :field='VideoField.CoverVideo'
+                      videoControls
+                      @update='handleUpdateCover'
+                      @delete='form.coverVideo = null'
+                      :show-delete-button='form.coverVideo && true'/>
+                  </div>
+                </custom-form-item>
+              </div>
+
+              <div class='form-block tag-content-block' v-if='fieldName === VideoField.CoverVideo' key='image'>
+                <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.Image) !== -1'>
+                  <template slot='label'>
+                    Edit cover Image
+                  </template>
+                  <div class='edit-cover'>
+                    <custom-image-uploader
+                      :field='VideoField.Image'
+                      :content-id='videoId'
+                      :content-type='typeMap.video'
+                      :img-url='form.image'
+                      @update='handleUpdateCover' />
                   </div>
                 </custom-form-item>
               </div>
