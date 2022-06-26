@@ -17,6 +17,9 @@
         <a-radio-button :value="DriveType.UploadVideo" v-if='filterTabTypeList.indexOf(DriveType.UploadVideo) !== -1'>
           Upload Video
         </a-radio-button>
+        <a-radio-button :value="DriveType.UploadImage" v-if='filterTabTypeList.indexOf(DriveType.UploadImage) !== -1'>
+          Upload Image
+        </a-radio-button>
       </a-radio-group>
     </div>
     <div class='drive-content'>
@@ -35,6 +38,9 @@
       <div v-show='currentDriveType === DriveType.UploadVideo'>
         <drive-video-uploader  v-bind='$attrs' :field='field' />
       </div>
+      <div v-show='currentDriveType === DriveType.UploadImage'>
+        <drive-image-uploader  v-bind='$attrs' :field='field' />
+      </div>
     </div>
   </div>
 </template>
@@ -49,10 +55,11 @@ import GoogleDrive from '@/components/ClasscipeDrive/Content/GoogleDrive'
 import ClasscipeDriveEvent from '@/components/ClasscipeDrive/ClasscipeDriveEvent'
 import GooglePicker from '@/components/AddMaterial/Utils/GooglePicker'
 import DriveVideoUploader from '@/components/Common/DriveVideoUploader'
+import DriveImageUploader from '@/components/Common/DriveImageUploader'
 
 export default {
   name: 'ClasscipeDrive',
-  components: { DriveVideoUploader, GoogleDrive, GoogleImage, Youtube, Drive },
+  components: { DriveImageUploader, DriveVideoUploader, GoogleDrive, GoogleImage, Youtube, Drive },
   props: {
     contentId: {
       type: String,
@@ -78,9 +85,9 @@ export default {
       driveLoading: false,
       filterTabTypeList: this.filterType === 'image' ? [
         DriveType.ClasscipeDrive,
-        DriveType.Youtube,
         DriveType.GoogleImage,
-        DriveType.GoogleDrive
+        DriveType.GoogleDrive,
+        DriveType.UploadImage
       ] : [
         DriveType.ClasscipeDrive,
         DriveType.Youtube,

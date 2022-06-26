@@ -273,6 +273,7 @@
                     </template>
                     <custom-image-uploader
                       v-if='taskId'
+                      :field='splitTaskField.Image'
                       :content-id='taskId'
                       :content-type='contentType.task'
                       :img-url='form.image'

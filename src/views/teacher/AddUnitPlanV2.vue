@@ -475,6 +475,7 @@
                       </a-tooltip>
                     </template>
                     <custom-image-uploader
+                      :field='planField.Image'
                       :content-id='unitPlanId'
                       :content-type='contentType["unit-plan"]'
                       :img-url='form.image'

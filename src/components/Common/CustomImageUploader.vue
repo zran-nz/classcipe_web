@@ -8,7 +8,7 @@
       <div class='upload-mask'>
         <div class='edit-icon' @click='editVisible = true' v-show='imgUrl'>
           <a-icon type="edit" />
-          <div class='edit-text'>Edit or Upload from local</div>
+          <div class='edit-text'>Edit</div>
         </div>
         <div class='upload-btn'>
           <custom-button label='Select image' @click='visible = true' style='width: 140px;'>
@@ -38,8 +38,8 @@
       <classcipe-drive
         :content-id='contentId'
         :content-type='contentType'
-        :filter-type="'image'"
-        :filter-tab-type-list='[DriveType.ClasscipeDrive, DriveType.GoogleDrive, DriveType.GoogleImage, DriveType.Upload]'
+        :field='field'
+        filter-type='image'
       />
     </a-modal>
 
@@ -53,7 +53,7 @@
       :footer="null"
       @cancel="cancelHandel">
       <a-row>
-        <a-col :xs="24" :md="12" :style="{height: '350px'}">
+        <a-col :xs="12" :md="12" :style="{height: '350px'}">
           <vue-cropper
             v-if='options.img'
             ref="cropper"
@@ -67,7 +67,7 @@
           >
           </vue-cropper>
         </a-col>
-        <a-col :xs="24" :md="12" :style="{height: '350px'}">
+        <a-col :xs="12" :md="12" :style="{height: '350px'}">
           <div class="avatar-upload-preview">
             <img :src="previews.url" :style="previews.img" crossorigin='anonymous'/>
           </div>
@@ -109,7 +109,6 @@ import CommonNoData from '@/components/Common/CommonNoData'
 import ClasscipeDrive from '@/components/ClasscipeDrive/ClasscipeDrive'
 import DriveType from '@/components/ClasscipeDrive/Content/DriveType'
 import ClasscipeDriveEvent from '@/components/ClasscipeDrive/ClasscipeDriveEvent'
-import ScreenCaptureEvent from '@/components/ScreenCapture/ScreenCaptureEvent'
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import CustomLinkText from '@/components/Common/CustomLinkText'
 import { upAwsS3File } from '@/components/AddMaterial/Utils/AwsS3'
@@ -119,6 +118,10 @@ export default {
   components: { CustomLinkText, CustomTextButton, ClasscipeDrive, CommonNoData, CustomButton },
   props: {
     imgUrl: {
+      type: String,
+      default: null
+    },
+    field: {
       type: String,
       default: null
     },
@@ -157,66 +160,75 @@ export default {
   created() {
     this.options.img = this.imgUrl
     this.$EventBus.$on(ClasscipeDriveEvent.INSERT_DRIVE_ITEM, this.handleSelectDrive)
+    this.$EventBus.$on(ClasscipeDriveEvent.INSERT_UPLOADED_IMAGE, this.handleSelectUpload)
     this.$EventBus.$on(ClasscipeDriveEvent.INSERT_GOOGLE_IMAGE, this.handleSelectGoogleImage)
     this.$EventBus.$on(ClasscipeDriveEvent.INSERT_GOOGLE_DRIVE, this.handleSelectGoogleDrive)
     this.$EventBus.$on(ClasscipeDriveEvent.DELETE_VIDEO, this.handleDeleteVideo)
-    this.$EventBus.$on(ScreenCaptureEvent.SCREEN_CAPTURE_VIDEO_ADD, this.handleAddScreenCapture)
   },
   beforeDestroy() {
     this.$EventBus.$off(ClasscipeDriveEvent.INSERT_DRIVE_ITEM, this.handleSelectDrive)
+    this.$EventBus.$off(ClasscipeDriveEvent.INSERT_UPLOADED_IMAGE, this.handleSelectUpload)
     this.$EventBus.$off(ClasscipeDriveEvent.INSERT_GOOGLE_IMAGE, this.handleSelectGoogleImage)
     this.$EventBus.$off(ClasscipeDriveEvent.INSERT_GOOGLE_DRIVE, this.handleSelectGoogleDrive)
     this.$EventBus.$off(ClasscipeDriveEvent.DELETE_VIDEO, this.handleDeleteVideo)
-    this.$EventBus.$off(ScreenCaptureEvent.SCREEN_CAPTURE_VIDEO_ADD, this.handleAddScreenCapture)
   },
   methods: {
     handleSetSelect(imgUrl) {
       this.options.img = imgUrl
       this.previews.url = imgUrl
     },
-    handleSelectDrive (driveItemList) {
-      this.$logger.info('case image handleSelectDriveItem', driveItemList)
-      if (driveItemList.length) {
-        this.$emit('update', {
-          type: 'image',
-          url: driveItemList[0].filePath
-        })
-        this.handleSetSelect(driveItemList[0].filePath)
+    handleSelectDrive (eventData) {
+      this.$logger.info('case image handleSelectDriveItem', eventData)
+      if (eventData?.field === this.field) {
+        if (eventData.data.length) {
+          this.$emit('update', {
+            type: 'image',
+            url: eventData.data[0].filePath
+          })
+          this.handleSetSelect(eventData.data[0].filePath)
+        }
+        this.visible = false
       }
-      this.visible = false
-    },
-    handleSelectGoogleImage (googleImageUrl) {
-      this.$logger.info('handleSelectGoogleImage', googleImageUrl)
-      if (googleImageUrl.length) {
-        this.$emit('update', {
-          type: 'image',
-          url: googleImageUrl
-        })
-        this.handleSetSelect(googleImageUrl)
-      }
-      this.visible = false
-    },
-    handleSelectGoogleDrive (googleDriveItem) {
-      this.$logger.info('handleSelectGoogleDrive', googleDriveItem)
-      if (googleDriveItem?.url) {
-        this.$emit('update', {
-          type: 'image',
-          url: googleDriveItem?.url
-        })
-        this.handleSetSelect(googleDriveItem?.url)
-      }
-      this.visible = false
     },
 
-    handleAddScreenCapture (url) {
-      this.$logger.info('handleAddScreenCapture', url)
-      this.$emit('add-video', [{
-        filePath: url
-      }])
+    handleSelectUpload (eventData) {
+      this.$logger.info('case image handleSelectUpload', eventData)
+      if (eventData?.field === this.field) {
+        if (eventData.data.length) {
+          this.$emit('update', {
+            type: 'image',
+            url: eventData.data
+          })
+          this.handleSetSelect(eventData.data)
+        }
+        this.visible = false
+      }
     },
-
-    handleDeleteVideo (item) {
-      this.$emit('delete-video', item)
+    handleSelectGoogleImage (eventData) {
+      this.$logger.info('handleSelectGoogleImage', eventData)
+      if (eventData?.field === this.field) {
+        if (eventData.data.length) {
+          this.$emit('update', {
+            type: 'image',
+            url: eventData.data
+          })
+          this.handleSetSelect(eventData.data)
+        }
+        this.visible = false
+      }
+    },
+    handleSelectGoogleDrive (eventData) {
+      this.$logger.info('handleSelectGoogleDrive', eventData)
+      if (eventData?.field === this.field) {
+        if (eventData.data) {
+          this.$emit('update', {
+            type: 'image',
+            url: eventData.data
+          })
+          this.handleSetSelect(eventData.data)
+        }
+        this.visible = false
+      }
     },
 
     edit (id) {
@@ -324,7 +336,7 @@ export default {
     min-height: 216px;
     width: 352px;
     img {
-      min-width: 200px;
+      min-width: 216px;
       max-width: 100%;
       outline: 1px solid #f1f1f1;
     }

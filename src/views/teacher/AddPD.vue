@@ -52,6 +52,7 @@
                     Cover image
                   </template>
                   <custom-image-uploader
+                    :field='PdField.Image'
                     :content-id='pdId'
                     :content-type='typeMap.pd'
                     :img-url='form.image'

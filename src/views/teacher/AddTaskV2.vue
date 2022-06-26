@@ -310,6 +310,7 @@
                       </a-tooltip>
                     </template>
                     <custom-image-uploader
+                      :field='taskField.Image'
                       :content-id='taskId'
                       :content-type='contentType.task'
                       :img-url='form.image'
