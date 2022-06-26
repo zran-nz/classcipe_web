@@ -48,7 +48,11 @@
                   <template slot='label'>
                     Select video
                   </template>
-                  <video-select @update-video='handleUpdateVideo' :default-video='form.video' :default-type='form.videoType' />
+                  <video-select
+                    :field='VideoField.Video'
+                    @update-video='handleUpdateVideo'
+                    :default-video='form.video'
+                    :default-type='form.videoType' />
                 </custom-form-item>
               </div>
 
@@ -61,21 +65,17 @@
                     <a-space>
                       <custom-cover-media
                         :url='form.coverVideo'
-                        :video-item='form.coverVideo'
-                        :type="'video'"
+                        :field='VideoField.CoverVideo'
                         videoControls
-                        :label-text="'Cover video'"
                         @update='handleUpdateCover'
                         @delete='form.coverVideo = null'
                         :show-delete-button='form.coverVideo && true'/>
-                      <custom-cover-media
-                        :url='form.image'
-                        :video-item='form.image'
-                        :type="'image'"
-                        :label-text="'Cover image'"
-                        @update='handleUpdateCover'
-                        @delete='form.image = null'
-                        :show-delete-button='form.image && true'/>
+                      <custom-image-uploader
+                        :field='VideoField.Image'
+                        :content-id='videoId'
+                        :content-type='typeMap.video'
+                        :img-url='form.image'
+                        @update='handleUpdateCover' />
                     </a-space>
                   </div>
                 </custom-form-item>
@@ -193,10 +193,12 @@ import LinkContentList from '@/components/UnitPlan/LinkContentList'
 import LearningObjective from '@/components/LearningObjective/LearningObjective'
 import CustomTagV3 from '@/components/CustomTag/CustomTagV3'
 import { UpdateContentStatus } from '@/api/teacher'
+import CustomImageUploader from '@/components/Common/CustomImageUploader'
 
 export default {
   name: 'AddPD',
   components: {
+    CustomImageUploader,
     CustomTagV3,
     LearningObjective,
     LinkContentList,
@@ -221,6 +223,7 @@ export default {
   data() {
     return {
       contentLoading: true,
+      typeMap: typeMap,
       form: {
         name: null,
         video: null,

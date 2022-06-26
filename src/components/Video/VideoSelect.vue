@@ -2,8 +2,8 @@
   <div class='video-select'>
     <div class='video-select-action'>
       <a-space>
-        <classcipe-drive-button filter-file-type='video' ref='drive' />
-        <screen-capture />
+        <classcipe-drive-button :field='field' filter-file-type='video' ref='drive' />
+        <screen-capture :field='field' />
       </a-space>
     </div>
     <div class='video-select-wrapper'>
@@ -40,6 +40,10 @@ export default {
     defaultType: {
       type: String,
       default: null
+    },
+    field: {
+      type: String,
+      default: null
     }
   },
   data() {
@@ -61,6 +65,7 @@ export default {
     }
   },
   created() {
+    this.$EventBus.$on(ClasscipeDriveEvent.INSERT_UPLOADED_VIDEO, this.handleSelectUploadItem)
     this.$EventBus.$on(ClasscipeDriveEvent.INSERT_DRIVE_ITEM, this.handleSelectDriveItem)
     this.$EventBus.$on(ClasscipeDriveEvent.INSERT_YOUTUBE_ITEM, this.handleSelectYoutube)
     this.$EventBus.$on(ClasscipeDriveEvent.INSERT_GOOGLE_DRIVE, this.handleSelectGoogleDrive)
@@ -72,45 +77,75 @@ export default {
     }
   },
   beforeDestroy() {
+    this.$EventBus.$off(ClasscipeDriveEvent.INSERT_UPLOADED_VIDEO, this.handleSelectUploadItem)
     this.$EventBus.$off(ClasscipeDriveEvent.INSERT_DRIVE_ITEM, this.handleSelectDriveItem)
     this.$EventBus.$off(ClasscipeDriveEvent.INSERT_YOUTUBE_ITEM, this.handleSelectYoutube)
     this.$EventBus.$off(ClasscipeDriveEvent.INSERT_GOOGLE_DRIVE, this.handleSelectGoogleDrive)
     this.$EventBus.$off(ScreenCaptureEvent.SCREEN_CAPTURE_VIDEO_ADD, this.handleAddScreenCapture)
   },
   methods: {
-    handleSelectDriveItem (driveItem) {
-      this.$logger.info('handleSelectDriveItem', driveItem[[0]])
-      this.currentMediaFileUrl = driveItem[0].filePath
-      this.currentDriveType = DriveType.ClasscipeDrive
-      this.afterSelectInsert()
+    updateRecording(status) {
+      this.recording = status
     },
-    handleSelectYoutube (youtubeItem) {
-      this.$logger.info('handleSelectYoutube', youtubeItem)
-      this.currentMediaFileUrl = youtubeItem.link
-      this.currentDriveType = DriveType.Youtube
-      this.afterSelectInsert()
-    },
-    handleSelectGoogleDrive (googleDriveItem) {
-      this.$logger.info('handleSelectGoogleDrive', googleDriveItem)
-      this.currentMediaFileUrl = googleDriveItem.url
-      this.currentDriveType = DriveType.GoogleDrive
-      this.afterSelectInsert()
+    handleDelete () {
+      this.$logger.info('CustomCoverMedia handleDelete', this.url)
+      this.$emit('delete')
     },
 
-    handleAddScreenCapture (url) {
-      this.$logger.info('handleAddScreenCapture', url)
-      this.currentMediaFileUrl = url
-      this.currentDriveType = DriveType.Upload
-      this.afterSelectInsert()
+    handleSelectUploadItem (eventData) {
+      this.$logger.info('CustomCoverMedia handleSelectUploadItem', eventData)
+      if (eventData && eventData.field === this.field) {
+        this.currentMediaFileUrl = eventData.data
+        this.currentDriveType = DriveType.Upload
+        this.afterSelectInsert()
+      }
+    },
+
+    handleSelectDriveItem (eventData) {
+      this.$logger.info('CustomCoverMedia handleSelectDriveItem', eventData)
+      if (eventData && eventData.field === this.field) {
+        this.currentMediaFileUrl = eventData.data[0].filePath
+        this.currentDriveType = DriveType.ClasscipeDrive
+        this.afterSelectInsert()
+      }
+    },
+    handleSelectYoutube (eventData) {
+      this.$logger.info('CustomCoverMedia handleSelectYoutube', eventData)
+      if (eventData && eventData.field === this.field) {
+        this.currentMediaFileUrl = eventData.data.link
+        this.currentDriveType = DriveType.Youtube
+        this.afterSelectInsert()
+      }
+    },
+    handleSelectGoogleDrive (eventData) {
+      this.$logger.info('CustomCoverMedia handleSelectGoogleDrive', eventData)
+      if (eventData && eventData.field === this.field) {
+        this.currentMediaFileUrl = eventData.data
+        this.currentDriveType = DriveType.GoogleDrive
+        this.afterSelectInsert()
+      }
+    },
+
+    handleAddScreenCapture (eventData) {
+      this.$logger.info('CustomCoverMedia handleAddScreenCapture', eventData)
+      if (eventData && eventData.field === this.field) {
+        this.currentMediaFileUrl = eventData.data
+        this.currentDriveType = DriveType.Upload
+        this.afterSelectInsert()
+      }
     },
 
     afterSelectInsert() {
-      this.$logger.info('handleAddScreenCapture done', this.currentMediaFileUrl, this.currentDriveType)
+      this.$logger.info('CustomCoverMedia handleAddVideo done', this.currentMediaFileUrl, this.currentDriveType)
       this.$refs.drive.hiddenClasscipeDrive()
-      this.$emit('update-video', {
+      this.$emit('update', {
         url: this.currentMediaFileUrl,
-        type: this.currentDriveType
+        type: 'video'
       })
+    },
+
+    viewItem () {
+      window.open(this.url, '_blank')
     }
   }
 }
