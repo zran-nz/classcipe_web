@@ -6,10 +6,10 @@
         <common-no-data text='Select image'></common-no-data>
       </div>
       <div class='upload-mask'>
-        <div class='edit-icon' @click='editVisible = true' v-show='imgUrl'>
-          <a-icon type="edit" />
-          <div class='edit-text'>Edit</div>
-        </div>
+<!--        <div class='edit-icon' @click='editVisible = true' v-show='imgUrl'>-->
+<!--          <a-icon type="edit" />-->
+<!--          <div class='edit-text'>Edit</div>-->
+<!--        </div>-->
         <div class='upload-btn'>
           <custom-button label='Select image' @click='visible = true' style='width: 140px;'>
             <template v-slot:icon>

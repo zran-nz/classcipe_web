@@ -24,6 +24,25 @@
         </template>
       </custom-button>
     </div>
+
+    <a-modal
+      v-model="previewVisible"
+      :body-style="{ padding: '0', 'background': 'transparent' }"
+      class='video-preview-modal'
+      :footer="null"
+      destroyOnClose
+      width="700px"
+      @ok="previewVisible = false"
+      @cancel="previewVisible = false">
+      <div class='video-preview-wrapper'>
+        <template v-if='isYoutubeIframeUrl'>
+          <iframe :src='url' />
+        </template>
+        <template v-else>
+          <video :src='url' v-if='url' :controls='videoControls'></video>
+        </template>
+      </div>
+    </a-modal>
   </div>
 </template>
 
@@ -75,7 +94,8 @@ export default {
   },
   data() {
     return {
-      recording: false
+      recording: false,
+      previewVisible: false
     }
   },
   created() {
@@ -155,7 +175,7 @@ export default {
     },
 
     viewItem () {
-      window.open(this.url, '_blank')
+      this.previewVisible = true
     }
   }
 }
@@ -239,4 +259,17 @@ export default {
   opacity: 1 !important;
 }
 
+.video-preview-modal {
+
+}
+
+.video-preview-wrapper {
+  width: 100%;
+  height: 400px;
+  iframe, video {
+    border: none;
+    height: 100%;
+    width: 100%;
+  }
+}
 </style>
