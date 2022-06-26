@@ -309,7 +309,11 @@
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
-                    <custom-image-uploader :img-url='form.image' @update='handleUpdateCover' />
+                    <custom-image-uploader
+                      :content-id='taskId'
+                      :content-type='contentType.task'
+                      :img-url='form.image'
+                      @update='handleUpdateCover' />
                   </custom-form-item>
                 </div>
 

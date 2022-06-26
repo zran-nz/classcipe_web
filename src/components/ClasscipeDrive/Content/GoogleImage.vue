@@ -53,6 +53,7 @@
 
 <script>
 import ClasscipeDriveEvent from '@/components/ClasscipeDrive/ClasscipeDriveEvent'
+import { uploadImageToAwsByUrl } from '@/components/AddMaterial/Utils/Common'
 
 var test11
 var divE
@@ -175,10 +176,23 @@ export default {
       test11.execute(this.lastSearchKey)
     },
     select(url) {
+      this.$logger.info('select google image', url)
       this.image_type_value = ''
       this.currentColorIndex = -1
       this.currentColor = '#00FFFFFF'
-      this.$EventBus.$emit(ClasscipeDriveEvent.INSERT_GOOGLE_IMAGE, url)
+      this.loading = true
+      uploadImageToAwsByUrl(this.$store.getters.userInfo.id, url)
+        .then(url => {
+          this.$logger.info('uploadImageToAwsByUrl', url)
+          this.$EventBus.$emit(ClasscipeDriveEvent.INSERT_GOOGLE_IMAGE, this.$classcipe.replaceToClasscipeCDN(url))
+        })
+        .catch(e => {
+          console.log(e)
+          this.$logger.warn('uploadImageToAwsByUrl', e)
+          this.$message.error('The image you selected is not available')
+        }).finally(() => {
+          this.loading = false
+      })
     },
 
     initCallback() {

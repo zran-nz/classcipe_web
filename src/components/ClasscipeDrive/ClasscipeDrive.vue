@@ -55,6 +55,10 @@ export default {
       type: Number,
       default: null
     },
+    filterType: {
+      type: String,
+      default: 'image'
+    },
     filterTabTypeList: {
       type: Array,
       default: () => [
@@ -86,15 +90,17 @@ export default {
             this.driveLoading = true
           },
           (type, url, mediaType) => {
+            console.log('url', url)
             if (url) {
-              this.$logger.info('GooglePicker addDrive done', url, mediaType)
+              this.$logger.info('GooglePicker addDrive done', url, mediaType, ClasscipeDriveEvent)
               this.$EventBus.$emit(ClasscipeDriveEvent.INSERT_GOOGLE_DRIVE, {
                 url, mediaType
               })
             }
             this.driveLoading = false
           },
-          this.$store.getters.userInfo.id
+          this.$store.getters.userInfo.id,
+          this.filterType
         )
       }
     }

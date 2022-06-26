@@ -474,7 +474,11 @@
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
-                    <custom-image-uploader :img-url='form.image' @update='handleUpdateCover' />
+                    <custom-image-uploader
+                      :content-id='unitPlanId'
+                      :content-type='contentType["unit-plan"]'
+                      :img-url='form.image'
+                      @update='handleUpdateCover' />
                   </custom-form-item>
                 </div>
 

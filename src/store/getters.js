@@ -66,7 +66,8 @@ const getters = {
   isIBTeacher: state => state.user.currentRole === 'teacher' && (state.user.bindCurriculum === AllCurriculums.IBMYP || state.user.bindCurriculum === AllCurriculums.IBPYP),
 
   allSubjects: state => state.user.allSubjects,
-  userSubjects: state => state.user.allSubjects.filter(item => state.user.info.preference.subjectIds.includes(item.id)),
+  allYears: state => state.user.allYears,
+  userSubjects: state => state.user.allSubjects,
 
   curriculumList: state => state.classcipeConfig.curriculumList,
   curriculumId2NameMap: state => state.classcipeConfig.curriculumId2NameMap,

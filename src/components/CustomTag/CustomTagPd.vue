@@ -289,7 +289,9 @@ export default {
     },
 
     handleClick () {
-      this.currentActiveTagCategory.children.forEach(item => { item.expand = false })
+      if (this.currentActiveTagCategory) {
+        this.currentActiveTagCategory.children.forEach(item => { item.expand = false })
+      }
     },
 
     activeCategory (tagItem) {
