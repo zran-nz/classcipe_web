@@ -10,7 +10,7 @@
       <div class='detail-content'>
         <div class='base-info'>
           <div class='name'>
-            <div class='content-type-name' v-if='contentTypeName'>
+            <div class='content-type-name' v-if='contentTypeName && showTypeName'>
               {{ contentTypeName }}
             </div>
             <div class='content-name'>
@@ -96,6 +96,7 @@
                   <custom-button label='Takeaways' @click='handleTakeaway'></custom-button>
                   <custom-button label='Ask someone to teach' @click='handleCoteacher'></custom-button>
                   <custom-button label='Previous sessions' @click='handlePreviewSession'></custom-button>
+                  <custom-button label='Delete' @click='handleDeleteSession'></custom-button>
                 </div>
               </div>
             </a-dropdown>
@@ -153,6 +154,7 @@ import ContentPreview from '@/components/Preview/ContentPreview'
 import ZoomIcon from '@/assets/icons/zoom/zoomus-icon.svg?inline'
 import moment from 'moment'
 import { AddOrUpdateClass } from '@/api/classroom'
+import { DeleteClassV2 } from '@/api/v2/classes'
 
 export default {
   name: 'ContentItem',
@@ -190,6 +192,10 @@ export default {
     activeItem: {
       type: Boolean,
       default: false
+    },
+    showTypeName: {
+      type: Boolean,
+      default: true
     }
   },
   mixins: [ ContentItemMixin ],
@@ -255,6 +261,22 @@ export default {
 
     handlePreviewSession() {
       this.$logger.info('handlePreviewSession', this.content)
+    },
+
+    handleDeleteSession() {
+      this.$logger.info('handleDeleteSession', this.content)
+      if (this.content?.sessionId) {
+        DeleteClassV2({
+          sessionId: this.content.sessionId
+        }).then(res => {
+          if (res.code === 0) {
+            this.$message.success('Remove successfully')
+            this.$emit('reFetch')
+          }
+        }).finally(() => {
+          this.loading = false
+        })
+      }
     },
 
     handleCoteacher() {
