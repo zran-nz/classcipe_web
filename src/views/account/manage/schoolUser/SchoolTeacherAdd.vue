@@ -8,9 +8,9 @@
       </div>
       <div class="info-self-detail">
         <div class="self-detail-name">
-          {{ formModel.email }}
+          {{ formModel.inviteEmail }}
         </div>
-        <div class="self-detail-email">{{ formModel.email }}</div>
+        <div class="self-detail-email">{{ formModel.inviteEmail }}</div>
       </div>
     </div>
 
@@ -46,8 +46,8 @@
           </a-col>
         </a-row>
       </a-form-model-item>
-      <a-form-model-item label="Email" prop="email">
-        <a-input v-model="formModel.email" placeholder="Email" />
+      <a-form-model-item label="Email" prop="inviteEmail">
+        <a-input v-model="formModel.inviteEmail" placeholder="Email" />
       </a-form-model-item>
       <a-form-model-item label="Birth">
         <a-date-picker v-model="formModel.birthDay" />
@@ -66,6 +66,15 @@
                   {{ item.name }}
                 </a-select-option >
               </a-select>
+              <!-- <a-select
+                optionFilterProp="children"
+                :getPopupContainer="trigger => trigger.parentElement"
+                v-model='formModel.classes'
+                placeholder='Please select class'>
+                <a-select-option v-for='item in classList' :key='item.id'>
+                  {{ item.name }}
+                </a-select-option >
+              </a-select> -->
             </a-form-model-item>
           </a-col>
           <a-col :span="6">
@@ -80,7 +89,7 @@
           :getPopupContainer="trigger => trigger.parentElement"
           v-model='formModel.roleArr'
           placeholder='Please select role'>
-          <a-select-option v-for='item in roleList' :key='item.id'>
+          <a-select-option v-for='item in roleList' :key='item.roleCode'>
             {{ item.name }}
           </a-select-option >
         </a-select>
@@ -105,7 +114,7 @@
 
 <script>
 import { listClass } from '@/api/v2/schoolClass'
-import { addTeacher } from '@/api/v2/schoolUser'
+import { addTeacher, checkEmailTeacher } from '@/api/v2/schoolUser'
 import { listRole } from '@/api/v2/schoolRole'
 
 import ResetPassword from '../persona/ResetPassword'
@@ -158,7 +167,7 @@ export default {
         birthDay: '',
         classes: '',
         classArr: [],
-        email: '',
+        inviteEmail: '',
         roles: '',
         roleArr: [],
         schoolId: this.school?.id || '',
@@ -177,9 +186,10 @@ export default {
       return {
         firstName: [{ required: true, message: 'Please Input First Name!' }],
         lastName: [{ required: true, message: 'Please Input Last Name!' }],
-        email: [
+        inviteEmail: [
           { required: true, message: 'Please Input Email!', trigger: 'change' },
-          { type: 'email', message: 'Please Input Valid Email!' }
+          { type: 'email', message: 'Please Input Valid Email!' },
+          { validator: this.validateRemoteEmail, trigger: 'blur' }
         ],
         classArr: [{ required: true, message: 'Please Select a class!', trigger: 'change' }],
         roleArr: [{ required: true, message: 'Please Select a role!', trigger: 'change' }]
@@ -191,6 +201,7 @@ export default {
        Promise.all([
           listClass({
             schoolId: this.currentSchool.id,
+            queryType: 0,
             pageNo: 1,
             pageSize: 10000
           }),
@@ -208,6 +219,25 @@ export default {
     },
     initForm() {
 
+    },
+    validateRemoteEmail(rule, value, callback) {
+      if (!value) {
+        return callback()
+      } else {
+        // 调用封装了的异步效验方法，
+        checkEmailTeacher({
+          emails: value,
+          schoolId: this.currentSchool.id
+        }).then(response => {
+          if (response.code === 0 && response.result && response.result[0].exists) {
+            callback(new Error('Teacher already exists'))
+          } else {
+            callback()
+          }
+        }).catch(res => {
+          callback(new Error(res.message))
+        })
+      }
     },
     setAvatar (url) {
       this.formModel.avatar = url

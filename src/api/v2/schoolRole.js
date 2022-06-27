@@ -21,10 +21,23 @@ export const schoolRoleApi = {
  * @constructor
  */
 export function listRole (parameter) {
-  return request({
-    url: schoolRoleApi.listRole,
-    method: 'get',
-    params: parameter
+  // return request({
+  //   url: schoolRoleApi.listRole,
+  //   method: 'get',
+  //   params: parameter
+  // })
+  // { "admin": "Admin", "leader": "Subject leader", "head": "Head teacher", "teacher": "Teacher" }
+  return new Promise((resolve) => {
+    resolve({
+      code: 0,
+      success: true,
+      result: [
+        { 'roleCode': 'admin', 'name': 'Admin' },
+        { 'roleCode': 'head', 'name': 'Head teacher' },
+        { 'roleCode': 'leader', 'name': 'Subject leader' },
+        { 'roleCode': 'teacher', 'name': 'Teacher' }
+      ]
+    })
   })
 }
 
@@ -34,10 +47,25 @@ export function listRole (parameter) {
  * @constructor
  */
  export function pageListRole (parameter) {
-  return request({
-    url: schoolRoleApi.pageListRole,
-    method: 'get',
-    params: parameter
+  // return request({
+  //   url: schoolRoleApi.pageListRole,
+  //   method: 'get',
+  //   params: parameter
+  // })
+  return new Promise((resolve) => {
+    resolve({
+      code: 0,
+      success: true,
+      result: {
+        total: 4,
+        records: [
+          { 'roleCode': 'admin', 'name': 'Admin' },
+          { 'roleCode': 'head', 'name': 'Head teacher' },
+          { 'roleCode': 'leader', 'name': 'Subject leader' },
+          { 'roleCode': 'teacher', 'name': 'Teacher' }
+        ]
+      }
+    })
   })
 }
 

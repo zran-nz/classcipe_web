@@ -10,7 +10,7 @@
         <div class="self-detail-name">
           ID: {{ studentId }}
         </div>
-        <div class="self-detail-email">{{ formModel.email }}</div>
+        <div class="self-detail-email">{{ formModel.inviteEmail }}</div>
       </div>
     </div>
     <a-form-model
@@ -45,8 +45,8 @@
           </a-col>
         </a-row>
       </a-form-model-item>
-      <a-form-model-item label="Email" prop="email">
-        <a-input v-model="formModel.email" placeholder="Email" />
+      <a-form-model-item label="Email" prop="inviteEmail">
+        <a-input v-model="formModel.inviteEmail" placeholder="Email" />
       </a-form-model-item>
       <a-form-model-item label="Birth">
         <a-date-picker v-model="formModel.birthDay" />
@@ -54,7 +54,7 @@
       <a-form-model-item class="mb0" label="Class" :required="true">
         <a-row :gutter=16>
           <a-col :span="18">
-            <a-form-model-item prop="classArr">
+            <a-form-model-item prop="classes">
               <!-- <a-select
                 mode="multiple"
                 optionFilterProp="children"
@@ -136,7 +136,7 @@
 
 <script>
 import { listClass } from '@/api/v2/schoolClass'
-import { addStudents } from '@/api/v2/schoolUser'
+import { addStudents, getStudentInfo, updateStudent, checkEmailStudent, checkEmailParent } from '@/api/v2/schoolUser'
 
 import ResetPassword from '../persona/ResetPassword'
 import AvatarModal from '@/views/account/settings/AvatarModal'
@@ -187,7 +187,7 @@ export default {
         birthDay: '',
         classes: '',
         classArr: [],
-        email: '',
+        inviteEmail: '',
         parentEmail: '',
         parentEmailStatus: 0,
         parentFirstName: '',
@@ -209,15 +209,17 @@ export default {
       return {
         firstName: [{ required: true, message: 'Please Input First Name!' }],
         lastName: [{ required: true, message: 'Please Input Last Name!' }],
-        email: [
+        inviteEmail: [
           { required: true, message: 'Please Input Email!', trigger: 'change' },
-          { type: 'email', message: 'Please Input Valid Email!' }
+          { type: 'email', message: 'Please Input Valid Email!' },
+          { validator: this.validateRemoteEmail, trigger: 'blur' }
         ],
         parentFirstName: [{ required: true, message: 'Please Input First Name!' }],
         parentLastName: [{ required: true, message: 'Please Input Last Name!' }],
         parentEmail: [
           { required: true, message: 'Please Input Email!', trigger: 'change' },
-          { type: 'email', message: 'Please Input Valid Email!' }
+          { type: 'email', message: 'Please Input Valid Email!' },
+          { validator: this.validateRemoteParentEmail, trigger: 'blur' }
         ],
         classArr: [{ required: true, message: 'Please Select a class!', trigger: 'change' }],
         parentPhone: [
@@ -244,16 +246,71 @@ export default {
     },
     // modal模式传值
     initForm(defaultForm) {
-      this.formModel = {
-        ...this.formModel,
-        ...defaultForm
-      }
-      if (this.formModel.classes) {
-        this.formModel.classArr = this.formModel.classes.split(',')
+      if (this.id) {
+        this.loading = true
+        getStudentInfo({
+          schoolId: this.currentSchool.id,
+          email: this.id
+        }).then(res => {
+          if (res.code === 0) {
+            this.formModel = res.result
+            if (this.formModel.classes) {
+              this.formModel.classArr = this.formModel.classes.split(',')
+            }
+          }
+        }).finally(() => {
+          this.loading = false
+        })
+      } else {
+        this.formModel = {
+          ...this.formModel,
+          ...defaultForm
+        }
+        if (this.formModel.classes) {
+          this.formModel.classArr = this.formModel.classes.split(',')
+        }
       }
     },
     setAvatar (url) {
       this.formModel.avatar = url
+    },
+    validateRemoteEmail(rule, value, callback) {
+      if (!value) {
+        return callback()
+      } else {
+        // 调用封装了的异步效验方法，
+        checkEmailStudent({
+          emails: value,
+          schoolId: this.currentSchool.id
+        }).then(response => {
+          if (response.code === 0 && response.result && response.result[0].exists) {
+            callback(new Error('Student already exists'))
+          } else {
+            callback()
+          }
+        }).catch(res => {
+          callback(new Error(res.message))
+        })
+      }
+    },
+    validateRemoteParentEmail(rule, value, callback) {
+      if (!value) {
+        return callback()
+      } else {
+        // 调用封装了的异步效验方法，
+        checkEmailParent({
+          emails: value,
+          schoolId: this.currentSchool.id
+        }).then(response => {
+          if (response.code === 0 && response.result && response.result[0].exists) {
+            callback(new Error('Email already exists'))
+          } else {
+            callback()
+          }
+        }).catch(res => {
+          callback(new Error(res.message))
+        })
+      }
     },
     handelGoClass() {
       this.$router.push('/manage/class')
@@ -271,8 +328,14 @@ export default {
           if (params.birthDay) {
             params.birthDay = moment.utc(params.birthDay).format('YYYY-MM-DD HH:mm:ss')
           }
+          let promise = null
+          if (this.id) {
+            promise = updateStudent
+          } else {
+            promise = addStudents
+          }
           this.loading = true
-          addStudents(params).then(res => {
+          promise(params).then(res => {
             if (res.code === 0) {
               // TODO 需要获取学生id
               this.$message.success('Save successfully')

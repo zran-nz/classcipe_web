@@ -5,6 +5,7 @@
     :multiple="false"
     :headers="tokenHeader"
     :action="importExcelUrl"
+    :before-upload="beforeUpload"
     @change="handleMyImportExcel">
     <a-button :loading="importLoading" type="black" icon="import">{{ importLoadingText }}</a-button>
   </a-upload>
@@ -13,6 +14,7 @@
 <script>
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 import storage from 'store'
+import * as XLSX from 'xlsx'
 export default {
   name: 'SchoolUserImport',
   props: {
@@ -24,7 +26,8 @@ export default {
   data() {
     return {
       importLoading: false,
-      importLoadingText: 'Bulk import'
+      importLoadingText: 'Bulk import',
+      file: null
     }
   },
   computed: {
@@ -46,7 +49,11 @@ export default {
         this.importLoading = false
         this.importLoadingText = 'Bulk import'
       }
-      this.handleImportExcel(info)
+      // this.handleImportExcel(info)
+      this.parseExcel(info.file)
+    },
+    beforeUpload(file) {
+      return false
     },
     handleImportExcel (info) {
       console.log(info.file.status)
@@ -95,6 +102,30 @@ export default {
         } else {
           this.$message.error(`文件上传失败: ${info.file.msg} `)
         }
+      }
+    },
+    parseExcel(file) {
+      const reader = new FileReader()
+      const rABS = typeof FileReader !== 'undefined' && (FileReader.prototype || {}).readAsBinaryString
+      if (rABS) {
+        reader.readAsBinaryString(file)
+      } else {
+        reader.readAsArrayBuffer(file)
+      }
+      reader.onload = e => {
+        let data = e.target.result
+        if (!rABS) {
+          data = new Uint8Array(data)
+        }
+        const workBook = XLSX.read(data, { type: rABS ? 'binary' : 'array' })
+        workBook.SheetNames.forEach(name => {
+          const sheet = workBook.Sheets[name]
+          const json = XLSX.utils.sheet_to_json(sheet, {
+            raw: false,
+            header: 1
+          })
+          console.log(json)
+        })
       }
     }
   }
