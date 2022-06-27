@@ -36,6 +36,7 @@
             <a-menu slot="overlay" @click="handleBatchOpt">
               <a-menu-item :key="'ACT_'+ACT.RESEND.value" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.INACTIVE.value"> Resend </a-menu-item>
               <a-menu-item :key="'ACT_'+ACT.RESET.value" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ACTIVE.value"> Reset password </a-menu-item>
+              <a-menu-item :key="'ACT_'+ACT.APPROVE.value" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.PENDING.value"> Approve </a-menu-item>
               <a-menu-item :key="'ACT_'+ACT.RESTORE.value" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ARCHIVE.value"> Restore </a-menu-item>
               <a-menu-item :key="'ACT_'+ACT.ARCHIVE.value" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ACTIVE.value"> Archive </a-menu-item>
               <a-menu-item :key="'ACT_'+ACT.DELETE.value" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ARCHIVE.value"> Delete </a-menu-item>
@@ -79,6 +80,7 @@
               <a-menu slot="overlay" @click="opt => handleSingleOpt(opt, record)">
                 <a-menu-item :key="'ACT_'+ACT.RESEND.value" v-if="record.status === SCHOOL_USER_STATUS.INACTIVE.value"> Resend </a-menu-item>
                 <a-menu-item :key="'ACT_'+ACT.RESET.value" v-if="record.status === SCHOOL_USER_STATUS.ACTIVE.value"> Reset password </a-menu-item>
+                <a-menu-item :key="'ACT_'+ACT.APPROVE.value" v-if="record.status === SCHOOL_USER_STATUS.PENDING.value"> Approve </a-menu-item>
                 <a-menu-item :key="'ACT_'+ACT.RESTORE.value" v-if="record.status === SCHOOL_USER_STATUS.ARCHIVE.value"> Restore </a-menu-item>
                 <a-menu-item :key="'ACT_'+ACT.ARCHIVE.value" v-if="record.status === SCHOOL_USER_STATUS.ACTIVE.value"> Archive </a-menu-item>
                 <a-menu-item :key="'ACT_'+ACT.DELETE.value" v-if="record.status === SCHOOL_USER_STATUS.ARCHIVE.value"> Delete </a-menu-item>
@@ -107,6 +109,7 @@ import { JeecgListMixin } from '@/mixins/JeecgListMixin'
 import { TableWidthMixin } from '@/mixins/TableWidthMixin'
 
 import { listClass } from '@/api/v2/schoolClass'
+import { listRole } from '@/api/v2/schoolRole'
 import { bulkActTeacher, removeTeachers, resetPassword } from '@/api/v2/schoolUser'
 
 import FixedFormHeader from '@/components/Common/FixedFormHeader'
@@ -176,6 +179,7 @@ export default {
       debounceInit: null,
 
       classList: [],
+      roleList: [],
 
       currentSel: null,
       optType: 'multi',
@@ -232,6 +236,10 @@ export default {
           align: 'center',
           dataIndex: 'roles',
           width: 120,
+          filters: this.roleList.map(item => ({
+            text: item.name,
+            value: item.roleCode
+          })),
           customRender: (text, record) => {
             return (text || []).map(item => item.name).join(', ')
           }
@@ -281,10 +289,16 @@ export default {
           schoolId: this.currentSchool.id,
           pageNo: 1,
           pageSize: 10000
+        }),
+        listRole({
+          schoolId: this.currentSchool.id
         })
-      ]).then(([clsRes]) => {
+      ]).then(([clsRes, roleRes]) => {
         if (clsRes.code === 0) {
           this.classList = clsRes.result.records
+        }
+        if (roleRes.code === 0) {
+          this.roleList = roleRes.result
         }
       })
     },
@@ -314,7 +328,6 @@ export default {
         userIdList = [this.currentSel.uid]
       }
       if (userIdList.length > 0) {
-        this.loading = true
         let promise = null
         const act = opt.key.split('_')[1]
         const actObj = Object.values(this.ACT).find(item => item.value === act)
@@ -330,6 +343,7 @@ export default {
           content: `Do you want to ${actObj.label} this teacher(s)?`,
           centered: true,
           onOk: () => {
+            this.loading = true
             promise({
               act: act,
               schoolId: this.currentSchool.id,
@@ -349,6 +363,7 @@ export default {
       }
     },
     getFilterParams(filters) {
+      console.log(filters)
       if (filters.classes && filters.classes.length > 0) {
         this.filters.classes = filters.classes.join(',')
       } else {

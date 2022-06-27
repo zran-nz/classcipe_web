@@ -36,11 +36,11 @@
           <a-dropdown :disabled="selectedRowKeys.length === 0" v-if="queryParam.schoolUserStatus !== ''">
             <a-menu slot="overlay" @click="handleBatchOpt">
               <!-- <a-menu-item key="move"> Move Class </a-menu-item> -->
-              <a-menu-item :key="'ACT_'+ACT.RESEND" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.INACTIVE.value"> Resend </a-menu-item>
-              <a-menu-item :key="'ACT_'+ACT.RESET" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ACTIVE.value"> Reset password </a-menu-item>
-              <a-menu-item :key="'ACT_'+ACT.RESTORE" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ARCHIVE.value"> Restore </a-menu-item>
-              <a-menu-item :key="'ACT_'+ACT.ARCHIVE" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ACTIVE.value"> Archive </a-menu-item>
-              <a-menu-item :key="'ACT_'+ACT.DELETE" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ARCHIVE.value"> Delete </a-menu-item>
+              <a-menu-item :key="'ACT_'+ACT.RESEND.value" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.INACTIVE.value"> Resend </a-menu-item>
+              <a-menu-item :key="'ACT_'+ACT.RESET.value" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ACTIVE.value"> Reset password </a-menu-item>
+              <a-menu-item :key="'ACT_'+ACT.RESTORE.value" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ARCHIVE.value"> Restore </a-menu-item>
+              <a-menu-item :key="'ACT_'+ACT.ARCHIVE.value" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ACTIVE.value"> Archive </a-menu-item>
+              <a-menu-item :key="'ACT_'+ACT.DELETE.value" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ARCHIVE.value"> Delete </a-menu-item>
             </a-menu>
             <a-button style="margin-left: 8px"> Bulk manage <a-icon type="down" /> </a-button>
           </a-dropdown>
@@ -62,19 +62,29 @@
           <div class="flex-wrap" slot="classes" slot-scope="classes">
             <a-tag v-for="cls in classes" :key="cls.id" :color="cls.classType === 0 ? '#2db7f5' : '#f50'">{{ cls.name }}</a-tag>
           </div>
-          <div slot="status" slot-scope="status">
-            <a-tag :color="getStatusFormat(status, 'color')">{{ getStatusFormat(status) || ' - ' }}</a-tag>
+          <div slot="status" slot-scope="status, record">
+            <!-- <a-tag :color="getStatusFormat(status, 'color')">{{ getStatusFormat(status) || ' - ' }}</a-tag> -->
+            <a-space>
+              <a-tooltip title="Student Active">
+                <a-icon v-if="status === 1" type="check" />
+                <a-icon v-else type="close" />
+              </a-tooltip>
+              <a-tooltip title="Parent Active">
+                <a-icon v-if="record.parentEmailStatus" type="check" />
+                <a-icon v-else type="close" />
+              </a-tooltip>
+            </a-space>
           </div>
           <a-space slot="action" slot-scope="text, record">
             <a @click="handleEdit(record)">Edit</a>
             <a-dropdown>
               <a-menu slot="overlay" @click="opt => handleSingleOpt(opt, record)">
-                <a-menu-item key="move"> Move Class </a-menu-item>
-                <a-menu-item :key="'ACT_'+ACT.RESEND" v-if="record.status === SCHOOL_USER_STATUS.INACTIVE.value"> Resend </a-menu-item>
-                <a-menu-item :key="'ACT_'+ACT.RESET" v-if="record.status === SCHOOL_USER_STATUS.ACTIVE.value"> Reset password </a-menu-item>
-                <a-menu-item :key="'ACT_'+ACT.RESTORE" v-if="record.status === SCHOOL_USER_STATUS.ARCHIVE.value"> Restore </a-menu-item>
-                <a-menu-item :key="'ACT_'+ACT.ARCHIVE" v-if="record.status === SCHOOL_USER_STATUS.ACTIVE.value"> Archive </a-menu-item>
-                <a-menu-item :key="'ACT_'+ACT.DELETE" v-if="record.status === SCHOOL_USER_STATUS.ARCHIVE.value"> Delete </a-menu-item>
+                <a-menu-item :key="'ACT_'+ACT.MOVE.value"> Move Class </a-menu-item>
+                <a-menu-item :key="'ACT_'+ACT.RESEND.value" v-if="record.status === SCHOOL_USER_STATUS.INACTIVE.value"> Resend </a-menu-item>
+                <a-menu-item :key="'ACT_'+ACT.RESET.value" v-if="record.status === SCHOOL_USER_STATUS.ACTIVE.value"> Reset password </a-menu-item>
+                <a-menu-item :key="'ACT_'+ACT.RESTORE.value" v-if="record.status === SCHOOL_USER_STATUS.ARCHIVE.value"> Restore </a-menu-item>
+                <a-menu-item :key="'ACT_'+ACT.ARCHIVE.value" v-if="record.status === SCHOOL_USER_STATUS.ACTIVE.value"> Archive </a-menu-item>
+                <a-menu-item :key="'ACT_'+ACT.DELETE.value" v-if="record.status === SCHOOL_USER_STATUS.ARCHIVE.value"> Delete </a-menu-item>
               </a-menu>
               <a style="margin-left: 8px"> More <a-icon type="down" /> </a>
             </a-dropdown>
@@ -99,7 +109,7 @@ import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import { JeecgListMixin } from '@/mixins/JeecgListMixin'
 
 import { listClass } from '@/api/v2/schoolClass'
-import { bulkActStudent } from '@/api/v2/schoolUser'
+import { bulkActStudent, removeStudents, resetPassword } from '@/api/v2/schoolUser'
 
 import FixedFormHeader from '@/components/Common/FixedFormHeader'
 import FormHeader from '@/components/FormHeader/FormHeader'
@@ -123,14 +133,40 @@ export default {
     return {
       USER_MODE: USER_MODE,
       SCHOOL_USER_STATUS: SCHOOL_USER_STATUS,
-      tabsList: Object.values(SCHOOL_USER_STATUS).filter(item => item.value !== 0),
+      tabsList: Object.values(SCHOOL_USER_STATUS).filter(item => item.value !== 2),
       ACT: {
-        ARCHIVE: '4',
-        APPROVE: '1',
-        REJECT: '3',
-        RESTORE: '8',
-        RESEND: '9',
-        DELETE: '-1'
+        ARCHIVE: {
+          value: '4',
+          label: 'archive'
+        },
+        APPROVE: {
+          value: '1',
+          label: 'approve'
+        },
+        REJECT: {
+          value: '3',
+          label: 'reject'
+        },
+        RESTORE: {
+          value: '8',
+          label: 'restore'
+        },
+        RESEND: {
+          value: '9',
+          label: 'resend'
+        },
+        DELETE: {
+          value: '-1',
+          label: 'delete'
+        },
+        RESET: {
+          value: '-2',
+          label: 'reset'
+        },
+        MOVE: {
+          value: '-3',
+          label: 'move'
+        }
       },
       loading: false,
       queryParam: {
@@ -262,32 +298,64 @@ export default {
     },
     handleBatchOpt(opt) {
       this.optType = 'multi'
-      if (this.selectedRowKeys.length > 0) {
-        this.loading = true
-        bulkActStudent({
-          act: opt.key.split('_')[1],
-          schoolId: this.currentSchool.id,
-          userIdList: this.selectedRowKeys
-        }).then(res => {
-          if (res.code === 0) {
-            this.$message.success('Opt Successfully')
-            this.onClearSelected()
-            this.searchQuery()
-          }
-        }).finally(() => {
-          this.loading = false
-        })
-      }
+      this.handleOpt(opt)
     },
     handleSingleOpt(opt, item) {
       this.optType = 'single'
       this.currentSel = cloneDeep(item)
-      if (opt.key === 'move') {
-        this.$refs.schoolStudentMove.doCreate()
+      this.handleOpt(opt)
+    },
+    handleOpt(opt) {
+      let userIdList = []
+      if (this.optType === 'multi') {
+        userIdList = this.selectedRowKeys
+      } else {
+        userIdList = [this.currentSel.uid]
+      }
+      if (userIdList.length > 0) {
+        let promise = null
+        const act = opt.key.split('_')[1]
+        const actObj = Object.values(this.ACT).find(item => item.value === act)
+        if (act === this.ACT.DELETE.value) {
+          promise = removeStudents
+        } else if (act === this.ACT.RESET.value) {
+          promise = resetPassword
+        } else if (act === this.ACT.MOVE.value) {
+          this.$refs.schoolStudentMove.doCreate({
+            userIds: userIdList
+          })
+          return
+        } else {
+          promise = bulkActStudent
+        }
+        this.$confirm({
+          title: `Confirm ${actObj.label}`,
+          content: `Do you want to ${actObj.label} this student(s)?`,
+          centered: true,
+          onOk: () => {
+            this.loading = true
+            promise({
+              act: act,
+              schoolId: this.currentSchool.id,
+              userIdList: userIdList,
+              userIds: userIdList // reset
+            }).then(res => {
+              if (res.code === 0) {
+                this.$message.success('Opt Successfully')
+                this.onClearSelected()
+                this.searchQuery()
+              }
+            }).finally(() => {
+              this.loading = false
+            })
+          }
+        })
       }
     },
     handleMove() {
-      this.$refs.schoolStudentMove.doCreate()
+      this.$refs.schoolStudentMove.doCreate({
+        userIds: this.selectedRowKeys
+      })
     },
     getFilterParams(filters) {
       if (filters.classes && filters.classes.length > 0) {
@@ -303,7 +371,7 @@ export default {
       this.$router.push('/manage/student/upload')
     },
     handleEdit(item) {
-      this.$router.push('/manage/student/detail/' + item.id)
+      this.$router.push('/manage/student/detail/' + item.inviteEmail)
     }
   }
 }

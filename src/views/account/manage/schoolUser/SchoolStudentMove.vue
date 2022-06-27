@@ -43,6 +43,7 @@
 
 <script>
 import { getCurriculumBySchoolId } from '@/api/academicSettingCurriculum'
+import { moveClassStudent } from '@/api/v2/schoolUser'
 import { groupBy } from 'lodash-es'
 
 export default {
@@ -82,6 +83,7 @@ export default {
       grades: [],
       gradeId: '',
       classId: '',
+      userIds: [],
       result: [],
       gradeOptions: []
     }
@@ -113,8 +115,9 @@ export default {
         this.changeGrade(this.gradeId)
       }
     },
-    doCreate() {
+    doCreate(item) {
       this.initGrade()
+      this.userIds = item.userIds
       this.selVis = true
     },
     changeGrade(gradeId) {
@@ -134,9 +137,19 @@ export default {
         centered: true,
         okText: 'Confirm',
         onOk: () => {
-          // TODO move
-          this.$emit('update')
-          this.selVis = false
+          // move
+          this.loading = true
+          moveClassStudent({
+            classId: this.classId,
+            userIds: this.userIds
+          }).then(res => {
+            if (res.code === 0) {
+              this.$emit('update')
+            }
+          }).finally(() => {
+            this.selVis = false
+            this.loading = false
+          })
         }
       })
     }

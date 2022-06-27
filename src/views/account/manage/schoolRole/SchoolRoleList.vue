@@ -123,12 +123,12 @@ export default {
           //     return text === 2 ? '自定义角色' : '系统角色'
           //   }
           // },
-          {
-            title: 'Create Time',
-            align: 'center',
-            dataIndex: 'createTime'
-            // width: 120
-          }
+          // {
+          //   title: 'Create Time',
+          //   align: 'center',
+          //   dataIndex: 'createTime'
+          //   // width: 120
+          // }
         ],
         {
           title: 'Action',
