@@ -8,7 +8,7 @@ export const classRoomAPIUrl = {
   queryResponseByClassId: '/classcipe/api/classRoom/queryResponseByClassId',
   addOrUpdateClass: '/classcipe/api/classRoom/addOrUpdateClass',
   FindNewClasses: '/classcipe/api/classRoom/findNewClasses',
-  StartOpenSession: '/classcipe/api/classRoom/startOpenSession',
+  StartOpenSession: '/classcipe/api/classRoom/startOpenSession'
 }
 
 /**

@@ -36,10 +36,10 @@
         <google-drive v-bind='$attrs' :field='field' :drive-loading='driveLoading' @show-google-drive='handleShowGoogleDrive'/>
       </div>
       <div v-show='currentDriveType === DriveType.UploadVideo'>
-        <drive-video-uploader  v-bind='$attrs' :field='field' />
+        <drive-video-uploader v-bind='$attrs' :field='field' />
       </div>
       <div v-show='currentDriveType === DriveType.UploadImage'>
-        <drive-image-uploader  v-bind='$attrs' :field='field' />
+        <drive-image-uploader v-bind='$attrs' :field='field' />
       </div>
     </div>
   </div>

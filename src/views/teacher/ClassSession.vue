@@ -16,7 +16,14 @@
       <a-spin tip='Loading...' :spinning="loading">
         <div class='content-list'>
           <template v-if='pagination.total !== 0 && !loading'>
-            <content-item @reload="loadMyContent" @reFetch='loadMyContent' :show-type-name='false' v-for='item in myContentList' :key='item.id' :content='item.content' :session='item'>
+            <content-item
+              @reload="loadMyContent"
+              @reFetch='loadMyContent'
+              :show-type-name='false'
+              v-for='item in myContentList'
+              :key='item.id'
+              :content='item.content'
+              :session='item'>
               <template v-slot:cover-action>
                 <div class='cover-action'>
                   <div class='action-btn' @click.stop=''>
