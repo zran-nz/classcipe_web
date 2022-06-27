@@ -357,8 +357,9 @@
           </template>
           <template v-if='currentRightModule === rightModule.customTag'>
             <div v-if='!this.contentLoading'>
-              <custom-tag-v3
+              <split-task-tag
                 :custom-tags.sync='form.customTags'
+                :all-tags='allTags'
                 :tag-category-desc.sync='form.tagCategoryDesc'/>
             </div>
           </template>
@@ -444,7 +445,6 @@ import { FindSourceOutcomes, GetAssociate, GetMyGrades, GetReferOutcomes } from 
 import { TemplatesGetPresentation } from '@/api/template'
 import { SplitTask, TaskQueryById } from '@/api/task'
 import Collaborate from '@/components/UnitPlan/Collaborate'
-import CustomTagV3 from '@/components/CustomTag/CustomTagV3'
 import CollaborateUserList from '@/components/Collaborate/CollaborateUserList'
 import { SplitTaskField } from '@/const/common'
 import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
@@ -487,10 +487,12 @@ import ModalHeader from '@/components/Common/ModalHeader'
 import FormSlidePageSelect from '@/components/SplitTask/FormSlidePageSelect'
 import LearningObjectiveSelect from '@/components/LearningObjective/LearningObjectiveSelect'
 import { AssessmentToolInfoList, AssessmentToolInfoSaveBatch } from '@/api/v2/assessment'
+import SplitTaskTag from '@/components/CustomTag/SplitTaskTag'
 
 export default {
   name: 'SplitTask',
   components: {
+    SplitTaskTag,
     LearningObjectiveSelect,
     FormSlidePageSelect,
     ModalHeader,
@@ -518,7 +520,6 @@ export default {
     UiLearnOut,
     Collaborate,
     CollaborateUserList,
-    CustomTagV3,
     CollaborateTooltip,
     CollaborateUpdateContent
   },
@@ -604,7 +605,8 @@ export default {
       fullBodyFields: [SplitTaskField.LearnOuts, SplitTaskField.SelectSlides],
 
       taskCommonList: [],
-      showSubAssessment: false
+      showSubAssessment: false,
+      allTags: []
     }
   },
   computed: {
@@ -737,6 +739,7 @@ export default {
           this.$logger.info('displayCustomFieldData', displayCustomFieldData)
           taskData.customFieldData = displayCustomFieldData
           this.allLearningObjectiveList = taskData.learnOuts
+          this.allTags = JSON.parse(JSON.stringify(taskData.customTags))
           taskData.id = null
           this.saving = true
           this.form = taskData
