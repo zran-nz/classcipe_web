@@ -115,7 +115,6 @@
                   ${{ content.price || 0 }}
                 </div>
                 <div class='pre-price'>
-                  <del>$ {{ content.oldPrice || 0 }}</del>
                 </div>
               </a-space>
             </div>
@@ -630,13 +629,14 @@ export default {
     },
 
     handleEdit () {
+      this.$logger.info('handleEdit', this.contentType)
       if (this.content.type === this.typeMap['unit-plan']) {
         window.open('/teacher/unit-plan-redirect/' + this.content.id, '_blank')
       } else if (this.content.type === this.typeMap.task) {
         window.open('/teacher/task-redirect/' + this.content.id, '_blank')
       } else if (this.content.type === this.typeMap.pd) {
         window.open('/teacher/pd-content-redirect/' + this.content.id, '_blank')
-      } else if (this.content.type === this.typeMap.video) {
+      } else if (this.contentType === this.typeMap.video) {
         window.open('/teacher/video-redirect/' + this.content.id, '_blank')
       }
     },
