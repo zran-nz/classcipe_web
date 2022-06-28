@@ -57,7 +57,7 @@
                   <a-button type="primary" @click="handleAddStudent">Add Student</a-button>
                   <a-button @click="handleInvite" type="primary">Invite by link<a-icon type="share-alt" /></a-button>
                   <a-button type="primary" @click="downloadTemplate">Download template</a-button>
-                  <school-user-import :action="importExcelUrl" @success="handleImportGet"/>
+                  <school-user-import :dataKey="dataKey" :action="importExcelUrl" @success="handleImportGet"/>
                 </a-space>
               </a-col>
             </template>
@@ -100,13 +100,33 @@
       >
         <school-student-add ref="schoolStudentAdd" :school="currentSchool" :id="studentId" @save="saveStudent"/>
       </a-modal>
+
+      <a-modal
+        v-model='importVis'
+        destroyOnClose
+        title='Student Import'
+        width='1200px'
+        okText="Add selected students"
+        @ok="handleAddUser"
+        @cancel="handleCancelImport"
+      >
+        <school-user-upload
+          ref="schoolUserUpload"
+          :columns="importColumns"
+          :datas="datas"
+          :verify="justifyStatus"
+          @change="handelChangeData"
+          @save="handleSave">
+
+        </school-user-upload>
+      </a-modal>
     </div>
   </a-modal>
 </template>
 
 <script>
-import { getSchoolUsers } from '@/api/v2/schoolUser'
-import { addTeachers, removeTeachers, addStudents, removeStudents } from '@/api/v2/schoolClass'
+import { getSchoolUsers, checkEmailParent, checkEmailStudent, batchAddStudent } from '@/api/v2/schoolUser'
+import { addTeachers, removeTeachers, addStudents, removeStudents, listClass } from '@/api/v2/schoolClass'
 import { schoolUserStatusList } from '@/const/schoolUser'
 import moment from 'moment'
 import { JeecgListMixin } from '@/mixins/JeecgListMixin'
@@ -117,6 +137,10 @@ import {
 import SchoolUserImport from '../schoolUser/SchoolUserImport'
 import SchoolUserInvite from '../schoolUser/SchoolUserInvite'
 import SchoolStudentAdd from '../schoolUser/SchoolStudentAdd'
+import SchoolUserUpload from '../schoolUser/SchoolUserUpload'
+
+import { isEmpty, isEmail } from '@/utils/util'
+const { mergeWith } = require('lodash-es')
 
 export default {
   name: 'ClassMemberList',
@@ -130,6 +154,7 @@ export default {
     school: {
       handler(val) {
         this.currentSchool = { ...val }
+        this.initDict()
         this.loadData()
       },
       deep: true,
@@ -140,14 +165,56 @@ export default {
   components: {
     SchoolUserImport,
     SchoolUserInvite,
-    SchoolStudentAdd
+    SchoolStudentAdd,
+    SchoolUserUpload
   },
   data() {
     return {
       statusList: schoolUserStatusList,
-      currentSchool: [],
+      currentSchool: this.school,
+      importVis: false,
       classMemberList: [],
       memberList: [],
+      classList: [],
+      remoteEmails: [],
+      remoteParentEmails: [],
+      datas: [],
+      dataKey: ['firstName', 'lastName', 'inviteEmail', 'birthDay', 'classes', 'parentFirstName', 'parentLastName', 'parentEmail', 'parentPhone'],
+      importColumns: [
+        {
+          title: 'First Name',
+          align: 'center',
+          dataIndex: 'firstName',
+          width: 150,
+          scopedSlots: { customRender: 'firstName' }
+        },
+        {
+          title: 'Last Name',
+          align: 'center',
+          dataIndex: 'lastName',
+          width: 150,
+          scopedSlots: { customRender: 'lastName' }
+        },
+        {
+          title: 'Email',
+          align: 'center',
+          dataIndex: 'inviteEmail',
+          width: 200,
+          scopedSlots: { customRender: 'inviteEmail' }
+        },
+        {
+          title: 'ParentEmail',
+          align: 'center',
+          dataIndex: 'parentEmail',
+          width: 200,
+          scopedSlots: { customRender: 'parentEmail' }
+        },
+        {
+          title: 'Action',
+          align: 'center',
+          scopedSlots: { customRender: 'action' }
+        }
+      ],
       url: {
         importExcelUrl: schoolClassStudentAPIUrl.SchoolClassStudentImportExcel
       },
@@ -172,20 +239,20 @@ export default {
     }
   },
   created() {
-
+    this.initDict()
   },
   computed: {
     filterMembers() {
-      return this.memberList.filter(member => this.selectedEmails.indexOf(member.email) === -1 &&
-        member.email.indexOf(this.searchKey || '') > -1)
+      return this.memberList.filter(member => !this.selectedEmails.includes(member.email) &&
+        (member.email || '').indexOf(this.searchKey || '') > -1)
     },
     importExcelUrl() {
       return this.url.importExcelUrl + '?classId=' + this.form.classId
     },
     selectedEmails() {
-      return this.classMemberList.map(item => {
+      return this.classMemberList ? this.classMemberList.map(item => {
         return item.email
-      })
+      }) : []
     },
     columns() {
       return [
@@ -345,7 +412,70 @@ export default {
       this.initMemberList()
       this.loadData()
     },
-    handleImportGet(info) {
+    initDict() {
+      Promise.all([
+          listClass({
+            schoolId: this.currentSchool.id,
+            queryType: 0,
+            pageNo: 1,
+            pageSize: 10000
+          })
+        ]).then(([clsRes]) => {
+          if (clsRes.code === 0) {
+            this.classList = clsRes.result.records
+          }
+        })
+    },
+    handelChangeData(data) {
+      this.datas = data
+      this.resetStatus(this.datas)
+    },
+    handleImportGet(res) {
+      // 转换
+      const emails = res.map(item => item.inviteEmail).filter(i => !!i).join(',')
+      const parentEmails = res.map(item => item.parentEmail).filter(i => !!i).join(',')
+      this.loading = true
+      Promise.all([
+        checkEmailStudent({
+          schoolId: this.currentSchool.id,
+          emails: emails
+        }),
+        checkEmailParent({
+          schoolId: this.currentSchool.id,
+          emails: parentEmails
+        })
+      ]).then(([emailRes, parentEmailRes]) => {
+        if (emailRes.code === 0) {
+          this.remoteEmails = mergeWith(this.remoteEmails, emailRes.result) // this.emails.concat(emailRes.result)]
+        }
+        if (parentEmailRes.code === 0) {
+          this.remoteParentEmails = mergeWith(this.remoteParentEmails, parentEmailRes.result) // this.emails.concat(emailRes.result)]
+        }
+        const convert = res.map(item => {
+          const status = this.justifyStatus(item)
+          item.status = status.join(',')
+          // 班级
+          if (item.classes) {
+            item.classes = item.classes.split(',').map(cls => {
+              const name = cls.trim()
+              const find = this.classList.find(item => item.name === name)
+              return find ? find.id : ''
+            }).filter(i => !!i).join(',')
+          }
+          if (item.birthDay) {
+            item.birthDay = moment(item.birthDay, 'DD/MM/YYYY').format('YYYY-MM-DD HH:mm:ss')
+          }
+          item.schoolId = this.currentSchool.id
+          item.key = Math.random() * 100 + new Date().getTime()
+          return item
+        })
+        this.datas = this.datas.concat(convert)
+        this.resetStatus(this.datas)
+        this.importVis = true
+      }).finally(() => {
+        console.log(this.datas)
+        this.loading = false
+      })
     },
     downloadTemplate () {
       const link = document.createElement('a')
@@ -356,6 +486,82 @@ export default {
       link.click()
       document.body.removeChild(link) // 下载完成移除元素
       window.URL.revokeObjectURL(url) // 释放掉blob对象
+    },
+    handleSave(data) {
+
+    },
+    handleCancelImport() {
+      this.datas = []
+      this.remoteEmails = []
+      this.remoteParentEmails = []
+      this.importVis = false
+    },
+    handleAddUser() {
+      if (this.$refs.schoolUserUpload.selectionRows.length > 0) {
+        this.loading = true
+        batchAddStudent(this.$refs.schoolUserUpload.selectionRows).then(res => {
+          if (res.code === 0) {
+            this.datas = []
+            this.remoteEmails = []
+            this.remoteParentEmails = []
+            this.$message.success('Import successfully')
+            this.importVis = false
+            this.initMemberList()
+            this.loadData()
+          }
+        }).finally(() => {
+          this.loading = false
+        })
+      } else {
+        this.$message.error('Please select at least one to import')
+      }
+    },
+    // 当前导入的文件中如果有重复的，则除第一个外，其他也是重复状态
+    resetStatus(datas) {
+      const isExist = {}
+      datas.forEach(item => {
+        if (isEmail(item.inviteEmail)) {
+          if (isExist[item.inviteEmail]) {
+            const statuss = item.status.split(',').filter(item => !!item)
+            if (!statuss.includes('Duplicate')) {
+              statuss.push('Duplicate')
+            }
+            console.log(statuss)
+            item.status = statuss.join(',')
+          } else {
+            isExist[item.inviteEmail] = true
+          }
+        }
+      })
+    },
+    justifyStatus(item) {
+      const emailExist = {}
+      const parentEmailExist = {}
+      this.remoteEmails.forEach(item => {
+        emailExist[item.email] = item.exists
+      })
+      this.remoteParentEmails.forEach(item => {
+        parentEmailExist[item.email] = item.exists
+      })
+      const status = []
+      if (isEmpty(item.firstName) || isEmpty(item.lastName)) {
+        status.push('Invalid Name')
+      }
+      if (isEmpty(item.inviteEmail) || !isEmail(item.inviteEmail)) {
+        status.push('Invalid Email')
+      } else {
+        if (emailExist[item.inviteEmail]) {
+          status.push('Duplicate')
+        }
+      }
+      if (isEmpty(item.parentEmail) || !isEmail(item.parentEmail)) {
+        status.push('Invalid Parent Email')
+      } else {
+        if (parentEmailExist[item.parentEmail]) {
+          status.push('Duplicate Parent')
+        }
+      }
+      return status
     }
   }
 }
