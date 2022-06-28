@@ -43,7 +43,12 @@
       </div>
     </div>
 
-    <content-publish :publish-loading="publishLoading" v-if='contentPublishVisible' :content='currentContent' @publish='handleUpdatePublish' @close='handleCancelPublish' />
+    <content-publish
+      :publish-loading="publishLoading"
+      v-if='contentPublishVisible'
+      :content='currentContent'
+      @publish='handleUpdatePublish'
+      @close='handleCancelPublish' />
   </div>
 </template>
 

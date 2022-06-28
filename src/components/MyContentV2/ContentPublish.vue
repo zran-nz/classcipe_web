@@ -36,9 +36,9 @@
             </div>
             <div class='detail-price'>
               <div class='price-setting'>
-                <a-switch size='small' v-model='item.enablePrice' />
+                <a-switch size='small' v-model='enablePrice' />
               </div>
-              <div class='price-input' v-if='item.enablePrice'>
+              <div class='price-input' v-if='enablePrice'>
                 Price: <a-input v-model="item.price" class='dollar-price-input' suffix="$"/>
               </div>
             </div>
@@ -56,6 +56,11 @@
 </template>
 
 <script>
+import { UnitPlanAddOrUpdate } from '@/api/unitPlan'
+import { TaskAddOrUpdate } from '@/api/task'
+import { VideoAddOrUpdate } from '@/api/video'
+import { PDContentAddOrUpdate } from '@/api/pdContent'
+
 export default {
   name: 'ContentPublish',
   props: {
@@ -70,7 +75,8 @@ export default {
   },
   data () {
     return {
-      visible: true
+      visible: true,
+      enablePrice: this.content.price !== 0
     }
   },
   computed: {
@@ -87,12 +93,24 @@ export default {
       this.$emit('close')
     },
 
-    handlePublish () {
+    async handlePublish () {
       this.$logger.info('handlePublish')
       this.$emit('publish', {
         content: this.content,
         publishList: this.publishList
       })
+
+      const contentType = this.content.type
+      const price = this.enablePrice ? this.content.price : 0
+      if (contentType === this.$classcipe.typeMap['unit-plan']) {
+        await UnitPlanAddOrUpdate({ id: this.content.id, price })
+      } else if (contentType === this.$classcipe.typeMap.task) {
+        await TaskAddOrUpdate({ id: this.content.id, price })
+      } else if (contentType === this.$classcipe.typeMap.video) {
+        await VideoAddOrUpdate({ id: this.content.id, price })
+      } else if (contentType === this.$classcipe.typeMap.pd) {
+        await PDContentAddOrUpdate({ id: this.content.id, price })
+      }
     }
   }
 }
