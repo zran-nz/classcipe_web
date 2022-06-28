@@ -300,3 +300,13 @@ export function deepEqual(x, y) {
     return false
   }
 }
+
+export function trim(str) {
+  return (str || '').replace(/^[\s\uFEFF]+|[\s\uFEFF]+$/g, '')
+}
+
+export function isEmpty(str) {
+  return (
+    str === null || typeof str === 'undefined' || trim(str + '') === ''
+  )
+}

@@ -21,6 +21,11 @@ export default {
     action: {
       type: String,
       default: ''
+    },
+    dataKey: {
+      type: Array,
+      default: () => [],
+      require: true
     }
   },
   data() {
@@ -117,15 +122,24 @@ export default {
         if (!rABS) {
           data = new Uint8Array(data)
         }
+        let dataArr = []
         const workBook = XLSX.read(data, { type: rABS ? 'binary' : 'array' })
         workBook.SheetNames.forEach(name => {
           const sheet = workBook.Sheets[name]
-          const json = XLSX.utils.sheet_to_json(sheet, {
+          const jsonArr = XLSX.utils.sheet_to_json(sheet, {
             raw: false,
             header: 1
           })
-          console.log(json)
+          dataArr = dataArr.concat(jsonArr.slice(1))
         })
+        const convert = dataArr.filter(item => item.length > 0).map(item => {
+          const json = {}
+          item.forEach((i, index) => {
+            json[this.dataKey[index]] = i
+          })
+          return json
+        })
+        this.$emit('success', convert)
       }
     }
   }

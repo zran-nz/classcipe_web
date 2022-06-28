@@ -18,17 +18,21 @@
         <div></div>
         <a-space class="filter-opt">
           <a-button type="primary" @click="downloadTemplate">Download template</a-button>
-          <school-user-import :action="importExcelUrl" @success="handleImportGet"/>
+          <school-user-import :dataKey="dataKey" :action="importExcelUrl" @success="handleImportGet"/>
         </a-space>
       </div>
       <div class="form-tab">
-        <school-user-upload
-          ref="schoolUserUpload"
-          :columns="columns"
-          :datas="datas"
-          @save="handleSave">
+        <a-spin :spinning="loading">
+          <school-user-upload
+            ref="schoolUserUpload"
+            :columns="columns"
+            :datas="datas"
+            :verify="justifyStatus"
+            @change="handelChangeData"
+            @save="handleSave">
 
-        </school-user-upload>
+          </school-user-upload>
+        </a-spin>
       </div>
     </div>
     <fixed-form-footer>
@@ -53,8 +57,13 @@ import CustomTextButton from '@/components/Common/CustomTextButton'
 import SchoolUserUpload from './schoolUser/SchoolUserUpload'
 import SchoolUserImport from './schoolUser/SchoolUserImport'
 
+import { listClass } from '@/api/v2/schoolClass'
+import { checkEmailTeacher, batchAddTeacher } from '@/api/v2/schoolUser'
+
 import { mapState } from 'vuex'
-const { debounce } = require('lodash-es')
+import moment from 'moment'
+import { isEmpty, isEmail } from '@/utils/util'
+const { debounce, mergeWith } = require('lodash-es')
 
 export default {
   name: 'SchoolTeacherUpload',
@@ -78,19 +87,10 @@ export default {
       USER_MODE: USER_MODE,
       SCHOOL_USER_STATUS: SCHOOL_USER_STATUS,
       importExcelUrl: '',
-      datas: [{
-        firstName: 'Jacob',
-        lastName: 'Sun',
-        key: 1,
-        parentEmail: '1@1.com',
-        status: 1
-      }, {
-        firstName: 'Jacob',
-        lastName: 'Sun',
-        key: 2,
-        parentEmail: '1@1.com',
-        status: 2
-      }],
+      datas: [],
+      dataKey: ['firstName', 'lastName', 'inviteEmail', 'birthDay', 'classes', 'roles'],
+      remoteEmails: [],
+      waitToEmails: [],
       columns: [
         {
           title: 'First Name',
@@ -107,11 +107,11 @@ export default {
           scopedSlots: { customRender: 'lastName' }
         },
         {
-          title: 'ParentEmail',
+          title: 'Email',
           align: 'center',
-          dataIndex: 'parentEmail',
+          dataIndex: 'inviteEmail',
           width: 200,
-          scopedSlots: { customRender: 'parentEmail' }
+          scopedSlots: { customRender: 'inviteEmail' }
         },
         {
           title: 'Action',
@@ -124,6 +124,7 @@ export default {
   },
   created() {
     this.debounceLoad = debounce(this.loadData, 300)
+    this.initDict()
   },
   computed: {
     ...mapState({
@@ -141,18 +142,76 @@ export default {
     handleSchoolChange(currentSchool) {
       if (this.userMode === USER_MODE.SCHOOL) {
         this.queryParam.schoolId = currentSchool.id
+        this.initDict()
         this.debounceInit()
       }
     },
     handleModeChange(userMode) {
       // 模式切换，个人还是学校 个人接口
+      this.initDict()
       this.debounceInit()
     },
     loadData() {
 
     },
+    initDict() {
+      Promise.all([
+          listClass({
+            schoolId: this.currentSchool.id,
+            queryType: 0,
+            pageNo: 1,
+            pageSize: 10000
+          })
+        ]).then(([clsRes]) => {
+          if (clsRes.code === 0) {
+            this.classList = clsRes.result.records
+          }
+        })
+    },
+    handelChangeData(data) {
+      this.datas = data
+      this.resetStatus(this.datas)
+    },
     handleImportGet(res) {
-
+      // 转换
+      const emails = res.map(item => item.inviteEmail).filter(i => !!i).join(',')
+      this.loading = true
+      checkEmailTeacher({
+        schoolId: this.currentSchool.id,
+        emails: emails
+      }).then(emailRes => {
+        if (emailRes.code === 0) {
+          // const addEmail = mergeWith(emailRes.result, importEmails, (old, src) => src)
+          // console.log(addEmail)
+          this.remoteEmails = mergeWith(this.remoteEmails, emailRes.result) // this.emails.concat(emailRes.result)
+          const convert = res.map(item => {
+            const status = this.justifyStatus(item)
+            item.status = status.join(',')
+            // 班级
+            if (item.classes) {
+              item.classes = item.classes.split(',').map(cls => {
+                const name = cls.trim()
+                const find = this.classList.find(item => item.name === name)
+                return find ? find.id : ''
+              }).filter(i => !!i).join(',')
+            }
+            if (item.birthDay) {
+              item.birthDay = moment(item.birthDay, 'DD/MM/YYYY').format('YYYY-MM-DD HH:mm:ss')
+            }
+            // if (!item.roles) {
+            //   item.roles = 'teacher'
+            // }
+            item.schoolId = this.currentSchool.id
+            item.key = Math.random() * 100 + new Date().getTime()
+            return item
+          })
+          this.datas = this.datas.concat(convert)
+          this.resetStatus(this.datas)
+        }
+      }).finally(() => {
+        console.log(this.datas)
+        this.loading = false
+      })
     },
     downloadTemplate () {
       const link = document.createElement('a')
@@ -168,7 +227,57 @@ export default {
 
     },
     handleAddUser() {
-
+      console.log(this.$refs.schoolUserUpload.selectionRows)
+      if (this.$refs.schoolUserUpload.selectionRows.length > 0) {
+        this.loading = true
+        batchAddTeacher(this.$refs.schoolUserUpload.selectionRows).then(res => {
+          if (res.code === 0) {
+            this.datas = []
+            this.$message.success('Import successfully')
+            this.goBack()
+          }
+        }).finally(() => {
+          this.loading = false
+        })
+      } else {
+        this.$message.error('Please select at least one to import')
+      }
+    },
+    // 当前导入的文件中如果有重复的，则除第一个外，其他也是重复状态
+    resetStatus(datas) {
+      const isExist = {}
+      datas.forEach(item => {
+        if (isEmail(item.inviteEmail)) {
+          if (isExist[item.inviteEmail]) {
+            const statuss = item.status.split(',').filter(item => !!item)
+            if (!statuss.includes('Duplicate')) {
+              statuss.push('Duplicate')
+            }
+            console.log(statuss)
+            item.status = statuss.join(',')
+          } else {
+            isExist[item.inviteEmail] = true
+          }
+        }
+      })
+    },
+    justifyStatus(item) {
+      const emailExist = {}
+      this.remoteEmails.forEach(item => {
+        emailExist[item.email] = item.exists
+      })
+      const status = []
+      if (isEmpty(item.firstName) || isEmpty(item.lastName)) {
+        status.push('Invalid Name')
+      }
+      if (isEmpty(item.inviteEmail) || !isEmail(item.inviteEmail)) {
+        status.push('Invalid Email')
+      } else {
+        if (emailExist[item.inviteEmail]) {
+          status.push('Duplicate')
+        }
+      }
+      return status
     }
   }
 }

@@ -13,7 +13,7 @@
       }"
     >
       <template
-        v-for="col in ['firstName', 'lastName', 'email', 'parentEmail']"
+        v-for="col in ['firstName', 'lastName', 'inviteEmail', 'parentEmail']"
         :slot="col"
         slot-scope="text, record"
       >
@@ -36,8 +36,8 @@
           <a @click="() => cancelRow(record.key)">Cancel</a>
         </span>
         <template v-else>
-          <a-icon type="check" :class="'status_'+record.status" v-if="record.status === 1"></a-icon>
-          <label for="" :class="'status_'+record.status" v-if="record.status === 2">Email invalid</label>
+          <a-icon type="check" :class="'status_1'" v-if="!record.status"></a-icon>
+          <label for="" :class="'status_2'" v-else>{{ record.status }}</label>
           <a-icon v-show="editingKey === ''" @click="() => editRow(record.key)" class="action-edit" type="edit"></a-icon>
         </template>
       </a-space>
@@ -56,14 +56,21 @@ export default {
     columns: {
       type: Array,
       default: () => []
+    },
+    verify: {
+      type: Function,
+      default: (item) => ''
     }
   },
   watch: {
     datas: {
-      handler(val) {
-        this.dataSource = [ ...val ]
-        this.cachedData = this.dataSource.map(item => ({ ...item }))
-        this.editingKey = ''
+      handler(next, prev) {
+        if (next !== prev) {
+          this.dataSource = [ ...next ]
+          this.cachedData = this.dataSource.map(item => ({ ...item }))
+          this.editingKey = ''
+          this.initData()
+        }
       },
       immediate: true,
       deep: true
@@ -89,6 +96,7 @@ export default {
   },
   created() {
     this.cachedData = this.dataSource.map(item => ({ ...item }))
+    this.initData()
   },
   methods: {
     onSelectChange (selectedRowKeys, selectionRows) {
@@ -98,9 +106,15 @@ export default {
     getCheckboxProps(record) {
       return {
         props: {
-          disabled: record.status === 2
+          disabled: !!record.status
         }
       }
+    },
+    initData() {
+      this.selectionRows = this.dataSource.filter(item => {
+        return !item.status
+      })
+      this.selectedRowKeys = this.selectionRows.map(item => item.key)
     },
     handleChangeRow(value, key, column) {
       const newData = this.dataSource.map(item => ({ ...item }))
@@ -149,7 +163,7 @@ export default {
       }
     },
     saveRow(key) {
-      // TODO 验证 ，更新status
+      // 验证 ，更新status
       const newData = this.dataSource.map(item => ({ ...item }))
       const newCachedData = this.cachedData.map(item => ({ ...item }))
       const target = newData.find(item => key === item.key)
@@ -157,10 +171,12 @@ export default {
       if (target) {
         if (!targetCache) target.key = ''
         if (target.key) {
+          target.status = this.verify(target).join(',')
           delete target.editable
           this.dataSource = newData
           Object.assign(targetCache, target)
           this.cachedData = newCachedData
+          this.$emit('change', this.dataSource)
         }
         this.editingKey = ''
       }
