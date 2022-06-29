@@ -39,7 +39,7 @@
                   <a-input
                     v-model='form.name'
                     placeholder='Enter Video Content Name'
-                    class='cc-form-input' />
+                    class='cc-form-input half-block' />
                 </custom-form-item>
               </div>
 
@@ -56,22 +56,22 @@
                 </custom-form-item>
               </div>
 
-              <div class='form-block tag-content-block' v-if='fieldName === VideoField.CoverVideo' :key='fieldName'>
-                <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.CoverVideo) !== -1'>
-                  <template slot='label'>
-                    Edit cover Video
-                  </template>
-                  <div class='edit-cover'>
-                    <custom-cover-media
-                      :url='form.coverVideo'
-                      :field='VideoField.CoverVideo'
-                      videoControls
-                      @update='handleUpdateCover'
-                      @delete='form.coverVideo = null'
-                      :show-delete-button='form.coverVideo && true'/>
-                  </div>
-                </custom-form-item>
-              </div>
+              <!--              <div class='form-block tag-content-block' v-if='fieldName === VideoField.CoverVideo' :key='fieldName'>-->
+              <!--                <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.CoverVideo) !== -1'>-->
+              <!--                  <template slot='label'>-->
+              <!--                    Edit cover Video-->
+              <!--                  </template>-->
+              <!--                  <div class='edit-cover'>-->
+              <!--                    <custom-cover-media-->
+              <!--                      :url='form.coverVideo'-->
+              <!--                      :field='VideoField.CoverVideo'-->
+              <!--                      videoControls-->
+              <!--                      @update='handleUpdateCover'-->
+              <!--                      @delete='form.coverVideo = null'-->
+              <!--                      :show-delete-button='form.coverVideo && true'/>-->
+              <!--                  </div>-->
+              <!--                </custom-form-item>-->
+              <!--              </div>-->
 
               <div class='form-block tag-content-block' v-if='fieldName === VideoField.CoverVideo' key='image'>
                 <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.Image) !== -1'>
@@ -118,9 +118,8 @@
                           allow-clear/>
                       </a-col>
                       <a-col span='10' offset='1'>
-                        <custom-tag-v3
+                        <custom-tag-pd
                           :custom-tags.sync='form.customTags'
-                          :tag-category-desc.sync='form.tagCategoryDesc'
                         />
                       </a-col>
                     </a-row>
@@ -205,10 +204,12 @@ import LearningObjective from '@/components/LearningObjective/LearningObjective'
 import CustomTagV3 from '@/components/CustomTag/CustomTagV3'
 import { UpdateContentStatus } from '@/api/teacher'
 import CustomImageUploader from '@/components/Common/CustomImageUploader'
+import CustomTagPd from '@/components/CustomTag/CustomTagPd'
 
 export default {
   name: 'AddPD',
   components: {
+    CustomTagPd,
     CustomImageUploader,
     CustomTagV3,
     LearningObjective,
@@ -485,4 +486,7 @@ export default {
   height: 400px;
 }
 
+.half-block {
+  width: 50%;
+}
 </style>
