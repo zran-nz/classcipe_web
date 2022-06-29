@@ -1,7 +1,7 @@
 <template>
-  <div class='content-item' v-if='content' :style="{'border': activeItem ? '1px solid #15c39a' : '1px solid #EEF1F6'}">
+  <div class='content-item' :style="{'border': activeItem ? '1px solid #15c39a' : '1px solid #EEF1F6'}">
     <div class='cover'>
-      <div class='cover-block' :style="{'background-image': 'url(' + content.image + ')'}">
+      <div class='cover-block' :style="{'background-image': 'url(' + session.session.image + ')'}">
         <slot name='cover-action'>
         </slot>
       </div>
@@ -67,12 +67,12 @@
               </div>
             </div>
           </div>
-          <div class='subject'>
+          <div class='subject' v-if="content" >
             <div class='subject-item' v-for='(subject, idx) in content.subjectList' :key='idx'>
               {{ subject }}
             </div>
           </div>
-          <div class='year'>
+          <div class='year' v-if="content">
             <div class='year-item' v-for='(year, idx) in content.yearList' :key='idx'>
               {{ year }}
             </div>
@@ -100,7 +100,7 @@
               </div>
             </a-dropdown>
 
-            <custom-button label='Sub-task' v-if='content.type === typeMap.task && content.subTasks.length > 0'>
+            <custom-button label='Sub-task' v-if='content && content.type === typeMap.task && content.subTasks.length > 0'>
               <template v-slot:icon>
                 <sub-task-icon />
               </template>
@@ -111,13 +111,13 @@
               @click='handleSchedule'>
             </custom-button>
 
-            <custom-button label='Edit' @click='editItem'>
-              <template v-slot:icon>
-                <edit-icon />
-              </template>
-            </custom-button>
+            <!--            <custom-button v-if="content" label='Edit' @click='editItem'>-->
+            <!--              <template v-slot:icon>-->
+            <!--                <edit-icon />-->
+            <!--              </template>-->
+            <!--            </custom-button>-->
 
-            <custom-button label='Preview' @click='handlePreviewDetail(content)'>
+            <custom-button v-if="content" label='Preview' @click='handlePreviewDetail(content)'>
               <template v-slot:icon>
                 <view-icon style='width: 20px' />
               </template>
@@ -459,6 +459,9 @@ export default {
               font-size: 13px;
               color: #4a8cff;
               height: 20px;
+              .icon img{
+                height: 20px;
+              }
             }
           }
 
