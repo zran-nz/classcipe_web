@@ -52,7 +52,7 @@ export default {
 
 .cc-custom-button {
   background-color: #EEF1F3;
-  padding: 10px 18px;
+  padding: 14px 18px;
   border-radius: 40px;
   font-family: Arial;
   font-weight: 400;
@@ -96,9 +96,9 @@ export default {
   }
 
   .label {
-    font-size: 13px;
+    font-size: 14px;
     padding: 0 6px;
-    line-height: 16px;
+    line-height: 18px;
     white-space: nowrap;
   }
 }

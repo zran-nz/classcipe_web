@@ -39,7 +39,7 @@
                   <a-input
                     v-model='form.name'
                     placeholder='Enter Video Content Name'
-                    class='cc-form-input' />
+                    class='cc-form-input half-block' />
                 </custom-form-item>
               </div>
 
@@ -485,4 +485,7 @@ export default {
   height: 400px;
 }
 
+.half-block {
+  width: 50%;
+}
 </style>
