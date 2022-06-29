@@ -312,6 +312,8 @@ export default {
         }
 
         .tag-info {
+          max-height: 60px;
+          overflow: hidden;
           .tag-info-item {
             height: 1rem;
             line-height: 1rem;

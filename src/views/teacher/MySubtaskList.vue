@@ -23,7 +23,13 @@
           <a-checkbox :checked='selectedTaskList.indexOf(content) !== -1'></a-checkbox>
         </div>
         <div class='task-item vertical-left'>
-          <content-item :content='content' :click-preview='false'/>
+          <content-item
+            :content='content'
+            :show-button='true'
+            :show-edit='true'
+            :show-delete='true'
+            :show-schedule='true'
+            :click-preview='false'/>
         </div>
       </div>
     </div>
@@ -76,11 +82,12 @@ export default {
       this.$logger.info('toggleSelectItem', item)
       const index = this.selectedTaskList.findIndex(subTask => subTask.id === item.id)
       this.$logger.info('index', index)
-      if (item === -1) {
+      if (index === -1) {
         this.selectedTaskList.push(item)
         this.$logger.info('push item', this.selectedTaskList)
       } else {
         this.selectedTaskList.splice(index, 1)
+        this.$logger.info('delete item', index)
       }
       this.$logger.info('selected list', this.selectedTaskList)
     },
@@ -111,5 +118,9 @@ export default {
       padding-right: 15px;
     }
   }
+}
+
+.task-item {
+  width: 100%;
 }
 </style>

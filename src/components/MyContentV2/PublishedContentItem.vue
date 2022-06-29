@@ -389,6 +389,8 @@ export default {
         .tag-info {
           display: flex;
           flex-direction: row;
+          max-height: 60px;
+          overflow: hidden;
           align-items: center;
           justify-content: flex-start;
           flex-wrap: wrap;

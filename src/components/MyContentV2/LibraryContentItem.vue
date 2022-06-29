@@ -236,6 +236,8 @@ export default {
           display: flex;
           flex-direction: row;
           align-items: center;
+          max-height: 60px;
+          overflow: hidden;
           justify-content: flex-start;
           flex-wrap: wrap;
           margin-top: 5px;

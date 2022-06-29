@@ -79,7 +79,7 @@
         </div>
       </div>
       <div class='action'>
-        <template v-if='showButton && content.delFlag === 0'>
+        <template v-if='showButton && !content.delFlag'>
           <a-space :size='30'>
             <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement' v-if='showDelete'>
               <div class='more-action'>
@@ -157,7 +157,7 @@
 
           </a-space>
         </template>
-        <template v-if='showButton && content.delFlag === 1'>
+        <template v-if='showButton && content.delFlag'>
           <a-space :size='30'>
 
             <a-popconfirm :title="'Confirm permanent delete ' +(content.name ? content.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem" cancel-text="No">
@@ -433,6 +433,8 @@ export default {
         .tag-info {
           display: flex;
           flex-direction: row;
+          max-height: 60px;
+          overflow: hidden;
           align-items: center;
           justify-content: flex-start;
           flex-wrap: wrap;
