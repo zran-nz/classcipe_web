@@ -151,7 +151,8 @@
       <template v-if="content.name && content.name.trim()">
         <div class='content-block'>
           <div class='content-title'>
-            Name
+            <template v-if='content.type === typeMap.task'>Title</template>
+            <template v-if='content.type !== typeMap.task'>Name</template>
           </div>
           <div class='content-detail'>
             {{ content.name }}
@@ -185,7 +186,8 @@
       <template v-if="content.overview && content.overview.trim()">
         <div class='content-block'>
           <div class='content-title'>
-            Overview
+            <template v-if='content.type === typeMap.task'>Task Detail</template>
+            <template v-if='content.type !== typeMap.task'>Overview</template>
           </div>
           <div class='content-detail'>
             {{ content.overview }}
