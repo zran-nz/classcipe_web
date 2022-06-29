@@ -567,6 +567,7 @@ export default {
             return
           }
         } else {
+          hideLoading()
           this.$message.error(response.message)
         }
 

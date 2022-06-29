@@ -1010,6 +1010,7 @@ export default {
           }
         } else {
           this.$message.error(response.message)
+          hideLoading()
         }
 
         this.$logger.info('handleCreateTask', response.result)
@@ -1023,8 +1024,8 @@ export default {
         } finally {
           this.creating = false
           this.saving = false
+          hideLoading()
         }
-        hideLoading()
         return response
       }
     },
