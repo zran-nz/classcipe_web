@@ -183,7 +183,7 @@ export default {
       this.debounceSearch()
     },
     handleSave() {
-      const sels = this.students.filter(item => item.checked).map(item => item.id)
+      const sels = this.students.filter(item => item.checked).map(item => item.uid)
       if (sels && sels.length > 0) {
         this.loading = true
         studentImport({
@@ -192,6 +192,7 @@ export default {
           studentIds: sels
         }).then(res => {
           if (res.success) {
+            this.$message.success('Import Successfully')
             this.$emit('update')
           }
         }).finally(() => {

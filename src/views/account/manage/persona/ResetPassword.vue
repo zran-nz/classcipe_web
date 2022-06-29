@@ -15,13 +15,13 @@
       <a-input autocomplete="off" type="password" v-model="formModel.confirmPassword" placeholder="input password" />
     </a-form-model-item >
     <a-form-model-item :wrapperCol="{offset: 6, span: 12}" label="">
-      <a-button type="primary" @click="handleSave">update</a-button>
+      <a-button :loading="loading" type="primary" @click="handleSave">update</a-button>
     </a-form-model-item>
   </a-form-model>
 </template>
 
 <script>
-import { CheckPassword } from '@/api/login'
+import { CheckPassword, ChangePassword } from '@/api/login'
 export default {
   name: 'ResetPassword',
   props: {
@@ -83,14 +83,25 @@ export default {
         password: [{ required: true, trigger: 'change', message: 'Please input the password' }, { validator: validateRemote, trigger: 'blur' }],
         newPassword: [{ validator: validatePass, trigger: 'change' }],
         confirmPassword: [{ validator: validatePassConfirm, trigger: 'change' }]
-      }
+      },
+      loading: false
     }
   },
   methods: {
     handleSave() {
       this.$refs.form.validate(valid => {
         if (valid) {
-
+          this.loading = true
+          ChangePassword({
+            newPassword: this.formModel.newPassword,
+            oldPassword: this.formModel.password
+          }).then(res => {
+            if (res.code === 0) {
+              this.$message.success('Update password successfully')
+            }
+          }).finally(() => {
+            this.loading = false
+          })
         }
       })
     }

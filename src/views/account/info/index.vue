@@ -313,7 +313,7 @@ export default {
               title: 'Application for certification/service',
               desc: '',
               hidden: this.userMode === USER_MODE.SCHOOL,
-              url: ''
+              url: '/manage/verification'
             }
           ]
         }

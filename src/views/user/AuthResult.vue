@@ -40,27 +40,8 @@ export default {
       this.$store.dispatch('GetInfo').then(response => {
         this.$logger.info('auth-result-redirect', this.$route)
         const callbackUrl = window.sessionStorage.getItem(SESSION_CALLBACK_URL)
-
         // 如果有zoom授权token，且当前窗口有opener发送zoom 授权更新消息
-        if (window.opener) {
-          if (window.opener.postMessage) {
-            if (this.$store.state.user.info.zoomAuthToken.accessToken) {
-              window.opener.postMessage({
-                authType: 'zoom',
-                event: 'authUpdate',
-                data: null
-              }, '*')
-            }
-            if (this.$store.state.user.info.googleAuthToken.accessToken) {
-              window.opener.postMessage({
-                authType: 'google',
-                event: 'authUpdate',
-                data: null
-              }, '*')
-            }
-          }
-          window.close()
-        }
+        this.handleOpener()
         if (callbackUrl) {
           window.sessionStorage.removeItem(SESSION_CALLBACK_URL)
           window.location.href = callbackUrl + (callbackUrl.indexOf('?') > -1 ? '&' : '?') + 'token=' + accessToken
@@ -74,6 +55,7 @@ export default {
         this.failedMessage = e
       })
     }).catch(() => {
+      this.handleOpener()
       this.$router.push({ path: '/user/login' })
     })
   },
@@ -85,6 +67,19 @@ export default {
       url += `&callbackUrl=`
       url += thirdAuthCallbackUrl
       window.location.href = url
+    },
+    handleOpener() {
+      const authType = window.sessionStorage.getItem('SESSION_AUTH_TYPE')
+      if (window.opener) {
+        if (window.opener.postMessage && authType) {
+          window.opener.postMessage({
+            authType: authType,
+            event: 'authUpdate',
+            data: null
+          }, '*')
+        }
+        window.close()
+      }
     }
   }
 }

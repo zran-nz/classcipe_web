@@ -44,6 +44,7 @@
     </div>
 
     <content-publish :publish-loading="publishLoading" v-if='contentPublishVisible' :content='currentContent' @publish='handleUpdatePublish' @close='handleCancelPublish' />
+    <verification-tip ref="verificationTip" @continue="doUpdatePublish"/>
   </div>
 </template>
 
@@ -56,6 +57,7 @@ import * as logger from '@/utils/logger'
 import { SESSION_CURRENT_PAGE } from '@/const/common'
 import ContentItem from '@/components/MyContentV2/ContentItem'
 import ContentPublish from '@/components/MyContentV2/ContentPublish'
+import VerificationTip from '@/components/MyContentV2/VerificationTip.vue'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import RadioSwitch from '@/components/Common/RadioSwitch'
 import { UserModeMixin } from '@/mixins/UserModeMixin'
@@ -69,11 +71,13 @@ import EventBus from '@/utils/eventBus'
 import CustomSearchInput from '@/components/Common/CustomSearchInput'
 import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
 import { typeMap } from '@/const/teacher'
+import { TEACHER_SECURITY_NOT_SHOW } from '@/store/mutation-types'
+import { getCookie } from '@/utils/util'
 
 export default {
   name: 'CreatedByMeV2',
   mixins: [UserModeMixin, CurrentSchoolMixin],
-  components: { CustomSearchInput, ContentTypeFilter, UserProfileAvatar, GlobalSearchInput, RadioSwitch, NoMoreResources, ContentPublish, ContentItem, ContentFilter, CreateNew },
+  components: { CustomSearchInput, ContentTypeFilter, UserProfileAvatar, GlobalSearchInput, RadioSwitch, NoMoreResources, ContentPublish, ContentItem, ContentFilter, CreateNew, VerificationTip },
   data () {
     return {
       menuList: [
@@ -219,13 +223,33 @@ export default {
       }
     },
 
-    handleUpdatePublish () {
+    handleUpdatePublish() {
+      const data = this.currentContent
+      const targetStatus = data.status ? 0 : 1
+      // 发布的时候需要判断是否有老师认证
+      // 没有老师认证的情况下，询问是否需要进行老师认证
+      // 勾选不再进行询问时，则不再跳出
+      if (targetStatus) {
+        const isNotShowSecurity = getCookie(TEACHER_SECURITY_NOT_SHOW)
+        if (!isNotShowSecurity) {
+          // TODO 查询是否已经进行老师认证
+          const isExists = false
+          if (!isExists) {
+            this.$refs.verificationTip.doCreate()
+            return
+          }
+        }
+      }
+      this.doUpdatePublish()
+    },
+
+    doUpdatePublish () {
       const data = this.currentContent
       this.$logger.info('handleUpdatePublish', data)
       const index = this.myContentList.findIndex(item => item.id === data.id)
-      this.publishLoading = true
       if (index !== -1) {
         const targetStatus = data.status ? 0 : 1
+        this.publishLoading = true
         UpdateContentStatus({
           id: data.id,
           status: targetStatus,
@@ -236,7 +260,6 @@ export default {
             this.$message.loading('Waiting for Google Slides auth...', 10)
             return
           }
-          this.publishLoading = false
           this.$logger.info('handlePublishStatus res', res)
           this.myContentList[index].status = targetStatus
           if (targetStatus) {
@@ -247,6 +270,7 @@ export default {
         }).finally(() => {
           this.contentPublishVisible = false
           this.currentContent = null
+          this.publishLoading = false
         })
       } else {
         this.$logger.warn(`no found Update item ${data.id}`)

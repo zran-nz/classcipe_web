@@ -14,7 +14,8 @@
       </template>
     </fixed-form-header>
     <div class="form-content">
-      <school-teacher-add :school="currentSchool" ref="schoolTeacherAdd" :id="id" @save="handleSave" />
+      <!-- <school-teacher-add :school="currentSchool" ref="schoolTeacherAdd" :id="id" @save="handleSave" /> -->
+      <service-verification-form :school="currentSchool"/>
     </div>
   </div>
 </template>
@@ -27,6 +28,7 @@ import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import FixedFormHeader from '@/components/Common/FixedFormHeader'
 import FormHeader from '@/components/FormHeader/FormHeader'
 import SchoolTeacherAdd from './schoolUser/SchoolTeacherAdd'
+import ServiceVerificationForm from './verification/ServiceVerificationForm'
 
 import { mapState } from 'vuex'
 const { debounce } = require('lodash-es')
@@ -37,7 +39,8 @@ export default {
   components: {
     FixedFormHeader,
     FormHeader,
-    SchoolTeacherAdd
+    SchoolTeacherAdd,
+    ServiceVerificationForm
   },
   props: {
     id: {

@@ -692,6 +692,12 @@ export const asyncRouterMap = [
             name: 'SchoolSpace',
             component: () => import('@/views/account/manage/SchoolSpace'),
             meta: { title: 'School Space', keepAlive: true, mode: USER_MODE.SCHOOL }
+          },
+          {
+            path: '/manage/verification',
+            name: 'Verification',
+            component: () => import('@/views/account/manage/Verification'),
+            meta: { title: 'Application for certification/service', keepAlive: true, permission: ['teacher'], mode: USER_MODE.SELF }
           }
         ]
       },

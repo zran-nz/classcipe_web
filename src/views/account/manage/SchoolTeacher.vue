@@ -25,6 +25,11 @@
             {{ item.label }}
           </div>
         </div>
+        <div class="opt-list">
+          <custom-text-button label='Invite' @click="handleInvite">
+
+          </custom-text-button>
+        </div>
       </div>
 
       <div class="filter-tab">
@@ -98,6 +103,8 @@
       :school="currentSchool"
       :classes="classList"/>
 
+    <school-user-invite ref="schoolUserInvite" :school="currentSchool"/>
+
   </div>
 </template>
 
@@ -116,6 +123,7 @@ import FixedFormHeader from '@/components/Common/FixedFormHeader'
 import FormHeader from '@/components/FormHeader/FormHeader'
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import SchoolStudentMove from './schoolUser/SchoolStudentMove'
+import SchoolUserInvite from './schoolUser/SchoolUserInvite'
 
 import { mapState } from 'vuex'
 import cloneDeep from 'lodash.clonedeep'
@@ -128,7 +136,8 @@ export default {
     FixedFormHeader,
     FormHeader,
     CustomTextButton,
-    SchoolStudentMove
+    SchoolStudentMove,
+    SchoolUserInvite
   },
   data() {
     return {
@@ -378,6 +387,9 @@ export default {
     },
     handleEdit(item) {
       this.$router.push('/manage/teacher/detail/' + item.id)
+    },
+    handleInvite() {
+      this.$refs.schoolUserInvite.doCreate('teacher')
     }
   }
 }

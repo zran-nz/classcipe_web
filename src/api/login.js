@@ -11,6 +11,7 @@ const userApi = {
   ResetPassword: '/classcipe/sys/resetPassword',
   CheckOauthToken: '/classcipe/sys/checkOauthToken',
   CheckPassword: '/classcipe/sys/checkPassword',
+  ChangePassword: '/classcipe/sys/changePassword',
 
   twoStepCode: '/auth/2step-code',
   SendSms: '/account/sms',
@@ -140,6 +141,14 @@ export function CheckPassword (parameter) {
     url: userApi.CheckPassword,
     method: 'post',
     params: parameter,
+    data: parameter
+  })
+}
+
+export function ChangePassword (parameter) {
+  return request({
+    url: userApi.ChangePassword,
+    method: 'post',
     data: parameter
   })
 }

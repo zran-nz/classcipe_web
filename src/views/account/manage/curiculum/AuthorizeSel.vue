@@ -271,7 +271,7 @@ export default {
       }
     },
     uploadFile(key, file, isAdd = false) {
-      let currentArr = this.totalResult[this.choosed.id][key].split(',')
+      let currentArr = this.totalResult[this.choosed.id][key].split(',').filter(i => !!i)
       if (isAdd) {
         currentArr.push(file.url)
       } else {
@@ -280,7 +280,7 @@ export default {
       this.totalResult[this.choosed.id][key] = currentArr.join(',')
     },
     handleRemove(key, url) {
-      const currentArr = this.totalResult[this.choosed.id][key].split(',')
+      const currentArr = this.totalResult[this.choosed.id][key].split(',').filter(i => !!i)
       const index = currentArr.findIndex(item => item === url)
       currentArr.splice(index, 1)
       this.totalResult[this.choosed.id][key] = currentArr.join(',')

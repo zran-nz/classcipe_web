@@ -283,7 +283,7 @@ export default {
             if (text && text.length > 0) {
               const index = text.findIndex(item => item.id === this.form.classId)
               if (index > -1) {
-                return moment.utc(text[index]).local().format('yyyy-MM-DD HH:mm')
+                return moment.utc(text[index].ralationDate).local().format('yyyy-MM-DD HH:mm')
               } else {
                 return ''
               }
@@ -461,6 +461,8 @@ export default {
               const find = this.classList.find(item => item.name === name)
               return find ? find.id : ''
             }).filter(i => !!i).join(',')
+          } else {
+            item.classes = this.form.classId
           }
           if (item.birthDay) {
             item.birthDay = moment(item.birthDay, 'DD/MM/YYYY').format('YYYY-MM-DD HH:mm:ss')

@@ -5,40 +5,31 @@ import { SET_PROMOTE_CODE } from '@/store/mutation-types'
 import { getUrlWithNoParams, getCookie } from '@/utils/util'
 
 /**
- * zoom 授权公共方法
+ * microsoft 授权公共方法
  * @type {{data(), created(), methods: {}}}
  */
-export const ZoomAuthMixin = {
+export const MicrosoftAuthMixin = {
   computed: {
     ...mapState({
-      zoomAccessToken: state => state.user.info.zoomAuthToken?.accessToken,
-      zoomRefreshToken: state => state.user.info.zoomAuthToken?.refreshToken
-    }),
-    zoomMeetingCapacity () {
-      const extInfoJson = this.$store.state.user.info.zoomAuthToken?.extInfo
-      if (extInfoJson) {
-        const extInfo = JSON.parse(extInfoJson)
-        return extInfo.meeting_capacity
-      } else {
-        return 100
-      }
-    }
+      microsoftAccessToken: state => state.user.info.mircosoftAuthToken?.accessToken,
+      microsoftRefreshToken: state => state.user.info.mircosoftAuthToken?.refreshToken
+    })
   },
   created() {
-    window.addEventListener('message', this.handleZoomAuthCallback)
+    window.addEventListener('message', this.handleMicrosoftAuthCallback)
   },
   beforeDestroy() {
-    window.removeEventListener('message', this.handleZoomAuthCallback)
+    window.removeEventListener('message', this.handleMicrosoftAuthCallback)
   },
   methods: {
     /**
-     * 进行zoom授权，获取zoom授权token 不是登录
+     * 进行microsoft授权，获取microsoft授权token 不是登录
      * @returns {Promise<any>}
      */
-    goToZoomAuth() {
+    goToMicrosoftAuth() {
       const email = this.$store.getters.email
-      this.$logger.info('goToZoomAuth email:', email)
-      let url = getThirdAuthURL('zoom')
+      this.$logger.info('goToMicrosoftAuth email:', email)
+      let url = getThirdAuthURL('microsoft')
       url += `?role=teacher`
       url += `&email=${email}`
       url += `&slideAuth=2`
@@ -48,7 +39,7 @@ export const ZoomAuthMixin = {
       if (this.callbackUrl) {
         window.sessionStorage.setItem(SESSION_CALLBACK_URL, getUrlWithNoParams(this.callbackUrl))
       }
-      window.sessionStorage.setItem('SESSION_AUTH_TYPE', 'zoom')
+      window.sessionStorage.setItem('SESSION_AUTH_TYPE', 'microsoft')
       this.$logger.info('full auth url ', url)
       const height = 600
       const width = 800
@@ -60,52 +51,52 @@ export const ZoomAuthMixin = {
       const windowObjectReference = window.open(url, '_blank', strWindowFeatures)
       if (!windowObjectReference) {
         // 弹出框被拦截
-        alert('The zoom authorization window is blocked by the browser, please allow the authorization window to pop up and then refresh the page.')
+        alert('The microsoft authorization window is blocked by the browser, please allow the authorization window to pop up and then refresh the page.')
       }
     },
 
-    handleZoomAuthCallback (event) {
+    handleMicrosoftAuthCallback (event) {
       const data = event.data
-      if (data && data.event === 'authUpdate' && data.authType === 'zoom') {
-        this.$logger.info('zoom auth update!')
+      if (data && data.event === 'authUpdate' && data.authType === 'microsoft') {
+        this.$logger.info('microsoft auth update!')
         window.sessionStorage.removeItem('SESSION_AUTH_TYPE')
         this.$store.dispatch('GetInfo')
       }
     },
 
-    async checkZoomAuthExpired() {
-      const ret = await checkAuthExpired('zoom', this.$store.getters.email)
-      this.$logger.info('checkZoomAuthExpired', ret)
+    async checkMicrosoftAuthExpired() {
+      const ret = await checkAuthExpired('microsoft', this.$store.getters.email)
+      this.$logger.info('checkMicrosoftAuthExpired', ret)
       if (ret.code === 0 && ret.success) {
-        this.$logger.info('zoom auth no expired!')
+        this.$logger.info('microsoft auth no expired!')
         return true
       } else {
         return false
       }
     },
 
-    async checkZoomAuth() {
-      if (!this.zoomAccessToken) {
-        this.goToZoomAuth()
+    async checkMicrosoftAuth() {
+      if (!this.microsoftAccessToken) {
+        this.goToMicrosoftAuth()
         return false
       } else {
-        const authExpired = await this.checkZoomAuthExpired()
+        const authExpired = await this.checkMicrosoftAuthExpired()
         if (!authExpired) {
-          this.$logger.info('zoom auth already expired')
-          this.goToZoomAuth()
+          this.$logger.info('microsoft auth already expired')
+          this.goToMicrosoftAuth()
           return false
         } else {
-          this.$logger.info('zoom auth still no expired')
+          this.$logger.info('microsoft auth still no expired')
           return true
         }
       }
     },
 
-    async unbindZoomAuth() {
-      if (!this.zoomAccessToken) {
+    async unbindMicrosoftAuth() {
+      if (!this.microsoftAccessToken) {
         return false
       } else {
-        const res = await unbindAuth('zoom')
+        const res = await unbindAuth('microsoft')
         if (res.success && res.code === 0) {
           this.$message.success('Unbind successfully')
           this.$store.dispatch('GetInfo')

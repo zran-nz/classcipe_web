@@ -37,6 +37,7 @@ export const GoogleAuthMixin = {
       if (this.callbackUrl) {
         window.sessionStorage.setItem(SESSION_CALLBACK_URL, getUrlWithNoParams(this.callbackUrl))
       }
+      window.sessionStorage.setItem('SESSION_AUTH_TYPE', 'google')
       this.$logger.info('full auth url ', url)
       const height = 600
       const width = 800
@@ -56,6 +57,7 @@ export const GoogleAuthMixin = {
       const data = event.data
       if (data && data.event === 'authUpdate' && data.authType === 'google') {
         this.$logger.info('google auth update!')
+        window.sessionStorage.removeItem('SESSION_AUTH_TYPE')
         this.$store.dispatch('GetInfo')
       }
     },

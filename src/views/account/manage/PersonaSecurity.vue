@@ -82,6 +82,7 @@ import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
 import { GoogleAuthMixin } from '@/mixins/GoogleAuthMixin'
+import { MicrosoftAuthMixin } from '@/mixins/MicrosoftAuthMixin'
 
 import FixedFormHeader from '@/components/Common/FixedFormHeader'
 import FormHeader from '@/components/FormHeader/FormHeader'
@@ -99,7 +100,8 @@ export default {
     UserModeMixin,
     CurrentSchoolMixin,
     GoogleAuthMixin,
-    ZoomAuthMixin
+    ZoomAuthMixin,
+    MicrosoftAuthMixin
   ],
   components: {
     FixedFormHeader,
@@ -147,7 +149,7 @@ export default {
       return (this.info && this.info.zoomAuthToken && this.info.zoomAuthToken.accessToken) ? this.info.zoomAuthToken : null
     },
     onlyOneAuth() {
-      const nums = [this.mircosoftAuthToken, this.googleAuthToken, this.zoomAuthToken].filter(auth => auth === null)
+      const nums = [this.mircosoftAuthToken, this.googleAuthToken, this.zoomAuthToken].filter(auth => auth === null).length
       return nums === 2
     }
   },
@@ -185,6 +187,10 @@ export default {
         this.loading = true
         await this.unbindGoogleAuth()
         this.loading = false
+      } else if (tokenKey === 'mircosoftAuthToken') {
+        this.loading = true
+        await this.unbindMicrosoftAuth()
+        this.loading = false
       }
     },
     connect(tokenKey) {
@@ -192,6 +198,8 @@ export default {
         this.goToZoomAuth()
       } else if (tokenKey === 'googleAuthToken') {
         this.goToGoogleAuth()
+      } else if (tokenKey === 'mircosoftAuthToken') {
+        this.goToMicrosoftAuth()
       }
     }
   }
