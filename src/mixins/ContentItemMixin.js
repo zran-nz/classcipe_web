@@ -1,7 +1,6 @@
-import { UnitPlanAddOrUpdate } from '@/api/unitPlan'
-import { TaskAddOrUpdate } from '@/api/task'
 import { VideoAddOrUpdate } from '@/api/video'
 import { PDContentAddOrUpdate } from '@/api/pdContent'
+import { TemplatesGetPresentation } from '@/api/template'
 
 export const ContentItemMixin = {
   data () {
@@ -50,9 +49,17 @@ export const ContentItemMixin = {
           this.updateEditSlideLoading = true
           const contentType = parseInt(this.content.type)
           if (contentType === this.$classcipe.typeMap['unit-plan']) {
-            await UnitPlanAddOrUpdate({ id: this.content.id, slideEditing: false })
+            // await UnitPlanAddOrUpdate({ id: this.content.id, slideEditing: false })
+            await TemplatesGetPresentation({
+              taskId: this.content.id,
+              needRefresh: true
+            })
           } else if (contentType === this.$classcipe.typeMap.task) {
-            await TaskAddOrUpdate({ id: this.content.id, slideEditing: false })
+            // await TaskAddOrUpdate({ id: this.content.id, slideEditing: false })
+            await TemplatesGetPresentation({
+              taskId: this.content.id,
+              needRefresh: true
+            })
           } else if (contentType === this.$classcipe.typeMap.video) {
             await VideoAddOrUpdate({ id: this.content.id, slideEditing: false })
           } else if (contentType === this.$classcipe.typeMap.pd) {
