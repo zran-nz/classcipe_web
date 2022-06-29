@@ -438,7 +438,7 @@ export default {
 }
 
 .selected-item {
-  filter: grayscale(1);
+  display: none !important;
 }
 
 .selected-wrapper {
