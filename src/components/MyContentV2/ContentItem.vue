@@ -86,10 +86,6 @@
                 <more-icon />
               </div>
               <div class='content-item-more-action' slot='overlay'>
-                <div class='self-learning menu-item' v-if='content.type === typeMap.task'>
-                  Self learning
-                  <a-switch size='small' @change='handleSelfLearning' />
-                </div>
                 <div class='menu-item'>
                   <custom-button label='Archive' @click='handleDeleteItem'>
                     <template v-slot:icon>
@@ -108,6 +104,11 @@
                 </div>
               </div>
             </a-dropdown>
+
+            <div class='self-learning' v-if='content.type === typeMap.task'>
+              Self learning
+              <a-switch size='small' @change='handleSelfLearning' />
+            </div>
 
             <custom-button label='Preview' @click='handlePreviewDetail(content)'>
               <template v-slot:icon>
@@ -634,4 +635,7 @@ export default {
   }
 }
 
+.self-learning {
+  font-size: 13px;
+}
 </style>

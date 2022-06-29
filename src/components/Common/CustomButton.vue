@@ -52,7 +52,7 @@ export default {
 
 .cc-custom-button {
   background-color: #EEF1F3;
-  padding: 14px 18px;
+  padding: 12px 18px;
   border-radius: 40px;
   font-family: Arial;
   font-weight: 400;

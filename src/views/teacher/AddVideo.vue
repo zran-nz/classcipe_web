@@ -118,9 +118,8 @@
                           allow-clear/>
                       </a-col>
                       <a-col span='10' offset='1'>
-                        <custom-tag-v3
+                        <custom-tag-pd
                           :custom-tags.sync='form.customTags'
-                          :tag-category-desc.sync='form.tagCategoryDesc'
                         />
                       </a-col>
                     </a-row>
@@ -205,10 +204,12 @@ import LearningObjective from '@/components/LearningObjective/LearningObjective'
 import CustomTagV3 from '@/components/CustomTag/CustomTagV3'
 import { UpdateContentStatus } from '@/api/teacher'
 import CustomImageUploader from '@/components/Common/CustomImageUploader'
+import CustomTagPd from '@/components/CustomTag/CustomTagPd'
 
 export default {
   name: 'AddPD',
   components: {
+    CustomTagPd,
     CustomImageUploader,
     CustomTagV3,
     LearningObjective,
