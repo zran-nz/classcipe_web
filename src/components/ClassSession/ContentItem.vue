@@ -41,9 +41,8 @@
               </div>
               <div class='lesson-zoom' v-show='zoomMeetStartUrl' @click='startZoom'>
                 <div class='icon'>
-                  <zoom-icon />
+                  <img src='~@/assets/icons/zoom/img.png' />
                 </div>
-                Zoom
               </div>
             </div>
             <div class='sub-right'>
@@ -459,17 +458,7 @@ export default {
               flex-direction: row;
               font-size: 13px;
               color: #4a8cff;
-              .icon {
-                display: flex;
-                align-items: center;
-                justify-content: flex-start;
-                flex-direction: row;
-                padding: 0 4px;
-                svg {
-                  width: 20px;
-                  height: 20px;
-                }
-              }
+              height: 20px;
             }
           }
 
