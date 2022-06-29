@@ -14,7 +14,7 @@
               {{ contentTypeName }}
             </div>
             <div class='content-name'>
-              <template v-if='!editingSessionName'>{{ session.sessionName || 'Untitled' }}</template>
+              <template v-if='!editingSessionName'>{{ session.session.sessionName || 'Untitled' }}</template>
               <template v-if='editingSessionName'>
                 <a-input class='cc-form-input' v-model='newSessionName' />
               </template>
@@ -296,15 +296,15 @@ export default {
     },
 
     toggleEditSessionName () {
-      this.$logger.info('toggleEditSessionName')
+      this.$logger.info('toggleEditSessionName', this.session)
       if (this.editingSessionName) {
         if (this.newSessionName.trim().length) {
-          this.session.sessionName = this.newSessionName.trim()
+          this.session.session.sessionName = this.newSessionName.trim()
           this.editingSessionName = false
           this.updateSession()
         }
       } else {
-        this.newSessionName = this.session.sessionName || 'Untitled'
+        this.newSessionName = this.session.session.sessionName || 'Untitled'
         this.editingSessionName = true
       }
     },
@@ -320,7 +320,7 @@ export default {
 
     updateSession() {
       this.$logger.info('update session', this.session)
-      AddOrUpdateClass(this.session).then(response => {
+      AddOrUpdateClass(this.session.session).then(response => {
         this.$logger.info('response item', response)
       })
     },
