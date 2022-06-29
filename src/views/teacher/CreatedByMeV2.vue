@@ -43,8 +43,13 @@
       </div>
     </div>
 
-    <content-publish :publish-loading="publishLoading" v-if='contentPublishVisible' :content='currentContent' @publish='handleUpdatePublish' @close='handleCancelPublish' />
     <verification-tip ref="verificationTip" @continue="doUpdatePublish"/>
+    <content-publish
+      :publish-loading="publishLoading"
+      v-if='contentPublishVisible'
+      :content='currentContent'
+      @publish='handleUpdatePublish'
+      @close='handleCancelPublish' />
   </div>
 </template>
 

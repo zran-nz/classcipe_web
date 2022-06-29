@@ -95,6 +95,7 @@
                     Purpose of video
                   </template>
                   <custom-radio-button-group
+                    v-if='!contentLoading'
                     :list="[ {name: 'Student self-learning', value: 0}, {name: 'Teacher PD', value: 1}]"
                     :value.sync='form.contentType' >
                   </custom-radio-button-group>
@@ -118,7 +119,9 @@
                       </a-col>
                       <a-col span='10' offset='1'>
                         <custom-tag-v3
-                          :custom-tags.sync='form.customTags' />
+                          :custom-tags.sync='form.customTags'
+                          :tag-category-desc.sync='form.tagCategoryDesc'
+                        />
                       </a-col>
                     </a-row>
                   </div>
@@ -241,6 +244,7 @@ export default {
         coverVideo: null,
         contentType: 0,
         goals: null,
+        overview: null,
         customTags: [],
         tagCategoryDesc: [],
         learnOuts: [],
@@ -271,7 +275,6 @@ export default {
       VideoField.CoverImage
     ]
     this.initData()
-    this.contentLoading = false
   },
   methods: {
 
@@ -289,17 +292,13 @@ export default {
         this.$logger.info('VideoQueryById ' + this.videoId, response.result)
         if (response.code === 0 && response.success) {
           const data = response.result
-          if (data.customTags && data.customTags.length) {
-            if (!data.customTags[0].fieldName) {
-              data.customTags = []
-            }
-          }
           this.form = data
         } else {
           this.$message.error(response.message)
         }
       }).finally(() => {
         this.saving = false
+        this.contentLoading = false
       })
     },
 
