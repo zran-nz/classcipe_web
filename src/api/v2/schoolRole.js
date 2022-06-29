@@ -12,7 +12,11 @@ export const schoolRoleApi = {
   deleteRoleUser: `/classcipe/${API_PREFIX}/deleteUser`,
   getRolePermission: `/classcipe/${API_PREFIX}/getPermission`,
   getRoleUsers: `/classcipe/${API_PREFIX}/getUsers`,
-  saveRolePermission: `/classcipe/${API_PREFIX}/savePermission`
+  saveRolePermission: `/classcipe/${API_PREFIX}/savePermission`,
+  bindRoleSubjectLeader: `/classcipe/${API_PREFIX}/user/bindSubjectLeader`,
+  bindRoleClassTeachers: `/classcipe/${API_PREFIX}/user/bindTeachers`,
+  getRoleSubjectLeaders: `/classcipe/${API_PREFIX}/user/getSubjectLeaders`,
+  getRoleClassTeachers: `/classcipe/${API_PREFIX}/user/getTeachers`
 }
 
 /**
@@ -61,8 +65,8 @@ export function listRole (parameter) {
         records: [
           { 'roleCode': 'admin', 'name': 'Admin' },
           { 'roleCode': 'head', 'name': 'Head teacher' },
-          { 'roleCode': 'leader', 'name': 'Subject leader' },
-          { 'roleCode': 'teacher', 'name': 'Teacher' }
+          { 'roleCode': 'leader', 'name': 'Subject leader' }
+          // { 'roleCode': 'teacher', 'name': 'Teacher' }
         ]
       }
     })
@@ -185,5 +189,69 @@ export function listRole (parameter) {
     url: schoolRoleApi.getRoleUsers,
     method: 'get',
     params: parameter
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+ export function bindRoleSubjectLeader (parameter) {
+  return request({
+    url: schoolRoleApi.bindRoleSubjectLeader,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+ export function bindRoleClassTeachers (parameter) {
+  return request({
+    url: schoolRoleApi.bindRoleClassTeachers,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+ export function getRoleSubjectLeaders (parameter) {
+  return request({
+    url: schoolRoleApi.getRoleSubjectLeaders,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+ export function getRoleClassTeachers (parameter) {
+  return request({
+    url: schoolRoleApi.getRoleClassTeachers,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
   })
 }

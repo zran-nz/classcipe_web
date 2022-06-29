@@ -309,6 +309,7 @@ export default {
         if (roleRes.code === 0) {
           this.roleList = roleRes.result
         }
+        this.onClearSelected()
       })
     },
     toggleTab(status) {

@@ -102,6 +102,7 @@ export default {
     async updateInviteCode(bool) {
       const res = await updateInvite({
         needApprove: bool ? 1 : 0,
+        need_approve: bool ? 1 : 0,
         id: this.inviteCodeId
       })
       if (res.success) {

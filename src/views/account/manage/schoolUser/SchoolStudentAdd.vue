@@ -211,14 +211,14 @@ export default {
         lastName: [{ required: true, message: 'Please Input Last Name!' }],
         inviteEmail: [
           { required: true, message: 'Please Input Email!', trigger: 'change' },
-          { type: 'email', message: 'Please Input Valid Email!' },
+          { type: 'email', message: 'Please Input Valid Email!', trigger: 'blur' },
           { validator: this.validateRemoteEmail, trigger: 'blur' }
         ],
         parentFirstName: [{ required: true, message: 'Please Input First Name!' }],
         parentLastName: [{ required: true, message: 'Please Input Last Name!' }],
         parentEmail: [
           { required: true, message: 'Please Input Email!', trigger: 'change' },
-          { type: 'email', message: 'Please Input Valid Email!' },
+          { type: 'email', message: 'Please Input Valid Email!', trigger: 'blur' },
           { validator: this.validateRemoteParentEmail, trigger: 'blur' }
         ],
         classArr: [{ required: true, message: 'Please Select a class!', trigger: 'change' }],

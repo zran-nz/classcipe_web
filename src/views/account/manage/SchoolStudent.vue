@@ -66,12 +66,12 @@
             <!-- <a-tag :color="getStatusFormat(status, 'color')">{{ getStatusFormat(status) || ' - ' }}</a-tag> -->
             <a-space>
               <a-tooltip title="Student Active">
-                <a-icon v-if="status === 1" type="check" />
-                <a-icon v-else type="close" />
+                <a-icon color="#007990" v-if="status === 1" type="check" />
+                <a-icon color="#007990" v-else type="close" />
               </a-tooltip>
               <a-tooltip title="Parent Active">
-                <a-icon v-if="record.parentEmailStatus" type="check" />
-                <a-icon v-else type="close" />
+                <a-icon color="#8D9496" v-if="record.parentEmailStatus" type="check" />
+                <a-icon color="#8D9496" v-else type="close" />
               </a-tooltip>
             </a-space>
           </div>
@@ -241,12 +241,20 @@ export default {
           align: 'center',
           dataIndex: 'status',
           width: 120,
+          filterMultiple: false,
+          filters: [{
+            text: 'Parent Active',
+            value: 1
+          }, {
+            text: 'Parent Inactive',
+            value: 0
+          }],
           scopedSlots: { customRender: 'status' }
         },
         {
           title: 'Last Login',
           align: 'center',
-          dataIndex: 'updateTime',
+          dataIndex: 'lastLogin',
           width: 120
         },
         {
@@ -286,11 +294,13 @@ export default {
         if (clsRes.code === 0) {
           this.classList = clsRes.result.records
         }
+        this.onClearSelected()
       })
     },
     toggleTab(status) {
       this.queryParam.schoolUserStatus = status
-      this.debounceLoad()
+      this.onClearSelected()
+      this.searchQuery()
     },
     getStatusFormat (status, key = 'label') {
       const find = Object.values(SCHOOL_USER_STATUS).find(tab => tab.value === status)
@@ -362,6 +372,11 @@ export default {
         this.filters.classes = filters.classes.join(',')
       } else {
         this.filters.classes = ''
+      }
+      if (filters.status && filters.status.length > 0) {
+        this.filters.parentEmailStatus = filters.status
+      } else {
+        this.filters.parentEmailStatus = ''
       }
     },
     handleAdd() {

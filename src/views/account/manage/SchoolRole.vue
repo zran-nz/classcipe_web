@@ -23,7 +23,8 @@
           </a-col>
           <a-col :md="rightColMd" :sm="24" v-if="rightcolval === 1" style="height: 100%">
             <a-card :bordered="false" style="height: 100%">
-              <school-role-user :school="currentSchool" :role="selectedRole" @close="clearRole"/>
+              <!-- <school-role-user :school="currentSchool" :role="selectedRole" @close="clearRole"/> -->
+              <school-role-class :school="currentSchool" :role="selectedRole" @close="clearRole"/>
             </a-card>
           </a-col>
         </a-row>
@@ -42,6 +43,7 @@ import FormHeader from '@/components/FormHeader/FormHeader'
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import SchoolRoleList from './schoolRole/SchoolRoleList'
 import SchoolRoleUser from './schoolRole/SchoolRoleUser'
+import SchoolRoleClass from './schoolRole/SchoolRoleClass'
 
 import { mapState } from 'vuex'
 const { debounce } = require('lodash-es')
@@ -54,7 +56,8 @@ export default {
     FormHeader,
     CustomTextButton,
     SchoolRoleList,
-    SchoolRoleUser
+    SchoolRoleUser,
+    SchoolRoleClass
   },
   props: {
     id: {

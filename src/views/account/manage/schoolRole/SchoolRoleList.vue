@@ -27,7 +27,12 @@
           <a @click="showUsers(record)">Users</a>
           <template v-if="selectedRowKeys.length === 0">
             <a @click="handleEdit(record)">Edit</a>
-            <a @click="handlePermission(record)">Permissions</a>
+            <a-popover :overlayStyle="{width: '300px'}" :title="record.name + ' Permission'" trigger="click">
+              <div slot="content">
+                {{ ROLE_PERMISSION[record.roleCode].label }}
+              </div>
+              <a >Permissions</a>
+            </a-popover>
             <!-- <a @click="handleDelete(record)">Delete</a> -->
           </template>
           <a-dropdown v-else>
@@ -36,7 +41,12 @@
             </a>
             <a-menu slot="overlay">
               <a-menu-item>
-                <a @click="handlePermission(record)">Permissions</a>
+                <a-popover :overlayStyle="{width: '300px'}" :title="record.name + ' Permission'" trigger="click">
+                  <div slot="content">
+                    {{ ROLE_PERMISSION[record.roleCode].label }}
+                  </div>
+                  <a >Permissions</a>
+                </a-popover>
               </a-menu-item>
               <a-menu-item >
                 <a @click="handleEdit(record)">Edit</a>
@@ -58,6 +68,7 @@
 import { pageListRole, deleteRole } from '@/api/v2/schoolRole'
 import SchoolRoleAdd from './SchoolRoleAdd.vue'
 import SchoolRolePermission from './SchoolRolePermission.vue'
+import { ROLE_PERMISSION } from '@/const/common'
 const { debounce } = require('lodash-es')
 
 export default {
@@ -85,6 +96,7 @@ export default {
   },
   data() {
     return {
+      ROLE_PERMISSION: ROLE_PERMISSION,
       currentSchool: this.school,
       queryParams: {
         searchKey: ''
