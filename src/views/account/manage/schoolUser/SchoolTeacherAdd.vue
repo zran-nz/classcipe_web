@@ -82,7 +82,7 @@
           </a-col>
         </a-row>
       </a-form-model-item>
-      <a-form-model-item label="Roles" prop="roleArr">
+      <a-form-model-item label="Roles">
         <a-select
           mode="multiple"
           optionFilterProp="children"
@@ -188,7 +188,7 @@ export default {
         lastName: [{ required: true, message: 'Please Input Last Name!' }],
         inviteEmail: [
           { required: true, message: 'Please Input Email!', trigger: 'change' },
-          { type: 'email', message: 'Please Input Valid Email!' },
+          { type: 'email', message: 'Please Input Valid Email!', trigger: 'blur' },
           { validator: this.validateRemoteEmail, trigger: 'blur' }
         ],
         classArr: [{ required: true, message: 'Please Select a class!', trigger: 'change' }],

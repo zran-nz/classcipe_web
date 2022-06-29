@@ -38,8 +38,8 @@ export function listRole (parameter) {
       result: [
         { 'roleCode': 'admin', 'name': 'Admin' },
         { 'roleCode': 'head', 'name': 'Head teacher' },
-        { 'roleCode': 'leader', 'name': 'Subject leader' },
-        { 'roleCode': 'teacher', 'name': 'Teacher' }
+        { 'roleCode': 'leader', 'name': 'Subject leader' }
+        // { 'roleCode': 'teacher', 'name': 'Teacher' }
       ]
     })
   })
