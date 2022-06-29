@@ -307,7 +307,7 @@ export const asyncRouterMap = [
             name: 'AddVideo',
             props: true,
             component: () => import('@/views/teacher/AddVideo'),
-            meta: { title: 'menu.pd', keepAlive: true, permission: ['teacher'] }
+            meta: { title: 'menu.video', keepAlive: true, permission: ['teacher'] }
           },
           {
             path: '/teacher/unit-plan/:unitPlanId',
