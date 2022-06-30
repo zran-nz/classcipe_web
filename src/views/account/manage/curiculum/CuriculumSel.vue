@@ -147,7 +147,9 @@ export default {
           this.choosed.splice(index, 1)
         }
       }
-      this.$emit('change', this.choosed)
+      const rmCuris = differenceBy(this.origin, this.choosed, 'curriculumId')
+      const addCuris = differenceBy(this.choosed, this.origin, 'curriculumId')
+      this.$emit('change', this.choosed, (rmCuris.length > 0 || addCuris.length > 0))
     },
     doSave() {
       this.$refs.yearNameSet.handleSave()

@@ -386,7 +386,7 @@ export default {
       this.$router.push('/manage/student/upload')
     },
     handleEdit(item) {
-      this.$router.push('/manage/student/detail/' + item.inviteEmail)
+      this.$router.push('/manage/student/detail/' + item.uid)
     }
   }
 }

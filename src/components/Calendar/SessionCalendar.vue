@@ -1,5 +1,6 @@
 <template>
   <div style="width: 100%">
+    <!-- <a-button @click="changeView">change view</a-button> -->
     <a-spin :spinning="loading">
       <div id="scheduleContent" class="schedule-content" ref="scheduleContent">
         <cc-calendar
@@ -102,6 +103,10 @@ export default {
     addable: {
       type: Boolean,
       default: true
+    },
+    forSelect: {
+      type: Boolean,
+      default: false
     }
   },
   watch: {
@@ -149,7 +154,9 @@ export default {
       currentEvents: [],
       currentClass: 1,
       event: {
-        title: 'My Event'
+        title: 'My Event',
+        start: '',
+        end: ''
       },
       headerToolbar: {
         left: 'prev,next,today',
@@ -340,7 +347,7 @@ export default {
                 // } else if (this.queryType === this.CALENDAR_QUERY_TYPE.WORKSHOP.value) {
                 //   index = this.showWorkshopOptions.findIndex(option => option.value === (item.workshopsDetailInfo ? item.workshopsDetailInfo.registeredNum : -1))
                 // }
-                const color = (index === -1) ? '#fff' : BG_COLORS[index]
+                const color = (index === -1) ? '#f6f3f3' : BG_COLORS[index]
 
                 let startTime = item.startTime
                 let endTime = item.endTime
@@ -415,6 +422,17 @@ export default {
       }
       return this[typeLabel] ? this[typeLabel] : []
     },
+    changeView() {
+      const calendarApi = this.$refs.fullCalendar.getApi()
+      calendarApi.changeView('timeGridFourDay', {
+        start: '2017-06-01',
+        end: '2017-06-13'
+      })
+      const selfViews = this.selfViews
+      selfViews.timeGridFourDay.duration.days = 13
+      calendarApi.setOption('views', selfViews)
+      this.reFetch()
+    },
     handleSchoolChange(school) {
       this.initData()
       setTimeout(() => {
@@ -445,6 +463,29 @@ export default {
       this.event = selectInfo
       this.importModel.startDate = moment(this.event.start).format('YYYY-MM-DD HH:mm:ss')
       this.importModel.endDate = moment(this.event.end).format('YYYY-MM-DD HH:mm:ss')
+      if (this.forSelect) {
+        // 添加时间选择事件
+        const calendarApi = this.$refs.fullCalendar.getApi()
+        const selectEvent = calendarApi.getEventById('DateSelect')
+        if (selectEvent) {
+          selectEvent.remove()
+        }
+        calendarApi.addEvent({
+          id: 'DateSelect',
+          title: 'DateSelect',
+          start: this.importModel.startDate,
+          end: this.importModel.endDate,
+          backgroundColor: 'transparent',
+          borderColor: 'transparent',
+          editable: true,
+          extendedProps: {
+            eventType: 'selectDate',
+            backgroundColor: '#3688d8',
+            start: this.importModel.startDate,
+            end: this.importModel.endDate
+          }
+        })
+      }
       this.$emit('date-select', this.importModel)
     },
     closeTip() {
@@ -521,23 +562,37 @@ export default {
       console.log(event.event.start, event.event.end)
       const current = event.event
       const extendedProps = current.extendedProps
-      const params = {
-        sessionStartTime: moment(current.start).utc().format('YYYY-MM-DD HH:mm:ss'),
-        deadline: moment(current.end).utc().format('YYYY-MM-DD HH:mm:ss'),
-        id: extendedProps.id
+      if (event.event.id === 'DateSelect') {
+        this.$emit('date-select', {
+          startDate: moment(current.start).format('YYYY-MM-DD HH:mm:ss'),
+          endDate: moment(current.end).format('YYYY-MM-DD HH:mm:ss')
+        })
+      } else {
+        const params = {
+          sessionStartTime: moment(current.start).utc().format('YYYY-MM-DD HH:mm:ss'),
+          deadline: moment(current.end).utc().format('YYYY-MM-DD HH:mm:ss'),
+          id: extendedProps.id
+        }
+        this.handleSave(params, event)
       }
-      this.handleSave(params, event)
     },
     handleEventResize(event) {
       console.log(event)
       const current = event.event
       const extendedProps = current.extendedProps
-      const params = {
-        sessionStartTime: moment(current.start).utc().format('YYYY-MM-DD HH:mm:ss'),
-        deadline: moment(current.end).utc().format('YYYY-MM-DD HH:mm:ss'),
-        id: extendedProps.id
+      if (event.event.id === 'DateSelect') {
+        this.$emit('date-select', {
+          startDate: moment(current.start).format('YYYY-MM-DD HH:mm:ss'),
+          endDate: moment(current.end).format('YYYY-MM-DD HH:mm:ss')
+        })
+      } else {
+        const params = {
+          sessionStartTime: moment(current.start).utc().format('YYYY-MM-DD HH:mm:ss'),
+          deadline: moment(current.end).utc().format('YYYY-MM-DD HH:mm:ss'),
+          id: extendedProps.id
+        }
+        this.handleSave(params, event)
       }
-      this.handleSave(params, event)
     },
     handleSave(params, info) {
       console.log(params)

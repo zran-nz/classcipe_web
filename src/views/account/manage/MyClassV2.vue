@@ -296,7 +296,6 @@ export default {
         const isFind = this[this.currentTab + 'Infos'].find(info => info.id === view.id)
         if (!isFind) {
           this.allDatas[this.currentTab].splice(i, 1)
-          // TODO 数据库是否删除
         }
       }
       console.log(this.allDatas[this.currentTab])

@@ -113,7 +113,7 @@
 </template>
 
 <script>
-import { USER_MODE, EXPIRE_UNIT } from '@/const/common'
+import { USER_MODE, EXPIRE_UNIT, ROLE_PERMISSION } from '@/const/common'
 
 import { updateProfile } from '@/api/schoolUser'
 import { updateSchool } from '@/api/school'
@@ -230,7 +230,8 @@ export default {
             title: 'Classes',
             extraKey: 'classCount',
             desc: 'Review payments, payouts, coupons,gift cards and taxes',
-            url: '/manage/class'
+            url: '/manage/class',
+            hidden: !this.hasRolePermission('MyCalssV2')
           },
           {
             avatar: TeachersPng,
@@ -259,7 +260,7 @@ export default {
             avatar: SpaceManagePng,
             title: 'Space Manage',
             desc: '',
-            hidden: this.userMode === USER_MODE.SELF,
+            hidden: this.userMode === USER_MODE.SELF || !this.hasRolePermission('SchoolSpace'),
             url: '/manage/school/space'
           },
           {
@@ -380,6 +381,21 @@ export default {
     },
     loadData() {
 
+    },
+    hasRolePermission(permissionCode) {
+      let hasPerm = false
+      if (this.userMode === USER_MODE.SCHOOL && this.currentSchool.roleNames) {
+        if (this.currentSchool.roleNames.includes('admin')) return true
+        let permissions = []
+        this.currentSchool.roleNames.forEach(role => {
+          // 所有权限
+          if (ROLE_PERMISSION[role]) {
+            permissions = permissions.concat(ROLE_PERMISSION[role].permissions)
+          }
+        })
+        hasPerm = permissions.includes(permissionCode)
+      }
+      return hasPerm
     },
     handleSelfEdit() {
       this.selfEditModel.nickname = this.currentSchool.schoolUser.nickname || this.info.nickname
