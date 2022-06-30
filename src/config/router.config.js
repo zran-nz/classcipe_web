@@ -564,7 +564,7 @@ export const asyncRouterMap = [
         children: [
           {
             path: '/manage/school-info',
-            name: 'center',
+            name: 'SchoolInfo',
             component: () => import('@/views/account/manage/SchoolInfo'),
             meta: {
               title: 'menu.managing.school-info',
@@ -576,7 +576,7 @@ export const asyncRouterMap = [
           },
           {
             path: '/manage/persona-info',
-            name: 'center',
+            name: 'PersonaInfo',
             component: () => import('@/views/account/manage/PersonaInfo'),
             meta: {
               title: 'Persona Info',

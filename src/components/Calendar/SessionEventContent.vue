@@ -2,23 +2,25 @@
   <a-popover
     title="Session Detail"
     trigger="click"
+    v-if="info.event.extendedProps.eventType !== 'selectDate'"
     :destroyTooltipOnHide="true"
     :getPopupContainer="trigger => getPopupContainer(trigger, info)"
     @visibleChange="visible => showPopover(visible, info)"
   >
     <a slot="content" >
       <a-spin :spinning="loading">
-        <content-item-calendar
-          v-if="queryType !== CALENDAR_QUERY_TYPE.WORKSHOP.value"
-          ref="contentItemCalendar"
-          :content='getSession(info)'
-          :units='currentUnitList'
-          @close="closeAllModal"
-          @delete='(data) => handleDelete(info, data)'
-          @change-unit="(params) => handleSave(params, info)"
-          @save-response-limit="params => handleSave(params, info)"
-        >
-        </content-item-calendar>
+        <div v-if="queryType !== CALENDAR_QUERY_TYPE.WORKSHOP.value" style="max-width: 900px;">
+          <content-item-calendar
+            ref="contentItemCalendar"
+            :content='getSession(info)'
+            :units='currentUnitList'
+            @close="closeAllModal"
+            @delete='(data) => handleDelete(info, data)'
+            @change-unit="(params) => handleSave(params, info)"
+            @save-response-limit="params => handleSave(params, info)"
+          >
+          </content-item-calendar>
+        </div>
         <div v-else style="font-size: 70px;max-width: 900px;">
           <liveworkshop-item
             @close="closeAllModal"
@@ -40,6 +42,16 @@
       <label v-else for=""> {{ info.event.title }} </label>
     </div>
   </a-popover>
+  <div v-else style="height: 100%;">
+    <div
+      class="schedule-event-content"
+      :style="{backgroundColor: info.event.extendedProps.backgroundColor, color: '#333'}"
+    >
+      <div>
+        {{ info.event.start | dayjs(FORMATTER_SIM) }}-{{ info.event.end | dayjs(FORMATTER_SIM) }}
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>

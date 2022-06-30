@@ -322,7 +322,7 @@ export default {
         this.truelySave(true)
       }
     },
-    truelySave(save = false) {
+    truelySave(save = false, notip = false) {
       if (!save) {
         this.$emit('save-success', true)
         return
@@ -358,7 +358,7 @@ export default {
         console.log(res)
       }).finally(() => {
         this.initSubject()
-        this.$emit('save-success')
+        this.$emit('save-success', notip)
       })
     }
   }

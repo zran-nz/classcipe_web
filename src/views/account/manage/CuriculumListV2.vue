@@ -113,6 +113,7 @@ export default {
           value: 'Authorization',
           title: 'IB authorization'
       }],
+      curriculumChanged: false,
       pendingCurriculum: false,
       pendingSubject: false,
       pendingAuthorization: false,
@@ -149,10 +150,23 @@ export default {
       this.$router.go(-1)
     },
     toggleTab(status) {
+      // 当大纲发生变化，切换的时候提示是否要保存
+      if (status === 'Subject' && this.curriculumChanged) {
+        this.$confirm({
+          content: 'Your curiculum has changed. Do you want to save first? ',
+          centered: true,
+          onOk: () => {
+            this.saveLoading = true
+            this.$refs.CurriculumRef.doSave()
+          }
+        })
+        return
+      }
       this.currentTab = status
     },
-    changeCurriculum(val) {
+    changeCurriculum(val, isChange) {
       console.log(val)
+      this.curriculumChanged = isChange
       this.currentCurriculum = [ ...val ]
     },
     changeSubjects(val) {
@@ -171,6 +185,7 @@ export default {
       if (this.currentTab === 'Curriculum') {
         this.saveLoading = true
         this.$refs.CurriculumRef.doSave()
+        this.$refs.SubjectRef.truelySave(true, true)
       } else if (this.currentTab === 'Subject') {
         this.saveLoading = true
         this.$refs.SubjectRef.doSave()

@@ -431,11 +431,11 @@ export const ROLE_PERMISSION = {
     label: 'Managing School info, Payment details, Orders, Classes, Teachers, Students, Space, School roles, Academic Terms, Tags, Curriculum, Attendance and Teaching plan format.'
   },
   head: {
-    permissions: [],
+    permissions: ['MyCalssV2', 'SchoolSpace'],
     label: 'Managing their classes, Space(Content relating to their classes)'
   },
   leader: {
-    permissions: [],
+    permissions: ['MyCalssV2', 'SchoolSpace', 'TagSettings'],
     label: 'Managing subject classes, Space(Content relating to their subjects), Tags(For their subjects)'
   }
 }
