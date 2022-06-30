@@ -2,7 +2,7 @@
   <div class="my-reviews">
     <a-space class="reviews-opt" v-if="(myReviews || role === 'teacher') && !footerBottom">
       <a-button type="link" v-if="role === 'student' && !isEdit" @click="() => triggerEdit(true)">Edit Review</a-button>
-      <a-button type="link" v-if="role === 'teacher' && !myReviews && !isEdit" @click="() => triggerEdit(true)">Leave a Review</a-button>
+      <a-button type="link" v-if="role === 'teacher' && !myReviews && !isEdit && showCreate" @click="() => triggerEdit(true)">Leave a Review</a-button>
       <a-button type="link" v-if="isEdit" @click="() => triggerEdit(false)">Cancel</a-button>
       <a-button type="primary" v-if="isEdit" @click="handleSaveMyReview">{{ myReviews ? 'Update' : 'Send' }}</a-button>
     </a-space>
@@ -125,14 +125,25 @@ export default {
     myReviews: {
       type: Object,
       default: null
+    },
+    canCreate: {
+      type: Boolean,
+      default: true
     }
   },
   watch: {
+    canCreate(val) {
+      this.showCreate = val
+      if (this.footerBottom || (this.role === 'teacher' && this.showCreate && (!this.myReviews || !this.myReviews.id))) {
+        this.isEdit = true
+      }
+    },
     myReviews: {
       handler(val) {
         console.log(val)
+        console.log(this.showCreate)
         this.subForm = val ? { ...val } : { ...this.init }
-        if (this.footerBottom || (this.role === 'teacher' && (!val || !val.id))) {
+        if (this.footerBottom || (this.role === 'teacher' && this.showCreate && (!val || !val.id))) {
           this.isEdit = true
         } else {
           this.isEdit = false
@@ -144,6 +155,7 @@ export default {
   data() {
     return {
       subLoading: false,
+      showCreate: this.canCreate,
       RATE_TOOLTIPS: RATE_TOOLTIPS,
       isEdit: false,
       reviewsText: ['Easy', 'Intermediate', 'Difficult'],
@@ -164,7 +176,7 @@ export default {
     }
   },
   mounted() {
-    if (this.footerBottom || (this.role === 'teacher' && (!this.myReviews || !this.myReviews.id))) {
+    if (this.footerBottom || (this.role === 'teacher' && this.showCreate && (!this.myReviews || !this.myReviews.id))) {
       this.isEdit = true
     }
   },

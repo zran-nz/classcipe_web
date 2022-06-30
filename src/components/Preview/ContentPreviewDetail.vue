@@ -328,6 +328,7 @@
             :del="ReviewsTeacher.ReviewsTeacherDelete"
             :myReview="ReviewsTeacher.ReviewsTeacherMyReview"
             :canEdit="true"
+            :canCreate="!!(content && content.createBy !== $store.getters.userInfo.email)"
             @update="loadReviewStats"
           />
         </a-col>

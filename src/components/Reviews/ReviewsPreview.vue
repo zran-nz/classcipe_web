@@ -7,6 +7,7 @@
       ref="myReview"
       :role="role"
       v-show="canEdit"
+      :canCreate="showCreate"
       :myReviews="myReviews"
       @submit="handleSaveMyReview"
     />
@@ -167,6 +168,10 @@ export default {
     canEdit: {
       type: Boolean,
       default: true
+    },
+    canCreate: {
+      type: Boolean,
+      default: true
     }
   },
   watch: {
@@ -176,6 +181,10 @@ export default {
         this.loadData()
       },
       immediate: true
+    },
+    canCreate(val) {
+      console.log(val)
+      this.showCreate = val
     }
   },
   data() {
@@ -183,6 +192,7 @@ export default {
       loading: false,
       delLoading: false,
       subLoading: false,
+      showCreate: this.canCreate,
       RATE_TOOLTIPS: RATE_TOOLTIPS,
       isEdit: false,
       myReviews: null,
