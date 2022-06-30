@@ -167,6 +167,7 @@ export default {
             this.pagination.total = res.result.total
             this.pagination.current = res.result.current
           } else {
+            this.messageList = []
             this.myContentList = []
             this.pagination.total = 0
           }
