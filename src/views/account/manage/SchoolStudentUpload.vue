@@ -27,6 +27,7 @@
           :columns="columns"
           :datas="datas"
           :verify="justifyStatus"
+          :verifyDuplicate="verifyDuplicate"
           @change="handelChangeData"
           @save="handleSave">
 
@@ -176,12 +177,19 @@ export default {
     },
     handelChangeData(data) {
       this.datas = data
-      this.resetStatus(this.datas)
+      this.reJustifyInviteEmail(this.datas)
     },
     handleImportGet(res) {
       // 转换
       const emails = res.map(item => item.inviteEmail).filter(i => !!i).join(',')
-      const parentEmails = res.map(item => item.parentEmail).filter(i => !!i).join(',')
+      const parentEmailsObj = {}
+      res.filter(item => {
+        return !isEmpty(item.parentEmail) && isEmail(item.parentEmail)
+      }).forEach((item, index) => {
+          parentEmailsObj[`parentEmailInfos[${index}].firstName`] = item.firstName
+          parentEmailsObj[`parentEmailInfos[${index}].lastName`] = item.lastName
+          parentEmailsObj[`parentEmailInfos[${index}].parentEmail`] = item.parentEmail
+      })
       this.loading = true
       Promise.all([
         checkEmailStudent({
@@ -190,7 +198,7 @@ export default {
         }),
         checkEmailParent({
           schoolId: this.currentSchool.id,
-          emails: parentEmails
+          ...parentEmailsObj
         })
       ]).then(([emailRes, parentEmailRes]) => {
         if (emailRes.code === 0) {
@@ -201,6 +209,13 @@ export default {
         }
         const convert = res.map(item => {
           const status = this.justifyStatus(item)
+          const parentEmailExist = {}
+          this.remoteParentEmails.forEach(item => {
+            parentEmailExist[item.email] = item.exists
+          })
+          if (parentEmailExist[item.parentEmail]) {
+            status.push('Duplicate Parent')
+          }
           item.status = status.join(',')
           // 班级
           if (item.classes) {
@@ -218,7 +233,7 @@ export default {
           return item
         })
         this.datas = this.datas.concat(convert)
-        this.resetStatus(this.datas)
+        this.reJustifyInviteEmail(this.datas)
       }).finally(() => {
         console.log(this.datas)
         this.loading = false
@@ -254,18 +269,19 @@ export default {
       }
     },
     // 当前导入的文件中如果有重复的，则除第一个外，其他也是重复状态
-    resetStatus(datas) {
+    reJustifyInviteEmail(datas) {
       const isExist = {}
       datas.forEach(item => {
         if (isEmail(item.inviteEmail)) {
           if (isExist[item.inviteEmail]) {
             const statuss = item.status.split(',').filter(item => !!item)
-            if (!statuss.includes('Duplicate')) {
-              statuss.push('Duplicate')
+            if (!statuss.includes('Local Duplicate')) {
+              statuss.push('Local Duplicate')
             }
             console.log(statuss)
             item.status = statuss.join(',')
           } else {
+            item.status = item.status.replace('Local Duplicate', '').split(',').filter(item => !!item).join(',')
             isExist[item.inviteEmail] = true
           }
         }
@@ -293,8 +309,30 @@ export default {
       }
       if (isEmpty(item.parentEmail) || !isEmail(item.parentEmail)) {
         status.push('Invalid Parent Email')
-      } else {
-        if (parentEmailExist[item.parentEmail]) {
+      }
+      return status
+    },
+    async verifyDuplicate(item) {
+      const status = []
+       // 验证远程
+      const emailRes = await checkEmailStudent({
+        schoolId: this.currentSchool.id,
+        emails: item.inviteEmail
+      })
+      if (emailRes.code === 0) {
+        if (emailRes.result[0].exists) {
+          status.push('Duplicate')
+        }
+      }
+      // 验证远程
+      const parentRes = await checkEmailParent({
+        schoolId: this.currentSchool.id,
+        'parentEmailInfos[0].firstName': item.firstName,
+        'parentEmailInfos[0].lastName': item.lastName,
+        'parentEmailInfos[0].parentEmail': item.parentEmail
+      })
+      if (parentRes.code === 0) {
+        if (parentRes.result[0].exists) {
           status.push('Duplicate Parent')
         }
       }

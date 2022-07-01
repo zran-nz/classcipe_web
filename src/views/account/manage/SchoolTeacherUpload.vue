@@ -28,6 +28,7 @@
             :columns="columns"
             :datas="datas"
             :verify="justifyStatus"
+            :verifyDuplicate="verifyDuplicate"
             @change="handelChangeData"
             @save="handleSave">
 
@@ -170,7 +171,7 @@ export default {
     },
     handelChangeData(data) {
       this.datas = data
-      this.resetStatus(this.datas)
+      this.reJustifyInviteEmail(this.datas)
     },
     handleImportGet(res) {
       // 转换
@@ -181,8 +182,6 @@ export default {
         emails: emails
       }).then(emailRes => {
         if (emailRes.code === 0) {
-          // const addEmail = mergeWith(emailRes.result, importEmails, (old, src) => src)
-          // console.log(addEmail)
           this.remoteEmails = mergeWith(this.remoteEmails, emailRes.result) // this.emails.concat(emailRes.result)
           const convert = res.map(item => {
             const status = this.justifyStatus(item)
@@ -206,7 +205,7 @@ export default {
             return item
           })
           this.datas = this.datas.concat(convert)
-          this.resetStatus(this.datas)
+          this.reJustifyInviteEmail(this.datas)
         }
       }).finally(() => {
         console.log(this.datas)
@@ -216,7 +215,7 @@ export default {
     downloadTemplate () {
       const link = document.createElement('a')
       link.style.display = 'none'
-      const url = this.baseUrl + '/classcipe/excel/student.xlsx'
+      const url = this.baseUrl + '/classcipe/excel/school_staff_template.xls'
       link.href = url
       document.body.appendChild(link)
       link.click()
@@ -244,18 +243,18 @@ export default {
       }
     },
     // 当前导入的文件中如果有重复的，则除第一个外，其他也是重复状态
-    resetStatus(datas) {
+    reJustifyInviteEmail(datas) {
       const isExist = {}
       datas.forEach(item => {
         if (isEmail(item.inviteEmail)) {
           if (isExist[item.inviteEmail]) {
             const statuss = item.status.split(',').filter(item => !!item)
-            if (!statuss.includes('Duplicate')) {
-              statuss.push('Duplicate')
+            if (!statuss.includes('Local Duplicate')) {
+              statuss.push('Local Duplicate')
             }
-            console.log(statuss)
             item.status = statuss.join(',')
           } else {
+            item.status = item.status.replace('Local Duplicate', '').split(',').filter(item => !!item).join(',')
             isExist[item.inviteEmail] = true
           }
         }
@@ -274,6 +273,20 @@ export default {
         status.push('Invalid Email')
       } else {
         if (emailExist[item.inviteEmail]) {
+          status.push('Duplicate')
+        }
+      }
+      return status
+    },
+    async verifyDuplicate(item) {
+      const status = []
+       // 验证远程
+      const emailRes = await checkEmailTeacher({
+        schoolId: this.currentSchool.id,
+        emails: item.inviteEmail
+      })
+      if (emailRes.code === 0) {
+        if (emailRes.result[0].exists) {
           status.push('Duplicate')
         }
       }

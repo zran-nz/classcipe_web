@@ -10,6 +10,7 @@ export const schoolUserApi = {
   removeTeachers: `/classcipe/${API_PREFIX}/removeTeachers`,
   updateTeacher: `/classcipe/${API_PREFIX}/updateTeacher`,
   getInvite: `/classcipe/${API_PREFIX}/getInvite`,
+  updateInvite: `/classcipe/${API_PREFIX}/updateInvite`,
   bulkActTeacher: `/classcipe/${API_PREFIX}/teacher/bulkAct`,
   bulkActStudent: `/classcipe/${API_PREFIX}/student/bulkAct`,
   acceptInvite: `/classcipe/${API_PREFIX}/acceptInvite`,
@@ -110,6 +111,22 @@ export function getSchoolUsers (parameter) {
  export function getInvite (parameter) {
   return request({
     url: schoolUserApi.getInvite,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+ export function updateInvite (parameter) {
+  return request({
+    url: schoolUserApi.updateInvite,
     method: 'post',
     data: parameter,
     headers: {

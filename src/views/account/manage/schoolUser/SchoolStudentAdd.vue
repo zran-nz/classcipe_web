@@ -35,12 +35,12 @@
         <a-row :gutter=16>
           <a-col :span="12">
             <a-form-model-item prop="firstName">
-              <a-input v-model="formModel.firstName" placeholder="First name" />
+              <a-input v-model="formModel.firstName" @change="doValidParentEmail" placeholder="First name" />
             </a-form-model-item >
           </a-col>
           <a-col :span="12">
             <a-form-model-item prop="lastName">
-              <a-input v-model="formModel.lastName" placeholder="Last name" />
+              <a-input v-model="formModel.lastName" @change="doValidParentEmail" placeholder="Last name" />
             </a-form-model-item >
           </a-col>
         </a-row>
@@ -297,9 +297,14 @@ export default {
       if (!value) {
         return callback()
       } else {
+        if (!this.formModel.firstName || !this.formModel.lastName) {
+          callback()
+        }
         // 调用封装了的异步效验方法，
         checkEmailParent({
-          emails: value,
+          'parentEmailInfos[0].firstName': this.formModel.firstName,
+          'parentEmailInfos[0].lastName': this.formModel.lastName,
+          'parentEmailInfos[0].parentEmail': value,
           schoolId: this.currentSchool.id
         }).then(response => {
           if (response.code === 0 && response.result && response.result[0].exists) {
@@ -310,6 +315,11 @@ export default {
         }).catch(res => {
           callback(new Error(res.message))
         })
+      }
+    },
+    doValidParentEmail() {
+      if (this.formModel.firstName && this.formModel.lastName && this.formModel.parentEmail) {
+        this.$refs.form.validateField('parentEmail')
       }
     },
     handelGoClass() {
@@ -337,9 +347,8 @@ export default {
           this.loading = true
           promise(params).then(res => {
             if (res.code === 0) {
-              // TODO 需要获取学生id
               this.$message.success('Save successfully')
-              this.$emit('save', params)
+              this.$emit('save', res.result)
             }
           }).finally(() => {
             this.loading = false

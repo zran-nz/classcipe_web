@@ -5,6 +5,7 @@ const API_PREFIX = 'api2/school/class'
 export const schoolClassApi = {
   addTeachers: `/classcipe/${API_PREFIX}/addTeachers`,
   addStudents: `/classcipe/${API_PREFIX}/addStudents`,
+  addStudentsBatch: `/classcipe/${API_PREFIX}/batch/addStudents`,
   archiveClass: `/classcipe/${API_PREFIX}/archive`,
   deleteClass: `/classcipe/${API_PREFIX}/delete`,
   deleteGrade: `/classcipe/${API_PREFIX}/grade/delete`,
@@ -42,6 +43,22 @@ export function addTeachers (parameter) {
  export function addStudents (parameter) {
   return request({
     url: schoolClassApi.addStudents,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+ export function addStudentsBatch (parameter) {
+  return request({
+    url: schoolClassApi.addStudentsBatch,
     method: 'post',
     data: parameter,
     headers: {

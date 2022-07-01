@@ -31,8 +31,7 @@
 </template>
 
 <script>
-import { getInvite } from '@/api/v2/schoolUser'
-import { updateInvite } from '@/api/schoolUser'
+import { getInvite, updateInvite } from '@/api/v2/schoolUser'
 export default {
   name: 'SchoolUserInvite',
   props: {

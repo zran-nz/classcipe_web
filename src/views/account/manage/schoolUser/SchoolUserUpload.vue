@@ -39,6 +39,7 @@
           <a-icon type="check" :class="'status_1'" v-if="!record.status"></a-icon>
           <label for="" :class="'status_2'" v-else>{{ record.status }}</label>
           <a-icon v-show="editingKey === ''" @click="() => editRow(record.key)" class="action-edit" type="edit"></a-icon>
+          <a-icon v-show="editingKey === ''" @click="() => delRow(record.key)" class="action-edit" type="delete"></a-icon>
         </template>
       </a-space>
     </a-table>
@@ -60,6 +61,10 @@ export default {
     verify: {
       type: Function,
       default: (item) => ''
+    },
+    verifyDuplicate: {
+      type: Function,
+      default: () => Promise.resolve([])
     }
   },
   watch: {
@@ -160,9 +165,10 @@ export default {
       if (target) {
         this.dataSource = newData.filter(item => key !== item.key)
         this.cachedData = this.cachedData.filter(item => key !== item.key)
+        this.$emit('change', this.dataSource)
       }
     },
-    saveRow(key) {
+    async saveRow(key) {
       // 验证 ，更新status
       const newData = this.dataSource.map(item => ({ ...item }))
       const newCachedData = this.cachedData.map(item => ({ ...item }))
@@ -171,7 +177,9 @@ export default {
       if (target) {
         if (!targetCache) target.key = ''
         if (target.key) {
-          target.status = this.verify(target).join(',')
+          const statusArr = this.verify(target)
+          const res = await this.verifyDuplicate(target)
+          target.status = Array.from(new Set(statusArr.concat(res))).join(',')
           delete target.editable
           this.dataSource = newData
           Object.assign(targetCache, target)
