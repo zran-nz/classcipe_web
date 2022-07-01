@@ -70,7 +70,7 @@
             </a-popover>
           </div>
         </div> -->
-        <tags-line :tags="content.content.customTags" />
+        <tags-line :tags="content.content ? content.content.customTags : []" />
         <div class="price-con" v-if="content.priceList && content.priceList.length > 0">
           <price-slider :priceList="content.priceList" :current="content.registeredNum" :origin="content.price" />
           <template v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType">
@@ -188,6 +188,14 @@
     </a-modal>
 
   </div>
+  <div class="content-item" v-else>
+    <a-empty style="margin: auto;">Related Content is Empty</a-empty>
+    <custom-button label='Delete' @click='handleDel(content)'>
+      <template v-slot:icon>
+        <icon-font type="icon-shanchu" class="detail-font"/>
+      </template>
+    </custom-button>
+  </div>
 </template>
 
 <script>
@@ -262,7 +270,7 @@ export default {
     })
   },
   mounted() {
-    const total = this.content.content.customTags ? this.content.content.customTags.length : 0
+    const total = (this.content.content && this.content.content.customTags) ? this.content.content.customTags.length : 0
       // const tagInfoEl = this.$refs.tagInfo
       // const items = this.$refs.tagInfo.getElementsByClassName('tag-item')
       // if (!this.content.priceList || this.content.priceList.length === 0) {
@@ -278,7 +286,7 @@ export default {
       //   }
       // }
     // 有没有标签都固定右边。。。
-    if (this.$refs.detailPrice.getElementsByClassName('price-slider')[0]) {
+    if (this.$refs.detailPrice && this.$refs.detailPrice.getElementsByClassName('price-slider')[0]) {
       if (total === 0) {
         this.$refs.detailPrice.style.justifyContent = 'flex-end'
       } else {
@@ -459,7 +467,7 @@ export default {
     handleDel(item) {
       this.$confirm({
         title: 'Confirm remove live workshop',
-        content: 'Are you confirm remove live workshop ' + item.content.name + ' ?',
+        content: 'Are you confirm remove live workshop ' + (item.content ? item.content.name : '') + ' ?',
         centered: true,
         onOk: () => {
           DeleteClassV2({
