@@ -7,6 +7,7 @@ export default {
     'menu.materials': 'Materials',
     'menu.task': 'Task',
     'menu.sub-task': 'Subtask',
+    'menu.linked-content': 'Linked Content',
     'menu.splitTask': 'Create sub-task',
     'menu.lessons': 'Lessons',
     'menu.evaluation': 'Assessment tool',

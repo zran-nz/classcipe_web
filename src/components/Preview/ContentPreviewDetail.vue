@@ -269,7 +269,12 @@
 
       <div class='card-list-wrapper' v-if="content.subTasks && content.subTasks.length">
         <div class='card-list-title'>
-          Sub tasks ({{ content.subTasks.length }})
+          <div class='sub-task-title'>
+            Sub tasks ({{ content.subTasks.length }})
+          </div>
+          <div class='go-to-list'>
+            <custom-link-text text='Enter' @click='goToSubTaskList'></custom-link-text>
+          </div>
         </div>
         <div class='scroll-left' @click="scrollLeft('subTask')">
           <a-icon type="left-circle" :style="{fontSize: '22px', color: '#dddddd'}" />
@@ -286,9 +291,14 @@
 
       <div class='card-list-wrapper' v-if="associateList.length">
         <div class='card-list-title'>
-          <template v-if="associateList[0].type === typeMap['unit-plan']">Unit</template>
-          <template v-if="associateList[0].type === typeMap.task">Task</template>
-          ({{ associateList.length }})
+          <div class='sub-task-title'>
+            <template v-if="associateList[0].type === typeMap['unit-plan']">Unit</template>
+            <template v-if="associateList[0].type === typeMap.task">Task</template>
+            ({{ associateList.length }})
+          </div>
+          <div class='go-to-list'>
+            <custom-link-text text='Enter' @click='goTLinkList'></custom-link-text>
+          </div>
         </div>
         <div class='scroll-left' @click="scrollLeft('taskUnit')">
           <a-icon type="left-circle" :style="{fontSize: '22px', color: '#dddddd'}" />
@@ -363,10 +373,11 @@ import { RATE_TOOLTIPS } from '@/const/common'
 import * as ReviewsTask from '@/api/reviewsTask'
 import * as ReviewsTeacher from '@/api/reviewsTeacher'
 import ShareButton from '@/components/Share/ShareButton'
+import CustomLinkText from '@/components/Common/CustomLinkText'
 
 export default {
   name: 'ContentPreviewDetail',
-  components: { ShareButton, CardListItem, PreviewCarousel, ShareIcon, RateByPercent, ReviewsPreview, ReviewScore },
+  components: { CustomLinkText, ShareButton, CardListItem, PreviewCarousel, ShareIcon, RateByPercent, ReviewsPreview, ReviewScore },
   props: {
     contentId: {
       type: String,
@@ -720,6 +731,18 @@ export default {
       } else {
         return ''
       }
+    },
+
+    goToSubTaskList () {
+      this.$router.push({
+        path: `/teacher/sub-task/${this.content.id}`
+      })
+    },
+
+    goTLinkList () {
+      this.$router.push({
+        path: `/teacher/link-content-list/${this.content.type}/${this.content.id}`
+      })
     }
   }
 }
@@ -966,12 +989,18 @@ export default {
   width: 100%;
   position: relative;
   .card-list-title {
-    font-size: 20px;
-    font-family: Arial;
-    font-weight: bold;
-    color: #202020;
-    line-height: 25px;
+    .sub-task-title {
+      font-size: 20px;
+      font-family: Arial;
+      font-weight: bold;
+      color: #202020;
+      line-height: 25px;
+    }
     padding-bottom: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
   }
 
   .scroll-left {
