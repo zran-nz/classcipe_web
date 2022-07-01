@@ -14,7 +14,7 @@
       </template>
     </fixed-form-header>
     <div class="form-content">
-      <school-teacher-add :school="currentSchool" ref="schoolTeacherAdd" :id="id" @save="handleSave" />
+      <school-teacher-add :school="currentSchool" ref="schoolTeacherAdd" :id="id" :email="email" @save="handleSave" />
     </div>
   </div>
 </template>
@@ -41,6 +41,10 @@ export default {
   },
   props: {
     id: {
+      type: String,
+      default: null
+    },
+    email: {
       type: String,
       default: null
     }

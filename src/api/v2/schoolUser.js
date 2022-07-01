@@ -17,6 +17,7 @@ export const schoolUserApi = {
   batchAddStudent: `/classcipe/${API_PREFIX}/batchAddStudent`,
   batchAddTeacher: `/classcipe/${API_PREFIX}/batchAddTeacher`,
   getStudentInfo: `/classcipe/${API_PREFIX}/getStudentInfo`,
+  getTeacherInfo: `/classcipe/${API_PREFIX}/getTeacherInfo`,
   checkEmailParent: `/classcipe/${API_PREFIX}/parent/checkEmail`,
   resetPassword: `/classcipe/${API_PREFIX}/resetPassword`,
   checkEmailStudent: `/classcipe/${API_PREFIX}/student/checkEmail`,
@@ -129,6 +130,7 @@ export function getSchoolUsers (parameter) {
     url: schoolUserApi.updateInvite,
     method: 'post',
     data: parameter,
+    params: parameter,
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
@@ -239,6 +241,19 @@ export function getSchoolUsers (parameter) {
  export function getStudentInfo (parameter) {
   return request({
     url: schoolUserApi.getStudentInfo,
+    method: 'get',
+    params: parameter
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+ export function getTeacherInfo (parameter) {
+  return request({
+    url: schoolUserApi.getTeacherInfo,
     method: 'get',
     params: parameter
   })

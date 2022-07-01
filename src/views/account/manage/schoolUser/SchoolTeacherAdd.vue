@@ -114,7 +114,7 @@
 
 <script>
 import { listClass } from '@/api/v2/schoolClass'
-import { addTeacher, checkEmailTeacher } from '@/api/v2/schoolUser'
+import { addTeacher, checkEmailTeacher, getTeacherInfo } from '@/api/v2/schoolUser'
 import { listRole } from '@/api/v2/schoolRole'
 
 import ResetPassword from '../persona/ResetPassword'
@@ -133,6 +133,10 @@ export default {
       default: () => {}
     },
     id: {
+      type: String,
+      default: null
+    },
+    email: {
       type: String,
       default: null
     }
@@ -159,6 +163,7 @@ export default {
     return {
       currentSchool: this.school,
       teacherId: this.id,
+      teacherEmail: this.email,
       classList: [],
       roleList: [],
       formModel: {
@@ -217,8 +222,32 @@ export default {
           }
         })
     },
-    initForm() {
-
+    initForm(defaultForm) {
+      if (this.teacherId) {
+        this.loading = true
+        getTeacherInfo({
+          schoolId: this.currentSchool.id,
+          userId: this.teacherId,
+          email: this.teacherEmail
+        }).then(res => {
+          if (res.code === 0) {
+            this.formModel = res.result
+            if (this.formModel.classes) {
+              this.formModel.classArr = this.formModel.classes.split(',')
+            }
+          }
+        }).finally(() => {
+          this.loading = false
+        })
+      } else {
+        this.formModel = {
+          ...this.formModel,
+          ...defaultForm
+        }
+        if (this.formModel.classes) {
+          this.formModel.classArr = this.formModel.classes.split(',')
+        }
+      }
     },
     validateRemoteEmail(rule, value, callback) {
       if (!value) {

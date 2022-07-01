@@ -144,6 +144,12 @@ export default {
       USER_MODE: USER_MODE,
       SCHOOL_USER_STATUS: SCHOOL_USER_STATUS,
       tabsList: Object.values(SCHOOL_USER_STATUS),
+      ROLE_CONVERT: {
+        'admin': 'Admin',
+        'head': 'Homeroom teacher',
+        'leader': 'Subject coordinator',
+        'teacher': 'Teacher'
+      },
       ACT: {
         ARCHIVE: {
           value: '4',
@@ -247,7 +253,7 @@ export default {
           width: 120,
           filters: this.roleList.map(item => ({
             text: item.name,
-            value: item.roleCode
+            value: this.ROLE_CONVERT[item.roleCode]
           })),
           customRender: (text, record) => {
             return (text || []).map(item => item.name).join(', ')
@@ -379,6 +385,11 @@ export default {
       } else {
         this.filters.classes = ''
       }
+      if (filters.roles && filters.roles.length > 0) {
+        this.filters.teacherRoles = filters.roles.join(',')
+      } else {
+        this.filters.teacherRoles = ''
+      }
     },
     handleAdd() {
       this.$router.push('/manage/teacher/detail')
@@ -387,7 +398,7 @@ export default {
       this.$router.push('/manage/teacher/upload')
     },
     handleEdit(item) {
-      this.$router.push('/manage/teacher/detail/' + item.id)
+      this.$router.push('/manage/teacher/detail/' + item.uid + '/' + item.email)
     },
     handleInvite() {
       this.$refs.schoolUserInvite.doCreate('teacher')

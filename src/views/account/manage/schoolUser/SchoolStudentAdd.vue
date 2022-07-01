@@ -250,7 +250,8 @@ export default {
         this.loading = true
         getStudentInfo({
           schoolId: this.currentSchool.id,
-          email: this.id
+          userId: this.id,
+          userName: ''
         }).then(res => {
           if (res.code === 0) {
             this.formModel = res.result
