@@ -2,7 +2,7 @@
   <div class='cc-google-drive'>
     <div class='drive-loading'>
       <template v-show='driveLoading'>
-        <a-spin tip="Loading...">
+        <a-spin :tip="driveProcess + '%'">
           <a-icon slot="indicator" type="loading" style="font-size: 24px" spin />
         </a-spin>
       </template>

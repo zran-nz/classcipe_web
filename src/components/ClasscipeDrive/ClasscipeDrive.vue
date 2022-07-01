@@ -33,7 +33,12 @@
         <google-image v-bind='$attrs' :field='field' />
       </div>
       <div v-show='currentDriveType === DriveType.GoogleDrive'>
-        <google-drive v-bind='$attrs' :field='field' :drive-loading='driveLoading' @show-google-drive='handleShowGoogleDrive'/>
+        <google-drive
+          v-bind='$attrs'
+          :field='field'
+          :drive-loading='driveLoading'
+          :drive-process='driveProcess'
+          @show-google-drive='handleShowGoogleDrive' />
       </div>
       <div v-show='currentDriveType === DriveType.UploadVideo'>
         <drive-video-uploader v-bind='$attrs' :field='field' />
@@ -83,6 +88,7 @@ export default {
       DriveType: DriveType,
       currentDriveType: DriveType.ClasscipeDrive,
       driveLoading: false,
+      driveProcess: 0,
       filterTabTypeList: this.filterType === 'image' ? [
         DriveType.ClasscipeDrive,
         DriveType.GoogleImage,
@@ -109,8 +115,9 @@ export default {
       this.$logger.info(`handleShowGoogleDrive filterType ${this.filterType}`)
       if (this.currentDriveType === this.DriveType.GoogleDrive) {
         GooglePicker.init(
-          driveUpLoadProgress => {
+          (progress) => {
             this.driveLoading = true
+            this.driveProcess = progress
           },
           (type, url, mediaType) => {
             console.log('GooglePicker success url', url)
@@ -123,11 +130,17 @@ export default {
               })
             }
             this.driveLoading = false
+            this.driveProcess = 0
           },
+          this.onGoogleDriveProgressUpdate,
           this.$store.getters.userInfo.id,
           this.filterType
         )
       }
+    },
+
+    onGoogleDriveProgressUpdate (progress) {
+      this.$logger.info('onGoogleDriveProgressUpdate', progress)
     }
   }
 }

@@ -28,6 +28,7 @@ class LoadPicker {
   classCallback = null
   onloadingCallBack = null
   uploadDriveInstance = null
+  progressUpdateCallback = null
   // https://developers.google.com/drive/picker/reference#view-id
   filterType = null
   init(onLoadingCallBack, onSuccessCallback, classcipeUserId, filterType = 'video') {
@@ -169,6 +170,9 @@ class LoadPicker {
           type: mimeType
         })
         this.upLoadFile(file, mimeType)
+      }
+      xhr.onprogress = (e) => {
+        this.onloadingCallBack(Math.min(Math.floor((e.loaded / e.total) * 100), 99))
       }
       xhr.send()
     } else {
