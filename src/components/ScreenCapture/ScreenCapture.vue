@@ -1,6 +1,11 @@
 <template>
   <div class='screen-capture'>
-    <RecordVideo v-if='recording' :onSend="onSendVideo" :cancel="cancelRecord" />
+    <RecordVideo
+      v-if='recording'
+      :content-id='contentId'
+      :content-type='contentType'
+      :onSend="onSendVideo"
+      :cancel="cancelRecord" />
 
     <custom-button label='Screen Capture' @click='handleScreenCapture' style='width: 160px;'>
       <template v-slot:icon>
@@ -22,6 +27,14 @@ export default {
   props: {
     field: {
       type: String,
+      default: null
+    },
+    contentId: {
+      type: String,
+      default: null
+    },
+    contentType: {
+      type: Number,
       default: null
     }
   },

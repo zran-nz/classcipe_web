@@ -27,10 +27,18 @@
         <drive v-bind='$attrs' :field='field' :filter-type='filterType'/>
       </div>
       <div v-show='currentDriveType === DriveType.Youtube'>
-        <youtube v-bind='$attrs' :field='field' />
+        <youtube
+          v-bind='$attrs'
+          :content-id='contentId'
+          :content-type='contentType'
+          :field='field' />
       </div>
       <div v-show='currentDriveType === DriveType.GoogleImage'>
-        <google-image v-bind='$attrs' :field='field' />
+        <google-image
+          v-bind='$attrs'
+          :content-id='contentId'
+          :content-type='contentType'
+          :field='field' />
       </div>
       <div v-show='currentDriveType === DriveType.GoogleDrive'>
         <google-drive
@@ -41,10 +49,18 @@
           @show-google-drive='handleShowGoogleDrive' />
       </div>
       <div v-show='currentDriveType === DriveType.UploadVideo'>
-        <drive-video-uploader v-bind='$attrs' :field='field' />
+        <drive-video-uploader
+          v-bind='$attrs'
+          :content-id='contentId'
+          :content-type='contentType'
+          :field='field' />
       </div>
       <div v-show='currentDriveType === DriveType.UploadImage'>
-        <drive-image-uploader v-bind='$attrs' :field='field' />
+        <drive-image-uploader
+          v-bind='$attrs'
+          :content-id='contentId'
+          :content-type='contentType'
+          :field='field' />
       </div>
     </div>
   </div>
@@ -133,7 +149,9 @@ export default {
             this.driveProcess = 0
           },
           this.$store.getters.userInfo.id,
-          this.filterType
+          this.filterType,
+          this.contentType,
+          this.contentId
         )
       }
     }

@@ -31,13 +31,17 @@ class LoadPicker {
   progressUpdateCallback = null
   // https://developers.google.com/drive/picker/reference#view-id
   filterType = null
-  init(onLoadingCallBack, onSuccessCallback, classcipeUserId, filterType = 'video') {
-    logger.info('google drive init ' + classcipeUserId + ` filter type ${this.filterType}`)
+  contentType = null
+  contentId = null
+  init(onLoadingCallBack, onSuccessCallback, classcipeUserId, filterType, contentType, contentId) {
+    logger.info('google drive init ' + classcipeUserId + ` filter type ${this.filterType} contentType: ${contentType} contentId: ${contentId}`)
     this.loadPicker()
     this.classCallback = onSuccessCallback
     this.onloadingCallBack = onLoadingCallBack
     this.classcipeUserId = classcipeUserId
     this.filterType = filterType
+    this.contentType = contentType
+    this.contentId = contentId
   }
 
   async checkLogin() {
@@ -188,12 +192,14 @@ class LoadPicker {
   }
 
   upDriveFire(file, mimeType) {
-    logger.info('upDriveFire', this.classcipeUserId, file, mimeType)
+    logger.info('upDriveFire', this.classcipeUserId, file, mimeType, 'contentType', this.contentType, 'contentId', this.contentId)
     this.uploadDriveInstance = upAwsS3File(this.classcipeUserId, file, this.onloadingCallBack, result => {
       logger.info(result, mimeType)
       this.classCallback('upload-ended', result, mimeType)
       this.uploadDriveInstance = null
-    }, true)
+    }, true,
+      this.contentType,
+      this.contentId)
   }
 
   cancelUpDrive() {

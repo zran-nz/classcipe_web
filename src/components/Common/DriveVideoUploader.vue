@@ -44,6 +44,14 @@ export default {
     field: {
       type: String,
       default: null
+    },
+    contentId: {
+      type: String,
+      default: null
+    },
+    contentType: {
+      type: Number,
+      default: null
     }
   },
   data() {
@@ -72,7 +80,7 @@ export default {
             type: 'video',
             url: this.url
           })
-        }, true)
+        }, true, this.contentType, this.contentId)
     },
 
     handleCancel () {

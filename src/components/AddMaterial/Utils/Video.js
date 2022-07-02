@@ -102,8 +102,8 @@ export const cancelUpVideo = () => {
   }
 }
 
-export const saveRecordVideo = async(userId, onProgressUpLoad = () => null) => {
-  logger.info('saveRecordVideo', userId)
+export const saveRecordVideo = async(userId, onProgressUpLoad = () => null, options) => {
+  logger.info('saveRecordVideo', userId, 'options', options)
   return new Promise((resolve, reject) => {
     try {
       closePictureInPicture()
@@ -131,7 +131,9 @@ export const saveRecordVideo = async(userId, onProgressUpLoad = () => null) => {
             upFileInstance = null
           }, 50)
         },
-        true
+        true,
+        options.contentType,
+        options.contentId
       )
 
       mediaRecorder.camera.stop()

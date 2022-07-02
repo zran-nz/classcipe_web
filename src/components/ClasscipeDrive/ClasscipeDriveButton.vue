@@ -16,7 +16,12 @@
       class='classcipe-drive-modal'
       @ok="driveVisible = false"
       @cancel="driveVisible = false">
-      <classcipe-drive v-bind='$attrs' :field='field' :filter-type='filterType'/>
+      <classcipe-drive
+        v-bind='$attrs'
+        :content-id='contentId'
+        :content-type='contentType'
+        :field='field'
+        :filter-type='filterType'/>
     </a-modal>
   </div>
 </template>
@@ -35,6 +40,14 @@ export default {
     filterType: {
       type: String,
       default: 'video'
+    },
+    contentId: {
+      type: String,
+      default: null
+    },
+    contentType: {
+      type: Number,
+      default: null
     }
   },
   components: {

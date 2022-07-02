@@ -74,6 +74,14 @@ export default {
     field: {
       type: String,
       default: null
+    },
+    contentId: {
+      type: String,
+      default: null
+    },
+    contentType: {
+      type: Number,
+      default: null
     }
   },
   data() {

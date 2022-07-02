@@ -50,6 +50,8 @@
                   </template>
                   <video-select
                     :field='VideoField.Video'
+                    :content-id='videoId'
+                    :content-type='typeMap.video'
                     @update-video='handleUpdateVideo'
                     :default-video='form.video'
                     :default-type='form.videoType' />

@@ -63,6 +63,14 @@ export default {
     field: {
       type: String,
       default: null
+    },
+    contentId: {
+      type: String,
+      default: null
+    },
+    contentType: {
+      type: Number,
+      default: null
     }
   },
   data() {
@@ -183,12 +191,18 @@ export default {
       test11.execute(this.lastSearchKey)
     },
     select(url) {
-      this.$logger.info('select google image', url)
+      this.$logger.info('select google image', url, {
+        contentId: this.contentId,
+        contentType: this.contentType
+      })
       this.image_type_value = ''
       this.currentColorIndex = -1
       this.currentColor = '#00FFFFFF'
       this.loading = true
-      uploadImageToAwsByUrl(this.$store.getters.userInfo.id, url)
+      uploadImageToAwsByUrl(this.$store.getters.userInfo.id, url, {
+        contentId: this.contentId,
+        contentType: this.contentType
+      })
         .then(url => {
           this.$logger.info('uploadImageToAwsByUrl', url)
           this.$EventBus.$emit(ClasscipeDriveEvent.INSERT_GOOGLE_IMAGE, {

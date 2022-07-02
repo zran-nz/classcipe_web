@@ -2,8 +2,16 @@
   <div class='video-select'>
     <div class='video-select-action'>
       <a-space>
-        <classcipe-drive-button :field='field' filter-file-type='video' ref='drive' />
-        <screen-capture :field='field' />
+        <classcipe-drive-button
+          :content-id='contentId'
+          :content-type='contentType'
+          :field='field'
+          filter-file-type='video'
+          ref='drive' />
+        <screen-capture
+          :content-id='contentId'
+          :content-type='contentType'
+          :field='field' />
       </a-space>
     </div>
     <div class='video-select-wrapper'>
@@ -43,6 +51,14 @@ export default {
     },
     field: {
       type: String,
+      default: null
+    },
+    contentId: {
+      type: String,
+      default: null
+    },
+    contentType: {
+      type: Number,
       default: null
     }
   },

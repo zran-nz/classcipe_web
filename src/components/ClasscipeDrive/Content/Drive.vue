@@ -188,7 +188,6 @@ export default {
         keywords: this.keywords,
         fileType: this.filterType,
         gradeId: this.gradeId,
-        uploadType: 1,
         pageNo: this.pageNo,
         pageSize: this.pageSize
       }).then(response => {
@@ -225,7 +224,6 @@ export default {
       FileRecord({
         contentId: item.id,
         contentType: item.type,
-        uploadType: 1,
         pageNo: this.pageNo,
         pageSize: this.pageSize
       }).then(response => {

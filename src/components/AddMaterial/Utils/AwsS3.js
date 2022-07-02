@@ -9,7 +9,7 @@ const AwsConfig = {
 AWS.config.update(AwsConfig)
 AWS.config.region = 'ap-southeast-2'
 const s3 = new AWS.S3()
-export const upAwsS3File = (userId, file, onProgress, onSuccess, isAutoAddFileUploadRecord) => {
+export const upAwsS3File = (userId, file, onProgress, onSuccess, isAutoAddFileUploadRecord, contentType, contentId) => {
   console.log('upAwsS3File', file)
   const now = Date.now()
   const params = {
@@ -32,7 +32,9 @@ export const upAwsS3File = (userId, file, onProgress, onSuccess, isAutoAddFileUp
         addFileUploadRecord({
           fileLength: file.size,
           fileName: file.name,
-          filePath: replaceToClasscipeCDN(data['Location'])
+          filePath: replaceToClasscipeCDN(data['Location']),
+          contentType,
+          contentId
         }).then(res => {
           logger.info('addFileUploadRecord res', res)
         })

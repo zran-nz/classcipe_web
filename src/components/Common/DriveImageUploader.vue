@@ -60,6 +60,14 @@ export default {
     field: {
       type: String,
       default: null
+    },
+    contentId: {
+      type: String,
+      default: null
+    },
+    contentType: {
+      type: Number,
+      default: null
     }
   },
   data() {
@@ -131,7 +139,7 @@ export default {
         this.confirmLoading = true
         upAwsS3File(this.$store.getters.userInfo.id, file, this.getProgressUpLoad, result => {
           this.onSuccess(file, result)
-        }, true)
+        }, true, this.contentType, this.contentId)
       })
     },
 
