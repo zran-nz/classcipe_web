@@ -132,7 +132,7 @@ export default {
       contentList: [],
       contentSubList: [],
       pageNo: 0,
-      pageSize: 50,
+      pageSize: 100,
 
       currentContentItem: null,
 
@@ -184,6 +184,7 @@ export default {
     },
 
     searchFileName() {
+      this.loading = true
       FileRecord({
         keywords: this.keywords,
         fileType: this.filterType,
@@ -191,10 +192,11 @@ export default {
         pageNo: this.pageNo,
         pageSize: this.pageSize
       }).then(response => {
-        this.$logger.info('FileRecord ', response.result)
+        this.$logger.info('searchFileName FileRecord ', response.result.records)
         if (response.result && response.result.records) {
           this.dataList = response.result.records
         }
+        this.$logger.info('data list', this.dataList)
       }).finally(() => {
         this.loading = false
       })
@@ -221,16 +223,18 @@ export default {
     },
 
     searchFileByContentId (item) {
+      this.loading = true
       FileRecord({
         contentId: item.id,
         contentType: item.type,
         pageNo: this.pageNo,
         pageSize: this.pageSize
       }).then(response => {
-        this.$logger.info('FileRecord ', response.result)
-        if (response.result && response.result.records) {
-          this.fileList = response.result.records
+        this.$logger.info('FileRecord ', response.result, response.result.records)
+        if (response?.result.records.length) {
+          this.contentSubList = response.result.records
         }
+        this.$logger.info('contentSubList', this.contentSubList)
       }).finally(() => {
         this.loading = false
       })
@@ -294,6 +298,7 @@ export default {
   height: 400px;
   overflow-y: auto;
   .file-list {
+    margin-top: 10px;
     display: flex;
     flex-direction: row;
     align-items: center;
