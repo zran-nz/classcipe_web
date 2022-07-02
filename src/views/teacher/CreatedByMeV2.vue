@@ -141,8 +141,6 @@ export default {
       this.shareType = parseInt(this.$route.query.shareType)
     }
     this.loadMyContent()
-
-    ClasscipeEventBus.$on(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleUpdatePublish)
   },
   methods: {
     handleSchoolChange() {
@@ -302,6 +300,7 @@ export default {
   },
   mounted() {
     EventBus.$on(MyContentEvent.ReloadMyContent, this.loadMyContent)
+    ClasscipeEventBus.$on(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleUpdatePublish)
   },
   beforeDestroy() {
     EventBus.$off(MyContentEvent.ReloadMyContent, this.loadMyContent)

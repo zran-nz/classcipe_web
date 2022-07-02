@@ -18,11 +18,14 @@
       </template>
     </fixed-vertical-header>
     <div class='sub-task-container'>
-      <div class='sub-task-list vertical-left' v-for='content in subTaskList' :key='content.id'>
+      <div class='sub-task-list vertical-left' v-for='content in linkedContentList' :key='content.id'>
         <div class='checked-icon vertical-center' @click='toggleSelectItem(content)'>
-          <a-checkbox :checked='selectedTaskList.indexOf(content) !== -1'></a-checkbox>
+          <a-checkbox :checked='selectedTaskList.indexOf(content) !== -1' :disabled='content.needComplete'></a-checkbox>
         </div>
         <div class='task-item vertical-left'>
+          <div class='complete-mask' v-if='content.needComplete' @click='handleEditItem(content)'>
+            <a-button type='primary' shape='round' class='cc-complete-button' size='large'>Complete</a-button>
+          </div>
           <content-item
             :content='content'
             :show-button='true'
@@ -41,11 +44,15 @@ import FixedFormHeader from '@/components/Common/FixedFormHeader'
 import FixedVerticalHeader from '@/components/Common/FixedVerticalHeader'
 import ContentItem from '@/components/MyContentV2/ContentItem'
 import { GetAssociate } from '@/api/teacher'
-import { getLabelNameType } from '@/const/teacher'
+import { getLabelNameType, typeMap } from '@/const/teacher'
+import { PlanField, TaskField } from '@/const/common'
+import storage from 'store'
+import { ACCESS_TOKEN } from '@/store/mutation-types'
+import CustomTextButton from '@/components/Common/CustomTextButton'
 
 export default {
   name: 'LinkedContentList',
-  components: { ContentItem, FixedVerticalHeader, FixedFormHeader },
+  components: { CustomTextButton, ContentItem, FixedVerticalHeader, FixedFormHeader },
   props: {
     contentId: {
       type: String,
@@ -58,8 +65,24 @@ export default {
   },
   data() {
     return {
-      subTaskList: [],
-      selectedTaskList: []
+      loading: false,
+      typeMap: typeMap,
+      linkedContentList: [],
+      selectedTaskList: [],
+      requiredPlanFields: [
+        PlanField.Name,
+        PlanField.Image,
+        PlanField.Inquiry,
+        PlanField.Scenarios,
+        PlanField.Question,
+        PlanField.LearnOuts
+      ],
+      requiredTaskFields: [
+        TaskField.Name,
+        TaskField.Image,
+        TaskField.Overview,
+        TaskField.LearnOuts
+      ]
     }
   },
   computed: {
@@ -67,7 +90,10 @@ export default {
       return getLabelNameType(parseInt(this.contentType))
     }
   },
-  created() {
+  async created() {
+    const token = storage.get(ACCESS_TOKEN)
+    this.loading = true
+    await this.$store.dispatch('loadFormConfigData', token)
     this.loadAssociateData()
   },
   methods: {
@@ -86,22 +112,66 @@ export default {
         })
         console.log('loadAssociateData', slideData)
         const list = slideData.result.owner
-        this.subTaskList = []
+        this.linkedContentList = []
+        const taskList = []
+        const unitList = []
         list.forEach(item => {
           item.contents.forEach(content => {
             if (content.type === this.$classcipe.typeMap.task) {
-              this.subTaskList.push(content)
+              taskList.push(content)
             }
 
             if (content.type === this.$classcipe.typeMap['unit-plan']) {
-              this.subTaskList.push(content)
+              unitList.push(content)
             }
           })
         })
-        console.log('loadAssociateData', this.subTaskList)
+        console.log('taskList', taskList)
+        this.checkTaskAllowPublished(taskList)
+        console.log('unitList', unitList)
+        this.checkUnitAllowPublished(unitList)
+        this.linkedContentList = [...unitList, ...taskList]
+        this.$logger.info('sub list', this.linkedContentList)
       } catch (e) {
         console.error('loadSlideData', e)
+      } finally {
+        this.loading = false
       }
+    },
+
+    // 检查必填项是否为空,只检测null,undefined,空字符串,空数组,空对象
+    isEmpty(value) {
+       if (value === null || value === '' || value === undefined) {
+         return true
+       }
+       if (value.hasOwnProperty('length') && value.length === 0) {
+         return true
+       }
+
+       return JSON.stringify(value) === '{}'
+     },
+
+    checkTaskAllowPublished (taskList) {
+      taskList.forEach(item => {
+        item.needComplete = false
+        this.requiredTaskFields.forEach(field => {
+          if (this.isEmpty(item[field])) {
+            item.needComplete = true
+            this.$logger.info('task need complete', item)
+          }
+        })
+      })
+    },
+    checkUnitAllowPublished (unitList) {
+      unitList.forEach(item => {
+        item.needComplete = false
+        this.requiredPlanFields.forEach(field => {
+          if (this.isEmpty(item[field])) {
+            item.needComplete = true
+            this.$logger.info('plan need complete', item)
+          }
+        })
+      })
     },
 
     toggleSelectItem (item) {
@@ -124,6 +194,26 @@ export default {
 
     unPublishSelected () {
       this.$logger.info('unPublishSelected', this.selectedTaskList)
+    },
+
+    handleEditItem (item) {
+      if (item.type === typeMap['unit-plan']) {
+        this.$router.push({
+          path: '/teacher/unit-plan-redirect/' + item.id
+        })
+      } else if (item.type === typeMap.task) {
+        this.$router.push({
+          path: '/teacher/task-redirect/' + item.id
+        })
+      } else if (item.type === typeMap.video) {
+        this.$router.push({
+          path: '/teacher/video-redirect/' + item.id
+        })
+      } else if (item.type === typeMap.pd) {
+        this.$router.push({
+          path: '/teacher/pd-content-redirect/' + item.id
+        })
+      }
     }
   }
 }
@@ -148,5 +238,21 @@ export default {
 
 .task-item {
   width: 100%;
+  position: relative;
+
+  .complete-mask {
+    position: absolute;
+    left: 0;
+    top: 10px;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    width: 100%;
+    height: calc(100% - 20px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    border-radius: 5px;
+  }
 }
 </style>

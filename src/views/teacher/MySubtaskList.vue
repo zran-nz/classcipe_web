@@ -41,6 +41,7 @@ import { TaskQueryById } from '@/api/task'
 import FixedFormHeader from '@/components/Common/FixedFormHeader'
 import FixedVerticalHeader from '@/components/Common/FixedVerticalHeader'
 import ContentItem from '@/components/MyContentV2/ContentItem'
+import { TaskField } from '@/const/common'
 
 export default {
   name: 'MySubtaskList',
@@ -54,7 +55,13 @@ export default {
   data() {
     return {
       subTaskList: [],
-      selectedTaskList: []
+      selectedTaskList: [],
+      requiredTaskFields: [
+        TaskField.Name,
+        TaskField.Image,
+        TaskField.Overview,
+        TaskField.LearnOuts
+      ]
     }
   },
   created() {
@@ -67,8 +74,33 @@ export default {
       }).then(res => {
         this.$logger.info('sub task', res.result)
         if (res.code === 0) {
-          this.subTaskList = res.result.subTasks
+          const subTasks = res.result.subTasks
+          this.checkTaskAllowPublished(subTasks)
+          this.subTaskList = subTasks
         }
+      })
+    },
+
+    isEmpty(value) {
+      if (value === null || value === '' || value === undefined) {
+        return true
+      }
+      if (value.hasOwnProperty('length') && value.length === 0) {
+        return true
+      }
+
+      return JSON.stringify(value) === '{}'
+    },
+
+    checkTaskAllowPublished (taskList) {
+      taskList.forEach(item => {
+        item.needComplete = false
+        this.requiredTaskFields.forEach(field => {
+          if (this.isEmpty(item[field])) {
+            item.needComplete = true
+            this.$logger.info('task need complete', item)
+          }
+        })
       })
     },
 
