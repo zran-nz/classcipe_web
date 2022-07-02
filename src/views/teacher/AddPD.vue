@@ -309,7 +309,6 @@ export default {
     this.requiredFields = [
       PdField.Name,
       PdField.Image,
-      PdField.CoverVideo,
       PdField.Goals
     ]
     this.initData()
@@ -348,15 +347,6 @@ export default {
         this.$logger.info('PDContentQueryById ' + this.pdId, response)
         if (response.code === 0 && response.success) {
           const data = response.result
-          if (data.customTags && data.customTags.length) {
-            if (!data.customTags[0].fieldName) {
-              data.customTags = []
-            }
-
-            if (data.customTags[0].tags.length && !data.customTags[0].tags[0].category) {
-              data.customTags = []
-            }
-          }
           this.form = data
         } else {
           this.$message.error(response.message)
