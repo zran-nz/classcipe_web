@@ -37,12 +37,11 @@
 
 import FilterIcon from '@/assets/libraryv2/filter.svg?inline'
 import FilterActiveIcon from '@/assets/libraryv2/filter_active.svg?inline'
-import { SubjectTree } from '@/api/subject'
-import { GetGradesByCurriculumId } from '@/api/preference'
 import { FindCustomTags } from '@/api/tag'
 import { CustomTagType } from '@/const/common'
 import FilterContent from '@/components/UnitPlan/FilterContent'
 import CustomSearchInput from '@/components/Common/CustomSearchInput'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'ContentFilter',
@@ -67,14 +66,34 @@ export default {
         saTags: [],
         activityTags: []
       },
-      filterSubjectOptions: [],
-      filterAgeOptions: [],
       filterPeriodOptions: [],
       filterSaOptions: [],
       filterFaOptions: [],
       filterActivityOptions: [],
       showFilter: false,
       filterParams: {}
+    }
+  },
+  computed: {
+    ...mapGetters({
+      allSubjects: 'allSubjects',
+      allYears: 'allYears'
+    }),
+    filterSubjectOptions () {
+      return this.allSubjects.map(item => {
+        return {
+          label: item,
+          value: item
+        }
+      })
+    },
+    filterAgeOptions () {
+      return this.allYears.map(item => {
+        return {
+          label: item,
+          value: item
+        }
+      })
     }
   },
   created() {
@@ -95,20 +114,6 @@ export default {
       this.$emit('search', filterConfig)
     },
     initFilterOption() {
-      SubjectTree({ curriculumId: this.$store.getters.bindCurriculum }).then(response => {
-        this.$logger.info('getSubjectTree response', response.result)
-        this.filterSubjectOptions = []
-        response.result.forEach(subject => {
-          this.filterSubjectOptions.push({ label: subject.name, value: subject.name })
-        })
-      })
-      GetGradesByCurriculumId({ curriculumId: this.$store.getters.bindCurriculum }).then(response => {
-        this.$logger.info('GetGradesByCurriculumId', response.result)
-        this.filterAgeOptions = []
-        response.result.forEach(grade => {
-          this.filterAgeOptions.push({ label: grade.name, value: grade.name })
-        })
-      })
       this.loadUserTags()
       this.filterPeriodOptions = [
         { label: 'This month', value: 'month' },

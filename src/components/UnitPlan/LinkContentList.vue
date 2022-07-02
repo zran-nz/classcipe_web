@@ -112,7 +112,7 @@ export default {
       this.$logger.info('handleSearch data', data)
       this.searching = true
       if (this.sourceType === 'MyContent') {
-        this.searchContent({})
+        this.searchContent(data)
       } else if (this.sourceType === 'Library') {
         this.searchLibrary(data)
       }
@@ -128,17 +128,12 @@ export default {
       this.loadLibrary(data)
     },
     loadContent (data) {
-      let params = {
-        shareType: SourceType.CreatedByMe,
-        pageNo: this.pageNo,
-        pageSize: this.pagination.pageSize,
-        searchKey: data.searchKey ? data.searchKey : '',
-        types: this.filterTypes,
-        delFlag: 0,
-        schoolId: this.currentSchool?.id
-      }
-      params = Object.assign(data, params)
-      FindMyContent(params).then(res => {
+      data.schoolId = this.currentSchool?.id
+      data.pageNo = this.pageNo
+      data.shareType = SourceType.CreatedByMe
+      data.pageSize = this.pagination.pageSize
+
+      FindMyContent(data).then(res => {
         logger.info('loadContent', res)
         if (res.success) {
           res.result.records.forEach((record, index) => {
@@ -162,10 +157,8 @@ export default {
       })
     },
     loadLibrary (data) {
-      QueryContentsFilter({
-        searchKey: data.searchKey ? data.searchKey : '',
-        type: this.filterTypes
-      }).then(response => {
+      data.type = this.filterTypes
+      QueryContentsFilter(data).then(response => {
         if (response.result) {
           this.myContentList = response.result
         }
