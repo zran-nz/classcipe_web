@@ -283,7 +283,7 @@
           <a-icon type="right-circle" :style="{fontSize: '22px', color: '#dddddd'}" />
         </div>
         <div class='card-list' id='subTask'>
-          <div class="card-item" v-for="(subTask, i) in content.subTasks" :key="i">
+          <div class="card-item" v-for="(subTask, i) in content.subTasks" :key="i" @click='handlePreviewItem(subTask)'>
             <card-list-item :content="subTask" :width="16" :inner-desc="false" :outer-desc="true" />
           </div>
         </div>
@@ -307,7 +307,7 @@
           <a-icon type="right-circle" :style="{fontSize: '22px', color: '#dddddd'}" />
         </div>
         <div class='card-list' id='taskUnit'>
-          <div class="card-item" v-for="(associate, i) in associateList" :key="i">
+          <div class="card-item" v-for="(associate, i) in associateList" :key="i" @click='handlePreviewItem(associate)'>
             <card-list-item :content="associate" :width="16" :inner-desc="false" :outer-desc="true" />
           </div>
         </div>
@@ -345,6 +345,13 @@
       </a-row>
     </div>
     <div class='preview-recommend'></div>
+
+    <content-preview
+      :content-id='previewCurrentId'
+      :content-type='previewType'
+      :allow-preview-sub-content='false'
+      v-if='previewVisible'
+      @close='handlePreviewClose' />
   </div>
 </template>
 
@@ -374,10 +381,12 @@ import * as ReviewsTask from '@/api/reviewsTask'
 import * as ReviewsTeacher from '@/api/reviewsTeacher'
 import ShareButton from '@/components/Share/ShareButton'
 import CustomLinkText from '@/components/Common/CustomLinkText'
+import ContentPreview from '@/components/Preview/ContentPreview'
+import { ContentItemMixin } from '@/mixins/ContentItemMixin'
 
 export default {
   name: 'ContentPreviewDetail',
-  components: { CustomLinkText, ShareButton, CardListItem, PreviewCarousel, ShareIcon, RateByPercent, ReviewsPreview, ReviewScore },
+  components: { ContentPreview, CustomLinkText, ShareButton, CardListItem, PreviewCarousel, ShareIcon, RateByPercent, ReviewsPreview, ReviewScore },
   props: {
     contentId: {
       type: String,
@@ -406,9 +415,13 @@ export default {
     showPriceInfo: {
       type: Boolean,
       default: true
+    },
+    allowPreviewSubContent: {
+      type: Boolean,
+      default: true
     }
   },
-  mixins: [PptPreviewMixin, GoogleAuthCallBackMixin],
+  mixins: [PptPreviewMixin, GoogleAuthCallBackMixin, ContentItemMixin],
   data() {
     return {
       contentLoading: true,
@@ -743,6 +756,13 @@ export default {
       this.$router.push({
         path: `/teacher/link-content-list/${this.content.type}/${this.content.id}`
       })
+    },
+
+    handlePreviewItem (item) {
+      this.$logger.info(`handlePreviewItem allowPreviewSubContent ${this.allowPreviewSubContent}`, item)
+      if (this.allowPreviewSubContent) {
+        this.handlePreviewDetail(item)
+      }
     }
   }
 }
