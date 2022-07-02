@@ -105,8 +105,19 @@ export default {
     },
 
     handleCreateSubtask () {
-      this.$router.push({
-        path: '/teacher/split-task/' + this.taskId
+      this.$confirm({
+        title: 'Create sub task',
+        content: 'The task is more likely to be purchased\n' +
+          'by other educators if it is simple, clear and\n' +
+          'focus on specific learning outcome(s).\n' +
+          'So dividing your main task into small sub-\n' +
+          'tasks with specific tags is always a good idea.',
+        centered: true,
+        onOk: () => {
+          this.$router.push({
+            path: '/teacher/split-task/' + this.taskId
+          })
+        }
       })
     },
 
