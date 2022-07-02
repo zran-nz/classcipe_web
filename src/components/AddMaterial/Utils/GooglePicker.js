@@ -101,10 +101,11 @@ class LoadPicker {
 
   createPicker = () => {
     if (this.pickerApiLoaded && this.oauthToken) {
+      console.log(`createPicker filterType ${this.filterType}`)
       const view = new window.google.picker.View(window.google.picker.ViewId.DOCS_IMAGES_AND_VIDEOS)
       view.setMimeTypes('image/png,image/jpeg,image/jpg,video/*')
       const picker = new window.google.picker.PickerBuilder()
-        .setTitle('My Drive 1')
+        .setTitle('My Drive')
         .enableFeature(window.google.picker.Feature.NAV_HIDDEN)
         .enableFeature(window.google.picker.Feature.MULTISELECT_ENABLED)
         .enableFeature(window.google.picker.Feature.SUPPORT_TEAM_DRIVES)

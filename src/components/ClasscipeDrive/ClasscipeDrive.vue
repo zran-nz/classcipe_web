@@ -132,15 +132,10 @@ export default {
             this.driveLoading = false
             this.driveProcess = 0
           },
-          this.onGoogleDriveProgressUpdate,
           this.$store.getters.userInfo.id,
           this.filterType
         )
       }
-    },
-
-    onGoogleDriveProgressUpdate (progress) {
-      this.$logger.info('onGoogleDriveProgressUpdate', progress)
     }
   }
 }
