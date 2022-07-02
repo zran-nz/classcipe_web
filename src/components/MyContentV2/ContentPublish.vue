@@ -39,7 +39,7 @@
                 <a-switch size='small' v-model='enablePrice' />
               </div>
               <div class='price-input' v-if='enablePrice'>
-                Price: <a-input v-model="item.price" class='dollar-price-input' suffix="$"/>
+                Price: <a-input v-model="item.price" class='dollar-price-input' prefix="$"/>
               </div>
             </div>
           </div>

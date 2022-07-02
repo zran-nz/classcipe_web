@@ -25,26 +25,16 @@
       </div>
 
       <div class='setting-item' v-if='discountSetting.mode === mode.SalesOff'>
-        <div class='setting-label'>
-          sale off
-        </div>
         <div class='setting-content'>
-          <a-input v-model="discountSetting.salesOffPercent" type='number' class='dollar-price-input' suffix="%"/>
+          Single purchases over <a-input v-model="discountSetting.threshold" type='number' class='dollar-price-input' prefix="$"/>
+          sale off <a-input v-model="discountSetting.thresholdDiscountMoney" type='number' class='dollar-price-input' prefix="$"/>
         </div>
       </div>
 
       <div class='setting-item' v-if='discountSetting.mode === mode.Discount'>
-        <div class='setting-half'>
-          <div class='setting-label'>
-            Over
-          </div>
-          <a-input v-model="discountSetting.threshold" class='dollar-price-input' prefix="$"/>
-        </div>
-        <div class='setting-half'>
-          <div class='setting-label'>
-            Sale off
-          </div>
-          <a-input v-model="discountSetting.thresholdDiscountMoney" class='dollar-price-input' prefix="$"/>
+        <div class='setting-content'>
+          <a-input v-model="discountSetting.salesOffPercent" type='number' class='dollar-price-input' suffix="%"/>
+          discount applied to all content
         </div>
       </div>
 
@@ -166,9 +156,7 @@ export default {
 }
 
 .dollar-price-input {
-  margin-left: -5px;
-  width: 120px;
-  padding-right: 20px;
+  width: 80px;
 
   /deep/ input {
     border-top: none;
@@ -176,6 +164,13 @@ export default {
     border-right: none;
     box-shadow: none;
   }
+}
+
+.setting-content {
+  display: flex;
+  font-size: 14px;
+  font-weight: 400;
+  color: #333;
 }
 
 </style>
