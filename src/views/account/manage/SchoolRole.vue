@@ -23,8 +23,8 @@
           </a-col>
           <a-col :md="rightColMd" :sm="24" v-if="rightcolval === 1" style="height: 100%">
             <a-card :bordered="false" style="height: 100%">
-              <!-- <school-role-user :school="currentSchool" :role="selectedRole" @close="clearRole"/> -->
-              <school-role-class :school="currentSchool" :role="selectedRole" @close="clearRole"/>
+              <school-role-user v-if="selectedRole && selectedRole.roleCode === 'Admin'" :school="currentSchool" :role="selectedRole" @close="clearRole"/>
+              <school-role-class v-if="selectedRole && selectedRole.roleCode === 'Homeroom teacher'" :school="currentSchool" :role="selectedRole" @close="clearRole"/>
             </a-card>
           </a-col>
         </a-row>

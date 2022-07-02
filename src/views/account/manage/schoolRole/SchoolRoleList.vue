@@ -11,7 +11,7 @@
     <div class="table-con">
       <a-table
         ref="table"
-        :rowKey="item => item.id"
+        :rowKey="item => item.roleCode"
         :columns="columns"
         :dataSource="dataSource"
         :pagination="ipagination"
@@ -29,7 +29,12 @@
             <a @click="handleEdit(record)">Edit</a>
             <a-popover :overlayStyle="{width: '300px'}" :title="record.name + ' Permission'" trigger="click">
               <div slot="content">
-                {{ ROLE_PERMISSION[record.roleCode].label }}
+                <a-space style="flex-wrap: wrap;">
+                  <a-tag style="margin-bottom: 5px;" v-for="per in ROLE_PERMISSION[record.roleCode].label.split(',')" :key="per">
+                    {{ per }}
+                  </a-tag>
+                </a-space>
+                <!-- {{ ROLE_PERMISSION[record.roleCode].label }} -->
               </div>
               <a >Permissions</a>
             </a-popover>
@@ -43,7 +48,12 @@
               <a-menu-item>
                 <a-popover :overlayStyle="{width: '300px'}" :title="record.name + ' Permission'" trigger="click">
                   <div slot="content">
-                    {{ ROLE_PERMISSION[record.roleCode].label }}
+                    <a-space style="flex-wrap: wrap;">
+                      <a-tag style="margin-bottom: 5px;" v-for="per in ROLE_PERMISSION[record.roleCode].label.split(',')" :key="per">
+                        {{ per }}
+                      </a-tag>
+                    </a-space>
+                    <!-- {{ ROLE_PERMISSION[record.roleCode].label }} -->
                   </div>
                   <a >Permissions</a>
                 </a-popover>
@@ -201,7 +211,7 @@ export default {
       this.debounceLoad()
     },
     showUsers(item) {
-      this.selectedRowKeys = [item.id]
+      this.selectedRowKeys = [item.roleCode]
       this.selectionRows = [{ ...item }]
       this.$emit('choose', item)
     },

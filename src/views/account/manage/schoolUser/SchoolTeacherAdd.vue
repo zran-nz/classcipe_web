@@ -77,7 +77,7 @@
               </a-select> -->
             </a-form-model-item>
           </a-col>
-          <a-col :span="6">
+          <a-col :span="6" v-if="showClassLink">
             <a-button type="link" @click="handelGoClass">Class Manage</a-button>
           </a-col>
         </a-row>
@@ -136,9 +136,9 @@ export default {
       type: String,
       default: null
     },
-    email: {
-      type: String,
-      default: null
+    showClassLink: {
+      type: Boolean,
+      default: true
     }
   },
   watch: {
@@ -163,7 +163,6 @@ export default {
     return {
       currentSchool: this.school,
       teacherId: this.id,
-      teacherEmail: this.email,
       classList: [],
       roleList: [],
       formModel: {
@@ -227,8 +226,7 @@ export default {
         this.loading = true
         getTeacherInfo({
           schoolId: this.currentSchool.id,
-          userId: this.teacherId,
-          email: this.teacherEmail
+          userId: this.teacherId
         }).then(res => {
           if (res.code === 0) {
             this.formModel = res.result

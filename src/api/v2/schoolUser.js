@@ -24,7 +24,9 @@ export const schoolUserApi = {
   moveClassStudent: `/classcipe/${API_PREFIX}/student/moveClass`,
   sendParentEmail: `/classcipe/${API_PREFIX}/student/sendParentEmail`,
   checkEmailTeacher: `/classcipe/${API_PREFIX}/teacher/checkEmail`,
-  updateStudent: `/classcipe/${API_PREFIX}/updateStudent`
+  updateStudent: `/classcipe/${API_PREFIX}/updateStudent`,
+  addAdmin: `/classcipe/${API_PREFIX}/addAdmin`,
+  removeAdmins: `/classcipe/${API_PREFIX}/removeAdmins`
 }
 
 /**
@@ -350,5 +352,37 @@ export function getSchoolUsers (parameter) {
     url: schoolUserApi.sendParentEmail,
     method: 'get',
     params: parameter
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+ export function addAdmin (parameter) {
+  return request({
+    url: schoolUserApi.addAdmin,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+ export function removeAdmins (parameter) {
+  return request({
+    url: schoolUserApi.removeAdmins,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
   })
 }

@@ -597,7 +597,8 @@ export default {
     doRestore(cls) {
       this.loading = true
       restoreClass({
-        ids: cls.id
+        classId: cls.id,
+        ...cls
       }).then(res => {
         if (res.success && res.code === 0) {
           this.$message.success('Restore successfully')

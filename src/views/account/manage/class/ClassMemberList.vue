@@ -98,7 +98,12 @@
         width='600px'
         :footer="null"
       >
-        <school-student-add ref="schoolStudentAdd" :school="currentSchool" :id="studentId" @save="saveStudent"/>
+        <school-student-add
+          ref="schoolStudentAdd"
+          :school="currentSchool"
+          :id="studentId"
+          :showClassLink="false"
+          @save="saveStudent"/>
       </a-modal>
 
       <a-modal

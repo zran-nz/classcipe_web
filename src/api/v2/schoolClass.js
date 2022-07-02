@@ -185,8 +185,9 @@ export function deleteClass (parameter) {
  export function restoreClass (parameter) {
   return request({
     url: schoolClassApi.restoreClass,
-    method: 'get',
-    params: parameter
+    method: 'post',
+    params: parameter,
+    data: parameter
   })
 }
 

@@ -385,7 +385,7 @@ export default {
     hasRolePermission(permissionCode) {
       let hasPerm = false
       if (this.userMode === USER_MODE.SCHOOL && this.currentSchool.roleNames) {
-        if (this.currentSchool.roleNames.includes('admin')) return true
+        if (this.currentSchool.roleNames.includes('admin') || this.currentSchool.roleNames.includes('Admin')) return true
         let permissions = []
         this.currentSchool.roleNames.forEach(role => {
           // 所有权限

@@ -76,7 +76,7 @@
               </a-select>
             </a-form-model-item>
           </a-col>
-          <a-col :span="6">
+          <a-col :span="6" v-if="showClassLink">
             <a-button type="link" @click="handelGoClass">Class Manage</a-button>
           </a-col>
         </a-row>
@@ -156,6 +156,10 @@ export default {
     id: {
       type: String,
       default: null
+    },
+    showClassLink: {
+      type: Boolean,
+      default: true
     }
   },
   watch: {
@@ -250,8 +254,7 @@ export default {
         this.loading = true
         getStudentInfo({
           schoolId: this.currentSchool.id,
-          userId: this.id,
-          userName: ''
+          userId: this.id
         }).then(res => {
           if (res.code === 0) {
             this.formModel = res.result

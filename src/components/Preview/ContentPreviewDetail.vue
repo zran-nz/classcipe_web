@@ -338,7 +338,7 @@
             :del="ReviewsTeacher.ReviewsTeacherDelete"
             :myReview="ReviewsTeacher.ReviewsTeacherMyReview"
             :canEdit="true"
-            :canCreate="!!(content && content.createBy !== $store.getters.userInfo.email)"
+            :canCreate="!!(content && content.createBy !== $store.getters.userInfo.email && (showBuyButton && showCopyButton))"
             @update="loadReviewStats"
           />
         </a-col>

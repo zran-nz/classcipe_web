@@ -2,65 +2,9 @@
   <div class="role-con">
     <a-icon class="close" type="close-circle" @click="handleClose" />
     <div class="filter-tab">
-      <div style="width: 300px;" v-clickOutside="() => this.searchPoverVis = false">
+      <div style="width: 300px;">
         <!-- <a-input-search placeholder="Search here" v-model="queryParams.searchKey" @search="handleSearch"></a-input-search> -->
-        <a-popover
-          v-model="searchPoverVis"
-          class="global-search"
-          placement="bottomLeft"
-          overlayClassName="search-popver"
-          :getPopupContainer="trigger => trigger.parentElement"
-          :overlayStyle="{
-            height: '300px',
-            overflow: 'auto'
-          }"
-          size="large"
-          style="width: 100%"
-          trigger="null"
-        >
-          <a-input-search
-            @focus="searchPoverVis = true"
-            @change="getFilterMembers"
-            placeholder="Search and add by name/email"
-            v-model="searchKeyMember"></a-input-search>
-          <template slot="content">
-            <div class="search-user" v-for="item in filterMembers" :key="item.id">
 
-              <div class="user-avatar">
-                <div class="avatar">
-                  <img :src="item.avatar" />
-                </div>
-              </div>
-              <div class="user-name-email">
-                <div class="user-name">
-                  {{ item.nickname || `${item.firstname} ${item.lastname}` }}
-                </div>
-                <div class="email">
-                  {{ item.email }}
-                </div>
-              </div>
-              <!-- <div class="user-option">
-                <a-select
-                  class="import-opt-item"
-                  mode="multiple"
-                  :getPopupContainer="trigger => trigger.parentElement"
-                  v-model='item.classArr'
-                  style="width: 100%;"
-                  placeholder='Please select class'>
-                  <a-select-option v-for='opt in classOptions' :key='opt.id'>
-                    {{ opt.name }}
-                  </a-select-option >
-                </a-select>
-              </div> -->
-              <div class="action-wrapper">
-                <a-button type="link" @click="handleAddMember(item)">
-                  Add
-                </a-button>
-              </div>
-
-            </div>
-          </template>
-        </a-popover>
       </div>
       <!-- <a-space class="filter-opt">
         <a-button type="primary" @click="handleAdd">Add User</a-button>
@@ -75,8 +19,59 @@
         :pagination="false"
         :loading="loading"
       >
+        <a-space slot="headerTeachers" slot-scope="text, record" style="flex-wrap: wrap;">
+          <template v-if="text && text.length > 0">
+            <div class="user-tag" v-for="item in record.headerTeachers" :key="item.userId">
+              <div class="avatar">
+                <img :src="item.avatar" />
+              </div>
+              <div class="user-name-email">
+                <div class="user-name">
+                  {{ item.userName }}
+                </div>
+                <div class="email">
+                  {{ item.email }}
+                </div>
+              </div>
+              <div class="user-opt">
+                <a-icon type="delete" @click="handleDelete(item, record)"></a-icon>
+              </div>
+            </div>
+          </template>
+        </a-space>
         <a-space slot="action" slot-scope="text, record">
-          <a type="link" @click="handleDelete(record)">Delete</a>
+          <a-popover
+            placement="left"
+            title="Choose User"
+            trigger="click">
+            <div slot="content" class="search-popver">
+              <div class="search-user" v-for="item in teacherList.filter(teacher => !record.headerTeachers.find(head => head.userId === teacher.uid))" :key="item.id">
+
+                <div class="user-avatar">
+                  <div class="avatar">
+                    <img :src="item.avatar" />
+                  </div>
+                </div>
+                <div class="user-name-email">
+                  <div class="user-name">
+                    {{ item.nickname || `${item.firstname} ${item.lastname}` }}
+                  </div>
+                  <div class="email">
+                    {{ item.email }}
+                  </div>
+                </div>
+                <div class="action-wrapper">
+                  <a-button type="link" @click="handleAddMember(item, record)">
+                    Add
+                  </a-button>
+                </div>
+
+              </div>
+            </div>
+            <a type="link">Add</a>
+          </a-popover>
+
+          <!-- <a type="link" @click="handleDelete(record)">Delete</a> -->
         </a-space>
       </a-table>
     </div>
@@ -86,6 +81,7 @@
 
 <script>
 import { getRoleClassTeachers, bindRoleClassTeachers } from '@/api/v2/schoolRole'
+import { getSchoolUsers } from '@/api/v2/schoolUser'
 
 const { debounce } = require('lodash-es')
 
@@ -109,6 +105,7 @@ export default {
         console.log(val)
         this.currentSchool = { ...val }
         this.loadData()
+        this.initSchoolUsers()
       },
       deep: true,
       immediate: true
@@ -156,29 +153,21 @@ export default {
     columns() {
       return [
         {
-          title: 'Email',
+          title: 'Class',
           align: 'center',
-          dataIndex: 'email',
+          dataIndex: 'className',
           width: 150
         },
         {
-          title: 'Name',
+          title: 'Teachers',
           align: 'center',
-          dataIndex: 'nickname',
-          width: 150,
-          customRender: (text, record) => {
-            return text || (record.firstname + record.lastname) || record.email
-          }
-        },
-        {
-          title: 'Create Time',
-          align: 'center',
-          dataIndex: 'createTime',
-          width: 120
+          dataIndex: 'headerTeachers',
+          scopedSlots: { customRender: 'headerTeachers' }
         },
         {
           title: 'Action',
           align: 'center',
+          width: 80,
           scopedSlots: { customRender: 'action' }
         }
       ]
@@ -197,14 +186,41 @@ export default {
         schoolId: this.currentSchool.id
       }).then(res => {
         if (res.code === 0) {
-          this.dataSource = res.result.records
+          this.dataSource = res.result
         }
       }).finally(() => {
         this.loading = false
+        // this.dataSource = [{
+        //   classId: 1,
+        //   className: 'test',
+        //   headerTeachers: [{
+        //     avatar: '',
+        //     email: 'luori@q.com',
+        //     userName: 'adfjlksdjflksdjfklsdjf adlkjflsdkfj',
+        //     userId: 1
+        //   }, {
+        //     avatar: '',
+        //     email: 'luori@q.com',
+        //     userName: 'jasdjfkdlsf',
+        //     userId: 2
+        //   } ]
+        // }]
       })
     },
     initDict() {
 
+    },
+    initSchoolUsers() {
+      getSchoolUsers({
+        pageNo: 1,
+        pageSize: 10000,
+        schoolId: this.currentSchool.id,
+        roles: 'teacher'
+      }).then((res) => {
+        if (res.success) {
+          this.teacherList = res.result.records
+        }
+      })
     },
 
     handleAdd() {
@@ -217,8 +233,8 @@ export default {
     handleClose() {
       this.$emit('close')
     },
-    handleDelete(item) {
-      if (!this.currentRole || !this.currentRole.id) {
+    handleDelete(item, cls) {
+      if (!this.currentRole || !this.currentRole.roleCode) {
         this.$message.error('Please select a role!')
         return
       }
@@ -230,7 +246,7 @@ export default {
           this.loading = true
           bindRoleClassTeachers({
             bindFlag: 0,
-            classId: 1,
+            classId: cls.classId,
             isHead: true,
             userId: item.uid
           }).then(res => {
@@ -247,8 +263,8 @@ export default {
         }
       })
     },
-    handleAddMember(user) {
-      if (!this.currentRole || !this.currentRole.id) {
+    handleAddMember(user, cls) {
+      if (!this.currentRole || !this.currentRole.roleCode) {
         this.$message.error('Please select a role!')
         return
       }
@@ -261,7 +277,7 @@ export default {
       this.selectMember = ''
       bindRoleClassTeachers({
         bindFlag: 1,
-        classId: 1,
+        classId: cls.classId,
         isHead: true,
         userId: user.uid
       }).then(res => {
@@ -366,6 +382,8 @@ export default {
   flex: 1;
 }
 .search-popver {
+  height: 300px;
+  overflow: auto;
   /deep/ &.ant-popover {
     .ant-popover-inner {
       border: 1px solid #dfdfdf;
@@ -380,6 +398,42 @@ export default {
     &:hover {
       background: #dfdfdf;
     }
+  }
+}
+.user-tag {
+  width: 150px;
+  display: flex;
+  position: relative;
+  margin-bottom: 5px;
+  border: 1px solid #dfdfdf;
+  padding: 5px;
+  .avatar {
+    width: 40px;
+    height: 40px;
+    margin-left: 5px;
+    img {
+      width: 40px;
+      height: 40px;
+      border-radius: 40px;
+    }
+  }
+  .user-name-email {
+    display: flex;
+    flex-direction: column;
+    width: 100px;
+    .user-name {
+      width: 100px;
+      font-weight: bold;
+      text-align: left;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+  }
+  .user-opt {
+    position: absolute;
+    top: -5px;
+    right: -5px;
   }
 }
 </style>

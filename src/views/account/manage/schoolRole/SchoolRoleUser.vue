@@ -90,8 +90,7 @@
 </template>
 
 <script>
-import { getRoleUsers, addRoleUser, deleteRoleUser } from '@/api/v2/schoolRole'
-import { getSchoolUsers } from '@/api/v2/schoolUser'
+import { getSchoolUsers, addAdmin, removeAdmins } from '@/api/v2/schoolUser'
 import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
 import { listClass } from '@/api/v2/schoolClass'
 
@@ -203,12 +202,13 @@ export default {
     loadData() {
       if (!this.currentSchool || !this.currentRole) return
       this.loading = true
-      getRoleUsers({
+      getSchoolUsers({
         ...this.queryParams,
         pageNo: this.ipagination.current,
         pageSize: this.ipagination.pageSize,
         schoolId: this.currentSchool.id,
-        roleId: this.currentRole.id
+        teacherRoles: 'Admin',
+        roles: 'teacher'
       }).then(res => {
         if (res.code === 0) {
           this.dataSource = res.result.records
@@ -266,7 +266,7 @@ export default {
         const roles = member.roles.map(item => item.name.toLowerCase())
         const isIn = roles.includes(this.currentRole.roleCode.toLowerCase())
         const userName = ((member.firstname || '') + (member.lastname || '')).toLowerCase()
-        return !isIn && (member.email.toLowerCase().indexOf(this.searchKeyMember.toLowerCase() || '') > -1 || userName.indexOf(this.searchKeyMember.toLowerCase() || '') > -1)
+        return !isIn && (member.email && member.email.toLowerCase().indexOf(this.searchKeyMember.toLowerCase() || '') > -1 || userName.indexOf(this.searchKeyMember.toLowerCase() || '') > -1)
       }).map(item => {
         const classIds = item.classes.map(item => item.id)
         this.$set(item, 'classArr', classIds)
@@ -295,7 +295,7 @@ export default {
       this.debounceLoad()
     },
     handleAdd() {
-      if (!this.currentRole || !this.currentRole.id) {
+      if (!this.currentRole || !this.currentRole.roleCode) {
         this.$message.error('Please select a role!')
       } else {
         this.$refs.schoolUserSelect.add()
@@ -305,7 +305,7 @@ export default {
       this.$emit('close')
     },
     handleDelete(item) {
-      if (!this.currentRole || !this.currentRole.id) {
+      if (!this.currentRole || !this.currentRole.roleCode) {
         this.$message.error('Please select a role!')
         return
       }
@@ -315,10 +315,10 @@ export default {
         centered: true,
         onOk: () => {
           this.loading = true
-          deleteRoleUser({
+          removeAdmins({
             roleId: this.currentRole.id,
             schoolId: this.currentSchool.id,
-            userId: item.uid
+            userIdList: [item.uid]
           }).then(res => {
             if (res.code === 0) {
               this.$message.success('Delete user successfully')
@@ -344,7 +344,7 @@ export default {
       }
     },
     handleAddMember(user) {
-      if (!this.currentRole || !this.currentRole.id) {
+      if (!this.currentRole || !this.currentRole.roleCode) {
         this.$message.error('Please select a role!')
         return
       }
@@ -355,7 +355,7 @@ export default {
         this.$message.error('This user has been added')
       }
       this.selectMember = ''
-      addRoleUser({
+      addAdmin({
         roleId: this.currentRole.id,
         schoolId: this.currentSchool.id,
         userId: user.uid
@@ -373,12 +373,12 @@ export default {
     },
     selectOK(data) {
       console.log(data)
-      if (!this.currentRole || !this.currentRole.id) {
+      if (!this.currentRole || !this.currentRole.roleCode) {
         this.$message.error('Please select a role!')
         return
       }
       // TODO 需要批量添加
-      addRoleUser({
+      addAdmin({
         roleId: this.currentRole.id,
         schoolId: this.currentSchool.id,
         userId: data[0]

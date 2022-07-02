@@ -398,7 +398,7 @@ export default {
       this.$router.push('/manage/teacher/upload')
     },
     handleEdit(item) {
-      this.$router.push('/manage/teacher/detail/' + item.uid + '/' + item.email)
+      this.$router.push('/manage/teacher/detail/' + item.uid)
     },
     handleInvite() {
       this.$refs.schoolUserInvite.doCreate('teacher')

@@ -662,7 +662,7 @@ export const asyncRouterMap = [
                 meta: { title: 'Teacher Manage', keepAlive: true, permission: ['teacher'] }
               },
               {
-                path: '/manage/teacher/detail/:id?/:email?',
+                path: '/manage/teacher/detail/:id?',
                 name: 'SchoolTeacherEdit',
                 props: true,
                 component: () => import('@/views/account/manage/SchoolTeacherEdit'),
