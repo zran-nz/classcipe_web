@@ -66,6 +66,7 @@
 import { AssessmentToolInfoList } from '@/api/v2/assessment'
 import CommonNoData from '@/components/Common/CommonNoData'
 import { mapState } from 'vuex'
+import { USER_MODE } from '@/const/common'
 import {
   AssessmentToolType
 } from '@/components/AssessmentTool/Constant'
@@ -118,7 +119,7 @@ export default {
       this.loading = true
       this.assessmentList = []
       AssessmentToolInfoList({
-        userMode: this.userMode,
+        userMode: this.userMode === USER_MODE.SELF ? 1 : 2,
         rubricType: this.filter.rubricType,
         subjectIds: this.filter.subjectIds,
         pageNo: 1,
