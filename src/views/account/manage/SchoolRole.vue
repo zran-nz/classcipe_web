@@ -25,6 +25,7 @@
             <a-card :bordered="false" style="height: 100%">
               <school-role-user v-if="selectedRole && selectedRole.roleCode === 'Admin'" :school="currentSchool" :role="selectedRole" @close="clearRole"/>
               <school-role-class v-if="selectedRole && selectedRole.roleCode === 'Homeroom teacher'" :school="currentSchool" :role="selectedRole" @close="clearRole"/>
+              <school-role-subject v-if="selectedRole && selectedRole.roleCode === 'Subject coordinator'" :school="currentSchool" :role="selectedRole" @close="clearRole"/>
             </a-card>
           </a-col>
         </a-row>
@@ -44,6 +45,7 @@ import CustomTextButton from '@/components/Common/CustomTextButton'
 import SchoolRoleList from './schoolRole/SchoolRoleList'
 import SchoolRoleUser from './schoolRole/SchoolRoleUser'
 import SchoolRoleClass from './schoolRole/SchoolRoleClass'
+import SchoolRoleSubject from './schoolRole/SchoolRoleSubject'
 
 import { mapState } from 'vuex'
 const { debounce } = require('lodash-es')
@@ -57,7 +59,8 @@ export default {
     CustomTextButton,
     SchoolRoleList,
     SchoolRoleUser,
-    SchoolRoleClass
+    SchoolRoleClass,
+    SchoolRoleSubject
   },
   props: {
     id: {

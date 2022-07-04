@@ -19,9 +19,9 @@
         :pagination="false"
         :loading="loading"
       >
-        <a-space slot="headerTeachers" slot-scope="text, record" style="flex-wrap: wrap;">
+        <a-space slot="teachers" slot-scope="text, record" style="flex-wrap: wrap;">
           <template v-if="text && text.length > 0">
-            <div class="user-tag" v-for="item in record.headerTeachers" :key="item.userId">
+            <div class="user-tag" v-for="item in record.teachers" :key="item.userId">
               <div class="avatar">
                 <img :src="item.avatar" />
               </div>
@@ -45,7 +45,7 @@
             title="Choose User"
             trigger="click">
             <div slot="content" class="search-popver">
-              <div class="search-user" v-for="item in teacherList.filter(teacher => !record.headerTeachers.find(head => head.userId === teacher.uid))" :key="item.id">
+              <div class="search-user" v-for="item in teacherList.filter(teacher => !record.teachers || !record.teachers.find(head => head.userId === teacher.uid))" :key="item.userId">
 
                 <div class="user-avatar">
                   <div class="avatar">
@@ -80,13 +80,13 @@
 </template>
 
 <script>
-import { getRoleClassTeachers, bindRoleClassTeachers } from '@/api/v2/schoolRole'
+import { getRoleSubjectLeaders, bindRoleSubjectLeader } from '@/api/v2/schoolRole'
 import { getSchoolUsers } from '@/api/v2/schoolUser'
 
 const { debounce } = require('lodash-es')
 
 export default {
-  name: 'SchoolRoleClass',
+  name: 'SchoolRoleSubject',
   components: {
   },
   props: {
@@ -153,16 +153,16 @@ export default {
     columns() {
       return [
         {
-          title: 'Class',
+          title: 'Subject',
           align: 'center',
-          dataIndex: 'className',
+          dataIndex: 'subjectName',
           width: 150
         },
         {
           title: 'Teachers',
           align: 'center',
-          dataIndex: 'headerTeachers',
-          scopedSlots: { customRender: 'headerTeachers' }
+          dataIndex: 'teachers',
+          scopedSlots: { customRender: 'teachers' }
         },
         {
           title: 'Action',
@@ -182,7 +182,7 @@ export default {
     loadData() {
       if (!this.currentSchool || !this.currentRole) return
       this.loading = true
-      getRoleClassTeachers({
+      getRoleSubjectLeaders({
         schoolId: this.currentSchool.id
       }).then(res => {
         if (res.code === 0) {
@@ -190,21 +190,6 @@ export default {
         }
       }).finally(() => {
         this.loading = false
-        // this.dataSource = [{
-        //   classId: 1,
-        //   className: 'test',
-        //   headerTeachers: [{
-        //     avatar: '',
-        //     email: 'luori@q.com',
-        //     userName: 'adfjlksdjflksdjfklsdjf adlkjflsdkfj',
-        //     userId: 1
-        //   }, {
-        //     avatar: '',
-        //     email: 'luori@q.com',
-        //     userName: 'jasdjfkdlsf',
-        //     userId: 2
-        //   } ]
-        // }]
       })
     },
     initDict() {
@@ -244,10 +229,10 @@ export default {
         centered: true,
         onOk: () => {
           this.loading = true
-          bindRoleClassTeachers({
+          bindRoleSubjectLeader({
             bindFlag: 0,
-            classId: cls.classId,
-            isHead: true,
+            schoolId: this.currentSchool.id,
+            subjectId: cls.subjectId,
             userId: item.userId
           }).then(res => {
             if (res.code === 0) {
@@ -275,38 +260,15 @@ export default {
         this.$message.error('This user has been added')
       }
       this.selectMember = ''
-      bindRoleClassTeachers({
+      bindRoleSubjectLeader({
         bindFlag: 1,
-        classId: cls.classId,
-        isHead: true,
+        schoolId: this.currentSchool.id,
+        subjectId: cls.subjectId,
         userId: user.uid
       }).then(res => {
         if (res.code === 0) {
           this.$message.success('Add user successfully')
           this.initSchoolUsers()
-          this.debounceLoad()
-        } else {
-          this.loading = false
-        }
-      }).catch(() => {
-        this.loading = false
-      })
-    },
-    selectOK(data) {
-      console.log(data)
-      if (!this.currentRole || !this.currentRole.id) {
-        this.$message.error('Please select a role!')
-        return
-      }
-      // TODO 需要批量添加
-      bindRoleClassTeachers({
-        bindFlag: 1,
-        classId: 1,
-        isHead: true,
-        userId: data[0]
-      }).then(res => {
-        if (res.code === 0) {
-          this.$message.success('Add user successfully')
           this.debounceLoad()
         } else {
           this.loading = false
