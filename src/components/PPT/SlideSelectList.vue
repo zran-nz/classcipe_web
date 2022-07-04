@@ -183,8 +183,8 @@ export default {
       this.handleSearchSlide()
     },
 
-    handleSearchSlide () {
-      this.$logger.info('handleSearchSlide', this.filterSourceType)
+    handleSearchSlide (data) {
+      this.$logger.info('handleSearchSlide', this.filterSourceType, data)
       switch (this.filterSourceType) {
         case sourceType.Recommend:
           this.getRecommendSlide()
@@ -202,9 +202,8 @@ export default {
 
     getRecommendSlide () {
       this.searching = true
-      recommendTemplates({
-        taskId: this.sourceId
-      }).then(res => {
+      const params = Object.assign({ taskId: this.sourceId }, this.filterParams)
+      recommendTemplates(params).then(res => {
         this.$logger.info('recommendTemplates res', res)
         if (res && res.result) {
           res.result.forEach(item => {

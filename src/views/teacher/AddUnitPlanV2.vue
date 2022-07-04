@@ -538,7 +538,7 @@
                 :field-name='currentFieldName'
                 :source-id='unitPlanId'
                 :source-type="contentType['unit-plan']"
-                :collaborate-user-list="collaborate.users"
+                :collaborate-user-list="getCollaborateUsers(collaborate)"
                 @cancel-comment="handleCancelComment"
                 @update-comment='handleUpdateCommentList' />
             </div>

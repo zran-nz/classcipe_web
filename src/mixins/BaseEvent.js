@@ -112,6 +112,7 @@ export const BaseEventMixin = {
         if (collaborate.users) {
           result = [...collaborate.users]
         }
+        collaborate.owner.nickName = collaborate.owner.nickname
         result.push(collaborate.owner)
         return result
       }
