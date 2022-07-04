@@ -218,11 +218,19 @@ export default {
     handleAdd() {
       this.$refs.schoolRoleAdd.add({
         schoolId: this.currentSchool.id,
-        roleType: 2
+        roleNames: {}
       })
     },
     handleEdit(item) {
-      this.$refs.schoolRoleAdd.edit(item)
+      const roleNames = {}
+      this.dataSource.forEach(item => {
+        roleNames[item.roleCode] = item.name
+      })
+      this.$refs.schoolRoleAdd.edit({
+        schoolId: this.currentSchool.id,
+        roleNames: roleNames,
+        changedKey: item.roleCode
+      })
     },
     handlePermission(item) {
       this.$refs.schoolRolePermission.edit({

@@ -8,7 +8,7 @@
       ref="form">
 
       <a-form-model-item label="Are you a current teacher">
-        <a-switch v-model="formModel.isTeacher"></a-switch>
+        <a-switch v-model="formModel.currentTeacher"></a-switch>
       </a-form-model-item>
       <a-form-model-item label="Current School" prop="schoolId">
         <a-select
@@ -30,11 +30,11 @@
           </a-select-option>
         </a-select>
       </a-form-model-item>
-      <a-form-model-item label="Year of teaching" prop="year">
+      <a-form-model-item label="Year of teaching" prop="teachingYear">
         <a-select
           optionFilterProp="children"
           :getPopupContainer="trigger => trigger.parentElement"
-          v-model='formModel.year'
+          v-model='formModel.teachingYear'
           option-label-prop="label"
           placeholder='Please select school'>
           <a-select-option
@@ -48,12 +48,12 @@
         </a-select>
       </a-form-model-item>
 
-      <a-form-model-item label="Teaching certificate" prop="certificate">
+      <a-form-model-item label="Teaching certificate" prop="teachingCertificate">
         <customer-upload-file
           accept="image/png, image/jpeg,  application/pdf"
           :showUploadButton="false"
           type="image/pdf"
-          @update="(url) => uploadFile('certificate', url, true)"
+          @update="(url) => uploadFile('teachingCertificate', url, true)"
         >
           <div slot="fileList">
             <a-icon type="plus" />
@@ -62,8 +62,8 @@
             </div>
           </div>
         </customer-upload-file>
-        <div class="file-list" slot="extra" v-if="formModel.certificate">
-          <div class="file-item" v-for="url in formModel.certificate.split(',')" :key="url">
+        <div class="file-list" slot="extra" v-if="formModel.teachingCertificate">
+          <div class="file-item" v-for="url in formModel.teachingCertificate.split(',')" :key="url">
             <template v-if="url">
               <div class="preview-file">
                 <div class="img">
@@ -73,7 +73,7 @@
                   <img v-else :src="url" alt="">
                 </div>
                 <a :href="url" target="_blank" for="">{{ urlName(url) }}</a>
-                <a-icon class="close" type="close" @click="handleRemove('certificate', url)"></a-icon>
+                <a-icon class="close" type="close" @click="handleRemove('teachingCertificate', url)"></a-icon>
               </div>
             </template>
           </div>
@@ -92,6 +92,7 @@
 
 <script>
 import { getSchools } from '@/api/school'
+import { saveTeacherVerification } from '@/api/v2/teacherVerification'
 
 import CustomerUploadFile from '@/components/Common/CustomerUploadFile'
 
@@ -148,10 +149,10 @@ export default {
         }
       ],
       formModel: {
-        year: '',
+        currentTeacher: false,
         schoolId: '',
-        certificate: '',
-        isTeacher: false
+        teachingYear: '',
+        teachingCertificate: ''
       },
       formItemLayout: {
         labelCol: { span: 6 },
@@ -166,8 +167,8 @@ export default {
   computed: {
     validatorRules: function () {
       return {
-        certificate: [{ required: true, message: 'Please Upload Certificate!' }],
-        year: [{ required: true, message: 'Please Select year!' }]
+        teachingCertificate: [{ required: true, message: 'Please Upload Certificate!' }],
+        teachingYear: [{ required: true, message: 'Please Select year!' }]
       }
     }
   },
@@ -194,6 +195,16 @@ export default {
     handleSave() {
       this.$refs.form.validate(valid => {
         if (valid) {
+          const params = { ...this.formModel }
+          params.currentTeacher = Number(params.currentTeacher)
+          this.loading = true
+          saveTeacherVerification(params).then(res => {
+            if (res.code === '0') {
+              this.$message.success('Submit successfully')
+            }
+          }).finally(() => {
+            this.loading = false
+          })
         }
       })
     },

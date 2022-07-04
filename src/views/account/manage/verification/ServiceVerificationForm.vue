@@ -6,32 +6,42 @@
       v-bind="formItemLayout"
       :rules="validatorRules"
       ref="form">
-
-      <a-form-model-item label="Are you a current teacher">
-        <a-switch v-model="formModel.isTeacher"></a-switch>
-      </a-form-model-item>
-      <a-form-model-item label="Areas of teaching" prop="schoolId">
+      <a-form-model-item label="Areas of teaching" prop="teachingAreas">
         <a-select
           optionFilterProp="children"
           :getPopupContainer="trigger => trigger.parentElement"
-          v-model='formModel.schoolId'
+          v-model='formModel.teachingAreas'
           option-label-prop="label"
-          placeholder='Please select school'>
+          placeholder='Please select areas'>
           <a-select-option
-            :value="schoolOption.id"
-            :label="schoolOption.name"
-            v-for="schoolOption in schoolList"
-            :key="schoolOption.id"
+            :value="option.id"
+            mode="multiple"
+            :label="option.name"
+            v-for="option in subjectOptions"
+            :key="option.id"
           >
-            <label style="display:flex;justify-content:space-between;">
-              <span>{{ schoolOption.name }}</span>
-              <a-tag type="primary" v-show="schoolOption.country">{{ schoolOption.country }}</a-tag>
-            </label>
+            {{ option.subjectName }}
           </a-select-option>
         </a-select>
       </a-form-model-item>
-      <a-form-model-item label="Ages of students" class="mb0">
-        <div style="display:flex;">
+      <a-form-model-item label="Ages of students" prop="studentAges">
+        <a-select
+          optionFilterProp="children"
+          :getPopupContainer="trigger => trigger.parentElement"
+          v-model='formModel.studentAges'
+          option-label-prop="label"
+          placeholder='Please select ages'>
+          <a-select-option
+            :value="option"
+            mode="multiple"
+            :label="option"
+            v-for="option in ageList"
+            :key="option"
+          >
+            {{ option }}
+          </a-select-option>
+        </a-select>
+        <!-- <div style="display:flex;">
           <a-form-model-item style="flex:1;">
             <a-select
               optionFilterProp="children"
@@ -67,14 +77,14 @@
               </a-select-option>
             </a-select>
           </a-form-model-item>
-        </div>
+        </div> -->
       </a-form-model-item>
 
-      <a-form-model-item label="Available time per day" prop="year">
-        <a-input-number v-model="formModel.time"></a-input-number> hours
+      <a-form-model-item label="Available time per day" prop="availableTime">
+        <a-input-number v-model="formModel.availableTime"></a-input-number> hours
       </a-form-model-item>
 
-      <a-form-model-item :wrapperCol="{span: 18}" label="Official ID" prop="certificate">
+      <a-form-model-item :wrapperCol="{span: 18}" label="Official ID" prop="officialId">
         <a-row>
           <a-col :span="12">
             <a-form-model-item style="margin-top: 40px">
@@ -82,10 +92,10 @@
                 accept="image/png, image/jpeg,  application/pdf"
                 :showUploadButton="false"
                 type="image/pdf"
-                @update="(url) => uploadFile('certificate', url, true)"
+                @update="(url) => uploadFile('officialId', url, true)"
               >
                 <div slot="fileList">
-                  <template v-if="!formModel.certificate">
+                  <template v-if="!formModel.officialId">
                     <a-icon type="plus" />
                     <div class="ant-upload-text">
                       Upload image/pdf
@@ -94,31 +104,15 @@
                   <template v-else>
                     <div class="uploaded-cover">
                       <div class="img-cover">
-                        <div v-if="isPdf(formModel.certificate)">
+                        <div v-if="isPdf(formModel.officialId)">
                           <a-icon type="file-pdf" />
                         </div>
-                        <img v-else :src="formModel.certificate" alt="">
+                        <img v-else :src="formModel.officialId" alt="">
                       </div>
                     </div>
                   </template>
                 </div>
               </customer-upload-file>
-              <!-- <div class="file-list" slot="extra" v-if="formModel.certificate">
-                <div class="file-item" v-for="url in formModel.certificate.split(',')" :key="url">
-                  <template v-if="url">
-                    <div class="preview-file">
-                      <div class="img">
-                        <div v-if="isPdf(url)">
-                          <a-icon type="file-pdf" />
-                        </div>
-                        <img v-else :src="url" alt="">
-                      </div>
-                      <a :href="url" target="_blank" for="">{{ urlName(url) }}</a>
-                      <a-icon class="close" type="close" @click="handleRemove('certificate', url)"></a-icon>
-                    </div>
-                  </template>
-                </div>
-              </div> -->
             </a-form-model-item>
           </a-col>
           <a-col :span="12">
@@ -137,7 +131,34 @@
               </a-tooltip>
             </div>
             <div>
-              <img style="width: 320px; height: 180px;" src="~@/assets/icons/account/certificate.png" alt="">
+              <a-form-model-item>
+                <customer-upload-file
+                  accept="image/png, image/jpeg,  application/pdf"
+                  :showUploadButton="false"
+                  type="image/pdf"
+                  @update="(url) => uploadFile('holdingPhone', url, true)"
+                >
+                  <div slot="fileList">
+                    <template v-if="!formModel.holdingPhone">
+                      <a-icon type="plus" />
+                      <div class="ant-upload-text">
+                        Upload image/pdf
+                      </div>
+                    </template>
+                    <template v-else>
+                      <div class="uploaded-cover">
+                        <div class="img-cover">
+                          <div v-if="isPdf(formModel.holdingPhone)">
+                            <a-icon type="file-pdf" />
+                          </div>
+                          <img v-else :src="formModel.holdingPhone" alt="">
+                        </div>
+                      </div>
+                    </template>
+                  </div>
+                </customer-upload-file>
+              </a-form-model-item>
+              <!-- <img style="width: 320px; height: 180px;" src="~@/assets/icons/account/certificate.png" alt=""> -->
             </div>
           </a-col>
         </a-row>
@@ -155,6 +176,8 @@
 
 <script>
 import { getSchools } from '@/api/school'
+import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
+import { saveServiceVerification } from '@/api/v2/teacherVerification'
 
 import CustomerUploadFile from '@/components/Common/CustomerUploadFile'
 
@@ -196,6 +219,7 @@ export default {
       currentSchool: this.school,
       teacherId: this.id,
       schoolList: [],
+      subjectOptions: [],
       yearsList: [
         {
           label: '< 1 year',
@@ -210,12 +234,14 @@ export default {
           value: 3
         }
       ],
+      ageList: [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
       formModel: {
-        year: '',
+        teachingAreas: [],
+        studentAges: [],
         schoolId: '',
-        certificate: '',
-        time: 1,
-        isTeacher: false
+        officialId: '',
+        holdingPhone: '',
+        availableTime: 1
       },
       formItemLayout: {
         labelCol: { span: 6 },
@@ -230,20 +256,40 @@ export default {
   computed: {
     validatorRules: function () {
       return {
-        certificate: [{ required: true, message: 'Please Upload Certificate!' }],
-        year: [{ required: true, message: 'Please Select year!' }]
+        officialId: [{ required: true, message: 'Please Upload officialId!' }],
+        holdingPhone: [{ required: true, message: 'Please Upload holdingPhone!' }],
+        teachingAreas: [{ required: true, message: 'Please Select areas!' }],
+        studentAges: [{ required: true, message: 'Please Select ages!' }],
+        availableTime: [{ required: true, message: 'Please Input time!' }]
       }
     }
   },
   methods: {
     initDict() {
       this.loading = true
-      getSchools({
-      }).then(res => {
-        if (res.success) {
-          this.schoolList = res.result || []
+      Promise.all([
+        getSubjectBySchoolId({
+          schoolId: this.currentSchool.id
+        }),
+        getSchools({
+        })
+      ])
+      .then(([subjectRes, schoolRes]) => {
+        if (schoolRes.success) {
+          this.schoolList = schoolRes.result || []
         } else {
           this.schoolList = []
+        }
+        if (subjectRes.success) {
+          let subjects = []
+          subjectRes.result.forEach(item => {
+            if (item.subjectList && item.subjectList.length > 0) {
+              subjects = subjects.concat(item.subjectList)
+            }
+          })
+          this.subjectOptions = subjects
+        } else {
+          this.subjectOptions = []
         }
       }).finally(() => {
         this.loading = false
@@ -258,6 +304,17 @@ export default {
     handleSave() {
       this.$refs.form.validate(valid => {
         if (valid) {
+          const params = { ...this.formModel }
+          params.teachingAreas = params.teachingAreas.join(',')
+          params.studentAges = params.studentAges.join(',')
+          this.loading = true
+          saveServiceVerification(params).then(res => {
+            if (res.code === '0') {
+              this.$message.success('Submit successfully')
+            }
+          }).finally(() => {
+            this.loading = false
+          })
         }
       })
     },
