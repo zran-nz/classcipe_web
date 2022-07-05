@@ -368,7 +368,7 @@
                       @update-comment='handleUpdateCommentList' />
                   </a-tab-pane>
                   <a-tab-pane key='2' tab='History' force-render>
-                    <collaborate-history :history-list='historyList' @restore='handleRestoreField' />
+                    <collaborate-history :source-type='contentType.task' :history-list='historyList' @restore='handleRestoreField' />
                   </a-tab-pane>
                 </a-tabs>
               </div>

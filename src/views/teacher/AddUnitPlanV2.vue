@@ -524,7 +524,7 @@
                       @update-comment='handleUpdateCommentList' />
                   </a-tab-pane>
                   <a-tab-pane key='2' force-render tab='History'>
-                    <collaborate-history :history-list='historyList' @restore='handleRestoreField' />
+                    <collaborate-history :source-type="contentType['unit-plan']" :history-list='historyList' @restore='handleRestoreField' />
                   </a-tab-pane>
                 </a-tabs>
               </div>
