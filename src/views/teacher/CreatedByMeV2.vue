@@ -22,6 +22,7 @@
               :key='item.id'
               :content='item'
               @delete='handleDeleteItem'
+              @update-list='updateList'
               @update-publish='handleShowContentPublish'
               :show-publish="userMode === 'self'"></content-item>
           </template>
@@ -208,6 +209,9 @@ export default {
       }
     },
 
+    updateList() {
+      this.loadMyContent()
+    },
     handleShowContentPublish(data) {
       this.$logger.info('handleShowContentPublish', data)
       this.currentContent = data.content
