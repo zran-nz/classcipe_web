@@ -1,6 +1,7 @@
 export const PublishMixin = {
   data () {
     return {
+      showStepMask: false,
       formSteps: [],
       requiredFields: [],
       emptyRequiredFields: []

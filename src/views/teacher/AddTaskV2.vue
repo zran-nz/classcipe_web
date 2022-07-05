@@ -29,6 +29,7 @@
     </fixed-form-header>
     <div class='form-content'>
       <div class='step-content' v-if='!contentLoading'>
+        <div class='step-mask' v-if='form.slideEditing && showStepMask'></div>
         <div class='form-body root-locate-form' id='form-body' :style="{ width: formBodyWidth }" v-show="formBodyWidth !== '0%'">
           <div
             class='form-page-item'
@@ -912,24 +913,44 @@ export default {
 
       this.checkRequiredFields()
       this.$logger.info('this.emptyRequiredFields', this.emptyRequiredFields)
-      if (this.emptyRequiredFields.length === 0) {
-        if (this.form.presentationId) {
-          this.form.status = 1
-          this.handlePublishFormItem(1)
-        } else {
-          this.$message.warn('This task/PD content can not be published without interactive slides, please edit google slides first')
-        }
-      } else {
-        let requiredStepIndex = -1
-        for (let i = 0; i < this.formSteps.length; i++) {
-          if (this.formSteps[i].showRequiredTips) {
-            requiredStepIndex = i
-            break
-          }
-        }
 
-        if (requiredStepIndex !== -1) {
-          this.currentActiveStepIndex = requiredStepIndex
+      if (this.form.slideEditing) {
+        this.$confirm({
+          title: 'Save changes',
+          content: 'Check the changes in Google slides then save.',
+          centered: true,
+          onOk: () => {
+            window.open('https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit', '_blank')
+          }
+        })
+
+        this.formSteps.forEach(step => {
+          if (step.commonFields.indexOf(TaskField.Slides) > -1) {
+            step.showRequiredTips = true
+            step.showSatisfiedTips = false
+          }
+        })
+        this.showStepMask = true
+      } else {
+        if (this.emptyRequiredFields.length === 0) {
+          if (this.form.presentationId) {
+            this.form.status = 1
+            this.handlePublishFormItem(1)
+          } else {
+            this.$message.warn('This task/PD content can not be published without interactive slides, please edit google slides first')
+          }
+        } else {
+          let requiredStepIndex = -1
+          for (let i = 0; i < this.formSteps.length; i++) {
+            if (this.formSteps[i].showRequiredTips) {
+              requiredStepIndex = i
+              break
+            }
+          }
+
+          if (requiredStepIndex !== -1) {
+            this.currentActiveStepIndex = requiredStepIndex
+          }
         }
       }
     },
@@ -1596,11 +1617,22 @@ export default {
 
 .step-content {
   display: flex;
+  position: relative;
   flex-direction: row;
   align-items: flex-start;
   width: 100%;
   height: 100%;
   overflow: hidden;
+
+  .step-mask {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 800;
+    background-color: rgba(0, 0, 0, 0.6);
+  }
 
   .form-body {
     padding: 20px 30px;
