@@ -15,11 +15,11 @@
       <div class='tag-content-wrapper'>
         <div class='selected-tag'>
           <div class="skt-tag-list">
-            <div class="skt-tag-item" :class="{'active-category-tag': activeCategoryKeyList.some((key) => tagItem.key.startsWith(key)) }" v-for="(tagItem) in selectedTagList" :key="tagItem.key" @click='activeCategory(tagItem)'>
+            <div class="skt-tag-item" :class="{'active-category-tag': activeCategoryKeyList.some((key) => tagItem.key.startsWith(key)), 'is-category': tagItem.name === tagItem.subCategory }" v-for="(tagItem) in selectedTagList" :key="tagItem.key" @click='activeCategory(tagItem)'>
               <a-tag
                 closable
                 @close="closeTag(tagItem)"
-                :color="tagItem.tagColor"
+                :color="categoryToColor[tagItem.category]"
                 class='tag-item'>
                 {{ tagItem.name }}
               </a-tag>
@@ -52,7 +52,7 @@
           <template v-if="currentActiveTagCategory">
             <div class="search-tag-wrapper tag-wrapper" v-if="filterTagList.length > 0">
               <div class="skt-tag-item" v-for="tagItem in filterTagList" :key="tagItem.name" @click.stop=''>
-                <a-popover :title="tagItem.name">
+                <a-popover :title="tagItem.name" trigger="click">
                   <template slot="content">
                     <div class='sub-tag-block' v-if='tagItem.children.length' @click.stop=''>
                       <div @click.stop=''>
@@ -121,6 +121,8 @@ const setColor = [
   '#c4f6b1'
 ]
 
+let categoryColorIndex = 0
+
 export default {
   name: 'CustomTagPd',
   components: { TagSetting, CustomSearchInput, CustomPdTagCategoryBar, CommonNoData },
@@ -142,6 +144,8 @@ export default {
 
       currentActiveTagCategory: null,
 
+      categoryToColor: {},
+
       inputTag: ''
     }
   },
@@ -150,7 +154,8 @@ export default {
       deep: true,
       immediate: true,
       handler (v) {
-        this.selectedTagList = JSON.parse(JSON.stringify(v))
+        const list = JSON.parse(JSON.stringify(v))
+        this.selectedTagList = _.sortBy(list, ['category'])
       }
     }
   },
@@ -158,6 +163,7 @@ export default {
     allTagList () {
       const pdTagList = this.$store.getters.pdTagList
       return pdTagList.map((category, index) => {
+        this.$set(this.categoryToColor, category.category, setColor[index])
         return {
           ...category,
           children: category.children.map(subCategory => {
@@ -604,4 +610,12 @@ export default {
   padding-left: 5px;
 }
 
+.is-category {
+  font-weight: bold;
+
+  .tag-item {
+    padding: 5px 15px;
+    font-size: 15px !important;
+  }
+}
 </style>
