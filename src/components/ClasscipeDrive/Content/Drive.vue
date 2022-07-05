@@ -2,19 +2,7 @@
   <div class='cc-drive'>
     <div class='drive-filter'>
       <div class='drive-filter-left'>
-        <a-space :size='20'>
-          <a-select
-            :getPopupContainer="trigger => trigger.parentElement"
-            v-model='gradeId'
-            @change='handleChangeGrade'
-            class='cc-select-white-no-round'
-            placeholder='Select a grade'>
-            <a-select-option v-for='(grade,index) in gradeList' :key='index' :value='grade.id'>
-              {{ grade.name }}
-            </a-select-option>
-          </a-select>
-          <custom-search-input :round='false' :value.sync='keywords' @search='handleSearch' placeholder='Search your content'/>
-        </a-space>
+        <custom-search-input :round='false' :value.sync='keywords' @search='handleSearch' placeholder='Search your content'/>
       </div>
       <div class='drive-filter-right'>
         <a-checkbox :checked="isSearchByContent" @change="searchModeChange" class='cc-checkbox'>
@@ -118,13 +106,11 @@ export default {
   },
   data() {
     return {
-      loading: true,
+      loading: false,
       searchModeType: searchModeType,
       fileType: fileType,
       searchMode: searchModeType.fileName,
-      gradeList: [],
 
-      gradeId: null,
       keywords: null,
 
       isSearchByContent: false,
@@ -144,27 +130,11 @@ export default {
       currentSchool: state => state.user.currentSchool
     })
   },
-  created() {
+  mounted() {
     this.$logger.info('Drive created ' + this.filterType + ' field ' + this.field + ' filterType ' + this.filterType)
-    this.initData()
+    this.handleSearch()
   },
   methods: {
-    initData () {
-      this.loading = true
-      GetMyGrades().then((res) => {
-        this.$logger.info('GetMyGrades', res)
-        if (res.result) {
-          this.gradeList = res.result
-          if (this.gradeList.length) {
-            this.gradeId = this.gradeList[0].id
-          }
-          this.handleSearch()
-        }
-      }).catch(e => {
-        this.$message.error('Drive Error ' + e)
-        this.loading = false
-      })
-    },
 
     handleChangeGrade () {
       if (this.searchMode === this.searchModeType.contentSubFile) {
@@ -188,7 +158,6 @@ export default {
       FileRecord({
         keywords: this.keywords,
         fileType: this.filterType,
-        gradeId: this.gradeId,
         pageNo: this.pageNo,
         pageSize: this.pageSize
       }).then(response => {
