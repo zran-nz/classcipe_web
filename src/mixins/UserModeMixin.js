@@ -10,7 +10,7 @@ export const UserModeMixin = {
       if (this.$store.state.user.currentRole === 'student') {
         return '/student/main/my-task'
       } else {
-        return '/teacher/library'
+        return '/teacher/managing/class'
       }
     }
   },

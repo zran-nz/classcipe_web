@@ -2,7 +2,7 @@
  * @Author: jacob
  * @Date: 2022-07-04 09:39:45
  * @LastEditors: jacob
- * @LastEditTime: 2022-07-04 09:48:17
+ * @LastEditTime: 2022-07-05 10:09:28
  * @Description:
  */
 import request from '@/utils/request'
@@ -15,7 +15,8 @@ export const teacherVerificationApi = {
   detailVertificationById: `/classcipe/${API_PREFIX}/detailById`,
   listVeritification: `/classcipe/${API_PREFIX}/list`,
   saveServiceVerification: `/classcipe/${API_PREFIX}/saveServiceVerification`,
-  saveTeacherVerification: `/classcipe/${API_PREFIX}/saveTeacherVerification`
+  saveTeacherVerification: `/classcipe/${API_PREFIX}/saveTeacherVerification`,
+  detailVerificationByUserId: `/classcipe/${API_PREFIX}/detailByUserId`
 }
 
 /**
@@ -84,6 +85,19 @@ export const teacherVerificationApi = {
  export function detailVertificationById (parameter) {
   return request({
     url: teacherVerificationApi.detailVertificationById,
+    method: 'get',
+    params: parameter
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+ export function detailVerificationByUserId (parameter) {
+  return request({
+    url: teacherVerificationApi.detailVerificationByUserId,
     method: 'get',
     params: parameter
   })

@@ -137,7 +137,7 @@ export default {
     FilterActiveIcon,
     STable,
     ReviewScore,
-    CommonPreview
+    CommonPreviewV2
   },
   data() {
     return {

@@ -79,7 +79,7 @@ export default {
         if (valid) {
           that.confirmLoading = true
           const roleNames = this.model.roleNames
-          roleNames[this.changedKey] = this.model.name
+          roleNames[this.model.changedKey] = this.model.name
           saveSchoolRole({
             schoolId: this.model.schoolId,
             roleNames: roleNames

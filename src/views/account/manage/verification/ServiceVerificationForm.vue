@@ -30,10 +30,10 @@
           :getPopupContainer="trigger => trigger.parentElement"
           v-model='formModel.studentAges'
           option-label-prop="label"
+          mode="multiple"
           placeholder='Please select ages'>
           <a-select-option
             :value="option"
-            mode="multiple"
             :label="option"
             v-for="option in ageList"
             :key="option"
@@ -102,8 +102,8 @@
                     </div>
                   </template>
                   <template v-else>
-                    <div class="uploaded-cover">
-                      <div class="img-cover">
+                    <div class="img-file">
+                      <div class="img">
                         <div v-if="isPdf(formModel.officialId)">
                           <a-icon type="file-pdf" />
                         </div>
@@ -140,14 +140,19 @@
                 >
                   <div slot="fileList">
                     <template v-if="!formModel.holdingPhone">
-                      <a-icon type="plus" />
+                      <!-- <a-icon type="plus" />
                       <div class="ant-upload-text">
                         Upload image/pdf
+                      </div> -->
+                      <div class="img-file">
+                        <div class="img">
+                          <img src="~@/assets/icons/account/certificate.png" alt="">
+                        </div>
                       </div>
                     </template>
                     <template v-else>
-                      <div class="uploaded-cover">
-                        <div class="img-cover">
+                      <div class="img-file">
+                        <div class="img">
                           <div v-if="isPdf(formModel.holdingPhone)">
                             <a-icon type="file-pdf" />
                           </div>
@@ -177,7 +182,7 @@
 <script>
 import { getSchools } from '@/api/school'
 import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
-import { saveServiceVerification } from '@/api/v2/teacherVerification'
+import { saveServiceVerification, detailVerificationByUserId } from '@/api/v2/teacherVerification'
 
 import CustomerUploadFile from '@/components/Common/CustomerUploadFile'
 
@@ -299,7 +304,21 @@ export default {
       this.formModel.schoolId = this.currentSchool.id
     },
     initForm() {
-
+      this.loading = true
+      detailVerificationByUserId({
+        userId: this.id
+      }).then(res => {
+        if (res.code === 0) {
+          this.formModel.teachingAreas = res.result.teachingAreas?.split(',') || []
+          this.formModel.studentAges = res.result.studentAges?.split(',') || []
+          this.formModel.schoolId = res.result.schoolId
+          this.formModel.officialId = res.result.officialId
+          this.formModel.holdingPhone = res.result.holdingPhone
+          this.formModel.availableTime = res.result.availableTime
+        }
+      }).finally(() => {
+        this.loading = false
+      })
     },
     handleSave() {
       this.$refs.form.validate(valid => {
@@ -309,7 +328,7 @@ export default {
           params.studentAges = params.studentAges.join(',')
           this.loading = true
           saveServiceVerification(params).then(res => {
-            if (res.code === '0') {
+            if (res.code === 0) {
               this.$message.success('Submit successfully')
             }
           }).finally(() => {
@@ -416,6 +435,7 @@ export default {
 /deep/ .custom-cover-media {
   .ant-upload {
     background: #fff;
+    padding: 0;
   }
 }
 .photo-tip {
@@ -425,6 +445,40 @@ export default {
   }
   ul {
     list-style: circle;
+  }
+}
+.img-file {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  position: relative;
+  width: 100%;
+  height: 180px;
+  .img {
+    width: 100%;
+    height: 100%;
+    img {
+      object-fit: contain;
+      width :100%;
+      height: 100%;
+    }
+    i {
+      font-size: 80px;
+      color: #ef4136;
+    }
+  }
+  a {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #333;
+  }
+  .close {
+    position: absolute;
+    cursor: pointer;
+    top: 10px;
+    right: 10px;
   }
 }
 </style>

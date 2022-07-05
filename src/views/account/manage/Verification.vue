@@ -30,14 +30,14 @@
           v-show="currentTab === 'Teacher'"
           :school="currentSchool"
           ref="teacherVerificationForm"
-          :id="id"
+          :id="info.id"
           @save="handleSave" />
 
         <service-verification-form
           v-show="currentTab === 'Service'"
           :school="currentSchool"
           ref="serviceVerificationForm"
-          :id="id"
+          :id="info.id"
           @save="handleSave" />
       </div>
     </div>
@@ -66,12 +66,6 @@ export default {
     TeacherVerificationForm,
     ServiceVerificationForm
   },
-  props: {
-    id: {
-      type: String,
-      default: null
-    }
-  },
   data() {
     return {
       USER_MODE: USER_MODE,
@@ -91,6 +85,7 @@ export default {
   },
   computed: {
     ...mapState({
+      info: state => state.user.info,
       userMode: state => state.app.userMode,
       currentSchool: state => state.user.currentSchool
     })

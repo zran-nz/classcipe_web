@@ -92,7 +92,7 @@
 
 <script>
 import { getSchools } from '@/api/school'
-import { saveTeacherVerification } from '@/api/v2/teacherVerification'
+import { saveTeacherVerification, detailVerificationByUserId } from '@/api/v2/teacherVerification'
 
 import CustomerUploadFile from '@/components/Common/CustomerUploadFile'
 
@@ -187,10 +187,22 @@ export default {
       })
     },
     initData() {
-      this.formModel.schoolId = this.currentSchool.id
+      this.formModel.schoolId = (this.currentSchool.id && this.currentSchool.id !== '0') ? this.currentSchool.id : undefined
     },
     initForm() {
-
+      this.loading = true
+      detailVerificationByUserId({
+        userId: this.id
+      }).then(res => {
+        if (res.code === 0) {
+          this.formModel.currentTeacher = Boolean(res.result.currentTeacher)
+          this.formModel.schoolId = res.result.schoolId
+          this.formModel.teachingYear = res.result.teachingYear
+          this.formModel.teachingCertificate = res.result.teachingCertificate
+        }
+      }).finally(() => {
+        this.loading = false
+      })
     },
     handleSave() {
       this.$refs.form.validate(valid => {
@@ -199,7 +211,7 @@ export default {
           params.currentTeacher = Number(params.currentTeacher)
           this.loading = true
           saveTeacherVerification(params).then(res => {
-            if (res.code === '0') {
+            if (res.code === 0) {
               this.$message.success('Submit successfully')
             }
           }).finally(() => {
