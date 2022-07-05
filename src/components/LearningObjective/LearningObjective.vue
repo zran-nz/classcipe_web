@@ -397,6 +397,7 @@ export default {
       commandTerms: [],
       knowledgeTags: [],
       showQuickWordCreate: false,
+      loading: true,
       currentObjective: null,
       commandTermForm: {
         name: ''
@@ -414,14 +415,18 @@ export default {
       deep: true,
       immediate: false,
       handler() {
-        this.asyncUpdateFilterListFn()
+        if (!this.loading) {
+          this.asyncUpdateFilterListFn()
+        }
       }
     },
     selectedList: {
       deep: true,
       immediate: false,
       handler() {
-        this.asyncEmitUpdateEventFn()
+        if (!this.loading) {
+          this.asyncEmitUpdateEventFn()
+        }
       }
     },
     'filterConfig.curriculumId': {
@@ -457,10 +462,12 @@ export default {
           this.yearIndex = null
           this.$logger.info('reset data', this.data)
         }
-        this.filterConfig.selectedSubjectList = []
-        this.filterConfig.selectedYearList = []
-        this.filterConfig.selectedLanguageList = []
-        this.filterConfig.keyword = ''
+        if (!this.loading) {
+          this.filterConfig.selectedSubjectList = []
+          this.filterConfig.selectedYearList = []
+          this.filterConfig.selectedLanguageList = []
+          this.filterConfig.keyword = ''
+        }
       }
     }
   },
@@ -476,6 +483,8 @@ export default {
     }
   },
   created() {
+    this.loading = true
+    this.$logger.info('LearningObjective subjectList', this.subjectList)
     this.asyncEmitUpdateEventFn = debounce(this.emitUpdateEvent, 1000)
     this.asyncUpdateFilterListFn = debounce(this.updateFilterList, 1000)
     if (this.curriculumId) {
@@ -514,6 +523,8 @@ export default {
         this.curriculumOptions = response.result
         this.filterConfig.curriculumId = this.curriculumOptions[0].id
         this.$logger.info('getAllCurriculums', this.curriculumOptions)
+      }).finally(() => {
+        this.loading = false
       })
     },
 
@@ -623,7 +634,7 @@ export default {
         ...this.filterConfig,
         learnOuts: this.selectedList
       }
-      this.$logger.info('emitUpdateEvent eventData', eventData)
+      this.$logger.info(`emitUpdateEvent eventData loading: ${this.loading}`, eventData)
       this.$emit('change', eventData)
     },
 
