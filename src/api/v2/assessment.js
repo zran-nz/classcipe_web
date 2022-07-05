@@ -92,8 +92,11 @@ export function AssessmentToolInfoSaveBatch (parameter) {
 export function AssessmentToolInfoList (parameter) {
   return request({
     url: AssessmentUrl.assessmentToolInfoList,
-    method: 'get',
-    params: parameter
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
   })
 }
 

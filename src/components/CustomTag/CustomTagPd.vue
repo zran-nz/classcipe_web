@@ -107,6 +107,7 @@ import CommonNoData from '@/components/Common/CommonNoData'
 import CustomPdTagCategoryBar from '@/components/CustomTag/CustomPdTagCategoryBar'
 import CustomSearchInput from '@/components/Common/CustomSearchInput'
 import TagSetting from '@/components/UnitPlan/TagSetting'
+import { sortBy } from 'lodash-es'
 
 const setColor = [
   '#FFEDAF',
@@ -120,8 +121,6 @@ const setColor = [
   '#d5b9ff',
   '#c4f6b1'
 ]
-
-let categoryColorIndex = 0
 
 export default {
   name: 'CustomTagPd',
@@ -155,7 +154,7 @@ export default {
       immediate: true,
       handler (v) {
         const list = JSON.parse(JSON.stringify(v))
-        this.selectedTagList = _.sortBy(list, ['category'])
+        this.selectedTagList = sortBy(list, ['category'])
       }
     }
   },

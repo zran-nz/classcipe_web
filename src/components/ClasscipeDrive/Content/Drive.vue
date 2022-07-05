@@ -66,7 +66,7 @@
 
 <script>
 
-import { FindMyContent, GetMyGrades } from '@/api/teacher'
+import { FindMyContent } from '@/api/teacher'
 import { FileRecord } from '@/api/material'
 import CustomSearchInput from '@/components/Common/CustomSearchInput'
 import CustomMediaItem from '@/components/Common/CustomMediaItem'

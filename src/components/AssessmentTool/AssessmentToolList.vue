@@ -18,13 +18,12 @@
           </a-select-option>
         </a-select>
         <a-select
-          v-if='subjectList'
           mode="multiple"
           placeholder='Rubric type'
           :getPopupContainer="trigger => trigger.parentElement"
           v-model='filter.subjectIds'
           class='cc-select'>
-          <a-select-option :value='1' v-for='(subject, idx) in subjectList' :key='idx'>
+          <a-select-option :value='subject' v-for='(subject, idx) in $store.getters.allSubjects' :key='idx'>
             {{ subject }}
           </a-select-option>
         </a-select>
@@ -78,10 +77,6 @@ export default {
     taskId: {
       type: String,
       required: true
-    },
-    subjectList: {
-      type: Array,
-      default: () => []
     }
   },
   computed: {
