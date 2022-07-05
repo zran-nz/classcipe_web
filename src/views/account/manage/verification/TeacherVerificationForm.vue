@@ -16,6 +16,7 @@
           :getPopupContainer="trigger => trigger.parentElement"
           v-model='formModel.schoolId'
           option-label-prop="label"
+          @change="handleSelSchool"
           placeholder='Please select school'>
           <a-select-option
             :value="schoolOption.id"
@@ -81,10 +82,19 @@
       </a-form-model-item>
 
       <a-form-model-item :wrapperCol="{offset: 6}">
-        <a-space>
+        <a-space v-if="formModel.teacherVerificationStatus === 1">
           <a-button :loading="loading" @click="handleCancel">Cancel</a-button>
           <a-button :loading="loading" @click="handleSave" type="primary">{{ teacherId ? 'Update': 'Create' }}</a-button>
         </a-space>
+        <div class="status-text" v-if="formModel.teacherVerificationStatus === 2">
+          <a-icon type="check-circle" /> <span>Approved</span>
+        </div>
+        <template v-if="formModel.teacherVerificationStatus === 3">
+          <div class="status-text deny">
+            <a-icon type="close-circle" /> <span>Rejected</span>
+          </div>
+          <!-- <div class="deny-text">Reason for refusal: {{ totalResult[choosed.id].denyReason }}  </div> -->
+        </template>
       </a-form-model-item>
     </a-form-model>
   </div>
@@ -152,7 +162,8 @@ export default {
         currentTeacher: false,
         schoolId: '',
         teachingYear: '',
-        teachingCertificate: ''
+        teachingCertificate: '',
+        teacherVerificationStatus: 1
       },
       formItemLayout: {
         labelCol: { span: 6 },
@@ -187,7 +198,7 @@ export default {
       })
     },
     initData() {
-      this.formModel.schoolId = (this.currentSchool.id && this.currentSchool.id !== '0') ? this.currentSchool.id : undefined
+      // this.formModel.schoolId = (this.currentSchool.id && this.currentSchool.id !== '0') ? this.currentSchool.id : undefined
     },
     initForm() {
       this.loading = true
@@ -199,10 +210,15 @@ export default {
           this.formModel.schoolId = res.result.schoolId
           this.formModel.teachingYear = res.result.teachingYear
           this.formModel.teachingCertificate = res.result.teachingCertificate
+          this.formModel.teacherVerificationStatus = res.result.teacherVerificationStatus
+          this.$emit('changeSchool', this.formModel.schoolId)
         }
       }).finally(() => {
         this.loading = false
       })
+    },
+    handleSelSchool(schoolId) {
+      this.$emit('changeSchool', schoolId)
     },
     handleSave() {
       this.$refs.form.validate(valid => {
@@ -257,6 +273,7 @@ export default {
 .file-list {
   display: flex;
   flex-direction: column;
+  margin-top:20px;
   .file-item {
     line-height: 30px;
     font-size: 12px;;
@@ -318,5 +335,37 @@ export default {
   .ant-upload {
     background: #fff;
   }
+}
+.status-text {
+  height: 50px;
+  background: #E8FADE;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  padding: 0 60px;
+  &.deny {
+    background: #E8FADE;
+    span {
+      color: #FA5555;
+    }
+    i {
+      color: #FA5555;
+    }
+  }
+  span {
+    font-size: 24px;
+    font-family: Arial;
+    font-weight: bold;
+    color: #67C23A;
+    margin-left: 10px;
+  }
+  i {
+    font-size: 16px;
+    color: #67C23A;
+  }
+}
+.deny-text {
+  margin-top: 10px;
+  font-size: 14px;
 }
 </style>

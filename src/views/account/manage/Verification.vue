@@ -31,11 +31,12 @@
           :school="currentSchool"
           ref="teacherVerificationForm"
           :id="info.id"
+          @changeSchool="changeSchool"
           @save="handleSave" />
 
         <service-verification-form
           v-show="currentTab === 'Service'"
-          :school="currentSchool"
+          :school="selSchool"
           ref="serviceVerificationForm"
           :id="info.id"
           @save="handleSave" />
@@ -70,6 +71,7 @@ export default {
     return {
       USER_MODE: USER_MODE,
       currentTab: 'Teacher',
+      selSchool: '',
       tabsList: [{
           value: 'Teacher',
           title: 'Teacher verification'
@@ -107,10 +109,13 @@ export default {
     },
     toggleTab(status) {
       this.currentTab = status
-      this.debounceLoad()
     },
     loadData() {
-
+      this.selSchool = this.currentSchool.id
+    },
+    changeSchool(schoolId) {
+      this.selSchool = schoolId
+      console.log(this.selSchool)
     },
     handleSave(data) {
       this.goBack()

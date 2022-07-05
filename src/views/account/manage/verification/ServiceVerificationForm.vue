@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <a-spin :spinning="loading">
     <a-form-model
       layout="horizontal"
       :model="formModel"
@@ -11,14 +11,14 @@
           optionFilterProp="children"
           :getPopupContainer="trigger => trigger.parentElement"
           v-model='formModel.teachingAreas'
+          mode="multiple"
           option-label-prop="label"
           placeholder='Please select areas'>
           <a-select-option
-            :value="option.id"
-            mode="multiple"
-            :label="option.name"
+            :value="option.subjectName"
+            :label="option.subjectName"
             v-for="option in subjectOptions"
-            :key="option.id"
+            :key="option.subjectName"
           >
             {{ option.subjectName }}
           </a-select-option>
@@ -84,10 +84,10 @@
         <a-input-number v-model="formModel.availableTime"></a-input-number> hours
       </a-form-model-item>
 
-      <a-form-model-item :wrapperCol="{span: 18}" label="Official ID" prop="officialId">
+      <a-form-model-item :wrapperCol="{span: 18}" label="Official ID">
         <a-row>
           <a-col :span="12">
-            <a-form-model-item style="margin-top: 40px">
+            <a-form-model-item style="margin-top: 40px" prop="officialId">
               <customer-upload-file
                 accept="image/png, image/jpeg,  application/pdf"
                 :showUploadButton="false"
@@ -131,7 +131,7 @@
               </a-tooltip>
             </div>
             <div>
-              <a-form-model-item>
+              <a-form-model-item prop="holdingPhone">
                 <customer-upload-file
                   accept="image/png, image/jpeg,  application/pdf"
                   :showUploadButton="false"
@@ -170,13 +170,22 @@
       </a-form-model-item>
 
       <a-form-model-item :wrapperCol="{offset: 6}">
-        <a-space>
+        <a-space v-if="formModel.serviceVerificationStatus === 1">
           <a-button :loading="loading" @click="handleCancel">Cancel</a-button>
           <a-button :loading="loading" @click="handleSave" type="primary">{{ teacherId ? 'Update': 'Create' }}</a-button>
         </a-space>
+        <div class="status-text" v-if="formModel.serviceVerificationStatus === 2">
+          <a-icon type="check-circle" /> <span>Approved</span>
+        </div>
+        <template v-if="formModel.serviceVerificationStatus === 3">
+          <div class="status-text deny">
+            <a-icon type="close-circle" /> <span>Rejected</span>
+          </div>
+          <!-- <div class="deny-text">Reason for refusal: {{ totalResult[choosed.id].denyReason }}  </div> -->
+        </template>
       </a-form-model-item>
     </a-form-model>
-  </div>
+  </a-spin>
 </template>
 
 <script>
@@ -193,8 +202,8 @@ export default {
   },
   props: {
     school: {
-      type: Object,
-      default: () => {}
+      type: String,
+      default: '0'
     },
     id: {
       type: String,
@@ -205,7 +214,7 @@ export default {
     school: {
       handler(val) {
         console.log(val)
-        this.currentSchool = { ...val }
+        this.currentSchool = val
         this.initData()
       },
       deep: true,
@@ -246,7 +255,8 @@ export default {
         schoolId: '',
         officialId: '',
         holdingPhone: '',
-        availableTime: 1
+        availableTime: 1,
+        serviceVerificationStatus: 1
       },
       formItemLayout: {
         labelCol: { span: 6 },
@@ -274,7 +284,7 @@ export default {
       this.loading = true
       Promise.all([
         getSubjectBySchoolId({
-          schoolId: this.currentSchool.id
+          schoolId: this.currentSchool || '0'
         }),
         getSchools({
         })
@@ -301,7 +311,10 @@ export default {
       })
     },
     initData() {
-      this.formModel.schoolId = this.currentSchool.id
+      this.formModel.schoolId = this.currentSchool
+      if (this.formModel.schoolId && this.formModel.schoolId !== '0') {
+        this.initDict()
+      }
     },
     initForm() {
       this.loading = true
@@ -312,9 +325,10 @@ export default {
           this.formModel.teachingAreas = res.result.teachingAreas?.split(',') || []
           this.formModel.studentAges = res.result.studentAges?.split(',') || []
           this.formModel.schoolId = res.result.schoolId
-          this.formModel.officialId = res.result.officialId
-          this.formModel.holdingPhone = res.result.holdingPhone
+          this.formModel.officialId = res.result.officialId || ''
+          this.formModel.holdingPhone = res.result.holdingPhone || ''
           this.formModel.availableTime = res.result.availableTime
+          this.formModel.serviceVerificationStatus = res.result.serviceVerificationStatus
         }
       }).finally(() => {
         this.loading = false
@@ -326,6 +340,7 @@ export default {
           const params = { ...this.formModel }
           params.teachingAreas = params.teachingAreas.join(',')
           params.studentAges = params.studentAges.join(',')
+          console.log(params)
           this.loading = true
           saveServiceVerification(params).then(res => {
             if (res.code === 0) {
@@ -480,5 +495,37 @@ export default {
     top: 10px;
     right: 10px;
   }
+}
+.status-text {
+  height: 50px;
+  background: #E8FADE;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  padding: 0 60px;
+  &.deny {
+    background: #E8FADE;
+    span {
+      color: #FA5555;
+    }
+    i {
+      color: #FA5555;
+    }
+  }
+  span {
+    font-size: 24px;
+    font-family: Arial;
+    font-weight: bold;
+    color: #67C23A;
+    margin-left: 10px;
+  }
+  i {
+    font-size: 16px;
+    color: #67C23A;
+  }
+}
+.deny-text {
+  margin-top: 10px;
+  font-size: 14px;
 }
 </style>
