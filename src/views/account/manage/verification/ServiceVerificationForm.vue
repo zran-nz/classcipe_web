@@ -170,10 +170,13 @@
       </a-form-model-item>
 
       <a-form-model-item :wrapperCol="{offset: 6}">
-        <a-space v-if="formModel.serviceVerificationStatus === 1">
+        <a-space v-if="formModel.serviceVerificationStatus === 1 || formModel.serviceVerificationStatus === 3">
           <a-button :loading="loading" @click="handleCancel">Cancel</a-button>
-          <a-button :loading="loading" @click="handleSave" type="primary">{{ teacherId ? 'Update': 'Create' }}</a-button>
+          <a-button :loading="loading" @click="handleSave" type="primary">{{ 'Update' }}</a-button>
         </a-space>
+        <div class="status-text" v-if="formModel.serviceVerificationStatus === 1">
+          <span>It's under review :  In progress</span>
+        </div>
         <div class="status-text" v-if="formModel.serviceVerificationStatus === 2">
           <a-icon type="check-circle" /> <span>Approved</span>
         </div>
