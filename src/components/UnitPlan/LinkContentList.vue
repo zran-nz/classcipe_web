@@ -132,6 +132,7 @@ export default {
       data.pageNo = this.pageNo
       data.shareType = SourceType.CreatedByMe
       data.pageSize = this.pagination.pageSize
+      data.types = this.filterTypes
 
       FindMyContent(data).then(res => {
         logger.info('loadContent', res)
