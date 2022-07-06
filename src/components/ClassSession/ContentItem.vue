@@ -388,7 +388,7 @@ export default {
           }
 
           .edit-icon {
-            display: none;
+            display: flex;
             flex-direction: row;
             align-items: center;
             justify-content: flex-start;
@@ -396,12 +396,6 @@ export default {
             svg {
               width: 14px;
               height: 14px;
-            }
-          }
-
-          &:hover {
-            .edit-icon {
-              display: flex;
             }
           }
         }
@@ -464,7 +458,6 @@ export default {
               justify-content: flex-end;
             }
             .edit-icon {
-              visibility: hidden;
               flex-direction: row;
               align-items: center;
               justify-content: flex-start;
@@ -472,12 +465,6 @@ export default {
               svg {
                 width: 14px;
                 height: 14px;
-              }
-            }
-
-            &:hover {
-              .edit-icon {
-                visibility: visible;
               }
             }
           }

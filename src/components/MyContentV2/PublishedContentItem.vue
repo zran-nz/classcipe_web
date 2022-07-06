@@ -349,15 +349,20 @@ export default {
     .detail-content {
       display: flex;
       flex-direction: row;
-      justify-content: space-between;
+      justify-content: flex-start;
       flex-grow: 1;
 
       .base-info {
+        min-width: 400px;
         .name-type {
           display: flex;
           justify-content: flex-start;
           align-items: center;
           flex-direction: row;
+          text-overflow: ellipsis;
+          word-break: break-word;
+          user-select: none;
+          overflow: hidden;
 
           .name {
             margin-left: 10px;
@@ -367,6 +372,11 @@ export default {
             font-weight: bold;
             color: #17181A;
             cursor: pointer;
+            width: 400px;
+            text-overflow: ellipsis;
+            word-break: break-word;
+            user-select: none;
+            overflow: hidden;
           }
 
         }
@@ -392,6 +402,7 @@ export default {
           margin-bottom: 5px;
           .tag-info-item {
             margin-right: 5px;
+            margin-bottom: 5px;
           }
         }
       }
@@ -541,24 +552,19 @@ export default {
 
 .right-info {
   display: flex;
+  padding-right: 20px;
   .price {
     cursor: pointer;
     color: #e4393c;
-    font-size: 20px;
+    font-size: 30px;
     font-weight: 400;
     font-family: Verdana;
   }
 
   .edit {
-    visibility: hidden;
+    visibility: visible;
     font-size: 14px;
     cursor: pointer;
-  }
-
-  &:hover {
-    .edit {
-      visibility: visible;
-    }
   }
 }
 
