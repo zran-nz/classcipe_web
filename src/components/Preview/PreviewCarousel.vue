@@ -10,7 +10,8 @@
       <div class='slider-img-cover' :style="{backgroundImage: 'url(' + pageObject.contentUrl + ')' }" v-for='(pageObject,idx) in pageObjectList' :key='idx'>
       </div>
       <div class='slider-video-cover' v-for='(videoItem,idx) in videoList' :key='idx'>
-        <video controls :src='videoItem.url' />
+        <video controls :src='videoItem.url' v-if='!isYoutubeIframeUrl(videoItem.url)' />
+        <iframe :src='videoItem.url' class='video-iframe' v-if='isYoutubeIframeUrl(videoItem.url)' />
       </div>
     </a-carousel>
   </div>
@@ -40,6 +41,11 @@ export default {
   computed: {
     showArrow () {
       return this.pageObjectList.length + this.videoList.length > 1
+    },
+    isYoutubeIframeUrl(url) {
+      return function(url) {
+        return url && url.indexOf('youtube.com/embed') !== -1
+      }
     }
   },
   data() {
@@ -119,5 +125,12 @@ export default {
 
 .custom-slick-arrow:before {
   display: none;
+}
+
+.video-iframe {
+  border: none;
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
 }
 </style>
