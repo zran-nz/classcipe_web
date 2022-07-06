@@ -111,11 +111,11 @@
               @click='handleSchedule'>
             </custom-button>
 
-            <!--            <custom-button v-if="content" label='Edit' @click='editItem'>-->
-            <!--              <template v-slot:icon>-->
-            <!--                <edit-icon />-->
-            <!--              </template>-->
-            <!--            </custom-button>-->
+            <custom-button v-if="session.allowEdit" label='Edit' @click='editItem'>
+              <template v-slot:icon>
+                <edit-icon />
+              </template>
+            </custom-button>
 
             <custom-button v-if="content" label='Preview' @click='handlePreviewDetail(content)'>
               <template v-slot:icon>
@@ -232,23 +232,13 @@ export default {
   },
   methods: {
     editItem() {
-      const item = this.content
-      if (item.type === typeMap['unit-plan']) {
+      this.$logger.info('edit session content', this.session)
+      if (this.content.presentationId) {
         this.$router.push({
-          path: '/teacher/unit-plan-redirect/' + item.id
+          path: '/teacher/schedule-session/' + this.content.id + '/' + this.content.type
         })
-      } else if (item.type === typeMap.task) {
-        this.$router.push({
-          path: '/teacher/task-redirect/' + item.id
-        })
-      } else if (item.type === typeMap.video) {
-        this.$router.push({
-          path: '/teacher/video-redirect/' + item.id
-        })
-      } else if (item.type === typeMap.pd) {
-        this.$router.push({
-          path: '/teacher/pd-content-redirect/' + item.id
-        })
+      } else {
+        this.$message.warn('This task/PD content can not be scheduled without interactive slides, please edit google slides first before scheduling.')
       }
     },
 

@@ -52,7 +52,7 @@
                     :field='VideoField.Video'
                     :content-id='videoId'
                     :content-type='typeMap.video'
-                    @update-video='handleUpdateVideo'
+                    @update='handleUpdateVideo'
                     :default-video='form.video'
                     :default-type='form.videoType' />
                 </custom-form-item>

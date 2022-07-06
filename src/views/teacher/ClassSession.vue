@@ -250,6 +250,15 @@ export default {
           res.result.records.forEach((record, index) => {
             record.key = index
           })
+          res.result.records.forEach(record => {
+            record.allowEdit = true
+            if (record.session.sessionStartTime) {
+              const startTimestamp = moment.utc(record.session.sessionStartTime).toDate().getTime()
+              if (startTimestamp < Date.now()) {
+                record.allowEdit = false
+              }
+            }
+          })
           this.myContentList = res.result.records
           this.pagination.total = res.result.total
           this.pagination.current = res.result.current

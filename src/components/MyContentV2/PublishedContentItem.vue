@@ -121,12 +121,6 @@
               </template>
             </custom-button>
 
-            <custom-button label='Sub-task' v-if='content.type === typeMap.task && content.subTasks.length > 0'>
-              <template v-slot:icon>
-                <sub-task-icon />
-              </template>
-            </custom-button>
-
             <custom-button
               label='Schedule'
               v-if='content.type === typeMap.task || content.type === typeMap.pd'

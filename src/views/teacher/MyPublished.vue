@@ -234,13 +234,11 @@ export default {
   .filter-bar {
     display: flex;
     flex-direction: row;
-    justify-content: flex-start;
+    justify-content: flex-end;
     position: relative;
 
     .discount-setting {
-      position: absolute;
-      right: 0;
-      top: 0;
+      margin-left: 10px;
     }
   }
 
