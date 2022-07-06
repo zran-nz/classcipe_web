@@ -111,7 +111,7 @@ export default {
       try {
         const result = await AppLogin(storage.get(ACCESS_TOKEN))
         this.$logger.info('loadLinkCategoryData initTagData AppLogin', result)
-        const unitSet = await App.service('conf-user').get('unitSet')
+        const unitSet = await App.service('conf-user').get('UnitSet')
         this.$logger.info('unitSet', unitSet)
       } catch (e) {
         console.log(e)
