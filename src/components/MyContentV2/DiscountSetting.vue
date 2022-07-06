@@ -88,7 +88,7 @@ export default {
         thresholdDiscountMoney: 20,
         durationOn: false,
         duration: null,
-        salesOffPercent: 0.2
+        salesOffPercent: 0
       }
     }
   },
