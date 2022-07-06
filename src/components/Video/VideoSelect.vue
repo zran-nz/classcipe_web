@@ -22,8 +22,7 @@
       </div>
       <video-viewer
         v-if='currentMediaFileUrl'
-        :media-url='currentMediaFileUrl'
-        :drive-type='currentDriveType' />
+        :media-url='currentMediaFileUrl' />
     </div>
   </div>
 </template>
@@ -45,10 +44,6 @@ export default {
       type: String,
       default: null
     },
-    defaultType: {
-      type: String,
-      default: null
-    },
     field: {
       type: String,
       default: null
@@ -64,19 +59,13 @@ export default {
   },
   data() {
     return {
-      currentMediaFileUrl: null,
-      currentDriveType: null
+      currentMediaFileUrl: null
     }
   },
   watch: {
     defaultVideo(val) {
       if (!this.currentMediaFileUrl) {
         this.currentMediaFileUrl = val
-      }
-    },
-    defaultType(val) {
-      if (!this.currentDriveType) {
-        this.currentDriveType = val
       }
     }
   },
@@ -89,7 +78,6 @@ export default {
 
     if (this.defaultVideo) {
       this.currentMediaFileUrl = this.defaultVideo
-      this.currentDriveType = this.defaultType
     }
   },
   beforeDestroy() {
@@ -112,7 +100,6 @@ export default {
       this.$logger.info('CustomCoverMedia handleSelectUploadItem', eventData)
       if (eventData && eventData.field === this.field) {
         this.currentMediaFileUrl = eventData.data
-        this.currentDriveType = DriveType.Upload
         this.afterSelectInsert()
       }
     },
@@ -121,7 +108,6 @@ export default {
       this.$logger.info('CustomCoverMedia handleSelectDriveItem', eventData)
       if (eventData && eventData.field === this.field) {
         this.currentMediaFileUrl = eventData.data[0].filePath
-        this.currentDriveType = DriveType.ClasscipeDrive
         this.afterSelectInsert()
       }
     },
@@ -129,7 +115,6 @@ export default {
       this.$logger.info('CustomCoverMedia handleSelectYoutube', eventData)
       if (eventData && eventData.field === this.field) {
         this.currentMediaFileUrl = eventData.data.link
-        this.currentDriveType = DriveType.Youtube
         this.afterSelectInsert()
       }
     },
@@ -137,7 +122,6 @@ export default {
       this.$logger.info('CustomCoverMedia handleSelectGoogleDrive', eventData)
       if (eventData && eventData.field === this.field) {
         this.currentMediaFileUrl = eventData.data
-        this.currentDriveType = DriveType.GoogleDrive
         this.afterSelectInsert()
       }
     },
@@ -146,13 +130,12 @@ export default {
       this.$logger.info('CustomCoverMedia handleAddScreenCapture', eventData)
       if (eventData && eventData.field === this.field) {
         this.currentMediaFileUrl = eventData.data
-        this.currentDriveType = DriveType.Upload
         this.afterSelectInsert()
       }
     },
 
     afterSelectInsert() {
-      this.$logger.info('CustomCoverMedia handleAddVideo done', this.currentMediaFileUrl, this.currentDriveType)
+      this.$logger.info('CustomCoverMedia handleAddVideo done', this.currentMediaFileUrl)
       this.$refs.drive.hiddenClasscipeDrive()
       this.$emit('update', {
         url: this.currentMediaFileUrl,

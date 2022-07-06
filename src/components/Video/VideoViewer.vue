@@ -1,10 +1,10 @@
 <template>
   <div class='video-viewer-wrapper'>
     <div class='video-viewer-content'>
-      <template v-if='driveType === DriveTypeMap.ClasscipeDrive || driveType === DriveTypeMap.GoogleDrive || driveType === DriveTypeMap.Upload'>
+      <template v-if='!isYoutubeIframeUrl'>
         <video :src='mediaUrl' v-if='mediaUrl' controls></video>
       </template>
-      <template v-if='driveType === DriveTypeMap.Youtube'>
+      <template v-if='isYoutubeIframeUrl'>
         <iframe :src='mediaUrl' class='video-iframe'/>
       </template>
     </div>
@@ -13,26 +13,22 @@
 
 <script>
 
-import DriveType from '@/components/ClasscipeDrive/Content/DriveType'
-
 export default {
   name: 'VideoViewer',
   props: {
     mediaUrl: {
       type: String,
       default: null
-    },
-    driveType: {
-      type: String,
-      default: null
     }
   },
   data() {
     return {
-      DriveTypeMap: DriveType
     }
   },
-  created() {
+  computed: {
+    isYoutubeIframeUrl() {
+      return this.mediaUrl && this.mediaUrl.indexOf('youtube.com/embed') !== -1
+    }
   },
   watch: {
     mediaUrl(value) {
