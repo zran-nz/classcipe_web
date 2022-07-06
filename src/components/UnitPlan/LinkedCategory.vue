@@ -75,6 +75,9 @@ import CheckedBlurIcon from '@/assets/v2/icons/checked_blue.svg?inline'
 import CheckedYellowIcon from '@/assets/v2/icons/checked_yellow.svg?inline'
 import CommonNoData from '@/components/Common/CommonNoData'
 import { AddOrUpdateLinkCategory, DeleteLinkCategory, GetLinkCategory } from '@/api/v2/mycontent'
+import * as logger from '@/utils/logger'
+import storage from 'store'
+import { ACCESS_TOKEN } from '@/store/mutation-types'
 
 export default {
   name: 'LinkedCategory',
@@ -106,20 +109,10 @@ export default {
       this.$logger.info('loadLinkCategoryData')
       this.loading = true
       try {
-        const response = await GetLinkCategory()
-        if (response.result) {
-          this.categoryList = []
-          response.result.forEach((categoryItem, cIndex) => {
-            if (cIndex !== response.result.length - 1) {
-              this.categoryList.push(categoryItem)
-            }
-          })
-
-          response.result[response.result.length - 1].children.forEach(item => {
-            this.selfCategory.push(item)
-          })
-          this.$logger.info('loaded self category', this.categoryList, this.selfCategory)
-        }
+        const result = await AppLogin(storage.get(ACCESS_TOKEN))
+        this.$logger.info('loadLinkCategoryData initTagData AppLogin', result)
+        const unitSet = await App.service('conf-user').get('unitSet')
+        this.$logger.info('unitSet', unitSet)
       } catch (e) {
         console.log(e)
         this.$logger.error('loadLinkCategoryData', e)
