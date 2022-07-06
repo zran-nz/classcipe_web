@@ -68,7 +68,7 @@
                   <img :src="rootComment.avatar" />
                 </div>
                 <div class="user-name">
-                  <div class="name-text"> {{ rootComment.username }}</div>
+                  <div class="name-text"> {{ rootComment.nickname }}</div>
                   <div class="time-text"> {{ rootComment.createdTime | dayComment }}</div>
                 </div>
               </div>
@@ -127,7 +127,7 @@
                   <img :src="commentItem.avatar" />
                 </div>
                 <div class="user-name">
-                  <div class="name-text"> {{ commentItem.username }}</div>
+                  <div class="name-text"> {{ commentItem.nickname }}</div>
                   <div class="time-text"> {{ commentItem.createdTime | dayComment }}</div>
                 </div>
               </div>

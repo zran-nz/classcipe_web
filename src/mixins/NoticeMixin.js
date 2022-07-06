@@ -37,6 +37,12 @@ export const NoticeMixin = {
     },
     viewNotification (record) {
       this.$logger.info('viewNotification', record)
+      // 标记已读取
+      if (record.readFlag === '0') {
+        EditCementSend({ anntId: record.id }).then(() => {
+          this.$store.commit(RECEIVE_MSG, true)
+        })
+      }
       if (record.busType === NotificationTypeMap.collaborateApply) {
         this.gotoContent(record)
         setTimeout(() => {
@@ -57,12 +63,6 @@ export const NoticeMixin = {
       }
       if (this.handleHoverChange) {
         this.handleHoverChange(false)
-      }
-      // 标记已读取
-      if (record.readFlag === '0') {
-        EditCementSend({ anntId: record.id }).then(() => {
-          this.$store.commit(RECEIVE_MSG, true)
-        })
       }
     }
   }
