@@ -65,13 +65,17 @@
           <div slot="status" slot-scope="status, record">
             <!-- <a-tag :color="getStatusFormat(status, 'color')">{{ getStatusFormat(status) || ' - ' }}</a-tag> -->
             <a-space>
-              <a-tooltip title="Student Active">
-                <a-icon color="#007990" v-if="status === 1" type="check" />
-                <a-icon color="#007990" v-else type="close" />
+              <a-tooltip title="Student Active" v-if="status === 1">
+                <a-icon color="#007990" type="check" />
               </a-tooltip>
-              <a-tooltip title="Parent Active">
-                <a-icon color="#8D9496" v-if="record.parentEmailStatus" type="check" />
-                <a-icon color="#8D9496" v-else type="close" />
+              <a-tooltip title="Student InActive" v-else>
+                <a-icon color="#007990" type="close" />
+              </a-tooltip>
+              <a-tooltip title="Parent Active" v-if="record.parentEmailStatus" >
+                <a-icon color="#8D9496" type="check" />
+              </a-tooltip>
+              <a-tooltip title="Parent InActive" v-else >
+                <a-icon color="#8D9496" type="close" />
               </a-tooltip>
             </a-space>
           </div>

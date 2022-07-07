@@ -87,6 +87,7 @@ export default {
     return {
       USER_MODE: USER_MODE,
       SCHOOL_USER_STATUS: SCHOOL_USER_STATUS,
+      baseUrl: process.env.VUE_APP_API_BASE_URL,
       importExcelUrl: '',
       datas: [],
       dataKey: ['firstName', 'lastName', 'inviteEmail', 'birthDay', 'classes', 'roles'],
