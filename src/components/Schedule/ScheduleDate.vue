@@ -1,41 +1,54 @@
 <template>
   <div class='schedule-date'>
-    <div class='choose-type'>
-      <div class='title'>Choose the type of session</div>
-      <div class='type-list'>
-        <div
-          class='type-item'
-          v-for='item in sessionTypeList'
-          :key='item.id'
-          :style="{'border-color': item.color, 'color': item.color}">
-          <div class='item-base' @click="chooseSessionType(item)">
-            <div class='item-checked-icon'>
-              <template v-if="selectedSessionType === item">
-                <img src="~@/assets/icons/lesson/selected.png" />
-              </template>
-              <template v-if="selectedSessionType !== item">
-                <div class="empty-circle"></div>
+    <div style="width: 50%;padding: 0 20px;">
+      <div class='choose-type'>
+        <div class='title'>Choose the type of session</div>
+        <div class='type-list'>
+          <div
+            class='type-item'
+            v-for='item in sessionTypeList'
+            :key='item.id'
+            :style="{'border-color': item.color, 'color': item.color}">
+            <div class='item-base' @click="chooseSessionType(item)">
+              <div class='item-checked-icon'>
+                <template v-if="selectedSessionType === item">
+                  <img src="~@/assets/icons/lesson/selected.png" />
+                </template>
+                <template v-if="selectedSessionType !== item">
+                  <div class="empty-circle"></div>
+                </template>
+              </div>
+              <div class='item-name'>{{ item.name }}</div>
+            </div>
+            <div class='item-more' @click.stop=''>
+              <template v-if='item.allowZoom'>
+                <div class='zoom-icon'>
+                  <img src='~@/assets/icons/zoom/img.png' />
+                </div>
+                <div class='zoom-switch'>
+                  <a-switch size='small' :disabled='item !== selectedSessionType' v-model='item.enableZoom' @change='handleZoomStatusChange(item)'></a-switch>
+                </div>
               </template>
             </div>
-            <div class='item-name'>{{ item.name }}</div>
-          </div>
-          <div class='item-more' @click.stop=''>
-            <template v-if='item.allowZoom'>
-              <div class='zoom-icon'>
-                <img src='~@/assets/icons/zoom/img.png' />
-              </div>
-              <div class='zoom-switch'>
-                <a-switch size='small' :disabled='item !== selectedSessionType' v-model='item.enableZoom' @change='handleZoomStatusChange(item)'></a-switch>
-              </div>
-            </template>
           </div>
         </div>
       </div>
     </div>
     <div class='select-date'>
       <div class='title'>Schedule</div>
-      <div class='date-picker'>
+      <div class='date-picker' v-if="!showCalendarLink">
         <a-range-picker :default-value="initDate" :disabled-date="disabledDate" @change="handleDateChange" format='YYYY-MM-DD HH:mm:ss' :show-time="{ format: 'HH:mm' }"/>
+      </div>
+      <div style="width: 100%;">
+        <session-calendar
+          v-if="showCalendarLink"
+          :editable="false"
+          :addable="false"
+          :forSelect="true"
+          :searchFilters="searchFilters"
+          :searchType="searchType"
+          @date-select="handleSelectSchedule"
+        />
       </div>
     </div>
   </div>
@@ -44,10 +57,14 @@
 <script>
 
 import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
+import { CALENDAR_QUERY_TYPE } from '@/const/common'
 import moment from 'moment'
 
 export default {
   name: 'ScheduleDate',
+  components: {
+    SessionCalendar: () => import('@/components/Calendar/SessionCalendar')
+  },
   mixins: [ ZoomAuthMixin ],
   props: {
     defaultDate: {
@@ -57,6 +74,14 @@ export default {
     showCalendarLink: {
       type: Boolean,
       default: true
+    },
+    calendarSearchType: {
+      type: [String, Number],
+      default: CALENDAR_QUERY_TYPE.CLASS.value
+    },
+    calendarSearchFilters: {
+      type: Array,
+      default: () => []
     }
   },
   watch: {
@@ -68,11 +93,30 @@ export default {
         }
       },
       immediate: true
+    },
+    calendarSearchType: {
+      handler(val) {
+        if (val) {
+          this.searchType = val
+        }
+      },
+      immediate: true
+    },
+    calendarSearchFilters: {
+      handler(val) {
+        if (val) {
+          this.searchFilters = val
+        }
+      },
+      immediate: true
     }
   },
   data() {
     return {
       // 1-assignment 2-lession(PD session只能是公开课，类型是lesson) 3-Test
+      CALENDAR_QUERY_TYPE: CALENDAR_QUERY_TYPE,
+      searchType: this.calendarSearchType,
+      searchFilters: this.calendarSearchFilters,
       sessionTypeList: [
         {
           id: 1,
@@ -139,6 +183,16 @@ export default {
       })
     },
 
+    handleSelectSchedule(date) {
+      this.startDate = moment(date.startDate).utc().format('YYYY-MM-DD HH:mm:ss')
+      this.endData = moment(date.endDate).utc().format('YYYY-MM-DD HH:mm:ss')
+      this.$logger.info('handleDateChange', this.startDate, this.endData)
+      this.$emit('select-date', {
+        startDate: this.startDate,
+        endDate: this.endData
+      })
+    },
+
     async handleZoomStatusChange (item) {
       this.$logger.info('handleZoomStatusChange', item)
       this.$emit('select-zoom-status', item)
@@ -170,6 +224,7 @@ export default {
   align-items: flex-start;
   justify-content: space-around;
   padding: 15px 0;
+  height: 100%;
 
   .choose-type, .select-date{
     .title {
@@ -219,7 +274,9 @@ export default {
   }
 
   .select-date {
-    width: 380px;
+    width: 50%;
+    height: 100%;
+    overflow: auto;
   }
 }
 

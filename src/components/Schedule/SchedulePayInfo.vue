@@ -81,16 +81,30 @@
         </div>
       </div>
     </div>
-    <div class='select-date'>
-      <div class='title'>Schedule</div>
-      <div class='date-picker'>
-        <a-range-picker
-          :getCalendarContainer='trigger => trigger.parentElement'
-          :default-value="initDate"
-          :disabled-date="disabledDate"
-          @change="handleDateChange"
-          format='YYYY-MM-DD HH:mm:ss'
-          :show-time="{ format: 'HH:mm' }"/>
+    <div class="date-info">
+      <div class='select-date'>
+        <div class='title'>Schedule</div>
+        <div class='date-picker' v-if="!showCalendar">
+          <a-range-picker
+            :getCalendarContainer='trigger => trigger.parentElement'
+            :default-value="initDate"
+            :disabled-date="disabledDate"
+            @change="handleDateChange"
+            format='YYYY-MM-DD HH:mm:ss'
+            :show-time="{ format: 'HH:mm' }"/>
+        </div>
+        <div style="width: 100%;">
+          <session-calendar
+            v-if="showCalendar"
+            ref="sessionCalendar"
+            :editable="false"
+            :addable="false"
+            :forSelect="true"
+            :searchFilters="searchFilters"
+            :searchType="searchType"
+            @date-select="handleSelectSchedule"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -102,13 +116,32 @@ import moment from 'moment'
 import CustomLinkText from '@/components/Common/CustomLinkText'
 import DeleteIcon from '@/components/Common/DeleteIcon'
 import CustomTextButton from '@/components/Common/CustomTextButton'
+import { CALENDAR_QUERY_TYPE } from '@/const/common'
+
 export default {
   name: 'SchedulePayInfo',
-  components: { CustomTextButton, DeleteIcon, CustomLinkText },
+  components: {
+    CustomTextButton,
+    DeleteIcon,
+    CustomLinkText,
+    SessionCalendar: () => import('@/components/Calendar/SessionCalendar')
+  },
   props: {
     defaultDate: {
       type: Array,
       default: null
+    },
+    showCalendar: {
+      type: Boolean,
+      default: true
+    },
+    calendarSearchType: {
+      type: [String, Number],
+      default: CALENDAR_QUERY_TYPE.WORKSHOP.value
+    },
+    calendarSearchFilters: {
+      type: Array,
+      default: () => [1, 2, 3, 4]
     }
   },
   watch: {
@@ -120,10 +153,29 @@ export default {
         }
       },
       immediate: true
+    },
+    calendarSearchType: {
+      handler(val) {
+        if (val) {
+          this.searchType = val
+        }
+      },
+      immediate: true
+    },
+    calendarSearchFilters: {
+      handler(val) {
+        if (val) {
+          this.searchFilters = val
+        }
+      },
+      immediate: true
     }
   },
   data() {
     return {
+      CALENDAR_QUERY_TYPE: CALENDAR_QUERY_TYPE,
+      searchType: this.calendarSearchType,
+      searchFilters: this.calendarSearchFilters,
       paidSession: false,
       price: 100,
       endData: null,
@@ -162,6 +214,16 @@ export default {
     handleSelectDate (date, dateString) {
       this.$logger.info('handleSelectDate', moment(date.toDate()).utc().format('YYYY-MM-DD HH:mm:ss'))
       this.registerBefore = moment(date.toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
+    },
+
+    handleSelectSchedule(date) {
+      this.startDate = moment(date.startDate).utc().format('YYYY-MM-DD HH:mm:ss')
+      this.endData = moment(date.endDate).utc().format('YYYY-MM-DD HH:mm:ss')
+      console.log(date)
+      this.$emit('select-date', {
+        startDate: this.startDate,
+        endDate: this.endData
+      })
     },
 
     getPaidInfo() {
@@ -221,6 +283,7 @@ export default {
     min-height: 400px;
     max-height: calc(100vh - 160px);
     overflow-y: auto;
+    width: 50%;
     .pay-title {
       margin: 10px 0;
       cursor: pointer;
@@ -330,19 +393,25 @@ export default {
     }
   }
 
-  .select-date {
-    padding: 0 20px;
-    .date-picker {
-      width: 380px;
-    }
-    .title {
-      font-weight: 500;
-      color: #333;
-      line-height: 30px;
-      padding-left: 5px;
+  .date-info {
+    width: 50%;
+    min-height: 400px;
+    max-height: calc(100vh - 160px);
+    overflow-y: scroll;
+    .select-date {
+        width: 100%;
+        .date-picker {
+          width: 380px;
+        }
+        .title {
+          font-weight: 500;
+          color: #333;
+          line-height: 30px;
+          padding-left: 5px;
+        }
+      }
     }
   }
-}
 
 .discount-input {
   width: 70px;

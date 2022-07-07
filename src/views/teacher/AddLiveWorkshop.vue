@@ -204,21 +204,22 @@
         <div class='tag-body'>
           <div class='select-date'>
             <div class='title'>Schedule</div>
-            <div class='date-picker'>
+            <!-- <div class='date-picker'>
               <a-range-picker
                 @change="handleDateChange"
                 format='YYYY-MM-DD HH:mm:ss'
                 :disabled-date="disabledDateRange"
                 :show-time="{ format: 'HH:mm' }"
               />
-            </div>
-            <!-- <div style="width: 100%;">
+            </div> -->
+            <div style="width: 100%;">
               <session-calendar
                 :editable="false"
                 :addable="false"
+                :forSelect="true"
                 @date-select="handleSelectSchedule"
               />
-            </div> -->
+            </div>
           </div>
         </div>
       </div>

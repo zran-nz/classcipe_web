@@ -54,7 +54,7 @@ export default {
       default: true
     },
     headerToolbar: {
-      type: Object,
+      type: [Object, Boolean],
       default: () => ({
         left: 'prev,next,today',
         center: 'title',
