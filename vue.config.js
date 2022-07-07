@@ -40,6 +40,8 @@ const isProd = process.env.NODE_ENV === 'production'
 
 // vue.config.js
 const vueConfig = {
+  // 打包app时放开该配置
+  publicPath: process.env.NODE_ENV === 'test' ? '/version2' : '/',
   configureWebpack: {
     // webpack plugins
     plugins: [
