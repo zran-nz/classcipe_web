@@ -39,6 +39,7 @@ export default {
     }
   },
   created() {
+    console.log(this.defaultSelectedItem)
     if (this.defaultSelectedItem) {
       this.selectedItem = this.defaultSelectedItem
     } else if (this.menuList.length > 0) {

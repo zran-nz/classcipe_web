@@ -2,7 +2,13 @@
   <div class='my-content' :style="{'font-size': fontSize}">
     <div class='content-header'>
       <div class='source-type'>
-        <radio-switch v-if="radioSwitchShow" ref="radioSwitch" @select="changeType" :menu-list='WORK_SHOPS_TYPE_VALUES' displayProperty="label"/>
+        <radio-switch
+          v-if="radioSwitchShow"
+          ref="radioSwitch"
+          @select="changeType"
+          :defaultSelectedItem="defaultSelectedItem"
+          :menu-list='WORK_SHOPS_TYPE_VALUES'
+          displayProperty="label"/>
       </div>
       <div style="font-size: 12px;">
         <user-profile-avatar />
@@ -12,7 +18,7 @@
       <!--  :style="{visibility: WORK_SHOPS_TYPE.FEATURE.value !== queryParams.workshopsType ? 'visible' : 'hidden'}" -->
       <a-space class="status-filter">
         <label
-          :class="{active: queryParams.workshopsStatus === item.value}"
+          :class="{active: queryParams.workshopsStatus == item.value}"
           v-for="item in WORK_SHOPS_STATUS"
           @click="changeStatus(item.value)"
           :key="item.label"><a>{{ item.label }}</a></label>
@@ -170,6 +176,7 @@ export default {
         workshopsStatus: WORK_SHOPS_STATUS.SCHEDULE.value,
         searchKey: ''
       },
+      defaultSelectedItem: null,
       loading: true,
       myContentList: [],
 
@@ -200,6 +207,20 @@ export default {
     }
   },
   created() {
+    if (this.$route.query) {
+      this.queryParams = {
+        ...this.queryParams,
+        ...this.$route.query
+      }
+      if (this.queryParams.workshopsType) {
+        const find = this.WORK_SHOPS_TYPE_VALUES.find(item => item.value + '' === this.queryParams.workshopsType + '')
+        if (find) {
+          this.defaultSelectedItem = find
+          this.queryParams.workshopsType = find.value
+        }
+      }
+    }
+    console.log(this.queryParams)
     this.loadMyContent()
   },
   mounted() {

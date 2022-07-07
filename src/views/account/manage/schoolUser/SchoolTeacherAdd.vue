@@ -20,15 +20,15 @@
       v-bind="formItemLayout"
       :rules="validatorRules"
       ref="form">
-      <a-form-model-item v-if="teacherId" label="Last Login" :required="true" :wrapperCol="{ span: 18 }">
+      <a-form-model-item v-if="teacherId" label="Last Login" :wrapperCol="{ span: 18 }">
         <a-row :gutter=0>
           <a-col :span="16">
-            2222-22-22 22:22:22
+            {{ this.formModel.lastLogin ? (this.formModel.lastLogin | dayjs) : ' - ' }}
           </a-col>
           <a-col :span="2" style="text-align: center;">
           </a-col>
-          <a-col :span="6" style="text-align: center;">
-            <a-button type="black" @click="handleReset">Reset Password</a-button>
+          <a-col :span="6" style="text-align: center;" v-if="teacherId && formModel.inviteEmail">
+            <a-button type="black" :loading="confirmLoading" @click="handleReset">Reset Password</a-button>
           </a-col>
         </a-row>
       </a-form-model-item>
@@ -47,7 +47,7 @@
         </a-row>
       </a-form-model-item>
       <a-form-model-item label="Email" prop="inviteEmail">
-        <a-input v-model="formModel.inviteEmail" placeholder="Email" />
+        <a-input v-model="formModel.inviteEmail" :disabled="teacherId && !!formModel.inviteEmail" placeholder="Email" />
       </a-form-model-item>
       <a-form-model-item label="Birth">
         <a-date-picker v-model="formModel.birthDay" />
@@ -114,7 +114,7 @@
 
 <script>
 import { listClass } from '@/api/v2/schoolClass'
-import { addTeacher, checkEmailTeacher, getTeacherInfo } from '@/api/v2/schoolUser'
+import { addTeacher, updateTeacher, checkEmailTeacher, getTeacherInfo, resetPassword } from '@/api/v2/schoolUser'
 import { listRole } from '@/api/v2/schoolRole'
 
 import ResetPassword from '../persona/ResetPassword'
@@ -177,12 +177,14 @@ export default {
         schoolId: this.school?.id || '',
         avatar: ''
       },
+      origin: {},
       formItemLayout: {
         labelCol: { span: 6 },
         wrapperCol: { span: 12 }
       },
       loading: false,
-      passwordVis: false
+      passwordVis: false,
+      confirmLoading: false
     }
   },
   computed: {
@@ -229,9 +231,20 @@ export default {
           userId: this.teacherId
         }).then(res => {
           if (res.code === 0) {
-            this.formModel = res.result
-            if (this.formModel.classes) {
-              this.formModel.classArr = this.formModel.classes.split(',')
+            this.origin = { ...res.result }
+            this.formModel.id = res.result.id
+            this.formModel.firstName = res.result.firstname
+            this.formModel.lastName = res.result.lastname
+            this.formModel.birthDay = res.result.birthday
+            this.formModel.avatar = res.result.avatar
+            this.formModel.inviteEmail = res.result.inviteEmail
+            if (res.result.classes) {
+              this.formModel.classArr = res.result.classes.map(item => item.id)
+              this.formModel.classes = this.formModel.classArr.join(',')
+            }
+            if (res.result.roles) {
+              this.formModel.roleArr = res.result.roles.filter(item => item.name.toLowerCase() !== 'teacher').map(item => item.name)
+              this.formModel.roles = this.formModel.roleArr.join(',')
             }
           }
         }).finally(() => {
@@ -252,6 +265,9 @@ export default {
         return callback()
       } else {
         // 调用封装了的异步效验方法，
+        if (this.teacherId && value === this.origin.inviteEmail) {
+          return callback()
+        }
         checkEmailTeacher({
           emails: value,
           schoolId: this.currentSchool.id
@@ -273,7 +289,24 @@ export default {
       this.$router.push('/manage/class')
     },
     handleReset() {
-      this.passwordVis = true
+      // this.passwordVis = true
+      this.$confirm({
+        title: `Confirm Reset Password`,
+        content: `Do you want to reset password?`,
+        centered: true,
+        onOk: () => {
+          this.confirmLoading = true
+          resetPassword({
+            userIds: [this.teacherId] // reset
+          }).then(res => {
+            if (res.code === 0) {
+              this.$message.success('Opt Successfully')
+            }
+          }).finally(() => {
+            this.confirmLoading = false
+          })
+        }
+      })
     },
     handleSave() {
       this.$refs.form.validate(valid => {
@@ -283,10 +316,14 @@ export default {
           params.classes = params.classArr.join(',')
           params.roles = params.roleArr.join(',')
           if (params.birthDay) {
-            params.birthDay = moment.utc(params.birthDay).format('YYYY-MM-DD HH:mm:ss')
+            params.birthday = params.birthDay = moment.utc(params.birthDay).format('YYYY-MM-DD HH:mm:ss')
           }
           this.loading = true
-          addTeacher(params).then(res => {
+          let promise = addTeacher
+          if (this.teacherId) {
+            promise = updateTeacher
+          }
+          promise(params).then(res => {
             if (res.code === 0) {
               this.$message.success('Save successfully')
               this.$emit('save', params)

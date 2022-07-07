@@ -19,15 +19,15 @@
       v-bind="formItemLayout"
       :rules="validatorRules"
       ref="form">
-      <a-form-model-item v-if="studentId" label="Last Login" :required="true" :wrapperCol="{ span: 18 }">
+      <a-form-model-item v-if="studentId" label="Last Login" :wrapperCol="{ span: 18 }">
         <a-row :gutter=0>
           <a-col :span="16">
-            2222-22-22 22:22:22
+            {{ this.formModel.lastLogin ? (this.formModel.lastLogin | dayjs) : ' - ' }}
           </a-col>
           <a-col :span="2" style="text-align: center;">
           </a-col>
-          <a-col :span="6" style="text-align: center;">
-            <a-button type="black" @click="handleReset">Reset Password</a-button>
+          <a-col :span="6" style="text-align: center;" v-if="studentId && formModel.inviteEmail">
+            <a-button type="black" :loading="confirmLoading" @click="handleReset">Reset Password</a-button>
           </a-col>
         </a-row>
       </a-form-model-item>
@@ -46,7 +46,7 @@
         </a-row>
       </a-form-model-item>
       <a-form-model-item label="Email" prop="inviteEmail">
-        <a-input v-model="formModel.inviteEmail" placeholder="Email" />
+        <a-input v-model="formModel.inviteEmail" placeholder="Email" :disabled="teacherId && !!formModel.inviteEmail" />
       </a-form-model-item>
       <a-form-model-item label="Birth">
         <a-date-picker v-model="formModel.birthDay" />
@@ -136,7 +136,7 @@
 
 <script>
 import { listClass } from '@/api/v2/schoolClass'
-import { addStudents, getStudentInfo, updateStudent, checkEmailStudent, checkEmailParent } from '@/api/v2/schoolUser'
+import { addStudents, resetPassword, getStudentInfo, updateStudent, checkEmailStudent, checkEmailParent } from '@/api/v2/schoolUser'
 
 import ResetPassword from '../persona/ResetPassword'
 import AvatarModal from '@/views/account/settings/AvatarModal'
@@ -205,7 +205,9 @@ export default {
         wrapperCol: { span: 12 }
       },
       loading: false,
-      passwordVis: false
+      passwordVis: false,
+      origin: {},
+      confirmLoading: false
     }
   },
   computed: {
@@ -258,6 +260,7 @@ export default {
         }).then(res => {
           if (res.code === 0) {
             this.formModel = res.result
+            this.origin = { ...res.result }
             if (this.formModel.classes) {
               this.formModel.classArr = this.formModel.classes.split(',')
             }
@@ -283,6 +286,9 @@ export default {
         return callback()
       } else {
         // 调用封装了的异步效验方法，
+        if (this.studentId && value === this.origin.inviteEmail) {
+          return callback()
+        }
         checkEmailStudent({
           emails: value,
           schoolId: this.currentSchool.id
@@ -303,6 +309,9 @@ export default {
       } else {
         if (!this.formModel.firstName || !this.formModel.lastName) {
           callback()
+        }
+        if (this.studentId && value === this.origin.parentEmail) {
+          return callback()
         }
         // 调用封装了的异步效验方法，
         checkEmailParent({
@@ -330,7 +339,24 @@ export default {
       this.$router.push('/manage/class')
     },
     handleReset() {
-      this.passwordVis = true
+      // this.passwordVis = true
+      this.$confirm({
+        title: `Confirm Reset Password`,
+        content: `Do you want to reset password?`,
+        centered: true,
+        onOk: () => {
+          this.confirmLoading = true
+          resetPassword({
+            userIds: [this.studentId] // reset
+          }).then(res => {
+            if (res.code === 0) {
+              this.$message.success('Opt Successfully')
+            }
+          }).finally(() => {
+            this.confirmLoading = false
+          })
+        }
+      })
     },
     handleSave() {
       this.$refs.form.validate(valid => {
