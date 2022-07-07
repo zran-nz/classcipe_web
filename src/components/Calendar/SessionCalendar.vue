@@ -274,6 +274,7 @@ export default {
       this.showUnit = this.currentUnitList.map(item => item.id)
       this.convertTimeForYear()
     },
+    // 加载日期数据
     async loadData(params) {
       if (!this.termsInited) {
         const termRes = await termList({
@@ -343,6 +344,7 @@ export default {
       const newTime = this.timeLabelForYear[day - 1 + extra].value
       return newDate + ' ' + newTime + ':00'// + (second > 9 ? second : ('0' + second))
     },
+    // 加载事件
     loadEvents(date, successCb, failCb) {
       let start = moment(date.start).format('YYYY-MM-DD')
       let end = moment(date.end).format('YYYY-MM-DD')
@@ -409,6 +411,7 @@ export default {
       }
       if (noNeedQuery) {
         successCb(termEvents)
+        this.handleViewDidMount(date)
       } else {
         this.loading = true
         // 如果diff等于12，表示年视图
@@ -452,7 +455,7 @@ export default {
                 console.log(startTime, endTime)
                 return {
                   id: item.sessionInfo.id,
-                  title: item.workshopsDetailInfo ? item.workshopsDetailInfo.title : item.sessionInfo.sessionName,
+                  title: (item.workshopsDetailInfo && item.workshopsDetailInfo.title) ? item.workshopsDetailInfo.title : item.sessionInfo.sessionName,
                   start: startTime,
                   end: endTime,
                   backgroundColor: 'transparent',
@@ -945,7 +948,7 @@ export default {
   .schedule-title {
     font-weight: bold;
     font-size: 24px;
-    width: 300px;
+    width: 250px;
   }
   .schedule-view {
     flex: 1;
@@ -953,7 +956,7 @@ export default {
   }
   .schedule-date-change {
     justify-content: flex-end;
-    width: 300px;
+    width: 88px;
     i {
       cursor: pointer;
     }

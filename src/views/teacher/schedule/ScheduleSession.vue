@@ -19,14 +19,16 @@
           @select-class-student='handleSelectClassStudent'
           @select-workshop-type='handleSelectWorkshopType'/>
         <schedule-date
-          v-show='!scheduleReq.openSession && currentActiveStepIndex === 1'
+          v-if='!scheduleReq.openSession && currentActiveStepIndex === 1'
+          :calendarSearchFilters="calendarSearchFilters"
+          :calendarSearchType="calendarSearchType"
           @select-date='handleSelectDate'
           @select-session-type='handleSelectSessionType'
           @select-zoom-status='handleSelectZoom'
         />
         <schedule-pay-info
           ref='pay'
-          v-show='scheduleReq.openSession && currentActiveStepIndex === 1'
+          v-if='scheduleReq.openSession && currentActiveStepIndex === 1'
           @select-date='handleSelectDate'
         />
       </div>
@@ -80,6 +82,7 @@ import { AddSessionV2 } from '@/api/v2/classes'
 import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
 import FixedFormFooter from '@/components/Common/FixedFormFooter'
 import ZoomMeetingSetting from '@/components/Schedule/ZoomMeetingSetting'
+import { CALENDAR_QUERY_TYPE } from '@/const/common'
 
 export default {
   name: 'ScheduleSession',
@@ -97,6 +100,7 @@ export default {
   },
   data() {
     return {
+      CALENDAR_QUERY_TYPE: CALENDAR_QUERY_TYPE,
       loading: true,
       zoomSettingVisible: false,
       teacherSessionNowLoading: false,
@@ -127,7 +131,10 @@ export default {
         workshopType: 1, // 1-private workshop 2-public workshop
         zoom: 0
       },
-      creating: false
+      creating: false,
+
+      calendarSearchFilters: [],
+      calendarSearchType: CALENDAR_QUERY_TYPE.CLASS.value
     }
   },
   created() {
@@ -202,10 +209,15 @@ export default {
         if (this.scheduleReq.openSession) {
           this.scheduleReq.selectStudents = []
           this.scheduleReq.classIds = []
+          this.calendarSearchFilters = [1, 2, 3, 4]
+          this.calendarSearchType = CALENDAR_QUERY_TYPE.WORKSHOP.value
         } else {
           const participantData = this.$refs.participant.getSelectedData()
           this.scheduleReq.selectStudents = participantData.selectStudents
           this.scheduleReq.classIds = participantData.classIds
+
+          this.calendarSearchFilters = this.scheduleReq.classIds
+          this.calendarSearchType = CALENDAR_QUERY_TYPE.CLASS.value
         }
       } else if (this.currentActiveStepIndex === 1) {
         if (this.scheduleReq.zoom) {
@@ -254,7 +266,7 @@ export default {
       }
     },
 
-    handleSelectClassStudent () {
+    handleSelectClassStudent (cls) {
       this.scheduleReq.openSession = false
     },
 
@@ -262,6 +274,9 @@ export default {
       this.scheduleReq.workshopType = data.workshopType
       this.scheduleReq.openSession = data.workshopType === 2
       this.scheduleReq.zoom = 1
+      // workshop4种类型
+      this.calendarSearchFilters = [1, 2, 3, 4]
+      this.calendarSearchType = CALENDAR_QUERY_TYPE.WORKSHOP.value
       this.$refs['steps-nav'].nextStep()
     },
 

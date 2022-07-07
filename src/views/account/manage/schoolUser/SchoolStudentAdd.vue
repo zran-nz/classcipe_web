@@ -259,10 +259,22 @@ export default {
           userId: this.id
         }).then(res => {
           if (res.code === 0) {
-            this.formModel = res.result
             this.origin = { ...res.result }
-            if (this.formModel.classes) {
-              this.formModel.classArr = this.formModel.classes.split(',')
+            this.formModel.id = res.result.id
+            this.formModel.firstName = res.result.firstname
+            this.formModel.lastName = res.result.lastname
+            this.formModel.birthDay = res.result.birthday
+            this.formModel.avatar = res.result.avatar
+            this.formModel.inviteEmail = res.result.inviteEmail
+            this.formModel.parentEmail = res.result.parentEmail
+            this.formModel.parentEmailStatus = res.result.parentEmailStatus || 0
+            this.formModel.parentFirstName = res.result.parentFirstName
+            this.formModel.parentLastName = res.result.parentLastName
+            this.formModel.avatar = res.result.avatar
+            this.formModel.parentPhone = res.result.parentPhone
+            if (res.result.classes) {
+              this.formModel.classArr = res.result.classes.map(item => item.id)
+              this.formModel.classes = this.formModel.classArr.join(',')
             }
           }
         }).finally(() => {
@@ -366,7 +378,7 @@ export default {
           // 变成单选
           // params.classes = params.classArr.join(',')
           if (params.birthDay) {
-            params.birthDay = moment.utc(params.birthDay).format('YYYY-MM-DD HH:mm:ss')
+            params.birthday = params.birthDay = moment.utc(params.birthDay).format('YYYY-MM-DD HH:mm:ss')
           }
           let promise = null
           if (this.id) {
