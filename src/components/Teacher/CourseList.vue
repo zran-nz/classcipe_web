@@ -219,7 +219,7 @@
         </div>
       </a-skeleton>
     </div>
-    <a-drawer
+    <!-- <a-drawer
       destroyOnClose
       placement="right"
       :closable="false"
@@ -235,7 +235,13 @@
           <common-preview-v2 :id="currentTaskId" :myContentId="myContentId" :type="previewType" :isLibrary="true"/>
         </div>
       </div>
-    </a-drawer>
+    </a-drawer> -->
+
+    <content-preview
+      :content-id='currentTaskId'
+      :content-type='previewType'
+      v-if='previewVisible && currentTaskId'
+      @close='handlePreviewClose' />
 
     <!-- my reviews -->
     <a-modal
@@ -269,6 +275,7 @@
     >
       <reviews-preview
         :id="currentId"
+        v-if="currentId"
         role="teacher"
         :list="ReviewsTeacher.ReviewsTeacherList"
         :save="ReviewsTeacher.ReviewsTeacherSave"
@@ -292,6 +299,7 @@ import PaymentDetail from '@/components/Student/PaymentDetail'
 import TakeawayPptSlideView from '@/components/Evaluation/TakeawayPptSlideView'
 import ReviewEdit from '@/components/Reviews/ReviewEdit'
 import ReviewsPreview from '@/components/Reviews/ReviewsPreview'
+import ContentPreview from '@/components/Preview/ContentPreview'
 
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import PreviousSessionsSvg from '@/assets/icons/common/PreviousSessions.svg?inline'
@@ -323,7 +331,8 @@ export default {
     PaymentDetail,
     TakeawayPptSlideView,
     ReviewEdit,
-    ReviewsPreview
+    ReviewsPreview,
+    ContentPreview
   },
   props: {
     loadData: {

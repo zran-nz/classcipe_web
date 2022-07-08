@@ -94,7 +94,7 @@
         </s-table>
       </a-tab-pane>
     </a-tabs>
-    <a-drawer
+    <!-- <a-drawer
       destroyOnClose
       placement="right"
       :closable="false"
@@ -110,7 +110,12 @@
           <common-preview-v2 :id="previewCurrentId" :type="previewType" />
         </div>
       </div>
-    </a-drawer>
+    </a-drawer> -->
+    <content-preview
+      :content-id='previewCurrentId'
+      :content-type='previewType'
+      v-if='previewVisible && previewCurrentId'
+      @close='handlePreviewClose' />
   </div>
 </template>
 
@@ -123,6 +128,7 @@ import { STable } from '@/components'
 import ReviewScore from '@/components/Reviews/ReviewScore'
 import CommonPreviewV2 from '@/components/Common/CommonPreviewV2'
 import { TableWidthMixin } from '@/mixins/TableWidthMixin'
+import ContentPreview from '@/components/Preview/ContentPreview'
 
 import FilterIcon from '@/assets/libraryv2/filter.svg?inline'
 import FilterActiveIcon from '@/assets/libraryv2/filter_active.svg?inline'
@@ -137,7 +143,8 @@ export default {
     FilterActiveIcon,
     STable,
     ReviewScore,
-    CommonPreviewV2
+    CommonPreviewV2,
+    ContentPreview
   },
   data() {
     return {
@@ -442,7 +449,7 @@ export default {
 }
 
 .filter-option {
-  width: 350px;
+  width: 250px;
   .filter-item {
     width: 100%;
     line-height: 40px;

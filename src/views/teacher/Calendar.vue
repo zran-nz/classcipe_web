@@ -54,6 +54,7 @@
           <session-calendar
             :searchType="queryType"
             :searchFilters="typeFilters"
+            :showTerm="true"
             @change-units="initData"
           />
         </div>
