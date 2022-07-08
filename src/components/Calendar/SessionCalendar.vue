@@ -20,9 +20,9 @@
           <a-radio-button value="timeGridWeek">
             Week
           </a-radio-button>
-          <a-radio-button value="timeGridFourDay" v-if="showTerm">
+          <!-- <a-radio-button value="timeGridFourDay" v-if="showTerm">
             Term
-          </a-radio-button>
+          </a-radio-button> -->
           <a-radio-button value="dayGridMonth">
             Month
           </a-radio-button>
