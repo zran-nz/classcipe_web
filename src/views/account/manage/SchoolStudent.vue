@@ -211,7 +211,7 @@ export default {
         {
           title: 'ID',
           align: 'center',
-          dataIndex: 'uid',
+          dataIndex: 'workNo',
           width: 120
         },
         {

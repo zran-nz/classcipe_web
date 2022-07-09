@@ -92,7 +92,7 @@ import FixedFormHeader from '@/components/Common/FixedFormHeader'
 import FormHeader from '@/components/FormHeader/FormHeader'
 import SchoolStudentAdd from './schoolUser/SchoolStudentAdd'
 
-import country from '@/api/country'
+import { getCountry } from '@/api/v2/country'
 import countryCode from '@/api/countryCode'
 import { updateSchool, queryById } from '@/api/school'
 
@@ -111,7 +111,7 @@ export default {
     return {
       USER_MODE: USER_MODE,
       SCHOOL_USER_STATUS: SCHOOL_USER_STATUS,
-      country: country,
+      country: [],
       countryCode: countryCode,
       loading: false,
       formModel: {
@@ -133,6 +133,7 @@ export default {
   },
   created() {
     this.debounceLoad = debounce(this.loadData, 300)
+    this.initDict()
     this.loadData()
   },
   computed: {
@@ -184,6 +185,11 @@ export default {
     handleModeChange(userMode) {
       // 模式切换，个人还是学校 个人接口
       this.debounceInit()
+    },
+    initDict() {
+      getCountry().then(res => {
+        this.country = res
+      })
     },
     loadData() {
       if (this.currentSchool.id) {

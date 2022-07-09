@@ -112,7 +112,7 @@
           </div>
           <div v-else class="no-subject">
             <img src='~@/assets/newBrowser/no-subject.png'/>
-            <p>None class because you dont set the class</p>
+            <p>There is no class created yet</p>
           </div>
         </a-spin>
       </div>
