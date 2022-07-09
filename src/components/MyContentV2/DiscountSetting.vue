@@ -100,7 +100,7 @@ export default {
     },
 
     handleConfirmDiscountSetting () {
-      this.$logger.info('handleConfirmDiscountSetting')
+      this.$logger.info('handleConfirmDiscountSetting', this.discountSetting)
       this.$emit('confirm', {
         content: this.content,
         publishList: this.publishList
