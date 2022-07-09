@@ -185,8 +185,8 @@ export default {
       this.$refs.modalForm.title = 'Edit acadeic year'
       this.$refs.modalForm.edit({
         ...record,
-        startTime: moment.utc(record.startTime).startOf('day').local().format('YYYY-MM-DD HH:mm:ss'),
-        endTime: moment.utc(record.endTime).endOf('day').local().format('YYYY-MM-DD HH:mm:ss')
+        startTime: moment.utc(record.startTime).local().format('YYYY-MM-DD HH:mm:ss'),
+        endTime: moment.utc(record.endTime).local().format('YYYY-MM-DD HH:mm:ss')
       })
       this.$refs.modalForm.disableSubmit = false
     },

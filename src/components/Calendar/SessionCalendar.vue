@@ -20,9 +20,9 @@
           <a-radio-button value="timeGridWeek">
             Week
           </a-radio-button>
-          <!-- <a-radio-button value="timeGridFourDay" v-if="showTerm">
+          <a-radio-button value="timeGridFourDay" v-if="showTerm && userMode === USER_MODE.SCHOOL">
             Term
-          </a-radio-button> -->
+          </a-radio-button>
           <a-radio-button value="dayGridMonth">
             Month
           </a-radio-button>
@@ -35,7 +35,15 @@
           <span @click="handleScheduleChange('today')">Today</span>
           <a-icon @click="handleScheduleChange('next')" type="caret-right" />
         </a-space>
-
+      </div>
+      <div class="year-lines" ref="yearLines" v-show="viewType === 'timeGridFourDay'">
+        <div
+          class="year-lines-item"
+          v-for="term in yearLines"
+          :style="{background: term.background, width: term.width + '%'}"
+          :key="term.id">
+          {{ term.name }}
+        </div>
       </div>
       <div id="scheduleContent" class="schedule-content" ref="scheduleContent">
         <cc-calendar
@@ -112,7 +120,7 @@ import { QueryForCalendar } from '@/api/v2/calendarSchedule'
 import { EditSessionScheduleV2 } from '@/api/v2/classes'
 import { termList } from '@/api/academicTermInfo'
 
-import { ABSENT_COLORS, BG_COLORS, CALENDAR_QUERY_TYPE } from '@/const/common'
+import { ABSENT_COLORS, BG_COLORS, CALENDAR_QUERY_TYPE, USER_MODE } from '@/const/common'
 import { typeMap } from '@/const/teacher'
 import { formatLocalUTC } from '@/utils/util'
 
@@ -179,6 +187,7 @@ export default {
       ABSENT_COLORS: ABSENT_COLORS,
       BG_COLORS: BG_COLORS,
       CALENDAR_QUERY_TYPE: CALENDAR_QUERY_TYPE,
+      USER_MODE: USER_MODE,
       typeMap: typeMap,
       queryType: this.searchType,
       typeFilters: this.searchFilters, // 根据类型的筛选条件
@@ -237,6 +246,7 @@ export default {
             meridiem: false,
             hour12: false
           },
+          slotLabelClassNames: 'calendar-year-label',
           dayHeaderContent: (info) => {
             const dayLabelForYear = this.convertDayForYear()
             const find = dayLabelForYear.find(item => item.value === moment(info.date).format('YYYY-MM-DD'))
@@ -267,13 +277,16 @@ export default {
       blockOptions: {},
       termsOptions: [],
       yearOptions: [],
-      currentYear: ''
+      currentYear: '',
+      yearLines: [],
+      termBackground: ['#CDE7FF', '#F7E3FF', '#BAEAD0', '#FCF2BD', '#FDD7DE', '#BCDCF7']
     }
   },
   computed: {
     ...mapState({
       currentSchool: state => state.user.currentSchool,
-      classList: state => state.user.classList
+      classList: state => state.user.classList,
+      userMode: state => state.app.userMode
     })
   },
   created() {
@@ -344,9 +357,7 @@ export default {
       // 将12列映射成12个月，方便year视图
       // 根据学年的起止时间来(学年多少月，视图就显示多少列)
       const yearObj = this.yearOptions.find(item => item.id === this.currentYear)
-      console.log(this.startDate)
-      console.log(this.endDate)
-      let yearStart = moment(yearObj.startTime)
+      let yearStart = moment.utc(yearObj.startTime).local()
       const dayLabelForYear = []
       let start = moment(this.startDate)
       const end = moment(this.endDate)
@@ -369,11 +380,9 @@ export default {
       const day = moment(time).get('date')
       // const second = moment(time).seconds()
       // const extra = isEnd ? 1 : 0
-      console.log(time, day)
       const newDate = this.dayLabelForYear[month].value
       const newTime = this.timeLabelForYear[day - 1][isEnd ? 'end' : 'value']
       //
-      console.log(newDate + ' ' + newTime + ':00')
       return newDate + ' ' + newTime + ':00'// + (second > 9 ? second : ('0' + second))
     },
     // 加载事件
@@ -388,9 +397,6 @@ export default {
           calendarApi.removeAllEvents()
         }
       }
-
-      const diff = moment(date.end).diff(moment(date.start), 'days')
-      console.log(diff)
 
       const params = {}
       let noNeedQuery = false
@@ -489,7 +495,6 @@ export default {
                   startTime = this.$options.filters['dayjs'](startTime)
                   endTime = this.$options.filters['dayjs'](endTime)
                 }
-                console.log(startTime, endTime)
                 return {
                   id: item.sessionInfo.id,
                   title: (item.workshopsDetailInfo && item.workshopsDetailInfo.title) ? item.workshopsDetailInfo.title : item.sessionInfo.sessionName,
@@ -550,27 +555,88 @@ export default {
       return this[typeLabel] ? this[typeLabel] : []
     },
     setViewDate(date) {
-      console.log(date)
       const startFul = moment(date.start).format('MMM D, YYYY')
       const start = moment(date.start).format('MMM D')
       const end = moment(date.end).subtract(1, 'days').format('MMM D, YYYY')
       this.viewDate = this.viewType === 'timeGridDay' ? startFul : [start, end].join(' - ')
     },
     handleChangeYear(yearId) {
-      this.reFetch()
+      this.currentYear = yearId
+      this.changeView({
+        target: {
+          value: 'timeGridFourDay'
+        }
+      })
     },
     changeView(e) {
       const viewType = e.target.value
       const calendarApi = this.$refs.fullCalendar.getApi()
-      calendarApi.changeView(viewType)
       const selfViews = this.selfViews
       if (this.viewType === 'timeGridFourDay') {
         const yearObj = this.yearOptions.find(item => item.id === this.currentYear)
-        const diff = moment(yearObj.endTime).month() - moment(yearObj.startTime).month() + 1
-        selfViews.timeGridFourDay.duration.days = diff
+        const diff = moment.utc(yearObj.endTime).local().diff(moment.utc(yearObj.startTime).local(), 'month', true)
+        console.log(diff)
+        selfViews.timeGridFourDay.duration.days = Math.ceil(diff)
+        this.computeYearLines()
       }
       calendarApi.setOption('views', selfViews)
-      // this.reFetch()
+      calendarApi.changeView(viewType)
+      this.$nextTick(() => {
+        if (this.viewType === 'timeGridFourDay') {
+          const leftWidth = document.querySelector('.calendar-year-label').offsetWidth
+          this.$refs.yearLines.style.paddingLeft = `${leftWidth}px`
+        }
+      })
+    },
+    // 根据term将年分段
+    computeYearLines() {
+      const yearObj = this.yearOptions.find(item => item.id === this.currentYear)
+      if (yearObj.terms && yearObj.terms.length > 0) {
+        const totalDays = moment(yearObj.endTime).diff(moment(yearObj.startTime), 'days')
+        const yearLines = []
+        let begin = moment(yearObj.startTime)
+        const end = moment(yearObj.endTime)
+        yearObj.terms.forEach((term, index) => {
+          const termBegin = moment(term.startTime)
+          const termEnd = moment(term.endTime)
+          const rangeTerm = termEnd.diff(termBegin, 'days')
+          let rangeRest = 0
+          if (begin.isBefore(termBegin)) {
+            rangeRest = termBegin.diff(begin, 'days')
+            // push rest
+            yearLines.push({
+              width: totalDays ? (rangeRest / totalDays) * 100 : 0,
+              background: '#fff',
+              name: 'rest',
+              startTime: begin.format('YYYY-MM-DD'),
+              endTime: termBegin.format('YYYY-MM-DD'),
+              id: new Date().getTime() + Math.random() * 1000
+            })
+          }
+          // push term
+          yearLines.push({
+            ...term,
+            width: totalDays ? (rangeTerm / totalDays) * 100 : 0,
+            background: this.termBackground[index]
+          })
+          // last term
+          if (index === yearObj.terms.length - 1 && end.isAfter(termEnd)) {
+            rangeRest = end.diff(termEnd, 'days')
+            // push rest
+            yearLines.push({
+              width: totalDays ? (rangeRest / totalDays) * 100 : 0,
+              background: '#fff',
+              name: 'rest',
+              startTime: begin.format('YYYY-MM-DD'),
+              endTime: termBegin.format('YYYY-MM-DD'),
+              id: new Date().getTime() + Math.random() * 1000
+            })
+          }
+          begin = termEnd
+        })
+        this.yearLines = yearLines
+        console.log(this.yearLines)
+      }
     },
     handleScheduleChange(opt) {
       const calendarApi = this.$refs.fullCalendar.getApi()
@@ -603,7 +669,6 @@ export default {
       })
     },
     handleDateSelect(selectInfo) {
-      console.log(selectInfo)
       if (this.addable) {
         this.$refs.tooltip.style.visibility = 'visible'
         this.$refs.tooltip.style.top = selectInfo.jsEvent.clientY + 'px'
@@ -673,14 +738,11 @@ export default {
       this.importVisible = false
     },
     handleEventClick(clickInfo) {
-      console.log(clickInfo)
     },
     handleEvents(events) {
       this.currentEvents = events
-      console.log(events)
     },
     handleDatesSet(event) {
-      console.log(event)
       // const originType = this.viewType
       this.startDate = moment(event.start).format('YYYY-MM-DD')
       this.endDate = moment(event.end).format('YYYY-MM-DD')
@@ -693,7 +755,6 @@ export default {
 
     },
     handleChangeEvents() {
-      console.log(this.typeFilters)
       const calendarApi = this.$refs.fullCalendar.getApi()
       calendarApi.removeAllEvents()
       this.allEvents.forEach(item => {
@@ -708,7 +769,6 @@ export default {
 
     },
     handleEventDrop(event) {
-      console.log(event.event.start, event.event.end)
       const current = event.event
       const extendedProps = current.extendedProps
       if (event.event.id === 'DateSelect') {
@@ -726,7 +786,6 @@ export default {
       }
     },
     handleEventResize(event) {
-      console.log(event)
       const current = event.event
       const extendedProps = current.extendedProps
       if (event.event.id === 'DateSelect') {
@@ -1007,6 +1066,19 @@ export default {
     span {
       cursor: pointer;
     }
+  }
+}
+.year-lines {
+  width: 100%;
+  display: flex;
+  height: 20px;
+  line-height: 20px;
+  margin-top: 20px;
+  .year-lines-item {
+    height: 100%;
+    color: #333;
+    text-align: center;
+    font-size: 12px;
   }
 }
 </style>
