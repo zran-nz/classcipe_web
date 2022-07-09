@@ -97,12 +97,6 @@
       </div>
     </div>
 
-    <school-student-move
-      ref="schoolStudentMove"
-      @update="debounceLoad"
-      :school="currentSchool"
-      :classes="classList"/>
-
     <school-user-invite ref="schoolUserInvite" :school="currentSchool"/>
 
   </div>
@@ -122,7 +116,6 @@ import { bulkActTeacher, removeTeachers, resetPassword } from '@/api/v2/schoolUs
 import FixedFormHeader from '@/components/Common/FixedFormHeader'
 import FormHeader from '@/components/FormHeader/FormHeader'
 import CustomTextButton from '@/components/Common/CustomTextButton'
-import SchoolStudentMove from './schoolUser/SchoolStudentMove'
 import SchoolUserInvite from './schoolUser/SchoolUserInvite'
 
 import { mapState } from 'vuex'
@@ -136,7 +129,6 @@ export default {
     FixedFormHeader,
     FormHeader,
     CustomTextButton,
-    SchoolStudentMove,
     SchoolUserInvite
   },
   data() {
@@ -144,12 +136,6 @@ export default {
       USER_MODE: USER_MODE,
       SCHOOL_USER_STATUS: SCHOOL_USER_STATUS,
       tabsList: Object.values(SCHOOL_USER_STATUS),
-      ROLE_CONVERT: {
-        'admin': 'Admin',
-        'head': 'Homeroom teacher',
-        'leader': 'Subject coordinator',
-        'teacher': 'Teacher'
-      },
       ACT: {
         ARCHIVE: {
           value: '4',
@@ -241,20 +227,20 @@ export default {
           filters: [{
             text: 'Not assigned',
             value: -1
-          }].concat(this.classList.map(item => ({
+          }].concat(this.classList?.map(item => ({
             text: item.name,
             value: item.id
-          })))
+          }) || []))
         },
         {
           title: 'Role',
           align: 'center',
           dataIndex: 'roles',
           width: 120,
-          filters: this.roleList.map(item => ({
+          filters: this.roleList?.map(item => ({
             text: item.name,
-            value: this.ROLE_CONVERT[item.roleCode]
-          })),
+            value: item.roleCode
+          }) || []),
           customRender: (text, record) => {
             return (text || []).map(item => item.name).join(', ')
           }

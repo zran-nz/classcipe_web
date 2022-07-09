@@ -2,12 +2,48 @@
   <div style="width: 100%">
     <!-- <a-button @click="changeView">change view</a-button> -->
     <a-spin :spinning="loading">
+      <div class="schedule-header">
+        <div v-if="viewType !== 'timeGridFourDay'" class="schedule-title">{{ viewDate }}</div>
+        <div v-else class="schedule-title">
+          <a-select
+            @change="handleChangeYear"
+            optionFilterProp="children"
+            :getPopupContainer="trigger => trigger.parentElement"
+            v-model='currentYear'
+            placeholder='Please select year'>
+            <a-select-option v-for='item in yearOptions' :key='item.id'>
+              {{ item.name }}
+            </a-select-option >
+          </a-select>
+        </div>
+        <a-radio-group class="schedule-view" @change="changeView" v-model="viewType" button-style="solid">
+          <a-radio-button value="timeGridWeek">
+            Week
+          </a-radio-button>
+          <!-- <a-radio-button value="timeGridFourDay" v-if="showTerm">
+            Term
+          </a-radio-button> -->
+          <a-radio-button value="dayGridMonth">
+            Month
+          </a-radio-button>
+          <a-radio-button value="timeGridDay">
+            Day
+          </a-radio-button>
+        </a-radio-group>
+        <a-space class="schedule-date-change">
+          <a-icon @click="handleScheduleChange('prev')" type="caret-left" />
+          <span @click="handleScheduleChange('today')">Today</span>
+          <a-icon @click="handleScheduleChange('next')" type="caret-right" />
+        </a-space>
+
+      </div>
       <div id="scheduleContent" class="schedule-content" ref="scheduleContent">
         <cc-calendar
           ref="fullCalendar"
           :eventsApi="loadEvents"
           :selfViews="selfViews"
           :headerToolbar="headerToolbar"
+          :scrollTime="scrollTime"
           :editable="editable"
           @select="handleDateSelect"
           @eventClick="handleEventClick"
@@ -74,6 +110,7 @@ import LiveworkshopItem from '@/components/MyContentV2/LiveWorkShopContentItem'
 
 import { QueryForCalendar } from '@/api/v2/calendarSchedule'
 import { EditSessionScheduleV2 } from '@/api/v2/classes'
+import { termList } from '@/api/academicTermInfo'
 
 import { ABSENT_COLORS, BG_COLORS, CALENDAR_QUERY_TYPE } from '@/const/common'
 import { typeMap } from '@/const/teacher'
@@ -105,6 +142,10 @@ export default {
       default: true
     },
     forSelect: {
+      type: Boolean,
+      default: false
+    },
+    showTerm: {
       type: Boolean,
       default: false
     }
@@ -149,6 +190,7 @@ export default {
       startDate: '',
       endDate: '',
       viewType: 'timeGridWeek',
+      viewDate: '',
       calendarDatas: [],
       allEvents: [],
       currentEvents: [],
@@ -158,11 +200,12 @@ export default {
         start: '',
         end: ''
       },
-      headerToolbar: {
-        left: 'prev,next,today',
-        center: 'title',
-        right: 'dayGridMonth,timeGridWeek,timeGridDay' // ,timeGridFourDay'
-      },
+      headerToolbar: false, // {
+      //   left: 'prev,next,today',
+      //   center: 'title',
+      //   right: 'dayGridMonth,timeGridWeek,timeGridDay' // ,timeGridFourDay'
+      // },
+      scrollTime: '08:00:00',
       selfViews: {
         timeGridFourDay: {
           type: 'timeGrid',
@@ -219,7 +262,12 @@ export default {
         endDate: null
       },
 
-      currentSession: null
+      currentSession: null,
+      termsInited: false,
+      blockOptions: {},
+      termsOptions: [],
+      yearOptions: [],
+      currentYear: ''
     }
   },
   computed: {
@@ -239,12 +287,39 @@ export default {
     }, 100)
   },
   methods: {
-    initData() {
+    async initData() {
       this.currentUnit = this.currentUnitList.length > 0 ? this.currentUnitList[0].id : ''
       this.showUnit = this.currentUnitList.map(item => item.id)
       this.convertTimeForYear()
     },
+    // 加载日期数据
     async loadData(params) {
+      if (!this.termsInited) {
+        const termRes = await termList({
+          schoolId: this.currentSchool.id
+        })
+        if (termRes.success) {
+          this.termsInited = true
+          let termsOptions = []
+          this.yearOptions = termRes.result
+          termRes.result.forEach(year => {
+            // 当前时间所在学年
+            if (!this.currentYear && moment(year.startTime).isBefore(new Date()) && moment(year.endTime).isAfter(new Date())) {
+              this.currentYear = year.id
+            }
+            const terms = year.terms.map(term => {
+              this.blockOptions[term.id] = term.block.blockSettings || []
+              return {
+                ...term,
+                blockSettings: term.block.blockSettings || [],
+                yearName: year.name
+              }
+            })
+            termsOptions = termsOptions.concat(terms)
+          })
+          this.termsOptions = termsOptions
+        }
+      }
       const res = await QueryForCalendar(params)
       return res
     },
@@ -257,7 +332,8 @@ export default {
       while (start.isBefore(end)) {
         timeLabelForYear.push({
           value: start.format('HH:mm'),
-          label: index
+          label: index,
+          end: moment(start).add(15, 'm').format('HH:mm')
         })
         start = start.add(15, 'm')
         index++
@@ -265,33 +341,42 @@ export default {
       this.timeLabelForYear = timeLabelForYear
     },
     convertDayForYear() {
-      // 将最近12天映射成12个月，方便year视图
+      // 将12列映射成12个月，方便year视图
+      // 根据学年的起止时间来(学年多少月，视图就显示多少列)
+      const yearObj = this.yearOptions.find(item => item.id === this.currentYear)
+      console.log(this.startDate)
+      console.log(this.endDate)
+      let yearStart = moment(yearObj.startTime)
       const dayLabelForYear = []
       let start = moment(this.startDate)
       const end = moment(this.endDate)
-      let index = 0
       while (start.isBefore(end)) {
         dayLabelForYear.push({
           value: start.format('YYYY-MM-DD'),
-          label: moment().month(index).format('MMM')
+          label: yearStart.format('MMM YY')
         })
         start = start.add(1, 'd')
-        index++
+        yearStart = yearStart.add(1, 'M')
       }
       this.dayLabelForYear = dayLabelForYear
       return dayLabelForYear
     },
-    convertYearToTime(time, sameEnd = false) {
+    convertYearToTime(time, isEnd = false) {
       // 如果是年视图，将时间转换成对应的12日视图
-      // 2月 -> 2号  2号 -> 00:15
+      // 2月 -> 2号  2号 -> 00:15~00:30 3号 -> 00:30~00:45
+      // startTime是00:30 endTime的话是00:45
       const month = moment(time).get('month')
       const day = moment(time).get('date')
       // const second = moment(time).seconds()
-      const extra = sameEnd ? 1 : 0
+      // const extra = isEnd ? 1 : 0
+      console.log(time, day)
       const newDate = this.dayLabelForYear[month].value
-      const newTime = this.timeLabelForYear[day - 1 + extra].value
+      const newTime = this.timeLabelForYear[day - 1][isEnd ? 'end' : 'value']
+      //
+      console.log(newDate + ' ' + newTime + ':00')
       return newDate + ' ' + newTime + ':00'// + (second > 9 ? second : ('0' + second))
     },
+    // 加载事件
     loadEvents(date, successCb, failCb) {
       let start = moment(date.start).format('YYYY-MM-DD')
       let end = moment(date.end).format('YYYY-MM-DD')
@@ -317,22 +402,68 @@ export default {
         params.workshopType = '1,2'
         noNeedQuery = this.typeFilters.length === 0
       }
+      // 把term block加上
+      console.log(this.termsOptions)
+      const termEvents = []
+      if (this.termsOptions.length > 0) {
+        let start = moment(date.start)
+        const end = moment(date.end)
+        // TODO 不同year的term可能重叠，用color来区分
+        // let index = 0
+        while (start.isBefore(end)) {
+          const isFind = this.termsOptions.find(term => {
+            if (term.startTime && term.endTime) {
+              const startTime = moment(term.startTime)
+              const endTime = moment(term.endTime)
+              if (moment(start).isAfter(startTime) && moment(start).isBefore(endTime)) {
+                return true
+              }
+            }
+            return false
+          })
+          if (isFind && isFind.blockSettings) {
+            isFind.blockSettings.forEach(block => {
+              const convertStart = start.format('YYYY-MM-DD') + ' ' + block.start + ':00'
+              const convertEnd = start.format('YYYY-MM-DD') + ' ' + block.end + ':59'
+              termEvents.push({
+                start: formatLocalUTC(convertStart),
+                end: formatLocalUTC(convertEnd),
+                display: 'background',
+                extendedProps: {
+                  termId: isFind.id,
+                  yearName: isFind.yearName,
+                  termName: isFind.name
+                }
+              })
+            })
+          }
+          start = start.add(1, 'd')
+          // index++
+        }
+      }
       if (noNeedQuery) {
-        successCb([])
+        successCb(termEvents)
+        this.handleViewDidMount(date)
       } else {
         this.loading = true
-        // 如果diff等于12，表示年视图
-        if (diff === 12) {
-          start = moment().startOf('year').format('YYYY-MM-DD')
-          end = moment().endOf('year').format('YYYY-MM-DD')
+        if (this.viewType === 'timeGridFourDay') {
+          const yearData = this.yearOptions.find(item => item.id === this.currentYear)
+          if (yearData) {
+            start = formatLocalUTC(yearData.startTime, 'YYYY-MM-DD')
+            end = formatLocalUTC(yearData.endTime, 'YYYY-MM-DD')
+          } else {
+            start = moment().startOf('year').format('YYYY-MM-DD')
+            end = moment().endOf('year').format('YYYY-MM-DD')
+          }
         }
         this.loadData({
           ...params,
-          startDate: formatLocalUTC(start, 'YYYY-MM-DD'),
-          endDate: formatLocalUTC(end, 'YYYY-MM-DD'),
+          startDate: moment(start + ' 00:00:00').utc().format('YYYY-MM-DD'),
+          endDate: moment(end + ' 23:59:59').utc().format('YYYY-MM-DD'),
           queryType: this.queryType
         }).then(res => {
           if (res && res.success && res.result) {
+            let totalEvents = []
             const filterRes = res.result// .filter(item => item.unitPlanInfo)
             this.calendarDatas = res.result
             if (filterRes.length > 0) {
@@ -340,25 +471,19 @@ export default {
               const events = filterRes.map(item => {
                 // 根据classId获取颜色
                 let index = -1
-                // if (this.queryType === this.CALENDAR_QUERY_TYPE.MY.value) {
-                  index = this.currentUnitList.findIndex(unit => unit.id === (item.unitPlanInfo ? item.unitPlanInfo.id : -1))
-                // } else if (this.queryType === this.CALENDAR_QUERY_TYPE.CLASS.value) {
-                //   index = this.showClassOptions.findIndex(option => option.value === (item.sessionInfo ? item.sessionInfo.taskClassId : -1))
-                // } else if (this.queryType === this.CALENDAR_QUERY_TYPE.WORKSHOP.value) {
-                //   index = this.showWorkshopOptions.findIndex(option => option.value === (item.workshopsDetailInfo ? item.workshopsDetailInfo.registeredNum : -1))
-                // }
+                index = this.currentUnitList.findIndex(unit => unit.id === (item.unitPlanInfo ? item.unitPlanInfo.id : -1))
                 const color = (index === -1) ? '#f6f3f3' : BG_COLORS[index]
 
                 let startTime = item.startTime
                 let endTime = item.endTime
                 let editable = true
-                if (diff === 12) {
+                if (this.viewType === 'timeGridFourDay') {
                   this.convertDayForYear()
                   startTime = this.convertYearToTime(item.startTime)
-                  endTime = this.convertYearToTime(item.endTime)
-                  if (startTime === endTime) {
-                    endTime = this.convertYearToTime(item.endTime, true)
-                  }
+                  endTime = this.convertYearToTime(item.endTime, true)
+                  // if (startTime === endTime) {
+                  //   endTime = this.convertYearToTime(item.endTime, true)
+                  // }
                   editable = false
                 } else {
                   startTime = this.$options.filters['dayjs'](startTime)
@@ -367,7 +492,7 @@ export default {
                 console.log(startTime, endTime)
                 return {
                   id: item.sessionInfo.id,
-                  title: item.sessionInfo.sessionName,
+                  title: (item.workshopsDetailInfo && item.workshopsDetailInfo.title) ? item.workshopsDetailInfo.title : item.sessionInfo.sessionName,
                   start: startTime,
                   end: endTime,
                   backgroundColor: 'transparent',
@@ -397,12 +522,14 @@ export default {
                 }
                 return true
               })
-              successCb(filterEvents)
+              totalEvents = filterEvents
             } else {
-              successCb([])
+              totalEvents = []
               this.currentUnitList = []
             }
-            this.handleViewDidMount()
+
+            successCb(totalEvents.concat(termEvents))
+            this.handleViewDidMount(date)
           } else {
             failCb()
           }
@@ -422,16 +549,32 @@ export default {
       }
       return this[typeLabel] ? this[typeLabel] : []
     },
-    changeView() {
-      const calendarApi = this.$refs.fullCalendar.getApi()
-      calendarApi.changeView('timeGridFourDay', {
-        start: '2017-06-01',
-        end: '2017-06-13'
-      })
-      const selfViews = this.selfViews
-      selfViews.timeGridFourDay.duration.days = 13
-      calendarApi.setOption('views', selfViews)
+    setViewDate(date) {
+      console.log(date)
+      const startFul = moment(date.start).format('MMM D, YYYY')
+      const start = moment(date.start).format('MMM D')
+      const end = moment(date.end).subtract(1, 'days').format('MMM D, YYYY')
+      this.viewDate = this.viewType === 'timeGridDay' ? startFul : [start, end].join(' - ')
+    },
+    handleChangeYear(yearId) {
       this.reFetch()
+    },
+    changeView(e) {
+      const viewType = e.target.value
+      const calendarApi = this.$refs.fullCalendar.getApi()
+      calendarApi.changeView(viewType)
+      const selfViews = this.selfViews
+      if (this.viewType === 'timeGridFourDay') {
+        const yearObj = this.yearOptions.find(item => item.id === this.currentYear)
+        const diff = moment(yearObj.endTime).month() - moment(yearObj.startTime).month() + 1
+        selfViews.timeGridFourDay.duration.days = diff
+      }
+      calendarApi.setOption('views', selfViews)
+      // this.reFetch()
+    },
+    handleScheduleChange(opt) {
+      const calendarApi = this.$refs.fullCalendar.getApi()
+      calendarApi[opt]()
     },
     handleSchoolChange(school) {
       this.initData()
@@ -443,13 +586,19 @@ export default {
       this.calendarOptions.weekends = !this.calendarOptions.weekends // update a property
     },
     // 将当前时间线延长成整个table而不是某天的格子里
-    handleViewDidMount() {
+    handleViewDidMount(date) {
       this.$nextTick(() => {
         const nowLine = document.getElementsByClassName('fc-timegrid-now-indicator-line')
         if (nowLine && nowLine.length > 0) {
           // const cloneLine = nowLine[0].cloneNode(true)
           const fcBody = document.getElementsByClassName('fc-timegrid-body')[0]
           fcBody.insertBefore(nowLine[0], fcBody.firstChild)
+        }
+        if (this.$refs.fullCalendar) {
+          const calendarApi = this.$refs.fullCalendar.getApi()
+          if (calendarApi) {
+            this.setViewDate(date)
+          }
         }
       })
     },
@@ -832,6 +981,32 @@ export default {
   }
   .type-item-desc {
     padding-left: 25px;
+  }
+}
+.schedule-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 20px;
+  .schedule-title {
+    font-weight: bold;
+    font-size: 24px;
+    width: 250px;
+  }
+  .schedule-view {
+    flex: 1;
+    text-align: center;
+  }
+  .schedule-date-change {
+    justify-content: flex-end;
+    width: 88px;
+    i {
+      cursor: pointer;
+    }
+    span {
+      cursor: pointer;
+    }
   }
 }
 </style>

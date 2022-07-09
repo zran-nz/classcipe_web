@@ -48,6 +48,7 @@
           />
           <schedule-pay-info
             ref='pay'
+            :showCalendar="false"
             :default-date="defaultDate"
             v-show='scheduleReq.openSession && "schedule" === ScheduleStepsFilter[currentActiveStepIndex].type'
             @select-date='handleSelectDate'
@@ -337,7 +338,7 @@ export default {
         this.loading = false
       })
     },
-    handleSelectClassStudent () {
+    handleSelectClassStudent (cls) {
       this.scheduleReq.openSession = false
     },
     handleSelectOpenSession (data) {
@@ -418,6 +419,9 @@ export default {
   .content-select-action {
     display: flex;
     justify-content: space-between;
+  }
+  /deep/ .class-list {
+    height: 300px;
   }
 }
 .close {

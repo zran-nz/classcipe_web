@@ -177,28 +177,20 @@ export default {
     linkDatas() {
       return [{
         title: '',
-        hidden: this.userMode === USER_MODE.SCHOOL && this.isNotAdmin,
         links: [
           {
             avatar: SchoolInfoPng,
             title: 'School info',
-            desc: '',
-            hidden: this.isNotAdmin,
+            desc: 'School Name, Address, Contact',
+            hidden: this.userMode === USER_MODE.SELF || this.isNotAdmin,
             url: '/manage/school-info'
           },
           {
             avatar: PaymentsPng,
             title: 'Payments',
             desc: 'Review payments, payouts, coupons,gift cards and taxes',
-            hidden: this.isNotAdmin,
+            hidden: this.userMode === USER_MODE.SELF || this.isNotAdmin,
             url: ''
-          },
-          {
-            avatar: OrdersPng,
-            title: 'Orders',
-            desc: '',
-            url: '',
-            hidden: this.isNotAdmin
           },
           {
             avatar: PersonaPng,
@@ -220,6 +212,13 @@ export default {
             hidden: this.userMode === USER_MODE.SCHOOL,
             desc: 'Review payments, payouts, coupons,gift cards and taxes',
             url: ''
+          },
+          {
+            avatar: OrdersPng,
+            title: 'Orders',
+            desc: 'Buying and Selling data and statistics',
+            url: '/manage/order',
+            hidden: this.userMode === USER_MODE.SCHOOL
           }
         ]
       }, {
@@ -229,7 +228,7 @@ export default {
             avatar: ClassesPng,
             title: 'Classes',
             extraKey: 'classCount',
-            desc: 'Review payments, payouts, coupons,gift cards and taxes',
+            desc: 'Add, edit and delete classes',
             url: '/manage/class',
             hidden: !this.hasRolePermission('MyCalssV2')
           },
@@ -237,7 +236,7 @@ export default {
             avatar: TeachersPng,
             title: 'Teachers',
             extraKey: 'teacherCount',
-            desc: 'Review payments, payouts, coupons,gift cards and taxes',
+            desc: 'Add/Invite, edit and delete teachers',
             url: '/manage/teacher',
             hidden: this.isNotAdmin
           },
@@ -245,28 +244,28 @@ export default {
             avatar: StudentsPng,
             title: 'Students',
             extraKey: 'studentCount',
-            desc: '',
+            desc: 'Add, edit and delete students',
             url: '/manage/student',
             hidden: this.isNotAdmin
           },
           {
             avatar: SpaceManagePng,
             title: 'Space Manage',
-            desc: '',
+            desc: 'Manage space',
             hidden: this.userMode === USER_MODE.SCHOOL,
             url: '/manage/persona/space'
           },
           {
             avatar: SpaceManagePng,
             title: 'Space Manage',
-            desc: '',
+            desc: 'Manage space',
             hidden: this.userMode === USER_MODE.SELF || !this.hasRolePermission('SchoolSpace'),
             url: '/manage/school/space'
           },
           {
             avatar: RoleManagePng,
             title: 'Role Manage',
-            desc: 'Review payments, payouts, coupons,gift cards and taxes',
+            desc: 'Assign teachers to be admin, homeroom teachers and subject coordinators Academic Term: Set school year, term and blocks',
             url: '/manage/role',
             hidden: this.isNotAdmin
           }
@@ -286,13 +285,13 @@ export default {
               avatar: TagsPng,
               title: 'Tags setting',
               hidden: this.userMode === USER_MODE.SELF,
-              desc: 'Review payments, payouts, coupons,gift cards and taxes',
+              desc: 'Customize tag categories and tags',
               url: ''
             },
             {
               avatar: PlanningPng,
               title: 'Planning Format',
-              desc: '',
+              desc: 'Customize Unit plan/Task format',
               url: '/manage/planning-format'
             },
             {
@@ -305,7 +304,7 @@ export default {
             {
               avatar: CurriculumPng,
               title: 'Curriculum',
-              desc: 'Review payments, payouts, coupons,gift cards and taxes',
+              desc: 'Set curriculum(s), subjects, years',
               hidden: this.userMode === USER_MODE.SELF,
               url: '/manage/curriculum'
             },

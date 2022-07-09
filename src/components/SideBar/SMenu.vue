@@ -54,6 +54,11 @@
         type: String,
         default: ''
       },
+      // 是否直接读取当前角色的路由，为空则读取currentRouterName路由
+      fromRole: {
+        type: String,
+        default: 'student'
+      },
       mainRouter: {
         type: String,
         default: 'Main'
@@ -88,7 +93,7 @@
           // 寻找路由 index => teacher => mainRouter
           const mainRouter = addRouters.find(item => item.name === 'index')
           if (mainRouter && mainRouter.children && mainRouter.children.length > 0) {
-            const currentRouter = mainRouter.children.find(item => item.name === this.currentRole)
+            const currentRouter = mainRouter.children.find(item => item.name === (this.fromRole ? this.currentRole : this.currentRouterName))
             if (currentRouter && currentRouter.children && currentRouter.children.length > 0) {
               const Main = currentRouter.children.find(item => item.name === this.mainRouter)
               if (Main && Main.children && Main.children.length > 0) {

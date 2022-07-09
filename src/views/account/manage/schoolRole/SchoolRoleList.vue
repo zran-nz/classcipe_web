@@ -75,7 +75,7 @@
 </template>
 
 <script>
-import { pageListRole, deleteRole } from '@/api/v2/schoolRole'
+import { pageListRole } from '@/api/v2/schoolRole'
 import SchoolRoleAdd from './SchoolRoleAdd.vue'
 import SchoolRolePermission from './SchoolRolePermission.vue'
 import { ROLE_PERMISSION } from '@/const/common'
@@ -244,19 +244,19 @@ export default {
         content: 'By deleting the role, all teachers belong to it will be removed. Do you confirm to delete? ',
         centered: true,
         onOk: () => {
-          this.loading = true
-          deleteRole({
-            id: item.id
-          }).then(res => {
-            if (res.code === 0) {
-              this.onClearSelected()
-              this.debounceLoad()
-            } else {
-              this.loading = false
-            }
-          }).catch(() => {
-            this.loading = false
-          })
+          // this.loading = true
+          // deleteRole({
+          //   id: item.id
+          // }).then(res => {
+          //   if (res.code === 0) {
+          //     this.onClearSelected()
+          //     this.debounceLoad()
+          //   } else {
+          //     this.loading = false
+          //   }
+          // }).catch(() => {
+          //   this.loading = false
+          // })
         }
       })
     }

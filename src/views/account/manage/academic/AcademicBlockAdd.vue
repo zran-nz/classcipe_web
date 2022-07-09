@@ -193,8 +193,9 @@ export default {
       const interval = parseInt(this.model.blockDuration || 0)
       if (this.model.blockSettings.length > 0) {
         const last = this.model.blockSettings[this.model.blockSettings.length - 1]
-        start = moment('2000-01-01 ' + last.end)
-        end = start ? start.add(interval, 'minutes').format('HH:mm') : ''
+        start = moment(last.start).add(1, 'hours')
+        console.log(start.format('YYYY-MM-DD HH:mm:ss'))
+        end = start ? moment(start).add(interval, 'minutes').format('HH:mm') : ''
       }
       this.model.blockSettings.push({
         name: '',
