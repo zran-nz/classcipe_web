@@ -7,5 +7,6 @@ export const NotificationTypeMap = {
   collaborateAccepted: 'collaborateAccepted',
   mentioned: 'mentioned',
   replied: 'replied',
-  favorites: 'star'
+  favorites: 'star',
+  collaborateFavoriote: 'collaborateFavoriote'
 }

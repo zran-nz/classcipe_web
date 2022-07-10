@@ -54,6 +54,10 @@ export const NoticeMixin = {
       } else if (record.busType === NotificationTypeMap.collaborateRejected) {
         this.$router.push({ path: '/teacher/main/created-by-me' })
       } else if (record.openType === 'url') {
+        if (record.busType === NotificationTypeMap.collaborateFavoriote) {
+            record.readFlag = '1'
+            return
+        }
         // 链接跳转
         this.$router.push({ path: record.openPage })
       } else {
