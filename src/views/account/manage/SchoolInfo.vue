@@ -92,7 +92,8 @@ import FixedFormHeader from '@/components/Common/FixedFormHeader'
 import FormHeader from '@/components/FormHeader/FormHeader'
 import SchoolStudentAdd from './schoolUser/SchoolStudentAdd'
 
-import { getCountry } from '@/api/v2/country'
+import { getCountry, getCity } from '@/api/v2/country'
+import country from '@/api/country'
 import countryCode from '@/api/countryCode'
 import { updateSchool, queryById } from '@/api/school'
 
@@ -111,7 +112,7 @@ export default {
     return {
       USER_MODE: USER_MODE,
       SCHOOL_USER_STATUS: SCHOOL_USER_STATUS,
-      country: [],
+      country: country,
       countryCode: countryCode,
       loading: false,
       formModel: {
@@ -128,7 +129,8 @@ export default {
         name: [{ required: true, message: 'Please Input School Name!' }],
         country: [{ required: true, message: 'Please Select country!' }],
         city: [{ required: true, message: 'Please Select city!' }]
-      }
+      },
+      apiKey: process.env.VUE_APP_API_KEY
     }
   },
   created() {
@@ -187,9 +189,9 @@ export default {
       this.debounceInit()
     },
     initDict() {
-      getCountry().then(res => {
-        this.country = res
-      })
+      // getCountry().then(res => {
+      //   this.country = res
+      // })
     },
     loadData() {
       if (this.currentSchool.id) {
@@ -210,8 +212,16 @@ export default {
         option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
       )
     },
-    changeCountry() {
+    changeCountry(val) {
       this.formModel.city = undefined
+      // const current = this.country.find(item => item.en === val)
+      // getCity({
+      //   input: val,
+      //   components: `country:${current.code}`,
+      //   key: this.apiKey
+      // }).then(res => {
+
+      // })
     },
     handleSave() {
       this.$refs.form.validate(valid => {
