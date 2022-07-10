@@ -24,7 +24,7 @@
             {{ item.title }}
           </div>
         </div>
-        <div class="opt-list">
+        <div class="opt-list" v-if="isNotLimit">
           <class-grade-sel v-if="currentTab === 'gradeId'" :grades="selectedGrades" @save="setGrades" :school="currentSchool"/>
           <template v-if="currentTab === 'subject'">
             <custom-text-button label='Add' @click="handleAddSubjectClass">
@@ -34,6 +34,23 @@
             </custom-text-button>
             <class-subject-sel ref="classSubject" @save="addSubjectClass" :school="currentSchool"/>
           </template>
+        </div>
+        <!-- // TODO -->
+        <div class="opt-list" v-else>
+          <a-popover title="Upgrading reminder" trigger="click">
+            <div style="width: 300px;" slot="content">Your class number has reached the limmit, please upgrade your plan to add more class</div>
+            <custom-text-button v-if="currentTab === 'gradeId'" label='Add Grade'>
+              <template v-slot:icon>
+                <a-icon type='plus-circle' />
+              </template>
+            </custom-text-button>
+            <custom-text-button v-if="currentTab === 'subject'" label='Add'>
+              <template v-slot:icon>
+                <a-icon type='plus-circle' />
+              </template>
+            </custom-text-button>
+          </a-popover>
+
         </div>
       </div>
       <div class="form-tab">
@@ -194,6 +211,7 @@ export default {
       gradeIdInfos: [], // 先创建grade再创建class
       subjectInfos: [], // 现创建class再按subject分类
       archiveInfos: [],
+      totalClass: [],
       allDatas: {
         gradeId: [],
         subject: [],
@@ -210,9 +228,17 @@ export default {
   },
   computed: {
     ...mapState({
+      info: state => state.user.info,
       userMode: state => state.app.userMode,
       currentSchool: state => state.user.currentSchool
-    })
+    }),
+    isNotLimit() {
+      if (this.info && this.info.planInfo) {
+        return this.info.planInfo['classCount'] >= this.totalClass.length
+      } else {
+        return false
+      }
+    }
   },
   methods: {
     goBack() {
@@ -236,8 +262,13 @@ export default {
         }),
         getCurriculumBySchoolId({
           schoolId: this.currentSchool.id
+        }),
+        listClass({
+          schoolId: this.currentSchool.id,
+          pageNo: 1,
+          pageSize: 10000
         })
-      ]).then(([subjectRes, gradeRes]) => {
+      ]).then(([subjectRes, gradeRes, clsRes]) => {
         if (subjectRes.success) {
           let subjects = []
           subjectRes.result.forEach(item => {
@@ -253,6 +284,9 @@ export default {
             grades = grades.concat(item.gradeSettingInfo || [])
           })
           this.gradeOptions = grades
+        }
+        if (clsRes.success) {
+          this.totalClass = clsRes.result.records
         }
       }).finally(() => {
       })
@@ -419,6 +453,7 @@ export default {
           cls.isNew = false
           cls.isEdit = false
           cls.id = res.result.id
+          this.totalClass.push(cls)
           if (cb) {
             cb(cls.id)
           } else {
@@ -450,6 +485,7 @@ export default {
             if (res.success && res.code === 0) {
               this.allDatas.gradeId.splice(index, 1)
               this.selectedGrades = this.allDatas.gradeId.map(item => item.id)
+              this.totalClass = this.totalClass.filter(item => item.gradeId !== view.id)
             }
           }).finally(() => {
             this.loading = false
