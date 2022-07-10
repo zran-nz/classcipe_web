@@ -97,6 +97,7 @@
                 </div>
                 <div class="item-basic-name">
                   <label for="">{{ link.title }}</label>
+                  <!-- <label for="" class="basic-name-extra" v-if="link.extraKey"> {{ getExtra(link.extraKey) }} </label> -->
                   <label for="" class="basic-name-extra" v-if="link.extraKey"> {{ getExtra(link.extraKey) }} </label>
                 </div>
               </div>
@@ -124,6 +125,9 @@ import { ReSetFontMixin } from '@/mixins/ReSetFontMixin'
 
 import CustomImageUploader from '@/components/Common/CustomImageUploader'
 import AvatarModal from '@/views/account/settings/AvatarModal'
+
+import { listClass } from '@/api/v2/schoolClass'
+import { getSchoolUsers } from '@/api/v2/schoolUser'
 
 import SchoolInfoPng from '@/assets/icons/account/schoolInfo.png?inline'
 import AcademicPng from '@/assets/icons/account/academic.png?inline'
@@ -165,7 +169,10 @@ export default {
         nickname: '',
         avatar: ''
       },
-      confirmLoading: false
+      confirmLoading: false,
+      classCount: 0,
+      teacherCount: 0,
+      studentCount: 0
     }
   },
   computed: {
@@ -379,7 +386,35 @@ export default {
       }
     },
     loadData() {
-
+      Promise.all([
+        listClass({
+          schoolId: this.currentSchool.id,
+          pageNo: 1,
+          pageSize: 1
+        }),
+        getSchoolUsers({
+          schoolId: this.currentSchool.id,
+          roles: 'teacher',
+          pageNo: 1,
+          pageSize: 1
+        }),
+        getSchoolUsers({
+          schoolId: this.currentSchool.id,
+          roles: 'student',
+          pageNo: 1,
+          pageSize: 1
+        })
+      ]).then(([clsRes, teacherRes, studentRes]) => {
+        if (clsRes.code === 0) {
+          this.classCount = clsRes.result.total
+        }
+        if (teacherRes.code === 0) {
+          this.teacherCount = teacherRes.result.total
+        }
+        if (studentRes.code === 0) {
+          this.studentCount = studentRes.result.total
+        }
+      })
     },
     hasRolePermission(permissionCode) {
       let hasPerm = false
@@ -419,7 +454,7 @@ export default {
     },
     getExtra(key) {
       if (this.info && this.info.planInfo) {
-        return `( ${this.info.planInfo[key]} )`
+        return `( ${this[key]} / ${this.info.planInfo[key]} )`
       } else {
         return ''
       }
