@@ -308,6 +308,10 @@ export default {
     },
     // 加载日期数据
     async loadData(params) {
+      const res = await QueryForCalendar(params)
+      return res
+    },
+    async loadTerm() {
       if (!this.termsInited) {
         const termRes = await termList({
           schoolId: this.currentSchool.id
@@ -334,8 +338,6 @@ export default {
           this.termsOptions = termsOptions
         }
       }
-      const res = await QueryForCalendar(params)
-      return res
     },
     convertTimeForYear() {
       // 将24小时映射成31day， 方便year视图
@@ -410,141 +412,144 @@ export default {
         noNeedQuery = this.typeFilters.length === 0
       }
       // 把term block加上
-      console.log(this.termsOptions)
-      const termEvents = []
-      if (this.termsOptions.length > 0) {
-        let start = moment(date.start)
-        const end = moment(date.end)
-        // TODO 不同year的term可能重叠，用color来区分
-        // let index = 0
-        while (start.isBefore(end)) {
-          const isFind = this.termsOptions.find(term => {
-            if (term.startTime && term.endTime) {
-              const startTime = moment(term.startTime)
-              const endTime = moment(term.endTime)
-              if (moment(start).isAfter(startTime) && moment(start).isBefore(endTime)) {
-                return true
+      this.loadTerm().then(res => {
+        console.log(this.termsOptions)
+        const termEvents = []
+        if (this.termsOptions.length > 0) {
+          let start = moment(date.start)
+          const end = moment(date.end)
+          // TODO 不同year的term可能重叠，用color来区分
+          // let index = 0
+          while (start.isBefore(end)) {
+            const isFind = this.termsOptions.find(term => {
+              if (term.startTime && term.endTime) {
+                const startTime = moment(term.startTime)
+                const endTime = moment(term.endTime)
+                if (moment(start).isAfter(startTime) && moment(start).isBefore(endTime)) {
+                  return true
+                }
               }
-            }
-            return false
-          })
-          if (isFind && isFind.blockSettings) {
-            isFind.blockSettings.forEach(block => {
-              const convertStart = start.format('YYYY-MM-DD') + ' ' + block.start + ':00'
-              const convertEnd = start.format('YYYY-MM-DD') + ' ' + block.end + ':59'
-              termEvents.push({
-                start: formatLocalUTC(convertStart),
-                end: formatLocalUTC(convertEnd),
-                display: 'background',
-                extendedProps: {
-                  termId: isFind.id,
-                  yearName: isFind.yearName,
-                  termName: isFind.name
-                }
-              })
+              return false
             })
-          }
-          start = start.add(1, 'd')
-          // index++
-        }
-      }
-      if (noNeedQuery) {
-        successCb(termEvents)
-        this.handleViewDidMount(date)
-      } else {
-        this.loading = true
-        if (this.viewType === 'timeGridFourDay') {
-          const yearData = this.yearOptions.find(item => item.id === this.currentYear)
-          if (yearData) {
-            start = formatLocalUTC(yearData.startTime, 'YYYY-MM-DD')
-            end = formatLocalUTC(yearData.endTime, 'YYYY-MM-DD')
-          } else {
-            start = moment().startOf('year').format('YYYY-MM-DD')
-            end = moment().endOf('year').format('YYYY-MM-DD')
-          }
-        }
-        this.loadData({
-          ...params,
-          startDate: moment(start + ' 00:00:00').utc().format('YYYY-MM-DD'),
-          endDate: moment(end + ' 23:59:59').utc().format('YYYY-MM-DD'),
-          queryType: this.queryType
-        }).then(res => {
-          if (res && res.success && res.result) {
-            let totalEvents = []
-            const filterRes = res.result// .filter(item => item.unitPlanInfo)
-            this.calendarDatas = res.result
-            if (filterRes.length > 0) {
-              this.currentUnitList = uniqBy(filterRes.filter(item => item.unitPlanInfo).map(item => item.unitPlanInfo), 'id')
-              const events = filterRes.map(item => {
-                // 根据classId获取颜色
-                let index = -1
-                index = this.currentUnitList.findIndex(unit => unit.id === (item.unitPlanInfo ? item.unitPlanInfo.id : -1))
-                const color = (index === -1) ? '#f6f3f3' : BG_COLORS[index]
-
-                let startTime = item.startTime
-                let endTime = item.endTime
-                let editable = true
-                if (this.viewType === 'timeGridFourDay') {
-                  this.convertDayForYear()
-                  startTime = this.convertYearToTime(item.startTime)
-                  endTime = this.convertYearToTime(item.endTime, true)
-                  // if (startTime === endTime) {
-                  //   endTime = this.convertYearToTime(item.endTime, true)
-                  // }
-                  editable = false
-                } else {
-                  startTime = this.$options.filters['dayjs'](startTime)
-                  endTime = this.$options.filters['dayjs'](endTime)
-                }
-                return {
-                  id: item.sessionInfo.id,
-                  title: (item.workshopsDetailInfo && item.workshopsDetailInfo.title) ? item.workshopsDetailInfo.title : item.sessionInfo.sessionName,
-                  start: startTime,
-                  end: endTime,
-                  backgroundColor: 'transparent',
-                  borderColor: 'transparent',
-                  editable: this.editable && editable,
+            if (isFind && isFind.blockSettings) {
+              isFind.blockSettings.forEach(block => {
+                const convertStart = start.format('YYYY-MM-DD') + ' ' + block.start + ':00'
+                const convertEnd = start.format('YYYY-MM-DD') + ' ' + block.end + ':59'
+                termEvents.push({
+                  start: formatLocalUTC(convertStart),
+                  end: formatLocalUTC(convertEnd),
+                  display: 'background',
                   extendedProps: {
-                    classId: item.sessionInfo.classId,
-                    planId: item.sessionInfo.planId,
-                    contentId: item.sessionInfo.contentId,
-                    sessionType: item.sessionInfo.sessionType,
-                    sessionId: item.sessionId,
-                    status: item.attendance || 'absent',
-                    id: item.sessionInfo.id,
-                    backgroundColor: color,
-                    start: item.startTime,
-                    end: item.endTime
+                    termId: isFind.id,
+                    yearName: isFind.yearName,
+                    termName: isFind.name
                   }
-                }
+                })
               })
-              this.calendarDatas = res.result
-              this.allEvents = events
-              const filterEvents = events.filter(event => {
-                if (this.queryType === this.CALENDAR_QUERY_TYPE.MY.value) {
-                  if (!this.typeFilters.includes('sessionType' + event.extendedProps.sessionType)) {
-                    return false
-                  }
-                }
-                return true
-              })
-              totalEvents = filterEvents
-            } else {
-              totalEvents = []
-              this.currentUnitList = []
             }
-
-            successCb(totalEvents.concat(termEvents))
-            this.handleViewDidMount(date)
-          } else {
-            failCb()
+            start = start.add(1, 'd')
+            // index++
           }
-        }).catch(() => {
-          failCb()
-        }).finally(() => {
-          this.loading = false
-        })
-      }
+        }
+
+        if (noNeedQuery) {
+          successCb(termEvents)
+          this.handleViewDidMount(date)
+        } else {
+          this.loading = true
+          if (this.viewType === 'timeGridFourDay') {
+            const yearData = this.yearOptions.find(item => item.id === this.currentYear)
+            if (yearData) {
+              start = formatLocalUTC(yearData.startTime, 'YYYY-MM-DD')
+              end = formatLocalUTC(yearData.endTime, 'YYYY-MM-DD')
+            } else {
+              start = moment().startOf('year').format('YYYY-MM-DD')
+              end = moment().endOf('year').format('YYYY-MM-DD')
+            }
+          }
+          this.loadData({
+            ...params,
+            startDate: moment(start + ' 00:00:00').utc().format('YYYY-MM-DD'),
+            endDate: moment(end + ' 23:59:59').utc().format('YYYY-MM-DD'),
+            queryType: this.queryType
+          }).then(res => {
+            if (res && res.success && res.result) {
+              let totalEvents = []
+              const filterRes = res.result// .filter(item => item.unitPlanInfo)
+              this.calendarDatas = res.result
+              if (filterRes.length > 0) {
+                this.currentUnitList = uniqBy(filterRes.filter(item => item.unitPlanInfo).map(item => item.unitPlanInfo), 'id')
+                const events = filterRes.map(item => {
+                  // 根据classId获取颜色
+                  let index = -1
+                  index = this.currentUnitList.findIndex(unit => unit.id === (item.unitPlanInfo ? item.unitPlanInfo.id : -1))
+                  const color = (index === -1) ? '#f6f3f3' : BG_COLORS[index]
+
+                  let startTime = item.startTime
+                  let endTime = item.endTime
+                  let editable = true
+                  if (this.viewType === 'timeGridFourDay') {
+                    this.convertDayForYear()
+                    startTime = this.convertYearToTime(item.startTime)
+                    endTime = this.convertYearToTime(item.endTime, true)
+                    // if (startTime === endTime) {
+                    //   endTime = this.convertYearToTime(item.endTime, true)
+                    // }
+                    editable = false
+                  } else {
+                    startTime = this.$options.filters['dayjs'](startTime)
+                    endTime = this.$options.filters['dayjs'](endTime)
+                  }
+                  return {
+                    id: item.sessionInfo.id,
+                    title: (item.workshopsDetailInfo && item.workshopsDetailInfo.title) ? item.workshopsDetailInfo.title : item.sessionInfo.sessionName,
+                    start: startTime,
+                    end: endTime,
+                    backgroundColor: 'transparent',
+                    borderColor: 'transparent',
+                    editable: this.editable && editable,
+                    extendedProps: {
+                      classId: item.sessionInfo.classId,
+                      planId: item.sessionInfo.planId,
+                      contentId: item.sessionInfo.contentId,
+                      sessionType: item.sessionInfo.sessionType,
+                      sessionId: item.sessionId,
+                      status: item.attendance || 'absent',
+                      id: item.sessionInfo.id,
+                      backgroundColor: color,
+                      start: item.startTime,
+                      end: item.endTime
+                    }
+                  }
+                })
+                this.calendarDatas = res.result
+                this.allEvents = events
+                const filterEvents = events.filter(event => {
+                  if (this.queryType === this.CALENDAR_QUERY_TYPE.MY.value) {
+                    if (!this.typeFilters.includes('sessionType' + event.extendedProps.sessionType)) {
+                      return false
+                    }
+                  }
+                  return true
+                })
+                totalEvents = filterEvents
+              } else {
+                totalEvents = []
+                this.currentUnitList = []
+              }
+
+              successCb(totalEvents.concat(termEvents))
+              this.handleViewDidMount(date)
+            } else {
+              failCb()
+            }
+          }).catch(() => {
+            failCb()
+          }).finally(() => {
+            this.loading = false
+          })
+        }
+      })
     },
     getOptions(typeVal) {
       let typeLabel = ''
