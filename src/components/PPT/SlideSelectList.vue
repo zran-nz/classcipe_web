@@ -151,6 +151,7 @@ export default {
   },
   methods: {
     handleSearchByFilter (data) {
+      this.filterParams = null
       this.handleSearchSlide()
     },
 
