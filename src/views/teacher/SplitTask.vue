@@ -593,7 +593,6 @@ export default {
       shareStatus: 0,
       splitTaskField: SplitTaskField,
 
-      currentActiveStepIndex: this.getSessionStep(),
       currentStep: {
         id: null,
         commonFields: [],
@@ -606,6 +605,7 @@ export default {
 
       taskCommonList: [],
       showSubAssessment: false,
+      currentActiveStepIndex: 0,
       allTags: []
     }
   },
