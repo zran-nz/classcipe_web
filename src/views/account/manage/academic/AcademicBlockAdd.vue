@@ -95,7 +95,7 @@ export default {
   },
   data() {
     return {
-      title: 'Block setting',
+      title: 'Block Setting',
       mode: 'add',
       width: 600,
       visible: false,

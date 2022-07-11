@@ -90,7 +90,7 @@ export default {
   },
   data() {
     return {
-      title: 'Add academic year',
+      title: 'Add Academic Year',
       mode: 'add',
       width: 800,
       visible: false,

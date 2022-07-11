@@ -42,7 +42,37 @@
       <label v-else for=""> {{ info.event.title }} </label>
     </div>
   </a-popover>
-  <div v-else style="height: 100%;">
+  <a-popover
+    v-else
+    title="Set Date"
+    trigger="click"
+    :destroyTooltipOnHide="true"
+    :getPopupContainer="trigger => getPopupContainer(trigger, info)"
+    @visibleChange="visible => showDateSelectPopover(visible, info.event)"
+  >
+    <a slot="content">
+      <div class="date-select">
+        <a-space class="date-select-item">
+          <label for="">StartTime: {{ moment(info.event.start).format('YYYY-MM-DD') }}</label>
+          <a-time-picker
+            :allowClear="false"
+            :disabledHours="disabledHoursStart"
+            :disabledMinutes="disabledMinutesStart"
+            v-model="dateSelect.start"
+            format="HH:mm" />
+        </a-space>
+        <a-space class="date-select-item">
+          <label for="">EndTime: {{ moment(info.event.end).format('YYYY-MM-DD') }}</label>
+          <a-time-picker
+            :allowClear="false"
+            :disabledHours="disabledHoursEnd"
+            :disabledMinutes="disabledMinutesEnd"
+            v-model="dateSelect.end"
+            format="HH:mm" />
+        </a-space>
+        <a-button type='primary' size="small" @click="handleChangeDateSelect">Save</a-button>
+      </div>
+    </a>
     <div
       class="schedule-event-content"
       :style="{backgroundColor: info.event.extendedProps.backgroundColor, color: '#333'}"
@@ -51,7 +81,7 @@
         {{ info.event.start | dayjs(FORMATTER_SIM) }}-{{ info.event.end | dayjs(FORMATTER_SIM) }}
       </div>
     </div>
-  </div>
+  </a-popover>
 </template>
 
 <script>
@@ -62,6 +92,7 @@ import LiveworkshopItem from '@/components/MyContentV2/LiveWorkShopContentItem'
 import { DeleteClassV2, EditSessionScheduleV2 } from '@/api/v2/classes'
 
 import { BG_COLORS, CALENDAR_QUERY_TYPE } from '@/const/common'
+import moment from 'moment'
 
 export default {
   name: 'SessionEventContent',
@@ -119,13 +150,19 @@ export default {
       currentUnitList: this.unitList,
       queryType: this.type,
       loading: false,
-      calendarDatas: []
+      calendarDatas: [],
+      dateSelect: {
+        start: null,
+        end: null,
+        id: 'DateSelect'
+      }
     }
   },
   created() {
     this.initData()
   },
   methods: {
+    moment,
     initData() {
     },
     getPopupContainer(trigger, info) {
@@ -136,6 +173,13 @@ export default {
       return trigger.parentElement
     },
     showPopover(visible, clickInfo) {
+    },
+    showDateSelectPopover(visible, event) {
+      this.dateSelect = {
+        ...event,
+        start: moment(event.start, 'HH:mm'),
+        end: moment(event.end, 'HH:mm')
+      }
     },
     getSession(clickInfo) {
       const currentSession = this.calendarDatas.find(item => item.sessionInfo.id === clickInfo.event.extendedProps.id)
@@ -149,6 +193,45 @@ export default {
         sessionInfo: { ...currentSession.sessionInfo },
         ...currentSession.workshopsDetailInfo
       }
+    },
+    handleChangeDateSelect() {
+      this.$emit('changeDateSelect', this.dateSelect)
+    },
+    disabledHoursStart() {
+      const hours = moment(this.dateSelect.end).hours()
+      return Array.from({
+        length: 23 - hours
+      }, (v, i) => 23 - i)
+    },
+    disabledHoursEnd() {
+      const hours = moment(this.dateSelect.start).hours()
+      return Array.from({
+        length: hours
+      }, (v, i) => i)
+    },
+    disabledMinutesStart(selectedHour) {
+      const startHours = moment(this.dateSelect.start).hours()
+      const endHours = moment(this.dateSelect.end).hours()
+      const minutes = moment(this.dateSelect.end).minutes()
+      let res = []
+      if (startHours === endHours) {
+        res = Array.from({
+          length: 59 - minutes
+        }, (v, i) => 59 - i)
+      }
+      return res
+    },
+    disabledMinutesEnd(selectedHour) {
+      const startHours = moment(this.dateSelect.start).hours()
+      const endHours = moment(this.dateSelect.end).hours()
+      const minutes = moment(this.dateSelect.start).minutes()
+      let res = []
+      if (startHours === endHours) {
+        res = Array.from({
+          length: minutes
+        }, (v, i) => i)
+      }
+      return res
     },
     handleDelete(clickInfo) {
         this.loading = true
@@ -189,5 +272,18 @@ export default {
 <style scoped lang="less">
 /deep/ .price-con {
   margin-left: 10px;
+}
+.date-select {
+  display: flex;
+  flex-direction: column;
+  & > .date-select-item {
+    margin: 5px;
+    label {
+      width: 120px;
+    }
+  }
+  button {
+    width: 60px;
+  }
 }
 </style>

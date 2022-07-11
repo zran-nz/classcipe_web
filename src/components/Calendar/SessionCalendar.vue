@@ -71,6 +71,7 @@
               :allDatas="calendarDatas"
               @reFetch="reFetch"
               @save="handleSaveContentEvent"
+              @changeDateSelect="changeDateSelect"
             />
           </template>
         </cc-calendar>
@@ -701,6 +702,34 @@ export default {
         })
       }
       this.$emit('date-select', this.importModel)
+    },
+    changeDateSelect(dateSelect) {
+      const calendarApi = this.$refs.fullCalendar.getApi()
+      const selectEvent = calendarApi.getEventById('DateSelect')
+      if (selectEvent) {
+        selectEvent.remove()
+      }
+      const startTime = moment(dateSelect.start).format('YYYY-MM-DD HH:mm:ss')
+      const endTime = moment(dateSelect.end).format('YYYY-MM-DD HH:mm:ss')
+      calendarApi.addEvent({
+        id: 'DateSelect',
+        title: 'DateSelect',
+        start: startTime,
+        end: endTime,
+        backgroundColor: 'transparent',
+        borderColor: 'transparent',
+        editable: true,
+        extendedProps: {
+          eventType: 'selectDate',
+          backgroundColor: '#3688d8',
+          start: startTime,
+          end: endTime
+        }
+      })
+      this.$emit('date-select', {
+        startDate: startTime,
+        endDate: endTime
+      })
     },
     closeTip() {
       this.$refs.tooltip.style.visibility = 'hidden'

@@ -75,7 +75,7 @@ export default {
   },
   data() {
     return {
-      title: 'Add academic term',
+      title: 'Add Academic Term',
       moment: moment,
       mode: 'add',
       width: 800,

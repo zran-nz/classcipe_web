@@ -44,11 +44,11 @@
             <co-teaching-icon />
           </template>
         </sidebar-menu-item>
-        <sidebar-menu-item label='Managing' path='/teacher/managing' v-if="userMode === USER_MODE.SELF || (currentSchool && currentSchool.roleNames && currentSchool.roleNames.includes(schoolUserRole.admin))">
+        <!-- <sidebar-menu-item label='Managing' path='/teacher/managing' v-if="userMode === USER_MODE.SELF || (currentSchool && currentSchool.roleNames && currentSchool.roleNames.includes(schoolUserRole.admin))">
           <template v-slot:icon>
             <managing-icon />
           </template>
-        </sidebar-menu-item>
+        </sidebar-menu-item> -->
         <sidebar-menu-item label='Calendar' path='/teacher/main/calendar'>
           <template v-slot:icon>
             <icon-font type="icon-rili" class="detail-font"/>

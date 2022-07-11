@@ -1164,6 +1164,8 @@ export default {
             QuotationAddOrUpdate(this.adminForm).then(res => {
               if (res.success) {
                 this.$message.success('Send successfully')
+                this.userFormVisible = false
+                this.adminFormVisible = false
               }
             }).finally(res => {
               this.confirmLoading = false

@@ -272,7 +272,7 @@ export default {
           {
             avatar: RoleManagePng,
             title: 'Role Manage',
-            desc: 'Assign teachers to be admin, homeroom teachers and subject coordinators Academic Term: Set school year, term and blocks',
+            desc: 'Assign teachers to be admin, homeroom teachers and subject coordinators',
             url: '/manage/role',
             hidden: this.isNotAdmin
           }
@@ -285,7 +285,7 @@ export default {
               avatar: AcademicPng,
               title: 'Academic Term',
               hidden: this.userMode === USER_MODE.SELF,
-              desc: '',
+              desc: 'Set school year, term and blocks',
               url: '/manage/academic'
             },
             {
