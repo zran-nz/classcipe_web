@@ -107,7 +107,7 @@
 
             <div class='self-learning' v-if='content.type === typeMap.task'>
               Self learning
-              <a-switch size='small' @change='handleSelfLearning' />
+              <a-switch size='small' @change='handleSelfLearning' v-model="isSelfLearning" />
             </div>
 
             <custom-button label='Preview' @click='handlePreviewDetail(content)'>
@@ -208,6 +208,7 @@ import MoreIcon from '@/assets/v2/icons/more.svg?inline'
 import ContentPreview from '@/components/Preview/ContentPreview'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import * as logger from '@/utils/logger'
+import { TaskAddOrUpdate } from '@/api/task'
 
 export default {
   name: 'ContentItem',
@@ -272,6 +273,7 @@ export default {
   },
   created() {
     this.allowPreview = this.clickPreview
+    this.isSelfLearning = this.content.contentType === 1
   },
   computed: {
     status() {
@@ -322,6 +324,14 @@ export default {
     handleSelfLearning(isSelfLearning) {
       this.$logger.info('handleSelfLearning', isSelfLearning)
       this.isSelfLearning = isSelfLearning
+      const item = this.content
+      item.contentType = isSelfLearning ? 1 : 0
+      TaskAddOrUpdate({
+        id: item.id,
+        contentType: item.contentType
+      }).then((response) => {
+        this.$logger.info('response : {}', response)
+      })
     },
 
     handlePublishStatus() {
