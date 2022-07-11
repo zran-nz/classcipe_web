@@ -1,5 +1,5 @@
 <template>
-  <div class='assessment-content'>
+  <div class='assessment-content' :class="{'active-table': isActiveTable }">
     <div class='assessment-header'>
       <div class='title'>
         <a-space>
@@ -123,7 +123,8 @@ export default {
 @import "~@/components/index.less";
 
 .assessment-content {
-  padding: 0 10px;
+  padding: 5px 10px;
+  border: 2px solid #fff;
 
   .title {
     cursor: pointer;
@@ -162,6 +163,10 @@ export default {
 
   .assessment-body {
   }
+}
+
+.active-table {
+  border: 2px solid #15c39a;
 }
 
 </style>
