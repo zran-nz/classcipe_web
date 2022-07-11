@@ -355,7 +355,7 @@ export default {
         const unit = EXPIRE_UNIT.find(unit => unit.value === this.info.planInfo.planExpireUnit).label
         return `Plan ends in ${days} ${unit}${days > 1 ? 's' : ''}`
       } else {
-        const remain = 'TODO'
+        const remain = this.info.planInfo.unPaidPrice || 0
         return `Balance of $${remain} unpaid`
       }
     },

@@ -320,7 +320,7 @@
         <a-col class="slide-reviews" span="24" v-if="currentRole === 'student'">
           <rate-by-percent :rates="reviewsStats"/>
           <reviews-preview
-            :id="id"
+            :id="contentId"
             role="student"
             :list="ReviewsTask.ReviewsTaskList"
             :save="ReviewsTask.ReviewsTaskSave"
