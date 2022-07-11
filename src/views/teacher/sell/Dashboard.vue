@@ -10,7 +10,7 @@
           <div class="dashboard-filter">
             <div class="filter-base">
               <div class="filter-options">
-                <label>
+                <!-- <label>
                   SHOW ME
                   <a-tooltip placement="right">
                     <template slot="title">
@@ -18,7 +18,7 @@
                     </template>
                     <a-icon type="question-circle" />
                   </a-tooltip>
-                </label>
+                </label> -->
                 <a-select
                   v-model="filterParams.statisticsType"
                   class="filter-item"
@@ -32,7 +32,7 @@
                 </a-select>
               </div>
               <div class="filter-options">
-                <label>DURING</label>
+                <!-- <label>DURING</label> -->
                 <div>
                   <a-select
                     v-model="filterParams.duringsType"
