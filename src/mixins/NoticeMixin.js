@@ -1,6 +1,6 @@
 import { typeMap } from '@/const/teacher'
 import { NotificationTypeMap } from '@/views/dashboard/NotificationTypeMap'
-import { EditCementSend } from '@/api/notice'
+import { EditCementSend, ListCementByUser } from '@/api/notice'
 import { RECEIVE_MSG } from '@/store/mutation-types'
 import { mapActions } from 'vuex'
 
@@ -14,7 +14,15 @@ export const NoticeMixin = {
     }
   },
   created () {
-
+    this.$store.watch(
+      state => state.websocket.receiveMsg,
+      receiveMsg => {
+        if (receiveMsg) {
+          this.loadNewNotifications()
+          this.$store.commit(RECEIVE_MSG, false)
+        }
+      }
+    )
   },
   methods: {
     ...mapActions(['refreshCollaborateAction']),
@@ -68,6 +76,18 @@ export const NoticeMixin = {
       if (this.handleHoverChange) {
         this.handleHoverChange(false)
       }
+    },
+    loadNewNotifications() {
+      ListCementByUser().then((res) => {
+        if (res.success) {
+          const msg1Count = res.result.anntMsgTotal
+          this.$store.commit('SET_UNREAD_COUNT', msg1Count || 0)
+        }
+      }).catch(error => {
+        this.$logger.error('系统消息通知异常', error)
+        this.stopTimer = true
+        this.$logger.error('清理timer')
+      })
     }
   }
 
