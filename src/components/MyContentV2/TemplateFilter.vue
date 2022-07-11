@@ -325,7 +325,7 @@ export default {
       this.$logger.info('triggerSearch', this.searchKey)
       const filterConfig = {
         searchKey: this.searchKey,
-        filterCategoryType: this.filterType,
+        filterCategoryType: this.searchKey ? '' : this.filterType,
         filterLearn: this.filterLearn,
         filterAssessments: this.getFilterAssessmentsParams(this.filterAssessments),
         filterCentury: this.getFilterParams(this.filterCentury),
