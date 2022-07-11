@@ -110,6 +110,7 @@ export default {
       this.loading = true
       try {
         // eslint-disable-next-line no-undef
+        console.log('ACCESS_TOKEN', storage.get(ACCESS_TOKEN))
         const result = await AppLogin(storage.get(ACCESS_TOKEN))
         this.$logger.info('loadLinkCategoryData initTagData AppLogin', result)
         // eslint-disable-next-line no-undef
