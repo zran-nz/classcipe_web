@@ -4,7 +4,8 @@ import storage from 'store'
 
 export const countryApiUrl = {
   countryCode: '/fio/conf/CountryCodes',
-  getCity: 'https://maps.googleapis.com/maps/api/place/autocomplete/json'
+  // getCity: 'https://maps.googleapis.com/maps/api/place/autocomplete/json'
+  getCity: '/fio/maps/city/'
 }
 /**
  * get countryCode
@@ -18,13 +19,14 @@ export function getCountry() {
 }
 
 // ?input=auck&components=country:nz&key=api_key
+// /fio/maps/city/nz?q=au
 /**
  * get getCity
  * @returns {AxiosPromise}
  */
  export function getCity(parameter) {
   return request({
-    url: countryApiUrl.getCity,
+    url: countryApiUrl.getCity + parameter.country,
     params: parameter,
     headers: {
       'Content-Type': 'application/json;charset=UTF-8',

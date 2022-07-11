@@ -52,17 +52,20 @@
                   <a-select
                     v-model="formModel.city"
                     show-search
-                    placeholder="Please Select a City"
+                    placeholder="Please Input Keyword"
                     option-filter-prop="children"
-                    :filter-option="filterOptions"
+                    :filter-option="false"
+                    :not-found-content="fetching ? undefined : null"
+                    @search="fetchCity"
                     :getPopupContainer="target => target.parentNode"
                   >
+                    <a-spin v-if="fetching" slot="notFoundContent" size="small" />
                     <a-select-option
                       v-for="param in citys"
-                      :value="param.en"
-                      :key="'city_' + param.en"
+                      :value="param.desc"
+                      :key="'city_' + param.desc"
                     >
-                      {{ param.en }}
+                      {{ param.desc }}
                     </a-select-option>
                   </a-select>
                 </a-form-model-item>
@@ -93,7 +96,7 @@ import FormHeader from '@/components/FormHeader/FormHeader'
 import SchoolStudentAdd from './schoolUser/SchoolStudentAdd'
 
 import { getCountry, getCity } from '@/api/v2/country'
-import country from '@/api/country'
+// import country from '@/api/country'
 import countryCode from '@/api/countryCode'
 import { updateSchool, queryById } from '@/api/school'
 
@@ -112,7 +115,7 @@ export default {
     return {
       USER_MODE: USER_MODE,
       SCHOOL_USER_STATUS: SCHOOL_USER_STATUS,
-      country: country,
+      country: [],
       countryCode: countryCode,
       loading: false,
       formModel: {
@@ -130,11 +133,14 @@ export default {
         country: [{ required: true, message: 'Please Select country!' }],
         city: [{ required: true, message: 'Please Select city!' }]
       },
-      apiKey: process.env.VUE_APP_API_KEY
+      apiKey: process.env.VUE_APP_API_KEY,
+      fetching: false,
+      citys: []
     }
   },
   created() {
     this.debounceLoad = debounce(this.loadData, 300)
+    this.fetchCity = debounce(this.fetchCity, 300)
     this.initDict()
     this.loadData()
   },
@@ -143,27 +149,27 @@ export default {
       userMode: state => state.app.userMode,
       currentSchool: state => state.user.currentSchool
     }),
-    citys() {
-      if (this.formModel && this.formModel.country && this.country) {
-        const current = this.country.find(item => item.en === this.formModel.country)
-        const stations = current ? (current.Station || []) : []
-        let cities = []
-        stations.forEach(station => {
-          if (station.City) {
-            if (Array.isArray(station.City)) {
-              if (station.City.length > 0) {
-                cities = cities.concat(...station.City)
-              }
-            } else {
-              cities = cities.concat([station.City])
-            }
-          }
-        })
-        console.log(cities)
-        return cities
-      }
-      return []
-    },
+    // citys() {
+    //   if (this.formModel && this.formModel.country && this.country) {
+    //     const current = this.country.find(item => item.en === this.formModel.country)
+    //     const stations = current ? (current.Station || []) : []
+    //     let cities = []
+    //     stations.forEach(station => {
+    //       if (station.City) {
+    //         if (Array.isArray(station.City)) {
+    //           if (station.City.length > 0) {
+    //             cities = cities.concat(...station.City)
+    //           }
+    //         } else {
+    //           cities = cities.concat([station.City])
+    //         }
+    //       }
+    //     })
+    //     console.log(cities)
+    //     return cities
+    //   }
+    //   return []
+    // },
     countryCodeFilter() {
       let filter = []
       if (this.countryCode) {
@@ -179,7 +185,6 @@ export default {
     },
     handleSchoolChange(currentSchool) {
       if (this.userMode === USER_MODE.SCHOOL) {
-        this.queryParam.schoolId = currentSchool.id
         this.initDict()
         this.debounceInit()
       }
@@ -189,9 +194,9 @@ export default {
       this.debounceInit()
     },
     initDict() {
-      // getCountry().then(res => {
-      //   this.country = res
-      // })
+      getCountry().then(res => {
+        this.country = res
+      })
     },
     loadData() {
       if (this.currentSchool.id) {
@@ -214,14 +219,21 @@ export default {
     },
     changeCountry(val) {
       this.formModel.city = undefined
-      // const current = this.country.find(item => item.en === val)
-      // getCity({
-      //   input: val,
-      //   components: `country:${current.code}`,
-      //   key: this.apiKey
-      // }).then(res => {
-
-      // })
+      this.citys = []
+    },
+    fetchCity(val) {
+      const current = this.country.find(item => item.en === this.formModel.country)
+      if (current && current.code) {
+        this.fetching = true
+        getCity({
+          country: current.code,
+          q: val
+        }).then(res => {
+          this.citys = res
+        }).finally(() => {
+          this.fetching = false
+        })
+      }
     },
     handleSave() {
       this.$refs.form.validate(valid => {
