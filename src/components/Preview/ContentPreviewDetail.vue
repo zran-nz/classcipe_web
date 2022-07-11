@@ -383,6 +383,7 @@ import ShareButton from '@/components/Share/ShareButton'
 import CustomLinkText from '@/components/Common/CustomLinkText'
 import ContentPreview from '@/components/Preview/ContentPreview'
 import { ContentItemMixin } from '@/mixins/ContentItemMixin'
+import { getStatByContentId } from '@/api/statistics'
 
 export default {
   name: 'ContentPreviewDetail',
@@ -441,6 +442,7 @@ export default {
       copyLoading: false,
 
       showTopFixedHeader: false,
+      stat: null,
 
       reviewsStats: {
         avgReviewsScore: 0,
@@ -498,6 +500,9 @@ export default {
         } else {
           this.$message.error(ret.message)
         }
+        const statRet = await getStatByContentId({contentId: this.contentId})
+        this.$logger.info('statRet', statRet);
+        this.stat = statRet.result
       } finally {
         this.contentLoading = false
       }

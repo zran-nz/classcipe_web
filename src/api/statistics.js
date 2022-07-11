@@ -1,11 +1,13 @@
 import request from '@/utils/request'
+import { tagAPIUrl } from '@/api/tag'
 
 const BASE_PATH = 'statistics'
 
 export const statisticsAPIUrl = {
   dashboard: `/classcipe/api/${BASE_PATH}/dashboard`,
   myStatisticsStudent: `/classcipe/api/${BASE_PATH}/myStatistics/student`,
-  myStatisticsTeacher: `/classcipe/api/${BASE_PATH}/myStatistics/teacher`
+  myStatisticsTeacher: `/classcipe/api/${BASE_PATH}/myStatistics/teacher`,
+  getStatByContentId: `/classcipe/statistics/content/getStatByContentId`
 }
 
 export function dashboard (parameter) {
@@ -38,5 +40,13 @@ export function myStatisticsTeacher (parameter) {
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
+  })
+}
+
+export function getStatByContentId (parameter) {
+  return request({
+    url: statisticsAPIUrl.getStatByContentId,
+    method: 'get',
+    params: parameter
   })
 }
