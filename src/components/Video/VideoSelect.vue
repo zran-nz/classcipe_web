@@ -33,7 +33,6 @@ import ClasscipeDriveButton from '@/components/ClasscipeDrive/ClasscipeDriveButt
 import ScreenCapture from '@/components/ScreenCapture/ScreenCapture'
 import ClasscipeDriveEvent from '@/components/ClasscipeDrive/ClasscipeDriveEvent'
 import VideoViewer from '@/components/Video/VideoViewer'
-import DriveType from '@/components/ClasscipeDrive/Content/DriveType'
 import ScreenCaptureEvent from '@/components/ScreenCapture/ScreenCaptureEvent'
 
 export default {

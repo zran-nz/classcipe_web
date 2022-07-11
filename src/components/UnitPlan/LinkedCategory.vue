@@ -74,10 +74,10 @@ import CheckedGreenIcon from '@/assets/v2/icons/checked_green.svg?inline'
 import CheckedBlurIcon from '@/assets/v2/icons/checked_blue.svg?inline'
 import CheckedYellowIcon from '@/assets/v2/icons/checked_yellow.svg?inline'
 import CommonNoData from '@/components/Common/CommonNoData'
-import { AddOrUpdateLinkCategory, DeleteLinkCategory, GetLinkCategory } from '@/api/v2/mycontent'
-import * as logger from '@/utils/logger'
+import { AddOrUpdateLinkCategory, DeleteLinkCategory } from '@/api/v2/mycontent'
 import storage from 'store'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
+import App from '@/App'
 
 export default {
   name: 'LinkedCategory',
@@ -109,8 +109,10 @@ export default {
       this.$logger.info('loadLinkCategoryData')
       this.loading = true
       try {
+        // eslint-disable-next-line no-undef
         const result = await AppLogin(storage.get(ACCESS_TOKEN))
         this.$logger.info('loadLinkCategoryData initTagData AppLogin', result)
+        // eslint-disable-next-line no-undef
         const unitSet = await App.service('conf-user').get('UnitSet')
         this.$logger.info('unitSet', unitSet)
       } catch (e) {
