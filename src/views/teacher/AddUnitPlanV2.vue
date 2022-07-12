@@ -338,15 +338,7 @@
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Question />
                   <custom-form-item class='unit-question' :required='emptyRequiredFields.indexOf(planField.Question) !== -1'>
                     <template slot='label'>
-                      <a-space>
-                        <a-tooltip title='Set key question/Line of inquiry'>
-                          <a-icon
-                            style='color: #15c39a;cursor: pointer;font-size: 18px'
-                            type='exclamation-circle'
-                            @click='questionSettingVisible=true' />
-                        </a-tooltip>
-                        {{ 'Key question(s) / Line(s) of inquiry' | unitLabelName(planField.Question, $store.getters.formConfigData) }}
-                      </a-space>
+                      {{ 'Key question(s) / Line(s) of inquiry' | unitLabelName(planField.Question, $store.getters.formConfigData) }}
                     </template>
                     <template slot='action'>
                       <a-space>
