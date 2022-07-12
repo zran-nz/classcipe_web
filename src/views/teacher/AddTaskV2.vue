@@ -546,6 +546,7 @@ import SplitTaskSetting from '@/components/Task/SplitTaskSetting'
 import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
 import commentIcon from '@/assets/icons/collaborate/comment.svg?inline'
 import { deepEqual } from '@/utils/util'
+import { USER_MODE } from '@/const/common'
 
 export default {
   name: 'AddTaskV2',
@@ -796,7 +797,13 @@ export default {
 
     handleNextStep () {
       if (this.currentActiveStepIndex === this.formSteps.length - 1) {
-        this.showSplitTask = true
+        if (this.$store.state.app.userMode === USER_MODE.SCHOOL) {
+          this.$router.replace({
+            path: '/'
+          })
+        } else {
+          this.showSplitTask = true
+        }
       } else {
         this.$refs['steps-nav'].nextStep()
       }
