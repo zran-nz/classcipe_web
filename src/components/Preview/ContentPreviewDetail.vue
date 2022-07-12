@@ -21,8 +21,8 @@
                 type="danger"
                 shape='round'
                 @click='handleBuyItem'
-                :loading='buyLoading'
-                v-if='content.createBy !== $store.getters.userInfo.email && showBuyButton'>
+                v-if='content.createBy !== $store.getters.userInfo.email && showBuyButton'
+                :loading='buyLoading'>
                 Buy now
               </a-button>
               <a-button
@@ -95,11 +95,11 @@
                         <a-icon type="heart" v-if='!favoriteFlag' />
                       </div>
                       <div class='favorite-num'>
-                        {{ stat.saved || 0 }}
+                        {{ (stat && stat.saved) || 0 }}
                       </div>
                     </div>
                     <div class='sales'>
-                      Sales {{ stat.sold || 0 }}
+                      Sales {{ (stat && stat.sold) || 0 }}
                     </div>
                   </a-space>
                 </div>
@@ -352,6 +352,25 @@
       :allow-preview-sub-content='false'
       v-if='previewVisible'
       @close='handlePreviewClose' />
+
+    <a-modal
+      :title="null"
+      :closable='false'
+      v-model="contentBuyStatVisible"
+      :append-to-body="true"
+      :destroy-on-close="false"
+      @ok='handleEnsureBuyStat'
+      @cancel='handleCancelBuyStat'
+      width="500px">
+      <modal-header @close='handleCancelBuyStat' title='Which grade(s) did you use this resource with?' />
+      <div class='grade-list'>
+        <div class='content-tag-list'>
+          <div class='content-tag' @click='toggleSelectContentTag(grade)' :class="{'selected-tag': selectedGradeList.indexOf(grade) !== -1}" v-for='grade in allYears' :key='grade'>
+            {{ grade }}
+          </div>
+        </div>
+      </div>
+    </a-modal>
   </div>
 </template>
 
@@ -364,7 +383,7 @@ import { TaskQueryById } from '@/api/task'
 import { VideoQueryById } from '@/api/video'
 import { TemplatesGetPublishedPresentation } from '@/api/template'
 import { Duplicate, GetAssociate } from '@/api/teacher'
-import { mapState } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import * as logger from '@/utils/logger'
 import { formatLocalUTC } from '@/utils/util'
 import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
@@ -384,10 +403,12 @@ import CustomLinkText from '@/components/Common/CustomLinkText'
 import ContentPreview from '@/components/Preview/ContentPreview'
 import { ContentItemMixin } from '@/mixins/ContentItemMixin'
 import { getStatByContentId } from '@/api/statistics'
+import { ContentGradeSave } from '@/api/contentGrade'
+import ModalHeader from '@/components/Common/ModalHeader'
 
 export default {
   name: 'ContentPreviewDetail',
-  components: { ContentPreview, CustomLinkText, ShareButton, CardListItem, PreviewCarousel, ShareIcon, RateByPercent, ReviewsPreview, ReviewScore },
+  components: { ModalHeader, ContentPreview, CustomLinkText, ShareButton, CardListItem, PreviewCarousel, ShareIcon, RateByPercent, ReviewsPreview, ReviewScore },
   props: {
     contentId: {
       type: String,
@@ -457,13 +478,19 @@ export default {
 
       RATE_TOOLTIPS: RATE_TOOLTIPS,
       ReviewsTask: ReviewsTask,
-      ReviewsTeacher: ReviewsTeacher
+      ReviewsTeacher: ReviewsTeacher,
+
+      contentBuyStatVisible: false,
+      selectedGradeList: []
     }
   },
   computed: {
     ...mapState({
       userMode: state => state.app.userMode,
       currentRole: state => state.user.currentRole
+    }),
+    ...mapGetters({
+      allYears: 'allYears'
     }),
     lastChangeSavedTime () {
       if (this.content) {
@@ -714,9 +741,34 @@ export default {
             }
           }).finally(() => {
             this.buyLoading = false
+            this.contentBuyStatVisible = true
           })
         }
       })
+    },
+
+    handleEnsureBuyStat () {
+      ContentGradeSave({
+        contentId: this.contentId,
+        contentType: this.contentType,
+        grades: this.selectedGradeList
+      }).finally(() => {
+        this.handleCancelBuyStat()
+      })
+    },
+    handleCancelBuyStat () {
+      this.contentBuyStatVisible = false
+      this.selectedGradeList = []
+    },
+
+    toggleSelectContentTag(grade) {
+      this.$logger.info('toggleSelectContentTag', grade)
+      const index = this.selectedGradeList.indexOf(grade)
+      if (index === -1) {
+        this.selectedGradeList.push(grade)
+      } else {
+        this.selectedGradeList.splice(index, 1)
+      }
     },
 
     visibilityChanged (isVisible, entry) {
@@ -1132,6 +1184,45 @@ export default {
         font-size: 37px;
         margin: 0 5px;
       }
+    }
+  }
+}
+
+.grade-list {
+  padding: 10px 0;
+  .content-tag-list {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin: 0 10px 10px 0;
+    vertical-align: middle;
+    cursor: pointer;
+
+    .content-tag {
+      margin-left: 3px;
+      margin-top: 5px;
+      cursor: pointer;
+      border: 2px solid #ffffff;
+      background: #FFEDAF;
+      font-size: 13px;
+      border-radius: 30px;
+      line-height: 30px;
+      padding: 0 10px;
+      word-break: normal;
+      width: auto;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .selected-tag {
+      border: 2px solid #15C39A;
     }
   }
 }
