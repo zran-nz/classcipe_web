@@ -500,8 +500,8 @@ export default {
         } else {
           this.$message.error(ret.message)
         }
-        const statRet = await getStatByContentId({contentId: this.contentId})
-        this.$logger.info('statRet', statRet);
+        const statRet = await getStatByContentId({ contentId: this.contentId })
+        this.$logger.info('statRet', statRet)
         this.stat = statRet.result
       } finally {
         this.contentLoading = false
