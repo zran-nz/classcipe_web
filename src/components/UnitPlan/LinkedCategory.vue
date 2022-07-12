@@ -10,8 +10,8 @@
     <div class='category-list'>
       <a-skeleton :loading='loading' />
       <template v-if='!loading'>
-        <div class='category-block' v-for='(category, cIdx) in categoryList' :key='category.key' :style="{'background-color': color[cIdx]}">
-          <div class='category-item' :class="{'selected-item': selectedList.indexOf(item) !== -1}" v-for='item in category.children' :key='item.key' @click='handleAddItem(item)'>
+        <div class='category-block' v-for='(category, cIdx) in categoryList' :key='category.set' :style="{'background-color': color[cIdx]}">
+          <div class='category-item' :class="{'selected-item': selectedList.indexOf(item) !== -1}" v-for='item in category.tags' :key='item' @click='handleAddItem(item)'>
             <div class='selected-icon'>
               <div class='checked-icon'>
                 <template v-if='cIdx % 3 === 0'>
@@ -20,13 +20,10 @@
                 <template v-if='cIdx % 3 === 1'>
                   <checked-yellow-icon />
                 </template>
-                <template v-if='cIdx % 3 === 2'>
-                  <checked-blur-icon />
-                </template>
               </div>
               <div class="empty-circle"></div>
             </div>
-            <div class='item-name'>{{ item.title }}</div>
+            <div class='item-name'>{{ item }}</div>
           </div>
         </div>
         <div class='category-block self-category' style='background-color: #F4F4F4'>
@@ -37,7 +34,7 @@
               </div>
               <div class="empty-circle"></div>
             </div>
-            <div class='item-name'>{{ item.title }}</div>
+            <div class='item-name'>{{ item }}</div>
             <div class='self-item-delete' @click='handleDeleteSelfItem(item)'>
               <a-icon type="close" />
             </div>
@@ -74,7 +71,6 @@ import CheckedGreenIcon from '@/assets/v2/icons/checked_green.svg?inline'
 import CheckedBlurIcon from '@/assets/v2/icons/checked_blue.svg?inline'
 import CheckedYellowIcon from '@/assets/v2/icons/checked_yellow.svg?inline'
 import CommonNoData from '@/components/Common/CommonNoData'
-import { AddOrUpdateLinkCategory, DeleteLinkCategory } from '@/api/v2/mycontent'
 import storage from 'store'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 
@@ -116,12 +112,15 @@ export default {
         // eslint-disable-next-line no-undef
         const publistTag = await App.service('tags').get('pubList', { query: { set: ['Task types', 'Inquiry stages'] } })
         this.$logger.info('publistTag', publistTag)
+        this.categoryList = publistTag
         // eslint-disable-next-line no-undef
         const unitSet = await App.service('conf-user').get('UnitSet')
         this.$logger.info('unitSet', unitSet)
+        this.selfCategory = unitSet.val
         // eslint-disable-next-line no-undef
         const unitSetLast = await App.service('conf-user').get('UnitSetLast')
         this.$logger.info('unitSetLast', unitSetLast)
+        this.selectedList = unitSetLast.val
       } catch (e) {
         console.log(e)
         this.$logger.error('loadLinkCategoryData', e)
@@ -135,7 +134,7 @@ export default {
     },
     handleConfirm() {
       this.$logger.info('selectedList', this.selectedList)
-      this.$emit('confirm', this.selectedList.map(item => item.title))
+      this.$emit('confirm', this.selectedList)
     },
     handleShowNewCategory () {
       this.newCategory = null
@@ -144,20 +143,20 @@ export default {
         this.$refs.newCategory.focus()
       })
     },
-    handleAddNewSelfCategory () {
+    async handleAddNewSelfCategory () {
       this.$logger.info('handleAddNewSelfCategory', this.newCategory)
       if (this.newCategory) {
         let isDuplicated = false
         for (let i = 0; i < this.selfCategory.length; i++) {
-          if (this.selfCategory[i].title === this.newCategory) {
+          if (this.selfCategory[i] === this.newCategory) {
             isDuplicated = true
             break
           }
         }
 
         for (let i = 0; i < this.categoryList.length; i++) {
-          for (let j = 0; j < this.categoryList[i].children.length; j++) {
-            if (this.categoryList[i].children[j] === this.newCategory) {
+          for (let j = 0; j < this.categoryList[i].tags.length; j++) {
+            if (this.categoryList[i].tags[j] === this.newCategory) {
               isDuplicated = true
               break
             }
@@ -165,20 +164,10 @@ export default {
         }
 
         if (!isDuplicated) {
-          AddOrUpdateLinkCategory({
-            name: this.newCategory
-          }).then((res) => {
-            if (res.success && res.code === 0) {
-              this.selfCategory.push({
-                key: res.result.id,
-                title: res.result.name
-              })
-              this.$logger.info('add new self category success')
-              this.showNewCategory = false
-            } else {
-              this.$message.warn('add new category failed. ' + res.message)
-            }
-          })
+          // eslint-disable-next-line no-undef
+          await App.service('conf-user').patch(_id, { $addToSet: { val: this.newCategory } })
+          this.selfCategory.push(this.newCategory)
+          this.showNewCategory = false
         } else {
           this.$message.warn('Duplicated category name')
         }
@@ -188,51 +177,19 @@ export default {
 
     // category下单选,先找出对于的分组，然后把当前分组下的所有数据都删除了，再添加或删除。
     handleAddItem (item) {
-      this.$logger.info('handleAddItem', item)
-      let groupIndex = -1
-      for (let i = 0; i < this.categoryList.length; i++) {
-        if (this.categoryList[i].children.indexOf(item) !== -1) {
-          groupIndex = i
-          break
-        }
-      }
-
-      if (groupIndex !== -1) {
-        this.categoryList[groupIndex].children.forEach(gItem => {
-          if (this.selectedList.indexOf(gItem) !== -1) {
-            this.selectedList.splice(this.selectedList.indexOf(gItem), 1)
-          }
-        })
+      const index = this.selectedList.indexOf(item)
+      this.$logger.info('handleAddItem', item, index)
+      if (index === -1) {
+        this.selectedList.push(item)
       } else {
-        if (this.selfCategory.indexOf(item) !== -1) {
-          this.selfCategory.forEach(sItem => {
-            if (this.selectedList.indexOf(sItem) !== -1) {
-              this.selectedList.splice(this.selectedList.indexOf(sItem), 1)
-            }
-          })
-        }
+        this.selectedList.splice(index, 1)
       }
-
-      this.selectedList.push(item)
     },
 
-    handleDeleteSelfItem (item) {
+    async handleDeleteSelfItem (item) {
       this.$logger.info('handleDeleteSelfItem', item)
-      if (this.selfCategory.indexOf(item) !== -1) {
-        const data = new FormData()
-        data.append('id', item.key)
-        DeleteLinkCategory(data).then(res => {
-          if (res.success && res.code === 0) {
-            this.selfCategory.splice(this.selfCategory.indexOf(item), 1)
-          } else {
-            this.$message.warn('Delete category failed. ' + res.message)
-          }
-        })
-      }
-
-      if (this.selectedList.indexOf(item) !== -1) {
-        this.selectedList.splice(this.selectedList.indexOf(item), 1)
-      }
+      // eslint-disable-next-line no-undef
+      await App.service('conf-user').patch(_id, { $pull: { val: item } })
     }
   }
 }
@@ -247,10 +204,10 @@ export default {
   flex-direction: row;
   align-items: flex-start;
   justify-content: space-between;
-  height: 270px;
+  height: 350px;
 
   .category-block {
-    width: 23%;
+    width: 33%;
     margin: 0 10px;
     border-radius: 6px;
     padding: 5px 10px 5px 8px;
