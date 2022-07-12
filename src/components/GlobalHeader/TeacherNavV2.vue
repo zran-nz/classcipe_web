@@ -56,6 +56,7 @@
         </sidebar-menu-item>
       </div>
     </div>
+    <AddPreference />
   </div>
 </template>
 <script>
@@ -80,6 +81,7 @@ import AvatarDropdown from './AvatarDropdown'
 import { Modal } from 'ant-design-vue'
 import SidebarMenuItem from '@/components/GlobalHeader/Common/SidebarMenuItem'
 import SidebarMenuList from '@/components/GlobalHeader/Common/SidebarMenuList'
+import AddPreference from '@/components/Teacher/AddPreference'
 import { debounce } from 'lodash-es'
 
 export default {
@@ -97,7 +99,8 @@ export default {
     ManagingIcon,
     PublishedIcon,
     AvatarDropdown,
-    ScheduleIcon
+    ScheduleIcon,
+    AddPreference
   },
   data () {
     return {

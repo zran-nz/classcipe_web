@@ -38,6 +38,7 @@
           <a-form-model-item key="School" label="School" prop="school">
             <a-select
               v-model="teacherForm.school"
+              :getPopupContainer="trigger => trigger.parentElement"
               placeholder="Please select school"
               show-search
               :default-active-first-option="false"
@@ -96,7 +97,12 @@
           </a-form-model-item>
 
           <a-form-model-item key="Subject" label="Subject" prop="subjectIds">
-            <a-select v-model="teacherForm.subjectIds" mode="multiple" :filter-option='false' class='my-only-select'>
+            <a-select
+              :getPopupContainer="trigger => trigger.parentElement"
+              v-model="teacherForm.subjectIds"
+              mode="multiple"
+              :filter-option='false'
+              class='my-only-select'>
               <template v-for="subject in subjectOptions" >
                 <a-select-option
                   :value="subject.id"
@@ -109,7 +115,11 @@
           </a-form-model-item>
 
           <a-form-model-item key="Grade" label="Grade" prop="gradeIds">
-            <a-select v-model="teacherForm.gradeIds" placeholder="Please select grade" mode="multiple">
+            <a-select
+              :getPopupContainer="trigger => trigger.parentElement"
+              v-model="teacherForm.gradeIds"
+              placeholder="Please select grade"
+              mode="multiple">
               <a-select-option
                 :value="gradeOption.id"
                 v-for="gradeOption in gradeOptions"
@@ -136,8 +146,8 @@ import {
   getAllSubjectsByCurriculumId,
   GetGradesByCurriculumId
 } from '@/api/preference'
+import { getCountry } from '@/api/v2/country'
 import { createSchool, getSchools } from '@/api/school'
-import { GetAllCountrys } from '@/api/common'
 import * as logger from '@/utils/logger'
 import { SubjectType } from '@/const/common'
 import storage from 'store'
@@ -217,7 +227,7 @@ export default {
       this.visible = false
     },
     initOptions() {
-      GetAllCountrys({}).then(res => {
+      getCountry({}).then(res => {
         this.countries = res
       })
       getAllCurriculums().then(response => {
