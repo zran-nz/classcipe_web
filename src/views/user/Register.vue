@@ -294,6 +294,7 @@ export default {
           const signUpParams = {
             firstname: values.firstname,
             lastname: values.lastname,
+            nickname: `${values.firstname} ${values.lastname}`,
             password: values.password,
             username: values.email,
             role: this.selectedRole
