@@ -77,7 +77,6 @@ import CommonNoData from '@/components/Common/CommonNoData'
 import { AddOrUpdateLinkCategory, DeleteLinkCategory } from '@/api/v2/mycontent'
 import storage from 'store'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
-import App from '@/App'
 
 export default {
   name: 'LinkedCategory',
@@ -111,15 +110,17 @@ export default {
       try {
         // eslint-disable-next-line no-undef
         console.log('ACCESS_TOKEN', storage.get(ACCESS_TOKEN))
+        // eslint-disable-next-line no-undef
         const result = await AppLogin(storage.get(ACCESS_TOKEN))
         this.$logger.info('loadLinkCategoryData initTagData AppLogin', result)
         // eslint-disable-next-line no-undef
-        const publistTag = await window.App.service('tags').get('pubList', { query: { set: ['Task types', 'Inquiry stages'] } })
+        const publistTag = await App.service('tags').get('pubList', { query: { set: ['Task types', 'Inquiry stages'] } })
         this.$logger.info('publistTag', publistTag)
         // eslint-disable-next-line no-undef
-        const unitSet = await window.App.service('conf-user').get('UnitSet')
+        const unitSet = await App.service('conf-user').get('UnitSet')
         this.$logger.info('unitSet', unitSet)
-        const unitSetLast = await window.App.service('conf-user').get('UnitSetLast')
+        // eslint-disable-next-line no-undef
+        const unitSetLast = await App.service('conf-user').get('UnitSetLast')
         this.$logger.info('unitSetLast', unitSetLast)
       } catch (e) {
         console.log(e)

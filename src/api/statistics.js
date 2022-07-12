@@ -1,5 +1,4 @@
 import request from '@/utils/request'
-import { tagAPIUrl } from '@/api/tag'
 
 const BASE_PATH = 'statistics'
 

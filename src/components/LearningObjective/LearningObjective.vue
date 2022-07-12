@@ -440,20 +440,21 @@ export default {
               this.$set(this.cachedCurriculum, 'au', await GetAuCurriculum())
             }
             this.data = this.cachedCurriculum['au']
+            this.subjectOptions = this.data['__subject']
+            this.yearOptions = this.data['__years']
+            this.yearIndex = this.data['__year']
           } else if (id === 2) {
             if (!this.cachedCurriculum['nz']) {
               this.$set(this.cachedCurriculum, 'nz', await GetNzCurriculum())
             }
             this.data = this.cachedCurriculum['nz']
+            this.subjectOptions = this.data['__subject']
+            this.yearOptions = this.data['__years']
+            this.yearIndex = this.data['Learning outcomes']['__year']
           } else {
             this.$logger.warn('No curriculum data.')
           }
 
-          if (this.data) {
-            this.subjectOptions = this.data['__subject']
-            this.yearOptions = this.data['__years']
-            this.yearIndex = this.data['Learning outcomes']['__year']
-          }
           this.$logger.info('update data', this.data)
         } else {
           this.data = null
@@ -640,7 +641,9 @@ export default {
 
     updateFilterList () {
       if (this.data) {
-        const filterList = CurriculumSearch(this.data['Learning outcomes'], this.filterConfig.selectedSubjectList, this.filterConfig.selectedYearList, this.filterConfig.keyword)
+        console.log('updateFilterList', this.data, 'filterConfig.curriculumId', this.filterConfig.curriculumId)
+        const list = this.data['Learning outcomes'] ? this.data['Learning outcomes'] : this.data
+        const filterList = CurriculumSearch(list, this.filterConfig.selectedSubjectList, this.filterConfig.selectedYearList, this.filterConfig.keyword)
         filterList.forEach(item => {
           // 高亮命中单词
           if (item.desc && this.filterConfig.keyword.trim() && item.desc.toLowerCase().includes(this.filterConfig.keyword.trim().toLowerCase())) {

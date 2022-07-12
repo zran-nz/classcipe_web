@@ -10,7 +10,6 @@
           <template v-if='selectedTagList.length'>({{ selectedTagList.length }})</template>
         </div>
         <div class='tag-setting'>
-<!--          <a-icon type="setting" @click='handleSetting' />-->
         </div>
       </div>
       <div class='tag-content-wrapper'>

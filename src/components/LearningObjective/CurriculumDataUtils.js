@@ -26,7 +26,7 @@ export const CurriculumSearch = (list, subjects, levels, keyword) => {
   let arr = []
   for (const subject of subjects || Object.keys(list)) {
     console.log(subject)
-    if (!list[subject]) continue
+    if (!list[subject] || subject.startsWith('__')) continue
     arr = arr.concat(subSearch(list[subject], [subject]))
   }
   console.log('search:', Date.now() - _st)
