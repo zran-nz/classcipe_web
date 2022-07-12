@@ -330,6 +330,7 @@ export default {
           'parentEmailInfos[0].firstName': this.formModel.firstName,
           'parentEmailInfos[0].lastName': this.formModel.lastName,
           'parentEmailInfos[0].parentEmail': value,
+          userId: this.id,
           schoolId: this.currentSchool.id
         }).then(response => {
           if (response.code === 0 && response.result && response.result[0].exists) {
