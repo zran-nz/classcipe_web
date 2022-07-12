@@ -741,6 +741,7 @@ export default {
           this.allLearningObjectiveList = taskData.learnOuts
           this.allTags = JSON.parse(JSON.stringify(taskData.customTags))
           taskData.id = null
+          taskData.presentationId = null
           this.saving = true
           this.form = taskData
           await this.save()

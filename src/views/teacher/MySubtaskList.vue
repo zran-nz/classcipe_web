@@ -35,6 +35,7 @@
         </div>
         <div class='task-item vertical-left'>
           <content-item
+            @delete='initTask'
             :content='content'
             :show-button='true'
             :show-edit='true'

@@ -209,6 +209,7 @@ import ContentPreview from '@/components/Preview/ContentPreview'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import * as logger from '@/utils/logger'
 import { TaskAddOrUpdate } from '@/api/task'
+import { UpdateContentField } from '@/api/v2/mycontent'
 
 export default {
   name: 'ContentItem',
@@ -326,9 +327,11 @@ export default {
       this.isSelfLearning = isSelfLearning
       const item = this.content
       item.contentType = isSelfLearning ? 1 : 0
-      TaskAddOrUpdate({
+      UpdateContentField({
         id: item.id,
-        contentType: item.contentType
+        entity: 'task',
+        fieldName: 'contentType',
+        fieldValue: item.contentType
       }).then((response) => {
         this.$logger.info('response : {}', response)
       })

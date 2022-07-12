@@ -488,7 +488,7 @@
       destroyOnClose
       width='600px'>
       <modal-header title='Congratulation!' @close='showSplitTask = false' />
-      <split-task-setting :price='form.price' :is-self-learning='form.isSelfLearning' @confirm='handleUpdateBySubTaskSetting' @confirm-and-split='handleGoToSubTask' />
+      <split-task-setting :is-sub-task="form.parentTaskId" :price='form.price' :is-self-learning='form.isSelfLearning' @confirm='handleUpdateBySubTaskSetting' @confirm-and-split='handleGoToSubTask' />
     </a-modal>
   </div>
 </template>
@@ -501,7 +501,7 @@ import { TaskAddOrUpdate, TaskCreateNewTaskPPT, TaskQueryById } from '@/api/task
 import Collaborate from '@/components/UnitPlan/Collaborate'
 import CustomTagV3 from '@/components/CustomTag/CustomTagV3'
 import CollaborateUserList from '@/components/Collaborate/CollaborateUserList'
-import { TaskField } from '@/const/common'
+import { TaskField, USER_MODE } from '@/const/common'
 import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
 import CollaborateCommentPanel from '@/components/Collaborate/CollaborateCommentPanel'
 import CommentSwitch from '@/components/Collaborate/CommentSwitch'
@@ -546,7 +546,6 @@ import SplitTaskSetting from '@/components/Task/SplitTaskSetting'
 import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
 import commentIcon from '@/assets/icons/collaborate/comment.svg?inline'
 import { deepEqual } from '@/utils/util'
-import { USER_MODE } from '@/const/common'
 
 export default {
   name: 'AddTaskV2',

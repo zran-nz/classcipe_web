@@ -35,7 +35,7 @@ paid to your account upon each purchase.">
     </div>
     <div class='action-bar'>
       <a-space>
-        <a-button class='cc-round-button' type='primary' @click='handleConfirmAndSplitTask'>Create sub-task</a-button>
+        <a-button v-if="!isSubTask" class='cc-round-button' type='primary' @click='handleConfirmAndSplitTask'>Create sub-task</a-button>
         <a-button class='cc-round-button' type='primary' @click='handleConfirm'>Confirm</a-button>
       </a-space>
     </div>
@@ -55,6 +55,10 @@ export default {
     isSelfLearning: {
       type: Boolean,
       default: false
+    },
+    isSubTask: {
+      type: String,
+      default: null
     }
   },
   data() {
