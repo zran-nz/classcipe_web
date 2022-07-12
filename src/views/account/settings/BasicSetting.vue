@@ -26,7 +26,7 @@
             </div>
             <div style="width: 100%">
               <div class="user-name">
-                <h1 v-if="!editMode">{{ userInfo.nickname }}</h1>
+                <h1 v-if="!editMode">{{ userInfo.nickname ||( userInfo.firstname + ' ' + userInfo.lastname) }}</h1>
                 <div class="edit-user-name" v-if="editMode">
                   <a-input v-model="userInfo.tempNickname" size="large" :maxLength="80"/>
                 </div>
@@ -736,6 +736,8 @@ export default {
       this.userInfo.gradeNameList = []
       this.userInfo.areaNameList = []
       this.userInfo.avatar = this.userInfoStore.avatar
+      this.userInfo.firstname = this.userInfoStore.firstname
+      this.userInfo.lastname = this.userInfoStore.lastname
       this.userInfo.nickname = this.userInfoStore.nickname
       this.userInfo.tempNickname = this.userInfoStore.nickname
       this.userInfo.currentRole = this.userInfoStore.currentRole

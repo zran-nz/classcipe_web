@@ -12,6 +12,59 @@
             </div>
           </div>
 
+          <a-form :form="form" class="login-form" @submit="handleSubmit">
+            <a-form-item class="form-email">
+              <a-input
+                size="large"
+                type="text"
+                :placeholder="$t('user.login.username.placeholder')"
+                v-decorator="[
+                  'email',
+                  {
+                    rules: [
+                      {
+                        required: true,
+                        type: 'email',
+                        message: $t('user.email.required'),
+                      },
+                    ],
+                    validateTrigger: ['change', 'blur'],
+                  },
+                ]"
+              ></a-input>
+            </a-form-item>
+
+            <a-form-item class="form-password">
+              <a-input-password
+                size="large"
+                :placeholder="$t('user.login.password.placeholder')"
+                v-decorator="[
+                  'password',
+                  {
+                    rules: [{ required: true, message: $t('user.password.required') }],
+                    validateTrigger: ['change', 'blur'],
+                  },
+                ]"
+              ></a-input-password>
+
+              <div class='error-message'>
+                {{ studentLoginErrorMessage }}
+              </div>
+            </a-form-item>
+
+            <a-form-item class="form-btn">
+              <a-checkbox defaultChecked @change="handleChange">Remember me</a-checkbox>
+              <a @click="handleForget" class="forget-password">Forget password</a>
+              <a-button type="primary" block :loading="loading" size="large" html-type="submit"> Log In </a-button>
+            </a-form-item>
+          </a-form>
+
+          <div class="or">
+            <div class="line"></div>
+            <div class="text">OR</div>
+            <div class="line"></div>
+          </div>
+
           <div class="third-login-wrapper">
             <third-login-button
               icon="googleIcon"

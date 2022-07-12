@@ -37,10 +37,8 @@
       </div>
       <div class="register" v-if="currentStep === 1">
         <!-- 老师注册 -->
-        <div v-if="selectedRole === 2">
+        <!-- <div v-if="selectedRole === 2">
           <div>
-            <!-- <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
-            <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div> -->
             <div class="desc">Sign Up</div>
             <div class="desc2">Sign Up to Classcipe using your Google account</div>
             <div class="desc2">
@@ -64,9 +62,9 @@
               <span><a href="https://www.classcipe.com/policy.html" target="_blank">Privacy Policy</a></span>
             </a-checkbox>
           </div>
-        </div>
+        </div> -->
         <!-- 学生注册 -->
-        <div v-if="selectedRole === 4">
+        <div v-if="selectedRole === 4 || selectedRole === 2">
           <div>
             <!-- <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
             <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div> -->
@@ -77,24 +75,51 @@
             </div>
           </div>
           <a-form :form="form" class="register-form" @submit="handleSubmit">
-            <a-form-item class="form-name">
-              <a-input
-                size="large"
-                type="text"
-                :placeholder="$t('user.register.name.placeholder')"
-                v-decorator="[
-                  'name',
-                  {
-                    rules: [
-                      {
-                        required: true,
-                        message: $t('user.register.name.required'),
-                      },
-                    ],
-                    validateTrigger: ['change', 'blur'],
-                  },
-                ]"
-              ></a-input>
+            <a-form-item style="margin-bottom: 0;">
+              <a-row :gutter="20">
+                <a-col :span="12">
+                  <a-form-item class="form-name">
+                    <a-input
+                      size="large"
+                      type="text"
+                      placeholder="First Name"
+                      v-decorator="[
+                        'firstname',
+                        {
+                          rules: [
+                            {
+                              required: true,
+                              message: $t('user.register.name.required'),
+                            },
+                          ],
+                          validateTrigger: ['change', 'blur'],
+                        },
+                      ]"
+                    ></a-input>
+                  </a-form-item>
+                </a-col>
+                <a-col :span="12">
+                  <a-form-item class="form-name">
+                    <a-input
+                      size="large"
+                      type="text"
+                      placeholder="Last Name"
+                      v-decorator="[
+                        'lastname',
+                        {
+                          rules: [
+                            {
+                              required: true,
+                              message: $t('user.register.name.required'),
+                            },
+                          ],
+                          validateTrigger: ['change', 'blur'],
+                        },
+                      ]"
+                    ></a-input>
+                  </a-form-item>
+                </a-col>
+              </a-row>
             </a-form-item>
 
             <a-form-item class="form-email">
@@ -267,7 +292,9 @@ export default {
           this.loading = true
           console.log('signup submit', values)
           const signUpParams = {
-            nickname: values.name,
+            firstname: values.firstname,
+            lastname: values.lastname,
+            nickname: `${values.firstname} ${values.lastname}`,
             password: values.password,
             username: values.email,
             role: this.selectedRole
