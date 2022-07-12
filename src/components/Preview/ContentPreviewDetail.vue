@@ -95,11 +95,11 @@
                         <a-icon type="heart" v-if='!favoriteFlag' />
                       </div>
                       <div class='favorite-num'>
-                        {{ content.favoriteCount || 15 }}
+                        {{ stat.saved || 0 }}
                       </div>
                     </div>
                     <div class='sales'>
-                      Sales {{ content.sales || 16 }}
+                      Sales {{ stat.sold || 0 }}
                     </div>
                   </a-space>
                 </div>
