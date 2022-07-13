@@ -67,14 +67,19 @@
               </div>
             </div>
           </div>
-          <div class='subject' v-if="content" >
-            <div class='subject-item' v-for='(subject, idx) in content.subjectList' :key='idx'>
-              {{ subject }}
-            </div>
+          <div class='subject subject-info' v-if="content" >
+            <a-space>
+              <div class='subject-item' v-for='(subject, idx) in content.subjectList' :key='idx'>{{ subject }}</div>
+            </a-space>
           </div>
-          <div class='year' v-if="content">
-            <div class='year-item' v-for='(year, idx) in content.yearList' :key='idx'>
-              {{ year }}
+          <div class='year year-info' v-if="content">
+            <a-space>
+              <div class='subject-item' v-for='(year, idx) in content.yearList' :key='idx'>{{ year }}</div>
+            </a-space>
+          </div>
+          <div class='tag-info'>
+            <div class='tag-info-item' v-for='(customTag, idx) in content.customTags' :key='idx'>
+              <a-tag color='#FFEDAF' class='tag-item' :title='customTag.category'> {{ customTag.name }} </a-tag>
             </div>
           </div>
         </div>
@@ -486,6 +491,36 @@ export default {
           flex-direction: row;
           flex-wrap: nowrap;
         }
+
+        .subject-info {
+          font-size: 0.6rem;
+          font-family: Arial;
+          font-weight: 400;
+          color: #3D94FF;
+        }
+
+        .year-info {
+          font-size: 0.6rem;
+          font-family: Arial;
+          font-weight: 400;
+          color: #FFA63D;
+        }
+
+        .tag-info {
+          display: flex;
+          flex-direction: row;
+          max-height: 60px;
+          overflow: hidden;
+          align-items: center;
+          justify-content: flex-start;
+          flex-wrap: wrap;
+          margin-top: 5px;
+          margin-bottom: 5px;
+          .tag-info-item {
+            margin-right: 5px;
+            margin-bottom: 5px;
+          }
+        }
       }
     }
 
@@ -550,6 +585,35 @@ export default {
 .menu-item {
   div {
     margin: 8px 0;
+  }
+}
+
+.tag-item {
+  opacity: 0.8;
+  cursor: pointer;
+  color: #734110;
+  font-size: 12px;
+  border-radius: 30px;
+  line-height: 25px;
+  word-break: normal;
+  width: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow: hidden;
+  transition: all 0.3s ease;
+
+  /deep/ .anticon-close {
+    opacity: 0;
+    color: #f26c59;
+  }
+
+  &:hover {
+    /deep/ .anticon-close {
+      opacity: 1;
+    }
   }
 }
 

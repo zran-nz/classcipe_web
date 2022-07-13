@@ -60,7 +60,7 @@ import { SourceType } from '@/components/MyContentV2/Constant'
 import ContentFilter from '@/components/MyContentV2/ContentFilter'
 import { FindMyContent, UpdateContentStatus } from '@/api/teacher'
 import * as logger from '@/utils/logger'
-import { SESSION_CURRENT_PAGE } from '@/const/common'
+import { SESSION_CURRENT_PAGE, SESSION_CURRENT_TYPE } from '@/const/common'
 import ContentItem from '@/components/MyContentV2/ContentItem'
 import ContentPublish from '@/components/MyContentV2/ContentPublish'
 import VerificationTip from '@/components/MyContentV2/VerificationTip.vue'
@@ -108,7 +108,7 @@ export default {
       shareType: SourceType.CreatedByMe,
       loading: true,
       myContentList: [],
-      filterType: null,
+      filterType: sessionStorage.getItem(SESSION_CURRENT_TYPE) ? parseInt(sessionStorage.getItem(SESSION_CURRENT_TYPE)) : null,
       pagination: {
         onChange: page => {
           logger.info('pagination onChange', page)
