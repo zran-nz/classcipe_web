@@ -208,7 +208,6 @@ import MoreIcon from '@/assets/v2/icons/more.svg?inline'
 import ContentPreview from '@/components/Preview/ContentPreview'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import * as logger from '@/utils/logger'
-import { TaskAddOrUpdate } from '@/api/task'
 import { UpdateContentField } from '@/api/v2/mycontent'
 
 export default {

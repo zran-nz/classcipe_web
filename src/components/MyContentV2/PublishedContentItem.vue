@@ -163,7 +163,7 @@
 <script>
 
 import PreviewGrayIcon from '@/assets/v2/icons/preview_gray.svg?inline'
-import { getLabelNameType, typeMap } from '@/const/teacher'
+import { getLabelNameType, typeMap, getEntityType } from '@/const/teacher'
 import * as logger from '@/utils/logger'
 import { DeleteMyContentByType } from '@/api/teacher'
 import { ContentItemMixin } from '@/mixins/ContentItemMixin'
@@ -176,12 +176,10 @@ import ScheduleIcon from '@/assets/v2/icons/schedule.svg?inline'
 import OriginalTipsIcon from '@/assets/v2/icons/original_tips.svg?inline'
 import DeleteIcon from '@/assets/v2/icons/delete.svg?inline'
 import MoreIcon from '@/assets/v2/icons/more.svg?inline'
-import { UnitPlanAddOrUpdate } from '@/api/unitPlan'
-import { TaskAddOrUpdate } from '@/api/task'
-import { VideoAddOrUpdate } from '@/api/video'
-import { PDContentAddOrUpdate } from '@/api/pdContent'
+
 import ContentPreview from '@/components/Preview/ContentPreview'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
+import { UpdateContentField } from '@/api/v2/mycontent'
 
 export default {
   name: 'ContentItem',
@@ -287,27 +285,14 @@ export default {
 
     updatePrice () {
       const type = parseInt(this.content.type)
-      if (type === this.$classcipe.typeMap['unit-plan']) {
-        UnitPlanAddOrUpdate({
-          id: this.content.id,
-          price: this.price
-        })
-      } else if (type === this.$classcipe.typeMap.task) {
-        TaskAddOrUpdate({
-          id: this.content.id,
-          price: this.price
-        })
-      } else if (type === this.$classcipe.typeMap.video) {
-        VideoAddOrUpdate({
-          id: this.content.id,
-          price: this.price
-        })
-      } else if (type === this.$classcipe.typeMap.pd) {
-        PDContentAddOrUpdate({
-          id: this.content.id,
-          price: this.price
-        })
-      }
+      UpdateContentField({
+        id: this.content.id,
+        entity: getEntityType(type),
+        fieldName: 'price',
+        fieldValue: this.price
+      }).then((response) => {
+        this.$logger.info('response : {}', response)
+      })
       this.editPrice = false
     }
   }

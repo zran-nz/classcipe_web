@@ -488,7 +488,7 @@
       destroyOnClose
       width='600px'>
       <modal-header title='Congratulation!' @close='showSplitTask = false' />
-      <split-task-setting :is-sub-task="form.parentTaskId" :price='form.price' :is-self-learning='form.isSelfLearning' @confirm='handleUpdateBySubTaskSetting' @confirm-and-split='handleGoToSubTask' />
+      <split-task-setting :is-sub-task="form.parentTaskId" :price='form.price' :is-self-learning='form.contentType === 1' @confirm='handleUpdateBySubTaskSetting' @confirm-and-split='handleGoToSubTask' />
     </a-modal>
   </div>
 </template>
@@ -1556,7 +1556,7 @@ export default {
       this.waitingRedirect = true
       this.saving = true
       this.form.price = data.price
-      this.form.isSelfLearning = data.isSelfLearning
+      this.form.contentType = data.isSelfLearning ? 1 : 0
       this.showSplitTask = false
       this.save()
       this.waitingRedirect = false
@@ -1569,7 +1569,7 @@ export default {
       this.waitingRedirect = true
       this.saving = true
       this.form.price = data.price
-      this.form.isSelfLearning = data.isSelfLearning
+      this.form.contentType = data.isSelfLearning ? 1 : 0
       this.showSplitTask = false
       this.save()
       this.waitingRedirect = false
