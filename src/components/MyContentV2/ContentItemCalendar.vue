@@ -11,7 +11,7 @@
         <div class='base-info'>
           <div class='name-con'>
             <a-tooltip :title="data.sessionInfo.sessionName">
-              <div class='name'>{{ data.sessionInfo.sessionName }} {{ data.startTime | dayjs }} {{ data.endTime | dayjs }}</div>
+              <div class='name'>{{ data.sessionInfo.sessionName }}</div>
             </a-tooltip>
             <a-tooltip :title="data.sessionInfo.className">
               <div class="class">{{ data.sessionInfo.className }}</div>

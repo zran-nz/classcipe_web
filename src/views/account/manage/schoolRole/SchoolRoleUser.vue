@@ -11,7 +11,7 @@
           overlayClassName="search-popver"
           :getPopupContainer="trigger => trigger.parentElement"
           :overlayStyle="{
-            height: '300px',
+            maxHeight: '300px',
             overflow: 'auto'
           }"
           size="large"
@@ -349,8 +349,8 @@ export default {
         return
       }
       // 根据roleCode判断是否存在
-      const roles = user.roles.map(item => item.name)
-      const isIn = roles.includes(this.currentRole.roleCode)
+      const roles = user.roles.map(item => item.name.toLowerCase())
+      const isIn = roles.includes(this.currentRole.roleCode.toLowerCase())
       if (isIn) {
         this.$message.error('This user has been added')
       }
