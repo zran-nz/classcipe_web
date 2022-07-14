@@ -8,7 +8,7 @@
         <a-icon type="right-circle" />
       </div>
       <div class='slider-video-cover' v-for='(videoItem,idx) in videoList' :key='idx'>
-        <video controls :src='videoItem.url' v-if='!isYoutubeIframeUrl(videoItem.url)' />
+        <video controls :src='videoItem.url' v-if='!isYoutubeIframeUrl(videoItem.url)' ref='video' />
         <iframe :src='videoItem.url' class='video-iframe' v-if='isYoutubeIframeUrl(videoItem.url)' />
       </div>
       <div class='slider-img-cover' :style="{backgroundImage: 'url(' + pageObject.contentUrl + ')' }" v-for='(pageObject,idx) in pageObjectList' :key='idx'>
@@ -58,7 +58,9 @@ export default {
   },
   methods: {
     onChangePage (page) {
+      this.$logger.info('page', page, this.$refs.video)
       this.currentImgIndex = page
+      this.$refs.video.forEach(item => item.pause())
     }
   }
 }
