@@ -118,7 +118,7 @@
                 <case-video
                   :field='PdField.VideoList'
                   :video-list='form.videoList'
-                  @add-video='handleAddVideoList'
+                  @update='handleAddVideo'
                   @delete-video='handleDeleteVideo' />
               </div>
             </div>
@@ -150,7 +150,7 @@
               Next
             </template>
             <template v-else>
-              Skip
+              Complete
             </template>
           </a-button>
 
@@ -579,15 +579,16 @@ export default {
       }
     },
 
-    handleAddVideoList (videoList) {
-      this.$logger.info('handleAddVideoList', videoList)
-      this.form.videoList = this.form.videoList.concat(...videoList)
+    handleAddVideo (videoItem) {
+      this.$logger.info('handleAddVideo', videoItem)
+      this.form.videoList.push(videoItem)
       this.$logger.info('videoList', this.form.videoList)
     },
 
     handleDeleteVideo(videoItem) {
       this.$logger.info('pd handleDeleteVideo', videoItem)
       const index = this.form.videoList.findIndex(item => item.filePath === videoItem.filePath)
+      this.$logger.info('pd handleDeleteVideo index =', index, this.form.videoList)
       if (index > -1) {
         this.form.videoList.splice(index, 1)
       }
