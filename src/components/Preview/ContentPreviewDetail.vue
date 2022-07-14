@@ -362,10 +362,10 @@
       @ok='handleEnsureBuyStat'
       @cancel='handleCancelBuyStat'
       width="500px">
-      <modal-header @close='handleCancelBuyStat' title='Which grade(s) did you use this resource with?' />
+      <modal-header @close='handleCancelBuyStat' title='Which age(s) will you use this resource with?' />
       <div class='grade-list'>
         <div class='content-tag-list'>
-          <div class='content-tag' @click='toggleSelectContentTag(grade)' :class="{'selected-tag': selectedGradeList.indexOf(grade) !== -1}" v-for='grade in allYears' :key='grade'>
+          <div class='content-tag' @click='toggleSelectContentTag(grade)' :class="{'selected-tag': selectedGradeList.indexOf(grade) !== -1}" v-for='grade in allAges' :key='grade'>
             {{ grade }}
           </div>
         </div>
@@ -489,9 +489,13 @@ export default {
       userMode: state => state.app.userMode,
       currentRole: state => state.user.currentRole
     }),
-    ...mapGetters({
-      allYears: 'allYears'
-    }),
+    allAges() {
+      const list = []
+      for (let i = 3; i < 19; i++) {
+        list.push(i + ' years')
+      }
+      return list
+    },
     lastChangeSavedTime () {
       if (this.content) {
         logger.info('lastChangeSavedTime data', this.content)
