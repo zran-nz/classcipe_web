@@ -550,6 +550,11 @@ export default {
 
     handleRemoveSubject (subject) {
       this.filterConfig.selectedSubjectList.splice(this.filterConfig.selectedSubjectList.indexOf(subject), 1)
+      if (this.filterConfig.selectedSubjectList.indexOf('Languages') !== -1) {
+        this.selectedSubject = 'Languages'
+      } else {
+        this.selectedSubject = this.filterConfig.selectedSubjectList.length ? this.filterConfig.selectedSubjectList[0] : ''
+      }
     },
 
     handleRemoveYear (year) {
