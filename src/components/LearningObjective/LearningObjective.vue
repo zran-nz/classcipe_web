@@ -65,7 +65,7 @@
               </div>
             </div>
           </div>
-          <div class='select-item' v-show='selectedSubject && selectedSubject.toLowerCase().trim() === "language"'>
+          <div class='select-item' v-show='selectedSubject && selectedSubject.toLowerCase().trim() === "languages"'>
             <a-select
               :getPopupContainer="trigger => trigger.parentElement"
               v-model='selectedLanguage'
