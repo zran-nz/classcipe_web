@@ -202,14 +202,14 @@ export default {
           {
             avatar: PersonaPng,
             title: 'Personal info',
-            desc: 'Review payments, payouts, coupons,gift cards and taxes',
+            desc: 'Edit your name, address, schools and personal intro',
             hidden: this.userMode === USER_MODE.SCHOOL,
             url: '/manage/persona-info'
           },
           {
             avatar: SecurityPng,
             title: 'Login & security',
-            desc: 'Review payments, payouts, coupons,gift cards and taxes',
+            desc: 'Link accounts, reset password',
             hidden: this.userMode === USER_MODE.SCHOOL,
             url: '/manage/persona/security'
           },
@@ -291,7 +291,7 @@ export default {
             {
               avatar: TagsPng,
               title: 'Tags setting',
-              hidden: this.userMode === USER_MODE.SELF,
+              // hidden: this.userMode === USER_MODE.SELF,
               desc: 'Customize tag categories and tags',
               url: ''
             },
@@ -312,13 +312,13 @@ export default {
               avatar: CurriculumPng,
               title: 'Curriculum',
               desc: 'Set curriculum(s), subjects, years',
-              hidden: this.userMode === USER_MODE.SELF,
+              // hidden: this.userMode === USER_MODE.SELF,
               url: '/manage/curriculum'
             },
             {
               avatar: CertifiedPng,
-              title: 'Application for certification/service',
-              desc: '',
+              title: 'Teacher & Service verification',
+              desc: 'To become verified teacher and apply to provide service to students',
               hidden: this.userMode === USER_MODE.SCHOOL,
               url: '/manage/verification'
             }

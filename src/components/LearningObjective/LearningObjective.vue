@@ -121,7 +121,7 @@
     </div>
     <div class='full-body-content'>
       <div class='cc-lo-list'>
-        <div v-for='(item, idx) in selectedList' :key='idx' class='cc-lo-item'>
+        <div v-for='(item) in selectedList' :key='item.id' class='cc-lo-item'>
           <div class='cc-left-lo'>
             <div class="item-desc-wrapper">
               <div class='item-desc' v-selectPopover="['modal', domFn, item, true]">
@@ -721,6 +721,7 @@ export default {
     },
 
     domFn(key, currentChoose) {
+      console.log(currentChoose)
       this.currentObjective = { ...currentChoose }
       console.log(this.currentObjective)
       this.quickWord = key ? key.split(' ')[0] : ''

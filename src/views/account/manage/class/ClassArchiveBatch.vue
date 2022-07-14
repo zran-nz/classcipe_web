@@ -76,7 +76,7 @@ export default {
           schoolId: this.currentSchool.id
         })
       ]).then(([clsRes, subjectRes]) => {
-        if (clsRes.success) {
+        if (clsRes.success && clsRes.result) {
           this.allClass = clsRes.result.records
         }
         if (subjectRes.success) {
