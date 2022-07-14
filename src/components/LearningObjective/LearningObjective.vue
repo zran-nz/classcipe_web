@@ -317,8 +317,9 @@ import RecommendData from '@/components/LearningObjective/RecommendData'
 import RateLevel from '@/components/RateLevel'
 import CommandTermAdd from '@/components/CommandTerm/CommandTermAdd.vue'
 import QuickWordButton from '@/components/Button/QuickWordButton'
-import { DICT_BLOOM_TAXONOMY, DICT_KNOWLEDGE_DIMENSION } from '@/const/common'
+import { DICT_BLOOM_TAXONOMY, DICT_KNOWLEDGE_DIMENSION, USER_MODE } from '@/const/common'
 import { GetAuCurriculum, GetNzCurriculum } from '@/api/v2/curriculumn'
+import { mapState } from 'vuex'
 
 export default {
   name: 'LearningObjective',
@@ -473,6 +474,9 @@ export default {
     }
   },
   computed: {
+    ...mapState({
+      userMode: state => state.app.userMode
+    }),
     selectedCurriculumName () {
       return this.curriculumOptions.find(item => item.id === this.filterConfig.curriculumId)?.name
     },
@@ -521,9 +525,13 @@ export default {
     initData() {
       getAllCurriculums().then((response) => {
         this.$logger.info('getAllCurriculums', response)
-        this.curriculumOptions = response.result
+        let list = response.result
+        if (this.userMode === USER_MODE.SCHOOL) {
+          list = this.$store.getters.bindCurriculum ? list.filter(item => item.id === this.$store.getters.bindCurriculum) : []
+        }
+        this.curriculumOptions = list
         this.filterConfig.curriculumId = this.curriculumOptions[0].id
-        this.$logger.info('getAllCurriculums', this.curriculumOptions)
+        this.$logger.info('getAllCurriculums', this.curriculumOptions, list)
       }).finally(() => {
         this.loading = false
       })
