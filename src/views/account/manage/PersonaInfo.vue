@@ -148,13 +148,13 @@ export default {
       USER_MODE: USER_MODE,
       SCHOOL_USER_STATUS: SCHOOL_USER_STATUS,
       genderOptions: [{
-        label: '男',
+        label: 'Male',
         value: '0'
       }, {
-        label: '女',
+        label: 'Female',
         value: '1'
       }, {
-        label: '未设置',
+        label: 'Others',
         value: '-1'
       }],
       country: [],

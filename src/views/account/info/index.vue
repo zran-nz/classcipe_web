@@ -12,7 +12,7 @@
         </div>
         <div class="info-header-detail">
           <div class="header-detail-title">
-            {{ currentSchool.schoolName || info.nickname }}
+            {{ currentSchool.schoolName || (info.firstname + ' ' + info.lastname) }}
           </div>
           <div class="header-detail-email" v-if="userMode === USER_MODE.SELF">
             <label>
@@ -22,7 +22,7 @@
                 <div slot="title">
                   <label for=""> The inactive account will be automatically removed after 30 days upon registration. Click to resend an email with activating link</label>
                   <div style="text-align:right;">
-                    <a-button type="primary" size="small">Gesend</a-button>
+                    <a-button type="primary" size="small">Resend</a-button>
                   </div>
                 </div>
                 <a-icon style="color: #FF7916" type="exclamation-circle" />
