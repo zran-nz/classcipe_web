@@ -33,72 +33,7 @@
           />
         </div>
       </div>
-      <div class="filter-item">
-        <div class="filter-label">Unit Type</div>
-        <div class="filter-option-list" >
-          <a-radio class='filter-option-list-item' v-for="(item,index) in unitTypeLabel" :checked="filter.unitType === item.value" @click="clickRadioGroup('unitType',item.value)" :key="index">
-            {{ item.label }}
-          </a-radio>
-        </div>
-      </div>
-      <div class="filter-item">
-        <div class="filter-label">Project-based Unit</div>
-        <div class="filter-option-list" >
-          <a-radio v-for="(item,index) in projectBasedLabel" :checked="filter.projectBased === item.value" @click="clickRadioGroup('projectBased',item.value)" :key="index">
-            {{ item.label }}
-          </a-radio>
-        </div>
-      </div>
     </div>
-    <div class="filter-item task-type">
-      <div class="filter-label">Task Type</div>
-      <div class="filter-toggle-list">
-        <a-radio :checked="filter.faSaActivityType === 1" @click="clickRadioGroup('faSaActivityType',1)" name="activityType" >
-          FA
-        </a-radio>
-        <a-radio :checked="filter.faSaActivityType === 2" @click="clickRadioGroup('faSaActivityType',2)" name="activityType" >
-          SA
-        </a-radio>
-        <a-radio :checked="filter.faSaActivityType === 3" @click="clickRadioGroup('faSaActivityType',3)" name="activityType" >
-          Activity
-        </a-radio>
-      </div>
-
-      <div class="sub-item">
-        <div class="filter-item" v-if="filter.faSaActivityType === 1" v-for="(parent,index) in filterFaOptions" :key="index">
-          <div class="filter-label">{{ parent.name }}</div>
-          <div :class="{'filter-option-list-width-20': index !== filterFaOptions.length - 1, 'filter-option-list-width-30': index === filterFaOptions.length - 1}">
-            <a-checkbox-group
-              @change="updateFilterConfig"
-              v-model="faTags[index]"
-              :options="getGroupOptions(parent)"
-            />
-          </div>
-        </div>
-        <div class="filter-item" v-if="filter.faSaActivityType === 2" v-for="(parent,index) in filterSaOptions" :key="index">
-          <div class="filter-label">{{ parent.name }}</div>
-          <div :class="{'filter-option-list-width-20': index !== filterSaOptions.length - 1, 'filter-option-list-width-30': index === filterSaOptions.length - 1}">
-            <a-checkbox-group
-              @change="updateFilterConfig"
-              v-model="saTags[index]"
-              :options="getGroupOptions(parent)"
-            />
-          </div>
-        </div>
-        <div class="filter-item" v-if="filter.faSaActivityType === 3" v-for="(parent,index) in filterActivityOptions" :key="index">
-          <div class="filter-label">{{ parent.name }}</div>
-          <div class="filter-option-list-width-20">
-            <a-checkbox-group
-              @change="updateFilterConfig"
-              v-model="activityTags[index]"
-              :options="getGroupOptions(parent)"
-            />
-          </div>
-        </div>
-      </div>
-
-    </div>
-
   </div>
 </template>
 

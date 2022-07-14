@@ -1,7 +1,12 @@
 <template>
   <div class='custom-cover-media' :style="{ width: width, height: height }">
     <div class='upload-text'>
-      <video :src='url' :controls='videoControls'></video>
+      <template v-if='!isYoutubeIframeUrl'>
+        <video :src='url' :controls='videoControls'></video>
+      </template>
+      <template v-if='isYoutubeIframeUrl'>
+        <iframe :src='url' class='video-iframe'/>
+      </template>
       <div class='media-info'>
         <div class='media-title'>
           {{ title }}
@@ -62,6 +67,11 @@ export default {
     videoItem: {
       type: Object,
       default: null
+    }
+  },
+  computed: {
+    isYoutubeIframeUrl() {
+      return this.url && this.url.indexOf('youtube.com/embed') !== -1
     }
   },
   methods: {
@@ -200,5 +210,11 @@ export default {
       overflow: hidden;
     }
   }
+}
+
+.video-iframe {
+  border: none;
+  overflow: hidden;
+  width: 100%;
 }
 </style>
