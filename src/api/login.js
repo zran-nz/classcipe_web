@@ -13,7 +13,7 @@ const userApi = {
   CheckPassword: '/classcipe/sys/checkPassword',
   ChangePassword: '/classcipe/sys/changePassword',
   SendVerifyLink: '/classcipe/sys/sendVerifyLink',
-
+  UpdatePersonalInfo: '/classcipe/sys/updatePersonalInfo',
   twoStepCode: '/auth/2step-code',
   SendSms: '/account/sms',
   SendSmsErr: '/account/sms_err',
@@ -158,5 +158,13 @@ export function SendVerifyLink (email) {
   return request({
     url: userApi.SendVerifyLink + '?email=' + email,
     method: 'get'
+  })
+}
+
+export function UpdatePersonalInfo (parameter) {
+  return request({
+    url: userApi.UpdatePersonalInfo,
+    method: 'post',
+    data: parameter
   })
 }

@@ -133,6 +133,7 @@ import countryCode from '@/api/countryCode'
 import { editUser } from '@/api/user'
 
 import { mapState } from 'vuex'
+import { UpdatePersonalInfo, updatePersonalInfo } from '@/api/login'
 const { debounce } = require('lodash-es')
 
 export default {
@@ -288,7 +289,7 @@ export default {
       this.$refs.form.validate(valid => {
         if (valid) {
           this.loading = true
-          editUser({
+          UpdatePersonalInfo({
             ...this.formModel
           }).then(res => {
             if (res.success) {
