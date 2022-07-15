@@ -581,7 +581,13 @@ export default {
 
     handleAddVideo (videoItem) {
       this.$logger.info('handleAddVideo', videoItem)
-      this.form.videoList.push(videoItem)
+      if (videoItem.classcipeRecordFiles && videoItem.classcipeRecordFiles.length > 0) {
+        videoItem.classcipeRecordFiles.forEach(v => {
+          this.form.videoList.push(v)
+        })
+      } else {
+        this.form.videoList.push(videoItem)
+      }
       this.$logger.info('videoList', this.form.videoList)
     },
 
