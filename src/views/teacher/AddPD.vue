@@ -592,8 +592,8 @@ export default {
     },
 
     handleDeleteVideo(videoItem) {
-      this.$logger.info('pd handleDeleteVideo', videoItem)
-      const index = this.form.videoList.findIndex(item => item.filePath === videoItem.filePath)
+      this.$logger.info('pd handleDeleteVideo', videoItem.data)
+      const index = this.form.videoList.findIndex(item => item.filePath === videoItem.data.filePath)
       this.$logger.info('pd handleDeleteVideo index =', index, this.form.videoList)
       if (index > -1) {
         this.form.videoList.splice(index, 1)
