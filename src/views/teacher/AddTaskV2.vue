@@ -1551,14 +1551,14 @@ export default {
       this.form.languageList = data.selectedLanguageList
     },
 
-    handleUpdateBySubTaskSetting (data) {
+    async handleUpdateBySubTaskSetting (data) {
       this.$logger.info('handleUpdateBySubTaskSetting', data)
       this.waitingRedirect = true
       this.saving = true
       this.form.price = data.price
       this.form.contentType = data.isSelfLearning ? 1 : 0
       this.showSplitTask = false
-      this.save()
+      await this.save()
       this.waitingRedirect = false
       this.$router.replace({
         path: '/'
