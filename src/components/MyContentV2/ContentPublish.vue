@@ -56,10 +56,8 @@
 </template>
 
 <script>
-import { UnitPlanAddOrUpdate } from '@/api/unitPlan'
-import { TaskAddOrUpdate } from '@/api/task'
-import { VideoAddOrUpdate } from '@/api/video'
-import { PDContentAddOrUpdate } from '@/api/pdContent'
+import { UpdateContentField } from '@/api/v2/mycontent'
+import { getEntityType } from '@/const/teacher'
 
 export default {
   name: 'ContentPublish',
@@ -102,15 +100,14 @@ export default {
 
       const contentType = this.content.type
       const price = this.enablePrice ? this.content.price : 0
-      if (contentType === this.$classcipe.typeMap['unit-plan']) {
-        await UnitPlanAddOrUpdate({ id: this.content.id, price })
-      } else if (contentType === this.$classcipe.typeMap.task) {
-        await TaskAddOrUpdate({ id: this.content.id, price })
-      } else if (contentType === this.$classcipe.typeMap.video) {
-        await VideoAddOrUpdate({ id: this.content.id, price })
-      } else if (contentType === this.$classcipe.typeMap.pd) {
-        await PDContentAddOrUpdate({ id: this.content.id, price })
-      }
+      await UpdateContentField({
+        id: this.content.id,
+        entity: getEntityType(contentType),
+        fieldName: 'price',
+        fieldValue: price
+      }).then((response) => {
+        this.$logger.info('response : {}', response)
+      })
     }
   }
 }
