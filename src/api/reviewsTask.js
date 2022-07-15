@@ -6,7 +6,8 @@ export const reviewsTaskAPIUrl = {
   getMyReviewsSession: '/classcipe/api/reviewsTask/session/getMyReviews',
   getReviewsStat: '/classcipe/api/reviewsTask/library/getReviewsStat',
   list: '/classcipe/api/reviewsTask/list',
-  save: '/classcipe/api/reviewsTask/save'
+  save: '/classcipe/api/reviewsTask/save',
+  getReviewsStatByContentId: '/classcipe/api/reviewsTask/getReviewsStatByContentId'
 }
 
 export function ReviewsTaskSave (parameter) {
@@ -70,6 +71,14 @@ export function ReviewsTaskDelete (parameter) {
 export function ReviewsTaskMyReviewBySession (parameter) {
   return request({
     url: reviewsTaskAPIUrl.getMyReviewsSession,
+    method: 'get',
+    params: parameter
+  })
+}
+
+export function getReviewsStatByContentId (parameter) {
+  return request({
+    url: reviewsTaskAPIUrl.getReviewsStatByContentId,
     method: 'get',
     params: parameter
   })
