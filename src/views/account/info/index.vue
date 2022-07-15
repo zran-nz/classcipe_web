@@ -18,11 +18,11 @@
             <label>
               {{ info.email }}
               <!-- <a-icon style="color: #52DB9C" type="check-circle" /> -->
-              <a-tooltip>
+              <a-tooltip v-if="info.emailVerify === 0">
                 <div slot="title">
                   <label for=""> The inactive account will be automatically removed after 30 days upon registration. Click to resend an email with activating link</label>
                   <div style="text-align:right;">
-                    <a-button type="primary" size="small">Resend</a-button>
+                    <a-button type="primary" :loading="sendLoading" @click="sendVerifyLink" size="small">Resend</a-button>
                   </div>
                 </div>
                 <a-icon style="color: #FF7916" type="exclamation-circle" />
@@ -148,6 +148,7 @@ import CertifiedPng from '@/assets/icons/account/certified.png?inline'
 import PersonaPng from '@/assets/icons/account/persona.png?inline'
 
 import { mapState } from 'vuex'
+import { SendVerifyLink } from '@/api/login'
 
 export default {
   name: 'AccountInfo',
@@ -172,7 +173,8 @@ export default {
       confirmLoading: false,
       classCount: 0,
       teacherCount: 0,
-      studentCount: 0
+      studentCount: 0,
+      sendLoading: false
     }
   },
   computed: {
@@ -480,6 +482,16 @@ export default {
         if (res.success) {
           this.$message.success('Edit Successfully')
           this.$store.dispatch('GetInfo')
+        }
+      })
+    },
+    sendVerifyLink() {
+      this.$logger.info('sendVerifyLink')
+      this.sendLoading = true
+      SendVerifyLink(this.info.email).then(res => {
+        if (res.success) {
+          this.$message.success('Send Successfully')
+          this.sendLoading = false
         }
       })
     }

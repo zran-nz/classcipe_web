@@ -6,7 +6,7 @@
           :getPopupContainer="trigger => trigger.parentElement"
           placeholder='Curriculum'
           v-model='sourceType'
-          @change='handleSearch'
+          @change='handleTypeFilter'
           class='cc-select cc-lo-select-mid'>
           <a-select-option value='MyContent' >
             My content
@@ -17,7 +17,7 @@
         </a-select>
       </div>
       <div class='content-filter'>
-        <content-filter @search='handleSearch'/>
+        <content-filter @search='handleSearch' ref='filter'/>
       </div>
     </div>
     <div class='display-content-list'>
@@ -108,6 +108,9 @@ export default {
     this.handleSearch({})
   },
   methods: {
+    handleTypeFilter () {
+      this.$refs.filter.triggerSearch()
+    },
     handleSearch (data) {
       this.$logger.info('handleSearch data', data)
       this.searching = true
@@ -158,6 +161,7 @@ export default {
       })
     },
     loadLibrary (data) {
+      this.$logger.info('loadLibrary', data)
       data.type = this.filterTypes
       QueryContentsFilter(data).then(response => {
         if (response.result) {
