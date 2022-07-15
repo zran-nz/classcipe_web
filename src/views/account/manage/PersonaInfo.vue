@@ -188,7 +188,7 @@ import countryCode from '@/api/countryCode'
 import { editUser } from '@/api/user'
 
 import { mapState } from 'vuex'
-import { UpdatePersonalInfo, updatePersonalInfo } from '@/api/login'
+import { UpdatePersonalInfo } from '@/api/login'
 const { debounce } = require('lodash-es')
 
 export default {
