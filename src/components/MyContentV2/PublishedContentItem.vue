@@ -93,7 +93,7 @@
               </div>
             </div>
             <div class='sale-info vertical-left'>
-              <div class='sales'>Sales: {{content.sales || 0}}</div>
+              <div class='sales'>Sales: {{ content.sales || 0 }}</div>
             </div>
           </a-space>
         </div>
