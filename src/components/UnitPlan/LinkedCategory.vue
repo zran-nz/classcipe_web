@@ -11,6 +11,9 @@
       <a-skeleton :loading='loading' />
       <template v-if='!loading'>
         <div class='category-block' v-for='(category, cIdx) in categoryList' :key='category.set' :style="{'background-color': color[cIdx]}">
+          <div class='category-name'>
+            {{ category.set }}
+          </div>
           <div class='category-item' :class="{'selected-item': selectedList.indexOf(item) !== -1}" v-for='item in category.tags' :key='item' @click='handleAddItem(item)'>
             <div class='selected-icon'>
               <div class='checked-icon'>
@@ -282,7 +285,7 @@ export default {
 
       &:hover {
         .self-item-delete {
-          display: flex;
+          visibility: visible;
           align-items: center;
           justify-content: center;
         }
@@ -327,7 +330,7 @@ export default {
     .self-item-delete {
       font-size: 12px;
       padding-left: 4px;
-      display: none;
+      visibility: hidden;
     }
 
     .slef-category-btn {
@@ -348,6 +351,15 @@ export default {
 .no-self-category {
   width: 100%;
   text-align: center;
+}
+
+.category-name {
+  display: flex;
+  font-weight: bold;
+  justify-content: center;
+  align-items: center;
+  line-height: 30px;
+  width: 100%;
 }
 
 </style>

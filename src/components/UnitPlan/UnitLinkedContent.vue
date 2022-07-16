@@ -24,7 +24,7 @@
           class='linked-category'
           v-for='(groupItem, gIdx) in groups'
           :key='groupItem.groupName'>
-          <div class='category-name' :style="{'background-color': color[gIdx]}">
+          <div class='category-name' :style="{'background-color': '#DEF1EE'}">
             {{ groupItem.groupName || 'Untitled' }}
             <div class='category-delete' v-if="canEdit">
               <a-popconfirm title="Delete category ?" ok-text="Yes" @confirm="handleDeleteGroup(groupItem)" cancel-text="No">
