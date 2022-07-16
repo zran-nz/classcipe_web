@@ -337,11 +337,13 @@ export default {
       this.creating = true
       try {
         const res = await AddSessionV2(this.scheduleReq)
-        this.$logger.info('save scheduleReq', res)
+        this.$logger.info('save scheduleReq', res, 'retValue', retValue)
         if (res.result && res.success && res.code === 0) {
           this.$message.success('Schedule session successfully')
-          if (!retValue) {
-            this.$router.replace('/teacher/main/created-by-me')
+          if (res.result.length && res.result[0].taskClassId) {
+            this.$router.replace({
+              path: `/teacher/class-session/${res.result[0].taskClassId}`
+            })
           } else {
             return res.result
           }

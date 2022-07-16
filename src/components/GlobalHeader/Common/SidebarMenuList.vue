@@ -61,6 +61,13 @@ export default {
       expand: false
     }
   },
+  watch: {
+    '$route.path' (toPath) {
+      if (toPath.startsWith('/teacher/class-session')) {
+        this.expand = true
+      }
+    }
+  },
   created() {
   },
   methods: {
