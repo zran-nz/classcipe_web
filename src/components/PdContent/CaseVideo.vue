@@ -43,7 +43,8 @@ export default {
       currentMediaFileUrl: null,
       currentDriveType: null,
       currentFileLength: null,
-      currentFileName: null
+      currentFileName: null,
+      classcipeRecordFiles: []
     }
   },
   created() {
@@ -70,9 +71,10 @@ export default {
     handleSelectDrive (eventData) {
       this.$logger.info('case video handleSelectDriveItem', eventData)
       if (eventData?.field === this.field) {
-        this.currentMediaFileUrl = eventData.data.filePath
-        this.currentFileName = eventData.data.fileName
-        this.currentFileLength = eventData.data.fileLength
+        this.classcipeRecordFiles = eventData.data
+        // this.currentMediaFileUrl = eventData.data.filePath
+        // this.currentFileName = eventData.data.fileName
+        // this.currentFileLength = eventData.data.fileLength
         this.$refs.drive.hiddenClasscipeDrive()
         this.afterSelectInsert()
       }
@@ -117,6 +119,7 @@ export default {
       this.$emit('update', {
         filePath: this.currentMediaFileUrl,
         fileName: this.currentFileName,
+        classcipeRecordFiles: this.classcipeRecordFiles,
         type: 'video'
       })
     },

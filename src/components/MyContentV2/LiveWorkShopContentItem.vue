@@ -317,8 +317,8 @@ export default {
     editName(item) {
       this.showEditName = true
       this.choose = { ...item }
-      this.choose.sessionStartTime = moment(item.sessionStartTime).utc().format('YYYY-MM-DD HH:mm:ss')
-      this.choose.deadline = moment(item.sessionEndTime || item.sessionStartTime).utc().format('YYYY-MM-DD HH:mm:ss')
+      this.choose.sessionStartTime = item.sessionStartTime
+      this.choose.deadline = item.sessionEndTime || item.sessionStartTime
       if (!this.choose.title) {
         this.choose.title = item.content.name
       }
@@ -326,15 +326,15 @@ export default {
     editSche(item) {
       this.showEditSche = true
       this.choose = { ...item }
-      this.choose.sessionStartTime = moment(item.sessionStartTime).utc().format('YYYY-MM-DD HH:mm:ss')
-      this.choose.deadline = moment(item.sessionEndTime || item.sessionStartTime).utc().format('YYYY-MM-DD HH:mm:ss')
+      this.choose.sessionStartTime = item.sessionStartTime
+      this.choose.deadline = item.sessionEndTime || item.sessionStartTime
       console.log(this.choose)
     },
     editPrice(item) {
       this.showEditPrice = true
       this.choose = { ...item }
-      this.choose.sessionStartTime = moment(item.sessionStartTime).utc().format('YYYY-MM-DD HH:mm:ss')
-      this.choose.deadline = moment(item.sessionEndTime || item.sessionStartTime).utc().format('YYYY-MM-DD HH:mm:ss')
+      this.choose.sessionStartTime = item.sessionStartTime
+      this.choose.deadline = item.sessionEndTime || item.sessionStartTime
     },
     visibleChange(visible, content) {
       if (visible && content.name) {

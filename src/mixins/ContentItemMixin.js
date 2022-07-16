@@ -48,22 +48,18 @@ export const ContentItemMixin = {
         try {
           this.updateEditSlideLoading = true
           const contentType = parseInt(this.content.type)
-          if (contentType === this.$classcipe.typeMap['unit-plan']) {
-            // await UnitPlanAddOrUpdate({ id: this.content.id, slideEditing: false })
-            await TemplatesGetPresentation({
-              taskId: this.content.id,
-              needRefresh: true
-            })
-          } else if (contentType === this.$classcipe.typeMap.task) {
+          // 只有task 和 pd需要save changes
+          if (contentType === this.$classcipe.typeMap.task) {
             // await TaskAddOrUpdate({ id: this.content.id, slideEditing: false })
             await TemplatesGetPresentation({
               taskId: this.content.id,
               needRefresh: true
             })
-          } else if (contentType === this.$classcipe.typeMap.video) {
-            await VideoAddOrUpdate({ id: this.content.id, slideEditing: false })
           } else if (contentType === this.$classcipe.typeMap.pd) {
-            await PDContentAddOrUpdate({ id: this.content.id, slideEditing: false })
+            await TemplatesGetPresentation({
+              taskId: this.content.id,
+              needRefresh: true
+            })
           }
           this.content.slideEditing = false
         } catch (e) {
