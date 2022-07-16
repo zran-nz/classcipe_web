@@ -488,7 +488,7 @@
       destroyOnClose
       width='700px'>
       <modal-header title='Congratulation!' @close='showSplitTask = false' />
-      <split-task-setting :is-sub-task="form.parentTaskId" :price='form.price' :is-self-learning='form.contentType === 1' @confirm='handleUpdateBySubTaskSetting' @confirm-and-split='handleGoToSubTask' />
+      <split-task-setting :is-sub-task="form.parentTaskId" :price='form.price' :discount='form.discount' :is-self-learning='form.contentType === 1' @confirm='handleUpdateBySubTaskSetting' @confirm-and-split='handleGoToSubTask' />
     </a-modal>
   </div>
 </template>

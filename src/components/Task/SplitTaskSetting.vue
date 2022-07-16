@@ -38,7 +38,7 @@
           </a-col>
           <a-col span='12'>
             <a-space>
-              <a-input v-model='discount' type='number' class='cc-form-input dollar-price-input' :disabled='!enablePrice' />
+              <a-input v-model='myDiscount' type='number' class='cc-form-input dollar-price-input' :disabled='!enablePrice' />
             </a-space>
           </a-col>
         </a-row>
@@ -106,6 +106,10 @@ export default {
       type: Number,
       default: 0
     },
+    discount: {
+      type: Number,
+      default: 0
+    },
     isSelfLearning: {
       type: Boolean,
       default: false
@@ -122,7 +126,7 @@ export default {
       mySelfLearning: this.isSelfLearning,
       enablePrice: this.price !== 0,
       myPrice: this.price,
-      discount: this.discount,
+      myDiscount: this.discount,
       dontRemind: false,
       initDate: null,
       startDate: null,
@@ -143,7 +147,7 @@ export default {
         isSelfLearning: this.mySelfLearning,
         isCreateSubTask: this.isCreateSubTask,
         dontRemind: this.dontRemind,
-        discount: parseFloat(this.discount),
+        discount: parseFloat(this.myDiscount),
         isPublish: this.isPublish,
         startDate: this.startDate,
         endData: this.endData,
