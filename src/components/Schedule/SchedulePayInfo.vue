@@ -75,7 +75,8 @@
         <div class='pay-switch'>
           <a-date-picker
             :getCalendarContainer='trigger => trigger.parentElement'
-            :disabled-date="disabledDate"
+            ref="registerBefore"
+            :disabled-date="disabledRegister"
             :show-time="{ format: 'HH:mm' }"
             @change="handleSelectDate" />
         </div>
@@ -178,7 +179,7 @@ export default {
       searchFilters: this.calendarSearchFilters,
       paidSession: false,
       price: 100,
-      endData: null,
+      endDate: null,
       startDate: null,
       maxParticipants: 0,
       registerBefore: null,
@@ -203,11 +204,14 @@ export default {
     handleDateChange (date, dateString) {
       this.$logger.info('handleDateChange', date, dateString)
       this.startDate = moment(date[0].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
-      this.endData = moment(date[1].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
-      this.$logger.info('handleDateChange', this.startDate, this.endData)
+      this.endDate = moment(date[1].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
+      this.$logger.info('handleDateChange', this.startDate, this.endDate)
+      if (this.registerBefore && moment(this.startDate).isBefore(moment(this.registerBefore))) {
+        this.$refs.registerBefore.$el.querySelector('input').click()
+      }
       this.$emit('select-date', {
         startDate: this.startDate,
-        endDate: this.endData
+        endDate: this.endDate
       })
     },
 
@@ -218,11 +222,13 @@ export default {
 
     handleSelectSchedule(date) {
       this.startDate = moment(date.startDate).utc().format('YYYY-MM-DD HH:mm:ss')
-      this.endData = moment(date.endDate).utc().format('YYYY-MM-DD HH:mm:ss')
-      console.log(date)
+      this.endDate = moment(date.endDate).utc().format('YYYY-MM-DD HH:mm:ss')
+      if (this.registerBefore && moment(this.startDate).isBefore(moment(this.registerBefore))) {
+        this.$refs.registerBefore.$el.querySelector('input').click()
+      }
       this.$emit('select-date', {
         startDate: this.startDate,
-        endDate: this.endData
+        endDate: this.endDate
       })
     },
 
@@ -233,7 +239,7 @@ export default {
         price: this.price,
         registerBefore: this.registerBefore,
         startDate: this.startDate,
-        endDate: this.endData
+        endDate: this.endDate
       }
     },
     handleAddDiscount () {
@@ -256,6 +262,13 @@ export default {
 
     disabledDate(current) {
       return current && current < moment().subtract(1, 'days').endOf('day')
+    },
+
+    disabledRegister(current) {
+      // 在开课时间之前
+      return current &&
+        current < moment().subtract(1, 'days').endOf('day') ||
+        (current && this.startDate && current > moment(this.startDate).add(1, 'days').startOf('day'))
     },
 
     deleteDiscount (discount) {

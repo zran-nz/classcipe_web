@@ -77,7 +77,7 @@
         </div>
       </a-spin>
       <a-skeleton :loading="loading" active v-show="!myReviews || reviewsList.length > 0" >
-        <a-list item-layout="vertical" :pagination="pagination" :data-source="reviewsList">
+        <a-list v-if="reviewsList.length > 0" item-layout="vertical" :pagination="pagination" :data-source="reviewsList">
           <a-list-item
             slot="renderItem"
             key="item.id"
@@ -122,6 +122,7 @@
             </div>
           </a-list-item>
         </a-list>
+        <a-empty v-else description="No reviews yet"></a-empty>
       </a-skeleton>
     </div>
 

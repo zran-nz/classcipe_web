@@ -106,7 +106,7 @@
       <div class='action'>
         <template>
           <a-space :size='10'>
-            <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement'>
+            <!-- <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement'>
               <div class='more-action'>
                 <more-icon />
               </div>
@@ -121,7 +121,15 @@
                   </a-popconfirm>
                 </div>
               </div>
-            </a-dropdown>
+            </a-dropdown> -->
+
+            <a-popconfirm title="确定删除吗?" @confirm="handleDeleteItem">
+              <custom-button label='Delete'>
+                <template v-slot:icon>
+                  <delete-icon />
+                </template>
+              </custom-button>
+            </a-popconfirm>
 
             <custom-button
               label='Evalute'
@@ -131,11 +139,11 @@
               </template>
             </custom-button>
 
-            <custom-button label='Edit' @click='editItem'>
+            <!-- <custom-button label='Edit' @click='editItem'>
               <template v-slot:icon>
                 <edit-icon />
               </template>
-            </custom-button>
+            </custom-button> -->
 
             <custom-button label='Preview' @click='handlePreview'>
               <template v-slot:icon>
@@ -150,16 +158,6 @@
         </template>
       </div>
     </div>
-    <!-- <preview-content
-      :preview-current-id='previewCurrentId'
-      :preview-type='previewType'
-      v-if='previewVisible'
-      @close='handlePreviewClose' /> -->
-    <content-preview
-      :content-id='previewCurrentId'
-      :content-type='previewType'
-      v-if='previewVisible'
-      @close='handlePreviewClose' />
   </div>
 </template>
 
@@ -168,9 +166,6 @@ import cloneDeep from 'lodash.clonedeep'
 import { typeMap } from '@/const/teacher'
 import { BG_COLORS } from '@/const/common'
 
-import { ContentItemMixin } from '@/mixins/ContentItemMixin'
-import ContentPreview from '@/components/Preview/ContentPreview'
-import PreviewContent from '@/components/MyContentV2/PreviewContent'
 import CustomButton from '@/components/Common/CustomButton'
 import EditIcon from '@/assets/v2/icons/edit.svg?inline'
 import PublishIcon from '@/assets/v2/icons/publish_new.svg?inline'
@@ -185,8 +180,6 @@ import moment from 'moment'
 export default {
   name: 'ContentItemCalendar',
   components: {
-    ContentPreview,
-    PreviewContent,
     CustomButton,
     EditIcon,
     PublishIcon,
@@ -196,7 +189,6 @@ export default {
     MoreIcon,
     TagsLine
   },
-  mixins: [ContentItemMixin],
   props: {
     content: {
       type: Object,
@@ -369,8 +361,8 @@ export default {
       this.$emit('save-response-limit', params)
     },
     handlePreview() {
-      this.$emit('close')
-      this.handlePreviewDetail({ id: this.data.sessionInfo.contentId, type: typeMap.task })
+      this.$emit('close', { id: this.data.sessionInfo.contentId, type: typeMap.task })
+      // this.handlePreviewDetail({ id: this.data.sessionInfo.contentId, type: typeMap.task })
     },
     handleChangeReview(checked) {}
   }

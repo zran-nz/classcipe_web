@@ -66,9 +66,9 @@
           </div>
         </div>
         <a-divider class='cc-small-divider' />
-        <div class='profile profile-menu-item' @click='handleToSettings'>
+        <!-- <div class='profile profile-menu-item' @click='handleToSettings'>
           Profile
-        </div>
+        </div> -->
         <div class='account profile-menu-item' @click='handleToAccounts'>
           <template v-if='userMode === USER_MODE.SCHOOL'>
             School account

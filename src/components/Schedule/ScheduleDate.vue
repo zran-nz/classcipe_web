@@ -146,7 +146,7 @@ export default {
 
       selectedSessionType: null,
       startDate: null,
-      endData: null,
+      endDate: null,
       initDate: null
     }
   },
@@ -175,21 +175,21 @@ export default {
     handleDateChange (date, dateString) {
       this.$logger.info('handleDateChange', date, dateString)
       this.startDate = moment(date[0].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
-      this.endData = moment(date[1].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
-      this.$logger.info('handleDateChange', this.startDate, this.endData)
+      this.endDate = moment(date[1].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
+      this.$logger.info('handleDateChange', this.startDate, this.endDate)
       this.$emit('select-date', {
         startDate: this.startDate,
-        endDate: this.endData
+        endDate: this.endDate
       })
     },
 
     handleSelectSchedule(date) {
       this.startDate = moment(date.startDate).utc().format('YYYY-MM-DD HH:mm:ss')
-      this.endData = moment(date.endDate).utc().format('YYYY-MM-DD HH:mm:ss')
-      this.$logger.info('handleDateChange', this.startDate, this.endData)
+      this.endDate = moment(date.endDate).utc().format('YYYY-MM-DD HH:mm:ss')
+      this.$logger.info('handleDateChange', this.startDate, this.endDate)
       this.$emit('select-date', {
         startDate: this.startDate,
-        endDate: this.endData
+        endDate: this.endDate
       })
     },
 

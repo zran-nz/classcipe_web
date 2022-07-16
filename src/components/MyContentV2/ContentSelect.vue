@@ -10,9 +10,9 @@
             <a-radio-button value="FindMyContent">
               My content
             </a-radio-button>
-            <a-radio-button value="QueryContentsFilter">
+            <!-- <a-radio-button value="QueryContentsFilter">
               Library
-            </a-radio-button>
+            </a-radio-button> -->
           </a-radio-group>
           <div class="filter-search">
             <a-input-search
@@ -43,7 +43,7 @@
                           </div>
                           <div class='tag-info'></div>
                           <div class='owner'>
-                            {{ content.createBy }}
+                            {{ content.owner ? (content.owner.firstname + ' ' + content.owner.lastname) : content.createBy }}
                           </div>
                         </div>
                         <!-- <div class='right-info'>
