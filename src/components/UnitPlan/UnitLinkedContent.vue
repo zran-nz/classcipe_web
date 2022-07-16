@@ -22,7 +22,7 @@
         group="category">
         <div
           class='linked-category'
-          v-for='(groupItem, gIdx) in groups'
+          v-for='(groupItem) in groups'
           :key='groupItem.groupName'>
           <div class='category-name' :style="{'background-color': '#DEF1EE'}">
             {{ groupItem.groupName || 'Untitled' }}

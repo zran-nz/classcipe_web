@@ -160,7 +160,7 @@ export default {
 
     cancelInputCategory() {
       this.$logger.info('cancelInputCategory')
-      this.showNewCategory = false;
+      this.showNewCategory = false
       this.newCategory = ''
     },
     async handleAddNewSelfCategory () {
@@ -211,7 +211,7 @@ export default {
       this.$logger.info('handleDeleteSelfItem', item)
       // eslint-disable-next-line no-undef
       await App.service('conf-user').patch(this.unitSetId, { $pull: { val: item } })
-      this.selfCategory.splice(this.selfCategory.indexOf(item), 1);
+      this.selfCategory.splice(this.selfCategory.indexOf(item), 1)
     }
   }
 }

@@ -1,21 +1,5 @@
 <template>
   <div class='format-form'>
-    <div class='form-warning' v-if='showWarning'>
-      <a-alert type="warning" banner closable @close='hiddenFormWarning'>
-        <span slot='message'>
-          This section is set by system and the data logic is applied to all curriculum and schools.
-          Please do not change the data logic while you adjust the name and hint.
-          Example: The "Unit name" can be adjusted to "Unit title" or
-          "Name your Unit", but not "Unit purpose or Unit goal
-        </span>
-      </a-alert>
-      <br />
-      <a-alert type="warning" banner closable @close='hiddenFormWarning'>
-        <span slot='message'>
-          You can not disable this Step because the section(s) under are required by the system and can not be disabled. You might need to move those compulsory sections to another enabled step if you want to hide this one.
-        </span>
-      </a-alert>
-    </div>
     <div class='step-item' v-for='(step, sIdx) in steps' :key='step.key'>
       <div class='format-form-header'>
         <div class='format-form-title'>
@@ -61,7 +45,7 @@
 
           <div class='step-visible-toggle'>
             <div class='field-visible'>Enable</div>
-            <a-switch size="small" v-model='step.visible' />
+            <a-switch size="small" v-model='step.visible' @change='showStepChangeTips'/>
           </div>
         </div>
       </div>
@@ -94,7 +78,7 @@
               <div class='field-config'>
                 <div class='field-config-left'>
                   <div class='field-display-name field-line-item'>
-                    <a-input v-model='fieldItem.showName' placeholder='Please enter the display name' class='show-name-input' />
+                    <a-input v-model='fieldItem.showName' placeholder='Please enter the display name' class='show-name-input' @change='showSectionChangeTips' />
                   </div>
                   <div class='field-display-hint-label'>
                     hint
@@ -309,7 +293,8 @@ export default {
 
       steps: [],
 
-      showWarning: false
+      showSectionWarning: true,
+      showStepWarning: true
     }
   },
   computed: {
@@ -375,19 +360,35 @@ export default {
     this.myCustomList = myCustomList
     this.steps = steps
     this.$logger.info('FormatForm created', this.myCommonList, this.myCustomList, this.steps)
-    this.checkIsShowFormatWarning()
+    this.checkIsShowFormatSectionWarning()
+    this.checkIsShowFormatStepWarning()
   },
   methods: {
-    hiddenFormWarning () {
-      storage.set(`hidden-format-warning-${this.$store.getters.userInfo.id}`, 'true')
+    hiddenFormSectionWarning () {
+      storage.set(`hidden-format-section-warning-${this.$store.getters.userInfo.id}`, 'true')
+      this.showSectionWarning = false
     },
-    checkIsShowFormatWarning() {
-      const showWaningKey = `hidden-format-warning-${this.$store.getters.userInfo.id}`
+    checkIsShowFormatSectionWarning() {
+      const showWaningKey = `hidden-format-section-warning-${this.$store.getters.userInfo.id}`
       if (storage.get(showWaningKey) === 'true') {
-        this.showWarning = false
+        this.showSectionWarning = false
       } else {
-        this.showWarning = true
+        this.showSectionWarning = true
       }
+      this.$logger.info(`checkIsShowFormatSectionWarning ${this.showSectionWarning}`)
+    },
+    hiddenFormStepWarning () {
+      storage.set(`hidden-format-step-warning-${this.$store.getters.userInfo.id}`, 'true')
+      this.showStepWarning = false
+    },
+    checkIsShowFormatStepWarning() {
+      const showWaningKey = `hidden-format-step-warning-${this.$store.getters.userInfo.id}`
+      if (storage.get(showWaningKey) === 'true') {
+        this.showStepWarning = false
+      } else {
+        this.showStepWarning = true
+      }
+      this.$logger.info(`checkIsShowFormatStepWarning ${this.showStepWarning}`)
     },
     handleAddStep() {
       this.$logger.info('handleAddStep')
@@ -452,6 +453,41 @@ export default {
         this.currentFieldTags = fieldItem.tags.slice()
       }
       this.setTagVisible = true
+    },
+
+    showSectionChangeTips () {
+      this.$logger.info('showSectionChangeTips')
+      if (this.showSectionWarning) {
+        this.$confirm({
+          title: 'Warning',
+          content: ` This section is set by system and the data logic is applied to all curriculum and schools.
+          Please do not change the data logic while you adjust the name and hint.
+          Example: The "Unit name" can be adjusted to "Unit title" or
+          "Name your Unit", but not "Unit purpose or Unit goal`,
+          centered: true,
+          okText: 'Ok',
+          cancelText: 'cancel',
+          onOk: () => {
+            this.hiddenFormSectionWarning()
+          }
+        })
+      }
+    },
+
+    showStepChangeTips () {
+      this.$logger.info('showStepChangeTips')
+      if (this.showStepWarning) {
+        this.$confirm({
+          title: 'Warning',
+          content: ` You can not disable this Step because the section(s) under are required by the system and can not be disabled. You might need to move those compulsory sections to another enabled step if you want to hide this one.`,
+          centered: true,
+          okText: 'Ok',
+          cancelText: 'cancel',
+          onOk: () => {
+            this.hiddenFormStepWarning()
+          }
+        })
+      }
     },
 
     handleCloseSetTags () {
