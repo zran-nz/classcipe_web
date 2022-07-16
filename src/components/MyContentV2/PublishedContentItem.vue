@@ -75,20 +75,25 @@
         </div>
         <div class='right-info' @click.stop=''>
           <a-space>
-            <div class='price'>
-              <template v-if='!editPrice'>${{ price }}</template>
-              <template v-if='editPrice'>
-                <a-input
-                  v-model='price'
-                  type='number'
-                  prefix='$'
-                  class='cc-form-input cc-small-input'
-                  @keyup.native.enter='updatePrice'/>
-              </template>
+            <div class='price-info vertical-left'>
+              <div class='price'>
+                <template v-if='!editPrice'>${{ price }}</template>
+                <template v-if='editPrice'>
+                  <a-input
+                    v-model='price'
+                    type='number'
+                    prefix='$'
+                    class='cc-form-input cc-small-input'
+                    @keyup.native.enter='updatePrice'/>
+                </template>
+              </div>
+              <div class='edit'>
+                <a-icon type="edit" v-if='!editPrice' @click.native='editPrice = true'/>
+                <a-icon type="check" v-if='editPrice' @click.native='updatePrice'/>
+              </div>
             </div>
-            <div class='edit'>
-              <a-icon type="edit" v-if='!editPrice' @click.native='editPrice = true'/>
-              <a-icon type="check" v-if='editPrice' @click.native='updatePrice'/>
+            <div class='sale-info vertical-left'>
+              <div class='sales'>Sales: {{content.sales || 0}}</div>
             </div>
           </a-space>
         </div>
@@ -118,21 +123,6 @@
             <custom-button label='Preview' @click='handlePreviewDetail(content)'>
               <template v-slot:icon>
                 <preview-gray-icon />
-              </template>
-            </custom-button>
-
-            <custom-button
-              label='Schedule'
-              v-if='content.type === typeMap.task || content.type === typeMap.pd'
-              @click='handleSchedule'>
-              <template v-slot:icon>
-                <schedule-icon />
-              </template>
-            </custom-button>
-
-            <custom-button label='Edit' @click='editItem'>
-              <template v-slot:icon>
-                <edit-icon />
               </template>
             </custom-button>
 
@@ -538,18 +528,29 @@ export default {
 .right-info {
   display: flex;
   padding-right: 20px;
-  .price {
-    cursor: pointer;
-    color: #e4393c;
-    font-size: 30px;
-    font-weight: 400;
-    font-family: Verdana;
+
+  .price-info {
+    padding-right: 10px;
+    .price {
+      cursor: pointer;
+      color: #e4393c;
+      font-size: 30px;
+      font-weight: 400;
+      font-family: Verdana;
+    }
+
+    .edit {
+      padding-left: 5px;
+      visibility: visible;
+      font-size: 14px;
+      cursor: pointer;
+    }
   }
 
-  .edit {
-    visibility: visible;
+  .sale-info {
+    width: 60px;
     font-size: 14px;
-    cursor: pointer;
+    margin-left: 20px;
   }
 }
 

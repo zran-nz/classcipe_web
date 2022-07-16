@@ -6,21 +6,14 @@
     :maskClosable='false'
     destroyOnClose
     width='600px'>
-    <modal-header @close='handleClose' title='Discount'/>
+    <modal-header @close='handleClose' title='Set sale-off'/>
     <div class='discount-setting'>
       <div class='setting-item'>
         <div class='setting-label'>
           Mode
         </div>
         <div class='setting-content'>
-          <a-radio-group v-model="discountSetting.mode">
-            <a-radio :value="mode.SalesOff">
-              Sale off
-            </a-radio>
-            <a-radio :value="mode.Discount">
-              Discount
-            </a-radio>
-          </a-radio-group>
+          Sale off
         </div>
       </div>
 
