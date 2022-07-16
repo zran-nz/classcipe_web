@@ -10,14 +10,15 @@
           :autoCrop="options.autoCrop"
           :autoCropWidth="options.autoCropWidth"
           :autoCropHeight="options.autoCropHeight"
+          :fixedNumber='[16, 9]'
+          :fixed='true'
           :fixedBox="options.fixedBox"
           @realTime="realTime"
         >
         </vue-cropper>
       </a-col>
       <a-col :xs="24" :md="12" :style="{height: '350px'}">
-        <div class="avatar-upload-preview">
-          <img :src="previews.url" :style="previews.img" crossorigin='anonymous'/>
+        <div class="avatar-upload-preview" v-html='previews.html'>
         </div>
       </a-col>
     </a-row>
@@ -79,7 +80,7 @@ export default {
         autoCrop: true,
         autoCropWidth: 320,
         autoCropHeight: 180,
-        fixedBox: true
+        fixedBox: false
       },
       previews: {}
     }
@@ -168,6 +169,7 @@ export default {
     },
 
     realTime (data) {
+      console.log('previews', data)
       this.previews = data
     }
   }
@@ -186,7 +188,6 @@ export default {
   transform: translate(13%, -50%);
   width: 320px;
   height: 180px;
-  box-shadow: 0 0 4px #ccc;
   overflow: hidden;
 
   img {
