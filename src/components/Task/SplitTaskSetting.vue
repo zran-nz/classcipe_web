@@ -1,41 +1,93 @@
 <template>
   <div class='split-task-setting'>
-    <div class='setting-tips'>
-      This task is only 2 steps from showing to global educators. <br/>
-      Is this task suitable for student self-learning?
+    <div class='publish-container'>
+      <a-row :gutter='20' type="flex" align='middle'>
+        <a-col span='10' class='label-name'>
+          Would you like to publish it?
+        </a-col>
+        <a-col span='12'>
+          <a-space>
+            <a-button class='cc-round-button' :class="{'cc-dark-button': isPublish }" @click='isPublish = true' style='width: 80px'>Yes</a-button>
+            <a-button class='cc-round-button' :class="{'cc-dark-button': !isPublish }" @click='isPublish = false' style='width: 80px'>No</a-button>
+          </a-space>
+        </a-col>
+      </a-row>
+      <template v-if='isPublish'>
+        <a-row :gutter='20' type="flex" align='middle'>
+          <a-col span='10' class='label-name'>
+            <a-space>
+              Price
+              <a-switch size='small' v-model='enablePrice'></a-switch>
+            </a-space>
+          </a-col>
+          <a-col span='12'>
+            <a-space>
+              <a-input
+                v-model='myPrice'
+                type='number'
+                class='cc-form-input dollar-price-input'
+                :disabled='!enablePrice'
+                prefix='$'
+                v-show='enablePrice'/>
+            </a-space>
+          </a-col>
+        </a-row>
+        <a-row :gutter='20' v-show='enablePrice'>
+          <a-col span='10' class='label-name'>
+            Discount
+          </a-col>
+          <a-col span='12'>
+            <a-space>
+              <a-input v-model='discount' type='number' class='cc-form-input dollar-price-input' :disabled='!enablePrice' />
+            </a-space>
+          </a-col>
+        </a-row>
+        <a-row :gutter='20' v-show='enablePrice'>
+          <a-col span='10' class='label-name'>
+            Duration setting
+          </a-col>
+          <a-col span='12'>
+            <a-range-picker :default-value="initDate" :disabled-date="disabledDate" @change="handleDateChange" format='YYYY-MM-DD HH:mm:ss' :show-time="{ format: 'HH:mm' }"/>
+          </a-col>
+        </a-row>
+        <a-row :gutter='20' type="flex" align='middle'>
+          <a-col span='10' class='label-name'>
+            Is this task suitable for self-learning?
+          </a-col>
+          <a-col span='12'>
+            <a-space>
+              <a-tooltip
+                title="After you set it as student self-learning friendly, this task will appear on students' page for purchase. After 5 students have successfully completed the task and given positive review, Classcipe will make it as premium task then you may set a price for it which will be charged from students and paid to your account upon each purchase.">
+                <a-button class='cc-round-button' :class="{'cc-dark-button': mySelfLearning }" @click='mySelfLearning = true' style='width: 80px'>
+                  <a-badge count='?' :offset='[25, -8]'>
+                    Yes
+                  </a-badge>
+                </a-button>
+              </a-tooltip>
+              <a-button class='cc-round-button' :class="{'cc-dark-button': !mySelfLearning }" @click='mySelfLearning = false' style='width: 80px'>No</a-button>
+            </a-space>
+          </a-col>
+        </a-row>
+      </template>
     </div>
-    <div class='is-self-learn config-item'>
-      <a-space :size='20'>
-        <a-tooltip
-          title="After you set it as student self-learning
-friendly, this task will appear on students'
-page for purchase. After 5 students have
-successfully completed the task and given
-positive review, Classcipe will make it as
-premium task then you may set a price for
-it which will be charged from students and
-paid to your account upon each purchase.">
-          <a-button class='cc-round-button' :class="{'cc-dark-button': mySelfLearning }" @click='mySelfLearning = true' style='width: 80px'>
-            <a-badge count='?' :offset='[25, -8]'>
-              Yes
-            </a-badge>
-          </a-button>
-        </a-tooltip>
-        <a-button class='cc-round-button' :class="{'cc-dark-button': !mySelfLearning }" @click='mySelfLearning = false' style='width: 80px'>No</a-button>
-      </a-space>
+    <div class='sub-task-container'>
+      <a-row :gutter='20' type="flex" align='middle'>
+        <a-col span='10' class='label-name'>
+          Would like to create sub-tasks?
+        </a-col>
+        <a-col span='12'>
+          <a-space>
+            <a-button class='cc-round-button' :class="{'cc-dark-button': isCreateSubTask }" @click='isCreateSubTask = true' style='width: 80px'>Yes</a-button>
+            <a-button class='cc-round-button' :class="{'cc-dark-button': !isCreateSubTask }" @click='isCreateSubTask = false' style='width: 80px'>No</a-button>
+          </a-space>
+        </a-col>
+      </a-row>
     </div>
-    <div class='price-set config-item'>
-      <a-space>
-        <a-switch size='small' v-model='enablePrice'></a-switch>
-        <div class='price-input'>
-          <div class='price-label'>Price</div>
-          <a-input v-model='myPrice' type='number' class='cc-form-input dollar-price-input' :disabled='!enablePrice' prefix='$' />
-        </div>
-      </a-space>
+    <div class='dont-remind'>
+      <a-checkbox :checked='dontRemind' @change='changeRemind'>Do not remind me again when I edit this task</a-checkbox>
     </div>
     <div class='action-bar'>
       <a-space>
-        <a-button v-if="!isSubTask" class='cc-round-button' type='primary' @click='handleConfirmAndSplitTask'>Create sub-task</a-button>
         <a-button class='cc-round-button' type='primary' @click='handleConfirm'>Confirm</a-button>
       </a-space>
     </div>
@@ -44,6 +96,8 @@ paid to your account upon each purchase.">
 
 <script>
 import CustomRadioButtonGroup from '@/components/Common/CustomRadioButtonGroup'
+import moment from 'moment'
+
 export default {
   name: 'SplitTaskSetting',
   components: { CustomRadioButtonGroup },
@@ -63,9 +117,16 @@ export default {
   },
   data() {
     return {
+      isPublish: false,
+      isCreateSubTask: false,
       mySelfLearning: this.isSelfLearning,
       enablePrice: this.price !== 0,
-      myPrice: this.price
+      myPrice: this.price,
+      discount: this.discount,
+      dontRemind: false,
+      initDate: null,
+      startDate: null,
+      endData: null
     }
   },
   methods: {
@@ -80,8 +141,26 @@ export default {
       this.$logger.info('handleConfirm')
       this.$emit('confirm', {
         isSelfLearning: this.mySelfLearning,
+        isCreateSubTask: this.isCreateSubTask,
+        dontRemind: this.dontRemind,
+        discount: parseFloat(this.discount),
+        isPublish: this.isPublish,
+        startDate: this.startDate,
+        endData: this.endData,
         price: this.enablePrice ? +this.myPrice : 0
       })
+    },
+    handleDateChange (date, dateString) {
+      this.$logger.info('handleDateChange', date, dateString)
+      this.startDate = moment(date[0].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
+      this.endData = moment(date[1].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
+      this.$logger.info('handleDateChange', this.startDate, this.endData)
+    },
+    disabledDate(current) {
+      return current && current < moment().subtract(1, 'days').endOf('day')
+    },
+    changeRemind() {
+      this.dontRemind = !this.dontRemind
     }
   }
 }
@@ -89,15 +168,6 @@ export default {
 
 <style lang='less' scoped>
 @import "~@/components/index.less";
-
-.setting-tips {
-  text-align: center;
-  line-height: 35px;
-  font-size: 14px;
-  font-family: Arial;
-  font-weight: 400;
-  color: #121417;
-}
 
 .config-item {
   margin: 20px auto 25px;
@@ -118,12 +188,33 @@ export default {
 }
 
 .action-bar {
-  margin: 25px auto 10px auto;
-  text-align: center;
+  margin: 10px auto;
+  text-align: right;
+}
+
+.dont-remind {
+  margin-top: 10px;
 }
 
 .dollar-price-input {
   width: 100px;
 }
 
+.publish-container {
+  padding: 10px 15px;
+  background: #fab00511;
+  margin-bottom: 20px;
+  > div {
+    margin: 10px 0;
+  }
+}
+
+.sub-task-container {
+  background: #12b88611;
+  padding: 10px 15px;
+}
+
+.label-name {
+  color: #333;
+}
 </style>
