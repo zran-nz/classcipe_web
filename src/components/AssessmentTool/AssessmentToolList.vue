@@ -3,7 +3,7 @@
     <div class='filter-bar vertical-right'>
       <a-space>
         <a-select
-          placeholder='Rubric type'
+          placeholder='Type'
           :getPopupContainer="trigger => trigger.parentElement"
           v-model='filter.rubricType'
           class='cc-select'>
@@ -19,7 +19,7 @@
         </a-select>
         <a-select
           mode="multiple"
-          placeholder='Rubric type'
+          placeholder='Subject'
           :getPopupContainer="trigger => trigger.parentElement"
           v-model='filter.subjectIds'
           class='cc-select'>
