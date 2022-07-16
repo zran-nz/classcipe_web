@@ -106,7 +106,7 @@
       <div class='action'>
         <template>
           <a-space :size='10'>
-            <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement'>
+            <!-- <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement'>
               <div class='more-action'>
                 <more-icon />
               </div>
@@ -121,7 +121,15 @@
                   </a-popconfirm>
                 </div>
               </div>
-            </a-dropdown>
+            </a-dropdown> -->
+
+            <a-popconfirm title="确定删除吗?" @confirm="handleDeleteItem">
+              <custom-button label='Delete'>
+                <template v-slot:icon>
+                  <delete-icon />
+                </template>
+              </custom-button>
+            </a-popconfirm>
 
             <custom-button
               label='Evalute'
@@ -131,11 +139,11 @@
               </template>
             </custom-button>
 
-            <custom-button label='Edit' @click='editItem'>
+            <!-- <custom-button label='Edit' @click='editItem'>
               <template v-slot:icon>
                 <edit-icon />
               </template>
-            </custom-button>
+            </custom-button> -->
 
             <custom-button label='Preview' @click='handlePreview'>
               <template v-slot:icon>
@@ -158,6 +166,7 @@
     <content-preview
       :content-id='previewCurrentId'
       :content-type='previewType'
+      :showEditButton="false"
       v-if='previewVisible'
       @close='handlePreviewClose' />
   </div>

@@ -68,6 +68,10 @@ export default {
     initView: {
       type: String,
       default: 'timeGridWeek'
+    },
+    selectAllow: {
+      type: Function,
+      default: () => true
     }
 
   },
@@ -111,7 +115,8 @@ export default {
           minute: '2-digit',
           meridiem: 'short'
         },
-        viewDidMount: this.handleViewDidMount
+        viewDidMount: this.handleViewDidMount,
+        selectAllow: this.selectAllow
       }
     }
   },

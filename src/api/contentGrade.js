@@ -3,7 +3,8 @@ import request from '@/utils/request'
 const API_PREFIX = 'api/contentGrade'
 
 export const ContentGrade = {
-  save: `/classcipe/${API_PREFIX}/save`
+  save: `/classcipe/${API_PREFIX}/save`,
+  getStatByContentId: `/classcipe/${API_PREFIX}/getStatByContentId`
 }
 
 /**
@@ -19,5 +20,18 @@ export function ContentGradeSave (parameter) {
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function getStatByContentId (parameter) {
+  return request({
+    url: ContentGrade.getStatByContentId,
+    method: 'get',
+    params: parameter
   })
 }

@@ -1,8 +1,13 @@
 <template>
+  <div v-if="info.event.display === 'background'">
+    <template v-if="info.event.extendedProps.termId">
+      {{ info.event.start | dayjs(FORMATTER_SIM) }}-{{ info.event.end | dayjs(FORMATTER_SIM) }}
+    </template>
+  </div>
   <a-popover
     title="Session Detail"
     trigger="click"
-    v-if="info.event.extendedProps.eventType !== 'selectDate'"
+    v-else-if="info.event.extendedProps.eventType !== 'selectDate'"
     :destroyTooltipOnHide="true"
     :getPopupContainer="trigger => getPopupContainer(trigger, info)"
     @visibleChange="visible => showPopover(visible, info)"
@@ -47,7 +52,6 @@
     title="Set Date"
     trigger="click"
     :destroyTooltipOnHide="true"
-    :getPopupContainer="trigger => getPopupContainer(trigger, info)"
     @visibleChange="visible => showDateSelectPopover(visible, info.event)"
   >
     <a slot="content">
@@ -198,18 +202,24 @@ export default {
       this.$emit('changeDateSelect', this.dateSelect)
     },
     disabledHoursStart() {
+      const days = moment(this.info.event.end).isSame(moment(this.info.event.start), 'day')
+      if (!days) return []
       const hours = moment(this.dateSelect.end).hours()
       return Array.from({
         length: 23 - hours
       }, (v, i) => 23 - i)
     },
     disabledHoursEnd() {
+      const days = moment(this.info.event.end).isSame(moment(this.info.event.start), 'day')
+      if (!days) return []
       const hours = moment(this.dateSelect.start).hours()
       return Array.from({
         length: hours
       }, (v, i) => i)
     },
     disabledMinutesStart(selectedHour) {
+      const days = moment(this.info.event.end).isSame(moment(this.info.event.start), 'day')
+      if (!days) return []
       const startHours = moment(this.dateSelect.start).hours()
       const endHours = moment(this.dateSelect.end).hours()
       const minutes = moment(this.dateSelect.end).minutes()
@@ -222,6 +232,8 @@ export default {
       return res
     },
     disabledMinutesEnd(selectedHour) {
+      const days = moment(this.info.event.end).isSame(moment(this.info.event.start), 'day')
+      if (!days) return []
       const startHours = moment(this.dateSelect.start).hours()
       const endHours = moment(this.dateSelect.end).hours()
       const minutes = moment(this.dateSelect.start).minutes()

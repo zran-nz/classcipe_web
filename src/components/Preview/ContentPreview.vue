@@ -16,11 +16,11 @@
 
 <script>
 
-import ContentPreviewDetail from '@/components/Preview/ContentPreviewDetail'
-
 export default {
   name: 'ContentPreview',
-  components: { ContentPreviewDetail },
+  components: {
+    ContentPreviewDetail: () => import('@/components/Preview/ContentPreviewDetail')
+   },
   data() {
     return {
     }

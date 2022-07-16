@@ -81,12 +81,7 @@
                 {{ content.createBy }}
               </div>
               <div class='rate-star'>
-                <a-tooltip placement="right">
-                  <template slot="title">
-                    10 people gave a score of 5 stars
-                  </template>
-                  <a-rate :default-value="5" disabled class='cc-rate'/>
-                </a-tooltip>
+                <review-stat :contentId="contentId" @goReviews="goReviews" />
                 <div class='star-info'>
                   <a-space :size='15'>
                     <div class='start-it' @click='handleFavorite'>
@@ -315,7 +310,7 @@
     </div>
     <div class='preview-extra-data'>
     </div>
-    <div class='preview-review'>
+    <div class='preview-review' id="reviews">
       <a-row class="reviews-info">
         <a-col class="slide-reviews" span="24" v-if="currentRole === 'student'">
           <rate-by-percent :rates="reviewsStats"/>
@@ -383,7 +378,7 @@ import { TaskQueryById } from '@/api/task'
 import { VideoQueryById } from '@/api/video'
 import { TemplatesGetPublishedPresentation } from '@/api/template'
 import { Duplicate, GetAssociate } from '@/api/teacher'
-import { mapGetters, mapState } from 'vuex'
+import { mapState } from 'vuex'
 import * as logger from '@/utils/logger'
 import { formatLocalUTC } from '@/utils/util'
 import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
@@ -395,6 +390,7 @@ import ShareIcon from '@/assets/v2/icons/header_share.svg?inline'
 import RateByPercent from '@/components/RateByPercent'
 import ReviewsPreview from '@/components/Reviews/ReviewsPreview'
 import ReviewScore from '@/components/Reviews/ReviewScore'
+import ReviewStat from '@/components/Reviews/ReviewStat'
 import { RATE_TOOLTIPS } from '@/const/common'
 import * as ReviewsTask from '@/api/reviewsTask'
 import * as ReviewsTeacher from '@/api/reviewsTeacher'
@@ -408,7 +404,7 @@ import ModalHeader from '@/components/Common/ModalHeader'
 
 export default {
   name: 'ContentPreviewDetail',
-  components: { ModalHeader, ContentPreview, CustomLinkText, ShareButton, CardListItem, PreviewCarousel, ShareIcon, RateByPercent, ReviewsPreview, ReviewScore },
+  components: { ModalHeader, ContentPreview, CustomLinkText, ShareButton, CardListItem, PreviewCarousel, ShareIcon, RateByPercent, ReviewsPreview, ReviewScore, ReviewStat },
   props: {
     contentId: {
       type: String,
@@ -824,6 +820,10 @@ export default {
       if (this.allowPreviewSubContent) {
         this.handlePreviewDetail(item)
       }
+    },
+
+    goReviews() {
+      document.getElementById('reviews').scrollIntoView({ behavior: 'smooth' })
     }
   }
 }

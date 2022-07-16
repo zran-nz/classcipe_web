@@ -323,7 +323,7 @@ export default {
       associateUnitList: [],
       fontSize: '16px',
       startDate: null,
-      endData: null,
+      endDate: null,
       sessionType: 1,
       planId: null,
       zoom: 1,
@@ -336,7 +336,7 @@ export default {
         coverType: null,
         cover: null,
         goals: null,
-        maxParticipants: 0,
+        maxParticipants: 1,
         notifyStudents: [],
         paidType: Boolean(PAID_TYPE.FREE.value),
         notifyType: NOTIFY_TYPE.ALL.value,
@@ -556,7 +556,7 @@ export default {
         this.$message.error('Please Input Register Before Date')
         return
       }
-      if (!this.startDate || !this.endData) {
+      if (!this.startDate || !this.endDate) {
         this.$message.error('Please Input Schedule Date')
         return
       }
@@ -567,7 +567,7 @@ export default {
       }
       const params = {
         startDate: this.startDate,
-        endData: this.endData,
+        endDate: this.endDate,
         contentId: this.id,
         openSession: true,
         sessionType: this.sessionType,
@@ -622,12 +622,12 @@ export default {
 
     handleDateChange (date, dateString) {
       this.startDate = moment(date[0].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
-      this.endData = moment(date[1].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
+      this.endDate = moment(date[1].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
     },
 
     handleSelectSchedule(date) {
       this.startDate = moment(date.startDate).utc().format('YYYY-MM-DD HH:mm:ss')
-      this.endData = moment(date.endDate).utc().format('YYYY-MM-DD HH:mm:ss')
+      this.endDate = moment(date.endDate).utc().format('YYYY-MM-DD HH:mm:ss')
       console.log(date)
     },
 

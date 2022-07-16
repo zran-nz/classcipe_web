@@ -53,6 +53,7 @@
           :headerToolbar="headerToolbar"
           :scrollTime="scrollTime"
           :editable="editable"
+          :selectAllow="selectAllow"
           @select="handleDateSelect"
           @eventClick="handleEventClick"
           @eventsSet="handleEvents"
@@ -157,6 +158,10 @@ export default {
     showTerm: {
       type: Boolean,
       default: false
+    },
+    needDisableBefore: {
+      type: Boolean,
+      default: true
     }
   },
   watch: {
@@ -262,6 +267,9 @@ export default {
           }
         }
       },
+      selectAllow: (info) => {
+        return moment(info.start).isAfter(moment()) || (this.viewType === 'dayGridMonth' && moment(info.start).isSame(moment(), 'day'))
+      },
 
       showUnit: [],
       currentUnit: null,
@@ -271,6 +279,9 @@ export default {
       importModel: {
         startDate: null,
         endDate: null
+      },
+      selectDateEvent: {
+        id: null
       },
 
       currentSession: null,
@@ -398,6 +409,10 @@ export default {
         const calendarApi = this.$refs.fullCalendar.getApi()
         if (calendarApi) {
           calendarApi.removeAllEvents()
+          // 把daterange加上
+          if (this.selectDateEvent.id) {
+            calendarApi.addEvent(this.selectDateEvent)
+          }
         }
       }
 
@@ -450,6 +465,25 @@ export default {
             start = start.add(1, 'd')
             // index++
           }
+        }
+
+        // 过去时间disabled
+        if (this.needDisableBefore && this.viewType !== 'timeGridFourDay') {
+          let startDis = start
+          let endDis = moment().format('YYYY-MM-DD')
+          if (this.viewType !== 'dayGridMonth') {
+            startDis = start + ' 00:00:00'
+            endDis = moment().format('YYYY-MM-DD HH:mm:ss')
+          }
+          termEvents.push({
+            start: startDis,
+            end: endDis,
+            backgroundColor: '#dfdfdf',
+            display: 'background',
+            selectable: false,
+            extendedProps: {
+            }
+          })
         }
 
         if (noNeedQuery) {
@@ -537,6 +571,8 @@ export default {
                 totalEvents = []
                 this.currentUnitList = []
               }
+
+              console.log(termEvents)
 
               successCb(totalEvents.concat(termEvents))
               this.handleViewDidMount(date)
@@ -690,7 +726,7 @@ export default {
         if (selectEvent) {
           selectEvent.remove()
         }
-        calendarApi.addEvent({
+        this.selectDateEvent = {
           id: 'DateSelect',
           title: 'DateSelect',
           start: this.importModel.startDate,
@@ -704,7 +740,8 @@ export default {
             start: this.importModel.startDate,
             end: this.importModel.endDate
           }
-        })
+        }
+        calendarApi.addEvent(this.selectDateEvent)
       }
       this.$emit('date-select', this.importModel)
     },

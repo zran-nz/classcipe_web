@@ -51,7 +51,7 @@
             </div> -->
           </div>
           <div class="header-detail-opt">
-            <a class="">Upgrade</a>
+            <a class="" @click="handleGoSpace">Upgrade</a>
           </div>
         </div>
       </div>
@@ -494,6 +494,13 @@ export default {
           this.sendLoading = false
         }
       })
+    },
+    handleGoSpace() {
+      if (this.userMode === USER_MODE.SELF) {
+        this.$router.push({ path: '/manage/persona/space' })
+      } else {
+        this.$router.push({ path: '/manage/school/space' })
+      }
     }
   }
 
