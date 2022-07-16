@@ -22,7 +22,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for='row in assessment.extraCriteriaBodyList' :key='row.key'>
+          <tr v-for='row in assessment.extraCriteriaBodyList' :key='row.key' class='row'>
             <th v-for='header in assessment.headerList' :key='header.type' @dblclick='handleEditExtraRow(row)'>
               <a-textarea
                 :auto-size="{ minRows: 2, maxRows: 5 }"
@@ -30,7 +30,7 @@
                 v-model='row[header.type].display'
                 :style="{ backgroundColor: header.bgColor || '#ffffff' }" />
             </th>
-            <div class='delete-icon'>
+            <div class='delete-icon' v-if='!inSnapshot'>
               <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDelExtraRowItem(row)" cancel-text="No">
                 <delete-icon color='#F16A39' />
               </a-popconfirm>
@@ -74,7 +74,7 @@
               v-model='row[header.type].display'
               :style="{ backgroundColor: header.bgColor || '#ffffff' }" />
           </th>
-          <div class='delete-icon'>
+          <div class='delete-icon' v-if='!inSnapshot'>
             <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDelRowItem(row)" cancel-text="No">
               <delete-icon color='#F16A39' />
             </a-popconfirm>
@@ -82,7 +82,7 @@
         </tr>
       </tbody>
     </table>
-    <div class='table-bottom-bar'>
+    <div class='table-bottom-bar' v-if='!inSnapshot'>
       <div class='add-row' v-if='mode === AssessmentMode.edit'>
         <plus-icon color='#a9adb4' @click='handleAddRow' v-show='allowCreate' />
       </div>
@@ -239,7 +239,8 @@ export default {
         performance: 'performance'
       },
 
-      HeaderType: HeaderType
+      HeaderType: HeaderType,
+      inSnapshot: false
     }
   },
   mounted() {
@@ -435,21 +436,28 @@ export default {
         data.bodyListJson = JSON.stringify(data.bodyList)
         data.extraCriteriaBodyListJson = JSON.stringify(data.extraCriteriaBodyList)
 
-        toPng(this.$refs.table).then(base64 => {
-          data.assessmentToolPreviewImgBase64 = base64
-          this.$logger.info('autoSaveAssessment', data)
-          AssessmentToolInfoSave(data).then((res) => {
-            if (res.code === 0) {
-              this.$EventBus.$emit('assessment-saved', {
-                key: res.result.key,
-                id: res.result.id
+        this.inSnapshot = true
+        this.$nextTick(() => {
+          try {
+            toPng(this.$refs.table).then(base64 => {
+              data.assessmentToolPreviewImgBase64 = base64
+              this.$logger.info('autoSaveAssessment', data)
+              AssessmentToolInfoSave(data).then((res) => {
+                if (res.code === 0) {
+                  this.$EventBus.$emit('assessment-saved', {
+                    key: res.result.key,
+                    id: res.result.id
+                  })
+                } else {
+                  this.$message.error(res.message)
+                }
+              }).finally(() => {
+                this.$emit('update:saving', false)
               })
-            } else {
-              this.$message.error(res.message)
-            }
-          }).finally(() => {
-            this.$emit('update:saving', false)
-          })
+            })
+          } finally {
+            this.inSnapshot = false
+          }
         })
       } catch (e) {
         this.$logger.error('autoSaveAssessment', e)

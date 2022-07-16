@@ -198,8 +198,9 @@ export default {
         font-weight: bold;
         line-height: 30px;
         color: #15C39A;
+        overflow: hidden;
         img {
-          width: 100%;
+          width: calc(100% + 25px);
         }
       }
     }
