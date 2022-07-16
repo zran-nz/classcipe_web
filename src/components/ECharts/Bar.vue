@@ -105,7 +105,7 @@ export default {
         },
         xAxis: [{
           type: 'category',
-          data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          data: ['1', '2', '3', '4', '5', '6', '7'],
           axisLabel: {
             textStyle: {
               color: '#999',
@@ -131,7 +131,7 @@ export default {
         }],
         series: [{
           cursor: 'default',
-          name: 'pageA',
+          name: 'Age',
           // barWidth: 40,
           showAllSymbol: true,
           type: 'bar',

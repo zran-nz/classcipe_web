@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import { getReviewsStatByContentId } from '@/api/reviewsTask'
+import { byOverall } from '@/api/reviewsTeacher'
 import { getStatByContentId } from '@/api/contentGrade'
 
 import EBar from '@/components/ECharts/Bar'
@@ -76,22 +76,25 @@ export default {
     initData() {
       this.loading = true
       Promise.all([
-        getReviewsStatByContentId({
-          contentId: this.id
+        byOverall({
+          purchasesId: this.id
         }),
         getStatByContentId({
           contentId: this.id
         })
       ]).then(([reviewRes, statRes]) => {
-        if (reviewRes.code === 0) {
-          this.reviews = reviewRes.result
-          this.reviews = [
-            { 'reviewsScore': 1, 'reviewsScoreCount': 0, 'reviewsScoreRate': 0.0 },
-            { 'reviewsScore': 2, 'reviewsScoreCount': 0, 'reviewsScoreRate': 0.0 },
-            { 'reviewsScore': 3, 'reviewsScoreCount': 0, 'reviewsScoreRate': 0.0 },
-            { 'reviewsScore': 4, 'reviewsScoreCount': 0, 'reviewsScoreRate': 0.0 },
-            { 'reviewsScore': 5, 'reviewsScoreCount': 0, 'reviewsScoreRate': 0.0 }
-          ]
+        if (reviewRes.code === 0 && reviewRes.result) {
+          const stars = [5, 4, 3, 2, 1]
+          const total = Object.values(reviewRes.result).reduce((prev, next) => {
+            return prev + next ? next : 0
+          }, 0)
+          this.reviews = stars.map(item => {
+            return {
+              reviewsScore: item,
+              reviewsScoreCount: reviewRes.result[item] || 0,
+              reviewsScoreRate: total ? (reviewRes.result[item] || 0) / total * 100 : 0
+            }
+          })
         }
         if (statRes.code === 0) {
           this.charts = statRes.result

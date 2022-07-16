@@ -7,7 +7,8 @@ export const reviewsTeacherAPIUrl = {
   list: `/classcipe/api/${BASE_PATH}/list`,
   save: `/classcipe/api/${BASE_PATH}/save`,
   myReviews: `/classcipe/api/${BASE_PATH}/myReviews`,
-  queryReviewsStat: `/classcipe/api/${BASE_PATH}/queryReviewsStat`
+  queryReviewsStat: `/classcipe/api/${BASE_PATH}/queryReviewsStat`,
+  byOverall: `/classcipe/api/${BASE_PATH}/reviewsStat/byOverall`
 }
 
 export function ReviewsTeacherSave (parameter) {
@@ -63,6 +64,14 @@ export function ReviewsTeacherDelete (parameter) {
  export function ReviewsTeacherStats (parameter) {
   return request({
     url: reviewsTeacherAPIUrl.queryReviewsStat,
+    method: 'get',
+    params: parameter
+  })
+}
+
+export function byOverall (parameter) {
+  return request({
+    url: reviewsTeacherAPIUrl.byOverall,
     method: 'get',
     params: parameter
   })
