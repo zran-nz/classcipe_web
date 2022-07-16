@@ -1,101 +1,113 @@
 <template>
-  <div v-if="info.event.display === 'background'">
-    <template v-if="info.event.extendedProps.termId">
-      {{ info.event.start | dayjs(FORMATTER_SIM) }}-{{ info.event.end | dayjs(FORMATTER_SIM) }}
-    </template>
+  <div>
+    <div v-if="info.event.display === 'background'">
+      <template v-if="info.event.extendedProps.termId">
+        {{ info.event.start | dayjs(FORMATTER_SIM) }}-{{ info.event.end | dayjs(FORMATTER_SIM) }}
+      </template>
+    </div>
+    <a-popover
+      title="Session Detail"
+      trigger="click"
+      v-else-if="info.event.extendedProps.eventType !== 'selectDate'"
+      :destroyTooltipOnHide="true"
+      :getPopupContainer="trigger => getPopupContainer(trigger, info)"
+      @visibleChange="visible => showPopover(visible, info)"
+    >
+      <a slot="content" >
+        <a-spin :spinning="loading">
+          <div v-if="queryType !== CALENDAR_QUERY_TYPE.WORKSHOP.value" style="max-width: 1100px;">
+            <content-item-calendar
+              ref="contentItemCalendar"
+              :content='getSession(info)'
+              :units='currentUnitList'
+              @close="closeAllModal"
+              @delete='(data) => handleDelete(info, data)'
+              @change-unit="(params) => handleSave(params, info)"
+              @save-response-limit="params => handleSave(params, info)"
+            >
+            </content-item-calendar>
+          </div>
+          <div v-else style="font-size: 70px;max-width: 1100px;">
+            <liveworkshop-item
+              @close="closeAllModal"
+              :content="getWorkshopItem(info)"/>
+          </div>
+        </a-spin>
+      </a>
+      <div
+        class="schedule-event-content"
+        :style="{backgroundColor: info.event.extendedProps.backgroundColor, color: '#333'}"
+      >
+        <div v-show="info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay'">
+          {{ info.event.start | dayjs(FORMATTER_SIM) }}-{{ info.event.end | dayjs(FORMATTER_SIM) }}
+        </div>
+        <span v-show="info.view.type === 'dayGridMonth'" style="margin-right: 5px;">
+          {{ info.event.start | dayjs(FORMATTER_SIM) }}
+        </span>
+        <label v-if="info.view.type !== 'timeGridFourDay'" for="">{{ info.event.title }} </label>
+        <label v-else for=""> {{ info.event.title }} </label>
+      </div>
+    </a-popover>
+    <a-popover
+      v-else
+      title="Set Date"
+      trigger="click"
+      :destroyTooltipOnHide="true"
+      @visibleChange="visible => showDateSelectPopover(visible, info.event)"
+    >
+      <a slot="content">
+        <div class="date-select">
+          <a-space class="date-select-item">
+            <label for="">StartTime: {{ moment(info.event.start).format('YYYY-MM-DD') }}</label>
+            <a-time-picker
+              :allowClear="false"
+              :disabledHours="disabledHoursStart"
+              :disabledMinutes="disabledMinutesStart"
+              v-model="dateSelect.start"
+              format="HH:mm" />
+          </a-space>
+          <a-space class="date-select-item">
+            <label for="">EndTime: {{ moment(info.event.end).format('YYYY-MM-DD') }}</label>
+            <a-time-picker
+              :allowClear="false"
+              :disabledHours="disabledHoursEnd"
+              :disabledMinutes="disabledMinutesEnd"
+              v-model="dateSelect.end"
+              format="HH:mm" />
+          </a-space>
+          <a-button type='primary' size="small" @click="handleChangeDateSelect">Save</a-button>
+        </div>
+      </a>
+      <div
+        class="schedule-event-content"
+        :style="{backgroundColor: info.event.extendedProps.backgroundColor, color: '#333'}"
+      >
+        <div>
+          {{ info.event.start | dayjs(FORMATTER_SIM) }}-{{ info.event.end | dayjs(FORMATTER_SIM) }}
+        </div>
+      </div>
+    </a-popover>
+
+    <content-preview
+      :content-id='previewCurrentId'
+      :content-type='previewType'
+      :showEditButton="false"
+      v-if='previewVisible'
+      @close='handlePreviewClose' />
   </div>
-  <a-popover
-    title="Session Detail"
-    trigger="click"
-    v-else-if="info.event.extendedProps.eventType !== 'selectDate'"
-    :destroyTooltipOnHide="true"
-    :getPopupContainer="trigger => getPopupContainer(trigger, info)"
-    @visibleChange="visible => showPopover(visible, info)"
-  >
-    <a slot="content" >
-      <a-spin :spinning="loading">
-        <div v-if="queryType !== CALENDAR_QUERY_TYPE.WORKSHOP.value" style="max-width: 1100px;">
-          <content-item-calendar
-            ref="contentItemCalendar"
-            :content='getSession(info)'
-            :units='currentUnitList'
-            @close="closeAllModal"
-            @delete='(data) => handleDelete(info, data)'
-            @change-unit="(params) => handleSave(params, info)"
-            @save-response-limit="params => handleSave(params, info)"
-          >
-          </content-item-calendar>
-        </div>
-        <div v-else style="font-size: 70px;max-width: 1100px;">
-          <liveworkshop-item
-            @close="closeAllModal"
-            :content="getWorkshopItem(info)"/>
-        </div>
-      </a-spin>
-    </a>
-    <div
-      class="schedule-event-content"
-      :style="{backgroundColor: info.event.extendedProps.backgroundColor, color: '#333'}"
-    >
-      <div v-show="info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay'">
-        {{ info.event.start | dayjs(FORMATTER_SIM) }}-{{ info.event.end | dayjs(FORMATTER_SIM) }}
-      </div>
-      <span v-show="info.view.type === 'dayGridMonth'" style="margin-right: 5px;">
-        {{ info.event.start | dayjs(FORMATTER_SIM) }}
-      </span>
-      <label v-if="info.view.type !== 'timeGridFourDay'" for="">{{ info.event.title }} </label>
-      <label v-else for=""> {{ info.event.title }} </label>
-    </div>
-  </a-popover>
-  <a-popover
-    v-else
-    title="Set Date"
-    trigger="click"
-    :destroyTooltipOnHide="true"
-    @visibleChange="visible => showDateSelectPopover(visible, info.event)"
-  >
-    <a slot="content">
-      <div class="date-select">
-        <a-space class="date-select-item">
-          <label for="">StartTime: {{ moment(info.event.start).format('YYYY-MM-DD') }}</label>
-          <a-time-picker
-            :allowClear="false"
-            :disabledHours="disabledHoursStart"
-            :disabledMinutes="disabledMinutesStart"
-            v-model="dateSelect.start"
-            format="HH:mm" />
-        </a-space>
-        <a-space class="date-select-item">
-          <label for="">EndTime: {{ moment(info.event.end).format('YYYY-MM-DD') }}</label>
-          <a-time-picker
-            :allowClear="false"
-            :disabledHours="disabledHoursEnd"
-            :disabledMinutes="disabledMinutesEnd"
-            v-model="dateSelect.end"
-            format="HH:mm" />
-        </a-space>
-        <a-button type='primary' size="small" @click="handleChangeDateSelect">Save</a-button>
-      </div>
-    </a>
-    <div
-      class="schedule-event-content"
-      :style="{backgroundColor: info.event.extendedProps.backgroundColor, color: '#333'}"
-    >
-      <div>
-        {{ info.event.start | dayjs(FORMATTER_SIM) }}-{{ info.event.end | dayjs(FORMATTER_SIM) }}
-      </div>
-    </div>
-  </a-popover>
 </template>
 
 <script>
 import SessionImportForCalendar from '@/components/MyContentV2/SessionImportForCalendar'
 import ContentItemCalendar from '@/components/MyContentV2/ContentItemCalendar'
 import LiveworkshopItem from '@/components/MyContentV2/LiveWorkShopContentItem'
+import ContentPreview from '@/components/Preview/ContentPreview'
 
 import { DeleteClassV2, EditSessionScheduleV2 } from '@/api/v2/classes'
 
 import { BG_COLORS, CALENDAR_QUERY_TYPE } from '@/const/common'
+import { typeMap } from '@/const/teacher'
+import { ContentItemMixin } from '@/mixins/ContentItemMixin'
 import moment from 'moment'
 
 export default {
@@ -103,8 +115,10 @@ export default {
   components: {
     SessionImportForCalendar,
     ContentItemCalendar,
-    LiveworkshopItem
+    LiveworkshopItem,
+    ContentPreview
   },
+  mixins: [ContentItemMixin],
   props: {
     info: {
       type: Object,
@@ -146,11 +160,13 @@ export default {
   },
   data() {
     return {
+      vis: false,
       FORMATTER: 'h:mm a',
       FORMATTER_SIM: 'h:mma',
       FORMATTER_FULL: 'YYYY-MM-DD h:mm a',
       CALENDAR_QUERY_TYPE: CALENDAR_QUERY_TYPE,
       BG_COLORS: BG_COLORS,
+      typeMap: typeMap,
       currentUnitList: this.unitList,
       queryType: this.type,
       loading: false,
@@ -273,9 +289,11 @@ export default {
         this.loading = false
       })
     },
-    closeAllModal() {
+    closeAllModal(data) {
       // this.$refs.scheduleContent.dispatchEvent(new MouseEvent('click'))
       document.getElementsByClassName('ant-popover').forEach(item => (item.style.display = 'none'))
+      console.log(data)
+      this.handlePreviewDetail(data)
     }
   }
 }
