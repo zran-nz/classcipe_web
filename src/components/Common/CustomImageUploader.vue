@@ -338,7 +338,7 @@ export default {
     width: 352px;
     img {
       min-width: 216px;
-      max-width: 100%;
+      width: 100%;
       outline: 1px solid #f1f1f1;
     }
 
