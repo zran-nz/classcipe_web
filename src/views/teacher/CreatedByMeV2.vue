@@ -6,9 +6,9 @@
       </div>
       <div class='create-new'>
         <a-space>
-          <content-type-filter @change='handleUpdateFilterType'/>
           <create-new />
-          <custom-search-input :round='false' :value.sync='searchText' @search='handleSearch' placeholder='Search your content'/>
+          <content-type-filter ref='typeFilter' @change='handleUpdateFilterType'/>
+          <content-filter @search='handleSearch'/>
           <user-profile-avatar />
         </a-space>
       </div>
@@ -108,7 +108,7 @@ export default {
       shareType: SourceType.CreatedByMe,
       loading: true,
       myContentList: [],
-      filterType: sessionStorage.getItem(SESSION_CURRENT_TYPE) ? parseInt(sessionStorage.getItem(SESSION_CURRENT_TYPE)) : null,
+      filterType: null,
       pagination: {
         onChange: page => {
           logger.info('pagination onChange', page)
@@ -141,7 +141,6 @@ export default {
     if (this.$route.query.shareType) {
       this.shareType = parseInt(this.$route.query.shareType)
     }
-    this.loadMyContent()
   },
   methods: {
     handleSchoolChange() {
@@ -158,17 +157,22 @@ export default {
     },
     handleSearch (data) {
       this.$logger.info('handleSearch', data)
-      this.searchText = data
+      if (typeof data === 'string') {
+        this.searchText = data
+      } else {
+        this.filterParams = data
+      }
       this.pageNo = 1
       this.loadMyContent()
     },
     loadMyContent () {
+      this.$logger.info('loadMyContent filterParams', this.filterParams)
       this.loading = true
       let params = {
         shareType: this.shareType === this.sourceType.Archived ? this.sourceType.CreatedByMe : this.shareType,
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize,
-        searchKey: this.searchText ? this.searchText : '',
+        searchKey: this.filterParams.searchKey || '',
         types: this.filterType ? [this.filterType] : [],
         delFlag: this.shareType === this.sourceType.Archived ? 1 : 0,
         schoolId: this.school
@@ -305,6 +309,9 @@ export default {
   mounted() {
     EventBus.$on(MyContentEvent.ReloadMyContent, this.loadMyContent)
     ClasscipeEventBus.$on(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleUpdatePublish)
+    this.$refs.typeFilter.currentType = null
+    this.$refs.typeFilter.currentTypeLabel = 'All'
+    this.loadMyContent()
   },
   beforeDestroy() {
     EventBus.$off(MyContentEvent.ReloadMyContent, this.loadMyContent)

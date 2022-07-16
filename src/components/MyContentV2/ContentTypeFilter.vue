@@ -40,10 +40,6 @@ export default {
       currentTypeLabel: 'All'
     }
   },
-  created() {
-    this.currentType = sessionStorage.getItem(SESSION_CURRENT_TYPE) ? parseInt(sessionStorage.getItem(SESSION_CURRENT_TYPE)) : null
-    this.currentTypeLabel = sessionStorage.getItem(SESSION_CURRENT_TYPE_LABEL) ? sessionStorage.getItem(SESSION_CURRENT_TYPE_LABEL) : 'All'
-  },
   methods: {
     toggleType (type, label) {
       this.$logger.info('toggleType ' + type + ' label ' + label)
