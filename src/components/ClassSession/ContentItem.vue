@@ -77,7 +77,7 @@
               <div class='subject-item' v-for='(year, idx) in content.yearList' :key='idx'>{{ year }}</div>
             </a-space>
           </div>
-          <div class='tag-info'>
+          <div class='tag-info' v-if='content'>
             <div class='tag-info-item' v-for='(customTag, idx) in content.customTags' :key='idx'>
               <a-tag color='#FFEDAF' class='tag-item' :title='customTag.category'> {{ customTag.name }} </a-tag>
             </div>
@@ -99,7 +99,6 @@
                 <div class='menu-item'>
                   <custom-button label='Takeaways' @click='handleTakeaway'></custom-button>
                   <custom-button label='Ask someone to teach' @click='handleCoteacher'></custom-button>
-                  <custom-button label='Previous sessions' @click='handlePreviewSession'></custom-button>
                   <custom-button label='Delete' @click='handleDeleteSession'></custom-button>
                 </div>
               </div>
