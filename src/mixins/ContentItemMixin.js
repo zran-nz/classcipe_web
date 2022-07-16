@@ -1,5 +1,3 @@
-import { VideoAddOrUpdate } from '@/api/video'
-import { PDContentAddOrUpdate } from '@/api/pdContent'
 import { TemplatesGetPresentation } from '@/api/template'
 
 export const ContentItemMixin = {
