@@ -139,7 +139,7 @@ export default {
   transition: all 0.3s ease-in-out;
   .card-title {
     padding: 3px 0;
-    font-size: 18px;
+    font-size: 17px;
     font-weight: normal;
     overflow: hidden;
     white-space: nowrap;

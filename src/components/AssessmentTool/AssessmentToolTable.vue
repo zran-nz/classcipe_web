@@ -30,6 +30,11 @@
                 v-model='row[header.type].display'
                 :style="{ backgroundColor: header.bgColor || '#ffffff' }" />
             </th>
+            <div class='delete-icon'>
+              <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDelExtraRowItem(row)" cancel-text="No">
+                <delete-icon color='#F16A39' />
+              </a-popconfirm>
+            </div>
           </tr>
         </tbody>
       </table>
@@ -501,6 +506,13 @@ export default {
       this.$logger.info('handleEditExtraRow', row)
       this.currentEditExtraRow = row
       this.editExtraRowModalVisible = true
+    },
+
+    handleDelExtraRowItem (row) {
+      if (this.mode === 'edit') {
+        this.assessment.extraCriteriaBodyList.splice(this.assessment.extraCriteriaBodyList.indexOf(this.row), 1)
+      }
+      this.editRowModalVisible = false
     },
 
     handleDelRow () {
