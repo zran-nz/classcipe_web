@@ -144,7 +144,13 @@ export default {
         this.$logger.info('save scheduleReq', res)
         if (res.result && res.success && res.code === 0) {
           this.$message.success('Schedule session successfully')
-          await this.$router.replace('/')
+          if (res.result.length && res.result[0].taskClassId) {
+            this.$router.replace({
+              path: `/teacher/class-session/${res.result[0].taskClassId}`
+            })
+          } else {
+            return res.result
+          }
         } else {
           this.$confirm({
             title: 'Warn',

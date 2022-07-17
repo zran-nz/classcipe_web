@@ -1,23 +1,46 @@
 <template>
   <div class='card-list-wrapper'>
-    <div class='card-list-title'>
-      <div class='title-item'>
-        {{ title }}
+    <template v-if='titlePosition === "center"'>
+      <div class='card-list-title-center'>
+        <div class='title-item'>
+          <div class='main-title'>
+            {{ title }}
+          </div>
+          <div class='sub-title'>
+            {{ subTitle }}
+          </div>
+        </div>
+        <div class='more-action'>
+          <router-link :to="'/teacher/library-all/' + category" v-if='!isSchoolMode'>More</router-link>
+          <router-link :to="'/teacher/resource-all/' + category" v-if='isSchoolMode'>More</router-link>
+        </div>
       </div>
-      <div class='more-action'>
-        <router-link :to="'/teacher/library-all/' + category" v-if='!isSchoolMode'>All</router-link>
-        <router-link :to="'/teacher/resource-all/' + category" v-if='isSchoolMode'>All</router-link>
+    </template>
+    <template v-if='titlePosition === "left"'>
+      <div class='card-list-title'>
+        <div class='title-item'>
+          <div class='main-title'>
+            {{ title }}
+          </div>
+          <div class='sub-title'>
+            {{ subTitle }}
+          </div>
+        </div>
+        <div class='more-action'>
+          <router-link :to="'/teacher/library-all/' + category" v-if='!isSchoolMode'>All</router-link>
+          <router-link :to="'/teacher/resource-all/' + category" v-if='isSchoolMode'>All</router-link>
+        </div>
       </div>
+    </template>
+    <div class='scroll-left' :class="{'inner-scroll-left': innerDesc, 'outer-scroll-left': outerDesc}" @click="scrollLeft">
+      <a-icon type="arrow-left" :style="{fontSize: '16px', color: '#6967C3'}" />
     </div>
-    <div class='scroll-left' @click="scrollLeft">
-      <a-icon type="left-circle" :style="{fontSize: '22px', color: '#dddddd'}" />
-    </div>
-    <div class='scroll-right' @click="scrollRight">
-      <a-icon type="right-circle" :style="{fontSize: '22px', color: '#dddddd'}" />
+    <div class='scroll-right' :class="{'inner-scroll-right': innerDesc, 'outer-scroll-right': outerDesc}" @click="scrollRight">
+      <a-icon type="arrow-right" :style="{fontSize: '16px', color: '#6967C3'}" />
     </div>
     <div class='card-list' :id='category'>
       <div class="card-item" v-for="(item, idx) in list" :key="idx" @click="handlePreviewDetail(item)">
-        <card-list-item :content="item" :width="cardSize" v-bind="$attrs" />
+        <card-list-item :inner-desc='innerDesc' :outer-desc='outerDesc' :content="item" :width="cardSize" v-bind="$attrs" />
       </div>
     </div>
 
@@ -40,11 +63,21 @@ export default {
   components: { CardListItem, ContentPreview },
   props: {
     title: { type: String, required: true },
+    subTitle: { type: String, default: '' },
+    titlePosition: { type: String, default: 'left' },
     category: { type: String, required: true },
     cardSize: { type: Number, default: 20 },
     list: { type: Array, required: true },
     isSchoolMode: { type: Boolean, default: false },
-    cardMode: { type: String, default: 'library' }
+    cardMode: { type: String, default: 'library' },
+    innerDesc: {
+      type: Boolean,
+      default: false
+    },
+    outerDesc: {
+      type: Boolean,
+      default: true
+    }
   },
   mixins: [ContentItemMixin],
   data() {
@@ -106,29 +139,85 @@ export default {
 
 .card-list-wrapper {
   width: 100%;
-  margin-bottom: 30px;
+  margin-bottom: 50px;
   position: relative;
   .card-list-title {
-    font-size: 20px;
+    user-select: none;
+    font-size: 18px;
     font-family: Arial;
-    font-weight: bold;
     color: #202020;
-    line-height: 25px;
-    padding-bottom: 15px;
+    line-height: 40px;
+    padding-left: 25px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-direction: row;
 
+    .title-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
     .more-action {
-      font-size: 16px;
+      padding-right: 25px;
+      font-size: 14px;
       user-select: none;
       cursor: pointer;
-      color: #153C76;
+      color: #6967C3;
 
       a {
-        font-size: 16px;
-        color: #153C76;
+        font-size: 14px;
+        color: #6967C3;
+      }
+    }
+  }
+
+  .card-list-title-center {
+    user-select: none;
+    font-size: 22px;
+    font-family: Arial;
+    color: #202020;
+    line-height: 25px;
+    padding-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    position: relative;
+
+    .title-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      .main-title {
+        line-height: 35px;
+        font-size: 24px;
+        font-family: Arial;
+      }
+
+      .sub-title {
+        line-height: 25px;
+        font-size: 14px;
+        color: #aaa;
+      }
+    }
+
+    .more-action {
+      position: absolute;
+      right: 25px;
+      top: 45px;
+      font-size: 14px;
+      user-select: none;
+      cursor: pointer;
+      color: #6967C3;
+
+      a {
+        font-size: 14px;
+        color: #6967C3;
       }
     }
   }
@@ -136,15 +225,39 @@ export default {
   .scroll-left {
     cursor: pointer;
     position: absolute;
-    left: -5px;
-    top: 45%;
+    left: 10px;
+    background: #fff;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    z-index: 100;
+    box-shadow: 0 0 5px 0 #ccc;
+  }
+
+  .inner-scroll-left, .inner-scroll-right {
+    top: 55%;
+  }
+
+  .outer-scroll-left, .outer-scroll-right {
+    top: 40%;
   }
 
   .scroll-right {
+    right: 8px;
     cursor: pointer;
     position: absolute;
-    right: -5px;
-    top: 45%;
+    background: #fff;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    z-index: 100;
+    box-shadow: 0 0 5px 0 #ccc;
   }
 
   .card-list {
@@ -162,6 +275,11 @@ export default {
       margin-right: 15px;
     }
   }
+}
+
+::-webkit-scrollbar {
+  height: 0;
+  width: 0;
 }
 
 </style>

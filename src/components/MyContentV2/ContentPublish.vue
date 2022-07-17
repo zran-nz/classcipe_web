@@ -36,10 +36,20 @@
             </div>
             <div class='detail-price'>
               <div class='price-setting'>
-                <a-switch size='small' v-model='enablePrice' />
+                <a-space>
+                  <a-switch size='small' v-model='enablePrice' /> Price:
+                </a-space>
               </div>
               <div class='price-input' v-if='enablePrice'>
-                Price: <a-input v-model="item.price" class='dollar-price-input' prefix="$"/>
+                <a-input v-model="item.price" class='dollar-price-input' suffix="$"/>
+              </div>
+            </div>
+            <div class='detail-price' v-if='enablePrice'>
+              <div class='price-setting'>
+                Discount Price:
+              </div>
+              <div class='price-input'>
+                <a-input v-model="item.discount" class='dollar-price-input' suffix="$"/>
               </div>
             </div>
           </div>
@@ -108,6 +118,15 @@ export default {
       }).then((response) => {
         this.$logger.info('response : {}', response)
       })
+
+      await UpdateContentField({
+        id: this.content.id,
+        entity: getEntityType(contentType),
+        fieldName: 'discount',
+        fieldValue: this.content.discount
+      }).then((response) => {
+        this.$logger.info('response : {}', response)
+      })
     }
   }
 }
@@ -158,7 +177,7 @@ export default {
   .detail {
     flex: 1;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: flex-start;
     padding-left: 10px;
 
@@ -182,17 +201,17 @@ export default {
     }
 
     .detail-price {
-      padding-left: 10px;
       display: flex;
       flex-direction: row;
       align-items: center;
       justify-content: flex-start;
 
       .price-setting {
+        width: 120px;
         display: flex;
         flex-direction: row;
         align-items: center;
-        justify-content: center;
+        justify-content: flex-end;
         min-height: 32px;
         padding-right: 10px;
       }

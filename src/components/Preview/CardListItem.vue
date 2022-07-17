@@ -1,75 +1,50 @@
 <template>
   <div class="cc-card">
     <div class="cover-img relative-position" :style="{backgroundImage: 'url(' + content.image + ')', 'width' : width + 'rem'}">
+      <div class='inner-mask' v-if="innerDesc"></div>
       <div class="card-bottom-section q-pa-sm col q-gutter-xs inner-desc absolute-bottom" v-if="innerDesc">
-        <div class="card-title text-bold text-h7" :title="content.name || 'Untitled'">{{ content.name || 'Untitled' }}</div>
-        <div class="card-info">
-          <div class="row items-center justify-start q-gutter-xs q-pa-none">
-            <template v-if="content.owner">
-              <a-avatar :src="content.owner.avatar"/>
-            </template>
-            <template v-if="!content.owner && content.createBy">
-              <a-avatar
-                :style="{ backgroundColor: '#15c39a', verticalAlign: 'middle' }">
-                {{ content.createBy[0].toUpperCase() }}
-              </a-avatar>
-            </template>
-            <div class='card-extra-info'>
-              <div class="card-owner-name">
-                <template v-if="content.owner">
-                  {{ content.owner.nickname }}
-                </template>
-                <template v-if="!content.owner && content.createBy">
-                  {{ content.createBy }}
-                </template>
-              </div>
-              <div class='row price-star'>
-                <div class="price text-bold text-red-7">
-                  ${{ content.price }}
-                </div>
-                <div class="star-rating row items-center justify-start">
-                  <a-rate :value="5" disabled class='cc-rate'/>
-                  <span class="rating-num"> 10 </span>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div class='type-tag'>
+          <a-tag color="#15C39A">{{ content.type | type2Name }}</a-tag>
+        </div>
+        <div class="card-title" :title="mainTitle">{{ mainTitle }}</div>
+        <div class='card-sub-title' :title='subDescription'>
+          {{ subDescription }}
         </div>
       </div>
+      <div class='inner-tag' v-if="outerDesc">
+        <a-tag color="#15C39A">{{ content.type | type2Name }}</a-tag>
+      </div>
     </div>
-    <div class="card-bottom-section q-py-md col q-gutter-sm" v-if="outerDesc" :style="{'width' : width + 'rem'}">
-      <div class="card-title-black ellipsis text-bold text-h7" :title="content.name || 'Untitled'">{{ content.name || 'Untitled' }}</div>
-      <div class="card-info">
-        <div class="row items-center justify-start q-gutter-sm">
-          <template v-if="content.owner">
-            <a-avatar :src="content.owner.avatar"/>
-          </template>
-          <template v-if="!content.owner && content.createBy">
-            <a-avatar
-              :style="{ backgroundColor: '#15c39a', verticalAlign: 'middle' }">
-              {{ content.createBy[0].toUpperCase() }}
-            </a-avatar>
-          </template>
-          <div class='card-extra-info'>
-            <div class="card-owner-name">
-              <template v-if="content.owner">
-                {{ content.owner.nickname }}
-              </template>
-              <template v-if="!content.owner && content.createBy">
-                {{ content.createBy }}
-              </template>
-            </div>
-            <div class='row price-star'>
-              <div class="price text-bold text-red-7">
-                ${{ content.price }}
-              </div>
-              <div class="star-rating row items-center justify-start">
-                <a-rate :value="5" disabled class='cc-rate'/>
-                <span class="rating-num"> 10 </span>
-              </div>
-            </div>
-          </div>
+    <div class="card-bottom-section outer-desc" v-if="outerDesc" :style="{'width' : width + 'rem'}">
+      <div class='main-title-line'>
+        <div class='main-title' :title='mainTitle'>
+          {{ mainTitle }}
         </div>
+        <div class='main-action'>
+          <a-space>
+            <a-rate :value='content.star || 10' disabled class='cc-library-rate'/>
+            <div class='share-icon' @click.stop.prevent=''>
+              <a-tooltip
+                trigger="click"
+                :getPopupContainer="trigger => trigger.parentElement"
+                placement="bottomRight"
+              >
+                <template slot="title">
+                  <div class="detail-share">
+                    <share-button
+                      :link="wrapperLink(content)"
+                      :title="content.name"
+                    />
+                  </div>
+                </template>
+                <a-icon type="share-alt" />
+              </a-tooltip>
+            </div>
+          </a-space>
+        </div>
+      </div>
+      <div class='sub-desc' :title='subDescription'>
+        {{ subDescription }}
       </div>
     </div>
   </div>
@@ -77,8 +52,12 @@
 
 <script>
 
+import { typeMap } from '@/const/teacher'
+import ShareButton from '@/components/Share/ShareButton'
+
 export default {
   name: 'CardListItem',
+  components: { ShareButton },
   props: {
     content: {
       type: Object,
@@ -97,12 +76,37 @@ export default {
       default: true
     }
   },
+  computed: {
+    mainTitle () {
+      const title = this.content.name || 'Untitled'
+      return title.slice(0, 1).toUpperCase() + title.slice(1)
+    },
+    subDescription () {
+      let desc
+      if (this.content.type === typeMap['unit-plan']) {
+        desc = this.content.inquiry
+      } else if (this.content.type === typeMap.pd) {
+        desc = this.content.goals
+      } else {
+        desc = this.content.overview
+      }
+      return desc || 'No description'
+    }
+  },
   data() {
     return {}
   },
   created() {
   },
-  methods: {}
+  methods: {
+    wrapperLink(item) {
+      if (item && item.id) {
+        return `${process.env.VUE_APP_SHARE_URL}/h5/live/${item.id}`
+      } else {
+        return ''
+      }
+    }
+  }
 }
 </script>
 
@@ -111,17 +115,49 @@ export default {
 }
 
 .cover-img {
-  padding-bottom: 52%;
+  padding-bottom: 55%;
   background: #F1F1F1 center;
-  border-radius: 10px;
+  border-radius: 5px;
   border: 1px solid #F1F1F1;
   overflow: hidden;
   background-size: cover;
 }
 
+.inner-mask {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+}
+
 .inner-desc {
   color: #fff;
-  background-color: rgba(0, 0, 0, 0.8);
+  cursor: pointer;
+  padding: 10px 10px 5px 10px;
+  transition: all 0.3s ease-in-out;
+  .card-title {
+    padding: 3px 0;
+    font-size: 17px;
+    font-weight: normal;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    word-break: break-all;
+    cursor: pointer;
+  }
+  .card-sub-title {
+    font-size: 13px;
+    line-height: 13px;
+    padding-bottom: 3px;
+  }
+}
+
+.inner-tag {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
 }
 
 .q-py-md {
@@ -143,16 +179,6 @@ export default {
   div {
     margin-right: 5px;
   }
-}
-
-.card-title {
-  font-weight: 500;
-  color: #fff;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  word-break: break-all;
-  cursor: pointer;
 }
 
 .card-title-black {
@@ -201,10 +227,6 @@ export default {
   margin-left: 10px;
 }
 
-.q-pa-sm {
-  padding: 8px;
-}
-
 .relative-position {
   position: relative;
 }
@@ -216,4 +238,48 @@ export default {
   bottom: 0;
 }
 
+.outer-desc {
+  padding: 10px 5px 0 5px;
+  .main-title-line {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+
+    .main-title {
+      padding: 3px 0;
+      font-size: 17px;
+      font-weight: 600;
+      color: #000;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      word-break: break-all;
+      cursor: pointer;
+    }
+
+    .main-action {
+      min-width: 120px;
+      cursor: pointer;
+      text-align: right;
+      .share-icon {
+      }
+    }
+  }
+
+  .sub-desc {
+    user-select: none;
+    cursor: pointer;
+    font-weight: normal;
+    line-height: 16px;
+    font-size: 13px;
+    color: #aaa;
+    max-height: 50px;
+    overflow: hidden;
+  }
+}
+
+.cc-library-rate {
+
+}
 </style>

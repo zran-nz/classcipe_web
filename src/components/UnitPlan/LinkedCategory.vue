@@ -11,6 +11,9 @@
       <a-skeleton :loading='loading' />
       <template v-if='!loading'>
         <div class='category-block' v-for='(category, cIdx) in categoryList' :key='category.set' :style="{'background-color': color[cIdx]}">
+          <div class='category-name'>
+            {{ category.set }}
+          </div>
           <div class='category-item' :class="{'selected-item': selectedList.indexOf(item) !== -1}" v-for='item in category.tags' :key='item' @click='handleAddItem(item)'>
             <div class='selected-icon'>
               <div class='checked-icon'>
@@ -23,7 +26,7 @@
               </div>
               <div class="empty-circle"></div>
             </div>
-            <div class='item-name'>{{ item }}</div>
+            <div class='item-name' :title='item'>{{ item }}</div>
           </div>
         </div>
         <div class='category-block self-category' style='background-color: #F4F4F4'>
@@ -34,23 +37,28 @@
               </div>
               <div class="empty-circle"></div>
             </div>
-            <div class='item-name'>{{ item }}</div>
-            <div class='self-item-delete' @click='handleDeleteSelfItem(item)'>
+            <div class='item-name' :title='item'>{{ item }}</div>
+            <div class='self-item-delete' @click.stop.prevent='handleDeleteSelfItem(item)'>
               <a-icon type="close" />
             </div>
           </div>
-          <div class='category-item self-input' v-if='showNewCategory'>
-            <a-input v-model='newCategory' ref='newCategory' class='new-category-input' @keyup.native.enter='handleAddNewSelfCategory'/>
+          <div class='no-self-category' v-if='selfCategory.length === 0'>
+            <common-no-data />
           </div>
-          <div class='category-item slef-category slef-category-btn'>
+          <div class='category-item self-input' v-if='showNewCategory'>
+            <div class='self-input-wrapper'>
+              <a-input v-model='newCategory' ref='newCategory' class='new-category-input' @keyup.native.enter='handleAddNewSelfCategory'/>
+              <div class='ensure-icon' @click.stop.prevent='handleAddNewSelfCategory'>
+                <a-icon type="check" />
+              </div>
+            </div>
+          </div>
+          <div class='category-item slef-category slef-category-btn' v-if='!showNewCategory'>
             <custom-text-button @click='handleShowNewCategory' label='Add new' :size='12'>
               <template v-slot:icon>
                 <a-icon type="plus-circle" :style="{fontSize: '12px'}"/>
               </template>
             </custom-text-button>
-          </div>
-          <div class='no-self-category' v-if='selfCategory.length === 0'>
-            <common-no-data />
           </div>
         </div>
       </template>
@@ -92,7 +100,9 @@ export default {
       selectedList: [],
       selectedNameList: [],
       showNewCategory: false,
-      newCategory: null
+      newCategory: null,
+      unitSetId: null,
+      lastUnitSetId: null
     }
   },
   created() {
@@ -116,9 +126,11 @@ export default {
         // eslint-disable-next-line no-undef
         const unitSet = await App.service('conf-user').get('UnitSet')
         this.$logger.info('unitSet', unitSet)
+        this.unitSetId = unitSet._id
         this.selfCategory = unitSet.val
         // eslint-disable-next-line no-undef
         const unitSetLast = await App.service('conf-user').get('UnitSetLast')
+        this.lastUnitSetId = unitSetLast._id
         this.$logger.info('unitSetLast', unitSetLast)
         this.selectedList = unitSetLast.val
       } catch (e) {
@@ -132,8 +144,10 @@ export default {
       this.$logger.info('close', this.selectedList)
       this.$emit('close')
     },
-    handleConfirm() {
+    async handleConfirm() {
       this.$logger.info('selectedList', this.selectedList)
+      // eslint-disable-next-line no-undef
+      await App.service('conf-user').patch(this.lastUnitSetId, { val: this.selectedList })
       this.$emit('confirm', this.selectedList)
     },
     handleShowNewCategory () {
@@ -142,6 +156,12 @@ export default {
       this.$nextTick(() => {
         this.$refs.newCategory.focus()
       })
+    },
+
+    cancelInputCategory() {
+      this.$logger.info('cancelInputCategory')
+      this.showNewCategory = false
+      this.newCategory = ''
     },
     async handleAddNewSelfCategory () {
       this.$logger.info('handleAddNewSelfCategory', this.newCategory)
@@ -165,13 +185,14 @@ export default {
 
         if (!isDuplicated) {
           // eslint-disable-next-line no-undef
-          await App.service('conf-user').patch(_id, { $addToSet: { val: this.newCategory } })
+          await App.service('conf-user').patch(this.unitSetId, { $addToSet: { val: this.newCategory } })
           this.selfCategory.push(this.newCategory)
           this.showNewCategory = false
         } else {
           this.$message.warn('Duplicated category name')
         }
       }
+      this.showNewCategory = false
       this.newCategory = null
     },
 
@@ -189,7 +210,8 @@ export default {
     async handleDeleteSelfItem (item) {
       this.$logger.info('handleDeleteSelfItem', item)
       // eslint-disable-next-line no-undef
-      await App.service('conf-user').patch(_id, { $pull: { val: item } })
+      await App.service('conf-user').patch(this.unitSetId, { $pull: { val: item } })
+      this.selfCategory.splice(this.selfCategory.indexOf(item), 1)
     }
   }
 }
@@ -199,30 +221,30 @@ export default {
 @import "~@/components/index.less";
 
 .category-list {
-  padding: 10px 20px;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: space-between;
-  height: 350px;
-
+  padding: 10px 0;
   .category-block {
-    width: 33%;
-    margin: 0 10px;
+    margin: 10px 0;
     border-radius: 6px;
     padding: 5px 10px 5px 8px;
-    height: 100%;
-    overflow-y: auto;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
 
     .category-item {
+      width: 31%;
       display: flex;
       flex-direction: row;
+      justify-content: flex-start;
       align-items: center;
       cursor: pointer;
       color: #4A4B50;
       margin: 5px 0;
-      height: 24px;
       line-height: 24px;
+      user-select: none;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      word-break: break-all;
       user-select: none;
       .selected-icon {
         display: flex;
@@ -252,16 +274,18 @@ export default {
       }
 
       .item-name {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: flex-start;
-        padding-left: 2px;
+        width: 100%;
+        padding: 0 10px 0 2px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        word-break: break-all;
+        user-select: none;
       }
 
       &:hover {
         .self-item-delete {
-          display: flex;
+          visibility: visible;
           align-items: center;
           justify-content: center;
         }
@@ -287,13 +311,26 @@ export default {
     }
 
     .self-input {
-      margin-top: 10px;
+      width: 100%;
+      display: block;
+      .self-input-wrapper {
+        width: 50%;
+        margin: 10px auto;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        .ensure-icon {
+          margin-left: 10px;
+          color: #15C39A;
+        }
+      }
     }
 
     .self-item-delete {
       font-size: 12px;
       padding-left: 4px;
-      display: none;
+      visibility: hidden;
     }
 
     .slef-category-btn {
@@ -312,7 +349,17 @@ export default {
 }
 
 .no-self-category {
-  height: 150px;
+  width: 100%;
+  text-align: center;
+}
+
+.category-name {
+  display: flex;
+  font-weight: bold;
+  justify-content: center;
+  align-items: center;
+  line-height: 30px;
+  width: 100%;
 }
 
 </style>

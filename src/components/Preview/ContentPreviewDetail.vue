@@ -383,7 +383,7 @@ import * as logger from '@/utils/logger'
 import { formatLocalUTC } from '@/utils/util'
 import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
 import { QueryByClassInfoSlideId } from '@/api/classroom'
-import { FavoritesAdd } from '@/api/favorites'
+import { FavoritesAdd, FavoritesDelete } from '@/api/favorites'
 import CardListItem from '@/components/Preview/CardListItem'
 import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 import ShareIcon from '@/assets/v2/icons/header_share.svg?inline'
@@ -527,12 +527,16 @@ export default {
         } else {
           this.$message.error(ret.message)
         }
-        const statRet = await getStatByContentId({ contentId: this.contentId })
-        this.$logger.info('statRet', statRet)
-        this.stat = statRet.result
+        await this.loadStat()
       } finally {
         this.contentLoading = false
       }
+    },
+
+    async loadStat() {
+      const statRet = await getStatByContentId({ contentId: this.contentId })
+      this.$logger.info('statRet', statRet)
+      this.stat = statRet.result
     },
 
     async loadDetailByContentIDType(contentId, contentType) {
@@ -678,12 +682,32 @@ export default {
     },
 
     handleFavorite () {
+      if (this.favoriteFlag) {
+        this.handleRemoveFavorite()
+      } else {
+        this.handleAddFavorite()
+      }
+    },
+    handleAddFavorite() {
       FavoritesAdd({
         sourceId: this.contentId,
         sourceType: this.contentType
       }).then(response => {
         this.$logger.info('FavoritesAdd ', response)
         this.favoriteFlag = !this.favoriteFlag
+      }).finally(async () => {
+        await this.loadStat()
+      })
+    },
+    handleRemoveFavorite () {
+      FavoritesDelete({
+        sourceId: this.contentId,
+        sourceType: this.contentType
+      }).then(response => {
+        this.$logger.info('handleRemoveFavorite ', response)
+        this.favoriteFlag = !this.favoriteFlag
+      }).finally(async () => {
+        await this.loadStat()
       })
     },
 

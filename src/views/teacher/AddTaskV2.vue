@@ -486,9 +486,9 @@
       :title='null'
       :closable='false'
       destroyOnClose
-      width='600px'>
+      width='700px'>
       <modal-header title='Congratulation!' @close='showSplitTask = false' />
-      <split-task-setting :is-sub-task="form.parentTaskId" :price='form.price' :is-self-learning='form.contentType === 1' @confirm='handleUpdateBySubTaskSetting' @confirm-and-split='handleGoToSubTask' />
+      <split-task-setting :is-sub-task="form.parentTaskId" :price='form.price' :discount='form.discount' :is-self-learning='form.contentType === 1' @confirm='handleUpdateBySubTaskSetting' @confirm-and-split='handleGoToSubTask' />
     </a-modal>
   </div>
 </template>
@@ -961,15 +961,16 @@ export default {
       }
     },
 
-    handlePublishFormItem (status) {
+    async handlePublishFormItem (status) {
       const data = {
         id: this.taskId,
         status: status,
         type: this.contentType.task
       }
-      UpdateContentStatus(data).then(() => {
+      await UpdateContentStatus(data)
+      if (status) {
         this.$message.success(this.$t('teacher.add-unit-plan.publish-success'))
-      })
+      }
     },
 
     handleSelectTaskType(type) {
@@ -1556,23 +1557,26 @@ export default {
       this.waitingRedirect = true
       this.saving = true
       this.form.price = data.price
+      this.form.discount = data.discount
+      this.form.dontRemind = data.dontRemind
+      this.form.discountStartDate = data.startDate
+      this.form.discountEndData = data.endData
       this.form.contentType = data.isSelfLearning ? 1 : 0
       this.showSplitTask = false
+      this.waitingRedirect = true
       await this.save()
       this.waitingRedirect = false
-      this.$router.replace({
-        path: '/'
-      })
+      if (data.isPublish) {
+        await this.handlePublishFormItem(1)
+      }
+      if (data.isCreateSubTask) {
+        this.handleGoToSubTask(data)
+      } else {
+        this.goBack()
+      }
     },
     handleGoToSubTask (data) {
       this.$logger.info('handleGoToSubTask', data)
-      this.waitingRedirect = true
-      this.saving = true
-      this.form.price = data.price
-      this.form.contentType = data.isSelfLearning ? 1 : 0
-      this.showSplitTask = false
-      this.save()
-      this.waitingRedirect = false
       this.$router.replace({
         path: '/teacher/split-task/' + this.taskId
       })

@@ -2,7 +2,7 @@
   <div class='create-new'>
     <a-dropdown>
       <a-menu slot="overlay" class='create-new-menu'>
-        <a-menu-item>
+        <a-menu-item v-if='$store.state.user.info.schoolList.length >= 1'>
           <a @click='handleImport'>
             Import
           </a>

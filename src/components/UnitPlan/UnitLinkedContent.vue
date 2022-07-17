@@ -14,6 +14,9 @@
         </custom-text-button>
       </a-space>
     </div>
+    <div class='no-category-linked-content'>
+
+    </div>
     <div class='linked-content'>
       <draggable
         v-model="groups"
@@ -22,9 +25,9 @@
         group="category">
         <div
           class='linked-category'
-          v-for='(groupItem, gIdx) in groups'
+          v-for='(groupItem) in groups'
           :key='groupItem.groupName'>
-          <div class='category-name' :style="{'background-color': color[gIdx]}">
+          <div class='category-name' :style="{'background-color': '#DEF1EE'}">
             {{ groupItem.groupName || 'Untitled' }}
             <div class='category-delete' v-if="canEdit">
               <a-popconfirm title="Delete category ?" ok-text="Yes" @confirm="handleDeleteGroup(groupItem)" cancel-text="No">
@@ -215,6 +218,21 @@ export default {
         this.$logger.info('ownerLinkGroupList', this.ownerLinkGroupList)
 
         this.ownerLinkGroupList.forEach(group => {
+          group.contents.forEach(content => {
+            if (content.type === this.$classcipe.typeMap['unit-plan']) {
+              this.associateUnitIdList.push(content.id)
+              this.associateId2Name.set(content.id, content.name)
+              this.associateUnitList.push(content)
+            }
+
+            if (content.type === this.$classcipe.typeMap.task) {
+              this.associateTaskIdList.push(content.id)
+              this.associateId2Name.set(content.id, content.name)
+              this.associateTaskList.push(content)
+            }
+          })
+        })
+        response.result.others.forEach(group => {
           group.contents.forEach(content => {
             if (content.type === this.$classcipe.typeMap['unit-plan']) {
               this.associateUnitIdList.push(content.id)

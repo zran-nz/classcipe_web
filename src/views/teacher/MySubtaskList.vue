@@ -40,8 +40,7 @@
             :show-button='true'
             :show-edit='true'
             :show-delete='true'
-            :show-schedule='true'
-            :click-preview='false'/>
+            :show-schedule='true'/>
         </div>
       </div>
     </div>

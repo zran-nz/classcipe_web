@@ -14,9 +14,9 @@
         title="Unit Plan"
         category="plan"
         :list="unitList"
-        :card-size="22"
-        :inner-desc="true"
-        :outer-desc="false"
+        :card-size="15"
+        :inner-desc="false"
+        :outer-desc="true"
         :is-school-mode='true'
         :card-mode="'resource'"
         v-show="unitList.length > 0" />
@@ -25,9 +25,9 @@
         title="Task"
         category="task"
         :list="taskList"
-        :card-size="22"
-        :inner-desc="true"
-        :outer-desc="false"
+        :card-size="15"
+        :inner-desc="false"
+        :outer-desc="true"
         :is-school-mode='true'
         :card-mode="'resource'"
         v-show="taskList.length > 0" />

@@ -11,48 +11,52 @@
     <div class='library-iframe-wrapper'>
 
       <card-list
-        title="Recommend"
+        title="Recommendation For You"
+        sub-title='Based on the curriculum, subjects and grades you chose'
+        title-position='center'
         category="recommended"
         :list="recommendList"
-        :card-size="30"
-        :inner-desc="true"
-        :outer-desc="false"
+        :card-size="20"
+        :inner-desc="false"
+        :outer-desc="true"
         v-show="recommendList.length > 0" />
 
       <card-list
         title="Latest published"
+        sub-title='Recently designed and published by certified educators'
+        title-position='center'
         category="released"
         :list="lastPublishedList"
-        :card-size="27"
+        :card-size="20"
         :inner-desc="true"
         :outer-desc="false"
         v-show="lastPublishedList.length > 0" />
 
       <card-list
-        title="Professional development"
+        title="Explore by Professional development"
         category="pd"
         :list="pdList"
-        :card-size="22"
-        :inner-desc="true"
-        :outer-desc="false"
+        :card-size="15"
+        :inner-desc="false"
+        :outer-desc="true"
         v-show="pdList.length > 0" />
 
       <card-list
-        title="Unit Plan"
+        title="Explore by Unit Plans"
         category="plan"
         :list="unitList"
-        :card-size="22"
-        :inner-desc="true"
-        :outer-desc="false"
+        :card-size="15"
+        :inner-desc="false"
+        :outer-desc="true"
         v-show="unitList.length > 0" />
 
       <card-list
-        title="Task"
+        title="Explore by Tasks"
         category="task"
         :list="taskList"
-        :card-size="22"
-        :inner-desc="true"
-        :outer-desc="false"
+        :card-size="15"
+        :inner-desc="false"
+        :outer-desc="true"
         v-show="taskList.length > 0" />
     </div>
   </div>
@@ -67,6 +71,7 @@ import CardList from '@/components/LibraryV3/CardList'
 import { getLibraryRecommend, getLibraryResource } from '@/api/v2/library'
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
+import { HIDDEN_SIDEBAR } from '@/store/mutation-types'
 
 export default {
   name: 'Library',
@@ -88,6 +93,7 @@ export default {
   },
   created() {
     this.initData()
+    this.$store.commit(HIDDEN_SIDEBAR, true)
   },
   methods: {
 
@@ -146,7 +152,7 @@ export default {
     height: calc(100vh - 80px);
     overflow-y: auto;
     width: 100%;
-    padding: 15px 20px;
+    padding: 0 100px;
   }
 }
 </style>
