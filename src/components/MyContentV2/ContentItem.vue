@@ -118,13 +118,26 @@
 
             <custom-button
               label='Schedule'
-              :title="content.presentationId ? '' : 'This task/PD content can not be scheduled without interactive slides, please edit google slides first before scheduling'"
-              v-if='showSchedule && (content.type === typeMap.task || content.type === typeMap.pd) && !content.slideEditing'
+              v-if='content.presentationId && showSchedule && (content.type === typeMap.task || content.type === typeMap.pd) && !content.slideEditing'
               @click='handleSchedule'>
               <template v-slot:icon>
                 <schedule-icon />
               </template>
             </custom-button>
+
+            <a-popover trigger="click">
+              <a slot="content">
+                This task/PD content can not be scheduled without interactive slides,
+                <br/> please edit google slides first before scheduling.
+              </a>
+              <custom-button
+                label='Schedule'
+                v-if='!content.presentationId'>
+                <template v-slot:icon>
+                  <schedule-icon />
+                </template>
+              </custom-button>
+            </a-popover>
 
             <custom-button
               label='Save changes'
@@ -317,7 +330,10 @@ export default {
           path: '/teacher/schedule-session/' + this.content.id + '/' + this.content.type
         })
       } else {
-        this.$message.warn('This task/PD content can not be scheduled without interactive slides, please edit google slides first before scheduling.')
+        this.$confirm({
+          title: 'Warning',
+          content: 'This task/PD content can not be scheduled without interactive slides, please edit google slides first before scheduling.'
+        })
       }
     },
 

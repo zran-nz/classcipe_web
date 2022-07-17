@@ -616,6 +616,7 @@ export default {
           contentUrl: 'http://dcdkqlzgpl5ba.cloudfront.net/file/20210730045859200-education-5923312_640.png'
         })
       }
+      this.$logger.info('initImgList', this.thumbnailList)
     },
 
     async loadSlideData () {
@@ -626,6 +627,18 @@ export default {
         this.thumbnailList = slideData.result.pageObjects
         this.pageObjectIds = slideData.result.pageObjectIds
         await this.loadMaterialData()
+
+        if (this.thumbnailList.length === 0) {
+          if (this.content.image) {
+            this.thumbnailList.push({
+              contentUrl: this.content.image
+            })
+          } else {
+            this.thumbnailList.push({
+              contentUrl: 'http://dcdkqlzgpl5ba.cloudfront.net/file/20210730045859200-education-5923312_640.png'
+            })
+          }
+        }
       } catch (e) {
         console.error('loadSlideData', e)
       } finally {
