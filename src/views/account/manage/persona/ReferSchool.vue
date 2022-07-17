@@ -11,10 +11,10 @@
         <div class="account-info-title">
           Complete the form below to send your principal an email about Classcipe
         </div>
-        <div class="account-info-sub">
+        <!-- <div class="account-info-sub">
           <a-button v-show="!adminFormVisible" @click="adminFormVisible = true" type="link">I'm an administrator ></a-button>
           <a-button v-show="adminFormVisible" @click="adminFormVisible = false" type="link">I'm not an administrator ></a-button>
-        </div>
+        </div> -->
         <a-spin :spinning="confirmLoading">
           <a-form-model
             ref="userForm"
@@ -324,6 +324,8 @@ export default {
   },
   created () {
     this.debouncedSearchSchool = debounce(this.searchSchool, 500)
+    this.adminFormOrigin = { ...this.adminForm }
+    this.userFormOrigin = { ...this.userForm }
     this.initDict()
   },
   computed: {
@@ -426,6 +428,10 @@ export default {
     doSaveUserForm() {
       this.$refs.userForm.validate(valid => {
         if (valid) {
+          // TODO 需要判断是否已经提交过
+          // if (false) {
+          //   this.$message.error('You have already referred this principal')
+          // }
           // 同名 同国家 才是同学校，否则不是同学校
           const school = this.myCreateSchoolOptions.find(item => item.id === this.userForm.schoolId)
           const createdSchool = this.schoolOptions.find(item => item.id === this.userForm.schoolId)
@@ -455,6 +461,7 @@ export default {
                   if (res.success) {
                     this.$message.success('Send successfully')
                     this.visible = false
+                    this.userForm = { ...this.userFormOrigin }
                   }
                 })
               }
@@ -467,6 +474,7 @@ export default {
               if (res.success) {
                 this.$message.success('Send successfully')
                 this.visible = false
+                this.userForm = { ...this.userFormOrigin }
               }
             }).finally(res => {
               this.confirmLoading = false
@@ -488,6 +496,7 @@ export default {
             if (res.success) {
               this.$message.success('Send successfully')
               this.visible = false
+              this.adminForm = { ...this.adminFormOrigin }
             }
           }).finally(res => {
             this.confirmLoading = false

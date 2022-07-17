@@ -31,13 +31,15 @@
         </div>
       </div>
     </template>
-    <a-rate :default-value="5" disabled class='cc-rate'/>
+    <!-- TODO 学生老师 -->
+    <a-rate :value="reviewsStats.overall" allow-half disabled/>
   </a-popover>
 </template>
 
 <script>
-import { byOverall } from '@/api/reviewsTeacher'
+import { byOverall, ReviewsTeacherStats } from '@/api/reviewsTeacher'
 import { getStatByContentId } from '@/api/contentGrade'
+import * as ReviewsTask from '@/api/reviewsTask'
 
 import EBar from '@/components/ECharts/Bar'
 
@@ -65,11 +67,22 @@ export default {
       id: this.contentId,
       progressWidth: '80px',
       reviews: [],
-      charts: []
+      charts: [],
+      reviewsStats: {
+        avgReviewsScore: 0,
+        reviewsScoreStatDetail: [],
+
+        reviewsCount: 0,
+        effectiveness: 0,
+        overall: 0,
+        quality: 0,
+        studentsEngagement: 0
+      }
     }
   },
   created() {
     this.initData()
+    this.loadReviewStats()
     this.handleInit = debounce(this.initData, 300)
   },
   methods: {
@@ -96,12 +109,37 @@ export default {
             }
           })
         }
-        if (statRes.code === 0) {
-          this.charts = statRes.result
-          this.charts = []
+        if (statRes.code === 0 && statRes.result) {
+          const charts = []
+          for (let i = 3; i < 19; i++) {
+            charts.push({
+              label: i,
+              value: statRes.result[i] || 0
+            })
+          }
+          this.charts = {
+            title: 'Age',
+            data: charts
+          }
         }
       }).finally(() => {
         this.loading = false
+      })
+    },
+    loadReviewStats () {
+      let promise = null
+      if (this.currentRole === 'student') {
+        promise = ReviewsTask.ReviewsTaskStats
+      } else {
+        promise = ReviewsTeacherStats
+      }
+      promise && promise({
+        taskId: this.id, // 学生需要
+        purchasesId: this.id // 老师需要
+      }).then(res => {
+        if (res.success) {
+          this.reviewsStats = res.result
+        }
       })
     },
     goAll() {

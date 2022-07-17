@@ -394,26 +394,28 @@ export default {
           pageNo: 1,
           pageSize: 1
         }),
-        getSchoolUsers({
-          schoolId: this.currentSchool.id,
-          roles: 'teacher',
-          pageNo: 1,
-          pageSize: 1
-        }),
-        getSchoolUsers({
-          schoolId: this.currentSchool.id,
-          roles: 'student',
-          pageNo: 1,
-          pageSize: 1
-        })
+        ...this.userMode === USER_MODE.SCHOOL ? [
+          getSchoolUsers({
+            schoolId: this.currentSchool.id,
+            roles: 'teacher',
+            pageNo: 1,
+            pageSize: 1
+          }),
+          getSchoolUsers({
+            schoolId: this.currentSchool.id,
+            roles: 'student',
+            pageNo: 1,
+            pageSize: 1
+          })
+        ] : []
       ]).then(([clsRes, teacherRes, studentRes]) => {
         if (clsRes.code === 0) {
           this.classCount = clsRes.result.total
         }
-        if (teacherRes.code === 0) {
+        if (teacherRes && teacherRes.code === 0) {
           this.teacherCount = teacherRes.result.total
         }
-        if (studentRes.code === 0) {
+        if (studentRes && studentRes.code === 0) {
           this.studentCount = studentRes.result.total
         }
       })

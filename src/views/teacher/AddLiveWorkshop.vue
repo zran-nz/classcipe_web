@@ -258,8 +258,8 @@ import { typeMap } from '@/const/teacher'
 import { TaskQueryById } from '@/api/task'
 import { PDContentQueryById } from '@/api/pdContent'
 import { AddSessionV2 } from '@/api/v2/classes'
-import { SubjectTree } from '@/api/subject'
-import { GetGradesByCurriculumId } from '@/api/preference'
+import { getCurriculumBySchoolId } from '@/api/academicSettingCurriculum'
+import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
 import { queryTeachers } from '@/api/common'
 import { PAID_TYPE, NOTIFY_TYPE, USER_MODE } from '@/const/common'
 
@@ -394,19 +394,26 @@ export default {
       }
     },
     initFilterOption() {
-      const curriculumId = this.userMode === USER_MODE.SELF ? this.bindCurriculum : this.currentSchool.curriculumId
-      SubjectTree({ curriculumId: curriculumId }).then(response => {
-        this.$logger.info('getSubjectTree response', response.result)
+      getSubjectBySchoolId({ schoolId: this.currentSchool.id }).then(response => {
+        this.$logger.info('getSubjectBySchoolId response', response.result)
         this.filterSubjectOptions = []
-        response.result.forEach(subject => {
-          this.filterSubjectOptions.push({ label: subject.name, value: subject.name })
+        response.result.forEach(curiculum => {
+          if (curiculum.subjectList) {
+            curiculum.subjectList.forEach(subject => {
+              this.filterSubjectOptions.push({ label: subject.subjectName, value: subject.subjectId })
+            })
+          }
         })
       })
-      GetGradesByCurriculumId({ curriculumId: curriculumId }).then(response => {
-        this.$logger.info('GetGradesByCurriculumId', response.result)
+      getCurriculumBySchoolId({ schoolId: this.currentSchool.id }).then(response => {
+        this.$logger.info('getCurriculumBySchoolId', response.result)
         this.filterAgeOptions = []
-        response.result.forEach(grade => {
-          this.filterAgeOptions.push({ label: grade.name, value: grade.name })
+        response.result.forEach(curiculum => {
+          if (curiculum.gradeSettingInfo) {
+            curiculum.gradeSettingInfo.forEach(grade => {
+              this.filterAgeOptions.push({ label: grade.gradeName, value: grade.gradeId })
+            })
+          }
         })
       })
     },
@@ -445,6 +452,7 @@ export default {
 
     changeFilter() {
       if (USER_MODE.SCHOOL === this.userMode && this.form.notifyType !== NOTIFY_TYPE.ALL.value) {
+        // TODO 接口变更
         queryTeachers({
           gradeIds: this.form.notifyType === NOTIFY_TYPE.FILTER_YEARS.value ? this.filter.ages : [],
           subjectIds: this.form.notifyType === NOTIFY_TYPE.FILTER_SUBJECTS.value ? this.filter.subjects : [],
