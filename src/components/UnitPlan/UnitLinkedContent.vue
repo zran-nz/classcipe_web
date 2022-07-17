@@ -27,15 +27,15 @@
           class='linked-category'
           v-for='(groupItem) in groups'
           :key='groupItem.groupName'>
-          <div class='category-name' :style="{'background-color': '#DEF1EE'}">
-            {{ groupItem.groupName || 'Untitled' }}
+          <div class='category-name' :style="{'background-color': '#DEF1EE'}" v-show='groupItem.groupName'>
+            {{ groupItem.groupName }}
             <div class='category-delete' v-if="canEdit">
               <a-popconfirm title="Delete category ?" ok-text="Yes" @confirm="handleDeleteGroup(groupItem)" cancel-text="No">
                 <delete-icon />
               </a-popconfirm>
             </div>
           </div>
-          <div class='delete-category' >
+          <div class='delete-category' v-show='groupItem.groupName'>
             <a-popconfirm cancel-text="No" ok-text="Yes" title="Delete ?" @confirm="handleDeleteGroup(groupItem)">
               <delete-icon color='#F16A39' />
             </a-popconfirm>
@@ -48,7 +48,7 @@
             style="width: 100%; min-height: 50px"
             :move='handleOnMve'
             @add="handleDragContent($event, groupItem)">
-            <div class='linked-item' v-for='content in groupItem.contents' :key='content.id'>
+            <div class='linked-item' v-for='content in groupItem.contents' :key='content.id' :data-item='JSON.stringify(content)' :data-inner='true'>
               <link-content-item :content='content' :show-delete='true' @delete='handleDeleteLinkItem' />
             </div>
           </draggable>
@@ -196,8 +196,8 @@ export default {
       this.$logger.info('GetAssociate id[' + this.fromId)
       this.associateUnitList = []
       this.associateUnitIdList = []
-      this.associateUnitIdList = []
       this.associateTaskList = []
+      this.associateTaskIdList = []
       this.associateId2Name.clear()
       this.linkGroupLoading = true
       await GetAssociate({
@@ -214,10 +214,11 @@ export default {
           }
         })
         this.ownerLinkGroupList = response.result.owner
-        this.groups = response.result.groups
-        this.$logger.info('ownerLinkGroupList', this.ownerLinkGroupList)
+        const groups = response.result.groups
+        this.$logger.info('GetAssociate owner', this.ownerLinkGroupList)
 
         this.ownerLinkGroupList.forEach(group => {
+          const targetGroup = groups.find(item => item.groupName === group.group || (group.group === 'Relevant Unit Plan(s)' && item.groupName === ''))
           group.contents.forEach(content => {
             if (content.type === this.$classcipe.typeMap['unit-plan']) {
               this.associateUnitIdList.push(content.id)
@@ -230,23 +231,17 @@ export default {
               this.associateId2Name.set(content.id, content.name)
               this.associateTaskList.push(content)
             }
-          })
-        })
-        response.result.others.forEach(group => {
-          group.contents.forEach(content => {
-            if (content.type === this.$classcipe.typeMap['unit-plan']) {
-              this.associateUnitIdList.push(content.id)
-              this.associateId2Name.set(content.id, content.name)
-              this.associateUnitList.push(content)
-            }
-
-            if (content.type === this.$classcipe.typeMap.task) {
-              this.associateTaskIdList.push(content.id)
-              this.associateId2Name.set(content.id, content.name)
-              this.associateTaskList.push(content)
+            if (targetGroup && !targetGroup.contents.some(item => item.id === content.id)) {
+              targetGroup.contents.push(JSON.parse(JSON.stringify(content)))
             }
           })
         })
+        this.groups = groups
+        this.$logger.info('groups', groups)
+        this.associateUnitIdList = Array.from(new Set(this.associateUnitIdList))
+        this.associateTaskIdList = Array.from(new Set(this.associateTaskIdList))
+        this.$logger.info('GetAssociate associateUnitIdList', this.associateUnitIdList)
+        this.$logger.info('GetAssociate associateTaskIdList', this.associateTaskIdList)
         this.$emit('update-unit-id-list', this.associateUnitIdList)
         this.$emit('update-task-id-list', this.associateTaskIdList)
       }).finally(() => {
@@ -258,9 +253,13 @@ export default {
       this.$logger.info('UnitLinkedContent handleDropContent', event, groupItem)
       event.item.style.display = 'none'
       const itemData = JSON.parse(event.item.dataset.item)
-      event.item.parentElement.removeChild(event.item)
+      event.item?.parentElement && event.item.parentElement.removeChild(event.item)
       this.$logger.info('item data', itemData)
+      this.$logger.info('item inner', event.item.dataset.inner)
 
+      if (event.item.dataset.inner) {
+        await this.handleDeleteLinkItem(itemData, false)
+      }
       const associateData = {
         fromId: this.fromId,
         fromType: this.$classcipe.typeMap['unit-plan'],
@@ -272,36 +271,38 @@ export default {
           }
         ]
       }
-
       this.$logger.info('associateData', associateData)
       await Associate(associateData)
-      this.getAssociate()
+      await this.getAssociate()
     },
 
-    handleDeleteGroup (group) {
+    async handleDeleteGroup (group) {
       this.$logger.info('handleDeleteGroup', group)
-      group.contents.forEach(async content => {
-        await AssociateCancel({
+      const jobList = []
+      group.contents.forEach(content => {
+        jobList.push(AssociateCancel({
           fromId: this.fromId,
           fromType: this.$classcipe.typeMap['unit-plan'],
           toId: content.id,
           toType: content.type
         }).then(response => {
           this.$logger.info('handleDeleteLinkItem response ', response)
-        })
+        }))
       })
 
+      await Promise.all(jobList)
+
       this.$logger.info('handleDeleteGroup all contents')
-      setTimeout(() => {
-        DeleteGroup({
-          fromId: this.fromId,
-          fromType: this.$classcipe.typeMap['unit-plan'],
-          id: group.id
-        }).then(response => {
-          this.$logger.info('DeleteGroup', response)
-          this.getAssociate()
-        })
-      }, 1000)
+      DeleteGroup({
+        fromId: this.fromId,
+        fromType: this.$classcipe.typeMap['unit-plan'],
+        id: group.id
+      }).then(async response => {
+        this.$logger.info('DeleteGroup', response)
+        await this.getAssociate()
+      }).finally(() => {
+        this.$EventBus.$emit('refresh-link-content-list')
+      })
     },
 
     async handleAddTerm(newGroupNameList) {
@@ -313,7 +314,7 @@ export default {
           groupName: newGroupNameList[i]
         })
       }
-      this.getAssociate()
+      await this.getAssociate()
     },
 
     handleOnMve(e) {
@@ -324,17 +325,21 @@ export default {
       return true
     },
 
-    handleDeleteLinkItem (item) {
+    async handleDeleteLinkItem (item, refresh = true) {
       this.$logger.info('handleDeleteLinkItem', item)
-      AssociateCancel({
+      const response = await AssociateCancel({
         fromId: this.fromId,
         fromType: this.$classcipe.typeMap['unit-plan'],
         toId: item.id,
         toType: item.type
-      }).then(response => {
-        this.$logger.info('handleDeleteLinkItem response ', response)
-        // 刷新子组件的关联数据
-        this.getAssociate()
+      })
+      this.$logger.info('handleDeleteLinkItem response ', response)
+      // 刷新子组件的关联数据
+      if (refresh) {
+        await this.getAssociate()
+      }
+      this.$nextTick(() => {
+        this.$EventBus.$emit('refresh-link-content-list')
       })
     }
   }

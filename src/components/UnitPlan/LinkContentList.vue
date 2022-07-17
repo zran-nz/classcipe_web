@@ -104,11 +104,21 @@ export default {
       currentSchool: state => state.user.currentSchool
     })
   },
+  watch: {
+    selectedIdList(newVal) {
+      console.log('selectedIdList', newVal)
+    }
+  },
   created() {
     this.handleSearch({})
+    this.$EventBus.$on('refresh-link-content-list', this.handleTypeFilter)
+  },
+  beforeDestroy() {
+    this.$EventBus.$off('refresh-link-content-list', this.handleTypeFilter)
   },
   methods: {
     handleTypeFilter () {
+      this.$logger.info('handleTypeFilter selectedIdList', this.selectedIdList)
       this.$refs.filter.triggerSearch()
     },
     handleSearch (data) {

@@ -1786,7 +1786,7 @@ export default {
     },
 
     updateTaskIdList (idList) {
-      this.$logger.info('associateTaskIdList', idList)
+      this.$logger.info('updateTaskIdList', idList)
       this.associateTaskIdList = idList
     },
 
