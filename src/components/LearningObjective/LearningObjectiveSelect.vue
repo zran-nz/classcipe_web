@@ -30,7 +30,7 @@
                 <rate-level @change="val => handleChangeLevel(val, item)" :bloom="item.bloomTag || ''"/>
               </div>
               <div class="bloom-wrapper">
-                <label for="">Knowlegde Dimensions:</label>
+                <label for="">Knowledge Dimensions:</label>
                 <rate-level @change="val => handleChangeLevel(val, item)" :knowledge="item.knowledgeDimension || ''" />
               </div>
             </div>

@@ -143,6 +143,22 @@
       <div class='edit-content' v-if='content.createBy === $store.getters.userInfo.email && showEditButton'>
         <a-button class='cc-dark-button' style='width: 90px' shape='round' @click='handleEdit'>Edit</a-button>
       </div>
+
+      <template v-if="content.customTags && content.customTags.length">
+        <div class='content-block'>
+          <div class='content-title'>
+            Tags
+          </div>
+          <div class='content-detail'>
+            <div class='preview-tag-list'>
+              <div class='skt-tag-item' v-for='(tag, index) in content.customTags' :key='index'>
+                <a-tag class="tag-item cc-custom-tag-item">{{ tag.name || tag.category }}</a-tag>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+
       <template v-if="content.name && content.name.trim()">
         <div class='content-block'>
           <div class='content-title'>
@@ -155,7 +171,7 @@
         </div>
       </template>
 
-      <template v-if="content.contentType">
+      <template v-if="content.hasOwnProperty('videoList')">
         <div class='content-block'>
           <div class='content-title'>
             Purpose of video
@@ -214,6 +230,21 @@
         </div>
       </template>
 
+      <template v-if="content.subjectList && content.subjectList.length">
+        <div class='content-block'>
+          <div class='content-title'>
+            Subject
+          </div>
+          <div class='content-detail'>
+            <div class='subject-list vertical-left'>
+              <div class='subject-item' v-for='subject in content.subjectList' :key='subject'>
+                {{ subject }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+
       <a-row v-if='content.yearList || content.unitType || content.projectBased' class='line-data'>
         <a-col span='8' class='line-data-item'>
           <div class='line-title'>
@@ -254,7 +285,49 @@
           </div>
           <div class='content-detail'>
             <div class="content-detail-item" v-for="(learnOut, i) in content.learnOuts" :key="i">
-              {{ learnOut.desc }}
+              <div class='desc-item'>
+                {{ learnOut.desc }}
+              </div>
+              <div class='more-tag vertical-left'>
+                <div class="item-bloom-wrapper">
+                  <div class="bloom-wrapper">
+                    <label>Bloom's Taxonomy:</label>
+                    <rate-level :bloom="learnOut.bloomTag || ''"/>
+                  </div>
+                  <div class="bloom-wrapper">
+                    <label>Knowledge Dimensions:</label>
+                    <rate-level :knowledge="learnOut.knowledgeDimension || ''" />
+                  </div>
+                </div>
+              </div>
+              <div class='more-tag'>
+                <div class="item-command-wrapper" v-if="learnOut.commandTerms && learnOut.commandTerms.length > 0">
+                  <label>Command Term:</label>
+                  <div class="wrapper-list">
+                    <div
+                      class='wrapper-list-item'
+                      v-for='(terms) in learnOut.commandTerms'
+                      :key='terms.name'>
+                      <a-tag class='command-tag'>
+                        <div class='tag-content'>{{ terms.name }}</div>
+                      </a-tag>
+                    </div>
+                  </div>
+                </div>
+                <div class="item-command-wrapper" v-if="learnOut.knowledgeTags && learnOut.knowledgeTags.length > 0">
+                  <label>Knowledge tag:</label>
+                  <div class="wrapper-list">
+                    <div
+                      class='wrapper-list-item'
+                      v-for='(terms) in learnOut.knowledgeTags'
+                      :key='terms.name'>
+                      <a-tag class='command-tag knowledge'>
+                        <div class='tag-content'>{{ terms.name }}</div>
+                      </a-tag>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -401,10 +474,11 @@ import { ContentItemMixin } from '@/mixins/ContentItemMixin'
 import { getStatByContentId } from '@/api/statistics'
 import { ContentGradeSave } from '@/api/contentGrade'
 import ModalHeader from '@/components/Common/ModalHeader'
+import RateLevel from '@/components/RateLevel'
 
 export default {
   name: 'ContentPreviewDetail',
-  components: { ModalHeader, ContentPreview, CustomLinkText, ShareButton, CardListItem, PreviewCarousel, ShareIcon, RateByPercent, ReviewsPreview, ReviewScore, ReviewStat },
+  components: { RateLevel, ModalHeader, ContentPreview, CustomLinkText, ShareButton, CardListItem, PreviewCarousel, ShareIcon, RateByPercent, ReviewsPreview, ReviewScore, ReviewStat },
   props: {
     contentId: {
       type: String,
@@ -1060,10 +1134,62 @@ export default {
     line-height: 24px;
 
     .content-detail-item {
-      margin-bottom: 10px;
-      padding: 5px 10px;
-      border-radius: 5px;
-      background: #F5F5F5;
+      margin-top: 10px;
+      margin-bottom: 20px;
+      .desc-item {
+        margin-bottom: 5px;
+        padding: 5px 10px;
+        border-radius: 5px;
+        background: #F5F5F5;
+      }
+
+      .more-tag {
+        padding-left: 10px;
+        .item-bloom-wrapper {
+          display: flex;
+          .bloom-wrapper {
+            font-size: 10px;
+            font-family: Arial;
+            font-weight: bold;
+            color: #191A1C;
+            margin-right: 50px;
+            display: flex;
+            align-items: center;
+            label {
+              margin-right: 5px;
+            }
+          }
+        }
+
+        .item-command-wrapper {
+          display: flex;
+          align-items: center;
+          margin-bottom: 5px;
+          label {
+            font-size: 10px;
+            font-family: Arial;
+            font-weight: bold;
+            color: #191A1C;
+            width: 100px;
+          }
+          .wrapper-list {
+            margin-left: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            flex: 1;
+          }
+        }
+
+        & > label {
+          font-weight: bold;
+          margin-bottom: 5px;
+        }
+        .wrapper-list-item {
+          .command-tag {
+            line-height: 25px;
+          }
+        }
+      }
     }
   }
 
@@ -1265,6 +1391,105 @@ export default {
     .selected-tag {
       border: 2px solid #15C39A;
     }
+  }
+}
+
+.preview-tag-list {
+  padding: 10px 0;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+
+  .skt-tag-item {
+    margin: 0 10px 10px 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    vertical-align: middle;
+    cursor: pointer;
+
+    .tag-item {
+      cursor: pointer;
+      color: #734110;
+      border: 2px solid #ffffff;
+      font-size: 13px;
+      background: #FFEDAF;
+      border-radius: 30px;
+      line-height: 30px;
+      padding-left: 15px;
+      margin-right: 0;
+      padding-right: 15px;
+      word-break: normal;
+      width: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow: hidden;
+      transition: all 0.3s ease;
+
+      /deep/ .anticon-close {
+        opacity: 0;
+        color: #f26c59;
+      }
+
+      &:hover {
+        /deep/ .anticon-close {
+          opacity: 1;
+        }
+      }
+    }
+
+    .tag-disable {
+      color: rgba(0, 0, 0, .25);
+      background-color: #f5f5f5;
+      border-color: #d9d9d9;
+      text-shadow: none;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.subject-list {
+  .subject-item {
+    color: #15C39A;
+    cursor: pointer;
+    margin: 0 15px 10px 0;
+  }
+}
+
+.command-tag {
+  max-width: 150px;
+  border: none;
+  cursor: pointer;
+  padding: 0 10px;
+  border-radius: 26px;
+  line-height: 30px;
+  font-family: Arial;
+  font-weight: 400;
+  background: #06ACD7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .tag-content {
+    display: inline-block;
+    max-width: 120px;
+    text-overflow: ellipsis;
+    word-break: break-word;
+    user-select: none;
+    overflow: hidden;
+    color: #fff;
+  }
+  /deep/ i {
+    color: #fff
+  }
+  &.knowledge {
+    background: #EABA7F;
   }
 }
 
