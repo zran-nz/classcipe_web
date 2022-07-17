@@ -20,11 +20,8 @@
           <div class='tag-selected' v-if='step.tags && step.tags.length' @click='handleSetTag(step)'>
             <div class='tag-selected-list'>
               <div class='tag-selected-item' v-for='(tag, tIdx) in step.tags' :key="'tid2-' + tIdx">
-                <a-tag class='my-tag-selected' :class="{'my-tag-not-optional': tag.isOptional}">
-                  <template v-if='tag.isOptional'>
-                    <a-icon type="safety" :style="{ fontSize: '14px', 'margin-right': '3px'}"/>
-                  </template>
-                  <span class='my-tag-selected-name'>{{ tag.tagName }}</span>
+                <a-tag class='my-tag-selected'>
+                  <span class='my-tag-selected-name'>{{ tag }}</span>
                 </a-tag>
               </div>
             </div>

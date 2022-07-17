@@ -4,78 +4,42 @@
       <div class='tag-list-table'>
         <div class='tag-header'>
           <a-row>
-            <a-col span='11' offset='1'>
+            <a-col span='23' offset='1'>
               <div class='tag-header-item'>Tag Category</div>
-            </a-col>
-            <a-col span='6'>
-              <div class='tag-header-item'>Optional</div>
-            </a-col>
-            <a-col span='6'>
-              <div class='tag-header-item'>Create their own</div>
             </a-col>
           </a-row>
         </div>
         <div class='tag-body'>
-          <a-row class='tag-category-item' v-for='tag in tagList' :key='tag.id'>
+          <a-row class='tag-category-item' v-for='tag in allTagList' :key='tag.set'>
             <a-col span='1'>
-              <a-checkbox :checked='tag.isSelected' @change='handleCheckedChange(tag)'></a-checkbox>
+              <a-checkbox :checked='selectedSet.indexOf(tag.set) !== -1' @change='handleCheckedChange(tag)'></a-checkbox>
             </a-col>
-            <a-col span='11'>
-              <div class='tag-body-item tag-name' @click='tag.expand = !tag.expand'>
+            <a-col span='23' @click='handleCheckedChange(tag)'>
+              <div class='tag-body-item tag-name'>
                 <div class='tag-name-item'>
                   <div class='expand-icon'>
-                    <a-icon type="plus-square" :style="{'color': '#999'}" v-show='tag.keywords.length || tag.children.length'/>
+                    <a-icon type="plus-square" :style="{'color': '#999'}" v-show='tag.tags.length'/>
                   </div>
                   <div class='tag-name-text'>
-                    {{ tag.name }}
+                    {{ tag.set }}
                   </div>
                 </div>
-                <div class='tag-detail' v-show='tag.expand'>
-                  <template v-if='tag.children && tag.children.length'>
-                    <div class='sub-tag' v-for='(tagChild, tcId) in tag.children' :key='tcId'>
-                      <div class='sub-tag-title'>{{ tagChild.name }}</div>
-                      <a-tag class='tag-keyword' color="#15C39A" v-for='(tkeyword, tkIdx) in tagChild.keywords' :key='tkIdx'>
-                        {{ tkeyword }}
-                      </a-tag>
-                    </div>
-                  </template>
-                  <template v-if='tag.keywords'>
-                    <a-tag class='tag-keyword' color="#15C39A" v-for='(keyword, kIdx) in tag.keywords' :key='kIdx'>
-                      {{ keyword }}
+                <div class='tag-detail'>
+                  <template v-if='tag.tags'>
+                    <a-tag class='tag-keyword' color="#15C39A" v-for='(tagItem, kIdx) in tag.tags' :key='kIdx'>
+                      {{ tagItem.tag }}
                     </a-tag>
                   </template>
                 </div>
               </div>
             </a-col>
-            <a-col span='6'>
-              <a-radio-group :disabled="!tag.isOptional" v-model="tag.isOptional" @change="handleOptionalChange(tag)" class='tag-body-item' v-if='!tag.schoolId'>
-                <a-radio :value="true">
-                  Yes
-                </a-radio>
-                <a-radio :value="false">
-                  No
-                </a-radio>
-              </a-radio-group>
-              <div class='school-setting' v-if='tag.schoolId'>{{ tag.isOptional ? 'Yes' : 'No' }}</div>
-            </a-col>
-            <a-col span='6'>
-              <a-radio-group class='tag-body-item' :disabled="!tag.createOwn" v-model="tag.createOwn" @change="handleCreateOwnChange(tag)" v-if='!tag.schoolId'>
-                <a-radio :value="true">
-                  Yes
-                </a-radio>
-                <a-radio :value="false">
-                  No
-                </a-radio>
-              </a-radio-group>
-              <div class='school-setting' v-if='tag.schoolId'>{{ tag.createOwn ? 'Yes' : 'No' }}</div>
-            </a-col>
           </a-row>
         </div>
         <div class='tag-action'>
           <a-space>
-            <div class='tag-tips'>
-              To change settings of tag categories, go to <a href='#' @click='handleGoToTagPage'>Tags page</a>
-            </div>
+<!--            <div class='tag-tips'>-->
+<!--              To change settings of tag categories, go to <a href='#' @click='handleGoToTagPage'>Tags page</a>-->
+<!--            </div>-->
             <a-button type='primary' @click='handleEnsureSelected'>Confirm</a-button>
           </a-space>
         </div>
@@ -86,7 +50,21 @@
 
 <script>
 
-import { FindCustomTags } from '@/api/tag'
+import storage from 'store'
+import { ACCESS_TOKEN } from '@/store/mutation-types'
+
+const setColor = [
+  '#FFEDAF',
+  '#C8F4FF',
+  '#E6E4FF',
+  '#ffccb0',
+  '#ffa9a2',
+  '#a3ecb9',
+  '#f7c5f8',
+  '#ffbfe2',
+  '#d5b9ff',
+  '#c4f6b1'
+]
 
 export default {
   name: 'SetTag',
@@ -100,7 +78,31 @@ export default {
     return {
       loading: true,
       tagList: [],
-      mustTagNameList: []
+      selectedSet: [],
+    }
+  },
+  watch: {
+    selectedTags: {
+      immediate: true,
+      deep: true,
+      handler(newVal) {
+        this.selectedSet = this.selectedTags
+      }
+    }
+  },
+  computed: {
+    allTagList () {
+      const pubTagList = this.$store.getters.pubTagList
+      const priTagList = this.$store.getters.priTagList
+      const tagList = [...pubTagList, ...priTagList]
+      return tagList.map((tag, index) => {
+        return {
+          ...tag,
+          isSelected: false,
+          expand: false,
+          tagColor: setColor[ index % setColor.length ]
+        }
+      })
     }
   },
   created() {
@@ -110,25 +112,10 @@ export default {
   methods: {
     loadCustomTags () {
       this.loading = true
-      FindCustomTags({}).then((response) => {
-        if (response.success) {
-          this.mustTagNameList = []
-          response.result.recommends.forEach((tag) => {
-            if (tag.schoolId) {
-              this.mustTagNameList.push(tag.name)
-            }
-            const selectedTagItem = this.selectedTags.find((selectedTag) => {
-              return selectedTag.tagId === tag.id
-            })
-            tag.expand = false
-            tag.tagId = tag.id
-            tag.tagName = tag.name
-            tag.isSelected = !!selectedTagItem
-          })
-
-          this.tagList = response.result.recommends
-          this.$logger.info('FindCustomTags tagList', this.tagList)
-        }
+      this.$store.dispatch('initTagData', storage.get(ACCESS_TOKEN)).then(() => {
+      }).catch((err) => {
+        console.log(err)
+        this.$message.error('init tag data error. ' + err.message)
       }).finally(() => {
         this.loading = false
       })
@@ -136,26 +123,20 @@ export default {
 
     handleCheckedChange (tag) {
       this.$logger.info('handleCheckedChange tag', tag)
-      tag.isSelected = !tag.isSelected
+      const index = this.selectedSet.indexOf(tag.set)
+      if (index === -1) {
+        this.selectedSet.push(tag.set)
+      } else {
+        this.selectedSet.splice(index, 1)
+      }
     },
-
-    handleOptionalChange (tag) {
-      this.$logger.info('handleOptionalChange tag', tag)
-    },
-
-    handleCreateOwnChange (tag) {
-      this.$logger.info('handleCreateOwnChange tag', tag)
-    },
-
     handleCancel () {
       this.$emit('close')
     },
 
     handleEnsureSelected () {
-      this.$logger.info('handleEnsureSelected tagList', this.tagList)
-      this.$emit('update', this.tagList.filter((tag) => {
-        return tag.isSelected
-      }))
+      this.$logger.info('handleEnsureSelected tagList', this.selectedSet)
+      this.$emit('update', this.selectedSet)
     },
 
     handleGoToTagPage () {
