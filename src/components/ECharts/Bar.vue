@@ -59,8 +59,8 @@ export default {
     //   }
     // ]
     datas: {
-      type: Array,
-      default: () => []
+      type: Object,
+      default: () => {}
     }
   },
   components: {
@@ -69,7 +69,7 @@ export default {
   watch: {
     datas: {
       handler(newName, oldName) {
-        this.initData(newName.concat())
+        this.initData(newName)
       },
       immediate: true,
       deep: true
@@ -88,6 +88,15 @@ export default {
   methods: {
     initData(datas) {
       const that = this
+      const category = []
+      const seriresData = []
+      if (datas && datas.data) {
+        datas.data.forEach(item => {
+          category.push(item.label)
+          seriresData.push(item.value)
+        })
+      }
+
       this.options = {
         color: this.color,
         tooltip: {
@@ -105,7 +114,7 @@ export default {
         },
         xAxis: [{
           type: 'category',
-          data: ['1', '2', '3', '4', '5', '6', '7'],
+          data: category,
           axisLabel: {
             textStyle: {
               color: '#999',
@@ -131,7 +140,7 @@ export default {
         }],
         series: [{
           cursor: 'default',
-          name: 'Age',
+          name: datas.title,
           // barWidth: 40,
           showAllSymbol: true,
           type: 'bar',
@@ -145,7 +154,7 @@ export default {
               }
             }
           },
-          data: [79, 52, 200, 334, 390, 330, 220]
+          data: seriresData
         }]
       }
     }

@@ -13,7 +13,7 @@
             <a-avatar :src='$store.getters.userInfo.avatar' />
           </div>
           <div class='base'>
-            <div class='name'>{{ $store.getters.userInfo.nickname }}</div>
+            <div class='name'>{{ $store.getters.userInfo.firstname }} {{ $store.getters.userInfo.lastname }}</div>
             <div class='email'>{{ $store.getters.userInfo.email }}</div>
           </div>
         </div>
