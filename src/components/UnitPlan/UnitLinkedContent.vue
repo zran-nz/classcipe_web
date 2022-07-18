@@ -29,13 +29,8 @@
           :key='groupItem.groupName'>
           <div class='category-name' :style="{'background-color': '#DEF1EE'}" v-show='groupItem.groupName'>
             {{ groupItem.groupName }}
-            <div class='category-delete' v-if="canEdit">
-              <a-popconfirm title="Delete category ?" ok-text="Yes" @confirm="handleDeleteGroup(groupItem)" cancel-text="No">
-                <delete-icon />
-              </a-popconfirm>
-            </div>
           </div>
-          <div class='delete-category' v-show='groupItem.groupName'>
+          <div class='delete-category' v-show='groupItem.groupName' v-if="canEdit">
             <a-popconfirm cancel-text="No" ok-text="Yes" title="Delete ?" @confirm="handleDeleteGroup(groupItem)">
               <delete-icon color='#F16A39' />
             </a-popconfirm>
@@ -214,6 +209,13 @@ export default {
           }
         })
         this.ownerLinkGroupList = response.result.owner
+        response.result.groups.sort((g1, g2) => {
+          if (g1.name) {
+            return 1
+          } else {
+            return -1
+          }
+        })
         const groups = response.result.groups
         this.$logger.info('GetAssociate owner', this.ownerLinkGroupList)
 
