@@ -475,6 +475,7 @@ import { getStatByContentId } from '@/api/statistics'
 import { ContentGradeSave } from '@/api/contentGrade'
 import ModalHeader from '@/components/Common/ModalHeader'
 import RateLevel from '@/components/RateLevel'
+import { ContentBye } from '@/api/v2/mycontent'
 
 export default {
   name: 'ContentPreviewDetail',
@@ -842,7 +843,7 @@ export default {
         centered: true,
         onOk: () => {
           this.buyLoading = true
-          Duplicate({ id: this.content.id, type: this.content.type }).then((response) => {
+          ContentBye({ id: this.content.id, type: this.content.type }).then((response) => {
             if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
               this.$logger.info('Duplicate response', response)
               this.$message.success('Buy successfully')

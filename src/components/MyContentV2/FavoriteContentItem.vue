@@ -127,6 +127,7 @@ import DuplicateIcon from '@/assets/v2/icons/duplicate.svg?inline'
 import ContentPreview from '@/components/Preview/ContentPreview'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import PreviewGrayIcon from '@/assets/v2/icons/preview_gray.svg?inline'
+import { ContentBye } from '@/api/v2/mycontent'
 
 export default {
   name: 'FavoriteContentItem',
@@ -209,6 +210,26 @@ export default {
     },
     handleBuyItem() {
       logger.info('handleBuyItem', this.content)
+      this.$confirm({
+        title: 'Confirm to buy',
+        content: 'Are you sure to buy ' + this.content.name + ' ?',
+        centered: true,
+        onOk: () => {
+          this.buyLoading = true
+          ContentBye({ id: this.content.id, type: this.content.type }).then((response) => {
+            if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
+              this.$logger.info('Duplicate response', response)
+              this.$message.success('Buy successfully')
+              this.$router.push({ path: '/teacher/main/created-by-me' })
+            } else {
+              this.currentMethodName = 'handleBuyItem'
+            }
+          }).finally(() => {
+            this.buyLoading = false
+            this.contentBuyStatVisible = true
+          })
+        }
+      })
     }
   }
 }

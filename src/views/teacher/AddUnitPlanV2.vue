@@ -637,6 +637,7 @@
       <div class='link-content-wrapper'>
         <QuestionBrowse
           :big-idea='form.inquiry'
+          :rwc='form.rwc'
           :question-list='form.questions'
           @select-question='handleSelectQuestion'></QuestionBrowse>
 

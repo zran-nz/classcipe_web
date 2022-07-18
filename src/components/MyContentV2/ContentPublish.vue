@@ -67,7 +67,6 @@
 
 <script>
 import { UpdateContentField } from '@/api/v2/mycontent'
-import { getEntityType } from '@/const/teacher'
 
 export default {
   name: 'ContentPublish',
@@ -112,7 +111,7 @@ export default {
       const price = this.enablePrice ? this.content.price : 0
       await UpdateContentField({
         id: this.content.id,
-        entity: getEntityType(contentType),
+        type: contentType,
         fieldName: 'price',
         fieldValue: price
       }).then((response) => {
@@ -121,7 +120,7 @@ export default {
 
       await UpdateContentField({
         id: this.content.id,
-        entity: getEntityType(contentType),
+        type: contentType,
         fieldName: 'discount',
         fieldValue: this.content.discount
       }).then((response) => {

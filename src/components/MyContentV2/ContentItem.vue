@@ -344,7 +344,7 @@ export default {
       item.contentType = isSelfLearning ? 1 : 0
       UpdateContentField({
         id: item.id,
-        entity: 'task',
+        type: item.contentType,
         fieldName: 'contentType',
         fieldValue: item.contentType
       }).then((response) => {
