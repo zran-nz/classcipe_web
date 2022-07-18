@@ -295,7 +295,7 @@ export default {
               title: 'Tags setting',
               // hidden: this.userMode === USER_MODE.SELF,
               desc: 'Customize tag categories and tags',
-              url: ''
+              url: '/manage/tags'
             },
             {
               avatar: PlanningPng,

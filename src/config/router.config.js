@@ -707,6 +707,12 @@ export const asyncRouterMap = [
             meta: { title: 'Application for certification/service', keepAlive: true, permission: ['teacher'], mode: USER_MODE.SELF }
           },
           {
+            path: '/manage/tags',
+            name: 'TagsSettingV2',
+            component: () => import('@/views/account/manage/TagsSetting'),
+            meta: { title: 'Tags Setting', keepAlive: true, permission: ['teacher'] }
+          },
+          {
             path: '/manage/order',
             name: 'Order',
             redirect: '/manage/order/buy',
