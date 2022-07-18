@@ -235,7 +235,7 @@ export default {
   data() {
     return {
       visible: false,
-      discount: this.content.discount || 0,
+      discount: this.content.discountPrice || 0,
       typeMap: typeMap,
       isSelfLearning: false,
       price: this.content.price || 0,
@@ -326,6 +326,7 @@ export default {
         this.$logger.info('response : {}', response)
       })
       this.editPrice = false
+      this.visible = false
     }
   }
 }

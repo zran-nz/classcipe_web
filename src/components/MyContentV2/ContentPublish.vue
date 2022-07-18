@@ -49,7 +49,7 @@
                 Discount Price:
               </div>
               <div class='price-input'>
-                <a-input v-model="item.discount" class='dollar-price-input' suffix="$"/>
+                <a-input v-model="item.discountPrice" class='dollar-price-input' suffix="$"/>
               </div>
             </div>
           </div>
