@@ -37,9 +37,6 @@
         </div>
         <div class='tag-action'>
           <a-space>
-<!--            <div class='tag-tips'>-->
-<!--              To change settings of tag categories, go to <a href='#' @click='handleGoToTagPage'>Tags page</a>-->
-<!--            </div>-->
             <a-button type='primary' @click='handleEnsureSelected'>Confirm</a-button>
           </a-space>
         </div>
@@ -78,7 +75,7 @@ export default {
     return {
       loading: true,
       tagList: [],
-      selectedSet: [],
+      selectedSet: []
     }
   },
   watch: {

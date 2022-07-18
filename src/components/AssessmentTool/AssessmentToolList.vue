@@ -201,6 +201,7 @@ export default {
         overflow: hidden;
         img {
           width: calc(100% + 25px);
+          margin-bottom: -25px;
         }
       }
     }

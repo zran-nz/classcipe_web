@@ -341,11 +341,13 @@ export default {
         if (res.result && res.success && res.code === 0) {
           this.$message.success('Schedule session successfully')
           if (res.result.length && res.result[0].taskClassId) {
-            this.$router.replace({
+            await this.$router.replace({
               path: `/teacher/class-session/${res.result[0].taskClassId}`
             })
-          } else {
+          } else if (retValue) {
             return res.result
+          } else {
+            this.$router.go(-1)
           }
         } else {
           this.$confirm({

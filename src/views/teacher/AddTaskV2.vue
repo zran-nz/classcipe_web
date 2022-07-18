@@ -295,7 +295,7 @@
 
                 <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Link' :key='fieldItem.fieldName'>
                   <div class='common-link-wrapper'>
-                    <form-linked-content :from-id='taskId' :from-type='contentType.task' @update-unit-id-list='updateUnitIdList'/>
+                    <form-linked-content :from-id='taskId' :filter-types='[contentType["unit-plan"]]' :from-type='contentType.task' @update-unit-id-list='updateUnitIdList'/>
                   </div>
                 </div>
 
@@ -1137,11 +1137,6 @@ export default {
                 })
               })
             }
-
-            if (content.type === this.contentType.task) {
-              this.associateTaskIdList.push(content.id)
-              this.associateId2Name.set(content.id, content.name)
-            }
           })
         })
         response.result.others.forEach(item => {
@@ -1159,11 +1154,6 @@ export default {
                   unitName: content.name
                 })
               })
-            }
-
-            if (content.type === this.contentType.task) {
-              this.associateTaskIdList.push(content.id)
-              this.associateId2Name.set(content.id, content.name)
             }
           })
         })

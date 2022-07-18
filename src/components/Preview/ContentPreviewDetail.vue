@@ -855,8 +855,6 @@ export default {
             this.buyLoading = false
             this.contentBuyStatVisible = true
           })
-        }
-      })
     },
 
     handleEnsureBuyStat () {

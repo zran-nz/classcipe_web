@@ -5,6 +5,7 @@
       <div class='discount-setting'>
         <a-button class='cc-round-button' @click='handleShowDiscountSetting'>Set sale-off</a-button>
       </div>
+      <user-profile-avatar />
     </div>
     <div class='content-wrapper'>
       <a-spin tip='Loading...' :spinning="loading">
@@ -52,11 +53,12 @@ import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import { mapState } from 'vuex'
 import CustomButton from '@/components/Common/CustomButton'
+import UserProfileAvatar from '@/components/User/UserProfileAvatar'
 
 export default {
   name: 'MyPublished',
   mixins: [UserModeMixin, CurrentSchoolMixin],
-  components: { CustomButton, DiscountSetting, PublishedContentItem, NoMoreResources, ContentPublish, ContentItem, ContentFilter, CreateNew },
+  components: { UserProfileAvatar, CustomButton, DiscountSetting, PublishedContentItem, NoMoreResources, ContentPublish, ContentItem, ContentFilter, CreateNew },
   data () {
     return {
       sourceType: SourceType.CreatedByMe,
