@@ -52,7 +52,6 @@
 
 <script>
 
-import { typeMap } from '@/const/teacher'
 import ShareButton from '@/components/Share/ShareButton'
 
 export default {
