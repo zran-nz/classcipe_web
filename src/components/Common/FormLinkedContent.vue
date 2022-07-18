@@ -16,11 +16,6 @@
           <div class='linked-item' v-for='content in groupItem.contents' :key='content.id'>
             <link-content-item :content='content' :show-delete='true' @delete='handleDeleteLinkItem' />
           </div>
-          <template v-if='groupItem.contents.length === 0'>
-            <div class='no-linked-data'>
-              <common-no-data text='No linked content, please drag content from right side here' />
-            </div>
-          </template>
         </draggable>
       </div>
       <div class='init-group' v-if='ownerLinkGroupList.length === 0'>
@@ -78,6 +73,10 @@ export default {
     canEdit: {
       type: Boolean,
       default: true
+    },
+    filterTypes: {
+      type: Array,
+      default: () => []
     }
   },
   data() {
@@ -112,6 +111,9 @@ export default {
         result.push(group.groupName)
       })
       return result
+    },
+    allContentsCount () {
+
     }
   },
   methods: {
@@ -149,9 +151,35 @@ export default {
         this.$logger.info('UnitLinkedContent getAssociate', response)
         response.result.owner.forEach(ownerItem => {
           const groupItem = response.result.groups.find(group => group.groupName === ownerItem.group)
+          const contentList = JSON.parse(JSON.stringify(ownerItem.contents))
           if (groupItem) {
             ownerItem.groupId = groupItem.id
-            groupItem.contents = JSON.parse(JSON.stringify(ownerItem.contents))
+            let contents = []
+            if (this.filterTypes.length && contentList?.length) {
+              this.$logger.info('filterTypes', this.filterTypes)
+              contentList.forEach(item => {
+                if (this.filterTypes.indexOf(item.type) !== -1) {
+                  contents.push(item)
+                }
+              })
+            } else {
+              contents = contentList
+            }
+            groupItem.contents = contents
+            this.$logger.info('filterTypes contents',contents)
+          } else {
+            let contents = []
+            if (this.filterTypes.length && contentList?.length) {
+              this.$logger.info('else filterTypes', this.filterTypes)
+              contentList.forEach(item => {
+                if (this.filterTypes.indexOf(item.type) !== -1) {
+                  contents.push(item)
+                }
+              })
+            } else {
+              contents = contentList
+            }
+            ownerItem.contents = contents
           }
         })
         this.ownerLinkGroupList = response.result.owner
