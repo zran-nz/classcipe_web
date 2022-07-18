@@ -24,7 +24,6 @@
             <a-space>
               <a-input
                 v-model='myPrice'
-                type='number'
                 class='cc-form-input dollar-price-input'
                 :disabled='!enablePrice'
                 prefix='$'
@@ -38,7 +37,7 @@
           </a-col>
           <a-col span='12'>
             <a-space>
-              <a-input v-model='myDiscount' type='number' class='cc-form-input dollar-price-input' :disabled='!enablePrice' />
+              <a-input v-model='myDiscount' class='dollar-price-input' :disabled='!enablePrice' suffix='%' />
             </a-space>
           </a-col>
         </a-row>
@@ -47,7 +46,7 @@
             Duration setting
           </a-col>
           <a-col span='12'>
-            <a-range-picker :default-value="initDate" :disabled-date="disabledDate" @change="handleDateChange" format='YYYY-MM-DD HH:mm:ss' :show-time="{ format: 'HH:mm' }"/>
+            <a-range-picker :default-value="initDate" :mode="['date']" :disabled-date="disabledDate" @change="handleDateChange"/>
           </a-col>
         </a-row>
         <a-row :gutter='20' type="flex" align='middle'>
@@ -156,8 +155,8 @@ export default {
     },
     handleDateChange (date, dateString) {
       this.$logger.info('handleDateChange', date, dateString)
-      this.startDate = moment(date[0].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
-      this.endData = moment(date[1].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
+      this.startDate = moment(date[0].toDate()).utc().format('YYYY-MM-DD 00:00:00')
+      this.endData = moment(date[1].toDate()).utc().format('YYYY-MM-DD 00:00:00')
       this.$logger.info('handleDateChange', this.startDate, this.endData)
     },
     disabledDate(current) {
