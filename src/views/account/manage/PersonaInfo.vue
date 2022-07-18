@@ -152,7 +152,7 @@
                 <a-tag color="#ffc001" v-for="item in linkedSchool" :key="'linkedSchool_'+item"> {{ item }} </a-tag>
               </a-space>
               <!-- <div v-if="linkedSchool.length===0 && currentRole === 'teacher'"> -->
-              <a-button style="line-height: 30px;" type="primary" @click="handleRefer">Refer your principal</a-button>
+              <a-button size="small" style="line-height: 20px;" type="primary" @click="handleRefer">Refer your principal</a-button>
               <!-- </div> -->
               <div class='no-linked-school-name' v-if="linkedSchool.length===0 && currentRole === 'student'">You have not linked to any school</div>
             </div>

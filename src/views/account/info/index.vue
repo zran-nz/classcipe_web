@@ -358,7 +358,7 @@ export default {
         return `Plan ends in ${days} ${unit}${days > 1 ? 's' : ''}`
       } else {
         const remain = this.info.planInfo.unPaidPrice || 0
-        return `Balance of $${remain} unpaid`
+        return remain > 0 ? `Balance of $${remain} unpaid` : ''
       }
     },
     planStatus() {
@@ -469,7 +469,7 @@ export default {
       }
     },
     goToProfile() {
-      this.$router.push({ path: '/account/settings/basic' })
+      this.$router.push({ path: '/manage/persona-info' })
     },
     setAvatar (url) {
       this.selfEditModel.avatar = url
