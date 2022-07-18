@@ -638,7 +638,8 @@ export default {
         taskClassList: [],
         customFieldData: null,
         price: 0,
-        isSelfLearning: false
+        isSelfLearning: false,
+        dontRemind: false
       },
       gradeList: [],
 
@@ -802,7 +803,7 @@ export default {
 
     handleNextStep () {
       if (this.currentActiveStepIndex === this.formSteps.length - 1) {
-        if (this.$store.state.app.userMode === USER_MODE.SCHOOL) {
+        if (this.$store.state.app.userMode === USER_MODE.SCHOOL || this.form.dontRemind) {
           this.$router.replace({
             path: '/'
           })

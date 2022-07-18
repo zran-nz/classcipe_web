@@ -111,9 +111,6 @@ export default {
         result.push(group.groupName)
       })
       return result
-    },
-    allContentsCount () {
-
     }
   },
   methods: {
@@ -166,7 +163,7 @@ export default {
               contents = contentList
             }
             groupItem.contents = contents
-            this.$logger.info('filterTypes contents',contents)
+            this.$logger.info('filterTypes contents', contents)
           } else {
             let contents = []
             if (this.filterTypes.length && contentList?.length) {
