@@ -1,6 +1,23 @@
 <template>
-  <iframe :src="iframeSrc" class='preview-iframe' id='tags-iframe' v-if='iframeSrc'></iframe>
-  <a-spin :spinning="true" v-else></a-spin>
+  <div class='my-full-form-wrapper' id='formRoot'>
+    <fixed-form-header>
+      <template v-slot:header>
+        <form-header
+          title='Tags Setting'
+          :show-share='false'
+          :show-collaborate='false'
+          :is-preview-mode='true'
+          @back='goBack'>
+          <template v-slot:right>
+          </template>
+        </form-header>
+      </template>
+    </fixed-form-header>
+    <div class="form-content">
+      <iframe :src="iframeSrc" class='preview-iframe' id='tags-iframe' v-if='iframeSrc'></iframe>
+      <a-spin :spinning="loading"></a-spin>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -8,15 +25,23 @@
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 
+import FixedFormHeader from '@/components/Common/FixedFormHeader'
+import FormHeader from '@/components/FormHeader/FormHeader'
+
 import { mapState } from 'vuex'
 import { USER_MODE } from '@/const/common'
 
 export default {
   name: 'TagsSetting',
+  components: {
+    FixedFormHeader,
+    FormHeader
+  },
   mixins: [UserModeMixin, CurrentSchoolMixin],
   data() {
     return {
-      baseUrl: null
+      baseUrl: null,
+      loading: false
     }
   },
   created() {
@@ -30,6 +55,10 @@ export default {
     } else {
       this.$logger.warn('TagsSetting: unknown host', host)
     }
+    this.loading = true
+    setTimeout(() => {
+      this.loading = false
+    }, 600)
   },
   computed: {
     ...mapState({
@@ -53,6 +82,9 @@ export default {
     }
   },
   methods: {
+    goBack() {
+      this.$router.go(-1)
+    }
   }
 }
 </script>
@@ -60,8 +92,21 @@ export default {
 <style lang='less' scoped>
 @import "~@/components/index.less";
 
+.cc-fixed-form-header {
+  height: 60px;
+}
+.form-content {
+  margin-top: 60px;
+  height: calc(100vh - 60px);
+  padding: 30px 60px;
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
 .preview-iframe {
-  height: 100vh;
+  height: 100%;
   width: 100%;
   border: none;
   outline: none;
