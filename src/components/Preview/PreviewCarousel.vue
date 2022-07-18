@@ -60,7 +60,9 @@ export default {
     onChangePage (page) {
       this.$logger.info('page', page, this.$refs.video)
       this.currentImgIndex = page
-      this.$refs.video.forEach(item => item.pause())
+      if (this.$refs.video) {
+        this.$refs.video.forEach(item => item.pause())
+      }
     }
   }
 }
