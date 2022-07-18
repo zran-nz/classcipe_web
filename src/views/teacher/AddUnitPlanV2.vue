@@ -976,8 +976,8 @@ export default {
         customFields: []
       },
 
-      formBodyWidth: '55%',
-      tagBodyWidth: '45%',
+      formBodyWidth: '50%',
+      tagBodyWidth: '50%',
       fullBodyFields: ['learnOuts']
     }
   },
