@@ -7,7 +7,7 @@ export const MyContentV2Url = {
   QueryCustomTags: '/classcipe/api/v2/mycontent/queryCustomTags',
   ImportOtherIdentityContent: '/classcipe/api/v2/mycontent/importOtherIdentityContent',
   UpdateContentField: '/classcipe/api/v2/mycontent/updateContentField',
-  ContentBye: '/classcipe/api/v2/mycontent/content/bye'
+  ContentBuy: '/classcipe/api/v2/mycontent/content/bye'
 }
 
 /**
@@ -99,9 +99,9 @@ export function UpdateContentField(parameter) {
  * @returns {AxiosPromise}
  * @constructor
  */
-export function ContentBye(parameter) {
+export function ContentBuy(parameter) {
   return request({
-    url: MyContentV2Url.ContentBye,
+    url: MyContentV2Url.ContentBuy,
     method: 'post',
     data: parameter
   })
