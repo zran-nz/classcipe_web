@@ -51,23 +51,3 @@ export function getLabelNameType (type) {
       return 'PD content'
   }
 }
-
-/**
- * 根据类型获取后台entity 字段直接更新值
- * @param type
- * @returns {string}
- */
-export function getEntityType (type) {
-  switch (type) {
-    case typeMap['unit-plan']:
-      return 'TUnitPlan'
-    case typeMap.task:
-      return 'Task'
-    case typeMap.evaluation:
-      return 'Evaluation'
-    case typeMap.video:
-      return 'Content'
-    case typeMap.pd:
-      return 'Content'
-  }
-}

@@ -181,7 +181,7 @@
 <script>
 
 import PreviewGrayIcon from '@/assets/v2/icons/preview_gray.svg?inline'
-import { getLabelNameType, typeMap, getEntityType } from '@/const/teacher'
+import { getLabelNameType, typeMap } from '@/const/teacher'
 import * as logger from '@/utils/logger'
 import { DeleteMyContentByType } from '@/api/teacher'
 import { ContentItemMixin } from '@/mixins/ContentItemMixin'
@@ -310,7 +310,7 @@ export default {
       const type = parseInt(this.content.type)
       await UpdateContentField({
         id: this.content.id,
-        entity: getEntityType(type),
+        type: type,
         fieldName: 'price',
         fieldValue: this.price
       }).then((response) => {
@@ -319,7 +319,7 @@ export default {
 
       await UpdateContentField({
         id: this.content.id,
-        entity: getEntityType(type),
+        type: type,
         fieldName: 'discount',
         fieldValue: this.discount
       }).then((response) => {

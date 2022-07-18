@@ -475,6 +475,7 @@ import { getStatByContentId } from '@/api/statistics'
 import { ContentGradeSave } from '@/api/contentGrade'
 import ModalHeader from '@/components/Common/ModalHeader'
 import RateLevel from '@/components/RateLevel'
+import { ContentBye } from '@/api/v2/mycontent'
 
 export default {
   name: 'ContentPreviewDetail',
@@ -836,17 +837,24 @@ export default {
 
     handleBuyItem () {
       this.$logger.info('handleBuyItem', this.content)
-      Duplicate({ id: this.content.id, type: this.content.type }).then((response) => {
-        if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
-          this.$logger.info('Duplicate response', response)
-          this.$message.success('Buy successfully')
-        } else {
-          this.currentMethodName = 'handleBuyItem'
-        }
-      }).finally(() => {
-        this.buyLoading = false
-        this.contentBuyStatVisible = true
-      })
+      this.$confirm({
+        title: 'Confirm to buy',
+        content: 'Are you sure to buy ' + this.content.name + ' ?',
+        centered: true,
+        onOk: () => {
+          this.buyLoading = true
+          ContentBye({ id: this.content.id, type: this.content.type }).then((response) => {
+            if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
+              this.$logger.info('Duplicate response', response)
+              this.$message.success('Buy successfully')
+              this.$router.push({ path: '/teacher/main/created-by-me' })
+            } else {
+              this.currentMethodName = 'handleBuyItem'
+            }
+          }).finally(() => {
+            this.buyLoading = false
+            this.contentBuyStatVisible = true
+          })
     },
 
     handleEnsureBuyStat () {

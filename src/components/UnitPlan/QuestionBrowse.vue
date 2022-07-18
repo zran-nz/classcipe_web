@@ -66,6 +66,10 @@ export default {
     bigIdea: {
       type: String,
       default: ''
+    },
+    rwc: {
+      type: String,
+      default: ''
     }
   },
   computed: {
@@ -107,7 +111,7 @@ export default {
     })
 
     this.loading = true
-    FindQuestionsByBigIdea({ bigIdea: this.bigIdea }).then(response => {
+    FindQuestionsByBigIdea({ bigIdea: this.bigIdea, rwc: this.rwc }).then(response => {
       logger.info('FindQuestionsByBigIdea ', response)
       this.AllQuestionList = []
       if (response.success) {
@@ -227,5 +231,9 @@ export default {
 
     }
   }
+}
+/deep/ .ant-list-items{
+  max-height: 800px;
+  overflow-y: auto;
 }
 </style>

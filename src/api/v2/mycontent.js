@@ -6,7 +6,8 @@ export const MyContentV2Url = {
   DeleteLinkCategory: '/classcipe/api/v2/mycontent/deleteLinkCategory',
   QueryCustomTags: '/classcipe/api/v2/mycontent/queryCustomTags',
   ImportOtherIdentityContent: '/classcipe/api/v2/mycontent/importOtherIdentityContent',
-  UpdateContentField: '/classcipe/api/v2/mycontent/updateContentField'
+  UpdateContentField: '/classcipe/api/v2/mycontent/updateContentField',
+  ContentBye: '/classcipe/api/v2/mycontent/content/bye'
 }
 
 /**
@@ -87,6 +88,20 @@ export function ImportOtherIdentityContent(parameter) {
 export function UpdateContentField(parameter) {
   return request({
     url: MyContentV2Url.UpdateContentField,
+    method: 'post',
+    data: parameter
+  })
+}
+
+/**
+ * 购买buy
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function ContentBye(parameter) {
+  return request({
+    url: MyContentV2Url.ContentBye,
     method: 'post',
     data: parameter
   })

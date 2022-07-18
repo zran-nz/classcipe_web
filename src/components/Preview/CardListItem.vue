@@ -82,15 +82,15 @@ export default {
       return title.slice(0, 1).toUpperCase() + title.slice(1)
     },
     subDescription () {
-      let desc
-      if (this.content.type === typeMap['unit-plan']) {
-        desc = this.content.inquiry
-      } else if (this.content.type === typeMap.pd) {
-        desc = this.content.goals
-      } else {
-        desc = this.content.overview
-      }
-      return desc || 'No description'
+      // let desc
+      // if (this.content.type === typeMap['unit-plan']) {
+      //   desc = this.content.inquiry
+      // } else if (this.content.type === typeMap.pd) {
+      //   desc = this.content.goals
+      // } else {
+      //   desc = this.content.overview
+      // }
+      return this.content.description || 'No description'
     }
   },
   data() {

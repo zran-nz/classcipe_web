@@ -126,7 +126,8 @@ export default {
         status: 1,
         createBy: this.$store.getters.email,
         delFlag: 0,
-        schoolId: this.currentSchool?.id
+        schoolId: this.currentSchool?.id,
+        showSales: true
       }
       if (this.filterParams) {
         params = Object.assign(this.filterParams, params)
