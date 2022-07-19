@@ -48,7 +48,15 @@
       </a-col>
       <a-col span='10' offset='1'>
         <div class='active-item-preview'>
-          <content-preview :content-id='currentActiveItem.id' :content-type='currentActiveItem.type' v-if='currentActiveItem' />
+          <content-preview-detail
+            :show-copy-button='false'
+            :show-price-info='false'
+            :show-buy-button='false'
+            :show-edit-button='false'
+            :display-fixed-header='false'
+            :content-id='currentActiveItem.id'
+            :content-type='currentActiveItem.type'
+            v-if='currentActiveItem && showPreview'/>
         </div>
       </a-col>
     </a-row>
@@ -82,10 +90,12 @@ import { ImportOtherIdentityContent } from '@/api/v2/mycontent'
 import { USER_MODE } from '@/const/common'
 import EventBus from '@/utils/eventBus'
 import { MyContentEvent } from '@/components/MyContent/MyContentEventBus'
+import ContentPreviewDetail from '@/components/Preview/ContentPreviewDetail'
 
 export default {
   name: 'ImportContent',
   components: {
+    ContentPreviewDetail,
     ContentPreview,
     NoMoreResources,
     ContentItem,
@@ -117,6 +127,7 @@ export default {
       selectedList: [],
       currentActiveItem: null,
       importing: false,
+      showPreview: false,
       USER_MODE: USER_MODE
     }
   },
@@ -146,14 +157,11 @@ export default {
     handleSearchContent () {
       this.loading = true
       const params = {
-        collabrated: false,
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize,
         searchKey: this.searchText ? this.searchText : '',
         types: [],
         schoolId: this.currentSchoolId,
-        // status: 1,
-        // createBy: this.$store.getters.email,
         delFlag: 0,
         isImport: true
       }
@@ -190,6 +198,10 @@ export default {
           this.currentActiveItem = null
         }
       }
+      this.showPreview = false
+      this.$nextTick(() => {
+        this.showPreview = true
+      })
     },
 
     handleImport () {
