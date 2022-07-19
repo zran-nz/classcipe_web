@@ -1,8 +1,10 @@
 <template>
   <div class='sidebar-menu-list'>
     <div class='sidebar-menu-item' :class="{'active-sidebar-menu-item': pathPrefix && $route.path.startsWith(pathPrefix), 'collapsed-menu': $store.getters.collapsed }" @click='handleExpandMenuList'>
-      <div class='menu-icon' :title='label'>
-        <slot name='icon'></slot>
+      <div class='menu-icon'>
+        <a-tooltip :title='label' placement="right" >
+          <slot name='icon'></slot>
+        </a-tooltip>>
       </div>
       <div class='menu-label' :title='label'>
         {{ label }}
