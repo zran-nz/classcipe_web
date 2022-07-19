@@ -89,7 +89,7 @@ export default {
       // } else {
       //   desc = this.content.overview
       // }
-      return this.content.description || 'No description'
+      return this.content.description || ''
     }
   },
   data() {
@@ -150,6 +150,10 @@ export default {
     font-size: 13px;
     line-height: 13px;
     padding-bottom: 3px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
   }
 }
 

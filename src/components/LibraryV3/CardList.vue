@@ -27,15 +27,15 @@
           </div>
         </div>
         <div class='more-action'>
-          <router-link :to="'/teacher/library-all/' + category" v-if='!isSchoolMode'>All</router-link>
-          <router-link :to="'/teacher/resource-all/' + category" v-if='isSchoolMode'>All</router-link>
+          <router-link :to="'/teacher/library-all/' + category" v-if='!isSchoolMode'>More</router-link>
+          <router-link :to="'/teacher/resource-all/' + category" v-if='isSchoolMode'>More</router-link>
         </div>
       </div>
     </template>
-    <div class='scroll-left' :class="{'inner-scroll-left': innerDesc, 'outer-scroll-left': outerDesc}" @click="scrollLeft">
+    <div class='scroll-left' :class="{'inner-scroll-left': innerDesc, 'outer-scroll-left': outerDesc, 'no-more-left': !hasMoreLeft}" @click="scrollLeft">
       <a-icon type="arrow-left" :style="{fontSize: '16px', color: '#6967C3'}" />
     </div>
-    <div class='scroll-right' :class="{'inner-scroll-right': innerDesc, 'outer-scroll-right': outerDesc}" @click="scrollRight">
+    <div class='scroll-right' :class="{'inner-scroll-right': innerDesc, 'outer-scroll-right': outerDesc, 'no-more-right': !hasMoreRight}" @click="scrollRight">
       <a-icon type="arrow-right" :style="{fontSize: '16px', color: '#6967C3'}" />
     </div>
     <div class='card-list' :id='category'>
@@ -87,8 +87,13 @@ export default {
       stars: 1,
       showPreview: false,
       contentId: null,
-      contentType: 0
+      contentType: 0,
+      hasMoreLeft: true,
+      hasMoreRight: true
     }
+  },
+  mounted() {
+    this.hiddenArrow(document.getElementById(this.category))
   },
   methods: {
     scrollFn(e) {
@@ -111,6 +116,7 @@ export default {
         left: -800,
         behavior: 'smooth'
       })
+      this.hiddenArrow(dom)
     },
 
     scrollRight () {
@@ -119,6 +125,20 @@ export default {
         left: 800,
         behavior: 'smooth'
       })
+      this.hiddenArrow(dom)
+    },
+
+    hiddenArrow(dom) {
+      this.$logger.info('hidden arrow', dom, dom.scrollLeft, dom.offsetWidth, dom.scrollWidth)
+      if (dom && (dom.scrollLeft + dom.offsetWidth >= dom.scrollWidth)) {
+        this.hasMoreRight = false
+        this.hasMoreLeft = true
+      }
+
+      if (dom && dom.scrollLeft <= 0) {
+        this.hasMoreLeft = false
+        this.hasMoreRight = true
+      }
     }
   }
 }
@@ -282,4 +302,7 @@ export default {
   width: 0;
 }
 
+.no-more-left, .no-more-right {
+  display: none !important;
+}
 </style>
