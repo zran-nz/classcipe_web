@@ -14,8 +14,8 @@
       </template>
     </fixed-form-header>
     <div class="form-content">
-      <iframe :src="iframeSrc" class='preview-iframe' id='tags-iframe' v-if='iframeSrc'></iframe>
       <a-spin :spinning="loading"></a-spin>
+      <iframe :src="iframeSrc" class='preview-iframe' id='tags-iframe' v-if='iframeSrc'></iframe>
     </div>
   </div>
 </template>
@@ -58,7 +58,7 @@ export default {
     this.loading = true
     setTimeout(() => {
       this.loading = false
-    }, 600)
+    }, 1000)
   },
   computed: {
     ...mapState({

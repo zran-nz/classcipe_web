@@ -27,7 +27,7 @@
         </div>
         <div class="divider"></div>
         <div class="review-stat-opt">
-          <a-button @click="goAll" type="link">See all 5 reviews</a-button>
+          <a-button @click="goAll" type="link">See all reviews</a-button>
         </div>
       </div>
     </template>

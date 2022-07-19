@@ -345,6 +345,12 @@ export default {
           border: none;
           outline: none;
         }
+        /deep/ .preview-carousel-wrapper {
+          height: 330px;
+          .slider-img-cover {
+            height: 300px;
+          }
+        }
         /deep/ .my-common-preview {
           .top-header {
             display: none;

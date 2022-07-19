@@ -409,13 +409,13 @@ export default {
           })
         ] : []
       ]).then(([clsRes, teacherRes, studentRes]) => {
-        if (clsRes.code === 0) {
+        if (clsRes.code === 0 && clsRes.result) {
           this.classCount = clsRes.result.total
         }
-        if (teacherRes && teacherRes.code === 0) {
+        if (teacherRes && teacherRes.code === 0 && teacherRes.result) {
           this.teacherCount = teacherRes.result.total
         }
-        if (studentRes && studentRes.code === 0) {
+        if (studentRes && studentRes.code === 0 && studentRes.result) {
           this.studentCount = studentRes.result.total
         }
       })

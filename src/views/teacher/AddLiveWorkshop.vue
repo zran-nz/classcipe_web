@@ -135,69 +135,74 @@
             </div>
           </template>
           <template v-else>
-            <a-radio-group class="notify-session" v-model="form.notifyType" @change="changeNotifyType">
-              <a-radio v-for="item in NOTIFY_TYPE" :value="item.value" :key="item.value">
-                {{ item.label }}
+            <div v-if="type === typeMap.task">
+              <a-radio-group class="notify-session" v-model="form.notifyType" @change="changeNotifyType">
+                <a-radio v-for="item in NOTIFY_TYPE" :value="item.value" :key="item.value">
+                  {{ item.label }}
 
-              </a-radio>
-            </a-radio-group>
-            <div class="filter-session" v-show="form.notifyType === NOTIFY_TYPE.FILTER_SUBJECTS.value">
-              <a-select
-                @change="changeFilter"
-                v-model="filter.subjects"
-                class="filter-select"
-                placeholder="Select Subject"
-                :showArrow="true"
-                mode="multiple">
-                <a-select-option :value="item.value" v-for="(item, index) in filterSubjectOptions" :key="index" >
-                  {{ item.label }}
-                </a-select-option>
-              </a-select>
-              <a-popover title="Teachers" placement="right" >
-                <template slot="content">
-                  <div class="member-list" v-if="memberList && memberList.length > 0">
-                    <div class="member-item" v-for="member in memberList" :key="member.id">
-                      <a-avatar class="item-avatar" icon="user" v-if="!member.avatar"/>
-                      <img :src="member.avatar" class="item-avatar" v-else alt="">
-                      <div class="item-detail">
-                        <label for="">{{ member.realname }}</label>
-                        <label>{{ member.email }}</label>
+                </a-radio>
+              </a-radio-group>
+              <div class="filter-session" v-show="form.notifyType === NOTIFY_TYPE.FILTER_SUBJECTS.value">
+                <a-select
+                  @change="changeFilter"
+                  v-model="filter.subjects"
+                  class="filter-select"
+                  placeholder="Select Subject"
+                  :showArrow="true"
+                  mode="multiple">
+                  <a-select-option :value="item.value" v-for="(item, index) in filterSubjectOptions" :key="index" >
+                    {{ item.label }}
+                  </a-select-option>
+                </a-select>
+                <a-popover title="Teachers" placement="right" >
+                  <template slot="content">
+                    <div class="member-list" v-if="memberList && memberList.length > 0">
+                      <div class="member-item" v-for="member in memberList" :key="member.id">
+                        <a-avatar class="item-avatar" icon="user" v-if="!member.avatar"/>
+                        <img :src="member.avatar" class="item-avatar" v-else alt="">
+                        <div class="item-detail">
+                          <label for="">{{ member.realname }}</label>
+                          <label>{{ member.email }}</label>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div v-else style="color: #666; font-size: 12px;">No results</div>
-                </template>
-                <span class="detail-font"><icon-font type="icon-xuesheng"/></span>
-              </a-popover>
+                    <div v-else style="color: #666; font-size: 12px;">No results</div>
+                  </template>
+                  <span class="detail-font"><icon-font type="icon-xuesheng"/></span>
+                </a-popover>
+              </div>
+              <div class="filter-session" v-show="form.notifyType === NOTIFY_TYPE.FILTER_YEARS.value">
+                <a-select
+                  @change="changeFilter"
+                  v-model="filter.ages"
+                  class="filter-select"
+                  placeholder="Select Age"
+                  :showArrow="true"
+                  mode="multiple">
+                  <a-select-option :value="item.value" v-for="(item, index) in filterAgeOptions" :key="index" >
+                    {{ item.label }}
+                  </a-select-option>
+                </a-select>
+                <a-popover title="Teachers" placement="right" >
+                  <template slot="content">
+                    <div class="member-list" v-if="memberList && memberList.length > 0">
+                      <div class="member-item" v-for="member in memberList" :key="member.id">
+                        <a-avatar class="item-avatar" icon="user" v-if="!member.avatar"/>
+                        <img :src="member.avatar" class="item-avatar" v-else alt="">
+                        <div class="item-detail">
+                          <label for="">{{ member.realname }}</label>
+                          <label>{{ member.email }}</label>
+                        </div>
+                      </div>
+                    </div>
+                    <div v-else style="color: #666; font-size: 12px;">No results</div>
+                  </template>
+                  <span class="detail-font"><icon-font type="icon-xuesheng"/></span>
+                </a-popover>
+              </div>
             </div>
-            <div class="filter-session" v-show="form.notifyType === NOTIFY_TYPE.FILTER_YEARS.value">
-              <a-select
-                @change="changeFilter"
-                v-model="filter.ages"
-                class="filter-select"
-                placeholder="Select Age"
-                :showArrow="true"
-                mode="multiple">
-                <a-select-option :value="item.value" v-for="(item, index) in filterAgeOptions" :key="index" >
-                  {{ item.label }}
-                </a-select-option>
-              </a-select>
-              <a-popover title="Teachers" placement="right" >
-                <template slot="content">
-                  <div class="member-list" v-if="memberList && memberList.length > 0">
-                    <div class="member-item" v-for="member in memberList" :key="member.id">
-                      <a-avatar class="item-avatar" icon="user" v-if="!member.avatar"/>
-                      <img :src="member.avatar" class="item-avatar" v-else alt="">
-                      <div class="item-detail">
-                        <label for="">{{ member.realname }}</label>
-                        <label>{{ member.email }}</label>
-                      </div>
-                    </div>
-                  </div>
-                  <div v-else style="color: #666; font-size: 12px;">No results</div>
-                </template>
-                <span class="detail-font"><icon-font type="icon-xuesheng"/></span>
-              </a-popover>
+            <div v-if="type === typeMap.pd">
+              All students at your school will receive email and notification
             </div>
           </template>
         </div>
@@ -315,6 +320,7 @@ export default {
       PAID_TYPE: PAID_TYPE,
       NOTIFY_TYPE: NOTIFY_TYPE,
       USER_MODE: USER_MODE,
+      typeMap: typeMap,
       filterSubjectOptions: [],
       filterAgeOptions: [],
       contentLoading: false,
@@ -452,6 +458,7 @@ export default {
 
     changeFilter() {
       if (USER_MODE.SCHOOL === this.userMode && this.form.notifyType !== NOTIFY_TYPE.ALL.value) {
+        // PD 过滤老师， Task过滤学生
         queryTeachers({
           gradeIds: this.form.notifyType === NOTIFY_TYPE.FILTER_YEARS.value ? this.filter.ages : [],
           subjectIds: this.form.notifyType === NOTIFY_TYPE.FILTER_SUBJECTS.value ? this.filter.subjects : [],

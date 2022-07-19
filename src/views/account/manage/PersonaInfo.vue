@@ -350,7 +350,7 @@ export default {
         this.$logger.info('update preference and edit user response', response)
       }).finally(() => {
         this.$store.dispatch('GetInfo').then(() => {
-          this.initData()
+          this.loadData()
         })
       })
     },

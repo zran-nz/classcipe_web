@@ -435,15 +435,14 @@ export default {
           // 同名 同国家 才是同学校，否则不是同学校
           const school = this.myCreateSchoolOptions.find(item => item.id === this.userForm.schoolId)
           const createdSchool = this.schoolOptions.find(item => item.id === this.userForm.schoolId)
-          if (school || (createdSchool && createSchool.country !== this.userForm.country)) {
+          if (school || (createdSchool && createdSchool.country !== this.userForm.country)) {
             this.confirmLoading = true
             createSchool({
               name: (school || createdSchool).name,
               country: this.userForm.country,
               principleEmail: this.userForm.principleEmail,
               principleFirstname: this.userForm.principleFirstname,
-              principleLastname: this.userForm.principleLastname,
-              curriculumId: this.userInfo.curriculumId
+              principleLastname: this.userForm.principleLastname
             }).then(res => {
               if (res.success) {
                 if (school) {

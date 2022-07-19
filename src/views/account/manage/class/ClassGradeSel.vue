@@ -1,7 +1,7 @@
 <template>
   <a-popover
     title=""
-    v-if="curriculumOptions && curriculumOptions.length > 0"
+    v-if="isExistGrade"
     v-model="gradeSelVis"
     placement="bottom"
     :getPopupContainer="trigger => trigger.parentElement"
@@ -92,6 +92,19 @@ export default {
       },
       loading: false,
       gradeSelVis: false
+    }
+  },
+  computed: {
+    isExistGrade() {
+      let isExist = false
+      if (this.curriculumOptions && this.curriculumOptions.length > 0) {
+        this.curriculumOptions.forEach(item => {
+          if (item.gradeSettingInfo.length > 0) {
+            isExist = true
+          }
+        })
+      }
+      return isExist
     }
   },
   methods: {
