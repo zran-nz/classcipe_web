@@ -1,6 +1,6 @@
 <template>
-  <div class="teacher-nav top-nav-v2">
-    <div class='top-menu' @dblclick='handleExpandMenu'>
+  <div class="teacher-nav top-nav-v2" @mouseenter='expandMenuThrottle' @mouseleave='hiddenMenu'>
+    <div class='top-menu'>
       <div class='menu menu-block' @dblclick.stop=''>
         <sidebar-menu-item label='Library' path='/teacher/library'>
           <template v-slot:icon>
@@ -82,7 +82,7 @@ import { Modal } from 'ant-design-vue'
 import SidebarMenuItem from '@/components/GlobalHeader/Common/SidebarMenuItem'
 import SidebarMenuList from '@/components/GlobalHeader/Common/SidebarMenuList'
 import AddPreference from '@/components/Teacher/AddPreference'
-import { debounce } from 'lodash-es'
+import { throttle } from 'lodash-es'
 
 export default {
   name: 'TeacherNav',
@@ -110,8 +110,7 @@ export default {
       schoolUserRole: SchoolUserRole,
       USER_MODE: USER_MODE,
       mainRouter: ['TeacherBuyMain', 'TeacherSellMain'],
-
-      asyncResizeSidebarFn: null
+      expandMenuThrottle: null
     }
   },
   watch: {
@@ -160,11 +159,9 @@ export default {
   },
   created() {
     this.init()
-    this.asyncResizeSidebarFn = debounce(this.resizeSidebar, 500)
-    window.addEventListener('resize', this.asyncResizeSidebarFn)
-  },
-  beforeDestroy() {
-    window.removeEventListener('resize', this.asyncResizeSidebarFn)
+    this.expandMenuThrottle = throttle(this.expandMenu, 200, {
+      leading: true
+    })
   },
   methods: {
     ...mapMutations([TOOGLE_USER_MODE, 'SET_CURRENT_SCHOOL']),
@@ -259,6 +256,15 @@ export default {
     handleExpandMenu() {
       this.$logger.info('handleExpandMenu', this.collapsed)
       this.$store.commit(HIDDEN_SIDEBAR, !this.collapsed)
+    },
+
+    expandMenu() {
+      this.$logger.info('expandMenu')
+      this.$store.commit(HIDDEN_SIDEBAR, false)
+    },
+    hiddenMenu() {
+      this.$logger.info('hiddenMenu')
+      this.$store.commit(HIDDEN_SIDEBAR, true)
     },
 
     handleSwitchMenu (path) {

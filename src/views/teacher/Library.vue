@@ -71,7 +71,6 @@ import CardList from '@/components/LibraryV3/CardList'
 import { getLibraryRecommend, getLibraryResource } from '@/api/v2/library'
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
-import { HIDDEN_SIDEBAR } from '@/store/mutation-types'
 
 export default {
   name: 'Library',
@@ -93,7 +92,6 @@ export default {
   },
   created() {
     this.initData()
-    this.$store.commit(HIDDEN_SIDEBAR, true)
   },
   methods: {
 
