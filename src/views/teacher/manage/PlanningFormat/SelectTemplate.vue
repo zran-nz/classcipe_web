@@ -70,6 +70,7 @@
 <script>
 
 import { typeMap } from '@/const/teacher'
+import { FORM_CONFIG_PREVIEW_DATA } from '@/store/mutation-types'
 
 export default {
   name: 'SelectTemplate',
@@ -118,7 +119,24 @@ export default {
       this.id = item.id
     },
     handlePreview(item) {
-
+      this.$logger.info('handlePreviewPlanningForm', item)
+      if (this.activeKey === 'plan') {
+        this.$store.commit(FORM_CONFIG_PREVIEW_DATA, {
+          commonList: item.config.commonList,
+          customList: item.config.customList,
+          steps: item.config.steps,
+          type: typeMap['unit-plan']
+        })
+        window.open('/teacher/managing/planning-format/unit-plan-preview', '_blank')
+      } else if (this.activeKey === 'task') {
+        this.$store.commit(FORM_CONFIG_PREVIEW_DATA, {
+          commonList: item.config.commonList,
+          customList: item.config.customList,
+          steps: item.config.steps,
+          type: typeMap.task
+        })
+        window.open('/teacher/managing/planning-format/task-preview', '_blank')
+      }
     }
   }
 }

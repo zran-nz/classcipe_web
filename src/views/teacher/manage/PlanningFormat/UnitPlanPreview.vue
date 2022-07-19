@@ -1,795 +1,598 @@
 <template>
   <div class='my-full-form-wrapper'>
-    <div class='form-header'>
-      <common-form-header
-        ref='commonFormHeader'
-        :form='form'
-        :is-preview-mode='true'
-        :last-change-saved-time='lastChangeSavedTime'
-        @back='closeWindow'
-      />
-    </div>
-    <div class='preview-header-mask' @click='handleClickPreviewMask'></div>
-    <a-card :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '1200px', 'position': 'relative' }" :bordered='false'>
-      <div class='preview-mask' @click='handleClickPreviewMask'></div>
-      <a-row v-if='!contentLoading' class='unit-content'>
-        <a-col class='main-content' span='24'>
-          <a-card
-            :body-style="{ padding: '16px', display: 'flex', 'justify-content': 'space-between'}"
-            :bordered='false'
-            class='card-wrapper'>
-            <div
-              ref='form'
-              :style="{'width':leftWidth + 'px'}"
-              class='unit-plan-form-left root-locate-form'
-              @click='focusInput($event)'>
-              <a-form-model :model='form' class='my-form-wrapper'>
-                <a-steps :current='currentActiveStepIndex' direction='vertical'>
-                  <a-step :status="currentActiveStepIndex === 0 ? 'process':'wait'" title='Edit Unit plan'>
-                    <template slot='description'>
-                      <div class='step-detail' v-show='currentActiveStepIndex === 0' >
-
-                        <template v-for='fieldItem in formConfigPreviewData.planCommonList'>
-                          <div class='form-block' v-if='fieldItem.visible && fieldItem.fieldName === planField.Name' :key='fieldItem.fieldName'>
-                            <a-form-item>
-                              <template class='my-label' slot='label'>
-                                {{ 'Unit Name' | unitLabelName(planField.Name, formConfigPreviewData) }}
-                                <a-tooltip :title="'Unit Name' | unitLabelHint(planField.Name, formConfigPreviewData)" placement='top'>
-                                  <a-icon type="info-circle" />
-                                </a-tooltip>
-                              </template>
-                              <a-input v-model='form.name' class='my-form-input' placeholder='Enter Unit Name' />
-                            </a-form-item>
-                          </div>
-
-                          <div class='form-block form-radio-wrapper' v-if='fieldItem.visible && fieldItem.fieldName === planField.ProjectBased' :key='fieldItem.fieldName'>
-                            <a-form-item style='display:flex'>
-                              <template class='my-label' slot='label'>
-                                {{ 'Project-based Unit' | unitLabelName(planField.ProjectBased, formConfigPreviewData) }}
-                                <a-tooltip :title="'Project-based Unit' | unitLabelHint(planField.ProjectBased, formConfigPreviewData)" placement='top'>
-                                  <a-icon type="info-circle" />
-                                </a-tooltip>
-                              </template>
-
-                              <a-radio-group name='radioGroup' v-model='form.projectBased' style='margin-left:20px;'>
-                                <a-radio :value='1'>
-                                  Yes
-                                </a-radio>
-                                <a-radio :value='0'>
-                                  No
-                                </a-radio>
-                              </a-radio-group>
-                            </a-form-item>
-                          </div>
-
-                          <div class='form-block form-radio-wrapper' v-if='fieldItem.visible && fieldItem.fieldName === planField.UnitType' :key='fieldItem.fieldName'>
-                            <a-form-item style='display:flex'>
-                              <template class='my-label' slot='label'>
-                                {{ 'Unit type' | unitLabelName(planField.UnitType, formConfigPreviewData) }}
-                                <a-tooltip :title="'Unit type' | unitLabelHint(planField.UnitType, formConfigPreviewData)" placement='top'>
-                                  <a-icon type="info-circle" />
-                                </a-tooltip>
-                              </template>
-
-                              <a-radio-group name='unitType' v-model='form.unitType' style='margin-left:20px;'>
-                                <a-radio :value='0'>
-                                  Single-subject Unit
-                                </a-radio>
-                                <a-radio :value='1'>
-                                  Integrated Unit
-                                </a-radio>
-                              </a-radio-group>
-                            </a-form-item>
-                          </div>
-
-                          <div class='form-block grade-time' v-if="fieldItem.visible && fieldItem.fieldName === planField.GradeId" :key='fieldItem.fieldName'>
-                            <a-form-item style='width:26%;margin-bottom: 0;'>
-                              <template class='my-label' slot='label'>
-                                {{ 'Grade level' | unitLabelName(planField.GradeId, formConfigPreviewData) }}
-                                <a-tooltip :title="'Grade level' | unitLabelHint(planField.GradeId, formConfigPreviewData)" placement='top'>
-                                  <a-icon type="info-circle" />
-                                </a-tooltip>
-                              </template>
-                              <a-select
-                                :getPopupContainer="trigger => trigger.parentElement"
-                                v-model='form.gradeId'
-                                class='my-big-select'
-                                placeholder='Select a grade'
-                                size='large'>
-                                <a-select-option v-for='(grade,index) in gradeList' :key='index' :value='grade.id'>
-                                  {{ grade.name }}
-                                </a-select-option>
-                              </a-select>
-                            </a-form-item>
-                            <a-form-item
-                              class='range-time'
-                              label='Start Date'
-                              style='width:70%;margin-bottom: 0px;position:relative'>
-                              <div v-if='getWeek' class='week-time'>
-                                <a-tag color='cyan' style='border-radius: 10px;font-size: 14px;'>
-                                  {{ getWeek }}
-                                </a-tag>
-                              </div>
-                              <a-range-picker
-                                v-model='rangeDate'
-                                :show-time="{ format: 'HH:mm' }"
-                                format='LLL'
-                                size='large'
-                                style='width:100%'>
-                                <a-icon slot='suffixIcon' type='calendar' />
-                              </a-range-picker>
-                            </a-form-item>
-                          </div>
-
-                          <div id='inquiry' class='form-block inquiry-form-block' v-if="fieldItem.visible && fieldItem.fieldName === planField.Inquiry" :key='fieldItem.fieldName'>
-                            <a-form-item class='bigIdea'>
-                              <template class='my-label' slot='label'>
-                                {{ 'Big Idea/ Statement of Inquiry/ Central Idea' | unitLabelName(planField.Inquiry, formConfigPreviewData) }}
-                                <a-tooltip :title="'Big Idea/ Statement of Inquiry/ Central Idea' | unitLabelHint(planField.Inquiry, formConfigPreviewData)" placement='top'>
-                                  <a-icon type="info-circle" />
-                                </a-tooltip>
-                              </template>
-                              <a-textarea
-                                v-model='form.inquiry'
-                                :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')"
-                                auto-size
-                                class='my-form-textarea inquiry'
-                              />
-                            </a-form-item>
-                            <a-tooltip title='Browse' @click.stop='selectBigIdeaDataVisible=true'>
-                              <span class='browse'>
-                                <a-icon theme='twoTone' twoToneColor='rgba(21, 195, 154, 1)' type='appstore' />
-                              </span>
-                            </a-tooltip>
-                          </div>
-
-                          <div class='form-block' v-if="fieldItem.visible && fieldItem.fieldName === planField.Scenarios" :key='fieldItem.fieldName'>
-                            <a-divider>Teaching goals</a-divider>
-                            <a-row>
-                              <a-col span='24'>
-                                <div class='form-block-title'>
-                                  {{ 'UN Sustainable Development Goal(s)' | unitLabelName(planField.Scenarios, formConfigPreviewData) }}
-                                  <a-tooltip :title="'UN Sustainable Development Goal(s)' | unitLabelHint(planField.Scenarios, formConfigPreviewData)" placement='top'>
-                                    <a-icon type="info-circle" />
-                                  </a-tooltip>
-                                </div>
-                              </a-col>
-                            </a-row>
-                            <!--sdg and KeyWords-->
-                            <div
-                              v-for='(scenario, sdgIndex) in form.scenarios'
-                              id='sdg'
-                              :key='sdgIndex'
-                              class='sdg-content-blocks sdg-form-block'
-                            >
-                              <!--description-->
-                              <div class='scenario-description'>
-                                <div
-                                  v-show='form.scenarios.length > 1'
-                                  class='sdg-delete-wrapper'
-                                  @click='handleDeleteSdg(sdgIndex)'>
-                                  <a-tooltip placement='top'>
-                                    <template slot='title'>
-                                      <span>{{ $t('teacher.add-unit-plan.delete-goal') }}</span>
-                                    </template>
-                                    <div class='sdg-delete'>
-                                      <a-icon :style="{ fontSize: '20px' }" type='delete' />
-                                    </div>
-                                  </a-tooltip>
-                                </div>
-                                <!--sdg-->
-                                <a-form-model-item>
-                                  <a-select
-                                    :getPopupContainer="trigger => trigger.parentElement"
-                                    v-model='scenario.sdgId'
-                                    class='my-big-select'
-                                    placeholder='Select a goal from UN'
-                                    size='large'>
-                                    <a-select-option
-                                      v-for='(sdg,index) in sdgList'
-                                      :key='index'
-                                      :disabled='selectedSdg.indexOf(sdg.id) != -1'
-                                      :value='sdg.id'>
-                                      {{ sdg.name }}
-                                    </a-select-option>
-                                  </a-select>
-                                </a-form-model-item>
-
-                                <a-form-model-item>
-                                  <input-search
-                                    ref='descriptionInputSearch'
-                                    :currend-index='currentIndex'
-                                    :default-value='scenario.description'
-                                    :key-index='sdgIndex'
-                                    :search-list='descriptionSearchList'
-                                    label='description'
-                                    @reset='descriptionSearchList = []'
-                                  />
-                                </a-form-model-item>
-
-                              </div>
-
-                            </div>
-                            <a-button
-                              class='add-button'
-                              icon='plus-circle'
-                              size='large'
-                              style='top:-20px'
-                              type='link'
-                              @click='handleAddMoreSdg'></a-button>
-                          </div>
-
-                          <div class='form-block form-block-rwc' v-if="fieldItem.visible && fieldItem.fieldName === planField.Rwc" :key='fieldItem.fieldName'>
-                            <a-form-model-item>
-                              <template class='my-label' slot='label'>
-                                {{ 'Real World Connection(s)' | unitLabelName(planField.Rwc, formConfigPreviewData) }}
-                                <a-tooltip :title="'Real World Connection(s)' | unitLabelHint(planField.Rwc, formConfigPreviewData)" placement='top'>
-                                  <a-icon type="info-circle" />
-                                </a-tooltip>
-                              </template>
-                              <a-select
-                                :getPopupContainer="trigger => trigger.parentElement"
-                                size='large'
-                                v-model='form.rwc'
-                                placeholder='Choose real world connection'>
-                                <a-select-option :value='item.id' v-for='(item, index) in rwcList' :key='index'>
-                                  {{ item.name }}
-                                </a-select-option>
-                              </a-select>
-                            </a-form-model-item>
-                          </div>
-
-                          <div
-                            :class="{'form-block': true, 'form-block-disabled' : $store.getters.userInfo.disableQuestion}"
-                            v-if="fieldItem.visible && fieldItem.fieldName === planField.Question"
-                            :key='fieldItem.fieldName'>
-                            <a-form-item class='unit-question'>
-                              <span slot='label'>
-                                <a-tooltip :title="'Set key question/Line of inquiry' | unitLabelHint(planField.Question, formConfigPreviewData)">
-                                  <a-icon
-                                    style='color: #15c39a;cursor: pointer;font-size: 18px'
-                                    type='exclamation-circle'
-                                    @click='questionSettingVisible=true' />
-                                </a-tooltip>
-                                {{ 'Key question(s) / Line(s) of inquiry' | unitLabelName(planField.Question, formConfigPreviewData) }}
-                              </span>
-                              <div v-if='!$store.getters.userInfo.disableQuestion'>
-                                <div class='question-more'>
-                                  <a-button type='link' @click='questionMoreVisible=true'>more</a-button>
-                                </div>
-                                <div v-if='showRecommendQuestion' class='recommend-question'>
-                                  <a-icon class='close-icon' type='close' @click.stop='hideRecommendQuestion=true' />
-                                  <div class='recommend-box'>
-                                    <a-tooltip
-                                      title='You can add the key questions relevant to the big idea you chose above'>
-                                      <span class='title'><a-icon style='width: 25px' type='question-circle' />Recommended:</span>
-                                    </a-tooltip>
-                                    <ul class='recommend-ul'>
-                                      <li
-                                        v-for='(item,rqIndex) in recommendQuestionList'
-                                        v-if='rqIndex < 3 && selectQuestion.indexOf(item.name) === -1'
-                                        :key='rqIndex'>
-                                        {{ item.name }}
-                                        <a-button class='add-question' type='link' @click.stop='handerInsertQuestion(item)'>
-                                          add
-                                        </a-button>
-                                      </li>
-                                    </ul>
-                                  </div>
-                                </div>
-                                <div v-for='(question, index) in form.questions' :key='index' class='form-input-item'>
-                                  <a-textarea
-                                    v-model='question.name'
-                                    :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-nth-key-question') : $t('teacher.add-unit-plan.expert-nth-key-question')"
-                                    auto-size
-                                    class='my-form-textarea' />
-                                  <div
-                                    v-if='form.questions.length > 1'
-                                    class='delete-icon'
-                                    @click='handleRemoveQuestion(index)'>
-                                    <a-icon :style="{ fontSize: '20px' }" type='delete' />
-                                  </div>
-                                </div>
-                              </div>
-                            </a-form-item>
-                            <a-button
-                              v-if='!$store.getters.userInfo.disableQuestion'
-                              class='add-button'
-                              icon='plus-circle'
-                              size='large'
-                              style='top:-40px;'
-                              type='link'
-                              @click='handleAddMoreQuestion'></a-button>
-                          </div>
-
-                          <div class='form-block' v-if="fieldItem.visible && fieldItem.fieldName === planField.LearnOuts" :key='fieldItem.fieldName'>
-                            <a-form-item>
-                              <template class='my-label' slot='label'>
-                                {{ 'Set learning objectives' | unitLabelName(planField.LearnOuts, formConfigPreviewData) }}
-                                <a-tooltip :title="'Set learning objectives' | unitLabelHint(planField.LearnOuts, formConfigPreviewData)" placement='top'>
-                                  <a-icon type="info-circle" />
-                                </a-tooltip>
-                              </template>
-                              <a-badge :dot='hasExtraRecommend'>
-                                <a-button type='primary' @click='handleSelectDescription()'>
-                                  <div class='btn-text' style='line-height: 20px'>
-                                    {{ 'leaning objectives' | unitLabelName(planField.LearnOuts, $store.getters.formConfigData) }}
-                                  </div>
-                                </a-button>
-                              </a-badge>
-
-                              <a-button
-                                class='assessment-task-button'
-                                ghost
-                                type='link'
-                                @click='handleClickTaskDetail($event)'>
-                                Assessment task details
-                                <a-icon type='right' />
-                              </a-button>
-
-                            </a-form-item>
-
-                            <!--knowledge tag-select -->
-                            <ui-learn-out
-                              ref='learnOut'
-                              :learn-outs='form.learnOuts'
-                              :self-outs='form.selfOuts'
-                              @remove-learn-outs='handleRemoveLearnOuts' />
-                          </div>
-
-                          <div class='form-block' style='clear:both' v-if="fieldItem.visible && fieldItem.fieldName === planField.Prior" :key='fieldItem.fieldName'>
-                            <a-form-model-item>
-                              <template class='my-label' slot='label'>
-                                {{ 'Prior learning experience' | unitLabelName(planField.Prior, formConfigPreviewData) }}
-                                <a-tooltip :title="'Prior learning experience' | unitLabelHint(planField.Prior, formConfigPreviewData)" placement='top'>
-                                  <a-icon type="info-circle" />
-                                </a-tooltip>
-                              </template>
-                              <a-textarea
-                                v-model='form.prior'
-                                allow-clear
-                                auto-size
-                                placeholder='What are the approaches to find out what students already knew?' />
-                            </a-form-model-item>
-                          </div>
-                        </template>
-
-                        <template v-for='custFieldItem in formConfigPreviewData.planCustomList'>
-                          <div class='form-block' v-if="custFieldItem.visible && form.customFieldData && form.customFieldData.hasOwnProperty(custFieldItem.id)" :key='custFieldItem.id' :data-field-name='custFieldItem.name' :data-field-id='custFieldItem.id'>
-                            <a-form-item>
-                              <template class='my-label' slot='label'>
-                                {{ custFieldItem.name }}
-                                <a-tooltip :title="custFieldItem.hint" placement='top'>
-                                  <a-icon type="info-circle" />
-                                </a-tooltip>
-                              </template>
-                              <a-input v-model='form.customFieldData[custFieldItem.id]' class='my-form-input' />
-                            </a-form-item>
-                          </div>
-                        </template>
-                      </div>
+    <fixed-form-header>
+      <template v-slot:header>
+        <form-header
+          title='Create unit'
+          :form='form'
+          :spin='saving'
+          :share-status='shareStatus'
+          :collaborate='collaborate'
+          :last-change-saved-time='lastChangeSavedTime'
+          @view-collaborate='handleViewCollaborate'
+          @back='goBack'
+          @save='save'
+          @share='handleShareUnitPlan'
+          @publish='handlePublishUnitPlan'
+          @collaborate='handleStartCollaborate'>
+          <template v-slot:right>
+          </template>
+        </form-header>
+      </template>
+      <template v-slot:nav>
+        <my-vertical-steps
+          ref='steps-nav'
+          :steps='formSteps'
+          :step-index='currentActiveStepIndex'
+          @step-change='handleStepChange' />
+      </template>
+    </fixed-form-header>
+    <div class='form-content'>
+      <div class='step-content' v-if='!contentLoading'>
+        <div class='form-body root-locate-form' id='form-body' :style="{ width: formBodyWidth }" v-show="formBodyWidth !== '0%'">
+          <div
+            class='form-page-item'
+            v-show='currentActiveStepIndex === stepIndex'
+            v-for='(step, stepIndex) in formSteps'
+            :key='step.id'>
+            <div class='form-field-item' v-for='fieldItem in $store.getters.formConfigData.planCommonList' :key='fieldItem.id'>
+              <template v-if='step.commonFields.indexOf(fieldItem.fieldName) !== -1'>
+                <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === planField.Name' :key='fieldItem.fieldName'>
+                  <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Name />
+                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.Name) !== -1'>
+                    <template slot='label'>
+                      {{ 'Unit Name' | unitLabelName(planField.Name, $store.getters.formConfigData) }}
                     </template>
-                  </a-step>
-                  <a-step title='Link Plan content'>
-                    <template slot='description'>
-                      <div class='step-detail' v-show='currentActiveStepIndex === 1'>
-                        <div class='form-block'>
-                          <a-form-item class='link-plan-title' label='Add task(s)' >
-                            <a-space v-show="canEdit">
-                              <a-button
-                                :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8', 'display': 'flex', 'align-items': 'center'}"
-                                type='primary'
-                                :loading='linkLoading'
-                                @click='handleAddTasks'>
-                                <div class='btn-text' style='line-height: 20px; padding-left: 5px'>
-                                  + Link Task(s)
-                                </div>
-                              </a-button>
-                              <a-button
-                                :loading='addCategoryLoading'
-                                :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8'}"
-                                class='addCategory'
-                                type='primary'
-                                @click='handleAddTerm'>
-                                <div class='btn-text' style='line-height: 20px; padding-left: 5px'>
-                                  + Add category
-                                </div>
-                              </a-button>
-                            </a-space>
-                          </a-form-item>
-                          <div class='common-link-wrapper'>
-                          </div>
-                        </div>
-                      </div>
+                    <template slot='action'>
+                      <a-space>
+                        <comment-switch
+                          v-show="canEdit"
+                          :is-active="currentFieldName === planField.Name"
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Name}"
+                          :field-name='planField.Name'
+                          @switch='handleSwitchComment'/>
+                      </a-space>
                     </template>
-                  </a-step>
-                </a-steps>
-              </a-form-model>
-            </div>
+                    <template v-if='unitLabelHint(planField.Name, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="'Unit Name' | unitLabelHint(planField.Name, $store.getters.formConfigData)" placement='top'>
+                        <a-icon type="info-circle" />
+                      </a-tooltip>
+                    </template>
+                    <a-input v-model='form.name' class='cc-form-input' placeholder='Enter Unit Name' @change="handleCollaborateEvent(unitPlanId,planField.Name,form.name)" :disabled="!canEdit" />
+                  </custom-form-item>
+                </div>
 
-            <div :style="{'width':rightWidth + 'px'}" class='unit-plan-form-right'>
-              <!--              优先级 所有comment预览 > 字段comment > tag选择-->
-              <template v-if='showRightModule(rightModule.imageUpload)'>
-                <div :style="{'width':rightWidth + 'px'}" class='form-block-right'>
-                  <!-- image-->
-                  <a-form-model-item class='img-wrapper'>
-                    <a-upload-dragger
-                      :customRequest='handleUploadImage'
-                      :showUploadList='false'
-                      accept='image/png, image/jpeg'
-                      name='file'
+                <div
+                  class='form-block tag-content-block'
+                  id='overview'
+                  v-if='fieldItem.visible && fieldItem.fieldName === planField.Overview'
+                  :key='fieldItem.fieldName'>
+                  <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Overview />
+                  <custom-form-item ref='overview' :required='emptyRequiredFields.indexOf(planField.Overview) !== -1'>
+                    <template slot='label'>
+                      {{ 'Overview' | unitLabelName(planField.Overview, $store.getters.formConfigData) }}
+                    </template>
+                    <template slot='action'>
+                      <a-space>
+                        <comment-switch
+                          v-show="canEdit"
+                          :field-name='planField.Overview'
+                          :is-active="currentFieldName === planField.Overview"
+                          @switch='handleSwitchComment'
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Overview}" />
+                      </a-space>
+                    </template>
+                    <template v-if='unitLabelHint(planField.Overview, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="'Overview' | unitLabelHint(planField.Overview, $store.getters.formConfigData)" placement='top'>
+                        <a-icon type="info-circle" />
+                      </a-tooltip>
+                    </template>
+                    <a-textarea
+                      :auto-size="{ minRows: 2, maxRows: 6 }"
+                      v-model='form.overview'
+                      placeholder='Overview'
+                      class='cc-form-textarea'
+                      allow-clear
+                      @change="handleCollaborateEvent(unitPlanId,planField.Overview,form.overview)"
+                      :disabled="!canEdit"/>
+                  </custom-form-item>
+                </div>
+
+                <div class='form-block form-radio-wrapper tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === planField.ProjectBased' :key='fieldItem.fieldName'>
+                  <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.ProjectBased style="top:-30px" />
+                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.ProjectBased) !== -1'>
+                    <template slot='label'>
+                      {{ 'Project-based Unit' | unitLabelName(planField.ProjectBased, $store.getters.formConfigData) }}
+                    </template>
+                    <template slot='action'>
+                      <a-space>
+                        <comment-switch
+                          v-show="canEdit"
+                          :field-name='planField.ProjectBased'
+                          :is-active="currentFieldName === planField.ProjectBased"
+                          @switch='handleSwitchComment'
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.ProjectBased}"
+                        />
+                      </a-space>
+                    </template>
+                    <template v-if='unitLabelHint(planField.ProjectBased, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="'Project-based Unit' | unitLabelHint(planField.ProjectBased, $store.getters.formConfigData)" placement='top'>
+                        <a-icon type="info-circle" />
+                      </a-tooltip>
+                    </template>
+                    <custom-radio-button-group
+                      :list="[ {name: 'Yes', value: 1}, {name: 'No', value: 0}]"
+                      :value.sync='form.projectBased'
+                      @change="handleCollaborateEvent(unitPlanId,planField.ProjectBased,form.projectBased)" >
+                    </custom-radio-button-group>
+                  </custom-form-item>
+                </div>
+
+                <div class='form-block form-radio-wrapper tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === planField.UnitType' :key='fieldItem.fieldName'>
+                  <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.UnitType style="top:-30px"/>
+                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.UnitType) !== -1'>
+                    <template slot='label'>
+                      {{ 'Unit type' | unitLabelName(planField.UnitType, $store.getters.formConfigData) }}
+                    </template>
+                    <template slot='action'>
+                      <a-space>
+                        <comment-switch
+                          v-show="canEdit"
+                          :field-name='planField.UnitType'
+                          :is-active="currentFieldName === planField.UnitType"
+                          @switch='handleSwitchComment'
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.UnitType}" />
+                      </a-space>
+                    </template>
+                    <template v-if='unitLabelName(planField.UnitType, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="'Unit type' | unitLabelHint(planField.UnitType, $store.getters.formConfigData)" placement='top'>
+                        <a-icon type="info-circle" />
+                      </a-tooltip>
+                    </template>
+                    <custom-radio-button-group
+                      :list="[ {name: 'Single-subject Unit', value: 0}, {name: 'Integrated Unit', value: 1}]"
+                      :value.sync='form.unitType'
+                      @change="handleCollaborateEvent(unitPlanId,planField.UnitType,form.unitType)" >
+                    </custom-radio-button-group>
+                  </custom-form-item>
+                </div>
+
+                <div class='form-block grade-time tag-content-block' v-if="fieldItem.visible && fieldItem.fieldName === planField.GradeId" :key='fieldItem.fieldName'>
+                  <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.StartDate />
+                  <custom-form-item style='width:23%;margin-bottom: 0px;' :required='emptyRequiredFields.indexOf(planField.GradeIds) !== -1'>
+                    <template slot='label'>
+                      {{ 'Grade level' | unitLabelName(planField.GradeId, $store.getters.formConfigData) }}
+                    </template>
+                    <template slot='action'>
+                      <a-space>
+                        <comment-switch
+                          v-show="canEdit"
+                          :field-name='planField.StartDate'
+                          :is-active="currentFieldName === planField.StartDate"
+                          @switch='handleSwitchComment'
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.StartDate}" />
+                      </a-space>
+                    </template>
+                    <template v-if='unitLabelHint(planField.GradeId, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="'Grade level' | unitLabelHint(planField.GradeId, $store.getters.formConfigData)" placement='top'>
+                        <a-icon type="info-circle" />
+                      </a-tooltip>
+                    </template>
+                    <a-select
+                      :getPopupContainer="trigger => trigger.parentElement"
+                      v-model='form.gradeId'
+                      class='cc-select'
+                      placeholder='Select a grade'
+                      :disabled="!canEdit">
+                      <a-select-option v-for='(grade,index) in gradeList' :key='index' :value='grade.id'>
+                        {{ grade.name }}
+                      </a-select-option>
+                    </a-select>
+                  </custom-form-item>
+                </div>
+
+                <div
+                  id='inquiry'
+                  class='form-block tag-content-block'
+                  v-if="fieldItem.visible && fieldItem.fieldName === planField.Inquiry"
+                  :key='fieldItem.fieldName'>
+                  <collaborate-tooltip :form-id="unitPlanId" :field-name='planField.Inquiry'/>
+                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.Inquiry) !== -1'>
+                    <template slot='label'>
+                      {{ 'Big Idea/ Statement of Inquiry/ Central Idea' | unitLabelName(planField.Inquiry, $store.getters.formConfigData) }}
+                    </template>
+                    <template slot='action'>
+                      <a-space>
+                        <comment-switch
+                          v-show="canEdit"
+                          :is-active="currentFieldName === planField.Inquiry"
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Inquiry}"
+                          :field-name='planField.Inquiry'
+                          @switch='handleSwitchComment' />
+                      </a-space>
+                    </template>
+                    <template v-if='unitLabelHint(planField.Inquiry, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="'Big Idea/ Statement of Inquiry/ Central Idea' | unitLabelHint(planField.Inquiry, $store.getters.formConfigData)" placement='top'>
+                        <a-icon type="info-circle" />
+                      </a-tooltip>
+                    </template>
+                    <a-textarea
+                      v-model='form.inquiry'
+                      :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-direction-of-inquiry') : $t('teacher.add-unit-plan.expert-direction-of-inquiry')"
+                      :auto-size="{ minRows: 2, maxRows: 6 }"
+                      class='cc-form-textarea'
+                      @change="handleCollaborateEvent(unitPlanId,planField.Inquiry,form.inquiry)"
+                      :disabled="!canEdit" />
+                  </custom-form-item>
+                  <a-tooltip title='Browse' @click.stop='selectBigIdeaDataVisible=true' v-if="canEdit">
+                    <span class='browse'>
+                      <a-icon theme='twoTone' twoToneColor='rgba(21, 195, 154, 1)' type='appstore' />
+                    </span>
+                  </a-tooltip>
+                </div>
+
+                <div class='form-block tag-content-block' v-if="fieldItem.visible && fieldItem.fieldName === planField.Scenarios" :key='fieldItem.fieldName'>
+                  <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Sdg />
+                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.Sdg) !== -1'>
+                    <template slot='label'>
+                      {{ 'UN Sustainable Development Goal(s)' | unitLabelName(planField.Scenarios, $store.getters.formConfigData) }}
+                    </template>
+                    <template slot='action'>
+                      <a-space>
+                        <comment-switch
+                          v-show="canEdit"
+                          :is-active="currentFieldName === planField.Sdg"
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Sdg}"
+                          :field-name='planField.Sdg'
+                          @switch='handleSwitchComment' />
+                        <plus-icon @click='handleAddMoreSdg'/>
+                      </a-space>
+                    </template>
+                    <template v-if='unitLabelHint(planField.Scenarios, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="'UN Sustainable Development Goal(s)' | unitLabelHint(planField.Scenarios, $store.getters.formConfigData)" placement='top'>
+                        <a-icon type="info-circle" />
+                      </a-tooltip>
+                    </template>
+                    <div
+                      v-for='(scenario, sdgIndex) in form.scenarios'
+                      id='sdg'
+                      :key='sdgIndex'
+                      class='sdg-form-block'
                     >
-                      <div v-show='form.image' class='delete-img' @click='handleDeleteImage($event)'>
-                        <a-icon type='close-circle' />
+                      <!--description-->
+                      <div class='scenario-description'>
+                        <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteSdg(sdgIndex)" cancel-text="No" v-show='form.scenarios.length > 1'>
+                          <span class="delete-action" >
+                            <a-icon :style="{ fontSize: '14px', color: 'red' }" type='delete' />
+                          </span>
+                        </a-popconfirm>
+                        <!--sdg-->
+                        <custom-form-item :show-label='false'>
+                          <a-select
+                            :getPopupContainer="trigger => trigger.parentElement"
+                            v-model='scenario.sdgId'
+                            @change="handleCollaborateEvent(unitPlanId,planField.Sdg,form.sdg)"
+                            class='cc-select'
+                            placeholder='Select a goal from UN'
+                            :disabled="!canEdit">
+                            <a-select-option
+                              v-for='(sdg,index) in sdgList'
+                              :key='index'
+                              :disabled='selectedSdg.indexOf(sdg.id) != -1'
+                              :value='sdg.id'>
+                              {{ sdg.name }}
+                            </a-select-option>
+                          </a-select>
+                        </custom-form-item>
+
+                        <custom-form-item :show-label='false'>
+                          <input-search
+                            class='cc-form-input'
+                            ref='descriptionInputSearch'
+                            :currend-index='currentIndex'
+                            :default-value='scenario.description'
+                            :key-index='sdgIndex'
+                            :search-list='descriptionSearchList'
+                            label='description'
+                            @reset='descriptionSearchList = []'
+                            @search='handleDescriptionSearch'
+                            @select-item='handleSelectScenario'
+                            @change="handleCollaborateEvent(unitPlanId,planField.Sdg,form.sdg)"
+                            :can-edit="canEdit"
+                          />
+                        </custom-form-item>
                       </div>
-                      <template v-if='uploading'>
-                        <div class='upload-container'>
-                          <p class='ant-upload-drag-icon'>
-                            <a-icon type='cloud-upload' />
-                          </p>
-                          <p class='ant-upload-text'>
-                            <a-spin />
-                            <span class='uploading-tips'>{{ $t('teacher.add-unit-plan.uploading') }}</span>
-                          </p>
-                        </div>
-                      </template>
-                      <template v-if='!uploading && form && form.image'>
-                        <div class='image-preview'>
-                          <img :src='form.image' alt=''>
-                        </div>
-                      </template>
-                      <template v-if='!uploading && form && !form.image'>
-                        <div class='upload-container'>
-                          <p class='ant-upload-drag-icon'>
-                            <img class='upload-icon' src='~@/assets/icons/lesson/upload_icon.png' />
-                          </p>
-                          <p class='ant-upload-text'>
-                            {{ $t('teacher.add-unit-plan.upload-a-picture') }}
-                          </p>
-                        </div>
-                      </template>
-                    </a-upload-dragger>
-                  </a-form-model-item>
+                    </div>
+                  </custom-form-item>
                 </div>
-              </template>
-              <template v-if='showRightModule(rightModule.customTag)'>
+
+                <div class='form-block form-block-rwc tag-content-block' v-if="fieldItem.visible && fieldItem.fieldName === planField.Rwc" :key='fieldItem.fieldName'>
+                  <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Rwc />
+                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.Rwc) !== -1'>
+                    <template slot='label'>
+                      {{ 'Real World Connection(s)' | unitLabelName(planField.Rwc, $store.getters.formConfigData) }}
+                    </template>
+                    <template v-if='unitLabelHint(planField.Rwc, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="'Real World Connection(s)' | unitLabelHint(planField.Rwc, $store.getters.formConfigData)" placement='top'>
+                        <a-icon type="info-circle" />
+                      </a-tooltip>
+                    </template>
+                    <a-select
+                      :getPopupContainer="trigger => trigger.parentElement"
+                      v-model='form.rwc'
+                      class='cc-select'
+                      placeholder='Choose real world connection'
+                      @change="handleCollaborateEvent(unitPlanId,planField.Rwc,form.rwc)"
+                      :disabled="!canEdit" >
+                      <a-select-option :value='item.id' v-for='(item, index) in rwcList' :key='index'>
+                        {{ item.name }}
+                      </a-select-option>
+                    </a-select>
+                  </custom-form-item>
+                </div>
+
                 <div
-                  v-show='!this.contentLoading'
-                  :style="{'width':rightWidth+'px', 'margin-top':customTagTop+'px', 'z-index': 50}">
-                  <custom-tag
-                    ref='customTag'
-                    :scope-tags-list='customTagList'
-                    :selected-tags-list='form.customTags'
-                    :show-arrow='showCustomTag'
-                    :custom-tags='customTags'
-                    @reload-user-tags='loadCustomTags'
-                    @change-add-keywords='handleChangeAddKeywords'
-                    @change-user-tags='handleChangeCustomTags'></custom-tag>
+                  :class="{'form-block': true, 'form-block-disabled' : $store.getters.userInfo.disableQuestion, 'tag-content-block': true}"
+                  v-if="fieldItem.visible && fieldItem.fieldName === planField.Question"
+                  :key='fieldItem.fieldName'>
+                  <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Question />
+                  <custom-form-item class='unit-question' :required='emptyRequiredFields.indexOf(planField.Question) !== -1'>
+                    <template slot='label'>
+                      {{ 'Key question(s) / Line(s) of inquiry' | unitLabelName(planField.Question, $store.getters.formConfigData) }}
+                    </template>
+                    <template slot='action'>
+                      <a-space>
+                        <plus-icon @click='handleAddMoreQuestion' v-if='!$store.getters.userInfo.disableQuestion'/>
+                        <comment-switch
+                          v-show="canEdit"
+                          v-if='!$store.getters.userInfo.disableQuestion'
+                          :is-active="currentFieldName === planField.Question"
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Question}"
+                          :field-name='planField.Question'
+                          @switch='handleSwitchComment' />
+                        <custom-link-text text='more' :size='13' @click='questionMoreVisible=true'></custom-link-text>
+                      </a-space>
+                    </template>
+                    <template v-if='unitLabelHint(planField.Question, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="'Key question(s) / Line(s) of inquiry' | unitLabelHint(planField.Question, $store.getters.formConfigData)" placement='top'>
+                        <a-icon type="info-circle" />
+                      </a-tooltip>
+                    </template>
+                    <div v-if='!$store.getters.userInfo.disableQuestion' style='position: relative'>
+                      <div v-if='showRecommendQuestion' class='recommend-question'>
+                        <a-icon class='close-icon' type='close' @click.stop='hideRecommendQuestion=true' />
+                        <div class='recommend-box'>
+                          <a-tooltip
+                            title='You can add the key questions relevant to the big idea you chose above'>
+                            <span class='title'><a-icon style='width: 25px' type='question-circle' />Recommended:</span>
+                          </a-tooltip>
+                          <ul class='recommend-ul'>
+                            <li
+                              v-for='(item,rqIndex) in recommendQuestionList'
+                              v-if='rqIndex < 3 && selectQuestion.indexOf(item.name) === -1'
+                              :key='rqIndex'>
+                              {{ item.name }}
+                              <a-button class='add-question' type='link' @click.stop='handleInsertQuestion(item)'>
+                                add
+                              </a-button>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                      <div v-for='(question, index) in form.questions' :key='index' class='question-item'>
+                        <a-textarea
+                          v-model='question.name'
+                          :placeholder="$store.getters.currentRole === 'teacher' ? $t('teacher.add-unit-plan.teacher-nth-key-question') : $t('teacher.add-unit-plan.expert-nth-key-question')"
+                          auto-size
+                          class='cc-form-textarea'
+                          @change="handleCollaborateEvent(unitPlanId,planField.Question,form.question)"
+                          :disabled="!canEdit" />
+                        <div
+                          v-if='form.questions.length > 1'
+                          class='delete-icon-wrapper'
+                          @click='handleRemoveQuestion(index)'>
+                          <delete-icon color='#F16A39' />
+                        </div>
+                      </div>
+                    </div>
+                  </custom-form-item>
                 </div>
-              </template>
-              <template v-if='showRightModule(rightModule.taskDetails) && currentActiveStepIndex === 0'>
+
+                <div class='form-block tag-content-block' v-if="fieldItem.visible && fieldItem.fieldName === planField.LearnOuts" :key='fieldItem.fieldName'>
+                  <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Assessment style="left:100px" />
+                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.LearnOuts) !== -1'>
+                    <template slot='label'>
+                      {{ 'Learning objectives' | taskLabelName(planField.LearnOuts, $store.getters.formConfigData) }}
+                    </template>
+                    <learning-objective
+                      @change='handleUpdateLearningObjectives'
+                      :curriculumId='form.curriculumId'
+                      :learning-objectives='form.learnOuts'
+                      :subject-list='form.subjectList'
+                      :year-list='form.yearList'
+                      :language-list='form.languageList' />
+                  </custom-form-item>
+                </div>
+
                 <div
-                  :style="{'width':rightWidth + 'px', 'margin-top':taskDetailsTop+'px', 'z-index': 200}"
-                  class='task-details-panel'>
-                  <Assessment-Task-Details
-                    :associate-task-list='associateTaskList'
-                    @hide-assessment-task='resetRightModuleVisible()' />
+                  class='form-block tag-content-block'
+                  style='clear:both'
+                  v-if="fieldItem.visible && fieldItem.fieldName === planField.Prior"
+                  :key='fieldItem.fieldName'>
+                  <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Prior />
+                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.Prior) !== -1'>
+                    <template slot='label'>
+                      {{ 'Prior learning experience' | unitLabelName(planField.Prior, $store.getters.formConfigData) }}
+                    </template>
+                    <template slot='action'>
+                      <a-space>
+                        <comment-switch
+                          v-show="canEdit"
+                          :is-active="currentFieldName === planField.Prior"
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Prior}"
+                          :field-name='planField.Prior'
+                          @switch='handleSwitchComment' />
+                      </a-space>
+                    </template>
+                    <template v-if='unitLabelHint(planField.Prior, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="'Prior learning experience' | unitLabelHint(planField.Prior, $store.getters.formConfigData)" placement='top'>
+                        <a-icon type="info-circle" />
+                      </a-tooltip>
+                    </template>
+                    <a-textarea
+                      v-model='form.prior'
+                      allow-clear
+                      auto-size
+                      placeholder='What are the approaches to find out what students already knew?'
+                      @change="handleCollaborateEvent(unitPlanId,planField.Prior,form.prior)"
+                      :disabled="!canEdit" />
+                  </custom-form-item>
+                </div>
+
+                <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === planField.Link' :key='fieldItem.fieldName'>
+                  <div class='form-block'>
+                    <unit-linked-content :from-id='unitPlanId' @update-task-id-list='updateTaskIdList' />
+                  </div>
+                </div>
+
+                <div class='form-block' v-if='fieldItem.visible && fieldItem.fieldName === planField.Image' :key='fieldItem.fieldName'>
+                  <!-- image-->
+                  <custom-form-item class='img-wrapper' :required='emptyRequiredFields.indexOf(planField.Image) !== -1'>
+                    <template slot='label'>
+                      {{ 'Cover' | taskLabelName(planField.Image, $store.getters.formConfigData) }}
+                    </template>
+                    <template v-if='taskLabelHint(planField.Image, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="'Cover' | taskLabelHint(planField.Image, $store.getters.formConfigData)" placement='top'>
+                        <a-icon type="info-circle" />
+                      </a-tooltip>
+                    </template>
+                    <custom-image-uploader
+                      :field='planField.Image'
+                      :content-id='unitPlanId'
+                      :content-type='contentType["unit-plan"]'
+                      :img-url='form.image'
+                      @update='handleUpdateCover' />
+                  </custom-form-item>
+                </div>
+
+              </template>
+            </div>
+            <div class='form-field-item custom-field' v-for='custFieldItem in $store.getters.formConfigData.planCustomList' :key='custFieldItem.id'>
+              <template v-if='step.customFields.indexOf(custFieldItem.name) !== -1'>
+                <div class='form-block tag-content-block' v-if="custFieldItem.visible && form.customFieldData && form.customFieldData.hasOwnProperty(custFieldItem.id)" :key='custFieldItem.id' :data-field-name="'cust_' + custFieldItem.name" :data-field-id='custFieldItem.id'>
+                  <custom-form-item>
+                    <template slot='label'>
+                      {{ custFieldItem.name }}
+                    </template>
+                    <template v-if='custFieldItem.hint' slot='tips'>
+                      <a-tooltip :title="custFieldItem.hint" placement='top'>
+                        <a-icon type="info-circle" />
+                      </a-tooltip>
+                    </template>
+                    <a-input v-model='form.customFieldData[custFieldItem.id]' class='cc-form-input' :disabled="!canEdit"/>
+                  </custom-form-item>
                 </div>
               </template>
             </div>
-          </a-card>
-        </a-col>
-      </a-row>
-      <a-modal
-        v-model='selectAddContentTypeVisible'
-        :footer='null'
-        destroyOnClose
-        title='Select Content Type'
-        @cancel='selectAddContentTypeVisible = false'
-        @ok='selectAddContentTypeVisible = false'>
-        <div class='add-content-wrapper'>
-          <div class='add-content-item' @click='handleAddUnitPlanTask'>
-            <a>
-              <content-type-icon :type='contentType.task' />
-              {{ $t('teacher.add-unit-plan.task') }}
-            </a>
-          </div>
-          <div class='add-content-item' @click='handleAddUnitPlanLesson'>
-            <a>
-              <content-type-icon :type='contentType.lesson' />
-              {{ $t('teacher.add-unit-plan.lesson') }}
-            </a>
-          </div>
-          <div class='add-content-item' @click='handleAddUnitPlanEvaluation'>
-            <a>
-              <content-type-icon :type='contentType.evaluation' />
-              {{ $t('teacher.add-unit-plan.evaluation') }}
-            </a>
-          </div>
-          <div v-if='addLoading' class='add-loading'>
-            <a-spin />
           </div>
         </div>
-      </a-modal>
-
-      <a-modal
-        v-model='showAddAudioVisible'
-        :footer='null'
-        destroyOnClose
-        title='Add Audio'
-        @cancel='showAddAudioVisible = false'
-        @ok='showAddAudioVisible = false'>
-
-        <div class='audio-material-action'>
-          <div v-show='currentUploading' class='uploading-mask'>
-            <div class='uploading'>
-              <a-spin large />
-            </div>
-          </div>
-          <div class='action-item'>
-            <a-upload :customRequest='handleUploadAudio' :showUploadList='false' accept='audio/*' name='file'>
-              <a-button icon='upload' type='primary'>{{ $t('teacher.add-unit-plan.upload-audio') }}</a-button>
-            </a-upload>
-          </div>
-          <a-divider>
-            {{ $t('teacher.add-unit-plan.or') }}
-          </a-divider>
-          <div class='action-item-column'>
-            <!--            <vue-record-audio mode="press" @result="handleAudioResult" />-->
-            <div class='action-tips'>
-              {{ $t('teacher.add-unit-plan.record-your-voice') }}
-            </div>
-          </div>
-          <div class='material-action'>
-            <a-button key='back' class='action-item' @click='handleCancelAddAudio'>
-              Cancel
-            </a-button>
-            <a-button key='submit' class='action-item' type='primary' @click='handleConfirmAddAudio'>
-              Ok
-            </a-button>
-          </div>
-        </div>
-      </a-modal>
-
-      <a-modal
-        v-model='selectReferMyContentVisible'
-        :footer='null'
-        destroyOnClose
-        title='Refer MyContent'
-        width='1150px'
-        @cancel='selectReferMyContentVisible = false'
-        @ok='selectReferMyContentVisible = false'>
-        <div class='link-content-wrapper'>
-
-        </div>
-      </a-modal>
-
-      <a-drawer
-        :closable='false'
-        :mask='false'
-        :visible='referDetailVisible'
-        destroyOnClose
-        placement='right'
-        width='700px'
-        @close='handleCloseReferDetail'
-      >
-        <a-row class='preview-wrapper-row'>
-          <a-col class='view-back-col' span='2'>
-            <div class='view-back' @click='handleCloseReferDetail'>
-              <div class='back-icon'>
-                <img src='~@/assets/icons/common/back.png' />
+        <div class='tag-body' :style="{ width: tagBodyWidth }" v-show="tagBodyWidth !== '0%'">
+          <template v-if='currentRightModule === rightModule.collaborate'>
+            <a-skeleton :loading='showHistoryLoading' active>
+              <div class='collaborate-panel'>
+                <div class='icon' style="margin-left:10px">
+                  <comment-icon />
+                </div>
+                <div class="panel-close">
+                  <a-icon type="close" @click="handleViewCollaborate()" :style="{ color: 'red', fontSize: '18px',cursor:'pointer' }"/>
+                </div>
+                <a-tabs :default-active-key='defaultHistoryKey'>
+                  <a-tab-pane key='1' tab='Comment'>
+                    <collaborate-comment-view
+                      :comment-list='collaborateCommentList'
+                      :source-id='unitPlanId'
+                      :source-type="contentType['unit-plan']"
+                      :collaborate-user-list="getCollaborateUsers(collaborate)"
+                      @update-comment='handleUpdateCommentList' />
+                  </a-tab-pane>
+                  <a-tab-pane key='2' force-render tab='History'>
+                    <collaborate-history :source-type="contentType['unit-plan']" :history-list='historyList' @restore='handleRestoreField' />
+                  </a-tab-pane>
+                </a-tabs>
               </div>
+            </a-skeleton>
+          </template>
+
+          <template v-if='currentRightModule === rightModule.collaborateComment'>
+            <div class='collaborate-panel'>
+              <collaborate-comment-panel
+                :comment-list='collaborateCommentList'
+                :field-name='currentFieldName'
+                :source-id='unitPlanId'
+                :source-type="contentType['unit-plan']"
+                :collaborate-user-list="getCollaborateUsers(collaborate)"
+                @cancel-comment="handleCancelComment"
+                @update-comment='handleUpdateCommentList' />
             </div>
-          </a-col>
-          <a-col class='preview-wrapper-col' span='24'>
-            <div class='detail-wrapper'>
-              <div class='refer-detail'>
-                <refer-preview
-                  :id='referId'
-                  :type='referType'
-                  @refer='handleReferBlock'
-                  @hover-refer-block='handleHoverReferBlock'
-                  @refer-associate='handleReferAssociate'
-                />
-              </div>
+          </template>
+
+          <template v-if='currentRightModule === rightModule.customTag'>
+            <div v-show='!this.contentLoading' >
+              <custom-tag-v3
+                :custom-tags.sync='form.customTags'
+                :tag-category-desc.sync='form.tagCategoryDesc'
+                :associate-id-type-list='associateIdTypeList'
+                :is-load-associate-tags='true' />
             </div>
-          </a-col>
-        </a-row>
-      </a-drawer>
+          </template>
 
-      <a-modal
-        v-model='selectLinkContentVisible'
-        :dialog-style="{ top: '10px'}"
-        :footer='null'
-        destroyOnClose
-        width='900px'>
-        <div slot='title' class='my-modal-title'>
-          Link my content
+          <template v-if='currentRightModule === rightModule.taskDetails'>
+            <div class='task-details-panel'>
+              <Assessment-Task-Details
+                :associate-task-list='associateTaskList'
+                @hide-assessment-task='resetRightModuleVisible()' />
+            </div>
+          </template>
+
+          <template v-if='currentRightModule === rightModule.associate'>
+            <link-content-list
+              :selected-id-list='associateTaskIdList'
+              :filter-types="[contentType.task]" />
+          </template>
         </div>
-        <div class='link-content-wrapper'>
-          <new-my-content
-            :default-group-name='newTermName'
-            :filter-type-list='[contentType.task]'
-            :from-type="contentType['unit-plan']"
-            :group-name-list='groupNameList'
-            :group-name-mode='groupNameMode'
-            :mode="'common-link'"
-            :selected-list='selectedTaskList'
-            @cancel='selectLinkContentVisible = false'
-            @ensure='handleEnsureSelectedLink' />
-        </div>
-      </a-modal>
-
-      <a-modal
-        v-model='selectSyncDataVisible'
-        :dialog-style="{ top: '20px' }"
-        :footer='null'
-        :title='null'
-        destroyOnClose
-        width='1200px'
-        @cancel='selectSyncDataVisible = false'
-        @ok='selectSyncDataVisible = false'>
-        <div class='link-content-wrapper'>
-          <!-- 此处的questionIndex用于标识区分是哪个组件调用的，返回的事件数据中会带上，方便业务数据处理，可随意写，可忽略, show-menu中列出的类型才会显示-->
-          <new-browser
-            ref='newBrowser'
-            :default-active-menu='defaultActiveMenu'
-            :recommend-data='recommendData'
-            :selected-id='selectedIdList'
-            :selected-list='selectedList'
-            :show-menu='showMenuList'
-            :sync-data='syncData'
-            :default-grade-id='form.gradeId'
-            question-index='_questionIndex_1'
-            @select-assessmentType='handleSelectAssessmentType'
-            @select-sync='handleSelectListData'
-            @select-curriculum='handleSelectCurriculum'
-            @select-subject-specific-skill='handleSelectSubjectSpecificSkillListData'
-            @select-century-skill='handleSelect21CenturySkillListData'
-            @select-idu='handleSelectIdu'
-            @select-recommend='handleSelectRecommend'
-            @cancel-select='handleCancelSelectData'
-            @ensure-select='handleEnsureSelectData'
-          />
-        </div>
-      </a-modal>
-
-      <a-modal
-        v-model='questionSettingVisible'
-        :footer='null'
-        destroyOnClose
-        title='Set key question(s) / Line(s) of inquiry'
-        width='600px'>
-        <div class='ensure-setting-modal'>
-          <div class='tips'>
-            <p>We understand that for some countries, "key questions/line of inquiry" is not required in Unit plan so
-              you have the option to turn it off. You won't see that section once it's off.</p>
-            <p>
-            </p>
-            <p style='color: red'>You might turn it on or change in your account setting If you need the section in
-              future.</p>
-          </div>
-          <a-switch v-model='disableQuestion' @change='onChangeSwitch' />
-          <span
-            style='color: red ;font-family: Inter-Bold;font-size: 15px;'> Key question(s) / Line(s) of inquiry</span>
-          <div class='modal-ensure-action-line-center'>
-            <a-button class='action-item action-cancel' shape='round' @click='questionSettingVisible=false'>Cancel
-            </a-button>
-            <a-button
-              :loading='confirmLoading'
-              class='action-ensure action-item'
-              shape='round'
-              type='primary'
-              @click='handQuestionSetting'>Confirm
-            </a-button>
-          </div>
-        </div>
-      </a-modal>
-
-      <a-modal
-        v-model='selectBigIdeaDataVisible'
-        :footer='null'
-        destroyOnClose
-        title='Browse big idea'
-        width='70%'
-        @cancel='selectBigIdeaDataVisible = false'
-        @ok='selectBigIdeaDataVisible = false'>
-        <div class='link-content-wrapper'>
-          <BigIdeaBrowse @handle-select='handleSelectBigIdeaData'>
-
-          </BigIdeaBrowse>
-
-          <div class='modal-ensure-action-line-right'>
-            <a-button class='action-item action-cancel' shape='round' @click='selectBigIdeaDataVisible=false'>Cancel
-            </a-button>
-            <a-button
-              class='action-ensure action-item'
-              shape='round'
-              type='primary'
-              @click='handleEnsureSelectBigIdeaData'>Ok
-            </a-button>
-          </div>
-        </div>
-      </a-modal>
-
-      <a-modal
-        v-model='questionMoreVisible'
-        :footer='null'
-        destroyOnClose
-        title='Browse Key Questions'
-        width='900px'
-        @cancel='questionMoreVisible = false'
-        @ok='questionMoreVisible = false'>
-        <div class='link-content-wrapper'>
-          <QuestionBrowse
-            :big-idea='form.inquiry'
-            :question-list='form.questions'
-            @select-question='handleSelectQuestion'></QuestionBrowse>
-
-          <div class='modal-ensure-action-line-right' style='justify-content: center'>
-            <a-button class='action-item action-cancel' shape='round' @click='questionMoreVisible=false'>Cancel
-            </a-button>
-            <a-button
-              class='action-ensure action-item'
-              shape='round'
-              type='primary'
-              @click='handleEnsureSelectQuestionData'>Ok
-            </a-button>
-          </div>
-        </div>
-      </a-modal>
-
-      <a-modal
-        v-model='shareVisible'
-        :footer='null'
-        destroyOnClose
-        title='Share'
-        width='500px'
-        @ok='shareVisible = false'
-        @cancel='shareVisible = false'>
-        <share-content-setting
-          :source-id='form.id'
-          :source-type='form.type'
-          @update-share-status='handleShareStatus'
-        />
-      </a-modal>
-
-      <a-modal
-        v-model='showUpdateContent'
-        :footer='null'
-        :title='null'
-        destroyOnClose
-        width='700px'
-        :maskClosable="false"
-        :closable='false'>
-      </a-modal>
-
-      <a-skeleton :loading='contentLoading' active>
-      </a-skeleton>
-    </a-card>
+      </div>
+      <div class='loading-content' v-if='contentLoading'>
+        <a-spin />
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import * as logger from '@/utils/logger'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { typeMap } from '@/const/teacher'
-import { CustomTagType, PlanField } from '@/const/common'
-import { commonAPIUrl } from '@/api/common'
-import { GetAllSdgs } from '@/api/scenario'
+import { PlanField, TaskField } from '@/const/common'
+import { GetAllSdgs, ScenarioSearch } from '@/api/scenario'
+import { debounce } from 'lodash-es'
 import InputSearch from '@/components/UnitPlan/InputSearch'
 import SdgTagInput from '@/components/UnitPlan/SdgTagInput'
 import {
-  GetMyGrades
+  Associate,
+  FindBigIdeaSourceOutcomes,
+  FindSourceOutcomes,
+  GetAssociate,
+  GetMyGrades,
+  GetReferOutcomes, UpdateContentStatus
 } from '@/api/teacher'
 import { SubjectTree } from '@/api/subject'
 import { formatSubjectTree } from '@/utils/bizUtil'
 import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
 import NewClickableSkillTag from '@/components/UnitPlan/NewClickableSkillTag'
 import SkillTag from '@/components/UnitPlan/SkillTag'
-import { formatLocalUTC } from '@/utils/util'
+import { UnitPlanAddOrUpdate, UnitPlanQueryById } from '@/api/unitPlan'
 import MyContentSelector from '@/components/MyContent/MyContentSelector'
-import CustomTag from '@/components/UnitPlan/CustomTag'
+import { TaskAddOrUpdate } from '@/api/task'
+import CustomTagV3 from '@/components/CustomTag/CustomTagV3'
 import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import AddKeywordTag from '@/components/Evaluation/AddKeywordTag'
 import CollaborateUserList from '@/components/Collaborate/CollaborateUserList'
@@ -797,31 +600,74 @@ import CommonFormHeader from '@/components/Common/CommonFormHeader'
 import NewBrowser from '@/components/NewLibrary/NewBrowser'
 import { SelectModel } from '@/components/NewLibrary/SelectModel'
 import DisplayMode from '@/components/MyContent/DisplayMode'
+import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
 import ReferPreview from '@/components/UnitPlanRefer/ReferPreview'
 import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
-import PlanLink from '@/components/Common/PlanLink'
 import NewMyContent from '@/components/MyContent/NewMyContent'
-import { FindCustomTags, GetTreeByKey } from '@/api/tag'
 import { NavigationType } from '@/components/NewLibrary/NavigationType'
 import CollaborateCommentPanel from '@/components/Collaborate/CollaborateCommentPanel'
 import CommentSwitch from '@/components/Collaborate/CommentSwitch'
 import CollaborateCommentView from '@/components/Collaborate/CollaborateCommentView'
 import commentIcon from '@/assets/icons/collaborate/comment.svg?inline'
 import CollaborateHistory from '@/components/Collaborate/CollaborateHistory'
+import { UserSetting } from '@/api/user'
 import BigIdeaBrowse from '@/components/UnitPlan/BigIdeaBrowse'
 import { FindQuestionsByBigIdea } from '@/api/question'
 import QuestionBrowse from '@/components/UnitPlan/QuestionBrowse'
+import Collapse from '@/utils/collapse.js'
 import { UtilMixin } from '@/mixins/UtilMixin'
+import moment from 'moment'
 import AssessmentTaskDetails from '@/components/UnitPlan/AssessmentTaskDetails'
-import { BaseEventMixin } from '@/mixins/BaseEvent'
+import { BaseEventMixin, RightModule } from '@/mixins/BaseEvent'
 import { FormConfigMixin } from '@/mixins/FormConfigMixin'
 import ShareContentSetting from '@/components/Share/ShareContentSetting'
+import { QueryContentShare } from '@/api/share'
+import CollaborateTooltip from '@/components/Collaborate/CollaborateTooltip'
+import LocalStore from '@/websocket/localstore'
+import CollaborateUpdateContent from '@/components/Collaborate/CollaborateUpdateContent'
+import PublishList from '@/components/UnitPlan/PublishList'
+import AddGreenIcon from '@/assets/svgIcon/evaluation/form/tianjia_green.svg?inline'
+import MyVerticalSteps from '@/components/Steps/MyVerticalSteps'
+import { ACCESS_TOKEN, FORM_CONFIG_PREVIEW_DATA } from '@/store/mutation-types'
+import LinkContentList from '@/components/UnitPlan/LinkContentList'
+import UnitLinkedContent from '@/components/UnitPlan/UnitLinkedContent'
+import FixedFormHeader from '@/components/Common/FixedFormHeader'
+import FormHeader from '@/components/FormHeader/FormHeader'
+import FixedFormFooter from '@/components/Common/FixedFormFooter'
+import CustomFormItem from '@/components/Common/CustomFormItem'
+import CustomRadioButtonGroup from '@/components/Common/CustomRadioButtonGroup'
+import DeleteIcon from '@/components/Common/DeleteIcon'
+import PlusIcon from '@/components/Common/PlusIcon'
+import CustomLinkText from '@/components/Common/CustomLinkText'
+import CustomTextButton from '@/components/Common/CustomTextButton'
+import { PublishMixin } from '@/mixins/PublishMixin'
+import CustomCoverMedia from '@/components/Common/CustomCoverMedia'
+import LearningObjective from '@/components/LearningObjective/LearningObjective'
+import { AutoSaveMixin } from '@/mixins/AutoSaveMixin'
+import CustomImageUploader from '@/components/Common/CustomImageUploader'
+import { GetTreeByKey } from '@/api/tag'
+import { deepEqual, formatLocalUTC } from '@/utils/util'
 import storage from 'store'
-import { FORM_CONFIG_PREVIEW_DATA } from '@/store/mutation-types'
 
 export default {
   name: 'AddUnitPlan',
   components: {
+    CustomTagV3,
+    CustomImageUploader,
+    CustomCoverMedia,
+    CustomTextButton,
+    CustomLinkText,
+    PlusIcon,
+    DeleteIcon,
+    CustomRadioButtonGroup,
+    CustomFormItem,
+    FixedFormFooter,
+    FormHeader,
+    FixedFormHeader,
+    UnitLinkedContent,
+    LinkContentList,
+    MyVerticalSteps,
+    PublishList,
     ShareContentSetting,
     AssessmentTaskDetails,
     QuestionBrowse,
@@ -830,7 +676,6 @@ export default {
     CommentSwitch,
     CollaborateCommentPanel,
     NewMyContent,
-    PlanLink,
     ReferPreview,
     CollaborateUserList,
     CommonFormHeader,
@@ -841,40 +686,48 @@ export default {
     NewClickableSkillTag,
     SkillTag,
     MyContentSelector,
-    CustomTag,
     RelevantTagSelector,
     AddKeywordTag,
     NewBrowser,
     commentIcon,
     UiLearnOut,
-    BigIdeaBrowse
+    BigIdeaBrowse,
+    Collapse,
+    CollaborateTooltip,
+    CollaborateUpdateContent,
+    AddGreenIcon,
+    LearningObjective
   },
-  mixins: [UtilMixin, BaseEventMixin, FormConfigMixin],
+  props: {
+    unitPlanId: {
+      type: String,
+      default: null
+    }
+  },
+  mixins: [ UtilMixin, BaseEventMixin, FormConfigMixin, PublishMixin, AutoSaveMixin ],
   data() {
     return {
       showCollaborateVisible: false,
-      contentLoading: true,
-      referenceLoading: false,
+      contentLoading: false,
       contentType: typeMap,
       DisplayMode: DisplayMode,
 
-      selectAddContentTypeVisible: false,
-      selectLinkContentVisible: false,
-
-      showAddAudioVisible: false,
-      currentUploading: false,
-      audioUrl: null,
-
+      oldForm: null,
       labelCol: { span: 4 },
       wrapperCol: { span: 18 },
       form: {
         id: null,
         image: '',
+        coverVideo: null,
         inquiry: '',
         name: 'Untitled UnitPlan',
         status: 0,
         subjects: '',
+        curriculumId: null,
         learnOuts: [],
+        yearList: [],
+        languageList: [],
+        subjectList: [],
         selfOuts: [],
         questions: [
           {
@@ -882,11 +735,21 @@ export default {
             name: ''
           }
         ],
-        scenarios: [],
+        scenarios: {
+          description: '',
+          sdgId: '1',
+          sdgKeyWords: [
+            {
+              id: '',
+              name: ''
+            }
+          ]
+        },
         createTime: '',
         updateTime: '',
         materials: [],
         customTags: [],
+        tagCategoryDesc: [],
         overview: '',
         subjectIds: [],
         gradeIds: [],
@@ -895,6 +758,7 @@ export default {
         endDate: '',
         gradeId: undefined,
         prior: '',
+        createBy: null,
         customFieldData: null
       },
       rangeDate: [],
@@ -914,26 +778,14 @@ export default {
       descriptionSearchList: [],
       addLoading: false,
       currentIndex: 0,
-      saving: false,
       publishing: false,
       selectModel: SelectModel,
       selectDescriptionIndex: '',
 
-      selectReferMyContentVisible: false,
-      referDetailVisible: false,
-      referId: null,
-      referType: null,
-      activeReferBlock: '',
       showSidebar: true,
-
-      // 当前激活的step
-      currentActiveStepIndex: 0,
 
       groupNameList: [],
       groupNameListOther: [],
-      syncData: [],
-      selectSyncDataVisible: false,
-      selectedSyncList: [],
 
       // 已选择的大纲知识点描述数据
       selectedCurriculumList: [],
@@ -952,19 +804,13 @@ export default {
       selectedAssessmentList: [],
 
       selectIdea: false,
-      showCustomTag: false,
-      customTagTop: 0,
-      customTagList: [],
-      customTags: {},
       NavigationType: NavigationType,
       defaultActiveMenu: NavigationType.learningOutcomes,
       showMenuList: [NavigationType.specificSkills, NavigationType.centurySkills, NavigationType.learningOutcomes, NavigationType.assessmentType, NavigationType.idu],
 
-      collaborateTop: 0,
       questionSettingVisible: false,
       disableQuestion: false,
       confirmLoading: false,
-      selectBigIdeaDataVisible: false,
       selectNewBigIdea: '',
       recommendQuestionList: [],
       showHistoryLoading: false,
@@ -994,15 +840,24 @@ export default {
       associateUnitPlanIdList: [],
       associateTaskIdList: [],
       associateId2Name: new Map(),
-      defaultGroupName: 'Untitled category',
-      addCategoryLoading: false,
       rwcList: [],
 
-      shareVisible: false,
-      shareStatus: 0,
       planField: PlanField,
 
-      linkLoading: false
+      linkLoading: false,
+
+      publishListVisible: false,
+
+      currentActiveStepIndex: this.getSessionStep(),
+      currentStep: {
+        id: null,
+        commonFields: [],
+        customFields: []
+      },
+
+      formBodyWidth: '50%',
+      tagBodyWidth: '50%',
+      fullBodyFields: ['learnOuts']
     }
   },
   computed: {
@@ -1052,105 +907,171 @@ export default {
       return ret
     }
   },
+  watch: {
+    referDetailVisible(value) {
+      this.$logger.info('watch referDetailVisible ' + value)
+      this.$logger.info('screen width: ', document.body.clientWidth)
+      if (value && document.body.clientWidth < 1700) {
+        this.showSidebar = false
+      } else {
+        this.showSidebar = true
+      }
+    },
+    currentStep: {
+      handler(val) {
+        this.handleDisplayRightModule()
+      },
+      deep: true
+    }
+  },
   created() {
     // 初始化关联事件处理
-    this.formConfigPreviewData = storage.get(FORM_CONFIG_PREVIEW_DATA)
-    this.$logger.info('unit-preview created', this.formConfigPreviewData)
+    const formConfigPreviewData = storage.get(FORM_CONFIG_PREVIEW_DATA)
+    this.$logger.info('unit-preview created', formConfigPreviewData)
     this.initData()
+    this.$logger.info('unitPlanId ' + this.unitPlanId + ' ' + this.$route.path)
+    LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
+    this.formSteps = formConfigPreviewData.planSteps || []
+    this.$logger.info('formSteps', this.formSteps)
+    this.requiredFields = [
+      PlanField.Name,
+      PlanField.Image,
+      PlanField.Inquiry,
+      PlanField.Scenarios,
+      PlanField.Question,
+      PlanField.LearnOuts
+    ]
+    if (this.currentActiveStepIndex < 0 || this.currentActiveStepIndex > this.formSteps.length - 1) {
+      this.currentActiveStepIndex = 0
+    }
+    this.currentStep = this.formSteps[this.currentActiveStepIndex]
+    this.handleDisplayRightModule()
+    this.checkIsFullBodyStep()
   },
   methods: {
     initData() {
-      logger.info('initData doing...')
+      this.$logger.info('initData doing...')
       Promise.all([
         GetAllSdgs(),
-        // GetTreeByKey({ key: 'Related Concepts MYP' }),
         GetMyGrades(),
         SubjectTree({ curriculumId: this.$store.getters.bindCurriculum }),
         GetTreeByKey({ key: 'Real world connections' })
       ]).then((sdgListResponse) => {
-        logger.info('initData done', sdgListResponse)
+        this.$logger.info('initData done', sdgListResponse)
 
         // GetAllSdgs
-        logger.info('GetAllSdgs Response ', sdgListResponse[0])
+        this.$logger.info('GetAllSdgs Response ', sdgListResponse[0])
         if (!sdgListResponse[0].code) {
           this.sdgList = sdgListResponse[0].result
         }
 
         // GetMyGrades
         if (!sdgListResponse[1].code) {
-          logger.info('GetMyGrades', sdgListResponse[1].result)
+          this.$logger.info('GetMyGrades', sdgListResponse[1].result)
           this.gradeList = sdgListResponse[1].result
         }
 
         // SubjectTree
         if (!sdgListResponse[2].code) {
-          logger.info('SubjectTree', sdgListResponse[2].result)
+          this.$logger.info('SubjectTree', sdgListResponse[2].result)
           let subjectTree = sdgListResponse[2].result
           subjectTree = formatSubjectTree(subjectTree)
           this.subjectTree = subjectTree
-          logger.info('after format subjectTree', subjectTree)
+          this.$logger.info('after format subjectTree', subjectTree)
         }
         // rwc list
         if (!sdgListResponse[3].code) {
-          logger.info('rwc', sdgListResponse[3].result)
+          this.$logger.info('rwc', sdgListResponse[3].result)
           this.rwcList = sdgListResponse[3].result.children ? sdgListResponse[3].result.children : []
         }
-        logger.info('sdgList', this.sdgList)
+        this.$logger.info('sdgList', this.sdgList)
+      }).then(() => {
+        // this.restoreUnitPlan(this.unitPlanId, true)
       }).catch((e) => {
-        this.$message.error(this.$t('teacher.add-unit-plan.init-data-failed'))
-      }).finally(() => {
-        // 填充自定义字段
-        const displayCustomFieldData = {}
+        this.$message.error('Init Unit Plan Data Failed, Please Retry! ' + e)
+      })
+    },
 
-        if (this.formConfigPreviewData && this.formConfigPreviewData.planCustomList) {
-          this.formConfigPreviewData.planCustomList.forEach(customField => {
-            displayCustomFieldData[customField.id] = ''
-          })
-        } else {
-          this.$confirm({
-            title: 'Alert',
-            okText: 'Ok',
-            content: 'Failed to get the preview data!'
-          })
+    handleDisplayRightModule () {
+      if (this.currentStep.commonFields.indexOf(TaskField.Slides) !== -1) {
+        this.currentRightModule = RightModule.recommend
+      } else if (this.currentStep.commonFields.indexOf(TaskField.LearnOuts) !== -1) {
+        this.currentRightModule = null
+      } else if (this.currentStep.commonFields.indexOf(TaskField.Link) !== -1) {
+        this.currentRightModule = RightModule.associate
+      } else {
+        this.currentRightModule = RightModule.customTag
+      }
+    },
+
+    handleNextStep () {
+      if (this.currentActiveStepIndex === this.formSteps.length - 1) {
+        this.$router.replace({
+          path: '/'
+        })
+      } else {
+        this.$refs['steps-nav'].nextStep()
+      }
+    },
+
+    // 填充自定义大纲内容
+    async handleSelfOutsData() {
+      this.$logger.info(' handleSelfOutsData')
+      const response = await GetReferOutcomes({
+        id: this.unitPlanId,
+        type: this.contentType['unit-plan']
+      })
+      this.$logger.info('getReferOutcomes response', response)
+      if (response.success && response.result.length) {
+        const list = response.result
+        list.forEach(item => {
+          if (item.hasOwnProperty('isSelfCustom') && item.isSelfCustom) {
+            item.fromId = item.fromList[0].fromId
+            item.fromName = item.fromList[0].fromName
+            item.fromTypeName = this.type2Name[item.fromList[0].fromType]
+
+            const targetItem = this.recommendData.find(rItem => rItem.fromId === item.fromId)
+            if (targetItem) {
+              this.$logger.info('targetItem ' + targetItem.fromName + ' add SelfCustom SelfOut ' + item.name, item)
+              targetItem.list.push(item)
+            }
+          }
+        })
+      }
+    },
+
+    handleDescriptionSearch(index, description) {
+      this.$logger.info('handleDescriptionSearch:', index, description)
+      this.form.scenarios[index].description = description
+      this.debouncedGetSdgByDescription(index, description)
+    },
+
+    searchScenario(index, description) {
+      this.$logger.info('searchScenario', description)
+      this.currentIndex = index
+      if (typeof description === 'string' && description.trim().length >= 3) {
+        // this.$refs.descriptionInputSearch.fetching = true
+        ScenarioSearch({
+          searchKey: this.form.scenarios[index].description
+        }).then((response) => {
+          this.$logger.info('searchByDescription', response)
+          this.descriptionSearchList = response.result
+        })
+      } else {
+        this.descriptionSearchList = []
+      }
+    },
+
+    handleSelectScenario(index, scenario) {
+      console.log(scenario)
+      if (this.form.scenarios.hasOwnProperty(index) && scenario && scenario.sdgKeyWords && scenario.description) {
+        this.form.scenarios[index].description = scenario.description
+        if (scenario.sdgKeyWords.length) {
+          const keyWords = scenario.sdgKeyWords
+          this.$logger.info('scenario[' + index + '].sdgKeyWords', keyWords)
+          this.form.scenarios[index].sdgKeyWords = keyWords
         }
-        this.$logger.info('displayCustomFieldData', displayCustomFieldData)
-        this.form.customFieldData = displayCustomFieldData
-
-        this.referenceLoading = false
-        this.contentLoading = false
-      })
-    },
-
-    handleSyncData() {
-    },
-
-    handleUploadImage(data) {
-      logger.info('handleUploadImage', data)
-      const formData = new FormData()
-      formData.append('file', data.file, data.file.name)
-      this.uploading = true
-      this.$http.post(commonAPIUrl.UploadFile, formData, {
-        contentType: false,
-        processData: false,
-        headers: { 'Content-Type': 'multipart/form-data' },
-        timeout: 60000
-      })
-        .then((response) => {
-          logger.info('handleUploadImage upload response:', response)
-          this.form.image = this.$store.getters.downloadUrl + response.result
-        }).catch(err => {
-        logger.error('handleUploadImage error', err)
-        this.$message.error(this.$t('teacher.add-unit-plan.upload-image-file-failed'))
-      }).finally(() => {
-        this.uploading = false
-      })
-    },
-
-    handleDeleteImage(e) {
-      logger.info('handleDeleteImage ', e)
-      e.stopPropagation()
-      e.preventDefault()
-      this.form.image = null
+      }
     },
 
     handleAddMoreSdg() {
@@ -1160,34 +1081,26 @@ export default {
         sdgKeyWords: []
       }
       this.form.scenarios.push(sdg)
-      // this.$set(this.sdgDataObj, this.sdgPrefix + this.sdgMaxIndex, sdg)
-      // logger.info('after add scenarioObj: ', this.sdgDataObj, 'sdgMaxIndex ' + this.sdgMaxIndex, ' sdgTotal ' + this.sdgTotal)
     },
 
     handleDeleteSdg(sdgIndex) {
       if (this.form.scenarios.length > 1) {
         this.form.scenarios.splice(sdgIndex, 1)
-        logger.info('scenarios ', this.form.scenarios, 'sdgTotal ' + this.form.scenarios.length)
+        this.$logger.info('scenarios ', this.form.scenarios, 'sdgTotal ' + this.form.scenarios.length)
       } else {
         this.$message.warn(this.$t('teacher.add-unit-plan.at-least-one-sdg'))
       }
     },
-
-    handleSelectSubject(subjects) {
-      logger.info('handleSelectSubject', subjects)
-      this.form.subjects = subjects
-    },
-
     handleAddMoreQuestion() {
       const question = {
         id: null,
         name: ''
       }
-      logger.info('handleAddMoreQuestion ', question)
+      this.$logger.info('handleAddMoreQuestion ', question)
       this.form.questions.push(question)
     },
     handleRemoveQuestion(index) {
-      logger.info('handleRemoveQuestion ', index)
+      this.$logger.info('handleRemoveQuestion ', index)
       if (this.form.questions.length === 1) {
         this.form.questions[index].name = ''
       } else {
@@ -1195,394 +1108,362 @@ export default {
       }
     },
 
-    handleRemoveSkillTag(data) {
-      logger.info('Unit Plan handleRemoveSkillTag', data)
-      logger.info('target question data', this.questionDataObj[data.questionIndex])
-      this.questionDataObj[data.questionIndex].skillTags = this.questionDataObj[data.questionIndex].skillTags.filter(item => item.id !== data.id)
-      logger.info('Unit Plan after handleRemoveSkillTag ', this.questionDataObj[data.questionIndex].skillTags)
+    async save() {
+      this.$logger.info('save', this.form)
+      this.saving = true
+      this.cleaPageCache()
+      const unitPlanData = JSON.parse(JSON.stringify(this.form))
+      if (this.unitPlanId) {
+        unitPlanData.id = this.unitPlanId
+      }
+      if (unitPlanData.customFieldData) {
+        unitPlanData.customFieldData = JSON.stringify(unitPlanData.customFieldData)
+      }
+      this.$logger.info('UnitPlanAddOrUpdate unitPlanData', unitPlanData)
+      try {
+        const response = await UnitPlanAddOrUpdate(unitPlanData)
+        this.$logger.info('UnitPlanAddOrUpdate res', response.result)
+        if (!response.success) {
+          this.oldForm = Object.assign({}, this.form)
+          this.$message.error(response.message)
+        }
+        // 内容更新发送协同通知
+        if (!deepEqual(this.form, this.oldForm)) {
+          this.handleSaveContentEvent(this.unitPlanId, this.contentType['unit-plan'], this.oldForm)
+        }
+      } finally {
+        this.saving = false
+      }
+    },
+    handlePublishUnitPlan() {
+      this.$logger.info('handlePublishUnitPlan', {
+        id: this.unitPlanId,
+        status: 1
+      })
+
+      this.checkRequiredFields()
+      this.$logger.info('this.emptyRequiredFields', this.emptyRequiredFields)
+      if (this.emptyRequiredFields.length === 0) {
+        this.form.status = 1
+        this.handlePublishFormItem(1)
+      } else {
+        let requiredStepIndex = -1
+        for (let i = 0; i < this.formSteps.length; i++) {
+          if (this.formSteps[i].showRequiredTips) {
+            requiredStepIndex = i
+            break
+          }
+        }
+
+        if (requiredStepIndex !== -1) {
+          this.currentActiveStepIndex = requiredStepIndex
+        }
+      }
     },
 
-    handleAddSkillTag(data) {
-      logger.info('Unit Plan handleAddSkillTag', data)
-      logger.info('target question data', this.questionDataObj[data.questionIndex])
-      this.questionDataObj[data.questionIndex].skillTags.push(Object.assign({}, data))
-      this.$logger.info('after handleAddSkillTag questionDataObj ' + data.questionIndex, this.questionDataObj[data.questionIndex])
-    },
-
-    handleSaveUnitPlan() {
-    },
-    handlePublishUnitPlan(status) {
-    },
-
-    handleAddUnitPlanMaterial() {
+    handlePublishFormItem (status) {
+      const data = {
+        id: this.unitPlanId,
+        status: status,
+        type: this.contentType['unit-plan']
+      }
+      UpdateContentStatus(data).then(() => {
+        this.$message.success(this.$t('teacher.add-unit-plan.publish-success'))
+      })
     },
 
     handleAddUnitPlanTask() {
+      this.$logger.info('handleAddUnitPlanTask ' + this.unitPlanId)
+      // 下创建一个空的task，然后关联，然后再跳转过去
+      if (!this.addLoading) {
+        this.addLoading = true
+        TaskAddOrUpdate({
+          name: 'Unnamed Task',
+          associateId: this.form.id,
+          associateType: this.form.type
+        }).then((response) => {
+          this.$logger.info('TaskAddOrUpdate', response.result)
+          if (response.success) {
+            Associate({
+              fromId: this.unitPlanId,
+              fromType: this.contentType['unit-plan'],
+              toId: response.result.id,
+              toType: this.contentType.task
+            }).then(response => {
+              this.$logger.info('Associate response ', response)
+            })
+            this.addLoading = false
+            this.$router.push({
+              path: '/teacher/task-redirect/' + response.result.id
+            })
+          } else {
+            this.$message.error(response.message)
+          }
+        }).finally(() => {
+          this.addLoading = false
+        })
+      } else {
+        this.$logger.info('add loading')
+      }
     },
 
-    handleAddUnitPlanLesson() {
-    },
-
-    handleAddUnitPlanEvaluation() {
-    },
-
-    closeWindow() {
-      window.close()
-    },
-
-    handleClickPreviewMask () {
-      this.$confirm({
-        title: 'Alert',
-        okText: 'Confirm',
-        cancelText: 'Cancel',
-        content: 'Current in preview mode, do you confirm to exit?',
-        onOk: () => {
-          this.closeWindow()
-        }
-      })
-    },
-    handleChangeCustomTags(tags) {
-    },
-    handleChangeAddKeywords(tag) {
-
-    },
-    handleAudioResult(data) {
-
-    },
-
-    handleUploadAudio(data) {
-    },
-
-    handleCancelAddAudio() {
-    },
-
-    handleConfirmAddAudio() {
-
-    },
-
-    handleAddAudioOverview() {
-
-    },
-    handleUpdateSelfOuts (data) {
-
-    },
-    handleSelectDescription() {
-
+    goBack() {
+      this.$router.go(-1)
     },
     handleConfirmAssociate() {
-
-    },
-
-    handleStartRefer() {
-
-    },
-
-    handleDescriptionSelectClick(data) {
-
-    },
-
-    handleReferItem(data) {
-
-    },
-
-    handleCloseReferDetail() {
-
-    },
-
-    handleHoverReferBlock(data) {
-
-    },
-
-    handleReferBlock(data) {
-
-    },
-
-    handleReferAssociate(data) {
-
-    },
-    showSelectLinkContentVisible() {
-
-    },
-    showSelectAddContentTypeVisible() {
-
-    },
-
-    handleAddTasks() {
-
-    },
-
-    handleAddTerm() {
-
-    },
-
-    handleEnsureSelectedLink(data) {
-
+      this.$logger.info('handleConfirmAssociate')
+      this.associateLibraryVisible = false
     },
 
     getAssociate() {
-    },
+      this.$logger.info('AddUnitPlan GetAssociate id[' + this.unitPlanId + '] fromType[' + this.contentType['unit-plan'] + ']')
+      this.associateUnitPlanIdList = []
+      this.associateTaskIdList = []
+      this.associateTaskList = []
+      GetAssociate({
+        id: this.unitPlanId,
+        type: this.contentType['unit-plan']
+      }).then(response => {
+        this.$logger.info('AddUnitPlan GetAssociate response', response)
+        this.groupNameList = response.result.groups
+        this.groupNameListOther = []
+        this.selectedTaskList = [] // 只添加空group name分组数据
+        response.result.owner.forEach(item => {
+          item.contents.forEach(content => {
+            this.selectedTaskList.push(content.type + '-' + content.id)
+            if (content.type === this.contentType['unit-plan']) {
+              this.associateUnitPlanIdList.push(content.id)
+              this.associateId2Name.set(content.id, content.name)
+            }
 
-    loadRefLearnOuts() {
-
-    },
-    loadBigIdeaLearnOuts() {
-
-    },
-
-    handleUpdateGroupNameList() {
-
-    },
-
-    handleSelectBigIdeaData(data) {
-    },
-    // TODO 选择的assessment数据
-    handleSelectAssessmentType(data) {
-      this.$logger.info('handleSelectAssessmentType', data)
-      this.selectedAssessmentList = data
-    },
-
-    // TODO 自动更新选择的sync 的数据knowledgeId和name列表
-    handleSelectListData(data) {
-      this.$logger.info('handleSelectListData', data)
-      this.selectedSyncList = data
-    },
-
-    handleSelectCurriculum(data) {
-      this.$logger.info('handleSelectCurriculum', data)
-      this.selectedCurriculumList = data
-    },
-
-    handleSelectSubjectSpecificSkillListData(data) {
-      this.selectedSpecificSkillList = data
-      this.$logger.info('handleSelectSubjectSpecificSkillListData', data)
-    },
-
-    handleSelect21CenturySkillListData(data) {
-      this.$logger.info('handleSelect21CenturySkillListData', data)
-      this.selectedCenturySkillList = data
-    },
-
-    handleSelectIdu(data) {
-      this.$logger.info('handleSelectIdu', data)
-      this.selectedIduList = data
-    },
-
-    handleSelectRecommend(data) {
-      this.$logger.info('handleSelectRecommend', data)
-      this.selectedRecommendList = data
-    },
-
-    // TODO 自动更新选择的sync 的数据knowledgeId和name列表
-    handleCancelSelectData() {
-      this.selectedSyncList = []
-      this.selectedCurriculumList = []
-      this.selectedSpecificSkillList = []
-      this.selectedCenturySkillList = []
-      this.selectedAssessmentList = []
-      this.selectedIduList = []
-      this.selectedRecommendList = []
-      this.selectSyncDataVisible = false
-    },
-
-    // TODO 自动更新选择的sync 的数据knowledgeId和name列表
-    handleEnsureSelectData() {
-      this.$logger.info('handleEnsureSelectData',
-        this.selectedCurriculumList,
-        this.selectedSpecificSkillList,
-        this.selectedCenturySkillList,
-        this.selectedBigIdeaList,
-        this.selectedAssessmentList,
-        this.selectedIduList,
-        this.selectedSyncList)
-      this.$logger.info('mySelectedList', this.$refs.newBrowser.mySelectedList)
-      this.$logger.info('learnOuts', this.form.learnOuts)
-      this.form.learnOuts = this.$refs.newBrowser.mySelectedList
-      this.$refs.newBrowser.selectedRecommendList.forEach(item => {
-        const index = this.form.learnOuts.findIndex(dataItem => dataItem.knowledgeId === item.knowledgeId)
-        if (index === -1) {
-          this.form.learnOuts.push(item)
-        }
-      })
-      this.selectedSyncList.forEach(data => {
-        const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
-        if (filterLearnOuts.length > 0) {
-          return
-        }
-        this.form.learnOuts.push({
-          knowledgeId: data.knowledgeId,
-          name: data.name,
-          tags: data.tags,
-          tagType: data.tagType,
-          path: data.path
-        })
-      })
-
-      this.selectedIduList.forEach(data => {
-        const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.id)
-        if (filterLearnOuts.length > 0) {
-          return
-        }
-        this.form.learnOuts.push({
-          knowledgeId: data.knowledgeData.id,
-          name: data.knowledgeData.name,
-          tagType: data.knowledgeData.tagType,
-          path: data.knowledgeData.path,
-          tags: data.tags
-        })
-      })
-      const selectList = this.selectedCurriculumList.concat(this.selectedSpecificSkillList).concat(this.selectedCenturySkillList)
-        .concat(this.selectedAssessmentList)
-      if (this.selectIdea) {
-        if (this.selectedBigIdeaList.length > 0) {
-          this.form.inquiry = this.selectedBigIdeaList[0].bigIdea
-        }
-        this.selectSyncDataVisible = false
-        return
-      }
-      selectList.forEach(data => {
-        const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
-        if (filterLearnOuts.length > 0) {
-          return
-        }
-        this.form.learnOuts.push({
-          knowledgeId: data.knowledgeData.id,
-          name: data.knowledgeData.name,
-          tagType: data.knowledgeData.tagType,
-          path: data.knowledgeData.path
-        })
-      })
-      this.$logger.info('this.form.learnOuts', this.form.learnOuts)
-      this.selectSyncDataVisible = false
-      this.handleCancelSelectData()
-    },
-    handleRemoveLearnOuts(data) {
-    },
-    loadCustomTags() {
-      // this.$refs.customTag.tagLoading = true
-      FindCustomTags({}).then((response) => {
-        this.$logger.info('FindCustomTags response', response.result)
-        if (response.success) {
-          this.customTags = response.result
-          // 默认展示的tag分类
-          CustomTagType.plan.default.forEach(name => {
-            this.customTagList.push(name)
-          })
-          // // 再拼接自己添加的
-          this.customTags.userTags.forEach(tag => {
-            if (this.customTagList.indexOf(tag.name) === -1) {
-              this.customTagList.push(tag.name)
+            if (content.type === this.contentType.task) {
+              this.associateTaskIdList.push(content.id)
+              this.associateId2Name.set(content.id, content.name)
+              this.associateTaskList.push(content)
             }
           })
-        } else {
-          this.$message.error(response.message)
+        })
+        response.result.others.forEach(item => {
+          if (this.groupNameListOther.indexOf(item.group) === -1) {
+            this.groupNameListOther.push(item.group)
+          }
+          item.contents.forEach(content => {
+            console.log(content)
+            if (content.type === this.contentType['unit-plan']) {
+              this.associateUnitPlanIdList.push(content.id)
+              this.associateId2Name.set(content.id, content.name)
+            }
+
+            if (content.type === this.contentType.task) {
+              this.associateTaskIdList.push(content.id)
+              this.associateId2Name.set(content.id, content.name)
+            }
+          })
+        })
+        this.newTermName = 'Untitled category_' + (this.groupNameList.length)
+        this.$logger.info('AddTask GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
+        this.$logger.info('*******************associateUnitPlanIdList', this.associateUnitPlanIdList)
+        this.$logger.info('*******************associateTaskIdList', this.associateTaskIdList)
+        this.$logger.info('associateTaskIdList', this.associateTaskIdList)
+      }).finally(() => {
+        this.linkGroupLoading = false
+
+        if (this.associateUnitPlanIdList.length > 0 || this.associateTaskIdList.length > 0) {
+          this.loadRefLearnOuts()
+          this.handleSelfOutsData()
         }
-        // this.$refs.customTag.tagLoading = false
       })
     },
-    focusInput(event) {
-      this.$logger.info('focusInput ', event.target)
-      // 设置一个父级定位专用的dom，设置class名称【root-locate-form】，
-      // 然后通过事件获取到当前元素，依次往上层查询父元素，累加偏离值，直到定位元素。
-      const eventDom = event.target
-      let formTop = eventDom.offsetTop ? eventDom.offsetTop : 0
-      let currentDom = eventDom.offsetParent
-      let currentFocus = ''
-      this.customTagList = []
-      console.log(currentDom)
-      while (currentDom !== null) {
-        formTop += (currentDom ? currentDom.offsetTop : 0)
-        currentDom = currentDom ? currentDom.offsetParent : undefined
-        if (!currentDom) {
-          break
+
+    async loadRefLearnOuts() {
+      this.recommendData = []
+      this.recommendDataIdList = []
+      let response
+      if (this.associateUnitPlanIdList.length) {
+        response = await FindSourceOutcomes({
+          type: this.contentType['unit-plan'],
+          ids: this.associateUnitPlanIdList
+        })
+
+        this.$logger.info('FindSourceOutcomes unit-plan response', response)
+        if (response.success) {
+          const recommendMap = new Map()
+          response.result.forEach(item => {
+            if (recommendMap.has(item.fromId)) {
+              recommendMap.get(item.fromId).push(item)
+            } else {
+              recommendMap.set(item.fromId, [item])
+            }
+            this.recommendDataIdList.push(item.knowledgeId)
+          })
+
+          for (const value of recommendMap.values()) {
+            this.recommendData.push({
+              fromId: value[0].fromId,
+              fromName: value[0].fromName,
+              fromTypeName: this.type2Name[value[0].fromType],
+              list: value
+            })
+          }
         }
-        if (currentDom.classList.contains('sdg-content-blocks')) {
-          currentFocus = 'sdg'
-          CustomTagType.plan.sdg.forEach(name => {
-            this.customTagList.push(name)
+        this.$logger.info('update unit-plan recommendData ', this.recommendData)
+        this.$logger.info('************************update unit-plan recommendDataIdList ', this.recommendDataIdList)
+      }
+
+      if (this.associateTaskIdList.length) {
+        response = await FindSourceOutcomes({
+          type: this.contentType.task,
+          ids: this.associateTaskIdList
+        })
+        if (response.success) {
+          this.$logger.info('FindSourceOutcomes task response', response)
+          const recommendMap = new Map()
+          response.result.forEach(item => {
+            if (recommendMap.has(item.fromId)) {
+              recommendMap.get(item.fromId).push(item)
+            } else {
+              recommendMap.set(item.fromId, [item])
+            }
+            this.recommendDataIdList.push(item.knowledgeId)
           })
-        } else if (currentDom && currentDom.classList.contains('form-block-rwc')) {
-          currentFocus = 'rwc'
-          CustomTagType.plan.rwc.forEach(name => {
-            this.customTagList.push(name)
-          })
-        } else if (currentDom && currentDom.classList.contains('bigIdea')) {
-          currentFocus = 'inquiry'
-          CustomTagType.plan.bigIdea.forEach(name => {
-            this.customTagList.push(name)
-          })
-        } else if (currentDom && currentDom.classList.contains('unit-question')) {
-          currentFocus = 'question'
-          CustomTagType.plan.question.forEach(name => {
-            this.customTagList.push(name)
-          })
-        }
-        if (currentDom && currentDom.classList.contains('root-locate-form')) {
-          console.log(currentDom.classList)
-          break
+
+          for (const value of recommendMap.values()) {
+            this.recommendData.push({
+              fromId: value[0].fromId,
+              fromName: value[0].fromName,
+              fromTypeName: this.type2Name[value[0].fromType],
+              list: value
+            })
+          }
+          this.$logger.info('update task recommendData ', this.recommendData)
+          this.$logger.info('************************update unit-plan recommendDataIdList ', this.recommendDataIdList)
         }
       }
-      console.log(currentFocus)
-      // custom tag 自带了margin-top: 20px,这里减掉不然不对齐。
-      if (currentFocus) {
-        this.customTagTop = formTop - 20
-        this.showCustomTag = true
-        this.setRightModuleVisible(this.rightModule.customTag)
-      } else {
-        CustomTagType.plan.default.forEach(name => {
-          this.customTagList.push(name)
-        })
-        // // 再拼接自己添加的
-        this.customTags.userTags.forEach(tag => {
-          if (this.customTagList.indexOf(tag.name === -1)) {
-            this.customTagList.push(tag.name)
+    },
+    loadBigIdeaLearnOuts() {
+      // bigidea query learnout
+      if (this.form.inquiry) {
+        FindBigIdeaSourceOutcomes({
+          bigIdea: this.form.inquiry,
+          id: this.unitPlanId
+        }).then(response => {
+          this.$logger.info('FindBigIdeaSourceOutcomes response', response)
+          const recommendMap = new Map()
+          response.result.forEach(item => {
+            if (recommendMap.has(item.fromId)) {
+              recommendMap.get(item.fromId).push(item)
+            } else {
+              recommendMap.set(item.fromId, [item])
+            }
+            this.recommendDataIdList.push(item.knowledgeId)
+          })
+
+          for (const value of recommendMap.values()) {
+            this.recommendData.push({
+              fromId: value[0].fromId,
+              fromName: this.form.inquiry,
+              fromTypeName: 'Big Idea',
+              list: value
+            })
           }
+          this.$logger.info('update unit-plan recommendData ', this.recommendData)
+          this.$logger.info('************************update unit-plan recommendDataIdList ', this.recommendDataIdList)
         })
-        this.showCustomTag = false
-        this.customTagTop = 0
-        this.setRightModuleVisible()
       }
     },
 
-    // 切换当前的字段的点评数据，从总的collaborateCommentList筛选初当前字段相关的点评数据
-    handleSwitchComment(data) {
+    handleStepChange(data) {
+      this.$logger.info('task handleStepChange ', data)
+      this.currentStep = data.step
+      this.currentActiveStepIndex = data.index
+      this.resetRightModuleVisible()
+      sessionStorage.setItem('unit-plan-step-' + this.unitPlanId, data.index)
+      this.checkIsFullBodyStep()
+    },
+    checkIsFullBodyStep() {
+      let isFullBody = false
+      this.fullBodyFields.forEach(field => {
+        if (this.currentStep.commonFields.some(item => item === field)) {
+          isFullBody = true
+        }
+      })
 
+      if (isFullBody) {
+        this.formBodyWidth = '100%'
+        this.tagBodyWidth = '0%'
+      } else {
+        this.formBodyWidth = '55%'
+        this.tagBodyWidth = '45%'
+      }
+    },
+
+    handleSwitchComment(data) {
+      this.$logger.info('handleSwitchComment', data)
+      if (!data.activeStatus) {
+        this.currentFieldName = ''
+        this.handleDisplayRightModule()
+        return
+      }
+      this.currentRightModule = RightModule.collaborateComment
+      this.currentFieldName = data.fieldName
+      this.currentCollaborateCommentList = []
+      const list = []
+      this.collaborateCommentList.forEach(item => {
+        list.push(item)
+      })
+      this.collaborateCommentList = list
     },
 
     // 每次点击都重新加载一下最新数据
     handleViewCollaborate() {
-
+      this.$logger.info('handleViewCollaborate')
+      if (this.currentRightModule === this.rightModule.collaborate) {
+        this.handleDisplayRightModule()
+      } else {
+        this.currentRightModule = this.rightModule.collaborate
+      }
+      this.showHistoryLoading = true
+      this.loadCollaborateData(this.form.type, this.form.id)
     },
 
-    // TODO 发布评论后需要更新最新的评论列表,刷新数据
     handleUpdateCommentList() {
-
+      this.$logger.info('handleUpdateCommentList')
+      this.GetCollaborateComment(this.form.type, this.form.id)
     },
 
-    // historyData以及在接口请求的相应逻辑中正对数据进行‘格式’，
-    // 这样在这里就可以直接this.$set设置字段的数据
     handleRestoreField(data) {
-
+      this.$logger.info('handleRestoreField', data, this.form)
+      if (data) {
+        this.form = data
+        this.$message.success('restore successfully!')
+      }
+      this.$logger.info('after handleRestoreField', this.form)
     },
     handQuestionSetting() {
-
+      this.confirmLoading = true
+      UserSetting({
+        disableQuestion: !this.disableQuestion
+      }).then((response) => {
+        this.$logger.info('UserSetting', response.result)
+        if (response.success) {
+          this.$store.dispatch('GetInfo')
+        } else {
+          this.$message.error(response.message)
+        }
+      }).finally(() => {
+        this.questionSettingVisible = false
+        this.confirmLoading = false
+      })
     },
     onChangeSwitch(checked) {
       this.disableQuestion = checked
-    },
-    handleEnsureSelectBigIdeaData() {
-      if (!this.selectNewBigIdea) {
-        this.$message.error('Please select a big idea')
-        return
-      }
-      this.form.inquiry = this.selectNewBigIdea
-      this.selectBigIdeaDataVisible = false
     },
     findQuestionsByBigIdea(bigIdea) {
       if (!bigIdea) {
         return
       }
       FindQuestionsByBigIdea({ bigIdea: bigIdea }).then(response => {
-        logger.info('FindQuestionsByBigIdea ', response)
+        this.$logger.info('FindQuestionsByBigIdea ', response)
         this.recommendQuestionList = []
         if (response.success) {
           const formQuestion = this.form.questions.map(item => {
@@ -1598,7 +1479,7 @@ export default {
         }
       }).finally({})
     },
-    handerInsertQuestion(question) {
+    handleInsertQuestion(question) {
       const formQuestion = this.form.questions.map(item => {
         return item.name
       })
@@ -1612,31 +1493,35 @@ export default {
       this.form.questions.push(question)
     },
     handleSelectQuestion(questions) {
-      logger.info('handleSelectQuestion ', questions)
+      this.$logger.info('handleSelectQuestion ', questions)
       this.selectedQuestionList = questions
     },
     handleEnsureSelectQuestionData() {
-      logger.info('handleEnsureSelectQuestionData ', this.selectedQuestionList)
+      this.$logger.info('handleEnsureSelectQuestionData ', this.selectedQuestionList)
       const formQuestion = this.form.questions.map(item => {
         return item.name
       })
       this.selectedQuestionList.forEach(q => {
         if (formQuestion.indexOf(q) === -1) {
-          this.form.questions.push({ 'name': q })
+          this.form.questions.push({ name: q })
         }
       })
       this.questionMoreVisible = false
     },
-    setSessionStep(step) {
-    },
     getSessionStep() {
+      const oldStep = sessionStorage.getItem('unit-plan-step-' + this.unitPlanId)
+      if (oldStep !== null) {
+        return parseInt(oldStep)
+      } else {
+        return 0
+      }
     },
     handleEditTask(item) {
+      window.open('/teacher/task-redirect/' + item.id
+        , '_blank')
     },
     handleClickTaskDetail(e) {
-      this.$logger.info('handleClickTaskDetail', this.showTaskDetails)
-      this.setRightModuleVisible(this.rightModule.taskDetails)
-      // this.showTaskDetails = !this.showTaskDetails
+      this.currentRightModule = this.rightModule.taskDetails
       const eventDom = e.target
       let formTop = eventDom.offsetTop
       let currentDom = eventDom.offsetParent
@@ -1654,22 +1539,54 @@ export default {
       e.stopPropagation()
     },
 
-    handleGradeUpdate(data) {
-      this.$logger.info('handleGradeUpdate', data)
-      this.form.gradeId = data.data.id
-    },
-
     handleShareUnitPlan() {
       this.$logger.info('handleShareUnitPlan')
       this.shareVisible = true
     },
     loadingShareContent() {
-    },
-    handleShareStatus (status) {
-      this.$logger.info('handleShareStatus', status)
-      this.shareStatus = status
+      QueryContentShare({
+        sourceId: this.form.id,
+        sourceType: this.form.type
+      }).then(response => {
+        this.$logger.info('form QueryContentShare response', response)
+        if (response.result) {
+          this.shareStatus = response.result.status
+        } else {
+          this.shareStatus = 0
+        }
+      })
     },
     handleUpdateContent() {
+      // 缓存时间少于最新的内容
+      this.form.updateTime = moment.utc(new Date()).format('YYYY-MM-DD HH:mm:ss')
+      LocalStore.setFormContentLocal(this.form.id, this.form.type, JSON.stringify(this.form))
+      this.defaultHistoryKey = '2'
+      this.handleViewCollaborate()
+      setTimeout(() => {
+        this.restoreUnitPlan(this.form.id)
+      }, 100)
+    },
+    handleUpdateCover (coverData) {
+      this.$logger.info('handleUpdateCover', coverData)
+      if (coverData.type === 'video') {
+        this.form.coverVideo = coverData.url
+      } else {
+        this.form.image = coverData.url
+      }
+    },
+
+    updateTaskIdList (idList) {
+      this.$logger.info('updateTaskIdList', idList)
+      this.associateTaskIdList = idList
+    },
+
+    handleUpdateLearningObjectives (data) {
+      this.$logger.info('handleUpdateLearningObjectives', data)
+      this.form.learnOuts = data.learnOuts
+      this.form.curriculumId = data.curriculumId
+      this.form.subjectList = data.selectedSubjectList
+      this.form.yearList = data.selectedYearList
+      this.form.languageList = data.selectedLanguageList
     }
   }
 }
@@ -1802,10 +1719,9 @@ export default {
     }
 
     .form-block-title {
-      /*font-family: PingFang SC;*/
-      font-weight: 500;
+      font-family: Inter-Bold;
       line-height: 24px;
-      color: #000000;
+      color: #666666;
       margin-bottom: 10px;
     }
 
@@ -1821,196 +1737,8 @@ export default {
     }
 
     .question-item {
+      position: relative;
       padding-bottom: 24px;
-    }
-
-    .sdg-content-blocks {
-      //width: 700px;
-      position: relative;
-      border: 1px solid #fff;
-      box-sizing: border-box;
-      //padding: 5px 50px 5px 50px;
-      border-radius: 3px;
-      margin-bottom: 5px;
-
-      .scenario-description {
-        margin-top: 10px;
-        position: relative;
-
-        .sdg-delete-wrapper {
-          transition: all 0.2s ease-in;
-          display: block;
-          position: absolute;
-          text-align: center;
-          right: -40px;
-          top: 0;
-          line-height: 40px;
-          width: 40px;
-          height: 40px;
-          cursor: pointer;
-          color: @link-hover-color;
-          z-index: 100;
-        }
-
-        .browse {
-          padding: 10px 5px;
-          position: absolute;
-          right: -100px;
-          top: 70px;
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          justify-content: flex-start;
-          border-radius: 6px;
-        }
-
-        .btn-icon {
-          height: 18px;
-          width: 18px;
-        }
-
-        .btn-text {
-          padding: 0 5px;
-        }
-
-        .my-big-select {
-          //width: 600px;
-        }
-      }
-
-      &:hover {
-        //border: 1px solid #15C39A;
-        .sdg-delete-wrapper {
-          display: block;
-        }
-      }
-
-      .knowledge-delete-wrapper {
-        transition: all 0.2s ease-in;
-        display: none;
-        position: absolute;
-        text-align: center;
-        right: 15px;
-        top: 80px;
-        line-height: 50px;
-        width: 50px;
-        height: 50px;
-        cursor: pointer;
-        color: @link-hover-color;
-        z-index: 1000;
-        display: block;
-      }
-
-      &:hover {
-        //border: 1px dotted @link-hover-color;
-        cursor: pointer;
-        box-sizing: border-box;
-
-        .knowledge-delete-wrapper {
-          display: block;
-        }
-      }
-
-      .tag-select {
-        padding-bottom: 24px;
-
-        .tag-label {
-          color: @text-color-secondary;
-          text-align: center;
-          padding-bottom: 5px;
-        }
-      }
-    }
-
-    .content-blocks {
-      //width: 600px;
-      position: relative;
-      border: 1px dotted #fff;
-
-      .scenario-description {
-        margin-top: 10px;
-        position: relative;
-
-        .browse {
-          padding: 10px 5px;
-          position: absolute;
-          right: -100px;
-          top: 70px;
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          justify-content: flex-start;
-          border-radius: 6px;
-        }
-
-        .btn-icon {
-          height: 18px;
-          width: 18px;
-        }
-
-        .btn-text {
-          padding: 0 5px;
-        }
-      }
-
-      .sdg-delete-wrapper {
-        transition: all 0.2s ease-in;
-        display: block;
-        position: absolute;
-        text-align: center;
-        right: -60px;
-        top: 5px;
-        line-height: 50px;
-        width: 50px;
-        height: 50px;
-        cursor: pointer;
-        color: @link-hover-color;
-        z-index: 1000;
-      }
-
-      &:hover {
-        //border: 1px dotted @link-hover-color;
-        //box-sizing: border-box;
-        .sdg-delete-wrapper {
-          display: block;
-        }
-      }
-
-      .knowledge-delete-wrapper {
-        transition: all 0.2s ease-in;
-        display: none;
-        position: absolute;
-        text-align: center;
-        right: 15px;
-        top: 180px;
-        line-height: 50px;
-        width: 50px;
-        height: 50px;
-        cursor: pointer;
-        color: @link-hover-color;
-        z-index: 1000;
-        display: block;
-      }
-
-      &:hover {
-        //border: 1px dotted @link-hover-color;
-        cursor: pointer;
-        box-sizing: border-box;
-
-        .knowledge-delete-wrapper {
-          display: block;
-        }
-      }
-
-      .tag-select {
-        padding-bottom: 24px;
-
-        .tag-label {
-          color: @text-color-secondary;
-          text-align: center;
-          padding-bottom: 5px;
-        }
-      }
     }
   }
 
@@ -2125,48 +1853,6 @@ export default {
   }
 }
 
-.task-audio-line {
-  position: relative;
-  //width: 600px;
-  .task-audio {
-    position: absolute;
-    right: -55px;
-    top: -30px;
-    cursor: pointer;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
-
-    img {
-      height: 40px;
-    }
-  }
-
-  &.ant-form-item {
-    margin-bottom: 0px;
-  }
-}
-
-.audio-wrapper {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  height: 30px;
-
-  audio {
-    height: 30px;
-    border: none;
-    outline: none;
-  }
-
-  span {
-    padding: 0 10px;
-    color: red;
-    cursor: pointer;
-  }
-}
-
 .audio-material-action {
   position: relative;
   display: flex;
@@ -2264,9 +1950,6 @@ export default {
 .form-block {
   margin-bottom: 10px;
   position: relative;
-  .cb-tooltip{
-
-  }
 
   &:hover {
     .my-comment-switch {
@@ -2302,12 +1985,6 @@ export default {
       }
     }
   }
-
-  /deep/ .ant-form-item label {
-    font-size: 16px;
-    font-weight: 500;
-    font-family: Inter-Bold;
-  }
 }
 
 .add-sdg-btn {
@@ -2329,62 +2006,45 @@ export default {
   }
 }
 
-.card-wrapper {
-  .unit-plan-form-left {
-    position: relative;
+/deep/ .ant-steps-item-content {
+  padding-right: 30px;
+}
 
-    /deep/ .ant-steps-item-content {
-      padding-right: 30px;
-    }
-
-    .form-radio-wrapper {
-      /deep/ .ant-radio-wrapper {
-        width: 180px;
-      }
-
-      /deep/ .ant-form-item-label {
-        width: 170px;
-        text-align: left;
-      }
-    }
-
+.form-radio-wrapper {
+  /deep/ .ant-radio-wrapper {
+    width: 180px;
+    display: inline-block;
   }
 
-  .unit-plan-form-right {
-    position: relative;
-
-    .form-block-right {
-      .img-wrapper {
-        position: relative;
-        width: 100%;
-      }
-
-      .delete-img {
-        position: absolute;
-        top: -10px;
-        right: -10px;
-        background-color: #fafafa;
-        border-radius: 50%;
-        height: 30px;
-        width: 30px;
-        text-align: center;
-        vertical-align: middle;
-        color: @red-5;
-        z-index: 100;
-        font-size: 20px;
-      }
-    }
+  /deep/ .ant-form-item-label {
+    width: 170px;
+    text-align: left;
   }
+}
+
+.img-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.delete-img {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background-color: #fafafa;
+  border-radius: 50%;
+  height: 30px;
+  width: 30px;
+  text-align: center;
+  vertical-align: middle;
+  color: @red-5;
+  z-index: 100;
+  font-size: 20px;
 }
 
 .form-input-item {
   margin-bottom: 20px;
   position: relative;
-}
-
-.my-form-textarea {
-  height: 40px;
-  margin-bottom: 10px;
 }
 
 .preview-wrapper-row {
@@ -2467,29 +2127,6 @@ export default {
 .sdg {
   .sdg-form-block {
     border: 1px solid #15C39A !important;
-
-    .my-big-select {
-      //width: 600px;
-    }
-  }
-
-}
-
-.inquiry {
-  .inquiry-form-block {
-    border: 1px solid #15C39A !important;
-  }
-}
-
-.form-block-rwc {
-  margin-top: -25px;
-
-  /deep/ .ant-form-item-label label {
-    font-weight: 500;
-    font-family: inherit;
-    font-size: 14px;
-    line-height: 20px;
-    color: #000000;
   }
 }
 
@@ -2499,22 +2136,27 @@ export default {
   }
 }
 
-#inquiry {
-  //margin-top: -10px;
-  position: relative;
-}
-
-.delete-icon {
+.delete-icon-wrapper {
   transition: all 0.2s ease-in;
   position: absolute;
-  right: -50px;
-  top: -2px;
-  line-height: 40px;
-  width: 40px;
-  height: 40px;
+  right: -20px;
+  top: 50%;
+  margin-top: -7px;
   cursor: pointer;
-  color: #38cfa6;
   z-index: 100;
+  width: 30px;
+  height: 15px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  display: none;
+
+  .delete-icon {
+    width: 15px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+  }
 }
 
 .link-plan-title {
@@ -2544,27 +2186,25 @@ export default {
   position: relative;
 }
 
-.my-comment-switch {
-  display: none;
-  position: absolute;
-  right: -10px;
-  top: -5px;
-  z-index: 200;
-}
 .my-comment-show {
   display: block;
 }
 
 .collaborate-panel {
   background-color: #fff;
+  position: relative;
   //box-shadow: 0px 6px 10px rgba(159, 159, 159, 0.16);
-
+  .panel-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+  }
   .icon {
-    padding: 10px 5px 0 15px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
+    /*    padding: 10px 5px 0 15px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;*/
 
     svg {
       width: 30px;
@@ -2627,13 +2267,6 @@ export default {
   }
 }
 
-.question-more {
-  top: -40px;
-  left: 500px;
-  position: absolute;
-  cursor: pointer;
-}
-
 /deep/ .ant-breadcrumb > span:last-child {
   color: rgba(0, 0, 0, 0.45);
 }
@@ -2641,10 +2274,6 @@ export default {
 .form-block-disabled {
   background-color: #f5f5f5;
   cursor: not-allowed;
-}
-
-/deep/ textarea {
-  border-radius: 5px;
 }
 
 code {
@@ -2695,27 +2324,91 @@ code {
   left: 20px;
 }
 
-.preview-header-mask {
-  z-index: 999;
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 200px;
-  right: 0;
-  background: transparent;
-  opacity: 0;
+.scenario-description {
+  position: relative;
+  .delete-action {
+    position: absolute;
+    text-align: center;
+    top: 5px;
+    right: -25px;
+    width: 30px;
+    display: none;
+    cursor: pointer;
+    height: 35px;
+  }
+
+  &:hover {
+    .delete-action {
+      display: block;
+    }
+  }
 }
 
-.preview-mask {
-  z-index: 999;
-  position: absolute;
-  background: transparent;
-  opacity: 0;
-  top: 0;
-  bottom: 0;
-  left: 0;
+/deep/ .ant-steps-item-content {
+  overflow: visible;
+  margin-left: 50px;
+}
+
+.step-nav {
+  background: #fff;
+  position: fixed;
   right: 0;
-  height: 100%;
+  top: 74px;
+  z-index: 999;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+}
+
+.form-content {
+  margin-top: 110px;
+  overflow: hidden;
+  transition: all 0.2s ease-in-out;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  height: 400px;
+}
+
+.step-content {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
   width: 100%;
+  height: 100%;
+  overflow: hidden;
+
+  .form-body {
+    padding: 20px 30px;
+    height: 100%;
+    -moz-overflow-y: auto;
+    overflow-y: overlay;
+    background-color: #fff;
+  }
+
+  .tag-body {
+    padding: 20px 30px;
+    height: 100%;
+    overflow-y: scroll;
+  }
+}
+
+.question-item {
+  position: relative;
+  margin-bottom: 10px;
+  &:hover {
+    .delete-icon-wrapper {
+      display: flex;
+    }
+  }
+}
+
+.learn-out-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 </style>

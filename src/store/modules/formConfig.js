@@ -29,27 +29,53 @@ const formConfig = {
         taskHintMap: {},
         taskCommonList: [],
         taskCustomList: [],
+        taskFieldTagMap: {},
+        taskSteps: [],
         planFieldMap: {},
         planHintMap: {},
         planCommonList: [],
-        planCustomList: []
+        planCustomList: [],
+        planFieldTagMap: {},
+        planSteps: []
       }
       if (previewData.type === typeMap.task) {
         previewData.commonList.forEach(item => {
           configData.taskFieldMap[item.fieldName] = item.showName
           configData.taskHintMap[item.fieldName] = item.hint
+          configData.taskFieldTagMap[item.fieldName] = item.tags
         })
         configData.taskCommonList = previewData.commonList
         configData.taskCustomList = previewData.customList
+        previewData.customList.forEach(item => {
+          configData.taskFieldTagMap['cust_' + item.name] = item.tags
+        })
+        previewData.steps.forEach(step => {
+          step.showRequiredTips = false
+          step.showSatisfiedTips = false
+        })
+        configData.taskSteps = previewData.steps.sort((a, b) => {
+          return a.step - b.step
+        })
       }
 
       if (previewData.type === typeMap['unit-plan']) {
         previewData.commonList.forEach(item => {
           configData.planFieldMap[item.fieldName] = item.showName
           configData.planHintMap[item.fieldName] = item.hint
+          configData.planFieldTagMap[item.fieldName] = item.tags
         })
         configData.planCommonList = previewData.commonList
         configData.planCustomList = previewData.customList
+        previewData.customList.forEach(item => {
+          configData.planFieldTagMap['cust_' + item.name] = item.tags
+        })
+        previewData.steps.forEach(step => {
+          step.showRequiredTips = false
+          step.showSatisfiedTips = false
+        })
+        configData.planSteps = previewData.steps.sort((a, b) => {
+          return a.step - b.step
+        })
       }
       storage.set(FORM_CONFIG_PREVIEW_DATA, configData)
     },
