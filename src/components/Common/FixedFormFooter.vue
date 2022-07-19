@@ -1,5 +1,7 @@
 <template>
   <div class='cc-fixed-form-footer' :style="{left: collapsed ? $classcipe.sysConfig.collapsedSidebarWidth + 'px' : $classcipe.sysConfig.sidebarWidth + 'px'}">
+    <div class='step-mask' v-if='showMask'>
+    </div>
     <div class='left'>
       <slot name='left'></slot>
     </div>
@@ -14,6 +16,12 @@ import { mapState } from 'vuex'
 
 export default {
   name: 'FixedFormFooter',
+  props: {
+    showMask: {
+      type: Boolean,
+      default: false
+    }
+  },
   data() {
     return {}
   },
@@ -45,5 +53,19 @@ export default {
   transition: all 0.3s ease-in-out;
   min-width: 1000px;
   overflow-x: auto;
+}
+
+.step-mask {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 800;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
 }
 </style>

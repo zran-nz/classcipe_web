@@ -29,7 +29,11 @@
     </fixed-form-header>
     <div class='form-content'>
       <div class='step-content' v-if='!contentLoading'>
-        <div class='step-mask' v-if='form.slideEditing && showStepMask'></div>
+        <div class='step-mask' v-if='form.slideEditing'>
+          <div class='mask-action'>
+            <a-button type='primary' class='cc-round-button' @click='saveChanges'> <a-icon type="save" /> Save changes</a-button>
+          </div>
+        </div>
         <div class='form-body root-locate-form' id='form-body' :style="{ width: formBodyWidth }" v-show="formBodyWidth !== '0%'">
           <div
             class='form-page-item'
@@ -417,7 +421,7 @@
         <a-spin />
       </div>
     </div>
-    <fixed-form-footer>
+    <fixed-form-footer :show-mask='!!form.slideEditing'>
       <template v-slot:right>
         <a-button type='primary' @click='handleNextStep' class='cc-round-button' :disabled='waitingRedirect'>
           <template v-if='currentActiveStepIndex < formSteps.length - 1'>
@@ -639,7 +643,8 @@ export default {
         customFieldData: null,
         price: 0,
         isSelfLearning: false,
-        dontRemind: false
+        dontRemind: false,
+        slideEditing: false
       },
       gradeList: [],
 
@@ -943,7 +948,6 @@ export default {
             step.showSatisfiedTips = false
           }
         })
-        this.showStepMask = true
       } else {
         if (this.emptyRequiredFields.length === 0) {
           if (this.form.presentationId) {
@@ -1021,7 +1025,7 @@ export default {
       this.relevantSelectedQuestionList = data.questionList
     },
 
-    async handleCreateTask() {
+    async handleCreateTask(showMask) {
       this.$logger.info('handleCreateTask')
       const hideLoading = this.$message.loading('Creating ppt in Google Slides...', 0)
       if (!this.creating) {
@@ -1051,11 +1055,14 @@ export default {
         this.$logger.info('handleCreateTask', response.result)
         try {
           this.saving = true
-          this.form.id = response.result.id
-          this.form.presentationId = response.result.presentationId
-          this.$message.success('Created Successfully in Google Slides')
-          window.open('https://docs.google.com/presentation/d/' + this.form.presentationId, '_blank')
-          this.loadThumbnail(true)
+          if (response.result && response.result?.presentationId && response.code === 0) {
+            this.form.id = response.result?.id
+            this.form.slideEditing = true
+            this.form.presentationId = response.result.presentationId
+            this.$message.success('Created Successfully in Google Slides')
+            window.open('https://docs.google.com/presentation/d/' + this.form.presentationId, '_blank')
+            this.loadThumbnail(true)
+          }
         } finally {
           this.creating = false
           this.saving = false
@@ -1065,7 +1072,7 @@ export default {
       }
     },
 
-    loadThumbnail(needRefresh) {
+    loadThumbnail(needRefresh, hiddenMask = false) {
       this.thumbnailListLoading = true
       this.$logger.info('loadThumbnail ' + this.form.presentationId)
       TemplatesGetPresentation({
@@ -1081,6 +1088,10 @@ export default {
           })
           if (!this.form.fileDeleted && response.result.fileDeleted) {
             this.form.fileDeleted = true
+          }
+
+          if (hiddenMask) {
+            this.form.slideEditing = false
           }
         } else if (response.code === 403) {
           this.$router.push({ path: '/teacher/main/created-by-me' })
@@ -1105,7 +1116,7 @@ export default {
           window.open('https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit', '_blank')
         }
       } else {
-        await this.handleCreateTask()
+        await this.handleCreateTask(true)
       }
       this.editGoogleSlideLoading = false
     },
@@ -1277,6 +1288,10 @@ export default {
       this.currentActiveStepIndex = data.index
       sessionStorage.setItem('task-step-' + this.taskId, data.index)
       this.checkIsFullBodyStep()
+    },
+
+    saveChanges () {
+      this.loadThumbnail(true, true)
     },
 
     checkIsFullBodyStep() {
@@ -1639,6 +1654,10 @@ export default {
     bottom: 0;
     z-index: 800;
     background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
   }
 
   .form-body {

@@ -1,5 +1,15 @@
 <template>
   <div class='content-item' v-if='content' :style="{'border': activeItem ? '1px solid #15c39a' : '1px solid #EEF1F6'}">
+    <div class='slide-editing-mask' v-if='showSchedule && (content.type === typeMap.task || content.type === typeMap.pd) && content.slideEditing'>
+      <custom-button
+        label='Save changes'
+        :loading='updateEditSlideLoading'
+        @click='updateEditSlideStatus'>
+        <template v-slot:icon>
+          <a-icon type="save" />
+        </template>
+      </custom-button>
+    </div>
     <div class='cover'>
       <div class='cover-block' :style="{'background-image': 'url(' + content.image + ')'}">
       </div>
@@ -80,96 +90,83 @@
       </div>
       <div class='action'>
         <template v-if='showButton && !content.delFlag'>
-          <a-space :size='30'>
-            <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement' v-if='showDelete'>
-              <div class='more-action'>
-                <more-icon />
+          <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement' v-if='showDelete'>
+            <div class='more-action'>
+              <more-icon />
+            </div>
+            <div class='content-item-more-action' slot='overlay'>
+              <div class='menu-item'>
+                <custom-button label='Archive' @click='handleDeleteItem'>
+                  <template v-slot:icon>
+                    <delete-icon />
+                  </template>
+                </custom-button>
               </div>
-              <div class='content-item-more-action' slot='overlay'>
-                <div class='menu-item'>
-                  <custom-button label='Archive' @click='handleDeleteItem'>
+              <div class='menu-item'>
+                <a-popconfirm :title="'Confirm permanent delete ' +(content.name ? content.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem" cancel-text="No">
+                  <custom-button label='Delete'>
                     <template v-slot:icon>
                       <delete-icon />
                     </template>
                   </custom-button>
-                </div>
-                <div class='menu-item'>
-                  <a-popconfirm :title="'Confirm permanent delete ' +(content.name ? content.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem" cancel-text="No">
-                    <custom-button label='Delete'>
-                      <template v-slot:icon>
-                        <delete-icon />
-                      </template>
-                    </custom-button>
-                  </a-popconfirm>
-                </div>
+                </a-popconfirm>
               </div>
-            </a-dropdown>
-
-            <div class='self-learning' v-if='content.type === typeMap.task'>
-              Self learning
-              <a-switch size='small' @change='handleSelfLearning' v-model="isSelfLearning" />
             </div>
+          </a-dropdown>
 
-            <custom-button label='Preview' @click='handlePreviewDetail(content)'>
-              <template v-slot:icon>
-                <preview-gray-icon />
-              </template>
-            </custom-button>
+          <div class='self-learning' v-if='content.type === typeMap.task'>
+            Self learning
+            <a-switch size='small' @change='handleSelfLearning' v-model="isSelfLearning" />
+          </div>
 
+          <custom-button label='Preview' @click='handlePreviewDetail(content)'>
+            <template v-slot:icon>
+              <preview-gray-icon />
+            </template>
+          </custom-button>
+
+          <custom-button
+            label='Schedule'
+            v-if='content.presentationId && showSchedule && (content.type === typeMap.task || content.type === typeMap.pd) && !content.slideEditing'
+            @click='handleSchedule'>
+            <template v-slot:icon>
+              <schedule-icon />
+            </template>
+          </custom-button>
+
+          <a-popover trigger="click">
+            <a slot="content">
+              This task/PD content can not be scheduled without interactive slides,
+              <br/> please edit google slides first before scheduling.
+            </a>
             <custom-button
               label='Schedule'
-              v-if='content.presentationId && showSchedule && (content.type === typeMap.task || content.type === typeMap.pd) && !content.slideEditing'
-              @click='handleSchedule'>
+              v-if='!content.presentationId'>
               <template v-slot:icon>
                 <schedule-icon />
               </template>
             </custom-button>
+          </a-popover>
 
-            <a-popover trigger="click">
-              <a slot="content">
-                This task/PD content can not be scheduled without interactive slides,
-                <br/> please edit google slides first before scheduling.
-              </a>
-              <custom-button
-                label='Schedule'
-                v-if='!content.presentationId'>
-                <template v-slot:icon>
-                  <schedule-icon />
-                </template>
-              </custom-button>
-            </a-popover>
-
-            <custom-button
-              label='Save changes'
-              :loading='updateEditSlideLoading'
-              v-if='showSchedule && (content.type === typeMap.task || content.type === typeMap.pd) && content.slideEditing'
-              @click='updateEditSlideStatus'>
-              <template v-slot:icon>
-                <schedule-icon />
-              </template>
-            </custom-button>
-
-            <custom-button label='Edit' @click='editItem' v-if='showEdit'>
-              <template v-slot:icon>
-                <edit-icon />
-              </template>
-            </custom-button>
-
-            <template v-if="showPublish">
-              <custom-button label="Publish" @click='handlePublishStatus' v-if='content.status === 0'>
-                <template v-slot:icon >
-                  <publish-icon/>
-                </template>
-              </custom-button>
-
-              <custom-button label="Unpublish" @click='handlePublishStatus' v-if='showPublish && content.status !== 0'>
-                <template v-slot:icon >
-                  <un-publish-icon />
-                </template>
-              </custom-button>
+          <custom-button label='Edit' @click='editItem' v-if='showEdit'>
+            <template v-slot:icon>
+              <edit-icon />
             </template>
+          </custom-button>
 
-          </a-space>
+          <template v-if="showPublish">
+            <custom-button label="Publish" @click='handlePublishStatus' v-if='content.status === 0'>
+              <template v-slot:icon >
+                <publish-icon/>
+              </template>
+            </custom-button>
+
+            <custom-button label="Unpublish" @click='handlePublishStatus' v-if='showPublish && content.status !== 0'>
+              <template v-slot:icon >
+                <un-publish-icon />
+              </template>
+            </custom-button>
+          </template>
         </template>
         <template v-if='showButton && content.delFlag'>
           <a-space :size='30'>
@@ -406,6 +403,21 @@ export default {
   align-items: flex-start;
   overflow: hidden;
   border-radius: 7px;
+  position: relative;
+
+  .slide-editing-mask {
+    z-index: 800;
+    background-color: rgba(0, 0, 0, 0.6);
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+  }
 
   .cover {
     .cover-block {
@@ -484,6 +496,12 @@ export default {
       flex-direction: row;
       align-items: center;
       justify-content: flex-start;
+      > div {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        margin-right: 30px;
+      }
     }
   }
 }

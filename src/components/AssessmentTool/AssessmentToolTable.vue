@@ -60,7 +60,7 @@
               </div>
             </template>
             <template v-if='header.editing'>
-              <a-input class='cc-table-input' v-model='header.title' @click.native.stop='' @blur.native='currentEditHeader.editing = false'/>
+              <a-input class='cc-table-input' @focus.native='activeHeader(header)' v-model='header.title' @click.native.stop='' @blur.native='currentEditHeader ? currentEditHeader.editing = false : null'/>
             </template>
           </th>
         </tr>
@@ -275,6 +275,10 @@ export default {
         this.currentEditHeader = header
         this.editHeaderModalVisible = true
       }
+    },
+
+    activeHeader (header) {
+      this.currentEditHeader = header
     },
 
     handleClick () {

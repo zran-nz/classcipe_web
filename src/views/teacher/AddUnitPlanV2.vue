@@ -1132,11 +1132,9 @@ export default {
     },
 
     handleDisplayRightModule () {
-      if (this.currentStep.commonFields.indexOf(TaskField.Slides) !== -1) {
-        this.currentRightModule = RightModule.recommend
-      } else if (this.currentStep.commonFields.indexOf(TaskField.LearnOuts) !== -1) {
+      if (this.currentStep.commonFields.indexOf(PlanField.LearnOuts) !== -1) {
         this.currentRightModule = null
-      } else if (this.currentStep.commonFields.indexOf(TaskField.Link) !== -1) {
+      } else if (this.currentStep.commonFields.indexOf(PlanField.Link) !== -1) {
         this.currentRightModule = RightModule.associate
       } else {
         this.currentRightModule = RightModule.customTag
