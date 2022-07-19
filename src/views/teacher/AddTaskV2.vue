@@ -1581,7 +1581,7 @@ export default {
       if (data.isPublish) {
         await this.handlePublishFormItem(1)
       }
-      if (data.isCreateSubTask) {
+      if (data.isCreateSubTask && this.form.presentationId) {
         this.handleGoToSubTask(data)
       } else {
         this.goBack()
