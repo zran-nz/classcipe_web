@@ -45,7 +45,7 @@
         </a-row>
         <a-row :gutter=16>
           <a-col :span="12">
-            <a-form-model-item :labelCol="{span: 12}" :wrapperCol="{span: 12}" label="Self-service registration">
+            <a-form-model-item :labelCol="{span: 12}" :wrapperCol="{span: 12}" label="Student-self registration">
               <a-switch v-model="formModel.ownJoin" />
             </a-form-model-item>
           </a-col>
@@ -82,7 +82,7 @@
             </a-form-model-item >
           </a-col>
         </a-row>
-        <a-row :gutter=16>
+        <a-row :gutter=16 class="calendar-con">
           <!-- <a-col :span="12">
             <a-form-model-item label="Block">
               <a-select
@@ -315,5 +315,11 @@ export default {
 <style scoped lang="less">
 .mb0 {
   margin-bottom: 0;
+}
+.calendar-con {
+  height: 220px;
+  /deep/ .schedule-content {
+    height: 220px;
+  }
 }
 </style>

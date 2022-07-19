@@ -42,7 +42,7 @@
               :showUploadButton="false"
               :url="totalResult[choosed.id].resources"
               type="image/pdf"
-              @update="(url) => uploadFile('resources', url)"
+              @update="(url) => uploadFile('resources', url, true)"
             >
               <div slot="fileList">
                 <a-icon type="plus" />
@@ -51,7 +51,7 @@
                 </div>
               </div>
             </customer-upload-file>
-            <div class="preview-file" slot="extra" v-if="totalResult[choosed.id].resources">
+            <!-- <div class="preview-file" slot="extra" v-if="totalResult[choosed.id].resources">
               <div class="img">
                 <div v-if="isPdf(totalResult[choosed.id].resources)">
                   <a-icon type="file-pdf" />
@@ -60,6 +60,24 @@
               </div>
               <a :href="totalResult[choosed.id].resources" target="_blank" for="">{{ urlName(totalResult[choosed.id].resources) }}</a>
               <a-icon v-if="totalResult[choosed.id].status === '' || totalResult[choosed.id].status === 3" class="close" type="close" @click="handleRemove('resources', totalResult[choosed.id].resources)"></a-icon>
+            </div> -->
+            <div class="file-list" slot="extra" v-if="totalResult[choosed.id].resources">
+              <div class="file-item" v-for="url in totalResult[choosed.id].resources.split(',')" :key="url">
+                <template v-if="url">
+                  <div class="preview-file">
+                    <div class="img">
+                      <div v-if="isPdf(url)">
+                        <a-icon type="file-pdf" />
+                      </div>
+                      <img v-else :src="url" alt="">
+                    </div>
+                    <a :href="url" target="_blank" for="">{{ urlName(url) }}</a>
+                    <a-icon v-if="totalResult[choosed.id].status === '' || totalResult[choosed.id].status === 3" class="close" type="close" @click="handleRemove('resources', url)"></a-icon>
+                  </div>
+                  <!-- <a :href="url" target="_blank">{{ url }}</a>
+                  <a-icon v-if="totalResult[choosed.id].status === '' || totalResult[choosed.id].status === 3" type="close" @click="handleRemove('certificate', url)"></a-icon> -->
+                </template>
+              </div>
             </div>
           </a-form-model-item>
           <a-form-model-item prop="certificate">
@@ -109,7 +127,7 @@
           </a-form-model-item>
           <a-form-model-item :wrapperCol="{offset: 4, span: 12}" label="">
             <div class="status-text" v-if="totalResult[choosed.id].status === 1">
-              <span>It's under review :  In progress</span>
+              <span>Authorization status:  In progress</span>
             </div>
             <div class="status-text" v-if="totalResult[choosed.id].status === 2">
               <a-icon type="check-circle" /> <span>Approved</span>
@@ -397,6 +415,8 @@ export default {
 .file-list {
   display: flex;
   flex-direction: column;
+  width: 320px;
+  margin-top: 10px;
   .file-item {
     line-height: 30px;
     font-size: 12px;;

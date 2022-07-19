@@ -117,12 +117,12 @@ export default {
       })
     },
     handleAdd: function() {
-      this.$refs.modalForm.title = 'Add acadeic year'
+      this.$refs.modalForm.title = 'Add Academic Year'
       this.$refs.modalForm.mode = 'add'
       this.$refs.modalForm.add({})
     },
     handleEdit(record) {
-      this.$refs.modalForm.title = 'Edit acadeic year'
+      this.$refs.modalForm.title = 'Edit Academic Year'
       this.$refs.modalForm.edit({ ...record })
       this.$refs.modalForm.disableSubmit = false
     },

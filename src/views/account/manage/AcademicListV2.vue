@@ -160,12 +160,12 @@ export default {
       })
     },
     handleAdd: function() {
-      this.$refs.modalForm.title = 'Add acadeic year'
+      this.$refs.modalForm.title = 'Add Academic Year'
       this.$refs.modalForm.mode = 'add'
       this.$refs.modalForm.add({})
     },
     handleAddTerm(item) {
-      this.$refs.termForm.title = 'Add acadeic term'
+      this.$refs.termForm.title = 'Add Academic Term'
       this.$refs.termForm.mode = 'add'
       // 最后一个term的截止时间
       let minDate = ''
@@ -182,7 +182,7 @@ export default {
       })
     },
     handleEdit(record) {
-      this.$refs.modalForm.title = 'Edit acadeic year'
+      this.$refs.modalForm.title = 'Edit Academic Year'
       this.$refs.modalForm.edit({
         ...record,
         startTime: moment.utc(record.startTime).local().format('YYYY-MM-DD HH:mm:ss'),
@@ -191,7 +191,7 @@ export default {
       this.$refs.modalForm.disableSubmit = false
     },
      handleEditTerm(parent, item) {
-      this.$refs.termForm.title = 'Edit acadeic term'
+      this.$refs.termForm.title = 'Edit Academic Term'
       this.$refs.termForm.mode = 'edit'
       // 前面一个term的截止时间
       let minDate = ''

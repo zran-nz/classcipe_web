@@ -249,8 +249,13 @@ export default {
   },
   computed: {
     filterMembers() {
+      const isEmail = (email) => email.toLowerCase().indexOf((this.searchKey || '').toLowerCase()) > -1
+      const isName = (member) => {
+        const name = `${member.firstname || ''}${member.lastname || ''}`.toLowerCase()
+        return name.indexOf((this.searchKey || '').toLowerCase()) > -1
+      }
       return this.memberList.filter(member => !this.selectedEmails.includes(member.email) &&
-        (member.email || '').indexOf(this.searchKey || '') > -1)
+        (isEmail(member.email || '') || isName(member)))
     },
     importExcelUrl() {
       return this.url.importExcelUrl + '?classId=' + this.form.classId
@@ -267,7 +272,7 @@ export default {
           dataIndex: 'nickname',
           key: 'name',
           customRender: (text, item, index) => {
-            return text || (`${item.firstname} ${item.lastname}`)
+            return text || (`${item.firstname} ${item.lastname}`) || item.email
           }
         },
         ...this.form.role === 'teacher' ? [

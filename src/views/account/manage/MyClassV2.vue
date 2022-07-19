@@ -864,14 +864,16 @@ export default {
             .class-name {
               border: 1px solid #dfdfdf;
             }
-            .class-con {
-              .class-con-item {
+            .class-opt {
+              display: block;
+            }
+          }
+          .class-con {
+            .class-con-item {
+              &:hover {
                 background: #627BD6;
                 color: #fff;
               }
-            }
-            .class-opt {
-              display: block;
             }
           }
         }
