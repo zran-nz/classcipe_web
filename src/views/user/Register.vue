@@ -71,7 +71,7 @@
             <div class="desc">Sign Up</div>
             <div class="desc2">
               Already have an account? |
-              <span><router-link :to="{ path: studentLoginPath }">Sign In</router-link></span>
+              <span><router-link :to="{ path: selectedRole === 4 ? studentLoginPath : teacherLoginPath }">Sign In</router-link></span>
             </div>
           </div>
           <a-form :form="form" class="register-form" @submit="handleSubmit">
