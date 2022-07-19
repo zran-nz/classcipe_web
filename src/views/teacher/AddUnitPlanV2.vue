@@ -693,7 +693,7 @@
 <script>
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { typeMap } from '@/const/teacher'
-import { PlanField, TaskField } from '@/const/common'
+import { PlanField } from '@/const/common'
 import { GetAllSdgs, ScenarioSearch } from '@/api/scenario'
 import { debounce } from 'lodash-es'
 import InputSearch from '@/components/UnitPlan/InputSearch'
@@ -1132,11 +1132,9 @@ export default {
     },
 
     handleDisplayRightModule () {
-      if (this.currentStep.commonFields.indexOf(TaskField.Slides) !== -1) {
-        this.currentRightModule = RightModule.recommend
-      } else if (this.currentStep.commonFields.indexOf(TaskField.LearnOuts) !== -1) {
+      if (this.currentStep.commonFields.indexOf(PlanField.LearnOuts) !== -1) {
         this.currentRightModule = null
-      } else if (this.currentStep.commonFields.indexOf(TaskField.Link) !== -1) {
+      } else if (this.currentStep.commonFields.indexOf(PlanField.Link) !== -1) {
         this.currentRightModule = RightModule.associate
       } else {
         this.currentRightModule = RightModule.customTag

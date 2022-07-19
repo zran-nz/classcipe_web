@@ -263,6 +263,9 @@ export default {
         }
       } else {
         await this.createSession()
+        this.$router.replace({
+          path: '/teacher/main/live-workshops'
+        })
       }
     },
 
@@ -347,7 +350,9 @@ export default {
           } else if (retValue) {
             return res.result
           } else {
-            this.$router.go(-1)
+            this.$router.replace({
+              path: `/teacher/main/live-workshops`
+            })
           }
         } else {
           this.$confirm({

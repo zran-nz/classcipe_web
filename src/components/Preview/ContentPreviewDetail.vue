@@ -841,7 +841,6 @@ export default {
         if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
           this.$logger.info('Duplicate response', response)
           this.$message.success('Buy successfully')
-          this.$router.push({ path: '/teacher/main/created-by-me' })
         } else {
           this.currentMethodName = 'handleBuyItem'
         }
