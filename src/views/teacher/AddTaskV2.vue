@@ -1581,10 +1581,26 @@ export default {
       if (data.isPublish) {
         await this.handlePublishFormItem(1)
       }
-      if (data.isCreateSubTask && this.form.presentationId) {
-        this.handleGoToSubTask(data)
+
+      if (!this.form.presentationId) {
+        this.$confirm({
+          title: 'Warning',
+          content: 'You have not created google slides for your original task. Please create the slides first.',
+          okText: 'Create slides now',
+          cancelText: 'Later',
+          onOk: () => {
+            this.handleEditGoogleSlide()
+          },
+          onCancel: () => {
+            this.goBack(data)
+          }
+        })
       } else {
-        this.goBack()
+        if (data.isCreateSubTask) {
+          this.handleGoToSubTask(data)
+        } else {
+          this.goBack()
+        }
       }
     },
     handleGoToSubTask (data) {
