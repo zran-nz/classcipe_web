@@ -143,7 +143,7 @@ export default {
           this.$store.commit(FORM_CONFIG_PREVIEW_DATA, {
             commonList: planConfig.commonList,
             customList: planConfig.customList,
-            schoolId: this.currentSchool.id,
+            steps: planConfig.steps,
             type: typeMap['unit-plan']
           })
           window.open('/teacher/managing/planning-format/unit-plan-preview', '_blank')
@@ -154,7 +154,7 @@ export default {
           this.$store.commit(FORM_CONFIG_PREVIEW_DATA, {
             commonList: taskConfig.commonList,
             customList: taskConfig.customList,
-            schoolId: this.currentSchool.id,
+            steps: taskConfig.steps,
             type: typeMap.task
           })
           window.open('/teacher/managing/planning-format/task-preview', '_blank')
