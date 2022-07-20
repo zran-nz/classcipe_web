@@ -66,9 +66,9 @@ export default {
       type: String,
       default: ''
     },
-    rwc: {
-      type: String,
-      default: ''
+    selectedSdg: {
+      type: Array,
+      default: () => []
     }
   },
   computed: {
@@ -102,32 +102,35 @@ export default {
     }
   },
   created () {
-    this.showList = []
-    this.questionList.forEach(item => {
-      if (item.name) {
-        this.selectQuestionList.push(item.name)
-      }
-    })
-
-    this.loading = true
-    FindQuestionsByBigIdea({ bigIdea: this.bigIdea, rwc: this.rwc }).then(response => {
-      logger.info('FindQuestionsByBigIdea ', response)
-      this.AllQuestionList = []
-      if (response.success) {
-        response.result.forEach(item => {
-          if (this.AllQuestionList.indexOf(item.name) === -1) {
-            this.AllQuestionList.push(item.name)
-          }
-        })
-      }
-    }).finally(() => {
-      this.loading = false
-    })
+    this.queryQuestion()
   },
   watch: {
-
   },
   methods: {
+    queryQuestion() {
+      this.showList = []
+      this.questionList.forEach(item => {
+        if (item.name) {
+          this.selectQuestionList.push(item.name)
+        }
+      })
+
+      this.loading = true
+      logger.info('FindQuestionsByBigIdea sdgs ', this.selectedSdg)
+      FindQuestionsByBigIdea({ sdgs: this.selectedSdg }).then(response => {
+        logger.info('FindQuestionsByBigIdea ', response)
+        this.AllQuestionList = []
+        if (response.success) {
+          response.result.forEach(item => {
+            if (this.AllQuestionList.indexOf(item.name) === -1) {
+              this.AllQuestionList.push(item.name)
+            }
+          })
+        }
+      }).finally(() => {
+        this.loading = false
+      })
+    },
     handleChange (nextTargetKeys, direction, moveKeys) {
       // this.targetKeys = nextTargetKeys
       // console.log('targetKeys: ', nextTargetKeys)
@@ -220,6 +223,7 @@ export default {
   width: 100px;
 }
 .keyword-search {
+  margin-bottom: 10px;
   .my-nav-search {
     svg {
       fill: rgba(188, 188, 188, 1);

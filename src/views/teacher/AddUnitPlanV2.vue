@@ -636,8 +636,7 @@
       @ok='questionMoreVisible = false'>
       <div class='link-content-wrapper'>
         <QuestionBrowse
-          :big-idea='form.inquiry'
-          :rwc='form.rwc'
+          :selectedSdg='selectedSdg'
           :question-list='form.questions'
           @select-question='handleSelectQuestion'></QuestionBrowse>
 
@@ -683,6 +682,32 @@
         :source-type='form.type'
         @update-content='handleUpdateContent'
       />
+    </a-modal>
+
+    <a-modal
+      v-model='selectBigIdeaDataVisible'
+      :footer='null'
+      destroyOnClose
+      title='Browse big idea'
+      width='70%'
+      @cancel='selectBigIdeaDataVisible = false'
+      @ok='selectBigIdeaDataVisible = false'>
+      <div class='link-content-wrapper'>
+        <BigIdeaBrowse @handle-select='handleSelectBigIdeaData'>
+
+        </BigIdeaBrowse>
+
+        <div class='modal-ensure-action-line-right'>
+          <a-button class='action-item action-cancel' shape='round' @click='selectBigIdeaDataVisible=false'>Cancel
+          </a-button>
+          <a-button
+            class='action-ensure action-item'
+            shape='round'
+            type='primary'
+            @click='handleEnsureSelectBigIdeaData'>Ok
+          </a-button>
+        </div>
+      </div>
     </a-modal>
 
     <a-skeleton :loading='contentLoading' active>
@@ -979,7 +1004,8 @@ export default {
 
       formBodyWidth: '50%',
       tagBodyWidth: '50%',
-      fullBodyFields: ['learnOuts']
+      fullBodyFields: ['learnOuts'],
+      selectBigIdeaDataVisible: false
     }
   },
   watch: {
@@ -1796,6 +1822,17 @@ export default {
       this.form.subjectList = data.selectedSubjectList
       this.form.yearList = data.selectedYearList
       this.form.languageList = data.selectedLanguageList
+    },
+    handleEnsureSelectBigIdeaData() {
+      if (!this.selectNewBigIdea) {
+        this.$message.error('Please select a big idea')
+        return
+      }
+      this.form.inquiry = this.selectNewBigIdea
+      this.selectBigIdeaDataVisible = false
+    },
+    handleSelectBigIdeaData(data) {
+      this.selectNewBigIdea = data
     }
   }
 }
