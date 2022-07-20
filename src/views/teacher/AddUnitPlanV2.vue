@@ -1038,8 +1038,9 @@ export default {
   computed: {
     selectedSdg() {
       const sdgList = []
-      this.form.scenarios.forEach(item => sdgList.push(item.sdgId))
-      console.log(sdgList)
+      if (this.form.scenarios) {
+        this.form.scenarios.forEach(item => sdgList.push(item.sdgId))
+      }
       return sdgList
     },
     showRecommendQuestion() {

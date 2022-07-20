@@ -189,7 +189,7 @@ export default {
         list.push(i + ' years')
       }
       return list
-    },
+    }
   },
   methods: {
     handleBuyItem () {
