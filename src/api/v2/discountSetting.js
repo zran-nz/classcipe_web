@@ -1,13 +1,18 @@
 import request from '@/utils/request'
 
-export const DiscountSettingUrl = {
-  discountSettingSave: '/classcipe/api2/discountSetting/save',
-  QueryByContentId: '/classcipe/api2/discountSetting/queryByContentId'
+export const ClassesV2Url = {
+  queryByContentId: '/classcipe/api2/discountSetting/queryByContentId',
+  save: '/classcipe/api2/discountSetting/save'
 }
 
-export function DiscountSettingSave (parameter) {
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function discountSettingQuery (parameter) {
   return request({
-    url: DiscountSettingUrl.discountSettingSave,
+    url: ClassesV2Url.queryByContentId,
     method: 'post',
     data: parameter,
     headers: {
@@ -16,9 +21,14 @@ export function DiscountSettingSave (parameter) {
   })
 }
 
-export function DiscountSettingQueryByContentId (parameter) {
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function discountSettingSave (parameter) {
   return request({
-    url: DiscountSettingUrl.QueryByContentId,
+    url: ClassesV2Url.save,
     method: 'post',
     data: parameter,
     headers: {

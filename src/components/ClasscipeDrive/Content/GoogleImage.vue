@@ -1,53 +1,50 @@
 <template>
   <div class='google-image-container'>
-    <a-spin tip="Loading..." :spinning="loading">
-      <div class='google-image-filter'>
-        <a-space>
-          <a-select
-            :getPopupContainer="trigger => trigger.parentElement"
-            v-model='image_type_value'
-            class='cc-select-white-no-round'
-            placeholder='Image type'
-            @change='imageTypeChange'>
-            <a-select-option v-for='item in imageTypes' :key='item.value' :value='item.value'>
-              {{ item.label }}
-            </a-select-option >
-          </a-select>
+    <div class='google-image-filter'>
+      <a-space>
+        <a-select
+          :getPopupContainer="trigger => trigger.parentElement"
+          v-model='image_type_value'
+          class='cc-select-white-no-round'
+          placeholder='Image type'
+          @change='imageTypeChange'>
+          <a-select-option v-for='item in imageTypes' :key='item.value' :value='item.value'>
+            {{ item.label }}
+          </a-select-option >
+        </a-select>
 
-          <div class='color-filter'>
-            <div v-for='(item,index) in colors' :key='item' style='margin-right: 5px;' @click='changeColor(index)'>
-              <div
-                v-if="currentColor !== item && item !== '#FFFFFF'"
-                :style='`background-color: ${item};`'
-                class='color--unselect'>
-              </div>
-              <div
-                v-if="currentColor !== item && item === '#FFFFFF'"
-                :style='`background-color: ${item};`'
-                class='color--unselect--white'>
-              </div>
-              <div v-if='currentColor === item' :style='`background-color: ${item};`' class='color--select'></div>
+        <div class='color-filter'>
+          <div v-for='(item,index) in colors' :key='item' style='margin-right: 5px;' @click='changeColor(index)'>
+            <div
+              v-if="currentColor !== item && item !== '#FFFFFF'"
+              :style='`background-color: ${item};`'
+              class='color--unselect'>
             </div>
+            <div
+              v-if="currentColor !== item && item === '#FFFFFF'"
+              :style='`background-color: ${item};`'
+              class='color--unselect--white'>
+            </div>
+            <div v-if='currentColor === item' :style='`background-color: ${item};`' class='color--select'></div>
           </div>
-        </a-space>
-      </div>
+        </div>
+      </a-space>
+    </div>
+    <div>
+      <span class='result-tips'>Results displayed have been modified for commercial use. </span>
+      <span
+        style='font-size: 14px;color:#15C39A;cursor: pointer;margin-left: 2px;'
+        @click='showPrivate()'>See more</span>
+    </div>
 
-      <div>
-        <span class='result-tips'>Results displayed have been modified for commercial use. </span>
-        <span
-          style='font-size: 14px;color:#15C39A;cursor: pointer;margin-left: 2px;'
-          @click='showPrivate()'>See more</span>
-      </div>
+    <div id='search_parent'>
+      <div id='test'></div>
+    </div>
 
-      <div id='search_parent'>
-        <div id='test'></div>
-      </div>
-
-      <div
-        style='position: absolute; bottom: 10px; left: 10px;  font-size: 12px; color: #808191; height: 20px; background-color: #ffffff;'>
-        Only use image that you have the right to post.
-      </div>
-    </a-spin>
+    <div
+      style='position: absolute; bottom: 10px; left: 10px;  font-size: 12px; color: #808191; height: 20px; background-color: #ffffff;'>
+      Only use image that you have the right to post.
+    </div>
   </div>
 </template>
 
@@ -198,7 +195,7 @@ export default {
       this.image_type_value = ''
       this.currentColorIndex = -1
       this.currentColor = '#00FFFFFF'
-      this.loading = true
+      const hideLoading = this.$message.loading('Download...', 0)
       uploadImageToAwsByUrl(this.$store.getters.userInfo.id, url, {
         contentId: this.contentId,
         contentType: this.contentType
@@ -215,7 +212,7 @@ export default {
           this.$logger.warn('uploadImageToAwsByUrl', e)
           this.$message.error('The image you selected is not available')
         }).finally(() => {
-          this.loading = false
+          hideLoading()
       })
     },
 

@@ -46,7 +46,6 @@
 
     <verification-tip ref="verificationTip" @continue="doUpdatePublish"/>
     <content-publish
-      :publish-loading="publishLoading"
       v-if='contentPublishVisible'
       :content='currentContent'
       @publish='handleUpdatePublish'

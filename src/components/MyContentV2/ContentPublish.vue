@@ -1,95 +1,73 @@
 <template>
   <a-modal
     v-model='visible'
-    :closable='true'
-    :footer='null'
+    :closable='false'
     :maskClosable='false'
     destroyOnClose
-    width='600px'
-    @cancel='handleClose'>
-    <div class='publish-title'>
-      Please select the elements and set price before publishing.
-    </div>
-    <div class='publish-selection'>
-      <div class='publish-item' v-for='(item, idx) in publishList' :key='idx'>
-        <div class='item-type-label'>
-          {{ item.typeLabel }}
-        </div>
-        <div class='content-item'>
-          <div class='cover'>
-            <div class='cover-block' :style="{'background-image': 'url(' + item.image + ')'}">
-            </div>
-          </div>
-          <div class='detail'>
-            <div class='detail-content'>
-              <div class='base-info'>
-                <div class='name'>
-                  {{ item.name }}
-                </div>
-                <div class='update-time'>
-                  {{ item.updateTime | dayjs }}
-                </div>
-                <div class='owner'>
-                  {{ item.createBy }}
-                </div>
-              </div>
-            </div>
-            <div class='detail-price'>
-              <div class='price-setting'>
-                <a-space>
-                  <a-switch size='small' v-model='enablePrice' /> Price:
-                </a-space>
-              </div>
-              <div class='price-input' v-if='enablePrice'>
-                <a-input v-model="item.price" class='dollar-price-input' suffix="$"/>
-              </div>
-            </div>
-            <div class='detail-price' v-if='enablePrice'>
-              <div class='price-setting'>
-                Discount Price:
-              </div>
-              <div class='price-input'>
-                <a-input v-model="item.discountPrice" class='dollar-price-input' suffix="$"/>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class='modal-action-right'>
-      <a-space>
-        <a-button @click='handleClose'>Cancel</a-button>
-        <a-button :loading="publishLoading" type='primary' @click='handlePublish'>Publish</a-button>
-      </a-space>
+    ok-text='Publish'
+    @ok='updatePrice'
+    @cancel='visible = false'>
+    <modal-header title="Edit price" @close='visible = false'/>
+    <div class='edit-price'>
+      <a-row :gutter='20' type="flex" align='middle'>
+        <a-col span='8' class='label-name'>
+          Price:
+        </a-col>
+        <a-col span='14'>
+          <a-input
+            v-model='price'
+            prefix='$'
+            class='cc-form-input cc-small-input' />
+        </a-col>
+      </a-row>
+      <a-row :gutter='20' type="flex" align='middle'>
+        <a-col span='8' class='label-name'>
+          Discount Price:
+        </a-col>
+        <a-col span='14'>
+          <a-input
+            v-model='discount'
+            prefix='$'
+            class='cc-form-input cc-small-input' />
+        </a-col>
+      </a-row>
+      <a-row :gutter='20' type="flex" align='middle'>
+        <a-col span='8' class='label-name'>
+          Duration:
+        </a-col>
+        <a-col span='14'>
+          <a-range-picker :default-value="initDate" :mode="['date']" :disabled-date="disabledDate" @change="handleDurationChange"/>
+        </a-col>
+      </a-row>
     </div>
   </a-modal>
 </template>
 
 <script>
-import { UpdateContentField } from '@/api/v2/mycontent'
-
+import { typeMap } from '@/const/teacher'
+import { discountSettingQuery, discountSettingSave } from '@/api/v2/discountSetting'
+import moment from 'moment'
+import ModalHeader from '@/components/Common/ModalHeader'
 export default {
   name: 'ContentPublish',
+  components: { ModalHeader },
   props: {
     content: {
       type: Object,
       default: null
-    },
-    publishLoading: {
-      type: Boolean,
-      default: false
     }
   },
   data () {
     return {
       visible: true,
-      enablePrice: this.content.price !== 0
-    }
-  },
-  computed: {
-    publishList() {
-      const result = [this.content]
-      return result
+      discount: 0,
+      typeMap: typeMap,
+      isSelfLearning: false,
+      price: 0,
+      editPrice: false,
+      startDate: null,
+      endData: null,
+      initDate: null
     }
   },
   created() {
@@ -100,32 +78,51 @@ export default {
       this.$emit('close')
     },
 
-    async handlePublish () {
+    handlePublish () {
       this.$logger.info('handlePublish')
-      this.$emit('publish', {
-        content: this.content,
-        publishList: this.publishList
-      })
+      this.$emit('publish')
+    },
 
-      const contentType = this.content.type
-      const price = this.enablePrice ? this.content.price : 0
-      await UpdateContentField({
-        id: this.content.id,
-        type: contentType,
-        fieldName: 'price',
-        fieldValue: price
-      }).then((response) => {
-        this.$logger.info('response : {}', response)
+    async showEditPrice() {
+      const res = await discountSettingQuery({
+        contentId: -1,
+        contentType: -1
       })
+      const data = res.result
+      if (data) {
+        this.$logger.info('discountSettingQuery', data)
+        this.discount = data.discount
+        this.price = data.price
+        this.startDate = data.discountStartTime
+        this.endData = data.discountEndTime
+        this.initDate = [moment(data.discountStartTime), moment(data.discountEndTime)]
+      }
+      this.visible = true
+    },
 
-      await UpdateContentField({
-        id: this.content.id,
-        type: contentType,
-        fieldName: 'discount',
-        fieldValue: this.content.discount
-      }).then((response) => {
-        this.$logger.info('response : {}', response)
+    disabledDate(current) {
+      return current && current < moment().subtract(1, 'days').endOf('day')
+    },
+    handleDurationChange (date) {
+      this.$logger.info('handleDurationChange', date)
+      this.startDate = moment(date[0].toDate()).utc().format('YYYY-MM-DD 00:00:00')
+      this.endData = moment(date[1].toDate()).utc().format('YYYY-MM-DD 00:00:00')
+    },
+    async updatePrice () {
+      this.$logger.info('update price')
+      const type = parseInt(this.content.type)
+      await discountSettingSave({
+        contentId: this.content.id,
+        contentType: type,
+        discount: this.discount,
+        discountModel: 2,
+        price: this.price,
+        discountStartTime: this.startDate,
+        discountEndTime: this.endData
       })
+      this.content.price = this.price
+      this.editPrice = false
+      this.handlePublish()
     }
   }
 }
@@ -233,6 +230,18 @@ export default {
         }
       }
     }
+  }
+}
+
+.edit-price {
+  width: 100%;
+  > div {
+    margin: 10px 0;
+  }
+
+  .label-name {
+    text-align: right;
+    color: #222;
   }
 }
 </style>

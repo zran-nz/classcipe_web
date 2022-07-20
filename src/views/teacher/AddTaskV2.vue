@@ -494,8 +494,7 @@
       <modal-header title='Congratulation!' @close='showSplitTask = false' />
       <split-task-setting
         :is-sub-task="form.parentTaskId"
-        :price='form.price'
-        :discount='form.discount'
+        :content-id='taskId'
         :is-self-learning='form.contentType === 1'
         @confirm='handleUpdateBySubTaskSetting'
         @confirm-and-split='handleGoToSubTask' />
@@ -556,7 +555,7 @@ import SplitTaskSetting from '@/components/Task/SplitTaskSetting'
 import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
 import commentIcon from '@/assets/icons/collaborate/comment.svg?inline'
 import { deepEqual } from '@/utils/util'
-import { DiscountSettingSave } from '@/api/v2/discountSetting'
+import { discountSettingSave } from '@/api/v2/discountSetting'
 
 export default {
   name: 'AddTaskV2',
@@ -1570,10 +1569,7 @@ export default {
       this.waitingRedirect = true
       this.saving = true
       this.form.price = data.price
-      this.form.discount = data.discount
       this.form.dontRemind = data.dontRemind
-      this.form.discountStartDate = data.startDate
-      this.form.discountEndData = data.endData
       this.form.contentType = data.isSelfLearning ? 1 : 0
       this.showSplitTask = false
       this.waitingRedirect = true
@@ -1626,7 +1622,7 @@ export default {
     },
     async handleDiscountSettingSave(discountItem) {
       this.$logger.info('DiscountSettingSave', discountItem)
-      const response = await DiscountSettingSave(discountItem)
+      const response = await discountSettingSave(discountItem)
       this.$logger.info('TaskAddOrUpdate', response.result)
     }
   }

@@ -77,10 +77,10 @@
           <a-space>
             <div class='price-info vertical-left'>
               <div class='price'>
-                ${{ price }}
+                ${{ content.discountPrice || content.price }}
               </div>
               <div class='edit'>
-                <a-icon type="edit" v-if='!visible' @click.native='visible = true'/>
+                <a-icon type="edit" v-if='!visible' @click.native='showEditPrice'/>
               </div>
             </div>
             <div class='sale-info vertical-left'>
@@ -173,7 +173,7 @@
               Duration setting
             </a-col>
             <a-col span='16'>
-              <a-range-picker :default-value="initDate" :mode="['date']" :disabled-date="disabledDate" @change="handleDateChange"/>
+              <a-range-picker :default-value="initDate" :mode="['date']" :disabled-date="disabledDate" @change="handleDurationChange"/>
             </a-col>
           </a-row>
 
@@ -203,10 +203,9 @@ import MoreIcon from '@/assets/v2/icons/more.svg?inline'
 
 import ContentPreview from '@/components/Preview/ContentPreview'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
-import { UpdateContentField } from '@/api/v2/mycontent'
 import ModalHeader from '@/components/Common/ModalHeader'
+import { discountSettingQuery, discountSettingSave } from '@/api/v2/discountSetting'
 import moment from 'moment'
-import { DiscountSettingSave } from '@/api/v2/discountSetting'
 
 export default {
   name: 'ContentItem',
@@ -243,15 +242,14 @@ export default {
   data() {
     return {
       visible: false,
-      discount: this.content.discountSetting ? this.content.discountSetting.discount : 0,
+      discount: 0,
       typeMap: typeMap,
       isSelfLearning: false,
-      price: this.content.price || 0,
+      price: 0,
       editPrice: false,
-      initDate: this.content.discountSetting ? [this.content.discountSetting.discountStartTime,
-        this.content.discountSetting.discountEndTime] : null,
       startDate: null,
-      endData: null
+      endData: null,
+      initDate: null
     }
   },
   created() {
@@ -300,7 +298,14 @@ export default {
       this.$logger.info('handleSelfLearning', isSelfLearning)
       this.isSelfLearning = isSelfLearning
     },
-
+    disabledDate(current) {
+      return current && current < moment().subtract(1, 'days').endOf('day')
+    },
+    handleDurationChange (date) {
+      this.$logger.info('handleDurationChange', date)
+      this.startDate = moment(date[0].toDate()).utc().format('YYYY-MM-DD 00:00:00')
+      this.endData = moment(date[1].toDate()).utc().format('YYYY-MM-DD 00:00:00')
+    },
     handlePublishStatus() {
       this.$emit('update-publish', {
         content: this.content
@@ -317,50 +322,38 @@ export default {
       })
     },
 
+    async showEditPrice() {
+      const res = await discountSettingQuery({
+        contentId: this.content.id,
+        contentType: this.content.type
+      })
+      const data = res.result
+      if (data) {
+        this.$logger.info('discountSettingQuery', data)
+        this.discount = data.discount
+        this.price = data.price
+        this.startDate = data.discountStartTime
+        this.endData = data.discountEndTime
+        this.initDate = [moment(data.discountStartTime), moment(data.discountEndTime)]
+      }
+      this.visible = true
+    },
+
     async updatePrice () {
       this.$logger.info('update price')
       const type = parseInt(this.content.type)
-      await UpdateContentField({
-        id: this.content.id,
-        type: type,
-        fieldName: 'price',
-        fieldValue: this.price
-      }).then((response) => {
-        this.$logger.info('response : {}', response)
-      })
-
-      // 打折信息
-      const discountItem = {
+      await discountSettingSave({
         contentId: this.content.id,
         contentType: type,
-        price: this.price, // 原价
         discount: this.discount,
         discountModel: 2,
+        price: this.price,
         discountStartTime: this.startDate,
         discountEndTime: this.endData
-      }
-      this.$logger.info('DiscountSettingSave', discountItem)
-      const response = await DiscountSettingSave(discountItem)
-      this.$logger.info('TaskAddOrUpdate', response.result)
-      // if (!this.content.discountSetting) {
-      //   this.content.discountSetting = {}
-      // }
-      // this.content.discountSetting = Object.assign(this.content.discountSetting, discountItem)
-      // this.$emit('updateDiscountSetting', {
-      //   content: this.content
-      // })
-
+      })
+      this.content.price = this.price
       this.editPrice = false
       this.visible = false
-    },
-    disabledDate(current) {
-      return current && current < moment().subtract(1, 'days').endOf('day')
-    },
-    handleDateChange (date, dateString) {
-      this.$logger.info('handleDateChange', date, dateString)
-      this.startDate = moment(date[0].toDate()).utc().format('YYYY-MM-DD 00:00:00')
-      this.endData = moment(date[1].toDate()).utc().format('YYYY-MM-DD 00:00:00')
-      this.$logger.info('handleDateChange', this.startDate, this.endData)
     }
   }
 }

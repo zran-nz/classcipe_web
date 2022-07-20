@@ -96,18 +96,15 @@
 <script>
 import CustomRadioButtonGroup from '@/components/Common/CustomRadioButtonGroup'
 import moment from 'moment'
+import { discountSettingQuery, discountSettingSave } from '@/api/v2/discountSetting'
 
 export default {
   name: 'SplitTaskSetting',
   components: { CustomRadioButtonGroup },
   props: {
-    price: {
-      type: Number,
-      default: 0
-    },
-    discount: {
-      type: Number,
-      default: 0
+    contentId: {
+      type: String,
+      default: ''
     },
     isSelfLearning: {
       type: Boolean,
@@ -123,14 +120,29 @@ export default {
       isPublish: false,
       isCreateSubTask: false,
       mySelfLearning: this.isSelfLearning,
-      enablePrice: this.price !== 0,
-      myPrice: this.price,
-      myDiscount: this.discount,
+      enablePrice: false,
+      myPrice: 0,
+      myDiscount: 0,
       dontRemind: false,
       initDate: null,
       startDate: null,
       endData: null
     }
+  },
+  created() {
+    discountSettingQuery({
+      contentId: this.contentId,
+      contentType: this.$classcipe.typeMap.task
+    }).then(res => {
+      const data = res.result
+      if (data) {
+        this.myDiscount = data.discount
+        this.startDate = data.discountStartTime
+        this.endData = data.discountEndTime
+        this.price = data.price
+        this.initDate = [moment(this.startDate), moment(this.endData)]
+      }
+    })
   },
   methods: {
     handleConfirmAndSplitTask (data) {
@@ -140,8 +152,17 @@ export default {
         price: this.enablePrice ? +this.myPrice : 0
       })
     },
-    handleConfirm (data) {
+    async handleConfirm (data) {
       this.$logger.info('handleConfirm')
+      await discountSettingSave({
+        contentId: this.contentId,
+        contentType: this.$classcipe.typeMap.task,
+        discount: parseFloat(this.myDiscount),
+        discountModel: 2,
+        discountStartTime: this.startDate,
+        discountEndTime: this.endData,
+        price: this.enablePrice ? +this.myPrice : 0
+      })
       this.$emit('confirm', {
         isSelfLearning: this.mySelfLearning,
         isCreateSubTask: this.isCreateSubTask,
