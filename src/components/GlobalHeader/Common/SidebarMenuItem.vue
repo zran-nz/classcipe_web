@@ -1,9 +1,7 @@
 <template>
   <div class='sidebar-menu-item' :class="{'active-sidebar-menu-item': path && ($route.path === path || ($route.meta.owner && $route.meta.owner === path)), 'collapsed-menu': $store.getters.collapsed }" @click='handleClickMenu' @dblclick='handleDbClickMenu'>
     <div class='menu-icon'>
-      <a-tooltip :title='label' placement="right" >
-        <slot name='icon'></slot>
-      </a-tooltip>
+      <slot name='icon'></slot>
     </div>
 
     <div class='menu-label'>
