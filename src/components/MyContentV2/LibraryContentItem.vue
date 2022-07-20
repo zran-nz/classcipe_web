@@ -81,7 +81,7 @@
                 <a-button
                   type="danger"
                   shape='round'
-                  @click='handleBuyItem(content)'
+                  @click='handleBuyItem (content)'
                   :loading='copyLoading'
                   v-if='content.createBy !== $store.getters.userInfo.email'>
                   Buy now
@@ -99,6 +99,25 @@
         :content-type='previewType'
         v-if='previewVisible'
         @close='handlePreviewClose' />
+
+      <a-modal
+        :title="null"
+        :closable='false'
+        v-model="contentBuyStatVisible"
+        :append-to-body="true"
+        :destroy-on-close="false"
+        @ok='handleEnsureBuyStat'
+        @cancel='handleCancelBuyStat'
+        width="500px">
+        <modal-header @close='handleCancelBuyStat' title='Which age(s) will you use this resource with?' />
+        <div class='grade-list'>
+          <div class='content-tag-list'>
+            <div class='content-tag' @click='toggleSelectContentTag(grade)' :class="{'selected-tag': selectedGradeList.indexOf(grade) !== -1}" v-for='grade in allAges' :key='grade'>
+              {{ grade }}
+            </div>
+          </div>
+        </div>
+      </a-modal>
     </div>
   </div>
 </template>
@@ -112,10 +131,15 @@ import EditIcon from '@/assets/v2/icons/edit.svg?inline'
 import DuplicateIcon from '@/assets/v2/icons/duplicate.svg?inline'
 import ContentPreview from '@/components/Preview/ContentPreview'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
+import { ContentBuy } from '@/api/v2/mycontent'
+import { ContentGradeSave } from '@/api/contentGrade'
+import ModalHeader from '@/components/Common/ModalHeader'
+import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 
 export default {
   name: 'LibraryContentItem',
   components: {
+    ModalHeader,
     ContentTypeIcon,
     ContentPreview,
     CustomButton,
@@ -136,12 +160,14 @@ export default {
       default: true
     }
   },
-  mixins: [ContentItemMixin],
+  mixins: [ContentItemMixin, GoogleAuthCallBackMixin],
   data() {
     return {
       typeMap: typeMap,
       isSelfLearning: false,
-      copyLoading: false
+      copyLoading: false,
+      contentBuyStatVisible: false,
+      selectedGradeList: []
     }
   },
   created() {
@@ -156,11 +182,51 @@ export default {
     },
     curriculumName () {
       return this.$store.getters.curriculumId2NameMap.hasOwnProperty(this.content.curriculumId) ? this.$store.getters.curriculumId2NameMap[this.content.curriculumId] : null
-    }
+    },
+    allAges() {
+      const list = []
+      for (let i = 3; i < 19; i++) {
+        list.push(i + ' years')
+      }
+      return list
+    },
   },
   methods: {
-    handleBuyItem (content) {
-
+    handleBuyItem () {
+      this.$logger.info('handleBuyItem', this.content)
+      ContentBuy({ id: this.content.id, type: this.content.type }).then((response) => {
+        if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
+          this.$logger.info('Duplicate response', response)
+          this.$message.success('Buy successfully')
+        } else {
+          this.currentMethodName = 'handleBuyItem'
+        }
+      }).finally(() => {
+        this.buyLoading = false
+        this.contentBuyStatVisible = true
+      })
+    },
+    handleEnsureBuyStat () {
+      ContentGradeSave({
+        contentId: this.contentId,
+        contentType: this.contentType,
+        grades: this.selectedGradeList
+      }).finally(() => {
+        this.handleCancelBuyStat()
+      })
+    },
+    handleCancelBuyStat () {
+      this.contentBuyStatVisible = false
+      this.selectedGradeList = []
+    },
+    toggleSelectContentTag(grade) {
+      this.$logger.info('toggleSelectContentTag', grade)
+      const index = this.selectedGradeList.indexOf(grade)
+      if (index === -1) {
+        this.selectedGradeList.push(grade)
+      } else {
+        this.selectedGradeList.splice(index, 1)
+      }
     }
   }
 }
@@ -448,6 +514,45 @@ export default {
   &:hover {
     /deep/ .anticon-close {
       opacity: 1;
+    }
+  }
+}
+
+.grade-list {
+  padding: 10px 0;
+  .content-tag-list {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin: 0 10px 10px 0;
+    vertical-align: middle;
+    cursor: pointer;
+
+    .content-tag {
+      margin-left: 3px;
+      margin-top: 5px;
+      cursor: pointer;
+      border: 2px solid #ffffff;
+      background: #FFEDAF;
+      font-size: 13px;
+      border-radius: 30px;
+      line-height: 30px;
+      padding: 0 10px;
+      word-break: normal;
+      width: auto;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .selected-tag {
+      border: 2px solid #15C39A;
     }
   }
 }
