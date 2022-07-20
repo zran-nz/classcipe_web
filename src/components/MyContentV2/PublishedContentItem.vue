@@ -148,10 +148,10 @@
         <modal-header title="Edit price" @close='visible = false'/>
         <div class='edit-price'>
           <a-row :gutter='20' type="flex" align='middle'>
-            <a-col span='10' class='label-name'>
+            <a-col span='8' class='label-name'>
               Price:
             </a-col>
-            <a-col span='14'>
+            <a-col span='16'>
               <a-input
                 v-model='price'
                 type='number'
@@ -160,17 +160,23 @@
             </a-col>
           </a-row>
           <a-row :gutter='20' type="flex" align='middle'>
-            <a-col span='10' class='label-name'>
-              Discount Price:
+            <a-col span='8' class='label-name'>
+              Discount:
             </a-col>
-            <a-col span='14'>
-              <a-input
-                v-model='discount'
-                type='number'
-                prefix='$'
-                class='cc-form-input cc-small-input' />
+            <a-col span='16'>
+              <a-input v-model='discount' class='cc-form-input cc-small-input' suffix='%' />
             </a-col>
           </a-row>
+
+          <a-row :gutter='20' type="flex" align='middle'>
+            <a-col span='8' class='label-name'>
+              Duration setting
+            </a-col>
+            <a-col span='16'>
+              <a-range-picker :default-value="initDate" :mode="['date']" :disabled-date="disabledDate" @change="handleDateChange"/>
+            </a-col>
+          </a-row>
+
         </div>
       </a-modal>
 
@@ -199,6 +205,8 @@ import ContentPreview from '@/components/Preview/ContentPreview'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { UpdateContentField } from '@/api/v2/mycontent'
 import ModalHeader from '@/components/Common/ModalHeader'
+import moment from 'moment'
+import { DiscountSettingSave } from '@/api/v2/discountSetting'
 
 export default {
   name: 'ContentItem',
@@ -235,11 +243,15 @@ export default {
   data() {
     return {
       visible: false,
-      discount: this.content.discountPrice || 0,
+      discount: this.content.discountSetting ? this.content.discountSetting.discount : 0,
       typeMap: typeMap,
       isSelfLearning: false,
       price: this.content.price || 0,
-      editPrice: false
+      editPrice: false,
+      initDate: this.content.discountSetting ? [this.content.discountSetting.discountStartTime,
+        this.content.discountSetting.discountEndTime] : null,
+      startDate: null,
+      endData: null
     }
   },
   created() {
@@ -317,16 +329,38 @@ export default {
         this.$logger.info('response : {}', response)
       })
 
-      await UpdateContentField({
-        id: this.content.id,
-        type: type,
-        fieldName: 'discount',
-        fieldValue: this.discount
-      }).then((response) => {
-        this.$logger.info('response : {}', response)
-      })
+      // 打折信息
+      const discountItem = {
+        contentId: this.content.id,
+        contentType: type,
+        price: this.price, // 原价
+        discount: this.discount,
+        discountModel: 2,
+        discountStartTime: this.startDate,
+        discountEndTime: this.endData
+      }
+      this.$logger.info('DiscountSettingSave', discountItem)
+      const response = await DiscountSettingSave(discountItem)
+      this.$logger.info('TaskAddOrUpdate', response.result)
+      // if (!this.content.discountSetting) {
+      //   this.content.discountSetting = {}
+      // }
+      // this.content.discountSetting = Object.assign(this.content.discountSetting, discountItem)
+      // this.$emit('updateDiscountSetting', {
+      //   content: this.content
+      // })
+
       this.editPrice = false
       this.visible = false
+    },
+    disabledDate(current) {
+      return current && current < moment().subtract(1, 'days').endOf('day')
+    },
+    handleDateChange (date, dateString) {
+      this.$logger.info('handleDateChange', date, dateString)
+      this.startDate = moment(date[0].toDate()).utc().format('YYYY-MM-DD 00:00:00')
+      this.endData = moment(date[1].toDate()).utc().format('YYYY-MM-DD 00:00:00')
+      this.$logger.info('handleDateChange', this.startDate, this.endData)
     }
   }
 }

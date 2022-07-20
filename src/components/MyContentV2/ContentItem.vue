@@ -682,6 +682,11 @@ export default {
 }
 
 .self-learning {
+  align-items: flex-end;
   font-size: 13px;
+  button{
+    margin-left: 4px;
+  }
+  min-width: 110px;
 }
 </style>

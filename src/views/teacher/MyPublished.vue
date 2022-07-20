@@ -11,7 +11,12 @@
       <a-spin tip='Loading...' :spinning="loading">
         <div class='content-list'>
           <template v-if='pagination.total !== 0 && !loading'>
-            <published-content-item v-for='item in myContentList' :key='item.id' :content='item' @delete='handleDeleteItem' @update-publish='handleShowContentPublish'></published-content-item>
+            <published-content-item
+              v-for='item in myContentList'
+              :key='item.id'
+              :content='item'
+              @delete='handleDeleteItem'
+              @update-publish='handleShowContentPublish'></published-content-item>
           </template>
           <template v-if='pagination.total === 0 && !loading'>
             <div class='empty-tips'>
@@ -214,6 +219,10 @@ export default {
     handleShowDiscountSetting () {
       this.$logger.info('handleShowDiscountSetting', this.discountSettingVisible)
       this.discountSettingVisible = true
+    },
+    handleUpdateDiscountSetting(content) {
+      this.$logger.info('handleUpdateDiscountSetting', content)
+      this.currentContent = content
     }
   }
 }

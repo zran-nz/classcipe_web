@@ -556,6 +556,7 @@ import SplitTaskSetting from '@/components/Task/SplitTaskSetting'
 import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
 import commentIcon from '@/assets/icons/collaborate/comment.svg?inline'
 import { deepEqual } from '@/utils/util'
+import { DiscountSettingSave } from '@/api/v2/discountSetting'
 
 export default {
   name: 'AddTaskV2',
@@ -1580,8 +1581,18 @@ export default {
       this.waitingRedirect = false
       if (data.isPublish) {
         await this.handlePublishFormItem(1)
+        // 打折信息
+        const discountItem = {
+          contentId: this.form.id,
+          contentType: this.contentType.task,
+          price: this.form.price, // 原价
+          discount: data.discount,
+          discountModel: 2,
+          discountStartTime: data.startDate,
+          discountEndTime: data.endData
+        }
+        this.handleDiscountSettingSave(discountItem)
       }
-
       if (!this.form.presentationId) {
         this.$confirm({
           title: 'Warning',
@@ -1596,7 +1607,11 @@ export default {
           }
         })
       } else {
-        if (data.isCreateSubTask) {
+        if (data.isPublish) {
+          this.$router.replace({
+            path: '/teacher/main/my-published'
+          })
+        } else if (data.isCreateSubTask) {
           this.handleGoToSubTask(data)
         } else {
           this.goBack()
@@ -1608,6 +1623,11 @@ export default {
       this.$router.replace({
         path: '/teacher/split-task/' + this.taskId
       })
+    },
+    async handleDiscountSettingSave(discountItem) {
+      this.$logger.info('DiscountSettingSave', discountItem)
+      const response = await DiscountSettingSave(discountItem)
+      this.$logger.info('TaskAddOrUpdate', response.result)
     }
   }
 }
