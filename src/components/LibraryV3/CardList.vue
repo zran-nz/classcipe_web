@@ -132,12 +132,14 @@ export default {
       this.$logger.info('hidden arrow', dom, dom.scrollLeft, dom.offsetWidth, dom.scrollWidth)
       if (dom && (dom.scrollLeft + dom.offsetWidth >= dom.scrollWidth)) {
         this.hasMoreRight = false
-        this.hasMoreLeft = true
+      } else {
+        this.hasMoreRight = true
       }
 
       if (dom && dom.scrollLeft <= 0) {
         this.hasMoreLeft = false
-        this.hasMoreRight = true
+      } else {
+        this.hasMoreLeft = true
       }
     }
   }
