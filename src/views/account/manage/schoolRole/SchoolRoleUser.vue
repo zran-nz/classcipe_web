@@ -355,6 +355,7 @@ export default {
         this.$message.error('This user has been added')
       }
       this.selectMember = ''
+      this.loading = true
       addAdmin({
         roleId: this.currentRole.id,
         schoolId: this.currentSchool.id,
@@ -378,6 +379,7 @@ export default {
         return
       }
       // TODO 需要批量添加
+      this.loading = true
       addAdmin({
         roleId: this.currentRole.id,
         schoolId: this.currentSchool.id,

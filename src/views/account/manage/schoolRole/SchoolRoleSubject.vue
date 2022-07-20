@@ -260,6 +260,7 @@ export default {
         this.$message.error('This user has been added')
       }
       this.selectMember = ''
+      this.loading = true
       bindRoleSubjectLeader({
         bindFlag: 1,
         schoolId: this.currentSchool.id,

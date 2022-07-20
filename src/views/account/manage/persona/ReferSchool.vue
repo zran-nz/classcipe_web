@@ -113,7 +113,7 @@
                 </a-select-option>
               </a-select>
             </a-form-model-item>
-            <a-form-model-item label="Your Personalized Message (Optional)">
+            <a-form-model-item label="Message for the pricipal (Optional)">
               <a-textarea :auto-size="{ minRows: 3}" size="large" v-model="userForm.personalizedMessage" placeholder="input your personalized message" />
             </a-form-model-item>
             <a-form-model-item style="text-align: left;">

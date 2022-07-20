@@ -3,7 +3,7 @@
     <fixed-form-header>
       <template v-slot:header>
         <form-header
-          title='Persona Info'
+          title='Personal Info'
           :show-share='false'
           :show-collaborate='false'
           :is-preview-mode='true'
@@ -152,7 +152,7 @@
                 <a-tag color="#ffc001" v-for="item in linkedSchool" :key="'linkedSchool_'+item"> {{ item }} </a-tag>
               </a-space>
               <!-- <div v-if="linkedSchool.length===0 && currentRole === 'teacher'"> -->
-              <a-button size="small" style="line-height: 20px;" type="primary" @click="handleRefer">Refer your principal</a-button>
+              <a-button size="small" style="line-height: 20px;" type="primary" @click="handleRefer">Refer principal</a-button>
               <!-- </div> -->
               <div class='no-linked-school-name' v-if="linkedSchool.length===0 && currentRole === 'student'">You have not linked to any school</div>
             </div>
@@ -213,7 +213,7 @@ export default {
         label: 'Female',
         value: '1'
       }, {
-        label: 'Others',
+        label: 'Other',
         value: '-1'
       }],
       country: [],

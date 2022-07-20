@@ -1,55 +1,52 @@
 <template>
-  <a-card :bordered="false">
-    <j-modal
-      :title="title"
-      :width="width"
-      :visible="visible"
-      :confirmLoading="confirmLoading"
-      switchFullscreen
-      @ok="handleOk"
-      @cancel="handleCancel"
-      cancelText="Cancel"
-      :okText="mode === 'add' ? 'Add' : 'Save'"
-    >
-      <a-spin :spinning="confirmLoading">
-        <a-form-model ref="form" :model="model" :rules="validatorRules">
-          <a-form-model-item label="Title">
-            <a-input
-              v-model="model.name"
-              placeholder="Title"
-            />
-          </a-form-model-item>
 
-          <a-form-model-item label="Start on">
-            <a-date-picker
-              v-model="model.startTime"
-              :disabled-date="val => disabledStartDate(val, model)"
-              :allowClear="false"
-              format="YYYY-MM-DD HH:mm:ss"
-              valueFormat="YYYY-MM-DD HH:mm:ss"
-              :show-time="{ format: 'HH:mm:ss' }"
-              placeholder="Pick a date"
-              @change="val => changeStartTime(val, model)"
-              style="width: 100%;"
-            />
-          </a-form-model-item>
-          <a-form-model-item label="End on">
-            <a-date-picker
-              v-model="model.endTime"
-              :disabled-date="val => disabledEndDate(val, model)"
-              :allowClear="false"
-              format="YYYY-MM-DD HH:mm:ss"
-              valueFormat="YYYY-MM-DD HH:mm:ss"
-              :show-time="{ format: 'HH:mm:ss' }"
-              placeholder="Pick a date"
-              style="width: 100%;"
-            />
-          </a-form-model-item>
+  <j-modal
+    :title="title"
+    :width="width"
+    :visible="visible"
+    :confirmLoading="confirmLoading"
+    switchFullscreen
+    @ok="handleOk"
+    @cancel="handleCancel"
+    cancelText="Cancel"
+    :okText="mode === 'add' ? 'Add' : 'Save'"
+  >
+    <a-spin :spinning="confirmLoading">
+      <a-form-model ref="form" :model="model" :rules="validatorRules">
+        <a-form-model-item label="Title">
+          <a-input
+            v-model="model.name"
+            placeholder="Title"
+          />
+        </a-form-model-item>
 
-        </a-form-model>
-      </a-spin>
-    </j-modal>
-  </a-card>
+        <a-form-model-item label="Start on">
+          <a-date-picker
+            v-model="model.startTime"
+            :disabled-date="val => disabledStartDate(val, model)"
+            :allowClear="false"
+            format="YYYY-MM-DD"
+            valueFormat="YYYY-MM-DD"
+            placeholder="Pick a date"
+            @change="val => changeStartTime(val, model)"
+            style="width: 100%;"
+          />
+        </a-form-model-item>
+        <a-form-model-item label="End on">
+          <a-date-picker
+            v-model="model.endTime"
+            :disabled-date="val => disabledEndDate(val, model)"
+            :allowClear="false"
+            format="YYYY-MM-DD"
+            valueFormat="YYYY-MM-DD"
+            placeholder="Pick a date"
+            style="width: 100%;"
+          />
+        </a-form-model-item>
+
+      </a-form-model>
+    </a-spin>
+  </j-modal>
 </template>
 
 <script>
@@ -111,18 +108,18 @@ export default {
       if (!startValue || !endValue) {
         return false
       }
-      return moment(startValue).valueOf() > moment(endValue).valueOf()
+      return moment(startValue).startOf('day').valueOf() > moment(endValue).endOf('day').valueOf()
     },
     disabledEndDate(endValue, item) {
       const startValue = item.startTime
       if (!endValue || !startValue) {
         return false
       }
-      return moment(startValue).valueOf() >= moment(endValue).valueOf()
+      return moment(startValue).startOf('day').valueOf() >= moment(endValue).endOf('day').valueOf()
     },
     changeStartTime(date, item) {
       if (date && !item.endTime) {
-        item.endTime = moment(date).add(1, 'months').format('YYYY-MM-DD HH:mm:ss')
+        item.endTime = moment(date).add(1, 'years').subtract(1, 'days').format('YYYY-MM-DD')
       }
     },
     add () {
@@ -152,8 +149,8 @@ export default {
           let promise = addYear
           if (this.model.id) promise = editYear
           const params = { ...this.model }
-          params.startTime = moment(params.startTime).utc().format('YYYY-MM-DD HH:mm:ss')
-          params.endTime = moment(params.endTime).utc().format('YYYY-MM-DD HH:mm:ss')
+          params.startTime = moment(params.startTime).startOf('day').utc().format('YYYY-MM-DD HH:mm:ss')
+          params.endTime = moment(params.endTime).endOf('day').utc().format('YYYY-MM-DD HH:mm:ss')
           promise(params).then((res) => {
             if (res.success) {
               that.$message.success(res.message)

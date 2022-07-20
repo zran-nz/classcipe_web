@@ -49,13 +49,13 @@
       <a-form-model-item label="Email" prop="inviteEmail">
         <a-input v-model="formModel.inviteEmail" :disabled="teacherId && !!formModel.inviteEmail" placeholder="Email" />
       </a-form-model-item>
-      <a-form-model-item label="Birth">
+      <a-form-model-item label="DOB">
         <a-date-picker v-model="formModel.birthDay" />
       </a-form-model-item>
-      <a-form-model-item class="mb0" label="Class" :required="true">
+      <a-form-model-item class="mb0" label="Class">
         <a-row :gutter=16>
           <a-col :span="18">
-            <a-form-model-item prop="classArr">
+            <a-form-model-item>
               <a-select
                 mode="multiple"
                 optionFilterProp="children"

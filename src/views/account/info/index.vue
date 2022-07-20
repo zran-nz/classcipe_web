@@ -147,7 +147,9 @@ import PayoutsPng from '@/assets/icons/account/payouts.png?inline'
 import CertifiedPng from '@/assets/icons/account/certified.png?inline'
 import PersonaPng from '@/assets/icons/account/persona.png?inline'
 
-import { mapState } from 'vuex'
+import { HIDDEN_SIDEBAR } from '@/store/mutation-types'
+
+import { mapState, mapMutations } from 'vuex'
 import { SendVerifyLink } from '@/api/login'
 
 export default {
@@ -374,8 +376,10 @@ export default {
   },
   created() {
     this.loadData()
+    this[HIDDEN_SIDEBAR](true)
   },
   methods: {
+    ...mapMutations([HIDDEN_SIDEBAR]),
     handleSchoolChange(currentSchool) {
       this.pageNo = 1
       this.loadData()

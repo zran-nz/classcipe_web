@@ -47,18 +47,20 @@
             <a-button type="link" :loading="delLoading" @click="handleDelete(item)">Delete</a-button>
           </div>
           <div class="view-item-detail">
-            <div class="item-detail-content" v-for="(term, termIndex) in item.terms" :key="'term_' + termIndex">
-              <div class="detail-content-title">
-                <label>{{ term.name }}</label>
-                <a-space size="middle">
-                  <a-button style="color: #15c39a" type="link" @click="handleEditTerm(item, term)">Edit</a-button>
-                  <a-button style="color: #15c39a" type="link" @click="handleEditBlock(term)">Block setting</a-button>
+            <div class="item-detail-content-wrap" v-for="(term, termIndex) in item.terms" :key="'term_' + termIndex">
+              <div class="item-detail-content">
+                <div class="detail-content-title">
+                  <label>{{ term.name }}</label>
+                  <a-space size="middle">
+                    <a-button style="color: #15c39a" type="link" @click="handleEditTerm(item, term)">Edit</a-button>
+                    <a-button style="color: #15c39a" type="link" @click="handleEditBlock(term)">Block setting</a-button>
                   <!-- <a-button style="color: #15c39a" type="link" :loading="delLoading" @click="handleDeleteTerm(term)">Delete</a-button> -->
-                </a-space>
-              </div>
-              <div class="detail-content-time">{{ formatDate(term) }} {{ isCurrent(term) ? '(Current)' : '' }}</div>
-              <div class="detail-content-close">
-                <a-icon type="close-circle" @click="handleDeleteTerm"></a-icon>
+                  </a-space>
+                </div>
+                <div class="detail-content-time">{{ formatDate(term) }} {{ isCurrent(term) ? '(Current)' : '' }}</div>
+                <div class="detail-content-close">
+                  <a-icon type="close-circle" @click="handleDeleteTerm"></a-icon>
+                </div>
               </div>
             </div>
           </div>
@@ -268,7 +270,7 @@ export default {
       this.debounceInit()
     },
     formatDate(item) {
-      return `${moment(item.startTime).format('MMMM YYYY')} - ${moment(item.endTime).format('MMMM YYYY')}`
+      return `${moment.utc(item.startTime).local().format('MMMM YYYY')} - ${moment.utc(item.endTime).local().format('MMMM YYYY')}`
     },
     isCurrent(item) {
       return moment().isBefore(moment(item.endTime)) && moment().isAfter(moment(item.startTime))
@@ -292,6 +294,7 @@ export default {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  overflow-y: auto;
 }
 .operator {
   margin-bottom: 16px;
@@ -338,58 +341,70 @@ export default {
     }
     .view-item-detail {
       display: flex;
-      justify-content: space-between;
+      flex-wrap: wrap;
+      margin-left: -10px;
+      margin-right: -10px;
+      &::after {
+        content: '';
+        flex-grow: 999;
+      }
       // height: 81px;
-      .item-detail-content {
-        height: 100%;
-        flex: 1;
-        background: #FFFFFF;
-        border: 1px solid #D9DEE6;
-        opacity: 1;
-        border-radius: 10px;
-        padding: 15px 20px;
-        position: relative;
-        & ~ .item-detail-content {
-          margin-left: 20px;
-        }
-        .detail-content-title {
-          display:flex;
-          justify-content: space-between;
-          align-items: center;
-          label {
-            font-size: 16px;
-            font-family: Arial;
-            font-weight: bold;
-            color: #16171A;
+      .item-detail-content-wrap {
+        width: 25%;
+        flex-grow: 1;
+        flex-direction: column;
+        padding: 10px;
+        .item-detail-content {
+          width: 100%;
+          height: 100%;
+          background: #FFFFFF;
+          border: 1px solid #D9DEE6;
+          border-radius: 10px;
+          opacity: 1;
+          padding: 15px 20px;
+          position: relative;
+          & ~ .item-detail-content {
+            margin-left: 20px;
           }
+          .detail-content-title {
+            display:flex;
+            justify-content: space-between;
+            align-items: center;
+            label {
+              font-size: 16px;
+              font-family: Arial;
+              font-weight: bold;
+              color: #16171A;
+            }
 
-          /deep/ .ant-btn {
-            padding: 0
+            /deep/ .ant-btn {
+              padding: 0
+            }
           }
-        }
-        .detail-content-time {
-          font-size: 14px;
-          font-family: Arial;
-          font-weight: 400;
-          color: #3E4550;
-          margin-top: 20px;
-        }
-        .detail-content-current {
-          position: absolute;
-          top: 10px;
-          right: 10px;
-          color: @primary-color;
-        }
-        .detail-content-close {
-          position: absolute;
-          top: -5px;
-          right: -5px;
-          i {
-            font-size: 16px;
+          .detail-content-time {
+            font-size: 14px;
+            font-family: Arial;
+            font-weight: 400;
+            color: #3E4550;
+            margin-top: 20px;
+          }
+          .detail-content-current {
+            position: absolute;
+            top: 10px;
+            right: 10px;
             color: @primary-color;
-            background: #fff;
-            border-radius: 16px;
-            cursor: pointer;
+          }
+          .detail-content-close {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            i {
+              font-size: 16px;
+              color: @primary-color;
+              background: #fff;
+              border-radius: 16px;
+              cursor: pointer;
+            }
           }
         }
       }

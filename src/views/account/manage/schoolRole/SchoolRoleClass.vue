@@ -275,6 +275,7 @@ export default {
         this.$message.error('This user has been added')
       }
       this.selectMember = ''
+      this.loading = true
       bindRoleClassTeachers({
         bindFlag: 1,
         classId: cls.classId,
@@ -299,6 +300,7 @@ export default {
         return
       }
       // TODO 需要批量添加
+      this.loading = true
       bindRoleClassTeachers({
         bindFlag: 1,
         classId: 1,

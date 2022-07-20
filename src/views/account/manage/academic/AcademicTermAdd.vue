@@ -1,61 +1,61 @@
 <template>
-  <a-card :bordered="false">
-    <j-modal
-      :title="title"
-      :width="width"
-      :visible="visible"
-      :confirmLoading="confirmLoading"
-      switchFullscreen
-      @ok="handleOk"
-      @cancel="handleCancel"
-      cancelText="Cancel"
-      :okText="mode === 'add' ? 'Add' : 'Save'"
-    >
-      <a-spin :spinning="confirmLoading">
-        <a-form-model ref="form" :model="model" :rules="validatorRules">
-          <a-form-model-item label="Title">
-            <a-input
-              v-model="model.name"
-              placeholder="Title"
-            />
-          </a-form-model-item>
+  <j-modal
+    :title="title"
+    :width="width"
+    :visible="visible"
+    :confirmLoading="confirmLoading"
+    switchFullscreen
+    @ok="handleOk"
+    @cancel="handleCancel"
+    cancelText="Cancel"
+    :okText="mode === 'add' ? 'Add' : 'Save'"
+  >
+    <a-spin :spinning="confirmLoading">
+      <a-form-model ref="form" :model="model" :rules="validatorRules">
+        <a-form-model-item label="Title">
+          <a-input
+            v-model="model.name"
+            placeholder="Title"
+          />
+        </a-form-model-item>
 
-          <a-form-model-item label="Start on">
-            <a-date-picker
-              v-model="model.startTime"
-              :disabled-date="val => disabledStartDate(val, model)"
-              :allowClear="false"
-              format="YYYY-MM-DD HH:mm:ss"
-              valueFormat="YYYY-MM-DD HH:mm:ss"
-              :show-time="{
-                format: 'HH:mm:ss',
-                defaultValue: moment('00:00:00', 'HH:mm:ss')
-              }"
-              placeholder="Pick a date"
-              @ok="val => changeStartTime(val, model)"
-              style="width: 100%;"
-            />
-          </a-form-model-item>
-          <a-form-model-item label="End on">
-            <a-date-picker
-              v-model="model.endTime"
-              :disabled-date="val => disabledEndDate(val, model)"
-              :allowClear="false"
-              format="YYYY-MM-DD HH:mm:ss"
-              valueFormat="YYYY-MM-DD HH:mm:ss"
-              :show-time="{
-                format: 'HH:mm:ss',
-                defaultValue: moment('23:59:59', 'HH:mm:ss')
-              }"
-              placeholder="Pick a date"
-              style="width: 100%;"
-            />
-          </a-form-model-item>
+        <a-form-model-item label="Start on">
+          <a-date-picker
+            v-model="model.startTime"
+            :disabled-date="val => disabledStartDate(val, model)"
+            :allowClear="false"
+            format="YYYY-MM-DD HH:mm:ss"
+            valueFormat="YYYY-MM-DD HH:mm:ss"
+            :defaultPickerValue="model.minDate"
+            :show-time="{
+              format: 'HH:mm:ss',
+              defaultValue: moment('00:00:00', 'HH:mm:ss')
+            }"
+            placeholder="Pick a date"
+            @ok="val => changeStartTime(val, model)"
+            style="width: 100%;"
+          />
+        </a-form-model-item>
+        <a-form-model-item label="End on">
+          <a-date-picker
+            v-model="model.endTime"
+            :disabled-date="val => disabledEndDate(val, model)"
+            :allowClear="false"
+            format="YYYY-MM-DD HH:mm:ss"
+            valueFormat="YYYY-MM-DD HH:mm:ss"
+            :defaultPickerValue="model.minDate"
+            :show-time="{
+              format: 'HH:mm:ss',
+              defaultValue: moment('23:59:59', 'HH:mm:ss')
+            }"
+            placeholder="Pick a date"
+            style="width: 100%;"
+          />
+        </a-form-model-item>
 
-        </a-form-model>
-      </a-spin>
-    </j-modal>
-  </a-card>
+      </a-form-model>
+    </a-spin>
+  </j-modal>
 </template>
 
 <script>

@@ -243,7 +243,7 @@ export default {
     downloadTemplate () {
       const link = document.createElement('a')
       link.style.display = 'none'
-      const url = this.baseUrl + '/classcipe/excel/student.xlsx'
+      const url = this.baseUrl + '/classcipe/excel/Student_bulk_import.xlsx'
       link.href = url
       document.body.appendChild(link)
       link.click()

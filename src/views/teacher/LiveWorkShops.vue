@@ -260,8 +260,11 @@ export default {
       this.loadMyContent()
     },
     handleImport(type) {
-      this.importType = type
-      this.importVisible = true
+      // this.importType = type
+      // this.importVisible = true
+      this.$router.push({
+        path: '/teacher/content-select/' + type
+      })
     },
     handleCloseImport() {
       this.importVisible = false

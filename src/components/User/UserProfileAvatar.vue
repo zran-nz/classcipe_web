@@ -39,17 +39,17 @@
         <a-divider class='cc-small-divider' />
         <div class='class-info'>
           <div class='class-list'>
-            <div class='class-item' @click='handleChangePersonal'>
+            <div :class="{'class-item': true, 'active': userMode === USER_MODE.SELF}" @click='handleChangePersonal'>
               <div class='class-avatar'>
                 <a-avatar :src='$store.getters.userInfo.avatar' />
               </div>
               <div class='class-base-info'>
                 <div class='class-name'>Personal</div>
                 <div class='class-updated-by'>{{ $store.getters.userInfo.email }}</div>
-                <div class='active-dot' v-if='userMode === USER_MODE.SELF'></div>
+                <!-- <div class='active-dot' v-if='userMode === USER_MODE.SELF'></div> -->
               </div>
             </div>
-            <div class='class-item' v-for='schoolItem in info.schoolList' :key='schoolItem.id' @click='handleChangeSchool(schoolItem)'>
+            <div :class="{'class-item': true, 'active': userMode === USER_MODE.SCHOOL && currentSchool.schoolName === schoolItem.schoolName}" v-for='schoolItem in info.schoolList' :key='schoolItem.id' @click='handleChangeSchool(schoolItem)'>
               <div class='class-avatar'>
                 <a-avatar style="color: #f56a00; backgroundColor: #fde3cf">
                   {{ schoolItem.schoolName ? schoolItem.schoolName[0].toUpperCase() : 'C' }}
@@ -60,7 +60,7 @@
                 <div class='class-updated-by'>
                   <div class='role-name' v-for='roleName in schoolItem.roleNames' :key='roleName'>{{ roleName }}</div>
                 </div>
-                <div class='active-dot' v-if='userMode === USER_MODE.SCHOOL && currentSchool.schoolName === schoolItem.schoolName'></div>
+                <!-- <div class='active-dot' v-if='userMode === USER_MODE.SCHOOL && currentSchool.schoolName === schoolItem.schoolName'></div> -->
               </div>
             </div>
           </div>
@@ -69,7 +69,7 @@
         <!-- <div class='profile profile-menu-item' @click='handleToSettings'>
           Profile
         </div> -->
-        <div class='account profile-menu-item' @click='handleToAccounts'>
+        <div class='account profile-menu-item' @click='handleToAccounts' v-if="isAuth">
           <template v-if='userMode === USER_MODE.SCHOOL'>
             School account
           </template>
@@ -126,6 +126,11 @@ export default {
     },
     storageProgress () {
       return Math.round(this.consumedSize / this.totalSize * 100)
+    },
+    isAuth() {
+      if (this.userMode === USER_MODE.SELF) return true
+      if (this.hasRolePermission('admin') || this.hasRolePermission('homeroom teacher') || this.hasRolePermission('subject coordinator')) return true
+      return false
     }
   },
   created() {
@@ -209,6 +214,14 @@ export default {
         this.GetClassList(this.userMode)
         this.$store.dispatch('GetInfo')
       })
+    },
+    hasRolePermission(roleCode) {
+      let hasPerm = false
+      if (this.userMode === USER_MODE.SCHOOL && this.currentSchool.roleNames) {
+        const roleNames = this.currentSchool.roleNames.map(item => item.toLowerCase())
+        hasPerm = roleNames.includes(roleCode)
+      }
+      return hasPerm
     }
   }
 }
@@ -329,12 +342,20 @@ export default {
     .class-info {
       max-height: 200px;
       overflow-y: auto;
+      margin: 0 -15px;
       .class-item {
-        padding: 8px 0;
+        padding: 8px 15px;
         display: flex;
         flex-direction: row;
         align-items: center;
         justify-content: flex-start;
+        cursor: pointer;
+        &.active {
+          background: #efefef;
+        }
+        &:hover {
+          background: #efefef;
+        }
         .class-base-info {
           position: relative;
           width: 100%;
