@@ -78,7 +78,7 @@ export default {
       this.$emit('close')
     },
 
-    async handlePublish () {
+    handlePublish () {
       this.$logger.info('handlePublish')
       this.$emit('publish')
     },
@@ -122,6 +122,7 @@ export default {
       })
       this.content.price = this.price
       this.editPrice = false
+      this.handlePublish()
     }
   }
 }

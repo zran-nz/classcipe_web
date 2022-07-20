@@ -46,6 +46,11 @@
             <div class='linked-item' v-for='content in groupItem.contents' :key='content.id' :data-item='JSON.stringify(content)' :data-inner='true'>
               <link-content-item :content='content' :show-delete='true' @delete='handleDeleteLinkItem' />
             </div>
+            <template v-if='allEmpty'>
+              <div class='no-linked-data'>
+                <common-no-data text='No linked content, please Add content.' />
+              </div>
+            </template>
           </draggable>
         </div>
         <template v-if='groups.length === 0'>
@@ -123,6 +128,9 @@ export default {
         result.push(group.groupName)
       })
       return result
+    },
+    allEmpty () {
+      return this.groups.every(group => group.contents.length === 0) && this.groups.length <= 1
     }
   },
   methods: {
@@ -195,60 +203,68 @@ export default {
       this.associateTaskIdList = []
       this.associateId2Name.clear()
       this.linkGroupLoading = true
-      await GetAssociate({
+      const response = await GetAssociate({
         id: this.fromId,
         type: this.$classcipe.typeMap['unit-plan'],
         published: 0
-      }).then(response => {
-        this.$logger.info('UnitLinkedContent getAssociate', response)
-        response.result.owner.forEach(ownerItem => {
-          const groupItem = response.result.groups.find(group => group.groupName === ownerItem.group)
-          if (groupItem) {
-            ownerItem.groupId = groupItem.id
-            groupItem.contents = JSON.parse(JSON.stringify(ownerItem.contents))
-          }
-        })
-        this.ownerLinkGroupList = response.result.owner
-        response.result.groups.sort((g1, g2) => {
-          if (g1.name) {
-            return 1
-          } else {
-            return -1
-          }
-        })
-        const groups = response.result.groups
-        this.$logger.info('GetAssociate owner', this.ownerLinkGroupList)
-
-        this.ownerLinkGroupList.forEach(group => {
-          const targetGroup = groups.find(item => item.groupName === group.group || (group.group === 'Relevant Unit Plan(s)' && item.groupName === ''))
-          group.contents.forEach(content => {
-            if (content.type === this.$classcipe.typeMap['unit-plan']) {
-              this.associateUnitIdList.push(content.id)
-              this.associateId2Name.set(content.id, content.name)
-              this.associateUnitList.push(content)
-            }
-
-            if (content.type === this.$classcipe.typeMap.task) {
-              this.associateTaskIdList.push(content.id)
-              this.associateId2Name.set(content.id, content.name)
-              this.associateTaskList.push(content)
-            }
-            if (targetGroup && !targetGroup.contents.some(item => item.id === content.id)) {
-              targetGroup.contents.push(JSON.parse(JSON.stringify(content)))
-            }
-          })
-        })
-        this.groups = groups
-        this.$logger.info('groups', groups)
-        this.associateUnitIdList = Array.from(new Set(this.associateUnitIdList))
-        this.associateTaskIdList = Array.from(new Set(this.associateTaskIdList))
-        this.$logger.info('GetAssociate associateUnitIdList', this.associateUnitIdList)
-        this.$logger.info('GetAssociate associateTaskIdList', this.associateTaskIdList)
-        this.$emit('update-unit-id-list', this.associateUnitIdList)
-        this.$emit('update-task-id-list', this.associateTaskIdList)
-      }).finally(() => {
-        this.linkGroupLoading = false
       })
+
+      this.$logger.info('UnitLinkedContent getAssociate', response)
+      const isExistEmptyGroup = response.result.groups.some(group => group.groupName === '')
+      response.result.owner.forEach(ownerItem => {
+        const groupItem = response.result.groups.find(group => group.groupName === ownerItem.group)
+        if (groupItem) {
+          ownerItem.groupId = groupItem.id
+          groupItem.contents = JSON.parse(JSON.stringify(ownerItem.contents))
+        }
+      })
+      this.ownerLinkGroupList = response.result.owner
+      response.result.groups.sort((g1, g2) => {
+        if (g1.name) {
+          return -1
+        } else {
+          return 1
+        }
+      })
+      const groups = response.result.groups
+      this.$logger.info('GetAssociate owner', this.ownerLinkGroupList)
+
+      this.ownerLinkGroupList.forEach(group => {
+        const targetGroup = groups.find(item => item.groupName === group.group || (group.group === 'Relevant Unit Plan(s)' && item.groupName === ''))
+        group.contents.forEach(content => {
+          if (content.type === this.$classcipe.typeMap['unit-plan']) {
+            this.associateUnitIdList.push(content.id)
+            this.associateId2Name.set(content.id, content.name)
+            this.associateUnitList.push(content)
+          }
+
+          if (content.type === this.$classcipe.typeMap.task) {
+            this.associateTaskIdList.push(content.id)
+            this.associateId2Name.set(content.id, content.name)
+            this.associateTaskList.push(content)
+          }
+          if (targetGroup && !targetGroup.contents.some(item => item.id === content.id)) {
+            targetGroup.contents.push(JSON.parse(JSON.stringify(content)))
+          }
+        })
+      })
+      this.groups = groups
+      this.$logger.info('groups', groups)
+      this.associateUnitIdList = Array.from(new Set(this.associateUnitIdList))
+      this.associateTaskIdList = Array.from(new Set(this.associateTaskIdList))
+      this.$logger.info('GetAssociate associateUnitIdList', this.associateUnitIdList)
+      this.$logger.info('GetAssociate associateTaskIdList', this.associateTaskIdList)
+      this.$emit('update-unit-id-list', this.associateUnitIdList)
+      this.$emit('update-task-id-list', this.associateTaskIdList)
+      this.linkGroupLoading = false
+      if (!isExistEmptyGroup) {
+        await AddOrSaveGroupName({
+          fromId: this.fromId,
+          fromType: this.$classcipe.typeMap['unit-plan'],
+          groupName: ''
+        })
+        await this.getAssociate()
+      }
     },
 
     async handleDragContent (event, groupItem) {
@@ -309,13 +325,15 @@ export default {
 
     async handleAddTerm(newGroupNameList) {
       this.$logger.info('handleAddTerm', this.groupNameList)
+      const jobList = []
       for (let i = 0; i < newGroupNameList.length; i++) {
-        await AddOrSaveGroupName({
+        jobList.push(AddOrSaveGroupName({
           fromId: this.fromId,
           fromType: this.$classcipe.typeMap['unit-plan'],
           groupName: newGroupNameList[i]
-        })
+        }))
       }
+      await Promise.all(jobList)
       await this.getAssociate()
     },
 
