@@ -17,19 +17,11 @@
             <a-col span='23' @click='handleCheckedChange(tag)'>
               <div class='tag-body-item tag-name'>
                 <div class='tag-name-item'>
-                  <div class='expand-icon'>
-                    <a-icon type="plus-square" :style="{'color': '#999'}" v-show='tag.tags.length'/>
-                  </div>
                   <div class='tag-name-text'>
                     {{ tag.set }}
                   </div>
                 </div>
                 <div class='tag-detail'>
-                  <template v-if='tag.tags'>
-                    <a-tag class='tag-keyword' color="#15C39A" v-for='(tagItem, kIdx) in tag.tags' :key='kIdx'>
-                      {{ tagItem.tag }}
-                    </a-tag>
-                  </template>
                 </div>
               </div>
             </a-col>
