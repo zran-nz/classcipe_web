@@ -703,7 +703,7 @@ export default {
       default: null
     }
   },
-  mixins: [ UtilMixin, BaseEventMixin, FormConfigMixin, PublishMixin, AutoSaveMixin ],
+  mixins: [ UtilMixin, BaseEventMixin, FormConfigMixin, PublishMixin ],
   data() {
     return {
       showCollaborateVisible: false,
@@ -860,67 +860,18 @@ export default {
     }
   },
   computed: {
-    lastChangeSavedTime() {
-      return formatLocalUTC(new Date())
-    },
-    selectedSdg() {
-      const sdgList = []
-      this.$logger.info('selectedSdg is ', this.form.scenarios)
-      if (this.form.scenarios && this.form.scenarios.length > 0) {
-        this.form.scenarios.forEach(item => sdgList.push(item.sdgId))
-      }
-      return sdgList
-    },
-    showRecommendQuestion() {
-      if (this.hideRecommendQuestion) {
-        return false
-      }
-      if (!this.form.inquiry) {
-        return false
-      }
-      if (this.recommendQuestionList.length === 0) {
-        return false
-      }
-      return true
-    },
-    selectQuestion() {
-      return this.form.questions.map(item => {
-        return item.name
-      })
-    },
-    getTaskTags() {
-      return this.form.questions.map(item => {
-        return item.name
-      })
-    },
-    hasExtraRecommend() {
-      this.$logger.info('-------------', this.form.learnOuts, this.recommendDataIdList)
-      let ret = false
-      this.form.learnOuts.forEach(item => {
-        if (this.recommendDataIdList.indexOf(item.knowledgeId) === -1) {
-          ret = true
-          this.$logger.info('------------learnOuts', item, ' not exist in ', this.recommendDataIdList)
-        }
-      })
-
-      return ret
+    isOwner() {
+      return this.$store.getters.userInfo.email === this.form.createBy
     }
   },
   watch: {
-    referDetailVisible(value) {
-      this.$logger.info('watch referDetailVisible ' + value)
-      this.$logger.info('screen width: ', document.body.clientWidth)
-      if (value && document.body.clientWidth < 1700) {
-        this.showSidebar = false
-      } else {
-        this.showSidebar = true
-      }
-    },
     currentStep: {
       handler(val) {
+        this.$logger.info('currentStep change', val)
         this.handleDisplayRightModule()
       },
-      deep: true
+      deep: true,
+      immediate: false
     }
   },
   created() {
@@ -1108,31 +1059,7 @@ export default {
     },
 
     async save() {
-      this.$logger.info('save', this.form)
-      this.saving = true
-      this.cleaPageCache()
-      const unitPlanData = JSON.parse(JSON.stringify(this.form))
-      if (this.unitPlanId) {
-        unitPlanData.id = this.unitPlanId
-      }
-      if (unitPlanData.customFieldData) {
-        unitPlanData.customFieldData = JSON.stringify(unitPlanData.customFieldData)
-      }
-      this.$logger.info('UnitPlanAddOrUpdate unitPlanData', unitPlanData)
-      try {
-        const response = await UnitPlanAddOrUpdate(unitPlanData)
-        this.$logger.info('UnitPlanAddOrUpdate res', response.result)
-        if (!response.success) {
-          this.oldForm = Object.assign({}, this.form)
-          this.$message.error(response.message)
-        }
-        // 内容更新发送协同通知
-        if (!deepEqual(this.form, this.oldForm)) {
-          this.handleSaveContentEvent(this.unitPlanId, this.contentType['unit-plan'], this.oldForm)
-        }
-      } finally {
-        this.saving = false
-      }
+
     },
     handlePublishUnitPlan() {
       this.$logger.info('handlePublishUnitPlan', {
