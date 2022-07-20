@@ -48,7 +48,7 @@
           <div class="profile-title">
             {{ userMode === USER_MODE.SELF ? 'Personal account' : `School account: ${currentSchool.schoolName}` }}
           </div>
-          <a-form-model-item label="Role">
+          <a-form-model-item label="Role" v-if="userMode === USER_MODE.SCHOOL">
             <a-space class="profile-text profile-data">
               <a-tag v-for="roleName in rolesName" :key="'roleName_'+roleName"> {{ roleName }} </a-tag>
             </a-space>

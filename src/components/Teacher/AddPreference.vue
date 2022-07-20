@@ -38,12 +38,14 @@
           <a-form-model-item key="School" label="School" prop="school">
             <a-select
               v-model="teacherForm.school"
+              ref="schoolRef"
               :getPopupContainer="trigger => trigger.parentElement"
               placeholder="Please select school"
               show-search
               :default-active-first-option="false"
               :show-arrow="false"
               :filter-option="false"
+              :allow-clear="true"
               :not-found-content="null"
               option-label-prop="label"
               @search="handleSearchSchool"
@@ -302,6 +304,7 @@ export default {
       }
       this.myCreateSchoolOptions.push(res)
       this.teacherForm.school = res.id
+      this.$refs.schoolRef.$el.click()
     },
     save() {
       this.$refs.teacherForm.validate(valid => {

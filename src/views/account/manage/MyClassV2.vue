@@ -276,7 +276,18 @@ export default {
               subjects = subjects.concat(item.subjectList)
             }
           })
-          this.subjectOptions = subjects
+          const options = []
+          subjects.forEach(item => {
+            options.push({
+              subjectId: item.subjectId,
+              subjectName: item.subjectName
+            })
+            options.push({
+              subjectId: item.parentSubjectId,
+              subjectName: item.parentSubjectName
+            })
+          })
+          this.subjectOptions = options
         }
         if (gradeRes.success) {
           let grades = []

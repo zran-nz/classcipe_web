@@ -110,6 +110,7 @@ import { termList } from '@/api/academicTermInfo'
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import TermCalendar from '@/components/Calendar/TermCalendar'
 import cloneDeep from 'lodash.clonedeep'
+import { uniqBy } from 'lodash-es'
 export default {
   name: 'ClassSubjectSel',
   components: {
@@ -211,7 +212,12 @@ export default {
               subjects = subjects.concat(item.subjectList)
             }
           })
-          this.subjectOptions = subjects
+          this.subjectOptions = uniqBy(subjects.map(item => {
+            return {
+              subjectId: item.parentSubjectId,
+              subjectName: item.parentSubjectName
+            }
+          }), 'subjectId')
           this.initSels()
         }
         if (termRes.success) {

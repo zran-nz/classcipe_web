@@ -77,12 +77,33 @@
               </a-col>
             </a-row>
           </a-form-model-item>
-          <a-form-model-item class="form-btn" :wrapperCol="{offset: 6}">
-            <a-button :loading="loading" @click="handleSave" type="primary">Save</a-button>
+          <a-form-model-item label="Contact No.">
+            <a-input v-model="formModel.phoneNum">
+              <label
+                slot="addonBefore"
+                style="width: 100px;display:inline-block;"
+              >
+                {{ formModel.phoneCountryCode }}
+              </label>
+            </a-input>
           </a-form-model-item>
+          <!-- <a-form-model-item class="form-btn" :wrapperCol="{offset: 6}">
+            <a-button :loading="loading" @click="handleSave" type="primary">Save</a-button>
+          </a-form-model-item> -->
         </a-form-model>
       </a-spin>
     </div>
+    <fixed-form-footer>
+      <template v-slot:right>
+        <a-button
+          :loading="loading"
+          type='primary'
+          @click='handleSave'
+          class='cc-round-button'>
+          Save
+        </a-button>
+      </template>
+    </fixed-form-footer>
   </div>
 </template>
 
@@ -93,6 +114,8 @@ import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 
 import FixedFormHeader from '@/components/Common/FixedFormHeader'
 import FormHeader from '@/components/FormHeader/FormHeader'
+import FixedFormFooter from '@/components/Common/FixedFormFooter'
+import CustomTextButton from '@/components/Common/CustomTextButton'
 import SchoolStudentAdd from './schoolUser/SchoolStudentAdd'
 
 import { getCountry, getCity } from '@/api/v2/country'
@@ -109,7 +132,9 @@ export default {
   components: {
     FixedFormHeader,
     FormHeader,
-    SchoolStudentAdd
+    SchoolStudentAdd,
+    FixedFormFooter,
+    CustomTextButton
   },
   data() {
     return {
@@ -122,7 +147,9 @@ export default {
         name: '',
         address: '',
         city: undefined,
-        country: undefined
+        country: undefined,
+        phoneNum: '',
+        phoneCountryCode: ''
       },
       formItemLayout: {
         labelCol: { span: 6 },
@@ -218,7 +245,9 @@ export default {
       )
     },
     changeCountry(val) {
+      const current = this.country.find(item => item.en === val)
       this.formModel.city = undefined
+      this.formModel.phoneCountryCode = current.no || ''
       this.citys = []
     },
     fetchCity(val) {
@@ -277,5 +306,8 @@ export default {
   .ant-btn {
     line-height: 1.5!important;
   }
+}
+/deep/ .cc-fixed-form-footer {
+  background: #fff;
 }
 </style>
