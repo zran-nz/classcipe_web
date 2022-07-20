@@ -14,7 +14,7 @@
           我们推荐使用这种方式进行 LOGO 和 title 自定义
     -->
     <template v-slot:menuHeaderRender>
-      <div class="home-nav" @click="goHome">
+      <div class="home-nav" @click="goHome" @mouseenter='expandMenuThrottle'>
         <img src="~@/assets/logo/50.png" class='single-logo-img' alt='classcipe' />
         <div class='home-title'>
           <div class='classcipe-title'>Classcipe</div>
@@ -61,6 +61,7 @@ import * as logger from '@/utils/logger'
 import TeacherNavV2 from '@/components/GlobalHeader/TeacherNavV2'
 import StudentNav from '@/components/GlobalHeader/StudentNav'
 import { USER_MODE } from '@/const/common'
+import { throttle } from 'lodash-es'
 
 export default {
   name: 'BasicLayout',
@@ -101,7 +102,8 @@ export default {
 
       // 是否手机模式
       isMobile: false,
-      USER_MODE: USER_MODE
+      USER_MODE: USER_MODE,
+      expandMenuThrottle: null
     }
   },
   watch: {
@@ -152,6 +154,9 @@ export default {
         this.showGlobalHeader(true)
       }
     }
+    this.expandMenuThrottle = throttle(this.expandMenu, 200, {
+      leading: true
+    })
   },
   methods: {
     i18nRender,
@@ -160,6 +165,10 @@ export default {
       this.$store.dispatch('ChangeRole', { role }).then(() => {
         window.location.href = '/'
       })
+    },
+    expandMenu() {
+      this.$logger.info('expandMenu')
+      this.$store.commit(HIDDEN_SIDEBAR, false)
     },
     goHome () {
       this.$router.push('/')

@@ -129,18 +129,21 @@ export default {
     },
 
     hiddenArrow(dom) {
-      this.$logger.info('hidden arrow', dom, dom.scrollLeft, dom.offsetWidth, dom.scrollWidth)
-      if (dom && (dom.scrollLeft + dom.offsetWidth >= dom.scrollWidth)) {
-        this.hasMoreRight = false
-      } else {
-        this.hasMoreRight = true
-      }
+      setTimeout(() => {
+        this.$logger.info('hidden arrow', dom, 'scrollLeft', dom.scrollLeft, 'offsetWidth', dom.offsetWidth, 'scrollWidth', dom.scrollWidth)
+        if (dom && (dom.scrollLeft + dom.offsetWidth >= dom.scrollWidth)) {
+          this.hasMoreRight = false
+        } else {
+          this.hasMoreRight = true
+        }
 
-      if (dom && dom.scrollLeft <= 0) {
-        this.hasMoreLeft = false
-      } else {
-        this.hasMoreLeft = true
-      }
+        if (dom && dom.scrollLeft <= 0) {
+          this.hasMoreLeft = false
+        } else {
+          this.hasMoreLeft = true
+        }
+        this.$logger.info(`hasMoreLeft ${this.hasMoreLeft} hasMoreRight ${this.hasMoreRight}`)
+      }, 500)
     }
   }
 }
