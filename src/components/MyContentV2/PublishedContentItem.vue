@@ -77,10 +77,10 @@
           <a-space>
             <div class='price-info vertical-left'>
               <div class='price'>
-                ${{ price }}
+                ${{ content.discountPrice || content.price }}
               </div>
               <div class='edit'>
-                <a-icon type="edit" v-if='!visible' @click.native='visible = true'/>
+                <a-icon type="edit" v-if='!visible' @click.native='showEditPrice'/>
               </div>
             </div>
             <div class='sale-info vertical-left'>
@@ -154,7 +154,6 @@
             <a-col span='14'>
               <a-input
                 v-model='price'
-                type='number'
                 prefix='$'
                 class='cc-form-input cc-small-input' />
             </a-col>
@@ -166,9 +165,16 @@
             <a-col span='14'>
               <a-input
                 v-model='discount'
-                type='number'
                 prefix='$'
                 class='cc-form-input cc-small-input' />
+            </a-col>
+          </a-row>
+          <a-row :gutter='20' type="flex" align='middle'>
+            <a-col span='10' class='label-name'>
+              Duration:
+            </a-col>
+            <a-col span='14'>
+              <a-range-picker :default-value="initDate" :mode="['date']" :disabled-date="disabledDate" @change="handleDurationChange"/>
             </a-col>
           </a-row>
         </div>
@@ -197,8 +203,9 @@ import MoreIcon from '@/assets/v2/icons/more.svg?inline'
 
 import ContentPreview from '@/components/Preview/ContentPreview'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
-import { UpdateContentField } from '@/api/v2/mycontent'
 import ModalHeader from '@/components/Common/ModalHeader'
+import { discountSettingQuery, discountSettingSave } from '@/api/v2/discountSetting'
+import moment from 'moment'
 
 export default {
   name: 'ContentItem',
@@ -235,11 +242,14 @@ export default {
   data() {
     return {
       visible: false,
-      discount: this.content.discountPrice || 0,
+      discount: 0,
       typeMap: typeMap,
       isSelfLearning: false,
-      price: this.content.price || 0,
-      editPrice: false
+      price: 0,
+      editPrice: false,
+      startDate: null,
+      endData: null,
+      initDate: null
     }
   },
   created() {
@@ -288,7 +298,14 @@ export default {
       this.$logger.info('handleSelfLearning', isSelfLearning)
       this.isSelfLearning = isSelfLearning
     },
-
+    disabledDate(current) {
+      return current && current < moment().subtract(1, 'days').endOf('day')
+    },
+    handleDurationChange (date) {
+      this.$logger.info('handleDurationChange', date)
+      this.startDate = moment(date[0].toDate()).utc().format('YYYY-MM-DD 00:00:00')
+      this.endData = moment(date[1].toDate()).utc().format('YYYY-MM-DD 00:00:00')
+    },
     handlePublishStatus() {
       this.$emit('update-publish', {
         content: this.content
@@ -305,26 +322,36 @@ export default {
       })
     },
 
+    async showEditPrice() {
+      const res = await discountSettingQuery({
+        contentId: -1,
+        contentType: -1
+      })
+      const data = res.result
+      if (data) {
+        this.$logger.info('discountSettingQuery', data)
+        this.discount = data.discount
+        this.price = data.price
+        this.startDate = data.discountStartTime
+        this.endData = data.discountEndTime
+        this.initDate = [moment(data.discountStartTime), moment(data.discountEndTime)]
+      }
+      this.visible = true
+    },
+
     async updatePrice () {
       this.$logger.info('update price')
       const type = parseInt(this.content.type)
-      await UpdateContentField({
-        id: this.content.id,
-        type: type,
-        fieldName: 'price',
-        fieldValue: this.price
-      }).then((response) => {
-        this.$logger.info('response : {}', response)
+      await discountSettingSave({
+        contentId: this.content.id,
+        contentType: type,
+        discount: this.discount,
+        discountModel: 2,
+        price: this.price,
+        discountStartTime: this.startDate,
+        discountEndTime: this.endData
       })
-
-      await UpdateContentField({
-        id: this.content.id,
-        type: type,
-        fieldName: 'discount',
-        fieldValue: this.discount
-      }).then((response) => {
-        this.$logger.info('response : {}', response)
-      })
+      this.content.price = this.price
       this.editPrice = false
       this.visible = false
     }
