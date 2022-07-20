@@ -1038,7 +1038,7 @@ export default {
   computed: {
     selectedSdg() {
       const sdgList = []
-      if (this.form.scenarios) {
+      if (this.form.scenarios && this.form.scenarios.length) {
         this.form.scenarios.forEach(item => sdgList.push(item.sdgId))
       }
       return sdgList

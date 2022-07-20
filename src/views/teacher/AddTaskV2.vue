@@ -494,8 +494,7 @@
       <modal-header title='Congratulation!' @close='showSplitTask = false' />
       <split-task-setting
         :is-sub-task="form.parentTaskId"
-        :price='form.price'
-        :discount='form.discount'
+        :content-id='taskId'
         :is-self-learning='form.contentType === 1'
         @confirm='handleUpdateBySubTaskSetting'
         @confirm-and-split='handleGoToSubTask' />
@@ -1569,10 +1568,7 @@ export default {
       this.waitingRedirect = true
       this.saving = true
       this.form.price = data.price
-      this.form.discount = data.discount
       this.form.dontRemind = data.dontRemind
-      this.form.discountStartDate = data.startDate
-      this.form.discountEndData = data.endData
       this.form.contentType = data.isSelfLearning ? 1 : 0
       this.showSplitTask = false
       this.waitingRedirect = true

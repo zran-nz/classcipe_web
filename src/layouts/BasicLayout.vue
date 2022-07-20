@@ -142,6 +142,9 @@ export default {
       logger.info('go to defaultRouter ' + this.$store.getters.defaultRouter)
       this.$router.replace(this.$store.getters.defaultRouter)
     }
+    this.expandMenuThrottle = throttle(this.expandMenu, 200, {
+      leading: true
+    })
   },
   mounted () {
     this.headerDom = []
@@ -154,9 +157,6 @@ export default {
         this.showGlobalHeader(true)
       }
     }
-    this.expandMenuThrottle = throttle(this.expandMenu, 200, {
-      leading: true
-    })
   },
   methods: {
     i18nRender,

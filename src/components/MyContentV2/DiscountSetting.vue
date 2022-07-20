@@ -19,14 +19,14 @@
 
       <div class='setting-item' v-if='discountSetting.mode === mode.SalesOff'>
         <div class='setting-content'>
-          Single purchases over <a-input v-model="discountSetting.threshold" type='number' class='dollar-price-input' prefix="$"/>
-          sale off <a-input v-model="discountSetting.thresholdDiscountMoney" type='number' class='dollar-price-input' prefix="$"/>
+          Single purchases over <a-input v-model="discountSetting.threshold" class='dollar-price-input' prefix="$"/>
+          sale off <a-input v-model="discountSetting.thresholdDiscountMoney" class='dollar-price-input' prefix="$"/>
         </div>
       </div>
 
       <div class='setting-item' v-if='discountSetting.mode === mode.Discount'>
         <div class='setting-content'>
-          <a-input v-model="discountSetting.salesOffPercent" type='number' class='dollar-price-input' suffix="%"/>
+          <a-input v-model="discountSetting.salesOffPercent" class='dollar-price-input' suffix="%"/>
           discount applied to all content
         </div>
       </div>
@@ -44,7 +44,7 @@
         <div class='setting-label'>
         </div>
         <div class='setting-content'>
-          <a-range-picker :disabled-date="disabledDate" @change="handleDurationChange" v-show='discountSetting.durationOn'/>
+          <a-range-picker :default-value="initDate" :mode="['date']" :disabled-date="disabledDate" @change="handleDurationChange" v-if='discountSetting.durationOn'/>
         </div>
       </div>
 
@@ -62,6 +62,7 @@
 
 import ModalHeader from '@/components/Common/ModalHeader'
 import moment from 'moment'
+import { discountSettingQuery, discountSettingSave } from '@/api/v2/discountSetting'
 
 const mode = {
   SalesOff: 'SalesOff',
@@ -81,27 +82,53 @@ export default {
         thresholdDiscountMoney: 20,
         durationOn: false,
         duration: null,
-        salesOffPercent: 0
-      }
+        salesOffPercent: 0,
+        startDate: null,
+        endData: null
+      },
+      initDate: null
     }
   },
   created() {
+    discountSettingQuery({
+      contentId: -1,
+      contentType: -1
+    }).then(res => {
+      const data = res.result
+      if (data) {
+        this.$logger.info('discountSettingQuery', data)
+        this.discountSetting.salesOffPercent = data.saleOff
+        this.discountSetting.threshold = data.overs
+        this.discountSetting.startDate = data.discountStartTime
+        this.discountSetting.endData = data.discountEndTime
+        this.discountSetting.durationOn = !!data.discountStartTime || !!data.discountEndTime
+        this.initDate = [moment(data.discountStartTime), moment(data.discountEndTime)]
+      }
+    })
   },
   methods: {
     handleClose() {
       this.$emit('close')
     },
 
-    handleConfirmDiscountSetting () {
+    async handleConfirmDiscountSetting () {
       this.$logger.info('handleConfirmDiscountSetting', this.discountSetting)
-      this.$emit('confirm', {
-        content: this.content,
-        publishList: this.publishList
+      await discountSettingSave({
+        contentId: -1,
+        contentType: -1,
+        saleOff: this.discountSetting.salesOffPercent,
+        discountModel: 1,
+        overs: this.discountSetting.threshold,
+        discountStartTime: this.discountSetting.startDate,
+        discountEndTime: this.discountSetting.endData
       })
+      this.$emit('confirm')
     },
 
-    handleDurationChange (data) {
-      this.$logger.info('handleDurationChange', data)
+    handleDurationChange (date) {
+      this.$logger.info('handleDurationChange', date)
+      this.discountSetting.startDate = moment(date[0].toDate()).utc().format('YYYY-MM-DD 00:00:00')
+      this.discountSetting.endData = moment(date[1].toDate()).utc().format('YYYY-MM-DD 00:00:00')
     },
 
     disabledDate(current) {
