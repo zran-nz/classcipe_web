@@ -27,7 +27,8 @@ export const teacherAPIUrl = {
   ContentRestore: '/classcipe/api/teacher/content/restore',
   FindPurchases: '/classcipe/api/teacher/findPurchases',
   FindInspirationStudents: '/classcipe/api/teacher/findInspirationStudents',
-  FindInspirationTeachers: '/classcipe/api/teacher/findInspirationTeachers'
+  FindInspirationTeachers: '/classcipe/api/teacher/findInspirationTeachers',
+  GetAssociateRecommend: '/classcipe/api/teacher/getAssociateRecommend'
 }
 
 /**
@@ -339,5 +340,18 @@ export function ContentRestore (parameter) {
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
+  })
+}
+
+/**
+ * types
+ * @param parameter
+ * @returns {AxiosPromise}
+ */
+export function GetAssociateRecommend (parameter) {
+  return request({
+    url: teacherAPIUrl.GetAssociateRecommend,
+    method: 'get',
+    params: parameter
   })
 }

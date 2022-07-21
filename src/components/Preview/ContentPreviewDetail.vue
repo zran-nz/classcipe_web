@@ -380,6 +380,29 @@
           </div>
         </div>
       </div>
+
+      <div class='card-list-wrapper' v-if="associateRecommendList.length">
+        <div class='card-list-title'>
+          <div class='sub-task-title'>
+            Recommend
+          </div>
+          <!--          <div class='go-to-list'>-->
+          <!--            <custom-link-text text='Enter' @click='goToSubTaskList'></custom-link-text>-->
+          <!--          </div>-->
+        </div>
+        <div class='scroll-left' @click="scrollLeft('subTask')">
+          <a-icon type="left-circle" :style="{fontSize: '22px', color: '#dddddd'}" />
+        </div>
+        <div class='scroll-right' @click="scrollRight('subTask')">
+          <a-icon type="right-circle" :style="{fontSize: '22px', color: '#dddddd'}" />
+        </div>
+        <div class='card-list' id='associateRecommendList'>
+          <div class="card-item" v-for="(content, i) in associateRecommendList" :key="i" @click='handlePreviewItem(content)'>
+            <card-list-item :content="content" :width="16" :inner-desc="false" :outer-desc="true" />
+          </div>
+        </div>
+      </div>
+
     </div>
     <div class='preview-extra-data'>
     </div>
@@ -450,7 +473,7 @@ import { PDContentQueryById } from '@/api/pdContent'
 import { TaskQueryById } from '@/api/task'
 import { VideoQueryById } from '@/api/video'
 import { TemplatesGetPublishedPresentation } from '@/api/template'
-import { Duplicate, GetAssociate } from '@/api/teacher'
+import { Duplicate, GetAssociate, GetAssociateRecommend } from '@/api/teacher'
 import { mapState } from 'vuex'
 import * as logger from '@/utils/logger'
 import { formatLocalUTC } from '@/utils/util'
@@ -552,7 +575,8 @@ export default {
       ReviewsTeacher: ReviewsTeacher,
 
       contentBuyStatVisible: false,
-      selectedGradeList: []
+      selectedGradeList: [],
+      associateRecommendList: []
     }
   },
   computed: {
@@ -640,6 +664,7 @@ export default {
         this.carouselContentLoading = false
       }
       this.loadAssociateData()
+      this.loadAssociateRecommendData()
 
       if (this.content.presentationId) {
         this.getClassInfo(this.content.presentationId)
@@ -726,7 +751,8 @@ export default {
         const slideData = await GetAssociate({
           id: this.contentId,
           type: this.contentType,
-          published: 0
+          published: 0,
+          preview: true // 只预览自己的内容
         })
         console.log('loadAssociateData', slideData)
         const list = slideData.result.owner
@@ -745,6 +771,19 @@ export default {
         console.log('loadAssociateData', this.associateList)
       } catch (e) {
         console.error('loadSlideData', e)
+      }
+    },
+
+    async loadAssociateRecommendData () {
+      try {
+        const recommendData = await GetAssociateRecommend({
+          id: this.contentId,
+          type: this.contentType
+        })
+        this.associateRecommendList = recommendData.result
+        console.log('loadAssociateData', this.associateRecommendList)
+      } catch (e) {
+        console.error('recommendData', e)
       }
     },
 

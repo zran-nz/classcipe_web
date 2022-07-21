@@ -48,7 +48,7 @@
     "viser-vue": "^2.4.6",
     "vue": "^2.6.10",
     "vue-clipboard2": "^0.2.1",
-    "vue-cropper": "0.5.8",
+    "vue-cropper": "^0.5.8",
     "vue-echarts": "^6.0.2",
     "vue-i18n": "^8.17.4",
     "vue-observe-visibility": "^1.0.0",
