@@ -1263,6 +1263,7 @@ export default {
 .card-list-wrapper {
   width: 100%;
   position: relative;
+  margin-top: 10px;
   .card-list-title {
     .sub-task-title {
       font-size: 20px;
