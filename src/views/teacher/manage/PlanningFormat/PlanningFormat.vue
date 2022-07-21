@@ -38,7 +38,7 @@
       destroyOnClose
       width='900px'>
       <div slot='title' class='my-modal-title'>
-        Choice format template
+        Format templates
       </div>
       <div class='content-wrapper'>
         <select-template

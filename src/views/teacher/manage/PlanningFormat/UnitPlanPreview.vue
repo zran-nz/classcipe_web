@@ -8,7 +8,6 @@
           :spin='saving'
           :share-status='shareStatus'
           :collaborate='collaborate'
-          :last-change-saved-time='lastChangeSavedTime'
           @view-collaborate='handleViewCollaborate'
           @back='goBack'
           @save='save'
@@ -857,8 +856,46 @@ export default {
     }
   },
   computed: {
-    isOwner() {
-      return this.$store.getters.userInfo.email === this.form.createBy
+    selectedSdg() {
+      const sdgList = []
+      if (this.form.scenarios && this.form.scenarios.length) {
+        this.form.scenarios.forEach(item => sdgList.push(item.sdgId))
+      }
+      return sdgList
+    },
+    showRecommendQuestion() {
+      if (this.hideRecommendQuestion) {
+        return false
+      }
+      if (!this.form.inquiry) {
+        return false
+      }
+      if (this.recommendQuestionList.length === 0) {
+        return false
+      }
+      return true
+    },
+    selectQuestion() {
+      return this.form.questions.map(item => {
+        return item.name
+      })
+    },
+    getTaskTags() {
+      return this.form.questions.map(item => {
+        return item.name
+      })
+    },
+    hasExtraRecommend() {
+      this.$logger.info('-------------', this.form.learnOuts, this.recommendDataIdList)
+      let ret = false
+      this.form.learnOuts.forEach(item => {
+        if (this.recommendDataIdList.indexOf(item.knowledgeId) === -1) {
+          ret = true
+          this.$logger.info('------------learnOuts', item, ' not exist in ', this.recommendDataIdList)
+        }
+      })
+
+      return ret
     }
   },
   watch: {
@@ -894,6 +931,13 @@ export default {
     this.currentStep = this.formSteps[this.currentActiveStepIndex]
     this.handleDisplayRightModule()
     this.checkIsFullBodyStep()
+    // 填充自定义字段
+    const displayCustomFieldData = {}
+    formConfigPreviewData.planCustomList.forEach(customField => {
+      displayCustomFieldData[customField.id] = ''
+    })
+    this.$logger.info('displayCustomFieldData', displayCustomFieldData)
+    this.form.customFieldData = displayCustomFieldData
   },
   methods: {
     initData() {

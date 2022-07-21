@@ -397,9 +397,13 @@ export default {
       flex-direction: row;
       justify-content: flex-start;
       flex-grow: 1;
-
       .base-info {
-        min-width: 400px;
+        min-width: 500px;
+        @media screen and (max-width: 1300px) {
+          .base-info{
+            min-width: 400px;
+          }
+        }
         .name-type {
           display: flex;
           justify-content: flex-start;
@@ -409,7 +413,6 @@ export default {
           word-break: break-word;
           user-select: none;
           overflow: hidden;
-
           .name {
             margin-left: 10px;
             line-height: 2rem;
@@ -418,11 +421,17 @@ export default {
             font-weight: bold;
             color: #17181A;
             cursor: pointer;
-            width: 400px;
+            width: 500px;
             text-overflow: ellipsis;
             word-break: break-word;
             user-select: none;
             overflow: hidden;
+          }
+
+          @media screen and (max-width: 1300px) {
+            .name {
+              width: 400px;
+            }
           }
 
         }

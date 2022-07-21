@@ -668,6 +668,13 @@ export default {
     this.currentStep = this.formSteps[this.currentActiveStepIndex]
     this.handleDisplayRightModule()
     this.checkIsFullBodyStep()
+    // 填充自定义字段
+    const displayCustomFieldData = {}
+    formConfigPreviewData.taskCustomList.forEach(customField => {
+      displayCustomFieldData[customField.id] = ''
+      })
+    this.$logger.info('displayCustomFieldData', displayCustomFieldData)
+    this.form.customFieldData = displayCustomFieldData
   },
   methods: {
     initData() {

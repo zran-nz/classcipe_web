@@ -11,7 +11,8 @@
               slot="renderItem"
               key="item.key"
               class="my-card-list-item"
-              slot-scope="item">
+              slot-scope="item"
+              @click="handleChoice(item)">
               <!--              <div class="cover-img-wrapper">-->
               <!--                <div-->
               <!--                  class="cover-image"-->
@@ -35,11 +36,11 @@
               <div class="item-action-wrapper">
                 <div class="action-wrapper">
                   <div class="action-item">
-                    <a-button type="primary" shape="round" @click="handlePreview(item)">Preview</a-button>
+                    <a-button type="primary" shape="round" @click.stop.prevent="handlePreview(item)">Preview</a-button>
                   </div>
-                  <div class="action-item">
-                    <a-button type="primary" shape="round" @click="handleChoice(item)">Choice</a-button>
-                  </div>
+                  <!--                  <div class="action-item">-->
+                  <!--                    <a-button type="primary" shape="round" @click="handleChoice(item)">Choice</a-button>-->
+                  <!--                  </div>-->
                 </div>
               </div>
               <div class="card-action-icon">
@@ -440,7 +441,7 @@ a.delete-action {
 }
 
 .my-card-list-item {
-  //cursor:pointer;
+  cursor:pointer;
   overflow: hidden;
   box-sizing: border-box;
   margin: 10px;

@@ -643,7 +643,6 @@ export default {
         customFieldData: null,
         price: 0,
         isSelfLearning: false,
-        dontRemind: false,
         slideEditing: false
       },
       gradeList: [],
@@ -808,7 +807,7 @@ export default {
 
     handleNextStep () {
       if (this.currentActiveStepIndex === this.formSteps.length - 1) {
-        if (this.$store.state.app.userMode === USER_MODE.SCHOOL || this.form.dontRemind) {
+        if (this.$store.state.app.userMode === USER_MODE.SCHOOL || localStorage.getItem('content_remind' + this.taskId)) {
           this.$router.replace({
             path: '/'
           })
@@ -1569,7 +1568,9 @@ export default {
       this.waitingRedirect = true
       this.saving = true
       this.form.price = data.price
-      this.form.dontRemind = data.dontRemind
+      if (data.dontRemind) {
+        localStorage.setItem('content_remind' + this.taskId, true)
+      }
       this.form.contentType = data.isSelfLearning ? 1 : 0
       this.showSplitTask = false
       this.waitingRedirect = true
