@@ -135,7 +135,7 @@
             </div>
           </template>
           <template v-else>
-            <div v-if="type === typeMap.task">
+            <div v-if="type === typeMap.pd">
               <a-radio-group class="notify-session" v-model="form.notifyType" @change="changeNotifyType">
                 <a-radio v-for="item in NOTIFY_TYPE" :value="item.value" :key="item.value">
                   {{ item.label }}
@@ -201,7 +201,7 @@
                 </a-popover>
               </div>
             </div>
-            <div v-if="type === typeMap.pd">
+            <div v-if="type === typeMap.task">
               All students at your school will receive email and notification
             </div>
           </template>
@@ -594,8 +594,8 @@ export default {
         register: {
           ...this.form,
           paidType: Number(this.form.paidType),
-          notifyType: notifyType,
-          notifyStudents: this.memberList.map(item => item.id)
+          notifyType: this.type === typeMap.task ? NOTIFY_TYPE.ALL.value : notifyType,
+          notifyStudents: this.type === typeMap.task ? [] : this.memberList.map(item => item.id)
         }
       }
       if (params.register.notifyType !== NOTIFY_TYPE.ALL.value && this.memberList.length === 0) {
