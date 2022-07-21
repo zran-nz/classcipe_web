@@ -255,12 +255,12 @@ export default {
           }],
           scopedSlots: { customRender: 'status' }
         },
-        {
-          title: 'Last Login',
-          align: 'center',
-          dataIndex: 'lastLogin',
-          width: 120
-        },
+        // {
+        //   title: 'Last Login',
+        //   align: 'center',
+        //   dataIndex: 'lastLogin',
+        //   width: 120
+        // },
         {
           title: 'Action',
           align: 'center',

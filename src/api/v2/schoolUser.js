@@ -197,6 +197,7 @@ export function getSchoolUsers (parameter) {
     url: schoolUserApi.acceptInvite,
     method: 'post',
     data: parameter,
+    params: parameter,
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
