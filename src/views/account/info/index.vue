@@ -293,11 +293,11 @@ export default {
               url: '/manage/academic'
             },
             {
-              avatar: TagsPng,
-              title: 'Tags setting',
+              avatar: CurriculumPng,
+              title: 'Curriculum',
+              desc: 'Set curriculum(s), subjects, years',
               // hidden: this.userMode === USER_MODE.SELF,
-              desc: 'Customize tag categories and tags',
-              url: '/manage/tags'
+              url: '/manage/curriculum'
             },
             {
               avatar: PlanningPng,
@@ -306,18 +306,18 @@ export default {
               url: '/manage/planning-format'
             },
             {
+              avatar: TagsPng,
+              title: 'Tags setting',
+              // hidden: this.userMode === USER_MODE.SELF,
+              desc: 'Customize tag categories and tags',
+              url: '/manage/tags'
+            },
+            {
               avatar: AttendancePng,
               title: 'Attendance',
               hidden: this.userMode === USER_MODE.SELF,
               desc: '',
               url: ''
-            },
-            {
-              avatar: CurriculumPng,
-              title: 'Curriculum',
-              desc: 'Set curriculum(s), subjects, years',
-              // hidden: this.userMode === USER_MODE.SELF,
-              url: '/manage/curriculum'
             },
             {
               avatar: CertifiedPng,

@@ -1035,6 +1035,11 @@ export default {
         }
       }
     }
+    /deep/ .fc-event-main {
+      & > div {
+        height: 100%;
+      }
+    }
   }
   .schedule-tip {
     width: 190px;
