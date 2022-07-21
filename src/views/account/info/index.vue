@@ -75,7 +75,7 @@
           </div>
           <div class="self-detail-email">{{ currentSchool.schoolUser.email }}</div>
           <div class="self-detail-role">
-            {{ roles }}
+            School roles: {{ roles }}
           </div>
         </div>
       </div>

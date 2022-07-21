@@ -152,7 +152,7 @@ export default {
         ...this.queryParams,
         schoolId: this.currentSchool.id
       }).then(res => {
-        if (res.success) {
+        if (res.success && res.code === 0) {
           this.datas = res.result
         } else {
           this.datas = []

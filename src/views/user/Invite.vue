@@ -13,7 +13,13 @@
 </template>
 
 <script>
-import { checkInvite, acceptInvite } from '@/api/schoolUser'
+import { checkInvite } from '@/api/schoolUser'
+import { acceptInvite } from '@/api/v2/schoolUser'
+import { SwitchUserModeSchool } from '@/api/user'
+import { TOOGLE_USER_MODE } from '@/store/mutation-types'
+import { USER_MODE } from '@/const/common'
+
+import { mapActions, mapMutations, mapState } from 'vuex'
 import store from '@/store'
 
 export default {
@@ -23,10 +29,12 @@ export default {
     return {
       inviteCode: '',
       schoolName: '',
+      schoolId: '',
       loading: false,
       checkLoading: false,
       btnText: '',
       invalid: false,
+      isAdmin: false,
       roleMap: {
         2: 'teacher',
         4: 'student'
@@ -39,7 +47,16 @@ export default {
     this.inviteCode = inviteCode
     this.checkInviteCode()
   },
+  computed: {
+    ...mapState({
+      info: state => state.user.info,
+      currentSchool: state => state.user.currentSchool,
+      userMode: state => state.app.userMode
+    })
+  },
   methods: {
+    ...mapMutations([TOOGLE_USER_MODE, 'SET_CURRENT_SCHOOL']),
+    ...mapActions(['GetClassList']),
     async checkInviteCode() {
       this.checkLoading = true
       const res = await checkInvite({
@@ -52,6 +69,8 @@ export default {
         } else if (this.roleMap[res?.result?.role] !== store.getters.currentRole) {
           this.invalid = true
         } else {
+          // this.isAdmin = res?.result?.inviteRole === 'admin'
+          this.schoolId = res?.result?.schoolId
           this.schoolName = res?.result?.schoolName
           this.btnText = res?.result?.approveFlag ? 'Apply' : 'Join'
         }
@@ -61,12 +80,28 @@ export default {
       this.loading = true
       const res = await acceptInvite({
         inviteCode: this.inviteCode,
-        username: store.getters.userInfo.username
+        email: store.getters.userInfo.email
       })
-      if (res.success) {
+      if (res.success && res.code === 0) {
         this.$message.success(res.message)
+
+        // TODO 如果邀请为管理，则直接跳转到学校的的info界面
         this.$store.dispatch('GetInfo').then(() => {
-          this.$router.push(this.$store.getters.defaultRouter)
+          if (this.isAdmin) {
+            SwitchUserModeSchool({
+              isPersonal: false,
+              schoolId: this.schoolId
+            }).then(res => {
+              // 获取对应学校班级
+              this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
+              this.GetClassList(this.userMode)
+              this.$store.dispatch('GetInfo').then(() => {
+                this.$router.push('/manage/school-info')
+              })
+            })
+          } else {
+            this.$router.push(this.$store.getters.defaultRouter)
+          }
         })
       } else {
         this.$message.error(res.message)
