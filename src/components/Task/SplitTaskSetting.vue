@@ -87,7 +87,7 @@
     </div>
     <div class='action-bar'>
       <a-space>
-        <a-button class='cc-round-button' type='primary' @click='handleConfirm'>Confirm</a-button>
+        <a-button class='cc-round-button' :loading="saveLoading" type='primary' @click='handleConfirm'>Confirm</a-button>
       </a-space>
     </div>
   </div>
@@ -117,6 +117,7 @@ export default {
   },
   data() {
     return {
+      saveLoading: false,
       isPublish: false,
       isCreateSubTask: false,
       mySelfLearning: this.isSelfLearning,
@@ -154,6 +155,7 @@ export default {
     },
     async handleConfirm (data) {
       this.$logger.info('handleConfirm')
+      this.saveLoading = true
       await discountSettingSave({
         contentId: this.contentId,
         contentType: this.$classcipe.typeMap.task,
@@ -173,6 +175,7 @@ export default {
         endData: this.endData,
         price: this.enablePrice ? +this.myPrice : 0
       })
+      this.saveLoading = false
     },
     handleDateChange (date, dateString) {
       this.$logger.info('handleDateChange', date, dateString)

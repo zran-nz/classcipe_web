@@ -352,6 +352,7 @@ export default {
         discountEndTime: this.endData
       })
       this.content.price = this.price
+      this.content.discountPrice = this.discount > 0 ? (this.price * this.discount / 100).toFixed(2) : this.price
       this.editPrice = false
       this.visible = false
     }
