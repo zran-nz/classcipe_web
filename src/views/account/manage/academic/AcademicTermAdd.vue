@@ -20,19 +20,19 @@
         </a-form-model-item>
 
         <a-form-model-item label="Start on">
+          <!-- :show-time="{
+              format: 'HH:mm:ss',
+              defaultValue: moment('00:00:00', 'HH:mm:ss')
+            }" -->
           <a-date-picker
             v-model="model.startTime"
             :disabled-date="val => disabledStartDate(val, model)"
             :allowClear="false"
-            format="YYYY-MM-DD HH:mm:ss"
-            valueFormat="YYYY-MM-DD HH:mm:ss"
+            format="YYYY-MM-DD"
+            valueFormat="YYYY-MM-DD"
             :defaultPickerValue="model.minDate"
-            :show-time="{
-              format: 'HH:mm:ss',
-              defaultValue: moment('00:00:00', 'HH:mm:ss')
-            }"
             placeholder="Pick a date"
-            @ok="val => changeStartTime(val, model)"
+            @change="val => changeStartTime(val, model)"
             style="width: 100%;"
           />
         </a-form-model-item>
@@ -41,13 +41,9 @@
             v-model="model.endTime"
             :disabled-date="val => disabledEndDate(val, model)"
             :allowClear="false"
-            format="YYYY-MM-DD HH:mm:ss"
-            valueFormat="YYYY-MM-DD HH:mm:ss"
+            format="YYYY-MM-DD"
+            valueFormat="YYYY-MM-DD"
             :defaultPickerValue="model.minDate"
-            :show-time="{
-              format: 'HH:mm:ss',
-              defaultValue: moment('23:59:59', 'HH:mm:ss')
-            }"
             placeholder="Pick a date"
             style="width: 100%;"
           />
@@ -126,7 +122,7 @@ export default {
       if (!startValue || !endValue) {
         return false
       }
-      return !(moment(startValue).valueOf() >= moment(minDate).valueOf() && moment(startValue).valueOf() <= moment(endValue).valueOf())
+      return !(moment(startValue).startOf('day').valueOf() >= moment(minDate).valueOf() && moment(startValue).startOf('day').valueOf() <= moment(endValue).endOf('day').valueOf())
     },
     disabledEndDate(endValue, item) {
       let startValue = item.startTime
@@ -138,11 +134,11 @@ export default {
       if (!endValue || !startValue) {
         return false
       }
-      return !(moment(endValue).valueOf() >= moment(startValue).valueOf() && moment(endValue).valueOf() <= moment(maxDate).valueOf())
+      return !(moment(endValue).endOf('day').valueOf() >= moment(startValue).startOf('day').valueOf() && moment(endValue).endOf('day').valueOf() <= moment(maxDate).valueOf())
     },
     changeStartTime(date, item) {
       if (date && !item.endTime) {
-        item.endTime = moment(date).add(3, 'months').format('YYYY-MM-DD HH:mm:ss')
+        item.endTime = moment(date).add(3, 'months').subtract(1, 'days').format('YYYY-MM-DD')
       }
     },
     add (record) {
@@ -175,8 +171,8 @@ export default {
           let promise = addTerm
           if (this.model.id) promise = editTerm
           const params = { ...this.model }
-          params.startTime = moment(params.startTime).utc().format('YYYY-MM-DD HH:mm:ss')
-          params.endTime = moment(params.endTime).utc().format('YYYY-MM-DD HH:mm:ss')
+          params.startTime = moment(params.startTime).startOf('day').utc().format('YYYY-MM-DD HH:mm:ss')
+          params.endTime = moment(params.endTime).endOf('day').utc().format('YYYY-MM-DD HH:mm:ss')
           promise(params).then((res) => {
             if (res.success) {
               that.$message.success(res.message)

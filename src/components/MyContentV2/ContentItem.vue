@@ -134,20 +134,6 @@
             </template>
           </custom-button>
 
-          <a-popover trigger="click">
-            <a slot="content">
-              This task/PD content can not be scheduled without interactive slides,
-              <br/> please edit google slides first before scheduling.
-            </a>
-            <custom-button
-              label='Schedule'
-              v-if='!content.presentationId'>
-              <template v-slot:icon>
-                <schedule-icon />
-              </template>
-            </custom-button>
-          </a-popover>
-
           <custom-button label='Edit' @click='editItem' v-if='showEdit'>
             <template v-slot:icon>
               <edit-icon />
