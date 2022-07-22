@@ -748,10 +748,11 @@ export default {
 
     async loadAssociateData () {
       try {
+        const isLibrary = location.href.indexOf('library') > 0 || location.href.indexOf('my-published')
         const slideData = await GetAssociate({
           id: this.contentId,
           type: this.contentType,
-          published: 0,
+          published: isLibrary ? 1 : 0,
           preview: true // 只预览自己的内容
         })
         console.log('loadAssociateData', slideData)
