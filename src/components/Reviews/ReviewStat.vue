@@ -25,7 +25,7 @@
             <e-bar :datas="charts"/>
           </div>
         </div>
-        <div class="divider"></div>
+        <div class="review-divider"></div>
         <div class="review-stat-opt">
           <a-button @click="goAll" type="link">See all reviews</a-button>
         </div>
@@ -183,7 +183,7 @@ export default {
       flex: 1;
     }
   }
-  .divider {
+  .review-divider {
     height: 1px;
     background: #dfdfdf;
     margin: 15px -20px;

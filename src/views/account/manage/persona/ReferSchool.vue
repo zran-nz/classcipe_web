@@ -60,6 +60,7 @@
                 @change="changeUserSchool"
                 :getPopupContainer="target => target.parentNode"
                 placeholder="Please select school"
+                ref="schoolRefuserForm"
                 show-search
                 :default-active-first-option="false"
                 :show-arrow="false"
@@ -99,6 +100,7 @@
               <a-select
                 v-model="userForm.country"
                 show-search
+                @change="changeUserFormCountry"
                 placeholder="Please Select a Country"
                 option-filter-prop="children"
                 :filter-option="filterOptions"
@@ -112,6 +114,40 @@
                   {{ param.en }}
                 </a-select-option>
               </a-select>
+            </a-form-model-item>
+            <a-form-model-item label="City" prop="city">
+              <a-select
+                v-model="userForm.city"
+                show-search
+                placeholder="Please Input Keyword"
+                option-filter-prop="children"
+                :filter-option="false"
+                :not-found-content="fetching ? undefined : null"
+                @search="fetchUserFormCity"
+                :getPopupContainer="target => target.parentNode"
+              >
+                <a-spin v-if="fetching" slot="notFoundContent" size="small" />
+                <a-select-option
+                  v-for="param in userFormCitys"
+                  :value="param.desc"
+                  :key="'city_' + param.desc"
+                >
+                  {{ param.desc }}
+                </a-select-option>
+              </a-select>
+            </a-form-model-item>
+            <a-form-model-item label="Address">
+              <a-input v-model="userForm.address" placeholder="Please enter address" />
+            </a-form-model-item>
+            <a-form-model-item label="Phone">
+              <a-input v-model="userForm.phoneNum">
+                <label
+                  slot="addonBefore"
+                  style="width: 100px; display: inline-block"
+                >
+                  {{ userForm.phoneCountryCode }}
+                </label>
+              </a-input>
             </a-form-model-item>
             <a-form-model-item label="Message for the pricipal (Optional)">
               <a-textarea :auto-size="{ minRows: 3}" size="large" v-model="userForm.personalizedMessage" placeholder="input your personalized message" />
@@ -156,6 +192,7 @@
                 @change="changeAdminSchool"
                 :getPopupContainer="target => target.parentNode"
                 placeholder="Please select school"
+                ref="schoolRefadminForm"
                 show-search
                 :default-active-first-option="false"
                 :show-arrow="false"
@@ -265,7 +302,7 @@
 import { createSchool, getSchools } from '@/api/school'
 import { SchoolPrincipleSave } from '@/api/schoolPrinciple'
 import { QuotationAddOrUpdate } from '@/api/quotation'
-import { getCountry } from '@/api/v2/country'
+import { getCountry, getCity } from '@/api/v2/country'
 
 const { debounce } = require('lodash-es')
 
@@ -294,6 +331,10 @@ export default {
         schoolId: undefined,
         schoolName: undefined,
         country: undefined,
+        city: undefined,
+        address: '',
+        phoneNum: '',
+        phoneCountryCode: '',
         personalizedMessage: ''
       },
       adminForm: {
@@ -319,7 +360,9 @@ export default {
       schoolOptions: [],
       myCreateSchoolOptions: [],
       createSchoolName: '',
-      schoolUserInfo: {}
+      schoolUserInfo: {},
+      fetching: false,
+      userFormCitys: []
     }
   },
   created () {
@@ -413,7 +456,10 @@ export default {
       const list = [...this.myCreateSchoolOptions, ...this.schoolOptions]
       const findOne = list.find(item => item.id === schoolId)
       if (findOne) {
-        findOne.country && (this.userForm.country = findOne.country)
+        if (findOne.country) {
+          this.userForm.country = findOne.country
+          this.changeUserFormCountry(findOne.country)
+        }
         this.userForm.schoolName = findOne.name
       }
     },
@@ -423,6 +469,30 @@ export default {
       if (findOne) {
         findOne.country && (this.adminForm.country = findOne.country)
         this.adminForm.schoolName = findOne.name
+      }
+    },
+    changeUserFormCountry(val) {
+      const current = this.countries.find(item => item.en === val)
+      this.userForm.city = undefined
+      this.userForm.phoneCountryCode = current.no || ''
+    },
+    fetchUserFormCity(val) {
+      const current = this.countries.find(
+        item => item.en === this.userForm.country
+      )
+      if (current && current.code) {
+        this.fetching = true
+        getCity({
+          country: current.code,
+          q: val
+        })
+          .then(res => {
+            console.log(res)
+            this.userFormCitys = res
+          })
+          .finally(() => {
+            this.fetching = false
+          })
       }
     },
     doSaveUserForm() {
@@ -527,6 +597,8 @@ export default {
         name: this.createSchoolName
       }
       this.myCreateSchoolOptions.push(res)
+      this[formName].schoolId = res.id
+      this.$refs['schoolRef' + formName].$el.click()
     }
   }
 }
