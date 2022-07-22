@@ -141,7 +141,7 @@ import NoMoreResources from '@/components/Common/NoMoreResources'
 const { FavoritesAdd } = require('@/api/favorites')
 const { GetAssociate } = require('@/api/teacher')
 export default {
-  name: 'CommonAssociatePreview',
+  name: 'IsLibrary',
   props: {
     id: {
       type: String,
@@ -192,7 +192,9 @@ export default {
       this.loading = true
       GetAssociate({
         id: this.id,
-        type: this.contentType
+        type: this.contentType,
+        published: this.isLibrary ? 1 : 0,
+        preview: true // 只预览自己的内容
       }).then((response) => {
         logger.info('GetAssociate ', response)
         this.associateData = response.result
