@@ -208,7 +208,7 @@ export default {
   },
   methods: {
     goBack() {
-      this.$router.go(-1)
+      this.$router.push('/account/info')
     },
     handleSchoolChange(currentSchool) {
       if (this.userMode === USER_MODE.SCHOOL) {

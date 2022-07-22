@@ -216,7 +216,7 @@
       </a-row>
 
       <div class='split-line'></div>
-      <div class='edit-content' v-if='content.createBy === $store.getters.userInfo.email && showEditButton'>
+      <div class='edit-content' v-if='(!liveWorkShopCode) && (content.createBy === $store.getters.userInfo.email && showEditButton)'>
         <a-button class='cc-dark-button' style='width: 90px' shape='round' @click='handleEdit'>Edit</a-button>
       </div>
 
