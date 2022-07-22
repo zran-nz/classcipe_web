@@ -748,7 +748,7 @@ export default {
 
     async loadAssociateData () {
       try {
-        const isLibrary = location.href.indexOf('library') > 0 || location.href.indexOf('my-published')
+        const isLibrary = location.href.indexOf('library') > 0 || location.href.indexOf('my-published') > 0
         const slideData = await GetAssociate({
           id: this.contentId,
           type: this.contentType,
