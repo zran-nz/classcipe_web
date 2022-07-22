@@ -22,13 +22,14 @@
       </a-row>
       <a-row :gutter='20' type="flex" align='middle'>
         <a-col span='8' class='label-name'>
-          Discount Price:
+          Discount:
         </a-col>
         <a-col span='14'>
-          <a-input
-            v-model='discount'
-            prefix='$'
-            class='cc-form-input cc-small-input' />
+          <a-input v-model='discount' class='cc-form-input cc-small-input' suffix='%' />
+          <!--          <a-input-->
+          <!--            v-model='discount'-->
+          <!--            prefix='$'-->
+          <!--            class='cc-form-input cc-small-input' />-->
         </a-col>
       </a-row>
       <a-row :gutter='20' type="flex" align='middle'>

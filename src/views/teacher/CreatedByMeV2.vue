@@ -219,10 +219,11 @@ export default {
       this.$logger.info('handleShowContentPublish', data)
       this.currentContent = data.content
       if ((this.currentContent.type === this.contentType.task ||
-        this.currentContent.type === this.contentType.pd) &&
-        !this.currentContent.presentationId) {
-        this.$message.warn('This task/PD content can not be published without interactive slides, please edit google slides first')
-        return
+        this.currentContent.type === this.contentType.pd)) {
+        if (!this.currentContent.presentationId || this.currentContent.presentationId.startsWith('fake_')) {
+          this.$message.warn('This task/PD content can not be published without interactive slides, please edit google slides first')
+          return
+        }
       }
       if (data.content.status === 1) {
         // 取消发布直接更新

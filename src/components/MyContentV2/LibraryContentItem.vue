@@ -212,6 +212,7 @@ export default {
         contentType: this.contentType,
         grades: this.selectedGradeList
       }).finally(() => {
+        this.$router.push({ path: '/teacher/main/created-by-me' })
         this.handleCancelBuyStat()
       })
     },
