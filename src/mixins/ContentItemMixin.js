@@ -6,6 +6,7 @@ export const ContentItemMixin = {
       allowPreview: true,
       previewCurrentId: null,
       previewType: null,
+      previewCode: null, // live workshop sessionId
       previewVisible: false,
       updateEditSlideLoading: false,
       setColor: [
@@ -30,6 +31,7 @@ export const ContentItemMixin = {
         this.$nextTick(() => {
           this.previewCurrentId = data.id
           this.previewType = data.type
+          this.previewCode = data.sessionId
           this.previewVisible = true
         })
         this.$emit('preview', data)
@@ -40,6 +42,7 @@ export const ContentItemMixin = {
       this.previewVisible = false
       this.previewCurrentId = null
       this.previewType = null
+      this.previewCode = null
     },
     async updateEditSlideStatus() {
       if (!this.updateEditSlideLoading) {

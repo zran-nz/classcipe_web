@@ -15,7 +15,28 @@
       <div class='header-right'>
         <div class='buy-button vertical-right'>
           <a-space>
-            <a-space>
+            <a-space v-if="liveWorkShopCode">
+              <a-button
+                class='buy-now'
+                type="danger"
+                shape='round'
+                v-if="liveWorkShopSession && WORK_SHOPS_TYPE.REGISTERED.value === liveWorkShopSession.workshopsType"
+                @click='handleCancelSession'
+                :loading='buyLoading'
+              >
+                Cancel
+              </a-button>
+              <a-button
+                shape='round'
+                type='primary'
+                @click='handleRegisterSession'
+                :loading='buyLoading'
+                v-if='liveWorkShopSession && WORK_SHOPS_TYPE.FEATURE.value === liveWorkShopSession.workshopsType'
+              >
+                Register now
+              </a-button>
+            </a-space>
+            <a-space v-else>
               <a-button
                 class='buy-now'
                 type="danger"
@@ -71,29 +92,47 @@
       </a-row>
 
       <a-row class='content-info-item' v-observe-visibility="visibilityChanged">
-        <a-col span='18' class='cc-ellipsis cc-info-left'>
-          <div class='author-info'>
-            <div class='author-avatar'>
-              <a-avatar size='large' style="backgroundColor:#517F3F">{{ content.createBy.toUpperCase()[0] }}</a-avatar>
+        <a-col
+          :lg="{ span: 12 }"
+          :xs="{ span: 24 }"
+          class="cc-ellipsis cc-info-left"
+        >
+          <div class="author-info">
+            <div class="author-avatar">
+              <a-avatar size="large" style="backgroundcolor: #517f3f">{{
+                (content.owner
+                  ? content.owner.firstname + ' ' + content.owner.lastname
+                  : content.createBy
+                ).toUpperCase()[0]
+              }}</a-avatar>
             </div>
-            <div class='author-info-detail'>
-              <div class='author-name'>
-                {{ content.createBy }}
+            <div class="author-info-detail">
+              <div class="author-name">
+                {{
+                  content.owner
+                    ? content.owner.firstname + ' ' + content.owner.lastname
+                    : content.createBy
+                }}
               </div>
-              <div class='rate-star'>
+              <div class="rate-star">
                 <review-stat :contentId="contentId" @goReviews="goReviews" />
-                <div class='star-info'>
-                  <a-space :size='15'>
-                    <div class='start-it' @click='handleFavorite'>
-                      <div class='favorite'>
-                        <a-icon type="heart" :style="{ color: '#fb0' }" theme="filled" v-if='favoriteFlag' />
-                        <a-icon type="heart" v-if='!favoriteFlag' />
+                <div class="star-info">
+                  <a-space :size="15">
+                    <div class="start-it" @click="handleFavorite">
+                      <div class="favorite">
+                        <a-icon
+                          type="heart"
+                          :style="{ color: '#fb0' }"
+                          theme="filled"
+                          v-if="favoriteFlag"
+                        />
+                        <a-icon type="heart" v-if="!favoriteFlag" />
                       </div>
-                      <div class='favorite-num'>
+                      <div class="favorite-num">
                         {{ (stat && stat.saved) || 0 }}
                       </div>
                     </div>
-                    <div class='sales'>
+                    <div class="sales">
                       Sales {{ (stat && stat.sold) || 0 }}
                     </div>
                   </a-space>
@@ -102,8 +141,45 @@
             </div>
           </div>
         </a-col>
-        <a-col span='6' class='cc-info-right'>
-          <div class='col-info'>
+        <a-col :lg="{ span: 12 }" :xs="{ span: 24 }" class="cc-info-right">
+          <div class="live-price-info" v-if="liveWorkShopCode">
+            <div
+              class="share-live-price"
+              v-if="showPriceInfo && liveWorkShopSession && liveWorkShopSession.priceList && liveWorkShopSession.priceList.length > 0"
+            >
+              <price-slider
+                v-if="liveWorkShopSession"
+                :priceList="liveWorkShopSession.priceList"
+                :current="liveWorkShopSession.registeredNum"
+                :origin="liveWorkShopSession.price"
+              />
+            </div>
+            <div v-else></div>
+            <div class='buy-button' v-if="liveWorkShopSession && WORK_SHOPS_TYPE.LUNCHEDBYME.value !== liveWorkShopSession.workshopsType">
+              <a-space>
+                <a-button
+                  class='buy-now'
+                  type="danger"
+                  shape='round'
+                  v-if="liveWorkShopSession && WORK_SHOPS_TYPE.REGISTERED.value === liveWorkShopSession.workshopsType"
+                  @click='handleCancelSession'
+                  :loading='buyLoading'
+                >
+                  Cancel
+                </a-button>
+                <a-button
+                  shape='round'
+                  type='primary'
+                  @click='handleRegisterSession'
+                  :loading='buyLoading'
+                  v-if='liveWorkShopSession && WORK_SHOPS_TYPE.FEATURE.value === liveWorkShopSession.workshopsType'
+                >
+                  Register now
+                </a-button>
+              </a-space>
+            </div>
+          </div>
+          <div class='col-info' v-else>
             <div class='price-info'>
               <a-space :size='5' v-show='showPriceInfo'>
                 <div class='discount-price'>
@@ -397,8 +473,8 @@
           <a-icon type="right-circle" :style="{fontSize: '22px', color: '#dddddd'}" />
         </div>
         <div class='card-list' id='associateRecommendList'>
-          <div class="card-item" v-for="(content, i) in associateRecommendList" :key="i" @click='handlePreviewItem(content)'>
-            <card-list-item :content="content" :width="16" :inner-desc="false" :outer-desc="true" />
+          <div class="card-item" v-for="(associate, i) in associateRecommendList" :key="i" @click='handlePreviewItem(associate)'>
+            <card-list-item :content="associate" :width="16" :inner-desc="false" :outer-desc="true" />
           </div>
         </div>
       </div>
@@ -476,7 +552,7 @@ import { TemplatesGetPublishedPresentation } from '@/api/template'
 import { Duplicate, GetAssociate, GetAssociateRecommend } from '@/api/teacher'
 import { mapState } from 'vuex'
 import * as logger from '@/utils/logger'
-import { formatLocalUTC } from '@/utils/util'
+import { formatLocalUTC, getCookie } from '@/utils/util'
 import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
 import { QueryByClassInfoSlideId } from '@/api/classroom'
 import { FavoritesAdd, FavoritesDelete } from '@/api/favorites'
@@ -487,7 +563,8 @@ import RateByPercent from '@/components/RateByPercent'
 import ReviewsPreview from '@/components/Reviews/ReviewsPreview'
 import ReviewScore from '@/components/Reviews/ReviewScore'
 import ReviewStat from '@/components/Reviews/ReviewStat'
-import { RATE_TOOLTIPS } from '@/const/common'
+import PriceSlider from '@/components/Slider/PriceSlider'
+import { RATE_TOOLTIPS, WORK_SHOPS_TYPE } from '@/const/common'
 import * as ReviewsTask from '@/api/reviewsTask'
 import * as ReviewsTeacher from '@/api/reviewsTeacher'
 import ShareButton from '@/components/Share/ShareButton'
@@ -499,10 +576,12 @@ import { ContentGradeSave } from '@/api/contentGrade'
 import ModalHeader from '@/components/Common/ModalHeader'
 import RateLevel from '@/components/RateLevel'
 import { ContentBuy } from '@/api/v2/mycontent'
+import { DetailBySessionId, SaveRegisteredRecord, CancelRegistered } from '@/api/v2/live'
+import { SET_PROMOTE_CODE } from '@/store/mutation-types'
 
 export default {
   name: 'ContentPreviewDetail',
-  components: { RateLevel, ModalHeader, ContentPreview, CustomLinkText, ShareButton, CardListItem, PreviewCarousel, ShareIcon, RateByPercent, ReviewsPreview, ReviewScore, ReviewStat },
+  components: { RateLevel, ModalHeader, ContentPreview, CustomLinkText, ShareButton, CardListItem, PreviewCarousel, ShareIcon, RateByPercent, ReviewsPreview, ReviewScore, ReviewStat, PriceSlider },
   props: {
     contentId: {
       type: String,
@@ -535,12 +614,18 @@ export default {
     allowPreviewSubContent: {
       type: Boolean,
       default: true
+    },
+    // 传递了code表面展示liveworkshop相关的细节
+    liveWorkShopCode: {
+      type: String,
+      default: ''
     }
   },
   mixins: [PptPreviewMixin, GoogleAuthCallBackMixin, ContentItemMixin],
   data() {
     return {
       contentLoading: true,
+      WORK_SHOPS_TYPE: WORK_SHOPS_TYPE,
       content: null,
 
       carouselContentLoading: true,
@@ -576,7 +661,9 @@ export default {
 
       contentBuyStatVisible: false,
       selectedGradeList: [],
-      associateRecommendList: []
+      associateRecommendList: [],
+
+      liveWorkShopSession: null
     }
   },
   computed: {
@@ -669,6 +756,19 @@ export default {
       if (this.content.presentationId) {
         this.getClassInfo(this.content.presentationId)
       }
+      if (this.liveWorkShopCode) {
+        this.initLiveDetail()
+      }
+    },
+
+    initLiveDetail() {
+      DetailBySessionId({
+        sessionId: this.liveWorkShopCode
+      }).then(res => {
+        if (res.success) {
+          this.liveWorkShopSession = res.result
+        }
+      })
     },
 
     loadReviewStats () {
@@ -967,6 +1067,42 @@ export default {
 
     goReviews() {
       document.getElementById('reviews').scrollIntoView({ behavior: 'smooth' })
+    },
+
+    handleRegisterSession() {
+      if (this.liveWorkShopSession && this.liveWorkShopSession.content && this.liveWorkShopSession.sessionId) {
+        this.buyLoading = true
+        SaveRegisteredRecord({
+          contentId: this.liveWorkShopSession.content.id,
+          sessionId: this.liveWorkShopSession.sessionId,
+          channelId: getCookie(SET_PROMOTE_CODE)
+        }).then(res => {
+          if (res.success) {
+            this.$message.success('You have successfully registered in')
+            this.initLiveDetail()
+            this.$emit('reload')
+          }
+        }).finally(() => {
+          this.buyLoading = false
+        })
+      }
+    },
+    handleCancelSession() {
+      if (this.liveWorkShopSession && this.liveWorkShopSession.content && this.liveWorkShopSession.sessionId) {
+        this.buyLoading = true
+        CancelRegistered({
+          contentId: this.liveWorkShopSession.content.id,
+          sessionId: this.liveWorkShopSession.sessionId
+        }).then(res => {
+          if (res.success) {
+            this.$message.success('Cancel successfully')
+            this.initLiveDetail()
+            this.$emit('reload')
+          }
+        }).finally(() => {
+          this.buyLoading = false
+        })
+      }
     }
   }
 }
@@ -1523,6 +1659,19 @@ export default {
   }
   &.knowledge {
     background: #EABA7F;
+  }
+}
+
+.live-price-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  .share-live-price {
+    flex: 1;
+  }
+  .buy-button {
+    width: 80px;
   }
 }
 

@@ -9,7 +9,7 @@
     @close='handleClose'
   >
     <div class='content-preview'>
-      <content-preview-detail v-bind='$attrs' @close='handleClose'/>
+      <content-preview-detail v-bind='$attrs' @close='handleClose' @reload="handleReload"/>
     </div>
   </a-drawer>
 </template>
@@ -28,6 +28,9 @@ export default {
   methods: {
     handleClose () {
       this.$emit('close')
+    },
+    handleReload() {
+      this.$emit('reload')
     }
   }
 }

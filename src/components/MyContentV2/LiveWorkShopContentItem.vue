@@ -124,7 +124,7 @@
               </template>
             </custom-button>
           </a-tooltip>
-          <custom-button label='Preview' @click='handlePreview(content.content)'>
+          <custom-button label='Preview' @click='handlePreview(content)'>
             <template v-slot:icon>
               <icon-font type="icon-xianshi" class="detail-font"/>
             </template>
@@ -172,6 +172,8 @@
       :content-id='previewCurrentId'
       :content-type='previewType'
       v-if='previewVisible'
+      :liveWorkShopCode="previewCode"
+      @reload="handleRefresh"
       @close='handlePreviewClose' />
 
     <a-modal
@@ -252,6 +254,7 @@ export default {
       showEditName: false,
       showEditSche: false,
       showEditPrice: false,
+      needReload: false,
       choose: {
         id: null,
         title: '',
@@ -484,7 +487,22 @@ export default {
     },
     handlePreview(data) {
       this.$emit('close')
-      this.handlePreviewDetail(data)
+      console.log(data)
+      this.handlePreviewDetail({
+        ...data.content,
+        sessionId: data.sessionId
+      })
+    },
+    handlePreviewClose () {
+      this.$logger.info('handlePreviewClose')
+      this.previewVisible = false
+      this.previewCurrentId = null
+      this.previewType = null
+      this.previewCode = null
+      this.needReload && this.$emit('reload')
+    },
+    handleRefresh() {
+      this.needReload = true
     }
   }
 }

@@ -69,7 +69,7 @@ export default {
         } else if (this.roleMap[res?.result?.role] !== store.getters.currentRole) {
           this.invalid = true
         } else {
-          // this.isAdmin = res?.result?.inviteRole === 'admin'
+          this.isAdmin = res?.result?.isSchoolAdmin
           this.schoolId = res?.result?.schoolId
           this.schoolName = res?.result?.schoolName
           this.btnText = res?.result?.approveFlag ? 'Apply' : 'Join'
@@ -85,7 +85,7 @@ export default {
       if (res.success && res.code === 0) {
         this.$message.success(res.message)
 
-        // TODO 如果邀请为管理，则直接跳转到学校的的info界面
+        // 如果邀请为管理，则直接跳转到学校的的info界面
         this.$store.dispatch('GetInfo').then(() => {
           if (this.isAdmin) {
             SwitchUserModeSchool({
