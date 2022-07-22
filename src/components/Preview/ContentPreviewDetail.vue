@@ -390,10 +390,10 @@
           <!--            <custom-link-text text='Enter' @click='goToSubTaskList'></custom-link-text>-->
           <!--          </div>-->
         </div>
-        <div class='scroll-left' @click="scrollLeft('subTask')">
+        <div class='scroll-left' @click="scrollLeft('associateRecommendList')">
           <a-icon type="left-circle" :style="{fontSize: '22px', color: '#dddddd'}" />
         </div>
-        <div class='scroll-right' @click="scrollRight('subTask')">
+        <div class='scroll-right' @click="scrollRight('associateRecommendList')">
           <a-icon type="right-circle" :style="{fontSize: '22px', color: '#dddddd'}" />
         </div>
         <div class='card-list' id='associateRecommendList'>
