@@ -97,7 +97,7 @@
 import CustomRadioButtonGroup from '@/components/Common/CustomRadioButtonGroup'
 import moment from 'moment'
 import { discountSettingQuery, discountSettingSave } from '@/api/v2/discountSetting'
-
+import storage from 'store'
 export default {
   name: 'SplitTaskSetting',
   components: { CustomRadioButtonGroup },
@@ -137,10 +137,10 @@ export default {
     }).then(res => {
       const data = res.result
       if (data) {
-        this.myDiscount = data.discount
+        this.myDiscount = parseFloat(data.discount).toFixed(2)
         this.startDate = data.discountStartTime
         this.endData = data.discountEndTime
-        this.price = data.price
+        this.price = parseFloat(data.price).toFixed(2)
         this.initDate = [moment(this.startDate), moment(this.endData)]
       }
     })
@@ -159,7 +159,7 @@ export default {
       await discountSettingSave({
         contentId: this.contentId,
         contentType: this.$classcipe.typeMap.task,
-        discount: parseFloat(this.myDiscount),
+        discount: parseFloat(this.myDiscount).toFixed(2),
         discountModel: 2,
         discountStartTime: this.startDate,
         discountEndTime: this.endData,
@@ -169,7 +169,7 @@ export default {
         isSelfLearning: this.mySelfLearning,
         isCreateSubTask: this.isCreateSubTask,
         dontRemind: this.dontRemind,
-        discount: parseFloat(this.myDiscount),
+        discount: parseFloat(this.myDiscount).toFixed(2),
         isPublish: this.isPublish,
         startDate: this.startDate,
         endData: this.endData,
@@ -188,6 +188,11 @@ export default {
     },
     changeRemind() {
       this.dontRemind = !this.dontRemind
+      if (this.dontRemind) {
+        storage.set(`${this.contentId}-${this.$store.getters.userInfo.id}-not-remind`, true)
+      } else {
+        storage.remove(`${this.contentId}-${this.$store.getters.userInfo.id}-not-remind`)
+      }
     }
   }
 }

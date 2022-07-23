@@ -17,17 +17,10 @@
         </div>
       </div>
 
-      <div class='setting-item' v-if='discountSetting.mode === mode.SalesOff'>
+      <div class='setting-item'>
         <div class='setting-content'>
-          Single purchases over <a-input v-model="discountSetting.threshold" class='dollar-price-input' prefix="$"/>
-          sale off <a-input v-model="discountSetting.thresholdDiscountMoney" class='dollar-price-input' prefix="$"/>
-        </div>
-      </div>
-
-      <div class='setting-item' v-if='discountSetting.mode === mode.Discount'>
-        <div class='setting-content'>
-          <a-input v-model="discountSetting.salesOffPercent" class='dollar-price-input' suffix="%"/>
-          discount applied to all content
+          Single purchases over <a-input v-model="discountSetting.overs" class='dollar-price-input' prefix="$"/>
+          sale off <a-input v-model="discountSetting.salesOff" class='dollar-price-input' prefix="$"/>
         </div>
       </div>
 
@@ -64,25 +57,17 @@ import ModalHeader from '@/components/Common/ModalHeader'
 import moment from 'moment'
 import { discountSettingQuery, discountSettingSave } from '@/api/v2/discountSetting'
 
-const mode = {
-  SalesOff: 'SalesOff',
-  Discount: 'Discount'
-}
-
 export default {
   name: 'DiscountSetting',
   components: { ModalHeader },
   data() {
     return {
       visible: true,
-      mode: mode,
       discountSetting: {
-        mode: mode.SalesOff,
-        threshold: 0,
-        thresholdDiscountMoney: 20,
+        overs: 0,
+        salesOff: 20,
         durationOn: false,
         duration: null,
-        salesOffPercent: 0,
         startDate: null,
         endData: null
       },
@@ -97,12 +82,14 @@ export default {
       const data = res.result
       if (data) {
         this.$logger.info('discountSettingQuery', data)
-        this.discountSetting.salesOffPercent = data.saleOff
-        this.discountSetting.threshold = data.overs
+        this.discountSetting.salesOff = data.saleOff
+        this.discountSetting.overs = data.overs
         this.discountSetting.startDate = data.discountStartTime
         this.discountSetting.endData = data.discountEndTime
         this.discountSetting.durationOn = !!data.discountStartTime || !!data.discountEndTime
-        this.initDate = [moment(data.discountStartTime), moment(data.discountEndTime)]
+        if (this.discountSetting.durationOn) {
+          this.initDate = [moment(data.discountStartTime), moment(data.discountEndTime)]
+        }
       }
     })
   },
@@ -113,16 +100,22 @@ export default {
 
     async handleConfirmDiscountSetting () {
       this.$logger.info('handleConfirmDiscountSetting', this.discountSetting)
-      await discountSettingSave({
-        contentId: -1,
-        contentType: -1,
-        saleOff: this.discountSetting.salesOffPercent,
-        discountModel: 1,
-        overs: this.discountSetting.threshold,
-        discountStartTime: this.discountSetting.startDate,
-        discountEndTime: this.discountSetting.endData
-      })
-      this.$emit('confirm')
+      this.discountSetting.salesOff = parseFloat(this.discountSetting.salesOff).toFixed(2)
+      this.discountSetting.overs = parseFloat(this.discountSetting.overs).toFixed(2)
+      if (this.discountSetting.salesOff > this.discountSetting.overs) {
+        this.$message.warn('The sale-off too large!')
+      } else {
+        await discountSettingSave({
+          contentId: -1,
+          contentType: -1,
+          saleOff: this.discountSetting.salesOff,
+          discountModel: 1,
+          overs: this.discountSetting.overs,
+          discountStartTime: this.discountSetting.startDate,
+          discountEndTime: this.discountSetting.endData
+        })
+        this.$emit('confirm')
+      }
     },
 
     handleDurationChange (date) {
@@ -176,7 +169,8 @@ export default {
 }
 
 .dollar-price-input {
-  width: 80px;
+  width: 100px;
+  text-align: left;
 
   /deep/ input {
     border-top: none;

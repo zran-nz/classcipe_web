@@ -807,7 +807,9 @@ export default {
 
     handleNextStep () {
       if (this.currentActiveStepIndex === this.formSteps.length - 1) {
-        if (this.$store.state.app.userMode === USER_MODE.SCHOOL || localStorage.getItem('content_remind' + this.taskId)) {
+        const notRemind = storage.get(`${this.taskId}-${this.$store.getters.userInfo.id}-not-remind`)
+        this.$logger.info('notRemind ', notRemind)
+        if (this.$store.state.app.userMode === USER_MODE.SCHOOL || !!notRemind) {
           this.$router.replace({
             path: '/'
           })
@@ -1568,9 +1570,6 @@ export default {
       this.waitingRedirect = true
       this.saving = true
       this.form.price = data.price
-      if (data.dontRemind) {
-        localStorage.setItem('content_remind' + this.taskId, true)
-      }
       this.form.contentType = data.isSelfLearning ? 1 : 0
       this.showSplitTask = false
       this.waitingRedirect = true
