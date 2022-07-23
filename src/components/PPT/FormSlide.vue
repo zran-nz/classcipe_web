@@ -13,7 +13,7 @@
             Slide draft
           </a-radio-button>
           <a-radio-button :value="displayModeType.SlideTemplate">
-            Selected template
+            Selected resource
           </a-radio-button>
         </a-radio-group>
       </div>

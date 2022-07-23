@@ -31,7 +31,14 @@
       <div class='step-content' v-if='!contentLoading'>
         <div class='step-mask' v-if='form.slideEditing'>
           <div class='mask-action'>
-            <a-button type='primary' class='cc-round-button' @click='saveChanges'> <a-icon type="save" /> Save changes</a-button>
+            <custom-button
+              label='Save changes'
+              :loading='thumbnailListLoading'
+              @click='saveChanges'>
+              <template v-slot:icon>
+                <a-icon type="save" />
+              </template>
+            </custom-button>
           </div>
         </div>
         <div class='form-body root-locate-form' id='form-body' :style="{ width: formBodyWidth }" v-show="formBodyWidth !== '0%'">
@@ -557,10 +564,12 @@ import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
 import commentIcon from '@/assets/icons/collaborate/comment.svg?inline'
 import { deepEqual } from '@/utils/util'
 import { discountSettingSave } from '@/api/v2/discountSetting'
+import CustomButton from '@/components/Common/CustomButton'
 
 export default {
   name: 'AddTaskV2',
   components: {
+    CustomButton,
     SplitTaskSetting,
     ModalHeader,
     CustomImageUploader,
@@ -1079,34 +1088,36 @@ export default {
     },
 
     loadThumbnail(needRefresh, hiddenMask = false) {
-      this.thumbnailListLoading = true
       this.$logger.info('loadThumbnail ' + this.form.presentationId)
-      TemplatesGetPresentation({
-        taskId: this.form.id,
-        needRefresh: needRefresh
-      }).then(response => {
-        this.$logger.info('loadThumbnail response', response.result)
-        if (response.code === 0) {
-          const pageObjects = response.result.pageObjects
-          this.thumbnailList = []
-          pageObjects.forEach(page => {
-            this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
-          })
-          if (!this.form.fileDeleted && response.result.fileDeleted) {
-            this.form.fileDeleted = true
-          }
+      if (!this.thumbnailListLoading) {
+        this.thumbnailListLoading = true
+        TemplatesGetPresentation({
+          taskId: this.form.id,
+          needRefresh: needRefresh
+        }).then(response => {
+          this.$logger.info('loadThumbnail response', response.result)
+          if (response.code === 0) {
+            const pageObjects = response.result.pageObjects
+            this.thumbnailList = []
+            pageObjects.forEach(page => {
+              this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
+            })
+            if (!this.form.fileDeleted && response.result.fileDeleted) {
+              this.form.fileDeleted = true
+            }
 
-          if (hiddenMask) {
-            this.form.slideEditing = false
+            if (hiddenMask) {
+              this.form.slideEditing = false
+            }
+          } else if (response.code === 403) {
+            this.$router.push({ path: '/teacher/main/created-by-me' })
+          } else if (response.code === this.ErrorCode.ppt_google_token_expires || response.code === this.ErrorCode.ppt_forbidden) {
+            this.$logger.info('等待授权事件通知')
           }
-        } else if (response.code === 403) {
-          this.$router.push({ path: '/teacher/main/created-by-me' })
-        } else if (response.code === this.ErrorCode.ppt_google_token_expires || response.code === this.ErrorCode.ppt_forbidden) {
-          this.$logger.info('等待授权事件通知')
-        }
-      }).finally(() => {
-        this.thumbnailListLoading = false
-      })
+        }).finally(() => {
+          this.thumbnailListLoading = false
+        })
+      }
     },
 
     async handleEditGoogleSlide() {
@@ -1296,8 +1307,10 @@ export default {
       this.checkIsFullBodyStep()
     },
 
-    saveChanges () {
-      this.loadThumbnail(true, true)
+    async saveChanges () {
+      if (!this.thumbnailListLoading) {
+        this.loadThumbnail(true, true)
+      }
     },
 
     checkIsFullBodyStep() {
@@ -1608,7 +1621,7 @@ export default {
           }
         })
       } else {
-        if (data.isPublish) {
+        if (data.isPublish && !data.isCreateSubTask) {
           this.$router.replace({
             path: '/teacher/main/my-published'
           })
