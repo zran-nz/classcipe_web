@@ -5,6 +5,7 @@
     :maskClosable='false'
     destroyOnClose
     ok-text='Publish'
+    :confirmLoading="confirmLoading"
     @ok='updatePrice'
     @cancel='visible = false'>
     <modal-header title="Edit price" @close='visible = false'/>
@@ -60,7 +61,7 @@ export default {
   },
   data () {
     return {
-      visible: true,
+      visible: false,
       discount: 0,
       typeMap: typeMap,
       isSelfLearning: false,
@@ -68,7 +69,8 @@ export default {
       editPrice: false,
       startDate: null,
       endData: null,
-      initDate: null
+      initDate: null,
+      confirmLoading: false
     }
   },
   created() {
@@ -99,6 +101,7 @@ export default {
         this.initDate = [moment(data.discountStartTime), moment(data.discountEndTime)]
       }
       this.visible = true
+      this.visible = true
     },
 
     disabledDate(current) {
@@ -111,6 +114,7 @@ export default {
     },
     async updatePrice () {
       this.$logger.info('update price')
+      this.confirmLoading = true
       const type = parseInt(this.content.type)
       await discountSettingSave({
         contentId: this.content.id,

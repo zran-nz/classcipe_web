@@ -46,7 +46,7 @@
 
     <verification-tip ref="verificationTip" @continue="doUpdatePublish"/>
     <content-publish
-      v-if='contentPublishVisible'
+      ref="ContentPublishModal"
       :content='currentContent'
       @publish='handleUpdatePublish'
       @close='handleCancelPublish' />
@@ -124,7 +124,7 @@ export default {
       searchText: '',
       filterParams: {},
       contentType: typeMap,
-      contentPublishVisible: false,
+      // contentPublishVisible: false,
       currentContent: null,
       publishLoading: false
     }
@@ -230,7 +230,8 @@ export default {
         this.handleUpdatePublish(data)
       } else {
         // 发布显示对于的关联发布内容
-        this.contentPublishVisible = true
+        // this.contentPublishVisible = true
+        this.$refs.ContentPublishModal.visible = true
       }
     },
 
@@ -279,19 +280,21 @@ export default {
             this.$message.success('Unpublish successfully!')
           }
         }).finally(() => {
-          this.contentPublishVisible = false
+          this.$refs.ContentPublishModal.visible = false
           this.currentContent = null
           this.publishLoading = false
+          this.$refs.ContentPublishModal.confirmLoading = false
         })
       } else {
         this.$logger.warn(`no found Update item ${data.id}`)
-        this.contentPublishVisible = false
+        this.$refs.ContentPublishModal.visible = false
         this.currentContent = null
       }
     },
 
     handleCancelPublish () {
-      this.contentPublishVisible = false
+      // this.contentPublishVisible = false
+      this.$refs.ContentPublishModal.visible = false
       this.currentContent = null
     },
     handleSelectShareType(item) {
