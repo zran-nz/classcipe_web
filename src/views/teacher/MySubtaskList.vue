@@ -25,6 +25,9 @@
     </fixed-vertical-header>
     <div class='sub-task-container'>
       <div class='sub-task-list vertical-left' v-for='content in subTaskList' :key='content.id'>
+        <div class='action-mask' v-if="(currentAction === 'publish' && content.status === 1) || (currentAction === 'unpublish' && content.status === 0)">
+          Current content has been {{ content.status === 1 ? 'Published' : 'Unpublished'}}
+        </div>
         <div class='checked-icon vertical-center' @click='toggleSelectItem(content)'>
           <template v-if='currentAction'>
             <a-checkbox
@@ -46,8 +49,11 @@
     </div>
     <fixed-form-footer>
       <template v-slot:right>
-        <a-button :disabled="disabled" :loading='loading' type='primary' @click='handleConfirm' class='cc-round-button'>
+        <a-button :loading='loading' type='primary' @click='handleConfirm' class='cc-round-button'>
           Confirm
+          <template v-if='selectedTaskList.length'>
+            {{ currentAction }} ({{ selectedTaskList.length }})
+          </template>
         </a-button>
       </template>
     </fixed-form-footer>
@@ -105,19 +111,36 @@ export default {
           this.checkTaskAllowPublished(subTasks)
           this.subTaskList = subTasks
         }
+      }).finally(() => {
       })
     },
 
     updateAction(action) {
+      if (action === this.currentAction) {
+        this.currentAction = ''
+        this.selectedTaskList = []
+        return;
+      }
       this.currentAction = action
       this.selectedTaskList = []
+      if (action === 'publish' && this.subTaskList.every(item => item.status === 1)) {
+        this.$message.warn('All tasks in the current list have been published.')
+      }
+
+      if (action === 'unpublish' && this.subTaskList.every(item => item.status === 0)) {
+        this.$message.warn('All tasks in the current list are unpublished.')
+      }
     },
 
     handleConfirm () {
-      if (this.currentAction === 'publish') {
-        this.publishSelected()
-      } else if (this.currentAction === 'unpublish') {
-        this.unPublishSelected()
+      if (!this.disabled) {
+        if (this.currentAction === 'publish') {
+          this.publishSelected()
+        } else if (this.currentAction === 'unpublish') {
+          this.unPublishSelected()
+        }
+      } else {
+        this.$message.warn('Pleas select content first!')
       }
     },
 
@@ -172,7 +195,7 @@ export default {
         job.push(UpdateContentStatus({
           id: item.id,
           type: item.type,
-          status: 0
+          status: 1
         }))
       })
 
@@ -180,6 +203,8 @@ export default {
         this.initTask()
       }).finally(() => {
         this.loading = false
+        this.selectedTaskList = []
+        this.currentAction = ''
       })
     },
 
@@ -191,7 +216,7 @@ export default {
         job.push(UpdateContentStatus({
           id: item.id,
           type: item.type,
-          status: 1
+          status: 0
         }))
       })
 
@@ -199,6 +224,8 @@ export default {
         this.initTask()
       }).finally(() => {
         this.loading = false
+        this.selectedTaskList = []
+        this.currentAction = ''
       })
     }
   }
@@ -214,11 +241,36 @@ export default {
   padding: 10px 20px;
   overflow-y: auto;
   .sub-task-list {
+    position: relative;
     background: #fff;
     padding: 0 15px;
+    margin-bottom: 15px;
     .checked-icon {
       width: 33px;
       padding-right: 15px;
+
+      .ant-checkbox {
+        border: 2px solid #15C39A;
+      }
+    }
+
+    .action-mask {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      cursor: pointer;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 16px;
+      user-select: none;
+      z-index: 500;
+      border-radius: 5px;
+      box-shadow: 0 0 3px 3px #aaa;
     }
   }
 }
