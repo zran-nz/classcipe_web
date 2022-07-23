@@ -20,7 +20,8 @@ export const ContentItemMixin = {
         '#ffbfe2',
         '#d5b9ff',
         '#c4f6b1'
-      ]
+      ],
+      savingSlides: false
     }
   },
   methods: {
@@ -68,6 +69,23 @@ export const ContentItemMixin = {
         } finally {
           this.updateEditSlideLoading = false
         }
+      }
+    },
+    async handleSaveSlides() {
+      if (this.savingSlides) {
+        return
+      }
+
+      try {
+        this.savingSlides = true
+        await TemplatesGetPresentation({
+          taskId: this.content.id,
+          needRefresh: true
+        })
+      } catch (e) {
+        console.error('', e)
+      } finally {
+        this.savingSlides = false
       }
     }
   }

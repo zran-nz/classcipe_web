@@ -153,6 +153,17 @@
               </template>
             </custom-button>
           </template>
+
+          <custom-button
+            label='Save slides'
+            :loading='savingSlides'
+            v-if='content.presentationId && (content.type === typeMap.task || content.type === typeMap.pd)'
+            @click='handleSaveSlides'>
+            <template v-slot:icon>
+              <a-icon type="save" />
+            </template>
+          </custom-button>
+
         </template>
         <template v-if='showButton && content.delFlag'>
           <a-space :size='30'>
