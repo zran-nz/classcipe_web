@@ -210,7 +210,6 @@ const user = {
               window.sessionStorage.setItem(SESSION_ACTIVE_KEY, result.token)
             }
             resolve(response)
-            this.$store.dispatch('GetSubjectsByCurriculum', result.bindCurriculum)
           } else {
             reject(response.message)
           }

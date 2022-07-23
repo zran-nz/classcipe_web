@@ -69,6 +69,8 @@ const getters = {
   allYears: state => state.user.allYears,
   userSubjects: state => state.user.allSubjects,
 
+  currentSchoolSubjectList: state => state.classcipeConfig.currentSchoolSubjectList,
+  currentSchoolGradeList: state => state.classcipeConfig.currentSchoolGradeList,
   curriculumList: state => state.classcipeConfig.curriculumList,
   curriculumId2NameMap: state => state.classcipeConfig.curriculumId2NameMap,
 

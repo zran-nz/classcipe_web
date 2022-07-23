@@ -26,7 +26,7 @@
     <div class='sub-task-container'>
       <div class='sub-task-list vertical-left' v-for='content in subTaskList' :key='content.id'>
         <div class='action-mask' v-if="(currentAction === 'publish' && content.status === 1) || (currentAction === 'unpublish' && content.status === 0)">
-          Sub task has been {{ content.status === 1 ? 'Published' : 'Unpublished'}}
+          Sub task has been {{ content.status === 1 ? 'Published' : 'Unpublished' }}
         </div>
         <div class='checked-icon vertical-center' @click='toggleSelectItem(content)'>
           <template v-if='currentAction'>
@@ -119,7 +119,7 @@ export default {
       if (action === this.currentAction) {
         this.currentAction = ''
         this.selectedTaskList = []
-        return;
+        return
       }
       this.$message.info('Please select the task(s) to ' + action)
       this.currentAction = action

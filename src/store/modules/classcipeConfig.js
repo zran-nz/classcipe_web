@@ -1,7 +1,16 @@
 import storage from 'store'
-import { SET_CURRICULUM_LIST, SET_PRI_TAG, SET_PUB_TAG, SET_PD_TAG } from '@/store/mutation-types'
+import {
+  SET_CURRICULUM_LIST,
+  SET_PRI_TAG,
+  SET_PUB_TAG,
+  SET_PD_TAG,
+  SET_SCHOOL_SUBJECT,
+  SET_SCHOOL_GRADE
+} from '@/store/mutation-types'
 import * as logger from '@/utils/logger'
 import { getAllCurriculums } from '@/api/preference'
+import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
+import { getCurriculumBySchoolId } from '@/api/academicSettingCurriculum'
 
 const classcipeConfig = {
   state: {
@@ -10,7 +19,9 @@ const classcipeConfig = {
     curriculumId2NameMap: {},
     pubTagList: [],
     priTagList: [],
-    pdTagList: []
+    pdTagList: [],
+    currentSchoolSubjectList: [],
+    currentSchoolGradeList: []
   },
   mutations: {
     [SET_CURRICULUM_LIST]: (state, curriculumList) => {
@@ -38,6 +49,14 @@ const classcipeConfig = {
     [SET_PD_TAG]: (state, pdTagList) => {
       state.pdTagList = pdTagList
       storage.set(SET_PD_TAG, pdTagList)
+    },
+    [SET_SCHOOL_SUBJECT]: (state, subjectList) => {
+      state.currentSchoolSubjectList = subjectList
+      storage.set(SET_SCHOOL_SUBJECT, subjectList)
+    },
+    [SET_SCHOOL_GRADE]: (state, gradeList) => {
+      state.currentSchoolGradeList = gradeList
+      storage.set(SET_SCHOOL_GRADE, gradeList)
     }
   },
   actions: {
@@ -50,6 +69,22 @@ const classcipeConfig = {
         }).catch(err => {
           reject(err)
         })
+      })
+    },
+
+    initSubjectGradeData({ commit }, data) {
+     const schoolId = data.schoolId
+     const bindCurriculumId = data.bindCurriculumId
+     logger.info('initSubjectGradeData schoolId ' + schoolId + ' bindCurriculum ' + bindCurriculumId, data)
+      getSubjectBySchoolId({ schoolId }).then(response => {
+       logger.info('initSubjectGradeData getSubjectBySchoolId response', response.result)
+        const schoolSubject = response.result.find(item => item.curriculumId === bindCurriculumId)
+        commit(SET_SCHOOL_SUBJECT, schoolSubject?.subjectList || [])
+      })
+      getCurriculumBySchoolId({ schoolId }).then(response => {
+       logger.info('initSubjectGradeData getCurriculumBySchoolId', response.result)
+        const schoolGrade = response.result.find(item => item.curriculumId === bindCurriculumId)
+        commit(SET_SCHOOL_GRADE, schoolGrade?.gradeSettingInfo || [])
       })
     },
 

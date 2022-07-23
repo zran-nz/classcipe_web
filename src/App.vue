@@ -48,12 +48,24 @@ export default {
     '$store.getters.bindCurriculum': function(newValue) {
       if (newValue) {
         this.$store.dispatch('GetSubjectsByCurriculum', newValue)
+        this.$store.dispatch('initSubjectGradeData', {
+          schoolId: this.$store.getters.school,
+          bindCurriculumId: newValue
+        })
       }
     },
     '$store.state.websocket.currentNotificationMsg': function(newValue) {
       console.log('currentNotificationMsg change', newValue)
       if (newValue) {
         this.showUserMessageNotification(newValue)
+      }
+    },
+    '$store.getters.school': function(newValue) {
+      if (newValue) {
+        this.$store.dispatch('initSubjectGradeData', {
+          schoolId: newValue,
+          bindCurriculumId: this.$store.getters.bindCurriculum
+        })
       }
     }
   },

@@ -359,6 +359,10 @@ export default {
       }).finally(() => {
         this.initSubject()
         this.$emit('save-success', notip)
+        this.$store.dispatch('initSubjectGradeData', {
+          schoolId: this.$store.getters.school,
+          bindCurriculumId: this.$store.getters.bindCurriculum
+        })
       })
     }
   }
