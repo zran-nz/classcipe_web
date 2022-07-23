@@ -5,7 +5,7 @@
       <a-col span="11" class="col-wrapper">
         <div>
           <a-list bordered :data-source="subjectList" style="border: none" >
-            <a-list-item slot="renderItem" slot-scope="item" :class="{'list-item-selected':subjectId === item.id}" @click="selectSubject(item.id)">
+            <a-list-item slot="renderItem" slot-scope="item" :class="{'list-item-selected':selectSubject === item.name}" @click="handleSelectSubject(item.name)">
               {{ item.name }}
             </a-list-item>
           </a-list>
@@ -76,7 +76,7 @@
 <script>
 import * as logger from '@/utils/logger'
 import TagBrowser from '@/components/UnitPlan/TagBrowser'
-import { QuerySourceTagByCategory } from '@/api/tag'
+// import { QuerySourceTagByCategory } from '@/api/tag'
 import { TAG_CATGORY_KEYWORDS } from '@/const/common'
 import { SubjectTree } from '@/api/subject'
 import { QueryBigIdea, QueryTagsBySubjectIds } from '@/api/scenario'
@@ -120,8 +120,8 @@ export default {
       tagName: '',
       subjectTree: [],
       subjectList: [],
-      subjectIds: [],
-      subjectId: '',
+      subjectNames: [],
+      selectSubject: '',
       conceptList: [],
       selectedConcept: [],
       alphabet: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q',
@@ -130,7 +130,7 @@ export default {
   },
   created () {
     this.debouncedSearchKnowledge = debounce(this.searchTag, 500)
-    this.QuerySourceTagByCategory()
+    // this.QuerySourceTagByCategory()
     this.QueryBigIdea()
     SubjectTree({ curriculumId: this.$store.getters.bindCurriculum }).then(res => {
       this.$logger.info('SubjectTree response', res.result)
@@ -156,22 +156,22 @@ export default {
       this.selectedKeywords = keyword
       this.QueryBigIdea()
     },
-    QuerySourceTagByCategory () {
-      this.tagLoading = true
-      if (this.subjectIds.length === 1 && !this.subjectIds[0]) {
-        this.subjectIds = []
-      }
-      QuerySourceTagByCategory({ category: TAG_CATGORY_KEYWORDS, searchKey: this.inputTag }).then(response => {
-        this.$logger.info('QuerySourceTagByCategory response', response.result)
-        if (response.success) {
-          this.keywordList = response.result.tags
-          this.keywordHotList = response.result.hots
-        }
-      }).finally(() => {
-        this.tagLoading = false
-        this.getLettersList()
-      })
-    },
+    // QuerySourceTagByCategory () {
+    //   this.tagLoading = true
+    //   if (this.subjectIds.length === 1 && !this.subjectIds[0]) {
+    //     this.subjectIds = []
+    //   }
+    //   QuerySourceTagByCategory({ category: TAG_CATGORY_KEYWORDS, searchKey: this.inputTag }).then(response => {
+    //     this.$logger.info('QuerySourceTagByCategory response', response.result)
+    //     if (response.success) {
+    //       this.keywordList = response.result.tags
+    //       this.keywordHotList = response.result.hots
+    //     }
+    //   }).finally(() => {
+    //     this.tagLoading = false
+    //     this.getLettersList()
+    //   })
+    // },
     getLettersList () {
       this.keywordLetterList = []
       this.alphabet.forEach((letter) => {
@@ -189,10 +189,10 @@ export default {
     QueryBigIdea () {
       this.bigLoading = true
       this.bigIdeaList = []
-      if (this.subjectIds.length === 1 && !this.subjectIds[0]) {
-        this.subjectIds = []
+      if (this.subjectNames.length === 1 && this.subjectNames[0] === 'All Subject') {
+        this.subjectNames = []
       }
-      QueryBigIdea({ keywords: this.selectedKeywords, subjectIds: this.subjectIds, concepts: this.selectedConcept }).then(response => {
+      QueryBigIdea({ keywords: this.selectedKeywords, subjects: this.subjectNames, concepts: this.selectedConcept }).then(response => {
         this.$logger.info('QueryBigIdea response', response.result)
         if (response.success) {
           this.bigIdeaList = response.result
@@ -234,9 +234,10 @@ export default {
       // this.QuerySourceTagByCategory()
       this.QueryBigIdea()
     },
-    selectSubject (subjectId) {
-      this.subjectId = subjectId
-      this.queryTagsBySubjectIds()
+    handleSelectSubject (subject) {
+      this.selectSubject = subject
+      this.subjectNames = [subject]
+      // this.queryTagsBySubjectIds()
       this.QueryBigIdea()
     }
 

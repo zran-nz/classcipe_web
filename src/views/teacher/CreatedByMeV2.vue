@@ -336,7 +336,10 @@ export default {
     align-items: center;
     justify-content: space-between;
     flex-direction: row;
-
+    .source-type{
+      min-width: 400px;
+      padding-right: 10px;
+    }
     @media screen and (max-width: 1300px) {
      /deep/ .radio-item {
         font-size:12px;
