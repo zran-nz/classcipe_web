@@ -149,7 +149,7 @@
                 </label>
               </a-input>
             </a-form-model-item>
-            <a-form-model-item label="Message for the pricipal (Optional)">
+            <a-form-model-item label="Message for the principal (Optional)">
               <a-textarea :auto-size="{ minRows: 3}" size="large" v-model="userForm.personalizedMessage" placeholder="input your personalized message" />
             </a-form-model-item>
             <a-form-model-item style="text-align: left;">
@@ -474,6 +474,8 @@ export default {
     changeUserFormCountry(val) {
       const current = this.countries.find(item => item.en === val)
       this.userForm.city = undefined
+      this.userForm.country = val
+      this.userFormCitys = []
       this.userForm.phoneCountryCode = current.no || ''
     },
     fetchUserFormCity(val) {

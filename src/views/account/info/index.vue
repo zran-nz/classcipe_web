@@ -348,7 +348,7 @@ export default {
     },
     isNotAdmin() {
       if (this.userMode === USER_MODE.SCHOOL && this.currentSchool.roleNames) {
-        return !this.currentSchool.roleNames.includes('admin')
+        return !this.currentSchool.roleNames.map(role => role.toLowerCase()).includes('admin')
       } else {
         return true
       }

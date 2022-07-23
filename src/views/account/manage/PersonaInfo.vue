@@ -324,6 +324,7 @@ export default {
     },
     changeCountry(val) {
       this.formModel.city = undefined
+      this.formModel.country = val
       this.citys = []
     },
     fetchCity(val) {
