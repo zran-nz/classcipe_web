@@ -53,7 +53,17 @@
               </div>
             </a-space>
           </div>
+          <div class='tag-info' v-if='knowledgeTagsList.length'>
+            <div class='tag-info-item' v-for='(knowledgeTag, cIdx) in knowledgeTagsList' :key='cIdx'>
+              <a-tag color='#EABA7F' class='tag-item knowledge-tag' :title='knowledgeTag'>{{ knowledgeTag }}</a-tag>
+            </div>
+          </div>
           <div class='tag-info'>
+            <template v-if='commandTermsList.length'>
+              <div class='tag-info-item' v-for='(command, cIdx) in commandTermsList' :key='cIdx'>
+                <a-tag color='#06ACD7' class='tag-item command-tag' :title='command'>{{ command }}</a-tag>
+              </div>
+            </template>
             <div class='tag-info-item' v-for='(customTag, idx) in content.customTags' :key='idx'>
               <a-tag color='#FFEDAF' class='tag-item' :title='customTag.category'> {{ customTag.name }} </a-tag>
             </div>
@@ -399,6 +409,7 @@ export default {
       flex-grow: 1;
       .base-info {
         min-width: 500px;
+        width: 100%;
         @media screen and (max-width: 1300px) {
           .base-info{
             min-width: 400px;
@@ -414,6 +425,7 @@ export default {
           user-select: none;
           overflow: hidden;
           .name {
+            width: 90%;
             margin-left: 10px;
             line-height: 2rem;
             font-size: 1rem;
@@ -421,11 +433,10 @@ export default {
             font-weight: bold;
             color: #17181A;
             cursor: pointer;
-            width: 500px;
-            text-overflow: ellipsis;
-            word-break: break-word;
-            user-select: none;
             overflow: hidden;
+            text-overflow: ellipsis;
+            word-break: break-all;
+            white-space: nowrap;
           }
 
           @media screen and (max-width: 1300px) {
@@ -583,7 +594,7 @@ export default {
   .curriculum-info {
     font-size: 0.6rem;
     background: #E6E4FF;
-    padding: 3px 10px;
+    padding: 5px 10px;
     border-radius: 20px;
     font-family: Arial;
     font-weight: bold;
@@ -690,4 +701,7 @@ export default {
   }
 }
 
+.knowledge-tag, .command-tag {
+  color: #fff;
+}
 </style>

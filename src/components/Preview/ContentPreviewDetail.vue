@@ -1138,7 +1138,6 @@ export default {
     box-shadow: 0px 1px 12px 1px rgba(0, 0, 0, 0.07);
 
     .header-left {
-      flex-shrink: 1;
       display: flex;
       flex-direction: row;
       align-items: center;
@@ -1156,17 +1155,21 @@ export default {
       }
 
       .name {
+        width: 70%;
         padding-left: 10px;
         font-size: 16px;
         font-family: Arial;
         font-weight: 400;
         color: #0C1A3E;
         line-height: 20px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        word-break: break-all;
+        white-space: nowrap;
       }
     }
 
     .header-right {
-      flex-shrink: 0;
       padding-right: 10px;
       display: flex;
       flex-direction: row;
@@ -1361,6 +1364,7 @@ export default {
           margin-bottom: 5px;
         }
         .wrapper-list-item {
+          margin-bottom: 5px;
           .command-tag {
             line-height: 25px;
           }
