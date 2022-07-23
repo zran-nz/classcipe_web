@@ -401,6 +401,7 @@
                 :custom-tags.sync='form.customTags'
                 :tag-category-desc.sync='form.tagCategoryDesc'
                 :associate-id-type-list='associateIdTypeList'
+                :priority-tags='priorityTags'
                 :is-load-associate-tags='true'
               />
             </div>
@@ -688,7 +689,8 @@ export default {
       fullBodyFields: ['learnOuts'],
 
       showSplitTask: false,
-      waitingRedirect: false
+      waitingRedirect: false,
+      priorityTags: []
     }
   },
   computed: {
@@ -730,6 +732,9 @@ export default {
       this.currentStep = this.formSteps[this.currentActiveStepIndex]
       this.handleDisplayRightModule()
       this.checkIsFullBodyStep()
+      const basicSteps = this.formSteps.find(step => step.name === 'Edit Basic')
+      this.priorityTags = basicSteps ? basicSteps.tags : []
+      this.$logger.info('priorityTags', this.priorityTags)
     })
     this.$logger.info('恢复step', this.currentActiveStepIndex, this.currentStep)
     this.initData()

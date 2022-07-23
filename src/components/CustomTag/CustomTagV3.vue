@@ -168,6 +168,9 @@ const setColor = [
   '#c4f6b1'
 ]
 
+const tagColorMap = {
+}
+
 export default {
   name: 'CustomTagV3',
   components: { CustomLinkText, CustomTextButton, TagSetting, CustomSearchInput, CustomTagCategoryBar, CommonNoData },
@@ -181,6 +184,10 @@ export default {
       default: () => []
     },
     associateIdTypeList: {
+      type: Array,
+      default: () => []
+    },
+    priorityTags: {
       type: Array,
       default: () => []
     },
@@ -264,11 +271,28 @@ export default {
     allTagList () {
       const pubTagList = this.$store.getters.pubTagList
       const priTagList = this.$store.getters.priTagList
-      const tagList = [...pubTagList, ...priTagList]
+      const tagList = JSON.parse(JSON.stringify([...pubTagList, ...priTagList]))
+      if (this.priorityTags.length) {
+        const priorityStepList = []
+        this.priorityTags.forEach(priorityTagName => {
+          const index = tagList.findIndex(step => step.set === priorityTagName)
+          if (index !== -1) {
+            priorityStepList.push(tagList.splice(index, 1)[0])
+          }
+        })
+        console.log('priorityStepList', priorityStepList)
+        for (let i = priorityStepList.length - 1; i >= 0; i--) {
+          tagList.unshift(priorityStepList[i])
+        }
+        console.log('priorityStepList tagList', tagList)
+      }
       return tagList.map((tag, index) => {
+        if (!tagColorMap[tag.set]) {
+          tagColorMap[tag.set] = setColor[ index % setColor.length ]
+        }
         return {
           ...tag,
-          tagColor: setColor[ index % setColor.length ]
+          tagColor: tagColorMap[tag.set]
         }
       })
     },

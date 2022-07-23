@@ -542,6 +542,7 @@
                 :custom-tags.sync='form.customTags'
                 :tag-category-desc.sync='form.tagCategoryDesc'
                 :associate-id-type-list='associateIdTypeList'
+                :priority-tags='priorityTags'
                 :is-load-associate-tags='true' />
             </div>
           </template>
@@ -1005,7 +1006,8 @@ export default {
       formBodyWidth: '50%',
       tagBodyWidth: '50%',
       fullBodyFields: ['learnOuts'],
-      selectBigIdeaDataVisible: false
+      selectBigIdeaDataVisible: false,
+      priorityTags: []
     }
   },
   watch: {
@@ -1611,6 +1613,8 @@ export default {
     handleStepChange(data) {
       this.$logger.info('task handleStepChange ', data)
       this.currentStep = data.step
+      this.priorityTags = data.step.tags
+      this.$logger.info('priorityTags', this.priorityTags)
       this.currentActiveStepIndex = data.index
       this.resetRightModuleVisible()
       sessionStorage.setItem('unit-plan-step-' + this.unitPlanId, data.index)
