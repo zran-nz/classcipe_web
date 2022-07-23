@@ -433,12 +433,12 @@
         </div>
       </div>
 
-      <div class='card-list-wrapper' v-if="associateList.length">
+      <div class='card-list-wrapper' v-if="realAssociateList.length">
         <div class='card-list-title'>
           <div class='sub-task-title'>
-            <template v-if="associateList[0].type === typeMap['unit-plan']">Unit</template>
-            <template v-if="associateList[0].type === typeMap.task">Task</template>
-            ({{ associateList.length }})
+            <template v-if="realAssociateList[0].type === typeMap['unit-plan']">Unit</template>
+            <template v-if="realAssociateList[0].type === typeMap.task">Task</template>
+            ({{ realAssociateList.length }})
           </div>
           <div class='go-to-list'>
             <custom-link-text text='Enter' @click='goTLinkList'></custom-link-text>
@@ -451,13 +451,13 @@
           <a-icon type="right-circle" :style="{fontSize: '22px', color: '#dddddd'}" />
         </div>
         <div class='card-list' id='taskUnit'>
-          <div class="card-item" v-for="(associate, i) in associateList" :key="i" @click='handlePreviewItem(associate)'>
+          <div class="card-item" v-for="(associate, i) in realAssociateList" :key="i" @click='handlePreviewItem(associate)'>
             <card-list-item :content="associate" :width="16" :inner-desc="false" :outer-desc="true" />
           </div>
         </div>
       </div>
 
-      <div class='card-list-wrapper' v-if="associateRecommendList.length">
+      <div class='card-list-wrapper' v-if="realRecommendList.length">
         <div class='card-list-title'>
           <div class='sub-task-title'>
             Recommend
@@ -473,7 +473,7 @@
           <a-icon type="right-circle" :style="{fontSize: '22px', color: '#dddddd'}" />
         </div>
         <div class='card-list' id='associateRecommendList'>
-          <div class="card-item" v-for="(associate, i) in associateRecommendList" :key="i" @click='handlePreviewItem(associate)'>
+          <div class="card-item" v-for="(associate, i) in realRecommendList" :key="i" @click='handlePreviewItem(associate)'>
             <card-list-item :content="associate" :width="16" :inner-desc="false" :outer-desc="true" />
           </div>
         </div>
@@ -694,6 +694,13 @@ export default {
         activeTypes = this.itemsList.map(item => item.type)
       }
       return Array.from(new Set(activeTypes))
+    },
+    realRecommendList() {
+      const othersContent = this.associateList.filter(item => item.createBy !== this.$store.getters.email)
+      return [...this.associateRecommendList, ...othersContent]
+    },
+    realAssociateList () {
+      return this.associateList.filter(item => item.createBy === this.$store.getters.email)
     }
   },
   created() {
@@ -1131,7 +1138,6 @@ export default {
     box-shadow: 0px 1px 12px 1px rgba(0, 0, 0, 0.07);
 
     .header-left {
-      flex-shrink: 1;
       display: flex;
       flex-direction: row;
       align-items: center;
@@ -1149,17 +1155,21 @@ export default {
       }
 
       .name {
+        width: 70%;
         padding-left: 10px;
         font-size: 16px;
         font-family: Arial;
         font-weight: 400;
         color: #0C1A3E;
         line-height: 20px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        word-break: break-all;
+        white-space: nowrap;
       }
     }
 
     .header-right {
-      flex-shrink: 0;
       padding-right: 10px;
       display: flex;
       flex-direction: row;
@@ -1354,6 +1364,7 @@ export default {
           margin-bottom: 5px;
         }
         .wrapper-list-item {
+          margin-bottom: 5px;
           .command-tag {
             line-height: 25px;
           }

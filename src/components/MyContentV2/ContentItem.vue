@@ -63,7 +63,17 @@
               </div>
             </a-space>
           </div>
+          <div class='tag-info' v-if='knowledgeTagsList.length'>
+            <div class='tag-info-item' v-for='(knowledgeTag, cIdx) in knowledgeTagsList' :key='cIdx'>
+              <a-tag color='#EABA7F' class='tag-item knowledge-tag' :title='knowledgeTag'>{{ knowledgeTag }}</a-tag>
+            </div>
+          </div>
           <div class='tag-info'>
+            <template v-if='commandTermsList.length'>
+              <div class='tag-info-item' v-for='(command, cIdx) in commandTermsList' :key='cIdx'>
+                <a-tag color='#06ACD7' class='tag-item command-tag' :title='command'>{{ command }}</a-tag>
+              </div>
+            </template>
             <div class='tag-info-item' v-for='(customTag, idx) in content.customTags' :key='idx'>
               <a-tag color='#FFEDAF' class='tag-item' :title='customTag.category'> {{ customTag.name }} </a-tag>
             </div>
@@ -441,6 +451,7 @@ export default {
       flex-grow: 1;
 
       .base-info {
+        width: 100%;
         .name-type {
           display: flex;
           justify-content: flex-start;
@@ -448,6 +459,7 @@ export default {
           flex-direction: row;
 
           .name {
+            width: 90%;
             margin-left: 10px;
             line-height: 2rem;
             font-size: 1rem;
@@ -455,6 +467,10 @@ export default {
             font-weight: bold;
             color: #17181A;
             cursor: pointer;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            word-break: break-all;
+            white-space: nowrap;
           }
 
         }
@@ -607,12 +623,13 @@ export default {
   display: flex;
   flex-direction: row;
   align-items: center;
+  padding: 5px 0;
   justify-content: flex-start;
 
   .curriculum-info {
     font-size: 0.6rem;
     background: #E6E4FF;
-    padding: 3px 10px;
+    padding: 5px 10px;
     border-radius: 20px;
     font-family: Arial;
     font-weight: bold;
@@ -685,5 +702,9 @@ export default {
     margin-left: 4px;
   }
   min-width: 110px;
+}
+
+.knowledge-tag, .command-tag {
+  color: #fff;
 }
 </style>

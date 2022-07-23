@@ -1226,8 +1226,8 @@ export default {
         this.formBodyWidth = '100%'
         this.tagBodyWidth = '0%'
       } else {
-        this.formBodyWidth = '55%'
-        this.tagBodyWidth = '45%'
+        this.formBodyWidth = '50%'
+        this.tagBodyWidth = '50%'
       }
     },
 

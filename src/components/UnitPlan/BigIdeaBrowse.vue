@@ -77,7 +77,6 @@
 import * as logger from '@/utils/logger'
 import TagBrowser from '@/components/UnitPlan/TagBrowser'
 // import { QuerySourceTagByCategory } from '@/api/tag'
-import { TAG_CATGORY_KEYWORDS } from '@/const/common'
 import { SubjectTree } from '@/api/subject'
 import { QueryBigIdea, QueryTagsBySubjectIds } from '@/api/scenario'
 

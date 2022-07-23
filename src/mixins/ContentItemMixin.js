@@ -1,4 +1,5 @@
 import { TemplatesGetPresentation } from '@/api/template'
+import { uniqBy } from 'lodash-es'
 
 export const ContentItemMixin = {
   data () {
@@ -22,6 +23,14 @@ export const ContentItemMixin = {
         '#c4f6b1'
       ],
       savingSlides: false
+    }
+  },
+  computed: {
+    commandTermsList () {
+      return uniqBy((this.content.learnOuts.map(item => item.commandTerms)).flat(2), 'name').map(item => item.name)
+    },
+    knowledgeTagsList () {
+      return uniqBy((this.content.learnOuts.map(item => item.knowledgeTags)).flat(2), 'name').map(item => item.name)
     }
   },
   methods: {
