@@ -40,7 +40,7 @@
       <template v-slot:right>
         <div class='right-button'>
           <a-space>
-            <a-button type='primary' :loading='teacherSessionNowLoading' v-if='currentActiveStepIndex === $classcipe.ScheduleSteps.length - 1' @click='handleTeacherSessionNow'>Teach the session now</a-button>
+            <a-button type='primary' :loading='teacherSessionNowLoading' v-if='currentActiveStepIndex === $classcipe.ScheduleSteps.length - 1 && scheduleReq.workshopType === 0' @click='handleTeacherSessionNow'>Teach the session now</a-button>
             <a-button type='primary' @click='handleGoNext' :loading='creating'>
               <template v-if='currentActiveStepIndex !== $classcipe.ScheduleSteps.length - 1'>
                 Next <a-icon type='right' />
@@ -128,7 +128,7 @@ export default {
         teachSessionNow: 1,
         password: true,
         waitingRoom: true,
-        workshopType: 1, // 1-private workshop 2-public workshop
+        workshopType: 0, // 1-private workshop 2-public workshop
         zoom: 0
       },
       creating: false,
@@ -251,9 +251,10 @@ export default {
             if (zoomMeetingItem.zoomMeeting) {
               const zoomMeetingConfig = JSON.parse(zoomMeetingItem.zoomMeeting)
               window.open(zoomMeetingConfig.start_url, '_blank')
+              this.finishAndGoBack(zoomRes[0].taskClassId)
             }
           } else {
-            this.$message.error('create zoom meeting failed')
+            this.$logger.warn('create zoom meeting failed', zoomRes)
           }
         } catch (e) {
           this.$logger.error('handleTeacherSessionNow ', e)
@@ -263,24 +264,26 @@ export default {
         }
       } else {
         await this.createSession()
-        this.$router.replace({
-          path: '/teacher/main/live-workshops'
-        })
       }
     },
 
     handleSelectClassStudent (cls) {
       this.scheduleReq.openSession = false
+      this.scheduleReq.workshopType = 0
+      this.$logger.info('handleSelectClassStudent', this.scheduleReq)
     },
 
     handleSelectWorkshopType (data) {
       this.scheduleReq.workshopType = data.workshopType
       this.scheduleReq.openSession = data.workshopType === 2
+      this.scheduleReq.classIds = []
+      this.scheduleReq.selectStudents = []
       this.scheduleReq.zoom = 1
       // workshop4种类型
       this.calendarSearchFilters = [1, 2, 3, 4]
       this.calendarSearchType = CALENDAR_QUERY_TYPE.WORKSHOP.value
       this.$refs['steps-nav'].nextStep()
+      this.$logger.info('handleSelectWorkshopType', this.scheduleReq)
     },
 
     handleSelectDate (data) {
@@ -343,16 +346,16 @@ export default {
         this.$logger.info('save scheduleReq', res, 'retValue', retValue)
         if (res.result && res.success && res.code === 0) {
           this.$message.success('Schedule session successfully')
-          if (res.result.length && res.result[0].taskClassId) {
-            await this.$router.replace({
-              path: `/teacher/class-session/${res.result[0].taskClassId}`
-            })
-          } else if (retValue) {
+          if (retValue) {
             return res.result
           } else {
-            this.$router.replace({
-              path: `/teacher/main/live-workshops`
-            })
+            if (res.result.length && res.result[0].taskClassId) {
+              this.finishAndGoBack(res.result[0].taskClassId)
+            } else {
+              this.$router.replace({
+                path: `/teacher/main/live-workshops`
+              })
+            }
           }
         } else {
           this.$confirm({
@@ -362,6 +365,7 @@ export default {
           })
         }
       } catch (e) {
+        console.error(e)
         this.$confirm({
           title: 'Error',
           content: 'Schedule session error.' + e.message + '. Please try again.',
@@ -371,6 +375,18 @@ export default {
         this.creating = false
       }
       return null
+    },
+
+    finishAndGoBack(taskClassId) {
+      if (this.scheduleReq.workshopType) {
+        this.$router.replace({
+          path: `/teacher/main/live-workshops`
+        })
+      } else {
+        this.$router.replace({
+          path: `/teacher/class-session/${taskClassId}`
+        })
+      }
     }
   }
 }
