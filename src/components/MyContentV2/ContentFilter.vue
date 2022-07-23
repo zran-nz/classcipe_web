@@ -76,22 +76,22 @@ export default {
   },
   computed: {
     ...mapGetters({
-      allSubjects: 'allSubjects',
-      allYears: 'allYears'
+      currentSchoolSubjectList: 'currentSchoolSubjectList',
+      currentSchoolGradeList: 'currentSchoolGradeList'
     }),
     filterSubjectOptions () {
-      return this.allSubjects.map(item => {
+      return this.currentSchoolSubjectList.map(item => {
         return {
-          label: item,
-          value: item
+          label: item.subjectName,
+          value: item.subjectId
         }
       })
     },
     filterAgeOptions () {
-      return this.allYears.map(item => {
+      return this.currentSchoolGradeList.map(item => {
         return {
-          label: item,
-          value: item
+          label: item.gradeName,
+          value: item.gradeId
         }
       })
     }

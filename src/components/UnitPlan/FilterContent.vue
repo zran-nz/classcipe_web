@@ -217,6 +217,7 @@ export default {
       display: flex;
       font-size: 13px;
       flex-direction: column;
+      padding: 0 5px;
 
       .filter-option-list-item {
         line-height: 30px;
@@ -240,7 +241,7 @@ export default {
 .option-content {
   margin-top: 25px;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: flex-start;
   flex-wrap: wrap;
 }

@@ -185,6 +185,10 @@ export default {
       }).finally(() => {
         this.$emit('save-success')
         this.loading = false
+        this.$store.dispatch('initSubjectGradeData', {
+          schoolId: this.$store.getters.school,
+          bindCurriculumId: this.$store.getters.bindCurriculum
+        })
       })
     },
     diffChanges(old, current) {

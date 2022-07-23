@@ -857,12 +857,11 @@ export default {
             } else {
               this.$message.error(response.message)
             }
-
           } finally {
             this.nextLoading = false
           }
         }
-        this.$router.replace({
+        await this.$router.replace({
           path: '/teacher/sub-task/' + this.parentTaskId
         })
       } else {
