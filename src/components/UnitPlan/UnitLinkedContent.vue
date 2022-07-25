@@ -197,6 +197,9 @@ export default {
 
     async getAssociate () {
       this.$logger.info('GetAssociate id[' + this.fromId)
+      if (!this.fromId) {
+        return
+      }
       this.associateUnitList = []
       this.associateUnitIdList = []
       this.associateTaskList = []
