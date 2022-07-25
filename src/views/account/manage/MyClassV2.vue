@@ -79,17 +79,17 @@
                       </a-input>
                     </div>
                     <div :class="{'class-con': true, 'archive': currentTab === 'archive'}">
-                      <div class="class-con-item">
+                      <div :class="{'class-con-item': true, 'pointer': currentTab !== 'archive' && userMode !== USER_MODE.SELF}" @click="handleEditTeachers(cls)">
                         <div class="con-item-label">Teachers</div>
                         <div class="con-item-detail" v-if="currentTab === 'archive' || userMode === USER_MODE.SELF">{{ cls.teacherCount || 0 }}</div>
-                        <a @click="handleEditTeachers(cls)" v-else for="">{{ cls.teacherCount || 0 }}</a>
+                        <a v-else for="">{{ cls.teacherCount || 0 }}</a>
                       </div>
-                      <div class="class-con-item">
+                      <div :class="{'class-con-item': true, 'pointer': currentTab !== 'archive'}" @click="handleEditStudents(cls)">
                         <div class="con-item-label">Students</div>
                         <div class="con-item-detail">
                           <label v-if="!cls.isNew && currentTab === 'archive'" for="">{{ cls.studentCount }}</label>
-                          <a @click="handleEditStudents(cls)" v-if="!cls.isNew && currentTab !== 'archive'" for="">{{ cls.studentCount }}</a>
-                          <a type="link" @click="handleEditStudents(cls)" v-if="cls.isNew">Upload</a>
+                          <a v-if="!cls.isNew && currentTab !== 'archive'" for="">{{ cls.studentCount }}</a>
+                          <a type="link" v-if="cls.isNew">Upload</a>
                         </div>
                       </div>
                     </div>
@@ -554,6 +554,9 @@ export default {
       })
     },
     handleEditStudents(cls) {
+      if (this.currentTab === 'archive') {
+        return
+      }
       if (!cls.id) {
         this.handleSaveClassName(cls, classId => {
           this.$refs.memberList.doCreate({
@@ -569,6 +572,9 @@ export default {
       }
     },
     handleEditTeachers(cls) {
+      if (this.currentTab === 'archive' || this.userMode === USER_MODE.SELF) {
+        return
+      }
       if (!cls.id) {
         this.handleSaveClassName(cls, classId => {
           this.$refs.memberList.doCreate({
@@ -849,6 +855,9 @@ export default {
               text-align: center;
               justify-content: space-between;
               padding: 15px 0;
+              &.pointer {
+                cursor: pointer;
+              }
               & ~ .class-con-item {
                 margin-left: 20px;;
               }

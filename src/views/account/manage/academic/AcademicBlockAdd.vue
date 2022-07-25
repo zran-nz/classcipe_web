@@ -93,7 +93,7 @@ export default {
   },
   data() {
     return {
-      title: 'Block Setting',
+      title: 'Block Scheduling',
       mode: 'add',
       width: 600,
       visible: false,

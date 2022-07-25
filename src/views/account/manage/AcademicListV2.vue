@@ -53,7 +53,7 @@
                   <label>{{ term.name }}</label>
                   <a-space size="middle">
                     <a-button style="color: #15c39a" type="link" @click="handleEditTerm(item, term)">Edit</a-button>
-                    <a-button style="color: #15c39a" type="link" @click="handleEditBlock(term)">Block setting</a-button>
+                    <a-button style="color: #15c39a" type="link" @click="handleEditBlock(term)">Block scheduling</a-button>
                   <!-- <a-button style="color: #15c39a" type="link" :loading="delLoading" @click="handleDeleteTerm(term)">Delete</a-button> -->
                   </a-space>
                 </div>
@@ -218,7 +218,7 @@ export default {
       })
     },
     handleEditBlock(item) {
-      this.$refs.blockForm.title = 'Block setting'
+      this.$refs.blockForm.title = 'Block scheduling'
       this.$refs.blockForm.mode = 'add'
       this.$refs.blockForm.edit({
         ...item.block

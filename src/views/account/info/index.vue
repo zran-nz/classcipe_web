@@ -344,6 +344,9 @@ export default {
     },
     roles() {
       if (this.userMode === USER_MODE.SCHOOL && this.currentSchool.roleNames) {
+        if (this.currentSchool.roleNames.length > 1) {
+          return this.currentSchool.roleNames.filter(item => item.toLowerCase() !== 'teacher').join(',')
+        }
         return this.currentSchool.roleNames.join(', ')
       } else {
         return ''
@@ -439,6 +442,8 @@ export default {
           }
         })
         hasPerm = permissions.includes(permissionCode)
+      } else {
+        hasPerm = true
       }
       return hasPerm
     },
