@@ -578,7 +578,6 @@ import {
   Associate,
   FindBigIdeaSourceOutcomes,
   FindSourceOutcomes,
-  GetAssociate,
   GetMyGrades,
   GetReferOutcomes, UpdateContentStatus
 } from '@/api/teacher'

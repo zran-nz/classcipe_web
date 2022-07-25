@@ -426,7 +426,7 @@
 
 <script>
 import { typeMap } from '@/const/teacher'
-import { FindSourceOutcomes, GetAssociate, GetMyGrades, GetReferOutcomes, UpdateContentStatus } from '@/api/teacher'
+import { FindSourceOutcomes, GetMyGrades, GetReferOutcomes, UpdateContentStatus } from '@/api/teacher'
 import { TemplatesGetPresentation } from '@/api/template'
 import { TaskAddOrUpdate, TaskCreateNewTaskPPT, TaskQueryById } from '@/api/task'
 import Collaborate from '@/components/UnitPlan/Collaborate'

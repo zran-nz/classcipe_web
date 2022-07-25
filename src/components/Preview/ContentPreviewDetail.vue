@@ -676,7 +676,7 @@ export default {
       for (let i = 3; i < 19; i++) {
         list.push({
           name: i + ' years',
-          value: i + '',
+          value: i + ''
         })
       }
       return list
