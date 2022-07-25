@@ -18,6 +18,7 @@
       :model="formModel"
       v-bind="formItemLayout"
       :rules="validatorRules"
+      @validate="doValidate"
       ref="form">
       <a-form-model-item v-if="studentId" label="Last Login" :wrapperCol="{ span: 18 }">
         <a-row :gutter=0>
@@ -26,7 +27,7 @@
           </a-col>
           <a-col :span="2" style="text-align: center;">
           </a-col>
-          <a-col :span="6" style="text-align: center;" v-if="studentId && formModel.inviteEmail">
+          <a-col :span="6" style="text-align: center;" v-if="!formModel.inviteEmail && !formModel.parentEmailStatus">
             <a-button type="black" :loading="confirmLoading" @click="handleReset">Reset Password</a-button>
           </a-col>
         </a-row>
@@ -46,9 +47,9 @@
         </a-row>
       </a-form-model-item>
       <a-form-model-item label="Email" prop="inviteEmail">
-        <a-input v-model="formModel.inviteEmail" placeholder="Email" :disabled="teacherId && !!formModel.inviteEmail" />
+        <a-input v-model="formModel.inviteEmail" placeholder="Email" :disabled="studentId && !!formModel.inviteEmail" />
       </a-form-model-item>
-      <a-form-model-item label="Birth">
+      <a-form-model-item label="DOB">
         <a-date-picker v-model="formModel.birthDay" />
       </a-form-model-item>
       <a-form-model-item class="mb0" label="Class" :required="true">
@@ -117,7 +118,7 @@
         <a-input v-model="formModel.parentPhone" placeholder="Phone" />
       </a-form-model-item>
       <a-form-model-item :wrapperCol="{offset: 6}">
-        <a-button :loading="loading" @click="handleSave" type="primary">{{ studentId ? 'Update': 'Create' }}</a-button>
+        <a-button :disabled="hasErrors" :loading="loading" @click="handleSave" type="primary">{{ studentId ? 'Update': 'Create' }}</a-button>
       </a-form-model-item>
     </a-form-model>
 
@@ -141,6 +142,9 @@ import { addStudents, resetPassword, getStudentInfo, updateStudent, checkEmailSt
 import ResetPassword from '../persona/ResetPassword'
 import AvatarModal from '@/views/account/settings/AvatarModal'
 
+import { SubmitBeforeMixin } from '@/mixins/SubmitBeforeMixin'
+import { AutoSaveLocalMixin } from '@/mixins/AutoSaveLocalMixin'
+
 import moment from 'moment'
 export default {
   name: 'SchoolStudentAdd',
@@ -148,6 +152,10 @@ export default {
     ResetPassword,
     AvatarModal
   },
+  mixins: [
+    SubmitBeforeMixin,
+    AutoSaveLocalMixin
+  ],
   props: {
     school: {
       type: Object,
@@ -207,7 +215,10 @@ export default {
       loading: false,
       passwordVis: false,
       origin: {},
-      confirmLoading: false
+      confirmLoading: false,
+      cacheKey: 'SUBMIT_VALIDATE_SCHOOL_STUDENT_',
+      autoSaveLocalKey: 'FORM_SCHOOL_STUDENT_',
+      needAutoSave: !this.id
     }
   },
   computed: {
@@ -227,7 +238,7 @@ export default {
           { type: 'email', message: 'Please Input Valid Email!', trigger: 'blur' },
           { validator: this.validateRemoteParentEmail, trigger: 'blur' }
         ],
-        classArr: [{ required: true, message: 'Please Select a class!', trigger: 'change' }],
+        classes: [{ required: true, message: 'Please Select a class!', trigger: 'change' }],
         parentPhone: [
           { required: true, message: 'Please Input Phone!' }
           // { pattern: /^1[3|4|5|7|8|9][0-9]\d{8}$/, message: 'Please Input Valid Phone!' }
@@ -281,14 +292,22 @@ export default {
           this.loading = false
         })
       } else {
+        const fromCache = this.getAutoLocalData()
         this.formModel = {
           ...this.formModel,
+          ...fromCache,
           ...defaultForm
         }
         if (this.formModel.classes) {
           this.formModel.classArr = this.formModel.classes.split(',')
         }
       }
+      this.$nextTick(() => {
+        this.initValidate(!!this.id)
+      })
+    },
+    doValidate(key, value) {
+      this.fillValidate(key, value)
     },
     setAvatar (url) {
       this.formModel.avatar = url
@@ -306,7 +325,7 @@ export default {
           schoolId: this.currentSchool.id
         }).then(response => {
           if (response.code === 0 && response.result && response.result[0].exists) {
-            callback(new Error('Student already exists'))
+            callback(new Error('already exists at this school'))
           } else {
             callback()
           }
@@ -334,7 +353,7 @@ export default {
           schoolId: this.currentSchool.id
         }).then(response => {
           if (response.code === 0 && response.result && response.result[0].exists) {
-            callback(new Error('Email already exists'))
+            callback(new Error('same student already linked with this parent email'))
           } else {
             callback()
           }
@@ -391,6 +410,7 @@ export default {
           promise(params).then(res => {
             if (res.code === 0) {
               this.$message.success('Save successfully')
+              this.clearLocalData()
               this.$emit('save', res.result)
             }
           }).finally(() => {

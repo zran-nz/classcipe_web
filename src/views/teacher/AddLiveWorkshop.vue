@@ -176,7 +176,7 @@
                   @change="changeFilter"
                   v-model="filter.ages"
                   class="filter-select"
-                  placeholder="Select Age"
+                  placeholder="Select year(s)"
                   :showArrow="true"
                   mode="multiple">
                   <a-select-option :value="item.value" v-for="(item, index) in filterAgeOptions" :key="index" >
@@ -436,7 +436,7 @@ export default {
           id: this.id
         }).then(response => {
           this.form.title = response.result.name
-          this.form.cover = response.result.image
+          this.form.cover = this.type === typeMap.task ? response.result.image : response.result.coverVideo
           this.form.coverType = 'image'
         }).finally(() => {
           this.contentLoading = false

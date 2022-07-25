@@ -19,6 +19,7 @@
       :model="formModel"
       v-bind="formItemLayout"
       :rules="validatorRules"
+      @validate="doValidate"
       ref="form">
       <a-form-model-item v-if="teacherId" label="Last Login" :wrapperCol="{ span: 18 }">
         <a-row :gutter=0>
@@ -95,7 +96,7 @@
         </a-select>
       </a-form-model-item>
       <a-form-model-item :wrapperCol="{offset: 6}">
-        <a-button :loading="loading" @click="handleSave" type="primary">{{ teacherId ? 'Update': 'Create' }}</a-button>
+        <a-button :disabled="hasErrors" :loading="loading" @click="handleSave" type="primary">{{ teacherId ? 'Update': 'Create' }}</a-button>
       </a-form-model-item>
     </a-form-model>
 
@@ -120,6 +121,9 @@ import { listRole } from '@/api/v2/schoolRole'
 import ResetPassword from '../persona/ResetPassword'
 import AvatarModal from '@/views/account/settings/AvatarModal'
 
+import { SubmitBeforeMixin } from '@/mixins/SubmitBeforeMixin'
+import { AutoSaveLocalMixin } from '@/mixins/AutoSaveLocalMixin'
+
 import moment from 'moment'
 export default {
   name: 'SchoolTeacherAdd',
@@ -127,6 +131,10 @@ export default {
     ResetPassword,
     AvatarModal
   },
+  mixins: [
+    SubmitBeforeMixin,
+    AutoSaveLocalMixin
+  ],
   props: {
     school: {
       type: Object,
@@ -184,7 +192,10 @@ export default {
       },
       loading: false,
       passwordVis: false,
-      confirmLoading: false
+      confirmLoading: false,
+      cacheKey: 'SUBMIT_VALIDATE_SCHOOL_TEACHER_',
+      autoSaveLocalKey: 'FORM_SCHOOL_TEACHER_',
+      needAutoSave: !this.id
     }
   },
   computed: {
@@ -251,14 +262,22 @@ export default {
           this.loading = false
         })
       } else {
+        const fromCache = this.getAutoLocalData()
         this.formModel = {
           ...this.formModel,
+          ...fromCache,
           ...defaultForm
         }
         if (this.formModel.classes) {
           this.formModel.classArr = this.formModel.classes.split(',')
         }
       }
+      this.$nextTick(() => {
+        this.initValidate(!!this.id)
+      })
+    },
+    doValidate(key, value) {
+      this.fillValidate(key, value)
     },
     validateRemoteEmail(rule, value, callback) {
       if (!value) {
@@ -326,6 +345,7 @@ export default {
           promise(params).then(res => {
             if (res.code === 0) {
               this.$message.success('Save successfully')
+              this.clearLocalData()
               this.$emit('save', params)
             }
           }).finally(() => {
