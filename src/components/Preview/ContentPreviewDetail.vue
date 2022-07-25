@@ -532,8 +532,8 @@
       <modal-header @close='handleCancelBuyStat' title='Which age(s) will you use this resource with?' />
       <div class='grade-list'>
         <div class='content-tag-list'>
-          <div class='content-tag' @click='toggleSelectContentTag(grade)' :class="{'selected-tag': selectedGradeList.indexOf(grade) !== -1}" v-for='grade in allAges' :key='grade'>
-            {{ grade }}
+          <div class='content-tag' @click='toggleSelectContentTag(grade.value)' :class="{'selected-tag': selectedGradeList.indexOf(grade.value) !== -1}" v-for='grade in allAges' :key='grade.value'>
+            {{ grade.name }}
           </div>
         </div>
       </div>
@@ -674,7 +674,10 @@ export default {
     allAges() {
       const list = []
       for (let i = 3; i < 19; i++) {
-        list.push(i + ' years')
+        list.push({
+          name: i + ' years',
+          value: i + '',
+        })
       }
       return list
     },
@@ -1012,11 +1015,11 @@ export default {
       this.selectedGradeList = []
     },
 
-    toggleSelectContentTag(grade) {
-      this.$logger.info('toggleSelectContentTag', grade)
-      const index = this.selectedGradeList.indexOf(grade)
+    toggleSelectContentTag(gradeValue) {
+      this.$logger.info('toggleSelectContentTag', gradeValue)
+      const index = this.selectedGradeList.indexOf(gradeValue)
       if (index === -1) {
-        this.selectedGradeList.push(grade)
+        this.selectedGradeList.push(gradeValue)
       } else {
         this.selectedGradeList.splice(index, 1)
       }
