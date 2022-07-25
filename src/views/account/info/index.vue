@@ -64,11 +64,12 @@
         <div class="info-self-detail">
           <div class="self-detail-name">
             <template v-if="!showSelfEdit">
-              <label>{{ currentSchool.schoolUser.nickname || info.nickname }}</label>
+              <label>{{ currentSchool.schoolUser.firstname }} {{ currentSchool.schoolUser.lastname }}</label>
               <a-icon @click="handleSelfEdit" type="edit" />
             </template>
             <template v-else>
-              <a-input style="width: 300px" v-model="selfEditModel.nickname"></a-input>
+              <a-input style="width: 200px" v-model="selfEditModel.firstname" placeholder="First name"></a-input>
+              <a-input style="width: 200px;margin-left:20px" v-model="selfEditModel.lastname" placeholder="Last name"></a-input>
               <a-icon @click="handleSelfEditCheck" type="check" />
               <a-icon @click="handleSelfEdit" type="close" />
             </template>
@@ -170,6 +171,8 @@ export default {
       lineCounts: 3,
       selfEditModel: {
         nickname: '',
+        firstname: '',
+        lastname: '',
         avatar: ''
       },
       confirmLoading: false,
@@ -341,6 +344,9 @@ export default {
     },
     roles() {
       if (this.userMode === USER_MODE.SCHOOL && this.currentSchool.roleNames) {
+        if (this.currentSchool.roleNames.length > 1) {
+          return this.currentSchool.roleNames.filter(item => item.toLowerCase() !== 'teacher').join(',')
+        }
         return this.currentSchool.roleNames.join(', ')
       } else {
         return ''
@@ -348,7 +354,7 @@ export default {
     },
     isNotAdmin() {
       if (this.userMode === USER_MODE.SCHOOL && this.currentSchool.roleNames) {
-        return !this.currentSchool.roleNames.includes('admin')
+        return !this.currentSchool.roleNames.map(role => role.toLowerCase()).includes('admin')
       } else {
         return true
       }
@@ -436,11 +442,14 @@ export default {
           }
         })
         hasPerm = permissions.includes(permissionCode)
+      } else {
+        hasPerm = true
       }
       return hasPerm
     },
     handleSelfEdit() {
-      this.selfEditModel.nickname = this.currentSchool.schoolUser.nickname || this.info.nickname
+      this.selfEditModel.firstname = this.currentSchool.schoolUser.firstname
+      this.selfEditModel.lastname = this.currentSchool.schoolUser.lastname
       this.selfEditModel.avatar = this.currentSchool.schoolUser.avatar
       this.showSelfEdit = !this.showSelfEdit
     },

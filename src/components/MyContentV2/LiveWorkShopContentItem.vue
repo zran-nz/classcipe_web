@@ -29,6 +29,7 @@
           </div>
         </div>
         <div class='right-info' v-if="content.sessionStartTime">
+          <div class="update-time" v-if="content.unitPlanInfo">Unit: {{ content.unitPlanInfo.name }}</div>
           <div class='update-time' v-show="!showEditSche">
             Sched: {{ content.sessionStartTime | dayjs }}
             <a-icon v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType" type="edit" @click.prevent.stop="editSche(content)"/>

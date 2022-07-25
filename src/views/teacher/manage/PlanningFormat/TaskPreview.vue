@@ -1042,65 +1042,7 @@ export default {
     },
 
     getAssociate() {
-      this.$logger.info('AddTask GetAssociate id[' + this.taskId + '] fromType[' + this.contentType.task + ']')
-      this.associateUnitPlanIdList = []
-      this.associateTaskIdList = []
-      GetAssociate({
-        id: this.taskId,
-        type: this.contentType.task
-      }).then(response => {
-        this.$logger.info('AddTask GetAssociate response', response)
-        this.groupNameList = []
-        this.groupNameListOther = []
-        response.result.owner.forEach(item => {
-          if (this.groupNameList.indexOf(item.group) === -1) {
-            this.groupNameList.push(item.group)
-          }
 
-          item.contents.forEach(content => {
-            console.log(content)
-            if (content.type === this.contentType['unit-plan']) {
-              this.associateUnitPlanIdList.push(content.id)
-              this.associateId2Name.set(content.id, content.name)
-              content.questions.forEach(question => {
-                this.associateQuestionList.push({
-                  ...question,
-                  unitName: content.name
-                })
-              })
-            }
-          })
-        })
-        response.result.others.forEach(item => {
-          if (this.groupNameListOther.indexOf(item.group) === -1) {
-            this.groupNameListOther.push(item.group)
-          }
-          item.contents.forEach(content => {
-            console.log(content)
-            if (content.type === this.contentType['unit-plan']) {
-              this.associateUnitPlanIdList.push(content.id)
-              this.associateId2Name.set(content.id, content.name)
-              content.questions.forEach(question => {
-                this.associateQuestionList.push({
-                  ...question,
-                  unitName: content.name
-                })
-              })
-            }
-          })
-        })
-        this.$logger.info('AddTask GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
-        this.$logger.info('*******************associateUnitPlanIdList', this.associateUnitPlanIdList)
-        this.$logger.info('associateTaskIdList', this.associateTaskIdList)
-      }).finally(() => {
-        this.linkGroupLoading = false
-
-        this.$logger.info('AddTask GetAssociate associateUnitPlanIdList', this.associateUnitPlanIdList)
-        if (this.associateUnitPlanIdList.length > 0) {
-          this.loadRefLearnOuts()
-          this.handleSelfOutsData()
-        }
-      })
     },
 
     async loadRefLearnOuts() {

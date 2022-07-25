@@ -61,7 +61,7 @@
                   </div>
                 </div>
                 <div class="action-wrapper">
-                  <a-button type="link" @click="handleAddMember(item, record)">
+                  <a-button :loading="loading" type="link" @click="handleAddMember(item, record)">
                     Add
                   </a-button>
                 </div>
@@ -106,6 +106,7 @@ export default {
         this.currentSchool = { ...val }
         this.loadData()
         this.initSchoolUsers()
+        this.debounceSchoolUsers = debounce(this.initSchoolUsers, 300)
       },
       deep: true,
       immediate: true
@@ -239,6 +240,7 @@ export default {
               this.$message.success('Delete user successfully')
               this.initSchoolUsers()
               this.debounceLoad()
+              this.$store.dispatch('GetInfo')
             } else {
               this.loading = false
             }
@@ -271,6 +273,7 @@ export default {
           this.$message.success('Add user successfully')
           this.initSchoolUsers()
           this.debounceLoad()
+          this.$store.dispatch('GetInfo')
         } else {
           this.loading = false
         }

@@ -98,13 +98,10 @@ export default {
     },
     handleSchoolChange(currentSchool) {
       if (this.userMode === USER_MODE.SCHOOL) {
-        this.queryParam.schoolId = currentSchool.id
-        this.debounceInit()
       }
     },
     handleModeChange(userMode) {
       // 模式切换，个人还是学校 个人接口
-      this.debounceInit()
     },
     loadData() {
 

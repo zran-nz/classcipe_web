@@ -27,9 +27,10 @@
             >
             </content-item-calendar>
           </div>
-          <div v-else style="font-size: 70px;max-width: 1100px;">
+          <div v-else style="font-size: 70px;max-width: 1300px;">
             <liveworkshop-item
               @close="closeAllModal"
+              :need-unit-plan="true"
               :content="getWorkshopItem(info)"/>
           </div>
         </a-spin>
@@ -211,7 +212,8 @@ export default {
       return {
         content: { ...currentSession.content },
         sessionInfo: { ...currentSession.sessionInfo },
-        ...currentSession.workshopsDetailInfo
+        ...currentSession.workshopsDetailInfo,
+        unitPlanInfo: { ...currentSession.unitPlanInfo }
       }
     },
     handleChangeDateSelect() {

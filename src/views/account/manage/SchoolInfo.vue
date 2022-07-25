@@ -247,6 +247,7 @@ export default {
     changeCountry(val) {
       const current = this.country.find(item => item.en === val)
       this.formModel.city = undefined
+      this.formModel.country = val
       this.formModel.phoneCountryCode = current.no || ''
       this.citys = []
     },

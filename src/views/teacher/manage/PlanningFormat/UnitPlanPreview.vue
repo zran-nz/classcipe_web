@@ -1183,63 +1183,6 @@ export default {
     },
 
     getAssociate() {
-      this.$logger.info('AddUnitPlan GetAssociate id[' + this.unitPlanId + '] fromType[' + this.contentType['unit-plan'] + ']')
-      this.associateUnitPlanIdList = []
-      this.associateTaskIdList = []
-      this.associateTaskList = []
-      GetAssociate({
-        id: this.unitPlanId,
-        type: this.contentType['unit-plan']
-      }).then(response => {
-        this.$logger.info('AddUnitPlan GetAssociate response', response)
-        this.groupNameList = response.result.groups
-        this.groupNameListOther = []
-        this.selectedTaskList = [] // 只添加空group name分组数据
-        response.result.owner.forEach(item => {
-          item.contents.forEach(content => {
-            this.selectedTaskList.push(content.type + '-' + content.id)
-            if (content.type === this.contentType['unit-plan']) {
-              this.associateUnitPlanIdList.push(content.id)
-              this.associateId2Name.set(content.id, content.name)
-            }
-
-            if (content.type === this.contentType.task) {
-              this.associateTaskIdList.push(content.id)
-              this.associateId2Name.set(content.id, content.name)
-              this.associateTaskList.push(content)
-            }
-          })
-        })
-        response.result.others.forEach(item => {
-          if (this.groupNameListOther.indexOf(item.group) === -1) {
-            this.groupNameListOther.push(item.group)
-          }
-          item.contents.forEach(content => {
-            console.log(content)
-            if (content.type === this.contentType['unit-plan']) {
-              this.associateUnitPlanIdList.push(content.id)
-              this.associateId2Name.set(content.id, content.name)
-            }
-
-            if (content.type === this.contentType.task) {
-              this.associateTaskIdList.push(content.id)
-              this.associateId2Name.set(content.id, content.name)
-            }
-          })
-        })
-        this.newTermName = 'Untitled category_' + (this.groupNameList.length)
-        this.$logger.info('AddTask GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
-        this.$logger.info('*******************associateUnitPlanIdList', this.associateUnitPlanIdList)
-        this.$logger.info('*******************associateTaskIdList', this.associateTaskIdList)
-        this.$logger.info('associateTaskIdList', this.associateTaskIdList)
-      }).finally(() => {
-        this.linkGroupLoading = false
-
-        if (this.associateUnitPlanIdList.length > 0 || this.associateTaskIdList.length > 0) {
-          this.loadRefLearnOuts()
-          this.handleSelfOutsData()
-        }
-      })
     },
 
     async loadRefLearnOuts() {
