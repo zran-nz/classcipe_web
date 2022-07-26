@@ -51,12 +51,16 @@
           v-for="(item, index) in totalResult[choosed.id].result"
           :key="'subectArr_' + index"
         >
-          <div class="area-item-title">Subjects in {{ item.name }}</div>
+          <div class="area-item-title">
+            Subjects in {{ item.name }}
+            <a-checkbox :indeterminate="item.indeterminate" :checked="item.checkAll" @change="e => onCheckAllChange(e, index, choosed.id)">Select all
+            </a-checkbox>
+          </div>
           <div class="area-item-check">
-            <div>
+            <!-- <div>
               <a-checkbox :indeterminate="item.indeterminate" :checked="item.checkAll" @change="e => onCheckAllChange(e, index, choosed.id)">Select all
               </a-checkbox>
-            </div>
+            </div> -->
             <a-checkbox-group v-model="item.checkedList" :options="item.data" @change="check => onCheckChange(check, index, choosed.id)">
               <span slot="label" slot-scope="{ label }">{{ label }}</span>
             </a-checkbox-group>
@@ -485,7 +489,7 @@ export default {
     .subject-area-item {
       position: relative;
       & ~ .subject-area-item {
-        margin-top: 20px;
+        margin-top: 40px;
       }
       .area-item-title {
         line-height: 19px;

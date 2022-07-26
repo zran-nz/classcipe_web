@@ -146,6 +146,49 @@
               </a-select-option>
             </a-select>
           </a-form-model-item>
+          <a-form-model-item key="School" label="School" prop="school" v-if="false">
+            <a-select
+              v-model="formModel.school"
+              ref="schoolRef"
+              :getPopupContainer="trigger => trigger.parentElement"
+              placeholder="Please select school"
+              show-search
+              :default-active-first-option="false"
+              :show-arrow="false"
+              :filter-option="false"
+              :allow-clear="true"
+              :not-found-content="null"
+              option-label-prop="label"
+              @search="handleSearchSchool"
+              @focus="handleSearchSchool"
+              @change="handleChange"
+            >
+              <div slot="dropdownRender" slot-scope="menu">
+                <v-nodes :vnodes="menu" />
+                <div v-if="ifShowCreate">
+                  <a-divider style="margin: 4px 0;" />
+                  <div
+                    style="padding: 4px 8px; cursor: pointer;"
+                    @mousedown="e => e.preventDefault()"
+                    @click="createSchool"
+                  >
+                    Create School: <a-tag color="#15c39a">{{ searchText }}</a-tag>
+                  </div>
+                </div>
+              </div>
+              <a-select-option
+                :value="schoolOption.id"
+                :label="schoolOption.name"
+                v-for="schoolOption in [...myCreateSchoolOptions,...schoolOptions]"
+                :key="schoolOption.id"
+              >
+                <label style="display:flex;justify-content:space-between;">
+                  <span>{{ schoolOption.name }}</span>
+                  <a-tag type="primary" v-show="schoolOption.country">{{ schoolOption.country }}</a-tag>
+                </label>
+              </a-select-option>
+            </a-select>
+          </a-form-model-item>
           <a-form-model-item label="Linked School(s)">
             <div class="profile-text profile-data">
               <a-space v-if="linkedSchool.length > 0">
@@ -186,6 +229,7 @@ import { getCountry, getCity } from '@/api/v2/country'
 // import country from '@/api/country'
 import countryCode from '@/api/countryCode'
 import { editUser } from '@/api/user'
+import { createSchool, getSchools } from '@/api/school'
 
 import { mapState } from 'vuex'
 import { UpdatePersonalInfo } from '@/api/login'
@@ -199,7 +243,11 @@ export default {
     FormHeader,
     SchoolStudentAdd,
     AvatarModal,
-    ReferSchool
+    ReferSchool,
+    VNodes: {
+      functional: true,
+      render: (h, ctx) => ctx.props.vnodes
+    }
   },
   data() {
     return {
@@ -229,7 +277,8 @@ export default {
         address: '',
         age: 8,
         city: undefined,
-        country: undefined
+        country: undefined,
+        school: undefined
       },
       formItemLayout: {
         labelCol: { span: 6 },
@@ -243,12 +292,17 @@ export default {
       },
       fetching: false,
       citys: [],
-      referSchoolVis: false
+      referSchoolVis: false,
+
+      searchText: '',
+      schoolOptions: [],
+      myCreateSchoolOptions: []
     }
   },
   created() {
     this.debounceLoad = debounce(this.loadData, 300)
     this.fetchCity = debounce(this.fetchCity, 300)
+    this.debouncedSearchSchool = debounce(this.searchSchool, 500)
     this.initDict()
     this.loadData()
   },
@@ -280,6 +334,11 @@ export default {
         filter = Array.from(new Set(filter))
       }
       return filter
+    },
+    ifShowCreate() {
+      const list = [...this.myCreateSchoolOptions, ...this.schoolOptions]
+      const findOne = list.find(item => item.name === this.searchText)
+      return this.searchText && !findOne
     }
   },
   methods: {
@@ -315,6 +374,10 @@ export default {
         this.formModel.country = this.info.country
         this.formModel.age = this.info.age
         this.formModel.city = this.info.city
+        this.formModel.school = this.info.preference ? this.info.preference.school : undefined
+        if (this.formModel.school === '0') {
+          this.formModel.school = undefined
+        }
       }
     },
     filterOptions(input, option) {
@@ -362,20 +425,91 @@ export default {
         email: this.formModel.email
       })
     },
+    handleSearchSchool(value) {
+      this.searchText = value
+      this.debouncedSearchSchool(value)
+    },
+    handleChange(schoolId) {
+      const list = [...this.myCreateSchoolOptions, ...this.schoolOptions]
+      const findOne = list.find(item => item.id === schoolId)
+      if (findOne && findOne.country) {
+        this.formModel.country = findOne.country
+        this.changeCountry(findOne.country)
+      }
+    },
+    searchSchool(value) {
+      if (!value) return
+      getSchools({
+        // curriculumId: this.currentCurriculum.id,
+        name: value
+      }).then(res => {
+        if (res.success) {
+          this.schoolOptions = res.result || []
+        } else {
+          this.schoolOptions = []
+        }
+      })
+    },
+    createSchool() {
+       // 保存的时候在真正创建学校
+      const res = {
+        id: new Date().getTime(),
+        name: this.searchText
+      }
+      this.myCreateSchoolOptions.push(res)
+      this.formModel.school = res.id
+      this.$refs.schoolRef.$el.click()
+    },
     handleSave() {
       this.$refs.form.validate(valid => {
         if (valid) {
-          this.loading = true
-          UpdatePersonalInfo({
-            ...this.formModel
-          }).then(res => {
-            if (res.success) {
-              this.$message.success('Update successfully')
-              this.$store.dispatch('GetInfo')
-            }
-          }).finally(() => {
-            this.loading = false
-          })
+          // TODO
+           const school = this.myCreateSchoolOptions.find(item => item.id === this.formModel.school)
+          const createdSchool = this.schoolOptions.find(item => item.id === this.formModel.school)
+          if (school || (createdSchool && createSchool.country !== this.formModel.country)) {
+            this.loading = true
+            createSchool({
+              name: (school || createdSchool).name,
+              country: this.formModel.country
+            }).then(res => {
+              if (res.success) {
+                if (school) {
+                  school.id = res.result.id
+                }
+                if (createdSchool) {
+                  this.schoolOptions.push({
+                    id: res.result.id,
+                    name: res.result.name
+                  })
+                }
+                this.formModel.school = res.result.id
+                UpdatePersonalInfo({
+                  ...this.formModel
+                }).then(res => {
+                  if (res.success) {
+                    this.$message.success('Update successfully')
+                    this.$store.dispatch('GetInfo')
+                  } else {
+                    this.$message.error(res.message)
+                  }
+                })
+              }
+            }).finally(res => {
+              this.loading = false
+            })
+          } else {
+            this.loading = true
+            UpdatePersonalInfo({
+              ...this.formModel
+            }).then(res => {
+              if (res.success) {
+                this.$message.success('Update successfully')
+                this.$store.dispatch('GetInfo')
+              }
+            }).finally(() => {
+              this.loading = false
+            })
+          }
         }
       })
     },

@@ -129,7 +129,7 @@
       width='600px'
       :footer="null"
     >
-      <reset-password :needOld="false"/>
+      <reset-password :saveFn="doReset" @close="handleClose" :needOld="false"/>
     </a-modal>
     <avatar-modal ref="avatarModal" @ok="setAvatar"/>
   </div>
@@ -137,7 +137,7 @@
 
 <script>
 import { listClass } from '@/api/v2/schoolClass'
-import { addStudents, resetPassword, getStudentInfo, updateStudent, checkEmailStudent, checkEmailParent } from '@/api/v2/schoolUser'
+import { addStudents, resetUserPassword, getStudentInfo, updateStudent, checkEmailStudent, checkEmailParent } from '@/api/v2/schoolUser'
 
 import ResetPassword from '../persona/ResetPassword'
 import AvatarModal from '@/views/account/settings/AvatarModal'
@@ -373,25 +373,34 @@ export default {
     handelGoClass() {
       this.$router.push('/manage/class')
     },
-    handleReset() {
-      // this.passwordVis = true
-      this.$confirm({
-        title: `Confirm Reset Password`,
-        content: `Do you want to reset password?`,
-        centered: true,
-        onOk: () => {
-          this.confirmLoading = true
-          resetPassword({
-            userIds: [this.studentId] // reset
-          }).then(res => {
-            if (res.code === 0) {
-              this.$message.success('Opt Successfully')
-            }
-          }).finally(() => {
-            this.confirmLoading = false
-          })
-        }
+    doReset(params) {
+      return resetUserPassword({
+        ...params,
+        userId: this.studentId
       })
+    },
+    handleClose() {
+      this.passwordVis = false
+    },
+    handleReset() {
+      this.passwordVis = true
+      // this.$confirm({
+      //   title: `Confirm Reset Password`,
+      //   content: `Do you want to reset password?`,
+      //   centered: true,
+      //   onOk: () => {
+      //     this.confirmLoading = true
+      //     resetPassword({
+      //       userIds: [this.studentId] // reset
+      //     }).then(res => {
+      //       if (res.code === 0) {
+      //         this.$message.success('Opt Successfully')
+      //       }
+      //     }).finally(() => {
+      //       this.confirmLoading = false
+      //     })
+      //   }
+      // })
     },
     handleSave() {
       this.$refs.form.validate(valid => {

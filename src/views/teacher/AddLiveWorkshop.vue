@@ -30,7 +30,19 @@
               <a-input v-model="form.title"></a-input>
             </div>
             <div class="choose-session-cover">
-              <custom-cover-media :type='form.coverType' :url='form.cover' @update='handleUpdateCover'/>
+              <custom-cover-media
+                v-if="form.coverVideo"
+                type='video'
+                :field='PdField.CoverVideo'
+                :url='form.coverVideo'
+                @update='handleUpdateCover'/>
+              <custom-image-uploader
+                v-else
+                :field='PdField.Image'
+                :content-type='typeMap.pd'
+                :img-url='form.image'
+                :need-del="false"
+                @update='handleUpdateCover' />
             </div>
           </div>
           <template v-if="userMode === USER_MODE.SELF">
@@ -257,6 +269,7 @@ import SelectSessionUnit from '@/components/Schedule/SelectSessionUnit'
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import DeleteIcon from '@/components/Common/DeleteIcon'
 import SessionCalendar from '@/components/Calendar/SessionCalendar'
+import CustomImageUploader from '@/components/Common/CustomImageUploader'
 
 import { formatLocalUTC } from '@/utils/util'
 import { typeMap } from '@/const/teacher'
@@ -266,7 +279,7 @@ import { AddSessionV2 } from '@/api/v2/classes'
 import { getCurriculumBySchoolId } from '@/api/academicSettingCurriculum'
 import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
 import { queryTeachers } from '@/api/common'
-import { PAID_TYPE, NOTIFY_TYPE, USER_MODE } from '@/const/common'
+import { PAID_TYPE, NOTIFY_TYPE, USER_MODE, PdField } from '@/const/common'
 
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
@@ -288,7 +301,8 @@ export default {
     SelectSessionUnit,
     CustomTextButton,
     DeleteIcon,
-    SessionCalendar
+    SessionCalendar,
+    CustomImageUploader
   },
   props: {
     id: {
@@ -321,6 +335,7 @@ export default {
       NOTIFY_TYPE: NOTIFY_TYPE,
       USER_MODE: USER_MODE,
       typeMap: typeMap,
+      PdField: PdField,
       filterSubjectOptions: [],
       filterAgeOptions: [],
       contentLoading: false,
@@ -341,6 +356,8 @@ export default {
         title: null,
         coverType: null,
         cover: null,
+        coverVideo: null,
+        image: null,
         goals: null,
         maxParticipants: 1,
         notifyStudents: [],
@@ -436,8 +453,9 @@ export default {
           id: this.id
         }).then(response => {
           this.form.title = response.result.name
-          this.form.cover = this.type === typeMap.task ? response.result.image : response.result.coverVideo
-          this.form.coverType = 'image'
+          this.form.cover = this.type === typeMap.task ? response.result.image : (response.result.coverVideo || response.result.image)
+          this.form.coverVideo = response.result.coverVideo
+          this.form.image = response.result.image
         }).finally(() => {
           this.contentLoading = false
         })
@@ -741,6 +759,21 @@ export default {
     height: 160px;
     display: flex;
     align-items: center;
+    /deep/ .custom-image-uploader {
+      width: 280px;
+      height: 160px;
+      .image-placeholder {
+        min-height: unset;
+        width: 100%;
+        height: 100%;
+        img {
+          min-width: unset;
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+        }
+      }
+    }
     .cover-info {
       display: flex;
       font-size: 12px;

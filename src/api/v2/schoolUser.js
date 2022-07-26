@@ -26,7 +26,8 @@ export const schoolUserApi = {
   checkEmailTeacher: `/classcipe/${API_PREFIX}/teacher/checkEmail`,
   updateStudent: `/classcipe/${API_PREFIX}/updateStudent`,
   addAdmin: `/classcipe/${API_PREFIX}/addAdmin`,
-  removeAdmins: `/classcipe/${API_PREFIX}/removeAdmins`
+  removeAdmins: `/classcipe/${API_PREFIX}/removeAdmins`,
+  resetUserPassword: `/classcipe/${API_PREFIX}/user/resetPassword`
 }
 
 /**
@@ -385,5 +386,18 @@ export function getSchoolUsers (parameter) {
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+ export function resetUserPassword (parameter) {
+  return request({
+    url: schoolUserApi.resetUserPassword,
+    method: 'get',
+    params: parameter
   })
 }

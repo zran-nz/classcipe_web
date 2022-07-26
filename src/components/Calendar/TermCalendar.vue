@@ -21,7 +21,7 @@
           <template v-slot:eventContent="{ info }">
             <div
               class="schedule-event-content"
-              :style="{backgroundColor: info.event.extendedProps.backgroundColor, color: '#333'}"
+              :style="{backgroundColor: info.event.extendedProps.backgroundColor, color: '#333', minHeight: '20px'}"
             >
               <div>
                 {{ info.event.start | dayjs(FORMATTER_SIM) }}-{{ info.event.end | dayjs(FORMATTER_SIM) }}
@@ -168,9 +168,9 @@ export default {
             // 获取最小的时间
             let minDate = 0
             let minDateLabel = this.minDate
-            filterRes.blockSettings.forEach(item => {
+            filterRes.blockSettings.forEach((item, index) => {
               const current = parseInt(item.start.replace(':', ''))
-              if (current < minDate || minDate === 0) {
+              if (current < minDate || index === 0) {
                 minDate = current
                 minDateLabel = item.start
               }
@@ -178,11 +178,11 @@ export default {
             this.minDate = moment.utc('2000-01-01 ' + minDateLabel + ':00').local().format('HH:mm')
             // 给每天都设置block
             let events = []
-            let current = moment(date.start)
+            let current = moment(date.start).subtract(1, 'day')
             while (moment(date.end).isAfter(current)) {
               events = events.concat(filterRes.blockSettings.map((item, index) => ({
-                start: current.format('YYYY-MM-DD') + ' ' + item.start + ':00',
-                end: current.format('YYYY-MM-DD') + ' ' + item.end + ':00',
+                start: this.$options.filters['dayjs'](moment(current).format('YYYY-MM-DD') + ' ' + item.start + ':00'),
+                end: this.$options.filters['dayjs'](moment(current).format('YYYY-MM-DD') + ' ' + item.end + ':00'),
                 name: item.name,
                 color: BG_COLORS[index],
                 backgroundColor: 'transparent',

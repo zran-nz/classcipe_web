@@ -28,6 +28,10 @@ export default {
     needOld: {
       type: Boolean,
       default: true
+    },
+    saveFn: {
+      type: Function,
+      default: null
     }
   },
   data() {
@@ -92,16 +96,31 @@ export default {
       this.$refs.form.validate(valid => {
         if (valid) {
           this.loading = true
-          ChangePassword({
-            newPassword: this.formModel.newPassword,
-            oldPassword: this.formModel.password
-          }).then(res => {
-            if (res.code === 0) {
-              this.$message.success('Update password successfully')
-            }
-          }).finally(() => {
-            this.loading = false
-          })
+          if (this.saveFn) {
+            this.saveFn({
+              newPassword: this.formModel.newPassword,
+              oldPassword: this.formModel.password
+            }).then(res => {
+              if (res.code === 0) {
+                this.$message.success('Update password successfully')
+                this.$emit('close')
+              }
+            }).finally(() => {
+              this.loading = false
+            })
+          } else {
+            ChangePassword({
+              newPassword: this.formModel.newPassword,
+              oldPassword: this.formModel.password
+            }).then(res => {
+              if (res.code === 0) {
+                this.$message.success('Update password successfully')
+                this.$emit('close')
+              }
+            }).finally(() => {
+              this.loading = false
+            })
+          }
         }
       })
     }

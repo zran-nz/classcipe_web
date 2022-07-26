@@ -4,7 +4,7 @@
       v-model='selVis'
       destroyOnClose
       title='Subject Class Setting'
-      width='900px'
+      width='1000px'
       okText='Done'
       :confirmLoading="loading"
       @ok='handleSave'
