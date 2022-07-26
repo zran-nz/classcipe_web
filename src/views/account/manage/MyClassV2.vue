@@ -112,9 +112,9 @@
                             <a-menu-item>
                               <a href="javascript:;" @click="handleRestore(cls)">Restore</a>
                             </a-menu-item>
-                            <a-menu-item>
+                            <!-- <a-menu-item>
                               <a href="javascript:;" @click="handleDelete(cls)">Delete</a>
-                            </a-menu-item>
+                            </a-menu-item> -->
                           </template>
                         </a-menu>
                       </a-dropdown>

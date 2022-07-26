@@ -36,22 +36,22 @@
       <a-form-model-item class="mb0" label="Name" :required="true">
         <a-row :gutter=16>
           <a-col :span="12">
-            <a-form-model-item prop="firstName">
+            <a-form-model-item prop="firstName" :hasFeedback="true">
               <a-input v-model="formModel.firstName" placeholder="First name" />
             </a-form-model-item >
           </a-col>
           <a-col :span="12">
-            <a-form-model-item prop="lastName">
+            <a-form-model-item prop="lastName" :hasFeedback="true">
               <a-input v-model="formModel.lastName" placeholder="Last name" />
             </a-form-model-item >
           </a-col>
         </a-row>
       </a-form-model-item>
-      <a-form-model-item label="Email" prop="inviteEmail">
+      <a-form-model-item label="Email" prop="inviteEmail" :hasFeedback="true">
         <a-input v-model="formModel.inviteEmail" :disabled="teacherId && !!formModel.inviteEmail" placeholder="Email" />
       </a-form-model-item>
       <a-form-model-item label="DOB">
-        <a-date-picker v-model="formModel.birthDay" />
+        <a-date-picker v-model="formModel.birthDay" :disabled-date="disabledDate" />
       </a-form-model-item>
       <a-form-model-item class="mb0" label="Class">
         <a-row :gutter=16>
@@ -83,11 +83,12 @@
           </a-col>
         </a-row>
       </a-form-model-item>
-      <a-form-model-item label="Roles">
+      <a-form-model-item label="Roles" v-if="!!teacherId">
         <a-select
           mode="multiple"
           optionFilterProp="children"
           :getPopupContainer="trigger => trigger.parentElement"
+          :disabled="true"
           v-model='formModel.roleArr'
           placeholder='Please select role'>
           <a-select-option v-for='item in roleList' :key='item.roleCode'>
@@ -303,6 +304,9 @@ export default {
     },
     setAvatar (url) {
       this.formModel.avatar = url
+    },
+    disabledDate(current) {
+      return current && current > moment()
     },
     handelGoClass() {
       this.$router.push('/manage/class')

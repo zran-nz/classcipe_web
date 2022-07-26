@@ -35,22 +35,22 @@
       <a-form-model-item class="mb0" label="Name" :required="true">
         <a-row :gutter=16>
           <a-col :span="12">
-            <a-form-model-item prop="firstName">
+            <a-form-model-item prop="firstName" :hasFeedback="true">
               <a-input v-model="formModel.firstName" @change="doValidParentEmail" placeholder="First name" />
             </a-form-model-item >
           </a-col>
           <a-col :span="12">
-            <a-form-model-item prop="lastName">
+            <a-form-model-item prop="lastName" :hasFeedback="true">
               <a-input v-model="formModel.lastName" @change="doValidParentEmail" placeholder="Last name" />
             </a-form-model-item >
           </a-col>
         </a-row>
       </a-form-model-item>
-      <a-form-model-item label="Email" prop="inviteEmail">
+      <a-form-model-item label="Email" prop="inviteEmail" :hasFeedback="true">
         <a-input v-model="formModel.inviteEmail" placeholder="Email" :disabled="studentId && !!formModel.inviteEmail" />
       </a-form-model-item>
       <a-form-model-item label="DOB">
-        <a-date-picker v-model="formModel.birthDay" />
+        <a-date-picker v-model="formModel.birthDay" :disabled-date="disabledDate"/>
       </a-form-model-item>
       <a-form-model-item class="mb0" label="Class" :required="true">
         <a-row :gutter=16>
@@ -88,12 +88,12 @@
       <a-form-model-item class="mb0" label="Name" :required="true">
         <a-row :gutter=16>
           <a-col :span="12">
-            <a-form-model-item prop="parentFirstName">
+            <a-form-model-item prop="parentFirstName" :hasFeedback="true">
               <a-input v-model="formModel.parentFirstName" placeholder="First name" />
             </a-form-model-item >
           </a-col>
           <a-col :span="12">
-            <a-form-model-item prop="parentLastName">
+            <a-form-model-item prop="parentLastName" :hasFeedback="true">
               <a-input v-model="formModel.parentLastName" placeholder="Last name" />
             </a-form-model-item >
           </a-col>
@@ -102,7 +102,7 @@
       <a-form-model-item label="Email" class="mb0" :required="true" :wrapperCol="{ span: 18 }">
         <a-row :gutter=0>
           <a-col :span="16">
-            <a-form-model-item prop="parentEmail">
+            <a-form-model-item prop="parentEmail" :hasFeedback="true">
               <a-input v-model="formModel.parentEmail" placeholder="Email" />
             </a-form-model-item>
           </a-col>
@@ -114,7 +114,7 @@
           </a-col> -->
         </a-row>
       </a-form-model-item>
-      <a-form-model-item label="Phone" prop="parentPhone">
+      <a-form-model-item label="Phone" prop="parentPhone" :hasFeedback="true">
         <a-input v-model="formModel.parentPhone" placeholder="Phone" />
       </a-form-model-item>
       <a-form-model-item :wrapperCol="{offset: 6}">
@@ -311,6 +311,9 @@ export default {
     },
     setAvatar (url) {
       this.formModel.avatar = url
+    },
+    disabledDate(current) {
+      return current && current > moment()
     },
     validateRemoteEmail(rule, value, callback) {
       if (!value) {

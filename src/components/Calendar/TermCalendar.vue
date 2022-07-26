@@ -181,8 +181,8 @@ export default {
             let current = moment(date.start)
             while (moment(date.end).isAfter(current)) {
               events = events.concat(filterRes.blockSettings.map((item, index) => ({
-                start: this.$options.filters['dayjs'](moment(current).format('YYYY-MM-DD') + ' ' + item.start + ':00'),
-                end: this.$options.filters['dayjs'](moment(current).format('YYYY-MM-DD') + ' ' + item.end + ':00'),
+                start: current.format('YYYY-MM-DD') + ' ' + item.start + ':00',
+                end: current.format('YYYY-MM-DD') + ' ' + item.end + ':00',
                 name: item.name,
                 color: BG_COLORS[index],
                 backgroundColor: 'transparent',
@@ -241,6 +241,10 @@ export default {
         if (this.$refs.fullCalendar) {
           const calendarApi = this.$refs.fullCalendar.getApi()
           calendarApi && calendarApi.scrollToTime(this.minDate)
+          // calendarApi && calendarApi.setOption('views', {
+          //   slotMinTime: '18:00:00'
+          // })
+          // calendarApi && calendarApi.render()
         }
       })
     },

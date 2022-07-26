@@ -34,7 +34,7 @@
 
       <div class="filter-tab">
         <div class="filter-search">
-          <a-input-search v-model="queryParam.searchKey" placeholder="Search" @search="searchQuery"></a-input-search>
+          <a-input-search :allow-clear="true" v-model="queryParam.searchKey" placeholder="Search" @search="searchQuery"></a-input-search>
         </div>
         <a-space class="filter-opt">
           <a-dropdown :disabled="selectedRowKeys.length === 0" v-if="queryParam.schoolUserStatus !== ''">
@@ -70,7 +70,7 @@
             </div>
             <div class="user-detail">
               <label for="">{{ record.firstname + record.lastname }}</label>
-              <label for="">{{ record.email }}</label>
+              <label for="">{{ record.email }}<span v-if="isSelfEmail(record.email)"> (Me)</span></label>
             </div>
           </div>
           <div class="flex-wrap" slot="classes" slot-scope="classes">
@@ -200,6 +200,7 @@ export default {
   },
   computed: {
     ...mapState({
+      info: state => state.user.info,
       userMode: state => state.app.userMode,
       currentSchool: state => state.user.currentSchool
     }),
@@ -282,6 +283,9 @@ export default {
       // 模式切换，个人还是学校 个人接口
       this.initDict()
       this.debounceInit()
+    },
+    isSelfEmail(email) {
+      return email === this.info.email
     },
     initDict() {
       // 获取所有班级用于筛选

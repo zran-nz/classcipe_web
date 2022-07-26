@@ -12,7 +12,7 @@
   >
     <a-spin :spinning="confirmLoading">
       <a-form-model layout="horizontal" v-bind="formItemLayout" ref="form" :model="model" :rules="validatorRules">
-        <a-form-model-item label="Block duration">
+        <a-form-model-item label="Block duration" prop="blockDuration">
           <a-input-number
             v-model="model.blockDuration"
             @change="changeDuration"
@@ -27,19 +27,23 @@
           v-for="(item, index) in model.blockSettings"
           class="mb0"
           :key="'modelItem'+index"
-          :label="'Block '+ (index + 1)"
-          :prop="'blockSettings.'+index+'.start'"
-          :rules="validatorRules.start">
+          :label="'Block '+ (index + 1)">
           <a-row :gutter=16 >
             <a-col :span="12">
-              <a-time-picker
-                v-model="item.start"
-                :allowClear="false"
-                placeholder="Pick a time"
-                format="HH:mm"
-                @change="(time, timeStr) => changestart(time, timeStr, item)"
-                style="width: 100%;"
-              />
+              <a-form-model-item
+                :prop="'blockSettings.'+index+'.start'"
+                :rules="validatorRules.start">
+                <a-time-picker
+                  v-model="item.start"
+                  :allowClear="false"
+                  placeholder="Pick a time"
+                  :disabledHours="() => disabledHours(index)"
+                  :disabledMinutes="(hour) => disabledMinutes(hour, index)"
+                  format="HH:mm"
+                  @change="(time, timeStr) => changestart(time, timeStr, item)"
+                  style="width: 100%;"
+                />
+              </a-form-model-item>
             </a-col>
             <a-col :span="6">
               <a-form-model-item label="">
@@ -128,8 +132,12 @@ export default {
     }),
     validatorRules() {
       var res = {
+        blockDuration: [
+          { required: true, message: 'Please input block duration!' }
+        ],
         start: [
-          { required: true, message: 'Please input block start!' }
+          { required: true, message: 'Please input block start!' },
+          { validator: this.validateDate, trigger: 'change' }
         ]
       }
       return res
@@ -184,6 +192,73 @@ export default {
         const end = moment(start).add(parseInt(val || 0), 'minutes').format('HH:mm')
         item.end = end
       })
+      this.$refs.form.validate()
+    },
+    validateDate(rule, value, callback) {
+      if (!value) {
+        return callback()
+      } else {
+        const current = value.format('HH:mm')
+        const index = this.model.blockSettings.findIndex(item => item.start.format('HH:mm') === current)
+        const hoursRes = this.disabledHours(index)
+        const miniutesRes = this.disabledMinutes(value.hours(), index)
+        console.log(index)
+        console.log(hoursRes)
+        console.log(miniutesRes)
+        if (hoursRes.includes(value.hours()) || miniutesRes.includes(value.minutes)) {
+          return callback(new Error('error duration'))
+        }
+        return callback()
+      }
+    },
+    disabledHours(index) {
+      let start = 0
+      let end = 23
+      // 取上一个
+      if (index > 0) {
+        start = moment(this.model.blockSettings[index - 1].end, 'HH:mm').hours()
+      }
+      // 取下一个
+      if (index < this.model.blockSettings.length - 1) {
+        // 当前的结束时间需小于下一个的开始时间
+        end = moment(this.model.blockSettings[index + 1].start, 'HH:mm').subtract(parseInt(this.model.blockDuration || 0), 'minutes').hours()
+      }
+
+      return Array.from({
+        length: start
+      }, (v, i) => i).concat(Array.from({
+        length: 23 - end
+      }, (v, i) => 23 - i))
+    },
+    disabledMinutes(hour, index) {
+      let start = 0
+      let end = 59
+      let startHour = 0
+      let endHour = 0
+      // 取上一个
+      if (index > 0) {
+        startHour = moment(this.model.blockSettings[index - 1].end, 'HH:mm').hours()
+        start = moment(this.model.blockSettings[index - 1].end, 'HH:mm').minutes()
+      }
+      // 取下一个
+      if (index < this.model.blockSettings.length - 1) {
+        // 当前的结束时间需小于下一个的开始时间
+        const nextAfter = moment(this.model.blockSettings[index + 1].start, 'HH:mm').subtract(parseInt(this.model.blockDuration || 0), 'minutes')
+        endHour = nextAfter.hours()
+        end = nextAfter.minutes()
+      }
+      let res = []
+      if (startHour === hour) {
+        res = Array.from({
+          length: start
+        }, (v, i) => i).concat(res)
+      }
+      if (endHour === hour) {
+        res = res.concat(Array.from({
+          length: 59 - end
+        }, (v, i) => 59 - i))
+      }
+      return res
     },
     addItem() {
       let start

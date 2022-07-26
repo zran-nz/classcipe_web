@@ -191,7 +191,7 @@ export default {
       if (parentelClassList.contains('fc-timegrid-event-harness') || parentelClassList.contains('fc-daygrid-day-events')) {
         return document.body
       }
-      return trigger.parentElement
+      return document.body// trigger.parentElement
     },
     showPopover(visible, clickInfo) {
     },

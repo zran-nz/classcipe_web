@@ -62,7 +62,6 @@ export default {
       const res = await checkInvite({
         inviteCode: this.inviteCode
       })
-      this.checkLoading = false
       if (res.success) {
         if (!res?.result?.valid) {
           this.invalid = true
@@ -73,8 +72,20 @@ export default {
           this.schoolId = res?.result?.schoolId
           this.schoolName = res?.result?.schoolName
           this.btnText = res?.result?.approveFlag ? 'Apply' : 'Join'
+          // 判断用户是否已经邀请了
+          const existSchools = this.info.schoolList.find(item => item.id === res?.result?.schoolId)
+          if (existSchools) {
+            if (this.isAdmin) {
+              if (existSchools.roleNames.map(item => item.toLowerCase()).includes('admin')) {
+                this.doRedirect()
+              }
+            } else {
+              this.doRedirect()
+            }
+          }
         }
       }
+      this.checkLoading = false
     },
     async handleBtn() {
       this.loading = true
@@ -84,29 +95,31 @@ export default {
       })
       if (res.success && res.code === 0) {
         this.$message.success(res.message)
-
-        // 如果邀请为管理，则直接跳转到学校的的info界面
         this.$store.dispatch('GetInfo').then(() => {
-          if (this.isAdmin) {
-            SwitchUserModeSchool({
-              isPersonal: false,
-              schoolId: this.schoolId
-            }).then(res => {
-              // 获取对应学校班级
-              this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
-              this.GetClassList(this.userMode)
-              this.$store.dispatch('GetInfo').then(() => {
-                this.$router.push('/manage/school-info')
-              })
-            })
-          } else {
-            this.$router.push(this.$store.getters.defaultRouter)
-          }
+          this.doRedirect()
         })
       } else {
         this.$message.error(res.message)
       }
       this.loading = false
+    },
+    doRedirect() {
+      // 如果邀请为管理，则直接跳转到学校的的info界面
+      if (this.isAdmin) {
+        SwitchUserModeSchool({
+          isPersonal: false,
+          schoolId: this.schoolId
+        }).then(res => {
+          // 获取对应学校班级
+          this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
+          this.GetClassList(this.userMode)
+          this.$store.dispatch('GetInfo').then(() => {
+            this.$router.push('/manage/school-info')
+          })
+        })
+      } else {
+        this.$router.push(this.$store.getters.defaultRouter)
+      }
     }
   }
 }

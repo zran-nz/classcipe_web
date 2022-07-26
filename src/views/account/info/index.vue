@@ -37,7 +37,7 @@
             <div class="plan-deadline">
               {{ expiredDay }}
             </div>
-            <div class="plan-pay" v-if="info.planInfo && info.planInfo.planUser && info.planInfo.planUser.buyStatus === 2">
+            <div class="plan-pay" v-if="info.planInfo && info.planInfo.unPaidPrice && info.planInfo.unPaidPrice > 0">
               <a-button type='primary'>Pay</a-button>
             </div>
           </div>
@@ -152,6 +152,7 @@ import { HIDDEN_SIDEBAR } from '@/store/mutation-types'
 
 import { mapState, mapMutations } from 'vuex'
 import { SendVerifyLink } from '@/api/login'
+import moment from 'moment'
 
 export default {
   name: 'AccountInfo',
@@ -360,13 +361,16 @@ export default {
       }
     },
     expiredDay() {
-      if (this.info.planInfo && this.info.planInfo.planUser && this.info.planInfo.planUser.buyStatus === 1) {
-        const days = this.info.planInfo.planExpire ? this.info.planInfo.planExpire : 0
-        const unit = EXPIRE_UNIT.find(unit => unit.value === this.info.planInfo.planExpireUnit).label
-        return `Plan ends in ${days} ${unit}${days > 1 ? 's' : ''}`
+      const remain = this.info.planInfo.unPaidPrice || 0
+      if (this.info.planInfo && remain === 0) {
+        const exipire = this.info.planInfo.freeUsePlan ? this.info.planInfo.freeDays : (this.info.planInfo.planExpire + this.info.planInfo.freeDays)
+        const exipireUnit = this.info.planInfo.freeUsePlan ? 1 : this.info.planInfo.planExpireUnit
+        const days = exipire || 0
+        const unit = EXPIRE_UNIT.find(unit => unit.value === exipireUnit).label
+        const date = moment.utc(this.info.planInfo.createTime).local().add(days, unit).format('YYYY-MM-DD')
+        return `Plan ends in ${date} ` // ${days} ${unit}${days > 1 ? 's' : ''}`
       } else {
-        const remain = this.info.planInfo.unPaidPrice || 0
-        return remain > 0 ? `Balance of $${remain} unpaid` : ''
+        return `Balance of $${remain} unpaid`
       }
     },
     planStatus() {

@@ -63,13 +63,13 @@
           </a-col>
         </a-row>
         <a-row :gutter=16>
-          <a-col :span="12">
+          <a-col :span="12" v-if="formModel.ownJoin">
             <a-form-model-item label="Max Std">
               <a-input v-model="formModel.maxStudent" placeholder="input max student count" />
             </a-form-model-item>
           </a-col>
           <a-col :span="12">
-            <a-form-model-item label="Term">
+            <a-form-model-item label="Term" prop="termArr">
               <a-space>
                 <a-cascader
                   :options="termsOptions"
@@ -172,7 +172,8 @@ export default {
     validatorRules: function () {
       return {
         name: [{ required: true, message: 'Please Input Class Name!' }],
-        subject: [{ required: true, message: 'Please Select Subject!' }]
+        subject: [{ required: true, message: 'Please Select Subject!' }],
+        termArr: [{ required: true, message: 'Please Select Term!', trigger: 'change' }]
       }
     }
   },
