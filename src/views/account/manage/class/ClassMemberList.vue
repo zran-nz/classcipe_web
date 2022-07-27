@@ -435,7 +435,7 @@ export default {
             pageSize: 10000
           })
         ]).then(([clsRes]) => {
-          if (clsRes.code === 0) {
+          if (clsRes.code === 0 && clsRes.result) {
             this.classList = clsRes.result.records
           }
         })

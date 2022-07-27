@@ -289,14 +289,14 @@ export default {
           })
           this.subjectOptions = options
         }
-        if (gradeRes.success) {
+        if (gradeRes.success && gradeRes.result) {
           let grades = []
           this.curriculumOptions = gradeRes.result.forEach(item => {
             grades = grades.concat(item.gradeSettingInfo || [])
           })
           this.gradeOptions = grades
         }
-        if (clsRes.success) {
+        if (clsRes.success && clsRes.result) {
           this.totalClass = clsRes.result.records
         }
       }).finally(() => {
@@ -354,7 +354,7 @@ export default {
         pageSize: 10000,
         schoolId: this.currentSchool.id
       }).then(res => {
-        if (res.success) {
+        if (res.success && res.result) {
           const groupKey = this.currentTab + 'Infos'
           // 按grade，subject组装 data
           const allDatas = res.result.records.map(item => {

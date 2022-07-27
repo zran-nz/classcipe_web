@@ -119,12 +119,12 @@ export default {
         })
       ]).then(([curRes, clsRes]) => {
         let grades = []
-        if (curRes.success) {
+        if (curRes.success && curRes.result) {
           this.curriculumOptions = curRes.result.forEach(item => {
             grades = grades.concat(item.gradeSettingInfo || [])
           })
         }
-        if (clsRes.success) {
+        if (clsRes.success && clsRes.result) {
           this.allClass = clsRes.result.records
           this.groupData = groupBy(clsRes.result.records, 'gradeId')
           this.gradeOptions = grades.filter(item => {
