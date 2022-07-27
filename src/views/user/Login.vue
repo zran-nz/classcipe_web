@@ -270,7 +270,8 @@ export default {
           console.log('login form', values)
           const loginParams = {
             username: values.email,
-            password: values.password
+            password: values.password,
+            role: this.defaultActiveKey
           }
           Login(loginParams)
             .then(res => this.loginSuccess(res))
