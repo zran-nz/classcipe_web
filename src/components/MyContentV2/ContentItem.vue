@@ -352,7 +352,7 @@ export default {
       editPrice: false,
       startDate: null,
       endData: null,
-      initDate: null
+      initDate: [moment(new Date()), null]
     }
   },
   created() {
@@ -473,7 +473,9 @@ export default {
         this.price = data.price
         this.startDate = data.discountStartTime
         this.endData = data.discountEndTime
-        this.initDate = [moment(data.discountStartTime), moment(data.discountEndTime)]
+        if (data.discountStartTime && data.discountEndTime) {
+          this.initDate = [moment(data.discountStartTime), moment(data.discountEndTime)]
+        }
       }
       this.visible = true
     },

@@ -147,7 +147,7 @@ export default {
       selectedSessionType: null,
       startDate: null,
       endDate: null,
-      initDate: null
+      initDate: [moment(new Date()), null]
     }
   },
   created() {

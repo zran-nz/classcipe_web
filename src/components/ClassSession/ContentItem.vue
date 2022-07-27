@@ -210,7 +210,7 @@ export default {
       editingSessionTime: false,
       newSessionName: '',
 
-      initDate: null,
+      initDate: [moment(new Date()), null],
       newSessionStartTime: '',
       newDeadline: ''
     }

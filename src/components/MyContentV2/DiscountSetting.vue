@@ -71,7 +71,7 @@ export default {
         startDate: null,
         endData: null
       },
-      initDate: null
+      initDate: [moment(new Date()), null]
     }
   },
   created() {

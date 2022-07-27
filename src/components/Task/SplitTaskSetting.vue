@@ -125,7 +125,7 @@ export default {
       myPrice: 0,
       myDiscount: 0,
       dontRemind: false,
-      initDate: null,
+      initDate: [moment(new Date()), null],
       startDate: null,
       endData: null
     }
