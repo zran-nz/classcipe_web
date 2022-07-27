@@ -20,7 +20,7 @@
       <div class='setting-item'>
         <div class='setting-content'>
           Single purchases over <a-input v-model="discountSetting.overs" class='dollar-price-input' prefix="$"/>
-          sale off <a-input v-model="discountSetting.salesOff" class='dollar-price-input' prefix="$"/>
+          sale off <a-input v-model="discountSetting.salesOff" class='dollar-price-input red-input' prefix="$"/>
         </div>
       </div>
 
@@ -103,7 +103,7 @@ export default {
       this.discountSetting.salesOff = parseFloat(this.discountSetting.salesOff).toFixed(2)
       this.discountSetting.overs = parseFloat(this.discountSetting.overs).toFixed(2)
       if (this.discountSetting.salesOff > this.discountSetting.overs) {
-        this.$message.warn('The sale-off too large!')
+        this.$message.warn('The sale off amount can not exceed the single purchase amount!')
       } else {
         await discountSettingSave({
           contentId: -1,
