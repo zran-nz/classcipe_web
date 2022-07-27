@@ -79,7 +79,7 @@
               <a-avatar size="small">{{ content.createBy.toUpperCase()[0] }}</a-avatar>
             </template>
             <div class='user-name'>
-              {{ content.owner ? content.owner.nickname : content.createBy }}
+              {{ content.owner ? content.owner.nickname : content.createBy | upCaseFirst }}
             </div>
           </div>
           <div class='update-time'>
@@ -312,7 +312,7 @@ export default {
         }
 
         .tag-info {
-          max-height: 60px;
+          max-height: 30px;
           overflow: hidden;
           .tag-info-item {
             height: 1rem;

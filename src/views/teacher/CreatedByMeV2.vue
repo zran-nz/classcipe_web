@@ -276,6 +276,9 @@ export default {
           this.myContentList[index].status = targetStatus
           if (targetStatus) {
             this.$message.success('Publish successfully!')
+            this.$router.push({
+              path: '/teacher/main/my-published'
+            })
           } else {
             this.$message.success('Unpublish successfully!')
           }

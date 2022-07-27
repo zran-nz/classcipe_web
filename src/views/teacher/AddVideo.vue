@@ -153,7 +153,7 @@
                     <a-col span='12'>
                       <form-linked-content :from-id='videoId' :from-type='contentType.video' @update-task-id-list='updateAssociatedIdList'/>
                     </a-col>
-                    <a-col span='10' offset='1'>
+                    <a-col span='12'>
                       <link-content-list
                         :selected-id-list='associateIdList'
                         :filter-types="[contentType.task]" />

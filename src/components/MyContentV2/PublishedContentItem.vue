@@ -76,7 +76,7 @@
               <a-avatar size="small">{{ content.createBy.toUpperCase()[0] }}</a-avatar>
             </template>
             <div class='user-name'>
-              {{ content.owner ? content.owner.nickname : content.createBy }}
+              {{ content.owner ? content.owner.nickname : content.createBy | upCaseFirst }}
             </div>
           </div>
           <div class='update-time'>
@@ -459,13 +459,13 @@ export default {
         .tag-info {
           display: flex;
           flex-direction: row;
-          max-height: 60px;
+          max-height: 30px;
           overflow: hidden;
           align-items: center;
           justify-content: flex-start;
           flex-wrap: wrap;
-          margin-top: 5px;
-          margin-bottom: 5px;
+          margin-top: 7px;
+          margin-bottom: 7px;
           .tag-info-item {
             margin-right: 5px;
             margin-bottom: 5px;
