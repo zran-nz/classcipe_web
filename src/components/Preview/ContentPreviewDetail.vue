@@ -42,9 +42,16 @@
                 type="danger"
                 shape='round'
                 @click='handleBuyItem'
-                v-if='content.createBy !== $store.getters.userInfo.email && showBuyButton'
+                v-if='content.createBy !== $store.getters.userInfo.email && showBuyButton && !content.buyed'
                 :loading='buyLoading'>
                 Buy now
+              </a-button>
+              <a-button
+                class='cc-dark-button'
+                shape='round'
+                @click='handleEditBuy'
+                v-if='content.createBy !== $store.getters.userInfo.email && showBuyButton && content.buyed'>
+                Edit
               </a-button>
               <a-button
                 shape='round'
@@ -197,8 +204,15 @@
                   shape='round'
                   @click='handleBuyItem'
                   :loading='buyLoading'
-                  v-if='content.createBy !== $store.getters.userInfo.email && showBuyButton'>
+                  v-if='content.createBy !== $store.getters.userInfo.email && showBuyButton && !content.buyed'>
                   Buy now
+                </a-button>
+                <a-button
+                  class='cc-dark-button'
+                  shape='round'
+                  @click='handleEditBuy'
+                  v-if='content.createBy !== $store.getters.userInfo.email && showBuyButton && content.buyed'>
+                  Edit
                 </a-button>
                 <a-button
                   shape='round'
@@ -962,6 +976,19 @@ export default {
       }
     },
 
+    handleEditBuy () {
+      this.$logger.info('handleEdit', this.content.newBuyedId)
+      if (this.content.type === this.typeMap['unit-plan']) {
+        window.open('/teacher/unit-plan-redirect/' + this.content.newBuyedId, '_blank')
+      } else if (this.content.type === this.typeMap.task) {
+        window.open('/teacher/task-redirect/' + this.content.newBuyedId, '_blank')
+      } else if (this.content.type === this.typeMap.pd) {
+        window.open('/teacher/pd-content-redirect/' + this.content.newBuyedId, '_blank')
+      } else if (this.contentType === this.typeMap.video) {
+        window.open('/teacher/video-redirect/' + this.content.newBuyedId, '_blank')
+      }
+    },
+
     handleDuplicateItem () {
       this.$logger.info('handleDuplicateItem', this.content)
       this.$confirm({
@@ -1691,3 +1718,4 @@ export default {
 }
 
 </style>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
