@@ -55,15 +55,7 @@
     <script type="text/javascript" src="https://apis.google.com/js/api.js" defer></script>
     <script type="text/javascript" src="https://www.youtube.com/iframe_api" defer></script>
     <script >
-      window.onerror = async function (msg, url, num, line) {
-        await fetch('https://dev.classcipe.com/fio/log', { method: 'POST',
-          headers: { "Content-Type": "application/json;charset=UTF-8" },
-          body: { msg, url, num, line, stack: arguments[4] ? arguments[4].stack : '', lang: navigator.language, href: location.href, ua: navigator.userAgent }
-        }).then(r => r.json())
-      }
-      window.onYouTubeIframeAPIReady = function() {
-
-      };
+      window.onYouTubeIframeAPIReady = function() {};
     </script>
 
     <!-- Start of LiveChat (www.livechatinc.com) code -->
