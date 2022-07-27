@@ -43,7 +43,8 @@
             :show-button='true'
             :show-edit='true'
             :show-delete='true'
-            :show-schedule='true'/>
+            :show-schedule='true'
+            :show-set-price='true' />
         </div>
       </div>
     </div>
