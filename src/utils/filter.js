@@ -167,3 +167,7 @@ Vue.filter('sizeFormat', function (size) {
 Vue.filter('type2Name', function (type) {
   return getLabelNameType(type)
 })
+
+Vue.filter('upCaseFirst', function (text) {
+  return text?.trim().length ? text[0].toUpperCase() + text.slice(1) : ''
+})
