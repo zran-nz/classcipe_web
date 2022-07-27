@@ -46,7 +46,8 @@
           </a-col>
         </a-row>
       </a-form-model-item>
-      <a-form-model-item label="Email" prop="inviteEmail" :hasFeedback="true">
+      <!-- prop="inviteEmail" :hasFeedback="true"> -->
+      <a-form-model-item label="Email" prop="inviteEmail" :required="false">
         <a-input v-model="formModel.inviteEmail" placeholder="Email" :disabled="studentId && !!formModel.inviteEmail" />
       </a-form-model-item>
       <a-form-model-item label="DOB">
@@ -85,15 +86,15 @@
       <div class="sub-title">
         <label for="">Parent guardian</label>
       </div>
-      <a-form-model-item class="mb0" label="Name" :required="true">
+      <a-form-model-item class="mb0" label="Name">
         <a-row :gutter=16>
           <a-col :span="12">
-            <a-form-model-item prop="parentFirstName" :hasFeedback="true">
+            <a-form-model-item prop="parentFirstName">
               <a-input v-model="formModel.parentFirstName" placeholder="First name" />
             </a-form-model-item >
           </a-col>
           <a-col :span="12">
-            <a-form-model-item prop="parentLastName" :hasFeedback="true">
+            <a-form-model-item prop="parentLastName">
               <a-input v-model="formModel.parentLastName" placeholder="Last name" />
             </a-form-model-item >
           </a-col>
@@ -114,7 +115,7 @@
           </a-col> -->
         </a-row>
       </a-form-model-item>
-      <a-form-model-item label="Phone" prop="parentPhone" :hasFeedback="true">
+      <a-form-model-item label="Phone">
         <a-input v-model="formModel.parentPhone" placeholder="Phone" />
       </a-form-model-item>
       <a-form-model-item :wrapperCol="{offset: 6}">
@@ -227,22 +228,21 @@ export default {
         firstName: [{ required: true, message: 'Please Input First Name!' }],
         lastName: [{ required: true, message: 'Please Input Last Name!' }],
         inviteEmail: [
-          { required: true, message: 'Please Input Email!', trigger: 'change' },
-          { type: 'email', message: 'Please Input Valid Email!', trigger: 'blur' },
+          // { required: true, message: 'Please Input Email!', trigger: 'change' },
+          // { type: 'email', message: 'Please Input Valid Email!', trigger: 'blur' },
           { validator: this.validateRemoteEmail, trigger: 'blur' }
         ],
-        parentFirstName: [{ required: true, message: 'Please Input First Name!' }],
-        parentLastName: [{ required: true, message: 'Please Input Last Name!' }],
+        // parentFirstName: [{ required: true, message: 'Please Input First Name!' }],
+        // parentLastName: [{ required: true, message: 'Please Input Last Name!' }],
         parentEmail: [
           { required: true, message: 'Please Input Email!', trigger: 'change' },
           { type: 'email', message: 'Please Input Valid Email!', trigger: 'blur' },
           { validator: this.validateRemoteParentEmail, trigger: 'blur' }
         ],
-        classes: [{ required: true, message: 'Please Select a class!', trigger: 'change' }],
-        parentPhone: [
-          { required: true, message: 'Please Input Phone!' }
-          // { pattern: /^1[3|4|5|7|8|9][0-9]\d{8}$/, message: 'Please Input Valid Phone!' }
-        ]
+        classes: [{ required: true, message: 'Please Select a class!', trigger: 'change' }]
+        // parentPhone: [
+        //   { required: true, message: 'Please Input Phone!' }
+        // ]
       }
     }
   },

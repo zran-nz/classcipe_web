@@ -3,7 +3,8 @@
     <div class="account-info">
       <div class="account-info-header">
         <div class="info-header-avatar persona" v-if="userMode === USER_MODE.SELF">
-          <img :src="info.avatar"/>
+          <img :src="info.avatar" v-if="info.avatar"/>
+          <img v-else src="~@/assets/icons/library/default-avatar.png"/>
         </div>
         <div class="info-header-avatar" v-else>
           <!-- <img v-if="currentSchool.logo" :src="currentSchool.logo"/>

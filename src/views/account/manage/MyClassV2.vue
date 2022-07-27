@@ -64,66 +64,76 @@
                   <a-button @click="deleteGrade(view, index)">Delete</a-button>
                 </a-space>
               </div>
-              <div class="view-item-con">
-                <div
-                  v-for="cls in view.classes"
-                  :id="cls.key"
-                  :key="view.id + '_' + cls.key"
-                  :class="{'item-class-wrap': true, 'archive': currentTab === 'archive' }"
+              <div>
+                <draggable
+                  filter='.undrag'
+                  class="view-item-con"
+                  animation="300"
+                  :list="view.classes"
+                  @change="(params) => changeClass(params, view.id, view.name)"
+                  :sort='false'
+                  group="item-class"
                 >
-                  <div class="item-class" v-clickOutside="() => handleBlurClick(cls)">
-                    <div class="class-name">
-                      <label @click="doEditClassName(cls)" v-if="!cls.isNew && !cls.isEdit" for="">{{ cls.name }}</label>
-                      <a-input @keyup.enter="handleSaveClassName(cls)" :ref="'name'+cls.key" placeholder="Enter class name" v-if="cls.isNew || cls.isEdit" v-model="cls.changeName">
-                        <a-icon slot="suffix" type="check" @click="handleSaveClassName(cls)"/>
-                      </a-input>
-                    </div>
-                    <div :class="{'class-con': true, 'archive': currentTab === 'archive'}">
-                      <div :class="{'class-con-item': true, 'pointer': currentTab !== 'archive' && userMode !== USER_MODE.SELF}" @click="handleEditTeachers(cls)">
-                        <div class="con-item-label">Teachers</div>
-                        <div class="con-item-detail" v-if="currentTab === 'archive' || userMode === USER_MODE.SELF">{{ cls.teacherCount || 0 }}</div>
-                        <a v-else for="">{{ cls.teacherCount || 0 }}</a>
+                  <div
+                    v-for="cls in view.classes"
+                    :id="cls.key"
+                    :key="view.id + '_' + cls.key"
+                    :class="{'item-class-wrap': true, 'archive': currentTab === 'archive', 'undrag': (currentTab === 'archive' || cls.isNew) }"
+                  >
+                    <div class="item-class" v-clickOutside="() => handleBlurClick(cls)">
+                      <div class="class-name">
+                        <label @click="doEditClassName(cls)" v-if="!cls.isNew && !cls.isEdit" for="">{{ cls.name }}</label>
+                        <a-input @keyup.enter="handleSaveClassName(cls)" :ref="'name'+cls.key" placeholder="Enter class name" v-if="cls.isNew || cls.isEdit" v-model="cls.changeName">
+                          <a-icon slot="suffix" type="check" @click="handleSaveClassName(cls)"/>
+                        </a-input>
                       </div>
-                      <div :class="{'class-con-item': true, 'pointer': currentTab !== 'archive'}" @click="handleEditStudents(cls)">
-                        <div class="con-item-label">Students</div>
-                        <div class="con-item-detail">
-                          <label v-if="!cls.isNew && currentTab === 'archive'" for="">{{ cls.studentCount }}</label>
-                          <a v-if="!cls.isNew && currentTab !== 'archive'" for="">{{ cls.studentCount }}</a>
-                          <a type="link" v-if="cls.isNew">Upload</a>
+                      <div :class="{'class-con': true, 'archive': currentTab === 'archive'}">
+                        <div :class="{'class-con-item': true, 'pointer': currentTab !== 'archive' && userMode !== USER_MODE.SELF}" @click="handleEditTeachers(cls)">
+                          <div class="con-item-label">Teachers</div>
+                          <div class="con-item-detail" v-if="currentTab === 'archive' || userMode === USER_MODE.SELF">{{ cls.teacherCount || 0 }}</div>
+                          <a v-else for="">{{ cls.teacherCount || 0 }}</a>
+                        </div>
+                        <div :class="{'class-con-item': true, 'pointer': currentTab !== 'archive'}" @click="handleEditStudents(cls)">
+                          <div class="con-item-label">Students</div>
+                          <div class="con-item-detail">
+                            <label v-if="!cls.isNew && currentTab === 'archive'" for="">{{ cls.studentCount }}</label>
+                            <a v-if="!cls.isNew && currentTab !== 'archive'" for="">{{ cls.studentCount }}</a>
+                            <a type="link" v-if="cls.isNew">Upload</a>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div class="class-opt" v-if="!cls.isNew">
-                      <a-dropdown :getPopupContainer="trigger => trigger.parentElement">
-                        <a-icon type="more" />
-                        <a-menu slot="overlay">
-                          <template v-if="currentTab !== 'archive'">
-                            <a-menu-item>
-                              <a href="javascript:;" @click="handleImport(cls)">Import students</a>
-                            </a-menu-item>
-                            <a-menu-item v-if="userMode === USER_MODE.SCHOOL">
-                              <a href="javascript:;" @click="handleEditTeachers(cls)">Edit teachers</a>
-                            </a-menu-item>
-                            <a-menu-item>
-                              <a href="javascript:;" @click="handleArchive(cls)">Archive</a>
-                            </a-menu-item>
-                          </template>
-                          <template v-else>
-                            <a-menu-item>
-                              <a href="javascript:;" @click="handleRestore(cls)">Restore</a>
-                            </a-menu-item>
+                      <div class="class-opt" v-if="!cls.isNew">
+                        <a-dropdown :getPopupContainer="trigger => trigger.parentElement">
+                          <a-icon type="more" />
+                          <a-menu slot="overlay">
+                            <template v-if="currentTab !== 'archive'">
+                              <a-menu-item>
+                                <a href="javascript:;" @click="handleImport(cls)">Import students</a>
+                              </a-menu-item>
+                              <a-menu-item v-if="userMode === USER_MODE.SCHOOL">
+                                <a href="javascript:;" @click="handleEditTeachers(cls)">Edit teachers</a>
+                              </a-menu-item>
+                              <a-menu-item>
+                                <a href="javascript:;" @click="handleArchive(cls)">Archive</a>
+                              </a-menu-item>
+                            </template>
+                            <template v-else>
+                              <a-menu-item>
+                                <a href="javascript:;" @click="handleRestore(cls)">Restore</a>
+                              </a-menu-item>
                             <!-- <a-menu-item>
                               <a href="javascript:;" @click="handleDelete(cls)">Delete</a>
                             </a-menu-item> -->
-                          </template>
-                        </a-menu>
-                      </a-dropdown>
-                    </div>
-                    <div class="class-opt" style="font-size: 16px;" v-else>
-                      <a-icon type="close" @click="handleRemove(view.id, cls)"></a-icon>
+                            </template>
+                          </a-menu>
+                        </a-dropdown>
+                      </div>
+                      <div class="class-opt" style="font-size: 16px;" v-else>
+                        <a-icon type="close" @click="handleRemove(view.id, cls)"></a-icon>
+                      </div>
                     </div>
                   </div>
-                </div>
+                </draggable>
               </div>
             </div>
           </div>
@@ -141,6 +151,8 @@
 </template>
 
 <script>
+import draggable from 'vuedraggable'
+
 import { USER_MODE } from '@/const/common'
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
@@ -180,7 +192,8 @@ export default {
     ClassSubjectSel,
     ClassStudentImport,
     ClassMemberList,
-    ClassRestoreChoose
+    ClassRestoreChoose,
+    draggable
   },
   data() {
     return {
@@ -694,6 +707,30 @@ export default {
           })
         }
       })
+    },
+    changeClass(val, groupId, groupName) {
+      console.log(val)
+      console.log(groupId)
+      // 只处理added，直接按修改进行
+      if (val.added) {
+        const params = val.added.element
+        if (this.currentTab === 'gradeId') {
+          params.gradeId = groupId
+          params.gradeName = groupName
+        } else if (this.currentTab === 'subject') {
+          params.subject = groupId
+          params.subjectName = groupName
+        }
+        this.loading = true
+        params.name = params.changeName || params.name
+        saveClass(params).then(res => {
+          if (res.success && res.code === 0) {
+            this.$message.success('Save successfully')
+          }
+        }).finally(() => {
+          this.loading = false
+        })
+      }
     }
   }
 }

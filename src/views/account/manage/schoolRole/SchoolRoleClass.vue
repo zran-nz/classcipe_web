@@ -23,7 +23,8 @@
           <template v-if="text && text.length > 0">
             <div class="user-tag" v-for="item in record.headerTeachers" :key="item.userId">
               <div class="avatar">
-                <img :src="item.avatar" />
+                <img :src="item.avatar" v-if="item.avatar"/>
+                <img v-else src="~@/assets/icons/library/default-avatar.png"/>
               </div>
               <div class="user-name-email">
                 <div class="user-name">
@@ -49,7 +50,8 @@
 
                 <div class="user-avatar">
                   <div class="avatar">
-                    <img :src="item.avatar" />
+                    <img :src="item.avatar" v-if="item.avatar"/>
+                    <img v-else src="~@/assets/icons/library/default-avatar.png"/>
                   </div>
                 </div>
                 <div class="user-name-email">
@@ -270,11 +272,11 @@ export default {
         return
       }
       // 根据roleCode判断是否存在
-      const roles = user.roles.map(item => item.name)
-      const isIn = roles.includes(this.currentRole.roleCode)
-      if (isIn) {
-        this.$message.error('This user has been added')
-      }
+      // const roles = user.roles.map(item => item.name)
+      // const isIn = roles.includes(this.currentRole.roleCode)
+      // if (isIn) {
+      //   this.$message.error('This user has been added')
+      // }
       this.selectMember = ''
       this.loading = true
       bindRoleClassTeachers({
