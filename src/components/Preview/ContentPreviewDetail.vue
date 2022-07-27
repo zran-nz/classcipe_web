@@ -251,7 +251,7 @@
 
       <template v-if="content.name && content.name.trim()">
         <div class='content-block'>
-          <div class='content-title'>
+          <div class='content-title' :style="{'color': labelColor.name}">
             <template v-if='content.type === typeMap.task'>Title</template>
             <template v-if='content.type !== typeMap.task'>Name</template>
           </div>
@@ -286,7 +286,7 @@
 
       <template v-if="content.overview && content.overview.trim()">
         <div class='content-block'>
-          <div class='content-title'>
+          <div class='content-title' :style="{'color': labelColor.overview}">
             <template v-if='content.type === typeMap.task'>Task Detail</template>
             <template v-if='content.type !== typeMap.task'>Overview</template>
           </div>
@@ -298,7 +298,7 @@
 
       <template v-if="content.inquiry && content.inquiry.trim()">
         <div class='content-block'>
-          <div class='content-title'>
+          <div class='content-title' :style="{'color': labelColor.bigIdea}">
             Big Idea/ Statement of Inquiry/ Central Idea
           </div>
           <div class='content-detail'>
@@ -309,7 +309,7 @@
 
       <template v-if="content.questions && content.questions.length">
         <div class='content-block'>
-          <div class='content-title'>
+          <div class='content-title' :style="{'color': labelColor.keyQuestion}">
             Key question(s) / Line(s) of inquiry
           </div>
           <div class='content-detail'>
@@ -718,6 +718,23 @@ export default {
     },
     realAssociateList () {
       return this.associateList.filter(item => item.createBy === this.$store.getters.email)
+    },
+    labelColor() {
+      if (this.content.type === this.typeMap['unit-plan']) {
+        return {
+          name: '#01b4ff',
+          overview: '#6dee1c',
+          bigIdea: '#ffec19',
+          keyQuestion: '#ff2600'
+        }
+      } else {
+        return {
+          name: '#000',
+          overview: '#000',
+          bigIdea: '#000',
+          keyQuestion: '#000'
+        }
+      }
     }
   },
   created() {
