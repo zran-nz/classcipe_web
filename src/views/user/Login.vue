@@ -1,6 +1,6 @@
 <template>
   <div class="user-login">
-    <a-tabs type="card" :defaultActiveKey="defaultActiveKey">
+    <a-tabs type="card" :defaultActiveKey="defaultActiveKey" v-model='defaultActiveKey'>
       <a-tab-pane key="teacher" tab="Teacher" v-if="!onlyTab || onlyTab === 'teacher'">
         <div class="login">
           <div>
