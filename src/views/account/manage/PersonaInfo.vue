@@ -63,6 +63,49 @@
               </template>
             </div>
           </a-form-model-item>
+          <a-form-model-item key="School" label="School" prop="school">
+            <a-select
+              v-model="formModel.school"
+              ref="schoolRef"
+              :getPopupContainer="trigger => trigger.parentElement"
+              placeholder="Please select school"
+              show-search
+              :default-active-first-option="false"
+              :show-arrow="false"
+              :filter-option="false"
+              :allow-clear="true"
+              :not-found-content="null"
+              option-label-prop="label"
+              @search="handleSearchSchool"
+              @focus="handleSearchSchool"
+              @change="handleChange"
+            >
+              <div slot="dropdownRender" slot-scope="menu">
+                <v-nodes :vnodes="menu" />
+                <div v-if="ifShowCreate">
+                  <a-divider style="margin: 4px 0;" />
+                  <div
+                    style="padding: 4px 8px; cursor: pointer;"
+                    @mousedown="e => e.preventDefault()"
+                    @click="createSchool"
+                  >
+                    Create School: <a-tag color="#15c39a">{{ searchText }}</a-tag>
+                  </div>
+                </div>
+              </div>
+              <a-select-option
+                :value="schoolOption.id"
+                :label="schoolOption.name"
+                v-for="schoolOption in [...myCreateSchoolOptions,...schoolOptions]"
+                :key="schoolOption.id"
+              >
+                <label style="display:flex;justify-content:space-between;">
+                  <span>{{ schoolOption.name }}</span>
+                  <a-tag type="primary" v-show="schoolOption.country">{{ schoolOption.country }}</a-tag>
+                </label>
+              </a-select-option>
+            </a-select>
+          </a-form-model-item>
           <a-form-model-item class="mb0" label="Address" :required="true">
             <a-row :gutter="10">
               <a-col :span="12">
@@ -143,49 +186,6 @@
                 :key="'gender-' + param.label"
               >
                 {{ param.label }}
-              </a-select-option>
-            </a-select>
-          </a-form-model-item>
-          <a-form-model-item key="School" label="School" prop="school" v-if="false">
-            <a-select
-              v-model="formModel.school"
-              ref="schoolRef"
-              :getPopupContainer="trigger => trigger.parentElement"
-              placeholder="Please select school"
-              show-search
-              :default-active-first-option="false"
-              :show-arrow="false"
-              :filter-option="false"
-              :allow-clear="true"
-              :not-found-content="null"
-              option-label-prop="label"
-              @search="handleSearchSchool"
-              @focus="handleSearchSchool"
-              @change="handleChange"
-            >
-              <div slot="dropdownRender" slot-scope="menu">
-                <v-nodes :vnodes="menu" />
-                <div v-if="ifShowCreate">
-                  <a-divider style="margin: 4px 0;" />
-                  <div
-                    style="padding: 4px 8px; cursor: pointer;"
-                    @mousedown="e => e.preventDefault()"
-                    @click="createSchool"
-                  >
-                    Create School: <a-tag color="#15c39a">{{ searchText }}</a-tag>
-                  </div>
-                </div>
-              </div>
-              <a-select-option
-                :value="schoolOption.id"
-                :label="schoolOption.name"
-                v-for="schoolOption in [...myCreateSchoolOptions,...schoolOptions]"
-                :key="schoolOption.id"
-              >
-                <label style="display:flex;justify-content:space-between;">
-                  <span>{{ schoolOption.name }}</span>
-                  <a-tag type="primary" v-show="schoolOption.country">{{ schoolOption.country }}</a-tag>
-                </label>
               </a-select-option>
             </a-select>
           </a-form-model-item>

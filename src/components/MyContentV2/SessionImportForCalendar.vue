@@ -48,8 +48,19 @@
           />
           <schedule-pay-info
             ref='pay'
+            :type="type"
             :showCalendar="false"
             :default-date="defaultDate"
+            v-if="userMode === USER_MODE.SELF"
+            v-show='scheduleReq.openSession && "schedule" === ScheduleStepsFilter[currentActiveStepIndex].type'
+            @select-date='handleSelectDate'
+          />
+          <school-schedule
+            ref='pay'
+            :type="type"
+            :showCalendar="false"
+            :default-date="defaultDate"
+            v-if="userMode === USER_MODE.SCHOOL"
             v-show='scheduleReq.openSession && "schedule" === ScheduleStepsFilter[currentActiveStepIndex].type'
             @select-date='handleSelectDate'
           />
@@ -76,6 +87,7 @@ import MyVerticalSteps from '@/components/Steps/MyVerticalSteps'
 import SelectParticipant from '@/components/Schedule/SelectParticipant'
 import ScheduleDate from '@/components/Schedule/ScheduleDate'
 import SchedulePayInfo from '@/components/Schedule/SchedulePayInfo'
+import SchoolSchedule from '@/components/Schedule/SchoolSchedule'
 import SelectSessionUnit from '@/components/Schedule/SelectSessionUnit'
 
 import { GetAssociate, FindMyContent } from '@/api/teacher'
@@ -85,6 +97,7 @@ import { SchoolClassGetMyClasses } from '@/api/schoolClass'
 import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
 
 import { typeMap } from '@/const/teacher'
+import { USER_MODE } from '@/const/common'
 import { mapState } from 'vuex'
 
 import moment from 'moment'
@@ -97,7 +110,8 @@ export default {
     SelectParticipant,
     ScheduleDate,
     SchedulePayInfo,
-    SelectSessionUnit
+    SelectSessionUnit,
+    SchoolSchedule
   },
   props: {
     type: {
@@ -128,6 +142,7 @@ export default {
   data() {
     return {
       typeMap: typeMap,
+      USER_MODE: USER_MODE,
       ScheduleSteps: [
         {
           id: '1',
@@ -375,10 +390,24 @@ export default {
     async createSession(retValue) {
       if (this.scheduleReq.openSession) {
         const openSessionData = this.$refs.pay.getPaidInfo()
-        this.scheduleReq.register.discountInfo = openSessionData.discountInfo
-        this.scheduleReq.register.maxParticipants = openSessionData.maxParticipants
-        this.scheduleReq.register.price = openSessionData.price
-        this.scheduleReq.register.registerBefore = openSessionData.registerBefore
+        if (this.userMode === USER_MODE.SELF) {
+          this.scheduleReq.register.discountInfo = openSessionData.discountInfo
+          this.scheduleReq.register.maxParticipants = openSessionData.maxParticipants
+          this.scheduleReq.register.price = openSessionData.price
+          this.scheduleReq.register.registerBefore = openSessionData.registerBefore
+        } else if (this.userMode === USER_MODE.SCHOOL) {
+          this.scheduleReq.selectTeachers = openSessionData.selectTeachers
+          this.scheduleReq.yearList = openSessionData.yearList
+          this.scheduleReq.subjectList = openSessionData.subjectList
+          this.scheduleReq.languageList = openSessionData.languageList
+          this.scheduleReq.register.paidType = openSessionData.paidType
+          this.scheduleReq.register.notifyType = openSessionData.notifyType
+          this.scheduleReq.register.notifyStudents = openSessionData.notifyStudents
+        }
+      }
+      if (!this.scheduleReq.startDate || !this.scheduleReq.endDate) {
+        this.$message.warn('Please select Schedule time!')
+        return
       }
       this.$logger.info('try createSession scheduleReq', this.scheduleReq)
       this.importLoading = true

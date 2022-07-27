@@ -213,7 +213,7 @@
                 </a-popover>
               </div>
             </div>
-            <div v-if="type === typeMap.task">
+            <div v-if="type === typeMap.task" style="margin-top: 20px;">
               All students at your school will receive email and notification
             </div>
           </template>
@@ -618,6 +618,10 @@ export default {
       }
       if (params.register.notifyType !== NOTIFY_TYPE.ALL.value && this.memberList.length === 0) {
         params.register.notifyType = NOTIFY_TYPE.ALL.value
+      }
+      if (this.type === typeMap.pd) {
+        params.yearList = this.form.notifyType === NOTIFY_TYPE.FILTER_YEARS.value ? this.filter.ages : []
+        params.subjectList = this.form.notifyType === NOTIFY_TYPE.FILTER_SUBJECTS.value ? this.filter.subjects : []
       }
       console.log(params)
       this.confirmLoading = true

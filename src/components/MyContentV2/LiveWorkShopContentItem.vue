@@ -774,6 +774,7 @@ export default {
       background: #FFDF9B;
       color: #D97909;
       margin-right: 1/0.15*0.05em /* 5/100 */;
+      margin-bottom: 1/0.15*0.05em;
       border-radius: 1/0.15*0.1rem /* 10/100 */;
       white-space: nowrap;
       overflow: hidden;

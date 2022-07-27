@@ -5,14 +5,14 @@
       :closable='false'
       destroyOnClose
       title=''
-      width="850px"
+      width="1200px"
       ok-text='Confirm'
       :confirm-loading='creating'
       @ok="confirmSchedule"
       @cancel="closeSchedule">
       <modal-header title='Schedule' @close='closeSchedule'/>
-      <schedule-pay-info ref='personal-schedule' v-show='userMode === USER_MODE.SELF' />
-      <school-schedule ref='school-schedule' v-show='userMode === USER_MODE.SCHOOL' />
+      <schedule-pay-info :type="9" ref='personal-schedule' v-show='userMode === USER_MODE.SELF' />
+      <school-schedule :type="9" ref='school-schedule' v-show='userMode === USER_MODE.SCHOOL' />
     </a-modal>
 
     <zoom-meeting-setting
@@ -103,13 +103,16 @@ export default {
           this.scheduleReq.endDate = scheduleConfig.endDate
           this.$logger.info('confirmSchedule', scheduleConfig)
         } else if (this.userMode === USER_MODE.SCHOOL) {
-          scheduleConfig = this.$refs['school-schedule'].getScheduleInfo()
+          scheduleConfig = this.$refs['school-schedule'].getPaidInfo()
           this.scheduleReq.selectTeachers = scheduleConfig.selectTeachers
           this.scheduleReq.yearList = scheduleConfig.yearList
           this.scheduleReq.subjectList = scheduleConfig.subjectList
           this.scheduleReq.languageList = scheduleConfig.languageList
           this.scheduleReq.startDate = scheduleConfig.startDate
           this.scheduleReq.endDate = scheduleConfig.endDate
+          this.scheduleReq.register.paidType = scheduleConfig.paidType
+          this.scheduleReq.register.notifyType = scheduleConfig.notifyType
+          this.scheduleReq.register.notifyStudents = scheduleConfig.notifyStudents
           this.$logger.info('schoolScheduleInfo', scheduleConfig)
         }
         if (!this.scheduleReq.startDate || !this.scheduleReq.endDate) {

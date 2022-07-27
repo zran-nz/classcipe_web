@@ -28,7 +28,14 @@
         />
         <schedule-pay-info
           ref='pay'
-          v-if='scheduleReq.openSession && currentActiveStepIndex === 1'
+          :type="type"
+          v-if='userMode === USER_MODE.SELF && scheduleReq.openSession && currentActiveStepIndex === 1'
+          @select-date='handleSelectDate'
+        />
+        <school-schedule
+          ref='pay'
+          :type="type"
+          v-if='userMode === USER_MODE.SCHOOL && scheduleReq.openSession && currentActiveStepIndex === 1'
           @select-date='handleSelectDate'
         />
       </div>
@@ -78,15 +85,18 @@ import SelectSessionUnit from '@/components/Schedule/SelectSessionUnit'
 import SelectParticipant from '@/components/Schedule/SelectParticipant'
 import ScheduleDate from '@/components/Schedule/ScheduleDate'
 import SchedulePayInfo from '@/components/Schedule/SchedulePayInfo'
+import SchoolSchedule from '@/components/Schedule/SchoolSchedule'
 import { AddSessionV2 } from '@/api/v2/classes'
 import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
 import FixedFormFooter from '@/components/Common/FixedFormFooter'
 import ZoomMeetingSetting from '@/components/Schedule/ZoomMeetingSetting'
-import { CALENDAR_QUERY_TYPE } from '@/const/common'
+import { CALENDAR_QUERY_TYPE, USER_MODE } from '@/const/common'
+
+import { mapState } from 'vuex'
 
 export default {
   name: 'ScheduleSession',
-  components: { ZoomMeetingSetting, FixedFormFooter, SchedulePayInfo, ScheduleDate, SelectParticipant, SelectSessionUnit, MyVerticalSteps },
+  components: { ZoomMeetingSetting, FixedFormFooter, SchedulePayInfo, SchoolSchedule, ScheduleDate, SelectParticipant, SelectSessionUnit, MyVerticalSteps },
   mixins: [ AssociateMixin, ZoomAuthMixin ],
   props: {
     id: {
@@ -101,6 +111,7 @@ export default {
   data() {
     return {
       CALENDAR_QUERY_TYPE: CALENDAR_QUERY_TYPE,
+      USER_MODE: USER_MODE,
       loading: true,
       zoomSettingVisible: false,
       teacherSessionNowLoading: false,
@@ -136,6 +147,11 @@ export default {
       calendarSearchFilters: [],
       calendarSearchType: CALENDAR_QUERY_TYPE.CLASS.value
     }
+  },
+  computed: {
+    ...mapState({
+      userMode: state => state.app.userMode
+    })
   },
   created() {
     this.$logger.info(`ScheduleSession created with id: ${this.id} type ${this.type}`)
@@ -329,10 +345,20 @@ export default {
     async createSession(retValue) {
       if (this.scheduleReq.openSession) {
         const openSessionData = this.$refs.pay.getPaidInfo()
-        this.scheduleReq.register.discountInfo = openSessionData.discountInfo
-        this.scheduleReq.register.maxParticipants = openSessionData.maxParticipants
-        this.scheduleReq.register.price = openSessionData.price
-        this.scheduleReq.register.registerBefore = openSessionData.registerBefore
+        if (this.userMode === USER_MODE.SELF) {
+          this.scheduleReq.register.discountInfo = openSessionData.discountInfo
+          this.scheduleReq.register.maxParticipants = openSessionData.maxParticipants
+          this.scheduleReq.register.price = openSessionData.price
+          this.scheduleReq.register.registerBefore = openSessionData.registerBefore
+        } else if (this.userMode === USER_MODE.SCHOOL) {
+          this.scheduleReq.selectTeachers = openSessionData.selectTeachers
+          this.scheduleReq.yearList = openSessionData.yearList
+          this.scheduleReq.subjectList = openSessionData.subjectList
+          this.scheduleReq.languageList = openSessionData.languageList
+          this.scheduleReq.register.paidType = openSessionData.paidType
+          this.scheduleReq.register.notifyType = openSessionData.notifyType
+          this.scheduleReq.register.notifyStudents = openSessionData.notifyStudents
+        }
       }
 
       if (!this.scheduleReq.startDate || !this.scheduleReq.endDate) {
