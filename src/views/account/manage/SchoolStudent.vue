@@ -76,16 +76,16 @@
             <!-- <a-tag :color="getStatusFormat(status, 'color')">{{ getStatusFormat(status) || ' - ' }}</a-tag> -->
             <a-space>
               <a-tooltip title="Student Active" v-if="status === 1">
-                <a-icon color="#007990" type="check" />
+                <a-icon style="color:#007990" type="check" />
               </a-tooltip>
               <a-tooltip title="Student InActive" v-else>
-                <a-icon color="#8D9496" type="check" />
+                <a-icon style="color: #8D9496" type="check" />
               </a-tooltip>
               <a-tooltip title="Parent Active" v-if="record.parentEmailStatus" >
-                <a-icon color="#007990" type="check" />
+                <a-icon style="color:#007990" type="check" />
               </a-tooltip>
               <a-tooltip title="Parent InActive" v-else >
-                <a-icon color="#8D9496" type="check" />
+                <a-icon style="color: #8D9496" type="check" />
               </a-tooltip>
             </a-space>
           </div>
