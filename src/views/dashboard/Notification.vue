@@ -6,14 +6,14 @@
           <a-icon type='left' /> Back
         </span>
       </div>
-      <div>Notification</div>
+      <!-- <div>Notification</div> -->
       <div class="ant-tabs-nav-wrap">
         <div class="ant-tabs-nav-scroll">
           <div class="ant-tabs-nav ant-tabs-nav-animated">
             <div>
               <div :class="{'ant-tabs-tab':true,'ant-tabs-tab-active':selectTab === 'all'}" @click="handleSelectTab('all')">All</div>
               <div :class="{'ant-tabs-tab':true,'ant-tabs-tab-active':selectTab === '0'}">
-                <a-badge style="width: 80px;" :count="$store.state.websocket.msgUnreadCount" :overflow-count="999" @click="handleSelectTab('0')">Unread</a-badge>
+                <a-badge :offset="[10, 0]" style="font-size: 16px;" :count="$store.state.websocket.msgUnreadCount" :overflow-count="999" @click="handleSelectTab('0')">Unread</a-badge>
               </div>
               <div :class="{'ant-tabs-tab':true,'ant-tabs-tab-active':selectTab === '1'}" @click="handleSelectTab('1')">Read</div>
             </div>
@@ -255,7 +255,7 @@ export default {
   display: flex;
   align-items: center;
   .ant-tabs-nav-wrap{
-    margin-left: 50px;
+    margin-left: 20px;
   }
   .ant-tabs-nav{
     margin: 0 12px 0 0;
