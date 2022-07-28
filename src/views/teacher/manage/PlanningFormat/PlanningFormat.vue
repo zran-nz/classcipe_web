@@ -8,6 +8,7 @@
           :custom-list='planConfig.customList'
           :step-list='planConfig.steps'
           :step-type='typeMap["unit-plan"]'
+          :required-field-list='planRequiredFields'
           v-if='planConfig' />
       </a-tab-pane>
       <a-tab-pane key="task" tab="Task Format" class='planning-content' :forceRender='true'>
@@ -17,6 +18,7 @@
           :custom-list='taskConfig.customList'
           :step-list='taskConfig.steps'
           :step-type='typeMap.task'
+          :required-field-list='taskRequiredFields'
           v-if='taskConfig' />
       </a-tab-pane>
       <div class='form-config-action' slot="tabBarExtraContent">
@@ -56,7 +58,7 @@
 import { typeMap } from '@/const/teacher'
 import { FormConfigAddOrUpdate, FormConfigData, GetTemplates, ImportTemplate } from '@/api/formConfig'
 import { FORM_CONFIG_PREVIEW_DATA } from '@/store/mutation-types'
-import { USER_MODE } from '@/const/common'
+import { PlanField, TaskField, USER_MODE } from '@/const/common'
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import { mapState } from 'vuex'
@@ -76,7 +78,9 @@ export default {
       typeMap: typeMap,
       saving: false,
       templateList: [],
-      selectTemplateVisible: false
+      selectTemplateVisible: false,
+      planRequiredFields: [ PlanField.Name, PlanField.Image, PlanField.Inquiry, PlanField.Sdg, PlanField.Question, PlanField.SubjectIds, PlanField.GradeIds ],
+      taskRequiredFields: [ TaskField.Name, TaskField.Image, TaskField.Overview, TaskField.TaskType ]
     }
   },
   created() {
