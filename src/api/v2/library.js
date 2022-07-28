@@ -4,7 +4,8 @@ export const LibraryV2Url = {
   search: '/classcipe/api/v2/library/search',
   getLibraryRecommend: '/classcipe/api/v2/library/getLibraryRecommend',
   getLibraryResource: '/classcipe/api/v2/library/getLibraryResource',
-  queryAllResource: '/classcipe/api/v2/library/queryAllResource'
+  queryAllResource: '/classcipe/api/v2/library/queryAllResource',
+  queryLibraryResource: '/classcipe/api/v2/library/queryLibraryResource'
 }
 
 /**
@@ -57,6 +58,22 @@ export function getLibraryResource (parameter) {
 export function queryAllResource (parameter) {
   return request({
     url: LibraryV2Url.queryAllResource,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+/**
+ * edit slide推荐的library和resource内容
+ * @param parameter
+ * @returns {AxiosPromise}
+ */
+export function queryLibraryResource (parameter) {
+  return request({
+    url: LibraryV2Url.queryLibraryResource,
     method: 'post',
     data: parameter,
     headers: {

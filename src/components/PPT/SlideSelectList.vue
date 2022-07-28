@@ -8,7 +8,7 @@
         <a-radio-button :value="sourceType.SlideTemplate">
           Slide template
         </a-radio-button>
-        <a-radio-button :value="sourceType.library">
+        <a-radio-button :value="sourceType.Library">
           Library
         </a-radio-button>
         <a-radio-button :value="sourceType.Resource" v-if='userMode === USER_MODE.SCHOOL'>
@@ -102,6 +102,8 @@ import * as logger from '@/utils/logger'
 import SlideEvent from '@/components/PPT/SlideEvent'
 import TemplateFilter from '@/components/MyContentV2/TemplateFilter'
 import { USER_MODE } from '@/const/common'
+import { QueryContentsFilter } from '@/api/library'
+import { getLibraryResource } from '@/api/v2/library'
 
 const sourceType = {
   Recommend: 1,
@@ -218,10 +220,10 @@ export default {
           this.getMyContentSlide()
           break
         case sourceType.Library:
-          this.getMyContentSlide()
+          this.loadLibrary(0)
           break
         case sourceType.Resource:
-          this.getMyContentSlide()
+          this.loadLibrary(this.school)
           break
         default:
           break
@@ -253,6 +255,10 @@ export default {
     getTemplateSlide () {
       this.searching = true
       this.$logger.info('this.filterParams', this.filterParams)
+      if (!this.filterParams) {
+        // 未筛选 默认推荐模板
+        return this.getRecommendSlide()
+      }
       FilterTemplates(Object.assign({}, this.filterParams)).then(res => {
         this.$logger.info('getTemplateSlide res', res)
         if (res && res.result) {
@@ -298,6 +304,35 @@ export default {
           })
           this.slideList = res.result.records
           this.$logger.info('slideList', this.slideList)
+        }
+      }).finally(() => {
+        this.searching = false
+      })
+    },
+    loadLibrary (schoolId) {
+      this.searching = true
+      let params = {
+        searchKey: this.filterParams ? this.filterParams.searchKey : null,
+        types: [ this.$classcipe.typeMap.task ],
+        schoolId: schoolId || 0
+      }
+      if (this.filterParams) {
+        params = Object.assign(this.filterParams, params)
+      }
+      this.$logger.info('params', params)
+      getLibraryResource(params).then(res => {
+        if (res && res.result) {
+          res.result.forEach(item => {
+            item.thumbnailList = []
+            for (let i = 0; i < item.pageObjects.length; i++) {
+              item.thumbnailList[i] = {
+                contentUrl: item.pageObjects[i].contentUrl,
+                id: item.pageObjectIds[i]
+              }
+            }
+          })
+          this.slideList = res.result
+          this.$logger.info('loadLibrary res', this.slideList)
         }
       }).finally(() => {
         this.searching = false
