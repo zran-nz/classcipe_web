@@ -26,7 +26,7 @@ export default {
   name: 'SchoolRoleAdd',
   data () {
     return {
-      title: 'School Role Add',
+      title: 'School Role Edit',
       visible: false,
       roleDisabled: false,
       model: {

@@ -59,6 +59,16 @@
           :loading="loading"
           :rowSelection="{selectedRowKeys: selectedRowKeys, onChange: onSelectChange}"
           @change="handleTableChange">
+          <div class="user-info" slot="name" slot-scope="text, record">
+            <div class="user-avatar">
+              <img :src="record.avatar" alt="" v-if="record.avatar">
+              <img src="~@/assets/icons/library/default-avatar.png" alt="" v-else>
+            </div>
+            <div class="user-detail">
+              <label for="">{{ record.firstname + record.lastname }}</label>
+              <label for="">{{ record.inviteEmail }}<span v-if="isSelfEmail(record.inviteEmail)"> (Me)</span></label>
+            </div>
+          </div>
           <div class="flex-wrap" slot="classes" slot-scope="classes">
             <a-tag v-for="cls in classes" :key="cls.id" :color="cls.classType === 0 ? '#2db7f5' : '#f50'">{{ cls.name }}</a-tag>
           </div>
@@ -69,13 +79,13 @@
                 <a-icon color="#007990" type="check" />
               </a-tooltip>
               <a-tooltip title="Student InActive" v-else>
-                <a-icon color="#007990" type="close" />
-              </a-tooltip>
-              <a-tooltip title="Parent Active" v-if="record.parentEmailStatus" >
                 <a-icon color="#8D9496" type="check" />
               </a-tooltip>
+              <a-tooltip title="Parent Active" v-if="record.parentEmailStatus" >
+                <a-icon color="#007990" type="check" />
+              </a-tooltip>
               <a-tooltip title="Parent InActive" v-else >
-                <a-icon color="#8D9496" type="close" />
+                <a-icon color="#8D9496" type="check" />
               </a-tooltip>
             </a-space>
           </div>
@@ -203,6 +213,7 @@ export default {
   },
   computed: {
     ...mapState({
+      info: state => state.user.info,
       userMode: state => state.app.userMode,
       currentSchool: state => state.user.currentSchool
     }),
@@ -216,12 +227,13 @@ export default {
         },
         {
           title: 'Name',
-          align: 'center',
+          align: 'left',
           dataIndex: 'nickname',
-          width: 120,
-          customRender: (text, record) => {
-            return text || (record.firstname + record.lastname) || record.email
-          }
+          width: 250,
+          scopedSlots: { customRender: 'name' }
+          // customRender: (text, record) => {
+          //   return text || (record.firstname + record.lastname) || record.email
+          // }
         },
         {
           title: 'Class',
@@ -285,6 +297,9 @@ export default {
       // 模式切换，个人还是学校 个人接口
       this.initDict()
       this.debounceInit()
+    },
+    isSelfEmail(email) {
+      return email === this.info.email
     },
     initDict() {
       // 获取所有班级用于筛选
@@ -477,6 +492,34 @@ export default {
   color: #fff;
   border-radius: 4px;
   font-size: 12px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  .user-avatar {
+    margin-right: 10px;
+    width: 40px;
+    height: 40px;
+    border-radius: 100%;
+    img {
+      width: 40px;
+      height: 100%;
+      border-radius: 100%;
+    }
+  }
+  .user-detail {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    label {
+      font-size: 14px;
+      text-align: left;
+      &:first-child {
+        font-weight: bold;
+      }
+    }
+  }
 }
 
 .flex-wrap {

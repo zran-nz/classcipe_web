@@ -71,7 +71,8 @@ export default {
         if (this.userMode === USER_MODE.SELF) {
           return this.baseUrl + '/v2/com/tags?token=' + this.user.token
         } else {
-          if (this.currentSchool.roleNames.includes('admin')) {
+          const roles = this.currentSchool.roleNames.map(item => item.toLowerCase())
+          if (roles.includes('admin')) {
             return this.baseUrl + '/v2/com/tags/' + this.currentSchool.id + '?token=' + this.user.token
           } else {
             return this.baseUrl + '/v2/com/tags/school/' + this.currentSchool.id + '?token=' + this.user.token

@@ -6,9 +6,9 @@
         <!-- <a-input-search placeholder="Search here" v-model="queryParams.searchKey" @search="handleSearch"></a-input-search> -->
 
       </div>
-      <!-- <a-space class="filter-opt">
-        <a-button type="primary" @click="handleAdd">Add User</a-button>
-      </a-space> -->
+      <a-space class="filter-opt">
+        <a-button type="primary" @click="handleAddSubject">Add Subject</a-button>
+      </a-space>
     </div>
     <div class="table-con">
       <a-table
@@ -217,6 +217,9 @@ export default {
       } else {
         this.$refs.schoolUserSelect.add()
       }
+    },
+    handleAddClass() {
+      this.$router.push('/manage/curriculum')
     },
     handleClose() {
       this.$emit('close')

@@ -228,6 +228,7 @@ export default {
       })
       this.$refs.schoolRoleAdd.edit({
         schoolId: this.currentSchool.id,
+        name: item.name,
         roleNames: roleNames,
         changedKey: item.roleCode
       })

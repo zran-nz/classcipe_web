@@ -603,9 +603,10 @@ export default {
       }
     },
     handleArchive(cls) {
+      const msg = cls.classType === 0 ? 'The students of this class will also be archived once this class is archived, please switch the students to other standard class if you want to keep them' : 'Are you sure you want to archive this class?'
       this.$confirm({
         title: 'Confirm archive class ' + cls.name,
-        content: 'Are you sure you want to archive this class?',
+        content: msg,
         centered: true,
         onOk: () => {
           this.loading = true

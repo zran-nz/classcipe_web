@@ -208,7 +208,7 @@ export default {
       return [
         {
           title: 'Name',
-          align: 'center',
+          align: 'left',
           dataIndex: 'nickname',
           width: 250,
           scopedSlots: { customRender: 'name' }
