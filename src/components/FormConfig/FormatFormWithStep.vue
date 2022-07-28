@@ -39,8 +39,7 @@
             <a-icon type="setting" :style="{ color: '#999999', fontSize: '12px' }" class='gray' />
             <a-icon type="setting" :style="{ color: '#15C39A', fontSize: '12px' }" class='green'/>
           </div>
-
-          <div class='step-visible-toggle'>
+          <div class='step-visible-toggle' v-show='stepEnableConfig(step)'>
             <div class='field-visible'>Enable</div>
             <a-switch size="small" v-model='step.visible' @change='showStepChangeTips'/>
           </div>
@@ -71,6 +70,9 @@
             <div class='field-item-config'>
               <div class='field-label'>
                 {{ fieldItem.fieldLabel }}
+                <a-tooltip placement="top" title="Required" v-if='requiredFieldList.indexOf(fieldItem.fieldName) !== -1'>
+                  <span class='required vertical-center'>*</span>
+                </a-tooltip>
               </div>
               <div class='field-config'>
                 <div class='field-config-left'>
@@ -84,55 +86,8 @@
                     <a-input v-model='fieldItem.hint' placeholder='Please enter the hint' class='hint-input'/>
                   </div>
                 </div>
-                <!--                <div class='field-config-right'>-->
-                <!--                  <div class='tag-selected'>-->
-                <!--                    <div class='tag-selected-list'>-->
-                <!--                      <div class='tag-selected-item' v-for='(tag, tIdx) in fieldItem.tags' :key="'tid-' + tIdx" @click='handleSetTag(fieldItem, tag.subFieldName)'>-->
-                <!--                        <a-tag class='my-tag-selected' :class="{'my-tag-not-optional': tag.isOptional}">-->
-                <!--                          <template v-if='tag.isOptional'>-->
-                <!--                            <a-icon type="safety" :style="{ fontSize: '14px', 'margin-right': '3px'}"/>-->
-                <!--                          </template>-->
-                <!--                          <span class='my-tag-selected-name'>-->
-                <!--                            <span class='tag-type' v-if="fieldItem.fieldName === 'taskType' && tag.subFieldName">{{ tag.subFieldName }} - </span>-->
-                <!--                            {{ tag.tagName }}-->
-                <!--                          </span>-->
-                <!--                        </a-tag>-->
-                <!--                      </div>-->
-                <!--                    </div>-->
-                <!--                  </div>-->
-                <!--                </div>-->
               </div>
-              <!--              <div class='tag-setting' @click='handleSetTag(fieldItem)' v-if="fieldItem.fieldName !== 'taskType'">-->
-              <!--                <div class='set-tag-label'>-->
-              <!--                  Set tag-->
-              <!--                </div>-->
-              <!--                <a-icon type="setting" :style="{ color: '#999999', fontSize: '12px' }" class='gray' />-->
-              <!--                <a-icon type="setting" :style="{ color: '#15C39A', fontSize: '12px' }" class='green'/>-->
-              <!--              </div>-->
-              <!--              <div class='task-type-tag-setting' v-if="fieldItem.fieldName === 'taskType'">-->
-              <!--                <div class='task-type-tag-setting-item' @click="handleSetTag(fieldItem, 'fa')" >-->
-              <!--                  <div class='set-tag-label'>-->
-              <!--                    Set fa tag-->
-              <!--                  </div>-->
-              <!--                  <a-icon type="setting" :style="{ color: '#999999', fontSize: '12px' }" class='gray' />-->
-              <!--                  <a-icon type="setting" :style="{ color: '#15C39A', fontSize: '12px' }" class='green'/>-->
-              <!--                </div>-->
-              <!--                <div class='task-type-tag-setting-item' @click="handleSetTag(fieldItem, 'sa')" >-->
-              <!--                  <div class='set-tag-label'>-->
-              <!--                    Set sa tag-->
-              <!--                  </div>-->
-              <!--                  <a-icon type="setting" :style="{ color: '#999999', fontSize: '12px' }" class='gray' />-->
-              <!--                  <a-icon type="setting" :style="{ color: '#15C39A', fontSize: '12px' }" class='green'/>-->
-              <!--                </div>-->
-              <!--                <div class='task-type-tag-setting-item' @click="handleSetTag(fieldItem, 'activity')" >-->
-              <!--                  <div class='set-tag-label'>-->
-              <!--                    Set activity tag-->
-              <!--                  </div>-->
-              <!--                  <a-icon type="setting" :style="{ color: '#999999', fontSize: '12px' }" class='gray' />-->
-              <!--                  <a-icon type="setting" :style="{ color: '#15C39A', fontSize: '12px' }" class='green'/>-->
-              <!--                </div>-->
-              <!--              </div>-->
-              <div class='visible-toggle'>
+              <div class='visible-toggle' v-if='requiredFieldList.indexOf(fieldItem.fieldName) === -1'>
                 <div class='field-visible'>Enable</div>
                 <a-switch size="small" v-model='fieldItem.visible' @change="handleChangeCommonField(sIdx,fieldItem)"/>
               </div>
@@ -267,6 +222,10 @@ export default {
       required: true
     },
     stepList: {
+      type: Array,
+      required: true
+    },
+    requiredFieldList: {
       type: Array,
       required: true
     },
@@ -623,6 +582,16 @@ export default {
         customList: myCustomList,
         steps: mySteps
       }
+    },
+
+    stepEnableConfig(step) {
+      let enable = true
+      step.commonFieldItems.forEach(fieldItem => {
+        if (fieldItem?.fieldName && this.requiredFieldList.indexOf(fieldItem.fieldName) !== -1) {
+          enable = false
+        }
+      })
+      return enable
     }
   }
 }
@@ -813,6 +782,9 @@ export default {
             padding-bottom: 8px;
             color: #474747;
             padding-left: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
           }
           .field-config {
             width: 100%;
@@ -1082,5 +1054,12 @@ export default {
 
 .form-warning {
   margin: 10px 0;
+}
+
+.required {
+  color: red;
+  font-weight: bold;
+  font-size: 16px;
+  padding: 3px 5px 0 5px;
 }
 </style>
