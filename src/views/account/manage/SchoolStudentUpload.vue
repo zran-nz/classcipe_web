@@ -218,7 +218,7 @@ export default {
             status.push('Duplicate Parent')
           }
           item.status = status.join(',')
-          // 班级
+          // 班级 验证标准班
           if (item.classes) {
             item.classes = item.classes.split(',').map(cls => {
               const name = cls.trim()
