@@ -363,7 +363,7 @@ export default {
     },
     expiredDay() {
       const remain = this.info.planInfo.unPaidPrice || 0
-      if (this.info.planInfo && remain === 0) {
+      if (this.info.planInfo && remain <= 0) {
         const exipire = this.info.planInfo.freeUsePlan ? this.info.planInfo.freeDays : (this.info.planInfo.planExpire + this.info.planInfo.freeDays)
         const exipireUnit = this.info.planInfo.freeUsePlan ? 1 : this.info.planInfo.planExpireUnit
         const days = exipire || 0

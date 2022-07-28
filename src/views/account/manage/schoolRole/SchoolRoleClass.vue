@@ -6,9 +6,9 @@
         <!-- <a-input-search placeholder="Search here" v-model="queryParams.searchKey" @search="handleSearch"></a-input-search> -->
 
       </div>
-      <!-- <a-space class="filter-opt">
-        <a-button type="primary" @click="handleAdd">Add User</a-button>
-      </a-space> -->
+      <a-space class="filter-opt">
+        <a-button type="primary" @click="handleAddClass">Add Class</a-button>
+      </a-space>
     </div>
     <div class="table-con">
       <a-table
@@ -265,6 +265,9 @@ export default {
           })
         }
       })
+    },
+    handleAddClass() {
+      this.$router.push('/manage/class')
     },
     handleAddMember(user, cls) {
       if (!this.currentRole || !this.currentRole.roleCode) {
