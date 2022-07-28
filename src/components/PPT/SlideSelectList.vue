@@ -1,22 +1,38 @@
 <template>
   <div class='slide-select-list'>
     <div class='slide-source-switch'>
-      <a-select
-        :getPopupContainer="trigger => trigger.parentElement"
-        placeholder='Curriculum'
-        v-model='filterSourceType'
-        @change='handleSearchByFilter'
-        class='cc-select cc-lo-select-mid'>
-        <a-select-option :value="sourceType.Recommend">
-          Recommend
-        </a-select-option>
-        <a-select-option :value="sourceType.SlideTemplate">
-          Slide template
-        </a-select-option>
-        <a-select-option :value="sourceType.MyContent">
+      <a-radio-group default-value="My content" button-style="solid" class='cc-radio-group' v-model='filterSourceType' @change='handleSearchByFilter'>
+        <a-radio-button :value="sourceType.MyContent">
           My content
-        </a-select-option>
-      </a-select>
+        </a-radio-button>
+        <a-radio-button :value="sourceType.SlideTemplate">
+          Slide template
+        </a-radio-button>
+        <a-radio-button :value="sourceType.library">
+          Library
+        </a-radio-button>
+        <a-radio-button :value="sourceType.Resource" v-if='userMode === USER_MODE.SCHOOL'>
+          Resource center
+        </a-radio-button>
+
+      </a-radio-group>
+
+      <!--      <a-select-->
+      <!--        :getPopupContainer="trigger => trigger.parentElement"-->
+      <!--        placeholder='Curriculum'-->
+      <!--        v-model='filterSourceType'-->
+      <!--        @change='handleSearchByFilter'-->
+      <!--        class='cc-select cc-lo-select-mid'>-->
+      <!--        <a-select-option :value="sourceType.Recommend">-->
+      <!--          Recommend-->
+      <!--        </a-select-option>-->
+      <!--        <a-select-option :value="sourceType.SlideTemplate">-->
+      <!--          Slide template-->
+      <!--        </a-select-option>-->
+      <!--        <a-select-option :value="sourceType.MyContent">-->
+      <!--          My content-->
+      <!--        </a-select-option>-->
+      <!--      </a-select>-->
     </div>
     <div class='search-bar'>
       <template-filter v-if="filterSourceType === sourceType.SlideTemplate" @search='handleSearchByInputFilter'/>
@@ -85,11 +101,14 @@ import ContentPreview from '@/components/Preview/ContentPreview'
 import * as logger from '@/utils/logger'
 import SlideEvent from '@/components/PPT/SlideEvent'
 import TemplateFilter from '@/components/MyContentV2/TemplateFilter'
+import { USER_MODE } from '@/const/common'
 
 const sourceType = {
   Recommend: 1,
   SlideTemplate: 2,
-  MyContent: 3
+  MyContent: 3,
+  Library: 4,
+  Resource: 5
 }
 
 export default {
@@ -110,12 +129,13 @@ export default {
       return this.selectedTemplateList.map(item => item.presentationId)
     },
     ...mapState({
-      school: state => state.user.school
+      school: state => state.user.school,
+      userMode: state => state.app.userMode
     })
   },
   data() {
     return {
-      filterSourceType: sourceType.Recommend,
+      filterSourceType: sourceType.MyContent,
       sourceType: sourceType,
       slideList: [],
       searching: true,
@@ -139,7 +159,8 @@ export default {
       previewVisible: false,
 
       previewPptVisible: false,
-      pptThumbnailList: []
+      pptThumbnailList: [],
+      USER_MODE: USER_MODE
     }
   },
   created() {
@@ -194,6 +215,12 @@ export default {
           this.getTemplateSlide()
           break
         case sourceType.MyContent:
+          this.getMyContentSlide()
+          break
+        case sourceType.Library:
+          this.getMyContentSlide()
+          break
+        case sourceType.Resource:
           this.getMyContentSlide()
           break
         default:
@@ -331,8 +358,8 @@ export default {
   }
 }
 
-.slide-source-switch {
-  width: 180px;
-}
+//.slide-source-switch {
+//  width: 180px;
+//}
 
 </style>
