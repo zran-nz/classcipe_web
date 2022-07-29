@@ -2,7 +2,8 @@ import storage from 'store'
 export const SubmitBeforeMixin = {
   data() {
     return {
-      validateFileds: {}
+      validateFileds: {},
+      refName: 'form'
     }
   },
   computed: {
@@ -13,11 +14,11 @@ export const SubmitBeforeMixin = {
   methods: {
     initValidate(isEdit) {
       if (!isEdit && this.validatorRules) {
-        this.$refs.form.validateField(Object.keys(this.validatorRules), res => {
+        this.$refs[this.refName].validateField(Object.keys(this.validatorRules), res => {
           const userId = this.$store.getters.userInfo.id
           const data = this.autoSaveLocalKey ? storage.get(this.autoSaveLocalKey + userId) : ''
           if (!data) {
-            this.$refs.form.clearValidate()
+            this.$refs[this.refName].clearValidate()
           }
         })
       }

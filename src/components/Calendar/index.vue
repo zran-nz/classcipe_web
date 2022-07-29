@@ -72,6 +72,10 @@ export default {
     selectAllow: {
       type: Function,
       default: () => true
+    },
+    dayHeaderContent: {
+      type: Function,
+      default: (info) => info.text
     }
 
   },
@@ -110,6 +114,7 @@ export default {
         eventMouseLeave: this.handleMouseLeave,
         eventDrop: this.handleEventDrop,
         eventResize: this.handleEventResize,
+        dayHeaderContent: this.dayHeaderContent,
         eventTimeFormat: {
           hour: 'numeric',
           minute: '2-digit',
