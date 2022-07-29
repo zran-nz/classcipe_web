@@ -10,12 +10,12 @@
                   class="unit-tip-item"
                   :style="{backgroundColor: BG_COLORS[item.index]}"
                   v-for="(item) in showUnitOptions"
-                  :key="item.id">
+                  :key="'unit_' + item.id">
                   <a-tooltip :title="item.name">Unit: {{ item.name }}</a-tooltip>
                 </div>
               </div>
               <div class="calendar-type" v-show="true">
-                <div class="calendar-type-item" v-for="type in CALENDAR_QUERY_TYPE" :key="type.value">
+                <div class="calendar-type-item" v-for="type in CALENDAR_QUERY_TYPE" :key="'calendar_' + type.value">
                   <template v-if="type.value !== CALENDAR_QUERY_TYPE.CLASS.value">
                     <div class="type-item-title">
                       <a-radio :checked="queryType === type.value" @change="handleChangeType(type)">
@@ -37,7 +37,7 @@
                   </template>
                 </div>
                 <!-- 每个class和querytype同级  -->
-                <div class="calendar-type-item" v-for="type in showClassOptions" :key="type.value">
+                <div class="calendar-type-item" v-for="type in showClassOptions" :key="'showClass_' + type.value">
                   <div :class="{'type-item-title': true, 'active': queryType === CALENDAR_QUERY_TYPE.CLASS.value && queryClass === type.value}">
                     <a-radio :checked="queryType === CALENDAR_QUERY_TYPE.CLASS.value && queryClass === type.value" @change="handleChangeClass(type)">
                       <a-tooltip :title="type.name">
