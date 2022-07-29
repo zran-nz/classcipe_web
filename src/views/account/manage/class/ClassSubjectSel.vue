@@ -7,6 +7,7 @@
       width='1000px'
       okText='Done'
       :confirmLoading="loading"
+      :ok-button-props="{ props: { disabled: hasErrors } }"
       @ok='handleSave'
       @cancel='selVis = false'>
       <a-form-model
@@ -14,6 +15,7 @@
         :model="formModel"
         v-bind="formItemLayout"
         :rules="validatorRules"
+        @validate="doValidate"
         ref="form">
         <a-row :gutter=16>
           <a-col :span="12">
@@ -46,7 +48,7 @@
         <a-row :gutter=16>
           <a-col :span="12">
             <a-form-model-item :labelCol="{span: 12}" :wrapperCol="{span: 12}" label="Student-self registration">
-              <a-switch v-model="formModel.ownJoin" />
+              <a-switch @change="changeOwnJoin" v-model="formModel.ownJoin" />
             </a-form-model-item>
           </a-col>
           <a-col :span="12" v-if="formModel.ownJoin">
@@ -64,12 +66,12 @@
         </a-row>
         <a-row :gutter=16>
           <a-col :span="12" v-if="formModel.ownJoin">
-            <a-form-model-item label="Max Std">
+            <a-form-model-item label="Max Std" prop="maxStudent">
               <a-input v-model="formModel.maxStudent" placeholder="input max student count" />
             </a-form-model-item>
           </a-col>
           <a-col :span="12">
-            <a-form-model-item label="Term" prop="termArr">
+            <a-form-model-item label="Term" prop="termArr" :extra="formModel.termTime.join(' ~ ')">
               <a-space>
                 <a-cascader
                   :options="termsOptions"
@@ -109,18 +111,28 @@ import { termList } from '@/api/academicTermInfo'
 
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import TermCalendar from '@/components/Calendar/TermCalendar'
+
+import { SubmitBeforeMixin } from '@/mixins/SubmitBeforeMixin'
+import { AutoSaveLocalMixin } from '@/mixins/AutoSaveLocalMixin'
+
 import cloneDeep from 'lodash.clonedeep'
 import { uniqBy } from 'lodash-es'
+import moment from 'moment'
 export default {
   name: 'ClassSubjectSel',
   components: {
     CustomTextButton,
     TermCalendar
   },
+  mixins: [SubmitBeforeMixin, AutoSaveLocalMixin],
   props: {
     school: {
       type: Object,
       default: () => {}
+    },
+    id: {
+      type: String,
+      default: ''
     }
   },
   watch: {
@@ -129,6 +141,14 @@ export default {
         console.log(val)
         this.currentSchool = { ...val }
         this.initData()
+      },
+      deep: true,
+      immediate: true
+    },
+    id: {
+      handler(val) {
+        console.log(val)
+        this.formModel.id = val
       },
       deep: true,
       immediate: true
@@ -145,6 +165,7 @@ export default {
         searchKey: ''
       },
       formModel: {
+        id: '',
         name: '',
         subject: '',
         subjectName: '',
@@ -155,6 +176,7 @@ export default {
         teacherCount: 0,
         term: '',
         termArr: [],
+        termTime: [],
         blockId: '',
         blockSetting: '',
         classType: 1,
@@ -165,7 +187,9 @@ export default {
         wrapperCol: { span: 18 }
       },
       loading: false,
-      selVis: false
+      selVis: false,
+      autoSaveLocalKey: 'FORM_CLASS_SUBJECT_',
+      needAutoSave: !this.id
     }
   },
   computed: {
@@ -173,7 +197,8 @@ export default {
       return {
         name: [{ required: true, message: 'Please Input Class Name!' }],
         subject: [{ required: true, message: 'Please Select Subject!' }],
-        termArr: [{ required: true, message: 'Please Select Term!', trigger: 'change' }]
+        termArr: [{ required: this.formModel.ownJoin, type: 'array', message: 'Please Select Term!' }],
+        maxStudent: [{ required: this.formModel.ownJoin, message: 'Please Input Student Number!' }]
       }
     }
   },
@@ -226,11 +251,15 @@ export default {
             return {
               value: year.id,
               label: year.name,
+              startTime: year.startTime,
+              endTime: year.endTime,
               children: year.terms.map(term => {
                 this.blockOptions[term.id] = term.block.blockSettings || []
                 return {
                   value: term.id,
-                  label: term.name
+                  label: term.name,
+                  startTime: term.startTime,
+                  endTime: term.endTime
                 }
               })
             }
@@ -251,11 +280,12 @@ export default {
     initSels() {
       if (this.formModel.term) {
         let termArr = []
+        console.log(this.termsOptions)
         this.termsOptions.forEach(year => {
-          if (year.terms && year.terms.length > 0) {
-            const term = year.terms.find(term => term.id === this.formModel.term)
+          if (year.children && year.children.length > 0) {
+            const term = year.children.find(term => term.value === this.formModel.term)
             if (term) {
-              termArr = [year.id, term.id]
+              termArr = [year.value, term.value]
             }
           }
         })
@@ -268,9 +298,17 @@ export default {
       }
     },
     doCreate(record) {
+      const fromCache = this.getAutoLocalData()
       this.doEdit({
+        ...fromCache,
         ...record
       })
+      this.$nextTick(() => {
+        this.initValidate(!!this.id)
+      })
+    },
+    doValidate(key, value) {
+      this.fillValidate(key, value)
     },
     doEdit(record) {
       this.formModel = cloneDeep({
@@ -292,8 +330,14 @@ export default {
           // }
           params.ownJoin = Number(params.ownJoin)
           this.$emit('save', params)
+          this.clearLocalData()
           this.selVis = false
         }
+      })
+    },
+    changeOwnJoin() {
+      this.$nextTick(() => {
+        this.initValidate(!!this.id)
       })
     },
     changeSubject(subjectId) {
@@ -301,11 +345,19 @@ export default {
       this.formModel.subjectName = find.subjectName
     },
     onChangeTerm(value) {
+      this.formModel.termTime = []
       if (value && value.length > 0) {
         this.formModel.term = value.slice(value.length - 1)[0]
+        const year = this.termsOptions.find(item => item.value === value[0])
+        const term = year.children.find(item => item.value === value[1])
+        console.log(term)
+        if (term) {
+          this.formModel.termTime = [moment.utc(term.startTime).local().format('DD/MM/YYYY'), moment.utc(term.endTime).local().format('DD/MM/YYYY')]
+        }
       } else {
         this.formModel.term = ''
       }
+      this.$refs.form.validateField(['termArr'])
       this.formModel.blockId = undefined
     },
     handleSelectBlock(val) {

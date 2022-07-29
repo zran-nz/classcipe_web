@@ -10,6 +10,7 @@
           :initView="initView"
           :editable="false"
           :selectable="false"
+          :dayHeaderContent="dayHeaderContent"
           @select="handleDateSelect"
           @eventClick="handleEventClick"
           @eventsSet="handleEvents"
@@ -97,6 +98,10 @@ export default {
         left: '',
         center: '',
         right: '' // ,timeGridFourDay'
+      },
+      dayHeaderContent: (info) => {
+        const week = moment(info.date).format('dddd')
+        return week
       },
       selfViews: {
         timeGridFourDay: {

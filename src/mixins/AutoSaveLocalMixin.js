@@ -14,7 +14,7 @@ export const AutoSaveLocalMixin = {
   },
 
   created() {
-    this.asyncSaveDataFn = debounce(this.autoSaveLocalData, 2000)
+    this.asyncSaveDataFn = debounce(this.autoSaveLocalData, 200)
   },
   watch: {
     formModel: {

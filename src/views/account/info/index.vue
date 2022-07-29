@@ -4,11 +4,11 @@
       <div class="account-info-header">
         <div class="info-header-avatar persona" v-if="userMode === USER_MODE.SELF">
           <img :src="info.avatar" v-if="info.avatar"/>
-          <img v-else src="~@/assets/icons/library/default-avatar.png"/>
+          <img v-else src="~@/assets/icons/library/default-avatar2.png"/>
         </div>
         <div class="info-header-avatar" v-else>
           <!-- <img v-if="currentSchool.logo" :src="currentSchool.logo"/>
-          <img v-else src="~@/assets/icons/library/default-avatar.png"/> -->
+          <img v-else src="~@/assets/icons/library/default-avatar2.png"/> -->
           <custom-image-uploader :need-del="false" :img-url='currentSchool.logo' @update='handleUploadLogo' />
         </div>
         <div class="info-header-detail">
