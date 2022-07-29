@@ -17,7 +17,7 @@
         :slot="col"
         slot-scope="text, record"
       >
-        <div :key="col">
+        <div :key="col" :id="col">
           <a-input
             v-if="record.editable"
             style="margin: -5px 0"
@@ -25,7 +25,31 @@
             @change="e => handleChangeRow(e.target.value, record.key, col)"
           />
           <template v-else>
-            {{ text }}
+            {{ text }} {{ record.editable }}
+          </template>
+        </div>
+      </template>
+      <template
+        slot="classes"
+        slot-scope="text, record"
+      >
+        <div>
+          <a-select
+            v-if="record.editable"
+            style="margin: -5px 0; width: 170px;"
+            :value="text"
+            @change="value => handleChangeRow(value, record.key, 'classes')"
+          >
+            <a-select-option
+              v-for="(param) in tableOptions['classes']"
+              :value="param.value"
+              :key="'options_'+ 'classes' + param.value"
+            >
+              {{ param.label }}
+            </a-select-option>
+          </a-select>
+          <template v-else>
+            {{ formatOption(text, tableOptions['classes']) }}
           </template>
         </div>
       </template>
@@ -65,6 +89,10 @@ export default {
     verifyDuplicate: {
       type: Function,
       default: () => Promise.resolve([])
+    },
+    options: {
+      type: Object,
+      default: () => {}
     }
   },
   watch: {
@@ -86,6 +114,13 @@ export default {
       },
       immediate: true,
       deep: true
+    },
+    options: {
+      handler(val) {
+        this.tableOptions = { ...val }
+      },
+      immediate: true,
+      deep: true
     }
   },
   data() {
@@ -93,6 +128,7 @@ export default {
       dataSource: this.datas,
       cachedData: [],
       tableColumns: this.columns,
+      tableOptions: this.options,
       editingKey: '',
       selectedRowKeys: [],
       selectionRows: [],
@@ -114,6 +150,10 @@ export default {
           disabled: !!record.status
         }
       }
+    },
+    formatOption(text, options) {
+      const find = options.find(item => item.value === text)
+      return find ? find.label : text
     },
     initData() {
       this.selectionRows = this.dataSource.filter(item => {

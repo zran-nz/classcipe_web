@@ -28,6 +28,7 @@
           :datas="datas"
           :verify="justifyStatus"
           :verifyDuplicate="verifyDuplicate"
+          :options="uploadOptions"
           @change="handelChangeData"
           @save="handleSave">
 
@@ -122,12 +123,22 @@ export default {
           scopedSlots: { customRender: 'parentEmail' }
         },
         {
+          title: 'Class',
+          align: 'center',
+          dataIndex: 'classes',
+          width: 200,
+          scopedSlots: { customRender: 'classes' }
+        },
+        {
           title: 'Action',
           align: 'center',
           scopedSlots: { customRender: 'action' }
         }
       ],
-      loading: false
+      loading: false,
+      uploadOptions: {
+        classes: []
+      }
     }
   },
   created() {
@@ -173,6 +184,10 @@ export default {
         ]).then(([clsRes]) => {
           if (clsRes.code === 0) {
             this.classList = clsRes.result.records
+            this.uploadOptions.classes = clsRes.result.records.map(item => ({
+              value: item.id,
+              label: item.name
+            }))
           }
         })
     },
@@ -209,6 +224,14 @@ export default {
           this.remoteParentEmails = mergeWith(this.remoteParentEmails, parentEmailRes.result) // this.emails.concat(emailRes.result)]
         }
         const convert = res.map(item => {
+           // 班级 验证标准班
+          if (item.classes) {
+            item.classes = item.classes.split(',').map(cls => {
+              const name = cls.trim()
+              const find = this.classList.find(item => item.name === name)
+              return find ? find.id : ''
+            }).filter(i => !!i).join(',')
+          }
           const status = this.justifyStatus(item)
           const parentEmailExist = {}
           this.remoteParentEmails.forEach(item => {
@@ -218,14 +241,6 @@ export default {
             status.push('Duplicate Parent')
           }
           item.status = status.join(',')
-          // 班级 验证标准班
-          if (item.classes) {
-            item.classes = item.classes.split(',').map(cls => {
-              const name = cls.trim()
-              const find = this.classList.find(item => item.name === name)
-              return find ? find.id : ''
-            }).filter(i => !!i).join(',')
-          }
           if (item.birthDay) {
             item.birthDay = moment(item.birthDay, 'DD/MM/YYYY').format('YYYY-MM-DD HH:mm:ss')
           }
@@ -310,6 +325,16 @@ export default {
       }
       if (isEmpty(item.parentEmail) || !isEmail(item.parentEmail)) {
         status.push('Invalid Parent Email')
+      }
+      if (isEmpty(item.classes)) {
+        status.push('Invalid Class')
+      } else {
+        const find = this.classList.find(cls => cls.id === item.classes)
+        if (find) {
+
+        } else {
+          status.push('Invalid Class')
+        }
       }
       return status
     },
