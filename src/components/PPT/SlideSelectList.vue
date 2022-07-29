@@ -103,7 +103,7 @@ import SlideEvent from '@/components/PPT/SlideEvent'
 import TemplateFilter from '@/components/MyContentV2/TemplateFilter'
 import { USER_MODE } from '@/const/common'
 import { QueryContentsFilter } from '@/api/library'
-import { getLibraryResource } from '@/api/v2/library'
+import { getLibraryResource, queryLibraryResource } from '@/api/v2/library'
 
 const sourceType = {
   Recommend: 1,
@@ -153,7 +153,7 @@ export default {
         },
         showTotal: total => `Total ${total} items`,
         total: 0,
-        pageSize: 16
+        pageSize: 21
       },
 
       previewCurrentId: null,
@@ -303,6 +303,7 @@ export default {
             }
           })
           this.slideList = res.result.records
+          this.slideList = this.slideList.filter(item => item.id !== this.sourceId)
           this.$logger.info('slideList', this.slideList)
         }
       }).finally(() => {
@@ -314,13 +315,14 @@ export default {
       let params = {
         searchKey: this.filterParams ? this.filterParams.searchKey : null,
         types: [ this.$classcipe.typeMap.task ],
-        schoolId: schoolId || 0
+        schoolId: schoolId || 0,
+        currentId: this.sourceId
       }
       if (this.filterParams) {
         params = Object.assign(this.filterParams, params)
       }
       this.$logger.info('params', params)
-      getLibraryResource(params).then(res => {
+      queryLibraryResource(params).then(res => {
         if (res && res.result) {
           res.result.forEach(item => {
             item.thumbnailList = []

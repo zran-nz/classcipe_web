@@ -514,7 +514,7 @@
 import { typeMap } from '@/const/teacher'
 import { FindSourceOutcomes, GetAssociate, GetMyGrades, GetReferOutcomes, UpdateContentStatus } from '@/api/teacher'
 import { TemplatesGetPresentation } from '@/api/template'
-import { TaskAddOrUpdate, TaskCreateNewTaskPPT, TaskQueryById } from '@/api/task'
+import { TaskAddOrUpdate, TaskCreateNewTaskPPT, TaskQueryById, UpdateSlideEditing } from '@/api/task'
 import Collaborate from '@/components/UnitPlan/Collaborate'
 import CustomTagV3 from '@/components/CustomTag/CustomTagV3'
 import CollaborateUserList from '@/components/Collaborate/CollaborateUserList'
@@ -760,13 +760,13 @@ export default {
     })
 
     this.$EventBus.$on('assessment-saved', this.autoSaveMixinUpdateSaveTime)
-    ClasscipeEventBus.$on(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleCreateTask)
+    ClasscipeEventBus.$on(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleEditGoogleSlide)
   },
   beforeDestroy() {
     this.$EventBus.$off(SlideEvent.SELECT_TEMPLATE, this.handleSelectTemplate)
     this.$EventBus.$off(SlideEvent.CANCEL_SELECT_TEMPLATE, this.handleRemoveTemplate)
     this.$EventBus.$off('assessment-saved', this.autoSaveMixinUpdateSaveTime)
-    ClasscipeEventBus.$off(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleCreateTask)
+    ClasscipeEventBus.$off(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleEditGoogleSlide)
   },
   methods: {
     initData() {
@@ -1075,8 +1075,9 @@ export default {
             this.form.slideEditing = true
             this.form.presentationId = response.result.presentationId
             this.$message.success('Created Successfully in Google Slides')
-            window.open('https://docs.google.com/presentation/d/' + this.form.presentationId, '_blank')
             this.loadThumbnail(true)
+            // window.open('https://docs.google.com/presentation/d/' + this.form.presentationId, '_blank')
+            window.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId
           }
         } finally {
           this.creating = false
@@ -1123,14 +1124,20 @@ export default {
     async handleEditGoogleSlide() {
       this.editGoogleSlideLoading = true
       this.$logger.info('handleEditGoogleSlide', this.form.presentationId)
-      let res
       // fake_buy_处理library bug后没有实际上copy ppt的情况
       if (this.form.presentationId && !this.form.presentationId.startsWith('fake_buy_')) {
         // 设置正在编辑状态，my content根据这个提示是否先save再排课
         this.form.slideEditing = true
-        res = await this.save()
+        const res = await this.updateSlideEditing()
         if (res.code === 0) {
-          window.open('https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit', '_blank')
+          // window.open('https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit', '_blank')
+          window.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit'
+        } else if (res.code === 520 || res.code === 403) {
+          this.$logger.info('等待授权回调')
+          this.$message.loading('Waiting for Google Slides auth...', 10)
+          this.creating = false
+          this.saving = false
+          return
         }
       } else {
         await this.handleCreateTask(true)
@@ -1421,6 +1428,20 @@ export default {
       const response = await TaskAddOrUpdate(taskData)
       this.saving = false
       this.$logger.info('TaskAddOrUpdate', response.result)
+      return response
+    },
+
+    async updateSlideEditing() {
+      const updateData = {
+        id: this.taskId,
+        slideEditing: true,
+        type: this.contentType.task
+      }
+      this.$logger.info('updateSlideEditing', updateData)
+      this.saving = true
+      const response = await UpdateSlideEditing(updateData)
+      this.saving = false
+      this.$logger.info('updateSlideEditing', response.result)
       return response
     },
 
