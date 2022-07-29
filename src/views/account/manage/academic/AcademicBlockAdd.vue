@@ -72,7 +72,7 @@
           <!-- <a-button type="primary" @click="addItem">
               <a-icon type="plus" /> Add
             </a-button> -->
-          <label class="add-button" for="" @click="addItem">+ Add</label>
+          <a-button type="link" class="add-button" :disabled="disabledAdd" for="" @click="addItem">+ Add</a-button>
         </a-form-model-item>
 
       </a-form-model>
@@ -141,6 +141,15 @@ export default {
         ]
       }
       return res
+    },
+    disabledAdd() {
+      const lastBlock = this.model.blockSettings.slice(-1)
+      if (lastBlock && lastBlock.length > 0) {
+        if (!lastBlock[0].start) {
+          return true
+        }
+      }
+      return false
     }
   },
   methods: {
@@ -188,11 +197,24 @@ export default {
     },
     changeDuration(val) {
       this.model.blockSettings.forEach(item => {
-        const start = moment(item.start).format('YYYY-MM-DD HH:mm:ss')
-        const end = moment(start).add(parseInt(val || 0), 'minutes').format('HH:mm')
-        item.end = end
+        if (item.start) {
+          const start = moment(item.start).format('YYYY-MM-DD HH:mm:ss')
+          const end = moment(start).add(parseInt(val || 0), 'minutes').format('HH:mm')
+          item.end = end
+        }
       })
-      this.$refs.form.validate()
+      // this.$refs.form.validate()
+      this.model.blockSettings = this.model.blockSettings.filter((item, index) => {
+        if (index === 0 || !item.start) {
+          return true
+        }
+        const hoursRes = this.disabledHours(index)
+        const miniutesRes = this.disabledMinutes(item.start.hours(), index)
+        if ((hoursRes.includes(item.start.hours()) || miniutesRes.includes(item.start.minutes()))) {
+          return false
+        }
+        return true
+      })
     },
     validateDate(rule, value, callback) {
       if (!value) {
@@ -205,8 +227,8 @@ export default {
         console.log(index)
         console.log(hoursRes)
         console.log(miniutesRes)
-        if (hoursRes.includes(value.hours()) || miniutesRes.includes(value.minutes)) {
-          return callback(new Error('error duration'))
+        if (hoursRes.includes(value.hours()) || miniutesRes.includes(value.minutes())) {
+          return callback(new Error('block time collapses'))
         }
         return callback()
       }
@@ -270,6 +292,8 @@ export default {
         console.log(start.format('YYYY-MM-DD HH:mm:ss'))
         end = start ? moment(start).add(interval, 'minutes').format('HH:mm') : ''
       }
+      start = undefined
+      end = ''
       this.model.blockSettings.push({
         name: '',
         start: start,
@@ -336,6 +360,13 @@ export default {
   font-weight: bold;
   color: #00689E;
   cursor: pointer;
+  &:disabled {
+    color: rgba(0, 0, 0, 0.25);
+    background-color: transparent;
+    border-color: transparent;
+    text-shadow: none;
+    box-shadow: none;
+  }
 }
 .mb0 {
   margin-bottom: 0;

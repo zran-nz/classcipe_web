@@ -36,16 +36,13 @@
         <div class="list-view-item" v-for="(item) in datas" :key="'academic_' + item.id">
           <div class="view-item-title">
             <label for="">{{ item.name }}</label>
-            <custom-text-button label='Add Term' @click="handleAddTerm(item)">
-              <template v-slot:icon>
-                <a-icon type='plus-circle' />
-              </template>
-            </custom-text-button>
-          </div>
-          <div class="view-item-opt">
             <a-button type="link" @click="handleEdit(item)">Edit</a-button>
             <a-button type="link" :loading="delLoading" @click="handleDelete(item)">Delete</a-button>
           </div>
+          <!-- <div class="view-item-opt">
+            <a-button type="link" @click="handleEdit(item)">Edit</a-button>
+            <a-button type="link" :loading="delLoading" @click="handleDelete(item)">Delete</a-button>
+          </div> -->
           <div class="view-item-detail">
             <div class="item-detail-content-wrap" v-for="(term, termIndex) in item.terms" :key="'term_' + termIndex">
               <div class="item-detail-content">
@@ -59,8 +56,17 @@
                 </div>
                 <div class="detail-content-time">{{ formatDate(term) }} {{ isCurrent(term) ? '(Current)' : '' }}</div>
                 <div class="detail-content-close">
-                  <a-icon type="close-circle" @click="handleDeleteTerm"></a-icon>
+                  <a-icon type="close-circle" @click="handleDeleteTerm(term)"></a-icon>
                 </div>
+              </div>
+            </div>
+            <div class="item-detail-content-wrap">
+              <div style="width: 120px; display: flex;align-items: center;justify-content: center;height: 100%;">
+                <custom-text-button label='Add Term' @click="handleAddTerm(item)">
+                  <template v-slot:icon>
+                    <a-icon type='plus-circle' />
+                  </template>
+                </custom-text-button>
               </div>
             </div>
           </div>
