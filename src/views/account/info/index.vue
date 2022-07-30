@@ -59,7 +59,8 @@
       <a-divider v-if="userMode === USER_MODE.SCHOOL && currentSchool.schoolUser"></a-divider>
       <div class="account-info-self" v-if="userMode === USER_MODE.SCHOOL && currentSchool.schoolUser">
         <div class="info-self-avatar">
-          <img :src="currentSchool.schoolUser.avatar"/>
+          <img :src="currentSchool.schoolUser.avatar" v-if="currentSchool.schoolUser.avatar"/>
+          <img v-else src="~@/assets/icons/library/default-avatar2.png"/>
           <a-button type="primary" size="small" @click="$refs.modal.edit(1)">Upload</a-button>
         </div>
         <div class="info-self-detail">
@@ -557,7 +558,7 @@ export default {
           img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
           }
         }
         img {

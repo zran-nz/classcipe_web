@@ -229,7 +229,7 @@ import { getCountry, getCity } from '@/api/v2/country'
 // import country from '@/api/country'
 import countryCode from '@/api/countryCode'
 import { editUser } from '@/api/user'
-import { createSchool, getSchools } from '@/api/school'
+import { createSchool, getSchools, queryById } from '@/api/school'
 
 import { mapState } from 'vuex'
 import { UpdatePersonalInfo } from '@/api/login'
@@ -377,6 +377,15 @@ export default {
         this.formModel.school = this.info.preference ? this.info.preference.school : undefined
         if (this.formModel.school === '0') {
           this.formModel.school = undefined
+        }
+        if (this.formModel.school) {
+          queryById({
+            id: this.formModel.school
+          }).then(res => {
+            if (res.code === 0) {
+              this.schoolOptions = [{ ...res.result }]
+            }
+          })
         }
       }
     },
