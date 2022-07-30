@@ -43,6 +43,7 @@ const vueConfig = {
   // 打包app时放开该配置
   // publicPath: process.env.NODE_ENV === 'test' ? '/version2' : '/',
   configureWebpack: {
+    devtool: 'cheap-module-source-map',
     // webpack plugins
     plugins: [
       // Ignore all locale files of moment.js
