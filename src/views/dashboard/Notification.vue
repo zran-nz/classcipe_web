@@ -233,6 +233,8 @@ export default {
       this.markAlertVisible = false
     },
     handleSelectTab(tab) {
+      sessionStorage.removeItem('NotificationPage')
+      this.pageNo = 1
       this.selectTab = tab
       this.loadMessageData()
     },
