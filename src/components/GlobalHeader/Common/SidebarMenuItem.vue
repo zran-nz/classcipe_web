@@ -14,6 +14,8 @@
 </template>
 
 <script>
+import { SESSION_SHARE_TYPE } from '@/const/common'
+
 export default {
   name: 'SidebarMenuItem',
   props: {
@@ -42,6 +44,10 @@ export default {
   methods: {
     handleClickMenu () {
       this.$logger.info('handleClickMenu', this.path)
+      // 特殊清除shareType逻辑
+      if (this.path === '/teacher/main/created-by-me') {
+        sessionStorage.removeItem(SESSION_SHARE_TYPE)
+      }
       this.onClick(this.label, this.path)
       if (this.path) {
         this.$router.push(this.path)

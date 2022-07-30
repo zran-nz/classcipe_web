@@ -2,7 +2,7 @@
   <div class='my-content'>
     <div class='content-header'>
       <div class='source-type'>
-        <radio-switch @select="handleSelectShareType" :menu-list='menuList' />
+        <radio-switch @select="handleSelectShareType" :menu-list='menuList' :default-selected-item="getSelectItem" />
       </div>
       <div class='create-new'>
         <a-space>
@@ -59,7 +59,7 @@ import { SourceType } from '@/components/MyContentV2/Constant'
 import ContentFilter from '@/components/MyContentV2/ContentFilter'
 import { FindMyContent, UpdateContentStatus } from '@/api/teacher'
 import * as logger from '@/utils/logger'
-import { SESSION_CURRENT_PAGE } from '@/const/common'
+import { SESSION_CURRENT_PAGE, SESSION_SHARE_TYPE } from '@/const/common'
 import ContentItem from '@/components/MyContentV2/ContentItem'
 import ContentPublish from '@/components/MyContentV2/ContentPublish'
 import VerificationTip from '@/components/MyContentV2/VerificationTip.vue'
@@ -134,7 +134,15 @@ export default {
       info: state => state.user.info,
       school: state => state.user.school,
       userMode: state => state.app.userMode
-    })
+    }),
+    getSelectItem() {
+      const shareType = sessionStorage.getItem(SESSION_SHARE_TYPE) ? parseInt(sessionStorage.getItem(SESSION_SHARE_TYPE)) : this.shareType
+      const index = this.menuList.findIndex(item => item.type === shareType)
+      if (index > -1) {
+        return this.menuList[index]
+      }
+      return this.menuList[0]
+    }
   },
   created() {
     if (this.$route.query.shareType) {
@@ -302,6 +310,7 @@ export default {
     },
     handleSelectShareType(item) {
       this.shareType = item.type
+      sessionStorage.setItem(SESSION_SHARE_TYPE, this.shareType)
       this.loadMyContent()
     },
 

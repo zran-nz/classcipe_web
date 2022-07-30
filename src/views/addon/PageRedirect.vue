@@ -11,7 +11,7 @@ import {
   SESSION_CALLBACK_URL,
   SESSION_CURRENT_PAGE,
   SESSION_CURRENT_TYPE,
-  SESSION_CURRENT_TYPE_LABEL
+  SESSION_CURRENT_TYPE_LABEL, SESSION_SHARE_TYPE
 } from '@/const/common'
 import store from '@/store'
 import { setCookie } from '@/utils/util'
@@ -41,6 +41,7 @@ export default {
     sessionStorage.removeItem(SESSION_CURRENT_PAGE)
     sessionStorage.removeItem(SESSION_CURRENT_TYPE_LABEL)
     sessionStorage.removeItem(SESSION_CURRENT_TYPE)
+    sessionStorage.removeItem(SESSION_SHARE_TYPE)
     const target = this.sourceType === typeMap.task.toString() ? 'add-task-v2' : 'pd-content'
     if (store.getters.roles.length === 0) {
         const targetUrl = `${process.env.VUE_APP_BASE_URL}/teacher/${target}/${this.id}`
