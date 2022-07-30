@@ -88,13 +88,16 @@
           mode="multiple"
           optionFilterProp="children"
           :getPopupContainer="trigger => trigger.parentElement"
-          :disabled="true"
+          v-if="info.email !== formModel.inviteEmail"
           v-model='formModel.roleArr'
           placeholder='Please select role'>
           <a-select-option v-for='item in roleList' :key='item.roleCode'>
             {{ item.name }}
           </a-select-option >
         </a-select>
+        <a-space v-else>
+          <a-tag v-for="role in formModel.roleArr" :key="'role_'+role">{{ role }}</a-tag>
+        </a-space>
       </a-form-model-item>
       <a-form-model-item :wrapperCol="{offset: 6}">
         <a-button :disabled="hasErrors" :loading="loading" @click="handleSave" type="primary">{{ teacherId ? 'Update': 'Create' }}</a-button>
@@ -126,6 +129,7 @@ import { SubmitBeforeMixin } from '@/mixins/SubmitBeforeMixin'
 import { AutoSaveLocalMixin } from '@/mixins/AutoSaveLocalMixin'
 
 import moment from 'moment'
+import { mapState } from 'vuex'
 export default {
   name: 'SchoolTeacherAdd',
   components: {
@@ -200,6 +204,9 @@ export default {
     }
   },
   computed: {
+    ...mapState({
+      info: state => state.user.info
+    }),
     validatorRules: function () {
       return {
         firstName: [{ required: true, message: 'Please Input First Name!' }],

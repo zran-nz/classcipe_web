@@ -151,9 +151,10 @@ import {
 import { getCountry } from '@/api/v2/country'
 import { createSchool, getSchools } from '@/api/school'
 import * as logger from '@/utils/logger'
-import { SubjectType } from '@/const/common'
+import { SubjectType, USER_MODE } from '@/const/common'
 import storage from 'store'
 import { CURRENT_ROLE, IS_ADD_PREFERENCE } from '@/store/mutation-types'
+import { mapState } from 'vuex'
 
 const { debounce } = require('lodash-es')
 
@@ -202,6 +203,11 @@ export default {
     }
   },
   computed: {
+    ...mapState({
+      info: state => state.user.info,
+      currentSchool: state => state.user.currentSchool,
+      userMode: state => state.app.userMode
+    }),
     ifShowCreate() {
       const list = [...this.myCreateSchoolOptions, ...this.schoolOptions]
       const findOne = list.find(item => item.name === this.searchText)
@@ -222,7 +228,17 @@ export default {
   methods: {
     showModal() {
       if (!storage.get(IS_ADD_PREFERENCE) && storage.get(CURRENT_ROLE) === 'teacher') {
-        this.visible = true
+        if (USER_MODE.SELF === this.userMode) {
+          this.visible = true
+        } else {
+          // 跳转admin
+          if (this.currentSchool && this.currentSchool.roleNames && this.currentSchool.roleNames.length > 0) {
+            const roleNames = this.currentSchool.roleNames.map(item => item ? item.toLowerCase() : '')
+            if (roleNames.includes('admin')) {
+              this.$router.push('/manage/school-info')
+            }
+          }
+        }
       }
     },
     hideModal() {
