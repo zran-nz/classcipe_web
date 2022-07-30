@@ -43,7 +43,7 @@ export const NoticeMixin = {
         })
       }
     },
-    viewNotification (record) {
+    viewNotification(record) {
       this.$logger.info('viewNotification', record)
       // 标记已读取
       if (record.readFlag === '0') {
@@ -61,10 +61,16 @@ export const NoticeMixin = {
         this.gotoContent(record)
       } else if (record.busType === NotificationTypeMap.collaborateRejected) {
         this.$router.push({ path: '/teacher/main/created-by-me' })
+      } else if (record.busType === NotificationTypeMap.collaborateRemoved) {
+        this.$warning({
+          title: 'Alert',
+          content: (<div><h2>You have been removed from the collaborating list, you can no longer edit it.</h2></div>)
+        })
+        return
       } else if (record.openType === 'url') {
         if (record.busType === NotificationTypeMap.collaborateFavoriote) {
-            record.readFlag = '1'
-            return
+          record.readFlag = '1'
+          return
         }
         // 链接跳转
         this.$router.push({ path: record.openPage })
