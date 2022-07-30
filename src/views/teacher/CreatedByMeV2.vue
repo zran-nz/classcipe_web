@@ -2,7 +2,7 @@
   <div class='my-content'>
     <div class='content-header'>
       <div class='source-type'>
-        <radio-switch @select="handleSelectShareType" :menu-list='menuList' />
+        <radio-switch @select="handleSelectShareType" :menu-list='menuList' :default-selected-item="getSelectItem" />
       </div>
       <div class='create-new'>
         <a-space>
@@ -59,7 +59,7 @@ import { SourceType } from '@/components/MyContentV2/Constant'
 import ContentFilter from '@/components/MyContentV2/ContentFilter'
 import { FindMyContent, UpdateContentStatus } from '@/api/teacher'
 import * as logger from '@/utils/logger'
-import { SESSION_CURRENT_PAGE } from '@/const/common'
+import { SESSION_CURRENT_PAGE, SESSION_SHARE_TYPE } from '@/const/common'
 import ContentItem from '@/components/MyContentV2/ContentItem'
 import ContentPublish from '@/components/MyContentV2/ContentPublish'
 import VerificationTip from '@/components/MyContentV2/VerificationTip.vue'
@@ -104,7 +104,6 @@ export default {
         }
       ],
       sourceType: SourceType,
-      shareType: SourceType.CreatedByMe,
       loading: true,
       myContentList: [],
       filterType: null,
@@ -134,11 +133,19 @@ export default {
       info: state => state.user.info,
       school: state => state.user.school,
       userMode: state => state.app.userMode
-    })
+    }),
+    getSelectItem() {
+      const shareType = sessionStorage.getItem(SESSION_SHARE_TYPE) ? parseInt(sessionStorage.getItem(SESSION_SHARE_TYPE)) : SourceType.CreatedByMe
+      const index = this.menuList.findIndex(item => item.type === shareType)
+      if (index > -1) {
+        return this.menuList[index]
+      }
+      return this.menuList[0]
+    }
   },
   created() {
     if (this.$route.query.shareType) {
-      this.shareType = parseInt(this.$route.query.shareType)
+      sessionStorage.setItem(SESSION_SHARE_TYPE, this.$route.query.shareType)
     }
   },
   methods: {
@@ -167,13 +174,14 @@ export default {
     loadMyContent () {
       this.$logger.info('loadMyContent filterParams', this.filterParams)
       this.loading = true
+      const shareType = sessionStorage.getItem(SESSION_SHARE_TYPE) ? parseInt(sessionStorage.getItem(SESSION_SHARE_TYPE)) : SourceType.CreatedByMe
       let params = {
-        shareType: this.shareType === this.sourceType.Archived ? this.sourceType.CreatedByMe : this.shareType,
+        shareType: shareType,
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize,
         searchKey: this.filterParams.searchKey || '',
         types: this.filterType ? [this.filterType] : [],
-        delFlag: this.shareType === this.sourceType.Archived ? 1 : 0,
+        delFlag: shareType === this.sourceType.Archived ? 1 : 0,
         schoolId: this.school
       }
       if (this.filterParams) {
@@ -301,7 +309,7 @@ export default {
       this.currentContent = null
     },
     handleSelectShareType(item) {
-      this.shareType = item.type
+      sessionStorage.setItem(SESSION_SHARE_TYPE, item.type)
       this.loadMyContent()
     },
 

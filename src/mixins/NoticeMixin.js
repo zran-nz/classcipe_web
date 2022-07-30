@@ -3,6 +3,8 @@ import { NotificationTypeMap } from '@/views/dashboard/NotificationTypeMap'
 import { EditCementSend, ListCementByUser } from '@/api/notice'
 import { RECEIVE_MSG } from '@/store/mutation-types'
 import { mapActions } from 'vuex'
+import { SourceType } from '@/components/MyContentV2/Constant'
+import { SESSION_SHARE_TYPE } from '@/const/common'
 
 export const NoticeMixin = {
   components: {
@@ -37,13 +39,26 @@ export const NoticeMixin = {
         this.$router.push({
           path: '/teacher/task-redirect/' + typeIds[1]
         })
+      } else if (parseInt(typeIds[0]) === typeMap.pd) {
+        this.$router.push({
+          path: '/teacher/pd-content-redirect/' + typeIds[1]
+        })
       } else if (parseInt(typeIds[0]) === typeMap['unit-plan']) {
         this.$router.push({
           path: '/teacher/unit-plan-redirect/' + typeIds[1]
         })
       }
     },
-    viewNotification(record) {
+    setShareType(record) {
+      if (record.busType === NotificationTypeMap.collaborateRejected ||
+         record.busType === NotificationTypeMap.collaborateApply) {
+        sessionStorage.setItem(SESSION_SHARE_TYPE, SourceType.SharedByMe.toString())
+      } else if (record.busType === NotificationTypeMap.collaborateAccepted ||
+        record.busType === NotificationTypeMap.collaborateInvite) {
+        sessionStorage.setItem(SESSION_SHARE_TYPE, SourceType.SharedByOthers.toString())
+      }
+    },
+    viewNotification (record) {
       this.$logger.info('viewNotification', record)
       // 标记已读取
       if (record.readFlag === '0') {
@@ -51,6 +66,7 @@ export const NoticeMixin = {
           this.$store.commit(RECEIVE_MSG, true)
         })
       }
+      this.setShareType(record)
       if (record.busType === NotificationTypeMap.collaborateApply) {
         this.gotoContent(record)
         setTimeout(() => {
@@ -69,8 +85,8 @@ export const NoticeMixin = {
         return
       } else if (record.openType === 'url') {
         if (record.busType === NotificationTypeMap.collaborateFavoriote) {
-          record.readFlag = '1'
-          return
+            record.readFlag = '1'
+            return
         }
         // 链接跳转
         this.$router.push({ path: record.openPage })

@@ -14,7 +14,6 @@
         <a-radio-button :value="sourceType.Resource" v-if='userMode === USER_MODE.SCHOOL'>
           Resource center
         </a-radio-button>
-
       </a-radio-group>
 
       <!--      <a-select-->
@@ -102,8 +101,7 @@ import * as logger from '@/utils/logger'
 import SlideEvent from '@/components/PPT/SlideEvent'
 import TemplateFilter from '@/components/MyContentV2/TemplateFilter'
 import { USER_MODE } from '@/const/common'
-import { QueryContentsFilter } from '@/api/library'
-import { getLibraryResource, queryLibraryResource } from '@/api/v2/library'
+import { queryLibraryResource } from '@/api/v2/library'
 
 const sourceType = {
   Recommend: 1,
