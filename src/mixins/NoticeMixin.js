@@ -39,6 +39,10 @@ export const NoticeMixin = {
         this.$router.push({
           path: '/teacher/task-redirect/' + typeIds[1]
         })
+      } else if (parseInt(typeIds[0]) === typeMap.pd) {
+        this.$router.push({
+          path: '/teacher/pd-content-redirect/' + typeIds[1]
+        })
       } else if (parseInt(typeIds[0]) === typeMap['unit-plan']) {
         this.$router.push({
           path: '/teacher/unit-plan-redirect/' + typeIds[1]
