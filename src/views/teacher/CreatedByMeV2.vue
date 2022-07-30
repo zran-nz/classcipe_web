@@ -104,7 +104,6 @@ export default {
         }
       ],
       sourceType: SourceType,
-      shareType: SourceType.CreatedByMe,
       loading: true,
       myContentList: [],
       filterType: null,
@@ -136,7 +135,7 @@ export default {
       userMode: state => state.app.userMode
     }),
     getSelectItem() {
-      const shareType = sessionStorage.getItem(SESSION_SHARE_TYPE) ? parseInt(sessionStorage.getItem(SESSION_SHARE_TYPE)) : this.shareType
+      const shareType = sessionStorage.getItem(SESSION_SHARE_TYPE) ? parseInt(sessionStorage.getItem(SESSION_SHARE_TYPE)) : SourceType.CreatedByMe
       const index = this.menuList.findIndex(item => item.type === shareType)
       if (index > -1) {
         return this.menuList[index]
@@ -146,7 +145,7 @@ export default {
   },
   created() {
     if (this.$route.query.shareType) {
-      this.shareType = parseInt(this.$route.query.shareType)
+      sessionStorage.setItem(SESSION_SHARE_TYPE, this.$route.query.shareType)
     }
   },
   methods: {
@@ -175,13 +174,14 @@ export default {
     loadMyContent () {
       this.$logger.info('loadMyContent filterParams', this.filterParams)
       this.loading = true
+      const shareType = sessionStorage.getItem(SESSION_SHARE_TYPE) ? parseInt(sessionStorage.getItem(SESSION_SHARE_TYPE)) : SourceType.CreatedByMe
       let params = {
-        shareType: this.shareType === this.sourceType.Archived ? this.sourceType.CreatedByMe : this.shareType,
+        shareType: shareType,
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize,
         searchKey: this.filterParams.searchKey || '',
         types: this.filterType ? [this.filterType] : [],
-        delFlag: this.shareType === this.sourceType.Archived ? 1 : 0,
+        delFlag: shareType === this.sourceType.Archived ? 1 : 0,
         schoolId: this.school
       }
       if (this.filterParams) {
@@ -309,8 +309,7 @@ export default {
       this.currentContent = null
     },
     handleSelectShareType(item) {
-      this.shareType = item.type
-      sessionStorage.setItem(SESSION_SHARE_TYPE, this.shareType)
+      sessionStorage.setItem(SESSION_SHARE_TYPE, item.type)
       this.loadMyContent()
     },
 
