@@ -29,7 +29,7 @@
 
       <div class="filter-tab">
         <div class="filter-search">
-          <a-input-search v-model="queryParam.searchKey" placeholder="Search" @search="searchQuery"></a-input-search>
+          <a-input-search v-model="queryParam.searchKey" placeholder="Search" @search="handleSearch" :allow-clear="true"></a-input-search>
         </div>
         <a-space class="filter-opt">
           <a-button type="primary" :disabled="selectedRowKeys.length === 0" @click="handleMove">Move Class</a-button>
@@ -67,6 +67,16 @@
             <div class="user-detail">
               <label for="">{{ record.firstname + record.lastname }}</label>
               <label for="">{{ record.inviteEmail }}<span v-if="isSelfEmail(record.inviteEmail)"> (Me)</span></label>
+            </div>
+          </div>
+          <div class="user-info" slot="parentFirstName" slot-scope="text, record">
+            <!-- <div class="user-avatar">
+              <img :src="record.avatar" alt="" v-if="record.avatar">
+              <img src="~@/assets/icons/library/default-avatar.png" alt="" v-else>
+            </div> -->
+            <div class="user-detail">
+              <label for="">{{ record.parentFirstName + record.parentLastName }}</label>
+              <label for="">{{ record.parentEmail }}<span v-if="isSelfEmail(record.parentEmail)"> (Me)</span></label>
             </div>
           </div>
           <div class="flex-wrap" slot="classes" slot-scope="classes">
@@ -236,6 +246,16 @@ export default {
           // }
         },
         {
+          title: 'Parent',
+          align: 'left',
+          dataIndex: 'parentFirstName',
+          width: 250,
+          scopedSlots: { customRender: 'parentFirstName' }
+          // customRender: (text, record) => {
+          //   return text || (record.firstname + record.lastname) || record.email
+          // }
+        },
+        {
           title: 'Class',
           align: 'center',
           dataIndex: 'classes',
@@ -319,6 +339,10 @@ export default {
     toggleTab(status) {
       this.queryParam.schoolUserStatus = status
       this.onClearSelected()
+      this.searchQuery()
+    },
+    handleSearch(val) {
+      this.queryParam.searchKey = val ? val.trim() : ''
       this.searchQuery()
     },
     getStatusFormat (status, key = 'label') {
