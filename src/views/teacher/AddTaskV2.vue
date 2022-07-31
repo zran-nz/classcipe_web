@@ -145,50 +145,6 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block form-question tag-content-block' v-if='associateQuestionList.length > 0 && fieldItem.visible && fieldItem.fieldName === taskField.Question' :key='fieldItem.fieldName'>
-                  <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Question />
-                  <custom-form-item :required='emptyRequiredFields.indexOf(taskField.Question) !== -1'>
-                    <template slot='label'>
-                      {{ 'Choose Key questions' | taskLabelName(taskField.Overview, $store.getters.formConfigData) }}
-                    </template>
-                    <template slot='action'>
-                      <comment-switch
-                        v-show="canEdit"
-                        :field-name='taskField.Question'
-                        :is-active="currentFieldName === taskField.Question"
-                        @switch='handleSwitchComment'
-                        :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Question}" />
-                    </template>
-                    <template v-if='taskFieldLabel(taskField.Overview, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="taskFieldLabel(taskField.Overview, $store.getters.formConfigData)" placement='top'>
-                        <a-icon type="info-circle" />
-                      </a-tooltip>
-                    </template>
-                    <a-select
-                      :getPopupContainer="trigger => trigger.parentElement"
-                      @change="handleCollaborateEvent(taskId,taskField.Question,form.questions)"
-                      size='large'
-                      class='my-big-select'
-                      v-model='form.questionIds'
-                      mode='multiple'
-                      :placeholder='taskLabelHint(taskField.Overview, $store.getters.formConfigData)'
-                      option-label-prop='label'
-                      :disabled="!canEdit"
-                    >
-                      <a-select-option
-                        v-for='(item,index) in associateQuestionList'
-                        :value='item.id'
-                        :label='item.name'
-                        :key='index'>
-                        <span class='question-options'>
-                          {{ item.name }}
-                        </span>
-                        From Unit Plan({{ item.unitName }})
-                      </a-select-option>
-                    </a-select>
-                  </custom-form-item>
-                </div>
-
                 <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.LearnOuts' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.LearnOuts style="left:100px" />
                   <custom-form-item :required='emptyRequiredFields.indexOf(taskField.LearnOuts) !== -1'>
@@ -214,7 +170,8 @@
                 <div
                   class='form-block tag-content-block material-list-block'
                   style='clear: both'
-                  v-if='fieldItem.visible && fieldItem.fieldName === taskField.MaterialList'
+                  :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] && form[fieldItem.fieldName].length}"
+                  v-if='(fieldItem.visible || (form[fieldItem.fieldName] && form[fieldItem.fieldName].length)) && fieldItem.fieldName === taskField.MaterialList'
                   :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.MaterialList />
                   <custom-form-item :required='emptyRequiredFields.indexOf(taskField.MaterialList) !== -1'>
@@ -279,7 +236,7 @@
                         </a-col>
                         <a-col span='2'>
                           <div class='material-icon'>
-                            <a-icon :style="{ fontSize: '14px', color: 'red' }" type='delete' @click='handleRemoveMaterialItem(materialItem, mIndex)'/>
+                            <delete-icon color='#F16A39' type='delete' @click='handleRemoveMaterialItem(materialItem, mIndex)'/>
                           </div>
                         </a-col>
                       </a-row>
@@ -287,6 +244,11 @@
                     <span class='add-material-item' v-show='materialListFlag'>
                       <add-green-icon class='add-input' @click='handleAddMaterial' />
                     </span>
+                  </div>
+                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName] && form[fieldItem.fieldName].length'>
+                    <a-popconfirm title="Delete?" ok-text="Yes" @confirm="form[fieldItem.fieldName] = []" cancel-text="No">
+                      <delete-icon color='#F16A39' />
+                    </a-popconfirm>
                   </div>
                 </div>
 
@@ -568,10 +530,12 @@ import commentIcon from '@/assets/icons/collaborate/comment.svg?inline'
 import { deepEqual } from '@/utils/util'
 import { discountSettingSave } from '@/api/v2/discountSetting'
 import CustomButton from '@/components/Common/CustomButton'
+import DeleteIcon from '@/components/Common/DeleteIcon'
 
 export default {
   name: 'AddTaskV2',
   components: {
+    DeleteIcon,
     CustomButton,
     SplitTaskSetting,
     ModalHeader,
@@ -708,6 +672,9 @@ export default {
   computed: {
     isOwner() {
       return this.$store.getters.userInfo.email === this.form.createBy
+    },
+    hiddenFieldNameList() {
+      return this.$store.getters.formConfigData?.taskCommonList?.filter(item => item.visible === false).map(item => item.fieldName)
     }
   },
   watch: {
@@ -4154,5 +4121,18 @@ p.ant-upload-text {
   justify-content: center;
   align-items: center;
   height: 400px;
+}
+
+.third-hidden-data {
+  background-color: #eee;
+  border: 2px dashed #aaa;
+  position: relative;
+  padding: 15px 10px 10px 10px;
+  .close-hidden-value {
+    position: absolute;
+    right: 10px;
+    top: 5px;
+    cursor: pointer;
+  }
 }
 </style>

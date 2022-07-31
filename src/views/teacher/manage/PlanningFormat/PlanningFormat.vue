@@ -86,8 +86,8 @@ export default {
       saving: false,
       templateList: [],
       selectTemplateVisible: false,
-      planRequiredFields: [ PlanField.Name, PlanField.Image, PlanField.Inquiry, PlanField.Sdg, PlanField.Question, PlanField.SubjectIds, PlanField.GradeIds ],
-      taskRequiredFields: [ TaskField.Name, TaskField.Image, TaskField.Overview, TaskField.TaskType ]
+      planRequiredFields: [PlanField.Name, PlanField.Image, PlanField.Inquiry, PlanField.Sdg, PlanField.Question, PlanField.SubjectIds, PlanField.GradeIds, PlanField.LearnOuts],
+      taskRequiredFields: [TaskField.Name, TaskField.Image, TaskField.Overview, TaskField.TaskType, TaskField.LearnOuts]
     }
   },
   created() {
@@ -99,13 +99,15 @@ export default {
       userMode: state => state.app.userMode,
       currentSchool: state => state.user.currentSchool
     }),
-    getCurrentId() {
+    getCurrentId () {
       if (this.planConfig?.steps || this.taskConfig?.steps) {
         if (this.activeKey === 'plan') {
           return this.planConfig?.steps ? this.planConfig?.steps[0].templateId : ''
         } else {
           return this.taskConfig?.steps ? this.taskConfig?.steps[0].templateId : ''
         }
+      } else {
+        return ''
       }
     }
   },
