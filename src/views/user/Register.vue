@@ -12,7 +12,7 @@
           <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div> -->
           <div class="desc">Choose your role to enter</div>
         </div>
-        <div class="role-item" :class="{ selected: selectedRole === 2 }" @click="handleSelectRole(2)">
+        <div class="role-item" :class="{ selected: selectedRole === 'teacher' }" @click="handleSelectRole('teacher')">
           <div class="role-info">
             <img src="~@/assets/icons/role/teacher.png" class="role-img" />
             <div>
@@ -23,7 +23,7 @@
             <span></span>
           </div>
         </div>
-        <div class="role-item" :class="{ selected: selectedRole === 4 }" @click="handleSelectRole(4)">
+        <div class="role-item" :class="{ selected: selectedRole === 'student' }" @click="handleSelectRole('student')">
           <div class="role-info">
             <img src="~@/assets/icons/role/student.png" class="role-img" />
             <div>
