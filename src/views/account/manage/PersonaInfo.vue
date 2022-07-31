@@ -384,6 +384,10 @@ export default {
           }).then(res => {
             if (res.code === 0) {
               this.schoolOptions = [{ ...res.result }]
+              const isFind = this.schoolOptions.find(item => item.id === this.formModel.school)
+              if (!isFind) {
+                this.formModel.school = undefined
+              }
             }
           })
         }
