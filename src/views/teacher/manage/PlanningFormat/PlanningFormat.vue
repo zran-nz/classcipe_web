@@ -1,24 +1,28 @@
 <template>
-  <a-card class='planning-format' :body-style="{'padding': 20}" :loading='loading'>
+  <a-card class='planning-format' :body-style="{'padding': 20}">
     <a-tabs type="card" v-model='activeKey' v-if='!loading'>
       <a-tab-pane key="plan" tab="Unit Format" class='planning-content' :forceRender='true'>
         <format-form-with-step
           ref='plan'
+          :saving='saving || loading'
           :common-list='planConfig.commonList'
           :custom-list='planConfig.customList'
           :step-list='planConfig.steps'
           :step-type='typeMap["unit-plan"]'
           :required-field-list='planRequiredFields'
+          @save='handleSavePlanningForm(false)'
           v-if='planConfig' />
       </a-tab-pane>
       <a-tab-pane key="task" tab="Task Format" class='planning-content' :forceRender='true'>
         <format-form-with-step
           ref='task'
+          :saving='saving || loading'
           :common-list='taskConfig.commonList'
           :custom-list='taskConfig.customList'
           :step-list='taskConfig.steps'
           :step-type='typeMap.task'
           :required-field-list='taskRequiredFields'
+          @save='handleSavePlanningForm(false)'
           v-if='taskConfig' />
       </a-tab-pane>
       <div class='form-config-action' slot="tabBarExtraContent">
@@ -166,8 +170,8 @@ export default {
       }
     },
 
-    handleSavePlanningForm () {
-      this.$logger.info('handleSavePlanningForm')
+    handleSavePlanningForm (showTips = true) {
+      this.$logger.info('handleSavePlanningForm', showTips)
       const config = this.getPlanningConfig()
       if (config) {
         if (this.activeKey === 'plan') {
@@ -180,9 +184,11 @@ export default {
             type: typeMap['unit-plan']
           }).then((response) => {
             if (response.success) {
-              this.$message.success('Save unit format successfully')
-              this.planConfig = null
-              this.loadFormConfigData()
+              if (showTips) {
+                this.$message.success('Save unit format successfully')
+                this.planConfig = null
+                this.loadFormConfigData()
+              }
             } else {
               this.$message.error(response.message)
             }
@@ -199,9 +205,11 @@ export default {
             type: typeMap.task
           }).then((response) => {
             if (response.success) {
-              this.$message.success('Save task format successfully')
-              this.taskConfig = null
-              this.loadFormConfigData()
+              if (showTips) {
+                this.$message.success('Save task format successfully')
+                this.taskConfig = null
+                this.loadFormConfigData()
+              }
             } else {
               this.$message.error(response.message)
             }

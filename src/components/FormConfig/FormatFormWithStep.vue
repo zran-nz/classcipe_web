@@ -210,6 +210,7 @@ import draggable from 'vuedraggable'
 import SetTag from '@/components/FormConfig/SetTag'
 import ModalHeader from '@/components/Common/ModalHeader'
 import storage from 'store'
+const { debounce } = require('lodash-es')
 
 export default {
   name: 'FormatFormWithStep',
@@ -238,10 +239,15 @@ export default {
     stepType: {
       type: Number,
       required: true
+    },
+    saving: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
     return {
+      loading: false,
       commonDrag: false,
       customDrag: false,
       myCommonList: [],
@@ -257,7 +263,8 @@ export default {
 
       showSectionWarning: true,
       showStepWarning: true,
-      allowDrag: false
+      allowDrag: false,
+      autoSaveFn: null
     }
   },
   computed: {
@@ -278,9 +285,23 @@ export default {
         ghostClass: 'ghost',
         scroll: true
       }
+    },
+    allowAutoSave() {
+      console.log(`saving ${this.saving} loading: ${this.loading}`)
+      return !this.saving && !this.loading
+    }
+  },
+  watch: {
+    steps: {
+      handler() {
+        this.autoSaveFn && this.autoSaveFn()
+      },
+      deep: true,
+      immediate: false
     }
   },
   created() {
+    this.loading = true
     this.$logger.info('FormatForm start', this.commonList, this.customList, this.stepList)
     const myCommonList = JSON.parse(JSON.stringify(this.commonList))
     const myCustomList = JSON.parse(JSON.stringify(this.customList))
@@ -326,7 +347,18 @@ export default {
     this.checkIsShowFormatSectionWarning()
     this.checkIsShowFormatStepWarning()
   },
+  mounted() {
+    this.autoSaveFn = debounce(this.emitSave, 1000)
+    this.$logger.info('init autoSaveFn', this.autoSaveFn)
+    this.loading = false
+  },
   methods: {
+    emitSave() {
+      this.$logger.info('emitSave allowAutoSave', this.allowAutoSave)
+      if (this.allowAutoSave) {
+        this.$emit('save')
+      }
+    },
     disableCommonDrag () {
       this.$logger.info('disableDrag')
       this.allowDrag = false
