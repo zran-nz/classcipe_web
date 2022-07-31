@@ -134,6 +134,9 @@ export default {
     this.$logger.info('Drive created ' + this.filterType + ' field ' + this.field + ' filterType ' + this.filterType)
     this.handleSearch()
   },
+  beforeDestroy() {
+    this.$logger.info('Drive Destroy')
+  },
   methods: {
 
     handleChangeGrade () {

@@ -119,7 +119,7 @@ export default {
     }
   },
   created() {
-    this.$logger.info(`ClasscipeDrive field ${this.field} filter type ${this.filterType}`)
+    this.$logger.info(`ClasscipeDrive field ${this.field} filter type ${this.filterType} contentId ${this.contentId}`)
   },
   methods: {
     driveTypeChange() {

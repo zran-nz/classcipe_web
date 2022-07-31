@@ -160,7 +160,7 @@ export default {
     this.$EventBus.$on(ClasscipeDriveEvent.INSERT_GOOGLE_DRIVE, this.handleSelectGoogleDrive)
     this.$EventBus.$on(ClasscipeDriveEvent.DELETE_VIDEO, this.handleDeleteVideo)
 
-    this.$logger.info('CustomImageUploader created imgUrl', this.imgUrl)
+    this.$logger.info('CustomImageUploader created imgUrl', this.imgUrl, 'contentId', this.contentId)
     if (this.imgUrl) {
       this.options.img = this.imgUrl
       this.previews.url = this.imgUrl

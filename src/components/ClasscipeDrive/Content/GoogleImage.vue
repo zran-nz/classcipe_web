@@ -52,8 +52,6 @@
 import ClasscipeDriveEvent from '@/components/ClasscipeDrive/ClasscipeDriveEvent'
 import { uploadImageToAwsByUrl } from '@/components/AddMaterial/Utils/Common'
 
-var test11
-var divE
 export default {
   name: 'GoogleImage',
   props: {
@@ -129,15 +127,21 @@ export default {
       firebaseObj: null,
       db: null,
       headerAuthToken: '',
-      optSlideId: ''
+      optSlideId: '',
+      test11: null,
+      divE: null
     }
   },
   created() {
-    this.$logger.info(`GoogleImage field ${this.field}`)
+    this.$logger.info(`GoogleImage field ${this.field} contentId ${this.contentId}`)
     this.loadGooleScript()
   },
   mounted() {
     this.initCallback()
+  },
+  beforeDestroy() {
+    this.$logger.info('GoogleImage Destroy')
+    window.__gcse = null
   },
   methods: {
     // 显示提示
@@ -146,9 +150,9 @@ export default {
     },
     imageTypeChange() {
       const _this = this
-      this.lastSearchKey = test11.getInputQuery()
+      this.lastSearchKey = this.test11.getInputQuery()
       document.getElementById('test').innerHTML = ''
-      test11 = window.google.search.cse.element.render({
+      this.test11 = window.google.search.cse.element.render({
         div: 'test',
         attributes: {
           disableWebSearch: true,
@@ -160,7 +164,7 @@ export default {
         },
         tag: 'search'
       })
-      test11.execute(this.lastSearchKey)
+      this.test11.execute(this.lastSearchKey)
     },
     changeColor(index) {
       if (this.currentColorIndex === index) {
@@ -171,9 +175,9 @@ export default {
         this.currentColorIndex = index
       }
       const _this = this
-      this.lastSearchKey = test11.getInputQuery()
+      this.lastSearchKey = this.test11.getInputQuery()
       document.getElementById('test').innerHTML = ''
-      test11 = window.google.search.cse.element.render({
+      this.test11 = window.google.search.cse.element.render({
         div: 'test',
         attributes: {
           disableWebSearch: true,
@@ -185,7 +189,7 @@ export default {
         },
         tag: 'search'
       })
-      test11.execute(this.lastSearchKey)
+      this.test11.execute(this.lastSearchKey)
     },
     select(url) {
       this.$logger.info('select google image', url, {
@@ -245,9 +249,9 @@ export default {
           if (document.readyState === 'complete') {
             // Document is ready when Search Element is initialized.
             // Render an element with both search box and search results in div with id 'test'.
-            divE = document.getElementById('test')
-            divE.innerHTML = ''
-            test11 = window.google.search.cse.element.render({
+            _this.divE = document.getElementById('test')
+            _this.divE.innerHTML = ''
+            _this.test11 = window.google.search.cse.element.render({
               div: 'test',
               attributes: {
                 disableWebSearch: true,
@@ -267,9 +271,9 @@ export default {
             // Document is not ready yet, when Search Element is initialized.
             window.google.setOnLoadCallback(function() {
               // Render an element with both search box and search results in div with id 'test'.
-              var divE = document.getElementById('test')
-              divE.innerHTML = ''
-              test11 = window.google.search.cse.element.render({
+              _this.divE = document.getElementById('test')
+              _this.divE.innerHTML = ''
+              _this.test11 = window.google.search.cse.element.render({
                 div: 'test',
                 attributes: {
                   disableWebSearch: true,
@@ -316,6 +320,7 @@ export default {
       const gcse = document.createElement('script')
       gcse.type = 'text/javascript'
       gcse.async = true
+      gcse.id = 'gcse'
       gcse.src = 'https://www.google.com/cse/cse.js?cx=d29cfc91a5299e6d9'
       const s = document.getElementsByTagName('script')[0]
       s.parentNode.insertBefore(gcse, s)

@@ -288,6 +288,7 @@
                       </a-tooltip>
                     </template>
                     <custom-image-uploader
+                      v-if='taskId'
                       :field='taskField.Image'
                       :content-id='taskId'
                       :content-type='contentType.task'
