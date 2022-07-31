@@ -6,7 +6,7 @@
       @keyup="handleSearch"
       @focus="handleSearch"
       class='cc-form-textarea'
-      placeholder="Describe how the Unit matches with the chosen goal by giving real life context"
+      :placeholder="placeholder"
       :disabled="!canEdit" />
     <a-spin v-if="fetching" slot="notFoundContent" size="small" />
     <div class="search-list-wrapper" v-if="showSearchListFlag">
@@ -36,6 +36,10 @@ export default {
       default: null
     },
     label: {
+      type: String,
+      default: 'name'
+    },
+    placeholder: {
       type: String,
       default: 'name'
     },

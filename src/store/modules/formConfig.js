@@ -9,11 +9,13 @@ const formConfig = {
     formConfigData: {
       loaded: false,
       taskFieldMap: {},
+      taskFieldLabelMap: {},
       taskHintMap: {},
       taskCommonList: [],
       taskCustomList: [],
       taskFieldTagMap: {},
       planFieldMap: {},
+      planFieldLabelMap: {},
       planHintMap: {},
       planCommonList: [],
       planCustomList: [],
@@ -26,12 +28,14 @@ const formConfig = {
       const configData = {
         loaded: true,
         taskFieldMap: {},
+        taskFieldLabelMap: {},
         taskHintMap: {},
         taskCommonList: [],
         taskCustomList: [],
         taskFieldTagMap: {},
         taskSteps: [],
         planFieldMap: {},
+        planFieldLabelMap: {},
         planHintMap: {},
         planCommonList: [],
         planCustomList: [],
@@ -43,6 +47,7 @@ const formConfig = {
           configData.taskFieldMap[item.fieldName] = item.showName
           configData.taskHintMap[item.fieldName] = item.hint
           configData.taskFieldTagMap[item.fieldName] = item.tags
+          configData.taskFieldLabelMap[item.fieldName] = item.fieldLabel
         })
         configData.taskCommonList = previewData.commonList
         configData.taskCustomList = previewData.customList
@@ -63,6 +68,7 @@ const formConfig = {
           configData.planFieldMap[item.fieldName] = item.showName
           configData.planHintMap[item.fieldName] = item.hint
           configData.planFieldTagMap[item.fieldName] = item.tags
+          configData.planFieldLabelMap[item.fieldName] = item.fieldLabel
         })
         configData.planCommonList = previewData.commonList
         configData.planCustomList = previewData.customList
@@ -84,6 +90,7 @@ const formConfig = {
       const configData = {
         loaded: true,
         taskFieldMap: {},
+        taskFieldLabelMap: {},
         taskHintMap: {},
         taskCommonList: [],
         taskCustomList: [],
@@ -91,6 +98,7 @@ const formConfig = {
         taskSteps: [],
         planFieldMap: {},
         planHintMap: {},
+        planFieldLabelMap: {},
         planCommonList: [],
         planCustomList: [],
         planFieldTagMap: {},
@@ -101,6 +109,7 @@ const formConfig = {
           configData.taskFieldMap[item.fieldName] = item.showName
           configData.taskHintMap[item.fieldName] = item.hint
           configData.taskFieldTagMap[item.fieldName] = item.tags
+          configData.taskFieldLabelMap[item.fieldName] = item.fieldLabel
         })
         configData.taskCommonList = formConfigData.task.commonList
         configData.taskCustomList = formConfigData.task.customList
@@ -119,6 +128,7 @@ const formConfig = {
           configData.planFieldMap[item.fieldName] = item.showName
           configData.planHintMap[item.fieldName] = item.hint
           configData.planFieldTagMap[item.fieldName] = item.tags
+          configData.planFieldLabelMap[item.fieldName] = item.fieldLabel
         })
         configData.planCommonList = formConfigData.plan.commonList
         configData.planCustomList = formConfigData.plan.customList

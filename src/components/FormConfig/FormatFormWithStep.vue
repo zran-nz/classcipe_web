@@ -49,10 +49,12 @@
         <draggable
           class="list-group"
           tag="ul"
+          :group="step.id"
+          :disabled='sIdx > 1 || !allowDrag'
           v-model="step.commonFieldItems"
           v-bind="commonDragOptions"
           @start="commonDrag = true"
-          @end="commonDrag = false"
+          @end="disableCommonDrag"
         >
           <li
             class="list-group-item"
@@ -63,7 +65,7 @@
             :key="'fieldId' + fieldItem.id"
             :data-id='fieldItem.id'
           >
-            <div class='sort-icon'>
+            <div class='sort-icon vertical-center' @mousedown='allowDrag = true'>
               <img src='~@/assets/icons/formConfig/line3_green.png' alt='' class='green'/>
               <img src='~@/assets/icons/formConfig/line3.png' alt='' class='gray'/>
             </div>
@@ -95,92 +97,96 @@
           </li>
         </draggable>
       </div>
-      <div class='format-form-header'>
-        <div class='format-form-title'>
-          <span class='title custom-title'> Customized sections </span>
+      <template v-if='sIdx <= 1'>
+        <div class='format-form-header'>
+          <div class='format-form-title'>
+            <span class='title custom-title'> Customized sections </span>
+          </div>
+          <div class='format-tag-settings'>
+            <a-button type='primary' @click.native='handleAddCustomField(step)'><a-icon type="plus" /> Add section </a-button>
+          </div>
         </div>
-        <div class='format-tag-settings'>
-          <a-button type='primary' @click.native='handleAddCustomField(step)'><a-icon type="plus" /> Add section </a-button>
-        </div>
-      </div>
-      <div class='custom-field-list'>
-        <draggable
-          class="list-group"
-          tag="ul"
-          v-model="step.customFieldItems"
-          v-bind="customDragOptions"
-          @change='handleCustomChange'
-          @start="customDrag = true"
-          @end="customDrag = false"
-        >
-          <li
-            class="list-group-item"
-            :class="{'heart-beat-disabled-item': fieldItem.tags.some(item => !item.isOptional) && !fieldItem.visible}"
-            v-for="fieldItem in step.customFieldItems"
-            :key="'sort-' + fieldItem.id"
-            :style="{'filter': fieldItem.visible ? 'none' : (fieldItem.tags.some(item => !item.isOptional) ? 'none' : 'grayscale(100%)')}"
-            :data-id='fieldItem.id'
+        <div class='custom-field-list'>
+          <draggable
+            class="list-group"
+            tag="ul"
+            :disabled='!allowDrag'
+            :group="'cust-' + step.id"
+            v-model="step.customFieldItems"
+            v-bind="customDragOptions"
+            @change='handleCustomChange'
+            @start="customDrag = true"
+            @end="disableCustomDrag"
           >
-            <div class='sort-icon'>
-              <img src='~@/assets/icons/formConfig/line3_green.png' alt='' class='green'/>
-              <img src='~@/assets/icons/formConfig/line3.png' alt='' class='gray'/>
-            </div>
-            <div class='field-item-config'>
-              <div class='field-label'>
-                Section name
+            <li
+              class="list-group-item"
+              :class="{'heart-beat-disabled-item': fieldItem.tags.some(item => !item.isOptional) && !fieldItem.visible}"
+              v-for="fieldItem in step.customFieldItems"
+              :key="'sort-' + fieldItem.id"
+              :style="{'filter': fieldItem.visible ? 'none' : (fieldItem.tags.some(item => !item.isOptional) ? 'none' : 'grayscale(100%)')}"
+              :data-id='fieldItem.id'
+            >
+              <div class='sort-icon vertical-center' @mousedown='allowDrag = true'>
+                <img src='~@/assets/icons/formConfig/line3_green.png' alt='' class='green'/>
+                <img src='~@/assets/icons/formConfig/line3.png' alt='' class='gray'/>
               </div>
-              <div class='field-config'>
-                <div class='field-config-left'>
-                  <div class='field-display-name field-line-item'>
-                    <a-input v-model='fieldItem.name' placeholder='Please enter the display name' class='show-name-input' />
-                  </div>
-                  <div class='field-display-hint-label'>
-                    hint
-                  </div>
-                  <div class='field-display-hint field-line-item'>
-                    <a-input v-model='fieldItem.hint' placeholder='Please enter the hint' class='hint-input'/>
-                  </div>
+              <div class='field-item-config'>
+                <div class='field-label'>
+                  Section name
                 </div>
-                <!--                <div class='field-config-right'>-->
-                <!--                  <div class='tag-selected' v-if='fieldItem.tags && fieldItem.tags.length' @click='handleSetTag(fieldItem)'>-->
-                <!--                    <div class='tag-selected-list'>-->
-                <!--                      <div class='tag-selected-item' v-for='(tag, tIdx) in fieldItem.tags' :key="'tid2-' + tIdx">-->
-                <!--                        <a-tag class='my-tag-selected' :class="{'my-tag-not-optional': tag.isOptional}">-->
-                <!--                          <template v-if='tag.isOptional'>-->
-                <!--                            <a-icon type="safety" :style="{ fontSize: '14px', 'margin-right': '3px'}"/>-->
-                <!--                          </template>-->
-                <!--                          <span class='my-tag-selected-name'>{{ tag.tagName }}</span>-->
-                <!--                        </a-tag>-->
-                <!--                      </div>-->
-                <!--                    </div>-->
-                <!--                  </div>-->
+                <div class='field-config'>
+                  <div class='field-config-left'>
+                    <div class='field-display-name field-line-item'>
+                      <a-input v-model='fieldItem.name' placeholder='Please enter the display name' class='show-name-input' />
+                    </div>
+                    <div class='field-display-hint-label'>
+                      hint
+                    </div>
+                    <div class='field-display-hint field-line-item'>
+                      <a-input v-model='fieldItem.hint' placeholder='Please enter the hint' class='hint-input'/>
+                    </div>
+                  </div>
+                  <!--                <div class='field-config-right'>-->
+                  <!--                  <div class='tag-selected' v-if='fieldItem.tags && fieldItem.tags.length' @click='handleSetTag(fieldItem)'>-->
+                  <!--                    <div class='tag-selected-list'>-->
+                  <!--                      <div class='tag-selected-item' v-for='(tag, tIdx) in fieldItem.tags' :key="'tid2-' + tIdx">-->
+                  <!--                        <a-tag class='my-tag-selected' :class="{'my-tag-not-optional': tag.isOptional}">-->
+                  <!--                          <template v-if='tag.isOptional'>-->
+                  <!--                            <a-icon type="safety" :style="{ fontSize: '14px', 'margin-right': '3px'}"/>-->
+                  <!--                          </template>-->
+                  <!--                          <span class='my-tag-selected-name'>{{ tag.tagName }}</span>-->
+                  <!--                        </a-tag>-->
+                  <!--                      </div>-->
+                  <!--                    </div>-->
+                  <!--                  </div>-->
+                  <!--                </div>-->
+                </div>
+                <!--              <div class='tag-setting' @click='handleSetTag(fieldItem)'>-->
+                <!--                <div class='set-tag-label'>-->
+                <!--                  Set tag-->
                 <!--                </div>-->
+                <!--                <a-icon type="setting" :style="{ color: '#999999', fontSize: '12px' }" class='gray' />-->
+                <!--                <a-icon type="setting" :style="{ color: '#15C39A', fontSize: '12px' }" class='green'/>-->
+                <!--              </div>-->
+                <div class='visible-toggle'>
+                  <div class='field-visible'>Enable</div>
+                  <a-switch size="small" v-model='fieldItem.visible' @change="handleChangeCustomField(sIdx,fieldItem)" />
+                </div>
               </div>
-              <!--              <div class='tag-setting' @click='handleSetTag(fieldItem)'>-->
-              <!--                <div class='set-tag-label'>-->
-              <!--                  Set tag-->
-              <!--                </div>-->
-              <!--                <a-icon type="setting" :style="{ color: '#999999', fontSize: '12px' }" class='gray' />-->
-              <!--                <a-icon type="setting" :style="{ color: '#15C39A', fontSize: '12px' }" class='green'/>-->
-              <!--              </div>-->
-              <div class='visible-toggle'>
-                <div class='field-visible'>Enable</div>
-                <a-switch size="small" v-model='fieldItem.visible' @change="handleChangeCustomField(sIdx,fieldItem)" />
+              <div class='delete-row'>
+                <a-popconfirm
+                  title="Delete it?"
+                  ok-text="Yes"
+                  cancel-text="No"
+                  @confirm="handleDeleteCustomField(sIdx,fieldItem)"
+                >
+                  <a-icon type="delete" />
+                </a-popconfirm>
               </div>
-            </div>
-            <div class='delete-row'>
-              <a-popconfirm
-                title="Delete it?"
-                ok-text="Yes"
-                cancel-text="No"
-                @confirm="handleDeleteCustomField(sIdx,fieldItem)"
-              >
-                <a-icon type="delete" />
-              </a-popconfirm>
-            </div>
-          </li>
-        </draggable>
-      </div>
+            </li>
+          </draggable>
+        </div>
+      </template>
     </div>
 
     <a-modal
@@ -250,7 +256,8 @@ export default {
       steps: [],
 
       showSectionWarning: true,
-      showStepWarning: true
+      showStepWarning: true,
+      allowDrag: false
     }
   },
   computed: {
@@ -320,6 +327,16 @@ export default {
     this.checkIsShowFormatStepWarning()
   },
   methods: {
+    disableCommonDrag () {
+      this.$logger.info('disableDrag')
+      this.allowDrag = false
+      this.commonDrag = false
+    },
+    disableCustomDrag() {
+      this.$logger.info('disableDrag')
+      this.allowDrag = false
+      this.customDrag = false
+    },
     hiddenFormSectionWarning () {
       storage.set(`hidden-format-section-warning-${this.$store.getters.userInfo.id}`, 'true')
       this.showSectionWarning = false
@@ -601,7 +618,7 @@ export default {
 @import "~@/components/index.less";
 
 .format-form {
-
+  user-select: none;
   .step-item {
     margin-bottom: 25px;
     padding: 10px;
@@ -752,6 +769,7 @@ export default {
         border: 1px solid #f8f8f8;
 
         .sort-icon {
+          height: 50px;
           margin-right: 10px;
           cursor: pointer;
           img {
@@ -989,6 +1007,7 @@ export default {
           color: rgba(0, 0, 0, 0.65);
           border: 1px solid #15C39A;
           .sort-icon {
+            height: 50px;
             .green {
               display: block;
             }

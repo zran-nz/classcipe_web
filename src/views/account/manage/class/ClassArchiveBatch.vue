@@ -15,7 +15,7 @@
       <a-space>
         <a-button @click="handleCancel">Cancel</a-button>
         <a-button :loading="loading" type="primary" @click="handleArchive">Archive all classes</a-button>
-        <a-button :loading="loading" type="primary" @click="handleDelete">Disable and Clear data</a-button>
+        <!-- <a-button :loading="loading" type="primary" @click="handleDelete">Disable and Clear data</a-button> -->
       </a-space>
     </div>
   </a-modal>

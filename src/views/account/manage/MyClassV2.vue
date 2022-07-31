@@ -83,7 +83,13 @@
                     <div class="item-class" v-clickOutside="() => handleBlurClick(cls)">
                       <div class="class-name">
                         <label @click="doEditClassName(cls)" v-if="!cls.isNew && !cls.isEdit" for="">{{ cls.name }}</label>
-                        <a-input @keyup.enter="handleSaveClassName(cls)" :ref="'name'+cls.key" placeholder="Enter class name" v-if="cls.isNew || cls.isEdit" v-model="cls.changeName">
+                        <a-input
+                          @click.stop.prevent="doFocus"
+                          @keyup.enter="handleSaveClassName(cls)"
+                          :ref="'name'+cls.key"
+                          placeholder="Enter class name"
+                          v-if="cls.isNew || cls.isEdit"
+                          v-model="cls.changeName">
                           <a-icon slot="suffix" type="check" @click="handleSaveClassName(cls)"/>
                         </a-input>
                       </div>
@@ -121,15 +127,23 @@
                               <a-menu-item>
                                 <a href="javascript:;" @click="handleRestore(cls)">Restore</a>
                               </a-menu-item>
-                            <!-- <a-menu-item>
-                              <a href="javascript:;" @click="handleDelete(cls)">Delete</a>
-                            </a-menu-item> -->
+                              <a-menu-item>
+                                <a href="javascript:;" @click="handleDelete(cls)">Delete</a>
+                              </a-menu-item>
                             </template>
                           </a-menu>
                         </a-dropdown>
                       </div>
                       <div class="class-opt" style="font-size: 16px;" v-else>
-                        <a-icon type="close" @click="handleRemove(view.id, cls)"></a-icon>
+                        <!-- <a-icon type="close" @click="handleRemove(view.id, cls)"></a-icon> -->
+                        <a-dropdown :getPopupContainer="trigger => trigger.parentElement">
+                          <a-icon type="more" />
+                          <a-menu slot="overlay">
+                            <a-menu-item>
+                              <a href="javascript:;" @click="handleRemove(view.id, cls)">Delete</a>
+                            </a-menu-item>
+                          </a-menu>
+                        </a-dropdown>
                       </div>
                     </div>
                   </div>
@@ -267,6 +281,9 @@ export default {
       // 模式切换，个人还是学校 个人接口
       this.initDict()
       this.debounceInit()
+    },
+    doFocus(e) {
+      e.target.focus()
     },
     initDict() {
       Promise.all([
@@ -939,4 +956,7 @@ export default {
     }
   }
 }
+// .undrag {
+//   pointer-events: none;
+// }
 </style>
