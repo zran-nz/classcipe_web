@@ -92,6 +92,13 @@ export default {
       hasMoreRight: true
     }
   },
+  watch: {
+    list(newValue) {
+      if (newValue && newValue.length) {
+        this.hiddenArrow(document.getElementById(this.category))
+      }
+    }
+  },
   mounted() {
     this.hiddenArrow(document.getElementById(this.category))
   },

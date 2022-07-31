@@ -98,10 +98,12 @@ export default {
       currentSchool: state => state.user.currentSchool
     }),
     getCurrentId() {
-      if (this.activeKey === 'plan') {
-        return this.planConfig.steps ? this.planConfig.steps[0].templateId : ''
-      } else {
-        return this.taskConfig.steps ? this.taskConfig.steps[0].templateId : ''
+      if (this.planConfig?.steps || this.taskConfig?.steps) {
+        if (this.activeKey === 'plan') {
+          return this.planConfig?.steps ? this.planConfig?.steps[0].templateId : ''
+        } else {
+          return this.taskConfig?.steps ? this.taskConfig?.steps[0].templateId : ''
+        }
       }
     }
   },
