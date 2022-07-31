@@ -12,11 +12,16 @@
       <div class='create-new'>
         <a-space>
           <custom-search-input :round='false' :value.sync='queryParams.searchKey' @search='loadMyContent' placeholder='Search your content'/>
-          <common-content-filter
-            @update-filter='handleUpdateFilter'
-            :show-fa-sa-activity-type="category === 'task'"
-            :show-content-type="category === 'recommended'"
-          />
+          <template v-if='category === "pd"'>
+            <pd-content-filter @update-filter='handleUpdateFilter'/>
+          </template>
+          <template v-else>
+            <common-content-filter
+              @update-filter='handleUpdateFilter'
+              :show-fa-sa-activity-type="category === 'task'"
+              :show-content-type="category === 'recommended'"
+            />
+          </template>
           <user-profile-avatar />
         </a-space>
       </div>
@@ -68,6 +73,7 @@ import LibraryContentItem from '@/components/MyContentV2/LibraryContentItem'
 import { mapState } from 'vuex'
 import { CommonFilterMixin } from '@/mixins/CommonFilterMixin'
 import CommonContentFilter from '@/components/Common/CommonContentFilter'
+import PdContentFilter from '@/components/Common/PdContentFilter'
 
 export default {
   name: 'LibraryAll',
@@ -79,6 +85,7 @@ export default {
     }
   },
   components: {
+    PdContentFilter,
     CommonContentFilter,
     LibraryContentItem,
     ContentTypeFilter,
