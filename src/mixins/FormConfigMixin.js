@@ -16,6 +16,13 @@ export const FormConfigMixin = {
         return defaultName
       }
     },
+    unitFieldLabel: (defaultName, fieldName, formConfigData) => {
+      if (formConfigData && formConfigData.planFieldLabelMap && formConfigData.planFieldLabelMap[fieldName]) {
+        return formConfigData.planFieldLabelMap[fieldName]
+      } else {
+        return defaultName
+      }
+    },
     unitLabelHint: (defaultName, fieldName, formConfigData) => {
       if (formConfigData && formConfigData.planHintMap && formConfigData.planHintMap[fieldName]) {
         return formConfigData.planHintMap[fieldName]
@@ -26,6 +33,13 @@ export const FormConfigMixin = {
     taskLabelName: (defaultName, fieldName, formConfigData) => {
       if (formConfigData && formConfigData.taskFieldMap && formConfigData.taskFieldMap[fieldName]) {
         return formConfigData.taskFieldMap[fieldName]
+      } else {
+        return defaultName
+      }
+    },
+    taskFieldLabel: (defaultName, fieldName, formConfigData) => {
+      if (formConfigData && formConfigData.taskFieldLabelMap && formConfigData.taskFieldLabelMap[fieldName]) {
+        return formConfigData.taskFieldLabelMap[fieldName]
       } else {
         return defaultName
       }
@@ -53,6 +67,13 @@ export const FormConfigMixin = {
         return null
       }
     },
+    unitFieldLabel: (fieldName, formConfigData) => {
+      if (formConfigData && formConfigData.planFieldLabelMap && formConfigData.planFieldLabelMap[fieldName]) {
+        return formConfigData.planFieldLabelMap[fieldName]
+      } else {
+        return null
+      }
+    },
     taskLabelName: (fieldName, formConfigData) => {
       if (formConfigData && formConfigData.taskFieldMap && formConfigData.taskFieldMap[fieldName]) {
         return formConfigData.taskFieldMap[fieldName]
@@ -63,6 +84,13 @@ export const FormConfigMixin = {
     taskLabelHint: (fieldName, formConfigData) => {
       if (formConfigData && formConfigData.taskHintMap && formConfigData.taskHintMap[fieldName]) {
         return formConfigData.taskHintMap[fieldName]
+      } else {
+        return null
+      }
+    },
+    taskFieldLabel: (fieldName, formConfigData) => {
+      if (formConfigData && formConfigData.taskFieldLabelMap && formConfigData.taskFieldLabelMap[fieldName]) {
+        return formConfigData.taskFieldLabelMap[fieldName]
       } else {
         return null
       }

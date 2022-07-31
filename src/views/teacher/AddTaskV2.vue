@@ -63,12 +63,12 @@
                         @switch='handleSwitchComment'
                         :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Name}" />
                     </template>
-                    <template v-if='taskLabelHint(taskField.Name, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="'Task name' | taskLabelHint(taskField.Name, $store.getters.formConfigData)" placement='top'>
+                    <template v-if='taskFieldLabel(taskField.Name, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="taskFieldLabel(taskField.Name, $store.getters.formConfigData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
-                    <a-input v-model='form.name' placeholder='Enter Task Name' class='cc-form-input' @change="handleCollaborateEvent(taskId,'name',form.name)" :disabled="!canEdit" />
+                    <a-input v-model='form.name' :placeholder="taskLabelHint(taskField.Name, $store.getters.formConfigData)" class='cc-form-input' @change="handleCollaborateEvent(taskId,'name',form.name)" :disabled="!canEdit" />
                   </custom-form-item>
                 </div>
 
@@ -90,15 +90,15 @@
                         @switch='handleSwitchComment'
                         :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Overview}" />
                     </template>
-                    <template v-if='taskLabelHint(taskField.Overview, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="'Task details' | taskLabelHint(taskField.Overview, $store.getters.formConfigData)" placement='top'>
+                    <template v-if='taskFieldLabel(taskField.Overview, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="taskFieldLabel(taskField.Overview, $store.getters.formConfigData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
                     <a-textarea
                       :auto-size="{ minRows: 2, maxRows: 6 }"
                       v-model='form.overview'
-                      placeholder='Details'
+                      :placeholder='taskLabelHint(taskField.Overview, $store.getters.formConfigData)'
                       class='cc-form-textarea'
                       allow-clear
                       @change="handleCollaborateEvent(taskId,taskField.Overview,form.overview)"
@@ -120,8 +120,8 @@
                         @switch='handleSwitchComment'
                         :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.TaskType}" />
                     </template>
-                    <template v-if='taskLabelHint(taskField.TaskType, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="'Choose Task Type' | taskLabelHint(taskField.TaskType, $store.getters.formConfigData)" placement='top'>
+                    <template v-if='taskFieldLabel(taskField.TaskType, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="taskFieldLabel(taskField.TaskType, $store.getters.formConfigData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
@@ -159,8 +159,8 @@
                         @switch='handleSwitchComment'
                         :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Question}" />
                     </template>
-                    <template v-if='taskLabelHint(taskField.Overview, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="'Choose Key questions' | taskLabelHint(taskField.Overview, $store.getters.formConfigData)" placement='top'>
+                    <template v-if='taskFieldLabel(taskField.Overview, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="taskFieldLabel(taskField.Overview, $store.getters.formConfigData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
@@ -171,7 +171,7 @@
                       class='my-big-select'
                       v-model='form.questionIds'
                       mode='multiple'
-                      placeholder='Choose Key questions'
+                      :placeholder='taskLabelHint(taskField.Overview, $store.getters.formConfigData)'
                       option-label-prop='label'
                       :disabled="!canEdit"
                     >
@@ -194,6 +194,11 @@
                   <custom-form-item :required='emptyRequiredFields.indexOf(taskField.LearnOuts) !== -1'>
                     <template slot='label'>
                       {{ 'Learning objectives' | taskLabelName(taskField.LearnOuts, $store.getters.formConfigData) }}
+                    </template>
+                    <template v-if='taskFieldLabel(taskField.LearnOuts, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="taskFieldLabel(taskField.LearnOuts, $store.getters.formConfigData)" placement='top'>
+                        <a-icon type="info-circle" />
+                      </a-tooltip>
                     </template>
                     <learning-objective
                       @change='handleUpdateLearningObjectives'
@@ -224,8 +229,8 @@
                         @switch='handleSwitchComment'
                         :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.MaterialList}" />
                     </template>
-                    <template v-if='taskLabelHint(taskField.MaterialList, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="'Resources required for hands-on activities' | taskLabelHint(taskField.MaterialList, $store.getters.formConfigData)" placement='top'>
+                    <template v-if='taskFieldLabel(taskField.MaterialList, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="'Resources required for hands-on activities' | taskFieldLabel(taskField.MaterialList, $store.getters.formConfigData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
@@ -243,8 +248,7 @@
                           <a-input
                             class='cc-form-input'
                             v-model='materialItem.name'
-                            aria-placeholder='Enter material name'
-                            placeholder='Enter material name'
+                            :placeholder='taskLabelHint(taskField.MaterialList, $store.getters.formConfigData)'
                             :disabled="!canEdit"
                             @change="handleCollaborateEvent(taskId,taskField.MaterialList,form.materialList)"/>
                         </a-col>
@@ -337,7 +341,6 @@
                     </div>
                   </div>
                 </div>
-
               </template>
             </div>
             <div class='form-field-item custom-field' v-for='custFieldItem in $store.getters.formConfigData.taskCustomList' :key='custFieldItem.id'>
