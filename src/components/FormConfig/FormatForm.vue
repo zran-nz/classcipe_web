@@ -20,7 +20,6 @@
         <transition-group type="transition" :name="!commonDrag ? 'flip-list' : null">
           <li
             class="list-group-item"
-            :class="{'heart-beat-disabled-item': fieldItem.tags.some(item => !item.isOptional) && !fieldItem.visible}"
             v-for="fieldItem in myCommonList"
             :data-field-name='fieldItem.fieldName'
             :style="{'filter': fieldItem.visible ? 'none' : (fieldItem.tags.some(item => !item.isOptional) ? 'none' : 'grayscale(100%)')}"
@@ -126,7 +125,6 @@
         <transition-group type="transition" :name="!customDrag ? 'flip-list' : null">
           <li
             class="list-group-item"
-            :class="{'heart-beat-disabled-item': fieldItem.tags.some(item => !item.isOptional) && !fieldItem.visible}"
             v-for="fieldItem in myCustomList"
             :key="'sort-' + fieldItem.sortNo"
             :style="{'filter': fieldItem.visible ? 'none' : (fieldItem.tags.some(item => !item.isOptional) ? 'none' : 'grayscale(100%)')}"

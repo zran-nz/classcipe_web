@@ -58,7 +58,6 @@
         >
           <li
             class="list-group-item"
-            :class="{'heart-beat-disabled-item': fieldItem.tags.some(item => !item.isOptional) && !fieldItem.visible}"
             v-for="fieldItem in step.commonFieldItems"
             :data-field-name='fieldItem.fieldName'
             :style="{'filter': fieldItem.visible ? 'none' : (fieldItem.tags.some(item => !item.isOptional) ? 'none' : 'grayscale(100%)')}"
@@ -120,7 +119,6 @@
           >
             <li
               class="list-group-item"
-              :class="{'heart-beat-disabled-item': fieldItem.tags.some(item => !item.isOptional) && !fieldItem.visible}"
               v-for="fieldItem in step.customFieldItems"
               :key="'sort-' + fieldItem.id"
               :style="{'filter': fieldItem.visible ? 'none' : (fieldItem.tags.some(item => !item.isOptional) ? 'none' : 'grayscale(100%)')}"

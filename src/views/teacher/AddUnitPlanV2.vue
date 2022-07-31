@@ -65,7 +65,8 @@
                 <div
                   class='form-block tag-content-block'
                   id='overview'
-                  v-if='fieldItem.visible && fieldItem.fieldName === planField.Overview'
+                  :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName]}"
+                  v-if='(fieldItem.visible || form[fieldItem.fieldName]) && fieldItem.fieldName === planField.Overview'
                   :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Overview />
                   <custom-form-item ref='overview' :required='emptyRequiredFields.indexOf(planField.Overview) !== -1'>
@@ -96,9 +97,18 @@
                       @change="handleCollaborateEvent(unitPlanId,planField.Overview,form.overview)"
                       :disabled="!canEdit"/>
                   </custom-form-item>
+                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName]'>
+                    <a-popconfirm title="Delete?" ok-text="Yes" @confirm="form[fieldItem.fieldName] = ''" cancel-text="No">
+                      <delete-icon color='#F16A39' />
+                    </a-popconfirm>
+                  </div>
                 </div>
 
-                <div class='form-block form-radio-wrapper tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === planField.ProjectBased' :key='fieldItem.fieldName'>
+                <div
+                  class='form-block form-radio-wrapper tag-content-block'
+                  :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] !== null}"
+                  v-if='(fieldItem.visible || form[fieldItem.fieldName] !== null) && fieldItem.fieldName === planField.ProjectBased'
+                  :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.ProjectBased style="top:-30px" />
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.ProjectBased) !== -1'>
                     <template slot='label'>
@@ -126,9 +136,18 @@
                       @change="handleCollaborateEvent(unitPlanId,planField.ProjectBased,form.projectBased)" >
                     </custom-radio-button-group>
                   </custom-form-item>
+                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName]'>
+                    <a-popconfirm title="Delete?" ok-text="Yes" @confirm="form[fieldItem.fieldName] = null" cancel-text="No">
+                      <delete-icon color='#F16A39' />
+                    </a-popconfirm>
+                  </div>
                 </div>
 
-                <div class='form-block form-radio-wrapper tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === planField.UnitType' :key='fieldItem.fieldName'>
+                <div
+                  class='form-block form-radio-wrapper tag-content-block'
+                  :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] !== null}"
+                  v-if='(fieldItem.visible || form[fieldItem.fieldName] !== null) && fieldItem.fieldName === planField.UnitType'
+                  :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.UnitType style="top:-30px"/>
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.UnitType) !== -1'>
                     <template slot='label'>
@@ -155,6 +174,11 @@
                       @change="handleCollaborateEvent(unitPlanId,planField.UnitType,form.unitType)" >
                     </custom-radio-button-group>
                   </custom-form-item>
+                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName]'>
+                    <a-popconfirm title="Delete?" ok-text="Yes" @confirm="form[fieldItem.fieldName] = null" cancel-text="No">
+                      <delete-icon color='#F16A39' />
+                    </a-popconfirm>
+                  </div>
                 </div>
 
                 <div class='form-block grade-time tag-content-block' v-if="fieldItem.visible && fieldItem.fieldName === planField.GradeIds" :key='fieldItem.fieldName'>
@@ -231,7 +255,11 @@
                   </a-tooltip>
                 </div>
 
-                <div class='form-block tag-content-block' v-if="fieldItem.visible && fieldItem.fieldName === planField.Scenarios" :key='fieldItem.fieldName'>
+                <div
+                  class='form-block tag-content-block'
+                  :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] && form[fieldItem.fieldName].length}"
+                  v-if="(fieldItem.visible || (form[fieldItem.fieldName] && form[fieldItem.fieldName].length)) && fieldItem.fieldName === planField.Scenarios"
+                  :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Sdg />
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.Sdg) !== -1'>
                     <template slot='label'>
@@ -305,9 +333,18 @@
                       </div>
                     </div>
                   </custom-form-item>
+                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName] && form[fieldItem.fieldName].length'>
+                    <a-popconfirm title="Delete?" ok-text="Yes" @confirm="form[fieldItem.fieldName] = []" cancel-text="No">
+                      <delete-icon color='#F16A39' />
+                    </a-popconfirm>
+                  </div>
                 </div>
 
-                <div class='form-block form-block-rwc tag-content-block' v-if="fieldItem.visible && fieldItem.fieldName === planField.Rwc" :key='fieldItem.fieldName'>
+                <div
+                  class='form-block form-block-rwc tag-content-block'
+                  :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName]}"
+                  v-if="(fieldItem.visible || form[fieldItem.fieldName]) && fieldItem.fieldName === planField.Rwc"
+                  :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Rwc />
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.Rwc) !== -1'>
                     <template slot='label'>
@@ -330,6 +367,11 @@
                       </a-select-option>
                     </a-select>
                   </custom-form-item>
+                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName]'>
+                    <a-popconfirm title="Delete?" ok-text="Yes" @confirm="form[fieldItem.fieldName] = ''" cancel-text="No">
+                      <delete-icon color='#F16A39' />
+                    </a-popconfirm>
+                  </div>
                 </div>
 
                 <div
@@ -863,6 +905,8 @@ export default {
         id: null,
         image: '',
         coverVideo: null,
+        projectBased: null,
+        unitType: null,
         inquiry: '',
         name: 'Untitled UnitPlan',
         status: 0,
@@ -2657,5 +2701,18 @@ code {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.third-hidden-data {
+  background-color: #eee;
+  border: 2px dashed #aaa;
+  position: relative;
+  padding: 15px 10px 10px 10px;
+  .close-hidden-value {
+    position: absolute;
+    right: 10px;
+    top: 5px;
+    cursor: pointer;
+  }
 }
 </style>
