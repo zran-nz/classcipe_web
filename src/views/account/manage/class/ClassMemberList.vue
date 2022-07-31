@@ -56,8 +56,9 @@
                 <a-space>
                   <a-button type="primary" @click="handleAddStudent">Add Student</a-button>
                   <a-button @click="handleInvite" type="primary">Invite by link<a-icon type="share-alt" /></a-button>
-                  <a-button type="primary" @click="downloadTemplate">Download template</a-button>
-                  <school-user-import :dataKey="dataKey" :action="importExcelUrl" @success="handleImportGet"/>
+                  <!-- <a-button type="primary" @click="downloadTemplate">Download template</a-button> -->
+                  <a-button type="primary" @click="goImport">Bulk import</a-button>
+                  <!-- <school-user-import :dataKey="dataKey" :action="importExcelUrl" @success="handleImportGet"/> -->
                 </a-space>
               </a-col>
             </template>
@@ -416,6 +417,9 @@ export default {
         })
       })
     },
+    goImport() {
+      this.$router.push('/manage/student/upload/' + this.form.classId)
+    },
     saveStudent(user) {
       console.log(user)
       this.studentVis = false
@@ -481,9 +485,12 @@ export default {
             parentEmailExist[item.email] = item.exists
           })
           if (parentEmailExist[item.parentEmail]) {
-            status.push('Duplicate Parent')
+            status.push({
+              col: 'parentEmail',
+              msg: 'Duplicate Parent'
+            })
           }
-          item.status = status.join(',')
+          item.status = status
           // 班级
           if (item.classes) {
             item.classes = item.classes.split(',').map(cls => {
@@ -567,13 +574,21 @@ export default {
       datas.forEach(item => {
         if (isEmail(item.inviteEmail)) {
           if (isExist[item.inviteEmail]) {
-            const statuss = item.status.split(',').filter(item => !!item)
-            if (!statuss.includes('Local Duplicate')) {
-              statuss.push('Local Duplicate')
+            const msgs = item.status ? item.status.map(sta => sta.col === 'inviteEmail').map(i => i.msg).filter(item => !!item) : []
+            if (!msgs.includes('Local Duplicate')) {
+              msgs.push('Local Duplicate')
             }
-            item.status = statuss.join(',')
+            console.log(msgs)
+            item.status.push({
+              col: 'inviteEmail',
+              msg: msgs.join(',')
+            })
           } else {
-            item.status = item.status.replace('Local Duplicate', '').split(',').filter(item => !!item).join(',')
+            const msgs = item.status ? item.status.map(sta => sta.col === 'inviteEmail').map(i => i.msg).filter(item => !!item).join(',') : ''
+            item.status.push({
+              col: 'inviteEmail',
+              msg: msgs.replace('Local Duplicate', '').split(',').filter(item => !!item).join(',')
+            })
             isExist[item.inviteEmail] = true
           }
         }
@@ -589,18 +604,37 @@ export default {
         parentEmailExist[item.email] = item.exists
       })
       const status = []
-      if (isEmpty(item.firstName) || isEmpty(item.lastName)) {
-        status.push('Invalid Name')
+      if (isEmpty(item.firstName)) {
+        status.push({
+          col: 'firstName',
+          msg: 'Invalid Name'
+        })
       }
+      if (isEmpty(item.lastName)) {
+        status.push({
+          col: 'lastName',
+          msg: 'Invalid Name'
+        })
+      }
+
       if (isEmpty(item.inviteEmail) || !isEmail(item.inviteEmail)) {
-        status.push('Invalid Email')
+        status.push({
+          col: 'inviteEmail',
+          msg: 'Invalid Email'
+        })
       } else {
         if (emailExist[item.inviteEmail]) {
-          status.push('Duplicate')
+          status.push({
+            col: 'inviteEmail',
+            msg: 'Duplicate'
+          })
         }
       }
       if (isEmpty(item.parentEmail) || !isEmail(item.parentEmail)) {
-        status.push('Invalid Parent Email')
+        status.push({
+          col: 'parentEmail',
+          msg: 'Invalid Parent Email'
+        })
       }
       return status
     },
@@ -613,7 +647,10 @@ export default {
       })
       if (emailRes.code === 0) {
         if (emailRes.result[0].exists) {
-          status.push('Duplicate')
+          status.push({
+            col: 'inviteEmail',
+            msg: 'Duplicate'
+          })
         }
       }
       // 验证远程
@@ -625,7 +662,10 @@ export default {
       })
       if (parentRes.code === 0) {
         if (parentRes.result[0].exists) {
-          status.push('Duplicate Parent')
+          status.push({
+            col: 'parentEmail',
+            msg: 'Duplicate Parent'
+          })
         }
       }
       return status

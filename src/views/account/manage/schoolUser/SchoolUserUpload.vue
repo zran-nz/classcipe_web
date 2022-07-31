@@ -25,7 +25,10 @@
             @change="e => handleChangeRow(e.target.value, record.key, col)"
           />
           <template v-else>
-            {{ text }} {{ record.editable }}
+            <a-space direction="vertical">
+              <label for="">{{ text }}</label>
+              <label for="" v-if="getError(col, record)" style="color: #ef4136">{{ getError(col, record) }}</label>
+            </a-space>
           </template>
         </div>
       </template>
@@ -60,8 +63,8 @@
           <a @click="() => cancelRow(record.key)">Cancel</a>
         </span>
         <template v-else>
-          <a-icon type="check" :class="'status_1'" v-if="!record.status"></a-icon>
-          <label for="" :class="'status_2'" v-else>{{ record.status }}</label>
+          <a-icon type="check" :class="'status_1'" v-if="!hasError(record.status)"></a-icon>
+          <!-- <label for="" :class="'status_2'" v-else>{{ record.status }}</label> -->
           <a-icon v-show="editingKey === ''" @click="() => editRow(record.key)" class="action-edit" type="edit"></a-icon>
           <a-icon v-show="editingKey === ''" @click="() => delRow(record.key)" class="action-edit" type="delete"></a-icon>
         </template>
@@ -147,7 +150,7 @@ export default {
     getCheckboxProps(record) {
       return {
         props: {
-          disabled: !!record.status
+          disabled: !!this.hasError(record.status)
         }
       }
     },
@@ -157,7 +160,7 @@ export default {
     },
     initData() {
       this.selectionRows = this.dataSource.filter(item => {
-        return !item.status
+        return !this.hasError(item.status)
       })
       this.selectedRowKeys = this.selectionRows.map(item => item.key)
     },
@@ -219,7 +222,7 @@ export default {
         if (target.key) {
           const statusArr = this.verify(target)
           const res = await this.verifyDuplicate(target)
-          target.status = Array.from(new Set(statusArr.concat(res))).join(',')
+          target.status = statusArr.concat(res) // Array.from(new Set(statusArr.concat(res))).join(',')
           delete target.editable
           this.dataSource = newData
           Object.assign(targetCache, target)
@@ -228,6 +231,23 @@ export default {
         }
         this.editingKey = ''
       }
+    },
+    getError(col, record) {
+      if (record.status) {
+        console.log(record.status)
+        let msgs = record.status.filter(item => item.col === col)
+        msgs = Array.from(new Set(msgs.map(item => item.msg).filter(item => !!item))).join(',')
+        return msgs
+      }
+      return ''
+    },
+    hasError(status) {
+      if (status) {
+        const msgs = status.map(item => item.msg).filter(item => !!item)
+        console.log(msgs)
+        return msgs.length > 0
+      }
+      return false
     }
   }
 }

@@ -258,6 +258,12 @@ export default {
         ]).then(([clsRes]) => {
           if (clsRes.code === 0) {
             this.classList = clsRes.result.records
+            if (this.formModel.classes) {
+              const isFind = this.classList.find(item => item.id === this.formModel.classes)
+              if (!isFind) {
+                this.formModel.classes = ''
+              }
+            }
           }
         })
     },
@@ -286,6 +292,12 @@ export default {
             if (res.result.classes) {
               this.formModel.classArr = res.result.classes.map(item => item.id)
               this.formModel.classes = this.formModel.classArr.join(',')
+            }
+            if (this.formModel.classes && this.classList.length > 0) {
+              const isFind = this.classList.find(item => item.id === this.formModel.classes)
+              if (!isFind) {
+                this.formModel.classes = ''
+              }
             }
           }
         }).finally(() => {

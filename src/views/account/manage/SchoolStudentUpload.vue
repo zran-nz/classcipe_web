@@ -15,7 +15,22 @@
     </fixed-form-header>
     <div class="form-content">
       <div class="filter-tab">
-        <div></div>
+        <a-space>
+          <label for="">Class</label>
+          <a-select
+            v-model="chooseClass"
+            style="margin: 0 10px; width: 170px;"
+          >
+            <a-select-option
+              v-for="(param) in classList"
+              :value="param.id"
+              :key="'classes' + param.id"
+            >
+              {{ param.name }}
+            </a-select-option>
+          </a-select>
+          <a-button type="primary" @click="goClass">Go to set class</a-button>
+        </a-space>
         <a-space class="filter-opt">
           <a-button type="primary" @click="downloadTemplate">Download template</a-button>
           <school-user-import :dataKey="dataKey" :action="importExcelUrl" @success="handleImportGet"/>
@@ -80,6 +95,10 @@ export default {
     id: {
       type: String,
       default: null
+    },
+    classId: {
+      type: String,
+      default: null
     }
   },
   data() {
@@ -122,13 +141,13 @@ export default {
           width: 200,
           scopedSlots: { customRender: 'parentEmail' }
         },
-        {
-          title: 'Class',
-          align: 'center',
-          dataIndex: 'classes',
-          width: 200,
-          scopedSlots: { customRender: 'classes' }
-        },
+        // {
+        //   title: 'Class',
+        //   align: 'center',
+        //   dataIndex: 'classes',
+        //   width: 200,
+        //   scopedSlots: { customRender: 'classes' }
+        // },
         {
           title: 'Action',
           align: 'center',
@@ -138,7 +157,8 @@ export default {
       loading: false,
       uploadOptions: {
         classes: []
-      }
+      },
+      chooseClass: this.classId
     }
   },
   created() {
@@ -238,9 +258,12 @@ export default {
             parentEmailExist[item.email] = item.exists
           })
           if (parentEmailExist[item.parentEmail]) {
-            status.push('Duplicate Parent')
+            status.push({
+              col: 'parentEmail',
+              msg: 'Duplicate Parent'
+            })
           }
-          item.status = status.join(',')
+          item.status = status
           if (item.birthDay) {
             item.birthDay = moment(item.birthDay, 'DD/MM/YYYY').format('YYYY-MM-DD HH:mm:ss')
           }
@@ -269,9 +292,17 @@ export default {
 
     },
     handleAddUser() {
+      if (!this.chooseClass) {
+        this.$message.error('Please select class')
+        return
+      }
       if (this.$refs.schoolUserUpload.selectionRows.length > 0) {
+        const params = this.$refs.schoolUserUpload.selectionRows.map(item => ({
+          ...item,
+          classes: this.chooseClass
+        }))
         this.loading = true
-        batchAddStudent(this.$refs.schoolUserUpload.selectionRows).then(res => {
+        batchAddStudent(params).then(res => {
           if (res.code === 0) {
             this.datas = []
             this.$message.success('Import successfully')
@@ -290,14 +321,21 @@ export default {
       datas.forEach(item => {
         if (isEmail(item.inviteEmail)) {
           if (isExist[item.inviteEmail]) {
-            const statuss = item.status.split(',').filter(item => !!item)
-            if (!statuss.includes('Local Duplicate')) {
-              statuss.push('Local Duplicate')
+            const msgs = item.status ? item.status.map(sta => sta.col === 'inviteEmail').map(i => i.msg).filter(item => !!item) : []
+            if (!msgs.includes('Local Duplicate')) {
+              msgs.push('Local Duplicate')
             }
-            console.log(statuss)
-            item.status = statuss.join(',')
+            console.log(msgs)
+            item.status.push({
+              col: 'inviteEmail',
+              msg: msgs.join(',')
+            })
           } else {
-            item.status = item.status.replace('Local Duplicate', '').split(',').filter(item => !!item).join(',')
+            const msgs = item.status ? item.status.map(sta => sta.col === 'inviteEmail').map(i => i.msg).filter(item => !!item).join(',') : ''
+            item.status.push({
+              col: 'inviteEmail',
+              msg: msgs.replace('Local Duplicate', '').split(',').filter(item => !!item).join(',')
+            })
             isExist[item.inviteEmail] = true
           }
         }
@@ -313,29 +351,49 @@ export default {
         parentEmailExist[item.email] = item.exists
       })
       const status = []
-      if (isEmpty(item.firstName) || isEmpty(item.lastName)) {
-        status.push('Invalid Name')
+      if (isEmpty(item.firstName)) {
+        status.push({
+          col: 'firstName',
+          msg: 'Invalid Name'
+        })
       }
+      if (isEmpty(item.lastName)) {
+        status.push({
+          col: 'lastName',
+          msg: 'Invalid Name'
+        })
+      }
+
       if (isEmpty(item.inviteEmail) || !isEmail(item.inviteEmail)) {
-        status.push('Invalid Email')
+        status.push({
+          col: 'inviteEmail',
+          msg: 'Invalid Email'
+        })
       } else {
         if (emailExist[item.inviteEmail]) {
-          status.push('Duplicate')
+          status.push({
+            col: 'inviteEmail',
+            msg: 'Duplicate'
+          })
         }
       }
       if (isEmpty(item.parentEmail) || !isEmail(item.parentEmail)) {
-        status.push('Invalid Parent Email')
+        status.push({
+          col: 'parentEmail',
+          msg: 'Invalid Parent Email'
+        })
       }
-      if (isEmpty(item.classes)) {
-        status.push('Invalid Class')
-      } else {
-        const find = this.classList.find(cls => cls.id === item.classes)
-        if (find) {
+      // if (isEmpty(item.classes)) {
+      //   status.push('Invalid Class')
+      // } else {
+      //   const find = this.classList.find(cls => cls.id === item.classes)
+      //   if (find) {
 
-        } else {
-          status.push('Invalid Class')
-        }
-      }
+      //   } else {
+      //     status.push('Invalid Class')
+      //   }
+      // }
+      console.log(status)
       return status
     },
     async verifyDuplicate(item) {
@@ -347,7 +405,10 @@ export default {
       })
       if (emailRes.code === 0) {
         if (emailRes.result[0].exists) {
-          status.push('Duplicate')
+          status.push({
+            col: 'inviteEmail',
+            msg: 'Duplicate'
+          })
         }
       }
       // 验证远程
@@ -359,10 +420,16 @@ export default {
       })
       if (parentRes.code === 0) {
         if (parentRes.result[0].exists) {
-          status.push('Duplicate Parent')
+          status.push({
+            col: 'parentEmail',
+            msg: 'Duplicate Parent'
+          })
         }
       }
       return status
+    },
+    goClass() {
+      this.$router.push('/manage/class')
     }
   }
 }

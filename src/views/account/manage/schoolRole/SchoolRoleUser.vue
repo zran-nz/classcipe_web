@@ -90,7 +90,7 @@
 </template>
 
 <script>
-import { getSchoolUsers, addAdmin, removeAdmins } from '@/api/v2/schoolUser'
+import { getSchoolUsers, removeAdmins, addSchoolAdmin } from '@/api/v2/schoolUser'
 import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
 import { listClass } from '@/api/v2/schoolClass'
 
@@ -356,10 +356,10 @@ export default {
       }
       this.selectMember = ''
       this.loading = true
-      addAdmin({
+      addSchoolAdmin({
         roleId: this.currentRole.id,
         schoolId: this.currentSchool.id,
-        userId: user.uid
+        email: user.email
       }).then(res => {
         if (res.code === 0) {
           this.$message.success('Add user successfully')
@@ -380,10 +380,10 @@ export default {
       }
       // TODO 需要批量添加
       this.loading = true
-      addAdmin({
+      addSchoolAdmin({
         roleId: this.currentRole.id,
         schoolId: this.currentSchool.id,
-        userId: data[0]
+        email: data[0]
       }).then(res => {
         if (res.code === 0) {
           this.$message.success('Add user successfully')

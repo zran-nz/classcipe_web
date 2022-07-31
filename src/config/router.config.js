@@ -652,8 +652,9 @@ export const asyncRouterMap = [
                 meta: { title: 'Student Manage', keepAlive: true, permission: ['teacher'] }
               },
               {
-                path: '/manage/student/upload',
+                path: '/manage/student/upload/:classId?',
                 name: 'SchoolStudentUpload',
+                props: true,
                 component: () => import('@/views/account/manage/SchoolStudentUpload'),
                 meta: { title: 'Student Upload', keepAlive: true, permission: ['teacher'] }
               }

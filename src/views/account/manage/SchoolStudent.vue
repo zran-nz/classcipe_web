@@ -100,7 +100,7 @@
             </a-space>
           </div>
           <a-space slot="action" slot-scope="text, record">
-            <a @click="handleEdit(record)">Edit</a>
+            <a @click="handleEdit(record)" v-if="record.status !== SCHOOL_USER_STATUS.ARCHIVE.value">Edit</a>
             <a-dropdown>
               <a-menu slot="overlay" @click="opt => handleSingleOpt(opt, record)">
                 <a-menu-item :key="'ACT_'+ACT.MOVE.value"> Move Class </a-menu-item>

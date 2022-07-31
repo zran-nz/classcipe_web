@@ -4,11 +4,11 @@
       <div class="account-info-header">
         <div class="info-header-avatar persona" v-if="userMode === USER_MODE.SELF">
           <img :src="info.avatar" v-if="info.avatar"/>
-          <img v-else src="~@/assets/icons/library/default-avatar2.png"/>
+          <img v-else src="~@/assets/icons/library/default-avatar.png"/>
         </div>
         <div class="info-header-avatar" v-else>
           <!-- <img v-if="currentSchool.logo" :src="currentSchool.logo"/>
-          <img v-else src="~@/assets/icons/library/default-avatar2.png"/> -->
+          <img v-else src="~@/assets/icons/library/default-avatar.png"/> -->
           <custom-image-uploader :need-del="false" :img-url='currentSchool.logo' @update='handleUploadLogo' />
         </div>
         <div class="info-header-detail">
@@ -60,7 +60,7 @@
       <div class="account-info-self" v-if="userMode === USER_MODE.SCHOOL && currentSchool.schoolUser">
         <div class="info-self-avatar">
           <img :src="currentSchool.schoolUser.avatar" v-if="currentSchool.schoolUser.avatar"/>
-          <img v-else src="~@/assets/icons/library/default-avatar2.png"/>
+          <img v-else src="~@/assets/icons/library/default-avatar.png"/>
           <a-button type="primary" size="small" @click="$refs.modal.edit(1)">Upload</a-button>
         </div>
         <div class="info-self-detail">
