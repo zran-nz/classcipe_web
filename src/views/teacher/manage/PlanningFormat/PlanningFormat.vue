@@ -2,6 +2,7 @@
   <a-card class='planning-format' :body-style="{'padding': 20}">
     <a-tabs type="card" v-model='activeKey' v-if='!loading'>
       <a-tab-pane key="plan" tab="Unit Format" class='planning-content' :forceRender='true'>
+        <h2 class="template-title">{{ getCurrentTemplateName() }}</h2>
         <format-form-with-step
           ref='plan'
           :saving='saving || loading'
@@ -14,6 +15,7 @@
           v-if='planConfig' />
       </a-tab-pane>
       <a-tab-pane key="task" tab="Task Format" class='planning-content' :forceRender='true'>
+        <h2 class="template-title">{{ getCurrentTemplateName() }}</h2>
         <format-form-with-step
           ref='task'
           :saving='saving || loading'
@@ -108,6 +110,16 @@ export default {
     }
   },
   methods: {
+    getCurrentTemplateName() {
+      let id = ''
+      if (this.activeKey === 'plan') {
+        id = this.planConfig.steps ? this.planConfig.steps[0].templateId : ''
+      } else {
+        id = this.taskConfig.steps ? this.taskConfig.steps[0].templateId : ''
+      }
+      const tem = this.templateList.filter(item => item.id === id)
+      return tem ? tem[0].name : ''
+    },
     handleSchoolChange(currentSchool) {
       if (this.userMode === USER_MODE.SCHOOL) {
         this.loadFormConfigData()
@@ -275,5 +287,8 @@ export default {
 .form-config-action {
   height: 32px;
   line-height: 32px;
+}
+.template-title{
+  text-align: center;
 }
 </style>
