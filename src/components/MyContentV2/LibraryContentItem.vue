@@ -212,13 +212,13 @@ export default {
         contentType: this.contentType,
         grades: this.selectedGradeList
       }).finally(() => {
-        this.$router.push({ path: '/teacher/main/created-by-me' })
         this.handleCancelBuyStat()
       })
     },
     handleCancelBuyStat () {
       this.contentBuyStatVisible = false
       this.selectedGradeList = []
+      this.$router.push({ path: '/teacher/main/created-by-me' })
     },
     toggleSelectContentTag(grade) {
       this.$logger.info('toggleSelectContentTag', grade)
