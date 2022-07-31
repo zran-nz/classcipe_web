@@ -12,7 +12,7 @@
           <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div> -->
           <div class="desc">Choose your role to enter</div>
         </div>
-        <div class="role-item" :class="{ selected: selectedRole === 'teacher' }" @click="handleSelectRole('teacher')">
+        <div class="role-item" :class="{ selected: selectedRole === userRole.teacher }" @click="handleSelectRole(userRole.teacher)">
           <div class="role-info">
             <img src="~@/assets/icons/role/teacher.png" class="role-img" />
             <div>
@@ -23,7 +23,7 @@
             <span></span>
           </div>
         </div>
-        <div class="role-item" :class="{ selected: selectedRole === 'student' }" @click="handleSelectRole('student')">
+        <div class="role-item" :class="{ selected: selectedRole === userRole.student }" @click="handleSelectRole(userRole.student)">
           <div class="role-info">
             <img src="~@/assets/icons/role/student.png" class="role-img" />
             <div>
@@ -64,14 +64,14 @@
           </div>
         </div> -->
         <!-- 学生注册 -->
-        <div v-if="selectedRole === 4 || selectedRole === 2">
+        <div v-if="selectedRole === userRole.student || selectedRole === userRole.teacher">
           <div>
             <!-- <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
             <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div> -->
             <div class="desc">Sign Up</div>
             <div class="desc2">
               Already have an account? |
-              <span><router-link :to="{ path: selectedRole === 4 ? studentLoginPath : teacherLoginPath }">Sign In</router-link></span>
+              <span><router-link :to="{ path: selectedRole === userRole.student ? studentLoginPath : teacherLoginPath }">Sign In</router-link></span>
             </div>
           </div>
           <a-form :form="form" class="register-form" @submit="handleSubmit">
@@ -217,6 +217,7 @@ import { mapActions } from 'vuex'
 import { NOT_REMEMBER_ME, SET_PROMOTE_CODE } from '@/store/mutation-types'
 import storage from 'store'
 import { getCookie } from '@/utils/util'
+import { SchoolUserRole } from '@/const/role'
 
 export default {
   name: 'Register',
@@ -234,7 +235,8 @@ export default {
       teacherLoginPath: '/user/login?role=teacher',
       studentLoginPath: '/user/login?role=student',
       disabled: true,
-      callbackUrl: ''
+      callbackUrl: '',
+      userRole: SchoolUserRole
     }
   },
   created() {
@@ -318,7 +320,7 @@ export default {
         callback(new Error(this.$t('user.email.required')))
         return
       }
-      if (this.selectedRole === 2 && value && !value.endsWith('@gmail.com')) {
+      if (this.selectedRole === this.userRole.teacher && value && !value.endsWith('@gmail.com')) {
         callback(new Error('please use your google email'))
       } else {
         callback()

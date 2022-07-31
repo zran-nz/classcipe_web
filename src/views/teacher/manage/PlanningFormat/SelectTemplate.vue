@@ -85,6 +85,10 @@ export default {
     activeKey: {
       type: String,
       default: ''
+    },
+    currentId: {
+      type: String,
+      default: ''
     }
   },
   computed: {
@@ -102,6 +106,7 @@ export default {
     }
   },
   created () {
+    this.id = this.currentId
   },
   methods: {
 

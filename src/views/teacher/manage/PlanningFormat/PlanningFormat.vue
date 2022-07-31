@@ -46,6 +46,7 @@
         <select-template
           :template-list="templateList"
           :active-key="activeKey"
+          :current-id="getCurrentId"
           @cancel='selectTemplateVisible = false'
           @ensure='handleSelectTemplate' />
       </div>
@@ -91,7 +92,14 @@ export default {
     ...mapState({
       userMode: state => state.app.userMode,
       currentSchool: state => state.user.currentSchool
-    })
+    }),
+    getCurrentId() {
+      if (this.activeKey === 'plan') {
+        return this.planConfig.steps ? this.planConfig.steps[0].templateId : ''
+      } else {
+        return this.taskConfig.steps ? this.taskConfig.steps[0].templateId : ''
+      }
+    }
   },
   methods: {
     handleSchoolChange(currentSchool) {
