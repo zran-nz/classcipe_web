@@ -488,6 +488,9 @@ export default {
       this.loading = true
       const params = { ...cls }
       params.name = params.changeName
+      if (this.userMode === USER_MODE.SELF) {
+        params.userId = this.info.id
+      }
       saveClass(params).then(res => {
         if (res.success && res.code === 0) {
           cls.name = cls.changeName
@@ -540,6 +543,9 @@ export default {
     addSubjectClass(cls) {
       console.log(cls)
       this.loading = true
+      if (this.userMode === USER_MODE.SELF) {
+        cls.userId = this.info.id
+      }
       saveClass(cls).then(res => {
         if (res.success && res.code === 0) {
           const subject = this.subjectInfos.find(item => item.id === cls.subject)
@@ -741,6 +747,9 @@ export default {
         }
         this.loading = true
         params.name = params.changeName || params.name
+        if (this.userMode === USER_MODE.SELF) {
+          params.userId = this.info.id
+        }
         saveClass(params).then(res => {
           if (res.success && res.code === 0) {
             this.$message.success('Save successfully')

@@ -1,5 +1,6 @@
 import request from '@/utils/request'
 import plainRequest from '@/utils/plainRequest'
+import { trimParams } from '@/utils/util'
 
 const userApi = {
   Login: '/classcipe/sys/login',
@@ -162,6 +163,8 @@ export function SendVerifyLink (email) {
 }
 
 export function UpdatePersonalInfo (parameter) {
+  // 去除空格
+  parameter = trimParams(parameter)
   return request({
     url: userApi.UpdatePersonalInfo,
     method: 'post',

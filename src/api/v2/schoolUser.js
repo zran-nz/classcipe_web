@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+import { trimParams } from '@/utils/util'
 
 const API_PREFIX = 'api2/school/user'
 
@@ -50,6 +51,8 @@ export function getSchoolUsers (parameter) {
  * @constructor
  */
  export function addStudents (parameter) {
+  // 去除空格
+  parameter = trimParams(parameter)
   return request({
     url: schoolUserApi.addStudents,
     method: 'post',
@@ -66,6 +69,8 @@ export function getSchoolUsers (parameter) {
  * @constructor
  */
  export function addTeacher (parameter) {
+  // 去除空格
+  parameter = trimParams(parameter)
   return request({
     url: schoolUserApi.addTeacher,
     method: 'post',
@@ -130,6 +135,8 @@ export function getSchoolUsers (parameter) {
  * @constructor
  */
  export function updateInvite (parameter) {
+  // 去除空格
+  parameter = trimParams(parameter)
   return request({
     url: schoolUserApi.updateInvite,
     method: 'post',
@@ -147,6 +154,8 @@ export function getSchoolUsers (parameter) {
  * @constructor
  */
  export function updateTeacher (parameter) {
+  // 去除空格
+  parameter = trimParams(parameter)
   return request({
     url: schoolUserApi.updateTeacher,
     method: 'post',
@@ -212,6 +221,8 @@ export function getSchoolUsers (parameter) {
  * @constructor
  */
  export function batchAddStudent (parameter) {
+  // 去除空格
+  parameter = trimParams(parameter)
   return request({
     url: schoolUserApi.batchAddStudent,
     method: 'post',
@@ -228,6 +239,8 @@ export function getSchoolUsers (parameter) {
  * @constructor
  */
  export function batchAddTeacher (parameter) {
+  // 去除空格
+  parameter = trimParams(parameter)
   return request({
     url: schoolUserApi.batchAddTeacher,
     method: 'post',
@@ -335,6 +348,8 @@ export function getSchoolUsers (parameter) {
  * @constructor
  */
  export function updateStudent (parameter) {
+  // 去除空格
+  parameter = trimParams(parameter)
   return request({
     url: schoolUserApi.updateStudent,
     method: 'post',
@@ -364,6 +379,8 @@ export function getSchoolUsers (parameter) {
  * @constructor
  */
  export function addAdmin (parameter) {
+  // 去除空格
+  parameter = trimParams(parameter)
   return request({
     url: schoolUserApi.addAdmin,
     method: 'post',
@@ -409,6 +426,8 @@ export function getSchoolUsers (parameter) {
  * @constructor
  */
  export function addSchoolAdmin (parameter) {
+  // 去除空格
+  parameter = trimParams(parameter)
   return request({
     url: schoolUserApi.addSchoolAdmin,
     method: 'post',

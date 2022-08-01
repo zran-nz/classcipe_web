@@ -46,7 +46,14 @@
             title="Choose User"
             trigger="click">
             <div slot="content" class="search-popver">
-              <div class="search-user" v-for="item in teacherList.filter(teacher => !record.teachers || !record.teachers.find(head => head.userId === teacher.uid))" :key="item.userId">
+              <a-space class="search-con">
+                <a-input-search
+                  v-model="searchKeyMember"
+                  :allow-clear="true"
+                  placeholder="Search and add by name/email"></a-input-search>
+                <a-button @click="goTeachers">Add new</a-button>
+              </a-space>
+              <div class="search-user" v-for="item in filterMembers" :key="item.userId">
 
                 <div class="user-avatar">
                   <div class="avatar">
@@ -70,7 +77,7 @@
 
               </div>
             </div>
-            <a type="link">Add</a>
+            <a type="link" @click="handleResetFilter(record)">Add</a>
           </a-popover>
 
           <!-- <a type="link" @click="handleDelete(record)">Delete</a> -->
@@ -131,7 +138,7 @@ export default {
       subjectOptions: [],
       classOptions: [],
       teacherList: [],
-      filterMembers: [],
+      currentRecord: null,
       queryParams: {
         searchKey: ''
       },
@@ -174,6 +181,19 @@ export default {
           scopedSlots: { customRender: 'action' }
         }
       ]
+    },
+    filterMembers() {
+      let members = []
+      if (this.currentRecord) {
+        members = this.teacherList.filter(teacher => !this.currentRecord.teachers || !this.currentRecord.teachers.find(head => head.userId === teacher.uid))
+      }
+      if (this.searchKeyMember) {
+        const userName = ((this.currentRecord.firstname || '') + (this.currentRecord.lastname || '')).toLowerCase()
+        members = members.filter(item => {
+          return item.email && (item.email.toLowerCase().indexOf((this.searchKeyMember || '').toLowerCase() || '') > -1 || userName.indexOf((this.searchKeyMember || '').toLowerCase() || '') > -1)
+        })
+      }
+      return members
     }
   },
   created() {
@@ -254,6 +274,19 @@ export default {
           })
         }
       })
+    },
+    doFilter(val, record) {
+
+    },
+    handleResetFilter(record) {
+      this.currentRecord = { ...record }
+      this.searchKeyMember = ''
+    },
+    handleAddSubject() {
+      this.$router.push('/manage/curriculum')
+    },
+    goTeachers() {
+      this.$router.push('/manage/teacher')
     },
     handleAddMember(user, cls) {
       if (!this.currentRole || !this.currentRole.roleCode) {

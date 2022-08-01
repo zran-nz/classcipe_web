@@ -617,7 +617,8 @@ export default {
         })
       }
 
-      if (isEmpty(item.inviteEmail) || !isEmail(item.inviteEmail)) {
+      // 学生邮箱可以为空
+      if (!isEmpty(item.inviteEmail) && !isEmail(item.inviteEmail)) {
         status.push({
           col: 'inviteEmail',
           msg: 'Invalid Email'
@@ -641,31 +642,35 @@ export default {
     async verifyDuplicate(item) {
       const status = []
        // 验证远程
-      const emailRes = await checkEmailStudent({
-        schoolId: this.currentSchool.id,
-        emails: item.inviteEmail
-      })
-      if (emailRes.code === 0) {
-        if (emailRes.result[0].exists) {
-          status.push({
-            col: 'inviteEmail',
-            msg: 'Duplicate'
-          })
+      if (item.inviteEmail) {
+        const emailRes = await checkEmailStudent({
+          schoolId: this.currentSchool.id,
+          emails: item.inviteEmail
+        })
+        if (emailRes.code === 0 && emailRes.result && emailRes.result.length > 0) {
+          if (emailRes.result[0].exists) {
+            status.push({
+              col: 'inviteEmail',
+              msg: 'Duplicate'
+            })
+          }
         }
       }
       // 验证远程
-      const parentRes = await checkEmailParent({
-        schoolId: this.currentSchool.id,
-        'parentEmailInfos[0].firstName': item.firstName,
-        'parentEmailInfos[0].lastName': item.lastName,
-        'parentEmailInfos[0].parentEmail': item.parentEmail
-      })
-      if (parentRes.code === 0) {
-        if (parentRes.result[0].exists) {
-          status.push({
-            col: 'parentEmail',
-            msg: 'Duplicate Parent'
-          })
+      if (item.firstName && item.lastName && item.parentEmail) {
+        const parentRes = await checkEmailParent({
+          schoolId: this.currentSchool.id,
+          'parentEmailInfos[0].firstName': item.firstName,
+          'parentEmailInfos[0].lastName': item.lastName,
+          'parentEmailInfos[0].parentEmail': item.parentEmail
+        })
+        if (parentRes.code === 0 && parentRes.result && parentRes.result.length > 0) {
+          if (parentRes.result[0].exists) {
+            status.push({
+              col: 'parentEmail',
+              msg: 'Duplicate Parent'
+            })
+          }
         }
       }
       return status

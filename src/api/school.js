@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+import { trimParams } from '@/utils/util'
 
 export const schoolAPIUrl = {
   getSchools: '/classcipe/api/school/getSchools',
@@ -28,6 +29,8 @@ export function getSchoolList (parameter) {
   })
 }
 export function createSchool (parameter) {
+  // 去除空格
+  parameter = trimParams(parameter)
   return request({
     url: schoolAPIUrl.createSchool,
     method: 'post',
@@ -44,6 +47,8 @@ export function queryById (parameter) {
 }
 
 export function updateSchool (parameter) {
+  // 去除空格
+  parameter = trimParams(parameter)
   return request({
     url: schoolAPIUrl.updateSchool,
     method: 'post',

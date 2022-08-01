@@ -305,18 +305,20 @@ export default {
     async verifyDuplicate(item) {
       const status = []
        // 验证远程
-      const emailRes = await checkEmailTeacher({
-        schoolId: this.currentSchool.id,
-        emails: item.inviteEmail
-      })
-      if (emailRes.code === 0) {
-        if (emailRes.result[0].exists) {
-          status.push({
-            col: 'inviteEmail',
-            msg: 'Duplicate'
-          })
+       if (item.inviteEmail) {
+        const emailRes = await checkEmailTeacher({
+          schoolId: this.currentSchool.id,
+          emails: item.inviteEmail
+        })
+        if (emailRes.code === 0 && emailRes.result && emailRes.result.length > 0) {
+          if (emailRes.result[0].exists) {
+            status.push({
+              col: 'inviteEmail',
+              msg: 'Duplicate'
+            })
+          }
         }
-      }
+       }
       return status
     }
   }

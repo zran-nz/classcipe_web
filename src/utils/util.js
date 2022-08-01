@@ -310,3 +310,26 @@ export function isEmpty(str) {
     str === null || typeof str === 'undefined' || trim(str + '') === ''
   )
 }
+
+export function trimParams(params) {
+  const trimFn = obj => {
+    const newObj = {}
+    for (const key in obj) {
+      if (typeof obj[key] === 'string') {
+        newObj[key] = obj[key].trim()
+      } else {
+        newObj[key] = obj[key]
+      }
+    }
+    return newObj
+  }
+  if (Array.isArray(params) && params.length > 0) {
+    const newArr = params.map(item => {
+      return trimParams(item)
+    })
+    return newArr
+  } else if (typeof params === 'object') {
+    return trimFn(params)
+  }
+  return params
+}

@@ -84,7 +84,7 @@
         </a-row>
       </a-form-model-item>
       <a-form-model-item label="Roles" v-if="!!teacherId">
-        <a-select
+        <!-- <a-select
           mode="multiple"
           optionFilterProp="children"
           :getPopupContainer="trigger => trigger.parentElement"
@@ -94,8 +94,8 @@
           <a-select-option v-for='item in roleList' :key='item.roleCode'>
             {{ item.name }}
           </a-select-option >
-        </a-select>
-        <a-space v-else>
+        </a-select> -->
+        <a-space>
           <a-tag v-for="role in formModel.roleArr" :key="'role_'+role">{{ role }}</a-tag>
         </a-space>
       </a-form-model-item>
@@ -262,7 +262,8 @@ export default {
               this.formModel.classes = this.formModel.classArr.join(',')
             }
             if (res.result.roles) {
-              this.formModel.roleArr = res.result.roles.filter(item => item.name.toLowerCase() !== 'teacher').map(item => item.name)
+              const roleArr = res.result.roles.filter(item => item.name.toLowerCase() !== 'teacher').map(item => item.name.charAt(0).toLowerCase() + item.name.slice(1))
+              this.formModel.roleArr = Array.from(new Set(roleArr)).map(item => item.charAt(0).toUpperCase() + item.slice(1))
               this.formModel.roles = this.formModel.roleArr.join(',')
             }
           }
