@@ -8,7 +8,7 @@
       </div>
       <div class="info-self-detail">
         <div class="self-detail-name">
-          ID: {{ studentId }}
+          ID: {{ origin.workNo || studentId }}
         </div>
         <div class="self-detail-email">{{ formModel.inviteEmail }}</div>
       </div>
@@ -23,7 +23,7 @@
       <a-form-model-item v-if="studentId" label="Last Login" :wrapperCol="{ span: 18 }">
         <a-row :gutter=0>
           <a-col :span="16">
-            {{ this.formModel.lastLogin ? (this.formModel.lastLogin | dayjs) : ' - ' }}
+            {{ origin.lastLogin ? (origin.lastLogin | dayjs) : ' - ' }}
           </a-col>
           <a-col :span="2" style="text-align: center;">
           </a-col>

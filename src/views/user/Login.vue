@@ -24,8 +24,7 @@
                     rules: [
                       {
                         required: true,
-                        type: 'email',
-                        message: $t('user.email.required'),
+                        message: 'Please Enter Your Account',
                       },
                     ],
                     validateTrigger: ['change', 'blur'],
@@ -111,8 +110,7 @@
                     rules: [
                       {
                         required: true,
-                        type: 'email',
-                        message: $t('user.email.required'),
+                        message: 'Please Enter You Acccount',
                       },
                     ],
                     validateTrigger: ['change', 'blur'],
