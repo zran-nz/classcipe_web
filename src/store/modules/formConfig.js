@@ -43,6 +43,8 @@ const formConfig = {
         planSteps: []
       }
       if (previewData.type === typeMap.task) {
+        previewData.commonList.sort((i1, i2) => i1.sortNo - i2.sortNo)
+        previewData.customList.sort((i1, i2) => i1.sortNo - i2.sortNo)
         previewData.commonList.forEach(item => {
           configData.taskFieldMap[item.fieldName] = item.showName
           configData.taskHintMap[item.fieldName] = item.hint
@@ -64,6 +66,8 @@ const formConfig = {
       }
 
       if (previewData.type === typeMap['unit-plan']) {
+        previewData.commonList.sort((i1, i2) => i1.sortNo - i2.sortNo)
+        previewData.customList.sort((i1, i2) => i1.sortNo - i2.sortNo)
         previewData.commonList.forEach(item => {
           configData.planFieldMap[item.fieldName] = item.showName
           configData.planHintMap[item.fieldName] = item.hint
@@ -105,6 +109,8 @@ const formConfig = {
         planSteps: []
       }
       if (formConfigData) {
+        formConfigData.task.commonList.sort((i1, i2) => i1.sortNo - i2.sortNo)
+        formConfigData.task.customList.sort((i1, i2) => i1.sortNo - i2.sortNo)
         formConfigData.task.commonList.forEach(item => {
           configData.taskFieldMap[item.fieldName] = item.showName
           configData.taskHintMap[item.fieldName] = item.hint
@@ -124,6 +130,8 @@ const formConfig = {
           return a.step - b.step
         })
 
+        formConfigData.plan.commonList.sort((i1, i2) => i1.sortNo - i2.sortNo)
+        formConfigData.plan.customList.sort((i1, i2) => i1.sortNo - i2.sortNo)
         formConfigData.plan.commonList.forEach(item => {
           configData.planFieldMap[item.fieldName] = item.showName
           configData.planHintMap[item.fieldName] = item.hint

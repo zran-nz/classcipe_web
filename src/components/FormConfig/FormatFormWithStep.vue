@@ -604,7 +604,7 @@ export default {
             fieldItem.name = stepFieldItem.name
             fieldItem.showName = stepFieldItem.showName
             fieldItem.hint = stepFieldItem.hint
-            fieldItem.sort = index
+            fieldItem.sortNo = index
           }
         })
 
@@ -614,7 +614,7 @@ export default {
           if (fieldItem && stepFieldItem) {
             fieldItem.name = stepFieldItem.name
             fieldItem.hint = stepFieldItem.hint
-            fieldItem.sort = index
+            fieldItem.sortNo = index
           }
         })
         step.stepNo = index
