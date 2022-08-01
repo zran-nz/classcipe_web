@@ -310,6 +310,7 @@ export default {
     myCustomList.forEach(item => {
       item.isCustomField = true
     })
+    let customIndex = 0
     steps.forEach(step => {
       step.nameEditing = false
       step.key = step.id
@@ -327,12 +328,18 @@ export default {
 
       step.customFieldItems = []
       step.customFields.forEach(customFieldName => {
+        customIndex = customIndex + 1
         if (customFieldName && customFieldName.trim()) {
           const targetItem = myCustomList.find(item => item.name === customFieldName)
           if (targetItem) {
             step.customFieldItems.push(JSON.parse(JSON.stringify(targetItem)))
           } else {
-            this.$logger.warn('no exist common field ' + customFieldName)
+            if (myCustomList.length >= customIndex) {
+              const item = myCustomList[customIndex]
+              item.name = customFieldName
+              step.customFieldItems.push(JSON.parse(JSON.stringify(item)))
+            }
+            this.$logger.warn('no exist custom field ' + customFieldName)
           }
         }
       })
@@ -340,6 +347,8 @@ export default {
 
     this.myCommonList = myCommonList
     this.myCustomList = myCustomList
+    // myCustomList异常数据处理
+
     this.steps = steps
     this.$logger.info('FormatForm created', this.myCommonList, this.myCustomList, this.steps)
     this.checkIsShowFormatSectionWarning()
@@ -608,13 +617,18 @@ export default {
           }
         })
 
+        let customIndex = 0
         step.customFields.forEach((name, index) => {
+          customIndex++
           const stepFieldItem = step.customFieldItems.find(field => field.name === name)
           const fieldItem = myCustomList.find(field => field.name === name)
           if (fieldItem && stepFieldItem) {
             fieldItem.name = stepFieldItem.name
             fieldItem.hint = stepFieldItem.hint
             fieldItem.sort = index
+          } else {
+             // 没有这个字段
+            if (myCustomList.length >= customIndex) { myCustomList[customIndex].name = name }
           }
         })
         step.stepNo = index
