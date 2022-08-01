@@ -1143,6 +1143,7 @@ export default {
         this.currentActiveStepIndex = 0
       }
       this.currentStep = this.formSteps[this.currentActiveStepIndex]
+      this.priorityTags = this.currentStep.tags
       this.handleDisplayRightModule()
       this.checkIsFullBodyStep()
     })
