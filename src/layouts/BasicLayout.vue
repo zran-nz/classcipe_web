@@ -33,8 +33,8 @@
           增加 Header 左侧内容区自定义
     -->
     <template v-slot:menuRender>
-      <teacher-nav-v2 v-if="$store.getters.currentRole === 'teacher'"></teacher-nav-v2>
-      <student-nav v-if="$store.getters.currentRole === 'student'"></student-nav>
+      <teacher-nav-v2 v-if="$store.getters.currentRole === 'teacher' && !noSidebar"></teacher-nav-v2>
+      <student-nav v-if="$store.getters.currentRole === 'student' && !noSidebar"></student-nav>
     </template>
 
     <!-- custom footer / 自定义Footer -->
@@ -103,24 +103,40 @@ export default {
       // 是否手机模式
       isMobile: false,
       USER_MODE: USER_MODE,
-      expandMenuThrottle: null
+      expandMenuThrottle: null,
+      noSidebar: false
     }
   },
   watch: {
-    '$route' (to, from) {
-      logger.info('route change', to, from)
-      if (to.meta && this.headerDom.length) {
-        if (to.meta.editPage) {
-          this.showGlobalHeader(!to.meta.editPage)
-        } else {
-          this.showGlobalHeader(true)
+    '$route': {
+      handler(to, from) {
+        logger.info('route change', to, from)
+        if (to.meta && this.headerDom && this.headerDom.length) {
+          if (to.meta.editPage) {
+            this.showGlobalHeader(!to.meta.editPage)
+          } else {
+            this.showGlobalHeader(true)
+          }
         }
-      }
 
-      if (to.path === '/') {
-        logger.info('go to defaultRouter ' + this.$store.getters.defaultRouter)
-        this.$router.replace(this.$store.getters.defaultRouter)
-      }
+        setTimeout(() => {
+          if (to.meta && to.meta.noSidebar) {
+            if (document.querySelector('.ant-pro-basicLayout')) {
+              document.querySelector('.ant-pro-basicLayout').classList.add('no-side')
+            }
+          } else {
+            if (document.querySelector('.ant-pro-basicLayout')) {
+              document.querySelector('.ant-pro-basicLayout').classList.remove('no-side')
+            }
+          }
+        }, 100)
+
+        if (to.path === '/') {
+          logger.info('go to defaultRouter ' + this.$store.getters.defaultRouter)
+          this.$router.replace(this.$store.getters.defaultRouter)
+        }
+      },
+      immediate: true
     }
   },
   computed: {
@@ -330,6 +346,21 @@ export default {
     line-height: 14px;
     font-size: 13px;
     padding-bottom: 5px;
+  }
+}
+
+.no-side {
+  & > .ant-layout-sider {
+    display: none!important;
+  }
+  & > .sidemenu {
+    padding-left: 0!important;
+  }
+  .cc-fixed-form-header {
+    left: 0!important;
+  }
+   .cc-fixed-form-footer {
+    left: 0!important;
   }
 }
 </style>

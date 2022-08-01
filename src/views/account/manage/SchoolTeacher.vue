@@ -8,6 +8,16 @@
           :show-collaborate='false'
           :is-preview-mode='true'
           @back='goBack'>
+          <template v-slot:back>
+            <img @click.stop="$router.push('/')" src="~@/assets/logo/50.png" class='single-logo-img' alt='classcipe' />
+          </template>
+          <template v-slot:left>
+            <a-space :size="5" align="center" @click.stop>
+              <label style="cursor: pointer" @click="$router.push('/account/info')">Account Info</label>
+              <label for="">></label>
+              <label style="font-weight: normal">School Teacher</label>
+            </a-space>
+          </template>
           <template v-slot:right>
           </template>
         </form-header>

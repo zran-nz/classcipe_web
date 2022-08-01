@@ -2,7 +2,9 @@
   <div class='cc-form-header'>
     <div class='cc-header-left'>
       <div class='cc-back-icon' @click='handleBack'>
-        <back-arrow-icon />
+        <slot name='back'>
+          <back-arrow-icon />
+        </slot>
       </div>
       <div class='cc-header-title' @click='handleBack'>
         <slot name='left'>

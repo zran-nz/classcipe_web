@@ -567,7 +567,7 @@ export const asyncRouterMap = [
             path: '/account/info',
             name: 'info',
             component: () => import('@/views/account/info'),
-            meta: { title: 'menu.account.center', keepAlive: true, permission: ['teacher', 'student'] }
+            meta: { title: 'menu.account.center', noSidebar: true, keepAlive: true, permission: ['teacher', 'student'] }
           }
         ]
       },
@@ -587,6 +587,7 @@ export const asyncRouterMap = [
             meta: {
               title: 'menu.managing.school-info',
               keepAlive: true,
+              noSidebar: true,
               icon: 'home',
               permission: ['teacher'],
               mode: USER_MODE.SCHOOL
@@ -599,6 +600,7 @@ export const asyncRouterMap = [
             meta: {
               title: 'Persona Info',
               keepAlive: true,
+              noSidebar: true,
               permission: ['teacher'],
               mode: USER_MODE.SELF
             }
@@ -607,13 +609,13 @@ export const asyncRouterMap = [
             path: '/manage/academic',
             name: 'AcademicListV2',
             component: () => import('@/views/account/manage/AcademicListV2'),
-            meta: { title: 'menu.managing.academic', keepAlive: true, permission: ['teacher'], mode: USER_MODE.SCHOOL }
+            meta: { title: 'menu.managing.academic', noSidebar: true, keepAlive: true, permission: ['teacher'], mode: USER_MODE.SCHOOL }
           },
           {
             path: '/manage/curriculum',
             name: 'CirculumListV2',
             component: () => import('@/views/account/manage/CuriculumListV2'),
-            meta: { title: 'menu.managing.curriculum', keepAlive: true, permission: ['teacher'] }
+            meta: { title: 'menu.managing.curriculum', noSidebar: true, keepAlive: true, permission: ['teacher'] }
           },
           {
             path: '/manage/planning-format',
@@ -622,6 +624,7 @@ export const asyncRouterMap = [
             meta: {
               title: 'menu.managing.planning-format',
               keepAlive: true,
+              noSidebar: true,
               permission: ['teacher']
             }
           },
@@ -629,7 +632,7 @@ export const asyncRouterMap = [
             path: '/manage/class',
             name: 'MyCalssV2',
             component: () => import('@/views/account/manage/MyClassV2'),
-            meta: { title: 'menu.my-class', keepAlive: true, permission: ['teacher'] }
+            meta: { title: 'menu.my-class', noSidebar: true, keepAlive: true, permission: ['teacher'] }
           },
           {
             path: '/manage/student',
@@ -642,21 +645,21 @@ export const asyncRouterMap = [
                 path: '/manage/student/list',
                 name: 'SchoolStudentList',
                 component: () => import('@/views/account/manage/SchoolStudent'),
-                meta: { title: 'Student Manage', keepAlive: true, permission: ['teacher'] }
+                meta: { title: 'Student Manage', noSidebar: true, keepAlive: true, permission: ['teacher'] }
               },
               {
                 path: '/manage/student/detail/:id?',
                 name: 'SchoolStudentEdit',
                 props: true,
                 component: () => import('@/views/account/manage/SchoolStudentEdit'),
-                meta: { title: 'Student Manage', keepAlive: true, permission: ['teacher'] }
+                meta: { title: 'Student Manage', noSidebar: true, keepAlive: true, permission: ['teacher'] }
               },
               {
                 path: '/manage/student/upload/:classId?',
                 name: 'SchoolStudentUpload',
                 props: true,
                 component: () => import('@/views/account/manage/SchoolStudentUpload'),
-                meta: { title: 'Student Upload', keepAlive: true, permission: ['teacher'] }
+                meta: { title: 'Student Upload', noSidebar: true, keepAlive: true, permission: ['teacher'] }
               }
             ]
           },
@@ -671,20 +674,20 @@ export const asyncRouterMap = [
                 path: '/manage/teacher/list',
                 name: 'SchoolTeacherList',
                 component: () => import('@/views/account/manage/SchoolTeacher'),
-                meta: { title: 'Teacher Manage', keepAlive: true, permission: ['teacher'] }
+                meta: { title: 'Teacher Manage', noSidebar: true, keepAlive: true, permission: ['teacher'] }
               },
               {
                 path: '/manage/teacher/detail/:id?',
                 name: 'SchoolTeacherEdit',
                 props: true,
                 component: () => import('@/views/account/manage/SchoolTeacherEdit'),
-                meta: { title: 'Teacher Manage', keepAlive: true, permission: ['teacher'] }
+                meta: { title: 'Teacher Manage', noSidebar: true, keepAlive: true, permission: ['teacher'] }
               },
               {
                 path: '/manage/teacher/upload',
                 name: 'SchoolTeacherUpload',
                 component: () => import('@/views/account/manage/SchoolTeacherUpload'),
-                meta: { title: 'Teacher Upload', keepAlive: true, permission: ['teacher'] }
+                meta: { title: 'Teacher Upload', noSidebar: true, keepAlive: true, permission: ['teacher'] }
               }
             ]
           },
@@ -692,57 +695,57 @@ export const asyncRouterMap = [
             path: '/manage/role',
             name: 'SchoolRole',
             component: () => import('@/views/account/manage/SchoolRole'),
-            meta: { title: 'Role Manage', keepAlive: true, permission: ['teacher'], mode: USER_MODE.SCHOOL }
+            meta: { title: 'Role Manage', noSidebar: true, keepAlive: true, permission: ['teacher'], mode: USER_MODE.SCHOOL }
           },
           {
             path: '/manage/persona/security',
             name: 'PersonalSecurity',
             component: () => import('@/views/account/manage/PersonaSecurity'),
-            meta: { title: 'Login & Security', keepAlive: true, mode: USER_MODE.SELF }
+            meta: { title: 'Login & Security', noSidebar: true, keepAlive: true, mode: USER_MODE.SELF }
           },
           {
             path: '/manage/persona/space',
             name: 'PersonalSpace',
             component: () => import('@/views/account/manage/PersonaSpace'),
-            meta: { title: 'Persona Space', keepAlive: true, mode: USER_MODE.SELF }
+            meta: { title: 'Persona Space', noSidebar: true, keepAlive: true, mode: USER_MODE.SELF }
           },
           {
             path: '/manage/school/space',
             name: 'SchoolSpace',
             component: () => import('@/views/account/manage/SchoolSpace'),
-            meta: { title: 'School Space', keepAlive: true, mode: USER_MODE.SCHOOL }
+            meta: { title: 'School Space', noSidebar: true, keepAlive: true, mode: USER_MODE.SCHOOL }
           },
           {
             path: '/manage/verification',
             name: 'Verification',
             component: () => import('@/views/account/manage/Verification'),
-            meta: { title: 'Application for certification/service', keepAlive: true, permission: ['teacher'], mode: USER_MODE.SELF }
+            meta: { title: 'Application for certification/service', noSidebar: true, keepAlive: true, permission: ['teacher'], mode: USER_MODE.SELF }
           },
           {
             path: '/manage/tags',
             name: 'TagsSettingV2',
             component: () => import('@/views/account/manage/TagsSetting'),
-            meta: { title: 'Tags Setting', keepAlive: true, permission: ['teacher'] }
+            meta: { title: 'Tags Setting', noSidebar: true, keepAlive: true, permission: ['teacher'] }
           },
           {
             path: '/manage/order',
             name: 'Order',
             redirect: '/manage/order/buy',
             component: () => import('@/views/account/manage/order/OrderMain'),
-            meta: { title: 'Order', keepAlive: true, permission: ['teacher'], fullLayout: true },
+            meta: { title: 'Order', noSidebar: true, keepAlive: true, permission: ['teacher'], fullLayout: true },
             children: [
               {
                 path: '/manage/order/buy',
                 name: 'TeacherBuyMain',
                 redirect: '/manage/order/buy/purchases',
                 component: RouteView,
-                meta: { title: 'menu.buy', keepAlive: true, permission: ['teacher'], fullLayout: true },
+                meta: { title: 'menu.buy', noSidebar: true, keepAlive: true, permission: ['teacher'], fullLayout: true },
                 children: [
                   {
                     path: '/manage/order/buy/purchases',
                     name: 'TeacherBuyPurchases',
                     component: () => import('@/views/teacher/buy/Purchases'),
-                    meta: { title: 'menu.buy.purchase', keepAlive: true, icon: 'money-collect', permission: ['teacher'] }
+                    meta: { title: 'menu.buy.purchase', noSidebar: true, keepAlive: true, icon: 'money-collect', permission: ['teacher'] }
                   }
                 ]
               },
@@ -751,31 +754,31 @@ export const asyncRouterMap = [
                 name: 'TeacherSellMain',
                 redirect: '/manage/order/sell/dashboard',
                 component: RouteView,
-                meta: { title: 'menu.sell', keepAlive: true, permission: ['teacher'], fullLayout: true },
+                meta: { title: 'menu.sell', noSidebar: true, keepAlive: true, permission: ['teacher'], fullLayout: true },
                 children: [
                   {
                     path: '/manage/order/sell/dashboard',
                     name: 'TeacherSellDashboard',
                     component: () => import('@/views/teacher/sell/Dashboard'),
-                    meta: { title: 'menu.sell.dashboard', keepAlive: true, icon: 'money-collect', permission: ['teacher'] }
+                    meta: { title: 'menu.sell.dashboard', noSidebar: true, keepAlive: true, icon: 'money-collect', permission: ['teacher'] }
                   },
                   {
                     path: '/manage/order/sell/inspiration-teacher',
                     name: 'TeacherSellInspirationTeacher',
                     component: () => import('@/views/teacher/sell/InspirationTeacher'),
-                    meta: { title: 'menu.sell.inspiration-teacher', keepAlive: true, icon: 'pay-circle', permission: ['teacher'] }
+                    meta: { title: 'menu.sell.inspiration-teacher', noSidebar: true, keepAlive: true, icon: 'pay-circle', permission: ['teacher'] }
                   },
                   {
                     path: '/manage/order/sell/inspiration-student',
                     name: 'TeacherSellInspirationStudent',
                     component: () => import('@/views/teacher/sell/InspirationStudent'),
-                    meta: { title: 'menu.sell.inspiration-student', keepAlive: true, icon: 'pay-circle', permission: ['teacher'] }
+                    meta: { title: 'menu.sell.inspiration-student', noSidebar: true, keepAlive: true, icon: 'pay-circle', permission: ['teacher'] }
                   },
                   {
                     path: '/manage/order/sell/statistics',
                     name: 'TeacherSellStatistics',
                     component: () => import('@/views/teacher/sell/Statistics'),
-                    meta: { title: 'menu.sell.statistics', keepAlive: true, icon: 'pay-circle', permission: ['teacher'] }
+                    meta: { title: 'menu.sell.statistics', noSidebar: true, keepAlive: true, icon: 'pay-circle', permission: ['teacher'] }
                   }
                   // {
                   //   path: '/manage/order/sell/followers',

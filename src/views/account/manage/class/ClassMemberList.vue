@@ -55,7 +55,7 @@
               <a-col :span="14" style="text-align: right;">
                 <a-space>
                   <a-button type="primary" @click="handleAddStudent">Add Student</a-button>
-                  <a-button @click="handleInvite" type="primary">Invite by link<a-icon type="share-alt" /></a-button>
+                  <!-- <a-button @click="handleInvite" type="primary">Invite by link<a-icon type="share-alt" /></a-button> -->
                   <!-- <a-button type="primary" @click="downloadTemplate">Download template</a-button> -->
                   <a-button type="primary" @click="goImport">Bulk import</a-button>
                   <!-- <school-user-import :dataKey="dataKey" :action="importExcelUrl" @success="handleImportGet"/> -->

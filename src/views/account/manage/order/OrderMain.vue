@@ -2,7 +2,13 @@
   <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%' }" :style="{ height: '100%' }">
     <a-layout>
       <a-layout-sider>
-        <div class="school-name">{{ head }}</div>
+        <!-- <div class="school-name">{{ head }}</div> -->
+        <a-space class="school-name" :size="5" align="center" @click.stop>
+          <!-- <img @click.stop="$router.push('/')" src="~@/assets/logo/50.png" class='single-logo-img' style="width: 20px;" alt='classcipe' /> -->
+          <label style="cursor: pointer" @click="$router.push('/account/info')">Account Info</label>
+          <label for="">></label>
+          <label style="font-weight: normal">Orders</label>
+        </a-space>
         <s-menu
           :mainRouter="mainRouter"
           :fromRole="''"

@@ -1,5 +1,8 @@
 <template>
   <div class='my-content' :style="{'font-size': fontSize}">
+    <div class="account-back">
+      <a-button @click="goBack">Back to home</a-button>
+    </div>
     <div class="account-info">
       <div class="account-info-header">
         <div class="info-header-avatar persona" v-if="userMode === USER_MODE.SELF">
@@ -406,6 +409,9 @@ export default {
         this.loadData()
       }
     },
+    goBack() {
+      this.$router.push('/')
+    },
     loadData() {
       Promise.all([
         listClass({
@@ -790,5 +796,9 @@ export default {
       }
     }
   }
+}
+.account-back {
+  font-size: 12px;
+  margin-bottom: 20px;
 }
 </style>
