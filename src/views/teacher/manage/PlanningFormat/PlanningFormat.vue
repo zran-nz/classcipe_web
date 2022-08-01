@@ -120,7 +120,7 @@ export default {
         id = this.taskConfig.steps ? this.taskConfig.steps[0].templateId : ''
       }
       const tem = this.templateList.filter(item => item.id === id)
-      return tem ? tem[0].name : ''
+      return tem.length > 0 ? tem[0].name : ''
     },
     handleSchoolChange(currentSchool) {
       if (this.userMode === USER_MODE.SCHOOL) {
