@@ -29,6 +29,11 @@
                 class='cc-table-textarea'
                 v-model='row[header.type].display'
                 :style="{ backgroundColor: header.bgColor || '#ffffff' }" />
+              <div class='origin-data-tips' v-if='header.type === HeaderType.criteria && row[header.type].originDisplay && row[header.type].originDisplay !== row[header.type].display'>
+                <a-tooltip :title="row[header.type].originDisplay" placement='top'>
+                  <a-icon type="info-circle" />
+                </a-tooltip>
+              </div>
             </th>
             <div class='delete-icon' v-if='!inSnapshot'>
               <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDelExtraRowItem(row)" cancel-text="No">
@@ -73,6 +78,11 @@
               class='cc-table-textarea'
               v-model='row[header.type].display'
               :style="{ backgroundColor: header.bgColor || '#ffffff' }" />
+            <div class='origin-data-tips' v-if='header.type === HeaderType.criteria && row[header.type].originDisplay && row[header.type].originDisplay !== row[header.type].display'>
+              <a-tooltip :title="row[header.type].originDisplay" placement='top'>
+                <a-icon type="info-circle" />
+              </a-tooltip>
+            </div>
           </th>
           <div class='delete-icon' v-if='!inSnapshot'>
             <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDelRowItem(row)" cancel-text="No">
@@ -345,14 +355,16 @@ export default {
       this.editHeaderModalVisible = false
       this.currentEditHeader = null
     },
-    handleAddRow (criteriaDisplay, extraData) {
+    handleAddRow (criteriaDisplay, extraData, origin = false) {
       const row = {
         key: Math.random()
       }
       this.assessment.headerList.forEach(item => {
+        this.$logger.info('add row with criteria', origin, criteriaDisplay)
         if (item.type === HeaderType.criteria) {
           row[item.type] = {
             display: criteriaDisplay || null,
+            originDisplay: origin ? criteriaDisplay : null,
             type: item.type,
             extraDataJson: JSON.stringify(extraData) || null
           }
@@ -378,6 +390,7 @@ export default {
               if (item.type === HeaderType.criteria) {
                 extraRow[item.type] = {
                   display: criteriaCategoryName || null,
+                  originDisplay: origin ? (criteriaCategoryName || null) : null,
                   type: item.type,
                   tooltip: extraData.path.join('/')
                 }
@@ -474,14 +487,14 @@ export default {
         this.$logger.info('handleInsertCriteria', this.assessment.title, data)
         data.generalCapabilityList.forEach(item => {
           item.type = this.criteriaExtraDataType.generalCapability
-          this.handleAddRow(item.name || item.desc, item)
+          this.handleAddRow(item.name || item.desc, item, true)
         })
         data.learningObjectiveList.forEach(item => {
           item.type = this.criteriaExtraDataType.learningObjective
-          this.handleAddRow(item.name || item.desc, item)
+          this.handleAddRow(item.name || item.desc, item, true)
         })
         data.performanceList.forEach(item => {
-          this.handleAddRow(item, data)
+          this.handleAddRow(item, data, true)
         })
         this.deleteEmptyRow()
       }
@@ -585,6 +598,7 @@ export default {
         cursor: pointer;
         border-bottom: 2px solid #D8DEEA;
         th {
+          position: relative;
           padding: 0;
           user-select: none;
           min-width: 100px;
@@ -623,6 +637,7 @@ export default {
       tr {
         border-bottom: 2px solid #D8DEEA;
         th {
+          position: relative;
           line-height: 30px;
           padding: 0;
         }
@@ -634,6 +649,7 @@ export default {
     }
 
     th {
+      position: relative;
       border-right: 2px dashed #D8DEEA;
       min-height: 40px;
       padding: 0 20px;
@@ -729,5 +745,13 @@ export default {
     top: 50%;
     margin-top: -7px;
   }
+}
+
+.origin-data-tips {
+  display: flex;
+  position: absolute;
+  right: 3px;
+  top: 2px;
+  background-color: rgb(230, 248, 243);
 }
 </style>

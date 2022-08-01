@@ -613,7 +613,7 @@ export default {
             fieldItem.name = stepFieldItem.name
             fieldItem.showName = stepFieldItem.showName
             fieldItem.hint = stepFieldItem.hint
-            fieldItem.sort = index
+            fieldItem.sortNo = index
           }
         })
 
@@ -626,9 +626,11 @@ export default {
             fieldItem.name = stepFieldItem.name
             fieldItem.hint = stepFieldItem.hint
             fieldItem.sort = index
+            fieldItem.sortNo = index
           } else {
-             // 没有这个字段
-            if (myCustomList.length >= customIndex) { myCustomList[customIndex].name = name }
+            if (myCustomList.length >= customIndex) {
+              myCustomList[customIndex].name = name
+            }
           }
         })
         step.stepNo = index
