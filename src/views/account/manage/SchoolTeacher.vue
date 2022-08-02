@@ -52,8 +52,9 @@
               <a-menu-item :key="'ACT_'+ACT.RESEND.value" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.INACTIVE.value"> Resend </a-menu-item>
               <a-menu-item :key="'ACT_'+ACT.RESET.value" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ACTIVE.value"> Reset password </a-menu-item>
               <a-menu-item :key="'ACT_'+ACT.APPROVE.value" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.PENDING.value"> Approve </a-menu-item>
+              <a-menu-item :key="'ACT_'+ACT.REJECT.value" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.PENDING.value"> Reject </a-menu-item>
               <a-menu-item :key="'ACT_'+ACT.RESTORE.value" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ARCHIVE.value"> Restore </a-menu-item>
-              <a-menu-item :key="'ACT_'+ACT.ARCHIVE.value" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ACTIVE.value"> Archive </a-menu-item>
+              <a-menu-item :key="'ACT_'+ACT.ARCHIVE.value" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ACTIVE.value || queryParam.schoolUserStatus === SCHOOL_USER_STATUS.INACTIVE.value"> Archive </a-menu-item>
               <a-menu-item :key="'ACT_'+ACT.DELETE.value" v-if="queryParam.schoolUserStatus === SCHOOL_USER_STATUS.ARCHIVE.value"> Delete </a-menu-item>
             </a-menu>
             <a-button style="margin-left: 8px"> Bulk manage <a-icon type="down" /> </a-button>
@@ -96,8 +97,9 @@
                 <a-menu-item :key="'ACT_'+ACT.RESEND.value" v-if="record.status === SCHOOL_USER_STATUS.INACTIVE.value"> Resend </a-menu-item>
                 <a-menu-item :key="'ACT_'+ACT.RESET.value" v-if="record.status === SCHOOL_USER_STATUS.ACTIVE.value"> Reset password </a-menu-item>
                 <a-menu-item :key="'ACT_'+ACT.APPROVE.value" v-if="record.status === SCHOOL_USER_STATUS.PENDING.value"> Approve </a-menu-item>
+                <a-menu-item :key="'ACT_'+ACT.REJECT.value" v-if="record.status === SCHOOL_USER_STATUS.PENDING.value"> Reject </a-menu-item>
                 <a-menu-item :key="'ACT_'+ACT.RESTORE.value" v-if="record.status === SCHOOL_USER_STATUS.ARCHIVE.value"> Restore </a-menu-item>
-                <a-menu-item :key="'ACT_'+ACT.ARCHIVE.value" v-if="record.status !== SCHOOL_USER_STATUS.ARCHIVE.value"> Archive </a-menu-item>
+                <a-menu-item :key="'ACT_'+ACT.ARCHIVE.value" v-if="record.status === SCHOOL_USER_STATUS.ACTIVE.value || record.status === SCHOOL_USER_STATUS.INACTIVE.value"> Archive </a-menu-item>
                 <a-menu-item :key="'ACT_'+ACT.DELETE.value" v-if="record.status === SCHOOL_USER_STATUS.ARCHIVE.value"> Delete </a-menu-item>
               </a-menu>
               <a style="margin-left: 8px"> More <a-icon type="down" /> </a>

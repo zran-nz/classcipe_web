@@ -7,7 +7,9 @@
         </div>
         <a-button type="primary" block :loading="loading" size="large" @click="handleBtn">{{ btnText }}</a-button>
       </div>
-      <div v-if="invalid" class="title">The invite code is invalid</div>
+      <div v-if="invalid" class="title">
+        <img src="~@/assets/icons/invite/invalidLink.png" class="no-result" alt="" />
+      </div>
     </a-spin>
   </div>
 </template>
@@ -142,5 +144,8 @@ export default {
     border-radius: 8px;
     margin-top: 50px;
   }
+}
+.no-result {
+  height: 500px;
 }
 </style>
