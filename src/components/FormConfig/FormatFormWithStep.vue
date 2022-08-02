@@ -630,6 +630,7 @@ export default {
           } else {
             if (myCustomList.length >= customIndex) {
               myCustomList[customIndex].name = name
+              myCustomList[customIndex].sortNo = index
             }
           }
         })
