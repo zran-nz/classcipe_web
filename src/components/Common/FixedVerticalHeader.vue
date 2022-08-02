@@ -39,7 +39,6 @@ export default {
   background-color: #fff;
   box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
   z-index: 900;
-  min-width: 1000px;
   overflow-x: auto;
   border-bottom: 1px solid #ECECEC;
   display: flex;

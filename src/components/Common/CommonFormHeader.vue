@@ -379,7 +379,6 @@ export default {
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
   opacity: 1;
   display: flex;
-  min-width: 1000px;
   align-items: center;
 
   .hover-bar {
