@@ -628,7 +628,7 @@ export default {
             fieldItem.sort = index
             fieldItem.sortNo = index
           } else {
-            if (myCustomList.length >= customIndex) {
+            if (myCustomList.length >= customIndex && myCustomList[customIndex]) {
               myCustomList[customIndex].name = name
               myCustomList[customIndex].sortNo = index
             }
