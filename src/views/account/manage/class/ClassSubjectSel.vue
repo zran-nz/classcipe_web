@@ -291,9 +291,9 @@ export default {
         })
         // 回显blocksetting
         this.formModel.termArr = termArr
-        if (this.formModel.blockSetting) {
+        if (this.formModel.blockSetting && this.blockOptions && this.blockOptions[this.formModel.term]) {
           const blockSetting = this.blockOptions[this.formModel.term].find(item => [item.start, item.end].join(' - ') === this.formModel.blockSetting)
-          this.formModel.blockId = blockSetting.name
+          this.formModel.blockId = blockSetting ? blockSetting.name : ''
         }
       }
     },
@@ -379,6 +379,9 @@ export default {
   height: 220px;
   /deep/ .schedule-content {
     height: 220px;
+  }
+  /deep/ .fc-bg-event {
+    opacity: 1;
   }
 }
 </style>

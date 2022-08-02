@@ -22,6 +22,7 @@
           <template v-slot:eventContent="{ info }">
             <div
               class="schedule-event-content"
+              :data-id="info.event.extendedProps.val"
               :style="{backgroundColor: info.event.extendedProps.backgroundColor, color: '#333', minHeight: '20px'}"
             >
               <div>
@@ -190,8 +191,10 @@ export default {
                 end: this.$options.filters['dayjs'](moment(current).format('YYYY-MM-DD') + ' ' + item.end + ':00'),
                 name: item.name,
                 color: BG_COLORS[index],
-                backgroundColor: 'transparent',
-                borderColor: 'transparent',
+                // backgroundColor: 'transparent',
+                // borderColor: 'transparent',
+                display: 'background',
+                backgroundColor: BG_COLORS[index],
                 editable: false,
                 extendedProps: {
                   backgroundColor: BG_COLORS[index],
@@ -269,11 +272,22 @@ export default {
       console.log(clickInfo)
       const $el = clickInfo.el
       if ($el) {
+        // document.getElementsByClassName('select-active').forEach(item => {
+        //   item.classList.remove('select-active')
+        // })
+        if ($el.classList.contains('select-active')) {
+          $el.classList.remove('select-active')
+        } else {
+          $el.classList.add('select-active')
+        }
+        const selects = []
         document.getElementsByClassName('select-active').forEach(item => {
-          item.classList.remove('select-active')
+          if (item.querySelector('.schedule-event-content')) {
+            selects.push(item.querySelector('.schedule-event-content').dataset['id'])
+          }
         })
-        $el.classList.add('select-active')
-        this.$emit('date-select', clickInfo.event.extendedProps.val)
+        console.log(selects)
+        this.$emit('date-select', selects.join(','))
       }
     },
     handleEvents(events) {
@@ -325,6 +339,7 @@ export default {
   text-overflow: ellipsis;
   overflow-y: auto;
   height: 100%;
+  font-size: 12px;
   .event-content-dot {
     width: 8px;
     height: 8px;

@@ -53,7 +53,7 @@
                   placeholder="Search and add by name/email"></a-input-search>
                 <a-button @click="goTeachers">Add new</a-button>
               </a-space>
-              <div class="search-user" v-for="item in teacherList.filter(teacher => !record.headerTeachers.find(head => head.userId === teacher.uid))" :key="item.id">
+              <div class="search-user" v-for="item in filterMembers" :key="item.id">
 
                 <div class="user-avatar">
                   <div class="avatar">

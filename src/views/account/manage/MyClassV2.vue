@@ -226,17 +226,6 @@ export default {
       subjectOptions: [],
       restoreChooseOptions: [],
       currentTab: 'gradeId',
-      tabsList: [{
-          value: 'gradeId',
-          title: 'Standard'
-      },
-      {
-          value: 'subject',
-          title: 'Subject'
-      }, {
-          value: 'archive',
-          title: 'Archive'
-      }],
       loading: false,
       queryParams: {
         keywords: ''
@@ -275,6 +264,20 @@ export default {
       } else {
         return false
       }
+    },
+    tabsList() {
+      return [{
+          value: 'gradeId',
+          title: 'Standard'
+      },
+      ...this.userMode === USER_MODE.SCHOOL ? [{
+          value: 'subject',
+          title: 'Subject'
+      }] : [],
+      {
+          value: 'archive',
+          title: 'Archive'
+      }]
     }
   },
   methods: {

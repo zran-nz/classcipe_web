@@ -179,7 +179,7 @@ import { getThirdAuthURL, thirdAuthCallbackUrl } from '@/api/thirdAuth'
 import { NOT_REMEMBER_ME, SET_PROMOTE_CODE } from '@/store/mutation-types'
 import storage from 'store'
 import { SESSION_CALLBACK_URL } from '@/const/common'
-import { getUrlWithNoParams, getCookie } from '@/utils/util'
+import { getUrlWithNoParams, getCookie, isEmail } from '@/utils/util'
 
 export default {
   components: {
@@ -270,6 +270,12 @@ export default {
             username: values.email,
             password: values.password,
             role: this.defaultActiveKey
+          }
+          if (loginParams.role === 'student') {
+            if (!isEmail(values.email)) {
+              // delete loginParams.username
+            }
+            loginParams.workNo = values.email
           }
           Login(loginParams)
             .then(res => this.loginSuccess(res))

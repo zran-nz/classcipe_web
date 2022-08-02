@@ -15,6 +15,8 @@
             <a-space :size="5" align="center" @click.stop>
               <label style="cursor: pointer" @click="$router.push('/account/info')">Account Info</label>
               <label for="">></label>
+              <label style="cursor: pointer" @click="$router.push('/manage/student')">School Student</label>
+              <label for="">></label>
               <label style="font-weight: normal">{{ title }}</label>
             </a-space>
           </template>
@@ -70,7 +72,7 @@ export default {
       currentSchool: state => state.user.currentSchool
     }),
     title() {
-      return this.id ? 'School Student > Edit' : 'School Student > Add'
+      return this.id ? 'Edit' : 'Add'
     }
   },
   methods: {

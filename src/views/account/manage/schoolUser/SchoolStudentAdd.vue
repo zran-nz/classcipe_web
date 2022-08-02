@@ -47,8 +47,24 @@
         </a-row>
       </a-form-model-item>
       <!-- prop="inviteEmail" :hasFeedback="true"> -->
-      <a-form-model-item label="Email" prop="inviteEmail" :required="false">
-        <a-input v-model="formModel.inviteEmail" placeholder="Email" :disabled="studentId && !!formModel.inviteEmail" />
+      <a-form-model-item class="mb0" label="Email" prop="inviteEmail" :required="false" :wrapperCol="{ span: 18 }">
+        <a-row :gutter=0>
+          <a-col :span="16">
+            <a-form-model-item>
+              <a-input v-model="formModel.inviteEmail" placeholder="Email" :disabled="studentId && !!formModel.inviteEmail && origin.status === 1" />
+            </a-form-model-item>
+          </a-col>
+          <a-col :span="2" style="text-align: center;" v-if="!!formModel.inviteEmail && origin.status === 1">
+            <a-tooltip title="Student Active">
+              <a-icon style="color:#007990" type="check" />
+            </a-tooltip>
+          </a-col>
+          <a-col :span="6" style="text-align: center;" v-if="!!formModel.inviteEmail && origin.status === 0">
+            <a-tooltip title="Student InActive">
+              <a-icon style="color: #8D9496" type="check" />
+            </a-tooltip>
+          </a-col>
+        </a-row>
       </a-form-model-item>
       <a-form-model-item label="DOB">
         <a-date-picker v-model="formModel.birthDay" :disabled-date="disabledDate"/>
@@ -107,12 +123,12 @@
               <a-input v-model="formModel.parentEmail" placeholder="Email" />
             </a-form-model-item>
           </a-col>
-          <!-- <a-col :span="2" style="text-align: center;">
+          <a-col :span="2" style="text-align: center;" v-if="origin.parentEmailStatus === 1">
             <a-icon style="color: #007990" type="check" />
           </a-col>
-          <a-col :span="6" style="text-align: center;">
-            <a-button type="black">Resend</a-button>
-          </a-col> -->
+          <a-col :span="6" style="text-align: center;" v-if="origin.parentEmailStatus === 0">
+            <a-button type="black" :loading="loading" @click="resendParent">Resend</a-button>
+          </a-col>
         </a-row>
       </a-form-model-item>
       <a-form-model-item label="Phone">
@@ -138,7 +154,7 @@
 
 <script>
 import { listClass } from '@/api/v2/schoolClass'
-import { addStudents, resetUserPassword, getStudentInfo, updateStudent, checkEmailStudent, checkEmailParent } from '@/api/v2/schoolUser'
+import { addStudents, resetUserPassword, sendParentEmail, getStudentInfo, updateStudent, checkEmailStudent, checkEmailParent } from '@/api/v2/schoolUser'
 
 import ResetPassword from '../persona/ResetPassword'
 import AvatarModal from '@/views/account/settings/AvatarModal'
@@ -147,6 +163,7 @@ import { SubmitBeforeMixin } from '@/mixins/SubmitBeforeMixin'
 import { AutoSaveLocalMixin } from '@/mixins/AutoSaveLocalMixin'
 
 import moment from 'moment'
+import { isEmail } from '@/utils/util'
 export default {
   name: 'SchoolStudentAdd',
   components: {
@@ -326,6 +343,24 @@ export default {
     },
     disabledDate(current) {
       return current && current > moment()
+    },
+    resendParent() {
+      if (this.formModel.parentEmail && isEmail(this.formModel.parentEmail)) {
+        this.loading = true
+        sendParentEmail({
+          parentEmail: this.formModel.parentEmail,
+          schoolId: this.currentSchool.id,
+          userId: this.studentId
+        }).then(res => {
+          if (res.code === 0) {
+            this.$message.success('Send successfully')
+          }
+        }).finally(() => {
+          this.loading = false
+        })
+      } else {
+        this.$message.error('Please input valid email')
+      }
     },
     validateRemoteEmail(rule, value, callback) {
       if (!value) {
