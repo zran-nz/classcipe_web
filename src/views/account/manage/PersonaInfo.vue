@@ -502,7 +502,8 @@ export default {
                 if (createdSchool) {
                   this.schoolOptions.push({
                     id: res.result.id,
-                    name: res.result.name
+                    name: res.result.name,
+                    country: this.formModel.country
                   })
                 }
                 this.formModel.school = res.result.id

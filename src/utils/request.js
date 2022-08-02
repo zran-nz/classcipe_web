@@ -52,7 +52,8 @@ request.interceptors.request.use(config => {
 export const ErrorCode = {
   token_expires: 510,
   ppt_google_token_expires: 520,
-  ppt_forbidden: 403
+  ppt_forbidden: 403,
+  auth_limit: 401
 }
 
 // response interceptor
@@ -86,6 +87,12 @@ request.interceptors.response.use((response) => {
         // 弹出框被拦截
         alert('The authorization window is blocked by the browser, please allow the authorization window to pop up and then refresh the page.')
       }
+    } else if (response.data.code === ErrorCode.auth_limit) {
+      notification.warning({
+        message: 'Reminder',
+        description: response.data.message
+      })
+      logger.error(response.data)
     } else {
       if (process.env.NODE_ENV !== 'production') {
         notification.error({

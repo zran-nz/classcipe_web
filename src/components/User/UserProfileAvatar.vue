@@ -58,7 +58,7 @@
               <div class='class-base-info'>
                 <div class='class-name'>{{ schoolItem.schoolName }}</div>
                 <div class='class-updated-by'>
-                  <template v-if="schoolItem.roleNames.length > 1">
+                  <template v-if="schoolItem.roleNames.length > 1 || schoolItem.roleNames[0].toLowerCase() !== 'teacher'">
                     <div class='role-name' v-for='roleName in schoolItem.roleNames.filter(role => role.toLowerCase() !== "teacher")' :key='roleName'>{{ roleName }}</div>
                   </template>
                   <div class='role-name' v-else>Teacher</div>

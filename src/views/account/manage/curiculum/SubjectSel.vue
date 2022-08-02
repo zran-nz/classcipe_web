@@ -196,9 +196,9 @@ export default {
         getSubjectBySchoolId({
           schoolId: this.currentSchool.id
         }).then(res => {
-          if (res.success) {
+          if (res.success && res.result) {
             this.initResult = res.result
-            this.setSelected()
+            this.setSelected(res.result.length === 0)
           }
         })
       }
@@ -210,7 +210,8 @@ export default {
     reset() {
       this.setSelected()
     },
-    setSelected() {
+    // 默认全选
+    setSelected(isAll = false) {
       // init from db
       if (this.initResult && this.initResult.length > 0) {
         for (const curriculumId in this.totalResult) {

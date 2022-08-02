@@ -8,8 +8,8 @@
           :headerToolbar="headerToolbar"
           :selfViews="selfViews"
           :initView="initView"
-          :editable="false"
-          :selectable="false"
+          :editable="true"
+          :selectable="true"
           :dayHeaderContent="dayHeaderContent"
           @select="handleDateSelect"
           @eventClick="handleEventClick"
@@ -258,15 +258,10 @@ export default {
     },
     handleDateSelect(selectInfo) {
       console.log(selectInfo)
-      if (this.addable) {
-        this.$refs.tooltip.style.visibility = 'visible'
-        this.$refs.tooltip.style.top = selectInfo.jsEvent.clientY + 'px'
-        this.$refs.tooltip.style.left = selectInfo.jsEvent.clientX + 'px'
+      if (this.$refs.fullCalendar) {
+        const calendarApi = this.$refs.fullCalendar.getApi()
+        calendarApi && calendarApi.unselect()
       }
-      this.event = selectInfo
-      this.importModel.startDate = moment(this.event.start).format('YYYY-MM-DD HH:mm:ss')
-      this.importModel.endDate = moment(this.event.end).format('YYYY-MM-DD HH:mm:ss')
-      this.$emit('date-select', this.importModel)
     },
     handleEventClick(clickInfo) {
       console.log(clickInfo)

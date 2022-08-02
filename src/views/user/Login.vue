@@ -273,9 +273,9 @@ export default {
           }
           if (loginParams.role === 'student') {
             if (!isEmail(values.email)) {
-              // delete loginParams.username
+              delete loginParams.username
+              loginParams.workNo = values.email
             }
-            loginParams.workNo = values.email
           }
           Login(loginParams)
             .then(res => this.loginSuccess(res))

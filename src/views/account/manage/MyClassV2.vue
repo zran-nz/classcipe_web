@@ -503,6 +503,9 @@ export default {
       params.name = params.changeName
       if (this.userMode === USER_MODE.SELF) {
         params.userId = this.info.id
+        params.classMode = 2
+      } else {
+        params.classMode = 1
       }
       saveClass(params).then(res => {
         if (res.success && res.code === 0) {
@@ -558,6 +561,9 @@ export default {
       this.loading = true
       if (this.userMode === USER_MODE.SELF) {
         cls.userId = this.info.id
+        cls.classMode = 2
+      } else {
+        cls.classMode = 1
       }
       saveClass(cls).then(res => {
         if (res.success && res.code === 0) {
@@ -762,6 +768,9 @@ export default {
         params.name = params.changeName || params.name
         if (this.userMode === USER_MODE.SELF) {
           params.userId = this.info.id
+          params.classMode = 2
+        } else {
+          params.classMode = 1
         }
         saveClass(params).then(res => {
           if (res.success && res.code === 0) {

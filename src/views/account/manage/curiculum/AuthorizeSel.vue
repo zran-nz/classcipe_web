@@ -36,7 +36,7 @@
                 <a-icon type="question-circle-o" />
               </a-tooltip>
             </span>
-            <customer-upload-file
+            <!-- <customer-upload-file
               v-if="totalResult[choosed.id].status === '' || totalResult[choosed.id].status === 3"
               accept="image/png, image/jpeg,  application/pdf"
               :showUploadButton="false"
@@ -50,7 +50,15 @@
                   Upload image/pdf
                 </div>
               </div>
-            </customer-upload-file>
+            </customer-upload-file> -->
+            <a-upload
+              :showUploadList='false'
+              v-if="totalResult[choosed.id].status === '' || totalResult[choosed.id].status === 3"
+              accept="image/png, image/jpeg,  application/pdf"
+              :customRequest="data => handleUploadImage(data, 'resources')"
+            >
+              <a-button :loading="uploading"> <a-icon type="upload" /> Click to Upload image/PDF </a-button>
+            </a-upload>
             <!-- <div class="preview-file" slot="extra" v-if="totalResult[choosed.id].resources">
               <div class="img">
                 <div v-if="isPdf(totalResult[choosed.id].resources)">
@@ -87,7 +95,7 @@
                 <a-icon type="question-circle-o" />
               </a-tooltip>
             </span>
-            <customer-upload-file
+            <!-- <customer-upload-file
               v-if="totalResult[choosed.id].status === '' || totalResult[choosed.id].status === 3"
               accept="image/png, image/jpeg,  application/pdf"
               :showUploadButton="false"
@@ -100,7 +108,15 @@
                   Upload image/pdf
                 </div>
               </div>
-            </customer-upload-file>
+            </customer-upload-file> -->
+            <a-upload
+              :showUploadList='false'
+              v-if="totalResult[choosed.id].status === '' || totalResult[choosed.id].status === 3"
+              accept="image/png, image/jpeg,  application/pdf"
+              :customRequest="data => handleUploadImage(data, 'certificate')"
+            >
+              <a-button :loading="uploading"> <a-icon type="upload" /> Click to Upload image/PDF </a-button>
+            </a-upload>
             <div class="file-list" slot="extra" v-if="totalResult[choosed.id].certificate">
               <div class="file-item" v-for="url in totalResult[choosed.id].certificate.split(',')" :key="url">
                 <template v-if="url">
@@ -156,6 +172,7 @@
 import { listIbAuth, submitIbAuth } from '@/api/academicSettingIbAuth'
 import { AllCurriculums } from '@/const/common'
 import CustomerUploadFile from '@/components/Common/CustomerUploadFile'
+import { upAwsS3File } from '@/components/AddMaterial/Utils/AwsS3'
 const IBs = [AllCurriculums.IBPYP, AllCurriculums.IBMYP]
 export default {
   name: 'AuthorizeSel',
@@ -220,7 +237,8 @@ export default {
         isAgree: [
           { required: true, message: 'Please agree first!', trigger: 'change' }
         ]
-      }
+      },
+      uploading: false
     }
   },
   methods: {
@@ -331,6 +349,21 @@ export default {
         this.loading = false
         this.$emit('save-success')
       })
+    },
+    handleUploadImage(data, key) {
+      const mediaType = data.file.type.indexOf('image') > -1 ? 'image' : (data.file.type.indexOf('video') > -1 ? 'video' : data.file.type)
+      this.uploading = true
+      this.uploader = upAwsS3File(this.$store.getters.userInfo.id, data.file,
+        progressSize => {
+          console.log(progressSize)
+      },
+        result => {
+          this.uploading = false
+          this.uploadFile(key, {
+            type: mediaType,
+            url: result
+          }, true)
+      }, true)
     }
   }
 }
@@ -479,16 +512,16 @@ export default {
   position: relative;
   width: 100%;
   .img {
-    width: 80px;
-    height: 80px;
-    margin-right: 20px;
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
     img {
       object-fit: contain;
       width :100%;
       height: 100%;
     }
     i {
-      font-size: 80px;
+      font-size: 40px;
       color: #ef4136;
     }
   }
