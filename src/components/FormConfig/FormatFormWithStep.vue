@@ -336,6 +336,7 @@ export default {
           } else {
             if (myCustomList.length >= customIndex) {
               const item = myCustomList[customIndex]
+              console.log(item)
               item.name = customFieldName
               step.customFieldItems.push(JSON.parse(JSON.stringify(item)))
             }
@@ -599,6 +600,8 @@ export default {
       this.$logger.info('myCommonList', myCommonList, 'myCustomList', myCustomList)
 
       const mySteps = JSON.parse(JSON.stringify(this.steps))
+
+      let customIndex = 0
       mySteps.forEach((step, index) => {
         delete step.nameEditing
         delete step.key
@@ -617,21 +620,18 @@ export default {
           }
         })
 
-        let customIndex = 0
         step.customFields.forEach((name, index) => {
-          customIndex++
           const stepFieldItem = step.customFieldItems.find(field => field.name === name)
           const fieldItem = myCustomList.find(field => field.name === name)
+          if (!fieldItem) {
+            myCustomList[customIndex] = stepFieldItem
+          }
+          customIndex++
           if (fieldItem && stepFieldItem) {
             fieldItem.name = stepFieldItem.name
             fieldItem.hint = stepFieldItem.hint
             fieldItem.sort = index
             fieldItem.sortNo = index
-          } else {
-            if (myCustomList.length >= customIndex && myCustomList[customIndex]) {
-              myCustomList[customIndex].name = name
-              myCustomList[customIndex].sortNo = index
-            }
           }
         })
         step.stepNo = index
