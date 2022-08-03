@@ -39,7 +39,7 @@
                 @change="changeSubject"
                 placeholder='Please select subject'>
                 <a-select-option v-for='item in subjectOptions' :key='item.subjectId'>
-                  {{ item.subjectName }}
+                  {{ curriculumMap[curriculumOptions[item.curriculumId]] || curriculumOptions[item.curriculumId] }} - {{ item.subjectName }}
                 </a-select-option >
               </a-select>
             </a-form-model-item >
@@ -162,6 +162,10 @@ export default {
       subjectOptions: [],
       termsOptions: [],
       blockOptions: {},
+      curriculumOptions: {},
+      curriculumMap: {
+        'Cambridge Primary & Lower Secondary': 'Cambridge P & LS'
+      },
       queryParam: {
         searchKey: ''
       },
@@ -237,13 +241,17 @@ export default {
           let subjects = []
           subjectRes.result.forEach(item => {
             if (item.subjectList && item.subjectList.length > 0) {
-              subjects = subjects.concat(item.subjectList)
+              subjects = subjects.concat(item.subjectList.map(sub => ({
+                ...sub,
+                curriculumId: item.curriculumId
+              })))
             }
           })
           this.subjectOptions = uniqBy(subjects.map(item => {
             return {
               subjectId: item.parentSubjectId,
-              subjectName: item.parentSubjectName
+              subjectName: item.parentSubjectName,
+              curriculumId: item.curriculumId
             }
           }), 'subjectId')
           this.initSels()
@@ -269,8 +277,9 @@ export default {
         }
         if (gradeRes.success) {
           let grades = []
-          this.curriculumOptions = gradeRes.result.forEach(item => {
+          gradeRes.result.forEach(item => {
             grades = grades.concat(item.gradeSettingInfo || [])
+            this.curriculumOptions[item.curriculumId] = item.curriculumName
           })
           this.gradeOptions = grades
         }
@@ -331,8 +340,10 @@ export default {
           //   params.blockSetting = [blockSetting.start, blockSetting.end].join(' - ')
           // }
           params.ownJoin = Number(params.ownJoin)
+          this.loading = true
           this.$emit('save', params)
           this.clearLocalData()
+          this.loading = false
           this.selVis = false
         }
       })
