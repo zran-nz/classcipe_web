@@ -7,7 +7,7 @@
       width='1000px'
       okText='Done'
       :confirmLoading="loading"
-      :ok-button-props="{ props: { disabled: hasErrors } }"
+      :ok-button-props="{ props: { disabled: hasErrors || (formModel.ownJoin && !formModel.blockSetting) } }"
       @ok='handleSave'
       @cancel='selVis = false'>
       <a-form-model
@@ -99,6 +99,7 @@
           </a-col> -->
           <term-calendar :termId="formModel.term" :choose="formModel.blockSetting" @date-select="handleSelectBlock"/>
         </a-row>
+        <div v-if="formModel.ownJoin && !formModel.blockSetting" class="error_field">Please Select Block</div>
       </a-form-model>
     </a-modal>
   </div>
@@ -198,7 +199,8 @@ export default {
         name: [{ required: true, message: 'Please Input Class Name!' }],
         subject: [{ required: true, message: 'Please Select Subject!' }],
         termArr: [{ required: this.formModel.ownJoin, type: 'array', message: 'Please Select Term!' }],
-        maxStudent: [{ required: this.formModel.ownJoin, message: 'Please Input Student Number!' }]
+        maxStudent: [{ required: this.formModel.ownJoin, message: 'Please Input Student Number!' }],
+        blockSetting: [{ required: this.formModel.ownJoin, message: 'Please Select Block!' }]
       }
     }
   },
@@ -363,6 +365,7 @@ export default {
     handleSelectBlock(val) {
       console.log(val)
       this.formModel.blockSetting = val
+      this.$refs.form.validateField(['blockSetting'])
     },
     goTerm() {
       this.$router.push('/manage/academic')
@@ -383,5 +386,8 @@ export default {
   /deep/ .fc-bg-event {
     opacity: 1;
   }
+}
+.error_field {
+  color: #ef4136;
 }
 </style>
