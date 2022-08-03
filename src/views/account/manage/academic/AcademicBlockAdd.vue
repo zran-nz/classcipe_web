@@ -37,6 +37,7 @@
                   v-model="item.start"
                   :allowClear="false"
                   placeholder="Pick a time"
+                  :defaultValue="moment('00:00:00', 'HH:mm:ss')"
                   :disabledHours="() => disabledHours(index)"
                   :disabledMinutes="(hour) => disabledMinutes(hour, index)"
                   format="HH:mm"
@@ -98,6 +99,7 @@ export default {
   data() {
     return {
       title: 'Block Scheduling',
+      moment: moment,
       mode: 'add',
       width: 600,
       visible: false,

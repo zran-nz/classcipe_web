@@ -107,8 +107,22 @@ export default {
     },
     doRedirect() {
       // 如果邀请为管理，则直接跳转到学校的的info界面
-      if (this.isAdmin) {
-        SwitchUserModeSchool({
+      // if (this.isAdmin) {
+      //   SwitchUserModeSchool({
+      //     isPersonal: false,
+      //     schoolId: this.schoolId
+      //   }).then(res => {
+      //     // 获取对应学校班级
+      //     this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
+      //     this.GetClassList(this.userMode)
+      //     this.$store.dispatch('GetInfo').then(() => {
+      //       this.$router.push('/manage/school-info')
+      //     })
+      //   })
+      // } else {
+      //   this.$router.push(this.$store.getters.defaultRouter)
+      // }
+       SwitchUserModeSchool({
           isPersonal: false,
           schoolId: this.schoolId
         }).then(res => {
@@ -116,12 +130,13 @@ export default {
           this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
           this.GetClassList(this.userMode)
           this.$store.dispatch('GetInfo').then(() => {
-            this.$router.push('/manage/school-info')
+            if (this.isAdmin) {
+              this.$router.push('/manage/school-info')
+            } else {
+              this.$router.push('/account/info')
+            }
           })
         })
-      } else {
-        this.$router.push(this.$store.getters.defaultRouter)
-      }
     }
   }
 }

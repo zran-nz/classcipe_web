@@ -131,9 +131,10 @@ export default {
       return Math.round(this.consumedSize / this.totalSize * 100)
     },
     isAuth() {
-      if (this.userMode === USER_MODE.SELF) return true
-      if (this.hasRolePermission('admin') || this.hasRolePermission('homeroom teacher') || this.hasRolePermission('subject coordinator')) return true
-      return false
+      // if (this.userMode === USER_MODE.SELF) return true
+      // if (this.hasRolePermission('admin') || this.hasRolePermission('homeroom teacher') || this.hasRolePermission('subject coordinator')) return true
+      // return false
+      return true
     }
   },
   created() {

@@ -12,7 +12,8 @@
         <div class="info-header-avatar" v-else>
           <!-- <img v-if="currentSchool.logo" :src="currentSchool.logo"/>
           <img v-else src="~@/assets/icons/library/default-avatar.png"/> -->
-          <custom-image-uploader :need-del="false" :img-url='currentSchool.logo' @update='handleUploadLogo' />
+          <img v-if="isNotAdmin" :src="currentSchool.logo"/>
+          <custom-image-uploader v-else :need-del="false" :img-url='currentSchool.logo' @update='handleUploadLogo' />
         </div>
         <div class="info-header-detail">
           <div class="header-detail-title">
@@ -57,7 +58,7 @@
             <div class='header-detail-text'>
               {{ consumedSize | sizeFormat }} of {{ totalSize | sizeFormat }}
             </div>
-            <a class="" @click="handleGoSpace">Upgrade</a>
+            <a class="" @click="handleGoSpace" v-if="!isNotAdmin">Upgrade</a>
           </div>
         </div>
       </div>
@@ -89,7 +90,7 @@
       </div>
       <!-- Basic info -->
       <div class="account-info-wrap" v-for="(item, index) in linkDatas.filter(_ => !_.hidden)" :key="'linkwrap_' + index">
-        <div class="account-info-title">{{ item.title }}</div>
+        <div class="account-info-title" v-if="item.links.filter(_ => !_.hidden).length > 0">{{ item.title }}</div>
         <div class="account-info-link">
           <div
             class="info-link-item-wrap"
@@ -299,7 +300,7 @@ export default {
             {
               avatar: AcademicPng,
               title: 'Academic Term',
-              hidden: this.userMode === USER_MODE.SELF,
+              hidden: this.userMode === USER_MODE.SELF || this.isNotAdmin,
               desc: 'Set school year, term and blocks',
               url: '/manage/academic'
             },
@@ -308,25 +309,28 @@ export default {
               title: 'Curriculum',
               desc: 'Set curriculum(s), subjects, years',
               // hidden: this.userMode === USER_MODE.SELF,
-              url: '/manage/curriculum'
+              url: '/manage/curriculum',
+              hidden: this.isNotAdmin
             },
             {
               avatar: PlanningPng,
               title: 'Planning Format',
               desc: 'Customize Unit plan/Task format',
-              url: '/manage/planning-format'
+              url: '/manage/planning-format',
+              hidden: this.isNotAdmin
             },
             {
               avatar: TagsPng,
               title: 'Tags setting',
               // hidden: this.userMode === USER_MODE.SELF,
               desc: 'Customize tag categories and tags',
-              url: '/manage/tags'
+              url: '/manage/tags',
+              hidden: this.isNotAdmin
             },
             {
               avatar: AttendancePng,
               title: 'Attendance',
-              hidden: this.userMode === USER_MODE.SELF,
+              hidden: this.userMode === USER_MODE.SELF || this.isNotAdmin,
               desc: '',
               url: ''
             },
