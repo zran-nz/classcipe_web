@@ -310,14 +310,14 @@ export default {
               desc: 'Set curriculum(s), subjects, years',
               // hidden: this.userMode === USER_MODE.SELF,
               url: '/manage/curriculum',
-              hidden: this.isNotAdmin
+              hidden: this.userMode === USER_MODE.SCHOOL && this.isNotAdmin
             },
             {
               avatar: PlanningPng,
               title: 'Planning Format',
               desc: 'Customize Unit plan/Task format',
               url: '/manage/planning-format',
-              hidden: this.isNotAdmin
+              hidden: this.userMode === USER_MODE.SCHOOL && this.isNotAdmin
             },
             {
               avatar: TagsPng,
@@ -325,7 +325,7 @@ export default {
               // hidden: this.userMode === USER_MODE.SELF,
               desc: 'Customize tag categories and tags',
               url: '/manage/tags',
-              hidden: this.isNotAdmin
+              hidden: this.userMode === USER_MODE.SCHOOL && this.isNotAdmin
             },
             {
               avatar: AttendancePng,
