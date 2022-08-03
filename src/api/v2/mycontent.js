@@ -3,6 +3,7 @@ import request from '@/utils/request'
 export const MyContentV2Url = {
   GetLinkCategory: '/classcipe/api/v2/mycontent/getLinkCategory',
   AddOrUpdateLinkCategory: '/classcipe/api/v2/mycontent/addOrUpdateLinkCategory',
+  QueryTagsByIds: '/classcipe/api/v2/mycontent/queryTagsByIds',
   DeleteLinkCategory: '/classcipe/api/v2/mycontent/deleteLinkCategory',
   QueryCustomTags: '/classcipe/api/v2/mycontent/queryCustomTags',
   ImportOtherIdentityContent: '/classcipe/api/v2/mycontent/importOtherIdentityContent',
@@ -28,6 +29,17 @@ export function GetLinkCategory (parameter) {
  * @returns {AxiosPromise}
  * @constructor
  */
+export function QueryTagsByIds (parameter) {
+  return request({
+    url: MyContentV2Url.QueryTagsByIds,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
 export function AddOrUpdateLinkCategory (parameter) {
   return request({
     url: MyContentV2Url.AddOrUpdateLinkCategory,

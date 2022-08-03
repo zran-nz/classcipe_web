@@ -1052,6 +1052,7 @@ import LocalStore from '@/websocket/localstore'
 import CollaborateUpdateContent from '@/components/Collaborate/CollaborateUpdateContent'
 import PublishList from '@/components/UnitPlan/PublishList'
 import AddGreenIcon from '@/assets/svgIcon/evaluation/form/tianjia_green.svg?inline'
+import { QueryTagsByIds } from '@/api/v2/mycontent'
 
 export default {
   name: 'AddUnitPlan',
@@ -1256,7 +1257,8 @@ export default {
 
       linkLoading: false,
 
-      publishListVisible: false
+      publishListVisible: false,
+      readonlyTagCategoryDescList: []
     }
   },
   watch: {
@@ -2239,6 +2241,21 @@ export default {
           this.loadRefLearnOuts()
           this.handleSelfOutsData()
         }
+
+        if (this.associateTaskIdList.length) {
+          this.loadTaskCategoryDesc()
+        }
+      })
+    },
+
+    loadTaskCategoryDesc() {
+      const associateTaskIdList = (new Set(this.associateTaskIdList))
+      this.$logger.info('loadTaskCategoryDesc', associateTaskIdList)
+      QueryTagsByIds({
+        ids: associateTaskIdList
+      }).then(res => {
+        this.$logger.info('loadTaskCategoryDesc res', res.result)
+        this.readonlyTagCategoryDescList = res.result
       })
     },
 

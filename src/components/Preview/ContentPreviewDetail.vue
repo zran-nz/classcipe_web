@@ -190,7 +190,7 @@
             <div class='price-info'>
               <a-space :size='5' v-show='showPriceInfo'>
                 <div class='discount-price'>
-                  ${{ content.price || 0 }}
+                  ${{ content.discountPrice || content.price || 0 }}
                 </div>
                 <div class='pre-price'>
                 </div>

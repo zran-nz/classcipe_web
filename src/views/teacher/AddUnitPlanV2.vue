@@ -800,6 +800,7 @@ import { AutoSaveMixin } from '@/mixins/AutoSaveMixin'
 import CustomImageUploader from '@/components/Common/CustomImageUploader'
 import { GetTreeByKey } from '@/api/tag'
 import { deepEqual } from '@/utils/util'
+import { QueryTagsByIds } from '@/api/v2/mycontent'
 
 export default {
   name: 'AddUnitPlan',
@@ -1013,7 +1014,8 @@ export default {
       tagBodyWidth: '50%',
       fullBodyFields: ['learnOuts'],
       selectBigIdeaDataVisible: false,
-      priorityTags: []
+      priorityTags: [],
+      readonlyTagCategoryDescList: []
     }
   },
   watch: {
@@ -1520,6 +1522,21 @@ export default {
           this.loadRefLearnOuts()
           this.handleSelfOutsData()
         }
+
+        if (this.associateTaskList.length) {
+          this.loadTaskCategoryDesc()
+        }
+      })
+    },
+
+    loadTaskCategoryDesc() {
+      const associateTaskIdList = (new Set(this.associateTaskIdList))
+      this.$logger.info('loadTaskCategoryDesc', associateTaskIdList)
+      QueryTagsByIds({
+        ids: Array.from(associateTaskIdList)
+      }).then(res => {
+        this.$logger.info('loadTaskCategoryDesc res', res.result)
+        this.readonlyTagCategoryDescList = res.result
       })
     },
 

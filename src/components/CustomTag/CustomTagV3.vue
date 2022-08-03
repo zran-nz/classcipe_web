@@ -111,7 +111,7 @@
             <a-textarea
               :auto-size="{ minRows: 3, maxRows: 6 }"
               v-model='categoryDesc.description'
-              placeholder='Explain why choose the tags'
+              placeholder='Explain the selected tags are applied in this Unit(Tasks'
               class='cc-form-textarea-white-bg'
               allow-clear />
           </div>
@@ -122,7 +122,7 @@
           v-if='currentActiveTagCategory && selectedCategoryNameList.indexOf(currentActiveTagCategory.set) !== -1'
           :auto-size="{ minRows: 3, maxRows: 6 }"
           v-model='currentTagCategoryDesc'
-          placeholder='Explain why choose the tags'
+          placeholder='Explain the selected tags are applied in this Unit(Tasks)'
           class='cc-form-textarea-white-bg'
           @change='asyncUpdateTagCategoryDescFn'
           allow-clear />
