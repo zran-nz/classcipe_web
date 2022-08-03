@@ -63,7 +63,7 @@
                         @switch='handleSwitchComment'
                         :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Name}" />
                     </template>
-                    <template v-if='taskFieldLabel(taskField.Name, $store.getters.formConfigData)' slot='tips'>
+                    <template v-if='taskFieldLabel(taskField.Name, $store.getters.formConfigData) && taskLabelName(taskField.Name, $store.getters.formConfigData) !== taskFieldLabel(taskField.Name, $store.getters.formConfigData)' slot='tips'>
                       <a-tooltip :title="taskFieldLabel(taskField.Name, $store.getters.formConfigData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
@@ -90,7 +90,7 @@
                         @switch='handleSwitchComment'
                         :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Overview}" />
                     </template>
-                    <template v-if='taskFieldLabel(taskField.Overview, $store.getters.formConfigData)' slot='tips'>
+                    <template v-if='taskFieldLabel(taskField.Overview, $store.getters.formConfigData) && taskLabelName(taskField.Overview, $store.getters.formConfigData) !== taskFieldLabel(taskField.Overview, $store.getters.formConfigData)' slot='tips'>
                       <a-tooltip :title="taskFieldLabel(taskField.Overview, $store.getters.formConfigData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
@@ -140,6 +140,14 @@
                           @click="handleSelectTaskType('Activity')">
                           <a-tooltip title='Teaching/Learning Activity' placement='top'>Activity</a-tooltip>
                         </div>
+                        <div
+                          :class="{'task-type-item': true, 'task-type-examine': true,'blue-active-task-type': form.taskType === 'FinalExamine'}"
+                          @click="handleSelectTaskType('FinalExamine')">FinalExamine
+                        </div>
+                        <div
+                          :class="{'task-type-item': true,'task-type-test': true, 'red-active-task-type': form.taskType === 'Test'}"
+                          @click="handleSelectTaskType('Test')">Test
+                        </div>
                       </div>
                     </div>
                   </custom-form-item>
@@ -151,7 +159,7 @@
                     <template slot='label'>
                       {{ 'Learning objectives' | taskLabelName(taskField.LearnOuts, $store.getters.formConfigData) }}
                     </template>
-                    <template v-if='taskFieldLabel(taskField.LearnOuts, $store.getters.formConfigData)' slot='tips'>
+                    <template v-if='taskFieldLabel(taskField.LearnOuts, $store.getters.formConfigData) && taskLabelName(taskField.LearnOuts, $store.getters.formConfigData) !== taskFieldLabel(taskField.LearnOuts, $store.getters.formConfigData)' slot='tips'>
                       <a-tooltip :title="taskFieldLabel(taskField.LearnOuts, $store.getters.formConfigData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
@@ -186,7 +194,7 @@
                         @switch='handleSwitchComment'
                         :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.MaterialList}" />
                     </template>
-                    <template v-if='taskFieldLabel(taskField.MaterialList, $store.getters.formConfigData)' slot='tips'>
+                    <template v-if='taskFieldLabel(taskField.MaterialList, $store.getters.formConfigData) && taskLabelName(taskField.MaterialList, $store.getters.formConfigData) !== taskFieldLabel(taskField.MaterialList, $store.getters.formConfigData)' slot='tips'>
                       <a-tooltip :title="'Resources required for hands-on activities' | taskFieldLabel(taskField.MaterialList, $store.getters.formConfigData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
@@ -282,8 +290,8 @@
                     <template slot='label'>
                       {{ 'Cover' | taskLabelName(taskField.Image, $store.getters.formConfigData) }}
                     </template>
-                    <template v-if='taskLabelHint(taskField.Image, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="'Cover' | taskLabelHint(taskField.Image, $store.getters.formConfigData)" placement='top'>
+                    <template v-if='taskFieldLabel(taskField.Image, $store.getters.formConfigData) && taskLabelName(taskField.Image, $store.getters.formConfigData) !== taskFieldLabel(taskField.Image, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="'Cover' | taskFieldLabel(taskField.Image, $store.getters.formConfigData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
@@ -2687,7 +2695,7 @@ export default {
   justify-content: flex-start;
 
   .self-field-label {
-    width: 180px;
+    width: 330px;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -2709,6 +2717,15 @@ export default {
     .task-type-activity {
       width: 70px;
       border-radius: 50px;
+    }
+
+    .task-type-examine {
+      width: 100px;
+      border-radius: 50px;
+    }
+    .task-type-test {
+      width: 50px;
+      border-radius: 40px;
     }
 
     .green-active-task-type {
