@@ -23,7 +23,7 @@
             <div
               class="schedule-event-content"
               :data-id="info.event.extendedProps.val"
-              :style="{backgroundColor: info.event.extendedProps.backgroundColor, color: '#333', minHeight: '20px'}"
+              :style="{backgroundColor: info.event.extendedProps.backgroundColor, color: '#333', minHeight: '20px', lineHeight: 1}"
             >
               <div>
                 {{ info.event.start | dayjs(FORMATTER_SIM) }}-{{ info.event.end | dayjs(FORMATTER_SIM) }}
@@ -92,6 +92,7 @@ export default {
       calendarDatas: [],
       allEvents: [],
       currentEvents: [],
+      blockEvents: [],
       event: {
         title: 'My Event'
       },
@@ -191,10 +192,10 @@ export default {
                 end: this.$options.filters['dayjs'](moment(current).format('YYYY-MM-DD') + ' ' + item.end + ':00'),
                 name: item.name,
                 color: BG_COLORS[index],
-                backgroundColor: 'transparent',
-                borderColor: 'transparent',
-                // display: 'background',
-                // backgroundColor: BG_COLORS[index],
+                // backgroundColor: 'transparent',
+                // borderColor: 'transparent',
+                display: 'background',
+                backgroundColor: BG_COLORS[index],
                 editable: false,
                 extendedProps: {
                   backgroundColor: BG_COLORS[index],
@@ -202,6 +203,58 @@ export default {
                 }
               })))
               current = current.add(1, 'days')
+            }
+
+            this.blockEvents = events.concat()
+
+            // 回显block
+            const findDay = week => {
+              let current = moment(date.start)
+              let isFind = ''
+              while (moment(date.end).isAfter(current) && !isFind) {
+                if (week === moment(current).format('dddd')) {
+                  isFind = current.format('YYYY-MM-DD')
+                }
+                current = current.add(1, 'days')
+              }
+              return isFind
+            }
+            // this.current = '2022-08-02 20:00:00~2022-08-02 20:03:00,2022-08-04 01:00:00~2022-08-04 01:03:00'
+            if (this.current) {
+              const choosedBlock = this.current.split(',').map(time => {
+                const timeArr = time.split('~')
+                if (timeArr.length === 2) {
+                  const start = moment.utc(timeArr[0]).local()
+                  const startTime = start.format('HH:mm:ss')
+                  const startDay = findDay(start.format('dddd'))
+
+                  const end = moment.utc(timeArr[1]).local()
+                  const endTime = end.format('HH:mm:ss')
+                  const endDay = findDay(end.format('dddd'))
+
+                  return `${startDay} ${startTime}~${endDay} ${endTime}`
+                }
+                return ''
+              }).filter(_ => !!_)
+              console.log(choosedBlock)
+              const isEditable = this.blockEvents.length === 0
+              events = events.concat(choosedBlock.map(item => {
+                const date = item.split('~')
+                return {
+                  title: 'DateSelect',
+                  start: date[0],
+                  end: date[1],
+                  backgroundColor: 'transparent',
+                  borderColor: 'transparent',
+                  editable: isEditable,
+                  extendedProps: {
+                    eventType: 'selectDate',
+                    backgroundColor: '#3688d8',
+                    // 存储星期
+                    val: moment(date[0]).utc().format('YYYY-MM-DD HH:mm:ss') + '~' + moment(date[1]).utc().format('YYYY-MM-DD HH:mm:ss')
+                  }
+                }
+              }))
             }
 
             console.log(events)
@@ -214,6 +267,9 @@ export default {
             successCb(filterEvents)
           } else {
             this.minDate = '06:00:00'
+            this.calendarDatas = []
+            this.allEvents = []
+            this.blockEvents = []
             successCb([])
           }
           this.handleViewDidMount()
@@ -258,36 +314,97 @@ export default {
     },
     handleDateSelect(selectInfo) {
       console.log(selectInfo)
+      let start = moment(selectInfo.start).format('YYYY-MM-DD HH:mm:ss')
+      let end = moment(selectInfo.end).format('YYYY-MM-DD HH:mm:ss')
+      let canSelfAdd = true
+      if (this.blockEvents.length === 0) {
+        canSelfAdd = true
+      } else {
+        // 在block范围内，点亮block,不能自定义add
+        const event = this.blockEvents.find(item => {
+          // 同一天
+          if (moment(item.start).date() === moment(selectInfo.start).date()) {
+            // 范围,有交叉就行
+            // const diffs = moment(selectInfo.end).diff(moment(selectInfo.start), 'minutes')
+            // const blockDiff = moment(item.end).diff(moment(item.start), 'minutes')
+            if (moment(item.start).isSameOrBefore(moment(selectInfo.start))) {
+              if (moment(item.end).isSameOrAfter(moment(selectInfo.start))) {
+                return true
+              }
+            } else {
+              if (moment(item.start).isSameOrBefore(moment(selectInfo.end))) {
+                return true
+              }
+            }
+          }
+          return false
+        })
+        if (event) {
+          start = moment(event.start).format('YYYY-MM-DD HH:mm:ss')
+          end = moment(event.end).format('YYYY-MM-DD HH:mm:ss')
+          canSelfAdd = true
+        } else {
+          canSelfAdd = false
+        }
+      }
       if (this.$refs.fullCalendar) {
-        const calendarApi = this.$refs.fullCalendar.getApi()
-        calendarApi && calendarApi.unselect()
+          const calendarApi = this.$refs.fullCalendar.getApi()
+          const trueStart = moment(start).utc()
+          const trueEnd = moment(end).utc()
+          const selectDateEvent = {
+            title: 'DateSelect',
+            start: start,
+            end: end,
+            backgroundColor: 'transparent',
+            borderColor: 'transparent',
+            editable: this.blockEvents.length === 0,
+            extendedProps: {
+              eventType: 'selectDate',
+              backgroundColor: '#3688d8',
+              // 存储星期
+              val: trueStart.format('YYYY-MM-DD HH:mm:ss') + '~' + trueEnd.format('YYYY-MM-DD HH:mm:ss')
+            }
+          }
+          console.log(canSelfAdd, selectDateEvent)
+          // 去重
+          if (canSelfAdd) {
+            const isExist = this.currentEvents.filter(item => item.display !== 'background')
+              .find(item => {
+                return moment(item.start).isSame(moment(selectDateEvent.start)) && moment(item.end).isSame(moment(selectDateEvent.end))
+              })
+            !isExist && calendarApi.addEvent(selectDateEvent)
+          }
+          calendarApi.unselect()
       }
     },
     handleEventClick(clickInfo) {
       console.log(clickInfo)
-      const $el = clickInfo.el
-      if ($el) {
-        // document.getElementsByClassName('select-active').forEach(item => {
-        //   item.classList.remove('select-active')
-        // })
-        if ($el.classList.contains('select-active')) {
-          $el.classList.remove('select-active')
-        } else {
-          $el.classList.add('select-active')
-        }
-        const selects = []
-        document.getElementsByClassName('select-active').forEach(item => {
-          if (item.querySelector('.schedule-event-content')) {
-            selects.push(item.querySelector('.schedule-event-content').dataset['id'])
-          }
-        })
-        console.log(selects)
-        this.$emit('date-select', selects.join(','))
+      // const $el = clickInfo.el
+      // if ($el) {
+      //   if ($el.classList.contains('select-active')) {
+      //     $el.classList.remove('select-active')
+      //   } else {
+      //     $el.classList.add('select-active')
+      //   }
+      //   const selects = []
+      //   document.getElementsByClassName('select-active').forEach(item => {
+      //     if (item.querySelector('.schedule-event-content')) {
+      //       selects.push(item.querySelector('.schedule-event-content').dataset['id'])
+      //     }
+      //   })
+      //   console.log(selects)
+      //   this.$emit('date-select', selects.join(','))
+      // }
+      if (clickInfo.event.display !== 'background') {
+        clickInfo.event.remove()
       }
     },
     handleEvents(events) {
       this.currentEvents = events
       console.log(events)
+      const selectDates = events.filter(event => event.display !== 'background')
+        .map(event => event.extendedProps.val).join(',')
+      this.$emit('date-select', selectDates)
     },
     handleDatesSet(event) {
       console.log(event)
