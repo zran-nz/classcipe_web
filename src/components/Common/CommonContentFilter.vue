@@ -60,6 +60,12 @@
               <a-radio value="activity">
                 Activity
               </a-radio>
+              <a-radio value="FinalExamine">
+                FinalExamine
+              </a-radio>
+              <a-radio value="test">
+                Test
+              </a-radio>
             </a-radio-group>
           </div>
         </div>

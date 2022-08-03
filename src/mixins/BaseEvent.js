@@ -91,7 +91,7 @@ export const BaseEventMixin = {
     if (!token) {
       token = storage.get(ACCESS_TOKEN)
     }
-    this.$store.dispatch('loadFormConfigData', token)
+    // this.$store.dispatch('loadFormConfigData', token)
   },
   mounted () {
     this.resetWidth()

@@ -140,6 +140,14 @@
                           @click="handleSelectTaskType('Activity')">
                           <a-tooltip title='Teaching/Learning Activity' placement='top'>Activity</a-tooltip>
                         </div>
+                        <div
+                          :class="{'task-type-item': true, 'task-type-examine': true,'blue-active-task-type': form.taskType === 'FinalExamine'}"
+                          @click="handleSelectTaskType('FinalExamine')">FinalExamine
+                        </div>
+                        <div
+                          :class="{'task-type-item': true,'task-type-test': true, 'red-active-task-type': form.taskType === 'Test'}"
+                          @click="handleSelectTaskType('Test')">Test
+                        </div>
                       </div>
                     </div>
                   </custom-form-item>
@@ -2687,7 +2695,7 @@ export default {
   justify-content: flex-start;
 
   .self-field-label {
-    width: 180px;
+    width: 330px;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -2709,6 +2717,15 @@ export default {
     .task-type-activity {
       width: 70px;
       border-radius: 50px;
+    }
+
+    .task-type-examine {
+      width: 100px;
+      border-radius: 50px;
+    }
+    .task-type-test {
+      width: 50px;
+      border-radius: 40px;
     }
 
     .green-active-task-type {
