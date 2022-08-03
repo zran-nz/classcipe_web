@@ -53,7 +53,7 @@
                           @switch='handleSwitchComment'/>
                       </a-space>
                     </template>
-                    <template v-if='unitFieldLabel(planField.Name, $store.getters.formConfigData)' slot='tips'>
+                    <template v-if='unitFieldLabel(planField.Name, $store.getters.formConfigData) && unitFieldLabel(planField.Name, $store.getters.formConfigData) !== unitLabelName(planField.Name, $store.getters.formConfigData)' slot='tips'>
                       <a-tooltip :title="unitFieldLabel(planField.Name, $store.getters.formConfigData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
@@ -83,7 +83,7 @@
                           :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Overview}" />
                       </a-space>
                     </template>
-                    <template v-if='unitFieldLabel(planField.Overview, $store.getters.formConfigData)' slot='tips'>
+                    <template v-if='unitFieldLabel(planField.Overview, $store.getters.formConfigData) && unitFieldLabel(planField.Overview, $store.getters.formConfigData) !== unitLabelName(planField.Overview, $store.getters.formConfigData)' slot='tips'>
                       <a-tooltip :title="unitFieldLabel(planField.Overview, $store.getters.formConfigData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
@@ -125,7 +125,7 @@
                         />
                       </a-space>
                     </template>
-                    <template v-if='unitFieldLabel(planField.ProjectBased, $store.getters.formConfigData)' slot='tips'>
+                    <template v-if='unitFieldLabel(planField.ProjectBased, $store.getters.formConfigData) && unitFieldLabel(planField.ProjectBased, $store.getters.formConfigData) !== unitLabelName(planField.ProjectBased, $store.getters.formConfigData)' slot='tips'>
                       <a-tooltip :title="unitFieldLabel(planField.ProjectBased, $store.getters.formConfigData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
@@ -163,7 +163,7 @@
                           :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.UnitType}" />
                       </a-space>
                     </template>
-                    <template v-if='unitFieldLabel(planField.UnitType, $store.getters.formConfigData)' slot='tips'>
+                    <template v-if='unitFieldLabel(planField.UnitType, $store.getters.formConfigData) && unitFieldLabel(planField.UnitType, $store.getters.formConfigData) !== unitLabelName(planField.UnitType, $store.getters.formConfigData)' slot='tips'>
                       <a-tooltip :title="unitFieldLabel(planField.UnitType, $store.getters.formConfigData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
@@ -197,7 +197,7 @@
                           :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.StartDate}" />
                       </a-space>
                     </template>
-                    <template v-if='unitFieldLabel(planField.GradeIds, $store.getters.formConfigData)' slot='tips'>
+                    <template v-if='unitFieldLabel(planField.GradeIds, $store.getters.formConfigData) && unitFieldLabel(planField.GradeIds, $store.getters.formConfigData) !== unitLabelName(planField.GradeIds, $store.getters.formConfigData)' slot='tips'>
                       <a-tooltip :title="unitFieldLabel(planField.GradeIds, $store.getters.formConfigData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
@@ -235,7 +235,7 @@
                           @switch='handleSwitchComment' />
                       </a-space>
                     </template>
-                    <template v-if='unitFieldLabel(planField.Inquiry, $store.getters.formConfigData)' slot='tips'>
+                    <template v-if='unitFieldLabel(planField.Inquiry, $store.getters.formConfigData) && unitFieldLabel(planField.Inquiry, $store.getters.formConfigData) !== unitLabelName(planField.Inquiry, $store.getters.formConfigData)' slot='tips'>
                       <a-tooltip :title="unitFieldLabel(planField.Inquiry, $store.getters.formConfigData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
@@ -276,7 +276,7 @@
                         <plus-icon @click='handleAddMoreSdg'/>
                       </a-space>
                     </template>
-                    <template v-if='unitFieldLabel(planField.Scenarios, $store.getters.formConfigData)' slot='tips'>
+                    <template v-if='unitFieldLabel(planField.Scenarios, $store.getters.formConfigData) && unitFieldLabel(planField.Scenarios, $store.getters.formConfigData) !== unitLabelName(planField.Scenarios, $store.getters.formConfigData)' slot='tips'>
                       <a-tooltip :title="unitFieldLabel(planField.Scenarios, $store.getters.formConfigData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
@@ -350,7 +350,7 @@
                     <template slot='label'>
                       {{ 'Real World Connection(s)' | unitLabelName(planField.Rwc, $store.getters.formConfigData) }}
                     </template>
-                    <template v-if='unitFieldLabel(planField.Rwc, $store.getters.formConfigData)' slot='tips'>
+                    <template v-if='unitFieldLabel(planField.Rwc, $store.getters.formConfigData) && unitLabelName(planField.Rwc, $store.getters.formConfigData) !== unitFieldLabel(planField.Rwc, $store.getters.formConfigData)' slot='tips'>
                       <a-tooltip :title="unitFieldLabel(planField.Rwc, $store.getters.formConfigData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
@@ -396,7 +396,7 @@
                         <custom-link-text text='more' :size='13' @click='questionMoreVisible=true'></custom-link-text>
                       </a-space>
                     </template>
-                    <template v-if='unitFieldLabel(planField.Question, $store.getters.formConfigData)' slot='tips'>
+                    <template v-if='unitFieldLabel(planField.Question, $store.getters.formConfigData) && unitLabelName(planField.Question, $store.getters.formConfigData) !== unitFieldLabel(planField.Question, $store.getters.formConfigData)' slot='tips'>
                       <a-tooltip :title="unitFieldLabel(planField.Question, $store.getters.formConfigData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
@@ -477,7 +477,7 @@
                           @switch='handleSwitchComment' />
                       </a-space>
                     </template>
-                    <template v-if='unitFieldLabel(planField.Prior, $store.getters.formConfigData)' slot='tips'>
+                    <template v-if='unitFieldLabel(planField.Prior, $store.getters.formConfigData) && unitFieldLabel(planField.Prior, $store.getters.formConfigData) !== unitLabelName(planField.Prior, $store.getters.formConfigData)' slot='tips'>
                       <a-tooltip :title="unitFieldLabel(planField.Prior, $store.getters.formConfigData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
@@ -502,10 +502,10 @@
                   <!-- image-->
                   <custom-form-item class='img-wrapper' :required='emptyRequiredFields.indexOf(planField.Image) !== -1'>
                     <template slot='label'>
-                      {{ 'Cover' | taskLabelName(planField.Image, $store.getters.formConfigData) }}
+                      {{ 'Cover' | unitLabelName(planField.Image, $store.getters.formConfigData) }}
                     </template>
-                    <template v-if='taskLabelHint(planField.Image, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="'Cover' | taskLabelHint(planField.Image, $store.getters.formConfigData)" placement='top'>
+                    <template v-if='unitFieldLabel(planField.Image, $store.getters.formConfigData) && unitLabelName(planField.Image, $store.getters.formConfigData) !== unitFieldLabel(planField.Image, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="'Cover' | unitFieldLabel(planField.Image, $store.getters.formConfigData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
