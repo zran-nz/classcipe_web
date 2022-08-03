@@ -17,7 +17,7 @@
         </div>
 
         <div class='step-tag-config'>
-          <div class='tag-selected' v-if='step.tags && step.tags.length' @click='handleSetTag(step)'>
+          <div class='tag-selected' v-if='step.tags && step.tags.length' @click='handleSetTag(step)' v-show='showTagStepIndexList.indexOf(sIdx) !== -1'>
             <div class='tag-selected-list'>
               <div class='tag-selected-item' v-for='(tag, tIdx) in step.tags' :key="'tid2-' + tIdx">
                 <a-tag class='my-tag-selected'>
@@ -30,7 +30,7 @@
 
         <div class='format-tag-settings'>
 
-          <div class='tag-setting' @click='handleStepSetTag(step)'>
+          <div class='tag-setting' @click='handleStepSetTag(step)' v-show='showTagStepIndexList.indexOf(sIdx) !== -1'>
             <div class='set-tag-label'>
               <a-tooltip title='You can prioritize tag categories to show on the tag box for this step.'>
                 Set tag
@@ -241,6 +241,10 @@ export default {
     saving: {
       type: Boolean,
       default: false
+    },
+    showTagStepIndexList: {
+      type: Array,
+      default: () => []
     }
   },
   data () {

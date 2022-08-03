@@ -178,8 +178,8 @@
                 <div
                   class='form-block tag-content-block material-list-block'
                   style='clear: both'
-                  :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] && form[fieldItem.fieldName].length}"
-                  v-if='(fieldItem.visible || (form[fieldItem.fieldName] && form[fieldItem.fieldName].length)) && fieldItem.fieldName === taskField.MaterialList'
+                  :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] && form[fieldItem.fieldName].length && isCopyContent}"
+                  v-if='(fieldItem.visible || (form[fieldItem.fieldName] && form[fieldItem.fieldName].length)) && isCopyContent && fieldItem.fieldName === taskField.MaterialList'
                   :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.MaterialList />
                   <custom-form-item :required='emptyRequiredFields.indexOf(taskField.MaterialList) !== -1'>

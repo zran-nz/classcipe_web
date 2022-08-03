@@ -10,6 +10,7 @@
           :custom-list='planConfig.customList'
           :step-list='planConfig.steps'
           :step-type='typeMap["unit-plan"]'
+          :show-tag-step-index-list='[0, 1]'
           :required-field-list='planRequiredFields'
           @save='handleSavePlanningForm(false)'
           v-if='planConfig' />
@@ -23,6 +24,7 @@
           :custom-list='taskConfig.customList'
           :step-list='taskConfig.steps'
           :step-type='typeMap.task'
+          :show-tag-step-index-list='[1]'
           :required-field-list='taskRequiredFields'
           @save='handleSavePlanningForm(false)'
           v-if='taskConfig' />
@@ -87,7 +89,7 @@ export default {
       templateList: [],
       selectTemplateVisible: false,
       planRequiredFields: [PlanField.Name, PlanField.Image, PlanField.Inquiry, PlanField.Sdg, PlanField.Question, PlanField.SubjectIds, PlanField.GradeIds, PlanField.LearnOuts],
-      taskRequiredFields: [TaskField.Name, TaskField.Image, TaskField.Overview, TaskField.TaskType, TaskField.LearnOuts]
+      taskRequiredFields: [TaskField.GradeIds, TaskField.SubjectIds, TaskField.Slides, TaskField.Link, TaskField.Name, TaskField.Image, TaskField.Overview, TaskField.TaskType, TaskField.LearnOuts]
     }
   },
   created() {

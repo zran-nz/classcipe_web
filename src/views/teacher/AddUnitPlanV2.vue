@@ -65,8 +65,8 @@
                 <div
                   class='form-block tag-content-block'
                   id='overview'
-                  :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName]}"
-                  v-if='(fieldItem.visible || form[fieldItem.fieldName]) && fieldItem.fieldName === planField.Overview'
+                  :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] && isCopyContent}"
+                  v-if='(fieldItem.visible || form[fieldItem.fieldName]) && isCopyContent && fieldItem.fieldName === planField.Overview'
                   :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Overview />
                   <custom-form-item ref='overview' :required='emptyRequiredFields.indexOf(planField.Overview) !== -1'>
@@ -106,8 +106,8 @@
 
                 <div
                   class='form-block form-radio-wrapper tag-content-block'
-                  :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] !== null}"
-                  v-if='(fieldItem.visible || form[fieldItem.fieldName] !== null) && fieldItem.fieldName === planField.ProjectBased'
+                  :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] !== null && isCopyContent}"
+                  v-if='(fieldItem.visible || form[fieldItem.fieldName] !== null) && isCopyContent && fieldItem.fieldName === planField.ProjectBased'
                   :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.ProjectBased style="top:-30px" />
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.ProjectBased) !== -1'>
@@ -145,8 +145,8 @@
 
                 <div
                   class='form-block form-radio-wrapper tag-content-block'
-                  :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] !== null}"
-                  v-if='(fieldItem.visible || form[fieldItem.fieldName] !== null) && fieldItem.fieldName === planField.UnitType'
+                  :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] !== null && isCopyContent}"
+                  v-if='(fieldItem.visible || form[fieldItem.fieldName] !== null) && isCopyContent && fieldItem.fieldName === planField.UnitType'
                   :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.UnitType style="top:-30px"/>
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.UnitType) !== -1'>
@@ -179,40 +179,6 @@
                       <delete-icon color='#F16A39' />
                     </a-popconfirm>
                   </div>
-                </div>
-
-                <div class='form-block grade-time tag-content-block' v-if="fieldItem.visible && fieldItem.fieldName === planField.GradeIds" :key='fieldItem.fieldName'>
-                  <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.StartDate />
-                  <custom-form-item style='width:23%;margin-bottom: 0px;' :required='emptyRequiredFields.indexOf(planField.GradeIds) !== -1'>
-                    <template slot='label'>
-                      {{ 'Grade level' | unitLabelName(planField.GradeIds, $store.getters.formConfigData) }}
-                    </template>
-                    <template slot='action'>
-                      <a-space>
-                        <comment-switch
-                          v-show="canEdit"
-                          :field-name='planField.StartDate'
-                          :is-active="currentFieldName === planField.StartDate"
-                          @switch='handleSwitchComment'
-                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.StartDate}" />
-                      </a-space>
-                    </template>
-                    <template v-if='unitFieldLabel(planField.GradeIds, $store.getters.formConfigData) && unitFieldLabel(planField.GradeIds, $store.getters.formConfigData) !== unitLabelName(planField.GradeIds, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="unitFieldLabel(planField.GradeIds, $store.getters.formConfigData)" placement='top'>
-                        <a-icon type="info-circle" />
-                      </a-tooltip>
-                    </template>
-                    <a-select
-                      :getPopupContainer="trigger => trigger.parentElement"
-                      v-model='form.gradeId'
-                      class='cc-select'
-                      :placeholder='unitLabelHint(planField.GradeIds, $store.getters.formConfigData)'
-                      :disabled="!canEdit">
-                      <a-select-option v-for='(grade,index) in gradeList' :key='index' :value='grade.id'>
-                        {{ grade.name }}
-                      </a-select-option>
-                    </a-select>
-                  </custom-form-item>
                 </div>
 
                 <div
@@ -257,8 +223,8 @@
 
                 <div
                   class='form-block tag-content-block'
-                  :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] && form[fieldItem.fieldName].length}"
-                  v-if="(fieldItem.visible || (form[fieldItem.fieldName] && form[fieldItem.fieldName].length)) && fieldItem.fieldName === planField.Scenarios"
+                  :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] && form[fieldItem.fieldName].length && isCopyContent}"
+                  v-if="(fieldItem.visible || (form[fieldItem.fieldName] && form[fieldItem.fieldName].length)) && isCopyContent && fieldItem.fieldName === planField.Scenarios"
                   :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Sdg />
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.Sdg) !== -1'>
@@ -342,8 +308,8 @@
 
                 <div
                   class='form-block form-block-rwc tag-content-block'
-                  :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName]}"
-                  v-if="(fieldItem.visible || form[fieldItem.fieldName]) && fieldItem.fieldName === planField.Rwc"
+                  :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] && isCopyContent}"
+                  v-if="(fieldItem.visible || form[fieldItem.fieldName]) && isCopyContent && fieldItem.fieldName === planField.Rwc"
                   :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Rwc />
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.Rwc) !== -1'>
@@ -1118,6 +1084,9 @@ export default {
       })
 
       return ret
+    },
+    isCopyContent() {
+      return !!this.form?.originalOwner
     }
   },
   async created() {
