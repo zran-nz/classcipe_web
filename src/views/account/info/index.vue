@@ -660,8 +660,8 @@ export default {
           display: flex;
           align-items: center;
           .header-detail-text {
-            font-size: 0.18em /* 18/100 */;
-            margin-right: 1/0.18*0.44em /* 44/100 */;
+            font-size: 1/0.22*0.18em /* 18/100 */;
+            margin-right: 1/0.22*0.44em /* 44/100 */;
             font-family: Arial;
             font-weight: 400;
             color: #414954;
