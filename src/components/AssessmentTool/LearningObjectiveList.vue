@@ -402,12 +402,13 @@ export default {
             cursor: pointer;
 
             .tag-item {
+              user-select: none;
               cursor: pointer;
               color: #333;
               font-size: 13px;
               border-radius: 30px;
               line-height: 30px;
-              padding-left: 15px;
+              padding: 0 10px;
               word-break: normal;
               width: auto;
               display: flex;
@@ -419,14 +420,7 @@ export default {
               opacity: 1;
 
               /deep/ .anticon-close {
-                opacity: 0;
                 color: #f26c59;
-              }
-
-              &:hover {
-                /deep/ .anticon-close {
-                  opacity: 1;
-                }
               }
             }
           }
