@@ -713,11 +713,11 @@ export default {
       return Array.from(new Set(activeTypes))
     },
     realRecommendList() {
-      const othersContent = this.associateList.filter(item => item.createBy !== this.$store.getters.email)
+      const othersContent = this.associateList.filter(item => item.sourceFromUser !== this.$store.getters.email)
       return [...this.associateRecommendList, ...othersContent]
     },
     realAssociateList () {
-      return this.associateList.filter(item => item.createBy === this.$store.getters.email)
+      return this.associateList.filter(item => item.sourceFromUser === this.$store.getters.email)
     },
     labelColor() {
       if (this.content.type === this.typeMap['unit-plan']) {
