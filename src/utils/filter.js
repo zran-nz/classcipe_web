@@ -161,7 +161,7 @@ Vue.filter('sizeFormat', function (size) {
     return size + 'B'
   }
 
-  return ''
+  return '0MB'
 })
 
 Vue.filter('type2Name', function (type) {

@@ -35,10 +35,9 @@
             <a-button size="small" type="primary" @click="goToProfile">Go to profile</a-button>
           </div>
           <div class="header-detail-plan">
-            <div class="plan-name">
-              {{ info.planInfo.planName }} {{ planStatus }}
-            </div>
-            <div class="plan-deadline">
+            <div class='plan-name' v-if="info.planInfo && !info.planInfo.freeUsePlan">{{ info.planInfo.planName }} {{ planStatus }}</div>
+            <div class='plan-name' v-else>Free plan</div>
+            <div class="plan-deadline" v-if="info.planInfo && !info.planInfo.freeUsePlan">
               {{ expiredDay }}
             </div>
             <div class="plan-pay" v-if="info.planInfo && info.planInfo.unPaidPrice && info.planInfo.unPaidPrice > 0">
@@ -47,14 +46,17 @@
           </div>
           <div class="header-detail-storage">
             <a-progress :percent="storageProgress" class='cc-storage-progress' :show-info='false'/>
-            <div class='storage-info-text'>
+            <!-- <div class='storage-info-text'>
               {{ consumedSize | sizeFormat }} of {{ totalSize | sizeFormat }}
-            </div>
+            </div> -->
             <!-- <div class="storage-info-pay" v-if="info.planInfo && info.planInfo.planUser && info.planInfo.planUser.buyStatus === 2">
               <a-button type='primary'>Pay</a-button>
             </div> -->
           </div>
           <div class="header-detail-opt">
+            <div class='header-detail-text'>
+              {{ consumedSize | sizeFormat }} of {{ totalSize | sizeFormat }}
+            </div>
             <a class="" @click="handleGoSpace">Upgrade</a>
           </div>
         </div>
@@ -346,7 +348,7 @@ export default {
       return this.info.planInfo ? this.info.planInfo.storageSpace * this.unit : this.unit
     },
     storageProgress () {
-      return Math.round(this.consumedSize / this.totalSize * 100)
+      return Math.round((this.consumedSize || 0) / this.totalSize * 100)
     },
     roles() {
       if (this.userMode === USER_MODE.SCHOOL && this.currentSchool.roleNames) {
@@ -385,7 +387,7 @@ export default {
       if (this.info.planInfo && this.info.planInfo) {
         const isExpired = this.info.planInfo.flag !== 1 ? '( Plan expired )' : ''
         const isUnpay = '' // this.info.planInfo.planUser.buyStatus !== 1 ? '( Unpaid )' : ''
-        const isTrial = this.info.planInfo.freeUsePlan ? '( trial )' : ''
+        const isTrial = false // this.info.planInfo.freeUsePlan ? '( trial )' : ''
         return isTrial || (isExpired ? `${isExpired}` : isUnpay ? `${isUnpay}` : '')
       } else {
         return ''
@@ -651,6 +653,15 @@ export default {
         .header-detail-opt {
           margin-top: 0.33em /* 33/100 */;
           font-size: 0.22em /* 22/100 */;
+          display: flex;
+          align-items: center;
+          .header-detail-text {
+            font-size: 0.18em /* 18/100 */;
+            margin-right: 1/0.18*0.44em /* 44/100 */;
+            font-family: Arial;
+            font-weight: 400;
+            color: #414954;
+          }
           a {
             font-size: 1em;
             font-family: Arial;

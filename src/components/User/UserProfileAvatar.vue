@@ -25,16 +25,16 @@
         </div>
         <div class='plan-upgrade'>
           <a-space>
-            <div class='free-plan' v-if="info.planInfo">{{ info.planInfo.planName }}</div>
+            <div class='free-plan' v-if="info.planInfo && !info.planInfo.freeUsePlan">{{ info.planInfo.planName }}</div>
             <div class='free-plan' v-else>Free plan</div>
-            <div class='upgrade'>Upgrade storage</div>
+            <div class='upgrade'>Upgrade</div>
           </a-space>
           <div class='plan-end' v-if='info.planInfo.planUser && info.planInfo.planUser.planEndTime && !info.planInfo.freeUsePlan'>
             Ends on {{ info.planInfo.planUser.planEndTime }}
           </div>
-          <div class='plan-end' v-if='info.planInfo.freeUsePlan'>
+          <!-- <div class='plan-end' v-if='info.planInfo.freeUsePlan'>
             trial
-          </div>
+          </div> -->
         </div>
         <a-divider class='cc-small-divider' />
         <div class='class-info'>
