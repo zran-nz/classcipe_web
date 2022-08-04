@@ -623,7 +623,7 @@ export default {
         this.showStepMask = true
       } else {
         if (this.emptyRequiredFields.length === 0) {
-          if (this.form.presentationId) {
+          if (this.form.presentationId && !this.form.presentationId.startsWith('fake_buy_')) {
             this.form.status = 1
             this.handlePublishFormItem(1)
           } else {
