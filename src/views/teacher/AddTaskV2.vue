@@ -1107,7 +1107,7 @@ export default {
       if (this.form.presentationId && !this.form.presentationId.startsWith('fake_buy_')) {
         // 设置正在编辑状态，my content根据这个提示是否先save再排课
         this.form.slideEditing = true
-        const res = await this.updateSlideEditing()
+        const res = await this.save()
         if (res.code === 0) {
           // window.open('https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit', '_blank')
           window.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit'
