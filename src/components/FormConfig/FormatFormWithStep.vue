@@ -20,7 +20,7 @@
           <div class='tag-selected' v-if='step.tags && step.tags.length' @click='handleSetTag(step)' v-show='showTagStepIndexList.indexOf(sIdx) !== -1'>
             <div class='tag-selected-list'>
               <div class='tag-selected-item' v-for='(tag, tIdx) in step.tags' :key="'tid2-' + tIdx">
-                <a-tag class='my-tag-selected'>
+                <a-tag :key="tag" class='my-tag-selected' closable @close="e => handleCloseTag(sIdx,tag)">
                   <span class='my-tag-selected-name'>{{ tag }}</span>
                 </a-tag>
               </div>
@@ -660,6 +660,9 @@ export default {
         }
       })
       return enable
+    },
+    handleCloseTag(index, tag) {
+      this.steps[index].tags.splice(tag, 1)
     }
   }
 }

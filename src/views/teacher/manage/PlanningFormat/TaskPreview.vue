@@ -40,13 +40,13 @@
             v-show='currentActiveStepIndex === stepIndex'
             v-for='(step, stepIndex) in formSteps'
             :key='step.id'>
-            <div class='form-field-item' v-for='fieldItem in $store.getters.formConfigData.taskCommonList' :key='fieldItem.id'>
+            <div class='form-field-item' v-for='fieldItem in previewData.taskCommonList' :key='fieldItem.id'>
               <template v-if='step.commonFields.indexOf(fieldItem.fieldName) !== -1'>
                 <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Name' :key='fieldItem.fieldName' >
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Name />
                   <custom-form-item :required='emptyRequiredFields.indexOf(taskField.Name) !== -1'>
                     <template slot='label'>
-                      {{ 'Task name' | taskLabelName(taskField.Name, $store.getters.formConfigData) }}
+                      {{ 'Task name' | taskLabelName(taskField.Name, previewData) }}
                     </template>
                     <template slot='action'>
                       <comment-switch
@@ -56,8 +56,8 @@
                         @switch='handleSwitchComment'
                         :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Name}" />
                     </template>
-                    <template v-if='taskLabelHint(taskField.Name, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="'Task name' | taskLabelHint(taskField.Name, $store.getters.formConfigData)" placement='top'>
+                    <template v-if='taskLabelHint(taskField.Name, previewData)' slot='tips'>
+                      <a-tooltip :title="'Task name' | taskLabelHint(taskField.Name, previewData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
@@ -73,7 +73,7 @@
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Overview />
                   <custom-form-item class='task-audio-line' ref='overview' :required='emptyRequiredFields.indexOf(taskField.Overview) !== -1'>
                     <template slot='label'>
-                      {{ 'Task details' | taskLabelName(taskField.Overview, $store.getters.formConfigData) }}
+                      {{ 'Task details' | taskLabelName(taskField.Overview, previewData) }}
                     </template>
                     <template slot='action'>
                       <comment-switch
@@ -83,8 +83,8 @@
                         @switch='handleSwitchComment'
                         :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Overview}" />
                     </template>
-                    <template v-if='taskLabelHint(taskField.Overview, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="'Task details' | taskLabelHint(taskField.Overview, $store.getters.formConfigData)" placement='top'>
+                    <template v-if='taskLabelHint(taskField.Overview, previewData)' slot='tips'>
+                      <a-tooltip :title="'Task details' | taskLabelHint(taskField.Overview, previewData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
@@ -103,7 +103,7 @@
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.TaskType style="left:20px" />
                   <custom-form-item class='task-audio-line' ref='taskType' :colon='false' :required='emptyRequiredFields.indexOf(taskField.TaskType) !== -1'>
                     <template slot='label'>
-                      {{ 'Choose Task Type' | taskLabelName(taskField.TaskType, $store.getters.formConfigData) }}
+                      {{ 'Choose Task Type' | taskLabelName(taskField.TaskType, previewData) }}
                     </template>
                     <template slot='action'>
                       <comment-switch
@@ -113,8 +113,8 @@
                         @switch='handleSwitchComment'
                         :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.TaskType}" />
                     </template>
-                    <template v-if='taskLabelHint(taskField.TaskType, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="'Choose Task Type' | taskLabelHint(taskField.TaskType, $store.getters.formConfigData)" placement='top'>
+                    <template v-if='taskLabelHint(taskField.TaskType, previewData)' slot='tips'>
+                      <a-tooltip :title="'Choose Task Type' | taskLabelHint(taskField.TaskType, previewData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
@@ -142,7 +142,7 @@
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Question />
                   <custom-form-item :required='emptyRequiredFields.indexOf(taskField.Question) !== -1'>
                     <template slot='label'>
-                      {{ 'Choose Key questions' | taskLabelName(taskField.Overview, $store.getters.formConfigData) }}
+                      {{ 'Choose Key questions' | taskLabelName(taskField.Overview, previewData) }}
                     </template>
                     <template slot='action'>
                       <comment-switch
@@ -152,8 +152,8 @@
                         @switch='handleSwitchComment'
                         :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Question}" />
                     </template>
-                    <template v-if='taskLabelHint(taskField.Overview, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="'Choose Key questions' | taskLabelHint(taskField.Overview, $store.getters.formConfigData)" placement='top'>
+                    <template v-if='taskLabelHint(taskField.Overview, previewData)' slot='tips'>
+                      <a-tooltip :title="'Choose Key questions' | taskLabelHint(taskField.Overview, previewData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
@@ -186,7 +186,7 @@
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.LearnOuts style="left:100px" />
                   <custom-form-item :required='emptyRequiredFields.indexOf(taskField.LearnOuts) !== -1'>
                     <template slot='label'>
-                      {{ 'Learning objectives' | taskLabelName(taskField.LearnOuts, $store.getters.formConfigData) }}
+                      {{ 'Learning objectives' | taskLabelName(taskField.LearnOuts, previewData) }}
                     </template>
                     <learning-objective
                       @change='handleUpdateLearningObjectives'
@@ -207,7 +207,7 @@
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.MaterialList />
                   <custom-form-item :required='emptyRequiredFields.indexOf(taskField.MaterialList) !== -1'>
                     <template slot='label'>
-                      {{ 'Resources required for hands-on activities' | taskLabelName(taskField.MaterialList, $store.getters.formConfigData) }}
+                      {{ 'Resources required for hands-on activities' | taskLabelName(taskField.MaterialList, previewData) }}
                     </template>
                     <template slot='action'>
                       <comment-switch
@@ -217,8 +217,8 @@
                         @switch='handleSwitchComment'
                         :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.MaterialList}" />
                     </template>
-                    <template v-if='taskLabelHint(taskField.MaterialList, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="'Resources required for hands-on activities' | taskLabelHint(taskField.MaterialList, $store.getters.formConfigData)" placement='top'>
+                    <template v-if='taskLabelHint(taskField.MaterialList, previewData)' slot='tips'>
+                      <a-tooltip :title="'Resources required for hands-on activities' | taskLabelHint(taskField.MaterialList, previewData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
@@ -307,10 +307,10 @@
                   <!-- image-->
                   <custom-form-item class='img-wrapper' :required='emptyRequiredFields.indexOf(taskField.Image) !== -1'>
                     <template slot='label'>
-                      {{ 'Cover' | taskLabelName(taskField.Image, $store.getters.formConfigData) }}
+                      {{ 'Cover' | taskLabelName(taskField.Image, previewData) }}
                     </template>
-                    <template v-if='taskLabelHint(taskField.Image, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="'Cover' | taskLabelHint(taskField.Image, $store.getters.formConfigData)" placement='top'>
+                    <template v-if='taskLabelHint(taskField.Image, previewData)' slot='tips'>
+                      <a-tooltip :title="'Cover' | taskLabelHint(taskField.Image, previewData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
@@ -333,7 +333,7 @@
 
               </template>
             </div>
-            <div class='form-field-item custom-field' v-for='custFieldItem in $store.getters.formConfigData.taskCustomList' :key='custFieldItem.id'>
+            <div class='form-field-item custom-field' v-for='custFieldItem in previewData.taskCustomList' :key='custFieldItem.id'>
               <template v-if='step.customFields.indexOf(custFieldItem.name) !== -1'>
                 <div class='form-block tag-content-block' v-if="custFieldItem.visible && form.customFieldData && form.customFieldData.hasOwnProperty(custFieldItem.id)" :key='custFieldItem.id' :data-field-name="'cust_' + custFieldItem.name" :data-field-id='custFieldItem.id'>
                   <custom-form-item>
@@ -596,7 +596,8 @@ export default {
       fullBodyFields: ['learnOuts'],
 
       showSplitTask: false,
-      waitingRedirect: false
+      waitingRedirect: false,
+      previewData: {}
     }
   },
   computed: {
@@ -655,6 +656,7 @@ export default {
     this.$logger.info('task-preview created', this.formConfigPreviewData)
     this.initData()
     this.formSteps = formConfigPreviewData.taskSteps || []
+    this.previewData = formConfigPreviewData
     this.$logger.info('formSteps', this.formSteps)
     this.requiredFields = [
       TaskField.Name,

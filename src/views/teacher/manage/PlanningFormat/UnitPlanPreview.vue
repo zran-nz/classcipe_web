@@ -34,13 +34,13 @@
             v-show='currentActiveStepIndex === stepIndex'
             v-for='(step, stepIndex) in formSteps'
             :key='step.id'>
-            <div class='form-field-item' v-for='fieldItem in $store.getters.formConfigData.planCommonList' :key='fieldItem.id'>
+            <div class='form-field-item' v-for='fieldItem in previewData.planCommonList' :key='fieldItem.id'>
               <template v-if='step.commonFields.indexOf(fieldItem.fieldName) !== -1'>
                 <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === planField.Name' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Name />
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.Name) !== -1'>
                     <template slot='label'>
-                      {{ 'Unit Name' | unitLabelName(planField.Name, $store.getters.formConfigData) }}
+                      {{ 'Unit Name' | unitLabelName(planField.Name, previewData) }}
                     </template>
                     <template slot='action'>
                       <a-space>
@@ -52,8 +52,8 @@
                           @switch='handleSwitchComment'/>
                       </a-space>
                     </template>
-                    <template v-if='unitLabelHint(planField.Name, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="'Unit Name' | unitLabelHint(planField.Name, $store.getters.formConfigData)" placement='top'>
+                    <template v-if='unitLabelHint(planField.Name, previewData)' slot='tips'>
+                      <a-tooltip :title="'Unit Name' | unitLabelHint(planField.Name, previewData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
@@ -69,7 +69,7 @@
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Overview />
                   <custom-form-item ref='overview' :required='emptyRequiredFields.indexOf(planField.Overview) !== -1'>
                     <template slot='label'>
-                      {{ 'Overview' | unitLabelName(planField.Overview, $store.getters.formConfigData) }}
+                      {{ 'Overview' | unitLabelName(planField.Overview, previewData) }}
                     </template>
                     <template slot='action'>
                       <a-space>
@@ -81,8 +81,8 @@
                           :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Overview}" />
                       </a-space>
                     </template>
-                    <template v-if='unitLabelHint(planField.Overview, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="'Overview' | unitLabelHint(planField.Overview, $store.getters.formConfigData)" placement='top'>
+                    <template v-if='unitLabelHint(planField.Overview, previewData)' slot='tips'>
+                      <a-tooltip :title="'Overview' | unitLabelHint(planField.Overview, previewData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
@@ -101,7 +101,7 @@
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.ProjectBased style="top:-30px" />
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.ProjectBased) !== -1'>
                     <template slot='label'>
-                      {{ 'Project-based Unit' | unitLabelName(planField.ProjectBased, $store.getters.formConfigData) }}
+                      {{ 'Project-based Unit' | unitLabelName(planField.ProjectBased, previewData) }}
                     </template>
                     <template slot='action'>
                       <a-space>
@@ -114,8 +114,8 @@
                         />
                       </a-space>
                     </template>
-                    <template v-if='unitLabelHint(planField.ProjectBased, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="'Project-based Unit' | unitLabelHint(planField.ProjectBased, $store.getters.formConfigData)" placement='top'>
+                    <template v-if='unitLabelHint(planField.ProjectBased, previewData)' slot='tips'>
+                      <a-tooltip :title="'Project-based Unit' | unitLabelHint(planField.ProjectBased, previewData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
@@ -131,7 +131,7 @@
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.UnitType style="top:-30px"/>
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.UnitType) !== -1'>
                     <template slot='label'>
-                      {{ 'Unit type' | unitLabelName(planField.UnitType, $store.getters.formConfigData) }}
+                      {{ 'Unit type' | unitLabelName(planField.UnitType, previewData) }}
                     </template>
                     <template slot='action'>
                       <a-space>
@@ -143,8 +143,8 @@
                           :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.UnitType}" />
                       </a-space>
                     </template>
-                    <template v-if='unitLabelName(planField.UnitType, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="'Unit type' | unitLabelHint(planField.UnitType, $store.getters.formConfigData)" placement='top'>
+                    <template v-if='unitLabelName(planField.UnitType, previewData)' slot='tips'>
+                      <a-tooltip :title="'Unit type' | unitLabelHint(planField.UnitType, previewData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
@@ -160,7 +160,7 @@
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.StartDate />
                   <custom-form-item style='width:23%;margin-bottom: 0px;' :required='emptyRequiredFields.indexOf(planField.GradeIds) !== -1'>
                     <template slot='label'>
-                      {{ 'Grade level' | unitLabelName(planField.GradeId, $store.getters.formConfigData) }}
+                      {{ 'Grade level' | unitLabelName(planField.GradeId, previewData) }}
                     </template>
                     <template slot='action'>
                       <a-space>
@@ -172,8 +172,8 @@
                           :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.StartDate}" />
                       </a-space>
                     </template>
-                    <template v-if='unitLabelHint(planField.GradeId, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="'Grade level' | unitLabelHint(planField.GradeId, $store.getters.formConfigData)" placement='top'>
+                    <template v-if='unitLabelHint(planField.GradeId, previewData)' slot='tips'>
+                      <a-tooltip :title="'Grade level' | unitLabelHint(planField.GradeId, previewData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
@@ -198,7 +198,7 @@
                   <collaborate-tooltip :form-id="unitPlanId" :field-name='planField.Inquiry'/>
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.Inquiry) !== -1'>
                     <template slot='label'>
-                      {{ 'Big Idea/ Statement of Inquiry/ Central Idea' | unitLabelName(planField.Inquiry, $store.getters.formConfigData) }}
+                      {{ 'Big Idea/ Statement of Inquiry/ Central Idea' | unitLabelName(planField.Inquiry, previewData) }}
                     </template>
                     <template slot='action'>
                       <a-space>
@@ -210,8 +210,8 @@
                           @switch='handleSwitchComment' />
                       </a-space>
                     </template>
-                    <template v-if='unitLabelHint(planField.Inquiry, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="'Big Idea/ Statement of Inquiry/ Central Idea' | unitLabelHint(planField.Inquiry, $store.getters.formConfigData)" placement='top'>
+                    <template v-if='unitLabelHint(planField.Inquiry, previewData)' slot='tips'>
+                      <a-tooltip :title="'Big Idea/ Statement of Inquiry/ Central Idea' | unitLabelHint(planField.Inquiry, previewData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
@@ -234,7 +234,7 @@
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Sdg />
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.Sdg) !== -1'>
                     <template slot='label'>
-                      {{ 'UN Sustainable Development Goal(s)' | unitLabelName(planField.Scenarios, $store.getters.formConfigData) }}
+                      {{ 'UN Sustainable Development Goal(s)' | unitLabelName(planField.Scenarios, previewData) }}
                     </template>
                     <template slot='action'>
                       <a-space>
@@ -247,8 +247,8 @@
                         <plus-icon @click='handleAddMoreSdg'/>
                       </a-space>
                     </template>
-                    <template v-if='unitLabelHint(planField.Scenarios, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="'UN Sustainable Development Goal(s)' | unitLabelHint(planField.Scenarios, $store.getters.formConfigData)" placement='top'>
+                    <template v-if='unitLabelHint(planField.Scenarios, previewData)' slot='tips'>
+                      <a-tooltip :title="'UN Sustainable Development Goal(s)' | unitLabelHint(planField.Scenarios, previewData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
@@ -309,10 +309,10 @@
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Rwc />
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.Rwc) !== -1'>
                     <template slot='label'>
-                      {{ 'Real World Connection(s)' | unitLabelName(planField.Rwc, $store.getters.formConfigData) }}
+                      {{ 'Real World Connection(s)' | unitLabelName(planField.Rwc, previewData) }}
                     </template>
-                    <template v-if='unitLabelHint(planField.Rwc, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="'Real World Connection(s)' | unitLabelHint(planField.Rwc, $store.getters.formConfigData)" placement='top'>
+                    <template v-if='unitLabelHint(planField.Rwc, previewData)' slot='tips'>
+                      <a-tooltip :title="'Real World Connection(s)' | unitLabelHint(planField.Rwc, previewData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
@@ -337,7 +337,7 @@
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Question />
                   <custom-form-item class='unit-question' :required='emptyRequiredFields.indexOf(planField.Question) !== -1'>
                     <template slot='label'>
-                      {{ 'Key question(s) / Line(s) of inquiry' | unitLabelName(planField.Question, $store.getters.formConfigData) }}
+                      {{ 'Key question(s) / Line(s) of inquiry' | unitLabelName(planField.Question, previewData) }}
                     </template>
                     <template slot='action'>
                       <a-space>
@@ -352,8 +352,8 @@
                         <custom-link-text text='more' :size='13' @click='questionMoreVisible=true'></custom-link-text>
                       </a-space>
                     </template>
-                    <template v-if='unitLabelHint(planField.Question, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="'Key question(s) / Line(s) of inquiry' | unitLabelHint(planField.Question, $store.getters.formConfigData)" placement='top'>
+                    <template v-if='unitLabelHint(planField.Question, previewData)' slot='tips'>
+                      <a-tooltip :title="'Key question(s) / Line(s) of inquiry' | unitLabelHint(planField.Question, previewData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
@@ -401,7 +401,7 @@
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Assessment style="left:100px" />
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.LearnOuts) !== -1'>
                     <template slot='label'>
-                      {{ 'Learning objectives' | taskLabelName(planField.LearnOuts, $store.getters.formConfigData) }}
+                      {{ 'Learning objectives' | taskLabelName(planField.LearnOuts, previewData) }}
                     </template>
                     <learning-objective
                       @change='handleUpdateLearningObjectives'
@@ -421,7 +421,7 @@
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Prior />
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.Prior) !== -1'>
                     <template slot='label'>
-                      {{ 'Prior learning experience' | unitLabelName(planField.Prior, $store.getters.formConfigData) }}
+                      {{ 'Prior learning experience' | unitLabelName(planField.Prior, previewData) }}
                     </template>
                     <template slot='action'>
                       <a-space>
@@ -433,8 +433,8 @@
                           @switch='handleSwitchComment' />
                       </a-space>
                     </template>
-                    <template v-if='unitLabelHint(planField.Prior, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="'Prior learning experience' | unitLabelHint(planField.Prior, $store.getters.formConfigData)" placement='top'>
+                    <template v-if='unitLabelHint(planField.Prior, previewData)' slot='tips'>
+                      <a-tooltip :title="'Prior learning experience' | unitLabelHint(planField.Prior, previewData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
@@ -458,10 +458,10 @@
                   <!-- image-->
                   <custom-form-item class='img-wrapper' :required='emptyRequiredFields.indexOf(planField.Image) !== -1'>
                     <template slot='label'>
-                      {{ 'Cover' | taskLabelName(planField.Image, $store.getters.formConfigData) }}
+                      {{ 'Cover' | taskLabelName(planField.Image, previewData) }}
                     </template>
-                    <template v-if='taskLabelHint(planField.Image, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="'Cover' | taskLabelHint(planField.Image, $store.getters.formConfigData)" placement='top'>
+                    <template v-if='taskLabelHint(planField.Image, previewData)' slot='tips'>
+                      <a-tooltip :title="'Cover' | taskLabelHint(planField.Image, previewData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
@@ -476,7 +476,7 @@
 
               </template>
             </div>
-            <div class='form-field-item custom-field' v-for='custFieldItem in $store.getters.formConfigData.planCustomList' :key='custFieldItem.id'>
+            <div class='form-field-item custom-field' v-for='custFieldItem in previewData.planCustomList' :key='custFieldItem.id'>
               <template v-if='step.customFields.indexOf(custFieldItem.name) !== -1'>
                 <div class='form-block tag-content-block' v-if="custFieldItem.visible && form.customFieldData && form.customFieldData.hasOwnProperty(custFieldItem.id)" :key='custFieldItem.id' :data-field-name="'cust_' + custFieldItem.name" :data-field-id='custFieldItem.id'>
                   <custom-form-item>
@@ -851,7 +851,8 @@ export default {
 
       formBodyWidth: '50%',
       tagBodyWidth: '50%',
-      fullBodyFields: ['learnOuts']
+      fullBodyFields: ['learnOuts'],
+      previewData: {}
     }
   },
   computed: {
@@ -915,6 +916,7 @@ export default {
     this.$logger.info('unitPlanId ' + this.unitPlanId + ' ' + this.$route.path)
     LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
     this.formSteps = formConfigPreviewData.planSteps || []
+    this.previewData = formConfigPreviewData
     this.$logger.info('formSteps', this.formSteps)
     this.requiredFields = [
       PlanField.Name,

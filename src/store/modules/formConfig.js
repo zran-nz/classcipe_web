@@ -87,6 +87,7 @@ const formConfig = {
           return a.step - b.step
         })
       }
+      state.formConfigData = configData
       storage.set(FORM_CONFIG_PREVIEW_DATA, configData)
     },
     [FORM_CONFIG_DATA]: (state, formConfigData) => {

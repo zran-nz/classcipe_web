@@ -261,6 +261,9 @@ export default {
 
     handleSelectTemplate(id) {
       this.selectTemplateVisible = false
+      // if (this.getCurrentId === id) {
+      //   return
+      // }
       this.saving = true
       ImportTemplate({
         templateId: id
