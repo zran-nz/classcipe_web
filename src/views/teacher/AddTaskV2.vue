@@ -684,6 +684,9 @@ export default {
     },
     hiddenFieldNameList() {
       return this.$store.getters.formConfigData?.taskCommonList?.filter(item => item.visible === false).map(item => item.fieldName)
+    },
+    isCopyContent() {
+      return !!this.form?.originalOwner
     }
   },
   watch: {
