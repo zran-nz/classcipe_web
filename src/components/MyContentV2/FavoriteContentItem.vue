@@ -48,6 +48,16 @@
                       v-if="content.taskType === 'Activity'">
                       <a-tooltip title='Teaching/Learning Activity' placement='top'>Activity</a-tooltip>
                     </div>
+                    <div
+                      class='task-type-item blue-active-task-type task-type-examine'
+                      v-if="content.taskType === 'FinalExamine'">
+                      FinalExamine
+                    </div>
+                    <div
+                      class='task-type-item red-active-task-type task-type-test'
+                      v-if="content.taskType === 'Test'">
+                      Test
+                    </div>
                   </div>
                 </div>
               </div>
@@ -410,6 +420,15 @@ export default {
     .task-type-activity {
       width: 70px;
       border-radius: 50px;
+    }
+
+    .task-type-examine {
+      width: 100px;
+      border-radius: 50px !important;
+    }
+    .task-type-test {
+      width: 40px;
+      border-radius: 50px !important;
     }
 
     .green-active-task-type {
