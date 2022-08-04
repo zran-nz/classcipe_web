@@ -28,6 +28,9 @@
         <div class='action-mask' v-if="(currentAction === 'publish' && content.status === 1) || (currentAction === 'unpublish' && content.status === 0)">
           Sub task has been {{ content.status === 1 ? 'Published' : 'Unpublished' }}
         </div>
+        <div class='action-mask' v-if="(currentAction === 'publish' && !content.presentationId ) || (currentAction === 'publish' && content.presentationId.startsWith('fake_buy_'))">
+          This task content can not be published without interactive slides, please edit google slides first
+        </div>
         <div class='checked-icon vertical-center' @click='toggleSelectItem(content)'>
           <template v-if='currentAction'>
             <a-checkbox
