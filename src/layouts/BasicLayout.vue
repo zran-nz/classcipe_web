@@ -14,7 +14,7 @@
           我们推荐使用这种方式进行 LOGO 和 title 自定义
     -->
     <template v-slot:menuHeaderRender>
-      <div class="home-nav" @click="goHome" @mouseenter='expandMenuThrottle'>
+      <div class="home-nav" @click="goHome">
         <img src="~@/assets/logo/50.png" class='single-logo-img' alt='classcipe' />
         <div class='home-title'>
           <div class='classcipe-title'>Classcipe</div>
@@ -103,7 +103,6 @@ export default {
       // 是否手机模式
       isMobile: false,
       USER_MODE: USER_MODE,
-      expandMenuThrottle: null,
       noSidebar: false
     }
   },
@@ -158,9 +157,6 @@ export default {
       logger.info('go to defaultRouter ' + this.$store.getters.defaultRouter)
       this.$router.replace(this.$store.getters.defaultRouter)
     }
-    this.expandMenuThrottle = throttle(this.expandMenu, 200, {
-      leading: true
-    })
   },
   mounted () {
     this.headerDom = []
@@ -181,10 +177,6 @@ export default {
       this.$store.dispatch('ChangeRole', { role }).then(() => {
         window.location.href = '/'
       })
-    },
-    expandMenu() {
-      this.$logger.info('expandMenu')
-      this.$store.commit(HIDDEN_SIDEBAR, false)
     },
     goHome () {
       this.$router.push('/')
