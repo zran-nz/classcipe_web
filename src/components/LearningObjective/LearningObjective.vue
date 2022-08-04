@@ -599,6 +599,7 @@ export default {
         this.$set(item, 'knowledgeDimension', '')
         this.selectedList.unshift(item)
       }
+      this.filterConfig.keyword = ''
       this.showFilterList = false
     },
 

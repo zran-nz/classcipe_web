@@ -56,7 +56,7 @@
             <div class="search-tag-wrapper tag-wrapper" v-if="filterTagList.length > 0">
               <div class="skt-tag-item" v-for="tagItem in filterTagList" :key="tagItem.tag" >
                 <a-tag
-                  @click="selectTag(currentActiveTagCategory, tagItem)"
+                  @click="selectedTagNameList.indexOf(tagItem.tag) !== -1 ? null : selectTag(currentActiveTagCategory, tagItem)"
                   :style="{ 'background-color': currentActiveTagCategory.tagColor || '#fff', 'border-color': currentActiveTagCategory.tagColor || '#15c39a'}"
                   :class="{ 'selected-tag-item': selectedTagNameList.indexOf(tagItem.tag) !== -1 }"
                   class="tag-item cc-custom-tag-item">
