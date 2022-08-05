@@ -86,7 +86,8 @@
         <div class='right-info'>
           <div class='buy-info' @click.stop=''>
             <a-space>
-              <div class='price'>${{ content.price }}</div>
+              <div class='price'>${{ content.discountPrice || content.price }}</div>
+              <div v-if="content.discountPrice !== content.price" class='price_was'>${{ content.price }}</div>
               <div class='buy'>
                 <a-button
                   type="danger"
@@ -497,6 +498,19 @@ export default {
     font-family: Arial;
     font-weight: bold;
     color: #F1565F;
+    padding-right: 5px;
+    user-select: none;
+    cursor: pointer;
+    height: 32px;
+    line-height: 32px;
+    vertical-align: middle;
+  }
+
+  .price_was {
+    text-decoration:line-through;
+    font-size: 14px;
+    font-family: Arial;
+    margin-left: -5px;
     padding-right: 5px;
     user-select: none;
     cursor: pointer;
