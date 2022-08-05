@@ -153,6 +153,49 @@
                   </custom-form-item>
                 </div>
 
+                <div class='form-block form-question tag-content-block' :data-field-name='taskField.Question' v-if='associateQuestionList.length > 0 && fieldItem.visible && fieldItem.fieldName === taskField.Question' :key='fieldItem.fieldName'>
+                  <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Question style="left:100px" />
+                  <custom-form-item :colon='false' :required='emptyRequiredFields.indexOf(taskField.Question) !== -1'>
+                    <template slot='label'>
+                      {{ 'Key question(s)' | taskLabelName(taskField.Question, $store.getters.formConfigData) }}
+                    </template>
+                    <template slot='action'>
+                      <comment-switch
+                        v-show="canEdit"
+                        :field-name='taskField.Question'
+                        :is-active="currentFieldName === taskField.Question"
+                        @switch='handleSwitchComment'
+                        :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Question}" />
+                    </template>
+                    <template v-if='taskFieldLabel(taskField.Question, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="taskFieldLabel(taskField.Question, $store.getters.formConfigData)" placement='top'>
+                        <a-icon type="info-circle" />
+                      </a-tooltip>
+                    </template>
+                    <a-select
+                      :getPopupContainer="trigger => trigger.parentElement"
+                      size='large'
+                      class='my-big-select'
+                      v-model='form.questionIds'
+                      mode='multiple'
+                      placeholder='Choose Key questions'
+                      option-label-prop='label'
+                      :disabled="!canEdit"
+                    >
+                      <a-select-option
+                        v-for='(item,index) in associateQuestionList'
+                        :value='item.id'
+                        :label='item.name'
+                        :key='index'>
+                        <span class='question-options'>
+                          {{ item.name }}
+                        </span>
+                        From Unit Plan({{ item.unitName }})
+                      </a-select-option>
+                    </a-select>
+                  </custom-form-item>
+                </div>
+
                 <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.LearnOuts' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.LearnOuts style="left:100px" />
                   <custom-form-item :required='emptyRequiredFields.indexOf(taskField.LearnOuts) !== -1'>
@@ -4158,5 +4201,17 @@ p.ant-upload-text {
     top: 5px;
     cursor: pointer;
   }
+}
+
+.question-options {
+  width: 100%;
+  display: block;
+  font-size: 18px;
+  font-family: Inter-Bold;
+  line-height: 24px;
+  color: #11142D;
+}
+.my-big-select{
+  width: 100%
 }
 </style>
