@@ -89,8 +89,14 @@ export default {
     doCreate(cls) {
       this.loading = false
       this.model = { ...cls }
-      // TODO 没有班级就不弹了
-      this.selVis = true
+      // 没有班级就不弹了
+      const effects = this.getEffectClasses()
+      console.log(effects)
+      if (effects.length > 0) {
+        this.selVis = true
+      } else {
+        this.$emit('finish', this.model.curriculums)
+      }
     },
     handleCancel() {
       this.$emit('finish', null)
