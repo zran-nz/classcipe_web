@@ -431,7 +431,7 @@
             Sub tasks ({{ content.subTasks.length }})
           </div>
           <div class='go-to-list'>
-            <custom-link-text text='Enter' @click='goToSubTaskList'></custom-link-text>
+            <custom-link-text text='Enter' @click='goToSubTaskList' v-show='content.createBy === $store.getters.email'></custom-link-text>
           </div>
         </div>
         <div class='scroll-left' @click="scrollLeft('subTask')">
@@ -455,7 +455,7 @@
             ({{ realAssociateList.length }})
           </div>
           <div class='go-to-list'>
-            <custom-link-text text='Enter' @click='goTLinkList'></custom-link-text>
+            <custom-link-text text='Enter' @click='goTLinkList' v-show='content.createBy === $store.getters.email'></custom-link-text>
           </div>
         </div>
         <div class='scroll-left' @click="scrollLeft('taskUnit')">

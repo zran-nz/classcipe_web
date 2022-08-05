@@ -951,7 +951,10 @@ export default {
             this.form.status = 1
             this.handlePublishFormItem(1)
           } else {
-            this.$message.warn('This task/PD content can not be published without interactive slides, please edit google slides first')
+            this.$confirm({
+              title: 'Warning',
+              content: 'This task/PD content can not be published without interactive slides, please edit google slides first'
+            })
           }
         } else {
           let requiredStepIndex = -1

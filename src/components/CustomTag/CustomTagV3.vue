@@ -56,7 +56,7 @@
             <div class="search-tag-wrapper tag-wrapper" v-if="filterTagList.length > 0">
               <div class="skt-tag-item" v-for="tagItem in filterTagList" :key="tagItem.tag" >
                 <a-tag
-                  @click="selectTag(currentActiveTagCategory, tagItem)"
+                  @click="selectedTagNameList.indexOf(tagItem.tag) !== -1 ? null : selectTag(currentActiveTagCategory, tagItem)"
                   :style="{ 'background-color': currentActiveTagCategory.tagColor || '#fff', 'border-color': currentActiveTagCategory.tagColor || '#15c39a'}"
                   :class="{ 'selected-tag-item': selectedTagNameList.indexOf(tagItem.tag) !== -1 }"
                   class="tag-item cc-custom-tag-item">
@@ -111,7 +111,7 @@
             <a-textarea
               :auto-size="{ minRows: 3, maxRows: 6 }"
               v-model='categoryDesc.description'
-              placeholder='Explain the selected tags are applied in this Unit(Tasks'
+              placeholder='Explain how the selected tags are applied in this Unit(Tasks'
               class='cc-form-textarea-white-bg'
               allow-clear />
           </div>
@@ -122,7 +122,7 @@
           v-if='currentActiveTagCategory && selectedCategoryNameList.indexOf(currentActiveTagCategory.set) !== -1'
           :auto-size="{ minRows: 3, maxRows: 6 }"
           v-model='currentTagCategoryDesc'
-          placeholder='Explain the selected tags are applied in this Unit(Tasks)'
+          placeholder='Explain how the selected tags are applied in this Unit(Tasks)'
           class='cc-form-textarea-white-bg'
           @change='asyncUpdateTagCategoryDescFn'
           allow-clear />
@@ -367,7 +367,9 @@ export default {
       this.associateCustomTags.forEach(item => {
         const customTags = item.customTags
         customTags.forEach(customTag => {
-          categorySet.add(customTag.category)
+          if (this.selectedCategoryNameList.indexOf(customTag.category) === -1) {
+            categorySet.add(customTag.category)
+          }
         })
       })
       return Array.from(categorySet)

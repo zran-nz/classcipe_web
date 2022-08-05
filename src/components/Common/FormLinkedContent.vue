@@ -150,8 +150,9 @@ export default {
       }).then(response => {
         this.$logger.info('UnitLinkedContent getAssociate', response)
         response.result.owner.forEach(ownerItem => {
-          const groupItem = response.result.groups.find(group => group.groupName === ownerItem.group)
+          const groupItem = response.result.groups.find(group => group.groupName === ownerItem.group || (group.groupName === 'Relevant Unit Plan(s)' && ownerItem.group === ''))
           const contentList = JSON.parse(JSON.stringify(ownerItem.contents))
+          console.log('contentList', contentList, 'groupItem', groupItem)
           if (groupItem) {
             ownerItem.groupId = groupItem.id
             let contents = []

@@ -1,5 +1,9 @@
 <template>
-  <div class="teacher-nav top-nav-v2" @mouseenter='expandMenuThrottle' @mouseleave='hiddenMenu'>
+  <div class="teacher-nav top-nav-v2">
+    <div class='toggle-switcher'>
+      <a-icon type="left" v-show='!collapsed' @click.native='hiddenMenu' />
+      <a-icon type="right" v-show='collapsed' @click.native='expandMenuThrottle' />
+    </div>
     <div class='top-menu'>
       <div class='menu menu-block' @dblclick.stop=''>
         <sidebar-menu-item label='Library' path='/teacher/library'>
@@ -352,6 +356,24 @@ export default {
     flex-grow: 1;
     max-height: calc(100vh - 90px);
     overflow-y: auto;
+  }
+}
+
+.toggle-switcher {
+  opacity: 0;
+  color: #fff;
+  position: absolute;
+  right: 3px;
+  top: 34px;
+  font-size: 16px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.3s ease-in-out;
+}
+
+.ant-layout-sider:hover {
+  .toggle-switcher {
+    opacity: 1;
   }
 }
 
