@@ -90,14 +90,28 @@ request.interceptors.response.use((response) => {
     } else if (response.data.code === ErrorCode.auth_limit) {
       notification.warning({
         message: 'Reminder',
-        description: response.data.message
+        description: response.data.message,
+        icon: h => {
+          return h('a-icon', {
+            props: {
+              type: 'alert'
+            }
+          })
+        }
       })
       logger.error(response.data)
     } else {
       if (process.env.NODE_ENV !== 'production') {
-        notification.error({
-          message: 'error',
-          description: response.data.message
+        notification.warning({
+          message: 'Reminder',
+          description: response.data.message,
+          icon: h => {
+            return h('a-icon', {
+              props: {
+                type: 'alert'
+              }
+            })
+          }
         })
       }
       logger.error(response.data)

@@ -15,7 +15,7 @@
             <a-space :size="5" align="center" @click.stop>
               <label style="cursor: pointer" @click="$router.push('/account/info')">Account Info</label>
               <label for="">></label>
-              <label style="font-weight: normal">School Class</label>
+              <label style="font-weight: normal">{{ userMode === USER_MODE.SELF ? 'Persona' : 'School' }} Class</label>
             </a-space>
           </template>
           <template v-slot:right>
@@ -128,6 +128,9 @@
                               </a-menu-item>
                               <a-menu-item v-if="userMode === USER_MODE.SCHOOL">
                                 <a href="javascript:;" @click="handleEditTeachers(cls)">Edit teachers</a>
+                              </a-menu-item>
+                              <a-menu-item v-if="cls.classType === 1">
+                                <a href="javascript:;" @click="handleEditSubjectClass(cls)">Edit</a>
                               </a-menu-item>
                               <a-menu-item>
                                 <a href="javascript:;" @click="handleArchive(cls)">Archive</a>
@@ -555,6 +558,9 @@ export default {
     },
     handleAddSubjectClass() {
       this.$refs.classSubject.doCreate({})
+    },
+    handleEditSubjectClass(cls) {
+      this.$refs.classSubject.doEdit({ ...cls })
     },
     addSubjectClass(cls) {
       console.log(cls)

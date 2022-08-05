@@ -291,6 +291,10 @@ export default {
       } else {
         this.queryParams.workshopsStatus = this.WORK_SHOPS_STATUS.SCHEDULE.value
       }
+
+      this.$router.replace({
+        path: '/teacher/main/live-workshops?workshopsType=' + this.queryParams.workshopsType
+      })
       this.loadMyContent()
     },
     loadMyContent () {

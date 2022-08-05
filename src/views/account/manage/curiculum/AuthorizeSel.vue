@@ -29,7 +29,7 @@
           :model="totalResult[choosed.id]"
           v-bind="formItemLayout"
           :rules="validatorRules">
-          <a-form-model-item prop="resources">
+          <a-form-model-item :required="true">
             <span slot="label">
               Resources&nbsp;
               <a-tooltip title="Please make sure upload all necessary resource for teaching plan including subject guides, ATL and etc.">
@@ -88,7 +88,7 @@
               </div>
             </div>
           </a-form-model-item>
-          <a-form-model-item prop="certificate">
+          <a-form-model-item :required="true" >
             <span slot="label">
               Certificate&nbsp;
               <a-tooltip title="Please make sure upload all necessary certificates for teaching plan including subject guides, ATL and etc.">
@@ -156,7 +156,7 @@
             </template>
           </a-form-model-item>
           <a-form-model-item v-if="!(totalResult[choosed.id].status === 1 || totalResult[choosed.id].status === 2)" :wrapperCol="{offset: 4, span: 12}" label="">
-            <a-button style="line-height: 1;" @click="doSave" :loading="loading" type="primary">{{ totalResult[choosed.id].status === 3 ? 'Submit again' : 'Submit' }}</a-button>
+            <a-button :disabled="!totalResult[choosed.id].isAgree" style="line-height: 1;" @click="doSave" :loading="loading" type="primary">{{ totalResult[choosed.id].status === 3 ? 'Submit again' : 'Submit' }}</a-button>
           </a-form-model-item>
         </a-form-model>
       </div>
