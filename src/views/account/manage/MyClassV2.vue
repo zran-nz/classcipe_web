@@ -129,6 +129,9 @@
                               <a-menu-item v-if="userMode === USER_MODE.SCHOOL">
                                 <a href="javascript:;" @click="handleEditTeachers(cls)">Edit teachers</a>
                               </a-menu-item>
+                              <a-menu-item v-if="cls.classType === 1">
+                                <a href="javascript:;" @click="handleEditSubjectClass(cls)">Edit</a>
+                              </a-menu-item>
                               <a-menu-item>
                                 <a href="javascript:;" @click="handleArchive(cls)">Archive</a>
                               </a-menu-item>
@@ -555,6 +558,9 @@ export default {
     },
     handleAddSubjectClass() {
       this.$refs.classSubject.doCreate({})
+    },
+    handleEditSubjectClass(cls) {
+      this.$refs.classSubject.doEdit({ ...cls })
     },
     addSubjectClass(cls) {
       console.log(cls)
