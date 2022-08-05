@@ -868,12 +868,11 @@ export default {
 
     .price_was {
       text-decoration:line-through;
-      font-size: 12px;
       font-family: Verdana;
       margin-left: 5px;
       user-select: none;
-      cursor: pointer;
-      font-size: 16px;
+      cursor: none;
+      font-size: 14px;
       vertical-align: middle;
     }
 
