@@ -68,7 +68,7 @@
         <template v-slot:right>
           <a-button :loading="saveLoading" :disabled="disabled" type='primary' @click='handleNextStep' class='cc-round-button'>
             <template v-if='true'>
-              Save
+              {{ SaveTxt }}
             </template>
             <template v-else>
               Complete
@@ -145,6 +145,14 @@ export default {
         return findIB ? true : item.value !== 'Authorization'
       })
     },
+    SaveTxt() {
+      if (this.currentTab === 'Curriculum') {
+        return 'Next'
+      } else {
+        const findIB = this.currentCurriculum.find(item => item.id === AllCurriculums.IBPYP || item.id === AllCurriculums.IBMYP)
+        return findIB ? 'Next' : 'Finish'
+      }
+    },
     disabled() {
       console.log(this.currentAuth.status)
       if (this.currentTab === 'Authorization' && (this.currentAuth.status === 1 || this.currentAuth.status === 2)) {
@@ -190,6 +198,16 @@ export default {
     successCb(pending, notip = false) {
       !notip && this.$message.success('Save successfully')
       this.saveLoading = false
+      if (!notip) {
+        if (pending === 'pendingCurriculum') {
+          this.currentTab = 'Subject'
+        } else if (pending === 'pendingSubject') {
+          const findIB = this.currentCurriculum.find(item => item.id === AllCurriculums.IBPYP || item.id === AllCurriculums.IBMYP)
+          if (findIB) {
+            this.currentTab = 'Authorization'
+          }
+        }
+      }
     },
     handleNextStep() {
       if (this.currentTab === 'Curriculum') {
