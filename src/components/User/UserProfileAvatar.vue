@@ -6,11 +6,13 @@
       </a-badge>
     </div>
     <a-dropdown :getPopupContainer="trigger => trigger.parentElement">
-      <a-avatar :src='$store.getters.userInfo.avatar' />
+      <a-avatar v-if="$store.getters.userInfo.avatar" :src='$store.getters.userInfo.avatar' />
+      <img v-else src="~@/assets/icons/library/default-avatar.png"/>
       <div class='profile-info' slot="overlay">
         <div class='base-info'>
           <div class='avatar'>
-            <a-avatar :src='$store.getters.userInfo.avatar' />
+            <a-avatar v-if="$store.getters.userInfo.avatar" :src='$store.getters.userInfo.avatar' />
+            <img v-else src="~@/assets/icons/library/default-avatar.png"/>
           </div>
           <div class='base'>
             <div class='name'>{{ $store.getters.userInfo.firstname }} {{ $store.getters.userInfo.lastname }}</div>
@@ -41,7 +43,8 @@
           <div class='class-list'>
             <div :class="{'class-item': true, 'active': userMode === USER_MODE.SELF}" @click='handleChangePersonal'>
               <div class='class-avatar'>
-                <a-avatar :src='$store.getters.userInfo.avatar' />
+                <a-avatar v-if="$store.getters.userInfo.avatar" :src='$store.getters.userInfo.avatar' />
+                <img v-else src="~@/assets/icons/library/default-avatar.png"/>
               </div>
               <div class='class-base-info'>
                 <div class='class-name'>Personal</div>
@@ -241,6 +244,11 @@ export default {
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
+  img {
+    width: 30px;
+    height: 30px;
+    border-radius: 30px;
+  }
 
   .notification {
     margin-left: 5px;
