@@ -55,6 +55,8 @@ export default {
   }
 
   .cc-no-data-text {
+    cursor: pointer;
+    user-select: none;
     font-size: 12px;
     color: #292929;
     line-height: 25px;
