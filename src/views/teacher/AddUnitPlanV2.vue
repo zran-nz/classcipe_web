@@ -61,12 +61,11 @@
                     <a-input v-model='form.name' :placeholder='unitLabelHint(planField.Name, $store.getters.formConfigData)' class='cc-form-input' @change="handleCollaborateEvent(unitPlanId,planField.Name,form.name)" :disabled="!canEdit" />
                   </custom-form-item>
                 </div>
-
                 <div
                   class='form-block tag-content-block'
                   id='overview'
                   :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] && isCopyContent}"
-                  v-if='(fieldItem.visible || form[fieldItem.fieldName]) && isCopyContent && fieldItem.fieldName === planField.Overview'
+                  v-if='(fieldItem.visible || form[fieldItem.fieldName]) && fieldItem.fieldName === planField.Overview'
                   :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Overview />
                   <custom-form-item ref='overview' :required='emptyRequiredFields.indexOf(planField.Overview) !== -1'>
@@ -107,7 +106,7 @@
                 <div
                   class='form-block form-radio-wrapper tag-content-block'
                   :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] !== null && isCopyContent}"
-                  v-if='(fieldItem.visible || form[fieldItem.fieldName] !== null) && isCopyContent && fieldItem.fieldName === planField.ProjectBased'
+                  v-if='(fieldItem.visible || form[fieldItem.fieldName] !== null) && fieldItem.fieldName === planField.ProjectBased'
                   :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.ProjectBased style="top:-30px" />
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.ProjectBased) !== -1'>
@@ -146,7 +145,7 @@
                 <div
                   class='form-block form-radio-wrapper tag-content-block'
                   :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] !== null && isCopyContent}"
-                  v-if='(fieldItem.visible || form[fieldItem.fieldName] !== null) && isCopyContent && fieldItem.fieldName === planField.UnitType'
+                  v-if='(fieldItem.visible || form[fieldItem.fieldName] !== null) && fieldItem.fieldName === planField.UnitType'
                   :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.UnitType style="top:-30px"/>
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.UnitType) !== -1'>
@@ -224,7 +223,7 @@
                 <div
                   class='form-block tag-content-block'
                   :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] && form[fieldItem.fieldName].length && isCopyContent}"
-                  v-if="(fieldItem.visible || (form[fieldItem.fieldName] && form[fieldItem.fieldName].length)) && isCopyContent && fieldItem.fieldName === planField.Scenarios"
+                  v-if="(fieldItem.visible || (form[fieldItem.fieldName] && form[fieldItem.fieldName].length)) && fieldItem.fieldName === planField.Scenarios"
                   :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Sdg />
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.Sdg) !== -1'>
@@ -309,7 +308,7 @@
                 <div
                   class='form-block form-block-rwc tag-content-block'
                   :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] && isCopyContent}"
-                  v-if="(fieldItem.visible || form[fieldItem.fieldName]) && isCopyContent && fieldItem.fieldName === planField.Rwc"
+                  v-if="(fieldItem.visible || form[fieldItem.fieldName]) && fieldItem.fieldName === planField.Rwc"
                   :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Rwc />
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.Rwc) !== -1'>
