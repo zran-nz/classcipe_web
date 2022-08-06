@@ -30,6 +30,7 @@
               <div class='price'>
                 ${{ content.discountPrice || content.price }}
               </div>
+              <div v-if="content.discountPrice !== content.price" class='price_was'>${{ content.price }}</div>
               <div class='edit'>
                 <a-icon type="edit" v-if='!visible' @click.native='showEditPrice'/>
               </div>
@@ -863,6 +864,16 @@ export default {
       font-size: 30px;
       font-weight: 400;
       font-family: Verdana;
+    }
+
+    .price_was {
+      text-decoration:line-through;
+      font-family: Verdana;
+      margin-left: 5px;
+      user-select: none;
+      cursor: none;
+      font-size: 14px;
+      vertical-align: middle;
     }
 
     .edit {
