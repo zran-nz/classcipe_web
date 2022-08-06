@@ -26,7 +26,18 @@
     </fixed-form-header>
     <div class='form-content'>
       <div class='step-content' v-if='!contentLoading'>
-        <div class='step-mask' v-if='form.slideEditing && showStepMask'></div>
+        <div class='step-mask' v-if='form.slideEditing'>
+          <div class='mask-action'>
+            <custom-button
+              label='Save changes'
+              :loading='thumbnailListLoading'
+              @click='saveChanges'>
+              <template v-slot:icon>
+                <a-icon type="save" />
+              </template>
+            </custom-button>
+          </div>
+        </div>
         <div class='form-body root-locate-form' id='form-body' :style="{ width: formBodyWidth }" v-show="formBodyWidth !== '0%'">
           <div
             class='form-page-item'
@@ -228,10 +239,12 @@ import ShareContentSetting from '@/components/Share/ShareContentSetting'
 import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
 import CustomTagPd from '@/components/CustomTag/CustomTagPd'
 import { UpdateContentStatus } from '@/api/teacher'
+import CustomButton from '@/components/Common/CustomButton'
 
 export default {
   name: 'AddPD',
   components: {
+    CustomButton,
     CustomTagPd,
     PdSchedule,
     CustomImageUploader,
@@ -292,6 +305,8 @@ export default {
 
       thumbnailList: [],
 
+      thumbnailListLoading: false,
+
       formBodyWidth: '50%',
       tagBodyWidth: '50%',
       fullBodyFields: [PdField.VideoList],
@@ -331,6 +346,9 @@ export default {
     this.$EventBus.$off(SlideEvent.SELECT_TEMPLATE, this.handleSelectTemplate)
     this.$EventBus.$off(SlideEvent.CANCEL_SELECT_TEMPLATE, this.handleRemoveTemplate)
     ClasscipeEventBus.$off(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleCreatePPT)
+  },
+  mounted () {
+
   },
   methods: {
 
@@ -463,23 +481,37 @@ export default {
       this.loadThumbnail(false)
     },
 
-    loadThumbnail(needRefresh) {
+    loadThumbnail(needRefresh, hiddenMask = false) {
       this.$logger.info('loadThumbnail ' + this.form.presentationId)
-      TemplatesGetPresentation({
-        taskId: this.pdId,
-        needRefresh: needRefresh
-      }).then(response => {
-        this.$logger.info('loadThumbnail response', response.result)
-        if (response.code === 0) {
-          const pageObjects = response.result.pageObjects
-          this.thumbnailList = []
-          pageObjects.forEach(page => {
-            this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
-          })
-        } else if (response.code === this.ErrorCode.ppt_google_token_expires || response.code === this.ErrorCode.ppt_forbidden) {
-          this.$logger.info('等待授权事件通知')
-        }
-      })
+      if (!this.thumbnailListLoading) {
+        this.thumbnailListLoading = true
+        TemplatesGetPresentation({
+          taskId: this.pdId,
+          needRefresh: needRefresh
+        }).then(response => {
+          this.$logger.info('loadThumbnail response', response.result)
+          if (response.code === 0) {
+            const pageObjects = response.result.pageObjects
+            this.thumbnailList = []
+            pageObjects.forEach(page => {
+              this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
+            })
+            if (!this.form.fileDeleted && response.result.fileDeleted) {
+              this.form.fileDeleted = true
+            }
+
+            if (hiddenMask) {
+              this.form.slideEditing = false
+            }
+          } else if (response.code === 403) {
+            this.$router.push({ path: '/teacher/main/created-by-me' })
+          } else if (response.code === this.ErrorCode.ppt_google_token_expires || response.code === this.ErrorCode.ppt_forbidden) {
+            this.$logger.info('等待授权事件通知')
+          }
+        }).finally(() => {
+          this.thumbnailListLoading = false
+        })
+      }
     },
 
     handleDisplayRightModule () {
@@ -524,7 +556,8 @@ export default {
         this.form.slideEditing = true
         res = await this.save()
         if (res.code === 0) {
-          window.open('https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit', '_blank')
+          // window.open('https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit', '_blank')
+          window.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit'
         }
       } else {
         res = await this.handleCreatePPT()
@@ -568,8 +601,9 @@ export default {
           this.form.id = response.result.id
           this.form.presentationId = response.result.presentationId
           this.$message.success('Created Successfully in Google Slides')
-          window.open('https://docs.google.com/presentation/d/' + this.form.presentationId, '_blank')
-          this.loadThumbnail(true)
+          // window.open('https://docs.google.com/presentation/d/' + this.form.presentationId, '_blank')
+          // this.loadThumbnail(true)
+          window.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId
         } finally {
           hideLoading()
           this.creating = false
@@ -684,6 +718,11 @@ export default {
     handleSharePd() {
       this.$logger.info('handleSharePd')
       this.shareVisible = true
+    },
+    async saveChanges () {
+      if (!this.thumbnailListLoading) {
+        this.loadThumbnail(true, true)
+      }
     }
   }
 }
@@ -716,6 +755,10 @@ export default {
     bottom: 0;
     z-index: 800;
     background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
   }
 
   .form-body {
