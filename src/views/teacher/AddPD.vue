@@ -240,10 +240,12 @@ import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
 import CustomTagPd from '@/components/CustomTag/CustomTagPd'
 import { UpdateContentStatus } from '@/api/teacher'
 import { SET_GLOBAL_LOADING } from '@/store/mutation-types'
+import CustomButton from '@/components/Common/CustomButton'
 
 export default {
   name: 'AddPD',
   components: {
+    CustomButton,
     CustomTagPd,
     PdSchedule,
     CustomImageUploader,
@@ -343,6 +345,9 @@ export default {
     this.$EventBus.$off(SlideEvent.SELECT_TEMPLATE, this.handleSelectTemplate)
     this.$EventBus.$off(SlideEvent.CANCEL_SELECT_TEMPLATE, this.handleRemoveTemplate)
     ClasscipeEventBus.$off(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleCreatePPT)
+  },
+  mounted () {
+
   },
   methods: {
 
@@ -475,7 +480,7 @@ export default {
       this.loadThumbnail(false)
     },
 
-    loadThumbnail(needRefresh) {
+    loadThumbnail(needRefresh, hiddenMask = false) {
       this.$logger.info('loadThumbnail ' + this.form.presentationId)
       if (!this.thumbnailListLoading) {
         this.thumbnailListLoading = true
@@ -490,18 +495,21 @@ export default {
             pageObjects.forEach(page => {
               this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
             })
+            if (!this.form.fileDeleted && response.result.fileDeleted) {
+              this.form.fileDeleted = true
+            }
+
+            if (hiddenMask) {
+              this.form.slideEditing = false
+            }
+          } else if (response.code === 403) {
+            this.$router.push({ path: '/teacher/main/created-by-me' })
           } else if (response.code === this.ErrorCode.ppt_google_token_expires || response.code === this.ErrorCode.ppt_forbidden) {
             this.$logger.info('等待授权事件通知')
           }
         }).finally(() => {
           this.thumbnailListLoading = false
         })
-      }
-    },
-
-    async saveChanges () {
-      if (!this.thumbnailListLoading) {
-        this.loadThumbnail(true, true)
       }
     },
 
@@ -601,7 +609,6 @@ export default {
           this.form.presentationId = response.result.presentationId
           this.$message.success('Created Successfully in Google Slides')
           window.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId
-          this.loadThumbnail(true)
         } finally {
           hideLoading()
           this.creating = false
@@ -715,6 +722,11 @@ export default {
     handleSharePd() {
       this.$logger.info('handleSharePd')
       this.shareVisible = true
+    },
+    async saveChanges () {
+      if (!this.thumbnailListLoading) {
+        this.loadThumbnail(true, true)
+      }
     }
   }
 }
@@ -747,6 +759,10 @@ export default {
     bottom: 0;
     z-index: 800;
     background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
   }
 
   .form-body {

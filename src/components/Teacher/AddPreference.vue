@@ -217,7 +217,7 @@ export default {
   created() {
     this.debouncedSearchSchool = debounce(this.searchSchool, 500)
     this.initOptions()
-    this.showModal()
+    // this.showModal()
   },
   watch: {
     'teacherForm.curriculumId'(val) {

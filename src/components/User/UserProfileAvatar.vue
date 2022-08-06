@@ -99,6 +99,7 @@ import { TOOGLE_USER_MODE } from '@/store/mutation-types'
 import { USER_MODE } from '@/const/common'
 import { SchoolUserRole } from '@/const/role'
 import { ListCementByUser } from '@/api/notice'
+import { getCurriculumBySchoolId } from '@/api/academicSettingCurriculum'
 
 export default {
   name: 'UserProfileAvatar',
@@ -142,6 +143,7 @@ export default {
   },
   created() {
     this.initData()
+    this.hasSetCurriculum()
   },
   methods: {
     ...mapMutations([TOOGLE_USER_MODE, 'SET_CURRENT_SCHOOL']),
@@ -189,7 +191,9 @@ export default {
           // return new Promise((resolve, reject) => {
           //   setTimeout(Math.random() > 0.5 ? resolve : reject, 1500)
           // }).catch(() => console.log('Oops errors!'))
+          const sessionKey = `CURICULUM_SET_${this.userMode}_${this.currentSchool.id}_${this.info.id}`
           return this.$store.dispatch('Logout').then(() => {
+            sessionStorage.removeItem(sessionKey)
             this.$router.push({ name: 'login' })
           })
         },
@@ -206,7 +210,9 @@ export default {
         this[TOOGLE_USER_MODE](USER_MODE.SELF)
         // this.SET_CURRENT_SCHOOL(null)
         this.GetClassList(this.userMode)
-        this.$store.dispatch('GetInfo')
+        this.$store.dispatch('GetInfo').then(res => {
+          this.hasSetCurriculum()
+        })
       })
     },
     handleChangeSchool(val) {
@@ -219,8 +225,42 @@ export default {
         // const item = this.info.schoolList.find(item => item.id === val.id)
         // this.SET_CURRENT_SCHOOL(item)
         this.GetClassList(this.userMode)
-        this.$store.dispatch('GetInfo')
+        this.$store.dispatch('GetInfo').then(res => {
+          this.hasSetCurriculum()
+        })
       })
+    },
+    hasSetCurriculum() {
+      getCurriculumBySchoolId({
+        schoolId: this.currentSchool.id
+      }).then(res => {
+        if (res.code === 0) {
+          if (res.result && res.result.length > 0) {
+            if (res.result[0].gradeSettingInfo.length === 0) {
+              this.doConfirmGoCuriculum()
+            }
+          } else {
+            this.doConfirmGoCuriculum()
+          }
+        }
+      })
+    },
+    doConfirmGoCuriculum() {
+      const sessionKey = `CURICULUM_SET_${this.userMode}_${this.currentSchool.id}_${this.info.id}`
+      const isSet = sessionStorage.getItem(sessionKey)
+      if (!isSet) {
+        this.$confirm({
+          title: 'Curriculum Set',
+          content: 'Please Set Curriculum first',
+          centered: true,
+          onOk: () => {
+            sessionStorage.setItem(sessionKey, 1)
+            this.$router.push('/manage/curriculum')
+          },
+          onCancel: () => {
+          }
+        })
+      }
     },
     hasRolePermission(roleCode) {
       let hasPerm = false
