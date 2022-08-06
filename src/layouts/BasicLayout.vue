@@ -57,11 +57,9 @@ import defaultSettings from '@/config/defaultSettings'
 import RightContent from '@/components/GlobalHeader/RightContent'
 import GlobalFooter from '@/components/GlobalFooter'
 import * as logger from '@/utils/logger'
-
 import TeacherNavV2 from '@/components/GlobalHeader/TeacherNavV2'
 import StudentNav from '@/components/GlobalHeader/StudentNav'
 import { USER_MODE } from '@/const/common'
-import { throttle } from 'lodash-es'
 
 export default {
   name: 'BasicLayout',

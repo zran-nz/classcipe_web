@@ -1100,10 +1100,10 @@ export default {
           this.saving = true
           if (response.result && response.result?.presentationId && response.code === 0) {
             this.form.id = response.result?.id
-            this.form.slideEditing = true
+            // this.form.slideEditing = true
             this.form.presentationId = response.result.presentationId
             this.$message.success('Created Successfully in Google Slides')
-            this.loadThumbnail(true)
+            // this.loadThumbnail(false)
             // window.open('https://docs.google.com/presentation/d/' + this.form.presentationId, '_blank')
             window.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId
           }
