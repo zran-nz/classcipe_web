@@ -29,7 +29,7 @@
     </fixed-form-header>
     <div class='form-content'>
       <div class='step-content' v-if='!contentLoading'>
-        <div class='step-mask' v-if='form.slideEditing'>
+        <div class='step-mask' v-if='form.slideEditing && currentActiveStepIndex === 3'>
           <div class='mask-action'>
             <custom-button
               label='Save changes'

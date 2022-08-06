@@ -26,7 +26,18 @@
     </fixed-form-header>
     <div class='form-content'>
       <div class='step-content' v-if='!contentLoading'>
-        <div class='step-mask' v-if='form.slideEditing && showStepMask'></div>
+        <div class='step-mask' v-if='form.slideEditing && currentActiveStepIndex === 1'>
+          <div class='mask-action'>
+            <custom-button
+              label='Save changes'
+              :loading='thumbnailListLoading'
+              @click='saveChanges'>
+              <template v-slot:icon>
+                <a-icon type="save" />
+              </template>
+            </custom-button>
+          </div>
+        </div>
         <div class='form-body root-locate-form' id='form-body' :style="{ width: formBodyWidth }" v-show="formBodyWidth !== '0%'">
           <div
             class='form-page-item'
@@ -228,6 +239,7 @@ import ShareContentSetting from '@/components/Share/ShareContentSetting'
 import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
 import CustomTagPd from '@/components/CustomTag/CustomTagPd'
 import { UpdateContentStatus } from '@/api/teacher'
+import { SET_GLOBAL_LOADING } from '@/store/mutation-types'
 
 export default {
   name: 'AddPD',
@@ -289,7 +301,7 @@ export default {
       currentActiveStepIndex: this.getSessionStep(),
       currentRightModule: null,
       rightModule: RightModule,
-
+      thumbnailListLoading: false,
       thumbnailList: [],
 
       formBodyWidth: '50%',
@@ -465,21 +477,32 @@ export default {
 
     loadThumbnail(needRefresh) {
       this.$logger.info('loadThumbnail ' + this.form.presentationId)
-      TemplatesGetPresentation({
-        taskId: this.pdId,
-        needRefresh: needRefresh
-      }).then(response => {
-        this.$logger.info('loadThumbnail response', response.result)
-        if (response.code === 0) {
-          const pageObjects = response.result.pageObjects
-          this.thumbnailList = []
-          pageObjects.forEach(page => {
-            this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
-          })
-        } else if (response.code === this.ErrorCode.ppt_google_token_expires || response.code === this.ErrorCode.ppt_forbidden) {
-          this.$logger.info('等待授权事件通知')
-        }
-      })
+      if (!this.thumbnailListLoading) {
+        this.thumbnailListLoading = true
+        TemplatesGetPresentation({
+          taskId: this.pdId,
+          needRefresh: needRefresh
+        }).then(response => {
+          this.$logger.info('loadThumbnail response', response.result)
+          if (response.code === 0) {
+            const pageObjects = response.result.pageObjects
+            this.thumbnailList = []
+            pageObjects.forEach(page => {
+              this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
+            })
+          } else if (response.code === this.ErrorCode.ppt_google_token_expires || response.code === this.ErrorCode.ppt_forbidden) {
+            this.$logger.info('等待授权事件通知')
+          }
+        }).finally(() => {
+          this.thumbnailListLoading = false
+        })
+      }
+    },
+
+    async saveChanges () {
+      if (!this.thumbnailListLoading) {
+        this.loadThumbnail(true, true)
+      }
     },
 
     handleDisplayRightModule () {
@@ -517,19 +540,28 @@ export default {
     },
 
     async handleEditGoogleSlide() {
-      this.editGoogleSlideLoading = true
-      this.$logger.info('handleEditGoogleSlide', this.form.presentationId)
-      let res
-      if (this.form.presentationId && !this.form.presentationId.startsWith('fake_buy_')) {
-        this.form.slideEditing = true
-        res = await this.save()
-        if (res.code === 0) {
-          window.open('https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit', '_blank')
+      this.$logger.info('handleEditGoogleSlide pd star')
+      this.$store.commit(SET_GLOBAL_LOADING, true)
+      this.$nextTick(async () => {
+        try {
+          this.editGoogleSlideLoading = true
+          this.$logger.info('handleEditGoogleSlide', this.form.presentationId)
+          let res
+          if (this.form.presentationId && !this.form.presentationId.startsWith('fake_buy_')) {
+            this.form.slideEditing = true
+            res = await this.save()
+            if (res.code === 0) {
+              window.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit'
+            }
+          } else {
+            res = await this.handleCreatePPT()
+          }
+        } catch (e) {
+          console.error('handleEditGoogleSlide error', e)
+        } finally {
+          this.editGoogleSlideLoading = false
         }
-      } else {
-        res = await this.handleCreatePPT()
-      }
-      this.editGoogleSlideLoading = false
+      })
     },
 
     updateAssociatedIdList (idList) {
@@ -568,7 +600,7 @@ export default {
           this.form.id = response.result.id
           this.form.presentationId = response.result.presentationId
           this.$message.success('Created Successfully in Google Slides')
-          window.open('https://docs.google.com/presentation/d/' + this.form.presentationId, '_blank')
+          window.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId
           this.loadThumbnail(true)
         } finally {
           hideLoading()
@@ -610,7 +642,7 @@ export default {
           content: 'Check the changes in Google slides then save.',
           centered: true,
           onOk: () => {
-            window.open('https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit', '_blank')
+            window.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit'
           }
         })
 
@@ -620,7 +652,6 @@ export default {
             step.showSatisfiedTips = false
           }
         })
-        this.showStepMask = true
       } else {
         if (this.emptyRequiredFields.length === 0) {
           if (this.form.presentationId && !this.form.presentationId.startsWith('fake_buy_')) {
