@@ -15,7 +15,7 @@
             <a-space :size="5" align="center" @click.stop>
               <label style="cursor: pointer" @click="$router.push('/account/info')">Account Info</label>
               <label for="">></label>
-              <label style="font-weight: normal">School Curriculum</label>
+              <label style="font-weight: normal">{{ userMode === USER_MODE.SELF ? '' : 'School ' }}Curriculum</label>
             </a-space>
           </template>
           <template v-slot:right>
