@@ -22,7 +22,8 @@
         </div>
         <div class='main-action'>
           <a-space>
-            <a-rate :value='content.star || 10' disabled class='cc-library-rate'/>
+            <a-rate :value='content.star || 10' disabled class='cc-library-rate' v-if='content.star'/>
+            <div class='no-review' v-if='!content.star'>No reviews</div>
             <div class='share-icon' @click.stop.prevent=''>
               <a-tooltip
                 trigger="click"
@@ -285,5 +286,10 @@ export default {
 
 .cc-library-rate {
 
+}
+
+.no-review {
+  color: #bbb;
+  font-size: 12px;
 }
 </style>
