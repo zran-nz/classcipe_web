@@ -365,19 +365,20 @@ export default {
           }
           this.allDatas[this.currentTab].push({
             ...info,
-            classes: [{
-              ...infoName,
-              key: new Date().getTime() + Math.random(),
-              isNew: true,
-              isEdit: true,
-              name: '',
-              changeName: '',
-              [this.currentTab]: info[this.currentTab],
-              schoolId: this.currentSchool.id,
-              classType: 0,
-              teacherCount: 0,
-              studentCount: 0
-            }]
+            classes: []
+            // classes: [{
+            //   ...infoName,
+            //   key: new Date().getTime() + Math.random(),
+            //   isNew: true,
+            //   isEdit: true,
+            //   name: '',
+            //   changeName: '',
+            //   [this.currentTab]: info[this.currentTab],
+            //   schoolId: this.currentSchool.id,
+            //   classType: 0,
+            //   teacherCount: 0,
+            //   studentCount: 0
+            // }]
           })
         }
       })
@@ -476,6 +477,12 @@ export default {
       })
     },
     addGradeClass(view) {
+      // 只允许一个未创建
+      const existsNew = view.classes.find(item => item.isNew)
+      if (existsNew) {
+        this.$message.error('Please save first')
+        return
+      }
       view.classes.push({
         key: new Date().getTime() + Math.random(),
         isNew: true,

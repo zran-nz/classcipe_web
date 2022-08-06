@@ -3,7 +3,9 @@
     <div class='cover' @click.prevent.stop="handleGoWork(content)">
       <div class='cover-block' :style="{'background-image': 'url(' + (content.cover || content.content.image) + ')'}">
       </div>
-      <div v-if="content.session && content.session.classId && [WORK_SHOPS_TYPE.LUNCHEDBYME.value, WORK_SHOPS_TYPE.REGISTERED.value].includes(content.workshopsType)" class="cover-btn"><label>Enter workshop</label></div>
+      <div
+        v-if="content.session && content.session.classId && [WORK_SHOPS_TYPE.LUNCHEDBYME.value, WORK_SHOPS_TYPE.REGISTERED.value].includes(content.workshopsType) && WORK_SHOPS_STATUS.ENDED.value !== content.workshopsStatus"
+        class="cover-btn"><label>Enter workshop</label></div>
     </div>
     <div class='detail'>
       <div class='detail-content' @click.prevent.stop>
@@ -96,12 +98,12 @@
           </div>
         </div>
         <a-space @click.prevent.stop>
-          <div v-if="(WORK_SHOPS_TYPE.REGISTERED.value === content.workshopsType || WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType) && content.session && content.session.zoomMeeting" class='zoom-icon' @click.prevent.stop="handleToZoom(content)">
+          <div v-if="(WORK_SHOPS_TYPE.REGISTERED.value === content.workshopsType || WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType) && content.session && content.session.zoomMeeting && WORK_SHOPS_STATUS.ENDED.value !== content.workshopsStatus" class='zoom-icon' @click.prevent.stop="handleToZoom(content)">
             <img src='~@/assets/icons/zoom/img.png' />
           </div>
           <a-tooltip
             v-model="shareVisible"
-            v-if="userMode === USER_MODE.SELF"
+            v-if="userMode === USER_MODE.SELF && WORK_SHOPS_STATUS.ENDED.value !== content.workshopsStatus"
             trigger="click"
             :getPopupContainer="trigger => trigger.parentElement"
             @visibleChange="vis => visibleChange(vis, content)"
@@ -130,7 +132,7 @@
               <icon-font type="icon-xianshi" class="detail-font"/>
             </template>
           </custom-button>
-          <template v-if="WORK_SHOPS_TYPE.FEATURE.value === content.workshopsType">
+          <template v-if="WORK_SHOPS_TYPE.FEATURE.value === content.workshopsType && WORK_SHOPS_STATUS.ENDED.value !== content.workshopsStatus">
             <!-- <a-button type='primary' shape='round' @click='handleRegister(content)'>
               <icon-font type="icon-register" class="detail-font"/>
               Register</a-button> -->
@@ -157,7 +159,7 @@
               </template>
             </custom-button>
           </template>
-          <template v-if="WORK_SHOPS_TYPE.REGISTERED.value === content.workshopsType">
+          <template v-if="WORK_SHOPS_TYPE.REGISTERED.value === content.workshopsType && WORK_SHOPS_STATUS.ENDED.value !== content.workshopsStatus">
             <custom-button label='Cancel' @click='handleCancel(content)'>
               <template v-slot:icon>
                 <icon-font type="icon-cancel" class="detail-font"/>
