@@ -1094,7 +1094,7 @@ export default {
 
     wrapperLink(item) {
       if (item && item.id) {
-        return `${process.env.VUE_APP_SHARE_URL}/detail/${item.type}/${item.id}`
+        return `${process.env.VUE_APP_SHARE_URL}/v2/${item.type}/${item.id}`
       } else {
         return ''
       }

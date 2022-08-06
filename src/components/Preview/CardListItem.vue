@@ -100,7 +100,7 @@ export default {
   methods: {
     wrapperLink(item) {
       if (item && item.id) {
-        return `${process.env.VUE_APP_SHARE_URL}/h5/live/${item.id}`
+        return `${process.env.VUE_APP_SHARE_URL}/v2/${item.type}/${item.id}`
       } else {
         return ''
       }
