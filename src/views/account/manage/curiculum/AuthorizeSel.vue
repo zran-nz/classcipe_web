@@ -343,6 +343,7 @@ export default {
       this.loading = true
       submitIbAuth(params).then(res => {
         if (res.success) {
+          this.$message.success('Application received, we will process it as soon as possible')
           this.initAuths()
         }
       }).finally(() => {
