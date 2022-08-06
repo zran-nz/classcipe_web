@@ -41,16 +41,16 @@
           </a-skeleton>
           <div class='open-session'>
             <a-space>
-              <custom-text-button @click='selectPrivateWorkshop' label='Private Workshop'>
-                <template v-slot:badge>
-                  <a-tooltip
-                    title="Private workshop allows you to set up a session for your students
-without having a class. Zoom is not available for free-plan users,
-you can ask your student to attend via direct link generated on the workshop page. ">
-                    <a-icon type="question-circle" theme="filled" :style="{ fontSize: '16px', color: '#EB5062' }"/>
-                  </a-tooltip>
-                </template>
-              </custom-text-button>
+              <!--              <custom-text-button @click='selectPrivateWorkshop' label='Private Workshop'>-->
+              <!--                <template v-slot:badge>-->
+              <!--                  <a-tooltip-->
+              <!--                    title="Private workshop allows you to set up a session for your students-->
+              <!--without having a class. Zoom is not available for free-plan users,-->
+              <!--you can ask your student to attend via direct link generated on the workshop page. ">-->
+              <!--                    <a-icon type="question-circle" theme="filled" :style="{ fontSize: '16px', color: '#EB5062' }"/>-->
+              <!--                  </a-tooltip>-->
+              <!--                </template>-->
+              <!--              </custom-text-button>-->
               <custom-text-button @click='selectPublicWorkshop' label='Public Workshop'>
                 <template v-slot:badge>
                   <a-tooltip

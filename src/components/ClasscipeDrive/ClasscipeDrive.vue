@@ -44,7 +44,6 @@
         <google-drive
           v-bind='$attrs'
           :field='field'
-          :drive-loading='driveLoading'
           :drive-process='driveProcess'
           @show-google-drive='handleShowGoogleDrive' />
       </div>
@@ -103,7 +102,6 @@ export default {
     return {
       DriveType: DriveType,
       currentDriveType: DriveType.ClasscipeDrive,
-      driveLoading: false,
       driveProcess: 0,
       filterTabTypeList: this.filterType === 'image' ? [
         DriveType.ClasscipeDrive,
@@ -132,7 +130,6 @@ export default {
       if (this.currentDriveType === this.DriveType.GoogleDrive) {
         GooglePicker.init(
           (progress) => {
-            this.driveLoading = true
             this.driveProcess = progress
           },
           (type, url, mediaType) => {
@@ -145,7 +142,6 @@ export default {
                 field: this.field
               })
             }
-            this.driveLoading = false
             this.driveProcess = 0
           },
           this.$store.getters.userInfo.id,
