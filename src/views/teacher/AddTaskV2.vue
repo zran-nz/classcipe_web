@@ -557,7 +557,7 @@ import AddGreenIcon from '@/assets/svgIcon/evaluation/form/tianjia_green.svg?inl
 import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 import MyVerticalSteps from '@/components/Steps/MyVerticalSteps'
 import storage from 'store'
-import { ACCESS_TOKEN } from '@/store/mutation-types'
+import { ACCESS_TOKEN, SET_GLOBAL_LOADING } from '@/store/mutation-types'
 import FormLinkedContent from '@/components/Common/FormLinkedContent'
 import LinkContentList from '@/components/UnitPlan/LinkContentList'
 import FixedFormHeader from '@/components/Common/FixedFormHeader'
@@ -1150,27 +1150,36 @@ export default {
     },
 
     async handleEditGoogleSlide() {
-      this.editGoogleSlideLoading = true
-      this.$logger.info('handleEditGoogleSlide', this.form.presentationId)
-      // fake_buy_处理library bug后没有实际上copy ppt的情况
-      if (this.form.presentationId && !this.form.presentationId.startsWith('fake_buy_')) {
-        // 设置正在编辑状态，my content根据这个提示是否先save再排课
-        this.form.slideEditing = true
-        const res = await this.save()
-        if (res.code === 0) {
-          // window.open('https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit', '_blank')
-          window.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit'
-        } else if (res.code === 520 || res.code === 403) {
-          this.$logger.info('等待授权回调')
-          this.$message.loading('Waiting for Google Slides auth...', 10)
-          this.creating = false
-          this.saving = false
-          return
+      this.$logger.info('handleEditGoogleSlide star')
+      this.$store.commit(SET_GLOBAL_LOADING, true)
+      this.$nextTick(async () => {
+        try {
+          this.editGoogleSlideLoading = true
+          this.$logger.info('handleEditGoogleSlide', this.form.presentationId, this.$store.getters.globalLoading)
+          // fake_buy_处理library bug后没有实际上copy ppt的情况
+          if (this.form.presentationId && !this.form.presentationId.startsWith('fake_buy_')) {
+            // 设置正在编辑状态，my content根据这个提示是否先save再排课
+            this.form.slideEditing = true
+            const res = await this.save()
+            if (res.code === 0) {
+              // window.open('https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit', '_blank')
+              window.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit'
+            } else if (res.code === 520 || res.code === 403) {
+              this.$logger.info('等待授权回调')
+              this.$message.loading('Waiting for Google Slides auth...', 10)
+              this.creating = false
+              this.saving = false
+              return
+            }
+          } else {
+            await this.handleCreateTask(true)
+          }
+        } catch (e) {
+          console.error('handleEditGoogleSlide error', e)
+        } finally {
+          this.editGoogleSlideLoading = false
         }
-      } else {
-        await this.handleCreateTask(true)
-      }
-      this.editGoogleSlideLoading = false
+      })
     },
 
     getAssociate() {

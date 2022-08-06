@@ -17,7 +17,7 @@ import {
   TOOGLE_USER_MODE,
   HIDDEN_HEADER,
   TOGGLE_DEVICE,
-  SET_PROMOTE_CODE
+  SET_PROMOTE_CODE, SET_GLOBAL_LOADING
 } from '@/store/mutation-types'
 import { loadLanguageAsync } from '@/locales'
 import { getSysConfig } from '@/api/common'
@@ -45,7 +45,8 @@ const app = {
     downloadUrl: '',
     userMode: USER_MODE.SELF, // selfStudy: 自学习模式，schoolStudy：学校模式
     device: DEVICE.DESKTOP,
-    promoteCode: ''
+    promoteCode: '',
+    globalLoading: false
   },
   mutations: {
     [HIDDEN_SIDEBAR]: (state, type) => {
@@ -118,6 +119,10 @@ const app = {
       state.promoteCode = promoteCode
       storage.set(SET_PROMOTE_CODE, promoteCode)
       setCookie(SET_PROMOTE_CODE, promoteCode)
+    },
+    [SET_GLOBAL_LOADING]: (state, globalLoading) => {
+      state.globalLoading = globalLoading
+      storage.set(SET_GLOBAL_LOADING, globalLoading)
     }
   },
   actions: {

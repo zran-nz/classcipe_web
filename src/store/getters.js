@@ -76,7 +76,8 @@ const getters = {
 
   pubTagList: state => state.classcipeConfig.pubTagList,
   priTagList: state => state.classcipeConfig.priTagList,
-  pdTagList: state => state.classcipeConfig.pdTagList
+  pdTagList: state => state.classcipeConfig.pdTagList,
+  globalLoading: state => state.app.globalLoading
 }
 
 export default getters

@@ -105,7 +105,7 @@ export default {
       this.$emit('handle-change-selected', this.displayMode === displayModeType.SlideTemplate)
     },
 
-    async handleEditGoogleSlide() {
+    handleEditGoogleSlide() {
       this.$emit('edit-google-slide')
     }
   }

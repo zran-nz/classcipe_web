@@ -4,6 +4,11 @@
       <router-view />
       <!--只允许登陆后才可以反馈-->
       <feedback v-if="showFeedback" />
+      <div id='global-loading' v-show='globalLoading'>
+        <div class='loading-gif'>
+          <img src='~@/assets/icons/loading1.gif' />
+        </div>
+      </div>
     </div>
   </a-config-provider>
 </template>
@@ -15,7 +20,7 @@ import { i18nRender } from '@/locales'
 import Feedback from '@/components/Feedback/Feedback'
 import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
 import enquireScreen from '@/utils/device'
-import { mapMutations } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 import { ACCESS_TOKEN, TOGGLE_DEVICE } from './store/mutation-types'
 import storage from 'store'
 
@@ -42,7 +47,8 @@ export default {
       const noshowPage2 = window.location.href.indexOf('classroom-iframe') === -1
       const noshowPage3 = window.location.href.indexOf('/h5/') === -1
       return noshowPage && noshowPage2 && noshowPage3
-    }
+    },
+    ...mapGetters(['globalLoading'])
   },
   watch: {
     '$store.getters.bindCurriculum': function(newValue) {
@@ -134,4 +140,24 @@ export default {
 }
 </script>
 
-<style></style>
+<style lang="less" scoped>
+
+#global-loading {
+  position: fixed;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff;
+  .loading-gif {
+    img {
+      width: 250px;
+    }
+  }
+}
+
+</style>
