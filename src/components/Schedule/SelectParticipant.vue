@@ -7,14 +7,14 @@
             Class list
           </div>
           <div class='class-type'>
-<!--            <a-radio-group v-model="queryType" button-style="solid">-->
-<!--              <a-radio-button :value="0">-->
-<!--                Standard-->
-<!--              </a-radio-button>-->
-<!--              <a-radio-button :value="1">-->
-<!--                Subject-->
-<!--              </a-radio-button>-->
-<!--            </a-radio-group>-->
+            <!--            <a-radio-group v-model="queryType" button-style="solid">-->
+            <!--              <a-radio-button :value="0">-->
+            <!--                Standard-->
+            <!--              </a-radio-button>-->
+            <!--              <a-radio-button :value="1">-->
+            <!--                Subject-->
+            <!--              </a-radio-button>-->
+            <!--            </a-radio-group>-->
           </div>
         </div>
         <div class='class-list'>
