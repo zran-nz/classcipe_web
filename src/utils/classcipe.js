@@ -32,6 +32,21 @@ function replaceToClasscipeCDN(rawUrl) {
   }
 }
 
+function getContentTypeName(type) {
+  switch (type) {
+    case typeMap['unit-plan']:
+      return 'unit'
+    case typeMap.task:
+      return 'task'
+    case typeMap.video:
+      return 'video'
+    case typeMap.pd:
+      return 'pd'
+    default:
+      break
+  }
+}
+
 const sysConfig = {
   sidebarWidth: 230,
   collapsedSidebarWidth: 80
@@ -44,6 +59,7 @@ export {
   PlanField,
   TaskField,
   sysConfig,
+  getContentTypeName,
   ScheduleSteps,
   ScheduleSessionType,
   replaceToClasscipeCDN
