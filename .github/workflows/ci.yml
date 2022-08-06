@@ -34,9 +34,6 @@ jobs:
       - name: Build-Develop
         if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
         run: yarn run build-develop
-      - name: Build-Test
-        if: github.ref == 'refs/heads/test' && github.event_name == 'push'
-        run: yarn run build-test
       - name: Build-Production
         if: github.ref == 'refs/heads/prod' && github.event_name == 'push'
         run: yarn run build
