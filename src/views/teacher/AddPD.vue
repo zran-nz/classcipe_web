@@ -565,7 +565,7 @@ export default {
               this.$message.error('Save PDContent failed, Please retry!')
             }
           } else {
-            res = await this.handleCreatePPT()
+            await this.handleCreatePPT()
           }
         } catch (e) {
           console.error('handleEditGoogleSlide error', e)
@@ -611,6 +611,7 @@ export default {
           this.form.id = response.result.id
           this.form.slideEditing = true
           this.form.presentationId = response.result.presentationId
+          await this.save()
           this.$message.success('Created Successfully in Google Slides')
           window.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId
         } finally {
