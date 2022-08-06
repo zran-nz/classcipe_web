@@ -21,7 +21,7 @@
           <a-skeleton :loading='loading'>
             <div
               class='class-item'
-              :class="{'selected-item': selectedClassIdList.indexOf(classItem.id) !== -1, 'current-active-item': classItem.id === currentSelectedClass.id }"
+              :class="{'selected-item': selectedClassIdList.indexOf(classItem.id) !== -1, 'current-active-item': currentSelectedClass && classItem.id === currentSelectedClass.id }"
               v-for='classItem in classList'
               :key='classItem.id'
               @click='handleSelectClass(classItem)'>
@@ -153,10 +153,10 @@ export default {
       currentSchool: state => state.user.currentSchool
     }),
     selectedClassIdList({ checkedClass }) {
-      return checkedClass.map(item => item.id)
+      return Array.from(new Set(checkedClass.map(item => item.id) || []))
     },
     selectedStudentIdList({ checkedStudent }) {
-      return checkedStudent.map(item => item.id)
+      return Array.from(new Set(checkedStudent.map(item => item.id) || []))
     }
   },
   watch: {
@@ -184,17 +184,18 @@ export default {
       })
     },
     handleSelectClass (item) {
-      this.$logger.info('handleSelectClass', item)
+      this.$logger.info('handleSelectClass', item, 'this.checkedClass', this.checkedClass)
       if (this.selectedClassIdList.indexOf(item.id) !== -1) {
         this.checkedClass.splice(this.checkedClass.indexOf(item.id), 1)
-        this.currentSelectedClass = this.currentSelectedClass?.id === item.id ? (this.classList.length ? this.classList[0] : null) : this.currentSelectedClass
+        this.currentSelectedClass = null
         this.removeClassStudent(item)
       } else {
-        this.checkedClass.push(item.id)
+        this.checkedClass.push(item)
         this.currentSelectedClass = item
       }
       this.loadCurrentClassStudent()
       this.$emit('select-class-student')
+      this.$logger.info('after this.checkedClass', this.checkedClass)
     },
 
     removeClassStudent(classItem) {
@@ -241,24 +242,25 @@ export default {
     getSelectedData () {
       this.$logger.info('getSelectedData', this.checkedClass, this.checkedStudent)
       return {
-        classIds: this.checkedClass,
-        selectStudents: this.checkedStudent
+        classIds: this.checkedClass.map(item => item.id),
+        selectStudents: this.checkedStudent.map(item => item.id)
       }
     },
 
     handleSelectStudent (student) {
       this.$logger.info('handleSelectStudent', student)
       if (this.selectedStudentIdList.indexOf(student.id) !== -1) {
+        this.$logger.info('remove student', student)
         this.checkedStudent.splice(this.checkedStudent.indexOf(student.id), 1)
       } else {
-        this.checkedStudent.push(student.id)
+        this.checkedStudent.push(student)
       }
       this.$emit('select-class-student')
     },
 
     handleSelectAllStudent () {
       this.$logger.info('handleSelectAllStudent', this.checkedStudent)
-      this.checkedStudent = this.studentList.map(item => item.id).slice()
+      this.checkedStudent = this.studentList.slice()
       this.$emit('select-class-student')
     }
   }
