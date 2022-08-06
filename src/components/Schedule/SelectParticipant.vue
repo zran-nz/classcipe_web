@@ -6,24 +6,36 @@
           <div class='title-item'>
             Class list
           </div>
+          <div class='class-type'>
+            <a-radio-group v-model="queryType" button-style="solid">
+              <a-radio-button :value="0">
+                Standard
+              </a-radio-button>
+              <a-radio-button :value="1">
+                Subject
+              </a-radio-button>
+            </a-radio-group>
+          </div>
         </div>
         <div class='class-list'>
-          <div
-            class='class-item'
-            :class="{'selected-item': checkedClass.indexOf(classItem) !== -1, 'current-active-item': classItem === currentSelectedClass }"
-            v-for='classItem in classList'
-            :key='classItem.id'
-            @click='handleSelectClass(classItem)'>
-            <div class='item-checked-icon'>
-              <template v-if="checkedClass.indexOf(classItem) !== -1">
-                <img src="~@/assets/icons/lesson/selected.png" />
-              </template>
-              <template v-if="checkedClass.indexOf(classItem) === -1">
-                <div class="empty-circle"></div>
-              </template>
+          <a-skeleton :loading='loading'>
+            <div
+              class='class-item'
+              :class="{'selected-item': checkedClass.indexOf(classItem.id) !== -1, 'current-active-item': classItem.id === currentSelectedClass }"
+              v-for='classItem in classList'
+              :key='classItem.id'
+              @click='handleSelectClass(classItem)'>
+              <div class='item-checked-icon'>
+                <template v-if="checkedClass.indexOf(classItem.id) !== -1">
+                  <img src="~@/assets/icons/lesson/selected.png" />
+                </template>
+                <template v-if="checkedClass.indexOf(classItem.id) === -1">
+                  <div class="empty-circle"></div>
+                </template>
+              </div>
+              <div class='class-name'>{{ classItem.name }}</div>
             </div>
-            <div class='class-name'>{{ classItem.name }}</div>
-          </div>
+          </a-skeleton>
           <div class='open-session'>
             <a-space>
               <custom-text-button @click='selectPrivateWorkshop' label='Private Workshop'>
@@ -72,7 +84,7 @@ page, thus zoom will be auto-scheduled.">
             <template v-if='studentList.length'>
               <div
                 class='student-item'
-                :class="{'selected-item': checkedStudent.indexOf(student) !== -1, 'odd-item': sIdx % 2 === 1, 'even-item': sIdx % 2 === 0}"
+                :class="{'selected-item': checkedStudent.indexOf(student.id) !== -1, 'odd-item': sIdx % 2 === 1, 'even-item': sIdx % 2 === 0}"
                 v-for='(student, sIdx) in studentList'
                 :key='student.id'
                 @click='handleSelectStudent(student)'>
@@ -107,38 +119,70 @@ page, thus zoom will be auto-scheduled.">
 </template>
 
 <script>
-import { getClassesStudent } from '@/api/v2/classes'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import InputWithCreate from '@/components/Common/InputWithCreate'
 import CustomTextButton from '@/components/Common/CustomTextButton'
+import { listClass } from '@/api/v2/schoolClass'
+import { mapState } from 'vuex'
+import { getSchoolUsers } from '@/api/v2/schoolUser'
+import store from '@/store'
 
 export default {
   name: 'SelectParticipant',
   components: { CustomTextButton, InputWithCreate, NoMoreResources },
-  props: {
-    classList: {
-      type: Array,
-      default: () => []
-    }
-  },
   data() {
     return {
       currentSelectedClass: null,
       studentList: [],
       checkedClass: [],
       studentListLoading: false,
-      checkedStudent: []
+      checkedStudent: [],
+      classList: [],
+      queryType: 0,
+      loading: false
     }
   },
+  computed: {
+    ...mapState({
+      info: state => state.user.info,
+      userMode: state => state.app.userMode,
+      currentSchool: state => state.user.currentSchool
+    })
+  },
+  watch: {
+    queryType(newValue) {
+      this.listClass(newValue)
+    }
+  },
+  created() {
+    this.listClass(this.queryType)
+  },
   methods: {
+    listClass (queryType) {
+      this.loading = true
+      listClass({
+        queryType: queryType,
+        schoolId: this.currentSchool.id,
+        pageNo: 1,
+        pageSize: 10000
+      }).then(res => {
+        this.$logger.info('listClass res records', res.result.records)
+        this.classList = res.result.records
+        if (this.classList.length) {
+          this.handleSelectClass(this.classList[0])
+        }
+      }).finally(() => {
+        this.loading = false
+      })
+    },
     handleSelectClass (item) {
       this.$logger.info('handleSelectClass', item)
-      if (this.checkedClass.indexOf(item) !== -1) {
-        this.checkedClass.splice(this.checkedClass.indexOf(item), 1)
+      if (this.checkedClass.indexOf(item.id) !== -1) {
+        this.checkedClass.splice(this.checkedClass.indexOf(item.id), 1)
         this.currentSelectedClass = this.checkedClass.length > 0 ? this.checkedClass[0] : null
       } else {
-        this.checkedClass.push(item)
-        this.currentSelectedClass = item
+        this.checkedClass.push(item.id)
+        this.currentSelectedClass = item.id
       }
       this.loadCurrentClassStudent()
       this.$emit('select-class-student')
@@ -147,13 +191,17 @@ export default {
       this.$logger.info('loadCurrentClassStudent', this.currentSelectedClass)
       if (this.currentSelectedClass) {
         this.studentListLoading = true
-        getClassesStudent({
-          classId: this.currentSelectedClass.id
+        getSchoolUsers({
+          schoolId: store.getters.school,
+          roles: 'student',
+          classes: this.currentSelectedClass,
+          pageSize: 10000,
+          pageNo: 1
         }).then(res => {
           this.$logger.info('loadClassStudent', res)
           if (res.result) {
-            this.studentList = res.result
-            this.checkedStudent = this.studentList.slice()
+            this.studentList = res.result.records
+            this.checkedStudent = this.studentList.map(item => item.id).slice()
           }
         }).finally(() => {
           this.studentListLoading = false
@@ -178,28 +226,24 @@ export default {
     getSelectedData () {
       this.$logger.info('getSelectedData', this.checkedClass, this.checkedStudent)
       return {
-        classIds: this.checkedClass.map(item => item.id),
-        selectStudents: this.checkedStudent.map(item => item.id)
+        classIds: this.checkedClass,
+        selectStudents: this.checkedStudent
       }
     },
 
     handleSelectStudent (student) {
       this.$logger.info('handleSelectStudent', student)
-      if (this.checkedStudent.indexOf(student) !== -1) {
-        this.checkedStudent.splice(this.checkedStudent.indexOf(student), 1)
+      if (this.checkedStudent.indexOf(student.id) !== -1) {
+        this.checkedStudent.splice(this.checkedStudent.indexOf(student.id), 1)
       } else {
-        this.checkedStudent.push(student)
+        this.checkedStudent.push(student.id)
       }
       this.$emit('select-class-student')
     },
 
     handleSelectAllStudent () {
       this.$logger.info('handleSelectAllStudent', this.checkedStudent)
-      this.studentList.forEach(student => {
-        if (this.checkedStudent.indexOf(student) === -1) {
-          this.checkedStudent.push(student)
-        }
-      })
+      this.checkedStudent = this.studentList.slice()
       this.$emit('select-class-student')
     }
   }
@@ -217,12 +261,12 @@ export default {
   height: 100%;
 
   .list-title {
-    margin: 10px 0 0 0;
+    margin: 10px 0 10px 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
     line-height: 35px;
-    padding: 0 15px;
+    padding-left: 15px;
     cursor: pointer;
     user-select: none;
     .title-item {
@@ -262,9 +306,11 @@ export default {
   width: 100%;
   position: relative;
   .class-list, .student-list {
-    padding: 0 10px 10px 10px;
+    text-align: center;
+    padding: 0 0 10px 10px;
     min-width: 400px;
     max-width: 100%;
+    min-height: 200px;
     height: calc(100% - 80px);
     overflow-y: auto;
     .class-item {
