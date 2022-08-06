@@ -42,7 +42,6 @@
                 <a-icon type='plus-circle' />
               </template>
             </custom-text-button>
-            <class-subject-sel ref="classSubject" @save="addSubjectClass" :school="currentSchool"/>
           </template>
         </div>
         <!-- // TODO -->
@@ -129,9 +128,9 @@
                               <a-menu-item v-if="userMode === USER_MODE.SCHOOL">
                                 <a href="javascript:;" @click="handleEditTeachers(cls)">Edit teachers</a>
                               </a-menu-item>
-                              <a-menu-item v-if="cls.classType === 1">
+                              <!-- <a-menu-item v-if="cls.classType === 1">
                                 <a href="javascript:;" @click="handleEditSubjectClass(cls)">Edit</a>
-                              </a-menu-item>
+                              </a-menu-item> -->
                               <a-menu-item>
                                 <a href="javascript:;" @click="handleArchive(cls)">Archive</a>
                               </a-menu-item>
@@ -174,6 +173,7 @@
     <class-student-import ref="studentImport" @update="debounceLoad" :school="currentSchool"/>
     <class-member-list ref="memberList" @update="debounceLoad" :school="currentSchool"/>
     <class-restore-choose ref="restoreChoose" @save="doRestore" :chooseOptions="restoreChooseOptions"/>
+    <class-subject-sel ref="classSubject" @save="addSubjectClass" :school="currentSchool"/>
   </div>
 </template>
 

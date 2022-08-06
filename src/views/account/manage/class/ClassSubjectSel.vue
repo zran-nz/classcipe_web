@@ -322,6 +322,7 @@ export default {
       this.fillValidate(key, value)
     },
     doEdit(record) {
+      console.log(record)
       this.formModel = cloneDeep({
         ...this.initValue,
         ...record,

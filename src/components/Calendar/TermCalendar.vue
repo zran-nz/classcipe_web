@@ -219,6 +219,7 @@ export default {
               }
               return isFind
             }
+            console.log(this.current)
             // this.current = '2022-08-02 20:00:00~2022-08-02 20:03:00,2022-08-04 01:00:00~2022-08-04 01:03:00'
             if (this.current) {
               const choosedBlock = this.current.split(',').map(time => {
