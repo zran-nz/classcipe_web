@@ -26,7 +26,7 @@ export const upAwsS3File = (userId, file, onProgress, onSuccess, isAutoAddFileUp
       logger.info('upload done , location is ' + data['Location'])
       logger.info('File available at', data)
       logger.info(Date.now() - now, '计时 上传成功')
-      onSuccess && onSuccess(data['Location'])
+      onSuccess && onSuccess(data['Location'], file.name, file.size)
       onProgress && onProgress(100)
       if (isAutoAddFileUploadRecord) {
         addFileUploadRecord({

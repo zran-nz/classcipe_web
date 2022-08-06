@@ -107,8 +107,6 @@ export default {
           this.videos = response.result
           this.loading = false
         })
-      } else {
-        this.$message.warn('Please enter keyword')
       }
     },
     insert() {

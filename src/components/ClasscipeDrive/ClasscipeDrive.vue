@@ -132,14 +132,16 @@ export default {
           (progress) => {
             this.driveProcess = progress
           },
-          (type, url, mediaType) => {
+          (type, url, mediaType, name, size) => {
             console.log('GooglePicker success url', url)
             if (url) {
               this.$logger.info('GooglePicker addDrive done', url, mediaType, ClasscipeDriveEvent)
               this.$EventBus.$emit(ClasscipeDriveEvent.INSERT_GOOGLE_DRIVE, {
                 data: url,
                 mediaType,
-                field: this.field
+                field: this.field,
+                name: name,
+                size: size
               })
             }
             this.driveProcess = 0

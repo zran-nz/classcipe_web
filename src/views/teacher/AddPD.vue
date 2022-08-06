@@ -291,6 +291,7 @@ export default {
         videoList: [],
         selectedTemplateList: [],
         presentationId: null,
+        slideEditing: false,
         createBy: null
       },
       typeMap: typeMap,
