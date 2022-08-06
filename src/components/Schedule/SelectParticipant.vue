@@ -7,14 +7,14 @@
             Class list
           </div>
           <div class='class-type'>
-            <a-radio-group v-model="queryType" button-style="solid">
-              <a-radio-button :value="0">
-                Standard
-              </a-radio-button>
-              <a-radio-button :value="1">
-                Subject
-              </a-radio-button>
-            </a-radio-group>
+<!--            <a-radio-group v-model="queryType" button-style="solid">-->
+<!--              <a-radio-button :value="0">-->
+<!--                Standard-->
+<!--              </a-radio-button>-->
+<!--              <a-radio-button :value="1">-->
+<!--                Subject-->
+<!--              </a-radio-button>-->
+<!--            </a-radio-group>-->
           </div>
         </div>
         <div class='class-list'>
@@ -186,7 +186,7 @@ export default {
     handleSelectClass (item) {
       this.$logger.info('handleSelectClass', item, 'this.checkedClass', this.checkedClass)
       if (this.selectedClassIdList.indexOf(item.id) !== -1) {
-        this.checkedClass.splice(this.checkedClass.indexOf(item.id), 1)
+        this.checkedClass.splice(this.checkedClass.findIndex(it => it.id === item.id), 1)
         this.currentSelectedClass = null
         this.removeClassStudent(item)
       } else {
@@ -195,7 +195,6 @@ export default {
       }
       this.loadCurrentClassStudent()
       this.$emit('select-class-student')
-      this.$logger.info('after this.checkedClass', this.checkedClass)
     },
 
     removeClassStudent(classItem) {
@@ -251,7 +250,7 @@ export default {
       this.$logger.info('handleSelectStudent', student)
       if (this.selectedStudentIdList.indexOf(student.id) !== -1) {
         this.$logger.info('remove student', student)
-        this.checkedStudent.splice(this.checkedStudent.indexOf(student.id), 1)
+        this.checkedStudent.splice(this.checkedStudent.findIndex(it => it.id === student.id), 1)
       } else {
         this.checkedStudent.push(student)
       }
