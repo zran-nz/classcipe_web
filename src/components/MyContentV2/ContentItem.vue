@@ -58,14 +58,14 @@
           </div>
           <div class='extra-info'>
             <a-space>
-              <div class='info-item curriculum-info'>
+              <div class='info-item curriculum-info' v-show='curriculumName'>
                 {{ curriculumName }}
               </div>
               <div class='info-item subject-info'>
                 <a-space>
                   <div class='subject-item' v-for='(subject, idx) in content.subjectList.slice(0, 2)' :key='idx'>{{ subject }}</div>
                 </a-space>
-                <div class='more-item'>
+                <div class='more-item' v-if='content.subjectList.slice(2).length'>
                   <a-tooltip placement='top' :title='content.subjectList.slice(2).join("、 ")' >more({{ content.subjectList.slice(2).length }})</a-tooltip>
                 </div>
               </div>
@@ -73,7 +73,7 @@
                 <a-space>
                   <div class='subject-item' v-for='(year, idx) in content.yearList.slice(0, 4)' :key='idx'>{{ year }}</div>
                 </a-space>
-                <div class='more-item'>
+                <div class='more-item' v-if='content.yearList.slice(4).length'>
                   <a-tooltip placement='top' :title='content.yearList.slice(4).join("、 ")' >more({{ content.yearList.slice(4).length }})</a-tooltip>
                 </div>
               </div>
@@ -146,14 +146,14 @@
           <template v-if='showButton && !content.delFlag'>
             <custom-button
               label='Schedule'
-              v-if='content.presentationId && showSchedule && content.type === typeMap.task && !content.slideEditing'
+              v-if='content.pageObjects.length && showSchedule && content.type === typeMap.task && !content.slideEditing'
               @click='handleSchedule'>
               <template v-slot:icon>
                 <schedule-icon />
               </template>
             </custom-button>
 
-            <template v-if="showPublish && content.presentationId && !content.slideEditing">
+            <template v-if="showPublish && content.pageObjects.length && !content.slideEditing && !content.sourceFrom">
               <custom-button label="Publish" @click='handlePublishStatus' v-if='content.status === 0'>
                 <template v-slot:icon >
                   <publish-icon/>
@@ -404,7 +404,7 @@ export default {
     },
 
     handleSchedule() {
-      if (this.content.presentationId) {
+      if (this.content.pageObjects.length) {
         this.$router.push({
           path: '/teacher/schedule-session/' + this.content.id + '/' + this.content.type
         })
