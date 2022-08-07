@@ -149,7 +149,7 @@ export default {
       currentRole: state => state.user.currentRole
     }),
     keepAlive () {
-      return this.$route.meta.keepAlive
+      return this.$route.meta?.keepAlive
     }
   },
   created () {
