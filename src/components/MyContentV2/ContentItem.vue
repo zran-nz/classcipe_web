@@ -33,6 +33,7 @@
                 <a-space>
                   <content-type-icon :type="content.type" />
                   <collaborate-icon v-if='content.collaborateUsers.length'/>
+                  <a-icon type="shopping" v-if='content.sourceFrom' />
                 </a-space>
               </div>
               <div class='name'>
@@ -565,6 +566,8 @@ export default {
         background-color: rgba(0, 0, 0, 0.7);
         font-size: 14px;
         user-select: none;
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
         .bottom-action-item {
           color: #fff;
           cursor: pointer;
@@ -667,14 +670,13 @@ export default {
       .avatar-info {
         width: 200px;
       }
-
       .action {
         width: calc(100% - 300);
         > div {
           display: flex;
           align-items: center;
           justify-content: flex-end;
-          margin-right: 10px;
+          margin-left: 10px;
         }
       }
     }
