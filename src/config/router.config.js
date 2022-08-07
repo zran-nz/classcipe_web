@@ -251,7 +251,7 @@ export const asyncRouterMap = [
             name: 'AddTaskV2',
             props: true,
             component: () => import('@/views/teacher/AddTaskV2'),
-            meta: { title: 'menu.task', keepAlive: true, permission: ['teacher'], fullLayout: true }
+            meta: { title: 'menu.task', keepAlive: false, permission: ['teacher'], fullLayout: true }
           },
           {
             path: '/teacher/sub-task/:taskId',
@@ -300,7 +300,7 @@ export const asyncRouterMap = [
             name: 'AddPD',
             props: true,
             component: () => import('@/views/teacher/AddPD'),
-            meta: { title: 'menu.pd', keepAlive: true, permission: ['teacher'] }
+            meta: { title: 'menu.pd', keepAlive: false, permission: ['teacher'] }
           },
           {
             path: '/teacher/video-redirect/:videoId',
