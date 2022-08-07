@@ -188,8 +188,8 @@ export default {
         pageNo: 1,
         pageSize: 10000
       }).then(res => {
-        this.$logger.info('teacher nav listClass res records', res.result.records)
-        this.classList = res.result.records
+        this.$logger.info('teacher nav listClass res records', res.result?.records)
+        this.classList = res.result?.records
       })
     },
     handleChangePersonal() {
