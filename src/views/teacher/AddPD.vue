@@ -231,7 +231,7 @@ import { PDContentAddOrUpdate, PDContentQueryById } from '@/api/pdContent'
 import { AutoSaveMixin } from '@/mixins/AutoSaveMixin'
 import SlideEvent from '@/components/PPT/SlideEvent'
 import CustomImageUploader from '@/components/Common/CustomImageUploader'
-import { TaskCreateNewTaskPPT } from '@/api/task'
+import { TaskCreateNewTaskPPT, UpdateSlideEditing } from '@/api/task'
 import PdSchedule from '@/components/PdContent/PdSchedule'
 import Collaborate from '@/components/UnitPlan/Collaborate'
 import CollaborateUserList from '@/components/Collaborate/CollaborateUserList'
@@ -316,7 +316,7 @@ export default {
       associateIdList: []
     }
   },
-  created() {
+  mounted() {
     this.initFormSteps()
     if (this.currentActiveStepIndex < 0 || this.currentActiveStepIndex > this.formSteps.length - 1) {
       this.currentActiveStepIndex = 0
@@ -346,9 +346,6 @@ export default {
     this.$EventBus.$off(SlideEvent.SELECT_TEMPLATE, this.handleSelectTemplate)
     this.$EventBus.$off(SlideEvent.CANCEL_SELECT_TEMPLATE, this.handleRemoveTemplate)
     ClasscipeEventBus.$off(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleCreatePPT)
-  },
-  mounted () {
-
   },
   methods: {
 
@@ -560,6 +557,7 @@ export default {
           if (this.form.presentationId && !this.form.presentationId.startsWith('fake_buy_')) {
             res = await this.save()
             if (res.code === 0) {
+              await this.updateSlideEditing()
               window.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit'
             } else {
               this.$store.commit(SET_GLOBAL_LOADING, false)
@@ -613,7 +611,7 @@ export default {
           this.form.slideEditing = true
           this.form.presentationId = response.result.presentationId
           await this.save()
-          this.$message.success('Created Successfully in Google Slides')
+          await this.updateSlideEditing()
           window.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId
         } finally {
           hideLoading()
@@ -733,6 +731,19 @@ export default {
       if (!this.thumbnailListLoading) {
         this.loadThumbnail(true, true)
       }
+    },
+    async updateSlideEditing() {
+      const updateData = {
+        id: this.pdId,
+        slideEditing: true,
+        type: this.$classcipe.typeMap.pd
+      }
+      this.$logger.info('updateSlideEditing', updateData)
+      this.saving = true
+      const response = await UpdateSlideEditing(updateData)
+      this.saving = false
+      this.$logger.info('updateSlideEditing', response.result)
+      return response
     }
   }
 }

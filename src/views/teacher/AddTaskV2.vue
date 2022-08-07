@@ -1106,8 +1106,8 @@ export default {
             // this.form.slideEditing = true
             this.form.presentationId = response.result.presentationId
             this.$message.success('Created Successfully in Google Slides')
-            // this.loadThumbnail(false)
-            // window.open('https://docs.google.com/presentation/d/' + this.form.presentationId, '_blank')
+            await this.save()
+            await this.updateSlideEditing()
             window.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId
           }
         } finally {
@@ -1165,7 +1165,7 @@ export default {
             // 设置正在编辑状态，my content根据这个提示是否先save再排课
             const res = await this.save()
             if (res.code === 0) {
-              // window.open('https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit', '_blank')
+              await this.updateSlideEditing()
               window.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit'
             } else if (res.code === 520 || res.code === 403) {
               this.$logger.info('等待授权回调')
