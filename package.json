@@ -3,7 +3,7 @@
   "version": "3.0.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
+    "serve": "vue-cli-service serve --mode development",
     "dev": "vue-cli-service serve --host 0.0.0.0 --port 8004 --public dev.local",
     "serve-test": "vue-cli-service serve --mode test",
     "serve-production": "vue-cli-service serve --mode production",

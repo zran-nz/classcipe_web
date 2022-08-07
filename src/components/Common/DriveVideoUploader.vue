@@ -58,6 +58,8 @@ export default {
     return {
       uploading: false,
       url: null,
+      name: '',
+      size: 0,
       progressPercent: 0,
       uploader: null
     }
@@ -72,13 +74,17 @@ export default {
           this.$logger.info('progressSize', progressSize)
           this.progressPercent = progressSize
         },
-        result => {
-          this.$logger.info('handleUploadVideo result', result)
+        (url, name, size) => {
+          this.$logger.info('handleUploadVideo result', url)
           this.uploading = false
-          this.url = result
+          this.url = url
+          this.name = name
+          this.size = size
           this.$emit('update', {
             type: 'video',
-            url: this.url
+            url: this.url,
+            name,
+            size
           })
         }, true, this.contentType, this.contentId)
     },
@@ -96,7 +102,9 @@ export default {
       if (this.url) {
         this.$EventBus.$emit(ClasscipeDriveEvent.INSERT_UPLOADED_VIDEO, {
           field: this.field,
-          data: this.url
+          data: this.url,
+          name: this.name,
+          size: this.size
         })
       }
     }

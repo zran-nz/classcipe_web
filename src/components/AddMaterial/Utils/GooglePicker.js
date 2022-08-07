@@ -195,7 +195,7 @@ class LoadPicker {
     logger.info('upDriveFire', this.classcipeUserId, file, mimeType, 'contentType', this.contentType, 'contentId', this.contentId)
     this.uploadDriveInstance = upAwsS3File(this.classcipeUserId, file, this.onloadingCallBack, result => {
       logger.info(result, mimeType)
-      this.classCallback('upload-ended', result, mimeType)
+      this.classCallback('upload-ended', result, mimeType, file.name, file.size)
       this.uploadDriveInstance = null
     }, true,
       this.contentType,

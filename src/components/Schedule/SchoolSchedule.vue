@@ -269,6 +269,7 @@ export default {
     },
 
      handleSelectSchedule(date) {
+      this.$logger.info('handleSelectSchedule', date)
       this.startDate = moment(date.startDate).utc().format('YYYY-MM-DD HH:mm:ss')
       this.endDate = moment(date.endDate).utc().format('YYYY-MM-DD HH:mm:ss')
       this.$emit('select-date', {

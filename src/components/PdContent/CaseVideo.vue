@@ -42,8 +42,8 @@ export default {
     return {
       currentMediaFileUrl: null,
       currentDriveType: null,
-      currentFileLength: null,
-      currentFileName: null,
+      currentFileLength: 0,
+      currentFileName: '',
       classcipeRecordFiles: []
     }
   },
@@ -92,8 +92,10 @@ export default {
     handleSelectGoogleDrive (eventData) {
       this.$logger.info('handleSelectGoogleDrive', eventData)
       if (eventData && eventData.field === this.field) {
-        this.currentMediaFileUrl = eventData.data.url
+        this.currentMediaFileUrl = eventData.data
         this.currentDriveType = DriveType.GoogleDrive
+        this.currentFileName = eventData.name
+        this.currentFileLength = eventData.size
         this.afterSelectInsert()
       }
     },
@@ -110,6 +112,9 @@ export default {
       this.$logger.info('CustomCoverMedia handleSelectUploadItem', eventData)
       if (eventData && eventData.field === this.field) {
         this.currentMediaFileUrl = eventData.data
+        this.currentFileName = eventData.name
+        this.currentFileLength = eventData.size
+        this.$logger.info('currentMediaFileUrl', this.currentFileName)
         this.afterSelectInsert()
       }
     },
@@ -119,9 +124,11 @@ export default {
       this.$emit('update', {
         filePath: this.currentMediaFileUrl,
         fileName: this.currentFileName,
+        fileLength: this.currentFileLength,
         classcipeRecordFiles: this.classcipeRecordFiles,
         type: 'video'
       })
+      this.classcipeRecordFiles = []
     },
 
     handleDeleteVideo (item) {

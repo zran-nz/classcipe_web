@@ -1094,7 +1094,8 @@ export default {
 
     wrapperLink(item) {
       if (item && item.id) {
-        return `${process.env.VUE_APP_SHARE_URL}/detail/${item.type}/${item.id}`
+        const typeName = this.$classcipe.getContentTypeName(item.type)
+        return `${process.env.VUE_APP_SHARE_URL}/v2/${typeName}/${item.id}`
       } else {
         return ''
       }

@@ -291,6 +291,7 @@ export default {
         videoList: [],
         selectedTemplateList: [],
         presentationId: null,
+        slideEditing: false,
         createBy: null
       },
       typeMap: typeMap,
@@ -560,9 +561,12 @@ export default {
             res = await this.save()
             if (res.code === 0) {
               window.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit'
+            } else {
+              this.$store.commit(SET_GLOBAL_LOADING, false)
+              this.$message.error('Save PDContent failed, Please retry!')
             }
           } else {
-            res = await this.handleCreatePPT()
+            await this.handleCreatePPT()
           }
         } catch (e) {
           console.error('handleEditGoogleSlide error', e)
@@ -606,7 +610,9 @@ export default {
         try {
           this.saving = true
           this.form.id = response.result.id
+          this.form.slideEditing = true
           this.form.presentationId = response.result.presentationId
+          await this.save()
           this.$message.success('Created Successfully in Google Slides')
           window.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId
         } finally {
