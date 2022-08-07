@@ -43,7 +43,10 @@
     <!--    </template>-->
     <!-- 主页面内容 -->
     <div class='cc-main-content'>
-      <router-view />
+      <keep-alive v-if="keepAlive">
+        <router-view />
+      </keep-alive>
+      <router-view v-else />
     </div>
   </pro-layout>
 </template>
@@ -144,7 +147,10 @@ export default {
       currentSchool: state => state.user.currentSchool,
       userMode: state => state.app.userMode,
       currentRole: state => state.user.currentRole
-    })
+    }),
+    keepAlive () {
+      return this.$route.meta.keepAlive
+    }
   },
   created () {
     logger.info('BasicLayout created, path ' + this.$route.path)
