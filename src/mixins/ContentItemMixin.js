@@ -79,23 +79,6 @@ export const ContentItemMixin = {
           this.updateEditSlideLoading = false
         }
       }
-    },
-    async handleSaveSlides() {
-      if (this.savingSlides) {
-        return
-      }
-
-      try {
-        this.savingSlides = true
-        await TemplatesGetPresentation({
-          taskId: this.content.id,
-          needRefresh: true
-        })
-      } catch (e) {
-        console.error('', e)
-      } finally {
-        this.savingSlides = false
-      }
     }
   }
 }

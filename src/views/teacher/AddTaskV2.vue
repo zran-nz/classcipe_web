@@ -3371,6 +3371,7 @@ export default {
 
     .img-list {
       margin-right: -10px;
+      padding: 0 10px;
       cursor: pointer;
       display: flex;
       flex-direction: row;
