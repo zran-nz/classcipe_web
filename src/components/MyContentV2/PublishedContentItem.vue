@@ -113,25 +113,6 @@
       <div class='action'>
         <template v-if='showButton'>
           <a-space :size='30'>
-            <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement'>
-              <div class='more-action'>
-                <more-icon />
-              </div>
-              <div class='content-item-more-action' slot='overlay'>
-                <div class='self-learning menu-item' v-if='content.type === typeMap.task'>
-                  Self learning
-                  <a-switch size='small' @change='handleSelfLearning' />
-                </div>
-                <div class='menu-item'>
-                  <custom-button label='Delete' @click='handleDeleteItem'>
-                    <template v-slot:icon>
-                      <delete-icon />
-                    </template>
-                  </custom-button>
-                </div>
-              </div>
-            </a-dropdown>
-
             <custom-button label='Preview' @click='handlePreviewDetail(content)'>
               <template v-slot:icon>
                 <preview-gray-icon />
