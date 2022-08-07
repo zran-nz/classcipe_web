@@ -1155,7 +1155,6 @@ export default {
     async handleEditGoogleSlide() {
       this.$logger.info('handleEditGoogleSlide star')
       this.$store.commit(SET_GLOBAL_LOADING, true)
-      this.form.slideEditing = true
       this.$nextTick(async () => {
         try {
           this.editGoogleSlideLoading = true
@@ -1163,9 +1162,9 @@ export default {
           // fake_buy_处理library bug后没有实际上copy ppt的情况
           if (this.form.presentationId && !this.form.presentationId.startsWith('fake_buy_')) {
             // 设置正在编辑状态，my content根据这个提示是否先save再排课
-            const res = await this.save()
+            await this.save()
+            const res = await this.updateSlideEditing()
             if (res.code === 0) {
-              await this.updateSlideEditing()
               window.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit'
             } else if (res.code === 520 || res.code === 403) {
               this.$logger.info('等待授权回调')

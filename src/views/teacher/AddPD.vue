@@ -340,12 +340,12 @@ export default {
 
     this.$EventBus.$on(SlideEvent.SELECT_TEMPLATE, this.handleSelectTemplate)
     this.$EventBus.$on(SlideEvent.CANCEL_SELECT_TEMPLATE, this.handleRemoveTemplate)
-    ClasscipeEventBus.$on(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleCreatePPT)
+    ClasscipeEventBus.$on(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleEditGoogleSlide)
   },
   beforeDestroy() {
     this.$EventBus.$off(SlideEvent.SELECT_TEMPLATE, this.handleSelectTemplate)
     this.$EventBus.$off(SlideEvent.CANCEL_SELECT_TEMPLATE, this.handleRemoveTemplate)
-    ClasscipeEventBus.$off(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleCreatePPT)
+    ClasscipeEventBus.$off(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleEditGoogleSlide)
   },
   methods: {
 
@@ -553,12 +553,17 @@ export default {
         try {
           this.editGoogleSlideLoading = true
           this.$logger.info('handleEditGoogleSlide', this.form.presentationId)
-          let res
           if (this.form.presentationId && !this.form.presentationId.startsWith('fake_buy_')) {
-            res = await this.save()
+            await this.save()
+            const res = await this.updateSlideEditing()
             if (res.code === 0) {
-              await this.updateSlideEditing()
               window.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit'
+            } else if (res.code === 520 || res.code === 403) {
+              this.$logger.info('等待授权回调')
+              this.$message.loading('Waiting for Google Slides auth...', 10)
+              this.creating = false
+              this.saving = false
+              return
             } else {
               this.$store.commit(SET_GLOBAL_LOADING, false)
               this.$message.error('Save PDContent failed, Please retry!')
