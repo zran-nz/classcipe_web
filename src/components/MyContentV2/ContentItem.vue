@@ -2,7 +2,7 @@
   <div class='content-item' v-if='content' :style="{'border': activeItem ? '1px solid #15c39a' : '1px solid #EEF1F6'}">
     <div class='cover'>
       <div class='cover-block' :style="{'background-image': 'url(' + content.image + ')'}">
-        <div class='slide-editing-mask' v-show='(content.type === typeMap.task || content.type === typeMap.pd) && content.slideEditing'>
+        <div class='slide-editing-mask' v-if='(content.type === typeMap.task || content.type === typeMap.pd) && content.slideEditing'>
           <custom-button
             label='Save Slides'
             :loading='updateEditSlideLoading'
