@@ -583,6 +583,7 @@ export default {
 
     async handleCreatePPT() {
       this.$logger.info('handleCreatePPT')
+      this.form.slideEditing = true
       const hideLoading = this.$message.loading('Creating ppt in Google Slides...', 0)
       if (!this.creating) {
         this.creating = true

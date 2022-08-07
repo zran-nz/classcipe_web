@@ -1073,6 +1073,7 @@ export default {
 
     async handleCreateTask(showMask) {
       this.$logger.info('handleCreateTask')
+      this.form.slideEditing = true
       const hideLoading = this.$message.loading('Creating ppt in Google Slides...', 0)
       if (!this.creating) {
         this.creating = true
