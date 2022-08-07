@@ -1,17 +1,27 @@
 <template>
   <div class='content-item' v-if='content' :style="{'border': activeItem ? '1px solid #15c39a' : '1px solid #EEF1F6'}">
-    <div class='slide-editing-mask' v-if='showSchedule && (content.type === typeMap.task || content.type === typeMap.pd) && content.slideEditing'>
-      <custom-button
-        label='Save changes'
-        :loading='updateEditSlideLoading'
-        @click='updateEditSlideStatus'>
-        <template v-slot:icon>
-          <a-icon type="save" />
-        </template>
-      </custom-button>
-    </div>
     <div class='cover'>
       <div class='cover-block' :style="{'background-image': 'url(' + content.image + ')'}">
+        <div class='slide-editing-mask' v-if='(content.type === typeMap.task || content.type === typeMap.pd) && content.slideEditing'>
+          <custom-button
+            label='Save changes'
+            :loading='updateEditSlideLoading'
+            @click='updateEditSlideStatus'>
+            <template v-slot:icon>
+              <a-icon type="save" />
+            </template>
+          </custom-button>
+        </div>
+        <div class='bottom-action'>
+          <div class='bottom-action-item vertical-left'>
+            <div class='bottom-action-item-icon'><a-icon type="form" /></div>
+            <div class='bottom-action-item-label'>Edit</div>
+          </div>
+          <div class='bottom-action-item vertical-right' v-show='!((content.type === typeMap.task || content.type === typeMap.pd) && content.slideEditing)'>
+            <div class='bottom-action-item-icon'><a-icon type="eye" /></div>
+            <div class='bottom-action-item-label'>Preview</div>
+          </div>
+        </div>
       </div>
     </div>
     <div class='detail'>
@@ -145,11 +155,6 @@
             </div>
           </a-dropdown>
 
-          <div class='self-learning' v-if='content.type === typeMap.task'>
-            Self learning
-            <a-switch size='small' @change='handleSelfLearning' v-model="isSelfLearning" />
-          </div>
-
           <custom-button label='Preview' @click='handlePreviewDetail(content)'>
             <template v-slot:icon>
               <preview-gray-icon />
@@ -158,7 +163,7 @@
 
           <custom-button
             label='Schedule'
-            v-if='content.presentationId && showSchedule && (content.type === typeMap.task || content.type === typeMap.pd) && !content.slideEditing'
+            v-if='content.presentationId && showSchedule && content.type === typeMap.task && !content.slideEditing'
             @click='handleSchedule'>
             <template v-slot:icon>
               <schedule-icon />
@@ -287,7 +292,6 @@ import MoreIcon from '@/assets/v2/icons/more.svg?inline'
 import ContentPreview from '@/components/Preview/ContentPreview'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import * as logger from '@/utils/logger'
-import { UpdateContentField } from '@/api/v2/mycontent'
 import { discountSettingQuery, discountSettingSave } from '@/api/v2/discountSetting'
 import moment from 'moment'
 import ModalHeader from '@/components/Common/ModalHeader'
@@ -419,21 +423,6 @@ export default {
       }
     },
 
-    handleSelfLearning(isSelfLearning) {
-      this.$logger.info('handleSelfLearning', isSelfLearning)
-      this.isSelfLearning = isSelfLearning
-      const item = this.content
-      item.contentType = isSelfLearning ? 1 : 0
-      UpdateContentField({
-        id: item.id,
-        type: item.contentType,
-        fieldName: 'contentType',
-        fieldValue: item.contentType
-      }).then((response) => {
-        this.$logger.info('response : {}', response)
-      })
-    },
-
     handlePublishStatus() {
       this.$emit('update-publish', {
         content: this.content
@@ -552,6 +541,7 @@ export default {
   }
 
   .cover {
+    position: relative;
     .cover-block {
       border-radius: 8px;
       height: 9rem;
@@ -559,6 +549,35 @@ export default {
       background-position: center center;
       background-size: cover;
       background-repeat: no-repeat;
+
+      .bottom-action {
+        z-index: 1000;
+        padding: 0 5px 0 10px;
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        line-height: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-direction: row;
+        background-color: rgba(0, 0, 0, 0.7);
+        font-size: 14px;
+        user-select: none;
+        .bottom-action-item {
+          color: #fff;
+          cursor: pointer;
+          transition: all 0.3s ease-in-out;
+          .bottom-action-item-label {
+            padding: 0 5px;
+          }
+
+          &:hover {
+            color: #15C39A;
+          }
+        }
+      }
     }
   }
 
