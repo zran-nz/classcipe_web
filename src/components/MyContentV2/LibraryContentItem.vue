@@ -51,7 +51,7 @@
                     <div
                       class='task-type-item blue-active-task-type task-type-examine'
                       v-if="content.taskType === 'FinalExamine'">
-                      FinalExamine
+                      Final Examine
                     </div>
                     <div
                       class='task-type-item red-active-task-type task-type-test'

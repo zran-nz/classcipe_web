@@ -61,7 +61,7 @@
                 Activity
               </a-radio>
               <a-radio value="FinalExamine">
-                FinalExamine
+                Final Examine
               </a-radio>
               <a-radio value="test">
                 Test
