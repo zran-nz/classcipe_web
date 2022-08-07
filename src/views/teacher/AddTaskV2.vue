@@ -142,7 +142,7 @@
                         </div>
                         <div
                           :class="{'task-type-item': true, 'task-type-examine': true,'blue-active-task-type': form.taskType === 'FinalExamine'}"
-                          @click="handleSelectTaskType('FinalExamine')">FinalExamine
+                          @click="handleSelectTaskType('FinalExamine')">Final Examine
                         </div>
                         <div
                           :class="{'task-type-item': true,'task-type-test': true, 'red-active-task-type': form.taskType === 'Test'}"
@@ -2780,7 +2780,7 @@ export default {
     }
 
     .task-type-examine {
-      width: 100px;
+      width: 120px;
       border-radius: 50px;
     }
     .task-type-test {
