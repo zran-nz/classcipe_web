@@ -12,12 +12,12 @@
             </template>
           </custom-button>
         </div>
-        <div class='bottom-action'>
-          <div class='bottom-action-item vertical-left'>
+        <div class='bottom-action' v-show='showEdit || allowPreview'>
+          <div class='bottom-action-item vertical-left' @click='editItem'>
             <div class='bottom-action-item-icon'><a-icon type="form" /></div>
             <div class='bottom-action-item-label'>Edit</div>
           </div>
-          <div class='bottom-action-item vertical-right' v-show='!((content.type === typeMap.task || content.type === typeMap.pd) && content.slideEditing)'>
+          <div class='bottom-action-item vertical-right' @click="handlePreviewDetail" v-show='!((content.type === typeMap.task || content.type === typeMap.pd) && content.slideEditing)'>
             <div class='bottom-action-item-icon'><a-icon type="eye" /></div>
             <div class='bottom-action-item-label'>Preview</div>
           </div>
@@ -155,24 +155,12 @@
             </div>
           </a-dropdown>
 
-          <custom-button label='Preview' @click='handlePreviewDetail(content)'>
-            <template v-slot:icon>
-              <preview-gray-icon />
-            </template>
-          </custom-button>
-
           <custom-button
             label='Schedule'
             v-if='content.presentationId && showSchedule && content.type === typeMap.task && !content.slideEditing'
             @click='handleSchedule'>
             <template v-slot:icon>
               <schedule-icon />
-            </template>
-          </custom-button>
-
-          <custom-button label='Edit' @click='editItem' v-if='showEdit'>
-            <template v-slot:icon>
-              <edit-icon />
             </template>
           </custom-button>
 

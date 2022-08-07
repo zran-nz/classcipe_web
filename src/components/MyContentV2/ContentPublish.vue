@@ -41,7 +41,7 @@
           <a-range-picker :default-value="initDate" :mode="['date']" :disabled-date="disabledDate" @change="handleDurationChange"/>
         </a-col>
       </a-row>
-      <a-row :gutter='20' type='flex' align='middle' v-if='currentContent.type === typeMap.task'>
+      <a-row :gutter='20' type='flex' align='middle' v-if='content.type === typeMap.task'>
         <a-col span='8' class='label-name'>
           Self learning
         </a-col>
