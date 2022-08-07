@@ -1,28 +1,49 @@
 <template>
   <div class='content-item' v-if='content' :style="{'border': activeItem ? '1px solid #15c39a' : '1px solid #EEF1F6'}">
-    <div class='slide-editing-mask' v-if='showSchedule && (content.type === typeMap.task || content.type === typeMap.pd) && content.slideEditing'>
-      <custom-button
-        label='Save changes'
-        :loading='updateEditSlideLoading'
-        @click='updateEditSlideStatus'>
-        <template v-slot:icon>
-          <a-icon type="save" />
-        </template>
-      </custom-button>
-    </div>
     <div class='cover'>
       <div class='cover-block' :style="{'background-image': 'url(' + content.image + ')'}">
+        <div class='slide-editing-mask' v-show='(content.type === typeMap.task || content.type === typeMap.pd) && content.slideEditing'>
+          <custom-button
+            label='Save Slides'
+            :loading='updateEditSlideLoading'
+            @click='updateEditSlideStatus'>
+            <template v-slot:icon>
+              <a-icon type="save" />
+            </template>
+          </custom-button>
+        </div>
+        <div class='bottom-action' v-show='showEdit || allowPreview'>
+          <div class='bottom-action-item vertical-left' @click='editItem'>
+            <div class='bottom-action-item-icon'><a-icon type="form" /></div>
+            <div class='bottom-action-item-label'>Edit</div>
+          </div>
+          <div class='bottom-action-item vertical-right' @click="handlePreviewDetail" v-show='!((content.type === typeMap.task || content.type === typeMap.pd) && content.slideEditing)'>
+            <div class='bottom-action-item-icon'><a-icon type="eye" /></div>
+            <div class='bottom-action-item-label'>Preview</div>
+          </div>
+        </div>
       </div>
     </div>
     <div class='detail'>
       <div class='detail-content'>
         <div class='base-info'>
-          <div class='name-type'>
-            <div class='type-icon'>
-              <content-type-icon :type="content.type" />
+          <div class='header-line vertical-between'>
+            <div class='left vertical-left'>
+              <div class='type-icon vertical-left'>
+                <a-space>
+                  <content-type-icon :type="content.type" />
+                  <collaborate-icon v-if='content.collaborateUsers.length'/>
+                  <a-icon type="shopping" v-if='content.sourceFrom' />
+                </a-space>
+              </div>
+              <div class='name'>
+                {{ content.name || 'Untitled ' + contentTypeName }}
+              </div>
             </div>
-            <div class='name'>
-              {{ content.name || 'Untitled ' + contentTypeName }}
+            <div class='right vertical-right'>
+              <div class='time-at'>
+                {{ (content.updateTime || content.createTime) | datejs }}
+              </div>
             </div>
           </div>
           <div class='set-price-line vertical-right' v-if='showSetPrice'>
@@ -38,18 +59,24 @@
           </div>
           <div class='extra-info'>
             <a-space>
-              <div class='info-item curriculum-info'>
+              <div class='info-item curriculum-info' v-show='curriculumName'>
                 {{ curriculumName }}
               </div>
               <div class='info-item subject-info'>
                 <a-space>
-                  <div class='subject-item' v-for='(subject, idx) in content.subjectList' :key='idx'>{{ subject }}</div>
+                  <div class='subject-item' v-for='(subject, idx) in content.subjectList.slice(0, 2)' :key='idx'>{{ subject }}</div>
                 </a-space>
+                <div class='more-item' v-if='content.subjectList.slice(2).length'>
+                  <a-tooltip placement='top' :title='content.subjectList.slice(2).join("、 ")' >more({{ content.subjectList.slice(2).length }})</a-tooltip>
+                </div>
               </div>
               <div class='info-item year-info'>
                 <a-space>
-                  <div class='subject-item' v-for='(year, idx) in content.yearList' :key='idx'>{{ year }}</div>
+                  <div class='subject-item' v-for='(year, idx) in content.yearList.slice(0, 4)' :key='idx'>{{ year }}</div>
                 </a-space>
+                <div class='more-item' v-if='content.yearList.slice(4).length'>
+                  <a-tooltip placement='top' :title='content.yearList.slice(4).join("、 ")' >more({{ content.yearList.slice(4).length }})</a-tooltip>
+                </div>
               </div>
               <div class='info-item task-type-info' v-if='content.taskType'>
                 <div class='self-type-wrapper'>
@@ -57,12 +84,12 @@
                     <div
                       class='task-type-item green-active-task-type'
                       v-if="content.taskType === 'FA'">
-                      FA
+                      <a-tooltip placement='top' title='Formative Assessment'>FA</a-tooltip>
                     </div>
                     <div
                       class='task-type-item red-active-task-type'
                       v-if="content.taskType === 'SA'">
-                      SA
+                      <a-tooltip placement='top' title='Summative Assessment'>SA</a-tooltip>
                     </div>
                     <div
                       class='task-type-item blue-active-task-type task-type-activity'
@@ -99,6 +126,10 @@
               <a-tag color='#FFEDAF' class='tag-item' :title='customTag.category'> {{ customTag.name }} </a-tag>
             </div>
           </div>
+        </div>
+      </div>
+      <div class='footer-line'>
+        <div class='avatar-info'>
           <div class='owner'>
             <template v-if='content.owner'>
               <a-avatar :src='content.owner.avatar' size="small" />
@@ -109,163 +140,129 @@
             <div class='user-name'>
               {{ content.owner ? content.owner.nickname : content.createBy | upCaseFirst }}
             </div>
-            <div class='update-time'>
-              {{ (content.updateTime || content.createTime) | dayjs }}
-            </div>
           </div>
         </div>
-        <div class='right-info'>
-          <div class='update-time'>
-          </div>
-        </div>
-      </div>
-      <div class='action'>
-        <template v-if='showButton && !content.delFlag'>
-          <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement' v-if='showDelete'>
-            <div class='more-action'>
-              <more-icon />
-            </div>
-            <div class='content-item-more-action' slot='overlay'>
-              <div class='menu-item'>
-                <custom-button label='Archive' @click='handleDeleteItem'>
-                  <template v-slot:icon>
-                    <delete-icon />
-                  </template>
-                </custom-button>
+
+        <div class='action vertical-right'>
+          <template v-if='showButton && !content.delFlag'>
+            <custom-button
+              label='Schedule'
+              v-if='content.pageObjects.length && showSchedule && content.type === typeMap.task && !content.slideEditing'
+              @click='handleSchedule'>
+              <template v-slot:icon>
+                <schedule-icon />
+              </template>
+            </custom-button>
+
+            <template v-if="showPublish && content.pageObjects.length && !content.slideEditing && !content.sourceFrom">
+              <custom-button label="Publish" @click='handlePublishStatus' v-if='content.status === 0'>
+                <template v-slot:icon >
+                  <publish-icon/>
+                </template>
+              </custom-button>
+
+              <custom-button label="Unpublish" @click='handlePublishStatus' v-if='content.status !== 0'>
+                <template v-slot:icon >
+                  <un-publish-icon />
+                </template>
+              </custom-button>
+            </template>
+            <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement' v-if='showDelete'>
+              <div class='more-action'>
+                <more-icon />
               </div>
-              <div class='menu-item'>
-                <a-popconfirm :title="'Confirm permanent delete ' +(content.name ? content.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem" cancel-text="No">
-                  <custom-button label='Delete'>
+              <div class='content-item-more-action' slot='overlay'>
+                <div class='menu-item'>
+                  <custom-button label='Archive' @click='handleDeleteItem'>
                     <template v-slot:icon>
                       <delete-icon />
                     </template>
                   </custom-button>
-                </a-popconfirm>
+                </div>
+                <div class='menu-item'>
+                  <a-popconfirm :title="'Confirm permanent delete ' +(content.name ? content.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem" cancel-text="No">
+                    <custom-button label='Delete'>
+                      <template v-slot:icon>
+                        <delete-icon />
+                      </template>
+                    </custom-button>
+                  </a-popconfirm>
+                </div>
               </div>
-            </div>
-          </a-dropdown>
-
-          <div class='self-learning' v-if='content.type === typeMap.task'>
-            Self learning
-            <a-switch size='small' @change='handleSelfLearning' v-model="isSelfLearning" />
-          </div>
-
-          <custom-button label='Preview' @click='handlePreviewDetail(content)'>
-            <template v-slot:icon>
-              <preview-gray-icon />
-            </template>
-          </custom-button>
-
-          <custom-button
-            label='Schedule'
-            v-if='content.presentationId && showSchedule && (content.type === typeMap.task || content.type === typeMap.pd) && !content.slideEditing'
-            @click='handleSchedule'>
-            <template v-slot:icon>
-              <schedule-icon />
-            </template>
-          </custom-button>
-
-          <custom-button label='Edit' @click='editItem' v-if='showEdit'>
-            <template v-slot:icon>
-              <edit-icon />
-            </template>
-          </custom-button>
-
-          <template v-if="showPublish && content.presentationId">
-            <custom-button label="Publish" @click='handlePublishStatus' v-if='content.status === 0'>
-              <template v-slot:icon >
-                <publish-icon/>
-              </template>
-            </custom-button>
-
-            <custom-button label="Unpublish" @click='handlePublishStatus' v-if='showPublish && content.status !== 0'>
-              <template v-slot:icon >
-                <un-publish-icon />
-              </template>
-            </custom-button>
+            </a-dropdown>
           </template>
 
-          <custom-button
-            label='Save slides'
-            :loading='savingSlides'
-            v-if='content.presentationId && (content.type === typeMap.task || content.type === typeMap.pd)'
-            @click='handleSaveSlides'>
-            <template v-slot:icon>
-              <a-icon type="save" />
-            </template>
-          </custom-button>
+          <template v-if='showButton && content.delFlag'>
+            <a-space :size='30'>
 
-        </template>
-        <template v-if='showButton && content.delFlag'>
-          <a-space :size='30'>
+              <a-popconfirm :title="'Confirm permanent delete ' +(content.name ? content.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem" cancel-text="No">
+                <custom-button label='Delete'>
+                  <template v-slot:icon>
+                    <delete-icon />
+                  </template>
+                </custom-button>
+              </a-popconfirm>
 
-            <a-popconfirm :title="'Confirm permanent delete ' +(content.name ? content.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem" cancel-text="No">
-              <custom-button label='Delete'>
-                <template v-slot:icon>
-                  <delete-icon />
-                </template>
-              </custom-button>
-            </a-popconfirm>
+              <a-popconfirm :title="'Confirm restore ' +(content.name ? content.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleRestoreItem(content)" cancel-text="No">
+                <custom-button label='Restore'>
+                  <template v-slot:icon>
+                    <edit-icon />
+                  </template>
+                </custom-button>
+              </a-popconfirm>
 
-            <a-popconfirm :title="'Confirm restore ' +(content.name ? content.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleRestoreItem(content)" cancel-text="No">
-              <custom-button label='Restore'>
-                <template v-slot:icon>
-                  <edit-icon />
-                </template>
-              </custom-button>
-            </a-popconfirm>
-
-          </a-space>
-        </template>
-      </div>
-
-      <content-preview
-        :content-id='previewCurrentId'
-        :content-type='previewType'
-        v-if='previewVisible'
-        @close='handlePreviewClose' />
-
-      <a-modal
-        v-model='visible'
-        :closable='false'
-        :maskClosable='false'
-        destroyOnClose
-        @ok='updatePrice'
-        @cancel='visible = false'>
-        <modal-header title="Edit price" @close='visible = false'/>
-        <div class='edit-price'>
-          <a-row :gutter='20' type="flex" align='middle'>
-            <a-col span='8' class='label-name'>
-              Price:
-            </a-col>
-            <a-col span='16'>
-              <a-input
-                v-model='price'
-                type='number'
-                prefix='$'
-                class='cc-form-input cc-small-input' />
-            </a-col>
-          </a-row>
-          <a-row :gutter='20' type="flex" align='middle'>
-            <a-col span='8' class='label-name'>
-              Discount:
-            </a-col>
-            <a-col span='16'>
-              <a-input v-model='discount' class='cc-form-input cc-small-input' suffix='%' />
-            </a-col>
-          </a-row>
-
-          <a-row :gutter='20' type="flex" align='middle'>
-            <a-col span='8' class='label-name'>
-              Duration setting
-            </a-col>
-            <a-col span='16'>
-              <a-range-picker :default-value="initDate" :mode="['date']" :disabled-date="disabledDate" @change="handleDurationChange"/>
-            </a-col>
-          </a-row>
+            </a-space>
+          </template>
         </div>
-      </a-modal>
+      </div>
     </div>
+
+    <content-preview
+      :content-id='previewCurrentId'
+      :content-type='previewType'
+      v-if='previewVisible'
+      @close='handlePreviewClose' />
+
+    <a-modal
+      v-model='visible'
+      :closable='false'
+      :maskClosable='false'
+      destroyOnClose
+      @ok='updatePrice'
+      @cancel='visible = false'>
+      <modal-header title="Edit price" @close='visible = false'/>
+      <div class='edit-price'>
+        <a-row :gutter='20' type="flex" align='middle'>
+          <a-col span='8' class='label-name'>
+            Price:
+          </a-col>
+          <a-col span='16'>
+            <a-input
+              v-model='price'
+              type='number'
+              prefix='$'
+              class='cc-form-input cc-small-input' />
+          </a-col>
+        </a-row>
+        <a-row :gutter='20' type="flex" align='middle'>
+          <a-col span='8' class='label-name'>
+            Discount:
+          </a-col>
+          <a-col span='16'>
+            <a-input v-model='discount' class='cc-form-input cc-small-input' suffix='%' />
+          </a-col>
+        </a-row>
+
+        <a-row :gutter='20' type="flex" align='middle'>
+          <a-col span='8' class='label-name'>
+            Duration setting
+          </a-col>
+          <a-col span='16'>
+            <a-range-picker :default-value="initDate" :mode="['date']" :disabled-date="disabledDate" @change="handleDurationChange"/>
+          </a-col>
+        </a-row>
+      </div>
+    </a-modal>
   </div>
 </template>
 
@@ -287,10 +284,10 @@ import MoreIcon from '@/assets/v2/icons/more.svg?inline'
 import ContentPreview from '@/components/Preview/ContentPreview'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import * as logger from '@/utils/logger'
-import { UpdateContentField } from '@/api/v2/mycontent'
 import { discountSettingQuery, discountSettingSave } from '@/api/v2/discountSetting'
 import moment from 'moment'
 import ModalHeader from '@/components/Common/ModalHeader'
+import CollaborateIcon from '@/assets/v2/icons/collaborate.svg?inline'
 
 export default {
   name: 'ContentItem',
@@ -306,6 +303,7 @@ export default {
     UnPublishIcon,
     ScheduleIcon,
     OriginalTipsIcon,
+    CollaborateIcon,
     DeleteIcon,
     MoreIcon
   },
@@ -407,7 +405,7 @@ export default {
     },
 
     handleSchedule() {
-      if (this.content.presentationId) {
+      if (this.content.pageObjects.length) {
         this.$router.push({
           path: '/teacher/schedule-session/' + this.content.id + '/' + this.content.type
         })
@@ -417,21 +415,6 @@ export default {
           content: 'This task/PD content can not be scheduled without interactive slides, please edit google slides first before scheduling.'
         })
       }
-    },
-
-    handleSelfLearning(isSelfLearning) {
-      this.$logger.info('handleSelfLearning', isSelfLearning)
-      this.isSelfLearning = isSelfLearning
-      const item = this.content
-      item.contentType = isSelfLearning ? 1 : 0
-      UpdateContentField({
-        id: item.id,
-        type: item.contentType,
-        fieldName: 'contentType',
-        fieldValue: item.contentType
-      }).then((response) => {
-        this.$logger.info('response : {}', response)
-      })
     },
 
     handlePublishStatus() {
@@ -548,10 +531,12 @@ export default {
     display: flex;
     flex-direction: row;
     align-items: center;
+    border-radius: 8px;
     justify-content: center;
   }
 
   .cover {
+    position: relative;
     .cover-block {
       border-radius: 8px;
       height: 9rem;
@@ -559,45 +544,94 @@ export default {
       background-position: center center;
       background-size: cover;
       background-repeat: no-repeat;
+
+      &:hover {
+        .slide-editing-mask {
+          display: flex !important;
+        }
+      }
+
+      .bottom-action {
+        z-index: 1000;
+        padding: 0 5px 0 10px;
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        line-height: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-direction: row;
+        background-color: rgba(0, 0, 0, 0.7);
+        font-size: 14px;
+        user-select: none;
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+        .bottom-action-item {
+          color: #fff;
+          cursor: pointer;
+          transition: all 0.3s ease-in-out;
+          .bottom-action-item-label {
+            padding: 0 5px;
+          }
+
+          &:hover {
+            color: #15C39A;
+          }
+        }
+      }
     }
   }
 
   .detail {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
+    width: calc(100% - 310px);
     padding-left: 1rem;
     min-height: 9rem;
 
     .detail-content {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      flex-grow: 1;
-
+      position: relative;
+      min-height: 7rem;
       .base-info {
-        width: 90%;
-        .name-type {
+        .header-line {
           display: flex;
-          justify-content: flex-start;
+          justify-content: space-between;
           align-items: center;
           flex-direction: row;
 
-          .name {
-            width: 90%;
-            margin-left: 10px;
-            line-height: 2rem;
-            font-size: 1rem;
-            font-family: Arial;
-            font-weight: bold;
-            color: #17181A;
-            cursor: pointer;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            word-break: break-all;
-            white-space: nowrap;
+          .left {
+            width: calc(100% - 150px);
+            .type-icon {
+              .ant-space-item {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: center;
+              }
+              svg {
+                width: 25px;
+                height: 25px;
+              }
+            }
+            .name {
+              margin-left: 10px;
+              line-height: 2rem;
+              font-size: 1rem;
+              font-family: Arial;
+              font-weight: bold;
+              color: #17181A;
+              cursor: pointer;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              word-break: break-all;
+              white-space: nowrap;
+            }
           }
 
+          .right {
+            width: 150px;
+            font-size: 14px;
+          }
         }
 
         .subject {
@@ -627,18 +661,23 @@ export default {
       }
     }
 
-    .action {
-      flex-shrink: 0;
+    .footer-line {
       height: 50px;
       display: flex;
       flex-direction: row;
       align-items: center;
-      justify-content: flex-start;
-      > div {
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        margin-right: 30px;
+      justify-content: space-between;
+      .avatar-info {
+        width: 200px;
+      }
+      .action {
+        width: calc(100% - 300);
+        > div {
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+          margin-left: 10px;
+        }
       }
     }
   }
@@ -760,6 +799,19 @@ export default {
   padding: 5px 0;
   justify-content: flex-start;
 
+  .info-item {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    align-items: center;
+
+    .more-item {
+      padding-left: 8px;
+      color: #aaa;
+      cursor: pointer;
+    }
+  }
+
   .curriculum-info {
     font-size: 0.6rem;
     background: #E6E4FF;
@@ -779,6 +831,10 @@ export default {
     font-family: Arial;
     font-weight: 400;
     color: #3D94FF;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-all;
+    white-space: nowrap;
   }
 
   .year-info {
@@ -786,6 +842,10 @@ export default {
     font-family: Arial;
     font-weight: 400;
     color: #FFA63D;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-all;
+    white-space: nowrap;
   }
 }
 

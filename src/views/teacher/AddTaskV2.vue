@@ -2763,6 +2763,7 @@ export default {
 
     .task-type-item {
       margin-right: 10px;
+      padding: 0 10px;
       width: 33px;
       height: 33px;
       border-radius: 33px;
@@ -3370,6 +3371,7 @@ export default {
 
     .img-list {
       margin-right: -10px;
+      padding: 0 10px;
       cursor: pointer;
       display: flex;
       flex-direction: row;
