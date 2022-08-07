@@ -2763,6 +2763,7 @@ export default {
 
     .task-type-item {
       margin-right: 10px;
+      padding: 0 10px;
       width: 33px;
       height: 33px;
       border-radius: 33px;
