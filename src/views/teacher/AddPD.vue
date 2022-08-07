@@ -558,7 +558,7 @@ export default {
             res = await this.save()
             if (res.code === 0) {
               await this.updateSlideEditing()
-              window.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit'
+              // window.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit'
             } else {
               this.$store.commit(SET_GLOBAL_LOADING, false)
               this.$message.error('Save PDContent failed, Please retry!')
@@ -612,7 +612,7 @@ export default {
           this.form.presentationId = response.result.presentationId
           await this.save()
           await this.updateSlideEditing()
-          window.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId
+          // window.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId
         } finally {
           hideLoading()
           this.creating = false
