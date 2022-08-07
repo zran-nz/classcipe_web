@@ -1073,7 +1073,6 @@ export default {
 
     async handleCreateTask(showMask) {
       this.$logger.info('handleCreateTask')
-      this.form.slideEditing = true
       const hideLoading = this.$message.loading('Creating ppt in Google Slides...', 0)
       if (!this.creating) {
         this.creating = true
@@ -1156,6 +1155,7 @@ export default {
     async handleEditGoogleSlide() {
       this.$logger.info('handleEditGoogleSlide star')
       this.$store.commit(SET_GLOBAL_LOADING, true)
+      this.form.slideEditing = true
       this.$nextTick(async () => {
         try {
           this.editGoogleSlideLoading = true
@@ -1163,7 +1163,6 @@ export default {
           // fake_buy_处理library bug后没有实际上copy ppt的情况
           if (this.form.presentationId && !this.form.presentationId.startsWith('fake_buy_')) {
             // 设置正在编辑状态，my content根据这个提示是否先save再排课
-            this.form.slideEditing = true
             const res = await this.save()
             if (res.code === 0) {
               // window.open('https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit', '_blank')

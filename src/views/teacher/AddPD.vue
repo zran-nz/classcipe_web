@@ -551,13 +551,13 @@ export default {
     async handleEditGoogleSlide() {
       this.$logger.info('handleEditGoogleSlide pd star')
       this.$store.commit(SET_GLOBAL_LOADING, true)
+      this.form.slideEditing = true
       this.$nextTick(async () => {
         try {
           this.editGoogleSlideLoading = true
           this.$logger.info('handleEditGoogleSlide', this.form.presentationId)
           let res
           if (this.form.presentationId && !this.form.presentationId.startsWith('fake_buy_')) {
-            this.form.slideEditing = true
             res = await this.save()
             if (res.code === 0) {
               window.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit'
@@ -583,7 +583,6 @@ export default {
 
     async handleCreatePPT() {
       this.$logger.info('handleCreatePPT')
-      this.form.slideEditing = true
       const hideLoading = this.$message.loading('Creating ppt in Google Slides...', 0)
       if (!this.creating) {
         this.creating = true
