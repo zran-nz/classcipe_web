@@ -98,13 +98,8 @@
                     </div>
                     <div
                       class='task-type-item blue-active-task-type task-type-examine'
-                      v-if="content.taskType === 'FinalExamine'">
-                      Final Examine
-                    </div>
-                    <div
-                      class='task-type-item red-active-task-type task-type-test'
-                      v-if="content.taskType === 'Test'">
-                      Test
+                      v-if="content.taskType === 'IA'">
+                      <a-tooltip title='Internal Assessment' placement='top'>IA</a-tooltip>
                     </div>
                   </div>
                 </div>
@@ -754,15 +749,6 @@ export default {
     .task-type-activity {
       width: 70px;
       border-radius: 50px;
-    }
-
-    .task-type-examine {
-      width: 100px;
-      border-radius: 50px !important;
-    }
-    .task-type-test {
-      width: 40px;
-      border-radius: 50px !important;
     }
 
     .green-active-task-type {

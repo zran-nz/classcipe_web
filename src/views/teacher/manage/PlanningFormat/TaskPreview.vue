@@ -133,6 +133,11 @@
                           @click="handleSelectTaskType('Activity')">
                           <a-tooltip title='Teaching/Learning Activity' placement='top'>Activity</a-tooltip>
                         </div>
+                        <div
+                          :class="{'task-type-item': true, 'blue-active-task-type': form.taskType === 'IA'}"
+                          @click="handleSelectTaskType('IA')">
+                          <a-tooltip title='Internal Assessment' placement='top'>IA</a-tooltip>
+                        </div>
                       </div>
                     </div>
                   </custom-form-item>

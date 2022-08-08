@@ -41,11 +41,13 @@
                   <div class='self-field-label'>
                     <div
                       :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}"
-                      @click.stop.prevent="handleSelectTaskType('FA')">FA
+                      @click.stop.prevent="handleSelectTaskType('FA')">
+                      <a-tooltip placement='top' title='Formative Assessment'>FA</a-tooltip>
                     </div>
                     <div
                       :class="{'task-type-item': true, 'red-active-task-type': form.taskType === 'SA'}"
-                      @click.stop.prevent="handleSelectTaskType('SA')">SA
+                      @click.stop.prevent="handleSelectTaskType('SA')">
+                      <a-tooltip title='Summative Assessment' placement='top'>SA</a-tooltip>
                     </div>
                     <div
                       :class="{'task-type-item': true, 'task-type-activity': true,'blue-active-task-type': form.taskType === 'Activity'}"
@@ -53,12 +55,9 @@
                       <a-tooltip title='Teaching/Learning Activity' placement='top'>Activity</a-tooltip>
                     </div>
                     <div
-                      :class="{'task-type-item': true, 'task-type-examine': true,'blue-active-task-type': form.taskType === 'FinalExamine'}"
-                      @click.stop.prevent="handleSelectTaskType('FinalExamine')">FinalExamine
-                    </div>
-                    <div
-                      :class="{'task-type-item': true,'task-type-test': true, 'red-active-task-type': form.taskType === 'Test'}"
-                      @click.stop.prevent="handleSelectTaskType('Test')">Test
+                      :class="{'task-type-item': true, 'blue-active-task-type': form.taskType === 'IA'}"
+                      @click.stop.prevent="handleSelectTaskType('IA')">
+                      <a-tooltip title='Internal Assessment' placement='top'>IA</a-tooltip>
                     </div>
                   </div>
                 </div>
@@ -1337,15 +1336,6 @@ export default {
     .task-type-activity {
       width: 70px;
       border-radius: 50px;
-    }
-
-    .task-type-examine {
-      width: 100px;
-      border-radius: 50px;
-    }
-    .task-type-test {
-      width: 50px;
-      border-radius: 40px;
     }
 
     .green-active-task-type {

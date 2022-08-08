@@ -11,7 +11,7 @@
       @ok="confirmSchedule"
       @cancel="closeSchedule">
       <modal-header title='Schedule' @close='closeSchedule'/>
-      <schedule-pay-info :type="9" ref='personal-schedule' v-show='userMode === USER_MODE.SELF' />
+      <schedule-pay-info :type="9" ref='personal-schedule' v-show='userMode === USER_MODE.SELF' @select-date='handleSelectDate' />
       <school-schedule :type="9" ref='school-schedule' v-show='userMode === USER_MODE.SCHOOL' @select-date='handleSelectDate' />
     </a-modal>
 
@@ -87,6 +87,7 @@ export default {
   mixins: [ ZoomAuthMixin ],
   methods: {
     async confirmSchedule() {
+      this.creating = true
       const status = await this.checkZoomAuth()
       if (!status) {
         this.$logger.info('waiting for zoom auth')
@@ -117,6 +118,7 @@ export default {
         }
         this.zoomSettingVisible = true
         this.$logger.info('scheduleReq', this.scheduleReq)
+        this.creating = false
       }
     },
 
