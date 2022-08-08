@@ -340,7 +340,6 @@ export default {
       adminForm: {
         layout: 'vertical',
         position: 'Teacher',
-        positionInfo: 'Teacher',
         positionInput: '',
         planFor: '1',
         firstname: '',

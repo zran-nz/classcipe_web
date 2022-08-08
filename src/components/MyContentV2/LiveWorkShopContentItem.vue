@@ -30,7 +30,7 @@
             </div>
           </div>
         </div>
-        <div class='right-info' v-if="content.sessionStartTime">
+        <div class='right-info' v-if="content.sessionStartTime && !isSimple">
           <div class="update-time" v-if="content.unitPlanInfo && content.unitPlanInfo.name">Unit: {{ content.unitPlanInfo.name }}</div>
           <div class='update-time' v-show="!showEditSche">
             Sched: {{ content.sessionStartTime | dayjs }}
@@ -74,7 +74,7 @@
           </div>
         </div> -->
         <tags-line :tags="content.content ? content.content.customTags : []" />
-        <div class="price-con" v-if="content.priceList && content.priceList.length > 0">
+        <div class="price-con" v-if="content.priceList && content.priceList.length > 0 && !isSimple">
           <price-slider :priceList="content.priceList" :current="content.registeredNum" :origin="content.price" />
           <template v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType">
             <a-icon class="price-edit" @click="editPrice(content)" type="edit" v-if="content.registeredNum == 0"></a-icon>
@@ -97,7 +97,7 @@
             {{ content.userRealName || content.content.createBy }}
           </div>
         </div>
-        <a-space @click.prevent.stop>
+        <a-space @click.prevent.stop v-if="!isSimple">
           <div v-if="(WORK_SHOPS_TYPE.REGISTERED.value === content.workshopsType || WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType) && content.session && content.session.zoomMeeting && WORK_SHOPS_STATUS.ENDED.value !== content.workshopsStatus" class='zoom-icon' @click.prevent.stop="handleToZoom(content)">
             <img src='~@/assets/icons/zoom/img.png' />
           </div>
@@ -242,6 +242,10 @@ export default {
     content: {
       type: Object,
       default: null
+    },
+    isSimple: {
+      type: Boolean,
+      default: false
     }
   },
   data () {

@@ -202,5 +202,8 @@ export default {
       }
     }
   }
+  /deep/ .fc-highlight {
+    background: #3788d8;
+  }
 }
 </style>

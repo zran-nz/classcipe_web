@@ -27,10 +27,10 @@
             >
             </content-item-calendar>
           </div>
-          <div v-else style="font-size: 70px;max-width: 1300px;">
+          <div v-else style="font-size: 70px;max-width: 650px;">
             <liveworkshop-item
               @close="closeAllModal"
-              :need-unit-plan="true"
+              :is-simple="true"
               :content="getWorkshopItem(info)"/>
           </div>
         </a-spin>

@@ -202,7 +202,7 @@ export default {
         schoolId: this.currentSchool.id // this.userMode === USER_MODE.SELF ? null : this.currentSchool.id
       }).then(res => {
         if (res.success) {
-          this.myContentList = (res.result.records || res.result).filter(item => !!item.presentationId)
+          this.myContentList = (res.result.records || res.result) // .filter(item => !!item.presentationId)
         }
       }).finally(res => {
         this.loading = false
