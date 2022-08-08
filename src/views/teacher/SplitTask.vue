@@ -2410,7 +2410,7 @@ export default {
   justify-content: flex-start;
 
   .self-field-label {
-    width: 330px;
+    width: 350px;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -2437,6 +2437,7 @@ export default {
     .task-type-examine {
       width: 120px;
       border-radius: 50px;
+      padding: 0px 0px !important;
     }
 
     .task-type-test {
