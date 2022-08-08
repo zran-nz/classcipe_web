@@ -143,7 +143,7 @@
           <template v-if='showButton && !content.delFlag'>
             <custom-button
               label='Schedule'
-              v-if='content.pageObjects.length && showSchedule && content.type === typeMap.task && !content.slideEditing'
+              v-if='content.pageObjects.length && showSchedule && (content.type === typeMap.task || content.type === typeMap.pd) && !content.slideEditing'
               @click='handleSchedule'>
               <template v-slot:icon>
                 <schedule-icon />
