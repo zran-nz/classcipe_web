@@ -562,7 +562,7 @@ export default {
         }).then(res => {
           // 获取对应学校班级
           this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
-          this.GetClassList(this.userMode)
+          this.GetClassList(isExist.id)
           this.$store.dispatch('GetInfo')
         })
       }

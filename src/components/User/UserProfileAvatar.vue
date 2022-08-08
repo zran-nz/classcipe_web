@@ -209,7 +209,7 @@ export default {
       }).finally(() => {
         this[TOOGLE_USER_MODE](USER_MODE.SELF)
         // this.SET_CURRENT_SCHOOL(null)
-        this.GetClassList(this.userMode)
+        this.GetClassList()
         this.$store.dispatch('GetInfo').then(res => {
           this.hasSetCurriculum()
         })
@@ -224,7 +224,7 @@ export default {
         this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
         // const item = this.info.schoolList.find(item => item.id === val.id)
         // this.SET_CURRENT_SCHOOL(item)
-        this.GetClassList(this.userMode)
+        this.GetClassList(val.id)
         this.$store.dispatch('GetInfo').then(res => {
           this.hasSetCurriculum()
         })

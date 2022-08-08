@@ -94,11 +94,11 @@ page, thus zoom will be auto-scheduled.">
                 <div class='student-item-info'>
                   <div class='avatar'>
                     <a-avatar style="color: #f56a00; backgroundColor: #fde3cf">
-                      {{ student.nickname ? student.nickname[0].toUpperCase() : 'S' }}
+                      {{ student.firstname ? student.firstname[0].toUpperCase() : 'S' }}
                     </a-avatar>
                   </div>
                   <div class='nickname'>
-                    {{ student.nickname }}
+                    {{ student.firstname }} {{ student.lastname }}
                   </div>
                   <div class='email'>
                     {{ student.email }}

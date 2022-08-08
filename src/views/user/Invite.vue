@@ -142,7 +142,7 @@ export default {
       //   }).then(res => {
       //     // 获取对应学校班级
       //     this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
-      //     this.GetClassList(this.userMode)
+      //     this.GetClassList(this.schoolId)
       //     this.$store.dispatch('GetInfo').then(() => {
       //       this.$router.push('/manage/school-info')
       //     })
@@ -156,7 +156,7 @@ export default {
         }).then(res => {
           // 获取对应学校班级
           this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
-          this.GetClassList(this.userMode)
+          this.GetClassList(this.currentSchool.id)
           this.$store.dispatch('GetInfo').then(() => {
             if (this.isAdmin) {
               this.$router.push('/manage/school-info')

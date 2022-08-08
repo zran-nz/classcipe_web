@@ -15,7 +15,8 @@ import { delCookie, setCookie, welcome } from '@/utils/util'
 import * as logger from '@/utils/logger'
 import { SESSION_ACTIVE_KEY, USER_MODE } from '@/const/common'
 import { teacher } from '@/const/role'
-import { myClassesList } from '@/api/v2/classes'
+// import { myClassesList } from '@/api/v2/classes'
+import { listClass } from '@/api/v2/schoolClass'
 import { appLogin } from '@/api/v2/statsTarget'
 import { GetAuCurriculum, GetNzCurriculum } from '@/api/v2/curriculumn'
 
@@ -306,12 +307,17 @@ const user = {
     },
 
     // get all class list
-    GetClassList({ commit, state }, userMode = USER_MODE.SELF) {
-      const remotePromise = state.currentRole === 'student' ? StudentClasses : myClassesList
+    GetClassList({ commit, state }, schoolId = '0') {
+      const remotePromise = state.currentRole === 'student' ? StudentClasses : listClass
       return new Promise((resolve, reject) => {
-        remotePromise().then((response) => {
+        remotePromise({
+          queryType: 0,
+          schoolId: schoolId,
+          pageNo: 1,
+          pageSize: 10000
+        }).then((response) => {
           if (response.success) {
-            const result = response.result
+            const result = response.result.records || response.result
             commit('SET_CLASS_LIST', result)
             storage.set(SET_CLASS_LIST, result)
 
