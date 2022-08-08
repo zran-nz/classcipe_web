@@ -451,8 +451,8 @@ export default {
                 const convertStart = start.format('YYYY-MM-DD') + ' ' + block.start + ':00'
                 const convertEnd = start.format('YYYY-MM-DD') + ' ' + block.end + ':59'
                 termEvents.push({
-                  start: formatLocalUTC(convertStart),
-                  end: formatLocalUTC(convertEnd),
+                  start: (convertStart),
+                  end: (convertEnd),
                   display: 'background',
                   extendedProps: {
                     termId: isFind.id,

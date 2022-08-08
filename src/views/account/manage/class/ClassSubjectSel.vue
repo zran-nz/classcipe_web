@@ -366,7 +366,7 @@ export default {
         const term = year.children.find(item => item.value === value[1])
         console.log(term)
         if (term) {
-          this.formModel.termTime = [moment.utc(term.startTime).local().format('DD/MM/YYYY'), moment.utc(term.endTime).local().format('DD/MM/YYYY')]
+          this.formModel.termTime = [moment(term.startTime).format('DD/MM/YYYY'), moment(term.endTime).format('DD/MM/YYYY')]
         }
       } else {
         this.formModel.term = ''

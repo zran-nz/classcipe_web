@@ -191,6 +191,11 @@ export default {
       sendLoading: false
     }
   },
+  watch: {
+    '$route.query' (query) {
+      console.log(query)
+    }
+  },
   computed: {
     ...mapState({
       info: state => state.user.info,

@@ -132,7 +132,8 @@
         <div class='avatar-info'>
           <div class='owner'>
             <template v-if='content.owner'>
-              <a-avatar :src='content.owner.avatar' size="small" />
+              <a-avatar v-if='content.owner.avatar' :src='content.owner.avatar' size="small" />
+              <img v-else src="~@/assets/icons/library/default-avatar.png"/>
             </template>
             <template v-else>
               <a-avatar size="small">{{ content.createBy.toUpperCase()[0] }}</a-avatar>
@@ -669,6 +670,11 @@ export default {
       justify-content: space-between;
       .avatar-info {
         width: 200px;
+        img {
+          width: 24px;
+          height: 24px;
+          border-radius: 24px;
+        }
       }
       .action {
         width: calc(100% - 300);

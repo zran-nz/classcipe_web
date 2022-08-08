@@ -251,6 +251,14 @@ export default {
     }
   },
   created() {
+    if (this.$route.query) {
+      if (this.$route.query.tab) {
+        const find = this.tabsList.find(item => item.value + '' === this.$route.query.tab + '')
+        if (find) {
+          this.currentTab = find.value
+        }
+      }
+    }
     this.initDict()
     this.loadData()
     this.debounceLoad = debounce(this.loadData, 300)
@@ -441,6 +449,9 @@ export default {
     },
     toggleTab(status) {
       this.currentTab = status
+      this.$router.replace({
+        path: '/manage/class?tab=' + this.currentTab
+      })
       this.debounceLoad()
     },
     handleBlurClick(cls) {
@@ -556,6 +567,7 @@ export default {
               this.allDatas.gradeId.splice(index, 1)
               this.selectedGrades = this.allDatas.gradeId.map(item => item.id)
               this.totalClass = this.totalClass.filter(item => item.gradeId !== view.id)
+              this.$store.dispatch('GetInfo')
             }
           }).finally(() => {
             this.loading = false
@@ -580,6 +592,7 @@ export default {
       }
       saveClass(cls).then(res => {
         if (res.success && res.code === 0) {
+          this.$store.dispatch('GetInfo')
           const subject = this.subjectInfos.find(item => item.id === cls.subject)
           if (!subject) {
             this.subjectInfos.push({
@@ -669,6 +682,7 @@ export default {
             ids: cls.id
           }).then(res => {
             if (res.success && res.code === 0) {
+              this.$store.dispatch('GetInfo')
               this.$message.success('Archive successfully')
               const group = this.allDatas[this.currentTab].find(item => item.id === cls[this.currentTab])
               if (group && group.classes) {
@@ -724,6 +738,7 @@ export default {
       }).then(res => {
         if (res.success && res.code === 0) {
           this.$message.success('Restore successfully')
+          this.$store.dispatch('GetInfo')
           this.debounceLoad()
         } else {
           this.loading = false
@@ -754,6 +769,7 @@ export default {
           }).then(res => {
             if (res.code === 0) {
               this.$message.success('Delete successfully')
+              this.$store.dispatch('GetInfo')
               this.debounceLoad()
             } else {
               this.loading = false
