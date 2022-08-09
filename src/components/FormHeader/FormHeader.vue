@@ -28,7 +28,7 @@
         <form-header-action-bar
           :collaborate-user-list="collaborateUserList"
           :online-users="onlineUsers"
-          :show-publish="isOwner"
+          :show-publish="isOwner && userMode === !USER_MODE.SCHOOL"
           :show-invite="showCollaborate && isOwner"
           :show-collaborate="showCollaborate && (isOwner || isCollaborater)"
           :show-share="showShare && (isOwner || isCollaborater)"
@@ -42,11 +42,13 @@
 </template>
 
 <script>
+
 import BackArrowIcon from '@/assets/v2/icons/back_arrow.svg?inline'
 import FormHeaderActionBar from '@/components/FormHeader/FormHeaderActionBar'
 import { mapActions, mapState } from 'vuex'
 import { typeMap } from '@/const/teacher'
 import { Modal } from 'ant-design-vue'
+import { USER_MODE } from '@/const/common'
 
 export default {
   name: 'FormHeader',
@@ -107,7 +109,8 @@ export default {
       isShare: false,
       onlineUsers: [],
       collaborateUserList: [],
-      debounceHiddenHeader: null
+      debounceHiddenHeader: null,
+      USER_MODE: USER_MODE
     }
   },
   computed: {
@@ -128,7 +131,8 @@ export default {
     ...mapState({
       user: state => state.user.info,
       removedCollaborate: state => state.websocket.removedCollaborate,
-      hiddenHeader: state => state.app.hiddenHeader
+      hiddenHeader: state => state.app.hiddenHeader,
+      userMode: state => state.app.userMode
     })
   },
   watch: {

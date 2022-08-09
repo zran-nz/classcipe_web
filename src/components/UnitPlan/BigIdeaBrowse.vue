@@ -80,9 +80,7 @@
 <script>
 import * as logger from '@/utils/logger'
 import TagBrowser from '@/components/UnitPlan/TagBrowser'
-// import { QuerySourceTagByCategory } from '@/api/tag'
-import { SubjectTree } from '@/api/subject'
-import { QueryBigIdea, QueryTagsBySubjectIds } from '@/api/scenario'
+import { QueryTagsBySubjectIds } from '@/api/scenario'
 import { QueryNewBigIdea } from '@/api/v2/mycontent'
 
 const { debounce } = require('lodash-es')
