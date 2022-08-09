@@ -122,7 +122,7 @@
                           <a-icon type="more" />
                           <a-menu slot="overlay">
                             <template v-if="currentTab !== 'archive'">
-                              <a-menu-item v-if="this.userMode === USER_MODE.SCHOOL">
+                              <a-menu-item v-if="userMode === USER_MODE.SCHOOL">
                                 <a href="javascript:;" @click="handleImport(cls)">Import students</a>
                               </a-menu-item>
                               <a-menu-item v-if="userMode === USER_MODE.SCHOOL">
