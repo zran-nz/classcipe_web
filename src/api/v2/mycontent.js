@@ -8,7 +8,8 @@ export const MyContentV2Url = {
   QueryCustomTags: '/classcipe/api/v2/mycontent/queryCustomTags',
   ImportOtherIdentityContent: '/classcipe/api/v2/mycontent/importOtherIdentityContent',
   UpdateContentField: '/classcipe/api/v2/mycontent/updateContentField',
-  ContentBuy: '/classcipe/api/v2/mycontent/content/bye'
+  ContentBuy: '/classcipe/api/v2/mycontent/content/bye',
+  QueryNewBigIdea: '/classcipe/api/v2/mycontent/queryNewBigIdea'
 }
 
 /**
@@ -114,6 +115,14 @@ export function UpdateContentField(parameter) {
 export function ContentBuy(parameter) {
   return request({
     url: MyContentV2Url.ContentBuy,
+    method: 'post',
+    data: parameter
+  })
+}
+
+export function QueryNewBigIdea(parameter) {
+  return request({
+    url: MyContentV2Url.QueryNewBigIdea,
     method: 'post',
     data: parameter
   })

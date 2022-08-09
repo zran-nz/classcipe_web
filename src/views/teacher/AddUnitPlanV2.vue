@@ -240,7 +240,7 @@
                     <div class="inquiry-keyword-con" v-if="form.inquiryKeywords">
                       <div
                         class="inquiry-keyword-item"
-                        v-for="(tag, tagIndex) in form.inquiryKeywords.split(',')"
+                        v-for="(tag, tagIndex) in form.inquiryKeywords"
                         :key="'inquery_keyword_'+tagIndex"
                       >
                         <a-tag color="#a5a5a5" :closable="true" @close="e => handleRmInquiryKey(form, 'inquiryKeywords', tagIndex)">{{ tag }}</a-tag>
@@ -723,7 +723,7 @@
       :footer='null'
       destroyOnClose
       title='Browse big idea'
-      width='70%'
+      width='700px'
       @cancel='selectBigIdeaDataVisible = false'
       @ok='selectBigIdeaDataVisible = false'>
       <div class='link-content-wrapper'>
@@ -913,7 +913,6 @@ export default {
         projectBased: null,
         unitType: null,
         inquiry: '',
-        inquiryKeywords: '',
         name: 'Untitled UnitPlan',
         status: 0,
         subjects: '',
@@ -953,7 +952,8 @@ export default {
         gradeId: undefined,
         prior: '',
         createBy: null,
-        customFieldData: null
+        customFieldData: null,
+        inquiryKeywords: []
       },
       rangeDate: [],
       uploading: false,
@@ -1055,7 +1055,7 @@ export default {
       selectBigIdeaDataVisible: false,
       priorityTags: [],
       readonlyTagCategoryDescList: [],
-      inquiryKeywords: ''
+      inquiryKeywords: []
     }
   },
   watch: {
@@ -1077,7 +1077,7 @@ export default {
       this.findQuestionsByBigIdea(value)
       // 重新load recommend
       this.loadBigIdeaLearnOuts()
-      this.form.inquiryKeywords = ''
+      // this.form.inquiryKeywords = []
     },
     currentStep: {
       handler(val) {
@@ -1905,7 +1905,8 @@ export default {
       this.selectBigIdeaDataVisible = false
     },
     handleSelectBigIdeaData(data) {
-      this.selectNewBigIdea = data
+      this.selectNewBigIdea = data.inquiry
+      this.form.inquiryKeywords = data.inquiryKeywords
     },
     setIdeaKeywords(currentChoose, key) {
       // const keywords = (this.form[key] || '').split(',')
