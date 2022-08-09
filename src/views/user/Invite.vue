@@ -117,11 +117,13 @@ export default {
         email: store.getters.userInfo.email
       })
       if (res.success && res.code === 0) {
-        this.alreayApply = true
         this.$message.success(res.message)
         this.$store.dispatch('GetInfo').then(() => {
           // this.doRedirect()
-          if (this.isTeacher) {
+          if (this.btnText === 'Join') {
+            this.doRedirect()
+          } else if (this.isTeacher) {
+            this.alreayApply = true
             this.labelTxt = 'Application received, please wait for admin to approve.'
           }
         })

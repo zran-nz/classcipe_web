@@ -178,7 +178,7 @@ export default {
     init() {
       const current = this.currentSchool?.id ? this.currentSchool : (this.info.schoolList && this.info.schoolList.length > 0) ? { ...this.info.schoolList[0] } : {}
       this.SET_CURRENT_SCHOOL(current)
-      this.GetClassList(this.userMode)
+      this.GetClassList(current.id)
       this.listClass()
     },
     listClass () {
@@ -212,7 +212,7 @@ export default {
         this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
         const item = this.info.schoolList.find(item => item.id === val.id)
         this.SET_CURRENT_SCHOOL(item)
-        this.GetClassList(this.userMode)
+        this.GetClassList(item.id)
         // this.justifyCurrentRoute()
       })
     },

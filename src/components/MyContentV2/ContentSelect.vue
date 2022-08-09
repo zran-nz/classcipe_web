@@ -138,6 +138,9 @@ export default {
     },
     needFilter(val) {
       this.showFilter = val
+      if (!val && this.datas) {
+        this.myContentList = this.datas.concat()
+      }
     },
     backTxt(val, newVal) {
       this.backText = val

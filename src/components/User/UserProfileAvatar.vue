@@ -253,6 +253,11 @@ export default {
           title: 'Curriculum Set',
           content: 'Please Set Curriculum first',
           centered: true,
+          cancelButtonProps: {
+            style: {
+              display: 'none'
+            }
+          },
           onOk: () => {
             sessionStorage.setItem(sessionKey, 1)
             this.$router.push('/manage/curriculum')

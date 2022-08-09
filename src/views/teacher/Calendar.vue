@@ -5,13 +5,22 @@
         <div class="schedule-tip" v-show="attendanceVisible">
           <a-affix :target="affixTarget">
             <div class="tip-wrap">
-              <div class="unit-tip">
+              <div class="unit-tip" v-if="queryType !== CALENDAR_QUERY_TYPE.MY.value">
                 <div
                   class="unit-tip-item"
                   :style="{backgroundColor: BG_COLORS[item.index]}"
                   v-for="(item) in showUnitOptions"
                   :key="'unit_' + item.id">
                   <a-tooltip :title="item.name">Unit: {{ item.name }}</a-tooltip>
+                </div>
+              </div>
+              <div class="unit-tip" v-else>
+                <div
+                  class="unit-tip-item"
+                  :style="{backgroundColor: BG_COLORS[item.index]}"
+                  v-for="(item) in showSchoolOptions"
+                  :key="'school_' + item.id">
+                  <a-tooltip :title="item.name">{{ item.name }}</a-tooltip>
                 </div>
               </div>
               <div class="calendar-type" v-show="true">
@@ -38,7 +47,7 @@
                             class="type-check"
                           >
                             <div slot="label" class="type-content" slot-scope="sub">
-                              <span>{{ sub.name }}</span>
+                              <span style="font-size: 12px;">{{ sub.name }}</span>
                             </div>
                           </a-checkbox-group>
                         </div>
@@ -181,7 +190,8 @@ export default {
   computed: {
     ...mapState({
       currentSchool: state => state.user.currentSchool,
-      classList: state => state.user.classList
+      classList: state => state.user.classList,
+      info: state => state.user.info
     }),
     [CALENDAR_QUERY_TYPE.CLASS.label]() {
       return this.classList.map((item, index) => (
@@ -212,6 +222,23 @@ export default {
           index: index
         }
       ))
+    },
+    showSchoolOptions() {
+      return [
+        {
+          value: '0',
+          name: 'Persona',
+          id: '0',
+          index: 0
+        }
+      ].concat(this.info.schoolList.map((item, index) => {
+        return {
+          value: item.id,
+          name: item.schoolName,
+          id: item.id,
+          index: index + 1
+        }
+      }))
     },
     searchFilters() {
       return this.typeFilters.concat(this.subFilters)
@@ -278,6 +305,11 @@ export default {
   padding: 15px;
   background: #fff;
   height: 100%;
+}
+.fc-daygrid-event {
+  & > div {
+    width: 100%;
+  }
 }
 </style>
 

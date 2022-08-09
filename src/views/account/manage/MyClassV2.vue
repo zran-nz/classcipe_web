@@ -576,56 +576,50 @@ export default {
       })
     },
     handleAddSubjectClass() {
-      this.$refs.classSubject.doCreate({})
+      this.$router.push({
+        path: '/manage/class/subject/'
+      })
+      // this.$refs.classSubject.doCreate({})
     },
     handleEditSubjectClass(cls) {
-      this.$refs.classSubject.doEdit({ ...cls })
+      this.$router.push({
+        path: '/manage/class/subject/' + cls.id
+      })
+      // this.$refs.classSubject.doEdit({ ...cls })
     },
     addSubjectClass(cls) {
       console.log(cls)
       this.loading = true
-      if (this.userMode === USER_MODE.SELF) {
-        cls.userId = this.info.id
-        cls.classMode = 2
-      } else {
-        cls.classMode = 1
+      const subject = this.subjectInfos.find(item => item.id === cls.subject)
+      if (!subject) {
+        this.subjectInfos.push({
+          id: cls.subject,
+          name: cls.subjectName
+        })
       }
-      saveClass(cls).then(res => {
-        if (res.success && res.code === 0) {
-          this.$store.dispatch('GetInfo')
-          const subject = this.subjectInfos.find(item => item.id === cls.subject)
-          if (!subject) {
-            this.subjectInfos.push({
-              id: cls.subject,
-              name: cls.subjectName
-            })
-          }
-          const findDatas = this.allDatas.subject.find(item => item.id === cls.subject)
-          if (!findDatas) {
-            this.allDatas.subject.push({
-              id: cls.subject,
-              name: cls.subjectName,
-              classes: [{
-                ...cls,
-                key: new Date().getTime() + Math.random(),
-                changeName: cls.name,
-                isNew: false,
-                isEdit: false
-              }]
-            })
-          } else {
-            findDatas.classes.push({
-              ...cls,
-              changeName: cls.name,
-              key: new Date().getTime() + Math.random(),
-              isNew: false,
-              isEdit: false
-            })
-          }
-        }
-      }).finally(() => {
-        this.loading = false
-      })
+      const findDatas = this.allDatas.subject.find(item => item.id === cls.subject)
+      if (!findDatas) {
+        this.allDatas.subject.push({
+          id: cls.subject,
+          name: cls.subjectName,
+          classes: [{
+            ...cls,
+            key: new Date().getTime() + Math.random(),
+            changeName: cls.name,
+            isNew: false,
+            isEdit: false
+          }]
+        })
+      } else {
+        findDatas.classes.push({
+          ...cls,
+          changeName: cls.name,
+          key: new Date().getTime() + Math.random(),
+          isNew: false,
+          isEdit: false
+        })
+      }
+      this.loading = false
     },
     handleImport(cls) {
       this.$refs.studentImport.doCreate({

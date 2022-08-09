@@ -630,9 +630,25 @@ export const asyncRouterMap = [
           },
           {
             path: '/manage/class',
-            name: 'MyCalssV2',
-            component: () => import('@/views/account/manage/MyClassV2'),
-            meta: { title: 'menu.my-class', noSidebar: true, keepAlive: true, permission: ['teacher'] }
+            name: 'MyCalssList',
+            component: RouteView,
+            redirect: '/manage/class/list',
+            meta: { title: 'menu.my-class', noSidebar: true, keepAlive: true, permission: ['teacher'] },
+            children: [
+              {
+                path: '/manage/class/list',
+                name: 'MyCalssV2',
+                component: () => import('@/views/account/manage/MyClassV2'),
+                meta: { title: 'menu.my-class', noSidebar: true, keepAlive: true, permission: ['teacher'] }
+              },
+              {
+                path: '/manage/class/subject/:id?',
+                name: 'SubjectClass',
+                props: true,
+                component: () => import('@/views/account/manage/ClassSubjectEdit'),
+                meta: { title: 'Subject Class', noSidebar: true, keepAlive: true, permission: ['teacher'] }
+              }
+            ]
           },
           {
             path: '/manage/student',

@@ -24,7 +24,7 @@ import Vue from 'vue'
         } else if (window.getSelection()) {
           text = window.getSelection()
         }
-        text = text.toString().replace(/\n/g, '').trim()
+        text = text.toString().replace(/\n/g, '').trim().split(' ')[0]
         const $dom = document.getElementById(domQuery)
         // $dom.style.position = 'absolute'
         $dom.style.position = 'fixed'

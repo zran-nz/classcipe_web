@@ -298,8 +298,24 @@ export default {
     ...mapState({
       currentSchool: state => state.user.currentSchool,
       classList: state => state.user.classList,
-      userMode: state => state.app.userMode
-    })
+      userMode: state => state.app.userMode,
+      info: state => state.user.info
+    }),
+    showSchoolOptions() {
+      return [
+        {
+          id: '0',
+          name: 'Persona',
+          index: 0
+        }
+      ].concat(this.info.schoolList.map((item, index) => {
+        return {
+          id: item.id,
+          name: item.schoolName,
+          index: index + 1
+        }
+      }))
+    }
   },
   created() {
     this.debounceLoad = debounce(this.loadData, 300)
@@ -516,7 +532,11 @@ export default {
                 const events = filterRes.map(item => {
                   // 根据classId获取颜色
                   let index = -1
-                  index = this.currentUnitList.findIndex(unit => unit.id === (item.unitPlanInfo ? item.unitPlanInfo.id : -1))
+                  if (this.queryType === CALENDAR_QUERY_TYPE.MY.value) {
+                    index = this.showSchoolOptions.findIndex(school => school.id === (item.sessionInfo ? item.sessionInfo.schoolId : '0'))
+                  } else {
+                    index = this.currentUnitList.findIndex(unit => unit.id === (item.unitPlanInfo ? item.unitPlanInfo.id : -1))
+                  }
                   const color = (index === -1) ? '#f6f3f3' : BG_COLORS[index]
 
                   let startTime = item.startTime
@@ -552,7 +572,9 @@ export default {
                       id: item.sessionInfo.id,
                       backgroundColor: color,
                       start: item.startTime,
-                      end: item.endTime
+                      end: item.endTime,
+                      userAvatar: item.userAvatar,
+                      userRealName: item.userRealName
                     }
                   }
                 })
