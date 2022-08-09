@@ -1,7 +1,7 @@
 <template>
   <div class="my-content">
     <div class="filter-line">
-      <radio-switch @select="toggleType" :menu-list='menuList'/>
+      <radio-switch @select="toggleType" :menu-list='menuList' :default-selected-item="getSelectItem"/>
       <div class='create-new'>
         <a-space>
           <custom-search-input :round='false' :value.sync='searchText' @search='handleSearch' placeholder='Search your content'/>
@@ -43,7 +43,7 @@ import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { FavoritesDelete, FavoritesGetMyFavorites } from '@/api/favorites'
 import ModalHeader from '@/components/Common/ModalHeader'
-import { USER_MODE } from '@/const/common'
+import { SESSION_FAVORITE_TYPE, USER_MODE } from '@/const/common'
 import CommonPreviewV2 from '@/components/Common/CommonPreviewV2'
 import ClassList from '@/components/Teacher/ClassList'
 import CustomTag from '@/components/UnitPlan/CustomTag'
@@ -58,6 +58,7 @@ import GlobalSearchInput from '@/components/GlobalSearch/GlobalSearchInput'
 import UserProfileAvatar from '@/components/User/UserProfileAvatar'
 import CustomSearchInput from '@/components/Common/CustomSearchInput'
 import ContentTypeFilter from '@/components/MyContentV2/ContentTypeFilter'
+import { SourceType } from '@/components/MyContentV2/Constant'
 
 export default {
   name: 'MyFavorite',
@@ -134,6 +135,14 @@ export default {
     }
   },
   computed: {
+    getSelectItem() {
+      const shareType = sessionStorage.getItem(SESSION_FAVORITE_TYPE) ? parseInt(sessionStorage.getItem(SESSION_FAVORITE_TYPE)) : SourceType.CreatedByMe
+      const index = this.menuList.findIndex(item => item.type === shareType)
+      if (index > -1) {
+        return this.menuList[index]
+      }
+      return this.menuList[0]
+    }
   },
   created () {
     logger.info('teacher my content')
@@ -189,6 +198,7 @@ export default {
     },
     toggleType (item) {
       logger.info('toggleType ', item)
+      sessionStorage.setItem(SESSION_FAVORITE_TYPE, item.type)
       this.currentType = item.type
       this.loadMyContent()
     },
