@@ -86,7 +86,7 @@
       </div>
       <div class='action'>
         <div class="author-name">
-          <a-avatar v-if="!content.userAvatar" icon="user" />
+          <a-avatar v-if="content.userAvatar" :src="content.userAvatar" icon="user" />
           <img
             v-else
             class="ant-avatar"
