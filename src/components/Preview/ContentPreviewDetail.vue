@@ -446,12 +446,12 @@
         </div>
       </div>
 
-      <div class='card-list-wrapper' v-if="realAssociateList.length">
+      <div class='card-list-wrapper' v-if="associateList.length">
         <div class='card-list-title'>
           <div class='sub-task-title'>
-            <template v-if="realAssociateList[0].type === typeMap['unit-plan']">Unit</template>
-            <template v-if="realAssociateList[0].type === typeMap.task">Task</template>
-            ({{ realAssociateList.length }})
+            <template v-if="associateList[0].type === typeMap['unit-plan']">Unit</template>
+            <template v-if="associateList[0].type === typeMap.task">Task</template>
+            ({{ associateList.length }})
           </div>
           <div class='go-to-list'>
             <custom-link-text text='Enter' @click='goTLinkList' v-show='content.createBy === $store.getters.email'></custom-link-text>
@@ -464,13 +464,13 @@
           <a-icon type="right-circle" :style="{fontSize: '22px', color: '#dddddd'}" />
         </div>
         <div class='card-list' id='taskUnit'>
-          <div class="card-item" v-for="(associate, i) in realAssociateList" :key="i" @click='handlePreviewItem(associate)'>
+          <div class="card-item" v-for="(associate, i) in associateList" :key="i" @click='handlePreviewItem(associate)'>
             <card-list-item :content="associate" :width="16" :inner-desc="false" :outer-desc="true" />
           </div>
         </div>
       </div>
 
-      <div class='card-list-wrapper' v-if="realRecommendList.length">
+      <div class='card-list-wrapper' v-if="associateRecommendList.length">
         <div class='card-list-title'>
           <div class='sub-task-title'>
             Recommend
@@ -486,7 +486,7 @@
           <a-icon type="right-circle" :style="{fontSize: '22px', color: '#dddddd'}" />
         </div>
         <div class='card-list' id='associateRecommendList'>
-          <div class="card-item" v-for="(associate, i) in realRecommendList" :key="i" @click='handlePreviewItem(associate)'>
+          <div class="card-item" v-for="(associate, i) in associateRecommendList" :key="i" @click='handlePreviewItem(associate)'>
             <card-list-item :content="associate" :width="16" :inner-desc="false" :outer-desc="true" />
           </div>
         </div>
@@ -716,7 +716,7 @@ export default {
       return [...this.associateRecommendList, ...othersContent]
     },
     realAssociateList () {
-      return this.associateList.filter(item => item.sourceFromUser === this.$store.getters.email)
+      return this.associateList.filter(item => item.createBy === this.$store.getters.email)
     },
     labelColor() {
       if (this.content.type === this.typeMap['unit-plan']) {
@@ -915,6 +915,10 @@ export default {
       }
     },
 
+    /**
+     * 已经推荐处理过的，不包括自己的
+     * @returns {Promise<void>}
+     */
     async loadAssociateRecommendData () {
       try {
         const recommendData = await GetAssociateRecommend({
@@ -922,7 +926,7 @@ export default {
           type: this.contentType
         })
         this.associateRecommendList = recommendData.result
-        console.log('loadAssociateData', this.associateRecommendList)
+        console.log('loadAssociateRecommendData', this.associateRecommendList)
       } catch (e) {
         console.error('recommendData', e)
       }
