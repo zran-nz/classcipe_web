@@ -205,6 +205,8 @@ export default {
           const findIB = this.currentCurriculum.find(item => item.id === AllCurriculums.IBPYP || item.id === AllCurriculums.IBMYP)
           if (findIB) {
             this.currentTab = 'Authorization'
+          } else {
+            this.$router.push('/account/info')
           }
         }
       }
