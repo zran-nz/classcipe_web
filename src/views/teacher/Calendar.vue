@@ -20,7 +20,7 @@
                   :style="{backgroundColor: BG_COLORS[item.index]}"
                   v-for="(item) in showSchoolOptions"
                   :key="'school_' + item.id">
-                  <a-tooltip :title="item.name">{{ item.name }}</a-tooltip>
+                  <span>{{ item.name }}</span>
                 </div>
               </div>
               <div class="calendar-type" v-show="true">
@@ -227,7 +227,7 @@ export default {
       return [
         {
           value: '0',
-          name: 'Persona',
+          name: 'Personal',
           id: '0',
           index: 0
         }

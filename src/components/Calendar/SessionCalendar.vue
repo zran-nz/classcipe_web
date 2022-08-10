@@ -305,7 +305,7 @@ export default {
       return [
         {
           id: '0',
-          name: 'Persona',
+          name: 'Personal',
           index: 0
         }
       ].concat(this.info.schoolList.map((item, index) => {

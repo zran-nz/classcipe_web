@@ -327,6 +327,8 @@ export const WORK_SHOPS_STATUS = {
   // }
 }
 
+export const SESSION_WORK_SHOPS_STATUS = 'SESSION_WORK_SHOPS_STATUS'
+
 export const WORK_SHOPS_TYPE = {
   FEATURE: {
     label: 'Featured',

@@ -130,7 +130,7 @@ import RadioSwitch from '@/components/Common/RadioSwitch'
 import UserProfileAvatar from '@/components/User/UserProfileAvatar'
 import { FindWorkShops } from '@/api/v2/live'
 import * as logger from '@/utils/logger'
-import { SESSION_CURRENT_PAGE, WORK_SHOPS_STATUS, WORK_SHOPS_TYPE, USER_MODE } from '@/const/common'
+import { SESSION_CURRENT_PAGE, WORK_SHOPS_STATUS, WORK_SHOPS_TYPE, USER_MODE, SESSION_WORK_SHOPS_STATUS } from '@/const/common'
 import { typeMap } from '@/const/teacher'
 import ContentItem from '@/components/MyContentV2/LiveWorkShopContentItem'
 import ContentSelect from '@/components/MyContentV2/ContentSelect'
@@ -220,6 +220,11 @@ export default {
         }
       }
     }
+    if (this.$route.query.workshopsStatus) {
+      sessionStorage.setItem(SESSION_WORK_SHOPS_STATUS, this.$route.query.workshopsStatus)
+    }
+    const workshopStatus = sessionStorage.getItem(SESSION_WORK_SHOPS_STATUS)
+    this.queryParams.workshopsStatus = parseInt(workshopStatus || 1)
     console.log(this.queryParams)
     this.loadMyContent()
   },
@@ -257,6 +262,7 @@ export default {
     },
     changeStatus(value) {
       this.queryParams.workshopsStatus = value
+      sessionStorage.setItem(SESSION_WORK_SHOPS_STATUS, value)
       this.loadMyContent()
     },
     handleImport(type) {
@@ -291,6 +297,7 @@ export default {
       } else {
         this.queryParams.workshopsStatus = this.WORK_SHOPS_STATUS.SCHEDULE.value
       }
+      sessionStorage.setItem(SESSION_WORK_SHOPS_STATUS, this.queryParams.workshopsStatus)
 
       this.$router.replace({
         path: '/teacher/main/live-workshops?workshopsType=' + this.queryParams.workshopsType
@@ -299,10 +306,12 @@ export default {
     },
     loadMyContent () {
       this.loading = true
+      const workshopsStatus = sessionStorage.getItem(SESSION_WORK_SHOPS_STATUS) ? parseInt(sessionStorage.getItem(SESSION_WORK_SHOPS_STATUS)) : WORK_SHOPS_STATUS.SCHEDULE.value
       let params = {
         ...this.queryParams,
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize,
+        workshopsStatus: workshopsStatus,
         types: [],
         delFlag: 0
       }
