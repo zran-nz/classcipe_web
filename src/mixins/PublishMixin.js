@@ -1,3 +1,5 @@
+import { PlanField, TaskField } from '@/const/common'
+
 export const PublishMixin = {
   data () {
     return {
@@ -62,16 +64,40 @@ export const PublishMixin = {
       // 给有未填写字段的step添加红色提示
       let showRequiredTips = false
       this.requiredFields.forEach(field => {
-        if (simpleIsEmpty(this.form[field])) {
-          this.$logger.info(`${field} is empty`, this.form[field])
-          this.emptyRequiredFields.push(field)
-          this.formSteps.forEach(step => {
-            if (step.commonFields.indexOf(field) > -1) {
-              step.showRequiredTips = true
-              step.showSatisfiedTips = false
-              showRequiredTips = true
-            }
-          })
+        if (field === TaskField.Slides) {
+          if (!this.form.presentationId || !this.form.pageObjects?.length) {
+            this.emptyRequiredFields.push(field)
+            this.formSteps.forEach(step => {
+              if (step.commonFields.indexOf(field) > -1) {
+                step.showRequiredTips = true
+                step.showSatisfiedTips = false
+                showRequiredTips = true
+              }
+            })
+          }
+        } else if (field === TaskField.Link || field === PlanField.Link) {
+          if (!this.associateUnitPlanIdList?.length && !this.associateTaskIdList?.length) {
+            this.emptyRequiredFields.push(field)
+            this.formSteps.forEach(step => {
+              if (step.commonFields.indexOf(field) > -1) {
+                step.showRequiredTips = true
+                step.showSatisfiedTips = false
+                showRequiredTips = true
+              }
+            })
+          }
+        } else {
+          if (simpleIsEmpty(this.form[field])) {
+            this.$logger.info(`${field} is empty`, this.form[field])
+            this.emptyRequiredFields.push(field)
+            this.formSteps.forEach(step => {
+              if (step.commonFields.indexOf(field) > -1) {
+                step.showRequiredTips = true
+                step.showSatisfiedTips = false
+                showRequiredTips = true
+              }
+            })
+          }
         }
       })
 
@@ -113,14 +139,46 @@ export const PublishMixin = {
 
       // 给有未填写字段的step添加红色提示
       let canPublish = true
+      this.emptyRequiredFields = []
+      this.formSteps.forEach(step => {
+        step.showRequiredTips = false
+        step.showSatisfiedTips = false
+      })
       this.requiredFields.forEach(field => {
-        if (simpleIsEmpty(this.form[field])) {
-          this.$logger.info(`${field} is empty`, this.form[field])
-          this.formSteps.forEach(step => {
-            if (step.commonFields.indexOf(field) > -1) {
-              canPublish = false
-            }
-          })
+        if (field === TaskField.Slides) {
+          if (!this.form.presentationId || !this.form.pageObjects?.length) {
+            this.emptyRequiredFields.push(field)
+            this.formSteps.forEach(step => {
+              if (step.commonFields.indexOf(field) > -1) {
+                step.showRequiredTips = true
+                step.showSatisfiedTips = false
+                canPublish = false
+              }
+            })
+          }
+        } else if (field === TaskField.Link || field === PlanField.Link) {
+          if (!this.associateUnitPlanIdList?.length && !this.associateTaskIdList?.length) {
+            this.emptyRequiredFields.push(field)
+            this.formSteps.forEach(step => {
+              if (step.commonFields.indexOf(field) > -1) {
+                step.showRequiredTips = true
+                step.showSatisfiedTips = false
+                canPublish = false
+              }
+            })
+          }
+        } else {
+          if (simpleIsEmpty(this.form[field])) {
+            this.$logger.info(`${field} is empty`, this.form[field])
+            this.emptyRequiredFields.push(field)
+            this.formSteps.forEach(step => {
+              if (step.commonFields.indexOf(field) > -1) {
+                step.showRequiredTips = true
+                step.showSatisfiedTips = false
+                canPublish = false
+              }
+            })
+          }
         }
       })
 

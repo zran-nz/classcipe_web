@@ -47,7 +47,7 @@
             <div class='form-field-item' v-for='fieldName in step.commonFields' :key='fieldName'>
 
               <div class='form-block tag-content-block' v-if='fieldName === PdField.Name' :key='fieldName'>
-                <custom-form-item :required='emptyRequiredFields.indexOf(PdField.Name) !== -1'>
+                <custom-form-item :required='emptyRequiredFields.indexOf(PdField.Name) !== -1' :required-field='requiredFields.indexOf(PdField.Name) !== -1'>
                   <template slot='label'>
                     Name
                   </template>
@@ -59,7 +59,7 @@
               </div>
 
               <div class='form-block tag-content-block' v-if='fieldName === PdField.Image' :key='fieldName'>
-                <custom-form-item :required='emptyRequiredFields.indexOf(PdField.Image) !== -1'>
+                <custom-form-item :required='emptyRequiredFields.indexOf(PdField.Image) !== -1' :required-field='requiredFields.indexOf(PdField.Image) !== -1'>
                   <template slot='label'>
                     Cover image
                   </template>
@@ -73,7 +73,7 @@
               </div>
 
               <div class='form-block tag-content-block' v-if='fieldName === PdField.CoverVideo' :key='fieldName'>
-                <custom-form-item :required='emptyRequiredFields.indexOf(PdField.CoverVideo) !== -1'>
+                <custom-form-item :required='emptyRequiredFields.indexOf(PdField.CoverVideo) !== -1' :required-field='requiredFields.indexOf(PdField.CoverVideo) !== -1'>
                   <template slot='label'>
                     Cover video
                   </template>
@@ -88,7 +88,7 @@
               </div>
 
               <div class='form-block tag-content-block' v-if='fieldName === PdField.Goals' :key='fieldName'>
-                <custom-form-item :required='emptyRequiredFields.indexOf(PdField.Goals) !== -1'>
+                <custom-form-item :required='emptyRequiredFields.indexOf(PdField.Goals) !== -1' :required-field='requiredFields.indexOf(PdField.Goals) !== -1'>
                   <template slot='label'>
                     Goals
                   </template>
@@ -108,7 +108,7 @@
               </div>
 
               <div class='form-block tag-content-block' v-if='fieldName === PdField.Slides' :key='fieldName'>
-                <custom-form-item :show-label='false'>
+                <custom-form-item :show-label='false' :required-field='requiredFields.indexOf(PdField.Slides) !== -1'>
                   <form-slide
                     :source-type='typeMap.pd'
                     :source-id='pdId'
@@ -322,11 +322,7 @@ export default {
       this.currentActiveStepIndex = 0
     }
     this.currentStep = this.formSteps[this.currentActiveStepIndex]
-    this.requiredFields = [
-      PdField.Name,
-      PdField.Image,
-      PdField.Goals
-    ]
+    this.requiredFields = this.$classcipe.pdRequiredFields
     this.initData()
     this.loadThumbnail(false)
     this.contentLoading = false

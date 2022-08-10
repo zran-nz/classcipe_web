@@ -271,12 +271,7 @@ export default {
       this.currentActiveStepIndex = 0
     }
     this.currentStep = this.formSteps[this.currentActiveStepIndex]
-    this.requiredFields = [
-      VideoField.Name,
-      VideoField.Video,
-      VideoField.ContentType,
-      VideoField.CoverImage
-    ]
+    this.requiredFields = this.$classcipe.videoRequiredFields
     this.initData()
   },
   methods: {

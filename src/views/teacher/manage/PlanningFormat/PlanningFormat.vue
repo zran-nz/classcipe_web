@@ -88,8 +88,8 @@ export default {
       saving: false,
       templateList: [],
       selectTemplateVisible: false,
-      planRequiredFields: [PlanField.Name, PlanField.Image, PlanField.Inquiry, PlanField.Sdg, PlanField.Question, PlanField.SubjectIds, PlanField.GradeIds, PlanField.LearnOuts],
-      taskRequiredFields: [TaskField.GradeIds, TaskField.SubjectIds, TaskField.Slides, TaskField.Link, TaskField.Name, TaskField.Image, TaskField.Overview, TaskField.TaskType, TaskField.LearnOuts]
+      planRequiredFields: this.$classcipe.planRequiredFields,
+      taskRequiredFields: this.$classcipe.taskRequiredFields
     }
   },
   created() {

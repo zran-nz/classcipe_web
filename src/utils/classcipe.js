@@ -1,4 +1,4 @@
-import { AllCurriculums, PlanField, TaskField } from '@/const/common'
+import { AllCurriculums, PdField, PlanField, TaskField, VideoField } from '@/const/common'
 import { typeMap } from '@/const/teacher'
 import ScheduleSteps from '@/components/Schedule/ScheduleSteps'
 import ScheduleSessionType from '@/components/Schedule/ScheduleSessionType'
@@ -60,6 +60,11 @@ const sysConfig = {
   collapsedSidebarWidth: 80
 }
 
+const planRequiredFields = [PlanField.Name, PlanField.Image, PlanField.Inquiry, PlanField.Question, PlanField.SubjectIds, PlanField.GradeIds, PlanField.LearnOuts]
+const taskRequiredFields = [TaskField.GradeIds, TaskField.SubjectIds, TaskField.Slides, TaskField.Link, TaskField.Name, TaskField.Image, TaskField.Overview, TaskField.TaskType, TaskField.LearnOuts, TaskField.Question]
+const pdRequiredFields = [PdField.Name, PdField.Image, PdField.Goals]
+const videoRequiredFields = [VideoField.Name, VideoField.Video, VideoField.ContentType, VideoField.CoverImage]
+
 export {
   get21stCenturyDisplayNameByCurriculum,
   classcipeCDN,
@@ -72,5 +77,9 @@ export {
   ScheduleSessionType,
   replaceToClasscipeCDN,
   setRequiredCheck,
-  unSetRequiredCheck
+  unSetRequiredCheck,
+  planRequiredFields,
+  taskRequiredFields,
+  pdRequiredFields,
+  videoRequiredFields
 }
