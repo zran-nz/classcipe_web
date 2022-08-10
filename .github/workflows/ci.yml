@@ -12,8 +12,6 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 14.16.1
-        env:
-          NODE_OPTIONS: "--max-old-space-size=4096"
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
@@ -36,6 +34,9 @@ jobs:
       - name: Build-Develop
         if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
         run: yarn run build-develop
+      - name: Build-Test
+        if: github.ref == 'refs/heads/test' && github.event_name == 'push'
+        run: yarn run build-test
       - name: Build-Production
         if: github.ref == 'refs/heads/prod' && github.event_name == 'push'
         run: yarn run build
@@ -43,7 +44,6 @@ jobs:
         id: create_release
         uses: actions/create-release@latest
         env:
-          NODE_OPTIONS: "--max-old-space-size=4096"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
           tag_name: ${{ github.ref }}_${{ github.sha }}
