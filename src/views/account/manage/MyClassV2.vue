@@ -70,7 +70,7 @@
                 <label for="">{{ view.name || formatViewName(view.id) }}</label>
                 <a-space class="view-item-opt" v-if="currentTab === 'gradeId'">
                   <a-button type="primary" @click="addGradeClass(view)" icon="plus-circle">Add</a-button>
-                  <a-button @click="deleteGrade(view, index)">Delete</a-button>
+                  <a-button v-if="!(USER_MODE.SELF && isLastClass)" @click="deleteGrade(view, index)">Delete</a-button>
                 </a-space>
               </div>
               <div>
@@ -294,7 +294,7 @@ export default {
       }]
     },
     isLastClass() {
-      const clsLen = this.allDatas[this.currentTab].map(item => item.classes.length)
+      const clsLen = this.allDatas[this.currentTab].map(item => item.classes.filter(cls => !cls.isNew).length)
       let len = 0
       clsLen.forEach(item => {
         len += item

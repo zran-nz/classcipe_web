@@ -379,7 +379,7 @@ export default {
               this.finishAndGoBack(res.result[0].taskClassId)
             } else {
               this.$router.replace({
-                path: `/teacher/main/live-workshops`
+                path: `/teacher/main/live-workshops?workshopsType=2`
               })
             }
           }
@@ -406,7 +406,7 @@ export default {
     finishAndGoBack(taskClassId) {
       if (this.scheduleReq.workshopType) {
         this.$router.replace({
-          path: `/teacher/main/live-workshops`
+          path: `/teacher/main/live-workshops?workshopsType=2`
         })
       } else {
         this.$router.replace({
