@@ -1231,7 +1231,7 @@ export default {
         this.$logger.info('AddTask GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
         this.$logger.info('*******************associateUnitPlanIdList', this.associateUnitPlanIdList)
         this.$logger.info('associateTaskIdList', this.associateTaskIdList)
-
+        this.requiredFields = this.$classcipe.taskRequiredFields
         if (this.associateQuestionList.length === 0) {
           const list = this.requiredFields.slice()
           list.splice(list.indexOf(this.taskField.Question), 1)

@@ -32,7 +32,7 @@
             <div class='form-field-item' v-for='fieldName in step.commonFields' :key='fieldName'>
 
               <div class='form-block tag-content-block' v-if='fieldName === VideoField.Name' :key='fieldName'>
-                <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.Name) !== -1'>
+                <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.Name) !== -1' :required-field='requiredFields.indexOf(VideoField.Name) !== -1'>
                   <template slot='label'>
                     Video name
                   </template>
@@ -44,7 +44,7 @@
               </div>
 
               <div class='form-block tag-content-block' v-if='fieldName === VideoField.Video' :key='fieldName'>
-                <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.Video) !== -1'>
+                <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.Video) !== -1' :required-field='requiredFields.indexOf(VideoField.Video) !== -1'>
                   <template slot='label'>
                     Select video
                   </template>
@@ -76,7 +76,7 @@
               <!--              </div>-->
 
               <div class='form-block tag-content-block' v-if='fieldName === VideoField.CoverVideo' key='image'>
-                <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.Image) !== -1'>
+                <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.Image) !== -1' :required-field='requiredFields.indexOf(VideoField.Image) !== -1'>
                   <template slot='label'>
                     Edit cover Image
                   </template>
@@ -92,7 +92,7 @@
               </div>
 
               <div class='form-block form-radio-wrapper tag-content-block' v-if='fieldName === VideoField.ContentType' :key='fieldName'>
-                <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.ContentType) !== -1'>
+                <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.ContentType) !== -1' :required-field='requiredFields.indexOf(VideoField.ContentType) !== -1'>
                   <template slot='label'>
                     Purpose of video
                   </template>
@@ -105,7 +105,7 @@
               </div>
 
               <div class='form-block tag-content-block' v-if='fieldName === VideoField.Goals && form.contentType === 1' :key='fieldName'>
-                <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.Goals) !== -1'>
+                <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.Goals) !== -1' :required-field='requiredFields.indexOf(VideoField.Goals) !== -1'>
                   <template slot='label'>
                     Goals
                   </template>
@@ -130,7 +130,7 @@
               </div>
 
               <div class='form-block tag-content-block' v-if='fieldName === VideoField.LearnOuts && form.contentType === 0' :key='fieldName'>
-                <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.LearnOuts) !== -1'>
+                <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.LearnOuts) !== -1' :required-field='requiredFields.indexOf(VideoField.LearnOuts) !== -1'>
                   <template slot='label'>
                     Learning objectives
                   </template>
@@ -145,7 +145,7 @@
               </div>
 
               <div class='form-block tag-content-block' v-if='fieldName === VideoField.Link' :key='fieldName'>
-                <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.Link) !== -1'>
+                <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.Link) !== -1' :required-field='requiredFields.indexOf(VideoField.Link) !== -1'>
                   <template slot='label'>
                     Linked tasks
                   </template>

@@ -224,7 +224,7 @@
                 <div
                   id='inquiry-keyword'
                   class='form-block tag-content-block'
-                  v-if="fieldItem.visible && fieldItem.fieldName === planField.Inquiry"
+                  v-if="fieldItem.visible && fieldItem.fieldName === planField.Inquiry && form.inquiryKeywords"
                   :key='fieldItem.fieldName + "keyword"'>
                   <custom-form-item :required='false' :required-field='requiredFields.indexOf(planField.Inquiry) !== -1'>
                     <template slot='label'>
@@ -1144,6 +1144,12 @@ export default {
       this.formSteps = this.$store.getters.formConfigData.planSteps || []
       this.$logger.info('formSteps', this.formSteps)
       this.requiredFields = this.$classcipe.planRequiredFields
+      if (this.form.inquiryKeywords.length === 0) {
+        const list = this.requiredFields.slice()
+        list.splice(list.indexOf(this.PlanField.Inquiry), 1)
+        this.requiredFields = list
+        this.$logger.info('associateQuestionList empty remove Inquiry from requiredFields')
+      }
       if (this.currentActiveStepIndex < 0 || this.currentActiveStepIndex > this.formSteps.length - 1) {
         this.currentActiveStepIndex = 0
       }
