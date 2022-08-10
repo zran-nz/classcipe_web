@@ -1,6 +1,11 @@
 <template>
   <div class='sidebar-menu-item' :class="{'active-sidebar-menu-item': path && ($route.path === path || ($route.meta.owner && $route.meta.owner === path)), 'collapsed-menu': $store.getters.collapsed }" @click='handleClickMenu' @dblclick='handleDbClickMenu'>
-    <div class='menu-icon'>
+    <div class='menu-icon' v-if="$store.getters.collapsed">
+      <a-tooltip :title='label' placement="right" >
+        <slot name='icon'></slot>
+      </a-tooltip>
+    </div>
+    <div class='menu-icon' v-else>
       <slot name='icon'></slot>
     </div>
 

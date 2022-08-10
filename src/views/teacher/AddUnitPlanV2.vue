@@ -1901,12 +1901,12 @@ export default {
         this.$message.error('Please select a big idea')
         return
       }
-      this.form.inquiry = this.selectNewBigIdea
+      this.form.inquiry = this.selectNewBigIdea.inquiry
+      this.form.inquiryKeywords = this.selectNewBigIdea.inquiryKeywords
       this.selectBigIdeaDataVisible = false
     },
     handleSelectBigIdeaData(data) {
-      this.selectNewBigIdea = data.inquiry
-      this.form.inquiryKeywords = data.inquiryKeywords
+      this.selectNewBigIdea = data
     },
     setIdeaKeywords(currentChoose, key) {
       // const keywords = (this.form[key] || '').split(',')
@@ -1919,14 +1919,14 @@ export default {
         this.$refs.quickModal.style.display = 'none'
         this[key] = ''
       }, 200)
-      const keywords = this.form[key] ? this.form[key].split(',') : []
+      const keywords = this.form[key] ? this.form[key] : []
       keywords.push(this[key])
-      this.$set(this.form, key, Array.from(new Set(keywords)).join(',').trim())
+      this.$set(this.form, key, Array.from(new Set(keywords)))
     },
     handleRmInquiryKey(item, key, tagIndex) {
-      const keywords = item[key] ? item[key].split(',') : []
+      const keywords = item[key] ? item[key] : []
       keywords.splice(tagIndex, 1)
-      this.$set(item, key, keywords.join(',').trim())
+      this.$set(item, key, keywords)
     }
   }
 }

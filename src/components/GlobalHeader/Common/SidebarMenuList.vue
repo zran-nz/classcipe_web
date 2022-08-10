@@ -35,6 +35,7 @@
 <script>
 
 import StudentIcon from '@/assets/v2/icons/student.svg?inline'
+import { HIDDEN_SIDEBAR } from '@/store/mutation-types'
 export default {
   name: 'SidebarMenuList',
   components: {
@@ -75,6 +76,7 @@ export default {
   methods: {
     handleExpandMenuList () {
       this.$logger.info('handleExpandMenuList')
+      this.$store.commit(HIDDEN_SIDEBAR, false)
       this.expand = !this.expand
     },
     handleClickMenu (item) {
