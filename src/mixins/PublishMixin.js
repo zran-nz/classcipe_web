@@ -93,6 +93,38 @@ export const PublishMixin = {
       this.$logger.info('checkRequiredFields done!', this.formSteps)
 
       this.$classcipe.unSetRequiredCheck(this.contentId)
+    },
+    calculateCanPublish() {
+      // 检查必填项是否为空,只检测null,undefined,空字符串,空数组,空对象
+      function simpleIsEmpty(value) {
+        if (value === null || value === '' || value === undefined) {
+          return true
+        }
+        if (value.hasOwnProperty('length') && value.length === 0) {
+          return true
+        }
+
+        if (JSON.stringify(value) === '{}') {
+          return true
+        }
+
+        return false
+      }
+
+      // 给有未填写字段的step添加红色提示
+      let canPublish = true
+      this.requiredFields.forEach(field => {
+        if (simpleIsEmpty(this.form[field])) {
+          this.$logger.info(`${field} is empty`, this.form[field])
+          this.formSteps.forEach(step => {
+            if (step.commonFields.indexOf(field) > -1) {
+              canPublish = false
+            }
+          })
+        }
+      })
+
+      this.form.canPublish = canPublish
     }
   }
 }

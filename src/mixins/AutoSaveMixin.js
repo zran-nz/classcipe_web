@@ -23,6 +23,9 @@ export const AutoSaveMixin = {
       }
     }
   },
+  beforeDestroy() {
+    this.asyncSaveDataFn.flush()
+  },
   computed: {
     lastChangeSavedTime() {
       const time = this.saveTime || (this.form && (this.form.updateTime || this.form.createTime))
@@ -37,6 +40,7 @@ export const AutoSaveMixin = {
     async autoSaveData () {
       this.$logger.info('AutoSaveMixin: autoSaveData', this.form)
       if (this.save) {
+        this.calculateCanPublish()
         await this.save()
         this.saveTime = new Date()
       } else {
