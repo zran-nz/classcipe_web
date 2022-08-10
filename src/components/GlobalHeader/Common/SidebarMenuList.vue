@@ -4,7 +4,7 @@
       <div class='menu-icon'>
         <a-tooltip :title='label' placement="right" >
           <slot name='icon'></slot>
-        </a-tooltip>>
+        </a-tooltip>
       </div>
       <div class='menu-label' :title='label'>
         {{ label }}
