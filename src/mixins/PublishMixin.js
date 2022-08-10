@@ -4,14 +4,37 @@ export const PublishMixin = {
       showStepMask: false,
       formSteps: [],
       requiredFields: [],
-      emptyRequiredFields: []
+      emptyRequiredFields: [],
+      autoCheckRequired: false
     }
   },
-
+  computed: {
+    contentId() {
+      return this.taskId || this.unitPlanId || this.pdId || this.videoId
+    }
+  },
   created() {
-
+    if (this.contentId) {
+      console.log('start required check ' + this.contentId)
+      const isCheck = window.sessionStorage.getItem('required-check-' + this.contentId)
+      this.$logger.info('isCheck for ' + this.contentId, isCheck)
+      if (isCheck) {
+        this.autoCheckRequired = true
+        this.$logger.info('start Check for ' + this.contentId, isCheck)
+      } else {
+        this.$logger.info('not Check for ' + this.contentId, isCheck)
+      }
+    } else {
+      console.warn('contentId not set')
+    }
   },
   methods: {
+
+    tryAutoCheckRequiredField() {
+      if (this.autoCheckRequired) {
+        this.checkRequiredFields()
+      }
+    },
 
     checkRequiredFields () {
       // 检查必填项是否为空,只检测null,undefined,空字符串,空数组,空对象
@@ -61,9 +84,15 @@ export const PublishMixin = {
 
       if (showRequiredTips) {
         this.$message.warn('Please complete the marked area(s) before publishing')
+        this.form.canPublish = false
+      } else {
+        this.form.canPublish = true
       }
+      this.$logger.info('canPublish', this.form.canPublish)
 
       this.$logger.info('checkRequiredFields done!', this.formSteps)
+
+      this.$classcipe.unSetRequiredCheck(this.contentId)
     }
   }
 }

@@ -931,6 +931,7 @@ export default {
         if (this.$store.getters.userInfo.email !== this.form.createBy) {
           this.form.showSelected = false
         }
+        this.tryAutoCheckRequiredField()
       })
     },
 

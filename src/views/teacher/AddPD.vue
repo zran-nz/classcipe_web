@@ -372,6 +372,7 @@ export default {
           this.loadThumbnail(false)
         }
         this.saving = false
+        this.tryAutoCheckRequiredField()
       })
     },
 

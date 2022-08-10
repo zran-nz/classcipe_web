@@ -302,6 +302,7 @@ export default {
       }).finally(() => {
         this.saving = false
         this.contentLoading = false
+        this.tryAutoCheckRequiredField()
       })
     },
 

@@ -47,6 +47,14 @@ function getContentTypeName(type) {
   }
 }
 
+function setRequiredCheck(contentId) {
+  window.sessionStorage.setItem('required-check-' + contentId, 'true')
+}
+
+function unSetRequiredCheck(contentId) {
+  window.sessionStorage.removeItem('required-check-' + contentId)
+}
+
 const sysConfig = {
   sidebarWidth: 230,
   collapsedSidebarWidth: 80
@@ -62,5 +70,7 @@ export {
   getContentTypeName,
   ScheduleSteps,
   ScheduleSessionType,
-  replaceToClasscipeCDN
+  replaceToClasscipeCDN,
+  setRequiredCheck,
+  unSetRequiredCheck
 }

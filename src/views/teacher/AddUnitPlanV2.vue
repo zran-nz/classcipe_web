@@ -1328,6 +1328,7 @@ export default {
         this.loadCollaborateData(this.form.type, this.form.id)
         this.oldForm = Object.assign({}, this.form)
         this.loadingShareContent()
+        this.tryAutoCheckRequiredField()
       })
     },
 

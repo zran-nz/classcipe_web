@@ -28,7 +28,7 @@
         <form-header-action-bar
           :collaborate-user-list="collaborateUserList"
           :online-users="onlineUsers"
-          :show-publish="isOwner && userMode === !USER_MODE.SCHOOL"
+          :show-publish="isOwner && userMode !== USER_MODE.SCHOOL"
           :show-invite="showCollaborate && isOwner"
           :show-collaborate="showCollaborate && (isOwner || isCollaborater)"
           :show-share="showShare && (isOwner || isCollaborater)"
