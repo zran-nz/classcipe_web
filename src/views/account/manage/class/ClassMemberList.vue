@@ -186,7 +186,7 @@ export default {
       remoteEmails: [],
       remoteParentEmails: [],
       datas: [],
-      dataKey: ['firstName', 'lastName', 'inviteEmail', 'birthDay', 'classes', 'parentFirstName', 'parentLastName', 'parentEmail', 'parentPhone'],
+      dataKey: ['firstName', 'lastName', 'inviteEmail', 'birthDay', 'parentFirstName', 'parentLastName', 'parentEmail', 'parentPhone'],
       importColumns: [
         {
           title: 'First Name',

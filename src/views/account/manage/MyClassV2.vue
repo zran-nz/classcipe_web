@@ -234,7 +234,7 @@ export default {
         keywords: ''
       },
       datas: [],
-      debounceInit: null,
+      debounceLoad: null,
       delLoading: false,
       selVis: false,
       gradeIdInfos: [], // 先创建grade再创建class
@@ -298,13 +298,13 @@ export default {
     handleSchoolChange(currentSchool) {
       if (this.userMode === USER_MODE.SCHOOL) {
         this.initDict()
-        this.debounceInit()
+        this.debounceLoad()
       }
     },
     handleModeChange(userMode) {
       // 模式切换，个人还是学校 个人接口
       this.initDict()
-      this.debounceInit()
+      this.debounceLoad()
     },
     doFocus(e) {
       e.target.focus()
@@ -484,7 +484,9 @@ export default {
             focusDom = newAdd[newAdd.length - 1]
           }
         })
-        document.getElementById(focusDom.key).scrollIntoView({ behavior: 'smooth' })
+        if (focusDom) {
+          document.getElementById(focusDom.key).scrollIntoView({ behavior: 'smooth' })
+        }
       })
     },
     addGradeClass(view) {

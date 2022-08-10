@@ -48,6 +48,7 @@
             ref="SubjectRef"
             :curriculum="currentCurriculum"
             :school="currentSchool"
+            :ibAuth="currentAuth"
             @change="changeSubjects"
             @save-success="(notip) => successCb('pendingSubject', notip)"
           />
@@ -66,7 +67,7 @@
     <div style="font-size: 16px;" v-show="currentTab !== 'Authorization'">
       <fixed-form-footer>
         <template v-slot:right>
-          <a-button :loading="saveLoading" :disabled="disabled" type='primary' @click='handleNextStep' class='cc-round-button'>
+          <a-button :loading="saveLoading" type='primary' @click='handleNextStep' class='cc-round-button'>
             <template v-if='true'>
               {{ SaveTxt }}
             </template>
@@ -152,13 +153,6 @@ export default {
         const findIB = this.currentCurriculum.find(item => item.id === AllCurriculums.IBPYP || item.id === AllCurriculums.IBMYP)
         return findIB ? 'Next' : 'Finish'
       }
-    },
-    disabled() {
-      console.log(this.currentAuth.status)
-      if (this.currentTab === 'Authorization' && (this.currentAuth.status === 1 || this.currentAuth.status === 2)) {
-        return true
-      }
-      return false
     }
   },
   created() {
@@ -195,14 +189,20 @@ export default {
       console.log(val)
       this.currentAuth = { ...val }
     },
+    // notip true 表示是系统自动提交的保存，不是直接点击save按钮
     successCb(pending, notip = false) {
       !notip && this.$message.success('Save successfully')
       this.saveLoading = false
       if (!notip) {
+        const findIB = this.currentCurriculum.find(item => item.id === AllCurriculums.IBPYP || item.id === AllCurriculums.IBMYP)
+        const isUnSubAuth = this.currentCurriculum.find(item => (item.id === AllCurriculums.IBPYP || item.id === AllCurriculums.IBMYP) && (!this.currentAuth[item.id] || !this.currentAuth[item.id].status))
         if (pending === 'pendingCurriculum') {
-          this.currentTab = 'Subject'
+          if (findIB && isUnSubAuth) {
+            this.currentTab = 'Authorization'
+          } else {
+            this.currentTab = 'Subject'
+          }
         } else if (pending === 'pendingSubject') {
-          const findIB = this.currentCurriculum.find(item => item.id === AllCurriculums.IBPYP || item.id === AllCurriculums.IBMYP)
           if (findIB) {
             this.currentTab = 'Authorization'
           } else {
