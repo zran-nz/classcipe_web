@@ -101,6 +101,7 @@ import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 
 import { termList, deleteYear, deleteTerm } from '@/api/academicTermInfo'
+import { listClass } from '@/api/v2/schoolClass'
 
 import AcademicYearAdd from './academic/AcademicYearAdd.vue'
 import AcademicTermAdd from './academic/AcademicTermAdd.vue'
@@ -133,7 +134,8 @@ export default {
       },
       datas: [],
       debounceInit: null,
-      delLoading: false
+      delLoading: false,
+      subjectClass: []
     }
   },
   created() {
@@ -160,7 +162,21 @@ export default {
       this.debounceInit()
     },
     initData() {
+      this.initClass()
       this.loadData()
+    },
+    initClass() {
+      listClass({
+        queryType: 1,
+        pageNo: 1,
+        pageSize: 10000,
+        schoolId: this.currentSchool.id
+      }).then(res => {
+        if (res.success && res.result) {
+          this.subjectClass = res.result.records
+          console.log(this.subjectClass)
+        }
+      })
     },
     loadData() {
       this.loading = true

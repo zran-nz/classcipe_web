@@ -118,7 +118,7 @@
                         </div>
                       </div>
                       <div class="class-opt" v-if="!cls.isNew">
-                        <a-dropdown :getPopupContainer="trigger => trigger.parentElement">
+                        <a-dropdown :getPopupContainer="trigger => trigger.parentElement" v-if="!(USER_MODE.SELF && isLastClass)">
                           <a-icon type="more" />
                           <a-menu slot="overlay">
                             <template v-if="currentTab !== 'archive'">
@@ -131,7 +131,7 @@
                               <!-- <a-menu-item v-if="cls.classType === 1">
                                 <a href="javascript:;" @click="handleEditSubjectClass(cls)">Edit</a>
                               </a-menu-item> -->
-                              <a-menu-item>
+                              <a-menu-item v-if="userMode === USER_MODE.SCHOOL || !isLastClass">
                                 <a href="javascript:;" @click="handleArchive(cls)">Archive</a>
                               </a-menu-item>
                             </template>
@@ -279,16 +279,30 @@ export default {
     tabsList() {
       return [{
           value: 'gradeId',
-          title: 'Standard'
+          title: 'Standard',
+          index: 0
       },
       ...this.userMode === USER_MODE.SCHOOL ? [{
           value: 'subject',
-          title: 'Subject'
+          title: 'Subject',
+          index: 1
       }] : [],
       {
           value: 'archive',
-          title: 'Archive'
+          title: 'Archive',
+          index: 2
       }]
+    },
+    isLastClass() {
+      const clsLen = this.allDatas[this.currentTab].map(item => item.classes.length)
+      let len = 0
+      clsLen.forEach(item => {
+        len += item
+      })
+      if (len === 1) {
+        return true
+      }
+      return false
     }
   },
   methods: {
@@ -401,7 +415,7 @@ export default {
       console.log(this.allDatas[this.currentTab])
     },
     loadData() {
-      const queryType = this.tabsList.findIndex(item => item.value === this.currentTab)
+      const queryType = this.tabsList.find(item => item.value === this.currentTab).index
       this.loading = true
       listClass({
         queryType: queryType,
@@ -669,6 +683,12 @@ export default {
       }
     },
     handleArchive(cls) {
+      const group = this.allDatas[this.currentTab].find(item => item.id === cls[this.currentTab])
+      console.log(group)
+      if (this.userMode === USER_MODE.SELF && group && group.classes && group.classes.length === 1) {
+        this.$message.error('You must keep a class')
+        return
+      }
       const msg = cls.classType === 0 ? 'The students of this class will also be archived once this class is archived, please switch the students to other standard class if you want to keep them' : 'Are you sure you want to archive this class?'
       this.$confirm({
         title: 'Confirm archive class ' + cls.name,
@@ -681,19 +701,20 @@ export default {
           }).then(res => {
             if (res.success && res.code === 0) {
               this.$store.dispatch('GetInfo')
+              this.debounceLoad()
               this.$message.success('Archive successfully')
-              const group = this.allDatas[this.currentTab].find(item => item.id === cls[this.currentTab])
-              if (group && group.classes) {
-                if (group.classes.length > 1) {
-                  const index = group.classes.findIndex(item => item.id === cls.id)
-                  group.classes.splice(index, 1)
-                } else {
-                  // group.classes = []
-                  const groupIndex = this.allDatas[this.currentTab].findIndex(item => item.id === cls[this.currentTab])
-                  this.allDatas[this.currentTab].splice(groupIndex, 1)
-                  this.selectedGrades = this.allDatas.gradeId.map(item => item.id)
-                }
-              }
+              // const group = this.allDatas[this.currentTab].find(item => item.id === cls[this.currentTab])
+              // if (group && group.classes) {
+              //   if (group.classes.length > 1) {
+              //     const index = group.classes.findIndex(item => item.id === cls.id)
+              //     group.classes.splice(index, 1)
+              //   } else {
+              //     // group.classes = []
+              //     const groupIndex = this.allDatas[this.currentTab].findIndex(item => item.id === cls[this.currentTab])
+              //     this.allDatas[this.currentTab].splice(groupIndex, 1)
+              //     this.selectedGrades = this.allDatas.gradeId.map(item => item.id)
+              //   }
+              // }
             }
           }).finally(() => {
             this.loading = false

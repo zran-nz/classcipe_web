@@ -319,7 +319,7 @@ export default {
       const res = await getSchoolUsers({
         schoolId: this.currentSchool.id,
         roles: this.form.role,
-        includePending: false,
+        // includePending: false,
         pageNo: 1,
         pageSize: 1000
       })
@@ -333,7 +333,7 @@ export default {
         schoolId: this.currentSchool.id,
         roles: this.form.role,
         classes: this.form.classId,
-        includePending: false,
+        // includePending: false,
         pageSize: this.pagination.pageSize,
         pageNo: this.pagination.current
       })
