@@ -36,12 +36,12 @@
                     <div
                       class='task-type-item green-active-task-type'
                       v-if="content.taskType === 'FA'">
-                      FA
+                      <a-tooltip placement='top' title='Formative Assessment'>FA</a-tooltip>
                     </div>
                     <div
                       class='task-type-item red-active-task-type'
                       v-if="content.taskType === 'SA'">
-                      SA
+                      <a-tooltip title='Summative Assessment' placement='top'>SA</a-tooltip>
                     </div>
                     <div
                       class='task-type-item blue-active-task-type task-type-activity'
@@ -50,13 +50,8 @@
                     </div>
                     <div
                       class='task-type-item blue-active-task-type task-type-examine'
-                      v-if="content.taskType === 'FinalExamine'">
-                      FinalExamine
-                    </div>
-                    <div
-                      class='task-type-item red-active-task-type task-type-test'
-                      v-if="content.taskType === 'Test'">
-                      Test
+                      v-if="content.taskType === 'IA'">
+                      <a-tooltip title='Internal Assessment' placement='top'>IA</a-tooltip>
                     </div>
                   </div>
                 </div>
@@ -404,15 +399,6 @@ export default {
     .task-type-activity {
       width: 70px;
       border-radius: 50px;
-    }
-
-    .task-type-examine {
-      width: 100px;
-      border-radius: 50px !important;
-    }
-    .task-type-test {
-      width: 40px;
-      border-radius: 50px !important;
     }
 
     .green-active-task-type {

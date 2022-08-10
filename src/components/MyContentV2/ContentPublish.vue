@@ -41,6 +41,16 @@
           <a-range-picker :default-value="initDate" :mode="['date']" :disabled-date="disabledDate" @change="handleDurationChange"/>
         </a-col>
       </a-row>
+      <a-row :gutter='20' type='flex' align='middle' v-if='content && content.type === typeMap.task'>
+        <a-col span='8' class='label-name'>
+          Self learning
+        </a-col>
+        <a-col span='16'>
+          <div class='self-learning'>
+            <a-switch size='small' v-model="isSelfLearning" />
+          </div>
+        </a-col>
+      </a-row>
     </div>
   </a-modal>
 </template>
@@ -98,6 +108,7 @@ export default {
         this.price = data.price
         this.startDate = data.discountStartTime
         this.endData = data.discountEndTime
+        this.isSelfLearning = data.isSelfLearning
         this.initDate = [moment(data.discountStartTime), moment(data.discountEndTime)]
       }
       this.visible = true
@@ -123,7 +134,8 @@ export default {
         discountModel: 2,
         price: this.price,
         discountStartTime: this.startDate,
-        discountEndTime: this.endData
+        discountEndTime: this.endData,
+        isSelfLearning: this.isSelfLearning
       })
       this.content.price = this.price
       this.editPrice = false

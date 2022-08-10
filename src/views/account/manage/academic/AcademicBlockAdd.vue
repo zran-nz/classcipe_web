@@ -184,8 +184,8 @@ export default {
         this.model.blockSettings = []
       } else {
         this.model.blockSettings.forEach(item => {
-          item.start = moment.utc('2000-01-01 ' + item.start).local()
-          item.end = moment.utc('2000-01-01 ' + item.end).local().format('HH:mm')
+          item.start = moment('2000-01-01 ' + item.start)
+          item.end = moment('2000-01-01 ' + item.end).format('HH:mm')
         })
       }
       console.log(this.model)
@@ -215,7 +215,9 @@ export default {
         if ((hoursRes.includes(item.start.hours()) || miniutesRes.includes(item.start.minutes()))) {
           return false
         }
-        return true
+        // return true
+        // 不判断，除第一个全部删
+        return false
       })
     },
     validateDate(rule, value, callback) {
@@ -315,8 +317,8 @@ export default {
         if (valid) {
           const params = cloneDeep(this.model)
           params.blockSettings = params.blockSettings.map((item, index) => {
-            item.start = moment.utc(item.start).format('HH:mm')
-            item.end = moment.utc(moment('2000-01-01 ' + item.end)).format('HH:mm')
+            item.start = moment(item.start).format('HH:mm')
+            item.end = moment(moment('2000-01-01 ' + item.end)).format('HH:mm')
             item.name = item.name ? item.name : ('block_' + new Date().getTime() + '_' + index)
             return item
           })

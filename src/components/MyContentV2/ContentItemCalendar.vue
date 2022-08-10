@@ -35,9 +35,11 @@
           <div class="detail-con">
             <div class="info-con">
               <div class='subject'>
-                <div class="author-name">
-                  {{ data.sessionInfo.author }}
-                </div>
+                <a-space class="author-name">
+                  <img v-if="data.userAvatar" :src="data.userAvatar" alt="">
+                  <img v-else src="~@/assets/icons/library/default-avatar.png"/>
+                  <label for="">{{ data.userRealName }}</label>
+                </a-space>
                 <div>
                   <a-tag :color="formatSessionType(data.sessionInfo.sessionType).color">{{ formatSessionType(data.sessionInfo.sessionType).name }}</a-tag>
                 </div>
@@ -455,6 +457,11 @@ export default {
                 color: #757578;
                 line-height: 30px;
                 font-size: 14px;
+                img {
+                  width: 20px;
+                  height: 20px;
+                  border-radius: 20px;
+                }
               }
             }
 

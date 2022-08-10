@@ -3,6 +3,8 @@ export const SESSION_VIEW_MODE = 'view_mode'
 export const SESSION_CURRENT_STATUS = 'currentStatus'
 export const SESSION_CURRENT_TYPE = 'currentType'
 export const SESSION_SHARE_TYPE = 'shareType'
+export const SESSION_FAVORITE_TYPE = 'favoriteType'
+export const SESSION_CLASS_TYPE = 'classType'
 export const SESSION_CURRENT_PAGE = 'currentPage'
 export const SESSION_CURRENT_TYPE_LABEL = 'currentTypeLabel'
 export const DICT_TEMPLATE = 'ppt_template'
@@ -324,6 +326,8 @@ export const WORK_SHOPS_STATUS = {
   //   value: 4
   // }
 }
+
+export const SESSION_WORK_SHOPS_STATUS = 'SESSION_WORK_SHOPS_STATUS'
 
 export const WORK_SHOPS_TYPE = {
   FEATURE: {

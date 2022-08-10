@@ -5,7 +5,7 @@
         <div class="schedule-tip" v-show="attendanceVisible">
           <a-affix :target="affixTarget">
             <div class="tip-wrap">
-              <div class="unit-tip">
+              <div class="unit-tip" v-if="queryType !== CALENDAR_QUERY_TYPE.MY.value">
                 <div
                   class="unit-tip-item"
                   :style="{backgroundColor: BG_COLORS[item.index]}"
@@ -14,27 +14,65 @@
                   <a-tooltip :title="item.name">Unit: {{ item.name }}</a-tooltip>
                 </div>
               </div>
+              <div class="unit-tip" v-else>
+                <div
+                  class="unit-tip-item"
+                  :style="{backgroundColor: BG_COLORS[item.index]}"
+                  v-for="(item) in showSchoolOptions"
+                  :key="'school_' + item.id">
+                  <span>{{ item.name }}</span>
+                </div>
+              </div>
               <div class="calendar-type" v-show="true">
-                <div class="calendar-type-item" v-for="type in CALENDAR_QUERY_TYPE" :key="'calendar_' + type.value">
-                  <template v-if="type.value !== CALENDAR_QUERY_TYPE.CLASS.value">
-                    <div class="type-item-title">
-                      <a-radio :checked="queryType === type.value" @change="handleChangeType(type)">
-                        {{ type.label }}
-                      </a-radio>
-                    </div>
-                    <div class="type-item-desc" v-if="getOptions(type.value).length > 0">
-                      <a-checkbox-group
-                        :options="getOptions(type.value)"
-                        v-model="typeFilters"
-                        @change="val => handleChangeFilters(val, type.value)"
-                        class="type-check"
-                      >
-                        <div slot="label" class="type-content" slot-scope="item">
-                          <span>{{ item.name }}</span>
+                <div class="calendar-type-item">
+                  <div class="type-item-title">
+                    <a-radio :checked="queryType === CALENDAR_QUERY_TYPE.WORKSHOP.value" @change="handleChangeType(CALENDAR_QUERY_TYPE.WORKSHOP)">
+                      {{ CALENDAR_QUERY_TYPE.WORKSHOP.label }}
+                    </a-radio>
+                  </div>
+                  <div class="type-item-desc">
+                    <a-checkbox-group
+                      :options="WorkShopOptions"
+                      v-model="typeFilters"
+                      @change="val => handleChangeFilters(val, CALENDAR_QUERY_TYPE.WORKSHOP.value)"
+                      class="type-check algin-top"
+                    >
+                      <div slot="label" class="type-content" slot-scope="item">
+                        <span>{{ item.name }}</span>
+                        <div v-if="item.children && typeFilters.includes(1)">
+                          <a-checkbox-group
+                            :options="item.children"
+                            v-model="subFilters"
+                            @change="val => handleChangeSubFilters(val, CALENDAR_QUERY_TYPE.WORKSHOP.value)"
+                            class="type-check"
+                          >
+                            <div slot="label" class="type-content" slot-scope="sub">
+                              <span style="font-size: 12px;">{{ sub.name }}</span>
+                            </div>
+                          </a-checkbox-group>
                         </div>
-                      </a-checkbox-group>
-                    </div>
-                  </template>
+                      </div>
+                    </a-checkbox-group>
+                  </div>
+                </div>
+                <div class="calendar-type-item">
+                  <div class="type-item-title">
+                    <a-radio :checked="queryType === CALENDAR_QUERY_TYPE.MY.value" @change="handleChangeType(CALENDAR_QUERY_TYPE.MY)">
+                      {{ CALENDAR_QUERY_TYPE.MY.label }}
+                    </a-radio>
+                  </div>
+                  <div class="type-item-desc">
+                    <a-checkbox-group
+                      :options="MyCalendarOptions"
+                      v-model="typeFilters"
+                      @change="val => handleChangeFilters(val, CALENDAR_QUERY_TYPE.MY.value)"
+                      class="type-check"
+                    >
+                      <div slot="label" class="type-content" slot-scope="item">
+                        <span>{{ item.name }}</span>
+                      </div>
+                    </a-checkbox-group>
+                  </div>
                 </div>
                 <!-- 每个class和querytype同级  -->
                 <div class="calendar-type-item" v-for="type in showClassOptions" :key="'showClass_' + type.value">
@@ -53,7 +91,7 @@
         <div style="flex:1;">
           <session-calendar
             :searchType="queryType"
-            :searchFilters="typeFilters"
+            :searchFilters="searchFilters"
             :showTerm="true"
             @change-units="initData"
           />
@@ -89,25 +127,28 @@ export default {
       typeMap: typeMap,
       queryType: CALENDAR_QUERY_TYPE.MY.value,
       queryClass: '',
-      [CALENDAR_QUERY_TYPE.WORKSHOP.label]: [
+      WorkShopOptions: [
       {
         value: 1,
         name: 'PD workshop',
-        index: 1
+        index: 1,
+        children: [
+          {
+            value: 3,
+            name: 'Launched by me',
+            index: 3
+          }, {
+            value: 4,
+            name: 'Workshop to attend',
+            index: 4
+          }
+        ]
       }, {
         value: 2,
         name: 'Student workshop',
         index: 2
-      }, {
-        value: 3,
-        name: 'Launched by me',
-        index: 3
-      }, {
-        value: 4,
-        name: 'Workshop to attend',
-        index: 4
       }],
-      [CALENDAR_QUERY_TYPE.MY.label]: [
+      MyCalendarOptions: [
         {
           id: 1,
           index: 1,
@@ -139,6 +180,7 @@ export default {
           type: this.$classcipe.ScheduleSessionType.test
         }
       ],
+      subFilters: [],
       typeFilters: ['sessionType1', 'sessionType2', 'sessionType3'], // 根据类型的筛选条件
       currentUnitList: [],
       attendanceVisible: true,
@@ -148,7 +190,8 @@ export default {
   computed: {
     ...mapState({
       currentSchool: state => state.user.currentSchool,
-      classList: state => state.user.classList
+      classList: state => state.user.classList,
+      info: state => state.user.info
     }),
     [CALENDAR_QUERY_TYPE.CLASS.label]() {
       return this.classList.map((item, index) => (
@@ -179,6 +222,26 @@ export default {
           index: index
         }
       ))
+    },
+    showSchoolOptions() {
+      return [
+        {
+          value: '0',
+          name: 'Personal',
+          id: '0',
+          index: 0
+        }
+      ].concat(this.info.schoolList.map((item, index) => {
+        return {
+          value: item.id,
+          name: item.schoolName,
+          id: item.id,
+          index: index + 1
+        }
+      }))
+    },
+    searchFilters() {
+      return this.typeFilters.concat(this.subFilters)
     }
   },
   created() {
@@ -204,10 +267,26 @@ export default {
     },
     handleChangeType(type) {
       this.queryType = type.value
-      console.log(this[type.label])
-      this.typeFilters = this[type.label] ? this[type.label].map(item => item.value) : []
+      if (type.value === CALENDAR_QUERY_TYPE.WORKSHOP.value) {
+        this.typeFilters = [1, 2]
+        this.subFilters = [3, 4]
+      } else if (type.value === CALENDAR_QUERY_TYPE.MY.value) {
+        this.typeFilters = ['sessionType1', 'sessionType2', 'sessionType3']
+        this.subFilters = []
+      }
     },
     handleChangeFilters(filter, val) {
+      if (!filter.includes(1)) {
+        this.subFilters = []
+      }
+      if (this.queryType !== val) {
+        this.queryType = val
+      }
+    },
+    handleChangeSubFilters(filter, val) {
+      if (filter.length > 0 && !this.typeFilters.includes(1)) {
+        this.typeFilters = this.typeFilters.concat([1])
+      }
       if (this.queryType !== val) {
         this.queryType = val
       }
@@ -226,6 +305,11 @@ export default {
   padding: 15px;
   background: #fff;
   height: 100%;
+}
+.fc-daygrid-event {
+  & > div {
+    width: 100%;
+  }
 }
 </style>
 
@@ -325,6 +409,14 @@ export default {
         display: flex;
         align-items: center;
         margin-bottom: 5px;
+      }
+    }
+    .algin-top {
+      /deep/ & > .ant-checkbox-group-item {
+        & > .ant-checkbox {
+          align-self: flex-start;
+          top: 0;
+        }
       }
     }
   }

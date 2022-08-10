@@ -176,7 +176,7 @@ export default {
           dataIndex: 'nickname',
           width: 150,
           customRender: (text, record) => {
-            return text || (record.firstname + record.lastname) || record.email
+            return text || ((record.firstname || '') + (record.lastname || '')) || record.email
           }
         },
         {

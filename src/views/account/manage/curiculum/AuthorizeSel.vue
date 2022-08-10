@@ -303,7 +303,7 @@ export default {
       }
       // 提交父级判断是否允许提交
       if (this.totalResult) {
-        this.$emit('change', this.totalResult[this.choosed.id])
+        this.$emit('change', this.totalResult)
       }
     },
     uploadFile(key, file, isAdd = false) {

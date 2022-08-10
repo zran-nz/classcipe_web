@@ -186,7 +186,7 @@ export default {
       remoteEmails: [],
       remoteParentEmails: [],
       datas: [],
-      dataKey: ['firstName', 'lastName', 'inviteEmail', 'birthDay', 'classes', 'parentFirstName', 'parentLastName', 'parentEmail', 'parentPhone'],
+      dataKey: ['firstName', 'lastName', 'inviteEmail', 'birthDay', 'parentFirstName', 'parentLastName', 'parentEmail', 'parentPhone'],
       importColumns: [
         {
           title: 'First Name',
@@ -319,6 +319,7 @@ export default {
       const res = await getSchoolUsers({
         schoolId: this.currentSchool.id,
         roles: this.form.role,
+        // includePending: false,
         pageNo: 1,
         pageSize: 1000
       })
@@ -332,6 +333,7 @@ export default {
         schoolId: this.currentSchool.id,
         roles: this.form.role,
         classes: this.form.classId,
+        // includePending: false,
         pageSize: this.pagination.pageSize,
         pageNo: this.pagination.current
       })

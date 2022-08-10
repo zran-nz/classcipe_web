@@ -83,7 +83,7 @@ export default {
       return this.currentSchoolSubjectList.map(item => {
         return {
           label: item.subjectName,
-          value: item.subjectId
+          value: item.subjectName
         }
       })
     },
@@ -91,7 +91,7 @@ export default {
       return this.currentSchoolGradeList.map(item => {
         return {
           label: item.gradeName,
-          value: item.gradeId
+          value: item.gradeName
         }
       })
     }

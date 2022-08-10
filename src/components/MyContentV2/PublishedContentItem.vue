@@ -36,12 +36,12 @@
                     <div
                       class='task-type-item green-active-task-type'
                       v-if="content.taskType === 'FA'">
-                      FA
+                      <a-tooltip placement='top' title='Formative Assessment'>FA</a-tooltip>
                     </div>
                     <div
                       class='task-type-item red-active-task-type'
                       v-if="content.taskType === 'SA'">
-                      SA
+                      <a-tooltip placement='top' title='Summative Assessment'>SA</a-tooltip>
                     </div>
                     <div
                       class='task-type-item blue-active-task-type task-type-activity'
@@ -50,13 +50,8 @@
                     </div>
                     <div
                       class='task-type-item blue-active-task-type task-type-examine'
-                      v-if="content.taskType === 'FinalExamine'">
-                      FinalExamine
-                    </div>
-                    <div
-                      class='task-type-item red-active-task-type task-type-test'
-                      v-if="content.taskType === 'Test'">
-                      Test
+                      v-if="content.taskType === 'IA'">
+                      <a-tooltip title='Internal Assessment' placement='top'>IA</a-tooltip>
                     </div>
                   </div>
                 </div>
@@ -113,25 +108,6 @@
       <div class='action'>
         <template v-if='showButton'>
           <a-space :size='30'>
-            <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement'>
-              <div class='more-action'>
-                <more-icon />
-              </div>
-              <div class='content-item-more-action' slot='overlay'>
-                <div class='self-learning menu-item' v-if='content.type === typeMap.task'>
-                  Self learning
-                  <a-switch size='small' @change='handleSelfLearning' />
-                </div>
-                <div class='menu-item'>
-                  <custom-button label='Delete' @click='handleDeleteItem'>
-                    <template v-slot:icon>
-                      <delete-icon />
-                    </template>
-                  </custom-button>
-                </div>
-              </div>
-            </a-dropdown>
-
             <custom-button label='Preview' @click='handlePreviewDetail(content)'>
               <template v-slot:icon>
                 <preview-gray-icon />
@@ -561,15 +537,6 @@ export default {
     .task-type-activity {
       width: 70px;
       border-radius: 50px;
-    }
-
-    .task-type-examine {
-      width: 100px;
-      border-radius: 50px !important;
-    }
-    .task-type-test {
-      width: 40px;
-      border-radius: 50px !important;
     }
 
     .green-active-task-type {

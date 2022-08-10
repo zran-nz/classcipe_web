@@ -51,6 +51,9 @@
                         <a-tag class='task-type-tag blue-active-task-type' v-if="item.taskType.toLowerCase() === 'activity'">
                           {{ item.taskType }}
                         </a-tag>
+                        <a-tag class='task-type-tag blue-active-task-type' v-if="item.taskType.toLowerCase() === 'ia'">
+                          {{ item.taskType }}
+                        </a-tag>
                       </template>
                       <div class='downloaded-icon' v-if='item.isCreated'>
                         <a-tooltip placement="top" title='already saved in my content'>

@@ -6,13 +6,13 @@
     :rules="validatorRules"
     ref="form">
     <a-form-model-item v-if="needOld" label="Old Password" prop="password">
-      <a-input autocomplete="off" :required="true" type="password" v-model="formModel.password" placeholder="input password" />
+      <a-input-password autocomplete="off" :required="true" type="password" v-model="formModel.password" placeholder="input password" />
     </a-form-model-item >
     <a-form-model-item label="New Password" prop="newPassword">
-      <a-input autocomplete="off" type="password" v-model="formModel.newPassword" placeholder="input password" />
+      <a-input-password autocomplete="off" type="password" v-model="formModel.newPassword" placeholder="input password" />
     </a-form-model-item >
     <a-form-model-item label="Confirm Password" prop="confirmPassword">
-      <a-input autocomplete="off" type="password" v-model="formModel.confirmPassword" placeholder="input password" />
+      <a-input-password autocomplete="off" type="password" v-model="formModel.confirmPassword" placeholder="input password" />
     </a-form-model-item >
     <a-form-model-item :wrapperCol="{offset: 6, span: 12}" label="">
       <a-button :loading="loading" type="primary" @click="handleSave">update</a-button>
@@ -103,7 +103,7 @@ export default {
             }).then(res => {
               if (res.code === 0) {
                 this.$message.success('Update password successfully')
-                this.$emit('close')
+                // this.$emit('close')
               }
             }).finally(() => {
               this.loading = false
@@ -115,7 +115,7 @@ export default {
             }).then(res => {
               if (res.code === 0) {
                 this.$message.success('Update password successfully')
-                this.$emit('close')
+                // this.$emit('close')
               }
             }).finally(() => {
               this.loading = false

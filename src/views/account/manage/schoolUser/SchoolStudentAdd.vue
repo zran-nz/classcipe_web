@@ -27,7 +27,7 @@
           </a-col>
           <a-col :span="2" style="text-align: center;">
           </a-col>
-          <a-col :span="6" style="text-align: center;" v-if="!formModel.inviteEmail && !formModel.parentEmailStatus">
+          <a-col :span="6" style="text-align: center;" v-if="!origin.inviteEmail && !origin.parentEmailStatus">
             <a-button type="black" :loading="confirmLoading" @click="handleReset">Reset Password</a-button>
           </a-col>
         </a-row>
@@ -146,7 +146,11 @@
       width='600px'
       :footer="null"
     >
-      <reset-password :saveFn="doReset" @close="handleClose" :needOld="false"/>
+      <!-- <reset-password :saveFn="doReset" @close="handleClose" :needOld="false"/> -->
+      <a-space style="justify-content: center;width: 100%;">
+        <label for="" style="font-size: 20px;color: #15c39a;font-weight: bold;">{{ randomPass }}</label>
+        <a-icon type='copy' style="cursor:pointer;" @click="onCopy"></a-icon>
+      </a-space>
     </a-modal>
     <avatar-modal ref="avatarModal" @ok="setAvatar"/>
   </div>
@@ -163,7 +167,7 @@ import { SubmitBeforeMixin } from '@/mixins/SubmitBeforeMixin'
 import { AutoSaveLocalMixin } from '@/mixins/AutoSaveLocalMixin'
 
 import moment from 'moment'
-import { isEmail } from '@/utils/util'
+import { isEmail, randomString } from '@/utils/util'
 export default {
   name: 'SchoolStudentAdd',
   components: {
@@ -236,7 +240,8 @@ export default {
       confirmLoading: false,
       cacheKey: 'SUBMIT_VALIDATE_SCHOOL_STUDENT_',
       autoSaveLocalKey: 'FORM_SCHOOL_STUDENT_',
-      needAutoSave: !this.id
+      needAutoSave: !this.id,
+      randomPass: ''
     }
   },
   computed: {
@@ -430,7 +435,15 @@ export default {
       this.passwordVis = false
     },
     handleReset() {
-      this.passwordVis = true
+      this.randomPass = randomString(6)
+      resetUserPassword({
+        newPassword: this.randomPass,
+        userId: this.studentId
+      }).then(res => {
+        if (res.code === 0) {
+          this.passwordVis = true
+        }
+      })
       // this.$confirm({
       //   title: `Confirm Reset Password`,
       //   content: `Do you want to reset password?`,
@@ -478,6 +491,14 @@ export default {
         } else {
           console.log(valid)
         }
+      })
+    },
+    onCopy() {
+      this.$copyText(this.randomPass).then(message => {
+        this.$message.success('Copy success!')
+      }).catch(err => {
+        console.log('copy.err', err)
+        this.$message.error('Copy Failed')
       })
     }
   }

@@ -53,7 +53,7 @@
         >
           <div class="area-item-title">
             Subjects in {{ item.name }}
-            <a-checkbox :indeterminate="item.indeterminate" :checked="item.checkAll" @change="e => onCheckAllChange(e, index, choosed.id)">Select all
+            <a-checkbox :disabled="item.disabled" :indeterminate="item.indeterminate" :checked="item.checkAll" @change="e => onCheckAllChange(e, index, choosed.id)">Select all
             </a-checkbox>
           </div>
           <div class="area-item-check">
@@ -94,6 +94,10 @@ export default {
     school: {
       type: Object,
       default: () => {}
+    },
+    ibAuth: {
+      type: Object,
+      default: () => {}
     }
   },
   watch: {
@@ -111,6 +115,15 @@ export default {
         this.initSubject()
       },
       immediate: true
+    },
+    ibAuth: {
+      handler(val, valPrev) {
+        this.curriclulumAuth = val ? { ...val } : {}
+        console.log(this.curriclulumAuth)
+        this.setSelected()
+      },
+      immediate: true,
+      deep: true
     }
   },
   data() {
@@ -132,7 +145,8 @@ export default {
           ]
         }
       },
-      initResult: []
+      initResult: [],
+      curriclulumAuth: {}
     }
   },
   computed: {
@@ -171,10 +185,12 @@ export default {
                 indeterminate: false,
                 checkAll: false,
                 checkedList: [],
+                disabled: false,
                 data: item.children.map(child => {
                   return {
                     label: child.name,
-                    value: child.id
+                    value: child.id,
+                    disabled: false
                   }
                 })
               }
@@ -198,7 +214,7 @@ export default {
         }).then(res => {
           if (res.success && res.result) {
             this.initResult = res.result
-            this.setSelected(res.result.length === 0)
+            this.setSelected()
           }
         })
       }
@@ -210,25 +226,52 @@ export default {
     reset() {
       this.setSelected()
     },
-    // 默认全选
-    setSelected(isAll = false) {
+    setSelected() {
       // init from db
       if (this.initResult && this.initResult.length > 0) {
         for (const curriculumId in this.totalResult) {
-          const selectedFromDb = this.initResult.find(item => item.curriculumId === curriculumId)
-          if (selectedFromDb) {
-            this.totalResult[curriculumId].currentSelected = selectedFromDb.subjectList.map(item => item.subjectId)
+          if (!this.curriclulumAuth[curriculumId] || this.curriclulumAuth[curriculumId].status === 2) {
+            const selectedFromDb = this.initResult.find(item => item.curriculumId === curriculumId)
+            if (selectedFromDb && selectedFromDb.subjectList.length > 0) {
+              this.totalResult[curriculumId].currentSelected = selectedFromDb.subjectList.map(item => item.subjectId)
+            } else {
+              // 默认全选
+              const current = this.totalResult[curriculumId]
+              let currentSelected = []
+              current.result.forEach(item => {
+                if (item.children && item.children.length > 0) {
+                  currentSelected = currentSelected.concat(item.children.map(_ => _.id))
+                }
+              })
+              current.currentSelected = currentSelected
+            }
+          }
+        }
+      } else {
+        // 默认全选
+        for (const curriculumId in this.totalResult) {
+          if (!this.curriclulumAuth[curriculumId] || this.curriclulumAuth[curriculumId].status === 2) {
+            const current = this.totalResult[curriculumId]
+            let currentSelected = []
+            current.result.forEach(item => {
+              if (item.children && item.children.length > 0) {
+                currentSelected = currentSelected.concat(item.children.map(_ => _.id))
+              }
+            })
+            current.currentSelected = currentSelected
           }
         }
       }
       for (const curriculumId in this.totalResult) {
         if (curriculumId === '-1') continue
+        const isDisabled = this.curriclulumAuth[curriculumId] && this.curriclulumAuth[curriculumId].status !== 2
         const current = this.totalResult[curriculumId]
         current.selected = []
         current.result = current.result.map(item => {
           let checkedList = []
           let indeterminate = false
           let checkAll = false
+          console.log(item)
           if (item.children && item.children.length > 0) {
             // 原始的
             checkedList = item.children.filter(child => {
@@ -247,9 +290,14 @@ export default {
           }
           return {
             ...item,
+            data: item.data.map(child => ({
+              ...child,
+              disabled: isDisabled
+            })),
             indeterminate: indeterminate,
             checkAll: checkAll,
-            checkedList: checkedList
+            checkedList: checkedList,
+            disabled: isDisabled
           }
         })
       }

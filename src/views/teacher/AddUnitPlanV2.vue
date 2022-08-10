@@ -210,6 +210,7 @@
                       :placeholder="unitLabelHint(planField.Inquiry, $store.getters.formConfigData)"
                       :auto-size="{ minRows: 2, maxRows: 6 }"
                       class='cc-form-textarea'
+                      v-selectPopover="['ideaKeywords', setIdeaKeywords, 'inquiryKeywords', false]"
                       @change="handleCollaborateEvent(unitPlanId,planField.Inquiry,form.inquiry)"
                       :disabled="!canEdit" />
                   </custom-form-item>
@@ -218,6 +219,35 @@
                       <a-icon theme='twoTone' twoToneColor='rgba(21, 195, 154, 1)' type='appstore' />
                     </span>
                   </a-tooltip>
+                </div>
+
+                <div
+                  id='inquiry-keyword'
+                  class='form-block tag-content-block'
+                  v-if="fieldItem.visible && fieldItem.fieldName === planField.Inquiry"
+                  :key='fieldItem.fieldName + "keyword"'>
+                  <custom-form-item :required='false'>
+                    <template slot='label'>
+                      {{ 'Key words' }}
+                    </template>
+                    <template slot='action'>
+                    </template>
+                    <template slot='tips'>
+                      <a-tooltip title="Set key words by selecting the words" placement='top'>
+                        <a-icon type="info-circle" />
+                      </a-tooltip>
+                    </template>
+                    <div class="inquiry-keyword-con" v-if="form.inquiryKeywords">
+                      <div
+                        class="inquiry-keyword-item"
+                        v-for="(tag, tagIndex) in form.inquiryKeywords"
+                        :key="'inquery_keyword_'+tagIndex"
+                      >
+                        <a-tag color="#a5a5a5" :closable="true" @close="e => handleRmInquiryKey(form, 'inquiryKeywords', tagIndex)">{{ tag }}</a-tag>
+                      </div>
+                    </div>
+                    <div v-else style="font-size: 12px;color: #666;">No data</div>
+                  </custom-form-item>
                 </div>
 
                 <div
@@ -693,7 +723,7 @@
       :footer='null'
       destroyOnClose
       title='Browse big idea'
-      width='70%'
+      width='700px'
       @cancel='selectBigIdeaDataVisible = false'
       @ok='selectBigIdeaDataVisible = false'>
       <div class='link-content-wrapper'>
@@ -713,6 +743,15 @@
         </div>
       </div>
     </a-modal>
+
+    <div v-clickOutside id="ideaKeywords" ref="quickModal" v-show="false">
+      <a-space class="quick-keyword-con">
+        <label>Set </label>
+        <label>{{ inquiryKeywords }}</label>
+        <label> as </label>
+        <a-button type="black" @click="handleInquiryKeySet('inquiryKeywords')">keywords</a-button>
+      </a-space>
+    </div>
 
     <a-skeleton :loading='contentLoading' active>
     </a-skeleton>
@@ -913,7 +952,8 @@ export default {
         gradeId: undefined,
         prior: '',
         createBy: null,
-        customFieldData: null
+        customFieldData: null,
+        inquiryKeywords: []
       },
       rangeDate: [],
       uploading: false,
@@ -1014,7 +1054,8 @@ export default {
       fullBodyFields: ['learnOuts'],
       selectBigIdeaDataVisible: false,
       priorityTags: [],
-      readonlyTagCategoryDescList: []
+      readonlyTagCategoryDescList: [],
+      inquiryKeywords: []
     }
   },
   watch: {
@@ -1036,6 +1077,7 @@ export default {
       this.findQuestionsByBigIdea(value)
       // 重新load recommend
       this.loadBigIdeaLearnOuts()
+      // this.form.inquiryKeywords = []
     },
     currentStep: {
       handler(val) {
@@ -1859,11 +1901,32 @@ export default {
         this.$message.error('Please select a big idea')
         return
       }
-      this.form.inquiry = this.selectNewBigIdea
+      this.form.inquiry = this.selectNewBigIdea.inquiry
+      this.form.inquiryKeywords = this.selectNewBigIdea.inquiryKeywords
       this.selectBigIdeaDataVisible = false
     },
     handleSelectBigIdeaData(data) {
       this.selectNewBigIdea = data
+    },
+    setIdeaKeywords(currentChoose, key) {
+      // const keywords = (this.form[key] || '').split(',')
+      // keywords.push(currentChoose)
+      // this[key] = Array.from(new Set(keywords)).join(',')
+      this[key] = currentChoose
+    },
+    handleInquiryKeySet(key) {
+      setTimeout(() => {
+        this.$refs.quickModal.style.display = 'none'
+        this[key] = ''
+      }, 200)
+      const keywords = this.form[key] ? this.form[key] : []
+      keywords.push(this[key])
+      this.$set(this.form, key, Array.from(new Set(keywords)))
+    },
+    handleRmInquiryKey(item, key, tagIndex) {
+      const keywords = item[key] ? item[key] : []
+      keywords.splice(tagIndex, 1)
+      this.$set(item, key, keywords)
     }
   }
 }
@@ -2699,6 +2762,22 @@ code {
     right: 10px;
     top: 5px;
     cursor: pointer;
+  }
+}
+.quick-keyword-con {
+  border: 1px solid #dfdfdf;
+  background: #fff;
+  padding: 5px 10px;
+  // width: 330px;
+}
+.inquiry-keyword-con {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  .inquiry-keyword-item {
+    margin: 3px;
+    display: flex;
+    align-items: center;
   }
 }
 </style>

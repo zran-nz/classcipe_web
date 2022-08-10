@@ -27,10 +27,10 @@
             >
             </content-item-calendar>
           </div>
-          <div v-else style="font-size: 70px;max-width: 1300px;">
+          <div v-else style="font-size: 70px;max-width: 650px;">
             <liveworkshop-item
               @close="closeAllModal"
-              :need-unit-plan="true"
+              :is-simple="true"
               :content="getWorkshopItem(info)"/>
           </div>
         </a-spin>
@@ -45,8 +45,19 @@
         <span v-show="info.view.type === 'dayGridMonth'" style="margin-right: 5px;">
           {{ info.event.start | dayjs(FORMATTER_SIM) }}
         </span>
-        <label v-if="info.view.type !== 'timeGridFourDay'" for="">{{ info.event.title }} </label>
-        <label v-else for=""> {{ info.event.title }} </label>
+        <label
+          v-if="info.view.type === 'timeGridWeek'"
+          style=" display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;"
+          for="">{{ info.event.title }} </label>
+        <label v-if="info.view.type !== 'timeGridWeek'"> {{ info.event.title }} </label>
+        <a-space v-if="info.event.extendedProps.userRealName && info.view.type === 'timeGridWeek'" class="user-avatar">
+          <img v-if="info.event.extendedProps.userAvatar" :src="info.event.extendedProps.userAvatar" alt="">
+          <img v-else src="~@/assets/icons/library/default-avatar.png"/>
+          <label for="">{{ info.event.extendedProps.userRealName }}</label>
+        </a-space>
       </div>
     </a-popover>
     <a-popover
@@ -316,6 +327,13 @@ export default {
   }
   button {
     width: 60px;
+  }
+}
+.user-avatar {
+  img {
+    width: 20px;
+    height: 20px;
+    border-radius: 20px;
   }
 }
 </style>

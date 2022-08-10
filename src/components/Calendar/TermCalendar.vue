@@ -26,7 +26,7 @@
               :style="{backgroundColor: info.event.extendedProps.backgroundColor, color: '#333', minHeight: '20px', lineHeight: 1}"
             >
               <div>
-                {{ info.event.start | dayjs(FORMATTER_SIM) }}-{{ info.event.end | dayjs(FORMATTER_SIM) }}
+                {{ moment(info.event.start).format(FORMATTER_SIM) }}-{{ moment(info.event.end).format(FORMATTER_SIM) }}
               </div>
             </div>
           </template>
@@ -80,6 +80,7 @@ export default {
   data() {
     return {
       BG_COLORS: BG_COLORS,
+      moment: moment,
       FORMATTER_SIM: 'h:mma',
       id: this.termId,
       loading: false,
@@ -182,14 +183,14 @@ export default {
                 minDateLabel = item.start
               }
             })
-            this.minDate = moment.utc('2000-01-01 ' + minDateLabel + ':00').local().format('HH:mm')
+            this.minDate = moment('2000-01-01 ' + minDateLabel + ':00').format('HH:mm')
             // 给每天都设置block
             let events = []
             let current = moment(date.start).subtract(1, 'day')
             while (moment(date.end).isAfter(current)) {
               events = events.concat(filterRes.blockSettings.map((item, index) => ({
-                start: this.$options.filters['dayjs'](moment(current).format('YYYY-MM-DD') + ' ' + item.start + ':00'),
-                end: this.$options.filters['dayjs'](moment(current).format('YYYY-MM-DD') + ' ' + item.end + ':00'),
+                start: moment(current).format('YYYY-MM-DD') + ' ' + item.start + ':00',
+                end: moment(current).format('YYYY-MM-DD') + ' ' + item.end + ':00',
                 name: item.name,
                 color: BG_COLORS[index],
                 // backgroundColor: 'transparent',
@@ -225,11 +226,11 @@ export default {
               const choosedBlock = this.current.split(',').map(time => {
                 const timeArr = time.split('~')
                 if (timeArr.length === 2) {
-                  const start = moment.utc(timeArr[0]).local()
+                  const start = moment(timeArr[0])
                   const startTime = start.format('HH:mm:ss')
                   const startDay = findDay(start.format('dddd'))
 
-                  const end = moment.utc(timeArr[1]).local()
+                  const end = moment(timeArr[1])
                   const endTime = end.format('HH:mm:ss')
                   const endDay = findDay(end.format('dddd'))
 
@@ -252,7 +253,7 @@ export default {
                     eventType: 'selectDate',
                     backgroundColor: '#3688d8',
                     // 存储星期
-                    val: moment(date[0]).utc().format('YYYY-MM-DD HH:mm:ss') + '~' + moment(date[1]).utc().format('YYYY-MM-DD HH:mm:ss')
+                    val: moment(date[0]).format('YYYY-MM-DD HH:mm:ss') + '~' + moment(date[1]).format('YYYY-MM-DD HH:mm:ss')
                   }
                 }
               }))
@@ -350,8 +351,8 @@ export default {
       }
       if (this.$refs.fullCalendar) {
           const calendarApi = this.$refs.fullCalendar.getApi()
-          const trueStart = moment(start).utc()
-          const trueEnd = moment(end).utc()
+          const trueStart = moment(start)
+          const trueEnd = moment(end)
           const selectDateEvent = {
             title: 'DateSelect',
             start: start,

@@ -281,7 +281,7 @@ export default {
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize,
         searchKey: this.filterParams ? this.filterParams.searchKey : null,
-        types: [ this.$classcipe.typeMap.task ],
+        types: [ this.$classcipe.typeMap.task, this.$classcipe.typeMap.pd ],
         delFlag: 0,
         schoolId: this.school
       }
@@ -312,7 +312,7 @@ export default {
       this.searching = true
       let params = {
         searchKey: this.filterParams ? this.filterParams.searchKey : null,
-        types: [ this.$classcipe.typeMap.task ],
+        types: [ this.$classcipe.typeMap.task, this.$classcipe.typeMap.pd ],
         schoolId: schoolId || 0,
         currentId: this.sourceId
       }

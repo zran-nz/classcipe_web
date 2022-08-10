@@ -137,6 +137,7 @@ import AvatarModal from '@/views/account/settings/AvatarModal'
 
 import { listClass } from '@/api/v2/schoolClass'
 import { getSchoolUsers } from '@/api/v2/schoolUser'
+import { SwitchUserModeSchool } from '@/api/user'
 
 import SchoolInfoPng from '@/assets/icons/account/schoolInfo.png?inline'
 import AcademicPng from '@/assets/icons/account/academic.png?inline'
@@ -156,9 +157,9 @@ import PayoutsPng from '@/assets/icons/account/payouts.png?inline'
 import CertifiedPng from '@/assets/icons/account/certified.png?inline'
 import PersonaPng from '@/assets/icons/account/persona.png?inline'
 
-import { HIDDEN_SIDEBAR } from '@/store/mutation-types'
+import { HIDDEN_SIDEBAR, TOOGLE_USER_MODE } from '@/store/mutation-types'
 
-import { mapState, mapMutations } from 'vuex'
+import { mapState, mapMutations, mapActions } from 'vuex'
 import { SendVerifyLink } from '@/api/login'
 import moment from 'moment'
 
@@ -189,6 +190,15 @@ export default {
       teacherCount: 0,
       studentCount: 0,
       sendLoading: false
+    }
+  },
+  watch: {
+    '$route.path' (to) {
+      console.log(to)
+      const query = this.$route.query
+      if (query.schoolId) {
+        this.autoSwitchSchool(query.schoolId)
+      }
     }
   },
   computed: {
@@ -399,11 +409,16 @@ export default {
     }
   },
   created() {
+    const query = this.$route.query
+    if (query.schoolId) {
+      this.autoSwitchSchool(query.schoolId)
+    }
     this.loadData()
     this[HIDDEN_SIDEBAR](true)
   },
   methods: {
-    ...mapMutations([HIDDEN_SIDEBAR]),
+    ...mapMutations([HIDDEN_SIDEBAR, TOOGLE_USER_MODE]),
+    ...mapActions(['GetClassList']),
     handleSchoolChange(currentSchool) {
       this.pageNo = 1
       this.loadData()
@@ -536,6 +551,20 @@ export default {
         this.$router.push({ path: '/manage/persona/space' })
       } else {
         this.$router.push({ path: '/manage/school/space' })
+      }
+    },
+    autoSwitchSchool(schoolId) {
+      const isExist = this.info.schoolList.find(item => item.id === schoolId)
+      if (isExist) {
+        SwitchUserModeSchool({
+          isPersonal: false,
+          schoolId: isExist.id
+        }).then(res => {
+          // 获取对应学校班级
+          this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
+          this.GetClassList(isExist.id)
+          this.$store.dispatch('GetInfo')
+        })
       }
     }
   }

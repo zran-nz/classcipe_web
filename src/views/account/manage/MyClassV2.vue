@@ -118,11 +118,11 @@
                         </div>
                       </div>
                       <div class="class-opt" v-if="!cls.isNew">
-                        <a-dropdown :getPopupContainer="trigger => trigger.parentElement">
+                        <a-dropdown :getPopupContainer="trigger => trigger.parentElement" v-if="!(USER_MODE.SELF && isLastClass)">
                           <a-icon type="more" />
                           <a-menu slot="overlay">
                             <template v-if="currentTab !== 'archive'">
-                              <a-menu-item>
+                              <a-menu-item v-if="userMode === USER_MODE.SCHOOL">
                                 <a href="javascript:;" @click="handleImport(cls)">Import students</a>
                               </a-menu-item>
                               <a-menu-item v-if="userMode === USER_MODE.SCHOOL">
@@ -131,7 +131,7 @@
                               <!-- <a-menu-item v-if="cls.classType === 1">
                                 <a href="javascript:;" @click="handleEditSubjectClass(cls)">Edit</a>
                               </a-menu-item> -->
-                              <a-menu-item>
+                              <a-menu-item v-if="userMode === USER_MODE.SCHOOL || !isLastClass">
                                 <a href="javascript:;" @click="handleArchive(cls)">Archive</a>
                               </a-menu-item>
                             </template>
@@ -234,7 +234,7 @@ export default {
         keywords: ''
       },
       datas: [],
-      debounceInit: null,
+      debounceLoad: null,
       delLoading: false,
       selVis: false,
       gradeIdInfos: [], // 先创建grade再创建class
@@ -251,6 +251,14 @@ export default {
     }
   },
   created() {
+    if (this.$route.query) {
+      if (this.$route.query.tab) {
+        const find = this.tabsList.find(item => item.value + '' === this.$route.query.tab + '')
+        if (find) {
+          this.currentTab = find.value
+        }
+      }
+    }
     this.initDict()
     this.loadData()
     this.debounceLoad = debounce(this.loadData, 300)
@@ -271,16 +279,30 @@ export default {
     tabsList() {
       return [{
           value: 'gradeId',
-          title: 'Standard'
+          title: 'Standard',
+          index: 0
       },
       ...this.userMode === USER_MODE.SCHOOL ? [{
           value: 'subject',
-          title: 'Subject'
+          title: 'Subject',
+          index: 1
       }] : [],
       {
           value: 'archive',
-          title: 'Archive'
+          title: 'Archive',
+          index: 2
       }]
+    },
+    isLastClass() {
+      const clsLen = this.allDatas[this.currentTab].map(item => item.classes.length)
+      let len = 0
+      clsLen.forEach(item => {
+        len += item
+      })
+      if (len === 1) {
+        return true
+      }
+      return false
     }
   },
   methods: {
@@ -290,13 +312,13 @@ export default {
     handleSchoolChange(currentSchool) {
       if (this.userMode === USER_MODE.SCHOOL) {
         this.initDict()
-        this.debounceInit()
+        this.debounceLoad()
       }
     },
     handleModeChange(userMode) {
       // 模式切换，个人还是学校 个人接口
       this.initDict()
-      this.debounceInit()
+      this.debounceLoad()
     },
     doFocus(e) {
       e.target.focus()
@@ -393,7 +415,7 @@ export default {
       console.log(this.allDatas[this.currentTab])
     },
     loadData() {
-      const queryType = this.tabsList.findIndex(item => item.value === this.currentTab)
+      const queryType = this.tabsList.find(item => item.value === this.currentTab).index
       this.loading = true
       listClass({
         queryType: queryType,
@@ -441,6 +463,9 @@ export default {
     },
     toggleTab(status) {
       this.currentTab = status
+      this.$router.replace({
+        path: '/manage/class?tab=' + this.currentTab
+      })
       this.debounceLoad()
     },
     handleBlurClick(cls) {
@@ -473,7 +498,9 @@ export default {
             focusDom = newAdd[newAdd.length - 1]
           }
         })
-        document.getElementById(focusDom.key).scrollIntoView({ behavior: 'smooth' })
+        if (focusDom) {
+          document.getElementById(focusDom.key).scrollIntoView({ behavior: 'smooth' })
+        }
       })
     },
     addGradeClass(view) {
@@ -556,6 +583,7 @@ export default {
               this.allDatas.gradeId.splice(index, 1)
               this.selectedGrades = this.allDatas.gradeId.map(item => item.id)
               this.totalClass = this.totalClass.filter(item => item.gradeId !== view.id)
+              this.$store.dispatch('GetInfo')
             }
           }).finally(() => {
             this.loading = false
@@ -564,57 +592,53 @@ export default {
       })
     },
     handleAddSubjectClass() {
-      this.$refs.classSubject.doCreate({})
+      this.$router.push({
+        path: '/manage/class/subject/'
+      })
+      // this.$refs.classSubject.doCreate({})
     },
     handleEditSubjectClass(cls) {
-      this.$refs.classSubject.doEdit({ ...cls })
+      this.$router.push({
+        path: '/manage/class/subject/' + cls.id
+      })
+      // this.$refs.classSubject.doEdit({ ...cls })
     },
     addSubjectClass(cls) {
       console.log(cls)
       this.loading = true
-      if (this.userMode === USER_MODE.SELF) {
-        cls.userId = this.info.id
-        cls.classMode = 2
-      } else {
-        cls.classMode = 1
+      const subject = this.subjectInfos.find(item => item.id === cls.subject)
+      if (!subject) {
+        this.subjectInfos.push({
+          id: cls.subject,
+          name: cls.subjectName
+        })
       }
-      saveClass(cls).then(res => {
-        if (res.success && res.code === 0) {
-          const subject = this.subjectInfos.find(item => item.id === cls.subject)
-          if (!subject) {
-            this.subjectInfos.push({
-              id: cls.subject,
-              name: cls.subjectName
-            })
-          }
-          const findDatas = this.allDatas.subject.find(item => item.id === cls.subject)
-          if (!findDatas) {
-            this.allDatas.subject.push({
-              id: cls.subject,
-              name: cls.subjectName,
-              classes: [{
-                ...cls,
-                key: new Date().getTime() + Math.random(),
-                changeName: cls.name,
-                isNew: false,
-                isEdit: false
-              }]
-            })
-          } else {
-            findDatas.classes.push({
-              ...cls,
-              changeName: cls.name,
-              key: new Date().getTime() + Math.random(),
-              isNew: false,
-              isEdit: false
-            })
-          }
-        }
-      }).finally(() => {
-        this.loading = false
-      })
+      const findDatas = this.allDatas.subject.find(item => item.id === cls.subject)
+      if (!findDatas) {
+        this.allDatas.subject.push({
+          id: cls.subject,
+          name: cls.subjectName,
+          classes: [{
+            ...cls,
+            key: new Date().getTime() + Math.random(),
+            changeName: cls.name,
+            isNew: false,
+            isEdit: false
+          }]
+        })
+      } else {
+        findDatas.classes.push({
+          ...cls,
+          changeName: cls.name,
+          key: new Date().getTime() + Math.random(),
+          isNew: false,
+          isEdit: false
+        })
+      }
+      this.loading = false
     },
     handleImport(cls) {
+      if (this.userMode === USER_MODE.SELF) return
       this.$refs.studentImport.doCreate({
         classId: cls.id,
         className: cls.name,
@@ -622,6 +646,7 @@ export default {
       })
     },
     handleEditStudents(cls) {
+      if (this.userMode === USER_MODE.SELF) return
       if (this.currentTab === 'archive') {
         return
       }
@@ -658,6 +683,12 @@ export default {
       }
     },
     handleArchive(cls) {
+      const group = this.allDatas[this.currentTab].find(item => item.id === cls[this.currentTab])
+      console.log(group)
+      if (this.userMode === USER_MODE.SELF && group && group.classes && group.classes.length === 1) {
+        this.$message.error('You must keep a class')
+        return
+      }
       const msg = cls.classType === 0 ? 'The students of this class will also be archived once this class is archived, please switch the students to other standard class if you want to keep them' : 'Are you sure you want to archive this class?'
       this.$confirm({
         title: 'Confirm archive class ' + cls.name,
@@ -669,19 +700,21 @@ export default {
             ids: cls.id
           }).then(res => {
             if (res.success && res.code === 0) {
+              this.$store.dispatch('GetInfo')
+              this.debounceLoad()
               this.$message.success('Archive successfully')
-              const group = this.allDatas[this.currentTab].find(item => item.id === cls[this.currentTab])
-              if (group && group.classes) {
-                if (group.classes.length > 1) {
-                  const index = group.classes.findIndex(item => item.id === cls.id)
-                  group.classes.splice(index, 1)
-                } else {
-                  // group.classes = []
-                  const groupIndex = this.allDatas[this.currentTab].findIndex(item => item.id === cls[this.currentTab])
-                  this.allDatas[this.currentTab].splice(groupIndex, 1)
-                  this.selectedGrades = this.allDatas.gradeId.map(item => item.id)
-                }
-              }
+              // const group = this.allDatas[this.currentTab].find(item => item.id === cls[this.currentTab])
+              // if (group && group.classes) {
+              //   if (group.classes.length > 1) {
+              //     const index = group.classes.findIndex(item => item.id === cls.id)
+              //     group.classes.splice(index, 1)
+              //   } else {
+              //     // group.classes = []
+              //     const groupIndex = this.allDatas[this.currentTab].findIndex(item => item.id === cls[this.currentTab])
+              //     this.allDatas[this.currentTab].splice(groupIndex, 1)
+              //     this.selectedGrades = this.allDatas.gradeId.map(item => item.id)
+              //   }
+              // }
             }
           }).finally(() => {
             this.loading = false
@@ -724,6 +757,7 @@ export default {
       }).then(res => {
         if (res.success && res.code === 0) {
           this.$message.success('Restore successfully')
+          this.$store.dispatch('GetInfo')
           this.debounceLoad()
         } else {
           this.loading = false
@@ -754,6 +788,7 @@ export default {
           }).then(res => {
             if (res.code === 0) {
               this.$message.success('Delete successfully')
+              this.$store.dispatch('GetInfo')
               this.debounceLoad()
             } else {
               this.loading = false

@@ -123,7 +123,7 @@ export default {
       remoteEmails: [],
       remoteParentEmails: [],
       datas: [],
-      dataKey: ['firstName', 'lastName', 'inviteEmail', 'birthDay', 'classes', 'parentFirstName', 'parentLastName', 'parentEmail', 'parentPhone'],
+      dataKey: ['firstName', 'lastName', 'inviteEmail', 'birthDay', 'parentFirstName', 'parentLastName', 'parentEmail', 'parentPhone'],
       columns: [
         {
           title: 'First Name',

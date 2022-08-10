@@ -2,7 +2,7 @@
   <div class='my-content'>
     <div class='content-header'>
       <div class='source-type' :style="{visibility: WORK_SHOPS_TYPE.FEATURE.value !== queryParams.workshopsType ? 'visible' : 'hidden'}">
-        <radio-switch @select="handleSelectWorkStatus" :menu-list='menuList' />
+        <radio-switch @select="handleSelectWorkStatus" :menu-list='menuList' :default-selected-item="getSelectItem"/>
       </div>
       <div class='create-new'>
         <a-space>
@@ -91,7 +91,12 @@ import CreateNew from '@/components/MyContentV2/CreateNew'
 import ContentFilter from '@/components/MyContentV2/ContentFilter'
 import RadioSwitch from '@/components/Common/RadioSwitch'
 import * as logger from '@/utils/logger'
-import { SESSION_CURRENT_PAGE, WORK_SHOPS_STATUS, WORK_SHOPS_TYPE } from '@/const/common'
+import {
+  SESSION_CLASS_TYPE,
+  SESSION_CURRENT_PAGE,
+  WORK_SHOPS_STATUS,
+  WORK_SHOPS_TYPE
+} from '@/const/common'
 import { typeMap } from '@/const/teacher'
 import ContentItem from '@/components/ClassSession/ContentItem'
 import ContentSelect from '@/components/MyContentV2/ContentSelect'
@@ -110,6 +115,7 @@ import { ACCESS_TOKEN } from '@/store/mutation-types'
 import OldSessionList from '@/components/Teacher/OldSessionList'
 import moment from 'moment'
 import { AddOrUpdateClass, StartOpenSession } from '@/api/classroom'
+import { SourceType } from '@/components/MyContentV2/Constant'
 
 export default {
   name: 'ClassSession',
@@ -191,6 +197,16 @@ export default {
       sessionList: [],
       startLoading: false,
       classStatus: lessonStatus
+    }
+  },
+  computed: {
+    getSelectItem() {
+      const shareType = sessionStorage.getItem(SESSION_CLASS_TYPE) ? parseInt(sessionStorage.getItem(SESSION_CLASS_TYPE)) : SourceType.CreatedByMe
+      const index = this.menuList.findIndex(item => item.type === shareType)
+      if (index > -1) {
+        return this.menuList[index]
+      }
+      return this.menuList[0]
     }
   },
   created() {
@@ -284,6 +300,7 @@ export default {
     },
 
     handleSelectWorkStatus (item) {
+      sessionStorage.setItem(SESSION_CLASS_TYPE, item.type)
       this.queryParams.status = item.type
       this.loadMyContent()
     },

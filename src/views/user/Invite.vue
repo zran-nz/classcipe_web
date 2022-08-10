@@ -3,9 +3,22 @@
     <a-spin :spinning="checkLoading">
       <div v-if="!invalid && !checkLoading">
         <div class="title">
-          You have been invited to join <span>{{ schoolName }}</span> community
+          {{ labelTxt }}
         </div>
-        <a-button type="primary" block :loading="loading" size="large" @click="handleBtn">{{ btnText }}</a-button>
+        <a-button
+          v-if="!alreayApply"
+          type="primary"
+          block
+          :loading="loading"
+          size="large"
+          @click="handleBtn">{{ btnText }}</a-button>
+        <a-button
+          v-else
+          type="primary"
+          block
+          :loading="loading"
+          size="large"
+          @click="goHome">Go Home</a-button>
       </div>
       <div v-if="invalid" class="title">
         <img src="~@/assets/icons/invite/invalidLink.png" class="no-result" alt="" />
@@ -37,6 +50,9 @@ export default {
       btnText: '',
       invalid: false,
       isAdmin: false,
+      isTeacher: false,
+      alreayApply: false,
+      labelTxt: '',
       roleMap: {
         2: 'teacher',
         4: 'student'
@@ -74,6 +90,8 @@ export default {
           this.schoolId = res?.result?.schoolId
           this.schoolName = res?.result?.schoolName
           this.btnText = res?.result?.approveFlag ? 'Apply' : 'Join'
+          this.isTeacher = res?.result?.role === 2
+          this.labelTxt = `You have been invited to join ${this.schoolName} community`
           // 判断用户是否已经邀请了
           const existSchools = this.info.schoolList.find(item => item.id === res?.result?.schoolId)
           if (existSchools) {
@@ -82,7 +100,10 @@ export default {
                 this.doRedirect()
               }
             } else {
-              this.doRedirect()
+              if (this.isTeacher) {
+
+              }
+              // this.doRedirect()
             }
           }
         }
@@ -98,12 +119,21 @@ export default {
       if (res.success && res.code === 0) {
         this.$message.success(res.message)
         this.$store.dispatch('GetInfo').then(() => {
-          this.doRedirect()
+          // this.doRedirect()
+          if (this.btnText === 'Join') {
+            this.doRedirect()
+          } else if (this.isTeacher) {
+            this.alreayApply = true
+            this.labelTxt = 'Application received, please wait for admin to approve.'
+          }
         })
       } else {
         this.$message.error(res.message)
       }
       this.loading = false
+    },
+    goHome() {
+      this.$router.push(this.$store.getters.defaultRouter)
     },
     doRedirect() {
       // 如果邀请为管理，则直接跳转到学校的的info界面
@@ -114,7 +144,7 @@ export default {
       //   }).then(res => {
       //     // 获取对应学校班级
       //     this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
-      //     this.GetClassList(this.userMode)
+      //     this.GetClassList(this.schoolId)
       //     this.$store.dispatch('GetInfo').then(() => {
       //       this.$router.push('/manage/school-info')
       //     })
@@ -128,7 +158,7 @@ export default {
         }).then(res => {
           // 获取对应学校班级
           this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
-          this.GetClassList(this.userMode)
+          this.GetClassList(this.currentSchool.id)
           this.$store.dispatch('GetInfo').then(() => {
             if (this.isAdmin) {
               this.$router.push('/manage/school-info')

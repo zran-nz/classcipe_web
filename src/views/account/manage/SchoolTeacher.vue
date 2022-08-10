@@ -80,7 +80,7 @@
               <img src="~@/assets/icons/library/default-avatar.png" alt="" v-else>
             </div>
             <div class="user-detail">
-              <label for="">{{ record.firstname + record.lastname }}</label>
+              <label for="">{{ record.firstname }} {{ record.lastname }}</label>
               <label for="">{{ record.email }}<span v-if="isSelfEmail(record.email)"> (Me)</span></label>
             </div>
           </div>

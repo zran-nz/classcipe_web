@@ -129,11 +129,13 @@
                       <div class='self-field-label'>
                         <div
                           :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}"
-                          @click="handleSelectTaskType('FA')">FA
+                          @click="handleSelectTaskType('FA')">
+                          <a-tooltip title='Formative Assessment' placement='top'>FA</a-tooltip>
                         </div>
                         <div
                           :class="{'task-type-item': true, 'red-active-task-type': form.taskType === 'SA'}"
-                          @click="handleSelectTaskType('SA')">SA
+                          @click="handleSelectTaskType('SA')">
+                          <a-tooltip title='Summative Assessment' placement='top'>SA</a-tooltip>
                         </div>
                         <div
                           :class="{'task-type-item': true, 'task-type-activity': true,'blue-active-task-type': form.taskType === 'Activity'}"
@@ -141,12 +143,9 @@
                           <a-tooltip title='Teaching/Learning Activity' placement='top'>Activity</a-tooltip>
                         </div>
                         <div
-                          :class="{'task-type-item': true, 'task-type-examine': true,'blue-active-task-type': form.taskType === 'FinalExamine'}"
-                          @click="handleSelectTaskType('FinalExamine')">FinalExamine
-                        </div>
-                        <div
-                          :class="{'task-type-item': true,'task-type-test': true, 'red-active-task-type': form.taskType === 'Test'}"
-                          @click="handleSelectTaskType('Test')">Test
+                          :class="{'task-type-item': true,'blue-active-task-type': form.taskType === 'IA'}"
+                          @click="handleSelectTaskType('IA')">
+                          <a-tooltip title='Internal Assessment' placement='top'>IA</a-tooltip>
                         </div>
                       </div>
                     </div>
@@ -1106,8 +1105,8 @@ export default {
             // this.form.slideEditing = true
             this.form.presentationId = response.result.presentationId
             this.$message.success('Created Successfully in Google Slides')
-            // this.loadThumbnail(false)
-            // window.open('https://docs.google.com/presentation/d/' + this.form.presentationId, '_blank')
+            await this.save()
+            await this.updateSlideEditing()
             window.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId
           }
         } finally {
@@ -1162,10 +1161,9 @@ export default {
           // fake_buy_处理library bug后没有实际上copy ppt的情况
           if (this.form.presentationId && !this.form.presentationId.startsWith('fake_buy_')) {
             // 设置正在编辑状态，my content根据这个提示是否先save再排课
-            this.form.slideEditing = true
-            const res = await this.save()
+            await this.save()
+            const res = await this.updateSlideEditing()
             if (res.code === 0) {
-              // window.open('https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit', '_blank')
               window.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit'
             } else if (res.code === 520 || res.code === 403) {
               this.$logger.info('等待授权回调')
@@ -2756,7 +2754,7 @@ export default {
   justify-content: flex-start;
 
   .self-field-label {
-    width: 330px;
+    width: 240px;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -2764,6 +2762,7 @@ export default {
 
     .task-type-item {
       margin-right: 10px;
+      padding: 0 10px;
       width: 33px;
       height: 33px;
       border-radius: 33px;
@@ -2778,15 +2777,6 @@ export default {
     .task-type-activity {
       width: 70px;
       border-radius: 50px;
-    }
-
-    .task-type-examine {
-      width: 100px;
-      border-radius: 50px;
-    }
-    .task-type-test {
-      width: 50px;
-      border-radius: 40px;
     }
 
     .green-active-task-type {
@@ -3371,6 +3361,7 @@ export default {
 
     .img-list {
       margin-right: -10px;
+      padding: 0 10px;
       cursor: pointer;
       display: flex;
       flex-direction: row;
