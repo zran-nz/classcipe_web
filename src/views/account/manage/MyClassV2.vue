@@ -69,8 +69,12 @@
               <div class="view-item-title">
                 <label for="">{{ view.name || formatViewName(view.id) }}</label>
                 <a-space class="view-item-opt" v-if="currentTab === 'gradeId'">
-                  <a-button type="primary" @click="addGradeClass(view)" icon="plus-circle">Add</a-button>
-                  <a-button v-if="!(USER_MODE.SELF && isLastClass)" @click="deleteGrade(view, index)">Delete</a-button>
+                  <a-button type="primary" v-if="isNotLimit" @click="addGradeClass(view)" icon="plus-circle">Add</a-button>
+                  <a-popover v-else title="Upgrading reminder" trigger="click">
+                    <div style="width: 300px;" slot="content">Your class number has reached the limmit, please upgrade your plan to add more class</div>
+                    <a-button type="primary" icon="plus-circle">Add</a-button>
+                  </a-popover>
+                  <a-button v-if="!(userMode === USER_MODE.SELF && isLastClass)" @click="deleteGrade(view, index)">Delete</a-button>
                 </a-space>
               </div>
               <div>
@@ -118,7 +122,7 @@
                         </div>
                       </div>
                       <div class="class-opt" v-if="!cls.isNew">
-                        <a-dropdown :getPopupContainer="trigger => trigger.parentElement" v-if="!(USER_MODE.SELF && isLastClass)">
+                        <a-dropdown :getPopupContainer="trigger => trigger.parentElement" v-if="!(userMode === USER_MODE.SELF && isLastClass)">
                           <a-icon type="more" />
                           <a-menu slot="overlay">
                             <template v-if="currentTab !== 'archive'">
@@ -271,7 +275,7 @@ export default {
     }),
     isNotLimit() {
       if (this.info && this.info.planInfo) {
-        return this.info.planInfo['classCount'] >= this.totalClass.length
+        return this.info.planInfo['classCount'] > this.totalClass.length
       } else {
         return false
       }
