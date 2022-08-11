@@ -143,26 +143,34 @@
           <template v-if='showButton && !content.delFlag'>
             <custom-button
               label='Schedule'
-              v-if='content.pageObjects.length && showSchedule && (content.type === typeMap.task || content.type === typeMap.pd) && !content.slideEditing'
+              :disabled='!content.canPublish'
+              :disabled-tooltip="'Please complete the information'"
+              v-if='showSchedule && (content.type === typeMap.task || content.type === typeMap.pd)'
               @click='handleSchedule'>
               <template v-slot:icon>
-                <schedule-icon />
+                <schedule-icon style='width: 13px; height:14px' />
               </template>
             </custom-button>
 
-            <template v-if="showPublish && content.pageObjects.length && !content.slideEditing && !content.sourceFrom">
-              <custom-button label="Publish" @click='handlePublishStatus' v-if='content.status === 0'>
+            <template v-if="showPublish && !content.sourceFrom">
+              <custom-button
+                :disabled='!content.canPublish'
+                :disabled-tooltip="'Please complete the information'"
+                label="Publish"
+                @click='handlePublishStatus'
+                v-if='content.status === 0'>
                 <template v-slot:icon >
-                  <publish-icon/>
+                  <publish-icon style='width: 13px; height:14px'/>
                 </template>
               </custom-button>
 
               <custom-button label="Unpublish" @click='handlePublishStatus' v-if='content.status !== 0'>
                 <template v-slot:icon >
-                  <un-publish-icon />
+                  <un-publish-icon style='width: 13px; height:14px'/>
                 </template>
               </custom-button>
             </template>
+
             <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement' v-if='showDelete'>
               <div class='more-action'>
                 <more-icon />
@@ -171,7 +179,7 @@
                 <div class='menu-item'>
                   <custom-button label='Archive' @click='handleDeleteItem'>
                     <template v-slot:icon>
-                      <delete-icon />
+                      <delete-icon style='width: 13px; height:14px'/>
                     </template>
                   </custom-button>
                 </div>
@@ -179,7 +187,7 @@
                   <a-popconfirm :title="'Confirm permanent delete ' +(content.name ? content.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem" cancel-text="No">
                     <custom-button label='Delete'>
                       <template v-slot:icon>
-                        <delete-icon />
+                        <delete-icon style='width: 13px; height:14px'/>
                       </template>
                     </custom-button>
                   </a-popconfirm>
@@ -206,7 +214,6 @@
                   </template>
                 </custom-button>
               </a-popconfirm>
-
             </a-space>
           </template>
         </div>
@@ -381,6 +388,9 @@ export default {
   methods: {
     editItem() {
       const item = this.content
+      if (!item.canPublish) {
+        this.$classcipe.setRequiredCheck(item.id)
+      }
       if (item.type === typeMap['unit-plan']) {
         this.$router.push({
           path: '/teacher/unit-plan-redirect/' + item.id
@@ -398,6 +408,10 @@ export default {
           path: '/teacher/pd-content-redirect/' + item.id
         })
       }
+    },
+
+    setCheckRequired() {
+      this.$classcipe.setRequiredCheck(this.contentId)
     },
 
     handleSchedule() {
@@ -672,7 +686,7 @@ export default {
         }
       }
       .action {
-        width: calc(100% - 300);
+        width: calc(100% - 300px);
         > div {
           display: flex;
           align-items: center;

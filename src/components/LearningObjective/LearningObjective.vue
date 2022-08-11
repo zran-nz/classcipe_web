@@ -4,6 +4,7 @@
       <div class='cc-lo-header'>
         <div class='filter-line'>
           <div class='select-item'>
+            <div class='required-dot vertical-center'>*</div>
             <a-select
               :getPopupContainer="trigger => trigger.parentElement"
               placeholder='Curriculum'
@@ -22,6 +23,7 @@
             </div>
           </div>
           <div class='select-item'>
+            <div class='required-dot vertical-center'>*</div>
             <a-select
               :getPopupContainer="trigger => trigger.parentElement"
               v-model='selectedYear'
@@ -44,6 +46,7 @@
             </div>
           </div>
           <div class='select-item'>
+            <div class='required-dot vertical-center'>*</div>
             <a-select
               :getPopupContainer="trigger => trigger.parentElement"
               v-model='selectedSubject'
@@ -100,6 +103,7 @@
       </div>
       <div class='cc-lo-content'>
         <div class='cc-lo-title'>
+          <span class='required-dot vertical-center'>*</span>
           Subject Learning Objectives
         </div>
         <div class='cc-lo-input'>
@@ -1273,5 +1277,14 @@ export default {
   &.knowledge {
     background: #EABA7F;
   }
+}
+
+.required-dot {
+  padding-right: 3px;
+  font-weight: bold;
+  font-size: 18px;
+  color: #f5222d;
+  vertical-align: middle;
+  display: inline-flex;
 }
 </style>
