@@ -48,11 +48,13 @@
         <div class='right-button'>
           <a-space>
             <a-button type='primary' :loading='teacherSessionNowLoading' v-if='currentActiveStepIndex === $classcipe.ScheduleSteps.length - 1 && scheduleReq.workshopType === 0' @click='handleTeacherSessionNow'>Teach the session now</a-button>
-            <a-button type='primary' @click='handleGoNext' :loading='creating'>
-              <template v-if='currentActiveStepIndex !== $classcipe.ScheduleSteps.length - 1'>
+            <a-button type='primary' @click='handleGoNext' :loading='creating' v-if='currentActiveStepIndex !== $classcipe.ScheduleSteps.length - 1'>
+              <template>
                 Next <a-icon type='right' />
               </template>
-              <template v-else>Assign</template>
+            </a-button>
+            <a-button type='primary' :disabled="!scheduleReq.startDate || !scheduleReq.endDate" @click='handleGoNext' :loading='creating' v-else>
+              <template >Assign</template>
             </a-button>
           </a-space>
         </div>
