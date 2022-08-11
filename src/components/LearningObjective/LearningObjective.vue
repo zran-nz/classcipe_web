@@ -225,7 +225,7 @@
     <div v-clickOutside id="modal" ref="quickModal" v-show="false">
       <div class="quick-keyword-con" >
         <a-space>
-          <label>Set </label>
+          <label>Set</label>
           <quick-word-button
             type="black"
             text="Command term"
@@ -233,16 +233,20 @@
             :quickWord="quickWord"
             :loadApi="termsSearch"
             :cacheApi="termsPubList"
+            :recommends="termRecommend"
+            @close="hideQuickWord"
             cacheKey="TERMS_PUBLIST"
             @changeWord="res => this.commandTermForm.name = res"
           >
             <template v-slot:create>
               <div class="quick-word-sub">
-                <a-divider style="margin: 10px 0;"/>
-                <a-space v-show="!showQuickWordCreate" >
-                  <label>Create:</label>
-                  <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="createCommandTerm"> {{ commandTermForm.name || 'Command term' }} </a-button>
-                </a-space>
+                <template v-if="commandTermForm.name">
+                  <a-divider style="margin: 10px 0;"/>
+                  <a-space v-show="!showQuickWordCreate" >
+                    <label>Create:</label>
+                    <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="createCommandTerm"> {{ commandTermForm.name || 'Command term' }} </a-button>
+                  </a-space>
+                </template>
                 <!-- <a-divider style="margin: 5px 0;font-size: 14px;">Create</a-divider>
                 <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="showQuickWordCreate = true"> Do Create </a-button> -->
                 <!-- <command-term-add
@@ -263,20 +267,24 @@
             :quickWord="quickWord"
             :loadApi="dimensionsSearch"
             :cacheApi="dimensionsPubList"
+            :recommends="knowledgeRecommend"
+            @close="hideQuickWord"
             cacheKey="DIMENSIONS_PUBLIST"
           >
             <template v-slot:create>
               <div class="quick-word-sub">
-                <a-divider style="margin: 10px 0;"/>
-                <a-space v-show="!showQuickWordCreate" >
-                  <label>Create:</label>
-                  <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="createDimension"> {{ commandTermForm.name || 'Knowledge Tags' }} </a-button>
-                </a-space>
+                <template v-if="commandTermForm.name">
+                  <a-divider style="margin: 10px 0;"/>
+                  <a-space v-show="!showQuickWordCreate" >
+                    <label>Create:</label>
+                    <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="createDimension"> {{ commandTermForm.name || 'Knowledge Tags' }} </a-button>
+                  </a-space>
+                </template>
               </div>
             </template>
           </quick-word-button>
         </a-space>
-        <div class="recommend-con" v-if="termRecommend.length > 0 || knowledgeRecommend.length > 0">
+        <!-- <div class="recommend-con" v-if="termRecommend.length > 0 || knowledgeRecommend.length > 0">
           <label for="">Recommended</label>
           <div class="recommend-tag">
             <div
@@ -296,7 +304,7 @@
               </a-tag>
             </div>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
@@ -764,6 +772,10 @@ export default {
       this.$forceUpdate()
     },
 
+    hideQuickWord() {
+      this.$refs.quickModal.style.display = 'none'
+    },
+
     handleQuickWordSet(res, key) {
       console.log(res)
       console.log(this.currentObjective)
@@ -803,6 +815,8 @@ export default {
           }
         }
       }
+      this.quickWord = ''
+      this.commandTermForm.name = ''
     },
     handleSaveCommanTerm(res, key = 'commandTerms') {
       console.log(res)
