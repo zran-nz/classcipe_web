@@ -74,7 +74,7 @@
                     <div style="width: 300px;" slot="content">Your class number has reached the limmit, please upgrade your plan to add more class</div>
                     <a-button type="primary" icon="plus-circle">Add</a-button>
                   </a-popover>
-                  <a-button v-if="!(userMode === USER_MODE.SELF && isLastClass)" @click="deleteGrade(view, index)">Delete</a-button>
+                  <a-button v-if="!(isLastClass)" @click="deleteGrade(view, index)">Delete</a-button>
                 </a-space>
               </div>
               <div>
@@ -135,7 +135,7 @@
                               <!-- <a-menu-item v-if="cls.classType === 1">
                                 <a href="javascript:;" @click="handleEditSubjectClass(cls)">Edit</a>
                               </a-menu-item> -->
-                              <a-menu-item v-if="userMode === USER_MODE.SCHOOL || !isLastClass">
+                              <a-menu-item v-if="!isLastClass">
                                 <a href="javascript:;" @click="handleArchive(cls)">Archive</a>
                               </a-menu-item>
                             </template>
@@ -298,9 +298,13 @@ export default {
       }]
     },
     isLastClass() {
-      const clsLen = this.allDatas[this.currentTab].map(item => item.classes.filter(cls => !cls.isNew).length)
+      const gradeLen = this.allDatas['gradeId'].map(item => item.classes.filter(cls => !cls.isNew).length)
+      const subjectLen = this.allDatas['subject'].map(item => item.classes.filter(cls => !cls.isNew).length)
       let len = 0
-      clsLen.forEach(item => {
+      gradeLen.forEach(item => {
+        len += item
+      })
+      subjectLen.forEach(item => {
         len += item
       })
       if (len === 1) {
