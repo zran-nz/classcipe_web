@@ -934,7 +934,7 @@ export default {
         ],
         scenarios: {
           description: '',
-          sdgId: '1',
+          sdgId: undefined,
           sdgKeyWords: [
             {
               id: '',
@@ -1276,7 +1276,7 @@ export default {
           if (unitPlanData.scenarios.length === 0) {
             unitPlanData.scenarios.push({
               description: '',
-              sdgId: '1',
+              sdgId: undefined,
               sdgKeyWords: []
             })
           } else {

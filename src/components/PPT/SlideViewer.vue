@@ -8,7 +8,7 @@
               <a-icon type='eye' /> Preview
             </a-button>
             <a-button shape='round' type="danger" class='cc-slide-btn' @click='handleAdd' v-show='showAddButton'>
-              <a-icon type="shopping" /> {{addText}}
+              <a-icon type="shopping" /> {{ addText }}
             </a-button>
             <a-button shape='round' class='cc-slide-btn' @click='handleRemove' v-show='showRemoveButton'>
               <a-icon type="delete" /> Remove
