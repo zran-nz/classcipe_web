@@ -380,7 +380,7 @@
                     </template>
                     <template slot='action'>
                       <a-space>
-                        <plus-icon @click='handleAddMoreQuestion' v-if='!$store.getters.userInfo.disableQuestion'/>
+                        <plus-icon @click='handleAddMoreQuestion' v-if='!$store.getters.userInfo.disableQuestion && !existEmptyQuestion'/>
                         <comment-switch
                           v-show="canEdit"
                           v-if='!$store.getters.userInfo.disableQuestion'
@@ -1134,6 +1134,9 @@ export default {
     },
     isCopyContent() {
       return !!this.form?.originalOwner
+    },
+    existEmptyQuestion() {
+      return this.form.questions.some(item => !item.name || !item.name.trim())
     }
   },
   async created() {
@@ -1387,12 +1390,14 @@ export default {
       }
     },
     handleAddMoreQuestion() {
-      const question = {
-        id: null,
-        name: ''
+      if (!this.existEmptyQuestion) {
+        const question = {
+          id: null,
+          name: ''
+        }
+        this.$logger.info('handleAddMoreQuestion ', question)
+        this.form.questions.push(question)
       }
-      this.$logger.info('handleAddMoreQuestion ', question)
-      this.form.questions.push(question)
     },
     handleRemoveQuestion(index) {
       this.$logger.info('handleRemoveQuestion ', index)
