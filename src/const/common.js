@@ -436,7 +436,7 @@ export const ROLE_PERMISSION = {
     label: 'Managing School info, Payment details, Orders, Classes, Teachers, Students, Space, School roles, Academic Terms, Tags, Curriculum, Attendance and Teaching plan format.'
   },
   'Homeroom teacher': {
-    permissions: ['MyCalssV2', 'SchoolSpace'],
+    permissions: ['SchoolSpace'],
     label: 'Managing their classes, Space(Content relating to their classes)'
   },
   'Subject coordinator': {

@@ -22,7 +22,7 @@ export const asyncRouterMap = [
         path: '/notification',
         name: 'Notification',
         component: () => import('@/views/dashboard/Notification'),
-        meta: { title: 'menu.notification', keepAlive: true, permission: ['teacher'] }
+        meta: { title: 'menu.notification', keepAlive: false, permission: ['teacher'] }
       },
       {
         path: '/notification-detail/:id',
