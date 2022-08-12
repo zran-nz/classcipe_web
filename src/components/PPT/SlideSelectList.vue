@@ -151,7 +151,7 @@ export default {
         },
         showTotal: total => `Total ${total} items`,
         total: 0,
-        pageSize: 21
+        pageSize: 1000
       },
 
       previewCurrentId: null,

@@ -90,7 +90,7 @@ export default {
         },
         showTotal: total => `Total ${total} items`,
         total: 0,
-        pageSize: 16
+        pageSize: 1000
       },
       myContentList: [],
       previewVisible: false,
