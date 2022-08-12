@@ -91,7 +91,7 @@ import { USER_MODE } from '@/const/common'
 import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
 import { getCurriculumBySchoolId } from '@/api/academicSettingCurriculum'
 import { termList } from '@/api/academicTermInfo'
-import { saveClass } from '@/api/v2/schoolClass'
+import { saveClass, classDetail } from '@/api/v2/schoolClass'
 
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import TermCalendar from '@/components/Calendar/TermCalendar'
@@ -280,9 +280,19 @@ export default {
     },
     initForm(defaultForm) {
       if (this.formModel.id) {
-
+        this.loading = true
+        classDetail({
+          classId: this.formModel.id
+        }).then(res => {
+          if (res.code === 0) {
+            this.doCreate(res.result)
+          }
+        }).finally(() => {
+          this.loading = false
+        })
       } else {
-        this.doCreate({})
+        const fromCache = this.getAutoLocalData()
+        this.doCreate(fromCache)
       }
     },
     initSels() {
@@ -301,9 +311,7 @@ export default {
       }
     },
     doCreate(record) {
-      const fromCache = this.getAutoLocalData()
       this.doEdit({
-        ...fromCache,
         ...record
       })
       this.$nextTick(() => {
@@ -340,6 +348,7 @@ export default {
           saveClass(params).then(res => {
             if (res.success && res.code === 0) {
               this.$store.dispatch('GetInfo')
+              this.$message.success('Save successfully')
               this.$emit('save', params)
               this.clearLocalData()
             }

@@ -337,7 +337,6 @@ export default {
         schoolId: this.currentSchool.id,
         roles: this.form.role,
         classes: this.form.classId,
-        includePending: false,
         pageSize: this.pagination.pageSize,
         pageNo: this.pagination.current
       })
