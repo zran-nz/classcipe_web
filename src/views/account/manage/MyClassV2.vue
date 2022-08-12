@@ -513,7 +513,13 @@ export default {
     },
     addGradeClass(view) {
       // 只允许一个未创建
-      const existsNew = view.classes.find(item => item.isNew)
+      let existsNew = false
+      this.allDatas.gradeId.forEach(group => {
+          if (group.classes.filter(item => item.isNew).length > 0) {
+            existsNew = true
+          }
+      })
+      // const existsNew = view.classes.find(item => item.isNew)
       if (existsNew) {
         this.$message.error('Please save first')
         return

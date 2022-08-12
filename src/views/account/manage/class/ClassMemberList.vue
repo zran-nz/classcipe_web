@@ -75,11 +75,15 @@
         :scroll="{ x: true }"
         rowKey="id"
       >
-        <span slot="roles" slot-scope="roles">
-          <span v-for="role in roles" :key="role.id">
+        <a-space slot="roles" slot-scope="roles">
+          <template v-if="roles.length > 1 || roles[0].name.toLowerCase() !== 'teacher'">
+            <a-tag class='role-name' v-for='roleName in roles.filter(role => role.name.toLowerCase() !== "teacher")' :key='roleName.id'>{{ roleName.name }}</a-tag>
+          </template>
+          <a-tag class='role-name' v-else>Teacher</a-tag>
+          <!-- <span v-for="role in roles" :key="role.id">
             {{ role.name }}
-          </span>
-        </span>
+          </span> -->
+        </a-space>
         <span slot="grades" slot-scope="grades">
           <span v-for="grade in grades" :key="grade.id">
             {{ grade.name }}
