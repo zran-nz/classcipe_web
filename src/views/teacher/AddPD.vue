@@ -203,6 +203,8 @@
         @update-share-status='handleShareStatus'
       />
     </a-modal>
+
+    <edit-price-dialog :content='form' ref='editPrice'/>
   </div>
 </template>
 
@@ -241,10 +243,12 @@ import CustomTagPd from '@/components/CustomTag/CustomTagPd'
 import { UpdateContentStatus } from '@/api/teacher'
 import { SET_GLOBAL_LOADING } from '@/store/mutation-types'
 import CustomButton from '@/components/Common/CustomButton'
+import EditPriceDialog from '@/components/MyContentV2/EditPriceDialog'
 
 export default {
   name: 'AddPD',
   components: {
+    EditPriceDialog,
     CustomButton,
     CustomTagPd,
     PdSchedule,
@@ -670,6 +674,7 @@ export default {
           if (this.form.presentationId && !this.form.presentationId.startsWith('fake_buy_')) {
             this.form.status = 1
             this.handlePublishFormItem(1)
+            this.showEditPriceDialog()
           } else {
             this.$message.warn('This task/PD content can not be published without interactive slides, please edit google slides first')
           }

@@ -523,6 +523,8 @@
         @confirm='handleUpdateBySubTaskSetting'
         @confirm-and-split='handleGoToSubTask' />
     </a-modal>
+
+    <edit-price-dialog :content='form' ref='editPrice'/>
   </div>
 </template>
 
@@ -582,10 +584,12 @@ import { deepEqual } from '@/utils/util'
 import { discountSettingSave } from '@/api/v2/discountSetting'
 import CustomButton from '@/components/Common/CustomButton'
 import DeleteIcon from '@/components/Common/DeleteIcon'
+import EditPriceDialog from '@/components/MyContentV2/EditPriceDialog'
 
 export default {
   name: 'AddTaskV2',
   components: {
+    EditPriceDialog,
     DeleteIcon,
     CustomButton,
     SplitTaskSetting,
@@ -993,6 +997,7 @@ export default {
           if (this.form.presentationId && !this.form.presentationId.startsWith('fake_buy_')) {
             this.form.status = 1
             this.handlePublishFormItem(1)
+            this.showEditPriceDialog()
           } else {
             this.$confirm({
               title: 'Warning',

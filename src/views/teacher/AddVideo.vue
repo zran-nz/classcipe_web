@@ -181,6 +181,8 @@
         </a-button>
       </template>
     </fixed-form-footer>
+
+    <edit-price-dialog :content='form' ref='editPrice'/>
   </div>
 </template>
 
@@ -207,10 +209,12 @@ import CustomTagV3 from '@/components/CustomTag/CustomTagV3'
 import { UpdateContentStatus } from '@/api/teacher'
 import CustomImageUploader from '@/components/Common/CustomImageUploader'
 import CustomTagPd from '@/components/CustomTag/CustomTagPd'
+import EditPriceDialog from '@/components/MyContentV2/EditPriceDialog'
 
 export default {
   name: 'AddPD',
   components: {
+    EditPriceDialog,
     CustomTagPd,
     CustomImageUploader,
     CustomTagV3,
@@ -254,7 +258,8 @@ export default {
         subjectList: [],
         languageList: [],
         yearList: [],
-        createBy: null
+        createBy: null,
+        type: this.$classcipe.typeMap.video
       },
 
       contentType: typeMap,
@@ -290,6 +295,7 @@ export default {
         this.$logger.info('VideoQueryById ' + this.videoId, response.result)
         if (response.code === 0 && response.success) {
           const data = response.result
+          data.type = this.$classcipe.typeMap.video
           this.form = data
         } else {
           this.$message.error(response.message)
@@ -399,6 +405,7 @@ export default {
       if (this.emptyRequiredFields.length === 0) {
         this.form.status = 1
         this.handlePublishFormItem(1)
+        this.showEditPriceDialog()
       } else {
         let requiredStepIndex = -1
         for (let i = 0; i < this.formSteps.length; i++) {

@@ -755,6 +755,8 @@
 
     <a-skeleton :loading='contentLoading' active>
     </a-skeleton>
+
+    <edit-price-dialog :content='form' ref='editPrice'/>
   </div>
 </template>
 
@@ -839,10 +841,12 @@ import CustomImageUploader from '@/components/Common/CustomImageUploader'
 import { GetTreeByKey } from '@/api/tag'
 import { deepEqual } from '@/utils/util'
 import { QueryTagsByIds } from '@/api/v2/mycontent'
+import EditPriceDialog from '@/components/MyContentV2/EditPriceDialog'
 
 export default {
   name: 'AddUnitPlan',
   components: {
+    EditPriceDialog,
     CustomTagV3,
     CustomImageUploader,
     CustomCoverMedia,
@@ -1437,6 +1441,7 @@ export default {
       if (this.emptyRequiredFields.length === 0) {
         this.form.status = 1
         this.handlePublishFormItem(1)
+        this.showEditPriceDialog()
       } else {
         let requiredStepIndex = -1
         for (let i = 0; i < this.formSteps.length; i++) {

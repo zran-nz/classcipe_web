@@ -185,6 +185,11 @@ export const PublishMixin = {
       })
 
       this.form.canPublish = canPublish
+    },
+
+    showEditPriceDialog() {
+      this.$logger.info('showEditPriceDialog', this.$refs.editPrice)
+      this.$refs.editPrice.showEditPrice()
     }
   }
 }
