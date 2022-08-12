@@ -1886,6 +1886,7 @@ export default {
     updateTaskIdList (idList) {
       this.$logger.info('updateTaskIdList', idList)
       this.associateTaskIdList = idList
+      this.asyncSaveDataFn()
     },
 
     handleUpdateLearningObjectives (data) {

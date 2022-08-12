@@ -822,6 +822,7 @@ export default {
     updateUnitIdList (idList) {
       this.$logger.info('associateUnitPlanIdList', idList)
       this.associateUnitPlanIdList = idList
+      this.asyncSaveDataFn()
     },
 
     handleDisplayRightModule () {
