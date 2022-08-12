@@ -7,7 +7,7 @@
     "dev": "vue-cli-service serve --host 0.0.0.0 --port 8004 --public dev.local",
     "serve-test": "vue-cli-service serve --mode test",
     "serve-production": "vue-cli-service serve --mode production",
-    "build": "vue-cli-service build && node --max-old-space-size=4096",
+    "build": "vue-cli-service --max_old_space_size=6144 build",
     "build-develop": "vue-cli-service build --mode development",
     "build-test": "vue-cli-service build --mode test",
     "test:unit": "vue-cli-service test:unit",
