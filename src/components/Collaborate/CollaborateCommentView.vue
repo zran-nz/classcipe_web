@@ -12,7 +12,7 @@
                 <span>All</span>
               </a-menu-item>
               <a-menu-item @click="toggleType(1, 'My')">
-                <span>My</span>
+                <span>My comments</span>
               </a-menu-item>
             </a-menu>
             <a-button
@@ -71,7 +71,7 @@
                   <img :src="rootComment.avatar" />
                 </div>
                 <div class="user-name">
-                  <div class="name-text"> {{ rootComment.username }}</div>
+                  <div class="name-text"> {{ rootComment.nickname }}</div>
                   <div class="time-text"> {{ rootComment.createdTime | dayComment }}</div>
                 </div>
               </div>
@@ -81,7 +81,7 @@
                 </div>
               </div>
               <div class="comment-input-wrapper" v-if="rootComment.editing">
-                <div class="input">
+                <div class="comment-input">
                   <input-reply-button :collaborate-user-list="collaborateUserList" @send="handleSend" :comment-item="rootComment" @cancel="handleCancel" :sending="rootComment.sendLoading" />
                 </div>
               </div>
@@ -140,7 +140,7 @@
                 </div>
               </div>
               <div class="comment-input-wrapper" v-if="commentItem.editing">
-                <div class="input">
+                <div class="comment-input">
                   <input-reply-button :collaborate-user-list="collaborateUserList" @send="handleSend" :comment-item="commentItem" @cancel="handleCancel" :sending="commentItem.sendLoading"/>
                 </div>
               </div>
@@ -148,7 +148,7 @@
           </div>
         </div>
         <div class="comment-input-wrapper" style="margin-top:10px">
-          <div class="input">
+          <div class="comment-input">
             <input-reply-button
               :collaborate-user-list="collaborateUserList"
               @send="handleSend"
@@ -254,11 +254,13 @@ export default {
       if (this.currentType === 0) {
         this.commentList.forEach(rootComment => {
           let isInvolvedMe = false
-          if (rootComment.username && rootComment.username.toLowerCase().indexOf(fName.toLowerCase()) !== -1) {
+          if ((rootComment.nickname && rootComment.nickname.toLowerCase().indexOf(fName.toLowerCase()) !== -1) |
+            rootComment.username.toLowerCase().indexOf(fName.toLowerCase()) !== -1) {
             isInvolvedMe = true
           } else {
             rootComment.subCommentList.forEach(item => {
-              if (item.username && item.username.toLowerCase().indexOf(fName.toLowerCase()) !== -1) {
+              if ((item.nickname && item.nickname.toLowerCase().indexOf(fName.toLowerCase()) !== -1) |
+                item.username.toLowerCase().indexOf(fName.toLowerCase()) !== -1) {
                 isInvolvedMe = true
               }
             })
@@ -270,11 +272,11 @@ export default {
       } else {
         this.commentList.forEach(rootComment => {
           let isInvolvedMe = false
-          if (rootComment.username === this.$store.getters.userInfo.username && (rootComment.username && rootComment.username.toLowerCase().indexOf(fName.toLowerCase()) !== -1)) {
+          if (rootComment.nickname === this.$store.getters.userInfo.nickname && (rootComment.nickname && rootComment.nickname.toLowerCase().indexOf(fName.toLowerCase()) !== -1)) {
             isInvolvedMe = true
           } else {
             rootComment.subCommentList.forEach(item => {
-              if (item.username === this.$store.getters.userInfo.username && (item.username && item.username.toLowerCase().indexOf(fName.toLowerCase()) !== -1)) {
+              if (item.nickname === this.$store.getters.userInfo.nickname && (item.nickname && item.nickname.toLowerCase().indexOf(fName.toLowerCase()) !== -1)) {
                 isInvolvedMe = true
               }
             })
@@ -296,7 +298,7 @@ export default {
       if (this.currentType === 0) {
         this.formatCommentList = this.commentList
       } else {
-        this.handleFilterNameChange(this.$store.getters.userInfo.username)
+        this.handleFilterNameChange(this.$store.getters.userInfo.nickname)
         this.$logger.info('formatCommentList', this.formatCommentList)
       }
     }
@@ -358,7 +360,7 @@ export default {
 
     .comment-input-wrapper {
       margin-top: 5px;
-      .input {
+      .comment-input {
         padding-left: 20px;
       }
     }
@@ -458,7 +460,7 @@ export default {
         .comment-input-wrapper {
           margin-top: 10px;
           padding-left: 25px;
-          .input {
+          .comment-input {
             padding-left: 20px;
           }
         }

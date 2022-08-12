@@ -728,6 +728,7 @@ export default {
       border-bottom: @border-width-base solid #d9d9d9;
     }
     .tag-list-container {
+      -moz-overflow-y: auto;
       overflow-y: overlay;
       position: relative;
       height: 200px;
@@ -843,6 +844,7 @@ export default {
   .tag-list-container {
     max-height: 200px;
     overflow-x: scroll;
+    -moz-overflow-y: auto;
     overflow-y: overlay;
     .tag-list {
       position: relative;

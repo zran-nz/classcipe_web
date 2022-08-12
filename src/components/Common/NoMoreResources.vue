@@ -1,7 +1,7 @@
 <template>
   <div class="no-more-resources">
     <div class="icon">
-      <img src="~@/assets/icons/library/no_more_resources.png" />
+      <img src="~@/assets/libraryv2/empty.png" />
     </div>
     <div class="tips">
       <a @click="showDialog()">
@@ -33,6 +33,7 @@ export default {
 @import "~@/components/index.less";
 
 .no-more-resources {
+  user-select: none;
   display: flex;
   flex-direction: column;
   justify-content: center;

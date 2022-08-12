@@ -113,7 +113,7 @@
       </span>
       <span slot="action" slot-scope="item" class="table-action">
         <a-button
-          v-if="item.userInfo.schoolUserStatus !== 2 && item.userInfo.schoolUserStatus !== 3"
+          v-if="item.studentStatus !== 2 && item.studentStatus !== 3"
           type="primary"
           shape="round"
           @click="handleEdit(item)"
@@ -121,14 +121,14 @@
         >
           Edit
         </a-button>
-        <a-button v-if="item.userInfo.schoolUserStatus === 2" shape="round" @click="handleApprove(item)">
+        <a-button v-if="item.studentStatus === 2" shape="round" @click="handleApprove(item)">
           Approve
         </a-button>
-        <a-button v-if="item.userInfo.schoolUserStatus === 2" class="reject" shape="round" @click="handleReject(item)">
+        <a-button v-if="item.studentStatus === 2" class="reject" shape="round" @click="handleReject(item)">
           Reject
         </a-button>
         <div
-          v-if="item.userInfo.schoolUserStatus !== 2 && item.userInfo.schoolUserStatus !== 3"
+          v-if="item.studentStatus !== 2 && item.studentStatus !== 3"
           class="more-action-wrapper action-item-wrapper"
         >
           <a-dropdown>
@@ -157,11 +157,19 @@
 
 <script>
 import SchoolUserStudentAdd from './SchoolUserStudentAdd.vue'
-import { getSchoolClassList, getSchoolUsers, updateUserStatus, schoolUserAPIUrl } from '@/api/schoolUser'
+import {
+  getSchoolClassList,
+  getSchoolUsers,
+  updateUserStatus,
+  schoolUserAPIUrl,
+  removeSchoolUser
+} from '@/api/schoolUser'
 import { getGradeListBySchoolId } from '@/api/grade'
 import store from '@/store'
 import { schoolUserStatusList } from '@/const/schoolUser'
 import * as logger from '@/utils/logger'
+import { SchoolUserRole } from '@/const/role'
+import { mapState } from 'vuex'
 
 const columns = [
   {
@@ -216,7 +224,7 @@ const columns = [
   },
   {
     title: 'Status',
-    dataIndex: 'userInfo.schoolUserStatus',
+    dataIndex: 'studentStatus',
     customRender: (text, row, index) => {
       return schoolUserStatusList.find(item => item.id === text)?.name
     },
@@ -227,7 +235,8 @@ const columns = [
     key: 'action',
     // dataIndex: 'id',
     scopedSlots: { customRender: 'action' },
-    width: '180px'
+    fixed: 'right',
+    width: 100
   }
 ]
 export default {
@@ -244,8 +253,12 @@ export default {
       columns,
       loading: false,
       pagination: {
-        pageSize: 20,
+        pageSize: 15,
         current: 1,
+        pageSizeOptions: ['15', '30', '50'],
+        showTotal: (total, range) => {
+          return 'Total ' + total + ' items'
+        },
         total: 0
       },
       baseUrl: process.env.VUE_APP_API_BASE_URL,
@@ -257,21 +270,29 @@ export default {
     }
   },
   created() {
-    this.loadData()
-    this.loadClassList()
-    this.loadGradeList()
+    this.initData()
   },
-  computed: {},
+  computed: {
+    ...mapState({
+      info: state => state.user.info,
+      currentSchool: state => state.user.currentSchool
+    })
+  },
   methods: {
+    initData() {
+      this.loadData()
+      this.loadClassList()
+      this.loadGradeList()
+    },
     async loadClassList() {
       const res = await getSchoolClassList({
-        schoolId: store.getters.userInfo.school
+        schoolId: this.currentSchool.id
       })
       this.classList = res?.result?.records || []
     },
     async loadGradeList() {
       const res = await getGradeListBySchoolId({
-        schoolId: store.getters.userInfo.school
+        schoolId: this.currentSchool.id
       })
       this.gradeList = res?.result || []
     },
@@ -279,8 +300,8 @@ export default {
       this.loading = true
       const searchParams = this.form.getFieldsValue()
       const res = await getSchoolUsers({
-        school: store.getters.userInfo.school,
-        currentRole: 'student',
+        schoolId: store.getters.school,
+        roles: SchoolUserRole.student,
         pageSize: this.pagination.pageSize,
         pageNo: this.pagination.current,
         userStatus: this.activeStatus,
@@ -325,12 +346,25 @@ export default {
       this.$refs.modalForm.defaultData = {}
       this.$refs.modalForm.show()
     },
-    handleDelete(item) {},
+    async handleDelete(item) {
+      const res = await removeSchoolUser({
+        schoolId: this.currentSchool.id,
+        userId: item.id,
+        role: SchoolUserRole.student
+      })
+      if (res.success) {
+        this.$message.success(res.message)
+        this.loadData()
+      } else {
+        this.$message.error(res.message)
+      }
+    },
     async changeUserStatus(id, status) {
       const res = await updateUserStatus({
-        schoolId: store.getters.userInfo.school,
+        schoolId: this.currentSchool.id,
         schoolUserStatus: status,
-        userId: id
+        userId: id,
+        role: SchoolUserRole.student
       })
       if (res.success) {
         this.$message.success(res.message)
@@ -367,7 +401,7 @@ export default {
           headers: { 'Content-Type': 'multipart/form-data' },
           timeout: 60000,
           params: {
-            schoolId: store.getters.userInfo.school
+            schoolId: this.currentSchool.id
           }
         })
         .then(res => {

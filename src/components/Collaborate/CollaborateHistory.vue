@@ -34,7 +34,7 @@
                 Modified
               </div>
               <div class="form-field">
-                {{ hDetail.fieldDisplayName }}
+                {{ getLabelShow(hDetail) }}
               </div>
             </div>
           </template>
@@ -47,6 +47,8 @@
 <script>
 
 import LocalStore from '@/websocket/localstore'
+import { mapState } from 'vuex'
+import { typeMap } from '@/const/teacher'
 
 export default {
   name: 'CollaborateHistory',
@@ -54,11 +56,33 @@ export default {
     historyList: {
       type: Array,
       default: () => []
+    },
+    sourceType: {
+      type: Number,
+      default: null
     }
   },
   data () {
     return {
       collaborateHistoryList: []
+    }
+  },
+  computed: {
+  ...mapState({
+      formConfigData: state => state.formConfigData
+    }),
+    getLabelShow() {
+      return function(context) {
+        const formConfigData = this.$store.getters.formConfigData
+        const fieldMap = this.sourceType === typeMap.task ? formConfigData.taskFieldMap : formConfigData.planFieldMap
+        fieldMap.customTags = 'Select Tags'
+        fieldMap.yearList = 'Grade'
+        fieldMap.subjectList = 'Subject'
+        fieldMap.curriculumId = 'Curriculum'
+        if (fieldMap.hasOwnProperty(context.fieldName)) {
+            return fieldMap[context.fieldName]
+        } else { return context.fieldName }
+      }
     }
   },
   created () {

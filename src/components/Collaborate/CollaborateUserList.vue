@@ -16,20 +16,21 @@
                 @click.stop="handleFocusInput">
                 <div class="tag-input-list tag-dom">
                   <div class="tag-list tag-dom">
-                    <div class="tag-item tag-dom" v-for="(user,index) in selectedUserList" :key="index">
+                    <div class="tag-item tag-dom" v-for="(user) in selectedUserList" :key="user.email">
                       <a-tag closable @close="handleCloseTag(user.email)" class="tag-dom input-tag-item">
                         <a-avatar size="small" :src="user.avatar"/>
                         {{ user.email }}
                       </a-tag>
                     </div>
 
-                    <div class="tag-input tag-dom" :style="{ width: selectedUserEmailList.length === 0 ? '150px' : '20px' }">
+                    <div class="tag-input tag-dom">
+                      <span class="input-expander">{{ userNameOrEmail }}</span>
                       <input
+                        v-if='debounceSearchUser'
                         type="text"
                         :placeholder="selectedUserEmailList.length === 0 ? 'Invite teacher by email' : ''"
                         @keyup.enter="debounceSearchUser"
                         @focus="debounceSearchUser"
-                        @blur="active = false"
                         @search="debounceSearchUser"
                         @keyup="debounceSearchUser"
                         v-model="userNameOrEmail"
@@ -40,7 +41,7 @@
                 </div>
               </div>
               <div class='search-user-list' @click.stop='' v-if='showUser'>
-                <div class="user-list" :style="{ width: selectedUserEmailList.length === 0 ? '590px' : '500px' }" v-if="displaySelectUserList.length">
+                <div class="user-list" :style="{ width: selectedUserEmailList.length === 0 ? '590px' : '500px' }" v-if="displaySelectUserList.length && active">
                   <a-skeleton :loading="loading" active>
                     <div class="user-item" v-for="user in displaySelectUserList" :key="user.email" @click="handleAddToSelect(user)">
                       <div class="user-avatar-email">
@@ -120,9 +121,6 @@
                         {{ user.userName }}
                       </div>
                     </div>
-                    <a-tag color="red" style="position: absolute;top: 9px;right: 0;" v-if="user.linkUser!== 0">
-                      Apply to join
-                    </a-tag>
                   </div>
                   <div class="user-status">
                     <span v-if="user.receiveStatus === 0">
@@ -153,7 +151,7 @@
                               <a-menu-item @click="handleChange(user,'Viewer',index)">
                                 <span>Viewer</span>
                               </a-menu-item>
-                              <a-divider style="margin: 10px 0px;" />
+                              <a-divider style="margin: 10px 0;" />
                               <a-menu-item @click="handleRemove(user,index)">
                                 <span>Remove</span>
                               </a-menu-item>
@@ -243,6 +241,9 @@ import {
 import * as logger from '@/utils/logger'
 import { CollaborateStatus } from '@/const/teacher'
 import { isEmail } from '@/utils/util'
+import { MSG } from '@/websocket/cmd'
+import { mapGetters } from 'vuex'
+import { NotificationTypeMap } from '@/views/dashboard/NotificationTypeMap'
 const { debounce } = require('lodash-es')
 
 export default {
@@ -273,11 +274,6 @@ export default {
         return user.email
       })
     },
-    collaborateUserEmailList () {
-      return this.collaborateUserList.map(user => {
-        return user.email
-      })
-    },
     linkUrl () {
       let linkUrl = this.collaborate.link ? (process.env.VUE_APP_API_BASE_URL + '/collaborate/' + this.collaborate.link.linkCode) : ''
       if (linkUrl.indexOf('https://api') > -1) {
@@ -288,12 +284,15 @@ export default {
     displaySelectUserList () {
       const displayUserList = []
       this.userList.forEach(user => {
-        if (this.selectedUserEmailList.indexOf(user.email) === -1 && user.email !== this.$store.getters.userInfo.email) {
+        if (this.selectedUserEmailList.indexOf(user.email.trim()) === -1 && user.email.trim() !== this.$store.getters.userInfo.email) {
           displayUserList.push(user)
         }
       })
       return displayUserList
-    }
+    },
+    ...mapGetters({
+      vueSocket: 'vueSocket'
+    })
   },
   watch: {
   },
@@ -352,10 +351,14 @@ export default {
     },
     handleCloseTag (email) {
       logger.info('handleCloseTag ' + email)
-      const index = this.selectedUserList.findIndex(item => item.email === email)
-      if (index !== -1) {
-        this.selectedUserList.splice(index, 1)
-      }
+      const list = []
+      this.selectedUserList.forEach(user => {
+        if (user.email !== email) {
+          list.push(user)
+        }
+      })
+      this.selectedUserList = list
+      this.$logger.info('after handleCloseTag', this.selectedUserList)
     },
     handleEnsureSelect () {
       this.$logger.info('handleEnsureSelect', this.selectedUserList)
@@ -383,19 +386,20 @@ export default {
       })
     },
     searchUser () {
+      this.$logger.info('searchUser ' + this.userNameOrEmail)
       this.showUser = true
       if (!this.userNameOrEmail) {
         this.userList = this.collaborateHistoryUsers
         return
-      } else if (!isEmail(this.userNameOrEmail)) {
+      } else if (!isEmail(this.userNameOrEmail.trim())) {
         // 已经邀请的用户中选择
         this.userList = this.collaborateHistoryUsers.filter(item =>
-          item.email.toLowerCase().indexOf(this.userNameOrEmail.toLowerCase()) !== -1 ||
-          item.nickname.toLowerCase().indexOf(this.userNameOrEmail.toLowerCase()) !== -1)
+          item.email.trim().toLowerCase().indexOf(this.userNameOrEmail.trim().toLowerCase()) !== -1 ||
+          item.nickname.trim().toLowerCase().indexOf(this.userNameOrEmail.trim().toLowerCase()) !== -1)
         return
       }
-      this.loading = true
-      CollaboratesSearchUser({ name: this.userNameOrEmail }).then(response => {
+      this.$logger.info('CollaboratesSearchUser ' + this.userNameOrEmail)
+      CollaboratesSearchUser({ name: this.userNameOrEmail.trim() }).then(response => {
         this.$logger.info('SearchUser response', response)
         this.userList = response.result
       }).finally(() => {
@@ -421,6 +425,7 @@ export default {
         user.permission = this.permission
         this.selectedUserList.push(user)
       }
+      this.active = false
       this.userNameOrEmail = ''
       this.$logger.info('selectedUserList ', this.selectedUserList)
     },
@@ -461,13 +466,20 @@ export default {
     changeApprove () {
       this.approveFlag = !this.approveFlag
       this.collaborate.link.approveFlag = this.approveFlag
+      if (this.approveFlag) {
+        this.collaborate.link.needUpdateCode = true
+      }
       CollaboratesUpdateLink(this.collaborate.link).then(response => {
         this.$logger.info('CollaboratesUpdateLink response:', response)
         if (response.success) {
           this.collaborate.link = response.result
+          this.$copyText(this.linkUrl).then(() => {
+            this.$message.success('The link has been reset and copied in your clipboard')
+          }).catch(() => {
+            this.$message.error('Copy failed')
+          })
         }
       }).finally(() => {
-
       })
     },
     queryContentCollaborates () {
@@ -518,7 +530,11 @@ export default {
         logger.info('handleChange', res)
         this.$message.success('Update successfully')
       }).then(() => {
-
+        this.vueSocket.sendMessageToUsers(MSG, [user.userId],
+          {
+            busType: NotificationTypeMap.changeCollaborate,
+            busId: user.sourceId
+          })
       })
     },
     handleRemove(user, index) {
@@ -534,6 +550,9 @@ export default {
             this.$message.success('Remove successfully')
           }).finally(() => {
             that.collaborateUserList.splice(index, 1)
+            // that.collaborate.users = that.collaborateUserList
+            // that.$emit('confirmSelect', that.collaborate)
+            that.queryContentCollaborates()
           })
         }
       })
@@ -574,6 +593,7 @@ export default {
 @import "~@/components/index.less";
 
 .toggle-header {
+  user-select: none;
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -888,23 +908,40 @@ export default {
       align-items: center;
 
       .tag-input {
-        display: inline-block;
+        display: flex;
+        align-items: flex-start;
+        position: relative;
+        overflow: hidden;
+        .input-expander {
+          display: inline-block;
+          font-size: 14px;
+          min-width: 160px;
+          margin: 4px;
+          padding: @input-padding-vertical-base 0;
+          height: 32px;
+          line-height: 24px;
+          opacity: 0;
+        }
         input {
-          background: transparent;
+          position: absolute;
+          left: 0;
+          top: 0;
           border: none;
           outline: none;
+          background: transparent;
           height: @input-height-base;
           border-radius: @border-radius-base;
-          position: relative;
           display: inline-block;
           padding: @input-padding-vertical-base 0;
           color: @black;
           font-size: 14px;
           font-family: Inter-Bold;
           line-height: 24px;
+          min-width: 160px;
           margin: 4px;
-          width: 100%;
+          width: 110%;
           &:focus,
+          &:hover,
           &:active {
             border: none;
             outline: none;

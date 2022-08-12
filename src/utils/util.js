@@ -212,7 +212,7 @@ export function setCookie(name, value) {
   var Days = 7
   var exp = new Date()
   exp.setTime(exp.getTime() + Days * 24 * 60 * 60 * 1000)
-  document.cookie = name + '=' + escape(value) + ';expires=' + exp.toGMTString() + ';domain=.classcipe.com'
+  document.cookie = name + '=' + escape(value) + ';expires=' + exp.toGMTString() + ';domain=.classcipe.com;path=/'
 }
 
 export function getCookie(name) {
@@ -246,4 +246,90 @@ export function getToken() {
  */
 export function isEmail (s) {
   return /^([a-zA-Z0-9._-])+@([a-zA-Z0-9_-])+((.[a-zA-Z0-9_-]{2,3}){1,2})$/.test(s)
+}
+
+/**
+ * 获取日期区间的所有日期
+ * @param {*} startDate
+ * @param {*} endDate
+ * @param {*} format
+ */
+export function getDaysBetweenDates(startDate, endDate, format = 'YYYY-MM-DD') {
+  const daysList = []
+  const SDate = moment(startDate)
+  const EDate = moment(endDate)
+  daysList.push(SDate.format(format))
+  if (SDate.isSame(EDate, 'day')) {
+    return daysList
+  }
+  while (SDate.add(1, 'days').isBefore(EDate, 'day')) { // 注意这里add方法处理后SDate对象已经改变。
+      daysList.push(SDate.format(format))
+  }
+  daysList.push(EDate.format(format))
+  return daysList
+}
+
+export function getUrlWithNoParams(url) {
+  if (url.indexOf('?') === -1 || url.indexOf('token=') === -1) { return url } else {
+    return url.split('?')[0]
+  }
+}
+
+/*
+ * @param x {Object} 对象1
+ * @param y {Object} 对象2
+ * @return  {Boolean} true 为相等，false 为不等
+ */
+export function deepEqual(x, y) {
+  // 指向同一内存时
+  if (x === y) {
+    return true
+  } else if ((typeof x === 'object' && x != null) && (typeof y === 'object' && y != null)) {
+    if (Object.keys(x).length !== Object.keys(y).length) {
+      return false
+    }
+    for (var prop in x) {
+      if (y.hasOwnProperty(prop)) {
+        if (!deepEqual(x[prop], y[prop])) return false
+      } else {
+        return false
+      }
+    }
+    return true
+  } else {
+    return false
+  }
+}
+
+export function trim(str) {
+  return (str || '').replace(/^[\s\uFEFF]+|[\s\uFEFF]+$/g, '')
+}
+
+export function isEmpty(str) {
+  return (
+    str === null || typeof str === 'undefined' || trim(str + '') === ''
+  )
+}
+
+export function trimParams(params) {
+  const trimFn = obj => {
+    const newObj = {}
+    for (const key in obj) {
+      if (typeof obj[key] === 'string') {
+        newObj[key] = obj[key].trim()
+      } else {
+        newObj[key] = obj[key]
+      }
+    }
+    return newObj
+  }
+  if (Array.isArray(params) && params.length > 0) {
+    const newArr = params.map(item => {
+      return trimParams(item)
+    })
+    return newArr
+  } else if (typeof params === 'object') {
+    return trimFn(params)
+  }
+  return params
 }

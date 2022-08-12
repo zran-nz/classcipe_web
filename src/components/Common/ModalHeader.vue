@@ -1,7 +1,7 @@
 <template>
   <div class="my-modal-header">
-    <div v-if="title" class="title">{{ title }}</div>
-    <div class="close-icon" @click="handleClickClose">
+    <div v-if="title" class="title" :style="{fontSize: size + 'px'}">{{ title }}</div>
+    <div class="close-icon" @click="handleClickClose" v-show='allowClose'>
       <img src="~@/assets/icons/common/close.png" v-if="!white" />
       <img src="~@/assets/icons/common/close_white.png" v-if="white"/>
     </div>
@@ -19,6 +19,14 @@ export default {
     title: {
       type: String,
       default: ''
+    },
+    allowClose: {
+      type: Boolean,
+      default: true
+    },
+    size: {
+      type: Number,
+      default: 16
     }
   },
   methods: {
@@ -34,13 +42,13 @@ export default {
 .title{
   text-align: center;
   display: flex;
-  /* justify-content: center; */
-  display: block;
+  justify-content: center;
+  flex-direction: row;
   width: 100%;
   color: rgba(44, 42, 80, 1);
-  font-size: 20px;
   font-weight: bold;
-  font-family: FZCuYuan-M03S;
+  line-height: 40px;
+  padding-bottom: 10px;
 }
 .my-modal-header {
   width: 100%;

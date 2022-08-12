@@ -8,9 +8,14 @@ import {
   TOGGLE_FIXED_HEADER,
   TOGGLE_FIXED_SIDEBAR, TOGGLE_HIDE_HEADER,
   TOGGLE_LAYOUT, TOGGLE_NAV_THEME, TOGGLE_WEAK,
-  TOGGLE_COLOR, TOGGLE_MULTI_TAB, USER_INFO
+  TOGGLE_COLOR, TOGGLE_MULTI_TAB, USER_INFO,
+  TOOGLE_USER_MODE,
+  SET_CLASS_LIST,
+  SET_CURRENT_SCHOOL,
+  HIDDEN_HEADER, HIDDEN_SIDEBAR
 } from '@/store/mutation-types'
 import defaultSettings from '@/config/defaultSettings'
+import { USER_MODE } from '@/const/common'
 
 export default function Initializer () {
   console.log('----------------------------- bootstrap -----------------------------')
@@ -26,6 +31,11 @@ export default function Initializer () {
   store.commit('SET_TOKEN', storage.get(ACCESS_TOKEN))
   store.commit('SET_CURRENT_ROLE', storage.get(CURRENT_ROLE))
   store.commit('SET_INFO', storage.get(USER_INFO))
+  store.commit(TOOGLE_USER_MODE, storage.get(TOOGLE_USER_MODE, USER_MODE.SELF))
+  store.commit('SET_CURRENT_SCHOOL', storage.get(SET_CURRENT_SCHOOL, {}))
+  store.commit('SET_CLASS_LIST', storage.get(SET_CLASS_LIST, []))
+  store.commit(HIDDEN_HEADER, storage.get(HIDDEN_HEADER, false))
+  store.commit(HIDDEN_SIDEBAR, storage.get(HIDDEN_SIDEBAR, false))
 
   store.dispatch('setLang', storage.get(APP_LANGUAGE, 'en-US'))
   store.dispatch('getSysConfig')

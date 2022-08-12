@@ -113,7 +113,7 @@ export default {
 #feed-back {
   position: fixed;
   right: 35px;
-  bottom: 90px;
+  bottom: 140px;
   color: #fff;
   line-height: 30px;
   border-radius: 5px;
@@ -206,6 +206,7 @@ export default {
 }
 
 .classcipe-hidden-feedback img {
+  z-index: 100;
   width: 15px;
   position: absolute;
   right: -5px;
@@ -213,5 +214,13 @@ export default {
 }
 #feed-back:hover .classcipe-hidden-feedback {
   display: block;
+}
+
+.feed-back-type {
+  .feed-back-type-title {
+    line-height: 30px;
+    font-size: 14px;
+    font-weight: 500;
+  }
 }
 </style>

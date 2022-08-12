@@ -1,30 +1,46 @@
 import axios from 'axios'
 import storage from 'store'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
-import { upFireBaseFile } from '@/components/AddMaterial/Utils/FirebaseUploadFile'
+import { upAwsS3File } from '@/components/AddMaterial/Utils/AwsS3'
+import * as logger from '@/utils/logger'
+import { addFileUploadRecord } from '@/api/material'
 
 // 下载服务器图片
-export const uploadImageToFirebaseByUrl = async (url) => {
+export const uploadImageToAwsByUrl = async (userId, url, options) => {
   return new Promise((resolve, reject) => {
     downloadImageBlob(url).then(({ data }) => {
-      console.log('downloadImageBlob', data)
+      logger.info('downloadImageBlob', data, 'options', options)
       const {
         result,
         success
       } = data
       if (success && result) {
-        resolve(result)
+        if (options?.contentType && options?.contentId) {
+          addFileUploadRecord({
+            fileLength: 1024,
+            fileName: `google_image_${Math.random().toString(36).slice(2)}`,
+            filePath: result,
+            contentType: options?.contentType,
+            contentId: options?.contentId
+          }).then(res => {
+            logger.info('addFileUploadRecord res', res)
+          }).finally(() => {
+            resolve(result)
+          })
+        } else {
+          resolve(result)
+        }
       } else {
-        tryDownloadByClient(url, resolve, reject)
+        tryDownloadByClient(userId, url, resolve, reject, options)
       }
     }).catch(() => {
-      tryDownloadByClient(url, resolve, reject)
+      tryDownloadByClient(userId, url, resolve, reject, options)
     })
   })
 }
 
 // 上传图片到后台
-export const downloadImageBlob = async (imageUrl) => {
+export const downloadImageBlob = async (imageUrl, contentType, contentId) => {
   return axios.post(process.env.VUE_APP_API_BASE_URL + `/classcipe/common/downloadImage`, `imageUrl=${imageUrl}&returnUrl=true`, {
     headers: {
       'X-Access-Token': storage.get(ACCESS_TOKEN),
@@ -33,8 +49,8 @@ export const downloadImageBlob = async (imageUrl) => {
   })
 }
 
-const tryDownloadByClient = async (url, resolve, reject) => {
-  console.log('tryDownloadByClient')
+const tryDownloadByClient = async (userId, url, resolve, reject, options) => {
+  logger.info('tryDownloadByClient', userId, url)
   if (url.indexOf('https') > -1) {
     // 本地下载 只处理https
     const image = new Image()
@@ -54,24 +70,28 @@ const tryDownloadByClient = async (url, resolve, reject) => {
       })
       const formData = new FormData()
       formData.append('file', file)
-      upFireBaseFile(
+      upAwsS3File(
+        userId,
         file,
         () => null,
         (result) => {
           resolve(result)
-        }
+        },
+        true,
+        options?.contentType,
+        options?.contentId
       )
     }
     xhr.onerror = () => {
-      console.log('下载图片失败')
+      logger.info('下载图片失败')
       reject()
     }
     xhr.ontimeout = () => {
-      console.log('下载图片超时')
+      logger.info('下载图片超时')
       reject()
     }
     xhr.onabort = () => {
-      console.log('下载图片取消')
+      logger.info('下载图片取消')
       reject()
     }
     xhr.send()

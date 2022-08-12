@@ -1,5 +1,8 @@
 <template>
   <div class="ppt-slide-view">
+    <div class='score-number-item' v-show='!loading'>
+      <score-number :score='studentScore' />
+    </div>
     <div class="go-session-detail" v-show='mode'>
       <a-space>
         <a-button shape="round" type="primary" @click="handleEnsureEvidence" :disabled='loading'>Confirm</a-button>
@@ -10,10 +13,6 @@
       <div class="student-info">
         <div class="student-name">Student :</div>
         {{ studentName }}
-      </div>
-      <div class="student-info">
-        <div class="student-score">Score :</div>
-        {{ studentScore }}/{{ totalScore }}
       </div>
     </div>
     <div class="tips" v-if="!loading">
@@ -26,7 +25,8 @@
           'active-slide-item': selectedSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1 || selectedStudentSlidePageIdList.indexOf(slideItem.pageObjectId) !== -1}"
         v-for="(slideItem, sIndex) in slideDataList"
         :key="sIndex"
-        :data-pageId="slideItem.pageId"
+        :data-pageObjectId="slideItem.pageObjectId"
+        :data-selectedSlidePageIdList="JSON.stringify(selectedSlidePageIdList)"
         @click="handleAddSlideItem(slideItem)">
         <div class="slide-header-label">
           <h3>Slide {{ sIndex + 1 }}</h3>
@@ -228,7 +228,7 @@
                   <div class="add-comment-wrapper">
                     <div class="comment-input-wrapper">
                       <div class="input">
-                        <input-with-button :extra="slideItem" @send="handleAddComment" />
+                        <evidence-comment-input :extra="slideItem" @send="handleAddComment" />
                       </div>
                     </div>
                   </div>
@@ -352,7 +352,7 @@
 
 import { GetStudentResponse } from '@/api/lesson'
 import { QuerySessionEvidence, SaveSessionEvidence } from '@/api/evaluation'
-import { TemplatesGetPresentation } from '@/api/template'
+import { TemplatesGetPublishedPresentation } from '@/api/template'
 import EvaluationTableMode from '@/components/Evaluation/EvaluationTableMode'
 import StudentIcon from '@/assets/svgIcon/evaluation/StudentIcon.svg?inline'
 import TeacherIcon from '@/assets/svgIcon/evaluation/TeacherIcon.svg?inline'
@@ -370,14 +370,17 @@ import AudioTypeSvg from '@/assets/icons/material/audio.svg?inline'
 import YoutubeTypeSvg from '@/assets/icons/material/youtube.svg?inline'
 import PdfTypeSvg from '@/assets/icons/material/pdf.svg?inline'
 import UrlTypeSvg from '@/assets/icons/material/url.svg?inline'
-import InputWithButton from '@/components/Collaborate/InputWithButton'
 import SlidePreview from '@/components/Evaluation/SlidePreview'
+import ScoreNumber from '@/components/Common/ScoreNumber'
+import EvidenceCommentInput from '@/components/Evaluation/EvidenceCommentInput'
+import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 
 export default {
   name: 'PptSlideView',
   components: {
+    ScoreNumber,
     SlidePreview,
-    InputWithButton,
+    EvidenceCommentInput,
     StudentIcon,
     TeacherIcon,
     MediaPreview,
@@ -390,6 +393,7 @@ export default {
     PdfTypeSvg,
     UrlTypeSvg
   },
+  mixins: [ GoogleAuthCallBackMixin ],
   props: {
     mode: {
       type: String,
@@ -408,6 +412,10 @@ export default {
       default: null
     },
     classId: {
+      type: String,
+      default: null
+    },
+    sessionId: {
       type: String,
       default: null
     },
@@ -473,8 +481,6 @@ export default {
   methods: {
     resetData () {
       this.rawSlideDataMap.clear()
-      this.selectedSlidePageIdList = []
-      this.selectedStudentSlidePageIdList = []
       this.slideDataList = []
       this.elementsList = []
       this.itemsList = []
@@ -494,13 +500,13 @@ export default {
       this.resetData()
       this.$logger.info('加载PPT数据 ' + this.classId + ' slideId ' + this.slideId + ' formId' + this.formId + ' rowId ' + this.rowId)
       Promise.all([
-        TemplatesGetPresentation({ presentationId: this.slideId }),
+        TemplatesGetPublishedPresentation({ taskId: this.formId }),
         QueryByClassInfoSlideId({ slideId: this.slideId }),
         QuerySessionEvidence({
-          classId: this.classId,
+          sessionId: this.sessionId,
           user: this.studentName
         }),
-        QueryResponseByClassId({ classId: this.classId })
+        QueryResponseByClassId({ classId: this.sessionId })
       ]).then(response => {
         this.$logger.info('加载PPT数据 response', response)
         if (response[2].result && response[2].result.result) {
@@ -513,19 +519,21 @@ export default {
           this.$logger.info('使用历史评估数据 this.slideDataList', this.slideDataList, ' this.elementsList', this.elementsList, ' this.itemsList', this.itemsList)
           this.loading = false
         } else {
-          const pageObjects = response[0].result.pageObjects
-          if (pageObjects.length) {
-            pageObjects.forEach(pItem => {
-              pItem.responseList = []
-              pItem.commentList = []
-              if (pItem.pageObjectId) {
-                this.rawSlideDataMap.set(pItem.pageObjectId, pItem)
-              }
-            })
-            this.loadStudentData()
-          } else {
-            this.loading = false
-            this.$logger.info('loaded data', this.imgList, this.commentData)
+          if (response[0].code !== this.ErrorCode.ppt_google_token_expires && response[0].code !== this.ErrorCode.ppt_forbidden) {
+            const pageObjects = response[0].result.pageObjects
+            if (pageObjects.length) {
+              pageObjects.forEach(pItem => {
+                pItem.responseList = []
+                pItem.commentList = []
+                if (pItem.pageObjectId) {
+                  this.rawSlideDataMap.set(pItem.pageObjectId, pItem)
+                }
+              })
+              this.loadStudentData()
+            } else {
+              this.loading = false
+              this.$logger.info('loaded data', this.imgList, this.commentData)
+            }
           }
 
           if (response[1].success) {
@@ -536,9 +544,14 @@ export default {
       })
     },
 
+    handleAuthCallback() {
+      this.$logger.info('handleAuthCallback')
+      this.loadData()
+    },
+
     loadStudentData () {
       this.$logger.info('loadStudentData', this.rawSlideDataMap)
-      GetStudentResponse({ class_id: this.classId }).then(response => {
+      GetStudentResponse({ class_id: this.sessionId }).then(response => {
         this.$logger.info('GetStudentResponse response', response)
         const rawCommentDataList = response.data.presentation_comments
         rawCommentDataList.forEach((item) => {
@@ -672,7 +685,7 @@ export default {
       }
       this.$logger.info('保存evaluation数据', data)
       SaveSessionEvidence({
-        classId: this.classId,
+        sessionId: this.sessionId,
         user: this.studentName,
         result: JSON.stringify(data)
       }).then(() => {
@@ -720,6 +733,12 @@ export default {
 @import "~@/components/index.less";
 
 .ppt-slide-view {
+  position: relative;
+  .score-number-item {
+    right: 200px;
+    top: 10px;
+    position: absolute;
+  }
   .slide-header {
     display: flex;
     flex-direction: row;
@@ -826,7 +845,7 @@ export default {
 
             &::-webkit-scrollbar-thumb {
               border-radius: 5px;
-              background: rgba(0, 0, 0, 0.12);
+              background: rgba(0, 0, 0, 0.06);
               -webkit-box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
             }
 
@@ -922,7 +941,7 @@ export default {
 
                 &::-webkit-scrollbar-thumb {
                   border-radius: 5px;
-                  background: rgba(0, 0, 0, 0.12);
+                  background: rgba(0, 0, 0, 0.06);
                   -webkit-box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
                 }
 
@@ -1388,7 +1407,7 @@ export default {
 /* 滚动条滑块 */
 *::-webkit-scrollbar-thumb {
   border-radius: 3px;
-  background: rgba(0, 0, 0, 0.12);
+  background: rgba(0, 0, 0, 0.06);
   -webkit-box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
 }
 

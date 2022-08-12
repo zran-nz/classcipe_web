@@ -2,11 +2,12 @@
   <div class="input-search">
     <a-textarea
       v-model="value"
-      :auto-size="{ minRows: 1, maxRows: 5 }"
+      :auto-size="{ minRows: 2, maxRows: 6 }"
       @keyup="handleSearch"
       @focus="handleSearch"
-      class="my-form-input"
-      placeholder="Describe how the Unit/Topic matches with the chosen goal by giving real life context" />
+      class='cc-form-textarea'
+      :placeholder="placeholder"
+      :disabled="!canEdit" />
     <a-spin v-if="fetching" slot="notFoundContent" size="small" />
     <div class="search-list-wrapper" v-if="showSearchListFlag">
       <ul class="search-list" >
@@ -38,9 +39,17 @@ export default {
       type: String,
       default: 'name'
     },
+    placeholder: {
+      type: String,
+      default: 'name'
+    },
     searchList: {
       type: Array,
       default: () => []
+    },
+    canEdit: {
+      type: Boolean,
+      default: true
     }
   },
   computed: {

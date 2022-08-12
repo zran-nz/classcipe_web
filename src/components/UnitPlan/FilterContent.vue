@@ -1,116 +1,39 @@
 <template>
   <div class="search-filter">
-    <a-button type="link" class="clear-all" @click="clearFilter()">
+    <a-button type="link" size='small' class="clear-all" @click="clearFilter()">
       Clear all
     </a-button>
 
-    <a-row class='option-content'>
-      <a-col span='6'>
-        <div class="filter-item">
-          <div class="filter-label">Subject</div>
-          <div class="filter-option-list" >
-            <a-checkbox-group
-              @change="updateFilterConfig"
-              v-model="filter.subject"
-              :options="subjectOptions"
-            />
-          </div>
-        </div>
-      </a-col>
-      <a-col span='4'>
-        <div class="filter-item">
-          <div class="filter-label">Period</div>
-          <div class="filter-option-list" >
-            <a-radio class='filter-option-list-item' v-for="(item,index) in periodOptions" :checked="filter.period === item.value" @click="clickRadioGroup('period',item.value)" :key="index">
-              {{ item.label }}
-            </a-radio>
-          </div>
-        </div>
-      </a-col>
-      <a-col span='4'>
-        <div class="filter-item">
-          <div class="filter-label">Grade</div>
-          <div class="filter-option-list" >
-            <a-checkbox-group
-              @change="updateFilterConfig"
-              v-model="filter.age"
-              :options="ageOptions"
-            />
-          </div>
-        </div>
-      </a-col>
-      <a-col span='5'>
-        <div class="filter-item">
-          <div class="filter-label">Unit Type</div>
-          <div class="filter-option-list" >
-            <a-radio class='filter-option-list-item' v-for="(item,index) in unitTypeLabel" :checked="filter.unitType === item.value" @click="clickRadioGroup('unitType',item.value)" :key="index">
-              {{ item.label }}
-            </a-radio>
-          </div>
-        </div>
-      </a-col>
-
-      <a-col span='5'>
-        <div class="filter-item">
-          <div class="filter-label">Project-based Unit</div>
-          <div class="filter-option-list" >
-            <a-radio v-for="(item,index) in projectBasedLabel" :checked="filter.projectBased === item.value" @click="clickRadioGroup('projectBased',item.value)" :key="index">
-              {{ item.label }}
-            </a-radio>
-          </div>
-        </div>
-      </a-col>
-    </a-row>
-
-    <div class="filter-item task-type">
-      <div class="filter-label">Task Type</div>
-      <div class="filter-toggle-list">
-        <a-radio :checked="filter.faSaActivityType === 1" @click="clickRadioGroup('faSaActivityType',1)" name="activityType" >
-          FA
-        </a-radio>
-        <a-radio :checked="filter.faSaActivityType === 2" @click="clickRadioGroup('faSaActivityType',2)" name="activityType" >
-          SA
-        </a-radio>
-        <a-radio :checked="filter.faSaActivityType === 3" @click="clickRadioGroup('faSaActivityType',3)" name="activityType" >
-          Activity
-        </a-radio>
-      </div>
-
-      <div class="sub-item">
-        <div class="filter-item" v-if="filter.faSaActivityType === 1" v-for="(parent,index) in filterFaOptions" :key="index">
-          <div class="filter-label">{{ parent.name }}</div>
-          <div :class="{'filter-option-list-width-20': index !== filterFaOptions.length - 1, 'filter-option-list-width-30': index === filterFaOptions.length - 1}">
-            <a-checkbox-group
-              @change="updateFilterConfig"
-              v-model="faTags[index]"
-              :options="getGroupOptions(parent)"
-            />
-          </div>
-        </div>
-        <div class="filter-item" v-if="filter.faSaActivityType === 2" v-for="(parent,index) in filterSaOptions" :key="index">
-          <div class="filter-label">{{ parent.name }}</div>
-          <div :class="{'filter-option-list-width-20': index !== filterSaOptions.length - 1, 'filter-option-list-width-30': index === filterSaOptions.length - 1}">
-            <a-checkbox-group
-              @change="updateFilterConfig"
-              v-model="saTags[index]"
-              :options="getGroupOptions(parent)"
-            />
-          </div>
-        </div>
-        <div class="filter-item" v-if="filter.faSaActivityType === 3" v-for="(parent,index) in filterActivityOptions" :key="index">
-          <div class="filter-label">{{ parent.name }}</div>
-          <div class="filter-option-list-width-20">
-            <a-checkbox-group
-              @change="updateFilterConfig"
-              v-model="activityTags[index]"
-              :options="getGroupOptions(parent)"
-            />
-          </div>
+    <div class='option-content'>
+      <div class="filter-item">
+        <div class="filter-label">Subject</div>
+        <div class="filter-option-list" >
+          <a-checkbox-group
+            @change="updateFilterConfig"
+            v-model="filter.subject"
+            :options="subjectOptions"
+          />
         </div>
       </div>
-
+      <div class="filter-item">
+        <div class="filter-label">Period</div>
+        <div class="filter-option-list" >
+          <a-radio class='filter-option-list-item' v-for="(item,index) in periodOptions" :checked="filter.period === item.value" @click="clickRadioGroup('period',item.value)" :key="index">
+            {{ item.label }}
+          </a-radio>
+        </div>
+      </div>
+      <div class="filter-item">
+        <div class="filter-label">Grade</div>
+        <div class="filter-option-list" >
+          <a-checkbox-group
+            @change="updateFilterConfig"
+            v-model="filter.age"
+            :options="ageOptions"
+          />
+        </div>
+      </div>
     </div>
-
   </div>
 </template>
 
@@ -271,24 +194,30 @@ export default {
   .clear-all {
     position: absolute;
     right: -5px;
+    top: -25px;
     cursor: pointer;
     z-index: 100;
+    background: #fafafa;
     &:hover {
-      background: rgba(228, 228, 228, 0.5);
+      background: #f1f1f1;
     }
   }
   .filter-item {
+    margin-bottom: 15px;
+    margin-right: 10px;
     .filter-label {
       font-size: 14px;
       font-family: Arial;
       font-weight: bold;
-      line-height: 35px;
+      line-height: 25px;
       color: #000000;
     }
 
     .filter-option-list {
       display: flex;
+      font-size: 13px;
       flex-direction: column;
+      padding: 0 5px;
 
       .filter-option-list-item {
         line-height: 30px;
@@ -307,6 +236,14 @@ export default {
   .task-type {
     padding-bottom: 10px;
   }
+}
+
+.option-content {
+  margin-top: 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex-wrap: wrap;
 }
 
 </style>

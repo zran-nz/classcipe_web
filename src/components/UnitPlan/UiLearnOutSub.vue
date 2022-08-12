@@ -12,11 +12,19 @@
               <!--                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>-->
               <!--              </a-breadcrumb>-->
               <div class="skt-description">
-                <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
-                <div class="skt-chart" v-hasRole="['student']">
+                <a-tooltip :title="k.path">
+                  <span class='self-out-icon' v-if='k.key'>
+                    <a-icon type="user-add" />
+                  </span>
+                  {{ k.name }}
+                  <span class='subject-name-tag' v-if='k.subjectId && getSubjectName(k.subjectId)'>
+                    <a-tag class='my-subject-name-tag'>{{ getSubjectName(k.subjectId) }}</a-tag>
+                  </span>
+                </a-tooltip>
+                <div class="skt-chart" v-hasRole="['student']" v-if="bloomInfo(k.knowledgeId, 'isExist')">
                   <div class="skt-chart-detail">
-                    <label>Bloom taxnology</label>
-                    <a-rate class="rate-bar-con">
+                    <label>Bloom Taxonomy</label>
+                    <a-rate class="rate-bar-con small" :tooltips="bloomLevelDesc" :count="6" :value="bloomInfo(k.knowledgeId, 'bloomLevel')" disabled>
                       <div slot="character">
                         <div class="rate-bar"></div>
                       </div>
@@ -24,7 +32,9 @@
                   </div>
                   <div class="skt-chart-detail">
                     <label>Knowledge dimension</label>
-                    <a-tag color="purple" class="tag-item">Conceptual</a-tag>
+                    <a-tag color="purple" class="tag-item" v-for="(item, tagIndex) in bloomInfo(k.knowledgeId, 'knowledgeLevel')" :key="k.name + 'bloom_tag'+tagIndex">
+                      {{ item }}
+                    </a-tag>
                   </div>
                 </div>
               </div>
@@ -40,21 +50,79 @@
               <!--                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>-->
               <!--              </a-breadcrumb>-->
               <div class="skt-description">
-                <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
+                <a-tooltip :title="k.path">
+                  <span class='self-out-icon' v-if='k.key'>
+                    <a-icon type="user-add" />
+                  </span>
+                  {{ k.name }}
+                  <span class='subject-name-tag' v-if='k.subjectId && getSubjectName(k.subjectId)'>
+                    <a-tag class='my-subject-name-tag'>{{ getSubjectName(k.subjectId) }}</a-tag>
+                  </span>
+                </a-tooltip>
+                <div class="skt-chart" v-hasRole="['student']" v-if="bloomInfo(k.knowledgeId, 'isExist')">
+                  <div class="skt-chart-detail">
+                    <label>Bloom Taxonomy</label>
+                    <a-rate class="rate-bar-con small" :tooltips="bloomLevelDesc" :count="6" :value="bloomInfo(k.knowledgeId, 'bloomLevel')" disabled>
+                      <div slot="character">
+                        <div class="rate-bar"></div>
+                      </div>
+                    </a-rate>
+                  </div>
+                  <div class="skt-chart-detail">
+                    <label>Knowledge dimension</label>
+                    <a-tag color="purple" class="tag-item" v-for="(item, tagIndex) in bloomInfo(k.knowledgeId, 'knowledgeLevel')" :key="k.name + 'bloom_tag'+tagIndex">
+                      {{ item }}
+                    </a-tag>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </a-row>
 
         <a-row class="objectives-wrapper-block" v-if="getknowledgeListType(TagType.century).length > 0" >
-          <div class="title-item title-21">21st Century Skills</div>
+          <div class="title-item title-21">
+            <template v-if="$store.getters.bindCurriculum === AllCurriculums.NZ">
+              Key competencies
+            </template>
+            <template v-else-if="$store.getters.bindCurriculum === AllCurriculums.AU">
+              General capabilities
+            </template>
+            <template v-else>
+              21st Century Skills
+            </template>
+          </div>
           <div class="objectives-list" v-for="(k,index) in getknowledgeListType(TagType.century)" :key="index">
             <div class="objectives-list-item objectives-list-item-21 objectives-list-item-top-fixed" @click="handleActiveDescription(TagType.century,k)">
               <!--              <a-breadcrumb separator=">">-->
               <!--                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>-->
               <!--              </a-breadcrumb>-->
               <div class="skt-description skt-description-21">
-                <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
+                <a-tooltip :title="k.path">
+                  <span class='self-out-icon' v-if='k.key'>
+                    <a-icon type="user-add" />
+                  </span>
+                  {{ k.name }}
+                  <span class='subject-name-tag' v-if='k.subjectId && getSubjectName(k.subjectId)'>
+                    <a-tag class='my-subject-name-tag'>{{ getSubjectName(k.subjectId) }}</a-tag>
+                  </span>
+                </a-tooltip>
+                <div class="skt-chart" v-hasRole="['student']" v-if="bloomInfo(k.knowledgeId, 'isExist')">
+                  <div class="skt-chart-detail">
+                    <label>Bloom Taxonomy</label>
+                    <a-rate class="rate-bar-con small" :tooltips="bloomLevelDesc" :count="6" :value="bloomInfo(k.knowledgeId, 'bloomLevel')" disabled>
+                      <div slot="character">
+                        <div class="rate-bar"></div>
+                      </div>
+                    </a-rate>
+                  </div>
+                  <div class="skt-chart-detail">
+                    <label>Knowledge dimension</label>
+                    <a-tag color="purple" class="tag-item" v-for="(item, tagIndex) in bloomInfo(k.knowledgeId, 'knowledgeLevel')" :key="k.name + 'bloom_tag'+tagIndex">
+                      {{ item }}
+                    </a-tag>
+                  </div>
+                </div>
               </div>
               <a-divider style="margin: 10px 0px" v-if="k.tagListVisible" />
               <div class="skt-description-tag-list" v-if="k.tagListVisible">
@@ -79,10 +147,6 @@
         Add tag
       </div>
       <learn-out-add-tag @handle-select-tags="handleEnsureTags" :knowledge="knowledge" />
-    <!--      <div class="modal-ensure-action-line-right" style="justify-content: center">
-        <a-button class="action-item action-cancel" shape="round" @click="addTagVisible = false">Cancel</a-button>
-        <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">Confirm</a-button>
-      </div>-->
     </a-modal>
 
     <a-modal
@@ -124,9 +188,9 @@
   import * as logger from '@/utils/logger'
   import NoMoreResources from '@/components/Common/NoMoreResources'
   import LearnOutAddTag from '@/components/UnitPlan/LearnOutAddTag'
-  import { TagType } from '@/const/common'
+  import { TagType, DICT_BLOOM_TAXONOMY, AllCurriculums } from '@/const/common'
   import { getAll21Century } from '@/api/knowledge'
-
+  import { GetDictItems } from '@/api/common'
   export default {
     name: 'UiLearnOutSub',
     components: {
@@ -135,6 +199,14 @@
     },
     props: {
       learnOuts: {
+        type: Array,
+        default: () => []
+      },
+      selfOuts: {
+        type: Array,
+        default: () => []
+      },
+      classInfoList: {
         type: Array,
         default: () => []
       }
@@ -153,6 +225,39 @@
           }
           return path.split('>')
         }
+      },
+      bloomInfo () {
+        return (knowledgeId, key) => {
+          if (!knowledgeId || this.classInfoList.length === 0) {
+            return null
+          }
+          const datas = this.classInfoList.map(item => item.data ? item.data.data ? item.data.data : '' : '')
+          const datasLearnOut = datas.filter(item => item && item.learnOuts && item.learnOuts.length > 0)
+          const data = datasLearnOut.filter(item => item.learnOuts.find(learnout => learnout.knowledgeId === knowledgeId))
+
+          // knowledge 显示多个，bloom显示最高级
+          const result = {
+            knowledgeLevel: [],
+            bloomLevel: 0
+          }
+          result.knowledgeLevel = Array.from(new Set(data.map(item => item.knowledgeLevel).filter(item => item !== '')))
+          result.bloomLevel = data.map(item => {
+            const val = this.bloomLevel.find(bloom => bloom.text === item.bloomLevel)
+            return val ? parseInt(val.value) : ''
+          }).filter(item => item !== '').sort().pop()
+          console.log(result)
+          if (key === 'isExist') {
+            return result.knowledgeLevel.length > 0 || result.bloomLevel > 0
+          }
+          return result[key]
+        }
+      },
+      bloomLevelDesc() {
+        if (this.bloomLevel && this.bloomLevel.length > 0) {
+          return this.bloomLevel.map(item => item.title)
+        } else {
+          return []
+        }
       }
     },
     data () {
@@ -164,17 +269,28 @@
         knowledge: {},
         tags: [],
         TagType: TagType,
-        centuryList: []
+        AllCurriculums: AllCurriculums,
+        centuryList: [],
+        bloomLevel: []
       }
     },
     created () {
-      this.knowledgeList = this.learnOuts
+      this.knowledgeList = this.learnOuts.concat(this.selfOuts)
       logger.info('knowledgeList ', this.knowledgeList)
       this.get21century()
+      this.initData()
     },
     watch: {
     },
     methods: {
+      initData() {
+        GetDictItems(DICT_BLOOM_TAXONOMY).then(response => {
+          if (response.success) {
+            logger.info('DICT_BLOOM_TAXONOMY', response.result)
+            this.bloomLevel = response.result
+          }
+        })
+      },
       handleActiveDescription (type, k) {
         var index = this.knowledgeList.findIndex(item => item.knowledgeId === k.knowledgeId)
         if (this.knowledgeList[index].tagType !== TagType.knowledge &&
@@ -279,6 +395,11 @@
         } else {
           return this.knowledgeList.filter(item => item.tagType === type)
         }
+      },
+
+      getSubjectName (subjectId) {
+        const subject = this.$store.getters.allSubjects.find(item => item.id === subjectId)
+        return subject ? subject.name : null
       }
     }
   }
@@ -334,7 +455,6 @@
       }
       .objectives-list-item {
         width: 100%;
-        box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
         opacity: 1;
         border-radius: 4px;
         display: flex;
@@ -347,8 +467,7 @@
         position: relative;
         color: #000000;
         &:hover {
-          color: @primary-color;
-          border: 1px solid @primary-color !important;
+          box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
         }
         .skt-description {
           cursor: pointer;
@@ -373,7 +492,7 @@
           border-top: 1px solid #333;
           justify-content: space-between;
           align-items: center;
-          height: 40px;
+          height: 50px;
           padding-top: 5px;
           margin-top: 5px;
           .skt-chart-detail {
@@ -534,5 +653,18 @@
       margin: 0px auto;
       margin-top: 40px;
     }
+  }
+
+  .subject-name-tag {
+    .my-subject-name-tag {
+      background-color: #15c39a;
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+    }
+  }
+
+  .self-out-icon {
+    color: #333;
   }
 </style>

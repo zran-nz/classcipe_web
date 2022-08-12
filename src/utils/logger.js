@@ -4,7 +4,7 @@
  * @param message
  */
 function debug (...message) {
-  console.log(message)
+  console.debug(...message)
 }
 
 /**
@@ -12,7 +12,7 @@ function debug (...message) {
  * @param message
  */
 function info (...message) {
-  console.log(message)
+  console.log(...message)
 }
 
 /**
@@ -20,7 +20,7 @@ function info (...message) {
  * @param message
  */
 function error (...message) {
-  console.log(message)
+  console.error(message)
 }
 
 /**
@@ -28,7 +28,7 @@ function error (...message) {
  * @param message
  */
 function warn (...message) {
-  console.log(message)
+  console.warn(...message)
 }
 
 export {

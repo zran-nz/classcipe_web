@@ -6,14 +6,13 @@
       <a-col span="12" class="col-wrapper">
         <div>
           <div class="row-filter">
-            <div><h3><a-icon type="bulb" />Recommended</h3></div>
-            <div class="keyword-search">
+            <div><h3>Recommended</h3></div>
+            <div class="keyword-search vertical-right">
               <a-input
                 @keyup="handleKeySearch"
                 placeholder="Search key word"
                 v-model="keywordSearchText"
                 class="my-nav-search">
-                <sousuo-icon-svg slot="prefix"/>
               </a-input>
             </div>
           </div>
@@ -29,7 +28,7 @@
 
       <a-col span="12" class="col-wrapper" style="margin-left: 10px">
         <div>
-          <h3><a-icon type="select" />Selected</h3>
+          <h3>Selected</h3>
           <a-list bordered :data-source="selectQuestionList">
             <a-list-item slot="renderItem" slot-scope="item,index">
               {{ item }}
@@ -66,6 +65,10 @@ export default {
     bigIdea: {
       type: String,
       default: ''
+    },
+    selectedSdg: {
+      type: Array,
+      default: () => []
     }
   },
   computed: {
@@ -99,32 +102,35 @@ export default {
     }
   },
   created () {
-    this.showList = []
-    this.questionList.forEach(item => {
-      if (item.name) {
-        this.selectQuestionList.push(item.name)
-      }
-    })
-
-    this.loading = true
-    FindQuestionsByBigIdea({ bigIdea: this.bigIdea }).then(response => {
-      logger.info('FindQuestionsByBigIdea ', response)
-      this.AllQuestionList = []
-      if (response.success) {
-        response.result.forEach(item => {
-          if (this.AllQuestionList.indexOf(item.name) === -1) {
-            this.AllQuestionList.push(item.name)
-          }
-        })
-      }
-    }).finally(() => {
-      this.loading = false
-    })
+    this.queryQuestion()
   },
   watch: {
-
   },
   methods: {
+    queryQuestion() {
+      this.showList = []
+      this.questionList.forEach(item => {
+        if (item.name) {
+          this.selectQuestionList.push(item.name)
+        }
+      })
+
+      this.loading = true
+      logger.info('FindQuestionsByBigIdea sdgs ', this.selectedSdg)
+      FindQuestionsByBigIdea({ sdgs: this.selectedSdg }).then(response => {
+        logger.info('FindQuestionsByBigIdea ', response)
+        this.AllQuestionList = []
+        if (response.success) {
+          response.result.forEach(item => {
+            if (this.AllQuestionList.indexOf(item.name) === -1) {
+              this.AllQuestionList.push(item.name)
+            }
+          })
+        }
+      }).finally(() => {
+        this.loading = false
+      })
+    },
     handleChange (nextTargetKeys, direction, moveKeys) {
       // this.targetKeys = nextTargetKeys
       // console.log('targetKeys: ', nextTargetKeys)
@@ -217,8 +223,7 @@ export default {
   width: 100px;
 }
 .keyword-search {
-  margin-top: -5px;
-  margin-right: 5px;
+  margin-bottom: 10px;
   .my-nav-search {
     svg {
       fill: rgba(188, 188, 188, 1);
@@ -227,5 +232,9 @@ export default {
 
     }
   }
+}
+/deep/ .ant-list-items{
+  max-height: 800px;
+  overflow-y: auto;
 }
 </style>

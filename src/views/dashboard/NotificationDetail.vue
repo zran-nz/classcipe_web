@@ -165,6 +165,7 @@ export default {
 
       handleGoBack () {
         this.$router.replace({ path: '/notification' })
+        this.$router.go(-1)
         return false
       },
       showAnnouncement () {

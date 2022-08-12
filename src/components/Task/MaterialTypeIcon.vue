@@ -12,14 +12,7 @@
 </template>
 
 <script>
-/**
- 'topic': 1,
- 'unit-plan': 2,
- 'material': 3,
- 'task': 4,
- 'lesson': 5,
- 'evaluation': 6
- */
+
 import TextTypeSvg from '@/assets/icons/material/text.svg?inline'
 import ImageTypeSvg from '@/assets/icons/material/image.svg?inline'
 import VideoTypeSvg from '@/assets/icons/material/video.svg?inline'

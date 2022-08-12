@@ -37,7 +37,7 @@ export const PptPreviewMixin = {
 
   },
   computed: {
-      currentPageElements () {
+    currentPageElements () {
       const showMenuList = []
       if (this.thumbnailList.length === 0) {
         return showMenuList
@@ -150,28 +150,32 @@ export const PptPreviewMixin = {
       const pageIds = this.thumbnailList.map(page => {
         return page.id
       })
-      QueryByClassInfoSlideId({ slideId: slideId, pageIds: pageIds }).then(response => {
-        // QueryByClassInfoSlideId({ slideId: '1X9fE0m4j4Ey5BvSxof_a0bVxTDNaDfadJTlhkXmyikk' }).then(response => {
-        this.$logger.info('QueryByClassInfoSlideId ', response)
-        if (response.success) {
-          response.result.relements.forEach(e => {
-            if (typeof e.data === 'string') {
-              e.data = JSON.parse(e.data)
-            }
-          })
-          response.result.items.forEach(e => {
-            if (typeof e.data === 'string') {
-              e.data = JSON.parse(e.data)
-            }
-          })
-          this.elementsList = response.result.relements
-          this.itemsList = response.result.items
-        }
-      }).finally(() => {
+      if (pageIds.length === 0) {
         this.loadingClass = false
-        // 将ppt的Bloom和Knowledge dimension同步到task
-        this.setTaskKnowAndBloomFormPPT()
-      })
+      } else {
+        QueryByClassInfoSlideId({ slideId: slideId, pageIds: pageIds }).then(response => {
+          // QueryByClassInfoSlideId({ slideId: '1X9fE0m4j4Ey5BvSxof_a0bVxTDNaDfadJTlhkXmyikk' }).then(response => {
+          this.$logger.info('QueryByClassInfoSlideId ', response)
+          if (response.success) {
+            response.result.relements.forEach(e => {
+              if (typeof e.data === 'string') {
+                e.data = JSON.parse(e.data)
+              }
+            })
+            response.result.items.forEach(e => {
+              if (typeof e.data === 'string') {
+                e.data = JSON.parse(e.data)
+              }
+            })
+            this.elementsList = response.result.relements
+            this.itemsList = response.result.items
+          }
+        }).finally(() => {
+          this.loadingClass = false
+          // 将ppt的Bloom和Knowledge dimension同步到task
+          this.setTaskKnowAndBloomFormPPT()
+        })
+      }
     },
     setTaskKnowAndBloomFormPPT () {
       const pageIds = this.thumbnailList.map((page) => {

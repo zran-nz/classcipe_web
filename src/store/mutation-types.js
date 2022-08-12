@@ -7,7 +7,7 @@ export const ADD_PREFERENCE_SKIP_TIME = 'Add-Preference-Skip-Time'
 export const USER_INFO = 'USER_INFO'
 export const NOT_REMEMBER_ME = 'not-remember-me'
 
-export const SIDEBAR_TYPE = 'sidebar_type'
+export const HIDDEN_SIDEBAR = 'hidden_sidebar'
 export const TOGGLE_MOBILE_TYPE = 'is_mobile'
 export const TOGGLE_NAV_THEME = 'nav_theme'
 export const TOGGLE_LAYOUT = 'layout'
@@ -26,6 +26,8 @@ export const RECEIVE_MSG = 'receive_msg'
 export const VIEW_MODE = 'view_mode'
 export const GRADE_COMMON = 'grade_common'
 
+export const HIDDEN_HEADER = 'hidden_header'
+
 export const CONTENT_WIDTH_TYPE = {
   Fluid: 'Fluid',
   Fixed: 'Fixed'
@@ -37,3 +39,29 @@ export const NAV_THEME = {
 }
 
 export const WEBSOCKET_TYPE_INIT = 'websocket_init'
+
+export const TOOGLE_USER_MODE = 'user_mode'
+
+export const FORM_CONFIG_PREVIEW_DATA = 'form_config_preview_data'
+export const FORM_CONFIG_DATA = 'form_config_data'
+
+export const SET_CLASS_LIST = 'set_class_list'
+
+export const SET_CURRENT_SCHOOL = 'SET_CURRENT_SCHOOL'
+
+export const TOGGLE_DEVICE = 'TOGGLE_DEVICE'
+
+export const SET_PROMOTE_CODE = 'SET_PROMOTE_CODE'
+export const SET_GLOBAL_LOADING = 'SET_GLOBAL_LOADING'
+
+export const SET_CURRICULUM_LIST = 'SET_CURRICULUM_LIST'
+
+export const SET_SCHOOL_SUBJECT = 'SET_SCHOOL_SUBJECT'
+
+export const SET_SCHOOL_GRADE = 'SET_SCHOOL_GRADE'
+
+export const SET_PUB_TAG = 'SET_PUB_TAG'
+export const SET_PRI_TAG = 'SET_PRI_TAG'
+export const SET_PD_TAG = 'SET_PD_TAG'
+
+export const TEACHER_SECURITY_NOT_SHOW = 'TEACHER_SECURITY_NOT_SHOW'

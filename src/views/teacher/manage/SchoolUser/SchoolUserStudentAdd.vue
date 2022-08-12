@@ -164,7 +164,7 @@
 <script>
 import JModal from '@/components/jeecg/JModal'
 import { addStudent, getOrCreateInvite, updateInvite } from '@/api/schoolUser'
-import store from '@/store'
+import { mapState } from 'vuex'
 
 export default {
   name: 'SchoolUserStudentAdd',
@@ -215,7 +215,11 @@ export default {
         parentEmail: this.defaultData?.userInfo?.parentEmail,
         parentNo: this.defaultData?.userInfo?.parentNo
       }
-    }
+    },
+    ...mapState({
+      info: state => state.user.info,
+      currentSchool: state => state.user.currentSchool
+    })
   },
   methods: {
     show() {
@@ -228,7 +232,7 @@ export default {
           this.confirmLoading = true
           console.log('Received values of form: ', values)
           const res = await addStudent({
-            schoolId: store.getters.userInfo.school,
+            schoolId: this.currentSchool.id,
             ...values
           })
           if (res.success) {
@@ -248,7 +252,7 @@ export default {
     },
     async getInviteUrl(needRefresh) {
       const res = await getOrCreateInvite({
-        schoolId: store.getters.userInfo.school,
+        schoolId: this.currentSchool.id,
         role: 4,
         need_approve: this.inviteCheckBoxChecked ? 1 : 0,
         need_refresh: needRefresh
@@ -283,7 +287,7 @@ export default {
         id: this.inviteCodeId
       })
       if (res.success) {
-
+        this.inviteUrl = `${process.env.VUE_APP_BASE_URL}/user/invite?inviteCode=${res?.result?.inviteCode}`
       } else {
         this.$message.error(res.message)
       }

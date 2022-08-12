@@ -96,7 +96,7 @@
         <div class="preview-info" v-if="previewVisible">
           <div class="preview-wrapper">
             <div class="preview-detail">
-              <common-preview :id="previewCurrentId" :type="previewType" :is-library="true"/>
+              <common-preview-v2 :id="previewCurrentId" :type="previewType" :is-library="true"/>
             </div>
           </div>
         </div>
@@ -121,7 +121,7 @@ import {
 } from '@/api/preference'
 import DirIcon from '@/components/Library/DirIcon'
 import NoMoreResources from '@/components/Common/NoMoreResources'
-import CommonPreview from '@/components/Common/CommonPreview'
+import CommonPreviewV2 from '@/components/Common/CommonPreviewV2'
 import AssessmentBrowser from './AssessmentBrowser'
 import BackSvg from '@/assets/svgIcon/library/back_btn.svg?inline'
 import GeneralCapabilityBrowser from '@/components/Library/GeneralCapabilityBrowser'
@@ -156,7 +156,7 @@ export default {
     SubjectSpecificBrowser,
     GeneralCapabilityBrowser,
     AssessmentBrowser,
-    CommonPreview,
+    CommonPreviewV2,
     NoMoreResources,
     Navigation,
     CurriculumBrowser,

@@ -4,6 +4,7 @@
     :collapsed="collapsed"
     :mediaQuery="query"
     :isMobile="isMobile"
+    :siderWidth="$classcipe.sysConfig.sidebarWidth"
     :handleMediaQuery="handleMediaQuery"
     :handleCollapse="handleCollapse"
     :i18nRender="i18nRender"
@@ -14,27 +15,38 @@
     -->
     <template v-slot:menuHeaderRender>
       <div class="home-nav" @click="goHome">
-        <img src="~@/assets/logo/logo.png">
-        <h1>{{ title }}</h1>
+        <img src="~@/assets/logo/50.png" class='single-logo-img' alt='classcipe' />
+        <div class='home-title'>
+          <div class='classcipe-title'>Classcipe</div>
+          <div class='classcipe-type'>
+            <template v-if='userMode === USER_MODE.SCHOOL'>
+              {{ currentSchool.schoolName }}
+            </template>
+            <template v-if='userMode === USER_MODE.SELF'>
+              Personal
+            </template>
+          </div>
+        </div>
       </div>
     </template>
     <!-- 1.0.0+ 版本 pro-layout 提供 API,
           增加 Header 左侧内容区自定义
     -->
     <template v-slot:menuRender>
-      <expert-nav v-show="$store.getters.currentRole === 'expert'"></expert-nav>
-      <teacher-nav v-show="$store.getters.currentRole === 'teacher'"></teacher-nav>
-      <student-nav v-show="$store.getters.currentRole === 'student'"></student-nav>
+      <teacher-nav-v2 v-if="$store.getters.currentRole === 'teacher' && !noSidebar"></teacher-nav-v2>
+      <student-nav v-if="$store.getters.currentRole === 'student' && !noSidebar"></student-nav>
     </template>
-    <template v-slot:rightContentRender>
-      <right-content :top-menu="settings.layout === 'topmenu'" :is-mobile="isMobile" :theme="settings.theme" @switch-role="handleSwitchRole" />
-    </template>
+
     <!-- custom footer / 自定义Footer -->
-    <template v-slot:footerRender>
-      <global-footer />
-    </template>
-    <div :class="{'classcipe-main': true, 'no-full-layout': !fullLayoutFlag}">
-      <router-view />
+    <!--    <template v-slot:footerRender v-if='showFooter'>-->
+    <!--      <global-footer />-->
+    <!--    </template>-->
+    <!-- 主页面内容 -->
+    <div class='cc-main-content'>
+      <keep-alive v-if="keepAlive">
+        <router-view />
+      </keep-alive>
+      <router-view v-else />
     </div>
   </pro-layout>
 </template>
@@ -42,16 +54,15 @@
 <script>
 import { i18nRender } from '@/locales'
 import { mapState } from 'vuex'
-import { CONTENT_WIDTH_TYPE } from '@/store/mutation-types'
+import { CONTENT_WIDTH_TYPE, HIDDEN_SIDEBAR } from '@/store/mutation-types'
 
 import defaultSettings from '@/config/defaultSettings'
 import RightContent from '@/components/GlobalHeader/RightContent'
 import GlobalFooter from '@/components/GlobalFooter'
 import * as logger from '@/utils/logger'
-
-import TeacherNav from '@/components/GlobalHeader/TeacherNav'
-import ExpertNav from '@/components/GlobalHeader/ExpertNav'
+import TeacherNavV2 from '@/components/GlobalHeader/TeacherNavV2'
 import StudentNav from '@/components/GlobalHeader/StudentNav'
+import { USER_MODE } from '@/const/common'
 
 export default {
   name: 'BasicLayout',
@@ -59,8 +70,7 @@ export default {
     StudentNav,
     RightContent,
     GlobalFooter,
-    TeacherNav,
-    ExpertNav
+    TeacherNavV2
   },
   data () {
     return {
@@ -71,7 +81,6 @@ export default {
       // base
       menus: [],
       // 侧栏收起状态
-      collapsed: false,
       title: defaultSettings.title,
       settings: {
         // 布局类型
@@ -93,53 +102,67 @@ export default {
       query: {},
 
       // 是否手机模式
-      isMobile: false
+      isMobile: false,
+      USER_MODE: USER_MODE,
+      noSidebar: false
     }
   },
   watch: {
-    '$route' (to, from) {
-      logger.info('route change', to, from)
-      if (to.meta && this.headerDom.length) {
-        if (to.meta.editPage) {
-          this.showGlobalHeader(!to.meta.editPage)
-        } else {
-          this.showGlobalHeader(true)
+    '$route': {
+      handler(to, from) {
+        logger.info('route change', to, from)
+        if (to.meta && this.headerDom && this.headerDom.length) {
+          if (to.meta.editPage) {
+            this.showGlobalHeader(!to.meta.editPage)
+          } else {
+            this.showGlobalHeader(true)
+          }
         }
-      }
 
-      if (to.path === '/') {
-        logger.info('go to defaultRouter ' + this.$store.getters.defaultRouter)
-        this.$router.replace(this.$store.getters.defaultRouter)
-      }
+        setTimeout(() => {
+          if (to.meta && to.meta.noSidebar) {
+            if (document.querySelector('.ant-pro-basicLayout')) {
+              document.querySelector('.ant-pro-basicLayout').classList.add('no-side')
+            }
+          } else {
+            if (document.querySelector('.ant-pro-basicLayout')) {
+              document.querySelector('.ant-pro-basicLayout').classList.remove('no-side')
+            }
+          }
+        }, 100)
+
+        if (to.path === '/') {
+          logger.info('go to defaultRouter ' + this.$store.getters.defaultRouter)
+          this.$router.replace(this.$store.getters.defaultRouter)
+        }
+      },
+      immediate: true
     }
   },
   computed: {
     ...mapState({
       // 动态主路由
-      mainMenu: state => state.permission.addRouters
+      mainMenu: state => state.permission.addRouters,
+      collapsed: state => state.app.sideCollapsed,
+      currentSchool: state => state.user.currentSchool,
+      userMode: state => state.app.userMode,
+      currentRole: state => state.user.currentRole
     }),
-    fullLayoutFlag () {
-      return this.$route.meta.fullLayout
+    keepAlive () {
+      return this.$route.meta?.keepAlive
     }
   },
   created () {
     logger.info('BasicLayout created, path ' + this.$route.path)
+    const routes = this.mainMenu.find(item => item.path === '/')
+    this.menus = (routes && routes.children) || []
+    this.$logger.info('menus -> ', this.menus)
     if (this.$route.path === '/') {
       logger.info('go to defaultRouter ' + this.$store.getters.defaultRouter)
       this.$router.replace(this.$store.getters.defaultRouter)
     }
   },
   mounted () {
-    const userAgent = navigator.userAgent
-    if (userAgent.indexOf('Edge') > -1) {
-      this.$nextTick(() => {
-        this.collapsed = !this.collapsed
-        setTimeout(() => {
-          this.collapsed = !this.collapsed
-        }, 16)
-      })
-    }
-
     this.headerDom = []
     this.headerDom = document.getElementsByTagName('header')
 
@@ -150,14 +173,6 @@ export default {
         this.showGlobalHeader(true)
       }
     }
-
-    this.$logger.info('fullLayoutFlag', this.fullLayoutFlag)
-
-    // first update color
-    // TIPS: THEME COLOR HANDLER!! PLEASE CHECK THAT!!
-    // if (process.env.NODE_ENV !== 'production' || process.env.VUE_APP_PREVIEW === 'true') {
-    //   updateTheme(this.settings.primaryColor)
-    // }
   },
   methods: {
     i18nRender,
@@ -174,20 +189,10 @@ export default {
       this.$message.success('search something')
     },
     handleMediaQuery (val) {
-      this.query = val
-      if (this.isMobile && !val['screen-xs']) {
-        this.isMobile = false
-        return
-      }
-      if (!this.isMobile && val['screen-xs']) {
-        this.isMobile = true
-        this.collapsed = false
-        this.settings.contentWidth = CONTENT_WIDTH_TYPE.Fluid
-        // this.settings.fixSiderbar = false
-      }
     },
     handleCollapse (val) {
-      this.collapsed = val
+      this.$logger.info('handleCollapse ' + val)
+      this.$store.commit(HIDDEN_SIDEBAR, val)
     },
     handleSettingChange ({ type, value }) {
       console.log('type', type, value)
@@ -216,6 +221,11 @@ export default {
         domItem.style.opacity = visible ? 1 : 0
         domItem.style['pointer-events'] = visible ? 'auto' : 'none'
       })
+    },
+
+    handleMenuCollapse () {
+      this.$logger.info('handleMenuCollapse ' + this.collapsed)
+      this.$store.commit(HIDDEN_SIDEBAR, !this.collapsed)
     }
   }
 }
@@ -224,9 +234,12 @@ export default {
 <style lang='less'>
 @import "./BasicLayout.less";
   .home-nav {
-    h1 {
-      font-family: Inter-Bold;
-    }
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    padding-left: 10px;
+    height: 50px;
   }
 
 .nav-item {
@@ -286,4 +299,64 @@ export default {
   }
 }
 
+.ant-pro-sider-menu-logo {
+  padding-left: 0;
+  display: flex;
+  align-items: center;
+  height: 90px;
+  background-color: #222634;
+  img {
+    image-rendering:-moz-crisp-edges;
+    image-rendering:-o-crisp-edges;
+    image-rendering: crisp-edges;
+    -ms-interpolation-mode: nearest-neighbor;
+    -webkit-font-smooting:  antialiased;
+  }
+
+  img.full-logo {
+    height: 100%;
+    width: auto !important;
+  }
+
+  img.single-logo-img {
+    height: 50px;
+    width: auto !important;
+  }
+}
+
+.home-nav {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+}
+.home-title {
+  padding-left: 16px;
+  .classcipe-title {
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 28px;
+  }
+
+  .classcipe-type {
+    line-height: 14px;
+    font-size: 13px;
+    padding-bottom: 5px;
+  }
+}
+
+.no-side {
+  & > .ant-layout-sider {
+    display: none!important;
+  }
+  & > .sidemenu {
+    padding-left: 0!important;
+  }
+  .cc-fixed-form-header {
+    left: 0!important;
+  }
+   .cc-fixed-form-footer {
+    left: 0!important;
+  }
+}
 </style>

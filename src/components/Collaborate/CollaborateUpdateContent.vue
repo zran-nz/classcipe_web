@@ -5,7 +5,7 @@
         <img src="~@/assets/icons/collaborate/alert.png" />
       </div>
       <div class='alert-text'>
-        Mike saved this document！<br> This document contently is updated.
+        The content has been edited by {{ this.saveContentMsg.from.nickname }}！<br> Please update to view the latest version.
       </div>
       <div class='alert-text-sub'>Please edit on the latest</div>
       <div class='alert-button'>
@@ -16,6 +16,8 @@
 </template>
 
 <script>
+
+import { mapActions, mapGetters, mapState } from 'vuex'
 
 export default {
   name: 'CollaborateUpdateContent',
@@ -38,20 +40,27 @@ export default {
     }
   },
   computed: {
+    ...mapGetters({
+      vueSocket: 'vueSocket'
+    }),
+    ...mapState({
+      saveContentMsg: state => state.websocket.saveContentMsg
+    })
   },
   created() {
     this.loading = false
   },
   methods: {
+    ...mapActions(['receiveSaveContentMsg']),
 
     updateContent() {
-      const contentMsg = this.$store.state.websocket.saveContentMsg
+      const contentMsg = this.saveContentMsg
       contentMsg.hideUpdate = true
       this.loading = true
-      this.$store.getters.vueSocket.sendAction('receiveSaveContentMsg', contentMsg)
+      this.receiveSaveContentMsg(contentMsg)
       this.$emit('update-content', '')
       setTimeout(() => {
-        this.$message.info({ content: 'The latest version has been loaded for you and the local offlice cache has been saved to the historical version', duration: 5 })
+        this.$message.info({ content: 'The latest version has been loaded and your local offline changes can be viewed and restored on history section.', duration: 5 })
       }, 1000)
     }
   }

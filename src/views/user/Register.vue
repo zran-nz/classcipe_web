@@ -12,7 +12,7 @@
           <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div> -->
           <div class="desc">Choose your role to enter</div>
         </div>
-        <div class="role-item" :class="{ selected: selectedRole === 2 }" @click="handleSelectRole(2)">
+        <div class="role-item" :class="{ selected: selectedRole === userRole.teacher }" @click="handleSelectRole(userRole.teacher)">
           <div class="role-info">
             <img src="~@/assets/icons/role/teacher.png" class="role-img" />
             <div>
@@ -23,7 +23,7 @@
             <span></span>
           </div>
         </div>
-        <div class="role-item" :class="{ selected: selectedRole === 4 }" @click="handleSelectRole(4)">
+        <div class="role-item" :class="{ selected: selectedRole === userRole.student }" @click="handleSelectRole(userRole.student)">
           <div class="role-info">
             <img src="~@/assets/icons/role/student.png" class="role-img" />
             <div>
@@ -37,10 +37,8 @@
       </div>
       <div class="register" v-if="currentStep === 1">
         <!-- 老师注册 -->
-        <div v-if="selectedRole === 2">
+        <!-- <div v-if="selectedRole === 2">
           <div>
-            <!-- <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
-            <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div> -->
             <div class="desc">Sign Up</div>
             <div class="desc2">Sign Up to Classcipe using your Google account</div>
             <div class="desc2">
@@ -64,37 +62,64 @@
               <span><a href="https://www.classcipe.com/policy.html" target="_blank">Privacy Policy</a></span>
             </a-checkbox>
           </div>
-        </div>
+        </div> -->
         <!-- 学生注册 -->
-        <div v-if="selectedRole === 4">
+        <div v-if="selectedRole === userRole.student || selectedRole === userRole.teacher">
           <div>
             <!-- <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
             <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div> -->
             <div class="desc">Sign Up</div>
             <div class="desc2">
               Already have an account? |
-              <span><router-link :to="{ path: studentLoginPath }">Sign In</router-link></span>
+              <span><router-link :to="{ path: selectedRole === userRole.student ? studentLoginPath : teacherLoginPath }">Sign In</router-link></span>
             </div>
           </div>
           <a-form :form="form" class="register-form" @submit="handleSubmit">
-            <a-form-item class="form-name">
-              <a-input
-                size="large"
-                type="text"
-                :placeholder="$t('user.register.name.placeholder')"
-                v-decorator="[
-                  'name',
-                  {
-                    rules: [
-                      {
-                        required: true,
-                        message: $t('user.register.name.required'),
-                      },
-                    ],
-                    validateTrigger: ['change', 'blur'],
-                  },
-                ]"
-              ></a-input>
+            <a-form-item style="margin-bottom: 0;">
+              <a-row :gutter="20">
+                <a-col :span="12">
+                  <a-form-item class="form-name">
+                    <a-input
+                      size="large"
+                      type="text"
+                      placeholder="First Name"
+                      v-decorator="[
+                        'firstname',
+                        {
+                          rules: [
+                            {
+                              required: true,
+                              message: $t('user.register.name.required'),
+                            },
+                          ],
+                          validateTrigger: ['change', 'blur'],
+                        },
+                      ]"
+                    ></a-input>
+                  </a-form-item>
+                </a-col>
+                <a-col :span="12">
+                  <a-form-item class="form-name">
+                    <a-input
+                      size="large"
+                      type="text"
+                      placeholder="Last Name"
+                      v-decorator="[
+                        'lastname',
+                        {
+                          rules: [
+                            {
+                              required: true,
+                              message: $t('user.register.name.required'),
+                            },
+                          ],
+                          validateTrigger: ['change', 'blur'],
+                        },
+                      ]"
+                    ></a-input>
+                  </a-form-item>
+                </a-col>
+              </a-row>
             </a-form-item>
 
             <a-form-item class="form-email">
@@ -189,8 +214,10 @@ import { deviceMixin } from '@/store/device-mixin'
 import ThirdLoginButton from '@/components/Button/ThirdLoginButton'
 import { getThirdAuthURL, thirdAuthCallbackUrl } from '@/api/thirdAuth'
 import { mapActions } from 'vuex'
-import { NOT_REMEMBER_ME } from '@/store/mutation-types'
+import { NOT_REMEMBER_ME, SET_PROMOTE_CODE } from '@/store/mutation-types'
 import storage from 'store'
+import { getCookie } from '@/utils/util'
+import { SchoolUserRole } from '@/const/role'
 
 export default {
   name: 'Register',
@@ -208,7 +235,8 @@ export default {
       teacherLoginPath: '/user/login?role=teacher',
       studentLoginPath: '/user/login?role=student',
       disabled: true,
-      callbackUrl: ''
+      callbackUrl: '',
+      userRole: SchoolUserRole
     }
   },
   created() {
@@ -248,6 +276,7 @@ export default {
       console.log('thirdSignIn', source)
       let url = getThirdAuthURL(source)
       url += `?role=${role}`
+      url += `&channelId=${getCookie(SET_PROMOTE_CODE)}`
       url += `&callbackUrl=`
       url += thirdAuthCallbackUrl
       console.log('full auth url ', url)
@@ -265,7 +294,9 @@ export default {
           this.loading = true
           console.log('signup submit', values)
           const signUpParams = {
-            nickname: values.name,
+            firstname: values.firstname,
+            lastname: values.lastname,
+            nickname: `${values.firstname} ${values.lastname}`,
             password: values.password,
             username: values.email,
             role: this.selectedRole
@@ -289,7 +320,7 @@ export default {
         callback(new Error(this.$t('user.email.required')))
         return
       }
-      if (this.selectedRole === 2 && value && !value.endsWith('@gmail.com')) {
+      if (this.selectedRole === this.userRole.teacher && value && !value.endsWith('@gmail.com')) {
         callback(new Error('please use your google email'))
       } else {
         callback()
@@ -307,8 +338,9 @@ export default {
       this.$store
         .dispatch('GetInfo')
         .then(response => {
-          if (this.callbackUrl) {
-            window.location.href = this.callbackUrl + '?token=' + res.result.token
+          const callbackUrl = this.callbackUrl
+          if (callbackUrl) {
+            window.location.href = callbackUrl + (callbackUrl.indexOf('?') > -1 ? '&' : '?') + 'token=' + res.result.token
           } else if (this.$store.getters.currentRole) {
             this.$router.push(this.$store.getters.defaultRouter)
           } else {

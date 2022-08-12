@@ -3,10 +3,8 @@
     <blue-dir-svg class="blue" v-if="dirType === 'blue'"/>
     <yellow-dir-svg v-else-if="dirType === 'yellow'" class="yellow"/>
     <open-dir-svg class="opened" v-else-if="dirType === 'opened'"/>
-    <img src="~@/assets/icons/library/Lesson.png" v-else-if="contentType === typeMap.lesson"/>
     <img src="~@/assets/icons/library/Task.png" v-else-if="contentType === typeMap.task"/>
     <img src="~@/assets/icons/library/unitplan.png" v-else-if="contentType === typeMap['unit-plan']"/>
-    <img src="~@/assets/icons/library/topic.png" v-else-if="contentType === typeMap.topic"/>
     <img src="~@/assets/icons/library/evaluation.png" v-else-if="contentType === typeMap.evaluation"/>
     <img src="~@/assets/icons/library/evaluation.png" v-else/>
   </div>

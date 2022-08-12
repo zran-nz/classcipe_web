@@ -17,7 +17,7 @@
           </a-select>
         </a-form-model-item>
 
-        <a-form-model-item label="grade" :labelCol="labelCol" :wrapperCol="wrapperCol" prop="gradeIds">
+        <a-form-model-item label="Grade" :labelCol="labelCol" :wrapperCol="wrapperCol" prop="gradeIds">
           <a-select
             :getPopupContainer="trigger => trigger.parentElement"
             mode="multiple"
@@ -29,19 +29,30 @@
           </a-select>
         </a-form-model-item>
 
-        <a-form-model-item label="parent" :labelCol="labelCol" :wrapperCol="wrapperCol" prop="parent">
-          <j-tree-select
-            ref="treeSelect"
-            placeholder="Please select parent"
-            v-model="model.parentId"
-            dict="cc_knowledge,name,id"
-            pidField="parent_id"
-            pidValue="0"
-            hasChildField="has_child"
-            :condition="condition"
-          >
-          </j-tree-select>
+        <a-form-model-item label="Phase" :labelCol="labelCol" :wrapperCol="wrapperCol" prop="phaseList">
+          <a-select
+            :getPopupContainer="trigger => trigger.parentElement"
+            mode="multiple"
+            v-model="model.phaseList"
+            placeholder="Please select grade"
+            :readonly="true" >
+            <a-select-option :value="item.value" :key="item.value" v-for="item in phaseAllList">{{ item.text }}</a-select-option>
+          </a-select>
         </a-form-model-item>
+
+        <!--        <a-form-model-item label="parent" :labelCol="labelCol" :wrapperCol="wrapperCol" prop="parent">-->
+        <!--          <j-tree-select-->
+        <!--            ref="treeSelect"-->
+        <!--            placeholder="Please select parent"-->
+        <!--            v-model="model.parentId"-->
+        <!--            dict="cc_knowledge,name,id"-->
+        <!--            pidField="parent_id"-->
+        <!--            pidValue="0"-->
+        <!--            hasChildField="has_child"-->
+        <!--            :condition="condition"-->
+        <!--          >-->
+        <!--          </j-tree-select>-->
+        <!--        </a-form-model-item>-->
 
         <a-form-model-item label="branch or Description" :labelCol="labelCol" :wrapperCol="wrapperCol" prop="name">
           <a-textarea rows="3" v-model="model.name" placeholder="Please input description" ></a-textarea>
@@ -58,6 +69,7 @@ import { httpAction } from '@/api/manage'
 import JModal from '@/components/jeecg/JModal'
 import JTreeSelect from '@/components/jeecg/JTreeSelect'
 import { SubjectType, TagType } from '@/const/common'
+
 export default {
   name: 'KnowledgeModal',
   components: {
@@ -71,12 +83,16 @@ export default {
     gradeList: {
       type: Array,
       default: () => []
+    },
+    phaseAllList: {
+      type: Array,
+      default: () => []
     }
   },
   data () {
     return {
       gradeListAll: this.gradeList,
-      title: '操作',
+      title: 'Edit',
       width: 800,
       condition: {},
       visible: false,
@@ -119,7 +135,8 @@ export default {
       console.log(obj)
       this.modelDefault.parentId = ''
       this.modelDefault.curriculumId = this.$store.getters.bindCurriculum
-      this.modelDefault.tagType = TagType.skill
+      this.modelDefault.tagType = TagType.ibSkill
+      this.modelDefault.school = this.$store.getters.school
       this.edit(Object.assign(this.modelDefault, obj))
     },
     edit (record) {
@@ -140,15 +157,8 @@ export default {
       this.$refs.form.validate(valid => {
         if (valid) {
           that.confirmLoading = true
-          let httpurl = ''
-          let method = ''
-          if (!this.model.id) {
-            httpurl += this.url.add
-            method = 'post'
-          } else {
-            httpurl += this.url.edit
-            method = 'post'
-          }
+          const httpurl = this.url.edit
+          const method = 'post'
           if (this.model.id && this.model.id === this.model[this.pidField]) {
             that.$message.warning('The parent node cannot choose itself')
             that.confirmLoading = false

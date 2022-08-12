@@ -1,7 +1,7 @@
 <template>
   <a-card :bordered="false">
     <div class="operator">
-      <a-button @click="handleAdd" type="primary" icon="plus">Add acadeic Year</a-button>
+      <a-button @click="handleAdd" type="primary" icon="plus">Add Academic Year</a-button>
       <!-- <a-button type="primary" icon="download" @click="downloadTemplate">Download template</a-button>
       <a-upload name="file" :showUploadList="false" :multiple="false">
         <a-button type="primary" icon="import">Upload</a-button>

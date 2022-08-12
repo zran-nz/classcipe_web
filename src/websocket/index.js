@@ -7,7 +7,7 @@ import { CONNECT, DISCONNECT, HEARTCHECK } from '@/websocket/cmd'
 import LocalStore from '@/websocket/localstore'
 import ReceiveCollaborateHandler from '@/websocket/handler/receiveCollaborateHandler'
 import ReceiveSaveContentHandler from '@/websocket/handler/receiveSaveContentHandler'
-import ReceiveEvaluationSetChangeHandler from '@/websocket/handler/receiveEvaluationSetChangeHandler'
+import ReceiveEvaluationEventHandler from '@/websocket/handler/receiveEvaluationEventHandler'
 
 export default class VueWebSocket {
     handlerList = [];
@@ -99,11 +99,15 @@ export default class VueWebSocket {
         vuexStore.dispatch(type, data)
     }
 
+    sendMutation(type, data) {
+      vuexStore.commit(type, data)
+    }
+
     initHandlerList() {
         this.handlerList.push(new ReceiveMsgHandler(this))
         this.handlerList.push(new ReceiveCollaborateHandler(this))
         this.handlerList.push(new ReceiveSaveContentHandler(this))
-        this.handlerList.push(new ReceiveEvaluationSetChangeHandler(this))
+        this.handlerList.push(new ReceiveEvaluationEventHandler(this))
     }
 
     processMessage(data) {

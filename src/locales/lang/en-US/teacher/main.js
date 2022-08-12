@@ -1,5 +1,5 @@
 export default {
-  'teacher.main.created-by-me': 'Created by me',
+  'teacher.main.created-by-me': 'My content',
   'teacher.main.my-favorite': 'My favorite',
   'teacher.main.shared': 'Collaborations',
   'teacher.main.discover': 'Discover',

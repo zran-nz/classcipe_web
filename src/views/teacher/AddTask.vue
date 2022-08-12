@@ -1,6 +1,6 @@
 <template>
   <div class='my-full-form-wrapper' id='formRoot'>
-    <div class='form-header'>
+    <div class='form-header' :style="{left: collapsed ? '80px' : '256px'}">
       <common-form-header
         ref='commonFormHeader'
         :form='form'
@@ -9,13 +9,13 @@
         :last-change-saved-time='lastChangeSavedTime'
         @view-collaborate='handleViewCollaborate'
         @back='goBack'
-        @save='handleSaveTask'
+        @save='handleSaveTask(true)'
         @share='handleShareTask'
         @publish='handlePublishTask'
         @collaborate='handleStartCollaborate'
       />
     </div>
-    <a-card :bordered='false' :bodyStyle="{ padding: '16px 24px 40px 24px', height: '100%', minHeight: '1000px' }">
+    <a-card :bordered='false' :bodyStyle="{ padding: '16px 24px 40px 24px', height: '100%', minHeight: '1000px', minWidth: '1250px' }">
       <a-row class='unit-content' v-if='!contentLoading'>
         <a-col span='24' class='main-content'>
           <a-card
@@ -35,240 +35,325 @@
                     :status="currentActiveStepIndex === 0 ? 'process':'wait'">
                     <template slot='description'>
                       <div class='step-detail' v-show='currentActiveStepIndex === 0'>
-                        <div class='form-block'>
-                          <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Name />
-                          <comment-switch
-                            v-show="this.canEdit"
-                            :field-name=taskField.Name
-                            :is-active="currentFieldName === taskField.Name"
-                            @switch='handleSwitchComment'
-                            :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Name}" />
-                          <a-form-item label='Task name'>
-                            <a-input v-model='form.name' placeholder='Enter Task Name' class='my-form-input' @change="handleCollaborateEvent(taskId,'name',form.name)" />
-                          </a-form-item>
-                        </div>
-
-                        <!--关联班级以及开课时间 -->
-                        <div class='form-block link-class'>
-                          <div class='link-class-tips' v-show='!isOwner && form.taskClassList.length'>
-                            Only the author of the current task can modify the class
-                          </div>
-                          <div class='linked-class-list' v-for='(classItem, cIdx) in form.taskClassList' :key='cIdx'>
-                            <div class='mask' v-show='!isOwner'></div>
-                            <div class='class-type-tag' v-if='classItem.classType === 1'>
-                              <a-tag color="#F4B183">
-                                Classcipe International School
-                              </a-tag>
-                            </div>
-                            <div class='class-type-tag' v-if='classItem.classType === 2'>
-                              <a-tag color="#9DC3E6">
-                                Personal
-                              </a-tag>
-                            </div>
-                            <a-popconfirm cancel-text="No" ok-text="Yes" title="Delete ?" @confirm="handleDeleteClass(classItem)" v-show='form.taskMode !== 2'>
-                              <div class='remove-class-icon'>
-                                <img class='big-delete-icon' src="~@/assets/icons/tag/delete.png" alt=''/>
-                              </div>
-                            </a-popconfirm>
-                            <a-form-item label='Choose class'>
-                              <input-with-create
-                                :option-list='classList'
-                                :index='cIdx'
-                                :default-selected-id='classItem.classId'
-                                :default-display-name='classItem.className'
-                                :tag-type-config='tagTypeConfig'
-                                @selected='handleSelectClass(classItem, $event)'
-                                @create-new='handleCreateNewClass'/>
-                            </a-form-item>
-
-                            <a-form-item label='Schedule a session for this class'>
-                              <div class='class-schedule-detail'>
-                                <a-switch size='small' class='my-switch' v-model='classItem.checked' @change="handleChangeClassSessionTime(classItem)" />
-                                <div
-                                  class='range-time'
-                                  v-show='classItem.checked'>
-                                  <div class='week-time' v-show='classItem.weeks'>
-                                    <a-tag color='cyan' style='border-radius: 10px;font-size: 14px;'>
-                                      {{ classItem.weeks }}
-                                    </a-tag>
-                                  </div>
-                                  <a-range-picker
-                                    v-model='classItem.momentRangeDate'
-                                    format='LLL'
-                                    style='width: 430px'
-                                    :show-time="{ format: 'HH:mm' }"
-                                    @openChange='handleUpdateWeeks'>
-                                    <a-icon slot='suffixIcon' type='calendar' />
-                                  </a-range-picker>
-                                </div>
-                              </div>
-                            </a-form-item>
-                          </div>
-                          <div class='add-class' v-show='form.taskMode !== 2'>
-                            <a-button type='primary' @click='handleAddLinkClass'> + Add class</a-button>
-                          </div>
-                        </div>
-
-                        <div class='form-block over-form-block' id='overview'>
-                          <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Overview />
-                          <comment-switch
-                            v-show="this.canEdit"
-                            :field-name=taskField.Overview
-                            :is-active="currentFieldName === taskField.Overview"
-                            @switch='handleSwitchComment'
-                            :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Overview}" />
-                          <a-form-model-item class='task-audio-line' label='Task details' ref='overview'>
-                            <a-textarea autoSize v-model='form.overview' placeholder='Details' allow-clear @change="handleCollaborateEvent(taskId,taskField.Overview,form.overview)" />
-                          </a-form-model-item>
-                        </div>
-
-                        <div class='form-block taskType'>
-                          <collaborate-tooltip :form-id="taskId" :fieldName=taskField.TaskType style="left:20px" />
-                          <comment-switch
-                            v-show="this.canEdit"
-                            :field-name=taskField.TaskType
-                            :is-active="currentFieldName === taskField.TaskType"
-                            @switch='handleSwitchComment'
-                            :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.TaskType}" />
-                          <a-form-model-item class='task-audio-line' ref='taskType' :colon='false'>
-                            <div slot='label'>
-                              Choose Task Type(<span style='font-size: 13px'>Formative Assessment/ Summative Assessment/ Activity</span>):
-                            </div>
-                            <div class='self-type-wrapper'>
-                              <div class='self-field-label'>
-                                <div
-                                  :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}"
-                                  @click="handleSelectTaskType('FA')">FA
-                                </div>
-                                <div
-                                  :class="{'task-type-item': true, 'red-active-task-type': form.taskType === 'SA'}"
-                                  @click="handleSelectTaskType('SA')">SA
-                                </div>
-                                <div
-                                  :class="{'task-type-item': true, 'task-type-activity': true,'blue-active-task-type': form.taskType === 'Activity'}"
-                                  @click="handleSelectTaskType('Activity')">
-                                  <a-tooltip title='Teaching/Learning Activity' placement='top'>Activity</a-tooltip>
-                                </div>
-                              </div>
-                            </div>
-                          </a-form-model-item>
-                        </div>
-
-                        <div class='form-block form-question' v-if='associateQuestionList.length > 0'>
-                          <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Question />
-                          <comment-switch
-                            v-show="this.canEdit"
-                            :field-name=taskField.Question
-                            :is-active="currentFieldName === taskField.Question"
-                            @switch='handleSwitchComment'
-                            :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Question}" />
-                          <a-form-model-item label='Choose Key questions'>
-                            <a-select
-                              :getPopupContainer="trigger => trigger.parentElement"
-                              @change="handleCollaborateEvent(taskId,taskField.Question,form.questions)"
-                              size='large'
-                              class='my-big-select'
-                              v-model='form.questionIds'
-                              mode='multiple'
-                              placeholder='Choose Key questions'
-                              option-label-prop='label'
-                            >
-                              <a-select-option
-                                v-for='(item,index) in associateQuestionList'
-                                :value='item.id'
-                                :label='item.name'
-                                :key='index'>
-                                <span class='question-options'>
-                                  {{ item.name }}
-                                </span>
-                                From Unit Plan({{ item.unitName }})
-                              </a-select-option>
-                            </a-select>
-                          </a-form-model-item>
-                        </div>
-
-                        <div class='form-block'>
-                          <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Assessment style="left:100px" />
-                          <comment-switch
-                            v-show="this.canEdit"
-                            :field-name=taskField.Assessment
-                            :is-active="currentFieldName === taskField.Assessment"
-                            @switch='handleSwitchComment'
-                            :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Assessment}" />
-                          <a-form-item label='Set learning objectives'>
-                            <a-button type='primary' @click='handleSelectDescription'>
-                              <div class='btn-text' style='line-height: 20px'>
-                                Add Learning Objectives
-                              </div>
-                            </a-button>
-                          </a-form-item>
-
-                          <!--knowledge tag-select -->
-                          <ui-learn-out
-                            ref='learnOut'
-                            :learn-outs='form.learnOuts'
-                            :self-outs='form.selfOuts'
-                            @remove-learn-outs='handleRemoveLearnOuts' />
-                        </div>
-
-                        <div class='form-block' style='clear: both'>
-                          <collaborate-tooltip :form-id="taskId" :fieldName=taskField.MaterialList />
-                          <comment-switch
-                            v-show="this.canEdit"
-                            :field-name=taskField.MaterialList
-                            :is-active="currentFieldName === taskField.MaterialList"
-                            @switch='handleSwitchComment'
-                            :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.MaterialList}" />
-                          <div class='form-block-label'>
-                            <a-switch v-model='materialListFlag' @change='handleMaterialListFlagChange' />
-                            Material list
-                          </div>
-                          <div class='material-list'>
-                            <div
-                              class='material-item'
-                              v-for='(materialItem, mIndex) in form.materialList'
-                              :key='mIndex'>
-                              <a-row :gutter='[16,16]'>
-                                <a-col span='8'>
-                                  <a-input
-                                    v-model='materialItem.name'
-                                    aria-placeholder='Enter material name'
-                                    placeholder='Enter material name'
-                                    @change="handleCollaborateEvent(taskId,taskField.MaterialList,form.materialList)"/>
-                                </a-col>
-                                <a-col span='14'>
-                                  <a-tooltip placement='topLeft'>
-                                    <template slot='title'>
-                                      The link is provided to help other users or students prepare(purchase) the material
-                                      for this task
-                                    </template>
-                                    <a-input
-                                      v-model='materialItem.link'
-                                      aria-placeholder='Enter URL'
-                                      placeholder='Enter URL'
-                                      @change="handleCollaborateEvent(taskId,taskField.MaterialList,form.materialList)" >
-                                      <a-icon slot='prefix' type='link' />
-                                    </a-input>
+                        <template v-for='fieldItem in $store.getters.formConfigData.taskCommonList'>
+                          <div class='form-block tag-content-block' :data-field-name='taskField.Name' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Name' :key='fieldItem.fieldName'>
+                            <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Name />
+                            <comment-switch
+                              v-show="canEdit"
+                              :field-name='taskField.Name'
+                              :is-active="currentFieldName === taskField.Name"
+                              @switch='handleSwitchComment'
+                              :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Name}" />
+                            <a-form-item>
+                              <template class='my-label' slot='label'>
+                                {{ 'Task name' | taskLabelName(taskField.Name, $store.getters.formConfigData) }}
+                                <template v-if='taskLabelHint(taskField.Name, $store.getters.formConfigData)'>
+                                  <a-tooltip :title="'Task name' | taskLabelHint(taskField.Name, $store.getters.formConfigData)" placement='top'>
+                                    <a-icon type="info-circle" />
                                   </a-tooltip>
-                                </a-col>
-                                <a-col span='2'>
-                                  <div class='material-icon'>
-                                    <a-icon
-                                      type='plus-circle'
-                                      :style="{ fontSize: '16px' }"
-                                      v-if='mIndex === (form.materialList.length - 1)'
-                                      @click='handleAddMaterial' />
-                                    <img
-                                      src='~@/assets/icons/evaluation/delete.png'
-                                      v-if='mIndex < (form.materialList.length - 1)'
-                                      class='delete-icon'
-                                      @click='handleRemoveMaterialItem(materialItem, mIndex)' />
+                                </template>
+                              </template>
+                              <a-input v-model='form.name' placeholder='Enter Task Name' class='my-form-input' @change="handleCollaborateEvent(taskId,'name',form.name)" :disabled="!canEdit" />
+                            </a-form-item>
+                          </div>
+
+                          <!--关联班级以及开课时间 -->
+                          <div class='form-block link-class' v-if='isOwner && fieldItem.visible && fieldItem.fieldName === taskField.TaskClassList' :key='fieldItem.fieldName'>
+                            <div class='linked-class-list' v-for='(classItem, cIdx) in form.taskClassList' :key='cIdx'>
+                              <div class='class-type-tag' v-if='classItem.classType === 1'>
+                                <a-tag color="#F4B183">
+                                  Classcipe International School
+                                </a-tag>
+                              </div>
+                              <div class='class-type-tag' v-if='classItem.classType === 2'>
+                                <a-tag color="#9DC3E6">
+                                  Personal
+                                </a-tag>
+                              </div>
+                              <a-popconfirm cancel-text="No" ok-text="Yes" title="Delete ?" @confirm="handleDeleteClass(cIdx, classItem)" v-show='form.taskMode !== 2'>
+                                <div class='remove-class-icon'>
+                                  <img class='big-delete-icon' src="~@/assets/icons/tag/delete.png" alt=''/>
+                                </div>
+                              </a-popconfirm>
+                              <a-form-item>
+                                <template class='my-label' slot='label'>
+                                  {{ 'Choose class' | taskLabelName(taskField.TaskClassList, $store.getters.formConfigData) }}
+                                  <template v-if='taskLabelHint(taskField.TaskClassList, $store.getters.formConfigData)'>
+                                    <a-tooltip :title="'Choose class' | taskLabelHint(taskField.TaskClassList, $store.getters.formConfigData)" placement='top'>
+                                      <a-icon type="info-circle" />
+                                    </a-tooltip>
+                                  </template>
+                                </template>
+                                <input-with-create
+                                  v-if="canEdit"
+                                  :option-list='classList'
+                                  :disabled-id-list='form.taskClassList.map(item => item.classId)'
+                                  :index='cIdx'
+                                  :default-selected-id='classItem.classId'
+                                  :default-display-name='classItem.className'
+                                  :tag-type-config='tagTypeConfig'
+                                  @selected='handleSelectClass(classItem, $event)'
+                                  @create-new='handleCreateNewClass'/>
+                              </a-form-item>
+
+                              <a-form-item label='Schedule a session for this class'>
+                                <div class='class-schedule-detail'>
+                                  <a-switch size='small' class='my-switch' v-model='classItem.checked' @change="handleChangeClassSessionTime(classItem)" />
+                                  <div
+                                    class='range-time'
+                                    v-show='classItem.checked'>
+                                    <div class='week-time' v-show='classItem.weeks'>
+                                      <a-tag color='cyan' style='border-radius: 10px;font-size: 14px;'>
+                                        {{ classItem.weeks }}
+                                      </a-tag>
+                                    </div>
+                                    <a-range-picker
+                                      v-model='classItem.momentRangeDate'
+                                      format='LLL'
+                                      style='width: 430px'
+                                      :show-time="{ format: 'HH:mm' }"
+                                      @openChange='handleUpdateWeeks'>
+                                      <a-icon slot='suffixIcon' type='calendar' />
+                                    </a-range-picker>
                                   </div>
-                                </a-col>
-                              </a-row>
+                                </div>
+                              </a-form-item>
+                            </div>
+                            <div class='add-class' v-show='form.taskMode !== 2'>
+                              <a-button type='primary' @click='handleAddLinkClass'> + Add class</a-button>
                             </div>
                           </div>
-                        </div>
+
+                          <div class='form-block over-form-block tag-content-block' :data-field-name='taskField.Overview' id='overview' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Overview' :key='fieldItem.fieldName'>
+                            <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Overview />
+                            <comment-switch
+                              v-show="canEdit"
+                              :field-name='taskField.Overview'
+                              :is-active="currentFieldName === taskField.Overview"
+                              @switch='handleSwitchComment'
+                              :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Overview}" />
+                            <a-form-model-item class='task-audio-line' ref='overview'>
+                              <template class='my-label' slot='label'>
+                                {{ 'Task details' | taskLabelName(taskField.Overview, $store.getters.formConfigData) }}
+                                <template v-if='taskLabelHint(taskField.Overview, $store.getters.formConfigData)'>
+                                  <a-tooltip :title="'Task details' | taskLabelHint(taskField.Overview, $store.getters.formConfigData)" placement='top'>
+                                    <a-icon type="info-circle" />
+                                  </a-tooltip>
+                                </template>
+                              </template>
+                              <a-textarea
+                                autoSize
+                                v-model='form.overview'
+                                placeholder='Details'
+                                allow-clear
+                                @change="handleCollaborateEvent(taskId,taskField.Overview,form.overview)"
+                                :disabled="!canEdit"/>
+                            </a-form-model-item>
+                          </div>
+
+                          <div class='form-block taskType tag-content-block' :data-field-name='taskField.TaskType' v-if='fieldItem.visible && fieldItem.fieldName === taskField.TaskType' :key='fieldItem.fieldName'>
+                            <collaborate-tooltip :form-id="taskId" :fieldName=taskField.TaskType style="left:20px" />
+                            <comment-switch
+                              v-show="canEdit"
+                              :field-name='taskField.TaskType'
+                              :is-active="currentFieldName === taskField.TaskType"
+                              @switch='handleSwitchComment'
+                              :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.TaskType}" />
+                            <a-form-model-item class='task-audio-line' ref='taskType' :colon='false'>
+                              <div slot='label'>
+                                {{ 'Choose Task Type' | taskLabelName(taskField.TaskType, $store.getters.formConfigData) }}
+                                <template v-if='taskLabelHint(taskField.TaskType, $store.getters.formConfigData)'>
+                                  <a-tooltip :title="'Choose Task Type' | taskLabelHint(taskField.TaskType, $store.getters.formConfigData)" placement='top'>
+                                    <a-icon type="info-circle" />
+                                  </a-tooltip>
+                                </template>
+                              </div>
+                              <div class='self-type-wrapper'>
+                                <div class='self-field-label'>
+                                  <div
+                                    :class="{'task-type-item': true, 'green-active-task-type': form.taskType === 'FA'}"
+                                    @click="handleSelectTaskType('FA')">FA
+                                  </div>
+                                  <div
+                                    :class="{'task-type-item': true, 'red-active-task-type': form.taskType === 'SA'}"
+                                    @click="handleSelectTaskType('SA')">SA
+                                  </div>
+                                  <div
+                                    :class="{'task-type-item': true, 'task-type-activity': true,'blue-active-task-type': form.taskType === 'Activity'}"
+                                    @click="handleSelectTaskType('Activity')">
+                                    <a-tooltip title='Teaching/Learning Activity' placement='top'>Activity</a-tooltip>
+                                  </div>
+                                </div>
+                              </div>
+                            </a-form-model-item>
+                          </div>
+
+                          <div class='form-block form-question tag-content-block' :data-field-name='taskField.Question' v-if='associateQuestionList.length > 0 && fieldItem.visible && fieldItem.fieldName === taskField.Question' :key='fieldItem.fieldName'>
+                            <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Question />
+                            <comment-switch
+                              v-show="canEdit"
+                              :field-name='taskField.Question'
+                              :is-active="currentFieldName === taskField.Question"
+                              @switch='handleSwitchComment'
+                              :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Question}" />
+                            <a-form-model-item>
+                              <template class='my-label' slot='label'>
+                                {{ 'Choose Key questions' | taskLabelName(taskField.Overview, $store.getters.formConfigData) }}
+                                <template v-if='taskLabelHint(taskField.Overview, $store.getters.formConfigData)'>
+                                  <a-tooltip :title="'Choose Key questions' | taskLabelHint(taskField.Overview, $store.getters.formConfigData)" placement='top'>
+                                    <a-icon type="info-circle" />
+                                  </a-tooltip>
+                                </template>
+                              </template>
+                              <a-select
+                                :getPopupContainer="trigger => trigger.parentElement"
+                                @change="handleCollaborateEvent(taskId,taskField.Question,form.questions)"
+                                size='large'
+                                class='my-big-select'
+                                v-model='form.questionIds'
+                                mode='multiple'
+                                placeholder='Choose Key questions'
+                                option-label-prop='label'
+                                :disabled="!canEdit"
+                              >
+                                <a-select-option
+                                  v-for='(item,index) in associateQuestionList'
+                                  :value='item.id'
+                                  :label='item.name'
+                                  :key='index'>
+                                  <span class='question-options'>
+                                    {{ item.name }}
+                                  </span>
+                                  From Unit Plan({{ item.unitName }})
+                                </a-select-option>
+                              </a-select>
+                            </a-form-model-item>
+                          </div>
+
+                          <div class='form-block tag-content-block' :data-field-name='taskField.LearnOuts' v-if='fieldItem.visible && fieldItem.fieldName === taskField.LearnOuts' :key='fieldItem.fieldName'>
+                            <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Assessment style="left:100px" />
+                            <comment-switch
+                              v-show="canEdit"
+                              :field-name='taskField.Assessment'
+                              :is-active="currentFieldName === taskField.Assessment"
+                              @switch='handleSwitchComment'
+                              :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Assessment}" />
+                            <a-form-item>
+                              <template class='my-label' slot='label'>
+                                {{ 'Set learning objectives' | taskLabelName(taskField.LearnOuts, $store.getters.formConfigData) }}
+                                <template v-if='taskLabelHint(taskField.LearnOuts, $store.getters.formConfigData)'>
+                                  <a-tooltip :title="'Set learning objectives' | taskLabelHint(taskField.LearnOuts, $store.getters.formConfigData)" placement='top'>
+                                    <a-icon type="info-circle" />
+                                  </a-tooltip>
+                                </template>
+                              </template>
+                              <a-badge :dot='hasExtraRecommend'>
+                                <a-button type='primary' @click='handleSelectDescription' :disabled="!canEdit">
+                                  <div class='btn-text' style='line-height: 20px'>
+                                    {{ 'Set learning objectives' | unitLabelName(taskField.LearnOuts, $store.getters.formConfigData) }}
+                                  </div>
+                                </a-button>
+                              </a-badge>
+                            </a-form-item>
+
+                            <!--knowledge tag-select -->
+                            <ui-learn-out
+                              ref='learnOut'
+                              :learn-outs='form.learnOuts'
+                              :self-outs='form.selfOuts'
+                              :can-edit="canEdit"
+                              :custom-tags='customTags'
+                              @addCustomTag="handleAddCustomTagRemote"
+                              @remove-learn-outs='handleRemoveLearnOuts' />
+                          </div>
+
+                          <div class='form-block tag-content-block' :data-field-name='taskField.MaterialList' style='clear: both' v-if='fieldItem.visible && fieldItem.fieldName === taskField.MaterialList' :key='fieldItem.fieldName'>
+                            <collaborate-tooltip :form-id="taskId" :fieldName=taskField.MaterialList />
+                            <comment-switch
+                              v-show="canEdit"
+                              :field-name='taskField.MaterialList'
+                              :is-active="currentFieldName === taskField.MaterialList"
+                              @switch='handleSwitchComment'
+                              :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.MaterialList}" />
+                            <div class='form-block-label'>
+                              <a-switch size="small" v-model='materialListFlag' @change='handleMaterialListFlagChange' :disabled="!canEdit"/>
+                              <div class='label-text'>{{ 'Resources required for hands-on activities' | taskLabelName(taskField.MaterialList, $store.getters.formConfigData) }}</div>
+                              <template v-if='taskLabelHint(taskField.MaterialList, $store.getters.formConfigData)'>
+                                <a-tooltip :title="'Resources required for hands-on activities' | taskLabelHint(taskField.MaterialList, $store.getters.formConfigData)" placement='top'>
+                                  <a-icon type="info-circle" />
+                                </a-tooltip>
+                              </template>
+                            </div>
+                            <div class='material-list'>
+                              <div
+                                class='material-item'
+                                v-for='(materialItem, mIndex) in form.materialList'
+                                :key='mIndex'>
+                                <a-row :gutter='[8, 16]'>
+                                  <a-col span='6'>
+                                    <a-input
+                                      v-model='materialItem.name'
+                                      aria-placeholder='Enter material name'
+                                      placeholder='Enter material name'
+                                      :disabled="!canEdit"
+                                      @change="handleCollaborateEvent(taskId,taskField.MaterialList,form.materialList)"/>
+                                  </a-col>
+                                  <a-col span='16'>
+                                    <a-tooltip placement='topLeft' :mouseEnterDelay="1">
+                                      <template slot='title'>
+                                        The link is provided to help other users or students prepare(purchase) the material
+                                        for this task
+                                      </template>
+                                      <a-input
+                                        addon-before="https://"
+                                        v-model='materialItem.link'
+                                        aria-placeholder='Enter URL'
+                                        placeholder='Enter URL'
+                                        :disabled="!canEdit"
+                                        @change="handleCollaborateEvent(taskId, taskField.MaterialList, form.materialList)" >
+                                        <a-button
+                                          @click="handleTestWebsiteLink(materialItem)"
+                                          slot='suffix'
+                                          shape='round'
+                                          type='primary'
+                                          size="small"
+                                          :disabled='!materialItem.link'>Test</a-button>
+                                      </a-input>
+                                      <span class='url-error-tips' v-show='materialItem.link && !checkUrl(materialItem.link)'>Please enter a valid URL</span>
+                                    </a-tooltip>
+                                  </a-col>
+                                  <a-col span='2'>
+                                    <div class='material-icon'>
+                                      <img
+                                        src='~@/assets/icons/evaluation/delete.png'
+                                        class='delete-icon'
+                                        @click='handleRemoveMaterialItem(materialItem, mIndex)' />
+                                    </div>
+                                  </a-col>
+                                </a-row>
+                              </div>
+                              <span class='add-material-item' v-show='materialListFlag'>
+                                <add-green-icon class='add-input' @click='handleAddMaterial' />
+                              </span>
+                            </div>
+                          </div>
+                        </template>
+
+                        <template v-for='custFieldItem in $store.getters.formConfigData.taskCustomList'>
+                          <div class='form-block tag-content-block' v-if="custFieldItem.visible && form.customFieldData && form.customFieldData.hasOwnProperty(custFieldItem.id)" :key='custFieldItem.id' :data-field-name="'cust_' + custFieldItem.name" :data-field-id='custFieldItem.id'>
+                            <a-form-item>
+                              <template class='my-label' slot='label'>
+                                {{ custFieldItem.name }}
+                                <template v-if='custFieldItem.hint'>
+                                  <a-tooltip :title="custFieldItem.hint" placement='top'>
+                                    <a-icon type="info-circle" />
+                                  </a-tooltip>
+                                </template>
+                              </template>
+                              <a-input v-model='form.customFieldData[custFieldItem.id]' class='my-form-input' :disabled="!canEdit"/>
+                            </a-form-item>
+                          </div>
+                        </template>
                       </div>
                     </template>
                   </a-step>
@@ -292,6 +377,7 @@
                           <a-button
                             class="action-ensure action-item edit-slide"
                             :loading="creating"
+                            :disabled="!canEdit"
                             type="primary"
                             shape="round"
                             @click="handleEditGoogleSlide()"
@@ -304,7 +390,7 @@
                             v-show='form.taskMode === 1'>
                             <a-switch
                               class='slide-switch'
-                              :disabled='selectedTemplateIdList.length === 0'
+                              :disabled='selectedTemplateIdList.length === 0 || !canEdit'
                               checked-children='On'
                               un-checked-children='Off'
                               v-model='form.showSelected'
@@ -379,7 +465,7 @@
                                 </div>
                               </a-badge>
                               <a-badge>
-                                <div class='my-add-material' v-if='form.presentationId && (isOwner || isCollaborater)'>
+                                <div class='my-add-material' v-if='form.presentationId && canEdit'>
                                   <upload-enter />
                                 </div>
                               </a-badge>
@@ -392,7 +478,7 @@
                               :class="{'template-item': true }"
                               v-for='(template,index) in selectedTemplateList'
                               :key='index'>
-                              <div class='template-hover-action-mask'>
+                              <div class='template-hover-action-mask' v-show="canEdit">
                                 <div class='template-hover-action'>
                                   <div class='modal-ensure-action-line'>
                                     <a-button
@@ -405,7 +491,6 @@
                                       </div>
                                     </a-button>
                                     <a-button
-                                      v-show="canEdit"
                                       class='action-ensure action-item'
                                       shape='round'
                                       @click='removeSelectTemplate(template)'>
@@ -677,37 +762,15 @@
                     <template slot='description'>
                       <div class='step-detail' v-show='currentActiveStepIndex === 3'>
                         <div class='form-block'>
-                          <collaborate-tooltip :form-id="taskId" :field-name=taskField.Link />
+                          <collaborate-tooltip :form-id="taskId" :field-name='taskField.Link' />
                           <comment-switch
-                            v-show="this.canEdit"
+                            v-show="canEdit"
                             :is-active="currentFieldName === taskField.Link"
                             @switch='handleSwitchComment'
-                            :field-name=taskField.Link
+                            :field-name='taskField.Link'
                             :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === taskField.Link}" />
-                          <a-form-item class='link-plan-title' >
-                            <a-space v-show="canEdit">
-                              <a-button
-                                type='primary'
-                                :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8', 'display': 'flex', 'align-items': 'center'}"
-                                :loading='linkUnitPlanLoading'
-                                @click='handleAddUnitPlanTerm'>
-                                <div class='btn-text' style='line-height: 20px; padding-left: 5px'>
-                                  + Link Unit plan
-                                </div>
-                              </a-button>
-                              <a-button
-                                type='primary'
-                                :style="{'background-color': '#fff', 'color': '#000', 'border': '1px solid #D8D8D8', 'display': 'flex', 'align-items': 'center'}"
-                                :loading='linkRubricLoading'
-                                @click='handleAddTerm'>
-                                <div class='btn-text' style='line-height: 20px'>
-                                  + Add assessment tool
-                                </div>
-                              </a-button>
-                            </a-space>
-                          </a-form-item>
                           <div class='common-link-wrapper'>
-                            <common-link :can-edit="canEdit" ref='commonLink' :from-id='this.taskId' :from-type='this.contentType.task' />
+                            <task-link :can-edit="canEdit" ref='commonLink' :from-id='this.taskId' :from-type='this.contentType.task' />
                           </div>
                         </div>
                       </div>
@@ -757,7 +820,7 @@
                       @update-comment='handleUpdateCommentList' />
                   </div>
                 </template>
-                <template v-if='showRightModule(rightModule.imageUpload) && currentActiveStepIndex !== 1'>
+                <template v-if='showRightModule(rightModule.imageUpload) && currentActiveStepIndex === 0'>
                   <div class='form-block-right'>
                     <!-- image-->
                     <a-form-model-item class='img-wrapper'>
@@ -766,8 +829,9 @@
                         accept='image/png, image/jpeg'
                         :showUploadList='false'
                         :customRequest='handleUploadImage'
+                        :disabled="!canEdit"
                       >
-                        <div class='delete-img' @click='handleDeleteImage($event)' v-show='form.image'>
+                        <div class='delete-img' @click='handleDeleteImage($event)' v-show='form.image' v-if="canEdit">
                           <a-icon type='close-circle' />
                         </div>
                         <template v-if='uploading'>
@@ -928,11 +992,13 @@
                 <template v-if='showRightModule(rightModule.customTag) && this.currentActiveStepIndex !== 1'>
                   <div v-if='!this.contentLoading' :style="{'width':rightWidth+'px', 'margin-top':customTagTop+'px'}">
                     <custom-tag
+                      :display-mode="canEdit ? 'edit' : 'readonly'"
                       ref='customTag'
                       :show-arrow='showCustomTag'
                       :custom-tags='customTags'
                       :scope-tags-list='customTagList'
                       :selected-tags-list='form.customTags'
+                      :current-field-name='currentFocusFieldName'
                       @reload-user-tags='loadCustomTags'
                       @change-add-keywords='handleChangeAddKeywords'
                       @change-user-tags='handleChangeCustomTags'></custom-tag>
@@ -942,11 +1008,13 @@
 
               <div class='sub-task-tag-wrapper' v-if='currentActiveStepIndex === 2 && currentTaskFormData'>
                 <custom-tag
+                  :display-mode="canEdit ? 'edit' : 'readonly'"
                   ref='customTag'
                   :show-arrow='showCustomTag'
                   :custom-tags='customTags'
                   :scope-tags-list='customTagList'
                   :selected-tags-list='currentTaskFormData.customTags'
+                  :current-field-name='currentSubTaskFocusFieldName'
                   @reload-user-tags='loadCustomTags'
                   @change-add-keywords='handleChangeAddKeywords'
                   @change-user-tags='handleChangeSubCustomTags'></custom-tag>
@@ -1050,7 +1118,7 @@
               <a :href='presentationLink' target='_blank'>{{ presentationLink }}</a>
             </div>
             <div class='view-action'>
-              <a-button type='primary' @click='handleEditGoogleSlide()'>Edit in Google Slides</a-button>
+              <a-button type='primary' :loading='editGoogleSlideLoading' @click='handleEditGoogleSlide()'>Edit in Google Slides</a-button>
             </div>
           </div>
         </div>
@@ -1098,6 +1166,9 @@
                     </a-radio-button>
                     <a-radio-button :value='3'>
                       21st Century Skills
+                    </a-radio-button>
+                    <a-radio-button :value='4'>
+                      5E model
                     </a-radio-button>
                   </a-radio-group>
                   <a-button
@@ -1299,6 +1370,27 @@
                         </a-col>
                       </a-col>
                     </a-row>
+                  </div>
+                </a-row>
+                <a-row v-if='filterType == 4 && showTemplateFilter'>
+                  <div class='filter-row'>
+                    <div class='row-select'>
+                      <div class='sub-select'>
+                        <a-row>
+                          <h4></h4>
+                        </a-row>
+                        <div class='sub-items'>
+                          <div class='sub-item' v-for='(item,cIndex) in initPrompts' :key='cIndex' v-if="item.text !== 'General purpose'">
+                            <a-checkbox
+                              :value='item.value'
+                              @change='onChangeCheckBox($event,templateType.Prompt,item)'
+                              :checked='filterPruposeList.indexOf(item.value) > -1 ? true: false'>
+                              {{ item.text }}
+                            </a-checkbox>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </a-row>
                 <div class='expand-icon' v-if='showTemplateFilter' @click='toggleUpFilter()'>
@@ -1587,6 +1679,11 @@
             </div>
           </div>
         </div>
+        <div class='dont-remind-me'>
+          <a-checkbox v-model='dontRemindMe' @change='handleDontRemindMe'>
+            Don't remind me again.
+          </a-checkbox>
+        </div>
         <div class='slide-action row-flex-center'>
           <div class='slide-btn-wrapper'>
             <a-button
@@ -1656,7 +1753,7 @@
         v-model='selectSyncDataVisible'
         :footer='null'
         destroyOnClose
-        width='1200px'
+        width='1000px'
         :dialog-style="{ top: '20px' }"
         :title='null'
         @ok='selectSyncDataVisible = false'
@@ -1665,9 +1762,8 @@
           <!-- 此处的questionIndex用于标识区分是哪个组件调用的，返回的事件数据中会带上，方便业务数据处理，可随意写，可忽略-->
           <new-browser
             ref='newBrowser'
-            :select-mode='selectModel.syncData'
             question-index='_questionIndex_1'
-            :sync-data='syncData'
+            :show-curriculum='true'
             :show-menu='[NavigationType.specificSkills,
                          NavigationType.centurySkills,
                          NavigationType.learningOutcomes,
@@ -1677,7 +1773,6 @@
             :recommend-data='recommendData'
             :selected-list='selectedList'
             :selected-id='selectedIdList'
-            :default-grade-id='form.gradeId'
             @select-assessmentType='handleSelectAssessmentType'
             @select-sync='handleSelectListData'
             @select-curriculum='handleSelectCurriculum'
@@ -1811,24 +1906,21 @@ import { MyContentEvent, MyContentEventBus } from '@/components/MyContent/MyCont
 import { TaskAddOrUpdate, TaskCreateNewTaskPPT, TaskQueryById } from '@/api/task'
 import { SelectModel } from '@/components/NewLibrary/SelectModel'
 import { formatLocalUTC } from '@/utils/util'
-import { commonAPIUrl } from '@/api/common'
+import { commonAPIUrl, GetDictItems } from '@/api/common'
 import MyContentSelector from '@/components/MyContent/MyContentSelector'
 import RelevantTagSelector from '@/components/UnitPlan/RelevantTagSelector'
 import { TemplateTypeMap } from '@/const/template'
 import TaskForm from '@/components/Task/TaskForm'
 import TaskPreview from '@/components/Task/TaskPreview'
 import Collaborate from '@/components/UnitPlan/Collaborate'
-import AssociateSidebar from '@/components/Associate/AssociateSidebar'
 import CustomTag from '@/components/UnitPlan/CustomTag'
 import NewUiClickableKnowledgeTag from '@/components/UnitPlan/NewUiClickableKnowledgeTag'
 import CollaborateUserList from '@/components/Collaborate/CollaborateUserList'
-import { CustomTagType, TaskField, TemplateType } from '@/const/common'
-// import { SubjectTree } from '@/api/subject'
-// import { formatSubjectTree } from '@/utils/bizUtil'
+import { CustomTagType, DICT_PROMPT_PURPOSE, TaskField, TemplateType } from '@/const/common'
 import ModalHeader from '@/components/Common/ModalHeader'
 import CommonFormHeader from '@/components/Common/CommonFormHeader'
 import { EvaluationAddOrUpdate } from '@/api/evaluation'
-import CommonLink from '@/components/Common/CommonLink'
+import TaskLink from '@/components/Task/TaskLink'
 import UiLearnOut from '@/components/UnitPlan/UiLearnOut'
 import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
 import NewBrowser from '@/components/NewLibrary/NewBrowser'
@@ -1850,6 +1942,7 @@ import MediaPreview from '@/components/Task/MediaPreview'
 import { UtilMixin } from '@/mixins/UtilMixin'
 import moment from 'moment'
 import { BaseEventMixin } from '@/mixins/BaseEvent'
+import { FormConfigMixin } from '@/mixins/FormConfigMixin'
 import ShareContentSetting from '@/components/Share/ShareContentSetting'
 import { QueryContentShare } from '@/api/share'
 import CollaborateTooltip from '@/components/Collaborate/CollaborateTooltip'
@@ -1863,12 +1956,15 @@ import QuickTaskTemplatePreview from '@/components/Task/QuickTaskTemplatePreview
 import { AddMaterialEventBus, ModalEventsNameEnum } from '@/components/AddMaterial/AddMaterialEventBus'
 import UploadEnter from '@/components/AddMaterial/UploadEnter'
 import { addBatchElements } from '@/api/addMaterial'
+import AddGreenIcon from '@/assets/svgIcon/evaluation/form/tianjia_green.svg?inline'
+import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 
 const { SplitTask } = require('@/api/task')
 
 export default {
   name: 'AddTask',
   components: {
+    AddGreenIcon,
     UploadEnter,
     QuickTaskTemplatePreview,
     QuickSession,
@@ -1885,7 +1981,7 @@ export default {
     NewBrowser,
     NewMyContent,
     UiLearnOut,
-    CommonLink,
+    TaskLink,
     ModalHeader,
     TaskPreview,
     TaskForm,
@@ -1897,7 +1993,6 @@ export default {
     MyContentSelector,
     RelevantTagSelector,
     Collaborate,
-    AssociateSidebar,
     CollaborateUserList,
     CustomTag,
     commentIcon,
@@ -1907,7 +2002,7 @@ export default {
     CollaborateTooltip,
     CollaborateUpdateContent
   },
-  mixins: [PptPreviewMixin, UtilMixin, BaseEventMixin],
+  mixins: [ PptPreviewMixin, UtilMixin, BaseEventMixin, FormConfigMixin, GoogleAuthCallBackMixin ],
   props: {
     taskId: {
       type: String,
@@ -1958,7 +2053,8 @@ export default {
         endDate: '',
         gradeId: undefined,
         materialList: [],
-        taskClassList: []
+        taskClassList: [],
+        customFieldData: null
       },
       // Grades
       gradeList: [],
@@ -1995,7 +2091,7 @@ export default {
       taskSaving: false,
       publishing: false,
       initTemplates: [],
-      initBlooms: [],
+      initPrompts: [],
       uploading: false,
       selectedSlideVisible: false,
       taskSelectTagVisible: false,
@@ -2008,7 +2104,6 @@ export default {
 
       groupNameList: [],
       groupNameListOther: [],
-      syncData: [],
       selectSyncDataVisible: false,
       selectedSyncList: [],
       // 已选择的大纲知识点描述数据
@@ -2032,6 +2127,7 @@ export default {
       filterAssessments: [],
       centuryList: [],
       filterCentury: [],
+      filterPruposeList: [],
       filterParentMap: new Map(),
       recomendListLoading: false,
       addRecomendLoading: false,
@@ -2072,6 +2168,7 @@ export default {
       selectedSlideVisibleFromSave: false, // 点击保存时，是否显示选择slide的弹窗，此处不去选择slide直接goBack
 
       recommendData: [],
+      recommendDataIdList: [],
       selectedList: [],
 
       subTaskSaving: false,
@@ -2116,7 +2213,14 @@ export default {
       quickTaskPreviewTemplateVisible: false,
       quickTaskPreviewTemplate: null,
 
-      quickSessionClassItem: null
+      quickSessionClassItem: null,
+
+      // sub task 当前激活的字段
+      currentSubTaskFocusFieldName: null,
+
+      dontRemindMe: false,
+
+      editGoogleSlideLoading: false
     }
   },
   computed: {
@@ -2168,38 +2272,24 @@ export default {
     },
     isOwner() {
       return this.$store.getters.userInfo.email === this.form.createBy
-    }
-  },
-  watch: {
-    // 'selectedTemplateList': function(value) {
-    //   this.$logger.info('watch selectedTemplateList change ', value)
-    //   if (value.length != this.form.selectedTemplateList.length) {
-    //     if (this.canEdit) {
-    //       this.autoSave()
-    //     }
-    //   }
-    // },
-
-    // 自动选择第一个班级的年级为task的默认年级
-    'form.taskClassList': {
-      handler: function (newVal, oldVal) {
-        this.$logger.info('form.taskClassList changed ', newVal)
-        if (newVal && newVal.length > 0) {
-          const taskClassId = newVal[0].classId
-          const classItem = this.classList.find(item => item.id === taskClassId)
-          if (classItem) {
-            this.form.gradeId = classItem.gradeId
-            this.$logger.info('form.gradeId update ', this.form.gradeId)
-          }
+    },
+    hasExtraRecommend() {
+      this.$logger.info('-------------', this.form.learnOuts, this.recommendDataIdList)
+      let ret = false
+      this.form.learnOuts.forEach(item => {
+        if (this.recommendDataIdList.indexOf(item.knowledgeId) === -1) {
+          ret = true
+          this.$logger.info('------------learnOuts', item, ' not exist in ', this.recommendDataIdList)
         }
-      },
-      deep: true
+      })
+
+      return ret
     }
   },
   beforeRouteLeave(to, from, next) {
     this.$logger.info('beforeRouteLeave', to, from, next)
     // owner或者协同着可以save
-    var that = this
+    const that = this
     if (this.canEdit) {
       if (this.initCompleted && JSON.stringify(this.form) !== JSON.stringify(this.oldForm)) {
         this.$confirm({
@@ -2208,10 +2298,8 @@ export default {
           cancelText: 'No',
           content: 'Do you want to save the changes?',
           onOk: function() {
-            that.handleSaveTask()
-            setTimeout(() => {
-              next()
-            }, 500)
+            that.handleSaveTask(false)
+            next()
           },
           onCancel() {
             next()
@@ -2240,9 +2328,6 @@ export default {
     // 恢复step
     this.currentActiveStepIndex = this.getSessionStep()
 
-    // library浏览learning outcome时，修改了grade，需要更新表单中的grade
-    LibraryEventBus.$on(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
-
     // addMaterial事件处理
     AddMaterialEventBus.$on(ModalEventsNameEnum.ADD_NEW_MEDIA, url => {
       this.addMaterialList(url)
@@ -2250,14 +2335,13 @@ export default {
     AddMaterialEventBus.$on(ModalEventsNameEnum.DELETE_MEDIA_ELEMENT, data => {
       this.deleteMaterial(data)
     })
+
+    this.dontRemindMe = !!window.localStorage.getItem('dontRemindMe_' + this.$store.getters.email)
   },
   beforeDestroy() {
     MyContentEventBus.$off(MyContentEvent.LinkToMyContentItem, this.handleLinkMyContent)
     MyContentEventBus.$off(MyContentEvent.ToggleSelectContentItem, this.handleToggleSelectContentItem)
     LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
-    LibraryEventBus.$off(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
-    // logger.debug('beforeDestroy, try save!')
-    // this.handleSaveTask()
   },
   methods: {
     initData() {
@@ -2319,6 +2403,18 @@ export default {
           this.$message.error(response.message)
         }
       })
+
+      GetDictItems(DICT_PROMPT_PURPOSE).then((response) => {
+        if (response.success) {
+          logger.info('DICT_PROMPT_PURPOSE', response.result)
+          this.initPrompts = response.result
+        }
+      })
+    },
+
+    handleAuthCallback() {
+      this.$logger.info('handleAuthCallback')
+      this.loadThumbnail(true)
     },
 
     restoreTask(taskId, isFirstLoad) {
@@ -2366,6 +2462,25 @@ export default {
         }
 
         this.materialListFlag = taskData.materialList.length > 0
+        // 填充自定义字段
+        const customFieldData = taskData.customFieldData ? JSON.parse(taskData.customFieldData) : null
+        const displayCustomFieldData = {}
+        if (customFieldData) {
+          // 只显示配置中存在的字段,用id做key，改名后依旧可以使用老数据
+          this.$store.getters.formConfigData.taskCustomList.forEach(customField => {
+            if (customFieldData.hasOwnProperty(customField.id)) {
+              displayCustomFieldData[customField.id] = customFieldData[customField.id]
+            } else {
+              displayCustomFieldData[customField.id] = ''
+            }
+          })
+        } else {
+          this.$store.getters.formConfigData.taskCustomList.forEach(customField => {
+            displayCustomFieldData[customField.id] = ''
+          })
+        }
+        this.$logger.info('displayCustomFieldData', displayCustomFieldData)
+        taskData.customFieldData = displayCustomFieldData
         this.form = taskData
         this.form.showSelected = taskData.showSelected ? taskData.showSelected : false
         this.form.bloomCategories = this.form.bloomCategories ? this.form.bloomCategories : undefined // 为了展示placeholder
@@ -2385,7 +2500,7 @@ export default {
         this.contentLoading = false
         this.loadCollaborateData(this.form.type, this.form.id)
         if (this.form.presentationId) {
-          this.loadThumbnail()
+          this.loadThumbnail(false)
           this.loadRecommendThumbnail()
         }
         // copy副本 为了判断数据变更
@@ -2394,6 +2509,10 @@ export default {
         this.$logger.info('restoreTask done', this.form)
 
         this.loadingShareContent()
+        // 非owner看到图片
+        if (this.$store.getters.userInfo.email !== this.form.createBy) {
+          this.form.showSelected = false
+        }
       })
     },
 
@@ -2408,22 +2527,14 @@ export default {
       this.$logger.info('handleToggleSelectContentItem', data, event)
       this.previewTemplateVisible = false
       if (this.drawerSelectedTemplateIds.indexOf(data.id) === -1) {
-        this.handleSelectTemplateMadelAnimate(data, event)
+        // this.handleSelectTemplateMadelAnimate(data, event)
+        this.selectRecommendTemplate(data, 0, event)
       } else {
         this.handleSelectTemplateMadel(data)
       }
-
-      // const key = data.type + '-' + data.id
-      // const index = this.selectedMyContentKeyList.indexOf(key)
-      // if (index !== -1) {
-      //   this.selectedMyContentKeyList.splice(index, 1)
-      // } else {
-      //   this.selectedMyContentKeyList.push(key)
-      // }
-      // this.selectedMyContentInfoMap.set(key, data)
     },
 
-    handleSaveTask() {
+    async handleSaveTask(isBack) {
       logger.info('handleSaveTask', this.form, this.questionDataObj)
 
       if (this.subTasks.length > 0) {
@@ -2468,26 +2579,26 @@ export default {
         taskData.selectedTemplateList = this.selectedTemplateList
 
         // 更新selfOuts数据
-        taskData.selfOuts = this.$refs.learnOut.getSelfOuts()
+        if (this.$refs.learnOut && this.$refs.learnOut.length > 0) {
+          taskData.selfOuts = this.$refs.learnOut[0].getSelfOuts()
+        }
+        if (taskData.customFieldData) {
+          taskData.customFieldData = JSON.stringify(taskData.customFieldData)
+        }
         logger.info('basic taskData', taskData)
-        logger.info('question taskData', taskData)
-        TaskAddOrUpdate(taskData).then((response) => {
-          logger.info('TaskAddOrUpdate', response.result)
-          if (response.success) {
-            // this.restoreTask(response.result.id, false)
-            this.oldForm = JSON.parse(JSON.stringify(this.form))
-            this.$message.success(this.$t('teacher.add-task.save-success'))
+        const response = await TaskAddOrUpdate(taskData)
+        logger.info('TaskAddOrUpdate', response.result)
+        if (response.success) {
+          // this.restoreTask(response.result.id, false)
+          this.oldForm = JSON.parse(JSON.stringify(this.form))
+          this.$message.success(this.$t('teacher.add-task.save-success'))
+          if (isBack) {
             this.handleBack()
-            // this.$router.push({ path: '/teacher/main/created-by-me' })
-            // this.selectedSlideVisibleFromSave = true
-          } else {
-            this.$message.error(response.message)
           }
-        }).finally(() => {
-          // this.selectedSlideVisible = true
-          // this.$refs.commonFormHeader.saving = false
-          this.handleSaveContentEvent(this.taskId, this.contentType.task, this.oldForm)
-        })
+        } else {
+          this.$message.error(response.message)
+        }
+        this.handleSaveContentEvent(this.taskId, this.contentType.task, this.oldForm)
       }
     },
     handlePublishTask(status) {
@@ -2497,6 +2608,9 @@ export default {
       })
       const taskData = Object.assign({}, this.form)
       taskData.status = status
+      if (taskData.customFieldData) {
+        taskData.customFieldData = JSON.stringify(taskData.customFieldData)
+      }
       this.publishing = true
       TaskAddOrUpdate(taskData).then(response => {
         this.$logger.info('UpdateContentStatus response', response)
@@ -2504,7 +2618,7 @@ export default {
         this.form.status = status
       }).then(() => {
         if (status === 1) {
-          this.selectedSlideVisible = true
+          this.selectedSlideVisible = !this.dontRemindMe
           this.$message.success(this.$t('teacher.add-task.publish-success'))
         } else {
           this.$message.success('Unpublish successfully')
@@ -2542,7 +2656,7 @@ export default {
     },
 
     goBack() {
-      // this.$router.push({ path: '/teacher/main/created-by-me' })
+      this.$router.go(-1)
     },
 
     handleShowSelectMyContent() {
@@ -2595,7 +2709,7 @@ export default {
               this.$logger.info('handleEnsureChooseAnother update form.taskClassList', this.form.taskClassList)
             })
           }
-          this.loadThumbnail()
+          this.loadThumbnail(true)
           this.loadRecommendThumbnail()
         } else {
           this.$message.warn(response.message)
@@ -2680,7 +2794,8 @@ export default {
           const hideLoading = this.$message.loading('Creating ppt in Google side...', 0)
           this.creating = true
           TaskCreateNewTaskPPT({
-            taskId: this.taskId ? this.taskId : '',
+            id: this.taskId ? this.taskId : '',
+            type: this.contentType.task,
             name: this.form.name ? this.form.name : 'Unnamed Task',
             overview: this.form.overview,
             templatePresentationIds: this.selectedTemplateList.map(item => {
@@ -2769,47 +2884,45 @@ export default {
       this.autoSave()
     },
 
-    handleCreateTask() {
+    async handleCreateTask() {
       this.$logger.info('handleCreateTask')
       const hideLoading = this.$message.loading('Creating ppt in Google side...', 0)
       if (!this.creating) {
         this.creating = true
-        TaskCreateNewTaskPPT({
+        const response = await TaskCreateNewTaskPPT({
           taskId: this.taskId ? this.taskId : '',
           taskIds: this.selectedTaskIdList,
           name: this.form.name ? this.form.name : 'Unnamed Task',
           overview: this.form.overview
-        }).then(response => {
-          this.$logger.info('handleCreateTask', response.result)
-          this.showChoseSelectTemplateVisible = false
-          this.selectedMyContentVisible = false
-          this.form.id = response.result.id
-          this.form.presentationId = response.result.presentationId
-          this.selectTemplateVisible = false
-          // this.viewInGoogleSlideVisible = true
-          this.$router.replace({
-            path: '/teacher/task-redirect/' + response.result.id
-          })
-          this.$message.success('Created Successfully in Google Slides')
-          window.open('https://docs.google.com/presentation/d/' + this.form.presentationId)
-        }).finally(() => {
-          this.creating = false
-          this.selectedMyContentVisible = false
-          this.loadThumbnail()
-          hideLoading()
         })
+
+        this.$logger.info('handleCreateTask', response.result)
+        this.showChoseSelectTemplateVisible = false
+        this.selectedMyContentVisible = false
+        this.form.id = response.result.id
+        this.form.presentationId = response.result.presentationId
+        this.selectTemplateVisible = false
+        await this.autoSave()
+        this.$message.success('Created Successfully in Google Slides')
+        window.open('https://docs.google.com/presentation/d/' + this.form.presentationId, '_blank')
+        this.creating = false
+        this.selectedMyContentVisible = false
+        this.loadThumbnail(true)
+        hideLoading()
+        return response
       }
     },
 
-    loadThumbnail() {
+    loadThumbnail(needRefresh) {
       this.thumbnailListLoading = true
       this.skeletonLoading = true
       this.$logger.info('loadThumbnail ' + this.form.presentationId)
       TemplatesGetPresentation({
-        presentationId: this.form.presentationId
+        taskId: this.form.id,
+        needRefresh: needRefresh
       }).then(response => {
         this.$logger.info('loadThumbnail response', response.result)
-        if (response.success) {
+        if (response.code === 0) {
           const pageObjects = response.result.pageObjects
           this.pptTitle = response.result.title
           this.thumbnailList = []
@@ -2819,8 +2932,10 @@ export default {
           if (!this.form.fileDeleted && response.result.fileDeleted) {
             this.form.fileDeleted = true
           }
-        } else {
-          this.$message.error(response.message)
+        } else if (response.code === 403) {
+          this.$router.push({ path: '/teacher/main/created-by-me' })
+        } else if (response.code === this.ErrorCode.ppt_google_token_expires || response.code === this.ErrorCode.ppt_forbidden) {
+          this.$logger.info('等待授权事件通知')
         }
       }).finally(() => {
         this.thumbnailListLoading = false
@@ -2828,10 +2943,14 @@ export default {
         this.getClassInfo(this.form.presentationId)
 
         if (this.currentActiveStepIndex === 2 && this.thumbnailList.length > 1) {
-          this.selectedSlideVisible = true
-          this.currentTaskFormData = JSON.parse(JSON.stringify(this.form))
-          // 只展示选中ppt的标签
-          this.currentTaskFormData.customTags = []
+          if (this.dontRemindMe) {
+            this.handleAddTaskWithSlide()
+          } else {
+            this.selectedSlideVisible = true
+            this.currentTaskFormData = JSON.parse(JSON.stringify(this.form))
+            // 只展示选中ppt的标签
+            this.currentTaskFormData.customTags = []
+          }
         } else {
           this.currentTaskFormData = null
         }
@@ -2899,7 +3018,7 @@ export default {
       this.currentTaskFormData.customTags = []
       this.itemsList.forEach(e => {
         if (this.selectedPageIdList.indexOf(e.pageId) !== -1) {
-          const json = JSON.parse(e.data)
+          const json = typeof (e.data) === 'object' ? e.data : JSON.parse(e.data)
           if (json.data && json.data.bloomLevel) {
             if (this.currentTaskFormData.customTags.findIndex(tag => tag.name === json.data.bloomLevel) === -1) {
               this.currentTaskFormData.customTags.push({
@@ -3057,13 +3176,19 @@ export default {
       this.form.hasUploadImage = false
     },
 
-    handleEditGoogleSlide() {
+    async handleEditGoogleSlide() {
+      this.editGoogleSlideLoading = true
       this.$logger.info('handleEditGoogleSlide', this.form.presentationId)
+      let res
       if (this.form.presentationId) {
-        window.open(this.presentationLink, '_blank')
+         res = await this.autoSave()
       } else {
-        this.handleCreateTask()
+         res = await this.handleCreateTask()
       }
+      if (res.code === 0) {
+        window.open(this.presentationLink, '_blank')
+      }
+      this.editGoogleSlideLoading = false
     },
 
     handleAddTaskWithSlide() {
@@ -3123,51 +3248,6 @@ export default {
       } else {
         this.$logger.info('add loading')
       }
-    },
-    handleAddUnitPlanTerm() {
-      this.$logger.info('handleAddUnitPlanTerm', this.groupNameList)
-      this.linkUnitPlanLoading = true
-      // 如果第一部分有内容，点击link激活step 到第二部分，否则提示先输入第一部分表单内容
-      if (this.form.name ||
-        this.form.overview ||
-        (this.form.questions && this.form.questions.length)) {
-        this.groupNameMode = 'input'
-        this.selectLinkUnitPlanContentVisible = true
-        this.setSessionStep(1)
-      } else {
-        this.$message.warn('Task Info is empty, please fill the form first!')
-      }
-
-      // #协同编辑event事件
-      this.handleCollaborateEvent(this.taskId, this.taskField.Link, this.associateUnitPlanIdList)
-
-      this.$nextTick(() => {
-        setTimeout(() => {
-          this.linkUnitPlanLoading = false
-        }, 500)
-      })
-    },
-    handleAddTerm() {
-      this.$logger.info('handleAddTerm', this.groupNameList)
-      this.linkRubricLoading = true
-      // 如果第一部分有内容，点击link激活step 到第二部分，否则提示先输入第一部分表单内容
-      if (this.form.name ||
-        this.form.overview ||
-        (this.form.questions && this.form.questions.length)) {
-        this.groupNameMode = 'input'
-        this.selectLinkContentVisible = true
-        this.setSessionStep(1)
-      } else {
-        this.$message.warn('Task Info is empty, please fill the form first!')
-      }
-      // #协同编辑event事件
-      this.handleCollaborateEvent(this.taskId, this.taskField.Link, this.associateUnitPlanIdList)
-
-      this.$nextTick(() => {
-        setTimeout(() => {
-          this.linkRubricLoading = false
-        }, 500)
-      })
     },
     handleEnsureSelectedLink(data) {
       this.$logger.info('handleEnsureSelectedLink', data)
@@ -3238,9 +3318,6 @@ export default {
             }
           })
         })
-        if (this.groupNameList.length > 0 || this.groupNameListOther.length > 0) {
-          this.handleSyncData()
-        }
         this.newTermName = 'Untitled category_' + (this.groupNameList.length)
         this.$logger.info('AddTask GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
         this.$logger.info('*******************associateUnitPlanIdList', this.associateUnitPlanIdList)
@@ -3250,21 +3327,22 @@ export default {
 
         if (this.associateUnitPlanIdList.length > 0) {
           this.loadRefLearnOuts()
+          this.handleSelfOutsData()
         }
-        // else {
-        //   this.loadBigIdeaLearnOuts()
-        // }
       })
     },
 
-    loadRefLearnOuts() {
+    async loadRefLearnOuts() {
       this.recommendData = []
       this.recommendDataIdList = []
-      FindSourceOutcomes({
+      const unitPlanIdSet = new Set(this.associateUnitPlanIdList)
+      this.associateUnitPlanIdList = [...unitPlanIdSet]
+      const response = await FindSourceOutcomes({
         type: this.contentType['unit-plan'],
         ids: this.associateUnitPlanIdList
-      }).then(response => {
-        this.$logger.info('FindSourceOutcomes response', response)
+      })
+      this.$logger.info('FindSourceOutcomes response', response)
+      if (response.success) {
         const recommendMap = new Map()
         response.result.forEach(item => {
           if (recommendMap.has(item.fromId)) {
@@ -3272,6 +3350,7 @@ export default {
           } else {
             recommendMap.set(item.fromId, [item])
           }
+          this.recommendDataIdList.push(item.knowledgeId)
         })
         this.recommendData = []
         for (const value of recommendMap.values()) {
@@ -3283,16 +3362,40 @@ export default {
           })
         }
         this.$logger.info('update recommendData ', this.recommendData)
-      })
+      }
     },
 
-    // TODO 选择的assessment数据
+    // 填充自定义大纲内容
+    async handleSelfOutsData() {
+      this.$logger.info(' handleSelfOutsData')
+      const response = await GetReferOutcomes({
+        id: this.taskId,
+        type: this.contentType.task
+      })
+      this.$logger.info('getReferOutcomes response', response)
+      if (response.success && response.result.length) {
+         const list = response.result
+         list.forEach(item => {
+           if (item.hasOwnProperty('isSelfCustom') && item.isSelfCustom) {
+             item.fromId = item.fromList[0].fromId
+             item.fromName = item.fromList[0].fromName
+             item.fromTypeName = this.type2Name[item.fromList[0].fromType]
+
+             const targetItem = this.recommendData.find(rItem => rItem.fromId === item.fromId)
+             if (targetItem) {
+               this.$logger.info('targetItem ' + targetItem.fromName + ' add SelfCustom SelfOut ' + item.name, item)
+               targetItem.list.push(item)
+             }
+           }
+         })
+      }
+    },
+
     handleSelectAssessmentType(data) {
       this.$logger.info('handleSelectAssessmentType', data)
       this.selectedAssessmentList = data
     },
 
-    // TODO 自动更新选择的sync 的数据knowledgeId和name列表
     handleSelectListData(data) {
       this.$logger.info('handleSelectListData', data)
       this.selectedSyncList = data
@@ -3323,7 +3426,6 @@ export default {
       this.selectedRecommendList = data
     },
 
-    // TODO 自动更新选择的sync 的数据knowledgeId和name列表
     handleCancelSelectData() {
       this.selectedSyncList = []
       this.selectedCurriculumList = []
@@ -3335,7 +3437,6 @@ export default {
       this.selectSyncDataVisible = false
     },
 
-    // TODO 自动更新选择的sync 的数据knowledgeId和name列表
     handleEnsureSelectData() {
       this.$logger.info('handleEnsureSelectData',
         this.selectedCurriculumList,
@@ -3347,11 +3448,20 @@ export default {
         this.selectedSyncList)
       this.$logger.info('mySelectedList', this.$refs.newBrowser.mySelectedList)
       this.$logger.info('learnOuts', this.form.learnOuts)
-      this.form.learnOuts = JSON.parse(JSON.stringify(this.$refs.newBrowser.mySelectedList))
+      const filterLearnOuts = this.$refs.newBrowser.mySelectedList.filter(item => (!item.hasOwnProperty('isSelfCustom') || (item.hasOwnProperty('isSelfCustom') && !item.isSelfCustom)))
+      this.$logger.info('filterLearnOuts', filterLearnOuts)
+      this.form.learnOuts = JSON.parse(JSON.stringify(filterLearnOuts))
       this.$refs.newBrowser.selectedRecommendList.forEach(item => {
-        const index = this.form.learnOuts.findIndex(dataItem => dataItem.knowledgeId === item.knowledgeId)
-        if (index === -1) {
-          this.form.learnOuts.push(item)
+        if (item.hasOwnProperty('isSelfCustom') && item.isSelfCustom) {
+          // 自定义大纲不用判断重复，直接插入
+          const copyItem = JSON.parse(JSON.stringify(item))
+          copyItem.key = Math.random() + ''
+          this.form.selfOuts.push(copyItem)
+        } else {
+          const index = this.form.learnOuts.findIndex(dataItem => dataItem.knowledgeId === item.knowledgeId)
+          if (index === -1) {
+            this.form.learnOuts.push(item)
+          }
         }
       })
       this.selectedSyncList.forEach(data => {
@@ -3369,17 +3479,19 @@ export default {
       })
 
       this.selectedRecommendList.forEach(data => {
-        const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
-        if (filterLearnOuts.length > 0) {
-          return
+        if (!(data.hasOwnProperty('isSelfCustom') && data.isSelfCustom)) {
+          const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
+          if (filterLearnOuts.length > 0) {
+            return
+          }
+          this.form.learnOuts.push({
+            knowledgeId: data.knowledgeId,
+            name: data.name,
+            tags: data.tags,
+            tagType: data.tagType,
+            path: data.path
+          })
         }
-        this.form.learnOuts.push({
-          knowledgeId: data.knowledgeId,
-          name: data.name,
-          tags: data.tags,
-          tagType: data.tagType,
-          path: data.path
-        })
       })
 
       this.selectedIduList.forEach(data => {
@@ -3457,19 +3569,6 @@ export default {
       this.handleCollaborateEvent(this.taskId, this.taskField.Assessment, this.form.assessment)
     },
 
-    handleSyncData() {
-      this.$logger.info(' handleSyncData')
-      GetReferOutcomes({
-        id: this.taskId,
-        type: this.contentType.task
-      }).then(response => {
-        this.$logger.info('getReferOutcomes response', response)
-        if (response.result.length) {
-          this.syncData = response.result
-        }
-      })
-    },
-
     onChangeStep(current) {
       console.log('onChange: current step', current, ' currentActiveStepIndex', this.currentActiveStepIndex, typeof this.currentActiveStepIndex)
 
@@ -3498,21 +3597,19 @@ export default {
         }, 100)
 
         if (current === 2 && this.thumbnailList.length > 1) {
-          this.showSubTaskDetail = false
-          this.$logger.info('click step 2.1', current, this.thumbnailList)
-          this.selectedSlideVisible = true
+          if (this.dontRemindMe) {
+            this.handleAddTaskWithSlide()
+          } else {
+            this.showSubTaskDetail = false
+            this.$logger.info('click step 2.1', current, this.thumbnailList)
+            this.selectedSlideVisible = true
+          }
         }
 
         if (current === 1 && this.form.taskMode === 2 && !this.form.presentationId) {
           this.chooseAnotherVisible = true
         }
       }
-    },
-
-    handleCreateInGoogle() {
-      this.$logger.info('handleCreateInGoogle')
-      this.handleCreateTask()
-      // window.open('https://docs.google.com/presentation', '_blank')
     },
     filterSearch(inputValue, path) {
       return path.some(option => option.name.toLowerCase().indexOf(inputValue.toLowerCase()) > -1)
@@ -3525,7 +3622,8 @@ export default {
         filterCategoryType: this.filterType,
         filterLearn: this.filterLearn,
         filterAssessments: this.getFilterAssessmentsParams(this.filterAssessments),
-        filterCentury: this.getFilterParams(this.filterCentury)
+        filterCentury: this.getFilterParams(this.filterCentury),
+        filterPruposeList: this.filterPruposeList
       }).then(response => {
         this.$logger.info('handleToggleTemplateType ', response)
         this.templateList = response.result
@@ -3595,63 +3693,51 @@ export default {
     },
     focusInput(event) {
       this.$logger.info('focusInput ', event.target)
-      // let isEditBase = false
-      // if (typeof event.target.className === 'string' && event.target.className.indexOf('ant-input') > -1) {
-      //   isEditBase= true
-      // }
 
       // 设置一个父级定位专用的dom，设置class名称【root-locate-form】，
       // 然后通过事件获取到当前元素，依次往上层查询父元素，累加偏离值，直到定位元素。
       const eventDom = event.target
       let formTop = eventDom.offsetTop ? eventDom.offsetTop : 0
       let currentDom = eventDom.offsetParent
-      let currentFocus = ''
+      this.currentFocusFieldName = null
       this.customTagList = []
-      console.log(currentDom)
       while (currentDom !== null) {
         formTop += (currentDom ? currentDom.offsetTop : 0)
         currentDom = currentDom ? currentDom.offsetParent : undefined
         if (!currentDom) {
           break
         }
-        if (currentDom.classList.contains('taskType')) {
-          currentFocus = 'fa'
-          this.customTagList = []
-          if (this.form.taskType === 'FA') {
-            CustomTagType.task.fa.forEach(name => {
-              this.customTagList.push(name)
-            })
-          } else if (this.form.taskType === 'SA') {
-            CustomTagType.task.sa.forEach(name => {
-              this.customTagList.push(name)
-            })
-          } else if (this.form.taskType === 'Activity') {
-            CustomTagType.task.activity.forEach(name => {
-              this.customTagList.push(name)
-            })
+
+        if (currentDom.classList.contains('tag-content-block') && currentDom.hasAttribute('data-field-name')) {
+          const fieldName = currentDom.getAttribute('data-field-name')
+          this.$logger.info('current block fieldName', fieldName)
+          this.currentFocusFieldName = fieldName
+          if (this.$store.getters.formConfigData?.taskFieldTagMap?.[fieldName]) {
+             if (fieldName === this.taskField.TaskType) {
+               this.customTagList = this.$store.getters.formConfigData.taskFieldTagMap[fieldName].filter(item => item.subFieldName && item.subFieldName.toLowerCase() === this.form.taskType.toLowerCase()).map(item => item.tagName)
+               this.$logger.info(fieldName + ' customTagList taskType ' + this.form.taskType, this.customTagList)
+             } else {
+               this.customTagList = this.$store.getters.formConfigData.taskFieldTagMap[fieldName].map(item => item.tagName)
+               this.$logger.info(fieldName + ' customTagList', this.customTagList)
+             }
           }
-          this.showCustomTag = true
         }
         if (currentDom.classList && currentDom.classList.contains('root-locate-form')) {
-          logger.info('classlist: ', currentDom.classList.toString())
           break
         }
       }
       // custom tag 自带了margin-top: 20px,这里减掉不然不对齐。
-      if (currentFocus) {
+      if (this.currentFocusFieldName) {
+        this.$logger.info('show currentFocusFieldName tag ', this.currentFocusFieldName)
         this.customTagTop = formTop - 20
         this.showCustomTag = true
         this.setRightModuleVisible(this.rightModule.customTag)
       } else {
-        // if(isEditBase){
-        //   CustomTagType.task.base.forEach(name => {
-        //     this.customTagList.push(name)
-        //   })
-        // }
+        this.$logger.info('show global tag')
         CustomTagType.task.default.forEach(name => {
           this.customTagList.push(name)
         })
-        // // 再拼接自己添加的
+        // 再拼接自己添加的
         this.customTags.userTags.forEach(tag => {
           if (this.customTagList.indexOf(tag.name === -1)) {
             this.customTagList.push(tag.name)
@@ -3659,7 +3745,7 @@ export default {
         })
         this.showCustomTag = false
         this.customTagTop = 20
-        // this.setRightModuleVisible()
+        this.setRightModuleVisible()
       }
     },
     handleChangeCustomTags(tags) {
@@ -3818,9 +3904,15 @@ export default {
             }
           })
         }
+      } else if (category === TemplateType.Prompt) {
+        if (this.filterPruposeList.indexOf(id) === -1) {
+          this.filterPruposeList.push(id)
+        } else {
+          this.filterPruposeList.splice(this.filterPruposeList.indexOf(id), 1)
+        }
       }
       // 如果选中的是子类 父id要从筛选条件中去除，记录关系
-      if (parent && parent.children.length > 0) {
+      if (parent && parent.children && parent.children.length > 0) {
         this.filterParentMap.set(id, parent.id)
       }
       this.selectFilter()
@@ -3837,6 +3929,8 @@ export default {
         })
       } else if (this.filterType === 3) {
         this.filterCentury = []
+      } else if (this.filterType === 4) {
+        this.filterPruposeList = []
       }
       this.selectFilter()
     },
@@ -4056,7 +4150,7 @@ export default {
         if (response.success) {
           this.$message.success('add successfully')
           this.subTasks = []
-          this.handleSaveTask()
+          this.handleSaveTask(true)
         } else {
           this.$message.error(response.message)
         }
@@ -4089,13 +4183,17 @@ export default {
         taskData.id = this.taskId
       }
       taskData.selectedTemplateList = this.selectedTemplateList
-      taskData.selfOuts = this.$refs.learnOut.getSelfOuts()
+      // 更新selfOuts数据
+      if (this.$refs.learnOut && this.$refs.learnOut.length > 0) {
+        taskData.selfOuts = this.$refs.learnOut[0].getSelfOuts()
+      }
+      if (taskData.customFieldData) {
+        taskData.customFieldData = JSON.stringify(taskData.customFieldData)
+      }
       logger.info('basic taskData', taskData)
-      TaskAddOrUpdate(taskData).then((response) => {
-        logger.info('TaskAddOrUpdate', response.result)
-      }).finally(() => {
-
-      })
+      const response = await TaskAddOrUpdate(taskData)
+      logger.info('TaskAddOrUpdate', response.result)
+      return response
     },
     setCustomTagByPPT(nameList, parent) {
       nameList.forEach(name => {
@@ -4113,7 +4211,8 @@ export default {
     handleAddMaterial() {
       this.form.materialList.push({
         name: null,
-        link: null
+        link: null,
+        error: null
       })
       this.$logger.info('handleAddMaterial', this.form.materialList)
     },
@@ -4135,11 +4234,6 @@ export default {
       this.materialListFlag = checked
     },
 
-    handleGradeUpdate(data) {
-      this.$logger.info('handleGradeUpdate', data)
-      this.form.gradeId = data.data.id
-    },
-
     handleShareTask() {
       this.$logger.info('handleShareTask')
       this.shareVisible = true
@@ -4157,10 +4251,6 @@ export default {
           this.shareStatus = 0
         }
       })
-    },
-    handleShareStatus (status) {
-      this.$logger.info('handleShareStatus', status)
-      this.shareStatus = status
     },
     handleUpdateContent() {
       // const contentMsg = this.$store.state.websocket.saveContentMsg
@@ -4196,9 +4286,16 @@ export default {
       })
     },
 
-    handleDeleteClass (classItem) {
+    handleDeleteClass (idx, classItem) {
       this.$logger.info('handleDeleteClass', classItem)
-      this.form.taskClassList = this.form.taskClassList.filter(it => it.classId !== classItem.classId)
+      const newTaskClassList = []
+      for (let i = 0; i < this.form.taskClassList.length; i++) {
+        if (this.form.taskClassList[i].classId === classItem.classId && i === idx) {
+        } else {
+          newTaskClassList.push(this.form.taskClassList[i])
+        }
+      }
+      this.form.taskClassList = newTaskClassList
     },
 
     handleCreateNewClass (data) {
@@ -4218,18 +4315,15 @@ export default {
     },
 
     handleSelectClass (classItem, eventData) {
-      this.$logger.info('handleSelectClass', classItem, event)
-
-      if (eventData && eventData.classId) {
-        classItem.classId = eventData.id
-        classItem.classType = eventData.classType
-        classItem.className = eventData.name
-        if (this.form.taskMode === 2) {
-          eventData.classId = eventData.id
-          eventData.className = eventData.name
-          this.quickSessionClassItem = eventData
-          this.$logger.info('handleSelectClass quickSessionClassItem', this.quickSessionClassItem)
-        }
+      this.$logger.info('handleSelectClass', classItem, eventData)
+      classItem.classId = eventData.id
+      classItem.classType = eventData.classType
+      classItem.className = eventData.name
+      if (this.form.taskMode === 2) {
+        eventData.classId = eventData.id
+        eventData.className = eventData.name
+        this.quickSessionClassItem = eventData
+        this.$logger.info('handleSelectClass quickSessionClassItem', this.quickSessionClassItem)
       }
     },
 
@@ -4237,7 +4331,8 @@ export default {
       this.$logger.info('handleUpdateWeeks', status)
       if (!status) {
         this.form.taskClassList.forEach(item => {
-          if (item.checked && item.momentRangeDate.length === 2) {
+          this.$logger.info('handleUpdateWeeks item', item)
+          if (item && item.checked && item.momentRangeDate.length === 2) {
             item.weeks = this.getWeekByDate(item.momentRangeDate[0], item.momentRangeDate[1])
           }
         })
@@ -4274,6 +4369,42 @@ export default {
     },
     deleteMaterial(id) {
       this.$logger.info('addMaterialList', id)
+    },
+    checkUrl(url) {
+      if (url && url.trim()) {
+        const list = url.split('.')
+        if (list.length <= 1) {
+          return false
+        }
+        for (let i = 0; i < list.length; i++) {
+          if (list[i].length < 2) {
+            return false
+          }
+        }
+      }
+      return true
+    },
+
+    handleTestWebsiteLink (materialItem) {
+      if (materialItem.link && this.checkUrl(materialItem.link)) {
+        window.open('https://' + materialItem.link, '_blank')
+      } else {
+        this.$message.warn('Please enter a valid URL')
+      }
+    },
+
+    handleDontRemindMe () {
+      this.$logger.info('handleDontRemindMe', this.dontRemindMe)
+      if (this.dontRemindMe) {
+        window.localStorage.setItem('dontRemindMe_' + this.$store.getters.email, 'true')
+      }
+    },
+
+    // 选词自动填入标签功能
+    handleAddCustomTagRemote(res) {
+      if (res.parentId && this.$refs.customTag) {
+        this.$refs.customTag.remoteChooseTag(res.parentId, res.tag)
+      }
     }
   }
 }
@@ -4389,6 +4520,16 @@ export default {
 
       .task-form-right {
         overflow: visible;
+        position: relative;
+        .mask {
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 0;
+          bottom: 0;
+          z-index: 999;
+          background: rgba(0, 0, 0, 0.07);
+        }
 
         .form-block-right {
           .img-wrapper {
@@ -5499,10 +5640,8 @@ export default {
   }
 
   /deep/ .ant-form-item label {
-    font-size: 16px;
     font-weight: 500;
     font-family: Inter-Bold;
-    line-height: 24px;
   }
 }
 
@@ -5583,16 +5722,8 @@ export default {
   }
 }
 
-.form-header {
-  z-index: 1000;
-  position: fixed;
-  top: 64px;
-  left: 0;
-  right: 0;
-}
-
 .my-full-form-wrapper {
-  margin-top: 70px;
+  margin-top: 90px;
 }
 
 .my-slide-pick-modal {
@@ -5719,8 +5850,8 @@ export default {
   flex-direction: row;
   align-items: center;
   justify-content: flex-end;
-  margin-bottom: 20px;
-  margin-top: 20px;
+  padding-bottom: 10px;
+  padding-top: 10px;
 
   .slide-switch {
     margin-left: 10px;
@@ -5755,7 +5886,7 @@ export default {
   color: rgba(0, 0, 0, 0.65);
   background: #fff;
   height: 70px;
-  margin-top: -15px;
+  margin-top: 5px;
   padding: 0 25px;
 
   .icon-group {
@@ -6189,7 +6320,7 @@ export default {
 
   &::-webkit-scrollbar-thumb {
     border-radius: 5px;
-    background: rgba(0, 0, 0, 0.12);
+    background: rgba(0, 0, 0, 0.06);
     -webkit-box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.04);
   }
 
@@ -6618,7 +6749,12 @@ export default {
 .form-block-label {
   font-family: Inter-Bold;
   line-height: 24px;
-  color: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  .label-text {
+    padding: 0 5px;
+  }
 }
 
 .material-list {
@@ -6790,5 +6926,49 @@ export default {
   display: flex;
   justify-content: flex-start;
   align-items: center;
+}
+.step-1 {
+  position: relative;
+
+  .mask {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 999;
+    background: rgba(0, 0, 0, 0.07);
+  }
+}
+
+.common-link-wrapper {
+}
+
+.url-error-tips {
+  color: #ff4d4f;
+  font-size: 13px;
+}
+
+.add-material-item {
+  height: 30px;
+  line-height: 30px;
+  svg {
+    cursor: pointer;
+    width: 20px;
+  }
+}
+
+.dont-remind-me {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  line-height: 30px;
+}
+
+/deep/ .ant-steps-item-content {
+  overflow: visible;
+  margin-left: 50px;
 }
 </style>

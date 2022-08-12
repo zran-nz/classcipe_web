@@ -2,85 +2,73 @@
   <div class="big-idea">
 
     <a-row class="row-wrapper">
-      <a-col span="6" class="col-wrapper">
-        <div>
-          <a-list bordered :data-source="subjectList" style="border: none" >
-            <a-list-item slot="renderItem" slot-scope="item" :class="{'list-item-selected':subjectId === item.id}" @click="selectSubject(item.id)">
-              {{ item.name }}
-            </a-list-item>
-          </a-list>
-        </div>
-      </a-col>
+      <!--      <a-col span="11" class="col-wrapper">-->
+      <!--        <div>-->
+      <!--          <a-list bordered :data-source="subjectList" style="border: none" >-->
+      <!--            <a-list-item slot="renderItem" slot-scope="item" :class="{'list-item-selected':selectSubject === item.name}" @click="handleSelectSubject(item.name)">-->
+      <!--              {{ item.name }}-->
+      <!--            </a-list-item>-->
+      <!--          </a-list>-->
+      <!--        </div>-->
+      <!--      </a-col>-->
 
-      <a-col span="9" class="col-wrapper">
+      <a-col span="20" class="col-wrapper">
         <div>
           <div class="col-input-serach">
             <a-input-search
               v-model="inputTag"
-              placeholder="Search tags"
+              placeholder="Search"
               class="search-input"
-              @search="searchTag"
-              @keyup="searchTag" >
+              @search="searchTag">
               <a-icon slot="prefix" type="search" :style="{ fontSize: '16px', color: '#15c39a','margin-right':'5px' }" />
             </a-input-search>
           </div>
-          <div class="content-list">
-            <div class="keyword-wrapper">
-              <div class="title"><h4>Hot</h4></div>
-              <div class="keyword-list">
-                <div v-for="(hot,index) in showHotList" :key="index" :class="{'keyword-item': true, 'kd-active-item': true}" @click="queryBigIdeaKeywords(hot)">
-                  <span class="keyword-name">
-                    {{ hot }}
-                  </span>
-                  <a-icon type="check-circle" theme="filled" v-if="selectedKeywords===hot"/>
-                </div>
-              </div>
-            </div>
-            <div class="keyword-wrapper" v-for="(item,index) in keywordLetterList" :key="index">
-              <div class="title"><h4>{{ item.letter }}</h4></div>
-              <div class="keyword-list">
-                <div v-for="name in item.content" :key="name" :class="{'keyword-item': true, 'kd-active-item': true}" @click="queryBigIdeaKeywords(name)">
-                  <span class="keyword-name">
-                    {{ name }}
-                  </span>
-                  <a-icon type="check-circle" theme="filled" v-if="selectedKeywords===name"/>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </a-col>
-
-      <a-col span="9" class="col-wrapper">
-        <div>
-
-          <div class="select-item">
-            <a-select
-              :getPopupContainer="trigger => trigger.parentElement"
-              @change="QueryBigIdea"
-              v-model="selectedConcept"
-              mode="multiple"
-              class="multiple-select"
-              placeholder="Universal Concept"
-              :showArrow="true">
-              <a-select-option :value="concept" v-for="(concept, gIndex) in conceptList" :key="gIndex">
-                {{ concept }}
-              </a-select-option>
-            </a-select>
-          </div>
-
-          <!--  big idea list -->
           <div class="description-wrapper">
             <div class="description-list">
               <div :class="{'description-item': true, 'kd-active-item': selectedBigIdea === bigIdea}" v-for="(bigIdea,index) in bigIdeaList" :key="index" @click="selectBigIdea(bigIdea)">
-                <span>{{ bigIdea }}</span>
-                <!--                <a-icon type="check-circle" theme="filled" v-if="selectedBigIdea===bigIdea"/>-->
+                <span class="tag-title">{{ bigIdea.inquiry }}</span>
+                <div
+                  class="inquiry-keyword-item"
+                  v-for="(tag, tagIndex) in bigIdea.inquiryKeywords"
+                  :key="'inquery_keyword_'+tagIndex">
+                  <a-tag color="green">{{ tag }}</a-tag>
+                </div>
               </div>
             </div>
           </div>
+
         </div>
       </a-col>
+
+      <!--      <a-col span="9" class="col-wrapper">-->
+      <!--        <div>-->
+
+      <!--          <div class="select-item">-->
+      <!--            <a-select-->
+      <!--              :getPopupContainer="trigger => trigger.parentElement"-->
+      <!--              @change="QueryBigIdea"-->
+      <!--              v-model="selectedConcept"-->
+      <!--              mode="multiple"-->
+      <!--              class="multiple-select"-->
+      <!--              placeholder="Universal Concept"-->
+      <!--              :showArrow="true">-->
+      <!--              <a-select-option :value="concept" v-for="(concept, gIndex) in conceptList" :key="gIndex">-->
+      <!--                {{ concept }}-->
+      <!--              </a-select-option>-->
+      <!--            </a-select>-->
+      <!--          </div>-->
+
+      <!--          &lt;!&ndash;  big idea list &ndash;&gt;-->
+      <!--          <div class="description-wrapper">-->
+      <!--            <div class="description-list">-->
+      <!--              <div :class="{'description-item': true, 'kd-active-item': selectedBigIdea === bigIdea}" v-for="(bigIdea,index) in bigIdeaList" :key="index" @click="selectBigIdea(bigIdea)">-->
+      <!--                <span>{{ bigIdea }}</span>-->
+      <!--                &lt;!&ndash;                <a-icon type="check-circle" theme="filled" v-if="selectedBigIdea===bigIdea"/>&ndash;&gt;-->
+      <!--              </div>-->
+      <!--            </div>-->
+      <!--          </div>-->
+      <!--        </div>-->
+      <!--      </a-col>-->
     </a-row>
 
     <a-spin v-show="tagLoading" class="keyword-loading"/>
@@ -92,10 +80,8 @@
 <script>
 import * as logger from '@/utils/logger'
 import TagBrowser from '@/components/UnitPlan/TagBrowser'
-import { QuerySourceTagByCategory } from '@/api/tag'
-import { TAG_CATGORY_KEYWORDS } from '@/const/common'
-import { SubjectTree } from '@/api/subject'
-import { QueryBigIdea, QueryTagsBySubjectIds } from '@/api/scenario'
+import { QueryTagsBySubjectIds } from '@/api/scenario'
+import { QueryNewBigIdea } from '@/api/v2/mycontent'
 
 const { debounce } = require('lodash-es')
 
@@ -136,8 +122,8 @@ export default {
       tagName: '',
       subjectTree: [],
       subjectList: [],
-      subjectIds: [],
-      subjectId: '',
+      subjectNames: [],
+      selectSubject: '',
       conceptList: [],
       selectedConcept: [],
       alphabet: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q',
@@ -146,24 +132,24 @@ export default {
   },
   created () {
     this.debouncedSearchKnowledge = debounce(this.searchTag, 500)
-    this.QuerySourceTagByCategory()
+    // this.QuerySourceTagByCategory()
     this.QueryBigIdea()
-    SubjectTree({ curriculumId: this.$store.getters.bindCurriculum }).then(res => {
-      this.$logger.info('SubjectTree response', res.result)
-      if (res.success) {
-        this.subjectList = [{ name: 'All Subject', id: '' }]
-        this.subjectTree = res.result
-        this.subjectTree.forEach(item => {
-          this.subjectList.push(item)
-          // if (item.children.length > 0) {
-          //   item.children.forEach(child => {
-          //     this.subjectList.push(child)
-          //   })
-          // }
-        })
-      }
-    }).finally(() => {
-    })
+    // SubjectTree({ curriculumId: this.$store.getters.bindCurriculum }).then(res => {
+    //   this.$logger.info('SubjectTree response', res.result)
+    //   if (res.success) {
+    //     this.subjectList = [{ name: 'All Subject', id: '' }]
+    //     this.subjectTree = res.result
+    //     this.subjectTree.forEach(item => {
+    //       this.subjectList.push(item)
+    //       // if (item.children.length > 0) {
+    //       //   item.children.forEach(child => {
+    //       //     this.subjectList.push(child)
+    //       //   })
+    //       // }
+    //     })
+    //   }
+    // }).finally(() => {
+    // })
   },
   watch: {
   },
@@ -172,22 +158,22 @@ export default {
       this.selectedKeywords = keyword
       this.QueryBigIdea()
     },
-    QuerySourceTagByCategory () {
-      this.tagLoading = true
-      if (this.subjectIds.length === 1 && !this.subjectIds[0]) {
-        this.subjectIds = []
-      }
-      QuerySourceTagByCategory({ category: TAG_CATGORY_KEYWORDS, searchKey: this.inputTag }).then(response => {
-        this.$logger.info('QuerySourceTagByCategory response', response.result)
-        if (response.success) {
-          this.keywordList = response.result.tags
-          this.keywordHotList = response.result.hots
-        }
-      }).finally(() => {
-        this.tagLoading = false
-        this.getLettersList()
-      })
-    },
+    // QuerySourceTagByCategory () {
+    //   this.tagLoading = true
+    //   if (this.subjectIds.length === 1 && !this.subjectIds[0]) {
+    //     this.subjectIds = []
+    //   }
+    //   QuerySourceTagByCategory({ category: TAG_CATGORY_KEYWORDS, searchKey: this.inputTag }).then(response => {
+    //     this.$logger.info('QuerySourceTagByCategory response', response.result)
+    //     if (response.success) {
+    //       this.keywordList = response.result.tags
+    //       this.keywordHotList = response.result.hots
+    //     }
+    //   }).finally(() => {
+    //     this.tagLoading = false
+    //     this.getLettersList()
+    //   })
+    // },
     getLettersList () {
       this.keywordLetterList = []
       this.alphabet.forEach((letter) => {
@@ -204,23 +190,30 @@ export default {
     },
     QueryBigIdea () {
       this.bigLoading = true
-      this.bigIdeaList = []
-      if (this.subjectIds.length === 1 && !this.subjectIds[0]) {
-        this.subjectIds = []
+      // this.bigIdeaList = []
+      // if (this.subjectNames.length === 1 && this.subjectNames[0] === 'All Subject') {
+      //   this.subjectNames = []
+      // }
+      const params = {}
+      if (this.inputTag) {
+        params.keywords = this.inputTag
       }
-      QueryBigIdea({ keywords: this.selectedKeywords, subjectIds: this.subjectIds, concepts: this.selectedConcept }).then(response => {
-        this.$logger.info('QueryBigIdea response', response.result)
+      QueryNewBigIdea(params).then(response => {
+        this.$logger.info('QueryNewBigIdea response', response.result)
         if (response.success) {
           this.bigIdeaList = response.result
+          // if (this.inputTag) {
+          //   this.bigIdeaList = this.bigIdeaList.filter(item => item.toLowerCase().indexOf(this.inputTag.toLowerCase()) > -1)
+          // }
         }
       }).finally(() => {
         this.bigLoading = false
-          QueryTagsBySubjectIds({ 'mainSubjectId': this.subjectId, keywords: this.selectedKeywords }).then(response => {
-            this.$logger.info('queryTagsByMainSubjectId response', response.result)
-            if (response.success) {
-              this.conceptList = response.result['Universal Concept']
-            }
-      })
+         //  QueryTagsBySubjectIds({ 'mainSubjectId': this.subjectId, keywords: this.selectedKeywords }).then(response => {
+         //    this.$logger.info('queryTagsByMainSubjectId response', response.result)
+         //    if (response.success) {
+         //      this.conceptList = response.result['Universal Concept']
+         //    }
+         // })
     })
     },
     queryTagsBySubjectIds () {
@@ -244,11 +237,13 @@ export default {
     },
     searchTag () {
       logger.info('tag searchTag', this.inputTag)
-      this.QuerySourceTagByCategory()
+      // this.QuerySourceTagByCategory()
+      this.QueryBigIdea()
     },
-    selectSubject (subjectId) {
-      this.subjectId = subjectId
-      this.queryTagsBySubjectIds()
+    handleSelectSubject (subject) {
+      this.selectSubject = subject
+      this.subjectNames = [subject]
+      // this.queryTagsBySubjectIds()
       this.QueryBigIdea()
     }
 
@@ -424,5 +419,14 @@ export default {
     color: #15c39a;
     background-color: rgba(21, 195, 154, 0.1);
   }
+}
+.tag-title{
+  width: 100%;
+  display: block;
+}
+.inquiry-keyword-item {
+  margin: 3px;
+  display: flex;
+  align-items: center;
 }
 </style>

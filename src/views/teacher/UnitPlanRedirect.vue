@@ -15,12 +15,14 @@ export default {
     PageHeaderWrapper
   },
   props: {
-    // eslint-disable-next-line vue/require-default-prop
-    unitPlanId: null
+    unitPlanId: {
+      type: String,
+      default: null
+    }
   },
   created () {
     if (this.unitPlanId !== 'create') {
-      this.$router.replace('/teacher/unit-plan/' + this.unitPlanId)
+      this.$router.replace('/teacher/unit-plan-v2/' + this.unitPlanId)
     } else {
       const unitPlanData = {
         name: 'Unnamed Unit Plan'
@@ -30,7 +32,7 @@ export default {
         logger.info('creatingUnitPlan response', response.result)
         if (response.success) {
           this.$router.replace({
-            path: '/teacher/unit-plan/' + response.result.id
+            path: '/teacher/unit-plan-v2/' + response.result.id
           })
         } else {
           this.$message.error(response.message)

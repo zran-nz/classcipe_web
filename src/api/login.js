@@ -1,4 +1,6 @@
 import request from '@/utils/request'
+import plainRequest from '@/utils/plainRequest'
+import { trimParams } from '@/utils/util'
 
 const userApi = {
   Login: '/classcipe/sys/login',
@@ -8,7 +10,11 @@ const userApi = {
   SignUp: '/classcipe/sys/signUp',
   ForgePassword: '/classcipe/sys/sendResetPasswordLink',
   ResetPassword: '/classcipe/sys/resetPassword',
-
+  CheckOauthToken: '/classcipe/sys/checkOauthToken',
+  CheckPassword: '/classcipe/sys/checkPassword',
+  ChangePassword: '/classcipe/sys/changePassword',
+  SendVerifyLink: '/classcipe/sys/sendVerifyLink',
+  UpdatePersonalInfo: '/classcipe/sys/updatePersonalInfo',
   twoStepCode: '/auth/2step-code',
   SendSms: '/account/sms',
   SendSmsErr: '/account/sms_err',
@@ -27,7 +33,7 @@ const userApi = {
  * @returns {*}
  */
 export function login (parameter) {
-  return request({
+  return plainRequest({
     url: userApi.Login,
     method: 'post',
     data: parameter
@@ -111,13 +117,57 @@ export function forgePassword (parameter) {
   return request({
     url: userApi.ForgePassword,
     method: 'post',
-    params: parameter
+    params: parameter,
+    data: parameter
   })
 }
 export function resetPassword (parameter) {
   return request({
     url: userApi.ResetPassword,
     method: 'post',
+    params: parameter,
+    data: parameter
+  })
+}
+
+export function CheckOauthToken (parameter) {
+  return request({
+    url: userApi.CheckOauthToken,
+    method: 'get',
     params: parameter
+  })
+}
+
+export function CheckPassword (parameter) {
+  return request({
+    url: userApi.CheckPassword,
+    method: 'post',
+    params: parameter,
+    data: parameter
+  })
+}
+
+export function ChangePassword (parameter) {
+  return request({
+    url: userApi.ChangePassword,
+    method: 'post',
+    data: parameter
+  })
+}
+
+export function SendVerifyLink (email) {
+  return request({
+    url: userApi.SendVerifyLink + '?email=' + email,
+    method: 'get'
+  })
+}
+
+export function UpdatePersonalInfo (parameter) {
+  // 去除空格
+  parameter = trimParams(parameter)
+  return request({
+    url: userApi.UpdatePersonalInfo,
+    method: 'post',
+    data: parameter
   })
 }

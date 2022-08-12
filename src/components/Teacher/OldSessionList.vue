@@ -22,6 +22,11 @@
 
     <a-divider>Or</a-divider>
 
+    <div class='tips'>
+      <div class='tips-text'>
+        <a-icon type="info-circle" /> If you have updated the slides of any task below, you might start the session with the latest slides or join the old session in the <a href='#' @click='showPreviewSessionList'>Previous Session page</a>.
+      </div>
+    </div>
     <div class="my-class-list">
       <div class="class-list-wrapper">
         <a-table
@@ -57,10 +62,13 @@
 
     </div>
 
-    <!--    <div class="modal-ensure-action-line">-->
-    <!--      <a-button class="action-item action-cancel" shape="round" @click="handleCancelSelectData">Cancel</a-button>-->
-    <!--      <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">Resume</a-button>-->
-    <!--    </div>-->
+    <a-modal
+      :footer="null"
+      v-model="visible">
+      <div style="margin:20px;font-size: 20px;">
+        This session has ended, reopen it in the <a href="#" @click=showMoalPreviewSessionList >previous session page</a> if you would like to have students join this session.
+      </div>
+    </a-modal>
   </div>
 </template>
 
@@ -76,6 +84,7 @@ import storage from 'store'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 import { AddOrUpdateClass } from '@/api/classroom'
 import moment from 'moment'
+import { EvaluationMixin } from '@/mixins/EvaluationMixin'
 
 export default {
   name: 'OldSessionList',
@@ -91,11 +100,16 @@ export default {
         return []
       }
     },
+    taskId: {
+      type: String,
+      required: true
+    },
     mode: {
       type: Number,
       default: 1
     }
   },
+  mixins: [EvaluationMixin],
   data () {
     return {
       loading: false,
@@ -120,14 +134,9 @@ export default {
         },
         {
           title: 'Class',
-          dataIndex: 'taskClassName',
+          dataIndex: 'className',
           width: '150px'
         },
-        // {
-        //   title: 'Session name',
-        //   width: 150,
-        //   dataIndex: 'className'
-        // },
         {
           title: 'Status',
           dataIndex: 'status',
@@ -155,7 +164,8 @@ export default {
       ],
       data: [],
       classStatus: lessonStatus,
-      startLoading: false
+      startLoading: false,
+      visible: false
     }
   },
   created () {
@@ -214,6 +224,11 @@ export default {
     },
 
     handleStartOrJoin (item) {
+      this.$logger.info('handleStartOrJoin item :', item)
+      if (item.status === this.classStatus.close) {
+        this.visible = true
+        return
+      }
       item.startLoading = true
       const status = this.mode === 1 ? this.classStatus.teacherPaced : this.classStatus.studentPaced
       if (item.status !== status) {
@@ -224,6 +239,7 @@ export default {
         if (!data.date) {
           data.date = parseInt(moment.utc(new Date()).toDate().getTime() / 1000)
         }
+
         AddOrUpdateClass(data).then(response => {
           item.startLoading = false
           this.goToClassPage(item.classId)
@@ -240,6 +256,16 @@ export default {
     handleStartSession () {
       this.startLoading = true
       this.$emit('start-new-session')
+    },
+
+    showPreviewSessionList () {
+      this.$logger.info('showPreviewSessionList')
+      this.$emit('show-preview-session-list')
+    },
+
+    showMoalPreviewSessionList () {
+      this.showPreviewSessionList()
+      this.$emit('cancel')
     },
 
     handleTeacherProjecting (item) {

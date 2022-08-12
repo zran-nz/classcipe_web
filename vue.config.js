@@ -40,7 +40,10 @@ const isProd = process.env.NODE_ENV === 'production'
 
 // vue.config.js
 const vueConfig = {
+  // 打包app时放开该配置
+  // publicPath: process.env.NODE_ENV === 'test' ? '/version2' : '/',
   configureWebpack: {
+    devtool: 'cheap-module-source-map',
     // webpack plugins
     plugins: [
       // Ignore all locale files of moment.js
@@ -116,6 +119,11 @@ const vueConfig = {
       '/classcipe': {
         target: ' https://dev.classcipe.com/',
         ws: false,
+        changeOrigin: true
+      },
+      '/fio': {
+        target: ' https://dev.classcipe.com/',
+        ws: true,
         changeOrigin: true
       }
     }

@@ -186,10 +186,11 @@ import UrlTypeSvg from '@/assets/icons/material/url.svg?inline'
 import MaterialTypeIcon from '@/components/Task/MaterialTypeIcon'
 import TaskMaterialPreview from '@/components/Task/TaskMaterialPreview'
 import { typeMap } from '@/const/teacher'
-import { TemplatesGetPresentation } from '@/api/template'
+import { TemplatesGetPublishedPresentation } from '@/api/template'
 import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
 import MediaPreview from '@/components/Task/MediaPreview'
 import { MyContentEvent, MyContentEventBus } from '@/components/MyContent/MyContentEventBus'
+import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 
 export default {
   name: 'TemplatePreview',
@@ -237,37 +238,46 @@ export default {
       subPreviewVisible: false
     }
   },
-  mixins: [PptPreviewMixin],
+  mixins: [ PptPreviewMixin, GoogleAuthCallBackMixin ],
   created () {
-    this.templateData = this.template
-    this.$logger.info('selectedTemplateIdList ', this.selectedTemplateIdList)
-    this.selectIds = this.selectedTemplateIdList
-    if (this.templateData.type === typeMap.task) {
-      this.loading = true
-      TemplatesGetPresentation({
-        presentationId: this.templateData.presentationId
-      }).then(response => {
-        this.$logger.info('task loadThumbnail response', response.result)
-        const pageObjects = response.result.pageObjects
-        this.templateData.pageObjectIds = []
-        pageObjects.forEach(page => {
-          this.templateData.pageObjectIds.push(page.id)
-          this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
-          this.$logger.info('current thumbnailList ', this.thumbnailList)
-        })
-      }).finally(() => {
-        this.loading = false
-        this.getClassInfo(this.templateData.presentationId)
-      })
-    } else {
-      this.loading = false
-      this.templateData.images.forEach((image, index) => {
-        this.thumbnailList.push({ contentUrl: image, id: this.templateData.pageObjectIds[index] })
-      })
-      this.getClassInfo(this.templateData.presentationId)
-    }
+    this.loadData()
   },
   methods: {
+    loadData() {
+      this.templateData = this.template
+      this.$logger.info('selectedTemplateIdList ', this.selectedTemplateIdList)
+      this.selectIds = this.selectedTemplateIdList
+      if (this.templateData.type === typeMap.task) {
+        this.loading = true
+        TemplatesGetPublishedPresentation({
+          taskId: this.templateData.id
+        }).then(response => {
+          this.$logger.info('task loadThumbnail response', response.result)
+          if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
+            const pageObjects = response.result.pageObjects
+            this.templateData.pageObjectIds = []
+            pageObjects.forEach(page => {
+              this.templateData.pageObjectIds.push(page.id)
+              this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
+              this.$logger.info('current thumbnailList ', this.thumbnailList)
+            })
+          }
+        }).finally(() => {
+          this.loading = false
+          this.getClassInfo(this.templateData.presentationId)
+        })
+      } else {
+        this.loading = false
+        this.templateData.images.forEach((image, index) => {
+          this.thumbnailList.push({ contentUrl: image, id: this.templateData.pageObjectIds[index] })
+        })
+        this.getClassInfo(this.templateData.presentationId)
+      }
+    },
+    handleAuthCallback() {
+      this.$logger.info('handleAuthCallback')
+      this.loadData()
+    },
     handleGotoImgIndex (index) {
       this.$logger.info('handleGotoImgIndex ' + index)
       this.currentImgIndex = index

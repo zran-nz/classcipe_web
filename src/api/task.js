@@ -9,7 +9,8 @@ export const taskAPIUrl = {
   list: '/classcipe/api/task/list',
   queryById: '/classcipe/api/task/queryById',
   splitTask: '/classcipe/api/task/spliteTask',
-  getTaskBySessonId: '/classcipe/api/task/getTaskBySessonId'
+  getTaskBySessonId: '/classcipe/api/task/getTaskBySessonId',
+  updateSlideEditing: '/classcipe/api/task/updateSlideEditing'
 }
 
 /**
@@ -97,5 +98,16 @@ export function getTaskBySessionId (parameter) {
     url: taskAPIUrl.getTaskBySessonId,
     method: 'get',
     params: parameter
+  })
+}
+
+export function UpdateSlideEditing (parameter) {
+  return request({
+    url: taskAPIUrl.updateSlideEditing,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
   })
 }

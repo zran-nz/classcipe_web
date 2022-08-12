@@ -21,6 +21,8 @@ import { selectRoleRouter } from '@/config/router.config'
 import { getThirdAuthURL, thirdAuthCallbackUrl } from '@/api/thirdAuth'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import { SESSION_CALLBACK_URL } from '@/const/common'
+import { SET_PROMOTE_CODE } from '@/store/mutation-types'
+import { getCookie } from '@/utils/util'
 
 export default {
   name: 'AuthResult',
@@ -38,9 +40,11 @@ export default {
       this.$store.dispatch('GetInfo').then(response => {
         this.$logger.info('auth-result-redirect', this.$route)
         const callbackUrl = window.sessionStorage.getItem(SESSION_CALLBACK_URL)
+        // 如果有zoom授权token，且当前窗口有opener发送zoom 授权更新消息
+        this.handleOpener()
         if (callbackUrl) {
           window.sessionStorage.removeItem(SESSION_CALLBACK_URL)
-          window.location.href = callbackUrl + '?token=' + accessToken
+          window.location.href = callbackUrl + (callbackUrl.indexOf('?') > -1 ? '&' : '?') + 'token=' + accessToken
         } else if (this.$store.getters.currentRole) {
           this.$router.push(this.$store.getters.defaultRouter)
         } else {
@@ -51,6 +55,7 @@ export default {
         this.failedMessage = e
       })
     }).catch(() => {
+      this.handleOpener()
       this.$router.push({ path: '/user/login' })
     })
   },
@@ -58,9 +63,23 @@ export default {
     handleRetryAuth () {
       let url = getThirdAuthURL('google')
       url += `?role=teacher`
+      url += `&channelId=${getCookie(SET_PROMOTE_CODE)}`
       url += `&callbackUrl=`
       url += thirdAuthCallbackUrl
       window.location.href = url
+    },
+    handleOpener() {
+      const authType = window.sessionStorage.getItem('SESSION_AUTH_TYPE')
+      if (window.opener) {
+        if (window.opener.postMessage && authType) {
+          window.opener.postMessage({
+            authType: authType,
+            event: 'authUpdate',
+            data: null
+          }, '*')
+        }
+        window.close()
+      }
     }
   }
 }

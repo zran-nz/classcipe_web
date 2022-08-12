@@ -6,6 +6,8 @@ import user from './modules/user'
 
 // default router permission control
 import permission from './modules/permission'
+import formConfig from './modules/formConfig'
+import classcipeConfig from './modules/classcipeConfig'
 
 // dynamic router permission control (Experimental)
 // import permission from './modules/async-router'
@@ -19,15 +21,15 @@ export default new Vuex.Store({
     app,
     user,
     permission,
-    websocket
+    websocket,
+    formConfig,
+    classcipeConfig
   },
   state: {
   },
   mutations: {
-
   },
   actions: {
-
   },
   getters
 })

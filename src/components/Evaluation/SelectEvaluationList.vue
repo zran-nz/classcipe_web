@@ -115,6 +115,10 @@ export default {
       type: String,
       required: false,
       default: null
+    },
+    hiddenEvaluationId: {
+      type: String,
+      default: () => []
     }
   },
   data () {
@@ -148,7 +152,7 @@ export default {
     }
   },
   created () {
-    this.$logger.info('SelectEvaluationList taskId ' + this.taskId + ' classId ' + this.classId)
+    this.$logger.info('SelectEvaluationList taskId ' + this.taskId + ' classId ' + this.classId + ' hiddenEvaluationId ' + this.hiddenEvaluationId)
     this.loadMyContent()
   },
   methods: {
@@ -163,6 +167,7 @@ export default {
       }).then(res => {
         logger.info('loadMyContent', res)
         if (res.result && res.result.records && res.result.records.length) {
+          res.result.records = res.result.records.filter(item => item.id !== this.hiddenEvaluationId)
           res.result.records.forEach((record, index) => {
             record.key = index
             record.expand = false

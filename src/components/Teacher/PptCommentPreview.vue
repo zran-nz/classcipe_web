@@ -56,7 +56,8 @@
 <script>
 
 import { GetStudentResponse } from '@/api/lesson'
-import { TemplatesGetPresentation, TemplatesGetPageThumbnail } from '@/api/template'
+import { TemplatesGetPublishedPresentation, TemplatesGetPageThumbnail } from '@/api/template'
+import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 
 export default {
   name: 'PptCommentPreview',
@@ -65,11 +66,12 @@ export default {
       type: String,
       default: '1tfhTKkxPXsgfh_9mYZUVqHQn_1up1sAOln5PHiRXmj4'
     },
-    classId: {
-      type: String,
+    classData: {
+      type: Object,
       default: null
     }
   },
+  mixins: [ GoogleAuthCallBackMixin ],
   data () {
     return {
       loading: true,
@@ -80,14 +82,14 @@ export default {
     }
   },
   created () {
-    this.$logger.info('PptCommentPreview' + this.slideId + ' classId ' + this.classId)
+    this.$logger.info('PptCommentPreview' + this.slideId + ' classId ' + this.classData.classId)
     this.loadData()
   },
   methods: {
     loadData () {
       Promise.all([
-        GetStudentResponse({ class_id: this.classId }),
-        TemplatesGetPresentation({ presentationId: this.slideId })
+        GetStudentResponse({ class_id: this.classData.classId }),
+        TemplatesGetPublishedPresentation({ taskId: this.classData.contentId })
       ]).then(response => {
         this.$logger.info('PptCommentPreview loadData', response)
         const rawCommentDataList = response[0].data.presentation_comments
@@ -99,29 +101,63 @@ export default {
           })
         })
 
-        const pageObjectIds = response[1].result.pageObjectIds
-        if (pageObjectIds.length) {
-          pageObjectIds.forEach(id => {
-            TemplatesGetPageThumbnail({
-              pageObjectId: id,
-              presentationId: this.slideId,
-              mimeType: 'SMALL'
-            }).then(response => {
-              this.imgList.push({
-                pageId: id,
-                imgUrl: response.result.contentUrl
+        if (response[1].code !== this.ErrorCode.ppt_google_token_expires && response[1].code !== this.ErrorCode.ppt_forbidden) {
+          const pageObjectIds = response[1].result.pageObjectIds
+          if (pageObjectIds.length) {
+            pageObjectIds.forEach(id => {
+              TemplatesGetPageThumbnail({
+                pageObjectId: id,
+                presentationId: this.slideId,
+                mimeType: 'SMALL'
+              }).then(response => {
+                this.imgList.push({
+                  pageId: id,
+                  imgUrl: response.result.contentUrl
+                })
+              }).finally(() => {
+                this.$logger.info('current imgList.length ' + (this.imgList.length) + ' total:' + pageObjectIds.length)
+                if (this.imgList.length === pageObjectIds.length) {
+                  this.currentPageId = this.imgList[this.currentImgIndex].pageId
+                  this.loading = false
+                }
               })
-            }).finally(() => {
-              this.$logger.info('current imgList.length ' + (this.imgList.length) + ' total:' + pageObjectIds.length)
-              if (this.imgList.length === pageObjectIds.length) {
-                this.currentPageId = this.imgList[this.currentImgIndex].pageId
-                this.loading = false
-              }
             })
-          })
-        } else {
-          this.loading = false
-          this.$logger.info('loaded data', this.imgList, this.commentData)
+          } else {
+            this.loading = false
+            this.$logger.info('loaded data', this.imgList, this.commentData)
+          }
+        }
+      })
+    },
+
+    handleAuthCallback () {
+      this.$logger.info('TaskPreview handleAuthCallback')
+      TemplatesGetPublishedPresentation({ presentationId: this.slideId }).then(response => {
+        if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
+          const pageObjectIds = response.result.pageObjectIds
+          if (pageObjectIds.length) {
+            pageObjectIds.forEach(id => {
+              TemplatesGetPageThumbnail({
+                pageObjectId: id,
+                presentationId: this.slideId,
+                mimeType: 'SMALL'
+              }).then(response => {
+                this.imgList.push({
+                  pageId: id,
+                  imgUrl: response.result.contentUrl
+                })
+              }).finally(() => {
+                this.$logger.info('current imgList.length ' + (this.imgList.length) + ' total:' + pageObjectIds.length)
+                if (this.imgList.length === pageObjectIds.length) {
+                  this.currentPageId = this.imgList[this.currentImgIndex].pageId
+                  this.loading = false
+                }
+              })
+            })
+          } else {
+            this.loading = false
+            this.$logger.info('loaded data', this.imgList, this.commentData)
+          }
         }
       })
     },

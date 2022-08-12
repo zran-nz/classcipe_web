@@ -3,7 +3,7 @@
     <div class="progress">
       <span :style="`width: ${progress}%;`"><span>{{ progress }}%</span></span>
     </div>
-    <div class="cancel" @click="cancel" v-if="showCancel">cancel</div>
+    <!-- <div class="cancel" @click="cancel" v-if="showCancel">cancel</div> -->
   </div>
 </template>
 <script>
@@ -43,12 +43,12 @@ export default {
 <style scoped>
 .fix-progress{
   position: absolute;
-  top: 0;
-  width: 200px;
+  top: 5px;
+  width: 100px;
   right: 10px;
   z-index: 999;
   background-color: #b1abab;
-  padding: 7px 10px;
+  padding: 5px 5px;
   box-sizing: border-box;
   border-radius: 5px;
 }

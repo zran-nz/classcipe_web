@@ -9,7 +9,7 @@
         :last-change-saved-time="lastChangeSavedTime"
         @update-form="handleUpdateForm"
         @back="goBack"
-        @save="handleSaveEvaluation"
+        @save="handleSaveEvaluation(true)"
         @publish="handlePublishEvaluation"
       />
     </div>
@@ -79,28 +79,24 @@
               <div class="form-table-item" v-for="(formItem,tIdx) in forms" :key="tIdx">
                 <div class="form-table-item-content" v-show="formItem.formId === currentActiveFormId">
                   <div class="form-setting">
-                    <a-dropdown
-                      placement="bottomRight">
-                      <a-icon type="setting" />
-                      <a-menu slot="overlay">
-                        <a-menu-item key="0">
-                          <div class="menu-icon">
-                            <a-switch
-                              size="small"
-                              v-model="formItem.se" />
-                          </div>
+                    <a-space>
+                      <div class='switch-item'>
+                        <div class='switch-name'>
                           Student Eval
-                        </a-menu-item>
-                        <a-menu-item key="1">
-                          <div class="menu-icon">
-                            <a-switch
-                              size="small"
-                              v-model="formItem.pe" />
-                          </div>
+                        </div>
+                        <a-switch
+                          size="small"
+                          v-model="formItem.se" />
+                      </div>
+                      <div class='switch-item'>
+                        <div class='switch-name'>
                           Peer Eval
-                        </a-menu-item>
-                      </a-menu>
-                    </a-dropdown>
+                        </div>
+                        <a-switch
+                          size="small"
+                          v-model="formItem.pe" />
+                      </div>
+                    </a-space>
                   </div>
                   <div class="comment" v-show="formTableMode === EvaluationTableMode.TeacherEvaluate">
                     <div class="summary-input">
@@ -120,7 +116,7 @@
                 </div>
               </div>
             </div>
-            <div class="no-form-tips" v-show="forms.length === 0">
+            <div class="no-form-tips" v-show="forms.length === 0 && !loading">
               <no-more-resources tips="The evaluation form has not been created!"/>
             </div>
           </div>
@@ -237,7 +233,7 @@
         <template v-if="rubricType === 'select'">
           <div class="select-rubric-wrapper">
             <div class="evaluation-list">
-              <select-evaluation-list @cancel="selectRubricVisible = false" @selected="handleEnsureSelectEvaluation"/>
+              <select-evaluation-list :hidden-evaluation-id='evaluationId' @cancel="selectRubricVisible = false" @selected="handleEnsureSelectEvaluation"/>
             </div>
           </div>
         </template>
@@ -312,10 +308,8 @@ export default {
         cancelText: 'No',
         content: 'Do you want to save the changes?',
         onOk: () => {
-          this.handleSaveEvaluation()
-          setTimeout(() => {
-            next()
-          }, 500)
+          this.handleSaveEvaluation(false)
+          next()
         },
         onCancel() {
           next()
@@ -370,7 +364,7 @@ export default {
   methods: {
     initData () {
       this.$logger.info('initData')
-      this.loading = false
+      this.loading = true
       EvaluationQueryById({ id: this.evaluationId }).then(response => {
         this.$logger.info('init data response', response)
         // 加载班级信息数据
@@ -393,12 +387,12 @@ export default {
         })
         this.$logger.info('forms', this.forms)
       }).finally(() => {
+        this.loading = false
         if ((this.forms.length === 0) && this.mode === EvaluationTableMode.Edit) {
           this.selectRubricVisible = true
         } else {
           this.currentActiveFormId = this.forms[0].formId
         }
-        this.loading = false
         this.oldFormsJson = JSON.stringify(this.forms)
         this.initCompleted = true
       })
@@ -607,8 +601,8 @@ export default {
         this.$router.push({ path: '/teacher/main/created-by-me' })
       }, 500)
     },
-    handleSaveEvaluation () {
-      this.$logger.info('handleSaveEvaluation', this.forms)
+    async handleSaveEvaluation (isBack) {
+      this.$logger.info('handleSaveEvaluation', this.form)
       if (this.$refs.commonFormHeader) {
         this.$refs.commonFormHeader.saving = true
       }
@@ -643,21 +637,36 @@ export default {
           }
           return false
         } else {
-          EvaluationAddOrUpdate(this.form).then((response) => {
-            this.$logger.info('EvaluationAddOrUpdate', response)
-            if (this.$refs.commonFormHeader) {
-              this.$refs.commonFormHeader.saving = false
-            }
-            if (response.success) {
-              this.$message.success('Save successfully!')
-              this.initCompleted = false
+          const response = await EvaluationAddOrUpdate(this.form)
+          this.$logger.info('EvaluationAddOrUpdate', response)
+          if (this.$refs.commonFormHeader) {
+            this.$refs.commonFormHeader.saving = false
+          }
+          if (response.success) {
+            this.$message.success('Save successfully!')
+            this.initCompleted = false
+            if (isBack) {
               this.goBack()
-            } else {
-              this.$message.error(response.message)
             }
-          })
+          } else {
+            this.$message.error(response.message)
+          }
         }
       } else {
+        const response = await EvaluationAddOrUpdate(this.form)
+        this.$logger.info('EvaluationAddOrUpdate', response)
+        if (this.$refs.commonFormHeader) {
+          this.$refs.commonFormHeader.saving = false
+        }
+        if (response.success) {
+          this.$message.success('Save successfully!')
+          this.initCompleted = false
+          if (isBack) {
+            this.goBack()
+          }
+        } else {
+          this.$message.error(response.message)
+        }
         if (this.$refs.commonFormHeader) {
           this.$refs.commonFormHeader.saving = false
         }
@@ -717,6 +726,16 @@ export default {
     handleUpdateForm (data) {
       this.$logger.info('handleUpdateForm', data)
       this.form.name = data.name
+
+      EvaluationAddOrUpdate(this.form).then((response) => {
+        this.$logger.info('EvaluationAddOrUpdate', response)
+        if (this.$refs.commonFormHeader) {
+          this.$refs.commonFormHeader.saving = false
+        }
+        if (!response.success) {
+          this.$message.error(response.message)
+        }
+      })
     },
 
     handleSelectRubric (newFormType) {
@@ -761,9 +780,12 @@ export default {
       }
       this.$logger.info('newTableName', this.newTableName)
     },
-    handleUpdateHeader (header) {
+    handleUpdateHeader () {
       this.$logger.info('AddEvaluation handleUpdateHeader')
-      this.$refs.evaluationTable.forEach(tableItem => { tableItem.handleUpdateHeader() })
+      if (this.$refs.evaluationTable) {
+        this.$refs.evaluationTable.forEach(tableItem => { tableItem.handleUpdateHeader() })
+      }
+
       if (this.$refs.commonFormHeader) {
         this.$refs.commonFormHeader.handleEnsureNewFormName()
       }
@@ -981,7 +1003,7 @@ export default {
 
         .form-table-detail {
           margin-right: -30px;
-          overflow-x: scroll;
+          overflow-x: overlay;
         }
       }
     }
@@ -1259,5 +1281,16 @@ export default {
   text-align: right;
   padding-bottom: 10px;
   cursor: pointer;
+
+  .switch-item {
+    margin-left: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    .switch-name {
+      padding-right: 5px;
+    }
+  }
 }
 </style>

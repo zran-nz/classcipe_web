@@ -5,7 +5,10 @@ export const materialAPIUrl = {
   MaterialQueryById: '/classcipe/api/material/queryById',
   MaterialDelete: '/classcipe/api/material/delete',
   MaterialDeleteBatch: '/classcipe/api/material/deleteBatch',
-  MaterialList: '/classcipe/api/material/list'
+  MaterialList: '/classcipe/api/material/list',
+  YoutubeQueryByKeywords: '/classcipe/api/youtube/queryByKeywords',
+  FileRecord: '/classcipe/api/fileUploadRecord/list',
+  addFileUploadRecord: '/classcipe/api/fileUploadRecord/add'
 }
 
 /**
@@ -13,7 +16,7 @@ export const materialAPIUrl = {
  * @returns {AxiosPromise}
  * @constructor
  */
-export function MaterialAddOrUpdate (parameter) {
+export function MaterialAddOrUpdate(parameter) {
   return request({
     url: materialAPIUrl.MaterialAddOrUpdate,
     method: 'post',
@@ -29,7 +32,7 @@ export function MaterialAddOrUpdate (parameter) {
  * @returns {AxiosPromise}
  * @constructor
  */
-export function MaterialQueryById (parameter) {
+export function MaterialQueryById(parameter) {
   return request({
     url: materialAPIUrl.MaterialQueryById,
     method: 'get',
@@ -42,7 +45,7 @@ export function MaterialQueryById (parameter) {
  * @returns {AxiosPromise}
  * @constructor
  */
-export function MaterialDelete (parameter) {
+export function MaterialDelete(parameter) {
   return request({
     url: materialAPIUrl.MaterialDelete,
     method: 'post',
@@ -58,7 +61,7 @@ export function MaterialDelete (parameter) {
  * @returns {AxiosPromise}
  * @constructor
  */
-export function MaterialDeleteBatch (parameter) {
+export function MaterialDeleteBatch(parameter) {
   return request({
     url: materialAPIUrl.MaterialDeleteBatch,
     method: 'post',
@@ -74,10 +77,39 @@ export function MaterialDeleteBatch (parameter) {
  * @returns {AxiosPromise}
  * @constructor
  */
-export function MaterialList (parameter) {
+export function MaterialList(parameter) {
   return request({
     url: materialAPIUrl.MaterialList,
     method: 'get',
     params: parameter
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function YoutubeQueryByKeywords(parameter) {
+  return request({
+    url: materialAPIUrl.YoutubeQueryByKeywords,
+    method: 'get',
+    params: parameter
+  })
+}
+
+export function FileRecord(parameter) {
+  return request({
+    url: materialAPIUrl.FileRecord,
+    method: 'get',
+    params: parameter
+  })
+}
+
+export function addFileUploadRecord(parameter) {
+  return request({
+    url: materialAPIUrl.addFileUploadRecord,
+    method: 'post',
+    data: parameter
   })
 }

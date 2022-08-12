@@ -2,109 +2,138 @@
   <div class="common-link">
     <div class="link-group-wrapper">
       <template v-if="groups.length && !linkGroupLoading">
-        <div v-for="(group, lIndex) in groups" :key="lIndex" class="link-group">
-          <div class="group-item">
-            <div class="group-header" v-show='group.groupName'>
-              <div class="group-left-info">
-                <!-- unit plan下才有term概念,task不显示对应的操作和term名称-->
-                <div class="group-name">
-                  <div v-if="!group.editing" class="group-name-text">
-                    {{ group.groupName ? group.groupName : 'Untitled' }}
-                  </div>
-                  <div v-if="group.editing" class="group-name-input">
-                    <a-input
-                      v-model="newGroupName"
-                      class="group-name-input"
-                      @pressEnter="handleToggleEditGroupName(group,lIndex)" />
-                  </div>
-                </div>
-                <div v-if="canEdit" class="group-edit-icon" @click="handleToggleEditGroupName(group,lIndex)">
-                  <a-tooltip>
-                    <template slot="title">
-                      Rename
-                    </template>
-                    <a-icon v-if="!group.editing" :style="{ fontSize: '20px', color: '#15C39A' }" type="edit" />
-                  </a-tooltip>
-                  <a-icon v-if="group.editing" :style="{ fontSize: '20px', color: '#15C39A' }" type="check" />
-                </div>
-
-              </div>
-              <div v-if="canEdit" class="group-right-info">
-                <div class="group-action">
-                  <a-button
-                    :style="{'background-color': '#fff', 'color': '#000', 'border': 'none'}"
-                    type="primary"
-                    @click="handleLinkGroup(group)">
-                    <div class="btn-text">
-                      + Link
+        <draggable
+          v-model="groups"
+          :disabled="!canEdit"
+          animation="300"
+          group="group"
+          :move="onMove">
+          <div
+            v-for="(group, lIndex) in groups"
+            :key="lIndex"
+            class="link-group"
+            v-show='!(hiddenEmptyGroup && group.contents.length === 0)'>
+            <div class="group-item">
+              <div class="group-header" v-show='group.groupName'>
+                <div class="group-left-info">
+                  <!-- unit plan下才有term概念,task不显示对应的操作和term名称-->
+                  <div class="group-name">
+                    <div v-if="!group.editing" class="group-name-text">
+                      {{ group.groupName ? group.groupName : 'Untitled' }}
                     </div>
-                  </a-button>
-                </div>
-                <a-popconfirm cancel-text="No" ok-text="Yes" title="Delete group?" @confirm="handleDeleteGroup(group)">
-                  <span class="delete-action">
-                    <img src="~@/assets/icons/tag/delete.png" />
-                  </span>
-                </a-popconfirm>
-              </div>
-            </div>
-            <draggable
-              v-model="group.contents"
-              :disabled="!canEdit"
-              animation="300"
-              group="site"
-              style="width: 100%; min-height: 50px"
-              @end="handleDragEnd">
-              <div v-for="item in group.contents" :key="item.id" class="group-link-item">
-                <div class="left-info">
-                  <div class="icon">
-                    <content-type-icon :type="item.type" />
+                    <div v-if="group.editing" class="group-name-input">
+                      <a-input
+                        v-model="newGroupName"
+                        class="group-name-input"
+                        @pressEnter="handleToggleEditGroupName(group,lIndex)" />
+                    </div>
                   </div>
-                  <div class="name" @click="handleViewDetail(item)">
-                    <a-tooltip placement="top">
+                  <div v-if="canEdit" class="group-edit-icon" @click="handleToggleEditGroupName(group,lIndex)">
+                    <a-tooltip>
                       <template slot="title">
-                        Click and drag tasks to move between categorys
+                        Rename
                       </template>
-                      {{ item.name ? item.name : 'untitled' }}
+                      <a-icon v-if="!group.editing" :style="{ fontSize: '20px', color: '#15C39A' }" type="edit" />
                     </a-tooltip>
+                    <a-icon v-if="group.editing" :style="{ fontSize: '20px', color: '#15C39A' }" type="check" />
                   </div>
+
                 </div>
-                <div class="right-info">
-                  <div class="date">{{ item.createTime | dayjs }}</div>
-                  <div class="status">
-                    <template v-if="item.status === 0">Draft</template>
-                    <template v-if="item.status === 1">Published</template>
+                <div v-if="canEdit" class="group-right-info">
+                  <div class="group-action">
+                    <a-button
+                      :style="{'background-color': '#fff', 'color': '#000', 'border': 'none'}"
+                      type="primary"
+                      @click="handleLinkGroup(group)">
+                      <div class="btn-text">
+                        + Link
+                      </div>
+                    </a-button>
                   </div>
-                  <div v-if="canEdit" class="more-action-wrapper action-item-wrapper">
-                    <a-dropdown>
-                      <a-icon style="margin-right: 8px" type="more" />
-                      <a-menu slot="overlay">
-                        <a-menu-item>
-                          <a-popconfirm
-                            :title="$t('teacher.my-content.action-delete') + '?'"
-                            cancel-text="No"
-                            ok-text="Yes"
-                            @confirm="handleDeleteLinkItem(item)">
-                            <a class="delete-action" href="#">
-                              <a-icon type="delete" />
-                              {{ $t('teacher.my-content.action-delete') }}
-                            </a>
-                          </a-popconfirm>
-                        </a-menu-item>
-                        <a-menu-item>
-                          <a @click="handleEditLinkItem(item)">
-                            <a-icon type="form" />
-                            {{ $t('teacher.my-content.action-edit') }}
-                          </a>
-                        </a-menu-item>
-                      </a-menu>
-                    </a-dropdown>
-                  </div>
+                  <a-popconfirm cancel-text="No" ok-text="Yes" title="Delete group?" @confirm="handleDeleteGroup(group)">
+                    <span class="delete-action">
+                      <img src="~@/assets/icons/tag/delete.png" />
+                    </span>
+                  </a-popconfirm>
                 </div>
               </div>
-            </draggable>
-          </div>
+              <draggable
+                v-model="group.contents"
+                :disabled="!canEdit"
+                animation="300"
+                group="link-content"
+                style="width: 100%; min-height: 50px"
+                @add="handleDragContent"
+                @update="handleDragContent"
+                @end="handleDragEnd">
+                <div v-for="item in group.contents" :key="item.id" class="group-link-item">
+                  <div class="left-info">
+                    <div class="icon">
+                      <content-type-icon :type="item.type" />
+                    </div>
+                    <div class="name" @click="handleViewDetail(item)">
+                      <a-tooltip placement="top">
+                        <template slot="title">
+                          Click and drag tasks to move between categorys
+                        </template>
+                        {{ item.name ? item.name : 'untitled' }}
+                      </a-tooltip>
+                    </div>
+                    <template v-if='item.type === typeMap.task'>
+                      <a-tag class='task-type-tag green-active-task-type' v-if="item.taskType.toLowerCase() === 'fa'">
+                        {{ item.taskType }}
+                      </a-tag>
+                      <a-tag class='task-type-tag red-active-task-type' v-if="item.taskType.toLowerCase() === 'sa'">
+                        {{ item.taskType }}
+                      </a-tag>
+                      <a-tag class='task-type-tag blue-active-task-type' v-if="item.taskType.toLowerCase() === 'activity'">
+                        {{ item.taskType }}
+                      </a-tag>
+                    </template>
+                    <div class='downloaded-icon' v-if='item.isCreated'>
+                      <a-tooltip placement="top" title='already saved in my content'>
+                        <downloaded-svg />
+                      </a-tooltip>
+                    </div>
+                  </div>
+                  <div class="right-info">
+                    <div class="date">{{ item.createTime | dayjs }}</div>
+                    <div class="status">
+                      <template v-if="item.status === 0">Draft</template>
+                      <template v-if="item.status === 1">Published</template>
+                    </div>
+                    <div v-if="canEdit" class="more-action-wrapper action-item-wrapper">
+                      <a-dropdown>
+                        <a-icon style="margin-right: 8px" type="more" />
+                        <a-menu slot="overlay">
+                          <a-menu-item>
+                            <a-popconfirm
+                              :title="$t('teacher.my-content.action-delete') + '?'"
+                              cancel-text="No"
+                              ok-text="Yes"
+                              @confirm="handleDeleteLinkItem(item)">
+                              <a class="delete-action" href="#">
+                                <a-icon type="delete" />
+                                {{ $t('teacher.my-content.action-delete') }}
+                              </a>
+                            </a-popconfirm>
+                          </a-menu-item>
+                          <a-menu-item>
+                            <a @click="handleEditLinkItem(item)">
+                              <a-icon type="form" />
+                              {{ $t('teacher.my-content.action-edit') }}
+                            </a>
+                          </a-menu-item>
+                        </a-menu>
+                      </a-dropdown>
+                    </div>
+                  </div>
+                </div>
+              </draggable>
+            </div>
 
-        </div>
+          </div>
+        </draggable>
       </template>
     </div>
 
@@ -139,23 +168,17 @@
       :visible="previewVisible"
       destroyOnClose
       placement="right"
-      width="800px"
+      width="1000px"
       @close="previewVisible = false"
     >
-      <a-row class="preview-wrapper-row">
-        <a-col span="2">
-          <div class="view-back" @click="previewVisible = false">
-            <div class="back-icon">
-              <img src="~@/assets/icons/common/back.png" />
-            </div>
-          </div>
-        </a-col>
-        <a-col span="22">
-          <div v-if="previewCurrentId && previewType" class="detail-wrapper">
-            <common-preview-no-link :id="previewCurrentId" :type="previewType" />
-          </div>
-        </a-col>
-      </a-row>
+      <div class="preview-wrapper-row">
+        <div class="view-back">
+          <a-button type='primary' class='preview-back-btn' shape='round' @click="previewVisible = false"><a-icon type="left" :style="{'font-size': '12px'}" />Back</a-button>
+        </div>
+        <div v-if="previewCurrentId && previewType" class="detail-wrapper">
+          <common-preview-v2 :id="previewCurrentId" :type="previewType" />
+        </div>
+      </div>
     </a-drawer>
   </div>
 </template>
@@ -168,13 +191,14 @@ import NewMyContent from '@/components/MyContent/NewMyContent'
 import { typeMap } from '@/const/teacher'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import * as logger from '@/utils/logger'
-import CommonPreviewNoLink from '@/components/Common/CommonPreviewNoLink'
+import CommonPreviewV2 from '@/components/Common/CommonPreviewV2'
 
 import draggable from 'vuedraggable'
+import DownloadedSvg from '@/assets/libraryv2/downloaded.svg?inline'
 
 export default {
   name: 'PlanLink',
-  components: { ContentTypeIcon, NewMyContent, MyContentSelector, CommonPreviewNoLink, draggable },
+  components: { ContentTypeIcon, NewMyContent, MyContentSelector, CommonPreviewV2, draggable, DownloadedSvg },
   props: {
     fromType: {
       type: Number,
@@ -188,9 +212,17 @@ export default {
       type: Number,
       default: 0
     },
+    hiddenEmptyGroup: {
+      type: Boolean,
+      default: false
+    },
     canEdit: {
       type: Boolean,
       default: true
+    },
+    isLibrary: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {
@@ -200,15 +232,6 @@ export default {
         result.push(group.groupName)
       })
       return result
-    },
-    selectedList () {
-      const list = []
-      this.ownerLinkGroupList.forEach(groupItem => {
-        groupItem.contents.forEach(content => {
-          list.push(content.type + '-' + content.id)
-        })
-      })
-      return list
     }
   },
   data () {
@@ -238,7 +261,9 @@ export default {
       linkTitle: 'Link Content',
       editingGroup: '',
       groupRransition: [],
-      newGroupName: null
+      newGroupName: null,
+
+      selectedList: []
     }
   },
   created () {
@@ -252,7 +277,8 @@ export default {
       this.linkGroupLoading = true
       GetAssociate({
         id: this.fromId,
-        type: this.fromType
+        type: this.fromType,
+        published: this.isLibrary ? 1 : 0
       }).then(response => {
         this.$logger.info('CommonLink GetAssociate response', response)
         this.groups = response.result.groups
@@ -283,17 +309,6 @@ export default {
       })
     },
 
-    handleToggleEditDefaultGroupName () {
-      this.$logger.info('handleToggleEditDefaultGroupName ' + this.defaultGroupNameEditMode)
-      this.defaultGroupNameEditMode = this.defaultGroupNameEditMode === 'view' ? 'edit' : 'view'
-    },
-
-    handleDefaultGroupLink () {
-      this.$logger.info('handleDefaultGroupLink')
-      this.$logger.info('groups', this.groups)
-      this.selectLinkContentVisible = true
-    },
-
     handleEnsureSelectedLink (data) {
       this.$logger.info('handleEnsureSelectedLink', data)
       this.selectLinkContentVisible = false
@@ -304,6 +319,10 @@ export default {
       this.$logger.info('handleLinkGroup', group)
       this.subDefaultGroupName = group.groupName
       this.selectLinkContentVisible = true
+      this.selectedList = []
+      group.contents.forEach(content => {
+        this.selectedList.push(content.type + '-' + content.id)
+      })
       if (this.fromType === typeMap['unit-plan']) {
         this.subFilterTypeList = [typeMap.task]
       } else if (this.filterType === typeMap.task) {
@@ -361,9 +380,6 @@ export default {
       })
     },
     handleViewDetail (item) {
-      if (!this.canEdit) {
-        return
-      }
       logger.info('handleViewDetail', item)
       this.previewCurrentId = item.id
       this.previewType = item.type
@@ -373,14 +389,8 @@ export default {
       logger.info('handleEditLinkItem', item)
       if (item.type === typeMap['unit-plan']) {
         window.open('/teacher/unit-plan-redirect/' + item.id, '_blank')
-      } else if (item.type === typeMap['topic']) {
-        window.open('/expert/topic-redirect/' + item.id, '_blank')
-      } else if (item.type === typeMap['material']) {
-        window.open('/teacher/add-material/' + item.id, '_blank')
       } else if (item.type === typeMap.task) {
         window.open('/teacher/task-redirect/' + item.id, '_blank')
-      } else if (item.type === typeMap.lesson) {
-        window.open('/teacher/lesson-redirect/' + item.id, '_blank')
       } else if (item.type === typeMap.evaluation) {
         window.open('/teacher/evaluation-redirect/' + item.id, '_blank')
       }
@@ -413,6 +423,20 @@ export default {
       }).finally(() => {
         // this.getAssociate()
       })
+    },
+    onMove(e, originalEvent) {
+      // 不允许拖拽
+      if (!e.draggedContext.element.groupName) return false
+      // 不允许停靠
+      if (!e.relatedContext.element.groupName) return false
+      return true
+    },
+
+    handleDragContent (event, data) {
+      this.$logger.info('PlanLink handleDragContent', event, this.groups, data)
+      // 提取数据
+      const item = JSON.parse(event.item.dataset.item)
+      this.$logger.info('drag in data ', item)
     }
   }
 }
@@ -525,6 +549,8 @@ export default {
             display: flex;
             flex-direction: row;
             align-items: center;
+            position: relative;
+            width: calc(100% - 250px);
 
             .icon {
               width: 40px;
@@ -543,6 +569,13 @@ export default {
               word-break: break-all;
             }
 
+            .task-type-tag {
+              right: 5px;
+              margin-left: 5px;
+              border-radius: 20px;
+              border-width: 2px;
+              font-weight: bold;
+            }
           }
 
           .right-info {
@@ -581,4 +614,50 @@ export default {
   overflow-y: auto;
 }
 
+.green-active-task-type {
+  background: rgba(21, 195, 154, 0.1);
+  border: 2px solid #15C39A;
+  border-radius: 50%;
+  font-weight: bold;
+  color: #15C39A;
+}
+
+.red-active-task-type {
+  background: rgba(255, 51, 85, 0.1);
+  border: 2px solid #FF3355;
+  border-radius: 50%;
+  opacity: 1;
+  font-weight: bold;
+  color: #FF3355;
+  opacity: 1;
+}
+
+.blue-active-task-type {
+  background: rgb(230, 247, 255);
+  border: 2px solid rgb(145, 213, 255);
+  border-radius: 50px;
+  opacity: 1;
+  font-weight: bold;
+  color: rgb(24, 144, 255);
+}
+
+.task-type-tag {
+  margin-left: 5px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.downloaded-icon {
+  cursor: pointer;
+  padding-left: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  svg {
+    height: 15px;
+    width: 15px;
+  }
+}
 </style>

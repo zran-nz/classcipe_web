@@ -1,98 +1,243 @@
 <template>
   <div class="tag-ui">
-    <a-col span="24">
-
-      <div class="objectives-wrapper">
-        <a-row class="objectives-wrapper-block">
-          <div class="title-item title-skill">Achievement objectives</div>
-          <template v-if="getknowledgeListType(TagType.skill).length > 0" >
-            <div class="objectives-list" v-for="(k,index) in getknowledgeListType(TagType.skill)" :key="index">
-              <div class="objectives-list-item objectives-list-item-skill objectives-list-item-top-fixed">
-                <!--              <a-breadcrumb separator=">">-->
-                <!--                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>-->
-                <!--              </a-breadcrumb>-->
-                <div class="skt-description" @dblclick="handleAddTag(k)">
-                  <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
-                </div>
+    <div class="objectives-wrapper">
+      <custom-form-item label-color="#FF786D">
+        <template slot='label'>
+          Achievement objectives
+        </template>
+        <template slot='action'>
+          <plus-icon @click='handleAddNew(TagType.skill, skillInputList)'/>
+        </template>
+        <template v-if="getKnowledgeListType(TagType.skill).length > 0" >
+          <div class="objectives-list" v-for="(k,index) in getKnowledgeListType(TagType.skill)" :key="index">
+            <div class="objectives-list-item objectives-list-item-skill objectives-list-item-top-fixed">
+              <div v-selectPopover="['modal', domFn, k, true]" class="skt-description" @dblclick="handleAddTag(k)">
+                <a-tooltip placement="topLeft" :title="k.path"> {{ k.name }}</a-tooltip>
               </div>
-              <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(k)" cancel-text="No">
-                <span class="delete-action" >
-                  <img src="~@/assets/icons/tag/delete.png"/>
-                </span>
-              </a-popconfirm>
+              <a-space class="objectives-tag" direction="vertical">
+                <a-space class="objectives-tag-type" v-if="k.commandTerms && k.commandTerms.length > 0">
+                  <div class="objectives-tag-title">Command term:</div>
+                  <div class="objectives-tag-content">
+                    <div class="objectives-tag-item" v-for="(tag, tagIndex) in k.commandTerms" :key="'skill_command_'+tagIndex">
+                      <a-tag color="#ec7d31" :closable="true" @close="e => handleCloseObjectiveTag(k, 'commandTerms', tagIndex)">{{ tag.name }}</a-tag>
+                      <rate-level @change="val => handleChangeLevel(val, tag)" :bloom="tag.bloomTag" :knowledge="tag.knowledgeDimension" />
+                    </div>
+                  </div>
+                </a-space>
+                <a-space class="objectives-tag-type" v-if="k.knowledgeTags && k.knowledgeTags.length > 0">
+                  <div class="objectives-tag-title">Knowledge tag:</div>
+                  <div class="objectives-tag-content">
+                    <div
+                      class="objectives-tag-item"
+                      v-for="(tag, tagIndex) in k.knowledgeTags"
+                      :key="'skill_knowledge_'+tagIndex"
+                    >
+                      <a-tag color="#a5a5a5" :closable="true" @close="e => handleCloseObjectiveTag(k, 'knowledgeTags', tagIndex)">{{ tag.name }}</a-tag>
+                    </div>
+                  </div>
+                </a-space>
+              </a-space>
             </div>
-          </template>
-          <div class='customize-objectives-list'>
-            <div
-              class="objectives-input-item objectives-input-item-skill"
-              v-for='(skillInput, sIdx) in skillInputList'
-              :key='sIdx'>
-              <a-input v-model='skillInput.name' class='skill-input' />
-              <img class='delete-input input-icon' src='~@/assets/icons/evaluation/big_delete.png' alt='' v-if='sIdx !== skillInputList.length - 1' @click='handleDeleteSkill(skillInput)'/>
-              <add-green-icon class='add-input input-icon' v-if='sIdx === skillInputList.length - 1' @click='handleAddNew(TagType.skill, skillInputList)'/>
-            </div>
-          </div>
-        </a-row>
-
-        <a-row class="objectives-wrapper-block">
-          <div class="title-item title-learnout">Learning outcomes</div>
-          <template v-if="getknowledgeListType(TagType.knowledge).length > 0" >
-            <div class="objectives-list" v-for="(k,index) in getknowledgeListType(TagType.knowledge)" :key="index">
-              <div class="objectives-list-item objectives-list-item-learn objectives-list-item-top-fixed">
-                <!--              <a-breadcrumb separator=">">-->
-                <!--                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>-->
-                <!--              </a-breadcrumb>-->
-                <div class="skt-description" @dblclick="handleAddTag(k)">
-                  <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
-                </div>
-                <!--              <div-->
-                <!--                v-if="k.tagType == TagType.knowledge || k.tagType == TagType.century"-->
-                <!--                class="actions">-->
-                <!--                <span class="add-action" @click.stop.prevent="handleAddTag(k)">-->
-                <!--                  <img src="~@/assets/icons/tag/add.png"/>-->
-                <!--                </span>-->
-                <!--                <span class="up-down">-->
-                <!--                  <a-icon type="up" v-if="k.tagListVisible"/>-->
-                <!--                  <a-icon type="down" v-else />-->
-                <!--                </span>-->
-                <!--              </div>-->
-                <!--              <a-divider style="margin: 10px 0px" v-if="k.tagListVisible" />-->
-                <!--              <div class="skt-description-tag-list" v-if="k.tagListVisible">-->
-                <!--                <div :class="{'tag-list-item': true,'skill-mode': true}" v-for="name in k.tags" :key="name">-->
-                <!--                  <a-tag class="tag-item" :closable="true" @close="handleDeleteTag(index,name)">{{ name }}</a-tag>-->
-                <!--                </div>-->
-                <!--              </div>-->
+            <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(k)" cancel-text="No" v-if="canEdit">
+              <div class='delete-action'>
+                <a-icon :style="{ fontSize: '14px', color: 'red' }" type='delete' />
               </div>
-              <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(k)" cancel-text="No">
-                <span class="delete-action" >
-                  <img src="~@/assets/icons/tag/delete.png"/>
-                </span>
-              </a-popconfirm>
-            </div>
-          </template>
-          <div class='customize-objectives-list'>
-            <div
-              class="objectives-input-item objectives-input-item-skill"
-              v-for='(knowledgeInput, sIdx) in knowledgeInputList'
-              :key='sIdx'>
-              <a-input v-model='knowledgeInput.name' class='knowledge-input' />
-              <img class='delete-input input-icon' src='~@/assets/icons/evaluation/big_delete.png' alt='' v-if='sIdx !== knowledgeInputList.length - 1' @click='handleDeleteKnowledge(knowledgeInput)'/>
-              <add-green-icon class='add-input input-icon' v-if='sIdx === knowledgeInputList.length - 1' @click='handleAddNew(TagType.knowledge, knowledgeInputList)'/>
-            </div>
+            </a-popconfirm>
           </div>
-        </a-row>
-
-        <a-row class="objectives-wrapper-block">
-          <div class="title-item title-21">21st Century Skills</div>
-          <template v-if="getknowledgeListType(TagType.century).length > 0" >
-            <div class="objectives-list" v-for="(k,index) in getknowledgeListType(TagType.century)" :key="index">
+        </template>
+        <div class='customize-objectives-list'>
+          <div
+            class="objectives-input-item"
+            v-for='(skillInput, sIdx) in skillInputList'
+            :key='sIdx'>
+            <self-outs-input
+              class='skill-input'
+              v-selectPopover="['modal', domFn, skillInput, true]"
+              :filter-types='[TagType.skill, TagType.ibSkill, TagType.idu]'
+              :grade-ids='gradeIds'
+              :subject-ids='subjectIds'
+              :default-display-name='skillInput.name'
+              :default-self-out-subject='skillInput.subjectId ? skillInput.subjectId : null'
+              :disabled="!canEdit"
+              @update-value='(newName) => skillInput.name = newName'
+              @update-subject='(newSubject) => skillInput.subjectId = newSubject'
+            />
+            <a-popconfirm title="Delete?" ok-text="Yes" @confirm='handleDeleteSkill(skillInput)' cancel-text="No" v-if="canEdit">
+              <div class='self-out-delete-icon'>
+                <a-icon :style="{ fontSize: '14px', color: 'red' }" type='delete' />
+              </div>
+            </a-popconfirm>
+            <a-space class="objectives-tag" direction="vertical">
+              <a-space class="objectives-tag-type" v-if="skillInput.commandTerms && skillInput.commandTerms.length > 0">
+                <div class="objectives-tag-title">Command term:</div>
+                <div class="objectives-tag-content">
+                  <div class="objectives-tag-item" v-for="(tag, tagIndex) in skillInput.commandTerms" :key="'skill_input_command_'+tagIndex">
+                    <a-tag color="#ec7d31" :closable="true" @close="e => handleCloseObjectiveTag(skillInput, 'commandTerms', tagIndex)">{{ tag.name }}</a-tag>
+                    <rate-level @change="val => handleChangeLevel(val, tag)" :bloom="tag.bloomTag" :knowledge="tag.knowledgeDimension" />
+                  </div>
+                </div>
+              </a-space>
+              <a-space class="objectives-tag-type" v-if="skillInput.knowledgeTags && skillInput.knowledgeTags.length > 0">
+                <div class="objectives-tag-title">Knowledge tag:</div>
+                <div class="objectives-tag-content">
+                  <div
+                    class="objectives-tag-item"
+                    v-for="(tag, tagIndex) in skillInput.knowledgeTags"
+                    :key="'skill_input_knowledge_'+tagIndex"
+                  >
+                    <a-tag color="#a5a5a5" :closable="true" @close="e => handleCloseObjectiveTag(skillInput, 'knowledgeTags', tagIndex)">{{ tag.name }}</a-tag>
+                  </div>
+                </div>
+              </a-space>
+            </a-space>
+          </div>
+        </div>
+      </custom-form-item>
+      <custom-form-item label-color='#47A3E4'>
+        <template slot='label'>
+          Learning outcomes
+        </template>
+        <template slot='action'>
+          <plus-icon @click='handleAddNew(TagType.knowledge, knowledgeInputList)'/>
+        </template>
+        <template v-if="getKnowledgeListType(TagType.knowledge).length > 0" >
+          <div class="objectives-list" v-for="(k,index) in getKnowledgeListType(TagType.knowledge)" :key="index">
+            <div class="objectives-list-item objectives-list-item-learn objectives-list-item-top-fixed">
+              <div v-selectPopover="['modal', domFn, k, true]" class="skt-description" @dblclick="handleAddTag(k)">
+                <a-tooltip placement="topLeft" :title="k.path"> {{ k.name }}</a-tooltip>
+              </div>
+              <a-space class="objectives-tag" direction="vertical">
+                <a-space class="objectives-tag-type" v-if="k.commandTerms && k.commandTerms.length > 0">
+                  <div class="objectives-tag-title">Command term:</div>
+                  <div class="objectives-tag-content">
+                    <div class="objectives-tag-item" v-for="(tag, tagIndex) in k.commandTerms" :key="'knowledge_command_'+tagIndex">
+                      <a-tag color="#ec7d31" :closable="true" @close="e => handleCloseObjectiveTag(k, 'commandTerms', tagIndex)">{{ tag.name }}</a-tag>
+                      <rate-level @change="val => handleChangeLevel(val, tag)" :bloom="tag.bloomTag" :knowledge="tag.knowledgeDimension" />
+                    </div>
+                  </div>
+                </a-space>
+                <a-space class="objectives-tag-type" v-if="k.knowledgeTags && k.knowledgeTags.length > 0">
+                  <div class="objectives-tag-title">Knowledge tag:</div>
+                  <div class="objectives-tag-content">
+                    <div
+                      class="objectives-tag-item"
+                      v-for="(tag, tagIndex) in k.knowledgeTags"
+                      :key="'knowledge_knowledge_'+tagIndex"
+                    >
+                      <a-tag color="#a5a5a5" :closable="true" @close="e => handleCloseObjectiveTag(k, 'knowledgeTags', tagIndex)" >{{ tag.name }}</a-tag>
+                    </div>
+                  </div>
+                </a-space>
+              </a-space>
+            </div>
+            <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(k)" cancel-text="No" v-if="canEdit">
+              <div class='delete-action'>
+                <a-icon :style="{ fontSize: '14px', color: 'red' }" type='delete' />
+              </div>
+            </a-popconfirm>
+          </div>
+        </template>
+        <div class='customize-objectives-list'>
+          <div
+            class="objectives-input-item"
+            v-for='(knowledgeInput, sIdx) in knowledgeInputList'
+            :key='sIdx'>
+            <self-outs-input
+              class='knowledge-input'
+              v-selectPopover="['modal', domFn, knowledgeInput, true]"
+              :filter-types='[TagType.knowledge]'
+              :grade-ids='gradeIds'
+              :subject-ids='subjectIds'
+              :default-display-name='knowledgeInput.name'
+              :default-self-out-subject='knowledgeInput.subjectId ? knowledgeInput.subjectId : null'
+              :disabled="!canEdit"
+              @update-value='(newName) => knowledgeInput.name = newName'
+              @update-subject='(newSubject) => knowledgeInput.subjectId = newSubject'
+            />
+            <a-popconfirm title="Delete?" ok-text="Yes" @confirm='handleDeleteKnowledge(knowledgeInput)' cancel-text="No" v-if="canEdit">
+              <div class='self-out-delete-icon'>
+                <a-icon :style="{ fontSize: '14px', color: 'red' }" type='delete' />
+              </div>
+            </a-popconfirm>
+            <a-space class="objectives-tag" direction="vertical">
+              <a-space class="objectives-tag-type" v-if="knowledgeInput.commandTerms && knowledgeInput.commandTerms.length > 0">
+                <div class="objectives-tag-title">Command term:</div>
+                <div class="objectives-tag-content">
+                  <div
+                    class="objectives-tag-item"
+                    v-for="(tag, tagIndex) in knowledgeInput.commandTerms"
+                    :key="'knowledgeInput_command_'+tagIndex">
+                    <a-tag
+                      color="#ec7d31"
+                      :closable="true"
+                      @close="e => handleCloseObjectiveTag(knowledgeInput, 'commandTerms', tagIndex)"
+                    >{{ tag.name }}</a-tag>
+                    <rate-level @change="val => handleChangeLevel(val, tag)" :bloom="tag.bloomTag" :knowledge="tag.knowledgeDimension" />
+                  </div>
+                </div>
+              </a-space>
+              <a-space class="objectives-tag-type" v-if="knowledgeInput.knowledgeTags && knowledgeInput.knowledgeTags.length > 0">
+                <div class="objectives-tag-title">Knowledge tag:</div>
+                <div class="objectives-tag-content">
+                  <div
+                    class="objectives-tag-item"
+                    v-for="(tag, tagIndex) in knowledgeInput.knowledgeTags"
+                    :key="'knowledgeInput_knowledge_'+tagIndex"
+                  >
+                    <a-tag color="#a5a5a5" :closable="true" @close="e => handleCloseObjectiveTag(knowledgeInput, 'knowledgeTags', tagIndex)">{{ tag.name }}</a-tag>
+                  </div>
+                </div>
+              </a-space>
+            </a-space>
+          </div>
+        </div>
+      </custom-form-item>
+      <custom-form-item label-color='#FF933C'>
+        <template slot='label'>
+          {{ $classcipe.get21stCenturyDisplayNameByCurriculum($store.getters.bindCurriculum) }}
+        </template>
+        <template slot='action'>
+          <plus-icon @click='handleAddNew(TagType.century, centuryInputList)'/>
+        </template>
+        <template v-if="getKnowledgeListType(TagType.century).length > 0" >
+          <div class='category-item' v-for='categoryItem in getCenturyCategoryList(TagType.century)' :key='categoryItem.categoryName'>
+            <div class='category-name'><a-icon type="tag" /> {{ categoryItem.categoryName }}</div>
+            <div class="objectives-list" v-for="(k,index) in categoryItem.list" :key="index">
               <div class="objectives-list-item objectives-list-item-21 objectives-list-item-top-fixed" @click="handleActiveDescription(TagType.century,k)">
-                <!--              <a-breadcrumb separator=">">-->
-                <!--                <a-breadcrumb-item v-for="item in dealPath(k.path)" :key="item">{{ item }}</a-breadcrumb-item>-->
-                <!--              </a-breadcrumb>-->
-                <div class="skt-description skt-description-21" @dblclick="handleAddTag(k)">
-                  <a-tooltip :title="k.path"> {{ k.name }}</a-tooltip>
+                <div v-selectPopover="['modal', domFn, k, true]" class="skt-description skt-description-21" @dblclick="handleAddTag(k)">
+                  <a-tooltip placement="topLeft" :title="k.path"> {{ k.name }}</a-tooltip>
                 </div>
+                <a-space class="objectives-tag" direction="vertical">
+                  <a-space class="objectives-tag-type" v-if="k.commandTerms && k.commandTerms.length > 0">
+                    <div class="objectives-tag-title">Command term:</div>
+                    <div class="objectives-tag-content">
+                      <div
+                        class="objectives-tag-item"
+                        v-for="(tag, tagIndex) in k.commandTerms"
+                        :key="'century_command_'+tagIndex"
+                      >
+                        <a-tag
+                          color="#ec7d31"
+                          :closable="true"
+                          @close="e => handleCloseObjectiveTag(k, 'commandTerms', tagIndex)"
+                        >{{ tag.name }}</a-tag>
+                        <rate-level @change="val => handleChangeLevel(val, tag)" :bloom="tag.bloomTag" :knowledge="tag.knowledgeDimension" />
+                      </div>
+                    </div>
+                  </a-space>
+                  <a-space class="objectives-tag-type" v-if="k.knowledgeTags && k.knowledgeTags.length > 0">
+                    <div class="objectives-tag-title">Knowledge tag:</div>
+                    <div class="objectives-tag-content">
+                      <a-tag
+                        color="#a5a5a5"
+                        class="objectives-tag-item"
+                        :closable="true"
+                        @close="e => handleCloseObjectiveTag(k, 'knowledgeTags', tagIndex)"
+                        v-for="(tag, tagIndex) in k.knowledgeTags"
+                        :key="'century_knowledge_'+tagIndex">{{ tag.name }}</a-tag>
+                    </div>
+                  </a-space>
+                </a-space>
                 <div
                   v-if="k.tagType === TagType.century"
                   class="actions">
@@ -111,26 +256,71 @@
                   </div>
                 </div>
               </div>
-              <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(k)" cancel-text="No">
-                <span class="delete-action" >
-                  <img src="~@/assets/icons/tag/delete.png"/>
-                </span>
+              <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteKnowledgeItem(k)" cancel-text="No" v-if="canEdit">
+                <div class='delete-action'>
+                  <a-icon :style="{ fontSize: '14px', color: 'red' }" type='delete' />
+                </div>
               </a-popconfirm>
             </div>
-          </template>
-          <div class='customize-objectives-list'>
-            <div
-              class="objectives-input-item objectives-input-item-skill"
-              v-for='(centuryInput, sIdx) in centuryInputList'
-              :key='sIdx'>
-              <a-input v-model='centuryInput.name' class='century-input' />
-              <img class='delete-input input-icon' src='~@/assets/icons/evaluation/big_delete.png' alt='' v-if='sIdx !== centuryInputList.length - 1' @click='handleDeleteCentury(centuryInput)'/>
-              <add-green-icon class='add-input input-icon' v-if='sIdx === centuryInputList.length - 1' @click='handleAddNew(TagType.century, centuryInputList)'/>
-            </div>
           </div>
-        </a-row>
-      </div>
-    </a-col>
+        </template>
+        <div class='customize-objectives-list'>
+          <div
+            class="objectives-input-item"
+            v-for='(centuryInput, sIdx) in centuryInputList'
+            :key='sIdx'>
+            <self-outs-input
+              class='century-input'
+              v-selectPopover="['modal', domFn, centuryInput, true]"
+              :filter-types='[TagType.century, TagType.common]'
+              :grade-ids='gradeIds'
+              :subject-ids='subjectIds'
+              :default-display-name='centuryInput.name'
+              :default-self-out-subject='centuryInput.subjectId ? centuryInput.subjectId : null'
+              :disabled="!canEdit"
+              @update-value='(newName) => centuryInput.name = newName'
+              @update-subject='(newSubject) => centuryInput.subjectId = newSubject'
+            />
+            <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteCentury(centuryInput)" cancel-text="No" v-if="canEdit">
+              <div class='self-out-delete-icon'>
+                <a-icon :style="{ fontSize: '14px', color: 'red' }" type='delete' />
+              </div>
+            </a-popconfirm>
+            <a-space class="objectives-tag" direction="vertical">
+              <a-space class="objectives-tag-type" v-if="centuryInput.commandTerms && centuryInput.commandTerms.length > 0">
+                <div class="objectives-tag-title">Command term:</div>
+                <div class="objectives-tag-content">
+                  <div
+                    class="objectives-tag-item"
+                    v-for="(tag, tagIndex) in centuryInput.commandTerms"
+                    :key="'century_input_command_'+tagIndex"
+                  >
+                    <a-tag
+                      color="#ec7d31"
+                      :closable="true"
+                      @close="e => handleCloseObjectiveTag(centuryInput, 'commandTerms', tagIndex)"
+                    >{{ tag.name }}</a-tag>
+                    <rate-level @change="val => handleChangeLevel(val, tag)" :bloom="tag.bloomTag" :knowledge="tag.knowledgeDimension" />
+                  </div>
+                </div>
+              </a-space>
+              <a-space class="objectives-tag-type" v-if="centuryInput.knowledgeTags && centuryInput.knowledgeTags.length > 0">
+                <div class="objectives-tag-title">Knowledge tag:</div>
+                <div class="objectives-tag-content">
+                  <div
+                    class="objectives-tag-item"
+                    v-for="(tag, tagIndex) in centuryInput.knowledgeTags"
+                    :key="'century_input_knowledge_'+tagIndex"
+                  >
+                    <a-tag color="#a5a5a5" :closable="true" @close="e => handleCloseObjectiveTag(centuryInput, 'knowledgeTags', tagIndex)" >{{ tag.name }}</a-tag>
+                  </div>
+                </div>
+              </a-space>
+            </a-space>
+          </div>
+        </div>
+      </custom-form-item>
+    </div>
 
     <a-modal
       v-model="addTagVisible"
@@ -141,10 +331,6 @@
         Add tag
       </div>
       <learn-out-add-tag @handle-select-tags="handleEnsureTags" :knowledge="knowledge" />
-    <!--      <div class="modal-ensure-action-line-right" style="justify-content: center">
-        <a-button class="action-item action-cancel" shape="round" @click="addTagVisible = false">Cancel</a-button>
-        <a-button class="action-ensure action-item" type="primary" shape="round" @click="handleEnsureSelectData">Confirm</a-button>
-      </div>-->
     </a-modal>
 
     <a-modal
@@ -178,6 +364,50 @@
       </div>
     </a-modal>
 
+    <div v-clickOutside id="modal" ref="quickModal" v-show="false">
+      <a-space class="quick-keyword-con">
+        <label>Set </label>
+        <quick-word-button
+          type="black"
+          text="Command term"
+          @sub="res => handleQuickWordSet(res, 'commandTerms')"
+          :quickWord="quickWord"
+          :dataCondition="{type: 1}"
+          :loadApi="KnowledgeTermTagQueryByKeywords"
+          @changeWord="res => this.commandTermForm.name = res"
+        >
+          <template v-slot:create>
+            <div class="quick-word-sub">
+              <a-divider style="margin: 10px 0;"/>
+              <a-space v-show="!showQuickWordCreate" >
+                <label>Create:</label>
+                <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="showQuickWordCreate = true"> {{ commandTermForm.name || 'Command term' }} </a-button>
+              </a-space>
+              <!-- <a-divider style="margin: 5px 0;font-size: 14px;">Create</a-divider>
+              <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="showQuickWordCreate = true"> Do Create </a-button> -->
+              <command-term-add
+                v-show="showQuickWordCreate"
+                :customTags="customTags"
+                :initName="commandTermForm.name"
+                @cancel="showQuickWordCreate = false"
+                @save="handleSaveCommanTerm"
+              />
+            </div>
+          </template>
+        </quick-word-button>
+        <label> or </label>
+        <quick-word-button
+          type="black"
+          text="Knowledge tag"
+          @sub="res => handleQuickWordSet(res, 'knowledgeTags')"
+          :quickWord="quickWord"
+          :dataCondition="{type: 2}"
+          :loadApi="KnowledgeTermTagQueryByKeywords"
+        >
+          <template v-slot:create><div></div></template>
+        </quick-word-button>
+      </a-space>
+    </div>
   </div>
 
 </template>
@@ -186,16 +416,32 @@
   import * as logger from '@/utils/logger'
   import NoMoreResources from '@/components/Common/NoMoreResources'
   import LearnOutAddTag from '@/components/UnitPlan/LearnOutAddTag'
-  import { TagType } from '@/const/common'
+  import RateLevel from '@/components/RateLevel'
+  import { TagType, AllCurriculums } from '@/const/common'
   import { getAll21Century } from '@/api/knowledge'
   import AddGreenIcon from '@/assets/svgIcon/evaluation/form/tianjia_green.svg?inline'
+  import QuickWordButton from '@/components/Button/QuickWordButton'
+  import SelfOutsInput from '@/components/UnitPlan/SelfOutsInput'
+  import { KnowledgeTermTagQueryByKeywords } from '@/api/knowledgeTermTag'
+  import CustomFormItem from '@/components/Common/CustomFormItem'
+  import PlusIcon from '@/components/Common/PlusIcon'
+  import DeleteIcon from '@/components/Common/DeleteIcon'
+  import CommandTermAdd from '@/components/CommandTerm/CommandTermAdd.vue'
+  import { mapState } from 'vuex'
 
   export default {
     name: 'UiLearnOut',
     components: {
+      DeleteIcon,
+      PlusIcon,
+      CustomFormItem,
+      SelfOutsInput,
       LearnOutAddTag,
       NoMoreResources,
-      AddGreenIcon
+      AddGreenIcon,
+      QuickWordButton,
+      RateLevel,
+      CommandTermAdd
     },
     props: {
       learnOuts: {
@@ -205,15 +451,22 @@
       selfOuts: {
         type: Array,
         default: () => []
+      },
+      canEdit: {
+        type: Boolean,
+        default: true
+      },
+      customTags: {
+        type: Object,
+        default: () => {}
       }
     },
-    mounted () {
-
-    },
-    destroyed () {
-
-    },
     computed: {
+      ...mapState({
+        info: state => state.user.info,
+        gradeIds: state => state.user.info.preference ? state.user.info.preference.gradeIds : [],
+        subjectIds: state => state.user.info.preference ? state.user.info.preference.subjectIds : []
+      }),
       dealPath () {
         return (path) => {
           if (!path) {
@@ -236,12 +489,27 @@
 
         skillInputList: [],
         knowledgeInputList: [],
-        centuryInputList: []
+        centuryInputList: [],
+        AllCurriculums: AllCurriculums,
+        quickWord: '',
+        commandTerms: [],
+        knowledgeTags: [],
+        showQuickWordCreate: false,
+        currentObjective: null,
+        bloomParentId: '',
+        bloomOptions: [],
+        knowLedgeParentId: '',
+        knowLedgeOptions: [],
+        KnowledgeTermTagQueryByKeywords: KnowledgeTermTagQueryByKeywords,
+        commandTermForm: {
+          name: ''
+        }
       }
     },
     created () {
       this.knowledgeList = this.learnOuts
       logger.info('knowledgeList ', this.knowledgeList)
+      this.initBloomOptions()
       this.get21century()
       this.initSelfOuts()
     },
@@ -280,7 +548,26 @@
       }
     },
     methods: {
-
+      initBloomOptions () {
+        if (this.customTags && this.customTags.recommends) {
+          const bloom = this.customTags.recommends.find(item => item.name === "Bloom's Taxonomy")
+          if (bloom) {
+            this.bloomOptions = bloom.keywords
+            this.bloomParentId = bloom.id
+          } else {
+            this.bloomOptions = []
+            this.bloomParentId = ''
+          }
+          const knowLedge = this.customTags.recommends.find(item => item.name === 'Knowledge Dimensions')
+          if (knowLedge) {
+            this.knowLedgeOptions = knowLedge.keywords
+            this.knowLedgeParentId = knowLedge.id
+          } else {
+            this.knowLedgeOptions = []
+            this.knowLedgeParentId = ''
+          }
+        }
+      },
       initSelfOuts () {
         this.$logger.info('initSelfOuts', this.selfOuts)
         const skillInputList = this.selfOuts.filter(item => item.tagType === TagType.skill)
@@ -290,33 +577,21 @@
         if (skillInputList.length) {
           this.skillInputList = skillInputList
         } else {
-          this.skillInputList.push({
-            name: '',
-            tagType: TagType.skill,
-            key: Math.random() + ''
-          })
+          this.skillInputList = []
         }
         this.$logger.info('skillInputList', this.skillInputList)
 
         if (knowledgeInputList.length) {
           this.knowledgeInputList = knowledgeInputList
         } else {
-          this.knowledgeInputList.push({
-            name: '',
-            tagType: TagType.knowledge,
-            key: Math.random() + ''
-          })
+          this.knowledgeInputList = []
         }
         this.$logger.info('knowledgeInputList', this.skillInputList)
 
         if (centuryInputList.length) {
           this.centuryInputList = centuryInputList
         } else {
-          this.centuryInputList.push({
-            name: '',
-            tagType: TagType.century,
-            key: Math.random() + ''
-          })
+          this.centuryInputList = []
         }
         this.$logger.info('centuryInputList', this.skillInputList)
       },
@@ -422,7 +697,7 @@
           this.subTreeLoading = false
         })
       },
-      getknowledgeListType (type) {
+      getKnowledgeListType (type) {
         if (type === TagType.skill) {
           return this.knowledgeList.filter(item => item.tagType === TagType.skill || item.tagType === TagType.ibSkill || item.tagType === TagType.idu)
         } else if (type === TagType.century) {
@@ -431,6 +706,58 @@
         } else {
           return this.knowledgeList.filter(item => item.tagType === type)
         }
+      },
+
+      // 21世纪的数据需要根据学科分类显示
+      getCenturyCategoryList (type) {
+        const list = this.getKnowledgeListType(type)
+        this.$logger.info('getCenturyCategoryList list ', list)
+        const categoryDataMap = new Map()
+        categoryDataMap.set('Others', [])
+        list.forEach(item => {
+          if (item.path) {
+            if (item.path.indexOf('>') !== -1) {
+              const pathArray = item.path.split('>')
+              const categoryName = pathArray[1]
+              // item.displayPath = pathArray.slice(2).join('>')
+              if (categoryDataMap.has(categoryName)) {
+                categoryDataMap.get(categoryName).push(item)
+              } else {
+                categoryDataMap.set(categoryName, [item])
+              }
+            } else {
+              const categoryName = item.path
+              // item.displayPath = item.path
+              if (categoryDataMap.has(categoryName)) {
+                categoryDataMap.get(categoryName).push(item)
+              } else {
+                categoryDataMap.set(categoryName, [item])
+              }
+            }
+          } else {
+            categoryDataMap.get('Others').push(item)
+          }
+        })
+
+        const categoryDataList = []
+        for (const [key, value] of categoryDataMap) {
+          if (value && value.length > 0 && key !== 'Others') {
+            categoryDataList.push({
+              categoryName: key,
+              list: value
+            })
+          }
+        }
+
+        // others放到最后
+        if (categoryDataMap.get('Others').length > 0) {
+          categoryDataList.push({
+            categoryName: 'Others',
+            list: categoryDataMap.get('Others')
+          })
+        }
+        this.$logger.info('getCenturyCategoryList ', categoryDataList)
+        return categoryDataList
       },
 
       removeDisabled(item) {
@@ -461,8 +788,11 @@
         this.$logger.info('handleAddNew ', inputList)
         inputList.push({
           name: '',
+          subjectId: null,
           key: Math.random() + '',
-          tagType: tagType
+          tagType: tagType,
+          commandTerms: [],
+          knowledgeTags: []
         })
       },
 
@@ -494,6 +824,87 @@
 
         this.$logger.info('getSelfOuts ', selfOuts)
         return selfOuts
+      },
+      domFn(key, currentChoose) {
+        this.currentObjective = { ...currentChoose }
+        this.quickWord = key.split(' ')[0]
+        this.commandTermForm.name = this.quickWord
+        this.showQuickWordCreate = false
+        // KnowledgeTermTagQueryByKeywords({
+        //   keywords: this.quickWord
+        // }).then(res => {
+        //   if (res.success) {
+        //     this.commandTerms = res.result.filter(item => item.type === 1)
+        //     this.knowledgeTags = res.result.filter(item => item.type === 2)
+        //   }
+        // })
+      },
+      handleCloseObjectiveTag(item, key, tagIndex) {
+        item[key].splice(tagIndex, 1)
+        console.log(item)
+        this.$forceUpdate()
+      },
+      handleQuickWordSet(res, key) {
+        console.log(res)
+        setTimeout(() => {
+          this.$refs.quickModal.style.display = 'none'
+        }, 200)
+        this.$emit('addCustomTag', res)
+        const find = this.knowledgeList.find(item => item.knowledgeId === this.currentObjective.knowledgeId)
+        if (find) {
+          if (find[key]) {
+            if (!find[key].find(item => item.id === res.id)) {
+              find[key].push({
+                id: res.id,
+                name: res.word,
+                bloomTag: res.bloomTag,
+                knowledgeDimension: res.knowledgeDimension
+              })
+            }
+          } else {
+            this.$set(find, key, [{
+              id: res.id,
+              name: res.word,
+              bloomTag: res.bloomTag,
+              knowledgeDimension: res.knowledgeDimension
+            }])
+          }
+        } else {
+          let findInput = this.skillInputList.find(item => item.key === this.currentObjective.key)
+          if (!findInput) {
+            findInput = this.knowledgeInputList.find(item => item.key === this.currentObjective.key)
+            if (!findInput) {
+              findInput = this.centuryInputList.find(item => item.key === this.currentObjective.key)
+            }
+          }
+          if (findInput && findInput[key]) {
+            if (!findInput[key].find(item => item.id === res.id)) {
+              findInput[key].push({
+                id: res.id,
+                name: res.word,
+                bloomTag: res.bloomTag,
+                knowledgeDimension: res.knowledgeDimension
+              })
+            }
+          } else {
+            this.$set(findInput, key, [{
+              id: res.id,
+              name: res.word,
+              bloomTag: res.bloomTag,
+              knowledgeDimension: res.knowledgeDimension
+            }])
+          }
+        }
+      },
+      handleSaveCommanTerm(res) {
+        console.log(res)
+        this.handleQuickWordSet(res, 'commandTerms')
+        this.showQuickWordCreate = false
+      },
+      handleChangeLevel(val, tag) {
+        if (val) {
+          tag[val.type] = val.title
+        }
       }
     }
   }
@@ -502,40 +913,24 @@
 <style lang="less" scoped>
   @import "~@/components/index.less";
 
-  .ant-cascader-menu{
-    max-width: 300px;
-  }
-
   .objectives-wrapper {
-    .objectives-wrapper-block{
-      margin-bottom: 15px;
-      .title-item{
-        font-size: 20px;
-        //font-family: Leelawadee UI;
-        font-weight: 500;
-        line-height: 24px;
-        opacity: 1;
-        margin-bottom: 10px;
-      }
-      .title-skill{
-        color: #FF978E;
-      }
-      .title-learnout{
-        color: #B1D1CC;
-      }
-      .title-21{
-        color: #92B2D1
-      }
-    }
     .objectives-list {
-      //display: flex;
-      //flex-direction: row;
-      //align-items: center;
-      //justify-content: flex-start;
       position: relative;
-       &:hover{
+
+      .delete-action {
+        cursor: pointer;
+        position: absolute;
+        right: -30px;
+        width: 30px;
+        top: 10px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        flex-direction: row;
+      }
+      &:hover {
         .delete-action {
-          display: block;
+          display: flex;
         }
       }
 
@@ -559,9 +954,9 @@
         position: relative;
         color: #000000;
         box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.16);
+
         &:hover {
           color: @primary-color;
-          //border: 1px solid @primary-color !important;
         }
         .skt-description {
           cursor: pointer;
@@ -616,7 +1011,7 @@
               //background-color: rgba(21, 195, 154, 0.1);
               color: #000000;
               //border: 1px solid rgba(21, 195, 154, 1);
-              background: #D7E0E9;
+              background: #FF933C;
               border: 1px solid #92B2D1;
             }
           }
@@ -644,36 +1039,25 @@
       .objectives-list-item-skill{
         //background: #FEF3E4;
         //border: 1px solid #EED1AA;
-        color: #FF978E;
-        border-left: 10px solid #FF978E;
+        color: #FF786D;
+        border-left: 10px solid #FF786D;
         //border-radius: 10px;
       }
       .objectives-list-item-learn{
-        //background: #D4EBE7;
+        //background: #47A3E4;
         //border: 1px solid #B1D1CC;
-        color: #D4EBE7;
-        border-left: 10px solid #D4EBE7;
+        color: #47A3E4;
+        border-left: 10px solid #47A3E4;
         //opacity: 1;
         //border-radius: 10px;
       }
       .objectives-list-item-21{
-        //background: #D7E0E9;
+        //background: #FF933C;
         //border: 1px solid #92B2D1;
         //opacity: 1;
         //border-radius: 10px;
-        color: #D7E0E9;
-        border-left: 10px solid #D7E0E9;
-      }
-      .delete-action {
-        position: absolute;
-        top:5px;
-        right: -35px;
-        display: none;
-        cursor: pointer;
-        height: 35px;
-        img {
-          width: 35px;
-        }
+        color: #FF933C;
+        border-left: 10px solid #FF933C;
       }
     }
   }
@@ -732,41 +1116,66 @@
 
   .customize-objectives-list {
     .objectives-input-item {
-      padding-left: 2px;
       position: relative;
-      margin-top: 10px;
       margin-bottom: 10px;
 
-      img.input-icon {
-        position: absolute;
-        top: 3px;
-        right: -30px;
+      .skill-input, .knowledge-input, .century-input {
+        width: 100%;
+      }
+      .self-out-delete-icon {
         cursor: pointer;
-        width: 17px;
+        position: absolute;
+        right: -30px;
+        width: 30px;
+        top: 10px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        flex-direction: row;
       }
 
-      svg.input-icon {
-        position: absolute;
-        top: 3px;
-        right: -30px;
-        cursor: pointer;
-        width: 20px;
+      &:hover {
+        .self-out-delete-icon {
+          display: flex;
+        }
       }
     }
+  }
 
-    .skill-input {
-      border: 1px solid #FF978E;
-      box-shadow: 0 0 0 2px rgba(255, 151, 142, 0.2);
-    }
+  .category-name {
+    line-height: 25px;
+    padding-bottom: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #999;
+  }
 
-    .knowledge-input {
-      border: 1px solid #D4EBE7;
-      box-shadow: 0 0 0 2px rgba(212, 235, 231, 0.2);
-    }
+  .quick-keyword-con {
+    border: 1px solid #dfdfdf;
+    background: #fff;
+    padding: 5px 10px;
+    // width: 330px;
+  }
 
-    .century-input {
-      border: 1px solid #D7E0E9;
-      box-shadow: 0 0 0 2px rgba(215, 224, 225, 0.2);
+  .objectives-tag {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+    .objectives-tag-type {
+      .objectives-tag-title {
+        width: 110px;
+        color: #333;
+      }
+      .objectives-tag-content {
+        display: flex;
+        flex-wrap: wrap;
+        .objectives-tag-item {
+          margin: 3px;
+          display: flex;
+          align-items: center;
+        }
+      }
     }
   }
 </style>

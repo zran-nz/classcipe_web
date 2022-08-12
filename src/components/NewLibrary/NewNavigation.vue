@@ -1,9 +1,6 @@
 <template>
   <div class='nav-path-wrapper'>
     <div class='nav-path'>
-      <div class='nav-path-item' v-show='curriculumLabel && navPath.length'>
-        {{ curriculumLabel }}
-      </div>
       <div v-for='(path,index) in navPath' :key='index' class='nav-path-item' @click='handleLibraryNavClick(path)' v-if='path'>
         <template v-if='path.name && path.name.length > 20'>
           <a-tooltip :mouseEnterDelay='1'>
@@ -29,20 +26,45 @@ import { getAllCurriculums } from '@/api/preference'
 
 export default {
   name: 'NewNavigation',
-  components: {},
+  props: {
+    currentCurriculum: {
+      type: String,
+      default: null
+    }
+  },
   data() {
     return {
       navPath: [],
       curriculumLabel: null
     }
   },
-  computed: {},
   created() {
     this.$logger.info('NewNavigation')
-    this.getCurriculums()
+  },
+  watch: {
+    navPath(newNavPath) {
+      this.$logger.info('NewNavigation navPath changed', newNavPath)
+      let path = this.curriculumLabel + '>'
+      newNavPath.forEach((item) => {
+        if (item && item.hasOwnProperty('name')) {
+          path += item.name + '>'
+        }
+      })
+      if (path.lastIndexOf('>') === path.length - 1) {
+        path = path.substring(0, path.length - 1)
+      }
+      this.$emit('update-path', path)
+    }
   },
   mounted() {
     LibraryEventBus.$on(LibraryEvent.ContentListUpdate, this.handleContentListUpdate)
+    LibraryEventBus.$on(LibraryEvent.ChangeCurriculum, this.handleChangeCurriculum)
+
+    this.getCurriculums()
+  },
+  destroyed() {
+    LibraryEventBus.$off(LibraryEvent.ContentListUpdate, this.handleContentListUpdate)
+    LibraryEventBus.$off(LibraryEvent.ChangeCurriculum, this.handleChangeCurriculum)
   },
   methods: {
     handleContentListUpdate(data) {
@@ -57,6 +79,11 @@ export default {
       this.navPath = navPathObjList
     },
 
+    handleChangeCurriculum() {
+      this.$logger.info('NewNavigation handleChangeCurriculum')
+      this.navPath = []
+    },
+
     handleLibraryNavClick(path) {
       this.$logger.info('handleLibraryNavClick ', path)
       LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, {
@@ -64,11 +91,13 @@ export default {
         parent: path.parent
       })
     },
+
     getCurriculums() {
       getAllCurriculums().then((response) => {
         this.$logger.info('getAllCurriculums', response)
         if (response.success) {
-          const curriculum = response.result.find(item => parseInt(item.id) === parseInt(this.$store.getters.bindCurriculum))
+          const currentCurriculumId = this.currentCurriculum ? this.currentCurriculum : this.$store.getters.bindCurriculum
+          const curriculum = response.result.find(item => parseInt(item.id) === parseInt(currentCurriculumId))
           this.$logger.info('bindCurriculum', curriculum)
           if (curriculum) {
             this.curriculumLabel = curriculum.name
@@ -76,10 +105,6 @@ export default {
         }
       })
     }
-  },
-  destroyed() {
-    LibraryEventBus.$off(LibraryEvent.ContentListUpdate, this.handleContentListUpdate)
-    this.$logger.info('off NewNavigation ContentListUpdate handler')
   }
 }
 </script>

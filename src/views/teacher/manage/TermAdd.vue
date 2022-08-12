@@ -66,6 +66,7 @@ export default {
         if (!err) {
           this.confirmLoading = true
           console.log('Received values of form: ', values)
+
           this.confirmLoading = false
         }
       })

@@ -34,7 +34,7 @@
           >
           </a-input-search>
         </div>
-        <div class="filter-icon" @click="showFilter = !showFilter">
+        <div class="filter-icon" @click.stop="showFilter = !showFilter">
           <div class="filter-item">
             <filter-icon class="filter-icon" />
             <filter-active-icon class="filter-active-icon"/>
@@ -60,17 +60,9 @@
                   <span>{{ $t('teacher.my-content.evaluation-type') }}</span>
                 </a-menu-item>
               </template>
-              <!--              <template v-if="$store.getters.roles.indexOf('expert') !== -1">
-                <a-menu-item @click="toggleType('topic', $t('teacher.my-content.topics-type'))">
-                  <span>{{ $t('teacher.my-content.topics-type') }}</span>
-                </a-menu-item>
-              </template>-->
               <a-menu-item @click="toggleType('task', $t('teacher.my-content.tasks-type') )">
                 <span>{{ $t('teacher.my-content.tasks-type') }}</span>
               </a-menu-item>
-              <!--              <a-menu-item @click="toggleType('lesson', $t('teacher.my-content.lesson-type'))">
-                <span>{{ $t('teacher.my-content.lesson-type') }}</span>
-              </a-menu-item>-->
               <a-divider style="margin: 10px 0px;" />
 
               <a-menu-item @click="toggleType('Collabrated', 'Collabrated')">
@@ -97,7 +89,7 @@
         </div>
       </div>
     </div>
-    <div v-if="showFilter">
+    <div v-if="showFilter" @click.stop=''>
       <div class="filter-params">
         <filter-content
           @filter-config-update="handleUpdateFilterConfig"
@@ -109,9 +101,6 @@
           :filter-sa-options="filterSaOptions"
           :filter-activity-options="filterActivityOptions"
         />
-      </div>
-      <div class="expand-icon" v-if="showFilter" @click="showFilter = !showFilter">
-        <a-icon type="up-circle" theme="filled" title="Collapse filter" /> Close
       </div>
     </div>
     <div class="content-wrapper">
@@ -136,6 +125,11 @@
                 <span class="collaborate-icon-item" v-if="item.collaborates > 0">
                   <collaborate-svg />
                 </span>
+                <span class="collaborate-icon-item" v-if="item.isCollaborater && item.collaborate">
+                  <a-tooltip :title="'from  ' + item.collaborate.fromerUser">
+                    <a-avatar size="small" :src='item.collaborate.fromerAvator' />
+                  </a-tooltip>
+                </span>
 
               </span>
 
@@ -150,86 +144,93 @@
                 <div class="action">
                   <div slot="actions">
                     <div class="action-wrapper">
-                      <template v-if="currentStatus !== 'archived'">
-                        <!-- Task: 外置teacher-pace, student-pace, Edit, 折叠Delete, Duplicate, Previous session-->
-                        <template v-if="item.type === typeMap.task">
-                          <div class="start-session-wrapper action-item-wrapper">
-                            <div class="session-btn content-list-action-btn" @click="handleStartSessionHistory(item,1)">
-                              <div class="session-btn-icon">
-                                <teacher-presenting />
-                              </div>
-                              <div class="session-btn-text"> Teacher-paced</div>
-                            </div>
-                          </div>
-                          <div class="start-session-wrapper action-item-wrapper">
-                            <div class="session-btn content-list-action-btn" @click="handleStartSessionHistory(item,2)">
-                              <div class="session-btn-icon">
-                                <student-pace />
-                              </div>
-                              <div class="session-btn-text"> Student-paced</div>
-                            </div>
-                          </div>
-                        </template>
-                        <!-- Unit plan:外置Edit，折叠Delete, Duplicate-->
-
-                        <div class="start-session-wrapper action-item-wrapper">
-                          <div class="session-btn content-list-action-btn" @click="handleEditItem(item)">
-                            <div class="session-btn-icon">
-                              <bianji />
-                            </div>
-                            <div class="session-btn-text"> {{ $t('teacher.my-content.action-edit') }}</div>
-                          </div>
-                        </div>
-                        <div class="more-action-wrapper action-item-wrapper" >
-                          <a-dropdown>
-                            <a-icon type="more" style="margin-right: 8px" />
-                            <a-menu slot="overlay">
-                              <a-menu-item>
-                                <a-popconfirm title="Archive ?" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
-                                  <a>
-                                    <a-icon type="delete" theme="filled" /> Archive
-                                  </a>
-                                </a-popconfirm>
-                              </a-menu-item>
-                              <a-menu-item>
-                                <a @click="handleDuplicateItem(item)">
-                                  <a-icon type="copy" /> Duplicate
-                                </a>
-                              </a-menu-item>
-                              <!-- Task里面有teacher-pace, student-pace, previous session -->
-                              <template v-if="item.type === typeMap.task">
-                                <a-menu-item>
-                                  <a @click="handleViewPreviewSession(item)">
-                                    <previous-sessions-svg /> Previous session
-                                  </a>
-                                </a-menu-item>
-                              </template>
-
-                            </a-menu>
-                          </a-dropdown>
-                        </div>
+                      <template v-if="item.isCollaborater && item.collaborate && item.collaborate.agreeFlag === collaborateStatus.apply">
+                        <span>
+                          <a-tag color="red">Wait for approval</a-tag>
+                        </span>
                       </template>
                       <template v-else>
-                        <div class="start-session-wrapper action-item-wrapper">
-                          <a-popconfirm :title="'Confirm restore ' +(item.name ? item.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleRestoreItem(item)" cancel-text="No">
-                            <div class="session-btn content-list-action-btn" >
+                        <template v-if="currentStatus !== 'archived'">
+                          <!-- Task: 外置teacher-pace, student-pace, Edit, 折叠Delete, Duplicate, Previous session-->
+                          <template v-if="item.type === typeMap.task && item.presentationId">
+                            <div class="start-session-wrapper action-item-wrapper">
+                              <div class="session-btn content-list-action-btn" @click="handleStartSessionHistory(item,1)">
+                                <div class="session-btn-icon">
+                                  <teacher-presenting />
+                                </div>
+                                <div class="session-btn-text"> Teacher-paced</div>
+                              </div>
+                            </div>
+                            <div class="start-session-wrapper action-item-wrapper">
+                              <div class="session-btn content-list-action-btn" @click="handleStartSessionHistory(item,2)">
+                                <div class="session-btn-icon">
+                                  <student-pace />
+                                </div>
+                                <div class="session-btn-text"> Student-paced</div>
+                              </div>
+                            </div>
+                          </template>
+                          <!-- Unit plan:外置Edit，折叠Delete, Duplicate-->
+
+                          <div class="start-session-wrapper action-item-wrapper">
+                            <div class="session-btn content-list-action-btn" @click="handleEditItem(item)">
                               <div class="session-btn-icon">
                                 <bianji />
                               </div>
-                              <div class="session-btn-text">Restore</div>
+                              <div class="session-btn-text"> {{ $t('teacher.my-content.action-edit') }}</div>
                             </div>
-                          </a-popconfirm>
-                        </div>
-                        <div class="start-session-wrapper action-item-wrapper">
-                          <a-popconfirm :title="'Confirm permanent delete ' +(item.name ? item.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem(item)" cancel-text="No">
-                            <div class="session-btn content-list-action-btn" >
-                              <div class="session-btn-icon">
-                                <a-icon type="delete" theme="filled" />
+                          </div>
+                          <div class="more-action-wrapper action-item-wrapper" >
+                            <a-dropdown>
+                              <a-icon type="more" style="margin-right: 8px" />
+                              <a-menu slot="overlay">
+                                <a-menu-item>
+                                  <a-popconfirm title="Archive ?" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
+                                    <a>
+                                      <a-icon type="delete" theme="filled" /> Archive
+                                    </a>
+                                  </a-popconfirm>
+                                </a-menu-item>
+                                <a-menu-item>
+                                  <a @click="handleDuplicateItem(item)">
+                                    <a-icon type="copy" /> Duplicate
+                                  </a>
+                                </a-menu-item>
+                                <!-- Task里面有teacher-pace, student-pace, previous session -->
+                                <template v-if="item.type === typeMap.task">
+                                  <a-menu-item>
+                                    <a @click="handleViewPreviewSession(item)">
+                                      <previous-sessions-svg /> Previous session
+                                    </a>
+                                  </a-menu-item>
+                                </template>
+
+                              </a-menu>
+                            </a-dropdown>
+                          </div>
+                        </template>
+                        <template v-else>
+                          <div class="start-session-wrapper action-item-wrapper">
+                            <a-popconfirm :title="'Confirm restore ' +(item.name ? item.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleRestoreItem(item)" cancel-text="No">
+                              <div class="session-btn content-list-action-btn" >
+                                <div class="session-btn-icon">
+                                  <bianji />
+                                </div>
+                                <div class="session-btn-text">Restore</div>
                               </div>
-                              <div class="session-btn-text">Delete</div>
-                            </div>
-                          </a-popconfirm>
-                        </div>
+                            </a-popconfirm>
+                          </div>
+                          <div class="start-session-wrapper action-item-wrapper">
+                            <a-popconfirm :title="'Confirm permanent delete ' +(item.name ? item.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem(item)" cancel-text="No">
+                              <div class="session-btn content-list-action-btn" >
+                                <div class="session-btn-icon">
+                                  <a-icon type="delete" theme="filled" />
+                                </div>
+                                <div class="session-btn-text">Delete</div>
+                              </div>
+                            </a-popconfirm>
+                          </div>
+                        </template>
                       </template>
                     </div>
                   </div>
@@ -248,90 +249,109 @@
               <a-card class="cover-card" >
                 <div class="mask"></div>
 
-                <div class="mask-actions" v-if="currentStatus !== 'archived'">
-                  <div class="action-item action-item-top">
-                    <a-dropdown>
-                      <a-icon type="more" style="margin-right: 8px" class="more-icon" />
-                      <a-menu slot="overlay">
-                        <a-menu-item>
-                          <a-popconfirm title="Archive ?" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
-                            <a>
-                              <a-icon type="delete" theme="filled" /> Archive
-                            </a>
-                          </a-popconfirm>
-                        </a-menu-item>
-                        <a-menu-item>
-                          <a @click="handleDuplicateItem(item)">
-                            <a-icon type="copy" /> Duplicate
-                          </a>
-                        </a-menu-item>
-                        <!-- Task里面有teacher-pace, student-pace, previous session -->
-                        <template v-if="item.type === typeMap.task">
+                <template v-if="item.isCollaborater && item.collaborate && item.collaborate.agreeFlag === collaborateStatus.apply">
+                  <div class="mask-actions" style="display: block;" >
+                    <div class="action-item" style="margin-top: 50px;">
+                      <div class="session-btn" >
+                        <a-tag color="red" class="tag-info">
+                          Wait for approval
+                        </a-tag>
+                      </div>
+                    </div>
+                  </div>
+                </template>
+                <template v-else>
+                  <div class="mask-actions" v-if="currentStatus !== 'archived'">
+                    <div class="action-item action-item-top">
+                      <a-dropdown>
+                        <a-icon type="more" style="margin-right: 8px" class="more-icon" />
+                        <a-menu slot="overlay">
                           <a-menu-item>
-                            <a @click="handleViewPreviewSession(item)">
-                              <previous-sessions-svg /> Previous session
+                            <a-popconfirm title="Archive ?" ok-text="Yes" @confirm="handleDeleteItem(item)" cancel-text="No">
+                              <a>
+                                <a-icon type="delete" theme="filled" /> Archive
+                              </a>
+                            </a-popconfirm>
+                          </a-menu-item>
+                          <a-menu-item>
+                            <a @click="handleDuplicateItem(item)">
+                              <a-icon type="copy" /> Duplicate
                             </a>
                           </a-menu-item>
-                        </template>
-                      </a-menu>
-                    </a-dropdown>
-                  </div>
-                  <div class="action-item action-item-center">
-                    <div class="session-btn session-btn-left" @click.stop="handleStartSessionHistory(item,1)" v-if="item.type === typeMap['task']" >
-                      <div class="session-btn-text">
-                        <teacher-presenting />
-                        Teacher-paced
-                      </div>
+                          <!-- Task里面有teacher-pace, student-pace, previous session -->
+                          <template v-if="item.type === typeMap.task">
+                            <a-menu-item>
+                              <a @click="handleViewPreviewSession(item)">
+                                <previous-sessions-svg /> Previous session
+                              </a>
+                            </a-menu-item>
+                          </template>
+                        </a-menu>
+                      </a-dropdown>
                     </div>
-                    <div class="session-btn session-btn-right" @click.stop="handleStartSessionHistory(item,2)" v-if="item.type === typeMap['task']">
-                      <div class="session-btn-text">
-                        <student-pace />
-                        Student-paced
-                      </div>
+                    <div class="action-item action-item-center">
+                      <template v-if="item.type === typeMap['task'] && item.presentationId">
+                        <div class="session-btn session-btn-left" @click.stop="handleStartSessionHistory(1)">
+                          <div class="session-btn-text">
+                            <teacher-presenting />
+                            Teacher-paced
+                          </div>
+                        </div>
+                        <div class="session-btn session-btn-right" @click.stop="handleStartSessionHistory(2)">
+                          <div class="session-btn-text">
+                            <student-pace />
+                            Student-paced
+                          </div>
+                        </div>
+                      </template>
                     </div>
-                  </div>
-                  <div class="action-item action-item-bottom" >
-                    <div class="session-btn" @click.stop="handleEditItem(item)">
-                      <div class="session-btn-icon content-list-action-btn">
-                        <bianji />
-                      </div>
-                      <div class="session-btn-text">Edit</div>
-                    </div>
-                    <div class="session-btn" @click.stop="handleViewDetail(item)">
-                      <div class="session-btn-icon content-list-action-btn">
-                        <a-icon type="eye" theme="filled" />
-                      </div>
-                      <div class="session-btn-text">Preview</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="mask-actions" v-else>
-                  <div class="action-item action-item-bottom" style="margin-top:100px" >
-                    <a-popconfirm :title="'Confirm restore ' +(item.name ? item.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleRestoreItem(item)" cancel-text="No">
-                      <div class="session-btn">
+                    <div class="action-item action-item-bottom" >
+                      <div class="session-btn" @click.stop="handleEditItem(item)">
                         <div class="session-btn-icon content-list-action-btn">
                           <bianji />
                         </div>
-                        <div class="session-btn-text">Restore</div>
+                        <div class="session-btn-text">Edit</div>
                       </div>
-                    </a-popconfirm>
-                    <a-popconfirm :title="'Confirm permanent delete ' +(item.name ? item.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem(item)" cancel-text="No">
-                      <div class="session-btn">
+                      <div class="session-btn" @click.stop="handleViewDetail(item)">
                         <div class="session-btn-icon content-list-action-btn">
-                          <a-icon type="delete" theme="filled" />
+                          <a-icon type="eye" theme="filled" />
                         </div>
-                        <div class="session-btn-text">Delete</div>
+                        <div class="session-btn-text">Preview</div>
                       </div>
-                    </a-popconfirm>
+                    </div>
                   </div>
-                </div>
+                  <div class="mask-actions" v-else>
+                    <div class="action-item action-item-bottom" style="margin-top:100px" >
+                      <a-popconfirm :title="'Confirm restore ' +(item.name ? item.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleRestoreItem(item)" cancel-text="No">
+                        <div class="session-btn">
+                          <div class="session-btn-icon content-list-action-btn">
+                            <bianji />
+                          </div>
+                          <div class="session-btn-text">Restore</div>
+                        </div>
+                      </a-popconfirm>
+                      <a-popconfirm :title="'Confirm permanent delete ' +(item.name ? item.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem(item)" cancel-text="No">
+                        <div class="session-btn">
+                          <div class="session-btn-icon content-list-action-btn">
+                            <a-icon type="delete" theme="filled" />
+                          </div>
+                          <div class="session-btn-text">Delete</div>
+                        </div>
+                      </a-popconfirm>
+                    </div>
+                  </div>
+                </template>
+
                 <div class="cover-img" :style="{backgroundImage: 'url(' + item.image + ')'}"></div>
 
                 <a-card-meta class="my-card-meta-info" :title="item.name ? item.name : 'Untitled'" :description="item.updateTime | dayjs" @click="handleViewDetail(item)">
                   <content-type-icon :type="item.type" slot="avatar"></content-type-icon>
                 </a-card-meta>
 
-                <collaborate-svg class="card-collaborate-icon-item" v-if="item.collaborates > 0"/>
+                <div class="card-collaborate">
+                  <collaborate-svg class="card-collaborate-icon-item" v-if="item.collaborates > 0"/>
+                  <a-avatar v-if="item.isCollaborater && item.collaborate" class="card-collaborate-icon-item" :src='item.collaborate.fromerAvator' />
+                </div>
               </a-card>
             </a-list-item>
           </a-list>
@@ -342,24 +362,18 @@
         destroyOnClose
         placement="right"
         :closable="false"
-        width="800px"
+        width="1000px"
         :visible="previewVisible"
         @close="handlePreviewClose"
       >
-        <a-row class="preview-wrapper-row">
-          <a-col span="2">
-            <div class="view-back" @click="handlePreviewClose">
-              <div class="back-icon">
-                <img src="~@/assets/icons/common/back.png" />
-              </div>
-            </div>
-          </a-col>
-          <a-col span="22">
-            <div class="detail-wrapper" v-if="previewCurrentId && previewType">
-              <common-preview :id="previewCurrentId" :type="previewType" />
-            </div>
-          </a-col>
-        </a-row>
+        <div class="preview-wrapper-row">
+          <div class="view-back">
+            <a-button type='primary' class='preview-back-btn' shape='round' @click="handlePreviewClose"><a-icon type="left" :style="{'font-size': '12px'}" />Back</a-button>
+          </div>
+          <div class="detail-wrapper" v-if="previewCurrentId && previewType">
+            <common-preview-v2 :id="previewCurrentId" :type="previewType" />
+          </div>
+        </div>
       </a-drawer>
 
       <a-modal
@@ -368,9 +382,10 @@
         :title="null"
         :closable="false"
         destroyOnClose
+        :dialog-style="{ top: '50px' }"
         width="1100px">
         <modal-header title="Previous session" @close="viewPreviewSessionVisible = false" :white="true"/>
-        <div class="preview-session-wrapper">
+        <div class="preview-session-wrapper" v-if='currentPreviewLesson'>
           <a-tabs default-active-key="1" @change="handleTabChange">
             <a-tab-pane key="1" tab="Active">
               <class-list-table ref="classList1" :slide-id="currentPreviewLesson.presentationId" :classData="currentPreviewLesson" v-if="currentPreviewLesson && currentPreviewLesson.presentationId" :active="true"/>
@@ -397,7 +412,13 @@
         :dialog-style="{ top: '50px' }"
         width="950px">
         <div>
-          <old-session-list :session-list="sessionList" @start-new-session="handleStartSession" @cancel="oldSelectSessionVisible=false" :mode="sessionMode" />
+          <old-session-list
+            :task-id='oldSelectSessionTaskId'
+            :session-list="sessionList"
+            @start-new-session="handleStartSession"
+            @cancel="oldSelectSessionVisible=false"
+            @show-preview-session-list='viewPreviewSessionVisible = true'
+            :mode="sessionMode" />
         </div>
       </a-modal>
 
@@ -435,12 +456,12 @@
 import * as logger from '@/utils/logger'
 import {
   ContentRestore,
-  deleteMyContentByType,
+  DeleteMyContentByType,
   Duplicate,
   FindMyContent,
   PermanentDeleteMyContent
 } from '@/api/teacher'
-import { ownerMap, statusMap, typeMap } from '@/const/teacher'
+import { CollaborateStatus, ownerMap, statusMap, typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { lessonHost, lessonStatus } from '@/const/googleSlide'
@@ -472,24 +493,25 @@ import {
   SESSION_CURRENT_TYPE_LABEL,
   SESSION_VIEW_MODE
 } from '@/const/common'
-import CommonPreview from '@/components/Common/CommonPreview'
+import CommonPreviewV2 from '@/components/Common/CommonPreviewV2'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import ModalHeader from '@/components/Common/ModalHeader'
 import { FindCustomTags } from '@/api/tag'
 import OldSessionList from '@/components/Teacher/OldSessionList'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
-import { TemplatesGetPresentation } from '@/api/template'
 import FilterContent from '@/components/UnitPlan/FilterContent'
 import { SubjectTree } from '@/api/subject'
 import { GetGradesByCurriculumId } from '@/api/preference'
 import { StartOpenSession, FindNewClasses } from '@/api/classroom'
+import { mapActions, mapState } from 'vuex'
+import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 
 export default {
   name: 'CreatedByMe',
   components: {
     OldSessionList,
     NoMoreResources,
-    CommonPreview,
+    CommonPreviewV2,
     ClassListTable,
     ContentStatusIcon,
     ContentTypeIcon,
@@ -513,6 +535,7 @@ export default {
     FilterActiveIcon,
     FilterContent
   },
+  mixins: [ GoogleAuthCallBackMixin ],
   data () {
     return {
       skeletonLoading: true,
@@ -558,6 +581,7 @@ export default {
       // 之前报错了，提示没这个字段，加一下。
       customTagList: [],
       oldSelectSessionVisible: false,
+      oldSelectSessionTaskId: null,
       sessionList: [],
       sessionMode: 1,
       // 当前选中的配置项
@@ -581,12 +605,29 @@ export default {
       showFilter: false,
       filterParams: {},
       lastedRevisionId: '',
-      searchText: ''
+      searchText: '',
+      collaborateStatus: CollaborateStatus
     }
   },
-  locomputed: {
+  computed: {
+    ...mapState({
+      needRefreshCollaborate: state => state.websocket.needRefreshCollaborate,
+      removedCollaborate: state => state.websocket.removedCollaborate,
+      currentUser: state => state.user
+    })
   },
   watch: {
+    needRefreshCollaborate: function (newValue) {
+      this.refreshCollaborateAction(false)
+      this.loadMyContent()
+    },
+    removedCollaborate: function (newValue) {
+      this.removedCollaborateAction(false)
+      this.loadMyContent()
+    }
+  },
+  mounted() {
+    this.globalClick(this.handleClick)
   },
   created () {
     logger.info('teacher my content')
@@ -594,6 +635,10 @@ export default {
     this.initFilterOption()
   },
   methods: {
+    ...mapActions(['refreshCollaborateAction', 'changeCollaborateAction', 'removedCollaborateAction']),
+    handleClick () {
+      this.showFilter = false
+    },
     toggleViewMode (viewMode) {
       this.$logger.info('viewMode', viewMode)
       storage.set(SESSION_VIEW_MODE, viewMode)
@@ -635,9 +680,6 @@ export default {
       }).finally(() => {
         this.loading = false
         this.skeletonLoading = false
-        // if (this.currentStatus !== 'archived') {
-        //   this.checkGoogleTokenExpired()
-        // }
       })
     },
     toggleStatus (status, label) {
@@ -672,21 +714,9 @@ export default {
         this.$router.push({
           path: '/teacher/unit-plan-redirect/' + item.id
         })
-      } else if (item.type === typeMap['topic']) {
-        this.$router.push({
-          path: '/expert/topic-redirect/' + item.id
-        })
-      } else if (item.type === typeMap['material']) {
-        this.$router.push({
-          path: '/teacher/add-material/' + item.id
-        })
       } else if (item.type === typeMap.task) {
         this.$router.push({
           path: '/teacher/task-redirect/' + item.id
-        })
-      } else if (item.type === typeMap.lesson) {
-        this.$router.push({
-          path: '/teacher/lesson-redirect/' + item.id
         })
       } else if (item.type === typeMap.evaluation) {
         this.$router.push({
@@ -704,12 +734,25 @@ export default {
         onOk: () => {
           this.loading = true
           Duplicate({ id: item.id, type: item.type }).then((response) => {
-            this.$logger.info('Duplicate response', response)
-            this.loadMyContent()
+            if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
+              this.$logger.info('Duplicate response', response)
+              this.loadMyContent()
+            } else {
+              this.currentMethodName = 'handleDuplicateItem'
+              this.currentMethodParam = item
+            }
           })
         }
       })
     },
+
+    handleAuthCallback () {
+      this.$logger.info('Preview handleAuthCallback')
+       if (this.currentMethodName === 'handleDuplicateItem') {
+        this.handleDuplicateItem(this.currentMethodParam)
+      }
+    },
+
     handlePrevious (item) {
       this.$router.push({
         path: '/teacher/my-class?slideId=' + item.presentationId
@@ -717,7 +760,7 @@ export default {
     },
     handleDeleteItem (item) {
       logger.info('handleDeleteItem', item)
-      deleteMyContentByType(item).then(res => {
+      DeleteMyContentByType(item).then(res => {
         logger.info('DeleteMyContentByType', res)
       }).then(() => {
         this.loadMyContent()
@@ -832,6 +875,9 @@ export default {
         this.loading = false
       }).finally(() => {
         this.oldSelectSessionVisible = true
+        this.oldSelectSessionTaskId = item.id
+        this.$logger.info('set currentPreviewLesson', item)
+        this.currentPreviewLesson = item
       })
       // this.sessionTags = []
     },
@@ -880,21 +926,6 @@ export default {
         this.$refs.classList2.loadTeacherClasses()
       }
     },
-    checkGoogleTokenExpired () {
-      this.$logger.info('checkGoogleTokenExpired response')
-      var index = this.myContentList.findIndex(item => item.type === typeMap.task && item.presentationId && !item.fileDeleted)
-      if (index > -1) {
-        TemplatesGetPresentation({
-          presentationId: this.myContentList[index].presentationId
-        }).then(response => {
-          this.$logger.info('TemplatesGetPresentation response', response)
-          if (response.message.indexOf('Google access_token Forbidden') > -1) {
-            // 更新task?
-            this.$router.push({ path: '/user/login' })
-          }
-        })
-      }
-    },
     handleUpdateFilterConfig (filter) {
       // TODO 根据配置更新请求参数
       this.$logger.info('handleUpdateFilterConfig', filter)
@@ -906,14 +937,14 @@ export default {
         this.$logger.info('getSubjectTree response', response.result)
         this.filterSubjectOptions = []
         response.result.forEach(subject => {
-          this.filterSubjectOptions.push({ label: subject.name, value: subject.id })
+          this.filterSubjectOptions.push({ label: subject.name, value: subject.name })
         })
       })
       GetGradesByCurriculumId({ curriculumId: this.$store.getters.bindCurriculum }).then(response => {
         this.$logger.info('GetGradesByCurriculumId', response.result)
         this.filterAgeOptions = []
         response.result.forEach(grade => {
-          this.filterAgeOptions.push({ label: grade.name, value: grade.id })
+          this.filterAgeOptions.push({ label: grade.name, value: grade.name })
         })
       })
       this.loadUserTags()
@@ -1365,13 +1396,18 @@ a.delete-action {
   border-radius: 6px;
   border: none;
   position:relative;
-  .card-collaborate-icon-item{
-    width: 30px;
+  .card-collaborate{
     padding-top: 17px;
     padding-right: 5px;
     position: absolute;
+    display: flex;
     right: 0;
     bottom: 5px;
+  }
+  .card-collaborate-icon-item{
+    width: 25px;
+    height: 25px;
+    margin-left:5px;
   }
 
   .cover-img {
@@ -1535,6 +1571,12 @@ a.delete-action {
     -webkit-transition: all 0.3s ease-in-out;
     transition: all 0.3s ease-in-out;
 
+  }
+
+  .tag-info{
+    border-radius: 20px;
+    padding: 8px;
+    font-size: 16px;
   }
 }
 

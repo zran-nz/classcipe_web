@@ -4,7 +4,7 @@
       <img src="~@/assets/background/expired.png"/>
     </div>
     <div class='expired-text'>
-      The link is no longer valid or your has been removed!
+      Sorry, the link is no longer available.
     </div>
   </div>
 </template>

@@ -1,10 +1,24 @@
 import storage from 'store'
-import { login, getInfo, logout, changeRole, signUp } from '@/api/login'
-import { ACCESS_TOKEN, CURRENT_ROLE, IS_ADD_PREFERENCE, USER_INFO, ADD_PREFERENCE_SKIP_TIME } from '@/store/mutation-types'
-import { welcome, setCookie, delCookie } from '@/utils/util'
+import { changeRole, getInfo, login, logout, signUp } from '@/api/login'
+import { StudentClasses } from '@/api/selfStudy'
+import {
+  ACCESS_TOKEN,
+  ADD_PREFERENCE_SKIP_TIME,
+  CURRENT_ROLE,
+  IS_ADD_PREFERENCE,
+  SET_CLASS_LIST,
+  SET_CURRENT_SCHOOL,
+  TOOGLE_USER_MODE,
+  USER_INFO
+} from '@/store/mutation-types'
+import { delCookie, setCookie, welcome } from '@/utils/util'
 import * as logger from '@/utils/logger'
-import { SESSION_ACTIVE_KEY } from '@/const/common'
+import { SESSION_ACTIVE_KEY, USER_MODE } from '@/const/common'
 import { teacher } from '@/const/role'
+// import { myClassesList } from '@/api/v2/classes'
+import { listClass } from '@/api/v2/schoolClass'
+import { appLogin } from '@/api/v2/statsTarget'
+import { GetAuCurriculum, GetNzCurriculum } from '@/api/v2/curriculumn'
 
 const user = {
   state: {
@@ -24,7 +38,11 @@ const user = {
     skillCategory: [],
     disableQuestion: false,
     school: '',
-    schoolRole: ''
+    schoolRole: '',
+    classList: [],
+    currentSchool: {},
+    allSubjects: [],
+    allYears: []
   },
 
   mutations: {
@@ -70,6 +88,24 @@ const user = {
     },
     SET_DISABLED_QUESTION: (state, disableQuestion) => {
       state.disableQuestion = disableQuestion
+    },
+    SET_CLASS_LIST: (state, classList) => {
+      state.classList = classList
+    },
+    SET_CURRENT_SCHOOL: (state, currentSchool) => {
+      if (!currentSchool) {
+        currentSchool = { id: '0' }
+      }
+      state.currentSchool = currentSchool
+      state.school = currentSchool.id
+      storage.set(SET_CURRENT_SCHOOL, currentSchool)
+    },
+    SET_SUBJECTS: (state, allSubjects) => {
+      state.allSubjects = allSubjects
+    },
+
+    SET_YEARS: (state, allYears) => {
+      state.allYears = allYears
     }
   },
 
@@ -83,6 +119,7 @@ const user = {
           commit('SET_TOKEN', accessToken)
           window.sessionStorage.setItem(SESSION_ACTIVE_KEY, accessToken)
           setCookie(ACCESS_TOKEN, accessToken)
+          appLogin(accessToken)
           resolve()
         } else {
           reject(new Error('illegal token ' + accessToken))
@@ -101,6 +138,7 @@ const user = {
             commit('SET_TOKEN', result.token)
             window.sessionStorage.setItem(SESSION_ACTIVE_KEY, result.token)
             setCookie(ACCESS_TOKEN, result.token)
+            appLogin(result.token)
             resolve(response)
           } else {
             reject(response)
@@ -123,6 +161,7 @@ const user = {
             commit('SET_TOKEN', result.token)
             window.sessionStorage.setItem(SESSION_ACTIVE_KEY, result.token)
             setCookie(ACCESS_TOKEN, result.token)
+            appLogin(result.token)
             resolve(response)
           } else {
             reject(response)
@@ -153,6 +192,12 @@ const user = {
             commit('SET_CURRENT_ROLE', result.currentRole)
             commit('SET_IS_ADD_PREFERENCE', result.isAddPreference)
             commit('SET_DISABLED_QUESTION', result.disableQuestion)
+            // 没有设置学校默认个人模式
+            const userMode = result.school === '0' ? USER_MODE.SELF : USER_MODE.SCHOOL
+            storage.set(TOOGLE_USER_MODE, userMode)
+            commit(TOOGLE_USER_MODE, userMode)
+            const schoolIndex = result.schoolList.findIndex(item => item.id === result.school)
+            commit('SET_CURRENT_SCHOOL', schoolIndex > -1 ? result.schoolList[schoolIndex] : null)
             storage.set(CURRENT_ROLE, result.currentRole)
             storage.set(IS_ADD_PREFERENCE, result.isAddPreference)
             storage.set(USER_INFO, result)
@@ -161,6 +206,8 @@ const user = {
             if (result.token && result.currentRole === teacher && storage.get(ACCESS_TOKEN) !== result.token) {
               storage.set(ACCESS_TOKEN, result.token, 7 * 24 * 60 * 60 * 1000)
               commit('SET_TOKEN', result.token)
+              setCookie(ACCESS_TOKEN, result.token)
+              appLogin(result.token)
               window.sessionStorage.setItem(SESSION_ACTIVE_KEY, result.token)
             }
             resolve(response)
@@ -189,6 +236,8 @@ const user = {
           commit('SET_BIND_CURRICULUM', result.bindCurriculum)
           commit('SET_CURRENT_ROLE', result.currentRole)
           commit('SET_IS_ADD_PREFERENCE', result.isAddPreference)
+          // 不同角色菜单不一样需要重新生成
+          commit('SET_ROUTERS', [])
           storage.set(CURRENT_ROLE, result.currentRole)
           storage.set(IS_ADD_PREFERENCE, result.isAddPreference)
           storage.set(USER_INFO, result)
@@ -213,11 +262,15 @@ const user = {
           commit('SET_CURRENT_ROLE', '')
           commit('SET_PERMISSIONS', [])
           commit('SET_IS_ADD_PREFERENCE', false)
+          // 不同角色菜单不一样需要重新生成
+          commit('SET_ROUTERS', [])
           storage.remove(CURRENT_ROLE)
           storage.remove(ACCESS_TOKEN)
           storage.remove(IS_ADD_PREFERENCE)
           storage.remove(USER_INFO)
           storage.remove(ADD_PREFERENCE_SKIP_TIME)
+          storage.remove(SET_CLASS_LIST)
+          storage.remove(SET_CURRENT_SCHOOL)
           window.sessionStorage.removeItem(SESSION_ACTIVE_KEY)
           delCookie(ACCESS_TOKEN)
           resolve()
@@ -241,6 +294,8 @@ const user = {
         commit('SET_CURRENT_ROLE', '')
         commit('SET_PERMISSIONS', [])
         commit('SET_IS_ADD_PREFERENCE', false)
+        // 不同角色菜单不一样需要重新生成
+        commit('SET_ROUTERS', [])
         storage.remove(CURRENT_ROLE)
         storage.remove(ACCESS_TOKEN)
         storage.remove(IS_ADD_PREFERENCE)
@@ -249,6 +304,58 @@ const user = {
         delCookie(ACCESS_TOKEN)
         resolve()
       })
+    },
+
+    // get all class list
+    GetClassList({ commit, state }, schoolId = '0') {
+      const remotePromise = state.currentRole === 'student' ? StudentClasses : listClass
+      return new Promise((resolve, reject) => {
+        remotePromise({
+          queryType: 0,
+          schoolId: schoolId,
+          pageNo: 1,
+          pageSize: 10000
+        }).then((response) => {
+          if (response.success) {
+            const result = response.result.records || response.result
+            commit('SET_CLASS_LIST', result)
+            storage.set(SET_CLASS_LIST, result)
+
+            resolve(result)
+          } else {
+            reject(response.message)
+          }
+        }).finally(() => {
+          resolve()
+        })
+      })
+    },
+
+    GetSubjectsByCurriculum({ commit }, curriculumId) {
+      logger.info('GetSubjectsByCurriculum curriculumId ' + curriculumId)
+      if (curriculumId) {
+        curriculumId = parseInt(curriculumId)
+        if (curriculumId === 1) {
+          GetAuCurriculum().then(res => {
+            console.log('GetAuCurriculum res', res)
+            commit('SET_SUBJECTS', res.__subject)
+            commit('SET_YEARS', res.__years)
+          })
+        } else if (curriculumId === 2) {
+          GetNzCurriculum().then(res => {
+            console.log('GetNzCurriculum res', res)
+            commit('SET_SUBJECTS', res.__subject)
+            commit('SET_YEARS', res.__years)
+          })
+        } else {
+          GetAuCurriculum().then(res => {
+            console.log('GetAuCurriculum res', res)
+            commit('SET_SUBJECTS', res.__subject)
+            commit('SET_YEARS', res.__years)
+          })
+          console.warn('no found curriculum, default use GetAuCurriculum ' + curriculumId)
+        }
+      }
     }
   }
 }

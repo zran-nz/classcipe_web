@@ -1,6 +1,7 @@
 import RecordRTC from 'recordrtc'
-import { upFireBaseFile } from './FirebaseUploadFile'
+import { upAwsS3File } from './AwsS3'
 import notification from 'ant-design-vue/es/notification'
+import * as logger from '@/utils/logger'
 
 function onMediaError(e) {
   if (e.toString().indexOf('Permission')) {
@@ -96,12 +97,13 @@ export const endRecord = () => {
 
 export const cancelUpVideo = () => {
   if (upFileInstance) {
-    upFileInstance.cancel()
+    upFileInstance.abort()
     upFileInstance = null
   }
 }
 
-export const saveRecordVideo = async(onProgressUpLoad = () => null) => {
+export const saveRecordVideo = async(userId, onProgressUpLoad = () => null, options) => {
+  logger.info('saveRecordVideo', userId, 'options', options)
   return new Promise((resolve, reject) => {
     try {
       closePictureInPicture()
@@ -116,9 +118,10 @@ export const saveRecordVideo = async(onProgressUpLoad = () => null) => {
       domVideoElement.play()
       const now = Date.now()
       const file = new window.File([blobData], `${now.toString()}.webm`, { type: 'video/webm', lastModified: Date.now() })
-      console.log(file)
+      logger.info('saveRecordVideo', file)
 
-      upFileInstance = upFireBaseFile(
+      upFileInstance = upAwsS3File(
+        userId,
         file,
         onProgressUpLoad,
         (result) => {
@@ -127,7 +130,10 @@ export const saveRecordVideo = async(onProgressUpLoad = () => null) => {
             onProgressUpLoad(0)
             upFileInstance = null
           }, 50)
-        }
+        },
+        true,
+        options.contentType,
+        options.contentId
       )
 
       mediaRecorder.camera.stop()

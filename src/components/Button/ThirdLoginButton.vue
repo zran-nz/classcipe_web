@@ -1,7 +1,8 @@
 <template>
   <a-button type="primary" class="third-login-btn" :disabled="disabled">
     <div class="svg-icon">
-      <google-icon-svg />
+      <google-icon-svg v-if="type === 'google'" class='google-icon'/>
+      <zoom-icon-svg v-if="type === 'zoom'" class='zoom-icon'/>
     </div>
     <div class="label">{{ label }}</div>
   </a-button>
@@ -9,11 +10,13 @@
 
 <script>
 import GoogleIconSvg from '@/assets/icons/google/googleIcon.svg?inline'
+import ZoomIconSvg from '@/assets/icons/zoom/zoomus-icon.svg?inline'
 
 export default {
   name: 'ThirdLoginButton',
   components: {
-    GoogleIconSvg
+    GoogleIconSvg,
+    ZoomIconSvg
   },
   props: {
     label: {
@@ -27,6 +30,10 @@ export default {
     disabled: {
       type: Boolean,
       default: false
+    },
+    type: {
+      type: String,
+      default: 'google'
     }
   },
   computed: {}
@@ -36,8 +43,7 @@ export default {
 <style lang='less' scoped>
 @import '~@/components/index.less';
 .third-login-btn {
-  // cursor: pointer;
-  // user-select: none;
+  margin: 10px 0;
   min-width: 260px;
   width: 100%;
   height: 40px;
@@ -58,11 +64,13 @@ export default {
     color: rgba(0, 0, 0, 0.25);
   }
   .svg-icon {
-    height: 40px;
     width: 40px;
-    svg {
-      height: 40px;
-      width: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .zoom-icon {
+      height: 20px;
+      width: 20px;
     }
   }
 }

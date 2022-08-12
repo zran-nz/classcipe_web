@@ -73,7 +73,7 @@
                     },
                   ]"
                 >
-                  <a-select-option :value="item.id" :key="item.id" v-for="item in roleList">{{
+                  <a-select-option :value="item.name" :key="item.id" v-for="item in roleList">{{
                     item.name
                   }}</a-select-option>
                 </a-select>
@@ -268,7 +268,7 @@ export default {
   computed: {
     getDefaultFormData() {
       const { roles = [], groups = [], classes = [], grades = [] } = this.defaultData
-      const defaultRoles = roles.map(item => item.id)
+      const defaultRoles = roles.map(item => item.name)
       const defaultGroups = groups.map(item => item.id)
       const defaultClasses = classes.map(item => item.id)
       const defaultGrades = grades.map(item => item.id)
@@ -298,7 +298,7 @@ export default {
           this.confirmLoading = true
           console.log('Received values of form: ', values)
           const params = {
-            schoolId: store.getters.userInfo.school,
+            schoolId: store.getters.school,
             avatar: this.avatar,
             ...values
           }
@@ -340,7 +340,7 @@ export default {
     },
     async getInviteUrl(needRefresh) {
       const res = await getOrCreateInvite({
-        schoolId: store.getters.userInfo.school,
+        schoolId: store.getters.school,
         role: 2,
         need_approve: this.inviteCheckBoxChecked ? 1 : 0,
         need_refresh: needRefresh
@@ -375,7 +375,7 @@ export default {
         id: this.inviteCodeId
       })
       if (res.success) {
-
+        this.inviteUrl = `${process.env.VUE_APP_BASE_URL}/user/invite?inviteCode=${res?.result?.inviteCode}`
       } else {
         this.$message.error(res.message)
       }

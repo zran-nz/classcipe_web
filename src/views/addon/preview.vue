@@ -2,7 +2,7 @@
   <div style="width: 600px">
     <div class="preview-wrapper">
       <div class="preview-detail">
-        <common-preview :id="id" :type="type" :can-edit="false"/>
+        <common-preview-v2 :id="id" :type="type" :can-edit="false"/>
       </div>
     </div>
   </div>
@@ -11,12 +11,13 @@
 <script>
   import storage from 'store'
   import { ACCESS_TOKEN } from '../../store/mutation-types'
-  import CommonPreview from '@/components/Common/CommonPreview'
+  import CommonPreviewV2 from '@/components/Common/CommonPreviewV2'
+  import { appLogin } from '@/api/v2/statsTarget'
 
   export default {
   name: 'AddonPreview',
   components: {
-    CommonPreview
+    CommonPreviewV2
   },
   data () {
     return {
@@ -30,6 +31,7 @@
       token = this.$route.query.accessToken
     }
     storage.set(ACCESS_TOKEN, token)
+    appLogin(token)
   },
   props: {
     id: {

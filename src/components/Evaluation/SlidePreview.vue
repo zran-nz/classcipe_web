@@ -2,53 +2,57 @@
   <div class="slide-preview">
     <div class="slide-cover">
       <img :src="slideItem.contentUrl" class="cover">
-      <div
-        :class="{'dot-item': true,
-                 'heartbeat': currentActiveId === item.link + '_' + item.time}"
-        @click="handleActiveItem(item)"
-        @mouseover="handleActiveItem(item)"
-        v-for="(item, index) in slideItem.commentList"
-        :key="index"
-        :style="{
-          position: 'absolute',
-          border: '3px solid #aaa',
-          backgroundColor: item.background,
-          left: ((item.left / item.content_width) * 700) + 'px',
-          top: ((item.top / item.content_height) * 400) + 'px',
-        }">
-      </div>
+      <template v-for="(item, index) in slideItem.commentList">
+        <div
+          :class="{'dot-item': true,
+                   'heartbeat': currentActiveId === item.link + '_' + item.time}"
+          v-if="item.user_id === userId"
+          @click="handleActiveItem(item)"
+          @mouseover="handleActiveItem(item)"
+          :key="index"
+          :style="{
+            position: 'absolute',
+            border: '3px solid #aaa',
+            backgroundColor: item.background,
+            left: ((item.left / item.content_width) * 700) + 'px',
+            top: ((item.top / item.content_height) * 400) + 'px',
+          }">
+        </div>
+      </template>
     </div>
     <div class="slide-dot-list">
-      <div
-        :id="'dot-item-' + item.link + '_' + item.time"
-        :class="{'dot-item': true,
-                 'active-dot-item': currentActiveId === item.link + '_' + item.time,
-                 'in-active-dot-item': currentActiveId !== item.link + '_' + item.time}"
-        v-for="(item, index) in slideItem.commentList"
-        :key="index"
-        @mouseover="handleActiveItem(item)"
-        @click="handleActiveItem(item)">
-        <div class="author-profile">
-          <div class="avatar">
-            <span class="avatar-user">{{ item.user_id ? item.user_id.slice(0, 1).toUpperCase() : 'C' }}</span>
+      <template v-for="(item, index) in slideItem.commentList">
+        <div
+          :id="'dot-item-' + item.link + '_' + item.time"
+          :class="{'dot-item': true,
+                   'active-dot-item': currentActiveId === item.link + '_' + item.time,
+                   'in-active-dot-item': currentActiveId !== item.link + '_' + item.time}"
+          :key="index"
+          v-if="item.user_id === userId"
+          @mouseover="handleActiveItem(item)"
+          @click="handleActiveItem(item)">
+          <div class="author-profile">
+            <div class="avatar">
+              <span class="avatar-user">{{ item.user_id ? item.user_id.slice(0, 1).toUpperCase() : 'C' }}</span>
+            </div>
+            <div class="profile">
+              <div class="author-name">{{ item.user_id }}</div>
+              <div class="author-time">{{ item.time * 1000 | formatDate }}</div>
+            </div>
           </div>
-          <div class="profile">
-            <div class="author-name">{{ item.user_id }}</div>
-            <div class="author-time">{{ item.time * 1000 | formatDate }}</div>
+          <div class="dot-detail" :data-item="JSON.stringify(item)">
+            <div v-if="item.type === 'audio'" :class="{'audio-item': true}">
+              <audio controls :src="item.link" />
+            </div>
+            <div v-if="item.type === 'video'" :class="{'video-item': true}">
+              <video controls :src="item.link" />
+            </div>
+            <div v-if="item.type === 'text'" :class="{'text-item': true}">
+              {{ item.link }}
+            </div>
           </div>
         </div>
-        <div class="dot-detail" :data-item="JSON.stringify(item)">
-          <div v-if="item.type === 'audio'" :class="{'audio-item': true}">
-            <audio controls :src="item.link" />
-          </div>
-          <div v-if="item.type === 'video'" :class="{'video-item': true}">
-            <video controls :src="item.link" />
-          </div>
-          <div v-if="item.type === 'text'" :class="{'text-item': true}">
-            {{ item.link }}
-          </div>
-        </div>
-      </div>
+      </template>
     </div>
   </div>
 </template>
@@ -60,6 +64,10 @@ export default {
     slideItem: {
       type: Object,
       required: true
+    },
+    userId: {
+      type: String,
+      default: null
     }
   },
   data () {

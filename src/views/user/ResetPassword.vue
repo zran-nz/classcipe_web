@@ -102,7 +102,7 @@ export default {
           const res = await resetPassword(params)
           if (res.success) {
             this.loading = false
-            this.$message.success('password reset success!')
+            this.$message.success('Password reset successfully!')
             this.$router.replace({ path: '/user/login' })
           } else {
             this.loading = false

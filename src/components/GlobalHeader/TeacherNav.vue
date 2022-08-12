@@ -3,8 +3,8 @@
     <div class="nav-left">
       <div class="nav-items menu-list">
         <a-menu mode="horizontal" theme="dark" :defaultSelectedKeys="defaultSelectedKeys" :selectedKeys="selectedKeys">
-          <a-menu-item key="/teacher/library-v2">
-            <router-link to="/teacher/library-v2">
+          <a-menu-item key="/teacher/library">
+            <router-link to="/teacher/library">
               <div class="nav-item">
                 <div class="nav-icon">
                   <library-icon-svg />
@@ -16,7 +16,7 @@
               </div>
             </router-link>
           </a-menu-item>
-          <a-menu-item key="/teacher/managing" v-if="$store.getters.userInfo.schoolRole === 'admin'">
+          <a-menu-item key="/teacher/managing" v-if="userMode === USER_MODE.SELF || (currentSchool && currentSchool.roleNames && currentSchool.roleNames.includes(schoolUserRole.admin))">
             <router-link to="/teacher/managing">
               <div class="nav-item">
                 <div class="nav-icon">
@@ -62,6 +62,19 @@
             style="padding: 0 20px;display:flex; box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);align-items:center ;height: 32px;border-radius: 6px;background: #FFFFFF;border: 1px solid #eee;font-family: Inter-Bold;color: #182552;"> Create New <a-icon type="caret-down" /> </a-button>
         </a-dropdown>
       </div>
+      <div class="user-mode">
+        <label class="self-mode" :class="{active: userMode === USER_MODE.SELF}" @click="handleChange(USER_MODE.SELF)">Personal</label>
+        <a-dropdown :class="{active: userMode === USER_MODE.SCHOOL, 'school-mode': true}" v-show="info.schoolList && info.schoolList.length > 0">
+          <a class="ant-dropdown-link" @click="handleChange(USER_MODE.SCHOOL)">
+            {{ currentSchool.schoolName }} <a-icon type="down" />
+          </a>
+          <a-menu slot="overlay" @click="handleChangeSchool">
+            <a-menu-item :key="item.id" v-for="item in info.schoolList">
+              <a href="javascript:;">{{ item.schoolName }}</a>
+            </a-menu-item>
+          </a-menu>
+        </a-dropdown>
+      </div>
     </div>
 
     <task-mode-choose @close='closeTaskModeChoose' :visible='showTaskMode' v-if='showTaskMode'/>
@@ -75,6 +88,11 @@ import EditIconSvg from '@/assets/icons/header/bianji.svg?inline'
 import SousuoIconSvg from '@/assets/icons/header/sousuo.svg?inline'
 import ManageIconSvg from '@/assets/icons/header/Managing_icon.svg?inline'
 import TaskModeChoose from '@/components/QuickSession/TaskModeChoose'
+import { mapActions, mapMutations, mapState } from 'vuex'
+import { TOOGLE_USER_MODE } from '@/store/mutation-types'
+import { SchoolUserRole } from '@/const/role'
+import { USER_MODE } from '@/const/common'
+import { SwitchUserModeSchool } from '@/api/user'
 
 export default {
   name: 'TeacherNav',
@@ -90,7 +108,9 @@ export default {
       searchText: null,
       defaultSelectedKeys: [],
       selectedKeys: [],
-      showTaskMode: false
+      showTaskMode: false,
+      schoolUserRole: SchoolUserRole,
+      USER_MODE: USER_MODE
     }
   },
   watch: {
@@ -99,10 +119,68 @@ export default {
       this.selectedKeys = [to]
     }
   },
+  computed: {
+    ...mapState({
+      info: state => state.user.info,
+      currentSchool: state => state.user.currentSchool,
+      userMode: state => state.app.userMode
+    })
+  },
   mounted () {
     this.defaultSelectedKeys.push(this.$route.path)
   },
+  created() {
+    this.init()
+  },
   methods: {
+    ...mapMutations([TOOGLE_USER_MODE, 'SET_CURRENT_SCHOOL']),
+    ...mapActions(['GetClassList']),
+    init() {
+      const current = this.currentSchool.id ? this.currentSchool : (this.info.schoolList && this.info.schoolList.length > 0) ? { ...this.info.schoolList[0] } : {}
+      this.SET_CURRENT_SCHOOL(current)
+      this.GetClassList(this.userMode)
+    },
+    handleChange(val) {
+      this[TOOGLE_USER_MODE](val)
+      // 后端记录当前用户是否是个人模式，在个人模式下后台设置school未空字符
+      SwitchUserModeSchool({
+        isPersonal: val === USER_MODE.SELF,
+        schoolId: val === USER_MODE.SCHOOL ? this.currentSchool?.id : '0'
+      }).finally(() => {
+        this.justifyCurrentRoute()
+      })
+    },
+    handleChangeSchool(val) {
+      this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
+      const item = this.info.schoolList.find(item => item.id === val.key)
+      this.SET_CURRENT_SCHOOL(item)
+      SwitchUserModeSchool({
+          schoolId: val.key
+      }).then(res => {
+        // 获取对应学校班级
+        this.GetClassList(this.userMode)
+        this.justifyCurrentRoute()
+      })
+    },
+    justifyCurrentRoute() {
+      // 当前mode是school，且没有admin权限，则跳出去
+      if (this.userMode === USER_MODE.SCHOOL &&
+        !(this.currentSchool && this.currentSchool.roleNames &&
+        this.currentSchool.roleNames.includes(this.schoolUserRole.admin))) {
+          this.$router.push({ path: '/teacher/main/created-by-me' })
+      }
+      // 没经过usermodemixin schoolmixin处理的直接刷新当前页
+      const hasMixin = ['/teacher/managing', '/account/settings']
+      let needReload = true
+      hasMixin.forEach(route => {
+        if (this.$route.path.indexOf(route) > -1) {
+          needReload = false
+        }
+      })
+      if (needReload) {
+        window.location.reload()
+      }
+    },
     triggerSearch () {
       logger.info('teacher triggerSearch ' + this.searchText)
       this.$emit('triggerSearch', 'teacher', this.searchText)
@@ -179,6 +257,35 @@ ant-dropdown {
     background: #15c39a;
     display: inline-block;
     z-index: 100;
+  }
+}
+
+.user-mode {
+  display: flex;
+  align-items: center;
+  .self-mode {
+    margin-right: 20px;
+    color: #fff;
+    cursor: pointer;
+    &.active {
+      color: #f59a23;
+    }
+  }
+  .school-mode {
+    color: #fff;
+    &.active {
+      color: #f59a23;
+      /deep/ .anticon {
+        color: #f59a23;
+      }
+    }
+  }
+  /deep/ .ant-btn {
+    background: transparent;
+    color: #fff;
+  }
+  /deep/ .anticon {
+    color: #fff;
   }
 }
 </style>

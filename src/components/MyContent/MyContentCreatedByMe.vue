@@ -18,53 +18,6 @@
           </div>
         </div>
       </div>
-      <!--      <div class="type-owner">-->
-      <!--        <a-space>-->
-      <!--          <div class="type-filter" v-show="mode !== 'refer'">-->
-      <!--            <a-dropdown>-->
-      <!--              <a-menu slot="overlay">-->
-      <!--                <a-menu-item disabled>-->
-      <!--                  <span>{{ $t('teacher.my-content.choose-types-of-content') }}</span>-->
-      <!--                </a-menu-item>-->
-      <!--                <a-menu-item @click="toggleType('', $t('teacher.my-content.all-type'))" >-->
-      <!--                  <span>{{ $t('teacher.my-content.all-type') }}</span>-->
-      <!--                </a-menu-item>-->
-      <!--                <a-menu-item @click="toggleType('topic', $t('teacher.my-content.topics-type') )" v-if="filterTypeList.indexOf('topic') !== -1">-->
-      <!--                  <span>{{ $t('teacher.my-content.topics-type') }}</span>-->
-      <!--                </a-menu-item>-->
-      <!--                <a-menu-item @click="toggleType('material', $t('teacher.my-content.materials-type'))" v-if="filterTypeList.indexOf('material') !== -1">-->
-      <!--                  <span>{{ $t('teacher.my-content.materials-type') }}</span>-->
-      <!--                </a-menu-item>-->
-      <!--                <a-menu-item @click="toggleType('unit-plan', $t('teacher.my-content.unit-plan-type'))" v-if="filterTypeList.indexOf('unit-plan') !== -1">-->
-      <!--                  <span>{{ $t('teacher.my-content.unit-plan-type') }}</span>-->
-      <!--                </a-menu-item>-->
-      <!--                <a-menu-item @click="toggleType('task', $t('teacher.my-content.tasks-type') )" v-if="filterTypeList.indexOf('task') !== -1">-->
-      <!--                  <span>{{ $t('teacher.my-content.tasks-type') }}</span>-->
-      <!--                </a-menu-item>-->
-      <!--                &lt;!&ndash;                <a-menu-item @click="toggleType('lesson', $t('teacher.my-content.lesson-type'))" v-if="filterTypeList.indexOf('lesson') !== -1">-->
-      <!--                  <span>{{ $t('teacher.my-content.lesson-type') }}</span>-->
-      <!--                </a-menu-item>&ndash;&gt;-->
-      <!--                <a-menu-item @click="toggleType('evaluation', $t('teacher.my-content.evaluation-type'))" v-if="filterTypeList.indexOf('evaluation') !== -1">-->
-      <!--                  <span>{{ $t('teacher.my-content.evaluation-type') }}</span>-->
-      <!--                </a-menu-item>-->
-      <!--              </a-menu>-->
-      <!--              <a-button-->
-      <!--                class="type-filter-button"-->
-      <!--                style="padding: 0 20px;display:flex; align-items:center ;height: 40px;border-radius: 6px;background: #FFFFFF;font-family: Inter-Bold;color: #182552;">-->
-      <!--                {{ currentTypeLabel }} <a-icon type="caret-down" />-->
-      <!--              </a-button>-->
-      <!--            </a-dropdown>-->
-      <!--          </div>-->
-      <!--          <div class="switch-icon">-->
-      <!--            <div :class="{'icon-item': true, 'active-icon': dataListMode === 'list'}" @click="handleToggleDataListMode('list')">-->
-      <!--              <liebiao-svg />-->
-      <!--            </div>-->
-      <!--            <div :class="{'icon-item': true, 'active-icon': dataListMode === 'card'}" @click="handleToggleDataListMode('card')">-->
-      <!--              <pubu-svg />-->
-      <!--            </div>-->
-      <!--          </div>-->
-      <!--        </a-space>-->
-      <!--      </div>-->
     </div>
     <div class="content-wrapper">
       <a-skeleton :loading="skeletonLoading" active>
@@ -254,29 +207,21 @@
       <a-drawer
         destroyOnClose
         placement="right"
-        width="800px"
+        width="1000px"
         :closable="false"
         :z-index="4000"
         :visible="previewVisible"
         @close="handlePreviewClose"
       >
-        <div class="preview-wrapper">
-          <a-row class="preview-wrapper-row">
-            <a-col span="3">
-              <div class="view-back" @click="handlePreviewClose">
-                <div class="back-icon">
-                  <img src="~@/assets/icons/common/back.png" />
-                </div>
-              </div>
-            </a-col>
-            <a-col span="21">
-              <div class="detail-wrapper">
-                <div class="preview-detail" v-if="previewCurrentId && previewType">
-                  <common-preview :id="previewCurrentId" :type="previewType" />
-                </div>
-              </div>
-            </a-col>
-          </a-row>
+        <div class="preview-wrapper-row">
+          <div class="view-back">
+            <a-button type='primary' class='preview-back-btn' shape='round' @click="handlePreviewClose"><a-icon type="left" :style="{'font-size': '12px'}" />Back</a-button>
+          </div>
+          <div class="detail-wrapper">
+            <div class="preview-detail" v-if="previewCurrentId && previewType">
+              <common-preview-v2 :id="previewCurrentId" :type="previewType" />
+            </div>
+          </div>
         </div>
       </a-drawer>
       <a-modal
@@ -307,7 +252,7 @@ import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { MyContentEvent, MyContentEventBus } from '@/components/MyContent/MyContentEventBus'
 import DisplayMode from '@/components/MyContent/DisplayMode'
-import CommonPreview from '@/components/Common/CommonPreview'
+import CommonPreviewV2 from '@/components/Common/CommonPreviewV2'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import LiebiaoSvg from '@/assets/svgIcon/myContent/liebiao.svg?inline'
 import PubuSvg from '@/assets/svgIcon/myContent/pubu.svg?inline'
@@ -316,7 +261,7 @@ import TemplatePreview from '@/components/Task/TemplatePreview'
 export default {
   name: 'MyContentCreatedByMe',
   components: {
-    CommonPreview,
+    CommonPreviewV2,
     ContentStatusIcon,
     ContentTypeIcon,
     UnitPlanPreview,

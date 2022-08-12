@@ -1,6 +1,9 @@
 <template>
   <div class="collaborate-comment-panel">
-    <a-tooltip v-if="formatCommentList.length > 0" title="Add comment" placement="right"><add-green-icon class='add-icon' @click="addRootComment"/></a-tooltip>
+    <div class="panel-header">
+      <div><a-tooltip v-if="formatCommentList.length > 0" title="Add comment" placement="right"><add-green-icon class='add-icon' @click="addRootComment"/></a-tooltip></div>
+      <div><a-icon type="close" @click="$emit('cancel-comment')" :style="{ color: 'red', fontSize: '18px',cursor:'pointer' }"/></div>
+    </div>
     <div class="add-comment-wrapper" v-if="addRoot" style="box-shadow: 0px 3px 6px rgb(0 0 0 / 16%)" >
       <div class="comment-user-info">
         <div class="avatar">
@@ -11,7 +14,7 @@
         </div>
       </div>
       <div class="comment-input-wrapper">
-        <div class="input">
+        <div class="comment-input">
           <input-with-button :collaborate-user-list="collaborateUserList" :comment-item="newComment" @cancelComment="cancelComment" @comment="handleComment" :sending="newComment.sendLoading" />
         </div>
       </div>
@@ -65,7 +68,7 @@
                   <img :src="rootComment.avatar" />
                 </div>
                 <div class="user-name">
-                  <div class="name-text"> {{ rootComment.username }}</div>
+                  <div class="name-text"> {{ rootComment.nickname }}</div>
                   <div class="time-text"> {{ rootComment.createdTime | dayComment }}</div>
                 </div>
               </div>
@@ -75,7 +78,7 @@
                 </div>
               </div>
               <div class="comment-input-wrapper" v-if="rootComment.editing">
-                <div class="input">
+                <div class="comment-input">
                   <input-reply-button :collaborate-user-list="collaborateUserList" @send="handleSend" :comment-item="rootComment" @cancel="handleCancel" :sending="rootComment.sendLoading" />
                 </div>
               </div>
@@ -124,7 +127,7 @@
                   <img :src="commentItem.avatar" />
                 </div>
                 <div class="user-name">
-                  <div class="name-text"> {{ commentItem.username }}</div>
+                  <div class="name-text"> {{ commentItem.nickname }}</div>
                   <div class="time-text"> {{ commentItem.createdTime | dayComment }}</div>
                 </div>
               </div>
@@ -134,7 +137,7 @@
                 </div>
               </div>
               <div class="comment-input-wrapper" v-if="commentItem.editing">
-                <div class="input">
+                <div class="comment-input">
                   <input-reply-button :collaborate-user-list="collaborateUserList" @send="handleSend" :comment-item="commentItem" @cancel="handleCancel" :sending="commentItem.sendLoading" />
                 </div>
               </div>
@@ -142,7 +145,7 @@
           </div>
         </div>
         <div class="comment-input-wrapper" style="margin-top:10px">
-          <div class="input">
+          <div class="comment-input">
             <input-reply-button
               :collaborate-user-list="collaborateUserList"
               @send="handleSend"
@@ -208,7 +211,7 @@ export default {
       this.formatCommentList = this.rawCommentList
       this.addRoot = this.formatCommentList.length === 0
       this.$logger.info('formatCommentList', this.formatCommentList)
-      // this.formatNewReply()
+      this.formatNewReply()
     }
   },
   computed: {
@@ -247,11 +250,16 @@ export default {
   z-index: 100;
   position:relative;
   svg.add-icon {
-    top: -10px;
-    position: absolute;
-    left: 20px;
+    //top: -10px;
+    //position: absolute;
+    //left: 20px;
     cursor: pointer;
     width: 20px;
+  }
+  .panel-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
   }
 }
 .add-comment-wrapper {
@@ -371,7 +379,7 @@ export default {
       .comment-input-wrapper {
         margin-top: 10px;
         padding-left: 25px;
-        .input {
+        .comment-input {
           padding-left: 20px;
         }
       }

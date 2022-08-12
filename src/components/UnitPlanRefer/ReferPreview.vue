@@ -155,7 +155,6 @@ import CommonAssociatePreview from '@/components/Common/CommonAssociatePreview'
 import ReferAssociateList from '@/components/UnitPlanRefer/ReferAssociateList'
 const { formatLocalUTC } = require('@/utils/util')
 const { UnitPlanQueryById } = require('@/api/unitPlan')
-const { TopicQueryById } = require('@/api/topic')
 
 export default {
   name: 'ReferPreview',
@@ -213,15 +212,6 @@ export default {
           id: this.id
         }).then(response => {
           logger.info('reference preview UnitPlanQueryById ' + this.id, response.result)
-          this.data = response.result
-        }).finally(() => {
-          this.loading = false
-        })
-      } else if (this.type === this.typeMap.topic) {
-        TopicQueryById({
-          id: this.id
-        }).then(response => {
-          logger.info('reference preview TopicQueryById ' + this.id, response.result)
           this.data = response.result
         }).finally(() => {
           this.loading = false

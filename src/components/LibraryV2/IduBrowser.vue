@@ -101,14 +101,7 @@
                   <a-menu-item @click="toggleType(typeMap.task, $t('teacher.my-content.tasks-type') )">
                     <span>{{ $t('teacher.my-content.tasks-type') }}</span>
                   </a-menu-item>
-                  <!--                  <a-menu-item @click="toggleType(typeMap.lesson, $t('teacher.my-content.lesson-type'))">
-                    <span>{{ $t('teacher.my-content.lesson-type') }}</span>
-                  </a-menu-item>-->
-                  <template v-if="$store.getters.roles.indexOf('expert') !== -1">
-                    <a-menu-item @click="toggleType(typeMap.topic, $t('teacher.my-content.topics-type'))">
-                      <span>{{ $t('teacher.my-content.topics-type') }}</span>
-                    </a-menu-item>
-                  </template>
+
                 </a-menu>
                 <a-button
                   style="padding: 0 10px;display:flex; align-items:center ;height: 35px;border-radius: 6px;background: rgba(245, 245, 245, 0.5);font-size:13px;border: 1px solid #BCBCBC;font-family: Inter-Bold;color: #182552;">
@@ -448,7 +441,7 @@ export default {
 
   .browser-block-item-wrapper {
     overflow-y: scroll;
-    height: calc(100vh - 190px);
+    height: calc(100vh - 120px);
     box-sizing: border-box;
 
     &::-webkit-scrollbar {
@@ -543,7 +536,7 @@ export default {
     flex-direction: column;
     flex-wrap: wrap;
     justify-content: flex-start;
-      box-sizing: border-box;
+    box-sizing: border-box;
     border-right: 1px solid #ddd;
 
     .switch-type-wrapper {

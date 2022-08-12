@@ -1,0 +1,212 @@
+<template>
+  <div class="media-enter">
+    <a-space>
+      <a-tooltip title="classcipe drive" placement="top">
+        <div class="upload-type-item">
+          <div class="remark-button-outer">
+            <img
+              @click="openClasscipeDrive"
+              src="~@/assets/icons/addMaterial/classcipe_logo.png"
+              class="remark-button"
+              alt=""
+            />
+          </div>
+        </div>
+      </a-tooltip>
+      <!-- <a-tooltip title="my computer" placement="top">
+        <div class="upload-type-item">
+          <open-dir-svg class="opened" />
+          <common-upload accept="video/*" :onSuccess="onSuccess" :getProgressUpLoad="getProgressUpLoad" />
+        </div>
+      </a-tooltip> -->
+      <!-- <a-tooltip title="google drive" placement="top">
+        <div class="upload-type-item">
+          <google-drive-icon @click="addDrive" class="svg-icon" />
+        </div>
+      </a-tooltip> -->
+      <a-tooltip title="youtube" placement="top">
+        <div class="upload-type-item">
+          <youtube-icon @click="addYoutube" class="svg-icon" />
+        </div>
+      </a-tooltip>
+    </a-space>
+    <div class="material-recorder">
+      <!-- <common-progress :progress="driveUpLoadProgress" :cancel="cancelUpDrive" /> -->
+    </div>
+  </div>
+</template>
+<script>
+import { ModalEventsNameEnum, ModalEventsTypeEnum, AddMaterialEventBus } from './AddMaterialEventBus'
+import GoogleDriveIcon from '@/assets/svgIcon/addMaterial/google_drive.svg?inline'
+import YoutubeIcon from '@/assets/svgIcon/addMaterial/youtube.svg?inline'
+import OpenDirSvg from '@/assets/svgIcon/library/open_dir.svg?inline'
+import GooglePickerForTip from './Utils/GooglePickerForTip'
+import { videoTypes, audioTypes } from './Utils/Constants'
+// import MetarialWebSite from './metarialWebSite.vue'
+import CommonUpload from './Common/CommonUpload'
+import ClasscipeDrive from '@/components/AddMaterial/ClasscipeDrive/ClasscipeDrive'
+import GoogleYoutubeVideo from '@/components/AddMaterial/Google/GoogleYoutubeVideo'
+export default {
+  components: {
+    GoogleYoutubeVideo,
+    GoogleDriveIcon,
+    YoutubeIcon,
+    OpenDirSvg,
+    // GoogleYoutubeVedio,
+    ClasscipeDrive,
+    CommonUpload
+  },
+  props: {
+    uploadProgress: {
+      type: Function,
+      default: () => null
+    },
+    choiceFileType: {
+      type: Function,
+      default: () => null
+    },
+    googleOriginUrl: {
+      type: String,
+      default: ''
+    }
+  },
+  data() {
+    return {
+      fileList: [],
+      showYoutube: false,
+      showClasscipeDrive: false,
+      youtubeUrl: '',
+      withKeyUrl: '',
+      showIframe: false,
+      destroyOnClose: true,
+      recordType: null,
+      ModalEventsTypeEnum,
+      ModalEventsNameEnum,
+      driveUpLoadProgress: 0,
+      canUpLoad: true
+    }
+  },
+  watch: {
+    driveUpLoadProgress() {
+      this.uploadProgress(this.driveUpLoadProgress)
+      if (this.driveUpLoadProgress > 0) {
+        this.canUpLoad = false
+      }
+      if (this.driveUpLoadProgress === 0) {
+        this.canUpLoad = true
+      }
+    },
+    canUpLoad() {
+      if (this.canUpLoad === false) {
+        AddMaterialEventBus.$emit(ModalEventsNameEnum.IS_UPLOAD, false)
+      } else {
+        AddMaterialEventBus.$emit(ModalEventsNameEnum.IS_UPLOAD, true)
+      }
+    }
+  },
+
+  mounted() {},
+  methods: {
+    getProgressUpLoad(progress) {
+      console.log('progress', progress)
+      this.driveUpLoadProgress = progress
+    },
+    onSuccess(file, result) {
+      console.log('file', file)
+      console.log(file.name)
+      const nameList = file.type.split('/')
+      const fileNameList = file.name.split('.')
+      let name = ''
+      try {
+        name = fileNameList[fileNameList.length - 1] || nameList[1]
+      } catch (e) {}
+      name = name.toLocaleLowerCase()
+      let type = 'image'
+      if (videoTypes.indexOf(name) > -1) {
+        type = 'video'
+      } else if (audioTypes.indexOf(name) > -1) {
+        type = 'audio'
+      }
+      AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_MEDIA_FOR_TIP, {
+        type,
+        url: result
+      })
+    },
+    addYoutube() {
+      this.choiceFileType(2)
+    },
+    openClasscipeDrive() {
+      this.choiceFileType(1)
+    },
+    addDrive() {
+      GooglePickerForTip.init(
+        driveUpLoadProgress => {
+          this.driveUpLoadProgress = driveUpLoadProgress
+          console.log('this.driveUpLoadProgress---', this.driveUpLoadProgress)
+        },
+        (type, url, mediaType) => {
+          if (url) {
+            this.$logger.info('addDrive done', url, mediaType)
+            AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_MEDIA_FOR_TIP, {
+              type: mediaType.indexOf('image') > -1 ? 'image' : 'video',
+              url: url
+            })
+          }
+          this.$nextTick(() => {
+            this.driveUpLoadProgress = 0
+          })
+        },
+        this.$store.getters.userInfo.id,
+        this.googleOriginUrl
+      )
+    },
+    video() {
+      this.recordType = ModalEventsTypeEnum.VIDEO
+    }
+  }
+}
+</script>
+<style scoped>
+.media-enter {
+  color: #36425a;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 14px;
+  position: relative;
+}
+.add-material-label {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.add-material-icon {
+  width: 25px;
+}
+.remark-button {
+  width: 32px;
+  height: 32px;
+}
+.svg-icon {
+  width: 32px;
+  height: 32px;
+  color: #15c39a;
+}
+.remark-button-outer {
+  width: 32px;
+}
+.upload-type-item {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 32px;
+  cursor: pointer;
+}
+.material-recorder {
+  position: absolute;
+  right: 50px;
+  top: 0;
+}
+</style>

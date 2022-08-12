@@ -1,0 +1,6 @@
+#!/bin/bash
+export NODE_OPTIONS=--openssl-legacy-provider
+export NODE_ENV=dev
+cd /git
+yarn config set ignore-engines true
+yarn vue-cli-service serve --host 0.0.0.0 --port 8004 --public dev.local

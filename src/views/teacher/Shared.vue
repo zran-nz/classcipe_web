@@ -147,11 +147,11 @@
                                 </a>
                               </a-popconfirm>
                             </a-menu-item>
-                            <!--                            <a-menu-item>-->
-                            <!--                              <a @click="handleDuplicateItem(item)">-->
-                            <!--                                <a-icon type="copy" /> Duplicate-->
-                            <!--                              </a>-->
-                            <!--                            </a-menu-item>-->
+                            <a-menu-item>
+                              <a @click="handleDuplicateItem(item)">
+                                <a-icon type="copy" /> Duplicate
+                              </a>
+                            </a-menu-item>
                             <!-- Task里面有teacher-pace, student-pace, previous session -->
                             <!--                            <template v-if="item.content.type === typeMap.task">-->
                             <!--                              <a-menu-item>-->
@@ -238,11 +238,11 @@
                             </a>
                           </a-popconfirm>
                         </a-menu-item>
-                        <!--                        <a-menu-item>-->
-                        <!--                          <a @click="handleDuplicateItem(item)">-->
-                        <!--                            <a-icon type="copy" /> Duplicate-->
-                        <!--                          </a>-->
-                        <!--                        </a-menu-item>-->
+                        <a-menu-item>
+                          <a @click="handleDuplicateItem(item)">
+                            <a-icon type="copy" /> Duplicate
+                          </a>
+                        </a-menu-item>
                         <!-- Task里面有teacher-pace, student-pace, previous session -->
                         <!--                        <template v-if="item.content.type === typeMap.task">-->
                         <!--                          <a-menu-item>-->
@@ -332,19 +332,19 @@
 
                   </template>
 
-                  <div class="action-item action-item-bottom" style="margin-top: 20px;">
-                    <div class="session-btn" @click.stop="handleViewDetail(item.content)">
-                      <div class="session-btn-icon content-list-action-btn">
-                        <a-icon type="eye" theme="filled" />
-                      </div>
-                      <div class="session-btn-text">Preview</div>
-                    </div>
-                  </div>
+                  <!--                  <div class="action-item action-item-bottom" style="margin-top: 20px;">-->
+                  <!--                    <div class="session-btn" @click.stop="handleViewDetail(item.content)">-->
+                  <!--                      <div class="session-btn-icon content-list-action-btn">-->
+                  <!--                        <a-icon type="eye" theme="filled" />-->
+                  <!--                      </div>-->
+                  <!--                      <div class="session-btn-text">Preview</div>-->
+                  <!--                    </div>-->
+                  <!--                  </div>-->
                 </div>
 
                 <div class="cover-img" :style="{backgroundImage: 'url(' + item.content.image + ')'}"></div>
 
-                <a-card-meta class="my-card-meta-info" :title="item.content.name ? item.content.name : 'Untitled'" :description="item.createTime | dayjs" @click="handleViewDetail(item)">
+                <a-card-meta class="my-card-meta-info" :title="item.content.name ? item.content.name : 'Untitled'" :description="item.updateTime || item.createTime | dayjs" @click="handleViewDetail(item)">
                   <content-type-icon :type="item.content.type" slot="avatar"></content-type-icon>
                 </a-card-meta>
 
@@ -358,24 +358,18 @@
         destroyOnClose
         placement="right"
         :closable="false"
-        width="800px"
+        width="1000px"
         :visible="previewVisible"
         @close="handlePreviewClose"
       >
-        <a-row class="preview-wrapper-row">
-          <a-col span="2">
-            <div class="view-back" @click="handlePreviewClose">
-              <div class="back-icon">
-                <img src="~@/assets/icons/common/back.png" />
-              </div>
-            </div>
-          </a-col>
-          <a-col span="22">
-            <div class="detail-wrapper" v-if="previewCurrentId && previewType">
-              <common-preview :id="previewCurrentId" :type="previewType" />
-            </div>
-          </a-col>
-        </a-row>
+        <div class="preview-wrapper-row">
+          <div class="view-back">
+            <a-button type='primary' class='preview-back-btn' shape='round' @click="handlePreviewClose"><a-icon type="left" :style="{'font-size': '12px'}" />Back</a-button>
+          </div>
+          <div class="detail-wrapper" v-if="previewCurrentId && previewType">
+            <common-preview-v2 :id="previewCurrentId" :type="previewType" />
+          </div>
+        </div>
       </a-drawer>
 
       <a-modal
@@ -414,7 +408,7 @@
         :dialog-style="{ top: '50px' }"
         width="750px">
         <div>
-          <old-session-list :session-list="sessionList" @start-new-session="handleStartSession" @cancel="oldSelectSessionVisible=false" :mode="sessionMode" />
+          <old-session-list :task-id='oldSelectSessionTaskId' :session-list="sessionList" @start-new-session="handleStartSession" @cancel="oldSelectSessionVisible=false" :mode="sessionMode" />
         </div>
       </a-modal>
 
@@ -479,7 +473,7 @@ import CustomTag from '@/components/UnitPlan/CustomTag'
 import LiebiaoSvg from '@/assets/svgIcon/myContent/liebiao.svg?inline'
 import PubuSvg from '@/assets/svgIcon/myContent/pubu.svg?inline'
 import { CustomTagType } from '@/const/common'
-import CommonPreview from '@/components/Common/CommonPreview'
+import CommonPreviewV2 from '@/components/Common/CommonPreviewV2'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import ModalHeader from '@/components/Common/ModalHeader'
 import { FindCustomTags } from '@/api/tag'
@@ -489,6 +483,8 @@ import PSSvg from '@/assets/svgIcon/myContent/previous_session.svg'
 import CollaborateSvg from '@/assets/icons/collaborate/collaborate_group.svg'
 import { FindMyClasses } from '@/api/evaluation'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
+import { mapActions, mapState } from 'vuex'
+import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 
 export const SHARED_VIEW_MODE = 'view_mode_shared'
 
@@ -497,7 +493,7 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
     components: {
       OldSessionList,
       NoMoreResources,
-      CommonPreview,
+      CommonPreviewV2,
       ClassListTable,
       ContentStatusIcon,
       ContentTypeIcon,
@@ -518,6 +514,7 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
       PSSvg,
       CollaborateSvg
     },
+    mixins: [ GoogleAuthCallBackMixin ],
     data () {
       return {
         skeletonLoading: true,
@@ -562,19 +559,27 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
         // 之前报错了，提示没这个字段，加一下。
         customTagList: [],
         oldSelectSessionVisible: false,
+        oldSelectSessionTaskId: null,
         sessionList: [],
         sessionMode: 1,
         searchText: '',
         lastedRevisionId: ''
       }
     },
-    computed: {},
+    computed: {
+      ...mapState({
+        needRefreshCollaborate: state => state.websocket.needRefreshCollaborate,
+        removedCollaborate: state => state.websocket.removedCollaborate
+      })
+    },
     watch: {
-      '$store.state.websocket.needRefreshCollaborate': function (newValue) {
-        if (newValue) {
-          this.$store.dispatch('refreshCollaborate', '')
+      needRefreshCollaborate: function (newValue) {
+          this.refreshCollaborateAction(false)
           this.loadMyContent()
-        }
+      },
+      removedCollaborate: function (newValue) {
+          this.removedCollaborateAction(false)
+          this.loadMyContent()
       }
     },
     created () {
@@ -583,6 +588,7 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
       this.loadUserTags()
     },
     methods: {
+      ...mapActions(['refreshCollaborateAction', 'changeCollaborateAction', 'removedCollaborateAction']),
       toggleViewMode (viewMode) {
         this.$logger.info('viewMode', viewMode)
         storage.set(SHARED_VIEW_MODE, viewMode)
@@ -671,21 +677,9 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
           this.$router.push({
             path: '/teacher/unit-plan-redirect/' + item.id
           })
-        } else if (item.type === typeMap['topic']) {
-          this.$router.push({
-            path: '/expert/topic-redirect/' + item.id
-          })
-        } else if (item.type === typeMap['material']) {
-          this.$router.push({
-            path: '/teacher/add-material/' + item.id
-          })
         } else if (item.type === typeMap.task) {
           this.$router.push({
             path: '/teacher/task-redirect/' + item.id
-          })
-        } else if (item.type === typeMap.lesson) {
-          this.$router.push({
-            path: '/teacher/lesson-redirect/' + item.id
           })
         } else if (item.type === typeMap.evaluation) {
           this.$router.push({
@@ -734,15 +728,27 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
           onOk: () => {
             this.loading = true
             Duplicate({ id: item.sourceId, type: item.sourceType }).then((response) => {
-              this.$logger.info('Duplicate response', response)
-              this.loading = false
-              // this.loadMyContent()
+              if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
+                this.$logger.info('Duplicate response', response)
+                this.loading = false
+              } else {
+                this.currentMethodName = 'handleDuplicateItem'
+                this.currentMethodParam = item
+              }
             }).finally(() => {
-              this.$router.push({ path: '/teacher/main/created-by-me' })
+              // this.$router.push({ path: '/teacher/main/created-by-me' })
             })
           }
         })
       },
+
+      handleAuthCallback () {
+        this.$logger.info('Shared handleAuthCallback')
+        if (this.currentMethodName === 'handleDuplicateItem') {
+          this.handleDuplicateItem(this.currentMethodParam)
+        }
+      },
+
       handlePrevious (item) {
         this.$router.push({
           path: '/teacher/my-class?slideId=' + item.presentationId
@@ -924,6 +930,7 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
         }).finally(() => {
           if (this.sessionList.length > 0) {
             this.oldSelectSessionVisible = true
+            this.oldSelectSessionTaskId = item.id
           } else {
             this.handleStartSession()
           }
@@ -1177,7 +1184,7 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
 
               .mode-item {
                 padding: 0 8px;
-                font-size: 14px;
+                font-size: 12px;
                 height: 40px;
                 color: rgba(17, 20, 45, 1);
                 border-radius: 30px;

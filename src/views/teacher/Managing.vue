@@ -2,13 +2,17 @@
   <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%' }" :style="{ height: '100%' }">
     <a-layout>
       <a-layout-sider>
-        <a-menu
-          :default-selected-keys="[selectedKey]"
-          @select="handleMenuSelect"
-          mode="inline"
-          :inline-collapsed="false"
+        <div class="school-name">{{ head }}</div>
+        <s-menu
+          :mainRouter="mainRouter"
+          :currentRouterName="currentRouterName"
+          :initSelected="selectedKey"
+          :hiddenRoute="hiddenRoute"
+          className="cc-menu"
+          iconTheme="outlined"
         >
-          <a-menu-item key="/teacher/managing/school-user">
+
+          <!-- <a-menu-item key="/teacher/managing/school-user">
             <a-icon type="user" />
             <span>School User</span>
           </a-menu-item>
@@ -18,13 +22,14 @@
           </a-menu-item>
           <a-sub-menu>
             <span slot="title"><a-icon type="schedule" /><span>Academics</span></span>
-            <a-menu-item key="/teacher/managing/term"> Academics Terms </a-menu-item>
-          </a-sub-menu>
-          <a-menu-item key="/teacher/managing" v-if="$store.getters.bindCurriculum === curriculumType.IBMYP">
-            <a-icon type="cloud-upload" />
-            <span>IB skills</span>
-          </a-menu-item>
-        </a-menu>
+            --            <a-menu-item key="/teacher/managing/term"> Academics Terms </a-menu-item>--
+            <a-menu-item key="/teacher/managing/planning-format">  Planning format </a-menu-item>
+            <a-menu-item key="/teacher/managing/tag-settings">  Tags </a-menu-item>
+            <a-menu-item key="/teacher/managing/skill" v-if="$store.getters.bindCurriculum == curriculumType.IBMYP">
+              <a-tooltip title="Upload achievement objectives">Upload achievement objectives</a-tooltip>
+            </a-menu-item>
+          </a-sub-menu> -->
+        </s-menu>
       </a-layout-sider>
       <a-layout-content class="main-content">
         <router-view />
@@ -35,47 +40,52 @@
 
 <script>
 import { PageHeaderWrapper } from '@ant-design-vue/pro-layout'
-import * as logger from '@/utils/logger'
-import CreatedByMeSvg from '@/assets/svgIcon/myContent/Created_by_me.svg?inline'
-import DiscoverSvg from '@/assets/svgIcon/myContent/Discover.svg?inline'
-import MyFavoriteSvg from '@/assets/svgIcon/myContent/My_favorite.svg?inline'
-import PopularSvg from '@/assets/svgIcon/myContent/Popular.svg?inline'
-import SharedSvg from '@/assets/svgIcon/myContent/Shared.svg?inline'
-import SubscribesSvg from '@/assets/svgIcon/myContent/Subscribes.svg?inline'
-import { CurriculumType } from '@/const/common'
+import { CurriculumType, USER_MODE } from '@/const/common'
+import SMenu from '@/components/SideBar/SMenu'
+
+import { mapState } from 'vuex'
 
 export default {
   name: 'Main',
   components: {
-    PageHeaderWrapper,
-    CreatedByMeSvg,
-    DiscoverSvg,
-    MyFavoriteSvg,
-    PopularSvg,
-    SharedSvg,
-    SubscribesSvg
+    SMenu,
+    PageHeaderWrapper
   },
   data() {
     return {
       selectedKey: '/teacher/managing/skill',
+      currentRouterName: 'teacher',
+      mainRouter: 'Managing',
       curriculumType: CurriculumType
     }
   },
-  watch: {
-    '$route.path'(to) {
-      logger.debug('My Content route.path change ' + to)
-      this.selectedKey = to
+  computed: {
+    ...mapState({
+      bindCurriculum: state => state.user.bindCurriculum,
+      currentSchool: state => state.user.currentSchool,
+      userMode: state => state.app.userMode
+    }),
+    head() {
+      if (this.userMode === USER_MODE.SELF) {
+        return 'Personal managing'
+      } else {
+        return this.currentSchool.schoolName + ' managing'
+      }
     }
-  },
-  computed: {},
-  created() {
-    this.selectedKey = this.$route.path
-    logger.info('selectedKey ', this.selectedKey)
   },
   mounted() {},
   methods: {
     handleMenuSelect({ key }) {
       this.$router.push({ path: key })
+    },
+    hiddenRoute(route) {
+      if (route.meta.curriculumType && route.meta.curriculumType + '' !== this.bindCurriculum) {
+        return true
+      }
+      if (route.meta.mode && route.meta.mode !== this.userMode) {
+        return true
+      }
+      return false
     }
   }
 }
@@ -164,5 +174,12 @@ export default {
       }
     }
   }
+}
+.school-name{
+  color: rgba(0,0,0,.85);
+  font-size: 16px;
+  margin: 5px;
+  line-height: 25px;
+  font-weight: 500;
 }
 </style>

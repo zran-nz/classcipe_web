@@ -1,5 +1,6 @@
 import storage from 'store'
-import { upFireBaseFile } from './FirebaseUploadFile'
+import { upAwsS3File } from '@/components/AddMaterial/Utils/AwsS3'
+import * as logger from '@/utils/logger'
 
 const googleDriveConfig = {
   dev: {
@@ -18,10 +19,8 @@ class LoadPicker {
   LoadPickerConfig = process.env.NODE_ENV === 'development' ? googleDriveConfig.dev : googleDriveConfig.release
   clientId = this.LoadPickerConfig.clientId
   appId = this.LoadPickerConfig.appId
-  scope = [
-    'https://www.googleapis.com/auth/drive',
-    'https://www.googleapis.com/auth/drive.file'
-  ]
+  classcipeUserId = null // 上传用户id
+  scope = ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/drive.file']
 
   developerKey = this.LoadPickerConfig.developerKey
   oauthToken = ''
@@ -29,43 +28,55 @@ class LoadPicker {
   classCallback = null
   onloadingCallBack = null
   uploadDriveInstance = null
-
-  init(onLoadingCallBack, onSuccessCallback) {
+  progressUpdateCallback = null
+  // https://developers.google.com/drive/picker/reference#view-id
+  filterType = null
+  contentType = null
+  contentId = null
+  init(onLoadingCallBack, onSuccessCallback, classcipeUserId, filterType, contentType, contentId) {
+    logger.info('google drive init ' + classcipeUserId + ` filter type ${this.filterType} contentType: ${contentType} contentId: ${contentId}`)
     this.loadPicker()
     this.classCallback = onSuccessCallback
     this.onloadingCallBack = onLoadingCallBack
+    this.classcipeUserId = classcipeUserId
+    this.filterType = filterType
+    this.contentType = contentType
+    this.contentId = contentId
   }
 
   async checkLogin() {
     // eslint-disable-next-line prefer-promise-reject-errors
     if (!this.oauthToken || this.oauthToken === '') return Promise.reject()
     return new Promise((resolve, reject) => {
-      window.gapi.client.init({
-        'apiKey': this.developerKey,
-        'clientId': this.clientId,
-        'scope': this.scope.join(' ')
-      }).then(() => {
-        const GoogleAuth = window.gapi.auth2.getAuthInstance()
+      window.gapi.client
+        .init({
+          apiKey: this.developerKey,
+          clientId: this.clientId,
+          scope: this.scope.join(' ')
+        })
+        .then(() => {
+          const GoogleAuth = window.gapi.auth2.getAuthInstance()
 
-        // Listen for sign-in state changes.
-        const status = GoogleAuth.isSignedIn.get()
-        if (status) {
-          resolve(true)
-        } else {
-          reject(new Error('GoogleAuth Not login'))
-        }
-      })
+          // Listen for sign-in state changes.
+          const status = GoogleAuth.isSignedIn.get()
+          if (status) {
+            resolve(true)
+          } else {
+            reject(new Error('GoogleAuth Not login'))
+          }
+        })
     })
   }
 
   loadPicker() {
     this.checkLogin()
       .then(() => {
-        window.gapi.load('picker', { 'callback': this.onPickerApiLoad })
-      }).catch(() => {
-      window.gapi.load('client:auth2', { 'callback': this.onAuthApiLoad })
-      window.gapi.load('picker', { 'callback': this.onPickerApiLoad })
-    })
+        window.gapi.load('picker', { callback: this.onPickerApiLoad })
+      })
+      .catch(() => {
+        window.gapi.load('client:auth2', { callback: this.onAuthApiLoad })
+        window.gapi.load('picker', { callback: this.onPickerApiLoad })
+      })
   }
 
   onPickerApiLoad = () => {
@@ -76,14 +87,15 @@ class LoadPicker {
   onAuthApiLoad = () => {
     window.gapi.auth.authorize(
       {
-        'client_id': this.clientId,
-        'scope': this.scope,
-        'immediate': false
-      }, this.handleAuthResult
+        client_id: this.clientId,
+        scope: this.scope,
+        immediate: false
+      },
+      this.handleAuthResult
     )
   }
 
-  handleAuthResult = (authResult) => {
+  handleAuthResult = authResult => {
     if (authResult && !authResult.error) {
       this.oauthToken = authResult.access_token
       storage.set('google_picker_auth_token', this.oauthToken)
@@ -93,17 +105,18 @@ class LoadPicker {
 
   createPicker = () => {
     if (this.pickerApiLoaded && this.oauthToken) {
+      console.log(`createPicker filterType ${this.filterType}`)
       const view = new window.google.picker.View(window.google.picker.ViewId.DOCS_IMAGES_AND_VIDEOS)
       view.setMimeTypes('image/png,image/jpeg,image/jpg,video/*')
       const picker = new window.google.picker.PickerBuilder()
-        .setTitle('My Drive 1')
+        .setTitle('My Drive')
         .enableFeature(window.google.picker.Feature.NAV_HIDDEN)
         .enableFeature(window.google.picker.Feature.MULTISELECT_ENABLED)
         .enableFeature(window.google.picker.Feature.SUPPORT_TEAM_DRIVES)
         .setOrigin(undefined)
         .setAppId(this.appId)
         .setOAuthToken(this.oauthToken)
-        .addView(window.google.picker.ViewId.DOCS_IMAGES_AND_VIDEOS)
+        .addView(this.filterType === 'image' ? window.google.picker.ViewId.DOCS_IMAGES : window.google.picker.ViewId.DOCS_VIDEOS)
         .setDeveloperKey(this.developerKey)
         .setCallback(this.pickerCallback)
         .build()
@@ -112,22 +125,26 @@ class LoadPicker {
   }
 
   pickerCallback = (data) => {
-    console.log(data)
+    logger.info('pickerCallback', data)
     if (data.action === window.google.picker.Action.PICKED) {
       const { id } = data.docs[0]
       this.getDownloadUrl(id)
+    } else if (data.action === window.google.picker.Action.CANCEL) {
+      this.classCallback()
     }
   }
 
   getDownloadUrl = (id) => {
     const xhr = new XMLHttpRequest()
-    xhr.open('GET',
-      `https://www.googleapis.com/drive/v2/files/${id}?supportsTeamDrives=true&access_token=${this.oauthToken}`)
+    xhr.open(
+      'GET',
+      `https://www.googleapis.com/drive/v2/files/${id}?supportsTeamDrives=true&access_token=${this.oauthToken}`
+    )
     xhr.setRequestHeader('Authorization', `Bearer ${this.oauthToken}`)
     xhr.onreadystatechange = () => {
       if (xhr.readyState === 4 && xhr.status === 200) {
         const data = JSON.parse(xhr.response)
-        console.log(data)
+        logger.info('getDownloadUrl-----', data)
         const { downloadUrl, mimeType } = data
         this.downloadFile(downloadUrl, mimeType)
       }
@@ -139,11 +156,12 @@ class LoadPicker {
     const imageType = xhr.getResponseHeader('Content-Type')
     const blob = new Blob([xhr.response], { type: imageType })
     const imageUrl = (window.URL || window.webkitURL).createObjectURL(blob)
-    console.log(imageUrl)
+    logger.info(imageUrl)
     return blob
   }
 
   downloadFile(downloadUrl, mimeType) {
+    logger.info('downloadFile', downloadUrl, mimeType)
     if (downloadUrl) {
       // var accessToken = gapi.auth.getToken().access_token;
       const xhr = new XMLHttpRequest()
@@ -151,15 +169,19 @@ class LoadPicker {
       xhr.setRequestHeader('Authorization', `Bearer ${this.oauthToken}`)
       xhr.responseType = 'arraybuffer'
       xhr.onload = () => {
+        const fileSuffix = mimeType.split('/')[1]
         const blob = this.getBlob(xhr)
-        const file = new File([blob], `drivefile_${Date.now()}`, {
+        const file = new File([blob], `drivefile_${Date.now()}.${fileSuffix}`, {
           type: mimeType
         })
         this.upLoadFile(file, mimeType)
       }
+      xhr.onprogress = (e) => {
+        this.onloadingCallBack(Math.min(Math.floor((e.loaded / e.total) * 100), 99))
+      }
       xhr.send()
     } else {
-      console.log(null)
+      logger.info(null)
     }
   }
 
@@ -170,20 +192,19 @@ class LoadPicker {
   }
 
   upDriveFire(file, mimeType) {
-    this.uploadDriveInstance = upFireBaseFile(
-      file,
-      this.onloadingCallBack,
-      (result) => {
-        console.log(result, mimeType)
-        this.classCallback('upload-ended', result, mimeType)
-        this.uploadDriveInstance = null
-      }
-    )
+    logger.info('upDriveFire', this.classcipeUserId, file, mimeType, 'contentType', this.contentType, 'contentId', this.contentId)
+    this.uploadDriveInstance = upAwsS3File(this.classcipeUserId, file, this.onloadingCallBack, result => {
+      logger.info(result, mimeType)
+      this.classCallback('upload-ended', result, mimeType, file.name, file.size)
+      this.uploadDriveInstance = null
+    }, true,
+      this.contentType,
+      this.contentId)
   }
 
   cancelUpDrive() {
     if (this.uploadDriveInstance) {
-      this.uploadDriveInstance.cancel()
+      this.uploadDriveInstance.abort()
       this.uploadDriveInstance = null
     }
   }
@@ -209,7 +230,7 @@ class LoadPicker {
       callback('Upload started...')
     }
 
-    request.upload.onprogress = (event) => {
+    request.upload.onprogress = event => {
       // callback('Upload Progress ' + Math.round(event.loaded / event.total * 100) + "%");
     }
 
@@ -224,14 +245,14 @@ class LoadPicker {
     }
 
     // eslint-disable-next-line handle-callback-err
-    request.upload.onerror = (error) => {
+    request.upload.onerror = error => {
       // eslint-disable-next-line standard/no-callback-literal
       callback('onerror')
       // console.error('XMLHttpRequest failed', error);
     }
 
     // eslint-disable-next-line handle-callback-err
-    request.upload.onabort = (error) => {
+    request.upload.onabort = error => {
       // eslint-disable-next-line standard/no-callback-literal
       callback('Upload aborted.')
       // console.error('XMLHttpRequest aborted', error);

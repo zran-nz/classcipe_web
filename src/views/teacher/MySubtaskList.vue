@@ -1,0 +1,288 @@
+<template>
+  <div class='my-sub-task-list'>
+    <fixed-vertical-header>
+      <template v-slot:left>
+        <a-tooltip placement='leftBottom'>
+          <template slot='title'>
+            The task is more likely to be purchased by other educators if it is simple, clear and focus on specific learning outcome(s).
+            So dividing your main task into small sub-tasks with specific tags is always a good idea.
+          </template>
+          <a-button class='cc-dark-button' @click='handleCreateSubtask'>
+            Create sub task
+          </a-button>
+        </a-tooltip>
+      </template>
+      <template v-slot:right>
+        <a-space>
+          <a-button :class="currentAction !== 'publish' ? '' : 'cc-dark-button'" @click="updateAction('publish')">
+            Publish
+          </a-button>
+          <a-button :class="currentAction !== 'unpublish' ? '' : 'cc-dark-button'" @click="updateAction('unpublish')">
+            Unpublish
+          </a-button>
+        </a-space>
+      </template>
+    </fixed-vertical-header>
+    <div class='sub-task-container'>
+      <div class='sub-task-list vertical-left' v-for='content in subTaskList' :key='content.id'>
+        <div class='action-mask' v-if="(currentAction === 'publish' && content.status === 1) || (currentAction === 'unpublish' && content.status === 0)">
+          Sub task has been {{ content.status === 1 ? 'Published' : 'Unpublished' }}
+        </div>
+        <div v-else>
+          <div class='action-mask' v-if="(currentAction === 'publish' && !content.presentationId ) || (currentAction === 'publish' && content.presentationId.startsWith('fake_buy_'))">
+            This task content can not be published without interactive slides, please edit google slides first
+          </div>
+        </div>
+        <div class='checked-icon vertical-center' @click='toggleSelectItem(content)'>
+          <template v-if='currentAction'>
+            <a-checkbox
+              :checked='selectedTaskList.indexOf(content) !== -1'
+              v-if="(currentAction === 'publish' && content.status === 0) || (currentAction === 'unpublish' && content.status === 1)"
+            ></a-checkbox>
+          </template>
+        </div>
+        <div class='task-item vertical-left'>
+          <content-item
+            @delete='initTask'
+            :content='content'
+            :show-button='true'
+            :show-edit='true'
+            :show-delete='true'
+            :show-schedule='true'
+            :show-set-price='true' />
+        </div>
+      </div>
+    </div>
+    <fixed-form-footer>
+      <template v-slot:right>
+        <a-button :loading='loading' type='primary' @click='handleConfirm' class='cc-round-button'>
+          Confirm
+          <template v-if='selectedTaskList.length'>
+            {{ currentAction }} ({{ selectedTaskList.length }})
+          </template>
+        </a-button>
+      </template>
+    </fixed-form-footer>
+  </div>
+</template>
+
+<script>
+import { TaskQueryById } from '@/api/task'
+import FixedFormHeader from '@/components/Common/FixedFormHeader'
+import FixedVerticalHeader from '@/components/Common/FixedVerticalHeader'
+import ContentItem from '@/components/MyContentV2/ContentItem'
+import { TaskField } from '@/const/common'
+import FixedFormFooter from '@/components/Common/FixedFormFooter'
+import { UpdateContentStatus } from '@/api/teacher'
+
+export default {
+  name: 'MySubtaskList',
+  components: { FixedFormFooter, ContentItem, FixedVerticalHeader, FixedFormHeader },
+  props: {
+    taskId: {
+      type: String,
+      required: true
+    }
+  },
+  data() {
+    return {
+      loading: false,
+      subTaskList: [],
+      selectedTaskList: [],
+      requiredTaskFields: [
+        TaskField.Name,
+        TaskField.Image,
+        TaskField.Overview,
+        TaskField.LearnOuts
+      ],
+      currentAction: null
+    }
+  },
+  computed: {
+    disabled () {
+      return !this.currentAction || !this.selectedTaskList.length
+    }
+  },
+  created() {
+    this.initTask()
+  },
+  methods: {
+    initTask() {
+      TaskQueryById({
+        id: this.taskId
+      }).then(res => {
+        this.$logger.info('sub task', res.result)
+        if (res.code === 0) {
+          const subTasks = res.result.subTasks
+          this.checkTaskAllowPublished(subTasks)
+          this.subTaskList = subTasks
+        }
+      }).finally(() => {
+      })
+    },
+
+    updateAction(action) {
+      if (action === this.currentAction) {
+        this.currentAction = ''
+        this.selectedTaskList = []
+        return
+      }
+      this.$message.info('Please select the task(s) to ' + action)
+      this.currentAction = action
+      this.selectedTaskList = []
+      if (action === 'publish' && this.subTaskList.every(item => item.status === 1)) {
+        this.$message.warn('All tasks in the current list have been published.')
+      }
+
+      if (action === 'unpublish' && this.subTaskList.every(item => item.status === 0)) {
+        this.$message.warn('All tasks in the current list are unpublished.')
+      }
+    },
+
+    handleConfirm () {
+      if (!this.disabled) {
+        if (this.currentAction === 'publish') {
+          this.publishSelected()
+        } else if (this.currentAction === 'unpublish') {
+          this.unPublishSelected()
+        }
+      } else {
+        this.$message.warn('Pleas select content first!')
+      }
+    },
+
+    isEmpty(value) {
+      if (value === null || value === '' || value === undefined) {
+        return true
+      }
+      if (value.hasOwnProperty('length') && value.length === 0) {
+        return true
+      }
+
+      return JSON.stringify(value) === '{}'
+    },
+
+    checkTaskAllowPublished (taskList) {
+      taskList.forEach(item => {
+        item.needComplete = false
+        this.requiredTaskFields.forEach(field => {
+          if (this.isEmpty(item[field])) {
+            item.needComplete = true
+            this.$logger.info('task need complete', item)
+          }
+        })
+      })
+    },
+
+    handleCreateSubtask () {
+      this.$router.push({
+        path: '/teacher/split-task/' + this.taskId
+      })
+    },
+
+    toggleSelectItem (item) {
+      this.$logger.info('toggleSelectItem', item)
+      const index = this.selectedTaskList.findIndex(subTask => subTask.id === item.id)
+      this.$logger.info('index', index)
+      if (index === -1) {
+        this.selectedTaskList.push(item)
+        this.$logger.info('push item', this.selectedTaskList)
+      } else {
+        this.selectedTaskList.splice(index, 1)
+        this.$logger.info('delete item', index)
+      }
+      this.$logger.info('selected list', this.selectedTaskList)
+    },
+
+    publishSelected () {
+      this.loading = true
+      this.$logger.info('publishSelected', this.selectedTaskList)
+      const job = []
+      this.selectedTaskList.forEach(item => {
+        job.push(UpdateContentStatus({
+          id: item.id,
+          type: item.type,
+          status: 1
+        }))
+      })
+
+      Promise.all(job).then(res => {
+        this.initTask()
+      }).finally(() => {
+        this.loading = false
+        this.selectedTaskList = []
+        this.currentAction = ''
+      })
+    },
+
+    unPublishSelected () {
+      this.loading = true
+      this.$logger.info('unPublishSelected', this.selectedTaskList)
+      const job = []
+      this.selectedTaskList.forEach(item => {
+        job.push(UpdateContentStatus({
+          id: item.id,
+          type: item.type,
+          status: 0
+        }))
+      })
+
+      Promise.all(job).then(res => {
+        this.initTask()
+      }).finally(() => {
+        this.loading = false
+        this.selectedTaskList = []
+        this.currentAction = ''
+      })
+    }
+  }
+}
+</script>
+
+<style lang='less' scoped>
+@import "~@/components/index.less";
+
+.sub-task-container {
+  margin-top: 70px;
+  height: calc(100vh - 70px);
+  padding: 10px 20px;
+  overflow-y: auto;
+  .sub-task-list {
+    position: relative;
+    background: #fff;
+    padding: 0 15px;
+    margin-bottom: 15px;
+    .checked-icon {
+      width: 33px;
+      padding-right: 15px;
+
+      .ant-checkbox {
+        border: 2px solid #15C39A;
+      }
+    }
+
+    .action-mask {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      cursor: pointer;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 16px;
+      user-select: none;
+      z-index: 500;
+      border-radius: 5px;
+      box-shadow: 0 0 3px 3px #aaa;
+    }
+  }
+}
+
+.task-item {
+  width: 100%;
+}
+</style>

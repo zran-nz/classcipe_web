@@ -43,6 +43,7 @@
                   <a-tag v-if="task.taskType == 'FA'" class="tag-item" :closable="false">Formative</a-tag>
                   <a-tag v-if="task.taskType == 'SA'" class="tag-item" :closable="false">Summative</a-tag>
                   <a-tag v-if="task.taskType == 'Activity'" class="tag-item" :closable="false">Activity</a-tag>
+                  <a-tag v-if="task.taskType == 'IA'" class="tag-item" :closable="false">IA</a-tag>
                 </div>
               </div>
             </div>

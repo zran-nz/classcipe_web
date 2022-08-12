@@ -2,8 +2,8 @@
   <div class="comment-input">
     <a-row>
       <a-mentions v-model="inputValue" @change="onChange" @select="onSelect" rows="2" placeholder="Comment or add others with @">
-        <a-mentions-option :value="userInfo.email" v-for="(userInfo,index) in collaborateUserList" :key="index">
-          {{ userInfo.email }}
+        <a-mentions-option :value="userInfo.nickName" v-for="(userInfo,index) in collaborateUserList" :key="index">
+          {{ userInfo.nickName }}
         </a-mentions-option>
       </a-mentions>
     </a-row>

@@ -15,12 +15,6 @@
                 v-show="$store.getters.currentRole === 'teacher'">
                 <span>{{ $t('teacher.my-content.all-type') }}</span>
               </a-menu-item>
-              <a-menu-item @click="toggleType('topic', $t('teacher.my-content.topics-type') )">
-                <span>{{ $t('teacher.my-content.topics-type') }}</span>
-              </a-menu-item>
-              <!--                <a-menu-item @click="toggleType('material', $t('teacher.my-content.materials-type'))">
-                <span>{{ $t('teacher.my-content.materials-type') }}</span>
-              </a-menu-item>-->
               <a-menu-item
                 @click="toggleType('unit-plan', $t('teacher.my-content.unit-plan-type'))"
                 v-show="$store.getters.currentRole === 'teacher'">
@@ -29,11 +23,6 @@
               <a-menu-item @click="toggleType('task', $t('teacher.my-content.tasks-type') )">
                 <span>{{ $t('teacher.my-content.tasks-type') }}</span>
               </a-menu-item>
-              <!--              <a-menu-item
-                @click="toggleType('lesson', $t('teacher.my-content.lesson-type'))"
-                v-show="$store.getters.currentRole === 'teacher'">
-                <span>{{ $t('teacher.my-content.lesson-type') }}</span>
-              </a-menu-item>-->
               <a-menu-item
                 @click="toggleType('evaluation', $t('teacher.my-content.evaluation-type'))"
                 v-show="$store.getters.currentRole === 'teacher'">
@@ -181,24 +170,18 @@
         destroyOnClose
         placement="right"
         :closable="false"
-        width="800px"
+        width="1000px"
         :visible="previewVisible"
         @close="handlePreviewClose"
       >
-        <a-row class="preview-wrapper-row">
-          <a-col span="2">
-            <div class="view-back" @click="handlePreviewClose">
-              <div class="back-icon">
-                <img src="~@/assets/icons/common/back.png" />
-              </div>
-            </div>
-          </a-col>
-          <a-col span="22">
-            <div class="detail-wrapper" v-if="previewCurrentId && previewType">
-              <common-preview :id="previewCurrentId" :type="previewType" />
-            </div>
-          </a-col>
-        </a-row>
+        <div class="preview-wrapper-row">
+          <div class="view-back">
+            <a-button type='primary' class='preview-back-btn' shape='round' @click="handlePreviewClose"><a-icon type="left" :style="{'font-size': '12px'}" />Back</a-button>
+          </div>
+          <div class="detail-wrapper" v-if="previewCurrentId && previewType">
+            <common-preview-v2 :id="previewCurrentId" :type="previewType" />
+          </div>
+        </div>
       </a-drawer>
     </div>
   </div>
@@ -213,14 +196,14 @@
   import { DeleteCollaborate, GetFindSharedNotReceived, ReceiveCollaborate } from '@/api/collaborate'
   import storage from 'store'
   import { VIEW_MODE } from '@/store/mutation-types'
-  import CommonPreview from '@/components/Common/CommonPreview'
+  import CommonPreviewV2 from '@/components/Common/CommonPreviewV2'
   import NoMoreResources from '@/components/Common/NoMoreResources'
 
   export default {
     name: 'Discover',
     components: {
       NoMoreResources,
-      CommonPreview,
+      CommonPreviewV2,
       ContentStatusIcon,
       ContentTypeIcon,
       UnitPlanPreview
@@ -291,21 +274,9 @@
           this.$router.push({
             path: '/teacher/unit-plan-redirect/' + item.id
           })
-        } else if (item.type === typeMap['topic']) {
-          this.$router.push({
-            path: '/expert/topic-redirect/' + item.id
-          })
-        } else if (item.type === typeMap['material']) {
-          this.$router.push({
-            path: '/teacher/add-material/' + item.id
-          })
         } else if (item.type === typeMap.task) {
           this.$router.push({
             path: '/teacher/task-redirect/' + item.id
-          })
-        } else if (item.type === typeMap.lesson) {
-          this.$router.push({
-            path: '/teacher/lesson-redirect/' + item.id
           })
         } else if (item.type === typeMap.evaluation) {
           this.$router.push({

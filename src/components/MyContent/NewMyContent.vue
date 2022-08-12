@@ -1,37 +1,6 @@
 <template>
   <div class="my-content">
-    <!--    <div class="created-type-filter">
-      <a-dropdown>
-        <a-menu slot="overlay">
-          <a-menu-item @click="handleToggleType('All')">
-            <span>All</span>
-          </a-menu-item>
-          <a-menu-item @click="handleToggleType('Created by me')">
-            <span> {{ $t('teacher.main.created-by-me') }}</span>
-          </a-menu-item>
-          <a-menu-item @click="handleToggleType('My favorite')">
-            <span> {{ $t('teacher.main.my-favorite') }}</span>
-          </a-menu-item>
-          <a-menu-item @click="handleToggleType('Shared')">
-            <span>{{ $t('teacher.main.shared') }}</span>
-          </a-menu-item>
-        </a-menu>
-        <a-button
-          class="type-filter-button"
-          style="padding: 0 20px;display:flex; align-items:center ;height: 40px;border-radius: 6px;background: #FFFFFF;font-family: Inter-Bold;color: #182552;">
-          {{ createdType }}
-          <a-icon type="caret-down"/>
-        </a-button>
-      </a-dropdown>
-    </div>-->
     <div class="display-type-toggle" v-if="showTabs">
-      <div
-        :class="{'display-type-item': true,
-                 'active-display-type': currentType === typeMap.topic}"
-        v-if="filterTypeList.indexOf(typeMap.topic) !== -1"
-        @click="handleToggleDisplayType(typeMap.topic)">
-        {{ $t('teacher.my-content.topics-type') }}
-      </div>
       <div
         :class="{'display-type-item': true,
                  'active-display-type': currentType === typeMap['unit-plan']}"
@@ -60,11 +29,6 @@
           Create New {{ currentTypeLabel }}
         </a-button>
       </div>
-      <!--      <div class="create-new-input">-->
-      <!--        <input type="text" placeholder="Input name" v-model="createNewName" v-if="createNewNameMode === 'input'">-->
-      <!--        <a-icon type="check" class="create-new-icon" v-if="createNewNameMode === 'input' && !createLoading" @click="handleEnsureCreate"/>-->
-      <!--        <a-icon type="loading" class="create-new-icon" v-if="createLoading" />-->
-      <!--      </div>-->
     </div>
     <div class="content-wrapper">
       <a-skeleton :loading="skeletonLoading" active>
@@ -271,30 +235,12 @@
               </div>
             </div>
           </a-list>
-          <div class="group-label">
-            <!-- unit plan下才有term概念,task不显示对应的操作和term名称-->
-            <template v-if="fromType === typeMap['unit-plan']">
-              <template v-if="groupNameMode === 'select'">
-                <div class="choose-label">Choose category</div>
-                <a-select :getPopupContainer="trigger => trigger.parentElement" :default-value="defaultGroupName" style="width: 100%" v-model="selectedGroup">
-                  <a-select-option :value="groupNameItem" v-for="(groupNameItem, gIndex) in groupNameList" :key="gIndex">
-                    {{ groupNameItem }}
-                  </a-select-option>
-                </a-select>
-              </template>
-              <template v-if="groupNameMode === 'input'">
-                <div class="choose-label">Category name</div>
-                <a-input v-model="groupName" />
-              </template>
-            </template>
-          </div>
           <div class="modal-ensure-action-line">
             <a-button class="action-item action-cancel" shape="round" @click="handleCancel">Cancel</a-button>
             <a-button
               class="action-ensure action-item"
               type="primary"
               shape="round"
-              :disabled="!mySelectedList.length"
               :loading="ensureLoading"
               @click="handleEnsure">Ok</a-button>
           </div>
@@ -338,7 +284,7 @@
 import * as logger from '@/utils/logger'
 import UnitPlanPreview from '@/components/UnitPlan/UnitPlanPreview'
 import MaterialPreview from '@/components/Material/MaterialPreview'
-import { Associate, FindMyContent, Rename } from '@/api/teacher'
+import { Associate, FindMyContent, Rename, AssociateCancel } from '@/api/teacher'
 import { FavoritesGetMyFavorites } from '@/api/favorites'
 import { getLabelNameType, ownerMap, typeMap } from '@/const/teacher'
 import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
@@ -351,7 +297,6 @@ import ListModeIcon from '@/assets/icons/library/liebiao .svg?inline'
 import { EvaluationAddOrUpdate } from '@/api/evaluation'
 import { TaskAddOrUpdate } from '@/api/task'
 import { UnitPlanAddOrUpdate } from '@/api/unitPlan'
-import { TopicAddOrUpdate } from '@/api/topic'
 import CommonPreviewNoLink from '@/components/Common/CommonPreviewNoLink'
 
 export default {
@@ -399,14 +344,6 @@ export default {
       type: String,
       default: null
     },
-    groupNameList: {
-      type: Array,
-      required: true
-    },
-    groupNameMode: {
-      type: String,
-      default: 'select'
-    },
     showTabs: {
       type: Boolean,
       default: true
@@ -414,6 +351,10 @@ export default {
     showCreate: {
       type: Boolean,
       default: true
+    },
+    noSelectedTips: {
+      type: String,
+      default: 'Please select at least one content.'
     }
   },
   data () {
@@ -455,10 +396,9 @@ export default {
       createNewNameMode: 'hide',
 
       mySelectedList: [],
-      mySelectedMap: new Map(),
+      waitCancelAssociateMap: new Map(),
+      waitAddAssociateMap: new Map(),
 
-      selectedGroup: null,
-      groupName: null,
       editId: '',
       ensureLoading: false
     }
@@ -471,23 +411,17 @@ export default {
       this.pagination.total = 0
       this.pagination.pageSize = 8
       this.loadMyContent()
-    },
-    groupNameList (value) {
-      this.$logger.info('groupNameList', value)
     }
   },
   created () {
     this.$logger.info('NewMyContent filterTypeList', this.filterTypeList)
-    this.$logger.info('NewMyContent groupNameList', this.groupNameList)
     if (this.filterTypeList.length) {
       this.currentType = this.filterTypeList[0]
       this.currentTypeLabel = getLabelNameType(this.filterTypeList[0])
     }
     this.$logger.info('currentTypeLabel ' + this.currentTypeLabel)
     this.$logger.info('NewMyContent selectedList', this.selectedList)
-    this.mySelectedList = this.selectedList
-    this.selectedGroup = this.defaultGroupName
-    this.groupName = this.defaultGroupName // task下只有一个默认隐藏的分组,所以默认选第一个
+    this.mySelectedList = this.selectedList.slice()
     this.loadMyContent()
   },
   methods: {
@@ -518,7 +452,6 @@ export default {
       })
       FindMyContent({
         owner: ownerMap[this.currentOwner],
-        // status: statusMap[this.currentStatus],
         types: this.currentType ? [this.currentType] : typeList,
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize,
@@ -598,10 +531,12 @@ export default {
       const index = this.mySelectedList.indexOf(itemId)
       if (index !== -1) {
         this.mySelectedList.splice(index, 1)
-        this.mySelectedMap.delete(itemId)
+        this.waitCancelAssociateMap.set(itemId, item)
+        this.waitAddAssociateMap.delete(itemId)
       } else {
         this.mySelectedList.push(itemId)
-        this.mySelectedMap.set(itemId, item)
+        this.waitAddAssociateMap.set(itemId, item)
+        this.waitCancelAssociateMap.delete(itemId)
       }
     },
     handleViewDetail (item, event) {
@@ -611,11 +546,6 @@ export default {
       this.previewCurrentId = item.id
       this.previewType = item.type
       this.previewVisible = true
-    },
-
-    handleToggleSelect (item) {
-      logger.info('handleToggleSelect', item)
-      // MyContentEventBus.$emit(MyContentEvent.ToggleSelectContentItem, { ...item })
     },
 
     handlePreviewClose () {
@@ -652,14 +582,6 @@ export default {
       this.loadMyContent()
     },
 
-    handleCreateNew () {
-      this.$logger.info('handleCreateNew')
-      // if (this.createNewNameMode === 'hide') {
-      //   this.createNewName = ''
-      // }
-      // this.createNewNameMode = this.createNewNameMode === 'input' ? 'hide' : 'input'
-    },
-
     handleEnsureCreate () {
       this.$logger.info('handleEnsureCreate ' + this.currentType + ' ' + this.createNewName)
       this.createLoading = true
@@ -673,7 +595,7 @@ export default {
           this.createNewNameMode = 'input'
           const itemId = this.typeMap.evaluation + '-' + this.editId
           this.mySelectedList.push(itemId)
-          this.mySelectedMap.set(itemId, { id: this.editId, type: this.typeMap.evaluation })
+          this.waitAddAssociateMap.set(itemId, { id: this.editId, type: this.typeMap.evaluation })
           this.loadMyContent()
         }).finally(() => {
           this.createLoading = false
@@ -687,7 +609,7 @@ export default {
           this.createNewNameMode = 'input'
           const itemId = this.typeMap.task + '-' + this.editId
           this.mySelectedList.push(itemId)
-          this.mySelectedMap.set(itemId, { id: this.editId, type: this.typeMap.task })
+          this.waitAddAssociateMap.set(itemId, { id: this.editId, type: this.typeMap.task })
           this.loadMyContent()
         }).finally(() => {
           this.createLoading = false
@@ -701,16 +623,7 @@ export default {
           this.createNewNameMode = 'input'
           const itemId = this.typeMap['unit-plan'] + '-' + this.editId
           this.mySelectedList.push(itemId)
-          this.mySelectedMap.set(itemId, { id: this.editId, type: this.typeMap['unit-plan'] })
-          this.loadMyContent()
-        }).finally(() => {
-          this.createLoading = false
-        })
-      } else if (this.currentType === this.typeMap.topic) {
-        TopicAddOrUpdate({
-          name: this.createNewName
-        }).then((response) => {
-          this.$logger.info('TopicAddOrUpdate response', response)
+          this.waitAddAssociateMap.set(itemId, { id: this.editId, type: this.typeMap['unit-plan'] })
           this.loadMyContent()
         }).finally(() => {
           this.createLoading = false
@@ -722,54 +635,65 @@ export default {
       this.$emit('cancel')
     },
 
-    handleEnsure () {
-      this.$logger.info('handleEnsure add group associate' + this.selectedGroup, this.groupNameList, this.mySelectedMap, this.groupName)
-      if (!this.mySelectedMap.size) {
-        this.$message.warn('No new ' + (this.fromType === this.typeMap.task ? 'assessment tool' : 'task') + ' selected!')
-      } else if ((this.groupNameMode === 'select' && !this.selectedGroup)) {
-        this.$message.warn('No group be selected!')
-      } else {
+    async handleEnsure () {
+      this.$logger.info('handleEnsure add group associate', this.waitAddAssociateMap, this.waitCancelAssociateMap, this.defaultGroupName)
+      this.ensureLoading = true
+      if (this.waitCancelAssociateMap.size || this.waitAddAssociateMap.size) {
         // 开始关联数据
-        const groupName = this.groupNameMode === 'input' ? this.groupName : (this.selectedGroup.length > 0 ? this.selectedGroup : '')
-        const postData = {
+        const associateData = {
           fromId: this.fromId,
           fromType: this.fromType,
-          groupName: groupName,
+          groupName: this.defaultGroupName,
           otherContents: []
         }
 
-        for (const [id, item] of this.mySelectedMap) {
-          this.$logger.info('ensure ' + id, item)
-          postData.otherContents.push({
-            toId: item.id,
-            toType: item.type
-          })
+        for (const [id, item] of this.waitAddAssociateMap) {
+          if (this.selectedList.indexOf(id) === -1) {
+            associateData.otherContents.push({
+              toId: item.id,
+              toType: item.type
+            })
+          } else {
+            this.$logger.info('handleEnsure waitAddAssociateMap item is selected skip ' + id, item, this.selectedList)
+          }
         }
 
-        this.$logger.info('associate data', postData)
+        const cancelAssociateData = {
+          fromId: this.fromId,
+          fromType: this.fromType,
+          others: []
+        }
+
+        for (const [id, item] of this.waitCancelAssociateMap) {
+          if (this.selectedList.indexOf(id) !== -1) {
+            cancelAssociateData.others.push({
+              toId: item.id,
+              toType: item.type
+            })
+          } else {
+            this.$logger.info('handleEnsure waitCancelAssociateMap item is no selected skip ' + id, item, this.selectedList)
+          }
+        }
         this.ensureLoading = true
-        Associate(postData).then((response) => {
-          this.$message.success('Associate successfully!')
-          this.$emit('ensure', postData)
-        }).finally(() => { this.ensureLoading = false })
+        this.$logger.info('associate data', associateData)
+        if (associateData.otherContents.length) {
+          await Associate(associateData)
+        }
+        this.$logger.info('cancelAssociateData data', cancelAssociateData)
+        if (cancelAssociateData.others.length) {
+          await AssociateCancel(cancelAssociateData)
+        }
       }
+      this.ensureLoading = false
+      this.$emit('ensure')
     },
     handleEditItem (item) {
       logger.info('handleEditItem', item)
       if (item.type === typeMap['unit-plan']) {
         window.open('/teacher/unit-plan-redirect/' + item.id
           , '_blank')
-      } else if (item.type === typeMap['topic']) {
-        window.open('/expert/topic-redirect/' + item.id
-          , '_blank')
-      } else if (item.type === typeMap['material']) {
-        window.open('/teacher/add-material/' + item.id
-          , '_blank')
       } else if (item.type === typeMap.task) {
         window.open('/teacher/task-redirect/' + item.id
-          , '_blank')
-      } else if (item.type === typeMap.lesson) {
-        window.open('/teacher/lesson-redirect/' + item.id
           , '_blank')
       } else if (item.type === typeMap.evaluation) {
         window.open('/teacher/evaluation-redirect/' + item.id

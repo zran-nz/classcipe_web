@@ -1,34 +1,7 @@
 <template>
   <div class="user-login">
-    <a-tabs type="card" :defaultActiveKey="defaultActiveKey">
-      <a-tab-pane key="teacher" tab="Teacher">
-        <div class="login">
-          <div>
-            <!-- <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
-            <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div> -->
-            <div class="desc">Sign In</div>
-            <div class="desc2">
-              Don't have an account? | <span><router-link :to="{ path: registerPath }">Sign Up</router-link></span>
-            </div>
-          </div>
-
-          <div class="third-login-wrapper">
-            <third-login-button
-              icon="googleIcon"
-              :label="$t('user.login.loginWithGoogle')"
-              @click.native="thirdSignIn('google', 'teacher')"
-            />
-          </div>
-
-          <!-- <div class="info">
-            Sign in or sign up means you agree to Classcipe's
-            <span><a href="https://www.classcipe.com/term.html" target="_blank">Terms of service</a></span>
-            and
-            <span><a href="https://www.classcipe.com/policy.html" target="_blank">Privacy Policy</a></span>
-          </div> -->
-        </div>
-      </a-tab-pane>
-      <a-tab-pane key="student" tab="Student">
+    <a-tabs type="card" :defaultActiveKey="defaultActiveKey" v-model='defaultActiveKey'>
+      <a-tab-pane key="teacher" tab="Teacher" v-if="!onlyTab || onlyTab === 'teacher'">
         <div class="login">
           <div>
             <!-- <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
@@ -51,8 +24,7 @@
                     rules: [
                       {
                         required: true,
-                        type: 'email',
-                        message: $t('user.email.required'),
+                        message: 'Please Enter Your Account',
                       },
                     ],
                     validateTrigger: ['change', 'blur'],
@@ -73,6 +45,96 @@
                   },
                 ]"
               ></a-input-password>
+
+              <div class='error-message'>
+                {{ studentLoginErrorMessage }}
+              </div>
+            </a-form-item>
+
+            <a-form-item class="form-btn">
+              <a-checkbox defaultChecked @change="handleChange">Remember me</a-checkbox>
+              <a @click="handleForget" class="forget-password">Forget password</a>
+              <a-button type="primary" block :loading="loading" size="large" html-type="submit"> Log In </a-button>
+            </a-form-item>
+          </a-form>
+
+          <div class="or">
+            <div class="line"></div>
+            <div class="text">OR</div>
+            <div class="line"></div>
+          </div>
+
+          <div class="third-login-wrapper">
+            <third-login-button
+              icon="googleIcon"
+              :label="$t('user.login.loginWithGoogle')"
+              :type="'google'"
+              @click.native="thirdSignIn('google', 'teacher')"
+            />
+            <!--            <third-login-button-->
+            <!--              icon="googleIcon"-->
+            <!--              :label="'Sign in with Zoom'"-->
+            <!--              :type="'zoom'"-->
+            <!--              @click.native="thirdSignIn('zoom', 'teacher')"-->
+            <!--            />-->
+          </div>
+
+          <!-- <div class="info">
+            Sign in or sign up means you agree to Classcipe's
+            <span><a href="https://www.classcipe.com/term.html" target="_blank">Terms of service</a></span>
+            and
+            <span><a href="https://www.classcipe.com/policy.html" target="_blank">Privacy Policy</a></span>
+          </div> -->
+        </div>
+      </a-tab-pane>
+      <a-tab-pane key="student" tab="Student" v-if="!onlyTab || onlyTab === 'student'">
+        <div class="login">
+          <div>
+            <!-- <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
+            <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div> -->
+            <div class="desc">Sign In</div>
+            <div class="desc2">
+              Don't have an account? | <span><router-link :to="{ path: registerPath }">Sign Up</router-link></span>
+            </div>
+          </div>
+
+          <a-form :form="form" class="login-form" @submit="handleSubmit">
+            <a-form-item class="form-email">
+              <a-input
+                size="large"
+                type="text"
+                :placeholder="$t('user.login.username.placeholder')"
+                v-decorator="[
+                  'email',
+                  {
+                    rules: [
+                      {
+                        required: true,
+                        message: 'Please Enter You Acccount',
+                      },
+                    ],
+                    validateTrigger: ['change', 'blur'],
+                  },
+                ]"
+              ></a-input>
+            </a-form-item>
+
+            <a-form-item class="form-password">
+              <a-input-password
+                size="large"
+                :placeholder="$t('user.login.password.placeholder')"
+                v-decorator="[
+                  'password',
+                  {
+                    rules: [{ required: true, message: $t('user.password.required') }],
+                    validateTrigger: ['change', 'blur'],
+                  },
+                ]"
+              ></a-input-password>
+
+              <div class='error-message'>
+                {{ studentLoginErrorMessage }}
+              </div>
             </a-form-item>
 
             <a-form-item class="form-btn">
@@ -114,9 +176,10 @@ import ThirdLoginButton from '@/components/Button/ThirdLoginButton'
 import ForgetPasswordModal from './ForgetPasswordModal.vue'
 import { mapActions } from 'vuex'
 import { getThirdAuthURL, thirdAuthCallbackUrl } from '@/api/thirdAuth'
-import { NOT_REMEMBER_ME } from '@/store/mutation-types'
+import { NOT_REMEMBER_ME, SET_PROMOTE_CODE } from '@/store/mutation-types'
 import storage from 'store'
 import { SESSION_CALLBACK_URL } from '@/const/common'
+import { getUrlWithNoParams, getCookie, isEmail } from '@/utils/util'
 
 export default {
   components: {
@@ -130,7 +193,8 @@ export default {
       defaultActiveKey: 'teacher',
       form: this.$form.createForm(this),
       registerPath: '/user/register',
-      callbackUrl: ''
+      callbackUrl: '',
+      studentLoginErrorMessage: null
     }
   },
   created() {
@@ -151,6 +215,17 @@ export default {
     } else if (redirect) {
       this.callbackUrl = redirect
     }
+    if (this.$route.query && this.$route.query.only) {
+      this.defaultActiveKey = this.$route.query.only
+    }
+  },
+  computed: {
+    onlyTab() {
+      if (this.$route.query && this.$route.query.only) {
+        return this.$route.query.only
+      }
+      return ''
+    }
   },
   methods: {
     ...mapActions(['Login', 'Logout']),
@@ -159,18 +234,28 @@ export default {
       if (role === 'teacher') {
         storage.set(NOT_REMEMBER_ME, false)
       }
-      console.log('thirdSignIn', source)
-      let url = getThirdAuthURL(source)
-      url += `?role=${role}`
-      url += `&callbackUrl=`
-      url += thirdAuthCallbackUrl
-      if (this.callbackUrl) {
-        window.sessionStorage.setItem(SESSION_CALLBACK_URL, this.callbackUrl)
+      let url
+      switch (source) {
+        case 'google':
+        case 'zoom':
+          this.$logger.info('thirdSignIn google', source)
+          url = getThirdAuthURL(source)
+          url += `?role=${role}`
+          url += `&channelId=${getCookie(SET_PROMOTE_CODE)}`
+          url += `&callbackUrl=`
+          url += thirdAuthCallbackUrl
+          if (this.callbackUrl) {
+            window.sessionStorage.setItem(SESSION_CALLBACK_URL, getUrlWithNoParams(this.callbackUrl))
+          }
+          this.$logger.info('full auth url ', url)
+          window.location.href = url
+          break
+        default:
+          break
       }
-      console.log('full auth url ', url)
-      window.location.href = url
     },
     handleSubmit(e) {
+      this.studentLoginErrorMessage = null
       e.preventDefault()
       const {
         form: { validateFields },
@@ -183,7 +268,14 @@ export default {
           console.log('login form', values)
           const loginParams = {
             username: values.email,
-            password: values.password
+            password: values.password,
+            role: this.defaultActiveKey
+          }
+          if (loginParams.role === 'student') {
+            if (!isEmail(values.email)) {
+              delete loginParams.username
+              loginParams.workNo = values.email
+            }
           }
           Login(loginParams)
             .then(res => this.loginSuccess(res))
@@ -200,8 +292,9 @@ export default {
         .dispatch('GetInfo')
         .then(response => {
           console.log(response)
-          if (this.callbackUrl) {
-            window.location.href = this.callbackUrl + '?token=' + res.result.token
+          const callbackUrl = this.callbackUrl
+          if (callbackUrl) {
+            window.location.href = callbackUrl + (callbackUrl.indexOf('?') > -1 ? '&' : '?') + 'token=' + res.result.token
           } else if (this.$store.getters.currentRole) {
             this.$router.push(this.$store.getters.defaultRouter)
           } else {
@@ -225,13 +318,7 @@ export default {
       // this.$router.push({ path: '/' })
     },
     requestFailed(err) {
-      this.$message.error(err.message)
-
-      // this.$notification['error']({
-      //   message: 'error',
-      //   description: ((err.response || {}).data || {}).message || 'Error',
-      //   duration: 4
-      // })
+      this.studentLoginErrorMessage = err.message
     },
     handleForget() {
       this.$refs.modal.show()
@@ -285,6 +372,15 @@ export default {
 }
 </style>
 <style lang="less" scoped>
+@media only screen and (max-width: 550px) {
+  .user-login {
+    width: 350px!important;
+    min-width: 350px!important;
+    .login {
+      padding: 20px 25px 30px!important;
+    }
+  }
+}
 .user-login {
   margin: 0 auto;
   width: 520px;
@@ -350,5 +446,12 @@ export default {
       text-align: left;
     }
   }
+}
+
+.error-message {
+  height: 30px;
+  line-height: 30px;
+  color: #f5222d;
+  font-size: 13px;
 }
 </style>

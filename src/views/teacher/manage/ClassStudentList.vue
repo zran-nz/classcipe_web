@@ -130,6 +130,8 @@ import {
 } from '@/api/schoolClassStudent'
 import moment from 'moment'
 import store from '@/store'
+import { mapState } from 'vuex'
+import { CLASS_TYPE, USER_MODE } from '@/const/common'
 
 export default {
   name: 'ClassStudentList',
@@ -200,6 +202,10 @@ export default {
     }
   },
   computed: {
+    ...mapState({
+      userMode: state => state.app.userMode,
+      currentSchool: state => state.user.currentSchool
+    }),
     importExcelUrl: function () {
       return process.env.VUE_APP_API_BASE_URL + this.url.importExcelUrl + '?classId=' + this.classId
     },
@@ -299,8 +305,8 @@ export default {
         this.$message.error('This teacher has been added')
       }
       const params = {
-        schoolId: store.getters.userInfo.school,
-        classFlag: 1,
+        schoolId: store.getters.school,
+        classFlag: this.userMode === USER_MODE.SELF ? CLASS_TYPE.personal : CLASS_TYPE.school,
         classId: this.classId,
         email: user.email,
         studentName: user.nickname,

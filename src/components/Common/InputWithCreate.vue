@@ -1,9 +1,29 @@
 <template>
   <div class='my-input-with-create' @click.stop=''>
-    <a-input class='my-input-with-create' v-model='displayValue' @focus='showOptionList = true' @click.native='showFilterOption = false' @input.native='inputChange'>
+    <a-input
+      class='my-input-with-create'
+      v-model='displayValue'
+      @focus.native='displayOptionListVisible'
+      @click.native='displayOptionListVisible'
+      @input.native='displayOptionListVisible'
+      @change='displayOptionListVisible'>
     </a-input>
-    <div class='option-list' :style="{'max-height': optionListHeight + 'px'}" v-show='showOptionList && (displayOptionList.length || displayValue)' @click.stop=''>
-      <div class='option-item' v-for='(option, oIdx) in displayOptionList' :key='oIdx' @click='handleSelectItem(option)'>
+    <div class='option-list' :style="{'max-height': optionListHeight + 'px'}" v-show='(!existValue && displayValue) || (showOptionList && displayOptionList.length)' @click.stop=''>
+      <div class='create-item' v-show='(!existValue && displayValue)'>
+        <div class='create-item-tag' @click='createNew'>
+          Create <span class='create-text'>
+            {{ displayValue }}
+          </span>
+        </div>
+        <a-spin size='small' v-show='creating' class='creating-spin'/>
+      </div>
+      <div
+        class='option-item'
+        :class="{'disabled-item': disabledIdList.indexOf(option.id) !== -1 }"
+        v-for='(option, oIdx) in displayOptionList'
+        :key='oIdx'
+        @click='handleSelectItem(option)'
+        v-if='showOptionList && displayOptionList.length'>
         <div class='option-name'>
           {{ option.name }}
         </div>
@@ -12,12 +32,6 @@
             {{ option.tagLabel }}
           </a-tag>
         </div>
-      </div>
-      <div class='create-item' v-show='displayOptionList.length === 0 && displayValue && displayValue.trim()'>
-        <div class='create-item-tag' @click='createNew'>
-          Create {{ displayValue }}
-        </div>
-        <a-spin size='small' v-show='creating' class='creating-spin'/>
       </div>
     </div>
   </div>
@@ -28,6 +42,10 @@ export default {
   name: 'InputWithCreate',
   props: {
     optionList: {
+      type: Array,
+      default: () => []
+    },
+    disabledIdList: {
       type: Array,
       default: () => []
     },
@@ -88,17 +106,23 @@ export default {
       displayValue: '',
       myOptionList: [],
       showOptionList: false,
-      creating: false,
-      showFilterOption: false
+      creating: false
     }
   },
   computed: {
     displayOptionList () {
-       if (this.displayValue && this.showFilterOption) {
-         return this.myOptionList.filter(option => option.name.indexOf(this.displayValue.trim()) !== -1)
-       } else {
-         return this.myOptionList
-       }
+      if (this.displayValue && this.displayValue.trim()) {
+        return this.myOptionList.filter(option => option.name.indexOf(this.displayValue.trim()) !== -1)
+      } else {
+        return this.myOptionList
+      }
+    },
+    existValue () {
+      if (this.displayValue && this.displayValue.trim()) {
+        return this.myOptionList.some(option => option.name && option.name.trim() === this.displayValue.trim())
+      } else {
+        return false
+      }
     }
   },
   created() {
@@ -139,10 +163,13 @@ export default {
     },
 
     handleSelectItem (item) {
-      this.$emit('selected', item)
-      this.displayValue = item.name
-      this.selectedId = item.id
-      this.showOptionList = false
+      this.$logger.info('handleSelectItem ' + item.id, 'disabledIdList ' + this.disabledIdList)
+      if (this.disabledIdList.indexOf(item.id) === -1) {
+        this.$emit('selected', item)
+        this.displayValue = item.name
+        this.selectedId = item.id
+        this.showOptionList = false
+      }
     },
 
     handleClick () {
@@ -152,14 +179,8 @@ export default {
       }
     },
 
-    inputChange () {
-      this.showFilterOption = true
-      const optionList = this.myOptionList.filter(option => option.name.indexOf(this.displayValue.trim()) !== -1)
-      if (optionList.length === 0) {
-        this.selectedId = null
-        this.$logger.info('inputChange')
-        this.$emit('selected', null)
-      }
+    displayOptionListVisible () {
+      this.showOptionList = true
     }
   }
 }
@@ -202,6 +223,8 @@ export default {
     font-size: 14px;
     padding: 0 10px;
     line-height: 40px;
+    width: 100%;
+    box-sizing: border-box;
     border-bottom: 1px solid #f6f6f6;
     display: flex;
     flex-direction: row;
@@ -224,6 +247,18 @@ export default {
       color: #38cfa6;
     }
   }
+
+  .disabled-item {
+    opacity: 0.5;
+    color: #aaa;
+    cursor: not-allowed;
+    user-select: none;
+
+    &:hover {
+      background: #fff;
+      color: #aaa;
+    }
+  }
 }
 
 .create-item {
@@ -231,7 +266,7 @@ export default {
   align-items: center;
   justify-content: flex-start;
   height: 40px;
-  padding: 0 10px;
+  border-bottom: 1px solid #f6f6f6;
   line-height: 40px;
 
   &:hover {
@@ -239,14 +274,20 @@ export default {
   }
 }
 .create-item-tag {
+  padding: 0 10px;
   user-select: none;
   line-height: 23px;
   display: inline-block;
-  padding: 0 10px;
-  border-radius: 5px;
   color: #15C39A;
-  font-size: 13px;
-  background: rgba(21, 195, 154, 0.2);
+  .create-text {
+    line-height: 23px;
+    display: inline-block;
+    padding: 0 10px;
+    border-radius: 5px;
+    color: #15C39A;
+    font-size: 13px;
+    background: rgba(21, 195, 154, 0.2);
+  }
 }
 
 .creating-spin {

@@ -3,7 +3,6 @@
     class='tree-item'
     v-if='treeItemData'
     :data-deep='defaultDeep'
-    :data-default-grade-id="defaultGradeId + ''"
     :data-tree-type='treeItemType'
     :data-current-type='currentItemType'
     :data-selected-grade-id="treeItemData.selectedGradeId + ''"
@@ -33,11 +32,11 @@
           </template>
         </div>
       </div>
-      <div class='type-icon-wrapper' @click='handleExpandTreeItem(treeItemData)'>
+      <div class='type-icon-wrapper' @click='handleClickTreeItem(subTreeExpandStatus, treeItemData)'>
         <a-icon type='folder-open' theme='filled' class='opened-file-dir-icon' v-if='subTreeExpandStatus' />
         <a-icon type='folder' theme='filled' class='file-dir-icon' v-if='!subTreeExpandStatus' />
       </div>
-      <div class='display-label-wrapper' @click='handleExpandTreeItem(treeItemData)'>
+      <div class='display-label-wrapper' @click='handleClickTreeItem(subTreeExpandStatus, treeItemData)'>
         <span
           :class="{
             'display-label': true,
@@ -61,11 +60,9 @@
           <new-tree-item
             :grade-list='gradeList'
             :tree-current-parent='subTreeParent'
-            :tree-item-data='treeItem'
-            :default-grade-id='defaultGradeId'
+            :tree-item-data.sync='treeItem'
             :default-background-color='defaultBackgroundColor'
             :current-item-type='subItemType'
-            :data-default-grade-id='defaultGradeId'
             :data-item-type='subItemType'
             :select-mode='selectMode'
             :question-index='questionIndex'
@@ -74,14 +71,16 @@
             :default-deep='(defaultDeep + 1)'
             :default-expand-status='treeItem.expandStatus'
             v-for='(treeItem, index) in treeItemData.children'
+            :default-grade-id='myDefaultGradeId'
             :odd='odd ? index % 2 === 1 : index % 2 === 0 '
+            :default-curriculum-id='currentCurriculumId'
             :key='index' />
         </template>
         <template v-if="subItemType === 'grade'">
           <new-tree-item
             :grade-list='gradeList'
             :tree-current-parent='subTreeParent'
-            :tree-item-data='treeItem'
+            :tree-item-data.sync='treeItem'
             :current-item-type='subItemType'
             :select-mode='selectMode'
             :question-index='questionIndex'
@@ -90,18 +89,17 @@
             :default-deep='(defaultDeep + 1)'
             :default-expand-status='treeItem.expandStatus'
             :default-background-color='defaultBackgroundColor'
-            :default-grade-id='defaultGradeId'
-            :data-default-grade-id='defaultGradeId'
-            :class="{'auto-selected-grade': defaultGradeId === treeItem.id }"
             v-for='(treeItem, index) in treeItemData.gradeList'
+            :default-grade-id='myDefaultGradeId'
             :odd='odd ? index % 2 === 1 : index % 2 === 0 '
+            :default-curriculum-id='currentCurriculumId'
             :key='index' />
         </template>
         <template v-if="subItemType === 'assessmentType'">
           <new-tree-item
             :grade-list='gradeList'
             :tree-current-parent='subTreeParent'
-            :tree-item-data='treeItem'
+            :tree-item-data.sync='treeItem'
             :current-item-type='subItemType'
             :select-mode='selectMode'
             :question-index='questionIndex'
@@ -109,11 +107,11 @@
             :root-type='rootType'
             :default-deep='(defaultDeep + 1)'
             :default-background-color='defaultBackgroundColor'
-            :default-grade-id='defaultGradeId'
-            :data-default-grade-id='defaultGradeId'
             :default-expand-status='treeItem.expandStatus'
             v-for='(treeItem, index) in treeItemData.children'
+            :default-grade-id='myDefaultGradeId'
             :odd='odd ? index % 2 === 1 : index % 2 === 0 '
+            :default-curriculum-id='currentCurriculumId'
             :key='index' />
         </template>
         <!-- knowledge 下级列表不展示最后一级-->
@@ -122,7 +120,7 @@
           <new-tree-item
             :grade-list='gradeList'
             :tree-current-parent='subTreeParent'
-            :tree-item-data='treeItem'
+            :tree-item-data.sync='treeItem'
             :current-item-type='subItemType'
             :select-mode='selectMode'
             :question-index='questionIndex'
@@ -130,11 +128,11 @@
             :root-type='rootType'
             :default-deep='(defaultDeep + 1)'
             :default-background-color='defaultBackgroundColor'
-            :default-grade-id='defaultGradeId'
-            :data-default-grade-id='defaultGradeId'
             :default-expand-status='treeItem.expandStatus'
             v-for='(treeItem, index) in treeItemData.children'
+            :default-grade-id='myDefaultGradeId'
             :odd='odd ? index % 2 === 1 : index % 2 === 0 '
+            :default-curriculum-id='currentCurriculumId'
             :key='index' />
         </template>
         <!--sdg列表-->
@@ -142,7 +140,7 @@
           <new-tree-item
             :grade-list='gradeList'
             :tree-current-parent='subTreeParent'
-            :tree-item-data='treeItem'
+            :tree-item-data.sync='treeItem'
             :current-item-type='subItemType'
             :select-mode='selectMode'
             :question-index='questionIndex'
@@ -150,18 +148,18 @@
             :root-type='rootType'
             :default-deep='(defaultDeep + 1)'
             :default-background-color='defaultBackgroundColor'
-            :default-grade-id='defaultGradeId'
-            :data-default-grade-id='defaultGradeId'
             :default-expand-status='treeItem.expandStatus'
             v-for='(treeItem, index) in treeItemData.children'
+            :default-grade-id='myDefaultGradeId'
             :odd='odd ? index % 2 === 1 : index % 2 === 0 '
+            :default-curriculum-id='currentCurriculumId'
             :key='index' />
         </template>
         <template v-if="subItemType === 'sdgKeyword'">
           <new-tree-item
             :grade-list='gradeList'
             :tree-current-parent='subTreeParent'
-            :tree-item-data='treeItem'
+            :tree-item-data.sync='treeItem'
             :current-item-type='subItemType'
             :select-mode='selectMode'
             :question-index='questionIndex'
@@ -169,18 +167,18 @@
             :root-type='rootType'
             :default-deep='(defaultDeep + 1)'
             :default-background-color='defaultBackgroundColor'
-            :default-grade-id='defaultGradeId'
-            :data-default-grade-id='defaultGradeId'
             :default-expand-status='treeItem.expandStatus'
             v-for='(treeItem, index) in treeItemData.children'
+            :default-grade-id='myDefaultGradeId'
             :odd='odd ? index % 2 === 1 : index % 2 === 0 '
+            :default-curriculum-id='currentCurriculumId'
             :key='index' />
         </template>
         <template v-if="subItemType === 'all21Century'">
           <new-tree-item
             :grade-list='gradeList'
             :tree-current-parent='subTreeParent'
-            :tree-item-data='treeItem'
+            :tree-item-data.sync='treeItem'
             :current-item-type='subItemType'
             :select-mode='selectMode'
             :question-index='questionIndex'
@@ -188,11 +186,11 @@
             :root-type='rootType'
             :default-deep='(defaultDeep + 1)'
             :default-background-color='defaultBackgroundColor'
-            :default-grade-id='defaultGradeId'
-            :data-default-grade-id='defaultGradeId'
             :default-expand-status='treeItem.expandStatus'
             v-for='(treeItem, index) in treeItemData.children'
+            :default-grade-id='myDefaultGradeId'
             :odd='odd ? index % 2 === 1 : index % 2 === 0 '
+            :default-curriculum-id='currentCurriculumId'
             :key='index' />
         </template>
       </div>
@@ -271,11 +269,15 @@ export default {
       type: String,
       required: true
     },
-    defaultGradeId: { // 默认的年级id
+    defaultBackgroundColor: { // 默认的背景色
       type: String,
       default: null
     },
-    defaultBackgroundColor: { // 默认的背景色
+    defaultCurriculumId: {
+      type: String,
+      default: null
+    },
+    defaultGradeId: {
       type: String,
       default: null
     }
@@ -289,8 +291,10 @@ export default {
       subItemType: null,
       NavigationType: NavigationType,
 
+      currentCurriculumId: null,
       SelectModel: SelectModel,
-      selected21CenturyItem: null // 当前选中的21世纪层级项
+      selected21CenturyItem: null, // 当前选中的21世纪层级项
+      myDefaultGradeId: null
     }
   },
   watch: {
@@ -314,10 +318,21 @@ export default {
       } else {
         this.hasSubTree = false
       }
+    },
+
+    defaultCurriculumId (val) {
+      this.$logger.info('NewTreeItem defaultCurriculumId change currentCurriculumId ' + val)
+      this.currentCurriculumId = val
+    },
+
+    defaultGradeId (val) {
+      this.myDefaultGradeId = val
     }
   },
   created() {
-    this.subTreeExpandStatus = this.treeItemData.expandStatus
+    this.myDefaultGradeId = this.defaultGradeId
+    this.subTreeExpandStatus = !!this.treeItemData.expandStatus
+    this.currentCurriculumId = this.defaultCurriculumId ? this.defaultCurriculumId : this.$store.getters.bindCurriculum
     if (this.treeItemData && this.treeItemData.children) {
       this.hasSubTree = true
     }
@@ -334,7 +349,7 @@ export default {
     // 根据不同的列表类型判断下一层对应的数据类型（注意sync是同步数据只有一级，故没有下级。直接列表展示，所以这里忽略sync的处理）
     if (this.treeItemType === NavigationType.learningOutcomes) {
       if (this.currentItemType === 'subject') {
-        if (this.treeItemData.children.length) {
+        if (this.treeItemData.children.length && !this.treeItemData.children[0].hasOwnProperty('isGrade')) {
           this.subItemType = 'subject'
         } else {
           this.subItemType = 'grade'
@@ -399,25 +414,20 @@ export default {
         this.subItemType = 'knowledge'
       }
     }
+
+    // 如果层级是grade，则需要自动选择上次选中的gradeId对应的年级
+    if (this.currentItemType === 'grade' && this.myDefaultGradeId === this.treeItemData.id) {
+      this.$logger.info('find defaultGradeId', this.myDefaultGradeId, 'current grade id', this.treeItemData.id)
+      this.handleExpandTreeItem(this.treeItemData)
+    }
     LibraryEventBus.$on(LibraryEvent.ContentListItemClick, this.handleContentListItemClick)
     LibraryEventBus.$on(LibraryEvent.CenturySkillsSelect, this.handleCenturySkillsSelect)
     LibraryEventBus.$on(LibraryEvent.CancelCenturySkillsSelect, this.handleCancelCenturySkillsSelect)
-    LibraryEventBus.$on(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
-
-    // 添加learning outcome自动选中grade
-    if (this.currentItemType === 'grade') {
-      if (this.defaultGradeId === this.treeItemData.id) {
-        this.$logger.info('current', this.treeItemData, 'should be default grade')
-        this.subTreeLoading = true
-        this.handleExpandTreeItem(this.treeItemData)
-      }
-    }
   },
   destroyed() {
     LibraryEventBus.$off(LibraryEvent.ContentListItemClick, this.handleContentListItemClick)
     LibraryEventBus.$off(LibraryEvent.CenturySkillsSelect, this.handleCenturySkillsSelect)
     LibraryEventBus.$off(LibraryEvent.CancelCenturySkillsSelect, this.handleCancelCenturySkillsSelect)
-    LibraryEventBus.$off(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
   },
   methods: {
     // 点击左侧菜单栏，同步右侧的列表以及展开当前下一级菜单。
@@ -515,8 +525,6 @@ export default {
               gradeList: treeItemData.gradeList,
               questionIndex: this.questionIndex
             })
-            // subject的children为空，说明到底了。下一层就是grade
-            this.subItemType = 'grade'
           } else {
             LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
               backgroundColor: this.defaultBackgroundColor,
@@ -527,6 +535,11 @@ export default {
               contentList: treeItemData.children,
               questionIndex: this.questionIndex
             })
+          }
+
+          if (treeItemData.gradeList && treeItemData.gradeList.length) {
+            this.subItemType = 'grade'
+          } else {
             this.subItemType = 'subject'
           }
           this.subTreeLoading = false
@@ -583,9 +596,6 @@ export default {
             this.subTreeLoading = false
             this.subTreeExpandStatus = true
           }
-
-          // 通知外部表单更新gradeId
-          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, { rootType: this.rootType, data: this.treeItemData })
         }
 
         // 加载知识点关联数据
@@ -730,6 +740,7 @@ export default {
             // grade下一层knowledge
             this.subItemType = 'knowledge'
           } else {
+            this.subTreeLoading = true
             LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
               backgroundColor: this.defaultBackgroundColor,
               deep: this.defaultDeep,
@@ -742,9 +753,6 @@ export default {
             this.subTreeLoading = false
             this.subTreeExpandStatus = true
           }
-
-          // 通知外部表单更新gradeId
-          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, { rootType: this.rootType, data: this.treeItemData })
         }
 
         // 加载知识点关联数据
@@ -897,9 +905,6 @@ export default {
           }
           // grade下一层assessmentType
           this.subItemType = 'assessmentType'
-
-          // 通知外部表单更新gradeId
-          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, { rootType: this.rootType, data: this.treeItemData })
         }
 
         // 加载assessmentType的列表
@@ -1037,11 +1042,6 @@ export default {
 
         if (this.defaultDeep === 1 && treeItemData.isGrade) {
           this.$logger.info('handleExpandIduTypeTreeItem defaultDeep = 1', treeItemData)
-          // 通知外部表单更新gradeId
-          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, {
-            rootType: this.rootType,
-            data: this.treeItemData
-          })
 
           treeItemData.children.forEach(item => {
             item.selectedGradeName = treeItemData.name
@@ -1141,7 +1141,7 @@ export default {
 
             Get21Century({
               gradeId,
-              curriculumId: this.$store.getters.bindCurriculum
+              curriculumId: this.currentCurriculumId
             }).then((response) => {
               this.$logger.info('Get21Century response', response)
               if (response.result) {
@@ -1182,9 +1182,6 @@ export default {
             this.subTreeLoading = false
             this.subTreeExpandStatus = true
           }
-
-          // 通知外部表单更新gradeId
-          LibraryEventBus.$emit(LibraryEvent.GradeUpdate, { rootType: this.rootType, data: this.treeItemData })
         }
 
         // 加载知识点关联数据
@@ -1372,7 +1369,7 @@ export default {
         data.item.id === this.treeItemData.id &&
         data.item.name === this.treeItemData.name &&
         // 通过id和name无法唯一定位到指定的条目，因为多个subject下面的grade的id和name都相同，所以加一层父级的条目的名称一致性判断
-        (!data.parent || (this.treeItemData.originParent && this.treeItemData.originParent.name === data.parent.name))) {
+        (!data.parent || (this.treeCurrentParent && this.treeCurrentParent.name === data.parent.name))) {
         // 同步导航栏和内容列表
         this.$logger.info('handleContentListItemClick start ', data, this.treeItemData, this.treeCurrentParent)
         this.handleExpandTreeItem(this.treeItemData)
@@ -1408,9 +1405,13 @@ export default {
       LibraryEventBus.$emit(LibraryEvent.CancelCenturySkillsSelect)
     },
 
-    handleGradeUpdate (data) {
-      if (this.treeItemData.isGrade === true && data.rootType === this.rootType && data.data.id !== this.treeItemData.id) {
-        this.subTreeExpandStatus = false
+    handleClickTreeItem(expandStatus, treeItemData) {
+      this.$logger.info('handleClickTreeItem start ', expandStatus, treeItemData)
+      if (expandStatus === false) {
+        this.handleExpandTreeItem(treeItemData)
+      } else {
+        this.handleCollapseTreeItem(treeItemData)
+        LibraryEventBus.$emit(LibraryEvent.ResetContentList)
       }
     }
   }
@@ -1475,7 +1476,7 @@ export default {
     }
 
     .type-icon-wrapper {
-      padding: 0 10px 0 5px;
+      padding: 0 0 0 5px;
       display: flex;
       flex-direction: row;
       align-items: center;
@@ -1496,8 +1497,8 @@ export default {
       overflow: hidden;
       padding-left: 2px;
       align-items: center;
-      height: 25px;
-      line-height: 25px;
+      height: 35px;
+      line-height: 35px;
       white-space: nowrap;
       text-overflow: ellipsis;
       position: relative;

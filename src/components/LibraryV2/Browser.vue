@@ -1,36 +1,12 @@
 <template>
   <div class="library-wrapper" ref="wrapper" data-version="v2" @click="handleSearchKeyInputBlur">
-    <div class="nav-header" :style="{height: currentBrowserType === BrowserTypeMap.sdg ? '100px' : '100px'}">
+    <div class="nav-header" :style="{left: collapsed ? $classcipe.sysConfig.collapsedSidebarWidth + 'px' : $classcipe.sysConfig.sidebarWidth + 'px'}">
       <div class="header-info">
         <div class="library-nav-bar" >
           <navigation :path="navPath" @pathChange="handleNavPathChange" v-show="libraryMode === LibraryMode.browserMode"/>
         </div>
         <div class="filter-line">
           <div class="search-bar-line">
-            <a-popover
-              trigger="click"
-              placement="bottomLeft"
-              :overlayStyle="{ 'max-height': filterHeight + 'px', 'position': 'absolute','top':'190px','overflow-y': 'auto',' background-clip':'padding-box',' border-radius':'2px','box-shadow':' 0 2px 8px rgb(0 0 0 / 15%'}">
-              <template slot="content">
-                <search-filter
-                  @filter-config-update="handleUpdateFilterConfig"
-                  :filter-config="filterConfig"
-                  :age-options="filterAgeOptions"
-                  :subject-options="filterSubjectOptions"
-                  :type-options="filterTypeOptions"
-                  :filter-fa-options="filterFaOptions"
-                  :filter-sa-options="filterSaOptions"
-                  :filter-activity-options="filterActivityOptions"
-                />
-              </template>
-              <div class="filter-item">
-                <filter-icon class="filter-icon" />
-                <filter-active-icon class="filter-active-icon"/>
-                <div class="filter-label">
-                  Filter
-                </div>
-              </div>
-            </a-popover>
             <div class="search-input" @click.stop="">
               <a-input-search
                 placeholder="input search text"
@@ -56,7 +32,13 @@
                       v-for="(item, sIndex) in searchResultList"
                       :key="sIndex"
                       :data-from-type="item.fromType">
-                      <div v-html="item.tagName"></div>
+                      <div v-html="item.tagName">
+                      </div>
+                      <div class='from-type'>
+                        <div class='from-text-tag'>
+                          {{ item.fromType }}
+                        </div>
+                      </div>
                     </div>
                   </template>
                   <template v-else-if="searchKeyword">
@@ -80,11 +62,10 @@
       </div>
     </div>
     <div
-      class="library-detail-wrapper"
-      :style="{top: currentBrowserType === BrowserTypeMap.sdg ? '100px' : '100px',
-               height: currentBrowserType === BrowserTypeMap.sdg ? 'calc(100vh - 164px)': 'calc(100vh - 164px)'}">
+      class="library-detail-wrapper">
+      <div class='library-mask' v-if='searchResultVisible && (searching || searchResultList.length)'></div>
       <div class="curriculum-filter-line">
-        <div class="curriculum-select">
+        <div class="curriculum-select" v-excludeRole="['student']">
           <a-select
             :getPopupContainer="trigger => trigger.parentElement"
             v-show="currentBrowserType !== BrowserTypeMap.sdg && curriculumOptions.length"
@@ -100,12 +81,15 @@
             </div>
           </a-select>
         </div>
+        <div class="curriculum-select" v-hasRole="['student']">
+          <a-input disabled value="Cambridge">Cambridge</a-input>
+        </div>
       </div>
       <div class="library-detail-nav-wrapper" :style="{width: leftBrowserWidth}" @click="libraryMode = LibraryMode.browserMode">
         <div class="library-content">
           <div class="browser-action" v-if="hasLeftBlock && !expandedListFlag">
             <div class="action-item" @click="handleViewLeft">
-              <back-svg style="width: 8vw"/>
+              <back-svg style="width: 70px"/>
             </div>
           </div>
           <div class="browser-table-wrapper" :style="{left: -browserMarginLeft + 'px'}">
@@ -118,6 +102,7 @@
                     'active-line': currentBrowserType === browserTypeItem.type
                   }"
                   v-for="(browserTypeItem, index) in (parseInt(currentCurriculumId) === parseInt(curriculumType.IBMYP) ? browserTypeListForIbMpy : browserTypeList)"
+                  v-show='!$store.getters.hiddenIbCurriculumId || (browserTypeItem.tagType !== TagType.idu && browserTypeItem.tagType !== TagType.skill)'
                   :key="index"
                   @click="toggleBrowserType(browserTypeItem)">
                   <dir-icon dir-type="blue" v-if="currentBrowserType !== browserTypeItem.type"/>
@@ -188,7 +173,40 @@
         </div>
         <div
           class="browser-block-item-wrapper">
-          <a-card v-if="!searching && showRecommend" :bordered="false"></a-card>
+          <div class='recommend-filter-bar'>
+            <div class='recommend-item'>
+              <template v-if='!searching && showRecommend'>Recommended:</template>
+            </div>
+            <div class='filter-item'>
+              <a-popover
+                v-show='showFilter'
+                trigger="click"
+                placement="bottomLeft"
+                :overlayStyle="{ 'max-height': filterHeight + 'px', 'position': 'absolute','top':'190px','overflow-y': 'auto',' background-clip':'padding-box',' border-radius':'2px','box-shadow':' 0 2px 8px rgb(0 0 0 / 15%'}">
+                <template slot="content">
+                  <search-filter
+                    @filter-config-update="handleUpdateFilterConfig"
+                    @update-filter-context='handleUpdateFilterContext'
+                    :filter-config="filterConfig"
+                    :age-options="filterAgeOptions"
+                    :subject-options="filterSubjectOptions"
+                    :type-options="filterTypeOptions"
+                    :filter-fa-options="filterFaOptions"
+                    :filter-sa-options="filterSaOptions"
+                    :filter-activity-options="filterActivityOptions"
+                    :is-disable-age-subject='searchType === SearchTypeMap.BrowserType || searchType === SearchTypeMap.CurriculumFilter'
+                  />
+                </template>
+                <div class="filter-item">
+                  <filter-icon class="filter-icon" />
+                  <filter-active-icon class="filter-active-icon"/>
+                  <div class="filter-label">
+                    Filter
+                  </div>
+                </div>
+              </a-popover>
+            </div>
+          </div>
           <div
             class="browser-block-item-last"
             :style="{'flex-direction': dataListMode === 'list' ? 'column' : 'row'}">
@@ -221,64 +239,42 @@
             </template>
             <template v-if="dataListMode === 'card' && (!searching && !dataListLoading)">
               <div class="card-view-mode-wrapper" v-if="dataList.length">
-                <a-row :gutter="[16, 16]">
-                  <template v-if="libraryMode === LibraryMode.searchMode || expandedListFlag === true">
-                    <a-col
-                      class="gutter-row search-mode"
-                      :span="10"
-                      :xs="24"
-                      :sm="12"
-                      :md="8"
-                      :lg="6"
-                      :xl="6"
-                      :xxl="4"
-                      v-for="(dataItem, index) in dataList"
-                      v-if="(currentType === 0 || dataItem.type === currentType)"
-                      :key="index">
-                      <div
-                        class="card-item-wrapper"
-                        @click="handleSelectDataItem(dataItem)">
-                        <div class="card-item">
-                          <data-card-view
-                            :active-flag="currentDataId === dataItem.id"
-                            :cover="dataItem.image"
-                            :title="dataItem.name"
-                            :update-time="dataItem.updateTime"
-                            :content-type="dataItem.type"
-                          />
-                        </div>
-                      </div>
-                    </a-col>
-                  </template>
-                  <template v-else>
-                    <a-col
-                      class="gutter-row list-mode"
-                      :span="10"
-                      :xs="24"
-                      :sm="12"
-                      :md="8"
-                      :lg="6"
-                      :xl="6"
-                      :xxl="4"
-                      v-for="(dataItem, index) in dataList"
-                      v-if="(currentType === 0 || dataItem.type === currentType)"
-                      :key="index">
-                      <div
-                        class="card-item-wrapper"
-                        @click="handleSelectDataItem(dataItem)">
-                        <div class="card-item">
-                          <data-card-view
-                            :active-flag="currentDataId === dataItem.id"
-                            :cover="dataItem.image"
-                            :title="dataItem.name"
-                            :update-time="dataItem.updateTime"
-                            :content-type="dataItem.type"
-                          />
-                        </div>
-                      </div>
-                    </a-col>
-                  </template>
-                </a-row>
+                <template v-if="libraryMode === LibraryMode.searchMode || expandedListFlag === true">
+                  <div
+                    class="card-item-wrapper"
+                    @click="handleSelectDataItem(dataItem)"
+                    v-for="(dataItem, index) in dataList"
+                    v-if="(currentType === 0 || dataItem.type === currentType)"
+                    :key="index">
+                    <div class="card-item">
+                      <data-card-view
+                        :active-flag="currentDataId === dataItem.id"
+                        :cover="dataItem.image"
+                        :title="dataItem.name"
+                        :update-time="dataItem.updateTime"
+                        :content-type="dataItem.type"
+                      />
+                    </div>
+                  </div>
+                </template>
+                <template v-else>
+                  <div
+                    class="card-item-wrapper"
+                    @click="handleSelectDataItem(dataItem)"
+                    v-for="(dataItem, index) in dataList"
+                    v-if="(currentType === 0 || dataItem.type === currentType)"
+                    :key="index">
+                    <div class="card-item">
+                      <data-card-view
+                        :active-flag="currentDataId === dataItem.id"
+                        :cover="dataItem.image"
+                        :title="dataItem.name"
+                        :update-time="dataItem.updateTime"
+                        :content-type="dataItem.type"
+                      />
+                    </div>
+                  </div>
+                </template>
               </div>
             </template>
             <div class="loading-wrapper" v-show="searching || dataListLoading">
@@ -297,24 +293,18 @@
       destroyOnClose
       placement="right"
       :closable="false"
-      width="800px"
+      width="1000px"
       :visible="previewVisible"
       @close="handlePreviewClose"
     >
-      <a-row class="preview-wrapper-row">
-        <a-col span="2">
-          <div class="view-back" @click="handlePreviewClose">
-            <div class="back-icon">
-              <img src="~@/assets/icons/common/back.png" />
-            </div>
-          </div>
-        </a-col>
-        <a-col span="22">
-          <div class="detail-wrapper" v-if="previewCurrentId && previewType">
-            <common-preview :id="previewCurrentId" :type="previewType" :is-library="true"/>
-          </div>
-        </a-col>
-      </a-row>
+      <div class="preview-wrapper-row">
+        <div class="view-back">
+          <a-button type='primary' class='preview-back-btn' shape='round' @click="handlePreviewClose"><a-icon type="left" :style="{'font-size': '12px'}" />Back</a-button>
+        </div>
+        <div class="detail-wrapper" v-if="previewCurrentId && previewType">
+          <common-preview-v2 :id="previewCurrentId" :type="previewType" :is-library="true"/>
+        </div>
+      </div>
     </a-drawer>
   </div>
 </template>
@@ -332,7 +322,7 @@ import {
 } from '@/api/preference'
 import DirIcon from '@/components/LibraryV2/DirIcon'
 import NoMoreResources from '@/components/Common/NoMoreResources'
-import CommonPreview from '@/components/Common/CommonPreview'
+import CommonPreviewV2 from '@/components/Common/CommonPreviewV2'
 import AssessmentBrowser from './AssessmentBrowser'
 import BackSvg from '@/assets/svgIcon/library/back_btn.svg?inline'
 import GeneralCapabilityBrowser from '@/components/LibraryV2/GeneralCapabilityBrowser'
@@ -350,7 +340,8 @@ import SearchFilter from '@/components/LibraryV2/SearchFilter'
 import { QueryContentsFilter, QueryRecommendContents } from '@/api/library'
 import { SubjectTree } from '@/api/subject'
 import { FindCustomTags } from '@/api/tag'
-const { Search, QueryContents, QueryKeyContents } = require('@/api/library')
+import { mapState } from 'vuex'
+const { Search, QueryContents } = require('@/api/library')
 const { debounce } = require('lodash-es')
 
 const BrowserTypeMap = {
@@ -374,6 +365,13 @@ const BrowserTypeLabelMap = {
   idu: 'Integrated Subject Skill'
 }
 
+const SearchTypeMap = {
+  Search: 'Search',
+  BrowserType: 'BrowserType',
+  Recommend: 'Recommend',
+  CurriculumFilter: 'CurriculumFilter'
+}
+
 export default {
   name: 'Browser',
   components: {
@@ -381,7 +379,7 @@ export default {
     SubjectSpecificBrowser,
     GeneralCapabilityBrowser,
     AssessmentBrowser,
-    CommonPreview,
+    CommonPreviewV2,
     NoMoreResources,
     Navigation,
     CurriculumBrowser,
@@ -408,16 +406,17 @@ export default {
         { type: 'curriculum', label: 'Learning outcomes', tagType: TagType.knowledge },
         { type: 'assessmentType', label: 'Assessment type', tagType: TagType.assessment },
         { type: 'idu', label: 'Integrated Subject Skill', tagType: TagType.idu },
-        { type: 'centurySkills', label: '21st Century Skills', tagType: TagType.century },
+        { type: 'centurySkills', label: this.$classcipe.get21stCenturyDisplayNameByCurriculum(this.currentCurriculumId), tagType: TagType.century },
         { type: 'sdg', label: 'Big idea', tagType: TagType.bigIdea }
       ],
       browserTypeList: [
         { type: 'specificSkills', label: 'Achievement objectives', tagType: TagType.skill },
         { type: 'curriculum', label: 'Learning outcomes', tagType: TagType.knowledge },
         { type: 'assessmentType', label: 'Assessment type', tagType: TagType.assessment },
-        { type: 'centurySkills', label: '21st Century Skills', tagType: TagType.century },
+        { type: 'centurySkills', label: this.$classcipe.get21stCenturyDisplayNameByCurriculum(this.currentCurriculumId), tagType: TagType.century },
         { type: 'sdg', label: 'Big idea', tagType: TagType.bigIdea }
       ],
+      TagType: TagType,
       currentBrowserType: null,
       BrowserTypeMap: BrowserTypeMap,
       browserTypeLabelMap: BrowserTypeLabelMap,
@@ -455,6 +454,7 @@ export default {
       libraryMode: LibraryMode.browserMode,
       LibraryMode: LibraryMode,
       currentFromItemName: null,
+      currentFromItemType: null,
 
       // 当前选中的配置项
       filterConfig: {
@@ -462,6 +462,7 @@ export default {
         subject: [],
         type: [],
         faSaActivityType: null,
+        searchKey: null,
 
         teachingStrategy: [],
         differenceInstructions: [],
@@ -498,30 +499,47 @@ export default {
       firstLoad: true,
       showRecommend: true,
 
-      debouncedSearchKeyFocus: null
+      debouncedSearchKeyFocus: null,
+      filterContext: null,
+      showFilter: true,
+      SearchTypeMap: SearchTypeMap,
+      searchType: SearchTypeMap.Recommend,
+      searchRequestData: null
     }
   },
   computed: {
     leftBrowserWidth () {
       let width = '30vw'
-       if (this.expandedListFlag) {
+      if (this.expandedListFlag) {
         width = '0vw'
       } else if (this.showRecommend) {
-         width = '15vw'
-       }
+        width = '15vw'
+      } else if (!this.currentBrowserType) {
+        width = '15vw'
+      }
       return width
     },
     rightBrowserWidth () {
-      let width = '85vw'
+      let width = `calc(85vw - ${this.collapsed ? '80px' : '256px'})`
       if (this.expandedListFlag) {
-        width = '100vw'
+        width = `calc(100vw - ${this.collapsed ? '80px' : '256px'})`
       } else if (this.showRecommend) {
-        width = '70vw'
+        width = `calc(85vw - ${this.collapsed ? '80px' : '256px'})`
+      } else if (!this.currentBrowserType) {
+        width = `calc(85vw - ${this.collapsed ? '80px' : '256px'})`
+      } else if (this.currentBrowserType) {
+        width = `calc(70vw - ${this.collapsed ? '80px' : '256px'})`
       }
       return width
-    }
+    },
+    ...mapState({
+      collapsed: state => state.app.sideCollapsed
+    })
   },
   created () {
+    if (this.$store.getters.currentRole === 'student') {
+      this.currentCurriculumId = CurriculumType.Cambridge + ''
+    }
     this.currentBrowserType = null
     this.getRecommended()
 
@@ -530,19 +548,26 @@ export default {
       this.curriculumOptions = response.result
       this.$logger.info('getAllCurriculums', this.curriculumOptions)
     }).finally(() => {
-      this.getfilterOptions()
+      this.getFilterOptions()
     })
 
-    this.debouncedSearchKeyFocus = debounce(this.handleSearchKeyFocus, 600)
+    this.debouncedSearchKeyFocus = debounce(this.handleSearchKeyFocus, 400)
   },
   mounted () {
-    this.blockWidth = this.$refs['wrapper'].getBoundingClientRect().width * 0.15
-    this.filterHeight = document.documentElement.clientHeight - 200
+    this.blockWidth = document.getElementById('app').getBoundingClientRect().width * 0.15
+    this.filterHeight = document.documentElement.clientHeight - 350
     this.$logger.info('globalWidth ' + this.blockWidth)
+
+    window.onresize = debounce(() => {
+      this.blockWidth = document.getElementById('app').getBoundingClientRect().width * 0.15
+      this.filterHeight = document.documentElement.clientHeight - 350
+      this.browserMarginLeft = (this.blockIndex - 1) * this.blockWidth
+    }, 300)
   },
   methods: {
     getRecommended () {
       this.dataListLoading = true
+      this.showFilter = false
       QueryRecommendContents({ curriculumId: this.currentCurriculumId ? this.currentCurriculumId : this.$store.getters.bindCurriculum }).then(response => {
         this.$logger.info('QueryRecommendContents response', response)
         this.dataList = response.result ? response.result : []
@@ -555,6 +580,9 @@ export default {
     toggleBrowserType (browserTypeItem) {
       this.$logger.info('toggleBrowserType ' + browserTypeItem.type + ' tagType:' + browserTypeItem.tagType)
       this.showRecommend = false
+      this.searchType = SearchTypeMap.BrowserType
+      this.searchRequestData = browserTypeItem
+      this.showFilter = true
       if (browserTypeItem.type !== this.currentBrowserType) {
         this.currentBrowserType = browserTypeItem.type
         this.navPath = []
@@ -565,9 +593,13 @@ export default {
 
       const postData = {
         curriculumId: this.$store.getters.bindCurriculum,
-        tagType: browserTypeItem.tagType
+        tagType: browserTypeItem.tagType,
+        filter: null
       }
       if (typeof postData.tagType === 'number') {
+        if (this.filterContext) {
+          postData.filter = this.filterContext.getFilterConfig()
+        }
         QueryContents(postData).then(response => {
           this.$logger.info('toggleBrowserType QueryContents response', response)
           this.dataList = response.result ? response.result : []
@@ -665,16 +697,36 @@ export default {
       this.blockIndex = 0
       this.browserMarginLeft = 0
       this.currentBrowserType = null
+      this.searchType = SearchTypeMap.Recommend
+      this.searchRequestData = value
 
       if (this.libraryMode === LibraryMode.searchMode) {
         this.handleSearchKey()
       }
       this.getRecommended()
+
+      // 修改21st世纪大纲显示名称
+      this.browserTypeListForIbMpy = [
+        { type: 'specificSkills', label: 'Achievement objectives', tagType: TagType.skill },
+        { type: 'curriculum', label: 'Learning outcomes', tagType: TagType.knowledge },
+        { type: 'assessmentType', label: 'Assessment type', tagType: TagType.assessment },
+        { type: 'idu', label: 'Integrated Subject Skill', tagType: TagType.idu },
+        { type: 'centurySkills', label: this.$classcipe.get21stCenturyDisplayNameByCurriculum(this.currentCurriculumId), tagType: TagType.century },
+        { type: 'sdg', label: 'Big idea', tagType: TagType.bigIdea }
+      ]
+      this.browserTypeList = [
+        { type: 'specificSkills', label: 'Achievement objectives', tagType: TagType.skill },
+        { type: 'curriculum', label: 'Learning outcomes', tagType: TagType.knowledge },
+        { type: 'assessmentType', label: 'Assessment type', tagType: TagType.assessment },
+        { type: 'centurySkills', label: this.$classcipe.get21stCenturyDisplayNameByCurriculum(this.currentCurriculumId), tagType: TagType.century },
+        { type: 'sdg', label: 'Big idea', tagType: TagType.bigIdea }
+      ]
     },
 
     handleSearchKey () {
       this.$logger.info('handleSearchKey ' + this.searchKeyword)
       this.expandedListFlag = true
+      this.showFilter = true
       if (this.searchKeyword && this.searchKeyword.trim().length > 0) {
         this.searchByKeyword(this.searchKeyword)
       } else {
@@ -703,6 +755,7 @@ export default {
               lastIndex = index + value.length
               index = item.name.toLowerCase().indexOf(value, index + value.length)
             }
+            tagName += item.name.substring(lastIndex)
             const tagItem = {
               fromType: item.fromType,
               name: item.name,
@@ -721,7 +774,15 @@ export default {
     searchContentByKeyword (value) {
       if (value) {
         this.$logger.info('searchContentByKeyword ' + value)
-        this.searchByFilter({ searchKey: value.trim() })
+        // 获取filter配置
+        let filter = {
+          searchKey: value
+        }
+        if (this.filterContext) {
+          filter = this.filterContext.getFilterConfig()
+          filter.searchKey = value
+        }
+        this.searchByFilter(filter)
       } else {
         this.showRecommend = true
         this.dataList = this.dataRecommendList
@@ -730,7 +791,10 @@ export default {
 
     handleSearchKeyFocus () {
       this.$logger.info('handleSearchKeyFocus')
+      this.currentFromItemName = null
+      this.currentFromItemType = null
       this.searchResultVisible = true
+      this.searchType = SearchTypeMap.Search
       this.searchResultList = []
       this.libraryMode = LibraryMode.searchMode
       this.searchContentByKeyword(this.searchKeyword)
@@ -742,17 +806,25 @@ export default {
 
     handleClickSearchResultItem (item) {
       this.$logger.info('handleClickSearchResultItem', item)
+      this.searchType = SearchTypeMap.Search
       this.handleActiveFilterItem(item)
       this.searchResultVisible = false
     },
 
-    handleClickBlock (data) {
-      this.$logger.info('handleClickBlock', data)
+    handleClickBlock (value) {
+      this.$logger.info('handleClickBlock', value)
+      const data = Object.assign({ filter: null }, value)
       this.showRecommend = false
+      this.searchType = SearchTypeMap.CurriculumFilter
+      this.searchRequestData = value
+      this.showFilter = true
       this.dataList = []
       this.dataListLoading = true
       this.previewVisible = false
       if (typeof data.tagType === 'number') {
+        if (this.filterContext) {
+          data.filter = this.filterContext.getFilterConfig()
+        }
         QueryContents(data).then(response => {
           this.$logger.info('QueryContents response', response)
           this.dataList = response.result ? response.result : []
@@ -813,6 +885,7 @@ export default {
       this.searching = true
       this.searchKeyword = item.name
       this.currentFromItemName = item.name
+      this.currentFromItemType = item.fromType
       this.libraryMode = LibraryMode.searchMode
       this.handleSearchByFromType(item)
     },
@@ -821,20 +894,22 @@ export default {
       this.$logger.info('handleSearchByFromType ', item)
       this.searching = true
       this.showRecommend = false
-      QueryKeyContents(item).then(response => {
-        this.$logger.info('QueryContents response', response)
-        const list = response.result ? response.result : []
-        list.sort(it => {
-          if (it.name.toLowerCase().indexOf(item.name) !== -1) {
-            return -1
-          } else {
-            return 1
-          }
-        })
-        this.dataList = list
-      }).finally(() => {
-        this.searching = false
-      })
+      let filter = {
+        searchKey: item.name,
+        keyContent: {
+          fromType: item.fromType,
+          name: item.name
+        }
+      }
+      if (this.filterContext) {
+        filter = this.filterContext.getFilterConfig()
+        filter.keyContent = {
+          fromType: item.fromType,
+          name: item.name
+        }
+        filter.searchKey = item.name
+      }
+      this.searchByFilter(filter)
     },
 
     searchByFilter (filter) {
@@ -845,23 +920,52 @@ export default {
       this.searching = true
       QueryContentsFilter(filterData).then(response => {
         this.$logger.info('QueryContentsFilter result : ', response)
+
+        // 按搜索内容排序
+        if (filter.keyContent && filter.keyContent.name) {
+          response.result.sort(it => {
+            if (it.name.toLowerCase().indexOf(filter.keyContent.name) !== -1) {
+              return -1
+            } else {
+              return 1
+            }
+          })
+        }
         this.dataList = response.result ? response.result : []
       }).finally(() => {
         this.searching = false
       })
     },
     handleUpdateFilterConfig (filter) {
-      // TODO 根据配置更新请求参数
       this.$logger.info('handleUpdateFilterConfig', filter)
-      this.libraryMode = LibraryMode.searchMode
-      this.searchByFilter(filter)
+      switch (this.searchType) {
+        case SearchTypeMap.CurriculumFilter:
+          this.handleClickBlock(this.searchRequestData)
+          break
+        case SearchTypeMap.Search:
+          this.searchContentByKeyword(this.searchKeyword)
+          break
+        case SearchTypeMap.BrowserType:
+          this.toggleBrowserType(this.searchRequestData)
+          break
+        case SearchTypeMap.Recommend:
+          this.handleCurriculumChange(this.searchRequestData)
+          break
+        default:
+          break
+      }
     },
-    getfilterOptions () {
+    handleUpdateFilterContext (filterContext) {
+      // slot无法使用ref，故将filter的this传给当前组件
+      this.$logger.info('handleUpdateFilterContext', filterContext)
+      this.filterContext = filterContext
+    },
+    getFilterOptions () {
       SubjectTree({ curriculumId: this.currentCurriculumId }).then(response => {
         this.$logger.info('getSubjectTree response', response.result)
         this.filterSubjectOptions = []
         response.result.forEach(subject => {
-          this.filterSubjectOptions.push({ label: subject.name, value: subject.id })
+          this.filterSubjectOptions.push({ label: subject.name, value: subject.name })
         })
       })
       GetGradesByCurriculumId({ curriculumId: this.currentCurriculumId }).then(response => {
@@ -918,8 +1022,8 @@ export default {
   background: rgba(247, 248, 255, 1);
   .nav-header {
     position: fixed;
-    left: 0;
-    top: 64px;
+    height: 100px;
+    top: 0;
     right: 0;
     box-sizing: border-box;
     box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.06);
@@ -981,10 +1085,22 @@ export default {
   .library-detail-wrapper {
     position: absolute;
     width: 100%;
+    top: 100px;
+    height: calc(100vh - 100px);
     overflow: hidden;
     display: flex;
     flex-direction: row;
     flex: 1;
+
+    .library-mask {
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 200;
+      background: rgba(0, 0, 0, 0.8);
+    }
     .library-detail-nav-wrapper {
       padding-top: 40px;
       transition: all 200ms ease-in-out;
@@ -1025,7 +1141,7 @@ export default {
           height: calc(100vh - 190px);
           display: flex;
           flex-direction: row;
-          border: 1px solid #ddd;
+          border-left: 1px solid #ddd;
           border-top: none;
           border-bottom: none;
           border-right: none;
@@ -1148,7 +1264,7 @@ export default {
 
 .browser-block-item-wrapper {
   overflow-y: scroll;
-  height: calc(100vh - 190px);
+  height: calc(100vh - 120px);
   width: 100%;
   box-sizing: border-box;
 
@@ -1202,6 +1318,10 @@ export default {
   flex-wrap: wrap;
   justify-content: flex-start;
   box-sizing: border-box;
+  height: calc(100vh - 180px);
+  overflow-y: scroll;
+  margin-top: 10px;
+  overflow-x: hidden;
 
   .browser-item {
     line-height: 20px;
@@ -1258,7 +1378,9 @@ export default {
 
   .card-view-mode-wrapper {
     width: 100%;
-    padding: 10px 10px 25px 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
     .card-item-wrapper {
       cursor: pointer;
       box-sizing: border-box;
@@ -1266,6 +1388,9 @@ export default {
       display: flex;
       flex-direction: row;
       justify-content: center;
+      width: 280px;
+      height: 200px;
+      margin: 0 10px 10px 0;
       .card-item {
         width: 100%;
         opacity: 1;
@@ -1320,10 +1445,9 @@ export default {
   align-items: center;
   border-color: #eff3f6;
   box-shadow: none;
-  background: #eff3f6;
   border-top-left-radius: 3px;
   border-bottom-left-radius: 3px;
-  padding: 0 0 0 10px;
+  padding: 0 8px;
   height: 46px;
   line-height: 46px;
   white-space:nowrap;
@@ -1352,8 +1476,6 @@ export default {
   .filter-label {
     font-family: Inter-Bold;
     line-height: 20px;
-    padding-right: 10px;
-    border-right: 1px solid #ccc;
   }
 }
 
@@ -1484,8 +1606,34 @@ export default {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    position: relative;
     &:hover {
       background-color: #e3e9ed;
+    }
+    .from-type {
+      position: absolute;
+      right: 5px;
+      top: 7px;
+      z-index: 300;
+      padding: 0 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      .from-label {
+        padding-right: 5px;
+        user-select: none;
+        color: #f6f6f6;
+      }
+      .from-text-tag {
+        cursor: pointer;
+        background: #f6f6f6;
+        color: #aaa;
+        font-size: 14px;
+        line-height: 20px;
+        padding: 0 5px;
+        border-radius: 3px;
+      }
     }
   }
 
@@ -1543,4 +1691,19 @@ export default {
   }
 }
 
+.recommend-filter-bar {
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  background: #fff;
+  border-bottom: 1px solid #e8e8e8;
+  border-radius: 2px 2px 0 0;
+  .recommend-item {
+    color: rgba(0, 0, 0, 0.85);
+    font-weight: 500;
+    font-size: 16px;
+  }
+}
 </style>

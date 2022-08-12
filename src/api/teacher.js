@@ -1,12 +1,10 @@
 import request from '@/utils/request'
 import { typeMap } from '@/const/teacher'
-import { TopicDelete } from '@/api/topic'
-import { MaterialDelete } from '@/api/material'
 import { UnitPlanDelete } from '@/api/unitPlan'
 import { TaskDelete } from '@/api/task'
 import * as logger from '@/utils/logger'
-import { EvaluationDelete } from '@/api/evaluation'
-import { LessonDelete } from '@/api/myLesson'
+import { PDContentDelete } from '@/api/pdContent'
+import { VideoDelete } from '@/api/video'
 
 export const teacherAPIUrl = {
   Associate: '/classcipe/api/teacher/associate',
@@ -26,7 +24,11 @@ export const teacherAPIUrl = {
   Rename: '/classcipe/api/teacher/content/rename',
   FindSourceOutcomes: '/classcipe/api/teacher/findSourceOutcomes',
   FindBigIdeaSourceOutcomes: '/classcipe/api/teacher/findBigIdeaSourceOutcomes',
-  ContentRestore: '/classcipe/api/teacher/content/restore'
+  ContentRestore: '/classcipe/api/teacher/content/restore',
+  FindPurchases: '/classcipe/api/teacher/findPurchases',
+  FindInspirationStudents: '/classcipe/api/teacher/findInspirationStudents',
+  FindInspirationTeachers: '/classcipe/api/teacher/findInspirationTeachers',
+  GetAssociateRecommend: '/classcipe/api/teacher/getAssociateRecommend'
 }
 
 /**
@@ -94,22 +96,18 @@ export function GetMyGrades () {
  * @param data
  * @constructor
  */
-export function deleteMyContentByType (data) {
+export function DeleteMyContentByType (data) {
   const MyContentType = data.type
   const id = data.id
   switch (MyContentType) {
-    case typeMap.topic:
-      return TopicDelete({ id })
     case typeMap['unit-plan']:
       return UnitPlanDelete({ id })
-    case typeMap.material:
-      return MaterialDelete({ id })
     case typeMap.task:
       return TaskDelete({ id })
-    case typeMap.lesson:
-      return LessonDelete({ id })
-    case typeMap.evaluation:
-      return EvaluationDelete({ id })
+    case typeMap.pd:
+      return PDContentDelete({ id })
+    case typeMap.video:
+      return VideoDelete({ id })
     default:
       logger.error('wrong delete type ' + MyContentType + ' id: ' + id)
       break
@@ -294,5 +292,66 @@ export function ContentRestore (parameter) {
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
+  })
+}
+
+/**
+ * types
+ * @param parameter
+ * @returns {AxiosPromise}
+ */
+ export function FindPurchases (parameter) {
+  return request({
+    url: teacherAPIUrl.FindPurchases,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+/**
+ * types
+ * @param parameter
+ * @returns {AxiosPromise}
+ */
+ export function FindInspirationStudents (parameter) {
+  return request({
+    url: teacherAPIUrl.FindInspirationStudents,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+/**
+ * types
+ * @param parameter
+ * @returns {AxiosPromise}
+ */
+ export function FindInspirationTeachers (parameter) {
+  return request({
+    url: teacherAPIUrl.FindInspirationTeachers,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+/**
+ * types
+ * @param parameter
+ * @returns {AxiosPromise}
+ */
+export function GetAssociateRecommend (parameter) {
+  return request({
+    url: teacherAPIUrl.GetAssociateRecommend,
+    method: 'get',
+    params: parameter
   })
 }

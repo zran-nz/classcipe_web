@@ -25,11 +25,18 @@ import './global.less' // global style
 import { FormModel } from 'ant-design-vue'
 
 import Moment from 'moment'
-import * as logger from '@/utils/logger'
+
+import EventBus from './utils/eventBus'
 
 // import VueRecord from '@codekraft-studio/vue-record'
 import preview from 'vue-photo-preview'
 import VueClipboard from 'vue-clipboard2'
+
+import VueObserveVisibility from 'vue-observe-visibility'
+// "sass": "~1.32",
+// "sass-loader": "^10.2.0",
+// import vuetify from './plugins/vuetify'
+Vue.prototype.$EventBus = EventBus
 Vue.use(preview, { maxSpreadZoom: 4 })
 Vue.use(VueClipboard)
 
@@ -46,6 +53,7 @@ Vue.filter('localFormatDate', function (value) {
 })
 
 Vue.config.productionTip = false
+Vue.use(VueObserveVisibility)
 
 // mount axios to `Vue.$http` and `this.$http`
 Vue.use(VueAxios)
@@ -61,22 +69,17 @@ window.umi_plugin_ant_themeVar = themePluginConfig.theme
 // globalClick
 window.__globalClickHandler = new Map()
 Vue.prototype.globalClick = function (callback, pageName = '', reBind = false) {
-  logger.info('globalClick handler', window.__globalClickHandler)
   if (pageName && window.__globalClickHandler.get(pageName)) {
     if (reBind) {
       document.getElementById('app').removeEventListener('click', function (event) {
         callback(event)
       })
-      logger.info('reBind globalClick handler for ' + pageName, callback)
       document.getElementById('app').addEventListener('click', function (event) {
         callback(event)
       })
       window.__globalClickHandler.set(pageName, callback)
-    } else {
-      logger.info('already bind globalClick handler for ' + pageName + ' skip!', callback)
     }
   } else {
-    logger.info('bind globalClick handler for ' + pageName, callback)
     document.getElementById('app').addEventListener('click', function (event) {
       callback(event)
     })
@@ -88,6 +91,7 @@ new Vue({
   router,
   store,
   i18n,
+  // vuetify,
   // init localstorage, vuex
   created: bootstrap,
   render: h => h(App)

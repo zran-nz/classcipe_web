@@ -13,7 +13,7 @@
             <a-radio-button value="Preview" class="right-button">
               Detail
             </a-radio-button>
-            <a-radio-button value="Reviews" class="right-button" v-hasRole="['student']">
+            <a-radio-button value="Reviews" class="right-button" v-hasRole="['student', 'teacher']">
               Reviews
             </a-radio-button>
           </a-radio-group>
@@ -32,16 +32,18 @@
                   <img src="~@/assets/icons/common/preview/star_yellow.png" @click="handleFavorite(data)" v-if="data.isFavorite"/>
                 </template>
               </div>
-              <div class="edit" v-if="isOwner || isCollaborater">
+              <div class="edit" v-if="this.isOwner || this.isCollaborater">
                 <a-button type="primary" shape="round" @click="handleEditItem(data)">
                   <div class="button-content" >
                     Edit <img class="edit-icon" src="~@/assets/icons/common/preview/edit_white.png" />
                   </div>
                 </a-button>
               </div>
+              <!-- TODO 后续会有课件付费功能，只有付费过的才能COPY -->
               <div class="edit" v-else>
                 <a-button
                   v-excludeRole="['student']"
+                  v-if="!myContentId"
                   :loading="copyLoading"
                   class="copy-button"
                   type="primary"
@@ -53,26 +55,40 @@
                   </div>
                 </a-button>
                 <a-button
-                  v-hasRole="['student']"
+                  v-excludeRole="['student']"
+                  v-else
                   :loading="copyLoading"
                   class="copy-button"
                   type="primary"
                   shape="round"
-                  @click="handleDuplicateItem"
+                  @click="handleEditItem({id: myContentId})"
+                >
+                  <div class="button-content">
+                    Edit in my content <a-icon type="edit" style="margin-left: 6px;"/>
+                  </div>
+                </a-button>
+                <a-button
+                  v-hasRole="['student']"
+                  v-if="data.type === typeMap.task"
+                  :loading="copyLoading"
+                  class="copy-button"
+                  type="primary"
+                  shape="round"
+                  @click="handleStartTask"
                 >
                   <div class="button-content" >
-                    Buy now
+                    Start {{ data.buyed ? 'Session' : '' }}<a-icon type="play-circle" style="margin-left: 6px;"/>
                   </div>
                 </a-button>
               </div>
             </div>
           </div>
-          <div class="price-line" v-hasRole="['student']">
+          <!-- <div class="price-line" v-hasRole="['student']">
             <label for="">$ 15.00</label>
-          </div>
+          </div> -->
         </a-col>
       </a-row>
-      <a-row class="author-info" v-excludeRole="['student']">
+      <!-- <a-row class="author-info" v-excludeRole="['student']" v-show="viewMode !== 'Reviews'">
         <a-col span="3" class="avatar-icon">
           <img src="~@/assets/icons/library/default-avatar.png" />
         </a-col>
@@ -96,9 +112,31 @@
             </a-tooltip>
           </div>
         </a-col>
+      </a-row> -->
+      <a-row class="author-info" v-excludeRole="['student']">
+        <a-col span="3" class="avatar-icon">
+          <!-- <img src="~@/assets/icons/library/default-avatar.png" /> -->
+          <img :src="collaborate.owner && collaborate.owner.avatar" />
+        </a-col>
+        <a-col span="21">
+          <div class="sub-info">
+            <div class="created-by">
+              {{ data.createBy }}
+            </div>
+            <div class="created-time">
+              <template v-if="lastChangeSavedTime">
+                {{ lastChangeSavedTime }}
+              </template>
+            </div>
+          </div>
+          <div class="star-info">
+            <review-score :review="reviewsStats" placement="bottom"/>
+            <a-button type='link'>{{ reviewsStats.overall | percentFormat }} ({{ reviewsStats.reviewsCount }} reviews)</a-button>
+          </div>
+        </a-col>
       </a-row>
-      <a-space class="author-info" v-hasRole="['student']" v-if="viewMode !== 'Reviews'">
-        <div class="avatar-icon" :class="{'avatar-small': viewMode === 'Detail'}">
+      <a-space class="author-info" v-hasRole="['student']" v-show="viewMode !== 'Reviews'">
+        <div class="avatar-icon">
           <img :src="collaborate.owner && collaborate.owner.avatar" />
         </div>
         <div>
@@ -112,17 +150,18 @@
               </template>
             </div>
           </div>
-          <div class="star-info" v-if="viewMode === 'Preview'">
+          <div class="star-info" @click="() => this.viewMode = 'Reviews'">
             <a-tooltip placement="right">
               <template slot="title">
-                10 people gave a score of 5 stars
+                {{ reviewsStats.reviewsScoreStatDetail && reviewsStats.reviewsScoreStatDetail[4] && reviewsStats.reviewsScoreStatDetail[4].reviewsScoreCount }}
+                people gave a score of 5 stars
               </template>
-              <a-rate :default-value="5" allow-half disabled/>
+              <a-rate :value="reviewsStats.avgReviewsScore" allow-half disabled/>
             </a-tooltip>
           </div>
         </div>
       </a-space>
-      <a-row class="data-info" v-if="viewMode === 'Detail'">
+      <a-row class="data-info" v-show="viewMode === 'Detail'">
         <a-col class="right-detail" span="24" >
           <div class="sub-detail">
             <div class="detail-block">
@@ -170,10 +209,10 @@
               </div>
               <div class="overview-block" v-hasRole="['student']">
                 <div class="custom-tags">
-                  <div class="tag-item" v-for="(tag,tagIndex) in data.customTags" :key="'interActiveIndex' + tagIndex">
-                    <a-tooltip :title="tag.parentName">
-                      <a-tag class="tag">
-                        {{ tag.name }}
+                  <div class="tag-item" v-for="(tag,tagIndex) in inActiveTypes" :key="'interActiveIndex' + tagIndex">
+                    <a-tooltip :title="tag">
+                      <a-tag class="tag" :color="tagColorList[tagIndex]">
+                        {{ tag }}
                       </a-tag>
                     </a-tooltip>
                   </div>
@@ -185,7 +224,7 @@
               <div class="overview-block">
                 <div class="learn-question-tag">
                   <div class="learn-out" style="margin: 10px;">
-                    <ui-learn-out-sub :learn-outs="data.learnOuts" />
+                    <ui-learn-out-sub :learn-outs="data.learnOuts" :self-outs='data.selfOuts' :class-info-list="itemsList" />
                   </div>
                 </div>
               </div>
@@ -216,11 +255,21 @@
                   </div>
                 </div>
               </template>
+              <template v-if='data.rwc'>
+                <div class="block-main-label">
+                  Real World Connection(s)
+                </div>
+                <div class="overview-block">
+                  <div class="view-text">
+                    {{ data.rwc }}
+                  </div>
+                </div>
+              </template>
             </div>
           </div>
         </a-col>
       </a-row>
-      <a-row class="preview-data-info" v-if="viewMode === 'Preview'">
+      <a-row class="preview-data-info" v-show="viewMode === 'Preview'">
         <a-col class="slide-preview" span="24">
           <div class="data-detail-wrapper" v-if="data.scenarios || data.inquiry || (data.questions && data.questions.length)">
 
@@ -233,14 +282,16 @@
                   class="scenario-item ref-block"
                   v-for="(scenario,sIndex) in data.scenarios"
                   :key="sIndex">
-                  <!--                <div class="block-title">-->
-                  <!--                  {{ scenario.description }}-->
-                  <!--                </div>-->
                   <div class="scenario-block-content">
                     <div class="content-list">
                       <div class="content-item">
                         <div class="question">
-                          {{ scenario.sdgName }}
+                          <template v-if='scenario.description'>
+                            <a-tooltip :title="scenario.description" placement='top'>
+                              {{ scenario.sdgName }}
+                            </a-tooltip>
+                          </template>
+                          <template v-else> {{ scenario.sdgName }}</template>
                         </div>
                         <div class="tags">
                           <div class="tag-item" v-for="(keyword,tagIndex) in scenario.sdgKeyWords" :key="'tagIndex' + tagIndex">
@@ -416,68 +467,52 @@
           </template>
         </a-col>
       </a-row>
-      <a-row class="reviews-info" v-if="viewMode === 'Reviews'">
-        <a-col class="slide-reviews" span="24">
-          <rate-by-percent />
-          <div class="reviews-wrapper">
-            <div class="reviews-title">
-              <h2>Reviews</h2>
-            </div>
-            <div class="reviews-search">
-              <div class="my-search">
-                <a-input-search
-                  placeholder="Search"
-                  v-model="searchText"
-                  @search="triggerSearch"
-                  @pressEnter="triggerSearch"
-                  :allowClear="true"
-                  size="large"
-                >
-                </a-input-search>
-              </div>
-              <a-select :getPopupContainer="trigger => trigger.parentElement" size="large" default-value="1" @change="triggerChangeRate">
-                <a-select-option value="1">
-                  All ratings
-                </a-select-option>
-                <a-select-option value="5">
-                  5 rating
-                </a-select-option>
-              </a-select>
-            </div>
-            <a-skeleton :loading="reviewsLoading" active >
-              <div class="reviews-content">
-                <div class="reviews-content-detail" v-for="(item, index) in [0, 1]" :key="'review_'+index">
-                  <div class="content-detail__avatar">
-                    <img :src="collaborate.owner && collaborate.owner.avatar"/>
-                  </div>
-                  <div class="content-detail__rate">
-                    <a-rate :default-value="5" allow-half disabled/>
-                  </div>
-                  <div>
-                    <div class="content-detail__title">
-                      <div class="title-info">
-                        <div class="info-author">
-                          Author name
-                        </div>
-                        <div class="info-time">
-                          6 days ago
-                        </div>
-                      </div>
-                    </div>
-                    <div class="content-detail__review">
-                      <label>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet.
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </a-skeleton>
-          </div>
+      <a-row class="reviews-info" v-show="viewMode === 'Reviews'">
+        <a-col class="slide-reviews" span="24" v-if="currentRole === 'student'">
+          <rate-by-percent :rates="reviewsStats"/>
+          <reviews-preview
+            :id="id"
+            role="student"
+            :list="ReviewsTask.ReviewsTaskList"
+            :save="ReviewsTask.ReviewsTaskSave"
+            :del="ReviewsTask.ReviewsTaskDelete"
+            :myReview="ReviewsTask.ReviewsTaskMyReview"
+          />
+        </a-col>
+        <a-col class="slide-reviews" span="24" v-else>
+          <!-- TODO 后续会有课件付费功能，只有付费过的才能评论 -->
+          <reviews-preview
+            :id="id"
+            role="teacher"
+            :list="ReviewsTeacher.ReviewsTeacherList"
+            :save="ReviewsTeacher.ReviewsTeacherSave"
+            :del="ReviewsTeacher.ReviewsTeacherDelete"
+            :myReview="ReviewsTeacher.ReviewsTeacherMyReview"
+            :canEdit="true"
+            @update="loadReviewStats"
+          />
         </a-col>
       </a-row>
-      <div class="associate-info" v-if="viewMode === 'Detail'" v-excludeRole="['student']">>
-        <common-link :can-edit="false" ref="commonLink" :from-id="id" :from-type="type"/>
+      <div class="associate-info" v-show="viewMode === 'Detail'" v-excludeRole="['student']">
+        <template v-if='type === typeMap.task'>
+          <task-link
+            :show-drag-tips='false'
+            :isLibrary="isLibrary"
+            :hidden-empty-group='true'
+            :can-edit="false"
+            ref="commonLink"
+            :from-id="id"
+            :from-type="type"/>
+        </template>
+        <template v-if='type === typeMap["unit-plan"]'>
+          <plan-link
+            :isLibrary="isLibrary"
+            :hidden-empty-group='true'
+            :can-edit="false"
+            ref="commonLink"
+            :from-id="id"
+            :from-type="type" />
+        </template>
       </div>
     </template>
 
@@ -513,33 +548,50 @@ import * as logger from '@/utils/logger'
 import { typeMap } from '@/const/teacher'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import CommonAssociatePreview from '@/components/Common/CommonAssociatePreview'
-import { TemplatesGetPresentation, TemplatesGetPublishedPresentation } from '@/api/template'
+import { TemplatesGetPublishedPresentation } from '@/api/template'
 import EvaluationTablePreview from '@/components/Evaluation/EvaluationTablePreview'
-import CommonLink from '@/components/Common/CommonLink'
+import TaskLink from '@/components/Task/TaskLink'
 import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
 import MediaPreview from '@/components/Task/MediaPreview'
 import TaskMaterialPreview from '@/components/Task/TaskMaterialPreview'
 import UiLearnOutSub from '@/components/UnitPlan/UiLearnOutSub'
 import RateByPercent from '@/components/RateByPercent'
+import ReviewsPreview from '@/components/Reviews/ReviewsPreview'
+import ReviewScore from '@/components/Reviews/ReviewScore'
 import { BaseEventMixin } from '@/mixins/BaseEvent'
 import { Duplicate } from '@/api/teacher'
+import { DICT_PROMPT_TYPE, USER_MODE, RATE_TOOLTIPS } from '@/const/common'
+import { GetDictItems } from '@/api/common'
+import { lessonHost } from '@/const/googleSlide'
+import { ACCESS_TOKEN } from '@/store/mutation-types'
+import storage from 'store'
+
+import { mapState } from 'vuex'
+import * as ReviewsTask from '@/api/reviewsTask'
+import * as ReviewsTeacher from '@/api/reviewsTeacher'
+import PlanLink from '@/components/Common/PlanLink'
+import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 const { formatLocalUTC } = require('@/utils/util')
 const { UnitPlanQueryById } = require('@/api/unitPlan')
 const { TaskQueryById } = require('@/api/task')
 const { EvaluationQueryById } = require('@/api/evaluation')
 const { FavoritesAdd } = require('@/api/favorites')
+const { SelfStudyTaskBye, SelfStudyTaskStart } = require('@/api/selfStudy')
 
 export default {
   name: 'CommonPreview',
   components: {
+    PlanLink,
     UiLearnOutSub,
     EvaluationTablePreview,
     CommonAssociatePreview,
     NoMoreResources,
-    CommonLink,
+    TaskLink,
     MediaPreview,
     TaskMaterialPreview,
-    RateByPercent
+    RateByPercent,
+    ReviewsPreview,
+    ReviewScore
   },
   props: {
     id: {
@@ -553,10 +605,19 @@ export default {
     isLibrary: {
       type: Boolean,
       default: false
+    },
+    // copy 过的id，如果曾今copy过，前myContentId不为空，则copy变成edit
+    myContentId: {
+      type: String,
+      default: null
     }
   },
-  mixins: [PptPreviewMixin, BaseEventMixin],
+  mixins: [ PptPreviewMixin, BaseEventMixin, GoogleAuthCallBackMixin ],
   computed: {
+    ...mapState({
+      userMode: state => state.app.userMode,
+      currentRole: state => state.user.currentRole
+    }),
     lastChangeSavedTime () {
       if (this.data) {
         logger.info('lastChangeSavedTime data', this.data)
@@ -566,20 +627,26 @@ export default {
         }
       }
       return ''
+    },
+    inActiveTypes () {
+      let activeTypes = []
+      if (this.itemsList) {
+        activeTypes = this.itemsList.map(item => item.type)
+      }
+      return Array.from(new Set(activeTypes))
     }
-  },
-  mounted () {
-
   },
   data () {
     return {
       loading: true,
       slideLoading: false,
       copyLoading: false,
-      reviewsLoading: false,
       data: null,
       imgList: [],
       viewMode: 'Detail',
+      RATE_TOOLTIPS: RATE_TOOLTIPS,
+      ReviewsTask: ReviewsTask,
+      ReviewsTeacher: ReviewsTeacher,
 
       tagColorList: [
         'pink',
@@ -595,7 +662,17 @@ export default {
 
       subPreviewVisible: false,
       currentImgIndex: 0,
-      searchText: ''
+      initPrompts: [],
+      reviewsStats: {
+        avgReviewsScore: 0,
+        reviewsScoreStatDetail: [],
+
+        reviewsCount: 0,
+        effectiveness: 0,
+        overall: 0,
+        quality: 0,
+        studentsEngagement: 0
+      }
     }
   },
   created () {
@@ -649,6 +726,24 @@ export default {
           this.queryContentCollaborates(this.id, this.type)
         })
       }
+      GetDictItems(DICT_PROMPT_TYPE).then(response => {
+        if (response.success) {
+          logger.info('DICT_PROMPT_TYPE', response.result)
+          this.initPrompts = response.result
+        }
+      })
+      // if (['student', 'teacher'].includes(this.currentRole)) {
+        this.loadReviewStats()
+      // }
+    },
+
+    handleAuthCallback () {
+      this.$logger.info('Preview handleAuthCallback')
+      if (this.currentMethodName === 'loadThumbnail') {
+        this.loadThumbnail()
+      } else if (this.currentMethodName === 'handleDuplicateItem') {
+        this.handleDuplicateItem()
+      }
     },
 
     loadThumbnail () {
@@ -656,44 +751,71 @@ export default {
       if (this.data.presentationId) {
         if (this.isLibrary) {
           TemplatesGetPublishedPresentation({
-            presentationId: this.data.presentationId
+            taskId: this.data.id
           }).then(response => {
-            const pageObjects = response.result.pageObjects
-            this.thumbnailList = []
-            if (pageObjects.length) {
-              pageObjects.forEach(page => {
-                this.imgList.push(page.contentUrl)
-                this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
+            if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
+              const pageObjects = response.result.pageObjects
+              this.thumbnailList = []
+              if (pageObjects.length) {
+                pageObjects.forEach(page => {
+                  this.imgList.push(page.contentUrl)
+                  this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
+                  this.slideLoading = false
+                  this.$logger.info('current imgList ', this.imgList)
+                })
+              } else {
+                this.imgList = []
                 this.slideLoading = false
-                this.$logger.info('current imgList ', this.imgList)
-              })
+              }
             } else {
-              this.imgList = []
-              this.slideLoading = false
+              this.$logger.info('等待授权事件通知')
+              this.currentMethodName = 'loadThumbnail'
             }
           })
         } else {
-          TemplatesGetPresentation({
-            presentationId: this.data.presentationId
+          TemplatesGetPublishedPresentation({
+            taskId: this.data.id
           }).then(response => {
-            const pageObjects = response.result.pageObjects
-            this.thumbnailList = []
-            if (pageObjects.length) {
-              pageObjects.forEach(page => {
-                this.imgList.push(page.contentUrl)
-                this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
+            if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
+              const pageObjects = response.result.pageObjects
+              this.thumbnailList = []
+              if (pageObjects.length) {
+                pageObjects.forEach(page => {
+                  this.imgList.push(page.contentUrl)
+                  this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
+                  this.slideLoading = false
+                  this.$logger.info('current imgList ', this.imgList)
+                })
+              } else {
+                this.imgList = []
                 this.slideLoading = false
-                this.$logger.info('current imgList ', this.imgList)
-              })
+              }
             } else {
-              this.imgList = []
-              this.slideLoading = false
+              this.$logger.info('等待授权事件通知')
+              this.currentMethodName = 'loadThumbnail'
             }
           })
         }
       } else {
         this.slideLoading = false
       }
+    },
+
+    loadReviewStats () {
+      let promise = null
+      if (this.currentRole === 'student') {
+        promise = ReviewsTask.ReviewsTaskStats
+      } else {
+        promise = ReviewsTeacher.ReviewsTeacherStats
+      }
+      promise && promise({
+        taskId: this.id, // 学生需要
+        purchasesId: this.id // 老师需要
+      }).then(res => {
+        if (res.success) {
+          this.reviewsStats = res.result
+        }
+      })
     },
 
     handleSelectContentType (contentType) {
@@ -718,6 +840,7 @@ export default {
         logger.info('FavoritesAdd ', response)
         item.isFavorite = !item.isFavorite
         this.data.isFavorite = item.isFavorite
+        this.$emit('favoritiesAdd', { ...this.data })
       })
     },
     handleGotoImgIndex (index) {
@@ -731,17 +854,8 @@ export default {
       if (item.type === typeMap['unit-plan']) {
         window.open('/teacher/unit-plan-redirect/' + item.id
           , '_blank')
-      } else if (item.type === typeMap['topic']) {
-        window.open('/expert/topic-redirect/' + item.id
-          , '_blank')
-      } else if (item.type === typeMap['material']) {
-        window.open('/teacher/add-material/' + item.id
-          , '_blank')
       } else if (item.type === typeMap.task) {
         window.open('/teacher/task-redirect/' + item.id
-          , '_blank')
-      } else if (item.type === typeMap.lesson) {
-        window.open('/teacher/lesson-redirect/' + item.id
           , '_blank')
       } else if (item.type === typeMap.evaluation) {
         window.open('/teacher/evaluation-redirect/' + item.id
@@ -751,18 +865,48 @@ export default {
     handleDuplicateItem () {
       this.$logger.info('handleDuplicateItem', this.data)
       this.$confirm({
-        title: 'Confirm copy',
+        title: 'Confirm to copy',
         content: 'Are you sure to copy ' + this.data.name + ' ?',
         centered: true,
         onOk: () => {
           this.copyLoading = true
             Duplicate({ id: this.data.id, type: this.data.type }).then((response) => {
-            this.$logger.info('Duplicate response', response)
-            this.$message.success('Copy successfully')
+              if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
+                this.$logger.info('Duplicate response', response)
+                this.$message.success('Copy successfully')
+                this.$router.push({ path: '/teacher/main/created-by-me' })
+              } else {
+                this.currentMethodName = 'handleDuplicateItem'
+              }
           }).finally(() => {
             this.copyLoading = false
-            this.$router.push({ path: '/teacher/main/created-by-me' })
+            // this.$router.push({ path: '/teacher/main/created-by-me' })
           })
+        }
+      })
+    },
+
+    handleStartTask () {
+      this.$confirm({
+        title: 'Confirm to start',
+        content: 'Are you sure to start ' + this.data.name + ' ?',
+        centered: true,
+        onOk: () => {
+          this.copyLoading = true
+          if (this.data.buyed || USER_MODE.SCHOOL === this.userMode) {
+            this.handleStartSession(this.data.id)
+          } else {
+            SelfStudyTaskBye({ taskId: this.data.id }).then((response) => {
+              if (response.success) {
+                // this.$logger.info('SelfStudyTaskBye response', response)
+                // this.$message.success('Start successfully')
+                // this.$router.push({ path: '/student/main/my-task' })
+                this.handleStartSession(this.data.id)
+              }
+            }).finally(() => {
+              this.copyLoading = false
+            })
+          }
         }
       })
     },
@@ -770,11 +914,22 @@ export default {
     handleOpenLink (url) {
       window.open(url, '_blank')
     },
-    triggerSearch() {
-
-    },
-    triggerChangeRate(value) {
-
+    handleStartSession(taskId) {
+      this.copyLoading = true
+      SelfStudyTaskStart({ taskId: taskId }).then(res => {
+        this.$logger.info('StartOpenSession res', res)
+        if (res.success) {
+          this.copyLoading = false
+          const targetUrl = lessonHost + 's/' + res.result.classId + '?token=' + storage.get(ACCESS_TOKEN)
+          this.$logger.info('try open ' + targetUrl)
+          // window.open(targetUrl, '_blank')
+          window.location.href = targetUrl
+        } else {
+          this.$message.warn('StartLesson Failed! ' + res.message)
+        }
+      }).finally(() => {
+        this.copyLoading = false
+      })
     }
   }
 }
@@ -914,6 +1069,7 @@ export default {
       }
     }
     .star-info {
+      display: flex;
       ul {
         margin-bottom: 0;
       }
@@ -982,6 +1138,7 @@ export default {
               align-items: center;
               justify-content: space-around;
               .question {
+                cursor: pointer;
                 font-size: 14px;
                 font-weight: 500;
                 padding-right: 15px;
@@ -1160,92 +1317,9 @@ export default {
 
   .reviews-info {
     .slide-reviews {
-      padding: 20px 0;
+      padding: 0px 0;
       .reviews-wrapper {
-        position: relative;
         margin-top: 20px;
-        .reviews-title {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-        .reviews-search {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          .my-search{
-            margin-right: 10px;
-            border-radius:6px;
-            flex: 1;
-            /deep/ .ant-input{
-              border-radius:6px;
-              height: 40px;
-            }
-          }
-          /deep/ .ant-select-dropdown {
-            z-index: 1001;
-          }
-        }
-        .reviews-content {
-          margin-top: 20px;
-          .reviews-content-detail {
-            position: relative;
-            padding: 15px 20px;
-            background: #F7F8FF;
-            display: flex;
-            & ~ .reviews-content-detail {
-              margin-top: 20px;
-            }
-            .content-detail__avatar {
-              margin-right: 10px;
-              img {
-                width: 30px;
-                height: 30px;
-                border-radius: 30px;
-              }
-            }
-            .content-detail__rate {
-              position: absolute;
-              top: 10px;
-              right: 20px;
-            }
-            .content-detail__title {
-              display: flex;
-              align-items: flex-start;
-              .title-info {
-                display: flex;
-                flex-direction: column;
-                .info-author{
-                  height: 19px;
-                  font-size: 14px;
-                  font-family: Segoe UI;
-                  font-weight: bold;
-                  line-height: 24px;
-                  color: #182552;
-                  opacity: 1;
-                }
-                .info-time {
-                  height: 24px;
-                  font-size: 18px;
-                  font-family: Inter-Bold;
-                  line-height: 24px;
-                  color: #929292;
-                  opacity: 1;
-                  margin-top: 5px;
-                }
-              }
-            }
-            .content-detail__review {
-              height: 48px;
-              font-size: 18px;
-              font-family: Inter-Bold;
-              line-height: 24px;
-              color: #000000;
-              opacity: 1;
-              margin-top: 10px;
-            }
-          }
-        }
       }
     }
   }

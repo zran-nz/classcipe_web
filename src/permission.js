@@ -6,14 +6,15 @@ import '@/components/NProgress/nprogress.less' // progress bar custom style
 import { domTitle, setDocumentTitle } from '@/utils/domUtil'
 import { ACCESS_TOKEN, CURRENT_ROLE } from '@/store/mutation-types'
 import { i18nRender } from '@/locales'
-import { defaultExpertRouter, defaultTeacherRouter } from '@/config/router.config'
+import { defaultExpertRouter, defaultStudentRouter, defaultTeacherRouter } from '@/config/router.config'
 import * as logger from '@/utils/logger'
 import { SESSION_ACTIVE_KEY } from '@/const/common'
-import { getToken } from './utils/util'
+import { getToken, setCookie } from './utils/util'
+import { appLogin } from '@/api/v2/statsTarget'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
-const allowList = ['login', 'register', 'resetPassword', 'registerResult', 'authResult', 'authCheck', 'pageRedirect', 'addonCallback', 'classGoBack', 'authRedirect', 'shareDetail'] // no redirect allowList
+const allowList = ['login', 'register', 'resetPassword', 'registerResult', 'authResult', 'authCheck', 'pageRedirect', 'addonCallback', 'classGoBack', 'authRedirect', 'shareDetail', 'H5Live', 'PromoteTg', 'LiveWorkshops'] // no redirect allowList
 const loginRoutePath = '/user/login'
 
 router.beforeEach((to, from, next) => {
@@ -34,33 +35,15 @@ router.beforeEach((to, from, next) => {
     if (token) {
       storage.set(ACCESS_TOKEN, token)
       window.sessionStorage.setItem(SESSION_ACTIVE_KEY, token)
+      setCookie(ACCESS_TOKEN, token)
+      appLogin(token)
     }
     const accessToken = getToken()
     logger.info('accessToken check', accessToken)
     if (accessToken) {
-      // 检查角色信息是否完善
-      // if (to.path === selectRoleRouter) {
-      //   logger.info(' allow user select a role')
-      //   next()
-      //   NProgress.done()
-      // } else if (!storage.get(CURRENT_ROLE)) {
-      //   logger.info('user must select a role first', storage.get(CURRENT_ROLE))
-      //   next({ path: selectRoleRouter })
-      //   NProgress.done()
-      //   // eslint-disable-next-line brace-style
-      // }
-      // 检查个人信息是否完善
-      // else if (!storage.get(IS_ADD_PREFERENCE) && to.path === addPreferenceRouter) {
-      //   logger.info('allow user add preference')
-      //   next()
-      //   NProgress.done()
-      // } else if (!storage.get(IS_ADD_PREFERENCE)) {
-      //   logger.info('user must add preference')
-      //   next({ path: addPreferenceRouter })
-      //   NProgress.done()
-      // } else
       if (to.path === loginRoutePath) {
-        const defaultRoutePath = storage.get(CURRENT_ROLE) === 'expert' ? defaultExpertRouter : defaultTeacherRouter
+        const defaultRoutePath = storage.get(CURRENT_ROLE) === 'expert' ? defaultExpertRouter
+         : storage.get(CURRENT_ROLE) === 'teacher' ? defaultTeacherRouter : defaultStudentRouter
         next({ path: defaultRoutePath })
         NProgress.done()
       } else {
@@ -73,7 +56,7 @@ router.beforeEach((to, from, next) => {
             .then(res => {
               const currentRole = res.result && res.result.currentRole
               // generate dynamic router
-              store.dispatch('GenerateRoutes', { roles: { permissionList: [currentRole] } }).then(() => {
+              store.dispatch('GenerateRoutes', { roles: { permissionList: [currentRole, 'common'] } }).then(() => {
                 // 根据roles权限生成可访问的路由表
                 // 动态添加可访问路由表
                 router.addRoutes(store.getters.addRouters)
@@ -82,6 +65,7 @@ router.beforeEach((to, from, next) => {
                 logger.info('redirect ' + redirect)
                 if (to.path === redirect) {
                   // set the replace: true so the navigation will not leave a history record
+                  logger.info('redirect to next ', { ...to, replace: true })
                   next({ ...to, replace: true })
                 } else {
                   // 跳转到目的路由
@@ -108,8 +92,8 @@ router.beforeEach((to, from, next) => {
     }
   } else {
     console.log(to)
-      next({ path: loginRoutePath, query: { redirect: to.fullPath, role } })
-      NProgress.done() // if current page is login will not trigger afterEach hook, so manually handle it
+    next({ path: loginRoutePath, query: { redirect: to.fullPath, role } })
+    NProgress.done() // if current page is login will not trigger afterEach hook, so manually handle it
   }
 })
 

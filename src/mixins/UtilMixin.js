@@ -1,5 +1,6 @@
 import * as logger from '@/utils/logger'
 import { typeMap } from '@/const/teacher'
+import moment from 'moment'
 
 export const UtilMixin = {
   data () {
@@ -86,14 +87,17 @@ export const UtilMixin = {
       this.$logger.info('getWeekByDate', startDate, endDate)
       if (startDate && endDate) {
         let str = ''
-        const week = Math.abs(parseInt(startDate.diff(endDate, 'days') / 7))
-        const day = Math.abs(startDate.diff(endDate), 'days') % 7
+        const diffDays = moment(endDate).diff(moment(startDate), 'days')
+        this.$logger.info('diffDays', diffDays)
+        const week = Math.floor(Math.abs(diffDays / 7))
+        const day = Math.ceil(Math.abs(diffDays % 7))
         if (week > 0) {
           str += ((week > 1) ? week + ' weeks ' : week + ' week ')
         }
         if (day > 0) {
           str += ((day > 1) ? day + ' days ' : day + ' day ')
         }
+        this.$logger.info('getWeekByDate str', str)
         return str
       } else {
         return ''

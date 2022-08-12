@@ -113,7 +113,7 @@ export default {
       if (!this.endRecording) {
         this.onRecordDone()
         this.endRecording = true
-        saveRecordAudio(this.onProgressUpLoad).then((url) => {
+        saveRecordAudio(this.$store.getters.userInfo.id, this.onProgressUpLoad).then((url) => {
           if (url) {
             if (this.autoDone) {
               this.onSend(url)
@@ -213,7 +213,8 @@ export default {
   width: 280px;
   position: fixed;
   top: 5px;
-  right: 35px
+  right: 35px;
+  opacity: 1 !important;
 }
 
 .record-footer {

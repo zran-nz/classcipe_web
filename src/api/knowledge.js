@@ -17,7 +17,8 @@ export const knowledgeAPIUrl = {
   QueryKnowledgesByAssessmentTypeId: '/classcipe/api/knowledgeAssessmentType/queryKnowledgesByAssessmentTypeId',
   Get21Century: '/classcipe/api/knowledge/get21Century',
   getAll21Century: '/classcipe/api/knowledge/getAll21Century',
-  GetIBIduList: '/classcipe/api/knowledge/getIBIduList'
+  GetIBIduList: '/classcipe/api/knowledge/getIBIduList',
+  SearchKnowledge: '/classcipe/api/knowledge/searchKnowledge'
 }
 
 /**
@@ -189,17 +190,6 @@ export function QueryKnowledgesByAssessmentTypeId (parameter) {
   })
 }
 
-export function FindRecommendByKnowledgeId (parameter) {
-  return request({
-    url: knowledgeAPIUrl.FindRecommendByKnowledgeId,
-    method: 'post',
-    data: parameter,
-    headers: {
-      'Content-Type': 'application/json;charset=UTF-8'
-    }
-  })
-}
-
 export function Get21Century (parameter) {
   return request({
     url: knowledgeAPIUrl.Get21Century,
@@ -221,5 +211,27 @@ export function GetIBIduList (parameter) {
     url: knowledgeAPIUrl.GetIBIduList,
     method: 'get',
     params: parameter
+  })
+}
+
+export function SearchKnowledge (parameter) {
+  return request({
+    url: knowledgeAPIUrl.SearchKnowledge,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+export function FindRecommendByKnowledgeId (parameter) {
+  return request({
+    url: knowledgeAPIUrl.FindRecommendByKnowledgeId,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
   })
 }

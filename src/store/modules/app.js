@@ -2,7 +2,7 @@ import storage from 'store'
 import {
   APP_LANGUAGE,
   DOWNLOAD_URL,
-  SIDEBAR_TYPE,
+  HIDDEN_SIDEBAR,
   SYS_CONFIG,
   TOGGLE_COLOR,
   TOGGLE_CONTENT_WIDTH,
@@ -13,15 +13,22 @@ import {
   TOGGLE_MOBILE_TYPE,
   TOGGLE_MULTI_TAB,
   TOGGLE_NAV_THEME,
-  TOGGLE_WEAK
+  TOGGLE_WEAK,
+  TOOGLE_USER_MODE,
+  HIDDEN_HEADER,
+  TOGGLE_DEVICE,
+  SET_PROMOTE_CODE, SET_GLOBAL_LOADING
 } from '@/store/mutation-types'
 import { loadLanguageAsync } from '@/locales'
 import { getSysConfig } from '@/api/common'
 import * as logger from '@/utils/logger'
+import { USER_MODE, DEVICE } from '@/const/common'
+import { setCookie } from '@/utils/util'
 
 const app = {
   state: {
     sideCollapsed: false,
+    hiddenHeader: false,
     isMobile: false,
     theme: 'dark',
     layout: '',
@@ -35,12 +42,21 @@ const app = {
     lang: 'en-US',
     _antLocale: {},
     sysConfig: null,
-    downloadUrl: ''
+    downloadUrl: '',
+    userMode: USER_MODE.SELF, // selfStudy: 自学习模式，schoolStudy：学校模式
+    device: DEVICE.DESKTOP,
+    promoteCode: '',
+    globalLoading: false
   },
   mutations: {
-    [SIDEBAR_TYPE]: (state, type) => {
+    [HIDDEN_SIDEBAR]: (state, type) => {
+      logger.info(HIDDEN_SIDEBAR + ' ' + type)
       state.sideCollapsed = type
-      storage.set(SIDEBAR_TYPE, type)
+      storage.set(HIDDEN_SIDEBAR, type)
+    },
+    [HIDDEN_HEADER]: (state, hidden) => {
+      state.hiddenHeader = hidden
+      storage.set(HIDDEN_HEADER, hidden)
     },
     [TOGGLE_MOBILE_TYPE]: (state, isMobile) => {
       state.isMobile = isMobile
@@ -91,6 +107,22 @@ const app = {
     },
     [DOWNLOAD_URL]: (state, downloadUrl) => {
       state.downloadUrl = downloadUrl
+    },
+    [TOOGLE_USER_MODE]: (state, userMode) => {
+      state.userMode = userMode
+      storage.set(TOOGLE_USER_MODE, userMode)
+    },
+    [TOGGLE_DEVICE]: (state, device) => {
+      state.device = device
+    },
+    [SET_PROMOTE_CODE]: (state, promoteCode) => {
+      state.promoteCode = promoteCode
+      storage.set(SET_PROMOTE_CODE, promoteCode)
+      setCookie(SET_PROMOTE_CODE, promoteCode)
+    },
+    [SET_GLOBAL_LOADING]: (state, globalLoading) => {
+      state.globalLoading = globalLoading
+      storage.set(SET_GLOBAL_LOADING, globalLoading)
     }
   },
   actions: {

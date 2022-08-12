@@ -41,6 +41,14 @@ export default {
     cancel: {
       type: Function,
       default: () => null
+    },
+    contentId: {
+      type: String,
+      default: null
+    },
+    contentType: {
+      type: Number,
+      default: null
     }
   },
   data() {
@@ -95,7 +103,10 @@ export default {
       if (!this.endRecording) {
         this.endRecording = true
         this.isRecording = false
-        saveRecordVideo(this.onProgressUpLoad).then((url) => {
+        saveRecordVideo(this.$store.getters.userInfo.id, this.onProgressUpLoad, {
+          contentType: this.contentType,
+          contentId: this.contentId
+        }).then((url) => {
           if (url) {
             // 发送url信息
             this.onSend(url, 'video')
@@ -141,6 +152,7 @@ export default {
   right: 35px;
   background-color: #fff;
   z-index: 10000;
+  opacity: 1 !important;
 }
 .record-time{
   font-size: 10px;

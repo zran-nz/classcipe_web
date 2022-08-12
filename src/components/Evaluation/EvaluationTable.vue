@@ -32,42 +32,6 @@
             <div @click.stop='handleEditHeader(header)' class='label-text'>
 
               <span class='header-label'>{{ header.label }}</span>
-              <template v-if='header.type === headerType.Novice'>
-                <a-tooltip placement='top'>
-                  <template slot='title'>
-                    Students are introduced to the skills, and can watch others performing it(observation)
-                  </template>
-                  <question-icon />
-                </a-tooltip>
-              </template>
-
-              <template v-if='header.type === headerType.Learner'>
-                <a-tooltip placement='top'>
-                  <template slot='title'>
-                    Students copy others who use the skill and use the skill with scaffolding and guidance(emulation)
-                  </template>
-                  <question-icon />
-                </a-tooltip>
-              </template>
-
-              <template v-if='header.type === headerType.Practitoner'>
-                <a-tooltip placement='top'>
-                  <template slot='title'>
-                    Students employ the skill confidently and effectively(demonstration)
-                  </template>
-                  <question-icon />
-                </a-tooltip>
-              </template>
-
-              <template v-if='header.type === headerType.Expert'>
-                <a-tooltip placement='top'>
-                  <template slot='title'>
-                    Students can show others how to use the skill and accurately assess how effectively the skill is
-                    used(self-regulation)
-                  </template>
-                  <question-icon />
-                </a-tooltip>
-              </template>
 
             </div>
             <!-- 编辑状态下的输入框-->
@@ -82,7 +46,7 @@
               </div>
             </template>
 
-            <template v-if='formType !== tableType.CenturySkills'>
+            <template>
               <div class='add-header-item'>
                 <a-tooltip title='Add new level'>
                   <a-icon type='plus-circle' @click='handleAddNewHeader(hIndex)' />
@@ -121,55 +85,17 @@
             :data-header-mode='mode'
             v-if='header.visible'>
             <!-- 1.编辑模式、自评、他评下不显示add evidence-->
-            <!-- 2.21世纪表格有非描述项,不显示四个列表格，只显示comment，否则现在四个列表格-->
             <!-- 表头文本-->
             <!-- 表头文本-->
             <div class='label-text'>
-
               <span class='header-label'>{{ header.label }}</span>
-              <template v-if='header.type === headerType.Novice'>
-                <a-tooltip placement='top'>
-                  <template slot='title'>
-                    Students are introduced to the skills, and can watch others performing it(observation)
-                  </template>
-                  <question-icon />
-                </a-tooltip>
-              </template>
-
-              <template v-if='header.type === headerType.Learner'>
-                <a-tooltip placement='top'>
-                  <template slot='title'>
-                    Students copy others who use the skill and use the skill with scaffolding and guidance(emulation)
-                  </template>
-                  <question-icon />
-                </a-tooltip>
-              </template>
-
-              <template v-if='header.type === headerType.Practitoner'>
-                <a-tooltip placement='top'>
-                  <template slot='title'>
-                    Students employ the skill confidently and effectively(demonstration)
-                  </template>
-                  <question-icon />
-                </a-tooltip>
-              </template>
-
-              <template v-if='header.type === headerType.Expert'>
-                <a-tooltip placement='top'>
-                  <template slot='title'>
-                    Students can show others how to use the skill and accurately assess how effectively the skill is
-                    used(self-regulation)
-                  </template>
-                  <question-icon />
-                </a-tooltip>
-              </template>
             </div>
           </th>
         </tr>
       </thead>
 
       <tbody class='table-body'>
-        <tr v-for='(item, lIndex) in list' class='body-line' :key='lIndex' :data-row-id='item.rowId'>
+        <tr v-for='(item, lIndex) in list' class='body-line' :key='lIndex' :data-row-id='item.rowId' v-show="!(item.hasOwnProperty('isSelectedIBLine') && item.isSelectedIBLine && $store.getters.hiddenIbCurriculumId)" >
           <td
             v-for='(header, hIndex) in headers'
             :class="{'body-item': true, 'big-body-item': formType === tableType.CenturySkills && header.type === headerType.Description}"
@@ -196,19 +122,38 @@
                   <template v-else>
                     <div class='data-item criteria-data' @dblclick.stop='handleAddCriteria(header, item, $event)'>
                       <div class='criteria-name'>
-                        {{ item[headerType.Criteria].name }}
+                        {{ item[headerType.Criteria].userInputText ? item[headerType.Criteria].userInputText : item[headerType.Criteria].name }}
                       </div>
+                      <span class='edit-description' @click.stop='handleClickEnterCriteria(header, item)' v-if='mode === tableMode.Edit'>
+                        Please enter explanation for students to understand
+                      </span>
                     </div>
                   </template>
                 </template>
                 <template v-if='formType === tableType.Rubric'>
-                  <template v-if='!item[headerType.Criteria] || !item[headerType.Criteria].name'>
+                  <template v-if='!item[headerType.Criteria].isSelfInput && !item[headerType.Criteria].name'>
                     <div
-                      class='data-item add-criteria'
-                      @click='handleAddCriteria(header, item, $event)'
+                      @click.stop=''
+                      class='data-item add-criteria-option'
+                      :data-is-self-input='item[headerType.Criteria].isSelfInput'
                       v-show='mode === tableMode.Edit'>
-                      <add-opacity-icon />
-                      <div class='add-text'>Click to choose the objectives</div>
+                      <div class='create-option-select' @click='handleAddCriteria(header, item, $event)'>
+                        <add-opacity-icon />
+                        <div class='add-text'>Click to choose the objectives</div>
+                      </div>
+                      <div class='create-option-input' @click='handleInputIBCriteria(header, item, $event)'>
+                        <a-icon type="edit" :style="{ fontSize: '18px'}" />
+                        <div class='add-text'>Enter customized content</div>
+                      </div>
+                    </div>
+                  </template>
+                  <template v-else-if='item[headerType.Criteria].isSelfInput && mode === tableMode.Edit'>
+                    <div class='add-criteria-input' @click.stop=''>
+                      <a-textarea
+                        style='height: 100%'
+                        placeholder='Enter'
+                        class='my-text-input'
+                        v-model='item[headerType.Criteria].name' />
                     </div>
                   </template>
                   <template v-else>
@@ -271,10 +216,9 @@
                         </div>
                         <div class='criteria-right-description'>
                           <div class='description-name'>
-                            {{ item[headerType.Description].userInputText ? item[headerType.Description].userInputText : item[headerType.Description].name
-                            }}
+                            {{ item[headerType.Description].userInputText ? item[headerType.Description].userInputText : item[headerType.Description].name }}
                           </div>
-                          <span class='edit-description' @click.stop='handleClickEnterCriteriaDescription(header, item)' v-if='mode === tableMode.Edit'>
+                          <span class='edit-description' @click.stop='handleClickEnterCriteriaDescription(header, item)' v-if='mode === tableMode.Edit && !($store.getters.bindCurriculum === AllCurriculums.AU || $store.getters.bindCurriculum === AllCurriculums.NZ)'>
                             Please enter explanation for students to understand
                           </span>
                         </div>
@@ -286,46 +230,6 @@
             </template>
 
             <template v-if='mode === tableMode.Edit'>
-              <template v-if='header.type === headerType.Novice'>
-                <div class='indicator-input'>
-                  <a-textarea
-                    style='height: 100%'
-                    placeholder='Enter'
-                    class='my-text-input'
-                    v-model='item[headerType.Novice].name'
-                    @blur='handleUpdateField(header, item)' />
-                </div>
-              </template>
-              <template v-if='header.type === headerType.Learner'>
-                <div class='indicator-input'>
-                  <a-textarea
-                    style='height: 100%'
-                    placeholder='Enter'
-                    class='my-text-input'
-                    v-model='item[headerType.Learner].name'
-                    @blur='handleUpdateField(header, item)' />
-                </div>
-              </template>
-              <template v-if='header.type === headerType.Practitoner'>
-                <div class='indicator-input'>
-                  <a-textarea
-                    style='height: 100%'
-                    placeholder='Enter'
-                    class='my-text-input'
-                    v-model='item[headerType.Practitoner].name'
-                    @blur='handleUpdateField(header, item)' />
-                </div>
-              </template>
-              <template v-if='header.type === headerType.Expert'>
-                <div class='indicator-input'>
-                  <a-textarea
-                    style='height: 100%'
-                    placeholder='Enter'
-                    class='my-text-input'
-                    v-model='item[headerType.Expert].name'
-                    @blur='handleUpdateField(header, item)' />
-                </div>
-              </template>
               <template v-if='header.type === headerType.Comment'>
                 <div class='comment-indicator-input'>
                   <a-textarea
@@ -355,61 +259,95 @@
               <div
                 class='sub-level-data'
                 :data='JSON.stringify(formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId])'>
-                <div class='sub-level-list'>
-                  <div
-                    class='sub-level-item'
-                    v-for='(subLevel, sIndex) in item[headerType.AchievementLevel].subLevelDescription'
-                    :key='sIndex'>
-                    <template v-if='mode === tableMode.Edit'>
-                      <div class='start-index' @click.stop='handleSwitchModeTips'>
-                        <div class='select-block'>
-                          <a-icon
-                            class='select-block-icon'
-                            type='border' />
+                <div class='sub-level-list' :data-mode='mode' @click.stop=''>
+                  <template v-if='mode === tableMode.Edit || mode === tableMode.TeacherEvaluate'>
+                    <div
+                      class='sub-level-item'
+                      v-for='(subLevel, sIndex) in item[headerType.AchievementLevel].subLevelDescription'
+                      :key='sIndex'>
+                      <template v-if='mode === tableMode.Edit'>
+                        <div class='start-index' @click.stop='handleSwitchModeTips'>
+                          <div class='select-block'>
+                            <a-icon
+                              class='select-block-icon'
+                              type='border' />
+                          </div>
+                          {{ subLevel.startIndex }}
                         </div>
-                        {{ subLevel.startIndex }}
-                      </div>
-                      <div class='end-index' @click.stop='handleSwitchModeTips' v-show='subLevel.endIndex !== null'>
-                        <div class='select-block'>
-                          <a-icon
-                            class='select-block-icon'
-                            type='border' />
+                        <div class='end-index' @click.stop='handleSwitchModeTips' v-show='subLevel.endIndex !== null'>
+                          <div class='select-block'>
+                            <a-icon
+                              class='select-block-icon'
+                              type='border' />
+                          </div>
+                          {{ subLevel.endIndex }}
                         </div>
-                        {{ subLevel.endIndex }}
-                      </div>
-                    </template>
-                    <template v-if='mode !== tableMode.Edit'>
+                      </template>
+                      <template v-if='mode === tableMode.TeacherEvaluate'>
+                        <div class='start-index'>
+                          <div
+                            class='select-block'
+                            @click.stop='handleClickSubLevelItem(item, header, subLevel.startIndex)'>
+                            <img
+                              src='~@/assets/icons/lesson/selected.png'
+                              v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].data === subLevel.startIndex' />
+                            <a-icon
+                              class='select-block-icon'
+                              type='border'
+                              v-else />
+                          </div>
+                          {{ subLevel.startIndex }}
+                        </div>
+                        <div
+                          class='end-index'
+                          @click.stop='handleClickSubLevelItem(item, header, subLevel.endIndex)'
+                          v-show='subLevel.endIndex !== null'>
+                          <div class='select-block'>
+                            <img
+                              src='~@/assets/icons/lesson/selected.png'
+                              v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].data === subLevel.endIndex' />
+                            <a-icon
+                              class='select-block-icon'
+                              type='border'
+                              v-else />
+                          </div>
+                          {{ subLevel.endIndex }}
+                        </div>
+                      </template>
+                    </div>
+                  </template>
+                  <template v-if='mode === tableMode.StudentEvaluate'>
+                    <div
+                      class='sub-level-item'
+                      v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].data !== null'
+                      v-for='(subLevel, sIndex) in item[headerType.AchievementLevel].subLevelDescription'
+                      :key='sIndex'>
                       <div class='start-index'>
                         <div
-                          class='select-block'
-                          @click.stop='handleClickSubLevelItem(item, header, subLevel.startIndex)'>
+                          class='select-block'>
                           <img
                             src='~@/assets/icons/lesson/selected.png'
-                            v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].data === subLevel.startIndex' />
-                          <a-icon
-                            class='select-block-icon'
-                            type='border'
-                            v-else />
+                            v-if='formBodyData[item.rowId].data === subLevel.startIndex' />
                         </div>
-                        {{ subLevel.startIndex }}
+                        <template v-if='formBodyData[item.rowId].data === subLevel.startIndex'>
+                          {{ subLevel.startIndex }}
+                        </template>
                       </div>
                       <div
                         class='end-index'
-                        @click.stop='handleClickSubLevelItem(item, header, subLevel.endIndex)'
                         v-show='subLevel.endIndex !== null'>
                         <div class='select-block'>
                           <img
                             src='~@/assets/icons/lesson/selected.png'
-                            v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].data === subLevel.endIndex' />
-                          <a-icon
-                            class='select-block-icon'
-                            type='border'
-                            v-else />
+                            v-if='formBodyData[item.rowId].data === subLevel.endIndex' />
                         </div>
-                        {{ subLevel.endIndex }}
+                        <template v-if='formBodyData[item.rowId].data === subLevel.endIndex'>{{ subLevel.endIndex }}</template>
                       </div>
-                    </template>
-                  </div>
+                    </div>
+                    <div class='no-level-data' v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].data === null' >
+                      The teacher has not graded you yet.
+                    </div>
+                  </template>
                 </div>
               </div>
               <div
@@ -430,17 +368,30 @@
             <template v-if='header.type === headerType.LevelDescriptor'>
               <div class='sub-level-data' @click.stop=''>
                 <div class='sub-level-desc'>
-                  <div
-                    class='sub-level-desc-item'
-                    v-for='(subLevel, sIndex) in item[headerType.AchievementLevel].subLevelDescription'
-                    :key='sIndex'>
-                    <a-tooltip placement='topLeft'>
-                      <template slot='title'>
+                  <template v-if='!item[headerType.AchievementLevel].isSelfInput || mode !== tableMode.Edit'>
+                    <div
+                      class='sub-level-desc-item'
+                      v-for='(subLevel, sIndex) in item[headerType.AchievementLevel].subLevelDescription'
+                      :key='sIndex'>
+                      <a-tooltip placement='topLeft' :mouseEnterDelay="1">
+                        <template slot='title'>
+                          {{ subLevel.description }}
+                        </template>
                         {{ subLevel.description }}
-                      </template>
-                      {{ subLevel.description }}
-                    </a-tooltip>
-                  </div>
+                        <a-tooltip placement="top" title='Add to comment' v-if='subLevel.description && mode === tableMode.TeacherEvaluate'>
+                          <a-icon type="copy" :style="{color: '#999'}" class='my-copy-item-icon' @click='handleUseClicked(subLevel.description)'/>
+                        </a-tooltip>
+                      </a-tooltip>
+                    </div>
+                  </template>
+                  <template v-if='item[headerType.AchievementLevel].isSelfInput && mode === tableMode.Edit'>
+                    <div
+                      class='sub-level-desc-input-item'
+                      v-for='(subLevel, sIndex) in item[headerType.AchievementLevel].subLevelDescription'
+                      :key='sIndex'>
+                      <a-input v-model='subLevel.description' class='my-desc-input'/>
+                    </div>
+                  </template>
                 </div>
               </div>
               <div class='selected-icon'>
@@ -489,61 +440,12 @@
                       :key='sIndex'>
                       <div class='my-indicator-text'>
                         {{ subIndicator && subIndicator.indicator ? subIndicator.indicator : '' }}
+                        <a-tooltip placement="top" title='Add to comment' v-if='subIndicator && subIndicator.indicator && mode === tableMode.TeacherEvaluate'>
+                          <a-icon type="copy" :style="{color: '#999'}" class='my-copy-item-icon' @click='handleUseClicked(subIndicator.indicator)'/>
+                        </a-tooltip>
                       </div>
                     </div>
                   </div>
-                </div>
-                <div class='selected-icon'>
-                  <teacher-icon
-                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate)' />
-                  <student-icon
-                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate)' />
-                  <peer-icon
-                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.PeerEvaluate)' />
-                </div>
-              </template>
-              <template v-if='header.type === headerType.Novice'>
-                <div class='indicator-data'>
-                  {{ item[headerType.Novice].name }}
-                </div>
-                <div class='selected-icon'>
-                  <teacher-icon
-                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate)' />
-                  <student-icon
-                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate)' />
-                  <peer-icon
-                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.PeerEvaluate)' />
-                </div>
-              </template>
-              <template v-if='header.type === headerType.Learner'>
-                <div class='indicator-data'>
-                  {{ item[headerType.Learner].name }}
-                </div>
-                <div class='selected-icon'>
-                  <teacher-icon
-                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate)' />
-                  <student-icon
-                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate)' />
-                  <peer-icon
-                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.PeerEvaluate)' />
-                </div>
-              </template>
-              <template v-if='header.type === headerType.Practitoner'>
-                <div class='indicator-data'>
-                  {{ item[headerType.Practitoner].name }}
-                </div>
-                <div class='selected-icon'>
-                  <teacher-icon
-                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].teacherEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate)' />
-                  <student-icon
-                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].studentEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.StudentEvaluate)' />
-                  <peer-icon
-                    v-if='formBodyData && formBodyData[item.rowId] && formBodyData[item.rowId].peerEvaluation === header.type && (mode === tableMode.TeacherEvaluate || mode === tableMode.PeerEvaluate)' />
-                </div>
-              </template>
-              <template v-if='header.type === headerType.Expert'>
-                <div class='indicator-data'>
-                  {{ item[headerType.Expert].name }}
                 </div>
                 <div class='selected-icon'>
                   <teacher-icon
@@ -593,8 +495,7 @@
                     <add-icon v-show='!formBodyData[item.rowId].evidenceIdList.length' />
                     <add-small-green-icon v-show='formBodyData[item.rowId].evidenceIdList.length' />
                     <div class='evidence-num'>(
-                      {{ formBodyData[item.rowId].evidenceIdList.length ? formBodyData[item.rowId].evidenceIdList.length : 0
-                      }} )
+                      {{ formBodyData[item.rowId].evidenceIdList.length ? formBodyData[item.rowId].evidenceIdList.length : 0 }} )
                     </div>
                   </div>
                 </template>
@@ -633,7 +534,8 @@
       @ok='handleEnsureSelectCriteria'
       destroyOnClose
       width='1200px'
-      :dialog-style="{ top: '20px' }">
+      :dialog-style="{ top: '20px' }"
+      :footer='null'>
       <div class='associate-library'>
         <new-browser
           :select-mode='selectModel.evaluationMode'
@@ -667,6 +569,9 @@
         <div class='description-text'>
           <div class='old-description' v-if='currentEnterDescriptionLine'>
             {{ currentEnterDescriptionLine[headerType.Description].name }}
+          </div>
+          <div class='old-description' v-if='currentEnterCriteriaLine'>
+            {{ currentEnterCriteriaLine[headerType.Criteria].name }}
           </div>
         </div>
         <div class='description-input'>
@@ -702,6 +607,7 @@
 
 import { LibraryEvent, LibraryEventBus } from '@/components/NewLibrary/LibraryEventBus'
 import { SelectModel } from '@/components/NewLibrary/SelectModel'
+import { AllCurriculums } from '@/const/common'
 import draggable from 'vuedraggable'
 import NewBrowser from '@/components/NewLibrary/NewBrowser'
 import { NavigationType } from '@/components/NewLibrary/NavigationType'
@@ -757,6 +663,14 @@ export default {
     formBodyData: {
       type: Object,
       default: () => null
+    },
+    taskLearnOuts: {
+      type: Array,
+      default: () => []
+    },
+    taskSelfOuts: {
+      type: Array,
+      default: () => []
     }
   },
   data() {
@@ -799,11 +713,14 @@ export default {
       inputDescriptionVisible: false,
       inputDescription: null,
       currentEnterDescriptionLine: null,
+      currentEnterCriteriaLine: null,
 
       disabledDraggable: false,
 
       selected21CenturyItem: null,
-      has21CenturySkillNoDescriptionItem: false // 是否有选择21世纪技能非描述的项目
+      has21CenturySkillNoDescriptionItem: false, // 是否有选择21世纪技能非描述的项目
+
+      AllCurriculums: AllCurriculums
     }
   },
   watch: {
@@ -834,37 +751,6 @@ export default {
             header.visible = false
           }
         })
-      }
-
-      // 21世纪有非描述性不显示后四列，改为显示comment
-      if (this.formType === this.tableType.CenturySkills) { // 只正对21世纪技能表
-         if (flag) {
-           this.headers.forEach(header => {
-             if (header.type === this.headerType.Comment) {
-               header.visible = true
-             } else if ([
-               this.headerType.Novice,
-               this.headerType.Learner,
-               this.headerType.Practitoner,
-               this.headerType.Expert
-             ].indexOf(header.type) !== -1) {
-               header.visible = false
-             }
-           })
-         } else {
-          this.headers.forEach(header => {
-            if (header.type === this.headerType.Comment) {
-              header.visible = false
-            } else if ([
-              this.headerType.Novice,
-              this.headerType.Learner,
-              this.headerType.Practitoner,
-              this.headerType.Expert
-            ].indexOf(header.type) !== -1) {
-              header.visible = true
-            }
-          })
-         }
       }
     }
   },
@@ -1016,37 +902,37 @@ export default {
             {
               label: 'Novice',
               previewLabel: 'Novice',
-              type: EvaluationTableHeader.Novice,
-              editable: false,
+              type: EvaluationTableHeader.UserDefine + 'Novice',
+              editable: true,
               editing: false,
-              required: true,
+              required: false,
               visible: true
             },
             {
               label: 'Learner',
               previewLabel: 'Learner',
-              type: EvaluationTableHeader.Learner,
-              editable: false,
+              type: EvaluationTableHeader.UserDefine + 'Learner',
+              editable: true,
               editing: false,
-              required: true,
+              required: false,
               visible: true
             },
             {
               label: 'Practitoner',
               previewLabel: 'Practitoner',
-              type: EvaluationTableHeader.Practitoner,
-              editable: false,
+              type: EvaluationTableHeader.UserDefine + 'Practitoner',
+              editable: true,
               editing: false,
-              required: true,
+              required: false,
               visible: true
             },
             {
               label: 'Expert',
               previewLabel: 'Expert',
-              type: EvaluationTableHeader.Expert,
-              editable: false,
+              type: EvaluationTableHeader.UserDefine + 'Expert',
+              editable: true,
               editing: false,
-              required: true,
+              required: false,
               visible: true
             },
             {
@@ -1082,37 +968,37 @@ export default {
             {
               label: 'Novice',
               previewLabel: 'Novice',
-              type: EvaluationTableHeader.Novice,
-              editable: false,
+              type: EvaluationTableHeader.UserDefine + 'Novice',
+              editable: true,
               editing: false,
-              required: true,
+              required: false,
               visible: true
             },
             {
               label: 'Learner',
               previewLabel: 'Learner',
-              type: EvaluationTableHeader.Learner,
-              editable: false,
+              type: EvaluationTableHeader.UserDefine + 'Learner',
+              editable: true,
               editing: false,
-              required: true,
+              required: false,
               visible: true
             },
             {
               label: 'Practitoner',
               previewLabel: 'Practitoner',
-              type: EvaluationTableHeader.Practitoner,
-              editable: false,
+              type: EvaluationTableHeader.UserDefine + 'Practitoner',
+              editable: true,
               editing: false,
-              required: true,
+              required: false,
               visible: true
             },
             {
               label: 'Expert',
               previewLabel: 'Expert',
-              type: EvaluationTableHeader.Expert,
-              editable: false,
+              type: EvaluationTableHeader.UserDefine + 'Expert',
+              editable: true,
               editing: false,
-              required: true,
+              required: false,
               visible: true
             },
             {
@@ -1141,6 +1027,8 @@ export default {
 
     if (this.initRawData.length) {
       this.list = this.initRawData
+    } else if (!this.$store.getters.isIBTeacher && (this.taskLearnOuts.length || this.taskSelfOuts.length)) {
+      this.handleAddNewLineWithTaskOuts()
     } else {
       this.handleAddNewLine()
     }
@@ -1275,32 +1163,36 @@ export default {
 
         newLineItem[this.headerType.Evidence] = {
           num: 0,
-          selectedList: [],
-          selectedStudentList: [],
           rowId
         }
       } else if (this.formType === this.tableType.Rubric) {
+        newLineItem.isSelectedIBLine = false // 是否是ib大纲数据行
+        newLineItem.isSelfInputLine = false // 是否用户自定义输入行
+        newLineItem[this.headerType.Criteria] = {
+          rowId,
+          name: null,
+          isSelfInput: false
+        }
+
         newLineItem[this.headerType.AchievementLevel] = {
           rowId,
-          subLevelDescription: []
+          subLevelDescription: [],
+          isSelfInput: false
         }
 
         newLineItem[this.headerType.Indicators] = {
           rowId,
-          subLevelIndicators: []
+          subLevelIndicators: [],
+          isSelfInput: false
         }
 
         newLineItem[this.headerType.Evidence] = {
           num: 0,
-          selectedList: [],
-          selectedStudentList: [],
           rowId
         }
       } else if (this.formType === this.tableType.Rubric_2) {
         newLineItem[this.headerType.Evidence] = {
           num: 0,
-          selectedList: [],
-          selectedStudentList: [],
           rowId
         }
       }
@@ -1308,6 +1200,45 @@ export default {
       this.list.push(newLineItem)
     },
 
+    handleAddNewLineWithTaskOuts () {
+      this.$logger.info('[' + this.mode + '] handleAddNewLineWithTaskOuts ', this.taskLearnOuts, this.taskSelfOuts)
+      const totalOuts = this.taskLearnOuts.concat(this.taskSelfOuts)
+      totalOuts.forEach(outItem => {
+        const newLineItem = {}
+        const rowId = this.generateRowId()
+        newLineItem.rowId = rowId
+        this.headers.forEach(header => {
+          newLineItem[header.type] = {
+            name: null,
+            rowId
+          }
+        })
+
+        if (this.formType === this.tableType.CenturySkills) {
+          newLineItem[this.headerType.Description] = {
+            name: outItem.name,
+            rowId,
+            parentNameList: outItem.parentNameList,
+            isDescription: true
+          }
+
+          newLineItem[this.headerType.Evidence] = {
+            num: 0,
+            rowId
+          }
+          this.$logger.info('[' + this.mode + '] init new line ', newLineItem)
+          this.list.push(newLineItem)
+        } else if (this.formType === this.tableType.Rubric_2) {
+          newLineItem[this.headerType.Description].name = outItem.name
+          newLineItem[this.headerType.Evidence] = {
+            num: 0,
+            rowId
+          }
+          this.$logger.info('[' + this.mode + '] init new line ', newLineItem)
+          this.list.push(newLineItem)
+        }
+      })
+    },
     handleDragEnd() {
       this.$logger.info('[' + this.mode + '] handleDragEnd', this.headers)
     },
@@ -1322,12 +1253,8 @@ export default {
     handleClickBodyItem(item, header) {
       this.$logger.info('[' + this.mode + '][' + this.mode + '] handleClickBodyItem ' + header.label, item, 'header', header)
       if ([EvaluationTableHeader.Indicators,
-        EvaluationTableHeader.Novice,
-        EvaluationTableHeader.Learner,
-        EvaluationTableHeader.Practitoner,
         EvaluationTableHeader.AchievementLevel,
         EvaluationTableHeader.LevelDescriptor,
-        EvaluationTableHeader.Expert,
         EvaluationTableHeader.UserDefine].indexOf(header.type) !== -1 || header.type.startsWith(EvaluationTableHeader.UserDefine)) {
         this.$emit('update-evaluation', {
           formId: this.formId,
@@ -1344,12 +1271,8 @@ export default {
     handleClickSubLevelItem(item, header, subLevel) {
       this.$logger.info(subLevel + ' [' + this.mode + '][' + this.mode + '] handleClickSubLevelItem ' + header.label, item, 'header', header)
       if ([EvaluationTableHeader.Indicators,
-        EvaluationTableHeader.Novice,
-        EvaluationTableHeader.Learner,
-        EvaluationTableHeader.Practitoner,
         EvaluationTableHeader.AchievementLevel,
         EvaluationTableHeader.LevelDescriptor,
-        EvaluationTableHeader.Expert,
         EvaluationTableHeader.UserDefine].indexOf(header.type) !== -1 || header.type.startsWith(EvaluationTableHeader.UserDefine)) {
         this.$emit('update-evaluation', {
           formId: this.formId,
@@ -1420,6 +1343,53 @@ export default {
         this.currentSelectHeader = header
         this.currentSelectLine = item
       }
+    },
+
+    handleInputIBCriteria (header, item, event) {
+      event.preventDefault()
+      event.stopPropagation()
+      this.$logger.info('handleInputIBCriteria ')
+      this.currentSelectHeader = header
+      this.currentSelectLine = item
+
+      this.currentSelectLine.isSelectedIBLine = false
+      this.currentSelectLine.isSelfInputLine = true
+      this.currentSelectLine[this.headerType.Criteria] = {
+        name: '',
+        rowId: this.currentSelectLine.rowId,
+        isSelfInput: true
+      }
+
+      const subLevelDescription = []
+      for (let i = 0; i < 8; i++) {
+        if (i === 0 || i % 2 === 1) {
+          subLevelDescription.push({
+            startIndex: i,
+            endIndex: i === 0 ? null : i + 1,
+            description: ''
+          })
+        }
+      }
+      this.currentSelectLine[this.headerType.AchievementLevel] = {
+        name: '',
+        rowId: this.currentSelectLine.rowId,
+        subLevelDescription,
+        isSelfInput: true
+      }
+
+      const subLevelIndicators = []
+      for (let i = 0; i < 5; i++) {
+        subLevelIndicators.push({
+          indicator: ''
+        })
+      }
+      this.currentSelectLine[this.headerType.Indicators] = {
+        rowId: this.currentSelectLine.rowId,
+        subLevelIndicators,
+        isSelfInput: true
+      }
+
+      this.$logger.info('self input currentSelectLine with criteria data ', this.currentSelectLine)
     },
 
     handleEnsureSelectCriteria() {
@@ -1506,8 +1476,6 @@ export default {
 
                   newLineItem[this.headerType.Evidence] = {
                     num: 0,
-                    selectedList: [],
-                    selectedStudentList: [],
                     rowId
                   }
                   newLineItem.rowId = rowId
@@ -1550,8 +1518,6 @@ export default {
 
                   newLineItem[this.headerType.Evidence] = {
                     num: 0,
-                    selectedList: [],
-                    selectedStudentList: [],
                     rowId
                   }
                   newLineItem.rowId = rowId
@@ -1568,15 +1534,19 @@ export default {
       } else if (this.formType === this.tableType.Rubric) {
         if (selectedList.length >= 1) {
           // 如果只选择了一个，使用第一个填充当前行数据
+          this.currentSelectLine.isSelectedIBLine = true
+          this.currentSelectLine.isSelfInputLine = false
           this.currentSelectLine[this.headerType.Criteria] = {
             name: selectedList[0].name,
-            rowId: this.currentSelectLine.rowId
+            rowId: this.currentSelectLine.rowId,
+            isSelfInput: false
           }
 
           this.currentSelectLine[this.headerType.AchievementLevel] = {
             name: selectedList[0].name,
             rowId: this.currentSelectLine.rowId,
-            subLevelDescription: selectedList[0].subLevelDescription
+            subLevelDescription: selectedList[0].subLevelDescription,
+            isSelfInput: false
           }
 
           const subLevelIndicators = []
@@ -1587,7 +1557,8 @@ export default {
           })
           this.currentSelectLine[this.headerType.Indicators] = {
             rowId: this.currentSelectLine.rowId,
-            subLevelIndicators
+            subLevelIndicators,
+            isSelfInput: false
           }
 
           this.$logger.info('[' + this.mode + '] update currentSelectLine with criteria data ', this.currentSelectLine)
@@ -1598,6 +1569,10 @@ export default {
               if (index > 0) {
                 const newLineItem = {}
                 const rowId = this.generateRowId()
+                newLineItem.rowId = rowId
+                newLineItem.isSelectedIBLine = true
+                newLineItem.isSelfInputLine = false
+
                 this.headers.forEach(header => {
                   newLineItem[header.type] = {
                     name: null,
@@ -1606,13 +1581,15 @@ export default {
                 })
                 newLineItem[this.headerType.Criteria] = {
                   name: descriptionItem.name,
-                  rowId
+                  rowId,
+                  isSelfInput: false
                 }
 
                 newLineItem[this.headerType.AchievementLevel] = {
                   name: descriptionItem.name,
                   rowId,
-                  subLevelDescription: descriptionItem.subLevelDescription
+                  subLevelDescription: descriptionItem.subLevelDescription,
+                  isSelfInput: false
                 }
 
                 const subLevelIndicators = []
@@ -1621,18 +1598,16 @@ export default {
                     indicator: ''
                   })
                 })
-                this.currentSelectLine[this.headerType.Indicators] = {
-                  rowId,
-                  subLevelIndicators
+                newLineItem[this.headerType.Indicators] = {
+                  rowId: this.currentSelectLine.rowId,
+                  subLevelIndicators,
+                  isSelfInput: false
                 }
 
                 newLineItem[this.headerType.Evidence] = {
                   num: 0,
-                  selectedList: [],
-                  selectedStudentList: [],
                   rowId
                 }
-                newLineItem.rowId = rowId
 
                 this.$logger.info('[' + this.mode + '] Rubric add new line with criteria data ', newLineItem)
                 this.list.push(newLineItem)
@@ -1672,8 +1647,6 @@ export default {
 
                 newLineItem[this.headerType.Evidence] = {
                   num: 0,
-                  selectedList: [],
-                  selectedStudentList: [],
                   rowId
                 }
                 newLineItem.rowId = rowId
@@ -1715,12 +1688,29 @@ export default {
       }
     },
 
+    handleClickEnterCriteria(header, item) {
+      this.$logger.info('[' + this.mode + '] handleClickEnterCriteria', header, item)
+      if (this.mode === EvaluationTableMode.Edit) {
+        this.inputDescription = item[this.headerType.Criteria].userInputText
+        this.currentEnterCriteriaLine = item
+        this.inputDescriptionVisible = true
+      }
+    },
+
     handleEnsureDescription() {
       this.$logger.info('[' + this.mode + '] handleEnsureDescription ' + this.inputDescription)
-      this.currentEnterDescriptionLine[this.headerType.Description].userInputText = this.inputDescription
+
+      if (this.currentEnterDescriptionLine) {
+        this.currentEnterDescriptionLine[this.headerType.Description].userInputText = this.inputDescription
+      }
+
+      if (this.currentEnterCriteriaLine) {
+        this.currentEnterCriteriaLine[this.headerType.Criteria].userInputText = this.inputDescription
+      }
       if (this.mode === EvaluationTableMode.Edit) {
         this.inputDescriptionVisible = false
         this.currentEnterDescriptionLine = null
+        this.currentEnterCriteriaLine = null
         this.inputDescription = null
       }
     },
@@ -1728,6 +1718,7 @@ export default {
     handleCancelDescription() {
       this.$logger.info('[' + this.mode + '] handleEnsureDescription ' + this.inputDescription)
       this.currentEnterDescriptionLine = null
+      this.currentEnterCriteriaLine = null
       this.inputDescription = null
       this.inputDescriptionVisible = false
     },
@@ -1737,7 +1728,7 @@ export default {
       event.preventDefault()
       this.$logger.info('[' + this.mode + '] handleAddEvidenceLine', lIndex, item)
       this.$emit('add-evidence', {
-        index: lIndex, data: item
+        index: lIndex, data: this.formBodyData[item.rowId], rowId: item.rowId
       })
     },
     handleSelectAll21CenturyListData(data) {
@@ -1926,6 +1917,11 @@ export default {
     handleCancelCenturySkillsSelect() {
       this.selected21CenturyItem = null
       this.selected21CenturyItemParent = null
+    },
+
+    handleUseClicked(text) {
+      this.$logger.info('handleUseClicked', text)
+      this.$emit('use-clicked-text', text)
     }
   }
 }
@@ -2158,6 +2154,40 @@ export default {
             }
           }
 
+          .add-criteria-option {
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+
+            .create-option-select, .create-option-input {
+              cursor: pointer;
+              user-select: none;
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              justify-content: flex-start;
+
+              svg {
+                width: 18px;
+                height: 18px;
+              }
+
+              .add-text {
+                padding: 8px 10px;
+                font-size: 13px;
+                font-family: Inter-Bold;
+                color: #888996;
+              }
+            }
+          }
+
+          .add-criteria-input {
+            height: 100%;
+          }
+
           .criteria-data {
             .criteria-parent {
               display: block;
@@ -2172,6 +2202,21 @@ export default {
                 margin-bottom: 5px;
                 margin-top: 5px;
               }
+            }
+
+            .edit-description {
+              margin: 5px 0;
+              text-align: center;
+              display: inline-block;
+              font-size: 12px;
+              background: #E7E7E7;
+              opacity: 1;
+              border-radius: 4px;
+              padding: 3px;
+              font-family: Inter-Bold;
+              line-height: 20px;
+              color: #989898;
+              opacity: 1;
             }
           }
 
@@ -2397,7 +2442,7 @@ export default {
       font-weight: 600;
       color: #070707;
       opacity: 1;
-      word-break: break-all;
+      word-break: normal;
     }
 
     margin-bottom: 15px;
@@ -2489,6 +2534,31 @@ export default {
       }
     }
   }
+
+  .no-level-data {
+    margin-top: 20px;
+    font-size: 12px;
+    color: #999;
+    text-align: center;
+    line-height: 40px;
+  }
+
+  .level-data {
+    margin-top: 20px;
+    line-height: 40px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    img {
+      width: 20px;
+      margin-right: 5px;
+    }
+  }
+
+  :last-child {
+    border-bottom: none;
+  }
 }
 
 .sub-level-desc {
@@ -2498,6 +2568,7 @@ export default {
   overflow: hidden;
 
   .sub-level-desc-item {
+    position: relative;
     display: flex;
     flex-direction: row;
     overflow: hidden;
@@ -2516,6 +2587,38 @@ export default {
       white-space: nowrap;
       text-overflow: ellipsis;
       vertical-align: middle;
+    }
+
+    .my-copy-item-icon {
+      display: none;
+    }
+
+    &:hover {
+      .my-copy-item-icon {
+        display: inline-block;
+      }
+    }
+  }
+
+  .sub-level-desc-input-item {
+    height: 40px;
+    width: 100%;
+
+    .my-desc-input {
+      height: 100%;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+    }
+  }
+
+  .sub-level-desc-item:last-child {
+    border-bottom: none;
+  }
+
+  .sub-level-desc-input-item:last-child {
+    .my-desc-input {
+      border-bottom: none;
     }
   }
 }
@@ -2569,7 +2672,19 @@ export default {
   }
 }
 
+.sub-level-indicator {
+  .sub-level-indicator-item:last-child {
+    .my-indicator-input {
+      border-bottom: none;
+    }
+    .my-indicator-text {
+      border-bottom: none;
+    }
+  }
+}
+
 .sub-level-indicator-item {
+  position: relative;
   height: 40px;
 
   .my-indicator-input {
@@ -2583,6 +2698,27 @@ export default {
     line-height: 40px;
     border-bottom: 1px solid #D8D8D8;
     padding: 0 5px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+
+    .my-copy-item-icon {
+      display: none;
+    }
+
+    &:hover {
+      .my-copy-item-icon {
+        display: inline-block;
+      }
+    }
   }
+}
+
+.my-copy-item-icon {
+  position: absolute;
+  right: 5px;
+  top: 14px;
+  background: #fff;
 }
 </style>

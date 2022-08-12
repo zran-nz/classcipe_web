@@ -18,6 +18,18 @@
       <div class='feed-back-comment-input'>
         <a-textarea :auto-size="{ minRows: 3, maxRows: 6 }" allow-clear v-model='feedbackComment' placeholder='Enter text comment.'></a-textarea>
       </div>
+
+      <div class='feed-back-tips'>
+        Feedback category
+      </div>
+      <div class='feed-back-comment-input'>
+        <a-select :getPopupContainer="trigger => trigger.parentElement" v-model='feedbackType' style='width: 100%'>
+          <a-select-option value="Function problem">Function problem</a-select-option>
+          <a-select-option value="Improvement suggestion">Improvement suggestion</a-select-option>
+          <a-select-option value="Content error">Content error</a-select-option>
+          <a-select-option value="Assistance needed">Assistance needed</a-select-option>
+        </a-select>
+      </div>
       <div class='feed-back-submit'>
         <a-space>
           <a-button @click='handleCancelFeedback'>Cancel</a-button>
@@ -57,6 +69,7 @@ export default {
     return {
       imgBase64Data: null,
       feedbackComment: '',
+      feedbackType: '',
       imgEditModalVisible: false,
       submitting: false
     }
@@ -71,6 +84,7 @@ export default {
       this.$emit('submit-feedback', {
         imgBase64Data: this.imgBase64Data,
         comment: this.feedbackComment,
+        feedbackType: this.feedbackType,
         pageUrl: window.location.href
       })
     },

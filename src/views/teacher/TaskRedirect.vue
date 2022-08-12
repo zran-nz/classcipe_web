@@ -6,6 +6,7 @@
 
 <script>
 import { TaskAddOrUpdate } from '@/api/task'
+import { ClasscipeEventBus, ClasscipeEvent } from '@/classcipeEventBus'
 export default {
   name: 'TaskRedirect',
   props: {
@@ -16,22 +17,36 @@ export default {
   },
   created () {
     this.$logger.info('task redirecting ' + this.taskId)
-    if (this.taskId) {
-      this.$router.replace('/teacher/add-task/' + this.taskId)
-    } else {
-      const data = {
-        name: null,
-        status: 0
-      }
-
-      TaskAddOrUpdate(data).then((response) => {
-        this.$logger.info('TaskAddOrUpdate response', response.result)
-        if (response.success) {
-          this.$router.replace('/teacher/add-task/' + response.result.id)
-        } else {
-          this.$message.error(response.message)
+    ClasscipeEventBus.$on(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleTaskRedirect)
+    this.handleTaskRedirect()
+  },
+  beforeDestroy() {
+    ClasscipeEventBus.$off(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleTaskRedirect)
+  },
+  methods: {
+    handleTaskRedirect() {
+      this.$logger.info('task redirecting ' + this.taskId)
+      if (this.taskId) {
+        this.$router.replace('/teacher/add-task-v2/' + this.taskId)
+      } else {
+        const data = {
+          name: 'Untitled task',
+          status: 0
         }
-      })
+
+        TaskAddOrUpdate(data).then((response) => {
+          this.$logger.info('TaskAddOrUpdate response', response.result)
+          if (response.success) {
+            if (response.code !== 520 && response.code !== 403) {
+              this.$router.replace('/teacher/add-task-v2/' + response.result.id)
+            } else {
+              this.$logger.info('等待授权回调')
+            }
+          } else {
+            this.$message.error(response.message)
+          }
+        })
+      }
     }
   }
 }

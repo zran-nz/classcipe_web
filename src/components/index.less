@@ -1,39 +1,72 @@
-@import "~ant-design-vue/lib/style/index";
+@import '~ant-design-vue/lib/style/index';
 
 // The prefix to use on all css classes from ant-pro.
-@ant-pro-prefix             : ant-pro;
-@ant-global-sider-zindex    : 106;
-@ant-global-header-zindex   : 105;
+@ant-pro-prefix: ant-pro;
+@ant-global-sider-zindex: 106;
+@ant-global-header-zindex: 105;
 @btn-default-color: #fff;
 
-@bar-width: 10px, 15px, 20px, 25px, 30px;
+@bar-width: 10px, 15px, 20px, 25px, 30px, 35px;
+@bar-width-small: 5px, 8px, 11px, 14px, 17px, 20px;
 @bar-con-len: length(@bar-width);
 
-button.ant-btn {
-  color: @primary-color;
-  border-color: @primary-color;
-}
+// button.ant-btn {
+//   color: @primary-color;
+//   border-color: @primary-color;
+// }
 button.ant-btn-link {
   border: none;
 }
 button.ant-btn-primary {
   color: @btn-default-color;
+  border-color: @primary-color;
+}
+button.ant-btn-danger {
+  color: @btn-default-color;
 }
 
-.ant-tooltip{
-  max-width:400px;
+button.ant-btn-black {
+  background: #484D53!important;
+  border-color: #484D53!important;
+  color: #fff!important;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.ant-tooltip {
+  max-width: 400px;
+}
+
+.ant-modal-close {
+
+  &:hover {
+    color: #ef4136;
+  }
 }
 
 // bloom rate
 .rate-bar-con {
   margin-bottom: 0;
-  .ant-rate-star:not(:last-child) {
-    margin-right: 5px;
+  &.small {
+    .ant-rate-star:not(:last-child) {
+      margin-right: 5px;
+    }
+    .rate-bar {
+      width: 8px;
+    }
+  }
+  &.super-small {
+    .ant-rate-star:not(:last-child) {
+      margin-right: 2px;
+    }
+    .rate-bar {
+      width: 3px;
+    }
   }
   .rate-bar {
-    width: 8px;
+    width: 12px;
     height: 30px;
-    background: #e8e8e8;
+    background: #aaa;
   }
   .ant-rate-star-full {
     .rate-bar {
@@ -42,11 +75,21 @@ button.ant-btn-primary {
   }
 }
 
-.Loop(@index) when (@index < @bar-con-len){
-  .rate-bar-con .ant-rate-star:nth-child(@{index}){
-    height: extract(@bar-width, @index);
-    .rate-bar{
+.Loop(@index) when (@index <= @bar-con-len) {
+  .rate-bar-con {
+    .ant-rate-star:nth-child(@{index}) {
       height: extract(@bar-width, @index);
+      .rate-bar {
+        height: extract(@bar-width, @index);
+      }
+    }
+    &.super-small {
+      .ant-rate-star:nth-child(@{index}) {
+        height: extract(@bar-width-small, @index);
+        .rate-bar {
+          height: extract(@bar-width-small, @index);
+        }
+      }
     }
   }
   .Loop(@index+1);

@@ -1,0 +1,2 @@
+sudo docker run -d -it --name dev.web --net=host -v $PWD:/git --restart=always node:latest /git/start_dev
+sudo docker attach dev.web

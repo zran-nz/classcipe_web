@@ -1,64 +1,45 @@
 <template>
-  <div class="content-list-wrapper">
+  <div class="content-list-wrapper" :style="{width: nameWidth + 'px'}">
     <div class="content-header">
-      <div class="name" :style="{width: nameWidth + 'px'}">
+      <div class="name">
         Name
       </div>
     </div>
     <div class="content-list" >
       <template v-if="contentDataList && contentDataList.length">
         <div
+          @click="handleContentListItemClick(item)"
           :data-item-id="item.id"
           :class="{'content-item': true,
                    'odd-line': index % 2 === 0,'even-line': index % 2 === 1,
                    'active-line': currentId === item.id,
-                   'selected-line': selectedIdList.indexOf(item.id) !== -1 ? true : (currentDataType === NavigationType.sync ? (selectedKnowledgeIdList.indexOf(item.knowledgeId) !== -1) : (
-                     currentDataType === NavigationType.learningOutcomes ? (selectedCurriculumIdList.indexOf(item.id) !== -1) : (
-                       currentDataType === NavigationType.specificSkills ? (selectedSubjectSpecificSkillIdList.indexOf(item.id) !== -1) : (
-                         (currentDataType === NavigationType.centurySkills ||
-                           currentDataType === NavigationType.AUGeneralCapabilities ||
-                           currentDataType === NavigationType.NZKeyCompetencies) ? (selected21CenturySkillIdList.indexOf(item.id) !== -1) : (
-                           currentDataType === NavigationType.sdg ? (selectedBigIdeaList.indexOf(item.id) !== -1) : (
-                             currentDataType === NavigationType.assessmentType ? (selectedAssessmentIdList.indexOf(item.id) !== -1) : (
-                               currentDataType === NavigationType.all21Century ? (selectedAll21CenturyIdList.indexOf(item.id) !== -1) : (
-                                 currentDataType === NavigationType.idu ? (selectedIDUIdList.indexOf(item.id) !== -1) : false
-                               )
-                             )
-                           )
-                         )))))}"
+                   'selected-line': isSelectedItem(item)}"
           v-for="(item,index) in contentDataList"
           :key="index">
-          <div class="name" :style="{width: nameWidth + 'px'}" @click="handleContentListItemClick(item)">
-            <div class="icon">
-              <template v-if="item.type">
-                <content-type-icon :type="item.type" />
+          <div class="name">
+            <div class="icon item-type-icon">
+              <template v-if="item.children.length !== 0 || (item.gradeList && item.gradeList.length !== 0) || (item.hasOwnProperty('isGrade') && item.isGrade) || !item.hasOwnProperty('tagType')">
+                <a-icon type="folder" theme="filled" class="file-dir-icon" />
               </template>
-              <template v-else>
-                <a-icon type="folder" theme="filled" class="file-dir-icon"/>
+              <template v-else-if="isSelectedItem(item) && item.hasOwnProperty('tagType')">
+                <img src="~@/assets/icons/lesson/selected.png" />
+              </template>
+              <template v-else-if="!isSelectedItem(item) && item.hasOwnProperty('tagType')">
+                <div class="empty-circle"></div>
               </template>
             </div>
             <a-tooltip placement="top" >
-              <template slot="title" v-if="item.hasOwnProperty('froms')">{{ item.froms }}</template>
               <template slot="title" v-if="item.gradeNames && item.gradeNames.length > 0">{{ item.gradeNames | gradeFormat }}</template>
               <div class="name-text">
                 {{ item.name || item.description }}
               </div>
-              <div class="collapse-item" v-if="item.hasOwnProperty('froms')">
-                <a-tag class="tag-item" v-for="(tag,tIndex) in item.tags" :key="tIndex">
-                  {{ tag }}
-                </a-tag>
-                <a-icon class="collapse-icon" type="down" />
-              </div>
             </a-tooltip>
-            <div class="action-icon">
-              <img src="~@/assets/icons/lesson/selected.png"/>
-            </div>
           </div>
         </div>
       </template>
       <template v-else>
         <div class="content-empty" v-if="!firstLoad">
-          <a-empty />
+          <no-more-resources tips='No data under selected level, please check other levels.' />
         </div>
       </template>
     </div>
@@ -88,10 +69,13 @@ import UnitPlanPreview from '@/components/UnitPlan/UnitPlanPreview'
 import MaterialPreview from '@/components/Material/MaterialPreview'
 import { typeMap } from '@/const/teacher'
 import { NavigationType } from '@/components/NewLibrary/NavigationType'
+import NoMoreResources from '@/components/Common/NoMoreResources'
+const { debounce } = require('lodash-es')
 
 export default {
   name: 'NewContentList',
   components: {
+    NoMoreResources,
     ContentTypeIcon,
     UnitPlanPreview,
     MaterialPreview
@@ -100,6 +84,10 @@ export default {
     selectedList: {
       type: Array,
       default: () => []
+    },
+    currentNavPath: {
+      type: String,
+      default: null
     }
   },
   data () {
@@ -164,13 +152,63 @@ export default {
   mounted () {
     LibraryEventBus.$on(LibraryEvent.ContentListUpdate, this.handleContentListUpdate)
     LibraryEventBus.$on(LibraryEvent.ContentListSelectedListUpdate, this.handleContentSelectedListUpdate)
-    this.nameWidth = document.getElementById('new-library').getBoundingClientRect().width - 400
+    LibraryEventBus.$on(LibraryEvent.ChangeCurriculum, this.handleChangeCurriculum)
+    LibraryEventBus.$on(LibraryEvent.ResetContentList, this.handleResetContentList)
+    this.nameWidth = document.getElementById('new-library').getBoundingClientRect().width - 505
     this.$logger.info('nameWidth ' + this.nameWidth)
     this.$logger.info('NewContentList selectedList', this.selectedList)
     this.mySelectedList = this.selectedList
     this.assignSelectedList()
+
+    window.onresize = debounce(() => {
+      this.nameWidth = document.getElementById('new-library').getBoundingClientRect().width - 505
+    }, 300)
   },
   methods: {
+
+    isSelectedItem (item) {
+      if (this.selectedIdList.indexOf(item.id) !== -1) {
+        return true
+      } else {
+        switch (this.currentDataType) {
+          case NavigationType.sync:
+            return this.selectedKnowledgeIdList.indexOf(item.knowledgeId) !== -1
+          case NavigationType.learningOutcomes:
+            return this.selectedCurriculumIdList.indexOf(item.id) !== -1
+          case NavigationType.specificSkills:
+            return this.selectedSubjectSpecificSkillIdList.indexOf(item.id) !== -1
+          case NavigationType.centurySkills:
+          case NavigationType.AUGeneralCapabilities:
+          case NavigationType.NZKeyCompetencies:
+            return this.selected21CenturySkillIdList.indexOf(item.id) !== -1
+          case NavigationType.sdg:
+            return this.selectedBigIdeaList.indexOf(item.id) !== -1
+          case NavigationType.assessmentType:
+            return this.selectedAssessmentIdList.indexOf(item.id) !== -1
+          case NavigationType.all21Century:
+            return this.selectedAll21CenturyIdList.indexOf(item.id) !== -1
+          case NavigationType.idu:
+            return this.selectedIDUIdList.indexOf(item.id) !== -1
+          default:
+            return false
+        }
+      }
+    },
+    handleChangeCurriculum () {
+      this.$logger.info('NewContentList handleChangeCurriculum')
+      this.contentDataList = []
+      this.parent = null
+      this.firstLoad = true
+      this.currentDataType = null
+    },
+
+    handleResetContentList () {
+      this.$logger.info('NewContentList handleResetContentList')
+      this.contentDataList = []
+      this.parent = null
+      this.firstLoad = true
+      this.currentDataType = null
+    },
     assignSelectedList () {
       this.$logger.info('assignSelectedList', this.selectedList)
       this.selectedIdList = []
@@ -217,30 +255,7 @@ export default {
         return
       }
 
-      if (this.currentDataType === NavigationType.sync) {
-        // 同步更新点击sync data数据，通过当前字段是否包含froms来区分sync和大纲描述
-        this.$logger.info('handle sync handleContentListItemClick', item)
-        const index = this.selectedKnowledgeIdList.indexOf(item.knowledgeId)
-        if (index !== -1) {
-          this.selectedKnowledgeIdList.splice(index, 1)
-          this.selectedKnowledgeIdNameMap.delete(item.knowledgeId)
-        } else {
-          this.selectedKnowledgeIdList.push(item.knowledgeId)
-          this.selectedKnowledgeIdNameMap.set(item.knowledgeId, item.name, item.tagType, item.tags)
-        }
-        const selectedList = []
-        this.selectedKnowledgeIdList.forEach(knowledgeId => {
-          selectedList.push({
-            dataType: this.currentDataType,
-            knowledgeId: knowledgeId,
-            name: this.selectedKnowledgeIdNameMap.get(knowledgeId),
-            tagType: item.tagType,
-            tags: item.tags
-          })
-        })
-        this.$emit('select-sync', selectedList)
-        this.$logger.info('selectedKnowledgeIdNameMap', this.selectedKnowledgeIdNameMap)
-      } else if (this.currentDataType === NavigationType.learningOutcomes) {
+      if (this.currentDataType === NavigationType.learningOutcomes) {
         // 同步更新点击大纲描述数据
         if (item.children.length || (item.gradeList && item.gradeList.length) || item.hasOwnProperty('gradeList')) {
           // 如果有子列表，表示还未到最后一层description，通知左侧导航栏更新同步层级
@@ -260,6 +275,9 @@ export default {
               this.selectedCurriculumIdList.splice(index, 1)
               this.selectedCurriculumMap.delete(item.id)
             } else {
+              if (item.hasOwnProperty('path')) {
+                item.path = this.currentNavPath
+              }
               this.selectedCurriculumIdList.push(item.id)
               this.selectedCurriculumMap.set(item.id, item)
             }
@@ -273,6 +291,11 @@ export default {
             })
             this.$emit('select-curriculum', selectedList)
             this.$logger.info('selectedCurriculumMap', this.selectedCurriculumMap)
+
+            if (item.hasOwnProperty('selectedGradeId')) {
+              this.$logger.info('selectedGradeId', item.selectedGradeId)
+              LibraryEventBus.$emit(LibraryEvent.GradeUpdate, item.selectedGradeId)
+            }
           } else {
             // grade下层为空
             const eventData = {
@@ -305,6 +328,9 @@ export default {
               this.selectedSubjectSpecificSkillIdList.splice(index, 1)
               this.selectedSubjectSpecificSkillIdMap.delete(item.id)
             } else {
+              if (item.hasOwnProperty('path')) {
+                item.path = this.currentNavPath
+              }
               this.selectedSubjectSpecificSkillIdList.push(item.id)
               this.selectedSubjectSpecificSkillIdMap.set(item.id, item)
             }
@@ -318,6 +344,11 @@ export default {
             })
             this.$emit('select-subject-specific-skill', selectedList)
             this.$logger.info('selectedSubjectSpecificSkillIdMap', this.selectedSubjectSpecificSkillIdMap)
+
+            if (item.hasOwnProperty('selectedGradeId')) {
+              this.$logger.info('selectedGradeId', item.selectedGradeId)
+              LibraryEventBus.$emit(LibraryEvent.GradeUpdate, item.selectedGradeId)
+            }
           } else {
             // grade下层为空
             const eventData = {
@@ -350,6 +381,9 @@ export default {
               this.selected21CenturySkillIdList.splice(index, 1)
               this.selected21CenturySkillIdMap.delete(item.id)
             } else {
+              if (item.hasOwnProperty('path')) {
+                item.path = this.currentNavPath
+              }
               this.selected21CenturySkillIdList.push(item.id)
               this.selected21CenturySkillIdMap.set(item.id, item)
             }
@@ -363,6 +397,11 @@ export default {
             })
             this.$emit('select-century-skill', selectedList)
             this.$logger.info('selected21CenturySkillIdMap', this.selected21CenturySkillIdMap)
+
+            if (item.hasOwnProperty('selectedGradeId')) {
+              this.$logger.info('selectedGradeId', item.selectedGradeId)
+              LibraryEventBus.$emit(LibraryEvent.GradeUpdate, item.selectedGradeId)
+            }
           } else {
             // grade下层为空
             const eventData = {
@@ -403,10 +442,14 @@ export default {
           })
           this.$emit('select-big-idea', selectedList)
           this.$logger.info('select-big-idea', this.selectedBigIdeaList)
+          if (item.hasOwnProperty('selectedGradeId')) {
+            this.$logger.info('selectedGradeId', item.selectedGradeId)
+            LibraryEventBus.$emit(LibraryEvent.GradeUpdate, item.selectedGradeId)
+          }
         }
       } else if (this.currentDataType === NavigationType.assessmentType) {
         // assessmentType 是mainSubject-year-assessmentType-knowledge
-        // asseeement的grade下面有两层，所以根据数据字段中特定的标识字段判断是否为knowledge(QueryKnowledgesByAssessmentTypeId、GetAssessmentTypeList的时候标识的
+        // assessment的grade下面有两层，所以根据数据字段中特定的标识字段判断是否为knowledge(QueryKnowledgesByAssessmentTypeId、GetAssessmentTypeList的时候标识的
         if (!item.hasOwnProperty('isKnowledge') || (item.gradeList && item.gradeList.length)) {
           // 如果有子列表，表示还未到最后一层knowledge，通知左侧导航栏更新同步层级
           LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, {
@@ -425,6 +468,9 @@ export default {
               this.selectedAssessmentIdList.splice(index, 1)
               this.selectedAssessmentMap.delete(item.id)
             } else {
+              if (item.hasOwnProperty('path')) {
+                item.path = this.currentNavPath
+              }
               this.selectedAssessmentIdList.push(item.id)
               this.selectedAssessmentMap.set(item.id, item)
             }
@@ -438,6 +484,10 @@ export default {
             })
             this.$emit('select-assessmentType', selectedList)
             this.$logger.info('selectedAssessmentMap', this.selectedAssessmentMap)
+            if (item.hasOwnProperty('selectedGradeId')) {
+              this.$logger.info('selectedGradeId', item.selectedGradeId)
+              LibraryEventBus.$emit(LibraryEvent.GradeUpdate, item.selectedGradeId)
+            }
           } else {
             // grade下层为空
             const eventData = {
@@ -467,6 +517,9 @@ export default {
             this.selectedAll21CenturyIdList.splice(index, 1)
             this.selectedAll21CenturyMap.delete(item.id)
           } else {
+            if (item.hasOwnProperty('path')) {
+              item.path = this.currentNavPath
+            }
             this.selectedAll21CenturyIdList.push(item.id)
             this.selectedAll21CenturyMap.set(item.id, item)
           }
@@ -480,6 +533,10 @@ export default {
           })
           this.$emit('select-all-21-century', selectedList)
           this.$logger.info('select-all-21-century', selectedList)
+          if (item.hasOwnProperty('selectedGradeId')) {
+            this.$logger.info('selectedGradeId', item.selectedGradeId)
+            LibraryEventBus.$emit(LibraryEvent.GradeUpdate, item.selectedGradeId)
+          }
         }
       } else if (this.currentDataType === NavigationType.idu) {
         if (!item.hasOwnProperty('isGrade')) {
@@ -488,6 +545,9 @@ export default {
             this.selectedIDUIdList.splice(index, 1)
             this.selectedIDUMap.delete(item.id)
           } else {
+            if (item.hasOwnProperty('path')) {
+              item.path = this.currentNavPath
+            }
             this.selectedIDUIdList.push(item.id)
             this.selectedIDUMap.set(item.id, item)
           }
@@ -501,6 +561,10 @@ export default {
           })
           this.$emit('select-idu', selectedList)
           this.$logger.info('selectedIDUMap', this.selectedIDUMap)
+          if (item.hasOwnProperty('selectedGradeId')) {
+            this.$logger.info('selectedGradeId', item.selectedGradeId)
+            LibraryEventBus.$emit(LibraryEvent.GradeUpdate, item.selectedGradeId)
+          }
         } else {
           // grade下层为空
           const eventData = {
@@ -660,6 +724,8 @@ export default {
     LibraryEventBus.$off(LibraryEvent.ContentListUpdate, this.handleContentListUpdate)
     this.$logger.info('off NewContentList ContentListUpdate handler')
     LibraryEventBus.$off(LibraryEvent.ContentListSelectedListUpdate, this.handleContentSelectedListUpdate)
+    LibraryEventBus.$off(LibraryEvent.ChangeCurriculum, this.handleChangeCurriculum)
+    LibraryEventBus.$off(LibraryEvent.ResetContentList, this.handleResetContentList)
     this.$logger.info('off NewContentList ContentListSelectedListUpdate handler')
   }
 }
@@ -721,27 +787,12 @@ export default {
       background-color: rgba(228, 228, 228, 0.2);
     }
 
-    .action-icon {
-      display: none;
-    }
-
     .selected-line {
       background-color: fade(@outline-color, 10%) !important;
       color: @text-color;
       border: 1px solid #15C39A !important;
       box-sizing: border-box;
       position: relative;
-
-      .action-icon {
-        display: block;
-        position: absolute;
-        right: 5px;
-        top: 50%;
-        margin-top: -10px;
-        img {
-          height: 18px;
-        }
-      }
     }
 
     .active-line {
@@ -753,6 +804,7 @@ export default {
       border: 1px solid #fff;
       display: flex;
       flex-direction: row;
+      cursor: pointer;
       flex-wrap: wrap;
       align-items: center;
       padding: 10px;
@@ -767,9 +819,8 @@ export default {
         cursor: pointer;
         display: flex;
         flex-direction: row;
-        align-items: flex-start;
+        align-items: center;
         word-break: break-all;
-        padding: 0 10px;
         width: 100%;
         .icon {
           .file-dir-icon {
@@ -829,12 +880,33 @@ export default {
     border-radius: 1px;
     background: rgba(0,0,0,0.00);
     -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
   }
   /* 滚动条滑块 */
   *::-webkit-scrollbar-thumb {
     border-radius: 3px;
     background: rgba(0,0,0,0.12);
     -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+  }
+}
+
+.item-type-icon {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 25px;
+  .empty-circle {
+    height: 18px;
+    width: 18px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+  }
+
+  img {
+    width: 20px;
+    height: 20px;
   }
 }
 </style>

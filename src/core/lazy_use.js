@@ -45,6 +45,10 @@ import {
   Cascader,
   message,
   Progress,
+  Pagination,
+  Slider,
+  Affix,
+  TimePicker,
   notification, Switch, Rate, Collapse, DatePicker, Mentions, AutoComplete
 } from 'ant-design-vue'
 import Viser from 'viser-vue'
@@ -56,11 +60,17 @@ import PermissionHelper from '@/core/permission/permission'
 import './directives/action'
 import './directives/hasRole'
 import './directives/exCludeRole'
+import './directives/selectPopover'
+import './directives/clickOutside'
 
 // logger
 import * as logger from '@/utils/logger'
 import CollapsePanel from 'ant-design-vue/lib/collapse/CollapsePanel'
 
+//
+import * as classcipe from '@/utils/classcipe'
+
+Vue.use(Pagination)
 Vue.use(Rate)
 Vue.use(Collapse)
 Vue.use(CollapsePanel)
@@ -111,6 +121,9 @@ Vue.use(Collapse)
 Vue.use(Mentions)
 Vue.use(AutoComplete)
 Vue.use(Progress)
+Vue.use(Slider)
+Vue.use(Affix)
+Vue.use(TimePicker)
 
 Vue.prototype.$confirm = Modal.confirm
 Vue.prototype.$message = message
@@ -123,9 +136,18 @@ Vue.prototype.$warning = Modal.warning
 // logger
 Vue.prototype.$logger = logger
 
+// classcipe 公用工具方法
+Vue.prototype.$classcipe = classcipe
+
 Vue.use(Viser)
 Vue.use(Dialog) // this.$dialog func
 Vue.use(PermissionHelper)
 Vue.use(VueCropper)
+
+const IconFont = Icon.createFromIconfontCN({
+  scriptUrl: '//at.alicdn.com/t/font_3302558_9fyl19jduga.js'
+})
+
+Vue.component('icon-font', IconFont)
 
 process.env.NODE_ENV !== 'production' && console.warn('[NOTICE] use lazy-load.')

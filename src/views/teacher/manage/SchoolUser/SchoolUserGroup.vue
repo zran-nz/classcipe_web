@@ -57,6 +57,8 @@ import { getSchoolGroupList } from '@/api/schoolGroup'
 import { schoolGroupType } from '@/const/schoolGroup'
 import { getSchoolUsers } from '@/api/schoolUser'
 import store from '@/store'
+import { mapState } from 'vuex'
+import { SchoolUserRole } from '@/const/role'
 const columns = [
   {
     title: 'Name',
@@ -103,31 +105,43 @@ export default {
       columns,
       loading: false,
       pagination: {
-        pageSize: 20,
+        pageSize: 15,
         current: 1,
+        pageSizeOptions: ['15', '30', '50'],
+        showTotal: (total, range) => {
+          return 'Total ' + total + ' items'
+        },
         total: 0
       },
       teacherList: []
     }
   },
   created() {
-    this.loadData()
-    this.loadTeacherList()
+    this.initData()
   },
-  computed: {},
+  computed: {
+    ...mapState({
+      info: state => state.user.info,
+      currentSchool: state => state.user.currentSchool
+    })
+  },
   methods: {
+    initData() {
+      this.loadData()
+      this.loadTeacherList()
+    },
     async loadData() {
       this.loading = true
       const res = await getSchoolGroupList({
-        schoolId: store.getters.userInfo.school
+        schoolId: this.currentSchool.id
       })
       this.groupList = res?.result?.records || []
       this.loading = false
     },
     async loadTeacherList() {
       const res = await getSchoolUsers({
-        school: store.getters.userInfo.school,
-        currentRole: 'teacher',
+        schoolId: store.getters.school,
+        roles: SchoolUserRole.teacher,
         pageSize: 1000,
         userStatus: '1'
       })
@@ -164,7 +178,7 @@ export default {
       this.pagination = pager
       this.loading = true
       const res = await getSchoolGroupList({
-        schoolId: store.getters.userInfo.school,
+        schoolId: this.currentSchool.id,
         name: name
       })
       this.groupList = res?.result?.records || []

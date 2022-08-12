@@ -1,5 +1,6 @@
 <template>
   <a-row class='common-form-header'>
+    <div class='hover-bar' v-show='$store.getters.hiddenHeader && debounceHiddenHeader' @mouseenter='handleMouseEnterOutHoverBar' @mouseout='handleCancelBounce'></div>
     <a-col span='15'>
       <a-space>
         <span class='back-icon' v-if='showBack'>
@@ -83,7 +84,7 @@
           @click='handleSharing'
           class='my-form-header-btn'>
           <div class='btn-icon'>
-            <a-icon type='share-alt' :style="{ fontSize: '16px' }" />
+            <a-icon type='share-alt' :style="{ fontSize: '16px', color: '#15c39a' }" />
           </div>
           <div
             class='btn-text'>
@@ -107,7 +108,7 @@
             class='btn-text'
             :data-isOwner="isOwner + ''"
             :data-isEditCollaborater="isEditCollaborater + ''">
-            Save & Exit
+            Save
           </div>
           <!--          <div class="btn-text" v-else>-->
           <!--            Copy & Exit-->
@@ -125,7 +126,7 @@
             class='btn-text'
             :data-isOwner="isOwner + ''"
             :data-form-status="form.status + ''">
-            Save & Publish
+            Publish
           </div>
         </a-button>
         <a-button
@@ -134,7 +135,7 @@
           class='my-form-header-btn'
           @click='handlePublish(0)'>
           <div class='btn-icon'>
-            <a-icon style='font-size: 16px' theme='filled' type='down-square' />
+            <a-icon :style="{ fontSize: '16px', color: '#15c39a' }" theme='filled' type='down-square' />
           </div>
           <div
             class='btn-text'
@@ -144,6 +145,13 @@
           </div>
         </a-button>
       </a-space>
+      <div class='hidden-top-header' :style="{'background-color': hiddenHeader ? '#fff' : '#fff'}" v-if='allowHiddenHeader'>
+        <div class='hidden-toggle' @click='toggleHiddenHeader'>
+          <template v-if='hiddenHeader'>
+            <a-icon type="caret-down" :style="{ fontSize: '16px', color: '#182552' }"/>
+          </template>
+        </div>
+      </div>
     </a-col>
   </a-row>
 </template>
@@ -155,6 +163,10 @@ import CollaborateUserIcon from '@/assets/icons/collaborate/collaborate_user.svg
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import { typeMap } from '@/const/teacher'
 import EditIcon from '@/assets/svgIcon/evaluation/bianji.svg?inline'
+import { mapActions, mapState } from 'vuex'
+import { Modal } from 'ant-design-vue'
+import { HIDDEN_HEADER } from '@/store/mutation-types'
+const { debounce } = require('lodash-es')
 
 export default {
   name: 'CommonFormHeader',
@@ -192,6 +204,10 @@ export default {
     showShare: {
       type: Boolean,
       default: true
+    },
+    isPreviewMode: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -204,7 +220,8 @@ export default {
       collaborateUserList: [],
       owner: {},
       isShare: false,
-      onlineUsers: [this.$store.getters.userInfo.email]
+      onlineUsers: [this.$store.getters.userInfo.email],
+      debounceHiddenHeader: null
     }
   },
   computed: {
@@ -221,6 +238,13 @@ export default {
         return this.collaborateUserList[index].permissions === 'Edit'
       }
       return false
+    },
+    ...mapState({
+      removedCollaborate: state => state.websocket.removedCollaborate,
+      hiddenHeader: state => state.app.hiddenHeader
+    }),
+    allowHiddenHeader () {
+      return this.$route.meta.allowHiddenHeader
     }
   },
   watch: {
@@ -234,11 +258,23 @@ export default {
       console.log('update is share ' + val)
       this.isShare = val === 1
     },
-    '$store.state.websocket.needRefreshCollaborate': function (newValue) {
+    removedCollaborate: function (newValue) {
       if (newValue && newValue.indexOf(this.form.id) > -1) {
-        this.$store.dispatch('refreshCollaborate', '')
-        this.handleStartCollaborate()
+        Modal.error({
+          title: 'Alert',
+          content: 'You have been removed from the collaborating list of ' + this.form.name,
+          okText: 'Ok',
+          mask: true,
+          onOk: () => {
+            this.$router.push({ path: '/teacher/main/created-by-me' })
+          }
+        })
       }
+      const index = this.collaborate.users.findIndex(item => item.email === this.$store.getters.userInfo.email)
+      if (index > -1) {
+        this.collaborate.users.splice(index, 1)
+      }
+      this.removedCollaborateAction(false)
     }
   },
   created() {
@@ -246,35 +282,36 @@ export default {
     if (this.form && this.form.name) {
       this.formName = this.form.name
     }
-  },
-  mounted () {
-    setTimeout(() => {
-      // 判断是否打开协同框
-      const needRefreshCollaborate = this.$store.state.websocket.needRefreshCollaborate
-      if (needRefreshCollaborate && needRefreshCollaborate.indexOf(this.form.id) > -1) {
-        this.$store.dispatch('refreshCollaborate', '')
-        this.handleStartCollaborate()
-      }
-    }, 3000)
+
+    this.debounceHiddenHeader = debounce(this.toggleHiddenHeader, 500)
   },
   methods: {
+    handleMouseEnterOutHoverBar() {
+      this.debounceHiddenHeader()
+    },
+    ...mapActions(['removedCollaborateAction']),
     formatUserList(users) {
-      let userList = [({ userName: this.owner.nickname, userAvatar: this.owner.avatar, email: this.owner.email })]
-      userList = userList.concat(users.filter(user => this.onlineUsers.indexOf(user.email) > -1 && user.email !== this.owner.email))
-      userList = userList.concat(users.filter(user => this.onlineUsers.indexOf(user.email) === -1 && user.email !== this.owner.email))
+      let userList = []
+      if (this.owner) {
+        userList = [({ userName: this.owner.nickname, userAvatar: this.owner.avatar, email: this.owner.email })]
+      }
+      if (users) {
+        userList = userList.concat(users.filter(user => this.onlineUsers.indexOf(user.email) > -1 && user.email !== this.owner.email))
+        userList = userList.concat(users.filter(user => this.onlineUsers.indexOf(user.email) === -1 && user.email !== this.owner.email))
+      }
       this.collaborateUserList = userList
     },
     handleBack() {
       this.$logger.info('handleBack')
-      if (this.isOwner) {
-        this.$router.push({ path: '/teacher/main/created-by-me' })
-      } else if (this.isCollaborater) {
-        this.$router.push({ path: '/teacher/main/shared' })
+      if (this.isPreviewMode) {
+        this.$emit('back')
       } else {
-        this.$router.push({ path: '/teacher/main/created-by-me' })
+        if (this.isOwner) {
+          this.$router.push({ path: '/teacher/main/created-by-me' })
+        } else {
+          this.$router.push({ path: '/teacher/main/created-by-me' })
+        }
       }
-
-      // this.$emit('back')
     },
     handleSave() {
       this.saving = true
@@ -312,6 +349,15 @@ export default {
     },
     formatOnlineEmail(email) {
       return email === this.form.createBy ? 'Owner: ' + email : email
+    },
+    toggleHiddenHeader() {
+      this.$logger.info('toggleHiddenHeader')
+      this.$store.commit(HIDDEN_HEADER, !this.$store.getters.hiddenHeader)
+    },
+
+    handleCancelBounce () {
+      this.$logger.info('handleCancelBounce')
+      this.debounceHiddenHeader.cancel()
     }
   }
 }
@@ -322,18 +368,27 @@ export default {
 
 .gray {
   filter: grayscale(100%);
-  filter: gray;
 }
 
 .common-form-header {
+  position: relative;
   padding: 15px;
   background: #fff;
   z-index: 1000;
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+  height: 74px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
   opacity: 1;
   display: flex;
-  min-width: 1000px;
   align-items: center;
+
+  .hover-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 18px;
+    background: transparent;
+  }
 
   .back-icon {
     color: rgba(24, 37, 82, 1);
@@ -348,6 +403,7 @@ export default {
   }
 
   .unit-nav-title {
+    padding-right: 5px;
     font-size: 15px;
     font-family: Inter-Bold;
     line-height: 24px;
@@ -475,4 +531,25 @@ export default {
   }
 }
 
+.hidden-top-header {
+  position: absolute;
+  right: 14px;
+  top: -19px;
+  height: 18px;
+  line-height: 18px;
+  padding: 0 5px;
+  z-index: 1500;
+  display: flex;
+  justify-content: center;
+  align-content: flex-start;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+  cursor: pointer;
+}
+
+.hidden-toggle {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
 </style>

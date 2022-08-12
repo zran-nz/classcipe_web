@@ -93,7 +93,7 @@
       @ok="PPTCommentPreviewVisible = false"
       @cancel="PPTCommentPreviewVisible = false">
       <div class="view-ppt-comment">
-        <ppt-comment-preview :slide-id="slideId" :class-id="currentClassId" v-if="slideId"/>
+        <ppt-comment-preview :slide-id="slideId" :class-data="classData" v-if="slideId"/>
       </div>
     </a-modal>
   </div>
@@ -192,7 +192,7 @@ export default {
     handleReviewEditEvaluation (item) {
       this.$logger.info('handleReviewEditEvaluation', item, this.classData)
       this.$router.push({
-        path: `/teacher/class-evaluation/${this.classData.id}/${item.classId}`
+        path: `/teacher/class-evaluation/${this.classData.id}/${item.taskClassId}/${item.classId}`
       })
     },
     handleArchiveSession (item) {
