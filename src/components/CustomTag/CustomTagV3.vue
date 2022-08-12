@@ -215,7 +215,8 @@ export default {
       currentTagCategoryDesc: '',
       asyncUpdateTagCategoryDescFn: null, // 异步更新标签分类TagCategoryDesc函数
 
-      tagSelectContainerVisible: true
+      tagSelectContainerVisible: true,
+      categoryTagMap: new Map()
     }
   },
   watch: {
@@ -364,14 +365,22 @@ export default {
 
     associateTagCategoryNameList () {
       const categorySet = new Set()
-      this.associateCustomTags.forEach(item => {
-        const customTags = item.customTags
-        customTags.forEach(customTag => {
-          if (this.selectedCategoryNameList.indexOf(customTag.category) === -1) {
-            categorySet.add(customTag.category)
+      this.$logger.info('categoryTagMap is ', this.categoryTagMap)
+      this.$logger.info('selectedTagNameList is ', this.selectedTagNameList)
+      for (const category in this.categoryTagMap) {
+        this.$logger.info('check category', category, this.categoryTagMap[category])
+        const list = this.categoryTagMap[category]
+        let notAllExist = false
+        list.forEach(tagName => {
+          if (this.selectedTagNameList.indexOf(tagName) === -1) {
+            notAllExist = true
           }
         })
-      })
+
+        if (notAllExist) {
+          categorySet.add(category)
+        }
+      }
       return Array.from(categorySet)
     },
 
@@ -554,6 +563,7 @@ export default {
             idTypeListSet.push(item)
           }
         })
+        const categoryTagMap = {}
         QueryCustomTags(Array.from(idTypeListSet)).then(response => {
           this.$logger.info('loadAssociateCustomTags customTags', response)
           this.associateCustomTags = response.result
@@ -567,7 +577,17 @@ export default {
               } else {
                 associateTagContents[customTag.name].push(content)
               }
+              if (categoryTagMap[customTag.category]) {
+                const list = categoryTagMap[customTag.category]
+                const set = new Set(list)
+                set.add(customTag.name)
+                categoryTagMap[customTag.category] = Array.from(set)
+              } else {
+                categoryTagMap[customTag.category] = [customTag.name]
+              }
+              this.$logger.info('categoryTagMap init', categoryTagMap)
             })
+            this.categoryTagMap = categoryTagMap
           })
           this.associateTagContents = associateTagContents
         }).catch(err => {
