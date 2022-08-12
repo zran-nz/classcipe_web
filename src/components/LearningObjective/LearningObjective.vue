@@ -443,7 +443,6 @@ export default {
       }
     },
     'filterConfig.curriculumId': {
-      immediate: true,
       async handler(curriculumId) {
         console.log('curriculumId change', curriculumId)
         if (curriculumId) {
@@ -501,7 +500,7 @@ export default {
   },
   created() {
     this.loading = true
-    this.$logger.info('LearningObjective subjectList', this.subjectList)
+    this.$logger.info('LearningObjective subjectList', this.subjectList, 'yearList', this.yearList, 'languageList', this.languageList, 'learningObjectives', this.learningObjectives)
     this.asyncEmitUpdateEventFn = debounce(this.emitUpdateEvent, 1000)
     this.asyncUpdateFilterListFn = debounce(this.updateFilterList, 1000)
     if (this.curriculumId) {
@@ -863,7 +862,7 @@ export default {
 .learning-objective {
 
   .half-body-content {
-    width: 50%;
+    width: 60%;
     .cc-lo-header {
       display: flex;
       flex-direction: row;

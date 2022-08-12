@@ -97,8 +97,8 @@
               </div>
               <div class='content-item-more-action' slot='overlay'>
                 <div class='menu-item'>
-                  <custom-button label='Takeaways' @click='handleTakeaway'></custom-button>
-                  <custom-button label='Ask someone to teach' @click='handleCoteacher'></custom-button>
+<!--                  <custom-button label='Takeaways' @click='handleTakeaway'></custom-button>-->
+<!--                  <custom-button label='Ask someone to teach' @click='handleCoteacher'></custom-button>-->
                   <custom-button label='Delete' @click='handleDeleteSession'></custom-button>
                 </div>
               </div>
@@ -110,10 +110,10 @@
               </template>
             </custom-button>
 
-            <custom-button
-              :label="'Evaluate 6/19'"
-              @click='handleSchedule'>
-            </custom-button>
+<!--            <custom-button-->
+<!--              :label="'Evaluate 6/19'"-->
+<!--              @click='handleSchedule'>-->
+<!--            </custom-button>-->
 
             <custom-button v-if="session.allowEdit" label='Edit' @click='editItem'>
               <template v-slot:icon>
