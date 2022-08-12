@@ -307,7 +307,7 @@
                     :source-type='contentType.task'
                     :source-id='taskId'
                     :slide-id='form.presentationId'
-                    :show-materials-and-tips='true'
+                    :show-materials-and-tips='false'
                     :show-selected="form.showSelected"
                     :show-edit-google-slide='form.taskMode === 1'
                     :default-thumbnail-list='thumbnailList'
@@ -1049,6 +1049,7 @@ export default {
       if (index === -1) {
         this.form.selectedTemplateList.push(template)
       }
+      this.form.showSelected = true
     },
 
     handleRemoveTemplate(template) {
