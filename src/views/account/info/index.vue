@@ -110,7 +110,9 @@
                   <label for="" class="basic-name-extra" v-if="link.extraKey"> {{ getExtra(link.extraKey) }} </label>
                 </div>
                 <div class="item-basic-badge" v-if="link.badgeKey">
-                  <a-badge :count="getBadge(link.badgeKey)" />
+                  <a-tooltip :title="`There are ${getBadge(link.badgeKey)} teacher(s) to be reviewed`">
+                    <a-badge :count="getBadge(link.badgeKey)" />
+                  </a-tooltip>
                 </div>
               </div>
               <div class="link-item-desc">
