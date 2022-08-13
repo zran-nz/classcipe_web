@@ -59,7 +59,7 @@
           </div>
           <div class='extra-info'>
             <a-space>
-              <div class='info-item curriculum-info' v-show='curriculumName'>
+              <div class='info-item curriculum-info' v-show='curriculumName && content.type !== typeMap.pd'>
                 {{ curriculumName }}
               </div>
               <div class='info-item subject-info'>

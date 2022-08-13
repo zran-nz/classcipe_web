@@ -145,7 +145,7 @@ export const PublishMixin = {
         step.showSatisfiedTips = false
       })
       this.requiredFields.forEach(field => {
-        if (field === TaskField.Slides) {
+        if (field === TaskField.Slides || field === PdField.Slides) {
           if (!this.form.presentationId && !this.form.pageObjects?.length) {
             this.$logger.info(`${field} is empty`, this.form.presentationId, this.form.pageObjects)
             this.emptyRequiredFields.push(field)

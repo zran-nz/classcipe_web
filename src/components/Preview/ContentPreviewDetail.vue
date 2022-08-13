@@ -279,7 +279,7 @@
         </div>
       </template>
 
-      <template v-if="content.video">
+      <template v-if="content.video && contentType !== typeMap.video">
         <div class='content-block'>
           <div class='content-title'>
             Video
@@ -477,6 +477,52 @@
         </div>
       </div>
 
+      <div class='card-list-wrapper' v-if="associatePdList.length">
+        <div class='card-list-title'>
+          <div class='sub-task-title'>
+            PD Content
+            ({{ associatePdList.length }})
+          </div>
+          <div class='go-to-list'>
+            <!--            <custom-link-text text='Enter' @click='goTLinkList' v-show='content.createBy === $store.getters.email'></custom-link-text>-->
+          </div>
+        </div>
+        <div class='scroll-left' @click="scrollLeft('taskUnit')">
+          <a-icon type="left-circle" :style="{fontSize: '22px', color: '#dddddd'}" />
+        </div>
+        <div class='scroll-right' @click="scrollRight('taskUnit')">
+          <a-icon type="right-circle" :style="{fontSize: '22px', color: '#dddddd'}" />
+        </div>
+        <div class='card-list' id='pd'>
+          <div class="card-item" v-for="(associate, i) in associatePdList" :key="i" @click='handlePreviewItem(associate)'>
+            <card-list-item :content="associate" :width="16" :inner-desc="false" :outer-desc="true" />
+          </div>
+        </div>
+      </div>
+
+      <div class='card-list-wrapper' v-if="associateVideoList.length">
+        <div class='card-list-title'>
+          <div class='sub-task-title'>
+            Video
+            ({{ associateVideoList.length }})
+          </div>
+          <div class='go-to-list'>
+            <!--            <custom-link-text text='Enter' @click='goTLinkList' v-show='content.createBy === $store.getters.email'></custom-link-text>-->
+          </div>
+        </div>
+        <div class='scroll-left' @click="scrollLeft('taskUnit')">
+          <a-icon type="left-circle" :style="{fontSize: '22px', color: '#dddddd'}" />
+        </div>
+        <div class='scroll-right' @click="scrollRight('taskUnit')">
+          <a-icon type="right-circle" :style="{fontSize: '22px', color: '#dddddd'}" />
+        </div>
+        <div class='card-list' id='video'>
+          <div class="card-item" v-for="(associate, i) in associateVideoList" :key="i" @click='handlePreviewItem(associate)'>
+            <card-list-item :content="associate" :width="16" :inner-desc="false" :outer-desc="true" />
+          </div>
+        </div>
+      </div>
+
       <div class='card-list-wrapper' v-if="associateRecommendList.length">
         <div class='card-list-title'>
           <div class='sub-task-title'>
@@ -655,6 +701,8 @@ export default {
       videoList: [],
 
       associateList: [],
+      associatePdList: [],
+      associateVideoList: [],
       favoriteFlag: false,
 
       typeMap: this.$classcipe.typeMap,
@@ -913,6 +961,14 @@ export default {
 
             if (content.type === this.$classcipe.typeMap['unit-plan']) {
               this.associateList.push(content)
+            }
+
+            if (content.type === this.$classcipe.typeMap.pd) {
+              this.associatePdList.push(content)
+            }
+
+            if (content.type === this.$classcipe.typeMap.video) {
+              this.associateVideoList.push(content)
             }
           })
         })
