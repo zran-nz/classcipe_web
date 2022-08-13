@@ -270,8 +270,14 @@ export default {
   },
   computed: {
     allTagList () {
-      const pubTagList = this.$store.getters.pubTagList
-      const priTagList = this.$store.getters.priTagList
+      let pubTagList = this.$store.getters.pubTagList
+      let priTagList = this.$store.getters.priTagList
+      if (!this.$store.state.classcipeConfig.ibAuth) {
+        this.$logger.info('bf filter ib pubTagList priTagList', pubTagList, priTagList)
+        pubTagList = pubTagList.filter(item => !item.ib)
+        priTagList = priTagList.filter(item => !item.ib)
+        this.$logger.info('filter ib pubTagList priTagList', pubTagList, priTagList)
+      }
       const tagList = JSON.parse(JSON.stringify([...pubTagList, ...priTagList]))
       if (this.priorityTags.length) {
         const priorityStepList = []
@@ -323,15 +329,17 @@ export default {
     },
 
     filterTagList() {
+      let list = []
       if (this.currentActiveTagCategory) {
         if (this.inputTag.length > 0 && this.inputTag.trim()) {
-          return this.currentActiveTagCategory.tags.filter(tag => tag.tag.toLowerCase().indexOf(this.inputTag.trim().toLowerCase()) > -1)
+          list = this.currentActiveTagCategory.tags.filter(tag => tag.tag.toLowerCase().indexOf(this.inputTag.trim().toLowerCase()) > -1)
         } else {
-          return this.currentActiveTagCategory.tags
+          list = this.currentActiveTagCategory.tags
         }
       } else {
         return []
       }
+      return list
     },
 
     waitCreatedTagCategory() {
