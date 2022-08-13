@@ -244,7 +244,7 @@
         </div>
       </template>
 
-      <template v-if="content.name && content.name.trim()">
+      <template v-if="content.name && content.name.trim() && contentType !== typeMap.pd">
         <div class='content-block'>
           <div class='content-title' :style="{'color': labelColor.name}">
             <template v-if='content.type === typeMap.task'>Title</template>
@@ -256,7 +256,7 @@
         </div>
       </template>
 
-      <template v-if="content.hasOwnProperty('videoList')">
+      <template v-if="content.hasOwnProperty('videoList') && contentType === typeMap.video">
         <div class='content-block'>
           <div class='content-title'>
             Purpose of video
@@ -264,6 +264,17 @@
           <div class='content-detail'>
             <template v-if="content.contentType === 0">Student self-learning</template>
             <template v-if="content.contentType === 1">Teacher PD</template>
+          </div>
+        </div>
+      </template>
+
+      <template v-if="content.goals && contentType === typeMap.pd">
+        <div class='content-block'>
+          <div class='content-title'>
+            PD goals
+          </div>
+          <div class='content-detail'>
+            {{ content.goals }}
           </div>
         </div>
       </template>
