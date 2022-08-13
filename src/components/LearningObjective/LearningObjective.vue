@@ -180,41 +180,41 @@
             </div>
           </div>
           <div class='cc-right-general-capabilities'>
-            <div class='cc-right-general-capabilities-title'>
-              <custom-text-button label='Select 21st century skills'>
-                <template v-slot:icon>
-                  <a-icon type='plus-circle' />
-                </template>
-                <template v-slot:badge>
-                  <a-tooltip
-                    title="The 21st century skills you selected will be marked according to the subject strands' grading standards and presented on students' report">
-                    <a-icon type="question-circle" theme="filled" :style="{ fontSize: '16px', color: '#EB5062' }"/>
-                  </a-tooltip>
-                </template>
-              </custom-text-button>
-              <a-cascader :options="generalCapabilitiesData" @change="handleSelectGeneralCapability(item, arguments)" class='cc-gc-cascader' />
-            </div>
-            <div class='cc-right-general-capabilities-content'>
-              <div class='capability-item' v-for='(capability, sIdx) in item.generalCapabilities' :key='sIdx'>
-                <div class='capability-item-tag'>
-                  <div class='tag-icon'>
-                    <a-icon type="tag" />
-                  </div>
-                  <div class='item-tag-name' v-for='(path, pIdx) in capability.path' :key='path' :title='path'>
-                    <template v-if='pIdx < capability.path.length && pIdx > 0'> / </template>
-                    {{ path }}
-                  </div>
-                </div>
-                <div class='capability-item-content'>
-                  {{ capability.desc }}
-                  <div class='delete-wrapper'>
-                    <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteCapability(item, capability)" cancel-text="No">
-                      <delete-icon color='#F16A39' />
-                    </a-popconfirm>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <!--            <div class='cc-right-general-capabilities-title'>-->
+            <!--              <custom-text-button label='Select 21st century skills'>-->
+            <!--                <template v-slot:icon>-->
+            <!--                  <a-icon type='plus-circle' />-->
+            <!--                </template>-->
+            <!--                <template v-slot:badge>-->
+            <!--                  <a-tooltip-->
+            <!--                    title="The 21st century skills you selected will be marked according to the subject strands' grading standards and presented on students' report">-->
+            <!--                    <a-icon type="question-circle" theme="filled" :style="{ fontSize: '16px', color: '#EB5062' }"/>-->
+            <!--                  </a-tooltip>-->
+            <!--                </template>-->
+            <!--              </custom-text-button>-->
+            <!--              <a-cascader :options="generalCapabilitiesData" @change="handleSelectGeneralCapability(item, arguments)" class='cc-gc-cascader' />-->
+            <!--            </div>-->
+            <!--            <div class='cc-right-general-capabilities-content'>-->
+            <!--              <div class='capability-item' v-for='(capability, sIdx) in item.generalCapabilities' :key='sIdx'>-->
+            <!--                <div class='capability-item-tag'>-->
+            <!--                  <div class='tag-icon'>-->
+            <!--                    <a-icon type="tag" />-->
+            <!--                  </div>-->
+            <!--                  <div class='item-tag-name' v-for='(path, pIdx) in capability.path' :key='path' :title='path'>-->
+            <!--                    <template v-if='pIdx < capability.path.length && pIdx > 0'> / </template>-->
+            <!--                    {{ path }}-->
+            <!--                  </div>-->
+            <!--                </div>-->
+            <!--                <div class='capability-item-content'>-->
+            <!--                  {{ capability.desc }}-->
+            <!--                  <div class='delete-wrapper'>-->
+            <!--                    <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteCapability(item, capability)" cancel-text="No">-->
+            <!--                      <delete-icon color='#F16A39' />-->
+            <!--                    </a-popconfirm>-->
+            <!--                  </div>-->
+            <!--                </div>-->
+            <!--              </div>-->
+            <!--            </div>-->
           </div>
         </div>
       </div>
@@ -863,6 +863,7 @@ export default {
 
   .half-body-content {
     width: 60%;
+    min-width: 710px;
     .cc-lo-header {
       display: flex;
       flex-direction: row;
@@ -1032,7 +1033,8 @@ export default {
         align-items: flex-start;
         margin-bottom: 10px;
         .cc-left-lo {
-          width: 50%;
+          width: 75%;
+          min-width: 710px;
           position: relative;
           display: flex;
           flex-direction: column;

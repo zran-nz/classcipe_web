@@ -1396,7 +1396,7 @@ export default {
           name: ''
         }
         this.$logger.info('handleAddMoreQuestion ', question)
-        this.form.questions.push(question)
+        this.form.questions.unshift(question)
       }
     },
     handleRemoveQuestion(index) {
