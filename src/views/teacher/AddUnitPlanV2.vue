@@ -96,7 +96,7 @@
                       @change="handleCollaborateEvent(unitPlanId,planField.Overview,form.overview)"
                       :disabled="!canEdit"/>
                   </custom-form-item>
-                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName]'>
+                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName] && canEdit'>
                     <a-popconfirm title="Delete?" ok-text="Yes" @confirm="form[fieldItem.fieldName] = ''" cancel-text="No">
                       <delete-icon color='#F16A39' />
                     </a-popconfirm>
@@ -136,7 +136,7 @@
                       @change="handleCollaborateEvent(unitPlanId,planField.ProjectBased,form.projectBased)" >
                     </custom-radio-button-group>
                   </custom-form-item>
-                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName]'>
+                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName] && canEdit'>
                     <a-popconfirm title="Delete?" ok-text="Yes" @confirm="form[fieldItem.fieldName] = null" cancel-text="No">
                       <delete-icon color='#F16A39' />
                     </a-popconfirm>
@@ -175,7 +175,7 @@
                       @change="handleCollaborateEvent(unitPlanId,planField.UnitType,form.unitType)" >
                     </custom-radio-button-group>
                   </custom-form-item>
-                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName]'>
+                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName] && canEdit'>
                     <a-popconfirm title="Delete?" ok-text="Yes" @confirm="form[fieldItem.fieldName] = null" cancel-text="No">
                       <delete-icon color='#F16A39' />
                     </a-popconfirm>
@@ -245,7 +245,7 @@
                         v-for="(tag, tagIndex) in form.inquiryKeywords"
                         :key="'inquery_keyword_'+tagIndex"
                       >
-                        <a-tag color="#a5a5a5" :closable="true" @close="e => handleRmInquiryKey(form, 'inquiryKeywords', tagIndex)">{{ tag }}</a-tag>
+                        <a-tag color="#a5a5a5" :closable="canEdit" @close="canEdit ? e => handleRmInquiryKey(form, 'inquiryKeywords', tagIndex) : null">{{ tag }}</a-tag>
                       </div>
                     </div>
                     <div v-else style="font-size: 12px;color: #666;">No data</div>
@@ -270,7 +270,7 @@
                           :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Sdg}"
                           :field-name='planField.Sdg'
                           @switch='handleSwitchComment' />
-                        <plus-icon @click='handleAddMoreSdg'/>
+                        <plus-icon @click='handleAddMoreSdg' v-if='canEdit'/>
                       </a-space>
                     </template>
                     <template v-if='unitFieldLabel(planField.Scenarios, $store.getters.formConfigData) && unitFieldLabel(planField.Scenarios, $store.getters.formConfigData) !== unitLabelName(planField.Scenarios, $store.getters.formConfigData)' slot='tips'>
@@ -286,7 +286,7 @@
                     >
                       <!--description-->
                       <div class='scenario-description'>
-                        <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteSdg(sdgIndex)" cancel-text="No" v-show='form.scenarios.length > 1'>
+                        <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteSdg(sdgIndex)" cancel-text="No" v-show='form.scenarios.length > 1 && canEdit'>
                           <span class="delete-action" >
                             <a-icon :style="{ fontSize: '14px', color: 'red' }" type='delete' />
                           </span>
@@ -330,7 +330,7 @@
                       </div>
                     </div>
                   </custom-form-item>
-                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName] && form[fieldItem.fieldName].length'>
+                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName] && form[fieldItem.fieldName].length && canEdit'>
                     <a-popconfirm title="Delete?" ok-text="Yes" @confirm="form[fieldItem.fieldName] = []" cancel-text="No">
                       <delete-icon color='#F16A39' />
                     </a-popconfirm>
@@ -364,7 +364,7 @@
                       </a-select-option>
                     </a-select>
                   </custom-form-item>
-                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName]'>
+                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName] && canEdit'>
                     <a-popconfirm title="Delete?" ok-text="Yes" @confirm="form[fieldItem.fieldName] = ''" cancel-text="No">
                       <delete-icon color='#F16A39' />
                     </a-popconfirm>
@@ -382,7 +382,7 @@
                     </template>
                     <template slot='action'>
                       <a-space>
-                        <plus-icon @click='handleAddMoreQuestion' v-if='!$store.getters.userInfo.disableQuestion && !existEmptyQuestion'/>
+                        <plus-icon @click='handleAddMoreQuestion' v-if='!$store.getters.userInfo.disableQuestion && !existEmptyQuestion && canEdit'/>
                         <comment-switch
                           v-show="canEdit"
                           v-if='!$store.getters.userInfo.disableQuestion'
@@ -390,7 +390,7 @@
                           :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Question}"
                           :field-name='planField.Question'
                           @switch='handleSwitchComment' />
-                        <custom-link-text text='more' :size='13' @click='questionMoreVisible=true'></custom-link-text>
+                        <custom-link-text text='more' :size='13' @click='questionMoreVisible=true' v-if='canEdit'></custom-link-text>
                       </a-space>
                     </template>
                     <template v-if='unitFieldLabel(planField.Question, $store.getters.formConfigData) && unitLabelName(planField.Question, $store.getters.formConfigData) !== unitFieldLabel(planField.Question, $store.getters.formConfigData)' slot='tips'>
@@ -428,7 +428,7 @@
                           @change="handleCollaborateEvent(unitPlanId,planField.Question,form.question)"
                           :disabled="!canEdit" />
                         <div
-                          v-if='form.questions.length > 1'
+                          v-if='form.questions.length > 1 && canEdit'
                           class='delete-icon-wrapper'
                           @click='handleRemoveQuestion(index)'>
                           <delete-icon color='#F16A39' />
@@ -492,7 +492,7 @@
 
                 <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === planField.Link' :key='fieldItem.fieldName'>
                   <div class='form-block'>
-                    <unit-linked-content :from-id='unitPlanId' @update-task-id-list='updateTaskIdList' />
+                    <unit-linked-content :can-edit='canEdit' :from-id='unitPlanId' @update-task-id-list='updateTaskIdList' />
                   </div>
                 </div>
 
@@ -580,13 +580,15 @@
                 :tag-category-desc.sync='form.tagCategoryDesc'
                 :associate-id-type-list='associateIdTypeList'
                 :priority-tags='priorityTags'
+                :disabled='!canEdit'
                 :is-load-associate-tags='true' />
             </div>
           </template>
 
           <template v-if='currentRightModule === rightModule.taskDetails'>
             <div class='task-details-panel'>
-              <Assessment-Task-Details
+              <assessment-task-details
+                :disabled='!canEdit'
                 :associate-task-list='associateTaskList'
                 @hide-assessment-task='resetRightModuleVisible()' />
             </div>
