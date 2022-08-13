@@ -224,7 +224,7 @@ export default {
       const participantData = this.$refs.participant.getSelectedData()
       this.scheduleReq.classIds = participantData.classIds
       if (!this.scheduleReq.classIds.length) {
-        return;
+        return
       }
       if (this.currentActiveStepIndex === 0) {
         this.$refs['steps-nav'].nextStep()

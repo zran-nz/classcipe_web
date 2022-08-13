@@ -54,7 +54,7 @@ export default {
     },
     ...mapGetters(['globalLoading']),
     ...mapState({
-      userMode: state => state.app.userMode,
+      userMode: state => state.app.userMode
     })
   },
   watch: {
