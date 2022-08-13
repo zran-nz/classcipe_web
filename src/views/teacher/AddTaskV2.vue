@@ -444,6 +444,7 @@
                 :associate-id-type-list='associateIdTypeList'
                 :priority-tags='priorityTags'
                 :is-load-associate-tags='true'
+                :disabled='!canEdit'
               />
             </div>
           </template>
