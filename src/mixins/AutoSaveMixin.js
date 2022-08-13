@@ -6,20 +6,25 @@ export const AutoSaveMixin = {
     return {
       saving: false,
       saveTime: null,
-      asyncSaveDataFn: null
+      asyncSaveDataFn: null,
+      calculateCanPublishFn: null
     }
   },
 
   created() {
-    this.asyncSaveDataFn = debounce(this.autoSaveData, 2000)
+    this.asyncSaveDataFn = debounce(this.autoSaveData, 1000)
+    this.calculateCanPublishFn = debounce(this.calculateCanPublish, 500)
   },
   watch: {
     form: {
       deep: true,
       handler(newVal, oldVal) {
         if (!this.saving) {
+          console.log('asyncSaveDataFn')
           this.asyncSaveDataFn()
         }
+        console.log('calculateCanPublishFn')
+        this.calculateCanPublishFn()
       }
     }
   },
