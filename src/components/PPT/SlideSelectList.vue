@@ -283,7 +283,8 @@ export default {
         searchKey: this.filterParams ? this.filterParams.searchKey : null,
         types: [ this.$classcipe.typeMap.task, this.$classcipe.typeMap.pd ],
         delFlag: 0,
-        schoolId: this.school
+        schoolId: this.school,
+        filterSlide: true
       }
       if (this.filterParams) {
         params = Object.assign(this.filterParams, params)
