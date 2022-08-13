@@ -1,4 +1,4 @@
-import { PlanField, TaskField } from '@/const/common'
+import { PdField, PlanField, TaskField } from '@/const/common'
 
 export const PublishMixin = {
   data () {
@@ -64,7 +64,7 @@ export const PublishMixin = {
       // 给有未填写字段的step添加红色提示
       let showRequiredTips = false
       this.requiredFields.forEach(field => {
-        if (field === TaskField.Slides) {
+        if (field === TaskField.Slides || field === PdField.Slides) {
           if (!this.form.presentationId && !this.form.pageObjects?.length) {
             this.emptyRequiredFields.push(field)
             this.formSteps.forEach(step => {
