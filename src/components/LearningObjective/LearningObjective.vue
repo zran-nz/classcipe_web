@@ -540,6 +540,12 @@ export default {
         if (this.userMode === USER_MODE.SCHOOL) {
           list = this.$store.getters.bindCurriculum ? list.filter(item => item.id === this.$store.getters.bindCurriculum) : []
         }
+        this.$logger.info('filter ib ibAuth', this.$store.state.classcipeConfig.ibAuth)
+        if (!this.$store.state.classcipeConfig.ibAuth) {
+          this.$logger.info('bf filter ib', list)
+          list = list.filter(item => item.name.indexOf('IB') === -1)
+          this.$logger.info('filter ib', list)
+        }
         this.curriculumOptions = list
         this.filterConfig.curriculumId = this.curriculumOptions[0].id
         this.$logger.info('getAllCurriculums', this.curriculumOptions, list)

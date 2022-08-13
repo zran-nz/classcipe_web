@@ -20,9 +20,10 @@ import { i18nRender } from '@/locales'
 import Feedback from '@/components/Feedback/Feedback'
 import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
 import enquireScreen from '@/utils/device'
-import { mapGetters, mapMutations } from 'vuex'
+import { mapGetters, mapMutations, mapState } from 'vuex'
 import { ACCESS_TOKEN, TOGGLE_DEVICE } from './store/mutation-types'
 import storage from 'store'
+import { USER_MODE } from '@/const/common'
 
 export default {
   components: { Feedback },
@@ -48,7 +49,10 @@ export default {
       const noshowPage3 = window.location.href.indexOf('/h5/') === -1
       return noshowPage && noshowPage2 && noshowPage3
     },
-    ...mapGetters(['globalLoading'])
+    ...mapGetters(['globalLoading']),
+    ...mapState({
+      userMode: state => state.app.userMode,
+    })
   },
   watch: {
     '$store.getters.bindCurriculum': function(newValue) {
@@ -71,7 +75,7 @@ export default {
         this.$store.dispatch('initSubjectGradeData', {
           schoolId: newValue,
           bindCurriculumId: this.$store.getters.bindCurriculum,
-          applyType: 
+          applyType: this.userMode === USER_MODE.SCHOOL ? 1 : 2
         })
       }
     }
