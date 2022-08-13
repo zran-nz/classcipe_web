@@ -113,7 +113,7 @@
                     :source-type='typeMap.pd'
                     :source-id='pdId'
                     :slide-id='form.presentationId'
-                    :show-materials-and-tips='true'
+                    :show-materials-and-tips='false'
                     :show-edit-google-slide='true'
                     :default-thumbnail-list='thumbnailList'
                     :selected-template-list='form.selectedTemplateList'
