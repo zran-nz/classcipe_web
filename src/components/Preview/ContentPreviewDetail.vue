@@ -340,9 +340,6 @@
           </div>
         </div>
       </template>
-
-
-
       <a-row v-if='content.yearList || content.unitType || content.projectBased' class='line-data'>
         <div class='content-block' v-if='content.yearList.length'>
           <div class='content-title'>
