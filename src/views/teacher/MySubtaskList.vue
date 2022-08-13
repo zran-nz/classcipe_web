@@ -49,7 +49,8 @@
             :show-edit='true'
             :show-delete='true'
             :show-schedule='true'
-            :show-set-price='true' />
+            :show-set-price='content.status === 1'
+            :show-publish-status='true'/>
         </div>
       </div>
     </div>

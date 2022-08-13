@@ -56,6 +56,9 @@
                 <a-icon type="edit" v-if='!visible' @click.native='showEditPrice'/>
               </div>
             </div>
+            <div class='publish-status' v-if='showPublishStatus'>
+              {{ content.status === 1 ? 'Published' : 'Unpublished' }}
+            </div>
           </div>
           <div class='extra-info'>
             <a-space>
@@ -352,6 +355,10 @@ export default {
       default: true
     },
     showRestore: {
+      type: Boolean,
+      default: false
+    },
+    showPublishStatus: {
       type: Boolean,
       default: false
     }
@@ -926,8 +933,9 @@ export default {
 
 .set-price-line {
   line-height: 15px;
+  position: relative;
   .price-info {
-    padding-right: 50px;
+    position: relative;
     .price {
       cursor: pointer;
       color: #e4393c;
@@ -955,4 +963,12 @@ export default {
   }
 }
 
+.publish-status {
+  position: absolute;
+  bottom: -35px;
+  font-size: 12px;
+  color: #999;
+  cursor: pointer;
+  user-select: none;
+}
 </style>
