@@ -69,8 +69,12 @@
               <div class="view-item-title">
                 <label for="">{{ view.name || formatViewName(view.id) }}</label>
                 <a-space class="view-item-opt" v-if="currentTab === 'gradeId'">
-                  <a-button type="primary" @click="addGradeClass(view)" icon="plus-circle">Add</a-button>
-                  <a-button v-if="!(USER_MODE.SELF && isLastClass)" @click="deleteGrade(view, index)">Delete</a-button>
+                  <a-button type="primary" v-if="isNotLimit" @click="addGradeClass(view)" icon="plus-circle">Add</a-button>
+                  <a-popover v-else title="Upgrading reminder" trigger="click">
+                    <div style="width: 300px;" slot="content">Your class number has reached the limmit, please upgrade your plan to add more class</div>
+                    <a-button type="primary" icon="plus-circle">Add</a-button>
+                  </a-popover>
+                  <a-button v-if="!(isLastClass)" @click="deleteGrade(view, index)">Delete</a-button>
                 </a-space>
               </div>
               <div>
@@ -118,7 +122,7 @@
                         </div>
                       </div>
                       <div class="class-opt" v-if="!cls.isNew">
-                        <a-dropdown :getPopupContainer="trigger => trigger.parentElement" v-if="!(USER_MODE.SELF && isLastClass)">
+                        <a-dropdown :getPopupContainer="trigger => trigger.parentElement" v-if="!(userMode === USER_MODE.SELF && isLastClass)">
                           <a-icon type="more" />
                           <a-menu slot="overlay">
                             <template v-if="currentTab !== 'archive'">
@@ -128,10 +132,10 @@
                               <a-menu-item v-if="userMode === USER_MODE.SCHOOL">
                                 <a href="javascript:;" @click="handleEditTeachers(cls)">Edit teachers</a>
                               </a-menu-item>
-                              <!-- <a-menu-item v-if="cls.classType === 1">
+                              <a-menu-item v-if="userMode === USER_MODE.SCHOOL && cls.classType === 1">
                                 <a href="javascript:;" @click="handleEditSubjectClass(cls)">Edit</a>
-                              </a-menu-item> -->
-                              <a-menu-item v-if="userMode === USER_MODE.SCHOOL || !isLastClass">
+                              </a-menu-item>
+                              <a-menu-item v-if="!isLastClass">
                                 <a href="javascript:;" @click="handleArchive(cls)">Archive</a>
                               </a-menu-item>
                             </template>
@@ -271,7 +275,7 @@ export default {
     }),
     isNotLimit() {
       if (this.info && this.info.planInfo) {
-        return this.info.planInfo['classCount'] >= this.totalClass.length
+        return this.info.planInfo['classCount'] > this.totalClass.length
       } else {
         return false
       }
@@ -294,9 +298,13 @@ export default {
       }]
     },
     isLastClass() {
-      const clsLen = this.allDatas[this.currentTab].map(item => item.classes.filter(cls => !cls.isNew).length)
+      const gradeLen = this.allDatas['gradeId'].map(item => item.classes.filter(cls => !cls.isNew).length)
+      const subjectLen = this.allDatas['subject'].map(item => item.classes.filter(cls => !cls.isNew).length)
       let len = 0
-      clsLen.forEach(item => {
+      gradeLen.forEach(item => {
+        len += item
+      })
+      subjectLen.forEach(item => {
         len += item
       })
       if (len === 1) {
@@ -505,7 +513,13 @@ export default {
     },
     addGradeClass(view) {
       // 只允许一个未创建
-      const existsNew = view.classes.find(item => item.isNew)
+      let existsNew = false
+      this.allDatas.gradeId.forEach(group => {
+          if (group.classes.filter(item => item.isNew).length > 0) {
+            existsNew = true
+          }
+      })
+      // const existsNew = view.classes.find(item => item.isNew)
       if (existsNew) {
         this.$message.error('Please save first')
         return

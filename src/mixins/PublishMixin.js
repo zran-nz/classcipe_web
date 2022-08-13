@@ -1,3 +1,5 @@
+import { PdField, PlanField, TaskField } from '@/const/common'
+
 export const PublishMixin = {
   data () {
     return {
@@ -32,11 +34,11 @@ export const PublishMixin = {
 
     tryAutoCheckRequiredField() {
       if (this.autoCheckRequired) {
-        this.checkRequiredFields()
+        this.checkRequiredFields(false)
       }
     },
 
-    checkRequiredFields () {
+    checkRequiredFields (showToast) {
       // 检查必填项是否为空,只检测null,undefined,空字符串,空数组,空对象
       function simpleIsEmpty(value) {
         if (value === null || value === '' || value === undefined) {
@@ -62,16 +64,40 @@ export const PublishMixin = {
       // 给有未填写字段的step添加红色提示
       let showRequiredTips = false
       this.requiredFields.forEach(field => {
-        if (simpleIsEmpty(this.form[field])) {
-          this.$logger.info(`${field} is empty`, this.form[field])
-          this.emptyRequiredFields.push(field)
-          this.formSteps.forEach(step => {
-            if (step.commonFields.indexOf(field) > -1) {
-              step.showRequiredTips = true
-              step.showSatisfiedTips = false
-              showRequiredTips = true
-            }
-          })
+        if (field === TaskField.Slides || field === PdField.Slides) {
+          if (!this.form.presentationId && !this.form.pageObjects?.length) {
+            this.emptyRequiredFields.push(field)
+            this.formSteps.forEach(step => {
+              if (step.commonFields.indexOf(field) > -1) {
+                step.showRequiredTips = true
+                step.showSatisfiedTips = false
+                showRequiredTips = true
+              }
+            })
+          }
+        } else if (field === TaskField.Link || field === PlanField.Link) {
+          if (!this.associateUnitPlanIdList?.length && !this.associateTaskIdList?.length) {
+            this.emptyRequiredFields.push(field)
+            this.formSteps.forEach(step => {
+              if (step.commonFields.indexOf(field) > -1) {
+                step.showRequiredTips = true
+                step.showSatisfiedTips = false
+                showRequiredTips = true
+              }
+            })
+          }
+        } else {
+          if (simpleIsEmpty(this.form[field])) {
+            this.$logger.info(`${field} is empty`, this.form[field])
+            this.emptyRequiredFields.push(field)
+            this.formSteps.forEach(step => {
+              if (step.commonFields.indexOf(field) > -1) {
+                step.showRequiredTips = true
+                step.showSatisfiedTips = false
+                showRequiredTips = true
+              }
+            })
+          }
         }
       })
 
@@ -83,7 +109,7 @@ export const PublishMixin = {
       })
 
       if (showRequiredTips) {
-        this.$message.warn('Please complete the marked area(s) before publishing')
+        showToast && this.$message.warn('Please complete the marked area(s) before publishing')
         this.form.canPublish = false
       } else {
         this.form.canPublish = true
@@ -113,18 +139,57 @@ export const PublishMixin = {
 
       // 给有未填写字段的step添加红色提示
       let canPublish = true
+      this.emptyRequiredFields = []
+      this.formSteps.forEach(step => {
+        step.showRequiredTips = false
+        step.showSatisfiedTips = false
+      })
       this.requiredFields.forEach(field => {
-        if (simpleIsEmpty(this.form[field])) {
-          this.$logger.info(`${field} is empty`, this.form[field])
-          this.formSteps.forEach(step => {
-            if (step.commonFields.indexOf(field) > -1) {
-              canPublish = false
-            }
-          })
+        if (field === TaskField.Slides) {
+          if (!this.form.presentationId && !this.form.pageObjects?.length) {
+            this.$logger.info(`${field} is empty`, this.form.presentationId, this.form.pageObjects)
+            this.emptyRequiredFields.push(field)
+            this.formSteps.forEach(step => {
+              if (step.commonFields.indexOf(field) > -1) {
+                step.showRequiredTips = true
+                step.showSatisfiedTips = false
+                canPublish = false
+              }
+            })
+          }
+        } else if (field === TaskField.Link || field === PlanField.Link) {
+          if (!this.associateUnitPlanIdList?.length && !this.associateTaskIdList?.length) {
+            this.$logger.info(`${field} is empty`, this.associateUnitPlanIdList, this.associateTaskIdList)
+            this.emptyRequiredFields.push(field)
+            this.formSteps.forEach(step => {
+              if (step.commonFields.indexOf(field) > -1) {
+                step.showRequiredTips = true
+                step.showSatisfiedTips = false
+                canPublish = false
+              }
+            })
+          }
+        } else {
+          if (simpleIsEmpty(this.form[field])) {
+            this.$logger.info(`${field} is empty`, this.form[field])
+            this.emptyRequiredFields.push(field)
+            this.formSteps.forEach(step => {
+              if (step.commonFields.indexOf(field) > -1) {
+                step.showRequiredTips = true
+                step.showSatisfiedTips = false
+                canPublish = false
+              }
+            })
+          }
         }
       })
 
       this.form.canPublish = canPublish
+    },
+
+    showEditPriceDialog() {
+      this.$logger.info('showEditPriceDialog', this.$refs.editPrice)
+      this.$refs.editPrice.showEditPrice()
     }
   }
 }

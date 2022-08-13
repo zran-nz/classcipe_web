@@ -47,7 +47,7 @@
             <div class='form-field-item' v-for='fieldName in step.commonFields' :key='fieldName'>
 
               <div class='form-block tag-content-block' v-if='fieldName === PdField.Name' :key='fieldName'>
-                <custom-form-item :required='emptyRequiredFields.indexOf(PdField.Name) !== -1'>
+                <custom-form-item :required='emptyRequiredFields.indexOf(PdField.Name) !== -1' :required-field='requiredFields.indexOf(PdField.Name) !== -1'>
                   <template slot='label'>
                     Name
                   </template>
@@ -59,7 +59,7 @@
               </div>
 
               <div class='form-block tag-content-block' v-if='fieldName === PdField.Image' :key='fieldName'>
-                <custom-form-item :required='emptyRequiredFields.indexOf(PdField.Image) !== -1'>
+                <custom-form-item :required='emptyRequiredFields.indexOf(PdField.Image) !== -1' :required-field='requiredFields.indexOf(PdField.Image) !== -1'>
                   <template slot='label'>
                     Cover image
                   </template>
@@ -73,7 +73,7 @@
               </div>
 
               <div class='form-block tag-content-block' v-if='fieldName === PdField.CoverVideo' :key='fieldName'>
-                <custom-form-item :required='emptyRequiredFields.indexOf(PdField.CoverVideo) !== -1'>
+                <custom-form-item :required='emptyRequiredFields.indexOf(PdField.CoverVideo) !== -1' :required-field='requiredFields.indexOf(PdField.CoverVideo) !== -1'>
                   <template slot='label'>
                     Cover video
                   </template>
@@ -88,7 +88,7 @@
               </div>
 
               <div class='form-block tag-content-block' v-if='fieldName === PdField.Goals' :key='fieldName'>
-                <custom-form-item :required='emptyRequiredFields.indexOf(PdField.Goals) !== -1'>
+                <custom-form-item :required='emptyRequiredFields.indexOf(PdField.Goals) !== -1' :required-field='requiredFields.indexOf(PdField.Goals) !== -1'>
                   <template slot='label'>
                     Goals
                   </template>
@@ -108,7 +108,7 @@
               </div>
 
               <div class='form-block tag-content-block' v-if='fieldName === PdField.Slides' :key='fieldName'>
-                <custom-form-item :show-label='false'>
+                <custom-form-item :show-label='false' :required-field='requiredFields.indexOf(PdField.Slides) !== -1'>
                   <form-slide
                     :source-type='typeMap.pd'
                     :source-id='pdId'
@@ -203,6 +203,8 @@
         @update-share-status='handleShareStatus'
       />
     </a-modal>
+
+    <edit-price-dialog :content='form' ref='editPrice'/>
   </div>
 </template>
 
@@ -241,10 +243,12 @@ import CustomTagPd from '@/components/CustomTag/CustomTagPd'
 import { UpdateContentStatus } from '@/api/teacher'
 import { SET_GLOBAL_LOADING } from '@/store/mutation-types'
 import CustomButton from '@/components/Common/CustomButton'
+import EditPriceDialog from '@/components/MyContentV2/EditPriceDialog'
 
 export default {
   name: 'AddPD',
   components: {
+    EditPriceDialog,
     CustomButton,
     CustomTagPd,
     PdSchedule,
@@ -322,11 +326,7 @@ export default {
       this.currentActiveStepIndex = 0
     }
     this.currentStep = this.formSteps[this.currentActiveStepIndex]
-    this.requiredFields = [
-      PdField.Name,
-      PdField.Image,
-      PdField.Goals
-    ]
+    this.requiredFields = this.$classcipe.pdRequiredFields
     this.initData()
     this.loadThumbnail(false)
     this.contentLoading = false
@@ -674,6 +674,7 @@ export default {
           if (this.form.presentationId && !this.form.presentationId.startsWith('fake_buy_')) {
             this.form.status = 1
             this.handlePublishFormItem(1)
+            this.showEditPriceDialog()
           } else {
             this.$message.warn('This task/PD content can not be published without interactive slides, please edit google slides first')
           }

@@ -62,6 +62,7 @@ export default {
   },
   watch: {
     initName(val) {
+      console.log(val)
       this.commandTermForm.name = val
     }
   },

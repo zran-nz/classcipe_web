@@ -258,6 +258,19 @@ export default {
     },
     handleDelete(record, index) {
       this.$logger.info('handleDelete ', record)
+      if (record.terms && record.terms.length > 0) {
+        let isHasCls = false
+        record.terms.forEach(term => {
+          if (this.termHasClass(term)) {
+            isHasCls = true
+          }
+        })
+        if (isHasCls) {
+          this.$message.error('You can not delete this term because you have schedule subject class for this term.')
+          return
+        }
+      }
+      // 该term下有class，不允许删除
       this.$confirm({
         title: 'Confirm delete academic',
         content: 'Are you confirm delete academic ' + record.name + ' ?',
@@ -278,6 +291,11 @@ export default {
       })
     },
     handleDeleteTerm(record, index) {
+      // 该term下有class，不允许删除
+      if (this.termHasClass(record)) {
+        this.$message.error('You can not delete this term because you have schedule subject class for this term.')
+        return
+      }
       this.$logger.info('handleDeleteTerm ', record)
       this.$confirm({
         title: 'Confirm delete term',
@@ -297,6 +315,10 @@ export default {
           })
         }
       })
+    },
+    termHasClass(term) {
+      const findCls = this.subjectClass.find(cls => cls.term === term.id)
+      return findCls
     },
     triggerSearch() {
       this.debounceInit()

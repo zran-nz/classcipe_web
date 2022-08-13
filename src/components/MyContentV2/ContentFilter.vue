@@ -82,10 +82,10 @@ export default {
     filterSubjectOptions () {
       return this.currentSchoolSubjectList.map(item => {
         return {
-          label: item.subjectName,
-          value: item.subjectName
+          label: item.subjectName || '',
+          value: item.subjectName || ''
         }
-      })
+      }) || []
     },
     filterAgeOptions () {
       return this.currentSchoolGradeList.map(item => {
@@ -93,7 +93,7 @@ export default {
           label: item.gradeName,
           value: item.gradeName
         }
-      })
+      }) || []
     }
   },
   created() {

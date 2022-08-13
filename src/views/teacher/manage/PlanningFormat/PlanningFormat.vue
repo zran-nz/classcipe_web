@@ -67,7 +67,7 @@
 import { typeMap } from '@/const/teacher'
 import { FormConfigAddOrUpdate, FormConfigData, GetTemplates, ImportTemplate } from '@/api/formConfig'
 import { FORM_CONFIG_PREVIEW_DATA } from '@/store/mutation-types'
-import { PlanField, TaskField, USER_MODE } from '@/const/common'
+import { USER_MODE } from '@/const/common'
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import { mapState } from 'vuex'
@@ -88,8 +88,8 @@ export default {
       saving: false,
       templateList: [],
       selectTemplateVisible: false,
-      planRequiredFields: [PlanField.Name, PlanField.Image, PlanField.Inquiry, PlanField.Sdg, PlanField.Question, PlanField.SubjectIds, PlanField.GradeIds, PlanField.LearnOuts],
-      taskRequiredFields: [TaskField.GradeIds, TaskField.SubjectIds, TaskField.Slides, TaskField.Link, TaskField.Name, TaskField.Image, TaskField.Overview, TaskField.TaskType, TaskField.LearnOuts]
+      planRequiredFields: this.$classcipe.planRequiredFields,
+      taskRequiredFields: this.$classcipe.taskRequiredFields
     }
   },
   created() {

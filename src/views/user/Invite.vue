@@ -101,9 +101,18 @@ export default {
               }
             } else {
               if (this.isTeacher) {
-
+                // 如果已经是其中一员，直接跳转
+                // if (!res?.result?.approveFlag) {
+                  this.doRedirect()
+                // }
               }
               // this.doRedirect()
+            }
+          } else {
+            // 还不是学校一员，且approveFlag false的时候，直接显示wait approve
+            if (!res?.result?.approveFlag) {
+              this.alreayApply = true
+              this.labelTxt = 'Application received, please wait for admin to approve.'
             }
           }
         }

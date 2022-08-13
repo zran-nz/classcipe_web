@@ -4,6 +4,7 @@
       <div class='cc-lo-header'>
         <div class='filter-line'>
           <div class='select-item'>
+            <div class='required-dot vertical-center'>*</div>
             <a-select
               :getPopupContainer="trigger => trigger.parentElement"
               placeholder='Curriculum'
@@ -22,6 +23,7 @@
             </div>
           </div>
           <div class='select-item'>
+            <div class='required-dot vertical-center'>*</div>
             <a-select
               :getPopupContainer="trigger => trigger.parentElement"
               v-model='selectedYear'
@@ -44,6 +46,7 @@
             </div>
           </div>
           <div class='select-item'>
+            <div class='required-dot vertical-center'>*</div>
             <a-select
               :getPopupContainer="trigger => trigger.parentElement"
               v-model='selectedSubject'
@@ -100,6 +103,7 @@
       </div>
       <div class='cc-lo-content'>
         <div class='cc-lo-title'>
+          <span class='required-dot vertical-center'>*</span>
           Subject Learning Objectives
         </div>
         <div class='cc-lo-input'>
@@ -176,41 +180,41 @@
             </div>
           </div>
           <div class='cc-right-general-capabilities'>
-            <div class='cc-right-general-capabilities-title'>
-              <custom-text-button label='Select 21st century skills'>
-                <template v-slot:icon>
-                  <a-icon type='plus-circle' />
-                </template>
-                <template v-slot:badge>
-                  <a-tooltip
-                    title="The 21st century skills you selected will be marked according to the subject strands' grading standards and presented on students' report">
-                    <a-icon type="question-circle" theme="filled" :style="{ fontSize: '16px', color: '#EB5062' }"/>
-                  </a-tooltip>
-                </template>
-              </custom-text-button>
-              <a-cascader :options="generalCapabilitiesData" @change="handleSelectGeneralCapability(item, arguments)" class='cc-gc-cascader' />
-            </div>
-            <div class='cc-right-general-capabilities-content'>
-              <div class='capability-item' v-for='(capability, sIdx) in item.generalCapabilities' :key='sIdx'>
-                <div class='capability-item-tag'>
-                  <div class='tag-icon'>
-                    <a-icon type="tag" />
-                  </div>
-                  <div class='item-tag-name' v-for='(path, pIdx) in capability.path' :key='path' :title='path'>
-                    <template v-if='pIdx < capability.path.length && pIdx > 0'> / </template>
-                    {{ path }}
-                  </div>
-                </div>
-                <div class='capability-item-content'>
-                  {{ capability.desc }}
-                  <div class='delete-wrapper'>
-                    <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteCapability(item, capability)" cancel-text="No">
-                      <delete-icon color='#F16A39' />
-                    </a-popconfirm>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <!--            <div class='cc-right-general-capabilities-title'>-->
+            <!--              <custom-text-button label='Select 21st century skills'>-->
+            <!--                <template v-slot:icon>-->
+            <!--                  <a-icon type='plus-circle' />-->
+            <!--                </template>-->
+            <!--                <template v-slot:badge>-->
+            <!--                  <a-tooltip-->
+            <!--                    title="The 21st century skills you selected will be marked according to the subject strands' grading standards and presented on students' report">-->
+            <!--                    <a-icon type="question-circle" theme="filled" :style="{ fontSize: '16px', color: '#EB5062' }"/>-->
+            <!--                  </a-tooltip>-->
+            <!--                </template>-->
+            <!--              </custom-text-button>-->
+            <!--              <a-cascader :options="generalCapabilitiesData" @change="handleSelectGeneralCapability(item, arguments)" class='cc-gc-cascader' />-->
+            <!--            </div>-->
+            <!--            <div class='cc-right-general-capabilities-content'>-->
+            <!--              <div class='capability-item' v-for='(capability, sIdx) in item.generalCapabilities' :key='sIdx'>-->
+            <!--                <div class='capability-item-tag'>-->
+            <!--                  <div class='tag-icon'>-->
+            <!--                    <a-icon type="tag" />-->
+            <!--                  </div>-->
+            <!--                  <div class='item-tag-name' v-for='(path, pIdx) in capability.path' :key='path' :title='path'>-->
+            <!--                    <template v-if='pIdx < capability.path.length && pIdx > 0'> / </template>-->
+            <!--                    {{ path }}-->
+            <!--                  </div>-->
+            <!--                </div>-->
+            <!--                <div class='capability-item-content'>-->
+            <!--                  {{ capability.desc }}-->
+            <!--                  <div class='delete-wrapper'>-->
+            <!--                    <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteCapability(item, capability)" cancel-text="No">-->
+            <!--                      <delete-icon color='#F16A39' />-->
+            <!--                    </a-popconfirm>-->
+            <!--                  </div>-->
+            <!--                </div>-->
+            <!--              </div>-->
+            <!--            </div>-->
           </div>
         </div>
       </div>
@@ -225,7 +229,7 @@
     <div v-clickOutside id="modal" ref="quickModal" v-show="false">
       <div class="quick-keyword-con" >
         <a-space>
-          <label>Set </label>
+          <label>Set</label>
           <quick-word-button
             type="black"
             text="Command term"
@@ -233,16 +237,20 @@
             :quickWord="quickWord"
             :loadApi="termsSearch"
             :cacheApi="termsPubList"
+            :recommends="termRecommend"
+            @close="hideQuickWord"
             cacheKey="TERMS_PUBLIST"
             @changeWord="res => this.commandTermForm.name = res"
           >
             <template v-slot:create>
               <div class="quick-word-sub">
-                <a-divider style="margin: 10px 0;"/>
-                <a-space v-show="!showQuickWordCreate" >
-                  <label>Create:</label>
-                  <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="createCommandTerm"> {{ commandTermForm.name || 'Command term' }} </a-button>
-                </a-space>
+                <template v-if="commandTermForm.name">
+                  <a-divider style="margin: 10px 0;"/>
+                  <a-space v-show="!showQuickWordCreate" >
+                    <label>Create:</label>
+                    <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="createCommandTerm"> {{ commandTermForm.name || 'Command term' }} </a-button>
+                  </a-space>
+                </template>
                 <!-- <a-divider style="margin: 5px 0;font-size: 14px;">Create</a-divider>
                 <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="showQuickWordCreate = true"> Do Create </a-button> -->
                 <!-- <command-term-add
@@ -263,20 +271,24 @@
             :quickWord="quickWord"
             :loadApi="dimensionsSearch"
             :cacheApi="dimensionsPubList"
+            :recommends="knowledgeRecommend"
+            @close="hideQuickWord"
             cacheKey="DIMENSIONS_PUBLIST"
           >
             <template v-slot:create>
               <div class="quick-word-sub">
-                <a-divider style="margin: 10px 0;"/>
-                <a-space v-show="!showQuickWordCreate" >
-                  <label>Create:</label>
-                  <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="createDimension"> {{ commandTermForm.name || 'Knowledge Tags' }} </a-button>
-                </a-space>
+                <template v-if="commandTermForm.name">
+                  <a-divider style="margin: 10px 0;"/>
+                  <a-space v-show="!showQuickWordCreate" >
+                    <label>Create:</label>
+                    <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="createDimension"> {{ commandTermForm.name || 'Knowledge Tags' }} </a-button>
+                  </a-space>
+                </template>
               </div>
             </template>
           </quick-word-button>
         </a-space>
-        <div class="recommend-con" v-if="termRecommend.length > 0 || knowledgeRecommend.length > 0">
+        <!-- <div class="recommend-con" v-if="termRecommend.length > 0 || knowledgeRecommend.length > 0">
           <label for="">Recommended</label>
           <div class="recommend-tag">
             <div
@@ -296,7 +308,7 @@
               </a-tag>
             </div>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
@@ -431,7 +443,6 @@ export default {
       }
     },
     'filterConfig.curriculumId': {
-      immediate: true,
       async handler(curriculumId) {
         console.log('curriculumId change', curriculumId)
         if (curriculumId) {
@@ -489,7 +500,7 @@ export default {
   },
   created() {
     this.loading = true
-    this.$logger.info('LearningObjective subjectList', this.subjectList)
+    this.$logger.info('LearningObjective subjectList', this.subjectList, 'yearList', this.yearList, 'languageList', this.languageList, 'learningObjectives', this.learningObjectives)
     this.asyncEmitUpdateEventFn = debounce(this.emitUpdateEvent, 1000)
     this.asyncUpdateFilterListFn = debounce(this.updateFilterList, 1000)
     if (this.curriculumId) {
@@ -528,6 +539,12 @@ export default {
         let list = response.result
         if (this.userMode === USER_MODE.SCHOOL) {
           list = this.$store.getters.bindCurriculum ? list.filter(item => item.id === this.$store.getters.bindCurriculum) : []
+        }
+        this.$logger.info('filter ib ibAuth', this.$store.state.classcipeConfig.ibAuth)
+        if (!this.$store.state.classcipeConfig.ibAuth) {
+          this.$logger.info('bf filter ib', list)
+          list = list.filter(item => item.name.indexOf('IB') === -1)
+          this.$logger.info('filter ib', list)
         }
         this.curriculumOptions = list
         this.filterConfig.curriculumId = this.curriculumOptions[0].id
@@ -764,6 +781,10 @@ export default {
       this.$forceUpdate()
     },
 
+    hideQuickWord() {
+      this.$refs.quickModal.style.display = 'none'
+    },
+
     handleQuickWordSet(res, key) {
       console.log(res)
       console.log(this.currentObjective)
@@ -803,6 +824,8 @@ export default {
           }
         }
       }
+      this.quickWord = ''
+      this.commandTermForm.name = ''
     },
     handleSaveCommanTerm(res, key = 'commandTerms') {
       console.log(res)
@@ -845,7 +868,8 @@ export default {
 .learning-objective {
 
   .half-body-content {
-    width: 50%;
+    width: 60%;
+    min-width: 710px;
     .cc-lo-header {
       display: flex;
       flex-direction: row;
@@ -1015,7 +1039,8 @@ export default {
         align-items: flex-start;
         margin-bottom: 10px;
         .cc-left-lo {
-          width: 50%;
+          width: 75%;
+          min-width: 710px;
           position: relative;
           display: flex;
           flex-direction: column;
@@ -1259,5 +1284,14 @@ export default {
   &.knowledge {
     background: #EABA7F;
   }
+}
+
+.required-dot {
+  padding-right: 3px;
+  font-weight: bold;
+  font-size: 18px;
+  color: #f5222d;
+  vertical-align: middle;
+  display: inline-flex;
 }
 </style>

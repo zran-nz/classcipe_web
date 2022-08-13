@@ -15,7 +15,6 @@
           ref='participant'
           :class-list='classList'
           v-show='currentActiveStepIndex === 0'
-          @update-class-list='getClassList'
           @select-class-student='handleSelectClassStudent'
           @select-workshop-type='handleSelectWorkshopType'/>
         <schedule-date
@@ -48,11 +47,13 @@
         <div class='right-button'>
           <a-space>
             <a-button type='primary' :loading='teacherSessionNowLoading' v-if='currentActiveStepIndex === $classcipe.ScheduleSteps.length - 1 && scheduleReq.workshopType === 0' @click='handleTeacherSessionNow'>Teach the session now</a-button>
-            <a-button type='primary' @click='handleGoNext' :loading='creating'>
-              <template v-if='currentActiveStepIndex !== $classcipe.ScheduleSteps.length - 1'>
+            <a-button type='primary' @click='handleGoNext' :loading='creating' v-if='currentActiveStepIndex !== $classcipe.ScheduleSteps.length - 1'>
+              <template>
                 Next <a-icon type='right' />
               </template>
-              <template v-else>Assign</template>
+            </a-button>
+            <a-button type='primary' :disabled="!scheduleReq.startDate || !scheduleReq.endDate" @click='handleGoNext' :loading='creating' v-else>
+              <template >Assign</template>
             </a-button>
           </a-space>
         </div>
@@ -220,6 +221,11 @@ export default {
       }
     },
     handleGoNext () {
+      const participantData = this.$refs.participant.getSelectedData()
+      this.scheduleReq.classIds = participantData.classIds
+      if (!this.scheduleReq.classIds.length) {
+        return;
+      }
       if (this.currentActiveStepIndex === 0) {
         this.$refs['steps-nav'].nextStep()
         if (this.scheduleReq.openSession) {
@@ -284,9 +290,10 @@ export default {
     },
 
     handleSelectClassStudent (cls) {
+      this.$logger.info('handleSelectClassStudent cls', cls)
       this.scheduleReq.openSession = false
       this.scheduleReq.workshopType = 0
-      this.$logger.info('handleSelectClassStudent', this.scheduleReq)
+      this.$logger.info('handleSelectClassStudent scheduleReq', this.scheduleReq)
     },
 
     handleSelectWorkshopType (data) {

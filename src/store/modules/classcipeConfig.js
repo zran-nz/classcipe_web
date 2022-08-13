@@ -11,6 +11,7 @@ import * as logger from '@/utils/logger'
 import { getAllCurriculums } from '@/api/preference'
 import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
 import { getCurriculumBySchoolId } from '@/api/academicSettingCurriculum'
+import { getAcademicSettingIbAuth } from '@/api/academicSettingIbAuth'
 
 const classcipeConfig = {
   state: {
@@ -21,7 +22,8 @@ const classcipeConfig = {
     priTagList: [],
     pdTagList: [],
     currentSchoolSubjectList: [],
-    currentSchoolGradeList: []
+    currentSchoolGradeList: [],
+    ibAuth: false
   },
   mutations: {
     [SET_CURRICULUM_LIST]: (state, curriculumList) => {
@@ -57,6 +59,9 @@ const classcipeConfig = {
     [SET_SCHOOL_GRADE]: (state, gradeList) => {
       state.currentSchoolGradeList = gradeList
       storage.set(SET_SCHOOL_GRADE, gradeList)
+    },
+    setIbAuth: (state, ibAuth) => {
+      state.ibAuth = ibAuth
     }
   },
   actions: {
@@ -75,16 +80,29 @@ const classcipeConfig = {
     initSubjectGradeData({ commit }, data) {
      const schoolId = data.schoolId
      const bindCurriculumId = data.bindCurriculumId
-     logger.info('initSubjectGradeData schoolId ' + schoolId + ' bindCurriculum ' + bindCurriculumId, data)
+     const applyType = data.applyType
+     logger.info('initSubjectGradeData schoolId ' + schoolId + ' bindCurriculum ' + bindCurriculumId + ' applyType ' + applyType, data)
       getSubjectBySchoolId({ schoolId }).then(response => {
        logger.info('initSubjectGradeData getSubjectBySchoolId response', response.result)
-        const schoolSubject = response.result.find(item => item.curriculumId === bindCurriculumId)
+        const schoolSubject = response.result.find(item => parseInt(item.curriculumId) === parseInt(bindCurriculumId))
         commit(SET_SCHOOL_SUBJECT, schoolSubject?.subjectList || [])
       })
       getCurriculumBySchoolId({ schoolId }).then(response => {
        logger.info('initSubjectGradeData getCurriculumBySchoolId', response.result)
-        const schoolGrade = response.result.find(item => item.curriculumId === bindCurriculumId)
+        const schoolGrade = response.result.find(item => parseInt(item.curriculumId) === parseInt(bindCurriculumId))
         commit(SET_SCHOOL_GRADE, schoolGrade?.gradeSettingInfo || [])
+      })
+      getAcademicSettingIbAuth({
+        applyType,
+        schoolId,
+        curriculumId: bindCurriculumId
+      }).then(response => {
+        logger.info('getAcademicSettingIbAuth response', response)
+        let ibAuth = false
+        if (response.result && response.result.status === 2) {
+          ibAuth = true
+        }
+        commit('setIbAuth', ibAuth)
       })
     },
 

@@ -39,17 +39,20 @@ export const AutoSaveLocalMixin = {
   methods: {
     autoSaveLocalData (newVal) {
       const userId = this.$store.getters.userInfo.id
-      storage.set(this.autoSaveLocalKey + userId, JSON.stringify(newVal))
+      const schoolId = this.$store.state.user.currentSchool.id
+      storage.set(this.autoSaveLocalKey + userId + schoolId, JSON.stringify(newVal))
     },
 
     getAutoLocalData () {
       const userId = this.$store.getters.userInfo.id
-      const data = storage.get(this.autoSaveLocalKey + userId)
+      const schoolId = this.$store.state.user.currentSchool.id
+      const data = storage.get(this.autoSaveLocalKey + userId + schoolId)
       return data ? JSON.parse(data) : {}
     },
     clearLocalData() {
       const userId = this.$store.getters.userInfo.id
-      storage.remove(this.autoSaveLocalKey + userId)
+      const schoolId = this.$store.state.user.currentSchool.id
+      storage.remove(this.autoSaveLocalKey + userId + schoolId)
     }
   }
 }

@@ -507,33 +507,44 @@ export default {
           const school = this.myCreateSchoolOptions.find(item => item.id === this.userForm.schoolId)
           const createdSchool = this.schoolOptions.find(item => item.id === this.userForm.schoolId)
           if (school || (createdSchool && createdSchool.country !== this.userForm.country)) {
+            // this.confirmLoading = true
+            // createSchool({
+            //   name: (school || createdSchool).name,
+            //   country: this.userForm.country,
+            //   principleEmail: this.userForm.principleEmail,
+            //   principleFirstname: this.userForm.principleFirstname,
+            //   principleLastname: this.userForm.principleLastname
+            // }).then(res => {
+            //   if (res.success) {
+            //     if (school) {
+            //       school.id = res.result.id
+            //     }
+            //     if (createdSchool) {
+            //       this.schoolOptions.push({
+            //         id: res.result.id,
+            //         name: res.result.name
+            //       })
+            //     }
+            //     this.userForm.schoolId = res.result.id
+            //     this.userForm.schoolName = res.result.name
+            //     SchoolPrincipleSave(this.userForm).then(res => {
+            //       if (res.success) {
+            //         this.$message.success('Send successfully')
+            //         this.visible = false
+            //         this.userForm = { ...this.userFormOrigin }
+            //       }
+            //     })
+            //   }
+            // }).finally(res => {
+            //   this.confirmLoading = false
+            // })
+            this.userForm.schoolId = null
             this.confirmLoading = true
-            createSchool({
-              name: (school || createdSchool).name,
-              country: this.userForm.country,
-              principleEmail: this.userForm.principleEmail,
-              principleFirstname: this.userForm.principleFirstname,
-              principleLastname: this.userForm.principleLastname
-            }).then(res => {
+            SchoolPrincipleSave(this.userForm).then(res => {
               if (res.success) {
-                if (school) {
-                  school.id = res.result.id
-                }
-                if (createdSchool) {
-                  this.schoolOptions.push({
-                    id: res.result.id,
-                    name: res.result.name
-                  })
-                }
-                this.userForm.schoolId = res.result.id
-                this.userForm.schoolName = res.result.name
-                SchoolPrincipleSave(this.userForm).then(res => {
-                  if (res.success) {
-                    this.$message.success('Send successfully')
-                    this.visible = false
-                    this.userForm = { ...this.userFormOrigin }
-                  }
-                })
+                this.$message.success('Send successfully')
+                this.visible = false
+                this.userForm = { ...this.userFormOrigin }
               }
             }).finally(res => {
               this.confirmLoading = false

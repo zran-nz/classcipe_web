@@ -65,7 +65,11 @@
         </a-col>
         <a-col :xs="12" :md="12" :style="{height: '350px'}">
           <div class="avatar-upload-preview">
-            <img :src="previews.url" :style="previews.img" crossorigin='anonymous'/>
+            <div :style="previewStyle">
+              <div :style="previews.div">
+                <img :src="previews.url" :style="previews.img">
+              </div>
+            </div>
           </div>
         </a-col>
       </a-row>
@@ -150,6 +154,7 @@ export default {
         autoCropHeight: 180,
         fixedBox: true
       },
+      previewStyle: {},
       previews: {}
     }
   },
@@ -313,6 +318,15 @@ export default {
     },
 
     realTime (data) {
+      console.log('previews', data)
+      const previews = data
+      this.previewStyle = {
+        width: previews.w + 'px',
+        height: previews.h + 'px',
+        overflow: 'hidden',
+        margin: '0',
+        zoom: 1
+      }
       this.previews = data
     },
 
@@ -327,7 +341,7 @@ export default {
 }
 </script>
 
-<style lang='less' scoped>
+<style lang="less" scoped>
 @import "~@/components/index.less";
 
 .custom-image-uploader {
