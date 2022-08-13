@@ -453,7 +453,7 @@ export default {
       this.currentStep = data.step
       this.currentActiveStepIndex = data.index
       this.handleDisplayRightModule()
-      sessionStorage.setItem('pd-step-' + this.taskId, data.index)
+      sessionStorage.setItem('pd-step-' + this.pdId, data.index)
       this.checkIsFullBodyStep()
     },
 
