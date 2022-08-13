@@ -15,7 +15,6 @@
           ref='participant'
           :class-list='classList'
           v-show='currentActiveStepIndex === 0'
-          @update-class-list='getClassList'
           @select-class-student='handleSelectClassStudent'
           @select-workshop-type='handleSelectWorkshopType'/>
         <schedule-date
@@ -222,6 +221,11 @@ export default {
       }
     },
     handleGoNext () {
+      const participantData = this.$refs.participant.getSelectedData()
+      this.scheduleReq.classIds = participantData.classIds
+      if (!this.scheduleReq.classIds.length) {
+        return;
+      }
       if (this.currentActiveStepIndex === 0) {
         this.$refs['steps-nav'].nextStep()
         if (this.scheduleReq.openSession) {
@@ -286,9 +290,10 @@ export default {
     },
 
     handleSelectClassStudent (cls) {
+      this.$logger.info('handleSelectClassStudent cls', cls)
       this.scheduleReq.openSession = false
       this.scheduleReq.workshopType = 0
-      this.$logger.info('handleSelectClassStudent', this.scheduleReq)
+      this.$logger.info('handleSelectClassStudent scheduleReq', this.scheduleReq)
     },
 
     handleSelectWorkshopType (data) {
