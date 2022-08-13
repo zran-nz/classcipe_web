@@ -12,7 +12,7 @@
             </template>
           </custom-button>
         </div>
-        <div class='bottom-action' v-show='showEdit || allowPreview'>
+        <div class='bottom-action' v-show='showEdit || allowPreview' v-if='showCoverBar'>
           <div class='bottom-action-item vertical-left' @click='editItem'>
             <div class='bottom-action-item-icon'><a-icon type="form" /></div>
             <div class='bottom-action-item-label'>Edit</div>
@@ -170,12 +170,11 @@
                 </template>
               </custom-button>
             </template>
-
-            <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement' v-if='showDelete'>
+            <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement' v-if='showDelete && content.owner.email === $store.getters.email'>
               <div class='more-action'>
                 <more-icon />
               </div>
-              <div class='content-item-more-action' slot='overlay'>
+              <div class='content-item-more-action' slot='overlay' v-if='showArchive'>
                 <div class='menu-item'>
                   <custom-button label='Archive' @click='handleDeleteItem'>
                     <template v-slot:icon>
@@ -183,38 +182,27 @@
                     </template>
                   </custom-button>
                 </div>
-                <div class='menu-item'>
-                  <a-popconfirm :title="'Confirm permanent delete ' +(content.name ? content.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem" cancel-text="No">
-                    <custom-button label='Delete'>
-                      <template v-slot:icon>
-                        <delete-icon style='width: 13px; height:14px'/>
-                      </template>
-                    </custom-button>
-                  </a-popconfirm>
-                </div>
               </div>
             </a-dropdown>
           </template>
 
-          <template v-if='showButton && content.delFlag'>
-            <a-space :size='30'>
-
+          <template v-if='showButton && content.delFlag && content.owner.email === $store.getters.email && allowPermanentDelete'>
+            <a-popconfirm :title="'Confirm restore ' +(content.name ? content.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleRestoreItem(content)" cancel-text="No">
+              <custom-button label='Restore'>
+                <template v-slot:icon>
+                  <edit-icon />
+                </template>
+              </custom-button>
+            </a-popconfirm>
+            <div class='menu-item'>
               <a-popconfirm :title="'Confirm permanent delete ' +(content.name ? content.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem" cancel-text="No">
                 <custom-button label='Delete'>
                   <template v-slot:icon>
-                    <delete-icon />
+                    <delete-icon style='width: 13px; height:14px'/>
                   </template>
                 </custom-button>
               </a-popconfirm>
-
-              <a-popconfirm :title="'Confirm restore ' +(content.name ? content.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleRestoreItem(content)" cancel-text="No">
-                <custom-button label='Restore'>
-                  <template v-slot:icon>
-                    <edit-icon />
-                  </template>
-                </custom-button>
-              </a-popconfirm>
-            </a-space>
+            </div>
           </template>
         </div>
       </div>
@@ -348,6 +336,22 @@ export default {
       default: true
     },
     showSetPrice: {
+      type: Boolean,
+      default: false
+    },
+    showCoverBar: {
+      type: Boolean,
+      default: true
+    },
+    allowPermanentDelete: {
+      type: Boolean,
+      default: true
+    },
+    showArchive: {
+      type: Boolean,
+      default: true
+    },
+    showRestore: {
       type: Boolean,
       default: false
     }
