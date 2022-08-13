@@ -70,7 +70,8 @@ export default {
       if (newValue) {
         this.$store.dispatch('initSubjectGradeData', {
           schoolId: newValue,
-          bindCurriculumId: this.$store.getters.bindCurriculum
+          bindCurriculumId: this.$store.getters.bindCurriculum,
+          applyType: 
         })
       }
     }
