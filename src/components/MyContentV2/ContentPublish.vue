@@ -109,7 +109,8 @@ export default {
         this.startDate = data.discountStartTime
         this.endData = data.discountEndTime
         this.isSelfLearning = data.isSelfLearning
-        this.initDate = [moment(data.discountStartTime), moment(data.discountEndTime)]
+        this.initDate = [data.discountStartTime ? moment(data.discountStartTime) : moment(new Date()),
+          data.discountEndTime ? moment(data.discountEndTime) : null]
       }
       this.visible = true
       this.visible = true
