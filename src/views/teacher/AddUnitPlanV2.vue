@@ -131,6 +131,7 @@
                     </template>
                     <custom-radio-button-group
                       :list="[ {name: 'Yes', value: 1}, {name: 'No', value: 0}]"
+                      :disabled='!canEdit'
                       :value.sync='form.projectBased'
                       @change="handleCollaborateEvent(unitPlanId,planField.ProjectBased,form.projectBased)" >
                     </custom-radio-button-group>
@@ -169,6 +170,7 @@
                     </template>
                     <custom-radio-button-group
                       :list="[ {name: 'Single-subject Unit', value: 0}, {name: 'Integrated Unit', value: 1}]"
+                      :disabled='!canEdit'
                       :value.sync='form.unitType'
                       @change="handleCollaborateEvent(unitPlanId,planField.UnitType,form.unitType)" >
                     </custom-radio-button-group>
@@ -448,6 +450,7 @@
                       :learning-objectives='form.learnOuts'
                       :subject-list='form.subjectList'
                       :year-list='form.yearList'
+                      :can-edit='canEdit'
                       :language-list='form.languageList' />
                   </custom-form-item>
                 </div>
@@ -506,6 +509,7 @@
                     </template>
                     <custom-image-uploader
                       :field='planField.Image'
+                      :can-edit='canEdit'
                       :content-id='unitPlanId'
                       :content-type='contentType["unit-plan"]'
                       :img-url='form.image'
