@@ -78,12 +78,12 @@ const classcipeConfig = {
      logger.info('initSubjectGradeData schoolId ' + schoolId + ' bindCurriculum ' + bindCurriculumId, data)
       getSubjectBySchoolId({ schoolId }).then(response => {
        logger.info('initSubjectGradeData getSubjectBySchoolId response', response.result)
-        const schoolSubject = response.result.find(item => item.curriculumId === bindCurriculumId)
+        const schoolSubject = response.result.find(item => parseInt(item.curriculumId) === parseInt(bindCurriculumId))
         commit(SET_SCHOOL_SUBJECT, schoolSubject?.subjectList || [])
       })
       getCurriculumBySchoolId({ schoolId }).then(response => {
        logger.info('initSubjectGradeData getCurriculumBySchoolId', response.result)
-        const schoolGrade = response.result.find(item => item.curriculumId === bindCurriculumId)
+        const schoolGrade = response.result.find(item => parseInt(item.curriculumId) === parseInt(bindCurriculumId))
         commit(SET_SCHOOL_GRADE, schoolGrade?.gradeSettingInfo || [])
       })
     },
