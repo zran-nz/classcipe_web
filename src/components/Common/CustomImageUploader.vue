@@ -3,7 +3,11 @@
     <div class='image-placeholder'>
       <img :src='imgUrl' v-if='imgUrl' />
       <div class='no-image' v-if='!imgUrl'>
-        <common-no-data text='Select image'></common-no-data>
+        <common-no-data text='Select image'>
+          <template v-slot:icon>
+            <empty-image />
+          </template>
+        </common-no-data>
       </div>
       <div class='upload-mask' v-if='canEdit'>
         <div class='upload-btn'>
@@ -112,10 +116,11 @@ import ClasscipeDriveEvent from '@/components/ClasscipeDrive/ClasscipeDriveEvent
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import CustomLinkText from '@/components/Common/CustomLinkText'
 import { upAwsS3File } from '@/components/AddMaterial/Utils/AwsS3'
+import EmptyImage from '@/assets/v2/icons/empty_image.svg?inline'
 
 export default {
   name: 'CustomImageUploader',
-  components: { CustomLinkText, CustomTextButton, ClasscipeDrive, CommonNoData, CustomButton },
+  components: { CustomLinkText, CustomTextButton, ClasscipeDrive, CommonNoData, CustomButton, EmptyImage },
   props: {
     imgUrl: {
       type: String,

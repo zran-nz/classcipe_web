@@ -35,7 +35,11 @@
       </template>
       <template v-if='!imgList.length'>
         <div class='no-slide-image' :style="{ height: emptyHeight }">
-          <common-no-data :text='emptyTips'/>
+          <common-no-data :text='emptyTips'>
+            <template v-slot:icon>
+              <empty-slide />
+            </template>
+          </common-no-data>
         </div>
       </template>
     </div>
@@ -82,10 +86,11 @@ import SlideMaterialsAndTips from '@/components/PPT/SlideMaterialsAndTips'
 import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
 import SlideNotes from '@/components/PPT/SlideNotes'
 import SlideEvent from '@/components/PPT/SlideEvent'
+import EmptySlide from '@/assets/v2/icons/empty_slide.svg?inline'
 
 export default {
   name: 'SlideViewer',
-  components: { SlideNotes, SlideMaterialsAndTips, CommonNoData },
+  components: { SlideNotes, SlideMaterialsAndTips, CommonNoData, EmptySlide },
   props: {
     title: {
       type: String,

@@ -27,7 +27,11 @@
           </div>
         </div>
         <div class='no-selected-tag' v-show='selectedTagList.length === 0 && !loading'>
-          <common-no-data text='No tag' />
+          <common-no-data text='No tag'>
+            <template v-slot:icon>
+              <empty-tag />
+            </template>
+          </common-no-data>
         </div>
       </div>
       <div class='tag-category-wrapper' v-show='tagSelectContainerVisible'>
@@ -154,6 +158,7 @@ import TagSetting from '@/components/UnitPlan/TagSetting'
 import { QueryCustomTags } from '@/api/v2/mycontent'
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import CustomLinkText from '@/components/Common/CustomLinkText'
+import EmptyTag from '@/assets/v2/icons/empty_tag.svg?inline'
 
 const setColor = [
   '#FFEDAF',
@@ -173,7 +178,7 @@ const tagColorMap = {
 
 export default {
   name: 'CustomTagV3',
-  components: { CustomLinkText, CustomTextButton, TagSetting, CustomSearchInput, CustomTagCategoryBar, CommonNoData },
+  components: { CustomLinkText, CustomTextButton, EmptyTag, TagSetting, CustomSearchInput, CustomTagCategoryBar, CommonNoData },
   props: {
     customTags: {
       type: Array,
