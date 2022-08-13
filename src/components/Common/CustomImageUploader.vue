@@ -5,7 +5,7 @@
       <div class='no-image' v-if='!imgUrl'>
         <common-no-data text='Select image'></common-no-data>
       </div>
-      <div class='upload-mask'>
+      <div class='upload-mask' v-if='canEdit'>
         <div class='upload-btn'>
           <custom-button label='Select image' @click='visible = true' style='width: 140px;'>
             <template v-slot:icon>
@@ -136,6 +136,10 @@ export default {
     contentType: {
       type: Number,
       default: null
+    },
+    canEdit: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
