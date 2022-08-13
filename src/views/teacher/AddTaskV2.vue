@@ -340,7 +340,7 @@
 
                 <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Link' :key='fieldItem.fieldName'>
                   <div class='common-link-wrapper'>
-                    <form-linked-content :from-id='taskId' :filter-types='[contentType["unit-plan"]]' :from-type='contentType.task' @update-unit-id-list='updateUnitIdList'/>
+                    <form-linked-content :can-edit='canEdit' :from-id='taskId' :filter-types='[contentType["unit-plan"]]' :from-type='contentType.task' @update-unit-id-list='updateUnitIdList'/>
                   </div>
                 </div>
 
