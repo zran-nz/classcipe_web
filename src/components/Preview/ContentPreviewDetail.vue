@@ -106,7 +106,7 @@
         >
           <div class="author-info">
             <div class="author-avatar">
-              <a-avatar size="large" style="backgroundcolor: #517f3f">{{
+              <a-avatar size="large" style="background-color: #517f3f">{{
                 (content.owner
                   ? content.owner.firstname + ' ' + content.owner.lastname
                   : content.createBy
@@ -115,11 +115,7 @@
             </div>
             <div class="author-info-detail">
               <div class="author-name">
-                {{
-                  content.owner
-                    ? content.owner.firstname + ' ' + content.owner.lastname
-                    : content.createBy
-                }}
+                {{ (content.owner ? (content.owner.firstname + ' ' + content.owner.lastname) : content.createBy) | upCaseFirst }}
               </div>
               <div class="rate-star">
                 <review-stat :contentId="contentId" @goReviews="goReviews" />
