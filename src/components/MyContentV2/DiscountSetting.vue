@@ -88,7 +88,7 @@ export default {
         this.discountSetting.endData = data.discountEndTime
         this.discountSetting.durationOn = !!data.discountStartTime || !!data.discountEndTime
         if (this.discountSetting.durationOn) {
-          this.initDate = [moment(data.discountStartTime), moment(data.discountEndTime)]
+          this.initDate = [data.discountStartTime ? moment(data.discountStartTime) : moment(new Date()), data.discountEndTime ? moment(data.discountEndTime) : null]
         }
       }
     })
