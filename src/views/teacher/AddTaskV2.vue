@@ -196,6 +196,24 @@
                 </div>
 
                 <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.LearnOuts' :key='fieldItem.fieldName'>
+                  <div class='is-self-learning vertical-between'>
+                    <div class='self-learning-label'>
+                      Is this task suitable for self-learning?
+                    </div>
+                    <div class='self-learning-button'>
+                      <a-space>
+                        <a-tooltip
+                          title="After you set it as student self-learning friendly, this task will appear on students' page for purchase. After 5 students have successfully completed the task and given positive review, Classcipe will make it as premium task then you may set a price for it which will be charged from students and paid to your account upon each purchase.">
+                          <a-button class='cc-round-button' :class="{'cc-dark-button': form.contentType === 0 }" @click='form.contentType = 0' style='width: 80px'>
+                            <a-badge count='?' :offset='[25, -8]'>
+                              Yes
+                            </a-badge>
+                          </a-button>
+                        </a-tooltip>
+                        <a-button class='cc-round-button' :class="{'cc-dark-button': form.contentType !== 0 }" @click='form.contentType = 1' style='width: 80px'>No</a-button>
+                      </a-space>
+                    </div>
+                  </div>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.LearnOuts style="left:100px" />
                   <custom-form-item :required='emptyRequiredFields.indexOf(taskField.LearnOuts) !== -1' :required-field='requiredFields.indexOf(taskField.LearnOuts) !== -1'>
                     <template slot='label'>
@@ -674,7 +692,7 @@ export default {
         taskClassList: [],
         customFieldData: null,
         price: 0,
-        isSelfLearning: false,
+        contentType: 0,
         slideEditing: false
       },
       gradeList: [],
@@ -1658,7 +1676,6 @@ export default {
       this.waitingRedirect = true
       this.saving = true
       this.form.price = data.price
-      this.form.contentType = data.isSelfLearning ? 1 : 0
       this.showSplitTask = false
       this.waitingRedirect = true
       await this.save()
@@ -4227,5 +4244,16 @@ p.ant-upload-text {
 }
 .my-big-select{
   width: 100%
+}
+
+.is-self-learning {
+  width: 60%;
+  padding: 10px 10px;
+  background-color: #fab00511;
+
+  .self-learning-label {
+    font-weight: bold;
+    font-size: 14px;
+  }
 }
 </style>
