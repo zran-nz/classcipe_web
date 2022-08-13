@@ -341,35 +341,45 @@
         </div>
       </template>
 
+
+
       <a-row v-if='content.yearList || content.unitType || content.projectBased' class='line-data'>
-        <a-col span='8' class='line-data-item'>
-          <div class='line-title'>
+        <div class='content-block' v-if='content.yearList.length'>
+          <div class='content-title'>
             Grade Level :
           </div>
-          <div class='line-content'>
-            <template v-if='content.yearList'>
-              {{ content.yearList.join(',') }}
-            </template>
+          <div class='content-detail'>
+            <div class='subject-list vertical-left'>
+              <template v-if='content.yearList'>
+                {{ content.yearList.join(', ') }}
+              </template>
+            </div>
           </div>
-        </a-col>
-        <a-col span='8' class='line-data-item' v-show='content.unitType !== undefined'>
-          <div class='line-title'>
+        </div>
+
+        <div class='content-block' v-show='content.unitType !== undefined'>
+          <div class='content-title'>
             Unit type :
           </div>
-          <div class='line-content'>
-            <template v-if="content.unitType === 0">Single-subject Unit</template>
-            <template v-if="content.unitType === 1">Integrated Unit</template>
+          <div class='content-detail'>
+            <div class='subject-list vertical-left'>
+              <template v-if="content.unitType === 0">Single-subject Unit</template>
+              <template v-if="content.unitType === 1">Integrated Unit</template>
+            </div>
           </div>
-        </a-col>
-        <a-col span='8' class='line-data-item' v-show='content.projectBased !== undefined'>
-          <div class='line-title'>
+        </div>
+
+        <div class='content-block' v-show='content.projectBased !== undefined'>
+          <div class='content-title'>
             Project-based Unit :
           </div>
-          <div class='line-content'>
-            <template v-if="content.projectBased === 0">No</template>
-            <template v-if="content.projectBased === 1">Yes</template>
+          <div class='content-detail'>
+            <div class='subject-list vertical-left'>
+              <template v-if="content.projectBased === 0">No</template>
+              <template v-if="content.projectBased === 1">Yes</template>
+            </div>
           </div>
-        </a-col>
+        </div>
       </a-row>
 
       <div class='line-split'></div>
