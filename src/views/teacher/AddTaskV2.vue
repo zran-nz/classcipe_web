@@ -51,7 +51,7 @@
               <template v-if='step.commonFields.indexOf(fieldItem.fieldName) !== -1'>
                 <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Name' :key='fieldItem.fieldName' >
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Name />
-                  <custom-form-item :required='emptyRequiredFields.indexOf(taskField.Name) !== -1'>
+                  <custom-form-item :required='emptyRequiredFields.indexOf(taskField.Name) !== -1' :required-field='requiredFields.indexOf(taskField.Name) !== -1'>
                     <template slot='label'>
                       {{ 'Task name' | taskLabelName(taskField.Name, $store.getters.formConfigData) }}
                     </template>
