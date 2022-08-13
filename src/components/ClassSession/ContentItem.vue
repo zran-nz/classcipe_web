@@ -45,27 +45,6 @@
                 </div>
               </div>
             </div>
-            <div class='sub-right'>
-              <div class='session-date'>
-                <template v-if='!editingSessionTime'>
-                  <template v-if='session.session.sessionStartTime || session.session.deadline'>
-                    {{ session.session.sessionStartTime | dayjs }}
-                    <template v-if='session.session.sessionStartTime && session.session.deadline'> - </template>
-                    {{ session.session.deadline | dayjs }}
-                  </template>
-                  <template v-else>
-                    session start time not set
-                  </template>
-                </template>
-                <template v-if='editingSessionTime'>
-                  <a-range-picker :default-value="initDate" :disabled-date="disabledDate" @change="handleDateChange" format='YYYY-MM-DD HH:mm:ss' :show-time="{ format: 'HH:mm' }"/>
-                </template>
-                <div class='edit-icon' @click='toggleEditSessionTime'>
-                  <edit-blue-icon v-if='!editingSessionTime' />
-                  <a-icon type="check" v-if='editingSessionTime' />
-                </div>
-              </div>
-            </div>
           </div>
           <div class='subject subject-info' v-if="content" >
             <a-space>
