@@ -145,6 +145,12 @@
       </div>
     </div>
 
+    <div class='delete-wrapper' v-if='showDelete'>
+      <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDelete" cancel-text="No">
+        <delete-icon color='#F16A39' />
+      </a-popconfirm>
+    </div>
+
     <content-preview
       :content-id='previewCurrentId'
       :content-type='previewType'
@@ -455,6 +461,9 @@ export default {
 
     disabledDate(current) {
       return current && current < moment().subtract(1, 'days').endOf('day')
+    },
+    handleDelete () {
+      this.$emit('delete', this.content)
     }
   }
 }
@@ -641,6 +650,31 @@ export default {
           margin-left: 10px;
         }
       }
+    }
+  }
+
+  .delete-wrapper {
+    cursor: pointer;
+    display: none;
+    position: absolute;
+    right: 5px;
+    top: 3px;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    outline: none;
+
+    svg {
+      outline: none;
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  &:hover {
+    .delete-wrapper {
+      display: flex;
     }
   }
 }
@@ -907,4 +941,5 @@ export default {
   cursor: pointer;
   user-select: none;
 }
+
 </style>
