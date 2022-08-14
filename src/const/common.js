@@ -133,7 +133,7 @@ export const PdField = {
   Goals: 'goals',
   Slides: 'slides',
   Link: 'link',
-  VideoList: 'VideoList'
+  VideoList: 'videoList'
 }
 
 export const VideoField = {
