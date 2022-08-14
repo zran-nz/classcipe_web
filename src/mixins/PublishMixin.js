@@ -100,7 +100,7 @@ export const PublishMixin = {
             })
           }
         } else if (field === 'questions') {
-          if (!this.form.questionIds?.length) {
+          if (!this.form.questionIds?.length && !this.form.questions?.length) {
             console.log('questions is empty')
             this.emptyRequiredFields.push(field)
             this.formSteps.forEach(step => {
@@ -205,8 +205,8 @@ export const PublishMixin = {
             })
           }
         } else if (field === 'questions') {
-          if (!this.form.questionIds?.length) {
-            console.log('questions is empty')
+          if (!this.form.questionIds?.length && !this.form.questions?.length) {
+            console.log('questions is empty', this.form.questionIds, this.form.questions)
             this.emptyRequiredFields.push(field)
             this.formSteps.forEach(step => {
               if (step.commonFields.indexOf(field) > -1) {

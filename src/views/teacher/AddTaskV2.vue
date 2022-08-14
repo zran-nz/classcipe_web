@@ -1259,12 +1259,12 @@ export default {
         this.$logger.info('*******************associateUnitPlanIdList', this.associateUnitPlanIdList)
         this.$logger.info('associateTaskIdList', this.associateTaskIdList)
         this.requiredFields = this.$classcipe.taskRequiredFields
-        if (this.associateQuestionList.length === 0) {
-          const list = this.requiredFields.slice()
-          list.splice(list.indexOf(this.taskField.Question), 1)
-          this.requiredFields = list
-          this.$logger.info('associateQuestionList empty remove Question from requiredFields')
-        }
+        // if (this.associateQuestionList.length === 0) {
+        //   const list = this.requiredFields.slice()
+        //   list.splice(list.indexOf(this.taskField.Question), 1)
+        //   this.requiredFields = list
+        //   this.$logger.info('associateQuestionList empty remove Question from requiredFields')
+        // }
       }).finally(() => {
         this.linkGroupLoading = false
 

@@ -1157,12 +1157,14 @@ export default {
       this.formSteps = this.$store.getters.formConfigData.planSteps || []
       this.$logger.info('formSteps', this.formSteps)
       this.requiredFields = this.$classcipe.planRequiredFields
-      if (this.form.inquiryKeywords.length === 0) {
-        const list = this.requiredFields.slice()
-        list.splice(list.indexOf(this.PlanField.Inquiry), 1)
-        this.requiredFields = list
-        this.$logger.info('associateQuestionList empty remove Inquiry from requiredFields')
-      }
+      this.$logger.info('requiredFields', this.requiredFields)
+      // this.requiredFields = list
+      // if (this.form.inquiryKeywords.length === 0) {
+      //   const list = this.requiredFields.slice()
+      //   list.splice(list.indexOf(this.PlanField.Inquiry), 1)
+      //   this.requiredFields = list
+      //   this.$logger.info('associateQuestionList empty remove Inquiry from requiredFields')
+      // }
       if (this.currentActiveStepIndex < 0 || this.currentActiveStepIndex > this.formSteps.length - 1) {
         this.currentActiveStepIndex = 0
       }
