@@ -1,5 +1,5 @@
 #!/bin/bash
-export NODE_OPTIONS=--openssl-legacy-provider
+export NODE_OPTIONS="--openssl-legacy-provider --max-old-space-size=8192"
 cd /git
 yarn config set ignore-engines true
 yarn build
