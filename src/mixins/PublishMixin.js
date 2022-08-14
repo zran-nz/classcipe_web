@@ -65,7 +65,7 @@ export const PublishMixin = {
       let showRequiredTips = false
       this.requiredFields.forEach(field => {
         if (field === TaskField.Slides || field === PdField.Slides) {
-          if ((this.form.presentationId.indexOf('fake_buy') !== -1) || (!this.form.presentationId && !this.form.pageObjects?.length)) {
+          if (!this.form.presentationId || this.form.presentationId.indexOf('fake_buy') !== -1 || !this.form.pageObjects?.length) {
             this.emptyRequiredFields.push(field)
             this.formSteps.forEach(step => {
               if (step.commonFields.indexOf(field) > -1) {
@@ -159,14 +159,12 @@ export const PublishMixin = {
       })
       this.requiredFields.forEach(field => {
         if (field === TaskField.Slides || field === PdField.Slides) {
-          if ((this.form.presentationId.indexOf('fake_buy') !== -1) || (!this.form.presentationId && !this.form.pageObjects?.length)) {
-            this.$logger.info(`${field} is empty`, this.form.presentationId, this.form.pageObjects)
+          if (!this.form.presentationId || this.form.presentationId.indexOf('fake_buy') !== -1 || !this.form.pageObjects?.length) {
             this.emptyRequiredFields.push(field)
             this.formSteps.forEach(step => {
               if (step.commonFields.indexOf(field) > -1) {
                 step.showRequiredTips = true
                 step.showSatisfiedTips = false
-                canPublish = false
               }
             })
           }
