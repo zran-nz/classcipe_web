@@ -67,7 +67,7 @@
               </div>
               <div class='info-item subject-info'>
                 <a-space>
-                  <div class='subject-item' v-for='(subject, idx) in content.subjectList.slice(0, 2)' :key='idx'>{{ subject }}</div>
+                  <div class='subject-item' v-for='(subject, idx) in content.subjectList.slice(0, 2)' :key="'sub' + idx">{{ subject }}</div>
                 </a-space>
                 <div class='more-item' v-if='content.subjectList.slice(2).length'>
                   <a-tooltip placement='top' :title='content.subjectList.slice(2).join("、 ")' >more({{ content.subjectList.slice(2).length }})</a-tooltip>
@@ -75,7 +75,7 @@
               </div>
               <div class='info-item year-info'>
                 <a-space>
-                  <div class='subject-item' v-for='(year, idx) in content.yearList.slice(0, 4)' :key='idx'>{{ year }}</div>
+                  <div class='subject-item' v-for='(year, idx) in content.yearList.slice(0, 4)' :key="'year' + idx">{{ year }}</div>
                 </a-space>
                 <div class='more-item' v-if='content.yearList.slice(4).length'>
                   <a-tooltip placement='top' :title='content.yearList.slice(4).join("、 ")' >more({{ content.yearList.slice(4).length }})</a-tooltip>
@@ -110,17 +110,17 @@
             </a-space>
           </div>
           <div class='tag-info' v-if='knowledgeTagsList.length'>
-            <div class='tag-info-item' v-for='(knowledgeTag, cIdx) in knowledgeTagsList' :key='cIdx'>
+            <div class='tag-info-item' v-for='(knowledgeTag, cIdx) in knowledgeTagsList' :key="'tag' + cIdx">
               <a-tag color='#EABA7F' class='tag-item knowledge-tag' :title='knowledgeTag'>{{ knowledgeTag }}</a-tag>
             </div>
           </div>
           <div class='tag-info'>
             <template v-if='commandTermsList.length'>
-              <div class='tag-info-item' v-for='(command, cIdx) in commandTermsList' :key='cIdx'>
+              <div class='tag-info-item' v-for='(command, cIdx) in commandTermsList' :key="'term' + cIdx">
                 <a-tag color='#06ACD7' class='tag-item command-tag' :title='command'>{{ command }}</a-tag>
               </div>
             </template>
-            <div class='tag-info-item' v-for='(customTag, idx) in content.customTags' :key='idx'>
+            <div class='tag-info-item' v-for='(customTag, idx) in content.customTags' :key="'ct' + idx">
               <a-tag color='#FFEDAF' class='tag-item' :title='customTag.category'> {{ customTag.name }} </a-tag>
             </div>
           </div>
