@@ -169,7 +169,15 @@ export default {
       immediate: true,
       handler (v) {
         const list = JSON.parse(JSON.stringify(v))
-        this.selectedTagList = sortBy(list, ['category'])
+        const set = new Set()
+        const result = []
+        list.forEach(item => {
+          if (!set.has(item.key)) {
+            result.push(item)
+            set.add(item.key)
+          }
+        })
+        this.selectedTagList = sortBy(result, ['category'])
       }
     }
   },
