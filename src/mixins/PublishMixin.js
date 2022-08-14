@@ -86,6 +86,19 @@ export const PublishMixin = {
               }
             })
           }
+        } else if (field === 'learnOuts') {
+          console.log('learnOuts test', this.form.learnOuts)
+          if (!this.form.learnOuts?.length) {
+            console.log('learnOuts is empty')
+            this.emptyRequiredFields.push(field)
+            this.formSteps.forEach(step => {
+              if (step.commonFields.indexOf(field) > -1) {
+                step.showRequiredTips = true
+                step.showSatisfiedTips = false
+                showRequiredTips = true
+              }
+            })
+          }
         } else {
           if (simpleIsEmpty(this.form[field])) {
             this.$logger.info(`${field} is empty`, this.form[field])
@@ -166,6 +179,18 @@ export const PublishMixin = {
                 step.showRequiredTips = true
                 step.showSatisfiedTips = false
                 canPublish = false
+              }
+            })
+          }
+        } else if (field === 'learnOuts') {
+          console.log('learnOuts test', this.form.learnOuts)
+          if (!this.form.learnOuts?.length) {
+            console.log('learnOuts is empty')
+            this.emptyRequiredFields.push(field)
+            this.formSteps.forEach(step => {
+              if (step.commonFields.indexOf(field) > -1) {
+                step.showRequiredTips = true
+                step.showSatisfiedTips = false
               }
             })
           }

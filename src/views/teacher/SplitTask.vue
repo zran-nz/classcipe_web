@@ -176,6 +176,7 @@
                       {{ 'Learning objectives' | taskLabelName(splitTaskField.LearnOuts, $store.getters.formConfigData) }}
                     </template>
                     <learning-objective-select
+                      v-if='allLearningObjectiveList.length'
                       @change='handleUpdateLearningObjectives'
                       :learning-objectives='allLearningObjectiveList' />
                   </custom-form-item>
@@ -443,12 +444,27 @@
         v-if='taskId'
       />
     </a-modal>
+
+    <a-modal
+      v-model='showSplitTask'
+      :footer='null'
+      :title='null'
+      :closable='false'
+      destroyOnClose
+      width='700px'>
+      <modal-header title='Congratulation!' @close='showSplitTask = false' />
+      <split-task-setting
+        :is-sub-task="form.parentTaskId"
+        :content-id='taskId'
+        :is-self-learning='form.contentType === 1'
+        @confirm='handleUpdateBySubTaskSetting'/>
+    </a-modal>
   </div>
 </template>
 
 <script>
 import { typeMap } from '@/const/teacher'
-import { FindSourceOutcomes, GetAssociate, GetMyGrades, GetReferOutcomes } from '@/api/teacher'
+import { FindSourceOutcomes, GetAssociate, GetMyGrades, GetReferOutcomes, UpdateContentStatus } from '@/api/teacher'
 import { TemplatesGetPresentation } from '@/api/template'
 import { SplitTask, TaskCreateNewTaskPPT, TaskQueryById } from '@/api/task'
 import Collaborate from '@/components/UnitPlan/Collaborate'
@@ -495,10 +511,13 @@ import FormSlidePageSelect from '@/components/SplitTask/FormSlidePageSelect'
 import LearningObjectiveSelect from '@/components/LearningObjective/LearningObjectiveSelect'
 import { AssessmentToolInfoList, AssessmentToolInfoSaveBatch } from '@/api/v2/assessment'
 import SplitTaskTag from '@/components/CustomTag/SplitTaskTag'
+import SplitTaskSetting from '@/components/Task/SplitTaskSetting'
+import { discountSettingSave } from '@/api/v2/discountSetting'
 
 export default {
   name: 'SplitTask',
   components: {
+    SplitTaskSetting,
     SplitTaskTag,
     LearningObjectiveSelect,
     FormSlidePageSelect,
@@ -614,7 +633,8 @@ export default {
       showSubAssessment: false,
       currentActiveStepIndex: 0,
       allTags: [],
-      nextLoading: false
+      nextLoading: false,
+      showSplitTask: false
     }
   },
   computed: {
@@ -745,7 +765,7 @@ export default {
           }
           this.$logger.info('displayCustomFieldData', displayCustomFieldData)
           taskData.customFieldData = displayCustomFieldData
-          this.allLearningObjectiveList = taskData.learnOuts
+          this.allLearningObjectiveList = taskData.learnOuts.slice()
           this.allTags = JSON.parse(JSON.stringify(taskData.customTags))
           taskData.id = null
           taskData.presentationId = null
@@ -867,9 +887,7 @@ export default {
             this.nextLoading = false
           }
         }
-        await this.$router.replace({
-          path: '/teacher/sub-task/' + this.parentTaskId
-        })
+        this.showSplitTask = true
       } else {
         this.$refs['steps-nav'].nextStep()
       }
@@ -1370,6 +1388,48 @@ export default {
     handleUpdateLearningObjectives (learnOuts) {
       this.$logger.info('handleUpdateLearningObjectives', learnOuts)
       this.form.learnOuts = learnOuts
+      this.$logger.info('form.learnOuts ', this.form.learnOuts)
+      this.checkRequiredFields(false)
+    },
+    async handleDiscountSettingSave(discountItem) {
+      this.$logger.info('DiscountSettingSave', discountItem)
+      const response = await discountSettingSave(discountItem)
+      this.$logger.info('TaskAddOrUpdate', response.result)
+    },
+    async handlePublishFormItem (status) {
+      const data = {
+        id: this.form.id,
+        status: status,
+        type: this.contentType.task
+      }
+      await UpdateContentStatus(data)
+      if (status) {
+        this.$message.success(this.$t('teacher.add-unit-plan.publish-success'))
+      }
+    },
+    async handleUpdateBySubTaskSetting (data) {
+      this.$logger.info('handleUpdateBySubTaskSetting', data)
+      this.saving = true
+      this.form.price = data.price
+      this.showSplitTask = false
+      await this.save()
+      if (data.isPublish) {
+        await this.handlePublishFormItem(1)
+        // 打折信息
+        const discountItem = {
+          contentId: this.form.id,
+          contentType: this.contentType.task,
+          price: this.form.price, // 原价
+          discount: data.discount,
+          discountModel: 2,
+          discountStartTime: data.startDate,
+          discountEndTime: data.endData
+        }
+        await this.handleDiscountSettingSave(discountItem)
+      }
+      await this.$router.replace({
+        path: '/teacher/sub-task/' + this.parentTaskId
+      })
     }
   }
 }
