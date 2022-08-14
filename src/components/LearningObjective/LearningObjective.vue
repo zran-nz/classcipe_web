@@ -451,6 +451,7 @@ export default {
       }
     },
     'filterConfig.curriculumId': {
+      immediate: false,
       async handler(curriculumId) {
         console.log('curriculumId change', curriculumId)
         if (curriculumId) {
@@ -558,7 +559,9 @@ export default {
         this.filterConfig.curriculumId = this.curriculumOptions[0].id
         this.$logger.info('getAllCurriculums', this.curriculumOptions, list)
       }).finally(() => {
-        this.loading = false
+        this.$nextTick(() => {
+          this.loading = false
+        })
       })
     },
 
