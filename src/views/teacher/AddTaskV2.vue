@@ -544,7 +544,7 @@
         @confirm-and-split='handleGoToSubTask' />
     </a-modal>
 
-    <edit-price-dialog :content='form' ref='editPrice'/>
+    <edit-price-dialog :content='form' ref='editPrice' @finish='showPublishTips'/>
   </div>
 </template>
 
@@ -1047,9 +1047,6 @@ export default {
         type: this.contentType.task
       }
       await UpdateContentStatus(data)
-      if (status) {
-        this.$message.success(this.$t('teacher.add-unit-plan.publish-success'))
-      }
     },
 
     handleSelectTaskType(type) {

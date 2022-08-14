@@ -204,7 +204,7 @@
       />
     </a-modal>
 
-    <edit-price-dialog :content='form' ref='editPrice'/>
+    <edit-price-dialog :content='form' ref='editPrice' @finish='showPublishTips'/>
   </div>
 </template>
 
@@ -700,9 +700,7 @@ export default {
         status: status,
         type: this.typeMap.pd
       }
-      UpdateContentStatus(data).then(() => {
-        this.$message.success(this.$t('teacher.add-unit-plan.publish-success'))
-      })
+      UpdateContentStatus(data)
     },
 
     handleSelectTemplate (template) {

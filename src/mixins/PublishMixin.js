@@ -120,6 +120,7 @@ export const PublishMixin = {
                 if (step.commonFields.indexOf(field) > -1) {
                   step.showRequiredTips = true
                   step.showSatisfiedTips = false
+                  showRequiredTips = true
                 }
               })
             } else if (this.form.questions.length === 1 && !this.form.questions[0].name){
@@ -129,6 +130,7 @@ export const PublishMixin = {
                 if (step.commonFields.indexOf(field) > -1) {
                   step.showRequiredTips = true
                   step.showSatisfiedTips = false
+                  showRequiredTips = true
                 }
               })
             }
@@ -280,6 +282,9 @@ export const PublishMixin = {
     showEditPriceDialog() {
       this.$logger.info('showEditPriceDialog', this.$refs.editPrice)
       this.$refs.editPrice.showEditPrice()
+    },
+    showPublishTips() {
+      this.$message.success(this.$t('teacher.add-unit-plan.publish-success'))
     }
   }
 }

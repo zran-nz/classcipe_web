@@ -1404,9 +1404,6 @@ export default {
         type: this.contentType.task
       }
       await UpdateContentStatus(data)
-      if (status) {
-        this.$message.success(this.$t('teacher.add-unit-plan.publish-success'))
-      }
     },
     async handleUpdateBySubTaskSetting (data) {
       this.$logger.info('handleUpdateBySubTaskSetting', data)
