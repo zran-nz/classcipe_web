@@ -1,7 +1,7 @@
 <template>
   <div class='content-item' v-if='content' :style="{'border': activeItem ? '1px solid #15c39a' : '1px solid #EEF1F6'}">
     <div class='cover'>
-      <div class='cover-block' :style="{'background-image': 'url(' + content.image + ')'}">
+      <div class='cover-block' :style="{'background-image': 'url(' + (content.image || 'http://dcdkqlzgpl5ba.cloudfront.net/file/20210730045859200-education-5923312_640.png') + ')'}">
         <div class='slide-editing-mask' v-if='(content.type === typeMap.task || content.type === typeMap.pd) && content.slideEditing'>
           <custom-button
             label='Save Slides'
@@ -12,7 +12,7 @@
             </template>
           </custom-button>
         </div>
-        <div class='bottom-action' v-show='showEdit || allowPreview'>
+        <div class='bottom-action' v-show='showEdit || allowPreview' v-if='showCoverBar'>
           <div class='bottom-action-item vertical-left' @click='editItem'>
             <div class='bottom-action-item-icon'><a-icon type="form" /></div>
             <div class='bottom-action-item-label'>Edit</div>
@@ -56,10 +56,13 @@
                 <a-icon type="edit" v-if='!visible' @click.native='showEditPrice'/>
               </div>
             </div>
+            <div class='publish-status' v-if='showPublishStatus'>
+              {{ content.status === 1 ? 'Published' : 'Unpublished' }}
+            </div>
           </div>
           <div class='extra-info'>
             <a-space>
-              <div class='info-item curriculum-info' v-show='curriculumName'>
+              <div class='info-item curriculum-info' v-show='curriculumName && content.type !== typeMap.pd'>
                 {{ curriculumName }}
               </div>
               <div class='info-item subject-info'>
@@ -134,7 +137,7 @@
               <a-avatar size="small">{{ content.createBy.toUpperCase()[0] }}</a-avatar>
             </template>
             <div class='user-name'>
-              {{ content.owner ? content.owner.nickname : content.createBy | upCaseFirst }}
+              {{ (content.owner ? (content.owner.firstname + ' ' + content.owner.lastname) : content.createBy) | upCaseFirst }}
             </div>
           </div>
         </div>
@@ -170,12 +173,11 @@
                 </template>
               </custom-button>
             </template>
-
-            <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement' v-if='showDelete'>
+            <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement' v-if='showDelete && content.owner.email === $store.getters.email'>
               <div class='more-action'>
                 <more-icon />
               </div>
-              <div class='content-item-more-action' slot='overlay'>
+              <div class='content-item-more-action' slot='overlay' v-if='showArchive'>
                 <div class='menu-item'>
                   <custom-button label='Archive' @click='handleDeleteItem'>
                     <template v-slot:icon>
@@ -183,38 +185,27 @@
                     </template>
                   </custom-button>
                 </div>
-                <div class='menu-item'>
-                  <a-popconfirm :title="'Confirm permanent delete ' +(content.name ? content.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem" cancel-text="No">
-                    <custom-button label='Delete'>
-                      <template v-slot:icon>
-                        <delete-icon style='width: 13px; height:14px'/>
-                      </template>
-                    </custom-button>
-                  </a-popconfirm>
-                </div>
               </div>
             </a-dropdown>
           </template>
 
-          <template v-if='showButton && content.delFlag'>
-            <a-space :size='30'>
-
+          <template v-if='showButton && content.delFlag && content.owner.email === $store.getters.email && allowPermanentDelete'>
+            <a-popconfirm :title="'Confirm restore ' +(content.name ? content.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleRestoreItem(content)" cancel-text="No">
+              <custom-button label='Restore'>
+                <template v-slot:icon>
+                  <edit-icon />
+                </template>
+              </custom-button>
+            </a-popconfirm>
+            <div class='menu-item'>
               <a-popconfirm :title="'Confirm permanent delete ' +(content.name ? content.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem" cancel-text="No">
                 <custom-button label='Delete'>
                   <template v-slot:icon>
-                    <delete-icon />
+                    <delete-icon style='width: 13px; height:14px'/>
                   </template>
                 </custom-button>
               </a-popconfirm>
-
-              <a-popconfirm :title="'Confirm restore ' +(content.name ? content.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleRestoreItem(content)" cancel-text="No">
-                <custom-button label='Restore'>
-                  <template v-slot:icon>
-                    <edit-icon />
-                  </template>
-                </custom-button>
-              </a-popconfirm>
-            </a-space>
+            </div>
           </template>
         </div>
       </div>
@@ -348,6 +339,26 @@ export default {
       default: true
     },
     showSetPrice: {
+      type: Boolean,
+      default: false
+    },
+    showCoverBar: {
+      type: Boolean,
+      default: true
+    },
+    allowPermanentDelete: {
+      type: Boolean,
+      default: true
+    },
+    showArchive: {
+      type: Boolean,
+      default: true
+    },
+    showRestore: {
+      type: Boolean,
+      default: false
+    },
+    showPublishStatus: {
       type: Boolean,
       default: false
     }
@@ -612,6 +623,8 @@ export default {
           .left {
             width: calc(100% - 150px);
             .type-icon {
+              min-width: 40px;
+              white-space: nowrap;
               .ant-space-item {
                 display: flex;
                 flex-direction: row;
@@ -922,8 +935,9 @@ export default {
 
 .set-price-line {
   line-height: 15px;
+  position: relative;
   .price-info {
-    padding-right: 50px;
+    position: relative;
     .price {
       cursor: pointer;
       color: #e4393c;
@@ -951,4 +965,12 @@ export default {
   }
 }
 
+.publish-status {
+  position: absolute;
+  bottom: -35px;
+  font-size: 12px;
+  color: #999;
+  cursor: pointer;
+  user-select: none;
+}
 </style>

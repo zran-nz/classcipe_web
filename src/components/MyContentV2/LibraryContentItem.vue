@@ -71,7 +71,7 @@
               <a-avatar size="small">{{ content.createBy.toUpperCase()[0] }}</a-avatar>
             </template>
             <div class='user-name'>
-              {{ content.owner ? content.owner.nickname : content.createBy | upCaseFirst }}
+              {{ (content.owner ? (content.owner.firstname + ' ' + content.owner.lastname) : content.createBy) | upCaseFirst }}
             </div>
           </div>
           <div class='update-time'>
@@ -91,6 +91,14 @@
                   :loading='copyLoading'
                   v-if='content.createBy !== $store.getters.userInfo.email'>
                   Buy now
+                </a-button>
+                <a-button
+                  type="danger"
+                  shape='round'
+                  @click='handleEditItem(content)'
+                  :loading='copyLoading'
+                  v-if='content.createBy === $store.getters.userInfo.email'>
+                  Edit
                 </a-button>
               </div>
             </a-space>
@@ -211,6 +219,30 @@ export default {
         this.buyLoading = false
         this.contentBuyStatVisible = true
       })
+    },
+
+    handleEditItem() {
+      const item = this.content
+      if (!item.canPublish) {
+        this.$classcipe.setRequiredCheck(item.id)
+      }
+      if (item.type === typeMap['unit-plan']) {
+        this.$router.push({
+          path: '/teacher/unit-plan-redirect/' + item.id
+        })
+      } else if (item.type === typeMap.task) {
+        this.$router.push({
+          path: '/teacher/task-redirect/' + item.id
+        })
+      } else if (item.type === typeMap.video) {
+        this.$router.push({
+          path: '/teacher/video-redirect/' + item.id
+        })
+      } else if (item.type === typeMap.pd) {
+        this.$router.push({
+          path: '/teacher/pd-content-redirect/' + item.id
+        })
+      }
     },
     handleEnsureBuyStat () {
       ContentGradeSave({

@@ -45,27 +45,6 @@
                 </div>
               </div>
             </div>
-            <div class='sub-right'>
-              <div class='session-date'>
-                <template v-if='!editingSessionTime'>
-                  <template v-if='session.session.sessionStartTime || session.session.deadline'>
-                    {{ session.session.sessionStartTime | dayjs }}
-                    <template v-if='session.session.sessionStartTime && session.session.deadline'> - </template>
-                    {{ session.session.deadline | dayjs }}
-                  </template>
-                  <template v-else>
-                    session start time not set
-                  </template>
-                </template>
-                <template v-if='editingSessionTime'>
-                  <a-range-picker :default-value="initDate" :disabled-date="disabledDate" @change="handleDateChange" format='YYYY-MM-DD HH:mm:ss' :show-time="{ format: 'HH:mm' }"/>
-                </template>
-                <div class='edit-icon' @click='toggleEditSessionTime'>
-                  <edit-blue-icon v-if='!editingSessionTime' />
-                  <a-icon type="check" v-if='editingSessionTime' />
-                </div>
-              </div>
-            </div>
           </div>
           <div class='subject subject-info' v-if="content" >
             <a-space>
@@ -97,8 +76,6 @@
               </div>
               <div class='content-item-more-action' slot='overlay'>
                 <div class='menu-item'>
-                  <custom-button label='Takeaways' @click='handleTakeaway'></custom-button>
-                  <custom-button label='Ask someone to teach' @click='handleCoteacher'></custom-button>
                   <custom-button label='Delete' @click='handleDeleteSession'></custom-button>
                 </div>
               </div>
@@ -109,12 +86,6 @@
                 <sub-task-icon />
               </template>
             </custom-button>
-
-            <custom-button
-              :label="'Evaluate 6/19'"
-              @click='handleSchedule'>
-            </custom-button>
-
             <custom-button v-if="session.allowEdit" label='Edit' @click='editItem'>
               <template v-slot:icon>
                 <edit-icon />

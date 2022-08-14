@@ -96,7 +96,7 @@
                       @change="handleCollaborateEvent(unitPlanId,planField.Overview,form.overview)"
                       :disabled="!canEdit"/>
                   </custom-form-item>
-                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName]'>
+                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName] && canEdit'>
                     <a-popconfirm title="Delete?" ok-text="Yes" @confirm="form[fieldItem.fieldName] = ''" cancel-text="No">
                       <delete-icon color='#F16A39' />
                     </a-popconfirm>
@@ -131,11 +131,12 @@
                     </template>
                     <custom-radio-button-group
                       :list="[ {name: 'Yes', value: 1}, {name: 'No', value: 0}]"
+                      :disabled='!canEdit'
                       :value.sync='form.projectBased'
                       @change="handleCollaborateEvent(unitPlanId,planField.ProjectBased,form.projectBased)" >
                     </custom-radio-button-group>
                   </custom-form-item>
-                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName]'>
+                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName] && canEdit'>
                     <a-popconfirm title="Delete?" ok-text="Yes" @confirm="form[fieldItem.fieldName] = null" cancel-text="No">
                       <delete-icon color='#F16A39' />
                     </a-popconfirm>
@@ -169,11 +170,12 @@
                     </template>
                     <custom-radio-button-group
                       :list="[ {name: 'Single-subject Unit', value: 0}, {name: 'Integrated Unit', value: 1}]"
+                      :disabled='!canEdit'
                       :value.sync='form.unitType'
                       @change="handleCollaborateEvent(unitPlanId,planField.UnitType,form.unitType)" >
                     </custom-radio-button-group>
                   </custom-form-item>
-                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName]'>
+                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName] && canEdit'>
                     <a-popconfirm title="Delete?" ok-text="Yes" @confirm="form[fieldItem.fieldName] = null" cancel-text="No">
                       <delete-icon color='#F16A39' />
                     </a-popconfirm>
@@ -243,7 +245,7 @@
                         v-for="(tag, tagIndex) in form.inquiryKeywords"
                         :key="'inquery_keyword_'+tagIndex"
                       >
-                        <a-tag color="#a5a5a5" :closable="true" @close="e => handleRmInquiryKey(form, 'inquiryKeywords', tagIndex)">{{ tag }}</a-tag>
+                        <a-tag color="#a5a5a5" :closable="canEdit" @close="canEdit ? e => handleRmInquiryKey(form, 'inquiryKeywords', tagIndex) : null">{{ tag }}</a-tag>
                       </div>
                     </div>
                     <div v-else style="font-size: 12px;color: #666;">No data</div>
@@ -268,7 +270,7 @@
                           :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Sdg}"
                           :field-name='planField.Sdg'
                           @switch='handleSwitchComment' />
-                        <plus-icon @click='handleAddMoreSdg'/>
+                        <plus-icon @click='handleAddMoreSdg' v-if='canEdit'/>
                       </a-space>
                     </template>
                     <template v-if='unitFieldLabel(planField.Scenarios, $store.getters.formConfigData) && unitFieldLabel(planField.Scenarios, $store.getters.formConfigData) !== unitLabelName(planField.Scenarios, $store.getters.formConfigData)' slot='tips'>
@@ -284,7 +286,7 @@
                     >
                       <!--description-->
                       <div class='scenario-description'>
-                        <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteSdg(sdgIndex)" cancel-text="No" v-show='form.scenarios.length > 1'>
+                        <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteSdg(sdgIndex)" cancel-text="No" v-show='form.scenarios.length > 1 && canEdit'>
                           <span class="delete-action" >
                             <a-icon :style="{ fontSize: '14px', color: 'red' }" type='delete' />
                           </span>
@@ -328,7 +330,7 @@
                       </div>
                     </div>
                   </custom-form-item>
-                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName] && form[fieldItem.fieldName].length'>
+                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName] && form[fieldItem.fieldName].length && canEdit'>
                     <a-popconfirm title="Delete?" ok-text="Yes" @confirm="form[fieldItem.fieldName] = []" cancel-text="No">
                       <delete-icon color='#F16A39' />
                     </a-popconfirm>
@@ -362,7 +364,7 @@
                       </a-select-option>
                     </a-select>
                   </custom-form-item>
-                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName]'>
+                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName] && canEdit'>
                     <a-popconfirm title="Delete?" ok-text="Yes" @confirm="form[fieldItem.fieldName] = ''" cancel-text="No">
                       <delete-icon color='#F16A39' />
                     </a-popconfirm>
@@ -380,7 +382,7 @@
                     </template>
                     <template slot='action'>
                       <a-space>
-                        <plus-icon @click='handleAddMoreQuestion' v-if='!$store.getters.userInfo.disableQuestion'/>
+                        <plus-icon @click='handleAddMoreQuestion' v-if='!$store.getters.userInfo.disableQuestion && !existEmptyQuestion && canEdit'/>
                         <comment-switch
                           v-show="canEdit"
                           v-if='!$store.getters.userInfo.disableQuestion'
@@ -388,7 +390,7 @@
                           :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Question}"
                           :field-name='planField.Question'
                           @switch='handleSwitchComment' />
-                        <custom-link-text text='more' :size='13' @click='questionMoreVisible=true'></custom-link-text>
+                        <custom-link-text text='more' :size='13' @click='questionMoreVisible=true' v-if='canEdit'></custom-link-text>
                       </a-space>
                     </template>
                     <template v-if='unitFieldLabel(planField.Question, $store.getters.formConfigData) && unitLabelName(planField.Question, $store.getters.formConfigData) !== unitFieldLabel(planField.Question, $store.getters.formConfigData)' slot='tips'>
@@ -426,7 +428,7 @@
                           @change="handleCollaborateEvent(unitPlanId,planField.Question,form.question)"
                           :disabled="!canEdit" />
                         <div
-                          v-if='form.questions.length > 1'
+                          v-if='form.questions.length > 1 && canEdit'
                           class='delete-icon-wrapper'
                           @click='handleRemoveQuestion(index)'>
                           <delete-icon color='#F16A39' />
@@ -448,6 +450,7 @@
                       :learning-objectives='form.learnOuts'
                       :subject-list='form.subjectList'
                       :year-list='form.yearList'
+                      :can-edit='canEdit'
                       :language-list='form.languageList' />
                   </custom-form-item>
                 </div>
@@ -489,7 +492,7 @@
 
                 <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === planField.Link' :key='fieldItem.fieldName'>
                   <div class='form-block'>
-                    <unit-linked-content :from-id='unitPlanId' @update-task-id-list='updateTaskIdList' />
+                    <unit-linked-content :can-edit='canEdit' :from-id='unitPlanId' @update-task-id-list='updateTaskIdList' />
                   </div>
                 </div>
 
@@ -506,6 +509,7 @@
                     </template>
                     <custom-image-uploader
                       :field='planField.Image'
+                      :can-edit='canEdit'
                       :content-id='unitPlanId'
                       :content-type='contentType["unit-plan"]'
                       :img-url='form.image'
@@ -576,13 +580,15 @@
                 :tag-category-desc.sync='form.tagCategoryDesc'
                 :associate-id-type-list='associateIdTypeList'
                 :priority-tags='priorityTags'
+                :disabled='!canEdit'
                 :is-load-associate-tags='true' />
             </div>
           </template>
 
           <template v-if='currentRightModule === rightModule.taskDetails'>
             <div class='task-details-panel'>
-              <Assessment-Task-Details
+              <assessment-task-details
+                :disabled='!canEdit'
                 :associate-task-list='associateTaskList'
                 @hide-assessment-task='resetRightModuleVisible()' />
             </div>
@@ -755,6 +761,8 @@
 
     <a-skeleton :loading='contentLoading' active>
     </a-skeleton>
+
+    <edit-price-dialog :content='form' ref='editPrice'/>
   </div>
 </template>
 
@@ -839,10 +847,12 @@ import CustomImageUploader from '@/components/Common/CustomImageUploader'
 import { GetTreeByKey } from '@/api/tag'
 import { deepEqual } from '@/utils/util'
 import { QueryTagsByIds } from '@/api/v2/mycontent'
+import EditPriceDialog from '@/components/MyContentV2/EditPriceDialog'
 
 export default {
   name: 'AddUnitPlan',
   components: {
+    EditPriceDialog,
     CustomTagV3,
     CustomImageUploader,
     CustomCoverMedia,
@@ -930,7 +940,7 @@ export default {
         ],
         scenarios: {
           description: '',
-          sdgId: '1',
+          sdgId: undefined,
           sdgKeyWords: [
             {
               id: '',
@@ -1130,6 +1140,9 @@ export default {
     },
     isCopyContent() {
       return !!this.form?.originalOwner
+    },
+    existEmptyQuestion() {
+      return this.form.questions.some(item => !item.name || !item.name.trim())
     }
   },
   async created() {
@@ -1272,7 +1285,7 @@ export default {
           if (unitPlanData.scenarios.length === 0) {
             unitPlanData.scenarios.push({
               description: '',
-              sdgId: '1',
+              sdgId: undefined,
               sdgKeyWords: []
             })
           } else {
@@ -1383,12 +1396,14 @@ export default {
       }
     },
     handleAddMoreQuestion() {
-      const question = {
-        id: null,
-        name: ''
+      if (!this.existEmptyQuestion) {
+        const question = {
+          id: null,
+          name: ''
+        }
+        this.$logger.info('handleAddMoreQuestion ', question)
+        this.form.questions.unshift(question)
       }
-      this.$logger.info('handleAddMoreQuestion ', question)
-      this.form.questions.push(question)
     },
     handleRemoveQuestion(index) {
       this.$logger.info('handleRemoveQuestion ', index)
@@ -1437,6 +1452,7 @@ export default {
       if (this.emptyRequiredFields.length === 0) {
         this.form.status = 1
         this.handlePublishFormItem(1)
+        this.showEditPriceDialog()
       } else {
         let requiredStepIndex = -1
         for (let i = 0; i < this.formSteps.length; i++) {
@@ -1886,6 +1902,7 @@ export default {
     updateTaskIdList (idList) {
       this.$logger.info('updateTaskIdList', idList)
       this.associateTaskIdList = idList
+      this.asyncSaveDataFn()
     },
 
     handleUpdateLearningObjectives (data) {

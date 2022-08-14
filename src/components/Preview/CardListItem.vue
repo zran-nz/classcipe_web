@@ -155,6 +155,10 @@ export default {
     height: 16px;
     display: flex;
     align-items: center;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    word-break: break-all;
     justify-content: flex-start;
   }
 }

@@ -3,9 +3,13 @@
     <div class='image-placeholder'>
       <img :src='imgUrl' v-if='imgUrl' />
       <div class='no-image' v-if='!imgUrl'>
-        <common-no-data text='Select image'></common-no-data>
+        <common-no-data text='Select image'>
+          <template v-slot:icon>
+            <empty-image />
+          </template>
+        </common-no-data>
       </div>
-      <div class='upload-mask'>
+      <div class='upload-mask' v-if='canEdit'>
         <div class='upload-btn'>
           <custom-button label='Select image' @click='visible = true' style='width: 140px;'>
             <template v-slot:icon>
@@ -65,7 +69,11 @@
         </a-col>
         <a-col :xs="12" :md="12" :style="{height: '350px'}">
           <div class="avatar-upload-preview">
-            <img :src="previews.url" :style="previews.img" crossorigin='anonymous'/>
+            <div :style="previewStyle">
+              <div :style="previews.div">
+                <img :src="previews.url" :style="previews.img">
+              </div>
+            </div>
           </div>
         </a-col>
       </a-row>
@@ -108,10 +116,11 @@ import ClasscipeDriveEvent from '@/components/ClasscipeDrive/ClasscipeDriveEvent
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import CustomLinkText from '@/components/Common/CustomLinkText'
 import { upAwsS3File } from '@/components/AddMaterial/Utils/AwsS3'
+import EmptyImage from '@/assets/v2/icons/empty_image.svg?inline'
 
 export default {
   name: 'CustomImageUploader',
-  components: { CustomLinkText, CustomTextButton, ClasscipeDrive, CommonNoData, CustomButton },
+  components: { CustomLinkText, CustomTextButton, ClasscipeDrive, CommonNoData, CustomButton, EmptyImage },
   props: {
     imgUrl: {
       type: String,
@@ -132,6 +141,10 @@ export default {
     contentType: {
       type: Number,
       default: null
+    },
+    canEdit: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -150,6 +163,7 @@ export default {
         autoCropHeight: 180,
         fixedBox: true
       },
+      previewStyle: {},
       previews: {}
     }
   },
@@ -313,6 +327,15 @@ export default {
     },
 
     realTime (data) {
+      console.log('previews', data)
+      const previews = data
+      this.previewStyle = {
+        width: previews.w + 'px',
+        height: previews.h + 'px',
+        overflow: 'hidden',
+        margin: '0',
+        zoom: 1
+      }
       this.previews = data
     },
 
@@ -327,7 +350,7 @@ export default {
 }
 </script>
 
-<style lang='less' scoped>
+<style lang="less" scoped>
 @import "~@/components/index.less";
 
 .custom-image-uploader {

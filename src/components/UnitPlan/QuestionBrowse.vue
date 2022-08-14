@@ -8,12 +8,7 @@
           <div class="row-filter">
             <div><h3>Recommended</h3></div>
             <div class="keyword-search vertical-right">
-              <a-input
-                @keyup="handleKeySearch"
-                placeholder="Search key word"
-                v-model="keywordSearchText"
-                class="my-nav-search">
-              </a-input>
+              <custom-search-input @search='handleKeySearch' @change='handleKeySearch' :placeholder="'Search key word'" />
             </div>
           </div>
 
@@ -51,10 +46,12 @@
 import { FindQuestionsByBigIdea } from '@/api/question'
 import * as logger from '@/utils/logger'
 import SousuoIconSvg from '@/assets/icons/header/sousuo.svg?inline'
+import CustomSearchInput from '@/components/Common/CustomSearchInput'
 
 export default {
   name: 'QuestionBrowse',
   components: {
+    CustomSearchInput,
     SousuoIconSvg
   },
   props: {
@@ -147,8 +144,8 @@ export default {
       this.selectQuestionList.splice(index, 1)
       this.$emit('select-question', this.selectQuestionList)
     },
-    handleKeySearch () {
-
+    handleKeySearch (word) {
+      this.keywordSearchText = word
     },
     handleScroll (direction, e) {
       // console.log('direction:', direction)

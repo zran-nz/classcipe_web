@@ -683,7 +683,6 @@ export default {
         SplitTaskField.Name,
         SplitTaskField.Image,
         SplitTaskField.Overview,
-        SplitTaskField.Question,
         SplitTaskField.GradeIds,
         SplitTaskField.SubjectIds,
         SplitTaskField.LearnOuts,

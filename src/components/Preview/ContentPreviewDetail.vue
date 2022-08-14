@@ -124,7 +124,7 @@
         >
           <div class="author-info">
             <div class="author-avatar">
-              <a-avatar size="large" style="backgroundcolor: #517f3f">{{
+              <a-avatar size="large" style="background-color: #517f3f">{{
                 (content.owner
                   ? content.owner.firstname + ' ' + content.owner.lastname
                   : content.createBy
@@ -133,11 +133,7 @@
             </div>
             <div class="author-info-detail">
               <div class="author-name">
-                {{
-                  content.owner
-                    ? content.owner.firstname + ' ' + content.owner.lastname
-                    : content.createBy
-                }}
+                {{ (content.owner ? (content.owner.firstname + ' ' + content.owner.lastname) : content.createBy) | upCaseFirst }}
               </div>
               <div class="rate-star">
                 <review-stat :contentId="contentId" @goReviews="goReviews" />
@@ -266,7 +262,7 @@
         </div>
       </template>
 
-      <template v-if="content.name && content.name.trim()">
+      <template v-if="content.name && content.name.trim() && contentType !== typeMap.pd">
         <div class='content-block'>
           <div class='content-title' :style="{'color': labelColor.name}">
             <template v-if='content.type === typeMap.task'>Title</template>
@@ -278,7 +274,7 @@
         </div>
       </template>
 
-      <template v-if="content.hasOwnProperty('videoList')">
+      <template v-if="content.hasOwnProperty('videoList') && contentType === typeMap.video">
         <div class='content-block'>
           <div class='content-title'>
             Purpose of video
@@ -290,7 +286,18 @@
         </div>
       </template>
 
-      <template v-if="content.video">
+      <template v-if="content.goals && contentType === typeMap.pd">
+        <div class='content-block'>
+          <div class='content-title'>
+            PD goals
+          </div>
+          <div class='content-detail'>
+            {{ content.goals }}
+          </div>
+        </div>
+      </template>
+
+      <template v-if="content.video && contentType !== typeMap.video">
         <div class='content-block'>
           <div class='content-title'>
             Video
@@ -351,36 +358,43 @@
           </div>
         </div>
       </template>
-
       <a-row v-if='content.yearList || content.unitType || content.projectBased' class='line-data'>
-        <a-col span='8' class='line-data-item'>
-          <div class='line-title'>
+        <div class='content-block' v-if='content.yearList.length'>
+          <div class='content-title'>
             Grade Level :
           </div>
-          <div class='line-content'>
-            <template v-if='content.yearList'>
-              {{ content.yearList.join(',') }}
-            </template>
+          <div class='content-detail'>
+            <div class='subject-list vertical-left'>
+              <template v-if='content.yearList'>
+                {{ content.yearList.join(', ') }}
+              </template>
+            </div>
           </div>
-        </a-col>
-        <a-col span='8' class='line-data-item' v-show='content.unitType !== undefined'>
-          <div class='line-title'>
+        </div>
+
+        <div class='content-block' v-show='content.unitType !== undefined'>
+          <div class='content-title'>
             Unit type :
           </div>
-          <div class='line-content'>
-            <template v-if="content.unitType === 0">Single-subject Unit</template>
-            <template v-if="content.unitType === 1">Integrated Unit</template>
+          <div class='content-detail'>
+            <div class='subject-list vertical-left'>
+              <template v-if="content.unitType === 0">Single-subject Unit</template>
+              <template v-if="content.unitType === 1">Integrated Unit</template>
+            </div>
           </div>
-        </a-col>
-        <a-col span='8' class='line-data-item' v-show='content.projectBased !== undefined'>
-          <div class='line-title'>
+        </div>
+
+        <div class='content-block' v-show='content.projectBased !== undefined'>
+          <div class='content-title'>
             Project-based Unit :
           </div>
-          <div class='line-content'>
-            <template v-if="content.projectBased === 0">No</template>
-            <template v-if="content.projectBased === 1">Yes</template>
+          <div class='content-detail'>
+            <div class='subject-list vertical-left'>
+              <template v-if="content.projectBased === 0">No</template>
+              <template v-if="content.projectBased === 1">Yes</template>
+            </div>
           </div>
-        </a-col>
+        </div>
       </a-row>
 
       <div class='line-split'></div>
@@ -483,6 +497,52 @@
         </div>
         <div class='card-list' id='taskUnit'>
           <div class="card-item" v-for="(associate, i) in associateList" :key="i" @click='handlePreviewItem(associate)'>
+            <card-list-item :content="associate" :width="16" :inner-desc="false" :outer-desc="true" />
+          </div>
+        </div>
+      </div>
+
+      <div class='card-list-wrapper' v-if="associatePdList.length">
+        <div class='card-list-title'>
+          <div class='sub-task-title'>
+            PD Content
+            ({{ associatePdList.length }})
+          </div>
+          <div class='go-to-list'>
+            <!--            <custom-link-text text='Enter' @click='goTLinkList' v-show='content.createBy === $store.getters.email'></custom-link-text>-->
+          </div>
+        </div>
+        <div class='scroll-left' @click="scrollLeft('taskUnit')">
+          <a-icon type="left-circle" :style="{fontSize: '22px', color: '#dddddd'}" />
+        </div>
+        <div class='scroll-right' @click="scrollRight('taskUnit')">
+          <a-icon type="right-circle" :style="{fontSize: '22px', color: '#dddddd'}" />
+        </div>
+        <div class='card-list' id='pd'>
+          <div class="card-item" v-for="(associate, i) in associatePdList" :key="i" @click='handlePreviewItem(associate)'>
+            <card-list-item :content="associate" :width="16" :inner-desc="false" :outer-desc="true" />
+          </div>
+        </div>
+      </div>
+
+      <div class='card-list-wrapper' v-if="associateVideoList.length">
+        <div class='card-list-title'>
+          <div class='sub-task-title'>
+            Video
+            ({{ associateVideoList.length }})
+          </div>
+          <div class='go-to-list'>
+            <!--            <custom-link-text text='Enter' @click='goTLinkList' v-show='content.createBy === $store.getters.email'></custom-link-text>-->
+          </div>
+        </div>
+        <div class='scroll-left' @click="scrollLeft('taskUnit')">
+          <a-icon type="left-circle" :style="{fontSize: '22px', color: '#dddddd'}" />
+        </div>
+        <div class='scroll-right' @click="scrollRight('taskUnit')">
+          <a-icon type="right-circle" :style="{fontSize: '22px', color: '#dddddd'}" />
+        </div>
+        <div class='card-list' id='video'>
+          <div class="card-item" v-for="(associate, i) in associateVideoList" :key="i" @click='handlePreviewItem(associate)'>
             <card-list-item :content="associate" :width="16" :inner-desc="false" :outer-desc="true" />
           </div>
         </div>
@@ -666,6 +726,8 @@ export default {
       videoList: [],
 
       associateList: [],
+      associatePdList: [],
+      associateVideoList: [],
       favoriteFlag: false,
 
       typeMap: this.$classcipe.typeMap,
@@ -924,6 +986,14 @@ export default {
 
             if (content.type === this.$classcipe.typeMap['unit-plan']) {
               this.associateList.push(content)
+            }
+
+            if (content.type === this.$classcipe.typeMap.pd) {
+              this.associatePdList.push(content)
+            }
+
+            if (content.type === this.$classcipe.typeMap.video) {
+              this.associateVideoList.push(content)
             }
           })
         })

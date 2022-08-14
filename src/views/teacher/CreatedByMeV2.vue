@@ -21,6 +21,9 @@
               v-for='item in myContentList'
               :key='item.id'
               :content='item'
+              :show-archive='shareType !== SourceType.Archived'
+              :show-cover-bar='shareType !== SourceType.Archived'
+              :allow-permanent-delete='shareType === SourceType.Archived'
               @delete='handleDeleteItem'
               @update-list='updateList'
               @update-publish='handleShowContentPublish'
@@ -125,7 +128,9 @@ export default {
       contentType: typeMap,
       // contentPublishVisible: false,
       currentContent: null,
-      publishLoading: false
+      publishLoading: false,
+      shareType: SourceType.CreatedByMe,
+      SourceType: SourceType
     }
   },
   computed: {
@@ -175,6 +180,7 @@ export default {
       this.$logger.info('loadMyContent filterParams', this.filterParams)
       this.loading = true
       const shareType = sessionStorage.getItem(SESSION_SHARE_TYPE) ? parseInt(sessionStorage.getItem(SESSION_SHARE_TYPE)) : SourceType.CreatedByMe
+      this.shareType = shareType
       let params = {
         shareType: shareType,
         pageNo: this.pageNo,

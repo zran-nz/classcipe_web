@@ -9,6 +9,7 @@
               :getPopupContainer="trigger => trigger.parentElement"
               placeholder='Curriculum'
               @select='handleSelectCurriculum'
+              :disabled='!canEdit'
               class='cc-select cc-lo-select-mid'>
               <a-select-option :value='item.id' v-for='(item, index) in curriculumOptions' :key='index'>
                 {{ item.name }}
@@ -16,7 +17,7 @@
             </a-select>
             <div class='selected-label' v-if='selectedCurriculumName'>
               <div class='selected-label-item'>
-                <a-tag closable class='label-curriculum' @close="handleResetCurriculum(selectedCurriculumName)">
+                <a-tag :closable='canEdit' class='label-curriculum' @close="canEdit ? handleResetCurriculum(selectedCurriculumName) : null">
                   <div class='tag-content'>{{ selectedCurriculumName }}</div>
                 </a-tag>
               </div>
@@ -28,6 +29,7 @@
               :getPopupContainer="trigger => trigger.parentElement"
               v-model='selectedYear'
               placeholder='Grade'
+              :disabled='!canEdit'
               @select='handleSelectYear'
               class='cc-select cc-lo-select-small'>
               <a-select-option :value='year' v-for='year in yearOptions' :key='year'>
@@ -39,7 +41,7 @@
                 class='selected-label-item'
                 v-for='year in filterConfig.selectedYearList'
                 :key='year'>
-                <a-tag closable class='label-year' @close="handleRemoveYear(year)">
+                <a-tag :closable='canEdit' class='label-year' @close="canEdit ? handleRemoveYear(year) : null">
                   <div class='tag-content'>{{ year }}</div>
                 </a-tag>
               </div>
@@ -51,6 +53,7 @@
               :getPopupContainer="trigger => trigger.parentElement"
               v-model='selectedSubject'
               placeholder='Subject'
+              :disabled='!canEdit'
               @select='handleSelectSubject'
               class='cc-select cc-lo-select'>
               <a-select-option :value='subjectName' v-for='subjectName in subjectOptions' :key='subjectName'>
@@ -62,7 +65,7 @@
                 class='selected-label-item'
                 v-for='subjectName in filterConfig.selectedSubjectList'
                 :key='subjectName'>
-                <a-tag closable class='label-subject' @close="handleRemoveSubject(subjectName)">
+                <a-tag :closable='canEdit' class='label-subject' @close="canEdit ? handleRemoveSubject(subjectName) : null">
                   <div class='tag-content'>{{ subjectName }}</div>
                 </a-tag>
               </div>
@@ -73,6 +76,7 @@
               :getPopupContainer="trigger => trigger.parentElement"
               v-model='selectedLanguage'
               placeholder='Language'
+              :disabled='!canEdit'
               @select='handleSelectLanguage'
               class='cc-select cc-lo-select-small'>
               <a-select-option :value='language' v-for='language in languageOptions' :key='language'>
@@ -84,7 +88,7 @@
                 class='selected-label-item'
                 v-for='language in filterConfig.selectedLanguageList'
                 :key='language'>
-                <a-tag closable class='label-language' @close="handleRemoveLanguage(language)">
+                <a-tag :closable='canEdit' class='label-language' @close="canEdit ? handleRemoveLanguage(language) : null">
                   <div class='tag-content'>{{ language }}</div>
                 </a-tag>
               </div>
@@ -93,7 +97,7 @@
         </div>
         <div class='recommend-button'>
           <a-badge dot v-if='recommendDataList.length'>
-            <custom-text-button label='Recommend' @click='showRecommend'>
+            <custom-text-button label='Recommend' @click='canEdit ? showRecommend : null'>
               <template v-slot:icon>
                 <a-icon type='plus-circle' />
               </template>
@@ -107,9 +111,9 @@
           Subject Learning Objectives
         </div>
         <div class='cc-lo-input'>
-          <a-input v-model='filterConfig.keyword' @click.native.stop='showFilterList = true' placeholder='Search learning objectives' class='cc-form-input' />
+          <a-input v-model='filterConfig.keyword' @click.native.stop='showFilterList = true' placeholder='Search learning objectives' class='cc-form-input' :disabled='!canEdit'/>
           <div class='filter-list' v-show='showFilterList && filterList.length' @click.stop=''>
-            <div class='filter-item' v-for='(item, idx) in filterList' :key='idx' @click='handleSelectItem(item)'>
+            <div class='filter-item' v-for='(item, idx) in filterList' :key='idx' @click='canEdit ? handleSelectItem(item) : null'>
               <div class='item-desc' v-html='item.html'></div>
               <div class='item-subject-year'>
                 <div class='item-sub-title' :title='item.path && item.path[0]'>{{ item.path && item.path[0] }}</div>
@@ -118,7 +122,7 @@
             </div>
           </div>
           <div class='create-item' v-show='showFilterList && !filterList.length && filterConfig.keyword.trim().length'>
-            <a-button type='primary' size="small" @click='handleEnsureInput'><a-icon type='plus' /> Create</a-button>
+            <a-button type='primary' size="small" @click='canEdit ? handleEnsureInput : null'><a-icon type='plus' /> Create</a-button>
           </div>
         </div>
       </div>
@@ -136,7 +140,7 @@
                 <div class='item-sub-title' :title='item.path && item.path[yearIndex]'>{{ item.path && item.path[yearIndex] }}</div>
               </div>
 
-              <div class='delete-wrapper'>
+              <div class='delete-wrapper' v-if='canEdit'>
                 <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDelete(item)" cancel-text="No">
                   <delete-icon color='#F16A39' />
                 </a-popconfirm>
@@ -145,11 +149,11 @@
             <div class="item-bloom-wrapper">
               <div class="bloom-wrapper">
                 <label for="">Bloom's Taxonomy:</label>
-                <rate-level @change="val => handleChangeLevel(val, item)" :bloom="item.bloomTag || ''"/>
+                <rate-level @change="canEdit ? val => handleChangeLevel(val, item) : null" :bloom="item.bloomTag || ''"/>
               </div>
               <div class="bloom-wrapper">
                 <label for="">Knowledge Dimensions:</label>
-                <rate-level @change="val => handleChangeLevel(val, item)" :knowledge="item.knowledgeDimension || ''" />
+                <rate-level @change="canEdit ? val => handleChangeLevel(val, item) : null" :knowledge="item.knowledgeDimension || ''" />
               </div>
             </div>
             <div class="item-command-wrapper" v-if="item.commandTerms && item.commandTerms.length > 0">
@@ -159,7 +163,7 @@
                   class='wrapper-list-item'
                   v-for='(terms, termIndex) in item.commandTerms'
                   :key='terms.name'>
-                  <a-tag closable class='command-tag' @close="e => handleCloseObjectiveTag(item, 'commandTerms', termIndex)">
+                  <a-tag :closable='canEdit' class='command-tag' @close="canEdit ? e => handleCloseObjectiveTag(item, 'commandTerms', termIndex) : null">
                     <div class='tag-content'>{{ terms.name }}</div>
                   </a-tag>
                 </div>
@@ -172,7 +176,7 @@
                   class='wrapper-list-item'
                   v-for='(terms, termIndex) in item.knowledgeTags'
                   :key='terms.name'>
-                  <a-tag closable class='command-tag knowledge' @close="e => handleCloseObjectiveTag(item, 'knowledgeTags', termIndex)" >
+                  <a-tag :closable='canEdit' class='command-tag knowledge' @close="e => handleCloseObjectiveTag(item, 'knowledgeTags', termIndex)" >
                     <div class='tag-content'>{{ terms.name }}</div>
                   </a-tag>
                 </div>
@@ -180,41 +184,41 @@
             </div>
           </div>
           <div class='cc-right-general-capabilities'>
-            <div class='cc-right-general-capabilities-title'>
-              <custom-text-button label='Select 21st century skills'>
-                <template v-slot:icon>
-                  <a-icon type='plus-circle' />
-                </template>
-                <template v-slot:badge>
-                  <a-tooltip
-                    title="The 21st century skills you selected will be marked according to the subject strands' grading standards and presented on students' report">
-                    <a-icon type="question-circle" theme="filled" :style="{ fontSize: '16px', color: '#EB5062' }"/>
-                  </a-tooltip>
-                </template>
-              </custom-text-button>
-              <a-cascader :options="generalCapabilitiesData" @change="handleSelectGeneralCapability(item, arguments)" class='cc-gc-cascader' />
-            </div>
-            <div class='cc-right-general-capabilities-content'>
-              <div class='capability-item' v-for='(capability, sIdx) in item.generalCapabilities' :key='sIdx'>
-                <div class='capability-item-tag'>
-                  <div class='tag-icon'>
-                    <a-icon type="tag" />
-                  </div>
-                  <div class='item-tag-name' v-for='(path, pIdx) in capability.path' :key='path' :title='path'>
-                    <template v-if='pIdx < capability.path.length && pIdx > 0'> / </template>
-                    {{ path }}
-                  </div>
-                </div>
-                <div class='capability-item-content'>
-                  {{ capability.desc }}
-                  <div class='delete-wrapper'>
-                    <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteCapability(item, capability)" cancel-text="No">
-                      <delete-icon color='#F16A39' />
-                    </a-popconfirm>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <!--            <div class='cc-right-general-capabilities-title'>-->
+            <!--              <custom-text-button label='Select 21st century skills'>-->
+            <!--                <template v-slot:icon>-->
+            <!--                  <a-icon type='plus-circle' />-->
+            <!--                </template>-->
+            <!--                <template v-slot:badge>-->
+            <!--                  <a-tooltip-->
+            <!--                    title="The 21st century skills you selected will be marked according to the subject strands' grading standards and presented on students' report">-->
+            <!--                    <a-icon type="question-circle" theme="filled" :style="{ fontSize: '16px', color: '#EB5062' }"/>-->
+            <!--                  </a-tooltip>-->
+            <!--                </template>-->
+            <!--              </custom-text-button>-->
+            <!--              <a-cascader :options="generalCapabilitiesData" @change="handleSelectGeneralCapability(item, arguments)" class='cc-gc-cascader' />-->
+            <!--            </div>-->
+            <!--            <div class='cc-right-general-capabilities-content'>-->
+            <!--              <div class='capability-item' v-for='(capability, sIdx) in item.generalCapabilities' :key='sIdx'>-->
+            <!--                <div class='capability-item-tag'>-->
+            <!--                  <div class='tag-icon'>-->
+            <!--                    <a-icon type="tag" />-->
+            <!--                  </div>-->
+            <!--                  <div class='item-tag-name' v-for='(path, pIdx) in capability.path' :key='path' :title='path'>-->
+            <!--                    <template v-if='pIdx < capability.path.length && pIdx > 0'> / </template>-->
+            <!--                    {{ path }}-->
+            <!--                  </div>-->
+            <!--                </div>-->
+            <!--                <div class='capability-item-content'>-->
+            <!--                  {{ capability.desc }}-->
+            <!--                  <div class='delete-wrapper'>-->
+            <!--                    <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteCapability(item, capability)" cancel-text="No">-->
+            <!--                      <delete-icon color='#F16A39' />-->
+            <!--                    </a-popconfirm>-->
+            <!--                  </div>-->
+            <!--                </div>-->
+            <!--              </div>-->
+            <!--            </div>-->
           </div>
         </div>
       </div>
@@ -367,6 +371,10 @@ export default {
     recommendDataList: {
       type: Array,
       default: () => []
+    },
+    canEdit: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -443,7 +451,6 @@ export default {
       }
     },
     'filterConfig.curriculumId': {
-      immediate: true,
       async handler(curriculumId) {
         console.log('curriculumId change', curriculumId)
         if (curriculumId) {
@@ -501,7 +508,7 @@ export default {
   },
   created() {
     this.loading = true
-    this.$logger.info('LearningObjective subjectList', this.subjectList)
+    this.$logger.info('LearningObjective subjectList', this.subjectList, 'yearList', this.yearList, 'languageList', this.languageList, 'learningObjectives', this.learningObjectives)
     this.asyncEmitUpdateEventFn = debounce(this.emitUpdateEvent, 1000)
     this.asyncUpdateFilterListFn = debounce(this.updateFilterList, 1000)
     if (this.curriculumId) {
@@ -540,6 +547,12 @@ export default {
         let list = response.result
         if (this.userMode === USER_MODE.SCHOOL) {
           list = this.$store.getters.bindCurriculum ? list.filter(item => item.id === this.$store.getters.bindCurriculum) : []
+        }
+        this.$logger.info('filter ib ibAuth', this.$store.state.classcipeConfig.ibAuth)
+        if (!this.$store.state.classcipeConfig.ibAuth) {
+          this.$logger.info('bf filter ib', list)
+          list = list.filter(item => item.name.indexOf('IB') === -1)
+          this.$logger.info('filter ib', list)
         }
         this.curriculumOptions = list
         this.filterConfig.curriculumId = this.curriculumOptions[0].id
@@ -863,7 +876,8 @@ export default {
 .learning-objective {
 
   .half-body-content {
-    width: 50%;
+    width: 60%;
+    min-width: 710px;
     .cc-lo-header {
       display: flex;
       flex-direction: row;
@@ -1033,7 +1047,8 @@ export default {
         align-items: flex-start;
         margin-bottom: 10px;
         .cc-left-lo {
-          width: 50%;
+          width: 75%;
+          min-width: 710px;
           position: relative;
           display: flex;
           flex-direction: column;

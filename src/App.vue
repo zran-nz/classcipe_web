@@ -6,6 +6,9 @@
       <feedback v-if="showFeedback" />
       <div id='global-loading' v-show='globalLoading'>
         <div class='loading-gif'>
+          <div class='loading-tips'>
+            Please wait, we are taking you to Google slides...
+          </div>
           <img src='~@/assets/icons/loading1.gif' />
         </div>
       </div>
@@ -20,9 +23,10 @@ import { i18nRender } from '@/locales'
 import Feedback from '@/components/Feedback/Feedback'
 import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
 import enquireScreen from '@/utils/device'
-import { mapGetters, mapMutations } from 'vuex'
+import { mapGetters, mapMutations, mapState } from 'vuex'
 import { ACCESS_TOKEN, TOGGLE_DEVICE } from './store/mutation-types'
 import storage from 'store'
+import { USER_MODE } from '@/const/common'
 
 export default {
   components: { Feedback },
@@ -48,7 +52,10 @@ export default {
       const noshowPage3 = window.location.href.indexOf('/h5/') === -1
       return noshowPage && noshowPage2 && noshowPage3
     },
-    ...mapGetters(['globalLoading'])
+    ...mapGetters(['globalLoading']),
+    ...mapState({
+      userMode: state => state.app.userMode
+    })
   },
   watch: {
     '$store.getters.bindCurriculum': function(newValue) {
@@ -70,7 +77,8 @@ export default {
       if (newValue) {
         this.$store.dispatch('initSubjectGradeData', {
           schoolId: newValue,
-          bindCurriculumId: this.$store.getters.bindCurriculum
+          bindCurriculumId: this.$store.getters.bindCurriculum,
+          applyType: this.userMode === USER_MODE.SCHOOL ? 1 : 2
         })
       }
     }
@@ -154,9 +162,16 @@ export default {
   align-items: center;
   background-color: #fff;
   .loading-gif {
+    text-align: center;
     img {
       width: 250px;
     }
+  }
+
+  .loading-tips {
+    font-size: 20px;
+    color: #aaa;
+    padding: 10px 0;
   }
 }
 

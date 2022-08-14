@@ -1,6 +1,6 @@
 <template>
   <div class='unit-linked-content'>
-    <div class='header-action'>
+    <div class='header-action' v-if='canEdit'>
       <a-space>
         <custom-text-button label='Add new task' @click='handleAddNew'>
           <template v-slot:icon>
@@ -44,7 +44,7 @@
             :move='handleOnMve'
             @add="handleDragContent($event, groupItem)">
             <div class='linked-item' v-for='content in groupItem.contents' :key='content.id' :data-item='JSON.stringify(content)' :data-inner='true'>
-              <link-content-item :content='content' :show-delete='true' @delete='handleDeleteLinkItem' />
+              <link-content-item :content='content' :show-delete='canEdit' @delete='handleDeleteLinkItem' />
             </div>
             <template v-if='allEmpty'>
               <div class='no-linked-data'>
@@ -61,7 +61,7 @@
       </draggable>
     </div>
 
-    <linked-category v-if='addCategoryVisible' @close='addCategoryVisible = false' @confirm='handleConfirmAddCategory'/>
+    <linked-category v-if='addCategoryVisible && canEdit' @close='addCategoryVisible = false' @confirm='handleConfirmAddCategory'/>
   </div>
 </template>
 
