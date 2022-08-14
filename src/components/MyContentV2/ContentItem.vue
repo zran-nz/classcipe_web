@@ -190,7 +190,7 @@
           </template>
 
           <template v-if='showButton && content.delFlag && content.owner.email === $store.getters.email && allowPermanentDelete'>
-            <a-popconfirm :title="'Confirm restore ' +(content.name ? content.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleRestoreItem(content)" cancel-text="No">
+            <a-popconfirm placement="topRight" :title="'Confirm restore ' +(content.name ? content.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleRestoreItem(content)" cancel-text="No">
               <custom-button label='Restore'>
                 <template v-slot:icon>
                   <edit-icon />
@@ -198,7 +198,12 @@
               </custom-button>
             </a-popconfirm>
             <div class='menu-item'>
-              <a-popconfirm :title="'Confirm permanent delete ' +(content.name ? content.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem" cancel-text="No">
+              <a-popconfirm placement="topRight" ok-text="Yes" @confirm="handlePermanentDeleteItem" cancel-text="No">
+                <template v-slot:title>
+                  Confirm to delete the content <br/>
+                  permanently, you will not be able to <br/>
+                  retrieve it in future.
+                </template>
                 <custom-button label='Delete'>
                   <template v-slot:icon>
                     <delete-icon style='width: 13px; height:14px'/>
