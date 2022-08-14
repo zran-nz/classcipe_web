@@ -8,8 +8,6 @@
           :img="options.img"
           :info="true"
           :autoCrop="options.autoCrop"
-          :autoCropWidth="options.autoCropWidth"
-          :autoCropHeight="options.autoCropHeight"
           :fixedNumber='[16, 9]'
           :fixed='true'
           :fixedBox="options.fixedBox"
@@ -80,7 +78,7 @@ export default {
         autoCrop: true,
         autoCropWidth: 320,
         autoCropHeight: 180,
-        fixedBox: false
+        fixedBox: true
       },
       previews: {}
     }
