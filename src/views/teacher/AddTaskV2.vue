@@ -226,6 +226,7 @@
                     </template>
                     <learning-objective
                       @change='handleUpdateLearningObjectives'
+                      :can-edit='canEdit'
                       :recommend-data-list='recommendData'
                       :curriculumId='form.curriculumId'
                       :learning-objectives='form.learnOuts'

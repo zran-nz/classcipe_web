@@ -149,11 +149,11 @@
             <div class="item-bloom-wrapper">
               <div class="bloom-wrapper">
                 <label for="">Bloom's Taxonomy:</label>
-                <rate-level @change="canEdit ? val => handleChangeLevel(val, item) : null" :bloom="item.bloomTag || ''"/>
+                <rate-level @change="val => handleChangeLevel(val, item)" :bloom="item.bloomTag || ''"/>
               </div>
               <div class="bloom-wrapper">
                 <label for="">Knowledge Dimensions:</label>
-                <rate-level @change="canEdit ? val => handleChangeLevel(val, item) : null" :knowledge="item.knowledgeDimension || ''" />
+                <rate-level @change="val => handleChangeLevel(val, item)" :knowledge="item.knowledgeDimension || ''" />
               </div>
             </div>
             <div class="item-command-wrapper" v-if="item.commandTerms && item.commandTerms.length > 0">
@@ -163,7 +163,7 @@
                   class='wrapper-list-item'
                   v-for='(terms, termIndex) in item.commandTerms'
                   :key='terms.name'>
-                  <a-tag :closable='canEdit' class='command-tag' @close="canEdit ? e => handleCloseObjectiveTag(item, 'commandTerms', termIndex) : null">
+                  <a-tag :closable='canEdit' class='command-tag' @close="e => handleCloseObjectiveTag(item, 'commandTerms', termIndex)">
                     <div class='tag-content'>{{ terms.name }}</div>
                   </a-tag>
                 </div>
@@ -733,23 +733,25 @@ export default {
 
     handleChangeLevel(val, tag) {
       console.log(val, tag)
-      if (val) {
-        const origin = tag[val.type]
-        const originLevel = this.getLevel(val.type, origin)
-        tag[val.type] = val.title
-        this.$set(tag, val.type, val.title)
-        this.$forceUpdate()
-        // 上报
-        if (tag.id) {
-          const currentLevel = this.getLevel(val.type, val.title)
-          const params = {
-            [`bloom.${currentLevel - 1}`]: 1
+      if (this.canEdit) {
+        if (val) {
+          const origin = tag[val.type]
+          const originLevel = this.getLevel(val.type, origin)
+          tag[val.type] = val.title
+          this.$set(tag, val.type, val.title)
+          this.$forceUpdate()
+          // 上报
+          if (tag.id) {
+            const currentLevel = this.getLevel(val.type, val.title)
+            const params = {
+              [`bloom.${currentLevel - 1}`]: 1
+            }
+            if (originLevel > 0) {
+              params[`bloom.${originLevel - 1}`] = -1
+            }
+            console.log(params)
+            incBloom(tag.id, params)
           }
-          if (originLevel > 0) {
-            params[`bloom.${originLevel - 1}`] = -1
-          }
-          console.log(params)
-          incBloom(tag.id, params)
         }
       }
     },
@@ -784,9 +786,11 @@ export default {
     },
 
     handleCloseObjectiveTag(item, key, tagIndex) {
-      item[key].splice(tagIndex, 1)
-      console.log(item)
-      this.$forceUpdate()
+      if (this.canEdit) {
+        item[key].splice(tagIndex, 1)
+        console.log(item)
+        this.$forceUpdate()
+      }
     },
 
     hideQuickWord() {
