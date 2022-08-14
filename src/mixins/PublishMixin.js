@@ -64,7 +64,7 @@ export const PublishMixin = {
       // 给有未填写字段的step添加红色提示
       let showRequiredTips = false
       this.requiredFields.forEach(field => {
-        if (field === TaskField.Slides || field === PdField.Slides) {
+        if (field === TaskField.Slides || field === PdField.Slides || field === PdField.Slides) {
           if (!this.form.presentationId || this.form.presentationId.indexOf('fake_buy') !== -1 || !this.form.pageObjects?.length) {
             this.emptyRequiredFields.push(field)
             this.formSteps.forEach(step => {
@@ -194,7 +194,7 @@ export const PublishMixin = {
         step.showSatisfiedTips = false
       })
       this.requiredFields.forEach(field => {
-        if (field === TaskField.Slides || field === PdField.Slides) {
+        if (field === TaskField.Slides || field === PdField.Slides || field === PdField.Slides) {
           if (!this.form.presentationId || this.form.presentationId.indexOf('fake_buy') !== -1 || !this.form.pageObjects?.length) {
             this.emptyRequiredFields.push(field)
             this.formSteps.forEach(step => {

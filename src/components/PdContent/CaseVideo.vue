@@ -5,13 +5,13 @@
         <classcipe-drive-button
           :field='field'
           ref='drive'
-          :content-type="contentType + ''"
+          :content-type="parseInt(contentType)"
           :content-id="contentId + ''"
           filter-file-type='video'
           :max-selected-num='5' />
         <screen-capture
           :field='field'
-          :content-type="contentType + ''"
+          :content-type="parseInt(contentType)"
           :content-id="contentId + ''"
           @capture-done='handleCapturedVideoData'/>
       </a-space>

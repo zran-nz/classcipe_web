@@ -1,5 +1,5 @@
 <template>
-  <div class='custom-cover-media' :style="{ width: width, height: height, outline: showMaskSelected ? '2px solid #15C39A' : 'none' }">
+  <div class='custom-cover-media' :style="{ width: width, height: height, outline: showMaskSelected ? '2px solid #15C39A' : 'none' }" :data-url='mediaUrl' :data-type='mediaType'>
     <div class='uploaded-cover' v-if="mediaType === 'image' && mediaUrl">
       <div class='img-cover' :style="{backgroundImage: 'url(' + mediaUrl + ')' }" :data-mediaUrl='mediaUrl'></div>
       <div class='media-info'>
@@ -11,8 +11,13 @@
         </div>
       </div>
     </div>
-    <div class='upload-text' v-if="mediaType === 'video' && mediaUrl">
-      <video :src='mediaUrl' :controls='videoControls'></video>
+    <div class='upload-text' v-if="mediaType !== 'image' && mediaUrl">
+      <template v-if='isYoutubeIframeUrl'>
+        <iframe :src='mediaUrl' class='youtube-video-img'/>
+      </template>
+      <template v-else>
+        <video :src='mediaUrl' :controls='videoControls' :style="{width: width}"></video>
+      </template>
       <div class='media-info'>
         <div class='media-title'>
           {{ mediaTitle }}
@@ -81,6 +86,11 @@ export default {
       default: false
     }
   },
+  computed: {
+    isYoutubeIframeUrl() {
+      return this.mediaUrl && this.mediaUrl.indexOf('youtube.com/embed') !== -1
+    }
+  },
   methods: {
     handleSelectItem() {
       this.$emit('click', this.mediaItem)
@@ -95,6 +105,7 @@ export default {
 .custom-cover-media {
   border-radius: 4px;
   border: 1px solid #E1E1E1;
+  overflow: hidden;
   box-shadow: 0 1px 2px 0 rgba(65, 65, 65, 0.07);
   position: relative;
 
@@ -182,7 +193,7 @@ export default {
 .upload-text {
   height: 100%;
 
-  video {
+  video, iframe {
     width: 100%;
     height: calc(100% - 50px);
   }
