@@ -123,7 +123,7 @@ export const PublishMixin = {
                   showRequiredTips = true
                 }
               })
-            } else if (this.form.questions.length === 1 && !this.form.questions[0].name){
+            } else if (this.form.questions.length === 1 && !this.form.questions[0].name) {
               console.log('questions name is empty')
               this.emptyRequiredFields.push(field)
               this.formSteps.forEach(step => {
@@ -250,7 +250,7 @@ export const PublishMixin = {
                   step.showSatisfiedTips = false
                 }
               })
-            } else if (this.form.questions.length === 1 && !this.form.questions[0].name){
+            } else if (this.form.questions.length === 1 && !this.form.questions[0].name) {
               console.log('questions name is empty')
               this.emptyRequiredFields.push(field)
               this.formSteps.forEach(step => {

@@ -132,6 +132,7 @@ export default {
     },
 
     handleDeleteVideo (item) {
+      this.$logger.info('case video handleDeleteVideo', item)
       this.$emit('delete-video', item)
     }
   }
