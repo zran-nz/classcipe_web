@@ -31,13 +31,8 @@
           :sort='false'
           group="content-item"
         >
-          <div v-for='(item) in myContentList' :key='item.id' :class="{'selected-item': selectedIdList.indexOf(item.id) !== -1}" class="group-link-item" :data-item='JSON.stringify(item)'>
-            <div class='item-checked-icon'>
-              <template v-if="selectedIdList.indexOf(item.id) !== -1">
-                <img src="~@/assets/icons/lesson/selected.png" />
-              </template>
-            </div>
-            <link-content-item :content='item' style='width: 100%' @preview='handleViewDetail' />
+          <div v-for='(item) in myContentList' :key='item.id' class="group-link-item" :data-item='JSON.stringify(item)'>
+            <link-content-item :show-delete='false' :content='item' style='width: 100%' @preview='handleViewDetail' />
           </div>
           <template v-if='myContentList.length === 0'>
             <div class='empty-content-list'>
@@ -92,7 +87,7 @@ export default {
         total: 0,
         pageSize: 1000
       },
-      myContentList: [],
+      contentList: [],
       previewVisible: false,
       previewCurrentId: '',
       previewType: '',
@@ -102,7 +97,10 @@ export default {
   computed: {
     ...mapState({
       currentSchool: state => state.user.currentSchool
-    })
+    }),
+    myContentList({ contentList, selectedIdList }) {
+      return contentList.filter(item => selectedIdList.indexOf(item.id) === -1)
+    }
   },
   watch: {
     selectedIdList(newVal) {
@@ -132,12 +130,12 @@ export default {
     },
     searchContent(data) {
       this.pageNo = 0
-      this.myContentList = []
+      this.contentList = []
       this.loadContent(data)
     },
     searchLibrary (data) {
       this.pageNo = 0
-      this.myContentList = []
+      this.contentList = []
       this.loadLibrary(data)
     },
     loadContent (data) {
@@ -154,7 +152,7 @@ export default {
             record.key = index
             record.isNoLinkedContent = true
           })
-          this.myContentList = res.result.records
+          this.contentList = res.result.records
           this.pagination.total = res.result.total
           this.pagination.current = res.result.current
           if (res.result.records.length === 0 && this.pagination.total > 0) {
@@ -162,10 +160,10 @@ export default {
             this.loadContent()
           }
         } else {
-          this.myContentList = []
+          this.contentList = []
           this.pagination.total = 0
         }
-        this.$logger.info('loadContent myContentList', this.myContentList)
+        this.$logger.info('loadContent contentList', this.contentList)
       }).finally(() => {
         this.searching = false
       })
@@ -175,7 +173,7 @@ export default {
       data.type = this.filterTypes
       QueryContentsFilter(data).then(response => {
         if (response.result) {
-          this.myContentList = response.result
+          this.contentList = response.result
         }
       }).finally(() => {
         this.searching = false
