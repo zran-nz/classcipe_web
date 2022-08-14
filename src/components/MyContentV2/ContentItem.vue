@@ -155,6 +155,17 @@
               </template>
             </custom-button>
 
+            <custom-button
+              label='Public Workshop'
+              :disabled='!content.canPublish'
+              :disabled-tooltip="'Please complete the information'"
+              v-if='showSchedule && (content.type === typeMap.task || content.type === typeMap.pd)'
+              @click='handlePublicWorkshopSchedule'>
+              <template v-slot:icon>
+                <schedule-icon style='width: 13px; height:14px' />
+              </template>
+            </custom-button>
+
             <template v-if="showPublish && !content.sourceFrom">
               <custom-button
                 :disabled='!content.canPublish'
@@ -431,9 +442,23 @@ export default {
     },
 
     handleSchedule() {
-      if (this.content.pageObjects.length) {
+      if (this.content.pageObjects.length && this.form.presentationId && !this.form.presentationId.startsWith('fake_buy_')) {
         this.$router.push({
           path: '/teacher/schedule-session/' + this.content.id + '/' + this.content.type
+        })
+      } else {
+        this.$confirm({
+          title: 'Warning',
+          content: 'This task/PD content can not be scheduled without interactive slides, please edit google slides first before scheduling.'
+        })
+      }
+    },
+
+    handlePublicWorkshopSchedule () {
+      this.$logger.info('handlePublicWorkshopSchedule', this.content)
+      if (this.content.pageObjects.length && this.form.presentationId && !this.form.presentationId.startsWith('fake_buy_')) {
+        this.$router.push({
+          path: '/teacher/schedule-workshop/' + this.content.id + '/' + this.content.type
         })
       } else {
         this.$confirm({
