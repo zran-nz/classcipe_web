@@ -100,8 +100,9 @@ export const PublishMixin = {
             })
           }
         } else if (field === 'questions') {
-          if (!this.form.questionIds?.length && !this.form.questions?.length) {
-            console.log('questions is empty')
+          console.log('questions is ', this.form.questionIds, this.form.questions)
+          if (this.form.hasOwnProperty('questionIds') && this.form.questionIds.length === 0) {
+            console.log('questions questionIds is empty')
             this.emptyRequiredFields.push(field)
             this.formSteps.forEach(step => {
               if (step.commonFields.indexOf(field) > -1) {
@@ -110,6 +111,27 @@ export const PublishMixin = {
                 showRequiredTips = true
               }
             })
+          } else if (this.form.hasOwnProperty('questions')) {
+            console.log('questions test ', this.form.questions)
+            if (this.form.questions.length === 0) {
+              console.log('questions is empty')
+              this.emptyRequiredFields.push(field)
+              this.formSteps.forEach(step => {
+                if (step.commonFields.indexOf(field) > -1) {
+                  step.showRequiredTips = true
+                  step.showSatisfiedTips = false
+                }
+              })
+            } else if (this.form.questions.length === 1 && !this.form.questions[0].name){
+              console.log('questions name is empty')
+              this.emptyRequiredFields.push(field)
+              this.formSteps.forEach(step => {
+                if (step.commonFields.indexOf(field) > -1) {
+                  step.showRequiredTips = true
+                  step.showSatisfiedTips = false
+                }
+              })
+            }
           }
         } else {
           if (simpleIsEmpty(this.form[field])) {
@@ -205,8 +227,9 @@ export const PublishMixin = {
             })
           }
         } else if (field === 'questions') {
-          if (!this.form.questionIds?.length && !this.form.questions?.length) {
-            console.log('questions is empty', this.form.questionIds, this.form.questions)
+          console.log('questions is ', this.form.questionIds, this.form.questions)
+          if (this.form.hasOwnProperty('questionIds') && this.form.questionIds.length === 0) {
+            console.log('questions questionIds is empty')
             this.emptyRequiredFields.push(field)
             this.formSteps.forEach(step => {
               if (step.commonFields.indexOf(field) > -1) {
@@ -214,6 +237,27 @@ export const PublishMixin = {
                 step.showSatisfiedTips = false
               }
             })
+          } else if (this.form.hasOwnProperty('questions')) {
+            console.log('questions test ', this.form.questions)
+            if (this.form.questions.length === 0) {
+              console.log('questions is empty')
+              this.emptyRequiredFields.push(field)
+              this.formSteps.forEach(step => {
+                if (step.commonFields.indexOf(field) > -1) {
+                  step.showRequiredTips = true
+                  step.showSatisfiedTips = false
+                }
+              })
+            } else if (this.form.questions.length === 1 && !this.form.questions[0].name){
+              console.log('questions name is empty')
+              this.emptyRequiredFields.push(field)
+              this.formSteps.forEach(step => {
+                if (step.commonFields.indexOf(field) > -1) {
+                  step.showRequiredTips = true
+                  step.showSatisfiedTips = false
+                }
+              })
+            }
           }
         } else {
           if (simpleIsEmpty(this.form[field])) {
