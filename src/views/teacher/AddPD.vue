@@ -129,6 +129,8 @@
                 <case-video
                   :field='PdField.VideoList'
                   :video-list='form.videoList'
+                  :content-type='typeMap.pd'
+                  :content-id='pdId'
                   @update='handleAddVideo'
                   @delete-video='handleDeleteVideo' />
               </div>

@@ -5,10 +5,14 @@
         <classcipe-drive-button
           :field='field'
           ref='drive'
+          :content-type="contentType + ''"
+          :content-id="contentId + ''"
           filter-file-type='video'
           :max-selected-num='5' />
         <screen-capture
           :field='field'
+          :content-type="contentType + ''"
+          :content-id="contentId + ''"
           @capture-done='handleCapturedVideoData'/>
       </a-space>
     </div>
@@ -35,6 +39,14 @@ export default {
   props: {
     field: {
       type: String,
+      default: null
+    },
+    contentId: {
+      type: [String, Number],
+      default: null
+    },
+    contentType: {
+      type: [String, Number],
       default: null
     }
   },
