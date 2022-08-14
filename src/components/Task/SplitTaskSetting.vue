@@ -51,7 +51,7 @@
         </a-row>
       </template>
     </div>
-    <div class='sub-task-container'>
+    <div class='sub-task-container' v-if='showCreateSubTask'>
       <a-row :gutter='20' type="flex" align='middle'>
         <a-col span='10' class='label-name'>
           Would like to create sub-tasks?
@@ -95,7 +95,11 @@ export default {
     isSubTask: {
       type: String,
       default: null
-    }
+    },
+    showCreateSubTask: {
+      type: Boolean,
+      default: true
+    },
   },
   data() {
     return {

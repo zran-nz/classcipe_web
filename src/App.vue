@@ -122,6 +122,7 @@ export default {
       this.$notification.open({
         message: 'Notification',
         description: message.msgTxt,
+        duration: 5000,
         key,
         btn: h => {
           return h(

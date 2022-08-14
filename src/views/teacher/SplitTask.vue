@@ -456,6 +456,7 @@
       <split-task-setting
         :is-sub-task="form.parentTaskId"
         :content-id='taskId'
+        :show-create-sub-task='false'
         :is-self-learning='form.contentType === 1'
         @confirm='handleUpdateBySubTaskSetting'/>
     </a-modal>
