@@ -2,11 +2,6 @@
   <div class='schedule-pay-info'>
     <div class='pay-info'>
       <div v-if="type === typeMap.pd">
-        <a-radio-group class="notify-session" v-model="form.notifyType" @change="changeNotifyType">
-          <a-radio v-for="item in NOTIFY_TYPE" :value="item.value" :key="item.value">
-            {{ item.label }}
-          </a-radio>
-        </a-radio-group>
         <div class="filter-session" v-show="form.notifyType === NOTIFY_TYPE.FILTER_SUBJECTS.value">
           <a-select
             @change="changeFilter"

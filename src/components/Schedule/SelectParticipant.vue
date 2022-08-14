@@ -164,6 +164,9 @@ export default {
         this.$logger.info('listClass res records', res)
         this.classList = res?.result?.records || []
         this.studentList = []
+        if (this.classList.length === 1) {
+          this.handleSelectClass(this.classList[0])
+        }
       }).finally(() => {
         this.loading = false
       })

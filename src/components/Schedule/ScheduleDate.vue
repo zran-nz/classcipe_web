@@ -16,6 +16,7 @@
           </div>
         </div>
         <zoom-meeting
+          v-show='enableZoom'
           ref='zoom'
           @update='updateZoom' />
       </div>
