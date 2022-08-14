@@ -1,0 +1,1 @@
+(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["lang-zh-CN-role-step"],{"11d5":function(e,o,s){"use strict";s.r(o),o["default"]={"role.step.what-can-you-do":"Choose your role","role.step.personal-information":"Personal information","role.step.expert-select-area":"Choose area(s) you specialised in","role.step.teacher-tell-class":"Tell us more about your class"}}}]);
