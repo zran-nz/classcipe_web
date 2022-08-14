@@ -99,7 +99,7 @@ export default {
     showCreateSubTask: {
       type: Boolean,
       default: true
-    },
+    }
   },
   data() {
     return {
