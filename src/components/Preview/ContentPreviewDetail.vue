@@ -933,7 +933,7 @@ export default {
 
       if (this.thumbnailList.length === 0) {
         this.thumbnailList.push({
-          contentUrl: 'http://dcdkqlzgpl5ba.cloudfront.net/file/20210730045859200-education-5923312_640.png'
+          contentUrl: 'http://dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png'
         })
       }
       this.$logger.info('initImgList', this.thumbnailList)
@@ -955,7 +955,7 @@ export default {
             })
           } else {
             this.thumbnailList.push({
-              contentUrl: 'http://dcdkqlzgpl5ba.cloudfront.net/file/20210730045859200-education-5923312_640.png'
+              contentUrl: 'http://dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png'
             })
           }
         }
