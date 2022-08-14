@@ -38,10 +38,6 @@
 export default {
   name: 'ZoomMeeting',
   props: {
-    zoomSettingVisible: {
-      type: Boolean,
-      default: false
-    },
     password: {
       type: Boolean,
       default: false
@@ -51,10 +47,26 @@ export default {
       default: false
     }
   },
+  watch: {
+    isPassword(v) {
+      this.update()
+    },
+    isWaitingRoom(v) {
+      this.update()
+    }
+  },
   data() {
     return {
       isPassword: this.password,
       isWaitingRoom: this.waitingRoom
+    }
+  },
+  methods: {
+    update() {
+      this.$emit('update', {
+        password: this.isPassword,
+        waitingRoom: this.isWaitingRoom
+      })
     }
   }
 }

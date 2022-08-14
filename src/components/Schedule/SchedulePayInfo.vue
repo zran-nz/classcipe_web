@@ -82,6 +82,7 @@
         </div>
       </div>
       <zoom-meeting
+        ref='zoom'
         :password='password'
         :waiting-room='waitingRoom' />
     </div>
@@ -203,9 +204,7 @@ export default {
           editing: true
         }
       ],
-      initDate: this.defaultDate,
-      isPassword: this.password,
-      isWaitingRoom: this.waitingRoom
+      initDate: this.defaultDate
     }
   },
   mixins: [ ZoomAuthMixin ],
@@ -255,8 +254,8 @@ export default {
         registerBefore: this.registerBefore,
         startDate: this.startDate,
         endDate: this.endDate,
-        password: this.isPassword,
-        waitingRoom: this.isWaitingRoom
+        password: this.$refs.zoom.isPassword,
+        waitingRoom: this.$refs.zoom.isWaitingRoom
       }
     },
     handleAddDiscount () {

@@ -5,7 +5,6 @@
         <a-radio-group class="notify-session" v-model="form.notifyType" @change="changeNotifyType">
           <a-radio v-for="item in NOTIFY_TYPE" :value="item.value" :key="item.value">
             {{ item.label }}
-
           </a-radio>
         </a-radio-group>
         <div class="filter-session" v-show="form.notifyType === NOTIFY_TYPE.FILTER_SUBJECTS.value">
@@ -71,6 +70,7 @@
         All students at your school will receive email and notification
       </div>
       <zoom-meeting
+        ref='zoom'
         :password='password'
         :waiting-room='waitingRoom' />
     </div>
@@ -115,10 +115,12 @@ import { typeMap } from '@/const/teacher'
 import { getCurriculumBySchoolId } from '@/api/academicSettingCurriculum'
 import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
 import { queryTeachers } from '@/api/common'
+import ZoomMeeting from '@/components/Schedule/ZoomMeeting'
 
 export default {
   name: 'SchoolSchedule',
   components: {
+    ZoomMeeting,
     CustomTextButton,
     DeleteIcon,
     CustomLinkText,
@@ -213,9 +215,7 @@ export default {
 
       endData: null,
       startDate: null,
-      scheduleDataArray: [],
-      isPassword: this.password,
-      isWaitingRoom: this.waitingRoom
+      scheduleDataArray: []
     }
   },
   created() {
@@ -313,8 +313,8 @@ export default {
         notifyStudents: this.memberList.map(item => item.id),
         startDate: this.startDate,
         endDate: this.endData,
-        password: this.isPassword,
-        waitingRoom: this.isWaitingRoom
+        password: this.$refs.zoom.isPassword,
+        waitingRoom: this.$refs.zoom.isWaitingRoom
       }
     },
 
