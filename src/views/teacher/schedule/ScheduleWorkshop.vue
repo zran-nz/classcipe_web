@@ -4,37 +4,21 @@
       <my-vertical-steps
         ref='steps-nav'
         :allow-switch='false'
-        :steps='$classcipe.ScheduleSteps'
-        :step-index='currentActiveStepIndex'
-        @step-change='handleStepChange'/>
+        :steps='workshopSteps'/>
     </div>
     <div class='schedule-content-wrapper'>
       <a-skeleton v-show='loading' />
       <div class='schedule-content' v-show='!loading'>
-        <select-participant
-          ref='participant'
-          :class-list='classList'
-          v-show='currentActiveStepIndex === 0'
-          @select-class-student='handleSelectClassStudent'
-          @select-workshop-type='handleSelectWorkshopType'/>
-        <schedule-date
-          v-if='!scheduleReq.openSession && currentActiveStepIndex === 1'
-          :calendarSearchFilters="calendarSearchFilters"
-          :calendarSearchType="calendarSearchType"
-          @select-date='handleSelectDate'
-          @select-session-type='handleSelectSessionType'
-          @select-zoom-status='handleSelectZoom'
-        />
         <schedule-pay-info
           ref='pay'
           :type="type"
-          v-if='userMode === USER_MODE.SELF && scheduleReq.openSession && currentActiveStepIndex === 1'
+          v-if='userMode === USER_MODE.SELF && scheduleReq.openSession'
           @select-date='handleSelectDate'
         />
         <school-schedule
           ref='pay'
           :type="type"
-          v-if='userMode === USER_MODE.SCHOOL && scheduleReq.openSession && currentActiveStepIndex === 1'
+          v-if='userMode === USER_MODE.SCHOOL && scheduleReq.openSession'
           @select-date='handleSelectDate'
         />
       </div>
@@ -45,17 +29,9 @@
       </template>
       <template v-slot:right>
         <div class='right-button'>
-          <a-space>
-            <a-button type='primary' :loading='teacherSessionNowLoading' v-if='currentActiveStepIndex === $classcipe.ScheduleSteps.length - 1 && scheduleReq.workshopType === 0' @click='handleTeacherSessionNow'>Teach the session now</a-button>
-            <a-button type='primary' @click='handleGoNext' :loading='creating' v-if='currentActiveStepIndex !== $classcipe.ScheduleSteps.length - 1'>
-              <template>
-                Next <a-icon type='right' />
-              </template>
-            </a-button>
-            <a-button type='primary' :disabled="!scheduleReq.startDate || !scheduleReq.endDate" @click='handleGoNext' :loading='creating' v-else>
-              <template >Assign</template>
-            </a-button>
-          </a-space>
+          <a-button type='primary' :disabled="!scheduleReq.startDate || !scheduleReq.endDate" @click='handleGoNext' :loading='creating'>
+            <template >Assign</template>
+          </a-button>
         </div>
       </template>
     </fixed-form-footer>
@@ -126,7 +102,7 @@ export default {
         classIds: [],
         contentId: this.id,
         endDate: null,
-        openSession: false,
+        openSession: true,
         planId: null,
         register: {
           discountInfo: [],
@@ -145,6 +121,13 @@ export default {
       },
       creating: false,
 
+      workshopSteps: [
+        {
+          id: '1',
+          name: 'Schedule Workshop',
+          description: null
+        }
+      ],
       calendarSearchFilters: [],
       calendarSearchType: CALENDAR_QUERY_TYPE.CLASS.value
     }
@@ -167,10 +150,6 @@ export default {
     this.$EventBus.$off('ZoomMeetingUpdateWaitingRoom', this.handleSelectWaitingRoom)
   },
   methods: {
-    handleStepChange(data) {
-      this.$logger.info('ScheduleSession handleStepChange ', data)
-      this.currentActiveStepIndex = data.index
-    },
 
     async handleAssociate() {
       this.$logger.info('ScheduleSession associateUnitList start', this.associateUnitList)
@@ -214,42 +193,16 @@ export default {
     },
 
     handleGoBack () {
-      if (this.currentActiveStepIndex === 0) {
-        this.handleBack()
-      } else {
-        this.$refs['steps-nav'].prevStep()
-      }
+      this.handleBack()
     },
     handleGoNext () {
-      const participantData = this.$refs.participant.getSelectedData()
-      this.scheduleReq.classIds = participantData.classIds
-      if (!this.scheduleReq.classIds.length) {
-        return
-      }
-      if (this.currentActiveStepIndex === 0) {
-        this.$refs['steps-nav'].nextStep()
-        if (this.scheduleReq.openSession) {
-          this.scheduleReq.selectStudents = []
-          this.scheduleReq.classIds = []
-          this.calendarSearchFilters = [1, 2, 3, 4]
-          this.calendarSearchType = CALENDAR_QUERY_TYPE.WORKSHOP.value
-        } else {
-          const participantData = this.$refs.participant.getSelectedData()
-          this.scheduleReq.selectStudents = participantData.selectStudents
-          this.scheduleReq.classIds = participantData.classIds
-
-          this.calendarSearchFilters = this.scheduleReq.classIds
-          this.calendarSearchType = CALENDAR_QUERY_TYPE.CLASS.value
-        }
-      } else if (this.currentActiveStepIndex === 1) {
-        if (this.scheduleReq.zoom) {
-          this.zoomSettingVisible = true
-        } else {
-          this.handleConfirmAssign({
-            password: false,
-            waitingRoom: false
-          })
-        }
+      if (this.scheduleReq.zoom) {
+        this.zoomSettingVisible = true
+      } else {
+        this.handleConfirmAssign({
+          password: false,
+          waitingRoom: false
+        })
       }
     },
 
@@ -263,30 +216,7 @@ export default {
       this.zoomSettingVisible = false
       this.scheduleReq.password = data.password
       this.scheduleReq.waitingRoom = data.waitingRoom
-
-      if (this.teacherSessionNowLoading) {
-        try {
-          const zoomRes = await this.createSession(true)
-          this.$logger.info('zoom res ', zoomRes)
-          if (zoomRes && zoomRes.length > 0) {
-            const zoomMeetingItem = zoomRes[0]
-            if (zoomMeetingItem.zoomMeeting) {
-              const zoomMeetingConfig = JSON.parse(zoomMeetingItem.zoomMeeting)
-              window.open(zoomMeetingConfig.start_url, '_blank')
-              this.finishAndGoBack(zoomRes[0].taskClassId)
-            }
-          } else {
-            this.$logger.warn('create zoom meeting failed', zoomRes)
-          }
-        } catch (e) {
-          this.$logger.error('handleTeacherSessionNow ', e)
-          console.log(e)
-        } finally {
-          this.teacherSessionNowLoading = false
-        }
-      } else {
-        await this.createSession()
-      }
+      await this.createSession()
     },
 
     handleSelectClassStudent (cls) {
@@ -298,7 +228,7 @@ export default {
 
     handleSelectWorkshopType (data) {
       this.scheduleReq.workshopType = data.workshopType
-      this.scheduleReq.openSession = data.workshopType === 2
+      this.scheduleReq.openSession = true
       this.scheduleReq.classIds = []
       this.scheduleReq.selectStudents = []
       this.scheduleReq.zoom = 1
@@ -330,20 +260,6 @@ export default {
       this.scheduleReq.zoom = zoom ? 1 : 0
     },
 
-    async handleTeacherSessionNow () {
-      this.scheduleReq.teachSessionNow = this.scheduleReq.teachSessionNow ? 0 : 1
-      this.teacherSessionNowLoading = true
-
-      if (this.scheduleReq.zoom) {
-        this.zoomSettingVisible = true
-      } else {
-        await this.handleConfirmAssign({
-          password: false,
-          waitingRoom: false
-        })
-      }
-    },
-
     /**
      * 如果retValue为false，则表示需要跳转返回。
      * @param retValue
@@ -357,6 +273,8 @@ export default {
           this.scheduleReq.register.maxParticipants = openSessionData.maxParticipants
           this.scheduleReq.register.price = openSessionData.price
           this.scheduleReq.register.registerBefore = openSessionData.registerBefore
+          this.scheduleReq.password = openSessionData.password
+          this.scheduleReq.waitingRoom = openSessionData.waitingRoom
         } else if (this.userMode === USER_MODE.SCHOOL) {
           this.scheduleReq.selectTeachers = openSessionData.selectTeachers
           this.scheduleReq.yearList = openSessionData.yearList
@@ -365,6 +283,8 @@ export default {
           this.scheduleReq.register.paidType = openSessionData.paidType
           this.scheduleReq.register.notifyType = openSessionData.notifyType
           this.scheduleReq.register.notifyStudents = openSessionData.notifyStudents
+          this.scheduleReq.password = openSessionData.password
+          this.scheduleReq.waitingRoom = openSessionData.waitingRoom
         }
       }
 

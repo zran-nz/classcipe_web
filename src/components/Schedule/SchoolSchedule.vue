@@ -70,6 +70,9 @@
       <div v-if="type === typeMap.task" style="text-align:center;margin-top: 50px;">
         All students at your school will receive email and notification
       </div>
+      <zoom-meeting
+        :password='password'
+        :waiting-room='waitingRoom' />
     </div>
     <div class="date-info">
       <div class='select-date'>
@@ -141,6 +144,14 @@ export default {
     type: {
       type: Number,
       required: true
+    },
+    password: {
+      type: Boolean,
+      default: false
+    },
+    waitingRoom: {
+      type: Boolean,
+      default: false
     }
   },
   watch: {
@@ -202,7 +213,9 @@ export default {
 
       endData: null,
       startDate: null,
-      scheduleDataArray: []
+      scheduleDataArray: [],
+      isPassword: this.password,
+      isWaitingRoom: this.waitingRoom
     }
   },
   created() {
@@ -299,7 +312,9 @@ export default {
         paidType: Number(this.form.paidType),
         notifyStudents: this.memberList.map(item => item.id),
         startDate: this.startDate,
-        endDate: this.endData
+        endDate: this.endData,
+        password: this.isPassword,
+        waitingRoom: this.isWaitingRoom
       }
     },
 
@@ -329,11 +344,13 @@ export default {
     min-height: 400px;
     max-height: calc(100vh - 160px);
     overflow-y: auto;
-    width: 50%;
+    width: 30%;
   }
 
   .date-info {
-    width: 50%;
+    width: 70%;
+    padding: 0 20px;
+    margin: 0 auto;
     min-height: 400px;
     max-height: calc(100vh - 160px);
     overflow-y: scroll;
@@ -343,7 +360,6 @@ export default {
         width: 380px;
       }
       .title {
-        font-weight: 500;
         color: #333;
         line-height: 30px;
         padding-left: 5px;

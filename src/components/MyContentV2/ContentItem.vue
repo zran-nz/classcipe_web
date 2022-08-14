@@ -442,7 +442,7 @@ export default {
     },
 
     handleSchedule() {
-      if (this.content.pageObjects.length && this.form.presentationId && !this.form.presentationId.startsWith('fake_buy_')) {
+      if (this.content.pageObjects.length && this.content.presentationId && !this.content.presentationId.startsWith('fake_buy_')) {
         this.$router.push({
           path: '/teacher/schedule-session/' + this.content.id + '/' + this.content.type
         })
@@ -456,7 +456,7 @@ export default {
 
     handlePublicWorkshopSchedule () {
       this.$logger.info('handlePublicWorkshopSchedule', this.content)
-      if (this.content.pageObjects.length && this.form.presentationId && !this.form.presentationId.startsWith('fake_buy_')) {
+      if (this.content.pageObjects.length && this.content.presentationId && !this.content.presentationId.startsWith('fake_buy_')) {
         this.$router.push({
           path: '/teacher/schedule-workshop/' + this.content.id + '/' + this.content.type
         })
