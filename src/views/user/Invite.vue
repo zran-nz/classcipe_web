@@ -52,6 +52,7 @@ export default {
       isAdmin: false,
       isTeacher: false,
       alreayApply: false,
+      isInSchool: false,
       labelTxt: '',
       roleMap: {
         2: 'teacher',
@@ -91,14 +92,15 @@ export default {
           this.schoolName = res?.result?.schoolName
           this.btnText = res?.result?.approveFlag ? 'Apply' : 'Join'
           this.isTeacher = res?.result?.role === 2
+          this.isInSchool = res?.result?.isSchoolUser
           this.labelTxt = `You have been invited to join ${this.schoolName} community`
           // 判断用户是否已经邀请了
-          const existSchools = this.info.schoolList.find(item => item.id === res?.result?.schoolId)
-          if (existSchools) {
+          // const existSchools = this.info.schoolList.find(item => item.id === res?.result?.schoolId)
+          if (this.isInSchool) {
             if (this.isAdmin) {
-              if (existSchools.roleNames.map(item => item.toLowerCase()).includes('admin')) {
+              // if (existSchools.roleNames.map(item => item.toLowerCase()).includes('admin')) {
                 this.doRedirect()
-              }
+              // }
             } else {
               if (this.isTeacher) {
                 // 如果已经是其中一员，直接跳转

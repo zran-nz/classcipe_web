@@ -37,7 +37,7 @@
       </a>
       <div
         class="schedule-event-content"
-        :style="{backgroundColor: info.event.extendedProps.backgroundColor, color: '#333'}"
+        :style="{backgroundColor: info.event.extendedProps.backgroundColor, color: '#333', minHeight: '50px', lineHeight: 1}"
       >
         <div v-show="info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay'">
           {{ info.event.start | dayjs(FORMATTER_SIM) }}-{{ info.event.end | dayjs(FORMATTER_SIM) }}

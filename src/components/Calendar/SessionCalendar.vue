@@ -494,7 +494,7 @@ export default {
           termEvents.push({
             start: startDis,
             end: endDis,
-            backgroundColor: '#dfdfdf',
+            backgroundColor: '#918585',
             display: 'background',
             selectable: false,
             extendedProps: {
@@ -598,6 +598,7 @@ export default {
 
               successCb(totalEvents.concat(termEvents))
               this.handleViewDidMount(date)
+              this.handleScrollTime()
             } else {
               failCb()
             }
@@ -731,6 +732,21 @@ export default {
           }
         }
       })
+    },
+    handleScrollTime() {
+      if (this.viewType === 'timeGridWeek' || this.viewType === 'timeGridDay') {
+        this.$nextTick(() => {
+          if (this.$refs.fullCalendar) {
+            const calendarApi = this.$refs.fullCalendar.getApi()
+            const current = moment().subtract(15, 'm').format('HH:mm:ss')
+            calendarApi && calendarApi.scrollToTime(current)
+            // calendarApi && calendarApi.setOption('views', {
+            //   slotMinTime: '18:00:00'
+            // })
+            // calendarApi && calendarApi.render()
+          }
+        })
+      }
     },
     handleDateSelect(selectInfo) {
       if (this.addable) {

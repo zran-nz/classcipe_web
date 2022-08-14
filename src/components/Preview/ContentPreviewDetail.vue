@@ -92,11 +92,29 @@
     </div>
 
     <div class='preview-main-content' v-if='content'>
-      <a-row class='content-info-item'>
-        <a-col span='24' class='cc-ellipsis cc-info-left'>
+      <a-space class='content-info-item'>
+        <div span='24' class='cc-ellipsis cc-info-left'>
           <h3>{{ content.name || 'Untitled' }}</h3>
-        </a-col>
-      </a-row>
+        </div>
+        <div class="more-action" style="margin-bottom: 8px;">
+          <a-tooltip
+            trigger="click"
+            :getPopupContainer="trigger => trigger.parentElement"
+            placement="bottomRight"
+          >
+            <template slot="title">
+              <div class="detail-share">
+                <share-button
+                  v-if="content"
+                  :link="wrapperLink(content)"
+                  :title="content.name"
+                />
+              </div>
+            </template>
+            <icon-font type="icon-share" class="detail-font"/>
+          </a-tooltip>
+        </div>
+      </a-space>
 
       <a-row class='content-info-item' v-observe-visibility="visibilityChanged">
         <a-col
