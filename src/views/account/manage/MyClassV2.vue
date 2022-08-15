@@ -126,12 +126,12 @@
                           <a-icon type="more" />
                           <a-menu slot="overlay">
                             <template v-if="currentTab !== 'archive'">
-                              <a-menu-item v-if="userMode === USER_MODE.SCHOOL && currentTab === 'gradeId'">
+                              <!-- <a-menu-item v-if="userMode === USER_MODE.SCHOOL && currentTab === 'gradeId'">
                                 <a href="javascript:;" @click="handleImport(cls)">Import students</a>
                               </a-menu-item>
                               <a-menu-item v-if="userMode === USER_MODE.SCHOOL && currentTab === 'gradeId'">
                                 <a href="javascript:;" @click="handleEditTeachers(cls)">Edit teachers</a>
-                              </a-menu-item>
+                              </a-menu-item> -->
                               <a-menu-item v-if="userMode === USER_MODE.SCHOOL && cls.classType === 1">
                                 <a href="javascript:;" @click="handleEditSubjectClass(cls)">Edit</a>
                               </a-menu-item>
