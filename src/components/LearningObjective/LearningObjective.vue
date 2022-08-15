@@ -437,6 +437,7 @@ export default {
       immediate: false,
       handler() {
         if (!this.loading) {
+          console.log('filterConfig changed loading', this.loading)
           this.asyncUpdateFilterListFn()
         }
       }
@@ -445,6 +446,7 @@ export default {
       deep: true,
       immediate: false,
       handler() {
+        console.log('selectedList changed loading', this.loading)
         if (!this.loading) {
           this.asyncEmitUpdateEventFn()
         }
@@ -682,6 +684,7 @@ export default {
     },
 
     updateFilterList () {
+      console.log('updateFilterList', this.data)
       if (this.data) {
         console.log('updateFilterList', this.data, 'filterConfig.curriculumId', this.filterConfig.curriculumId)
         const list = this.data['Learning outcomes'] ? this.data['Learning outcomes'] : this.data
