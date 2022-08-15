@@ -435,7 +435,7 @@ export default {
     filterConfig: {
       deep: true,
       immediate: false,
-      handler(nv, ov) {
+      async handler(nv, ov) {
         if (!this.loading) {
           console.log('filterConfig changed loading', this.loading)
           this.asyncUpdateFilterListFn()
