@@ -580,6 +580,7 @@
           <reviews-preview
             :id="contentId"
             role="student"
+            :needSearch="false"
             :list="ReviewsTask.ReviewsTaskList"
             :save="ReviewsTask.ReviewsTaskSave"
             :del="ReviewsTask.ReviewsTaskDelete"
@@ -591,6 +592,7 @@
           <reviews-preview
             :id="contentId"
             role="teacher"
+            :needSearch="false"
             :list="ReviewsTeacher.ReviewsTeacherList"
             :save="ReviewsTeacher.ReviewsTeacherSave"
             :del="ReviewsTeacher.ReviewsTeacherDelete"

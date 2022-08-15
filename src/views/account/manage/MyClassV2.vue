@@ -91,7 +91,7 @@
                     v-for="cls in view.classes"
                     :id="cls.key"
                     :key="view.id + '_' + cls.key"
-                    :class="{'item-class-wrap': true, 'archive': currentTab === 'archive', 'undrag': (currentTab === 'archive' || cls.isNew) }"
+                    :class="{'item-class-wrap': true, 'archive': currentTab === 'archive', 'undrag': (currentTab !== 'gradeId' || cls.isNew) }"
                   >
                     <div class="item-class" v-clickOutside="() => handleBlurClick(cls)">
                       <div class="class-name">

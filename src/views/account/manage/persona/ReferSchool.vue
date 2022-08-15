@@ -539,6 +539,7 @@ export default {
             //   this.confirmLoading = false
             // })
             this.userForm.schoolId = null
+            this.userForm.schoolName = (school || createdSchool).name
             this.confirmLoading = true
             SchoolPrincipleSave(this.userForm).then(res => {
               if (res.success) {
