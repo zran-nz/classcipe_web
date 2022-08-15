@@ -728,18 +728,18 @@ export default {
     // 将当前时间线延长成整个table而不是某天的格子里
     handleViewDidMount(date) {
       this.$nextTick(() => {
-        const nowLine = document.getElementsByClassName('fc-timegrid-now-indicator-line')
-        if (nowLine && nowLine.length > 0) {
-          // const cloneLine = nowLine[0].cloneNode(true)
-          const fcBody = document.getElementsByClassName('fc-timegrid-body')[0]
-          fcBody.insertBefore(nowLine[0], fcBody.firstChild)
-        }
         if (this.$refs.fullCalendar) {
           const calendarApi = this.$refs.fullCalendar.getApi()
           if (calendarApi) {
             this.setViewDate(date)
             calendarApi.render()
           }
+        }
+        const nowLine = document.getElementsByClassName('fc-timegrid-now-indicator-line')
+        if (nowLine && nowLine.length > 0) {
+          // const cloneLine = nowLine[0].cloneNode(true)
+          const fcBody = document.getElementsByClassName('fc-timegrid-body')[0]
+          fcBody.insertBefore(nowLine[0], fcBody.firstChild)
         }
       })
     },
