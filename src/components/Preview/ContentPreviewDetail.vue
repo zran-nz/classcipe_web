@@ -997,15 +997,15 @@ export default {
     },
 
     handleEditBuy () {
-      this.$logger.info('handleEdit', this.content.newBuyedId)
+      this.$logger.info('handleEdit', this.content.myContentId)
       if (this.content.type === this.typeMap['unit-plan']) {
-        window.open('/teacher/unit-plan-redirect/' + this.content.newBuyedId, '_blank')
+        window.open('/teacher/unit-plan-redirect/' + this.content.myContentId, '_blank')
       } else if (this.content.type === this.typeMap.task) {
-        window.open('/teacher/task-redirect/' + this.content.newBuyedId, '_blank')
+        window.open('/teacher/task-redirect/' + this.content.myContentId, '_blank')
       } else if (this.content.type === this.typeMap.pd) {
-        window.open('/teacher/pd-content-redirect/' + this.content.newBuyedId, '_blank')
+        window.open('/teacher/pd-content-redirect/' + this.content.myContentId, '_blank')
       } else if (this.contentType === this.typeMap.video) {
-        window.open('/teacher/video-redirect/' + this.content.newBuyedId, '_blank')
+        window.open('/teacher/video-redirect/' + this.content.myContentId, '_blank')
       }
     },
 
