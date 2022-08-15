@@ -1,6 +1,6 @@
 <template>
   <div class='schedule-date'>
-    <div style="width: 30%;padding: 0 20px;">
+    <div style="padding: 0 20px;" :style="{width: showCalendarLink ? '30%' : '50%'}">
       <div class='choose-type'>
         <div class='title'>
           Live video class

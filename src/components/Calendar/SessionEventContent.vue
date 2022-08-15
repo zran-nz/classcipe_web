@@ -92,10 +92,10 @@
       </a>
       <div
         class="schedule-event-content"
-        :style="{backgroundColor: info.event.extendedProps.backgroundColor, color: '#333'}"
+        :style="{backgroundColor: info.event.extendedProps.backgroundColor, color: '#333', minHeight: 'auto'}"
       >
         <div>
-          {{ info.event.start | dayjs(FORMATTER_SIM) }}-{{ info.event.end | dayjs(FORMATTER_SIM) }}
+          {{ info.event.start | dayjs(FORMATTER_SIM2) }}-{{ info.event.end | dayjs(FORMATTER_SIM2) }}
         </div>
       </div>
     </a-popover>

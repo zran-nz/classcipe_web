@@ -767,6 +767,9 @@ export default {
       this.event = selectInfo
       this.importModel.startDate = moment(this.event.start).format('YYYY-MM-DD HH:mm:ss')
       this.importModel.endDate = moment(this.event.end).format('YYYY-MM-DD HH:mm:ss')
+      if (this.viewType === 'dayGridMonth') {
+        this.importModel.endDate = moment(this.event.end).subtract(1, 'day').endOf('day').format('YYYY-MM-DD HH:mm:ss')
+      }
       if (this.forSelect) {
         // 添加时间选择事件
         const calendarApi = this.$refs.fullCalendar.getApi()
@@ -790,6 +793,7 @@ export default {
           }
         }
         calendarApi.addEvent(this.selectDateEvent)
+        calendarApi.unselect()
       }
       this.$emit('date-select', this.importModel)
     },
@@ -1179,7 +1183,7 @@ export default {
   margin-bottom: 20px;
   .schedule-title {
     font-weight: bold;
-    font-size: 24px;
+    font-size: 20px;
     width: 250px;
   }
   .schedule-view {
