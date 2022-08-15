@@ -135,18 +135,18 @@
                               <a-menu-item v-if="userMode === USER_MODE.SCHOOL && cls.classType === 1">
                                 <a href="javascript:;" @click="handleEditSubjectClass(cls)">Edit</a>
                               </a-menu-item>
-                              <a-menu-item v-if="!isLastClass">
-                                <a href="javascript:;" @click="handleArchive(cls)">Archive</a>
-                              </a-menu-item>
                             </template>
                             <template v-else>
                               <a-menu-item>
                                 <a href="javascript:;" @click="handleRestore(cls)">Restore</a>
                               </a-menu-item>
-                              <a-menu-item>
-                                <a href="javascript:;" @click="handleDelete(cls)">Delete</a>
-                              </a-menu-item>
                             </template>
+                            <a-menu-item v-if="currentTab === 'archive' || (!isLastClass && cls.studentCount === 0)">
+                              <a href="javascript:;" @click="handleDelete(cls)">Delete</a>
+                            </a-menu-item>
+                            <a-menu-item v-if="currentTab !== 'archive' && cls.studentCount > 0 && !isLastClass">
+                              <a href="javascript:;" @click="handleArchive(cls)">Archive</a>
+                            </a-menu-item>
                           </a-menu>
                         </a-dropdown>
                       </div>
