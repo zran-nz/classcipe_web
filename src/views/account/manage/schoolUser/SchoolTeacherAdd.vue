@@ -172,7 +172,7 @@ export default {
     },
     showClassLink: {
       type: Boolean,
-      default: true
+      default: false
     }
   },
   watch: {

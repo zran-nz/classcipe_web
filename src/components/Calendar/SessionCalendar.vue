@@ -982,6 +982,11 @@ export default {
 </script>
 <style lang='less'>
 
+.fc-timegrid-event {
+  .schedule-event-content {
+    min-height: 50px;
+  }
+}
 .schedule-event-content {
   padding: 2px;
   border-radius: 5px;

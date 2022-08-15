@@ -397,6 +397,7 @@ export default {
               if (res.code === 0) {
                 this.$message.success('Opt Successfully')
                 this.onClearSelected()
+                this.initDict()
                 this.searchQuery()
               }
             }).finally(() => {
