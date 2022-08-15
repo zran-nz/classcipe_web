@@ -75,19 +75,7 @@
         </a-col>
       </a-row>
       <a-row :gutter=16 class="calendar-con">
-        <!-- <a-col :span="12">
-          <a-form-model-item label="Block">
-            <a-select
-              :getPopupContainer="trigger => trigger.parentElement"
-              v-model='formModel.blockId'
-              placeholder='Please select block'>
-              <a-select-option v-for='item in blockOptions[formModel.term]' :key='item.name'>
-                {{ ('2000-01-01 ' + item.start) | dayjs('HH:mm') }} - {{ ('2000-01-01 ' + item.end) | dayjs('HH:mm') }}
-              </a-select-option >
-            </a-select>
-          </a-form-model-item >
-        </a-col> -->
-        <term-calendar :termId="formModel.term" :choose="formModel.blockSetting" @date-select="handleSelectBlock"/>
+        <term-calendar :termId="formModel.term" :choose="origin.blockSetting" @date-select="handleSelectBlock"/>
       </a-row>
       <div v-if="formModel.ownJoin && !formModel.blockSetting" class="error_field">Please Select Block</div>
       <a-form-model-item label="" :labelCol="{span: 0}" :wrapperCol="{span: 24}" style="text-align:right;margin-top: 20px;">
@@ -103,7 +91,7 @@ import { USER_MODE } from '@/const/common'
 import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
 import { getCurriculumBySchoolId } from '@/api/academicSettingCurriculum'
 import { termList } from '@/api/academicTermInfo'
-import { saveClass } from '@/api/v2/schoolClass'
+import { saveClass, classDetail } from '@/api/v2/schoolClass'
 
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import TermCalendar from '@/components/Calendar/TermCalendar'
@@ -155,6 +143,9 @@ export default {
       queryParam: {
         searchKey: ''
       },
+      origin: {
+        blockSetting: ''
+      },
       formModel: {
         id: '',
         name: '',
@@ -168,7 +159,6 @@ export default {
         term: '',
         termArr: [],
         termTime: [],
-        blockId: '',
         blockSetting: '',
         classType: 1,
         schoolId: ''
@@ -290,9 +280,19 @@ export default {
     },
     initForm(defaultForm) {
       if (this.formModel.id) {
-
+        this.loading = true
+        classDetail({
+          classId: this.formModel.id
+        }).then(res => {
+          if (res.code === 0) {
+            this.doCreate(res.result)
+          }
+        }).finally(() => {
+          this.loading = false
+        })
       } else {
-        this.doCreate({})
+        const fromCache = this.getAutoLocalData()
+        this.doCreate(fromCache)
       }
     },
     initSels() {
@@ -307,18 +307,11 @@ export default {
             }
           }
         })
-        // 回显blocksetting
         this.formModel.termArr = termArr
-        if (this.formModel.blockSetting && this.blockOptions && this.blockOptions[this.formModel.term]) {
-          const blockSetting = this.blockOptions[this.formModel.term].find(item => [item.start, item.end].join(' - ') === this.formModel.blockSetting)
-          this.formModel.blockId = blockSetting ? blockSetting.name : ''
-        }
       }
     },
     doCreate(record) {
-      const fromCache = this.getAutoLocalData()
       this.doEdit({
-        ...fromCache,
         ...record
       })
       this.$nextTick(() => {
@@ -329,12 +322,13 @@ export default {
       this.fillValidate(key, value)
     },
     doEdit(record) {
-      console.log(record)
       this.formModel = cloneDeep({
         ...this.initValue,
         ...record,
         ownJoin: Boolean(record.ownJoin)
       })
+      this.origin = cloneDeep(this.formModel)
+      console.log(this.origin)
       this.initSels()
     },
     handleSave() {
@@ -342,10 +336,6 @@ export default {
         if (valid) {
           const params = { ...this.formModel }
           params.schoolId = this.currentSchool.id
-          // if (params.blockId) {
-          //   const blockSetting = this.blockOptions[params.term].find(item => item.name === params.blockId)
-          //   params.blockSetting = [blockSetting.start, blockSetting.end].join(' - ')
-          // }
           params.ownJoin = Number(params.ownJoin)
           params.classType = 1
           this.loading = true
@@ -358,6 +348,7 @@ export default {
           saveClass(params).then(res => {
             if (res.success && res.code === 0) {
               this.$store.dispatch('GetInfo')
+              this.$message.success('Save successfully')
               this.$emit('save', params)
               this.clearLocalData()
             }
@@ -390,7 +381,6 @@ export default {
         this.formModel.term = ''
       }
       this.$refs.form.validateField(['termArr'])
-      this.formModel.blockId = undefined
     },
     handleSelectBlock(val) {
       console.log(val)

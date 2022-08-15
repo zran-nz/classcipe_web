@@ -27,13 +27,17 @@
       <div class="status-tab">
         <div class="tab-list">
           <div :class="{'tab-item': true, 'active' : queryParam.schoolUserStatus === ''}" @click="toggleTab('')">All</div>
-          <div
-            v-for="(item,index) in tabsList"
-            :key="'types'+index"
-            :class="{'tab-item': true, 'active' : queryParam.schoolUserStatus === item.value}"
-            @click="toggleTab(item.value)">
-            {{ item.label }}
-          </div>
+          <template v-for="(item,index) in tabsList">
+            <a-badge
+              :class="{'tab-item': true, 'active' : queryParam.schoolUserStatus === item.value}"
+              :count="getBadge(item.value)"
+              :key="'types'+index">
+              <div
+                @click="toggleTab(item.value)">
+                {{ item.label }}
+              </div>
+            </a-badge>
+          </template>
         </div>
         <div class="opt-list">
           <custom-text-button label='Invite' @click="handleInvite">
@@ -123,7 +127,7 @@ import { TableWidthMixin } from '@/mixins/TableWidthMixin'
 
 import { listClass } from '@/api/v2/schoolClass'
 import { listRole } from '@/api/v2/schoolRole'
-import { bulkActTeacher, removeTeachers, resetPassword } from '@/api/v2/schoolUser'
+import { bulkActTeacher, removeTeachers, resetPassword, getTeacherCount } from '@/api/v2/schoolUser'
 
 import FixedFormHeader from '@/components/Common/FixedFormHeader'
 import FormHeader from '@/components/FormHeader/FormHeader'
@@ -202,13 +206,26 @@ export default {
         // list: '/classcipe/api/school/schoolClassStudent/list'
       },
 
-      tableRefs: ['tableCon']
+      tableRefs: ['tableCon'],
+      pendingTeacherCount: 0,
+      disableMixinCreated: true
     }
   },
   created() {
+    if (this.$route.query) {
+      if (this.$route.query.tab) {
+        const find = this.tabsList.find(item => item.value + '' === this.$route.query.tab + '')
+        if (find) {
+          this.queryParam.schoolUserStatus = find.value
+        }
+      }
+    }
+    console.log(this.queryParam)
     this.initDict()
     this.queryParam.schoolId = this.currentSchool.id
     this.debounceLoad = debounce(this.loadData, 300)
+    this.loadData()
+    this.initDictConfig()
   },
   computed: {
     ...mapState({
@@ -309,19 +326,28 @@ export default {
         }),
         listRole({
           schoolId: this.currentSchool.id
+        }),
+        getTeacherCount({
+          schoolId: this.currentSchool.id
         })
-      ]).then(([clsRes, roleRes]) => {
+      ]).then(([clsRes, roleRes, teacherRes]) => {
         if (clsRes.code === 0) {
           this.classList = clsRes.result.records
         }
         if (roleRes.code === 0) {
           this.roleList = roleRes.result
         }
+        if (teacherRes.success && teacherRes.result) {
+          this.pendingTeacherCount = teacherRes.result.pendingCount
+        }
         this.onClearSelected()
       })
     },
     toggleTab(status) {
       this.queryParam.schoolUserStatus = status
+      this.$router.replace({
+        path: '/manage/teacher/list?tab=' + status
+      })
       this.onClearSelected()
       this.searchQuery()
     },
@@ -371,6 +397,7 @@ export default {
               if (res.code === 0) {
                 this.$message.success('Opt Successfully')
                 this.onClearSelected()
+                this.initDict()
                 this.searchQuery()
               }
             }).finally(() => {
@@ -404,6 +431,12 @@ export default {
     },
     handleInvite() {
       this.$refs.schoolUserInvite.doCreate('teacher')
+    },
+    getBadge(key) {
+      if (key === SCHOOL_USER_STATUS.PENDING.value) {
+        return this.pendingTeacherCount
+      }
+      return 0
     }
   }
 }

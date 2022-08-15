@@ -1,4 +1,4 @@
-import { AllCurriculums, PlanField, TaskField } from '@/const/common'
+import { AllCurriculums, PdField, PlanField, TaskField, VideoField } from '@/const/common'
 import { typeMap } from '@/const/teacher'
 import ScheduleSteps from '@/components/Schedule/ScheduleSteps'
 import ScheduleSessionType from '@/components/Schedule/ScheduleSessionType'
@@ -47,10 +47,23 @@ function getContentTypeName(type) {
   }
 }
 
+function setRequiredCheck(contentId) {
+  window.sessionStorage.setItem('required-check-' + contentId, 'true')
+}
+
+function unSetRequiredCheck(contentId) {
+  window.sessionStorage.removeItem('required-check-' + contentId)
+}
+
 const sysConfig = {
   sidebarWidth: 230,
   collapsedSidebarWidth: 80
 }
+
+const planRequiredFields = [PlanField.Name, PlanField.Image, PlanField.Inquiry, PlanField.Question, PlanField.SubjectIds, PlanField.GradeIds, PlanField.LearnOuts]
+const taskRequiredFields = [TaskField.GradeIds, TaskField.SubjectIds, TaskField.Slides, TaskField.Link, TaskField.Name, TaskField.Image, TaskField.Overview, TaskField.TaskType, TaskField.LearnOuts, TaskField.Question]
+const pdRequiredFields = [PdField.Name, PdField.Image, PdField.Goals, PdField.Slides]
+const videoRequiredFields = [VideoField.Name, VideoField.Video, VideoField.ContentType, VideoField.CoverImage]
 
 export {
   get21stCenturyDisplayNameByCurriculum,
@@ -62,5 +75,11 @@ export {
   getContentTypeName,
   ScheduleSteps,
   ScheduleSessionType,
-  replaceToClasscipeCDN
+  replaceToClasscipeCDN,
+  setRequiredCheck,
+  unSetRequiredCheck,
+  planRequiredFields,
+  taskRequiredFields,
+  pdRequiredFields,
+  videoRequiredFields
 }

@@ -170,7 +170,7 @@
       </a-form-model-item>
 
       <a-form-model-item :wrapperCol="{offset: 6}">
-        <a-space v-if="formModel.serviceVerificationStatus === 1 || formModel.serviceVerificationStatus === 3">
+        <a-space v-if="formModel.serviceVerificationStatus === '' ||formModel.serviceVerificationStatus === 1 || formModel.serviceVerificationStatus === 3">
           <a-button :loading="loading" @click="handleCancel">Cancel</a-button>
           <a-button :loading="loading" @click="handleSave" type="primary">{{ 'Update' }}</a-button>
         </a-space>
@@ -259,7 +259,7 @@ export default {
         officialId: '',
         holdingPhone: '',
         availableTime: 1,
-        serviceVerificationStatus: 1
+        serviceVerificationStatus: ''
       },
       formItemLayout: {
         labelCol: { span: 6 },

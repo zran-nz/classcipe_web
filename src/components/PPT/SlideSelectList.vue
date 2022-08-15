@@ -51,6 +51,7 @@
               :show-title='true'
               :show-arrow='true'
               :slide-item='slide'
+              :add-text="filterSourceType === sourceType.Library ? 'Buy now' : 'Add'"
               :show-remove-button='selectedPresentationIdList.indexOf(slide.presentationId) !== -1'
               :show-add-button='selectedPresentationIdList.indexOf(slide.presentationId) === -1'
               :default-thumbnail-list='slide.thumbnailList'/>
@@ -151,7 +152,7 @@ export default {
         },
         showTotal: total => `Total ${total} items`,
         total: 0,
-        pageSize: 21
+        pageSize: 30
       },
 
       previewCurrentId: null,
@@ -283,7 +284,8 @@ export default {
         searchKey: this.filterParams ? this.filterParams.searchKey : null,
         types: [ this.$classcipe.typeMap.task, this.$classcipe.typeMap.pd ],
         delFlag: 0,
-        schoolId: this.school
+        schoolId: this.school,
+        filterSlide: true
       }
       if (this.filterParams) {
         params = Object.assign(this.filterParams, params)

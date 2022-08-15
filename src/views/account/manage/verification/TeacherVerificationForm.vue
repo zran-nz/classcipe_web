@@ -82,8 +82,8 @@
       </a-form-model-item>
 
       <a-form-model-item :wrapperCol="{offset: 6}">
-        <a-space v-if="formModel.teacherVerificationStatus === 1 || formModel.teacherVerificationStatus === 3">
-          <a-button :loading="loading" @click="handleCancel">Cancel</a-button>
+        <a-space v-if="formModel.teacherVerificationStatus === '' || formModel.teacherVerificationStatus === 1 || formModel.teacherVerificationStatus === 3">
+          <!-- <a-button :loading="loading" @click="handleCancel">Cancel</a-button> -->
           <a-button :loading="loading" @click="handleSave" type="primary">{{ 'Update' }}</a-button>
         </a-space>
         <div class="status-text" v-if="formModel.teacherVerificationStatus === 1">
@@ -166,7 +166,7 @@ export default {
         schoolId: '',
         teachingYear: '',
         teachingCertificate: '',
-        teacherVerificationStatus: 1
+        teacherVerificationStatus: ''
       },
       formItemLayout: {
         labelCol: { span: 6 },

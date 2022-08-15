@@ -109,6 +109,11 @@
                   <!-- <label for="" class="basic-name-extra" v-if="link.extraKey"> {{ getExtra(link.extraKey) }} </label> -->
                   <label for="" class="basic-name-extra" v-if="link.extraKey"> {{ getExtra(link.extraKey) }} </label>
                 </div>
+                <div class="item-basic-badge" v-if="link.badgeKey">
+                  <a-tooltip :title="`There are ${getBadge(link.badgeKey)} teacher(s) to be reviewed`">
+                    <a-badge :count="getBadge(link.badgeKey)" />
+                  </a-tooltip>
+                </div>
               </div>
               <div class="link-item-desc">
                 {{ link.desc }}
@@ -136,7 +141,7 @@ import CustomImageUploader from '@/components/Common/CustomImageUploader'
 import AvatarModal from '@/views/account/settings/AvatarModal'
 
 import { listClass } from '@/api/v2/schoolClass'
-import { getSchoolUsers } from '@/api/v2/schoolUser'
+import { getSchoolUsers, getTeacherCount } from '@/api/v2/schoolUser'
 import { SwitchUserModeSchool } from '@/api/user'
 
 import SchoolInfoPng from '@/assets/icons/account/schoolInfo.png?inline'
@@ -189,6 +194,7 @@ export default {
       classCount: 0,
       teacherCount: 0,
       studentCount: 0,
+      pendingTeacherCount: 0,
       sendLoading: false
     }
   },
@@ -269,6 +275,7 @@ export default {
             avatar: TeachersPng,
             title: 'Teachers',
             extraKey: 'teacherCount',
+            badgeKey: 'pendingTeacherCount',
             desc: 'Add/Invite, edit and delete teachers',
             url: '/manage/teacher',
             hidden: this.isNotAdmin
@@ -441,11 +448,8 @@ export default {
           pageSize: 1
         }),
         ...this.userMode === USER_MODE.SCHOOL ? [
-          getSchoolUsers({
-            schoolId: this.currentSchool.id,
-            roles: 'teacher',
-            pageNo: 1,
-            pageSize: 1
+          getTeacherCount({
+            schoolId: this.currentSchool.id
           }),
           getSchoolUsers({
             schoolId: this.currentSchool.id,
@@ -459,7 +463,8 @@ export default {
           this.classCount = clsRes.result.total
         }
         if (teacherRes && teacherRes.code === 0 && teacherRes.result) {
-          this.teacherCount = teacherRes.result.total
+          this.teacherCount = teacherRes.result.sumCount
+          this.pendingTeacherCount = teacherRes.result.pendingCount
         }
         if (studentRes && studentRes.code === 0 && studentRes.result) {
           this.studentCount = studentRes.result.total
@@ -511,6 +516,9 @@ export default {
       } else {
         return ''
       }
+    },
+    getBadge(key) {
+      return this[key]
     },
     handleGoPage(url) {
       if (url) {
@@ -801,6 +809,7 @@ export default {
             .link-item-basic {
               display: flex;
               align-items: center;
+              position: relative;
               width: 100%;
               .item-basic-avatar {
                 width: 0.66em /* 66/100 */;
@@ -826,6 +835,12 @@ export default {
                 .basic-name-extra {
                   margin-left: 1/0.2*.4em;
                 }
+              }
+
+              .item-basic-badge {
+                font-size: 0.12em /* 12/100 */;
+                position: absolute;
+                right: 0;
               }
             }
             .link-item-desc {

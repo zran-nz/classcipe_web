@@ -49,27 +49,9 @@
             <a-range-picker :default-value="initDate" :mode="['date']" :disabled-date="disabledDate" @change="handleDateChange"/>
           </a-col>
         </a-row>
-        <a-row :gutter='20' type="flex" align='middle'>
-          <a-col span='10' class='label-name'>
-            Is this task suitable for self-learning?
-          </a-col>
-          <a-col span='12'>
-            <a-space>
-              <a-tooltip
-                title="After you set it as student self-learning friendly, this task will appear on students' page for purchase. After 5 students have successfully completed the task and given positive review, Classcipe will make it as premium task then you may set a price for it which will be charged from students and paid to your account upon each purchase.">
-                <a-button class='cc-round-button' :class="{'cc-dark-button': mySelfLearning }" @click='mySelfLearning = true' style='width: 80px'>
-                  <a-badge count='?' :offset='[25, -8]'>
-                    Yes
-                  </a-badge>
-                </a-button>
-              </a-tooltip>
-              <a-button class='cc-round-button' :class="{'cc-dark-button': !mySelfLearning }" @click='mySelfLearning = false' style='width: 80px'>No</a-button>
-            </a-space>
-          </a-col>
-        </a-row>
       </template>
     </div>
-    <div class='sub-task-container'>
+    <div class='sub-task-container' v-if='showCreateSubTask'>
       <a-row :gutter='20' type="flex" align='middle'>
         <a-col span='10' class='label-name'>
           Would like to create sub-tasks?
@@ -113,6 +95,10 @@ export default {
     isSubTask: {
       type: String,
       default: null
+    },
+    showCreateSubTask: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -120,7 +106,6 @@ export default {
       saveLoading: false,
       isPublish: false,
       isCreateSubTask: false,
-      mySelfLearning: this.isSelfLearning,
       enablePrice: false,
       myPrice: 0,
       myDiscount: 0,
@@ -149,7 +134,6 @@ export default {
     handleConfirmAndSplitTask (data) {
       this.$logger.info('handleConfirmAndSplitTask')
       this.$emit('confirm-and-split', {
-        isSelfLearning: this.mySelfLearning,
         price: this.enablePrice ? +this.myPrice : 0
       })
     },
@@ -166,7 +150,6 @@ export default {
         price: this.enablePrice ? +this.myPrice : 0
       })
       this.$emit('confirm', {
-        isSelfLearning: this.mySelfLearning,
         isCreateSubTask: this.isCreateSubTask,
         dontRemind: this.dontRemind,
         discount: parseFloat(this.myDiscount).toFixed(2),

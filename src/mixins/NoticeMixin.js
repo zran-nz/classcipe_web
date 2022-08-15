@@ -65,6 +65,7 @@ export const NoticeMixin = {
         EditCementSend({ anntId: record.id }).then(() => {
           this.$store.commit(RECEIVE_MSG, true)
         })
+        record.readFlag = '1'
       }
       this.setShareType(record)
       if (record.busType === NotificationTypeMap.collaborateApply) {

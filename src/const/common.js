@@ -121,7 +121,7 @@ export const SplitTaskField = {
   MaterialList: 'materialList',
   Link: 'link',
   Slides: 'taskSlides',
-  SelectSlides: 'selectSlides',
+  SelectSlides: 'selectPageObjectIds',
   Image: 'image',
   CoverVideo: 'coverVideo'
 }
@@ -133,7 +133,7 @@ export const PdField = {
   Goals: 'goals',
   Slides: 'slides',
   Link: 'link',
-  VideoList: 'VideoList'
+  VideoList: 'videoList'
 }
 
 export const VideoField = {
@@ -436,7 +436,7 @@ export const ROLE_PERMISSION = {
     label: 'Managing School info, Payment details, Orders, Classes, Teachers, Students, Space, School roles, Academic Terms, Tags, Curriculum, Attendance and Teaching plan format.'
   },
   'Homeroom teacher': {
-    permissions: ['MyCalssV2', 'SchoolSpace'],
+    permissions: ['SchoolSpace'],
     label: 'Managing their classes, Space(Content relating to their classes)'
   },
   'Subject coordinator': {

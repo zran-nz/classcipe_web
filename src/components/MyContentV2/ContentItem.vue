@@ -1,7 +1,7 @@
 <template>
   <div class='content-item' v-if='content' :style="{'border': activeItem ? '1px solid #15c39a' : '1px solid #EEF1F6'}">
     <div class='cover'>
-      <div class='cover-block' :style="{'background-image': 'url(' + content.image + ')'}">
+      <div class='cover-block' :style="{'background-image': 'url(' + (content.image || 'http://dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png') + ')'}">
         <div class='slide-editing-mask' v-if='(content.type === typeMap.task || content.type === typeMap.pd) && content.slideEditing'>
           <custom-button
             label='Save Slides'
@@ -12,7 +12,7 @@
             </template>
           </custom-button>
         </div>
-        <div class='bottom-action' v-show='showEdit || allowPreview'>
+        <div class='bottom-action' v-show='showEdit || allowPreview' v-if='showCoverBar'>
           <div class='bottom-action-item vertical-left' @click='editItem'>
             <div class='bottom-action-item-icon'><a-icon type="form" /></div>
             <div class='bottom-action-item-label'>Edit</div>
@@ -56,15 +56,18 @@
                 <a-icon type="edit" v-if='!visible' @click.native='showEditPrice'/>
               </div>
             </div>
+            <div class='publish-status' v-if='showPublishStatus'>
+              {{ content.status === 1 ? 'Published' : 'Unpublished' }}
+            </div>
           </div>
           <div class='extra-info'>
             <a-space>
-              <div class='info-item curriculum-info' v-show='curriculumName'>
+              <div class='info-item curriculum-info' v-show='curriculumName && content.type !== typeMap.pd'>
                 {{ curriculumName }}
               </div>
               <div class='info-item subject-info'>
                 <a-space>
-                  <div class='subject-item' v-for='(subject, idx) in content.subjectList.slice(0, 2)' :key='idx'>{{ subject }}</div>
+                  <div class='subject-item' v-for='(subject, idx) in content.subjectList.slice(0, 2)' :key="'sub' + idx">{{ subject }}</div>
                 </a-space>
                 <div class='more-item' v-if='content.subjectList.slice(2).length'>
                   <a-tooltip placement='top' :title='content.subjectList.slice(2).join("、 ")' >more({{ content.subjectList.slice(2).length }})</a-tooltip>
@@ -72,7 +75,7 @@
               </div>
               <div class='info-item year-info'>
                 <a-space>
-                  <div class='subject-item' v-for='(year, idx) in content.yearList.slice(0, 4)' :key='idx'>{{ year }}</div>
+                  <div class='subject-item' v-for='(year, idx) in content.yearList.slice(0, 4)' :key="'year' + idx">{{ year }}</div>
                 </a-space>
                 <div class='more-item' v-if='content.yearList.slice(4).length'>
                   <a-tooltip placement='top' :title='content.yearList.slice(4).join("、 ")' >more({{ content.yearList.slice(4).length }})</a-tooltip>
@@ -107,17 +110,17 @@
             </a-space>
           </div>
           <div class='tag-info' v-if='knowledgeTagsList.length'>
-            <div class='tag-info-item' v-for='(knowledgeTag, cIdx) in knowledgeTagsList' :key='cIdx'>
+            <div class='tag-info-item' v-for='(knowledgeTag, cIdx) in knowledgeTagsList' :key="'tag' + cIdx">
               <a-tag color='#EABA7F' class='tag-item knowledge-tag' :title='knowledgeTag'>{{ knowledgeTag }}</a-tag>
             </div>
           </div>
           <div class='tag-info'>
             <template v-if='commandTermsList.length'>
-              <div class='tag-info-item' v-for='(command, cIdx) in commandTermsList' :key='cIdx'>
+              <div class='tag-info-item' v-for='(command, cIdx) in commandTermsList' :key="'term' + cIdx">
                 <a-tag color='#06ACD7' class='tag-item command-tag' :title='command'>{{ command }}</a-tag>
               </div>
             </template>
-            <div class='tag-info-item' v-for='(customTag, idx) in content.customTags' :key='idx'>
+            <div class='tag-info-item' v-for='(customTag, idx) in content.customTags' :key="'ct' + idx">
               <a-tag color='#FFEDAF' class='tag-item' :title='customTag.category'> {{ customTag.name }} </a-tag>
             </div>
           </div>
@@ -134,7 +137,7 @@
               <a-avatar size="small">{{ content.createBy.toUpperCase()[0] }}</a-avatar>
             </template>
             <div class='user-name'>
-              {{ content.owner ? content.owner.nickname : content.createBy | upCaseFirst }}
+              {{ (content.owner ? (content.owner.firstname + ' ' + content.owner.lastname) : content.createBy) | upCaseFirst }}
             </div>
           </div>
         </div>
@@ -143,71 +146,82 @@
           <template v-if='showButton && !content.delFlag'>
             <custom-button
               label='Schedule'
-              v-if='content.pageObjects.length && showSchedule && (content.type === typeMap.task || content.type === typeMap.pd) && !content.slideEditing'
+              :disabled='!content.canPublish'
+              :disabled-tooltip="'Please complete the information'"
+              v-if='showSchedule && (content.type === typeMap.task || content.type === typeMap.pd)'
               @click='handleSchedule'>
               <template v-slot:icon>
-                <schedule-icon />
+                <schedule-icon style='width: 13px; height:14px' />
               </template>
             </custom-button>
 
-            <template v-if="showPublish && content.pageObjects.length && !content.slideEditing && !content.sourceFrom">
-              <custom-button label="Publish" @click='handlePublishStatus' v-if='content.status === 0'>
+            <custom-button
+              label='Public Workshop'
+              :disabled='!content.canPublish'
+              :disabled-tooltip="'Please complete the information'"
+              v-if='showSchedule && (content.type === typeMap.task || content.type === typeMap.pd)'
+              @click='handlePublicWorkshopSchedule'>
+              <template v-slot:icon>
+                <schedule-icon style='width: 13px; height:14px' />
+              </template>
+            </custom-button>
+
+            <template v-if="showPublish && !content.sourceFrom">
+              <custom-button
+                :disabled='!content.canPublish'
+                :disabled-tooltip="'Please complete the information'"
+                label="Publish"
+                @click='handlePublishStatus'
+                v-if='content.status === 0'>
                 <template v-slot:icon >
-                  <publish-icon/>
+                  <publish-icon style='width: 13px; height:14px'/>
                 </template>
               </custom-button>
 
               <custom-button label="Unpublish" @click='handlePublishStatus' v-if='content.status !== 0'>
                 <template v-slot:icon >
-                  <un-publish-icon />
+                  <un-publish-icon style='width: 13px; height:14px'/>
                 </template>
               </custom-button>
             </template>
-            <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement' v-if='showDelete'>
+            <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement' v-if='showDelete && content.owner.email === $store.getters.email'>
               <div class='more-action'>
                 <more-icon />
               </div>
-              <div class='content-item-more-action' slot='overlay'>
+              <div class='content-item-more-action' slot='overlay' v-if='showArchive'>
                 <div class='menu-item'>
                   <custom-button label='Archive' @click='handleDeleteItem'>
                     <template v-slot:icon>
-                      <delete-icon />
+                      <delete-icon style='width: 13px; height:14px'/>
                     </template>
                   </custom-button>
-                </div>
-                <div class='menu-item'>
-                  <a-popconfirm :title="'Confirm permanent delete ' +(content.name ? content.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem" cancel-text="No">
-                    <custom-button label='Delete'>
-                      <template v-slot:icon>
-                        <delete-icon />
-                      </template>
-                    </custom-button>
-                  </a-popconfirm>
                 </div>
               </div>
             </a-dropdown>
           </template>
 
-          <template v-if='showButton && content.delFlag'>
-            <a-space :size='30'>
-
-              <a-popconfirm :title="'Confirm permanent delete ' +(content.name ? content.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handlePermanentDeleteItem" cancel-text="No">
+          <template v-if='showButton && content.delFlag && content.owner.email === $store.getters.email && allowPermanentDelete'>
+            <a-popconfirm placement="topRight" :title="'Confirm restore ' +(content.name ? content.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleRestoreItem(content)" cancel-text="No">
+              <custom-button label='Restore'>
+                <template v-slot:icon>
+                  <edit-icon />
+                </template>
+              </custom-button>
+            </a-popconfirm>
+            <div class='menu-item'>
+              <a-popconfirm placement="topRight" ok-text="Yes" @confirm="handlePermanentDeleteItem" cancel-text="No">
+                <template v-slot:title>
+                  Confirm to delete the content <br/>
+                  permanently, you will not be able to <br/>
+                  retrieve it in future.
+                </template>
                 <custom-button label='Delete'>
                   <template v-slot:icon>
-                    <delete-icon />
+                    <delete-icon style='width: 13px; height:14px'/>
                   </template>
                 </custom-button>
               </a-popconfirm>
-
-              <a-popconfirm :title="'Confirm restore ' +(content.name ? content.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleRestoreItem(content)" cancel-text="No">
-                <custom-button label='Restore'>
-                  <template v-slot:icon>
-                    <edit-icon />
-                  </template>
-                </custom-button>
-              </a-popconfirm>
-
-            </a-space>
+            </div>
           </template>
         </div>
       </div>
@@ -343,6 +357,26 @@ export default {
     showSetPrice: {
       type: Boolean,
       default: false
+    },
+    showCoverBar: {
+      type: Boolean,
+      default: true
+    },
+    allowPermanentDelete: {
+      type: Boolean,
+      default: true
+    },
+    showArchive: {
+      type: Boolean,
+      default: true
+    },
+    showRestore: {
+      type: Boolean,
+      default: false
+    },
+    showPublishStatus: {
+      type: Boolean,
+      default: false
     }
   },
   mixins: [ContentItemMixin],
@@ -381,6 +415,9 @@ export default {
   methods: {
     editItem() {
       const item = this.content
+      if (!item.canPublish) {
+        this.$classcipe.setRequiredCheck(item.id)
+      }
       if (item.type === typeMap['unit-plan']) {
         this.$router.push({
           path: '/teacher/unit-plan-redirect/' + item.id
@@ -400,10 +437,28 @@ export default {
       }
     },
 
+    setCheckRequired() {
+      this.$classcipe.setRequiredCheck(this.contentId)
+    },
+
     handleSchedule() {
-      if (this.content.pageObjects.length) {
+      if (this.content.pageObjects.length && this.content.presentationId && !this.content.presentationId.startsWith('fake_buy_')) {
         this.$router.push({
           path: '/teacher/schedule-session/' + this.content.id + '/' + this.content.type
+        })
+      } else {
+        this.$confirm({
+          title: 'Warning',
+          content: 'This task/PD content can not be scheduled without interactive slides, please edit google slides first before scheduling.'
+        })
+      }
+    },
+
+    handlePublicWorkshopSchedule () {
+      this.$logger.info('handlePublicWorkshopSchedule', this.content)
+      if (this.content.pageObjects.length && this.content.presentationId && !this.content.presentationId.startsWith('fake_buy_')) {
+        this.$router.push({
+          path: '/teacher/schedule-workshop/' + this.content.id + '/' + this.content.type
         })
       } else {
         this.$confirm({
@@ -598,6 +653,8 @@ export default {
           .left {
             width: calc(100% - 150px);
             .type-icon {
+              min-width: 40px;
+              white-space: nowrap;
               .ant-space-item {
                 display: flex;
                 flex-direction: row;
@@ -672,7 +729,7 @@ export default {
         }
       }
       .action {
-        width: calc(100% - 300);
+        width: calc(100% - 300px);
         > div {
           display: flex;
           align-items: center;
@@ -908,8 +965,9 @@ export default {
 
 .set-price-line {
   line-height: 15px;
+  position: relative;
   .price-info {
-    padding-right: 50px;
+    position: relative;
     .price {
       cursor: pointer;
       color: #e4393c;
@@ -937,4 +995,12 @@ export default {
   }
 }
 
+.publish-status {
+  position: absolute;
+  bottom: -35px;
+  font-size: 12px;
+  color: #999;
+  cursor: pointer;
+  user-select: none;
+}
 </style>

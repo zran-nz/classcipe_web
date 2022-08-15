@@ -16,7 +16,8 @@ export const schoolClassApi = {
   removeStudents: `/classcipe/${API_PREFIX}/removeStudents`,
   restoreClass: `/classcipe/${API_PREFIX}/restore`,
   saveClass: `/classcipe/${API_PREFIX}/save`,
-  studentImport: `/classcipe/${API_PREFIX}/student/import`
+  studentImport: `/classcipe/${API_PREFIX}/student/import`,
+  classDetail: `/classcipe/${API_PREFIX}/detail`
 }
 
 /**
@@ -220,5 +221,18 @@ export function deleteClass (parameter) {
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+ export function classDetail (parameter) {
+  return request({
+    url: schoolClassApi.classDetail,
+    method: 'get',
+    params: parameter
   })
 }

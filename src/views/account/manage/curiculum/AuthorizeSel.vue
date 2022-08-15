@@ -170,9 +170,10 @@
 
 <script>
 import { listIbAuth, submitIbAuth } from '@/api/academicSettingIbAuth'
-import { AllCurriculums } from '@/const/common'
+import { AllCurriculums, USER_MODE } from '@/const/common'
 import CustomerUploadFile from '@/components/Common/CustomerUploadFile'
 import { upAwsS3File } from '@/components/AddMaterial/Utils/AwsS3'
+import { mapState } from 'vuex'
 const IBs = [AllCurriculums.IBPYP, AllCurriculums.IBMYP]
 export default {
   name: 'AuthorizeSel',
@@ -240,6 +241,13 @@ export default {
       },
       uploading: false
     }
+  },
+  computed: {
+    ...mapState({
+      info: state => state.user.info,
+      currentSchool: state => state.user.currentSchool,
+      userMode: state => state.app.userMode
+    })
   },
   methods: {
     initData() {
@@ -339,6 +347,11 @@ export default {
       if (!params.certificate) {
         this.$message.error('Please upload certificate')
         return
+      }
+      if (this.userMode === USER_MODE.SELF) {
+        params.applyType = 2
+      } else {
+        params.applyType = 1
       }
       this.loading = true
       submitIbAuth(params).then(res => {

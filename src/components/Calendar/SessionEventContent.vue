@@ -2,11 +2,11 @@
   <div>
     <div v-if="info.event.display === 'background'">
       <template v-if="info.event.extendedProps.termId">
-        {{ info.event.start | dayjs(FORMATTER_SIM) }}-{{ info.event.end | dayjs(FORMATTER_SIM) }}
+        {{ info.event.start | dayjs(FORMATTER_SIM2) }}-{{ info.event.end | dayjs(FORMATTER_SIM2) }}
       </template>
     </div>
     <a-popover
-      title="Session Detail"
+      title=""
       trigger="click"
       v-else-if="info.event.extendedProps.eventType !== 'selectDate'"
       :destroyTooltipOnHide="true"
@@ -15,7 +15,7 @@
     >
       <a slot="content" >
         <a-spin :spinning="loading">
-          <div v-if="queryType !== CALENDAR_QUERY_TYPE.WORKSHOP.value" style="max-width: 1100px;">
+          <div v-if="queryType !== CALENDAR_QUERY_TYPE.WORKSHOP.value" style="max-width: 650px;">
             <content-item-calendar
               ref="contentItemCalendar"
               :content='getSession(info)'
@@ -37,13 +37,13 @@
       </a>
       <div
         class="schedule-event-content"
-        :style="{backgroundColor: info.event.extendedProps.backgroundColor, color: '#333'}"
+        :style="{backgroundColor: info.event.extendedProps.backgroundColor, color: '#333', lineHeight: 1}"
       >
         <div v-show="info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay'">
-          {{ info.event.start | dayjs(FORMATTER_SIM) }}-{{ info.event.end | dayjs(FORMATTER_SIM) }}
+          {{ info.event.start | dayjs(FORMATTER_SIM2) }}-{{ info.event.end | dayjs(FORMATTER_SIM2) }}
         </div>
         <span v-show="info.view.type === 'dayGridMonth'" style="margin-right: 5px;">
-          {{ info.event.start | dayjs(FORMATTER_SIM) }}
+          {{ info.event.start | dayjs(FORMATTER_SIM2) }}
         </span>
         <label
           v-if="info.view.type === 'timeGridWeek'"
@@ -92,10 +92,10 @@
       </a>
       <div
         class="schedule-event-content"
-        :style="{backgroundColor: info.event.extendedProps.backgroundColor, color: '#333'}"
+        :style="{backgroundColor: info.event.extendedProps.backgroundColor, color: '#333', minHeight: 'auto'}"
       >
         <div>
-          {{ info.event.start | dayjs(FORMATTER_SIM) }}-{{ info.event.end | dayjs(FORMATTER_SIM) }}
+          {{ info.event.start | dayjs(FORMATTER_SIM2) }}-{{ info.event.end | dayjs(FORMATTER_SIM2) }}
         </div>
       </div>
     </a-popover>
@@ -175,6 +175,7 @@ export default {
       vis: false,
       FORMATTER: 'h:mm a',
       FORMATTER_SIM: 'h:mma',
+      FORMATTER_SIM2: 'HH:mm',
       FORMATTER_FULL: 'YYYY-MM-DD h:mm a',
       CALENDAR_QUERY_TYPE: CALENDAR_QUERY_TYPE,
       BG_COLORS: BG_COLORS,

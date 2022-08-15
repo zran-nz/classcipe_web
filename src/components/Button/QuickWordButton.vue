@@ -1,6 +1,47 @@
 <template>
   <div>
-    <a-popover
+    <!-- // 改成modal -->
+    <a-modal
+      v-model='visible'
+      destroyOnClose
+      :title='null'
+      :getPopupContainer="trigger => trigger.parentElement"
+      width='300px'
+      :footer='null'>
+      <div>
+        <div class="quick-title">
+          <a-input size="small" placeholder="Input keyword" @change="handleChange" v-model="word"></a-input>
+        </div>
+        <div class="quick-word">
+          <div class="quick-word-title" v-show="result && result.length > 0">
+            Select an option
+          </div>
+          <a-spin :spinning="loading">
+            <div
+              class="quick-word-content"
+              v-if="result && result.length > 0"
+            >
+              <div class="quick-word-item" v-for="(item) in result" :key="'quickWord_'+item">
+                <a @click="choose(item)">{{ item }}</a>
+              </div>
+            </div>
+            <div v-else style="font-size: 12px;color:#999;">No relevant tag found</div>
+          </a-spin>
+          <slot name='create'>
+            <div class="quick-word-sub">
+              <label>Create: </label>
+              <a-input :size="size" v-model="selfWord"/>
+              <a-icon @click="doCreate()" type="check" />
+            </div>
+          </slot>
+        </div>
+      </div>
+    </a-modal>
+
+    <a-button @click="showModal" :type="type" :size="size">
+      {{ text }}
+    </a-button>
+    <!-- <a-popover
       v-model="visible"
       trigger="click"
       placement="bottom"
@@ -15,21 +56,11 @@
           Select an option
         </div>
         <a-spin :spinning="loading">
-          <!-- <div
-            class="quick-word-content"
-            v-infinite-scroll="handleInfiniteOnLoad"
-            :infinite-scroll-disabled="busy"
-            :infinite-scroll-distance="10"
-            v-if="result && result.length > 0"
-          > -->
           <div
             class="quick-word-content"
             v-if="result && result.length > 0"
           >
             <div class="quick-word-item" v-for="(item) in result" :key="'quickWord_'+item">
-              <!-- <a-tooltip :title="item">
-                <a @click="choose(item)">{{ item }}</a>
-              </a-tooltip> -->
               <a @click="choose(item)">{{ item }}</a>
             </div>
           </div>
@@ -46,7 +77,7 @@
       <a-button :type="type" :size="size">
         {{ text }}
       </a-button>
-    </a-popover>
+    </a-popover> -->
   </div>
 </template>
 
@@ -75,6 +106,10 @@ export default {
       default: ''
     },
     datas: {
+      type: Array,
+      default: () => []
+    },
+    recommends: {
       type: Array,
       default: () => []
     },
@@ -110,6 +145,13 @@ export default {
         this.result = [...val]
       },
       immediate: true
+    },
+    recommends: {
+      handler(val) {
+        this.recommendsRes = [...val]
+        this.loadData()
+      },
+      immediate: true
     }
   },
   created() {
@@ -119,8 +161,9 @@ export default {
     return {
       word: this.quickWord,
       result: [],
+      recommendsRes: [],
       loading: false,
-      visible: true,
+      visible: false,
       selfWord: this.quickWord,
       busy: false
     }
@@ -129,6 +172,7 @@ export default {
     // 1、这个是获取平台知识点标签，只要获取一次就缓存，不刷新页面不用重复获取
     // 2、关键词搜索优先过滤显示平台的标签数据，（这个时候不需要请求搜索接口）
     // 3、关键词过滤的数据少于3条的时候，才会调用搜索接口，把搜索结果追加到当前结果下
+    // 4、关键词为空，有recommendsRes就显示recommendsRes否则显示pub
     async loadData() {
       this.loading = true
       const userId = this.$store.getters.userInfo.id
@@ -142,12 +186,19 @@ export default {
           this.result = cacheds
         }
       }
-      this.result = this.result.filter(item => item.toLocaleLowerCase().indexOf(this.word.toLocaleLowerCase()) > -1)
-      if (this.result.length < 4) {
-        const res = await this.loadApi({
-          key: this.word
-        })
-        this.result = this.result.concat(res)
+      if (!this.word) {
+        this.result = this.recommendsRes.concat()
+      }
+      if (this.word || this.recommendsRes.length === 0) {
+        this.result = this.result.filter(item => item.toLocaleLowerCase().indexOf(this.word.toLocaleLowerCase()) > -1)
+        if (this.result.length < 4) {
+          const res = await this.loadApi({
+            key: this.word
+          })
+          this.result = this.result.concat(res)
+        }
+      } else {
+        this.result = this.recommendsRes.concat()
       }
       this.loading = false
       return this.result
@@ -184,6 +235,8 @@ export default {
         // knowledgeDimension: item.knowledgeDimension,
         id: item
       })
+      this.word = ''
+      this.selfWord = ''
     },
     doCreate() {
       this.visible = false
@@ -194,6 +247,13 @@ export default {
         tag: 'Apply',
         id: -1
       })
+      this.word = ''
+      this.selfWord = ''
+    },
+    showModal() {
+      this.visible = true
+      // 父popover要隐藏
+      this.$emit('close')
     }
   }
 }

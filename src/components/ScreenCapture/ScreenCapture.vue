@@ -30,11 +30,11 @@ export default {
       default: null
     },
     contentId: {
-      type: String,
+      type: [String, Number],
       default: null
     },
     contentType: {
-      type: Number,
+      type: [String, Number],
       default: null
     }
   },

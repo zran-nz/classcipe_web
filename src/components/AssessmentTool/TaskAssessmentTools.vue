@@ -39,7 +39,11 @@
         </div>
       </template>
       <template v-if='!assessmentList.length'>
-        <common-no-data text='No assessment tool.' class='no-assessment'/>
+        <common-no-data text='No assessment tool.' class='no-assessment'>
+          <template v-slot:icon>
+            <empty-assessment />
+          </template>
+        </common-no-data>
       </template>
     </div>
 
@@ -72,6 +76,7 @@ import { HeaderType, AssessmentToolType } from '@/components/AssessmentTool/Cons
 import { AssessmentToolInfoList } from '@/api/v2/assessment'
 import AssessmentToolList from '@/components/AssessmentTool/AssessmentToolList'
 import ModalHeader from '@/components/Common/ModalHeader'
+import EmptyAssessment from '@/assets/v2/icons/empty_assessment.svg?inline'
 
 export default {
   name: 'TaskAssessmentTools',
@@ -79,6 +84,7 @@ export default {
     ModalHeader,
     AssessmentToolList,
     AssessmentTool,
+    EmptyAssessment,
     CommonNoData,
     CustomTextButton
   },

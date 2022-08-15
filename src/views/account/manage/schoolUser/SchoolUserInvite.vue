@@ -113,6 +113,7 @@ export default {
     onCopy() {
       this.$copyText(this.inviteUrl).then(message => {
         this.$message.success('Copy success!')
+        this.modalVis = false
       }).catch(err => {
         console.log('copy.err', err)
         this.$message.error('Copy Failed')

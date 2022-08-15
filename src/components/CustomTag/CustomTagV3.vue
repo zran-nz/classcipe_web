@@ -18,7 +18,7 @@
             <div class="skt-tag-item" :class="{'active-category-tag': activeCategoryTagList.indexOf(tagItem.name) !== -1}" v-for="(tagItem) in selectedTagList" :key="tagItem.name" @click='activeCategory(tagItem)'>
               <a-tag
                 :closable="canCloseTag(tagItem)"
-                @close="closeTag(tagItem)"
+                @close="disabled ? null : closeTag(tagItem)"
                 :color="tagItem.tagColor"
                 class='tag-item'>
                 {{ tagItem.name }}
@@ -27,7 +27,11 @@
           </div>
         </div>
         <div class='no-selected-tag' v-show='selectedTagList.length === 0 && !loading'>
-          <common-no-data text='No tag' />
+          <common-no-data text='No tag'>
+            <template v-slot:icon>
+              <empty-tag />
+            </template>
+          </common-no-data>
         </div>
       </div>
       <div class='tag-category-wrapper' v-show='tagSelectContainerVisible'>
@@ -41,7 +45,7 @@
         </template>
       </div>
       <div class='tag-category-content-wrapper' v-show='tagSelectContainerVisible'>
-        <div class='category-search'>
+        <div class='category-search' v-if='!disabled'>
           <custom-search-input
             :round='true'
             placeholder='Search your tag'
@@ -56,7 +60,7 @@
             <div class="search-tag-wrapper tag-wrapper" v-if="filterTagList.length > 0">
               <div class="skt-tag-item" v-for="tagItem in filterTagList" :key="tagItem.tag" >
                 <a-tag
-                  @click="selectedTagNameList.indexOf(tagItem.tag) !== -1 ? null : selectTag(currentActiveTagCategory, tagItem)"
+                  @click="selectedTagNameList.indexOf(tagItem.tag) !== -1 || disabled ? null : selectTag(currentActiveTagCategory, tagItem)"
                   :style="{ 'background-color': currentActiveTagCategory.tagColor || '#fff', 'border-color': currentActiveTagCategory.tagColor || '#15c39a'}"
                   :class="{ 'selected-tag-item': selectedTagNameList.indexOf(tagItem.tag) !== -1 }"
                   class="tag-item cc-custom-tag-item">
@@ -76,7 +80,7 @@
                   <template v-else>
                     {{ tagItem.tag }}
                   </template>
-                  <span class='delete-tag-icon' v-if='tagItem.isPri' @click.stop='deleteTag(tagItem)'>
+                  <span class='delete-tag-icon' v-if='tagItem.isPri' @click.stop='disabled ? null : deleteTag(tagItem)'>
                     <a-icon type='close' />
                   </span>
                 </a-tag>
@@ -109,6 +113,7 @@
           </div>
           <div class='category-description'>
             <a-textarea
+              :disabled='disabled'
               :auto-size="{ minRows: 3, maxRows: 6 }"
               v-model='categoryDesc.description'
               placeholder='Explain how the selected tags are applied in this Unit(Tasks'
@@ -122,6 +127,7 @@
           v-if='currentActiveTagCategory && selectedCategoryNameList.indexOf(currentActiveTagCategory.set) !== -1'
           :auto-size="{ minRows: 3, maxRows: 6 }"
           v-model='currentTagCategoryDesc'
+          :disabled='disabled'
           placeholder='Explain how the selected tags are applied in this Unit(Tasks)'
           class='cc-form-textarea-white-bg'
           @change='asyncUpdateTagCategoryDescFn'
@@ -154,6 +160,7 @@ import TagSetting from '@/components/UnitPlan/TagSetting'
 import { QueryCustomTags } from '@/api/v2/mycontent'
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import CustomLinkText from '@/components/Common/CustomLinkText'
+import EmptyTag from '@/assets/v2/icons/empty_tag.svg?inline'
 
 const setColor = [
   '#FFEDAF',
@@ -173,7 +180,7 @@ const tagColorMap = {
 
 export default {
   name: 'CustomTagV3',
-  components: { CustomLinkText, CustomTextButton, TagSetting, CustomSearchInput, CustomTagCategoryBar, CommonNoData },
+  components: { CustomLinkText, CustomTextButton, EmptyTag, TagSetting, CustomSearchInput, CustomTagCategoryBar, CommonNoData },
   props: {
     customTags: {
       type: Array,
@@ -192,6 +199,10 @@ export default {
       default: () => []
     },
     isLoadAssociateTags: {
+      type: Boolean,
+      default: false
+    },
+    disabled: {
       type: Boolean,
       default: false
     }
@@ -215,7 +226,8 @@ export default {
       currentTagCategoryDesc: '',
       asyncUpdateTagCategoryDescFn: null, // 异步更新标签分类TagCategoryDesc函数
 
-      tagSelectContainerVisible: true
+      tagSelectContainerVisible: true,
+      categoryTagMap: new Map()
     }
   },
   watch: {
@@ -269,8 +281,14 @@ export default {
   },
   computed: {
     allTagList () {
-      const pubTagList = this.$store.getters.pubTagList
-      const priTagList = this.$store.getters.priTagList
+      let pubTagList = this.$store.getters.pubTagList
+      let priTagList = this.$store.getters.priTagList
+      if (!this.$store.state.classcipeConfig.ibAuth) {
+        this.$logger.info('bf filter ib pubTagList priTagList', pubTagList, priTagList)
+        pubTagList = pubTagList.filter(item => !item.ib)
+        priTagList = priTagList.filter(item => !item.ib)
+        this.$logger.info('filter ib pubTagList priTagList', pubTagList, priTagList)
+      }
       const tagList = JSON.parse(JSON.stringify([...pubTagList, ...priTagList]))
       if (this.priorityTags.length) {
         const priorityStepList = []
@@ -322,15 +340,17 @@ export default {
     },
 
     filterTagList() {
+      let list = []
       if (this.currentActiveTagCategory) {
         if (this.inputTag.length > 0 && this.inputTag.trim()) {
-          return this.currentActiveTagCategory.tags.filter(tag => tag.tag.toLowerCase().indexOf(this.inputTag.trim().toLowerCase()) > -1)
+          list = this.currentActiveTagCategory.tags.filter(tag => tag.tag.toLowerCase().indexOf(this.inputTag.trim().toLowerCase()) > -1)
         } else {
-          return this.currentActiveTagCategory.tags
+          list = this.currentActiveTagCategory.tags
         }
       } else {
         return []
       }
+      return list
     },
 
     waitCreatedTagCategory() {
@@ -364,14 +384,22 @@ export default {
 
     associateTagCategoryNameList () {
       const categorySet = new Set()
-      this.associateCustomTags.forEach(item => {
-        const customTags = item.customTags
-        customTags.forEach(customTag => {
-          if (this.selectedCategoryNameList.indexOf(customTag.category) === -1) {
-            categorySet.add(customTag.category)
+      this.$logger.info('categoryTagMap is ', this.categoryTagMap)
+      this.$logger.info('selectedTagNameList is ', this.selectedTagNameList)
+      for (const category in this.categoryTagMap) {
+        this.$logger.info('check category', category, this.categoryTagMap[category])
+        const list = this.categoryTagMap[category]
+        let notAllExist = false
+        list.forEach(tagName => {
+          if (this.selectedTagNameList.indexOf(tagName) === -1) {
+            notAllExist = true
           }
         })
-      })
+
+        if (notAllExist) {
+          categorySet.add(category)
+        }
+      }
       return Array.from(categorySet)
     },
 
@@ -424,7 +452,7 @@ export default {
     },
 
     canCloseTag(tag) {
-      return true
+      return !this.disabled
     },
 
     closeTag (closeTagItem) {
@@ -554,6 +582,7 @@ export default {
             idTypeListSet.push(item)
           }
         })
+        const categoryTagMap = {}
         QueryCustomTags(Array.from(idTypeListSet)).then(response => {
           this.$logger.info('loadAssociateCustomTags customTags', response)
           this.associateCustomTags = response.result
@@ -567,7 +596,17 @@ export default {
               } else {
                 associateTagContents[customTag.name].push(content)
               }
+              if (categoryTagMap[customTag.category]) {
+                const list = categoryTagMap[customTag.category]
+                const set = new Set(list)
+                set.add(customTag.name)
+                categoryTagMap[customTag.category] = Array.from(set)
+              } else {
+                categoryTagMap[customTag.category] = [customTag.name]
+              }
+              this.$logger.info('categoryTagMap init', categoryTagMap)
             })
+            this.categoryTagMap = categoryTagMap
           })
           this.associateTagContents = associateTagContents
         }).catch(err => {

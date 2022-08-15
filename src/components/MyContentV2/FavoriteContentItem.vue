@@ -17,7 +17,7 @@
           </div>
           <div class='extra-info'>
             <a-space>
-              <div class='info-item curriculum-info'>
+              <div class='info-item curriculum-info' v-show='curriculumName && content.type !== typeMap.pd'>
                 {{ curriculumName }}
               </div>
               <div class='info-item subject-info'>
@@ -81,7 +81,7 @@
               <a-avatar size="small">{{ content.createBy.toUpperCase()[0] }}</a-avatar>
             </template>
             <div class='user-name'>
-              {{ content.owner ? content.owner.nickname : content.createBy | upCaseFirst }}
+              {{ (content.owner ? (content.owner.firstname + ' ' + content.owner.lastname) : content.createBy) | upCaseFirst }}
             </div>
           </div>
           <div class='update-time'>

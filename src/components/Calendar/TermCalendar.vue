@@ -69,9 +69,6 @@ export default {
     termId(val) {
       this.id = val
       this.debounceRefetch()
-    },
-    choose(val) {
-      this.current = val
     }
   },
   components: {
@@ -86,7 +83,6 @@ export default {
       loading: false,
       startDate: '',
       endDate: '',
-      current: '',
       minDate: '06:00:00',
       viewType: 'timeGridWeek',
       initView: 'timeGridWeek',
@@ -208,57 +204,6 @@ export default {
 
             this.blockEvents = events.concat()
 
-            // 回显block
-            const findDay = week => {
-              let current = moment(date.start)
-              let isFind = ''
-              while (moment(date.end).isAfter(current) && !isFind) {
-                if (week === moment(current).format('dddd')) {
-                  isFind = current.format('YYYY-MM-DD')
-                }
-                current = current.add(1, 'days')
-              }
-              return isFind
-            }
-            console.log(this.current)
-            // this.current = '2022-08-02 20:00:00~2022-08-02 20:03:00,2022-08-04 01:00:00~2022-08-04 01:03:00'
-            if (this.current) {
-              const choosedBlock = this.current.split(',').map(time => {
-                const timeArr = time.split('~')
-                if (timeArr.length === 2) {
-                  const start = moment(timeArr[0])
-                  const startTime = start.format('HH:mm:ss')
-                  const startDay = findDay(start.format('dddd'))
-
-                  const end = moment(timeArr[1])
-                  const endTime = end.format('HH:mm:ss')
-                  const endDay = findDay(end.format('dddd'))
-
-                  return `${startDay} ${startTime}~${endDay} ${endTime}`
-                }
-                return ''
-              }).filter(_ => !!_)
-              console.log(choosedBlock)
-              const isEditable = this.blockEvents.length === 0
-              events = events.concat(choosedBlock.map(item => {
-                const date = item.split('~')
-                return {
-                  title: 'DateSelect',
-                  start: date[0],
-                  end: date[1],
-                  backgroundColor: 'transparent',
-                  borderColor: 'transparent',
-                  editable: isEditable,
-                  extendedProps: {
-                    eventType: 'selectDate',
-                    backgroundColor: '#3688d8',
-                    // 存储星期
-                    val: moment(date[0]).format('YYYY-MM-DD HH:mm:ss') + '~' + moment(date[1]).format('YYYY-MM-DD HH:mm:ss')
-                  }
-                }
-              }))
-            }
-
             console.log(events)
 
             this.calendarDatas = res.result
@@ -276,6 +221,7 @@ export default {
           }
           this.handleViewDidMount()
           this.handleScrollTime()
+          this.initChoose()
         } else {
           failCb()
         }
@@ -284,6 +230,62 @@ export default {
       }).finally(() => {
         this.loading = false
       })
+    },
+    initChoose() {
+      console.log(this.choose)
+      if (this.$refs.fullCalendar) {
+        const calendarApi = this.$refs.fullCalendar.getApi()
+        // 回显block
+        const findDay = week => {
+          let current = moment(this.startDate)
+          let isFind = ''
+          while (moment(this.endDate).isAfter(current) && !isFind) {
+            if (week === moment(current).format('dddd')) {
+              isFind = current.format('YYYY-MM-DD')
+            }
+            current = current.add(1, 'days')
+          }
+          return isFind
+        }
+        console.log(this.choose)
+        // this.choose = '2022-08-02 20:00:00~2022-08-02 20:03:00,2022-08-04 01:00:00~2022-08-04 01:03:00'
+        if (this.choose) {
+          const choosedBlock = this.choose.split(',').map(time => {
+            const timeArr = time.split('~')
+            if (timeArr.length === 2) {
+              const start = moment(timeArr[0])
+              const startTime = start.format('HH:mm:ss')
+              const startDay = findDay(start.format('dddd'))
+
+              const end = moment(timeArr[1])
+              const endTime = end.format('HH:mm:ss')
+              const endDay = findDay(end.format('dddd'))
+
+              return `${startDay} ${startTime}~${endDay} ${endTime}`
+            }
+            return ''
+          }).filter(_ => !!_)
+          console.log(choosedBlock)
+          const isEditable = this.blockEvents.length === 0
+          choosedBlock.forEach(item => {
+            const date = item.split('~')
+            calendarApi.addEvent({
+              title: 'DateSelect',
+              start: date[0],
+              end: date[1],
+              backgroundColor: 'transparent',
+              borderColor: 'transparent',
+              editable: isEditable,
+              extendedProps: {
+                eventType: 'selectDate',
+                backgroundColor: '#3688d8',
+                // 存储星期
+                val: moment(date[0]).format('YYYY-MM-DD HH:mm:ss') + '~' + moment(date[1]).format('YYYY-MM-DD HH:mm:ss')
+              }
+            })
+          })
+        }
+      }
     },
     handleSchoolChange(school) {
       this.initData()

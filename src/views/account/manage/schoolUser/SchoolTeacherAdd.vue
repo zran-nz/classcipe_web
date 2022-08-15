@@ -6,12 +6,12 @@
         <img v-else src="~@/assets/icons/library/default-avatar.png"/>
         <a-button type="primary" size="small" @click="$refs.avatarModal.edit(1)">Upload</a-button>
       </div>
-      <div class="info-self-detail">
+      <!-- <div class="info-self-detail">
         <div class="self-detail-name">
           {{ formModel.inviteEmail }}
         </div>
         <div class="self-detail-email">{{ formModel.inviteEmail }}</div>
-      </div>
+      </div> -->
     </div>
 
     <a-form-model
@@ -21,7 +21,7 @@
       :rules="validatorRules"
       @validate="doValidate"
       ref="form">
-      <a-form-model-item v-if="teacherId" label="Last Login" :wrapperCol="{ span: 18 }">
+      <a-form-model-item v-if="teacherId && userMode === USER_MODE.SCHOOL" label="Last Login" :wrapperCol="{ span: 18 }">
         <a-row :gutter=0>
           <a-col :span="16">
             {{ this.formModel.lastLogin ? (this.formModel.lastLogin | dayjs) : ' - ' }}
@@ -29,7 +29,18 @@
           <a-col :span="2" style="text-align: center;">
           </a-col>
           <a-col :span="6" style="text-align: center;" v-if="teacherId && formModel.inviteEmail">
-            <a-button type="black" :loading="confirmLoading" @click="handleReset">Reset Password</a-button>
+            <a-button type="black" :disabled="origin.status === SCHOOL_USER_STATUS.ACTIVE.value" :loading="confirmLoading" @click="handleReset">Reset Password</a-button>
+          </a-col>
+        </a-row>
+      </a-form-model-item>
+      <a-form-model-item v-if="teacherId && userMode === USER_MODE.SELF" label="" :wrapperCol="{ span: 18 }">
+        <a-row :gutter=0>
+          <a-col :span="16">
+          </a-col>
+          <a-col :span="2" style="text-align: center;">
+          </a-col>
+          <a-col :span="6" style="text-align: center;" v-if="teacherId && formModel.inviteEmail">
+            <a-button type="black" :disabled="origin.status === SCHOOL_USER_STATUS.ACTIVE.value" :loading="confirmLoading" @click="handleReset">Reset Password</a-button>
           </a-col>
         </a-row>
       </a-form-model-item>
@@ -56,7 +67,7 @@
       <a-form-model-item class="mb0" label="Class">
         <a-row :gutter=16>
           <a-col :span="18">
-            <a-form-model-item>
+            <a-form-model-item class="self-select">
               <a-select
                 mode="multiple"
                 optionFilterProp="children"
@@ -67,6 +78,14 @@
                   {{ item.name }}
                 </a-select-option >
               </a-select>
+              <div :size="4" class="tag-render" @click="showSelect" ref="tagRender">
+                <a-tag
+                  :closable="isShowClose(tag)"
+                  @close="closeCls(tag)"
+                  :color="clsColor(tag)"
+                  v-for="tag in formModel.classArr"
+                  :key="'tag'+tag">{{ formatName(tag, classList) }}</a-tag>
+              </div>
               <!-- <a-select
                 optionFilterProp="children"
                 :getPopupContainer="trigger => trigger.parentElement"
@@ -118,6 +137,8 @@
 </template>
 
 <script>
+import { USER_MODE, SCHOOL_USER_STATUS } from '@/const/common'
+
 import { listClass } from '@/api/v2/schoolClass'
 import { addTeacher, updateTeacher, checkEmailTeacher, getTeacherInfo, resetPassword } from '@/api/v2/schoolUser'
 import { listRole } from '@/api/v2/schoolRole'
@@ -151,7 +172,7 @@ export default {
     },
     showClassLink: {
       type: Boolean,
-      default: true
+      default: false
     }
   },
   watch: {
@@ -174,6 +195,8 @@ export default {
   },
   data() {
     return {
+      SCHOOL_USER_STATUS: SCHOOL_USER_STATUS,
+      USER_MODE: USER_MODE,
       currentSchool: this.school,
       teacherId: this.id,
       classList: [],
@@ -205,7 +228,9 @@ export default {
   },
   computed: {
     ...mapState({
-      info: state => state.user.info
+      info: state => state.user.info,
+      currentSchool: state => state.user.currentSchool,
+      userMode: state => state.app.userMode
     }),
     validatorRules: function () {
       return {
@@ -226,7 +251,6 @@ export default {
        Promise.all([
           listClass({
             schoolId: this.currentSchool.id,
-            queryType: 0,
             pageNo: 1,
             pageSize: 10000
           }),
@@ -235,7 +259,7 @@ export default {
           })
         ]).then(([clsRes, roleRes]) => {
           if (clsRes.code === 0) {
-            this.classList = clsRes.result.records
+            this.classList = clsRes.result.records.filter(cls => cls.classType !== 2)
           }
           if (roleRes.code === 0) {
             this.roleList = roleRes.result
@@ -367,6 +391,22 @@ export default {
           console.log(valid)
         }
       })
+    },
+    formatName(key, arr) {
+      const find = arr.find(item => item.id === key)
+      return find ? find.name : ''
+    },
+    isShowClose(id) {
+      return true
+    },
+    closeCls(id) {
+      this.formModel.classArr = this.formModel.classArr.filter(clsId => clsId !== id)
+    },
+    clsColor(id) {
+      return ''
+    },
+    showSelect(e) {
+      this.$refs.tagRender.previousElementSibling.click()
     }
   }
 }
@@ -387,7 +427,7 @@ export default {
   display: flex;
   align-items: center;
   width: 100%;
-  margin-left: calc(25% - 76px);
+  margin-left: calc(50% - 76px);
   margin-bottom: 20px;
   .info-self-avatar {
     width: 66px;
@@ -431,5 +471,24 @@ export default {
       margin-bottom: 10px;
     }
   }
+}
+.self-select {
+  /deep/ .ant-select {
+    // visibility: hidden;
+    opacity: 0;
+  }
+}
+.tag-render {
+  line-height: 30px;
+  min-height: 30px;
+  border: 1px solid #dfdfdf;
+  width: 100%;
+  background: #fff;
+  padding: 0 5px;
+  cursor: pointer;
+  position: absolute;
+  top: -8px;
+  left: 0;
+  flex-wrap: wrap;
 }
 </style>

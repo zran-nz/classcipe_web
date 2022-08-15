@@ -42,11 +42,11 @@ export default {
       default: 'video'
     },
     contentId: {
-      type: String,
+      type: [String, Number],
       default: null
     },
     contentType: {
-      type: Number,
+      type: [String, Number],
       default: null
     }
   },

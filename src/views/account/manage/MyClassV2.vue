@@ -69,8 +69,12 @@
               <div class="view-item-title">
                 <label for="">{{ view.name || formatViewName(view.id) }}</label>
                 <a-space class="view-item-opt" v-if="currentTab === 'gradeId'">
-                  <a-button type="primary" @click="addGradeClass(view)" icon="plus-circle">Add</a-button>
-                  <a-button @click="deleteGrade(view, index)">Delete</a-button>
+                  <a-button type="primary" v-if="isNotLimit" @click="addGradeClass(view)" icon="plus-circle">Add</a-button>
+                  <a-popover v-else title="Upgrading reminder" trigger="click">
+                    <div style="width: 300px;" slot="content">Your class number has reached the limmit, please upgrade your plan to add more class</div>
+                    <a-button type="primary" icon="plus-circle">Add</a-button>
+                  </a-popover>
+                  <a-button v-if="!(isLastClass)" @click="deleteGrade(view, index)">Delete</a-button>
                 </a-space>
               </div>
               <div>
@@ -87,7 +91,7 @@
                     v-for="cls in view.classes"
                     :id="cls.key"
                     :key="view.id + '_' + cls.key"
-                    :class="{'item-class-wrap': true, 'archive': currentTab === 'archive', 'undrag': (currentTab === 'archive' || cls.isNew) }"
+                    :class="{'item-class-wrap': true, 'archive': currentTab === 'archive', 'undrag': (currentTab !== 'gradeId' || cls.isNew) }"
                   >
                     <div class="item-class" v-clickOutside="() => handleBlurClick(cls)">
                       <div class="class-name">
@@ -105,44 +109,44 @@
                       <div :class="{'class-con': true, 'archive': currentTab === 'archive'}">
                         <div :class="{'class-con-item': true, 'pointer': currentTab !== 'archive' && userMode !== USER_MODE.SELF}" @click="handleEditTeachers(cls)">
                           <div class="con-item-label">Teachers</div>
-                          <div class="con-item-detail" v-if="currentTab === 'archive' || userMode === USER_MODE.SELF">{{ cls.teacherCount || 0 }}</div>
+                          <div class="con-item-detail" v-if="currentTab !== 'gradeId' || userMode === USER_MODE.SELF">{{ cls.teacherCount || 0 }}</div>
                           <a v-else for="">{{ cls.teacherCount || 0 }}</a>
                         </div>
-                        <div :class="{'class-con-item': true, 'pointer': currentTab !== 'archive'}" @click="handleEditStudents(cls)">
+                        <div :class="{'class-con-item': true, 'pointer': currentTab === 'gradeId'}" @click="handleEditStudents(cls)">
                           <div class="con-item-label">Students</div>
                           <div class="con-item-detail">
-                            <label v-if="!cls.isNew && currentTab === 'archive'" for="">{{ cls.studentCount }}</label>
-                            <a v-if="!cls.isNew && currentTab !== 'archive'" for="">{{ cls.studentCount }}</a>
+                            <label v-if="!cls.isNew && currentTab !== 'gradeId'" for="">{{ cls.studentCount }}</label>
+                            <a v-if="!cls.isNew && currentTab === 'gradeId'" for="">{{ cls.studentCount }}</a>
                             <a type="link" v-if="cls.isNew">Upload</a>
                           </div>
                         </div>
                       </div>
                       <div class="class-opt" v-if="!cls.isNew">
-                        <a-dropdown :getPopupContainer="trigger => trigger.parentElement" v-if="!(USER_MODE.SELF && isLastClass)">
+                        <a-dropdown :getPopupContainer="trigger => trigger.parentElement" v-if="!(userMode === USER_MODE.SELF && isLastClass)">
                           <a-icon type="more" />
                           <a-menu slot="overlay">
                             <template v-if="currentTab !== 'archive'">
-                              <a-menu-item v-if="userMode === USER_MODE.SCHOOL">
+                              <!-- <a-menu-item v-if="userMode === USER_MODE.SCHOOL && currentTab === 'gradeId'">
                                 <a href="javascript:;" @click="handleImport(cls)">Import students</a>
                               </a-menu-item>
-                              <a-menu-item v-if="userMode === USER_MODE.SCHOOL">
+                              <a-menu-item v-if="userMode === USER_MODE.SCHOOL && currentTab === 'gradeId'">
                                 <a href="javascript:;" @click="handleEditTeachers(cls)">Edit teachers</a>
-                              </a-menu-item>
-                              <!-- <a-menu-item v-if="cls.classType === 1">
-                                <a href="javascript:;" @click="handleEditSubjectClass(cls)">Edit</a>
                               </a-menu-item> -->
-                              <a-menu-item v-if="userMode === USER_MODE.SCHOOL || !isLastClass">
-                                <a href="javascript:;" @click="handleArchive(cls)">Archive</a>
+                              <a-menu-item v-if="userMode === USER_MODE.SCHOOL && cls.classType === 1">
+                                <a href="javascript:;" @click="handleEditSubjectClass(cls)">Edit</a>
                               </a-menu-item>
                             </template>
                             <template v-else>
                               <a-menu-item>
                                 <a href="javascript:;" @click="handleRestore(cls)">Restore</a>
                               </a-menu-item>
-                              <a-menu-item>
-                                <a href="javascript:;" @click="handleDelete(cls)">Delete</a>
-                              </a-menu-item>
                             </template>
+                            <a-menu-item v-if="currentTab === 'archive' || (!isLastClass && cls.studentCount === 0)">
+                              <a href="javascript:;" @click="handleDelete(cls)">Delete</a>
+                            </a-menu-item>
+                            <a-menu-item v-if="currentTab !== 'archive' && cls.studentCount > 0 && !isLastClass">
+                              <a href="javascript:;" @click="handleArchive(cls)">Archive</a>
+                            </a-menu-item>
                           </a-menu>
                         </a-dropdown>
                       </div>
@@ -271,7 +275,7 @@ export default {
     }),
     isNotLimit() {
       if (this.info && this.info.planInfo) {
-        return this.info.planInfo['classCount'] >= this.totalClass.length
+        return this.info.planInfo['classCount'] > this.totalClass.length
       } else {
         return false
       }
@@ -294,9 +298,13 @@ export default {
       }]
     },
     isLastClass() {
-      const clsLen = this.allDatas[this.currentTab].map(item => item.classes.length)
+      const gradeLen = this.allDatas['gradeId'].map(item => item.classes.filter(cls => !cls.isNew).length)
+      const subjectLen = this.allDatas['subject'].map(item => item.classes.filter(cls => !cls.isNew).length)
       let len = 0
-      clsLen.forEach(item => {
+      gradeLen.forEach(item => {
+        len += item
+      })
+      subjectLen.forEach(item => {
         len += item
       })
       if (len === 1) {
@@ -505,7 +513,13 @@ export default {
     },
     addGradeClass(view) {
       // 只允许一个未创建
-      const existsNew = view.classes.find(item => item.isNew)
+      let existsNew = false
+      this.allDatas.gradeId.forEach(group => {
+          if (group.classes.filter(item => item.isNew).length > 0) {
+            existsNew = true
+          }
+      })
+      // const existsNew = view.classes.find(item => item.isNew)
       if (existsNew) {
         this.$message.error('Please save first')
         return
@@ -647,7 +661,7 @@ export default {
     },
     handleEditStudents(cls) {
       if (this.userMode === USER_MODE.SELF) return
-      if (this.currentTab === 'archive') {
+      if (this.currentTab !== 'gradeId') {
         return
       }
       if (!cls.id) {
@@ -665,7 +679,7 @@ export default {
       }
     },
     handleEditTeachers(cls) {
-      if (this.currentTab === 'archive' || this.userMode === USER_MODE.SELF) {
+      if (this.currentTab !== 'gradeId' || this.userMode === USER_MODE.SELF) {
         return
       }
       if (!cls.id) {

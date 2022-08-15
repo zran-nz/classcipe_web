@@ -51,7 +51,7 @@
               <template v-if='step.commonFields.indexOf(fieldItem.fieldName) !== -1'>
                 <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Name' :key='fieldItem.fieldName' >
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Name />
-                  <custom-form-item :required='emptyRequiredFields.indexOf(taskField.Name) !== -1'>
+                  <custom-form-item :required='emptyRequiredFields.indexOf(taskField.Name) !== -1' :required-field='requiredFields.indexOf(taskField.Name) !== -1'>
                     <template slot='label'>
                       {{ 'Task name' | taskLabelName(taskField.Name, $store.getters.formConfigData) }}
                     </template>
@@ -78,7 +78,7 @@
                   v-if='fieldItem.visible && fieldItem.fieldName === taskField.Overview'
                   :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Overview />
-                  <custom-form-item class='task-audio-line' ref='overview' :required='emptyRequiredFields.indexOf(taskField.Overview) !== -1'>
+                  <custom-form-item class='task-audio-line' ref='overview' :required='emptyRequiredFields.indexOf(taskField.Overview) !== -1' :required-field='requiredFields.indexOf(taskField.Overview) !== -1'>
                     <template slot='label'>
                       {{ 'Task details' | taskLabelName(taskField.Overview, $store.getters.formConfigData) }}
                     </template>
@@ -108,7 +108,7 @@
 
                 <div class='form-block taskType tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.TaskType' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.TaskType style="left:20px" />
-                  <custom-form-item class='task-audio-line' ref='taskType' :colon='false' :required='emptyRequiredFields.indexOf(taskField.TaskType) !== -1'>
+                  <custom-form-item class='task-audio-line' ref='taskType' :colon='false' :required='emptyRequiredFields.indexOf(taskField.TaskType) !== -1' :required-field='requiredFields.indexOf(taskField.TaskType) !== -1'>
                     <template slot='label'>
                       {{ 'Choose Task Type' | taskLabelName(taskField.TaskType, $store.getters.formConfigData) }}
                     </template>
@@ -152,9 +152,9 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block form-question tag-content-block' :data-field-name='taskField.Question' v-if='associateQuestionList.length > 0 && fieldItem.visible && fieldItem.fieldName === taskField.Question' :key='fieldItem.fieldName'>
+                <div class='form-block form-question tag-content-block' :data-field-name='taskField.Question' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Question' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Question style="left:100px" />
-                  <custom-form-item :colon='false' :required='emptyRequiredFields.indexOf(taskField.Question) !== -1'>
+                  <custom-form-item :colon='false' :required='emptyRequiredFields.indexOf(taskField.Question) !== -1' :required-field='requiredFields.indexOf(taskField.Question) !== -1'>
                     <template slot='label'>
                       {{ 'Key question(s)' | taskLabelName(taskField.Question, $store.getters.formConfigData) }}
                     </template>
@@ -196,8 +196,26 @@
                 </div>
 
                 <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.LearnOuts' :key='fieldItem.fieldName'>
+                  <div class='is-self-learning vertical-between'>
+                    <div class='self-learning-label'>
+                      Is this task suitable for self-learning?
+                    </div>
+                    <div class='self-learning-button'>
+                      <a-space>
+                        <a-tooltip
+                          title="After you set it as student self-learning friendly, this task will appear on students' page for purchase. After 5 students have successfully completed the task and given positive review, Classcipe will make it as premium task then you may set a price for it which will be charged from students and paid to your account upon each purchase.">
+                          <a-button class='cc-round-button' :class="{'cc-dark-button': form.contentType === 0 }" @click='form.contentType = 0' style='width: 80px'>
+                            <a-badge count='?' :offset='[25, -8]'>
+                              Yes
+                            </a-badge>
+                          </a-button>
+                        </a-tooltip>
+                        <a-button class='cc-round-button' :class="{'cc-dark-button': form.contentType !== 0 }" @click='form.contentType = 1' style='width: 80px'>No</a-button>
+                      </a-space>
+                    </div>
+                  </div>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.LearnOuts style="left:100px" />
-                  <custom-form-item :required='emptyRequiredFields.indexOf(taskField.LearnOuts) !== -1'>
+                  <custom-form-item :required='emptyRequiredFields.indexOf(taskField.LearnOuts) !== -1' :required-field='requiredFields.indexOf(taskField.LearnOuts) !== -1'>
                     <template slot='label'>
                       {{ 'Learning objectives' | taskLabelName(taskField.LearnOuts, $store.getters.formConfigData) }}
                     </template>
@@ -208,6 +226,7 @@
                     </template>
                     <learning-objective
                       @change='handleUpdateLearningObjectives'
+                      :can-edit='canEdit'
                       :recommend-data-list='recommendData'
                       :curriculumId='form.curriculumId'
                       :learning-objectives='form.learnOuts'
@@ -224,7 +243,7 @@
                   v-if='(fieldItem.visible || (form[fieldItem.fieldName] && form[fieldItem.fieldName].length)) && isCopyContent && fieldItem.fieldName === taskField.MaterialList'
                   :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.MaterialList />
-                  <custom-form-item :required='emptyRequiredFields.indexOf(taskField.MaterialList) !== -1'>
+                  <custom-form-item :required='emptyRequiredFields.indexOf(taskField.MaterialList) !== -1' :required-field='requiredFields.indexOf(taskField.MaterialList) !== -1'>
                     <template slot='label'>
                       {{ 'Resources required for hands-on activities' | taskLabelName(taskField.MaterialList, $store.getters.formConfigData) }}
                     </template>
@@ -307,7 +326,7 @@
                     :source-type='contentType.task'
                     :source-id='taskId'
                     :slide-id='form.presentationId'
-                    :show-materials-and-tips='true'
+                    :show-materials-and-tips='false'
                     :show-selected="form.showSelected"
                     :show-edit-google-slide='form.taskMode === 1'
                     :default-thumbnail-list='thumbnailList'
@@ -322,13 +341,13 @@
 
                 <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Link' :key='fieldItem.fieldName'>
                   <div class='common-link-wrapper'>
-                    <form-linked-content :from-id='taskId' :filter-types='[contentType["unit-plan"]]' :from-type='contentType.task' @update-unit-id-list='updateUnitIdList'/>
+                    <form-linked-content :can-edit='canEdit' :from-id='taskId' :filter-types='[contentType["unit-plan"]]' :from-type='contentType.task' @update-unit-id-list='updateUnitIdList'/>
                   </div>
                 </div>
 
                 <div class='form-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Image' :key='fieldItem.fieldName'>
                   <!-- image-->
-                  <custom-form-item class='img-wrapper' :required='emptyRequiredFields.indexOf(taskField.Image) !== -1'>
+                  <custom-form-item class='img-wrapper' :required='emptyRequiredFields.indexOf(taskField.Image) !== -1' :required-field='requiredFields.indexOf(taskField.Image) !== -1'>
                     <template slot='label'>
                       {{ 'Cover' | taskLabelName(taskField.Image, $store.getters.formConfigData) }}
                     </template>
@@ -426,6 +445,7 @@
                 :associate-id-type-list='associateIdTypeList'
                 :priority-tags='priorityTags'
                 :is-load-associate-tags='true'
+                :disabled='!canEdit'
               />
             </div>
           </template>
@@ -523,6 +543,8 @@
         @confirm='handleUpdateBySubTaskSetting'
         @confirm-and-split='handleGoToSubTask' />
     </a-modal>
+
+    <edit-price-dialog :content='form' ref='editPrice' @finish='showPublishTips'/>
   </div>
 </template>
 
@@ -582,10 +604,12 @@ import { deepEqual } from '@/utils/util'
 import { discountSettingSave } from '@/api/v2/discountSetting'
 import CustomButton from '@/components/Common/CustomButton'
 import DeleteIcon from '@/components/Common/DeleteIcon'
+import EditPriceDialog from '@/components/MyContentV2/EditPriceDialog'
 
 export default {
   name: 'AddTaskV2',
   components: {
+    EditPriceDialog,
     DeleteIcon,
     CustomButton,
     SplitTaskSetting,
@@ -670,7 +694,7 @@ export default {
         taskClassList: [],
         customFieldData: null,
         price: 0,
-        isSelfLearning: false,
+        contentType: 0,
         slideEditing: false
       },
       gradeList: [],
@@ -753,12 +777,8 @@ export default {
     this.$store.dispatch('loadFormConfigData', token).then(() => {
       this.formSteps = this.$store.getters.formConfigData.taskSteps || []
       this.$logger.info('formSteps', this.formSteps)
-      this.requiredFields = [
-        TaskField.Name,
-        TaskField.Image,
-        TaskField.Overview,
-        TaskField.LearnOuts
-      ]
+      this.requiredFields = this.$classcipe.taskRequiredFields
+
       if (this.currentActiveStepIndex < 0 || this.currentActiveStepIndex > this.formSteps.length - 1) {
         this.currentActiveStepIndex = 0
       }
@@ -826,6 +846,7 @@ export default {
     updateUnitIdList (idList) {
       this.$logger.info('associateUnitPlanIdList', idList)
       this.associateUnitPlanIdList = idList
+      this.asyncSaveDataFn()
     },
 
     handleDisplayRightModule () {
@@ -931,6 +952,7 @@ export default {
         if (this.$store.getters.userInfo.email !== this.form.createBy) {
           this.form.showSelected = false
         }
+        this.tryAutoCheckRequiredField()
       })
     },
 
@@ -995,6 +1017,7 @@ export default {
           if (this.form.presentationId && !this.form.presentationId.startsWith('fake_buy_')) {
             this.form.status = 1
             this.handlePublishFormItem(1)
+            this.showEditPriceDialog()
           } else {
             this.$confirm({
               title: 'Warning',
@@ -1024,9 +1047,6 @@ export default {
         type: this.contentType.task
       }
       await UpdateContentStatus(data)
-      if (status) {
-        this.$message.success(this.$t('teacher.add-unit-plan.publish-success'))
-      }
     },
 
     handleSelectTaskType(type) {
@@ -1046,6 +1066,7 @@ export default {
       if (index === -1) {
         this.form.selectedTemplateList.push(template)
       }
+      this.form.showSelected = true
     },
 
     handleRemoveTemplate(template) {
@@ -1234,6 +1255,13 @@ export default {
         this.$logger.info('AddTask GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
         this.$logger.info('*******************associateUnitPlanIdList', this.associateUnitPlanIdList)
         this.$logger.info('associateTaskIdList', this.associateTaskIdList)
+        this.requiredFields = this.$classcipe.taskRequiredFields
+        // if (this.associateQuestionList.length === 0) {
+        //   const list = this.requiredFields.slice()
+        //   list.splice(list.indexOf(this.taskField.Question), 1)
+        //   this.requiredFields = list
+        //   this.$logger.info('associateQuestionList empty remove Question from requiredFields')
+        // }
       }).finally(() => {
         this.linkGroupLoading = false
 
@@ -1647,7 +1675,6 @@ export default {
       this.waitingRedirect = true
       this.saving = true
       this.form.price = data.price
-      this.form.contentType = data.isSelfLearning ? 1 : 0
       this.showSplitTask = false
       this.waitingRedirect = true
       await this.save()
@@ -4216,5 +4243,16 @@ p.ant-upload-text {
 }
 .my-big-select{
   width: 100%
+}
+
+.is-self-learning {
+  width: 60%;
+  padding: 10px 10px;
+  background-color: #fab00511;
+
+  .self-learning-label {
+    font-weight: bold;
+    font-size: 14px;
+  }
 }
 </style>
