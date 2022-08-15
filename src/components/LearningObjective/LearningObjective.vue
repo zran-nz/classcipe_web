@@ -435,9 +435,49 @@ export default {
     filterConfig: {
       deep: true,
       immediate: false,
-      handler() {
+      async handler(nv, ov) {
         if (!this.loading) {
+          console.log('filterConfig changed loading', this.loading)
           this.asyncUpdateFilterListFn()
+
+          if (ov.curriculumId !== nv.curriculumId) {
+            const curriculumId = ov.curriculumId
+            if (curriculumId) {
+              const id = parseInt(curriculumId)
+              if (id === 1) {
+                if (!this.cachedCurriculum['au']) {
+                  this.$set(this.cachedCurriculum, 'au', await GetAuCurriculum())
+                }
+                this.data = this.cachedCurriculum['au']
+                this.subjectOptions = this.data['__subject']
+                this.yearOptions = this.data['__years']
+                this.yearIndex = this.data['__year']
+              } else if (id === 2) {
+                if (!this.cachedCurriculum['nz']) {
+                  this.$set(this.cachedCurriculum, 'nz', await GetNzCurriculum())
+                }
+                this.data = this.cachedCurriculum['nz']
+                this.subjectOptions = this.data['__subject']
+                this.yearOptions = this.data['__years']
+                this.yearIndex = this.data['Learning outcomes']['__year']
+              } else {
+                this.$logger.warn('No curriculum data.')
+              }
+
+              this.$logger.info('update data', this.data)
+            } else {
+              this.data = null
+              this.yearOptions = []
+              this.subjectOptions = []
+              this.yearIndex = null
+              this.$logger.info('reset data', this.data)
+            }
+            this.$logger.info('reset filterConfig data', this.data)
+            this.filterConfig.selectedSubjectList = []
+            this.filterConfig.selectedYearList = []
+            this.filterConfig.selectedLanguageList = []
+            this.filterConfig.keyword = ''
+          }
         }
       }
     },
@@ -445,50 +485,9 @@ export default {
       deep: true,
       immediate: false,
       handler() {
+        console.log('selectedList changed loading', this.loading)
         if (!this.loading) {
           this.asyncEmitUpdateEventFn()
-        }
-      }
-    },
-    'filterConfig.curriculumId': {
-      immediate: false,
-      async handler(curriculumId) {
-        console.log('curriculumId change', curriculumId)
-        if (curriculumId) {
-          const id = parseInt(curriculumId)
-          if (id === 1) {
-            if (!this.cachedCurriculum['au']) {
-              this.$set(this.cachedCurriculum, 'au', await GetAuCurriculum())
-            }
-            this.data = this.cachedCurriculum['au']
-            this.subjectOptions = this.data['__subject']
-            this.yearOptions = this.data['__years']
-            this.yearIndex = this.data['__year']
-          } else if (id === 2) {
-            if (!this.cachedCurriculum['nz']) {
-              this.$set(this.cachedCurriculum, 'nz', await GetNzCurriculum())
-            }
-            this.data = this.cachedCurriculum['nz']
-            this.subjectOptions = this.data['__subject']
-            this.yearOptions = this.data['__years']
-            this.yearIndex = this.data['Learning outcomes']['__year']
-          } else {
-            this.$logger.warn('No curriculum data.')
-          }
-
-          this.$logger.info('update data', this.data)
-        } else {
-          this.data = null
-          this.yearOptions = []
-          this.subjectOptions = []
-          this.yearIndex = null
-          this.$logger.info('reset data', this.data)
-        }
-        if (!this.loading) {
-          this.filterConfig.selectedSubjectList = []
-          this.filterConfig.selectedYearList = []
-          this.filterConfig.selectedLanguageList = []
-          this.filterConfig.keyword = ''
         }
       }
     }
@@ -682,6 +681,7 @@ export default {
     },
 
     updateFilterList () {
+      console.log('updateFilterList', this.data)
       if (this.data) {
         console.log('updateFilterList', this.data, 'filterConfig.curriculumId', this.filterConfig.curriculumId)
         const list = this.data['Learning outcomes'] ? this.data['Learning outcomes'] : this.data
@@ -706,7 +706,6 @@ export default {
           }
         })
         this.filterList = filterList
-        this.asyncEmitUpdateEventFn()
       }
     },
 
