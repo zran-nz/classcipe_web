@@ -3,7 +3,11 @@
     <div class='image-placeholder'>
       <img :src='imgUrl' v-if='imgUrl' />
       <div class='no-image' v-if='!imgUrl'>
-        <common-no-data text='Select image'></common-no-data>
+        <common-no-data text='Select image'>
+          <template v-slot:icon>
+            <empty-image />
+          </template>
+        </common-no-data>
       </div>
       <div class='upload-mask' v-if='canEdit'>
         <div class='upload-btn'>
@@ -112,10 +116,11 @@ import ClasscipeDriveEvent from '@/components/ClasscipeDrive/ClasscipeDriveEvent
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import CustomLinkText from '@/components/Common/CustomLinkText'
 import { upAwsS3File } from '@/components/AddMaterial/Utils/AwsS3'
+import EmptyImage from '@/assets/v2/icons/empty_image.svg?inline'
 
 export default {
   name: 'CustomImageUploader',
-  components: { CustomLinkText, CustomTextButton, ClasscipeDrive, CommonNoData, CustomButton },
+  components: { CustomLinkText, CustomTextButton, ClasscipeDrive, CommonNoData, CustomButton, EmptyImage },
   props: {
     imgUrl: {
       type: String,
@@ -167,7 +172,6 @@ export default {
     this.$EventBus.$on(ClasscipeDriveEvent.INSERT_UPLOADED_IMAGE, this.handleSelectUpload)
     this.$EventBus.$on(ClasscipeDriveEvent.INSERT_GOOGLE_IMAGE, this.handleSelectGoogleImage)
     this.$EventBus.$on(ClasscipeDriveEvent.INSERT_GOOGLE_DRIVE, this.handleSelectGoogleDrive)
-    this.$EventBus.$on(ClasscipeDriveEvent.DELETE_VIDEO, this.handleDeleteVideo)
 
     this.$logger.info('CustomImageUploader created imgUrl', this.imgUrl, 'contentId', this.contentId)
     if (this.imgUrl) {
@@ -180,7 +184,6 @@ export default {
     this.$EventBus.$off(ClasscipeDriveEvent.INSERT_UPLOADED_IMAGE, this.handleSelectUpload)
     this.$EventBus.$off(ClasscipeDriveEvent.INSERT_GOOGLE_IMAGE, this.handleSelectGoogleImage)
     this.$EventBus.$off(ClasscipeDriveEvent.INSERT_GOOGLE_DRIVE, this.handleSelectGoogleDrive)
-    this.$EventBus.$off(ClasscipeDriveEvent.DELETE_VIDEO, this.handleDeleteVideo)
   },
   methods: {
     handleSetSelect(imgUrl) {

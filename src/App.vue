@@ -6,6 +6,9 @@
       <feedback v-if="showFeedback" />
       <div id='global-loading' v-show='globalLoading'>
         <div class='loading-gif'>
+          <div class='loading-tips'>
+            Please wait, we are taking you to Google slides...
+          </div>
           <img src='~@/assets/icons/loading1.gif' />
         </div>
       </div>
@@ -51,7 +54,7 @@ export default {
     },
     ...mapGetters(['globalLoading']),
     ...mapState({
-      userMode: state => state.app.userMode,
+      userMode: state => state.app.userMode
     })
   },
   watch: {
@@ -119,6 +122,7 @@ export default {
       this.$notification.open({
         message: 'Notification',
         description: message.msgTxt,
+        duration: 5000,
         key,
         btn: h => {
           return h(
@@ -159,9 +163,16 @@ export default {
   align-items: center;
   background-color: #fff;
   .loading-gif {
+    text-align: center;
     img {
       width: 250px;
     }
+  }
+
+  .loading-tips {
+    font-size: 20px;
+    color: #aaa;
+    padding: 10px 0;
   }
 }
 

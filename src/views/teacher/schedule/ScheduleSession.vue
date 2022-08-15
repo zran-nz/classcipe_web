@@ -22,6 +22,7 @@
           :calendarSearchFilters="calendarSearchFilters"
           :calendarSearchType="calendarSearchType"
           @select-date='handleSelectDate'
+          @update-zoom='handleUpdateZoom'
           @select-session-type='handleSelectSessionType'
           @select-zoom-status='handleSelectZoom'
         />
@@ -46,7 +47,6 @@
       <template v-slot:right>
         <div class='right-button'>
           <a-space>
-            <a-button type='primary' :loading='teacherSessionNowLoading' v-if='currentActiveStepIndex === $classcipe.ScheduleSteps.length - 1 && scheduleReq.workshopType === 0' @click='handleTeacherSessionNow'>Teach the session now</a-button>
             <a-button type='primary' @click='handleGoNext' :loading='creating' v-if='currentActiveStepIndex !== $classcipe.ScheduleSteps.length - 1'>
               <template>
                 Next <a-icon type='right' />
@@ -59,15 +59,6 @@
         </div>
       </template>
     </fixed-form-footer>
-
-    <zoom-meeting-setting
-      :password='scheduleReq.password'
-      :waiting-room='scheduleReq.waitingRoom'
-      :zoom-setting-visible.sync='zoomSettingVisible'
-      v-if='zoomSettingVisible'
-      @confirm='handleConfirmAssign'
-      @close='handleCloseAssign'
-    />
 
     <select-session-unit
       v-if='selectSessionUnitVisible'
@@ -114,8 +105,6 @@ export default {
       CALENDAR_QUERY_TYPE: CALENDAR_QUERY_TYPE,
       USER_MODE: USER_MODE,
       loading: true,
-      zoomSettingVisible: false,
-      teacherSessionNowLoading: false,
       currentActiveStepIndex: 0,
       selectSessionUnitVisible: false,
       associateUnitList: [],
@@ -224,7 +213,7 @@ export default {
       const participantData = this.$refs.participant.getSelectedData()
       this.scheduleReq.classIds = participantData.classIds
       if (!this.scheduleReq.classIds.length) {
-        return;
+        return
       }
       if (this.currentActiveStepIndex === 0) {
         this.$refs['steps-nav'].nextStep()
@@ -241,52 +230,14 @@ export default {
           this.calendarSearchFilters = this.scheduleReq.classIds
           this.calendarSearchType = CALENDAR_QUERY_TYPE.CLASS.value
         }
-      } else if (this.currentActiveStepIndex === 1) {
-        if (this.scheduleReq.zoom) {
-          this.zoomSettingVisible = true
-        } else {
-          this.handleConfirmAssign({
-            password: false,
-            waitingRoom: false
-          })
-        }
-      }
-    },
-
-    handleCloseAssign () {
-      this.teacherSessionNowLoading = false
-      this.zoomSettingVisible = false
-    },
-
-    async handleConfirmAssign (data) {
-      this.$logger.info('ScheduleSession handleConfirmAssign ', data)
-      this.zoomSettingVisible = false
-      this.scheduleReq.password = data.password
-      this.scheduleReq.waitingRoom = data.waitingRoom
-
-      if (this.teacherSessionNowLoading) {
-        try {
-          const zoomRes = await this.createSession(true)
-          this.$logger.info('zoom res ', zoomRes)
-          if (zoomRes && zoomRes.length > 0) {
-            const zoomMeetingItem = zoomRes[0]
-            if (zoomMeetingItem.zoomMeeting) {
-              const zoomMeetingConfig = JSON.parse(zoomMeetingItem.zoomMeeting)
-              window.open(zoomMeetingConfig.start_url, '_blank')
-              this.finishAndGoBack(zoomRes[0].taskClassId)
-            }
-          } else {
-            this.$logger.warn('create zoom meeting failed', zoomRes)
-          }
-        } catch (e) {
-          this.$logger.error('handleTeacherSessionNow ', e)
-          console.log(e)
-        } finally {
-          this.teacherSessionNowLoading = false
-        }
       } else {
-        await this.createSession()
+        this.handleConfirmAssign()
       }
+    },
+
+    async handleConfirmAssign () {
+      this.$logger.info('ScheduleSession handleConfirmAssign ')
+      await this.createSession()
     },
 
     handleSelectClassStudent (cls) {
@@ -316,6 +267,11 @@ export default {
       this.$logger.info('ScheduleSession handleSelectDate ', this.scheduleReq)
     },
 
+    handleUpdateZoom (data) {
+      this.scheduleReq.password = data.password
+      this.scheduleReq.waitingRoom = data.waitingRoom
+    },
+
     handleSelectPassword (val) {
       this.scheduleReq.password = val
     },
@@ -328,20 +284,6 @@ export default {
 
     handleSelectZoom (zoom) {
       this.scheduleReq.zoom = zoom ? 1 : 0
-    },
-
-    async handleTeacherSessionNow () {
-      this.scheduleReq.teachSessionNow = this.scheduleReq.teachSessionNow ? 0 : 1
-      this.teacherSessionNowLoading = true
-
-      if (this.scheduleReq.zoom) {
-        this.zoomSettingVisible = true
-      } else {
-        await this.handleConfirmAssign({
-          password: false,
-          waitingRoom: false
-        })
-      }
     },
 
     /**

@@ -16,6 +16,7 @@ import FullCalendar from '@fullcalendar/vue'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
+import moment from 'moment'
 
 export default {
   name: 'CcCalendar',
@@ -116,9 +117,13 @@ export default {
         eventResize: this.handleEventResize,
         dayHeaderContent: this.dayHeaderContent,
         eventTimeFormat: {
-          hour: 'numeric',
+          hour: '2-digit',
           minute: '2-digit',
-          meridiem: 'short'
+          hour12: false,
+          meridiem: false
+        },
+        slotLabelFormat: function(date) {
+          return moment(date.date).format('HH:mm')
         },
         viewDidMount: this.handleViewDidMount,
         selectAllow: this.selectAllow

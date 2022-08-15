@@ -51,7 +51,7 @@
               <template v-if='step.commonFields.indexOf(fieldItem.fieldName) !== -1'>
                 <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Name' :key='fieldItem.fieldName' >
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Name />
-                  <custom-form-item :required='emptyRequiredFields.indexOf(taskField.Name) !== -1'>
+                  <custom-form-item :required='emptyRequiredFields.indexOf(taskField.Name) !== -1' :required-field='requiredFields.indexOf(taskField.Name) !== -1'>
                     <template slot='label'>
                       {{ 'Task name' | taskLabelName(taskField.Name, $store.getters.formConfigData) }}
                     </template>
@@ -152,7 +152,7 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block form-question tag-content-block' :data-field-name='taskField.Question' v-if='associateQuestionList.length > 0 && fieldItem.visible && fieldItem.fieldName === taskField.Question' :key='fieldItem.fieldName'>
+                <div class='form-block form-question tag-content-block' :data-field-name='taskField.Question' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Question' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Question style="left:100px" />
                   <custom-form-item :colon='false' :required='emptyRequiredFields.indexOf(taskField.Question) !== -1' :required-field='requiredFields.indexOf(taskField.Question) !== -1'>
                     <template slot='label'>
@@ -196,6 +196,24 @@
                 </div>
 
                 <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.LearnOuts' :key='fieldItem.fieldName'>
+                  <div class='is-self-learning vertical-between'>
+                    <div class='self-learning-label'>
+                      Is this task suitable for self-learning?
+                    </div>
+                    <div class='self-learning-button'>
+                      <a-space>
+                        <a-tooltip
+                          title="After you set it as student self-learning friendly, this task will appear on students' page for purchase. After 5 students have successfully completed the task and given positive review, Classcipe will make it as premium task then you may set a price for it which will be charged from students and paid to your account upon each purchase.">
+                          <a-button class='cc-round-button' :class="{'cc-dark-button': form.contentType === 0 }" @click='form.contentType = 0' style='width: 80px'>
+                            <a-badge count='?' :offset='[25, -8]'>
+                              Yes
+                            </a-badge>
+                          </a-button>
+                        </a-tooltip>
+                        <a-button class='cc-round-button' :class="{'cc-dark-button': form.contentType !== 0 }" @click='form.contentType = 1' style='width: 80px'>No</a-button>
+                      </a-space>
+                    </div>
+                  </div>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.LearnOuts style="left:100px" />
                   <custom-form-item :required='emptyRequiredFields.indexOf(taskField.LearnOuts) !== -1' :required-field='requiredFields.indexOf(taskField.LearnOuts) !== -1'>
                     <template slot='label'>
@@ -208,6 +226,7 @@
                     </template>
                     <learning-objective
                       @change='handleUpdateLearningObjectives'
+                      :can-edit='canEdit'
                       :recommend-data-list='recommendData'
                       :curriculumId='form.curriculumId'
                       :learning-objectives='form.learnOuts'
@@ -322,7 +341,7 @@
 
                 <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Link' :key='fieldItem.fieldName'>
                   <div class='common-link-wrapper'>
-                    <form-linked-content :from-id='taskId' :filter-types='[contentType["unit-plan"]]' :from-type='contentType.task' @update-unit-id-list='updateUnitIdList'/>
+                    <form-linked-content :can-edit='canEdit' :from-id='taskId' :filter-types='[contentType["unit-plan"]]' :from-type='contentType.task' @update-unit-id-list='updateUnitIdList'/>
                   </div>
                 </div>
 
@@ -426,6 +445,7 @@
                 :associate-id-type-list='associateIdTypeList'
                 :priority-tags='priorityTags'
                 :is-load-associate-tags='true'
+                :disabled='!canEdit'
               />
             </div>
           </template>
@@ -524,7 +544,7 @@
         @confirm-and-split='handleGoToSubTask' />
     </a-modal>
 
-    <edit-price-dialog :content='form' ref='editPrice'/>
+    <edit-price-dialog :content='form' ref='editPrice' @finish='showPublishTips'/>
   </div>
 </template>
 
@@ -674,7 +694,7 @@ export default {
         taskClassList: [],
         customFieldData: null,
         price: 0,
-        isSelfLearning: false,
+        contentType: 0,
         slideEditing: false
       },
       gradeList: [],
@@ -1027,9 +1047,6 @@ export default {
         type: this.contentType.task
       }
       await UpdateContentStatus(data)
-      if (status) {
-        this.$message.success(this.$t('teacher.add-unit-plan.publish-success'))
-      }
     },
 
     handleSelectTaskType(type) {
@@ -1239,12 +1256,12 @@ export default {
         this.$logger.info('*******************associateUnitPlanIdList', this.associateUnitPlanIdList)
         this.$logger.info('associateTaskIdList', this.associateTaskIdList)
         this.requiredFields = this.$classcipe.taskRequiredFields
-        if (this.associateQuestionList.length === 0) {
-          const list = this.requiredFields.slice()
-          list.splice(list.indexOf(this.taskField.Question), 1)
-          this.requiredFields = list
-          this.$logger.info('associateQuestionList empty remove Question from requiredFields')
-        }
+        // if (this.associateQuestionList.length === 0) {
+        //   const list = this.requiredFields.slice()
+        //   list.splice(list.indexOf(this.taskField.Question), 1)
+        //   this.requiredFields = list
+        //   this.$logger.info('associateQuestionList empty remove Question from requiredFields')
+        // }
       }).finally(() => {
         this.linkGroupLoading = false
 
@@ -1658,7 +1675,6 @@ export default {
       this.waitingRedirect = true
       this.saving = true
       this.form.price = data.price
-      this.form.contentType = data.isSelfLearning ? 1 : 0
       this.showSplitTask = false
       this.waitingRedirect = true
       await this.save()
@@ -4227,5 +4243,16 @@ p.ant-upload-text {
 }
 .my-big-select{
   width: 100%
+}
+
+.is-self-learning {
+  width: 60%;
+  padding: 10px 10px;
+  background-color: #fab00511;
+
+  .self-learning-label {
+    font-weight: bold;
+    font-size: 14px;
+  }
 }
 </style>

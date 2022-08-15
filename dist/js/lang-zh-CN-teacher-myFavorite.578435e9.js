@@ -1,0 +1,1 @@
+(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["lang-zh-CN-teacher-myFavorite"],{8472:function(a,e,t){"use strict";t.r(e),e["default"]={"teacher.my-favorite.all-status":"All"}}}]);

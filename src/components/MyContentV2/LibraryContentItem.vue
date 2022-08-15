@@ -17,7 +17,7 @@
           </div>
           <div class='extra-info'>
             <a-space>
-              <div class='info-item curriculum-info'>
+              <div class='info-item curriculum-info' v-show='curriculumName && content.type !== typeMap.pd'>
                 {{ curriculumName }}
               </div>
               <div class='info-item subject-info'>
@@ -91,6 +91,14 @@
                   :loading='copyLoading'
                   v-if='content.createBy !== $store.getters.userInfo.email'>
                   Buy now
+                </a-button>
+                <a-button
+                  type="danger"
+                  shape='round'
+                  @click='handleEditItem(content)'
+                  :loading='copyLoading'
+                  v-if='content.createBy === $store.getters.userInfo.email'>
+                  Edit
                 </a-button>
               </div>
             </a-space>
@@ -211,6 +219,30 @@ export default {
         this.buyLoading = false
         this.contentBuyStatVisible = true
       })
+    },
+
+    handleEditItem() {
+      const item = this.content
+      if (!item.canPublish) {
+        this.$classcipe.setRequiredCheck(item.id)
+      }
+      if (item.type === typeMap['unit-plan']) {
+        this.$router.push({
+          path: '/teacher/unit-plan-redirect/' + item.id
+        })
+      } else if (item.type === typeMap.task) {
+        this.$router.push({
+          path: '/teacher/task-redirect/' + item.id
+        })
+      } else if (item.type === typeMap.video) {
+        this.$router.push({
+          path: '/teacher/video-redirect/' + item.id
+        })
+      } else if (item.type === typeMap.pd) {
+        this.$router.push({
+          path: '/teacher/pd-content-redirect/' + item.id
+        })
+      }
     },
     handleEnsureBuyStat () {
       ContentGradeSave({

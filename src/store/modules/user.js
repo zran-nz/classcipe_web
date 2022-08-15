@@ -193,7 +193,11 @@ const user = {
             commit('SET_IS_ADD_PREFERENCE', result.isAddPreference)
             commit('SET_DISABLED_QUESTION', result.disableQuestion)
             // 没有设置学校默认个人模式
-            const userMode = result.school === '0' ? USER_MODE.SELF : USER_MODE.SCHOOL
+            let userMode = result.school === '0' ? USER_MODE.SELF : USER_MODE.SCHOOL
+            // 被学校移除了
+            if (result.schoolList.length === 0 && userMode === USER_MODE.SCHOOL) {
+              userMode = USER_MODE.SELF
+            }
             storage.set(TOOGLE_USER_MODE, userMode)
             commit(TOOGLE_USER_MODE, userMode)
             const schoolIndex = result.schoolList.findIndex(item => item.id === result.school)

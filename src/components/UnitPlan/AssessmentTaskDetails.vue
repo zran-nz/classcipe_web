@@ -123,7 +123,7 @@
           </div>
         </template>
       </div>
-    </a-card></div></a-card>
+    </a-card>
   </div>
 </template>
 

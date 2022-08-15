@@ -207,13 +207,25 @@ export default {
       },
 
       tableRefs: ['tableCon'],
-      pendingTeacherCount: 0
+      pendingTeacherCount: 0,
+      disableMixinCreated: true
     }
   },
   created() {
+    if (this.$route.query) {
+      if (this.$route.query.tab) {
+        const find = this.tabsList.find(item => item.value + '' === this.$route.query.tab + '')
+        if (find) {
+          this.queryParam.schoolUserStatus = find.value
+        }
+      }
+    }
+    console.log(this.queryParam)
     this.initDict()
     this.queryParam.schoolId = this.currentSchool.id
     this.debounceLoad = debounce(this.loadData, 300)
+    this.loadData()
+    this.initDictConfig()
   },
   computed: {
     ...mapState({
@@ -333,6 +345,9 @@ export default {
     },
     toggleTab(status) {
       this.queryParam.schoolUserStatus = status
+      this.$router.replace({
+        path: '/manage/teacher/list?tab=' + status
+      })
       this.onClearSelected()
       this.searchQuery()
     },
@@ -382,6 +397,7 @@ export default {
               if (res.code === 0) {
                 this.$message.success('Opt Successfully')
                 this.onClearSelected()
+                this.initDict()
                 this.searchQuery()
               }
             }).finally(() => {

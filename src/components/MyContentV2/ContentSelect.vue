@@ -32,18 +32,94 @@
                 <template v-for="content in myContentList">
                   <div :class="{'content-item': true, 'selected': selectedId === content.id}" :key="content.id" @click='handlePreviewDetail(content)'>
                     <div class='cover'>
-                      <div class='cover-block' :style="{'background-image': 'url(' + content.image + ')'}">
+                      <div class='cover-block' :style="{'background-image': 'url(' + (content.image || 'http://dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png') + ')'}">
                       </div>
                     </div>
                     <div class='detail'>
                       <div class='detail-content'>
                         <div class='base-info'>
-                          <div class='name'>
-                            {{ content.name }}
+                          <div class='header-line vertical-between'>
+                            <div class='left vertical-left'>
+                              <div class='type-icon vertical-left'>
+                                <a-space>
+                                  <content-type-icon :type="content.type" />
+                                  <collaborate-icon v-if='content.collaborates > 0'/>
+                                  <a-icon type="shopping" v-if='content.sourceFrom' />
+                                </a-space>
+                              </div>
+                              <div class='name'>
+                                {{ content.name || 'Untitled ' + contentTypeName(content) }}
+                              </div>
+                            </div>
+                            <div class='right vertical-right' style="width: 90px;">
+                              <div class='time-at'>
+                                {{ (content.updateTime || content.createTime) | datejs }}
+                              </div>
+                            </div>
                           </div>
-                          <div class='tag-info'></div>
-                          <div class='owner'>
-                            {{ content.owner ? (content.owner.firstname + ' ' + content.owner.lastname) : content.createBy }}
+                          <div class='extra-info'>
+                            <a-space>
+                              <div class='info-item curriculum-info' v-show='curriculumName(content) && content.type !== typeMap.pd'>
+                                {{ curriculumName(content) }}
+                              </div>
+                              <div class='info-item subject-info'>
+                                <a-space>
+                                  <div class='subject-item' v-for='(subject, idx) in content.subjectList.slice(0, 2)' :key='idx'>{{ subject }}</div>
+                                </a-space>
+                                <div class='more-item' v-if='content.subjectList.slice(2).length'>
+                                  <a-tooltip placement='top' :title='content.subjectList.slice(2).join("、 ")' >more({{ content.subjectList.slice(2).length }})</a-tooltip>
+                                </div>
+                              </div>
+                              <div class='info-item year-info'>
+                                <a-space>
+                                  <div class='subject-item' v-for='(year, idx) in content.yearList.slice(0, 4)' :key='idx'>{{ year }}</div>
+                                </a-space>
+                                <div class='more-item' v-if='content.yearList.slice(4).length'>
+                                  <a-tooltip placement='top' :title='content.yearList.slice(4).join("、 ")' >more({{ content.yearList.slice(4).length }})</a-tooltip>
+                                </div>
+                              </div>
+                              <div class='info-item task-type-info' v-if='content.taskType'>
+                                <div class='self-type-wrapper'>
+                                  <div class='self-field-label'>
+                                    <div
+                                      class='task-type-item green-active-task-type'
+                                      v-if="content.taskType === 'FA'">
+                                      <a-tooltip placement='top' title='Formative Assessment'>FA</a-tooltip>
+                                    </div>
+                                    <div
+                                      class='task-type-item red-active-task-type'
+                                      v-if="content.taskType === 'SA'">
+                                      <a-tooltip placement='top' title='Summative Assessment'>SA</a-tooltip>
+                                    </div>
+                                    <div
+                                      class='task-type-item blue-active-task-type task-type-activity'
+                                      v-if="content.taskType === 'Activity'">
+                                      <a-tooltip title='Teaching/Learning Activity' placement='top'>Activity</a-tooltip>
+                                    </div>
+                                    <div
+                                      class='task-type-item blue-active-task-type task-type-examine'
+                                      v-if="content.taskType === 'IA'">
+                                      <a-tooltip title='Internal Assessment' placement='top'>IA</a-tooltip>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </a-space>
+                          </div>
+                          <div class='tag-info' v-if='knowledgeTagsList(content).length'>
+                            <div class='tag-info-item' v-for='(knowledgeTag, cIdx) in knowledgeTagsList(content)' :key='cIdx'>
+                              <a-tag color='#EABA7F' class='tag-item knowledge-tag' :title='knowledgeTag'>{{ knowledgeTag }}</a-tag>
+                            </div>
+                          </div>
+                          <div class='tag-info'>
+                            <template v-if='commandTermsList(content).length'>
+                              <div class='tag-info-item' v-for='(command, cIdx) in commandTermsList(content)' :key='cIdx'>
+                                <a-tag color='#06ACD7' class='tag-item command-tag' :title='command'>{{ command }}</a-tag>
+                              </div>
+                            </template>
+                            <div class='tag-info-item' v-for='(customTag, idx) in content.customTags' :key='idx'>
+                              <a-tag color='#FFEDAF' class='tag-item' :title='customTag.category'> {{ customTag.name }} </a-tag>
+                            </div>
                           </div>
                         </div>
                         <!-- <div class='right-info'>
@@ -51,6 +127,25 @@
                             {{ content.updateTime | dayjs }}
                           </div>
                         </div> -->
+                      </div>
+                      <div class='footer-line'>
+                        <div class='avatar-info'>
+                          <div class='owner'>
+                            <template v-if='content.owner'>
+                              <a-avatar v-if='content.owner.avatar' :src='content.owner.avatar' size="small" />
+                              <img v-else src="~@/assets/icons/library/default-avatar.png"/>
+                            </template>
+                            <template v-else>
+                              <a-avatar size="small">{{ content.createBy.toUpperCase()[0] }}</a-avatar>
+                            </template>
+                            <div class='user-name'>
+                              {{ (content.owner ? (content.owner.firstname + ' ' + content.owner.lastname) : content.createBy) | upCaseFirst }}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class='action vertical-right'>
+                        </div>
                       </div>
                     </div>
                     <div class="opt" v-show="selectedId === content.id">
@@ -96,17 +191,23 @@ import { QueryContentsFilter } from '@/api/library'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import CommonPreviewV2 from '@/components/Common/CommonPreviewV2'
 import ContentPreviewDetail from '@/components/Preview/ContentPreviewDetail'
+import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
+import CollaborateIcon from '@/assets/v2/icons/collaborate.svg?inline'
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import { USER_MODE } from '@/const/common'
+import { getLabelNameType, typeMap } from '@/const/teacher'
 import { mapState } from 'vuex'
+import { uniqBy } from 'lodash-es'
 export default {
   name: 'ContentSelect',
   mixins: [UserModeMixin, CurrentSchoolMixin],
   components: {
     NoMoreResources,
     CommonPreviewV2,
-    ContentPreviewDetail
+    ContentPreviewDetail,
+    ContentTypeIcon,
+    CollaborateIcon
   },
   props: {
     type: {
@@ -148,6 +249,7 @@ export default {
   },
   data() {
     return {
+      typeMap: typeMap,
       FindMyContent: FindMyContent,
       QueryContentsFilter: QueryContentsFilter,
       loading: false,
@@ -237,7 +339,23 @@ export default {
     handleNext() {
       const item = this.myContentList.find(res => res.id === this.selectedId)
       this.$emit('choose', item)
+    },
+    contentTypeName (content) {
+      return content ? getLabelNameType(content.type) : null
+    },
+    curriculumName (content) {
+      return this.$store.getters.curriculumId2NameMap.hasOwnProperty(content.curriculumId) ? this.$store.getters.curriculumId2NameMap[content.curriculumId] : null
+    },
+    isOwner (content) {
+      return this.$store.getters.userInfo.email === content.createBy
+    },
+    commandTermsList (content) {
+      return uniqBy((content.learnOuts.map(item => item.commandTerms)).flat(2), 'name').map(item => item.name)
+    },
+    knowledgeTagsList (content) {
+      return uniqBy((content.learnOuts.map(item => item.knowledgeTags)).flat(2), 'name').map(item => item.name)
     }
+
   }
 }
 </script>
@@ -277,7 +395,7 @@ export default {
             margin: 8px 0;
             display: flex;
             flex-direction: row;
-            align-items: flex-start;
+            align-items: center;
             overflow: hidden;
             border: 1px solid #E1E6ED;
             cursor: pointer;
@@ -288,7 +406,7 @@ export default {
             .cover {
               border: 1px solid #e1e1e1;
               .cover-block {
-                height: 76px;
+                height: 100px;
                 width: 137px;
                 background-position: center center;
                 background-size: cover;
@@ -301,7 +419,6 @@ export default {
               display: flex;
               flex-direction: column;
               padding-left: 10px;
-              height: 76px;
 
               .detail-content {
                 display: flex;
@@ -320,6 +437,45 @@ export default {
                     overflow: hidden;
                     text-overflow: ellipsis;
                   }
+                  .tag-info {
+                    display: flex;
+                    flex-direction: row;
+                    max-height: 30px;
+                    overflow: hidden;
+                    align-items: center;
+                    justify-content: flex-start;
+                    flex-wrap: wrap;
+                    margin-top: 7px;
+                    margin-bottom: 7px;
+                    .tag-info-item {
+                      margin-right: 5px;
+                      margin-bottom: 5px;
+                    }
+                  }
+                }
+              }
+            }
+            .footer-line {
+              height: 40px;
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              justify-content: space-between;
+              .avatar-info {
+                width: 200px;
+                img {
+                  width: 24px;
+                  height: 24px;
+                  border-radius: 24px;
+                }
+              }
+              .action {
+                width: calc(100% - 300px);
+                > div {
+                  display: flex;
+                  align-items: center;
+                  justify-content: flex-end;
+                  margin-left: 10px;
                 }
               }
             }
@@ -396,6 +552,166 @@ export default {
     justify-content: space-between;
     align-items: center;
     height: 40px;
+  }
+}
+.self-type-wrapper {
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+
+  .self-field-label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+
+    .task-type-item {
+      margin-right: 10px;
+      width: 25px;
+      height: 25px;
+      border-radius: 25px;
+      border: 2px solid #ddd;
+      font-weight: bold;
+      display: flex;
+      color: #bbb;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .task-type-activity {
+      width: 70px;
+      border-radius: 50px;
+    }
+
+    .green-active-task-type {
+      background: rgba(21, 195, 154, 0.1);
+      border: 2px solid #15C39A;
+      border-radius: 50%;
+      font-weight: bold;
+      color: #15C39A;
+    }
+
+    .red-active-task-type {
+      background: rgba(255, 51, 85, 0.1);
+      border: 2px solid #FF3355;
+      border-radius: 50%;
+      opacity: 1;
+      font-weight: bold;
+      color: #FF3355;
+      opacity: 1;
+    }
+
+    .blue-active-task-type {
+      background: rgb(230, 247, 255);
+      border: 2px solid rgb(145, 213, 255);
+      border-radius: 50px;
+      opacity: 1;
+      font-weight: bold;
+      color: rgb(24, 144, 255);
+    }
+  }
+
+  .self-type-filter {
+    width: 500px;
+  }
+}
+.extra-info {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 5px 0;
+  justify-content: flex-start;
+
+  .info-item {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    align-items: center;
+
+    .more-item {
+      padding-left: 8px;
+      color: #aaa;
+      cursor: pointer;
+    }
+  }
+
+  .curriculum-info {
+    font-size: 0.6rem;
+    background: #E6E4FF;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-family: Arial;
+    font-weight: bold;
+    color: #464ABB;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-all;
+    white-space: nowrap;
+  }
+
+  .subject-info {
+    font-size: 0.6rem;
+    font-family: Arial;
+    font-weight: 400;
+    color: #3D94FF;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-all;
+    white-space: nowrap;
+  }
+
+  .year-info {
+    font-size: 0.6rem;
+    font-family: Arial;
+    font-weight: 400;
+    color: #FFA63D;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-all;
+    white-space: nowrap;
+  }
+}
+
+.owner {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+
+  .user-name {
+    padding-left: 5px;
+  }
+}
+
+.tag-item {
+  opacity: 0.8;
+  cursor: pointer;
+  color: #734110;
+  font-size: 12px;
+  border-radius: 30px;
+  line-height: 25px;
+  word-break: normal;
+  width: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow: hidden;
+  transition: all 0.3s ease;
+
+  /deep/ .anticon-close {
+    opacity: 0;
+    color: #f26c59;
+  }
+
+  &:hover {
+    /deep/ .anticon-close {
+      opacity: 1;
+    }
   }
 }
 </style>

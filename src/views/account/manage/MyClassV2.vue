@@ -91,7 +91,7 @@
                     v-for="cls in view.classes"
                     :id="cls.key"
                     :key="view.id + '_' + cls.key"
-                    :class="{'item-class-wrap': true, 'archive': currentTab === 'archive', 'undrag': (currentTab === 'archive' || cls.isNew) }"
+                    :class="{'item-class-wrap': true, 'archive': currentTab === 'archive', 'undrag': (currentTab !== 'gradeId' || cls.isNew) }"
                   >
                     <div class="item-class" v-clickOutside="() => handleBlurClick(cls)">
                       <div class="class-name">
@@ -109,14 +109,14 @@
                       <div :class="{'class-con': true, 'archive': currentTab === 'archive'}">
                         <div :class="{'class-con-item': true, 'pointer': currentTab !== 'archive' && userMode !== USER_MODE.SELF}" @click="handleEditTeachers(cls)">
                           <div class="con-item-label">Teachers</div>
-                          <div class="con-item-detail" v-if="currentTab === 'archive' || userMode === USER_MODE.SELF">{{ cls.teacherCount || 0 }}</div>
+                          <div class="con-item-detail" v-if="currentTab !== 'gradeId' || userMode === USER_MODE.SELF">{{ cls.teacherCount || 0 }}</div>
                           <a v-else for="">{{ cls.teacherCount || 0 }}</a>
                         </div>
-                        <div :class="{'class-con-item': true, 'pointer': currentTab !== 'archive'}" @click="handleEditStudents(cls)">
+                        <div :class="{'class-con-item': true, 'pointer': currentTab === 'gradeId'}" @click="handleEditStudents(cls)">
                           <div class="con-item-label">Students</div>
                           <div class="con-item-detail">
-                            <label v-if="!cls.isNew && currentTab === 'archive'" for="">{{ cls.studentCount }}</label>
-                            <a v-if="!cls.isNew && currentTab !== 'archive'" for="">{{ cls.studentCount }}</a>
+                            <label v-if="!cls.isNew && currentTab !== 'gradeId'" for="">{{ cls.studentCount }}</label>
+                            <a v-if="!cls.isNew && currentTab === 'gradeId'" for="">{{ cls.studentCount }}</a>
                             <a type="link" v-if="cls.isNew">Upload</a>
                           </div>
                         </div>
@@ -126,27 +126,27 @@
                           <a-icon type="more" />
                           <a-menu slot="overlay">
                             <template v-if="currentTab !== 'archive'">
-                              <a-menu-item v-if="userMode === USER_MODE.SCHOOL">
+                              <!-- <a-menu-item v-if="userMode === USER_MODE.SCHOOL && currentTab === 'gradeId'">
                                 <a href="javascript:;" @click="handleImport(cls)">Import students</a>
                               </a-menu-item>
-                              <a-menu-item v-if="userMode === USER_MODE.SCHOOL">
+                              <a-menu-item v-if="userMode === USER_MODE.SCHOOL && currentTab === 'gradeId'">
                                 <a href="javascript:;" @click="handleEditTeachers(cls)">Edit teachers</a>
-                              </a-menu-item>
+                              </a-menu-item> -->
                               <a-menu-item v-if="userMode === USER_MODE.SCHOOL && cls.classType === 1">
                                 <a href="javascript:;" @click="handleEditSubjectClass(cls)">Edit</a>
-                              </a-menu-item>
-                              <a-menu-item v-if="!isLastClass">
-                                <a href="javascript:;" @click="handleArchive(cls)">Archive</a>
                               </a-menu-item>
                             </template>
                             <template v-else>
                               <a-menu-item>
                                 <a href="javascript:;" @click="handleRestore(cls)">Restore</a>
                               </a-menu-item>
-                              <a-menu-item>
-                                <a href="javascript:;" @click="handleDelete(cls)">Delete</a>
-                              </a-menu-item>
                             </template>
+                            <a-menu-item v-if="currentTab === 'archive' || (!isLastClass && cls.studentCount === 0)">
+                              <a href="javascript:;" @click="handleDelete(cls)">Delete</a>
+                            </a-menu-item>
+                            <a-menu-item v-if="currentTab !== 'archive' && cls.studentCount > 0 && !isLastClass">
+                              <a href="javascript:;" @click="handleArchive(cls)">Archive</a>
+                            </a-menu-item>
                           </a-menu>
                         </a-dropdown>
                       </div>
@@ -661,7 +661,7 @@ export default {
     },
     handleEditStudents(cls) {
       if (this.userMode === USER_MODE.SELF) return
-      if (this.currentTab === 'archive') {
+      if (this.currentTab !== 'gradeId') {
         return
       }
       if (!cls.id) {
@@ -679,7 +679,7 @@ export default {
       }
     },
     handleEditTeachers(cls) {
-      if (this.currentTab === 'archive' || this.userMode === USER_MODE.SELF) {
+      if (this.currentTab !== 'gradeId' || this.userMode === USER_MODE.SELF) {
         return
       }
       if (!cls.id) {

@@ -113,7 +113,7 @@
                     :source-type='typeMap.pd'
                     :source-id='pdId'
                     :slide-id='form.presentationId'
-                    :show-materials-and-tips='true'
+                    :show-materials-and-tips='false'
                     :show-edit-google-slide='true'
                     :default-thumbnail-list='thumbnailList'
                     :selected-template-list='form.selectedTemplateList'
@@ -129,6 +129,8 @@
                 <case-video
                   :field='PdField.VideoList'
                   :video-list='form.videoList'
+                  :content-type='typeMap.pd'
+                  :content-id='pdId'
                   @update='handleAddVideo'
                   @delete-video='handleDeleteVideo' />
               </div>
@@ -204,7 +206,7 @@
       />
     </a-modal>
 
-    <edit-price-dialog :content='form' ref='editPrice'/>
+    <edit-price-dialog :content='form' ref='editPrice' @finish='showPublishTips'/>
   </div>
 </template>
 
@@ -244,6 +246,8 @@ import { UpdateContentStatus } from '@/api/teacher'
 import { SET_GLOBAL_LOADING } from '@/store/mutation-types'
 import CustomButton from '@/components/Common/CustomButton'
 import EditPriceDialog from '@/components/MyContentV2/EditPriceDialog'
+import { addFileUploadRecord, FileRecord } from '@/api/material'
+import * as logger from '@/utils/logger'
 
 export default {
   name: 'AddPD',
@@ -453,7 +457,7 @@ export default {
       this.currentStep = data.step
       this.currentActiveStepIndex = data.index
       this.handleDisplayRightModule()
-      sessionStorage.setItem('pd-step-' + this.taskId, data.index)
+      sessionStorage.setItem('pd-step-' + this.pdId, data.index)
       this.checkIsFullBodyStep()
     },
 
@@ -633,11 +637,60 @@ export default {
       if (videoItem.classcipeRecordFiles && videoItem.classcipeRecordFiles.length > 0) {
         videoItem.classcipeRecordFiles.forEach(v => {
           this.form.videoList.push(v)
+          this.addVideoRecord(v)
         })
       } else {
         this.form.videoList.push(videoItem)
+        this.addVideoRecord(videoItem)
       }
       this.$logger.info('videoList', this.form.videoList)
+    },
+
+    addVideoRecord (video) {
+      this.$logger.info('addVideoRecord', video)
+      const data = {
+        fileLength: '',
+        fileName: '',
+        filePath: ''
+      }
+      if (video.filePath) {
+        data.fileLength = video.fileLength
+        data.fileName = video.fileName
+        data.filePath = video.filePath
+        this.tryAddVideoRecord(data)
+      } else if (video.classcipeRecordFiles.length) {
+        data.fileLength = video.classcipeRecordFiles[0].fileLength
+        data.fileName = video.classcipeRecordFiles[0].fileName
+        data.filePath = video.classcipeRecordFiles[0].filePath
+        this.tryAddVideoRecord(data)
+      } else {
+        this.$logger.info('addVideoRecord no data found in ', video)
+      }
+    },
+
+    tryAddVideoRecord(data) {
+      this.$logger.info('addVideoRecord tryAddVideoRecord data', data)
+      FileRecord({
+        contentId: this.pdId,
+        contentType: this.$classcipe.typeMap.pd
+      }).then(res => {
+        if (res.result?.records) {
+          const list = res.result.records
+          if (!list.some(item => item.filePath === data.filePath)) {
+            addFileUploadRecord({
+              fileLength: data.fileLength,
+              fileName: data.fileName,
+              filePath: data.filePath,
+              contentType: this.$classcipe.typeMap.pd,
+              contentId: this.pdId
+            }).then(res => {
+              logger.info('addFileUploadRecord in pd res', res)
+            })
+          } else {
+            this.$logger.info('addVideoRecord exist record')
+          }
+        }
+      })
     },
 
     handleDeleteVideo(videoItem) {
@@ -700,9 +753,7 @@ export default {
         status: status,
         type: this.typeMap.pd
       }
-      UpdateContentStatus(data).then(() => {
-        this.$message.success(this.$t('teacher.add-unit-plan.publish-success'))
-      })
+      UpdateContentStatus(data)
     },
 
     handleSelectTemplate (template) {

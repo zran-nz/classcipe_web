@@ -29,7 +29,7 @@ export const asyncRouterMap = [
         props: true,
         name: 'Notification Detail',
         component: () => import('@/views/dashboard/NotificationDetail'),
-        meta: { title: 'menu.notification-detail', keepAlive: true, permission: ['teacher'] }
+        meta: { title: 'menu.notification-detail', keepAlive: false, permission: ['teacher'] }
       },
       // teacher
       {
@@ -354,6 +354,17 @@ export const asyncRouterMap = [
             },
             component: () => import('@/views/teacher/schedule/ScheduleSession'),
             meta: { title: 'Schedule', keepAlive: true, permission: ['teacher'] }
+          },
+          {
+            path: '/teacher/schedule-workshop/:id/:type',
+            name: 'ScheduleWorkshop',
+            props(route) {
+              const props = { ...route.params }
+              props.type = +props.type // convert string to number
+              return props
+            },
+            component: () => import('@/views/teacher/schedule/ScheduleWorkshop'),
+            meta: { title: 'Schedule Workshop', keepAlive: true, permission: ['teacher'] }
           },
           {
             path: '/teacher/class-session/:classId?',

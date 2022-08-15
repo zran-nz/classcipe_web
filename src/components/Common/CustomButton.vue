@@ -1,7 +1,7 @@
 <template>
   <div :class="{'disabled-button': disabled, 'cc-custom-button': !disabled}" :style="{'background-color': bgColor, 'color': color}" @click='handleClick' @dblclick='handleDbClick'>
     <template v-if='disabled && disabledTooltip'>
-      <a-tooltip :title="disabledTooltip">
+      <a-tooltip :title="disabledTooltip" :placement="placement">
         <div class='loading vertical-center' v-if='loading'>
           <a-spin>
             <a-icon slot="indicator" type="loading" style="font-size: 14px; color: #666666" spin />
@@ -60,6 +60,10 @@ export default {
     disabledTooltip: {
       type: String,
       default: ''
+    },
+    placement: {
+      type: String,
+      default: 'top'
     }
   },
   methods: {

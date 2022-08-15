@@ -90,6 +90,7 @@
         </div>
         <div style="flex:1;">
           <session-calendar
+            :showNoData="true"
             :searchType="queryType"
             :searchFilters="searchFilters"
             :showTerm="true"
@@ -152,36 +153,30 @@ export default {
         {
           id: 1,
           index: 1,
-          name: 'Assignment',
-          value: 'sessionType' + 1,
-          allowZoom: false,
-          enableZoom: false,
-          color: '#333333',
-          type: this.$classcipe.ScheduleSessionType.assignment
+          name: 'FA',
+          value: 'FA'
         },
         {
           id: 2,
           index: 2,
-          name: 'Lesson',
-          value: 'sessionType' + 2,
-          allowZoom: true,
-          enableZoom: false,
-          color: '#15c39a',
-          type: this.$classcipe.ScheduleSessionType.lesson
+          name: 'SA',
+          value: 'SA'
         },
         {
           id: 3,
           index: 3,
-          name: 'Test',
-          value: 'sessionType' + 3,
-          allowZoom: true,
-          enableZoom: false,
-          color: '#c92a2a',
-          type: this.$classcipe.ScheduleSessionType.test
+          name: 'Activity',
+          value: 'Activity'
+        },
+        {
+          id: 4,
+          index: 4,
+          name: 'IA',
+          value: 'IA'
         }
       ],
       subFilters: [],
-      typeFilters: ['sessionType1', 'sessionType2', 'sessionType3'], // 根据类型的筛选条件
+      typeFilters: ['FA', 'SA', 'Activity', 'IA'], // 根据类型的筛选条件
       currentUnitList: [],
       attendanceVisible: true,
       loading: false
@@ -271,13 +266,15 @@ export default {
         this.typeFilters = [1, 2]
         this.subFilters = [3, 4]
       } else if (type.value === CALENDAR_QUERY_TYPE.MY.value) {
-        this.typeFilters = ['sessionType1', 'sessionType2', 'sessionType3']
+        this.typeFilters = ['FA', 'SA', 'IA', 'Activity']
         this.subFilters = []
       }
     },
     handleChangeFilters(filter, val) {
       if (!filter.includes(1)) {
         this.subFilters = []
+      } else {
+        this.subFilters = [3, 4]
       }
       if (this.queryType !== val) {
         this.queryType = val
@@ -286,6 +283,9 @@ export default {
     handleChangeSubFilters(filter, val) {
       if (filter.length > 0 && !this.typeFilters.includes(1)) {
         this.typeFilters = this.typeFilters.concat([1])
+      }
+      if (filter.length === 0 && this.typeFilters.includes(1)) {
+        this.typeFilters = this.typeFilters.filter(item => item !== 1)
       }
       if (this.queryType !== val) {
         this.queryType = val

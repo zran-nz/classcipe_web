@@ -45,7 +45,7 @@
           {{ term.name }}
         </div>
       </div>
-      <div id="scheduleContent" class="schedule-content" ref="scheduleContent">
+      <div id="scheduleContent" v-show="!showNoData || totalEvents.length > 0" class="schedule-content" ref="scheduleContent">
         <cc-calendar
           ref="fullCalendar"
           :eventsApi="loadEvents"
@@ -77,6 +77,7 @@
           </template>
         </cc-calendar>
       </div>
+      <a-empty style="margin-top: 100px;" v-if="showNoData && totalEvents.length === 0"></a-empty>
     </a-spin>
     <div class="tooltip" v-clickOutside="closeTip">
       <div class="tooltip-wrap" ref="tooltip">
@@ -141,7 +142,7 @@ export default {
     },
     searchFilters: {
       type: Array,
-      default: () => ['sessionType1', 'sessionType2', 'sessionType3'] // 根据类型的筛选条件
+      default: () => ['FA', 'SA', 'IA', 'Activity'] // 根据类型的筛选条件
     },
     editable: {
       type: Boolean,
@@ -162,6 +163,10 @@ export default {
     needDisableBefore: {
       type: Boolean,
       default: true
+    },
+    showNoData: {
+      type: Boolean,
+      default: false
     }
   },
   watch: {
@@ -273,6 +278,7 @@ export default {
 
       showUnit: [],
       currentUnit: null,
+      totalEvents: [],
 
       importVisible: false,
       importType: typeMap.task,
@@ -433,6 +439,7 @@ export default {
       }
 
       const params = {}
+      this.totalEvents = []
       let noNeedQuery = false
       if (this.queryType === this.CALENDAR_QUERY_TYPE.CLASS.value) {
         params.classIds = this.typeFilters
@@ -494,7 +501,7 @@ export default {
           termEvents.push({
             start: startDis,
             end: endDis,
-            backgroundColor: '#dfdfdf',
+            backgroundColor: '#918585',
             display: 'background',
             selectable: false,
             extendedProps: {
@@ -567,6 +574,7 @@ export default {
                       planId: item.sessionInfo.planId,
                       contentId: item.sessionInfo.contentId,
                       sessionType: item.sessionInfo.sessionType,
+                      taskType: item.content.taskType,
                       sessionId: item.sessionId,
                       status: item.attendance || 'absent',
                       id: item.sessionInfo.id,
@@ -582,7 +590,7 @@ export default {
                 this.allEvents = events
                 const filterEvents = events.filter(event => {
                   if (this.queryType === this.CALENDAR_QUERY_TYPE.MY.value) {
-                    if (!this.typeFilters.includes('sessionType' + event.extendedProps.sessionType)) {
+                    if (!this.typeFilters.includes(event.extendedProps.taskType)) {
                       return false
                     }
                   }
@@ -593,11 +601,13 @@ export default {
                 totalEvents = []
                 this.currentUnitList = []
               }
+              this.totalEvents = totalEvents
 
               console.log(termEvents)
 
               successCb(totalEvents.concat(termEvents))
               this.handleViewDidMount(date)
+              this.handleScrollTime()
             } else {
               failCb()
             }
@@ -718,19 +728,35 @@ export default {
     // 将当前时间线延长成整个table而不是某天的格子里
     handleViewDidMount(date) {
       this.$nextTick(() => {
+        if (this.$refs.fullCalendar) {
+          const calendarApi = this.$refs.fullCalendar.getApi()
+          if (calendarApi) {
+            this.setViewDate(date)
+            calendarApi.render()
+          }
+        }
         const nowLine = document.getElementsByClassName('fc-timegrid-now-indicator-line')
         if (nowLine && nowLine.length > 0) {
           // const cloneLine = nowLine[0].cloneNode(true)
           const fcBody = document.getElementsByClassName('fc-timegrid-body')[0]
           fcBody.insertBefore(nowLine[0], fcBody.firstChild)
         }
-        if (this.$refs.fullCalendar) {
-          const calendarApi = this.$refs.fullCalendar.getApi()
-          if (calendarApi) {
-            this.setViewDate(date)
-          }
-        }
       })
+    },
+    handleScrollTime() {
+      if (this.viewType === 'timeGridWeek' || this.viewType === 'timeGridDay') {
+        this.$nextTick(() => {
+          if (this.$refs.fullCalendar) {
+            const calendarApi = this.$refs.fullCalendar.getApi()
+            const current = moment().subtract(15, 'm').format('HH:mm:ss')
+            calendarApi && calendarApi.scrollToTime(current)
+            // calendarApi && calendarApi.setOption('views', {
+            //   slotMinTime: '18:00:00'
+            // })
+            // calendarApi && calendarApi.render()
+          }
+        })
+      }
     },
     handleDateSelect(selectInfo) {
       if (this.addable) {
@@ -741,6 +767,9 @@ export default {
       this.event = selectInfo
       this.importModel.startDate = moment(this.event.start).format('YYYY-MM-DD HH:mm:ss')
       this.importModel.endDate = moment(this.event.end).format('YYYY-MM-DD HH:mm:ss')
+      if (this.viewType === 'dayGridMonth') {
+        this.importModel.endDate = moment(this.event.end).subtract(1, 'day').endOf('day').format('YYYY-MM-DD HH:mm:ss')
+      }
       if (this.forSelect) {
         // 添加时间选择事件
         const calendarApi = this.$refs.fullCalendar.getApi()
@@ -764,6 +793,7 @@ export default {
           }
         }
         calendarApi.addEvent(this.selectDateEvent)
+        calendarApi.unselect()
       }
       this.$emit('date-select', this.importModel)
     },
@@ -966,6 +996,11 @@ export default {
 </script>
 <style lang='less'>
 
+.fc-timegrid-event {
+  .schedule-event-content {
+    min-height: 50px;
+  }
+}
 .schedule-event-content {
   padding: 2px;
   border-radius: 5px;
@@ -1148,7 +1183,7 @@ export default {
   margin-bottom: 20px;
   .schedule-title {
     font-weight: bold;
-    font-size: 24px;
+    font-size: 20px;
     width: 250px;
   }
   .schedule-view {

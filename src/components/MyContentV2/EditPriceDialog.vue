@@ -81,7 +81,7 @@ export default {
         this.discount = data.discount
         this.price = data.price
         this.startDate = data.discountStartTime || new Date()
-        this.endData = data.discountEndTime || new Date(Date.now() + 3600 * 24 * 5)
+        this.endData = data.discountEndTime || new Date(Date.now() + 3600 * 24 * 7 * 1000)
         this.initDate = [moment(this.startDate), moment(this.endData)]
       }
       this.visible = true
@@ -102,6 +102,7 @@ export default {
       this.content.discountPrice = this.discount > 0 ? parseFloat((this.price - this.price * this.discount / 100).toFixed(2)) : this.price
       this.editPrice = false
       this.visible = false
+      this.$emit('finish')
     },
     handleDurationChange (date) {
       this.$logger.info('handleDurationChange', date)

@@ -2,19 +2,19 @@
   <div class='select-participant'>
     <div class='class-info-wrapper'>
       <div class='class-info'>
-        <div class='list-title'>
+        <div class='list-title list-title-between'>
           <div class='title-item'>
             Class list
           </div>
           <div class='class-type'>
-            <!--            <a-radio-group v-model="queryType" button-style="solid">-->
-            <!--              <a-radio-button :value="0">-->
-            <!--                Standard-->
-            <!--              </a-radio-button>-->
-            <!--              <a-radio-button :value="1">-->
-            <!--                Subject-->
-            <!--              </a-radio-button>-->
-            <!--            </a-radio-group>-->
+            <a-radio-group v-model="queryType" button-style="solid">
+              <a-radio-button :value="0">
+                Standard
+              </a-radio-button>
+              <a-radio-button :value="1">
+                Subject
+              </a-radio-button>
+            </a-radio-group>
           </div>
         </div>
         <div class='class-list'>
@@ -39,44 +39,16 @@
               <common-no-data text='No class' />
             </div>
           </a-skeleton>
-          <div class='open-session'>
-            <a-space>
-              <!--              <custom-text-button @click='selectPrivateWorkshop' label='Private Workshop'>-->
-              <!--                <template v-slot:badge>-->
-              <!--                  <a-tooltip-->
-              <!--                    title="Private workshop allows you to set up a session for your students-->
-              <!--without having a class. Zoom is not available for free-plan users,-->
-              <!--you can ask your student to attend via direct link generated on the workshop page. ">-->
-              <!--                    <a-icon type="question-circle" theme="filled" :style="{ fontSize: '16px', color: '#EB5062' }"/>-->
-              <!--                  </a-tooltip>-->
-              <!--                </template>-->
-              <!--              </custom-text-button>-->
-              <custom-text-button @click='selectPublicWorkshop' label='Public Workshop'>
-                <template v-slot:badge>
-                  <a-tooltip
-                    title="Public workshop can only be promoted by our platform
-via library and featured list(you can not invite people
-to participate via direct link, they can only attend upon
-registration(optional) and you can set price for attendants.
-After scheduling, you can edit it in live workshop
-page, thus zoom will be auto-scheduled.">
-                    <a-icon type="question-circle" theme="filled" :style="{ fontSize: '16px', color: '#EB5062' }"/>
-                  </a-tooltip>
-                </template>
-              </custom-text-button>
-            </a-space>
-          </div>
         </div>
       </div>
     </div>
     <div class='student-info-wrapper'>
       <div class='student-info'>
         <div class='list-title'>
-          <div class='title-item'>
-            Student list
-          </div>
-          <div class='title-action' @click='handleSelectAllStudent'>
-            Select all
+          <div class='title-action'>
+            <a-checkbox @change="onSelectAllChange" :checked='selectAllFlag'>
+              Select all
+            </a-checkbox>
           </div>
         </div>
         <div class='student-list'>
@@ -143,7 +115,8 @@ export default {
       checkedStudent: [],
       classList: [],
       queryType: 0,
-      loading: false
+      loading: false,
+      selectAllFlag: false
     }
   },
   computed: {
@@ -162,6 +135,18 @@ export default {
   watch: {
     queryType(newValue) {
       this.listClass(newValue)
+    },
+    checkedStudent: {
+      deep: true,
+      immediate: true,
+      handler(v) {
+        console.log('checkedStudent changed', v, this.studentList)
+        if (v.length !== this.studentList.length) {
+          this.selectAllFlag = false
+        } else {
+          this.selectAllFlag = true
+        }
+      }
     }
   },
   created() {
@@ -179,20 +164,17 @@ export default {
         this.$logger.info('listClass res records', res)
         this.classList = res?.result?.records || []
         this.studentList = []
+        if (this.classList.length === 1) {
+          this.handleSelectClass(this.classList[0])
+        }
       }).finally(() => {
         this.loading = false
       })
     },
     handleSelectClass (item) {
       this.$logger.info('handleSelectClass', item, 'this.checkedClass', this.checkedClass)
-      if (this.selectedClassIdList.indexOf(item.id) !== -1) {
-        this.checkedClass.splice(this.checkedClass.findIndex(it => it.id === item.id), 1)
-        this.currentSelectedClass = null
-        this.removeClassStudent(item)
-      } else {
-        this.checkedClass.push(item)
-        this.currentSelectedClass = item
-      }
+      this.checkedClass = [item]
+      this.currentSelectedClass = item
       this.loadCurrentClassStudent()
       this.$emit('select-class-student')
     },
@@ -216,7 +198,7 @@ export default {
           this.$logger.info('loadClassStudent', res)
           if (res.result) {
             this.studentList = res.result.records
-            this.checkedStudent = this.checkedStudent.concat(...this.studentList)
+            this.checkedStudent = this.studentList.slice()
           }
         }).finally(() => {
           this.studentListLoading = false
@@ -257,10 +239,14 @@ export default {
       this.$emit('select-class-student')
     },
 
-    handleSelectAllStudent () {
-      this.$logger.info('handleSelectAllStudent', this.checkedStudent)
-      this.checkedStudent = this.studentList.slice()
-      this.$emit('select-class-student')
+    onSelectAllChange() {
+      this.$logger.info('onSelectAllChange', this.selectAllFlag)
+      this.selectAllFlag = !this.selectAllFlag
+      if (this.selectAllFlag) {
+        this.checkedStudent = this.studentList.slice()
+      } else {
+        this.checkedStudent = []
+      }
     }
   }
 }
@@ -280,7 +266,7 @@ export default {
     margin: 10px 0 10px 0;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     line-height: 35px;
     padding-left: 15px;
     cursor: pointer;
@@ -300,6 +286,10 @@ export default {
         text-decoration: underline;
       }
     }
+  }
+
+  .list-title-between {
+    justify-content: space-between;
   }
 }
 
@@ -327,7 +317,7 @@ export default {
     min-width: 400px;
     max-width: 100%;
     min-height: 200px;
-    height: calc(100% - 80px);
+    height: calc(100% - 50px);
     overflow-y: auto;
     .class-item {
       margin-bottom: 13px;

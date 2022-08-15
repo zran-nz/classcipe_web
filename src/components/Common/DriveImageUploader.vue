@@ -1,25 +1,21 @@
 <template>
   <div class='drive-image-uploader'>
-    <a-row>
-      <a-col :xs="24" :md="12" :style="{height: '350px'}">
+    <a-row type="flex" justify="center" align="middle">
+      <a-col :xs="16" :md="16" :style="{height: '350px'}">
         <vue-cropper
           v-if='options.img'
           ref="cropper"
           :img="options.img"
           :info="true"
           :autoCrop="options.autoCrop"
-          :autoCropWidth="options.autoCropWidth"
-          :autoCropHeight="options.autoCropHeight"
+          :autoCropWidth='options.autoCropWidth'
+          :autoCropHeight='options.autoCropHeight'
           :fixedNumber='[16, 9]'
           :fixed='true'
           :fixedBox="options.fixedBox"
           @realTime="realTime"
         >
         </vue-cropper>
-      </a-col>
-      <a-col :xs="24" :md="12" :style="{height: '350px'}">
-        <div class="avatar-upload-preview" v-html='previews.html'>
-        </div>
       </a-col>
     </a-row>
     <br>

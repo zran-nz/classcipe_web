@@ -27,7 +27,11 @@
           </div>
         </div>
         <div class='no-selected-tag' v-show='selectedTagList && selectedTagList.length === 0 && !loading'>
-          <common-no-data text='No tag' />
+          <common-no-data text='No tag'>
+            <template v-slot:icon>
+              <empty-tag />
+            </template>
+          </common-no-data>
         </div>
       </div>
       <div class='tag-category-wrapper'>
@@ -118,6 +122,7 @@ import CustomPdTagCategoryBar from '@/components/CustomTag/CustomPdTagCategoryBa
 import CustomSearchInput from '@/components/Common/CustomSearchInput'
 import TagSetting from '@/components/UnitPlan/TagSetting'
 import { sortBy } from 'lodash-es'
+import EmptyTag from '@/assets/v2/icons/empty_tag.svg?inline'
 
 const setColor = [
   '#FFEDAF',
@@ -134,7 +139,7 @@ const setColor = [
 
 export default {
   name: 'CustomTagPd',
-  components: { TagSetting, CustomSearchInput, CustomPdTagCategoryBar, CommonNoData },
+  components: { TagSetting, CustomSearchInput, EmptyTag, CustomPdTagCategoryBar, CommonNoData },
   props: {
     customTags: {
       type: Array,
@@ -164,7 +169,15 @@ export default {
       immediate: true,
       handler (v) {
         const list = JSON.parse(JSON.stringify(v))
-        this.selectedTagList = sortBy(list, ['category'])
+        const set = new Set()
+        const result = []
+        list.forEach(item => {
+          if (!set.has(item.key)) {
+            result.push(item)
+            set.add(item.key)
+          }
+        })
+        this.selectedTagList = sortBy(result, ['category'])
       }
     }
   },

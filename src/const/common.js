@@ -121,7 +121,7 @@ export const SplitTaskField = {
   MaterialList: 'materialList',
   Link: 'link',
   Slides: 'taskSlides',
-  SelectSlides: 'selectSlides',
+  SelectSlides: 'selectPageObjectIds',
   Image: 'image',
   CoverVideo: 'coverVideo'
 }
@@ -133,7 +133,7 @@ export const PdField = {
   Goals: 'goals',
   Slides: 'slides',
   Link: 'link',
-  VideoList: 'VideoList'
+  VideoList: 'videoList'
 }
 
 export const VideoField = {

@@ -11,7 +11,7 @@
       :myReviews="myReviews"
       @submit="handleSaveMyReview"
     />
-    <div class="reviews-search">
+    <div class="reviews-search" v-if="needSearch">
       <div class="my-search">
         <a-input-search
           placeholder="Search"
@@ -171,6 +171,10 @@ export default {
       default: true
     },
     canCreate: {
+      type: Boolean,
+      default: true
+    },
+    needSearch: {
       type: Boolean,
       default: true
     }
