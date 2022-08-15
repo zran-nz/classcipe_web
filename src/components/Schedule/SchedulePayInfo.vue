@@ -81,6 +81,10 @@
             @change="handleSelectDate" />
         </div>
       </div>
+      <zoom-meeting
+        ref='zoom'
+        :password='password'
+        :waiting-room='waitingRoom' />
     </div>
     <div class="date-info">
       <div class='select-date'>
@@ -118,10 +122,12 @@ import CustomLinkText from '@/components/Common/CustomLinkText'
 import DeleteIcon from '@/components/Common/DeleteIcon'
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import { CALENDAR_QUERY_TYPE } from '@/const/common'
+import ZoomMeeting from '@/components/Schedule/ZoomMeeting'
 
 export default {
   name: 'SchedulePayInfo',
   components: {
+    ZoomMeeting,
     CustomTextButton,
     DeleteIcon,
     CustomLinkText,
@@ -143,6 +149,14 @@ export default {
     calendarSearchFilters: {
       type: Array,
       default: () => [1, 2, 3, 4]
+    },
+    password: {
+      type: Boolean,
+      default: false
+    },
+    waitingRoom: {
+      type: Boolean,
+      default: false
     }
   },
   watch: {
@@ -239,7 +253,9 @@ export default {
         price: this.price,
         registerBefore: this.registerBefore,
         startDate: this.startDate,
-        endDate: this.endDate
+        endDate: this.endDate,
+        password: this.$refs.zoom.isPassword,
+        waitingRoom: this.$refs.zoom.isWaitingRoom
       }
     },
     handleAddDiscount () {
@@ -296,7 +312,7 @@ export default {
     min-height: 400px;
     max-height: calc(100vh - 160px);
     overflow-y: auto;
-    width: 50%;
+    width: 30%;
     .pay-title {
       margin: 10px 0;
       cursor: pointer;
@@ -305,7 +321,6 @@ export default {
       justify-content: space-between;
       flex-direction: row;
       .title {
-        font-weight: 500;
         color: #333;
         line-height: 30px;
         padding-left: 5px;
@@ -407,7 +422,9 @@ export default {
   }
 
   .date-info {
-    width: 50%;
+    width: 70%;
+    padding: 0 20px;
+    margin: 0 auto;
     min-height: 400px;
     max-height: calc(100vh - 160px);
     overflow-y: scroll;

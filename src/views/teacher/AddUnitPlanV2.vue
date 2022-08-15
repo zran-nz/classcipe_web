@@ -39,7 +39,7 @@
               <template v-if='step.commonFields.indexOf(fieldItem.fieldName) !== -1'>
                 <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === planField.Name' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Name />
-                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.Name) !== -1'>
+                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.Name) !== -1' :required-field='requiredFields.indexOf(planField.Name) !== -1'>
                     <template slot='label'>
                       {{ 'Unit Name' | unitLabelName(planField.Name, $store.getters.formConfigData) }}
                     </template>
@@ -68,7 +68,7 @@
                   v-if='(fieldItem.visible || form[fieldItem.fieldName]) && fieldItem.fieldName === planField.Overview'
                   :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Overview />
-                  <custom-form-item ref='overview' :required='emptyRequiredFields.indexOf(planField.Overview) !== -1'>
+                  <custom-form-item ref='overview' :required='emptyRequiredFields.indexOf(planField.Overview) !== -1' :required-field='requiredFields.indexOf(planField.Overview) !== -1'>
                     <template slot='label'>
                       {{ 'Overview' | unitLabelName(planField.Overview, $store.getters.formConfigData) }}
                     </template>
@@ -96,7 +96,7 @@
                       @change="handleCollaborateEvent(unitPlanId,planField.Overview,form.overview)"
                       :disabled="!canEdit"/>
                   </custom-form-item>
-                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName]'>
+                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName] && canEdit'>
                     <a-popconfirm title="Delete?" ok-text="Yes" @confirm="form[fieldItem.fieldName] = ''" cancel-text="No">
                       <delete-icon color='#F16A39' />
                     </a-popconfirm>
@@ -109,7 +109,7 @@
                   v-if='(fieldItem.visible || form[fieldItem.fieldName] !== null) && fieldItem.fieldName === planField.ProjectBased'
                   :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.ProjectBased style="top:-30px" />
-                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.ProjectBased) !== -1'>
+                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.ProjectBased) !== -1' :required-field='requiredFields.indexOf(planField.ProjectBased) !== -1'>
                     <template slot='label'>
                       {{ 'Project-based Unit' | unitLabelName(planField.ProjectBased, $store.getters.formConfigData) }}
                     </template>
@@ -131,11 +131,12 @@
                     </template>
                     <custom-radio-button-group
                       :list="[ {name: 'Yes', value: 1}, {name: 'No', value: 0}]"
+                      :disabled='!canEdit'
                       :value.sync='form.projectBased'
                       @change="handleCollaborateEvent(unitPlanId,planField.ProjectBased,form.projectBased)" >
                     </custom-radio-button-group>
                   </custom-form-item>
-                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName]'>
+                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName] && canEdit'>
                     <a-popconfirm title="Delete?" ok-text="Yes" @confirm="form[fieldItem.fieldName] = null" cancel-text="No">
                       <delete-icon color='#F16A39' />
                     </a-popconfirm>
@@ -148,7 +149,7 @@
                   v-if='(fieldItem.visible || form[fieldItem.fieldName] !== null) && fieldItem.fieldName === planField.UnitType'
                   :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.UnitType style="top:-30px"/>
-                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.UnitType) !== -1'>
+                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.UnitType) !== -1' :required-field='requiredFields.indexOf(planField.UnitType) !== -1'>
                     <template slot='label'>
                       {{ 'Unit type' | unitLabelName(planField.UnitType, $store.getters.formConfigData) }}
                     </template>
@@ -169,11 +170,12 @@
                     </template>
                     <custom-radio-button-group
                       :list="[ {name: 'Single-subject Unit', value: 0}, {name: 'Integrated Unit', value: 1}]"
+                      :disabled='!canEdit'
                       :value.sync='form.unitType'
                       @change="handleCollaborateEvent(unitPlanId,planField.UnitType,form.unitType)" >
                     </custom-radio-button-group>
                   </custom-form-item>
-                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName]'>
+                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName] && canEdit'>
                     <a-popconfirm title="Delete?" ok-text="Yes" @confirm="form[fieldItem.fieldName] = null" cancel-text="No">
                       <delete-icon color='#F16A39' />
                     </a-popconfirm>
@@ -186,7 +188,7 @@
                   v-if="fieldItem.visible && fieldItem.fieldName === planField.Inquiry"
                   :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :field-name='planField.Inquiry'/>
-                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.Inquiry) !== -1'>
+                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.Inquiry) !== -1' :required-field='requiredFields.indexOf(planField.Inquiry) !== -1'>
                     <template slot='label'>
                       {{ 'Big Idea/ Statement of Inquiry/ Central Idea' | unitLabelName(planField.Inquiry, $store.getters.formConfigData) }}
                     </template>
@@ -224,9 +226,9 @@
                 <div
                   id='inquiry-keyword'
                   class='form-block tag-content-block'
-                  v-if="fieldItem.visible && fieldItem.fieldName === planField.Inquiry"
+                  v-if="fieldItem.visible && fieldItem.fieldName === planField.Inquiry && form.inquiryKeywords"
                   :key='fieldItem.fieldName + "keyword"'>
-                  <custom-form-item :required='false'>
+                  <custom-form-item :required='false' :required-field='requiredFields.indexOf(planField.Inquiry) !== -1'>
                     <template slot='label'>
                       {{ 'Key words' }}
                     </template>
@@ -243,7 +245,7 @@
                         v-for="(tag, tagIndex) in form.inquiryKeywords"
                         :key="'inquery_keyword_'+tagIndex"
                       >
-                        <a-tag color="#a5a5a5" :closable="true" @close="e => handleRmInquiryKey(form, 'inquiryKeywords', tagIndex)">{{ tag }}</a-tag>
+                        <a-tag color="#a5a5a5" :closable="canEdit" @close="canEdit ? e => handleRmInquiryKey(form, 'inquiryKeywords', tagIndex) : null">{{ tag }}</a-tag>
                       </div>
                     </div>
                     <div v-else style="font-size: 12px;color: #666;">No data</div>
@@ -256,7 +258,7 @@
                   v-if="(fieldItem.visible || (form[fieldItem.fieldName] && form[fieldItem.fieldName].length)) && fieldItem.fieldName === planField.Scenarios"
                   :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Sdg />
-                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.Sdg) !== -1'>
+                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.Sdg) !== -1' :required-field='requiredFields.indexOf(planField.Sdg) !== -1'>
                     <template slot='label'>
                       {{ 'UN Sustainable Development Goal(s)' | unitLabelName(planField.Scenarios, $store.getters.formConfigData) }}
                     </template>
@@ -268,7 +270,7 @@
                           :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Sdg}"
                           :field-name='planField.Sdg'
                           @switch='handleSwitchComment' />
-                        <plus-icon @click='handleAddMoreSdg'/>
+                        <plus-icon @click='handleAddMoreSdg' v-if='canEdit'/>
                       </a-space>
                     </template>
                     <template v-if='unitFieldLabel(planField.Scenarios, $store.getters.formConfigData) && unitFieldLabel(planField.Scenarios, $store.getters.formConfigData) !== unitLabelName(planField.Scenarios, $store.getters.formConfigData)' slot='tips'>
@@ -284,13 +286,13 @@
                     >
                       <!--description-->
                       <div class='scenario-description'>
-                        <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteSdg(sdgIndex)" cancel-text="No" v-show='form.scenarios.length > 1'>
+                        <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteSdg(sdgIndex)" cancel-text="No" v-show='form.scenarios.length > 1 && canEdit'>
                           <span class="delete-action" >
                             <a-icon :style="{ fontSize: '14px', color: 'red' }" type='delete' />
                           </span>
                         </a-popconfirm>
                         <!--sdg-->
-                        <custom-form-item :show-label='false'>
+                        <custom-form-item :show-label='false' :required-field='requiredFields.indexOf(planField.scenarios) !== -1'>
                           <a-select
                             :getPopupContainer="trigger => trigger.parentElement"
                             v-model='scenario.sdgId'
@@ -308,7 +310,7 @@
                           </a-select>
                         </custom-form-item>
 
-                        <custom-form-item :show-label='false'>
+                        <custom-form-item :show-label='false' :required-field='requiredFields.indexOf(planField.scenarios) !== -1'>
                           <input-search
                             class='cc-form-input'
                             ref='descriptionInputSearch'
@@ -328,7 +330,7 @@
                       </div>
                     </div>
                   </custom-form-item>
-                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName] && form[fieldItem.fieldName].length'>
+                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName] && form[fieldItem.fieldName].length && canEdit'>
                     <a-popconfirm title="Delete?" ok-text="Yes" @confirm="form[fieldItem.fieldName] = []" cancel-text="No">
                       <delete-icon color='#F16A39' />
                     </a-popconfirm>
@@ -341,7 +343,7 @@
                   v-if="(fieldItem.visible || form[fieldItem.fieldName]) && fieldItem.fieldName === planField.Rwc"
                   :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Rwc />
-                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.Rwc) !== -1'>
+                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.Rwc) !== -1' :required-field='requiredFields.indexOf(planField.Rwc) !== -1'>
                     <template slot='label'>
                       {{ 'Real World Connection(s)' | unitLabelName(planField.Rwc, $store.getters.formConfigData) }}
                     </template>
@@ -362,7 +364,7 @@
                       </a-select-option>
                     </a-select>
                   </custom-form-item>
-                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName]'>
+                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName] && canEdit'>
                     <a-popconfirm title="Delete?" ok-text="Yes" @confirm="form[fieldItem.fieldName] = ''" cancel-text="No">
                       <delete-icon color='#F16A39' />
                     </a-popconfirm>
@@ -374,13 +376,13 @@
                   v-if="fieldItem.visible && fieldItem.fieldName === planField.Question"
                   :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Question />
-                  <custom-form-item class='unit-question' :required='emptyRequiredFields.indexOf(planField.Question) !== -1'>
+                  <custom-form-item class='unit-question' :required='emptyRequiredFields.indexOf(planField.Question) !== -1' :required-field='requiredFields.indexOf(planField.Question) !== -1'>
                     <template slot='label'>
                       {{ 'Key question(s) / Line(s) of inquiry' | unitLabelName(planField.Question, $store.getters.formConfigData) }}
                     </template>
                     <template slot='action'>
                       <a-space>
-                        <plus-icon @click='handleAddMoreQuestion' v-if='!$store.getters.userInfo.disableQuestion'/>
+                        <plus-icon @click='handleAddMoreQuestion' v-if='!$store.getters.userInfo.disableQuestion && !existEmptyQuestion && canEdit'/>
                         <comment-switch
                           v-show="canEdit"
                           v-if='!$store.getters.userInfo.disableQuestion'
@@ -388,7 +390,7 @@
                           :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Question}"
                           :field-name='planField.Question'
                           @switch='handleSwitchComment' />
-                        <custom-link-text text='more' :size='13' @click='questionMoreVisible=true'></custom-link-text>
+                        <custom-link-text text='more' :size='13' @click='questionMoreVisible=true' v-if='canEdit'></custom-link-text>
                       </a-space>
                     </template>
                     <template v-if='unitFieldLabel(planField.Question, $store.getters.formConfigData) && unitLabelName(planField.Question, $store.getters.formConfigData) !== unitFieldLabel(planField.Question, $store.getters.formConfigData)' slot='tips'>
@@ -426,7 +428,7 @@
                           @change="handleCollaborateEvent(unitPlanId,planField.Question,form.question)"
                           :disabled="!canEdit" />
                         <div
-                          v-if='form.questions.length > 1'
+                          v-if='form.questions.length > 1 && canEdit'
                           class='delete-icon-wrapper'
                           @click='handleRemoveQuestion(index)'>
                           <delete-icon color='#F16A39' />
@@ -438,7 +440,7 @@
 
                 <div class='form-block tag-content-block' v-if="fieldItem.visible && fieldItem.fieldName === planField.LearnOuts" :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Assessment style="left:100px" />
-                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.LearnOuts) !== -1'>
+                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.LearnOuts) !== -1' :required-field='requiredFields.indexOf(planField.LearnOuts) !== -1'>
                     <template slot='label'>
                       {{ 'Learning objectives' | taskLabelName(planField.LearnOuts, $store.getters.formConfigData) }}
                     </template>
@@ -448,6 +450,7 @@
                       :learning-objectives='form.learnOuts'
                       :subject-list='form.subjectList'
                       :year-list='form.yearList'
+                      :can-edit='canEdit'
                       :language-list='form.languageList' />
                   </custom-form-item>
                 </div>
@@ -458,7 +461,7 @@
                   v-if="fieldItem.visible && fieldItem.fieldName === planField.Prior"
                   :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Prior />
-                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.Prior) !== -1'>
+                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.Prior) !== -1' :required-field='requiredFields.indexOf(planField.Prior) !== -1'>
                     <template slot='label'>
                       {{ 'Prior learning experience' | unitLabelName(planField.Prior, $store.getters.formConfigData) }}
                     </template>
@@ -489,13 +492,13 @@
 
                 <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === planField.Link' :key='fieldItem.fieldName'>
                   <div class='form-block'>
-                    <unit-linked-content :from-id='unitPlanId' @update-task-id-list='updateTaskIdList' />
+                    <unit-linked-content :can-edit='canEdit' :from-id='unitPlanId' @update-task-id-list='updateTaskIdList' />
                   </div>
                 </div>
 
                 <div class='form-block' v-if='fieldItem.visible && fieldItem.fieldName === planField.Image' :key='fieldItem.fieldName'>
                   <!-- image-->
-                  <custom-form-item class='img-wrapper' :required='emptyRequiredFields.indexOf(planField.Image) !== -1'>
+                  <custom-form-item class='img-wrapper' :required='emptyRequiredFields.indexOf(planField.Image) !== -1' :required-field='requiredFields.indexOf(planField.Image) !== -1'>
                     <template slot='label'>
                       {{ 'Cover' | unitLabelName(planField.Image, $store.getters.formConfigData) }}
                     </template>
@@ -506,6 +509,7 @@
                     </template>
                     <custom-image-uploader
                       :field='planField.Image'
+                      :can-edit='canEdit'
                       :content-id='unitPlanId'
                       :content-type='contentType["unit-plan"]'
                       :img-url='form.image'
@@ -576,13 +580,15 @@
                 :tag-category-desc.sync='form.tagCategoryDesc'
                 :associate-id-type-list='associateIdTypeList'
                 :priority-tags='priorityTags'
+                :disabled='!canEdit'
                 :is-load-associate-tags='true' />
             </div>
           </template>
 
           <template v-if='currentRightModule === rightModule.taskDetails'>
             <div class='task-details-panel'>
-              <Assessment-Task-Details
+              <assessment-task-details
+                :disabled='!canEdit'
                 :associate-task-list='associateTaskList'
                 @hide-assessment-task='resetRightModuleVisible()' />
             </div>
@@ -755,6 +761,8 @@
 
     <a-skeleton :loading='contentLoading' active>
     </a-skeleton>
+
+    <edit-price-dialog :content='form' ref='editPrice' @finish='showPublishTips'/>
   </div>
 </template>
 
@@ -839,10 +847,12 @@ import CustomImageUploader from '@/components/Common/CustomImageUploader'
 import { GetTreeByKey } from '@/api/tag'
 import { deepEqual } from '@/utils/util'
 import { QueryTagsByIds } from '@/api/v2/mycontent'
+import EditPriceDialog from '@/components/MyContentV2/EditPriceDialog'
 
 export default {
   name: 'AddUnitPlan',
   components: {
+    EditPriceDialog,
     CustomTagV3,
     CustomImageUploader,
     CustomCoverMedia,
@@ -930,7 +940,7 @@ export default {
         ],
         scenarios: {
           description: '',
-          sdgId: '1',
+          sdgId: undefined,
           sdgKeyWords: [
             {
               id: '',
@@ -1130,6 +1140,9 @@ export default {
     },
     isCopyContent() {
       return !!this.form?.originalOwner
+    },
+    existEmptyQuestion() {
+      return this.form.questions.some(item => !item.name || !item.name.trim())
     }
   },
   async created() {
@@ -1143,14 +1156,15 @@ export default {
     await this.$store.dispatch('loadFormConfigData', token).then(() => {
       this.formSteps = this.$store.getters.formConfigData.planSteps || []
       this.$logger.info('formSteps', this.formSteps)
-      this.requiredFields = [
-        PlanField.Name,
-        PlanField.Image,
-        PlanField.Inquiry,
-        PlanField.Scenarios,
-        PlanField.Question,
-        PlanField.LearnOuts
-      ]
+      this.requiredFields = this.$classcipe.planRequiredFields
+      this.$logger.info('requiredFields', this.requiredFields)
+      // this.requiredFields = list
+      // if (this.form.inquiryKeywords.length === 0) {
+      //   const list = this.requiredFields.slice()
+      //   list.splice(list.indexOf(this.PlanField.Inquiry), 1)
+      //   this.requiredFields = list
+      //   this.$logger.info('associateQuestionList empty remove Inquiry from requiredFields')
+      // }
       if (this.currentActiveStepIndex < 0 || this.currentActiveStepIndex > this.formSteps.length - 1) {
         this.currentActiveStepIndex = 0
       }
@@ -1273,7 +1287,7 @@ export default {
           if (unitPlanData.scenarios.length === 0) {
             unitPlanData.scenarios.push({
               description: '',
-              sdgId: '1',
+              sdgId: undefined,
               sdgKeyWords: []
             })
           } else {
@@ -1328,6 +1342,7 @@ export default {
         this.loadCollaborateData(this.form.type, this.form.id)
         this.oldForm = Object.assign({}, this.form)
         this.loadingShareContent()
+        this.tryAutoCheckRequiredField()
       })
     },
 
@@ -1383,12 +1398,14 @@ export default {
       }
     },
     handleAddMoreQuestion() {
-      const question = {
-        id: null,
-        name: ''
+      if (!this.existEmptyQuestion) {
+        const question = {
+          id: null,
+          name: ''
+        }
+        this.$logger.info('handleAddMoreQuestion ', question)
+        this.form.questions.unshift(question)
       }
-      this.$logger.info('handleAddMoreQuestion ', question)
-      this.form.questions.push(question)
     },
     handleRemoveQuestion(index) {
       this.$logger.info('handleRemoveQuestion ', index)
@@ -1437,6 +1454,7 @@ export default {
       if (this.emptyRequiredFields.length === 0) {
         this.form.status = 1
         this.handlePublishFormItem(1)
+        this.showEditPriceDialog()
       } else {
         let requiredStepIndex = -1
         for (let i = 0; i < this.formSteps.length; i++) {
@@ -1458,9 +1476,7 @@ export default {
         status: status,
         type: this.contentType['unit-plan']
       }
-      UpdateContentStatus(data).then(() => {
-        this.$message.success(this.$t('teacher.add-unit-plan.publish-success'))
-      })
+      UpdateContentStatus(data)
     },
 
     handleAddUnitPlanTask() {
@@ -1886,6 +1902,7 @@ export default {
     updateTaskIdList (idList) {
       this.$logger.info('updateTaskIdList', idList)
       this.associateTaskIdList = idList
+      this.asyncSaveDataFn()
     },
 
     handleUpdateLearningObjectives (data) {

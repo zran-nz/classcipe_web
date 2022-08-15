@@ -3,10 +3,10 @@
     <a-space :size="20">
       <a-button
         class='radio-button-item'
-        :class="{'checked-item': checkedItem && checkedItem.value === item.value }"
+        :class="{'checked-item': checkedItem && checkedItem.value === item.value, 'disabled-item': disabled }"
         v-for='(item, idx) in list'
         :key='idx'
-        @click='handleClick(item)'>
+        @click='!disabled ? handleClick(item) : null'>
         {{ item[displayProperty] }}
       </a-button>
     </a-space>
@@ -28,6 +28,10 @@ export default {
     value: {
       type: [Number, String],
       default: null
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -76,5 +80,9 @@ export default {
     border: 1px solid #20B890;
     border-radius: 8px;
   }
+}
+
+.disabled-item {
+  cursor: not-allowed;
 }
 </style>

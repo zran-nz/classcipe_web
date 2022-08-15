@@ -2,6 +2,7 @@
   <div class='cc-custom-form-item'>
     <div class='label' v-if='showLabel'>
       <div class='label-left' :style="{color: labelColor, fontSize: labelSize + 'px'}">
+        <div class='required-dot vertical-center' v-if='requiredField'>*</div>
         <slot name='label'></slot>
         <div class='required' v-if='required'>
           *Required
@@ -37,6 +38,10 @@ export default {
       default: 14
     },
     required: {
+      type: Boolean,
+      default: false
+    },
+    requiredField: {
       type: Boolean,
       default: false
     }
@@ -110,5 +115,13 @@ export default {
       display: flex;
     }
   }
+}
+
+.required-dot {
+  padding-right: 3px;
+  font-weight: bold;
+  font-size: 18px;
+  color: #f5222d;
+  vertical-align: middle;
 }
 </style>

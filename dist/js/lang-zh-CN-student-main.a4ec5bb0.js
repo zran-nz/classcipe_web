@@ -1,0 +1,1 @@
+(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["lang-zh-CN-student-main"],{b475:function(n,s,t){"use strict";t.r(s),s["default"]={"student.main.my-task":"我的任务","student.main.my-favorite":"我的收藏","student.main.shared":"Collaborations","student.main.discover":"Discover","student.main.subscribes":"Subscribes","student.main.popular":"Popular"}}}]);

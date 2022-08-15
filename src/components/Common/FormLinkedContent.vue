@@ -14,7 +14,7 @@
           :move='handleOnMve'
           @add="handleDragContent($event)">
           <div class='linked-item' v-for='content in groupItem.contents' :key='content.id'>
-            <link-content-item :content='content' :show-delete='true' @delete='handleDeleteLinkItem' />
+            <link-content-item :content='content' :show-delete='canEdit' @delete='handleDeleteLinkItem' />
           </div>
         </draggable>
       </div>
@@ -29,7 +29,7 @@
           :move='handleOnMve'
           @add="handleDragContent($event)">
           <div class='linked-item' v-for='content in initContents' :key='content.id'>
-            <link-content-item :content='content' :show-delete='true' @delete='handleDeleteLinkItem' />
+            <link-content-item :content='content' :show-delete='canEdit' @delete='handleDeleteLinkItem' />
           </div>
           <template v-if='initContents.length === 0'>
             <div class='no-linked-data'>

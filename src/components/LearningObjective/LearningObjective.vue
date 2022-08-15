@@ -4,10 +4,12 @@
       <div class='cc-lo-header'>
         <div class='filter-line'>
           <div class='select-item'>
+            <div class='required-dot vertical-center'>*</div>
             <a-select
               :getPopupContainer="trigger => trigger.parentElement"
               placeholder='Curriculum'
               @select='handleSelectCurriculum'
+              :disabled='!canEdit'
               class='cc-select cc-lo-select-mid'>
               <a-select-option :value='item.id' v-for='(item, index) in curriculumOptions' :key='index'>
                 {{ item.name }}
@@ -15,17 +17,19 @@
             </a-select>
             <div class='selected-label' v-if='selectedCurriculumName'>
               <div class='selected-label-item'>
-                <a-tag closable class='label-curriculum' @close="handleResetCurriculum(selectedCurriculumName)">
+                <a-tag :closable='canEdit' class='label-curriculum' @close="canEdit ? handleResetCurriculum(selectedCurriculumName) : null">
                   <div class='tag-content'>{{ selectedCurriculumName }}</div>
                 </a-tag>
               </div>
             </div>
           </div>
           <div class='select-item'>
+            <div class='required-dot vertical-center'>*</div>
             <a-select
               :getPopupContainer="trigger => trigger.parentElement"
               v-model='selectedYear'
               placeholder='Grade'
+              :disabled='!canEdit'
               @select='handleSelectYear'
               class='cc-select cc-lo-select-small'>
               <a-select-option :value='year' v-for='year in yearOptions' :key='year'>
@@ -37,17 +41,19 @@
                 class='selected-label-item'
                 v-for='year in filterConfig.selectedYearList'
                 :key='year'>
-                <a-tag closable class='label-year' @close="handleRemoveYear(year)">
+                <a-tag :closable='canEdit' class='label-year' @close="canEdit ? handleRemoveYear(year) : null">
                   <div class='tag-content'>{{ year }}</div>
                 </a-tag>
               </div>
             </div>
           </div>
           <div class='select-item'>
+            <div class='required-dot vertical-center'>*</div>
             <a-select
               :getPopupContainer="trigger => trigger.parentElement"
               v-model='selectedSubject'
               placeholder='Subject'
+              :disabled='!canEdit'
               @select='handleSelectSubject'
               class='cc-select cc-lo-select'>
               <a-select-option :value='subjectName' v-for='subjectName in subjectOptions' :key='subjectName'>
@@ -59,7 +65,7 @@
                 class='selected-label-item'
                 v-for='subjectName in filterConfig.selectedSubjectList'
                 :key='subjectName'>
-                <a-tag closable class='label-subject' @close="handleRemoveSubject(subjectName)">
+                <a-tag :closable='canEdit' class='label-subject' @close="canEdit ? handleRemoveSubject(subjectName) : null">
                   <div class='tag-content'>{{ subjectName }}</div>
                 </a-tag>
               </div>
@@ -70,6 +76,7 @@
               :getPopupContainer="trigger => trigger.parentElement"
               v-model='selectedLanguage'
               placeholder='Language'
+              :disabled='!canEdit'
               @select='handleSelectLanguage'
               class='cc-select cc-lo-select-small'>
               <a-select-option :value='language' v-for='language in languageOptions' :key='language'>
@@ -81,7 +88,7 @@
                 class='selected-label-item'
                 v-for='language in filterConfig.selectedLanguageList'
                 :key='language'>
-                <a-tag closable class='label-language' @close="handleRemoveLanguage(language)">
+                <a-tag :closable='canEdit' class='label-language' @close="canEdit ? handleRemoveLanguage(language) : null">
                   <div class='tag-content'>{{ language }}</div>
                 </a-tag>
               </div>
@@ -90,7 +97,7 @@
         </div>
         <div class='recommend-button'>
           <a-badge dot v-if='recommendDataList.length'>
-            <custom-text-button label='Recommend' @click='showRecommend'>
+            <custom-text-button label='Recommend' @click='canEdit ? showRecommend : null'>
               <template v-slot:icon>
                 <a-icon type='plus-circle' />
               </template>
@@ -100,12 +107,13 @@
       </div>
       <div class='cc-lo-content'>
         <div class='cc-lo-title'>
+          <span class='required-dot vertical-center'>*</span>
           Subject Learning Objectives
         </div>
         <div class='cc-lo-input'>
-          <a-input v-model='filterConfig.keyword' @click.native.stop='showFilterList = true' placeholder='Search learning objectives' class='cc-form-input' />
+          <a-input v-model='filterConfig.keyword' @click.native.stop='showFilterList = true' placeholder='Search learning objectives' class='cc-form-input' :disabled='!canEdit'/>
           <div class='filter-list' v-show='showFilterList && filterList.length' @click.stop=''>
-            <div class='filter-item' v-for='(item, idx) in filterList' :key='idx' @click='handleSelectItem(item)'>
+            <div class='filter-item' v-for='(item, idx) in filterList' :key='idx' @click='canEdit ? handleSelectItem(item) : null'>
               <div class='item-desc' v-html='item.html'></div>
               <div class='item-subject-year'>
                 <div class='item-sub-title' :title='item.path && item.path[0]'>{{ item.path && item.path[0] }}</div>
@@ -114,7 +122,7 @@
             </div>
           </div>
           <div class='create-item' v-show='showFilterList && !filterList.length && filterConfig.keyword.trim().length'>
-            <a-button type='primary' size="small" @click='handleEnsureInput'><a-icon type='plus' /> Create</a-button>
+            <a-button type='primary' size="small" @click='canEdit ? handleEnsureInput : null'><a-icon type='plus' /> Create</a-button>
           </div>
         </div>
       </div>
@@ -132,7 +140,7 @@
                 <div class='item-sub-title' :title='item.path && item.path[yearIndex]'>{{ item.path && item.path[yearIndex] }}</div>
               </div>
 
-              <div class='delete-wrapper'>
+              <div class='delete-wrapper' v-if='canEdit'>
                 <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDelete(item)" cancel-text="No">
                   <delete-icon color='#F16A39' />
                 </a-popconfirm>
@@ -155,7 +163,7 @@
                   class='wrapper-list-item'
                   v-for='(terms, termIndex) in item.commandTerms'
                   :key='terms.name'>
-                  <a-tag closable class='command-tag' @close="e => handleCloseObjectiveTag(item, 'commandTerms', termIndex)">
+                  <a-tag :closable='canEdit' class='command-tag' @close="e => handleCloseObjectiveTag(item, 'commandTerms', termIndex)">
                     <div class='tag-content'>{{ terms.name }}</div>
                   </a-tag>
                 </div>
@@ -168,7 +176,7 @@
                   class='wrapper-list-item'
                   v-for='(terms, termIndex) in item.knowledgeTags'
                   :key='terms.name'>
-                  <a-tag closable class='command-tag knowledge' @close="e => handleCloseObjectiveTag(item, 'knowledgeTags', termIndex)" >
+                  <a-tag :closable='canEdit' class='command-tag knowledge' @close="e => handleCloseObjectiveTag(item, 'knowledgeTags', termIndex)" >
                     <div class='tag-content'>{{ terms.name }}</div>
                   </a-tag>
                 </div>
@@ -176,41 +184,41 @@
             </div>
           </div>
           <div class='cc-right-general-capabilities'>
-            <div class='cc-right-general-capabilities-title'>
-              <custom-text-button label='Select 21st century skills'>
-                <template v-slot:icon>
-                  <a-icon type='plus-circle' />
-                </template>
-                <template v-slot:badge>
-                  <a-tooltip
-                    title="The 21st century skills you selected will be marked according to the subject strands' grading standards and presented on students' report">
-                    <a-icon type="question-circle" theme="filled" :style="{ fontSize: '16px', color: '#EB5062' }"/>
-                  </a-tooltip>
-                </template>
-              </custom-text-button>
-              <a-cascader :options="generalCapabilitiesData" @change="handleSelectGeneralCapability(item, arguments)" class='cc-gc-cascader' />
-            </div>
-            <div class='cc-right-general-capabilities-content'>
-              <div class='capability-item' v-for='(capability, sIdx) in item.generalCapabilities' :key='sIdx'>
-                <div class='capability-item-tag'>
-                  <div class='tag-icon'>
-                    <a-icon type="tag" />
-                  </div>
-                  <div class='item-tag-name' v-for='(path, pIdx) in capability.path' :key='path' :title='path'>
-                    <template v-if='pIdx < capability.path.length && pIdx > 0'> / </template>
-                    {{ path }}
-                  </div>
-                </div>
-                <div class='capability-item-content'>
-                  {{ capability.desc }}
-                  <div class='delete-wrapper'>
-                    <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteCapability(item, capability)" cancel-text="No">
-                      <delete-icon color='#F16A39' />
-                    </a-popconfirm>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <!--            <div class='cc-right-general-capabilities-title'>-->
+            <!--              <custom-text-button label='Select 21st century skills'>-->
+            <!--                <template v-slot:icon>-->
+            <!--                  <a-icon type='plus-circle' />-->
+            <!--                </template>-->
+            <!--                <template v-slot:badge>-->
+            <!--                  <a-tooltip-->
+            <!--                    title="The 21st century skills you selected will be marked according to the subject strands' grading standards and presented on students' report">-->
+            <!--                    <a-icon type="question-circle" theme="filled" :style="{ fontSize: '16px', color: '#EB5062' }"/>-->
+            <!--                  </a-tooltip>-->
+            <!--                </template>-->
+            <!--              </custom-text-button>-->
+            <!--              <a-cascader :options="generalCapabilitiesData" @change="handleSelectGeneralCapability(item, arguments)" class='cc-gc-cascader' />-->
+            <!--            </div>-->
+            <!--            <div class='cc-right-general-capabilities-content'>-->
+            <!--              <div class='capability-item' v-for='(capability, sIdx) in item.generalCapabilities' :key='sIdx'>-->
+            <!--                <div class='capability-item-tag'>-->
+            <!--                  <div class='tag-icon'>-->
+            <!--                    <a-icon type="tag" />-->
+            <!--                  </div>-->
+            <!--                  <div class='item-tag-name' v-for='(path, pIdx) in capability.path' :key='path' :title='path'>-->
+            <!--                    <template v-if='pIdx < capability.path.length && pIdx > 0'> / </template>-->
+            <!--                    {{ path }}-->
+            <!--                  </div>-->
+            <!--                </div>-->
+            <!--                <div class='capability-item-content'>-->
+            <!--                  {{ capability.desc }}-->
+            <!--                  <div class='delete-wrapper'>-->
+            <!--                    <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteCapability(item, capability)" cancel-text="No">-->
+            <!--                      <delete-icon color='#F16A39' />-->
+            <!--                    </a-popconfirm>-->
+            <!--                  </div>-->
+            <!--                </div>-->
+            <!--              </div>-->
+            <!--            </div>-->
           </div>
         </div>
       </div>
@@ -225,7 +233,7 @@
     <div v-clickOutside id="modal" ref="quickModal" v-show="false">
       <div class="quick-keyword-con" >
         <a-space>
-          <label>Set </label>
+          <label>Set</label>
           <quick-word-button
             type="black"
             text="Command term"
@@ -233,16 +241,20 @@
             :quickWord="quickWord"
             :loadApi="termsSearch"
             :cacheApi="termsPubList"
+            :recommends="termRecommend"
+            @close="hideQuickWord"
             cacheKey="TERMS_PUBLIST"
             @changeWord="res => this.commandTermForm.name = res"
           >
             <template v-slot:create>
               <div class="quick-word-sub">
-                <a-divider style="margin: 10px 0;"/>
-                <a-space v-show="!showQuickWordCreate" >
-                  <label>Create:</label>
-                  <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="createCommandTerm"> {{ commandTermForm.name || 'Command term' }} </a-button>
-                </a-space>
+                <template v-if="commandTermForm.name">
+                  <a-divider style="margin: 10px 0;"/>
+                  <a-space v-show="!showQuickWordCreate" >
+                    <label>Create:</label>
+                    <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="createCommandTerm"> {{ commandTermForm.name || 'Command term' }} </a-button>
+                  </a-space>
+                </template>
                 <!-- <a-divider style="margin: 5px 0;font-size: 14px;">Create</a-divider>
                 <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="showQuickWordCreate = true"> Do Create </a-button> -->
                 <!-- <command-term-add
@@ -263,20 +275,24 @@
             :quickWord="quickWord"
             :loadApi="dimensionsSearch"
             :cacheApi="dimensionsPubList"
+            :recommends="knowledgeRecommend"
+            @close="hideQuickWord"
             cacheKey="DIMENSIONS_PUBLIST"
           >
             <template v-slot:create>
               <div class="quick-word-sub">
-                <a-divider style="margin: 10px 0;"/>
-                <a-space v-show="!showQuickWordCreate" >
-                  <label>Create:</label>
-                  <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="createDimension"> {{ commandTermForm.name || 'Knowledge Tags' }} </a-button>
-                </a-space>
+                <template v-if="commandTermForm.name">
+                  <a-divider style="margin: 10px 0;"/>
+                  <a-space v-show="!showQuickWordCreate" >
+                    <label>Create:</label>
+                    <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="createDimension"> {{ commandTermForm.name || 'Knowledge Tags' }} </a-button>
+                  </a-space>
+                </template>
               </div>
             </template>
           </quick-word-button>
         </a-space>
-        <div class="recommend-con" v-if="termRecommend.length > 0 || knowledgeRecommend.length > 0">
+        <!-- <div class="recommend-con" v-if="termRecommend.length > 0 || knowledgeRecommend.length > 0">
           <label for="">Recommended</label>
           <div class="recommend-tag">
             <div
@@ -296,7 +312,7 @@
               </a-tag>
             </div>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
@@ -355,6 +371,10 @@ export default {
     recommendDataList: {
       type: Array,
       default: () => []
+    },
+    canEdit: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -431,7 +451,7 @@ export default {
       }
     },
     'filterConfig.curriculumId': {
-      immediate: true,
+      immediate: false,
       async handler(curriculumId) {
         console.log('curriculumId change', curriculumId)
         if (curriculumId) {
@@ -489,7 +509,7 @@ export default {
   },
   created() {
     this.loading = true
-    this.$logger.info('LearningObjective subjectList', this.subjectList)
+    this.$logger.info('LearningObjective subjectList', this.subjectList, 'yearList', this.yearList, 'languageList', this.languageList, 'learningObjectives', this.learningObjectives)
     this.asyncEmitUpdateEventFn = debounce(this.emitUpdateEvent, 1000)
     this.asyncUpdateFilterListFn = debounce(this.updateFilterList, 1000)
     if (this.curriculumId) {
@@ -529,11 +549,19 @@ export default {
         if (this.userMode === USER_MODE.SCHOOL) {
           list = this.$store.getters.bindCurriculum ? list.filter(item => item.id === this.$store.getters.bindCurriculum) : []
         }
+        this.$logger.info('filter ib ibAuth', this.$store.state.classcipeConfig.ibAuth)
+        if (!this.$store.state.classcipeConfig.ibAuth) {
+          this.$logger.info('bf filter ib', list)
+          list = list.filter(item => item.name.indexOf('IB') === -1)
+          this.$logger.info('filter ib', list)
+        }
         this.curriculumOptions = list
         this.filterConfig.curriculumId = this.curriculumOptions[0].id
         this.$logger.info('getAllCurriculums', this.curriculumOptions, list)
       }).finally(() => {
-        this.loading = false
+        this.$nextTick(() => {
+          this.loading = false
+        })
       })
     },
 
@@ -708,23 +736,25 @@ export default {
 
     handleChangeLevel(val, tag) {
       console.log(val, tag)
-      if (val) {
-        const origin = tag[val.type]
-        const originLevel = this.getLevel(val.type, origin)
-        tag[val.type] = val.title
-        this.$set(tag, val.type, val.title)
-        this.$forceUpdate()
-        // 上报
-        if (tag.id) {
-          const currentLevel = this.getLevel(val.type, val.title)
-          const params = {
-            [`bloom.${currentLevel - 1}`]: 1
+      if (this.canEdit) {
+        if (val) {
+          const origin = tag[val.type]
+          const originLevel = this.getLevel(val.type, origin)
+          tag[val.type] = val.title
+          this.$set(tag, val.type, val.title)
+          this.$forceUpdate()
+          // 上报
+          if (tag.id) {
+            const currentLevel = this.getLevel(val.type, val.title)
+            const params = {
+              [`bloom.${currentLevel - 1}`]: 1
+            }
+            if (originLevel > 0) {
+              params[`bloom.${originLevel - 1}`] = -1
+            }
+            console.log(params)
+            incBloom(tag.id, params)
           }
-          if (originLevel > 0) {
-            params[`bloom.${originLevel - 1}`] = -1
-          }
-          console.log(params)
-          incBloom(tag.id, params)
         }
       }
     },
@@ -759,9 +789,15 @@ export default {
     },
 
     handleCloseObjectiveTag(item, key, tagIndex) {
-      item[key].splice(tagIndex, 1)
-      console.log(item)
-      this.$forceUpdate()
+      if (this.canEdit) {
+        item[key].splice(tagIndex, 1)
+        console.log(item)
+        this.$forceUpdate()
+      }
+    },
+
+    hideQuickWord() {
+      this.$refs.quickModal.style.display = 'none'
     },
 
     handleQuickWordSet(res, key) {
@@ -803,6 +839,8 @@ export default {
           }
         }
       }
+      this.quickWord = ''
+      this.commandTermForm.name = ''
     },
     handleSaveCommanTerm(res, key = 'commandTerms') {
       console.log(res)
@@ -845,7 +883,8 @@ export default {
 .learning-objective {
 
   .half-body-content {
-    width: 50%;
+    width: 60%;
+    min-width: 710px;
     .cc-lo-header {
       display: flex;
       flex-direction: row;
@@ -1015,7 +1054,8 @@ export default {
         align-items: flex-start;
         margin-bottom: 10px;
         .cc-left-lo {
-          width: 50%;
+          width: 75%;
+          min-width: 710px;
           position: relative;
           display: flex;
           flex-direction: column;
@@ -1259,5 +1299,14 @@ export default {
   &.knowledge {
     background: #EABA7F;
   }
+}
+
+.required-dot {
+  padding-right: 3px;
+  font-weight: bold;
+  font-size: 18px;
+  color: #f5222d;
+  vertical-align: middle;
+  display: inline-flex;
 }
 </style>

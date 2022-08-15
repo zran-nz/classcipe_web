@@ -1,37 +1,24 @@
 <template>
   <div class='schedule-date'>
-    <div style="width: 50%;padding: 0 20px;">
+    <div style="padding: 0 20px;" :style="{width: showCalendarLink ? '30%' : '50%'}">
       <div class='choose-type'>
-        <div class='title'>Choose the type of session</div>
+        <div class='title'>
+          Live video class
+        </div>
         <div class='type-list'>
-          <div
-            class='type-item'
-            v-for='item in sessionTypeList'
-            :key='item.id'
-            :style="{'border-color': item.color, 'color': item.color}">
-            <div class='item-base' @click="chooseSessionType(item)">
-              <div class='item-checked-icon'>
-                <template v-if="selectedSessionType === item">
-                  <img src="~@/assets/icons/lesson/selected.png" />
-                </template>
-                <template v-if="selectedSessionType !== item">
-                  <div class="empty-circle"></div>
-                </template>
-              </div>
-              <div class='item-name'>{{ item.name }}</div>
+          <div class='list-item vertical-between'>
+            <div class='zoom-icon'>
+              <img src='~@/assets/icons/zoom/img.png' />
             </div>
-            <div class='item-more' @click.stop=''>
-              <template v-if='item.allowZoom'>
-                <div class='zoom-icon'>
-                  <img src='~@/assets/icons/zoom/img.png' />
-                </div>
-                <div class='zoom-switch'>
-                  <a-switch size='small' :disabled='item !== selectedSessionType' v-model='item.enableZoom' @change='handleZoomStatusChange(item)'></a-switch>
-                </div>
-              </template>
+            <div class='zoom-switch'>
+              <a-switch size='small' v-model='enableZoom' @change='handleZoomStatusChange'></a-switch>
             </div>
           </div>
         </div>
+        <zoom-meeting
+          v-show='enableZoom'
+          ref='zoom'
+          @update='updateZoom' />
       </div>
     </div>
     <div class='select-date'>
@@ -59,10 +46,12 @@
 import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
 import { CALENDAR_QUERY_TYPE } from '@/const/common'
 import moment from 'moment'
+import ZoomMeeting from '@/components/Schedule/ZoomMeeting'
 
 export default {
   name: 'ScheduleDate',
   components: {
+    ZoomMeeting,
     SessionCalendar: () => import('@/components/Calendar/SessionCalendar')
   },
   mixins: [ ZoomAuthMixin ],
@@ -117,36 +106,11 @@ export default {
       CALENDAR_QUERY_TYPE: CALENDAR_QUERY_TYPE,
       searchType: this.calendarSearchType,
       searchFilters: this.calendarSearchFilters,
-      sessionTypeList: [
-        {
-          id: 1,
-          name: 'Assignment',
-          allowZoom: false,
-          enableZoom: false,
-          color: '#333333',
-          type: this.$classcipe.ScheduleSessionType.assignment
-        },
-        {
-          id: 2,
-          name: 'Lesson',
-          allowZoom: true,
-          enableZoom: false,
-          color: '#15c39a',
-          type: this.$classcipe.ScheduleSessionType.lesson
-        },
-        {
-          id: 3,
-          name: 'Test',
-          allowZoom: true,
-          enableZoom: false,
-          color: '#c92a2a',
-          type: this.$classcipe.ScheduleSessionType.test
-        }
-      ],
 
       selectedSessionType: null,
       startDate: null,
       endDate: null,
+      enableZoom: false,
       initDate: [moment(new Date()), null]
     }
   },
@@ -156,22 +120,6 @@ export default {
     }
   },
   methods: {
-    chooseSessionType (item) {
-      this.$logger.info('chooseSessionType', item)
-      if (this.selectedSessionType === item) {
-        this.selectedSessionType = null
-      } else {
-        this.selectedSessionType = item
-        this.sessionTypeList.forEach(sItem => {
-          if (sItem.id !== item.id) {
-            sItem.enableZoom = false
-          }
-        })
-        this.$logger.info('sessionTypeList', this.sessionTypeList)
-      }
-      this.$emit('select-zoom-status', false) // 切换类型后重置zoom状态
-      this.$emit('select-session-type', this.selectedSessionType ? this.selectedSessionType.type : null)
-    },
     handleDateChange (date, dateString) {
       this.$logger.info('handleDateChange', date, dateString)
       this.startDate = moment(date[0].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
@@ -193,14 +141,14 @@ export default {
       })
     },
 
-    async handleZoomStatusChange (item) {
-      this.$logger.info('handleZoomStatusChange', item)
-      this.$emit('select-zoom-status', item)
-      if (item.enableZoom) {
+    async handleZoomStatusChange () {
+      this.$logger.info('handleZoomStatusChange', this.enableZoom)
+      this.$emit('select-zoom-status', this.enableZoom)
+      if (this.enableZoom) {
         const status = await this.checkZoomAuth()
         if (!status) {
-          item.enableZoom = false
-          this.$logger.info('reset item enableZoom', item)
+          this.enableZoom = false
+          this.$logger.info('reset item enableZoom', this.enableZoom)
         } else {
           this.$logger.info('zoom auth success')
         }
@@ -209,6 +157,13 @@ export default {
 
     disabledDate(current) {
       return current && current < moment().subtract(1, 'days').endOf('day')
+    },
+
+    updateZoom(data) {
+      this.$emit('update-zoom', {
+        password: data.password,
+        waitingRoom: data.waitingRoom
+      })
     }
   }
 }
@@ -232,49 +187,26 @@ export default {
       color: #333;
       line-height: 30px;
       padding-left: 5px;
+      font-size: 16px;
     }
 
     .type-list {
-      border: 1px solid #f1f1f1;
-      padding: 0 10px;
-      .type-item {
-        user-select: none;
-        cursor: pointer;
+      padding: 10px 10px 10px 0;
+      .zoom-icon {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        flex-direction: row;
-        height: 46px;
-        background-color: #fff;
-        margin: 15px 0;
-        width: 350px;
-        border-width: 2px;
-        border-style: solid;
-        border-radius: 5px;
-        padding: 8px 10px;
-
-        .item-base, .item-more {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          flex-direction: row;
-
-          .zoom-icon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 5px;
-            img {
-              height: 25px;
-            }
-          }
+        justify-content: center;
+        margin: 0 5px;
+        img {
+          height: 30px;
         }
       }
     }
   }
 
   .select-date {
-    width: 50%;
+    width: 70%;
+    padding: 0 20px;
     height: 100%;
     overflow: auto;
   }

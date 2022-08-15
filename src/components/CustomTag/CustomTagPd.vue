@@ -27,7 +27,11 @@
           </div>
         </div>
         <div class='no-selected-tag' v-show='selectedTagList && selectedTagList.length === 0 && !loading'>
-          <common-no-data text='No tag' />
+          <common-no-data text='No tag'>
+            <template v-slot:icon>
+              <empty-tag />
+            </template>
+          </common-no-data>
         </div>
       </div>
       <div class='tag-category-wrapper'>
@@ -52,24 +56,34 @@
           <template v-if="currentActiveTagCategory">
             <div class="search-tag-wrapper tag-wrapper" v-if="filterTagList.length > 0">
               <div class="skt-tag-item" v-for="tagItem in filterTagList" :key="tagItem.name" @click.stop=''>
-                <a-popover :title="tagItem.name" trigger="click">
-                  <template slot="content">
-                    <div class='sub-tag-block' v-if='tagItem.children.length' @click.stop=''>
-                      <div @click.stop=''>
-                        <div class="search-tag-wrapper tag-wrapper" v-if="tagItem.children.length > 0">
-                          <div class="sub-skt-tag-item" v-for="tag in tagItem.children" :key="tag.name" @click.stop="selectTag(currentActiveTagCategory, tag)">
-                            <a-tag
-                              :style="{ 'background-color': currentActiveTagCategory.tagColor || '#fff', 'border-color': currentActiveTagCategory.tagColor || '#15c39a'}"
-                              :class="{ 'selected-tag-item': selectedTagNameList.indexOf(tag.name) !== -1 }"
-                              class="tag-item cc-sub-custom-tag-item">
-                              {{ tag.name }}
-                            </a-tag>
+                <template v-if='tagItem.children.length'>
+                  <a-popover :title="tagItem.name" trigger="click">
+                    <template slot="content">
+                      <div class='sub-tag-block' @click.stop=''>
+                        <div @click.stop=''>
+                          <div class="search-tag-wrapper tag-wrapper" v-if="tagItem.children.length > 0">
+                            <div class="sub-skt-tag-item" v-for="tag in tagItem.children" :key="tag.name" @click.stop="selectTag(currentActiveTagCategory, tag)">
+                              <a-tag
+                                :style="{ 'background-color': currentActiveTagCategory.tagColor || '#fff', 'border-color': currentActiveTagCategory.tagColor || '#15c39a'}"
+                                :class="{ 'selected-tag-item': selectedTagNameList.indexOf(tag.name) !== -1 }"
+                                class="tag-item cc-sub-custom-tag-item">
+                                {{ tag.name }}
+                              </a-tag>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                    <common-no-data v-if='tagItem.children.length === 0' />
-                  </template>
+                    </template>
+                    <a-tag
+                      @click="selectTag(currentActiveTagCategory, tagItem)"
+                      :style="{ 'background-color': currentActiveTagCategory.tagColor || '#fff', 'border-color': currentActiveTagCategory.tagColor || '#15c39a'}"
+                      :class="{ 'selected-tag-item': selectedTagNameList.indexOf(tagItem.name) !== -1 }"
+                      class="tag-item cc-custom-tag-item">
+                      {{ tagItem.name }}
+                    </a-tag>
+                  </a-popover>
+                </template>
+                <template v-else>
                   <a-tag
                     @click="selectTag(currentActiveTagCategory, tagItem)"
                     :style="{ 'background-color': currentActiveTagCategory.tagColor || '#fff', 'border-color': currentActiveTagCategory.tagColor || '#15c39a'}"
@@ -77,7 +91,7 @@
                     class="tag-item cc-custom-tag-item">
                     {{ tagItem.name }}
                   </a-tag>
-                </a-popover>
+                </template>
               </div>
             </div>
             <div class='no-tag-content vertical-center' v-if='filterTagList.length === 0'>
@@ -108,6 +122,7 @@ import CustomPdTagCategoryBar from '@/components/CustomTag/CustomPdTagCategoryBa
 import CustomSearchInput from '@/components/Common/CustomSearchInput'
 import TagSetting from '@/components/UnitPlan/TagSetting'
 import { sortBy } from 'lodash-es'
+import EmptyTag from '@/assets/v2/icons/empty_tag.svg?inline'
 
 const setColor = [
   '#FFEDAF',
@@ -124,7 +139,7 @@ const setColor = [
 
 export default {
   name: 'CustomTagPd',
-  components: { TagSetting, CustomSearchInput, CustomPdTagCategoryBar, CommonNoData },
+  components: { TagSetting, CustomSearchInput, EmptyTag, CustomPdTagCategoryBar, CommonNoData },
   props: {
     customTags: {
       type: Array,
@@ -154,7 +169,15 @@ export default {
       immediate: true,
       handler (v) {
         const list = JSON.parse(JSON.stringify(v))
-        this.selectedTagList = sortBy(list, ['category'])
+        const set = new Set()
+        const result = []
+        list.forEach(item => {
+          if (!set.has(item.key)) {
+            result.push(item)
+            set.add(item.key)
+          }
+        })
+        this.selectedTagList = sortBy(result, ['category'])
       }
     }
   },

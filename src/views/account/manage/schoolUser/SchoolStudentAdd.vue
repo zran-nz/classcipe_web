@@ -428,6 +428,7 @@ export default {
     doReset(params) {
       return resetUserPassword({
         ...params,
+        schoolId: this.currentSchool.id,
         userId: this.studentId
       })
     },
@@ -438,6 +439,7 @@ export default {
       this.randomPass = randomString(6)
       resetUserPassword({
         newPassword: this.randomPass,
+        schoolId: this.currentSchool.id,
         userId: this.studentId
       }).then(res => {
         if (res.code === 0) {

@@ -1,7 +1,9 @@
 <template>
   <div class='cc-no-data'>
     <div class='icon-no-data'>
-      <no-data-icon />
+      <slot name='icon'>
+        <no-data-icon />
+      </slot>
     </div>
     <div class='cc-no-data-text'>
       {{ text }}
@@ -49,8 +51,8 @@ export default {
     justify-content: center;
 
     svg {
-      width: 70px;
       height: 70px;
+      max-width: 70px;
     }
   }
 

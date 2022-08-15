@@ -98,6 +98,11 @@ export default {
       displayModeType: displayModeType
     }
   },
+  watch: {
+    showSelected(newVal) {
+      this.displayMode = newVal ? displayModeType.SlideTemplate : displayModeType.SlideDrift
+    }
+  },
   created() {
   },
   methods: {

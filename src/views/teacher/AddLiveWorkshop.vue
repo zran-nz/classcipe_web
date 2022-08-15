@@ -163,15 +163,15 @@
                   :showArrow="true"
                   mode="multiple">
                   <a-select-option :value="item.value" v-for="(item, index) in filterSubjectOptions" :key="index" >
-                    {{ item.label }}
+                    {{ curriculumMap[curriculumOptions[item.curriculumId]] || curriculumOptions[item.curriculumId] }} - {{ item.label }}
                   </a-select-option>
                 </a-select>
                 <a-popover title="Teachers" placement="right" >
                   <template slot="content">
                     <div class="member-list" v-if="memberList && memberList.length > 0">
                       <div class="member-item" v-for="member in memberList" :key="member.id">
-                        <a-avatar class="item-avatar" icon="user" v-if="!member.avatar"/>
-                        <img :src="member.avatar" class="item-avatar" v-else alt="">
+                        <a-avatar class="item-avatar" :src="member.avatar" v-if="member.avatar"/>
+                        <img v-else src="~@/assets/icons/library/default-avatar.png"/>
                         <div class="item-detail">
                           <label for="">{{ member.realname }}</label>
                           <label>{{ member.email }}</label>
@@ -338,6 +338,10 @@ export default {
       PdField: PdField,
       filterSubjectOptions: [],
       filterAgeOptions: [],
+      curriculumOptions: {},
+      curriculumMap: {
+        'Cambridge Primary & Lower Secondary': 'Cambridge P & LS'
+      },
       contentLoading: false,
       confirmLoading: false,
       selectSessionUnitVisible: false,
@@ -423,7 +427,7 @@ export default {
         response.result.forEach(curiculum => {
           if (curiculum.subjectList) {
             curiculum.subjectList.forEach(subject => {
-              this.filterSubjectOptions.push({ label: subject.subjectName, value: subject.subjectId })
+              this.filterSubjectOptions.push({ label: subject.subjectName, value: subject.subjectId, curriculumId: curiculum.curriculumId })
             })
           }
         })
@@ -437,6 +441,7 @@ export default {
               this.filterAgeOptions.push({ label: grade.gradeName, value: grade.gradeId })
             })
           }
+          this.curriculumOptions[curiculum.curriculumId] = curiculum.curriculumName
         })
       })
     },

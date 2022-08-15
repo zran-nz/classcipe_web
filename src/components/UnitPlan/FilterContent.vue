@@ -9,6 +9,7 @@
         <div class="filter-label">Subject</div>
         <div class="filter-option-list" >
           <a-checkbox-group
+            v-if='subjectOptions.length'
             @change="updateFilterConfig"
             v-model="filter.subject"
             :options="subjectOptions"
@@ -27,6 +28,7 @@
         <div class="filter-label">Grade</div>
         <div class="filter-option-list" >
           <a-checkbox-group
+            v-if='ageOptions.length'
             @change="updateFilterConfig"
             v-model="filter.age"
             :options="ageOptions"
