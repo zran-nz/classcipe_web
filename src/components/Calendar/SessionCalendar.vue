@@ -45,7 +45,7 @@
           {{ term.name }}
         </div>
       </div>
-      <div id="scheduleContent" class="schedule-content" ref="scheduleContent">
+      <div id="scheduleContent" v-show="!showNoData || totalEvents.length > 0" class="schedule-content" ref="scheduleContent">
         <cc-calendar
           ref="fullCalendar"
           :eventsApi="loadEvents"
@@ -77,6 +77,7 @@
           </template>
         </cc-calendar>
       </div>
+      <a-empty style="margin-top: 100px;" v-if="showNoData && totalEvents.length === 0"></a-empty>
     </a-spin>
     <div class="tooltip" v-clickOutside="closeTip">
       <div class="tooltip-wrap" ref="tooltip">
@@ -141,7 +142,7 @@ export default {
     },
     searchFilters: {
       type: Array,
-      default: () => ['sessionType1', 'sessionType2', 'sessionType3'] // 根据类型的筛选条件
+      default: () => ['FA', 'SA', 'IA', 'Activity'] // 根据类型的筛选条件
     },
     editable: {
       type: Boolean,
@@ -162,6 +163,10 @@ export default {
     needDisableBefore: {
       type: Boolean,
       default: true
+    },
+    showNoData: {
+      type: Boolean,
+      default: false
     }
   },
   watch: {
@@ -273,6 +278,7 @@ export default {
 
       showUnit: [],
       currentUnit: null,
+      totalEvents: [],
 
       importVisible: false,
       importType: typeMap.task,
@@ -433,6 +439,7 @@ export default {
       }
 
       const params = {}
+      this.totalEvents = []
       let noNeedQuery = false
       if (this.queryType === this.CALENDAR_QUERY_TYPE.CLASS.value) {
         params.classIds = this.typeFilters
@@ -567,6 +574,7 @@ export default {
                       planId: item.sessionInfo.planId,
                       contentId: item.sessionInfo.contentId,
                       sessionType: item.sessionInfo.sessionType,
+                      taskType: item.content.taskType,
                       sessionId: item.sessionId,
                       status: item.attendance || 'absent',
                       id: item.sessionInfo.id,
@@ -582,7 +590,7 @@ export default {
                 this.allEvents = events
                 const filterEvents = events.filter(event => {
                   if (this.queryType === this.CALENDAR_QUERY_TYPE.MY.value) {
-                    if (!this.typeFilters.includes('sessionType' + event.extendedProps.sessionType)) {
+                    if (!this.typeFilters.includes(event.extendedProps.taskType)) {
                       return false
                     }
                   }
@@ -593,6 +601,7 @@ export default {
                 totalEvents = []
                 this.currentUnitList = []
               }
+              this.totalEvents = totalEvents
 
               console.log(termEvents)
 
@@ -729,6 +738,7 @@ export default {
           const calendarApi = this.$refs.fullCalendar.getApi()
           if (calendarApi) {
             this.setViewDate(date)
+            calendarApi.render()
           }
         }
       })

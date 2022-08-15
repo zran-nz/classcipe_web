@@ -16,7 +16,7 @@
             <a-tooltip :title="data.sessionInfo.className">
               <div class="class">{{ data.sessionInfo.className }}</div>
             </a-tooltip>
-            <div class="unit-con" v-if="data.unitPlanInfo">
+            <!-- <div class="unit-con" v-if="data.unitPlanInfo">
               <a-select
                 :getPopupContainer="trigger => trigger.parentElement"
                 :value='data.unitPlanInfo.id'
@@ -30,7 +30,7 @@
                   </div>
                 </a-select-option>
               </a-select>
-            </div>
+            </div> -->
           </div>
           <div class="detail-con">
             <div class="info-con">
@@ -40,7 +40,7 @@
                   <img v-else src="~@/assets/icons/library/default-avatar.png"/>
                   <label for="">{{ data.userRealName }}</label>
                 </a-space>
-                <div>
+                <div v-if="formatSessionType(data.sessionInfo.sessionType).name">
                   <a-tag :color="formatSessionType(data.sessionInfo.sessionType).color">{{ formatSessionType(data.sessionInfo.sessionType).name }}</a-tag>
                 </div>
                 <div v-if="data.sessionInfo && content.sessionInfo.zoomMeeting" class='zoom-icon' @click.prevent.stop="handleToZoom(content)">
@@ -50,9 +50,9 @@
                   {{ data.sessionInfo.sessionStartTime | dayjs('HH:mm') }} - {{ data.sessionInfo.deadline | dayjs('HH:mm') }}
                 </div>
               </div>
-              <tags-line v-if="data.content && data.content.customTags && data.content.customTags.length > 0" :tags="data.content.customTags" />
+              <!-- <tags-line v-if="data.content && data.content.customTags && data.content.customTags.length > 0" :tags="data.content.customTags" /> -->
             </div>
-            <div class="class-con">
+            <!-- <div class="class-con">
               <div class="session-deadline">
                 <div class="session-deadline-tab">
                   <a-radio-group v-model="data.sessionInfo.responseLimitMode" button-style="solid" size="small">
@@ -68,7 +68,6 @@
                   </a-radio-group>
                   <a-button size="small" @click="handleSaveResponseLimit" v-show="isChangedResonseLimit">Save</a-button>
                 </div>
-                <!-- <div class="deadline-tip">Students must complete their work within the allocated time</div> -->
                 <div class="session-deadline-opt">
                   <a-space v-if="data.sessionInfo.responseLimitMode === 2" >
                     <a-input-number suffix="Min(s)" size="small" v-model="responseLimitTimeCountDown"></a-input-number>
@@ -97,7 +96,7 @@
                   </a-space>
                 </div>
               </div>
-            </div>
+            </div> -->
           </div>
         </div>
         <div class='right-info'>
@@ -125,21 +124,21 @@
               </div>
             </a-dropdown> -->
 
-            <a-popconfirm title="确定删除吗?" @confirm="handleDeleteItem">
+            <!-- <a-popconfirm title="确定删除吗?" @confirm="handleDeleteItem">
               <custom-button label='Delete'>
                 <template v-slot:icon>
                   <delete-icon />
                 </template>
               </custom-button>
-            </a-popconfirm>
+            </a-popconfirm> -->
 
-            <custom-button
+            <!-- <custom-button
               label='Evalute'
               @click='handleEvalute'>
               <template v-slot:icon>
                 <original-tips-icon />
               </template>
-            </custom-button>
+            </custom-button> -->
 
             <!-- <custom-button label='Edit' @click='editItem'>
               <template v-slot:icon>
@@ -322,7 +321,7 @@ export default {
     },
     formatSessionType(type) {
       const find = this.sessionTypeList.find(item => item.type === type)
-      return find || { name: ' - ' }
+      return find || { name: '' }
     },
     handleChangeUnit(id) {
       this.$emit('change-unit', {

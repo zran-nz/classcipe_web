@@ -6,7 +6,7 @@
       </template>
     </div>
     <a-popover
-      title="Session Detail"
+      title=""
       trigger="click"
       v-else-if="info.event.extendedProps.eventType !== 'selectDate'"
       :destroyTooltipOnHide="true"
@@ -15,7 +15,7 @@
     >
       <a slot="content" >
         <a-spin :spinning="loading">
-          <div v-if="queryType !== CALENDAR_QUERY_TYPE.WORKSHOP.value" style="max-width: 1100px;">
+          <div v-if="queryType !== CALENDAR_QUERY_TYPE.WORKSHOP.value" style="max-width: 650px;">
             <content-item-calendar
               ref="contentItemCalendar"
               :content='getSession(info)'
