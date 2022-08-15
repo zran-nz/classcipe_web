@@ -152,7 +152,7 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block form-question tag-content-block' :data-field-name='taskField.Question' v-if='associateQuestionList.length > 0 && fieldItem.visible && fieldItem.fieldName === taskField.Question' :key='fieldItem.fieldName'>
+                <div class='form-block form-question tag-content-block' :data-field-name='taskField.Question' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Question' :key='fieldItem.fieldName'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Question style="left:100px" />
                   <custom-form-item :colon='false' :required='emptyRequiredFields.indexOf(taskField.Question) !== -1' :required-field='requiredFields.indexOf(taskField.Question) !== -1'>
                     <template slot='label'>
