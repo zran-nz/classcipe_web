@@ -487,6 +487,7 @@ export default {
           this.$logger.info('reset data', this.data)
         }
         if (!this.loading) {
+          this.$logger.info('reset filterConfig data', this.data)
           this.filterConfig.selectedSubjectList = []
           this.filterConfig.selectedYearList = []
           this.filterConfig.selectedLanguageList = []
