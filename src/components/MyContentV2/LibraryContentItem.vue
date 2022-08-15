@@ -87,19 +87,31 @@
                 <a-button
                   type="danger"
                   shape='round'
-                  @click='handleBuyItem (content)'
+                  @click='handleBuyItem()'
                   :loading='copyLoading'
-                  v-if='content.createBy !== $store.getters.userInfo.email'>
+                  v-if='content.createBy !== $store.getters.userInfo.email && !content.buyed'>
                   Buy now
                 </a-button>
                 <a-button
                   type="danger"
+                  class='cc-dark-button'
                   shape='round'
-                  @click='handleEditItem(content)'
+                  @click='handleEditItem()'
                   :loading='copyLoading'
-                  v-if='content.createBy === $store.getters.userInfo.email'>
+                  v-if='content.createBy === $store.getters.userInfo.email ||
+                    (content.createBy !== $store.getters.userInfo.email && content.buyed && content.myContentId != -1)'>
                   Edit
                 </a-button>
+                <a-tooltip title="You have already purchased this content, please copy it directly" placement="top" >
+                  <a-button
+                    type='primary'
+                    shape='round'
+                    @click='handleBuyItem ("Copy successfully")'
+                    :loading='copyLoading'
+                    v-if='content.createBy !== $store.getters.userInfo.email && content.buyed && content.myContentId == -1'>
+                    Copy
+                  </a-button>
+                </a-tooltip>
               </div>
             </a-space>
           </div>
@@ -206,12 +218,16 @@ export default {
     }
   },
   methods: {
-    handleBuyItem () {
+    handleBuyItem (msg) {
       this.$logger.info('handleBuyItem', this.content)
       ContentBuy({ id: this.content.id, type: this.content.type }).then((response) => {
         if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
           this.$logger.info('Duplicate response', response)
-          this.$message.success('Buy successfully')
+          if (msg) {
+            this.$message.success(msg)
+          } else {
+            this.$message.success('Buy successfully')
+          }
         } else {
           this.currentMethodName = 'handleBuyItem'
         }
@@ -222,6 +238,10 @@ export default {
     },
 
     handleEditItem() {
+      // 其他人的资源走buy逻辑
+      if (this.content.createBy !== this.$store.getters.userInfo.email) {
+        return this.handleEditBuy()
+      }
       const item = this.content
       if (!item.canPublish) {
         this.$classcipe.setRequiredCheck(item.id)
@@ -265,6 +285,18 @@ export default {
         this.selectedGradeList.push(grade)
       } else {
         this.selectedGradeList.splice(index, 1)
+      }
+    },
+    handleEditBuy () {
+      this.$logger.info('handleEdit', this.content.myContentId)
+      if (this.content.type === this.typeMap['unit-plan']) {
+        window.open('/teacher/unit-plan-redirect/' + this.content.myContentId, '_blank')
+      } else if (this.content.type === this.typeMap.task) {
+        window.open('/teacher/task-redirect/' + this.content.myContentId, '_blank')
+      } else if (this.content.type === this.typeMap.pd) {
+        window.open('/teacher/pd-content-redirect/' + this.content.myContentId, '_blank')
+      } else if (this.contentType === this.typeMap.video) {
+        window.open('/teacher/video-redirect/' + this.content.myContentId, '_blank')
       }
     }
   }

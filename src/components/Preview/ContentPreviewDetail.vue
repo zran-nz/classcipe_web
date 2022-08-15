@@ -50,18 +50,20 @@
                 class='cc-dark-button'
                 shape='round'
                 @click='handleEditBuy'
-                v-if='content.createBy !== $store.getters.userInfo.email && showBuyButton && content.buyed'>
+                v-if='content.createBy !== $store.getters.userInfo.email && showBuyButton && content.buyed && content.myContentId != -1'>
                 Edit
               </a-button>
-              <a-button
-                shape='round'
-                type='primary'
-                @click='handleDuplicateItem'
-                :loading='copyLoading'
-                v-if='content.createBy !== $store.getters.userInfo.email && showCopyButton'
-                icon='copy'>
-                Copy
-              </a-button>
+              <a-tooltip title="You have already purchased this content, please copy it directly" placement="top" >
+                <a-button
+                  shape='round'
+                  type='primary'
+                  @click='handleDuplicateItem'
+                  :loading='copyLoading'
+                  v-if='content.createBy !== $store.getters.userInfo.email && content.buyed && content.myContentId == -1'
+                  icon='copy'>
+                  Copy
+                </a-button>
+              </a-tooltip>
             </a-space>
           </a-space>
         </div>
@@ -224,7 +226,7 @@
                   class='cc-dark-button'
                   shape='round'
                   @click='handleEditBuy'
-                  v-if='content.createBy !== $store.getters.userInfo.email && showBuyButton && content.buyed'>
+                  v-if='content.createBy !== $store.getters.userInfo.email && showBuyButton && content.buyed && content.myContentId != -1'>
                   Edit
                 </a-button>
                 <a-button
@@ -232,7 +234,7 @@
                   type='primary'
                   @click='handleDuplicateItem'
                   :loading='copyLoading'
-                  v-if='content.createBy !== $store.getters.userInfo.email && showCopyButton'
+                  v-if='content.createBy !== $store.getters.userInfo.email && content.buyed && content.myContentId == -1'
                   icon='copy'>
                   Copy
                 </a-button>
@@ -690,7 +692,7 @@ export default {
     },
     showCopyButton: {
       type: Boolean,
-      default: false
+      default: true
     },
     showEditButton: {
       type: Boolean,
@@ -1101,6 +1103,10 @@ export default {
 
     handleDuplicateItem () {
       this.$logger.info('handleDuplicateItem', this.content)
+      // 其他人的资源走buy逻辑
+      if (this.content.createBy !== this.$store.getters.userInfo.email) {
+        return this.handleBuyItem('Copy successfully')
+      }
       this.$confirm({
         title: 'Confirm to copy',
         content: 'Are you sure to copy ' + this.content.name + ' ?',
@@ -1122,12 +1128,16 @@ export default {
       })
     },
 
-    handleBuyItem () {
+    handleBuyItem (msg) {
       this.$logger.info('handleBuyItem', this.content)
       ContentBuy({ id: this.content.id, type: this.content.type }).then((response) => {
         if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
           this.$logger.info('Duplicate response', response)
-          this.$message.success('Buy successfully')
+          if (msg) {
+            this.$message.success(msg)
+          } else {
+            this.$message.success('Buy successfully')
+          }
         } else {
           this.currentMethodName = 'handleBuyItem'
         }
