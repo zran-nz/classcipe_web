@@ -43,7 +43,6 @@
                               <div class='type-icon vertical-left'>
                                 <a-space>
                                   <content-type-icon :type="content.type" />
-                                  <collaborate-icon v-if='content.collaborates > 0'/>
                                   <a-icon type="shopping" v-if='content.sourceFrom' />
                                 </a-space>
                               </div>
