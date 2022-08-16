@@ -81,10 +81,26 @@
             @change="handleSelectDate" />
         </div>
       </div>
-      <zoom-meeting
-        ref='zoom'
-        :password='password'
-        :waiting-room='waitingRoom' />
+      <div class='choose-type'>
+        <div class='title'>
+          Live video class
+        </div>
+        <div class='type-list'>
+          <div class='list-item vertical-between'>
+            <div class='zoom-icon'>
+              <img src='~@/assets/icons/zoom/img.png' />
+            </div>
+            <div class='zoom-switch'>
+              <a-switch size='small' v-model='enableZoom' @change='handleZoomStatusChange'></a-switch>
+            </div>
+          </div>
+        </div>
+        <zoom-meeting
+          v-if='enableZoom'
+          ref='zoom'
+          :password='password'
+          :waiting-room='waitingRoom' />
+      </div>
     </div>
     <div class="date-info">
       <div class='select-date'>
@@ -204,7 +220,8 @@ export default {
           editing: true
         }
       ],
-      initDate: this.defaultDate
+      initDate: this.defaultDate,
+      enableZoom: false
     }
   },
   mixins: [ ZoomAuthMixin ],
@@ -234,6 +251,19 @@ export default {
       this.registerBefore = moment(date.toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
     },
 
+    async handleZoomStatusChange () {
+      this.$logger.info('handleZoomStatusChange', this.enableZoom)
+      this.$emit('select-zoom-status', this.enableZoom)
+      if (this.enableZoom) {
+        const status = await this.checkZoomAuth()
+        if (!status) {
+          this.enableZoom = false
+          this.$logger.info('reset item enableZoom', this.enableZoom)
+        } else {
+          this.$logger.info('zoom auth success')
+        }
+      }
+    },
     handleSelectSchedule(date) {
       this.startDate = moment(date.startDate).utc().format('YYYY-MM-DD HH:mm:ss')
       this.endDate = moment(date.endDate).utc().format('YYYY-MM-DD HH:mm:ss')
@@ -461,5 +491,24 @@ export default {
 .pay-switch {
   position: relative;
 }
+.title {
+  font-weight: 500;
+  color: #333;
+  line-height: 30px;
+  padding-left: 5px;
+  font-size: 16px;
+}
 
+.type-list {
+  padding: 10px 10px 10px 0;
+  .zoom-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 5px;
+    img {
+      height: 30px;
+    }
+  }
+}
 </style>

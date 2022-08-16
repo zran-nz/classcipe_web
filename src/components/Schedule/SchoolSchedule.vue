@@ -64,10 +64,26 @@
       <div v-if="type === typeMap.task" style="text-align:center;margin-top: 50px;">
         All students at your school will receive email and notification
       </div>
-      <zoom-meeting
-        ref='zoom'
-        :password='password'
-        :waiting-room='waitingRoom' />
+      <div class='choose-type'>
+        <div class='title'>
+          Live video class
+        </div>
+        <div class='type-list'>
+          <div class='list-item vertical-between'>
+            <div class='zoom-icon'>
+              <img src='~@/assets/icons/zoom/img.png' />
+            </div>
+            <div class='zoom-switch'>
+              <a-switch size='small' v-model='enableZoom' @change='handleZoomStatusChange'></a-switch>
+            </div>
+          </div>
+        </div>
+        <zoom-meeting
+          v-if='enableZoom'
+          ref='zoom'
+          :password='password'
+          :waiting-room='waitingRoom' />
+      </div>
     </div>
     <div class="date-info">
       <div class='select-date'>
@@ -111,6 +127,7 @@ import { getCurriculumBySchoolId } from '@/api/academicSettingCurriculum'
 import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
 import { queryTeachers } from '@/api/common'
 import ZoomMeeting from '@/components/Schedule/ZoomMeeting'
+import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
 
 export default {
   name: 'SchoolSchedule',
@@ -151,6 +168,7 @@ export default {
       default: false
     }
   },
+  mixins: [ZoomAuthMixin],
   watch: {
     defaultDate: {
       handler(val) {
@@ -210,7 +228,8 @@ export default {
 
       endData: null,
       startDate: null,
-      scheduleDataArray: []
+      scheduleDataArray: [],
+      enableZoom: false
     }
   },
   created() {
@@ -275,7 +294,19 @@ export default {
         endDate: this.endData
       })
     },
-
+    async handleZoomStatusChange () {
+      this.$logger.info('handleZoomStatusChange', this.enableZoom)
+      this.$emit('select-zoom-status', this.enableZoom)
+      if (this.enableZoom) {
+        const status = await this.checkZoomAuth()
+        if (!status) {
+          this.enableZoom = false
+          this.$logger.info('reset item enableZoom', this.enableZoom)
+        } else {
+          this.$logger.info('zoom auth success')
+        }
+      }
+    },
      handleSelectSchedule(date) {
       this.$logger.info('handleSelectSchedule', date)
       this.startDate = moment(date.startDate).utc().format('YYYY-MM-DD HH:mm:ss')
@@ -429,5 +460,24 @@ export default {
     }
   }
 }
+.title {
+  font-weight: 500;
+  color: #333;
+  line-height: 30px;
+  padding-left: 5px;
+  font-size: 16px;
+}
 
+.type-list {
+  padding: 10px 10px 10px 0;
+  .zoom-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 5px;
+    img {
+      height: 30px;
+    }
+  }
+}
 </style>

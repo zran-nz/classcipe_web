@@ -14,12 +14,14 @@
           :type="type"
           v-if='userMode === USER_MODE.SELF && scheduleReq.openSession'
           @select-date='handleSelectDate'
+          @select-zoom-status='handleSelectZoom'
         />
         <school-schedule
           ref='pay'
           :type="type"
           v-if='userMode === USER_MODE.SCHOOL && scheduleReq.openSession'
           @select-date='handleSelectDate'
+          @select-zoom-status='handleSelectZoom'
         />
       </div>
     </div>
