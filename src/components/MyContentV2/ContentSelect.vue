@@ -43,6 +43,7 @@
                               <div class='type-icon vertical-left'>
                                 <a-space>
                                   <content-type-icon :type="content.type" />
+                                  <collaborate-icon v-if='content.collaborates > 0'/>
                                   <a-icon type="shopping" v-if='content.sourceFrom' />
                                 </a-space>
                               </div>
@@ -449,6 +450,18 @@ export default {
                     .tag-info-item {
                       margin-right: 5px;
                       margin-bottom: 5px;
+                    }
+                  }
+                  .type-icon {
+                    .ant-space-item {
+                      display: flex;
+                      flex-direction: row;
+                      align-items: center;
+                      justify-content: center;
+                    }
+                    svg {
+                      width: 25px;
+                      height: 25px;
                     }
                   }
                 }
