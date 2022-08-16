@@ -80,7 +80,7 @@
             </template>
             <template v-else>
               <div class='no-student-tips'>
-                <no-more-resources tips='No student' v-if='currentSelectedClass' />
+                <no-more-resources tips='Current class has no student' v-if='currentSelectedClass' />
                 <div class='select-class-tips' v-else>
                   Select a class first.
                 </div>
