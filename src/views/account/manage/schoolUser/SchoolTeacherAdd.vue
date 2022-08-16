@@ -272,6 +272,13 @@ export default {
         ]).then(([clsRes, roleRes]) => {
           if (clsRes.code === 0) {
             this.classList = clsRes.result.records.filter(cls => cls.classType !== 2)
+            if (this.formModel.classes) {
+              const isFind = this.classList.find(item => item.id === this.formModel.classes)
+              if (!isFind) {
+                this.formModel.classArr = []
+                this.formModel.classes = ''
+              }
+            }
             this.classUnModify = false
             const query = this.$route.query
             if (query.classId) {

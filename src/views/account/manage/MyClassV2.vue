@@ -676,16 +676,18 @@ export default {
       }
       if (!cls.id) {
         this.handleSaveClassName(cls, classId => {
-          this.$refs.memberList.doCreate({
-            classId: classId,
-            role: 'student'
-          })
+          // this.$refs.memberList.doCreate({
+          //   classId: classId,
+          //   role: 'student'
+          // })
+          this.$router.push('/manage/student/list?classId=' + classId)
         })
       } else {
-        this.$refs.memberList.doCreate({
-          classId: cls.id,
-          role: 'student'
-        })
+        // this.$refs.memberList.doCreate({
+        //   classId: cls.id,
+        //   role: 'student'
+        // })
+        this.$router.push('/manage/student/list?classId=' + cls.id)
       }
     },
     handleEditTeachers(cls) {

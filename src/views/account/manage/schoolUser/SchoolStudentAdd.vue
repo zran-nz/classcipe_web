@@ -87,6 +87,7 @@
                 optionFilterProp="children"
                 :getPopupContainer="trigger => trigger.parentElement"
                 v-model='formModel.classes'
+                :disabled="classUnModify"
                 placeholder='Please select class'>
                 <a-select-option v-for='item in classList' :key='item.id'>
                   {{ item.name }}
@@ -241,7 +242,8 @@ export default {
       cacheKey: 'SUBMIT_VALIDATE_SCHOOL_STUDENT_',
       autoSaveLocalKey: 'FORM_SCHOOL_STUDENT_',
       needAutoSave: !this.id,
-      randomPass: ''
+      randomPass: '',
+      classUnModify: false
     }
   },
   computed: {
@@ -284,6 +286,15 @@ export default {
               const isFind = this.classList.find(item => item.id === this.formModel.classes)
               if (!isFind) {
                 this.formModel.classes = ''
+              }
+            }
+            this.classUnModify = false
+            const query = this.$route.query
+            if (query.classId) {
+              const isFind = this.classList.find(item => item.id === query.classId)
+              if (isFind) {
+                this.formModel.classes = query.classId
+                this.classUnModify = true
               }
             }
           }

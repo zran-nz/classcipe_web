@@ -15,7 +15,12 @@
             <a-space :size="5" align="center" @click.stop>
               <label style="cursor: pointer" @click="$router.push('/account/info')">Account Info</label>
               <label for="">></label>
-              <label style="font-weight: normal">School Student</label>
+              <template v-if="onlyClass">
+                <label style="cursor: pointer" @click="$router.push('/manage/student/list')">School Student</label>
+                <label for="">></label>
+                <label style="font-weight: normal">{{ onlyClass.name }}</label>
+              </template>
+              <label v-else style="font-weight: normal">School Student</label>
             </a-space>
           </template>
           <template v-slot:right>
@@ -207,6 +212,7 @@ export default {
         searchKey: '',
         schoolId: this.$store.state.user.currentSchool.id,
         schoolUserStatus: '',
+        classes: '',
         grades: '',
         roles: 'student'
       },
@@ -223,10 +229,20 @@ export default {
       url: {
         list: '/classcipe/api2/school/user/getSchoolUsers'
         // list: '/classcipe/api/school/schoolClassStudent/list'
-      }
+      },
+
+      onlyClass: null
     }
   },
   created() {
+    if (this.$route.query) {
+      if (this.$route.query.tab) {
+        const find = this.tabsList.find(item => item.value + '' === this.$route.query.tab + '')
+        if (find) {
+          this.queryParam.schoolUserStatus = find.value
+        }
+      }
+    }
     this.initDict()
     this.queryParam.schoolId = this.currentSchool.id
     this.debounceLoad = debounce(this.loadData, 300)
@@ -265,7 +281,7 @@ export default {
           //   return text || (record.firstname + record.lastname) || record.email
           // }
         },
-        {
+        ...this.onlyClass ? [] : [{
           title: 'Class',
           align: 'center',
           dataIndex: 'classes',
@@ -281,7 +297,7 @@ export default {
             text: item.name,
             value: item.id
           })))
-        },
+        }],
         {
           title: 'Status',
           align: 'center',
@@ -342,12 +358,26 @@ export default {
       ]).then(([clsRes]) => {
         if (clsRes.code === 0) {
           this.classList = clsRes.result.records
+          this.onlyClass = null
+          const query = this.$route.query
+          if (query.classId) {
+            const isFind = this.classList.find(item => item.id === query.classId)
+            if (isFind) {
+              this.filters.classes = query.classId
+              this.onlyClass = { ...isFind }
+              this.loadData()
+            }
+          }
         }
         this.onClearSelected()
       })
     },
     toggleTab(status) {
       this.queryParam.schoolUserStatus = status
+      const url = '/manage/student/list?tab=' + status + (this.onlyClass ? `&classId=${this.onlyClass.id}` : '')
+      this.$router.replace({
+        path: url
+      })
       this.onClearSelected()
       this.searchQuery()
     },
@@ -433,10 +463,12 @@ export default {
       }
     },
     handleAdd() {
-      this.$router.push('/manage/student/detail')
+      const url = '/manage/student/detail' + (this.onlyClass ? `?classId=${this.onlyClass.id}` : '')
+      this.$router.push(url)
     },
     handleUpload() {
-      this.$router.push('/manage/student/upload')
+      const url = '/manage/student/upload' + (this.onlyClass ? `/${this.onlyClass.id}` : '')
+      this.$router.push(url)
     },
     handleEdit(item) {
       this.$router.push('/manage/student/detail/' + item.uid)
