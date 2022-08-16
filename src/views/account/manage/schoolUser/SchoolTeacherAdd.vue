@@ -73,8 +73,9 @@
                 optionFilterProp="children"
                 :getPopupContainer="trigger => trigger.parentElement"
                 v-model='formModel.classArr'
+                option-label-prop="label"
                 placeholder='Please select class'>
-                <a-select-option v-for='item in classList' :key='item.id'>
+                <a-select-option :label="item.name" v-for='item in filterClassList' :key='item.id'>
                   {{ item.name }}
                 </a-select-option >
               </a-select>
@@ -141,13 +142,15 @@ import { USER_MODE, SCHOOL_USER_STATUS } from '@/const/common'
 
 import { listClass } from '@/api/v2/schoolClass'
 import { addTeacher, updateTeacher, checkEmailTeacher, getTeacherInfo, resetPassword } from '@/api/v2/schoolUser'
-import { listRole } from '@/api/v2/schoolRole'
+import { listRole, geHeaderClassByUserId } from '@/api/v2/schoolRole'
 
 import ResetPassword from '../persona/ResetPassword'
 import AvatarModal from '@/views/account/settings/AvatarModal'
 
 import { SubmitBeforeMixin } from '@/mixins/SubmitBeforeMixin'
 import { AutoSaveLocalMixin } from '@/mixins/AutoSaveLocalMixin'
+import { UserModeMixin } from '@/mixins/UserModeMixin'
+import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 
 import moment from 'moment'
 import { mapState } from 'vuex'
@@ -159,13 +162,11 @@ export default {
   },
   mixins: [
     SubmitBeforeMixin,
-    AutoSaveLocalMixin
+    AutoSaveLocalMixin,
+    UserModeMixin,
+    CurrentSchoolMixin
   ],
   props: {
-    school: {
-      type: Object,
-      default: () => {}
-    },
     id: {
       type: String,
       default: null
@@ -176,19 +177,11 @@ export default {
     }
   },
   watch: {
-    school: {
-      handler(val) {
-        console.log(val)
-        this.currentSchool = { ...val }
-        this.initData()
-      },
-      deep: true,
-      immediate: true
-    },
     id: {
       handler(val) {
         this.teacherId = val
         this.initForm()
+        this.initUserClassRole()
       },
       immediate: true
     }
@@ -197,7 +190,6 @@ export default {
     return {
       SCHOOL_USER_STATUS: SCHOOL_USER_STATUS,
       USER_MODE: USER_MODE,
-      currentSchool: this.school,
       teacherId: this.id,
       classList: [],
       roleList: [],
@@ -223,7 +215,8 @@ export default {
       confirmLoading: false,
       cacheKey: 'SUBMIT_VALIDATE_SCHOOL_TEACHER_',
       autoSaveLocalKey: 'FORM_SCHOOL_TEACHER_',
-      needAutoSave: !this.id
+      needAutoSave: !this.id,
+      userHeaderTeacherCls: []
     }
   },
   computed: {
@@ -244,9 +237,26 @@ export default {
         classArr: [{ required: true, message: 'Please Select a class!', trigger: 'change' }],
         roleArr: [{ required: true, message: 'Please Select a role!', trigger: 'change' }]
       }
+    },
+    filterClassList() {
+      return this.classList.filter(cc => !this.formModel.classArr.includes(cc.id))
     }
   },
+  created() {
+    this.initData()
+  },
   methods: {
+    handleSchoolChange(currentSchool) {
+      if (this.userMode === USER_MODE.SCHOOL) {
+        this.initData()
+        this.initUserClassRole()
+      }
+    },
+    handleModeChange(userMode) {
+      // 模式切换，个人还是学校 个人接口
+      this.initData()
+      this.initUserClassRole()
+    },
     initData() {
        Promise.all([
           listClass({
@@ -307,6 +317,16 @@ export default {
       }
       this.$nextTick(() => {
         this.initValidate(!!this.id)
+      })
+    },
+    initUserClassRole() {
+      geHeaderClassByUserId({
+        schoolId: this.currentSchool.id,
+        userId: this.id
+      }).then(res => {
+        if (res.code === 0) {
+          this.userHeaderTeacherCls = res.result.classIdList
+        }
       })
     },
     doValidate(key, value) {
@@ -397,12 +417,15 @@ export default {
       return find ? find.name : ''
     },
     isShowClose(id) {
-      return true
+      return !this.userHeaderTeacherCls.includes(id)
     },
     closeCls(id) {
       this.formModel.classArr = this.formModel.classArr.filter(clsId => clsId !== id)
     },
     clsColor(id) {
+      if (this.userHeaderTeacherCls.includes(id)) {
+        return '#ef4136'
+      }
       return ''
     },
     showSelect(e) {
@@ -476,6 +499,7 @@ export default {
   /deep/ .ant-select {
     // visibility: hidden;
     opacity: 0;
+    height: 30px;
   }
 }
 .tag-render {
@@ -486,8 +510,7 @@ export default {
   background: #fff;
   padding: 0 5px;
   cursor: pointer;
-  position: absolute;
-  top: -8px;
+  margin-top: -30px;
   left: 0;
   flex-wrap: wrap;
 }

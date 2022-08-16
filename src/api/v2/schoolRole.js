@@ -11,7 +11,8 @@ export const schoolRoleApi = {
   getRoleSubjectLeaders: `/classcipe/${API_PREFIX}/user/getSubjectLeaders`,
   getRoleClassTeachers: `/classcipe/${API_PREFIX}/user/getTeachers`,
   getSchoolRole: `/classcipe/${API_PREFIX}/user/getSchoolRole`,
-  saveSchoolRole: `/classcipe/${API_PREFIX}/user/saveSchoolRole`
+  saveSchoolRole: `/classcipe/${API_PREFIX}/user/saveSchoolRole`,
+  geHeaderClassByUserId: `/classcipe/${API_PREFIX}/user/geHeaderClassByUserId`
 }
 
 /**
@@ -218,5 +219,18 @@ export function listRole (parameter) {
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+ export function geHeaderClassByUserId (parameter) {
+  return request({
+    url: schoolRoleApi.geHeaderClassByUserId,
+    method: 'get',
+    params: parameter
   })
 }
