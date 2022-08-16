@@ -90,10 +90,10 @@ export default {
           this.isAdmin = res?.result?.isSchoolAdmin
           this.schoolId = res?.result?.schoolId
           this.schoolName = res?.result?.schoolName
-          this.btnText = res?.result?.approveFlag ? 'Apply' : 'Join'
           this.isTeacher = res?.result?.role === 2
           this.isInSchool = res?.result?.isSchoolUser
           const schoolUserStatus = res?.result?.schoolUserStatus
+          this.btnText = res?.result?.approveFlag ? 'Apply' : 'Join'
           this.labelTxt = `You have been invited to join ${this.schoolName} community`
           // 判断用户是否已经邀请了
           // const existSchools = this.info.schoolList.find(item => item.id === res?.result?.schoolId)

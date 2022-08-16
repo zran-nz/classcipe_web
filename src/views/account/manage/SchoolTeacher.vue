@@ -432,32 +432,6 @@ export default {
     },
     handleInvite() {
       this.$refs.schoolUserInvite.doCreate('teacher')
-      const key = Date.now().toString(36) + Math.random().toString(36).slice(2)
-      this.$notification.open({
-        message: 'Notification',
-        description: 'test',
-        duration: 5,
-        key,
-        btn: h => {
-          return h(
-            'a-button',
-            {
-              props: {
-                type: 'primary'
-              },
-              on: {
-                click: () => {
-                  this.$notification.close(key)
-                  this.$router.push({
-                    path: '/notification-detail/' + 1
-                  })
-                }
-              }
-            },
-            'Check detail'
-          )
-        }
-      })
     },
     getBadge(key) {
       if (key === SCHOOL_USER_STATUS.PENDING.value) {
