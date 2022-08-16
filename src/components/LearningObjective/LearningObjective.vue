@@ -447,6 +447,7 @@ export default {
             this.subjectOptions = this.data['__subject']
             this.yearOptions = this.data['__years']
             this.yearIndex = this.data['__year']
+            console.log('filterConfig.curriculumId update data', this.data)
           } else if (id === 2) {
             if (!this.cachedCurriculum['nz']) {
               this.$set(this.cachedCurriculum, 'nz', await GetNzCurriculum())
@@ -455,6 +456,7 @@ export default {
             this.subjectOptions = this.data['__subject']
             this.yearOptions = this.data['__years']
             this.yearIndex = this.data['Learning outcomes']['__year']
+            console.log('filterConfig.curriculumId update data', this.data)
           } else {
             this.$logger.warn('No curriculum data.')
           }
