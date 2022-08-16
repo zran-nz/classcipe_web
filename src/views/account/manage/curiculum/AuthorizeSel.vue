@@ -245,7 +245,6 @@ export default {
   computed: {
     ...mapState({
       info: state => state.user.info,
-      currentSchool: state => state.user.currentSchool,
       userMode: state => state.app.userMode
     })
   },
@@ -299,6 +298,7 @@ export default {
       console.log(this.listAuths)
       if (this.listAuths && this.listAuths.length > 0) {
         for (const curriculumId in this.totalResult) {
+          // && item.applyUserId === this.info.id
           const selectedFromDb = this.listAuths.find(item => item.curriculumId === curriculumId)
           console.log(selectedFromDb)
           if (selectedFromDb) {
@@ -361,7 +361,7 @@ export default {
         }
       }).finally(() => {
         this.loading = false
-        this.$emit('save-success')
+        // this.$emit('save-success')
       })
     },
     handleUploadImage(data, key) {

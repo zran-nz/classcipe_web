@@ -18,6 +18,7 @@
             <a-input-search
               v-model="inputTag"
               placeholder="Search"
+              :allowClear="true"
               class="search-input"
               @search="searchTag">
               <a-icon slot="prefix" type="search" :style="{ fontSize: '16px', color: '#15c39a','margin-right':'5px' }" />

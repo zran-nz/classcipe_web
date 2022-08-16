@@ -16,7 +16,7 @@
               <label style="cursor: pointer" @click="$router.push('/account/info')">Account Info</label>
               <label for="">></label>
               <template v-if="onlyClass">
-                <label style="cursor: pointer" @click="$router.push('/manage/student/list')">School Student</label>
+                <label style="cursor: pointer" @click="routerRefresh">School Student</label>
                 <label for="">></label>
                 <label style="font-weight: normal">{{ onlyClass.name }}</label>
               </template>
@@ -331,6 +331,13 @@ export default {
   methods: {
     goBack() {
       this.$router.go(-1)
+    },
+    routerRefresh() {
+      this.onlyClass = null
+      this.$router.replace('/manage/student/list')
+      this.filters.classes = ''
+      this.onClearSelected()
+      this.searchQuery()
     },
     handleSchoolChange(currentSchool) {
       if (this.userMode === USER_MODE.SCHOOL) {
