@@ -130,7 +130,7 @@
     </div>
     <div class='full-body-content'>
       <div class='cc-lo-list'>
-        <div v-for='(item) in selectedList' :key='item.id' class='cc-lo-item'>
+        <div v-for='(item, index) in selectedList' :key='index' class='cc-lo-item'>
           <div class='cc-left-lo'>
             <div class="item-desc-wrapper">
               <div class='item-desc' v-selectPopover="['modal', domFn, item, true]">
@@ -437,37 +437,37 @@ export default {
       immediate: true,
       async handler(curriculumId) {
         console.log('filterConfig.curriculumId changed', this.loading)
-        if (!this.loading) {
-          if (curriculumId) {
-            const id = parseInt(curriculumId)
-            if (id === 1) {
-              if (!this.cachedCurriculum['au']) {
-                this.$set(this.cachedCurriculum, 'au', await GetAuCurriculum())
-              }
-              this.data = this.cachedCurriculum['au']
-              this.subjectOptions = this.data['__subject']
-              this.yearOptions = this.data['__years']
-              this.yearIndex = this.data['__year']
-            } else if (id === 2) {
-              if (!this.cachedCurriculum['nz']) {
-                this.$set(this.cachedCurriculum, 'nz', await GetNzCurriculum())
-              }
-              this.data = this.cachedCurriculum['nz']
-              this.subjectOptions = this.data['__subject']
-              this.yearOptions = this.data['__years']
-              this.yearIndex = this.data['Learning outcomes']['__year']
-            } else {
-              this.$logger.warn('No curriculum data.')
+        if (curriculumId) {
+          const id = parseInt(curriculumId)
+          if (id === 1) {
+            if (!this.cachedCurriculum['au']) {
+              this.$set(this.cachedCurriculum, 'au', await GetAuCurriculum())
             }
-
-            this.$logger.info('update data', this.data)
+            this.data = this.cachedCurriculum['au']
+            this.subjectOptions = this.data['__subject']
+            this.yearOptions = this.data['__years']
+            this.yearIndex = this.data['__year']
+          } else if (id === 2) {
+            if (!this.cachedCurriculum['nz']) {
+              this.$set(this.cachedCurriculum, 'nz', await GetNzCurriculum())
+            }
+            this.data = this.cachedCurriculum['nz']
+            this.subjectOptions = this.data['__subject']
+            this.yearOptions = this.data['__years']
+            this.yearIndex = this.data['Learning outcomes']['__year']
           } else {
-            this.data = null
-            this.yearOptions = []
-            this.subjectOptions = []
-            this.yearIndex = null
-            this.$logger.info('reset data', this.data)
+            this.$logger.warn('No curriculum data.')
           }
+
+          this.$logger.info('update data', this.data)
+        } else {
+          this.data = null
+          this.yearOptions = []
+          this.subjectOptions = []
+          this.yearIndex = null
+          this.$logger.info('reset data', this.data)
+        }
+        if (!this.loading) {
           this.$logger.info('reset filterConfig data', this.data)
           this.filterConfig.selectedSubjectList = []
           this.filterConfig.selectedYearList = []
