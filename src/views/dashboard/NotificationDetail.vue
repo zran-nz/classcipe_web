@@ -68,12 +68,14 @@ import { RECEIVE_MSG } from '@/store/mutation-types'
 import { CollaboratesAgree, DeleteCollaborate } from '@/api/collaborate'
 import * as logger from '@/utils/logger'
 import { CollaborateStatus } from '@/const/teacher'
+import { NoticeMixin } from '@/mixins/NoticeMixin'
 
 export default {
   name: 'NotificationDetail',
   components: {
     backIconSvg
   },
+  mixins: [NoticeMixin],
   props: {
     id: {
       type: String,
@@ -111,6 +113,11 @@ export default {
             EditCementSend({ anntId: this.id }).then(() => {
               this.$store.commit(RECEIVE_MSG, true)
             })
+          }
+          if (this.$route.query) {
+            if (this.$route.query.direct === '1') {
+              this.viewNotification(this.notificationData)
+            }
           }
         })
       },

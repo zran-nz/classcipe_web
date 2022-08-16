@@ -1,0 +1,52 @@
+import { USER_MODE } from '@/const/common'
+
+import { SwitchUserModeSchool } from '@/api/user'
+
+import { TOOGLE_USER_MODE } from '@/store/mutation-types'
+import { mapState, mapMutations, mapActions } from 'vuex'
+
+export const AutoSwitchSchoolMixin = {
+  data() {
+    return {}
+  },
+  created() {
+    const query = this.$route.query
+    if (query.schoolId) {
+      this.autoSwitchSchool(query.schoolId)
+    }
+  },
+  watch: {
+    '$route.path' (to) {
+      console.log(to)
+      const query = this.$route.query
+      if (query.schoolId) {
+        this.autoSwitchSchool(query.schoolId)
+      }
+    }
+  },
+  computed: {
+    ...mapState({
+      info: state => state.user.info,
+      currentSchool: state => state.user.currentSchool,
+      userMode: state => state.app.userMode
+    })
+  },
+  methods: {
+    ...mapMutations([TOOGLE_USER_MODE]),
+    ...mapActions(['GetClassList']),
+    autoSwitchSchool(schoolId) {
+      const isExist = this.info.schoolList.find(item => item.id === schoolId)
+      if (isExist) {
+        SwitchUserModeSchool({
+          isPersonal: false,
+          schoolId: isExist.id
+        }).then(res => {
+          // 获取对应学校班级
+          this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
+          this.GetClassList(isExist.id)
+          this.$store.dispatch('GetInfo')
+        })
+      }
+    }
+  }
+}

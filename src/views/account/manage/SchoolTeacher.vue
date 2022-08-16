@@ -124,6 +124,7 @@ import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import { JeecgListMixin } from '@/mixins/JeecgListMixin'
 import { TableWidthMixin } from '@/mixins/TableWidthMixin'
+import { AutoSwitchSchoolMixin } from '@/mixins/AutoSwitchSchoolMixin'
 
 import { listClass } from '@/api/v2/schoolClass'
 import { listRole } from '@/api/v2/schoolRole'
@@ -140,7 +141,7 @@ const { debounce } = require('lodash-es')
 
 export default {
   name: 'SchoolTeacher',
-  mixins: [UserModeMixin, CurrentSchoolMixin, JeecgListMixin, TableWidthMixin],
+  mixins: [UserModeMixin, CurrentSchoolMixin, JeecgListMixin, TableWidthMixin, AutoSwitchSchoolMixin],
   components: {
     FixedFormHeader,
     FormHeader,
@@ -223,7 +224,7 @@ export default {
     console.log(this.queryParam)
     this.initDict()
     this.queryParam.schoolId = this.currentSchool.id
-    this.debounceLoad = debounce(this.loadData, 300)
+    this.debounceInit = debounce(this.loadData, 300)
     this.loadData()
     this.initDictConfig()
   },
@@ -431,6 +432,32 @@ export default {
     },
     handleInvite() {
       this.$refs.schoolUserInvite.doCreate('teacher')
+      const key = Date.now().toString(36) + Math.random().toString(36).slice(2)
+      this.$notification.open({
+        message: 'Notification',
+        description: 'test',
+        duration: 5,
+        key,
+        btn: h => {
+          return h(
+            'a-button',
+            {
+              props: {
+                type: 'primary'
+              },
+              on: {
+                click: () => {
+                  this.$notification.close(key)
+                  this.$router.push({
+                    path: '/notification-detail/' + 1
+                  })
+                }
+              }
+            },
+            'Check detail'
+          )
+        }
+      })
     },
     getBadge(key) {
       if (key === SCHOOL_USER_STATUS.PENDING.value) {

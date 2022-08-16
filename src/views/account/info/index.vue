@@ -136,13 +136,13 @@ import { updateSchool } from '@/api/school'
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import { ReSetFontMixin } from '@/mixins/ReSetFontMixin'
+import { AutoSwitchSchoolMixin } from '@/mixins/AutoSwitchSchoolMixin'
 
 import CustomImageUploader from '@/components/Common/CustomImageUploader'
 import AvatarModal from '@/views/account/settings/AvatarModal'
 
 import { listClass } from '@/api/v2/schoolClass'
 import { getSchoolUsers, getTeacherCount } from '@/api/v2/schoolUser'
-import { SwitchUserModeSchool } from '@/api/user'
 
 import SchoolInfoPng from '@/assets/icons/account/schoolInfo.png?inline'
 import AcademicPng from '@/assets/icons/account/academic.png?inline'
@@ -174,7 +174,7 @@ export default {
     CustomImageUploader,
     AvatarModal
   },
-  mixins: [UserModeMixin, CurrentSchoolMixin, ReSetFontMixin],
+  mixins: [UserModeMixin, CurrentSchoolMixin, ReSetFontMixin, AutoSwitchSchoolMixin],
   data() {
     return {
       fontSize: '16px',
@@ -196,15 +196,6 @@ export default {
       studentCount: 0,
       pendingTeacherCount: 0,
       sendLoading: false
-    }
-  },
-  watch: {
-    '$route.path' (to) {
-      console.log(to)
-      const query = this.$route.query
-      if (query.schoolId) {
-        this.autoSwitchSchool(query.schoolId)
-      }
     }
   },
   computed: {
@@ -416,10 +407,6 @@ export default {
     }
   },
   created() {
-    const query = this.$route.query
-    if (query.schoolId) {
-      this.autoSwitchSchool(query.schoolId)
-    }
     this.loadData()
     this[HIDDEN_SIDEBAR](true)
   },
@@ -559,20 +546,6 @@ export default {
         this.$router.push({ path: '/manage/persona/space' })
       } else {
         this.$router.push({ path: '/manage/school/space' })
-      }
-    },
-    autoSwitchSchool(schoolId) {
-      const isExist = this.info.schoolList.find(item => item.id === schoolId)
-      if (isExist) {
-        SwitchUserModeSchool({
-          isPersonal: false,
-          schoolId: isExist.id
-        }).then(res => {
-          // 获取对应学校班级
-          this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
-          this.GetClassList(isExist.id)
-          this.$store.dispatch('GetInfo')
-        })
       }
     }
   }

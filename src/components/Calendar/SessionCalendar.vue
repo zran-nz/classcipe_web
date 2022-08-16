@@ -122,6 +122,7 @@ import LiveworkshopItem from '@/components/MyContentV2/LiveWorkShopContentItem'
 import { QueryForCalendar } from '@/api/v2/calendarSchedule'
 import { EditSessionScheduleV2 } from '@/api/v2/classes'
 import { termList } from '@/api/academicTermInfo'
+import { classDetail } from '@/api/v2/schoolClass'
 
 import { ABSENT_COLORS, BG_COLORS, CALENDAR_QUERY_TYPE, USER_MODE } from '@/const/common'
 import { typeMap } from '@/const/teacher'
@@ -297,7 +298,11 @@ export default {
       yearOptions: [],
       currentYear: '',
       yearLines: [],
-      termBackground: ['#CDE7FF', '#F7E3FF', '#BAEAD0', '#FCF2BD', '#FDD7DE', '#BCDCF7']
+      termBackground: ['#CDE7FF', '#F7E3FF', '#BAEAD0', '#FCF2BD', '#FDD7DE', '#BCDCF7'],
+
+      clsInited: false,
+      clsObj: {},
+      clsBlockOptions: []
     }
   },
   computed: {
@@ -371,6 +376,60 @@ export default {
           this.termsOptions = termsOptions
         }
       }
+    },
+    async loadClass() {
+      // class 单选
+      if (!this.clsInited) {
+        if (this.searchType === CALENDAR_QUERY_TYPE.CLASS.value && this.searchFilters.length > 0) {
+          const clsRes = await classDetail({
+            classId: this.searchFilters[0]
+          })
+          if (clsRes.success) {
+            this.clsInited = true
+            this.clsObj = clsRes.result
+            if (this.clsObj.blockSetting) {
+
+            }
+          }
+        }
+      }
+    },
+    transferTermBlock(date) {
+      const termEvents = []
+      let start = moment(date.start)
+      const end = moment(date.end)
+      // TODO 不同year的term可能重叠，用color来区分
+      // let index = 0
+      while (start.isBefore(end)) {
+        const isFind = this.termsOptions.find(term => {
+          if (term.startTime && term.endTime) {
+            const startTime = moment(term.startTime)
+            const endTime = moment(term.endTime)
+            if (moment(start).isAfter(startTime) && moment(start).isBefore(endTime)) {
+              return true
+            }
+          }
+          return false
+        })
+        if (isFind && isFind.blockSettings) {
+          isFind.blockSettings.forEach(block => {
+            const convertStart = start.format('YYYY-MM-DD') + ' ' + block.start + ':00'
+            const convertEnd = start.format('YYYY-MM-DD') + ' ' + block.end + ':59'
+            termEvents.push({
+              start: (convertStart),
+              end: (convertEnd),
+              display: 'background',
+              extendedProps: {
+                termId: isFind.id,
+                yearName: isFind.yearName,
+                termName: isFind.name
+              }
+            })
+          })
+        }
+        start = start.add(1, 'd')
+      }
+      return termEvents
     },
     convertTimeForYear() {
       // 将24小时映射成31day， 方便year视图
@@ -452,42 +511,9 @@ export default {
       // 把term block加上
       this.loadTerm().then(res => {
         console.log(this.termsOptions)
-        const termEvents = []
+        let termEvents = []
         if (this.termsOptions.length > 0) {
-          let start = moment(date.start)
-          const end = moment(date.end)
-          // TODO 不同year的term可能重叠，用color来区分
-          // let index = 0
-          while (start.isBefore(end)) {
-            const isFind = this.termsOptions.find(term => {
-              if (term.startTime && term.endTime) {
-                const startTime = moment(term.startTime)
-                const endTime = moment(term.endTime)
-                if (moment(start).isAfter(startTime) && moment(start).isBefore(endTime)) {
-                  return true
-                }
-              }
-              return false
-            })
-            if (isFind && isFind.blockSettings) {
-              isFind.blockSettings.forEach(block => {
-                const convertStart = start.format('YYYY-MM-DD') + ' ' + block.start + ':00'
-                const convertEnd = start.format('YYYY-MM-DD') + ' ' + block.end + ':59'
-                termEvents.push({
-                  start: (convertStart),
-                  end: (convertEnd),
-                  display: 'background',
-                  extendedProps: {
-                    termId: isFind.id,
-                    yearName: isFind.yearName,
-                    termName: isFind.name
-                  }
-                })
-              })
-            }
-            start = start.add(1, 'd')
-            // index++
-          }
+          termEvents = this.transferTermBlock(date)
         }
 
         // 过去时间disabled
@@ -996,6 +1022,11 @@ export default {
 </script>
 <style lang='less'>
 
+.fc-daygrid-event {
+  & > div {
+    width: 100%;
+  }
+}
 .fc-timegrid-event {
   .schedule-event-content {
     min-height: 50px;

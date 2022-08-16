@@ -122,7 +122,7 @@ export default {
       this.$notification.open({
         message: 'Notification',
         description: message.msgTxt,
-        duration: 5000,
+        duration: 5,
         key,
         btn: h => {
           return h(
@@ -135,7 +135,7 @@ export default {
                 click: () => {
                   this.$notification.close(key)
                   this.$router.push({
-                    path: '/notification-detail/' + message.msgId
+                    path: '/notification-detail/' + message.msgId + '?direct=1'
                   })
                 }
               }

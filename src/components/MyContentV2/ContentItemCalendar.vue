@@ -43,60 +43,86 @@
                 <div v-if="formatSessionType(data.sessionInfo.sessionType).name">
                   <a-tag :color="formatSessionType(data.sessionInfo.sessionType).color">{{ formatSessionType(data.sessionInfo.sessionType).name }}</a-tag>
                 </div>
-                <div v-if="data.sessionInfo && content.sessionInfo.zoomMeeting" class='zoom-icon' @click.prevent.stop="handleToZoom(content)">
+                <div v-if="data.sessionInfo && data.sessionInfo.zoomMeeting" class='zoom-icon' @click.prevent.stop="handleToZoom(content)">
                   <img src='~@/assets/icons/zoom/img.png' />
+                </div>
+                <div class='info-item task-type-info' v-if='data.content.taskType'>
+                  <div class='self-type-wrapper'>
+                    <div class='self-field-label'>
+                      <div
+                        class='task-type-item green-active-task-type'
+                        v-if="data.content.taskType === 'FA'">
+                        <a-tooltip placement='top' title='Formative Assessment'>FA</a-tooltip>
+                      </div>
+                      <div
+                        class='task-type-item red-active-task-type'
+                        v-if="data.content.taskType === 'SA'">
+                        <a-tooltip placement='top' title='Summative Assessment'>SA</a-tooltip>
+                      </div>
+                      <div
+                        class='task-type-item blue-active-task-type task-type-activity'
+                        v-if="data.content.taskType === 'Activity'">
+                        <a-tooltip title='Teaching/Learning Activity' placement='top'>Activity</a-tooltip>
+                      </div>
+                      <div
+                        class='task-type-item blue-active-task-type task-type-examine'
+                        v-if="data.content.taskType === 'IA'">
+                        <a-tooltip title='Internal Assessment' placement='top'>IA</a-tooltip>
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 <div class="session-time">
                   {{ data.sessionInfo.sessionStartTime | dayjs('HH:mm') }} - {{ data.sessionInfo.deadline | dayjs('HH:mm') }}
                 </div>
               </div>
-              <!-- <tags-line v-if="data.content && data.content.customTags && data.content.customTags.length > 0" :tags="data.content.customTags" /> -->
-            </div>
-            <!-- <div class="class-con">
-              <div class="session-deadline">
-                <div class="session-deadline-tab">
-                  <a-radio-group v-model="data.sessionInfo.responseLimitMode" button-style="solid" size="small">
-                    <a-radio-button :value="0">
-                      Off
-                    </a-radio-button>
-                    <a-radio-button :value="1">
-                      Deadline
-                    </a-radio-button>
-                    <a-radio-button :value="2">
-                      Countdown
-                    </a-radio-button>
-                  </a-radio-group>
-                  <a-button size="small" @click="handleSaveResponseLimit" v-show="isChangedResonseLimit">Save</a-button>
-                </div>
-                <div class="session-deadline-opt">
-                  <a-space v-if="data.sessionInfo.responseLimitMode === 2" >
-                    <a-input-number suffix="Min(s)" size="small" v-model="responseLimitTimeCountDown"></a-input-number>
-                    <span>Min(s)</span>
-                    <a-tooltip>
-                      <template slot="title">
-                        Students must complete their work within the allocated time
-                      </template>
-                      <a-icon type="question-circle" />
-                    </a-tooltip>
-                  </a-space>
-                  <a-space v-if="data.sessionInfo.responseLimitMode === 1" >
-                    <a-date-picker
-                      :disabled-date="disabledDate"
-                      :allow-clear="false"
-                      size="small"
-                      show-time
-                      placeholder="Select Time"
-                      v-model="responseLimitTimeDeadline" />
-                    <a-tooltip>
-                      <template slot="title">
-                        Students must complete their work within the allocated time
-                      </template>
-                      <a-icon type="question-circle" />
-                    </a-tooltip>
-                  </a-space>
+              <div class="class-con">
+                <div class="session-deadline">
+                  <div class="session-deadline-tab">
+                    <a-radio-group v-model="data.sessionInfo.responseLimitMode" button-style="solid" size="small">
+                      <a-radio-button :value="0">
+                        Off
+                      </a-radio-button>
+                      <a-radio-button :value="1">
+                        Deadline
+                      </a-radio-button>
+                      <a-radio-button :value="2">
+                        Countdown
+                      </a-radio-button>
+                    </a-radio-group>
+                    <a-button size="small" @click="handleSaveResponseLimit" v-show="isChangedResonseLimit">Save</a-button>
+                  </div>
+                  <div class="session-deadline-opt">
+                    <a-space v-if="data.sessionInfo.responseLimitMode === 2" >
+                      <a-input-number suffix="Min(s)" size="small" v-model="responseLimitTimeCountDown"></a-input-number>
+                      <span>Min(s)</span>
+                      <a-tooltip>
+                        <template slot="title">
+                          Students must complete their work within the allocated time
+                        </template>
+                        <a-icon type="question-circle" />
+                      </a-tooltip>
+                    </a-space>
+                    <a-space v-if="data.sessionInfo.responseLimitMode === 1" >
+                      <a-date-picker
+                        :disabled-date="disabledDate"
+                        :allow-clear="false"
+                        size="small"
+                        show-time
+                        placeholder="Select Time"
+                        v-model="responseLimitTimeDeadline" />
+                      <a-tooltip>
+                        <template slot="title">
+                          Students must complete their work within the allocated time
+                        </template>
+                        <a-icon type="question-circle" />
+                      </a-tooltip>
+                    </a-space>
+                  </div>
                 </div>
               </div>
-            </div> -->
+              <!-- <tags-line v-if="data.content && data.content.customTags && data.content.customTags.length > 0" :tags="data.content.customTags" /> -->
+            </div>
           </div>
         </div>
         <div class='right-info'>
@@ -387,7 +413,7 @@ export default {
   .cover {
     .cover-block {
       border-radius: 8px;
-      height: 180*4/5px;
+      height: 220*4/5px;
       width: 320*4/5px;
       background-position: center center;
       background-size: cover;
@@ -400,7 +426,7 @@ export default {
     display: flex;
     flex-direction: column;
     padding-left: 20px;
-    height: 180*4/5px;
+    height: 220*4/5px;
 
     .detail-content {
       display: flex;
@@ -477,6 +503,7 @@ export default {
           }
           .class-con {
             width: 250px;
+            margin-top: 8px;
             .session-deadline {
               display: flex;
               flex-direction: column;
@@ -553,4 +580,69 @@ export default {
     }
   }
 }
+.self-type-wrapper {
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+
+  .self-field-label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+
+    .task-type-item {
+      margin-right: 10px;
+      width: 25px;
+      height: 25px;
+      border-radius: 25px;
+      border: 2px solid #ddd;
+      font-weight: bold;
+      display: flex;
+      color: #bbb;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .task-type-activity {
+      width: 70px;
+      border-radius: 50px;
+    }
+
+    .green-active-task-type {
+      background: rgba(21, 195, 154, 0.1);
+      border: 2px solid #15C39A;
+      border-radius: 50%;
+      font-weight: bold;
+      color: #15C39A;
+    }
+
+    .red-active-task-type {
+      background: rgba(255, 51, 85, 0.1);
+      border: 2px solid #FF3355;
+      border-radius: 50%;
+      opacity: 1;
+      font-weight: bold;
+      color: #FF3355;
+      opacity: 1;
+    }
+
+    .blue-active-task-type {
+      background: rgb(230, 247, 255);
+      border: 2px solid rgb(145, 213, 255);
+      border-radius: 50px;
+      opacity: 1;
+      font-weight: bold;
+      color: rgb(24, 144, 255);
+    }
+  }
+
+  .self-type-filter {
+    width: 500px;
+  }
+}
+
 </style>

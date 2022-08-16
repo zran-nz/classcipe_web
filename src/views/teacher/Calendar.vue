@@ -90,7 +90,7 @@
         </div>
         <div style="flex:1;">
           <session-calendar
-            :showNoData="true"
+            :showNoData="false"
             :searchType="queryType"
             :searchFilters="searchFilters"
             :showTerm="true"

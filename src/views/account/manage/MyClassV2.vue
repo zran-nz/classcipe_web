@@ -539,10 +539,12 @@ export default {
       })
     },
     doEditClassName(cls) {
-      cls.isEdit = true
-      this.$nextTick(() => {
-        this.$refs['name' + cls.key][0].focus()
-      })
+      if (cls.status !== 2) {
+        cls.isEdit = true
+        this.$nextTick(() => {
+          this.$refs['name' + cls.key][0].focus()
+        })
+      }
     },
     handleSaveClassName(cls, cb) {
       if (!cls.changeName) {
