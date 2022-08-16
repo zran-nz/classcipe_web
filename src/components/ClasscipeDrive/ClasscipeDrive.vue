@@ -2,9 +2,9 @@
   <div class='classcipe-drive'>
     <div class='drive-type-switch'>
       <a-radio-group :default-value="currentDriveType" button-style="solid" class='cc-radio-group' v-model='currentDriveType' @change='driveTypeChange' >
-        <a-radio-button :value="DriveType.ClasscipeDrive" v-if='filterTabTypeList.indexOf(DriveType.ClasscipeDrive) !== -1'>
-          Classcipe Drive
-        </a-radio-button>
+        <!--        <a-radio-button :value="DriveType.ClasscipeDrive" v-if='filterTabTypeList.indexOf(DriveType.ClasscipeDrive) !== -1'>-->
+        <!--          Classcipe Drive-->
+        <!--        </a-radio-button>-->
         <a-radio-button :value="DriveType.Youtube" v-if='filterTabTypeList.indexOf(DriveType.Youtube) !== -1'>
           Youtube
         </a-radio-button>
@@ -101,7 +101,7 @@ export default {
   data() {
     return {
       DriveType: DriveType,
-      currentDriveType: DriveType.ClasscipeDrive,
+      currentDriveType: this.filterType === 'image' ? DriveType.UploadImage : DriveType.UploadVideo,
       driveProcess: 0,
       filterTabTypeList: this.filterType === 'image' ? [
         DriveType.ClasscipeDrive,
