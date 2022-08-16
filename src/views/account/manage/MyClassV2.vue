@@ -109,14 +109,14 @@
                       <div :class="{'class-con': true, 'archive': currentTab === 'archive'}">
                         <div :class="{'class-con-item': true, 'pointer': currentTab !== 'archive' && userMode !== USER_MODE.SELF}" @click="handleEditTeachers(cls)">
                           <div class="con-item-label">Teachers</div>
-                          <div class="con-item-detail" v-if="currentTab !== 'gradeId' || userMode === USER_MODE.SELF">{{ cls.teacherCount || 0 }}</div>
+                          <div class="con-item-detail" v-if="currentTab === 'archive' || userMode === USER_MODE.SELF">{{ cls.teacherCount || 0 }}</div>
                           <a v-else for="">{{ cls.teacherCount || 0 }}</a>
                         </div>
-                        <div :class="{'class-con-item': true, 'pointer': currentTab === 'gradeId'}" @click="handleEditStudents(cls)">
+                        <div :class="{'class-con-item': true, 'pointer': currentTab !== 'archive'}" @click="handleEditStudents(cls)">
                           <div class="con-item-label">Students</div>
                           <div class="con-item-detail">
-                            <label v-if="!cls.isNew && currentTab !== 'gradeId'" for="">{{ cls.studentCount }}</label>
-                            <a v-if="!cls.isNew && currentTab === 'gradeId'" for="">{{ cls.studentCount }}</a>
+                            <label v-if="currentTab === 'archive'" for="">{{ cls.studentCount }}</label>
+                            <a v-if="!cls.isNew && currentTab !== 'archive'" for="">{{ cls.studentCount }}</a>
                             <a type="link" v-if="cls.isNew">Upload</a>
                           </div>
                         </div>
@@ -671,7 +671,7 @@ export default {
     },
     handleEditStudents(cls) {
       if (this.userMode === USER_MODE.SELF) return
-      if (this.currentTab !== 'gradeId') {
+      if (this.currentTab === 'archive') {
         return
       }
       if (!cls.id) {
@@ -691,7 +691,7 @@ export default {
       }
     },
     handleEditTeachers(cls) {
-      if (this.currentTab !== 'gradeId' || this.userMode === USER_MODE.SELF) {
+      if (this.currentTab === 'archive' || this.userMode === USER_MODE.SELF) {
         return
       }
       if (!cls.id) {

@@ -220,6 +220,12 @@ export default {
               value: item.id,
               label: item.name
             }))
+            if (this.chooseClass) {
+              const find = this.classList.find(item => item.id === this.chooseClass)
+              if (!find) {
+                this.chooseClass = ''
+              }
+            }
           }
         })
     },
