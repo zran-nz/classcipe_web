@@ -120,6 +120,7 @@ export default {
         zoom: 0
       },
       creating: false,
+      enableZoom: false,
 
       workshopSteps: [
         {
@@ -169,6 +170,21 @@ export default {
       }
 
       this.getClassList()
+    },
+
+    async handleZoomStatusChange () {
+      this.$logger.info('handleZoomStatusChange', this.enableZoom)
+      if (this.enableZoom) {
+        const status = await this.checkZoomAuth()
+        if (!status) {
+          this.scheduleReq.zoom = 0
+          this.enableZoom = false
+          this.$logger.info('reset item enableZoom', this.enableZoom)
+        } else {
+          this.scheduleReq.zoom = 1
+          this.$logger.info('zoom auth success')
+        }
+      }
     },
 
     getClassList() {
@@ -368,5 +384,26 @@ export default {
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+}
+
+.title {
+  font-weight: 500;
+  color: #333;
+  line-height: 30px;
+  padding-left: 5px;
+  font-size: 16px;
+}
+
+.type-list {
+  padding: 10px 10px 10px 0;
+  .zoom-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 5px;
+    img {
+      height: 30px;
+    }
+  }
 }
 </style>

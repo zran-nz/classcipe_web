@@ -148,7 +148,7 @@
               label='Schedule'
               :disabled='!content.canPublish'
               :disabled-tooltip="'Please complete the information'"
-              v-if='showSchedule && (content.type === typeMap.task || content.type === typeMap.pd)'
+              v-if='showSchedule && content.type === typeMap.task'
               @click='handleSchedule'>
               <template v-slot:icon>
                 <schedule-icon style='width: 13px; height:14px' />
