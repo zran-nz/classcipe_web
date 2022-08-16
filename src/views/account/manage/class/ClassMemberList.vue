@@ -62,6 +62,13 @@
                 </a-space>
               </a-col>
             </template>
+            <template v-if="form.role === 'teacher'">
+              <a-col :span="14" style="text-align: right;">
+                <a-space>
+                  <a-button type="primary" @click="handleAddTeacher">Add Teacher</a-button>
+                </a-space>
+              </a-col>
+            </template>
           </a-row>
         </a-form>
       </div>
@@ -421,6 +428,9 @@ export default {
           classes: this.form.classId
         })
       })
+    },
+    handleAddTeacher() {
+      this.$router.push('/manage/teacher/detail?classId=' + this.form.classId)
     },
     goImport() {
       this.$router.push('/manage/student/upload/' + this.form.classId)

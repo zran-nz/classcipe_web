@@ -70,6 +70,7 @@
             <a-form-model-item class="self-select">
               <a-select
                 mode="multiple"
+                :disabled="classUnModify"
                 optionFilterProp="children"
                 :getPopupContainer="trigger => trigger.parentElement"
                 v-model='formModel.classArr'
@@ -79,7 +80,7 @@
                   {{ item.name }}
                 </a-select-option >
               </a-select>
-              <div :size="4" class="tag-render" @click="showSelect" ref="tagRender">
+              <div :size="4" :class="{disabled: classUnModify}" class="tag-render" @click="showSelect" ref="tagRender">
                 <a-tag
                   :closable="isShowClose(tag)"
                   @close="closeCls(tag)"
@@ -216,7 +217,8 @@ export default {
       cacheKey: 'SUBMIT_VALIDATE_SCHOOL_TEACHER_',
       autoSaveLocalKey: 'FORM_SCHOOL_TEACHER_',
       needAutoSave: !this.id,
-      userHeaderTeacherCls: []
+      userHeaderTeacherCls: [],
+      classUnModify: false
     }
   },
   computed: {
@@ -230,8 +232,8 @@ export default {
         firstName: [{ required: true, message: 'Please Input First Name!' }],
         lastName: [{ required: true, message: 'Please Input Last Name!' }],
         inviteEmail: [
-          { required: true, message: 'Please Input Email!', trigger: 'change' },
-          { type: 'email', message: 'Please Input Valid Email!', trigger: 'blur' },
+          { required: true, message: 'Please Input Email!' },
+          { type: 'email', message: 'Please Input Valid Email!' },
           { validator: this.validateRemoteEmail, trigger: 'blur' }
         ],
         classArr: [{ required: true, message: 'Please Select a class!', trigger: 'change' }],
@@ -270,6 +272,16 @@ export default {
         ]).then(([clsRes, roleRes]) => {
           if (clsRes.code === 0) {
             this.classList = clsRes.result.records.filter(cls => cls.classType !== 2)
+            this.classUnModify = false
+            const query = this.$route.query
+            if (query.classId) {
+              const isFind = this.classList.find(item => item.id === query.classId)
+              if (isFind) {
+                this.formModel.classArr = [query.classId]
+                this.formModel.classes = query.classId
+                this.classUnModify = true
+              }
+            }
           }
           if (roleRes.code === 0) {
             this.roleList = roleRes.result
@@ -417,7 +429,7 @@ export default {
       return find ? find.name : ''
     },
     isShowClose(id) {
-      return !this.userHeaderTeacherCls.includes(id)
+      return !this.userHeaderTeacherCls.includes(id) && !this.classUnModify
     },
     closeCls(id) {
       this.formModel.classArr = this.formModel.classArr.filter(clsId => clsId !== id)
@@ -513,5 +525,8 @@ export default {
   margin-top: -30px;
   left: 0;
   flex-wrap: wrap;
+  &.disabled {
+    background: transparent;
+  }
 }
 </style>

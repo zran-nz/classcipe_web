@@ -275,10 +275,18 @@ export default {
     }),
     isNotLimit() {
       if (this.info && this.info.planInfo) {
-        return this.info.planInfo['classCount'] > this.totalClass.length
+        return !this.isSelfFreePlan && this.info.planInfo['classCount'] > this.totalClass.length
       } else {
         return false
       }
+    },
+    isSelfFreePlan() {
+      if (this.userMode === USER_MODE.SELF) {
+        if (this.info && this.info.planInfo && this.info.planInfo.freeUsePlan) {
+          return true
+        }
+      }
+      return false
     },
     tabsList() {
       return [{
