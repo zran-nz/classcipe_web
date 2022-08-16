@@ -146,7 +146,7 @@ export default {
 
       categoryDisplayMap: {
         recommended: 'Recommended',
-        released: 'Released',
+        released: 'Latest published',
         plan: 'Unit Plan',
         task: 'Task',
         pd: 'PD Content'
