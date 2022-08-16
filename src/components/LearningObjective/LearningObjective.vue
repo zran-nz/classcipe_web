@@ -10,6 +10,7 @@
               placeholder='Curriculum'
               @select='handleSelectCurriculum'
               :disabled='!canEdit'
+              :value='filterConfig.curriculumId'
               class='cc-select cc-lo-select-mid'>
               <a-select-option :value='item.id' v-for='(item, index) in curriculumOptions' :key='index'>
                 {{ item.name }}
@@ -432,52 +433,56 @@ export default {
     }
   },
   watch: {
+    'filterConfig.curriculumId': {
+      immediate: true,
+      async handler(curriculumId) {
+        console.log('filterConfig.curriculumId changed', this.loading)
+        if (!this.loading) {
+          if (curriculumId) {
+            const id = parseInt(curriculumId)
+            if (id === 1) {
+              if (!this.cachedCurriculum['au']) {
+                this.$set(this.cachedCurriculum, 'au', await GetAuCurriculum())
+              }
+              this.data = this.cachedCurriculum['au']
+              this.subjectOptions = this.data['__subject']
+              this.yearOptions = this.data['__years']
+              this.yearIndex = this.data['__year']
+            } else if (id === 2) {
+              if (!this.cachedCurriculum['nz']) {
+                this.$set(this.cachedCurriculum, 'nz', await GetNzCurriculum())
+              }
+              this.data = this.cachedCurriculum['nz']
+              this.subjectOptions = this.data['__subject']
+              this.yearOptions = this.data['__years']
+              this.yearIndex = this.data['Learning outcomes']['__year']
+            } else {
+              this.$logger.warn('No curriculum data.')
+            }
+
+            this.$logger.info('update data', this.data)
+          } else {
+            this.data = null
+            this.yearOptions = []
+            this.subjectOptions = []
+            this.yearIndex = null
+            this.$logger.info('reset data', this.data)
+          }
+          this.$logger.info('reset filterConfig data', this.data)
+          this.filterConfig.selectedSubjectList = []
+          this.filterConfig.selectedYearList = []
+          this.filterConfig.selectedLanguageList = []
+          this.filterConfig.keyword = ''
+        }
+      }
+    },
     filterConfig: {
       deep: true,
       immediate: false,
-      async handler(nv, ov) {
+      handler(nv, ov) {
         if (!this.loading) {
-          console.log('filterConfig changed loading', this.loading)
+          console.log('filterConfig changed loading', this.loading, nv, ov)
           this.asyncUpdateFilterListFn()
-
-          if (ov.curriculumId !== nv.curriculumId) {
-            const curriculumId = ov.curriculumId
-            if (curriculumId) {
-              const id = parseInt(curriculumId)
-              if (id === 1) {
-                if (!this.cachedCurriculum['au']) {
-                  this.$set(this.cachedCurriculum, 'au', await GetAuCurriculum())
-                }
-                this.data = this.cachedCurriculum['au']
-                this.subjectOptions = this.data['__subject']
-                this.yearOptions = this.data['__years']
-                this.yearIndex = this.data['__year']
-              } else if (id === 2) {
-                if (!this.cachedCurriculum['nz']) {
-                  this.$set(this.cachedCurriculum, 'nz', await GetNzCurriculum())
-                }
-                this.data = this.cachedCurriculum['nz']
-                this.subjectOptions = this.data['__subject']
-                this.yearOptions = this.data['__years']
-                this.yearIndex = this.data['Learning outcomes']['__year']
-              } else {
-                this.$logger.warn('No curriculum data.')
-              }
-
-              this.$logger.info('update data', this.data)
-            } else {
-              this.data = null
-              this.yearOptions = []
-              this.subjectOptions = []
-              this.yearIndex = null
-              this.$logger.info('reset data', this.data)
-            }
-            this.$logger.info('reset filterConfig data', this.data)
-            this.filterConfig.selectedSubjectList = []
-            this.filterConfig.selectedYearList = []
-            this.filterConfig.selectedLanguageList = []
-            this.filterConfig.keyword = ''
-          }
         }
       }
     },
@@ -558,9 +563,8 @@ export default {
         this.filterConfig.curriculumId = this.curriculumOptions[0].id
         this.$logger.info('getAllCurriculums', this.curriculumOptions, list)
       }).finally(() => {
-        this.$nextTick(() => {
-          this.loading = false
-        })
+        this.$logger.info('LearningObjective init done', this.filterConfig)
+        this.loading = false
       })
     },
 

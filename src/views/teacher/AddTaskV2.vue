@@ -225,6 +225,7 @@
                       </a-tooltip>
                     </template>
                     <learning-objective
+                      v-if='!contentLoading'
                       @change='handleUpdateLearningObjectives'
                       :can-edit='canEdit'
                       :recommend-data-list='recommendData'
