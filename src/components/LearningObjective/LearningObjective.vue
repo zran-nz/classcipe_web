@@ -564,7 +564,9 @@ export default {
         this.$logger.info('getAllCurriculums', this.curriculumOptions, list)
       }).finally(() => {
         this.$logger.info('LearningObjective init done', this.filterConfig)
-        this.loading = false
+        setTimeout(() => {
+          this.loading = false
+        })
       })
     },
 
