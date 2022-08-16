@@ -38,15 +38,6 @@
       </template>
     </fixed-form-footer>
 
-    <zoom-meeting-setting
-      :password='scheduleReq.password'
-      :waiting-room='scheduleReq.waitingRoom'
-      :zoom-setting-visible.sync='zoomSettingVisible'
-      v-if='zoomSettingVisible'
-      @confirm='handleConfirmAssign'
-      @close='handleCloseAssign'
-    />
-
     <select-session-unit
       v-if='selectSessionUnitVisible'
       :list='associateUnitList'
@@ -92,7 +83,6 @@ export default {
       CALENDAR_QUERY_TYPE: CALENDAR_QUERY_TYPE,
       USER_MODE: USER_MODE,
       loading: true,
-      zoomSettingVisible: false,
       teacherSessionNowLoading: false,
       currentActiveStepIndex: 0,
       selectSessionUnitVisible: false,
@@ -214,27 +204,12 @@ export default {
       this.handleBack()
     },
     handleGoNext () {
-      if (this.scheduleReq.zoom) {
-        this.zoomSettingVisible = true
-      } else {
-        this.handleConfirmAssign({
-          password: false,
-          waitingRoom: false
-        })
-      }
+      this.createSession()
     },
 
     handleCloseAssign () {
       this.teacherSessionNowLoading = false
       this.zoomSettingVisible = false
-    },
-
-    async handleConfirmAssign (data) {
-      this.$logger.info('ScheduleSession handleConfirmAssign ', data)
-      this.zoomSettingVisible = false
-      this.scheduleReq.password = data.password
-      this.scheduleReq.waitingRoom = data.waitingRoom
-      await this.createSession()
     },
 
     handleSelectClassStudent (cls) {
