@@ -32,6 +32,7 @@
           :show-invite="showCollaborate && isOwner"
           :show-collaborate="showCollaborate && (isOwner || isCollaborater)"
           :show-share="showShare && (isOwner || isCollaborater)"
+          :disable-publish='disablePublish'
           @collaborate="handleStartCollaborate"
           @share="handleSharing"
           @comment="handleViewComment"
@@ -94,6 +95,10 @@ export default {
       default: false
     },
     spin: {
+      type: Boolean,
+      default: false
+    },
+    disablePublish: {
       type: Boolean,
       default: false
     }

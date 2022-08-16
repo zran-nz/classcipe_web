@@ -9,6 +9,7 @@
           :share-status='shareStatus'
           :collaborate='collaborate'
           :last-change-saved-time='lastChangeSavedTime'
+          :disable-publish='!!form.originalOwner'
           @view-collaborate='handleViewCollaborate'
           @back='goBack'
           @save='handleSaveTask(true)'

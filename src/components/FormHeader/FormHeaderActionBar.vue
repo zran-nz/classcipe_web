@@ -34,7 +34,7 @@
           <share-icon />
         </a-tooltip>
       </div>
-      <div class='action-item publish' @click="emitEvent('publish')" v-if="showPublish">
+      <div class='action-item publish' :class="{'disabled': disablePublish}" @click="disablePublish ? null : emitEvent('publish')" v-if="showPublish">
         <a-tooltip title='Publish'>
           <publish-icon style='width: 20px; height: 20px;' />
         </a-tooltip>
@@ -86,6 +86,10 @@ export default {
     collaborateUserList: {
       type: Array,
       default: () => []
+    },
+    disablePublish: {
+      type: Boolean,
+      default: false
     }
   },
   created() {
@@ -139,5 +143,9 @@ export default {
   .gray {
     filter: grayscale(100%);
   }
+}
+
+.disabled {
+  cursor: not-allowed !important;
 }
 </style>
