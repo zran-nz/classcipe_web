@@ -715,6 +715,7 @@ export default {
           }
         })
         this.filterList = filterList
+        this.asyncEmitUpdateEventFn()
       }
     },
 
