@@ -27,7 +27,7 @@
     </div>
     <fixed-form-footer>
       <template v-slot:left>
-        <a-button @click='handleGoBack'><a-icon type='left' /> Back</a-button>
+        <a-button @click='handleGoBack'><a-icon type='left' /> Discard</a-button>
       </template>
       <template v-slot:right>
         <div class='right-button'>
