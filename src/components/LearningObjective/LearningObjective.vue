@@ -71,7 +71,7 @@
               </div>
             </div>
           </div>
-          <div class='select-item' v-show='selectedSubject && selectedSubject.toLowerCase().trim() === "languages"'>
+          <div class='select-item' v-show='showLanguages'>
             <a-select
               :getPopupContainer="trigger => trigger.parentElement"
               v-model='selectedLanguage'
@@ -456,11 +456,14 @@ export default {
         return GeneralCapabilitiesFormat(this.data['General capabilities'])
       }
       return []
+    },
+    showLanguages() {
+      return this.filterConfig.selectedLanguageList.indexOf('Languages') !== -1 || this.filterConfig.selectedLanguageList.indexOf('languages') !== -1
     }
   },
   created() {
     this.loading = true
-    this.$logger.info('LearningObjective subjectList', this.subjectList, 'yearList', this.yearList, 'languageList', this.languageList, 'learningObjectives', this.learningObjectives)
+    this.$logger.info('LearningObjective subjectList', this.subjectList, 'yearList', this.yearList, 'languageList', this.languageList, 'learningObjectives', this.learningObjectives, 'lang', this.languageList)
     this.asyncEmitUpdateEventFn = debounce(this.emitUpdateEvent, 1000)
     this.asyncUpdateFilterListFn = debounce(this.updateFilterList, 1000)
     this.initData()
