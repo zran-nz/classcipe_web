@@ -507,7 +507,9 @@ export default {
           this.$logger.info('filter ib', list)
         }
         this.curriculumOptions = list
-        this.filterConfig.curriculumId = this.curriculumOptions[0].id
+        if (this.curriculumOptions.length) {
+          this.handleSelectCurriculum(this.curriculumOptions[0].id)
+        }
         this.$logger.info('getAllCurriculums', this.curriculumOptions, list)
       }).finally(() => {
         this.$logger.info('LearningObjective init done', this.filterConfig)
