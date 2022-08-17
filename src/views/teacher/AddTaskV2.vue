@@ -30,7 +30,7 @@
     </fixed-form-header>
     <div class='form-content'>
       <div class='step-content' v-if='!contentLoading'>
-        <div class='step-mask' v-if='form.slideEditing && currentActiveStepIndex === 3'>
+        <div class='step-mask' v-if='form.slideEditing && currentActiveStepIndex === slideIndex'>
           <div class='mask-action'>
             <custom-button
               label='Save changes'
@@ -755,6 +755,10 @@ export default {
     },
     isCopyContent() {
       return !!this.form?.originalOwner
+    },
+    slideIndex () {
+      const index = this.formSteps.findIndex(item => item.commonList.indexOf(sitem => sitem.fieldName === this.taskField.Slides) !== -1)
+      return index === -1 ? 3 : index
     }
   },
   watch: {
