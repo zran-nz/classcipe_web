@@ -326,7 +326,7 @@ export default {
   },
   computed: {
     slideIndex () {
-      const index = this.formSteps.findIndex(item => item.commonList.indexOf(sitem => sitem.fieldName === this.PdField.Slides) !== -1)
+      const index = this.formSteps.findIndex(item => item.commonFields.indexOf(this.PdField.Slides) !== -1)
       return index === -1 ? 1 : index
     }
   },

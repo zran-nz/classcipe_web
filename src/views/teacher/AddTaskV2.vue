@@ -757,7 +757,7 @@ export default {
       return !!this.form?.originalOwner
     },
     slideIndex () {
-      const index = this.formSteps.findIndex(item => item.commonList.indexOf(sitem => sitem.fieldName === this.taskField.Slides) !== -1)
+      const index = this.formSteps.findIndex(item => item.commonFields.indexOf(this.taskField.Slides) !== -1)
       return index === -1 ? 3 : index
     }
   },
