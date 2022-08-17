@@ -177,7 +177,7 @@
                       size='large'
                       class='my-big-select'
                       v-model='form.questionIds'
-                      mode='multiple'
+                      mode="tags"
                       placeholder='Choose Key questions'
                       option-label-prop='label'
                       :disabled="!canEdit"
