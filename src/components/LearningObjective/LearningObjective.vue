@@ -10,7 +10,6 @@
               placeholder='Curriculum'
               @select='handleSelectCurriculum'
               :disabled='!canEdit'
-              :value='filterConfig.curriculumId'
               class='cc-select cc-lo-select-mid'>
               <a-select-option :value='item.id' v-for='(item, index) in curriculumOptions' :key='index'>
                 {{ item.name }}
@@ -123,7 +122,7 @@
             </div>
           </div>
           <div class='create-item' v-show='showFilterList && !filterList.length && filterConfig.keyword.trim().length'>
-            <a-button type='primary' size="small" @click='canEdit ? handleEnsureInput : null'><a-icon type='plus' /> Create</a-button>
+            <a-button type='primary' size="small" @click='handleEnsureInput'><a-icon type='plus' /> Create</a-button>
           </div>
         </div>
       </div>
@@ -434,61 +433,6 @@ export default {
     }
   },
   watch: {
-    'filterConfig.curriculumId': {
-      immediate: true,
-      async handler(curriculumId) {
-        console.log('filterConfig.curriculumId changed', this.loading)
-        if (curriculumId) {
-          const id = parseInt(curriculumId)
-          if (id === 1) {
-            if (!this.cachedCurriculum['au']) {
-              this.$set(this.cachedCurriculum, 'au', await GetAuCurriculum())
-            }
-            this.data = this.cachedCurriculum['au']
-            this.subjectOptions = this.data['__subject']
-            this.yearOptions = this.data['__years']
-            this.yearIndex = this.data['__year']
-            console.log('filterConfig.curriculumId update data', this.data)
-          } else if (id === 2) {
-            if (!this.cachedCurriculum['nz']) {
-              this.$set(this.cachedCurriculum, 'nz', await GetNzCurriculum())
-            }
-            this.data = this.cachedCurriculum['nz']
-            this.subjectOptions = this.data['__subject']
-            this.yearOptions = this.data['__years']
-            this.yearIndex = this.data['Learning outcomes']['__year']
-            console.log('filterConfig.curriculumId update data', this.data)
-          } else {
-            this.$logger.warn('No curriculum data.')
-          }
-
-          this.$logger.info('update data', this.data)
-        } else {
-          this.data = null
-          this.yearOptions = []
-          this.subjectOptions = []
-          this.yearIndex = null
-          this.$logger.info('reset data', this.data)
-        }
-        if (!this.loading) {
-          this.$logger.info('reset filterConfig data', this.data)
-          this.filterConfig.selectedSubjectList = []
-          this.filterConfig.selectedYearList = []
-          this.filterConfig.selectedLanguageList = []
-          this.filterConfig.keyword = ''
-        }
-      }
-    },
-    filterConfig: {
-      deep: true,
-      immediate: false,
-      handler(nv, ov) {
-        if (!this.loading) {
-          console.log('filterConfig changed loading', this.loading, nv, ov)
-          this.asyncUpdateFilterListFn()
-        }
-      }
-    },
     selectedList: {
       deep: true,
       immediate: false,
@@ -567,20 +511,75 @@ export default {
         this.$logger.info('getAllCurriculums', this.curriculumOptions, list)
       }).finally(() => {
         this.$logger.info('LearningObjective init done', this.filterConfig)
-        setTimeout(() => {
-          this.loading = false
-        })
+        this.loading = false
+        this.startWatch()
+      })
+    },
+
+    startWatch () {
+      console.log('startWatch watch filterConfig', this.filterConfig)
+      this.$watch('filterConfig', async (newValue, oldValue) => {
+        console.log('watch filterConfig changed', oldValue.curriculumId, newValue.curriculumId)
+        if (newValue.curriculumId !== oldValue.curriculumId) {
+          this.$logger.info('reset filterConfig data', this.data)
+
+        } else {
+          this.asyncUpdateFilterListFn()
+        }
+      }, {
+        deep: true,
+        immediate: false
       })
     },
 
     handleResetCurriculum () {
+      this.$logger.info('handleResetCurriculum')
+      if (this.filterConfig.curriculumId) {
+        this.filterConfig.selectedSubjectList = []
+        this.filterConfig.selectedYearList = []
+        this.filterConfig.selectedLanguageList = []
+        this.filterConfig.keyword = ''
+      }
       this.filterConfig.curriculumId = null
+      this.data = null
+      this.yearOptions = []
+      this.subjectOptions = []
+      this.yearIndex = null
+      this.$logger.info('reset data', this.data)
     },
 
-    handleSelectCurriculum (id) {
+    async handleSelectCurriculum (id) {
+      id = parseInt(id)
       this.$logger.info('handleSelectCurriculum id', id)
+      if (id !== parseInt(this.filterConfig.curriculumId)) {
+        this.filterConfig.selectedSubjectList = []
+        this.filterConfig.selectedYearList = []
+        this.filterConfig.selectedLanguageList = []
+        this.filterConfig.keyword = ''
+      }
       this.filterConfig.curriculumId = id
       const curriculum = this.curriculumOptions.find(item => item.id === id)
+      if (id === 1) {
+        if (!this.cachedCurriculum['au']) {
+          this.$set(this.cachedCurriculum, 'au', await GetAuCurriculum())
+        }
+        this.data = this.cachedCurriculum['au']
+        this.subjectOptions = this.data['__subject']
+        this.yearOptions = this.data['__years']
+        this.yearIndex = this.data['__year']
+        console.log('filterConfig.curriculumId update data', this.data)
+      } else if (id === 2) {
+        if (!this.cachedCurriculum['nz']) {
+          this.$set(this.cachedCurriculum, 'nz', await GetNzCurriculum())
+        }
+        this.data = this.cachedCurriculum['nz']
+        this.subjectOptions = this.data['__subject']
+        this.yearOptions = this.data['__years']
+        this.yearIndex = this.data['Learning outcomes']['__year']
+        console.log('filterConfig.curriculumId update data', this.data)
+      } else {
+        this.$logger.warn('No curriculum data.')
+      }
       this.$logger.info('handleSelectCurriculum curriculum', curriculum)
     },
 
@@ -651,7 +650,8 @@ export default {
     },
 
     handleEnsureInput () {
-      if (this.filterConfig.keyword) {
+      console.log('handleEnsureInput', this.canEdit, this.filterConfig.keyword)
+      if (this.filterConfig.keyword && this.canEdit) {
         this.handleSelectItem({
           desc: this.filterConfig.keyword
         })
