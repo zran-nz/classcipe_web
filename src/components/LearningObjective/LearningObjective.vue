@@ -458,7 +458,7 @@ export default {
       return []
     },
     showLanguages() {
-      return this.filterConfig.selectedLanguageList.indexOf('Languages') !== -1 || this.filterConfig.selectedLanguageList.indexOf('languages') !== -1
+      return this.filterConfig.selectedSubjectList.indexOf('Languages') !== -1 || this.filterConfig.selectedSubjectList.indexOf('languages') !== -1
     }
   },
   created() {
