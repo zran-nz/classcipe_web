@@ -117,6 +117,10 @@ export default {
     id: {
       type: String,
       default: ''
+    },
+    termId: {
+      type: String,
+      default: ''
     }
   },
   watch: {
@@ -128,6 +132,12 @@ export default {
       },
       deep: true,
       immediate: true
+    },
+    termId(val) {
+      if (val) {
+        this.formModel.term = val
+        this.initSels()
+      }
     }
   },
   data() {

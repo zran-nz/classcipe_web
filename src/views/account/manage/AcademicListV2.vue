@@ -15,7 +15,7 @@
             <a-space :size="5" align="center" @click.stop>
               <label style="cursor: pointer" @click="$router.push('/account/info')">Account Info</label>
               <label for="">></label>
-              <label style="font-weight: normal">School Account</label>
+              <label style="font-weight: normal">Academic</label>
             </a-space>
           </template>
           <template v-slot:right>
@@ -47,7 +47,10 @@
           <div class="view-item-title">
             <label for="">{{ item.name }}</label>
             <a-button type="link" @click="handleEdit(item)">Edit</a-button>
-            <a-button type="link" :loading="delLoading" @click="handleDelete(item)">Delete</a-button>
+            <a-button type="link" :loading="delLoading" v-if="!yearHasClass(item)" @click="handleDelete(item)">Delete</a-button>
+            <a-tooltip v-else title="There are terms set under this Academic Year, you can only delete this year after you clear all the relevant terms.">
+              <a-button type="link" :loading="delLoading">Delete</a-button>
+            </a-tooltip>
           </div>
           <!-- <div class="view-item-opt">
             <a-button type="link" @click="handleEdit(item)">Edit</a-button>
@@ -66,7 +69,10 @@
                 </div>
                 <div class="detail-content-time">{{ formatDate(term) }} {{ isCurrent(term) ? '(Current)' : '' }}</div>
                 <div class="detail-content-close">
-                  <a-icon type="close-circle" @click="handleDeleteTerm(term)"></a-icon>
+                  <a-icon type="close-circle" v-if="!termHasClass(term)" @click="handleDeleteTerm(term)"></a-icon>
+                  <a-tooltip v-else title="This grade has linked with class, you can only delete this grade after you archive all the relevant classes.">
+                    <a-icon type="close-circle"></a-icon>
+                  </a-tooltip>
                 </div>
               </div>
             </div>
@@ -315,6 +321,17 @@ export default {
           })
         }
       })
+    },
+    yearHasClass(year) {
+      let result = false
+      if (year.terms && year.terms.length > 0) {
+        year.terms.forEach(term => {
+          if (this.termHasClass(term)) {
+            result = true
+          }
+        })
+      }
+      return result
     },
     termHasClass(term) {
       const findCls = this.subjectClass.find(cls => cls.term === term.id)

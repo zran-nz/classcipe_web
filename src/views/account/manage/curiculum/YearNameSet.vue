@@ -31,7 +31,12 @@
                 class="mb0"
               >
                 <div slot="label" class="grade-item">
-                  <a-checkbox v-model="grade.checked" @change="val => changeGradeCheck(val, grade)">{{ grade.officialGradeName }}</a-checkbox>
+                  <template v-if="gradeHasClass(grade)">
+                    <a-tooltip title="This grade has linked with class, you can unselect this grade after you archive all the relevant classes">
+                      <a-checkbox :disabled="grade.disabled" v-model="grade.checked" @change="val => changeGradeCheck(val, grade)">{{ grade.officialGradeName }}</a-checkbox>
+                    </a-tooltip>
+                  </template>
+                  <a-checkbox v-else :disabled="grade.disabled" v-model="grade.checked" @change="val => changeGradeCheck(val, grade)">{{ grade.officialGradeName }}</a-checkbox>
                 </div>
                 <a-row :gutter=16>
                   <a-col :span="12">
@@ -67,6 +72,7 @@
 
 <script>
 import { getAllGrades, getAllCurriculums } from '@/api/preference'
+import { listClass } from '@/api/v2/schoolClass'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 const { debounce, cloneDeep, groupBy } = require('lodash-es')
 export default {
@@ -104,7 +110,9 @@ export default {
   },
   created() {
     this.debounceInit = debounce(this.initData, 500)
-    this.currentSchool.id && this.initData()
+    if (this.currentSchool.id) {
+      this.initData()
+    }
   },
   data() {
     return {
@@ -133,12 +141,26 @@ export default {
         }]
       },
       origin: {},
-      gradeInfoTree: {}
+      gradeInfoTree: {},
+      totalClass: []
     }
   },
   methods: {
-    initData() {
+    async initDict() {
+      const [clsRes] = await Promise.all([
+        listClass({
+          schoolId: this.currentSchool.id,
+          pageNo: 1,
+          pageSize: 10000
+        })
+      ])
+      if (clsRes.success && clsRes.result) {
+        this.totalClass = clsRes.result.records
+      }
+    },
+    async initData() {
       this.loading = true
+      await this.initDict()
       Promise.all([
         getAllGrades(),
         getAllCurriculums()
@@ -157,7 +179,8 @@ export default {
             officialGradeName: item.name,
             curriculumId: item.curriculumId,
             age: item.age,
-            checked: true
+            checked: true,
+            disabled: false
           }
           return res
         })
@@ -177,22 +200,42 @@ export default {
           const actual = find.map(grade => {
             const isFind = current.gradeSettingInfo.find(info => info.gradeId === grade.gradeId)
             const exist = exists.find(ex => ex.gradeId === grade.gradeId)
+            // grade下已经有班级则不能删除
+            let disabled = false
+            const isFindCls = this.totalClass.find(cls => cls.gradeId === grade.gradeId)
+            if (isFindCls) {
+              disabled = true
+            }
             return exist ? { ...exist }
               : isFind ? {
                 ...isFind,
                 gradeNameArr: isFind.gradeName.split(','),
                 curriculumId: current.curriculumId,
-                checked: true
+                checked: true,
+                disabled: disabled
               } : {
                 ...grade,
-                checked: false
+                checked: false,
+                disabled: disabled
               }
           })
           gradeInfos = gradeInfos.concat(actual)
         } else {
           const actual = find.map(grade => {
             const exist = exists.find(ex => ex.gradeId === grade.gradeId)
-            return exist ? { ...exist } : { ...grade }
+            // grade下已经有班级则不能删除
+            let disabled = false
+            const isFindCls = this.totalClass.find(cls => cls.gradeId === grade.gradeId)
+            if (isFindCls) {
+              disabled = true
+            }
+            return exist ? {
+              ...exist,
+              disabled: disabled
+            } : {
+              ...grade,
+              disabled: disabled
+            }
           })
           gradeInfos = gradeInfos.concat(cloneDeep(actual))
         }
@@ -224,7 +267,7 @@ export default {
       curriculum.checkAll = e.target.checked
       curriculum.indeterminate = false
       this.gradeForm.gradeInfo.forEach(grade => {
-        if (grade.curriculumId === curriculum.id) {
+        if (grade.curriculumId === curriculum.id && !grade.disabled) {
           grade.checked = e.target.checked
         }
       })
@@ -288,6 +331,10 @@ export default {
           // })
         }
       })
+    },
+    gradeHasClass(grade) {
+      const isFindCls = this.totalClass.find(cls => cls.gradeId === grade.gradeId)
+      return !!isFindCls
     }
   }
 }

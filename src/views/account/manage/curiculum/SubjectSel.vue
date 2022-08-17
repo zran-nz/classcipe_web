@@ -264,6 +264,7 @@ export default {
       }
       for (const curriculumId in this.totalResult) {
         if (curriculumId === '-1') continue
+        // IB 未审核 不可选
         const isDisabled = this.curriclulumAuth[curriculumId] && this.curriclulumAuth[curriculumId].status !== 2
         const current = this.totalResult[curriculumId]
         current.selected = []

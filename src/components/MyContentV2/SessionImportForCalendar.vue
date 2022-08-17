@@ -43,6 +43,7 @@
             :showCalendarLink="false"
             :default-date="defaultDate"
             @select-date='handleSelectDate'
+            @update-zoom='handleUpdateZoom'
             @select-session-type='handleSelectSessionType'
             @select-zoom-status='handleSelectZoom'
           />
@@ -193,6 +194,9 @@ export default {
         sessionType: 0,
         startDate: null,
         teachSessionNow: 0,
+        password: true,
+        waitingRoom: true,
+        workshopType: 0, // 1-private workshop 2-public workshop
         zoom: 0
       },
       importModel: {
@@ -372,6 +376,10 @@ export default {
     handleSelectDate (data) {
       this.scheduleReq.startDate = data.startDate
       this.scheduleReq.endDate = data.endDate
+    },
+    handleUpdateZoom (data) {
+      this.scheduleReq.password = data.password
+      this.scheduleReq.waitingRoom = data.waitingRoom
     },
     handleSelectSessionType (type) {
       this.scheduleReq.sessionType = type

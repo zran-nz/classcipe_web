@@ -130,7 +130,8 @@
     </div>
     <div class='full-body-content'>
       <div class='cc-lo-list'>
-        <div v-for='(item, index) in selectedList' :key='index' class='cc-lo-item'>
+        <!-- // key=item.id 修复指令动词错乱问题 -->
+        <div v-for='(item) in selectedList' :key='item.id' class='cc-lo-item'>
           <div class='cc-left-lo'>
             <div class="item-desc-wrapper">
               <div class='item-desc' v-selectPopover="['modal', domFn, item, true]">

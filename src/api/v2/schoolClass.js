@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+import store from '@/store'
 
 const API_PREFIX = 'api2/school/class'
 
@@ -78,6 +79,11 @@ export function archiveClass (parameter) {
     url: schoolClassApi.archiveClass,
     method: 'get',
     params: parameter
+  }).then(res => {
+    if (res.code === 0) {
+      store.dispatch('GetClassList', store.state.user.currentSchool.id)
+    }
+    return res
   })
 }
 
@@ -91,6 +97,11 @@ export function deleteClass (parameter) {
     url: schoolClassApi.deleteClass,
     method: 'get',
     params: parameter
+  }).then(res => {
+    if (res.code === 0) {
+      store.dispatch('GetClassList', store.state.user.currentSchool.id)
+    }
+    return res
   })
 }
 
@@ -104,6 +115,11 @@ export function deleteClass (parameter) {
     url: schoolClassApi.deleteGrade,
     method: 'get',
     params: parameter
+  }).then(res => {
+    if (res.code === 0) {
+      store.dispatch('GetClassList', store.state.user.currentSchool.id)
+    }
+    return res
   })
 }
 
@@ -189,6 +205,11 @@ export function deleteClass (parameter) {
     method: 'post',
     params: parameter,
     data: parameter
+  }).then(res => {
+    if (res.code === 0) {
+      store.dispatch('GetClassList', store.state.user.currentSchool.id)
+    }
+    return res
   })
 }
 
@@ -205,6 +226,11 @@ export function deleteClass (parameter) {
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
+  }).then(res => {
+    if (res.code === 0) {
+      store.dispatch('GetClassList', store.state.user.currentSchool.id)
+    }
+    return res
   })
 }
 

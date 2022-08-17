@@ -87,7 +87,7 @@ import SidebarMenuItem from '@/components/GlobalHeader/Common/SidebarMenuItem'
 import SidebarMenuList from '@/components/GlobalHeader/Common/SidebarMenuList'
 import AddPreference from '@/components/Teacher/AddPreference'
 import { throttle } from 'lodash-es'
-import { listClass } from '@/api/v2/schoolClass'
+// import { listClass } from '@/api/v2/schoolClass'
 
 export default {
   name: 'TeacherNav',
@@ -116,24 +116,25 @@ export default {
       USER_MODE: USER_MODE,
       mainRouter: ['TeacherBuyMain', 'TeacherSellMain'],
       expandMenuThrottle: null,
-      currentClassList: [],
-      classList: []
+      currentClassList: []
+      // classList: []
     }
   },
   watch: {
     '$route.path' (to) {
       logger.debug('nav watch route path change ' + to)
       this.selectedKeys = [to]
-    },
-    'currentSchool.id' (newVal) {
-      this.listClass()
     }
+    // 'currentSchool.id' (newVal) {
+    //   this.listClass()
+    // }
   },
   computed: {
     ...mapState({
       info: state => state.user.info,
       currentSchool: state => state.user.currentSchool,
       userMode: state => state.app.userMode,
+      classList: state => state.user.classList,
 
       // 动态主路由
       mainMenu: state => state.permission.addRouters,
@@ -179,19 +180,19 @@ export default {
       const current = this.currentSchool?.id ? this.currentSchool : (this.info.schoolList && this.info.schoolList.length > 0) ? { ...this.info.schoolList[0] } : {}
       this.SET_CURRENT_SCHOOL(current)
       this.GetClassList(current.id)
-      this.listClass()
+      // this.listClass()
     },
-    listClass () {
-      listClass({
-        queryType: 0,
-        schoolId: this.currentSchool.id,
-        pageNo: 1,
-        pageSize: 10000
-      }).then(res => {
-        this.$logger.info('teacher nav listClass res records', res.result?.records)
-        this.classList = res.result?.records
-      })
-    },
+    // listClass () {
+    //   listClass({
+    //     queryType: 0,
+    //     schoolId: this.currentSchool.id,
+    //     pageNo: 1,
+    //     pageSize: 10000
+    //   }).then(res => {
+    //     this.$logger.info('teacher nav listClass res records', res.result?.records)
+    //     this.classList = res.result?.records
+    //   })
+    // },
     handleChangePersonal() {
       // 后端记录当前用户是否是个人模式，在个人模式下后台设置school未空字符
       SwitchUserModeSchool({
