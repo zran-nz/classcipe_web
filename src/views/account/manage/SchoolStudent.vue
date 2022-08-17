@@ -95,7 +95,28 @@
             </div>
           </div>
           <div class="flex-wrap" slot="classes" slot-scope="classes">
-            <a-tag v-for="cls in classes" :key="cls.id" :color="cls.classType === 0 ? '#2db7f5' : '#f50'">{{ cls.name }}</a-tag>
+            <template v-for="(cls, clsIndex) in sortBy(classes, 'classType')">
+              <a-tag v-if="clsIndex === 0" :key="cls.id" :color="cls.classType === 0 ? '#2db7f5' : '#f50'">
+                {{ cls.classType === 1 ? formatViewName(cls.subject) + '-' + cls.name : cls.name }}
+              </a-tag>
+            </template>
+            <a-popover
+              v-if="classes.length > 1"
+              :overlayStyle="{ width: '510px' }"
+              overlayClassName="tag-info-tip">
+              <template slot="content">
+                <a-space class="flex-wrap">
+                  <template v-for="(cls) in sortBy(classes, 'classType')">
+                    <a-tag :key="cls.id" :color="cls.classType === 0 ? '#2db7f5' : '#f50'">
+                      {{ cls.classType === 1 ? formatViewName(cls.subject) + '-' + cls.name : cls.name }}
+                    </a-tag>
+                  </template>
+                </a-space>
+              </template>
+              <a-tag>
+                <a-icon type="ellipsis" />
+              </a-tag>
+            </a-popover>
           </div>
           <div slot="status" slot-scope="status, record">
             <!-- <a-tag :color="getStatusFormat(status, 'color')">{{ getStatusFormat(status) || ' - ' }}</a-tag> -->
@@ -149,6 +170,7 @@ import { JeecgListMixin } from '@/mixins/JeecgListMixin'
 
 import { listClass } from '@/api/v2/schoolClass'
 import { bulkActStudent, removeStudents, resetPassword } from '@/api/v2/schoolUser'
+import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
 
 import FixedFormHeader from '@/components/Common/FixedFormHeader'
 import FormHeader from '@/components/FormHeader/FormHeader'
@@ -157,7 +179,7 @@ import SchoolStudentMove from './schoolUser/SchoolStudentMove'
 
 import { mapState } from 'vuex'
 import cloneDeep from 'lodash.clonedeep'
-const { debounce } = require('lodash-es')
+const { debounce, sortBy } = require('lodash-es')
 
 export default {
   name: 'SchoolStudent',
@@ -173,6 +195,7 @@ export default {
       USER_MODE: USER_MODE,
       SCHOOL_USER_STATUS: SCHOOL_USER_STATUS,
       tabsList: Object.values(SCHOOL_USER_STATUS).filter(item => item.value !== 2),
+      sortBy: sortBy,
       ACT: {
         ARCHIVE: {
           value: '4',
@@ -231,7 +254,8 @@ export default {
         // list: '/classcipe/api/school/schoolClassStudent/list'
       },
 
-      onlyClass: null
+      onlyClass: null,
+      subjectOptions: []
     }
   },
   created() {
@@ -283,7 +307,7 @@ export default {
         },
         ...this.onlyClass ? [] : [{
           title: 'Class',
-          align: 'center',
+          align: 'left',
           dataIndex: 'classes',
           width: 120,
           scopedSlots: { customRender: 'classes' },
@@ -361,8 +385,11 @@ export default {
           schoolId: this.currentSchool.id,
           pageNo: 1,
           pageSize: 10000
+        }),
+        getSubjectBySchoolId({
+          schoolId: this.currentSchool.id
         })
-      ]).then(([clsRes]) => {
+      ]).then(([clsRes, subjectRes]) => {
         if (clsRes.code === 0) {
           this.classList = clsRes.result.records
           this.onlyClass = null
@@ -375,6 +402,26 @@ export default {
               this.loadData()
             }
           }
+        }
+        if (subjectRes.success) {
+          let subjects = []
+          subjectRes.result.forEach(item => {
+            if (item.subjectList && item.subjectList.length > 0) {
+              subjects = subjects.concat(item.subjectList)
+            }
+          })
+          const options = []
+          subjects.forEach(item => {
+            options.push({
+              subjectId: item.subjectId,
+              subjectName: item.subjectName
+            })
+            options.push({
+              subjectId: item.parentSubjectId,
+              subjectName: item.parentSubjectName
+            })
+          })
+          this.subjectOptions = options
         }
         this.onClearSelected()
       })
@@ -479,6 +526,13 @@ export default {
     },
     handleEdit(item) {
       this.$router.push('/manage/student/detail/' + item.uid)
+    },
+    formatViewName(id) {
+      const findSubject = this.subjectOptions.find(subject => subject.subjectId === id)
+      if (findSubject) return findSubject.subjectName
+      // const findGrade = this.gradeOptions.find(grade => grade.gradeId === id)
+      // if (findGrade) return findGrade.gradeName
+      return 'Untitle'
     }
   }
 }

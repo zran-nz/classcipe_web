@@ -68,26 +68,37 @@
         <a-row :gutter=16>
           <a-col :span="18">
             <a-form-model-item class="self-select">
-              <a-select
-                mode="multiple"
-                :disabled="classUnModify"
-                optionFilterProp="children"
-                :getPopupContainer="trigger => trigger.parentElement"
-                v-model='formModel.classArr'
-                option-label-prop="label"
-                placeholder='Please select class'>
-                <a-select-option :label="item.name" v-for='item in filterClassList' :key='item.id'>
-                  {{ item.name }}
-                </a-select-option >
-              </a-select>
-              <div :size="4" :class="{disabled: classUnModify}" class="tag-render" @click="showSelect" ref="tagRender">
-                <a-tag
-                  :closable="isShowClose(tag)"
-                  @close="closeCls(tag)"
-                  :color="clsColor(tag)"
-                  v-for="tag in formModel.classArr"
-                  :key="'tag'+tag">{{ formatName(tag, classList) }}</a-tag>
-              </div>
+              <template v-if="!classUnModify">
+                <a-select
+                  mode="multiple"
+                  :disabled="classUnModify"
+                  optionFilterProp="children"
+                  :getPopupContainer="trigger => trigger.parentElement"
+                  v-model='formModel.classArr'
+                  option-label-prop="label"
+                  placeholder='Please select class'>
+                  <a-select-option :label="item.name" v-for='item in filterClassList' :key='item.id'>
+                    {{ item.name }}
+                  </a-select-option >
+                </a-select>
+                <div :size="4" :class="{disabled: classUnModify}" class="tag-render" @click="showSelect" ref="tagRender">
+                  <a-tag
+                    :closable="isShowClose(tag)"
+                    @close="closeCls(tag)"
+                    :color="clsColor(tag)"
+                    v-for="tag in formModel.classArr"
+                    :key="'tag'+tag">{{ formatName(tag, classList) }}</a-tag>
+                </div>
+              </template>
+              <a-space v-else>
+                <a-space class="flex-wrap">
+                  <template v-for="(cls) in classArrDetail">
+                    <a-tag :key="cls.id" :color="cls.classType === 0 ? '#2db7f5' : '#f50'">
+                      {{ cls.classType === 1 ? formatViewName(cls.subject) + '-' + cls.name : cls.name }}
+                    </a-tag>
+                  </template>
+                </a-space>
+              </a-space>
               <!-- <a-select
                 optionFilterProp="children"
                 :getPopupContainer="trigger => trigger.parentElement"
@@ -144,6 +155,7 @@ import { USER_MODE, SCHOOL_USER_STATUS } from '@/const/common'
 import { listClass } from '@/api/v2/schoolClass'
 import { addTeacher, updateTeacher, checkEmailTeacher, getTeacherInfo, resetPassword } from '@/api/v2/schoolUser'
 import { listRole, geHeaderClassByUserId } from '@/api/v2/schoolRole'
+import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
 
 import ResetPassword from '../persona/ResetPassword'
 import AvatarModal from '@/views/account/settings/AvatarModal'
@@ -155,6 +167,7 @@ import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 
 import moment from 'moment'
 import { mapState } from 'vuex'
+const { sortBy } = require('lodash-es')
 export default {
   name: 'SchoolTeacherAdd',
   components: {
@@ -191,6 +204,7 @@ export default {
     return {
       SCHOOL_USER_STATUS: SCHOOL_USER_STATUS,
       USER_MODE: USER_MODE,
+      sortBy: sortBy,
       teacherId: this.id,
       classList: [],
       roleList: [],
@@ -218,7 +232,8 @@ export default {
       autoSaveLocalKey: 'FORM_SCHOOL_TEACHER_',
       needAutoSave: !this.id,
       userHeaderTeacherCls: [],
-      classUnModify: false
+      classUnModify: false,
+      subjectOptions: []
     }
   },
   computed: {
@@ -242,6 +257,10 @@ export default {
     },
     filterClassList() {
       return this.classList.filter(cc => !this.formModel.classArr.includes(cc.id))
+    },
+    classArrDetail() {
+      const clses = this.classList.filter(cc => this.formModel.classArr.includes(cc.id))
+      return sortBy(clses, 'classType')
     }
   },
   created() {
@@ -268,8 +287,11 @@ export default {
           }),
           listRole({
             schoolId: this.currentSchool.id
+          }),
+          getSubjectBySchoolId({
+            schoolId: this.currentSchool.id
           })
-        ]).then(([clsRes, roleRes]) => {
+        ]).then(([clsRes, roleRes, subjectRes]) => {
           if (clsRes.code === 0) {
             this.classList = clsRes.result.records.filter(cls => cls.classType !== 2)
             this.classUnModify = !!this.teacherId
@@ -285,6 +307,26 @@ export default {
           }
           if (roleRes.code === 0) {
             this.roleList = roleRes.result
+          }
+          if (subjectRes.success) {
+            let subjects = []
+            subjectRes.result.forEach(item => {
+              if (item.subjectList && item.subjectList.length > 0) {
+                subjects = subjects.concat(item.subjectList)
+              }
+            })
+            const options = []
+            subjects.forEach(item => {
+              options.push({
+                subjectId: item.subjectId,
+                subjectName: item.subjectName
+              })
+              options.push({
+                subjectId: item.parentSubjectId,
+                subjectName: item.parentSubjectName
+              })
+            })
+            this.subjectOptions = options
           }
         })
     },
@@ -442,6 +484,13 @@ export default {
     },
     showSelect(e) {
       this.$refs.tagRender.previousElementSibling.click()
+    },
+    formatViewName(id) {
+      const findSubject = this.subjectOptions.find(subject => subject.subjectId === id)
+      if (findSubject) return findSubject.subjectName
+      // const findGrade = this.gradeOptions.find(grade => grade.gradeId === id)
+      // if (findGrade) return findGrade.gradeName
+      return 'Untitle'
     }
   }
 }
@@ -527,6 +576,14 @@ export default {
   flex-wrap: wrap;
   &.disabled {
     background: transparent;
+  }
+}
+.flex-wrap {
+  flex-wrap: wrap;
+  display: flex;
+  & > span {
+    margin-top: 2px;
+    margin-bottom: 2px;
   }
 }
 </style>
