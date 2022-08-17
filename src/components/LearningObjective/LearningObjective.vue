@@ -463,29 +463,6 @@ export default {
     this.$logger.info('LearningObjective subjectList', this.subjectList, 'yearList', this.yearList, 'languageList', this.languageList, 'learningObjectives', this.learningObjectives)
     this.asyncEmitUpdateEventFn = debounce(this.emitUpdateEvent, 1000)
     this.asyncUpdateFilterListFn = debounce(this.updateFilterList, 1000)
-    if (this.curriculumId) {
-      this.filterConfig.curriculumId = this.curriculumId
-    }
-
-    if (Array.isArray(this.subjectList) && this.subjectList.length > 0) {
-      this.filterConfig.selectedSubjectList = this.subjectList
-      this.selectedSubject = this.filterConfig.selectedSubjectList[0]
-    }
-
-    if (Array.isArray(this.yearList) && this.yearList.length > 0) {
-      this.filterConfig.selectedYearList = this.yearList
-      this.selectedYear = this.filterConfig.selectedYearList[0]
-    }
-
-    if (Array.isArray(this.languageList) && this.languageList.length > 0) {
-      this.filterConfig.selectedLanguageList = this.languageList
-      this.selectedLanguage = this.filterConfig.selectedLanguageList[0]
-    }
-
-    if (Array.isArray(this.learningObjectives) && this.learningObjectives.length > 0) {
-      this.selectedList = this.learningObjectives
-    }
-
     this.initData()
     this.initDict()
   },
@@ -507,15 +484,40 @@ export default {
           this.$logger.info('filter ib', list)
         }
         this.curriculumOptions = list
-        if (this.curriculumOptions.length) {
-          this.handleSelectCurriculum(this.curriculumOptions[0].id)
-        }
+        this.init()
         this.$logger.info('getAllCurriculums', this.curriculumOptions, list)
       }).finally(() => {
         this.$logger.info('LearningObjective init done', this.filterConfig)
         this.loading = false
         this.startWatch()
       })
+    },
+
+    init() {
+      if (this.curriculumId) {
+        this.handleSelectCurriculum(this.curriculumId)
+      } else {
+        this.handleResetCurriculum()
+      }
+
+      if (Array.isArray(this.subjectList) && this.subjectList.length > 0) {
+        this.filterConfig.selectedSubjectList = this.subjectList
+        this.selectedSubject = this.filterConfig.selectedSubjectList[0]
+      }
+
+      if (Array.isArray(this.yearList) && this.yearList.length > 0) {
+        this.filterConfig.selectedYearList = this.yearList
+        this.selectedYear = this.filterConfig.selectedYearList[0]
+      }
+
+      if (Array.isArray(this.languageList) && this.languageList.length > 0) {
+        this.filterConfig.selectedLanguageList = this.languageList
+        this.selectedLanguage = this.filterConfig.selectedLanguageList[0]
+      }
+
+      if (Array.isArray(this.learningObjectives) && this.learningObjectives.length > 0) {
+        this.selectedList = this.learningObjectives
+      }
     },
 
     startWatch () {
@@ -551,9 +553,9 @@ export default {
     },
 
     async handleSelectCurriculum (id) {
-      id = parseInt(id)
+      id = id.toString()
       this.$logger.info('handleSelectCurriculum id', id)
-      if (id !== parseInt(this.filterConfig.curriculumId)) {
+      if (id !== this.filterConfig.curriculumId) {
         this.filterConfig.selectedSubjectList = []
         this.filterConfig.selectedYearList = []
         this.filterConfig.selectedLanguageList = []
@@ -561,7 +563,7 @@ export default {
       }
       this.filterConfig.curriculumId = id
       const curriculum = this.curriculumOptions.find(item => item.id === id)
-      if (id === 1) {
+      if (id === '1') {
         if (!this.cachedCurriculum['au']) {
           this.$set(this.cachedCurriculum, 'au', await GetAuCurriculum())
         }
@@ -570,7 +572,7 @@ export default {
         this.yearOptions = this.data['__years']
         this.yearIndex = this.data['__year']
         console.log('filterConfig.curriculumId update data', this.data)
-      } else if (id === 2) {
+      } else if (id === '2') {
         if (!this.cachedCurriculum['nz']) {
           this.$set(this.cachedCurriculum, 'nz', await GetNzCurriculum())
         }
