@@ -241,15 +241,17 @@ export default {
       await this.getAssociate()
     },
 
-    handleDeleteGroup (group) {
+    async handleDeleteGroup (group) {
       this.$logger.info('handleDeleteGroup', group)
-      DeleteGroup({
+      const response = await DeleteGroup({
         fromId: this.fromId,
         fromType: this.fromType,
         id: group.id
-      }).then(response => {
-        this.$logger.info('DeleteGroup', response)
-        this.getAssociate()
+      })
+      this.$logger.info('DeleteGroup', response)
+      await this.getAssociate()
+      this.$nextTick(() => {
+        this.$EventBus.$emit('refresh-link-content-list')
       })
     },
 
