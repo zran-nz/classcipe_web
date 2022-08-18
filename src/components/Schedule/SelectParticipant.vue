@@ -65,7 +65,7 @@
                 :key='student.id'>
                 <div
                   class='student-item'
-                  @click.stop='handleSelectStudent(student)'
+                  @click.stop.prevent='handleSelectStudent(student)'
                   :class="{'selected-item': selectedStudentIdList.indexOf(student.id) !== -1, 'odd-item': sIdx % 2 === 1, 'even-item': sIdx % 2 === 0}">
                   <div class='student-item-info'>
                     <div class='avatar'>
