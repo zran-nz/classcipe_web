@@ -61,11 +61,11 @@
                 :checked='selectedStudentIdList.indexOf(student.id) !== -1'
                 v-for='(student, sIdx) in studentList'
                 class='student-list-checkbox'
+                @click.native='handleSelectStudent(student)'
                 :key='student.id'>
                 <div
                   class='student-item'
-                  :class="{'selected-item': selectedStudentIdList.indexOf(student.id) !== -1, 'odd-item': sIdx % 2 === 1, 'even-item': sIdx % 2 === 0}"
-                  @click='handleSelectStudent(student)'>
+                  :class="{'selected-item': selectedStudentIdList.indexOf(student.id) !== -1, 'odd-item': sIdx % 2 === 1, 'even-item': sIdx % 2 === 0}">
                   <div class='student-item-info'>
                     <div class='avatar'>
                       <a-avatar style="color: #f56a00; backgroundColor: #fde3cf">
