@@ -26,7 +26,7 @@
     </fixed-form-header>
     <div class='form-content'>
       <div class='step-content' v-if='!contentLoading'>
-        <div class='step-mask' v-if='form.slideEditing && currentActiveStepIndex === 1'>
+        <div class='step-mask' v-if='form.slideEditing && currentActiveStepIndex === slideIndex'>
           <div class='mask-action'>
             <custom-button
               label='Save changes'
@@ -322,6 +322,12 @@ export default {
       scheduleVisible: false,
       editGoogleSlideLoading: false,
       associateIdList: []
+    }
+  },
+  computed: {
+    slideIndex () {
+      const index = this.formSteps.findIndex(item => item.commonFields.indexOf(this.PdField.Slides) !== -1)
+      return index === -1 ? 1 : index
     }
   },
   mounted() {
