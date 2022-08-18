@@ -143,70 +143,69 @@ export default {
       this.associateTaskList = []
       this.associateId2Name.clear()
       this.linkGroupLoading = true
-      await GetAssociate({
+      const response = await GetAssociate({
         id: this.fromId,
         type: this.fromType,
         published: 0
-      }).then(response => {
-        this.$logger.info('UnitLinkedContent getAssociate', response)
-        response.result.owner.forEach(ownerItem => {
-          const groupItem = response.result.groups.find(group => group.groupName === ownerItem.group || (group.groupName === 'Relevant Unit Plan(s)' && ownerItem.group === ''))
-          const contentList = JSON.parse(JSON.stringify(ownerItem.contents))
-          console.log('contentList', contentList, 'groupItem', groupItem)
-          if (groupItem) {
-            ownerItem.groupId = groupItem.id
-            let contents = []
-            if (this.filterTypes.length && contentList?.length) {
-              this.$logger.info('filterTypes', this.filterTypes)
-              contentList.forEach(item => {
-                if (this.filterTypes.indexOf(item.type) !== -1) {
-                  contents.push(item)
-                }
-              })
-            } else {
-              contents = contentList
-            }
-            groupItem.contents = contents
-            this.$logger.info('filterTypes contents', contents)
+      })
+
+      this.$logger.info('UnitLinkedContent getAssociate', response)
+      response.result.owner.forEach(ownerItem => {
+        const groupItem = response.result.groups.find(group => group.groupName === ownerItem.group || (group.groupName === 'Relevant Unit Plan(s)' && ownerItem.group === ''))
+        const contentList = JSON.parse(JSON.stringify(ownerItem.contents))
+        console.log('contentList', contentList, 'groupItem', groupItem)
+        if (groupItem) {
+          ownerItem.groupId = groupItem.id
+          let contents = []
+          if (this.filterTypes.length && contentList?.length) {
+            this.$logger.info('filterTypes', this.filterTypes)
+            contentList.forEach(item => {
+              if (this.filterTypes.indexOf(item.type) !== -1) {
+                contents.push(item)
+              }
+            })
           } else {
-            let contents = []
-            if (this.filterTypes.length && contentList?.length) {
-              this.$logger.info('else filterTypes', this.filterTypes)
-              contentList.forEach(item => {
-                if (this.filterTypes.indexOf(item.type) !== -1) {
-                  contents.push(item)
-                }
-              })
-            } else {
-              contents = contentList
-            }
-            ownerItem.contents = contents
+            contents = contentList
+          }
+          groupItem.contents = contents
+          this.$logger.info('filterTypes contents', contents)
+        } else {
+          let contents = []
+          if (this.filterTypes.length && contentList?.length) {
+            this.$logger.info('else filterTypes', this.filterTypes)
+            contentList.forEach(item => {
+              if (this.filterTypes.indexOf(item.type) !== -1) {
+                contents.push(item)
+              }
+            })
+          } else {
+            contents = contentList
+          }
+          ownerItem.contents = contents
+        }
+      })
+      this.ownerLinkGroupList = response.result.owner
+      this.groups = response.result.groups
+      this.$logger.info('ownerLinkGroupList', this.ownerLinkGroupList)
+
+      this.ownerLinkGroupList.forEach(group => {
+        group.contents.forEach(content => {
+          if (content.type === this.$classcipe.typeMap['unit-plan']) {
+            this.associateUnitIdList.push(content.id)
+            this.associateId2Name.set(content.id, content.name)
+            this.associateUnitList.push(content)
+          }
+
+          if (content.type === this.$classcipe.typeMap.task) {
+            this.associateTaskIdList.push(content.id)
+            this.associateId2Name.set(content.id, content.name)
+            this.associateTaskList.push(content)
           }
         })
-        this.ownerLinkGroupList = response.result.owner
-        this.groups = response.result.groups
-        this.$logger.info('ownerLinkGroupList', this.ownerLinkGroupList)
-
-        this.ownerLinkGroupList.forEach(group => {
-          group.contents.forEach(content => {
-            if (content.type === this.$classcipe.typeMap['unit-plan']) {
-              this.associateUnitIdList.push(content.id)
-              this.associateId2Name.set(content.id, content.name)
-              this.associateUnitList.push(content)
-            }
-
-            if (content.type === this.$classcipe.typeMap.task) {
-              this.associateTaskIdList.push(content.id)
-              this.associateId2Name.set(content.id, content.name)
-              this.associateTaskList.push(content)
-            }
-          })
-        })
-        this.$emit('update-unit-id-list', this.associateUnitIdList)
-        this.$emit('update-task-id-list', this.associateTaskIdList)
-      }).finally(() => {
-        this.linkGroupLoading = false
       })
+      this.$emit('update-unit-id-list', this.associateUnitIdList)
+      this.$emit('update-task-id-list', this.associateTaskIdList)
+      this.linkGroupLoading = false
     },
 
     // 当拖入内容时，先隐藏dom，然后提取数据后删除组件插入的dom，随后手动处理数据，方便Vue监听
@@ -239,7 +238,7 @@ export default {
 
       this.$logger.info('associateData', associateData)
       await Associate(associateData)
-      this.getAssociate()
+      await this.getAssociate()
     },
 
     handleDeleteGroup (group) {
@@ -263,7 +262,7 @@ export default {
           groupName: newGroupNameList[i]
         })
       }
-      this.getAssociate()
+      await this.getAssociate()
     },
 
     handleOnMve(e) {
@@ -274,17 +273,18 @@ export default {
       return true
     },
 
-    handleDeleteLinkItem (item) {
+    async handleDeleteLinkItem (item) {
       this.$logger.info('handleDeleteLinkItem', item)
-      AssociateCancel({
+      const response = await AssociateCancel({
         fromId: this.fromId,
         fromType: this.fromType,
         toId: item.id,
         toType: item.type
-      }).then(response => {
-        this.$logger.info('handleDeleteLinkItem response ', response)
-        // 刷新子组件的关联数据
-        this.getAssociate()
+      })
+      this.$logger.info('handleDeleteLinkItem response ', response)
+      await this.getAssociate()
+      this.$nextTick(() => {
+        this.$EventBus.$emit('refresh-link-content-list')
       })
     }
   }
