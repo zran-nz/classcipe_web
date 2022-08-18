@@ -1157,7 +1157,7 @@ export default {
           if (response.code === 0) {
             const pageObjects = response.result.pageObjects
             this.form.pageObjects = pageObjects
-            this.form.pageObjectIds = response.result.pageObjectIds
+            this.form.pageObjectIds = response.result.pageObjectIds.join(',')
             this.thumbnailList = []
             pageObjects.forEach(page => {
               this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
