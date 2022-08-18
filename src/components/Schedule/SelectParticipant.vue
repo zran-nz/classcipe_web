@@ -44,7 +44,7 @@
     </div>
     <div class='student-info-wrapper'>
       <div class='student-info'>
-        <div class='list-title'>
+        <div class='list-title student-list-title'>
           <div class='title-action'>
             <a-checkbox @change="onSelectAllChange" :checked='selectAllFlag'>
               Select all
@@ -57,26 +57,30 @@
           </template>
           <template v-else>
             <template v-if='studentList.length'>
-              <div
-                class='student-item'
-                :class="{'selected-item': selectedStudentIdList.indexOf(student.id) !== -1, 'odd-item': sIdx % 2 === 1, 'even-item': sIdx % 2 === 0}"
+              <a-checkbox
+                :checked='selectedStudentIdList.indexOf(student.id) !== -1'
                 v-for='(student, sIdx) in studentList'
-                :key='student.id'
-                @click='handleSelectStudent(student)'>
-                <div class='student-item-info'>
-                  <div class='avatar'>
-                    <a-avatar style="color: #f56a00; backgroundColor: #fde3cf">
-                      {{ student.firstname ? student.firstname[0].toUpperCase() : 'S' }}
-                    </a-avatar>
-                  </div>
-                  <div class='nickname'>
-                    {{ student.firstname }} {{ student.lastname }}
-                  </div>
-                  <div class='email'>
-                    {{ student.email }}
+                class='student-list-checkbox'
+                :key='student.id'>
+                <div
+                  class='student-item'
+                  :class="{'selected-item': selectedStudentIdList.indexOf(student.id) !== -1, 'odd-item': sIdx % 2 === 1, 'even-item': sIdx % 2 === 0}"
+                  @click='handleSelectStudent(student)'>
+                  <div class='student-item-info'>
+                    <div class='avatar'>
+                      <a-avatar style="color: #f56a00; backgroundColor: #fde3cf">
+                        {{ student.firstname ? student.firstname[0].toUpperCase() : 'S' }}
+                      </a-avatar>
+                    </div>
+                    <div class='nickname'>
+                      {{ student.firstname }} {{ student.lastname }}
+                    </div>
+                    <div class='email'>
+                      {{ student.email }}
+                    </div>
                   </div>
                 </div>
-              </div>
+              </a-checkbox>
             </template>
             <template v-else>
               <div class='no-student-tips'>
@@ -301,6 +305,10 @@ export default {
     }
   }
 
+  .student-list-title {
+    padding-left: 0;
+  }
+
   .list-title-between {
     justify-content: space-between;
   }
@@ -383,6 +391,20 @@ export default {
   }
 
   .student-list {
+    padding-left: 0;
+    display: flex;
+    flex-direction: column;
+
+    .ant-checkbox-wrapper {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      width: 100%;
+      .student-item {
+        width: 100%;
+      }
+    }
     .no-student-tips {
       height: 300px;
       display: flex;

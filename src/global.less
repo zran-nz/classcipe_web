@@ -1447,3 +1447,18 @@ button.cc-complete-button {
     padding-left: 25px;
   }
 }
+
+.student-list {
+  .student-list-checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    > span:nth-child(2) {
+      width: calc(100% - 20px);
+    }
+  }
+
+  .ant-checkbox-wrapper + .ant-checkbox-wrapper {
+    margin-left: 0;
+  }
+}

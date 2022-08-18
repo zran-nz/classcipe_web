@@ -1,6 +1,13 @@
 <template>
   <div class='schedule-session'>
     <div class='fixed-header'>
+      <div class='nav-back'>
+        <custom-link-text @click='handleGoBack' text='Back'>
+          <template v-slot:prefix>
+            <a-icon type='left' />
+          </template>
+        </custom-link-text>
+      </div>
       <my-vertical-steps
         ref='steps-nav'
         :allow-switch='false'
@@ -42,7 +49,7 @@
     </div>
     <fixed-form-footer>
       <template v-slot:left>
-        <a-button @click='handleGoBack'><a-icon type='left' /> Discard</a-button>
+        <a-button @click='handleBack'><a-icon type='left' /> Discard</a-button>
       </template>
       <template v-slot:right>
         <div class='right-button'>
@@ -85,10 +92,11 @@ import ZoomMeetingSetting from '@/components/Schedule/ZoomMeetingSetting'
 import { CALENDAR_QUERY_TYPE, USER_MODE } from '@/const/common'
 
 import { mapState } from 'vuex'
+import CustomLinkText from '@/components/Common/CustomLinkText'
 
 export default {
   name: 'ScheduleSession',
-  components: { ZoomMeetingSetting, FixedFormFooter, SchedulePayInfo, SchoolSchedule, ScheduleDate, SelectParticipant, SelectSessionUnit, MyVerticalSteps },
+  components: { CustomLinkText, ZoomMeetingSetting, FixedFormFooter, SchedulePayInfo, SchoolSchedule, ScheduleDate, SelectParticipant, SelectSessionUnit, MyVerticalSteps },
   mixins: [ AssociateMixin, ZoomAuthMixin ],
   props: {
     id: {
@@ -393,5 +401,16 @@ export default {
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+}
+
+.fixed-header {
+  position: relative;
+}
+
+.nav-back {
+  z-index: 1000;
+  position: absolute;
+  left: 10px;
+  top: 15px;
 }
 </style>
