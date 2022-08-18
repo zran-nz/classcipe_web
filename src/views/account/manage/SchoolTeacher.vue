@@ -15,7 +15,12 @@
             <a-space :size="5" align="center" @click.stop>
               <label style="cursor: pointer" @click="$router.push('/account/info')">Account Info</label>
               <label for="">></label>
-              <label style="font-weight: normal">School Teacher</label>
+              <template v-if="onlyClass">
+                <label style="cursor: pointer" @click="routerRefresh">School Teacher</label>
+                <label for="">></label>
+                <label style="font-weight: normal">{{ onlyClass.name }}</label>
+              </template>
+              <label v-else style="font-weight: normal">School Teacher</label>
             </a-space>
           </template>
           <template v-slot:right>
@@ -234,7 +239,8 @@ export default {
       pendingTeacherCount: 0,
       disableMixinCreated: true,
 
-      subjectOptions: []
+      subjectOptions: [],
+      onlyClass: null
     }
   },
   created() {
@@ -244,6 +250,9 @@ export default {
         if (find) {
           this.queryParam.schoolUserStatus = find.value
         }
+      }
+      if (this.$route.query.classId) {
+       this.filters.classes = this.$route.query.classId
       }
     }
     console.log(this.queryParam)
@@ -271,7 +280,7 @@ export default {
           //   return text || (record.firstname + record.lastname) || record.email
           // }
         },
-        {
+        ...this.onlyClass ? [] : [{
           title: 'Class',
           align: 'left',
           dataIndex: 'classes',
@@ -287,7 +296,7 @@ export default {
             text: item.name,
             value: item.id
           }) || []))
-        },
+        }],
         {
           title: 'Role',
           align: 'center',
@@ -331,6 +340,13 @@ export default {
     goBack() {
       this.$router.go(-1)
     },
+     routerRefresh() {
+      this.onlyClass = null
+      this.$router.replace('/manage/teacher/list')
+      this.filters.classes = ''
+      this.onClearSelected()
+      this.searchQuery()
+    },
     handleSchoolChange(currentSchool) {
       if (this.userMode === USER_MODE.SCHOOL) {
         this.queryParam.schoolId = currentSchool.id
@@ -366,6 +382,17 @@ export default {
       ]).then(([clsRes, roleRes, teacherRes, subjectRes]) => {
         if (clsRes.code === 0) {
           this.classList = clsRes.result.records
+          this.onlyClass = null
+          const query = this.$route.query
+          if (query.classId) {
+            const isFind = this.classList.find(item => item.id === query.classId)
+            if (isFind) {
+              this.filters.classes = query.classId
+              this.onlyClass = { ...isFind }
+            } else {
+              this.routerRefresh()
+            }
+          }
         }
         if (roleRes.code === 0) {
           this.roleList = roleRes.result
@@ -398,8 +425,9 @@ export default {
     },
     toggleTab(status) {
       this.queryParam.schoolUserStatus = status
+      const url = '/manage/teacher/list?tab=' + status + (this.onlyClass ? `&classId=${this.onlyClass.id}` : '')
       this.$router.replace({
-        path: '/manage/teacher/list?tab=' + status
+        path: url
       })
       this.onClearSelected()
       this.searchQuery()
@@ -474,10 +502,12 @@ export default {
       }
     },
     handleAdd() {
-      this.$router.push('/manage/teacher/detail')
+      const url = '/manage/teacher/detail' + (this.onlyClass ? `?classId=${this.onlyClass.id}` : '')
+      this.$router.push(url)
     },
     handleUpload() {
-      this.$router.push('/manage/teacher/upload')
+      const url = '/manage/teacher/upload' + (this.onlyClass ? `/${this.onlyClass.id}` : '')
+      this.$router.push(url)
     },
     handleEdit(item) {
       this.$router.push('/manage/teacher/detail/' + item.uid)
@@ -486,7 +516,7 @@ export default {
       this.$refs.schoolUserInvite.doCreate('teacher')
     },
     getBadge(key) {
-      if (key === SCHOOL_USER_STATUS.PENDING.value) {
+      if (key === SCHOOL_USER_STATUS.PENDING.value && !this.onlyClass) {
         return this.pendingTeacherCount
       }
       return 0

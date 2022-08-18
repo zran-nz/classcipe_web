@@ -255,21 +255,27 @@ export default {
       },
 
       onlyClass: null,
-      subjectOptions: []
+      subjectOptions: [],
+      disableMixinCreated: true
     }
   },
   created() {
-    if (this.$route.query) {
-      if (this.$route.query.tab) {
+    const query = this.$route.query
+    if (query) {
+      if (query.tab) {
         const find = this.tabsList.find(item => item.value + '' === this.$route.query.tab + '')
         if (find) {
           this.queryParam.schoolUserStatus = find.value
         }
       }
+      if (query.classId) {
+       this.filters.classes = query.classId
+      }
     }
     this.initDict()
     this.queryParam.schoolId = this.currentSchool.id
     this.debounceLoad = debounce(this.loadData, 300)
+    this.loadData()
   },
   computed: {
     ...mapState({
@@ -399,7 +405,8 @@ export default {
             if (isFind) {
               this.filters.classes = query.classId
               this.onlyClass = { ...isFind }
-              this.loadData()
+            } else {
+              this.routerRefresh()
             }
           }
         }

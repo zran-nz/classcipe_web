@@ -10,18 +10,39 @@
       <a-form-model-item label="Are you a current teacher">
         <a-switch v-model="formModel.currentTeacher"></a-switch>
       </a-form-model-item>
-      <a-form-model-item label="Current School" prop="schoolId">
+      <a-form-model-item label="Current School" v-if="formModel.currentTeacher">
         <a-select
-          optionFilterProp="children"
-          :getPopupContainer="trigger => trigger.parentElement"
-          v-model='formModel.schoolId'
-          option-label-prop="label"
+          v-model="formModel.schoolId"
           @change="handleSelSchool"
-          placeholder='Please select school'>
+          :getPopupContainer="target => target.parentNode"
+          placeholder="Please select school"
+          ref="schoolRefformModel"
+          show-search
+          :default-active-first-option="false"
+          :show-arrow="false"
+          :filter-option="false"
+          :not-found-content="null"
+          option-label-prop="label"
+          @search="handleSearchSchool"
+          @focus="handleSearchSchool"
+        >
+          <div slot="dropdownRender" slot-scope="menu">
+            <v-nodes :vnodes="menu" />
+            <div v-if="ifShowCreate">
+              <a-divider style="margin: 4px 0;" />
+              <div
+                style="padding: 4px 8px; cursor: pointer;"
+                @mousedown="e => e.preventDefault()"
+                @click="handleCreateSchool('formModel')"
+              >
+                Create School: <a-tag color="#15c39a">{{ createSchoolName }}</a-tag>
+              </div>
+            </div>
+          </div>
           <a-select-option
             :value="schoolOption.id"
             :label="schoolOption.name"
-            v-for="schoolOption in schoolList"
+            v-for="schoolOption in [...myCreateSchoolOptions,...schoolOptions]"
             :key="schoolOption.id"
           >
             <label style="display:flex;justify-content:space-between;">
@@ -56,7 +77,7 @@
             <a-icon type="question-circle-o" />
           </a-tooltip>
         </span>
-        <customer-upload-file
+        <!-- <customer-upload-file
           accept="image/png, image/jpeg,  application/pdf"
           :showUploadButton="false"
           type="image/pdf"
@@ -68,7 +89,14 @@
               Upload image/pdf
             </div>
           </div>
-        </customer-upload-file>
+        </customer-upload-file> -->
+        <a-upload
+          :showUploadList='false'
+          accept="image/png, image/jpeg,  application/pdf"
+          :customRequest="data => handleUploadImage(data, 'teachingCertificate')"
+        >
+          <a-button :loading="uploading"> <a-icon type="upload" /> Click to Upload image/PDF </a-button>
+        </a-upload>
         <div class="file-list" slot="extra" v-if="formModel.teachingCertificate">
           <div class="file-item" v-for="url in formModel.teachingCertificate.split(',')" :key="url">
             <template v-if="url">
@@ -88,7 +116,7 @@
       </a-form-model-item>
 
       <a-form-model-item :wrapperCol="{offset: 6}">
-        <a-space v-if="formModel.teacherVerificationStatus === '' || formModel.teacherVerificationStatus === 1 || formModel.teacherVerificationStatus === 3">
+        <a-space v-if="!formModel.teacherVerificationStatus || formModel.teacherVerificationStatus === 3">
           <!-- <a-button :loading="loading" @click="handleCancel">Cancel</a-button> -->
           <a-button :loading="loading" @click="handleSave" type="primary">{{ 'Update' }}</a-button>
         </a-space>
@@ -110,15 +138,21 @@
 </template>
 
 <script>
-import { getSchools } from '@/api/school'
+import { getSchools, queryById } from '@/api/school'
 import { saveTeacherVerification, detailVerificationByUserId } from '@/api/v2/teacherVerification'
 
 import CustomerUploadFile from '@/components/Common/CustomerUploadFile'
+import { upAwsS3File } from '@/components/AddMaterial/Utils/AwsS3'
+import { debounce } from 'lodash-es'
 
 export default {
   name: 'TeacherVerificationForm',
   components: {
-    CustomerUploadFile
+    CustomerUploadFile,
+    VNodes: {
+      functional: true,
+      render: (h, ctx) => ctx.props.vnodes
+    }
   },
   props: {
     school: {
@@ -152,7 +186,8 @@ export default {
     return {
       currentSchool: this.school,
       teacherId: this.id,
-      schoolList: [],
+      schoolOptions: [],
+      myCreateSchoolOptions: [],
       yearsList: [
         {
           label: '< 1 year',
@@ -178,33 +213,47 @@ export default {
         labelCol: { span: 6 },
         wrapperCol: { span: 12 }
       },
-      loading: false
+      loading: false,
+      uploading: false,
+      createSchoolName: ''
     }
   },
   created() {
+    this.debouncedSearchSchool = debounce(this.searchSchool, 500)
     this.initDict()
   },
   computed: {
     validatorRules: function () {
       return {
-        teachingCertificate: [{ required: true, message: 'Please Upload Certificate!' }],
+        teachingCertificate: [{ required: true, message: 'Please Upload Certificate!', trigger: 'change' }],
         teachingYear: [{ required: true, message: 'Please Select year!' }]
       }
+    },
+    ifShowCreate() {
+      // const list = [...this.myCreateSchoolOptions, ...this.schoolOptions]
+      // const findOne = list.find(item => item.name === this.createSchoolName)
+      // return this.createSchoolName && !findOne
+      return false
     }
   },
   methods: {
     initDict() {
-      this.loading = true
-      getSchools({
-      }).then(res => {
-        if (res.success) {
-          this.schoolList = res.result || []
-        } else {
-          this.schoolList = []
-        }
-      }).finally(() => {
-        this.loading = false
-      })
+      // this.loading = true
+      // getSchools({
+      // }).then(res => {
+      //   if (res.success) {
+      //     this.schoolList = res.result || []
+      //   } else {
+      //     this.schoolList = []
+      //   }
+      // }).finally(() => {
+      //   this.loading = false
+      // })
+    },
+    filterOptions(input, option) {
+      return (
+        option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
+      )
     },
     initData() {
       // this.formModel.schoolId = (this.currentSchool.id && this.currentSchool.id !== '0') ? this.currentSchool.id : undefined
@@ -220,6 +269,19 @@ export default {
           this.formModel.teachingYear = res.result.teachingYear
           this.formModel.teachingCertificate = res.result.teachingCertificate
           this.formModel.teacherVerificationStatus = res.result.teacherVerificationStatus
+          if (this.formModel.schoolId) {
+            queryById({
+              id: this.formModel.schoolId
+            }).then(res => {
+              if (res.code === 0) {
+                this.schoolOptions = [{ ...res.result }]
+                const isFind = this.schoolOptions.find(item => item.id === this.formModel.schoolId)
+                if (!isFind) {
+                  this.formModel.schoolId = undefined
+                }
+              }
+            })
+          }
           this.$emit('changeSchool', this.formModel.schoolId)
         }
       }).finally(() => {
@@ -227,7 +289,19 @@ export default {
       })
     },
     handleSelSchool(schoolId) {
+      const list = [...this.myCreateSchoolOptions, ...this.schoolOptions]
+      const findOne = list.find(item => item.id === schoolId)
+      if (findOne) {
+        if (findOne.country) {
+          this.formModel.country = findOne.country
+          this.changeCountry(findOne.country)
+        }
+        this.formModel.schoolName = findOne.name
+      }
       this.$emit('changeSchool', schoolId)
+    },
+    changeCountry(country) {
+
     },
     handleSave() {
       this.$refs.form.validate(valid => {
@@ -249,13 +323,14 @@ export default {
       this.$emit('cancel')
     },
     uploadFile(key, file, isAdd = false) {
-      let currentArr = this.formModel[key].split(',').filter(i => !!i)
+      let currentArr = (this.formModel[key] || '').split(',').filter(i => !!i)
       if (isAdd) {
         currentArr.push(file.url)
       } else {
         currentArr = [file.url]
       }
       this.formModel[key] = currentArr.join(',')
+      this.$refs.form.validateField([key])
     },
     handleRemove(key, url) {
       const currentArr = this.formModel[key].split(',').filter(i => !!i)
@@ -270,6 +345,48 @@ export default {
     isPdf(url) {
       const subfix = url.split('.').pop()
       return subfix === 'pdf'
+    },
+    handleUploadImage(data, key) {
+      const mediaType = data.file.type.indexOf('image') > -1 ? 'image' : (data.file.type.indexOf('video') > -1 ? 'video' : data.file.type)
+      this.uploading = true
+      this.uploader = upAwsS3File(this.$store.getters.userInfo.id, data.file,
+        progressSize => {
+          console.log(progressSize)
+      },
+        result => {
+          this.uploading = false
+          this.uploadFile(key, {
+            type: mediaType,
+            url: result
+          }, true)
+      }, true)
+    },
+    handleSearchSchool(value) {
+      this.createSchoolName = value
+      this.debouncedSearchSchool(value)
+    },
+    searchSchool(value) {
+      if (!value) return
+      getSchools({
+        // curriculumId: this.userInfo.curriculumId,
+        name: value
+      }).then(res => {
+        if (res.success) {
+          this.schoolOptions = res.result || []
+        } else {
+          this.schoolOptions = []
+        }
+      })
+    },
+    handleCreateSchool(formName) {
+      // 保存的时候在真正创建学校
+      const res = {
+        id: new Date().getTime(),
+        name: this.createSchoolName
+      }
+      this.myCreateSchoolOptions.push(res)
+      this[formName].schoolId = res.id
+      this.$refs['schoolRef' + formName].$el.click()
     }
   }
 }
@@ -282,7 +399,8 @@ export default {
 .file-list {
   display: flex;
   flex-direction: column;
-  margin-top:20px;
+  width: 320px;
+  margin-top: 10px;
   .file-item {
     line-height: 30px;
     font-size: 12px;;
@@ -352,6 +470,7 @@ export default {
   display: flex;
   align-items: center;
   padding: 0 60px;
+  margin-top: 20px;
   &.deny {
     background: #E8FADE;
     span {

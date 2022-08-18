@@ -85,11 +85,12 @@ export default {
       tabsList: [{
           value: 'Teacher',
           title: 'Teacher verification'
-      },
-      {
-          value: 'Service',
-          title: 'Service verification'
-      }]
+        }
+        // {
+        //     value: 'Service',
+        //     title: 'Service verification'
+        // }
+      ]
     }
   },
   created() {
