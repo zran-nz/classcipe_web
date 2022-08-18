@@ -1,7 +1,7 @@
 <template>
   <div class='schedule-pay-info'>
     <div class='pay-info'>
-      <div v-if="type === typeMap.pd">
+      <!-- <div v-if="type === typeMap.pd">
         <div class="filter-session" v-show="form.notifyType === NOTIFY_TYPE.FILTER_SUBJECTS.value">
           <a-select
             @change="changeFilter"
@@ -63,7 +63,7 @@
       </div>
       <div v-if="type === typeMap.task" style="text-align:center;margin-top: 50px;">
         All students at your school will receive email and notification
-      </div>
+      </div> -->
       <div class='choose-type'>
         <div class='title'>
           Live video class
@@ -339,6 +339,7 @@ export default {
         notifyStudents: this.memberList.map(item => item.id),
         startDate: this.startDate,
         endDate: this.endData,
+        zoom: Number(this.enableZoom),
         password: this.$refs.zoom.isPassword,
         waitingRoom: this.$refs.zoom.isWaitingRoom
       }

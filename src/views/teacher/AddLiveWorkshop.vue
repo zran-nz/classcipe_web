@@ -147,7 +147,7 @@
             </div>
           </template>
           <template v-else>
-            <div v-if="type === typeMap.pd">
+            <!-- <div v-if="type === typeMap.pd">
               <a-radio-group class="notify-session" v-model="form.notifyType" @change="changeNotifyType">
                 <a-radio v-for="item in NOTIFY_TYPE" :value="item.value" :key="item.value">
                   {{ item.label }}
@@ -215,8 +215,28 @@
             </div>
             <div v-if="type === typeMap.task" style="margin-top: 20px;">
               All students at your school will receive email and notification
-            </div>
+            </div> -->
           </template>
+          <div class='choose-type'>
+            <div class='title'>
+              Live video class
+            </div>
+            <div class='type-list'>
+              <div class='list-item vertical-between'>
+                <div class='zoom-icon'>
+                  <img src='~@/assets/icons/zoom/img.png' />
+                </div>
+                <div class='zoom-switch'>
+                  <a-switch size='small' v-model='enableZoom' @change='handleZoomStatusChange'></a-switch>
+                </div>
+              </div>
+            </div>
+            <zoom-meeting
+              v-if='enableZoom'
+              ref='zoom'
+              :password='false'
+              :waiting-room='false' />
+          </div>
         </div>
         <div class='tag-body'>
           <div class='select-date'>
@@ -234,6 +254,8 @@
                 :editable="false"
                 :addable="false"
                 :forSelect="true"
+                :searchFilters="[1,2,3,4]"
+                :searchType="CALENDAR_QUERY_TYPE.WORKSHOP.value"
                 @date-select="handleSelectSchedule"
               />
             </div>
@@ -246,7 +268,7 @@
     </div>
     <fixed-form-footer>
       <template v-slot:right>
-        <a-button type='primary' :loading="confirmLoading" @click='handleNextStep' class='cc-round-button'>Next</a-button>
+        <a-button type='primary' :disabled="!startDate || !endDate" :loading="confirmLoading" @click='handleNextStep' class='cc-round-button'>Finish</a-button>
       </template>
     </fixed-form-footer>
     <select-session-unit
@@ -270,6 +292,7 @@ import CustomTextButton from '@/components/Common/CustomTextButton'
 import DeleteIcon from '@/components/Common/DeleteIcon'
 import SessionCalendar from '@/components/Calendar/SessionCalendar'
 import CustomImageUploader from '@/components/Common/CustomImageUploader'
+import ZoomMeeting from '@/components/Schedule/ZoomMeeting'
 
 import { formatLocalUTC } from '@/utils/util'
 import { typeMap } from '@/const/teacher'
@@ -279,7 +302,7 @@ import { AddSessionV2 } from '@/api/v2/classes'
 import { getCurriculumBySchoolId } from '@/api/academicSettingCurriculum'
 import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
 import { queryTeachers } from '@/api/common'
-import { PAID_TYPE, NOTIFY_TYPE, USER_MODE, PdField } from '@/const/common'
+import { PAID_TYPE, NOTIFY_TYPE, USER_MODE, PdField, CALENDAR_QUERY_TYPE } from '@/const/common'
 
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
@@ -302,7 +325,8 @@ export default {
     CustomTextButton,
     DeleteIcon,
     SessionCalendar,
-    CustomImageUploader
+    CustomImageUploader,
+    ZoomMeeting
   },
   props: {
     id: {
@@ -336,6 +360,7 @@ export default {
       USER_MODE: USER_MODE,
       typeMap: typeMap,
       PdField: PdField,
+      CALENDAR_QUERY_TYPE: CALENDAR_QUERY_TYPE,
       filterSubjectOptions: [],
       filterAgeOptions: [],
       curriculumOptions: {},
@@ -393,7 +418,9 @@ export default {
           discount: 0,
           editing: true
         }
-      ]
+      ],
+
+      enableZoom: false
     }
   },
   created() {
@@ -403,9 +430,9 @@ export default {
     this.currentStep = this.steps[this.currentActiveStepIndex]
     this.handleDisplayRightModule()
     this.handleAssociate()
-    if (!this.zoomAccessToken) {
-      this.goToZoomAuth()
-    }
+    // if (!this.zoomAccessToken) {
+    //   this.goToZoomAuth()
+    // }
     this.initData()
     this.initFilterOption()
   },
@@ -491,6 +518,19 @@ export default {
             this.memberList = res.result
           }
         })
+      }
+    },
+
+    async handleZoomStatusChange () {
+      this.$emit('select-zoom-status', this.enableZoom)
+      if (this.enableZoom) {
+        const status = await this.checkZoomAuth()
+        if (!status) {
+          this.enableZoom = false
+          this.$logger.info('reset item enableZoom', this.enableZoom)
+        } else {
+          this.$logger.info('zoom auth success')
+        }
       }
     },
 
@@ -613,7 +653,9 @@ export default {
         contentId: this.id,
         openSession: true,
         sessionType: this.sessionType,
-        zoom: this.zoom,
+        zoom: Number(this.enableZoom),
+        password: this.$refs.zoom.isPassword,
+        waitingRoom: this.$refs.zoom.isWaitingRoom,
         register: {
           ...this.form,
           paidType: Number(this.form.paidType),
@@ -885,9 +927,9 @@ export default {
 }
 .pay-info {
   padding: 0 20px;
-  min-height: 400px;
+  // min-height: 400px;
   margin-top: 20px;
-  overflow-y: auto;
+  // overflow-y: auto;
   .pay-title {
     margin: 10px 0;
     cursor: pointer;
@@ -1006,5 +1048,29 @@ export default {
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+}
+
+.choose-type {
+  padding: 0 20px;
+  .title {
+    font-weight: 500;
+    color: #333;
+    line-height: 30px;
+    padding-left: 5px;
+    font-size: 16px;
+  }
+}
+
+.type-list {
+  padding: 10px 10px 10px 0;
+  .zoom-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 5px;
+    img {
+      height: 30px;
+    }
+  }
 }
 </style>

@@ -246,6 +246,12 @@ export default {
       })
     },
     doConfirmGoCuriculum() {
+      if (this.userMode === USER_MODE.SCHOOL) {
+        const isSchoolAdmin = this.currentSchool.roleNames.includes('Admin')
+        if (!isSchoolAdmin) {
+          return
+        }
+      }
       const sessionKey = `CURICULUM_SET_${this.userMode}_${this.currentSchool.id}_${this.info.id}`
       const isSet = sessionStorage.getItem(sessionKey)
       if (!isSet) {

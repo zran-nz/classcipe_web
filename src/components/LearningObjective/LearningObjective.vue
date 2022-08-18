@@ -531,7 +531,6 @@ export default {
         console.log('watch filterConfig changed', oldValue.curriculumId, newValue.curriculumId)
         if (newValue.curriculumId !== oldValue.curriculumId) {
           this.$logger.info('reset filterConfig data', this.data)
-
         } else {
           this.asyncUpdateFilterListFn()
         }

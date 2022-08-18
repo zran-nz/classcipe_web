@@ -308,6 +308,9 @@ export default {
           this.scheduleReq.register.notifyType = openSessionData.notifyType
           this.scheduleReq.register.notifyStudents = openSessionData.notifyStudents
         }
+        this.scheduleReq.password = openSessionData.password
+        this.scheduleReq.waitingRoom = openSessionData.waitingRoom
+        this.scheduleReq.zoom = openSessionData.zoom
       }
 
       if (!this.scheduleReq.startDate || !this.scheduleReq.endDate) {
