@@ -5,8 +5,7 @@
     :footer='null'
     :maskClosable='false'
     :dialog-style="{ top: '50px'}"
-    destroyOnClose
-    width='1400px'>
+    destroyOnClose>
     <modal-header title='Please select a Unit this session belongs to' :allow-close='false'/>
     <div class='content'>
       <div class='data-list'>
@@ -14,21 +13,10 @@
           <content-item
             :show-button='false'
             :click-preview='false'
+            :show-edit='false'
             :border-style="selected === content ? 'solid' : 'dashed'"
             :content='content' />
         </div>
-      </div>
-      <div class='preview-item'>
-        <content-preview-detail
-          :show-copy-button='false'
-          :show-price-info='false'
-          :show-buy-button='false'
-          :show-edit-button='false'
-          :display-fixed-header='false'
-          :content-id='previewCurrentId'
-          :content-type='previewType'
-          v-if='previewVisible'
-          @close='handlePreviewClose' />
       </div>
     </div>
     <div class='modal-action-right'>
