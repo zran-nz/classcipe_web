@@ -5,7 +5,8 @@
     :footer='null'
     :maskClosable='false'
     :dialog-style="{ top: '50px'}"
-    destroyOnClose>
+    destroyOnClose
+    width='750px'>
     <modal-header title='Please select a Unit this session belongs to' :allow-close='false'/>
     <div class='content'>
       <div class='data-list'>
@@ -116,5 +117,13 @@ export default {
   max-height: 500px;
   width: 650px;
   overflow-y: auto;
+}
+
+.modal-action-right {
+  margin-top: 10px;
+}
+
+.data-content-item {
+  box-shadow: 0 0 3px 3px #eee;
 }
 </style>
