@@ -309,24 +309,6 @@
                             </a-select-option>
                           </a-select>
                         </custom-form-item>
-
-                        <custom-form-item :show-label='false' :required-field='requiredFields.indexOf(planField.scenarios) !== -1'>
-                          <input-search
-                            class='cc-form-input'
-                            ref='descriptionInputSearch'
-                            :currend-index='currentIndex'
-                            :default-value='scenario.description'
-                            :key-index='sdgIndex'
-                            :search-list='descriptionSearchList'
-                            :placeholder='unitLabelHint(planField.Scenarios, $store.getters.formConfigData)'
-                            label='description'
-                            @reset='descriptionSearchList = []'
-                            @search='handleDescriptionSearch'
-                            @select-item='handleSelectScenario'
-                            @change="handleCollaborateEvent(unitPlanId,planField.Sdg,form.sdg)"
-                            :can-edit="canEdit"
-                          />
-                        </custom-form-item>
                       </div>
                     </div>
                   </custom-form-item>
