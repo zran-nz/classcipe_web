@@ -19,7 +19,7 @@
             <content-item
               @reload="loadMyContent"
               @reFetch='loadMyContent'
-              :show-type-name='false'
+              :show-type-name='true'
               v-for='item in myContentList'
               :key='item.id'
               :content='item.content'

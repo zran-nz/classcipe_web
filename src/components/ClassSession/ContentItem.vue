@@ -10,18 +10,18 @@
       <div class='detail-content'>
         <div class='base-info'>
           <div class='name'>
-            <div class='content-type-name' v-if='contentTypeName && showTypeName'>
-              {{ contentTypeName }}
-            </div>
             <div class='content-name'>
-              <template v-if='!editingSessionName'>{{ session.session.sessionName || 'Untitled' }}</template>
-              <template v-if='editingSessionName'>
-                <a-input class='cc-form-input' v-model='newSessionName' />
-              </template>
+              {{ content.name || 'Untitled' }}
             </div>
-            <div class='edit-icon' @click='toggleEditSessionName'>
-              <edit-blue-icon v-if='!editingSessionName' />
-              <a-icon type="check" v-if='editingSessionName' />
+            <div class='schedule-time'>
+              <template v-if='session.session.sessionStartTime || session.session.deadline'>
+                {{ session.session.sessionStartTime | dayjs }}
+                <template v-if='session.session.sessionStartTime && session.session.deadline'> - </template>
+                {{ session.session.deadline | dayjs }}
+              </template>
+              <template v-else>
+                session start time not set
+              </template>
             </div>
           </div>
           <div class='sub-row'>
@@ -46,18 +46,67 @@
               </div>
             </div>
           </div>
-          <div class='subject subject-info' v-if="content" >
+          <div class='extra-info'>
             <a-space>
-              <div class='subject-item' v-for='(subject, idx) in content.subjectList' :key='idx'>{{ subject }}</div>
+              <div class='info-item curriculum-info' v-show='curriculumName && content.type !== typeMap.pd'>
+                {{ curriculumName }}
+              </div>
+              <div class='info-item subject-info'>
+                <a-space>
+                  <div class='subject-item' v-for='(subject, idx) in content.subjectList.slice(0, 2)' :key="'sub' + idx">{{ subject }}</div>
+                </a-space>
+                <div class='more-item' v-if='content.subjectList.slice(2).length'>
+                  <a-tooltip placement='top' :title='content.subjectList.slice(2).join("、 ")' >more({{ content.subjectList.slice(2).length }})</a-tooltip>
+                </div>
+              </div>
+              <div class='info-item year-info'>
+                <a-space>
+                  <div class='subject-item' v-for='(year, idx) in content.yearList.slice(0, 4)' :key="'year' + idx">{{ year }}</div>
+                </a-space>
+                <div class='more-item' v-if='content.yearList.slice(4).length'>
+                  <a-tooltip placement='top' :title='content.yearList.slice(4).join("、 ")' >more({{ content.yearList.slice(4).length }})</a-tooltip>
+                </div>
+              </div>
+              <div class='info-item task-type-info' v-if='content.taskType'>
+                <div class='self-type-wrapper'>
+                  <div class='self-field-label'>
+                    <div
+                      class='task-type-item green-active-task-type'
+                      v-if="content.taskType === 'FA'">
+                      <a-tooltip placement='top' title='Formative Assessment'>FA</a-tooltip>
+                    </div>
+                    <div
+                      class='task-type-item red-active-task-type'
+                      v-if="content.taskType === 'SA'">
+                      <a-tooltip placement='top' title='Summative Assessment'>SA</a-tooltip>
+                    </div>
+                    <div
+                      class='task-type-item blue-active-task-type task-type-activity'
+                      v-if="content.taskType === 'Activity'">
+                      <a-tooltip title='Teaching/Learning Activity' placement='top'>Activity</a-tooltip>
+                    </div>
+                    <div
+                      class='task-type-item blue-active-task-type task-type-examine'
+                      v-if="content.taskType === 'IA'">
+                      <a-tooltip title='Internal Assessment' placement='top'>IA</a-tooltip>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </a-space>
           </div>
-          <div class='year year-info' v-if="content">
-            <a-space>
-              <div class='subject-item' v-for='(year, idx) in content.yearList' :key='idx'>{{ year }}</div>
-            </a-space>
+          <div class='tag-info' v-if='knowledgeTagsList.length'>
+            <div class='tag-info-item' v-for='(knowledgeTag, cIdx) in knowledgeTagsList' :key="'tag' + cIdx">
+              <a-tag color='#EABA7F' class='tag-item knowledge-tag' :title='knowledgeTag'>{{ knowledgeTag }}</a-tag>
+            </div>
           </div>
-          <div class='tag-info' v-if='content'>
-            <div class='tag-info-item' v-for='(customTag, idx) in content.customTags' :key='idx'>
+          <div class='tag-info'>
+            <template v-if='commandTermsList.length'>
+              <div class='tag-info-item' v-for='(command, cIdx) in commandTermsList' :key="'term' + cIdx">
+                <a-tag color='#06ACD7' class='tag-item command-tag' :title='command'>{{ command }}</a-tag>
+              </div>
+            </template>
+            <div class='tag-info-item' v-for='(customTag, idx) in content.customTags' :key="'ct' + idx">
               <a-tag color='#FFEDAF' class='tag-item' :title='customTag.category'> {{ customTag.name }} </a-tag>
             </div>
           </div>
@@ -84,11 +133,6 @@
             <custom-button label='Sub-task' v-if='content && content.type === typeMap.task && content.subTasks.length > 0'>
               <template v-slot:icon>
                 <sub-task-icon />
-              </template>
-            </custom-button>
-            <custom-button v-if="session.allowEdit" label='Edit' @click='editItem'>
-              <template v-slot:icon>
-                <edit-icon />
               </template>
             </custom-button>
 
@@ -195,6 +239,9 @@ export default {
     },
     contentTypeName () {
       return this.content ? getLabelNameType(this.content.type) : null
+    },
+    curriculumName () {
+      return this.$store.getters.curriculumId2NameMap.hasOwnProperty(this.content.curriculumId) ? this.$store.getters.curriculumId2NameMap[this.content.curriculumId] : null
     },
     zoomMeetStartUrl () {
       if (this.session && this.session.session.zoomMeeting) {
@@ -355,11 +402,24 @@ export default {
           display: flex;
           flex-direction: row;
           align-items: center;
-          justify-content: flex-start;
+          justify-content: space-between;
 
-          .content-type-name {
+
+          .content-name {
+            width: calc(100% - 300px);
             margin-right: 5px;
-            color: #0C90E3;
+            color: #17181A;
+            text-overflow: ellipsis;
+            word-break: break-word;
+            user-select: none;
+            overflow: hidden;
+          }
+
+          .schedule-time {
+            font-size: 14px;
+            color: #999;
+            font-family: Arial;
+            font-weight: normal;
           }
 
           .edit-icon {
@@ -584,6 +644,192 @@ export default {
     /deep/ .anticon-close {
       opacity: 1;
     }
+  }
+}
+.self-type-wrapper {
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+
+  .self-field-label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+
+    .task-type-item {
+      margin-right: 10px;
+      width: 25px;
+      height: 25px;
+      border-radius: 25px;
+      border: 2px solid #ddd;
+      font-weight: bold;
+      display: flex;
+      color: #bbb;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .task-type-activity {
+      width: 70px;
+      border-radius: 50px;
+    }
+
+    .green-active-task-type {
+      background: rgba(21, 195, 154, 0.1);
+      border: 2px solid #15C39A;
+      border-radius: 50%;
+      font-weight: bold;
+      color: #15C39A;
+    }
+
+    .red-active-task-type {
+      background: rgba(255, 51, 85, 0.1);
+      border: 2px solid #FF3355;
+      border-radius: 50%;
+      opacity: 1;
+      font-weight: bold;
+      color: #FF3355;
+      opacity: 1;
+    }
+
+    .blue-active-task-type {
+      background: rgb(230, 247, 255);
+      border: 2px solid rgb(145, 213, 255);
+      border-radius: 50px;
+      opacity: 1;
+      font-weight: bold;
+      color: rgb(24, 144, 255);
+    }
+  }
+
+  .self-type-filter {
+    width: 500px;
+  }
+}
+
+.extra-info {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 5px 0;
+  justify-content: flex-start;
+
+  .info-item {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    align-items: center;
+
+    .more-item {
+      padding-left: 8px;
+      color: #aaa;
+      cursor: pointer;
+    }
+  }
+
+  .curriculum-info {
+    font-size: 0.6rem;
+    background: #E6E4FF;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-family: Arial;
+    font-weight: bold;
+    color: #464ABB;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-all;
+    white-space: nowrap;
+  }
+
+  .subject-info {
+    font-size: 0.6rem;
+    font-family: Arial;
+    font-weight: 400;
+    color: #3D94FF;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-all;
+    white-space: nowrap;
+  }
+
+  .year-info {
+    font-size: 0.6rem;
+    font-family: Arial;
+    font-weight: 400;
+    color: #FFA63D;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-all;
+    white-space: nowrap;
+  }
+}
+
+.owner {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+
+  .user-name {
+    padding-left: 5px;
+  }
+}
+
+.tag-item {
+  opacity: 0.8;
+  cursor: pointer;
+  color: #734110;
+  font-size: 12px;
+  border-radius: 30px;
+  line-height: 25px;
+  word-break: normal;
+  width: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow: hidden;
+  transition: all 0.3s ease;
+
+  /deep/ .anticon-close {
+    opacity: 0;
+    color: #f26c59;
+  }
+
+  &:hover {
+    /deep/ .anticon-close {
+      opacity: 1;
+    }
+  }
+}
+
+.self-learning {
+  align-items: flex-end;
+  font-size: 13px;
+  button{
+    margin-left: 4px;
+  }
+  min-width: 110px;
+}
+
+.tag-info {
+  display: flex;
+  flex-direction: row;
+  max-height: 30px;
+  overflow: hidden;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  margin-top: 7px;
+  margin-bottom: 7px;
+  .tag-info-item {
+    margin-right: 5px;
+    margin-bottom: 5px;
   }
 }
 
