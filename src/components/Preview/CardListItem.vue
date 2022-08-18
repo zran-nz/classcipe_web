@@ -1,6 +1,6 @@
 <template>
   <div class="cc-card">
-    <div class="cover-img relative-position" :style="{backgroundImage: 'url(' + content.image + ')', 'width' : width + 'rem'}">
+    <div class="cover-img relative-position" :style="{backgroundImage: 'url(' + (content.image || 'http://dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png') + ')', 'width' : width + 'rem'}">
       <div class='inner-mask' v-if="innerDesc"></div>
       <div class="card-bottom-section q-pa-sm col q-gutter-xs inner-desc absolute-bottom" v-if="innerDesc">
         <div class='type-tag'>
