@@ -35,18 +35,19 @@ export const AutoSwitchSchoolMixin = {
     ...mapMutations([TOOGLE_USER_MODE]),
     ...mapActions(['GetClassList']),
     autoSwitchSchool(schoolId) {
-      const isExist = this.info.schoolList.find(item => item.id === schoolId)
-      if (isExist) {
-        SwitchUserModeSchool({
-          isPersonal: false,
-          schoolId: isExist.id
-        }).then(res => {
-          // 获取对应学校班级
-          this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
-          this.GetClassList(isExist.id)
-          this.$store.dispatch('GetInfo')
-        })
-      }
+      this.$store.dispatch('GetInfo').then(() => {
+        const isExist = this.info.schoolList.find(item => item.id === schoolId)
+        if (isExist) {
+          SwitchUserModeSchool({
+            isPersonal: false,
+            schoolId: isExist.id
+          }).then(res => {
+            // 获取对应学校班级
+            this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
+            this.GetClassList(isExist.id)
+          })
+        }
+      })
     }
   }
 }

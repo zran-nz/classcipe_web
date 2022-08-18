@@ -7,7 +7,7 @@
             Class list
           </div>
           <div class='class-type'>
-            <a-radio-group v-model="queryType" button-style="solid">
+            <a-radio-group v-model="queryType" button-style="solid" :disabled="!!classId">
               <a-radio-button :value="0">
                 Standard
               </a-radio-button>
@@ -22,7 +22,7 @@
             <div
               class='class-item'
               :class="{'selected-item': selectedClassIdList.indexOf(classItem.id) !== -1, 'current-active-item': currentSelectedClass && classItem.id === currentSelectedClass.id }"
-              v-for='classItem in classList'
+              v-for='classItem in filterClassList'
               :key='classItem.id'
               @click='handleSelectClass(classItem)'>
               <div class='item-checked-icon'>
@@ -35,7 +35,7 @@
               </div>
               <div class='class-name'>{{ classItem.name }}</div>
             </div>
-            <div class='no-class-tips' v-if='!classList.length && !loading'>
+            <div class='no-class-tips' v-if='!filterClassList.length && !loading'>
               <common-no-data text='No class' />
             </div>
           </a-skeleton>
@@ -106,6 +106,12 @@ import CommonNoData from '@/components/Common/CommonNoData'
 export default {
   name: 'SelectParticipant',
   components: { CommonNoData, CustomTextButton, InputWithCreate, NoMoreResources },
+  props: {
+    classId: {
+      type: String,
+      default: ''
+    }
+  },
   data() {
     return {
       currentSelectedClass: null,
@@ -130,12 +136,12 @@ export default {
     },
     selectedStudentIdList({ checkedStudent }) {
       return Array.from(new Set(checkedStudent.map(item => item.id) || []))
+    },
+    filterClassList() {
+      return this.classList.filter(cls => cls.classType === this.queryType)
     }
   },
   watch: {
-    queryType(newValue) {
-      this.listClass(newValue)
-    },
     checkedStudent: {
       deep: true,
       immediate: true,
@@ -150,28 +156,35 @@ export default {
     }
   },
   created() {
-    this.listClass(this.queryType)
+    this.listClass()
   },
   methods: {
-    listClass (queryType) {
+    listClass () {
       this.loading = true
       listClass({
-        queryType: queryType,
         schoolId: this.currentSchool.id,
         pageNo: 1,
         pageSize: 10000
       }).then(res => {
         this.$logger.info('listClass res records', res)
-        this.classList = res?.result?.records || []
+        this.classList = (res?.result?.records || []).filter(cls => cls.classType !== 2)
         this.studentList = []
         if (this.classList.length === 1) {
           this.handleSelectClass(this.classList[0])
+          this.queryType = this.classList[0].classType
+        } else if (this.classId) {
+          const find = this.classList.find(item => item.id === this.classId)
+          if (find) {
+            this.handleSelectClass(find)
+            this.queryType = find.classType
+          }
         }
       }).finally(() => {
         this.loading = false
       })
     },
     handleSelectClass (item) {
+      if (this.classId && item.id !== this.classId) return
       this.$logger.info('handleSelectClass', item, 'this.checkedClass', this.checkedClass)
       this.checkedClass = [item]
       this.currentSelectedClass = item

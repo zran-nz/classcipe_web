@@ -99,6 +99,7 @@
       <session-import-for-calendar
         :type="importType"
         :init="importModel"
+        :classId="currentClass"
         :need-close="true"
         @cancel="handleCancelImport"
         @ok="handleChoose"
@@ -215,7 +216,7 @@ export default {
       calendarDatas: [],
       allEvents: [],
       currentEvents: [],
-      currentClass: 1,
+      currentClass: '',
       event: {
         title: 'My Event',
         start: '',
@@ -349,6 +350,19 @@ export default {
       const res = await QueryForCalendar(params)
       return res
     },
+    async loadBlock() {
+      await this.loadTerm()
+      if (this.searchType === CALENDAR_QUERY_TYPE.CLASS.value && this.searchFilters.length > 0) {
+        const blocks = await this.loadClass()
+        return blocks
+      } else {
+        let termEvents = []
+        if (this.termsOptions.length > 0) {
+          termEvents = this.transferTermBlock()
+        }
+        return termEvents
+      }
+    },
     async loadTerm() {
       if (!this.termsInited) {
         const termRes = await termList({
@@ -379,25 +393,83 @@ export default {
     },
     async loadClass() {
       // class 单选
-      if (!this.clsInited) {
-        if (this.searchType === CALENDAR_QUERY_TYPE.CLASS.value && this.searchFilters.length > 0) {
-          const clsRes = await classDetail({
-            classId: this.searchFilters[0]
-          })
-          if (clsRes.success) {
-            this.clsInited = true
-            this.clsObj = clsRes.result
-            if (this.clsObj.blockSetting) {
-
+      if (this.searchType === CALENDAR_QUERY_TYPE.CLASS.value && this.searchFilters.length > 0) {
+        this.currentClass = this.searchFilters[0]
+        const clsRes = await classDetail({
+          classId: this.searchFilters[0]
+        })
+        if (clsRes.success) {
+          this.clsInited = true
+          this.clsObj = clsRes.result
+          if (this.clsObj.term && this.clsObj.blockSetting) {
+            const termObj = this.termsOptions.find(term => term.id === this.clsObj.term)
+            if (termObj) {
+              return this.transferSubjectClsBlock(this.clsObj.blockSetting, termObj.startTime, termObj.endTime)
             }
           }
         }
       }
+      return []
     },
-    transferTermBlock(date) {
+    transferSubjectClsBlock(block, start, end) {
+      // 回显block, 周循环
       const termEvents = []
-      let start = moment(date.start)
-      const end = moment(date.end)
+      const termStart = moment.utc(start).local()
+      const termEnd = moment.utc(end).local()
+      const calendarStart = moment(this.startDate)
+      const calendarEnd = moment(this.endDate)
+      // 过时不候
+      if (calendarStart.isAfter(termEnd) || calendarEnd.isBefore(termStart)) {
+        return []
+      }
+      let startTime = termStart
+      const endTime = termEnd
+      // block = '2022-08-02 20:00:00~2022-08-02 20:03:00,2022-08-04 01:00:00~2022-08-04 01:03:00'
+      let blockWeeks = []
+      block.split(',').forEach(time => {
+        const timeArr = time.split('~')
+        if (timeArr.length === 2) {
+          const start = moment(timeArr[0])
+          const end = moment(timeArr[1])
+          const startTime = start.format('HH:mm:ss')
+          const startDay = start.format('dddd')
+          const endDay = end.format('dddd')
+          const endTime = end.format('HH:mm:ss')
+
+          blockWeeks = blockWeeks.concat([{
+            week: startDay,
+            start: startTime,
+            end: startDay !== endDay ? '23:59:59' : endTime
+          }, {
+            week: endDay,
+            start: startDay !== endDay ? '00:00:00' : startTime,
+            end: endTime
+          }])
+        }
+      })
+      while (startTime.isBefore(endTime)) {
+        const week = moment(startTime).format('dddd')
+        const isFind = blockWeeks.find(item => item.week === week)
+        if (isFind) {
+          const convertStart = startTime.format('YYYY-MM-DD') + ' ' + isFind.start
+          const convertEnd = startTime.format('YYYY-MM-DD') + ' ' + isFind.end
+          termEvents.push({
+            start: (convertStart),
+            end: (convertEnd),
+            display: 'background',
+            extendedProps: {
+              termId: new Date().getTime()
+            }
+          })
+        }
+        startTime = startTime.add(1, 'd')
+      }
+      return termEvents
+    },
+    transferTermBlock() {
+      const termEvents = []
+      let start = moment(this.startDate)
+      const end = moment(this.endDate)
       // TODO 不同year的term可能重叠，用color来区分
       // let index = 0
       while (start.isBefore(end)) {
@@ -509,12 +581,8 @@ export default {
         noNeedQuery = this.typeFilters.length === 0
       }
       // 把term block加上
-      this.loadTerm().then(res => {
+      this.loadBlock().then(termEvents => {
         console.log(this.termsOptions)
-        let termEvents = []
-        if (this.termsOptions.length > 0) {
-          termEvents = this.transferTermBlock(date)
-        }
 
         // 过去时间disabled
         if (this.needDisableBefore && this.viewType !== 'timeGridFourDay') {
@@ -524,15 +592,17 @@ export default {
             startDis = start + ' 00:00:00'
             endDis = moment().format('YYYY-MM-DD HH:mm:ss')
           }
-          termEvents.push({
-            start: startDis,
-            end: endDis,
-            backgroundColor: '#918585',
-            display: 'background',
-            selectable: false,
-            extendedProps: {
-            }
-          })
+          if (moment(startDis).isSameOrBefore(endDis)) {
+            termEvents.push({
+              start: startDis,
+              end: endDis,
+              backgroundColor: '#918585',
+              display: 'background',
+              selectable: false,
+              extendedProps: {
+              }
+            })
+          }
         }
 
         if (noNeedQuery) {

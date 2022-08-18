@@ -34,6 +34,7 @@
           <select-participant
             ref='participant'
             :class-list='classList'
+            :classId="currentClass"
             v-show="'participants' === ScheduleStepsFilter[currentActiveStepIndex].type"
             @update-class-list='getClassList'
             @select-class-student='handleSelectClassStudent'
@@ -126,11 +127,19 @@ export default {
     needClose: {
       type: Boolean,
       default: false
+    },
+    classId: {
+      type: String,
+      default: ''
     }
   },
   watch: {
     type(val) {
       this.importType = val
+    },
+    classId(val) {
+      console.log(val)
+      this.currentClass = val
     },
     init: {
       handler(val) {
@@ -144,6 +153,7 @@ export default {
     return {
       typeMap: typeMap,
       USER_MODE: USER_MODE,
+      currentClass: this.classId,
       ScheduleSteps: [
         {
           id: '1',

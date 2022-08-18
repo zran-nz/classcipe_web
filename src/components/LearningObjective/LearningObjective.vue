@@ -244,6 +244,7 @@
             :loadApi="termsSearch"
             :cacheApi="termsPubList"
             :recommends="termRecommend"
+            @getResult="res => getCurrentQuickWords(res, 'commandTerms')"
             @close="hideQuickWord"
             cacheKey="TERMS_PUBLIST"
             @changeWord="res => this.commandTermForm.name = res"
@@ -252,9 +253,9 @@
               <div class="quick-word-sub">
                 <template v-if="commandTermForm.name">
                   <a-divider style="margin: 10px 0;"/>
-                  <a-space v-show="!showQuickWordCreate" >
+                  <a-space v-show="showQuickWordCreate" >
                     <label>Create:</label>
-                    <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="createCommandTerm"> {{ commandTermForm.name || 'Command term' }} </a-button>
+                    <a-button size="small" type="primary" v-show="showQuickWordCreate" @click="createCommandTerm"> {{ commandTermForm.name || 'Command term' }} </a-button>
                   </a-space>
                 </template>
                 <!-- <a-divider style="margin: 5px 0;font-size: 14px;">Create</a-divider>
@@ -278,6 +279,7 @@
             :loadApi="dimensionsSearch"
             :cacheApi="dimensionsPubList"
             :recommends="knowledgeRecommend"
+            @getResult="res => getCurrentQuickWords(res, 'knowledgeTags')"
             @close="hideQuickWord"
             cacheKey="DIMENSIONS_PUBLIST"
           >
@@ -285,9 +287,9 @@
               <div class="quick-word-sub">
                 <template v-if="commandTermForm.name">
                   <a-divider style="margin: 10px 0;"/>
-                  <a-space v-show="!showQuickWordCreate" >
+                  <a-space v-show="showQuickWordCreate" >
                     <label>Create:</label>
-                    <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="createDimension"> {{ commandTermForm.name || 'Knowledge Tags' }} </a-button>
+                    <a-button size="small" type="primary" v-show="showQuickWordCreate" @click="createDimension"> {{ commandTermForm.name || 'Knowledge Tags' }} </a-button>
                   </a-space>
                 </template>
               </div>
@@ -801,6 +803,21 @@ export default {
         item[key].splice(tagIndex, 1)
         console.log(item)
         this.$forceUpdate()
+      }
+    },
+
+    getCurrentQuickWords(result) {
+      console.log(result)
+      console.log(this.commandTermForm.name)
+      if (result.length > 0 && this.commandTermForm.name) {
+        const find = result.map(item => item.toLowerCase()).find(item => item === this.commandTermForm.name.toLowerCase())
+        if (find) {
+          this.showQuickWordCreate = false
+        } else {
+          this.showQuickWordCreate = true
+        }
+      } else {
+        this.showQuickWordCreate = true
       }
     },
 

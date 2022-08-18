@@ -207,6 +207,7 @@ export default {
         pageNo: this.ipagination.current,
         pageSize: this.ipagination.pageSize,
         schoolId: this.currentSchool.id,
+        schoolUserStatus: 1,
         teacherRoles: 'Admin',
         roles: 'teacher'
       }).then(res => {

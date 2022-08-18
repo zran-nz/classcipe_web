@@ -374,14 +374,15 @@
           :quickWord="quickWord"
           :dataCondition="{type: 1}"
           :loadApi="KnowledgeTermTagQueryByKeywords"
+          @getResult="getCurrentQuickWords"
           @changeWord="res => this.commandTermForm.name = res"
         >
           <template v-slot:create>
             <div class="quick-word-sub">
               <a-divider style="margin: 10px 0;"/>
-              <a-space v-show="!showQuickWordCreate" >
+              <a-space v-show="showQuickWordCreate" >
                 <label>Create:</label>
-                <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="showQuickWordCreate = true"> {{ commandTermForm.name || 'Command term' }} </a-button>
+                <a-button size="small" type="primary" v-show="showQuickWordCreate" @click="showQuickWordCreate = true"> {{ commandTermForm.name || 'Command term' }} </a-button>
               </a-space>
               <!-- <a-divider style="margin: 5px 0;font-size: 14px;">Create</a-divider>
               <a-button size="small" type="primary" v-show="!showQuickWordCreate" @click="showQuickWordCreate = true"> Do Create </a-button> -->
@@ -838,6 +839,19 @@
         //     this.knowledgeTags = res.result.filter(item => item.type === 2)
         //   }
         // })
+      },
+      getCurrentQuickWords(result) {
+        console.log(result)
+        if (result.length > 0 && this.commandTermForm.name) {
+          const find = result.map(item => item.toLowerCase()).find(item => item === this.commandTermForm.name.toLowerCase())
+          if (find) {
+            this.showQuickWordCreate = false
+          } else {
+            this.showQuickWordCreate = true
+          }
+        } else {
+          this.showQuickWordCreate = true
+        }
       },
       handleCloseObjectiveTag(item, key, tagIndex) {
         item[key].splice(tagIndex, 1)

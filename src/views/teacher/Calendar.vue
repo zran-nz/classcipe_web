@@ -78,7 +78,7 @@
                 <div class="calendar-type-item" v-for="type in showClassOptions" :key="'showClass_' + type.value">
                   <div :class="{'type-item-title': true, 'active': queryType === CALENDAR_QUERY_TYPE.CLASS.value && queryClass === type.value}">
                     <a-radio :checked="queryType === CALENDAR_QUERY_TYPE.CLASS.value && queryClass === type.value" @change="handleChangeClass(type)">
-                      <a-tooltip :title="type.name">
+                      <a-tooltip :title="type.classType === 1 ? formatViewName(type.subject) : type.name">
                         Class: {{ type.name }}
                       </a-tooltip>
                     </a-radio>
@@ -108,6 +108,9 @@ import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 
 import SessionCalendar from '@/components/Calendar/SessionCalendar'
+
+import { listClass } from '@/api/v2/schoolClass'
+import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
 
 import { BG_COLORS, CALENDAR_QUERY_TYPE } from '@/const/common'
 import { typeMap } from '@/const/teacher'
@@ -179,13 +182,20 @@ export default {
       typeFilters: ['FA', 'SA', 'Activity', 'IA'], // 根据类型的筛选条件
       currentUnitList: [],
       attendanceVisible: true,
-      loading: false
+      loading: false,
+      classList: [],
+      subjectOptions: []
+    }
+  },
+  watch: {
+    'currentSchool.id' (newVal) {
+      this.listClass()
     }
   },
   computed: {
     ...mapState({
       currentSchool: state => state.user.currentSchool,
-      classList: state => state.user.classList,
+      // classList: state => state.user.classList,
       info: state => state.user.info
     }),
     [CALENDAR_QUERY_TYPE.CLASS.label]() {
@@ -212,6 +222,7 @@ export default {
     showClassOptions() {
       return this.classList.map((item, index) => (
         {
+          ...item,
           value: item.id,
           name: item.name,
           index: index
@@ -240,9 +251,48 @@ export default {
     }
   },
   created() {
-
+    this.listClass()
+    this.initDict()
   },
   methods: {
+    listClass () {
+      listClass({
+        schoolId: this.currentSchool.id,
+        pageNo: 1,
+        pageSize: 10000
+      }).then(res => {
+        this.classList = res.result?.records.filter(cls => cls.classType !== 2)
+      })
+    },
+    initDict() {
+      // 获取所有班级用于筛选
+      Promise.all([
+        getSubjectBySchoolId({
+          schoolId: this.currentSchool.id
+        })
+      ]).then(([subjectRes]) => {
+        if (subjectRes.success) {
+          let subjects = []
+          subjectRes.result.forEach(item => {
+            if (item.subjectList && item.subjectList.length > 0) {
+              subjects = subjects.concat(item.subjectList)
+            }
+          })
+          const options = []
+          subjects.forEach(item => {
+            options.push({
+              subjectId: item.subjectId,
+              subjectName: item.subjectName
+            })
+            options.push({
+              subjectId: item.parentSubjectId,
+              subjectName: item.parentSubjectName
+            })
+          })
+          this.subjectOptions = options
+        }
+      })
+    },
     initData(currentUnitList) {
       this.currentUnitList = cloneDeep(currentUnitList)
       this.currentUnit = this.currentUnitList.length > 0 ? this.currentUnitList[0].id : ''
@@ -295,6 +345,13 @@ export default {
       this.queryType = this.CALENDAR_QUERY_TYPE.CLASS.value
       this.queryClass = type.value
       this.typeFilters = [type.value]
+    },
+    formatViewName(id) {
+      const findSubject = this.subjectOptions.find(subject => subject.subjectId === id)
+      if (findSubject) return findSubject.subjectName
+      // const findGrade = this.gradeOptions.find(grade => grade.gradeId === id)
+      // if (findGrade) return findGrade.gradeName
+      return 'Untitle'
     }
   }
 }

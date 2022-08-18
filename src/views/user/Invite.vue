@@ -158,21 +158,21 @@ export default {
       // } else {
       //   this.$router.push(this.$store.getters.defaultRouter)
       // }
-       SwitchUserModeSchool({
-          isPersonal: false,
-          schoolId: this.schoolId
-        }).then(res => {
-          // 获取对应学校班级
-          this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
-          this.GetClassList(this.currentSchool.id)
-          this.$store.dispatch('GetInfo').then(() => {
+      this.$store.dispatch('GetInfo').then(() => {
+        SwitchUserModeSchool({
+            isPersonal: false,
+            schoolId: this.schoolId
+          }).then(res => {
+            // 获取对应学校班级
+            this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
+            this.GetClassList(this.currentSchool.id)
             if (this.isAdmin) {
               this.$router.push('/manage/school-info')
             } else {
               this.$router.push('/account/info')
             }
           })
-        })
+      })
     }
   }
 }

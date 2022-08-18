@@ -223,6 +223,7 @@ export default {
         pageNo: 1,
         pageSize: 10000,
         schoolId: this.currentSchool.id,
+        schoolUserStatus: 1,
         roles: 'teacher'
       }).then((res) => {
         if (res.success) {

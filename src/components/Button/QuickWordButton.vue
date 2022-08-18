@@ -7,6 +7,7 @@
       :title='null'
       :getPopupContainer="trigger => trigger.parentElement"
       width='300px'
+      @cancel="handleCancel"
       :footer='null'>
       <div>
         <div class="quick-title">
@@ -21,7 +22,7 @@
               class="quick-word-content"
               v-if="result && result.length > 0"
             >
-              <div class="quick-word-item" v-for="(item) in result" :key="'quickWord_'+item">
+              <div class="quick-word-item" v-for="(item, index) in result" :key="'quickWord_'+item + index">
                 <a @click="choose(item)">{{ item }}</a>
               </div>
             </div>
@@ -156,6 +157,7 @@ export default {
   },
   created() {
     this.debounceLoad = debounce(this.loadData, 300)
+    this.loadData()
   },
   data() {
     return {
@@ -201,6 +203,7 @@ export default {
         this.result = this.recommendsRes.concat()
       }
       this.loading = false
+      this.$emit('getResult', this.result)
       return this.result
     },
     handleInfiniteOnLoad() {
@@ -252,8 +255,14 @@ export default {
     },
     showModal() {
       this.visible = true
+      this.debounceLoad()
       // 父popover要隐藏
       this.$emit('close')
+    },
+    handleCancel() {
+      this.word = ''
+      this.selfWord = ''
+      this.$emit('changeWord', this.word)
     }
   }
 }
