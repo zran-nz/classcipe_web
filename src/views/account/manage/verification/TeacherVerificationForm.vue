@@ -49,7 +49,13 @@
         </a-select>
       </a-form-model-item>
 
-      <a-form-model-item label="Teaching certificate" prop="teachingCertificate">
+      <a-form-model-item prop="teachingCertificate">
+        <span slot="label">
+          Teaching certificate&nbsp;
+          <a-tooltip title="Certificates that can prove you are entitled to teach, such as Teaching certificate, School staff card, Cambridge/IB Training Certificate and etc.">
+            <a-icon type="question-circle-o" />
+          </a-tooltip>
+        </span>
         <customer-upload-file
           accept="image/png, image/jpeg,  application/pdf"
           :showUploadButton="false"

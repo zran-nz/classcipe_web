@@ -94,7 +94,7 @@ export default {
 
     },
     handleSave(data) {
-      this.goBack()
+      this.$router.push('/manage/class/list?tab=subject')
     }
   }
 }

@@ -1,28 +1,26 @@
 <template>
   <a-spin :spinning="loading">
-    <a-form-model
-      layout="horizontal"
-      :model="formModel"
-      v-bind="formItemLayout"
-      :rules="validatorRules"
-      @validate="doValidate"
-      ref="form">
-      <a-row :gutter=16>
-        <a-col :span="12">
+    <div class="subject-content">
+      <div class="content-left">
+        <a-form-model
+          layout="horizontal"
+          :model="formModel"
+          v-bind="formItemLayout"
+          :rules="validatorRules"
+          @validate="doValidate"
+          ref="form">
           <a-form-model-item label="Class Name" prop="name">
             <a-input v-model="formModel.name" placeholder="input class name" />
           </a-form-model-item >
-        </a-col>
-        <a-col :span="12">
           <a-form-model-item label="Subject" prop="subject">
             <!-- <a-tree-select
-              v-model="formModel.subjectTree"
-              style="width: 100%"
-              :tree-data="subjectOptions"
-              tree-default-expand-all
-              tree-checkable
-              search-placeholder="Please select subject"
-            /> -->
+            v-model="formModel.subjectTree"
+            style="width: 100%"
+            :tree-data="subjectOptions"
+            tree-default-expand-all
+            tree-checkable
+            search-placeholder="Please select subject"
+          /> -->
             <a-select
               :getPopupContainer="trigger => trigger.parentElement"
               v-model='formModel.subject'
@@ -33,35 +31,25 @@
               </a-select-option >
             </a-select>
           </a-form-model-item >
-        </a-col>
-      </a-row>
-      <a-row :gutter=16>
-        <a-col :span="12">
           <a-form-model-item :labelCol="{span: 12}" :wrapperCol="{span: 12}" label="Student-self registration">
             <a-switch @change="changeOwnJoin" v-model="formModel.ownJoin" />
           </a-form-model-item>
-        </a-col>
-        <a-col :span="12" v-if="formModel.ownJoin">
-          <a-form-model-item label="Grade">
-            <a-select
-              :getPopupContainer="trigger => trigger.parentElement"
-              v-model='formModel.gradeId'
-              placeholder='Please select grade'>
-              <a-select-option v-for='item in gradeOptions' :key='item.gradeId'>
-                {{ item.gradeName }}
-              </a-select-option >
-            </a-select>
-          </a-form-model-item >
-        </a-col>
-      </a-row>
-      <a-row :gutter=16>
-        <a-col :span="12" v-if="formModel.ownJoin">
-          <a-form-model-item label="Max Std" prop="maxStudent">
-            <a-input v-model="formModel.maxStudent" placeholder="input max student count" />
-          </a-form-model-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-model-item label="Term" prop="termArr" :extra="formModel.termTime && formModel.termTime.join(' ~ ')">
+          <template v-if="formModel.ownJoin">
+            <a-form-model-item label="Grade">
+              <a-select
+                :getPopupContainer="trigger => trigger.parentElement"
+                v-model='formModel.gradeId'
+                placeholder='Please select grade'>
+                <a-select-option v-for='item in gradeOptions' :key='item.gradeId'>
+                  {{ item.gradeName }}
+                </a-select-option >
+              </a-select>
+            </a-form-model-item >
+            <a-form-model-item label="Max Std" prop="maxStudent">
+              <a-input v-model="formModel.maxStudent" placeholder="input max student count" />
+            </a-form-model-item>
+          </template>
+          <a-form-model-item v-if="!formQuery || !formModel.term" label="Term" prop="termArr" :extra="formModel.termTime && formModel.termTime.join(' ~ ')">
             <a-space>
               <a-cascader
                 :options="termsOptions"
@@ -69,19 +57,32 @@
                 :allow-clear="false"
                 placeholder="Please select term"
                 @change="onChangeTerm" />
-              <a-button type='link' @click="goTerm">Term setting</a-button>
             </a-space>
           </a-form-model-item >
-        </a-col>
-      </a-row>
-      <a-row :gutter=16 class="calendar-con">
-        <term-calendar :termId="formModel.term" :choose="origin.blockSetting" @date-select="handleSelectBlock"/>
-      </a-row>
-      <div v-if="formModel.ownJoin && !formModel.blockSetting" class="error_field">Please Select Block</div>
-      <a-form-model-item label="" :labelCol="{span: 0}" :wrapperCol="{span: 24}" style="text-align:right;margin-top: 20px;">
-        <a-button :loading="loading" type="primary" :disabled="hasErrors || (formModel.ownJoin && !formModel.blockSetting)" @click="handleSave">Done</a-button>
-      </a-form-model-item >
-    </a-form-model>
+          <a-form-model-item v-else label="Term">
+            <div class="fix-term" >{{ formModel.termTime && formModel.termTime.join(' ~ ') }}</div>
+          </a-form-model-item>
+          <a-form-model-item label="" :wrapperCol="{offset: 6, span: 18}">
+            <a-space>
+              <a-button @click="goTerm">Set Blocks</a-button>
+              <a-button :loading="loading" type="primary" :disabled="hasErrors || (formModel.ownJoin && !formModel.blockSetting)" @click="handleSave">Done</a-button>
+            </a-space>
+          </a-form-model-item >
+          <!-- <a-form-model-item label="" :wrapperCol="{offset: 6, span: 18}">
+            <a-button :loading="loading" type="primary" :disabled="hasErrors || (formModel.ownJoin && !formModel.blockSetting)" @click="handleSave">Done</a-button>
+          </a-form-model-item > -->
+        </a-form-model>
+      </div>
+      <div class="content-right">
+        <a-row :gutter=16 class="calendar-con">
+          <term-calendar :termId="formModel.term" :choose="origin.blockSetting" @date-select="handleSelectBlock"/>
+          <div v-if="formModel.ownJoin && !formModel.blockSetting" class="error_field">Please Select Block</div>
+        </a-row>
+      </div>
+    </div>
+    <!-- <div class="subject-footer">
+      <a-button style="margin-left: 13%:" :loading="loading" type="primary" :disabled="hasErrors || (formModel.ownJoin && !formModel.blockSetting)" @click="handleSave">Done</a-button>
+    </div> -->
   </a-spin>
 </template>
 
@@ -117,10 +118,6 @@ export default {
     id: {
       type: String,
       default: ''
-    },
-    termId: {
-      type: String,
-      default: ''
     }
   },
   watch: {
@@ -129,14 +126,6 @@ export default {
         console.log(val)
         this.formModel.id = val
         this.initForm()
-      },
-      deep: true,
-      immediate: true
-    },
-    termId(val) {
-      if (val) {
-        this.formModel.term = val
-        this.initSels()
       }
     }
   },
@@ -157,7 +146,7 @@ export default {
         blockSetting: ''
       },
       formModel: {
-        id: '',
+        id: this.id,
         name: '',
         subject: '',
         subjectName: '',
@@ -179,7 +168,8 @@ export default {
       },
       loading: false,
       autoSaveLocalKey: 'FORM_CLASS_SUBJECT_',
-      needAutoSave: !this.id
+      needAutoSave: !this.id,
+      formQuery: false
     }
   },
   computed: {
@@ -254,7 +244,6 @@ export default {
               curriculumId: item.curriculumId
             }
           }), 'subjectId')
-          this.initSels()
         }
         if (termRes.success) {
           this.termsOptions = termRes.result.map(year => {
@@ -285,7 +274,7 @@ export default {
         }
       }).finally(() => {
         this.loading = false
-        this.initSels()
+        this.initForm()
       })
     },
     initForm(defaultForm) {
@@ -302,6 +291,13 @@ export default {
         })
       } else {
         const fromCache = this.getAutoLocalData()
+        const query = this.$route.query
+        if (query.termId) {
+          fromCache.term = query.termId
+          this.formQuery = true
+        } else {
+          this.formQuery = false
+        }
         this.doCreate(fromCache)
       }
     },
@@ -314,13 +310,18 @@ export default {
             const term = year.children.find(term => term.value === this.formModel.term)
             if (term) {
               termArr = [year.value, term.value]
+              this.formModel.termTime = [moment(term.startTime).format('DD/MM/YYYY'), moment(term.endTime).format('DD/MM/YYYY')]
             }
           }
         })
+        if (termArr.length === 0) {
+          this.formModel.term = ''
+        }
         this.formModel.termArr = termArr
       }
     },
     doCreate(record) {
+      console.log(record)
       this.doEdit({
         ...record
       })
@@ -332,6 +333,7 @@ export default {
       this.fillValidate(key, value)
     },
     doEdit(record) {
+      console.log(record)
       this.formModel = cloneDeep({
         ...this.initValue,
         ...record,
@@ -409,9 +411,9 @@ export default {
   margin-bottom: 0;
 }
 .calendar-con {
-  height: 220px;
+  height: 400px;
   /deep/ .schedule-content {
-    height: 220px;
+    height: 400px;
   }
   /deep/ .fc-bg-event {
     opacity: 1;
@@ -419,5 +421,19 @@ export default {
 }
 .error_field {
   color: #ef4136;
+}
+.subject-content {
+  display: flex;
+  width: 100%;
+  .content-left {
+    flex: 1;
+    padding: 20px 40px 20px 20px;
+  }
+  .content-right {
+    width: 60%;
+  }
+}
+.fix-term {
+  font-weight: bold;
 }
 </style>

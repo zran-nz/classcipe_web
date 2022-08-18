@@ -23,7 +23,8 @@
       <a-form-model-item v-if="studentId" label="Last Login" :wrapperCol="{ span: 18 }">
         <a-row :gutter=0>
           <a-col :span="16">
-            {{ origin.lastLogin ? (origin.lastLogin | dayjs) : ' - ' }}
+            <label for="" v-if="origin.lastLogin">{{ origin.lastLogin | dayjs }}</label>
+            <label for="" v-else>-</label>
           </a-col>
           <a-col :span="2" style="text-align: center;">
           </a-col>

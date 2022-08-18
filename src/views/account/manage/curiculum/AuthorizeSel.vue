@@ -91,7 +91,7 @@
           <a-form-model-item :required="true" >
             <span slot="label">
               Certificate&nbsp;
-              <a-tooltip title="Please make sure upload all necessary certificates for teaching plan including subject guides, ATL and etc.">
+              <a-tooltip title="Please upload relevant certificates to prove that you are entitled to use the resources above">
                 <a-icon type="question-circle-o" />
               </a-tooltip>
             </span>
