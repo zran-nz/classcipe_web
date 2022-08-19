@@ -232,7 +232,7 @@
               </div>
             </div>
             <zoom-meeting
-              v-if='enableZoom'
+              v-show='enableZoom'
               ref='zoom'
               :password='false'
               :waiting-room='false' />

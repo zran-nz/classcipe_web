@@ -79,7 +79,7 @@
           </div>
         </div>
         <zoom-meeting
-          v-if='enableZoom'
+          v-show='enableZoom'
           ref='zoom'
           :password='password'
           :waiting-room='waitingRoom' />
