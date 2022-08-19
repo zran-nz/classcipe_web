@@ -2,11 +2,6 @@
   <div class='create-new'>
     <a-dropdown>
       <a-menu slot="overlay" class='create-new-menu'>
-        <!--        <a-menu-item v-if='$store.state.user.info.schoolList.length >= 1'>-->
-        <!--          <a @click='handleImport'>-->
-        <!--            Import-->
-        <!--          </a>-->
-        <!--        </a-menu-item>-->
         <a-menu-item>
           <router-link to='/teacher/unit-plan-redirect/create'>
             {{ $t('menu.unit-plan') }}
