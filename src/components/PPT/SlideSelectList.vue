@@ -12,7 +12,7 @@
           Library
         </a-radio-button>
         <a-radio-button :value="sourceType.Resource" v-if='userMode === USER_MODE.SCHOOL'>
-          Resource center
+          School resource
         </a-radio-button>
       </a-radio-group>
 
@@ -51,7 +51,7 @@
               :show-title='true'
               :show-arrow='true'
               :slide-item='slide'
-              :add-text="filterSourceType === sourceType.Library ? 'Buy now' : 'Add'"
+              :add-text="addText(slide)"
               :show-remove-button='selectedPresentationIdList.indexOf(slide.presentationId) !== -1'
               :show-add-button='selectedPresentationIdList.indexOf(slide.presentationId) === -1'
               :default-thumbnail-list='slide.thumbnailList'/>
@@ -175,6 +175,16 @@ export default {
     handleSearchByFilter (data) {
       this.filterParams = null
       this.handleSearchSlide()
+    },
+
+    addText(slide) {
+      if (this.filterSourceType === this.sourceType.Library || this.filterSourceType === this.sourceType.Resource) {
+        if (slide.createBy === this.$store.getters.email) {
+          return 'Insert'
+        } else {
+          return 'Buy now'
+        }
+      }
     },
 
     handlePreviewDetail (data) {

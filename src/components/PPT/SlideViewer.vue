@@ -163,7 +163,7 @@ export default {
     },
     addText: {
       type: String,
-      default: 'Add'
+      default: 'Insert'
     }
   },
   mixins: [ PptPreviewMixin ],
