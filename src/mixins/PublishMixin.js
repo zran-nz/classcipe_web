@@ -1,5 +1,20 @@
 import { PdField, PlanField, TaskField } from '@/const/common'
 
+function simpleIsEmpty(value) {
+  if (value === null || value === '' || value === undefined) {
+    return true
+  }
+  if (value.hasOwnProperty('length') && value.length === 0) {
+    return true
+  }
+
+  if (JSON.stringify(value) === '{}') {
+    return true
+  }
+
+  return false
+}
+
 export const PublishMixin = {
   data () {
     return {
@@ -40,20 +55,6 @@ export const PublishMixin = {
 
     checkRequiredFields (showToast) {
       // 检查必填项是否为空,只检测null,undefined,空字符串,空数组,空对象
-      function simpleIsEmpty(value) {
-        if (value === null || value === '' || value === undefined) {
-          return true
-        }
-        if (value.hasOwnProperty('length') && value.length === 0) {
-          return true
-        }
-
-        if (JSON.stringify(value) === '{}') {
-          return true
-        }
-
-        return false
-      }
 
       this.emptyRequiredFields = []
       this.formSteps.forEach(step => {
@@ -171,22 +172,6 @@ export const PublishMixin = {
     },
     calculateCanPublish() {
       if (this.canEdit) {
-        // 检查必填项是否为空,只检测null,undefined,空字符串,空数组,空对象
-        function simpleIsEmpty(value) {
-          if (value === null || value === '' || value === undefined) {
-            return true
-          }
-          if (value.hasOwnProperty('length') && value.length === 0) {
-            return true
-          }
-
-          if (JSON.stringify(value) === '{}') {
-            return true
-          }
-
-          return false
-        }
-
         // 给有未填写字段的step添加红色提示
         let canPublish = true
         this.emptyRequiredFields = []

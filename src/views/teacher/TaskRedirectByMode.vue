@@ -63,7 +63,6 @@ export default {
   methods: {
     handleTaskRedirect() {
       if (parseInt(this.taskMode) === 1 || parseInt(this.taskMode) === 2) {
-
         getCurriculumBySchoolId({
           schoolId: this.currentSchool.id
         }).then(res => {

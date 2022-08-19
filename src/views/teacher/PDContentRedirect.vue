@@ -8,7 +8,6 @@
 import { PDContentAddOrUpdate } from '@/api/pdContent'
 import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
 import { mapState } from 'vuex'
-import { getCurriculumBySchoolId } from '@/api/academicSettingCurriculum'
 
 export default {
   name: 'PDContentRedirect',

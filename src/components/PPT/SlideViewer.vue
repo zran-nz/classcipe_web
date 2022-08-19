@@ -7,7 +7,13 @@
             <a-button type='primary' shape='round' class='cc-slide-btn' @click='handlePreview'>
               <a-icon type='eye' /> Preview
             </a-button>
-            <a-button shape='round' type="danger" class='cc-slide-btn' @click='handleAdd' v-show='showAddButton'>
+            <a-button
+              shape='round'
+              type="danger"
+              class='cc-slide-btn'
+              @click='handleAdd'
+              v-show='showAddButton'
+              :loading='buyLoading'>
               <a-icon type="shopping" /> {{ addText }}
             </a-button>
             <a-button shape='round' class='cc-slide-btn' @click='handleRemove' v-show='showRemoveButton'>
@@ -76,6 +82,25 @@
         :current-page-material='currentPageMaterial'
         v-if='showMaterialsAndTips' />
     </div>
+
+    <a-modal
+      :title="null"
+      :closable='false'
+      v-model="contentBuyStatVisible"
+      :append-to-body="true"
+      :destroy-on-close="false"
+      @ok='handleEnsureBuyStat'
+      @cancel='handleCancelBuyStat'
+      width="500px">
+      <modal-header @close='handleCancelBuyStat' title='Which age(s) will you use this resource with?' />
+      <div class='grade-list'>
+        <div class='content-tag-list'>
+          <div class='content-tag' @click='toggleSelectContentTag(grade.value)' :class="{'selected-tag': selectedGradeList.indexOf(grade.value) !== -1}" v-for='grade in allAges' :key='grade.value'>
+            {{ grade.name }}
+          </div>
+        </div>
+      </div>
+    </a-modal>
   </div>
 </template>
 
@@ -87,10 +112,14 @@ import { PptPreviewMixin } from '@/mixins/PptPreviewMixin'
 import SlideNotes from '@/components/PPT/SlideNotes'
 import SlideEvent from '@/components/PPT/SlideEvent'
 import EmptySlide from '@/assets/v2/icons/empty_slide.svg?inline'
+import { ContentGradeSave } from '@/api/contentGrade'
+import ModalHeader from '@/components/Common/ModalHeader'
+import { ContentBuy } from '@/api/v2/mycontent'
+import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 
 export default {
   name: 'SlideViewer',
-  components: { SlideNotes, SlideMaterialsAndTips, CommonNoData, EmptySlide },
+  components: { ModalHeader, SlideNotes, SlideMaterialsAndTips, CommonNoData, EmptySlide },
   props: {
     title: {
       type: String,
@@ -166,7 +195,7 @@ export default {
       default: 'Insert'
     }
   },
-  mixins: [ PptPreviewMixin ],
+  mixins: [PptPreviewMixin, GoogleAuthCallBackMixin],
   watch: {
     thumbnailList: {
       handler(newVal) {
@@ -187,11 +216,24 @@ export default {
       } else {
         return []
       }
+    },
+    allAges() {
+      const list = []
+      for (let i = 3; i < 19; i++) {
+        list.push({
+          name: i + ' years',
+          value: i + ''
+        })
+      }
+      return list
     }
   },
   data() {
     return {
-      currentImgIndex: 0
+      currentImgIndex: 0,
+      buyLoading: false,
+      contentBuyStatVisible: false,
+      selectedGradeList: []
     }
   },
   methods: {
@@ -200,6 +242,26 @@ export default {
     },
     handleAdd () {
       this.$EventBus.$emit(SlideEvent.SELECT_TEMPLATE, this.slideItem)
+      if (this.addText === 'Buy now') {
+        this.contentBuyStatVisible = true
+        if (this.slideItem.id && this.slideItem.type) {
+          this.handleBuyItem(this.slideItem)
+        }
+      }
+    },
+    handleBuyItem (content) {
+      this.$logger.info('handleBuyItem content', content)
+      ContentBuy({ id: content.id, type: content.type }).then((response) => {
+        if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
+          this.$logger.info('Duplicate response', response)
+          this.$message.success('Buy successfully')
+        } else {
+          this.currentMethodName = 'handleBuyItem'
+        }
+      }).finally(() => {
+        this.buyLoading = false
+        this.contentBuyStatVisible = true
+      })
     },
     handleRemove () {
       this.$EventBus.$emit(SlideEvent.CANCEL_SELECT_TEMPLATE, this.slideItem)
@@ -224,6 +286,26 @@ export default {
         left: dom.scrollLeft + 400,
         behavior: 'smooth'
       })
+    },
+    handleEnsureBuyStat () {
+      ContentGradeSave({
+        contentId: this.contentId,
+        contentType: this.contentType,
+        grades: this.selectedGradeList
+      })
+    },
+    handleCancelBuyStat () {
+      this.contentBuyStatVisible = false
+      this.selectedGradeList = []
+    },
+    toggleSelectContentTag(gradeValue) {
+      this.$logger.info('toggleSelectContentTag', gradeValue)
+      const index = this.selectedGradeList.indexOf(gradeValue)
+      if (index === -1) {
+        this.selectedGradeList.push(gradeValue)
+      } else {
+        this.selectedGradeList.splice(index, 1)
+      }
     }
   }
 }
