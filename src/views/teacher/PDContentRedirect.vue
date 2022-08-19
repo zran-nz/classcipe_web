@@ -1,20 +1,6 @@
 <template>
   <a-card :bordered="false" :bodyStyle="{ padding: '16px 24px', height: '100%', minHeight: '500px' }">
     <a-spin class="redirect-spin" tip="Loading..." size="large"/>
-    <a-modal
-      v-model='visible'
-      destroyOnClose
-      :title='null'
-      @cancel='$router.go(-1)'
-      @ok='select(curriculumId)'
-      :closable='false'>
-      <modal-header title='Choose a curriculum' :allow-close='false'></modal-header>
-      <a-radio-group v-model="curriculumId">
-        <a-radio :style="radioStyle" v-for='curriculum in list' :value='curriculum.curriculumId' :key='curriculum.curriculumId'>
-          {{ curriculum.curriculumName }}
-        </a-radio>
-      </a-radio-group>
-    </a-modal>
   </a-card>
 </template>
 
@@ -63,42 +49,13 @@ export default {
       if (this.pdId) {
         this.$router.replace('/teacher/pd-content/' + this.pdId)
       } else {
-        getCurriculumBySchoolId({
-          schoolId: this.currentSchool.id
-        }).then(res => {
-          if (res.code === 0) {
-            if (res.result && res.result.length > 0) {
-              console.log('getCurriculumBySchoolId', res.result)
-              this.list = res.result
-              this.curriculumId = this.list[0].curriculumId
-              if (this.list.length > 1) {
-                this.visible = true
-              } else {
-                this.select(this.curriculumId)
-              }
-            } else {
-              this.$confirm({
-                title: 'Alert',
-                okText: 'Confirm',
-                cancelText: 'Cancel',
-                content: 'You have not bound the curriculum.',
-                onOk: () => {
-                  this.$router.go(-1)
-                },
-                onCancel() {
-                  this.$router.go(-1)
-                }
-              })
-            }
-          }
-        })
+        this.select()
       }
     },
-    select(curriculumId) {
+    select() {
       const data = {
         name: 'Unnamed PD Content',
-        status: 0,
-        curriculumId: curriculumId
+        status: 0
       }
 
       PDContentAddOrUpdate(data).then((response) => {
