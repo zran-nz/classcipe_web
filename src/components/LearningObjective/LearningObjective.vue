@@ -17,7 +17,7 @@
             </a-select>
             <div class='selected-label' v-if='selectedCurriculumName'>
               <div class='selected-label-item'>
-                <a-tag :closable='canEdit' class='label-curriculum' @close="canEdit ? handleResetCurriculum(selectedCurriculumName) : null">
+                <a-tag :closable='canEdit' class='label-curriculum' @close="handleResetCurriculum(selectedCurriculumName)">
                   <div class='tag-content'>{{ selectedCurriculumName }}</div>
                 </a-tag>
               </div>
@@ -41,7 +41,7 @@
                 class='selected-label-item'
                 v-for='year in filterConfig.selectedYearList'
                 :key='year'>
-                <a-tag :closable='canEdit' class='label-year' @close="canEdit ? handleRemoveYear(year) : null">
+                <a-tag :closable='canEdit' class='label-year' @close="handleRemoveYear(year)">
                   <div class='tag-content'>{{ year }}</div>
                 </a-tag>
               </div>
@@ -65,7 +65,7 @@
                 class='selected-label-item'
                 v-for='subjectName in filterConfig.selectedSubjectList'
                 :key='subjectName'>
-                <a-tag :closable='canEdit' class='label-subject' @close="canEdit ? handleRemoveSubject(subjectName) : null">
+                <a-tag :closable='canEdit' class='label-subject' @close="handleRemoveSubject">
                   <div class='tag-content'>{{ subjectName }}</div>
                 </a-tag>
               </div>
@@ -88,7 +88,7 @@
                 class='selected-label-item'
                 v-for='language in filterConfig.selectedLanguageList'
                 :key='language'>
-                <a-tag :closable='canEdit' class='label-language' @close="canEdit ? handleRemoveLanguage(language) : null">
+                <a-tag :closable='canEdit' class='label-language' @close="handleRemoveLanguage(language)">
                   <div class='tag-content'>{{ language }}</div>
                 </a-tag>
               </div>
@@ -97,7 +97,7 @@
         </div>
         <div class='recommend-button'>
           <a-badge dot v-if='recommendDataList.length'>
-            <custom-text-button label='Recommend' @click='canEdit ? showRecommend : null'>
+            <custom-text-button label='Recommend' @click='showRecommend'>
               <template v-slot:icon>
                 <a-icon type='plus-circle' />
               </template>
@@ -113,7 +113,7 @@
         <div class='cc-lo-input'>
           <a-input v-model='filterConfig.keyword' @click.native.stop='showFilterList = true' placeholder='Search learning objectives' class='cc-form-input' :disabled='!canEdit'/>
           <div class='filter-list' v-show='showFilterList && filterList.length' @click.stop=''>
-            <div class='filter-item' v-for='(item, idx) in filterList' :key='idx' @click='canEdit ? handleSelectItem(item) : null'>
+            <div class='filter-item' v-for='(item, idx) in filterList' :key='idx' @click='handleSelectItem(item)'>
               <div class='item-desc' v-html='item.html'></div>
               <div class='item-subject-year'>
                 <div class='item-sub-title' :title='item.path && item.path[0]'>{{ item.path && item.path[0] }}</div>
@@ -542,18 +542,20 @@ export default {
 
     handleResetCurriculum () {
       this.$logger.info('handleResetCurriculum')
-      if (this.filterConfig.curriculumId) {
-        this.filterConfig.selectedSubjectList = []
-        this.filterConfig.selectedYearList = []
-        this.filterConfig.selectedLanguageList = []
-        this.filterConfig.keyword = ''
+      if (this.canEdit) {
+        if (this.filterConfig.curriculumId) {
+          this.filterConfig.selectedSubjectList = []
+          this.filterConfig.selectedYearList = []
+          this.filterConfig.selectedLanguageList = []
+          this.filterConfig.keyword = ''
+        }
+        this.filterConfig.curriculumId = null
+        this.data = null
+        this.yearOptions = []
+        this.subjectOptions = []
+        this.yearIndex = null
+        this.$logger.info('reset data', this.data)
       }
-      this.filterConfig.curriculumId = null
-      this.data = null
-      this.yearOptions = []
-      this.subjectOptions = []
-      this.yearIndex = null
-      this.$logger.info('reset data', this.data)
     },
 
     async handleSelectCurriculum (id) {
@@ -592,21 +594,27 @@ export default {
     },
 
     handleRemoveSubject (subject) {
-      this.filterConfig.selectedSubjectList.splice(this.filterConfig.selectedSubjectList.indexOf(subject), 1)
-      if (this.filterConfig.selectedSubjectList.indexOf('Languages') !== -1) {
-        this.selectedSubject = 'Languages'
-      } else {
-        this.selectedSubject = this.filterConfig.selectedSubjectList.length ? this.filterConfig.selectedSubjectList[0] : ''
+      if (this.canEdit) {
+        this.filterConfig.selectedSubjectList.splice(this.filterConfig.selectedSubjectList.indexOf(subject), 1)
+        if (this.filterConfig.selectedSubjectList.indexOf('Languages') !== -1) {
+          this.selectedSubject = 'Languages'
+        } else {
+          this.selectedSubject = this.filterConfig.selectedSubjectList.length ? this.filterConfig.selectedSubjectList[0] : ''
+        }
       }
     },
 
     handleRemoveYear (year) {
-      this.filterConfig.selectedYearList.splice(this.filterConfig.selectedYearList.indexOf(year), 1)
+       if (this.canEdit) {
+         this.filterConfig.selectedYearList.splice(this.filterConfig.selectedYearList.indexOf(year), 1)
+       }
     },
 
     showRecommend () {
       this.$logger.info('showRecommend', this.recommendDataList)
-      this.recommendDataVisible = true
+      if (this.canEdit) {
+        this.recommendDataVisible = true
+      }
     },
 
     handleSelectSubject (subject) {
@@ -631,19 +639,23 @@ export default {
     },
 
     handleRemoveLanguage (language) {
-      this.filterConfig.selectedLanguageList.splice(this.filterConfig.selectedLanguageList.indexOf(language), 1)
+      if (this.canEdit) {
+        this.filterConfig.selectedLanguageList.splice(this.filterConfig.selectedLanguageList.indexOf(language), 1)
+      }
     },
 
     handleSelectItem (item) {
       this.$logger.info('handleSelectItem', item)
-      if (this.selectedList.indexOf(item) === -1) {
-        this.$set(item, 'generalCapabilities', [])
-        this.$set(item, 'bloomTag', '')
-        this.$set(item, 'knowledgeDimension', '')
-        this.selectedList.unshift(item)
+      if (this.canEdit) {
+        if (this.selectedList.indexOf(item) === -1) {
+          this.$set(item, 'generalCapabilities', [])
+          this.$set(item, 'bloomTag', '')
+          this.$set(item, 'knowledgeDimension', '')
+          this.selectedList.unshift(item)
+        }
+        this.filterConfig.keyword = ''
+        this.showFilterList = false
       }
-      this.filterConfig.keyword = ''
-      this.showFilterList = false
     },
 
     handleDelete (item) {

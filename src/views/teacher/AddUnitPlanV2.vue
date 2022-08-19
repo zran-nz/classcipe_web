@@ -245,7 +245,7 @@
                         v-for="(tag, tagIndex) in form.inquiryKeywords"
                         :key="'inquery_keyword_'+tagIndex"
                       >
-                        <a-tag color="#a5a5a5" :closable="canEdit" @close="canEdit ? e => handleRmInquiryKey(form, 'inquiryKeywords', tagIndex) : null">{{ tag }}</a-tag>
+                        <a-tag color="#a5a5a5" :closable="canEdit" @close="handleRmInquiryKey(form, 'inquiryKeywords', tagIndex)">{{ tag }}</a-tag>
                       </div>
                     </div>
                     <div v-else style="font-size: 12px;color: #666;">No data</div>
@@ -1923,9 +1923,13 @@ export default {
       this.$set(this.form, key, Array.from(new Set(keywords)))
     },
     handleRmInquiryKey(item, key, tagIndex) {
-      const keywords = item[key] ? item[key] : []
-      keywords.splice(tagIndex, 1)
-      this.$set(item, key, keywords)
+      if (this.canEdit) {
+        const keywords = item[key] ? item[key] : []
+        keywords.splice(tagIndex, 1)
+        this.$set(item, key, keywords)
+        this.$logger.info('handleRmInquiryKey', item, key, tagIndex, 'keywords', keywords)
+        this.asyncSaveDataFn()
+      }
     }
   }
 }
