@@ -33,7 +33,7 @@ export const PublishMixin = {
   methods: {
 
     tryAutoCheckRequiredField() {
-      if (this.autoCheckRequired) {
+      if (this.autoCheckRequired && this.canEdit) {
         this.checkRequiredFields(false)
       }
     },
@@ -170,89 +170,34 @@ export const PublishMixin = {
       this.$classcipe.unSetRequiredCheck(this.contentId)
     },
     calculateCanPublish() {
-      // 检查必填项是否为空,只检测null,undefined,空字符串,空数组,空对象
-      function simpleIsEmpty(value) {
-        if (value === null || value === '' || value === undefined) {
-          return true
-        }
-        if (value.hasOwnProperty('length') && value.length === 0) {
-          return true
+      if (this.canEdit) {
+        // 检查必填项是否为空,只检测null,undefined,空字符串,空数组,空对象
+        function simpleIsEmpty(value) {
+          if (value === null || value === '' || value === undefined) {
+            return true
+          }
+          if (value.hasOwnProperty('length') && value.length === 0) {
+            return true
+          }
+
+          if (JSON.stringify(value) === '{}') {
+            return true
+          }
+
+          return false
         }
 
-        if (JSON.stringify(value) === '{}') {
-          return true
-        }
-
-        return false
-      }
-
-      // 给有未填写字段的step添加红色提示
-      let canPublish = true
-      this.emptyRequiredFields = []
-      this.formSteps.forEach(step => {
-        step.showRequiredTips = false
-        step.showSatisfiedTips = false
-      })
-      this.requiredFields.forEach(field => {
-        if (field === TaskField.Slides || field === PdField.Slides) {
-          if (!this.form.presentationId || !this.form.pageObjects?.length) {
-            console.log('slide is empty', this.form)
-            this.emptyRequiredFields.push(field)
-            this.formSteps.forEach(step => {
-              if (step.commonFields.indexOf(field) > -1) {
-                step.showRequiredTips = true
-                step.showSatisfiedTips = false
-              }
-            })
-          }
-        } else if (field === TaskField.Link || field === PlanField.Link) {
-          if (!this.associateUnitPlanIdList?.length && !this.associateTaskIdList?.length) {
-            this.$logger.info(`${field} is empty`, this.associateUnitPlanIdList, this.associateTaskIdList)
-            this.emptyRequiredFields.push(field)
-            this.formSteps.forEach(step => {
-              if (step.commonFields.indexOf(field) > -1) {
-                step.showRequiredTips = true
-                step.showSatisfiedTips = false
-                canPublish = false
-              }
-            })
-          }
-        } else if (field === 'learnOuts') {
-          console.log('learnOuts test', this.form.learnOuts)
-          if (!this.form.learnOuts?.length) {
-            console.log('learnOuts is empty')
-            this.emptyRequiredFields.push(field)
-            this.formSteps.forEach(step => {
-              if (step.commonFields.indexOf(field) > -1) {
-                step.showRequiredTips = true
-                step.showSatisfiedTips = false
-              }
-            })
-          }
-        } else if (field === 'questions') {
-          console.log('questions is ', this.form.questionIds, this.form.questions)
-          if (this.form.hasOwnProperty('questionIds') && this.form.questionIds.length === 0) {
-            console.log('questions questionIds is empty')
-            this.emptyRequiredFields.push(field)
-            this.formSteps.forEach(step => {
-              if (step.commonFields.indexOf(field) > -1) {
-                step.showRequiredTips = true
-                step.showSatisfiedTips = false
-              }
-            })
-          } else if (this.form.hasOwnProperty('questions')) {
-            console.log('questions test ', this.form.questions)
-            if (this.form.questions.length === 0) {
-              console.log('questions is empty')
-              this.emptyRequiredFields.push(field)
-              this.formSteps.forEach(step => {
-                if (step.commonFields.indexOf(field) > -1) {
-                  step.showRequiredTips = true
-                  step.showSatisfiedTips = false
-                }
-              })
-            } else if (this.form.questions.length === 1 && !this.form.questions[0].name) {
-              console.log('questions name is empty')
+        // 给有未填写字段的step添加红色提示
+        let canPublish = true
+        this.emptyRequiredFields = []
+        this.formSteps.forEach(step => {
+          step.showRequiredTips = false
+          step.showSatisfiedTips = false
+        })
+        this.requiredFields.forEach(field => {
+          if (field === TaskField.Slides || field === PdField.Slides) {
+            if (!this.form.presentationId || !this.form.pageObjects?.length) {
+              console.log('slide is empty', this.form)
               this.emptyRequiredFields.push(field)
               this.formSteps.forEach(step => {
                 if (step.commonFields.indexOf(field) > -1) {
@@ -261,23 +206,80 @@ export const PublishMixin = {
                 }
               })
             }
-          }
-        } else {
-          if (simpleIsEmpty(this.form[field])) {
-            this.$logger.info(`${field} is empty`, this.form[field])
-            this.emptyRequiredFields.push(field)
-            this.formSteps.forEach(step => {
-              if (step.commonFields.indexOf(field) > -1) {
-                step.showRequiredTips = true
-                step.showSatisfiedTips = false
-                canPublish = false
+          } else if (field === TaskField.Link || field === PlanField.Link) {
+            if (!this.associateUnitPlanIdList?.length && !this.associateTaskIdList?.length) {
+              this.$logger.info(`${field} is empty`, this.associateUnitPlanIdList, this.associateTaskIdList)
+              this.emptyRequiredFields.push(field)
+              this.formSteps.forEach(step => {
+                if (step.commonFields.indexOf(field) > -1) {
+                  step.showRequiredTips = true
+                  step.showSatisfiedTips = false
+                  canPublish = false
+                }
+              })
+            }
+          } else if (field === 'learnOuts') {
+            console.log('learnOuts test', this.form.learnOuts)
+            if (!this.form.learnOuts?.length) {
+              console.log('learnOuts is empty')
+              this.emptyRequiredFields.push(field)
+              this.formSteps.forEach(step => {
+                if (step.commonFields.indexOf(field) > -1) {
+                  step.showRequiredTips = true
+                  step.showSatisfiedTips = false
+                }
+              })
+            }
+          } else if (field === 'questions') {
+            console.log('questions is ', this.form.questionIds, this.form.questions)
+            if (this.form.hasOwnProperty('questionIds') && this.form.questionIds.length === 0) {
+              console.log('questions questionIds is empty')
+              this.emptyRequiredFields.push(field)
+              this.formSteps.forEach(step => {
+                if (step.commonFields.indexOf(field) > -1) {
+                  step.showRequiredTips = true
+                  step.showSatisfiedTips = false
+                }
+              })
+            } else if (this.form.hasOwnProperty('questions')) {
+              console.log('questions test ', this.form.questions)
+              if (this.form.questions.length === 0) {
+                console.log('questions is empty')
+                this.emptyRequiredFields.push(field)
+                this.formSteps.forEach(step => {
+                  if (step.commonFields.indexOf(field) > -1) {
+                    step.showRequiredTips = true
+                    step.showSatisfiedTips = false
+                  }
+                })
+              } else if (this.form.questions.length === 1 && !this.form.questions[0].name) {
+                console.log('questions name is empty')
+                this.emptyRequiredFields.push(field)
+                this.formSteps.forEach(step => {
+                  if (step.commonFields.indexOf(field) > -1) {
+                    step.showRequiredTips = true
+                    step.showSatisfiedTips = false
+                  }
+                })
               }
-            })
+            }
+          } else {
+            if (simpleIsEmpty(this.form[field])) {
+              this.$logger.info(`${field} is empty`, this.form[field])
+              this.emptyRequiredFields.push(field)
+              this.formSteps.forEach(step => {
+                if (step.commonFields.indexOf(field) > -1) {
+                  step.showRequiredTips = true
+                  step.showSatisfiedTips = false
+                  canPublish = false
+                }
+              })
+            }
           }
-        }
-      })
+        })
 
-      this.form.canPublish = canPublish
+        this.form.canPublish = canPublish
+      }
     },
 
     showEditPriceDialog() {

@@ -9,7 +9,7 @@
           :share-status='shareStatus'
           :collaborate='collaborate'
           :last-change-saved-time='lastChangeSavedTime'
-          :disable-publish='!!form.originalOwner'
+          :disable-publish='!!form.originalOwner || !canEdit'
           @view-collaborate='handleViewCollaborate'
           @back='goBack'
           @save='handleSaveTask(true)'
@@ -359,6 +359,7 @@
                       </a-tooltip>
                     </template>
                     <custom-image-uploader
+                      :can-edit='canEdit'
                       v-if='taskId'
                       :field='taskField.Image'
                       :content-id='taskId'
@@ -874,19 +875,29 @@ export default {
     },
 
     handleNextStep () {
-      if (this.currentActiveStepIndex === this.formSteps.length - 1) {
-        const notRemind = storage.get(`${this.taskId}-${this.$store.getters.userInfo.id}-not-remind`)
-        this.$logger.info('notRemind ', notRemind)
-        if (this.$store.state.app.userMode === USER_MODE.SCHOOL || !!notRemind) {
-          this.$router.replace({
-            path: '/'
-          })
-        } else {
-          this.showSplitTask = true
-        }
-      } else {
-        this.$refs['steps-nav'].nextStep()
-      }
+       if (this.canEdit) {
+         if (this.currentActiveStepIndex === this.formSteps.length - 1) {
+           const notRemind = storage.get(`${this.taskId}-${this.$store.getters.userInfo.id}-not-remind`)
+           this.$logger.info('notRemind ', notRemind)
+           if (this.$store.state.app.userMode === USER_MODE.SCHOOL || !!notRemind) {
+             this.$router.replace({
+               path: '/'
+             })
+           } else {
+             this.showSplitTask = true
+           }
+         } else {
+           this.$refs['steps-nav'].nextStep()
+         }
+       } else {
+         if (this.currentActiveStepIndex === this.formSteps.length - 1) {
+           this.$router.replace({
+             path: '/'
+           })
+         } else {
+           this.$refs['steps-nav'].nextStep()
+         }
+       }
     },
     restoreTask(taskId, isFirstLoad) {
       if (isFirstLoad) {
