@@ -403,8 +403,6 @@ export default {
           flex-direction: row;
           align-items: center;
           justify-content: space-between;
-
-
           .content-name {
             width: calc(100% - 300px);
             margin-right: 5px;
