@@ -96,9 +96,15 @@
           </div>
           <div class="flex-wrap" slot="classes" slot-scope="classes">
             <template v-for="(cls, clsIndex) in sortBy(classes, 'classType')">
-              <a-tag v-if="clsIndex === 0" :key="cls.id" :color="cls.classType === 0 ? '#2db7f5' : '#f50'">
-                {{ cls.classType === 1 ? formatViewName(cls.subject) + '-' + cls.name : cls.name }}
+              <a-tag v-if="clsIndex < 3 && cls.classType === 0" :key="cls.id" color="#2db7f5" class="ellispe-tag">
+                {{ cls.name }}
               </a-tag>
+              <a-tooltip v-if="clsIndex < 3 && cls.classType === 1" :title="formatViewName(cls.subject) + ' - ' + cls.name" :key="cls.id">
+                <a-tag color="#f50" class="ellispe-tag">
+                  <!-- <a-icon type="plus" /> -->
+                  {{ cls.name }}
+                </a-tag>
+              </a-tooltip>
             </template>
             <a-popover
               v-if="classes.length > 1"
@@ -669,5 +675,11 @@ export default {
   table {
     background: transparent;
   }
+}
+.ellispe-tag {
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>

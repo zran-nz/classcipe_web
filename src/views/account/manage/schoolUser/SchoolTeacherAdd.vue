@@ -65,7 +65,7 @@
       <a-form-model-item label="DOB">
         <a-date-picker v-model="formModel.birthDay" :disabled-date="disabledDate" />
       </a-form-model-item>
-      <a-form-model-item class="mb0" label="Class">
+      <a-form-model-item class="mb0" label="Class" v-if="classUnModify || teacherId">
         <a-row :gutter=16>
           <a-col :span="18">
             <a-form-model-item class="self-select">
@@ -92,13 +92,14 @@
                 </div>
               </template>
               <a-space v-else>
-                <a-space class="flex-wrap">
+                <a-space class="flex-wrap" v-if="classArrDetail.length > 0">
                   <template v-for="(cls) in classArrDetail">
                     <a-tag :key="cls.id" :color="cls.classType === 0 ? '#2db7f5' : '#f50'">
                       {{ cls.classType === 1 ? formatViewName(cls.subject) + '-' + cls.name : cls.name }}
                     </a-tag>
                   </template>
                 </a-space>
+                <label for="" v-else> - </label>
               </a-space>
               <!-- <a-select
                 optionFilterProp="children"
@@ -128,9 +129,10 @@
             {{ item.name }}
           </a-select-option >
         </a-select> -->
-        <a-space>
+        <a-space v-if="formModel.roleArr.length > 0">
           <a-tag v-for="role in formModel.roleArr" :key="'role_'+role">{{ role }}</a-tag>
         </a-space>
+        <label for="" v-else> - </label>
       </a-form-model-item>
       <a-form-model-item :wrapperCol="{offset: 6}">
         <a-button :disabled="hasErrors" :loading="loading" @click="handleSave" type="primary">{{ teacherId ? 'Update': 'Create' }}</a-button>

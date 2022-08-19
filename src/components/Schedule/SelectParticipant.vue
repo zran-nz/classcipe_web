@@ -168,6 +168,7 @@ export default {
       this.loading = true
       listClass({
         schoolId: this.currentSchool.id,
+        myClass: true,
         pageNo: 1,
         pageSize: 10000
       }).then(res => {

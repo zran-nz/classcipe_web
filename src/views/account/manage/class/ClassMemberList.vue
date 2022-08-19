@@ -65,7 +65,7 @@
             <template v-if="form.role === 'teacher'">
               <a-col :span="14" style="text-align: right;">
                 <a-space>
-                  <a-button type="primary" @click="handleAddTeacher">Manage school teacher</a-button>
+                  <a-button type="primary" @click="handleAddTeacher">Add teacher</a-button>
                 </a-space>
               </a-col>
             </template>
