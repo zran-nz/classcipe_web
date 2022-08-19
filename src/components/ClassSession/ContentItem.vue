@@ -11,16 +11,15 @@
         <div class='base-info'>
           <div class='name'>
             <div class='content-name'>
-              {{ content.name || 'Untitled' }}
+              {{ (content && content.name) || 'Untitled' }}
             </div>
             <div class='schedule-time'>
-              <template v-if='session.session.sessionStartTime || session.session.deadline'>
-                {{ session.session.sessionStartTime | dayjs }}
-                <template v-if='session.session.sessionStartTime && session.session.deadline'> - </template>
-                {{ session.session.deadline | dayjs }}
+              <template v-if='session.session.sessionStartTime && session.session.deadline'>
+                {{ new Date(session.session.sessionStartTime).toLocaleDateString() }} {{ new Date(session.session.sessionStartTime).toTimeString().substring(0,5) }} -
+                {{ new Date(session.session.deadline).toLocaleDateString() }} {{ new Date(session.session.deadline).toTimeString().substring(0,5) }}
               </template>
               <template v-else>
-                session start time not set
+                session time not set
               </template>
             </div>
           </div>
@@ -133,6 +132,12 @@
             <custom-button label='Sub-task' v-if='content && content.type === typeMap.task && content.subTasks.length > 0'>
               <template v-slot:icon>
                 <sub-task-icon />
+              </template>
+            </custom-button>
+
+            <custom-button v-if="session.allowEdit" label='Edit' @click='editItem'>
+              <template v-slot:icon>
+                <edit-icon />
               </template>
             </custom-button>
 
