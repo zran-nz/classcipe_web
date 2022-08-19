@@ -65,7 +65,7 @@ export const PublishMixin = {
       let showRequiredTips = false
       this.requiredFields.forEach(field => {
         if (field === TaskField.Slides || field === PdField.Slides || field === PdField.Slides) {
-          if (!this.form.presentationId || this.form.presentationId.indexOf('fake_buy') !== -1 || !this.form.pageObjects?.length) {
+          if (!this.form.presentationId || !this.form.pageObjects?.length) {
             this.emptyRequiredFields.push(field)
             this.formSteps.forEach(step => {
               if (step.commonFields.indexOf(field) > -1) {
@@ -194,8 +194,9 @@ export const PublishMixin = {
         step.showSatisfiedTips = false
       })
       this.requiredFields.forEach(field => {
-        if (field === TaskField.Slides || field === PdField.Slides || field === PdField.Slides) {
-          if (!this.form.presentationId || this.form.presentationId.indexOf('fake_buy') !== -1 || !this.form.pageObjects?.length) {
+        if (field === TaskField.Slides || field === PdField.Slides) {
+          if (!this.form.presentationId || !this.form.pageObjects?.length) {
+            console.log('slide is empty', this.form)
             this.emptyRequiredFields.push(field)
             this.formSteps.forEach(step => {
               if (step.commonFields.indexOf(field) > -1) {

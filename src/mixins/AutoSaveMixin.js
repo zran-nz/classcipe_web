@@ -19,12 +19,14 @@ export const AutoSaveMixin = {
     form: {
       deep: true,
       handler(newVal, oldVal) {
-        if (!this.saving) {
-          console.log('asyncSaveDataFn')
-          this.asyncSaveDataFn()
+        if (this.canEdit) {
+          if (!this.saving) {
+            console.log('asyncSaveDataFn')
+            this.asyncSaveDataFn()
+          }
+          console.log('calculateCanPublishFn')
+          this.calculateCanPublishFn()
         }
-        console.log('calculateCanPublishFn')
-        this.calculateCanPublishFn()
       }
     }
   },
