@@ -293,6 +293,7 @@ export default {
         contentType: this.contentType,
         grades: this.selectedGradeList
       })
+      this.handleCancelBuyStat()
     },
     handleCancelBuyStat () {
       this.contentBuyStatVisible = false
@@ -520,6 +521,45 @@ export default {
            box-shadow: 0 0 3px 3px #15C39A1A;
          }
       }
+    }
+  }
+}
+
+.grade-list {
+  padding: 10px 0;
+  .content-tag-list {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin: 0 10px 10px 0;
+    vertical-align: middle;
+    cursor: pointer;
+
+    .content-tag {
+      margin-left: 3px;
+      margin-top: 5px;
+      cursor: pointer;
+      border: 2px solid #ffffff;
+      background: #FFEDAF;
+      font-size: 13px;
+      border-radius: 30px;
+      line-height: 30px;
+      padding: 0 10px;
+      word-break: normal;
+      width: auto;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .selected-tag {
+      border: 2px solid #15C39A;
     }
   }
 }
