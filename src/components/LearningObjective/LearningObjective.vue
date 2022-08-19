@@ -8,8 +8,7 @@
             <a-select
               :getPopupContainer="trigger => trigger.parentElement"
               placeholder='Curriculum'
-              @select='handleSelectCurriculum'
-              :disabled='!canEdit'
+              :disabled='true'
               class='cc-select cc-lo-select-mid'>
               <a-select-option :value='item.id' v-for='(item, index) in curriculumOptions' :key='index'>
                 {{ item.name }}
@@ -17,7 +16,7 @@
             </a-select>
             <div class='selected-label' v-if='selectedCurriculumName'>
               <div class='selected-label-item'>
-                <a-tag :closable='canEdit' class='label-curriculum' @close="handleResetCurriculum(selectedCurriculumName)">
+                <a-tag :closable='false' class='label-curriculum'>
                   <div class='tag-content'>{{ selectedCurriculumName }}</div>
                 </a-tag>
               </div>
@@ -111,7 +110,14 @@
           Subject Learning Objectives
         </div>
         <div class='cc-lo-input'>
-          <a-input v-model='filterConfig.keyword' @click.native.stop='showFilterList = true' placeholder='Search learning objectives' class='cc-form-input' :disabled='!canEdit'/>
+          <a-spin :spinning="updating">
+            <a-input
+              v-model='filterConfig.keyword'
+              @click.native.stop='showFilterList = true'
+              placeholder='Search learning objectives'
+              class='cc-form-input'
+              :disabled='!canEdit'/>
+          </a-spin>
           <div class='filter-list' v-show='showFilterList && filterList.length' @click.stop=''>
             <div class='filter-item' v-for='(item, idx) in filterList' :key='idx' @click='handleSelectItem(item)'>
               <div class='item-desc' v-html='item.html'></div>
@@ -422,6 +428,7 @@ export default {
       knowledgeTags: [],
       showQuickWordCreate: false,
       loading: true,
+      updating: true,
       currentObjective: null,
       commandTermForm: {
         name: ''
@@ -529,6 +536,7 @@ export default {
       console.log('startWatch watch filterConfig', this.filterConfig)
       this.$watch('filterConfig', async (newValue, oldValue) => {
         console.log('watch filterConfig changed', oldValue.curriculumId, newValue.curriculumId)
+        this.updating = true
         if (newValue.curriculumId !== oldValue.curriculumId) {
           this.$logger.info('reset filterConfig data', this.data)
         } else {
@@ -538,6 +546,7 @@ export default {
         deep: true,
         immediate: false
       })
+      this.updating = false
     },
 
     handleResetCurriculum () {
@@ -737,6 +746,9 @@ export default {
         this.filterList = filterList
         this.asyncEmitUpdateEventFn()
       }
+      this.$nextTick(() => {
+        this.updating = false
+      })
     },
 
     handleConfirmSelectRecommend (dataList) {
