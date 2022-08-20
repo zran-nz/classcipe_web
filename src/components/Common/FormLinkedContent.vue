@@ -167,7 +167,7 @@ export default {
           } else {
             contents = contentList
           }
-          groupItem.contents = contents
+          ownerItem.contents = contents
           this.$logger.info('filterTypes contents', contents)
         } else {
           let contents = []
