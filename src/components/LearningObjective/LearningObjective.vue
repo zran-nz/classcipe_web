@@ -8,7 +8,8 @@
             <a-select
               :getPopupContainer="trigger => trigger.parentElement"
               placeholder='Curriculum'
-              :disabled='true'
+              @select='handleSelectCurriculum'
+              :disabled='!canEdit'
               class='cc-select cc-lo-select-mid'>
               <a-select-option :value='item.id' v-for='(item, index) in curriculumOptions' :key='index'>
                 {{ item.name }}
@@ -16,7 +17,7 @@
             </a-select>
             <div class='selected-label' v-if='selectedCurriculumName'>
               <div class='selected-label-item'>
-                <a-tag :closable='false' class='label-curriculum'>
+                <a-tag :closable='canEdit' class='label-curriculum' @close="handleResetCurriculum(selectedCurriculumName)">
                   <div class='tag-content'>{{ selectedCurriculumName }}</div>
                 </a-tag>
               </div>
@@ -576,38 +577,40 @@ export default {
     },
 
     async handleSelectCurriculum (id) {
-      id = id.toString()
-      this.$logger.info('handleSelectCurriculum id', id)
-      if (id !== this.filterConfig.curriculumId) {
-        this.filterConfig.selectedSubjectList = []
-        this.filterConfig.selectedYearList = []
-        this.filterConfig.selectedLanguageList = []
-        this.filterConfig.keyword = ''
-      }
-      this.filterConfig.curriculumId = id
-      const curriculum = this.curriculumOptions.find(item => item.id === id)
-      if (id === '1') {
-        if (!this.cachedCurriculum['au']) {
-          this.$set(this.cachedCurriculum, 'au', await GetAuCurriculum())
+      if (this.canEdit) {
+        id = id.toString()
+        this.$logger.info('handleSelectCurriculum id', id)
+        if (id !== this.filterConfig.curriculumId) {
+          this.filterConfig.selectedSubjectList = []
+          this.filterConfig.selectedYearList = []
+          this.filterConfig.selectedLanguageList = []
+          this.filterConfig.keyword = ''
         }
-        this.data = this.cachedCurriculum['au']
-        this.subjectOptions = this.data['__subject']
-        this.yearOptions = this.data['__years']
-        this.yearIndex = this.data['__year']
-        console.log('filterConfig.curriculumId update data', this.data)
-      } else if (id === '2') {
-        if (!this.cachedCurriculum['nz']) {
-          this.$set(this.cachedCurriculum, 'nz', await GetNzCurriculum())
+        this.filterConfig.curriculumId = id
+        const curriculum = this.curriculumOptions.find(item => item.id === id)
+        if (id === '1') {
+          if (!this.cachedCurriculum['au']) {
+            this.$set(this.cachedCurriculum, 'au', await GetAuCurriculum())
+          }
+          this.data = this.cachedCurriculum['au']
+          this.subjectOptions = this.data['__subject']
+          this.yearOptions = this.data['__years']
+          this.yearIndex = this.data['__year']
+          console.log('filterConfig.curriculumId update data', this.data)
+        } else if (id === '2') {
+          if (!this.cachedCurriculum['nz']) {
+            this.$set(this.cachedCurriculum, 'nz', await GetNzCurriculum())
+          }
+          this.data = this.cachedCurriculum['nz']
+          this.subjectOptions = this.data['__subject']
+          this.yearOptions = this.data['__years']
+          this.yearIndex = this.data['Learning outcomes']['__year']
+          console.log('filterConfig.curriculumId update data', this.data)
+        } else {
+          this.$logger.warn('No curriculum data.')
         }
-        this.data = this.cachedCurriculum['nz']
-        this.subjectOptions = this.data['__subject']
-        this.yearOptions = this.data['__years']
-        this.yearIndex = this.data['Learning outcomes']['__year']
-        console.log('filterConfig.curriculumId update data', this.data)
-      } else {
-        this.$logger.warn('No curriculum data.')
+        this.$logger.info('handleSelectCurriculum curriculum', curriculum)
       }
-      this.$logger.info('handleSelectCurriculum curriculum', curriculum)
     },
 
     handleRemoveSubject (subject) {
