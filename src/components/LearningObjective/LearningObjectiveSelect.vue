@@ -117,6 +117,7 @@
             :loadApi="dimensionsSearch"
             :cacheApi="dimensionsPubList"
             cacheKey="DIMENSIONS_PUBLIST"
+            @changeWord="res => this.commandTermForm.name = res"
           >
             <template v-slot:create>
               <div class="quick-word-sub">

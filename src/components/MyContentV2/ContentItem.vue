@@ -184,7 +184,7 @@
                 </template>
               </custom-button>
             </template>
-            <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement' v-if='showDelete && content.owner.email === $store.getters.email'>
+            <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement' v-if='showDelete && content.owner.email === $store.getters.email && content.status !== 1'>
               <div class='more-action'>
                 <more-icon />
               </div>

@@ -34,6 +34,11 @@ export function addTeachers (parameter) {
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
+  }).then(res => {
+    if (res.code === 0) {
+      store.dispatch('GetClassList', store.state.user.currentSchool.id)
+    }
+    return res
   })
 }
 
@@ -50,6 +55,11 @@ export function addTeachers (parameter) {
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
+  }).then(res => {
+    if (res.code === 0) {
+      store.dispatch('GetClassList', store.state.user.currentSchool.id)
+    }
+    return res
   })
 }
 
@@ -66,6 +76,11 @@ export function addTeachers (parameter) {
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
+  }).then(res => {
+    if (res.code === 0) {
+      store.dispatch('GetClassList', store.state.user.currentSchool.id)
+    }
+    return res
   })
 }
 
@@ -175,6 +190,11 @@ export function deleteClass (parameter) {
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
+  }).then(res => {
+    if (res.code === 0) {
+      store.dispatch('GetClassList', store.state.user.currentSchool.id)
+    }
+    return res
   })
 }
 
@@ -191,6 +211,11 @@ export function deleteClass (parameter) {
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
+  }).then(res => {
+    if (res.code === 0) {
+      store.dispatch('GetClassList', store.state.user.currentSchool.id)
+    }
+    return res
   })
 }
 
@@ -247,6 +272,11 @@ export function deleteClass (parameter) {
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
+  }).then(res => {
+    if (res.code === 0) {
+      store.dispatch('GetClassList', store.state.user.currentSchool.id)
+    }
+    return res
   })
 }
 

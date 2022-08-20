@@ -5,7 +5,7 @@
         <a-icon type="mail" :style="{ fontSize: '20px', color: '#999' }" />
       </a-badge>
     </div>
-    <a-dropdown :getPopupContainer="trigger => trigger.parentElement">
+    <a-dropdown :getPopupContainer="trigger => trigger.parentElement" v-model="dropVis">
       <a-avatar v-if="$store.getters.userInfo.avatar" :src='$store.getters.userInfo.avatar' />
       <img v-else src="~@/assets/icons/library/default-avatar.png"/>
       <div class='profile-info' slot="overlay">
@@ -113,7 +113,8 @@ export default {
 
       msg1Count: '0',
       msg2Count: '0',
-      stopTimer: false
+      stopTimer: false,
+      dropVis: false
     }
   },
   computed: {
