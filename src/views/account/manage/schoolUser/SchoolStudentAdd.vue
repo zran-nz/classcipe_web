@@ -296,6 +296,7 @@ export default {
               if (isFind) {
                 this.formModel.classes = query.classId
                 this.classUnModify = true
+                this.$emit('getCls', isFind)
               }
             }
           }

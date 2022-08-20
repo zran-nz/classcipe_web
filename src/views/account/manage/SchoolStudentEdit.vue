@@ -15,8 +15,12 @@
             <a-space :size="5" align="center" @click.stop>
               <label style="cursor: pointer" @click="$router.push('/account/info')">Account Info</label>
               <label for="">></label>
-              <label style="cursor: pointer" @click="$router.push('/manage/student')">School Student</label>
+              <label style="cursor: pointer" @click="$router.push('/manage/student/list')">School Student</label>
               <label for="">></label>
+              <template v-if="onlyClass">
+                <label style="cursor: pointer" @click="$router.push('/manage/student/list?classId=' + onlyClass.id)">{{ onlyClass.name }}</label>
+                <label for="">></label>
+              </template>
               <label style="font-weight: normal">{{ title }}</label>
             </a-space>
           </template>
@@ -26,7 +30,7 @@
       </template>
     </fixed-form-header>
     <div class="form-content">
-      <school-student-add :school="currentSchool" ref="schoolStudentAdd" :id="id" @save="handleSave" />
+      <school-student-add @getCls="changeCls" :school="currentSchool" ref="schoolStudentAdd" :id="id" @save="handleSave" />
     </div>
   </div>
 </template>
@@ -60,7 +64,8 @@ export default {
   data() {
     return {
       USER_MODE: USER_MODE,
-      SCHOOL_USER_STATUS: SCHOOL_USER_STATUS
+      SCHOOL_USER_STATUS: SCHOOL_USER_STATUS,
+      onlyClass: null
     }
   },
   created() {
@@ -95,6 +100,9 @@ export default {
     },
     handleSave(data) {
       this.goBack()
+    },
+    changeCls(cls) {
+      this.onlyClass = cls
     }
   }
 }

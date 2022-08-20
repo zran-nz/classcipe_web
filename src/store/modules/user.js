@@ -317,6 +317,7 @@ const user = {
         remotePromise({
           queryType: 0,
           schoolId: schoolId,
+          myClass: true,
           pageNo: 1,
           pageSize: 10000
         }).then((response) => {

@@ -305,6 +305,7 @@ export default {
                 this.formModel.classArr = [query.classId]
                 this.formModel.classes = query.classId
                 this.classUnModify = true
+                this.$emit('getCls', isFind)
               }
             }
           }
