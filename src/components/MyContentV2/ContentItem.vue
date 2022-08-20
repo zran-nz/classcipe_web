@@ -243,28 +243,39 @@
       <modal-header title="Edit price" @close='visible = false'/>
       <div class='edit-price'>
         <a-row :gutter='20' type="flex" align='middle'>
-          <a-col span='8' class='label-name'>
+          <a-col span='6' class='label-name'>
             Price:
           </a-col>
-          <a-col span='16'>
+          <a-col span='6'>
             <a-input
               v-model='price'
               type='number'
               prefix='$'
               class='cc-form-input cc-small-input' />
           </a-col>
+          <a-col span='12' v-show='enableDiscount'>Discounted price <span :style="{'color': 'red'}">${{ (price * (1 - (discount * 1.0) / 100)).toFixed(2) }}</span></a-col>
         </a-row>
         <a-row :gutter='20' type="flex" align='middle'>
-          <a-col span='8' class='label-name'>
+          <a-col span='6' class='label-name'>
             Discount:
           </a-col>
-          <a-col span='16'>
-            <a-input v-model='discount' class='cc-form-input cc-small-input' suffix='%' />
+          <a-col span='6'>
+            <a-input
+              v-show='enableDiscount'
+              v-model='discount'
+              min='0'
+              max='100'
+              type='number'
+              suffix='%'
+              class='cc-form-input cc-small-input' />
+          </a-col>
+          <a-col span='12'>
+            <a-switch :checked='enableDiscount' @change="onChange" size='small'></a-switch>
           </a-col>
         </a-row>
 
-        <a-row :gutter='20' type="flex" align='middle'>
-          <a-col span='8' class='label-name'>
+        <a-row :gutter='20' type="flex" align='middle' v-show='enableDiscount'>
+          <a-col span='6' class='label-name'>
             Duration setting
           </a-col>
           <a-col span='16'>
@@ -385,6 +396,7 @@ export default {
       typeMap: typeMap,
       isSelfLearning: false,
 
+      enableDiscount: false,
       visible: false,
       discount: 0,
       price: 0,
@@ -516,6 +528,7 @@ export default {
         this.$logger.info('discountSettingQuery', data)
         this.discount = data.discount
         this.price = data.price
+        this.enableDiscount = data.enableDiscount
         this.startDate = data.discountStartTime
         this.endData = data.discountEndTime
         if (data.discountStartTime && data.discountEndTime) {
@@ -535,6 +548,7 @@ export default {
         discountModel: 2,
         price: this.price,
         discountStartTime: this.startDate,
+        enableDiscount: this.enableDiscount,
         discountEndTime: this.endData
       })
       this.content.price = this.price

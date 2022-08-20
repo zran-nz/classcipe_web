@@ -11,33 +11,41 @@
     <modal-header title="Edit price" @close='visible = false'/>
     <div class='edit-price'>
       <a-row :gutter='20' type="flex" align='middle'>
-        <a-col span='8' class='label-name'>
+        <a-col span='6' class='label-name'>
           Price:
         </a-col>
-        <a-col span='14'>
+        <a-col span='6'>
           <a-input
             v-model='price'
+            type='number'
             prefix='$'
             class='cc-form-input cc-small-input' />
         </a-col>
+        <a-col span='12' v-show='enableDiscount'>Discounted price <span :style="{'color': 'red'}">${{ (price * (1 - (discount * 1.0) / 100)).toFixed(2) }}</span></a-col>
       </a-row>
       <a-row :gutter='20' type="flex" align='middle'>
-        <a-col span='8' class='label-name'>
+        <a-col span='6' class='label-name'>
           Discount:
         </a-col>
-        <a-col span='14'>
-          <a-input v-model='discount' class='cc-form-input cc-small-input' suffix='%' />
-          <!--          <a-input-->
-          <!--            v-model='discount'-->
-          <!--            prefix='$'-->
-          <!--            class='cc-form-input cc-small-input' />-->
+        <a-col span='6'>
+          <a-input
+            v-show='enableDiscount'
+            v-model='discount'
+            min='0'
+            max='100'
+            type='number'
+            suffix='%'
+            class='cc-form-input cc-small-input' />
+        </a-col>
+        <a-col span='12'>
+          <a-switch :checked='enableDiscount' @change="onChange" size='small'></a-switch>
         </a-col>
       </a-row>
-      <a-row :gutter='20' type="flex" align='middle'>
-        <a-col span='8' class='label-name'>
-          Duration:
+      <a-row :gutter='20' type="flex" align='middle' v-show='enableDiscount'>
+        <a-col span='6' class='label-name'>
+          Duration setting
         </a-col>
-        <a-col span='14'>
+        <a-col span='16'>
           <a-range-picker :default-value="initDate" :mode="['date']" :disabled-date="disabledDate" @change="handleDurationChange"/>
         </a-col>
       </a-row>
@@ -74,6 +82,7 @@ export default {
       visible: false,
       discount: 0,
       typeMap: typeMap,
+      enableDiscount: false,
       isSelfLearning: false,
       price: 0,
       editPrice: false,
@@ -108,6 +117,7 @@ export default {
         this.price = data.price
         this.startDate = data.discountStartTime
         this.endData = data.discountEndTime
+        this.enableDiscount = data.enableDiscount
         this.isSelfLearning = data.isSelfLearning
         this.initDate = [data.discountStartTime ? moment(data.discountStartTime) : moment(new Date()),
           data.discountEndTime ? moment(data.discountEndTime) : null]
@@ -134,6 +144,7 @@ export default {
         discount: this.discount,
         discountModel: 2,
         price: this.price,
+        enableDiscount: this.enableDiscount,
         discountStartTime: this.startDate,
         discountEndTime: this.endData,
         isSelfLearning: this.isSelfLearning
