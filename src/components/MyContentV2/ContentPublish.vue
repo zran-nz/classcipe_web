@@ -134,6 +134,14 @@ export default {
       this.startDate = moment(date[0].toDate()).utc().format('YYYY-MM-DD 00:00:00')
       this.endData = moment(date[1].toDate()).utc().format('YYYY-MM-DD 00:00:00')
     },
+    onChange(v) {
+      this.enableDiscount = v
+      if (!v) {
+        this.discount = 0
+        this.startDate = null
+        this.endData = null
+      }
+    },
     async updatePrice () {
       this.$logger.info('update price')
       this.confirmLoading = true
