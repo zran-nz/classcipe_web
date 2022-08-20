@@ -173,7 +173,7 @@ export default {
         pageSize: 10000
       }).then(res => {
         this.$logger.info('listClass res records', res)
-        this.classList = (res?.result?.records || []).filter(cls => cls.classType !== 2)
+        this.classList = (res?.result?.records || []).filter(cls => cls.status !== 2)
         this.studentList = []
         if (this.classList.length === 1) {
           this.handleSelectClass(this.classList[0])

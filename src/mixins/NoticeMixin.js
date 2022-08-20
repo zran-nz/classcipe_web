@@ -92,9 +92,13 @@ export const NoticeMixin = {
         // 链接跳转
         this.$router.push({ path: record.openPage })
       } else {
-        this.$router.push({
-          path: '/notification-detail/' + record.id
-        })
+        if (this.$route.query && this.$route.query.direct === '1') {
+
+        } else {
+          this.$router.push({
+            path: '/notification-detail/' + record.id
+          })
+        }
       }
       if (this.handleHoverChange) {
         this.handleHoverChange(false)

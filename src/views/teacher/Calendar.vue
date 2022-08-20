@@ -109,7 +109,7 @@ import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 
 import SessionCalendar from '@/components/Calendar/SessionCalendar'
 
-import { listClass } from '@/api/v2/schoolClass'
+// import { listClass } from '@/api/v2/schoolClass'
 import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
 
 import { BG_COLORS, CALENDAR_QUERY_TYPE } from '@/const/common'
@@ -183,19 +183,19 @@ export default {
       currentUnitList: [],
       attendanceVisible: true,
       loading: false,
-      classList: [],
+      // classList: [],
       subjectOptions: []
     }
   },
-  watch: {
-    'currentSchool.id' (newVal) {
-      this.listClass()
-    }
-  },
+  // watch: {
+  //   'currentSchool.id' (newVal) {
+  //     this.listClass()
+  //   }
+  // },
   computed: {
     ...mapState({
       currentSchool: state => state.user.currentSchool,
-      // classList: state => state.user.classList,
+      classList: state => state.user.classList,
       info: state => state.user.info
     }),
     [CALENDAR_QUERY_TYPE.CLASS.label]() {
@@ -251,19 +251,20 @@ export default {
     }
   },
   created() {
-    this.listClass()
+    // this.listClass()
     this.initDict()
   },
   methods: {
-    listClass () {
-      listClass({
-        schoolId: this.currentSchool.id,
-        pageNo: 1,
-        pageSize: 10000
-      }).then(res => {
-        this.classList = res.result?.records.filter(cls => cls.classType !== 2)
-      })
-    },
+    // listClass () {
+    //   listClass({
+    //     schoolId: this.currentSchool.id,
+    //     myClass: true,
+    //     pageNo: 1,
+    //     pageSize: 10000
+    //   }).then(res => {
+    //     this.classList = res.result?.records.filter(cls => cls.status !== 2)
+    //   })
+    // },
     initDict() {
       // 获取所有班级用于筛选
       Promise.all([
