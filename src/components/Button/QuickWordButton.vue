@@ -282,6 +282,7 @@ export default {
 .quick-word {
   position: relative;
   width: 250px;
+  height: 180px;
   .quick-word-title {
     line-height: 30px;
     color: #666;
@@ -293,8 +294,9 @@ export default {
     height: 150px;
     overflow: auto;
     .quick-word-item {
-      line-height: 30px;
-      height: 30px;
+      line-height: 20px;
+      // min-height: 30px;
+      padding: 5px 0;
       background: #fff;
       display: flex;
       cursor: pointer;
@@ -304,7 +306,7 @@ export default {
       }
       a {
         flex: 1;
-        text-indent: 10px;
+        // text-indent: 10px;
       }
     }
   }
