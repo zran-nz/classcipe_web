@@ -315,14 +315,14 @@ const user = {
       const remotePromise = state.currentRole === 'student' ? StudentClasses : listClass
       return new Promise((resolve, reject) => {
         remotePromise({
-          queryType: 0,
+          // queryType: 0,
           schoolId: schoolId,
           myClass: true,
           pageNo: 1,
           pageSize: 10000
         }).then((response) => {
           if (response.success) {
-            const result = response.result.records || response.result
+            const result = (response.result.records || response.result).filter(item => item.status !== 2)
             commit('SET_CLASS_LIST', result)
             storage.set(SET_CLASS_LIST, result)
 
