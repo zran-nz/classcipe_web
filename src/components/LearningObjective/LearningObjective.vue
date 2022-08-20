@@ -127,7 +127,7 @@
               </div>
             </div>
           </div>
-          <div class='create-item' v-show='showFilterList && !filterList.length && filterConfig.keyword.trim().length'>
+          <div class='create-item' v-show='showFilterList && !filterList.length && filterConfig.keyword.trim().length && !duplicated'>
             <a-button type='primary' size="small" @click='handleEnsureInput'><a-icon type='plus' /> Create</a-button>
           </div>
         </div>
@@ -409,7 +409,6 @@ export default {
         selectedLanguageList: [],
         keyword: ''
       },
-
       showFilterList: false,
       filterList: [],
 
@@ -468,6 +467,15 @@ export default {
     },
     showLanguages() {
       return this.filterConfig.selectedSubjectList.indexOf('Languages') !== -1 || this.filterConfig.selectedSubjectList.indexOf('languages') !== -1
+    },
+    selectedIdList() {
+      return this.selectedList.filter(item => item.id).map(item => item.id)
+    },
+    inputedList() {
+      return this.selectedList.filter(item => !item.id).map(item => item.desc)
+    },
+    duplicated() {
+      return this.inputedList.indexOf(this.filterConfig.keyword.trim()) !== -1
     }
   },
   created() {
@@ -723,7 +731,7 @@ export default {
       if (this.data) {
         console.log('updateFilterList', this.data, 'filterConfig.curriculumId', this.filterConfig.curriculumId)
         const list = this.data['Learning outcomes'] ? this.data['Learning outcomes'] : this.data
-        const filterList = CurriculumSearch(list, this.filterConfig.selectedSubjectList, this.filterConfig.selectedYearList, this.filterConfig.keyword)
+        let filterList = CurriculumSearch(list, this.filterConfig.selectedSubjectList, this.filterConfig.selectedYearList, this.filterConfig.keyword)
         filterList.forEach(item => {
           // 高亮命中单词
           if (item.desc && this.filterConfig.keyword.trim() && item.desc.toLowerCase().includes(this.filterConfig.keyword.trim().toLowerCase())) {
@@ -743,6 +751,7 @@ export default {
             item.html = item.desc
           }
         })
+        filterList = filterList.filter(item => this.selectedIdList.indexOf(item.id) === -1)
         this.filterList = filterList
         this.asyncEmitUpdateEventFn()
       }

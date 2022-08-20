@@ -1,115 +1,233 @@
 <template>
-  <div class='search-result'>
-    <div class='library-search'>
+  <div class="my-content">
+    <div class="filter-line">
+      <div class='header-title'>
+        <div class='back-icon' @click='goBack'>
+          <a-icon type="left" />
+        </div>
+        <div class='category-title'>
+          Library
+        </div>
+      </div>
       <div class='create-new'>
         <a-space>
-          <global-search-input @search='handleSearch' />
+          <custom-search-input :round='false' :value.sync='queryParams.searchKey' @search='loadMyContent' placeholder='Search your content'/>
+          <common-content-filter
+            @update-filter='handleUpdateFilter'
+            :show-fa-sa-activity-type="true"
+            :show-content-type="true"
+          />
           <user-profile-avatar />
         </a-space>
       </div>
     </div>
     <div class='content-wrapper'>
-      <a-spin tip='Loading...' :spinning="searching">
+      <a-spin tip='Loading...' :spinning="loading">
         <div class='content-list'>
-          <template v-if='dataList.length !== 0 && !searching'>
-            <content-item
-              v-for='item in dataList'
-              :key='item.id'
-              :content='item'
-              :show-edit='false'
-              :show-schedule='false'
-              :show-publish='false'
-              :show-sub-task='false'
-              :show-delete='false'
-              :show-button='true'>
-            </content-item>
+          <template v-if='pagination.total !== 0 && !loading'>
+            <library-content-item v-for='item in myContentList' :key='item.id' :content='item'></library-content-item>
           </template>
-          <template v-if='dataList.length === 0 && !searching'>
+          <template v-if='pagination.total === 0 && !loading'>
             <div class='empty-tips'>
-              <common-no-data :text="'No data about ' + this.searchKeyword" />
-            </div>
-            <div class='go-back'>
-              <a-button shape='round' @click='$router.go(-1)' type='primary'>Go Back</a-button>
+              <no-more-resources />
             </div>
           </template>
         </div>
       </a-spin>
+      <div class='pagination'>
+        <a-pagination
+          v-model="pageNo"
+          :total="pagination.total"
+          :page-size="pagination.pageSize"
+          :showTotal='pagination.showTotal'
+          @change='pagination.onChange'
+          show-less-items />
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import { typeMap } from '@/const/teacher'
+import ContentStatusIcon from '@/components/Teacher/ContentStatusIcon'
+import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
+import ModalHeader from '@/components/Common/ModalHeader'
+import { USER_MODE } from '@/const/common'
+import CommonPreviewV2 from '@/components/Common/CommonPreviewV2'
+import CustomTag from '@/components/UnitPlan/CustomTag'
+import RadioSwitch from '@/components/Common/RadioSwitch'
+import NoMoreResources from '@/components/Common/NoMoreResources'
+import { UserModeMixin } from '@/mixins/UserModeMixin'
+import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import GlobalSearchInput from '@/components/GlobalSearch/GlobalSearchInput'
 import UserProfileAvatar from '@/components/User/UserProfileAvatar'
-import ContentItem from '@/components/MyContentV2/ContentItem'
-import CommonNoData from '@/components/Common/CommonNoData'
+import CustomSearchInput from '@/components/Common/CustomSearchInput'
+import ContentTypeFilter from '@/components/MyContentV2/ContentTypeFilter'
+import LibraryContentItem from '@/components/MyContentV2/LibraryContentItem'
+import { mapState } from 'vuex'
+import { CommonFilterMixin } from '@/mixins/CommonFilterMixin'
+import CommonContentFilter from '@/components/Common/CommonContentFilter'
+import PdContentFilter from '@/components/Common/PdContentFilter'
 import { QueryContentsFilter } from '@/api/library'
 
 export default {
-  name: 'LibrarySearch',
-  components: {
-    CommonNoData,
-    ContentItem,
-    UserProfileAvatar,
-    GlobalSearchInput
-  },
+  name: 'LibraryAll',
   props: {
     keyword: {
       type: String,
       default: null
     }
   },
-  data() {
+  components: {
+    PdContentFilter,
+    CommonContentFilter,
+    LibraryContentItem,
+    ContentTypeFilter,
+    CustomSearchInput,
+    UserProfileAvatar,
+    GlobalSearchInput,
+    RadioSwitch,
+    CommonPreviewV2,
+    ContentStatusIcon,
+    ContentTypeIcon,
+    ModalHeader,
+    CustomTag,
+    NoMoreResources
+  },
+  computed: {
+    ...mapState({
+      school: state => state.user.school
+    })
+  },
+  mixins: [ UserModeMixin, CurrentSchoolMixin, CommonFilterMixin ],
+  data () {
     return {
-      searching: true,
-      searchKeyword: this.keyword,
-      dataList: []
+      loading: true,
+      myContentList: [],
+      currentType: null,
+
+      previewCurrentId: '',
+      previewType: '',
+      currentPreviewLesson: null,
+
+      searchKey: null,
+      pagination: {
+        onChange: page => {
+          this.pageNo = page
+          this.loadMyContent()
+        },
+        showTotal: total => `Total ${total} items`,
+        total: 0,
+        pageSize: 15
+      },
+      pageNo: 1,
+
+      searchText: '',
+      filterParams: {},
+
+      typeMap: typeMap,
+
+      viewPreviewSessionVisible: false,
+      PPTCommentPreviewVisible: false,
+      classList: [],
+      lessonSelectTagVisible: false,
+      sessionTags: [],
+      sessionItem: {},
+      startLoading: false,
+      userTags: {}
     }
   },
-  created() {
-    this.$logger.info('LibrarySearch: created', this.searchKeyword)
-    this.handleDoSearch()
+  created () {
+    this.queryParams.searchKey = this.keyword
+    this.loadMyContent(true)
   },
   methods: {
-    handleDoSearch () {
-      this.searching = true
-      QueryContentsFilter({
-        searchKey: this.searchKeyword
-      }).then(response => {
-        this.$logger.info('QueryContentsFilter result : ', response)
-        this.dataList = response.result ? response.result : []
+    handleSchoolChange() {
+      this.pageNo = 1
+      this.loadMyContent()
+    },
+    handleModeChange(userMode) {
+      // 模式切换，个人还是学校 个人接口
+      if (userMode === USER_MODE.SELF) {
+        this.pageNo = 1
+        this.loadMyContent()
+      }
+    },
+    loadMyContent (init = false) {
+      this.loading = true
+      let params = JSON.parse(JSON.stringify(this.queryParams))
+      params.curriculumId = this.$store.getters.bindCurriculum
+      if (init) {
+        params = { searchKey: this.keyword }
+      }
+      QueryContentsFilter(params).then(res => {
+        this.$logger.info('QueryContentsFilter', res)
+        if (res.result) {
+          res.result.forEach((record, index) => {
+            record.key = index
+          })
+          this.myContentList = res.result
+          this.pagination.total = res.result.total
+          this.pagination.current = res.result.current
+          this.pageNo = this.pagination.current
+        } else {
+          this.myContentList = []
+          this.pagination.total = 0
+        }
+        this.$logger.info('QueryContentsFilter myContentList', this.myContentList)
       }).finally(() => {
-        this.searching = false
+        this.loading = false
       })
     },
 
-    handleSearch(keyword) {
-      this.$logger.info('LibrarySearch handleSearch', keyword)
-      this.searchKeyword = keyword
-      this.handleDoSearch()
+    goBack () {
+      this.$router.replace({
+        path: '/teacher/library'
+      })
     }
   }
 }
 </script>
 
-<style lang='less' scoped>
+<style lang="less" scoped>
 @import "~@/components/index.less";
 
-.search-result {
+.my-content {
   padding: 15px;
   background: #fff;
-  height: 100%;
-  .library-search {
+  .filter-line {
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-end;
+    justify-content: space-between;
 
-    .create-new {
+    .header-title {
       display: flex;
       flex-direction: row;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
+
+      .back-icon {
+        cursor: pointer;
+      }
+
+      .category-title {
+        padding-left: 10px;
+        font-size: 20px;
+        color: #333;
+        font-weight: bold;
+      }
+    }
+
+    .type-owner {
+      height: 40px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+
+    .create-new {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
     }
   }
 
@@ -119,7 +237,6 @@ export default {
       min-height: calc(100vh - 200px);
 
       .empty-tips {
-        min-height: 120px;
         height: calc(100vh - 300px);
         display: flex;
         justify-content: center;
@@ -129,8 +246,4 @@ export default {
   }
 }
 
-.go-back {
-  text-align: center;
-  margin-top: 10px;
-}
 </style>
