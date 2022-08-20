@@ -263,9 +263,9 @@ export default {
     .col-wrapper{
       border: 1px solid #e8e8e8;
       box-sizing: border-box;
-      min-height: 500px;
+      min-height: 450px;
       .content-list{
-        max-height: 500px;
+        max-height: 450px;
         overflow-y: auto;
       }
     }
@@ -333,7 +333,7 @@ export default {
 .description-wrapper {
   padding: 15px;
   box-sizing: border-box;
-  max-height: 500px;
+  max-height: 450px;
   overflow-y: auto;
   .description-list {
     display: flex;

@@ -730,6 +730,7 @@
       destroyOnClose
       title='Browse big idea'
       width='700px'
+      :dialog-style="{ top: '50px'}"
       @cancel='selectBigIdeaDataVisible = false'
       @ok='selectBigIdeaDataVisible = false'>
       <div class='link-content-wrapper'>

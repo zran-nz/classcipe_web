@@ -78,7 +78,7 @@ import SelectParticipant from '@/components/Schedule/SelectParticipant'
 import ScheduleDate from '@/components/Schedule/ScheduleDate'
 import SchedulePayInfo from '@/components/Schedule/SchedulePayInfo'
 import SchoolSchedule from '@/components/Schedule/SchoolSchedule'
-import { AddSessionV2 } from '@/api/v2/classes'
+import { AddSessionV2, UpdateSessionV2 } from '@/api/v2/classes'
 import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
 import FixedFormFooter from '@/components/Common/FixedFormFooter'
 import ZoomMeetingSetting from '@/components/Schedule/ZoomMeetingSetting'
@@ -135,7 +135,8 @@ export default {
       creating: false,
 
       calendarSearchFilters: [],
-      calendarSearchType: CALENDAR_QUERY_TYPE.CLASS.value
+      calendarSearchType: CALENDAR_QUERY_TYPE.CLASS.value,
+      sessionId: ''
     }
   },
   computed: {
@@ -147,6 +148,7 @@ export default {
     this.$logger.info(`ScheduleSession created with id: ${this.id} type ${this.type}`)
     this.handleAssociate()
     this.loading = false
+    this.sessionId = this.$route.query.sessionId
 
     this.$EventBus.$on('ZoomMeetingUpdatePassword', this.handleSelectPassword)
     this.$EventBus.$on('ZoomMeetingUpdateWaitingRoom', this.handleSelectWaitingRoom)
@@ -314,10 +316,17 @@ export default {
         this.$message.warn('Please select Schedule time!')
         return
       }
-      this.$logger.info('try createSession scheduleReq', this.scheduleReq)
       this.creating = true
       try {
-        const res = await AddSessionV2(this.scheduleReq)
+        let res
+        if (this.sessionId) {
+          this.scheduleReq.sessionId = this.sessionId
+          this.$logger.info('try updateSession scheduleReq', this.scheduleReq)
+          res = await UpdateSessionV2(this.scheduleReq)
+        } else {
+          this.$logger.info('try createSession scheduleReq', this.scheduleReq)
+          res = await AddSessionV2(this.scheduleReq)
+        }
         this.$logger.info('save scheduleReq', res, 'retValue', retValue)
         if (res.result && res.success && res.code === 0) {
           this.$message.success('Schedule session successfully')
