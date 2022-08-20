@@ -162,7 +162,7 @@ export default {
       WORK_SHOPS_TYPE_VALUES: Object.values(WORK_SHOPS_TYPE),
       queryParams: {
         classId: '',
-        status: 2, // 2: scheduled, 1: on-going, 3: ended
+        status: sessionStorage.getItem(SESSION_CLASS_TYPE) ? parseInt(sessionStorage.getItem(SESSION_CLASS_TYPE)) : SourceType.CreatedByMe, // 2: scheduled, 1: on-going, 3: ended
         searchKey: ''
       },
       loading: true,
