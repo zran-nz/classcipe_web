@@ -28,14 +28,15 @@
           Discount:
         </a-col>
         <a-col span='6'>
-          <a-input
+          <a-input-number
+            :default-value="0"
+            :min="0"
+            :max="100"
+            :formatter="value => `${value}%`"
+            :parser="value => value.replace('%', '')"
             v-show='enableDiscount'
             v-model='discount'
-            min='0'
-            max='100'
-            type='number'
-            suffix='%'
-            class='cc-form-input cc-small-input' />
+          />
         </a-col>
         <a-col span='12'>
           <a-switch :checked='enableDiscount' @change="onChange" size='small'></a-switch>

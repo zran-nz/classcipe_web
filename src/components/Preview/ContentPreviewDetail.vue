@@ -679,11 +679,11 @@ export default {
   components: { RateLevel, ModalHeader, ContentPreview, CustomLinkText, ShareButton, CardListItem, PreviewCarousel, ShareIcon, RateByPercent, ReviewsPreview, ReviewScore, ReviewStat, PriceSlider },
   props: {
     contentId: {
-      type: String,
+      type: [String, Number],
       required: true
     },
     contentType: {
-      type: Number,
+      type: [String, Number],
       required: true
     },
     showBuyButton: {

@@ -237,8 +237,11 @@ export default {
         ...item,
         type: parseInt(item.fromType)
       }
+      this.$logger.info('dataItem', item)
       this.showSearchWrapper = false
-      this.handlePreviewDetail(dataItem)
+      this.$router.push({
+        path: '/teacher/library-view/' + dataItem.type + '/' + dataItem.id
+      })
     }
   }
 }

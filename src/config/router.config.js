@@ -90,6 +90,13 @@ export const asyncRouterMap = [
             meta: { title: 'menu.library', keepAlive: true, permission: ['teacher'] }
           },
           {
+            path: '/teacher/library-view/:contentType/:contentId',
+            name: 'LibraryView',
+            props: true,
+            component: () => import('@/views/teacher/LibraryView'),
+            meta: { title: 'menu.library', keepAlive: true, permission: ['teacher'] }
+          },
+          {
             path: '/teacher/resource/search/:keyword',
             name: 'ResourceSearch',
             component: () => import('@/views/teacher/ResourceSearch'),

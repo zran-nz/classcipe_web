@@ -167,28 +167,40 @@
       <modal-header title="Edit price" @close='visible = false'/>
       <div class='edit-price'>
         <a-row :gutter='20' type="flex" align='middle'>
-          <a-col span='8' class='label-name'>
+          <a-col span='6' class='label-name'>
             Price:
           </a-col>
-          <a-col span='16'>
+          <a-col span='6'>
             <a-input
               v-model='price'
               type='number'
               prefix='$'
               class='cc-form-input cc-small-input' />
           </a-col>
+          <a-col span='12' v-show='enableDiscount'>Discounted price <span :style="{'color': 'red'}">${{ (price * (1 - (discount * 1.0) / 100)).toFixed(2) }}</span></a-col>
         </a-row>
         <a-row :gutter='20' type="flex" align='middle'>
-          <a-col span='8' class='label-name'>
+          <a-col span='6' class='label-name'>
             Discount:
           </a-col>
-          <a-col span='16'>
-            <a-input v-model='discount' class='cc-form-input cc-small-input' suffix='%' />
+          <a-col span='6'>
+            <a-input-number
+              :default-value="0"
+              :min="0"
+              :max="100"
+              :formatter="value => `${value}%`"
+              :parser="value => value.replace('%', '')"
+              v-show='enableDiscount'
+              v-model='discount'
+            />
+          </a-col>
+          <a-col span='12'>
+            <a-switch :checked='enableDiscount' @change="onChange" size='small'></a-switch>
           </a-col>
         </a-row>
 
-        <a-row :gutter='20' type="flex" align='middle'>
-          <a-col span='8' class='label-name'>
+        <a-row :gutter='20' type="flex" align='middle' v-show='enableDiscount'>
+          <a-col span='6' class='label-name'>
             Duration setting
           </a-col>
           <a-col span='16'>
@@ -312,6 +324,7 @@ export default {
       visible: false,
       discount: 0,
       price: 0,
+      enableDiscount: false,
       editPrice: false,
       startDate: null,
       endData: null,
@@ -428,6 +441,7 @@ export default {
         this.price = data.price
         this.startDate = data.discountStartTime
         this.endData = data.discountEndTime
+        this.enableDiscount = data.enableDiscount
         if (data.discountStartTime && data.discountEndTime) {
           this.initDate = [moment(data.discountStartTime), moment(data.discountEndTime)]
         }
@@ -445,6 +459,7 @@ export default {
         discountModel: 2,
         price: this.price,
         discountStartTime: this.startDate,
+        enableDiscount: this.enableDiscount,
         discountEndTime: this.endData
       })
       this.content.price = this.price
@@ -458,7 +473,14 @@ export default {
       this.startDate = moment(date[0].toDate()).utc().format('YYYY-MM-DD 00:00:00')
       this.endData = moment(date[1].toDate()).utc().format('YYYY-MM-DD 00:00:00')
     },
-
+    onChange(v) {
+      this.enableDiscount = v
+      if (!v) {
+        this.discount = 0
+        this.startDate = null
+        this.endData = null
+      }
+    },
     disabledDate(current) {
       return current && current < moment().subtract(1, 'days').endOf('day')
     },
