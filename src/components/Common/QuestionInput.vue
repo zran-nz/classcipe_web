@@ -1,8 +1,5 @@
 <template>
   <div class='question-input-wrapper' :style="{height: height + 'px'}">
-    filterList {{ filterList }}
-    <br/>
-    list {{ list }}
     <div class='question-input'>
       <a-spin :spinning="updating">
         <a-input
@@ -137,6 +134,7 @@ export default {
     },
     handleSelectItem (item) {
       this.$logger.info('QuestionInput handleSelectItem', item)
+      item.id = null
       if (this.selectedList.indexOf(item) === -1) {
         this.selectedList.unshift(item)
       }
