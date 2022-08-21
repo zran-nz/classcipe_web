@@ -8,6 +8,7 @@
     width='760px'>
     <modal-header @close='handleClose' title='Create new category or choose from system tag(s) to set as category' :white='true'/>
     <div class='category-list'>
+      selectedList {{ selectedList }}
       <a-skeleton :loading='loading' />
       <template v-if='!loading'>
         <div class='category-block' v-for='(category, cIdx) in categoryList' :key='category.set' :style="{'background-color': color[cIdx]}">
@@ -132,7 +133,7 @@ export default {
         const unitSetLast = await App.service('conf-user').get('UnitSetLast')
         this.lastUnitSetId = unitSetLast._id
         this.$logger.info('unitSetLast', unitSetLast)
-        this.selectedList = unitSetLast.val
+        this.selectedList = (unitSetLast.val || []).filter(item => this.selfCategory.indexOf(item) !== -1)
       } catch (e) {
         console.log(e)
         this.$logger.error('loadLinkCategoryData', e)
