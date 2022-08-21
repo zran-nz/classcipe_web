@@ -432,18 +432,6 @@ export default {
           ],
           showRequiredTips: false,
           showSatisfiedTips: false
-        },
-        {
-          id: 4,
-          name: 'Case Video',
-          commonFields: [
-            PdField.VideoList
-          ],
-          tips: 'You can publish case study video to library for other teachers to purchase and develop their professional skills',
-          skip: true,
-          showSchedule: true,
-          showRequiredTips: false,
-          showSatisfiedTips: false
         }
       ]
     },
