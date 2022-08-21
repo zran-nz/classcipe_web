@@ -172,27 +172,13 @@
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
-                    <a-select
-                      :getPopupContainer="trigger => trigger.parentElement"
-                      size='large'
-                      class='my-big-select'
-                      v-model='form.questionIds'
-                      mode="tags"
-                      placeholder='Choose Key questions'
-                      option-label-prop='label'
-                      :disabled="!canEdit"
-                    >
-                      <a-select-option
-                        v-for='(item,index) in associateQuestionList'
-                        :value='item.id'
-                        :label='item.name'
-                        :key='index'>
-                        <span class='question-options'>
-                          {{ item.name }}
-                        </span>
-                        From Unit Plan({{ item.unitName }})
-                      </a-select-option>
-                    </a-select>
+                    <question-input
+                      v-if='!associateLoading'
+                      :list='associateQuestionList'
+                      :can-edit='canEdit'
+                      :selected='form.questions'
+                      @update='handleUpdateQuestion'
+                      :placeholder='taskLabelHint(taskField.Question, $store.getters.formConfigData) || "Search key question(s)"' />
                   </custom-form-item>
                 </div>
 
@@ -608,10 +594,12 @@ import { discountSettingSave } from '@/api/v2/discountSetting'
 import CustomButton from '@/components/Common/CustomButton'
 import DeleteIcon from '@/components/Common/DeleteIcon'
 import EditPriceDialog from '@/components/MyContentV2/EditPriceDialog'
+import QuestionInput from '@/components/Common/QuestionInput'
 
 export default {
   name: 'AddTaskV2',
   components: {
+    QuestionInput,
     EditPriceDialog,
     DeleteIcon,
     CustomButton,
@@ -727,6 +715,7 @@ export default {
       associateId2Name: new Map(),
 
       materialListFlag: false,
+      associateLoading: false,
 
       taskField: TaskField,
 
@@ -1227,6 +1216,7 @@ export default {
       this.$logger.info('AddTask GetAssociate id[' + this.taskId + '] fromType[' + this.contentType.task + ']')
       this.associateUnitPlanIdList = []
       this.associateTaskIdList = []
+      this.associateLoading = true
       GetAssociate({
         id: this.taskId,
         type: this.contentType.task
@@ -1265,7 +1255,8 @@ export default {
               content.questions.forEach(question => {
                 this.associateQuestionList.push({
                   ...question,
-                  unitName: content.name
+                  unitName: content.name,
+                  fromText: 'From Unit Plan (' + (content.name || 'Untitled Unit') + ')'
                 })
               })
             }
@@ -1274,15 +1265,10 @@ export default {
         this.$logger.info('AddTask GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
         this.$logger.info('*******************associateUnitPlanIdList', this.associateUnitPlanIdList)
         this.$logger.info('associateTaskIdList', this.associateTaskIdList)
+        this.$logger.info('associateQuestionList', this.associateQuestionList)
         this.requiredFields = this.$classcipe.taskRequiredFields
-        // if (this.associateQuestionList.length === 0) {
-        //   const list = this.requiredFields.slice()
-        //   list.splice(list.indexOf(this.taskField.Question), 1)
-        //   this.requiredFields = list
-        //   this.$logger.info('associateQuestionList empty remove Question from requiredFields')
-        // }
       }).finally(() => {
-        this.linkGroupLoading = false
+        this.associateLoading = false
 
         this.$logger.info('AddTask GetAssociate associateUnitPlanIdList', this.associateUnitPlanIdList)
         if (this.associateUnitPlanIdList.length > 0) {
@@ -1747,6 +1733,11 @@ export default {
       this.$logger.info('DiscountSettingSave', discountItem)
       const response = await discountSettingSave(discountItem)
       this.$logger.info('TaskAddOrUpdate', response.result)
+    },
+    handleUpdateQuestion(data) {
+      this.$logger.info('handleUpdateQuestion', data)
+      this.form.questions = data.map(item => ({ id: item.id, name: item.name }))
+      this.$logger.info('handleUpdateQuestion questions', this.form.questions)
     }
   }
 }
