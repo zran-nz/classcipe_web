@@ -141,7 +141,7 @@ export const BaseEventMixin = {
       return false
     },
     canEdit() {
-      return false
+      return this.isOwner || this.isEditCollaborater
     },
     showRightModule () {
       return function (module) {
