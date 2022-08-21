@@ -6,6 +6,7 @@
           title='Create task'
           :form='form'
           :spin='saving'
+          :back-by-router='true'
           :share-status='shareStatus'
           :collaborate='collaborate'
           :last-change-saved-time='lastChangeSavedTime'
@@ -455,6 +456,11 @@
       </div>
     </div>
     <fixed-form-footer :show-mask='!!form.slideEditing'>
+      <template v-slot:left>
+        <template v-if='canEdit'>
+          <a-button @click='goBack'>Discard</a-button>
+        </template>
+      </template>
       <template v-slot:right>
         <a-button type='primary' @click='handleNextStep' class='cc-round-button' :disabled='waitingRedirect'>
           <template v-if='currentActiveStepIndex < formSteps.length - 1'>

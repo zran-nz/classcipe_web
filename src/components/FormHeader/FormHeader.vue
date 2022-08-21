@@ -101,6 +101,10 @@ export default {
     disablePublish: {
       type: Boolean,
       default: false
+    },
+    backByRouter: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -188,7 +192,7 @@ export default {
     },
     handleBack() {
       this.$logger.info('handleBack')
-      if (this.isPreviewMode) {
+      if (this.isPreviewMode || this.backByRouter) {
         this.$emit('back')
       } else {
         if (this.isOwner) {
