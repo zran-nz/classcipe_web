@@ -173,7 +173,7 @@ export default {
             item.html = item.name
           }
         })
-        this.filterList = list.filter(item => this.selectedIdList.indexOf(item.id) === -1)
+        this.filterList = list.filter(item => this.selectedIdList.indexOf(item.id) === -1).filter(item => this.inputList.indexOf(item.name) === -1)
       }
       console.log('QuestionInput updateFilterList', this.filterList)
     },
@@ -182,6 +182,7 @@ export default {
       if (this.selectedList.indexOf(item) !== -1) {
         this.selectedList.splice(this.selectedList.indexOf(item), 1)
       }
+      this.$emit('update', this.selectedList)
       this.updateFilterList()
     }
   }
