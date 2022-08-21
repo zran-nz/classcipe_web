@@ -574,6 +574,8 @@ export default {
 }
 
 .img-preview {
+  height: 110px;
+  padding-bottom: 58%;
   .img-cover {
     height: 110px;
     padding-bottom: 58%;
