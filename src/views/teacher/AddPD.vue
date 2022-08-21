@@ -73,20 +73,20 @@
                 </custom-form-item>
               </div>
 
-              <div class='form-block tag-content-block' v-if='fieldName === PdField.CoverVideo' :key='fieldName'>
-                <custom-form-item :required='emptyRequiredFields.indexOf(PdField.CoverVideo) !== -1' :required-field='requiredFields.indexOf(PdField.CoverVideo) !== -1'>
-                  <template slot='label'>
-                    Cover video
-                  </template>
-                  <custom-cover-media
-                    type='video'
-                    :field='PdField.CoverVideo'
-                    :url='form.coverVideo'
-                    :show-delete-button='true'
-                    @delete='handleDeleteVideoCover'
-                    @update='handleUpdateCover'/>
-                </custom-form-item>
-              </div>
+              <!--              <div class='form-block tag-content-block' v-if='fieldName === PdField.CoverVideo' :key='fieldName'>-->
+              <!--                <custom-form-item :required='emptyRequiredFields.indexOf(PdField.CoverVideo) !== -1' :required-field='requiredFields.indexOf(PdField.CoverVideo) !== -1'>-->
+              <!--                  <template slot='label'>-->
+              <!--                    Cover video-->
+              <!--                  </template>-->
+              <!--                  <custom-cover-media-->
+              <!--                    type='video'-->
+              <!--                    :field='PdField.CoverVideo'-->
+              <!--                    :url='form.coverVideo'-->
+              <!--                    :show-delete-button='true'-->
+              <!--                    @delete='handleDeleteVideoCover'-->
+              <!--                    @update='handleUpdateCover'/>-->
+              <!--                </custom-form-item>-->
+              <!--              </div>-->
 
               <div class='form-block tag-content-block' v-if='fieldName === PdField.Goals' :key='fieldName'>
                 <custom-form-item :required='emptyRequiredFields.indexOf(PdField.Goals) !== -1' :required-field='requiredFields.indexOf(PdField.Goals) !== -1'>
