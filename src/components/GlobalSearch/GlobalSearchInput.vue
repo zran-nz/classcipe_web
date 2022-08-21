@@ -121,6 +121,12 @@ export default {
       historyList: []
     }
   },
+  props: {
+    schoolId: {
+      type: String,
+      default: '0'
+    }
+  },
   computed: {
     showSearchHistory () {
       return this.searchKeyword === null || this.searchKeyword.trim() === ''
@@ -180,7 +186,8 @@ export default {
       this.searching = true
       this.recommendList = []
       librarySearch({
-        key: value
+        key: value,
+        schoolId: this.schoolId // library resource内容不一样
       }).then(response => {
         this.$logger.info('searchByKeyword ' + value, response)
         const list = []
