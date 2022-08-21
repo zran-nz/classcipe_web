@@ -1,7 +1,7 @@
 <template>
   <div class='slide-select-list'>
     <div class='slide-source-switch'>
-      <a-radio-group default-value="My content" button-style="solid" class='cc-radio-group' v-model='filterSourceType' @change='handleSearchByFilter'>
+      <a-radio-group :disabled='disabled' default-value="My content" button-style="solid" class='cc-radio-group' v-model='filterSourceType' @change='handleSearchByFilter'>
         <a-radio-button :value="sourceType.MyContent">
           My content
         </a-radio-button>
@@ -53,8 +53,8 @@
               :img-mode='true'
               :slide-item='slide'
               :add-text="addText(slide)"
-              :show-remove-button='selectedPresentationIdList.indexOf(slide.presentationId) !== -1'
-              :show-add-button='selectedPresentationIdList.indexOf(slide.presentationId) === -1'
+              :show-remove-button='selectedPresentationIdList.indexOf(slide.presentationId) !== -1 && !disabled'
+              :show-add-button='selectedPresentationIdList.indexOf(slide.presentationId) === -1 && !disabled'
               :default-thumbnail-list='slide.thumbnailList'/>
             <img src="~@/assets/icons/lesson/selected.png" class='selected-icon'/>
           </div>
@@ -124,6 +124,10 @@ export default {
     selectedTemplateList: {
       type: Array,
       default: () => []
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {

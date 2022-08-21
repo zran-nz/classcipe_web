@@ -314,6 +314,7 @@
                   <form-slide
                     :source-type='contentType.task'
                     :source-id='taskId'
+                    :disabled='!canEdit'
                     :slide-id='form.presentationId'
                     :show-materials-and-tips='false'
                     :show-selected="form.showSelected"
@@ -425,7 +426,7 @@
             </div>
           </template>
           <template v-if='currentRightModule === rightModule.recommend'>
-            <slide-select-list :source-id='taskId' :selected-template-list='form.selectedTemplateList' />
+            <slide-select-list :source-id='taskId' :disabled='!canEdit' :selected-template-list='form.selectedTemplateList' />
           </template>
           <template v-if='currentRightModule === rightModule.customTag'>
             <div v-if='!contentLoading'>

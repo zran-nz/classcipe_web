@@ -3,6 +3,7 @@
     <div class='form-action-bar'>
       <div class='slide-switch'>
         <a-radio-group
+          :disabled='disabled'
           v-show='showDisplayModeSwitch'
           :default-value="displayMode"
           button-style="solid"
@@ -21,6 +22,7 @@
         <custom-text-button
           label='Edit google slides'
           :loading="editLoading"
+          v-if='!disabled'
           @click="handleEditGoogleSlide">
           <template v-slot:icon>
             <google-icon />
@@ -88,6 +90,10 @@ export default {
       default: true
     },
     editLoading: {
+      type: Boolean,
+      default: false
+    },
+    disabled: {
       type: Boolean,
       default: false
     }
