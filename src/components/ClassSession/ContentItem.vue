@@ -262,7 +262,7 @@ export default {
       this.$logger.info('edit session content', this.session)
       if (this.content.presentationId) {
         this.$router.push({
-          path: '/teacher/schedule-session/' + this.content.id + '/' + this.content.type
+          path: '/teacher/schedule-session/' + this.content.id + '/' + this.content.type + '?sessionId=' + this.session.id
         })
       } else {
         this.$message.warn('This task/PD content can not be scheduled without interactive slides, please edit google slides first before scheduling.')
