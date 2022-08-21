@@ -165,7 +165,7 @@ export default {
             }
             Associate(associateData).then((res) => {
               this.$logger.info('associate success')
-              this.$router.replace('/teacher/add-task-v2/' + taskId)
+              this.$router.push('/teacher/add-task-v2/' + taskId)
             }).finally(() => {
               this.creatingTask = false
             })
