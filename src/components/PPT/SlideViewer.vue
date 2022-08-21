@@ -22,7 +22,7 @@
           </div>
         </div>
         <div class='img-preview' v-if='imgMode'>
-          <div class='img-cover' :style="{'background-image': 'url(' + (slideItem.cover ||  imgList[0]) + ')'}"></div>
+          <div class='img-cover' :style="{'background-image': 'url(' + (slideItem.image ||  imgList[0]) + ')'}"></div>
         </div>
         <template v-if='!imgMode'>
           <a-carousel ref='carousel' :arrows='showArrow && imgList.length > 1' :after-change='onChangePage'>
