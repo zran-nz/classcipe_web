@@ -65,21 +65,9 @@
         All students at your school will receive email and notification
       </div> -->
       <div class='choose-type'>
-        <div class='title'>
-          Live video class
-        </div>
-        <div class='type-list'>
-          <div class='list-item vertical-between'>
-            <div class='zoom-icon'>
-              <img src='~@/assets/icons/zoom/img.png' />
-            </div>
-            <div class='zoom-switch'>
-              <a-switch size='small' v-model='enableZoom' @change='handleZoomStatusChange'></a-switch>
-            </div>
-          </div>
-        </div>
+        <zoom-auth />
         <zoom-meeting
-          v-show='enableZoom'
+          v-show='zoomAccessToken'
           ref='zoom'
           :password='password'
           :waiting-room='waitingRoom' />
@@ -128,10 +116,12 @@ import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
 import { queryTeachers } from '@/api/common'
 import ZoomMeeting from '@/components/Schedule/ZoomMeeting'
 import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
+import ZoomAuth from '@/components/Schedule/ZoomAuth'
 
 export default {
   name: 'SchoolSchedule',
   components: {
+    ZoomAuth,
     ZoomMeeting,
     CustomTextButton,
     DeleteIcon,

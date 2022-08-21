@@ -8,7 +8,7 @@
         <div class='form-title vertical-left'>
           Passcode
           <div class='title-tips'>
-            <a-tooltip title=''>
+            <a-tooltip title='You can enable a Zoom passcode to secure who joins your meetings. Once enabled, your Zoom meeting will automatically include a passcode same as your session code.'>
               <a-icon type="question-circle" :style="{ fontSize: '14px', color: '#bbb' }" />
             </a-tooltip>
           </div>
@@ -21,7 +21,7 @@
         <div class='form-title vertical-left'>
           Waiting room
           <div class='title-tips'>
-            <a-tooltip title=''>
+            <a-tooltip title='The Waiting Room feature allows the host to control when a participant joins the meeting.'>
               <a-icon type="question-circle" :style="{ fontSize: '14px', color: '#bbb' }" />
             </a-tooltip>
           </div>

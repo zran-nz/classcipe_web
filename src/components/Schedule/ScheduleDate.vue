@@ -2,21 +2,9 @@
   <div class='schedule-date'>
     <div style="padding: 0 20px;" :style="{width: showCalendarLink ? '30%' : '50%'}">
       <div class='choose-type'>
-        <div class='title'>
-          Live video class
-        </div>
-        <div class='type-list'>
-          <div class='list-item vertical-between'>
-            <div class='zoom-icon'>
-              <img src='~@/assets/icons/zoom/img.png' />
-            </div>
-            <div class='zoom-switch'>
-              <a-switch size='small' v-model='enableZoom' @change='handleZoomStatusChange'></a-switch>
-            </div>
-          </div>
-        </div>
+        <zoom-auth />
         <zoom-meeting
-          v-show='enableZoom'
+          v-show='zoomAccessToken'
           ref='zoom'
           @update='updateZoom' />
       </div>
@@ -47,10 +35,12 @@ import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
 import { CALENDAR_QUERY_TYPE } from '@/const/common'
 import moment from 'moment'
 import ZoomMeeting from '@/components/Schedule/ZoomMeeting'
+import ZoomAuth from '@/components/Schedule/ZoomAuth'
 
 export default {
   name: 'ScheduleDate',
   components: {
+    ZoomAuth,
     ZoomMeeting,
     SessionCalendar: () => import('@/components/Calendar/SessionCalendar')
   },

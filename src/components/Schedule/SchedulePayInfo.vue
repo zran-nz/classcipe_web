@@ -82,21 +82,9 @@
         </div>
       </div>
       <div class='choose-type'>
-        <div class='title'>
-          Live video class
-        </div>
-        <div class='type-list'>
-          <div class='list-item vertical-between'>
-            <div class='zoom-icon'>
-              <img src='~@/assets/icons/zoom/img.png' />
-            </div>
-            <div class='zoom-switch'>
-              <a-switch size='small' v-model='enableZoom' @change='handleZoomStatusChange'></a-switch>
-            </div>
-          </div>
-        </div>
+        <zoom-auth />
         <zoom-meeting
-          v-show='enableZoom'
+          v-show='zoomAccessToken'
           ref='zoom'
           :password='password'
           :waiting-room='waitingRoom' />
@@ -139,10 +127,12 @@ import DeleteIcon from '@/components/Common/DeleteIcon'
 import CustomTextButton from '@/components/Common/CustomTextButton'
 import { CALENDAR_QUERY_TYPE } from '@/const/common'
 import ZoomMeeting from '@/components/Schedule/ZoomMeeting'
+import ZoomAuth from '@/components/Schedule/ZoomAuth'
 
 export default {
   name: 'SchedulePayInfo',
   components: {
+    ZoomAuth,
     ZoomMeeting,
     CustomTextButton,
     DeleteIcon,

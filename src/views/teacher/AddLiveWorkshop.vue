@@ -218,21 +218,9 @@
             </div> -->
           </template>
           <div class='choose-type'>
-            <div class='title'>
-              Live video class
-            </div>
-            <div class='type-list'>
-              <div class='list-item vertical-between'>
-                <div class='zoom-icon'>
-                  <img src='~@/assets/icons/zoom/img.png' />
-                </div>
-                <div class='zoom-switch'>
-                  <a-switch size='small' v-model='enableZoom' @change='handleZoomStatusChange'></a-switch>
-                </div>
-              </div>
-            </div>
+            <zoom-auth />
             <zoom-meeting
-              v-show='enableZoom'
+              v-show='zoomAccessToken'
               ref='zoom'
               :password='false'
               :waiting-room='false' />
@@ -310,11 +298,13 @@ import { AssociateMixin } from '@/mixins/AssociateMixin'
 import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
 import { mapState } from 'vuex'
 import moment from 'moment'
+import ZoomAuth from '@/components/Schedule/ZoomAuth'
 
 export default {
   name: 'AddLiveWorkshop',
   mixins: [AssociateMixin, ZoomAuthMixin, UserModeMixin, CurrentSchoolMixin],
   components: {
+    ZoomAuth,
     FixedFormHeader,
     FormHeader,
     FixedFormFooter,
