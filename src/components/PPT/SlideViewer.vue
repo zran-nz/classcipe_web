@@ -21,20 +21,25 @@
             </a-button>
           </div>
         </div>
-        <a-carousel ref='carousel' :arrows='showArrow && imgList.length > 1' :after-change='onChangePage'>
-          <div
-            slot="prevArrow"
-            class="custom-slick-arrow"
-            style="left: 0;z-index: 200"
-          >
-            <a-icon type="left" />
-          </div>
-          <div slot="nextArrow" class="custom-slick-arrow" style="right: 0; z-index: 200">
-            <a-icon type="right" />
-          </div>
-          <div class='slider-img-cover' :style="{width: width, backgroundImage: 'url(' + image + ')'}" v-for='(image,idx) in imgList' :key='idx'>
-          </div>
-        </a-carousel>
+        <div class='img-preview' v-if='imgMode'>
+          <div class='img-cover' :style="{'background-image': 'url(' + (slideItem.cover ||  imgList[0]) + ')'}"></div>
+        </div>
+        <template v-if='!imgMode'>
+          <a-carousel ref='carousel' :arrows='showArrow && imgList.length > 1' :after-change='onChangePage'>
+            <div
+              slot="prevArrow"
+              class="custom-slick-arrow"
+              style="left: 0;z-index: 200"
+            >
+              <a-icon type="left" />
+            </div>
+            <div slot="nextArrow" class="custom-slick-arrow" style="right: 0; z-index: 200">
+              <a-icon type="right" />
+            </div>
+            <div class='slider-img-cover' :style="{width: width, backgroundImage: 'url(' + image + ')'}" v-for='(image,idx) in imgList' :key='idx'>
+            </div>
+          </a-carousel>
+        </template>
         <div class='slide-title' v-show='showTitle' :style="{width: width}">
           {{ title || 'Untitled' }}
         </div>
@@ -193,6 +198,10 @@ export default {
     addText: {
       type: String,
       default: 'Insert'
+    },
+    imgMode: {
+      type: Boolean,
+      default: false
     }
   },
   mixins: [PptPreviewMixin, GoogleAuthCallBackMixin],
@@ -561,6 +570,15 @@ export default {
     .selected-tag {
       border: 2px solid #15C39A;
     }
+  }
+}
+
+.img-preview {
+  .img-cover {
+    height: 110px;
+    padding-bottom: 58%;
+    background-position: center;
+    background-size: contain;
   }
 }
 </style>

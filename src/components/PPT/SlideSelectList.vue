@@ -50,6 +50,7 @@
               :show-hover-mask='true'
               :show-title='true'
               :show-arrow='true'
+              :img-mode='true'
               :slide-item='slide'
               :add-text="addText(slide)"
               :show-remove-button='selectedPresentationIdList.indexOf(slide.presentationId) !== -1'
