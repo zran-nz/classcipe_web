@@ -66,7 +66,13 @@
               </div>
             </template>
             <template v-if='header.editing'>
-              <a-input class='cc-table-input' :disabled='disabled'  @focus.native='activeHeader(header)' v-model='header.title' @click.native.stop='' @blur.native='currentEditHeader ? currentEditHeader.editing = false : null'/>
+              <a-input
+                class='cc-table-input'
+                :disabled='disabled'
+                @focus.native='activeHeader(header)'
+                v-model='header.title'
+                @click.native.stop=''
+                @blur.native='currentEditHeader ? currentEditHeader.editing = false : null'/>
             </template>
           </th>
         </tr>
