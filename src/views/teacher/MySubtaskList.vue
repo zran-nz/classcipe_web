@@ -278,7 +278,6 @@ export default {
       user-select: none;
       z-index: 500;
       border-radius: 5px;
-      box-shadow: 0 0 3px 3px #aaa;
     }
   }
 }
