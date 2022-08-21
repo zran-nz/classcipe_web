@@ -10,6 +10,7 @@
           :show-share='false'
           :collaborate='collaborate'
           :last-change-saved-time='lastChangeSavedTime'
+          :show-collaborate='false'
           @publish='handlePublish'
           @share='handleSharePd'
           @collaborate='handleStartCollaborate'
@@ -65,7 +66,6 @@
                   </template>
                   <custom-image-uploader
                     :field='PdField.Image'
-                    :can-edit='canEdit'
                     :content-id='pdId'
                     :content-type='typeMap.pd'
                     :img-url='form.image'
@@ -303,6 +303,7 @@ export default {
         slideEditing: false,
         createBy: null
       },
+      oldForm: null,
       typeMap: typeMap,
       PdField: PdField,
       creating: false,
@@ -375,6 +376,7 @@ export default {
         if (response.code === 0 && response.success) {
           const data = response.result
           this.form = data
+          this.oldForm = Object.assign({}, this.form)
         } else {
           this.$message.error(response.message)
         }

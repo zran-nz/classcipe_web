@@ -261,6 +261,7 @@ export default {
         createBy: null,
         type: this.$classcipe.typeMap.video
       },
+      oldForm: null,
 
       contentType: typeMap,
       VideoField: VideoField,
@@ -297,6 +298,7 @@ export default {
           const data = response.result
           data.type = this.$classcipe.typeMap.video
           this.form = data
+          this.oldForm = Object.assign({}, this.form)
         } else {
           this.$message.error(response.message)
         }
