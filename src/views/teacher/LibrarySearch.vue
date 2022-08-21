@@ -158,7 +158,7 @@ export default {
       let params = JSON.parse(JSON.stringify(this.queryParams))
       params.curriculumId = this.$store.getters.bindCurriculum
       if (init) {
-        params = { searchKey: this.keyword }
+        params = { searchKey: this.keyword, schoolId: 0 }
       }
       QueryContentsFilter(params).then(res => {
         this.$logger.info('QueryContentsFilter', res)
