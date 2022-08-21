@@ -458,16 +458,9 @@ export default {
     },
 
     handleSchedule() {
-      if (this.content.pageObjects.length && this.content.presentationId && !this.content.presentationId.startsWith('fake_buy_')) {
-        this.$router.push({
-          path: '/teacher/schedule-session/' + this.content.id + '/' + this.content.type
-        })
-      } else {
-        this.$confirm({
-          title: 'Warning',
-          content: 'This task/PD content can not be scheduled without interactive slides, please edit google slides first before scheduling.'
-        })
-      }
+      this.$router.push({
+        path: '/teacher/schedule-session/' + this.content.id + '/' + this.content.type
+      })
     },
 
     handlePublicWorkshopSchedule () {
