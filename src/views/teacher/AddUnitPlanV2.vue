@@ -396,7 +396,7 @@
                   <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Assessment style="left:100px" />
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.LearnOuts) !== -1' :required-field='requiredFields.indexOf(planField.LearnOuts) !== -1'>
                     <template slot='label'>
-                      {{ 'Learning objectives' | taskLabelName(planField.LearnOuts, $store.getters.formConfigData) }}
+                      {{ 'Learning objectives' | unitLabelName(planField.LearnOuts, $store.getters.formConfigData) }}
                     </template>
                     <learning-objective
                       @change='handleUpdateLearningObjectives'
