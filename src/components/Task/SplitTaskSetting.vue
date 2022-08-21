@@ -22,26 +22,42 @@
           </a-col>
           <a-col span='12'>
             <a-space>
-              <a-input
-                v-model='myPrice'
-                class='cc-form-input dollar-price-input'
+              <a-input-number
+                :default-value="0"
+                :min="0"
+                :max="10000000"
+                :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                :parser="value => value.replace(/\$\s?|(,*)/g, '')"
                 :disabled='!enablePrice'
-                prefix='$'
-                v-show='enablePrice'/>
+                v-show='enablePrice'
+                v-model='myPrice'
+              />
+              <span v-show='enableDiscount && myPrice > 0'>Discounted price <span :style="{'color': 'red'}">${{ (myPrice * (1 - (myDiscount * 1.0) / 100)).toFixed(2) }}</span>
+              </span>
             </a-space>
           </a-col>
         </a-row>
-        <a-row :gutter='20' v-show='enablePrice'>
+        <a-row :gutter='20' v-show='enablePrice && myPrice > 0'>
           <a-col span='10' class='label-name'>
             Discount
           </a-col>
           <a-col span='12'>
             <a-space>
-              <a-input v-model='myDiscount' class='dollar-price-input' :disabled='!enablePrice' suffix='%' />
+              <a-input-number
+                :default-value="0"
+                :min="0"
+                :max="100"
+                :formatter="value => `${value}%`"
+                :parser="value => value.replace('%', '')"
+                v-show='enableDiscount'
+                v-model='myDiscount'
+                :disabled='!enablePrice'
+              />
+              <a-switch :checked='enableDiscount' @change="onChange" size='small' v-if='price > 0'></a-switch>
             </a-space>
           </a-col>
         </a-row>
-        <a-row :gutter='20' v-show='enablePrice'>
+        <a-row :gutter='20' v-show='enablePrice && enableDiscount'>
           <a-col span='10' class='label-name'>
             Duration setting
           </a-col>
@@ -107,6 +123,7 @@ export default {
       isPublish: false,
       isCreateSubTask: false,
       enablePrice: false,
+      enableDiscount: false,
       myPrice: 0,
       myDiscount: 0,
       dontRemind: false,
@@ -147,6 +164,7 @@ export default {
         discountModel: 2,
         discountStartTime: this.startDate,
         discountEndTime: this.endData,
+        enableDiscount: this.enableDiscount,
         price: this.enablePrice ? +this.myPrice : 0
       })
       this.$emit('confirm', {
@@ -155,6 +173,7 @@ export default {
         discount: parseFloat(this.myDiscount).toFixed(2),
         isPublish: this.isPublish,
         startDate: this.startDate,
+        enableDiscount: this.enableDiscount,
         endData: this.endData,
         price: this.enablePrice ? +this.myPrice : 0
       })
@@ -168,6 +187,14 @@ export default {
     },
     disabledDate(current) {
       return current && current < moment().subtract(1, 'days').endOf('day')
+    },
+    onChange(v) {
+      this.enableDiscount = v
+      if (!v) {
+        this.myDiscount = 0
+        this.startDate = null
+        this.endData = null
+      }
     },
     changeRemind() {
       this.dontRemind = !this.dontRemind
