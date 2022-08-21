@@ -76,6 +76,7 @@
               <!--              </div>-->
 
               <div class='form-block tag-content-block' v-if='fieldName === VideoField.CoverVideo' key='image'>
+                emptyRequiredFields {{ emptyRequiredFields }}
                 <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.Image) !== -1' :required-field='requiredFields.indexOf(VideoField.Image) !== -1'>
                   <template slot='label'>
                     Edit cover Image
@@ -210,6 +211,7 @@ import { UpdateContentStatus } from '@/api/teacher'
 import CustomImageUploader from '@/components/Common/CustomImageUploader'
 import CustomTagPd from '@/components/CustomTag/CustomTagPd'
 import EditPriceDialog from '@/components/MyContentV2/EditPriceDialog'
+import { BaseEventMixin } from '@/mixins/BaseEvent'
 
 export default {
   name: 'AddPD',
@@ -237,7 +239,7 @@ export default {
       required: true
     }
   },
-  mixins: [ PublishMixin, AutoSaveMixin ],
+  mixins: [ PublishMixin, AutoSaveMixin, BaseEventMixin ],
   data() {
     return {
       contentLoading: true,

@@ -171,6 +171,7 @@ export const PublishMixin = {
       this.$classcipe.unSetRequiredCheck(this.contentId)
     },
     calculateCanPublish() {
+      this.$logger.info('calculateCanPublish', this.canEdit)
       if (this.canEdit) {
         // 给有未填写字段的step添加红色提示
         let canPublish = true
