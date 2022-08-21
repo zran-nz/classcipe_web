@@ -18,7 +18,7 @@
                 </div>
               </template>
               <template v-else>
-                <div class='item-desc'>
+                <div class='item-desc not-popover'>
                   {{ item.desc }}
                 </div>
               </template>
