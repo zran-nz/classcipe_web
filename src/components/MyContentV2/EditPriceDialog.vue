@@ -13,13 +13,16 @@
           Price:
         </a-col>
         <a-col span='6'>
-          <a-input
+          <a-input-number
+            :default-value="0"
+            :min="0"
+            :max="10000000"
+            :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+            :parser="value => value.replace(/\$\s?|(,*)/g, '')"
             v-model='price'
-            type='number'
-            prefix='$'
-            class='cc-form-input cc-small-input' />
+          />
         </a-col>
-        <a-col span='12' v-show='enableDiscount'>Discounted price <span :style="{'color': 'red'}">${{ (price * (1 - (discount * 1.0) / 100)).toFixed(2) }}</span></a-col>
+        <a-col span='12' v-show='enableDiscount && price > 0'>Discounted price <span :style="{'color': 'red'}">${{ (price * (1 - (discount * 1.0) / 100)).toFixed(2) }}</span></a-col>
       </a-row>
       <a-row :gutter='20' type="flex" align='middle'>
         <a-col span='6' class='label-name'>
@@ -37,7 +40,7 @@
           />
         </a-col>
         <a-col span='12'>
-          <a-switch :checked='enableDiscount' @change="onChange" size='small'></a-switch>
+          <a-switch :checked='enableDiscount' @change="onChange" size='small' v-if='price > 0'></a-switch>
         </a-col>
       </a-row>
 
