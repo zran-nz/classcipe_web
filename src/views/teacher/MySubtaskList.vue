@@ -276,8 +276,8 @@ export default {
       color: #fff;
       font-size: 16px;
       user-select: none;
-      z-index: 500;
       border-radius: 5px;
+      z-index: 1100;
     }
   }
 }
