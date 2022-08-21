@@ -65,9 +65,9 @@
         All students at your school will receive email and notification
       </div> -->
       <div class='choose-type'>
-        <zoom-auth />
+        <zoom-auth :enable-zoom.sync='enableZoom' />
         <zoom-meeting
-          v-show='zoomAccessToken'
+          v-show='enableZoom'
           ref='zoom'
           :password='password'
           :waiting-room='waitingRoom' />

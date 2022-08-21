@@ -2,9 +2,9 @@
   <div class='schedule-date'>
     <div style="padding: 0 20px;" :style="{width: showCalendarLink ? '30%' : '50%'}">
       <div class='choose-type'>
-        <zoom-auth />
+        <zoom-auth :enable-zoom.sync='enableZoom' />
         <zoom-meeting
-          v-show='zoomAccessToken'
+          v-show='enableZoom'
           ref='zoom'
           @update='updateZoom' />
       </div>

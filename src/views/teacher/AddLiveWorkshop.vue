@@ -218,9 +218,9 @@
             </div> -->
           </template>
           <div class='choose-type'>
-            <zoom-auth />
+            <zoom-auth :enable-zoom.sync='enableZoom' />
             <zoom-meeting
-              v-show='zoomAccessToken'
+              v-show='enableZoom'
               ref='zoom'
               :password='false'
               :waiting-room='false' />
