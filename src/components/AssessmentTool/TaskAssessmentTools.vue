@@ -1,6 +1,6 @@
 <template>
   <div class='task-assessment-tools'>
-    <div class='create-assessment-bar' v-show='allowCreate'>
+    <div class='create-assessment-bar' v-show='allowCreate && !disabled'>
       <a-space>
         <custom-text-button label='Import Assessment tool' @click='showAssessmentToolList'>
           <template v-slot:suffix>
@@ -33,6 +33,7 @@
           <assessment-tool
             :assessment='assessment'
             :allow-create='allowCreate'
+            :disabled='disabled'
             ref='assessmentTool'
             :is-active-table='activeAssessmentTableKey === assessment.key'
             @delete='handleDeleteAssessmentTool' />
@@ -100,6 +101,10 @@ export default {
     subjectList: {
       type: Array,
       default: () => []
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   data() {

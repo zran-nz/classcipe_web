@@ -192,7 +192,7 @@
                       <a-space>
                         <a-tooltip
                           title="After you set it as student self-learning friendly, this task will appear on students' page for purchase. After 5 students have successfully completed the task and given positive review, Classcipe will make it as premium task then you may set a price for it which will be charged from students and paid to your account upon each purchase.">
-                          <a-button class='cc-round-button' :class="{'cc-dark-button': form.contentType === 0 }" @click='form.contentType = 0' style='width: 80px'>
+                          <a-button class='cc-round-button' :class="{'cc-dark-button': form.contentType === 0 }" @click='() => canEdit ? form.contentType = 0 : null' :disabled='!canEdit' style='width: 80px'>
                             <a-badge count='?' :offset='[25, -8]'>
                               Yes
                             </a-badge>
@@ -359,7 +359,7 @@
                 <div class='form-field-item assessment-tools-item' v-if="fieldItem.visible && fieldItem.fieldName === taskField.AssessmentTools">
                   <div class='form-block tag-content-block'>
                     <div class='common-link-wrapper assessment-tools'>
-                      <task-assessment-tools :task-id='taskId' :subject-list='form.subjectIds'/>
+                      <task-assessment-tools :task-id='taskId' :subject-list='form.subjectIds' :allow-create='canEdit' :disabled='!canEdit'/>
                     </div>
                   </div>
                 </div>
@@ -1060,9 +1060,11 @@ export default {
 
     handleSelectTaskType(type) {
       this.$logger.info('handleSelectTaskType ' + type)
-      this.form.taskType = type
-      // #协同编辑event事件
-      this.handleCollaborateEvent(this.taskId, this.taskField.TaskType, this.form.taskType)
+      if (this.canEdit) {
+        this.form.taskType = type
+        // #协同编辑event事件
+        this.handleCollaborateEvent(this.taskId, this.taskField.TaskType, this.form.taskType)
+      }
     },
 
     goBack() {

@@ -819,18 +819,20 @@ export default {
     },
 
     domFn(key, currentChoose) {
-      console.log(currentChoose)
-      this.currentObjective = { ...currentChoose }
-      console.log(this.currentObjective)
-      this.quickWord = key ? key.split(' ')[0] : ''
-      this.commandTermForm.name = this.quickWord
-      this.showQuickWordCreate = false
-      // 获取联想
-      if (currentChoose.id) {
-        getRecommend(currentChoose.id).then(res => {
-          this.termRecommend = res.terms
-          this.knowledgeRecommend = res.tags
-        })
+      if (this.canEdit) {
+        console.log(currentChoose)
+        this.currentObjective = { ...currentChoose }
+        console.log(this.currentObjective)
+        this.quickWord = key ? key.split(' ')[0] : ''
+        this.commandTermForm.name = this.quickWord
+        this.showQuickWordCreate = false
+        // 获取联想
+        if (currentChoose.id) {
+          getRecommend(currentChoose.id).then(res => {
+            this.termRecommend = res.terms
+            this.knowledgeRecommend = res.tags
+          })
+        }
       }
       // KnowledgeTermTagQueryByKeywords({
       //   keywords: this.quickWord
@@ -871,76 +873,86 @@ export default {
 
     handleQuickWordSet(res, key) {
       console.log(res)
-      console.log(this.currentObjective)
-      setTimeout(() => {
-        this.$refs.quickModal.style.display = 'none'
-      }, 200)
-      const find = this.selectedList.find(item => {
-        if (this.currentObjective.id) {
-          return item.id === this.currentObjective.id
-        } else {
-          return item.desc === this.currentObjective.desc
-        }
-      })
-      if (find) {
-        if (find[key]) {
-          if (!find[key].find(item => item.name === res.word)) {
-            find[key].push({
+      if (this.canEdit) {
+        console.log(this.currentObjective)
+        setTimeout(() => {
+          this.$refs.quickModal.style.display = 'none'
+        }, 200)
+        const find = this.selectedList.find(item => {
+          if (this.currentObjective.id) {
+            return item.id === this.currentObjective.id
+          } else {
+            return item.desc === this.currentObjective.desc
+          }
+        })
+        if (find) {
+          if (find[key]) {
+            if (!find[key].find(item => item.name === res.word)) {
+              find[key].push({
+                id: res.id,
+                name: res.word
+              })
+            }
+          } else {
+            this.$set(find, key, [{
               id: res.id,
               name: res.word
-            })
-          }
-        } else {
-          this.$set(find, key, [{
-            id: res.id,
-            name: res.word
-          }])
-          // 上报
-          if (this.currentObjective.id) {
-            const params = {}
-            if (key === 'commandTerms') {
-              params.terms = res.word
+            }])
+            // 上报
+            if (this.currentObjective.id) {
+              const params = {}
+              if (key === 'commandTerms') {
+                params.terms = res.word
+              }
+              if (key === 'knowledgeTags') {
+                params.tags = res.word
+              }
+              addToSetTerms(this.currentObjective.id, params)
             }
-            if (key === 'knowledgeTags') {
-              params.tags = res.word
-            }
-            addToSetTerms(this.currentObjective.id, params)
           }
         }
+        this.quickWord = ''
+        this.commandTermForm.name = ''
       }
-      this.quickWord = ''
-      this.commandTermForm.name = ''
     },
     handleSaveCommanTerm(res, key = 'commandTerms') {
       console.log(res)
-      this.handleQuickWordSet(res, key)
-      this.showQuickWordCreate = false
+      if (this.canEdit) {
+        this.handleQuickWordSet(res, key)
+        this.showQuickWordCreate = false
+      }
     },
     handleAddRecommend(res, key = 'commandTerms') {
-      this.handleSaveCommanTerm({
-        word: res,
-        id: res
-      }, key)
+      if (this.canEdit) {
+        this.handleSaveCommanTerm({
+          word: res,
+          id: res
+        }, key)
+      }
     },
     createCommandTerm() {
-      termsCreate({
-        tag: this.commandTermForm.name || 'Command term'
-      }).then(res => {
-        this.handleSaveCommanTerm({
-          word: res.tag,
-          id: res._id
+      if (this.canEdit) {
+        termsCreate({
+          tag: this.commandTermForm.name || 'Command term'
+        }).then(res => {
+          this.handleSaveCommanTerm({
+            word: res.tag,
+            id: res._id
+          })
         })
-      })
+      }
     },
     createDimension() {
-      dimensionsCreate({
-        tag: this.commandTermForm.name || 'Knowledge Tags'
-      }).then(res => {
-        this.handleSaveCommanTerm({
-          word: res.tag,
-          id: res._id
-        }, 'knowledgeTags')
-      })
+      if (this.canEdit) {
+        dimensionsCreate({
+          tag: this.commandTermForm.name || 'Knowledge Tags'
+        }).then(res => {
+          this.handleSaveCommanTerm({
+            word: res.tag,
+            id: res._id
+          }, 'knowledgeTags')
+        })
+      }
     }
   }
 }

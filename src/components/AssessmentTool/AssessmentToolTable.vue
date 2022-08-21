@@ -27,6 +27,7 @@
               <a-textarea
                 :auto-size="{ minRows: 2, maxRows: 5 }"
                 class='cc-table-textarea'
+                :disabled='disabled'
                 v-model='row[header.type].display'
                 :style="{ backgroundColor: header.bgColor || '#ffffff' }" />
               <div class='origin-data-tips' v-if='header.type === HeaderType.criteria && row[header.type].originDisplay && row[header.type].originDisplay !== row[header.type].display'>
@@ -35,7 +36,7 @@
                 </a-tooltip>
               </div>
             </th>
-            <div class='delete-icon' v-if='!inSnapshot'>
+            <div class='delete-icon' v-if='!inSnapshot && !disabled'>
               <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDelExtraRowItem(row)" cancel-text="No">
                 <delete-icon color='#F16A39' />
               </a-popconfirm>
@@ -65,7 +66,7 @@
               </div>
             </template>
             <template v-if='header.editing'>
-              <a-input class='cc-table-input' @focus.native='activeHeader(header)' v-model='header.title' @click.native.stop='' @blur.native='currentEditHeader ? currentEditHeader.editing = false : null'/>
+              <a-input class='cc-table-input' :disabled='disabled'  @focus.native='activeHeader(header)' v-model='header.title' @click.native.stop='' @blur.native='currentEditHeader ? currentEditHeader.editing = false : null'/>
             </template>
           </th>
         </tr>
@@ -76,6 +77,7 @@
             <a-textarea
               :auto-size="{ minRows: 2, maxRows: 20 }"
               class='cc-table-textarea'
+              :disabled='disabled'
               v-model='row[header.type].display'
               :style="{ backgroundColor: header.bgColor || '#ffffff' }" />
             <div class='origin-data-tips' v-if='header.type === HeaderType.criteria && row[header.type].originDisplay && row[header.type].originDisplay !== row[header.type].display'>
@@ -84,7 +86,7 @@
               </a-tooltip>
             </div>
           </th>
-          <div class='delete-icon' v-if='!inSnapshot'>
+          <div class='delete-icon' v-if='!inSnapshot && !disabled'>
             <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDelRowItem(row)" cancel-text="No">
               <delete-icon color='#F16A39' />
             </a-popconfirm>
@@ -92,7 +94,7 @@
         </tr>
       </tbody>
     </table>
-    <div class='table-bottom-bar' v-if='!inSnapshot'>
+    <div class='table-bottom-bar' v-if='!inSnapshot && !disabled'>
       <div class='add-row' v-if='mode === AssessmentMode.edit'>
         <plus-icon color='#a9adb4' @click='handleAddRow' v-show='allowCreate' />
       </div>
@@ -217,6 +219,10 @@ export default {
     allowCreate: {
       type: Boolean,
       default: true
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   data() {

@@ -7,11 +7,11 @@
             {{ assessment.title }}
           </div>
           <div class='delete'>
-            <a-popconfirm title="Delete?" ok-text="Yes" @confirm="deleteAssessmentTool" cancel-text="No">
+            <a-popconfirm title="Delete?" ok-text="Yes" @confirm="deleteAssessmentTool" cancel-text="No" v-show='!disabled'>
               <delete-icon color='#F16A39' />
             </a-popconfirm>
           </div>
-          <div class='table-saving' v-if='saving'>
+          <div class='table-saving' v-if='saving && !disabled'>
             <a-spin>
               <a-icon slot="indicator" type="loading" style="font-size: 18px" spin />
             </a-spin>
@@ -20,7 +20,7 @@
         </a-space>
       </div>
       <div class='right-action'>
-        <a-space v-if='assessment.type === AssessmentToolType.Rubric && allowCreate'>
+        <a-space v-if='assessment.type === AssessmentToolType.Rubric && allowCreate && !disabled'>
           <custom-link-text text='Option' @click='selectHeaderSet'>
             <template v-slot:prefix>
               <a-icon type='plus-circle' />
@@ -33,6 +33,7 @@
       <assessment-tool-table
         ref='table'
         :allow-create='allowCreate'
+        :disabled='disabled'
         :assessment='assessment'
         :is-active-table='isActiveTable'
         :saving.sync='saving' />
@@ -64,6 +65,10 @@ export default {
     allowCreate: {
       type: Boolean,
       default: true
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   mixins: [ AssessmentToolMixin ],
