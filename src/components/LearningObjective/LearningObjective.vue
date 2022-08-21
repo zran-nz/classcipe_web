@@ -339,7 +339,7 @@ import { termsSearch, dimensionsSearch, dimensionsPubList, termsPubList, termsCr
 import { getRecommend, addToSetTerms, incBloom } from '@/api/v2/statsTarget'
 import { GetDictItems } from '@/api/common'
 import DeleteIcon from '@/components/Common/DeleteIcon'
-import { debounce } from 'lodash-es'
+import { debounce, uniq } from 'lodash-es'
 import RecommendData from '@/components/LearningObjective/RecommendData'
 import RateLevel from '@/components/RateLevel'
 import CommandTermAdd from '@/components/CommandTerm/CommandTermAdd.vue'
@@ -523,17 +523,17 @@ export default {
       }
 
       if (Array.isArray(this.subjectList) && this.subjectList.length > 0) {
-        this.filterConfig.selectedSubjectList = this.subjectList
+        this.filterConfig.selectedSubjectList = uniq(this.subjectList)
         this.selectedSubject = this.filterConfig.selectedSubjectList[0]
       }
 
       if (Array.isArray(this.yearList) && this.yearList.length > 0) {
-        this.filterConfig.selectedYearList = this.yearList
+        this.filterConfig.selectedYearList = uniq(this.yearList)
         this.selectedYear = this.filterConfig.selectedYearList[0]
       }
 
       if (Array.isArray(this.languageList) && this.languageList.length > 0) {
-        this.filterConfig.selectedLanguageList = this.languageList
+        this.filterConfig.selectedLanguageList = uniq(this.languageList)
         this.selectedLanguage = this.filterConfig.selectedLanguageList[0]
       }
 
