@@ -198,7 +198,7 @@
                             </a-badge>
                           </a-button>
                         </a-tooltip>
-                        <a-button class='cc-round-button' :class="{'cc-dark-button': form.contentType !== 0 }" @click='() => canEdit ? form.contentType = 1 : null' style='width: 80px'>No</a-button>
+                        <a-button class='cc-round-button' :class="{'cc-dark-button': form.contentType !== 0 }" @click='() => canEdit ? form.contentType = 1 : null' :disabled='!canEdit' style='width: 80px'>No</a-button>
                       </a-space>
                     </div>
                   </div>
