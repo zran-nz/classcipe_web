@@ -12,35 +12,9 @@
           </a-button>
         </a-tooltip>
       </template>
-      <template v-slot:right>
-        <a-space>
-          <a-button :class="currentAction !== 'publish' ? '' : 'cc-dark-button'" @click="updateAction('publish')">
-            Publish
-          </a-button>
-          <a-button :class="currentAction !== 'unpublish' ? '' : 'cc-dark-button'" @click="updateAction('unpublish')">
-            Unpublish
-          </a-button>
-        </a-space>
-      </template>
     </fixed-vertical-header>
     <div class='sub-task-container'>
       <div class='sub-task-list vertical-left' v-for='content in subTaskList' :key='content.id'>
-        <div class='action-mask' v-if="(currentAction === 'publish' && content.status === 1) || (currentAction === 'unpublish' && content.status === 0)">
-          Sub task has been {{ content.status === 1 ? 'Published' : 'Unpublished' }}
-        </div>
-        <div v-else>
-          <div class='action-mask' v-if="(currentAction === 'publish' && !content.presentationId ) || (currentAction === 'publish' && content.presentationId.startsWith('fake_buy_'))">
-            This task content can not be published without interactive slides, please edit google slides first
-          </div>
-        </div>
-        <div class='checked-icon vertical-center' @click='toggleSelectItem(content)'>
-          <template v-if='currentAction'>
-            <a-checkbox
-              :checked='selectedTaskList.indexOf(content) !== -1'
-              v-if="(currentAction === 'publish' && content.status === 0) || (currentAction === 'unpublish' && content.status === 1)"
-            ></a-checkbox>
-          </template>
-        </div>
         <div class='task-item vertical-left'>
           <content-item
             @delete='initTask'
@@ -49,21 +23,16 @@
             :show-edit='true'
             :show-delete='true'
             :show-schedule='true'
+            :show-publish='true'
             :show-set-price='content.status === 1'
-            :show-publish-status='true'/>
+            @update-publish='handleShowContentPublish'
+            :show-publish-status='false'/>
         </div>
       </div>
     </div>
-    <fixed-form-footer>
-      <template v-slot:right>
-        <a-button :loading='loading' type='primary' @click='handleConfirm' class='cc-round-button'>
-          Confirm
-          <template v-if='selectedTaskList.length'>
-            {{ currentAction }} ({{ selectedTaskList.length }})
-          </template>
-        </a-button>
-      </template>
-    </fixed-form-footer>
+
+    <verification-tip ref="verificationTip" @continue="doUpdatePublish"/>
+    <edit-price-dialog :content='currentContent' ref='editPrice' @finish='showPublishTips' v-if='currentContent'/>
   </div>
 </template>
 
@@ -74,20 +43,28 @@ import FixedVerticalHeader from '@/components/Common/FixedVerticalHeader'
 import ContentItem from '@/components/MyContentV2/ContentItem'
 import { TaskField } from '@/const/common'
 import FixedFormFooter from '@/components/Common/FixedFormFooter'
+import { getCookie } from '@/utils/util'
+import { TEACHER_SECURITY_NOT_SHOW } from '@/store/mutation-types'
+import VerificationTip from '@/components/MyContentV2/VerificationTip'
 import { UpdateContentStatus } from '@/api/teacher'
+import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
+import { typeMap } from '@/const/teacher'
+import EditPriceDialog from '@/components/MyContentV2/EditPriceDialog'
 
 export default {
   name: 'MySubtaskList',
-  components: { FixedFormFooter, ContentItem, FixedVerticalHeader, FixedFormHeader },
+  components: { EditPriceDialog, VerificationTip, FixedFormFooter, ContentItem, FixedVerticalHeader, FixedFormHeader },
   props: {
     taskId: {
       type: String,
       required: true
     }
   },
+  mixins: [GoogleAuthCallBackMixin],
   data() {
     return {
       loading: false,
+      publishLoading: false,
       subTaskList: [],
       selectedTaskList: [],
       requiredTaskFields: [
@@ -96,12 +73,8 @@ export default {
         TaskField.Overview,
         TaskField.LearnOuts
       ],
-      currentAction: null
-    }
-  },
-  computed: {
-    disabled () {
-      return !this.currentAction || !this.selectedTaskList.length
+      contentType: typeMap,
+      currentContent: null
     }
   },
   created() {
@@ -114,64 +87,9 @@ export default {
       }).then(res => {
         this.$logger.info('sub task', res.result)
         if (res.code === 0) {
-          const subTasks = res.result.subTasks
-          this.checkTaskAllowPublished(subTasks)
-          this.subTaskList = subTasks
+          this.subTaskList = res.result.subTasks
         }
       }).finally(() => {
-      })
-    },
-
-    updateAction(action) {
-      if (action === this.currentAction) {
-        this.currentAction = ''
-        this.selectedTaskList = []
-        return
-      }
-      this.$message.info('Please select the task(s) to ' + action)
-      this.currentAction = action
-      this.selectedTaskList = []
-      if (action === 'publish' && this.subTaskList.every(item => item.status === 1)) {
-        this.$message.warn('All tasks in the current list have been published.')
-      }
-
-      if (action === 'unpublish' && this.subTaskList.every(item => item.status === 0)) {
-        this.$message.warn('All tasks in the current list are unpublished.')
-      }
-    },
-
-    handleConfirm () {
-      if (!this.disabled) {
-        if (this.currentAction === 'publish') {
-          this.publishSelected()
-        } else if (this.currentAction === 'unpublish') {
-          this.unPublishSelected()
-        }
-      } else {
-        this.$message.warn('Pleas select content first!')
-      }
-    },
-
-    isEmpty(value) {
-      if (value === null || value === '' || value === undefined) {
-        return true
-      }
-      if (value.hasOwnProperty('length') && value.length === 0) {
-        return true
-      }
-
-      return JSON.stringify(value) === '{}'
-    },
-
-    checkTaskAllowPublished (taskList) {
-      taskList.forEach(item => {
-        item.needComplete = false
-        this.requiredTaskFields.forEach(field => {
-          if (this.isEmpty(item[field])) {
-            item.needComplete = true
-            this.$logger.info('task need complete', item)
-          }
-        })
       })
     },
 
@@ -180,61 +98,72 @@ export default {
         path: '/teacher/split-task/' + this.taskId
       })
     },
-
-    toggleSelectItem (item) {
-      this.$logger.info('toggleSelectItem', item)
-      const index = this.selectedTaskList.findIndex(subTask => subTask.id === item.id)
-      this.$logger.info('index', index)
-      if (index === -1) {
-        this.selectedTaskList.push(item)
-        this.$logger.info('push item', this.selectedTaskList)
-      } else {
-        this.selectedTaskList.splice(index, 1)
-        this.$logger.info('delete item', index)
+    handleShowContentPublish(data) {
+      this.$logger.info('handleShowContentPublish', data)
+      this.currentContent = data.content
+      if ((this.currentContent.type === this.contentType.task ||
+        this.currentContent.type === this.contentType.pd)) {
+        if (!this.currentContent.presentationId || this.currentContent.presentationId.startsWith('fake_')) {
+          this.$message.warn('This task/PD content can not be published without interactive slides, please edit google slides first')
+          return
+        }
       }
-      this.$logger.info('selected list', this.selectedTaskList)
+      this.handleUpdatePublish(data)
     },
 
-    publishSelected () {
-      this.loading = true
-      this.$logger.info('publishSelected', this.selectedTaskList)
-      const job = []
-      this.selectedTaskList.forEach(item => {
-        job.push(UpdateContentStatus({
-          id: item.id,
-          type: item.type,
-          status: 1
-        }))
-      })
-
-      Promise.all(job).then(res => {
-        this.initTask()
-      }).finally(() => {
-        this.loading = false
-        this.selectedTaskList = []
-        this.currentAction = ''
-      })
+    handleUpdatePublish(data) {
+      const targetStatus = data.status ? 0 : 1
+      // 发布的时候需要判断是否有老师认证
+      // 没有老师认证的情况下，询问是否需要进行老师认证
+      // 勾选不再进行询问时，则不再跳出
+      if (targetStatus) {
+        const isNotShowSecurity = getCookie(TEACHER_SECURITY_NOT_SHOW)
+        if (!isNotShowSecurity) {
+          // TODO 查询是否已经进行老师认证
+          const isExists = false
+          if (!isExists) {
+            this.$refs.verificationTip.doCreate()
+            return
+          }
+        }
+      }
+      this.doUpdatePublish(data)
     },
 
-    unPublishSelected () {
-      this.loading = true
-      this.$logger.info('unPublishSelected', this.selectedTaskList)
-      const job = []
-      this.selectedTaskList.forEach(item => {
-        job.push(UpdateContentStatus({
-          id: item.id,
-          type: item.type,
-          status: 0
-        }))
-      })
-
-      Promise.all(job).then(res => {
-        this.initTask()
-      }).finally(() => {
-        this.loading = false
-        this.selectedTaskList = []
-        this.currentAction = ''
-      })
+    doUpdatePublish (data) {
+      data = data || this.currentContent
+      this.$logger.info('handleUpdatePublish', data)
+      const index = this.subTaskList.findIndex(item => item.id === data.id)
+      if (index !== -1) {
+        const targetStatus = data.status ? 0 : 1
+        this.publishLoading = true
+        UpdateContentStatus({
+          id: data.id,
+          status: targetStatus,
+          type: data.type
+        }).then((res) => {
+          if (res.code === 520 || res.code === 403) {
+            this.$logger.info('等待授权回调')
+            this.$message.loading('Waiting for Google Slides auth...', 10)
+            return
+          }
+          this.$logger.info('handlePublishStatus res', res, 'currentContent', this.currentContent)
+          this.subTaskList[index].status = targetStatus
+          if (targetStatus) {
+            this.$refs.editPrice.showEditPrice()
+          } else {
+            this.$message.success('Unpublish successfully!')
+          }
+        }).finally(() => {
+          this.publishLoading = false
+        })
+      } else {
+        this.$logger.warn(`no found Update item ${data.id}`)
+        this.currentContent = null
+      }
+    },
+    showPublishTips () {
+      this.$message.success('Publish successfully!')
     }
   }
 }

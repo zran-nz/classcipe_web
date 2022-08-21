@@ -81,10 +81,11 @@ import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
 import { typeMap } from '@/const/teacher'
 import { TEACHER_SECURITY_NOT_SHOW } from '@/store/mutation-types'
 import { getCookie } from '@/utils/util'
+import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 
 export default {
   name: 'CreatedByMeV2',
-  mixins: [UserModeMixin, CurrentSchoolMixin],
+  mixins: [UserModeMixin, CurrentSchoolMixin, GoogleAuthCallBackMixin],
   components: { CustomSearchInput, ContentTypeFilter, UserProfileAvatar, GlobalSearchInput, RadioSwitch, NoMoreResources, ContentPublish, ContentItem, ContentFilter, CreateNew, VerificationTip },
   data () {
     return {

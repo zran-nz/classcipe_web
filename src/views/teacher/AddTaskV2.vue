@@ -808,9 +808,6 @@ export default {
     this.$EventBus.$off('assessment-saved', this.autoSaveMixinUpdateSaveTime)
     ClasscipeEventBus.$off(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleEditGoogleSlide)
   },
-  mounted () {
-
-  },
   methods: {
     initData() {
       this.$logger.info('initData doing...')
