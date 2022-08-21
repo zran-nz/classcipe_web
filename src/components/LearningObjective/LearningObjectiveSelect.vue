@@ -12,9 +12,16 @@
         <div v-for='(item, idx) in allLearningObjectiveList' :key='idx' class='cc-lo-item'>
           <div class='cc-left-lo'>
             <div class="item-desc-wrapper">
-              <div class='item-desc' v-selectPopover="['modal', domFn, item, true]">
-                {{ item.desc }}
-              </div>
+              <template v-if='selectedList.indexOf(item) !== -1'>
+                <div class='item-desc' v-selectPopover="['modal', domFn, item, true]">
+                  {{ item.desc }}
+                </div>
+              </template>
+              <template v-else>
+                <div class='item-desc'>
+                  {{ item.desc }}
+                </div>
+              </template>
               <div class='item-subject-year'>
                 <div class='item-sub-title' :title='item.path && item.path[0]'>{{ item.path && item.path[0] }}</div>
                 <div class='item-sub-title' :title='item.path && item.path[yearIndex]'>{{ item.path && item.path[yearIndex] }}</div>
@@ -24,7 +31,7 @@
                 </a-checkbox>
               </div>
             </div>
-            <div class="item-bloom-wrapper">
+            <div class="item-bloom-wrapper" :style="{'cursor': selectedList.indexOf(item) === -1 ? 'not-allowed !important': 'default'}">
               <div class="bloom-wrapper">
                 <label for="">Bloom's Taxonomy:</label>
                 <rate-level @change="val => handleChangeLevel(val, item)" :bloom="item.bloomTag || ''"/>
@@ -34,7 +41,7 @@
                 <rate-level @change="val => handleChangeLevel(val, item)" :knowledge="item.knowledgeDimension || ''" />
               </div>
             </div>
-            <div class="item-command-wrapper" v-if="item.commandTerms && item.commandTerms.length > 0">
+            <div class="item-command-wrapper" v-if="item.commandTerms && item.commandTerms.length > 0" :style="{'cursor': selectedList.indexOf(item) === -1 ? 'not-allowed': 'default'}">
               <label for="">Command Term:</label>
               <div class="wrapper-list">
                 <div
@@ -47,7 +54,7 @@
                 </div>
               </div>
             </div>
-            <div class="item-command-wrapper" v-if="item.knowledgeTags && item.knowledgeTags.length > 0">
+            <div class="item-command-wrapper" v-if="item.knowledgeTags && item.knowledgeTags.length > 0" :style="{'cursor': selectedList.indexOf(item) === -1 ? 'not-allowed': 'default'}">
               <label for="">Knowledge tag:</label>
               <div class="wrapper-list">
                 <div
@@ -292,23 +299,25 @@ export default {
 
     handleChangeLevel(val, tag) {
       console.log(val, tag)
-      if (val) {
-        const origin = tag[val.type]
-        const originLevel = this.getLevel(val.type, origin)
-        tag[val.type] = val.title
-        this.$set(tag, val.type, val.title)
-        this.$forceUpdate()
-        // 上报
-        if (tag.id) {
-          const currentLevel = this.getLevel(val.type, val.title)
-          const params = {
-            [`bloom.${currentLevel - 1}`]: 1
+      if (this.selectedList.indexOf(tag) !== -1) {
+        if (val) {
+          const origin = tag[val.type]
+          const originLevel = this.getLevel(val.type, origin)
+          tag[val.type] = val.title
+          this.$set(tag, val.type, val.title)
+          this.$forceUpdate()
+          // 上报
+          if (tag.id) {
+            const currentLevel = this.getLevel(val.type, val.title)
+            const params = {
+              [`bloom.${currentLevel - 1}`]: 1
+            }
+            if (originLevel > 0) {
+              params[`bloom.${originLevel - 1}`] = -1
+            }
+            console.log(params)
+            incBloom(tag.id, params)
           }
-          if (originLevel > 0) {
-            params[`bloom.${originLevel - 1}`] = -1
-          }
-          console.log(params)
-          incBloom(tag.id, params)
         }
       }
     },
@@ -344,9 +353,11 @@ export default {
     },
 
     handleCloseObjectiveTag(item, key, tagIndex) {
-      item[key].splice(tagIndex, 1)
-      console.log(item)
-      this.$forceUpdate()
+      if (this.selectedList.indexOf(item) !== -1) {
+        item[key].splice(tagIndex, 1)
+        console.log(item)
+        this.$forceUpdate()
+      }
     },
 
     handleQuickWordSet(res, key) {
