@@ -57,7 +57,7 @@
             </a-space>
           </a-col>
         </a-row>
-        <a-row :gutter='20' v-show='enablePrice && enableDiscount'>
+        <a-row :gutter='20' v-show='enablePrice && enableDiscount && myPrice > 0'>
           <a-col span='10' class='label-name'>
             Duration setting
           </a-col>

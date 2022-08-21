@@ -258,7 +258,7 @@
           </a-col>
           <a-col span='12' v-show='enableDiscount && price > 0'>Discounted price <span :style="{'color': 'red'}">${{ (price * (1 - (discount * 1.0) / 100)).toFixed(2) }}</span></a-col>
         </a-row>
-        <a-row :gutter='20' type="flex" align='middle'>
+        <a-row :gutter='20' type="flex" align='middle' v-if='price > 0'>
           <a-col span='6' class='label-name'>
             Discount:
           </a-col>
@@ -278,7 +278,7 @@
           </a-col>
         </a-row>
 
-        <a-row :gutter='20' type="flex" align='middle' v-show='enableDiscount'>
+        <a-row :gutter='20' type="flex" align='middle' v-show='enableDiscount && price > 0'>
           <a-col span='6' class='label-name'>
             Duration setting
           </a-col>
