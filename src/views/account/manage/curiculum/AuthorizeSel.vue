@@ -296,10 +296,11 @@ export default {
     setSelected() {
       // init from db
       console.log(this.listAuths)
+      const applyType = this.userMode === USER_MODE.SELF ? 2 : 1
       if (this.listAuths && this.listAuths.length > 0) {
         for (const curriculumId in this.totalResult) {
           // && item.applyUserId === this.info.id
-          const selectedFromDb = this.listAuths.find(item => item.curriculumId === curriculumId)
+          const selectedFromDb = this.listAuths.find(item => item.curriculumId === curriculumId && item.applyType === applyType && item.schoolId === this.currentSchool.id)
           console.log(selectedFromDb)
           if (selectedFromDb) {
             this.$set(this.totalResult, curriculumId, {
