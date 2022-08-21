@@ -76,7 +76,6 @@
               <!--              </div>-->
 
               <div class='form-block tag-content-block' v-if='fieldName === VideoField.CoverVideo' key='image'>
-                emptyRequiredFields {{ emptyRequiredFields }}
                 <custom-form-item :required='emptyRequiredFields.indexOf(VideoField.Image) !== -1' :required-field='requiredFields.indexOf(VideoField.Image) !== -1'>
                   <template slot='label'>
                     Edit cover Image
