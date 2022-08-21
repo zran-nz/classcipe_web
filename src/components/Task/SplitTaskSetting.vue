@@ -53,7 +53,7 @@
                 v-model='myDiscount'
                 :disabled='!enablePrice'
               />
-              <a-switch :checked='enableDiscount' @change="onChange" size='small' v-if='price > 0'></a-switch>
+              <a-switch :checked='enableDiscount' @change="onChange" size='small' v-if='myPrice > 0'></a-switch>
             </a-space>
           </a-col>
         </a-row>
@@ -142,7 +142,7 @@ export default {
         this.myDiscount = parseFloat(data.discount).toFixed(2)
         this.startDate = data.discountStartTime
         this.endData = data.discountEndTime
-        this.price = parseFloat(data.price).toFixed(2)
+        this.myPrice = parseFloat(data.price).toFixed(2)
         this.initDate = [moment(this.startDate), moment(this.endData)]
       }
     })
