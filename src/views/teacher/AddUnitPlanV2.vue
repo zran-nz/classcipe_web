@@ -364,7 +364,6 @@
                     </template>
                     <template slot='action'>
                       <a-space>
-                        <plus-icon @click='handleAddMoreQuestion' v-if='!$store.getters.userInfo.disableQuestion && !existEmptyQuestion && canEdit'/>
                         <comment-switch
                           v-show="canEdit"
                           v-if='!$store.getters.userInfo.disableQuestion'
@@ -381,41 +380,14 @@
                       </a-tooltip>
                     </template>
                     <div v-if='!$store.getters.userInfo.disableQuestion' style='position: relative'>
-                      <div v-if='showRecommendQuestion' class='recommend-question'>
-                        <a-icon class='close-icon' type='close' @click.stop='hideRecommendQuestion=true' />
-                        <div class='recommend-box'>
-                          <a-tooltip
-                            title='You can add the key questions relevant to the big idea you chose above'>
-                            <span class='title'><a-icon style='width: 25px' type='question-circle' />Recommended:</span>
-                          </a-tooltip>
-                          <ul class='recommend-ul'>
-                            <li
-                              v-for='(item,rqIndex) in recommendQuestionList'
-                              v-if='rqIndex < 3 && selectQuestion.indexOf(item.name) === -1'
-                              :key='rqIndex'>
-                              {{ item.name }}
-                              <a-button class='add-question' type='link' @click.stop='handleInsertQuestion(item)'>
-                                add
-                              </a-button>
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                      <div v-for='(question, index) in form.questions' :key='index' class='question-item'>
-                        <a-textarea
-                          v-model='question.name'
-                          :placeholder="unitLabelHint(planField.Question, $store.getters.formConfigData)"
-                          auto-size
-                          class='cc-form-textarea'
-                          @change="handleCollaborateEvent(unitPlanId,planField.Question,form.question)"
-                          :disabled="!canEdit" />
-                        <div
-                          v-if='form.questions.length > 1 && canEdit'
-                          class='delete-icon-wrapper'
-                          @click='handleRemoveQuestion(index)'>
-                          <delete-icon color='#F16A39' />
-                        </div>
-                      </div>
+                      <question-input
+                        :list='recommendQuestionList'
+                        :can-edit='canEdit'
+                        :selected='form.questions'
+                        :height='100'
+                        @update='handleUpdateQuestion'
+                        :placeholder='taskLabelHint(planField.Question, $store.getters.formConfigData) || "Search key question(s)"'
+                      />
                     </div>
                   </custom-form-item>
                 </div>
@@ -830,10 +802,12 @@ import { GetTreeByKey } from '@/api/tag'
 import { deepEqual } from '@/utils/util'
 import { QueryTagsByIds } from '@/api/v2/mycontent'
 import EditPriceDialog from '@/components/MyContentV2/EditPriceDialog'
+import QuestionInput from '@/components/Common/QuestionInput'
 
 export default {
   name: 'AddUnitPlan',
   components: {
+    QuestionInput,
     EditPriceDialog,
     CustomTagV3,
     CustomImageUploader,
@@ -1379,16 +1353,6 @@ export default {
         this.$message.warn(this.$t('teacher.add-unit-plan.at-least-one-sdg'))
       }
     },
-    handleAddMoreQuestion() {
-      if (!this.existEmptyQuestion) {
-        const question = {
-          id: null,
-          name: ''
-        }
-        this.$logger.info('handleAddMoreQuestion ', question)
-        this.form.questions.unshift(question)
-      }
-    },
     handleRemoveQuestion(index) {
       this.$logger.info('handleRemoveQuestion ', index)
       if (this.form.questions.length === 1) {
@@ -1930,6 +1894,11 @@ export default {
         this.$logger.info('handleRmInquiryKey', item, key, tagIndex, 'keywords', keywords)
         this.asyncSaveDataFn()
       }
+    },
+    handleUpdateQuestion(data) {
+      this.$logger.info('handleUpdateQuestion', data)
+      this.form.questions = data.map(item => ({ id: item.id, name: item.name }))
+      this.$logger.info('handleUpdateQuestion questions', this.form.questions)
     }
   }
 }
