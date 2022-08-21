@@ -657,6 +657,10 @@ export default {
                     startTime = this.$options.filters['dayjs'](startTime)
                     endTime = this.$options.filters['dayjs'](endTime)
                   }
+                  // 开始时间超过当前时间不能拖动TODO
+                  if (moment(startTime).isBefore(moment())) {
+                    editable = false
+                  }
                   return {
                     id: item.sessionInfo.id,
                     title: (item.workshopsDetailInfo && item.workshopsDetailInfo.title) ? item.workshopsDetailInfo.title : item.sessionInfo.sessionName,
