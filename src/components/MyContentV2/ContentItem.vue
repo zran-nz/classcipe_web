@@ -156,17 +156,17 @@
             </custom-button>
 
             <custom-button
-              label='Public Workshop'
+              label='Workshop'
               :disabled='!content.canPublish'
               :disabled-tooltip="'Please complete the information'"
-              v-if='showSchedule && content.type === typeMap.pd'
+              v-if='showSchedule && content.type === typeMap.pd && content.owner.email === $store.getters.email'
               @click='handlePublicWorkshopSchedule'>
               <template v-slot:icon>
                 <schedule-icon style='width: 13px; height:14px' />
               </template>
             </custom-button>
 
-            <template v-if="showPublish && !content.sourceFrom">
+            <template v-if="showPublish && !content.sourceFrom && content.owner.email === $store.getters.email">
               <custom-button
                 :disabled='!content.canPublish'
                 :disabled-tooltip="'Please complete the information'"
@@ -178,7 +178,7 @@
                 </template>
               </custom-button>
 
-              <custom-button label="Unpublish" @click='handlePublishStatus' v-if='content.status !== 0'>
+              <custom-button label="Unpublish" @click='handlePublishStatus' v-if='content.status !== 0 && content.owner.email === $store.getters.email'>
                 <template v-slot:icon >
                   <un-publish-icon style='width: 13px; height:14px'/>
                 </template>

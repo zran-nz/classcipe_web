@@ -48,9 +48,11 @@
                   class='wrapper-list-item'
                   v-for='(terms, termIndex) in item.commandTerms'
                   :key='terms.name'>
-                  <a-tag closable class='command-tag' @close="e => handleCloseObjectiveTag(item, 'commandTerms', termIndex)">
-                    <div class='tag-content'>{{ terms.name }}</div>
-                  </a-tag>
+                  <a-tooltip :title="terms.name">
+                    <a-tag closable class='command-tag' @close="e => handleCloseObjectiveTag(item, 'commandTerms', termIndex)">
+                      <div class='tag-content'>{{ terms.name }}</div>
+                    </a-tag>
+                  </a-tooltip>
                 </div>
               </div>
             </div>
@@ -61,9 +63,11 @@
                   class='wrapper-list-item'
                   v-for='(terms, termIndex) in item.knowledgeTags'
                   :key='terms.name'>
-                  <a-tag closable class='command-tag knowledge' @close="e => handleCloseObjectiveTag(item, 'knowledgeTags', termIndex)" >
-                    <div class='tag-content'>{{ terms.name }}</div>
-                  </a-tag>
+                  <a-tooltip :title="terms.name">
+                    <a-tag closable class='command-tag knowledge' @close="e => handleCloseObjectiveTag(item, 'knowledgeTags', termIndex)" >
+                      <div class='tag-content'>{{ terms.name }}</div>
+                    </a-tag>
+                  </a-tooltip>
                 </div>
               </div>
             </div>

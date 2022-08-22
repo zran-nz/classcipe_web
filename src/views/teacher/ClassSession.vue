@@ -3,6 +3,7 @@
     <div class='content-header'>
       <div class='source-type' :style="{visibility: WORK_SHOPS_TYPE.FEATURE.value !== queryParams.workshopsType ? 'visible' : 'hidden'}">
         <radio-switch @select="handleSelectWorkStatus" :menu-list='menuList' :default-selected-item="getSelectItem"/>
+        <label for="" class="class-name">{{ className }}</label>
       </div>
       <div class='create-new'>
         <a-space>
@@ -102,6 +103,8 @@ import ContentItem from '@/components/ClassSession/ContentItem'
 import ContentSelect from '@/components/MyContentV2/ContentSelect'
 import NoMoreResources from '@/components/Common/NoMoreResources'
 import { findClassSessionsV2 } from '@/api/v2/classes'
+import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
+import { getCurriculumBySchoolId } from '@/api/academicSettingCurriculum'
 import { StudentClassMixin } from '@/mixins/StudentClassMixin'
 import ContentTypeFilter from '@/components/MyContentV2/ContentTypeFilter'
 import GlobalSearchInput from '@/components/GlobalSearch/GlobalSearchInput'
@@ -116,6 +119,9 @@ import OldSessionList from '@/components/Teacher/OldSessionList'
 import moment from 'moment'
 import { AddOrUpdateClass, StartOpenSession } from '@/api/classroom'
 import { SourceType } from '@/components/MyContentV2/Constant'
+import { uniqBy } from 'lodash-es'
+
+import { mapState } from 'vuex'
 
 export default {
   name: 'ClassSession',
@@ -196,10 +202,20 @@ export default {
       lastedRevisionId: null,
       sessionList: [],
       startLoading: false,
-      classStatus: lessonStatus
+      classStatus: lessonStatus,
+
+      subjectOptions: [],
+      gradeOptions: [],
+      curriculumOptions: []
     }
   },
   computed: {
+    ...mapState({
+      info: state => state.user.info,
+      userMode: state => state.app.userMode,
+      currentSchool: state => state.user.currentSchool,
+      classList: state => state.user.classList
+    }),
     getSelectItem() {
       const shareType = sessionStorage.getItem(SESSION_CLASS_TYPE) ? parseInt(sessionStorage.getItem(SESSION_CLASS_TYPE)) : SourceType.CreatedByMe
       const index = this.menuList.findIndex(item => item.type === shareType)
@@ -207,10 +223,27 @@ export default {
         return this.menuList[index]
       }
       return this.menuList[0]
+    },
+    className() {
+      const clsId = this.$route.params.classId
+      const cls = this.classList.find(item => item.id === clsId)
+      if (cls.classType === 0) {
+        const grade = this.gradeOptions.find(grade => grade.gradeId === cls.gradeId)
+        if (grade) {
+          return `${this.curriculumOptions[grade.curriculumId]} - ${grade.gradeName} - ${cls.name}`
+        }
+      } else if (cls.classType === 1) {
+        const subject = this.subjectOptions.find(subject => subject.subjectId === cls.subject)
+        if (subject) {
+          return `${subject.subjectName} - ${cls.name}`
+        }
+      }
+      return cls.name
     }
   },
   created() {
     this.loadMyContent()
+    this.initData()
   },
   methods: {
     handleClassChange(classList) {
@@ -224,6 +257,49 @@ export default {
       } else {
         this.$router.push({ path: '/teacher/main/created-by-me' })
       }
+    },
+    initData() {
+      this.loading = true
+      Promise.all([
+        getSubjectBySchoolId({
+          schoolId: this.currentSchool.id
+        }),
+        getCurriculumBySchoolId({
+          schoolId: this.currentSchool.id
+        })
+      ]).then(([subjectRes, gradeRes]) => {
+        if (subjectRes.success) {
+          let subjects = []
+          subjectRes.result.forEach(item => {
+            if (item.subjectList && item.subjectList.length > 0) {
+              subjects = subjects.concat(item.subjectList.map(sub => ({
+                ...sub,
+                curriculumId: item.curriculumId
+              })))
+            }
+          })
+          this.subjectOptions = uniqBy(subjects.map(item => {
+            return {
+              subjectId: item.parentSubjectId,
+              subjectName: item.parentSubjectName,
+              curriculumId: item.curriculumId
+            }
+          }), 'subjectId')
+        }
+        if (gradeRes.success) {
+          let grades = []
+          gradeRes.result.forEach(item => {
+            grades = grades.concat((item.gradeSettingInfo || []).map(grade => ({
+              ...grade,
+              curriculumId: item.curriculumId
+            })))
+            this.curriculumOptions[item.curriculumId] = item.curriculumName
+          })
+          this.gradeOptions = grades
+        }
+      }).finally(() => {
+        this.loading = false
+      })
     },
     handleSearch () {
       this.pageNo = 1
@@ -457,5 +533,12 @@ export default {
     }
   }
 }
-
+.source-type {
+  display: flex;
+  align-items: center;
+  .class-name {
+    margin-left: 20px;
+    font-weight: bold;
+  }
+}
 </style>

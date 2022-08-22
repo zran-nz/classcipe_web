@@ -1,7 +1,7 @@
 <template>
   <div class='user-profile-avatar'>
     <div class='notification' @click='handleToNotification'>
-      <a-badge :count="msg1Count" >
+      <a-badge :count="msgUnreadCount" >
         <a-icon type="mail" :style="{ fontSize: '20px', color: '#999' }" />
       </a-badge>
     </div>
@@ -121,7 +121,8 @@ export default {
     ...mapState({
       info: state => state.user.info,
       currentSchool: state => state.user.currentSchool,
-      userMode: state => state.app.userMode
+      userMode: state => state.app.userMode,
+      msgUnreadCount: state => state.websocket.msgUnreadCount
     }),
     msgTotal () {
       return parseInt(this.msg1Count) + parseInt(this.msg2Count)

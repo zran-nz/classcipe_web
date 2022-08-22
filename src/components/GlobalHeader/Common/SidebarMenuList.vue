@@ -18,7 +18,8 @@
       <template v-if='menuList.length'>
         <div class='sub-menu-item' :class="{'active-menu-item': menu.id === activeId && activeId}" v-for='menu in menuList' :key='menu.id' @click='handleClickMenu(menu)'>
           <div class='sub-menu-icon'>
-            <student-icon />
+            <student-icon v-if="menu.classType === 0"/>
+            <class-subject-icon v-if="menu.classType === 1" />
           </div>
           <div class='sub-menu-label' :title='menu.name'>
             {{ menu.name }}
@@ -35,11 +36,14 @@
 <script>
 
 import StudentIcon from '@/assets/v2/icons/student.svg?inline'
+import ClassSubjectIcon from '@/assets/v2/icons/class_subject.svg?inline'
+
 import { HIDDEN_SIDEBAR } from '@/store/mutation-types'
 export default {
   name: 'SidebarMenuList',
   components: {
-    StudentIcon
+    StudentIcon,
+    ClassSubjectIcon
   },
   props: {
     label: {

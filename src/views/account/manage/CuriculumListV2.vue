@@ -208,6 +208,8 @@ export default {
           } else {
             this.$router.push('/account/info')
           }
+          // 个人免费账号后台会自动创建班级，需要前端刷新下。
+          this.$store.dispatch('GetClassList', this.$store.state.user.currentSchool.id)
         }
       }
     },
