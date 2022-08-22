@@ -8,7 +8,7 @@ const googleDriveConfig = {
     appId: '1040108879273',
     developerKey: 'AIzaSyBzfqIuraxxIDUKeE9qx8LzkhfYRstiOO0'
   },
-  release: {
+  release: { 
     clientId: '337694010706-actv4k6bli7c4iknu6ak50gkqhk318ti.apps.googleusercontent.com',
     appId: '337694010706',
     developerKey: 'AIzaSyAiNrG4HKyIhApkQQDE_uGs-0w-xTHRCTU'

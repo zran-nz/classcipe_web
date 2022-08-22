@@ -4,14 +4,14 @@ import * as logger from '@/utils/logger'
 
 const googleDriveConfig = {
   dev: {
-    clientId: '1040108879273-ldfoennnk158t1p400hn2eok3atfll3i.apps.googleusercontent.com',
-    appId: '1040108879273',
-    developerKey: 'AIzaSyBzfqIuraxxIDUKeE9qx8LzkhfYRstiOO0'
+    clientId: '93768424123-g7das9do6ofs1h0hetqi46634rvbchbk.apps.googleusercontent.com',
+    appId: 'classcipe-drive',
+    developerKey: 'AIzaSyCSgKwoxLiQLuiBeFPyavrNkhlbnZqj0SI'
   },
   release: {
-    clientId: '337694010706-actv4k6bli7c4iknu6ak50gkqhk318ti.apps.googleusercontent.com',
-    appId: '337694010706',
-    developerKey: 'AIzaSyAiNrG4HKyIhApkQQDE_uGs-0w-xTHRCTU'
+    clientId: '93768424123-g7das9do6ofs1h0hetqi46634rvbchbk.apps.googleusercontent.com',
+    appId: 'classcipe-drive',
+    developerKey: 'AIzaSyCSgKwoxLiQLuiBeFPyavrNkhlbnZqj0SI'
   }
 }
 
