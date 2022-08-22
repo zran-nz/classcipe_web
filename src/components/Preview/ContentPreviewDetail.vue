@@ -226,7 +226,7 @@
                   class='cc-dark-button'
                   shape='round'
                   @click='handleEditBuy'
-                  v-if='content.createBy !== $store.getters.userInfo.email && showBuyButton && content.buyed && content.myContentId != -1'>
+                  v-if='content.createBy !== $store.getters.userInfo.email && showEditButton && content.buyed && content.myContentId != -1'>
                   Edit
                 </a-button>
                 <a-button

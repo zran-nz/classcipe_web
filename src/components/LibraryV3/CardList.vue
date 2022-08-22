@@ -47,7 +47,7 @@
     <content-preview
       :content-id='previewCurrentId'
       :content-type='previewType'
-      :show-buy-button="cardMode === 'library'"
+      :show-buy-button="cardMode === 'library' || cardMode === 'resource'"
       :show-edit-button='true'
       v-if='previewVisible'
       @close='handlePreviewClose' />
