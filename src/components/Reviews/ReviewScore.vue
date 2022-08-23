@@ -1,5 +1,6 @@
 <template>
   <div>
+    <label style="margin-right: 10px;" for="">Overall</label>
     <a-rate v-if="currentRole === 'student'" v-model="data.reviewsScore" allow-half disabled/>
     <a-popover @visibleChange="debouncedGetData" v-if="currentRole === 'teacher'" :placement="placement">
       <template slot="content">

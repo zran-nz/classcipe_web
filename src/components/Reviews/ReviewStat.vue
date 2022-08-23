@@ -118,7 +118,7 @@ export default {
             })
           }
           this.charts = {
-            title: 'Age',
+            title: 'User(s)',
             data: charts
           }
         }

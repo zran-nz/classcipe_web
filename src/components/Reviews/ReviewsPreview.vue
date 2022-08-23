@@ -7,11 +7,12 @@
       ref="myReview"
       :role="role"
       v-show="canEdit"
+      :footerBottom="!canList && showCreate"
       :canCreate="showCreate"
       :myReviews="myReviews"
       @submit="handleSaveMyReview"
     />
-    <div class="reviews-search" v-if="needSearch">
+    <div class="reviews-search" v-if="needSearch && canList">
       <div class="my-search">
         <a-input-search
           placeholder="Search"
@@ -32,7 +33,7 @@
       </a-select>
     </div>
 
-    <div class="reviews-content">
+    <div class="reviews-content" v-if="canList">
       <a-spin :spinning="delLoading">
         <div class="reviews-content-detail reviews-me" v-if="myReviews">
           <div class="content-detail__avatar">
@@ -42,15 +43,21 @@
           <div class="content-detail__rate">
             <review-score :review="myReviews" />
             <div class="content-detail__tag">
-              <a-tag color="#f50" v-show="myReviews.learningDistance">
-                Distance
-              </a-tag>
-              <a-tag color="#2db7f5" v-show="myReviews.learningHome">
-                At home
-              </a-tag>
-              <a-tag color="#87d068" v-show="myReviews.learningClass">
-                In-class
-              </a-tag>
+              <a-tooltip title="Distance learning">
+                <a-tag color="#f50" v-show="myReviews.learningDistance">
+                  Distance
+                </a-tag>
+              </a-tooltip>
+              <a-tooltip title="At home learning">
+                <a-tag color="#2db7f5" v-show="myReviews.learningHome">
+                  At home
+                </a-tag>
+              </a-tooltip>
+              <a-tooltip title="In-class learning">
+                <a-tag color="#87d068" v-show="myReviews.learningClass">
+                  In-class
+                </a-tag>
+              </a-tooltip>
             </div>
           </div>
           <div>
@@ -76,7 +83,7 @@
           </a-space>
         </div>
       </a-spin>
-      <a-skeleton :loading="loading" active v-show="!myReviews" >
+      <a-skeleton :loading="loading" active >
         <a-list v-if="reviewsList.length > 0" item-layout="vertical" :pagination="pagination" :data-source="reviewsList">
           <a-list-item
             slot="renderItem"
@@ -91,15 +98,21 @@
               <div class="content-detail__rate">
                 <review-score :review="item" />
                 <div class="content-detail__tag">
-                  <a-tag color="#f50" v-show="item.learningDistance">
-                    Distance
-                  </a-tag>
-                  <a-tag color="#2db7f5" v-show="item.learningHome">
-                    At home
-                  </a-tag>
-                  <a-tag color="#87d068" v-show="item.learningClass">
-                    In-class
-                  </a-tag>
+                  <a-tooltip title="Distance learning">
+                    <a-tag color="#f50" v-show="item.learningDistance">
+                      Distance
+                    </a-tag>
+                  </a-tooltip>
+                  <a-tooltip title="At home learning">
+                    <a-tag color="#2db7f5" v-show="item.learningHome">
+                      At home
+                    </a-tag>
+                  </a-tooltip>
+                  <a-tooltip title="In-class learning">
+                    <a-tag color="#87d068" v-show="item.learningClass">
+                      In-class
+                    </a-tag>
+                  </a-tooltip>
                 </div>
               </div>
               <div>
@@ -171,6 +184,10 @@ export default {
       default: true
     },
     canCreate: {
+      type: Boolean,
+      default: true
+    },
+    canList: {
       type: Boolean,
       default: true
     },

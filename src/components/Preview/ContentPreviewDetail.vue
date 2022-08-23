@@ -599,8 +599,9 @@
             :save="ReviewsTeacher.ReviewsTeacherSave"
             :del="ReviewsTeacher.ReviewsTeacherDelete"
             :myReview="ReviewsTeacher.ReviewsTeacherMyReview"
-            :canEdit="true"
-            :canCreate="!!(content && content.createBy !== $store.getters.userInfo.email && (showBuyButton && showCopyButton))"
+            :canEdit="reviewEdit"
+            :canCreate="reviewCreate && !!(content && content.createBy !== $store.getters.userInfo.email && (showBuyButton && showCopyButton))"
+            :canList='reviewList'
             @update="loadReviewStats"
           />
         </a-col>
@@ -612,6 +613,9 @@
       :content-id='previewCurrentId'
       :content-type='previewType'
       :allow-preview-sub-content='false'
+      :review-edit='reviewEdit'
+      :review-create='reviewCreate'
+      :review-list='reviewList'
       v-if='previewVisible'
       @close='handlePreviewClose' />
 
@@ -714,6 +718,18 @@ export default {
     liveWorkShopCode: {
       type: String,
       default: ''
+    },
+    reviewEdit: {
+      type: Boolean,
+      default: true
+    },
+    reviewCreate: {
+      type: Boolean,
+      default: true
+    },
+    reviewList: {
+      type: Boolean,
+      default: true
     }
   },
   mixins: [PptPreviewMixin, GoogleAuthCallBackMixin, ContentItemMixin],

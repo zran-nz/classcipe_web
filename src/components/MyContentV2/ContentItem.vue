@@ -184,6 +184,11 @@
                 </template>
               </custom-button>
             </template>
+            <custom-button label="Review" @click='handlePreviewDetail(content, true)' v-if='content.sourceFrom'>
+              <template v-slot:icon >
+                <edit-icon style='width: 13px; height:14px'/>
+              </template>
+            </custom-button>
             <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement' v-if='showDelete && content.owner.email === $store.getters.email && content.status !== 1'>
               <div class='more-action'>
                 <more-icon />
@@ -230,6 +235,9 @@
     <content-preview
       :content-id='previewCurrentId'
       :content-type='previewType'
+      :review-edit='reviewEdit'
+      :review-create='reviewCreate'
+      :review-list='reviewList'
       v-if='previewVisible'
       @close='handlePreviewClose' />
 
@@ -407,7 +415,10 @@ export default {
       editPrice: false,
       startDate: null,
       endData: null,
-      initDate: [moment(new Date()), null]
+      initDate: [moment(new Date()), null],
+      reviewList: true,
+      reviewCreate: false,
+      reviewEdit: false
     }
   },
   created() {
