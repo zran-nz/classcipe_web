@@ -543,7 +543,7 @@ export default {
       }
 
       .bottom-action {
-        z-index: 1000;
+        z-index: 400;
         padding: 0 5px 0 10px;
         position: absolute;
         left: 0;
