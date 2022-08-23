@@ -430,7 +430,7 @@ export default {
           .item-detail-it {
             margin: 5px 0;
             .it-value {
-              width: 150px;
+              width: 140px;
             }
           }
         }
@@ -449,9 +449,8 @@ export default {
         .delete-item {
           display: none;
           position: absolute;
-          right: -18px;
-          top: 50%;
-          margin-top: -7px;
+          right: -10px;
+          top: 65%;
         }
 
         &:hover {
