@@ -119,6 +119,8 @@ export default {
     showUserMessageNotification(message) {
       console.log('showUserMessageNotification', message)
       const key = Date.now().toString(36) + Math.random().toString(36).slice(2)
+      // 其他系统添加管理角色，需刷新缓存
+      this.$store.dispatch('GetInfo')
       this.$notification.open({
         message: 'Notification',
         description: message.msgTxt,

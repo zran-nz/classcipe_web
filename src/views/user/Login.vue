@@ -12,7 +12,7 @@
             </div>
           </div>
 
-          <a-form :form="form" class="login-form" @submit="handleSubmit">
+          <!-- <a-form :form="form" class="login-form" @submit="handleSubmit">
             <a-form-item class="form-email">
               <a-input
                 size="large"
@@ -62,7 +62,7 @@
             <div class="line"></div>
             <div class="text">OR</div>
             <div class="line"></div>
-          </div>
+          </div> -->
 
           <div class="third-login-wrapper">
             <third-login-button

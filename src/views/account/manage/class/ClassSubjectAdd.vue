@@ -26,7 +26,7 @@
               v-model='formModel.subject'
               @change="changeSubject"
               placeholder='Please select subject'>
-              <a-select-option v-for='item in subjectOptions' :key='item.subjectId'>
+              <a-select-option v-for='item in subjectOptions.filter(sub => !curriculumId || sub.curriculumId === curriculumId)' :key='item.subjectId'>
                 {{ curriculumMap[curriculumOptions[item.curriculumId]] || curriculumOptions[item.curriculumId] }} - {{ item.subjectName }}
               </a-select-option >
             </a-select>
@@ -169,7 +169,8 @@ export default {
       loading: false,
       autoSaveLocalKey: 'FORM_CLASS_SUBJECT_',
       needAutoSave: !this.id,
-      formQuery: false
+      formQuery: false,
+      curriculumId: ''
     }
   },
   computed: {
@@ -297,6 +298,9 @@ export default {
           this.formQuery = true
         } else {
           this.formQuery = false
+        }
+        if (query.curriculumId) {
+          this.curriculumId = query.curriculumId
         }
         this.doCreate(fromCache)
       }

@@ -44,6 +44,7 @@ export const AutoSwitchSchoolMixin = {
           }).then(res => {
             // 获取对应学校班级
             this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
+            this.$store.dispatch('GetInfo')
             this.GetClassList(isExist.id)
           })
         }

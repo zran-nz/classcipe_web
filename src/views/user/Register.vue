@@ -37,7 +37,7 @@
       </div>
       <div class="register" v-if="currentStep === 1">
         <!-- 老师注册 -->
-        <!-- <div v-if="selectedRole === 2">
+        <div v-if="selectedRole === userRole.teacher">
           <div>
             <div class="desc">Sign Up</div>
             <div class="desc2">Sign Up to Classcipe using your Google account</div>
@@ -62,9 +62,9 @@
               <span><a href="https://www.classcipe.com/policy.html" target="_blank">Privacy Policy</a></span>
             </a-checkbox>
           </div>
-        </div> -->
+        </div>
         <!-- 学生注册 -->
-        <div v-if="selectedRole === userRole.student || selectedRole === userRole.teacher">
+        <div v-if="selectedRole === userRole.student"> <!--|| selectedRole === userRole.teacher"> -->
           <div>
             <!-- <div><img src="~@/assets/logo/logo2.png" class="logo" /></div>
             <div><img src="~@/assets/logo/Lasscipe-dark.png" class="name" /></div> -->

@@ -197,7 +197,7 @@ export default {
           const res = await this.loadApi({
             key: this.word
           })
-          this.result = this.result.concat(res)
+          this.result = Array.from(new Set(this.result.concat(res)))
         }
       } else {
         this.result = this.recommendsRes.concat()

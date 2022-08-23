@@ -24,7 +24,7 @@
               >
                 <template slot="dataSource">
                   <a-select-option v-for="item in filterMembers" :key="item.id" :title="item.email">
-                    <div style="display:flex">
+                    <div style="display:flex" :class="{'disabled-user': item.status !== 1}">
                       <div class="user-avatar">
                         <div class="avatar">
                           <img :src="item.avatar" />
@@ -37,6 +37,9 @@
                         <div class="email">
                           {{ item.email }}
                         </div>
+                      </div>
+                      <div class="user-status" v-if="item.status !== 1">
+                        {{ getStatusFormat(item.status) || ' - ' }}
                       </div>
                       <div class="action-wrapper">
                         <a-button type="link" @click="handleAddMember(item)">
@@ -65,7 +68,7 @@
             <template v-if="form.role === 'teacher'">
               <a-col :span="14" style="text-align: right;">
                 <a-space>
-                  <a-button type="primary" @click="handleAddTeacher">Add teacher</a-button>
+                  <a-button type="primary" @click="handleAddTeacher">Add new teacher</a-button>
                 </a-space>
               </a-col>
             </template>
@@ -146,6 +149,7 @@
 import { getSchoolUsers, checkEmailParent, checkEmailStudent, batchAddStudent } from '@/api/v2/schoolUser'
 import { addTeachers, removeTeachers, addStudents, addStudentsBatch, removeStudents, listClass } from '@/api/v2/schoolClass'
 import { schoolUserStatusList } from '@/const/schoolUser'
+import { SCHOOL_USER_STATUS } from '@/const/common'
 import moment from 'moment'
 import { JeecgListMixin } from '@/mixins/JeecgListMixin'
 import {
@@ -189,6 +193,7 @@ export default {
   data() {
     return {
       statusList: schoolUserStatusList,
+      SCHOOL_USER_STATUS: SCHOOL_USER_STATUS,
       currentSchool: this.school,
       importVis: false,
       classMemberList: [],
@@ -383,6 +388,7 @@ export default {
       }
     },
     handleAddMember(user) {
+      if (user.status !== 1) return
       if (!user.uid) this.$message.error('This user has not id')
       if (this.classMemberList.findIndex(member => member.uid === user.uid) > -1) {
         this.$message.error('This user has been added')
@@ -689,6 +695,10 @@ export default {
         }
       }
       return status
+    },
+    getStatusFormat (status, key = 'label') {
+      const find = Object.values(SCHOOL_USER_STATUS).find(tab => tab.value === status)
+      return find ? find[key] : ''
     }
   }
 }
@@ -707,6 +717,20 @@ export default {
       height: 40px;
       border-radius: 40px;
     }
+  }
+}
+.user-status {
+  position: absolute;
+  right: 30%;
+  line-height: 32px;
+  color: #ef4136;
+}
+.disabled-user {
+  cursor: not-allowed;
+  background: #f2f2f2;
+  /deep/ .ant-btn {
+    cursor: not-allowed;
+    color: #e8b3b3;
   }
 }
 .user-name-email {

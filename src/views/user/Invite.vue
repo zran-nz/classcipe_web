@@ -166,11 +166,13 @@ export default {
             // 获取对应学校班级
             this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
             this.GetClassList(this.currentSchool.id)
-            if (this.isAdmin) {
-              this.$router.push('/manage/school-info')
-            } else {
-              this.$router.push('/account/info')
-            }
+            this.$store.dispatch('GetInfo').then(() => {
+              if (this.isAdmin) {
+                this.$router.push('/manage/school-info')
+              } else {
+                this.$router.push('/account/info')
+              }
+            })
           })
       })
     }
