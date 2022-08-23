@@ -30,14 +30,13 @@
               <a-input v-model="form.title"></a-input>
             </div>
             <div class="choose-session-cover">
-              <custom-cover-media
+              <!-- <custom-cover-media
                 v-if="form.coverVideo"
                 type='video'
                 :field='PdField.CoverVideo'
                 :url='form.coverVideo'
-                @update='handleUpdateCover'/>
+                @update='handleUpdateCover'/> -->
               <custom-image-uploader
-                v-else
                 :field='PdField.Image'
                 :content-type='typeMap.pd'
                 :img-url='form.image'
@@ -255,6 +254,9 @@
       </div>
     </div>
     <fixed-form-footer>
+      <template v-slot:left>
+        {{ fromRelaunch ? 'After relaunching the workshop, attendees will need to register to attend this workshop.' : '' }}
+      </template>
       <template v-slot:right>
         <a-button type='primary' :disabled="!startDate || !endDate" :loading="confirmLoading" @click='handleNextStep' class='cc-round-button'>Finish</a-button>
       </template>
@@ -410,7 +412,8 @@ export default {
         }
       ],
 
-      enableZoom: false
+      enableZoom: false,
+      fromRelaunch: false
     }
   },
   created() {
@@ -418,6 +421,12 @@ export default {
       this.currentActiveStepIndex = 0
     }
     this.currentStep = this.steps[this.currentActiveStepIndex]
+    const query = this.$route.query
+    if (query.relaunch) {
+      this.fromRelaunch = true
+    } else {
+      this.fromRelaunch = false
+    }
     this.handleDisplayRightModule()
     this.handleAssociate()
     // if (!this.zoomAccessToken) {
@@ -782,8 +791,9 @@ export default {
 
 .choose-session {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  // justify-content: space-between;
+  // align-items: flex-start;
+  flex-direction: column;
   margin-top: 20px;
   .choose-session-title {
     font-size: 14px;
@@ -792,17 +802,17 @@ export default {
     color: #202020;
     line-height: 14px;
     margin-top: 10px;
-    margin-right: 40px;
     flex: 1;
   }
   .choose-session-cover {
-    width: 280px;
-    height: 160px;
+    width: 100%;
+    height: 250px;
     display: flex;
     align-items: center;
+    margin-top: 20px;
     /deep/ .custom-image-uploader {
-      width: 280px;
-      height: 160px;
+      width: 100%;
+      height: 250px;
       .image-placeholder {
         min-height: unset;
         width: 100%;
@@ -1041,7 +1051,7 @@ export default {
 }
 
 .choose-type {
-  padding: 0 20px;
+  padding: 20px 0 0;
   .title {
     font-weight: 500;
     color: #333;

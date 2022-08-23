@@ -471,7 +471,7 @@ export default {
     },
     handleRelaunch(item) {
       this.$router.push({
-        path: '/teacher/live-workshop/' + item.content.id + '/' + item.content.type
+        path: '/teacher/live-workshop/' + item.content.id + '/' + item.content.type + '?relaunch=1'
       })
     },
     handleDel(item) {
