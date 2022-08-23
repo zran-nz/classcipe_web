@@ -551,7 +551,7 @@ export default {
       border: 1px solid #EEF1F6;
       border-radius: 0.07em /* 7/100 */;
       background-position: center center;
-      background-size: cover;
+      background-size: contain;
       background-repeat: no-repeat;
     }
     .cover-btn {

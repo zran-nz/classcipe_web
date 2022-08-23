@@ -1,7 +1,13 @@
 <template>
   <div class='slide-select-list'>
     <div class='slide-source-switch'>
-      <a-radio-group :disabled='disabled' default-value="My content" button-style="solid" class='cc-radio-group' v-model='filterSourceType' @change='handleSearchByFilter'>
+      <a-radio-group
+        :disabled='disabled'
+        default-value="My content"
+        button-style="solid"
+        class='cc-radio-group'
+        v-model='filterSourceType'
+        @change='handleSearchByFilter'>
         <a-radio-button :value="sourceType.MyContent">
           My content
         </a-radio-button>

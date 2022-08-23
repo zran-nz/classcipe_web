@@ -622,7 +622,7 @@ export default {
       height: 9rem;
       width: 16rem;
       background-position: center center;
-      background-size: cover;
+      background-size: contain;
       background-repeat: no-repeat;
 
       &:hover {

@@ -533,7 +533,7 @@ export default {
       height: 100%;
       width: 11rem;
       background-position: center center;
-      background-size: cover;
+      background-size: contain;
       background-repeat: no-repeat;
 
       &:hover {
