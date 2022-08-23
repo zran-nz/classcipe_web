@@ -302,8 +302,13 @@ export default {
       const applyType = this.userMode === USER_MODE.SELF ? 2 : 1
       if (this.listAuths && this.listAuths.length > 0) {
         for (const curriculumId in this.totalResult) {
-          // && item.applyUserId === this.info.id
-          const selectedFromDb = this.listAuths.find(item => item.curriculumId === curriculumId && item.applyType === applyType && item.schoolId === this.currentSchool.id)
+          const selectedFromDb = this.listAuths.find(item => {
+            let isSelf = true
+            if (this.userMode === USER_MODE.SELF) {
+              isSelf = item.applyUserId === this.info.id && item.applyType === applyType
+            }
+            return item.curriculumId === curriculumId && isSelf && item.schoolId === this.currentSchool.id
+          })
           console.log(selectedFromDb)
           if (selectedFromDb) {
             this.$set(this.totalResult, curriculumId, {
