@@ -8,12 +8,14 @@
         <a-switch size='small' v-model='myEnableZoom' @change='handleZoomStatusChange'></a-switch>
       </div>
     </div>
-    <div class='auth-button' v-if='!zoomAccessToken'>
-      <a-button type='primary' @click='goToZoomAuth'>Link your Zoom account to schedule a Zoom meeting</a-button>
-    </div>
-    <div class='auth-result' v-if='zoomAccessToken'>
-      <a-alert message='The link to this meeting will be generated automatically when you schedule it' type="info"></a-alert>
-    </div>
+    <template v-if='myEnableZoom'>
+      <div class='auth-button' v-if='!zoomAccessToken'>
+        <a-button type='primary' @click='goToZoomAuth'>Link your Zoom account to schedule a Zoom meeting</a-button>
+      </div>
+      <div class='auth-result' v-if='zoomAccessToken'>
+        <a-alert message='The link to this meeting will be generated automatically when you schedule it' type="info"></a-alert>
+      </div>
+    </template>
   </div>
 </template>
 
