@@ -155,7 +155,7 @@
               <div class="deny-text">Reason for refusal: {{ totalResult[choosed.id].denyReason }}  </div>
             </template>
           </a-form-model-item>
-          <a-form-model-item v-if="!(totalResult[choosed.id].status === 1 || totalResult[choosed.id].status === 2)" :wrapperCol="{offset: 4, span: 12}" label="">
+          <a-form-model-item v-if="canEdit" :wrapperCol="{offset: 4, span: 12}" label="">
             <a-button :disabled="!totalResult[choosed.id].isAgree" style="line-height: 1;" @click="doSave" :loading="loading" type="primary">{{ totalResult[choosed.id].status === 3 ? 'Submit again' : 'Submit' }}</a-button>
           </a-form-model-item>
         </a-form-model>
@@ -246,7 +246,10 @@ export default {
     ...mapState({
       info: state => state.user.info,
       userMode: state => state.app.userMode
-    })
+    }),
+    canEdit() {
+      return !(this.totalResult[this.choosed.id].status === 1 || this.totalResult[this.choosed.id].status === 2)
+    }
   },
   methods: {
     initData() {

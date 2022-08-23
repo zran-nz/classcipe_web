@@ -8,7 +8,7 @@
       ref="form">
 
       <a-form-model-item label="Are you a current teacher">
-        <a-switch v-model="formModel.currentTeacher"></a-switch>
+        <a-switch v-model="formModel.currentTeacher" :disabled="!canEdit"></a-switch>
       </a-form-model-item>
       <a-form-model-item label="Current School" v-if="formModel.currentTeacher">
         <a-select
@@ -16,6 +16,7 @@
           @change="handleSelSchool"
           :getPopupContainer="target => target.parentNode"
           placeholder="Please select school"
+          :disabled="!canEdit"
           ref="schoolRefformModel"
           show-search
           :default-active-first-option="false"
@@ -55,6 +56,7 @@
       <a-form-model-item label="Year of teaching" prop="teachingYear">
         <a-select
           optionFilterProp="children"
+          :disabled="!canEdit"
           :getPopupContainer="trigger => trigger.parentElement"
           v-model='formModel.teachingYear'
           option-label-prop="label"
@@ -92,6 +94,7 @@
         </customer-upload-file> -->
         <a-upload
           :showUploadList='false'
+          v-if="canEdit"
           accept="image/png, image/jpeg,  application/pdf"
           :customRequest="data => handleUploadImage(data, 'teachingCertificate')"
         >
@@ -108,7 +111,7 @@
                   <img v-else :src="url" alt="">
                 </div>
                 <a :href="url" target="_blank" for="">{{ urlName(url) }}</a>
-                <a-icon class="close" type="close" @click="handleRemove('teachingCertificate', url)"></a-icon>
+                <a-icon v-if="canEdit" class="close" type="close" @click="handleRemove('teachingCertificate', url)"></a-icon>
               </div>
             </template>
           </div>
@@ -116,7 +119,7 @@
       </a-form-model-item>
 
       <a-form-model-item :wrapperCol="{offset: 6}">
-        <a-space v-if="!formModel.teacherVerificationStatus || formModel.teacherVerificationStatus === 3">
+        <a-space v-if="canEdit">
           <!-- <a-button :loading="loading" @click="handleCancel">Cancel</a-button> -->
           <a-button :loading="loading" @click="handleSave" type="primary">{{ 'Update' }}</a-button>
         </a-space>
@@ -234,6 +237,9 @@ export default {
       // const findOne = list.find(item => item.name === this.createSchoolName)
       // return this.createSchoolName && !findOne
       return false
+    },
+    canEdit() {
+      return !this.formModel.teacherVerificationStatus || this.formModel.teacherVerificationStatus === 3
     }
   },
   methods: {
@@ -311,6 +317,7 @@ export default {
           this.loading = true
           saveTeacherVerification(params).then(res => {
             if (res.code === 0) {
+              this.formModel.teacherVerificationStatus = 1
               this.$message.success('Submit successfully')
             }
           }).finally(() => {
