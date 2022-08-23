@@ -20,32 +20,45 @@
           <div class='pay-sub-title'>
             Bulk discount pricing
           </div>
-          <div class='pay-discount-title'>
-            <div class='pay-participant'>No of participants</div>
-            <div class='pay-percent'>Percentage off</div>
-          </div>
           <div class='pay-discount-item' v-for='discount in discountList' :key='discount.id' @click.stop='handleDiscountEdit(discount)'>
-            <div class='person-num'>
-              <template v-if='discount.editing'>
-                <a-input v-model='discount.peopleThreshold' min='0' type='number' class='cc-form-input discount-input'/>
-              </template>
-              <template v-else>
-                {{ discount.peopleThreshold }}
-              </template>
-              and more
-            </div>
-            <div class='discount-off'>
-              <template v-if='discount.editing'>
-                <a-input v-model='discount.discount' min='0' max='100' type='number' class='cc-form-input discount-input'/>%
-              </template>
-              <template v-else>
-                {{ discount.discount }}%
-              </template>
-            </div>
-            <div class='delete-item' @click.stop=''>
-              <a-popconfirm title="Delete?" ok-text="Yes" @confirm="deleteDiscount(discount)" cancel-text="No">
-                <delete-icon color='#F16A39' />
-              </a-popconfirm>
+            <div class='item-detail'>
+              <div class='item-detail-it vertical-between'>
+                <div class='it-name'>
+                  <div class='pay-participant'>No. of participants</div>
+                </div>
+                <div class='it-value vertical-left'>
+                  <div class='person-num'>
+                    <template v-if='discount.editing'>
+                      <a-input v-model='discount.peopleThreshold' min='0' type='number' class='cc-form-input discount-input'/>
+                    </template>
+                    <template v-else>
+                      {{ discount.peopleThreshold }}
+                    </template>
+                    and more
+                  </div>
+                </div>
+              </div>
+              <div class='item-detail-it vertical-between'>
+                <div class='it-name'>
+                  <div class='pay-percent'>Percentage off</div>
+                </div>
+                <div class='it-value vertical-left'>
+                  <div class='discount-off'>
+                    <template v-if='discount.editing'>
+                      <a-input v-model='discount.discount' min='0' max='100' type='number' class='cc-form-input discount-input'/>%
+                    </template>
+                    <template v-else>
+                      {{ discount.discount }}%
+                    </template>
+                  </div>
+                </div>
+              </div>
+
+              <div class='delete-item' @click.stop=''>
+                <a-popconfirm title="Delete?" ok-text="Yes" @confirm="deleteDiscount(discount)" cancel-text="No">
+                  <delete-icon color='#F16A39' />
+                </a-popconfirm>
+              </div>
             </div>
           </div>
         </div>
@@ -411,6 +424,16 @@ export default {
         align-items: center;
         justify-content: space-between;
         position: relative;
+        .item-detail {
+          width: 100%;
+          position: relative;
+          .item-detail-it {
+            margin: 5px 0;
+            .it-value {
+              width: 150px;
+            }
+          }
+        }
         .person-num {
           font-size: 14px;
           color: #666;
@@ -419,7 +442,6 @@ export default {
         .discount-off {
           color: #e4393c;
           font-size: 14px;
-          width: 120px;
           text-align: center;
           font-family: Verdana;
         }
@@ -427,7 +449,7 @@ export default {
         .delete-item {
           display: none;
           position: absolute;
-          right: -13px;
+          right: -18px;
           top: 50%;
           margin-top: -7px;
         }
