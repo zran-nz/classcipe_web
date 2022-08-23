@@ -107,10 +107,10 @@
             </template>
             <a-popover
               v-if="classes.length > 1"
-              :overlayStyle="{ width: '510px' }"
+              :overlayStyle="{ width: '310px' }"
               overlayClassName="tag-info-tip">
               <template slot="content">
-                <a-space class="flex-wrap">
+                <a-space class="flex-wrap" direction="vertical">
                   <template v-for="(cls) in sortBy(classes, 'classType')">
                     <a-tag :key="cls.id" :color="cls.classType === 0 ? '#2db7f5' : '#f50'">
                       {{ cls.classType === 1 ? formatViewName(cls.subject) + '-' + cls.name : cls.name }}
