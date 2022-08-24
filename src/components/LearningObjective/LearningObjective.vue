@@ -527,22 +527,22 @@ export default {
       }
 
       if (Array.isArray(this.subjectList) && this.subjectList.length > 0) {
-        this.filterConfig.selectedSubjectList = uniq(this.subjectList)
+        this.filterConfig.selectedSubjectList = uniq(JSON.parse(JSON.stringify(this.subjectList)))
         this.selectedSubject = this.filterConfig.selectedSubjectList[0]
       }
 
       if (Array.isArray(this.yearList) && this.yearList.length > 0) {
-        this.filterConfig.selectedYearList = uniq(this.yearList)
+        this.filterConfig.selectedYearList = uniq(JSON.parse(JSON.stringify(this.yearList)))
         this.selectedYear = this.filterConfig.selectedYearList[0]
       }
 
       if (Array.isArray(this.languageList) && this.languageList.length > 0) {
-        this.filterConfig.selectedLanguageList = uniq(this.languageList)
+        this.filterConfig.selectedLanguageList = uniq(JSON.parse(JSON.stringify(this.languageList)))
         this.selectedLanguage = this.filterConfig.selectedLanguageList[0]
       }
 
       if (Array.isArray(this.learningObjectives) && this.learningObjectives.length > 0) {
-        this.selectedList = this.learningObjectives
+        this.selectedList = JSON.parse(JSON.stringify(this.learningObjectives))
       }
     },
 
@@ -620,9 +620,10 @@ export default {
 
     handleRemoveSubject (subject) {
       if (this.canEdit) {
-        this.filterConfig.selectedSubjectList.splice(this.filterConfig.selectedSubjectList.indexOf(subject), 1)
-        this.filterConfig.selectedSubjectList = uniq(this.filterConfig.selectedSubjectList)
-        if (this.filterConfig.selectedSubjectList.map(item => item.toLowerCase()).indexOf('languages') !== -1) {
+        if (this.filterConfig.selectedSubjectList.includes(subject)) {
+          this.filterConfig.selectedSubjectList = this.filterConfig.selectedSubjectList.filter(item => item !== subject);
+        }
+        if (this.filterConfig.selectedSubjectList.map(item => item.toLowerCase()).includes('languages')) {
           this.selectedSubject = 'Languages'
         } else {
           this.selectedSubject = this.filterConfig.selectedSubjectList.length ? this.filterConfig.selectedSubjectList[0] : ''
