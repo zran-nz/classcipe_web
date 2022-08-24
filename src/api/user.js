@@ -8,7 +8,9 @@ export const userAPIUrl = {
   GetShared: '/classcipe/api/collaborate/getShared',
   DeleteSharedByIdAndType: '/classcipe/api/collaborate/deleteByIdAndType',
   UserSetting: '/classcipe/sys/user/setting',
-  SwitchUserModeSchool: '/classcipe/sys/switchSchool'
+  SwitchUserModeSchool: '/classcipe/sys/switchSchool',
+  SetCompleteGuide: '/classcipe/sys/user/setCompleteGuide',
+  GetCompleteGuide: '/classcipe/sys/user/getCompleteGuide'
 }
 
 /**
@@ -100,5 +102,35 @@ export function SwitchUserModeSchool (parameter) {
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
+  })
+}
+
+/**
+ *
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+ export function SetCompleteGuide (parameter) {
+  return request({
+    url: userAPIUrl.SetCompleteGuide,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+ export function GetCompleteGuide (parameter) {
+  return request({
+    url: userAPIUrl.GetCompleteGuide,
+    method: 'get',
+    params: parameter
   })
 }

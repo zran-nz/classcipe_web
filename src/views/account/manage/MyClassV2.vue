@@ -34,10 +34,15 @@
             {{ item.title }}
           </div>
         </div>
-        <div class="opt-list">
-          <a-button type="primary" v-if="currentTab === 'gradeId'" @click="goCurriculum">Set grade(s)</a-button>
-          <a-button type="primary" v-if="currentTab === 'subject'" @click="goAcademic">Set term(s)</a-button>
-        </div>
+        <guide-content
+          guideKey="addGrade"
+          beginKey="addGrade"
+        >
+          <div slot="content" class="opt-list">
+            <a-button type="primary" v-if="currentTab === 'gradeId'" @click="goCurriculum">Set grade(s)</a-button>
+            <a-button type="primary" v-if="currentTab === 'subject'" @click="goAcademic">Set term(s)</a-button>
+          </div>
+        </guide-content>
       </div>
       <div class="curiculum-tab" v-if="curriculumOptions.length > 0 && currentTab!=='archive'">
         <a-radio-group v-model="currentCurriculum" button-style="solid" @change="loadData">
@@ -49,31 +54,41 @@
       <div class="form-tab">
         <a-spin :spinning="loading">
           <div class="list-view" v-if="allDatas[currentTab] && allDatas[currentTab].length > 0 && currentClassLen > 0">
-            <template v-for="(parentView) in allDatas[currentTab]">
+            <template v-for="(parentView, parentIndex) in allDatas[currentTab]">
               <div class="list-view-item" :key="parentView.parentId">
                 <a-space v-if="currentTab === 'subject'" style="margin-bottom: 20px;">
                   <label for="" class="view-item-parent" >
                     {{ parentView.parentName }}
                     <span v-if="currentTab === 'subject'">( {{ parentView.rangeTime }} )</span>
                   </label>
-                  <a-space class="view-item-opt" v-if="currentTab === 'subject'">
+                  <!-- <guide-content
+                    :guideKey="parentIndex === 0 ? 'addStandardClass' : ''"
+                    beginKey="addGrade"
+                  > -->
+                  <a-space slot="content" class="view-item-opt" v-if="currentTab === 'subject'">
                     <a-button type="primary" v-if="isNotLimit" @click="handleAddSubjectClass(parentView)">Add Class</a-button>
                     <a-popover v-else title="Upgrading reminder" trigger="click">
                       <div style="width: 300px;" slot="content">Your class number has reached the limmit, please upgrade your plan to add more class</div>
                       <a-button type="primary">Add Class</a-button>
                     </a-popover>
                   </a-space>
+                  <!-- </guide-content> -->
                 </a-space>
-                <div class="view-item-parent-content" v-for="view in parentView.cls.filter(cls => !cls.curriculumId || cls.curriculumId === currentCurriculum)" :key="view.parentId">
+                <div class="view-item-parent-content" v-for="(view, viewIndex) in parentView.cls.filter(cls => !cls.curriculumId || cls.curriculumId === currentCurriculum)" :key="view.parentId">
                   <div class="view-item-title">
                     <label for="">{{ view.name || formatViewName(view.id) }}</label>
-                    <a-space class="view-item-opt" v-if="currentTab === 'gradeId'">
-                      <a-button type="primary" v-if="isNotLimit" @click="addGradeClass(view)">Add Class</a-button>
-                      <a-popover v-else title="Upgrading reminder" trigger="click">
-                        <div style="width: 300px;" slot="content">Your class number has reached the limmit, please upgrade your plan to add more class</div>
-                        <a-button type="primary">Add Class</a-button>
-                      </a-popover>
-                    </a-space>
+                    <guide-content
+                      :guideKey="(parentIndex === 0 && viewIndex === 0) ? 'addStandardClass' : ''"
+                      beginKey="addGrade"
+                    >
+                      <a-space slot="content" class="view-item-opt" v-if="currentTab === 'gradeId'">
+                        <a-button type="primary" v-if="isNotLimit" @click="addGradeClass(view)">Add Class</a-button>
+                        <a-popover v-else title="Upgrading reminder" trigger="click">
+                          <div style="width: 300px;" slot="content">Your class number has reached the limmit, please upgrade your plan to add more class</div>
+                          <a-button type="primary">Add Class</a-button>
+                        </a-popover>
+                      </a-space>
+                    </guide-content>
                   </div>
                   <div>
                     <draggable
@@ -186,10 +201,12 @@ import draggable from 'vuedraggable'
 import { USER_MODE } from '@/const/common'
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
+import { GuideMixin } from '@/mixins/GuideMixin'
 
 import FixedFormHeader from '@/components/Common/FixedFormHeader'
 import FormHeader from '@/components/FormHeader/FormHeader'
 import CustomTextButton from '@/components/Common/CustomTextButton'
+import GuideContent from '@/components/GuideContent'
 import ClassGradeSel from './class/ClassGradeSel'
 import ClassStudentImport from './class/ClassStudentImport'
 import ClassMemberList from './class/ClassMemberList'
@@ -213,7 +230,7 @@ const { debounce, groupBy, uniqBy } = require('lodash-es')
 
 export default {
   name: 'MyClassV2',
-  mixins: [UserModeMixin, CurrentSchoolMixin],
+  mixins: [UserModeMixin, CurrentSchoolMixin, GuideMixin],
   components: {
     FixedFormHeader,
     FormHeader,
@@ -222,7 +239,8 @@ export default {
     ClassStudentImport,
     ClassMemberList,
     ClassRestoreChoose,
-    draggable
+    draggable,
+    GuideContent
   },
   data() {
     return {
@@ -439,6 +457,7 @@ export default {
           this.loadData()
         }
       }).finally(() => {
+        this.initGuide()
         this.loading = false
       })
     },

@@ -99,26 +99,30 @@
             :style="{'visibility': (link.title) ? 'visible' : 'hidden'}"
             @click="handleGoPage(link.url)"
           >
-            <div class="info-link-item" :class="{'unable': !link.url}">
-              <div class="link-item-basic">
-                <div class="item-basic-avatar">
-                  <img :src="link.avatar"/>
+            <guide-content
+              :guideKey="link.guideKey"
+            >
+              <div slot="content" class="info-link-item" :class="{'unable': !link.url}">
+                <div class="link-item-basic">
+                  <div class="item-basic-avatar">
+                    <img :src="link.avatar"/>
+                  </div>
+                  <div class="item-basic-name">
+                    <label for="">{{ link.title }}</label>
+                    <!-- <label for="" class="basic-name-extra" v-if="link.extraKey"> {{ getExtra(link.extraKey) }} </label> -->
+                    <label for="" class="basic-name-extra" v-if="link.extraKey"> {{ getExtra(link.extraKey) }} </label>
+                  </div>
+                  <div class="item-basic-badge" v-if="link.badgeKey">
+                    <a-tooltip :title="`There are ${getBadge(link.badgeKey)} teacher(s) to be reviewed`">
+                      <a-badge :count="getBadge(link.badgeKey)" />
+                    </a-tooltip>
+                  </div>
                 </div>
-                <div class="item-basic-name">
-                  <label for="">{{ link.title }}</label>
-                  <!-- <label for="" class="basic-name-extra" v-if="link.extraKey"> {{ getExtra(link.extraKey) }} </label> -->
-                  <label for="" class="basic-name-extra" v-if="link.extraKey"> {{ getExtra(link.extraKey) }} </label>
-                </div>
-                <div class="item-basic-badge" v-if="link.badgeKey">
-                  <a-tooltip :title="`There are ${getBadge(link.badgeKey)} teacher(s) to be reviewed`">
-                    <a-badge :count="getBadge(link.badgeKey)" />
-                  </a-tooltip>
+                <div class="link-item-desc">
+                  {{ link.desc }}
                 </div>
               </div>
-              <div class="link-item-desc">
-                {{ link.desc }}
-              </div>
-            </div>
+            </guide-content>
           </div>
         </div>
       </div>
@@ -137,9 +141,11 @@ import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import { ReSetFontMixin } from '@/mixins/ReSetFontMixin'
 import { AutoSwitchSchoolMixin } from '@/mixins/AutoSwitchSchoolMixin'
+import { GuideMixin } from '@/mixins/GuideMixin'
 
 import CustomImageUploader from '@/components/Common/CustomImageUploader'
 import AvatarModal from '@/views/account/settings/AvatarModal'
+import GuideContent from '@/components/GuideContent'
 
 import { listClass } from '@/api/v2/schoolClass'
 import { getSchoolUsers, getTeacherCount } from '@/api/v2/schoolUser'
@@ -172,9 +178,10 @@ export default {
   name: 'AccountInfo',
   components: {
     CustomImageUploader,
-    AvatarModal
+    AvatarModal,
+    GuideContent
   },
-  mixins: [UserModeMixin, CurrentSchoolMixin, ReSetFontMixin, AutoSwitchSchoolMixin],
+  mixins: [UserModeMixin, CurrentSchoolMixin, ReSetFontMixin, AutoSwitchSchoolMixin, GuideMixin],
   data() {
     return {
       fontSize: '16px',
@@ -260,6 +267,7 @@ export default {
             extraKey: 'classCount',
             desc: 'Add, edit and delete classes',
             url: '/manage/class',
+            guideKey: 'classSetting',
             hidden: !this.hasRolePermission('MyCalssV2')
           },
           {
@@ -325,6 +333,7 @@ export default {
               title: 'Planning Format',
               desc: 'Customize Unit plan/Task format',
               url: '/manage/planning-format',
+              guideKey: 'planningFormat',
               hidden: this.userMode === USER_MODE.SCHOOL && this.isNotAdmin
             },
             {
@@ -332,6 +341,7 @@ export default {
               title: 'Tags setting',
               // hidden: this.userMode === USER_MODE.SELF,
               desc: 'Customize tag categories and tags',
+              guideKey: 'tagsSetting',
               url: '/manage/tags',
               hidden: this.userMode === USER_MODE.SCHOOL && this.isNotAdmin
             },
@@ -346,6 +356,7 @@ export default {
               avatar: CertifiedPng,
               title: 'Teacher & Service verification',
               desc: 'To become verified teacher and apply to provide service to students',
+              guideKey: 'verification',
               hidden: this.userMode === USER_MODE.SCHOOL,
               url: '/manage/verification'
             }
@@ -423,6 +434,7 @@ export default {
         this.pageNo = 1
         this.loadData()
       }
+      this.initGuide()
     },
     goBack() {
       this.$router.push('/')
