@@ -646,8 +646,8 @@ export default {
 
     handleSelectSubject (subject) {
       this.$logger.info('handleSelectSubject', subject)
-      if (this.filterConfig.selectedSubjectList.indexOf(subject) === -1) {
-        this.filterConfig.selectedSubjectList.unshift(subject)
+      if (!this.filterConfig.selectedSubjectList.includes(subject)) {
+        this.filterConfig.selectedSubjectList = [subject, ...this.filterConfig.selectedSubjectList]
       }
     },
 
