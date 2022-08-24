@@ -63,8 +63,8 @@
             <div class='selected-label' v-if='filterConfig.selectedSubjectList'>
               <div
                 class='selected-label-item'
-                v-for='subjectName in filterConfig.selectedSubjectList'
-                :key='subjectName'>
+                v-for='(subjectName, k) in filterConfig.selectedSubjectList'
+                :key='k'>
                 <a-tag :closable='canEdit' class='label-subject' @close="handleRemoveSubject">
                   <div class='tag-content'>{{ subjectName }}</div>
                 </a-tag>
@@ -621,6 +621,7 @@ export default {
     handleRemoveSubject (subject) {
       if (this.canEdit) {
         this.filterConfig.selectedSubjectList.splice(this.filterConfig.selectedSubjectList.indexOf(subject), 1)
+        this.filterConfig.selectedSubjectList = uniq(this.filterConfig.selectedSubjectList)
         if (this.filterConfig.selectedSubjectList.map(item => item.toLowerCase()).indexOf('languages') !== -1) {
           this.selectedSubject = 'Languages'
         } else {
