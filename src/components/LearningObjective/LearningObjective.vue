@@ -472,7 +472,7 @@ export default {
       return []
     },
     showLanguages() {
-      return this.filterConfig.selectedSubjectList.indexOf('Languages') !== -1 || this.filterConfig.selectedSubjectList.indexOf('languages') !== -1
+      return this.filterConfig.selectedSubjectList.map(item => item.toLowerCase()).includes('languages')
     },
     selectedIdList() {
       return this.selectedList.filter(item => item.id).map(item => item.id)
@@ -621,7 +621,7 @@ export default {
     handleRemoveSubject (subject) {
       if (this.canEdit) {
         this.filterConfig.selectedSubjectList.splice(this.filterConfig.selectedSubjectList.indexOf(subject), 1)
-        if (this.filterConfig.selectedSubjectList.indexOf('Languages') !== -1) {
+        if (this.filterConfig.selectedSubjectList.map(item => item.toLowerCase()).indexOf('languages') !== -1) {
           this.selectedSubject = 'Languages'
         } else {
           this.selectedSubject = this.filterConfig.selectedSubjectList.length ? this.filterConfig.selectedSubjectList[0] : ''
