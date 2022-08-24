@@ -65,7 +65,7 @@
                 class='selected-label-item'
                 v-for='(subjectName, k) in filterConfig.selectedSubjectList'
                 :key='k'>
-                <a-tag :closable='canEdit' class='label-subject' @close="handleRemoveSubject">
+                <a-tag :closable='canEdit' class='label-subject' @close="handleRemoveSubject(subjectName)">
                   <div class='tag-content'>{{ subjectName }}</div>
                 </a-tag>
               </div>
