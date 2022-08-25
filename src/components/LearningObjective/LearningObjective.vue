@@ -986,6 +986,7 @@ export default {
 
           .selected-label {
             margin-top: 15px;
+            margin-left: 10px;
             .selected-label-item {
 
               .tag-content {
@@ -999,6 +1000,7 @@ export default {
 
               .ant-tag {
                 margin-bottom: 15px;
+                margin-right: 0;
               }
 
               .label-curriculum, .label-subject, .label-year, .label-language{
