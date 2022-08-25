@@ -679,7 +679,7 @@ export default {
                       planId: item.sessionInfo.planId,
                       contentId: item.sessionInfo.contentId,
                       sessionType: item.sessionInfo.sessionType,
-                      taskType: item.content.taskType,
+                      taskType: item.content ? item.content.taskType : '',
                       sessionId: item.sessionId,
                       status: item.attendance || 'absent',
                       id: item.sessionInfo.id,
@@ -718,7 +718,7 @@ export default {
               failCb({ message: 'Error' })
             }
           }).catch((e) => {
-            failCb({ message: 'Remote Api Error' })
+            failCb({ message: (e && e.message) || 'Remote Api Error' })
           }).finally(() => {
             this.loading = false
           })
