@@ -28,6 +28,7 @@
           v-if='!scheduleReq.openSession && currentActiveStepIndex === 1'
           :calendarSearchFilters="calendarSearchFilters"
           :calendarSearchType="calendarSearchType"
+          :must-zoom="type === $classcipe.typeMap['pd']"
           @select-date='handleSelectDate'
           @update-zoom='handleUpdateZoom'
           @select-session-type='handleSelectSessionType'
@@ -36,14 +37,18 @@
         <schedule-pay-info
           ref='pay'
           :type="type"
+          :must-zoom="type === $classcipe.typeMap['pd']"
           v-if='userMode === USER_MODE.SELF && scheduleReq.openSession && currentActiveStepIndex === 1'
           @select-date='handleSelectDate'
+          @select-zoom-status='handleSelectZoom'
         />
         <school-schedule
           ref='pay'
           :type="type"
+          :must-zoom="type === $classcipe.typeMap['pd']"
           v-if='userMode === USER_MODE.SCHOOL && scheduleReq.openSession && currentActiveStepIndex === 1'
           @select-date='handleSelectDate'
+          @select-zoom-status='handleSelectZoom'
         />
       </div>
     </div>

@@ -15,10 +15,14 @@
             <a-space :size="5" align="center" @click.stop>
               <label style="cursor: pointer" @click="$router.push('/account/info')">Account Info</label>
               <label for="">></label>
-              <label style="cursor: pointer" @click="$router.push('/manage/teacher/list')">School Teacher</label>
-              <label for="">></label>
               <template v-if="onlyClass">
+                <label style="cursor: pointer" @click="$router.push('/manage/class/list')">School Class</label>
+                <label for="">></label>
                 <label style="cursor: pointer" @click="$router.push('/manage/teacher/list?classId=' + onlyClass.id)">{{ onlyClass.name }}</label>
+                <label for="">></label>
+              </template>
+              <template v-else>
+                <label style="cursor: pointer" @click="$router.push('/manage/teacher/list')">School Teacher</label>
                 <label for="">></label>
               </template>
               <label style="font-weight: normal">{{ title }}</label>

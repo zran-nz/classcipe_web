@@ -401,6 +401,24 @@ export const asyncRouterMap = [
             },
             component: () => import('@/views/teacher/AddLiveWorkshop'),
             meta: { title: 'AddLiveWorkshop', owner: '/teacher/main/live-workshops', keepAlive: true, permission: ['teacher'] }
+          },
+          {
+            path: '/teacher/session-import/:type/:classId?',
+            name: 'SessionImport',
+            props(route) {
+              const props = { ...route.params }
+              const query = { ...route.query }
+              props.type = +props.type // convert string to number
+              if (query && query.startDate) {
+                props.startDate = query.startDate
+              }
+              if (query && query.endDate) {
+                props.endDate = query.endDate
+              }
+              return props
+            },
+            component: () => import('@/views/teacher/SessionImport'),
+            meta: { title: 'SessionImport', keepAlive: true, permission: ['teacher'] }
           }
         ]
       },

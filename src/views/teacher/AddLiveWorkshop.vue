@@ -217,7 +217,7 @@
             </div> -->
           </template>
           <div class='choose-type'>
-            <zoom-auth :enable-zoom.sync='enableZoom' />
+            <zoom-auth :enable-zoom.sync='enableZoom' :disabled="true" />
             <zoom-meeting
               v-show='enableZoom'
               ref='zoom'
@@ -412,7 +412,7 @@ export default {
         }
       ],
 
-      enableZoom: false,
+      enableZoom: true,
       fromRelaunch: false
     }
   },
@@ -434,6 +434,14 @@ export default {
     // }
     this.initData()
     this.initFilterOption()
+    // 直播课 zomm必须选择，所以
+    this.$emit('select-zoom-status', this.enableZoom)
+    this.checkZoomAuth()
+  },
+  watch: {
+    enableZoom() {
+      this.handleZoomStatusChange()
+    }
   },
   methods: {
     handleSchoolChange(currentSchool) {

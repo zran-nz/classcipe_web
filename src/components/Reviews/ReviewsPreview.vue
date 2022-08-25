@@ -1,6 +1,6 @@
 <template>
   <div class="reviews-wrapper">
-    <div class="reviews-title">
+    <div class="reviews-title" v-if="canList || showCreate || canEdit">
       <h4>Reviews</h4>
     </div>
     <review-edit
@@ -135,7 +135,7 @@
             </div>
           </a-list-item>
         </a-list>
-        <a-empty v-else description="No reviews yet"></a-empty>
+        <a-empty v-if="!myReviews && reviewsList.length === 0" description="No reviews yet"></a-empty>
       </a-skeleton>
     </div>
 

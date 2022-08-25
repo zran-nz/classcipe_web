@@ -74,7 +74,10 @@
               {{ (content.owner ? (content.owner.firstname + ' ' + content.owner.lastname) : content.createBy) | upCaseFirst }}
             </div>
           </div>
-          <div class='update-time'>
+          <div class='update-time' v-if="category == 'released'">
+            {{ (content.publishTime) | dayjs }}
+          </div>
+          <div class='update-time' v-else>
             {{ (content.updateTime || content.createTime) | dayjs }}
           </div>
         </div>
@@ -184,6 +187,10 @@ export default {
     clickPreview: {
       type: Boolean,
       default: true
+    },
+    category: {
+      type: String,
+      default: ''
     }
   },
   mixins: [ContentItemMixin, GoogleAuthCallBackMixin],

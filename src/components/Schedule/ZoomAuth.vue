@@ -5,7 +5,7 @@
         <img src='~@/assets/icons/zoom/img.png' />
       </div>
       <div class='zoom-switch'>
-        <a-switch size='small' v-model='myEnableZoom' @change='handleZoomStatusChange'></a-switch>
+        <a-switch :disabled="disabled" size='small' v-model='myEnableZoom' @change='handleZoomStatusChange'></a-switch>
       </div>
     </div>
     <template v-if='myEnableZoom'>
@@ -27,6 +27,10 @@ export default {
   mixins: [ ZoomAuthMixin ],
   props: {
     enableZoom: {
+      type: Boolean,
+      default: false
+    },
+    disabled: {
       type: Boolean,
       default: false
     }

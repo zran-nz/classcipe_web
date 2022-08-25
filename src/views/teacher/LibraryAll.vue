@@ -30,7 +30,7 @@
       <a-spin tip='Loading...' :spinning="loading">
         <div class='content-list'>
           <template v-if='pagination.total !== 0 && !loading'>
-            <library-content-item v-for='item in myContentList' :key='item.id' :content='item'></library-content-item>
+            <library-content-item v-for='item in myContentList' :key='item.id' :content='item' :category="category"></library-content-item>
           </template>
           <template v-if='pagination.total === 0 && !loading'>
             <div class='empty-tips'>

@@ -42,8 +42,8 @@ export const ContentItemMixin = {
           this.previewCurrentId = isOrigin ? (data.sourceFrom || data.id) : data.id
           this.previewType = data.type
           this.previewCode = data.sessionId
-          // 原件显示创建编辑评论不显示评论列表，自己copy的西餐时评论列表不显示创建编辑
-          this.reviewList = !isOrigin
+          // 原件显示创建编辑评论不显示评论列表，自己copy的时不显示创建编辑评论列表
+          this.reviewList = false // !isOrigin
           this.reviewCreate = !!isOrigin
           this.reviewEdit = !!isOrigin
           this.previewVisible = true
