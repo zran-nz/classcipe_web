@@ -65,9 +65,10 @@
                 class='selected-label-item'
                 v-for='(subjectName, k) in filterConfig.selectedSubjectList'
                 :key='k'>
-                <a-tag :closable='canEdit' class='label-subject' @close="handleRemoveSubject(subjectName)">
-                  <div class='tag-content'>{{ subjectName }}</div>
-                </a-tag>
+                <div class='custom-tag'>
+                  <div class='tag-name'>{{ subjectName }}</div>
+                  <a-icon type="close" @click.native="handleRemoveSubject(subjectName)" v-if='canEdit'/>
+                </div>
               </div>
             </div>
           </div>
@@ -343,7 +344,7 @@ import { termsSearch, dimensionsSearch, dimensionsPubList, termsPubList, termsCr
 import { getRecommend, addToSetTerms, incBloom } from '@/api/v2/statsTarget'
 import { GetDictItems } from '@/api/common'
 import DeleteIcon from '@/components/Common/DeleteIcon'
-import { debounce, uniq } from 'lodash-es'
+import { debounce } from 'lodash-es'
 import RecommendData from '@/components/LearningObjective/RecommendData'
 import RateLevel from '@/components/RateLevel'
 import CommandTermAdd from '@/components/CommandTerm/CommandTermAdd.vue'
@@ -527,22 +528,21 @@ export default {
       }
 
       if (Array.isArray(this.subjectList) && this.subjectList.length > 0) {
-        this.filterConfig.selectedSubjectList = uniq(JSON.parse(JSON.stringify(this.subjectList)))
-        this.selectedSubject = this.filterConfig.selectedSubjectList[0]
+        this.filterConfig.selectedSubjectList = Array.from(new Set(JSON.parse(JSON.stringify(this.subjectList))))
       }
 
       if (Array.isArray(this.yearList) && this.yearList.length > 0) {
-        this.filterConfig.selectedYearList = uniq(JSON.parse(JSON.stringify(this.yearList)))
+        this.filterConfig.selectedYearList = Array.from(new Set(JSON.parse(JSON.stringify(this.yearList))))
         this.selectedYear = this.filterConfig.selectedYearList[0]
       }
 
       if (Array.isArray(this.languageList) && this.languageList.length > 0) {
-        this.filterConfig.selectedLanguageList = uniq(JSON.parse(JSON.stringify(this.languageList)))
+        this.filterConfig.selectedLanguageList = Array.from(new Set(JSON.parse(JSON.stringify(this.languageList))))
         this.selectedLanguage = this.filterConfig.selectedLanguageList[0]
       }
 
       if (Array.isArray(this.learningObjectives) && this.learningObjectives.length > 0) {
-        this.selectedList = JSON.parse(JSON.stringify(this.learningObjectives))
+        this.selectedList = Array.from(new Set(JSON.parse(JSON.stringify(this.learningObjectives))))
       }
     },
 
@@ -621,12 +621,7 @@ export default {
     handleRemoveSubject (subject) {
       if (this.canEdit) {
         if (this.filterConfig.selectedSubjectList.includes(subject)) {
-          this.filterConfig.selectedSubjectList = this.filterConfig.selectedSubjectList.filter(item => item !== subject);
-        }
-        if (this.filterConfig.selectedSubjectList.map(item => item.toLowerCase()).includes('languages')) {
-          this.selectedSubject = 'Languages'
-        } else {
-          this.selectedSubject = this.filterConfig.selectedSubjectList.length ? this.filterConfig.selectedSubjectList[0] : ''
+          this.filterConfig.selectedSubjectList = this.filterConfig.selectedSubjectList.filter(item => item !== subject)
         }
       }
     },
@@ -650,6 +645,8 @@ export default {
         this.$logger.info('handleSelectSubject add ' + subject)
         this.filterConfig.selectedSubjectList = [subject, ...this.filterConfig.selectedSubjectList]
       }
+      this.$logger.info('selectedSubjectList', this.filterConfig.selectedSubjectList)
+      this.selectedSubject = null
     },
 
     handleSelectYear (year) {
@@ -1396,5 +1393,32 @@ export default {
   color: #f5222d;
   vertical-align: middle;
   display: inline-flex;
+}
+
+.custom-tag {
+  max-width: 150px;
+  border: none;
+  cursor: pointer;
+  padding: 0 10px;
+  border-radius: 26px;
+  line-height: 30px;
+  font-family: Arial;
+  font-weight: 400;
+  display: flex;
+  overflow: hidden;
+  justify-content: center;
+  align-items: center;
+  background: #E6E4FF;
+  color: #4F58BD;
+  margin-bottom: 10px;
+  font-size: 12px;
+
+  .tag-name {
+    width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-all;
+    white-space: nowrap;
+  }
 }
 </style>
