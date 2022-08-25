@@ -647,6 +647,7 @@ export default {
     handleSelectSubject (subject) {
       this.$logger.info('handleSelectSubject', subject)
       if (!this.filterConfig.selectedSubjectList.includes(subject)) {
+        this.$logger.info('handleSelectSubject add ' + subject)
         this.filterConfig.selectedSubjectList = [subject, ...this.filterConfig.selectedSubjectList]
       }
     },
