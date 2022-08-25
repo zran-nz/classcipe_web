@@ -416,7 +416,7 @@ export default {
       startDate: null,
       endData: null,
       initDate: [moment(new Date()), null],
-      reviewList: true,
+      reviewList: false,
       reviewCreate: false,
       reviewEdit: false
     }

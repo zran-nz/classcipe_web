@@ -12,6 +12,7 @@
         <schedule-pay-info
           ref='pay'
           :type="type"
+          :must-zoom="true"
           v-if='userMode === USER_MODE.SELF && scheduleReq.openSession'
           @select-date='handleSelectDate'
           @select-zoom-status='handleSelectZoom'
@@ -19,6 +20,7 @@
         <school-schedule
           ref='pay'
           :type="type"
+          :must-zoom="true"
           v-if='userMode === USER_MODE.SCHOOL && scheduleReq.openSession'
           @select-date='handleSelectDate'
           @select-zoom-status='handleSelectZoom'
@@ -108,11 +110,10 @@ export default {
         teachSessionNow: 1,
         password: true,
         waitingRoom: true,
-        workshopType: 0, // 1-private workshop 2-public workshop
-        zoom: 0
+        workshopType: 1, // 1-private workshop 2-public workshop
+        zoom: 1
       },
       creating: false,
-      enableZoom: false,
 
       workshopSteps: [
         {
@@ -162,21 +163,6 @@ export default {
       }
 
       this.getClassList()
-    },
-
-    async handleZoomStatusChange () {
-      this.$logger.info('handleZoomStatusChange', this.enableZoom)
-      if (this.enableZoom) {
-        const status = await this.checkZoomAuth()
-        if (!status) {
-          this.scheduleReq.zoom = 0
-          this.enableZoom = false
-          this.$logger.info('reset item enableZoom', this.enableZoom)
-        } else {
-          this.scheduleReq.zoom = 1
-          this.$logger.info('zoom auth success')
-        }
-      }
     },
 
     getClassList() {
@@ -250,6 +236,7 @@ export default {
     },
 
     handleSelectZoom (zoom) {
+      console.log(zoom)
       this.scheduleReq.zoom = zoom ? 1 : 0
     },
 

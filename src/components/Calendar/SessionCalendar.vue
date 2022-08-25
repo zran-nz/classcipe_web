@@ -98,7 +98,8 @@
       @cancel='handleCancelImport'>
       <session-import-for-calendar
         :type="importType"
-        :init="importModel"
+        :startDate="importModel.startDate"
+        :endDate="importModel.endDate"
         :classId="currentClass"
         :need-close="true"
         @cancel="handleCancelImport"
@@ -157,6 +158,10 @@ export default {
     forSelect: {
       type: Boolean,
       default: false
+    },
+    defaultSelect: {
+      type: Array,
+      default: () => []
     },
     showTerm: {
       type: Boolean,
@@ -337,7 +342,7 @@ export default {
   mounted() {
     setTimeout(() => {
       this.reRender()
-    }, 100)
+    }, 10)
   },
   methods: {
     async initData() {
@@ -708,11 +713,12 @@ export default {
               successCb(totalEvents.concat(termEvents))
               this.handleViewDidMount(date)
               this.handleScrollTime()
+              this.handleInitSelect()
             } else {
-              failCb()
+              failCb({ message: 'Error' })
             }
-          }).catch(() => {
-            failCb()
+          }).catch((e) => {
+            failCb({ message: 'Remote Api Error' })
           }).finally(() => {
             this.loading = false
           })
@@ -850,12 +856,36 @@ export default {
             const calendarApi = this.$refs.fullCalendar.getApi()
             const current = moment().subtract(15, 'm').format('HH:mm:ss')
             calendarApi && calendarApi.scrollToTime(current)
-            // calendarApi && calendarApi.setOption('views', {
-            //   slotMinTime: '18:00:00'
-            // })
-            // calendarApi && calendarApi.render()
           }
         })
+      }
+    },
+    handleInitSelect() {
+      if (this.forSelect && this.defaultSelect && this.defaultSelect.length > 0) {
+        const calendarApi = this.$refs.fullCalendar.getApi()
+        const selectEvent = calendarApi.getEventById('DateSelect')
+        if (!selectEvent) {
+          this.selectDateEvent = {
+            id: 'DateSelect',
+            title: 'DateSelect',
+            start: this.defaultSelect[0].format('YYYY-MM-DD HH:mm:ss'),
+            end: this.defaultSelect[1].format('YYYY-MM-DD HH:mm:ss'),
+            backgroundColor: 'transparent',
+            borderColor: 'transparent',
+            editable: true,
+            extendedProps: {
+              eventType: 'selectDate',
+              backgroundColor: '#3688d8',
+              start: this.defaultSelect[0].format('YYYY-MM-DD HH:mm:ss'),
+              end: this.defaultSelect[1].format('YYYY-MM-DD HH:mm:ss')
+            }
+          }
+          calendarApi.addEvent(this.selectDateEvent)
+          calendarApi.unselect()
+          if (moment(this.startDate).isAfter(this.defaultSelect[1], 'd') || moment(this.endDate).isBefore(this.defaultSelect[0], ' d')) {
+            calendarApi.gotoDate(this.defaultSelect[0].toDate())
+          }
+        }
       }
     },
     handleDateSelect(selectInfo) {
@@ -934,12 +964,16 @@ export default {
     handleAddUnit() {
       this.closeTip()
       this.importType = typeMap['unit-plan']
-      this.importVisible = true
+      const path = `/teacher/session-import/${this.importType}/${this.currentClass}?startDate=${this.importModel.startDate}&endDate=${this.importModel.endDate}`
+      this.$router.push(path)
+      // this.importVisible = true
     },
     handleAddSession() {
       this.closeTip()
       this.importType = typeMap.task
-      this.importVisible = true
+      const path = `/teacher/session-import/${this.importType}/${this.currentClass}?startDate=${this.importModel.startDate}&endDate=${this.importModel.endDate}`
+      this.$router.push(path)
+      // this.importVisible = true
     },
     handleChoose() {
       this.reFetch()

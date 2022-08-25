@@ -65,7 +65,7 @@
         All students at your school will receive email and notification
       </div> -->
       <div class='choose-type'>
-        <zoom-auth :enable-zoom.sync='enableZoom' />
+        <zoom-auth :enable-zoom.sync='enableZoom' :disabled="mustZoom"/>
         <zoom-meeting
           v-show='enableZoom'
           ref='zoom'
@@ -92,6 +92,7 @@
             :editable="false"
             :addable="false"
             :forSelect="true"
+            :defaultSelect="initDate"
             :searchFilters="searchFilters"
             :searchType="searchType"
             @date-select="handleSelectSchedule"
@@ -156,6 +157,10 @@ export default {
     waitingRoom: {
       type: Boolean,
       default: false
+    },
+    mustZoom: {
+      type: Boolean,
+      default: false
     }
   },
   mixins: [ZoomAuthMixin],
@@ -184,6 +189,20 @@ export default {
         }
       },
       immediate: true
+    },
+    mustZoom: {
+      handler(val) {
+        if (val) {
+          this.enableZoom = true
+          // 直播课,pd zomm必须选择，所以
+          this.$emit('select-zoom-status', this.enableZoom)
+          // this.checkZoomAuth()
+        }
+      },
+      immediate: true
+    },
+    enableZoom() {
+      this.handleZoomStatusChange()
     }
   },
   data() {

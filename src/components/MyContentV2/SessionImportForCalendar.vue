@@ -7,7 +7,7 @@
       :step-index='currentActiveStepIndex'
       @step-change='handleStepChange'
     />
-    <div class="close">
+    <div class="close" v-if="needClose">
       <a-icon type="close" @click="handleCloseImport"/>
     </div>
     <div class="import-content">
@@ -24,7 +24,7 @@
         v-show="'task' === ScheduleStepsFilter[currentActiveStepIndex].type"
         :type="typeMap.task"
         :datas="importDatas"
-        :need-filter="currentActiveStepIndex === 0 "
+        :need-filter="importType === typeMap['task'] "
         :back-txt="currentActiveStepIndex === 0 ? 'Discard': 'Back'"
         @choose="item => handleChoose(item ,'task')"
         @cancel="handleBack"
@@ -41,8 +41,11 @@
             @select-workshop-type='handleSelectWorkshopType'/>
           <schedule-date
             v-show='!scheduleReq.openSession && "schedule" === ScheduleStepsFilter[currentActiveStepIndex].type'
-            :showCalendarLink="false"
+            :showCalendarLink="true"
+            :calendarSearchFilters="calendarSearchFilters"
+            :calendarSearchType="calendarSearchType"
             :default-date="defaultDate"
+            :must-zoom="true"
             @select-date='handleSelectDate'
             @update-zoom='handleUpdateZoom'
             @select-session-type='handleSelectSessionType'
@@ -51,8 +54,9 @@
           <schedule-pay-info
             ref='pay'
             :type="type"
-            :showCalendar="false"
+            :showCalendar="true"
             :default-date="defaultDate"
+            :must-zoom="true"
             v-if="userMode === USER_MODE.SELF"
             v-show='scheduleReq.openSession && "schedule" === ScheduleStepsFilter[currentActiveStepIndex].type'
             @select-date='handleSelectDate'
@@ -60,8 +64,9 @@
           <school-schedule
             ref='pay'
             :type="type"
-            :showCalendar="false"
+            :showCalendar="true"
             :default-date="defaultDate"
+            :must-zoom="true"
             v-if="userMode === USER_MODE.SCHOOL"
             v-show='scheduleReq.openSession && "schedule" === ScheduleStepsFilter[currentActiveStepIndex].type'
             @select-date='handleSelectDate'
@@ -99,7 +104,7 @@ import { SchoolClassGetMyClasses } from '@/api/schoolClass'
 import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
 
 import { typeMap } from '@/const/teacher'
-import { USER_MODE } from '@/const/common'
+import { USER_MODE, CALENDAR_QUERY_TYPE } from '@/const/common'
 import { mapState } from 'vuex'
 
 import moment from 'moment'
@@ -120,9 +125,13 @@ export default {
       type: Number,
       default: typeMap.task
     },
-    init: {
-      type: Object,
-      default: () => {}
+    startDate: {
+      type: String,
+      default: null
+    },
+    endDate: {
+      type: String,
+      default: null
     },
     needClose: {
       type: Boolean,
@@ -141,10 +150,15 @@ export default {
       console.log(val)
       this.currentClass = val
     },
-    init: {
+    startDate: {
       handler(val) {
-        this.importModel = { ...val }
-        console.log(val)
+        this.importModel.startDate = val
+      },
+      immediate: true
+    },
+    endDate: {
+      handler(val) {
+        this.importModel.endDate = val
       },
       immediate: true
     }
@@ -153,6 +167,7 @@ export default {
     return {
       typeMap: typeMap,
       USER_MODE: USER_MODE,
+      CALENDAR_QUERY_TYPE: CALENDAR_QUERY_TYPE,
       currentClass: this.classId,
       ScheduleSteps: [
         {
@@ -214,7 +229,9 @@ export default {
         endDate: null,
         task: null,
         unit: null
-      }
+      },
+      calendarSearchFilters: [],
+      calendarSearchType: CALENDAR_QUERY_TYPE.CLASS.value
     }
   },
   computed: {
@@ -297,10 +314,14 @@ export default {
       if (this.scheduleReq.openSession) {
         this.scheduleReq.selectStudents = []
         this.scheduleReq.classIds = []
+        this.calendarSearchFilters = [1, 2, 3, 4]
+        this.calendarSearchType = CALENDAR_QUERY_TYPE.WORKSHOP.value
       } else {
         const participantData = this.$refs.participant.getSelectedData()
         this.scheduleReq.selectStudents = participantData.selectStudents
         this.scheduleReq.classIds = participantData.classIds
+        this.calendarSearchFilters = this.scheduleReq.classIds
+        this.calendarSearchType = CALENDAR_QUERY_TYPE.CLASS.value
       }
       if (item && type) {
         if (item.type === typeMap.task) {
@@ -380,7 +401,12 @@ export default {
     handleSelectWorkshopType (data) {
       this.scheduleReq.workshopType = data.workshopType
       this.scheduleReq.openSession = data.workshopType === 2
+      this.scheduleReq.classIds = []
+      this.scheduleReq.selectStudents = []
       this.scheduleReq.zoom = 1
+       // workshop4种类型
+      this.calendarSearchFilters = [1, 2, 3, 4]
+      this.calendarSearchType = CALENDAR_QUERY_TYPE.WORKSHOP.value
       this.$refs['steps-nav'].nextStep()
     },
     handleSelectDate (data) {

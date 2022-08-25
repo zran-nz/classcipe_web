@@ -11,18 +11,30 @@
       @ok="confirmSchedule"
       @cancel="closeSchedule">
       <modal-header title='Schedule' @close='closeSchedule'/>
-      <schedule-pay-info :type="9" ref='personal-schedule' v-show='userMode === USER_MODE.SELF' @select-date='handleSelectDate' />
-      <school-schedule :type="9" ref='school-schedule' v-show='userMode === USER_MODE.SCHOOL' @select-date='handleSelectDate' />
+      <schedule-pay-info
+        :type="9"
+        ref='personal-schedule'
+        v-show='userMode === USER_MODE.SELF'
+        :must-zoom='true'
+        @select-date='handleSelectDate'
+        @select-zoom-status='handleSelectZoom' />
+      <school-schedule
+        :type="9"
+        ref='school-schedule'
+        :must-zoom='true'
+        v-show='userMode === USER_MODE.SCHOOL'
+        @select-date='handleSelectDate'
+        @select-zoom-status='handleSelectZoom' />
     </a-modal>
 
-    <zoom-meeting-setting
+    <!-- <zoom-meeting-setting
       :password='scheduleReq.password'
       :waiting-room='scheduleReq.waitingRoom'
       :zoom-setting-visible.sync='zoomSettingVisible'
       v-if='zoomSettingVisible'
       @confirm='handleConfirmAssign'
       @handleClose='handleCloseAssign'
-    />
+    /> -->
 
   </div>
 </template>
@@ -33,7 +45,6 @@ import ModalHeader from '@/components/Common/ModalHeader'
 import SchoolSchedule from '@/components/Schedule/SchoolSchedule'
 import { mapState } from 'vuex'
 import { USER_MODE } from '@/const/common'
-import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
 import { AddSessionV2 } from '@/api/v2/classes'
 import ZoomMeetingSetting from '@/components/Schedule/ZoomMeetingSetting'
 
@@ -45,6 +56,14 @@ export default {
       type: String,
       required: true
     }
+  },
+  created() {
+    this.$EventBus.$on('ZoomMeetingUpdatePassword', this.handleSelectPassword)
+    this.$EventBus.$on('ZoomMeetingUpdateWaitingRoom', this.handleSelectWaitingRoom)
+  },
+  beforeDestroy() {
+    this.$EventBus.$off('ZoomMeetingUpdatePassword', this.handleSelectPassword)
+    this.$EventBus.$off('ZoomMeetingUpdateWaitingRoom', this.handleSelectWaitingRoom)
   },
   data() {
     return {
@@ -74,9 +93,11 @@ export default {
         yearList: [],
         languageList: [],
         teachSessionNow: 0,
+        workshopType: 1,
         zoom: 1
       },
-      zoomSettingVisible: false
+      zoomSettingVisible: false,
+      enableZoom: true
     }
   },
   computed: {
@@ -84,42 +105,50 @@ export default {
       userMode: state => state.app.userMode
     })
   },
-  mixins: [ ZoomAuthMixin ],
   methods: {
+    handleSelectZoom (zoom) {
+      this.scheduleReq.zoom = zoom ? 1 : 0
+    },
+    handleSelectPassword (val) {
+      this.scheduleReq.password = val
+    },
+    handleSelectWaitingRoom (val) {
+      this.scheduleReq.waitingRoom = val
+    },
     async confirmSchedule() {
-      this.creating = true
-      const status = await this.checkZoomAuth()
-      if (!status) {
-        this.$logger.info('waiting for zoom auth')
-      } else {
-        let scheduleConfig = null
+      let scheduleConfig = null
 
-        if (this.userMode === USER_MODE.SELF) {
-          scheduleConfig = this.$refs['personal-schedule'].getPaidInfo()
-          this.scheduleReq.register.discountInfo = scheduleConfig.discountInfo
-          this.scheduleReq.register.maxParticipants = scheduleConfig.maxParticipants
-          this.scheduleReq.register.price = scheduleConfig.price
-          this.scheduleReq.register.registerBefore = scheduleConfig.registerBefore
-          this.$logger.info('confirmSchedule', scheduleConfig)
-        } else if (this.userMode === USER_MODE.SCHOOL) {
-          scheduleConfig = this.$refs['school-schedule'].getPaidInfo()
-          this.scheduleReq.selectTeachers = scheduleConfig.selectTeachers
-          this.scheduleReq.yearList = scheduleConfig.yearList
-          this.scheduleReq.subjectList = scheduleConfig.subjectList
-          this.scheduleReq.languageList = scheduleConfig.languageList
-          this.scheduleReq.register.paidType = scheduleConfig.paidType
-          this.scheduleReq.register.notifyType = scheduleConfig.notifyType
-          this.scheduleReq.register.notifyStudents = scheduleConfig.notifyStudents
-          this.$logger.info('schoolScheduleInfo', scheduleConfig)
-        }
-        if (!this.scheduleReq.startDate || !this.scheduleReq.endDate) {
-          this.$message.warn('Please select Schedule time!')
-          return
-        }
-        this.zoomSettingVisible = true
-        this.$logger.info('scheduleReq', this.scheduleReq)
-        this.creating = false
+      if (this.userMode === USER_MODE.SELF) {
+        scheduleConfig = this.$refs['personal-schedule'].getPaidInfo()
+        this.scheduleReq.register.discountInfo = scheduleConfig.discountInfo
+        this.scheduleReq.register.maxParticipants = scheduleConfig.maxParticipants
+        this.scheduleReq.register.price = scheduleConfig.price
+        this.scheduleReq.register.registerBefore = scheduleConfig.registerBefore
+        this.scheduleReq.password = scheduleConfig.password
+        this.scheduleReq.waitingRoom = scheduleConfig.waitingRoom
+        this.$logger.info('confirmSchedule', scheduleConfig)
+      } else if (this.userMode === USER_MODE.SCHOOL) {
+        scheduleConfig = this.$refs['school-schedule'].getPaidInfo()
+        this.scheduleReq.selectTeachers = scheduleConfig.selectTeachers
+        this.scheduleReq.yearList = scheduleConfig.yearList
+        this.scheduleReq.subjectList = scheduleConfig.subjectList
+        this.scheduleReq.languageList = scheduleConfig.languageList
+        this.scheduleReq.register.paidType = scheduleConfig.paidType
+        this.scheduleReq.register.notifyType = scheduleConfig.notifyType
+        this.scheduleReq.register.notifyStudents = scheduleConfig.notifyStudents
+        this.scheduleReq.password = scheduleConfig.password
+        this.scheduleReq.waitingRoom = scheduleConfig.waitingRoom
+        this.$logger.info('schoolScheduleInfo', scheduleConfig)
       }
+      if (!this.scheduleReq.startDate || !this.scheduleReq.endDate) {
+        this.$message.warn('Please select Schedule time!')
+        return
+      }
+      // this.zoomSettingVisible = true
+      this.$logger.info('scheduleReq', this.scheduleReq)
+      await this.createSession(this.scheduleReq)
+      this.closeSchedule()
+      this.creating = false
     },
 
     async handleConfirmAssign (data) {
@@ -146,11 +175,12 @@ export default {
         if (res.result && res.success && res.code === 0) {
           this.$message.success('Schedule session successfully')
           if (res.result.length && res.result[0].taskClassId) {
-            this.$router.replace({
-              path: `/teacher/class-session/${res.result[0].taskClassId}`
-            })
+            this.finishAndGoBack(res.result[0].taskClassId)
           } else {
-            return res.result
+            // return res.result
+             this.$router.replace({
+              path: `/teacher/main/live-workshops?workshopsType=2`
+            })
           }
         } else {
           this.$confirm({
@@ -169,6 +199,17 @@ export default {
         this.creating = false
       }
       return null
+    },
+    finishAndGoBack(taskClassId) {
+      if (this.scheduleReq.workshopType) {
+        this.$router.replace({
+          path: `/teacher/main/live-workshops?workshopsType=2`
+        })
+      } else {
+        this.$router.replace({
+          path: `/teacher/class-session/${taskClassId}`
+        })
+      }
     },
 
     closeSchedule () {
