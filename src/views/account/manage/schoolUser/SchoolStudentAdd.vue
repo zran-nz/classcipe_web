@@ -70,20 +70,10 @@
       <a-form-model-item label="DOB">
         <a-date-picker v-model="formModel.birthDay" :disabled-date="disabledDate"/>
       </a-form-model-item>
-      <a-form-model-item class="mb0" label="Class" :required="true">
+      <!-- <a-form-model-item class="mb0" label="Class" :required="true">
         <a-row :gutter=16>
           <a-col :span="18">
             <a-form-model-item prop="classes">
-              <!-- <a-select
-                mode="multiple"
-                optionFilterProp="children"
-                :getPopupContainer="trigger => trigger.parentElement"
-                v-model='formModel.classArr'
-                placeholder='Please select class'>
-                <a-select-option v-for='item in classList' :key='item.id'>
-                  {{ item.name }}
-                </a-select-option >
-              </a-select> -->
               <a-select
                 optionFilterProp="children"
                 :getPopupContainer="trigger => trigger.parentElement"
@@ -94,6 +84,47 @@
                   {{ item.name }}
                 </a-select-option >
               </a-select>
+            </a-form-model-item>
+          </a-col>
+          <a-col :span="6" v-if="showClassLink">
+            <a-button type="link" @click="handelGoClass">Class Manage</a-button>
+          </a-col>
+        </a-row>
+      </a-form-model-item> -->
+      <a-form-model-item class="mb0" label="Class" v-if="classUnModify || studentId">
+        <a-row :gutter=16>
+          <a-col :span="18">
+            <a-form-model-item class="self-select">
+              <!-- <template v-if="!classUnModify">
+                <a-select
+                  mode="multiple"
+                  :disabled="classUnModify"
+                  optionFilterProp="children"
+                  :getPopupContainer="trigger => trigger.parentElement"
+                  v-model='formModel.classArr'
+                  option-label-prop="label"
+                  placeholder='Please select class'>
+                  <a-select-option :label="item.name" v-for='item in filterClassList' :key='item.id'>
+                    {{ item.name }}
+                  </a-select-option >
+                </a-select>
+                <div :size="4" :class="{disabled: classUnModify}" class="tag-render" @click="showSelect" ref="tagRender">
+                  <a-tag
+                    @close="closeCls(tag)"
+                    v-for="tag in formModel.classArr"
+                    :key="'tag'+tag">{{ formatName(tag, classList) }}</a-tag>
+                </div>
+              </template> -->
+              <a-space>
+                <a-space class="flex-wrap" v-if="classArrDetail.length > 0">
+                  <template v-for="(cls) in classArrDetail">
+                    <a-tag :key="cls.id" :color="cls.classType === 0 ? '#2db7f5' : '#f50'">
+                      {{ cls.classType === 1 ? formatViewName(cls.subject) + '-' + cls.name : cls.name }}
+                    </a-tag>
+                  </template>
+                </a-space>
+                <label for="" v-else> - </label>
+              </a-space>
             </a-form-model-item>
           </a-col>
           <a-col :span="6" v-if="showClassLink">
@@ -161,6 +192,7 @@
 <script>
 import { listClass } from '@/api/v2/schoolClass'
 import { addStudents, resetUserPassword, sendParentEmail, getStudentInfo, updateStudent, checkEmailStudent, checkEmailParent } from '@/api/v2/schoolUser'
+import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
 
 import ResetPassword from '../persona/ResetPassword'
 import AvatarModal from '@/views/account/settings/AvatarModal'
@@ -170,6 +202,7 @@ import { AutoSaveLocalMixin } from '@/mixins/AutoSaveLocalMixin'
 
 import moment from 'moment'
 import { isEmail, randomString } from '@/utils/util'
+const { sortBy } = require('lodash-es')
 export default {
   name: 'SchoolStudentAdd',
   components: {
@@ -191,7 +224,7 @@ export default {
     },
     showClassLink: {
       type: Boolean,
-      default: true
+      default: false
     }
   },
   watch: {
@@ -244,7 +277,8 @@ export default {
       autoSaveLocalKey: 'FORM_SCHOOL_STUDENT_',
       needAutoSave: !this.id,
       randomPass: '',
-      classUnModify: false
+      classUnModify: false,
+      subjectOptions: []
     }
   },
   computed: {
@@ -269,6 +303,13 @@ export default {
         //   { required: true, message: 'Please Input Phone!' }
         // ]
       }
+    },
+    filterClassList() {
+      return this.classList.filter(cc => !this.formModel.classArr.includes(cc.id))
+    },
+    classArrDetail() {
+      const clses = this.classList.filter(cc => this.formModel.classArr.includes(cc.id))
+      return sortBy(clses, 'classType')
     }
   },
   methods: {
@@ -276,11 +317,13 @@ export default {
        Promise.all([
           listClass({
             schoolId: this.currentSchool.id,
-            queryType: 0,
             pageNo: 1,
             pageSize: 10000
+          }),
+          getSubjectBySchoolId({
+            schoolId: this.currentSchool.id
           })
-        ]).then(([clsRes]) => {
+        ]).then(([clsRes, subjectRes]) => {
           if (clsRes.code === 0) {
             this.classList = clsRes.result.records
             if (this.formModel.classes) {
@@ -299,6 +342,26 @@ export default {
                 this.$emit('getCls', isFind)
               }
             }
+          }
+          if (subjectRes.success) {
+            let subjects = []
+            subjectRes.result.forEach(item => {
+              if (item.subjectList && item.subjectList.length > 0) {
+                subjects = subjects.concat(item.subjectList)
+              }
+            })
+            const options = []
+            subjects.forEach(item => {
+              options.push({
+                subjectId: item.subjectId,
+                subjectName: item.subjectName
+              })
+              options.push({
+                subjectId: item.parentSubjectId,
+                subjectName: item.parentSubjectName
+              })
+            })
+            this.subjectOptions = options
           }
         })
     },
@@ -327,12 +390,6 @@ export default {
             if (res.result.classes) {
               this.formModel.classArr = res.result.classes.map(item => item.id)
               this.formModel.classes = this.formModel.classArr.join(',')
-            }
-            if (this.formModel.classes && this.classList.length > 0) {
-              const isFind = this.classList.find(item => item.id === this.formModel.classes)
-              if (!isFind) {
-                this.formModel.classes = ''
-              }
             }
           }
         }).finally(() => {
@@ -515,6 +572,23 @@ export default {
         console.log('copy.err', err)
         this.$message.error('Copy Failed')
       })
+    },
+    formatName(key, arr) {
+      const find = arr.find(item => item.id === key)
+      return find ? find.name : ''
+    },
+    closeCls(id) {
+      this.formModel.classArr = this.formModel.classArr.filter(clsId => clsId !== id)
+    },
+    showSelect(e) {
+      this.$refs.tagRender.previousElementSibling.click()
+    },
+    formatViewName(id) {
+      const findSubject = this.subjectOptions.find(subject => subject.subjectId === id)
+      if (findSubject) return findSubject.subjectName
+      // const findGrade = this.gradeOptions.find(grade => grade.gradeId === id)
+      // if (findGrade) return findGrade.gradeName
+      return 'Untitle'
     }
   }
 }
@@ -581,5 +655,34 @@ export default {
     }
   }
 }
-
+.self-select {
+  /deep/ .ant-select {
+    // visibility: hidden;
+    opacity: 0;
+    height: 30px;
+  }
+}
+.tag-render {
+  line-height: 30px;
+  min-height: 30px;
+  border: 1px solid #dfdfdf;
+  width: 100%;
+  background: #fff;
+  padding: 0 5px;
+  cursor: pointer;
+  margin-top: -30px;
+  left: 0;
+  flex-wrap: wrap;
+  &.disabled {
+    background: transparent;
+  }
+}
+.flex-wrap {
+  flex-wrap: wrap;
+  display: flex;
+  & > span {
+    margin-top: 2px;
+    margin-bottom: 2px;
+  }
+}
 </style>

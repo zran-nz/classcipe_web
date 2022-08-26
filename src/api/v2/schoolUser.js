@@ -30,7 +30,8 @@ export const schoolUserApi = {
   removeAdmins: `/classcipe/${API_PREFIX}/removeAdmins`,
   resetUserPassword: `/classcipe/${API_PREFIX}/user/resetPassword`,
   addSchoolAdmin: `/classcipe/${API_PREFIX}/addSchoolAdmin`,
-  getTeacherCount: `/classcipe/${API_PREFIX}/getTeacherCount`
+  getTeacherCount: `/classcipe/${API_PREFIX}/getTeacherCount`,
+  listStudents: `/classcipe/${API_PREFIX}/list/students`
 }
 
 /**
@@ -448,6 +449,19 @@ export function getSchoolUsers (parameter) {
  export function getTeacherCount (parameter) {
   return request({
     url: schoolUserApi.getTeacherCount,
+    method: 'get',
+    params: parameter
+  })
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+ export function listStudents (parameter) {
+  return request({
+    url: schoolUserApi.listStudents,
     method: 'get',
     params: parameter
   })

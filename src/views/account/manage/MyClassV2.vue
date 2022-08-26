@@ -707,12 +707,13 @@ export default {
       if (this.currentTab === 'archive') {
         return
       }
+      const path = cls.classType === 0 ? '/manage/student/list?classId=' : '/manage/student/subject/'
       if (!cls.id) {
         this.handleSaveClassName(cls, classId => {
-          this.$router.push('/manage/student/list?classId=' + classId)
+          this.$router.push(path + classId)
         })
       } else {
-        this.$router.push('/manage/student/list?classId=' + cls.id)
+        this.$router.push(path + cls.id)
       }
     },
     handleEditTeachers(cls) {

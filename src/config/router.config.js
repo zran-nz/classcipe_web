@@ -712,6 +712,13 @@ export const asyncRouterMap = [
                 props: true,
                 component: () => import('@/views/account/manage/SchoolStudentUpload'),
                 meta: { title: 'Student Upload', noSidebar: true, keepAlive: true, permission: ['teacher'] }
+              },
+              {
+                path: '/manage/student/subject/:classId',
+                name: 'ClassSubjectStudentManage',
+                props: true,
+                component: () => import('@/views/account/manage/ClassSubjectStudentManage'),
+                meta: { title: 'Student Add', noSidebar: true, keepAlive: true, permission: ['teacher'] }
               }
             ]
           },
