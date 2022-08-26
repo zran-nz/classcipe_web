@@ -493,7 +493,7 @@ export default {
             id: this.id
           }).then(response => {
             this.form.title = response.result.name
-            this.form.cover = this.type === typeMap.task ? response.result.image : (response.result.coverVideo || response.result.image)
+            this.form.cover = response.result.image // this.type === typeMap.task ? response.result.image : (response.result.coverVideo || response.result.image)
             this.form.coverVideo = response.result.coverVideo
             this.form.image = response.result.image
           }).finally(() => {
@@ -515,11 +515,13 @@ export default {
           const register = res.result.session.register
           if (register) {
             this.form.maxParticipants = register.maxParticipants
-            this.form.discountInfo = register.discountInfo
             this.form.price = register.price
             this.form.paidType = Boolean(register.paidType)
             this.price = register.price
-            // this.discountList = []
+            if (register.discountInfo) {
+              this.form.discountInfo = register.discountInfo
+              this.discountList = register.discountInfo
+            }
           }
         }
       }).finally(() => {
