@@ -67,11 +67,11 @@
         <div class='create-new' v-show="WORK_SHOPS_TYPE.LUNCHEDBYME.value === queryParams.workshopsType">
           <a-dropdown :getPopupContainer="trigger => trigger.parentElement">
             <a-menu slot="overlay">
-              <a-menu-item>
+              <!-- <a-menu-item>
                 <a @click="handleImport(typeMap.task)">
                   Import from task
                 </a>
-              </a-menu-item>
+              </a-menu-item> -->
               <a-menu-item>
                 <a @click="handleImport(typeMap.pd)">
                   Import from PD content

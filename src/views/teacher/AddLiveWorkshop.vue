@@ -90,7 +90,7 @@
                   <div class='pay-discount-item' v-for='discount in discountList' :key='discount.id' @click.stop='handleDiscountEdit(discount)'>
                     <div class='person-num'>
                       <template v-if='discount.editing'>
-                        <a-input v-model='discount.peopleThreshold' min='0' type='number' class='cc-form-input discount-input'/>
+                        <a-input v-model='discount.peopleThreshold' min='1' type='number' class='cc-form-input discount-input'/>
                       </template>
                       <template v-else>
                         {{ discount.peopleThreshold }}
@@ -682,7 +682,7 @@ export default {
       AddSessionV2(params).then(res => {
          if (res.result && res.success && res.code === 0) {
           this.$message.success('Schedule session successfully')
-          this.$router.replace('/teacher/main/live-workshops')
+          this.$router.replace('/teacher/main/live-workshops?workshopsType=2')
         } else {
           this.$confirm({
             title: 'Warn',
@@ -740,6 +740,7 @@ export default {
 
     handleBlurClick() {
       this.discountList.forEach(discount => {
+        discount.peopleThreshold = Math.max(discount.peopleThreshold, 1)
         discount.editing = false
       })
     },

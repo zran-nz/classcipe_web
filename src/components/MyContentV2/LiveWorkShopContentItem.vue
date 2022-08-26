@@ -361,14 +361,14 @@ export default {
       }
     },
     handleToZoom(item) {
-      if (item && item.session && item.session.zoomMeeting) {
-        try {
-          const zoomMeetingConfig = JSON.parse(item.session.zoomMeeting)
-          window.open(zoomMeetingConfig.start_url, '_blank')
-        } catch (error) {
-          this.$message.error('parse json error')
-        }
-      }
+      // if (item && item.session && item.session.zoomMeeting) {
+      //   try {
+      //     const zoomMeetingConfig = JSON.parse(item.session.zoomMeeting)
+      //     window.open(zoomMeetingConfig.start_url, '_blank')
+      //   } catch (error) {
+      //     this.$message.error('parse json error')
+      //   }
+      // }
     },
     handleCloseShare () {
       this.shareVisible = false
@@ -554,6 +554,11 @@ export default {
       background-size: contain;
       background-repeat: no-repeat;
     }
+    &:hover {
+      .cover-btn {
+        display:flex;
+      }
+    }
     .cover-btn {
       position: absolute;
       height: 0.46em /* 46/100 */;
@@ -562,8 +567,9 @@ export default {
       padding: 0 0.23em /* 23/100 */;
       background: #2582B5;
       text-align: center;
-      display: flex;
+      display: none;
       align-items: center;
+      transition: all 0.1s;
       label {
         font-size: 0.14em /* 14/100 */;
         font-family: Arial;
@@ -684,7 +690,7 @@ export default {
         height: 0.4em /* 40/100 */;
         display: flex;
         align-items: center;
-        cursor: pointer;
+        // cursor: pointer;
         img {
           // width: 0.4em /* 40/100 */;
           height: 0.3em /* 40/100 */;

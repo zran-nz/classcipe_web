@@ -10,7 +10,7 @@
     />
     <div class="slider-label" ref="sliderLabel">
       <div
-        :class="{ 'slider-label-item': true, current: item.isCurrent }"
+        :class="{ 'slider-label-item': true, current: item.isCurrent, origin: item.isOrigin }"
         :style="{ left: item.left, width: item.width }"
         v-for="(item, index) in lines"
         :key="'line_' + index"
@@ -27,6 +27,7 @@
 <script>
 import { DEVICE } from '@/const/common'
 import { mapState } from 'vuex'
+import { uniqBy } from 'lodash-es'
 export default {
   name: 'PriceSlider',
   props: {
@@ -74,7 +75,7 @@ export default {
       }),
       result: null,
       currentVal: this.current,
-      min: 1,
+      min: 0,
       disabled: true
     }
   },
@@ -99,7 +100,7 @@ export default {
     max() {
       const values = this.datas.map(item => item.value)
       const max = Math.max(...values)
-      return Math.max(...values) + Math.floor(max / this.datas.length)
+      return (Math.max(...values) + Math.floor(max / this.datas.length)) || 1
     },
     marks() {
       const values = this.datas.map(item => item.value).sort()
@@ -117,17 +118,19 @@ export default {
     },
     lines() {
       const labels = this.datas.map(item => item.price)
-      const prepare = this.datas.concat([
+      let prepare = this.datas.concat([
         {
           value: this.max
         }
       ])
+      prepare = uniqBy(prepare, 'value')
       const result = []
       const needCurrent = true
       if (this.origin !== null) {
         result.push({
           width: '',
           left: 0,
+          isOrigin: true,
           label: '$' + this.origin
         })
       }
@@ -150,7 +153,7 @@ export default {
       console.log(this.currentVal)
       if (this.currentVal && this.currentVal > 0 && needCurrent) {
         const left =
-          ((this.currentVal - this.min) / (this.max - this.min)) * 100 + '%'
+          Math.min(((this.currentVal - this.min) / (this.max - this.min)) * 100, 100) + '%'
         result.push({
           left: `calc(${left} - 0px)`,
           width: 'auto',
@@ -198,6 +201,9 @@ export default {
         top: 13px;
         color: #fff;
       }
+      // &.isOrigin {
+      //   top: 13px;
+      // }
     }
   }
   /deep/ .ant-slider {

@@ -100,7 +100,7 @@ export default {
           this.enableZoom = true
           // 直播课,pd zomm必须选择，所以
           this.$emit('select-zoom-status', this.enableZoom)
-          // this.checkZoomAuth()
+          this.checkZoomAuth()
         }
       },
       immediate: true

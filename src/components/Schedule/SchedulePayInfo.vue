@@ -29,7 +29,7 @@
                 <div class='it-value vertical-left'>
                   <div class='person-num'>
                     <template v-if='discount.editing'>
-                      <a-input v-model='discount.peopleThreshold' min='0' type='number' class='cc-form-input discount-input'/>
+                      <a-input v-model='discount.peopleThreshold' min='1' type='number' class='cc-form-input discount-input'/>
                     </template>
                     <template v-else>
                       {{ discount.peopleThreshold }}
@@ -215,7 +215,7 @@ export default {
           this.enableZoom = true
           // 直播课,pd zomm必须选择，所以
           this.$emit('select-zoom-status', this.enableZoom)
-          // this.checkZoomAuth()
+          this.checkZoomAuth()
         }
       },
       immediate: true
@@ -324,6 +324,7 @@ export default {
 
     handleBlurClick() {
       this.discountList.forEach(discount => {
+        discount.peopleThreshold = Math.max(discount.peopleThreshold, 1)
         discount.editing = false
       })
     },
