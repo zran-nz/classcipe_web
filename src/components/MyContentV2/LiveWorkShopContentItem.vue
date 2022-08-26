@@ -15,7 +15,7 @@
           </div>
           <div class='name' v-show="!showEditName">
             {{ content.title || content.content.name }}
-            <a-icon v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType" type="edit" @click.prevent.stop="editName(content)"/>
+            <!-- <a-icon v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType" type="edit" @click.prevent.stop="editName(content)"/> -->
           </div>
           <div class="name" v-show="showEditName">
             <a-input :disabled="loading" :value="choose.title" @change="e => changeTitle(e.target.value, content)"></a-input>
@@ -34,7 +34,7 @@
           <div class="update-time" v-if="content.unitPlanInfo && content.unitPlanInfo.name">Unit: {{ content.unitPlanInfo.name }}</div>
           <div class='update-time' v-show="!showEditSche">
             Sched: {{ content.sessionStartTime | dayjs }}
-            <a-icon v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType" type="edit" @click.prevent.stop="editSche(content)"/>
+            <!-- <a-icon v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType" type="edit" @click.prevent.stop="editSche(content)"/> -->
           </div>
           <div class="update-time" v-show="showEditSche">
             <a-range-picker
@@ -76,12 +76,12 @@
         <tags-line :tags="content.content ? content.content.customTags : []" />
         <div class="price-con" v-if="content.priceList && content.priceList.length > 0 && !isSimple">
           <price-slider :priceList="content.priceList" :current="content.registeredNum" :origin="content.price" />
-          <template v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType">
+          <!-- <template v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType">
             <a-icon class="price-edit" @click="editPrice(content)" type="edit" v-if="content.registeredNum == 0"></a-icon>
             <a-tooltip v-else title="You can not edit the price because it has been already registered by other users.">
               <a-icon class="price-edit" type="edit" style="color: #999"></a-icon>
             </a-tooltip>
-          </template>
+          </template> -->
         </div>
       </div>
       <div class='action'>
@@ -132,7 +132,11 @@
               <icon-font type="icon-xianshi" class="detail-font"/>
             </template>
           </custom-button>
-          <template v-if="WORK_SHOPS_TYPE.FEATURE.value === content.workshopsType && WORK_SHOPS_STATUS.ENDED.value !== content.workshopsStatus">
+          <template
+            v-if="
+              WORK_SHOPS_TYPE.FEATURE.value === content.workshopsType
+                && WORK_SHOPS_STATUS.ENDED.value !== content.workshopsStatus
+                && isCurrentType(WORK_SHOPS_TYPE.FEATURE.value)">
             <!-- <a-button type='primary' shape='round' @click='handleRegister(content)'>
               <icon-font type="icon-register" class="detail-font"/>
               Register</a-button> -->
@@ -142,30 +146,81 @@
               </template>
             </custom-button>
           </template>
-          <template v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType">
+          <template
+            v-if="
+              WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType
+                && isCurrentType(WORK_SHOPS_TYPE.LUNCHEDBYME.value)">
             <!-- <custom-button label='Edit' v-if="WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus" @click='handleEdit(content)'>
               <template v-slot:icon>
                 <icon-font type="icon-edit" class="detail-font"/>
               </template>
             </custom-button> -->
-            <custom-button label='Relaunch' v-if="WORK_SHOPS_STATUS.SCHEDULE.value !== content.workshopsStatus" @click='handleRelaunch(content)'>
+            <custom-button
+              label='Relaunch'
+              v-if="WORK_SHOPS_STATUS.ENDED.value === content.workshopsStatus"
+              @click='handleRelaunch(content)'>
               <template v-slot:icon>
                 <icon-font type="icon-tizhibianbie-zhongxinceshi" class="detail-font"/>
               </template>
             </custom-button>
-            <custom-button label='Delete' @click='handleDel(content)'>
-              <template v-slot:icon>
-                <icon-font type="icon-shanchu" class="detail-font"/>
-              </template>
-            </custom-button>
+            <a-dropdown
+              :trigger="['click']"
+              :getPopupContainer='trigger => trigger.parentElement'
+            >
+              <div class='more-action'>
+                <more-icon />
+              </div>
+              <div class='content-item-more-action' slot='overlay'>
+                <div class='menu-item' v-if="WORK_SHOPS_STATUS.ONGOING.value !== content.workshopsStatus">
+                  <custom-button label='Delete' @click='handleDel(content)'>
+                    <template v-slot:icon>
+                      <icon-font type="icon-shanchu" class="detail-font"/>
+                    </template>
+                  </custom-button>
+                </div>
+                <div class='menu-item' v-else>
+                  <custom-button label='End' @click='handleEnd(content)'>
+                    <template v-slot:icon>
+                      <icon-font type="icon-shanchu" class="detail-font"/>
+                    </template>
+                  </custom-button>
+                </div>
+              </div>
+            </a-dropdown>
           </template>
-          <template v-if="WORK_SHOPS_TYPE.REGISTERED.value === content.workshopsType && WORK_SHOPS_STATUS.ENDED.value !== content.workshopsStatus">
+          <a-dropdown
+            :trigger="['click']"
+            :getPopupContainer='trigger => trigger.parentElement'
+            v-if="WORK_SHOPS_TYPE.REGISTERED.value === content.workshopsType
+              && isCurrentType(WORK_SHOPS_TYPE.REGISTERED.value)
+              && WORK_SHOPS_STATUS.ENDED.value !== content.workshopsStatus
+              && isReadyStart24(content) ">
+            <div class='more-action'>
+              <more-icon />
+            </div>
+            <div class='content-item-more-action' slot='overlay'>
+              <div class='menu-item'>
+                <custom-button label='Cancel' @click='handleCancel(content)'>
+                  <template v-slot:icon>
+                    <icon-font type="icon-cancel" class="detail-font"/>
+                  </template>
+                </custom-button>
+              </div>
+            </div>
+          </a-dropdown>
+          <div
+            class='label-action'
+            v-if="WORK_SHOPS_TYPE.REGISTERED.value === content.workshopsType
+              && isCurrentType(WORK_SHOPS_TYPE.FEATURE.value)">
+            Registered
+          </div>
+          <!-- <template v-if="WORK_SHOPS_TYPE.REGISTERED.value === content.workshopsType && WORK_SHOPS_STATUS.ENDED.value !== content.workshopsStatus">
             <custom-button label='Cancel' @click='handleCancel(content)'>
               <template v-slot:icon>
                 <icon-font type="icon-cancel" class="detail-font"/>
               </template>
             </custom-button>
-          </template>
+          </template> -->
 
         </a-space>
       </div>
@@ -217,6 +272,7 @@ import ContentPreview from '@/components/Preview/ContentPreview'
 import TagsLine from '@/components/TagsLine'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import SchedulePriceSet from '@/components/Schedule/SchedulePriceSet'
+import MoreIcon from '@/assets/v2/icons/more.svg?inline'
 
 import { ContentItemMixin } from '@/mixins/ContentItemMixin'
 import { ACCESS_TOKEN, SET_PROMOTE_CODE } from '@/store/mutation-types'
@@ -235,7 +291,8 @@ export default {
     ContentPreview,
     TagsLine,
     ContentTypeIcon,
-    SchedulePriceSet
+    SchedulePriceSet,
+    MoreIcon
   },
   mixins: [ ContentItemMixin ],
   props: {
@@ -254,6 +311,7 @@ export default {
       USER_MODE: USER_MODE,
       WORK_SHOPS_STATUS: WORK_SHOPS_STATUS,
       WORK_SHOPS_TYPE: WORK_SHOPS_TYPE,
+      WORK_SHOPS_TYPE_VALUES: Object.values(WORK_SHOPS_TYPE),
       moment: moment,
       shareVisible: false,
       shareItem: {},
@@ -277,7 +335,15 @@ export default {
     ...mapState({
       userMode: state => state.app.userMode,
       currentSchool: state => state.user.currentSchool
-    })
+    }),
+    isCurrentType() {
+      return (workshopsType) => {
+        if (this.$route.query && this.$route.query.workshopsType) {
+          return this.$route.query.workshopsType === workshopsType + ''
+        }
+        return workshopsType + '' === WORK_SHOPS_TYPE.FEATURE.value + ''
+      }
+    }
   },
   mounted() {
     const total = (this.content.content && this.content.content.customTags) ? this.content.content.customTags.length : 0
@@ -376,6 +442,11 @@ export default {
     changeTitle(value, item) {
       this.choose.title = value
     },
+    isReadyStart24(item) {
+      if (!item.sessionStartTime) return false
+      const start = moment(item.sessionStartTime).utc().subtract(12, 'hours')
+      return moment().isBefore(start)
+    },
     handleCancelSingle(item) {
       this.showEditName = false
       this.showEditSche = false
@@ -471,7 +542,7 @@ export default {
     },
     handleRelaunch(item) {
       this.$router.push({
-        path: '/teacher/live-workshop/' + item.content.id + '/' + item.content.type + '?relaunch=1'
+        path: '/teacher/live-workshop/' + item.content.id + '/' + item.content.type + '?relaunch=' + item.sessionId
       })
     },
     handleDel(item) {
@@ -488,6 +559,9 @@ export default {
           })
         }
       })
+    },
+    handleEnd(item) {
+      this.$message.info('coming soon...')
     },
     handleEdit(item) {
       this.$message.info('coming soon...')
@@ -872,6 +946,39 @@ export default {
       opacity: 1;
     }
   }
+}
+
+.more-action {
+  cursor: pointer;
+  height: .4em;
+  display: flex;
+  align-items: center;
+  svg {
+    width: 0.4em /* 40/100 */;
+    height: 0.36em /* 36/100 */;
+    fill: #494B52 !important;
+  }
+
+  &:hover {
+    svg {
+      fill: #14C39A !important;
+    }
+  }
+}
+
+.content-item-more-action {
+  .cc-custom-button {
+    padding: 10px 18px!important;
+    border-radius: 40px!important;
+  }
+  .detail-font {
+    font-size: 18px;
+  }
+}
+
+.label-action {
+  font-size: 16px;
+  color: @primary-color;
 }
 
 </style>

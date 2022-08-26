@@ -292,6 +292,7 @@ import { AddSessionV2 } from '@/api/v2/classes'
 import { getCurriculumBySchoolId } from '@/api/academicSettingCurriculum'
 import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
 import { queryTeachers } from '@/api/common'
+import { DetailBySessionId } from '@/api/v2/live'
 import { PAID_TYPE, NOTIFY_TYPE, USER_MODE, PdField, CALENDAR_QUERY_TYPE } from '@/const/common'
 
 import { UserModeMixin } from '@/mixins/UserModeMixin'
@@ -413,7 +414,7 @@ export default {
       ],
 
       enableZoom: true,
-      fromRelaunch: false
+      fromRelaunch: ''
     }
   },
   created() {
@@ -423,9 +424,8 @@ export default {
     this.currentStep = this.steps[this.currentActiveStepIndex]
     const query = this.$route.query
     if (query.relaunch) {
-      this.fromRelaunch = true
-    } else {
-      this.fromRelaunch = false
+      this.fromRelaunch = query.relaunch
+      this.getRelaunch()
     }
     this.handleDisplayRightModule()
     this.handleAssociate()
@@ -480,25 +480,51 @@ export default {
       })
     },
     initData() {
-      let promise = null
-      if (this.type === typeMap.task) {
-        promise = TaskQueryById
-      } else if (this.type === typeMap.pd) {
-        promise = PDContentQueryById
+      if (!this.fromRelaunch) {
+        let promise = null
+        if (this.type === typeMap.task) {
+          promise = TaskQueryById
+        } else if (this.type === typeMap.pd) {
+          promise = PDContentQueryById
+        }
+        if (promise) {
+          this.contentLoading = true
+          promise({
+            id: this.id
+          }).then(response => {
+            this.form.title = response.result.name
+            this.form.cover = this.type === typeMap.task ? response.result.image : (response.result.coverVideo || response.result.image)
+            this.form.coverVideo = response.result.coverVideo
+            this.form.image = response.result.image
+          }).finally(() => {
+            this.contentLoading = false
+          })
+        }
       }
-      if (promise) {
-        this.contentLoading = true
-        promise({
-          id: this.id
-        }).then(response => {
-          this.form.title = response.result.name
-          this.form.cover = this.type === typeMap.task ? response.result.image : (response.result.coverVideo || response.result.image)
-          this.form.coverVideo = response.result.coverVideo
-          this.form.image = response.result.image
-        }).finally(() => {
-          this.contentLoading = false
-        })
-      }
+    },
+
+    getRelaunch() {
+      this.contentLoading = true
+      DetailBySessionId({
+        sessionId: this.fromRelaunch
+      }).then(res => {
+        if (res.success) {
+          this.form.title = res.result.title || res.result.session.sessionName
+          this.form.cover = res.result.cover || res.result.session.image
+          this.form.image = res.result.cover || res.result.session.image
+          const register = res.result.session.register
+          if (register) {
+            this.form.maxParticipants = register.maxParticipants
+            this.form.discountInfo = register.discountInfo
+            this.form.price = register.price
+            this.form.paidType = Boolean(register.paidType)
+            this.price = register.price
+            // this.discountList = []
+          }
+        }
+      }).finally(() => {
+        this.contentLoading = false
+      })
     },
 
     disabledDate(current) {

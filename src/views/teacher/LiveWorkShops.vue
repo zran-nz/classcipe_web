@@ -16,7 +16,7 @@
     </div>
     <div class='filter-bar'>
       <!--  :style="{visibility: WORK_SHOPS_TYPE.FEATURE.value !== queryParams.workshopsType ? 'visible' : 'hidden'}" -->
-      <a-space class="status-filter">
+      <a-space class="status-filter" :style="{visibility: WORK_SHOPS_TYPE.FEATURE.value !== queryParams.workshopsType ? 'visible' : 'hidden'}">
         <label
           :class="{active: queryParams.workshopsStatus == item.value}"
           v-for="item in WORK_SHOPS_STATUS"
@@ -317,6 +317,9 @@ export default {
       }
       if (this.filterParams) {
         params = Object.assign(this.filterParams, params)
+      }
+      if (params.workshopsType === WORK_SHOPS_TYPE.FEATURE.value) {
+        params.workshopsStatus = ''
       }
       FindWorkShops(params).then(res => {
         logger.info('getMyContent', res)
