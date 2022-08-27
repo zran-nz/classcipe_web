@@ -286,6 +286,11 @@ export default {
             this.$logger.info('等待授权回调')
             this.$message.loading('Waiting for Google Slides auth...', 10)
             return
+          } else if (res.code === 404) {
+            this.$logger.info('等待授权回调')
+            // this.$message.loading('Publish failed,The ppt you publish has been deleted. ', 5)
+            this.loadMyContent()
+            return
           }
           this.$logger.info('handlePublishStatus res', res)
           this.myContentList[index].status = targetStatus

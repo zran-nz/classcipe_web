@@ -166,7 +166,7 @@
               </template>
             </custom-button>
 
-            <template v-if="showPublish && !content.sourceFrom && content.owner.email === $store.getters.email">
+            <template v-if="canPublishToLibrary(content)">
               <custom-button
                 :disabled='!content.canPublish'
                 :disabled-tooltip="'Please complete the information'"
@@ -437,6 +437,16 @@ export default {
     },
     isOwner () {
       return this.$store.getters.userInfo.email === this.content.createBy
+    },
+    canPublishToLibrary() {
+      return function (content) {
+       const boolStatus = this.showPublish && !content.sourceFrom && content.owner.email === this.$store.getters.email
+        if (content.type === typeMap.pd || content.type === typeMap.task) {
+          return boolStatus && content.presentationId &&
+            !content.fileDeleted && !content.presentationId.startsWith('fake_')
+        }
+       return boolStatus
+      }
     }
   },
   methods: {
