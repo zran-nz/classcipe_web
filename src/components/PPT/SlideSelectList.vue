@@ -190,7 +190,7 @@ export default {
 
     addText(slide) {
       if (this.filterSourceType === this.sourceType.Library || this.filterSourceType === this.sourceType.Resource) {
-        if (slide.createBy === this.$store.getters.email) {
+        if (slide.createBy === this.$store.getters.email || slide.buyed) {
           return 'Insert'
         } else {
           return 'Buy now'
