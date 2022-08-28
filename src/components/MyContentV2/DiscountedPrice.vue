@@ -5,6 +5,8 @@
     :maskClosable='false'
     destroyOnClose
     @ok='updatePrice'
+    :ok-text='okText'
+    :confirmLoading="confirmLoading"
     @cancel='visible = false'>
     <modal-header title="Edit price" @close='visible = false'/>
     <div class='edit-price'>
@@ -52,54 +54,59 @@
           <a-range-picker :default-value="initDate" :mode="['date']" :disabled-date="disabledDate" @change="handleDurationChange"/>
         </a-col>
       </a-row>
+
     </div>
   </a-modal>
 </template>
 
 <script>
 import { typeMap } from '@/const/teacher'
-import moment from 'moment'
 import { discountSettingQuery, discountSettingSave } from '@/api/v2/discountSetting'
+
 import ModalHeader from '@/components/Common/ModalHeader'
+import moment from 'moment'
 
 export default {
-  name: 'EditPriceDialog',
-  components: { ModalHeader },
+  name: 'DiscountedPrice',
   props: {
-    content: {
-      type: Object,
-      default: () => {}
+    okText: {
+      type: String,
+      default: 'OK'
     }
   },
-  data () {
+  components: {
+    ModalHeader
+  },
+  data() {
     return {
-      visible: false,
-      enableDiscount: false,
-      discount: 0,
       typeMap: typeMap,
-      isSelfLearning: false,
+      contentId: '',
+      contentType: '',
+      enableDiscount: false,
+      visible: false,
+      discount: 0,
       price: 0,
       editPrice: false,
       startDate: null,
       endData: null,
-      initDate: [moment(new Date()), null]
+      initDate: [moment(new Date()), null],
+      confirmLoading: false
     }
   },
   methods: {
-    async showEditPrice() {
+    async showEditPrice(id, type) {
+      this.contentId = id
+      this.contentType = type
       const res = await discountSettingQuery({
-        contentId: this.content.id,
-        contentType: this.content.type
+        contentId: id,
+        contentType: type
       })
       const data = res.result
       if (data) {
         this.$logger.info('discountSettingQuery', data)
         this.discount = data.discount
         this.price = data.price
-        this.enableDiscount = data.enableDiscount
-        // this.startDate = data.discountStartTime || new Date()
-        // this.endData = data.discountEndTime || new Date(Date.now() + 3600 * 24 * 7 * 1000)
-        // this.initDate = [moment(this.startDate), moment(this.endData)]
+        this.enableDiscount = Boolean(data.enableDiscount)
         this.startDate = data.discountStartTime
         this.endData = data.discountEndTime
         if (data.discountStartTime && data.discountEndTime) {
@@ -108,25 +115,40 @@ export default {
       }
       this.visible = true
     },
+
     async updatePrice () {
       this.$logger.info('update price')
-      const type = parseInt(this.content.type)
+      const type = parseInt(this.contentType)
+      this.confirmLoading = true
       await discountSettingSave({
-        contentId: this.content.id,
+        contentId: this.contentId,
         contentType: type,
         discount: this.discount,
         discountModel: 2,
         price: this.price,
-        enableDiscount: this.enableDiscount,
         discountStartTime: this.startDate,
+        enableDiscount: this.enableDiscount,
         discountEndTime: this.endData
       })
-      this.content.price = this.price
-      this.content.discountPrice = this.discount > 0 ? parseFloat((this.price - this.price * this.discount / 100).toFixed(2)) : this.price
+      // this.content.price = this.price
+      // this.content.discountPrice = this.discount > 0 ? parseFloat((this.price - this.price * this.discount / 100).toFixed(2)) : this.price
+      let isInDate = false
+      if (this.discount > 0) {
+        isInDate = moment().isAfter(moment.utc(this.startDate).local()) && moment().isBefore(moment.utc(this.endData).local())
+      }
+      let discountPrice = this.price
+      if (isInDate && this.discount > 0) {
+        discountPrice = parseFloat((this.price - this.price * this.discount / 100).toFixed(2))
+      }
+      this.$emit('update', {
+        price: this.price,
+        discountPrice: discountPrice
+      })
       this.editPrice = false
+      this.confirmLoading = false
       this.visible = false
-      this.$emit('finish')
     },
+
     handleDurationChange (date) {
       this.$logger.info('handleDurationChange', date)
       this.startDate = moment(date[0].toDate()).utc().format('YYYY-MM-DD 00:00:00')
@@ -151,8 +173,7 @@ export default {
 }
 </script>
 
-<style lang='less' scoped>
-@import "~@/components/index.less";
+<style scoped lang="less">
 .edit-price {
   width: 100%;
   > div {

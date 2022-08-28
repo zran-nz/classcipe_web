@@ -75,6 +75,9 @@
       :content-id='previewCurrentId'
       :content-type='previewType'
       v-if='previewVisible'
+      :review-edit='reviewEdit'
+      :review-create='reviewCreate'
+      :review-list='reviewList'
       @close='handlePreviewClose' />
 
     <a-modal
@@ -143,7 +146,16 @@ export default {
     ...mapState({
       school: state => state.user.school,
       userMode: state => state.app.userMode
-    })
+    }),
+    reviewList() {
+      return this.filterSourceType !== sourceType.MyContent
+    },
+    reviewCreate() {
+      return false
+    },
+    reviewEdit() {
+      return false
+    }
   },
   data() {
     return {

@@ -208,7 +208,7 @@
                 <div class='discount-price'>
                   ${{ content.discountPrice || content.price || 0 }}
                 </div>
-                <div v-if="content.discountPrice !== content.price" class='price_was'>${{ content.price }}</div>
+                <div v-if="content.discountPrice > 0 && content.discountPrice !== content.price" class='price_was'>${{ content.price }}</div>
               </a-space>
             </div>
             <div class='buy-button'>

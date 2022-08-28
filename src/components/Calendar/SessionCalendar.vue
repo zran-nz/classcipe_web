@@ -1009,7 +1009,6 @@ export default {
       // }
     },
     handleMouseEnter(info) {
-
     },
     handleChangeEvents() {
       const calendarApi = this.$refs.fullCalendar.getApi()

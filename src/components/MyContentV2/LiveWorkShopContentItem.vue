@@ -33,7 +33,7 @@
         <div class='right-info' v-if="content.sessionStartTime && !isSimple">
           <div class="update-time" v-if="content.unitPlanInfo && content.unitPlanInfo.name">Unit: {{ content.unitPlanInfo.name }}</div>
           <div class='update-time' v-show="!showEditSche">
-            Sched: {{ content.sessionStartTime | dayjs }}
+            Scheduled: {{ content.sessionStartTime | dayjs }}
             <!-- <a-icon v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType" type="edit" @click.prevent.stop="editSche(content)"/> -->
           </div>
           <div class="update-time" v-show="showEditSche">

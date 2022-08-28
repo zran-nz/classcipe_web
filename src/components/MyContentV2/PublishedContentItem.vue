@@ -96,7 +96,7 @@
               </div>
               <div v-if="content.discountPrice !== content.price" class='price_was'>${{ content.price }}</div>
               <div class='edit'>
-                <a-icon type="edit" v-if='!visible' @click.native='showEditPrice'/>
+                <a-icon type="edit" @click.native='showEditPrice'/>
               </div>
             </div>
             <div class='sale-info vertical-left'>
@@ -135,61 +135,7 @@
         v-if='previewVisible'
         @close='handlePreviewClose' />
 
-      <a-modal
-        v-model='visible'
-        :closable='false'
-        :maskClosable='false'
-        destroyOnClose
-        @ok='updatePrice'
-        @cancel='visible = false'>
-        <modal-header title="Edit price" @close='visible = false'/>
-        <div class='edit-price'>
-          <a-row :gutter='20' type="flex" align='middle'>
-            <a-col span='6' class='label-name'>
-              Price:
-            </a-col>
-            <a-col span='6'>
-              <a-input-number
-                :default-value="0"
-                :min="0"
-                :max="10000000"
-                :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                :parser="value => value.replace(/\$\s?|(,*)/g, '')"
-                v-model='price'
-              />
-            </a-col>
-            <a-col span='12' v-show='enableDiscount && price > 0'>Discounted price <span :style="{'color': 'red'}">${{ (price * (1 - (discount * 1.0) / 100)).toFixed(2) }}</span></a-col>
-          </a-row>
-          <a-row :gutter='20' type="flex" align='middle' v-if='price > 0'>
-            <a-col span='6' class='label-name'>
-              Discount:
-            </a-col>
-            <a-col span='6'>
-              <a-input-number
-                :default-value="0"
-                :min="0"
-                :max="100"
-                :formatter="value => `${value}%`"
-                :parser="value => value.replace('%', '')"
-                v-show='enableDiscount'
-                v-model='discount'
-              />
-            </a-col>
-            <a-col span='12'>
-              <a-switch :checked='enableDiscount' @change="onChange" size='small' v-if='price > 0'></a-switch>
-            </a-col>
-          </a-row>
-          <a-row :gutter='20' type="flex" align='middle' v-show='enableDiscount && price > 0'>
-            <a-col span='6' class='label-name'>
-              Duration setting
-            </a-col>
-            <a-col span='16'>
-              <a-range-picker :default-value="initDate" :mode="['date']" :disabled-date="disabledDate" @change="handleDurationChange"/>
-            </a-col>
-          </a-row>
-
-        </div>
-      </a-modal>
+      <discounted-price ref="discountedPrice" @update="updatePrice"/>
 
     </div>
   </div>
@@ -215,8 +161,7 @@ import MoreIcon from '@/assets/v2/icons/more.svg?inline'
 import ContentPreview from '@/components/Preview/ContentPreview'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import ModalHeader from '@/components/Common/ModalHeader'
-import { discountSettingQuery, discountSettingSave } from '@/api/v2/discountSetting'
-import moment from 'moment'
+import DiscountedPrice from '@/components/MyContentV2/DiscountedPrice'
 
 export default {
   name: 'ContentItem',
@@ -233,7 +178,8 @@ export default {
     ScheduleIcon,
     OriginalTipsIcon,
     DeleteIcon,
-    MoreIcon
+    MoreIcon,
+    DiscountedPrice
   },
   props: {
     content: {
@@ -256,12 +202,7 @@ export default {
       enableDiscount: false,
       discount: 0,
       typeMap: typeMap,
-      isSelfLearning: false,
-      price: 0,
-      editPrice: false,
-      startDate: null,
-      endData: null,
-      initDate: [moment(new Date()), null]
+      isSelfLearning: false
     }
   },
   created() {
@@ -310,27 +251,10 @@ export default {
       this.$logger.info('handleSelfLearning', isSelfLearning)
       this.isSelfLearning = isSelfLearning
     },
-    disabledDate(current) {
-      return current && current < moment().subtract(1, 'days').endOf('day')
-    },
-    handleDurationChange (date) {
-      this.$logger.info('handleDurationChange', date)
-      this.startDate = moment(date[0].toDate()).utc().format('YYYY-MM-DD 00:00:00')
-      this.endData = moment(date[1].toDate()).utc().format('YYYY-MM-DD 00:00:00')
-    },
     handlePublishStatus() {
       this.$emit('update-publish', {
         content: this.content
       })
-    },
-
-    onChange(v) {
-      this.enableDiscount = v
-      if (!v) {
-        this.discount = 0
-        this.startDate = null
-        this.endData = null
-      }
     },
 
     handleDeleteItem() {
@@ -343,41 +267,15 @@ export default {
       })
     },
 
-    async showEditPrice() {
-      const res = await discountSettingQuery({
-        contentId: this.content.id,
-        contentType: this.content.type
-      })
-      const data = res.result
-      if (data) {
-        this.$logger.info('discountSettingQuery', data)
-        this.discount = data.discount
-        this.price = data.price
-        this.startDate = data.discountStartTime
-        this.endData = data.discountEndTime
-        this.enableDiscount = data.enableDiscount
-        this.initDate = [data.discountStartTime ? moment(data.discountStartTime) : moment(new Date()),
-          data.discountEndTime ? moment(data.discountEndTime) : null]
-      }
+    showEditPrice() {
       this.visible = true
+      this.$refs.discountedPrice.showEditPrice(this.content.id, this.content.type)
     },
 
-    async updatePrice () {
+    updatePrice (obj) {
       this.$logger.info('update price')
-      const type = parseInt(this.content.type)
-      await discountSettingSave({
-        contentId: this.content.id,
-        contentType: type,
-        discount: this.discount,
-        discountModel: 2,
-        price: this.price,
-        enableDiscount: this.enableDiscount,
-        discountStartTime: this.startDate,
-        discountEndTime: this.endData
-      })
-      this.content.price = this.price
-      this.content.discountPrice = this.discount > 0 ? parseFloat((this.price - this.price * this.discount / 100).toFixed(2)) : this.price
-      this.editPrice = false
+      this.content.price = obj.price
+      this.content.discountPrice = obj.discountPrice
       this.visible = false
     }
   }

@@ -40,11 +40,11 @@ export default {
   props: {
     password: {
       type: Boolean,
-      default: false
+      default: true
     },
     waitingRoom: {
       type: Boolean,
-      default: false
+      default: true
     }
   },
   watch: {
