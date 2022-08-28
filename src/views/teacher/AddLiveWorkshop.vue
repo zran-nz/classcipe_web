@@ -221,8 +221,8 @@
             <zoom-meeting
               v-show='enableZoom'
               ref='zoom'
-              :password='false'
-              :waiting-room='false' />
+              :password='true'
+              :waiting-room='true' />
           </div>
         </div>
         <div class='tag-body'>
@@ -710,7 +710,7 @@ export default {
       AddSessionV2(params).then(res => {
          if (res.result && res.success && res.code === 0) {
           this.$message.success('Schedule session successfully')
-          this.$router.replace('/teacher/main/live-workshops?workshopsType=2')
+          this.$router.replace('/teacher/main/live-workshops?workshopsType=2&workshopsStatus=2')
         } else {
           this.$confirm({
             title: 'Warn',

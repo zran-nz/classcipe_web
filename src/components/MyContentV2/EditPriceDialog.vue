@@ -30,11 +30,11 @@
         </a-col>
         <a-col span='6'>
           <a-input-number
-            :default-value="0"
-            :min="0"
+            :default-value="1"
+            :min="0.01"
             :max="100"
-            :formatter="value => `${value}%`"
-            :parser="value => value.replace('%', '')"
+            :formatter="value => `${value || 1}%`"
+            :parser="value => value.replace('%', '') || 1"
             v-show='enableDiscount'
             v-model='discount'
           />
@@ -97,9 +97,14 @@ export default {
         this.discount = data.discount
         this.price = data.price
         this.enableDiscount = data.enableDiscount
-        this.startDate = data.discountStartTime || new Date()
-        this.endData = data.discountEndTime || new Date(Date.now() + 3600 * 24 * 7 * 1000)
-        this.initDate = [moment(this.startDate), moment(this.endData)]
+        // this.startDate = data.discountStartTime || new Date()
+        // this.endData = data.discountEndTime || new Date(Date.now() + 3600 * 24 * 7 * 1000)
+        // this.initDate = [moment(this.startDate), moment(this.endData)]
+        this.startDate = data.discountStartTime
+        this.endData = data.discountEndTime
+        if (data.discountStartTime && data.discountEndTime) {
+          this.initDate = [moment.utc(data.discountStartTime).local(), moment.utc(data.discountEndTime).local()]
+        }
       }
       this.visible = true
     },
@@ -133,6 +138,10 @@ export default {
         this.discount = 0
         this.startDate = null
         this.endData = null
+      } else {
+        if (!this.discount) {
+          this.discount = 1
+        }
       }
     },
     disabledDate(current) {

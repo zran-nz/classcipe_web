@@ -4,7 +4,7 @@
       <a-button type="link" v-if="role === 'student' && !isEdit" @click="() => triggerEdit(true)">Edit Review</a-button>
       <a-button type="link" v-if="role === 'teacher' && !myReviews && !isEdit && showCreate" @click="() => triggerEdit(true)">Leave a Review</a-button>
       <a-button type="link" v-if="isEdit" @click="() => triggerEdit(false)">Cancel</a-button>
-      <a-button type="primary" v-if="isEdit" @click="handleSaveMyReview">{{ myReviews ? 'Update' : 'Send' }}</a-button>
+      <a-button type="primary" v-if="isEdit" @click="handleSaveMyReview">{{ myReviews ? 'Update' : 'Submit' }}</a-button>
     </a-space>
     <!-- student review -->
     <a-spin :spinning="subLoading" v-if="role === 'student'">

@@ -353,7 +353,7 @@ export default {
         this.$refs.myReview && this.$refs.myReview.triggerLoading(true)
         promise.then((res) => {
           if (res.success) {
-            this.$message.success('Save successfully')
+            this.$message.success('Submitted successfully')
             this.myReviews = {
               ...this.myReviews,
               ...res.result,

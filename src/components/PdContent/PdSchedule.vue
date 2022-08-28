@@ -179,7 +179,7 @@ export default {
           } else {
             // return res.result
              this.$router.replace({
-              path: `/teacher/main/live-workshops?workshopsType=2`
+              path: `/teacher/main/live-workshops?workshopsType=2&workshopsStatus=2`
             })
           }
         } else {
@@ -203,7 +203,7 @@ export default {
     finishAndGoBack(taskClassId) {
       if (this.scheduleReq.workshopType) {
         this.$router.replace({
-          path: `/teacher/main/live-workshops?workshopsType=2`
+          path: `/teacher/main/live-workshops?workshopsType=2&workshopsStatus=2`
         })
       } else {
         this.$router.replace({

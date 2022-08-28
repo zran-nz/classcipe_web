@@ -4,7 +4,7 @@
       Student(s) under {{ curriculumName }}
     </div>
     <div class="student-sel-opt">
-      <a-space align="start">
+      <div class="sel-opt">
         <a-select
           optionFilterProp="children"
           class="sel-option"
@@ -41,8 +41,14 @@
             <span>{{ option.name }}</span>
           </a-select-option>
         </a-select>
-        <a-input-search placeholder="Search here" v-model="queryParams.name" @search="handleSearch"></a-input-search>
-      </a-space>
+        <a-input-search
+          :allow-clear="true"
+          placeholder="Search here"
+          class="sel-option"
+          v-model="queryParams.name"
+          @search="handleSearch">
+        </a-input-search>
+      </div>
     </div>
     <div class="table-con">
       <a-table
@@ -386,8 +392,14 @@ export default {
     height: calc(100% - 130px);
     overflow: auto;
   }
+  .sel-opt {
+    display: flex;
+    align-items: flex-start;
+    width: 100%;
+  }
   .sel-option {
-    width: 250px;
+    flex: 1;
+    margin-right: 10px;
   }
   .opt-con {
     margin-top: 10px;

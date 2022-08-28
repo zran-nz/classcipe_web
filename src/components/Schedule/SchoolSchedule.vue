@@ -69,8 +69,8 @@
         <zoom-meeting
           v-show='enableZoom'
           ref='zoom'
-          :password='password'
-          :waiting-room='waitingRoom' />
+          :password='password || mustZoom'
+          :waiting-room='waitingRoom || mustZoom' />
       </div>
     </div>
     <div class="date-info">
