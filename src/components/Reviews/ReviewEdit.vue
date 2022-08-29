@@ -95,16 +95,16 @@
             :auto-size="{ minRows: 4, maxRows: 6 }"
           />
         </div>
-        <div class="reviews-edit__check" style="border-top: 0;border-bottom: 1px solid #d9d9d9;">
+        <!-- <div class="reviews-edit__check" style="border-top: 0;border-bottom: 1px solid #d9d9d9;">
           <a-checkbox v-model="subForm.updatedMsg">
             Let me know if this resource is updated
           </a-checkbox>
-        </div>
+        </div> -->
       </div>
     </a-spin>
     <a-space class="reviews-footer" v-if="(myReviews || role === 'teacher') && footerBottom">
       <a-button @click="handleCancel">Cancel</a-button>
-      <a-button type="primary" @click="handleSaveMyReview">Send</a-button>
+      <a-button type="primary" @click="handleSaveMyReview">Submit</a-button>
     </a-space>
   </div>
 </template>

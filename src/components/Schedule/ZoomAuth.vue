@@ -74,5 +74,11 @@ export default {
   .auth-result {
     margin-bottom: 15px;
   }
+
+  .zoom-switch {
+    /deep/ .ant-switch {
+      opacity: .8!important;
+    }
+  }
 }
 </style>
