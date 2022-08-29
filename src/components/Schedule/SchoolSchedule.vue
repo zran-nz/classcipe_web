@@ -190,17 +190,6 @@ export default {
       },
       immediate: true
     },
-    mustZoom: {
-      handler(val) {
-        if (val) {
-          this.enableZoom = true
-          // 直播课,pd zomm必须选择，所以
-          this.$emit('select-zoom-status', this.enableZoom)
-          this.checkZoomAuth()
-        }
-      },
-      immediate: true
-    },
     enableZoom() {
       this.handleZoomStatusChange()
     }
@@ -238,7 +227,7 @@ export default {
       endData: null,
       startDate: null,
       scheduleDataArray: [],
-      enableZoom: false
+      enableZoom: this.mustZoom
     }
   },
   created() {
@@ -306,15 +295,6 @@ export default {
     async handleZoomStatusChange () {
       this.$logger.info('handleZoomStatusChange', this.enableZoom)
       this.$emit('select-zoom-status', this.enableZoom)
-      if (this.enableZoom) {
-        const status = await this.checkZoomAuth()
-        if (!status) {
-          this.enableZoom = false
-          this.$logger.info('reset item enableZoom', this.enableZoom)
-        } else {
-          this.$logger.info('zoom auth success')
-        }
-      }
     },
      handleSelectSchedule(date) {
       this.$logger.info('handleSelectSchedule', date)

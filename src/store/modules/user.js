@@ -42,7 +42,8 @@ const user = {
     classList: [],
     currentSchool: {},
     allSubjects: [],
-    allYears: []
+    allYears: [],
+    zoomChecked: false
   },
 
   mutations: {
@@ -106,6 +107,9 @@ const user = {
 
     SET_YEARS: (state, allYears) => {
       state.allYears = allYears
+    },
+    SET_ZOOM_CHECKED: (state, zoomChecked) => {
+      state.zoomChecked = zoomChecked
     }
   },
 

@@ -420,7 +420,15 @@ export default {
     handleSelectSessionType (type) {
       this.scheduleReq.sessionType = type
     },
-    handleSelectZoom (zoom) {
+    async handleSelectZoom (zoom) {
+      if (zoom) {
+        const status = await this.checkZoomAuth()
+        if (!status) {
+          this.$logger.info('reset item enableZoom', this.enableZoom)
+        } else {
+          this.$logger.info('zoom auth success')
+        }
+      }
       this.scheduleReq.zoom = zoom ? 1 : 0
     },
     handleCancelUnit() {

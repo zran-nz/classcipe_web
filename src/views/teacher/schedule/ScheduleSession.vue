@@ -64,7 +64,7 @@
                 Next <a-icon type='right' />
               </template>
             </a-button>
-            <a-button type='primary' :disabled="!scheduleReq.startDate || !scheduleReq.endDate" @click='handleGoNext' :loading='creating' v-else>
+            <a-button type='primary' :disabled="(!scheduleReq.startDate || !scheduleReq.endDate) || (scheduleReq.zoom == 1 && !$store.getters.zoomChecked)" @click='handleGoNext' :loading='creating' v-else>
               <template >Assign</template>
             </a-button>
           </a-space>
@@ -297,7 +297,17 @@ export default {
       this.scheduleReq.sessionType = type
     },
 
-    handleSelectZoom (zoom) {
+    async handleSelectZoom (zoom) {
+      console.log(zoom)
+      if (zoom) {
+        const status = await this.checkZoomAuth()
+        if (!status) {
+          // zoom = 0
+          this.$logger.info('reset item enableZoom', zoom)
+        } else {
+          this.$logger.info('zoom auth success')
+        }
+      }
       this.scheduleReq.zoom = zoom ? 1 : 0
     },
 

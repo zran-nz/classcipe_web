@@ -258,7 +258,7 @@
         {{ fromRelaunch ? 'After relaunching the workshop, attendees will need to register to attend this workshop.' : '' }}
       </template>
       <template v-slot:right>
-        <a-button type='primary' :disabled="!startDate || !endDate" :loading="confirmLoading" @click='handleNextStep' class='cc-round-button'>Finish</a-button>
+        <a-button type='primary' :disabled="(!startDate || !endDate) || (enableZoom && !$store.getters.zoomChecked)" :loading="confirmLoading" @click='handleNextStep' class='cc-round-button'>Finish</a-button>
       </template>
     </fixed-form-footer>
     <select-session-unit
@@ -769,6 +769,9 @@ export default {
       this.startDate = moment(date.startDate).utc().format('YYYY-MM-DD HH:mm:ss')
       this.endDate = moment(date.endDate).utc().format('YYYY-MM-DD HH:mm:ss')
       console.log(date)
+      if (this.enableZoom && !this.$store.getters.zoomChecked) {
+        this.checkZoomAuth()
+      }
     },
 
     handleAddDiscount () {

@@ -77,7 +77,8 @@ const getters = {
   pubTagList: state => state.classcipeConfig.pubTagList,
   priTagList: state => state.classcipeConfig.priTagList,
   pdTagList: state => state.classcipeConfig.pdTagList,
-  globalLoading: state => state.app.globalLoading
+  globalLoading: state => state.app.globalLoading,
+  zoomChecked: state => state.user.zoomChecked
 }
 
 export default getters

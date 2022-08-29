@@ -8,6 +8,7 @@
       width="1200px"
       ok-text='Confirm'
       :confirm-loading='creating'
+      :okButtonProps="{ props: {disabled: !$store.getters.zoomChecked} }"
       @ok="confirmSchedule"
       @cancel="closeSchedule">
       <modal-header title='Schedule' @close='closeSchedule'/>
@@ -52,10 +53,12 @@ import ZoomMeetingSetting from '@/components/Schedule/ZoomMeetingSetting'
 import VerificationTip from '@/components/MyContentV2/VerificationTip.vue'
 import { TEACHER_SECURITY_NOT_SHOW } from '@/store/mutation-types'
 import { getCookie } from '@/utils/util'
+import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
 
 export default {
   name: 'PdSchedule',
   components: { ZoomMeetingSetting, SchoolSchedule, ModalHeader, SchedulePayInfo, VerificationTip },
+  mixins: [ ZoomAuthMixin ],
   props: {
     contentId: {
       type: String,
@@ -69,6 +72,13 @@ export default {
   beforeDestroy() {
     this.$EventBus.$off('ZoomMeetingUpdatePassword', this.handleSelectPassword)
     this.$EventBus.$off('ZoomMeetingUpdateWaitingRoom', this.handleSelectWaitingRoom)
+  },
+  watch: {
+    visible(val) {
+      if (val) {
+        this.checkZoomAuth()
+      }
+    }
   },
   data() {
     return {
@@ -111,7 +121,16 @@ export default {
     })
   },
   methods: {
-    handleSelectZoom (zoom) {
+    async handleSelectZoom (zoom) {
+      if (zoom) {
+        const status = await this.checkZoomAuth()
+        if (!status) {
+          this.enableZoom = zoom
+          this.$logger.info('reset item enableZoom', this.enableZoom)
+        } else {
+          this.$logger.info('zoom auth success')
+        }
+      }
       this.scheduleReq.zoom = zoom ? 1 : 0
     },
     handleSelectPassword (val) {
@@ -232,6 +251,9 @@ export default {
     handleSelectDate (data) {
       this.scheduleReq.startDate = data.startDate
       this.scheduleReq.endDate = data.endDate
+      if (this.enableZoom && !this.$store.getters.zoomChecked) {
+        this.checkZoomAuth()
+      }
     }
   }
 }

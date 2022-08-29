@@ -149,6 +149,7 @@ export default {
     this.$logger.info(`ScheduleSession created with id: ${this.id} type ${this.type}`)
     this.handleAssociate()
     this.loading = false
+    this.checkZoomAuth()
 
     this.$EventBus.$on('ZoomMeetingUpdatePassword', this.handleSelectPassword)
     this.$EventBus.$on('ZoomMeetingUpdateWaitingRoom', this.handleSelectWaitingRoom)
@@ -263,8 +264,17 @@ export default {
       this.scheduleReq.sessionType = type
     },
 
-    handleSelectZoom (zoom) {
+    async handleSelectZoom (zoom) {
       console.log(zoom)
+      if (zoom) {
+        const status = await this.checkZoomAuth()
+        if (!status) {
+          zoom = false
+          this.$logger.info('reset item enableZoom', this.enableZoom)
+        } else {
+          this.$logger.info('zoom auth success')
+        }
+      }
       this.scheduleReq.zoom = zoom ? 1 : 0
     },
 
