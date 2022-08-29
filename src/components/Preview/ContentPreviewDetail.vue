@@ -912,20 +912,24 @@ export default {
     },
 
     loadReviewStats () {
-      let promise = null
-      if (this.currentRole === 'student') {
-        promise = ReviewsTask.ReviewsTaskStats
-      } else {
-        promise = ReviewsTeacher.ReviewsTeacherStats
-      }
-      promise && promise({
-        taskId: this.contentId, // 学生需要
-        purchasesId: this.contentId // 老师需要
-      }).then(res => {
-        if (res.success) {
-          this.reviewsStats = res.result
+      if (this.reviewList) {
+        let promise = null
+        if (this.currentRole === 'student') {
+          promise = ReviewsTask.ReviewsTaskStats
+        } else {
+          promise = ReviewsTeacher.ReviewsTeacherStats
         }
-      })
+        promise && promise({
+          taskId: this.contentId, // 学生需要
+          purchasesId: this.contentId // 老师需要
+        }).then(res => {
+          if (res.success) {
+            this.reviewsStats = res.result
+          }
+        })
+      } else {
+        this.handleClose()
+      }
     },
 
     initVideoList () {

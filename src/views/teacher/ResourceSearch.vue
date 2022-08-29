@@ -12,7 +12,7 @@
       <a-spin tip='Loading...' :spinning="searching">
         <div class='content-list'>
           <template v-if='dataList.length !== 0 && !searching'>
-            <content-item
+            <!-- <content-item
               v-for='item in dataList'
               :key='item.id'
               :content='item'
@@ -22,7 +22,8 @@
               :show-sub-task='false'
               :show-delete='false'
               :show-button='true'>
-            </content-item>
+            </content-item> -->
+            <library-content-item v-for='item in dataList' :key='item.id' :content='item'></library-content-item>
           </template>
           <template v-if='dataList.length === 0 && !searching'>
             <div class='empty-tips'>
@@ -42,6 +43,7 @@
 import GlobalSearchInput from '@/components/GlobalSearch/GlobalSearchInput'
 import UserProfileAvatar from '@/components/User/UserProfileAvatar'
 import ContentItem from '@/components/MyContentV2/ContentItem'
+import LibraryContentItem from '@/components/MyContentV2/LibraryContentItem'
 import CommonNoData from '@/components/Common/CommonNoData'
 import { QueryContentsFilter } from '@/api/library'
 import { UserModeMixin } from '@/mixins/UserModeMixin'
@@ -52,6 +54,7 @@ export default {
   components: {
     CommonNoData,
     ContentItem,
+    LibraryContentItem,
     UserProfileAvatar,
     GlobalSearchInput
   },
