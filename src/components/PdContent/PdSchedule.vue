@@ -36,6 +36,8 @@
       @handleClose='handleCloseAssign'
     /> -->
 
+    <verification-tip ref="verificationTip" @continue="createSession"/>
+
   </div>
 </template>
 
@@ -47,10 +49,13 @@ import { mapState } from 'vuex'
 import { USER_MODE } from '@/const/common'
 import { AddSessionV2 } from '@/api/v2/classes'
 import ZoomMeetingSetting from '@/components/Schedule/ZoomMeetingSetting'
+import VerificationTip from '@/components/MyContentV2/VerificationTip.vue'
+import { TEACHER_SECURITY_NOT_SHOW } from '@/store/mutation-types'
+import { getCookie } from '@/utils/util'
 
 export default {
   name: 'PdSchedule',
-  components: { ZoomMeetingSetting, SchoolSchedule, ModalHeader, SchedulePayInfo },
+  components: { ZoomMeetingSetting, SchoolSchedule, ModalHeader, SchedulePayInfo, VerificationTip },
   props: {
     contentId: {
       type: String,
@@ -146,9 +151,16 @@ export default {
       }
       // this.zoomSettingVisible = true
       this.$logger.info('scheduleReq', this.scheduleReq)
+      const isNotShowSecurity = getCookie(TEACHER_SECURITY_NOT_SHOW)
+      if (!isNotShowSecurity) {
+        // TODO 查询是否已经进行老师认证
+        const isExists = false
+        if (!isExists) {
+          this.$refs.verificationTip.doCreate()
+          return
+        }
+      }
       await this.createSession(this.scheduleReq)
-      this.closeSchedule()
-      this.creating = false
     },
 
     async handleConfirmAssign (data) {
@@ -158,7 +170,6 @@ export default {
       this.scheduleReq.waitingRoom = data.waitingRoom
 
       await this.createSession(this.scheduleReq)
-      this.closeSchedule()
       this.$logger.info('zoom auth success')
     },
 
@@ -166,7 +177,8 @@ export default {
       this.zoomSettingVisible = false
     },
 
-    async createSession(scheduleReq) {
+    async createSession() {
+      const scheduleReq = this.scheduleReq
       this.$logger.info('try createSession scheduleReq', scheduleReq)
       this.creating = true
       try {
@@ -196,6 +208,7 @@ export default {
           centered: true
         })
       } finally {
+        this.closeSchedule()
         this.creating = false
       }
       return null

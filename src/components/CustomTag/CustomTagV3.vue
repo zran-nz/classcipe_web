@@ -551,9 +551,11 @@ export default {
     },
 
     switchCategory (category) {
-      this.$refs.categoryBar.categoryScrollIntoView(category)
-      if (category !== this.currentActiveTagCategory) {
-        this.currentActiveTagCategory = category
+      if (this.$refs.categoryBar) {
+        this.$refs.categoryBar.categoryScrollIntoView(category)
+        if (category !== this.currentActiveTagCategory) {
+          this.currentActiveTagCategory = category
+        }
       }
     },
 

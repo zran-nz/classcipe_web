@@ -338,7 +338,7 @@
 
 import { CurriculumSearch, GeneralCapabilitiesFormat } from '@/components/LearningObjective/CurriculumDataUtils'
 import CustomTextButton from '@/components/Common/CustomTextButton'
-import { getAllCurriculums } from '@/api/preference'
+import { getCurriculumBySchoolId } from '@/api/academicSettingCurriculum'
 import { KnowledgeTermTagQueryByKeywords } from '@/api/knowledgeTermTag'
 import { termsSearch, dimensionsSearch, dimensionsPubList, termsPubList, termsCreate, dimensionsCreate } from '@/api/v2/tagsTerm'
 import { getRecommend, addToSetTerms, incBloom } from '@/api/v2/statsTarget'
@@ -349,7 +349,7 @@ import RecommendData from '@/components/LearningObjective/RecommendData'
 import RateLevel from '@/components/RateLevel'
 import CommandTermAdd from '@/components/CommandTerm/CommandTermAdd.vue'
 import QuickWordButton from '@/components/Button/QuickWordButton'
-import { DICT_BLOOM_TAXONOMY, DICT_KNOWLEDGE_DIMENSION, USER_MODE } from '@/const/common'
+import { DICT_BLOOM_TAXONOMY, DICT_KNOWLEDGE_DIMENSION } from '@/const/common'
 import { GetAuCurriculum, GetNzCurriculum } from '@/api/v2/curriculumn'
 import { mapState } from 'vuex'
 
@@ -461,7 +461,8 @@ export default {
   },
   computed: {
     ...mapState({
-      userMode: state => state.app.userMode
+      userMode: state => state.app.userMode,
+      currentSchool: state => state.user.currentSchool
     }),
     selectedCurriculumName () {
       return this.curriculumOptions.find(item => item.id === this.filterConfig.curriculumId)?.name
@@ -498,12 +499,16 @@ export default {
   },
   methods: {
     initData() {
-      getAllCurriculums().then((response) => {
+      getCurriculumBySchoolId({
+        schoolId: this.currentSchool.id
+      }).then((response) => {
         this.$logger.info('getAllCurriculums', response)
-        let list = response.result
-        if (this.userMode === USER_MODE.SCHOOL) {
-          list = this.$store.getters.bindCurriculum ? list.filter(item => item.id === this.$store.getters.bindCurriculum) : []
-        }
+        let list = response.result.map(item => ({
+          ...item,
+          name: item.curriculumName,
+          id: item.curriculumId
+        }))
+
         this.$logger.info('filter ib ibAuth', this.$store.state.classcipeConfig.ibAuth)
         if (!this.$store.state.classcipeConfig.ibAuth) {
           this.$logger.info('bf filter ib', list)

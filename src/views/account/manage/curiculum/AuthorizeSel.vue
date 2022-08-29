@@ -282,7 +282,7 @@ export default {
         listIbAuth({
           schoolId: this.currentSchool.id,
           pageNo: 1,
-          pageSize: 100,
+          pageSize: 1000,
           queryType: 1
         }).then(res => {
           if (res.success) {

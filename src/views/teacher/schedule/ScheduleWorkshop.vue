@@ -45,6 +45,8 @@
       :list='associateUnitList'
       @back='handleBack'
       @select='handleSelectUnit' />
+
+    <verification-tip ref="verificationTip" @continue="createSession"/>
   </div>
 </template>
 
@@ -62,13 +64,25 @@ import { AddSessionV2 } from '@/api/v2/classes'
 import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
 import FixedFormFooter from '@/components/Common/FixedFormFooter'
 import ZoomMeetingSetting from '@/components/Schedule/ZoomMeetingSetting'
+import VerificationTip from '@/components/MyContentV2/VerificationTip.vue'
 import { CALENDAR_QUERY_TYPE, USER_MODE } from '@/const/common'
-
+import { TEACHER_SECURITY_NOT_SHOW } from '@/store/mutation-types'
+import { getCookie } from '@/utils/util'
 import { mapState } from 'vuex'
 
 export default {
   name: 'ScheduleWorkshop',
-  components: { ZoomMeetingSetting, FixedFormFooter, SchedulePayInfo, SchoolSchedule, ScheduleDate, SelectParticipant, SelectSessionUnit, MyVerticalSteps },
+  components: {
+    ZoomMeetingSetting,
+    FixedFormFooter,
+    SchedulePayInfo,
+    SchoolSchedule,
+    ScheduleDate,
+    SelectParticipant,
+    SelectSessionUnit,
+    MyVerticalSteps,
+    VerificationTip
+  },
   mixins: [ AssociateMixin, ZoomAuthMixin ],
   props: {
     id: {
@@ -190,6 +204,15 @@ export default {
       this.handleBack()
     },
     handleGoNext () {
+      const isNotShowSecurity = getCookie(TEACHER_SECURITY_NOT_SHOW)
+      if (!isNotShowSecurity) {
+        // TODO 查询是否已经进行老师认证
+        const isExists = false
+        if (!isExists) {
+          this.$refs.verificationTip.doCreate()
+          return
+        }
+      }
       this.createSession()
     },
 

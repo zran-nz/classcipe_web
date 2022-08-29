@@ -266,6 +266,7 @@
       :list='associateUnitList'
       @back='handleBack'
       @select='handleSelectUnit' />
+    <verification-tip ref="verificationTip" @continue="handleSubmit"/>
   </div>
 </template>
 
@@ -283,8 +284,9 @@ import DeleteIcon from '@/components/Common/DeleteIcon'
 import SessionCalendar from '@/components/Calendar/SessionCalendar'
 import CustomImageUploader from '@/components/Common/CustomImageUploader'
 import ZoomMeeting from '@/components/Schedule/ZoomMeeting'
+import VerificationTip from '@/components/MyContentV2/VerificationTip.vue'
 
-import { formatLocalUTC } from '@/utils/util'
+import { formatLocalUTC, getCookie } from '@/utils/util'
 import { typeMap } from '@/const/teacher'
 import { TaskQueryById } from '@/api/task'
 import { PDContentQueryById } from '@/api/pdContent'
@@ -302,6 +304,7 @@ import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
 import { mapState } from 'vuex'
 import moment from 'moment'
 import ZoomAuth from '@/components/Schedule/ZoomAuth'
+import { TEACHER_SECURITY_NOT_SHOW } from '@/store/mutation-types'
 
 export default {
   name: 'AddLiveWorkshop',
@@ -319,7 +322,8 @@ export default {
     DeleteIcon,
     SessionCalendar,
     CustomImageUploader,
-    ZoomMeeting
+    ZoomMeeting,
+    VerificationTip
   },
   props: {
     id: {
@@ -630,7 +634,6 @@ export default {
       if (!this.form.paidType) {
         this.form.price = null
         this.form.discountInfo = []
-        this.handleSubmit()
       } else {
         // this.$refs.priceDiscount.validate((valid, priceInfo) => {
         //   if (valid) {
@@ -641,8 +644,17 @@ export default {
         // })
         this.form.price = this.price
         this.form.discountInfo = [ ...this.discountList ]
-        this.handleSubmit()
       }
+      const isNotShowSecurity = getCookie(TEACHER_SECURITY_NOT_SHOW)
+      if (!isNotShowSecurity) {
+        // TODO 查询是否已经进行老师认证
+        const isExists = false
+        if (!isExists) {
+          this.$refs.verificationTip.doCreate()
+          return
+        }
+      }
+      this.handleSubmit()
     },
     validateNumber(rule, value, callback) {
       if (!value || new RegExp(/^[0-9]*[1-9][0-9]*$/).test(value)) {

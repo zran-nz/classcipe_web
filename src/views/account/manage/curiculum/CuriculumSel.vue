@@ -28,6 +28,7 @@ import YearNameSet from './YearNameSet'
 import ClassArchiveBatch from '../class/ClassArchiveBatch'
 import cloneDeep from 'lodash.clonedeep'
 import { differenceBy, reduce } from 'lodash-es'
+import { USER_MODE } from '@/const/common'
 export default {
   name: 'CirculumSel',
   components: {
@@ -187,7 +188,9 @@ export default {
         this.loading = false
         this.$store.dispatch('initSubjectGradeData', {
           schoolId: this.$store.getters.school,
-          bindCurriculumId: this.$store.getters.bindCurriculum
+          bindCurriculumId: this.$store.getters.bindCurriculum,
+          applyType: this.$store.state.app.userMode === USER_MODE.SCHOOL ? 1 : 2,
+          applyUserId: this.$store.state.user.info.id
         })
       })
     },

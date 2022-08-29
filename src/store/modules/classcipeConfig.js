@@ -11,7 +11,7 @@ import * as logger from '@/utils/logger'
 import { getAllCurriculums } from '@/api/preference'
 import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
 import { getCurriculumBySchoolId } from '@/api/academicSettingCurriculum'
-import { getAcademicSettingIbAuth } from '@/api/academicSettingIbAuth'
+import { listIbAuth } from '@/api/academicSettingIbAuth'
 
 const classcipeConfig = {
   state: {
@@ -77,32 +77,59 @@ const classcipeConfig = {
       })
     },
 
-    initSubjectGradeData({ commit }, data) {
+    initSubjectGradeData({ commit, state }, data) {
      const schoolId = data.schoolId
      const bindCurriculumId = data.bindCurriculumId
+     const applyUserId = data.applyUserId
      const applyType = data.applyType
      logger.info('initSubjectGradeData schoolId ' + schoolId + ' bindCurriculum ' + bindCurriculumId + ' applyType ' + applyType, data)
       getSubjectBySchoolId({ schoolId }).then(response => {
        logger.info('initSubjectGradeData getSubjectBySchoolId response', response.result)
-        const schoolSubject = response.result.find(item => parseInt(item.curriculumId) === parseInt(bindCurriculumId))
-        commit(SET_SCHOOL_SUBJECT, schoolSubject?.subjectList || [])
+        // const schoolSubject = response.result.find(item => parseInt(item.curriculumId) === parseInt(bindCurriculumId))
+        let subjects = []
+        response.result.forEach(item => {
+          subjects = subjects.concat(item.subjectList || [])
+        })
+        commit(SET_SCHOOL_SUBJECT, subjects)
       })
       getCurriculumBySchoolId({ schoolId }).then(response => {
        logger.info('initSubjectGradeData getCurriculumBySchoolId', response.result)
-        const schoolGrade = response.result.find(item => parseInt(item.curriculumId) === parseInt(bindCurriculumId))
-        commit(SET_SCHOOL_GRADE, schoolGrade?.gradeSettingInfo || [])
-      })
-      getAcademicSettingIbAuth({
-        applyType,
-        schoolId,
-        curriculumId: bindCurriculumId
-      }).then(response => {
-        logger.info('getAcademicSettingIbAuth response', response)
-        let ibAuth = false
-        if (response.result && response.result.status === 2) {
-          ibAuth = true
+        // const schoolGrade = response.result.find(item => parseInt(item.curriculumId) === parseInt(bindCurriculumId))
+        let grades = []
+        const curriculumids = []
+        response.result.forEach(item => {
+          curriculumids.push(item.curriculumId)
+          grades = grades.concat(item.gradeSettingInfo || [])
+        })
+        // 是否包含Ib
+        if (curriculumids.includes('4') || curriculumids.includes('5')) {
+          listIbAuth({
+            schoolId: schoolId,
+            pageNo: 1,
+            pageSize: 1000,
+            queryType: 1
+          }).then(response => {
+            logger.info('getAcademicSettingIbAuth response', response)
+            const listAuths = response.result.records.filter(item => item.schoolId === schoolId)
+            let ibAuth = false
+            for (const curriculumId of curriculumids) {
+              if (listAuths && listAuths.length > 0) {
+                const selectedFromDb = listAuths.find(item => {
+                  let isSelf = true
+                  if (applyType === 2) {
+                    isSelf = item.applyUserId === applyUserId && item.applyType === applyType
+                  }
+                  return item.curriculumId === curriculumId && isSelf && item.schoolId === schoolId && item.status === 2
+                })
+                if (selectedFromDb) {
+                  ibAuth = true
+                }
+              }
+            }
+            commit('setIbAuth', ibAuth)
+          })
         }
-        commit('setIbAuth', ibAuth)
+        commit(SET_SCHOOL_GRADE, grades)
       })
     },
 
