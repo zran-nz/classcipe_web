@@ -58,7 +58,7 @@ export default {
           userId: this.info.id
         }).then(res => {
           if (res.code === 0 && res.result) {
-            if ((res.result.teacherVerificationStatus === 1 || res.result.teacherVerificationStatus === 2)) {
+            if (!(res.result.teacherVerificationStatus === 1 || res.result.teacherVerificationStatus === 2)) {
               this.selVis = true
             } else {
               this.$emit('continue')

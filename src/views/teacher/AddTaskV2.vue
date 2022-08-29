@@ -877,7 +877,10 @@ export default {
                path: '/'
              })
            } else {
-             this.showSplitTask = true
+            //  this.showSplitTask = true
+            this.$router.replace({
+               path: '/'
+             })
            }
          } else {
            this.$refs['steps-nav'].nextStep()
