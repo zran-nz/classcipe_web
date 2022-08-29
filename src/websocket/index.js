@@ -84,7 +84,7 @@ export default class VueWebSocket {
     }
 
     send(data) {
-        logger.info('send message ' + data)
+        // logger.info('send message ' + data)
         if (this.isconnected) {
             this.ws.send(data)
         } else {

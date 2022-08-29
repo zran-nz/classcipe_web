@@ -64,6 +64,11 @@ const vueConfig = {
   },
 
   chainWebpack: (config) => {
+    config.module.rule('vue')
+    .use('cache-loader')
+    .loader('cache-loader')
+    .before('vue-loader')
+
     config.resolve.alias
       .set('@$', resolve('src'))
 
