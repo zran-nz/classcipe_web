@@ -189,20 +189,18 @@
                 <edit-icon style='width: 13px; height:14px'/>
               </template>
             </custom-button>
-            <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement' v-if="(showSub && content.type === typeMap.task) || (showArchive && content.owner.email === $store.getters.email && content.status !== 1)">
+            <custom-button label='Sub-task' @click='goToSubTaskList' v-if='showSub && content.type === typeMap.task'>
+              <template v-slot:icon>
+                <sub-task-icon style='width: 13px; height:14px'/>
+              </template>
+            </custom-button>
+            <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement' v-if="(showArchive && content.owner.email === $store.getters.email && content.status !== 1)">
               <div class='more-action'>
                 <more-icon />
               </div>
               <div class='content-item-more-action' slot='overlay'>
                 <div class='menu-item'>
-                  <custom-button label='Archive' @click='handleDeleteItem' v-if='showArchive && content.owner.email === $store.getters.email && content.status !== 1'>
-                    <!-- <template v-slot:icon>
-                      <delete-icon style='width: 13px; height:14px'/>
-                    </template> -->
-                  </custom-button>
-                </div>
-                <div class="menu-item">
-                  <custom-button label='Sub-task' @click='goToSubTaskList' v-if='showSub && content.type === typeMap.task'>
+                  <custom-button label='Archive' @click='handleDeleteItem'>
                     <!-- <template v-slot:icon>
                       <delete-icon style='width: 13px; height:14px'/>
                     </template> -->
