@@ -5,7 +5,12 @@
         <div class="curiculum-detail">
           <div class="detail-item" v-for="circulum in curriculumOptions" :key="'circulum+' + circulum.id">
             <div class="item-check">
-              <a-checkbox v-model="circulum.checked" @change="val => onChange(val, circulum)">
+              <a-tooltip v-if="circulum.disabled" title="This curriculum has linked with class, you can unselect this curriculum after you archive all the relevant classes">
+                <a-checkbox v-model="circulum.checked" :disabled="true">
+                  {{ circulum.name }}
+                </a-checkbox>
+              </a-tooltip>
+              <a-checkbox v-model="circulum.checked" v-else @change="val => onChange(val, circulum)">
                 {{ circulum.name }}
               </a-checkbox>
             </div>
@@ -15,7 +20,7 @@
     </div>
 
     <div class="curiculum-content">
-      <year-name-set ref="yearNameSet" @save="handleSave" :curriculums="choosed" :school="currentSchool"/>
+      <year-name-set ref="yearNameSet" @disabledCurriculum="handleSetDisabled" @save="handleSave" :curriculums="choosed" :school="currentSchool"/>
     </div>
     <class-archive-batch ref="classArchiveBatch" @finish="truelySave" :school="currentSchool"/>
   </div>
@@ -110,7 +115,10 @@ export default {
           this.choosed = cloneDeep(choose)
           this.origin = choose
           this.$emit('change', this.choosed)
-          this.curriculumOptions = this.allOptions.concat()
+          this.curriculumOptions = this.allOptions.map(item => ({
+            ...item,
+            disabled: false
+          }))
         }
       }).finally(() => {
         this.loading = false
@@ -209,6 +217,17 @@ export default {
       return {
         curriculumIds: curriculumIds,
         gradeIds: gradeIds
+      }
+    },
+    handleSetDisabled(ids) {
+      if (ids.length > 0) {
+        this.curriculumOptions.forEach(item => {
+          if (ids.includes(item.id)) {
+            item.disabled = true
+          } else {
+            item.disabled = false
+          }
+        })
       }
     }
   }

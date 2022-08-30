@@ -5,8 +5,8 @@
         <zoom-auth :enable-zoom.sync='enableZoom' :disabled="mustZoom" />
         <zoom-meeting
           v-show='enableZoom'
-          :password='mustZoom'
-          :waiting-room='mustZoom'
+          :password='true'
+          :waiting-room='true'
           ref='zoom'
           @update='updateZoom' />
       </div>

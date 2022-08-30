@@ -192,6 +192,7 @@ export default {
     initCurriculum(curriculums) {
       console.log(curriculums)
       let gradeInfos = []
+      const disabledCurriculum = []
       curriculums.forEach(current => {
         const find = this.gradeInfoTotal.filter(item => item.curriculumId === current.curriculumId)
         const exists = this.gradeForm.gradeInfo.filter(item => item.curriculumId === current.curriculumId)
@@ -205,6 +206,7 @@ export default {
             const isFindCls = this.totalClass.find(cls => cls.gradeId === grade.gradeId)
             if (isFindCls) {
               disabled = true
+              disabledCurriculum.push(current.curriculumId)
             }
             return exist ? { ...exist }
               : isFind ? {
@@ -228,6 +230,7 @@ export default {
             const isFindCls = this.totalClass.find(cls => cls.gradeId === grade.gradeId)
             if (isFindCls) {
               disabled = true
+              disabledCurriculum.push(current.curriculumId)
             }
             return exist ? {
               ...exist,
@@ -240,6 +243,7 @@ export default {
           gradeInfos = gradeInfos.concat(cloneDeep(actual))
         }
       })
+      this.$emit('disabledCurriculum', disabledCurriculum)
       this.gradeForm.gradeInfo = gradeInfos
 
       const gradeInfoTree = groupBy(gradeInfos, 'curriculumId')

@@ -172,11 +172,11 @@ export default {
     },
     password: {
       type: Boolean,
-      default: false
+      default: true
     },
     waitingRoom: {
       type: Boolean,
-      default: false
+      default: true
     },
     mustZoom: {
       type: Boolean,
