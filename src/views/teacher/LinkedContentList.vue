@@ -24,6 +24,7 @@
             :show-delete='true'
             :show-schedule='true'
             :show-publish='true'
+            :show-sub='false'
             :show-set-price='content.status === 1'
             @update-publish='handleShowContentPublish'
             :show-publish-status='false'/>
@@ -120,7 +121,7 @@ export default {
 
     handleCreateSubtask () {
       this.$router.push({
-        path: '/teacher/split-task/' + this.taskId
+        path: '/teacher/split-task/' + this.contentId
       })
     },
     handleShowContentPublish(data) {

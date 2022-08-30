@@ -189,16 +189,23 @@
                 <edit-icon style='width: 13px; height:14px'/>
               </template>
             </custom-button>
-            <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement' v-if='showDelete && content.owner.email === $store.getters.email && content.status !== 1'>
+            <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement' v-if="(showSub && content.type === typeMap.task) || (showArchive && content.owner.email === $store.getters.email && content.status !== 1)">
               <div class='more-action'>
                 <more-icon />
               </div>
-              <div class='content-item-more-action' slot='overlay' v-if='showArchive'>
+              <div class='content-item-more-action' slot='overlay'>
                 <div class='menu-item'>
-                  <custom-button label='Archive' @click='handleDeleteItem'>
-                    <template v-slot:icon>
+                  <custom-button label='Archive' @click='handleDeleteItem' v-if='showArchive && content.owner.email === $store.getters.email && content.status !== 1'>
+                    <!-- <template v-slot:icon>
                       <delete-icon style='width: 13px; height:14px'/>
-                    </template>
+                    </template> -->
+                  </custom-button>
+                </div>
+                <div class="menu-item">
+                  <custom-button label='Sub-task' @click='goToSubTaskList' v-if='showSub && content.type === typeMap.task'>
+                    <!-- <template v-slot:icon>
+                      <delete-icon style='width: 13px; height:14px'/>
+                    </template> -->
                   </custom-button>
                 </div>
               </div>
@@ -347,6 +354,10 @@ export default {
     showPublishStatus: {
       type: Boolean,
       default: false
+    },
+    showSub: {
+      type: Boolean,
+      default: true
     }
   },
   mixins: [ContentItemMixin],
@@ -490,6 +501,12 @@ export default {
       this.content.price = obj.price
       this.content.discountPrice = obj.discountPrice
       this.visible = false
+    },
+
+     goToSubTaskList () {
+      this.$router.push({
+        path: `/teacher/sub-task/${this.content.id}`
+      })
     }
   }
 }

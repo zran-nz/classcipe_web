@@ -14,5 +14,8 @@ export const GoogleAuthCallBackMixin = {
   },
   beforeDestroy() {
     ClasscipeEventBus.$off(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleAuthCallback)
+  },
+  methods: {
+    handleAuthCallback() {}
   }
 }
