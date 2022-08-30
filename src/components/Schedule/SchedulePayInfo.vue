@@ -311,7 +311,7 @@ export default {
     handleBlurClick() {
       this.discountList.forEach(discount => {
         discount.peopleThreshold = Math.max(discount.peopleThreshold, 1)
-        discount.editing = false
+        discount.editing = true
       })
     },
 

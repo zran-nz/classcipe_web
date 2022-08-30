@@ -788,11 +788,12 @@ export default {
 
     handleScheduleWorkShop () {
       this.$logger.info('handleScheduleWorkShop')
-      if (this.form.presentationId) {
-        this.$refs.schedule.visible = true
-      } else {
-        this.$message.warn('Please create Google Slides first')
-      }
+      // if (this.form.presentationId) {
+      //   this.$refs.schedule.visible = true
+      // } else {
+      //   this.$message.warn('Please create Google Slides first')
+      // }
+      this.$router.push(`/teacher/schedule-workshop/${this.pdId}/9`)
     },
 
     handleSharePd() {
