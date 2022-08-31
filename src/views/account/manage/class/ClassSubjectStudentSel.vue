@@ -109,10 +109,10 @@
           <a type="link" @click="handleDelete(record)">Delete</a>
         </a-space>
       </a-table>
-      <common-no-data text='No students'>
-        <!-- <template v-slot:icon>
-          <empty-slide />
-        </template> -->
+      <common-no-data v-else text='No students'>
+        <template v-slot:icon>
+          <no-students />
+        </template>
       </common-no-data>
       <!-- <a-result v-else subTitle="No students">
         <template #icon>
@@ -131,6 +131,7 @@ import { USER_MODE } from '@/const/common'
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import CommonNoData from '@/components/Common/CommonNoData'
+import NoStudents from '@/assets/v2/icons/no_students.svg?inline'
 
 import { getCurriculumBySchoolId } from '@/api/academicSettingCurriculum'
 import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
@@ -142,7 +143,8 @@ const { debounce, sortBy } = require('lodash-es')
 export default {
   name: 'ClassSubjectStudentSel',
   components: {
-    CommonNoData
+    CommonNoData,
+    NoStudents
   },
   mixins: [UserModeMixin, CurrentSchoolMixin],
   props: {

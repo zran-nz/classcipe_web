@@ -2,6 +2,8 @@
   <div class='content-item' :style="{'border': activeItem ? '1px solid #15c39a' : '1px solid #EEF1F6'}">
     <div class='cover'>
       <div class='cover-block' :style="{'background-image': 'url(' + session.session.image + ')'}">
+        <slot name='cover-action'>
+        </slot>
         <div class='bottom-action'>
           <div class='bottom-action-item vertical-left' @click='editItem' v-if="session.allowEdit">
             <div class='bottom-action-item-icon'><a-icon type="form" /></div>
