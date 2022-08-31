@@ -20,7 +20,7 @@
       </div>
       <div class='go-to-google'>
         <custom-text-button
-          label='Edit google slides'
+          :label="slideLabel"
           :loading="editLoading"
           v-if='!disabled'
           @click="handleEditGoogleSlide">
@@ -118,6 +118,14 @@ export default {
 
     handleEditGoogleSlide() {
       this.$emit('edit-google-slide')
+    }
+  },
+  computed: {
+    slideLabel () {
+      if (!this.slideId || this.slideId.startsWith('fake_buy_')) {
+        return 'Create google slides'
+      }
+      return 'Edit google slides'
     }
   }
 }
