@@ -62,7 +62,7 @@ import { SourceType } from '@/components/MyContentV2/Constant'
 import ContentFilter from '@/components/MyContentV2/ContentFilter'
 import { FindMyContent, UpdateContentStatus } from '@/api/teacher'
 import * as logger from '@/utils/logger'
-import { SESSION_CURRENT_PAGE, SESSION_SHARE_TYPE } from '@/const/common'
+import { SESSION_SHARE_TYPE } from '@/const/common'
 import ContentItem from '@/components/MyContentV2/ContentItem'
 import ContentPublish from '@/components/MyContentV2/ContentPublish'
 import VerificationTip from '@/components/MyContentV2/VerificationTip.vue'
@@ -115,14 +115,14 @@ export default {
         onChange: page => {
           logger.info('pagination onChange', page)
           this.pageNo = page
-          sessionStorage.setItem(SESSION_CURRENT_PAGE, page)
+          // sessionStorage.setItem(SESSION_CURRENT_PAGE, page)
           this.loadMyContent()
         },
         showTotal: total => `Total ${total} items`,
         total: 0,
         pageSize: 16
       },
-      pageNo: sessionStorage.getItem(SESSION_CURRENT_PAGE) ? parseInt(sessionStorage.getItem(SESSION_CURRENT_PAGE)) : 1,
+      pageNo: 1, // sessionStorage.getItem(SESSION_CURRENT_PAGE) ? parseInt(sessionStorage.getItem(SESSION_CURRENT_PAGE)) : 1,
 
       searchText: '',
       filterParams: {},
@@ -285,6 +285,11 @@ export default {
           if (res.code === 520 || res.code === 403) {
             this.$logger.info('等待授权回调')
             this.$message.loading('Waiting for Google Slides auth...', 10)
+            return
+          } else if (res.code === 404) {
+            this.$logger.info('等待授权回调')
+            // this.$message.loading('Publish failed,The ppt you publish has been deleted. ', 5)
+            this.loadMyContent()
             return
           }
           this.$logger.info('handlePublishStatus res', res)

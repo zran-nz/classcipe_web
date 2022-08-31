@@ -26,8 +26,11 @@
 </template>
 
 <script>
+import { detailVerificationByUserId } from '@/api/v2/teacherVerification'
 import { TEACHER_SECURITY_NOT_SHOW } from '@/store/mutation-types'
 import { setCookie } from '@/utils/util'
+import { mapState } from 'vuex'
+import { USER_MODE } from '@/const/common'
 export default {
   name: 'VerificationTip',
   data() {
@@ -39,12 +42,35 @@ export default {
   },
   mounted() {
   },
+  computed: {
+    ...mapState({
+      info: state => state.user.info,
+      userMode: state => state.app.userMode
+    })
+  },
   methods: {
     handleRemember(e) {
       setCookie(TEACHER_SECURITY_NOT_SHOW, e.target.checked || '')
     },
     doCreate() {
-      this.selVis = true
+      if (this.userMode === USER_MODE.SELF) {
+        detailVerificationByUserId({
+          userId: this.info.id
+        }).then(res => {
+          if (res.code === 0 && res.result) {
+            if (!(res.result.teacherVerificationStatus === 1 || res.result.teacherVerificationStatus === 2)) {
+              this.selVis = true
+            } else {
+              this.$emit('continue')
+            }
+          } else {
+            this.$emit('continue')
+          }
+        })
+      } else {
+        // this.selVis = true
+        this.$emit('continue')
+      }
     },
     handleConfirm() {
       this.selVis = false

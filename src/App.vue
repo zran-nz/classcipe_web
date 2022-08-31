@@ -63,7 +63,9 @@ export default {
         this.$store.dispatch('GetSubjectsByCurriculum', newValue)
         this.$store.dispatch('initSubjectGradeData', {
           schoolId: this.$store.getters.school,
-          bindCurriculumId: newValue
+          bindCurriculumId: newValue,
+          applyType: this.userMode === USER_MODE.SCHOOL ? 1 : 2,
+          applyUserId: this.$store.state.user.info.id
         })
       }
     },
@@ -78,7 +80,8 @@ export default {
         this.$store.dispatch('initSubjectGradeData', {
           schoolId: newValue,
           bindCurriculumId: this.$store.getters.bindCurriculum,
-          applyType: this.userMode === USER_MODE.SCHOOL ? 1 : 2
+          applyType: this.userMode === USER_MODE.SCHOOL ? 1 : 2,
+          applyUserId: this.$store.state.user.info.id
         })
       }
     }

@@ -8,6 +8,7 @@
       width="1200px"
       ok-text='Confirm'
       :confirm-loading='creating'
+      :okButtonProps="{ props: {disabled: !$store.getters.zoomChecked} }"
       @ok="confirmSchedule"
       @cancel="closeSchedule">
       <modal-header title='Schedule' @close='closeSchedule'/>
@@ -36,6 +37,8 @@
       @handleClose='handleCloseAssign'
     /> -->
 
+    <verification-tip ref="verificationTip" @continue="createSession"/>
+
   </div>
 </template>
 
@@ -47,10 +50,15 @@ import { mapState } from 'vuex'
 import { USER_MODE } from '@/const/common'
 import { AddSessionV2 } from '@/api/v2/classes'
 import ZoomMeetingSetting from '@/components/Schedule/ZoomMeetingSetting'
-
+import VerificationTip from '@/components/MyContentV2/VerificationTip.vue'
+import { TEACHER_SECURITY_NOT_SHOW } from '@/store/mutation-types'
+import { getCookie } from '@/utils/util'
+import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
+// 已废弃
 export default {
   name: 'PdSchedule',
-  components: { ZoomMeetingSetting, SchoolSchedule, ModalHeader, SchedulePayInfo },
+  components: { ZoomMeetingSetting, SchoolSchedule, ModalHeader, SchedulePayInfo, VerificationTip },
+  mixins: [ ZoomAuthMixin ],
   props: {
     contentId: {
       type: String,
@@ -64,6 +72,13 @@ export default {
   beforeDestroy() {
     this.$EventBus.$off('ZoomMeetingUpdatePassword', this.handleSelectPassword)
     this.$EventBus.$off('ZoomMeetingUpdateWaitingRoom', this.handleSelectWaitingRoom)
+  },
+  watch: {
+    visible(val) {
+      if (val) {
+        this.checkZoomAuth()
+      }
+    }
   },
   data() {
     return {
@@ -106,7 +121,16 @@ export default {
     })
   },
   methods: {
-    handleSelectZoom (zoom) {
+    async handleSelectZoom (zoom) {
+      if (zoom) {
+        const status = await this.checkZoomAuth()
+        if (!status) {
+          this.enableZoom = zoom
+          this.$logger.info('reset item enableZoom', this.enableZoom)
+        } else {
+          this.$logger.info('zoom auth success')
+        }
+      }
       this.scheduleReq.zoom = zoom ? 1 : 0
     },
     handleSelectPassword (val) {
@@ -146,9 +170,16 @@ export default {
       }
       // this.zoomSettingVisible = true
       this.$logger.info('scheduleReq', this.scheduleReq)
+      const isNotShowSecurity = getCookie(TEACHER_SECURITY_NOT_SHOW)
+      if (!isNotShowSecurity) {
+        // TODO 查询是否已经进行老师认证
+        const isExists = false
+        if (!isExists) {
+          this.$refs.verificationTip.doCreate()
+          return
+        }
+      }
       await this.createSession(this.scheduleReq)
-      this.closeSchedule()
-      this.creating = false
     },
 
     async handleConfirmAssign (data) {
@@ -158,7 +189,6 @@ export default {
       this.scheduleReq.waitingRoom = data.waitingRoom
 
       await this.createSession(this.scheduleReq)
-      this.closeSchedule()
       this.$logger.info('zoom auth success')
     },
 
@@ -166,7 +196,8 @@ export default {
       this.zoomSettingVisible = false
     },
 
-    async createSession(scheduleReq) {
+    async createSession() {
+      const scheduleReq = this.scheduleReq
       this.$logger.info('try createSession scheduleReq', scheduleReq)
       this.creating = true
       try {
@@ -179,7 +210,7 @@ export default {
           } else {
             // return res.result
              this.$router.replace({
-              path: `/teacher/main/live-workshops?workshopsType=2`
+              path: `/teacher/main/live-workshops?workshopsType=2&workshopsStatus=2`
             })
           }
         } else {
@@ -196,6 +227,7 @@ export default {
           centered: true
         })
       } finally {
+        this.closeSchedule()
         this.creating = false
       }
       return null
@@ -203,7 +235,7 @@ export default {
     finishAndGoBack(taskClassId) {
       if (this.scheduleReq.workshopType) {
         this.$router.replace({
-          path: `/teacher/main/live-workshops?workshopsType=2`
+          path: `/teacher/main/live-workshops?workshopsType=2&workshopsStatus=2`
         })
       } else {
         this.$router.replace({
@@ -217,8 +249,15 @@ export default {
       this.$emit('close')
     },
     handleSelectDate (data) {
+      if (!data) {
+        this.scheduleReq.startDate = null
+        this.scheduleReq.endDate = null
+      }
       this.scheduleReq.startDate = data.startDate
       this.scheduleReq.endDate = data.endDate
+      if (this.enableZoom && !this.$store.getters.zoomChecked) {
+        this.checkZoomAuth()
+      }
     }
   }
 }

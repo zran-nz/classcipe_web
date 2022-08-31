@@ -8,9 +8,12 @@
             Back
           </div>
         </div>
-        <div class='name'>
+        <a-space class='name'>
           {{ content.name || 'Untitled' }}
-        </div>
+          <label for="" v-if="liveWorkShopCode && liveWorkShopSession && liveWorkShopSession.sessionStartTime">
+            {{ liveWorkShopSession.sessionStartTime | dayjs('YYYY-MM-DD HH:mm') }} - {{ liveWorkShopSession.sessionEndTime | dayjs('YYYY-MM-DD HH:mm') }}
+          </label>
+        </a-space>
       </div>
       <div class='header-right'>
         <div class='buy-button vertical-right'>
@@ -89,7 +92,7 @@
     </div>
 
     <div class='preview-carousel-wrapper'>
-      <preview-carousel :page-object-list='thumbnailList' :video-list='videoList' v-if='!carouselContentLoading' />
+      <preview-carousel :page-object-list='filterThumbnailList' :video-list='filterVideoList' v-if='!carouselContentLoading' />
       <a-skeleton v-if='carouselContentLoading' />
     </div>
 
@@ -208,7 +211,7 @@
                 <div class='discount-price'>
                   ${{ content.discountPrice || content.price || 0 }}
                 </div>
-                <div v-if="content.discountPrice !== content.price" class='price_was'>${{ content.price }}</div>
+                <div v-if="content.discountPrice > 0 && content.discountPrice !== content.price" class='price_was'>${{ content.price }}</div>
               </a-space>
             </div>
             <div class='buy-button'>
@@ -834,6 +837,41 @@ export default {
           keyQuestion: '#000'
         }
       }
+    },
+    // 未购买用户只能看1/3
+    filterThumbnailList() {
+      let isUnpay = false
+      if (this.liveWorkShopCode) {
+        if (this.liveWorkShopSession && WORK_SHOPS_TYPE.FEATURE.value === this.liveWorkShopSession.workshopsType) {
+          isUnpay = true
+        }
+      } else {
+        if (this.content.createBy !== this.$store.getters.userInfo.email && !this.content.buyed) {
+          isUnpay = true
+        }
+      }
+      if (isUnpay && this.thumbnailList && this.thumbnailList.length > 1) {
+        const size = Math.ceil(this.thumbnailList.length / 3)
+        return this.thumbnailList.slice(0, size)
+      }
+      return this.thumbnailList
+    },
+    filterVideoList() {
+      let isUnpay = false
+      if (this.liveWorkShopCode) {
+        if (this.liveWorkShopSession && WORK_SHOPS_TYPE.FEATURE.value === this.liveWorkShopSession.workshopsType) {
+          isUnpay = true
+        }
+      } else {
+        if (this.content.createBy !== this.$store.getters.userInfo.email && !this.content.buyed) {
+          isUnpay = true
+        }
+      }
+      if (isUnpay && this.videoList && this.videoList.length > 1) {
+        const size = Math.ceil(this.videoList.length / 3)
+        return this.videoList.slice(0, size)
+      }
+      return this.videoList
     }
   },
   created() {
@@ -912,20 +950,24 @@ export default {
     },
 
     loadReviewStats () {
-      let promise = null
-      if (this.currentRole === 'student') {
-        promise = ReviewsTask.ReviewsTaskStats
-      } else {
-        promise = ReviewsTeacher.ReviewsTeacherStats
-      }
-      promise && promise({
-        taskId: this.contentId, // 学生需要
-        purchasesId: this.contentId // 老师需要
-      }).then(res => {
-        if (res.success) {
-          this.reviewsStats = res.result
+      if (this.reviewList) {
+        let promise = null
+        if (this.currentRole === 'student') {
+          promise = ReviewsTask.ReviewsTaskStats
+        } else {
+          promise = ReviewsTeacher.ReviewsTeacherStats
         }
-      })
+        promise && promise({
+          taskId: this.contentId, // 学生需要
+          purchasesId: this.contentId // 老师需要
+        }).then(res => {
+          if (res.success) {
+            this.reviewsStats = res.result
+          }
+        })
+      } else {
+        this.handleClose()
+      }
     },
 
     initVideoList () {
@@ -1094,26 +1136,34 @@ export default {
     handleEdit () {
       this.$logger.info('handleEdit', this.contentType)
       if (this.content.type === this.typeMap['unit-plan']) {
-        window.open('/teacher/unit-plan-redirect/' + this.content.id, '_blank')
+        this.$router.push('/teacher/unit-plan-redirect/' + this.content.id)
+        // window.open('/teacher/unit-plan-redirect/' + this.content.id, '_blank')
       } else if (this.content.type === this.typeMap.task) {
-        window.open('/teacher/task-redirect/' + this.content.id, '_blank')
+        this.$router.push('/teacher/task-redirect/' + this.content.id)
+        // window.open('/teacher/task-redirect/' + this.content.id, '_blank')
       } else if (this.content.type === this.typeMap.pd) {
-        window.open('/teacher/pd-content-redirect/' + this.content.id, '_blank')
+        this.$router.push('/teacher/pd-content-redirect/' + this.content.id)
+        // window.open('/teacher/pd-content-redirect/' + this.content.id, '_blank')
       } else if (this.contentType === this.typeMap.video) {
-        window.open('/teacher/video-redirect/' + this.content.id, '_blank')
+        this.$router.push('/teacher/video-redirect/' + this.content.id)
+        // window.open('/teacher/video-redirect/' + this.content.id, '_blank')
       }
     },
 
     handleEditBuy () {
       this.$logger.info('handleEdit', this.content.myContentId)
       if (this.content.type === this.typeMap['unit-plan']) {
-        window.open('/teacher/unit-plan-redirect/' + this.content.myContentId, '_blank')
+        this.$router.push('/teacher/unit-plan-redirect/' + this.content.myContentId)
+        // window.open('/teacher/unit-plan-redirect/' + this.content.myContentId, '_blank')
       } else if (this.content.type === this.typeMap.task) {
-        window.open('/teacher/task-redirect/' + this.content.myContentId, '_blank')
+        this.$router.push('/teacher/task-redirect/' + this.content.myContentId)
+        // window.open('/teacher/task-redirect/' + this.content.myContentId, '_blank')
       } else if (this.content.type === this.typeMap.pd) {
-        window.open('/teacher/pd-content-redirect/' + this.content.myContentId, '_blank')
+        this.$router.push('/teacher/pd-content-redirect/' + this.content.myContentId)
+        // window.open('/teacher/pd-content-redirect/' + this.content.myContentId, '_blank')
       } else if (this.contentType === this.typeMap.video) {
-        window.open('/teacher/video-redirect/' + this.content.myContentId, '_blank')
+        this.$router.push('/teacher/video-redirect/' + this.content.myContentId)
+        // window.open('/teacher/video-redirect/' + this.content.myContentId, '_blank')
       }
     },
 
@@ -1322,7 +1372,7 @@ export default {
       }
 
       .name {
-        width: 70%;
+        width: 100%;
         padding-left: 10px;
         font-size: 16px;
         font-family: Arial;

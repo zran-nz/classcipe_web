@@ -70,6 +70,7 @@ export const ZoomAuthMixin = {
         this.$logger.info('zoom auth update!')
         window.sessionStorage.removeItem('SESSION_AUTH_TYPE')
         this.$store.dispatch('GetInfo')
+        this.$store.commit('SET_ZOOM_CHECKED', true)
       }
     },
 
@@ -80,6 +81,7 @@ export const ZoomAuthMixin = {
         this.$logger.info('zoom auth no expired!')
         return true
       } else {
+        this.$store.commit('SET_ZOOM_CHECKED', false)
         return false
       }
     },
@@ -87,15 +89,18 @@ export const ZoomAuthMixin = {
     async checkZoomAuth() {
       if (!this.zoomAccessToken) {
         this.goToZoomAuth()
+        this.$store.commit('SET_ZOOM_CHECKED', false)
         return false
       } else {
         const authExpired = await this.checkZoomAuthExpired()
         if (!authExpired) {
           this.$logger.info('zoom auth already expired')
           this.goToZoomAuth()
+          this.$store.commit('SET_ZOOM_CHECKED', false)
           return false
         } else {
           this.$logger.info('zoom auth still no expired')
+          this.$store.commit('SET_ZOOM_CHECKED', true)
           return true
         }
       }
@@ -109,6 +114,7 @@ export const ZoomAuthMixin = {
         if (res.success && res.code === 0) {
           this.$message.success('Unbind successfully')
           this.$store.dispatch('GetInfo')
+          this.$store.commit('SET_ZOOM_CHECKED', false)
         }
         return true
       }

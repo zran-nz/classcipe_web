@@ -261,6 +261,13 @@ export const asyncRouterMap = [
             meta: { title: 'menu.task', keepAlive: false, permission: ['teacher'], fullLayout: true }
           },
           {
+            path: '/teacher/add-task-v3/:taskId?/:mode?', // mode:edit 编辑模式 pick-task-slide:选择slide创建task模式
+            name: 'AddTaskV3',
+            props: true,
+            component: () => import('@/views/teacher/AddTaskV3'),
+            meta: { title: 'menu.task', keepAlive: false, permission: ['teacher'], fullLayout: true }
+          },
+          {
             path: '/teacher/sub-task/:taskId',
             name: 'MySubtask',
             props: true,
@@ -414,6 +421,9 @@ export const asyncRouterMap = [
               }
               if (query && query.endDate) {
                 props.endDate = query.endDate
+              }
+              if (query && query.searchType) {
+                props.searchType = parseInt(query.searchType)
               }
               return props
             },

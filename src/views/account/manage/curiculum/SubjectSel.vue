@@ -81,6 +81,7 @@ import { SubjectTree } from '@/api/subject'
 import { getSubjectBySchoolId, saveSubject } from '@/api/academicSettingSubject'
 import ClassArchiveBatch from '../class/ClassArchiveBatch'
 import { difference, reduce } from 'lodash-es'
+import { USER_MODE } from '@/const/common'
 export default {
   name: 'SubjectSel',
   components: {
@@ -415,7 +416,9 @@ export default {
         this.$emit('save-success', notip)
         this.$store.dispatch('initSubjectGradeData', {
           schoolId: this.$store.getters.school,
-          bindCurriculumId: this.$store.getters.bindCurriculum
+          bindCurriculumId: this.$store.getters.bindCurriculum,
+          applyType: this.$store.state.app.userMode === USER_MODE.SCHOOL ? 1 : 2,
+          applyUserId: this.$store.state.user.info.id
         })
       })
     }

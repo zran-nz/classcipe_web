@@ -168,14 +168,19 @@
             </template>
           </a-button>
 
-          <a-button type='primary' @click='handleScheduleWorkShop' class='cc-round-button cc-dark-button' v-if='currentActiveStepIndex === formSteps.length - 1'>
+          <a-button type='primary' @click='handleScheduleWorkShop' class='cc-round-button cc-dark-button' v-if='!isUnComplete && currentActiveStepIndex === formSteps.length - 1'>
             Schedule workshop
           </a-button>
+          <a-tooltip title="Please complete your information before schedule workshop" v-if='isUnComplete && currentActiveStepIndex === formSteps.length - 1'>
+            <a-button type='primary' :disabled="true" class='cc-round-button cc-dark-button'>
+              Schedule workshop
+            </a-button>
+          </a-tooltip>
         </a-space>
       </template>
     </fixed-form-footer>
 
-    <pd-schedule ref='schedule' :content-id='pdId' />
+    <!-- <pd-schedule ref='schedule' :content-id='pdId' /> -->
 
     <a-modal
       v-model='showCollaborateModalVisible'
@@ -330,6 +335,10 @@ export default {
     slideIndex () {
       const index = this.formSteps.findIndex(item => item.commonFields.indexOf(this.PdField.Slides) !== -1)
       return index === -1 ? 1 : index
+    },
+    isUnComplete() {
+      const find = this.formSteps.find(item => item.showRequiredTips)
+      return !!find
     }
   },
   mounted() {
@@ -437,7 +446,12 @@ export default {
     },
 
     goBack() {
-      this.$router.go(-1)
+      if (window.history.length <= 1) {
+        this.$router.push({ path: '/teacher/main/created-by-me' })
+        return false
+      } else {
+        this.$router.go(-1)
+      }
     },
 
     getSessionStep() {
@@ -774,11 +788,12 @@ export default {
 
     handleScheduleWorkShop () {
       this.$logger.info('handleScheduleWorkShop')
-      if (this.form.presentationId) {
-        this.$refs.schedule.visible = true
-      } else {
-        this.$message.warn('Please create Google Slides first')
-      }
+      // if (this.form.presentationId) {
+      //   this.$refs.schedule.visible = true
+      // } else {
+      //   this.$message.warn('Please create Google Slides first')
+      // }
+      this.$router.push(`/teacher/schedule-workshop/${this.pdId}/9`)
     },
 
     handleSharePd() {

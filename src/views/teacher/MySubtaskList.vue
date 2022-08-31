@@ -2,15 +2,22 @@
   <div class='my-sub-task-list'>
     <fixed-vertical-header>
       <template v-slot:left>
-        <a-tooltip placement='leftBottom'>
-          <template slot='title'>
-            The task is more likely to be purchased by other educators if it is simple, clear and focus on specific learning outcome(s).
-            So dividing your main task into small sub-tasks with specific tags is always a good idea.
-          </template>
-          <a-button class='cc-dark-button' @click='handleCreateSubtask'>
-            Create sub task
-          </a-button>
-        </a-tooltip>
+        <a-space>
+          <custom-link-text @click='handleGoBack' text='Back'>
+            <template v-slot:prefix>
+              <a-icon type='left' />
+            </template>
+          </custom-link-text>
+          <a-tooltip placement='leftBottom'>
+            <template slot='title'>
+              The task is more likely to be purchased by other educators if it is simple, clear and focus on specific learning outcome(s).
+              So dividing your main task into small sub-tasks with specific tags is always a good idea.
+            </template>
+            <a-button class='cc-dark-button' @click='handleCreateSubtask'>
+              Create sub task
+            </a-button>
+          </a-tooltip>
+        </a-space>
       </template>
     </fixed-vertical-header>
     <div class='sub-task-container'>
@@ -24,6 +31,7 @@
             :show-delete='true'
             :show-schedule='true'
             :show-publish='true'
+            :show-sub='false'
             :show-set-price='content.status === 1'
             @update-publish='handleShowContentPublish'
             :show-publish-status='false'/>
@@ -50,10 +58,11 @@ import { UpdateContentStatus } from '@/api/teacher'
 import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 import { typeMap } from '@/const/teacher'
 import EditPriceDialog from '@/components/MyContentV2/EditPriceDialog'
+import CustomLinkText from '@/components/Common/CustomLinkText'
 
 export default {
   name: 'MySubtaskList',
-  components: { EditPriceDialog, VerificationTip, FixedFormFooter, ContentItem, FixedVerticalHeader, FixedFormHeader },
+  components: { EditPriceDialog, VerificationTip, FixedFormFooter, ContentItem, FixedVerticalHeader, FixedFormHeader, CustomLinkText },
   props: {
     taskId: {
       type: String,
@@ -81,6 +90,10 @@ export default {
     this.initTask()
   },
   methods: {
+    handleGoBack () {
+      this.$router.push('/teacher/main/created-by-me')
+    },
+
     initTask() {
       TaskQueryById({
         id: this.taskId

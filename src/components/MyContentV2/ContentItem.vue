@@ -53,7 +53,7 @@
               </div>
               <div v-if="content.discountPrice !== content.price" class='price_was'>${{ content.price }}</div>
               <div class='edit'>
-                <a-icon type="edit" v-if='!visible' @click.native='showEditPrice'/>
+                <a-icon type="edit" @click.native='showEditPrice'/>
               </div>
             </div>
             <div class='publish-status' v-if='showPublishStatus'>
@@ -166,7 +166,7 @@
               </template>
             </custom-button>
 
-            <template v-if="showPublish && !content.sourceFrom && content.owner.email === $store.getters.email">
+            <template v-if="canPublishToLibrary(content)">
               <custom-button
                 :disabled='!content.canPublish'
                 :disabled-tooltip="'Please complete the information'"
@@ -189,16 +189,21 @@
                 <edit-icon style='width: 13px; height:14px'/>
               </template>
             </custom-button>
-            <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement' v-if='showDelete && content.owner.email === $store.getters.email && content.status !== 1'>
+            <custom-button label='Sub-task' @click='goToSubTaskList' v-if='showSub && content.type === typeMap.task'>
+              <template v-slot:icon>
+                <sub-task-icon style='width: 13px; height:14px'/>
+              </template>
+            </custom-button>
+            <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement' v-if="(showArchive && content.owner.email === $store.getters.email && content.status !== 1)">
               <div class='more-action'>
                 <more-icon />
               </div>
-              <div class='content-item-more-action' slot='overlay' v-if='showArchive'>
+              <div class='content-item-more-action' slot='overlay'>
                 <div class='menu-item'>
                   <custom-button label='Archive' @click='handleDeleteItem'>
-                    <template v-slot:icon>
+                    <!-- <template v-slot:icon>
                       <delete-icon style='width: 13px; height:14px'/>
-                    </template>
+                    </template> -->
                   </custom-button>
                 </div>
               </div>
@@ -241,61 +246,7 @@
       v-if='previewVisible'
       @close='handlePreviewClose' />
 
-    <a-modal
-      v-model='visible'
-      :closable='false'
-      :maskClosable='false'
-      destroyOnClose
-      @ok='updatePrice'
-      @cancel='visible = false'>
-      <modal-header title="Edit price" @close='visible = false'/>
-      <div class='edit-price'>
-        <a-row :gutter='20' type="flex" align='middle'>
-          <a-col span='6' class='label-name'>
-            Price:
-          </a-col>
-          <a-col span='6'>
-            <a-input-number
-              :default-value="0"
-              :min="0"
-              :max="10000000"
-              :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-              :parser="value => value.replace(/\$\s?|(,*)/g, '')"
-              v-model='price'
-            />
-          </a-col>
-          <a-col span='12' v-show='enableDiscount && price > 0'>Discounted price <span :style="{'color': 'red'}">${{ (price * (1 - (discount * 1.0) / 100)).toFixed(2) }}</span></a-col>
-        </a-row>
-        <a-row :gutter='20' type="flex" align='middle' v-if='price > 0'>
-          <a-col span='6' class='label-name'>
-            Discount:
-          </a-col>
-          <a-col span='6'>
-            <a-input-number
-              :default-value="0"
-              :min="0"
-              :max="100"
-              :formatter="value => `${value}%`"
-              :parser="value => value.replace('%', '')"
-              v-show='enableDiscount'
-              v-model='discount'
-            />
-          </a-col>
-          <a-col span='12'>
-            <a-switch :checked='enableDiscount' @change="onChange" size='small' v-if='price > 0'></a-switch>
-          </a-col>
-        </a-row>
-
-        <a-row :gutter='20' type="flex" align='middle' v-show='enableDiscount && price > 0'>
-          <a-col span='6' class='label-name'>
-            Duration setting
-          </a-col>
-          <a-col span='16'>
-            <a-range-picker :default-value="initDate" :mode="['date']" :disabled-date="disabledDate" @change="handleDurationChange"/>
-          </a-col>
-        </a-row>
-      </div>
-    </a-modal>
+    <discounted-price ref="discountedPrice" @update="updatePrice"/>
   </div>
 </template>
 
@@ -316,9 +267,9 @@ import DeleteIcon from '@/assets/v2/icons/delete.svg?inline'
 import MoreIcon from '@/assets/v2/icons/more.svg?inline'
 import ContentPreview from '@/components/Preview/ContentPreview'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
+import DiscountedPrice from '@/components/MyContentV2/DiscountedPrice'
 import * as logger from '@/utils/logger'
-import { discountSettingQuery, discountSettingSave } from '@/api/v2/discountSetting'
-import moment from 'moment'
+
 import ModalHeader from '@/components/Common/ModalHeader'
 import CollaborateIcon from '@/assets/v2/icons/collaborate.svg?inline'
 
@@ -338,7 +289,8 @@ export default {
     OriginalTipsIcon,
     CollaborateIcon,
     DeleteIcon,
-    MoreIcon
+    MoreIcon,
+    DiscountedPrice
   },
   props: {
     content: {
@@ -400,6 +352,10 @@ export default {
     showPublishStatus: {
       type: Boolean,
       default: false
+    },
+    showSub: {
+      type: Boolean,
+      default: true
     }
   },
   mixins: [ContentItemMixin],
@@ -410,12 +366,6 @@ export default {
 
       enableDiscount: false,
       visible: false,
-      discount: 0,
-      price: 0,
-      editPrice: false,
-      startDate: null,
-      endData: null,
-      initDate: [moment(new Date()), null],
       reviewList: false,
       reviewCreate: false,
       reviewEdit: false
@@ -437,6 +387,19 @@ export default {
     },
     isOwner () {
       return this.$store.getters.userInfo.email === this.content.createBy
+    },
+    canPublishToLibrary() {
+      return function (content) {
+       const boolStatus = this.showPublish && !content.sourceFrom && content.owner.email === this.$store.getters.email
+        if (content.type === typeMap.task) {
+          return boolStatus && content.presentationId &&
+            !content.fileDeleted && !content.presentationId.startsWith('fake_')
+        }
+        if (content.type === typeMap.pd) {
+          return false
+        }
+       return boolStatus
+      }
     }
   },
   methods: {
@@ -526,60 +489,22 @@ export default {
       })
     },
 
-    async showEditPrice() {
-      const res = await discountSettingQuery({
-        contentId: this.content.id,
-        contentType: this.content.type
-      })
-      const data = res.result
-      if (data) {
-        this.$logger.info('discountSettingQuery', data)
-        this.discount = data.discount
-        this.price = data.price
-        this.enableDiscount = data.enableDiscount
-        this.startDate = data.discountStartTime
-        this.endData = data.discountEndTime
-        if (data.discountStartTime && data.discountEndTime) {
-          this.initDate = [moment(data.discountStartTime), moment(data.discountEndTime)]
-        }
-      }
+    showEditPrice() {
       this.visible = true
+      this.$refs.discountedPrice.showEditPrice(this.content.id, this.content.type)
     },
 
-    async updatePrice () {
+    updatePrice (obj) {
       this.$logger.info('update price')
-      const type = parseInt(this.content.type)
-      await discountSettingSave({
-        contentId: this.content.id,
-        contentType: type,
-        discount: this.discount,
-        discountModel: 2,
-        price: this.price,
-        discountStartTime: this.startDate,
-        enableDiscount: this.enableDiscount,
-        discountEndTime: this.endData
-      })
-      this.content.price = this.price
-      this.content.discountPrice = this.discount > 0 ? parseFloat((this.price - this.price * this.discount / 100).toFixed(2)) : this.price
-      this.editPrice = false
+      this.content.price = obj.price
+      this.content.discountPrice = obj.discountPrice
       this.visible = false
     },
 
-    handleDurationChange (date) {
-      this.$logger.info('handleDurationChange', date)
-      this.startDate = moment(date[0].toDate()).utc().format('YYYY-MM-DD 00:00:00')
-      this.endData = moment(date[1].toDate()).utc().format('YYYY-MM-DD 00:00:00')
-    },
-    onChange(v) {
-      this.enableDiscount = v
-      if (!v) {
-        this.discount = 0
-        this.startDate = null
-        this.endData = null
-      }
-    },
-    disabledDate(current) {
-      return current && current < moment().subtract(1, 'days').endOf('day')
+     goToSubTaskList () {
+      this.$router.push({
+        path: `/teacher/sub-task/${this.content.id}`
+      })
     }
   }
 }

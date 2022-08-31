@@ -32,11 +32,11 @@
         </a-col>
         <a-col span='6'>
           <a-input-number
-            :default-value="0"
-            :min="0"
+            :default-value="1"
+            :min="0.01"
             :max="100"
-            :formatter="value => `${value}%`"
-            :parser="value => value.replace('%', '')"
+            :formatter="value => `${value || 1}%`"
+            :parser="value => value.replace('%', '') || 1"
             v-show='enableDiscount'
             v-model='discount'
           />
@@ -123,8 +123,9 @@ export default {
         this.endData = data.discountEndTime
         this.enableDiscount = data.enableDiscount
         this.isSelfLearning = data.isSelfLearning
-        this.initDate = [data.discountStartTime ? moment(data.discountStartTime) : moment(new Date()),
-          data.discountEndTime ? moment(data.discountEndTime) : null]
+        if (data.discountStartTime && data.discountEndTime) {
+          this.initDate = [moment.utc(data.discountStartTime).local(), moment.utc(data.discountEndTime).local()]
+        }
       }
       this.visible = true
       this.visible = true
@@ -144,6 +145,10 @@ export default {
         this.discount = 0
         this.startDate = null
         this.endData = null
+      } else {
+        if (!this.discount) {
+          this.discount = 1
+        }
       }
     },
     async updatePrice () {

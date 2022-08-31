@@ -69,8 +69,8 @@
         <zoom-meeting
           v-show='enableZoom'
           ref='zoom'
-          :password='password'
-          :waiting-room='waitingRoom' />
+          :password='password || mustZoom'
+          :waiting-room='waitingRoom || mustZoom' />
       </div>
     </div>
     <div class="date-info">
@@ -152,11 +152,11 @@ export default {
     },
     password: {
       type: Boolean,
-      default: false
+      default: true
     },
     waitingRoom: {
       type: Boolean,
-      default: false
+      default: true
     },
     mustZoom: {
       type: Boolean,
@@ -186,17 +186,6 @@ export default {
       handler(val) {
         if (val) {
           this.searchFilters = val
-        }
-      },
-      immediate: true
-    },
-    mustZoom: {
-      handler(val) {
-        if (val) {
-          this.enableZoom = true
-          // 直播课,pd zomm必须选择，所以
-          this.$emit('select-zoom-status', this.enableZoom)
-          this.checkZoomAuth()
         }
       },
       immediate: true
@@ -238,10 +227,14 @@ export default {
       endData: null,
       startDate: null,
       scheduleDataArray: [],
-      enableZoom: false
+      enableZoom: this.mustZoom
     }
   },
   created() {
+    if (this.$route.query.startDate && this.$route.query.endDate) {
+      this.initDate = [moment(this.$route.query.startDate), moment(this.$route.query.endDate)]
+      this.handleDateChange(this.initDate)
+    }
     this.initFilterOption()
   },
   computed: {
@@ -306,17 +299,14 @@ export default {
     async handleZoomStatusChange () {
       this.$logger.info('handleZoomStatusChange', this.enableZoom)
       this.$emit('select-zoom-status', this.enableZoom)
-      if (this.enableZoom) {
-        const status = await this.checkZoomAuth()
-        if (!status) {
-          this.enableZoom = false
-          this.$logger.info('reset item enableZoom', this.enableZoom)
-        } else {
-          this.$logger.info('zoom auth success')
-        }
-      }
     },
      handleSelectSchedule(date) {
+      if (!date) {
+        this.startDate = null
+        this.endDate = null
+        this.$emit('select-date', null)
+        return
+      }
       this.$logger.info('handleSelectSchedule', date)
       this.startDate = moment(date.startDate).utc().format('YYYY-MM-DD HH:mm:ss')
       this.endDate = moment(date.endDate).utc().format('YYYY-MM-DD HH:mm:ss')

@@ -4,7 +4,7 @@
       <a-button type="link" v-if="role === 'student' && !isEdit" @click="() => triggerEdit(true)">Edit Review</a-button>
       <a-button type="link" v-if="role === 'teacher' && !myReviews && !isEdit && showCreate" @click="() => triggerEdit(true)">Leave a Review</a-button>
       <a-button type="link" v-if="isEdit" @click="() => triggerEdit(false)">Cancel</a-button>
-      <a-button type="primary" v-if="isEdit" @click="handleSaveMyReview">{{ myReviews ? 'Update' : 'Send' }}</a-button>
+      <a-button type="primary" v-if="isEdit" @click="handleSaveMyReview">{{ myReviews ? 'Update' : 'Submit' }}</a-button>
     </a-space>
     <!-- student review -->
     <a-spin :spinning="subLoading" v-if="role === 'student'">
@@ -95,16 +95,16 @@
             :auto-size="{ minRows: 4, maxRows: 6 }"
           />
         </div>
-        <div class="reviews-edit__check" style="border-top: 0;border-bottom: 1px solid #d9d9d9;">
+        <!-- <div class="reviews-edit__check" style="border-top: 0;border-bottom: 1px solid #d9d9d9;">
           <a-checkbox v-model="subForm.updatedMsg">
             Let me know if this resource is updated
           </a-checkbox>
-        </div>
+        </div> -->
       </div>
     </a-spin>
     <a-space class="reviews-footer" v-if="(myReviews || role === 'teacher') && footerBottom">
       <a-button @click="handleCancel">Cancel</a-button>
-      <a-button type="primary" @click="handleSaveMyReview">Send</a-button>
+      <a-button type="primary" @click="handleSaveMyReview">Submit</a-button>
     </a-space>
   </div>
 </template>

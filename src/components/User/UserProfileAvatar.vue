@@ -212,12 +212,14 @@ export default {
         this[TOOGLE_USER_MODE](USER_MODE.SELF)
         // this.SET_CURRENT_SCHOOL(null)
         this.GetClassList()
+        this.$router.replace('/teacher/main/created-by-me')
         this.$store.dispatch('GetInfo').then(res => {
           this.hasSetCurriculum()
         })
       })
     },
     handleChangeSchool(val) {
+      const oldMode = this.userMode
       SwitchUserModeSchool({
         isPersonal: false,
         schoolId: val.id
@@ -227,6 +229,9 @@ export default {
         // const item = this.info.schoolList.find(item => item.id === val.id)
         // this.SET_CURRENT_SCHOOL(item)
         this.GetClassList(val.id)
+        if (oldMode === USER_MODE.SELF) {
+          this.$router.replace('/teacher/main/created-by-me')
+        }
         this.$store.dispatch('GetInfo').then(res => {
           this.hasSetCurriculum()
         })

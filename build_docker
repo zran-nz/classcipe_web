@@ -1,1 +1,3 @@
-sudo docker run --rm -it -v $PWD:/git node:latest /git/build
+sudo docker run --rm -it -v $PWD:/git --user $(id -u):$(id -g) node:latest /git/build
+git add dist/*
+git commit -a -m "auto build"

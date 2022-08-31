@@ -221,8 +221,8 @@
             <zoom-meeting
               v-show='enableZoom'
               ref='zoom'
-              :password='false'
-              :waiting-room='false' />
+              :password='true'
+              :waiting-room='true' />
           </div>
         </div>
         <div class='tag-body'>
@@ -258,7 +258,20 @@
         {{ fromRelaunch ? 'After relaunching the workshop, attendees will need to register to attend this workshop.' : '' }}
       </template>
       <template v-slot:right>
-        <a-button type='primary' :disabled="!startDate || !endDate" :loading="confirmLoading" @click='handleNextStep' class='cc-round-button'>Finish</a-button>
+        <a-tooltip title="Please link your zoom account" v-if="(enableZoom && !$store.getters.zoomChecked)">
+          <a-button type='primary' :disabled="true" :loading='confirmLoading' class='cc-round-button'>
+            <template >Finish</template>
+          </a-button>
+        </a-tooltip>
+        <a-button
+          type='primary'
+          :disabled="(!startDate || !endDate)"
+          @click='handleNextStep'
+          :loading='confirmLoading'
+          class='cc-round-button'
+          v-else>
+          <template >Finish</template>
+        </a-button>
       </template>
     </fixed-form-footer>
     <select-session-unit
@@ -266,6 +279,7 @@
       :list='associateUnitList'
       @back='handleBack'
       @select='handleSelectUnit' />
+    <verification-tip ref="verificationTip" @continue="handleSubmit"/>
   </div>
 </template>
 
@@ -283,8 +297,9 @@ import DeleteIcon from '@/components/Common/DeleteIcon'
 import SessionCalendar from '@/components/Calendar/SessionCalendar'
 import CustomImageUploader from '@/components/Common/CustomImageUploader'
 import ZoomMeeting from '@/components/Schedule/ZoomMeeting'
+import VerificationTip from '@/components/MyContentV2/VerificationTip.vue'
 
-import { formatLocalUTC } from '@/utils/util'
+import { formatLocalUTC, getCookie } from '@/utils/util'
 import { typeMap } from '@/const/teacher'
 import { TaskQueryById } from '@/api/task'
 import { PDContentQueryById } from '@/api/pdContent'
@@ -302,6 +317,7 @@ import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
 import { mapState } from 'vuex'
 import moment from 'moment'
 import ZoomAuth from '@/components/Schedule/ZoomAuth'
+import { TEACHER_SECURITY_NOT_SHOW } from '@/store/mutation-types'
 
 export default {
   name: 'AddLiveWorkshop',
@@ -319,7 +335,8 @@ export default {
     DeleteIcon,
     SessionCalendar,
     CustomImageUploader,
-    ZoomMeeting
+    ZoomMeeting,
+    VerificationTip
   },
   props: {
     id: {
@@ -596,7 +613,12 @@ export default {
     },
 
     handleBack () {
-      this.$router.go(-1)
+      if (window.history.length <= 1) {
+        this.$router.push({ path: '/teacher/main/live-workshops' })
+        return false
+      } else {
+        this.$router.go(-1)
+      }
     },
 
     getSessionStep() {
@@ -630,7 +652,6 @@ export default {
       if (!this.form.paidType) {
         this.form.price = null
         this.form.discountInfo = []
-        this.handleSubmit()
       } else {
         // this.$refs.priceDiscount.validate((valid, priceInfo) => {
         //   if (valid) {
@@ -641,8 +662,17 @@ export default {
         // })
         this.form.price = this.price
         this.form.discountInfo = [ ...this.discountList ]
-        this.handleSubmit()
       }
+      const isNotShowSecurity = getCookie(TEACHER_SECURITY_NOT_SHOW)
+      if (!isNotShowSecurity) {
+        // TODO 查询是否已经进行老师认证
+        const isExists = false
+        if (!isExists) {
+          this.$refs.verificationTip.doCreate()
+          return
+        }
+      }
+      this.handleSubmit()
     },
     validateNumber(rule, value, callback) {
       if (!value || new RegExp(/^[0-9]*[1-9][0-9]*$/).test(value)) {
@@ -710,7 +740,7 @@ export default {
       AddSessionV2(params).then(res => {
          if (res.result && res.success && res.code === 0) {
           this.$message.success('Schedule session successfully')
-          this.$router.replace('/teacher/main/live-workshops?workshopsType=2')
+          this.$router.replace('/teacher/main/live-workshops?workshopsType=2&workshopsStatus=2')
         } else {
           this.$confirm({
             title: 'Warn',
@@ -749,9 +779,17 @@ export default {
     },
 
     handleSelectSchedule(date) {
+      if (!date) {
+        this.startDate = null
+        this.endDate = null
+        return
+      }
       this.startDate = moment(date.startDate).utc().format('YYYY-MM-DD HH:mm:ss')
       this.endDate = moment(date.endDate).utc().format('YYYY-MM-DD HH:mm:ss')
       console.log(date)
+      if (this.enableZoom && !this.$store.getters.zoomChecked) {
+        this.checkZoomAuth()
+      }
     },
 
     handleAddDiscount () {

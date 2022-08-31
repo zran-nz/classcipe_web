@@ -21,6 +21,7 @@
         <select-participant
           ref='participant'
           :class-list='classList'
+          :classId="currentClass"
           v-show='currentActiveStepIndex === 0'
           @select-class-student='handleSelectClassStudent'
           @select-workshop-type='handleSelectWorkshopType'/>
@@ -64,9 +65,16 @@
                 Next <a-icon type='right' />
               </template>
             </a-button>
-            <a-button type='primary' :disabled="!scheduleReq.startDate || !scheduleReq.endDate" @click='handleGoNext' :loading='creating' v-else>
-              <template >Assign</template>
-            </a-button>
+            <template v-else>
+              <a-tooltip title="Please link your zoom account" v-if="(scheduleReq.zoom == 1 && !$store.getters.zoomChecked)">
+                <a-button type='primary' :disabled="true" :loading='creating'>
+                  <template >Assign</template>
+                </a-button>
+              </a-tooltip>
+              <a-button type='primary' :disabled="(!scheduleReq.startDate || !scheduleReq.endDate)" @click='handleGoNext' :loading='creating' v-else>
+                <template >Assign</template>
+              </a-button>
+            </template>
           </a-space>
         </div>
       </template>
@@ -123,6 +131,7 @@ export default {
       associateUnitList: [],
 
       classList: [],
+      currentClass: '',
 
       scheduleReq: {
         classIds: [],
@@ -159,7 +168,11 @@ export default {
   },
   created() {
     this.$logger.info(`ScheduleSession created with id: ${this.id} type ${this.type}`)
-    this.handleAssociate()
+    this.scheduleReq.planId = this.$route.query.planId
+    if (!this.scheduleReq.planId) {
+      this.handleAssociate()
+    }
+    this.currentClass = this.$route.query.classId
     this.loading = false
     this.sessionId = this.$route.query.sessionId
 
@@ -276,6 +289,11 @@ export default {
     },
 
     handleSelectDate (data) {
+      if (!data) {
+        this.scheduleReq.startDate = null
+        this.scheduleReq.endDate = null
+        return
+      }
       this.$logger.info('ScheduleSession handleSelectDate ', data)
       this.scheduleReq.startDate = data.startDate
       this.scheduleReq.endDate = data.endDate
@@ -297,7 +315,17 @@ export default {
       this.scheduleReq.sessionType = type
     },
 
-    handleSelectZoom (zoom) {
+    async handleSelectZoom (zoom) {
+      console.log(zoom)
+      if (zoom) {
+        const status = await this.checkZoomAuth()
+        if (!status) {
+          // zoom = 0
+          this.$logger.info('reset item enableZoom', zoom)
+        } else {
+          this.$logger.info('zoom auth success')
+        }
+      }
       this.scheduleReq.zoom = zoom ? 1 : 0
     },
 
@@ -349,12 +377,16 @@ export default {
           if (retValue) {
             return res.result
           } else {
-            if (res.result.length && res.result[0].taskClassId) {
-              this.finishAndGoBack(res.result[0].taskClassId)
+            if (this.$route.query.source && this.$route.query.source === 'calendar') {
+              this.$router.replace('/teacher/main/calendar')
             } else {
-              this.$router.replace({
-                path: `/teacher/main/live-workshops?workshopsType=2`
-              })
+              if (res.result.length && res.result[0].taskClassId) {
+                this.finishAndGoBack(res.result[0].taskClassId)
+              } else {
+                this.$router.replace({
+                  path: `/teacher/main/live-workshops?workshopsType=2&workshopsStatus=2`
+                })
+              }
             }
           }
         } else {
@@ -380,7 +412,7 @@ export default {
     finishAndGoBack(taskClassId) {
       if (this.scheduleReq.workshopType) {
         this.$router.replace({
-          path: `/teacher/main/live-workshops?workshopsType=2`
+          path: `/teacher/main/live-workshops?workshopsType=2&workshopsStatus=2`
         })
       } else {
         this.$router.replace({

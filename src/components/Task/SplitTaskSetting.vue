@@ -44,11 +44,11 @@
           <a-col span='12'>
             <a-space>
               <a-input-number
-                :default-value="0"
-                :min="0"
+                :default-value="1"
+                :min="0.01"
                 :max="100"
-                :formatter="value => `${value}%`"
-                :parser="value => value.replace('%', '')"
+                :formatter="value => `${value || 1}%`"
+                :parser="value => value.replace('%', '') || 1"
                 v-show='enableDiscount'
                 v-model='myDiscount'
                 :disabled='!enablePrice'
@@ -143,7 +143,9 @@ export default {
         this.startDate = data.discountStartTime
         this.endData = data.discountEndTime
         this.myPrice = parseFloat(data.price).toFixed(2)
-        this.initDate = [moment(this.startDate), moment(this.endData)]
+        if (data.discountStartTime && data.discountEndTime) {
+          this.initDate = [moment.utc(data.discountStartTime).local(), moment.utc(data.discountEndTime).local()]
+        }
       }
     })
   },
@@ -194,6 +196,10 @@ export default {
         this.myDiscount = 0
         this.startDate = null
         this.endData = null
+      } else {
+        if (!this.myDiscount) {
+          this.myDiscount = 1
+        }
       }
     },
     changeRemind() {
