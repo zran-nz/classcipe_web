@@ -21,7 +21,8 @@
       </template>
     </fixed-vertical-header>
     <div class='sub-task-container'>
-      <div class='sub-task-list vertical-left' v-for='content in subTaskList' :key='content.id'>
+      <!-- <radio-switch @select="handleSelectShareType" :menu-list='menuList' :default-selected-item="getSelectItem" /> -->
+      <div class='sub-task-list vertical-left' v-for='content in filterSubTaskList' :key='content.id'>
         <div class='task-item vertical-left'>
           <content-item
             @delete='initTask'
@@ -30,7 +31,7 @@
             :show-edit='true'
             :show-delete='true'
             :show-schedule='true'
-            :show-publish='true'
+            :show-publish='canPublish'
             :show-sub='false'
             :show-set-price='content.status === 1'
             @update-publish='handleShowContentPublish'
@@ -49,7 +50,7 @@ import { TaskQueryById } from '@/api/task'
 import FixedFormHeader from '@/components/Common/FixedFormHeader'
 import FixedVerticalHeader from '@/components/Common/FixedVerticalHeader'
 import ContentItem from '@/components/MyContentV2/ContentItem'
-import { TaskField } from '@/const/common'
+import { TaskField, SESSION_SUB_FLAG } from '@/const/common'
 import FixedFormFooter from '@/components/Common/FixedFormFooter'
 import { getCookie } from '@/utils/util'
 import { TEACHER_SECURITY_NOT_SHOW } from '@/store/mutation-types'
@@ -59,10 +60,11 @@ import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 import { typeMap } from '@/const/teacher'
 import EditPriceDialog from '@/components/MyContentV2/EditPriceDialog'
 import CustomLinkText from '@/components/Common/CustomLinkText'
+import RadioSwitch from '@/components/Common/RadioSwitch'
 
 export default {
   name: 'MySubtaskList',
-  components: { EditPriceDialog, VerificationTip, FixedFormFooter, ContentItem, FixedVerticalHeader, FixedFormHeader, CustomLinkText },
+  components: { EditPriceDialog, VerificationTip, FixedFormFooter, ContentItem, FixedVerticalHeader, FixedFormHeader, CustomLinkText, RadioSwitch },
   props: {
     taskId: {
       type: String,
@@ -74,6 +76,16 @@ export default {
     return {
       loading: false,
       publishLoading: false,
+      menuList: [
+        {
+          name: 'My Sub-task',
+          type: 0
+        },
+        {
+          name: 'Archived',
+          type: 1
+        }
+      ],
       subTaskList: [],
       selectedTaskList: [],
       requiredTaskFields: [
@@ -83,10 +95,31 @@ export default {
         TaskField.LearnOuts
       ],
       contentType: typeMap,
+      parentTask: null,
       currentContent: null
     }
   },
+  computed: {
+    getSelectItem() {
+      const shareType = sessionStorage.getItem(SESSION_SUB_FLAG) ? parseInt(sessionStorage.getItem(SESSION_SUB_FLAG)) : 0
+      const index = this.menuList.findIndex(item => item.type === shareType)
+      if (index > -1) {
+        return this.menuList[index]
+      }
+      return this.menuList[0]
+    },
+    filterSubTaskList() {
+      // const flag = sessionStorage.getItem(SESSION_SUB_FLAG) ? parseInt(sessionStorage.getItem(SESSION_SUB_FLAG)) : 0
+      return this.subTaskList// .filter(item => item.delFlag === flag)
+    },
+    canPublish() {
+      return this.parentTask && !this.parentTask.originalOwner && this.parentTask.owner.email === this.$store.getters.email
+    }
+  },
   created() {
+    if (this.$route.query.subFlag) {
+      sessionStorage.setItem(SESSION_SUB_FLAG, this.$route.query.subFlag)
+    }
     this.initTask()
   },
   methods: {
@@ -101,6 +134,7 @@ export default {
         this.$logger.info('sub task', res.result)
         if (res.code === 0) {
           this.subTaskList = res.result.subTasks
+          this.parentTask = res.result
         }
       }).finally(() => {
       })
@@ -177,6 +211,15 @@ export default {
     },
     showPublishTips () {
       this.$message.success('Publish successfully!')
+    },
+    handleSelectShareType(item) {
+      sessionStorage.setItem(SESSION_SUB_FLAG, item.type)
+    },
+    handleDeleteItem (data) {
+      const find = this.subTaskList.find(item => item.id === data.id)
+      if (find) {
+        find.delFlag = !find.delFlag
+      }
     }
   }
 }
@@ -190,6 +233,10 @@ export default {
   height: calc(100vh - 70px);
   padding: 10px 20px;
   overflow-y: auto;
+  /deep/ .cc-radio-switch {
+    background: transparent;
+    margin-bottom: 20px;
+  }
   .sub-task-list {
     position: relative;
     background: #fff;
