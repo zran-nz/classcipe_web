@@ -151,7 +151,7 @@ export default {
       if ((this.currentContent.type === this.contentType.task ||
         this.currentContent.type === this.contentType.pd)) {
         if (!this.currentContent.presentationId || this.currentContent.presentationId.startsWith('fake_')) {
-          this.$message.warn('This task/PD content can not be published without interactive slides, please edit google slides first')
+          this.$message.warn('This task/PD content can not be published without interactive slides, please create google slides first')
           return
         }
       }
@@ -189,17 +189,16 @@ export default {
           status: targetStatus,
           type: data.type
         }).then((res) => {
-          if (res.code === 520 || res.code === 403) {
+          this.$logger.info('handlePublishStatus res', res, 'currentContent', this.currentContent)
+          if (res.code === 0) {
+            this.subTaskList[index].status = targetStatus
+            this.$refs.editPrice.showEditPrice()
+            this.$message.success('Unpublish successfully!')
+          } else if (res.code === 520 || res.code === 403) {
             this.$logger.info('等待授权回调')
             this.$message.loading('Waiting for Google Slides auth...', 10)
-            return
-          }
-          this.$logger.info('handlePublishStatus res', res, 'currentContent', this.currentContent)
-          this.subTaskList[index].status = targetStatus
-          if (targetStatus) {
-            this.$refs.editPrice.showEditPrice()
           } else {
-            this.$message.success('Unpublish successfully!')
+            this.$message.error(res.message, 5)
           }
         }).finally(() => {
           this.publishLoading = false

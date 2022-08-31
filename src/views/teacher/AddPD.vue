@@ -743,7 +743,7 @@ export default {
             this.handlePublishFormItem(1)
             this.showEditPriceDialog()
           } else {
-            this.$message.warn('This task/PD content can not be published without interactive slides, please edit google slides first')
+            this.$message.warn('This task/PD content can not be published without interactive slides, please create google slides first')
           }
         } else {
           let requiredStepIndex = -1

@@ -130,7 +130,7 @@ export default {
       if ((this.currentContent.type === this.typeMap.task ||
         this.currentContent.type === this.typeMap.pd)) {
         if (!this.currentContent.presentationId || this.currentContent.presentationId.startsWith('fake_')) {
-          this.$message.warn('This task/PD content can not be published without interactive slides, please edit google slides first')
+          this.$message.warn('This task/PD content can not be published without interactive slides, please create google slides first')
           return
         }
       }
