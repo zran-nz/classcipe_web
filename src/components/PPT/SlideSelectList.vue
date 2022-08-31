@@ -59,6 +59,7 @@
               :img-mode='true'
               :slide-item='slide'
               :add-text="addText(slide)"
+              :buy="handleBuyItem"
               :show-remove-button='selectedPresentationIdList.indexOf(slide.presentationId) !== -1 && !disabled'
               :show-add-button='selectedPresentationIdList.indexOf(slide.presentationId) === -1 && !disabled'
               :default-thumbnail-list='slide.thumbnailList'/>
@@ -360,6 +361,13 @@ export default {
       }).finally(() => {
         this.searching = false
       })
+    },
+    handleBuyItem(id) {
+      this.$logger.info('handleBuyItem', id)
+      const buyIndex = this.slideList.findIndex(item => item.id === id)
+      if(buyIndex > -1){
+        this.slideList[buyIndex].
+      }
     }
   }
 }
