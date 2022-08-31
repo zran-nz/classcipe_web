@@ -136,7 +136,10 @@
             <template v-else>
               <a-avatar size="small">{{ content.createBy.toUpperCase()[0] }}</a-avatar>
             </template>
-            <div class='user-name'>
+            <div class='user-name' v-if="content.owner.email === $store.getters.email">
+              Me
+            </div>
+            <div class='user-name' v-else>
               {{ (content.owner ? (content.owner.firstname + ' ' + content.owner.lastname) : content.createBy) | upCaseFirst }}
             </div>
           </div>
@@ -146,8 +149,8 @@
           <template v-if='showButton && !content.delFlag'>
             <custom-button
               label='Schedule'
-              :disabled='!content.canPublish'
-              :disabled-tooltip="'Please complete the information'"
+              :disabled='!content.canPublish || content.slideEditing'
+              :disabled-tooltip="content.slideEditing ? 'Please save your slides' : 'Please complete the information'"
               v-if='showSchedule && content.type === typeMap.task'
               @click='handleSchedule'>
               <template v-slot:icon>
@@ -157,8 +160,8 @@
 
             <custom-button
               label='Workshop'
-              :disabled='!content.canPublish'
-              :disabled-tooltip="'Please complete the information'"
+              :disabled='!content.canPublish || content.slideEditing'
+              :disabled-tooltip="content.slideEditing ? 'Please save your slides' : 'Please complete the information'"
               v-if='showSchedule && content.type === typeMap.pd && content.owner.email === $store.getters.email'
               @click='handlePublicWorkshopSchedule'>
               <template v-slot:icon>
@@ -168,8 +171,8 @@
 
             <template v-if="canPublishToLibrary(content)">
               <custom-button
-                :disabled='!content.canPublish'
-                :disabled-tooltip="'Please complete the information'"
+                :disabled='!content.canPublish || content.slideEditing'
+                :disabled-tooltip="content.slideEditing ? 'Please save your slides' : 'Please complete the information'"
                 label="Publish"
                 @click='handlePublishStatus'
                 v-if='content.status === 0'>
@@ -392,8 +395,10 @@ export default {
       return function (content) {
        const boolStatus = this.showPublish && !content.sourceFrom && content.owner.email === this.$store.getters.email
         if (content.type === typeMap.task) {
-          return boolStatus && content.presentationId &&
-            !content.fileDeleted && !content.presentationId.startsWith('fake_')
+          // 发布的时候在判断绑定关系是否存在
+          // return boolStatus && content.presentationId &&
+          //   !content.fileDeleted && !content.presentationId.startsWith('fake_')
+          return boolStatus && !content.fileDeleted
         }
         if (content.type === typeMap.pd) {
           return false
