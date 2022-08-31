@@ -149,20 +149,10 @@ export default {
   data () {
     return {
       typeMap: typeMap,
-      menuList: [
-        {
-          name: 'Scheduled',
-          type: 2
-        },
-        {
-          name: 'On-going',
-          type: 1
-        },
-        {
-          name: 'Ended',
-          type: 3
-        }
-      ],
+      menuList: Object.values(WORK_SHOPS_STATUS).map(item => ({
+        name: item.label,
+        type: item.value
+      })),
       WORK_SHOPS_STATUS: WORK_SHOPS_STATUS,
       WORK_SHOPS_TYPE: WORK_SHOPS_TYPE,
       WORK_SHOPS_TYPE_VALUES: Object.values(WORK_SHOPS_TYPE),

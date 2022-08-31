@@ -8,9 +8,12 @@
             Back
           </div>
         </div>
-        <div class='name'>
+        <a-space class='name'>
           {{ content.name || 'Untitled' }}
-        </div>
+          <label for="" v-if="liveWorkShopCode && liveWorkShopSession && liveWorkShopSession.sessionStartTime">
+            {{ liveWorkShopSession.sessionStartTime | dayjs('YYYY-MM-DD HH:mm') }} - {{ liveWorkShopSession.sessionEndTime | dayjs('YYYY-MM-DD HH:mm') }}
+          </label>
+        </a-space>
       </div>
       <div class='header-right'>
         <div class='buy-button vertical-right'>
@@ -89,7 +92,7 @@
     </div>
 
     <div class='preview-carousel-wrapper'>
-      <preview-carousel :page-object-list='thumbnailList' :video-list='videoList' v-if='!carouselContentLoading' />
+      <preview-carousel :page-object-list='filterThumbnailList' :video-list='filterVideoList' v-if='!carouselContentLoading' />
       <a-skeleton v-if='carouselContentLoading' />
     </div>
 
@@ -834,6 +837,41 @@ export default {
           keyQuestion: '#000'
         }
       }
+    },
+    // 未购买用户只能看1/3
+    filterThumbnailList() {
+      let isUnpay = false
+      if (this.liveWorkShopCode) {
+        if (this.liveWorkShopSession && WORK_SHOPS_TYPE.FEATURE.value === this.liveWorkShopSession.workshopsType) {
+          isUnpay = true
+        }
+      } else {
+        if (this.content.createBy !== this.$store.getters.userInfo.email && !this.content.buyed) {
+          isUnpay = true
+        }
+      }
+      if (isUnpay && this.thumbnailList && this.thumbnailList.length > 1) {
+        const size = Math.ceil(this.thumbnailList.length / 3)
+        return this.thumbnailList.slice(0, size)
+      }
+      return this.thumbnailList
+    },
+    filterVideoList() {
+      let isUnpay = false
+      if (this.liveWorkShopCode) {
+        if (this.liveWorkShopSession && WORK_SHOPS_TYPE.FEATURE.value === this.liveWorkShopSession.workshopsType) {
+          isUnpay = true
+        }
+      } else {
+        if (this.content.createBy !== this.$store.getters.userInfo.email && !this.content.buyed) {
+          isUnpay = true
+        }
+      }
+      if (isUnpay && this.videoList && this.videoList.length > 1) {
+        const size = Math.ceil(this.videoList.length / 3)
+        return this.videoList.slice(0, size)
+      }
+      return this.videoList
     }
   },
   created() {
@@ -1334,7 +1372,7 @@ export default {
       }
 
       .name {
-        width: 70%;
+        width: 100%;
         padding-left: 10px;
         font-size: 16px;
         font-family: Arial;

@@ -54,7 +54,7 @@ import VerificationTip from '@/components/MyContentV2/VerificationTip.vue'
 import { TEACHER_SECURITY_NOT_SHOW } from '@/store/mutation-types'
 import { getCookie } from '@/utils/util'
 import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
-
+// 已废弃
 export default {
   name: 'PdSchedule',
   components: { ZoomMeetingSetting, SchoolSchedule, ModalHeader, SchedulePayInfo, VerificationTip },
@@ -249,6 +249,10 @@ export default {
       this.$emit('close')
     },
     handleSelectDate (data) {
+      if (!data) {
+        this.scheduleReq.startDate = null
+        this.scheduleReq.endDate = null
+      }
       this.scheduleReq.startDate = data.startDate
       this.scheduleReq.endDate = data.endDate
       if (this.enableZoom && !this.$store.getters.zoomChecked) {

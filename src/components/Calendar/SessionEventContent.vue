@@ -97,6 +97,9 @@
         <div>
           {{ info.event.start | dayjs(FORMATTER_SIM2) }}-{{ info.event.end | dayjs(FORMATTER_SIM2) }}
         </div>
+        <div class="remove" @click="handleRemoveSelect">
+          <a-icon type="close-circle"></a-icon>
+        </div>
       </div>
     </a-popover>
 
@@ -231,6 +234,9 @@ export default {
     handleChangeDateSelect() {
       this.$emit('changeDateSelect', this.dateSelect)
     },
+    handleRemoveSelect() {
+      this.$emit('changeDateSelect', null)
+    },
     disabledHoursStart() {
       const days = moment(this.info.event.end).isSame(moment(this.info.event.start), 'day')
       if (!days) return []
@@ -335,6 +341,25 @@ export default {
     width: 20px;
     height: 20px;
     border-radius: 20px;
+  }
+}
+.schedule-event-content {
+  .remove {
+    position: absolute;
+    top: -8px;
+    right: -5px;
+    font-size: 14px;
+    cursor: pointer;
+    background: #fff;
+    border-radius: 14px;
+    width: 14px;
+    height: 14px;
+    display: none;
+  }
+  &:hover {
+    .remove {
+      display: block;
+    }
   }
 }
 </style>

@@ -117,6 +117,7 @@ export default {
   created() {
     if (this.$route.query.startDate && this.$route.query.endDate) {
       this.initDate = [moment(this.$route.query.startDate), moment(this.$route.query.endDate)]
+      this.handleDateChange(this.initDate)
     }
   },
   methods: {
@@ -132,6 +133,12 @@ export default {
     },
 
     handleSelectSchedule(date) {
+      if (!date) {
+        this.startDate = null
+        this.endDate = null
+        this.$emit('select-date', null)
+        return
+      }
       if (this.enableZoom && !this.$store.getters.zoomChecked) {
         this.checkZoomAuth()
       }

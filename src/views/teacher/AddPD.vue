@@ -180,7 +180,7 @@
       </template>
     </fixed-form-footer>
 
-    <pd-schedule ref='schedule' :content-id='pdId' />
+    <!-- <pd-schedule ref='schedule' :content-id='pdId' /> -->
 
     <a-modal
       v-model='showCollaborateModalVisible'

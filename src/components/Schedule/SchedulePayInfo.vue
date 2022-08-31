@@ -239,6 +239,12 @@ export default {
   beforeDestroy() {
     this.globalClick(this.handleBlurClick)
   },
+  created() {
+    if (this.$route.query.startDate && this.$route.query.endDate) {
+      this.initDate = [moment(this.$route.query.startDate), moment(this.$route.query.endDate)]
+      this.handleDateChange(this.initDate)
+    }
+  },
   methods: {
     handleDateChange (date, dateString) {
       this.$logger.info('handleDateChange', date, dateString)
@@ -273,6 +279,12 @@ export default {
       // }
     },
     handleSelectSchedule(date) {
+      if (!date) {
+        this.startDate = null
+        this.endDate = null
+        this.$emit('select-date', null)
+        return
+      }
       this.startDate = moment(date.startDate).utc().format('YYYY-MM-DD HH:mm:ss')
       this.endDate = moment(date.endDate).utc().format('YYYY-MM-DD HH:mm:ss')
       if (this.registerBefore && moment(this.startDate).isBefore(moment(this.registerBefore))) {

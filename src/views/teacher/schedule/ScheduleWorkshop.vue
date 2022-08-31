@@ -33,7 +33,12 @@
       </template>
       <template v-slot:right>
         <div class='right-button'>
-          <a-button type='primary' :disabled="!scheduleReq.startDate || !scheduleReq.endDate" @click='handleGoNext' :loading='creating'>
+          <a-tooltip title="Please link your zoom account" v-if="(scheduleReq.zoom == 1 && !$store.getters.zoomChecked)">
+            <a-button type='primary' :disabled="true" :loading='creating'>
+              <template >Assign</template>
+            </a-button>
+          </a-tooltip>
+          <a-button type='primary' :disabled="(!scheduleReq.startDate || !scheduleReq.endDate)" @click='handleGoNext' :loading='creating' v-else>
             <template >Assign</template>
           </a-button>
         </div>
@@ -147,7 +152,10 @@ export default {
   },
   created() {
     this.$logger.info(`ScheduleSession created with id: ${this.id} type ${this.type}`)
-    this.handleAssociate()
+    this.scheduleReq.planId = this.$route.query.planId
+    if (!this.scheduleReq.planId) {
+      this.handleAssociate()
+    }
     this.loading = false
     this.checkZoomAuth()
 
@@ -248,6 +256,11 @@ export default {
     },
 
     handleSelectDate (data) {
+      if (!data) {
+        this.scheduleReq.startDate = null
+        this.scheduleReq.endDate = null
+        return
+      }
       this.$logger.info('ScheduleSession handleSelectDate ', data)
       this.scheduleReq.startDate = data.startDate
       this.scheduleReq.endDate = data.endDate
@@ -320,12 +333,16 @@ export default {
           if (retValue) {
             return res.result
           } else {
-            if (res.result.length && res.result[0].taskClassId) {
-              this.finishAndGoBack(res.result[0].taskClassId)
+            if (this.$route.query.source && this.$route.query.source === 'calendar') {
+              this.$router.replace('/teacher/main/calendar')
             } else {
-              this.$router.replace({
-                path: `/teacher/main/live-workshops?workshopsType=2&workshopsStatus=2`
-              })
+              if (res.result.length && res.result[0].taskClassId) {
+                this.finishAndGoBack(res.result[0].taskClassId)
+              } else {
+                this.$router.replace({
+                  path: `/teacher/main/live-workshops?workshopsType=2&workshopsStatus=2`
+                })
+              }
             }
           }
         } else {

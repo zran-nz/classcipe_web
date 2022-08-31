@@ -933,6 +933,10 @@ export default {
       if (selectEvent) {
         selectEvent.remove()
       }
+      if (!dateSelect) {
+        this.$emit('date-select', null)
+        return
+      }
       const startTime = moment(dateSelect.start).format('YYYY-MM-DD HH:mm:ss')
       const endTime = moment(dateSelect.end).format('YYYY-MM-DD HH:mm:ss')
       calendarApi.addEvent({
@@ -964,14 +968,14 @@ export default {
     handleAddUnit() {
       this.closeTip()
       this.importType = typeMap['unit-plan']
-      const path = `/teacher/session-import/${this.importType}/${this.currentClass}?startDate=${this.importModel.startDate}&endDate=${this.importModel.endDate}`
+      const path = `/teacher/session-import/${this.importType}/${this.currentClass}?startDate=${this.importModel.startDate}&endDate=${this.importModel.endDate}&searchType=${this.searchType}`
       this.$router.push(path)
       // this.importVisible = true
     },
     handleAddSession() {
       this.closeTip()
       this.importType = typeMap.task
-      const path = `/teacher/session-import/${this.importType}/${this.currentClass}?startDate=${this.importModel.startDate}&endDate=${this.importModel.endDate}`
+      const path = `/teacher/session-import/${this.importType}/${this.currentClass}?startDate=${this.importModel.startDate}&endDate=${this.importModel.endDate}&searchType=${this.searchType}`
       this.$router.push(path)
       // this.importVisible = true
     },

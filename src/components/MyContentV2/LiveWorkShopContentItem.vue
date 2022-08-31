@@ -2,9 +2,19 @@
   <div class='content-item' v-if='content && content.content'>
     <div class='cover' @click.prevent.stop="handleGoWork(content)">
       <div class='cover-block' :style="{'background-image': 'url(' + (content.cover || content.content.image) + ')'}">
+        <div class='bottom-action' v-if="!isSimple">
+          <div class='bottom-action-item vertical-left'>
+            <!-- <div class='bottom-action-item-icon'><a-icon type="form" /></div>
+            <div class='bottom-action-item-label'>Edit</div> -->
+          </div>
+          <div class='bottom-action-item vertical-right' @click.stop="handlePreview(content)">
+            <div class='bottom-action-item-icon'><a-icon type="eye" /></div>
+            <div class='bottom-action-item-label'>Preview</div>
+          </div>
+        </div>
       </div>
       <div
-        v-if="content.session && content.session.classId && [WORK_SHOPS_TYPE.LUNCHEDBYME.value, WORK_SHOPS_TYPE.REGISTERED.value].includes(content.workshopsType) && WORK_SHOPS_STATUS.ENDED.value !== content.workshopsStatus"
+        v-if="content.session && content.session.classId && (isCurrentType(WORK_SHOPS_TYPE.REGISTERED.value) || isCurrentType(WORK_SHOPS_TYPE.LUNCHEDBYME.value))"
         class="cover-btn"><label>Enter workshop</label></div>
     </div>
     <div class='detail'>
@@ -33,7 +43,7 @@
         <div class='right-info' v-if="content.sessionStartTime && !isSimple">
           <div class="update-time" v-if="content.unitPlanInfo && content.unitPlanInfo.name">Unit: {{ content.unitPlanInfo.name }}</div>
           <div class='update-time' v-show="!showEditSche">
-            Scheduled: {{ content.sessionStartTime | dayjs }}
+            Scheduled: {{ content.sessionStartTime | dayjs('YYYY-MM-DD HH:mm') }} - {{ content.sessionEndTime | dayjs('YYYY-MM-DD HH:mm') }}
             <!-- <a-icon v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType" type="edit" @click.prevent.stop="editSche(content)"/> -->
           </div>
           <div class="update-time" v-show="showEditSche">
@@ -93,12 +103,16 @@
             src="~@/assets/icons/library/default-avatar.png"
             alt="avatar"
           />
-          <div class="author-name">
+          <div class="author-name" v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType">
+            Me
+          </div>
+          <div class="author-name" v-else>
             {{ content.userRealName || content.content.createBy }}
           </div>
         </div>
         <a-space @click.prevent.stop v-if="!isSimple">
-          <div v-if="(WORK_SHOPS_TYPE.REGISTERED.value === content.workshopsType || WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType) && content.session && content.session.zoomMeeting && WORK_SHOPS_STATUS.ENDED.value !== content.workshopsStatus" class='zoom-icon' @click.prevent.stop="handleToZoom(content)">
+          <!-- (WORK_SHOPS_TYPE.REGISTERED.value === content.workshopsType || WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType) && content.session && content.session.zoomMeeting && WORK_SHOPS_STATUS.ENDED.value !== content.workshopsStatus -->
+          <div v-if="content.session && content.session.zoomMeeting" class='zoom-icon' @click.prevent.stop="handleToZoom(content)">
             <img src='~@/assets/icons/zoom/img.png' />
           </div>
           <a-tooltip
@@ -127,11 +141,11 @@
               </template>
             </custom-button>
           </a-tooltip>
-          <custom-button label='Preview' @click='handlePreview(content)'>
+          <!-- <custom-button label='Preview' @click='handlePreview(content)'>
             <template v-slot:icon>
               <icon-font type="icon-xianshi" class="detail-font"/>
             </template>
-          </custom-button>
+          </custom-button> -->
           <template
             v-if="
               WORK_SHOPS_TYPE.FEATURE.value === content.workshopsType
@@ -171,18 +185,22 @@
                 <more-icon />
               </div>
               <div class='content-item-more-action' slot='overlay'>
-                <div class='menu-item' v-if="WORK_SHOPS_STATUS.ONGOING.value !== content.workshopsStatus">
-                  <custom-button label='Delete' @click='handleDel(content)'>
-                    <template v-slot:icon>
+                <div class='menu-item' v-if="WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus || WORK_SHOPS_STATUS.ENDED.value === content.workshopsStatus">
+                  <custom-button label='Archive' @click='handleArchive(content)'>
+                    <!-- <template v-slot:icon>
                       <icon-font type="icon-shanchu" class="detail-font"/>
-                    </template>
+                    </template> -->
                   </custom-button>
                 </div>
-                <div class='menu-item' v-else>
-                  <custom-button label='End' @click='handleEnd(content)'>
-                    <template v-slot:icon>
+                <div class='menu-item' v-if="WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus || WORK_SHOPS_STATUS.ARCHIVED.value === content.workshopsStatus">
+                  <custom-button label='Delete' @click='handleDel(content)'>
+                    <!-- <template v-slot:icon>
                       <icon-font type="icon-shanchu" class="detail-font"/>
-                    </template>
+                    </template> -->
+                  </custom-button>
+                </div>
+                <div class='menu-item' v-if="WORK_SHOPS_STATUS.ONGOING.value === content.workshopsStatus">
+                  <custom-button label='End' @click='handleEnd(content)'>
                   </custom-button>
                 </div>
               </div>
@@ -503,7 +521,8 @@ export default {
     },
     handleGoWork(item) {
       if (item && item.session && item.session.classId && [WORK_SHOPS_TYPE.LUNCHEDBYME.value, WORK_SHOPS_TYPE.REGISTERED.value].includes(item.workshopsType)) {
-        const targetUrl = lessonHost + 's/' + item.session.classId + '?token=' + storage.get(ACCESS_TOKEN)
+        const prefix = this.isCurrentType(WORK_SHOPS_TYPE.LUNCHEDBYME.value) ? 't/' : 's/'
+        const targetUrl = lessonHost + prefix + item.session.classId + '?token=' + storage.get(ACCESS_TOKEN)
         window.location.href = targetUrl
       }
     },
@@ -562,6 +581,20 @@ export default {
     },
     handleEnd(item) {
       this.$message.info('coming soon...')
+    },
+    handleArchive(item) {
+      if (WORK_SHOPS_STATUS.ENDED.value === item.workshopsStatus) {
+        this.$confirm({
+          title: 'Confirm delete class session',
+          content: `Do you confirm to delete class session [ ${this.content.name} ]? `,
+          centered: true,
+          onOk: () => {
+            this.$message.info('coming soon...')
+          }
+        })
+      } else {
+        this.$message.info('coming soon...')
+      }
     },
     handleEdit(item) {
       this.$message.info('coming soon...')
@@ -627,6 +660,36 @@ export default {
       background-position: center center;
       background-size: contain;
       background-repeat: no-repeat;
+      .bottom-action {
+        z-index: 1000;
+        padding: 0 1/0.14*0.05em /* 5/100 */ 0 1/0.14*0.1em /* 10/100 */;
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        line-height: 1/0.14*0.3em /* 30/100 */;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-direction: row;
+        background-color: rgba(0, 0, 0, 0.7);
+        font-size: 0.14em /* 14/100 */;
+        user-select: none;
+        border-bottom-left-radius: 1/0.14*0.08em /* 8/100 */;
+        border-bottom-right-radius: 1/0.14*0.08em /* 8/100 */;
+        .bottom-action-item {
+          color: #fff;
+          cursor: pointer;
+          transition: all 0.3s ease-in-out;
+          .bottom-action-item-label {
+            padding: 0 0.05em /* 5/100 */;
+          }
+
+          &:hover {
+            color: #15C39A;
+          }
+        }
+      }
     }
     &:hover {
       .cover-btn {
@@ -708,10 +771,10 @@ export default {
         }
       }
       .right-info {
-        width: 3em;
+        width: 4em;
         text-align: right;
         .update-time {
-          font-size: 0.18em /* 18/100 */;
+          font-size: 0.16em /* 16/100 */;
           font-family: Arial;
           font-weight: 400;
           color: #4B4B4B;

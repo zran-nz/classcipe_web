@@ -231,6 +231,10 @@ export default {
     }
   },
   created() {
+    if (this.$route.query.startDate && this.$route.query.endDate) {
+      this.initDate = [moment(this.$route.query.startDate), moment(this.$route.query.endDate)]
+      this.handleDateChange(this.initDate)
+    }
     this.initFilterOption()
   },
   computed: {
@@ -297,6 +301,12 @@ export default {
       this.$emit('select-zoom-status', this.enableZoom)
     },
      handleSelectSchedule(date) {
+      if (!date) {
+        this.startDate = null
+        this.endDate = null
+        this.$emit('select-date', null)
+        return
+      }
       this.$logger.info('handleSelectSchedule', date)
       this.startDate = moment(date.startDate).utc().format('YYYY-MM-DD HH:mm:ss')
       this.endDate = moment(date.endDate).utc().format('YYYY-MM-DD HH:mm:ss')

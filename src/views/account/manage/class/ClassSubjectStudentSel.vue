@@ -17,7 +17,7 @@
           <a-select-option
             :value="option.gradeId"
             :label="option.gradeName"
-            v-for="option in gradeOptions"
+            v-for="option in filterGradeOptions"
             :key="option.gradeId"
           >
             <span>{{ option.gradeName }}</span>
@@ -53,6 +53,7 @@
     <div class="table-con">
       <a-table
         ref="table"
+        v-if="dataSource.length > 0"
         :rowKey="item => item.id"
         :columns="columns"
         :dataSource="dataSource"
@@ -108,6 +109,16 @@
           <a type="link" @click="handleDelete(record)">Delete</a>
         </a-space>
       </a-table>
+      <common-no-data text='No students'>
+        <!-- <template v-slot:icon>
+          <empty-slide />
+        </template> -->
+      </common-no-data>
+      <!-- <a-result v-else subTitle="No students">
+        <template #icon>
+          <a-icon type="smile" theme="twoTone" />
+        </template>
+      </a-result> -->
     </div>
     <div class="opt-con">
       <a-button :loading="loading" @click="handleChoose" :disabled="selectedRowKeys.length === 0" type="primary">Add the selected sutdent(s)</a-button>
@@ -119,6 +130,7 @@
 import { USER_MODE } from '@/const/common'
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
+import CommonNoData from '@/components/Common/CommonNoData'
 
 import { getCurriculumBySchoolId } from '@/api/academicSettingCurriculum'
 import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
@@ -129,6 +141,9 @@ import { mapState } from 'vuex'
 const { debounce, sortBy } = require('lodash-es')
 export default {
   name: 'ClassSubjectStudentSel',
+  components: {
+    CommonNoData
+  },
   mixins: [UserModeMixin, CurrentSchoolMixin],
   props: {
     subjectId: {
@@ -201,6 +216,15 @@ export default {
             return this.queryParams.gradeIds.includes(cls.gradeId)
           }
           return true
+        })
+      }
+      return []
+    },
+    filterGradeOptions() {
+      if (this.gradeOptions && this.gradeOptions.length > 0 && this.totalClass && this.totalClass.length > 0) {
+        return this.gradeOptions.filter(grade => {
+          const find = this.totalClass.find(cls => cls.gradeId === grade.gradeId)
+          return find
         })
       }
       return []
@@ -351,6 +375,9 @@ export default {
     },
     changeGrade() {
       this.queryParams.classIds = []
+      if (this.filterClass.length === 1) {
+        this.queryParams.classIds = this.filterClass.map(item => item.id)
+      }
       this.debounceLoad()
     },
     changeClass() {

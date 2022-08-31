@@ -29,7 +29,8 @@
         @choose="item => handleChoose(item ,'task')"
         @cancel="handleBack"
       />
-      <div class="content-select" v-show="['participants', 'schedule'].includes(ScheduleStepsFilter[currentActiveStepIndex].type)">
+      <!-- 直接页面跳转 -->
+      <!-- <div class="content-select" v-show="['participants', 'schedule'].includes(ScheduleStepsFilter[currentActiveStepIndex].type)">
         <div class="content-select-wrap">
           <select-participant
             ref='participant'
@@ -55,7 +56,6 @@
             ref='pay'
             :type="type"
             :showCalendar="true"
-            :default-date="defaultDate"
             :must-zoom="true"
             v-if="userMode === USER_MODE.SELF"
             v-show='scheduleReq.openSession && "schedule" === ScheduleStepsFilter[currentActiveStepIndex].type'
@@ -65,7 +65,6 @@
             ref='pay'
             :type="type"
             :showCalendar="true"
-            :default-date="defaultDate"
             :must-zoom="true"
             v-if="userMode === USER_MODE.SCHOOL"
             v-show='scheduleReq.openSession && "schedule" === ScheduleStepsFilter[currentActiveStepIndex].type'
@@ -78,7 +77,7 @@
             {{ currentActiveStepIndex === ScheduleStepsFilter.length - 1 ? 'Save' : 'Next' }}
           </a-button>
         </div>
-      </div>
+      </div> -->
     </div>
     <select-session-unit
       v-if='selectSessionUnitVisible'
@@ -98,8 +97,9 @@ import SchoolSchedule from '@/components/Schedule/SchoolSchedule'
 import SelectSessionUnit from '@/components/Schedule/SelectSessionUnit'
 
 import { GetAssociate, FindMyContent } from '@/api/teacher'
-import { AddSessionV2 } from '@/api/v2/classes'
-import { SchoolClassGetMyClasses } from '@/api/schoolClass'
+// 直接页面跳转
+// import { AddSessionV2 } from '@/api/v2/classes'
+// import { SchoolClassGetMyClasses } from '@/api/schoolClass'
 
 import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
 
@@ -140,6 +140,10 @@ export default {
     classId: {
       type: String,
       default: ''
+    },
+    searchType: {
+      type: Number,
+      default: CALENDAR_QUERY_TYPE.MY.value
     }
   },
   watch: {
@@ -161,6 +165,12 @@ export default {
         this.importModel.endDate = val
       },
       immediate: true
+    },
+    searchType: {
+      handler(val) {
+        this.typeMode = val
+      },
+      immediate: true
     }
   },
   data() {
@@ -169,6 +179,7 @@ export default {
       USER_MODE: USER_MODE,
       CALENDAR_QUERY_TYPE: CALENDAR_QUERY_TYPE,
       currentClass: this.classId,
+      typeMode: this.searchType,
       ScheduleSteps: [
         {
           id: '1',
@@ -182,19 +193,20 @@ export default {
           name: 'Select Task',
           description: null,
           type: 'task'
-        },
-        {
-          id: '3',
-          name: 'Choose Participants',
-          description: null,
-          type: 'participants'
-        },
-        {
-          id: '4',
-          name: 'Schedule Session',
-          description: null,
-          type: 'schedule'
         }
+        // 直接页面跳转
+        // {
+        //   id: '3',
+        //   name: 'Choose Participants',
+        //   description: null,
+        //   type: 'participants'
+        // },
+        // {
+        //   id: '4',
+        //   name: 'Schedule Session',
+        //   description: null,
+        //   type: 'schedule'
+        // }
       ],
       currentActiveStepIndex: 0,
       selectSessionUnitVisible: false,
@@ -202,6 +214,7 @@ export default {
       importType: this.type,
       importDatas: [],
       associateUnitList: [],
+      // 直接页面跳转
       classList: [],
       scheduleReq: {
         classIds: [],
@@ -255,7 +268,8 @@ export default {
   },
   methods: {
     initData() {
-      this.getClassList()
+      // 直接页面跳转
+      // this.getClassList()
     },
     async getAssociate (id, type) {
       this.importLoading = true
@@ -311,18 +325,19 @@ export default {
       //   }
       // })
       let associates = []
-      if (this.scheduleReq.openSession) {
-        this.scheduleReq.selectStudents = []
-        this.scheduleReq.classIds = []
-        this.calendarSearchFilters = [1, 2, 3, 4]
-        this.calendarSearchType = CALENDAR_QUERY_TYPE.WORKSHOP.value
-      } else {
-        const participantData = this.$refs.participant.getSelectedData()
-        this.scheduleReq.selectStudents = participantData.selectStudents
-        this.scheduleReq.classIds = participantData.classIds
-        this.calendarSearchFilters = this.scheduleReq.classIds
-        this.calendarSearchType = CALENDAR_QUERY_TYPE.CLASS.value
-      }
+      // 直接页面跳转
+      // if (this.scheduleReq.openSession) {
+      //   this.scheduleReq.selectStudents = []
+      //   this.scheduleReq.classIds = []
+      //   this.calendarSearchFilters = [1, 2, 3, 4]
+      //   this.calendarSearchType = CALENDAR_QUERY_TYPE.WORKSHOP.value
+      // } else {
+      //   const participantData = this.$refs.participant.getSelectedData()
+      //   this.scheduleReq.selectStudents = participantData.selectStudents
+      //   this.scheduleReq.classIds = participantData.classIds
+      //   this.calendarSearchFilters = this.scheduleReq.classIds
+      //   this.calendarSearchType = CALENDAR_QUERY_TYPE.CLASS.value
+      // }
       if (item && type) {
         if (item.type === typeMap.task) {
           this.scheduleReq.contentId = item.id
@@ -364,136 +379,167 @@ export default {
               })
             } else {
               this.scheduleReq.planId = associates[0].id
-              this.$refs['steps-nav'].nextStep()
+              if (this.currentActiveStepIndex === this.ScheduleStepsFilter.length - 1) {
+                  this.goCreateSession()
+              } else {
+                this.$refs['steps-nav'].nextStep()
+              }
             }
           } else {
-            this.$refs['steps-nav'].nextStep()
+            if (this.currentActiveStepIndex === this.ScheduleStepsFilter.length - 1) {
+                this.goCreateSession()
+            } else {
+              this.$refs['steps-nav'].nextStep()
+            }
           }
         })
       } else {
         if (this.currentActiveStepIndex === this.ScheduleStepsFilter.length - 1) {
-            this.createSession()
+            // this.createSession()
+            this.goCreateSession()
         } else {
           this.$refs['steps-nav'].nextStep()
         }
       }
     },
 
-    getClassList() {
-      SchoolClassGetMyClasses().then(res => {
-        if (res.result) {
-          this.classList = res.result
+    goCreateSession() {
+      let path = '/teacher/schedule-session/' + this.scheduleReq.contentId + '/' + this.importType
+      if (this.typeMode === CALENDAR_QUERY_TYPE.WORKSHOP.value) {
+        path = '/teacher/schedule-workshop/' + this.scheduleReq.contentId + '/' + this.importType
+      }
+      this.$router.push({
+        path: path,
+        query: {
+          startDate: this.importModel.startDate,
+          endDate: this.importModel.endDate,
+          planId: this.scheduleReq.planId,
+          classId: this.currentClass || '',
+          source: 'calendar'
         }
-      }).finally(() => {
-        this.loading = false
       })
-    },
-    handleSelectClassStudent (cls) {
-      this.scheduleReq.openSession = false
-    },
-    handleSelectOpenSession (data) {
-      this.scheduleReq.openSession = true
-      this.scheduleReq.zoom = 1
-      this.scheduleReq.openSession = data.openSession
-      this.$refs['steps-nav'].nextStep()
-      this.checkZoomAuth()
-    },
-    handleSelectWorkshopType (data) {
-      this.scheduleReq.workshopType = data.workshopType
-      this.scheduleReq.openSession = data.workshopType === 2
-      this.scheduleReq.classIds = []
-      this.scheduleReq.selectStudents = []
-      this.scheduleReq.zoom = 1
-       // workshop4种类型
-      this.calendarSearchFilters = [1, 2, 3, 4]
-      this.calendarSearchType = CALENDAR_QUERY_TYPE.WORKSHOP.value
-      this.$refs['steps-nav'].nextStep()
-    },
-    handleSelectDate (data) {
-      this.scheduleReq.startDate = data.startDate
-      this.scheduleReq.endDate = data.endDate
-    },
-    handleUpdateZoom (data) {
-      this.scheduleReq.password = data.password
-      this.scheduleReq.waitingRoom = data.waitingRoom
-    },
-    handleSelectSessionType (type) {
-      this.scheduleReq.sessionType = type
-    },
-    async handleSelectZoom (zoom) {
-      if (zoom) {
-        const status = await this.checkZoomAuth()
-        if (!status) {
-          this.$logger.info('reset item enableZoom', this.enableZoom)
-        } else {
-          this.$logger.info('zoom auth success')
-        }
-      }
-      this.scheduleReq.zoom = zoom ? 1 : 0
-    },
-    handleCancelUnit() {
-      this.selectSessionUnitVisible = false
-    },
-    handleSelectUnit(data) {
-      this.scheduleReq.planId = data.id
-      this.selectSessionUnitVisible = false
-      this.$refs['steps-nav'].nextStep()
-    },
-    async createSession(retValue) {
-      if (this.scheduleReq.openSession) {
-        const openSessionData = this.$refs.pay.getPaidInfo()
-        if (this.userMode === USER_MODE.SELF) {
-          this.scheduleReq.register.discountInfo = openSessionData.discountInfo
-          this.scheduleReq.register.maxParticipants = openSessionData.maxParticipants
-          this.scheduleReq.register.price = openSessionData.price
-          this.scheduleReq.register.registerBefore = openSessionData.registerBefore
-        } else if (this.userMode === USER_MODE.SCHOOL) {
-          this.scheduleReq.selectTeachers = openSessionData.selectTeachers
-          this.scheduleReq.yearList = openSessionData.yearList
-          this.scheduleReq.subjectList = openSessionData.subjectList
-          this.scheduleReq.languageList = openSessionData.languageList
-          this.scheduleReq.register.paidType = openSessionData.paidType
-          this.scheduleReq.register.notifyType = openSessionData.notifyType
-          this.scheduleReq.register.notifyStudents = openSessionData.notifyStudents
-        }
-        this.scheduleReq.password = openSessionData.password
-        this.scheduleReq.waitingRoom = openSessionData.waitingRoom
-        this.scheduleReq.zoom = openSessionData.zoom
-      }
-      if (!this.scheduleReq.startDate || !this.scheduleReq.endDate) {
-        this.$message.warn('Please select Schedule time!')
-        return
-      }
-      this.$logger.info('try createSession scheduleReq', this.scheduleReq)
-      this.importLoading = true
-      try {
-        const res = await AddSessionV2(this.scheduleReq)
-        this.$logger.info('save scheduleReq', res)
-        if (res.result && res.success && res.code === 0) {
-          this.$message.success('Schedule session successfully')
-          if (!retValue) {
-            this.$emit('ok')
-          } else {
-            return res.result
-          }
-        } else {
-          this.$confirm({
-            title: 'Warn',
-            content: 'Schedule session failed.' + res.message + '. Please try again.',
-            centered: true
-          })
-        }
-      } catch (e) {
-        this.$confirm({
-          title: 'Error',
-          content: 'Schedule session error.' + e.message + '. Please try again.',
-          centered: true
-        })
-      } finally {
-        this.importLoading = false
-      }
-      return null
     }
+
+// 直接页面跳转
+    // getClassList() {
+    //   SchoolClassGetMyClasses().then(res => {
+    //     if (res.result) {
+    //       this.classList = res.result
+    //     }
+    //   }).finally(() => {
+    //     this.loading = false
+    //   })
+    // },
+    // handleSelectClassStudent (cls) {
+    //   this.scheduleReq.openSession = false
+    // },
+    // handleSelectOpenSession (data) {
+    //   this.scheduleReq.openSession = true
+    //   this.scheduleReq.zoom = 1
+    //   this.scheduleReq.openSession = data.openSession
+    //   this.$refs['steps-nav'].nextStep()
+    //   this.checkZoomAuth()
+    // },
+    // handleSelectWorkshopType (data) {
+    //   this.scheduleReq.workshopType = data.workshopType
+    //   this.scheduleReq.openSession = data.workshopType === 2
+    //   this.scheduleReq.classIds = []
+    //   this.scheduleReq.selectStudents = []
+    //   this.scheduleReq.zoom = 1
+    //    // workshop4种类型
+    //   this.calendarSearchFilters = [1, 2, 3, 4]
+    //   this.calendarSearchType = CALENDAR_QUERY_TYPE.WORKSHOP.value
+    //   this.$refs['steps-nav'].nextStep()
+    // },
+    // handleSelectDate (data) {
+    //   this.scheduleReq.startDate = data.startDate
+    //   this.scheduleReq.endDate = data.endDate
+    // },
+    // handleUpdateZoom (data) {
+    //   this.scheduleReq.password = data.password
+    //   this.scheduleReq.waitingRoom = data.waitingRoom
+    // },
+    // handleSelectSessionType (type) {
+    //   this.scheduleReq.sessionType = type
+    // },
+    // async handleSelectZoom (zoom) {
+    //   if (zoom) {
+    //     const status = await this.checkZoomAuth()
+    //     if (!status) {
+    //       this.$logger.info('reset item enableZoom', this.enableZoom)
+    //     } else {
+    //       this.$logger.info('zoom auth success')
+    //     }
+    //   }
+    //   this.scheduleReq.zoom = zoom ? 1 : 0
+    // },
+    // handleCancelUnit() {
+    //   this.selectSessionUnitVisible = false
+    // },
+    // handleSelectUnit(data) {
+    //   this.scheduleReq.planId = data.id
+    //   this.selectSessionUnitVisible = false
+    //   if (this.currentActiveStepIndex === this.ScheduleStepsFilter.length - 1) {
+    //     this.goCreateSession()
+    //   } else {
+    //     this.$refs['steps-nav'].nextStep()
+    //   }
+    // },
+    // async createSession(retValue) {
+    //   if (this.scheduleReq.openSession) {
+    //     const openSessionData = this.$refs.pay.getPaidInfo()
+    //     if (this.userMode === USER_MODE.SELF) {
+    //       this.scheduleReq.register.discountInfo = openSessionData.discountInfo
+    //       this.scheduleReq.register.maxParticipants = openSessionData.maxParticipants
+    //       this.scheduleReq.register.price = openSessionData.price
+    //       this.scheduleReq.register.registerBefore = openSessionData.registerBefore
+    //     } else if (this.userMode === USER_MODE.SCHOOL) {
+    //       this.scheduleReq.selectTeachers = openSessionData.selectTeachers
+    //       this.scheduleReq.yearList = openSessionData.yearList
+    //       this.scheduleReq.subjectList = openSessionData.subjectList
+    //       this.scheduleReq.languageList = openSessionData.languageList
+    //       this.scheduleReq.register.paidType = openSessionData.paidType
+    //       this.scheduleReq.register.notifyType = openSessionData.notifyType
+    //       this.scheduleReq.register.notifyStudents = openSessionData.notifyStudents
+    //     }
+    //     this.scheduleReq.password = openSessionData.password
+    //     this.scheduleReq.waitingRoom = openSessionData.waitingRoom
+    //     this.scheduleReq.zoom = openSessionData.zoom
+    //   }
+    //   if (!this.scheduleReq.startDate || !this.scheduleReq.endDate) {
+    //     this.$message.warn('Please select Schedule time!')
+    //     return
+    //   }
+    //   this.$logger.info('try createSession scheduleReq', this.scheduleReq)
+    //   this.importLoading = true
+    //   try {
+    //     const res = await AddSessionV2(this.scheduleReq)
+    //     this.$logger.info('save scheduleReq', res)
+    //     if (res.result && res.success && res.code === 0) {
+    //       this.$message.success('Schedule session successfully')
+    //       if (!retValue) {
+    //         this.$emit('ok')
+    //       } else {
+    //         return res.result
+    //       }
+    //     } else {
+    //       this.$confirm({
+    //         title: 'Warn',
+    //         content: 'Schedule session failed.' + res.message + '. Please try again.',
+    //         centered: true
+    //       })
+    //     }
+    //   } catch (e) {
+    //     this.$confirm({
+    //       title: 'Error',
+    //       content: 'Schedule session error.' + e.message + '. Please try again.',
+    //       centered: true
+    //     })
+    //   } finally {
+    //     this.importLoading = false
+    //   }
+    //   return null
+    // }
   }
 }
 </script>

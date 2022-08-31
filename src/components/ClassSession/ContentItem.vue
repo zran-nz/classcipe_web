@@ -2,8 +2,18 @@
   <div class='content-item' :style="{'border': activeItem ? '1px solid #15c39a' : '1px solid #EEF1F6'}">
     <div class='cover'>
       <div class='cover-block' :style="{'background-image': 'url(' + session.session.image + ')'}">
-        <slot name='cover-action'>
-        </slot>
+        <div class='bottom-action'>
+          <div class='bottom-action-item vertical-left' @click='editItem' v-if="session.allowEdit">
+            <div class='bottom-action-item-icon'><a-icon type="form" /></div>
+            <div class='bottom-action-item-label'>Edit</div>
+          </div>
+          <div class='bottom-action-item vertical-left' v-else >
+          </div>
+          <div class='bottom-action-item vertical-right' @click="handlePreviewDetail(content)" v-show='!((content.type === typeMap.task || content.type === typeMap.pd) && content.slideEditing)'>
+            <div class='bottom-action-item-icon'><a-icon type="eye" /></div>
+            <div class='bottom-action-item-label'>Preview</div>
+          </div>
+        </div>
       </div>
     </div>
     <div class='detail'>
@@ -115,7 +125,7 @@
           </div>
         </div>
       </div>
-      <div class='action'>
+      <div class='action vertical-right'>
         <template v-if='showButton'>
           <a-space :size='30'>
             <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement'>
@@ -123,8 +133,16 @@
                 <more-icon />
               </div>
               <div class='content-item-more-action' slot='overlay'>
-                <div class='menu-item'>
+                <div class='menu-item' v-if="WORK_SHOPS_STATUS.SCHEDULE.value === session.status || WORK_SHOPS_STATUS.ENDED.value === session.status">
+                  <custom-button label='Archive' @click='handleArchive'>
+                  </custom-button>
+                </div>
+                <div class='menu-item' v-if="WORK_SHOPS_STATUS.SCHEDULE.value === session.status || WORK_SHOPS_STATUS.ARCHIVED.value === session.status">
                   <custom-button label='Delete' @click='handleDeleteSession'></custom-button>
+                </div>
+                <div class='menu-item' v-if="WORK_SHOPS_STATUS.ONGOING.value === session.status">
+                  <custom-button label='End' @click='handleEnd'>
+                  </custom-button>
                 </div>
               </div>
             </a-dropdown>
@@ -135,7 +153,7 @@
               </template>
             </custom-button>
 
-            <custom-button v-if="session.allowEdit" label='Edit' @click='editItem'>
+            <!-- <custom-button v-if="session.allowEdit" label='Edit' @click='editItem'>
               <template v-slot:icon>
                 <edit-icon />
               </template>
@@ -145,7 +163,7 @@
               <template v-slot:icon>
                 <view-icon style='width: 20px' />
               </template>
-            </custom-button>
+            </custom-button> -->
           </a-space>
         </template>
       </div>
@@ -162,6 +180,7 @@
 <script>
 
 import { getLabelNameType, typeMap } from '@/const/teacher'
+import { WORK_SHOPS_STATUS } from '@/const/common'
 import { ContentItemMixin } from '@/mixins/ContentItemMixin'
 import CustomButton from '@/components/Common/CustomButton'
 import SubTaskIcon from '@/assets/v2/icons/sub-task.svg?inline'
@@ -225,6 +244,7 @@ export default {
   data() {
     return {
       typeMap: typeMap,
+      WORK_SHOPS_STATUS: WORK_SHOPS_STATUS,
       isSelfLearning: false,
       editingSessionName: false,
       editingSessionTime: false,
@@ -282,17 +302,33 @@ export default {
     handleDeleteSession() {
       this.$logger.info('handleDeleteSession', this.content)
       if (this.content?.sessionId) {
-        DeleteClassV2({
-          sessionId: this.content.sessionId
-        }).then(res => {
-          if (res.code === 0) {
-            this.$message.success('Remove successfully')
-            this.$emit('reFetch')
+        this.$confirm({
+          title: 'Confirm delete class session',
+          content: `Do you confirm to delete class session [ ${this.content.name} ]? `,
+          centered: true,
+          onOk: () => {
+            this.loading = true
+            DeleteClassV2({
+              sessionId: this.content.sessionId
+            }).then(res => {
+              if (res.code === 0) {
+                this.$message.success('Remove successfully')
+                this.$emit('reFetch')
+              }
+            }).finally(() => {
+              this.loading = false
+            })
           }
-        }).finally(() => {
-          this.loading = false
         })
       }
+    },
+
+    handleEnd() {
+      this.$message.info('comming soon')
+    },
+
+    handleArchive() {
+      this.$message.info('comming soon')
     },
 
     handleCoteacher() {
@@ -378,6 +414,36 @@ export default {
       background-position: center center;
       background-size: contain;
       background-repeat: no-repeat;
+      .bottom-action {
+        z-index: 1000;
+        padding: 0 5px 0 10px;
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        line-height: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-direction: row;
+        background-color: rgba(0, 0, 0, 0.7);
+        font-size: 14px;
+        user-select: none;
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+        .bottom-action-item {
+          color: #fff;
+          cursor: pointer;
+          transition: all 0.3s ease-in-out;
+          .bottom-action-item-label {
+            padding: 0 5px;
+          }
+
+          &:hover {
+            color: #15C39A;
+          }
+        }
+      }
     }
   }
 
@@ -563,7 +629,7 @@ export default {
       display: flex;
       flex-direction: row;
       align-items: center;
-      justify-content: flex-start;
+      // justify-content: flex-start;
     }
   }
 }

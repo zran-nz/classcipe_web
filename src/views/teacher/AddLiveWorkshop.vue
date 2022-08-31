@@ -258,7 +258,20 @@
         {{ fromRelaunch ? 'After relaunching the workshop, attendees will need to register to attend this workshop.' : '' }}
       </template>
       <template v-slot:right>
-        <a-button type='primary' :disabled="(!startDate || !endDate) || (enableZoom && !$store.getters.zoomChecked)" :loading="confirmLoading" @click='handleNextStep' class='cc-round-button'>Finish</a-button>
+        <a-tooltip title="Please link your zoom account" v-if="(enableZoom && !$store.getters.zoomChecked)">
+          <a-button type='primary' :disabled="true" :loading='confirmLoading' class='cc-round-button'>
+            <template >Finish</template>
+          </a-button>
+        </a-tooltip>
+        <a-button
+          type='primary'
+          :disabled="(!startDate || !endDate)"
+          @click='handleNextStep'
+          :loading='confirmLoading'
+          class='cc-round-button'
+          v-else>
+          <template >Finish</template>
+        </a-button>
       </template>
     </fixed-form-footer>
     <select-session-unit
@@ -766,6 +779,11 @@ export default {
     },
 
     handleSelectSchedule(date) {
+      if (!date) {
+        this.startDate = null
+        this.endDate = null
+        return
+      }
       this.startDate = moment(date.startDate).utc().format('YYYY-MM-DD HH:mm:ss')
       this.endDate = moment(date.endDate).utc().format('YYYY-MM-DD HH:mm:ss')
       console.log(date)

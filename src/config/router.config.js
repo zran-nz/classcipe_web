@@ -422,6 +422,9 @@ export const asyncRouterMap = [
               if (query && query.endDate) {
                 props.endDate = query.endDate
               }
+              if (query && query.searchType) {
+                props.searchType = parseInt(query.searchType)
+              }
               return props
             },
             component: () => import('@/views/teacher/SessionImport'),
