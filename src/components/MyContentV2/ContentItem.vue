@@ -394,15 +394,14 @@ export default {
     canPublishToLibrary() {
       return function (content) {
        const boolStatus = this.showPublish && !content.sourceFrom && content.owner.email === this.$store.getters.email
-        if (content.type === typeMap.task) {
-          // 发布的时候在判断绑定关系是否存在
-          // return boolStatus && content.presentationId &&
-          //   !content.fileDeleted && !content.presentationId.startsWith('fake_')
-          return boolStatus && !content.fileDeleted
-        }
-        if (content.type === typeMap.pd) {
-          return false
-        }
+        // if (content.type === typeMap.task) {
+        //   return boolStatus && content.presentationId &&
+        //     !content.fileDeleted && !content.presentationId.startsWith('fake_')
+        // }
+        // if (content.type === typeMap.pd) {
+        //   return false
+        // }
+
        return boolStatus
       }
     }
