@@ -224,8 +224,8 @@
             <div class='menu-item'>
               <a-popconfirm placement="topRight" ok-text="Yes" @confirm="handlePermanentDeleteItem" cancel-text="No">
                 <template v-slot:title>
-                  All the relevant content <br/>
-                  will be cleared and you will not be able <br/>
+                  All the relevant content will be <br/>
+                  cleared and you will not be able <br/>
                   to retrieve after deleting it
                 </template>
                 <custom-button label='Delete'>
