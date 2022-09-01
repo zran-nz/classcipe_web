@@ -31,10 +31,12 @@ export const uploadImageToAwsByUrl = async (userId, url, options) => {
           resolve(result)
         }
       } else {
-        tryDownloadByClient(userId, url, resolve, reject, options)
+        reject(new Error('error'))
+        // tryDownloadByClient(userId, url, resolve, reject, options)
       }
     }).catch(() => {
-      tryDownloadByClient(userId, url, resolve, reject, options)
+      reject(new Error('error'))
+      // tryDownloadByClient(userId, url, resolve, reject, options)
     })
   })
 }

@@ -868,18 +868,19 @@ export default {
     },
 
     handleNextStep () {
+      const redirectPath = this.form.parentTaskId ? '/teacher/sub-task/' + this.form.parentTaskId : '/'
        if (this.canEdit) {
          if (this.currentActiveStepIndex === this.formSteps.length - 1) {
            const notRemind = storage.get(`${this.taskId}-${this.$store.getters.userInfo.id}-not-remind`)
            this.$logger.info('notRemind ', notRemind)
            if (this.$store.state.app.userMode === USER_MODE.SCHOOL || !!notRemind) {
              this.$router.replace({
-               path: '/'
+               path: redirectPath
              })
            } else {
             //  this.showSplitTask = true
             this.$router.replace({
-               path: '/'
+               path: redirectPath
              })
            }
          } else {
@@ -888,7 +889,7 @@ export default {
        } else {
          if (this.currentActiveStepIndex === this.formSteps.length - 1) {
            this.$router.replace({
-             path: '/'
+             path: redirectPath
            })
          } else {
            this.$refs['steps-nav'].nextStep()
@@ -1034,7 +1035,7 @@ export default {
           } else {
             this.$confirm({
               title: 'Warning',
-              content: 'This task/PD content can not be published without interactive slides, please edit google slides first'
+              content: 'There is no PPT slides linked with this task, please create slides before publishing.'
             })
           }
         } else {

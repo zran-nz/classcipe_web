@@ -46,12 +46,12 @@
             <div class="item-child-content">
               <div class="child-content-item">
                 <label for="">{{ googleAuthToken ? googleAuthToken.email + ' connected' : 'Not connect' }}</label>
-                <a-button :loading="loading" :disabled="onlyOneAuth" @click="connect('googleAuthToken')" type="primary" v-if="googleAuthToken">disconnect</a-button>
+                <a-button :loading="loading" :disabled="true || onlyOneAuth" @click="connect('googleAuthToken')" type="primary" v-if="googleAuthToken">disconnect</a-button>
                 <a-button :loading="loading" @click="connect('googleAuthToken')" type="primary" v-else>connect</a-button>
               </div>
             </div>
           </div>
-          <div class="item-child">
+          <!-- <div class="item-child">
             <div class="item-child-title">Microsoft Account</div>
             <div class="item-child-content">
               <div class="child-content-item">
@@ -60,7 +60,7 @@
                 <a-button :loading="loading" @click="connect('mircosoftAuthToken')" type="primary" v-else>connect</a-button>
               </div>
             </div>
-          </div>
+          </div> -->
           <div class="item-child">
             <div class="item-child-title">Zoom Account</div>
             <div class="item-child-content">

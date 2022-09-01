@@ -881,7 +881,7 @@ export default {
             this.form.status = 1
             this.handlePublishFormItem(1)
           } else {
-            this.$message.warn('This task/PD content can not be published without interactive slides, please edit google slides first')
+            this.$message.warn('There is no PPT slides linked with this task, please create slides before publishing.')
           }
         } else {
           let requiredStepIndex = -1

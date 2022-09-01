@@ -137,7 +137,10 @@
               }}</a-avatar>
             </div>
             <div class="author-info-detail">
-              <div class="author-name">
+              <div class='author-name' v-if="content.owner.email === $store.getters.email">
+                Me
+              </div>
+              <div class='author-name' v-else>
                 {{ (content.owner ? (content.owner.firstname + ' ' + content.owner.lastname) : content.createBy) | upCaseFirst }}
               </div>
               <div class="rate-star">

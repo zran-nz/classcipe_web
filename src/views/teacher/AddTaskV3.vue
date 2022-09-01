@@ -1031,7 +1031,7 @@ export default {
           } else {
             this.$confirm({
               title: 'Warning',
-              content: 'This task/PD content can not be published without interactive slides, please edit google slides first'
+              content: 'There is no PPT slides linked with this task, please create slides before publishing.'
             })
           }
         } else {

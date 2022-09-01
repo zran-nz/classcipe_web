@@ -27,7 +27,7 @@
             >
             </content-item-calendar>
           </div>
-          <div v-else style="font-size: 70px;max-width: 650px;">
+          <div v-else style="font-size: 70px;max-width: 650px;min-width: 500px;">
             <liveworkshop-item
               @close="closeAllModal"
               :is-simple="true"
@@ -56,7 +56,8 @@
         <a-space v-if="info.event.extendedProps.userRealName && info.view.type === 'timeGridWeek'" class="user-avatar">
           <img v-if="info.event.extendedProps.userAvatar" :src="info.event.extendedProps.userAvatar" alt="">
           <img v-else src="~@/assets/icons/library/default-avatar.png"/>
-          <label for="">{{ info.event.extendedProps.userRealName }}</label>
+          <label for="" v-if="$store.getters.email !== info.event.extendedProps.author">{{ info.event.extendedProps.userRealName }}</label>
+          <label for="" v-else>Me</label>
         </a-space>
       </div>
     </a-popover>

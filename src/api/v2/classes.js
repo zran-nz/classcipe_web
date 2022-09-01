@@ -143,3 +143,31 @@ export function getClassesStudent (parameter) {
     }
   })
 }
+
+export const isAPPExists = (App) => {
+  return App && App.service && typeof App.service === 'function'
+}
+
+export async function EndSession (id) {
+  const App = window.App || {}
+  if (isAPPExists(App)) {
+    const result = await App.service('class2').patch(id, {
+      status: 'close'
+    })
+    return Promise.resolve(result)
+  } else {
+    return Promise.reject(new Error('No APP imported'))
+  }
+}
+
+export async function ReopenSession (id) {
+  const App = window.App || {}
+  if (isAPPExists(App)) {
+    const result = await App.service('class2').patch(id, {
+      status: 'live'
+    })
+    return Promise.resolve(result)
+  } else {
+    return Promise.reject(new Error('No APP imported'))
+  }
+}

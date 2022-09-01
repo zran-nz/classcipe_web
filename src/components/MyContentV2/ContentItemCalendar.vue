@@ -38,7 +38,8 @@
                 <a-space class="author-name">
                   <img v-if="data.userAvatar" :src="data.userAvatar" alt="">
                   <img v-else src="~@/assets/icons/library/default-avatar.png"/>
-                  <label for="">{{ data.userRealName }}</label>
+                  <label for="" v-if="$store.getters.email !== data.sessionInfo.author">{{ data.userRealName }}</label>
+                  <label for="" v-else>Me</label>
                 </a-space>
                 <div v-if="formatSessionType(data.sessionInfo.sessionType).name">
                   <a-tag :color="formatSessionType(data.sessionInfo.sessionType).color">{{ formatSessionType(data.sessionInfo.sessionType).name }}</a-tag>
