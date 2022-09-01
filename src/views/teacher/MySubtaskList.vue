@@ -219,7 +219,11 @@ export default {
           if (res.code === 0) {
             this.subTaskList[index].status = targetStatus
             this.$refs.editPrice.showEditPrice()
-            this.$message.success('Unpublish successfully!')
+            if (targetStatus) {
+              this.$message.success('Publish successfully!')
+            } else {
+              this.$message.success('Unpublish successfully!')
+            }
           } else if (res.code === 520 || res.code === 403) {
             this.$logger.info('等待授权回调')
             this.$message.loading('Waiting for Google Slides auth...', 10)
