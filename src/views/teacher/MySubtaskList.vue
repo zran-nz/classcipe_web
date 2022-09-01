@@ -218,9 +218,9 @@ export default {
           this.$logger.info('handlePublishStatus res', res, 'currentContent', this.currentContent)
           if (res.code === 0) {
             this.subTaskList[index].status = targetStatus
-            this.$refs.editPrice.showEditPrice()
-            if (targetStatus) {
+            if (targetStatus === 1) {
               this.$message.success('Publish successfully!')
+              this.$refs.editPrice.showEditPrice()
             } else {
               this.$message.success('Unpublish successfully!')
             }
