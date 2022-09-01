@@ -10,7 +10,8 @@ export const taskAPIUrl = {
   queryById: '/classcipe/api/task/queryById',
   splitTask: '/classcipe/api/task/spliteTask',
   getTaskBySessonId: '/classcipe/api/task/getTaskBySessonId',
-  updateSlideEditing: '/classcipe/api/task/updateSlideEditing'
+  updateSlideEditing: '/classcipe/api/task/updateSlideEditing',
+  querySubTask: '/classcipe/api/task/querySubTask'
 }
 
 /**
@@ -104,6 +105,17 @@ export function getTaskBySessionId (parameter) {
 export function UpdateSlideEditing (parameter) {
   return request({
     url: taskAPIUrl.updateSlideEditing,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+export function QuerySubTask (parameter) {
+  return request({
+    url: taskAPIUrl.querySubTask,
     method: 'post',
     data: parameter,
     headers: {

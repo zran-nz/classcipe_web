@@ -21,23 +21,27 @@
       </template>
     </fixed-vertical-header>
     <div class='sub-task-container'>
-      <!-- <radio-switch @select="handleSelectShareType" :menu-list='menuList' :default-selected-item="getSelectItem" /> -->
-      <div class='sub-task-list vertical-left' v-for='content in filterSubTaskList' :key='content.id'>
-        <div class='task-item vertical-left'>
-          <content-item
-            @delete='initTask'
-            :content='content'
-            :show-button='true'
-            :show-edit='true'
-            :show-delete='true'
-            :show-schedule='true'
-            :show-publish='canPublish'
-            :show-sub='false'
-            :show-set-price='content.status === 1'
-            @update-publish='handleShowContentPublish'
-            :show-publish-status='false'/>
+      <a-spin tip='Loading...' :spinning="loading">
+        <radio-switch @select="handleSelectStatusType" :menu-list='menuList' :default-selected-item="getSelectItem" />
+        <div class='sub-task-list vertical-left' v-for='content in subTaskList' :key='content.id'>
+          <div class='task-item vertical-left'>
+            <content-item
+              @delete='QuerySubTask'
+              :content='content'
+              :show-button='true'
+              :show-edit='true'
+              :show-delete='true'
+              :show-schedule='true'
+              :show-publish='canPublish'
+              :show-sub='false'
+              :show-set-price='content.status === 1'
+              @update-publish='handleShowContentPublish'
+              :show-archive='statusType === 0'
+              :allow-permanent-delete='statusType === 1'
+              :show-publish-status='false'/>
+          </div>
         </div>
-      </div>
+      </a-spin>
     </div>
 
     <verification-tip ref="verificationTip" @continue="doUpdatePublish"/>
@@ -46,11 +50,11 @@
 </template>
 
 <script>
-import { TaskQueryById } from '@/api/task'
+import { QuerySubTask, TaskQueryById } from '@/api/task'
 import FixedFormHeader from '@/components/Common/FixedFormHeader'
 import FixedVerticalHeader from '@/components/Common/FixedVerticalHeader'
 import ContentItem from '@/components/MyContentV2/ContentItem'
-import { TaskField, SESSION_SUB_FLAG } from '@/const/common'
+import { SESSION_SHARE_TYPE, SESSION_SUB_FLAG, TaskField } from '@/const/common'
 import FixedFormFooter from '@/components/Common/FixedFormFooter'
 import { getCookie } from '@/utils/util'
 import { TEACHER_SECURITY_NOT_SHOW } from '@/store/mutation-types'
@@ -61,6 +65,7 @@ import { typeMap } from '@/const/teacher'
 import EditPriceDialog from '@/components/MyContentV2/EditPriceDialog'
 import CustomLinkText from '@/components/Common/CustomLinkText'
 import RadioSwitch from '@/components/Common/RadioSwitch'
+import { SourceType } from '@/components/MyContentV2/Constant'
 
 export default {
   name: 'MySubtaskList',
@@ -96,30 +101,28 @@ export default {
       ],
       contentType: typeMap,
       parentTask: null,
-      currentContent: null
+      currentContent: null,
+      statusType: 0
     }
   },
   computed: {
     getSelectItem() {
-      const shareType = sessionStorage.getItem(SESSION_SUB_FLAG) ? parseInt(sessionStorage.getItem(SESSION_SUB_FLAG)) : 0
-      const index = this.menuList.findIndex(item => item.type === shareType)
+      const statusType = sessionStorage.getItem(SESSION_SUB_FLAG) ? parseInt(sessionStorage.getItem(SESSION_SUB_FLAG)) : 0
+      const index = this.menuList.findIndex(item => item.type === statusType)
       if (index > -1) {
         return this.menuList[index]
       }
       return this.menuList[0]
     },
-    filterSubTaskList() {
-      // const flag = sessionStorage.getItem(SESSION_SUB_FLAG) ? parseInt(sessionStorage.getItem(SESSION_SUB_FLAG)) : 0
-      return this.subTaskList// .filter(item => item.delFlag === flag)
-    },
+    // filterSubTaskList() {
+    //   // const flag = sessionStorage.getItem(SESSION_SUB_FLAG) ? parseInt(sessionStorage.getItem(SESSION_SUB_FLAG)) : 0
+    //   return this.subTaskList// .filter(item => item.delFlag === flag)
+    // },
     canPublish() {
       return this.parentTask && !this.parentTask.originalOwner && this.parentTask.owner.email === this.$store.getters.email
     }
   },
   created() {
-    if (this.$route.query.subFlag) {
-      sessionStorage.setItem(SESSION_SUB_FLAG, this.$route.query.subFlag)
-    }
     this.initTask()
   },
   methods: {
@@ -128,6 +131,7 @@ export default {
     },
 
     initTask() {
+      this.loading = true
       TaskQueryById({
         id: this.taskId
       }).then(res => {
@@ -137,6 +141,28 @@ export default {
           this.parentTask = res.result
         }
       }).finally(() => {
+        this.loading = false
+      })
+    },
+
+    QuerySubTask() {
+      this.loading = true
+      this.statusType = sessionStorage.getItem(SESSION_SUB_FLAG) ? parseInt(sessionStorage.getItem(SESSION_SUB_FLAG)) : 0
+      QuerySubTask({
+        parentTaskId: this.taskId,
+        delFlag: this.statusType
+      }).then(res => {
+        this.$logger.info('QuerySubTask', res.result)
+        if (res.code === 0) {
+          this.subTaskList = res.result
+          if (this.statusType === 1) {
+            this.subTaskList.forEach(sub => {
+              sub.delFlag = 1
+            })
+          }
+        }
+      }).finally(() => {
+        this.loading = false
       })
     },
 
@@ -212,8 +238,9 @@ export default {
     showPublishTips () {
       this.$message.success('Publish successfully!')
     },
-    handleSelectShareType(item) {
+    handleSelectStatusType(item) {
       sessionStorage.setItem(SESSION_SUB_FLAG, item.type)
+      this.QuerySubTask()
     },
     handleDeleteItem (data) {
       const find = this.subTaskList.find(item => item.id === data.id)
