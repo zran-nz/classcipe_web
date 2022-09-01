@@ -1669,7 +1669,7 @@ export default {
     align-items: flex-start;
     overflow-x: scroll;
     justify-content: flex-start;
-    width: 615px;
+    //width: 615px;
     padding-bottom: 15px;
     margin: 0 25px;
     position: relative;
