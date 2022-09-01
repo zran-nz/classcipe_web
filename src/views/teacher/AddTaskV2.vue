@@ -1170,6 +1170,11 @@ export default {
         }).then(response => {
           this.$logger.info('loadThumbnail response', response.result)
           if (response.code === 0) {
+            if (response.result.fileDeleted) {
+              // 文件被删除
+              this.restoreTask(this.form.id)
+              return
+            }
             const pageObjects = response.result.pageObjects
             this.form.pageObjects = pageObjects
             this.form.pageObjectIds = response.result.pageObjectIds.join(',')
@@ -1177,10 +1182,6 @@ export default {
             pageObjects.forEach(page => {
               this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
             })
-            if (!this.form.fileDeleted && response.result.fileDeleted) {
-              this.form.fileDeleted = true
-            }
-
             if (hiddenMask) {
               this.form.slideEditing = false
             }
