@@ -338,7 +338,7 @@
 
 import { CurriculumSearch, GeneralCapabilitiesFormat } from '@/components/LearningObjective/CurriculumDataUtils'
 import CustomTextButton from '@/components/Common/CustomTextButton'
-import { getAllCurriculums } from '@/api/preference'
+// import { getAllCurriculums } from '@/api/preference'
 import { KnowledgeTermTagQueryByKeywords } from '@/api/knowledgeTermTag'
 import { termsSearch, dimensionsSearch, dimensionsPubList, termsPubList, termsCreate, dimensionsCreate } from '@/api/v2/tagsTerm'
 import { getRecommend, addToSetTerms, incBloom } from '@/api/v2/statsTarget'
@@ -349,7 +349,7 @@ import RecommendData from '@/components/LearningObjective/RecommendData'
 import RateLevel from '@/components/RateLevel'
 import CommandTermAdd from '@/components/CommandTerm/CommandTermAdd.vue'
 import QuickWordButton from '@/components/Button/QuickWordButton'
-import { DICT_BLOOM_TAXONOMY, DICT_KNOWLEDGE_DIMENSION, USER_MODE } from '@/const/common'
+import { DICT_BLOOM_TAXONOMY, DICT_KNOWLEDGE_DIMENSION } from '@/const/common' // USER_MODE
 import { GetAuCurriculum, GetNzCurriculum } from '@/api/v2/curriculumn'
 import { mapState } from 'vuex'
 

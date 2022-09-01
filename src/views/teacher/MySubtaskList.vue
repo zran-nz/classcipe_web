@@ -54,7 +54,7 @@ import { QuerySubTask, TaskQueryById } from '@/api/task'
 import FixedFormHeader from '@/components/Common/FixedFormHeader'
 import FixedVerticalHeader from '@/components/Common/FixedVerticalHeader'
 import ContentItem from '@/components/MyContentV2/ContentItem'
-import { SESSION_SHARE_TYPE, SESSION_SUB_FLAG, TaskField } from '@/const/common'
+import { SESSION_SUB_FLAG, TaskField } from '@/const/common' // SESSION_SHARE_TYPE
 import FixedFormFooter from '@/components/Common/FixedFormFooter'
 import { getCookie } from '@/utils/util'
 import { TEACHER_SECURITY_NOT_SHOW } from '@/store/mutation-types'
@@ -65,7 +65,7 @@ import { typeMap } from '@/const/teacher'
 import EditPriceDialog from '@/components/MyContentV2/EditPriceDialog'
 import CustomLinkText from '@/components/Common/CustomLinkText'
 import RadioSwitch from '@/components/Common/RadioSwitch'
-import { SourceType } from '@/components/MyContentV2/Constant'
+// import { SourceType } from '@/components/MyContentV2/Constant'
 
 export default {
   name: 'MySubtaskList',
