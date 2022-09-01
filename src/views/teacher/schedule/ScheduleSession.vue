@@ -30,6 +30,8 @@
           :calendarSearchFilters="calendarSearchFilters"
           :calendarSearchType="calendarSearchType"
           :must-zoom="type === $classcipe.typeMap['pd']"
+          :init-zoom="initZoom"
+          :defaultDate="initDate"
           @select-date='handleSelectDate'
           @update-zoom='handleUpdateZoom'
           @select-session-type='handleSelectSessionType'
@@ -39,6 +41,8 @@
           ref='pay'
           :type="type"
           :must-zoom="type === $classcipe.typeMap['pd']"
+          :defaultDate="initDate"
+          :init-zoom="initZoom"
           v-if='userMode === USER_MODE.SELF && scheduleReq.openSession && currentActiveStepIndex === 1'
           @select-date='handleSelectDate'
           @select-zoom-status='handleSelectZoom'
@@ -47,6 +51,8 @@
           ref='pay'
           :type="type"
           :must-zoom="type === $classcipe.typeMap['pd']"
+          :defaultDate="initDate"
+          :init-zoom="initZoom"
           v-if='userMode === USER_MODE.SCHOOL && scheduleReq.openSession && currentActiveStepIndex === 1'
           @select-date='handleSelectDate'
           @select-zoom-status='handleSelectZoom'
@@ -66,6 +72,15 @@
               </template>
             </a-button>
             <template v-else>
+              <a-tooltip :title="(scheduleReq.zoom == 1 && !$store.getters.zoomChecked) ? 'Please link your zoom account' : 'The scheduled time above will be cleared.'">
+                <a-button
+                  type='primary'
+                  :disabled="scheduleReq.zoom == 1 && !$store.getters.zoomChecked"
+                  @click="handeStartSessionNow"
+                  :loading='creating'>
+                  <template >Start session now</template>
+                </a-button>
+              </a-tooltip>
               <a-tooltip title="Please link your zoom account" v-if="(scheduleReq.zoom == 1 && !$store.getters.zoomChecked)">
                 <a-button type='primary' :disabled="true" :loading='creating'>
                   <template >Assign</template>
@@ -99,13 +114,18 @@ import ScheduleDate from '@/components/Schedule/ScheduleDate'
 import SchedulePayInfo from '@/components/Schedule/SchedulePayInfo'
 import SchoolSchedule from '@/components/Schedule/SchoolSchedule'
 import { AddSessionV2, UpdateSessionV2 } from '@/api/v2/classes'
+import { DetailBySessionId } from '@/api/v2/live'
 import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
 import FixedFormFooter from '@/components/Common/FixedFormFooter'
 import ZoomMeetingSetting from '@/components/Schedule/ZoomMeetingSetting'
 import { CALENDAR_QUERY_TYPE, USER_MODE } from '@/const/common'
+import { lessonHost } from '@/const/googleSlide'
 
 import { mapState } from 'vuex'
+import storage from 'store'
+import { ACCESS_TOKEN } from '@/store/mutation-types'
 import CustomLinkText from '@/components/Common/CustomLinkText'
+import moment from 'moment'
 
 export default {
   name: 'ScheduleSession',
@@ -158,7 +178,10 @@ export default {
 
       calendarSearchFilters: [],
       calendarSearchType: CALENDAR_QUERY_TYPE.CLASS.value,
-      sessionId: ''
+      sessionId: '',
+      origin: null,
+      initDate: null,
+      initZoom: null
     }
   },
   computed: {
@@ -175,6 +198,7 @@ export default {
     this.currentClass = this.$route.query.classId
     this.loading = false
     this.sessionId = this.$route.query.sessionId
+    this.getDetail()
 
     this.$EventBus.$on('ZoomMeetingUpdatePassword', this.handleSelectPassword)
     this.$EventBus.$on('ZoomMeetingUpdateWaitingRoom', this.handleSelectWaitingRoom)
@@ -187,6 +211,37 @@ export default {
     handleStepChange(data) {
       this.$logger.info('ScheduleSession handleStepChange ', data)
       this.currentActiveStepIndex = data.index
+    },
+
+    getDetail() {
+      if (this.sessionId) {
+        this.loading = true
+          DetailBySessionId({
+          sessionId: this.sessionId
+        }).then(res => {
+          if (res.success) {
+            this.origin = res.result
+            const session = res.result.session
+            this.currentClass = session.taskClassId
+            this.scheduleReq.classIds = [session.taskClassId]
+            this.scheduleReq.planId = session.planId
+            this.scheduleReq.register = session.register
+            this.scheduleReq.selectStudents = session.selectStudents
+            this.scheduleReq.zoom = session.hasZoom
+            this.initZoom = {
+              enableZoom: Boolean(session.hasZoom)
+            }
+            this.initDate = [moment.utc(res.result.sessionStartTime).local(), moment.utc(res.result.sessionEndTime).local()]
+            this.calendarSearchFilters = this.scheduleReq.classIds
+            this.calendarSearchType = CALENDAR_QUERY_TYPE.CLASS.value
+            if (this.currentActiveStepIndex === 0) {
+              this.$refs['steps-nav'].nextStep()
+            }
+          }
+        }).finally(() => {
+          this.loading = false
+        })
+      }
     },
 
     async handleAssociate() {
@@ -261,6 +316,20 @@ export default {
       } else {
         this.handleConfirmAssign()
       }
+    },
+
+    async handeStartSessionNow() {
+      const participantData = this.$refs.participant.getSelectedData()
+      this.scheduleReq.classIds = participantData.classIds
+      if (!this.scheduleReq.classIds.length) {
+        return
+      }
+      this.scheduleReq.startDate = moment().utc().format('YYYY-MM-DD HH:mm:ss')
+      this.scheduleReq.endDate = moment().add(40, 'm').utc().format('YYYY-MM-DD HH:mm:ss')
+      const res = await this.createSession(true)
+      this.$message.success('The scheduled tiem above will be cleard by starting the session now.')
+      const url = lessonHost + 't/' + res[0].classId + '?token=' + storage.get(ACCESS_TOKEN)
+      window.location.href = url
     },
 
     async handleConfirmAssign () {
@@ -363,8 +432,8 @@ export default {
       this.creating = true
       try {
         let res
-        if (this.sessionId) {
-          this.scheduleReq.sessionId = this.sessionId
+        if (this.sessionId && this.origin) {
+          this.scheduleReq.sessionId = this.origin.id
           this.$logger.info('try updateSession scheduleReq', this.scheduleReq)
           res = await UpdateSessionV2(this.scheduleReq)
         } else {
@@ -373,10 +442,10 @@ export default {
         }
         this.$logger.info('save scheduleReq', res, 'retValue', retValue)
         if (res.result && res.success && res.code === 0) {
-          this.$message.success('Schedule session successfully')
           if (retValue) {
             return res.result
           } else {
+            this.$message.success('Schedule session successfully')
             if (this.$route.query.source && this.$route.query.source === 'calendar') {
               this.$router.replace('/teacher/main/calendar')
             } else {

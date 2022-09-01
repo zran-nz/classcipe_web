@@ -4,7 +4,7 @@
     :visible='true'
     :closable='false'
     :title='null'
-    width='50%'
+    width='1000px'
     :bodyStyle="{ height: '100%' }"
     @close='handleClose'
   >

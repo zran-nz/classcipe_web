@@ -679,6 +679,7 @@ export default {
                       planId: item.sessionInfo.planId,
                       contentId: item.sessionInfo.contentId,
                       sessionType: item.sessionInfo.sessionType,
+                      author: item.sessionInfo.author,
                       taskType: item.content ? item.content.taskType : '',
                       sessionId: item.sessionId,
                       status: item.attendance || 'absent',
@@ -698,6 +699,9 @@ export default {
                     if (!this.typeFilters.includes(event.extendedProps.taskType)) {
                       return false
                     }
+                  }
+                  if (this.$route.query && this.$route.query.sessionId) {
+                    return event.extendedProps.sessionId !== this.$route.query.sessionId
                   }
                   return true
                 })

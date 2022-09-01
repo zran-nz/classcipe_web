@@ -88,7 +88,7 @@ export default {
           'verification': {
             visible: false,
             title: 'New to Classcipe?',
-            content: 'Get your teacher and service verification done to be listed as a qualified educato, so that your content will be recommended to other teachers as well as purchased by students',
+            content: 'Get your teacher and service verification done to be listed as a qualified educator, so that your content will be recommended to other teachers as well as purchased by students',
             actions: [{
               title: 'finish',
               type: 'primary',

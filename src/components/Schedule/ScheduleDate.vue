@@ -68,6 +68,10 @@ export default {
     mustZoom: {
       type: Boolean,
       default: false
+    },
+    initZoom: {
+      type: Object,
+      default: null
     }
   },
   watch: {
@@ -92,6 +96,14 @@ export default {
       handler(val) {
         if (val) {
           this.searchFilters = val
+        }
+      },
+      immediate: true
+    },
+    initZoom: {
+      handler(val) {
+        if (val) {
+          this.enableZoom = val.enableZoom
         }
       },
       immediate: true

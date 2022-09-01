@@ -181,6 +181,10 @@ export default {
     mustZoom: {
       type: Boolean,
       default: false
+    },
+    initZoom: {
+      type: Object,
+      default: null
     }
   },
   watch: {
@@ -208,6 +212,17 @@ export default {
         }
       },
       immediate: true
+    },
+    initZoom: {
+      handler(val) {
+        if (val) {
+          this.enableZoom = val.enableZoom
+        }
+      },
+      immediate: true
+    },
+    enableZoom() {
+      this.handleZoomStatusChange()
     }
   },
   data() {

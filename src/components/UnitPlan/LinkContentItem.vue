@@ -134,7 +134,10 @@
             <template v-else>
               <a-avatar size="small">{{ content.createBy.toUpperCase()[0] }}</a-avatar>
             </template>
-            <div class='user-name'>
+            <div class='user-name' v-if="content.owner.email === $store.getters.email">
+              Me
+            </div>
+            <div class='user-name' v-else>
               {{ (content.owner ? (content.owner.firstname + ' ' + content.owner.lastname) : content.createBy) | upCaseFirst }}
             </div>
           </div>

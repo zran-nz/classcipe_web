@@ -27,8 +27,8 @@
             </div>
             <div class='schedule-time'>
               <template v-if='session.session.sessionStartTime && session.session.deadline'>
-                {{ new Date(session.session.sessionStartTime).toLocaleDateString() }} {{ new Date(session.session.sessionStartTime).toTimeString().substring(0,5) }} -
-                {{ new Date(session.session.deadline).toLocaleDateString() }} {{ new Date(session.session.deadline).toTimeString().substring(0,5) }}
+                {{ session.session.sessionStartTime | dayjs('YYYY-MM-DD HH:mm') }} -
+                {{ session.session.deadline | dayjs('YYYY-MM-DD HH:mm') }}
               </template>
               <template v-else>
                 session time not set
@@ -271,7 +271,7 @@ export default {
       return this.$store.getters.curriculumId2NameMap.hasOwnProperty(this.content.curriculumId) ? this.$store.getters.curriculumId2NameMap[this.content.curriculumId] : null
     },
     zoomMeetStartUrl () {
-      if (this.session && this.session.session.zoomMeeting) {
+      if (this.session && this.session.session.hasZoom && this.session.session.zoomMeeting) {
         const zoomMeeting = JSON.parse(this.session.session.zoomMeeting)
         return zoomMeeting.start_url
       } else {
@@ -284,7 +284,7 @@ export default {
       this.$logger.info('edit session content', this.session)
       if (this.content.presentationId) {
         this.$router.push({
-          path: '/teacher/schedule-session/' + this.content.id + '/' + this.content.type + '?sessionId=' + this.session.id
+          path: '/teacher/schedule-session/' + this.content.id + '/' + this.content.type + '?sessionId=' + this.session.session.classId
         })
       } else {
         this.$message.warn('This task/PD content can not be scheduled without interactive slides, please edit google slides first before scheduling.')
