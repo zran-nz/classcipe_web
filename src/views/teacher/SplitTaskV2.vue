@@ -96,7 +96,7 @@ import SlideSelectList from '@/components/PPT/SlideSelectList'
 import FormSlidePageSelect from '@/components/SplitTask/FormSlidePageSelect'
 import CustomImageUploader from '@/components/Common/CustomImageUploader'
 
-import { SplitTask, TaskQueryById, TaskCreateNewTaskPPT } from '@/api/task'
+import { SplitTask, TaskQueryById } from '@/api/task'
 import { TemplatesGetPresentation } from '@/api/template'
 
 import { FormConfigMixin } from '@/mixins/FormConfigMixin'

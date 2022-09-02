@@ -8,12 +8,20 @@
               <a-icon type='left' />
             </template>
           </custom-link-text>
-          <a-tooltip placement='leftBottom'>
+          <a-tooltip placement='leftBottom' v-if="parentTask.pageObjects.length > 0">
             <template slot='title'>
               The task is more likely to be purchased by other educators if it is simple, clear and focus on specific learning outcome(s).
               So dividing your main task into small sub-tasks with specific tags is always a good idea.
             </template>
             <a-button class='cc-dark-button' @click='handleCreateSubtask'>
+              Create sub task
+            </a-button>
+          </a-tooltip>
+          <a-tooltip placement='leftBottom' v-else>
+            <template slot='title'>
+              The task can not be split task without interactive slides, create edit google slides first
+            </template>
+            <a-button class='cc-dark-button' :disabled="true">
               Create sub task
             </a-button>
           </a-tooltip>
