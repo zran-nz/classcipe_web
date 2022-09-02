@@ -1,5 +1,6 @@
 <template>
   <div class='schedule-pay-info'>
+    <slot name="title" />
     <div class='pay-info'>
       <div class='pay-title'>
         <div class='title'>

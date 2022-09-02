@@ -146,6 +146,10 @@
                   <custom-button label='End' @click='handleEnd'>
                   </custom-button>
                 </div>
+                <div class='menu-item' v-if="WORK_SHOPS_STATUS.ENDED.value === session.status">
+                  <custom-button label='Reopen' @click='handleReopen'>
+                  </custom-button>
+                </div>
               </div>
             </a-dropdown>
 
@@ -198,7 +202,7 @@ import ContentPreview from '@/components/Preview/ContentPreview'
 import ZoomIcon from '@/assets/icons/zoom/zoomus-icon.svg?inline'
 import moment from 'moment'
 import { AddOrUpdateClass } from '@/api/classroom'
-import { DeleteClassV2 } from '@/api/v2/classes'
+import { DeleteClassV2, EndSession, ReopenSession } from '@/api/v2/classes'
 
 export default {
   name: 'ContentItem',
@@ -304,29 +308,52 @@ export default {
     handleDeleteSession() {
       this.$logger.info('handleDeleteSession', this.content)
       if (this.content?.sessionId) {
-        this.$confirm({
-          title: 'Confirm delete class session',
-          content: `Do you confirm to delete class session [ ${this.content.name} ]? `,
-          centered: true,
-          onOk: () => {
-            this.loading = true
-            DeleteClassV2({
-              sessionId: this.content.sessionId
-            }).then(res => {
-              if (res.code === 0) {
-                this.$message.success('Remove successfully')
-                this.$emit('reFetch')
-              }
-            }).finally(() => {
-              this.loading = false
-            })
-          }
-        })
+        if (WORK_SHOPS_STATUS.ARCHIVED.value === this.session.status) {
+          this.$confirm({
+            title: 'Confirm delete class session',
+            content: `Do you confirm to delete class session [ ${this.content.name} ]? `,
+            centered: true,
+            onOk: () => {
+              this.loading = true
+              DeleteClassV2({
+                sessionId: this.content.sessionId
+              }).then(res => {
+                if (res.code === 0) {
+                  this.$message.success('Remove successfully')
+                  this.$emit('reFetch')
+                }
+              }).finally(() => {
+                this.loading = false
+              })
+            }
+          })
+        } else {
+          this.loading = true
+          DeleteClassV2({
+            sessionId: this.content.sessionId
+          }).then(res => {
+            if (res.code === 0) {
+              this.$message.success('Remove successfully')
+              this.$emit('reFetch')
+            }
+          }).finally(() => {
+            this.loading = false
+          })
+        }
       }
     },
 
-    handleEnd() {
-      this.$message.info('comming soon')
+   handleEnd(item) {
+      EndSession(item.id).then(res => {
+        this.$message.success('End successfully')
+        this.$emit('reFetch')
+      })
+    },
+    handleReopen(item) {
+      ReopenSession(item.id).then(res => {
+        this.$message.success('Reopne successfully')
+        this.$emit('reFetch')
+      })
     },
 
     handleArchive() {

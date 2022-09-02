@@ -1,5 +1,6 @@
 <template>
   <div class='schedule-pay-info'>
+    <slot name="title" />
     <div class='pay-info'>
       <!-- <div v-if="type === typeMap.pd">
         <div class="filter-session" v-show="form.notifyType === NOTIFY_TYPE.FILTER_SUBJECTS.value">

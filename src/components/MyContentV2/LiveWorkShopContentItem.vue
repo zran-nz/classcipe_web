@@ -203,6 +203,10 @@
                   <custom-button label='End' @click='handleEnd(content)'>
                   </custom-button>
                 </div>
+                <div class='menu-item' v-if="WORK_SHOPS_STATUS.ENDED.value === content.workshopsStatus">
+                  <custom-button label='Reopen' @click='handleReopen(content)'>
+                  </custom-button>
+                </div>
               </div>
             </a-dropdown>
           </template>
@@ -565,19 +569,28 @@ export default {
       })
     },
     handleDel(item) {
-      this.$confirm({
-        title: 'Confirm remove live workshop',
-        content: 'Are you confirm remove live workshop ' + (item.content ? item.content.name : '') + ' ?',
-        centered: true,
-        onOk: () => {
-          DeleteClassV2({
-            sessionId: item.sessionId
-          }).then(res => {
-            this.$message.success('Remove successfully')
-            this.$emit('reload')
-          })
-        }
-      })
+      if (WORK_SHOPS_STATUS.ARCHIVED.value === this.item.workshopsStatus) {
+        this.$confirm({
+          title: 'Confirm remove live workshop',
+          content: 'Are you confirm remove live workshop ' + (item.content ? item.content.name : '') + ' ?',
+          centered: true,
+          onOk: () => {
+            DeleteClassV2({
+              sessionId: item.sessionId
+            }).then(res => {
+              this.$message.success('Remove successfully')
+              this.$emit('reload')
+            })
+          }
+        })
+      } else {
+        DeleteClassV2({
+          sessionId: item.sessionId
+        }).then(res => {
+          this.$message.success('Remove successfully')
+          this.$emit('reload')
+        })
+      }
     },
     handleEnd(item) {
       EndSession(item.id).then(res => {
@@ -587,7 +600,7 @@ export default {
     },
     handleReopen(item) {
       ReopenSession(item.id).then(res => {
-        this.$message.success('End successfully')
+        this.$message.success('Reopen successfully')
         this.$emit('reload')
       })
     },

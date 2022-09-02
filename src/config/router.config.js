@@ -285,7 +285,7 @@ export const asyncRouterMap = [
             path: '/teacher/split-task/:parentTaskId',
             name: 'SplitTask',
             props: true,
-            component: () => import('@/views/teacher/SplitTask'),
+            component: () => import('@/views/teacher/SplitTaskV2'),
             meta: { title: 'menu.splitTask', keepAlive: true, permission: ['teacher'], fullLayout: true }
           },
           {

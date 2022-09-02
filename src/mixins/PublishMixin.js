@@ -193,6 +193,7 @@ export const PublishMixin = {
                 if (step.commonFields.indexOf(field) > -1) {
                   step.showRequiredTips = true
                   step.showSatisfiedTips = false
+                  canPublish = false
                 }
               })
             }
@@ -207,6 +208,7 @@ export const PublishMixin = {
                   if (step.commonFields.indexOf(field) > -1) {
                     step.showRequiredTips = true
                     step.showSatisfiedTips = false
+                    canPublish = false
                   }
                 })
               }

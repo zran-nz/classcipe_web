@@ -36,7 +36,12 @@
           @update-zoom='handleUpdateZoom'
           @select-session-type='handleSelectSessionType'
           @select-zoom-status='handleSelectZoom'
-        />
+        >
+          <div class="choose-title" slot="title">
+            <div class="title">Session title:</div>
+            <a-input v-model="scheduleReq.register.title"></a-input>
+          </div>
+        </schedule-date>
         <schedule-pay-info
           ref='pay'
           :type="type"
@@ -46,7 +51,12 @@
           v-if='userMode === USER_MODE.SELF && scheduleReq.openSession && currentActiveStepIndex === 1'
           @select-date='handleSelectDate'
           @select-zoom-status='handleSelectZoom'
-        />
+        >
+          <div class="choose-title" slot="title">
+            <div class="title">Session title:</div>
+            <a-input v-model="scheduleReq.register.title"></a-input>
+          </div>
+        </schedule-pay-info>
         <school-schedule
           ref='pay'
           :type="type"
@@ -56,7 +66,12 @@
           v-if='userMode === USER_MODE.SCHOOL && scheduleReq.openSession && currentActiveStepIndex === 1'
           @select-date='handleSelectDate'
           @select-zoom-status='handleSelectZoom'
-        />
+        >
+          <div class="choose-title" slot="title">
+            <div class="title">Session title:</div>
+            <a-input v-model="scheduleReq.register.title"></a-input>
+          </div>
+        </school-schedule>
       </div>
     </div>
     <fixed-form-footer>
@@ -160,6 +175,7 @@ export default {
         openSession: false,
         planId: null,
         register: {
+          title: null,
           discountInfo: [],
           maxParticipants: 0,
           price: 0,
@@ -228,6 +244,7 @@ export default {
             this.scheduleReq.register = session.register
             this.scheduleReq.selectStudents = session.selectStudents
             this.scheduleReq.zoom = session.hasZoom
+            this.scheduleReq.register.title = res.result.title || res.result.session.sessionName
             this.initZoom = {
               enableZoom: Boolean(session.hasZoom)
             }
@@ -527,5 +544,14 @@ export default {
   position: absolute;
   left: 10px;
   top: 15px;
+}
+.choose-title {
+  margin-bottom: 10px;
+  .title {
+    font-weight: bold;
+    font-size: 16px;
+    color: #333;
+    line-height: 30px;
+  }
 }
 </style>
