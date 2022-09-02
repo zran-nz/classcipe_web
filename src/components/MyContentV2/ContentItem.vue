@@ -196,6 +196,7 @@
               label='Sub-task'
               @click='goToSubTaskList'
               :disabled='!content.canPublish || content.slideEditing'
+              :disabled-tooltip="content.slideEditing ? 'Please save your slides' : 'Please complete the information'"
               v-if='showSub && content.type === typeMap.task'>
               <template v-slot:icon>
                 <sub-task-icon style='width: 13px; height:14px'/>
