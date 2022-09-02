@@ -504,21 +504,7 @@ export default {
         }).then(response => {
           this.$logger.info('loadThumbnail response', response.result)
           if (response.code === 0) {
-            const pageObjects = response.result.pageObjects
-            this.form.pageObjects = pageObjects
-            this.form.pageObjectIds = response.result.pageObjectIds.join(',')
-            this.$logger.info(`form.pageObjectIds ${this.form.pageObjectIds} form.pageObjects ${this.form.pageObjects}`)
-            this.thumbnailList = []
-            pageObjects.forEach(page => {
-              this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
-            })
-            if (!this.form.fileDeleted && response.result.fileDeleted) {
-              this.form.fileDeleted = true
-            }
-
-            if (hiddenMask) {
-              this.form.slideEditing = false
-            }
+            this.restoreTask(this.pdId)
           } else if (response.code === 403) {
             this.$router.push({ path: '/teacher/main/created-by-me' })
           } else if (response.code === this.ErrorCode.ppt_google_token_expires || response.code === this.ErrorCode.ppt_forbidden) {
