@@ -7,7 +7,7 @@
         <zoom-meeting
           v-show='enableZoom'
           :password='true'
-          :waiting-room='true'
+          :waiting-room='false'
           ref='zoom'
           @update='updateZoom' />
       </div>

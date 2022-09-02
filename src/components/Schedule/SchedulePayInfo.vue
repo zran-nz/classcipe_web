@@ -101,7 +101,7 @@
           v-show='enableZoom'
           ref='zoom'
           :password='password || mustZoom'
-          :waiting-room='waitingRoom || mustZoom' />
+          :waiting-room='waitingRoom' />
       </div>
     </div>
     <div class="date-info">
@@ -177,7 +177,7 @@ export default {
     },
     waitingRoom: {
       type: Boolean,
-      default: true
+      default: false
     },
     mustZoom: {
       type: Boolean,
