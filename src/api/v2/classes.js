@@ -171,3 +171,27 @@ export async function ReopenSession (id) {
     return Promise.reject(new Error('No APP imported'))
   }
 }
+
+export async function ArchiveSession (id) {
+  const App = window.App || {}
+  if (isAPPExists(App)) {
+    const result = await App.service('class2').patch(id, {
+      del_flag: 1
+    })
+    return Promise.resolve(result)
+  } else {
+    return Promise.reject(new Error('No APP imported'))
+  }
+}
+
+export async function RestoreSession (id) {
+  const App = window.App || {}
+  if (isAPPExists(App)) {
+    const result = await App.service('class2').patch(id, {
+      del_flag: 0
+    })
+    return Promise.resolve(result)
+  } else {
+    return Promise.reject(new Error('No APP imported'))
+  }
+}

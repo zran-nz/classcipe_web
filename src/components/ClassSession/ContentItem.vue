@@ -135,18 +135,22 @@
                 <more-icon />
               </div>
               <div class='content-item-more-action' slot='overlay'>
-                <div class='menu-item' v-if="WORK_SHOPS_STATUS.SCHEDULE.value === session.status || WORK_SHOPS_STATUS.ENDED.value === session.status">
+                <div class='menu-item' v-if="0 === session.session.delFlag && (WORK_SHOPS_STATUS.SCHEDULE.value === session.status || WORK_SHOPS_STATUS.ENDED.value === session.status)">
                   <custom-button label='Archive' @click='handleArchive'>
                   </custom-button>
                 </div>
-                <div class='menu-item' v-if="WORK_SHOPS_STATUS.SCHEDULE.value === session.status || WORK_SHOPS_STATUS.ARCHIVED.value === session.status">
+                <div class='menu-item' v-if="1 === session.session.delFlag">
+                  <custom-button label='Restore' @click='handleRestore'>
+                  </custom-button>
+                </div>
+                <div class='menu-item' v-if="WORK_SHOPS_STATUS.SCHEDULE.value === session.status || 1 === session.session.delFlag">
                   <custom-button label='Delete' @click='handleDeleteSession'></custom-button>
                 </div>
-                <div class='menu-item' v-if="WORK_SHOPS_STATUS.ONGOING.value === session.status">
+                <div class='menu-item' v-if="0 === session.session.delFlag && WORK_SHOPS_STATUS.ONGOING.value === session.status">
                   <custom-button label='End' @click='handleEnd'>
                   </custom-button>
                 </div>
-                <div class='menu-item' v-if="WORK_SHOPS_STATUS.ENDED.value === session.status">
+                <div class='menu-item' v-if="0 === session.session.delFlag && WORK_SHOPS_STATUS.ENDED.value === session.status">
                   <custom-button label='Reopen' @click='handleReopen'>
                   </custom-button>
                 </div>
@@ -202,7 +206,7 @@ import ContentPreview from '@/components/Preview/ContentPreview'
 import ZoomIcon from '@/assets/icons/zoom/zoomus-icon.svg?inline'
 import moment from 'moment'
 import { AddOrUpdateClass } from '@/api/classroom'
-import { DeleteClassV2, EndSession, ReopenSession } from '@/api/v2/classes'
+import { DeleteClassV2, EndSession, ReopenSession, ArchiveSession, RestoreSession } from '@/api/v2/classes'
 
 export default {
   name: 'ContentItem',
@@ -343,21 +347,45 @@ export default {
       }
     },
 
-   handleEnd(item) {
-      EndSession(item.id).then(res => {
+   handleEnd() {
+      EndSession(this.content.id).then(res => {
         this.$message.success('End successfully')
         this.$emit('reFetch')
       })
     },
-    handleReopen(item) {
-      ReopenSession(item.id).then(res => {
+    handleReopen() {
+      ReopenSession(this.content.id).then(res => {
         this.$message.success('Reopne successfully')
         this.$emit('reFetch')
       })
     },
 
     handleArchive() {
-      this.$message.info('comming soon')
+      if (WORK_SHOPS_STATUS.ENDED.value === this.session.status) {
+        this.$confirm({
+          title: 'Confirm archive class session',
+          content: `Do you confirm to archive class session [ ${this.content.name} ]? `,
+          centered: true,
+          onOk: () => {
+            ArchiveSession(this.session.session.id).then(res => {
+              this.$message.success('Archive successfully')
+              this.$emit('reFetch')
+            })
+          }
+        })
+      } else {
+        ArchiveSession(this.session.session.id).then(res => {
+          this.$message.success('Archive successfully')
+          this.$emit('reFetch')
+        })
+      }
+    },
+
+    handleRestore() {
+      RestoreSession(this.session.session.id).then(res => {
+        this.$message.success('Restore successfully')
+        this.$emit('reFetch')
+      })
     },
 
     handleCoteacher() {

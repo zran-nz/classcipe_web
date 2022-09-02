@@ -185,25 +185,32 @@
                 <more-icon />
               </div>
               <div class='content-item-more-action' slot='overlay'>
-                <div class='menu-item' v-if="WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus || WORK_SHOPS_STATUS.ENDED.value === content.workshopsStatus">
+                <div class='menu-item' v-if="0 === content.session.delFlag && (WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus || WORK_SHOPS_STATUS.ENDED.value === content.workshopsStatus)">
                   <custom-button label='Archive' @click='handleArchive(content)'>
                     <!-- <template v-slot:icon>
                       <icon-font type="icon-shanchu" class="detail-font"/>
                     </template> -->
                   </custom-button>
                 </div>
-                <div class='menu-item' v-if="WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus || WORK_SHOPS_STATUS.ARCHIVED.value === content.workshopsStatus">
+                <div class='menu-item' v-if="1 === content.session.delFlag">
+                  <custom-button label='Restore' @click='handleRestore(content)'>
+                    <!-- <template v-slot:icon>
+                      <icon-font type="icon-shanchu" class="detail-font"/>
+                    </template> -->
+                  </custom-button>
+                </div>
+                <div class='menu-item' v-if="0 === content.session.delFlag && WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus || 1 === content.session.delFlag">
                   <custom-button label='Delete' @click='handleDel(content)'>
                     <!-- <template v-slot:icon>
                       <icon-font type="icon-shanchu" class="detail-font"/>
                     </template> -->
                   </custom-button>
                 </div>
-                <div class='menu-item' v-if="WORK_SHOPS_STATUS.ONGOING.value === content.workshopsStatus">
+                <div class='menu-item' v-if="0 === content.session.delFlag && WORK_SHOPS_STATUS.ONGOING.value === content.workshopsStatus">
                   <custom-button label='End' @click='handleEnd(content)'>
                   </custom-button>
                 </div>
-                <div class='menu-item' v-if="WORK_SHOPS_STATUS.ENDED.value === content.workshopsStatus">
+                <div class='menu-item' v-if="0 === content.session.delFlag && WORK_SHOPS_STATUS.ENDED.value === content.workshopsStatus">
                   <custom-button label='Reopen' @click='handleReopen(content)'>
                   </custom-button>
                 </div>
@@ -283,7 +290,7 @@
 <script>
 import { WORK_SHOPS_STATUS, WORK_SHOPS_TYPE, USER_MODE } from '@/const/common'
 import { SaveRegisteredRecord, CancelRegistered } from '@/api/v2/live'
-import { DeleteClassV2, EditSessionScheduleV2, EndSession, ReopenSession } from '@/api/v2/classes'
+import { DeleteClassV2, EditSessionScheduleV2, EndSession, ReopenSession, ArchiveSession, RestoreSession } from '@/api/v2/classes'
 import { lessonHost } from '@/const/googleSlide'
 import { typeMap } from '@/const/teacher'
 import PriceSlider from '@/components/Slider/PriceSlider'
@@ -607,17 +614,31 @@ export default {
     handleArchive(item) {
       if (WORK_SHOPS_STATUS.ENDED.value === item.workshopsStatus) {
         this.$confirm({
-          title: 'Confirm delete class session',
-          content: `Do you confirm to delete class session [ ${this.content.name} ]? `,
+          title: 'Confirm archive class session',
+          content: `Do you confirm to archive class session? `,
           centered: true,
           onOk: () => {
-            this.$message.info('coming soon...')
+            ArchiveSession(item.id).then(res => {
+              this.$message.success('Archive successfully')
+              this.$emit('reload')
+            })
           }
         })
       } else {
-        this.$message.info('coming soon...')
+        ArchiveSession(item.id).then(res => {
+          this.$message.success('Archive successfully')
+          this.$emit('reload')
+        })
       }
     },
+
+    handleRestore(item) {
+      RestoreSession(item.id).then(res => {
+        this.$message.success('Restore successfully')
+        this.$emit('reFetch')
+      })
+    },
+
     handleEdit(item) {
       this.$message.info('coming soon...')
     },

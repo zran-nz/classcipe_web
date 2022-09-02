@@ -1171,6 +1171,18 @@ export default {
           this.$logger.info('loadThumbnail response', response.result)
           if (response.code === 0) {
             this.restoreTask(this.form.id, false)
+            // 不加这段 thumbnailList无法设置，slides draft 就无法显示
+            const pageObjects = response.result.pageObjects
+            this.form.pageObjects = pageObjects
+            this.form.pageObjectIds = response.result.pageObjectIds.join(',')
+            this.thumbnailList = []
+            pageObjects.forEach(page => {
+              this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
+            })
+            if (hiddenMask) {
+              this.form.slideEditing = false
+            }
+            // 不加这段 thumbnailList无法设置，slides draft 就无法显示
           } else if (response.code === 403) {
             this.$router.push({ path: '/teacher/main/created-by-me' })
           } else if (response.code === this.ErrorCode.ppt_google_token_expires || response.code === this.ErrorCode.ppt_forbidden) {
