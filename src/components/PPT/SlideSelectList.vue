@@ -350,7 +350,8 @@ export default {
         searchKey: this.filterParams ? this.filterParams.searchKey : null,
         types: [ this.$classcipe.typeMap.task, this.$classcipe.typeMap.pd ],
         schoolId: schoolId || 0,
-        currentId: this.sourceId
+        currentId: this.sourceId,
+        excludedMe: false
       }
       if (this.filterParams) {
         params = Object.assign(this.filterParams, params)
