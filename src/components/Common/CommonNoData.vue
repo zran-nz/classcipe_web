@@ -1,5 +1,5 @@
 <template>
-  <div class='cc-no-data'>
+  <div class='cc-no-data' :class="{'cc-big' : isBig}">
     <div class='icon-no-data'>
       <slot name='icon'>
         <no-data-icon />
@@ -20,6 +20,10 @@ export default {
     text: {
       type: String,
       default: 'No data'
+    },
+    isBig: {
+      type: Boolean,
+      default: false
     }
   },
   components: {
@@ -62,6 +66,19 @@ export default {
     font-size: 12px;
     color: #292929;
     line-height: 25px;
+  }
+
+  &.cc-big {
+    .icon-no-data {
+      svg {
+        height: 120px;
+        max-width: 220px;
+      }
+    }
+    .cc-no-data-text {
+      font-size: 14px;
+      line-height: 40px;
+    }
   }
 }
 </style>

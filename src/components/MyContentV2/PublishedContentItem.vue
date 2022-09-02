@@ -22,12 +22,12 @@
               </div>
               <div class='info-item subject-info'>
                 <a-space>
-                  <div class='subject-item' v-for='(subject, idx) in content.subjectList' :key='idx'>{{ subject }}</div>
+                  <div class='subject-item' v-for='(subject, idx) in content.subjectList' :key='subject+ idx'>{{ subject }}</div>
                 </a-space>
               </div>
               <div class='info-item year-info'>
                 <a-space>
-                  <div class='subject-item' v-for='(year, idx) in content.yearList' :key='idx'>{{ year }}</div>
+                  <div class='subject-item' v-for='(year, idx) in content.yearList' :key='year + idx'>{{ year }}</div>
                 </a-space>
               </div>
               <div class='info-item task-type-info' v-if='content.taskType'>
@@ -59,17 +59,17 @@
             </a-space>
           </div>
           <div class='tag-info' v-if='knowledgeTagsList.length'>
-            <div class='tag-info-item' v-for='(knowledgeTag, cIdx) in knowledgeTagsList' :key='cIdx'>
+            <div class='tag-info-item' v-for='(knowledgeTag, cIdx) in knowledgeTagsList' :key='knowledgeTag + cIdx'>
               <a-tag color='#EABA7F' class='tag-item knowledge-tag' :title='knowledgeTag'>{{ knowledgeTag }}</a-tag>
             </div>
           </div>
           <div class='tag-info'>
             <template v-if='commandTermsList.length'>
-              <div class='tag-info-item' v-for='(command, cIdx) in commandTermsList' :key='cIdx'>
+              <div class='tag-info-item' v-for='(command, cIdx) in commandTermsList' :key='command + cIdx'>
                 <a-tag color='#06ACD7' class='tag-item command-tag' :title='command'>{{ command }}</a-tag>
               </div>
             </template>
-            <div class='tag-info-item' v-for='(customTag, idx) in content.customTags' :key='idx'>
+            <div class='tag-info-item' v-for='(customTag, idx) in content.customTags' :key='customTag.name + idx'>
               <a-tag color='#FFEDAF' class='tag-item' :title='customTag.category'> {{ customTag.name }} </a-tag>
             </div>
           </div>

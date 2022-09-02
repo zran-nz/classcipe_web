@@ -8,12 +8,20 @@
               <a-icon type='left' />
             </template>
           </custom-link-text>
-          <a-tooltip placement='leftBottom'>
+          <a-tooltip placement='leftBottom' v-if="parentTask && parentTask.pageObjects && parentTask.pageObjects.length > 0">
             <template slot='title'>
               The task is more likely to be purchased by other educators if it is simple, clear and focus on specific learning outcome(s).
               So dividing your main task into small sub-tasks with specific tags is always a good idea.
             </template>
             <a-button class='cc-dark-button' @click='handleCreateSubtask'>
+              Create sub task
+            </a-button>
+          </a-tooltip>
+          <a-tooltip placement='leftBottom' v-else>
+            <template slot='title'>
+              The task can not be split task without interactive slides, create edit google slides first
+            </template>
+            <a-button class='cc-dark-button' :disabled="true">
               Create sub task
             </a-button>
           </a-tooltip>
@@ -23,24 +31,31 @@
     <div class='sub-task-container'>
       <a-spin tip='Loading...' :spinning="loading">
         <radio-switch @select="handleSelectStatusType" :menu-list='menuList' :default-selected-item="getSelectItem" />
-        <div class='sub-task-list vertical-left' v-for='content in subTaskList' :key='content.id'>
-          <div class='task-item vertical-left'>
-            <content-item
-              @delete='QuerySubTask'
-              :content='content'
-              :show-button='true'
-              :show-edit='true'
-              :show-delete='true'
-              :show-schedule='true'
-              :show-publish='canPublish'
-              :show-sub='false'
-              :show-set-price='content.status === 1'
-              @update-publish='handleShowContentPublish'
-              :show-archive='statusType === 0'
-              :allow-permanent-delete='statusType === 1'
-              :show-publish-status='false'/>
+        <template v-if="subTaskList.length > 0">
+          <div class='sub-task-list vertical-left' v-for='content in subTaskList' :key='content.id'>
+            <div class='task-item vertical-left'>
+              <content-item
+                @delete='QuerySubTask'
+                :content='content'
+                :show-button='true'
+                :show-edit='true'
+                :show-delete='true'
+                :show-schedule='true'
+                :show-publish='canPublish'
+                :show-sub='false'
+                :show-set-price='content.status === 1'
+                @update-publish='handleShowContentPublish'
+                :show-archive='statusType === 0'
+                :allow-permanent-delete='statusType === 1'
+                :show-publish-status='false'/>
+            </div>
           </div>
-        </div>
+        </template>
+        <common-no-data v-else text='No Data Found!' :isBig="true">
+          <template v-slot:icon>
+            <no-content />
+          </template>
+        </common-no-data>
       </a-spin>
     </div>
 
@@ -65,11 +80,12 @@ import { typeMap } from '@/const/teacher'
 import EditPriceDialog from '@/components/MyContentV2/EditPriceDialog'
 import CustomLinkText from '@/components/Common/CustomLinkText'
 import RadioSwitch from '@/components/Common/RadioSwitch'
-// import { SourceType } from '@/components/MyContentV2/Constant'
+import CommonNoData from '@/components/Common/CommonNoData'
+import NoContent from '@/assets/v2/icons/no_content.svg?inline'
 
 export default {
   name: 'MySubtaskList',
-  components: { EditPriceDialog, VerificationTip, FixedFormFooter, ContentItem, FixedVerticalHeader, FixedFormHeader, CustomLinkText, RadioSwitch },
+  components: { EditPriceDialog, VerificationTip, FixedFormFooter, ContentItem, FixedVerticalHeader, FixedFormHeader, CustomLinkText, RadioSwitch, CommonNoData, NoContent },
   props: {
     taskId: {
       type: String,
@@ -123,7 +139,11 @@ export default {
     }
   },
   created() {
+    if (this.$route.query.subFlag) {
+      sessionStorage.setItem(SESSION_SUB_FLAG, this.$route.query.subFlag)
+    }
     this.initTask()
+    this.QuerySubTask()
   },
   methods: {
     handleGoBack () {
@@ -137,7 +157,6 @@ export default {
       }).then(res => {
         this.$logger.info('sub task', res.result)
         if (res.code === 0) {
-          this.subTaskList = res.result.subTasks
           this.parentTask = res.result
         }
       }).finally(() => {
@@ -177,7 +196,7 @@ export default {
       if ((this.currentContent.type === this.contentType.task ||
         this.currentContent.type === this.contentType.pd)) {
         if (!this.currentContent.presentationId || this.currentContent.presentationId.startsWith('fake_')) {
-          this.$message.warn('This task/PD content can not be published without interactive slides, please create google slides first')
+          this.$message.warn('There is no PPT slides linked with this task, please create slides before publishing.')
           return
         }
       }
@@ -220,9 +239,9 @@ export default {
             this.subTaskList[index].status = targetStatus
             if (targetStatus === 1) {
               this.$message.success('Publish successfully!')
-              this.$refs.editPrice.showEditPrice()
+            this.$refs.editPrice.showEditPrice()
             } else {
-              this.$message.success('Unpublish successfully!')
+            this.$message.success('Unpublish successfully!')
             }
           } else if (res.code === 520 || res.code === 403) {
             this.$logger.info('等待授权回调')

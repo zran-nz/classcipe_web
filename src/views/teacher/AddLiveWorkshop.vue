@@ -222,7 +222,7 @@
               v-show='enableZoom'
               ref='zoom'
               :password='true'
-              :waiting-room='true' />
+              :waiting-room='false' />
           </div>
         </div>
         <div class='tag-body'>

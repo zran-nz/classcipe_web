@@ -27,9 +27,14 @@
           <template v-if='pagination.total !== 0 && !loading'>
             <library-content-item v-for='item in myContentList' :key='item.id' :content='item'></library-content-item>
           </template>
-          <template v-if='pagination.total === 0 && !loading'>
+          <template v-if='(!pagination.total || pagination.total === 0) && !loading'>
             <div class='empty-tips'>
-              <no-more-resources />
+              <!-- <no-more-resources /> -->
+              <common-no-data text='No Data Found!' :isBig="true">
+                <template v-slot:icon>
+                  <no-content />
+                </template>
+              </common-no-data>
             </div>
           </template>
         </div>
@@ -69,6 +74,8 @@ import { CommonFilterMixin } from '@/mixins/CommonFilterMixin'
 import CommonContentFilter from '@/components/Common/CommonContentFilter'
 import PdContentFilter from '@/components/Common/PdContentFilter'
 import { QueryContentsFilter } from '@/api/library'
+import CommonNoData from '@/components/Common/CommonNoData'
+import NoContent from '@/assets/v2/icons/no_content.svg?inline'
 
 export default {
   name: 'LibraryAll',
@@ -92,7 +99,9 @@ export default {
     ContentTypeIcon,
     ModalHeader,
     CustomTag,
-    NoMoreResources
+    NoMoreResources,
+    CommonNoData,
+    NoContent
   },
   computed: {
     ...mapState({

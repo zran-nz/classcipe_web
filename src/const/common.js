@@ -324,7 +324,7 @@ export const WORK_SHOPS_STATUS = {
   },
   ARCHIVED: {
     label: 'Archived',
-    value: 4
+    value: -1
   }
   // VIDEOSTOWATCH: {
   //   label: 'Videos to watch',

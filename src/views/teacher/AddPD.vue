@@ -349,7 +349,6 @@ export default {
     this.currentStep = this.formSteps[this.currentActiveStepIndex]
     this.requiredFields = this.$classcipe.pdRequiredFields
     this.initData()
-    this.loadThumbnail(false)
     this.contentLoading = false
 
     if (this.currentActiveStepIndex < 0 || this.currentActiveStepIndex > this.formSteps.length - 1) {
@@ -375,7 +374,7 @@ export default {
       this.restorePdContent()
     },
 
-    restorePdContent() {
+    restorePdContent(needLoadThumbnail = true) {
       this.$logger.info('restorePdContent ' + this.pdId)
       this.saving = true
       PDContentQueryById({
@@ -390,7 +389,7 @@ export default {
           this.$message.error(response.message)
         }
       }).finally(() => {
-        if (this.form.presentationId) {
+        if (this.form.presentationId && needLoadThumbnail) {
           this.loadThumbnail(false)
         }
         this.saving = false
@@ -504,6 +503,9 @@ export default {
         }).then(response => {
           this.$logger.info('loadThumbnail response', response.result)
           if (response.code === 0) {
+            // this.restorePdContent(this.form.id, false)
+            this.restorePdContent(false)
+            // 不加这段 thumbnailList无法设置，slides draft 就无法显示
             const pageObjects = response.result.pageObjects
             this.form.pageObjects = pageObjects
             this.form.pageObjectIds = response.result.pageObjectIds.join(',')

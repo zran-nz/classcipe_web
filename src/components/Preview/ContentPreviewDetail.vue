@@ -1,5 +1,5 @@
 <template>
-  <div class='content-preview-detail' ref="container">
+  <div class='content-preview-detail' ref="container" :id="contentId + 'box'">
     <div class='top-fixed-header' v-if='showTopFixedHeader && content && displayFixedHeader'>
       <div class='header-left'>
         <div class='back vertical-left' @click='handleClose'>
@@ -36,7 +36,7 @@
                 :loading='buyLoading'
                 v-if='liveWorkShopSession && WORK_SHOPS_TYPE.FEATURE.value === liveWorkShopSession.workshopsType'
               >
-                Register now
+                Register
               </a-button>
             </a-space>
             <a-space v-else>
@@ -97,29 +97,34 @@
     </div>
 
     <div class='preview-main-content' v-if='content'>
-      <a-space class='content-info-item'>
-        <div span='24' class='cc-ellipsis cc-info-left'>
-          <h3>{{ content.name || 'Untitled' }}</h3>
-        </div>
-        <div class="more-action" style="margin-bottom: 8px;">
-          <a-tooltip
-            trigger="click"
-            :getPopupContainer="trigger => trigger.parentElement"
-            placement="bottomRight"
-          >
-            <template slot="title">
-              <div class="detail-share">
-                <share-button
-                  v-if="content"
-                  :link="wrapperLink(content)"
-                  :title="content.name"
-                />
-              </div>
-            </template>
-            <icon-font type="icon-share" class="detail-font"/>
-          </a-tooltip>
-        </div>
-      </a-space>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <a-space class='content-info-item'>
+          <div span='24' class='cc-ellipsis cc-info-left'>
+            <h3>{{ content.name || 'Untitled' }}</h3>
+          </div>
+          <div class="more-action" style="margin-bottom: 8px;">
+            <a-tooltip
+              trigger="click"
+              :getPopupContainer="trigger => trigger.parentElement"
+              placement="bottomRight"
+            >
+              <template slot="title">
+                <div class="detail-share">
+                  <share-button
+                    v-if="content"
+                    :link="wrapperLink(content)"
+                    :title="content.name"
+                  />
+                </div>
+              </template>
+              <icon-font type="icon-share" class="detail-font"/>
+            </a-tooltip>
+          </div>
+        </a-space>
+        <label for="" v-if="liveWorkShopCode && liveWorkShopSession && liveWorkShopSession.sessionStartTime">
+          {{ liveWorkShopSession.sessionStartTime | dayjs('YYYY-MM-DD HH:mm') }} - {{ liveWorkShopSession.sessionEndTime | dayjs('YYYY-MM-DD HH:mm') }}
+        </label>
+      </div>
 
       <a-row class='content-info-item' v-observe-visibility="visibilityChanged">
         <a-col
@@ -203,7 +208,7 @@
                   :loading='buyLoading'
                   v-if='liveWorkShopSession && WORK_SHOPS_TYPE.FEATURE.value === liveWorkShopSession.workshopsType'
                 >
-                  Register now
+                  Register
                 </a-button>
               </a-space>
             </div>
@@ -643,6 +648,7 @@
         </div>
       </div>
     </a-modal>
+    <a-back-top :target="topTarget" :visibilityHeight="100"/>
   </div>
 </template>
 
@@ -1331,6 +1337,9 @@ export default {
           this.buyLoading = false
         })
       }
+    },
+    topTarget() {
+      return document.getElementById(this.contentId + 'box').parentElement.parentElement.parentElement
     }
   }
 }
@@ -1347,7 +1356,7 @@ export default {
     position: fixed;
     top: 0;
     right: 0;
-    width: 50%;
+    width: 1000px;
     background: #F7F8F9;
     padding: 15px;
     display: flex;
@@ -1669,7 +1678,7 @@ export default {
     align-items: flex-start;
     overflow-x: scroll;
     justify-content: flex-start;
-    //width: 615px;
+    width: 867px;
     padding-bottom: 15px;
     margin: 0 25px;
     position: relative;

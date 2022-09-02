@@ -38,6 +38,13 @@
               <template >Assign</template>
             </a-button>
           </a-tooltip>
+          <a-tooltip
+            title="Please Select Schedule time"
+            v-else-if="(!scheduleReq.startDate || !scheduleReq.endDate)">
+            <a-button type='primary' :disabled="true" :loading='creating'>
+              <template >Assign</template>
+            </a-button>
+          </a-tooltip>
           <a-button type='primary' :disabled="(!scheduleReq.startDate || !scheduleReq.endDate)" @click='handleGoNext' :loading='creating' v-else>
             <template >Assign</template>
           </a-button>

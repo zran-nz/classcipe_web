@@ -44,15 +44,31 @@ export default {
     },
     waitingRoom: {
       type: Boolean,
-      default: true
+      default: false
     }
   },
   watch: {
     isPassword(v) {
-      this.update()
+      if (v) {
+        if (this.isWaitingRoom) {
+          this.isWaitingRoom = false
+        } else {
+          this.update()
+        }
+      } else {
+        this.update()
+      }
     },
     isWaitingRoom(v) {
-      this.update()
+       if (v) {
+        if (this.isPassword) {
+          this.isPassword = false
+        } else {
+          this.update()
+        }
+      } else {
+        this.update()
+      }
     }
   },
   data() {

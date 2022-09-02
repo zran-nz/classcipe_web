@@ -27,7 +27,12 @@
           </template>
           <template v-if='dataList.length === 0 && !searching'>
             <div class='empty-tips'>
-              <common-no-data :text="'No data about ' + this.searchKeyword" />
+              <!-- <common-no-data :text="'No data about ' + this.searchKeyword" /> -->
+              <common-no-data text='No Data Found!' :isBig="true">
+                <template v-slot:icon>
+                  <no-content />
+                </template>
+              </common-no-data>
             </div>
             <div class='go-back'>
               <a-button shape='round' @click='$router.go(-1)' type='primary'>Go Back</a-button>
@@ -47,6 +52,7 @@ import LibraryContentItem from '@/components/MyContentV2/LibraryContentItem'
 import CommonNoData from '@/components/Common/CommonNoData'
 import { QueryContentsFilter } from '@/api/library'
 import { UserModeMixin } from '@/mixins/UserModeMixin'
+import NoContent from '@/assets/v2/icons/no_content.svg?inline'
 import { mapState } from 'vuex'
 
 export default {
@@ -56,7 +62,8 @@ export default {
     ContentItem,
     LibraryContentItem,
     UserProfileAvatar,
-    GlobalSearchInput
+    GlobalSearchInput,
+    NoContent
   },
   props: {
     keyword: {

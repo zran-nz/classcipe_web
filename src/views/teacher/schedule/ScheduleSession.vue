@@ -36,7 +36,41 @@
           @update-zoom='handleUpdateZoom'
           @select-session-type='handleSelectSessionType'
           @select-zoom-status='handleSelectZoom'
-        />
+        >
+          <div slot="title" class="choose-title">
+            <a-space class='task-type-info' v-if='taskType'>
+              <div class="title">Task type:</div>
+              <div class='self-type-wrapper'>
+                <div class='self-field-label'>
+                  <div
+                    class='task-type-item green-active-task-type'
+                    v-if="taskType === 'FA'">
+                    <a-tooltip placement='top' title='Formative Assessment'>FA</a-tooltip>
+                  </div>
+                  <div
+                    class='task-type-item red-active-task-type'
+                    v-if="taskType === 'SA'">
+                    <a-tooltip placement='top' title='Summative Assessment'>SA</a-tooltip>
+                  </div>
+                  <div
+                    class='task-type-item blue-active-task-type task-type-activity'
+                    v-if="taskType === 'Activity'">
+                    <a-tooltip title='Teaching/Learning Activity' placement='top'>Activity</a-tooltip>
+                  </div>
+                  <div
+                    class='task-type-item blue-active-task-type task-type-examine'
+                    v-if="taskType === 'IA'">
+                    <a-tooltip title='Internal Assessment' placement='top'>IA</a-tooltip>
+                  </div>
+                </div>
+              </div>
+            </a-space>
+            <div class="choose-title">
+              <div class="title">Session title:</div>
+              <a-textarea auto-size :maxlength="500" v-model="scheduleReq.register.title"></a-textarea>
+            </div>
+          </div>
+        </schedule-date>
         <schedule-pay-info
           ref='pay'
           :type="type"
@@ -46,7 +80,41 @@
           v-if='userMode === USER_MODE.SELF && scheduleReq.openSession && currentActiveStepIndex === 1'
           @select-date='handleSelectDate'
           @select-zoom-status='handleSelectZoom'
-        />
+        >
+          <div slot="title" class="choose-title">
+            <a-space class='task-type-info' v-if='taskType'>
+              <div class="title">Task type:</div>
+              <div class='self-type-wrapper'>
+                <div class='self-field-label'>
+                  <div
+                    class='task-type-item green-active-task-type'
+                    v-if="taskType === 'FA'">
+                    <a-tooltip placement='top' title='Formative Assessment'>FA</a-tooltip>
+                  </div>
+                  <div
+                    class='task-type-item red-active-task-type'
+                    v-if="taskType === 'SA'">
+                    <a-tooltip placement='top' title='Summative Assessment'>SA</a-tooltip>
+                  </div>
+                  <div
+                    class='task-type-item blue-active-task-type task-type-activity'
+                    v-if="taskType === 'Activity'">
+                    <a-tooltip title='Teaching/Learning Activity' placement='top'>Activity</a-tooltip>
+                  </div>
+                  <div
+                    class='task-type-item blue-active-task-type task-type-examine'
+                    v-if="taskType === 'IA'">
+                    <a-tooltip title='Internal Assessment' placement='top'>IA</a-tooltip>
+                  </div>
+                </div>
+              </div>
+            </a-space>
+            <div class="choose-title">
+              <div class="title">Session title:</div>
+              <a-textarea auto-size :maxlength="500" v-model="scheduleReq.register.title"></a-textarea>
+            </div>
+          </div>
+        </schedule-pay-info>
         <school-schedule
           ref='pay'
           :type="type"
@@ -56,7 +124,41 @@
           v-if='userMode === USER_MODE.SCHOOL && scheduleReq.openSession && currentActiveStepIndex === 1'
           @select-date='handleSelectDate'
           @select-zoom-status='handleSelectZoom'
-        />
+        >
+          <div slot="title" class="choose-title">
+            <a-space class='task-type-info' v-if='taskType'>
+              <div class="title">Task type:</div>
+              <div class='self-type-wrapper'>
+                <div class='self-field-label'>
+                  <div
+                    class='task-type-item green-active-task-type'
+                    v-if="taskType === 'FA'">
+                    <a-tooltip placement='top' title='Formative Assessment'>FA</a-tooltip>
+                  </div>
+                  <div
+                    class='task-type-item red-active-task-type'
+                    v-if="taskType === 'SA'">
+                    <a-tooltip placement='top' title='Summative Assessment'>SA</a-tooltip>
+                  </div>
+                  <div
+                    class='task-type-item blue-active-task-type task-type-activity'
+                    v-if="taskType === 'Activity'">
+                    <a-tooltip title='Teaching/Learning Activity' placement='top'>Activity</a-tooltip>
+                  </div>
+                  <div
+                    class='task-type-item blue-active-task-type task-type-examine'
+                    v-if="taskType === 'IA'">
+                    <a-tooltip title='Internal Assessment' placement='top'>IA</a-tooltip>
+                  </div>
+                </div>
+              </div>
+            </a-space>
+            <div class="choose-title">
+              <div class="title">Session title:</div>
+              <a-textarea auto-size :maxlength="500" v-model="scheduleReq.register.title"></a-textarea>
+            </div>
+          </div>
+        </school-schedule>
       </div>
     </div>
     <fixed-form-footer>
@@ -72,21 +174,30 @@
               </template>
             </a-button>
             <template v-else>
-              <a-tooltip :title="(scheduleReq.zoom == 1 && !$store.getters.zoomChecked) ? 'Please link your zoom account' : 'The scheduled time above will be cleared.'">
+              <a-tooltip :title="(scheduleReq.zoom == 1 && !$store.getters.zoomChecked) ? 'Please link your zoom account' : !scheduleReq.register.title ? 'Please Input title' : 'The scheduled time above will be cleared.'">
                 <a-button
                   type='primary'
-                  :disabled="scheduleReq.zoom == 1 && !$store.getters.zoomChecked"
+                  :disabled="(scheduleReq.zoom == 1 && !$store.getters.zoomChecked )|| !scheduleReq.register.title"
                   @click="handeStartSessionNow"
                   :loading='creating'>
                   <template >Start session now</template>
                 </a-button>
               </a-tooltip>
-              <a-tooltip title="Please link your zoom account" v-if="(scheduleReq.zoom == 1 && !$store.getters.zoomChecked)">
+              <a-tooltip
+                :title="(scheduleReq.zoom == 1 && !$store.getters.zoomChecked) ? 'Please link your zoom account' : !scheduleReq.register.title ? 'Please Input title' : 'The scheduled time above will be cleared.'"
+                v-if="(scheduleReq.zoom == 1 && !$store.getters.zoomChecked) || !scheduleReq.register.title">
                 <a-button type='primary' :disabled="true" :loading='creating'>
                   <template >Assign</template>
                 </a-button>
               </a-tooltip>
-              <a-button type='primary' :disabled="(!scheduleReq.startDate || !scheduleReq.endDate)" @click='handleGoNext' :loading='creating' v-else>
+              <a-tooltip
+                title="Please Select Schedule time"
+                v-else-if="(!scheduleReq.startDate || !scheduleReq.endDate)">
+                <a-button type='primary' :disabled="true" :loading='creating'>
+                  <template >Assign</template>
+                </a-button>
+              </a-tooltip>
+              <a-button type='primary' @click='handleGoNext' :loading='creating' v-else>
                 <template >Assign</template>
               </a-button>
             </template>
@@ -120,6 +231,9 @@ import FixedFormFooter from '@/components/Common/FixedFormFooter'
 import ZoomMeetingSetting from '@/components/Schedule/ZoomMeetingSetting'
 import { CALENDAR_QUERY_TYPE, USER_MODE } from '@/const/common'
 import { lessonHost } from '@/const/googleSlide'
+import { typeMap } from '@/const/teacher'
+import { TaskQueryById } from '@/api/task'
+import { PDContentQueryById } from '@/api/pdContent'
 
 import { mapState } from 'vuex'
 import storage from 'store'
@@ -145,6 +259,7 @@ export default {
     return {
       CALENDAR_QUERY_TYPE: CALENDAR_QUERY_TYPE,
       USER_MODE: USER_MODE,
+      typeMap: typeMap,
       loading: true,
       currentActiveStepIndex: 0,
       selectSessionUnitVisible: false,
@@ -160,6 +275,7 @@ export default {
         openSession: false,
         planId: null,
         register: {
+          title: null,
           discountInfo: [],
           maxParticipants: 0,
           price: 0,
@@ -181,7 +297,8 @@ export default {
       sessionId: '',
       origin: null,
       initDate: null,
-      initZoom: null
+      initZoom: null,
+      taskType: ''
     }
   },
   computed: {
@@ -199,6 +316,7 @@ export default {
     this.loading = false
     this.sessionId = this.$route.query.sessionId
     this.getDetail()
+    this.initData()
 
     this.$EventBus.$on('ZoomMeetingUpdatePassword', this.handleSelectPassword)
     this.$EventBus.$on('ZoomMeetingUpdateWaitingRoom', this.handleSelectWaitingRoom)
@@ -211,6 +329,26 @@ export default {
     handleStepChange(data) {
       this.$logger.info('ScheduleSession handleStepChange ', data)
       this.currentActiveStepIndex = data.index
+    },
+
+    initData() {
+      let promise = null
+        if (this.type === typeMap.task) {
+          promise = TaskQueryById
+        } else if (this.type === typeMap.pd) {
+          promise = PDContentQueryById
+        }
+        if (promise) {
+          this.loading = true
+          promise({
+            id: this.id
+          }).then(response => {
+            this.scheduleReq.register.title = response.result.name
+            this.taskType = response.result.taskType
+          }).finally(() => {
+            this.loading = false
+          })
+        }
     },
 
     getDetail() {
@@ -228,6 +366,7 @@ export default {
             this.scheduleReq.register = session.register
             this.scheduleReq.selectStudents = session.selectStudents
             this.scheduleReq.zoom = session.hasZoom
+            this.scheduleReq.register.title = res.result.title || res.result.session.sessionName
             this.initZoom = {
               enableZoom: Boolean(session.hasZoom)
             }
@@ -527,5 +666,78 @@ export default {
   position: absolute;
   left: 10px;
   top: 15px;
+}
+.choose-title {
+  margin-bottom: 10px;
+  .title {
+    font-weight: bold;
+    font-size: 16px;
+    color: #333;
+    line-height: 30px;
+  }
+}
+.self-type-wrapper {
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+
+  .self-field-label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+
+    .task-type-item {
+      margin-right: 10px;
+      width: 25px;
+      height: 25px;
+      border-radius: 25px;
+      border: 2px solid #ddd;
+      font-weight: bold;
+      display: flex;
+      color: #bbb;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .task-type-activity {
+      width: 70px;
+      border-radius: 50px;
+    }
+
+    .green-active-task-type {
+      background: rgba(21, 195, 154, 0.1);
+      border: 2px solid #15C39A;
+      border-radius: 50%;
+      font-weight: bold;
+      color: #15C39A;
+    }
+
+    .red-active-task-type {
+      background: rgba(255, 51, 85, 0.1);
+      border: 2px solid #FF3355;
+      border-radius: 50%;
+      opacity: 1;
+      font-weight: bold;
+      color: #FF3355;
+      opacity: 1;
+    }
+
+    .blue-active-task-type {
+      background: rgb(230, 247, 255);
+      border: 2px solid rgb(145, 213, 255);
+      border-radius: 50px;
+      opacity: 1;
+      font-weight: bold;
+      color: rgb(24, 144, 255);
+    }
+  }
+
+  .self-type-filter {
+    width: 500px;
+  }
 }
 </style>

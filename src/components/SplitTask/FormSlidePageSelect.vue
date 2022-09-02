@@ -53,8 +53,7 @@ export default {
 }
 </script>
 
-<style lang='less' scoped>
-@import "~@/components/index.less";
+<style lang='less'>
 
 .form-slide-page-select {
   .cover-list {

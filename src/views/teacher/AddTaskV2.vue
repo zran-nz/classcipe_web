@@ -896,8 +896,8 @@ export default {
          }
        }
     },
-    restoreTask(taskId, isFirstLoad) {
-      if (isFirstLoad) {
+    restoreTask(taskId, needLoadThumbnail = true) {
+      if (needLoadThumbnail) {
         this.contentLoading = true
       }
       this.$logger.info('restoreTask ' + taskId)
@@ -953,7 +953,7 @@ export default {
         this.contentLoading = false
         this.saving = false
         this.loadCollaborateData(this.form.type, this.form.id)
-        if (this.form.presentationId) {
+        if (this.form.presentationId && needLoadThumbnail) {
           this.loadThumbnail(false)
         }
         // copy副本 为了判断数据变更
@@ -1170,11 +1170,8 @@ export default {
         }).then(response => {
           this.$logger.info('loadThumbnail response', response.result)
           if (response.code === 0) {
-            if (response.result.fileDeleted) {
-              // 文件被删除
-              this.restoreTask(this.form.id)
-              return
-            }
+            this.restoreTask(this.form.id, false)
+            // 不加这段 thumbnailList无法设置，slides draft 就无法显示
             const pageObjects = response.result.pageObjects
             this.form.pageObjects = pageObjects
             this.form.pageObjectIds = response.result.pageObjectIds.join(',')
@@ -1185,6 +1182,7 @@ export default {
             if (hiddenMask) {
               this.form.slideEditing = false
             }
+            // 不加这段 thumbnailList无法设置，slides draft 就无法显示
           } else if (response.code === 403) {
             this.$router.push({ path: '/teacher/main/created-by-me' })
           } else if (response.code === this.ErrorCode.ppt_google_token_expires || response.code === this.ErrorCode.ppt_forbidden) {

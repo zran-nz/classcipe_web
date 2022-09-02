@@ -94,7 +94,6 @@ import RadioSwitch from '@/components/Common/RadioSwitch'
 import * as logger from '@/utils/logger'
 import {
   SESSION_CLASS_TYPE,
-  SESSION_CURRENT_PAGE,
   WORK_SHOPS_STATUS,
   WORK_SHOPS_TYPE
 } from '@/const/common'
@@ -118,7 +117,6 @@ import { ACCESS_TOKEN } from '@/store/mutation-types'
 import OldSessionList from '@/components/Teacher/OldSessionList'
 import moment from 'moment'
 import { AddOrUpdateClass, StartOpenSession } from '@/api/classroom'
-import { SourceType } from '@/components/MyContentV2/Constant'
 import { uniqBy } from 'lodash-es'
 
 import { mapState } from 'vuex'
@@ -158,8 +156,9 @@ export default {
       WORK_SHOPS_TYPE_VALUES: Object.values(WORK_SHOPS_TYPE),
       queryParams: {
         classId: '',
-        status: sessionStorage.getItem(SESSION_CLASS_TYPE) ? parseInt(sessionStorage.getItem(SESSION_CLASS_TYPE)) : SourceType.CreatedByMe, // 2: scheduled, 1: on-going, 3: ended
-        searchKey: ''
+        status: sessionStorage.getItem(SESSION_CLASS_TYPE) ? parseInt(sessionStorage.getItem(SESSION_CLASS_TYPE)) : WORK_SHOPS_STATUS.SCHEDULE.value, // 2: scheduled, 1: on-going, 3: ended
+        searchKey: '',
+        delFlag: 0
       },
       loading: true,
       myContentList: [],
@@ -168,7 +167,6 @@ export default {
         onChange: page => {
           logger.info('pagination onChange', page)
           this.pageNo = page
-          sessionStorage.setItem(SESSION_CURRENT_PAGE, page)
           this.loadMyContent()
         },
         showTotal: total => `Total ${total} items`,
@@ -176,7 +174,7 @@ export default {
         total: 0,
         pageSize: 16
       },
-      pageNo: sessionStorage.getItem(SESSION_CURRENT_PAGE) ? parseInt(sessionStorage.getItem(SESSION_CURRENT_PAGE)) : 1,
+      pageNo: 1,
 
       filterParams: {},
       radioSwitchShow: false,
@@ -207,7 +205,7 @@ export default {
       classList: state => state.user.classList
     }),
     getSelectItem() {
-      const shareType = sessionStorage.getItem(SESSION_CLASS_TYPE) ? parseInt(sessionStorage.getItem(SESSION_CLASS_TYPE)) : SourceType.CreatedByMe
+      const shareType = sessionStorage.getItem(SESSION_CLASS_TYPE) ? parseInt(sessionStorage.getItem(SESSION_CLASS_TYPE)) : WORK_SHOPS_STATUS.SCHEDULE.value
       const index = this.menuList.findIndex(item => item.type === shareType)
       if (index > -1) {
         return this.menuList[index]
@@ -307,7 +305,7 @@ export default {
       this.queryParams.workshopsType = item.value
       if (item.value === this.WORK_SHOPS_TYPE.FEATURE.value) {
         // TODO
-        this.queryParams.status = '' // this.WORK_SHOPS_STATUS.SCHEDULE.value
+        this.queryParams.status = this.WORK_SHOPS_STATUS.SCHEDULE.value
       } else {
         this.queryParams.status = this.WORK_SHOPS_STATUS.ONGOING.value
       }
@@ -320,8 +318,7 @@ export default {
         ...this.queryParams,
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize,
-        types: [],
-        delFlag: 0
+        types: []
       }
       if (this.filterParams) {
         params = Object.assign(this.filterParams, params)
