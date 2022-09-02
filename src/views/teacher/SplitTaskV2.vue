@@ -75,7 +75,12 @@
         </a-button>
       </template>
       <template v-slot:right>
-        <a-button type='primary' @click='handleNextStep' class='cc-round-button' :loading='nextLoading'>
+        <a-tooltip v-if="!canNext" title="Please complete your information.">
+          <a-button :disabled="true">
+            Next
+          </a-button>
+        </a-tooltip>
+        <a-button v-else type='primary' @click='handleNextStep' class='cc-round-button' :loading='nextLoading'>
           <template>
             Next
           </template>
@@ -156,6 +161,9 @@ export default {
     },
     taskId () {
       return this.form.id ? this.form.id : null
+    },
+    canNext() {
+      return this.form.name && this.form.image && this.form.selectPageObjectIds && this.form.selectPageObjectIds.length > 0
     }
   },
   created() {
@@ -199,6 +207,8 @@ export default {
           taskData.id = null
           taskData.presentationId = null
           this.form = taskData
+          this.form.name = ''
+          this.form.image = ''
           this.contentLoading = false
           this.$logger.info('restore split task', this.form)
         }
