@@ -87,21 +87,30 @@
               </template>
             </a-button>
             <template v-else>
-              <a-tooltip :title="(scheduleReq.zoom == 1 && !$store.getters.zoomChecked) ? 'Please link your zoom account' : 'The scheduled time above will be cleared.'">
+              <a-tooltip :title="(scheduleReq.zoom == 1 && !$store.getters.zoomChecked) ? 'Please link your zoom account' : !scheduleReq.register.title ? 'Please Input title' : 'The scheduled time above will be cleared.'">
                 <a-button
                   type='primary'
-                  :disabled="scheduleReq.zoom == 1 && !$store.getters.zoomChecked"
+                  :disabled="(scheduleReq.zoom == 1 && !$store.getters.zoomChecked )|| !scheduleReq.register.title"
                   @click="handeStartSessionNow"
                   :loading='creating'>
                   <template >Start session now</template>
                 </a-button>
               </a-tooltip>
-              <a-tooltip title="Please link your zoom account" v-if="(scheduleReq.zoom == 1 && !$store.getters.zoomChecked)">
+              <a-tooltip
+                :title="(scheduleReq.zoom == 1 && !$store.getters.zoomChecked) ? 'Please link your zoom account' : !scheduleReq.register.title ? 'Please Input title' : 'The scheduled time above will be cleared.'"
+                v-if="(scheduleReq.zoom == 1 && !$store.getters.zoomChecked) || !scheduleReq.register.title">
                 <a-button type='primary' :disabled="true" :loading='creating'>
                   <template >Assign</template>
                 </a-button>
               </a-tooltip>
-              <a-button type='primary' :disabled="(!scheduleReq.startDate || !scheduleReq.endDate)" @click='handleGoNext' :loading='creating' v-else>
+              <a-tooltip
+                title="Please Select Schedule time"
+                v-else-if="(!scheduleReq.startDate || !scheduleReq.endDate)">
+                <a-button type='primary' :disabled="true" :loading='creating'>
+                  <template >Assign</template>
+                </a-button>
+              </a-tooltip>
+              <a-button type='primary' @click='handleGoNext' :loading='creating' v-else>
                 <template >Assign</template>
               </a-button>
             </template>
