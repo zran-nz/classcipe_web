@@ -1170,7 +1170,21 @@ export default {
         }).then(response => {
           this.$logger.info('loadThumbnail response', response.result)
           if (response.code === 0) {
-            this.restoreTask(this.form.id)
+            if (response.result.fileDeleted) {
+              // 文件被删除
+              this.restoreTask(this.form.id)
+              return
+            }
+            const pageObjects = response.result.pageObjects
+            this.form.pageObjects = pageObjects
+            this.form.pageObjectIds = response.result.pageObjectIds.join(',')
+            this.thumbnailList = []
+            pageObjects.forEach(page => {
+              this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
+            })
+            if (hiddenMask) {
+              this.form.slideEditing = false
+            }
           } else if (response.code === 403) {
             this.$router.push({ path: '/teacher/main/created-by-me' })
           } else if (response.code === this.ErrorCode.ppt_google_token_expires || response.code === this.ErrorCode.ppt_forbidden) {
