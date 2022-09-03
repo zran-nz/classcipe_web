@@ -182,6 +182,7 @@ export default {
       deep: true,
       immediate: false,
       handler (val) {
+        console.log('initData watch', val)
         this.initData(val)
       }
     },
@@ -200,7 +201,10 @@ export default {
   methods: {
 
     initData (learnOuts) {
+      console.log('initData methods', learnOuts)
       const dataList = JSON.parse(JSON.stringify(learnOuts))
+      this.learningObjectiveList = []
+      this.generalCapabilityList = []
       if (Array.isArray(dataList) && dataList.length > 0) {
         dataList.forEach(item => {
           this.learningObjectiveList.push(item)
