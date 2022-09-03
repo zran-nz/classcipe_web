@@ -55,7 +55,7 @@
                   <template slot='label'>
                     {{ 'Slides' | taskLabelName(splitTaskField.Slides, $store.getters.formConfigData) }}
                   </template>
-                  <form-slide-page-select :thumbnail-list='thumbnailList' :select-page-object-ids.sync='form.selectPageObjectIds' v-if='!thumbnailListLoading'/>
+                  <form-slide-page-select :thumbnail-list='thumbnailList' :select-page-object-ids.sync='form.selectPageObjectIds' v-if='!thumbnailListLoading' :needPreview="false"/>
                   <a-skeleton v-if='thumbnailListLoading' />
                 </custom-form-item>
               </div>

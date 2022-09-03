@@ -10,7 +10,7 @@
           </div>
         </div>
       </a-col>
-      <a-col span='11' offset='1'>
+      <a-col span='11' offset='1' v-show="needPreview">
         <div class='cover-preview'>
           <div class='cover-image'>
             <img :src='currentCover.contentUrl' v-if='currentCover' alt=''/>
@@ -32,6 +32,10 @@ export default {
     selectPageObjectIds: {
       type: Array,
       default: () => []
+    },
+    needPreview: {
+      type: Boolean,
+      default: true
     }
   },
   data() {

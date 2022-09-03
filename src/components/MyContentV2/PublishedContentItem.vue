@@ -323,12 +323,15 @@ export default {
       justify-content: flex-start;
       flex-grow: 1;
       .base-info {
-        min-width: 500px;
+        // min-width: 500px;
         width: 100%;
-        @media screen and (max-width: 1300px) {
-          .base-info{
-            min-width: 400px;
-          }
+        // @media screen and (max-width: 1300px) {
+        //   .base-info{
+        //     min-width: 400px;
+        //   }
+        // }
+        .type-icon {
+          white-space: nowrap;
         }
         .name-type {
           display: flex;
@@ -354,11 +357,11 @@ export default {
             white-space: nowrap;
           }
 
-          @media screen and (max-width: 1300px) {
-            .name {
-              width: 400px;
-            }
-          }
+          // @media screen and (max-width: 1300px) {
+          //   .name {
+          //     width: 400px;
+          //   }
+          // }
 
         }
 
