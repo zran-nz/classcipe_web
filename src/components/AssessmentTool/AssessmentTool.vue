@@ -20,7 +20,7 @@
         </a-space>
       </div>
       <div class='right-action'>
-        <a-space v-if='assessment.type === AssessmentToolType.Rubric && allowCreate && !disabled'>
+        <a-space v-if='(assessment.type === AssessmentToolType.Rubric || assessment.type === AssessmentToolType.Checklist) && allowCreate && !disabled'>
           <custom-link-text text='Option' @click='selectHeaderSet'>
             <template v-slot:prefix>
               <a-icon type='plus-circle' />

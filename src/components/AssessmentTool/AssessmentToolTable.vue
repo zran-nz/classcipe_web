@@ -64,7 +64,7 @@
           text='Save as set of options'
           @click='handleSaveHeaderAsSet'
           :disabled='!assessment.headerList.some(item => item.type.startsWith(HeaderType.custom))'
-          v-if='assessment.type === AssessmentToolType.Rubric'>
+          v-if='assessment.type === AssessmentToolType.Rubric || assessment.type === AssessmentToolType.Checklist'>
         </custom-link-text>
       </div>
     </div>
