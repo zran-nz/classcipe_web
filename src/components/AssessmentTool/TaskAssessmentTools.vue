@@ -188,13 +188,13 @@ export default {
             },
             {
               title: 'Yes',
-              type: HeaderType.yes,
+              type:`${HeaderType.custom}_1`,
               canAddCustomCol: true,
               editing: false
             },
             {
               title: 'No',
-              type: HeaderType.no,
+              type: `${HeaderType.custom}_2`,
               canAddCustomCol: true,
               editing: false
             }

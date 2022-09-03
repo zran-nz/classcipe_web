@@ -80,7 +80,11 @@
       <div class='edit-header-action'>
         <div class='edit-header-action-item' v-if='currentEditHeader'>
           <custom-text-button label='Add a column' @click='handleAddCol' v-if='currentEditHeader.canAddCustomCol && allowCreate'></custom-text-button>
-          <custom-text-button label='Delete current column' @click='handleDelCol' v-if='currentEditHeader.canAddCustomCol'></custom-text-button>
+          <custom-text-button
+            label='Delete current column'
+            @click='handleDelCol'
+            v-if="currentEditHeader.canAddCustomCol && ((this.assessment.headerList.filter(item => item.type.startsWith(HeaderType.custom)).length > 1 && this.assessment.type !== AssessmentToolType.Checklist) ||
+              (this.assessment.headerList.filter(item => item.type.startsWith(HeaderType.custom)).length > 2 && this.assessment.type === AssessmentToolType.Checklist))"></custom-text-button>
           <custom-text-button label='Edit option' @click='handleEditName'></custom-text-button>
         </div>
       </div>
@@ -244,8 +248,11 @@ export default {
       if (this.currentEditHeader && this.assessment.type === AssessmentToolType.Checklist) {
         this.currentEditHeader.editing = false
         // 如果是checkList那么顺便修改对应的列数据
+        console.log('this.assessment.bodyList', this.assessment.bodyList, 'this.currentEditHeader', this.currentEditHeader)
         this.assessment.bodyList.forEach(row => {
-          row[this.currentEditHeader.type].display = this.currentEditHeader.title
+          if (row[this.currentEditHeader.type]) {
+            row[this.currentEditHeader.type].display = this.currentEditHeader.title
+          }
         })
       }
     },
@@ -257,13 +264,14 @@ export default {
 
     handleDelCol () {
       if (this.mode === 'edit') {
-        if (this.assessment.headerList.filter(item => item.type.startsWith(HeaderType.custom)).length > 1) {
+        if ((this.assessment.headerList.filter(item => item.type.startsWith(HeaderType.custom)).length > 1 && this.assessment.type !== AssessmentToolType.Checklist) ||
+          (this.assessment.headerList.filter(item => item.type.startsWith(HeaderType.custom)).length > 2 && this.assessment.type === AssessmentToolType.Checklist)) {
           this.assessment.headerList.splice(this.assessment.headerList.indexOf(this.currentEditHeader), 1)
           this.assessment.bodyList.forEach(row => {
             this.$delete(row, this.currentEditHeader.type)
           })
         } else {
-          this.$message.warn('At least one option exists for the assessment tool')
+          // this.$message.warn('At least one option exists for the assessment tool')
         }
       }
       this.editHeaderModalVisible = false
