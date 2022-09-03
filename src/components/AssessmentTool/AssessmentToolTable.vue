@@ -1,50 +1,5 @@
 <template>
   <div class='assessment-tool-table' ref='table'>
-    <div class='extra-criteria-table' v-if='assessment && assessment.extraCriteriaBodyList && assessment.extraCriteriaBodyList.length'>
-      <table>
-        <thead>
-          <tr>
-            <th
-              v-for='header in assessment.headerList'
-              :key='header.type'
-              :style="{
-                backgroundColor: header.bgColor || '#ffffff',
-                maxWidth: header.maxWidth || 'auto',
-                padding: header.editing ? '0px' : '10px',
-              }">
-              <div class='header-title'>
-                {{ header.title }}
-              </div>
-              <div class='header-tips' v-if='header.tips'>
-                {{ header.tips }}
-              </div>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for='row in assessment.extraCriteriaBodyList' :key='row.key' class='row'>
-            <th v-for='header in assessment.headerList' :key='header.type' @dblclick='handleEditExtraRow(row)'>
-              <a-textarea
-                :auto-size="{ minRows: 2, maxRows: 5 }"
-                class='cc-table-textarea'
-                :disabled='disabled'
-                v-model='row[header.type].display'
-                :style="{ backgroundColor: header.bgColor || '#ffffff' }" />
-              <div class='origin-data-tips' v-if='header.type === HeaderType.criteria && row[header.type].originDisplay && row[header.type].originDisplay !== row[header.type].display'>
-                <a-tooltip :title="row[header.type].originDisplay" placement='top'>
-                  <a-icon type="info-circle" />
-                </a-tooltip>
-              </div>
-            </th>
-            <div class='delete-icon' v-if='!inSnapshot && !disabled'>
-              <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDelExtraRowItem(row)" cancel-text="No">
-                <delete-icon color='#F16A39' />
-              </a-popconfirm>
-            </div>
-          </tr>
-        </tbody>
-      </table>
-    </div>
     <table v-if='assessment'>
       <thead>
         <tr>
@@ -147,21 +102,6 @@
     </a-modal>
 
     <a-modal
-      v-model='editExtraRowModalVisible'
-      destroyOnClose
-      :title='null'
-      :closable='false'
-      width='300px'
-      :footer='null'>
-      <modal-header title="Edit row" @close='editExtraRowModalVisible = false'/>
-      <div class='edit-header-action'>
-        <div class='edit-header-action-item' v-if='currentEditExtraRow'>
-          <custom-text-button label='Delete current row' @click='handleDelExtraRow'></custom-text-button>
-        </div>
-      </div>
-    </a-modal>
-
-    <a-modal
       v-model='selectHeaderSetModalVisible'
       destroyOnClose
       :title='null'
@@ -242,9 +182,6 @@ export default {
 
       currentEditRow: null,
       editRowModalVisible: false,
-
-      currentEditExtraRow: null,
-      editExtraRowModalVisible: false,
 
       selectHeaderSetModalVisible: false,
       optionList: [],
@@ -355,13 +292,6 @@ export default {
             type: newHeaderType
           }
         })
-
-        this.assessment.extraCriteriaBodyList.forEach(row => {
-          row[newHeaderType] = {
-            display: null,
-            type: newHeaderType
-          }
-        })
       }
 
       this.editHeaderModalVisible = false
@@ -413,7 +343,6 @@ export default {
                 }
               }
             })
-            this.assessment.extraCriteriaBodyList.push(extraRow)
           }
         }
       }
@@ -463,7 +392,6 @@ export default {
         this.lastSaveTableDataJson = data
         data.headerListJson = JSON.stringify(data.headerList)
         data.bodyListJson = JSON.stringify(data.bodyList)
-        data.extraCriteriaBodyListJson = JSON.stringify(data.extraCriteriaBodyList)
 
         this.inSnapshot = true
         this.$nextTick(() => {
@@ -545,13 +473,6 @@ export default {
       this.editExtraRowModalVisible = true
     },
 
-    handleDelExtraRowItem (row) {
-      if (this.mode === 'edit') {
-        this.assessment.extraCriteriaBodyList.splice(this.assessment.extraCriteriaBodyList.indexOf(this.row), 1)
-      }
-      this.editRowModalVisible = false
-    },
-
     handleDelRow () {
       if (this.mode === 'edit') {
         this.assessment.bodyList.splice(this.assessment.bodyList.indexOf(this.currentEditRow), 1)
@@ -564,13 +485,6 @@ export default {
         this.assessment.bodyList.splice(this.assessment.bodyList.indexOf(item), 1)
       }
       this.editRowModalVisible = false
-    },
-
-    handleDelExtraRow () {
-      if (this.mode === 'edit') {
-        this.assessment.extraCriteriaBodyList.splice(this.assessment.extraCriteriaBodyList.indexOf(this.currentEditExtraRow), 1)
-      }
-      this.editExtraRowModalVisible = false
     },
 
     handleDeleteHeader (option) {
