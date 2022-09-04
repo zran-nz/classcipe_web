@@ -4,14 +4,14 @@
       <div class='cover-block' :style="{'background-image': 'url(' + session.session.image + ')'}">
         <slot name='cover-action'>
         </slot>
-        <div class='bottom-action'>
+        <div class='bottom-action' v-if="content">
           <div class='bottom-action-item vertical-left' @click='editItem' v-if="session.allowEdit">
             <div class='bottom-action-item-icon'><a-icon type="form" /></div>
             <div class='bottom-action-item-label'>Edit</div>
           </div>
           <div class='bottom-action-item vertical-left' v-else >
           </div>
-          <div class='bottom-action-item vertical-right' @click="handlePreviewDetail(content)" v-show='!((content.type === typeMap.task || content.type === typeMap.pd) && content.slideEditing)'>
+          <div class='bottom-action-item vertical-right' @click="handlePreviewDetail(content)" v-if="content" v-show='!((content.type === typeMap.task || content.type === typeMap.pd) && content.slideEditing)'>
             <div class='bottom-action-item-icon'><a-icon type="eye" /></div>
             <div class='bottom-action-item-label'>Preview</div>
           </div>
@@ -23,7 +23,7 @@
         <div class='base-info'>
           <div class='name'>
             <div class='content-name'>
-              {{ (session && session.session && session.session.register.title) || (content && content.name) || 'Untitled' }}
+              {{ (session && session.session && session.session.register.title) || (content && content.name) || (session && session.session && session.session.className) }}
             </div>
             <div class='schedule-time'>
               <template v-if='session.session.sessionStartTime && session.session.deadline'>
@@ -57,7 +57,7 @@
               </div>
             </div>
           </div>
-          <div class='extra-info'>
+          <div class='extra-info' v-if="content">
             <a-space>
               <div class='info-item curriculum-info' v-show='curriculumName && content.type !== typeMap.pd'>
                 {{ curriculumName }}
@@ -106,12 +106,12 @@
               </div>
             </a-space>
           </div>
-          <div class='tag-info' v-if='knowledgeTagsList.length'>
+          <div class='tag-info' v-if='content && knowledgeTagsList.length'>
             <div class='tag-info-item' v-for='(knowledgeTag, cIdx) in knowledgeTagsList' :key="'tag' + cIdx">
               <a-tag color='#EABA7F' class='tag-item knowledge-tag' :title='knowledgeTag'>{{ knowledgeTag }}</a-tag>
             </div>
           </div>
-          <div class='tag-info'>
+          <div class='tag-info' v-if='content'>
             <template v-if='commandTermsList.length'>
               <div class='tag-info-item' v-for='(command, cIdx) in commandTermsList' :key="'term' + cIdx">
                 <a-tag color='#06ACD7' class='tag-item command-tag' :title='command'>{{ command }}</a-tag>
@@ -283,6 +283,9 @@ export default {
       return this.content ? getLabelNameType(this.content.type) : null
     },
     curriculumName () {
+      if (!this.content) {
+        return ''
+      }
       return this.$store.getters.curriculumId2NameMap.hasOwnProperty(this.content.curriculumId) ? this.$store.getters.curriculumId2NameMap[this.content.curriculumId] : null
     },
     zoomMeetStartUrl () {
@@ -317,8 +320,8 @@ export default {
     },
 
     handleDeleteSession() {
-      this.$logger.info('handleDeleteSession', this.content)
-      if (this.content?.sessionId) {
+      this.$logger.info('handleDeleteSession', this.session.session)
+      if (this.session.session) {
         // if (WORK_SHOPS_STATUS.ARCHIVED.value === this.session.status) {
           this.$confirm({
             title: 'Confirm delete class session',
@@ -327,7 +330,7 @@ export default {
             onOk: () => {
               this.loading = true
               DeleteClassV2({
-                sessionId: this.content.sessionId
+                sessionId: this.session.session.classId
               }).then(res => {
                 if (res.code === 0) {
                   this.$message.success('Remove successfully')
@@ -453,7 +456,7 @@ export default {
     },
     handleStatus(statusStr) {
       ClassStatusUpdate({
-        sessionId: this.content.sessionId,
+        sessionId: this.session.session.classId,
         statusStr: statusStr
       }).then(res => {
         this.$message.success(statusStr + ' successfully')
