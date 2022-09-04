@@ -74,7 +74,7 @@ export const asyncRouterMap = [
             name: 'LibrarySearch',
             component: () => import('@/views/teacher/LibrarySearch'),
             props: true,
-            meta: { title: 'menu.librarySearch', keepAlive: true, permission: ['teacher'], fullLayout: true }
+            meta: { title: 'menu.librarySearch', owner: '/teacher/library', keepAlive: true, permission: ['teacher'], fullLayout: true }
           },
           {
             path: '/teacher/library',
@@ -87,21 +87,21 @@ export const asyncRouterMap = [
             name: 'LibraryAll',
             props: true,
             component: () => import('@/views/teacher/LibraryAll'),
-            meta: { title: 'menu.library', keepAlive: true, permission: ['teacher'] }
+            meta: { title: 'menu.library', owner: '/teacher/library', keepAlive: true, permission: ['teacher'] }
           },
           {
             path: '/teacher/library-view/:contentType/:contentId',
             name: 'LibraryView',
             props: true,
             component: () => import('@/views/teacher/LibraryView'),
-            meta: { title: 'menu.library', keepAlive: true, permission: ['teacher'] }
+            meta: { title: 'menu.library', owner: '/teacher/library', keepAlive: true, permission: ['teacher'] }
           },
           {
             path: '/teacher/resource/search/:keyword',
             name: 'ResourceSearch',
             component: () => import('@/views/teacher/ResourceSearch'),
             props: true,
-            meta: { title: 'menu.resourceSearch', keepAlive: true, permission: ['teacher'], fullLayout: true }
+            meta: { title: 'menu.resourceSearch', owner: '/teacher/resource', keepAlive: true, permission: ['teacher'], fullLayout: true }
           },
           {
             path: '/teacher/resource',
@@ -114,7 +114,7 @@ export const asyncRouterMap = [
             name: 'ResourceAll',
             props: true,
             component: () => import('@/views/teacher/ResourceAll'),
-            meta: { title: 'menu.resource', keepAlive: true, permission: ['teacher'] }
+            meta: { title: 'menu.resource', owner: '/teacher/resource', keepAlive: true, permission: ['teacher'] }
           },
           {
             path: '/teacher/main/live-workshops',

@@ -219,7 +219,7 @@ export default {
             }
           }
         })
-        this.similarList = []
+        this.similarList = similarList
       }).finally(() => {
         this.searching = false
       })
