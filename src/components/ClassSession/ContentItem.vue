@@ -136,22 +136,22 @@
               </div>
               <div class='content-item-more-action' slot='overlay'>
                 <div class='menu-item' v-if="0 === session.session.delFlag && (WORK_SHOPS_STATUS.SCHEDULE.value === session.status || WORK_SHOPS_STATUS.ENDED.value === session.status)">
-                  <custom-button label='Archive' @click='handleArchive'>
+                  <custom-button label='Archive' @click='handleStatus("Archive")'>
                   </custom-button>
                 </div>
                 <div class='menu-item' v-if="1 === session.session.delFlag">
-                  <custom-button label='Restore' @click='handleRestore'>
+                  <custom-button label='Restore' @click='handleStatus("Restore")'>
                   </custom-button>
                 </div>
                 <div class='menu-item' v-if="WORK_SHOPS_STATUS.SCHEDULE.value === session.status || 1 === session.session.delFlag">
                   <custom-button label='Delete' @click='handleDeleteSession'></custom-button>
                 </div>
                 <div class='menu-item' v-if="0 === session.session.delFlag && WORK_SHOPS_STATUS.ONGOING.value === session.status">
-                  <custom-button label='End' @click='handleEnd'>
+                  <custom-button label='End' @click='handleStatus("End")'>
                   </custom-button>
                 </div>
                 <div class='menu-item' v-if="0 === session.session.delFlag && WORK_SHOPS_STATUS.ENDED.value === session.status">
-                  <custom-button label='Reopen' @click='handleReopen'>
+                  <custom-button label='Reopen' @click='handleStatus("Reopen")'>
                   </custom-button>
                 </div>
               </div>
@@ -206,7 +206,14 @@ import ContentPreview from '@/components/Preview/ContentPreview'
 import ZoomIcon from '@/assets/icons/zoom/zoomus-icon.svg?inline'
 import moment from 'moment'
 import { AddOrUpdateClass } from '@/api/classroom'
-import { DeleteClassV2, EndSession, ReopenSession, ArchiveSession, RestoreSession } from '@/api/v2/classes'
+import {
+  DeleteClassV2,
+  EndSession,
+  ReopenSession,
+  ArchiveSession,
+  RestoreSession,
+  ClassStatusUpdate
+} from '@/api/v2/classes'
 
 export default {
   name: 'ContentItem',
@@ -312,7 +319,7 @@ export default {
     handleDeleteSession() {
       this.$logger.info('handleDeleteSession', this.content)
       if (this.content?.sessionId) {
-        if (WORK_SHOPS_STATUS.ARCHIVED.value === this.session.status) {
+        // if (WORK_SHOPS_STATUS.ARCHIVED.value === this.session.status) {
           this.$confirm({
             title: 'Confirm delete class session',
             content: `All the relevant content will be cleared and you will not be able to retrieve after deleting it.`,
@@ -331,19 +338,19 @@ export default {
               })
             }
           })
-        } else {
-          this.loading = true
-          DeleteClassV2({
-            sessionId: this.content.sessionId
-          }).then(res => {
-            if (res.code === 0) {
-              this.$message.success('Remove successfully')
-              this.$emit('reFetch')
-            }
-          }).finally(() => {
-            this.loading = false
-          })
-        }
+        // } else {
+        //   this.loading = true
+        //   DeleteClassV2({
+        //     sessionId: this.content.sessionId
+        //   }).then(res => {
+        //     if (res.code === 0) {
+        //       this.$message.success('Remove successfully')
+        //       this.$emit('reFetch')
+        //     }
+        //   }).finally(() => {
+        //     this.loading = false
+        //   })
+        // }
       }
     },
 
@@ -443,6 +450,15 @@ export default {
       this.session.sessionStartTime = moment(date[0].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
       this.session.deadline = moment(date[1].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
       this.updateSession()
+    },
+    handleStatus(statusStr) {
+      ClassStatusUpdate({
+        sessionId: this.content.sessionId,
+        statusStr: statusStr
+      }).then(res => {
+        this.$message.success(statusStr + ' successfully')
+        this.$emit('reFetch')
+      })
     }
   }
 }

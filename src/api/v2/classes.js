@@ -9,6 +9,7 @@ export const ClassesV2Url = {
   updateSession: '/classcipe/api/v2/schedule/updateSession',
   getClassesStudent: '/classcipe/api/v2/classes/getClassesStudent',
   deleteClass: '/classcipe/api/v2/classes/delete',
+  classStatusUpdate: '/classcipe/api/v2/classes/status',
   editSessionSchedule: '/classcipe/api/v2/schedule/editSessionSchedule'
 }
 
@@ -194,4 +195,20 @@ export async function RestoreSession (id) {
   } else {
     return Promise.reject(new Error('No APP imported'))
   }
+}
+
+/**
+ * @param parameter
+ * @returns {AxiosPromise}
+ * @constructor
+ */
+export function ClassStatusUpdate (parameter) {
+  return request({
+    url: ClassesV2Url.classStatusUpdate,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
 }

@@ -576,7 +576,8 @@ export default {
       })
     },
     handleDel(item) {
-      if (WORK_SHOPS_STATUS.ARCHIVED.value === this.item.workshopsStatus) {
+      console.log(item)
+      if (WORK_SHOPS_STATUS.ARCHIVED.value === item.workshopsStatus) {
         this.$confirm({
           title: 'Confirm remove live workshop',
           content: 'All the relevant content will be cleared and you will not be able to retrieve after deleting it.',
