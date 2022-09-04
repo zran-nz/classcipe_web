@@ -246,6 +246,7 @@ export default {
     },
     async handleNextStep() {
       // 保存后跳转
+      this.nextLoading = true
       const res = await this.save()
       if (res && res.code === 0 && this.form.id) {
         // if (!this.form.presentationId || this.form.presentationId.startsWith('fake_buy_')) {
@@ -279,7 +280,8 @@ export default {
         //     this.nextLoading = false
         //   }
         // }
-        this.$router.replace({
+        this.nextLoading = false
+        this.$router.push({
           path: '/teacher/task-redirect/' + this.form.id
         })
       }
