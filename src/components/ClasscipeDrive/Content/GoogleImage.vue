@@ -38,7 +38,9 @@
     </div>
 
     <div id='search_parent'>
-      <div id='test'></div>
+      <a-spin :spinning="loading">
+        <div id='test'></div>
+      </a-spin>
     </div>
 
     <div
@@ -200,6 +202,7 @@ export default {
       this.currentColorIndex = -1
       this.currentColor = '#00FFFFFF'
       const hideLoading = this.$message.loading('Download...', 0)
+      this.loading = true
       uploadImageToAwsByUrl(this.$store.getters.userInfo.id, url, {
         contentId: this.contentId,
         contentType: this.contentType
@@ -217,6 +220,7 @@ export default {
           this.$message.error('The image you selected is not available')
         }).finally(() => {
           hideLoading()
+          this.loading = false
       })
     },
 
