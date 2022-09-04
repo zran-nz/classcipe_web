@@ -1023,6 +1023,7 @@ export default {
         this.pageObjectIds = slideData.result.pageObjectIds
         await this.loadMaterialData()
 
+        // 封面图必须显示
         if (this.thumbnailList.length === 0) {
           if (this.content.image) {
             this.thumbnailList.push({
@@ -1032,6 +1033,10 @@ export default {
             this.thumbnailList.push({
               contentUrl: 'http://dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png'
             })
+          }
+        } else {
+          if (this.content.image) {
+            this.thumbnailList = [{ contentUrl: this.content.image }].concat(this.thumbnailList)
           }
         }
       } catch (e) {

@@ -14,6 +14,7 @@
       <div class='slider-img-cover' :style="{backgroundImage: 'url(' + pageObject.contentUrl + ')' }" v-for='(pageObject,idx) in pageObjectList' :key='idx'>
       </div>
     </a-carousel>
+    <div class="carousel-page">{{ currentImgIndex + 1 }} / {{ videoList.length + pageObjectList.length }}</div>
   </div>
 </template>
 
@@ -76,7 +77,7 @@ export default {
 }
 
 .slider-img-cover {
-  background-size: cover;
+  background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
   height: 400px;
@@ -136,5 +137,10 @@ export default {
   overflow: hidden;
   height: 100%;
   width: 100%;
+}
+.carousel-page {
+  position: absolute;
+  width: 100%;
+  text-align: center;
 }
 </style>
