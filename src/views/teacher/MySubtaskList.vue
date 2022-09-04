@@ -238,10 +238,9 @@ export default {
           if (res.code === 0) {
             this.subTaskList[index].status = targetStatus
             if (targetStatus === 1) {
-              this.$message.success('Publish successfully!')
-            this.$refs.editPrice.showEditPrice()
+              this.$refs.editPrice.showEditPrice()
             } else {
-            this.$message.success('Unpublish successfully!')
+              this.$message.success('Unpublish successfully!')
             }
           } else if (res.code === 520 || res.code === 403) {
             this.$logger.info('等待授权回调')

@@ -1,9 +1,11 @@
 import { TemplatesGetPresentation } from '@/api/template'
 import { PdField, PlanField, TaskField } from '@/const/common'
+import { TaskQueryById } from '@/api/task'
+import { PDContentQueryById } from '@/api/pdContent'
 // import { TaskAddOrUpdate } from '@/api/task'
 // import { PDContentAddOrUpdate } from '@/api/pdContent'
-import storage from 'store'
-import { ACCESS_TOKEN } from '@/store/mutation-types'
+// import storage from 'store'
+// import { ACCESS_TOKEN } from '@/store/mutation-types'
 import { uniqBy } from 'lodash-es'
 
 export const ContentItemMixin = {
@@ -35,62 +37,62 @@ export const ContentItemMixin = {
     }
   },
   async created() {
-    let token = this.$route.query.token
-    if (!token) {
-      token = storage.get(ACCESS_TOKEN)
-    }
-    const contentType = parseInt(this.content.type)
-    if (contentType === this.$classcipe.typeMap.task) {
-      if (!this.$store.getters.formConfigData.taskSteps || !this.$classcipe.taskRequiredFields) {
-        this.$store.dispatch('loadFormConfigData', token).then(() => {
-          this.formSteps = this.$store.getters.formConfigData.taskSteps || []
-          this.$logger.info('formSteps', this.formSteps)
-          this.requiredFields = this.$classcipe.taskRequiredFields
-          // TODO 暂时，等下面的TODO完成去掉
-          this.calculateCanPublish()
-        })
-      } else {
-        // TODO 暂时，等下面的TODO完成去掉
-        this.calculateCanPublish()
-      }
-    }
-    if (contentType === this.$classcipe.typeMap.pd) {
-      this.requiredFields = this.$classcipe.pdRequiredFields
-      this.formSteps = [
-        {
-          id: 1,
-          name: 'PD goals',
-          commonFields: [
-            PdField.Name,
-            PdField.Image,
-            PdField.CoverVideo,
-            PdField.Goals
-          ],
-          showRequiredTips: false,
-          showSatisfiedTips: false
-        },
-        {
-          id: 2,
-          name: 'Edit Slides',
-          commonFields: [
-            PdField.Slides
-          ],
-          showRequiredTips: false,
-          showSatisfiedTips: false
-        },
-        {
-          id: 3,
-          name: 'Link Tasks',
-          commonFields: [
-            PdField.Link
-          ],
-          showRequiredTips: false,
-          showSatisfiedTips: false
-        }
-      ]
-      // TODO 暂时，等下面的TODO完成去掉
-      this.calculateCanPublish()
-    }
+    // let token = this.$route.query.token
+    // if (!token) {
+    //   token = storage.get(ACCESS_TOKEN)
+    // }
+    // const contentType = parseInt(this.content.type)
+    // if (contentType === this.$classcipe.typeMap.task) {
+    //   if (!this.$store.getters.formConfigData.taskSteps || !this.$classcipe.taskRequiredFields) {
+    //     this.$store.dispatch('loadFormConfigData', token).then(() => {
+    //       this.formSteps = this.$store.getters.formConfigData.taskSteps || []
+    //       this.$logger.info('formSteps', this.formSteps)
+    //       this.requiredFields = this.$classcipe.taskRequiredFields
+    //       // TODO 暂时，等下面的TODO完成去掉
+    //       // this.calculateCanPublish()
+    //     })
+    //   } else {
+    //     // TODO 暂时，等下面的TODO完成去掉
+    //     // this.calculateCanPublish()
+    //   }
+    // }
+    // if (contentType === this.$classcipe.typeMap.pd) {
+    //   this.requiredFields = this.$classcipe.pdRequiredFields
+    //   this.formSteps = [
+    //     {
+    //       id: 1,
+    //       name: 'PD goals',
+    //       commonFields: [
+    //         PdField.Name,
+    //         PdField.Image,
+    //         PdField.CoverVideo,
+    //         PdField.Goals
+    //       ],
+    //       showRequiredTips: false,
+    //       showSatisfiedTips: false
+    //     },
+    //     {
+    //       id: 2,
+    //       name: 'Edit Slides',
+    //       commonFields: [
+    //         PdField.Slides
+    //       ],
+    //       showRequiredTips: false,
+    //       showSatisfiedTips: false
+    //     },
+    //     {
+    //       id: 3,
+    //       name: 'Link Tasks',
+    //       commonFields: [
+    //         PdField.Link
+    //       ],
+    //       showRequiredTips: false,
+    //       showSatisfiedTips: false
+    //     }
+    //   ]
+    //   // TODO 暂时，等下面的TODO完成去掉
+    //   // this.calculateCanPublish()
+    // }
   },
   computed: {
     commandTermsList () {
@@ -153,9 +155,29 @@ export const ContentItemMixin = {
           console.log('updateEditSlideStatus', e)
         } finally {
           this.updateEditSlideLoading = false
-          this.calculateCanPublish()
+          // this.calculateCanPublish()
+          // 直接重新获取数据
+          const res = this.contentReget()
+          if (res.code === 0) {
+            this.content.canPublish = res.result.canPublish
+          }
         }
       }
+    },
+    async contentReget() {
+      const contentType = parseInt(this.content.type)
+      let res = null
+      // 只有task 和 pd需要save changes
+      if (contentType === this.$classcipe.typeMap.task) {
+       res = await TaskQueryById({
+          id: this.content.id
+        })
+      } else if (contentType === this.$classcipe.typeMap.pd) {
+        res = await PDContentQueryById({
+          id: this.content.id
+        })
+      }
+      return res
     },
     simpleIsEmpty(value) {
       if (value === null || value === '' || value === undefined) {
