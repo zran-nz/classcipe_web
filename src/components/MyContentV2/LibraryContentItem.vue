@@ -129,6 +129,9 @@
       <content-preview
         :content-id='previewCurrentId'
         :content-type='previewType'
+        :show-enter-button='false'
+        :review-edit='false'
+        :review-create='false'
         v-if='previewVisible'
         @close='handlePreviewClose' />
 

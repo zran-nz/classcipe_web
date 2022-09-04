@@ -79,36 +79,49 @@
                     <a-input v-model='price' type='number' class='dollar-price-input' prefix="$" />
                   </div>
                 </div>
-                <div class='pay-discount' v-clickOutside="handleBlurClick">
+                <div class='pay-discount'>
                   <div class='pay-sub-title'>
                     Bulk discount pricing
                   </div>
-                  <div class='pay-discount-title'>
-                    <div class='pay-participant'>No of participants</div>
-                    <div class='pay-percent'>Percentage off</div>
-                  </div>
                   <div class='pay-discount-item' v-for='discount in discountList' :key='discount.id' @click.stop='handleDiscountEdit(discount)'>
-                    <div class='person-num'>
-                      <template v-if='discount.editing'>
-                        <a-input v-model='discount.peopleThreshold' min='1' type='number' class='cc-form-input discount-input'/>
-                      </template>
-                      <template v-else>
-                        {{ discount.peopleThreshold }}
-                      </template>
-                      and more
-                    </div>
-                    <div class='discount-off'>
-                      <template v-if='discount.editing'>
-                        <a-input v-model='discount.discount' min='0' max='100' type='number' class='cc-form-input discount-input'/>%
-                      </template>
-                      <template v-else>
-                        {{ discount.discount }}%
-                      </template>
-                    </div>
-                    <div class='delete-item' @click.stop=''>
-                      <a-popconfirm title="Delete?" ok-text="Yes" @confirm="deleteDiscount(discount)" cancel-text="No">
-                        <delete-icon color='#F16A39' />
-                      </a-popconfirm>
+                    <div class='item-detail'>
+                      <div class='item-detail-it vertical-between'>
+                        <div class='it-name'>
+                          <div class='pay-participant'>No. of participants</div>
+                        </div>
+                        <div class='it-value vertical-left'>
+                          <div class='person-num'>
+                            <template v-if='discount.editing'>
+                              <a-input v-model='discount.peopleThreshold' min='1' type='number' class='cc-form-input discount-input'/>
+                            </template>
+                            <template v-else>
+                              {{ discount.peopleThreshold }}
+                            </template>
+                            and more
+                          </div>
+                        </div>
+                      </div>
+                      <div class='item-detail-it vertical-between'>
+                        <div class='it-name'>
+                          <div class='pay-percent'>Percentage off</div>
+                        </div>
+                        <div class='it-value vertical-left'>
+                          <div class='discount-off'>
+                            <template v-if='discount.editing'>
+                              <a-input v-model='discount.discount' min='0' max='100' type='number' class='cc-form-input discount-input'/>%
+                            </template>
+                            <template v-else>
+                              {{ discount.discount }}%
+                            </template>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class='delete-item' @click.stop=''>
+                        <a-popconfirm title="Delete?" ok-text="Yes" @confirm="deleteDiscount(discount)" cancel-text="No">
+                          <delete-icon color='#F16A39' />
+                        </a-popconfirm>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -807,7 +820,7 @@ export default {
     handleBlurClick() {
       this.discountList.forEach(discount => {
         discount.peopleThreshold = Math.max(discount.peopleThreshold, 1)
-        discount.editing = false
+        discount.editing = true
       })
     },
 
@@ -1028,90 +1041,98 @@ export default {
     }
   }
 
-  .pay-detail {
-    margin: 10px 0;
-    padding: 10px 20px;
-    background-color: #F7F8F9;
-    border-radius: 5px;
-    border: 1px solid #eee;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    user-select: none;
-
-    .fee {
-      line-height: 30px;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .add-discount {
-      margin-top: 15px;
-      height: 35px;
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-      color: #15c39a;
+   .pay-detail {
+      margin: 10px 0;
+      padding: 10px 20px;
+      background-color: #F7F8F9;
+      border-radius: 5px;
+      border: 1px solid #eee;
       font-size: 13px;
-    }
+      font-weight: 500;
+      cursor: pointer;
+      user-select: none;
 
-    .pay-discount {
-      margin-top: 15px;
-      padding: 5px 20px 10px;
-      background-color: #15c39a11;
-
-      .pay-sub-title {
-        font-size: 14px;
-        color: #15c39a;
-        line-height: 28px;
-      }
-
-      .pay-discount-title {
-        font-size: 14px;
-        color: #15c39a;
+      .fee {
         line-height: 30px;
-        font-weight: bold;
-      }
-    }
-
-    .pay-discount-item {
-      margin: 5px 0;
-      line-height: 28px;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      position: relative;
-      .person-num {
-        font-size: 14px;
-        color: #666;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
       }
 
-      .discount-off {
-        color: #e4393c;
-        font-size: 14px;
-        width: 120px;
-        text-align: center;
-        font-family: Verdana;
+      .add-discount {
+        margin-top: 15px;
+        height: 35px;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        color: #15c39a;
+        font-size: 13px;
       }
 
-      .delete-item {
-        display: none;
-        position: absolute;
-        right: -13px;
-        top: 50%;
-        margin-top: -7px;
+      .pay-discount {
+        margin-top: 15px;
+        padding: 5px 20px 10px;
+        background-color: #15c39a11;
+
+        .pay-sub-title {
+          font-size: 14px;
+          color: #15c39a;
+          line-height: 28px;
+        }
+
+        .pay-discount-title {
+          font-size: 14px;
+          color: #15c39a;
+          line-height: 30px;
+          font-weight: bold;
+        }
       }
 
-      &:hover {
+      .pay-discount-item {
+        margin: 5px 0;
+        line-height: 28px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+        .item-detail {
+          width: 100%;
+          position: relative;
+          .item-detail-it {
+            margin: 5px 0;
+            .it-value {
+              width: 140px;
+            }
+          }
+        }
+        .person-num {
+          font-size: 14px;
+          color: #666;
+        }
+
+        .discount-off {
+          color: #e4393c;
+          font-size: 14px;
+          text-align: center;
+          font-family: Verdana;
+        }
+
         .delete-item {
-          display: flex;
+          display: none;
+          position: absolute;
+          right: -10px;
+          top: 65%;
+        }
+
+        &:hover {
+          .delete-item {
+            display: flex;
+          }
         }
       }
     }
-  }
 }
 
 .discount-input {

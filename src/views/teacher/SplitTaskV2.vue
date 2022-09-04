@@ -269,6 +269,7 @@ export default {
         //       if (response.result && response.result?.presentationId && response.code === 0) {
         //         this.form.presentationId = response.result.presentationId
         //         this.$logger.info('update ppt id', this.form.presentationId)
+        //         this.form.slideEditing = false
         //         await this.save()
         //       }
         //     } else {

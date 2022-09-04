@@ -51,6 +51,7 @@
       :show-edit-button='true'
       :review-edit='false'
       :review-create='false'
+      :show-enter-button='false'
       v-if='previewVisible'
       @close='handlePreviewClose' />
   </div>

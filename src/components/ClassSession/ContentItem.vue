@@ -23,7 +23,7 @@
         <div class='base-info'>
           <div class='name'>
             <div class='content-name'>
-              {{ (content && content.name) || 'Untitled' }}
+              {{ (session && session.session && session.session.register.title) || (content && content.name) || 'Untitled' }}
             </div>
             <div class='schedule-time'>
               <template v-if='session.session.sessionStartTime && session.session.deadline'>
@@ -315,7 +315,7 @@ export default {
         if (WORK_SHOPS_STATUS.ARCHIVED.value === this.session.status) {
           this.$confirm({
             title: 'Confirm delete class session',
-            content: `Do you confirm to delete class session [ ${this.content.name} ]? `,
+            content: `All the relevant content will be cleared and you will not be able to retrieve after deleting it.`,
             centered: true,
             onOk: () => {
               this.loading = true
@@ -348,13 +348,13 @@ export default {
     },
 
    handleEnd() {
-      EndSession(this.content.id).then(res => {
+      EndSession(this.session.session.id).then(res => {
         this.$message.success('End successfully')
         this.$emit('reFetch')
       })
     },
     handleReopen() {
-      ReopenSession(this.content.id).then(res => {
+      ReopenSession(this.session.session.id).then(res => {
         this.$message.success('Reopne successfully')
         this.$emit('reFetch')
       })
