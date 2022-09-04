@@ -248,36 +248,36 @@ export default {
       // 保存后跳转
       const res = await this.save()
       if (res && res.code === 0 && this.form.id) {
-        if (!this.form.presentationId || this.form.presentationId.startsWith('fake_buy_')) {
-          this.nextLoading = true
-          try {
-            const response = await TaskCreateNewTaskPPT({
-              id: this.form.id ? this.form.id : '',
-              type: this.contentType.task,
-              name: this.form.name ? this.form.name : 'Unnamed Task',
-              overview: this.form.overview
-            })
-
-            if (response.success) {
-              if (response.code === 520 || response.code === 403) {
-                this.$logger.info('等待授权回调')
-                this.$message.loading('Waiting for Google Slides auth...', 10)
-                this.nextLoading = false
-                return
-              }
-
-              if (response.result && response.result?.presentationId && response.code === 0) {
-                this.form.presentationId = response.result.presentationId
-                this.$logger.info('update ppt id', this.form.presentationId)
-                await this.save()
-              }
-            } else {
-              this.$message.error(response.message)
-            }
-          } finally {
-            this.nextLoading = false
-          }
-        }
+        // if (!this.form.presentationId || this.form.presentationId.startsWith('fake_buy_')) {
+        //   this.nextLoading = true
+        //   try {
+        //     const response = await TaskCreateNewTaskPPT({
+        //       id: this.form.id ? this.form.id : '',
+        //       type: this.contentType.task,
+        //       name: this.form.name ? this.form.name : 'Unnamed Task',
+        //       overview: this.form.overview
+        //     })
+        //
+        //     if (response.success) {
+        //       if (response.code === 520 || response.code === 403) {
+        //         this.$logger.info('等待授权回调')
+        //         this.$message.loading('Waiting for Google Slides auth...', 10)
+        //         this.nextLoading = false
+        //         return
+        //       }
+        //
+        //       if (response.result && response.result?.presentationId && response.code === 0) {
+        //         this.form.presentationId = response.result.presentationId
+        //         this.$logger.info('update ppt id', this.form.presentationId)
+        //         await this.save()
+        //       }
+        //     } else {
+        //       this.$message.error(response.message)
+        //     }
+        //   } finally {
+        //     this.nextLoading = false
+        //   }
+        // }
         this.$router.replace({
           path: '/teacher/task-redirect/' + this.form.id
         })
