@@ -228,36 +228,45 @@ export default {
       const index = this.subTaskList.findIndex(item => item.id === data.id)
       if (index !== -1) {
         const targetStatus = data.status ? 0 : 1
-        this.publishLoading = true
-        UpdateContentStatus({
-          id: data.id,
-          status: targetStatus,
-          type: data.type
-        }).then((res) => {
-          this.$logger.info('handlePublishStatus res', res, 'currentContent', this.currentContent)
-          if (res.code === 0) {
-            this.subTaskList[index].status = targetStatus
-            if (targetStatus === 1) {
-              this.$refs.editPrice.showEditPrice()
-            } else {
-              this.$message.success('Unpublish successfully!')
-            }
-          } else if (res.code === 520 || res.code === 403) {
-            this.$logger.info('等待授权回调')
-            this.$message.loading('Waiting for Google Slides auth...', 10)
-          } else {
-            this.$message.error(res.message, 5)
-          }
-        }).finally(() => {
-          this.publishLoading = false
-        })
+        if (targetStatus === 1) {
+          this.$nextTick(() => {
+            this.$refs.editPrice.showEditPrice()
+          })
+        } else {
+          this.showPublishTips(data)
+        }
       } else {
         this.$logger.warn(`no found Update item ${data.id}`)
         this.currentContent = null
       }
     },
-    showPublishTips () {
-      this.$message.success('Publish successfully!')
+    showPublishTips (data) {
+      data = data || this.currentContent
+      const targetStatus = data.status ? 0 : 1
+      const index = this.subTaskList.findIndex(item => item.id === data.id)
+      this.loading = true
+      UpdateContentStatus({
+        id: data.id,
+        status: targetStatus,
+        type: data.type
+      }).then((res) => {
+        this.$logger.info('handlePublishStatus res', res, 'currentContent', this.currentContent)
+        if (res.code === 0) {
+          this.subTaskList[index].status = targetStatus
+          if (targetStatus === 1) {
+            this.$message.success('Publish successfully!')
+          } else {
+            this.$message.success('Unpublish successfully!')
+          }
+        } else if (res.code === 520 || res.code === 403) {
+          this.$logger.info('等待授权回调')
+          this.$message.loading('Waiting for Google Slides auth...', 10)
+        } else {
+          this.$message.error(res.message, 5)
+        }
+      }).finally(() => {
+        this.loading = false
+      })
     },
     handleSelectStatusType(item) {
       sessionStorage.setItem(SESSION_SUB_FLAG, item.type)

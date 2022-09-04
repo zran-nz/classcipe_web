@@ -418,7 +418,7 @@ export default {
           source: 'calendar'
         }
       })
-    }
+    },
 
 // 直接页面跳转
     // getClassList() {
@@ -473,18 +473,18 @@ export default {
     //   }
     //   this.scheduleReq.zoom = zoom ? 1 : 0
     // },
-    // handleCancelUnit() {
-    //   this.selectSessionUnitVisible = false
-    // },
-    // handleSelectUnit(data) {
-    //   this.scheduleReq.planId = data.id
-    //   this.selectSessionUnitVisible = false
-    //   if (this.currentActiveStepIndex === this.ScheduleStepsFilter.length - 1) {
-    //     this.goCreateSession()
-    //   } else {
-    //     this.$refs['steps-nav'].nextStep()
-    //   }
-    // },
+    handleCancelUnit() {
+      this.selectSessionUnitVisible = false
+    },
+    handleSelectUnit(data) {
+      this.scheduleReq.planId = data.id
+      this.selectSessionUnitVisible = false
+      if (this.currentActiveStepIndex === this.ScheduleStepsFilter.length - 1) {
+        this.goCreateSession()
+      } else {
+        this.$refs['steps-nav'].nextStep()
+      }
+    }
     // async createSession(retValue) {
     //   if (this.scheduleReq.openSession) {
     //     const openSessionData = this.$refs.pay.getPaidInfo()

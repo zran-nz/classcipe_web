@@ -858,7 +858,10 @@ export default {
         this.$nextTick(() => {
           if (this.$refs.fullCalendar) {
             const calendarApi = this.$refs.fullCalendar.getApi()
-            const current = moment().subtract(15, 'm').format('HH:mm:ss')
+            let current = moment().subtract(15, 'm').format('HH:mm:ss')
+            if (this.forSelect && this.defaultSelect && this.defaultSelect.length > 0) {
+              current = this.defaultSelect[0].format('HH:mm:ss')
+            }
             calendarApi && calendarApi.scrollToTime(current)
           }
         })
