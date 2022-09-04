@@ -579,7 +579,7 @@ export default {
       if (WORK_SHOPS_STATUS.ARCHIVED.value === this.item.workshopsStatus) {
         this.$confirm({
           title: 'Confirm remove live workshop',
-          content: 'Are you confirm remove live workshop ' + (item.content ? item.content.name : '') + ' ?',
+          content: 'All the relevant content will be cleared and you will not be able to retrieve after deleting it.',
           centered: true,
           onOk: () => {
             DeleteClassV2({

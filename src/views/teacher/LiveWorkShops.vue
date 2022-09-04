@@ -321,6 +321,10 @@ export default {
       if (params.workshopsType === WORK_SHOPS_TYPE.FEATURE.value) {
         params.workshopsStatus = ''
       }
+      if (params.workshopsStatus === WORK_SHOPS_STATUS.ARCHIVED.value) {
+        params.workshopsStatus = 5
+        params.delFlag = 1
+      }
       FindWorkShops(params).then(res => {
         logger.info('getMyContent', res)
         if (res.success && res.code === 0) {

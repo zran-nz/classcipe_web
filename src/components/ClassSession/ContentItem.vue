@@ -315,7 +315,7 @@ export default {
         if (WORK_SHOPS_STATUS.ARCHIVED.value === this.session.status) {
           this.$confirm({
             title: 'Confirm delete class session',
-            content: `Do you confirm to delete class session [ ${this.content.name} ]? `,
+            content: `All the relevant content will be cleared and you will not be able to retrieve after deleting it.`,
             centered: true,
             onOk: () => {
               this.loading = true
