@@ -23,7 +23,7 @@
         <div class='base-info'>
           <div class='name'>
             <div class='content-name'>
-              {{ (content && content.name) || 'Untitled' }}
+              {{ (session && session.session && session.session.register.title) || (content && content.name) || 'Untitled' }}
             </div>
             <div class='schedule-time'>
               <template v-if='session.session.sessionStartTime && session.session.deadline'>
