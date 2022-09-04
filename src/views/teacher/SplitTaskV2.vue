@@ -280,7 +280,6 @@ export default {
         //     this.nextLoading = false
         //   }
         // }
-        this.nextLoading = false
         this.$router.push({
           path: '/teacher/task-redirect/' + this.form.id
         })
