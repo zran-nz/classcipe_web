@@ -348,13 +348,13 @@ export default {
     },
 
    handleEnd() {
-      EndSession(this.content.id).then(res => {
+      EndSession(this.session.session.id).then(res => {
         this.$message.success('End successfully')
         this.$emit('reFetch')
       })
     },
     handleReopen() {
-      ReopenSession(this.content.id).then(res => {
+      ReopenSession(this.session.session.id).then(res => {
         this.$message.success('Reopne successfully')
         this.$emit('reFetch')
       })
