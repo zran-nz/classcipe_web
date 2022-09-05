@@ -77,6 +77,9 @@ export default {
       isWaitingRoom: this.waitingRoom
     }
   },
+  created () {
+    this.update()
+  },
   methods: {
     update() {
       this.$emit('update', {
