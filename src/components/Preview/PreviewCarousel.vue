@@ -14,7 +14,7 @@
       <div class='slider-img-cover' :style="{backgroundImage: 'url(' + pageObject.contentUrl + ')' }" v-for='(pageObject,idx) in pageObjectList' :key='idx'>
       </div>
     </a-carousel>
-    <div class="carousel-page">{{ currentImgIndex + 1 }} / {{ videoList.length + pageObjectList.length }}</div>
+    <div class="carousel-page">{{ showPage }}</div>
   </div>
 </template>
 
@@ -46,6 +46,14 @@ export default {
     isYoutubeIframeUrl(url) {
       return function(url) {
         return url && url.indexOf('youtube.com/embed') !== -1
+      }
+    },
+    showPage() {
+      if (this.currentImgIndex === 0) {
+        return 'Cover image'
+      } else {
+        const total = this.videoList.length + this.pageObjectList.length - 1
+        return `${ this.currentImgIndex } / ${total}`
       }
     }
   },
