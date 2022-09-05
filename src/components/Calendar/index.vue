@@ -77,6 +77,10 @@ export default {
     dayHeaderContent: {
       type: Function,
       default: (info) => info.text
+    },
+    validRange: {
+      type: Function,
+      default: () => {}
     }
 
   },
@@ -126,7 +130,8 @@ export default {
           return moment(date.date).format('HH:mm')
         },
         viewDidMount: this.handleViewDidMount,
-        selectAllow: this.selectAllow
+        selectAllow: this.selectAllow,
+        validRange: this.validRange
       }
     }
   },

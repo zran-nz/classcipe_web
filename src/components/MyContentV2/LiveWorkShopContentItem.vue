@@ -1,8 +1,8 @@
 <template>
-  <div class='content-item' v-if='content && content.content'>
+  <div class='content-item' v-if='content'>
     <div class='cover' @click.prevent.stop="handleGoWork(content)">
-      <div class='cover-block' :style="{'background-image': 'url(' + (content.cover || content.content.image) + ')'}">
-        <div class='bottom-action' v-if="!isSimple">
+      <div class='cover-block' :style="{'background-image': 'url(' + (content.cover || (content.content && content.content.image) || 'http://dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png') + ')'}">
+        <div class='bottom-action' v-if="!isSimple && content.content">
           <div class='bottom-action-item vertical-left'>
             <!-- <div class='bottom-action-item-icon'><a-icon type="form" /></div>
             <div class='bottom-action-item-label'>Edit</div> -->
@@ -20,11 +20,11 @@
     <div class='detail'>
       <div class='detail-content' @click.prevent.stop>
         <div class='base-info'>
-          <div class='type-icon'>
+          <div class='type-icon' v-if="content.content">
             <content-type-icon :type="content.content.type" />
           </div>
           <div class='name' v-show="!showEditName">
-            {{ content.title || content.content.name }}
+            {{ content.title || (content.content&&content.content.name) || 'Untitle' }}
             <!-- <a-icon v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType" type="edit" @click.prevent.stop="editName(content)"/> -->
           </div>
           <div class="name" v-show="showEditName">
@@ -107,7 +107,7 @@
             Me
           </div>
           <div class="author-name" v-else>
-            {{ content.userRealName || content.content.createBy }}
+            {{ content.userRealName || (content.content && content.content.createBy) }}
           </div>
         </div>
         <a-space @click.prevent.stop v-if="!isSimple">
@@ -127,7 +127,7 @@
                 <share-button
                   v-if="shareItem"
                   :link="wrapperLink(content)"
-                  :title="content.content.name"
+                  :title="content.title || (content.content && content.content.name) || 'Untitle'"
                 />
               </div>
             </template>

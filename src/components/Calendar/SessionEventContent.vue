@@ -65,6 +65,7 @@
       v-else
       title="Set Date"
       trigger="click"
+      :defaultVisible="false"
       :destroyTooltipOnHide="true"
       @visibleChange="visible => showDateSelectPopover(visible, info.event)"
     >
@@ -201,6 +202,9 @@ export default {
   methods: {
     moment,
     initData() {
+      if (this.info.event.extendedProps.eventType === 'selectDate') {
+        this.showDateSelectPopover(true, this.info.event)
+      }
     },
     getPopupContainer(trigger, info) {
       const parentelClassList = trigger.parentElement.parentElement.parentElement.classList

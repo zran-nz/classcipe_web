@@ -1038,6 +1038,12 @@ export default {
     handleEventDrop(event) {
       const current = event.event
       const extendedProps = current.extendedProps
+      const start = moment(current.start)
+      // 错误日期则回退
+      if (moment().isAfter(start)) {
+        current.setDates(event.oldEvent.start, event.oldEvent.end)
+        return
+      }
       if (event.event.id === 'DateSelect') {
         this.$emit('date-select', {
           startDate: moment(current.start).format('YYYY-MM-DD HH:mm:ss'),
