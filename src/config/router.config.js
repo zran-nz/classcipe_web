@@ -647,8 +647,8 @@ export const asyncRouterMap = [
               title: 'Persona Info',
               keepAlive: true,
               noSidebar: true,
-              permission: ['teacher'],
-              mode: USER_MODE.SELF
+              permission: ['teacher']
+              // mode: USER_MODE.SELF // 学校直接自动切换为个人
             }
           },
           {
