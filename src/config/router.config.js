@@ -428,7 +428,7 @@ export const asyncRouterMap = [
               return props
             },
             component: () => import('@/views/teacher/SessionImport'),
-            meta: { title: 'SessionImport', keepAlive: true, permission: ['teacher'] }
+            meta: { title: 'SessionImport', owner: '/teacher/main/calendar', keepAlive: true, permission: ['teacher'] }
           }
         ]
       },
