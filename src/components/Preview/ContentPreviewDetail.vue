@@ -1322,8 +1322,10 @@ export default {
         }).then(res => {
           if (res.success) {
             this.$message.success('You have successfully registered in')
-            this.initLiveDetail()
-            this.$emit('reload')
+            // this.initLiveDetail()
+            // this.$emit('reload')
+            this.handleClose()
+            window.location.href = '/teacher/main/live-workshops?workshopsType=3'
           }
         }).finally(() => {
           this.buyLoading = false
