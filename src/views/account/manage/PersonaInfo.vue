@@ -238,10 +238,11 @@ import ReferSchool from './persona/ReferSchool'
 import { getCountry, getCity } from '@/api/v2/country'
 // import country from '@/api/country'
 import countryCode from '@/api/countryCode'
-import { editUser } from '@/api/user'
+import { editUser, SwitchUserModeSchool } from '@/api/user'
 import { createSchool, getSchools, queryById } from '@/api/school'
+import { TOOGLE_USER_MODE } from '@/store/mutation-types'
 
-import { mapState } from 'vuex'
+import { mapState, mapMutations } from 'vuex'
 import { UpdatePersonalInfo } from '@/api/login'
 const { debounce } = require('lodash-es')
 
@@ -314,7 +315,7 @@ export default {
     this.fetchCity = debounce(this.fetchCity, 300)
     this.debouncedSearchSchool = debounce(this.searchSchool, 500)
     this.initDict()
-    this.loadData()
+    this.autoSwitch()
   },
   computed: {
     ...mapState({
@@ -352,6 +353,7 @@ export default {
     }
   },
   methods: {
+    ...mapMutations([TOOGLE_USER_MODE]),
     goBack() {
       this.$router.go(-1)
     },
@@ -359,12 +361,28 @@ export default {
       if (this.userMode === USER_MODE.SCHOOL) {
         this.queryParam.schoolId = currentSchool.id
         this.initDict()
-        this.debounceInit()
+        this.autoSwitch()
       }
     },
     handleModeChange(userMode) {
       // 模式切换，个人还是学校 个人接口
-      this.debounceInit()
+      this.autoSwitch()
+    },
+    autoSwitch() {
+      if (this.userMode === USER_MODE.SCHOOL) {
+        SwitchUserModeSchool({
+          isPersonal: true,
+          schoolId: '0'
+        }).then(res => {
+          // 获取对应学校班级
+          this[TOOGLE_USER_MODE](USER_MODE.SELF)
+          this.$store.dispatch('GetInfo')
+          this.GetClassList('0')
+          this.loadData()
+        })
+      } else {
+        this.loadData()
+      }
     },
     initDict() {
       getCountry().then(res => {
