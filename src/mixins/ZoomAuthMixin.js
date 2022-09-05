@@ -11,7 +11,7 @@ import { getUrlWithNoParams, getCookie } from '@/utils/util'
 export const ZoomAuthMixin = {
   computed: {
     ...mapState({
-      zoomAccessToken: state => state.user.info.zoomAuthToken?.accessToken,
+      zoomAccessToken: state => state.user.info.zoomAuthToken?.email,
       zoomRefreshToken: state => state.user.info.zoomAuthToken?.refreshToken
     }),
     zoomMeetingCapacity () {
