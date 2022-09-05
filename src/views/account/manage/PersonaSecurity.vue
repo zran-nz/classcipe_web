@@ -150,13 +150,13 @@ export default {
       return ''
     },
     mircosoftAuthToken() {
-      return (this.info && this.info.mircosoftAuthToken && this.info.mircosoftAuthToken.accessToken) ? this.info.mircosoftAuthToken : null
+      return (this.info && this.info.mircosoftAuthToken && this.info.mircosoftAuthToken.email) ? this.info.mircosoftAuthToken : null
     },
     googleAuthToken() {
-      return (this.info && this.info.googleAuthToken && this.info.googleAuthToken.accessToken) ? this.info.googleAuthToken : null
+      return (this.info && this.info.googleAuthToken && this.info.googleAuthToken.email) ? this.info.googleAuthToken : null
     },
     zoomAuthToken() {
-      return (this.info && this.info.zoomAuthToken && this.info.zoomAuthToken.accessToken) ? this.info.zoomAuthToken : null
+      return (this.info && this.info.zoomAuthToken && this.info.zoomAuthToken.email) ? this.info.zoomAuthToken : null
     },
     onlyOneAuth() {
       const nums = [this.mircosoftAuthToken, this.googleAuthToken, this.zoomAuthToken].filter(auth => auth === null).length
