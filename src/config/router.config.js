@@ -251,28 +251,28 @@ export const asyncRouterMap = [
             name: 'AddTask',
             props: true,
             component: () => import('@/views/teacher/AddTask'),
-            meta: { title: 'menu.task', keepAlive: true, permission: ['teacher'] }
+            meta: { title: 'menu.task', owner: '/teacher/main/created-by-me', keepAlive: true, permission: ['teacher'] }
           },
           {
             path: '/teacher/add-task-v2/:taskId?/:mode?', // mode:edit 编辑模式 pick-task-slide:选择slide创建task模式
             name: 'AddTaskV2',
             props: true,
             component: () => import('@/views/teacher/AddTaskV2'),
-            meta: { title: 'menu.task', keepAlive: false, permission: ['teacher'], fullLayout: true }
+            meta: { title: 'menu.task', owner: '/teacher/main/created-by-me', keepAlive: false, permission: ['teacher'], fullLayout: true }
           },
           {
             path: '/teacher/add-task-v3/:taskId?/:mode?', // mode:edit 编辑模式 pick-task-slide:选择slide创建task模式
             name: 'AddTaskV3',
             props: true,
             component: () => import('@/views/teacher/AddTaskV3'),
-            meta: { title: 'menu.task', keepAlive: false, permission: ['teacher'], fullLayout: true }
+            meta: { title: 'menu.task', owner: '/teacher/main/created-by-me', keepAlive: false, permission: ['teacher'], fullLayout: true }
           },
           {
             path: '/teacher/sub-task/:taskId',
             name: 'MySubtask',
             props: true,
             component: () => import('@/views/teacher/MySubtaskList'),
-            meta: { title: 'menu.sub-task', keepAlive: true, permission: ['teacher'], fullLayout: true }
+            meta: { title: 'menu.sub-task', owner: '/teacher/main/created-by-me', keepAlive: true, permission: ['teacher'], fullLayout: true }
           },
           {
             path: '/teacher/link-content-list/:contentType/:contentId',
@@ -286,70 +286,70 @@ export const asyncRouterMap = [
             name: 'SplitTask',
             props: true,
             component: () => import('@/views/teacher/SplitTaskV2'),
-            meta: { title: 'menu.splitTask', keepAlive: true, permission: ['teacher'], fullLayout: true }
+            meta: { title: 'menu.splitTask', owner: '/teacher/main/created-by-me', keepAlive: true, permission: ['teacher'], fullLayout: true }
           },
           {
             path: '/teacher/task-redirect/:taskId?/:parentId?',
             name: 'TaskRedirect',
             props: true,
             component: () => import('@/views/teacher/TaskRedirect'),
-            meta: { title: 'menu.task', keepAlive: true, permission: ['teacher'] }
+            meta: { title: 'menu.task', owner: '/teacher/main/created-by-me', keepAlive: true, permission: ['teacher'] }
           },
           {
             path: '/teacher/task-redirect-by-mode/:taskMode',
             name: 'TaskByModeRedirect',
             props: true,
             component: () => import('@/views/teacher/TaskRedirectByMode'),
-            meta: { title: 'menu.task', keepAlive: true, permission: ['teacher'] }
+            meta: { title: 'menu.task', owner: '/teacher/main/created-by-me', keepAlive: true, permission: ['teacher'] }
           },
           {
             path: '/teacher/pd-content-redirect/:pdId?/:parentId?',
             name: 'PDContentRedirect',
             props: true,
             component: () => import('@/views/teacher/PDContentRedirect'),
-            meta: { title: 'menu.pd', keepAlive: true, permission: ['teacher'], fullLayout: true }
+            meta: { title: 'menu.pd', owner: '/teacher/main/created-by-me', keepAlive: true, permission: ['teacher'], fullLayout: true }
           },
           {
             path: '/teacher/pd-content/:pdId',
             name: 'AddPD',
             props: true,
             component: () => import('@/views/teacher/AddPD'),
-            meta: { title: 'menu.pd', keepAlive: false, permission: ['teacher'] }
+            meta: { title: 'menu.pd', owner: '/teacher/main/created-by-me', keepAlive: false, permission: ['teacher'] }
           },
           {
             path: '/teacher/video-redirect/:videoId',
             name: 'VideoRedirect',
             props: true,
             component: () => import('@/views/teacher/VideoRedirect'),
-            meta: { title: 'menu.pd', keepAlive: true, permission: ['teacher'] }
+            meta: { title: 'menu.pd', owner: '/teacher/main/created-by-me', keepAlive: true, permission: ['teacher'] }
           },
           {
             path: '/teacher/video/:videoId',
             name: 'AddVideo',
             props: true,
             component: () => import('@/views/teacher/AddVideo'),
-            meta: { title: 'menu.video', keepAlive: true, permission: ['teacher'] }
+            meta: { title: 'menu.video', owner: '/teacher/main/created-by-me', keepAlive: true, permission: ['teacher'] }
           },
           {
             path: '/teacher/unit-plan/:unitPlanId',
             props: true,
             name: 'UnitPlan',
             component: () => import('@/views/teacher/AddUnitPlan'),
-            meta: { title: 'menu.teacher.add-unit-plan', keepAlive: true, permission: ['teacher'] }
+            meta: { title: 'menu.teacher.add-unit-plan', owner: '/teacher/main/created-by-me', keepAlive: true, permission: ['teacher'] }
           },
           {
             path: '/teacher/unit-plan-v2/:unitPlanId',
             props: true,
             name: 'UnitPlanV2',
             component: () => import('@/views/teacher/AddUnitPlanV2'),
-            meta: { title: 'menu.teacher.add-unit-plan', keepAlive: true, permission: ['teacher'], fullLayout: true, allowHiddenHeader: true, hiddenFooter: true }
+            meta: { title: 'menu.teacher.add-unit-plan', owner: '/teacher/main/created-by-me', keepAlive: true, permission: ['teacher'], fullLayout: true, allowHiddenHeader: true, hiddenFooter: true }
           },
           {
             path: '/teacher/unit-plan-redirect/:unitPlanId',
             props: true,
             name: 'UnitPlanRedirect',
             component: () => import('@/views/teacher/UnitPlanRedirect'),
-            meta: { title: 'menu.teacher.unit-plan', keepAlive: true, permission: ['teacher'] }
+            meta: { title: 'menu.teacher.unit-plan', owner: '/teacher/main/created-by-me', keepAlive: true, permission: ['teacher'] }
           },
           {
             path: '/teacher/class-evaluation/:taskId/:classId/:sessionId/:mode?',
@@ -367,7 +367,7 @@ export const asyncRouterMap = [
               return props
             },
             component: () => import('@/views/teacher/schedule/ScheduleSession'),
-            meta: { title: 'Schedule', keepAlive: true, permission: ['teacher'] }
+            meta: { title: 'Schedule', owner: '/teacher/main/created-by-me', keepAlive: true, permission: ['teacher'] }
           },
           {
             path: '/teacher/schedule-workshop/:id/:type',
@@ -378,7 +378,7 @@ export const asyncRouterMap = [
               return props
             },
             component: () => import('@/views/teacher/schedule/ScheduleWorkshop'),
-            meta: { title: 'Schedule Workshop', keepAlive: true, permission: ['teacher'] }
+            meta: { title: 'Schedule Workshop', owner: '/teacher/main/created-by-me', keepAlive: true, permission: ['teacher'] }
           },
           {
             path: '/teacher/class-session/:classId?',
@@ -428,7 +428,7 @@ export const asyncRouterMap = [
               return props
             },
             component: () => import('@/views/teacher/SessionImport'),
-            meta: { title: 'SessionImport', keepAlive: true, permission: ['teacher'] }
+            meta: { title: 'SessionImport', owner: '/teacher/main/calendar', keepAlive: true, permission: ['teacher'] }
           }
         ]
       },
@@ -647,8 +647,8 @@ export const asyncRouterMap = [
               title: 'Persona Info',
               keepAlive: true,
               noSidebar: true,
-              permission: ['teacher'],
-              mode: USER_MODE.SELF
+              permission: ['teacher']
+              // mode: USER_MODE.SELF // 学校直接自动切换为个人
             }
           },
           {

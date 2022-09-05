@@ -67,7 +67,7 @@
             </a-space>
             <div class="choose-title">
               <div class="title">Session title:</div>
-              <a-textarea auto-size :maxlength="500" v-model="scheduleReq.register.title"></a-textarea>
+              <a-textarea @blur="handleChangeTitle" auto-size :maxlength="500" v-model="scheduleReq.register.title"></a-textarea>
             </div>
           </div>
         </schedule-date>
@@ -224,7 +224,7 @@ import SelectParticipant from '@/components/Schedule/SelectParticipant'
 import ScheduleDate from '@/components/Schedule/ScheduleDate'
 import SchedulePayInfo from '@/components/Schedule/SchedulePayInfo'
 import SchoolSchedule from '@/components/Schedule/SchoolSchedule'
-import { AddSessionV2, UpdateSessionV2 } from '@/api/v2/classes'
+import { AddSessionV2, EditSessionScheduleV2, UpdateSessionV2 } from '@/api/v2/classes'
 import { DetailBySessionId } from '@/api/v2/live'
 import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
 import FixedFormFooter from '@/components/Common/FixedFormFooter'
@@ -625,6 +625,19 @@ export default {
       } else {
         this.$router.replace({
           path: `/teacher/class-session/${taskClassId}`
+        })
+      }
+    },
+
+    handleChangeTitle() {
+      if (this.sessionId) {
+        this.scheduleReq.sessionId = this.sessionId
+        this.$logger.info('try handleChangeTitle', this.scheduleReq)
+        EditSessionScheduleV2(this.scheduleReq).then(res => {
+          if (res.success) {
+
+          }
+        }).finally(res => {
         })
       }
     }

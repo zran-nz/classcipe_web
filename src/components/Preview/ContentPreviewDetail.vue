@@ -1212,7 +1212,7 @@ export default {
       })
     },
 
-    handleBuyItem (msg) {
+    handleBuyItem (msg = '') {
       this.$logger.info('handleBuyItem', this.content)
       ContentBuy({ id: this.content.id, type: this.content.type }).then((response) => {
         if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
@@ -1322,8 +1322,10 @@ export default {
         }).then(res => {
           if (res.success) {
             this.$message.success('You have successfully registered in')
-            this.initLiveDetail()
-            this.$emit('reload')
+            // this.initLiveDetail()
+            // this.$emit('reload')
+            this.handleClose()
+            window.location.href = '/teacher/main/live-workshops?workshopsType=3'
           }
         }).finally(() => {
           this.buyLoading = false

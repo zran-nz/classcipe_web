@@ -550,7 +550,17 @@ export default {
             this.price = register.price
             if (register.discountInfo) {
               this.form.discountInfo = register.discountInfo
-              this.discountList = register.discountInfo
+              this.discountList = register.discountInfo.map(item => ({
+                ...item,
+                editing: true
+              }))
+              if (!this.discountList || this.discountList.length === 0) {
+                this.discountList = [{
+                  peopleThreshold: 1,
+                  discount: 0,
+                  editing: true
+                }]
+              }
             }
           }
         }

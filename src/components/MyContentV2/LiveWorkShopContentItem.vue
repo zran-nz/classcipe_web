@@ -1,8 +1,8 @@
 <template>
-  <div class='content-item' v-if='content && content.content'>
+  <div class='content-item' v-if='content'>
     <div class='cover' @click.prevent.stop="handleGoWork(content)">
-      <div class='cover-block' :style="{'background-image': 'url(' + (content.cover || content.content.image) + ')'}">
-        <div class='bottom-action' v-if="!isSimple">
+      <div class='cover-block' :style="{'background-image': 'url(' + (content.cover || (content.content && content.content.image) || 'http://dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png') + ')'}">
+        <div class='bottom-action' v-if="!isSimple && content.content">
           <div class='bottom-action-item vertical-left'>
             <!-- <div class='bottom-action-item-icon'><a-icon type="form" /></div>
             <div class='bottom-action-item-label'>Edit</div> -->
@@ -20,11 +20,11 @@
     <div class='detail'>
       <div class='detail-content' @click.prevent.stop>
         <div class='base-info'>
-          <div class='type-icon'>
+          <div class='type-icon' v-if="content.content">
             <content-type-icon :type="content.content.type" />
           </div>
           <div class='name' v-show="!showEditName">
-            {{ content.title || content.content.name }}
+            {{ content.title || (content.content&&content.content.name) || 'Untitle' }}
             <!-- <a-icon v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType" type="edit" @click.prevent.stop="editName(content)"/> -->
           </div>
           <div class="name" v-show="showEditName">
@@ -107,7 +107,7 @@
             Me
           </div>
           <div class="author-name" v-else>
-            {{ content.userRealName || content.content.createBy }}
+            {{ content.userRealName || (content.content && content.content.createBy) }}
           </div>
         </div>
         <a-space @click.prevent.stop v-if="!isSimple">
@@ -127,7 +127,7 @@
                 <share-button
                   v-if="shareItem"
                   :link="wrapperLink(content)"
-                  :title="content.content.name"
+                  :title="content.title || (content.content && content.content.name) || 'Untitle'"
                 />
               </div>
             </template>
@@ -186,14 +186,14 @@
               </div>
               <div class='content-item-more-action' slot='overlay'>
                 <div class='menu-item' v-if="0 === content.session.delFlag && (WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus || WORK_SHOPS_STATUS.ENDED.value === content.workshopsStatus)">
-                  <custom-button label='Archive' @click='handleArchive(content)'>
+                  <custom-button label='Archive' @click='handleStatus("Archive")'>
                     <!-- <template v-slot:icon>
                       <icon-font type="icon-shanchu" class="detail-font"/>
                     </template> -->
                   </custom-button>
                 </div>
                 <div class='menu-item' v-if="1 === content.session.delFlag">
-                  <custom-button label='Restore' @click='handleRestore(content)'>
+                  <custom-button label='Restore' @click='handleStatus("Restore")'>
                     <!-- <template v-slot:icon>
                       <icon-font type="icon-shanchu" class="detail-font"/>
                     </template> -->
@@ -207,11 +207,11 @@
                   </custom-button>
                 </div>
                 <div class='menu-item' v-if="0 === content.session.delFlag && WORK_SHOPS_STATUS.ONGOING.value === content.workshopsStatus">
-                  <custom-button label='End' @click='handleEnd(content)'>
+                  <custom-button label='End' @click='handleStatus("End")'>
                   </custom-button>
                 </div>
                 <div class='menu-item' v-if="0 === content.session.delFlag && WORK_SHOPS_STATUS.ENDED.value === content.workshopsStatus">
-                  <custom-button label='Reopen' @click='handleReopen(content)'>
+                  <custom-button label='Reopen' @click='handleStatus("Reopen")'>
                   </custom-button>
                 </div>
               </div>
@@ -223,7 +223,7 @@
             v-if="WORK_SHOPS_TYPE.REGISTERED.value === content.workshopsType
               && isCurrentType(WORK_SHOPS_TYPE.REGISTERED.value)
               && WORK_SHOPS_STATUS.ENDED.value !== content.workshopsStatus
-              && isReadyStart24(content) ">
+              && isReadyStart12(content) ">
             <div class='more-action'>
               <more-icon />
             </div>
@@ -290,7 +290,15 @@
 <script>
 import { WORK_SHOPS_STATUS, WORK_SHOPS_TYPE, USER_MODE } from '@/const/common'
 import { SaveRegisteredRecord, CancelRegistered } from '@/api/v2/live'
-import { DeleteClassV2, EditSessionScheduleV2, EndSession, ReopenSession, ArchiveSession, RestoreSession } from '@/api/v2/classes'
+import {
+  DeleteClassV2,
+  EditSessionScheduleV2,
+  EndSession,
+  ReopenSession,
+  ArchiveSession,
+  RestoreSession,
+  ClassStatusUpdate
+} from '@/api/v2/classes'
 import { lessonHost } from '@/const/googleSlide'
 import { typeMap } from '@/const/teacher'
 import PriceSlider from '@/components/Slider/PriceSlider'
@@ -471,7 +479,7 @@ export default {
     changeTitle(value, item) {
       this.choose.title = value
     },
-    isReadyStart24(item) {
+    isReadyStart12(item) {
       if (!item.sessionStartTime) return false
       const start = moment(item.sessionStartTime).utc().subtract(12, 'hours')
       return moment().isBefore(start)
@@ -577,7 +585,7 @@ export default {
     },
     handleDel(item) {
       console.log(item)
-      if (WORK_SHOPS_STATUS.ARCHIVED.value === item.workshopsStatus) {
+      // if (WORK_SHOPS_STATUS.ARCHIVED.value === item.workshopsStatus) {
         this.$confirm({
           title: 'Confirm remove live workshop',
           content: 'All the relevant content will be cleared and you will not be able to retrieve after deleting it.',
@@ -591,14 +599,14 @@ export default {
             })
           }
         })
-      } else {
-        DeleteClassV2({
-          sessionId: item.sessionId
-        }).then(res => {
-          this.$message.success('Remove successfully')
-          this.$emit('reload')
-        })
-      }
+      // } else {
+      //   DeleteClassV2({
+      //     sessionId: item.sessionId
+      //   }).then(res => {
+      //     this.$message.success('Remove successfully')
+      //     this.$emit('reload')
+      //   })
+      // }
     },
     handleEnd(item) {
       EndSession(item.id).then(res => {
@@ -609,6 +617,15 @@ export default {
     handleReopen(item) {
       ReopenSession(item.id).then(res => {
         this.$message.success('Reopen successfully')
+        this.$emit('reload')
+      })
+    },
+    handleStatus(statusStr) {
+      ClassStatusUpdate({
+        sessionId: this.content.sessionId,
+        statusStr: statusStr
+      }).then(res => {
+        this.$message.success(statusStr + ' successfully')
         this.$emit('reload')
       })
     },

@@ -145,6 +145,9 @@
                         </div>
 
                         <div class='action vertical-right'>
+                          <a-tooltip title="Incompleted content" v-if="(content.type === typeMap.task || content.type === typeMap.pd) && (!content.canPublish || content.slideEditing)">
+                            <a-icon type="exclamation" style="font-size:16px;font-weight:bold;color:#ef4136;" />
+                          </a-tooltip>
                         </div>
                       </div>
                     </div>
@@ -329,9 +332,18 @@ export default {
       }
     },
     handlePreviewDetail(item) {
+      if ((item.type === typeMap.task || item.type === typeMap.pd) && (!item.canPublish || item.slideEditing)) {
+        this.$message.warn('Incompleted content')
+        return
+      }
+      if (this.selectedId === item.id) {
+        this.selectedId = ''
+        this.selectedObj = null
+      } else {
+        this.selectedId = item.id
+        this.selectedObj = { ...item }
+      }
       this.previewLoading = true
-      this.selectedId = item.id
-      this.selectedObj = { ...item }
       setTimeout(() => {
         this.previewLoading = false
       }, 300)
