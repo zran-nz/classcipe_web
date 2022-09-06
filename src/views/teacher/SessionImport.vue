@@ -6,6 +6,7 @@
       :endDate="endDate"
       :classId="classId"
       :searchType="searchType"
+      :source="source"
       @cancel='handleCancel'
       @ok="handleChoose"/>
   </div>
@@ -38,6 +39,10 @@ export default {
     searchType: {
       type: Number,
       default: null
+    },
+    source: {
+      type: String,
+      default: ''
     }
   },
   data() {

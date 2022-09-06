@@ -141,6 +141,10 @@ export default {
       type: String,
       default: ''
     },
+    source: {
+      type: String,
+      default: ''
+    },
     searchType: {
       type: Number,
       default: CALENDAR_QUERY_TYPE.MY.value
@@ -415,7 +419,7 @@ export default {
           endDate: this.importModel.endDate,
           planId: this.scheduleReq.planId,
           classId: this.currentClass || '',
-          source: 'calendar'
+          source: this.source
         }
       })
     },

@@ -259,9 +259,20 @@
             <template >Finish</template>
           </a-button>
         </a-tooltip>
+        <a-tooltip title="Please Input title" v-else-if="!form.title">
+          <a-button type='primary' :disabled="true" :loading='confirmLoading' class='cc-round-button'>
+            <template >Finish</template>
+          </a-button>
+        </a-tooltip>
+        <a-tooltip
+          title="Please Select Schedule time"
+          v-else-if="(!startDate || !endDate)">
+          <a-button type='primary' :disabled="true" :loading='confirmLoading'>
+            <template >Assign</template>
+          </a-button>
+        </a-tooltip>
         <a-button
           type='primary'
-          :disabled="(!startDate || !endDate)"
           @click='handleNextStep'
           :loading='confirmLoading'
           class='cc-round-button'

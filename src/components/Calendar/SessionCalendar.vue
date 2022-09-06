@@ -975,14 +975,14 @@ export default {
     handleAddUnit() {
       this.closeTip()
       this.importType = typeMap['unit-plan']
-      const path = `/teacher/session-import/${this.importType}/${this.currentClass}?startDate=${this.importModel.startDate}&endDate=${this.importModel.endDate}&searchType=${this.searchType}`
+      const path = `/teacher/session-import/${this.importType}/${this.currentClass}?startDate=${this.importModel.startDate}&endDate=${this.importModel.endDate}&searchType=${this.searchType}&source=calendar`
       this.$router.push(path)
       // this.importVisible = true
     },
     handleAddSession() {
       this.closeTip()
       this.importType = typeMap.task
-      const path = `/teacher/session-import/${this.importType}/${this.currentClass}?startDate=${this.importModel.startDate}&endDate=${this.importModel.endDate}&searchType=${this.searchType}`
+      const path = `/teacher/session-import/${this.importType}/${this.currentClass}?startDate=${this.importModel.startDate}&endDate=${this.importModel.endDate}&searchType=${this.searchType}&source=calendar`
       this.$router.push(path)
       // this.importVisible = true
     },

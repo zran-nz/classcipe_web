@@ -2,23 +2,23 @@
   <div class='create-new'>
     <a-dropdown>
       <a-menu slot="overlay" class='create-new-menu'>
-        <a-menu-item>
+        <!-- <a-menu-item>
           <a @click="handleImport('quick')">
             Quick session
           </a>
-        </a-menu-item>
+        </a-menu-item> -->
         <a-menu-item>
-          <a @click="handleImport('unit')">
+          <a @click="handleImport(typeMap['unit-plan'])">
             {{ $t('menu.unit-plan') }}
           </a>
         </a-menu-item>
         <a-menu-item>
-          <a @click="handleImport('task')">
+          <a @click="handleImport(typeMap.task)">
             {{ $t('menu.task') }}
           </a>
         </a-menu-item>
       </a-menu>
-      <a-button class='create-new-btn'>Add new <a-icon type="caret-down" :style="{color: '#4F4F4F'}"/>
+      <a-button class='create-new-btn'>Import from <a-icon type="caret-down" :style="{color: '#4F4F4F'}"/>
       </a-button>
     </a-dropdown>
 
@@ -26,10 +26,12 @@
 </template>
 
 <script>
+import { typeMap } from '@/const/teacher'
 export default {
   name: 'ClassCreateNew',
   data () {
     return {
+      typeMap: typeMap,
       showImportContent: false
     }
   },

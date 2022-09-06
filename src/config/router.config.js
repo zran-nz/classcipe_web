@@ -425,6 +425,9 @@ export const asyncRouterMap = [
               if (query && query.searchType) {
                 props.searchType = parseInt(query.searchType)
               }
+              if (query && query.source) {
+                props.source = query.source
+              }
               return props
             },
             component: () => import('@/views/teacher/SessionImport'),

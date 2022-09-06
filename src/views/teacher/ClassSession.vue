@@ -8,7 +8,7 @@
       <div class='create-new'>
         <a-space>
           <custom-search-input :round='false' :value.sync='queryParams.searchKey' @search='handleSearch' placeholder='Search your content'/>
-          <class-create-new @create='handleImport' v-show="WORK_SHOPS_TYPE.LUNCHEDBYME.value === queryParams.workshopsType"/>
+          <class-create-new @create='handleImport'/>
           <user-profile-avatar />
         </a-space>
       </div>
@@ -299,6 +299,8 @@ export default {
     },
     handleImport(type) {
       this.$logger.info('handleImport', type)
+      const path = `/teacher/session-import/${type}/${this.$route.params.classId}?searchType=2`
+      this.$router.push(path)
       // this.importType = type
       // this.importVisible = true
     },
@@ -506,7 +508,7 @@ export default {
   }
 
   .create-new {
-    max-width: 300px;
+    max-width: 500px;
     display: flex;
     flex-direction: row;
     align-items: center;
