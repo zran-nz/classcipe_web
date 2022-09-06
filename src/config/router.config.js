@@ -377,7 +377,7 @@ export const asyncRouterMap = [
               props.type = +props.type // convert string to number
               return props
             },
-            component: () => import('@/views/teacher/schedule/ScheduleWorkshop'),
+            component: () => import('@/views/teacher/AddLiveWorkshop'),
             meta: { title: 'Schedule Workshop', owner: '/teacher/main/created-by-me', keepAlive: true, permission: ['teacher'] }
           },
           {

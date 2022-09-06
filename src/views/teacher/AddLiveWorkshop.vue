@@ -27,6 +27,7 @@
         <div class='form-body root-locate-form' id='form-body'>
           <div class="choose-session">
             <div class="choose-session-title">
+              <label for="">Workshop title: </label>
               <a-input v-model="form.title"></a-input>
             </div>
             <div class="choose-session-cover">
@@ -45,24 +46,6 @@
             </div>
           </div>
           <template v-if="userMode === USER_MODE.SELF">
-            <!-- <div class="pay-session">
-              <label for="">Paid session</label>
-              <a-switch v-model="form.paidType" />
-              <div class="pay-session-discount" v-show="form.paidType">
-                <price-discount-set ref="priceDiscount"/>
-              </div>
-            </div>
-            <div class="pay-session">
-              <label for="">Max Participants</label>
-              <a-switch v-model="form.needParticipants" />
-              <div class="pay-session-participants" v-show="form.needParticipants">
-                <a-input-number placeholder="Participants" v-model="form.maxParticipants"></a-input-number>
-              </div>
-            </div>
-            <div class="pay-session">
-              <label for="">Register Before</label>
-              <a-date-picker :show-time="{ format: 'HH:mm' }" @change="handleSelectDate" />
-            </div> -->
             <div class='pay-info'>
               <div class='pay-title'>
                 <div class='title'>
@@ -424,7 +407,7 @@ export default {
       steps: [
         {
           id: 1,
-          name: 'Choose Participants'
+          name: 'Schedule Workshop'
         }
         // {
         //   id: 2,
@@ -863,7 +846,7 @@ export default {
   overflow: hidden;
 
   .form-body {
-    width: 50%;
+    width: 40%;
     padding: 20px 30px;
     height: 100%;
     -moz-overflow-y: auto;
@@ -872,7 +855,7 @@ export default {
   }
 
   .tag-body {
-    width: 50%;
+    width: 60%;
     padding: 20px;
     height: 100%;
     overflow-y: scroll;
@@ -900,7 +883,16 @@ export default {
     color: #202020;
     line-height: 14px;
     margin-top: 10px;
+    display: flex;
+    align-items: center;
     flex: 1;
+    label {
+      width: 110px;
+      margin-right: 10px;
+    }
+    input {
+      flex: 1;
+    }
   }
   .choose-session-cover {
     width: 100%;
