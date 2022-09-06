@@ -167,7 +167,7 @@
 <script>
 
 import { getLabelNameType, typeMap } from '@/const/teacher'
-import { ContentRestore, DeleteMyContentByType, PermanentDeleteMyContent } from '@/api/teacher'
+import { ContentRestore, PermanentDeleteMyContent } from '@/api/teacher'
 import { ContentItemMixin } from '@/mixins/ContentItemMixin'
 import CustomButton from '@/components/Common/CustomButton'
 import SubTaskIcon from '@/assets/v2/icons/sub-task.svg?inline'
@@ -346,12 +346,7 @@ export default {
 
     handleDeleteItem() {
       this.$logger.info('handleDeleteItem', this.content)
-      DeleteMyContentByType(this.content).then(res => {
-        this.$logger.info('DeleteMyContentByType', res)
-        this.$emit('delete', {
-          content: this.content
-        })
-      })
+      this.$emit('delete', this.content)
     },
 
     handlePermanentDeleteItem () {

@@ -231,7 +231,8 @@ export default {
         otherContents: [
           {
             toId: itemData.id,
-            toType: itemData.type
+            toType: itemData.type,
+            linkCategory: itemData.linkCategory
           }
         ]
       }

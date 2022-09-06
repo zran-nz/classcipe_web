@@ -14,6 +14,9 @@
           <a-select-option value='Library' >
             Library
           </a-select-option>
+          <a-select-option value='School' v-if='userMode === USER_MODE.SCHOOL'>
+            School resource
+          </a-select-option>
         </a-select>
       </div>
       <div class='content-filter'>
@@ -59,6 +62,7 @@ import { SourceType } from '@/components/MyContentV2/Constant'
 import { QueryContentsFilter } from '@/api/library'
 import CommonNoData from '@/components/Common/CommonNoData'
 import { mapState } from 'vuex'
+import { USER_MODE } from '@/const/common'
 
 export default {
   name: 'LinkContentList',
@@ -91,14 +95,19 @@ export default {
       previewVisible: false,
       previewCurrentId: '',
       previewType: '',
-      sourceType: 'MyContent'
+      sourceType: 'MyContent',
+      USER_MODE: USER_MODE
     }
   },
   computed: {
     ...mapState({
-      currentSchool: state => state.user.currentSchool
+      currentSchool: state => state.user.currentSchool,
+      userMode: state => state.app.userMode
     }),
     myContentList({ contentList, selectedIdList }) {
+      contentList.forEach(item => {
+        item.linkCategory = this.sourceType
+      })
       return contentList.filter(item => selectedIdList.indexOf(item.id) === -1)
     }
   },
@@ -125,6 +134,10 @@ export default {
       if (this.sourceType === 'MyContent') {
         this.searchContent(data)
       } else if (this.sourceType === 'Library') {
+        data.schoolId = 0
+        this.searchLibrary(data)
+      } else if (this.sourceType === 'School') {
+        data.schoolId = this.currentSchool.id
         this.searchLibrary(data)
       }
     },

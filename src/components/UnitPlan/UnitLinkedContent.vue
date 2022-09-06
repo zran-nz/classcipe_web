@@ -159,7 +159,8 @@ export default {
               otherContents: [
                 {
                   toId: taskId,
-                  toType: this.$classcipe.typeMap.task
+                  toType: this.$classcipe.typeMap.task,
+                  linkCategory: 'MyContent'
                 }
               ]
             }
@@ -288,7 +289,8 @@ export default {
         otherContents: [
           {
             toId: itemData.id,
-            toType: itemData.type
+            toType: itemData.type,
+            linkCategory: itemData.linkCategory
           }
         ]
       }
