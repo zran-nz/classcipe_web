@@ -52,6 +52,7 @@
       :review-edit='false'
       :review-create='false'
       :show-enter-button='false'
+      :liveWorkShopCode="previewCode"
       v-if='previewVisible'
       @close='handlePreviewClose' />
   </div>
@@ -92,7 +93,8 @@ export default {
       contentId: null,
       contentType: 0,
       hasMoreLeft: true,
-      hasMoreRight: true
+      hasMoreRight: true,
+      previewCode: null
     }
   },
   watch: {

@@ -68,7 +68,7 @@ import GlobalSearchInput from '@/components/GlobalSearch/GlobalSearchInput'
 import UserProfileAvatar from '@/components/User/UserProfileAvatar'
 import { mapState } from 'vuex'
 import CardList from '@/components/LibraryV3/CardList'
-import { getLibraryRecommend, getLibraryResource } from '@/api/v2/library'
+import { getLibraryRecommend, getLibraryResource, getLibraryPDContent } from '@/api/v2/library'
 import { UserModeMixin } from '@/mixins/UserModeMixin'
 import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 
@@ -104,6 +104,7 @@ export default {
       console.log('initData library page')
       this.getLibraryRecommend()
       this.getLibraryResource()
+      this.getLibraryPd()
     },
 
     async getLibraryRecommend() {
@@ -117,8 +118,14 @@ export default {
       console.log('getLibraryResource', ret.result)
       this.lastPublishedList = ret.result.latestReleased || []
       this.unitList = ret.result.plans || []
-      this.pdList = ret.result.pds || []
+      // this.pdList = ret.result.pds || []
       this.taskList = ret.result.tasks || []
+    },
+
+    async getLibraryPd() {
+      const ret = await getLibraryPDContent({ schoolId: 0 })
+      console.log('getLibraryPd', ret.result)
+      this.pdList = ret.result || []
     },
 
     handleSearch (data) {

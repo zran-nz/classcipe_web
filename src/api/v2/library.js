@@ -5,7 +5,8 @@ export const LibraryV2Url = {
   getLibraryRecommend: '/classcipe/api/v2/library/getLibraryRecommend',
   getLibraryResource: '/classcipe/api/v2/library/getLibraryResource',
   queryAllResource: '/classcipe/api/v2/library/queryAllResource',
-  queryLibraryResource: '/classcipe/api/v2/library/queryLibraryResource'
+  queryLibraryResource: '/classcipe/api/v2/library/queryLibraryResource',
+  getLibraryPDContent: '/classcipe/api/v2/library/getLibraryPDContent'
 }
 
 /**
@@ -79,5 +80,18 @@ export function queryLibraryResource (parameter) {
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
+  })
+}
+
+/**
+ * 推荐pd
+ * @param parameter
+ * @returns {AxiosPromise}
+ */
+ export function getLibraryPDContent (parameter) {
+  return request({
+    url: LibraryV2Url.getLibraryPDContent,
+    method: 'get',
+    params: parameter
   })
 }
