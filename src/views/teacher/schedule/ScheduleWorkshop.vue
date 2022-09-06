@@ -63,7 +63,7 @@
 </template>
 
 <script>
-
+// 已废弃，统一到AddLiveWorkShop页面
 import MyVerticalSteps from '@/components/Steps/MyVerticalSteps'
 import { AssociateMixin } from '@/mixins/AssociateMixin'
 import { SchoolClassGetMyClasses } from '@/api/schoolClass'

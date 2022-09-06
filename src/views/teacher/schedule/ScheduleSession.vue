@@ -624,7 +624,7 @@ export default {
         })
       } else {
         this.$router.replace({
-          path: `/teacher/class-session/${taskClassId}`
+          path: `/teacher/class-session/${taskClassId}?workshopsStatus=2`
         })
       }
     },

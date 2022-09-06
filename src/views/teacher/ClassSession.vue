@@ -230,6 +230,10 @@ export default {
     }
   },
   created() {
+    if (this.$route.query.workshopsStatus) {
+      sessionStorage.setItem(SESSION_CLASS_TYPE, this.$route.query.workshopsStatus)
+      this.queryParams.status = this.$route.query.workshopsStatus
+    }
     this.loadMyContent()
     this.initData()
   },
@@ -365,6 +369,9 @@ export default {
     handleSelectWorkStatus (item) {
       sessionStorage.setItem(SESSION_CLASS_TYPE, item.type)
       this.queryParams.status = item.type
+      this.$router.replace({
+        path: `/teacher/class-session/${this.$route.params.classId}?workshopsStatus=${this.queryParams.status}`
+      })
       this.loadMyContent()
     },
 
