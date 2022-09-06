@@ -30,7 +30,7 @@
             <div class='content-list'>
               <template v-if='myContentList.length !== 0 && !loading'>
                 <template v-for="content in myContentList">
-                  <div :class="{'content-item': true, 'selected': selectedId === content.id}" :key="content.id" @click='handlePreviewDetail(content)'>
+                  <div :class="{'content-item': true, 'selected': selectedId === content.id, 'unselect': calculateCantSelect(content)}" :key="content.id" @click='handlePreviewDetail(content)'>
                     <div class='cover'>
                       <div class='cover-block' :style="{'background-image': 'url(' + (content.image || 'http://dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png') + ')'}">
                       </div>
@@ -138,21 +138,28 @@
                             <template v-else>
                               <a-avatar size="small">{{ content.createBy.toUpperCase()[0] }}</a-avatar>
                             </template>
-                            <div class='user-name'>
+                            <div class='user-name' v-if="content.owner.email === $store.getters.email">
+                              Me
+                            </div>
+                            <div class='user-name' v-else>
                               {{ (content.owner ? (content.owner.firstname + ' ' + content.owner.lastname) : content.createBy) | upCaseFirst }}
                             </div>
                           </div>
                         </div>
 
                         <div class='action vertical-right'>
-                          <a-tooltip title="Incompleted content" v-if="(content.type === typeMap.task || content.type === typeMap.pd) && (!content.canPublish || content.slideEditing)">
+                          <a-tooltip title="Incompleted content" v-if="calculateCantSelect(content)">
                             <a-icon type="exclamation" style="font-size:16px;font-weight:bold;color:#ef4136;" />
                           </a-tooltip>
                         </div>
                       </div>
                     </div>
                     <div class="opt" v-show="selectedId === content.id">
-                      <img src="~@/assets/icons/lesson/selected.png" />
+                      <!-- <img src="~@/assets/icons/lesson/selected.png" /> -->
+                      <a-tooltip title="Incompleted content" v-if="calculateCantSelect(content)">
+                        <a-icon type="check-circle" theme="filled" />
+                      </a-tooltip>
+                      <a-icon v-else type="check-circle" theme="filled" />
                     </div>
                   </div>
                 </template>
@@ -183,7 +190,10 @@
     </div>
     <div class="content-select-action">
       <a-button type="" @click="handleCancel">{{ backText }}</a-button>
-      <a-button :disabled="!selectedId" type="primary" @click="handleNext">Next</a-button>
+      <a-tooltip v-if="!selectedId || calculateCantSelect(selectedObj)" title="No completed content selected">
+        <a-button :disabled="true" type="primary">Next</a-button>
+      </a-tooltip>
+      <a-button v-else type="primary" @click="handleNext">Next</a-button>
     </div>
   </div>
 </template>
@@ -237,7 +247,7 @@ export default {
   watch: {
     datas(val) {
       if (val && !this.showFilter) {
-        this.myContentList = val.concat()
+        this.myContentList = val.filter(item => item.owner.email === this.$store.getters.email).concat()
         if (this.myContentList.length === 0) {
           this.selectedId = ''
         }
@@ -246,7 +256,7 @@ export default {
     needFilter(val) {
       this.showFilter = val
       if (!val && this.datas) {
-        this.myContentList = this.datas.concat()
+        this.myContentList = this.datas.filter(item => item.owner.email === this.$store.getters.email).concat()
         if (this.myContentList.length === 0) {
           this.selectedId = ''
         }
@@ -316,7 +326,7 @@ export default {
         schoolId: this.currentSchool.id // this.userMode === USER_MODE.SELF ? null : this.currentSchool.id
       }).then(res => {
         if (res.success) {
-          this.myContentList = (res.result.records || res.result) // .filter(item => !!item.presentationId)
+          this.myContentList = (res.result.records || res.result).filter(item => item.owner.email === this.$store.getters.email)
         }
       }).finally(res => {
         this.loading = false
@@ -332,10 +342,10 @@ export default {
       }
     },
     handlePreviewDetail(item) {
-      if ((item.type === typeMap.task || item.type === typeMap.pd) && (!item.canPublish || item.slideEditing)) {
-        this.$message.warn('Incompleted content')
-        return
-      }
+      // if (this.calculateCantSelect(item)) {
+      //   this.$message.warn('Incompleted content')
+      //   return
+      // }
       if (this.selectedId === item.id) {
         this.selectedId = ''
         this.selectedObj = null
@@ -347,6 +357,9 @@ export default {
       setTimeout(() => {
         this.previewLoading = false
       }, 300)
+    },
+    calculateCantSelect(content) {
+      return !content || ((content.type === typeMap.task || content.type === typeMap.pd) && (!content.canPublish || content.slideEditing))
     },
     handleSearch() {
       this.init()
@@ -516,6 +529,18 @@ export default {
               img {
                 width: 18px;
                 height: 18px;
+              }
+              i {
+                font-size: 18px;
+                color: @primary-color;
+              }
+            }
+            &.unselect {
+              .opt {
+                i {
+                  font-size: 18px;
+                  color: #ddd!important;
+                }
               }
             }
           }

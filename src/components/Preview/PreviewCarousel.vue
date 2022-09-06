@@ -7,11 +7,11 @@
       <div slot="nextArrow" class="custom-slick-arrow" style="right: -15px">
         <a-icon type="right-circle" />
       </div>
+      <div class='slider-img-cover' :style="{backgroundImage: 'url(' + pageObject.contentUrl + ')' }" v-for='(pageObject,idx) in pageObjectList' :key='idx'>
+      </div>
       <div class='slider-video-cover' v-for='(videoItem,idx) in videoList' :key='idx'>
         <video controls :src='videoItem.url' v-if='!isYoutubeIframeUrl(videoItem.url)' ref='video' />
         <iframe :src='videoItem.url' class='video-iframe' v-if='isYoutubeIframeUrl(videoItem.url)' />
-      </div>
-      <div class='slider-img-cover' :style="{backgroundImage: 'url(' + pageObject.contentUrl + ')' }" v-for='(pageObject,idx) in pageObjectList' :key='idx'>
       </div>
     </a-carousel>
     <div class="carousel-page">{{ showPage }}</div>

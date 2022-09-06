@@ -347,10 +347,10 @@ export default {
         // 如果从task导入，则获取task关联的所有unit，如果大于1则显示unit列表供其选择
         this.getAssociate(item.id, item.type).then(res => {
           if (this.importType === item.type) {
-            associates = res
+            associates = res.filter(item => item.owner.email === this.$store.getters.email)
           }
           if (this.importType === typeMap['unit-plan'] && typeMap['unit-plan'] === item.type) {
-            this.importDatas = res
+            this.importDatas = res.filter(item => item.owner.email === this.$store.getters.email)
             this.scheduleReq.planId = item.id
           }
           console.log(associates)
@@ -371,7 +371,7 @@ export default {
                 schoolId: this.currentSchool.id // this.userMode === USER_MODE.SELF ? null : this.currentSchool.id
               }).then(res => {
                 if (res.success) {
-                  this.associateUnitList = res.result.records || res.result
+                  this.associateUnitList = (res.result.records || res.result).filter(item => item.owner.email === this.$store.getters.email)
                   this.selectSessionUnitVisible = true
                 }
               }).finally(res => {
