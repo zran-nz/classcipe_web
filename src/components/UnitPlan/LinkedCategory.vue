@@ -8,7 +8,6 @@
     width='760px'>
     <modal-header @close='handleClose' title='Create new category or choose from system tag(s) to set as category' :white='true'/>
     <div class='category-list'>
-      selectedList {{ selectedList }}
       <a-skeleton :loading='loading' />
       <template v-if='!loading'>
         <div class='category-block' v-for='(category, cIdx) in categoryList' :key='category.set' :style="{'background-color': color[cIdx]}">
