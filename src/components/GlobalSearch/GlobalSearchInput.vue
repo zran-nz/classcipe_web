@@ -125,6 +125,10 @@ export default {
     schoolId: {
       type: String,
       default: '0'
+    },
+    source: {
+      type: String,
+      default: 'library'
     }
   },
   computed: {
@@ -247,7 +251,7 @@ export default {
       this.$logger.info('dataItem', item)
       this.showSearchWrapper = false
       this.$router.push({
-        path: '/teacher/library-view/' + dataItem.type + '/' + dataItem.id
+        path: `/teacher/${this.source}-view/${dataItem.type}/${dataItem.id}`
       })
     }
   }

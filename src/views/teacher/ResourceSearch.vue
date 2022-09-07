@@ -3,7 +3,7 @@
     <div class='library-search'>
       <div class='create-new'>
         <a-space>
-          <global-search-input @search='handleSearch' :school-id="currentSchool.id" />
+          <global-search-input source="resource" @search='handleSearch' :school-id="currentSchool.id" />
           <user-profile-avatar />
         </a-space>
       </div>
