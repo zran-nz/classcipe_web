@@ -332,7 +332,8 @@ export default {
     },
 
     initData() {
-      let promise = null
+      if (!this.sessionId) {
+        let promise = null
         if (this.type === typeMap.task) {
           promise = TaskQueryById
         } else if (this.type === typeMap.pd) {
@@ -349,6 +350,7 @@ export default {
             this.loading = false
           })
         }
+      }
     },
 
     getDetail() {
@@ -388,7 +390,7 @@ export default {
       const associateData = await this.getAssociate(this.id, this.type)
       associateData.ownerLinkList.forEach(groupItem => {
         groupItem.contents.forEach(item => {
-          if (item.type === this.$classcipe.typeMap['unit-plan']) {
+          if (item.type === this.$classcipe.typeMap['unit-plan'] && item.owner.email === this.$store.getters.email) {
             this.associateUnitList.push(item)
           }
         })

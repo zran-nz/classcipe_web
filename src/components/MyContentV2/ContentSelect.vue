@@ -32,7 +32,7 @@
                 <template v-for="content in myContentList">
                   <div :class="{'content-item': true, 'selected': selectedId === content.id, 'unselect': calculateCantSelect(content)}" :key="content.id" @click='handlePreviewDetail(content)'>
                     <div class='cover'>
-                      <div class='cover-block' :style="{'background-image': 'url(' + (content.image || 'http://dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png') + ')'}">
+                      <div class='cover-block' :style="{'background-image': `url('${content.image || 'http://dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png'}')`}">
                       </div>
                     </div>
                     <div class='detail'>

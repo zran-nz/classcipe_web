@@ -461,7 +461,7 @@
           </a-skeleton>
         </template>
         <template v-if='type === typeMap["unit-plan"]'>
-          <div class='unit-cover' :style="{'background-image': 'url(' + (data.image ? data.image : 'http://dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png') + ')'}">
+          <div class='unit-cover' :style="{'background-image': `url('${data.image || 'http://dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png'}')`}">
           </div>
         </template>
         <div class='recommend' v-if="type === typeMap.task">

@@ -1,7 +1,7 @@
 <template>
   <div class='content-item' v-if='content'>
     <div class='cover' @click.prevent.stop="handleGoWork(content)">
-      <div class='cover-block' :style="{'background-image': 'url(' + (content.cover || (content.content && content.content.image) || 'http://dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png') + ')'}">
+      <div class='cover-block' :style="{'background-image': `url('${content.cover || (content.content && content.content.image) || 'http://dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png'}')`}">
         <div class='bottom-action' v-if="!isSimple && content.content">
           <div class='bottom-action-item vertical-left'>
             <!-- <div class='bottom-action-item-icon'><a-icon type="form" /></div>
