@@ -377,7 +377,18 @@ export default {
               }).then(res => {
                 if (res.success) {
                   this.associateUnitList = (res.result.records || res.result).filter(item => item.owner.email === this.$store.getters.email)
-                  this.selectSessionUnitVisible = true
+                  if (this.associateUnitList.length > 1) {
+                    this.selectSessionUnitVisible = true
+                  } else {
+                    if (this.associateUnitList.length === 1) {
+                      this.scheduleReq.planId = this.associateUnitList[0].id
+                    }
+                    if (this.currentActiveStepIndex === this.ScheduleStepsFilter.length - 1) {
+                        this.goCreateSession()
+                    } else {
+                      this.$refs['steps-nav'].nextStep()
+                    }
+                  }
                 }
               }).finally(res => {
                 this.importLoading = false

@@ -1,7 +1,7 @@
 <template>
   <div class='content-item' v-if='content'>
     <div class='cover'>
-      <div class='cover-block' :style="{'background-image': 'url(' + content.image + ')'}">
+      <div class='cover-block' :style="{'background-image': `url('${content.image}')`}">
       </div>
     </div>
     <div class='detail'>
