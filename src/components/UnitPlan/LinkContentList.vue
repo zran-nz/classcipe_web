@@ -185,6 +185,7 @@ export default {
     loadLibrary (data) {
       this.$logger.info('loadLibrary', data)
       data.type = this.filterTypes
+      data.excludedMe = true // 排除不在library展示my content内容
       QueryContentsFilter(data).then(response => {
         if (response.result) {
           this.contentList = response.result

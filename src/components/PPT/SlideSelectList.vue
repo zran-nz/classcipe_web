@@ -351,7 +351,7 @@ export default {
         types: [ this.$classcipe.typeMap.task, this.$classcipe.typeMap.pd ],
         schoolId: schoolId || 0,
         currentId: this.sourceId,
-        excludedMe: false
+        excludedMe: true // 排除不在library展示my content内容
       }
       if (this.filterParams) {
         params = Object.assign(this.filterParams, params)
