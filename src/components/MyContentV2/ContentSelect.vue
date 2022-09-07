@@ -323,6 +323,7 @@ export default {
       this.loading = true
       this[this.sourceApi]({
         ...this.queryParams,
+        linkedTask: true, // 过滤关联task的unit
         schoolId: this.currentSchool.id // this.userMode === USER_MODE.SELF ? null : this.currentSchool.id
       }).then(res => {
         if (res.success) {
@@ -418,7 +419,7 @@ export default {
       }
       .content-select-con {
         overflow: auto;
-        height: 330px;
+        height: 500px;
         .content-list {
           min-height: 200px;
           .content-item {
