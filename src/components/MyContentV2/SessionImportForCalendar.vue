@@ -372,7 +372,8 @@ export default {
                 pageNo: 1,
                 pageSize: 1000,
                 types: [typeMap['unit-plan']],
-                schoolId: this.currentSchool.id // this.userMode === USER_MODE.SELF ? null : this.currentSchool.id
+                schoolId: this.currentSchool.id, // this.userMode === USER_MODE.SELF ? null : this.currentSchool.id,
+                linkedTask: true // 过滤关联task的unit
               }).then(res => {
                 if (res.success) {
                   this.associateUnitList = (res.result.records || res.result).filter(item => item.owner.email === this.$store.getters.email)
