@@ -14,6 +14,7 @@
           <a-select-option value='Library' >
             Library
           </a-select-option>
+
           <a-select-option value='School' v-if='userMode === USER_MODE.SCHOOL'>
             School resource
           </a-select-option>
