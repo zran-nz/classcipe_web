@@ -22,12 +22,13 @@
               :key='item.id'
               :content='item'
               :show-archive='shareType !== SourceType.Archived'
-              :show-cover-bar='shareType !== SourceType.Archived'
               :allow-permanent-delete='shareType === SourceType.Archived'
               @delete='handleDeleteItem'
               @update-list='updateList'
               @update-publish='handleShowContentPublish'
-              :show-publish="userMode === 'self'"></content-item>
+              :show-publish="userMode === 'self'">
+              <!--              :show-cover-bar='shareType !== SourceType.Archived'-->
+            </content-item>
           </template>
           <template v-if='pagination.total === 0 && !loading'>
             <div class='empty-tips'>
