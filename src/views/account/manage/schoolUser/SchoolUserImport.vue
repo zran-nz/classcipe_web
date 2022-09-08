@@ -1,13 +1,17 @@
 <template>
   <a-upload
     name="file"
+    :disabled="disabled"
     :showUploadList="false"
     :multiple="false"
     :headers="tokenHeader"
     :action="importExcelUrl"
     :before-upload="beforeUpload"
     @change="handleMyImportExcel">
-    <a-button :loading="importLoading" type="black" icon="import">{{ importLoadingText }}</a-button>
+    <a-tooltip v-if="disabled" title="Please select a standard class first.">
+      <a-button :disabled="disabled" :loading="importLoading" type="black" icon="import">{{ importLoadingText }}</a-button>
+    </a-tooltip>
+    <a-button v-else :loading="importLoading" type="black" icon="import">{{ importLoadingText }}</a-button>
   </a-upload>
 </template>
 
@@ -26,6 +30,10 @@ export default {
       type: Array,
       default: () => [],
       require: true
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   data() {

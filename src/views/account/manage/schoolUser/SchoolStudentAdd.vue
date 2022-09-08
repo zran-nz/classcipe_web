@@ -91,31 +91,24 @@
           </a-col>
         </a-row>
       </a-form-model-item> -->
-      <a-form-model-item class="mb0" label="Class" v-if="classUnModify || studentId">
+      <a-form-model-item class="mb0" label="Class">
         <a-row :gutter=16>
           <a-col :span="18">
-            <a-form-model-item class="self-select">
-              <!-- <template v-if="!classUnModify">
+            <a-form-model-item class="select">
+              <template v-if="!classUnModify">
                 <a-select
-                  mode="multiple"
-                  :disabled="classUnModify"
+                  showSearch
                   optionFilterProp="children"
                   :getPopupContainer="trigger => trigger.parentElement"
-                  v-model='formModel.classArr'
+                  v-model='formModel.classes'
                   option-label-prop="label"
                   placeholder='Please select class'>
                   <a-select-option :label="item.name" v-for='item in filterClassList' :key='item.id'>
-                    {{ item.name }}
+                    {{ item.curriculumName }} - {{ item.name }}
                   </a-select-option >
                 </a-select>
-                <div :size="4" :class="{disabled: classUnModify}" class="tag-render" @click="showSelect" ref="tagRender">
-                  <a-tag
-                    @close="closeCls(tag)"
-                    v-for="tag in formModel.classArr"
-                    :key="'tag'+tag">{{ formatName(tag, classList) }}</a-tag>
-                </div>
-              </template> -->
-              <a-space>
+              </template>
+              <a-space v-else>
                 <a-space class="flex-wrap" v-if="classArrDetail.length > 0">
                   <template v-for="(cls) in classArrDetail">
                     <a-tag :key="cls.id" :color="cls.classType === 0 ? '#2db7f5' : '#f50'">
@@ -193,6 +186,7 @@
 import { listClass } from '@/api/v2/schoolClass'
 import { addStudents, resetUserPassword, sendParentEmail, getStudentInfo, updateStudent, checkEmailStudent, checkEmailParent } from '@/api/v2/schoolUser'
 import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
+import { getCurriculumBySchoolId } from '@/api/academicSettingCurriculum'
 
 import ResetPassword from '../persona/ResetPassword'
 import AvatarModal from '@/views/account/settings/AvatarModal'
@@ -256,6 +250,7 @@ export default {
         birthDay: '',
         classes: '',
         classArr: [],
+        subjectCls: [],
         inviteEmail: '',
         parentEmail: '',
         parentEmailStatus: 0,
@@ -278,7 +273,9 @@ export default {
       needAutoSave: !this.id,
       randomPass: '',
       classUnModify: false,
-      subjectOptions: []
+      subjectOptions: [],
+      curriculumOptions: [],
+      gradeOptions: []
     }
   },
   computed: {
@@ -305,7 +302,19 @@ export default {
       }
     },
     filterClassList() {
-      return this.classList.filter(cc => !this.formModel.classArr.includes(cc.id))
+      // return this.classList.filter(cc => !this.formModel.classArr.includes(cc.id))
+      if (this.gradeOptions && this.gradeOptions.length > 0) {
+        let cls = []
+        this.gradeOptions.forEach(grade => {
+          const currentCls = this.classList.filter(cls => cls.gradeId === grade.gradeId)
+          cls = cls.concat(currentCls.map(cls => ({
+            ...cls,
+            curriculumName: grade.curriculumName
+          })))
+        })
+        return cls
+      }
+      return []
     },
     classArrDetail() {
       const clses = this.classList.filter(cc => this.formModel.classArr.includes(cc.id))
@@ -322,14 +331,18 @@ export default {
           }),
           getSubjectBySchoolId({
             schoolId: this.currentSchool.id
+          }),
+          getCurriculumBySchoolId({
+            schoolId: this.currentSchool.id
           })
-        ]).then(([clsRes, subjectRes]) => {
+        ]).then(([clsRes, subjectRes, gradeRes]) => {
           if (clsRes.code === 0) {
             this.classList = clsRes.result.records
             if (this.formModel.classes) {
               const isFind = this.classList.find(item => item.id === this.formModel.classes)
               if (!isFind) {
                 this.formModel.classes = ''
+                this.formModel.classArr = []
               }
             }
             this.classUnModify = false
@@ -337,7 +350,10 @@ export default {
             if (query.classId) {
               const isFind = this.classList.find(item => item.id === query.classId)
               if (isFind) {
-                this.formModel.classes = query.classId
+                if (!this.studentId) {
+                  this.formModel.classArr = [query.classId]
+                  this.formModel.classes = query.classId
+                }
                 this.classUnModify = true
                 this.$emit('getCls', isFind)
               }
@@ -362,6 +378,18 @@ export default {
               })
             })
             this.subjectOptions = options
+          }
+          if (gradeRes.success && gradeRes.result) {
+            let grades = []
+            this.curriculumOptions = gradeRes.result
+            gradeRes.result.forEach(item => {
+              grades = grades.concat((item.gradeSettingInfo || []).map(grade => ({
+                ...grade,
+                curriculumId: item.curriculumId,
+                curriculumName: item.curriculumName
+              })))
+            })
+            this.gradeOptions = grades
           }
         })
     },
@@ -388,8 +416,11 @@ export default {
             this.formModel.avatar = res.result.avatar
             this.formModel.parentPhone = res.result.parentPhone
             if (res.result.classes) {
-              this.formModel.classArr = res.result.classes.map(item => item.id)
+              const gradeCls = res.result.classes.filter(item => item.classType === 0)
+              const subjectCls = res.result.classes.filter(item => item.classType === 1)
+              this.formModel.classArr = gradeCls.map(item => item.id)
               this.formModel.classes = this.formModel.classArr.join(',')
+              this.formModel.subjectCls = subjectCls.map(item => item.id)
             }
           }
         }).finally(() => {
@@ -544,6 +575,7 @@ export default {
           if (params.birthDay) {
             params.birthday = params.birthDay = moment.utc(params.birthDay).format('YYYY-MM-DD HH:mm:ss')
           }
+          params.classes = params.classes.split(',').concat(params.subjectCls).filter(item => !!item).join(',')
           let promise = null
           if (this.id) {
             promise = updateStudent

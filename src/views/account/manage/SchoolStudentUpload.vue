@@ -45,7 +45,7 @@
         </a-space>
         <a-space class="filter-opt">
           <a-button type="primary" @click="downloadTemplate">Download template</a-button>
-          <school-user-import :dataKey="dataKey" :action="importExcelUrl" @success="handleImportGet"/>
+          <school-user-import :disabled="!chooseClass" :dataKey="dataKey" :action="importExcelUrl" @success="handleImportGet"/>
         </a-space>
       </div>
       <div class="form-tab">
