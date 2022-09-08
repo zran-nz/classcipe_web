@@ -2,7 +2,13 @@
   <div class='my-content'>
     <div class='content-header'>
       <div class='source-type' :style="{visibility: WORK_SHOPS_TYPE.FEATURE.value !== queryParams.workshopsType ? 'visible' : 'hidden'}">
-        <radio-switch @select="handleSelectWorkStatus" :menu-list='menuList' :default-selected-item="getSelectItem"/>
+        <!-- <radio-switch @select="handleSelectWorkStatus" :menu-list='menuList' :default-selected-item="getSelectItem"/> -->
+        <radio-switch
+          @select="handleSelectQueryType"
+          :menu-list='queryTypeList'
+          :default-selected-item="defaultQueryType"
+          displayProperty="label"
+        />
         <label for="" class="class-name">{{ className }}</label>
       </div>
       <div class='create-new'>
@@ -12,6 +18,15 @@
           <user-profile-avatar />
         </a-space>
       </div>
+    </div>
+    <div class='filter-bar'>
+      <a-space class="status-filter">
+        <label
+          :class="{active: queryParams.status == item.type}"
+          v-for="item in menuList"
+          @click="handleSelectWorkStatus(item)"
+          :key="item.name"><a>{{ item.name }}</a></label>
+      </a-space>
     </div>
     <div class='content-wrapper'>
       <a-spin tip='Loading...' :spinning="loading">
@@ -151,6 +166,13 @@ export default {
         name: item.label,
         type: item.value
       })),
+      queryTypeList: [{
+        label: 'My Session',
+        value: 1
+      }, {
+        label: 'Others',
+        value: 2
+      }],
       WORK_SHOPS_STATUS: WORK_SHOPS_STATUS,
       WORK_SHOPS_TYPE: WORK_SHOPS_TYPE,
       WORK_SHOPS_TYPE_VALUES: Object.values(WORK_SHOPS_TYPE),
@@ -158,6 +180,7 @@ export default {
         classId: '',
         status: sessionStorage.getItem(SESSION_CLASS_TYPE) ? parseInt(sessionStorage.getItem(SESSION_CLASS_TYPE)) : WORK_SHOPS_STATUS.SCHEDULE.value, // 2: scheduled, 1: on-going, 3: ended
         searchKey: '',
+        queryType: 1,
         delFlag: 0
       },
       loading: true,
@@ -212,6 +235,15 @@ export default {
       }
       return this.menuList[0]
     },
+    defaultQueryType() {
+      if (this.queryParams.queryType) {
+        const index = this.queryTypeList.findIndex(item => item.value + '' === this.queryParams.queryType + '')
+        if (index > -1) {
+          return this.queryTypeList[index]
+        }
+      }
+      return this.queryTypeList[0]
+    },
     className() {
       const clsId = this.$route.params.classId
       const cls = this.classList.find(item => item.id === clsId)
@@ -233,6 +265,9 @@ export default {
     if (this.$route.query.workshopsStatus) {
       sessionStorage.setItem(SESSION_CLASS_TYPE, this.$route.query.workshopsStatus)
       this.queryParams.status = this.$route.query.workshopsStatus
+    }
+    if (this.$route.query.queryType) {
+      this.queryParams.queryType = this.$route.query.queryType
     }
     this.loadMyContent()
     this.initData()
@@ -372,9 +407,15 @@ export default {
       sessionStorage.setItem(SESSION_CLASS_TYPE, item.type)
       this.queryParams.status = item.type
       this.$router.replace({
-        path: `/teacher/class-session/${this.$route.params.classId}?workshopsStatus=${this.queryParams.status}`
+        path: `/teacher/class-session/${this.$route.params.classId}?workshopsStatus=${this.queryParams.status}&queryType=${this.queryParams.queryType}`
       })
-      this.loadMyContent()
+    },
+
+    handleSelectQueryType (item) {
+      this.queryParams.queryType = item.value
+      this.$router.replace({
+        path: `/teacher/class-session/${this.$route.params.classId}?workshopsStatus=${this.queryParams.status}&queryType=${this.queryParams.queryType}`
+      })
     },
 
     handleStartSessionHistory (item, mode) {
@@ -536,5 +577,32 @@ export default {
     margin-left: 20px;
     font-weight: bold;
   }
+}
+.filter-bar {
+    position: relative;
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    .status-filter {
+      label {
+        margin-right: 20px;
+        border-radius: 3px;
+        padding:5px;
+        height: 30px;
+        display: flex;
+        a {
+          color: #464749;
+          font-size: 14px;
+        }
+        &.active {
+          background: #F8FAFB;
+          a {
+            font-weight: bold;
+            color: #1574B7;
+          }
+        }
+      }
+    }
 }
 </style>
