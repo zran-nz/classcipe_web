@@ -60,7 +60,7 @@ const sysConfig = {
   collapsedSidebarWidth: 80
 }
 
-const planRequiredFields = [PlanField.Name, PlanField.Image, PlanField.Inquiry, PlanField.Question, PlanField.SubjectIds, PlanField.GradeIds, PlanField.LearnOuts]
+const planRequiredFields = [PlanField.Name, PlanField.Image, PlanField.Inquiry, PlanField.InquiryKeywords, PlanField.Question, PlanField.SubjectIds, PlanField.GradeIds, PlanField.LearnOuts]
 const taskRequiredFields = [TaskField.GradeIds, TaskField.SubjectIds, TaskField.Slides, TaskField.Name, TaskField.Image, TaskField.Overview, TaskField.TaskType, TaskField.LearnOuts, TaskField.Question]
 const pdRequiredFields = [PdField.Name, PdField.Image, PdField.Goals, PdField.Slides]
 const videoRequiredFields = [VideoField.Name, VideoField.Video, VideoField.ContentType, VideoField.CoverImage]

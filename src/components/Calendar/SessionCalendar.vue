@@ -859,7 +859,7 @@ export default {
           if (this.$refs.fullCalendar) {
             const calendarApi = this.$refs.fullCalendar.getApi()
             let current = moment().subtract(15, 'm').format('HH:mm:ss')
-            if (this.forSelect && this.defaultSelect && this.defaultSelect.length > 0) {
+            if (this.forSelect && this.defaultSelect && this.defaultSelect[1]) {
               current = this.defaultSelect[0].format('HH:mm:ss')
             }
             calendarApi && calendarApi.scrollToTime(current)

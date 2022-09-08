@@ -703,10 +703,10 @@ export default {
       if (this.userMode === USER_MODE.SCHOOL) {
         this.form.maxParticipants = 0
       } else {
-        if (!new RegExp(/^[0-9]*[1-9][0-9]*$/).test(this.form.maxParticipants)) {
-          this.$message.error('Please Enter Valid Number')
-          return
-        }
+        // if (!new RegExp(/^[0-9]*[1-9][0-9]*$/).test(this.form.maxParticipants)) {
+        //   this.$message.error('Please Enter Valid Number')
+        //   return
+        // }
       }
       if (!this.form.title) {
         this.$message.error('Please Enter Valid Title')

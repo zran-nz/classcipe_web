@@ -61,6 +61,7 @@ export const PlanField = {
   GradeIds: 'yearList',
   StartDate: 'startDate',
   Inquiry: 'inquiry',
+  InquiryKeywords: 'inquiryKeywords',
   Sdg: 'sdg',
   Scenarios: 'scenarios',
   Rwc: 'rwc',

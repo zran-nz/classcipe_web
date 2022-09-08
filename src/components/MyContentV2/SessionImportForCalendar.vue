@@ -96,7 +96,7 @@ import SchedulePayInfo from '@/components/Schedule/SchedulePayInfo'
 import SchoolSchedule from '@/components/Schedule/SchoolSchedule'
 import SelectSessionUnit from '@/components/Schedule/SelectSessionUnit'
 
-import { GetAssociate, FindMyContent } from '@/api/teacher'
+import { GetAssociate } from '@/api/teacher'
 // 直接页面跳转
 // import { AddSessionV2 } from '@/api/v2/classes'
 // import { SchoolClassGetMyClasses } from '@/api/schoolClass'
@@ -364,35 +364,40 @@ export default {
               this.selectSessionUnitVisible = true
             // 如果为0，则从所有unit选择
             } else if (associates.length === 0) {
-              this.importLoading = true
-              FindMyContent({
-                type: [typeMap['unit-plan']],
-                searchKey: '',
-                delFlag: 0,
-                pageNo: 1,
-                pageSize: 1000,
-                types: [typeMap['unit-plan']],
-                schoolId: this.currentSchool.id, // this.userMode === USER_MODE.SELF ? null : this.currentSchool.id,
-                linkedTask: true // 过滤关联task的unit
-              }).then(res => {
-                if (res.success) {
-                  this.associateUnitList = (res.result.records || res.result).filter(item => item.owner.email === this.$store.getters.email)
-                  if (this.associateUnitList.length > 1) {
-                    this.selectSessionUnitVisible = true
-                  } else {
-                    if (this.associateUnitList.length === 1) {
-                      this.scheduleReq.planId = this.associateUnitList[0].id
-                    }
-                    if (this.currentActiveStepIndex === this.ScheduleStepsFilter.length - 1) {
-                        this.goCreateSession()
-                    } else {
-                      this.$refs['steps-nav'].nextStep()
-                    }
-                  }
-                }
-              }).finally(res => {
-                this.importLoading = false
-              })
+              // this.importLoading = true
+              // FindMyContent({
+              //   type: [typeMap['unit-plan']],
+              //   searchKey: '',
+              //   delFlag: 0,
+              //   pageNo: 1,
+              //   pageSize: 1000,
+              //   types: [typeMap['unit-plan']],
+              //   schoolId: this.currentSchool.id, // this.userMode === USER_MODE.SELF ? null : this.currentSchool.id,
+              //   linkedTask: true // 过滤关联task的unit
+              // }).then(res => {
+              //   if (res.success) {
+              //     this.associateUnitList = (res.result.records || res.result).filter(item => item.owner.email === this.$store.getters.email)
+              //     if (this.associateUnitList.length > 1) {
+              //       this.selectSessionUnitVisible = true
+              //     } else {
+              //       if (this.associateUnitList.length === 1) {
+              //         this.scheduleReq.planId = this.associateUnitList[0].id
+              //       }
+              //       if (this.currentActiveStepIndex === this.ScheduleStepsFilter.length - 1) {
+              //           this.goCreateSession()
+              //       } else {
+              //         this.$refs['steps-nav'].nextStep()
+              //       }
+              //     }
+              //   }
+              // }).finally(res => {
+              //   this.importLoading = false
+              // })
+              if (this.currentActiveStepIndex === this.ScheduleStepsFilter.length - 1) {
+                this.goCreateSession()
+              } else {
+                this.$refs['steps-nav'].nextStep()
+              }
             } else {
               this.scheduleReq.planId = associates[0].id
               if (this.currentActiveStepIndex === this.ScheduleStepsFilter.length - 1) {

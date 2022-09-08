@@ -2,7 +2,8 @@
   <div class='cc-no-data' :class="{'cc-big' : isBig}">
     <div class='icon-no-data'>
       <slot name='icon'>
-        <no-data-icon />
+        <!-- <no-data-icon /> -->
+        <no-content />
       </slot>
     </div>
     <div class='cc-no-data-text'>
@@ -14,6 +15,7 @@
 <script>
 
 import NoDataIcon from '@/assets/v2/icons/no_data.svg?inline'
+import NoContent from '@/assets/v2/icons/no_content.svg?inline'
 export default {
   name: 'CommonNoData',
   props: {
@@ -27,7 +29,8 @@ export default {
     }
   },
   components: {
-    NoDataIcon
+    NoDataIcon,
+    NoContent
   },
   data() {
     return {}
@@ -54,10 +57,10 @@ export default {
     align-items: center;
     justify-content: center;
 
-    svg {
-      height: 70px;
-      max-width: 70px;
-    }
+    // svg {
+    //   height: 70px;
+    //   max-width: 70px;
+    // }
   }
 
   .cc-no-data-text {

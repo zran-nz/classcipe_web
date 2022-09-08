@@ -87,8 +87,8 @@
         <div class='right-info'>
           <div class='buy-info' @click.stop=''>
             <a-space>
-              <div class='price'>${{ content.discountPrice || content.price }}</div>
-              <div v-if="content.discountPrice !== content.price" class='price_was'>${{ content.price }}</div>
+              <div class='price'>${{ content.discountPrice || content.price || 0 }}</div>
+              <div v-if="content.discountPrice > 0 && content.discountPrice !== content.price" class='price_was'>${{ content.price }}</div>
               <div class='buy'>
                 <a-button
                   type="danger"

@@ -31,10 +31,15 @@ export default {
     }
   },
   methods: {
-    goBack () {
-      this.$router.replace({
-        path: '/teacher/library'
-      })
+    goBack() {
+      if (window.history.length <= 1) {
+        this.$router.replace({
+          path: '/teacher/library'
+        })
+        return false
+      } else {
+        this.$router.go(-1)
+      }
     }
   }
 }

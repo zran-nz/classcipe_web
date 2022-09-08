@@ -95,7 +95,7 @@
         </div>
       </div>
       <div class='action'>
-        <div class="author-name">
+        <div class="author-wrap">
           <a-avatar v-if="content.userAvatar" :src="content.userAvatar" icon="user" />
           <img
             v-else
@@ -103,11 +103,16 @@
             src="~@/assets/icons/library/default-avatar.png"
             alt="avatar"
           />
-          <div class="author-name" v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType || (content.sessionInfo && $store.getters.email === content.sessionInfo.author)">
-            Me
-          </div>
-          <div class="author-name" v-else>
-            {{ content.userRealName || (content.content && content.content.createBy) }}
+          <div class="author-con">
+            <div style="font-weight: bold;" class="author-name" v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType || (content.sessionInfo && $store.getters.email === content.sessionInfo.author)">
+              Me
+            </div>
+            <div class="author-name" v-else>
+              {{ content.userRealName || (content.content && content.content.createBy) }}
+            </div>
+            <div v-if="(isCurrentType(WORK_SHOPS_TYPE.REGISTERED.value) || isCurrentType(WORK_SHOPS_TYPE.LUNCHEDBYME.value))">
+              {{ userMode === USER_MODE.SELF ? 'Persona' : currentSchool.schoolName }}
+            </div>
           </div>
         </div>
         <a-space @click.prevent.stop v-if="!isSimple">
@@ -865,7 +870,7 @@ export default {
       flex-direction: row;
       align-items: center;
       justify-content: space-between;
-      .author-name {
+      .author-wrap {
         display: flex;
         align-items: center;
         .author-name {
@@ -881,6 +886,19 @@ export default {
           font-size: inherit;
           i {
             font-size: 0.26em /* 26/100 */;
+          }
+        }
+        .author-con {
+          display: flex;
+          flex-direction: column;
+          .author-name {
+            & ~ div {
+              margin-top: -1/0.16*0.05em;
+              font-size: 0.16em /* 13/100 */;
+              font-family: Arial;
+              font-weight: 400;
+              margin-left: 1/0.16*0.1em /* 10/100 */;
+            }
           }
         }
       }

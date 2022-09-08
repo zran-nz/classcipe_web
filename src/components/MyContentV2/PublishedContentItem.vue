@@ -95,9 +95,9 @@
           <a-space>
             <div class='price-info vertical-left'>
               <div class='price'>
-                ${{ content.discountPrice || content.price }}
+                ${{ content.discountPrice || content.price || 0 }}
               </div>
-              <div v-if="content.discountPrice !== content.price" class='price_was'>${{ content.price }}</div>
+              <div v-if="content.discountPrice > 0 && content.discountPrice !== content.price" class='price_was'>${{ content.price }}</div>
               <div class='edit'>
                 <a-icon type="edit" @click.native='showEditPrice'/>
               </div>

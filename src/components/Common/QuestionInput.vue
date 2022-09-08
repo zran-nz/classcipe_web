@@ -103,7 +103,7 @@ export default {
   created() {
     this.asyncUpdateFilterListFn = debounce(this.updateFilterList, 200)
     this.$logger.info('QuestionInput list', this.list, 'selected', this.selected)
-    this.selectedList = this.selected || []
+    this.selectedList = this.selected.filter(item => !!item.name) || []
     this.$watch('keyword', (nv) => {
       this.$logger.info('QuestionInput keyword changed ' + nv)
       this.updating = true

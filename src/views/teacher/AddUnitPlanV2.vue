@@ -228,7 +228,7 @@
                   class='form-block tag-content-block'
                   v-if="fieldItem.visible && fieldItem.fieldName === planField.Inquiry && form.inquiryKeywords"
                   :key='fieldItem.fieldName + "keyword"'>
-                  <custom-form-item :required='false' :required-field='requiredFields.indexOf(planField.Inquiry) !== -1'>
+                  <custom-form-item :required='false' :required-field='requiredFields.indexOf(planField.InquiryKeywords) !== -1'>
                     <template slot='label'>
                       {{ 'Key words' }}
                     </template>
@@ -239,7 +239,7 @@
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
-                    <div class="inquiry-keyword-con" v-if="form.inquiryKeywords">
+                    <div class="inquiry-keyword-con" v-if="form.inquiryKeywords && form.inquiryKeywords.length > 0">
                       <div
                         class="inquiry-keyword-item"
                         v-for="(tag, tagIndex) in form.inquiryKeywords"
@@ -1112,6 +1112,9 @@ export default {
     }
     await this.$store.dispatch('loadFormConfigData', token).then(() => {
       this.formSteps = this.$store.getters.formConfigData.planSteps || []
+      // 增加inquiryKeywords
+      const Inquiry = this.formSteps.find(item => item.name === 'Inquiry')
+      Inquiry && Inquiry.commonFields.push(this.planField.InquiryKeywords)
       this.$logger.info('formSteps', this.formSteps)
       this.requiredFields = this.$classcipe.planRequiredFields
       this.$logger.info('requiredFields', this.requiredFields)
@@ -1288,7 +1291,7 @@ export default {
           this.saving = true
           this.form = unitPlanData
           if (unitPlanData.questions.length === 0) {
-            this.form.questions.push({ name: '' })
+            // this.form.questions.push({ name: '' })
           }
         } else {
           this.$message.error(response.message)
@@ -1746,7 +1749,7 @@ export default {
             return item.name
           })
           response.result.forEach(item => {
-            if (formQuestion.indexOf(item.name) === -1) {
+            if (item.name && formQuestion.indexOf(item.name) === -1) {
               if (this.recommendQuestionList.filter(q => q.name === item.name).length === 0) {
                 this.recommendQuestionList.push(item)
               }

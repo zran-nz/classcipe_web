@@ -321,9 +321,14 @@ export default {
         return
       }
       this.loading = true
+      if (this.type === typeMap['unit-plan']) {
+        this.queryParams.linkedTask = true
+      } else {
+        delete this.queryParams.linkedTask
+      }
       this[this.sourceApi]({
         ...this.queryParams,
-        linkedTask: true, // 过滤关联task的unit
+        // linkedTask: true, // 过滤关联task的unit
         schoolId: this.currentSchool.id // this.userMode === USER_MODE.SELF ? null : this.currentSchool.id
       }).then(res => {
         if (res.success) {

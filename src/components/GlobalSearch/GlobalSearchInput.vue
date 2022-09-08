@@ -140,7 +140,7 @@ export default {
     }
   },
   created() {
-    this.handleSearch = debounce(this.doSearch, 1000)
+    this.handleSearch = debounce(this.doSearch, 300)
     this.restoreSearchKey()
   },
   methods: {
@@ -189,6 +189,10 @@ export default {
       this.$logger.info('search', value)
       this.searching = true
       this.recommendList = []
+      this.pdList = []
+      this.planList = []
+      this.taskList = []
+      this.similarList = []
       librarySearch({
         key: value,
         schoolId: this.schoolId // library resource内容不一样

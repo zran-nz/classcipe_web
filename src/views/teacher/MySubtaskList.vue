@@ -51,11 +51,13 @@
             </div>
           </div>
         </template>
-        <common-no-data v-else text='No Data Found!' :isBig="true">
-          <template v-slot:icon>
-            <no-content />
-          </template>
-        </common-no-data>
+        <div v-else style="margin-top: 120px">
+          <common-no-data text='No Data Found!' :isBig="true">
+            <template v-slot:icon>
+              <no-content />
+            </template>
+          </common-no-data>
+        </div>
       </a-spin>
     </div>
 

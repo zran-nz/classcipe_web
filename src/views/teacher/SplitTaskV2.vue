@@ -242,7 +242,7 @@ export default {
       })
     },
     goBack() {
-      this.$router.push({ path: '/teacher/sub-task/' + this.parentTaskId })
+      this.$router.replace({ path: '/teacher/sub-task/' + this.parentTaskId })
     },
     async handleNextStep() {
       // 保存后跳转
@@ -280,7 +280,7 @@ export default {
         //     this.nextLoading = false
         //   }
         // }
-        this.$router.push({
+        this.$router.replace({
           path: '/teacher/task-redirect/' + this.form.id
         })
       }
