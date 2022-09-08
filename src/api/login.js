@@ -18,7 +18,8 @@ const userApi = {
   twoStepCode: '/auth/2step-code',
   SendSms: '/account/sms',
   SendSmsErr: '/account/sms_err',
-  UserMenu: '/user/nav'
+  UserMenu: '/user/nav',
+  getPlan: '/classcipe/plan/planInfo/queryMyPlan'
 }
 
 /**
@@ -169,5 +170,12 @@ export function UpdatePersonalInfo (parameter) {
     url: userApi.UpdatePersonalInfo,
     method: 'post',
     data: parameter
+  })
+}
+
+export function getPlan () {
+  return request({
+    url: userApi.getPlan,
+    method: 'get'
   })
 }

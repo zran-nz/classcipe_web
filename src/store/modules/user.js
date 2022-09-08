@@ -1,5 +1,5 @@
 import storage from 'store'
-import { changeRole, getInfo, login, logout, signUp } from '@/api/login'
+import { changeRole, getInfo, getPlan, login, logout, signUp } from '@/api/login'
 import { StudentClasses } from '@/api/selfStudy'
 import {
   ACCESS_TOKEN,
@@ -206,9 +206,17 @@ const user = {
             commit(TOOGLE_USER_MODE, userMode)
             const schoolIndex = result.schoolList.findIndex(item => item.id === result.school)
             commit('SET_CURRENT_SCHOOL', schoolIndex > -1 ? result.schoolList[schoolIndex] : null)
+            // 实时获取套餐信息
+            getPlan().then(planRes => {
+              if (planRes.code === 0) {
+                result.planInfo = planRes.result
+                commit('SET_INFO', result)
+                storage.set(USER_INFO, result)
+              }
+            })
+            storage.set(USER_INFO, result)
             storage.set(CURRENT_ROLE, result.currentRole)
             storage.set(IS_ADD_PREFERENCE, result.isAddPreference)
-            storage.set(USER_INFO, result)
             window.sessionStorage.setItem(SESSION_ACTIVE_KEY, storage.get(ACCESS_TOKEN))
             // 交换最新的后台token
             if (result.token && result.currentRole === teacher && storage.get(ACCESS_TOKEN) !== result.token) {
