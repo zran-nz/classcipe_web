@@ -39,8 +39,13 @@
             <div class='sub-left'>
               <div class='owner'>
                 <a-avatar :src='session.userAvatar' size="small" />
-                <div class='user-name'>
-                  {{ session.userRealName }}
+                <div class="user-detail">
+                  <div class='user-name'>
+                    {{ session.userRealName }}
+                  </div>
+                  <div class="user-mode">
+                    {{ session.schoolId === '0' ? 'Personal' : session.schoolName }}
+                  </div>
                 </div>
               </div>
               <div class='teach-way'>
@@ -598,11 +603,17 @@ export default {
               align-items: center;
               justify-content: flex-start;
               flex-direction: row;
-
-              .user-name {
-                margin-left: 5px;
-                line-height: 24px;
-                font-size: 14px;
+              .user-detail {
+                display: flex;
+                flex-direction: column;
+                .user-name {
+                  margin-left: 5px;
+                  font-size: 12px;
+                }
+                .user-mode {
+                  margin-left: 5px;
+                  font-size: 12px;
+                }
               }
             }
 
@@ -910,17 +921,6 @@ export default {
     text-overflow: ellipsis;
     word-break: break-all;
     white-space: nowrap;
-  }
-}
-
-.owner {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-
-  .user-name {
-    padding-left: 5px;
   }
 }
 

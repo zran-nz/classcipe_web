@@ -111,7 +111,7 @@
               {{ content.userRealName || (content.content && content.content.createBy) }}
             </div>
             <div v-if="(isCurrentType(WORK_SHOPS_TYPE.REGISTERED.value) || isCurrentType(WORK_SHOPS_TYPE.LUNCHEDBYME.value))">
-              {{ userMode === USER_MODE.SELF ? 'Persona' : currentSchool.schoolName }}
+              {{ userMode === USER_MODE.SELF ? 'Personal' : currentSchool.schoolName }}
             </div>
           </div>
         </div>

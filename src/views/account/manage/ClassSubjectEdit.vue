@@ -15,7 +15,7 @@
             <a-space :size="5" align="center" @click.stop>
               <label style="cursor: pointer" @click="$router.push('/account/info')">Account Info</label>
               <label for="">></label>
-              <label style="cursor: pointer" @click="$router.push('/manage/class/list?tab=subject')">{{ userMode === USER_MODE.SELF ? 'Persona' : 'School' }} Class</label>
+              <label style="cursor: pointer" @click="$router.push('/manage/class/list?tab=subject')">{{ userMode === USER_MODE.SELF ? 'Personal' : 'School' }} Class</label>
               <label for="">></label>
               <label style="font-weight: normal">{{ title }}</label>
             </a-space>
