@@ -2,11 +2,11 @@
   <div class='create-new'>
     <a-dropdown>
       <a-menu slot="overlay" class='create-new-menu'>
-        <!-- <a-menu-item>
+        <a-menu-item>
           <a @click="handleImport('quick')">
             Quick session
           </a>
-        </a-menu-item> -->
+        </a-menu-item>
         <a-menu-item>
           <a @click="handleImport(typeMap['unit-plan'])">
             {{ $t('menu.unit-plan') }}

@@ -332,9 +332,11 @@ export default {
       this.pageNo = 1
       this.loadMyContent()
     },
-    handleImport(type) {
-      this.$logger.info('handleImport', type)
-      const path = `/teacher/session-import/${type}/${this.$route.params.classId}?searchType=2`
+    handleImport(val) {
+      this.$logger.info('handleImport', val)
+      const type = val === 'quick' ? typeMap.task : val
+      const source = val === 'quick' ? val : ''
+      const path = `/teacher/session-import/${type}/${this.$route.params.classId}?searchType=2&source=${source}`
       this.$router.push(path)
       // this.importType = type
       // this.importVisible = true

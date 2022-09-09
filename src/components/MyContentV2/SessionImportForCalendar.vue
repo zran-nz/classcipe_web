@@ -98,13 +98,16 @@ import SelectSessionUnit from '@/components/Schedule/SelectSessionUnit'
 
 import { GetAssociate } from '@/api/teacher'
 // 直接页面跳转
-// import { AddSessionV2 } from '@/api/v2/classes'
+import { AddSessionV2 } from '@/api/v2/classes'
 // import { SchoolClassGetMyClasses } from '@/api/schoolClass'
 
 import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
 
 import { typeMap } from '@/const/teacher'
 import { USER_MODE, CALENDAR_QUERY_TYPE } from '@/const/common'
+import { lessonHost } from '@/const/googleSlide'
+import storage from 'store'
+import { ACCESS_TOKEN } from '@/store/mutation-types'
 import { mapState } from 'vuex'
 
 import moment from 'moment'
@@ -230,7 +233,8 @@ export default {
           discountInfo: [],
           maxParticipants: 0,
           price: 0,
-          registerBefore: null
+          registerBefore: null,
+          title: ''
         },
         selectStudents: [],
         sessionType: 0,
@@ -345,6 +349,7 @@ export default {
       if (item && type) {
         if (item.type === typeMap.task) {
           this.scheduleReq.contentId = item.id
+          this.scheduleReq.register.title = item.name
         }
         this.importModel[type] = { ...item }
         // 如果是从unit导入，则先选中unit，获取unit下的所有task供其选择
@@ -424,7 +429,17 @@ export default {
       }
     },
 
-    goCreateSession() {
+    async goCreateSession() {
+      if (this.source === 'quick') {
+        this.scheduleReq.classIds = [this.currentClass]
+        this.scheduleReq.startDate = moment().utc().format('YYYY-MM-DD HH:mm:ss')
+        this.scheduleReq.endDate = moment().add(40, 'm').utc().format('YYYY-MM-DD HH:mm:ss')
+        const res = await this.createSession(true)
+        this.$message.success('The scheduled tiem above will be cleard by starting the session now.')
+        const url = lessonHost + 't/' + res[0].classId + '?token=' + storage.get(ACCESS_TOKEN)
+        window.location.href = url
+        return
+      }
       let path = '/teacher/schedule-session/' + this.scheduleReq.contentId + '/' + this.importType
       if (this.typeMode === CALENDAR_QUERY_TYPE.WORKSHOP.value) {
         path = '/teacher/schedule-workshop/' + this.scheduleReq.contentId + '/' + this.importType
@@ -505,62 +520,42 @@ export default {
       } else {
         this.$refs['steps-nav'].nextStep()
       }
+    },
+    async createSession(retValue) {
+      if (!this.scheduleReq.startDate || !this.scheduleReq.endDate) {
+        this.$message.warn('Please select Schedule time!')
+        return
+      }
+      this.$logger.info('try createSession scheduleReq', this.scheduleReq)
+      this.importLoading = true
+      try {
+        const res = await AddSessionV2(this.scheduleReq)
+        this.$logger.info('save scheduleReq', res)
+        if (res.result && res.success && res.code === 0) {
+          this.$message.success('Schedule session successfully')
+          if (!retValue) {
+            this.$emit('ok')
+          } else {
+            return res.result
+          }
+        } else {
+          this.$confirm({
+            title: 'Warn',
+            content: 'Schedule session failed.' + res.message + '. Please try again.',
+            centered: true
+          })
+        }
+      } catch (e) {
+        this.$confirm({
+          title: 'Error',
+          content: 'Schedule session error.' + e.message + '. Please try again.',
+          centered: true
+        })
+      } finally {
+        this.importLoading = false
+      }
+      return null
     }
-    // async createSession(retValue) {
-    //   if (this.scheduleReq.openSession) {
-    //     const openSessionData = this.$refs.pay.getPaidInfo()
-    //     if (this.userMode === USER_MODE.SELF) {
-    //       this.scheduleReq.register.discountInfo = openSessionData.discountInfo
-    //       this.scheduleReq.register.maxParticipants = openSessionData.maxParticipants
-    //       this.scheduleReq.register.price = openSessionData.price
-    //       this.scheduleReq.register.registerBefore = openSessionData.registerBefore
-    //     } else if (this.userMode === USER_MODE.SCHOOL) {
-    //       this.scheduleReq.selectTeachers = openSessionData.selectTeachers
-    //       this.scheduleReq.yearList = openSessionData.yearList
-    //       this.scheduleReq.subjectList = openSessionData.subjectList
-    //       this.scheduleReq.languageList = openSessionData.languageList
-    //       this.scheduleReq.register.paidType = openSessionData.paidType
-    //       this.scheduleReq.register.notifyType = openSessionData.notifyType
-    //       this.scheduleReq.register.notifyStudents = openSessionData.notifyStudents
-    //     }
-    //     this.scheduleReq.password = openSessionData.password
-    //     this.scheduleReq.waitingRoom = openSessionData.waitingRoom
-    //     this.scheduleReq.zoom = openSessionData.zoom
-    //   }
-    //   if (!this.scheduleReq.startDate || !this.scheduleReq.endDate) {
-    //     this.$message.warn('Please select Schedule time!')
-    //     return
-    //   }
-    //   this.$logger.info('try createSession scheduleReq', this.scheduleReq)
-    //   this.importLoading = true
-    //   try {
-    //     const res = await AddSessionV2(this.scheduleReq)
-    //     this.$logger.info('save scheduleReq', res)
-    //     if (res.result && res.success && res.code === 0) {
-    //       this.$message.success('Schedule session successfully')
-    //       if (!retValue) {
-    //         this.$emit('ok')
-    //       } else {
-    //         return res.result
-    //       }
-    //     } else {
-    //       this.$confirm({
-    //         title: 'Warn',
-    //         content: 'Schedule session failed.' + res.message + '. Please try again.',
-    //         centered: true
-    //       })
-    //     }
-    //   } catch (e) {
-    //     this.$confirm({
-    //       title: 'Error',
-    //       content: 'Schedule session error.' + e.message + '. Please try again.',
-    //       centered: true
-    //     })
-    //   } finally {
-    //     this.importLoading = false
-    //   }
-    //   return null
-    // }
   }
 }
 </script>
