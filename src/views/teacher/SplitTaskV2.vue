@@ -242,8 +242,7 @@ export default {
       })
     },
     goBack() {
-      // this.$router.replace({ path: '/teacher/sub-task/' + this.parentTaskId })
-      this.$router.push('/teacher/main/created-by-me')
+      this.$router.replace({ path: '/teacher/sub-task/' + this.parentTaskId })
     },
     async handleNextStep() {
       // 保存后跳转
@@ -287,10 +286,9 @@ export default {
       }
     },
     handleDiscardStep () {
-      // this.$router.replace({
-      //   path: '/teacher/sub-task/' + this.parentTaskId
-      // })
-      this.$router.push('/teacher/main/created-by-me')
+      this.$router.replace({
+        path: '/teacher/sub-task/' + this.parentTaskId
+      })
     },
     handleUpdateCover (coverData) {
       this.$logger.info('handleUpdateCover', coverData)
