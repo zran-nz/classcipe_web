@@ -5,7 +5,7 @@
         <slot name='cover-action'>
         </slot>
         <div class='bottom-action' v-if="content">
-          <div class='bottom-action-item vertical-left' @click='editItem' v-if="session.allowEdit">
+          <div class='bottom-action-item vertical-left' @click='editItem' v-if="session.allowEdit && !hideEdit">
             <div class='bottom-action-item-icon'><a-icon type="form" /></div>
             <div class='bottom-action-item-label'>Edit</div>
           </div>
@@ -135,7 +135,7 @@
       <div class='action vertical-right'>
         <template v-if='showButton'>
           <a-space :size='30'>
-            <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement'>
+            <a-dropdown v-if="!hideEdit" :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement'>
               <div class='more-action'>
                 <more-icon />
               </div>
@@ -300,6 +300,12 @@ export default {
       } else {
         return null
       }
+    },
+    hideEdit() {
+      if (this.session.session.author !== this.$store.getters.email) {
+        return true
+      }
+      return false
     }
   },
   methods: {
