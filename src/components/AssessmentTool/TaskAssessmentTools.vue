@@ -41,9 +41,9 @@
       </template>
       <template v-if='!assessmentList.length'>
         <common-no-data text='No assessment tool.' class='no-assessment'>
-          <template v-slot:icon>
+          <!-- <template v-slot:icon>
             <empty-assessment />
-          </template>
+          </template> -->
         </common-no-data>
       </template>
     </div>
@@ -188,7 +188,7 @@ export default {
             },
             {
               title: 'Yes',
-              type:`${HeaderType.custom}_1`,
+              type: `${HeaderType.custom}_1`,
               canAddCustomCol: true,
               editing: false
             },

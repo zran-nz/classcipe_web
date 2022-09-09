@@ -448,16 +448,16 @@ export default {
 
     handlePublicWorkshopSchedule () {
       this.$logger.info('handlePublicWorkshopSchedule', this.content)
-      if (this.content.pageObjects.length && this.content.presentationId && !this.content.presentationId.startsWith('fake_buy_')) {
+      // if (this.content.pageObjects.length && this.content.presentationId && !this.content.presentationId.startsWith('fake_buy_')) {
         this.$router.push({
           path: '/teacher/schedule-workshop/' + this.content.id + '/' + this.content.type
         })
-      } else {
-        this.$confirm({
-          title: 'Warning',
-          content: 'This task/PD content can not be scheduled without interactive slides, please edit google slides first before scheduling.'
-        })
-      }
+      // } else {
+      //   this.$confirm({
+      //     title: 'Warning',
+      //     content: 'This task/PD content can not be scheduled without interactive slides, please edit google slides first before scheduling.'
+      //   })
+      // }
     },
 
     handlePublishStatus() {

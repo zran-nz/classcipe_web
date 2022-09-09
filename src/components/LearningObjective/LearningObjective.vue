@@ -110,6 +110,9 @@
         <div class='cc-lo-title'>
           <span class='required-dot vertical-center'>*</span>
           Subject Learning Objectives
+          <span style="color: #f5222d;" class='required' v-if='!selectedList || selectedList.length === 0'>
+            *Required
+          </span>
         </div>
         <div class='cc-lo-input'>
           <a-spin :spinning="updating">

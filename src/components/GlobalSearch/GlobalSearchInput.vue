@@ -9,7 +9,13 @@
           <a-icon type='arrow-left' @click='handleBack' :style="{color: '#999', fontSize: '16px'}" />
         </div>
         <div class='search-input'>
-          <input v-model='searchKeyword' id='search-input' @keyup='handleSearch' @keyup.enter='emitSearchEvent(searchKeyword)' placeholder='Search...' />
+          <input
+            v-model='searchKeyword'
+            autocomplete="off"
+            id='search-input'
+            @keyup='handleSearch'
+            @keyup.enter='emitSearchEvent(searchKeyword)'
+            placeholder='Search...' />
         </div>
         <div class='search-clear' @click='handleSearchClear' v-show='searchKeyword.length > 0' >
           <a-icon type='close' />

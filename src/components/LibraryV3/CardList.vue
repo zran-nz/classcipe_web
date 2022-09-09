@@ -10,9 +10,12 @@
             {{ subTitle }}
           </div>
         </div>
-        <div class='more-action'>
+        <div class='more-action' v-if="category !== 'pd'">
           <router-link :to="'/teacher/library-all/' + category" v-if='!isSchoolMode'>More</router-link>
           <router-link :to="'/teacher/resource-all/' + category" v-if='isSchoolMode'>More</router-link>
+        </div>
+        <div class='more-action' v-else>
+          <router-link :to="'/teacher/main/live-workshops'">More</router-link>
         </div>
       </div>
     </template>
@@ -26,9 +29,12 @@
             {{ subTitle }}
           </div>
         </div>
-        <div class='more-action'>
+        <div class='more-action' v-if="category !== 'pd'">
           <router-link :to="'/teacher/library-all/' + category" v-if='!isSchoolMode'>More</router-link>
           <router-link :to="'/teacher/resource-all/' + category" v-if='isSchoolMode'>More</router-link>
+        </div>
+        <div class='more-action' v-else>
+          <router-link :to="'/teacher/main/live-workshops'">More</router-link>
         </div>
       </div>
     </template>

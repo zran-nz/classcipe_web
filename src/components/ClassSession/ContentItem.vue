@@ -304,14 +304,14 @@ export default {
   },
   methods: {
     editItem() {
-      this.$logger.info('edit session content', this.session)
-      if (this.content.presentationId) {
+      // this.$logger.info('edit session content', this.session)
+      // if (this.content.presentationId) {
         this.$router.push({
           path: '/teacher/schedule-session/' + this.content.id + '/' + this.content.type + '?sessionId=' + this.session.session.classId
         })
-      } else {
-        this.$message.warn('This task/PD content can not be scheduled without interactive slides, please edit google slides first before scheduling.')
-      }
+      // } else {
+      //   this.$message.warn('This task/PD content can not be scheduled without interactive slides, please edit google slides first before scheduling.')
+      // }
     },
 
     handleSchedule() {
