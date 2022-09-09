@@ -99,7 +99,7 @@ export default {
       this.$logger.info('handleSubmitFeedback', data)
       FeedbackSave(data).then((response) => {
         this.$logger.info('submit-feedback', response)
-        this.$message.success('Thank you for your feedback!')
+        this.$message.success('Thank you for your feedback, we will get back to you as soon as possible.')
         this.feedbackModalVisible = false
       })
     }
