@@ -160,7 +160,7 @@
       <a-form-model-item label="Phone">
         <a-input v-model="formModel.parentPhone" placeholder="Phone" />
       </a-form-model-item>
-      <a-form-model-item :wrapperCol="{offset: 6}">
+      <a-form-model-item :wrapperCol="{offset: 6}" v-if="!studentId">
         <a-button :disabled="hasErrors" :loading="loading" @click="handleSave" type="primary">{{ studentId ? 'Update': 'Create' }}</a-button>
       </a-form-model-item>
     </a-form-model>
@@ -271,6 +271,7 @@ export default {
       cacheKey: 'SUBMIT_VALIDATE_SCHOOL_STUDENT_',
       autoSaveLocalKey: 'FORM_SCHOOL_STUDENT_',
       needAutoSave: !this.id,
+      needAutoSaveRemote: this.id,
       randomPass: '',
       classUnModify: false,
       subjectOptions: [],
@@ -565,7 +566,7 @@ export default {
       //   }
       // })
     },
-    handleSave() {
+    handleSave(cb) {
       this.$refs.form.validate(valid => {
         if (valid) {
           const params = { ...this.formModel }
@@ -587,7 +588,11 @@ export default {
             if (res.code === 0) {
               this.$message.success('Save successfully')
               this.clearLocalData()
-              this.$emit('save', res.result)
+              if (cb) {
+                cb()
+              } else {
+                this.$emit('save', res.result)
+              }
             }
           }).finally(() => {
             this.loading = false

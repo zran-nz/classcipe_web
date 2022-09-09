@@ -7,20 +7,26 @@ export const AutoSaveLocalMixin = {
     return {
       saving: false,
       saveTime: null,
+      asyncSaveLocalDataFn: null,
       asyncSaveDataFn: null,
       autoSaveLocalKey: 'FORM_',
-      needAutoSave: false
+      needAutoSave: false,
+      needAutoSaveRemote: false
     }
   },
 
   created() {
-    this.asyncSaveDataFn = debounce(this.autoSaveLocalData, 200)
+    this.asyncSaveLocalDataFn = debounce(this.autoSaveLocalData, 200)
+    this.asyncSaveDataFn = debounce(this.autoSaveData, 1000)
   },
   watch: {
     formModel: {
       deep: true,
       handler(newVal, oldVal) {
         if (this.needAutoSave) {
+          this.asyncSaveLocalDataFn(newVal)
+        }
+        if (this.needAutoSaveRemote && !this.loading) {
           this.asyncSaveDataFn(newVal)
         }
       }
@@ -28,7 +34,7 @@ export const AutoSaveLocalMixin = {
   },
   computed: {
     lastChangeSavedTime() {
-      const time = this.saveTime || (this.form && (this.form.updateTime || this.form.createTime))
+      const time = this.saveTime || (this.formModel && (this.formModel.updateTime || this.form.createTime))
       if (time) {
         return formatLocalUTC(time)
       } else {
@@ -41,6 +47,12 @@ export const AutoSaveLocalMixin = {
       const userId = this.$store.getters.userInfo.id
       const schoolId = this.$store.state.user.currentSchool.id
       storage.set(this.autoSaveLocalKey + userId + schoolId, JSON.stringify(newVal))
+      this.saveTime = new Date()
+    },
+    autoSaveData (newVal) {
+      this.handleSave(() => {
+        this.saveTime = new Date()
+      })
     },
 
     getAutoLocalData () {
