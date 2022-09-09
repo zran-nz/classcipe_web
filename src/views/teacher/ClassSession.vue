@@ -374,6 +374,10 @@ export default {
           })
           res.result.records.forEach(record => {
             record.allowEdit = true
+            // archive no edit
+            if (this.queryParams.status + '' === '-1') {
+              record.allowEdit = false
+            }
             if (record.session.sessionStartTime) {
               const startTimestamp = moment.utc(record.session.sessionStartTime).toDate().getTime()
               if (startTimestamp < Date.now()) {
