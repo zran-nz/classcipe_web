@@ -1,7 +1,7 @@
 export default {
   'user.login.userName': '用户名',
   'user.login.password': '密码',
-  'user.login.username.placeholder': '邮箱',
+  'user.login.username.placeholder': '邮箱/ID',
   'user.login.password.placeholder': '密码',
   'user.login.message-invalid-credentials': '账户或密码错误（admin/ant.design）',
   'user.login.message-invalid-verification-code': '验证码错误',

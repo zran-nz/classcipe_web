@@ -494,8 +494,8 @@
       <div class='card-list-wrapper' v-if="associateList.length">
         <div class='card-list-title'>
           <div class='sub-task-title'>
-            <template v-if="associateList[0].type === typeMap['unit-plan']">Unit</template>
-            <template v-if="associateList[0].type === typeMap.task">Task</template>
+            <template v-if="associateList[0].type === typeMap['unit-plan']">Related Unit</template>
+            <template v-if="associateList[0].type === typeMap.task">Related Task</template>
             ({{ associateList.length }})
           </div>
           <div class='go-to-list' v-if="showEnterButton">

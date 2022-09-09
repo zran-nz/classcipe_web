@@ -1,7 +1,7 @@
 export default {
   'user.login.userName': 'userName',
   'user.login.password': 'password',
-  'user.login.username.placeholder': 'Email',
+  'user.login.username.placeholder': 'Email / Student ID',
   'user.login.password.placeholder': 'Password',
   'user.login.message-invalid-credentials':
     'Invalid username or password（admin/ant.design）',
