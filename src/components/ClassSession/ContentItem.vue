@@ -4,14 +4,19 @@
       <div class='cover-block' :style="{'background-image': `url('${session.session.image }')`}">
         <slot name='cover-action'>
         </slot>
-        <div class='bottom-action' v-if="content">
-          <div class='bottom-action-item vertical-left' @click='editItem' v-if="session.allowEdit && !hideEdit">
+        <div class='bottom-action'>
+          <div class='bottom-action-item vertical-left' @click='editItem' v-if="content && session.allowEdit && !hideEdit">
             <div class='bottom-action-item-icon'><a-icon type="form" /></div>
             <div class='bottom-action-item-label'>Edit</div>
           </div>
           <div class='bottom-action-item vertical-left' v-else >
           </div>
           <div class='bottom-action-item vertical-right' @click="handlePreviewDetail(content)" v-if="content" v-show='!((content.type === typeMap.task || content.type === typeMap.pd) && content.slideEditing)'>
+            <div class='bottom-action-item-icon'><a-icon type="eye" /></div>
+            <div class='bottom-action-item-label'>Preview</div>
+          </div>
+          <!--删除也可以预览-->
+          <div class='bottom-action-item vertical-right' @click="handlePreviewDeleteDetail(session.session)" v-if="!content">
             <div class='bottom-action-item-icon'><a-icon type="eye" /></div>
             <div class='bottom-action-item-label'>Preview</div>
           </div>

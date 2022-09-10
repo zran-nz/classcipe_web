@@ -120,6 +120,23 @@ export const ContentItemMixin = {
         this.$emit('preview', data)
       }
     },
+    handlePreviewDeleteDetail (session) {
+      this.$logger.info('handlePreviewDeleteDetail', session, 'allowPreview', this.allowPreview)
+      if (this.allowPreview) {
+        this.previewVisible = false
+        this.$nextTick(() => {
+          this.previewCurrentId = session.contentId
+          this.previewType = session.contentType
+          this.previewCode = session.classId
+          // 原件显示创建编辑评论不显示评论列表，自己copy的时不显示创建编辑评论列表
+          this.reviewList = false // !isOrigin
+          this.reviewCreate = false
+          this.reviewEdit = false
+          this.previewVisible = true
+        })
+        this.$emit('preview', session)
+      }
+    },
     handlePreviewClose () {
       this.$logger.info('handlePreviewClose')
       this.previewVisible = false
