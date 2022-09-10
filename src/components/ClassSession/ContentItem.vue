@@ -191,6 +191,7 @@
       <content-preview
         :content-id='previewCurrentId'
         :content-type='previewType'
+        :show-edit-button=!!content
         v-if='previewVisible'
         @close='handlePreviewClose' />
     </div>
