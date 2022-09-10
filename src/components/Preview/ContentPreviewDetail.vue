@@ -1021,10 +1021,13 @@ export default {
     async loadSlideData () {
       try {
         this.carouselContentLoading = true
-        const slideData = await TemplatesGetPublishedPresentation({
-          taskId: this.contentId,
-          sessionId: this.session ? this.session.id : ''
-        })
+        const params = {
+          taskId: this.contentId
+        }
+        if (this.session) {
+          params.sessionId = this.session.id
+        }
+        const slideData = await TemplatesGetPublishedPresentation(params)
         console.log('loadSlideData', slideData)
         this.thumbnailList = slideData.result.pageObjects
         this.pageObjectIds = slideData.result.pageObjectIds
