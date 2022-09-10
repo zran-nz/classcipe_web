@@ -192,6 +192,7 @@
         :content-id='previewCurrentId'
         :content-type='previewType'
         :show-edit-button=!!content
+        :session="session"
         v-if='previewVisible'
         @close='handlePreviewClose' />
     </div>

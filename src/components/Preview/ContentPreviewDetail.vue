@@ -746,6 +746,10 @@ export default {
     reviewList: {
       type: Boolean,
       default: true
+    },
+    session: {
+      type: Object,
+      default: null
     }
   },
   mixins: [PptPreviewMixin, GoogleAuthCallBackMixin, ContentItemMixin],
@@ -1017,7 +1021,10 @@ export default {
     async loadSlideData () {
       try {
         this.carouselContentLoading = true
-        const slideData = await TemplatesGetPublishedPresentation({ taskId: this.contentId })
+        const slideData = await TemplatesGetPublishedPresentation({
+          taskId: this.contentId,
+          sessionId: this.session ? this.session.id : ''
+        })
         console.log('loadSlideData', slideData)
         this.thumbnailList = slideData.result.pageObjects
         this.pageObjectIds = slideData.result.pageObjectIds
