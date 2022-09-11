@@ -89,7 +89,7 @@ export const PublishMixin = {
           }
         } else if (field === 'learnOuts') {
           console.log('learnOuts test', this.form.learnOuts)
-          if (!this.form.learnOuts?.length) {
+          if (!this.form.learnOuts?.length || !this.form.subjectList?.length || !this.form.yearList?.length || !this.form.curriculumId) {
             console.log('learnOuts is empty')
             this.emptyRequiredFields.push(field)
             this.formSteps.forEach(step => {
@@ -186,7 +186,8 @@ export const PublishMixin = {
             }
           } else if (field === 'learnOuts') {
             console.log('learnOuts test', this.form.learnOuts)
-            if (!this.form.learnOuts?.length) {
+            if (!this.form.learnOuts?.length || !this.form.subjectList?.length || !this.form.yearList?.length || !this.form.curriculumId) {
+              console.log(this.form)
               console.log('learnOuts is empty')
               this.emptyRequiredFields.push(field)
               this.formSteps.forEach(step => {

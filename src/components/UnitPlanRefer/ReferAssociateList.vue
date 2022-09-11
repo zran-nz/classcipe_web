@@ -98,7 +98,7 @@
                     <div class="cover-img-wrapper">
                       <div
                         class="cover-image"
-                        :style="{backgroundImage: 'url(' + listItem.image + ')' }"
+                        :style="{backgroundImage: `url('${listItem.image}')` }"
                       >
                       </div>
                     </div>

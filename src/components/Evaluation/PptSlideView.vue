@@ -134,7 +134,7 @@
                 v-if="slideItem.material && slideItem.material.hasOwnProperty('image')"
                 @click.stop="">
                 <div class="img-item" v-for="(imgItem, index) in slideItem.material.image" :key="index" @click.stop="">
-                  <div :style="{'background-image': 'url(' + imgItem.url + ')'}" class="img-cover" />
+                  <div :style="{'background-image': `url('${imgItem.url}')`}" class="img-cover" />
                   <div class="view-item" @click.stop="handleViewItem(imgItem.url)">View
                     <a-icon type="eye" />
                   </div>

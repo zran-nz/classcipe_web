@@ -23,7 +23,7 @@
                 class='buy-now'
                 type="danger"
                 shape='round'
-                v-if="liveWorkShopSession && WORK_SHOPS_TYPE.REGISTERED.value === liveWorkShopSession.workshopsType"
+                v-if="liveWorkShopSession && WORK_SHOPS_TYPE.REGISTERED.value === liveWorkShopSession.workshopsType && isReadyStart24(liveWorkShopSession) "
                 @click='handleCancelSession'
                 :loading='buyLoading'
               >
@@ -34,7 +34,7 @@
                 type='primary'
                 @click='handleRegisterSession'
                 :loading='buyLoading'
-                v-if='liveWorkShopSession && WORK_SHOPS_TYPE.FEATURE.value === liveWorkShopSession.workshopsType'
+                v-if='liveWorkShopSession && WORK_SHOPS_TYPE.FEATURE.value === liveWorkShopSession.workshopsType && (liveWorkShopSession.session && (!liveWorkShopSession.session.deadline || moment(liveWorkShopSession.session.deadline).isAfter(moment())))'
               >
                 Register
               </a-button>
@@ -195,7 +195,7 @@
                   class='buy-now'
                   type="danger"
                   shape='round'
-                  v-if="liveWorkShopSession && WORK_SHOPS_TYPE.REGISTERED.value === liveWorkShopSession.workshopsType"
+                  v-if="liveWorkShopSession && WORK_SHOPS_TYPE.REGISTERED.value === liveWorkShopSession.workshopsType && isReadyStart24(liveWorkShopSession) "
                   @click='handleCancelSession'
                   :loading='buyLoading'
                 >
@@ -206,7 +206,7 @@
                   type='primary'
                   @click='handleRegisterSession'
                   :loading='buyLoading'
-                  v-if='liveWorkShopSession && WORK_SHOPS_TYPE.FEATURE.value === liveWorkShopSession.workshopsType'
+                  v-if='liveWorkShopSession && WORK_SHOPS_TYPE.FEATURE.value === liveWorkShopSession.workshopsType && (liveWorkShopSession.session && (!liveWorkShopSession.session.deadline || moment(liveWorkShopSession.session.deadline).isAfter(moment())))'
                 >
                   Register
                 </a-button>
@@ -689,6 +689,7 @@ import RateLevel from '@/components/RateLevel'
 import { ContentBuy } from '@/api/v2/mycontent'
 import { DetailBySessionId, SaveRegisteredRecord, CancelRegistered } from '@/api/v2/live'
 import { SET_PROMOTE_CODE } from '@/store/mutation-types'
+import moment from 'moment'
 
 export default {
   name: 'ContentPreviewDetail',
@@ -755,6 +756,7 @@ export default {
   mixins: [PptPreviewMixin, GoogleAuthCallBackMixin, ContentItemMixin],
   data() {
     return {
+      moment: moment,
       contentLoading: true,
       WORK_SHOPS_TYPE: WORK_SHOPS_TYPE,
       content: null,
@@ -1361,6 +1363,11 @@ export default {
     },
     topTarget() {
       return document.getElementById(this.contentId + 'box').parentElement.parentElement.parentElement
+    },
+    isReadyStart24(item) {
+      if (!item.sessionStartTime) return true
+      const start = moment(item.sessionStartTime).utc().subtract(24, 'hours')
+      return moment().isBefore(start)
     }
   }
 }

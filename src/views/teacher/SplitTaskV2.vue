@@ -4,6 +4,7 @@
       <template v-slot:header>
         <form-header
           title='Create sub-task'
+          :backByRouter="true"
           @back='goBack'>
           <template v-slot:right>
           </template>

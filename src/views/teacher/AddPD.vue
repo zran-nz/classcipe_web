@@ -171,7 +171,7 @@
           <a-button type='primary' @click='handleScheduleWorkShop' class='cc-round-button cc-dark-button' v-if='!isUnComplete && currentActiveStepIndex === formSteps.length - 1'>
             Schedule workshop
           </a-button>
-          <a-tooltip :title="form.slideEditing ? 'Please save your slides' : 'Please complete your information before schedule workshop'" v-if='isUnComplete && currentActiveStepIndex === formSteps.length - 1'>
+          <a-tooltip :title="form.slideEditing ? 'Please save your slides' : 'Please complete your information before schedule workshop'" v-if='(isUnComplete || form.slideEditing) && currentActiveStepIndex === formSteps.length - 1'>
             <a-button type='primary' :disabled="true" class='cc-round-button cc-dark-button'>
               Schedule workshop
             </a-button>

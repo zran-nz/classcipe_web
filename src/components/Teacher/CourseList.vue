@@ -206,7 +206,7 @@
                     </template>
                   </div>
                 </div>
-                <div class="cover-img" :style="{backgroundImage: 'url(' + (item.task && item.task.image) + ')'}"></div>
+                <div class="cover-img" :style="{backgroundImage: `url('${(item.task && item.task.image)}')`}"></div>
 
                 <a-card-meta class="my-card-meta-info" :title="(item.task && item.task.name) ? item.task.name : 'Untitled'" :description="(item.updateTime || item.createTime) | dayjs">
                   <content-type-icon :type="item.type" slot="avatar"></content-type-icon>

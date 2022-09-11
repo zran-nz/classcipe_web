@@ -1,6 +1,6 @@
 <template>
   <div class='share-password-auth'>
-    <div class='password-cover' :style="{'background-image': 'url(' + coverUrl + ')'}">
+    <div class='password-cover' :style="{'background-image': `url('${coverUrl}')`}">
     </div>
     <div class='share-title'>
       {{ title }}

@@ -56,7 +56,7 @@
               </a-empty>
             </div>
             <div class="preview-img-item" v-for="(img,index) in imgList" :key="index">
-              <div class="preview-block" :style="{backgroundImage: 'url(' + img + ')' }" :data-img="img"></div>
+              <div class="preview-block" :style="{backgroundImage: `url('${img}')` }" :data-img="img"></div>
             </div>
           </a-carousel>
         </a-col>
