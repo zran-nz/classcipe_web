@@ -170,7 +170,11 @@ export default {
     },
 
     disabledDate(current) {
-      return current && current < moment().subtract(1, 'days').endOf('day')
+      // return current && current < moment().subtract(1, 'days').endOf('day')
+      // 在开课时间之前
+      return current &&
+        current < moment().subtract(1, 'days').endOf('day') ||
+        (current && this.startDate && current > moment(this.startDate).add(1, 'days').startOf('day'))
     },
 
     updateZoom(data) {

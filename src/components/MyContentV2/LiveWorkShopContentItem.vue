@@ -155,6 +155,7 @@
             v-if="
               WORK_SHOPS_TYPE.FEATURE.value === content.workshopsType
                 && WORK_SHOPS_STATUS.ENDED.value !== content.workshopsStatus
+                && (content.session && (!content.session.deadline || moment(content.session.deadline).isAfter(moment())))
                 && isCurrentType(WORK_SHOPS_TYPE.FEATURE.value)">
             <!-- <a-button type='primary' shape='round' @click='handleRegister(content)'>
               <icon-font type="icon-register" class="detail-font"/>

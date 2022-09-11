@@ -34,7 +34,7 @@
                 type='primary'
                 @click='handleRegisterSession'
                 :loading='buyLoading'
-                v-if='liveWorkShopSession && WORK_SHOPS_TYPE.FEATURE.value === liveWorkShopSession.workshopsType'
+                v-if='liveWorkShopSession && WORK_SHOPS_TYPE.FEATURE.value === liveWorkShopSession.workshopsType && (liveWorkShopSession.session && (!liveWorkShopSession.session.deadline || moment(liveWorkShopSession.session.deadline).isAfter(moment())))'
               >
                 Register
               </a-button>
@@ -206,7 +206,7 @@
                   type='primary'
                   @click='handleRegisterSession'
                   :loading='buyLoading'
-                  v-if='liveWorkShopSession && WORK_SHOPS_TYPE.FEATURE.value === liveWorkShopSession.workshopsType'
+                  v-if='liveWorkShopSession && WORK_SHOPS_TYPE.FEATURE.value === liveWorkShopSession.workshopsType && (liveWorkShopSession.session && (!liveWorkShopSession.session.deadline || moment(liveWorkShopSession.session.deadline).isAfter(moment())))'
                 >
                   Register
                 </a-button>
@@ -756,6 +756,7 @@ export default {
   mixins: [PptPreviewMixin, GoogleAuthCallBackMixin, ContentItemMixin],
   data() {
     return {
+      moment: moment,
       contentLoading: true,
       WORK_SHOPS_TYPE: WORK_SHOPS_TYPE,
       content: null,

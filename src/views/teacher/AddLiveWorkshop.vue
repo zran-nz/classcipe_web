@@ -127,6 +127,7 @@
                   </a-space>
                 </div>
               </div>
+              <!-- TODO 变成弹出层 -->
               <div class='pay-title'>
                 <div class='title'>
                   Registration deadline
@@ -136,7 +137,11 @@
                     :getCalendarContainer='trigger => trigger.parentElement'
                     :disabled-date="disabledDate"
                     :show-time="{ format: 'HH:mm' }"
-                    @change="handleSelectDate" />
+                    @change="handleSelectDate">
+                    <!-- <div style="margin-left: 5px;float: right" slot="renderExtraFooter">
+                      <a @click="cancelDate" role="button" class="ant-calendar-ok-btn">Skip</a>
+                    </div> -->
+                  </a-date-picker>
                 </div>
               </div>
             </div>
@@ -564,7 +569,11 @@ export default {
     },
 
     disabledDate(current) {
-      return current && current < moment()
+      // return current && current < moment()
+      // 在开课时间之前
+      return current &&
+        current < moment().subtract(1, 'days').endOf('day') ||
+        (current && this.startDate && current > moment(this.startDate).add(1, 'days').startOf('day'))
     },
 
     disabledDateRange(current) {

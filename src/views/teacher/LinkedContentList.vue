@@ -110,7 +110,12 @@ export default {
         })
         console.log('taskList', taskList)
         console.log('unitList', unitList)
-        this.subTaskList = [...taskList]
+        if (this.contentType === this.$classcipe.typeMap.task) {
+          this.subTaskList = [...taskList]
+        } else {
+          this.subTaskList = [...unitList]
+        }
+        this.subTaskList = this.subTaskList.filter(content => content.createBy === this.$store.getters.email)
         this.$logger.info('sub list', this.subTaskList)
       } catch (e) {
         console.error('loadSlideData', e)
