@@ -228,7 +228,7 @@
             v-if="WORK_SHOPS_TYPE.REGISTERED.value === content.workshopsType
               && isCurrentType(WORK_SHOPS_TYPE.REGISTERED.value)
               && WORK_SHOPS_STATUS.ENDED.value !== content.workshopsStatus
-              && isReadyStart12(content) ">
+              && isReadyStart24(content) ">
             <div class='more-action'>
               <more-icon />
             </div>
@@ -484,9 +484,9 @@ export default {
     changeTitle(value, item) {
       this.choose.title = value
     },
-    isReadyStart12(item) {
-      if (!item.sessionStartTime) return false
-      const start = moment(item.sessionStartTime).utc().subtract(12, 'hours')
+    isReadyStart24(item) {
+      if (!item.sessionStartTime) return true
+      const start = moment(item.sessionStartTime).utc().subtract(24, 'hours')
       return moment().isBefore(start)
     },
     handleCancelSingle(item) {

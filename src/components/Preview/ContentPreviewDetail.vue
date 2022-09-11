@@ -23,7 +23,7 @@
                 class='buy-now'
                 type="danger"
                 shape='round'
-                v-if="liveWorkShopSession && WORK_SHOPS_TYPE.REGISTERED.value === liveWorkShopSession.workshopsType"
+                v-if="liveWorkShopSession && WORK_SHOPS_TYPE.REGISTERED.value === liveWorkShopSession.workshopsType && isReadyStart24(liveWorkShopSession) "
                 @click='handleCancelSession'
                 :loading='buyLoading'
               >
@@ -195,7 +195,7 @@
                   class='buy-now'
                   type="danger"
                   shape='round'
-                  v-if="liveWorkShopSession && WORK_SHOPS_TYPE.REGISTERED.value === liveWorkShopSession.workshopsType"
+                  v-if="liveWorkShopSession && WORK_SHOPS_TYPE.REGISTERED.value === liveWorkShopSession.workshopsType && isReadyStart24(liveWorkShopSession) "
                   @click='handleCancelSession'
                   :loading='buyLoading'
                 >
@@ -689,6 +689,7 @@ import RateLevel from '@/components/RateLevel'
 import { ContentBuy } from '@/api/v2/mycontent'
 import { DetailBySessionId, SaveRegisteredRecord, CancelRegistered } from '@/api/v2/live'
 import { SET_PROMOTE_CODE } from '@/store/mutation-types'
+import moment from 'moment'
 
 export default {
   name: 'ContentPreviewDetail',
@@ -1361,6 +1362,11 @@ export default {
     },
     topTarget() {
       return document.getElementById(this.contentId + 'box').parentElement.parentElement.parentElement
+    },
+    isReadyStart24(item) {
+      if (!item.sessionStartTime) return true
+      const start = moment(item.sessionStartTime).utc().subtract(24, 'hours')
+      return moment().isBefore(start)
     }
   }
 }
