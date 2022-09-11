@@ -8,6 +8,7 @@
             <a-select
               :getPopupContainer="trigger => trigger.parentElement"
               placeholder='Curriculum'
+              v-model="selectCurriculum"
               @select='handleSelectCurriculum'
               :disabled='!canEdit'
               class='cc-select cc-lo-select-mid'>
@@ -411,6 +412,7 @@ export default {
       selectedSubject: null,
       selectedYear: null,
       selectedLanguage: null,
+      selectCurriculum: null,
 
       filterConfig: {
         curriculumId: null,
@@ -559,11 +561,11 @@ export default {
       this.$watch('filterConfig', async (newValue, oldValue) => {
         console.log('watch filterConfig changed', oldValue.curriculumId, newValue.curriculumId)
         this.updating = true
-        if (newValue.curriculumId !== oldValue.curriculumId) {
-          this.$logger.info('reset filterConfig data', this.data)
-        } else {
+        // if (newValue.curriculumId !== oldValue.curriculumId) {
+        //   this.$logger.info('reset filterConfig data', this.data)
+        // } else {
           this.asyncUpdateFilterListFn()
-        }
+        // }
       }, {
         deep: true,
         immediate: false
@@ -585,6 +587,7 @@ export default {
         this.yearOptions = []
         this.subjectOptions = []
         this.yearIndex = null
+        this.selectCurriculum = null
         this.$logger.info('reset data', this.data)
       }
     },
@@ -622,6 +625,7 @@ export default {
         } else {
           this.$logger.warn('No curriculum data.')
         }
+        this.selectCurriculum = null
         this.$logger.info('handleSelectCurriculum curriculum', curriculum)
       }
     },
@@ -630,6 +634,7 @@ export default {
       if (this.canEdit) {
         if (this.filterConfig.selectedSubjectList.includes(subject)) {
           this.filterConfig.selectedSubjectList = this.filterConfig.selectedSubjectList.filter(item => item !== subject)
+          this.selectedSubject = null
         }
       }
     },
@@ -637,6 +642,7 @@ export default {
     handleRemoveYear (year) {
        if (this.canEdit) {
          this.filterConfig.selectedYearList.splice(this.filterConfig.selectedYearList.indexOf(year), 1)
+         this.selectedYear = null
        }
     },
 
@@ -769,6 +775,8 @@ export default {
         })
         filterList = filterList.filter(item => this.selectedIdList.indexOf(item.id) === -1)
         this.filterList = filterList
+        this.asyncEmitUpdateEventFn()
+      } else {
         this.asyncEmitUpdateEventFn()
       }
       this.$nextTick(() => {
