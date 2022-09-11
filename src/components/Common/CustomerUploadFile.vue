@@ -9,7 +9,7 @@
       <slot name="fileList">
         <template v-if="(mediaUrl || url)">
           <div class='uploaded-cover' v-if="(mediaType || type) === 'image'">
-            <div class='img-cover' :style="{backgroundImage: 'url(' + (mediaUrl || url) + ')' }"></div>
+            <div class='img-cover' :style="{backgroundImage: `url('${(mediaUrl || url)}')` }"></div>
           </div>
           <div class='upload-text' v-else-if="(mediaType || type) === 'video'">
             <video :src='(mediaUrl || url)' :controls='videoControls'></video>

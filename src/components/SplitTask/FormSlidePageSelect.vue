@@ -4,7 +4,7 @@
       <a-col span='12'>
         <div class='cover-list'>
           <div class='page-item' v-for='(pageItem) in thumbnailList' :key='pageItem.id' @click='handleSelectPage(pageItem)'>
-            <div class='page-cover' :class="{'active-page': selectedPageList.indexOf(pageItem) !== -1}" :style="{ backgroundImage: 'url(' + pageItem.contentUrl + ')' }">
+            <div class='page-cover' :class="{'active-page': selectedPageList.indexOf(pageItem) !== -1}" :style="{ backgroundImage: `url('${pageItem.contentUrl}')` }">
               <img src="~@/assets/icons/lesson/selected.png" class='selected-img' />
             </div>
           </div>

@@ -161,7 +161,7 @@
               <div class="cover-img-wrapper">
                 <div
                   class="cover-image"
-                  :style="{backgroundImage: 'url(' + item.image + ')' }"
+                  :style="{backgroundImage: `url('${item.image}')` }"
                 >
                 </div>
               </div>

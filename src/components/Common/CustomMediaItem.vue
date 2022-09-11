@@ -1,7 +1,7 @@
 <template>
   <div class='custom-cover-media' :style="{ width: width, height: height, outline: showMaskSelected ? '2px solid #15C39A' : 'none' }" :data-url='mediaUrl' :data-type='mediaType'>
     <div class='uploaded-cover' v-if="mediaType === 'image' && mediaUrl">
-      <div class='img-cover' :style="{backgroundImage: 'url(' + mediaUrl + ')' }" :data-mediaUrl='mediaUrl'></div>
+      <div class='img-cover' :style="{backgroundImage: `url('${mediaUrl}')` }" :data-mediaUrl='mediaUrl'></div>
       <div class='media-info'>
         <div class='media-title'>
           {{ mediaTitle }}

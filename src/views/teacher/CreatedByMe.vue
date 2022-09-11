@@ -342,7 +342,7 @@
                   </div>
                 </template>
 
-                <div class="cover-img" :style="{backgroundImage: 'url(' + item.image + ')'}"></div>
+                <div class="cover-img" :style="{backgroundImage: `url('${item.image}')`}"></div>
 
                 <a-card-meta class="my-card-meta-info" :title="item.name ? item.name : 'Untitled'" :description="item.updateTime | dayjs" @click="handleViewDetail(item)">
                   <content-type-icon :type="item.type" slot="avatar"></content-type-icon>

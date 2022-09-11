@@ -22,7 +22,7 @@
           </div>
         </div>
         <div class='img-preview' v-if='imgMode'>
-          <div class='img-cover' :style="{'background-image': 'url(' + (slideItem.image || imgList[0]) + ')'}"></div>
+          <div class='img-cover' :style="{'background-image': `url('$(slideItem.image || imgList[0])}')`}"></div>
         </div>
         <template v-if='!imgMode'>
           <a-carousel ref='carousel' :arrows='showArrow && imgList.length > 1' :after-change='onChangePage'>
@@ -36,7 +36,7 @@
             <div slot="nextArrow" class="custom-slick-arrow" style="right: 0; z-index: 200">
               <a-icon type="right" />
             </div>
-            <div class='slider-img-cover' :style="{width: width, backgroundImage: 'url(' + image + ')'}" v-for='(image,idx) in imgList' :key='idx'>
+            <div class='slider-img-cover' :style="{width: width, backgroundImage: `url('${image}')`}" v-for='(image,idx) in imgList' :key='idx'>
             </div>
           </a-carousel>
         </template>

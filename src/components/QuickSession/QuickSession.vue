@@ -51,7 +51,7 @@
             v-for='(promptItem, pIdx) in promptList'
             :key='pIdx'
             @click='handleSelectPromptItem(promptItem)'>
-            <div class='prompt-cover' :style="{'background-image': 'url(' + promptItem.cover + ')'}">
+            <div class='prompt-cover' :style="{'background-image': `url('${promptItem.cover}')`}">
               <template v-if='selectedPrompt && promptItem.id === selectedPrompt.id'>
                 <div class='mask'></div>
                 <div class='template-select-icon'>

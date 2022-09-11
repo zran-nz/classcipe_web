@@ -27,7 +27,7 @@
           <a-icon type="right-circle" />
         </div>
         <div class="preview-img-item" v-for="(img,index) in imgList" :key="index">
-          <div class="preview-block" :style="{backgroundImage: 'url(' + img.imgUrl + ')' }" :data-img="img.imgUrl"></div>
+          <div class="preview-block" :style="{backgroundImage: `url('${img.imgUrl}')` }" :data-img="img.imgUrl"></div>
         </div>
       </a-carousel>
     </div>

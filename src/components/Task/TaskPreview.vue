@@ -1,7 +1,7 @@
 <template>
   <div class="task-preview" :data-uid="rawSubTaskData ? rawSubTaskData._uid : ''">
     <div class='mask'></div>
-    <div class='sub-task-item' :style="{backgroundImage: thumbnailList.length ? 'url(' + thumbnailList[0].contentUrl + ')' : ''}">
+    <div class='sub-task-item' :style="{backgroundImage: thumbnailList.length ? `url('${thumbnailList[0].contentUrl}')` : ''}">
     </div>
     <div class="mask-actions">
       <div class="action-item action-item-bottom" >
