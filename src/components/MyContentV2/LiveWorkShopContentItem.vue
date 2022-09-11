@@ -301,16 +301,16 @@
 </template>
 
 <script>
-import { WORK_SHOPS_STATUS, WORK_SHOPS_TYPE, USER_MODE } from '@/const/common'
-import { SaveRegisteredRecord, CancelRegistered } from '@/api/v2/live'
+import { USER_MODE, WORK_SHOPS_STATUS, WORK_SHOPS_TYPE } from '@/const/common'
+import { CancelRegistered, SaveRegisteredRecord } from '@/api/v2/live'
 import {
+  ArchiveSession,
+  ClassStatusUpdate,
   DeleteClassV2,
   EditSessionScheduleV2,
   EndSession,
   ReopenSession,
-  ArchiveSession,
-  RestoreSession,
-  ClassStatusUpdate
+  RestoreSession
 } from '@/api/v2/classes'
 import { lessonHost } from '@/const/googleSlide'
 import { typeMap } from '@/const/teacher'

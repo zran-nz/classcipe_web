@@ -1,7 +1,17 @@
 <template>
   <div class='content-item' v-if='content'>
-    <div class='cover'>
-      <div class='cover-block' :style="{'background-image': `url('${content.image}')`}">
+    <div class='cover' @click='handlePreviewDetail(content)'>
+      <div class='cover-block' :style="{'background-image': `url('${content.image || 'http://dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png'}')`}">
+        <div class='bottom-action'>
+          <div class='bottom-action-item vertical-left'>
+            <!-- <div class='bottom-action-item-icon'><a-icon type="form" /></div>
+            <div class='bottom-action-item-label'>Edit</div> -->
+          </div>
+          <div class='bottom-action-item vertical-right' @click="handlePreviewDetail(content)" v-show='!((content.type === typeMap.task || content.type === typeMap.pd) && content.slideEditing)'>
+            <div class='bottom-action-item-icon'><a-icon type="eye" /></div>
+            <div class='bottom-action-item-label'>Preview</div>
+          </div>
+        </div>
       </div>
     </div>
     <div class='detail'>
@@ -58,17 +68,7 @@
               </div>
             </a-space>
           </div>
-          <div class='tag-info' v-if='knowledgeTagsList.length'>
-            <div class='tag-info-item' v-for='(knowledgeTag, cIdx) in knowledgeTagsList' :key='cIdx'>
-              <a-tag color='#EABA7F' class='tag-item knowledge-tag' :title='knowledgeTag'>{{ knowledgeTag }}</a-tag>
-            </div>
-          </div>
           <div class='tag-info'>
-            <template v-if='commandTermsList.length'>
-              <div class='tag-info-item' v-for='(command, cIdx) in commandTermsList' :key='cIdx'>
-                <a-tag color='#06ACD7' class='tag-item command-tag' :title='command'>{{ command }}</a-tag>
-              </div>
-            </template>
             <div class='tag-info-item' v-for='(customTag, idx) in content.customTags' :key='idx'>
               <a-tag color='#FFEDAF' class='tag-item' :title='customTag.category'> {{ customTag.name }} </a-tag>
             </div>
@@ -92,35 +92,54 @@
           </div>
         </div>
         <div class='right-info'>
-          <div class='update-time'>
+          <div class='buy-info' @click.stop=''>
+            <a-space>
+              <div class='price'>${{ content.discountPrice || content.price || 0 }}</div>
+              <div v-if="content.discountPrice > 0 && content.discountPrice !== content.price" class='price_was'>${{ content.price }}</div>
+              <div class='buy'>
+                <a-button
+                  type="danger"
+                  shape='round'
+                  @click='handleBuyItem()'
+                  :loading='copyLoading'
+                  v-if='content.createBy !== $store.getters.userInfo.email && !content.buyed'>
+                  Buy now
+                </a-button>
+                <a-button
+                  type="danger"
+                  class='cc-dark-button'
+                  shape='round'
+                  @click='handleEditItem()'
+                  :loading='copyLoading'
+                  v-if='content.createBy === $store.getters.userInfo.email ||
+                    (content.createBy !== $store.getters.userInfo.email && content.buyed && content.myContentId != -1)'>
+                  Edit
+                </a-button>
+                <a-tooltip title="You have already purchased this content, please copy it directly" placement="top" >
+                  <a-button
+                    type='primary'
+                    shape='round'
+                    @click='handleBuyItem ("Copy successfully")'
+                    :loading='copyLoading'
+                    v-if='content.createBy !== $store.getters.userInfo.email && content.buyed && content.myContentId == -1'>
+                    Copy
+                  </a-button>
+                </a-tooltip>
+              </div>
+            </a-space>
           </div>
         </div>
       </div>
       <div class='action'>
         <template v-if='showButton'>
           <a-space>
-            <custom-button label='Preview' @click='handlePreviewDetail(content)'>
-              <template v-slot:icon>
-                <preview-gray-icon />
-              </template>
-            </custom-button>
-
-            <custom-button v-if="content.createBy === $store.getters.userInfo.email" label='Duplicate' @click='handleDuplicateItem'>
-              <template v-slot:icon>
-                <duplicate-icon />
-              </template>
-            </custom-button>
-            <custom-button v-else @click='handleBuyItem' label='Buy now'>
-              <template v-slot:icon>
-                <duplicate-icon />
-              </template>
-            </custom-button>
-
-            <custom-button label='Edit' @click='editItem'>
-              <template v-slot:icon>
-                <edit-icon />
-              </template>
-            </custom-button>
+            <a-popconfirm placement="topRight" title="Confirm remove favorite this content?" ok-text="Yes" @confirm="handleDeleteFavoriteItem(content)" cancel-text="No">
+              <custom-button label='Delete'>
+                <template v-slot:icon>
+                  <a-icon type="heart" theme="outlined" />
+                </template>
+              </custom-button>
+            </a-popconfirm>
           </a-space>
         </template>
       </div>
@@ -128,8 +147,30 @@
       <content-preview
         :content-id='previewCurrentId'
         :content-type='previewType'
+        :show-enter-button='false'
+        :review-edit='false'
+        :review-create='false'
         v-if='previewVisible'
         @close='handlePreviewClose' />
+
+      <a-modal
+        :title="null"
+        :closable='false'
+        v-model="contentBuyStatVisible"
+        :append-to-body="true"
+        :destroy-on-close="false"
+        @ok='handleEnsureBuyStat'
+        @cancel='handleCancelBuyStat'
+        width="500px">
+        <modal-header @close='handleCancelBuyStat' title='Which age(s) will you use this resource with?' />
+        <div class='grade-list'>
+          <div class='content-tag-list'>
+            <div class='content-tag' @click='toggleSelectContentTag(grade)' :class="{'selected-tag': selectedGradeList.indexOf(grade) !== -1}" v-for='grade in allAges' :key='grade'>
+              {{ grade }}
+            </div>
+          </div>
+        </div>
+      </a-modal>
     </div>
   </div>
 </template>
@@ -137,21 +178,24 @@
 <script>
 
 import { getLabelNameType, typeMap } from '@/const/teacher'
-import * as logger from '@/utils/logger'
 import { ContentItemMixin } from '@/mixins/ContentItemMixin'
 import CustomButton from '@/components/Common/CustomButton'
 import EditIcon from '@/assets/v2/icons/edit.svg?inline'
 import DuplicateIcon from '@/assets/v2/icons/duplicate.svg?inline'
 import ContentPreview from '@/components/Preview/ContentPreview'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
-import PreviewGrayIcon from '@/assets/v2/icons/preview_gray.svg?inline'
 import { ContentBuy } from '@/api/v2/mycontent'
+import { ContentGradeSave } from '@/api/contentGrade'
+import ModalHeader from '@/components/Common/ModalHeader'
+import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
+import * as logger from '@/utils/logger'
+import { FavoritesDelete } from '@/api/favorites'
 
 export default {
   name: 'FavoriteContentItem',
   components: {
+    ModalHeader,
     ContentTypeIcon,
-    PreviewGrayIcon,
     ContentPreview,
     CustomButton,
     DuplicateIcon,
@@ -171,11 +215,14 @@ export default {
       default: true
     }
   },
-  mixins: [ContentItemMixin],
+  mixins: [ContentItemMixin, GoogleAuthCallBackMixin],
   data() {
     return {
       typeMap: typeMap,
-      isSelfLearning: false
+      isSelfLearning: false,
+      copyLoading: false,
+      contentBuyStatVisible: false,
+      selectedGradeList: []
     }
   },
   created() {
@@ -190,11 +237,44 @@ export default {
     },
     curriculumName () {
       return this.$store.getters.curriculumId2NameMap.hasOwnProperty(this.content.curriculumId) ? this.$store.getters.curriculumId2NameMap[this.content.curriculumId] : null
+    },
+    allAges() {
+      const list = []
+      for (let i = 3; i < 19; i++) {
+        list.push(i + ' years')
+      }
+      return list
     }
   },
   methods: {
-    editItem() {
+    handleBuyItem (msg) {
+      this.$logger.info('handleBuyItem', this.content)
+      ContentBuy({ id: this.content.id, type: this.content.type }).then((response) => {
+        if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
+          this.$logger.info('Duplicate response', response)
+          if (msg) {
+            this.$message.success(msg)
+          } else {
+            this.$message.success('Buy successfully')
+          }
+        } else {
+          this.currentMethodName = 'handleBuyItem'
+        }
+      }).finally(() => {
+        this.buyLoading = false
+        this.contentBuyStatVisible = true
+      })
+    },
+
+    handleEditItem() {
+      // 其他人的资源走buy逻辑
+      if (this.content.createBy !== this.$store.getters.userInfo.email) {
+        return this.handleEditBuy()
+      }
       const item = this.content
+      if (!item.canPublish) {
+        this.$classcipe.setRequiredCheck(item.id)
+      }
       if (item.type === typeMap['unit-plan']) {
         this.$router.push({
           path: '/teacher/unit-plan-redirect/' + item.id
@@ -213,41 +293,43 @@ export default {
         })
       }
     },
-
-    handlePublishStatus() {
-      this.$emit('update-publish', {
-        content: this.content
+    handleEnsureBuyStat () {
+      ContentGradeSave({
+        contentId: this.contentId,
+        contentType: this.contentType,
+        grades: this.selectedGradeList
+      }).finally(() => {
+        this.handleCancelBuyStat()
       })
     },
-
-    handleDuplicateItem () {
-      logger.info('handleDuplicateItem', this.content)
-      this.$emit('duplicate', {
-        content: this.content
-      })
+    handleCancelBuyStat () {
+      this.contentBuyStatVisible = false
+      this.selectedGradeList = []
+      this.$router.push({ path: '/teacher/main/created-by-me' })
     },
-    handleBuyItem() {
-      logger.info('handleBuyItem', this.content)
-      this.$confirm({
-        title: 'Confirm to buy',
-        content: 'Are you sure to buy ' + this.content.name + ' ?',
-        centered: true,
-        onOk: () => {
-          this.buyLoading = true
-          ContentBuy({ id: this.content.id, type: this.content.type }).then((response) => {
-            if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
-              this.$logger.info('Duplicate response', response)
-              this.$message.success('Buy successfully')
-              this.$router.push({ path: '/teacher/main/created-by-me' })
-            } else {
-              this.currentMethodName = 'handleBuyItem'
-            }
-          }).finally(() => {
-            this.buyLoading = false
-            this.contentBuyStatVisible = true
-          })
-        }
-      })
+    toggleSelectContentTag(grade) {
+      this.$logger.info('toggleSelectContentTag', grade)
+      const index = this.selectedGradeList.indexOf(grade)
+      if (index === -1) {
+        this.selectedGradeList.push(grade)
+      } else {
+        this.selectedGradeList.splice(index, 1)
+      }
+    },
+    handleEditBuy () {
+      this.$logger.info('handleEdit', this.content.myContentId)
+      if (this.content.type === this.typeMap['unit-plan']) {
+        window.open('/teacher/unit-plan-redirect/' + this.content.myContentId, '_blank')
+      } else if (this.content.type === this.typeMap.task) {
+        window.open('/teacher/task-redirect/' + this.content.myContentId, '_blank')
+      } else if (this.content.type === this.typeMap.pd) {
+        window.open('/teacher/pd-content-redirect/' + this.content.myContentId, '_blank')
+      } else if (this.contentType === this.typeMap.video) {
+        window.open('/teacher/video-redirect/' + this.content.myContentId, '_blank')
+      }
+    },
+    handleDeleteFavoriteItem (item) {
+      this.$emit('delete', item)
     }
   }
 }
@@ -268,6 +350,7 @@ export default {
   border-radius: 7px;
 
   .cover {
+    position: relative;
     .cover-block {
       border-radius: 8px;
       height: 9rem;
@@ -275,6 +358,43 @@ export default {
       background-position: center center;
       background-size: contain;
       background-repeat: no-repeat;
+
+      &:hover {
+        .slide-editing-mask {
+          display: flex !important;
+        }
+      }
+
+      .bottom-action {
+        z-index: 1000;
+        padding: 0 5px 0 10px;
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        line-height: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-direction: row;
+        background-color: rgba(0, 0, 0, 0.7);
+        font-size: 14px;
+        user-select: none;
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+        .bottom-action-item {
+          color: #fff;
+          cursor: pointer;
+          transition: all 0.3s ease-in-out;
+          .bottom-action-item-label {
+            padding: 0 5px;
+          }
+
+          &:hover {
+            color: #15C39A;
+          }
+        }
+      }
     }
   }
 
@@ -292,7 +412,6 @@ export default {
       flex-grow: 1;
 
       .base-info {
-        width: 100%;
         .name-type {
           display: flex;
           justify-content: flex-start;
@@ -300,7 +419,6 @@ export default {
           flex-direction: row;
 
           .name {
-            width: 90%;
             margin-left: 10px;
             line-height: 2rem;
             font-size: 1rem;
@@ -308,11 +426,8 @@ export default {
             font-weight: bold;
             color: #17181A;
             cursor: pointer;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            word-break: break-all;
-            white-space: nowrap;
           }
+
         }
 
         .subject {
@@ -462,7 +577,7 @@ export default {
   .curriculum-info {
     font-size: 0.6rem;
     background: #E6E4FF;
-    padding: 5px 10px;
+    padding: 3px 10px;
     border-radius: 20px;
     font-family: Arial;
     font-weight: bold;
@@ -495,6 +610,40 @@ export default {
   }
 }
 
+.buy-info {
+  padding-right: 40px;
+
+  .price {
+    font-size: 18px;
+    font-family: Arial;
+    font-weight: bold;
+    color: #F1565F;
+    padding-right: 5px;
+    user-select: none;
+    cursor: pointer;
+    height: 32px;
+    line-height: 32px;
+    vertical-align: middle;
+  }
+
+  .price_was {
+    text-decoration:line-through;
+    font-size: 14px;
+    font-family: Arial;
+    margin-left: -5px;
+    padding-right: 5px;
+    user-select: none;
+    cursor: pointer;
+    height: 32px;
+    line-height: 32px;
+    vertical-align: middle;
+  }
+
+  .buy {
+    font-size: 16px;
+  }
+}
+
 .tag-item {
   opacity: 0.8;
   cursor: pointer;
@@ -524,8 +673,43 @@ export default {
   }
 }
 
-.knowledge-tag, .command-tag {
-  color: #fff;
+.grade-list {
+  padding: 10px 0;
+  .content-tag-list {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin: 0 10px 10px 0;
+    vertical-align: middle;
+    cursor: pointer;
+
+    .content-tag {
+      margin-left: 3px;
+      margin-top: 5px;
+      cursor: pointer;
+      border: 2px solid #ffffff;
+      background: #FFEDAF;
+      font-size: 13px;
+      border-radius: 30px;
+      line-height: 30px;
+      padding: 0 10px;
+      word-break: normal;
+      width: auto;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .selected-tag {
+      border: 2px solid #15C39A;
+    }
+  }
 }
 
 </style>
