@@ -1,13 +1,18 @@
 <template>
-  <div class='content-item' v-if='content'>
+  <div class='content-item' >
     <div class='cover' @click.prevent.stop="handleGoWork(content)">
       <div class='cover-block' :style="{'background-image': `url('${content.cover || (content.content && content.content.image) || 'http://dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png'}')`}">
-        <div class='bottom-action' v-if="!isSimple && content.content">
+        <div class='bottom-action' v-if="!isSimple">
           <div class='bottom-action-item vertical-left'>
             <!-- <div class='bottom-action-item-icon'><a-icon type="form" /></div>
             <div class='bottom-action-item-label'>Edit</div> -->
           </div>
-          <div class='bottom-action-item vertical-right' @click.stop="handlePreview(content)">
+          <div class='bottom-action-item vertical-right' v-if="content.content" @click.stop="handlePreview(content)">
+            <div class='bottom-action-item-icon'><a-icon type="eye" /></div>
+            <div class='bottom-action-item-label'>Preview</div>
+          </div>
+          <!--删除也可以预览-->
+          <div class='bottom-action-item vertical-right' v-if="!content.content" @click.stop="handlePreviewDeleteDetail(content.session)">
             <div class='bottom-action-item-icon'><a-icon type="eye" /></div>
             <div class='bottom-action-item-label'>Preview</div>
           </div>
@@ -20,8 +25,8 @@
     <div class='detail'>
       <div class='detail-content' @click.prevent.stop>
         <div class='base-info'>
-          <div class='type-icon' v-if="content.content">
-            <content-type-icon :type="content.content.type" />
+          <div class='type-icon' v-if="content.session">
+            <content-type-icon :type="content.session.contentType" />
           </div>
           <div class='name' v-show="!showEditName">
             {{ content.title || (content.content&&content.content.name) || 'Untitle' }}
@@ -263,6 +268,8 @@
     <content-preview
       :content-id='previewCurrentId'
       :content-type='previewType'
+      :show-edit-button=!!content.content
+      :session="content.session"
       v-if='previewVisible'
       :liveWorkShopCode="previewCode"
       @reload="handleRefresh"
@@ -282,14 +289,14 @@
     </a-modal>
 
   </div>
-  <div class="content-item" v-else>
-    <a-empty style="margin: auto;">Related Content is Empty</a-empty>
-    <custom-button label='Delete' @click='handleDel(content)'>
-      <template v-slot:icon>
-        <icon-font type="icon-shanchu" class="detail-font"/>
-      </template>
-    </custom-button>
-  </div>
+<!--  <div class="content-item" v-else>-->
+<!--    <a-empty style="margin: auto;">Related Content is Empty</a-empty>-->
+<!--    <custom-button label='Delete' @click='handleDel(content)'>-->
+<!--      <template v-slot:icon>-->
+<!--        <icon-font type="icon-shanchu" class="detail-font"/>-->
+<!--      </template>-->
+<!--    </custom-button>-->
+<!--  </div>-->
 </template>
 
 <script>
