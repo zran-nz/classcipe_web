@@ -332,6 +332,7 @@ export default {
     },
 
     initData() {
+      console.log(this.sessionId)
       if (!this.sessionId) {
         let promise = null
         if (this.type === typeMap.task) {

@@ -1,5 +1,12 @@
 <template>
-  <div>
+  <div style="position:relative;">
+    <div class='nav-back'>
+      <custom-link-text @click='handleBack' text='Back'>
+        <template v-slot:prefix>
+          <a-icon type='left' />
+        </template>
+      </custom-link-text>
+    </div>
     <my-vertical-steps
       ref='steps-nav'
       :allow-switch='false'
@@ -8,7 +15,7 @@
       @step-change='handleStepChange'
     />
     <div class="close" v-if="needClose">
-      <a-icon type="close" @click="handleCloseImport"/>
+      <a-icon type="close" @click="handleBack"/>
     </div>
     <div class="import-content">
       <!-- unit为第一步的时候，task为选中unit中的task -->
@@ -25,9 +32,9 @@
         :type="typeMap.task"
         :datas="importDatas"
         :need-filter="importType === typeMap['task'] "
-        :back-txt="currentActiveStepIndex === 0 ? 'Discard': 'Back'"
+        :back-txt="currentActiveStepIndex === 0 ? 'Discard': 'Discard'"
         @choose="item => handleChoose(item ,'task')"
-        @cancel="handleBack"
+        @cancel="handleCloseImport"
       />
       <!-- 直接页面跳转 -->
       <!-- <div class="content-select" v-show="['participants', 'schedule'].includes(ScheduleStepsFilter[currentActiveStepIndex].type)">
@@ -95,6 +102,7 @@ import ScheduleDate from '@/components/Schedule/ScheduleDate'
 import SchedulePayInfo from '@/components/Schedule/SchedulePayInfo'
 import SchoolSchedule from '@/components/Schedule/SchoolSchedule'
 import SelectSessionUnit from '@/components/Schedule/SelectSessionUnit'
+import CustomLinkText from '@/components/Common/CustomLinkText'
 
 import { GetAssociate } from '@/api/teacher'
 // 直接页面跳转
@@ -121,7 +129,8 @@ export default {
     ScheduleDate,
     SchedulePayInfo,
     SelectSessionUnit,
-    SchoolSchedule
+    SchoolSchedule,
+    CustomLinkText
   },
   props: {
     type: {
@@ -440,9 +449,9 @@ export default {
         window.location.href = url
         return
       }
-      let path = '/teacher/schedule-session/' + this.scheduleReq.contentId + '/' + this.importType
+      let path = '/teacher/schedule-session/' + this.scheduleReq.contentId + '/' + typeMap.task
       if (this.typeMode === CALENDAR_QUERY_TYPE.WORKSHOP.value) {
-        path = '/teacher/schedule-workshop/' + this.scheduleReq.contentId + '/' + this.importType
+        path = '/teacher/schedule-workshop/' + this.scheduleReq.contentId + '/' + typeMap.task
       }
       this.$router.push({
         path: path,
@@ -576,5 +585,11 @@ export default {
   top: 10px;
   font-size: 20px;
   color: #999;
+}
+.nav-back {
+  z-index: 1000;
+  position: absolute;
+  left: 10px;
+  top: 15px;
 }
 </style>
