@@ -557,7 +557,7 @@ export const asyncRouterMap = [
             path: '/account/center',
             name: 'center',
             component: () => import('@/views/account/center'),
-            meta: { title: 'menu.account.center', keepAlive: true, permission: ['teacher', 'student'] }
+            meta: { title: 'menu.account.center', keepAlive: true, permission: ['teacher'] }
           },
           {
             path: '/account/settings',
@@ -623,7 +623,13 @@ export const asyncRouterMap = [
             path: '/account/info',
             name: 'info',
             component: () => import('@/views/account/info'),
-            meta: { title: 'menu.account.center', noSidebar: true, keepAlive: true, permission: ['teacher', 'student'] }
+            meta: { title: 'menu.account.center', noSidebar: true, keepAlive: true, permission: ['teacher'] }
+          },
+          {
+            path: '/account/logout',
+            name: 'info',
+            component: () => import('@/views/account/logout'),
+            meta: { title: 'menu.account.logout', noSidebar: true, keepAlive: true, permission: ['student'] }
           }
         ]
       },
