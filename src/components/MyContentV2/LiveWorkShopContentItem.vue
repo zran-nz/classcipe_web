@@ -115,8 +115,8 @@
             <div class="author-name" v-else>
               {{ content.userRealName || (content.content && content.content.createBy) }}
             </div>
-            <div v-if="(isCurrentType(WORK_SHOPS_TYPE.REGISTERED.value) || isCurrentType(WORK_SHOPS_TYPE.LUNCHEDBYME.value))">
-              {{ userMode === USER_MODE.SELF ? 'Personal' : currentSchool.schoolName }}
+            <div>
+              {{ content.schoolId === '0' ? 'Personal' : content.schoolName }}
             </div>
           </div>
         </div>
