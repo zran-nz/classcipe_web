@@ -545,7 +545,7 @@ export default {
       })
     },
     handleGoWork(item) {
-      if (item && item.session && item.session.classId && [WORK_SHOPS_TYPE.LUNCHEDBYME.value, WORK_SHOPS_TYPE.REGISTERED.value].includes(item.workshopsType)) {
+      if (item && item.session && item.session.classId && (this.isCurrentType(WORK_SHOPS_TYPE.REGISTERED.value) || this.isCurrentType(WORK_SHOPS_TYPE.LUNCHEDBYME.value))) {
         const prefix = this.isCurrentType(WORK_SHOPS_TYPE.LUNCHEDBYME.value) ? 't/' : 's/'
         const targetUrl = lessonHost + prefix + item.session.classId + '?token=' + storage.get(ACCESS_TOKEN)
         window.location.href = targetUrl
