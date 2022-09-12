@@ -476,7 +476,7 @@ export default {
           flex-direction: row;
 
           .left {
-            width: calc(100% - 150px);
+            width: calc(100% - 100px);
             .type-icon {
               .ant-space-item {
                 display: flex;
@@ -505,7 +505,7 @@ export default {
           }
 
           .right {
-            width: 150px;
+            width: 100px;
             font-size: 14px;
           }
         }
