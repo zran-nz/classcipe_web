@@ -534,9 +534,9 @@ export default {
     },
 
     async handleSelectZoom (zoom) {
-      console.log(zoom)
+      let status
       if (zoom) {
-        const status = await this.checkZoomAuth()
+        status = await this.checkZoomAuth()
         if (!status) {
           // zoom = 0
           this.$logger.info('reset item enableZoom', zoom)
@@ -544,7 +544,8 @@ export default {
           this.$logger.info('zoom auth success')
         }
       }
-      this.scheduleReq.zoom = zoom ? 1 : 0
+      console.log(zoom, status)
+      this.scheduleReq.zoom = 0 //zoom && !status ? 1 : 0
     },
 
     /**
