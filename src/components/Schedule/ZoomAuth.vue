@@ -9,10 +9,10 @@
       </div>
     </div>
     <template v-if='myEnableZoom'>
-      <div class='auth-button' v-if='!zoomAccessToken'>
+      <div class='auth-button' v-if='!$store.getters.zoomChecked'>
         <a-button type='primary' @click='goToZoomAuth'>Link your Zoom account to schedule a Zoom meeting</a-button>
       </div>
-      <div class='auth-result' v-if='zoomAccessToken'>
+      <div class='auth-result' v-if='$store.getters.zoomChecked'>
         <a-alert message='The link to this meeting will be generated automatically when you schedule it' type="info"></a-alert>
       </div>
     </template>

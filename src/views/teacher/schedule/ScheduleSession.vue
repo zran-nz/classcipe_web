@@ -545,7 +545,7 @@ export default {
         }
       }
       console.log(zoom, status)
-      this.scheduleReq.zoom = 0 //zoom && !status ? 1 : 0
+      this.scheduleReq.zoom = zoom && !status ? 1 : 0
     },
 
     /**
