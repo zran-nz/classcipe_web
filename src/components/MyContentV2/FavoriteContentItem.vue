@@ -134,7 +134,7 @@
         <template v-if='showButton'>
           <a-space>
             <a-popconfirm placement="topRight" title="Confirm remove favorite this content?" ok-text="Yes" @confirm="handleDeleteFavoriteItem(content)" cancel-text="No">
-              <custom-button label='Delete'>
+              <custom-button label='Unlike'>
                 <template v-slot:icon>
                   <a-icon type="heart" theme="outlined" />
                 </template>
@@ -188,8 +188,8 @@ import { ContentBuy } from '@/api/v2/mycontent'
 import { ContentGradeSave } from '@/api/contentGrade'
 import ModalHeader from '@/components/Common/ModalHeader'
 import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
-import * as logger from '@/utils/logger'
-import { FavoritesDelete } from '@/api/favorites'
+// import * as logger from '@/utils/logger'
+// import { FavoritesDelete } from '@/api/favorites'
 
 export default {
   name: 'FavoriteContentItem',

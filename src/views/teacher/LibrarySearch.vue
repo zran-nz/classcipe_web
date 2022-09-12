@@ -176,9 +176,10 @@ export default {
             record.key = index
           })
           this.myContentList = res.result
-          this.pagination.total = res.result.total
-          this.pagination.current = res.result.current
-          this.pageNo = this.pagination.current
+          this.pagination.total = res.result.total || res.result.length
+          this.pagination.current = res.result.current || 1
+          this.pagination.pageSize = res.result.total ? 15 : res.result.length
+          this.pageNo = this.pagination.current || 1
         } else {
           this.myContentList = []
           this.pagination.total = 0
