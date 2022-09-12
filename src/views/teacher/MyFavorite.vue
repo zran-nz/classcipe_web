@@ -249,7 +249,11 @@ export default {
     },
     handleDeleteItem (item) {
       logger.info('handleDeleteItem', item)
-      FavoritesDelete(item).then(res => {
+      const params = {
+        sourceId: item.id,
+        sourceType: item.type
+      }
+      FavoritesDelete(params).then(res => {
         logger.info('DeleteMyContentByType', res)
       }).then(() => {
         this.loadMyContent()

@@ -1,9 +1,9 @@
 <template>
   <div class='content-item' v-if='data'>
     <div class='cover'>
-      <div class='cover-block' v-if="data.sessionInfo && data.sessionInfo.image" :style="{'background-image': `url(${data.sessionInfo.image})`}">
+      <div class='cover-block' v-if="data.sessionInfo && data.sessionInfo.image" :style="{'background-image': `url('${data.sessionInfo.image || 'http://dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png'}')`}">
       </div>
-      <div class='cover-block' v-else-if="data.content && data.content.image" :style="{'background-image': `url(${data.content.image})`}">
+      <div class='cover-block' v-else-if="data.content && data.content.image" :style="{'background-image': `url('${data.content.image || 'http://dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png'}')`}">
       </div>
       <div class="cover-block" v-else style='background-image: url("http://dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png");'>
       </div>
