@@ -128,7 +128,7 @@
                 </div>
               </div>
               <!-- TODO 变成弹出层 -->
-              <div class='pay-title'>
+              <!-- <div class='pay-title'>
                 <div class='title'>
                   Registration deadline
                 </div>
@@ -138,12 +138,9 @@
                     :disabled-date="disabledDate"
                     :show-time="{ format: 'HH:mm' }"
                     @change="handleSelectDate">
-                    <!-- <div style="margin-left: 5px;float: right" slot="renderExtraFooter">
-                      <a @click="cancelDate" role="button" class="ant-calendar-ok-btn">Skip</a>
-                    </div> -->
                   </a-date-picker>
                 </div>
-              </div>
+              </div> -->
             </div>
           </template>
           <template v-else>
@@ -291,7 +288,31 @@
       :list='associateUnitList'
       @back='handleBack'
       @select='handleSelectUnit' />
-    <verification-tip ref="verificationTip" @continue="handleSubmit"/>
+    <verification-tip ref="verificationTip" @continue="() => this.deadlineVis = true"/>
+    <a-modal
+      title="Set Registration Deadline"
+      :width="500"
+      :visible="deadlineVis"
+      :confirmLoading="confirmLoading"
+      @ok="handleSubmit"
+      @cancel="handleSkip"
+      cancelText="Skip"
+      :okText="'Save'"
+    >
+      <a-space class='pay-title'>
+        <div class='title'>
+          Registration deadline
+        </div>
+        <div class='pay-switch'>
+          <a-date-picker
+            :getCalendarContainer='trigger => trigger.parentElement'
+            :disabled-date="disabledDate"
+            :show-time="{ format: 'HH:mm' }"
+            @change="handleSelectDate">
+          </a-date-picker>
+        </div>
+      </a-space>
+    </a-modal>
   </div>
 </template>
 
@@ -443,7 +464,9 @@ export default {
       ],
 
       enableZoom: true,
-      fromRelaunch: ''
+      fromRelaunch: '',
+
+      deadlineVis: false
     }
   },
   created() {
@@ -698,7 +721,8 @@ export default {
           return
         }
       }
-      this.handleSubmit()
+      this.deadlineVis = true
+      // this.handleSubmit()
     },
     validateNumber(rule, value, callback) {
       if (!value || new RegExp(/^[0-9]*[1-9][0-9]*$/).test(value)) {
@@ -707,6 +731,10 @@ export default {
       } else {
         callback(new Error('请输入正整数!'))
       }
+    },
+    handleSkip() {
+      this.form.registerBefore = null
+      this.handleSubmit()
     },
     handleSubmit() {
       if (this.userMode === USER_MODE.SCHOOL) {
@@ -725,10 +753,10 @@ export default {
         this.$message.error('Please Upload Valid Cover')
         return
       }
-      if (this.userMode === USER_MODE.SELF && !this.form.registerBefore) {
-        this.$message.error('Please Input Register Before Date')
-        return
-      }
+      // if (this.userMode === USER_MODE.SELF && !this.form.registerBefore) {
+      //   this.$message.error('Please Input Register Before Date')
+      //   return
+      // }
       if (!this.startDate || !this.endDate) {
         this.$message.error('Please Input Schedule Date')
         return

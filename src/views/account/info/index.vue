@@ -66,13 +66,15 @@
       <div class="account-info-self" v-if="userMode === USER_MODE.SCHOOL && currentSchool.schoolUser">
         <div class="info-self-avatar">
           <img :src="currentSchool.schoolUser.avatar" v-if="currentSchool.schoolUser.avatar"/>
+          <img :src="info.avatar" v-else-if="info.avatar"/>
           <img v-else src="~@/assets/icons/library/default-avatar.png"/>
           <a-button type="primary" size="small" @click="$refs.modal.edit(1)">Upload</a-button>
         </div>
         <div class="info-self-detail">
           <div class="self-detail-name">
             <template v-if="!showSelfEdit">
-              <label>{{ currentSchool.schoolUser.firstname }} {{ currentSchool.schoolUser.lastname }}</label>
+              <label v-if="currentSchool.schoolUser.firstname || currentSchool.schoolUser.lastname">{{ currentSchool.schoolUser.firstname }} {{ currentSchool.schoolUser.lastname }}</label>
+              <label v-else>{{ info.firstname }} {{ info.lastname }}</label>
               <a-icon @click="handleSelfEdit" type="edit" />
             </template>
             <template v-else>
@@ -83,9 +85,9 @@
             </template>
           </div>
           <div class="self-detail-email">{{ currentSchool.schoolUser.email }}</div>
-          <div class="self-detail-role">
+          <!-- <div class="self-detail-role">
             School roles: {{ roles }}
-          </div>
+          </div> -->
         </div>
       </div>
       <!-- Basic info -->
