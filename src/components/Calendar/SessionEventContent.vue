@@ -15,7 +15,8 @@
     >
       <a slot="content" >
         <a-spin :spinning="loading">
-          <div v-if="queryType !== CALENDAR_QUERY_TYPE.WORKSHOP.value" style="max-width: 650px;">
+          <!-- v-if="queryType !== CALENDAR_QUERY_TYPE.WORKSHOP.value"  -->
+          <div style="max-width: 650px;">
             <content-item-calendar
               ref="contentItemCalendar"
               :content='getSession(info)'
@@ -27,12 +28,12 @@
             >
             </content-item-calendar>
           </div>
-          <div v-else style="font-size: 70px;max-width: 650px;min-width: 500px;">
+          <!-- <div v-else style="font-size: 70px;max-width: 650px;min-width: 500px;">
             <liveworkshop-item
               @close="closeAllModal"
               :is-simple="true"
               :content="getWorkshopItem(info)"/>
-          </div>
+          </div> -->
         </a-spin>
       </a>
       <div
