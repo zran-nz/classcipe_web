@@ -6,16 +6,16 @@
       </a-badge>
     </div>
     <a-dropdown :getPopupContainer="trigger => trigger.parentElement" v-model="dropVis">
-      <a-avatar v-if="$store.getters.userInfo.avatar" :src='$store.getters.userInfo.avatar' />
+      <a-avatar v-if="currentAvatar" :src='currentAvatar' />
       <img v-else src="~@/assets/icons/library/default-avatar.png"/>
       <div class='profile-info' slot="overlay">
         <div class='base-info'>
           <div class='avatar'>
-            <a-avatar v-if="$store.getters.userInfo.avatar" :src='$store.getters.userInfo.avatar' />
+            <a-avatar v-if="currentAvatar" :src='currentAvatar' />
             <img v-else src="~@/assets/icons/library/default-avatar.png"/>
           </div>
           <div class='base'>
-            <div class='name'>{{ $store.getters.userInfo.firstname }} {{ $store.getters.userInfo.lastname }}</div>
+            <div class='name'>{{ currentRealName }}</div>
             <div class='email'>{{ $store.getters.userInfo.email }}</div>
           </div>
         </div>
@@ -54,7 +54,8 @@
             </div>
             <div :class="{'class-item': true, 'active': userMode === USER_MODE.SCHOOL && currentSchool.schoolName === schoolItem.schoolName}" v-for='schoolItem in info.schoolList' :key='schoolItem.id' @click='handleChangeSchool(schoolItem)'>
               <div class='class-avatar'>
-                <a-avatar style="color: #f56a00; backgroundColor: #fde3cf">
+                <a-avatar v-if="schoolItem.logo" :src='schoolItem.logo' />
+                <a-avatar v-else style="color: #f56a00; backgroundColor: #fde3cf">
                   {{ schoolItem.schoolName ? schoolItem.schoolName[0].toUpperCase() : 'C' }}
                 </a-avatar>
               </div>
@@ -141,6 +142,20 @@ export default {
       // if (this.hasRolePermission('admin') || this.hasRolePermission('homeroom teacher') || this.hasRolePermission('subject coordinator')) return true
       // return false
       return true
+    },
+    currentAvatar() {
+      if (this.userMode === USER_MODE.SELF) {
+        return this.info.avatar
+      } else {
+        return this.currentSchool.schoolUser?.avatar
+      }
+    },
+    currentRealName() {
+      if (this.userMode === USER_MODE.SELF) {
+        return this.info.firstname + ' ' + this.info.lastname
+      } else {
+        return this.currentSchool.schoolUser.firstname + ' ' + this.currentSchool.schoolUser.lastname
+      }
     }
   },
   created() {
