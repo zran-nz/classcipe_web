@@ -373,7 +373,8 @@ export default {
           }
           console.log(associates)
           if (this.importType === typeMap.task) {
-            if (associates.length > 1) {
+            // 只要有一个就显示，不自动选中
+            if (associates.length > 0) {
               this.associateUnitList = associates
               this.selectSessionUnitVisible = true
             // 如果为0，则从所有unit选择

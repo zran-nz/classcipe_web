@@ -332,7 +332,7 @@ export default {
         schoolId: this.currentSchool.id // this.userMode === USER_MODE.SELF ? null : this.currentSchool.id
       }).then(res => {
         if (res.success) {
-          this.myContentList = (res.result || res.result.records).filter(item => item.owner.email === this.$store.getters.email)
+          this.myContentList = ((res.result && res.result.records) || []).filter(item => item.owner.email === this.$store.getters.email)
         }
       }).finally(res => {
         this.loading = false
@@ -365,7 +365,8 @@ export default {
       }, 300)
     },
     calculateCantSelect(content) {
-      return !content || ((content.type === typeMap.task || content.type === typeMap.pd) && (!content.canPublish || content.slideEditing))
+      // (content.type === typeMap.task || content.type === typeMap.pd) &&
+      return !content || ((!content.canPublish || content.slideEditing))
     },
     handleSearch() {
       this.init()
