@@ -133,13 +133,18 @@
       <div class='action'>
         <template v-if='showButton'>
           <a-space>
-            <a-popconfirm placement="topRight" title="Confirm remove favorite this content?" ok-text="Yes" @confirm="handleDeleteFavoriteItem(content)" cancel-text="No">
+            <!-- <a-popconfirm placement="topRight" title="Confirm remove favorite this content?" ok-text="Yes" @confirm="handleDeleteFavoriteItem(content)" cancel-text="No">
               <custom-button label='Unlike'>
                 <template v-slot:icon>
                   <a-icon type="heart" theme="outlined" />
                 </template>
               </custom-button>
-            </a-popconfirm>
+            </a-popconfirm> -->
+            <custom-button label='Unlike' @click="handleDeleteFavoriteItem(content)">
+              <template v-slot:icon>
+                <a-icon type="heart" theme="outlined" />
+              </template>
+            </custom-button>
           </a-space>
         </template>
       </div>
@@ -257,6 +262,7 @@ export default {
           } else {
             this.$message.success('Buy successfully')
           }
+          this.$router.push('/teacher/main/created-by-me')
         } else {
           this.currentMethodName = 'handleBuyItem'
         }
