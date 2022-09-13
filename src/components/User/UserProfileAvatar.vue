@@ -62,8 +62,8 @@
               <div class='class-base-info'>
                 <div class='class-name'>{{ schoolItem.schoolName }}</div>
                 <div class='class-updated-by'>
-                  <template v-if="schoolItem.firstname || schoolItem.lastname">
-                    {{ schoolItem.firstname }} {{ schoolItem.lastname }}
+                  <template v-if="schoolItem.schoolUser.firstname || schoolItem.schoolUser.lastname">
+                    {{ schoolItem.schoolUser.firstname }} {{ schoolItem.schoolUser.lastname }}
                   </template>
                   <template v-else>
                     {{ $store.getters.userInfo.firstname }} {{ $store.getters.userInfo.lastname }}
