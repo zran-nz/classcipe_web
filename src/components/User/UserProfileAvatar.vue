@@ -54,7 +54,7 @@
             </div>
             <div :class="{'class-item': true, 'active': userMode === USER_MODE.SCHOOL && currentSchool.schoolName === schoolItem.schoolName}" v-for='schoolItem in info.schoolList' :key='schoolItem.id' @click='handleChangeSchool(schoolItem)'>
               <div class='class-avatar'>
-                <a-avatar v-if="schoolItem.logo" :src='schoolItem.logo' />
+                <a-avatar v-if="schoolItem.schoolUser.avatar" :src='schoolItem.schoolUser.avatar' />
                 <a-avatar v-else style="color: #f56a00; backgroundColor: #fde3cf">
                   {{ schoolItem.schoolName ? schoolItem.schoolName[0].toUpperCase() : 'C' }}
                 </a-avatar>
