@@ -155,7 +155,8 @@
         >
           <div class="author-info">
             <div class="author-avatar">
-              <a-avatar size="large" style="background-color: #517f3f">{{
+              <a-avatar v-if="content.owner.avatar" size="large" :src="content.owner.avatar" />
+              <a-avatar v-else size="large" style="background-color: #517f3f">{{
                 (content.owner
                   ? content.owner.firstname + ' ' + content.owner.lastname
                   : content.createBy
@@ -788,6 +789,10 @@ export default {
     session: {
       type: Object,
       default: null
+    },
+    schoolResource: {
+      type: Boolean,
+      default: false
     }
   },
   mixins: [PptPreviewMixin, GoogleAuthCallBackMixin, ContentItemMixin],
@@ -841,6 +846,7 @@ export default {
   },
   computed: {
     ...mapState({
+      currentSchool: state => state.user.currentSchool,
       userMode: state => state.app.userMode,
       currentRole: state => state.user.currentRole
     }),
@@ -962,14 +968,20 @@ export default {
 
     async loadDetailByContentIDType(contentId, contentType) {
       contentType = parseInt(contentType)
+      const params = {
+        id: contentId
+      }
+      if (this.schoolResource) {
+        params.schoolId = this.currentSchool.id
+      }
       if (contentType === this.$classcipe.typeMap['unit-plan']) {
-        return UnitPlanQueryById({ id: contentId })
+        return UnitPlanQueryById(params)
       } else if (contentType === this.$classcipe.typeMap.task) {
-        return TaskQueryById({ id: contentId })
+        return TaskQueryById(params)
       } else if (contentType === this.$classcipe.typeMap.video) {
-        return VideoQueryById({ id: contentId })
+        return VideoQueryById(params)
       } else if (contentType === this.$classcipe.typeMap.pd) {
-        return PDContentQueryById({ id: contentId })
+        return PDContentQueryById(params)
       }
     },
 

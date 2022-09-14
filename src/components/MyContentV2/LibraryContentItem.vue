@@ -132,6 +132,7 @@
         :show-enter-button='false'
         :review-edit='false'
         :review-create='false'
+        :school-resource=schoolResource
         v-if='previewVisible'
         @close='handlePreviewClose' />
 
@@ -197,6 +198,10 @@ export default {
     category: {
       type: String,
       default: ''
+    },
+    schoolResource: {
+      type: Boolean,
+      default: false
     }
   },
   mixins: [ContentItemMixin, GoogleAuthCallBackMixin],

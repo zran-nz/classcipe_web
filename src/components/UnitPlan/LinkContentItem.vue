@@ -157,6 +157,7 @@
     <content-preview
       :content-id='previewCurrentId'
       :content-type='previewType'
+      :school-resource="schoolResource"
       v-if='previewVisible'
       @close='handlePreviewClose' />
 
@@ -263,6 +264,10 @@ export default {
       default: false
     },
     showPublishStatus: {
+      type: Boolean,
+      default: false
+    },
+    schoolResource: {
       type: Boolean,
       default: false
     }

@@ -36,7 +36,7 @@
           group="content-item"
         >
           <div v-for='(item) in myContentList' :key='item.id' class="group-link-item" :data-item='JSON.stringify(item)'>
-            <link-content-item :show-delete='false' :content='item' style='width: 100%' @preview='handleViewDetail' />
+            <link-content-item :show-delete='false' :content='item' style='width: 100%' @preview='handleViewDetail' :school-resource="sourceType === 'School'"/>
           </div>
           <template v-if='myContentList.length === 0'>
             <div class='empty-content-list'>

@@ -79,6 +79,7 @@
       :review-edit='reviewEdit'
       :review-create='reviewCreate'
       :review-list='reviewList'
+      :school-resource="filterSourceType === sourceType.Resource"
       @close='handlePreviewClose' />
 
     <a-modal
