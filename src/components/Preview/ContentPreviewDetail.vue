@@ -23,21 +23,37 @@
                 class='buy-now'
                 type="danger"
                 shape='round'
-                v-if="liveWorkShopSession && WORK_SHOPS_TYPE.REGISTERED.value === liveWorkShopSession.workshopsType && isReadyStart24(liveWorkShopSession) "
+                v-if="liveWorkShopSession && WORK_SHOPS_TYPE.REGISTERED.value === liveWorkShopSession.workshopsType && isReadyStart24(liveWorkShopSession) && WORK_SHOPS_STATUS.ENDED.value !== liveWorkShopSession.workshopsStatus"
                 @click='handleCancelSession'
                 :loading='buyLoading'
               >
                 Cancel
               </a-button>
+              <div
+                class='label-action'
+                v-if="liveWorkShopSession && WORK_SHOPS_TYPE.REGISTERED.value === liveWorkShopSession.workshopsType && (!isReadyStart24(liveWorkShopSession) || WORK_SHOPS_STATUS.ENDED.value === liveWorkShopSession.workshopsStatus) ">
+                Registered
+              </div>
               <a-button
                 shape='round'
                 type='primary'
                 @click='handleRegisterSession'
                 :loading='buyLoading'
-                v-if='liveWorkShopSession && WORK_SHOPS_TYPE.FEATURE.value === liveWorkShopSession.workshopsType && (liveWorkShopSession.session && (!liveWorkShopSession.session.deadline || moment(liveWorkShopSession.session.deadline).isAfter(moment())))'
+                v-if='liveWorkShopSession && WORK_SHOPS_TYPE.FEATURE.value === liveWorkShopSession.workshopsType && (liveWorkShopSession.session && (!liveWorkShopSession.session.deadline || moment.utc(liveWorkShopSession.session.deadline).local().isAfter(moment())))'
               >
                 Register
               </a-button>
+              <a-tooltip title="Expired">
+                <a-button
+                  shape='round'
+                  type='primary'
+                  :disabled="true"
+                  :loading='buyLoading'
+                  v-if='liveWorkShopSession && WORK_SHOPS_TYPE.FEATURE.value === liveWorkShopSession.workshopsType && (liveWorkShopSession.session && (liveWorkShopSession.session.deadline && moment.utc(liveWorkShopSession.session.deadline).local().isBefore(moment())))'
+                >
+                  Register
+                </a-button>
+              </a-tooltip>
             </a-space>
             <a-space v-else>
               <a-button
@@ -121,9 +137,14 @@
             </a-tooltip>
           </div>
         </a-space>
-        <label for="" v-if="liveWorkShopCode && liveWorkShopSession && liveWorkShopSession.sessionStartTime">
-          {{ liveWorkShopSession.sessionStartTime | dayjs('YYYY-MM-DD HH:mm') }} - {{ liveWorkShopSession.sessionEndTime | dayjs('YYYY-MM-DD HH:mm') }}
-        </label>
+        <a-space direction="vertical">
+          <label for="" v-if="liveWorkShopCode && liveWorkShopSession && liveWorkShopSession.sessionStartTime">
+            <span style="display:inline-block; width: 80px;">Scheduled:</span> {{ liveWorkShopSession.sessionStartTime | dayjs('YYYY-MM-DD HH:mm') }} - {{ liveWorkShopSession.sessionEndTime | dayjs('YYYY-MM-DD HH:mm') }}
+          </label>
+          <label for="" v-if="liveWorkShopCode && liveWorkShopSession && liveWorkShopSession.session.deadline && WORK_SHOPS_TYPE.FEATURE.value === liveWorkShopSession.workshopsType">
+            <span style="display:inline-block; width: 80px;">Deadline:</span>  {{ liveWorkShopSession.session.deadline | countDown }}
+          </label>
+        </a-space>
       </div>
 
       <a-row class='content-info-item' v-observe-visibility="visibilityChanged">
@@ -195,21 +216,37 @@
                   class='buy-now'
                   type="danger"
                   shape='round'
-                  v-if="liveWorkShopSession && WORK_SHOPS_TYPE.REGISTERED.value === liveWorkShopSession.workshopsType && isReadyStart24(liveWorkShopSession) "
+                  v-if="liveWorkShopSession && WORK_SHOPS_TYPE.REGISTERED.value === liveWorkShopSession.workshopsType && isReadyStart24(liveWorkShopSession) && WORK_SHOPS_STATUS.ENDED.value !== liveWorkShopSession.workshopsStatus "
                   @click='handleCancelSession'
                   :loading='buyLoading'
                 >
                   Cancel
                 </a-button>
+                <div
+                  class='label-action'
+                  v-if="liveWorkShopSession && WORK_SHOPS_TYPE.REGISTERED.value === liveWorkShopSession.workshopsType && (!isReadyStart24(liveWorkShopSession) || WORK_SHOPS_STATUS.ENDED.value === liveWorkShopSession.workshopsStatus) ">
+                  Registered
+                </div>
                 <a-button
                   shape='round'
                   type='primary'
                   @click='handleRegisterSession'
                   :loading='buyLoading'
-                  v-if='liveWorkShopSession && WORK_SHOPS_TYPE.FEATURE.value === liveWorkShopSession.workshopsType && (liveWorkShopSession.session && (!liveWorkShopSession.session.deadline || moment(liveWorkShopSession.session.deadline).isAfter(moment())))'
+                  v-if='liveWorkShopSession && WORK_SHOPS_TYPE.FEATURE.value === liveWorkShopSession.workshopsType && (liveWorkShopSession.session && (!liveWorkShopSession.session.deadline || moment.utc(liveWorkShopSession.session.deadline).local().isAfter(moment())))'
                 >
                   Register
                 </a-button>
+                <a-tooltip title="Expired">
+                  <a-button
+                    shape='round'
+                    type='primary'
+                    :disabled="true"
+                    :loading='buyLoading'
+                    v-if='liveWorkShopSession && WORK_SHOPS_TYPE.FEATURE.value === liveWorkShopSession.workshopsType && (liveWorkShopSession.session && (liveWorkShopSession.session.deadline && moment.utc(liveWorkShopSession.session.deadline).local().isBefore(moment())))'
+                  >
+                    Register
+                  </a-button>
+                </a-tooltip>
               </a-space>
             </div>
           </div>
@@ -675,7 +712,7 @@ import ReviewsPreview from '@/components/Reviews/ReviewsPreview'
 import ReviewScore from '@/components/Reviews/ReviewScore'
 import ReviewStat from '@/components/Reviews/ReviewStat'
 import PriceSlider from '@/components/Slider/PriceSlider'
-import { RATE_TOOLTIPS, WORK_SHOPS_TYPE } from '@/const/common'
+import { RATE_TOOLTIPS, WORK_SHOPS_TYPE, WORK_SHOPS_STATUS } from '@/const/common'
 import * as ReviewsTask from '@/api/reviewsTask'
 import * as ReviewsTeacher from '@/api/reviewsTeacher'
 import ShareButton from '@/components/Share/ShareButton'
@@ -759,6 +796,7 @@ export default {
       moment: moment,
       contentLoading: true,
       WORK_SHOPS_TYPE: WORK_SHOPS_TYPE,
+      WORK_SHOPS_STATUS: WORK_SHOPS_STATUS,
       content: null,
 
       carouselContentLoading: true,
@@ -871,7 +909,7 @@ export default {
       }
       if (isUnpay && this.thumbnailList && this.thumbnailList.length > 1) {
         const size = Math.ceil(this.thumbnailList.length / 3)
-        return this.thumbnailList.slice(0, size)
+        return this.thumbnailList.slice(0, size + 1)
       }
       return this.thumbnailList
     },
@@ -1367,7 +1405,7 @@ export default {
     isReadyStart24(item) {
       if (!item.sessionStartTime) return true
       const start = moment(item.sessionStartTime).utc().subtract(24, 'hours')
-      return moment().isBefore(start)
+      return moment().isAfter(start)
     }
   }
 }
@@ -1944,5 +1982,8 @@ export default {
     width: 80px;
   }
 }
-
+.label-action {
+  font-size: 16px;
+  color: @primary-color;
+}
 </style>

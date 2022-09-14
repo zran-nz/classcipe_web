@@ -47,10 +47,15 @@
         </div>
         <div class='right-info' v-if="content.sessionStartTime && !isSimple">
           <div class="update-time" v-if="content.unitPlanInfo && content.unitPlanInfo.name">Unit: {{ content.unitPlanInfo.name }}</div>
-          <div class='update-time' v-show="!showEditSche">
-            Scheduled: {{ content.sessionStartTime | dayjs('YYYY-MM-DD HH:mm') }} - {{ content.sessionEndTime | dayjs('YYYY-MM-DD HH:mm') }}
-            <!-- <a-icon v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType" type="edit" @click.prevent.stop="editSche(content)"/> -->
-          </div>
+
+          <a-space direction="vertical" style="align-items: flex-start;" class='update-time' v-show="!showEditSche">
+            <label style="text-align:left;" for="" v-if="content.sessionStartTime">
+              <span style="display:inline-block; width: 80px;">Scheduled:</span> {{ content.sessionStartTime | dayjs('YYYY-MM-DD HH:mm') }} - {{ content.sessionEndTime | dayjs('YYYY-MM-DD HH:mm') }}
+            </label>
+            <label style="text-align:left;" for="" v-if="content.session.deadline && WORK_SHOPS_TYPE.FEATURE.value === content.workshopsType && isCurrentType(WORK_SHOPS_TYPE.FEATURE.value)">
+              <span style="display:inline-block; width: 80px;">Deadline:</span>  {{ content.session.deadline | countDown }}
+            </label>
+          </a-space>
           <div class="update-time" v-show="showEditSche">
             <a-range-picker
               :disabled="loading"
@@ -251,7 +256,8 @@
           <div
             class='label-action'
             v-if="WORK_SHOPS_TYPE.REGISTERED.value === content.workshopsType
-              && isCurrentType(WORK_SHOPS_TYPE.FEATURE.value)">
+              && (!isReadyStart24(content) || WORK_SHOPS_STATUS.ENDED.value === content.workshopsStatus)
+              && (isCurrentType(WORK_SHOPS_TYPE.FEATURE.value) || isCurrentType(WORK_SHOPS_TYPE.REGISTERED.value))">
             Registered
           </div>
           <!-- <template v-if="WORK_SHOPS_TYPE.REGISTERED.value === content.workshopsType && WORK_SHOPS_STATUS.ENDED.value !== content.workshopsStatus">
@@ -495,7 +501,7 @@ export default {
     isReadyStart24(item) {
       if (!item.sessionStartTime) return true
       const start = moment(item.sessionStartTime).utc().subtract(24, 'hours')
-      return moment().isBefore(start)
+      return moment().isAfter(start)
     },
     handleCancelSingle(item) {
       this.showEditName = false

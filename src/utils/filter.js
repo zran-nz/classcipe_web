@@ -178,3 +178,51 @@ Vue.filter('type2Name', function (type) {
 Vue.filter('upCaseFirst', function (text) {
   return text?.trim().length ? text[0].toUpperCase() + text.slice(1) : ''
 })
+
+const parseZero = (val) => {
+  const valInt = parseInt(val)
+  return valInt * 1 < 10 ? `0${valInt}` : valInt
+}
+
+Vue.filter('countDown', function (expireTime) {
+  if (!expireTime) {
+    return ''
+  }
+  const date = moment.utc(expireTime).local().valueOf() - new Date().getTime()
+  if (date > 0) {
+    let totalSeconds = date / 1000
+    if (totalSeconds < 0) {
+      return date
+    }
+    let days = 0
+    let hours = 0
+    let minutes = 0
+    if (totalSeconds > 60) {
+      minutes = parseInt(totalSeconds / 60)
+      totalSeconds = parseInt(totalSeconds % 60)
+      if (minutes > 60) {
+        hours = parseInt(minutes / 60)
+        minutes = parseInt(minutes % 60)
+        if (hours > 24) {
+          days = parseInt(hours / 24)
+          hours = parseInt(hours % 24)
+        }
+      }
+    }
+    let result = ''
+    if (totalSeconds >= 0) {
+      result = parseZero(totalSeconds)
+    }
+    if (minutes >= 0) {
+      result = parseZero(minutes) // + ':' + result
+    }
+    if (hours >= 0) {
+      result = parseZero(hours) + '/' + result
+    }
+    if (days > 0) {
+      result = parseInt(days) + 'D/' + result
+    }
+    return result
+  }
+  return moment.utc(expireTime).local().format('YYYY-MM-DD HH:mm:ss')
+})
