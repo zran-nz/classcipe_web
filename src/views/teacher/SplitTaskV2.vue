@@ -5,6 +5,7 @@
         <form-header
           title='Create sub-task'
           :backByRouter="true"
+          :needConfirm="true"
           @back='goBack'>
           <template v-slot:right>
           </template>

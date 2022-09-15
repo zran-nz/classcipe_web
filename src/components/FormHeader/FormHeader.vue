@@ -105,6 +105,10 @@ export default {
     backByRouter: {
       type: Boolean,
       default: false
+    },
+    needConfirm: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -192,13 +196,32 @@ export default {
     },
     handleBack() {
       this.$logger.info('handleBack')
-      if (this.isPreviewMode || this.backByRouter) {
-        this.$emit('back')
+      if (this.needConfirm) {
+        this.$confirm({
+          title: 'Confirm to leave',
+          content: 'Do you confirm to leave the current page?',
+          centered: true,
+          onOk: () => {
+            if (this.isPreviewMode || this.backByRouter) {
+              this.$emit('back')
+            } else {
+              if (this.isOwner) {
+                this.$router.push({ path: '/teacher/main/created-by-me' })
+              } else {
+                this.$router.push({ path: '/teacher/main/created-by-me' })
+              }
+            }
+          }
+        })
       } else {
-        if (this.isOwner) {
-          this.$router.push({ path: '/teacher/main/created-by-me' })
+        if (this.isPreviewMode || this.backByRouter) {
+          this.$emit('back')
         } else {
-          this.$router.push({ path: '/teacher/main/created-by-me' })
+          if (this.isOwner) {
+            this.$router.push({ path: '/teacher/main/created-by-me' })
+          } else {
+            this.$router.push({ path: '/teacher/main/created-by-me' })
+          }
         }
       }
     },

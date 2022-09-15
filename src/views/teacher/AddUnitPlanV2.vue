@@ -9,6 +9,7 @@
           :share-status='shareStatus'
           :collaborate='collaborate'
           :last-change-saved-time='lastChangeSavedTime'
+          :needConfirm="true"
           @view-collaborate='handleViewCollaborate'
           @back='goBack'
           @save='save'

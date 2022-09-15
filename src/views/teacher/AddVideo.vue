@@ -8,6 +8,7 @@
           :spin='saving'
           :show-share='false'
           :show-collaborate='false'
+          :needConfirm="true"
           :last-change-saved-time='lastChangeSavedTime'
           @publish='handlePublish'
           @back='goBack'>

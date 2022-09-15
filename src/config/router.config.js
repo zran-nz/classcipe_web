@@ -258,21 +258,21 @@ export const asyncRouterMap = [
             name: 'AddTask',
             props: true,
             component: () => import('@/views/teacher/AddTask'),
-            meta: { title: 'menu.task', owner: '/teacher/main/created-by-me', keepAlive: true, permission: ['teacher'] }
+            meta: { title: 'menu.task', noSidebar: true, owner: '/teacher/main/created-by-me', keepAlive: true, permission: ['teacher'] }
           },
           {
             path: '/teacher/add-task-v2/:taskId?/:mode?', // mode:edit 编辑模式 pick-task-slide:选择slide创建task模式
             name: 'AddTaskV2',
             props: true,
             component: () => import('@/views/teacher/AddTaskV2'),
-            meta: { title: 'menu.task', owner: '/teacher/main/created-by-me', keepAlive: false, permission: ['teacher'], fullLayout: true }
+            meta: { title: 'menu.task', noSidebar: true, owner: '/teacher/main/created-by-me', keepAlive: false, permission: ['teacher'], fullLayout: true }
           },
           {
             path: '/teacher/add-task-v3/:taskId?/:mode?', // mode:edit 编辑模式 pick-task-slide:选择slide创建task模式
             name: 'AddTaskV3',
             props: true,
             component: () => import('@/views/teacher/AddTaskV3'),
-            meta: { title: 'menu.task', owner: '/teacher/main/created-by-me', keepAlive: false, permission: ['teacher'], fullLayout: true }
+            meta: { title: 'menu.task', noSidebar: true, owner: '/teacher/main/created-by-me', keepAlive: false, permission: ['teacher'], fullLayout: true }
           },
           {
             path: '/teacher/sub-task/:taskId',
@@ -293,7 +293,7 @@ export const asyncRouterMap = [
             name: 'SplitTask',
             props: true,
             component: () => import('@/views/teacher/SplitTaskV2'),
-            meta: { title: 'menu.splitTask', owner: '/teacher/main/created-by-me', keepAlive: true, permission: ['teacher'], fullLayout: true }
+            meta: { title: 'menu.splitTask', noSidebar: true, owner: '/teacher/main/created-by-me', keepAlive: true, permission: ['teacher'], fullLayout: true }
           },
           {
             path: '/teacher/task-redirect/:taskId?/:parentId?',
@@ -321,7 +321,7 @@ export const asyncRouterMap = [
             name: 'AddPD',
             props: true,
             component: () => import('@/views/teacher/AddPD'),
-            meta: { title: 'menu.pd', owner: '/teacher/main/created-by-me', keepAlive: false, permission: ['teacher'] }
+            meta: { title: 'menu.pd', noSidebar: true, owner: '/teacher/main/created-by-me', keepAlive: false, permission: ['teacher'] }
           },
           {
             path: '/teacher/video-redirect/:videoId',
@@ -335,21 +335,21 @@ export const asyncRouterMap = [
             name: 'AddVideo',
             props: true,
             component: () => import('@/views/teacher/AddVideo'),
-            meta: { title: 'menu.video', owner: '/teacher/main/created-by-me', keepAlive: true, permission: ['teacher'] }
+            meta: { title: 'menu.video', noSidebar: true, owner: '/teacher/main/created-by-me', keepAlive: true, permission: ['teacher'] }
           },
           {
             path: '/teacher/unit-plan/:unitPlanId',
             props: true,
             name: 'UnitPlan',
             component: () => import('@/views/teacher/AddUnitPlan'),
-            meta: { title: 'menu.teacher.add-unit-plan', owner: '/teacher/main/created-by-me', keepAlive: true, permission: ['teacher'] }
+            meta: { title: 'menu.teacher.add-unit-plan', noSidebar: true, owner: '/teacher/main/created-by-me', keepAlive: true, permission: ['teacher'] }
           },
           {
             path: '/teacher/unit-plan-v2/:unitPlanId',
             props: true,
             name: 'UnitPlanV2',
             component: () => import('@/views/teacher/AddUnitPlanV2'),
-            meta: { title: 'menu.teacher.add-unit-plan', owner: '/teacher/main/created-by-me', keepAlive: true, permission: ['teacher'], fullLayout: true, allowHiddenHeader: true, hiddenFooter: true }
+            meta: { title: 'menu.teacher.add-unit-plan', noSidebar: true, owner: '/teacher/main/created-by-me', keepAlive: true, permission: ['teacher'], fullLayout: true, allowHiddenHeader: true, hiddenFooter: true }
           },
           {
             path: '/teacher/unit-plan-redirect/:unitPlanId',

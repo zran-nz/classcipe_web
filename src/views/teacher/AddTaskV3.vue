@@ -11,6 +11,7 @@
           :collaborate='collaborate'
           :last-change-saved-time='lastChangeSavedTime'
           :disable-publish='!!form.originalOwner || !canEdit'
+          :needConfirm="true"
           @view-collaborate='handleViewCollaborate'
           @back='goBack'
           @save='handleSaveTask(true)'
