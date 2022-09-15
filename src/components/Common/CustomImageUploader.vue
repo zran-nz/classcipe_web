@@ -96,11 +96,15 @@
         <a-col :lg="{span: 1, offset: 1}" :md="2">
           <a-button icon="redo" @click="rotateRight"/>
         </a-col>
-        <a-col :lg="{span: 2, offset: 6}" :md="2">
-          <a-button type="primary" @click="uploadImage" :disabled='confirmLoading' :loading='confirmLoading'>
-            <a-icon type="cloud-upload" />
-            Upload image
-          </a-button>
+        <a-col :lg="{span: 4, offset: 6}" :md="4">
+          <a-space>
+            <a-button @click="close" :disabled='confirmLoading' :loading='confirmLoading'>
+              Cancel
+            </a-button>
+            <a-button type="primary" @click="uploadImage" :disabled='confirmLoading' :loading='confirmLoading'>
+              Save
+            </a-button>
+          </a-space>
         </a-col>
       </a-row>
     </a-modal>
@@ -206,6 +210,7 @@ export default {
 
     handleSelectUpload (eventData) {
       this.$logger.info('case image handleSelectUpload', eventData)
+      if (!eventData) this.visible = false
       if (eventData?.field === this.field) {
         if (eventData.data.length) {
           this.$emit('update', {

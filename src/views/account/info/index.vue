@@ -85,9 +85,9 @@
             </template>
           </div>
           <div class="self-detail-email">{{ currentSchool.schoolUser.email }}</div>
-          <!-- <div class="self-detail-role">
+          <div class="self-detail-role">
             School roles: {{ roles }}
-          </div> -->
+          </div>
         </div>
       </div>
       <!-- Basic info -->

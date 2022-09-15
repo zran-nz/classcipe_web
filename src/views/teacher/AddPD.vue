@@ -8,6 +8,7 @@
           :spin='saving'
           :share-status='shareStatus'
           :show-share='false'
+          :needConfirm="true"
           :collaborate='collaborate'
           :last-change-saved-time='lastChangeSavedTime'
           :show-collaborate='false'
