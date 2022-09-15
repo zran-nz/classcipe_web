@@ -214,13 +214,13 @@ Vue.filter('countDown', function (expireTime) {
       result = parseZero(totalSeconds)
     }
     if (minutes >= 0) {
-      result = parseZero(minutes) // + ':' + result
+      result = parseZero(minutes) + 'min(s)' // + ':' + result
     }
     if (hours >= 0) {
-      result = parseZero(hours) + '/' + result
+      result = parseZero(hours) + 'hour(s)' + result
     }
     if (days > 0) {
-      result = parseInt(days) + 'D/' + result
+      result = parseInt(days) + 'day(s)' + result
     }
     return result
   }

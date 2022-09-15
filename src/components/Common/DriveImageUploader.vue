@@ -37,11 +37,15 @@
       <a-col :lg="{span: 1, offset: 1}" :md="2">
         <a-button icon="redo" @click="rotateRight"/>
       </a-col>
-      <a-col :lg="{span: 2, offset: 6}" :md="2">
-        <a-button type="primary" @click="uploadImage" :disabled='confirmLoading' :loading='confirmLoading'>
-          <a-icon type="cloud-upload" />
-          Upload image
-        </a-button>
+      <a-col :lg="{span: 4, offset: 6}" :md="2">
+        <a-space>
+          <a-button @click="cancel" :disabled='confirmLoading' :loading='confirmLoading'>
+            Cancel
+          </a-button>
+          <a-button type="primary" @click="uploadImage" :disabled='confirmLoading' :loading='confirmLoading'>
+            Save
+          </a-button>
+        </a-space>
       </a-col>
     </a-row>
   </div>
@@ -94,6 +98,10 @@ export default {
       this.editVisible = false
     },
     cancelHandel () {
+      this.close()
+    },
+    cancel () {
+      this.$EventBus.$emit(ClasscipeDriveEvent.INSERT_UPLOADED_IMAGE, null)
       this.close()
     },
     changeScale (num) {

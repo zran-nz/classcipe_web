@@ -7,13 +7,16 @@
       <div slot="nextArrow" class="custom-slick-arrow" style="right: -15px">
         <a-icon type="right-circle" />
       </div>
-      <div class='slider-img-cover' :style="{backgroundImage: `url('${pageObject.contentUrl}')` }" v-for='(pageObject,idx) in pageObjectList' :key='idx'>
-      </div>
+      <template v-for='(pageObject,idx) in pageObjectList'>
+        <div :key="'page'+idx" class='slider-img-cover' :style="{backgroundImage: `url('${pageObject.contentUrl}')`, filter: idx > unPayPageIndex ? 'blur(3px)' : 'none' }">
+        </div>
+      </template>
       <div class='slider-video-cover' v-for='(videoItem,idx) in videoList' :key='idx'>
         <video controls :src='videoItem.url' v-if='!isYoutubeIframeUrl(videoItem.url)' ref='video' />
         <iframe :src='videoItem.url' class='video-iframe' v-if='isYoutubeIframeUrl(videoItem.url)' />
       </div>
     </a-carousel>
+    <div class="cover-unpay" v-if="currentImgIndex > 0 && currentImgIndex > unPayIndex">Only available after purchase</div>
     <div class="carousel-page">{{ showPage }}</div>
   </div>
 </template>
@@ -36,6 +39,14 @@ export default {
     width: {
       type: String,
       default: '400px'
+    },
+    filterPageObjectList: {
+      type: Array,
+      default: () => []
+    },
+    filterVideoList: {
+      type: Array,
+      default: () => []
     }
   },
   mixins: [ PptPreviewMixin ],
@@ -55,6 +66,15 @@ export default {
         const total = this.videoList.length + this.pageObjectList.length - 1
         return `${ this.currentImgIndex } / ${total}`
       }
+    },
+    unPayPageIndex() {
+      return this.filterPageObjectList.length - 1
+    },
+    unPayVideoIndex() {
+      return this.filterVideoList.length - 1
+    },
+    unPayIndex() {
+      return this.filterPageObjectList.length + this.filterVideoList.length - 1
     }
   },
   data() {
@@ -150,5 +170,19 @@ export default {
   position: absolute;
   width: 100%;
   text-align: center;
+}
+.cover-unpay {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #333;
+  opacity: .8;
+  color: #d2eb1c;
+  font-size: 30px;
 }
 </style>

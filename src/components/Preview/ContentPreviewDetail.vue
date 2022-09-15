@@ -39,7 +39,7 @@
                 type='primary'
                 @click='handleRegisterSession'
                 :loading='buyLoading'
-                v-if='liveWorkShopSession && WORK_SHOPS_TYPE.FEATURE.value === liveWorkShopSession.workshopsType && (liveWorkShopSession.session && (!liveWorkShopSession.session.deadline || moment.utc(liveWorkShopSession.session.deadline).local().isAfter(moment())))'
+                v-if='liveWorkShopSession && WORK_SHOPS_TYPE.FEATURE.value === liveWorkShopSession.workshopsType && (liveWorkShopSession.session && (!filterDeadline || moment.utc(filterDeadline).local().isAfter(moment())))'
               >
                 Register
               </a-button>
@@ -49,7 +49,7 @@
                   type='primary'
                   :disabled="true"
                   :loading='buyLoading'
-                  v-if='liveWorkShopSession && WORK_SHOPS_TYPE.FEATURE.value === liveWorkShopSession.workshopsType && (liveWorkShopSession.session && (liveWorkShopSession.session.deadline && moment.utc(liveWorkShopSession.session.deadline).local().isBefore(moment())))'
+                  v-if='liveWorkShopSession && WORK_SHOPS_TYPE.FEATURE.value === liveWorkShopSession.workshopsType && (liveWorkShopSession.session && (filterDeadline && moment.utc(filterDeadline).local().isBefore(moment())))'
                 >
                   Register
                 </a-button>
@@ -108,7 +108,12 @@
     </div>
 
     <div class='preview-carousel-wrapper'>
-      <preview-carousel :page-object-list='filterThumbnailList' :video-list='filterVideoList' v-if='!carouselContentLoading' />
+      <preview-carousel
+        :filter-page-object-list='filterThumbnailList'
+        :filter-video-list='filterVideoList'
+        :page-object-list='thumbnailList'
+        :video-list='videoList'
+        v-if='!carouselContentLoading' />
       <a-skeleton v-if='carouselContentLoading' />
     </div>
 
@@ -139,10 +144,10 @@
         </a-space>
         <a-space direction="vertical">
           <label for="" v-if="liveWorkShopCode && liveWorkShopSession && liveWorkShopSession.sessionStartTime">
-            <span style="display:inline-block; width: 80px;">Scheduled:</span> {{ liveWorkShopSession.sessionStartTime | dayjs('YYYY-MM-DD HH:mm') }} - {{ liveWorkShopSession.sessionEndTime | dayjs('YYYY-MM-DD HH:mm') }}
+            <span style="display:inline-block; width: 150px;">Scheduled:</span> {{ liveWorkShopSession.sessionStartTime | dayjs('YYYY-MM-DD HH:mm') }} - {{ liveWorkShopSession.sessionEndTime | dayjs('YYYY-MM-DD HH:mm') }}
           </label>
-          <label for="" v-if="liveWorkShopCode && liveWorkShopSession && liveWorkShopSession.session.deadline && WORK_SHOPS_TYPE.FEATURE.value === liveWorkShopSession.workshopsType">
-            <span style="display:inline-block; width: 80px;">Deadline:</span>  {{ liveWorkShopSession.session.deadline | countDown }}
+          <label for="" v-if="liveWorkShopCode && liveWorkShopSession && liveWorkShopSession.session.register && liveWorkShopSession.session.register.registerBefore && WORK_SHOPS_TYPE.FEATURE.value === liveWorkShopSession.workshopsType">
+            <span style="display:inline-block; width: 150px;">Registration Deadline:</span>  {{ filterDeadline | countDown }}
           </label>
         </a-space>
       </div>
@@ -163,10 +168,10 @@
               }}</a-avatar>
             </div>
             <div class="author-info-detail">
-              <div class='author-name' v-if="content.owner.email === $store.getters.email">
+              <!-- <div class='author-name' v-if="content.owner.email === $store.getters.email">
                 Me
-              </div>
-              <div class='author-name' v-else>
+              </div> -->
+              <div class='author-name'>
                 {{ (content.owner ? (content.owner.firstname + ' ' + content.owner.lastname) : content.createBy) | upCaseFirst }}
               </div>
               <div class="rate-star">
@@ -232,7 +237,7 @@
                   type='primary'
                   @click='handleRegisterSession'
                   :loading='buyLoading'
-                  v-if='liveWorkShopSession && WORK_SHOPS_TYPE.FEATURE.value === liveWorkShopSession.workshopsType && (liveWorkShopSession.session && (!liveWorkShopSession.session.deadline || moment.utc(liveWorkShopSession.session.deadline).local().isAfter(moment())))'
+                  v-if='liveWorkShopSession && WORK_SHOPS_TYPE.FEATURE.value === liveWorkShopSession.workshopsType && (liveWorkShopSession.session && (!filterDeadline || moment.utc(filterDeadline).local().isAfter(moment())))'
                 >
                   Register
                 </a-button>
@@ -242,7 +247,7 @@
                     type='primary'
                     :disabled="true"
                     :loading='buyLoading'
-                    v-if='liveWorkShopSession && WORK_SHOPS_TYPE.FEATURE.value === liveWorkShopSession.workshopsType && (liveWorkShopSession.session && (liveWorkShopSession.session.deadline && moment.utc(liveWorkShopSession.session.deadline).local().isBefore(moment())))'
+                    v-if='liveWorkShopSession && WORK_SHOPS_TYPE.FEATURE.value === liveWorkShopSession.workshopsType && (liveWorkShopSession.session && (filterDeadline && moment.utc(filterDeadline).local().isBefore(moment())))'
                   >
                     Register
                   </a-button>
@@ -836,8 +841,13 @@ export default {
       selectedGradeList: [],
       associateRecommendList: [],
 
-      liveWorkShopSession: null
+      liveWorkShopSession: null,
+      filterDeadline: null,
+      timer: null
     }
+  },
+  beforeDestroy() {
+    this.timer && clearInterval(this.timer)
   },
   computed: {
     ...mapState({
@@ -933,6 +943,7 @@ export default {
   },
   created() {
     this.loadDetail()
+    this.initTimer()
   },
   methods: {
 
@@ -1002,8 +1013,23 @@ export default {
       }).then(res => {
         if (res.success) {
           this.liveWorkShopSession = res.result
+          this.initDeadLine()
         }
       })
+    },
+
+    initTimer() {
+      const interval = 60 * 1000
+      this.timer = setInterval(() => {
+       this.initDeadLine()
+      }, interval)
+    },
+
+    initDeadLine() {
+      this.filterDeadline = ''
+      if (this.liveWorkShopSession && this.liveWorkShopSession.session.register && this.liveWorkShopSession.session.register.registerBefore) {
+        this.filterDeadline = this.liveWorkShopSession.session.register.registerBefore
+      }
     },
 
     loadReviewStats () {
@@ -1363,10 +1389,11 @@ export default {
     },
 
     handleRegisterSession() {
-      if (this.liveWorkShopSession && this.liveWorkShopSession.content && this.liveWorkShopSession.sessionId) {
+      console.log(111)
+      if (this.liveWorkShopSession && this.liveWorkShopSession.sessionId) {
         this.buyLoading = true
         SaveRegisteredRecord({
-          contentId: this.liveWorkShopSession.content.id,
+          contentId: this.liveWorkShopSession.content ? this.liveWorkShopSession.content.id : null,
           sessionId: this.liveWorkShopSession.sessionId,
           channelId: getCookie(SET_PROMOTE_CODE)
         }).then(res => {
@@ -1383,10 +1410,10 @@ export default {
       }
     },
     handleCancelSession() {
-      if (this.liveWorkShopSession && this.liveWorkShopSession.content && this.liveWorkShopSession.sessionId) {
+      if (this.liveWorkShopSession && this.liveWorkShopSession.sessionId) {
         this.buyLoading = true
         CancelRegistered({
-          contentId: this.liveWorkShopSession.content.id,
+          contentId: this.liveWorkShopSession.content ? this.liveWorkShopSession.content.id : null,
           sessionId: this.liveWorkShopSession.sessionId
         }).then(res => {
           if (res.success) {

@@ -52,8 +52,8 @@
             <label style="text-align:left;" for="" v-if="content.sessionStartTime">
               <span style="display:inline-block; width: 80px;">Scheduled:</span> {{ content.sessionStartTime | dayjs('YYYY-MM-DD HH:mm') }} - {{ content.sessionEndTime | dayjs('YYYY-MM-DD HH:mm') }}
             </label>
-            <label style="text-align:left;" for="" v-if="content.session.deadline && WORK_SHOPS_TYPE.FEATURE.value === content.workshopsType && isCurrentType(WORK_SHOPS_TYPE.FEATURE.value)">
-              <span style="display:inline-block; width: 80px;">Deadline:</span>  {{ content.session.deadline | countDown }}
+            <label style="text-align:left;" for="" v-if="filterDeadline && WORK_SHOPS_TYPE.FEATURE.value === content.workshopsType && isCurrentType(WORK_SHOPS_TYPE.FEATURE.value)">
+              <span style="display:inline-block; width: 80px;">Deadline:</span>  {{ filterDeadline | countDown }}
             </label>
           </a-space>
           <div class="update-time" v-show="showEditSche">
@@ -114,10 +114,10 @@
             alt="avatar"
           />
           <div class="author-con">
-            <div style="font-weight: bold;" class="author-name" v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType || (content.sessionInfo && $store.getters.email === content.sessionInfo.author)">
+            <!-- <div style="font-weight: bold;" class="author-name" v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType || (content.sessionInfo && $store.getters.email === content.sessionInfo.author)">
               Me
-            </div>
-            <div class="author-name" v-else>
+            </div> -->
+            <div class="author-name">
               {{ content.userRealName || (content.content && content.content.createBy) }}
             </div>
             <div>
@@ -165,7 +165,7 @@
             v-if="
               WORK_SHOPS_TYPE.FEATURE.value === content.workshopsType
                 && WORK_SHOPS_STATUS.ENDED.value !== content.workshopsStatus
-                && (content.session && (!content.session.deadline || moment(content.session.deadline).isAfter(moment())))
+                && (content.session && (!filterDeadline || moment(filterDeadline).isAfter(moment())))
                 && isCurrentType(WORK_SHOPS_TYPE.FEATURE.value)">
             <!-- <a-button type='primary' shape='round' @click='handleRegister(content)'>
               <icon-font type="icon-register" class="detail-font"/>
@@ -399,6 +399,12 @@ export default {
         }
         return workshopsType + '' === WORK_SHOPS_TYPE.FEATURE.value + ''
       }
+    },
+    filterDeadline() {
+      if (this.content && this.content.session && this.content.session.register && this.content.session.register.registerBefore) {
+        return this.content.session.register.registerBefore
+      }
+      return ''
     }
   },
   mounted() {
