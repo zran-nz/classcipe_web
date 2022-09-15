@@ -1,1 +1,0 @@
-(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["lang-zh-CN-teacher-shared"],{def8:function(e,a,s){"use strict";s.r(a),a["default"]={"teacher.shared.all-status":"All"}}}]);
