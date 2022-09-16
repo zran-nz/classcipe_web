@@ -47,8 +47,13 @@
       <a-col :lg="{span: 1, offset: 1}" :md="2">
         <a-button icon="redo" @click="rotateRight"/>
       </a-col>
-      <a-col :lg="{span: 2, offset: 6}" :md="2">
-        <a-button type="primary" @click="finish('blob')">{{ $t('account.settings.avatar.save-image') }}</a-button>
+      <a-col :lg="{span: 4, offset: 6}" :md="4">
+        <a-space>
+          <a-button @click="close">
+            Cancel
+          </a-button>
+          <a-button type="primary" @click="finish('blob')">Save</a-button>
+        </a-space>
       </a-col>
     </a-row>
   </a-modal>

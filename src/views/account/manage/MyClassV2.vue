@@ -463,7 +463,8 @@ export default {
     },
     loadData() {
       this.loading = true
-      if (this.curriculumOptions.length > 0 && this.totalClassActive.length > 0) {
+      if (this.curriculumOptions.length > 0) {
+        //  && this.totalClassActive.length > 0
         // 年级班
         const totalGradeClass = this.totalClassActive.filter(item => item.classType === 0)
         const gradeClass = this.curriculumOptions.map(item => {
@@ -496,7 +497,8 @@ export default {
       } else {
         this.allDatas.gradeId = []
       }
-      if (this.termsOptions.length > 0 && this.totalClassActive.length > 0) {
+      if (this.termsOptions.length > 0) {
+        //  && this.totalClassActive.length > 0
         // 学科班
         const totalSubjectClass = this.totalClassActive.filter(item => item.classType === 1)
         const gradeClass = this.termsOptions.map(item => {
