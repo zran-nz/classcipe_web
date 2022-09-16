@@ -60,7 +60,7 @@
         </a-row>
       </a-form-model-item>
       <a-form-model-item label="Email" prop="inviteEmail" :hasFeedback="true">
-        <a-input v-model="formModel.inviteEmail" :disabled="teacherId && !!formModel.inviteEmail" placeholder="Email" />
+        <a-input v-model="formModel.inviteEmail" :disabled="teacherId && !!formModel.inviteEmail && origin.status === SCHOOL_USER_STATUS.ACTIVE.value" placeholder="Email" />
       </a-form-model-item>
       <a-form-model-item label="DOB">
         <a-date-picker v-model="formModel.birthDay" :disabled-date="disabledDate" />

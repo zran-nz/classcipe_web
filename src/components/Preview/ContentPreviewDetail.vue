@@ -924,8 +924,8 @@ export default {
         }
       }
       if (isUnpay && this.thumbnailList && this.thumbnailList.length > 1) {
-        const size = Math.ceil(this.thumbnailList.length / 3)
-        return this.thumbnailList.slice(0, size + 1)
+        const size = Math.ceil((this.thumbnailList.length - 1) / 3)
+        return this.thumbnailList.slice(0, size)
       }
       return this.thumbnailList
     },

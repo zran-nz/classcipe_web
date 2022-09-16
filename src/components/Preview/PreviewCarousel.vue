@@ -68,13 +68,13 @@ export default {
       }
     },
     unPayPageIndex() {
-      return this.filterPageObjectList.length - 1
+      return this.filterPageObjectList.length
     },
     unPayVideoIndex() {
-      return this.filterVideoList.length - 1
+      return this.filterVideoList.length
     },
     unPayIndex() {
-      return this.filterPageObjectList.length + this.filterVideoList.length - 1
+      return this.filterPageObjectList.length + this.filterVideoList.length
     }
   },
   data() {
