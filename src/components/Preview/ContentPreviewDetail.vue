@@ -561,7 +561,7 @@
       <div class='card-list-wrapper' v-if="associatePdList.length">
         <div class='card-list-title'>
           <div class='sub-task-title'>
-            PD Content
+            Related PD
             ({{ associatePdList.length }})
           </div>
           <div class='go-to-list'>

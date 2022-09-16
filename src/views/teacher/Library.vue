@@ -130,7 +130,7 @@ export default {
 
     handleSearch (data) {
       this.$logger.info('handleSearch', data)
-      if (data && data.length >= 3) {
+      if (data && data.length >= 2) {
         this.$router.push({ path: '/teacher/library/search/' + data })
       }
     }
