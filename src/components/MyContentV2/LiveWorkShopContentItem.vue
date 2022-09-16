@@ -238,17 +238,24 @@
             :getPopupContainer='trigger => trigger.parentElement'
             v-if="WORK_SHOPS_TYPE.REGISTERED.value === content.workshopsType
               && isCurrentType(WORK_SHOPS_TYPE.REGISTERED.value)
-              && WORK_SHOPS_STATUS.ENDED.value !== content.workshopsStatus
               && isReadyStart24(content) ">
             <div class='more-action'>
               <more-icon />
             </div>
             <div class='content-item-more-action' slot='overlay'>
-              <div class='menu-item'>
+              <div class='menu-item' v-if="WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus">
                 <custom-button label='Cancel' @click='handleCancel(content)'>
                   <template v-slot:icon>
                     <icon-font type="icon-cancel" class="detail-font"/>
                   </template>
+                </custom-button>
+              </div>
+              <div class='menu-item' v-if="0 === content.session.delFlag && WORK_SHOPS_STATUS.ONGOING.value === content.workshopsStatus">
+                <custom-button label='Archive' @click='handleStatus("Archive")'>
+                </custom-button>
+              </div>
+              <div class='menu-item' v-if="1 === content.session.delFlag && WORK_SHOPS_STATUS.ONGOING.value === content.workshopsStatus">
+                <custom-button label='Restore' @click='handleStatus("Restore")'>
                 </custom-button>
               </div>
             </div>
