@@ -204,6 +204,16 @@
                 <sub-task-icon style='width: 13px; height:14px'/>
               </template>
             </custom-button>
+            <a-popconfirm v-if="showCollaborateDelete" placement="topRight" ok-text="Yes" @confirm="handleCollaborateDeleteItem" cancel-text="No">
+              <template v-slot:title>
+                Confirm delete this content?
+              </template>
+              <custom-button label="Delete" >
+                <template v-slot:icon >
+                  <delete-icon style='width: 13px; height:14px'/>
+                </template>
+              </custom-button>
+            </a-popconfirm>
             <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement' v-if="(showArchive && content.owner.email === $store.getters.email && content.status !== 1)">
               <div class='more-action'>
                 <more-icon />
@@ -282,6 +292,7 @@ import * as logger from '@/utils/logger'
 
 import ModalHeader from '@/components/Common/ModalHeader'
 import CollaborateIcon from '@/assets/v2/icons/collaborate.svg?inline'
+import { CollaboratesDeleteByOthers } from '@/api/collaborate'
 
 export default {
   name: 'ContentItem',
@@ -366,6 +377,10 @@ export default {
     showSub: {
       type: Boolean,
       default: true
+    },
+    showCollaborateDelete: {
+      type: Boolean,
+      default: false
     }
   },
   mixins: [ContentItemMixin],
@@ -497,6 +512,15 @@ export default {
         this.$emit('delete', {
           content: this.content
         })
+      })
+    },
+
+    handleCollaborateDeleteItem () {
+      logger.info('handleCollaborateDeleteItem', this.content)
+      CollaboratesDeleteByOthers({ id: this.content.id, type: this.content.type }).then(res => {
+        logger.info('handleCollaborateDeleteItem', res)
+      }).then(() => {
+        this.$emit('update-list')
       })
     },
 

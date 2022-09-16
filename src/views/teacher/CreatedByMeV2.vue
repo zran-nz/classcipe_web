@@ -23,6 +23,7 @@
               :content='item'
               :show-archive='shareType !== SourceType.Archived'
               :allow-permanent-delete='shareType === SourceType.Archived'
+              :show-collaborate-delete='shareType === SourceType.SharedByOthers'
               @delete='handleDeleteItem'
               @update-list='updateList'
               @update-publish='handleShowContentPublish'
@@ -328,18 +329,26 @@ export default {
       this.filterType = filterType
       this.pageNo = 1
       this.loadMyContent()
+    },
+    googleAuthCallBack() {
+      // 如果是在share页面是移除分享
+      if (this.shareType === SourceType.SharedByOthers) {
+        this.loadMyContent()
+      } else {
+        this.doUpdatePublish()
+      }
     }
   },
   mounted() {
     EventBus.$on(MyContentEvent.ReloadMyContent, this.loadMyContent)
-    ClasscipeEventBus.$on(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleUpdatePublish)
+    ClasscipeEventBus.$on(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.googleAuthCallBack)
     this.$refs.typeFilter.currentType = null
     this.$refs.typeFilter.currentTypeLabel = 'All'
     this.loadMyContent()
   },
   beforeDestroy() {
     EventBus.$off(MyContentEvent.ReloadMyContent, this.loadMyContent)
-    ClasscipeEventBus.$off(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleUpdatePublish)
+    ClasscipeEventBus.$off(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.googleAuthCallBack)
   }
 }
 </script>

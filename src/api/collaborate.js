@@ -22,6 +22,7 @@ export const userAPIUrl = {
   CollaboratesAgree: '/classcipe/api/collaborate/v2/agree',
   CollaboratesUpdate: '/classcipe/api/collaborate/v2/updateCollaborate',
   CollaboratesRemove: '/classcipe/api/collaborate/v2/remove',
+  CollaboratesDeleteByOthers: '/classcipe/api/collaborate/v2/deleteByOthers',
   CollaboratesUpdateLink: '/classcipe/api/collaborate/v2/updateLink',
   CollaboratesQueryShared: '/classcipe/api/collaborate/v2/queryShared',
   CollaboratesQuerySharedOwner: '/classcipe/api/collaborate/v2/querySharedOwner',
@@ -257,6 +258,17 @@ export function CollaboratesSendInviteEmail (parameter) {
 export function CollaboratesRemove (parameter) {
   return request({
     url: userAPIUrl.CollaboratesRemove,
+    method: 'post',
+    data: parameter,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
+  })
+}
+
+export function CollaboratesDeleteByOthers (parameter) {
+  return request({
+    url: userAPIUrl.CollaboratesDeleteByOthers,
     method: 'post',
     data: parameter,
     headers: {
